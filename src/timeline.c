@@ -93,25 +93,26 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x00001  /* Show artifact IDs on non-check-in lines */
-#define TIMELINE_LEAFONLY 0x00002  /* Show "Leaf" but not "Merge", "Fork" etc */
-#define TIMELINE_BRIEF    0x00004  /* Combine adjacent elements of same obj */
-#define TIMELINE_GRAPH    0x00008  /* Compute a graph */
-#define TIMELINE_DISJOINT 0x00010  /* Elements are not contiguous */
-#define TIMELINE_FCHANGES 0x00020  /* Detail file changes */
-#define TIMELINE_BRCOLOR  0x00040  /* Background color by branch name */
-#define TIMELINE_UCOLOR   0x00080  /* Background color by user */
-#define TIMELINE_FRENAMES 0x00100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x00200  /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x00400  /* Show RID values in addition to UUIDs */
-#define TIMELINE_BISECT   0x00800  /* Show supplimental bisect information */
-#define TIMELINE_COMPACT  0x01000  /* Use the "compact" view style */
-#define TIMELINE_VERBOSE  0x02000  /* Use the "detailed" view style */
-#define TIMELINE_MODERN   0x04000  /* Use the "modern" view style */
-#define TIMELINE_COLUMNAR 0x08000  /* Use the "columns view style */
-#define TIMELINE_VIEWS    0x0f000  /* Mask for all of the view styles */
-#define TIMELINE_NOSCROLL 0x10000  /* Don't scroll to the selection */
-#define TIMELINE_FILEDIFF 0x20000  /* Show File differences, not ckin diffs */
+#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines */
+#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc */
+#define TIMELINE_BRIEF    0x000004  /* Combine adjacent elements of same obj */
+#define TIMELINE_GRAPH    0x000008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x000010  /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x000020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x000040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x000080  /* Background color by user */
+#define TIMELINE_FRENAMES 0x000100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x000200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x000400  /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x000800  /* Show supplimental bisect information */
+#define TIMELINE_COMPACT  0x001000  /* Use the "compact" view style */
+#define TIMELINE_VERBOSE  0x002000  /* Use the "detailed" view style */
+#define TIMELINE_MODERN   0x004000  /* Use the "modern" view style */
+#define TIMELINE_COLUMNAR 0x008000  /* Use the "columns" view style */
+#define TIMELINE_CLASSIC  0x010000  /* Use the "classic" view style */
+#define TIMELINE_VIEWS    0x01f000  /* Mask for all of the view styles */
+#define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
+#define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
 #endif
 
 /*
@@ -277,6 +278,8 @@ void www_print_timeline(
     zStyle = "Compact";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
+  }else if( tmFlags & TIMELINE_CLASSIC ){
+    zStyle = "Classic";
   }else{
     zStyle = "Modern";
   }
@@ -467,14 +470,14 @@ void www_print_timeline(
       }
       db_reset(&bisectQuery);
     }
-    drawDetailEllipsis = (tmFlags & TIMELINE_COMPACT)!=0;
+    drawDetailEllipsis = (tmFlags & (TIMELINE_COMPACT))!=0;
     db_column_blob(pQuery, commentColumn, &comment);
     if( tmFlags & TIMELINE_COMPACT ){
       @ <span class='timelineCompactComment' data-id='%d(rid)'>
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
     }
-    if( (tmFlags & TIMELINE_VERBOSE)!=0 ){
+    if( (tmFlags & TIMELINE_CLASSIC)!=0 ){
       if( zType[0]=='c' ){
         hyperlink_to_uuid(zUuid);
         if( isLeaf ){
@@ -551,11 +554,11 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( (tmFlags & (TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
       cgi_printf("(");
     }
 
-    if( (tmFlags & TIMELINE_VERBOSE)==0 ){
+    if( (tmFlags & TIMELINE_CLASSIC)==0 ){
       if( zType[0]=='c' ){
         if( isLeaf ){
           if( db_exists("SELECT 1 FROM tagxref"
@@ -627,7 +630,7 @@ void www_print_timeline(
       xExtra(rid);
     }
     /* End timelineDetail */
-    if( (tmFlags & (TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
       cgi_printf(")");
     }
     if( tmFlags & TIMELINE_COMPACT ){
@@ -1066,6 +1069,7 @@ int timeline_ss_cookie(void){
     case 'c':  tmFlags = TIMELINE_COMPACT;  break;
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
+    case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
     default:   tmFlags = TIMELINE_MODERN;   break;
   }    
   return tmFlags;
@@ -1080,12 +1084,14 @@ int timeline_ss_cookie(void){
 int timeline_ss_submenu(void){
   static const char *azViewStyles[] = {
      "m", "Modern View",
+     "j", "Columnar View",
      "c", "Compact View",
      "v", "Verbose View",
-     "j", "Columnar View",
+     "x", "Classic View",
   };
   cookie_link_parameter("ss","ss","m");
-  style_submenu_multichoice("ss", 4, azViewStyles, 0);
+  style_submenu_multichoice("ss", sizeof(azViewStyles)/(2*sizeof(azViewStyles[0])),
+                            azViewStyles, 0);
   return timeline_ss_cookie();
 }
 
