@@ -21,6 +21,7 @@
 #include "util.h"
 #if defined(USE_MMAN_H)
 # include <sys/mman.h>
+# include <unistd.h>
 #endif
 
 /*
@@ -77,6 +78,8 @@ void fossil_get_page_size(size_t *piPageSize){
   memset(&sysInfo, 0, sizeof(SYSTEM_INFO));
   GetSystemInfo(&sysInfo);
   *piPageSize = (size_t)sysInfo.dwPageSize;
+#elif defined(USE_MMAN_H)
+  *piPageSize = (size_t)sysconf(_SC_PAGE_SIZE);
 #else
   *piPageSize = 4096; /* FIXME: What for POSIX? */
 #endif
