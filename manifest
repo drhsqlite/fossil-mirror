@@ -1,5 +1,5 @@
-C Update\sthe\sbuild-in\sSQLite\sto\sthe\slatest\s3.23.0\salpha
-D 2018-03-17T16:29:10.262
+C Update\sthe\scustom\sMinGW\smakefile.
+D 2018-03-17T20:52:53.596
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -722,7 +722,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 52c4142d346e4e06edbfa849519877687935dc9ffbeb4f7949609fc26f2f8f74
 F win/Makefile.dmc 379ccd1c7945965f6db1501ef6abb5d2fcb04f2710ce7c4fe8286b6a827b71ec
 F win/Makefile.mingw 29a72d3d6009beb1b270a4f470f56f56521cb1aa3c8d289ff6e2cd77f29c01ac
-F win/Makefile.mingw.mistachkin 5b12df28665199199f782ba1258e6d36a177a556004ab998bf800fe0314bed75
+F win/Makefile.mingw.mistachkin 95f87e928accedd38a5c4c05c4b478960e1a07c4060c4a32b3b12543281364fc
 F win/Makefile.msc 25e26ab492d6f1d6c4b86ebd233bf457132640ec62ba83d7ea949b0139f10346
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b900583c9609dffc28ecdb18fc2297f210e5509e79c5ae071c81b9dac568ccb1
-R 9f0db0d8bb219185f2c23f44d97600fe
-U drh
-Z f799944ea837f08dc7665cb79f2b30ca
+P ea67a5449a6e53d09ccfb937baf46e017bc2a7119d80db01f0b17a91786477a3
+R 5cf647d144ba37d3ff54d450c4e78312
+U mistachkin
+Z ced9b9e3034d13c163ea7be8ce8c63b7
