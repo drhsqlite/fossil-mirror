@@ -626,6 +626,10 @@ BCC = $(BCCEXE)
 #
 # USE_SYSTEM_SQLITE = 1
 
+#### Use POSIX memory APIs from "sys/mman.h"
+#
+# USE_MMAN_H = 1
+
 #### Use the SQLite Encryption Extension
 #
 # USE_SEE = 1
@@ -861,6 +865,12 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
+endif
+
+# With "sys/mman.h" support
+ifdef USE_MMAN_H
+TCC += -DUSE_MMAN_H=1
+RCC += -DUSE_MMAN_H=1
 endif
 
 # With SQLite Encryption Extension support

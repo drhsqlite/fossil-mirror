@@ -17,7 +17,7 @@ options {
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
                          => {Enable Tcl integration via private stubs mechanism}
-    with-mman=0          => {Enable use of POSIX memory APIs from mman.h}
+    with-mman=0          => {Enable use of POSIX memory APIs from "sys/mman.h"}
     with-see=0           => {Enable the SQLite Encryption Extension (SEE)}
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
@@ -149,7 +149,7 @@ if {[opt-bool no-opt]} {
 if {[opt-bool with-mman]} {
     define-append EXTRA_CFLAGS -DUSE_MMAN_H
     define USE_MMAN_H 1
-    msg-result "Enabling \"mman.h\" support"
+    msg-result "Enabling \"sys/mman.h\" support"
 }
 
 if {[opt-bool with-see]} {

@@ -994,6 +994,9 @@ static void get_version_blob(
 #if defined(HAVE_PLEDGE)
   blob_append(pOut, "HAVE_PLEDGE\n", -1);
 #endif
+#if defined(USE_MMAN_H)
+  blob_append(pOut, "USE_MMAN_H\n", -1);
+#endif
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);
 #endif

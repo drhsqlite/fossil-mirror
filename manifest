@@ -1,5 +1,5 @@
-C Experimental\ssupport\sfor\susing\s'mman.h'\swhen\scompiling\sfor\sPOSIX.
-D 2018-03-17T20:31:26.214
+C Minor\supdates\sto\sthe\sbuild\ssystem,\set\sal,\sfor\s'mman.h'\ssupport.
+D 2018-03-17T20:51:34.483
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 7aabb98c78f46a95343c712ba12f7d75acb986f6dbcf14e23d000f8b984f931e
+F auto.def f0f7ed279a58962076fe9c50cf9326565b4a52035b0f97c7ee476254ccf7b070
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -506,11 +506,11 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 02f58804f8fda109d8240e41a04878527bd2f03e5aa57f6cf73b44292a564d35
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 7db30acc778053ace2a5e4e5db0d7754240fda93a170c1f5a3ad0be4ff1e7260
+F src/main.c ab9fd20acbf231c328f9d6b9b6d0fc2ac3eef84464a6c1874e5aea76c296910b
 F src/main.mk 21892660d0221ce74810b104eee520dac40ffe902aa9c684fcfc606cf593ada3
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 2dc27834548e8af6d04ce14874b718b86cdba344bb988573c3a18f3e30053dc5
+F src/makemake.tcl 92c3efe21a22d47b25b80dbd03adb00e24c05f02711bee9e7fe1655ea8fe1c9c
 F src/manifest.c 9ad4b4be4642c35c2f311cca6af70b1381c1313e439d0197076dd80126ebb034
 F src/markdown.c 2cb7007279db7ad8e16f8c822d5ba27f59b4af2dcc0cd4ba87cce3e4303d5969
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -566,7 +566,7 @@ F src/tar.c d83930676cb1e321fcb7a6f80824397ba81a001d5b386c33a80e4571ce96b8fd
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
+F src/th_main.c b76ad3e58e3800b48b11434c5a4bbee5d1ccd93bc8d609adeb6ad4a6aa7f6326
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
 F src/timeline.c fa9d2e434ab9a7a77fc2db8562a30ab1d2d7860f949d41a728973d7cef7b21e9
 F src/tkt.c 2f5516ba766f6fa92fd172b61e533b4bd954bba0ee0f36c33a1671e6d67b2b5a
@@ -721,13 +721,13 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 52c4142d346e4e06edbfa849519877687935dc9ffbeb4f7949609fc26f2f8f74
 F win/Makefile.dmc 379ccd1c7945965f6db1501ef6abb5d2fcb04f2710ce7c4fe8286b6a827b71ec
-F win/Makefile.mingw 29a72d3d6009beb1b270a4f470f56f56521cb1aa3c8d289ff6e2cd77f29c01ac
-F win/Makefile.mingw.mistachkin 5b12df28665199199f782ba1258e6d36a177a556004ab998bf800fe0314bed75
+F win/Makefile.mingw d4eb923625835dc886895ee9d22aed2b868ac5ecff2d2ff0fda2e8c6ea3c1bbb
+F win/Makefile.mingw.mistachkin 6ab7f562d6590f301b6d263dc5eb7bf602ba66ac829f0c4150eb894cb99d1b2c
 F win/Makefile.msc 25e26ab492d6f1d6c4b86ebd233bf457132640ec62ba83d7ea949b0139f10346
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc a38a9b922cb35c4b2f91c7026d3dc1556999fd32
+F win/fossil.rc 685e884752132aa4ed9b705d6f77624dc687826729109f1675590d13aa0020d6
 F win/include/dirent.h aa960e5590e08266ed4bc9acd94776ebd6a0eca13799a43cb52aaf7b15f2f859 x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -836,7 +836,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md 8fe09653d75c61780b48ef9e24c18984bbd657befb9495fee0bf3f6ee99842d9
+F www/th1.md 1408ca3a0fbdd03e470e1098ddc586e9fe778476893585459c06d8c97e9f6fa8
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -846,10 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea67a5449a6e53d09ccfb937baf46e017bc2a7119d80db01f0b17a91786477a3
-R 80132d94ddda6be0aa14903357ea362b
-T *branch * withMman
-T *sym-withMman *
-T -sym-trunk *
+P 37b69e7d0cdc8fe4cc11dd0208b8deb9c606cf9d1e34e850bc399a1d002e862c
+R ad8e210252a35e00f3140d91b240fb09
 U mistachkin
-Z fd808a641a14206a84fd98965f377b45
+Z ef66e543424f91094d01871f19a451c8
