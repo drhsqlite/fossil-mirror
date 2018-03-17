@@ -203,13 +203,13 @@ set SQLITE_OPTIONS {
 
 # Options used to compile the included SQLite shell.
 #
-set SHELL_OPTIONS {
+set SHELL_OPTIONS [concat $SQLITE_OPTIONS {
   -Dmain=sqlite3_shell
   -DSQLITE_SHELL_IS_UTF8=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
   -DSQLITE_SHELL_DBNAME_PROC=fossil_open
-}
+}]
 
 # miniz (libz drop-in alternative) precompiler flags.
 #
