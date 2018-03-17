@@ -1,5 +1,5 @@
-C Update\sthe\sbuild-in\sSQLite\sto\sthe\slatest\s3.23.0\salpha
-D 2018-03-17T16:29:10.262
+C Experimental\ssupport\sfor\susing\s'mman.h'\swhen\scompiling\sfor\sPOSIX.
+D 2018-03-17T20:31:26.214
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
-F Makefile.in 54b9af364d262761ac05970f96ea609467109548636807a584565350289d80dc x
+F Makefile.in ac1ac1b46232f52f68aa13f4e9097b2888b588dcf23da5bd5372a628547cfccc x
 F VERSION bd6291c6a65f6ed39074abc5ef32954162961af9ca092dd6cb0b9ba0529c3fb5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -47,7 +47,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 24d846be89ece11ef4fc047043d6eece63e9f2c6cdf74c3d35c9c969277c73cd
+F auto.def 7aabb98c78f46a95343c712ba12f7d75acb986f6dbcf14e23d000f8b984f931e
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -581,7 +581,7 @@ F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
-F src/util.c a9ee84f1f2e4b07b6240dbd60cd2b9a9358e143948c463e0df9a131233166d16
+F src/util.c c61345cfc3e57dd27c4b1006a80ea571781d022b9e109fb69bc7fe84637107db
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/wiki.c 2e1ff7a1f89ad2796068bf130d663eaecafb7ec69ae170181e42f2c42d6b66a5
@@ -846,7 +846,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b900583c9609dffc28ecdb18fc2297f210e5509e79c5ae071c81b9dac568ccb1
-R 9f0db0d8bb219185f2c23f44d97600fe
-U drh
-Z f799944ea837f08dc7665cb79f2b30ca
+P ea67a5449a6e53d09ccfb937baf46e017bc2a7119d80db01f0b17a91786477a3
+R 80132d94ddda6be0aa14903357ea362b
+T *branch * withMman
+T *sym-withMman *
+T -sym-trunk *
+U mistachkin
+Z fd808a641a14206a84fd98965f377b45

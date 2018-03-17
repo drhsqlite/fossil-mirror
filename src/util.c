@@ -19,6 +19,9 @@
 */
 #include "config.h"
 #include "util.h"
+#if defined(USE_MMAN_H)
+# include <sys/mman.h>
+#endif
 
 /*
 ** For the fossil_timer_xxx() family of functions...
@@ -93,6 +96,14 @@ void *fossil_secure_alloc_page(size_t *pN){
   if( !VirtualLock(p, pageSize) ){
     fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
   }
+#elif defined(USE_MMAN_H)
+  p = mmap(0, pageSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  if( p==MAP_FAILED ){
+    fossil_fatal("mmap failed: %d\n", errno);
+  }
+  if( mlock(p, pageSize) ){
+    fossil_fatal("mlock failed: %d\n", errno);
+  }
 #else
   p = fossil_malloc(pageSize);
 #endif
@@ -110,6 +121,13 @@ void fossil_secure_free_page(void *p, size_t n){
   }
   if( !VirtualFree(p, 0, MEM_RELEASE) ){
     fossil_fatal("VirtualFree failed: %lu\n", GetLastError());
+  }
+#elif defined(USE_MMAN_H)
+  if( munlock(p, n) ){
+    fossil_fatal("munlock failed: %d\n", errno);
+  }
+  if( munmap(p, n) ){
+    fossil_fatal("munmap failed: %d\n", errno);
   }
 #else
   fossil_free(p);

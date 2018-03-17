@@ -17,6 +17,7 @@ options {
     with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
     with-tcl-private-stubs=0
                          => {Enable Tcl integration via private stubs mechanism}
+    with-mman=0          => {Enable use of POSIX memory APIs from mman.h}
     with-see=0           => {Enable the SQLite Encryption Extension (SEE)}
     internal-sqlite=1    => {Don't use the internal SQLite, use the system one}
     static=0             => {Link a static executable}
@@ -42,6 +43,7 @@ define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE 0
 define USE_LINENOISE 0
 define FOSSIL_ENABLE_MINIZ 0
+define USE_MMAN_H 0
 define USE_SEE 0
 
 # This procedure is a customized version of "cc-check-function-in-lib",
@@ -142,6 +144,12 @@ if {[opt-bool fossil-debug]} {
 if {[opt-bool no-opt]} {
     define CFLAGS {-g -O0 -Wall}
     msg-result "Builting without compiler optimization"
+}
+
+if {[opt-bool with-mman]} {
+    define-append EXTRA_CFLAGS -DUSE_MMAN_H
+    define USE_MMAN_H 1
+    msg-result "Enabling \"mman.h\" support"
 }
 
 if {[opt-bool with-see]} {
