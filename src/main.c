@@ -922,7 +922,7 @@ static void get_version_blob(
   const char *zRc;
 #endif
   Stmt q;
-  size_t pageSize;
+  size_t pageSize = 0;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
   if( !bVerbose ) return;

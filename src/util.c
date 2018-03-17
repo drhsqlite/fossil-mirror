@@ -86,7 +86,7 @@ void fossil_get_page_size(size_t *piPageSize){
 }
 void *fossil_secure_alloc_page(size_t *pN){
   void *p;
-  size_t pageSize;
+  size_t pageSize = 0;
 
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
