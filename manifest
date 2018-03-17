@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning.
-D 2018-03-17T22:32:44.054
+C Do\sno\supdate\sthe\sdisplay\scookie\sexcept\swhen\sthe\suser\sspecifically\schanges\nthe\sselectors\son\sthe\s/timeline\ssubmenu.
+D 2018-03-17T23:11:39.980
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -448,7 +448,7 @@ F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c4
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
-F src/cookies.c 63e81a4d7741a9419565f50e4e508701db758d1ee41019136e1948edc06142f1
+F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -559,7 +559,7 @@ F src/sqlite3.h a17dc679663f07e92f49b5fd6dc8682a9279e5f9b5fa8a12bcb900c8950e50d4
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 4988bac5e33ab0a5e3d704f4091cd6e29ecee4d6239248b241fc8f8f0e257c4e
+F src/style.c ada2d6bccc677a018a296c68edfb049c6bfd8b49c4bd84f791204738f907ae34
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
 F src/tar.c d83930676cb1e321fcb7a6f80824397ba81a001d5b386c33a80e4571ce96b8fd
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 853b7c7f5c7e184b1a69a22d9ef10f5e21de93150d5a88514cf34c43d113b555
-R ba79698ed9ba7751a8c01323e012451a
-U mistachkin
-Z 9bcdfa65f78d71bf9df4702b5b478aa2
+P e2a90ed56e06205a52fbcac9d66b1de59c5e730c69299608aa5044be230174b0
+R 09bd5a9de7f50f507b21018cd4159a74
+U drh
+Z b7982fcb0cebcad6959e2584fb7837c9

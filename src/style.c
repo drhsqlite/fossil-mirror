@@ -545,7 +545,8 @@ void style_footer(void){
   if( nSubmenu+nSubmenuCtrl>0 ){
     int i;
     if( nSubmenuCtrl ){
-      cgi_printf("<form id='f01' method='GET' action='%R/%s'>", g.zPath);
+      @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
+      @ <input type='hidden' name='udc' value='1'>
     }
     @ <div class="submenu">
     if( nSubmenu>0 ){

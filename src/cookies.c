@@ -175,7 +175,7 @@ void cookie_link_parameter(
 ** module
 */
 void cookie_render(void){
-  if( cookies.bChanged ){
+  if( cookies.bChanged && P("udc")!=0 ){
     Blob new;
     int i;
     blob_init(&new, 0, 0);
