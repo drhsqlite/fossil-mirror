@@ -1,5 +1,5 @@
-C Do\sno\supdate\sthe\sdisplay\scookie\sexcept\swhen\sthe\suser\sspecifically\schanges\nthe\sselectors\son\sthe\s/timeline\ssubmenu.
-D 2018-03-17T23:11:39.980
+C If\sthe\sdp=\sand\sr=\squery\sparameters\sare\sboth\ssupplied\sto\s/timeline,\suse\nonly\sthe\sr=\squery\sparameter\sand\signore\sdp=.
+D 2018-03-19T20:24:25.387
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -568,7 +568,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c bba65d7b7871ab7046107848650b5e8e72dbe30763f86b07b9bbd98c30dc791b
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c fa9d2e434ab9a7a77fc2db8562a30ab1d2d7860f949d41a728973d7cef7b21e9
+F src/timeline.c 5c7bb1e8735e3bed86e064aa70f4fc4344f303d9662fda0588e61c6ca3a459e5
 F src/tkt.c 2f5516ba766f6fa92fd172b61e533b4bd954bba0ee0f36c33a1671e6d67b2b5a
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2a90ed56e06205a52fbcac9d66b1de59c5e730c69299608aa5044be230174b0
-R 09bd5a9de7f50f507b21018cd4159a74
+P 802939b18d433e369ba4d2fb51aec2e0834b5e346eb20f6d06cb14eebdef25c6
+R b71017187ce5255286b5a021776eeacc
 U drh
-Z b7982fcb0cebcad6959e2584fb7837c9
+Z 242170e9e1d72ed25a9d841e2e6ab5e5

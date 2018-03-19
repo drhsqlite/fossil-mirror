@@ -1663,7 +1663,7 @@ void page_timeline(void){
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
     addFileGlobDescription(zChng, &desc);
-  }else if( (p_rid || d_rid) && g.perm.Read ){
+  }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
