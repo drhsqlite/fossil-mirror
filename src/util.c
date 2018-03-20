@@ -19,6 +19,10 @@
 */
 #include "config.h"
 #include "util.h"
+#if defined(USE_MMAN_H)
+# include <sys/mman.h>
+# include <unistd.h>
+#endif
 
 /*
 ** For the fossil_timer_xxx() family of functions...
@@ -74,6 +78,8 @@ void fossil_get_page_size(size_t *piPageSize){
   memset(&sysInfo, 0, sizeof(SYSTEM_INFO));
   GetSystemInfo(&sysInfo);
   *piPageSize = (size_t)sysInfo.dwPageSize;
+#elif defined(USE_MMAN_H)
+  *piPageSize = (size_t)sysconf(_SC_PAGE_SIZE);
 #else
   *piPageSize = 4096; /* FIXME: What for POSIX? */
 #endif
@@ -93,6 +99,14 @@ void *fossil_secure_alloc_page(size_t *pN){
   if( !VirtualLock(p, pageSize) ){
     fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
   }
+#elif defined(USE_MMAN_H)
+  p = mmap(0, pageSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  if( p==MAP_FAILED ){
+    fossil_fatal("mmap failed: %d\n", errno);
+  }
+  if( mlock(p, pageSize) ){
+    fossil_fatal("mlock failed: %d\n", errno);
+  }
 #else
   p = fossil_malloc(pageSize);
 #endif
@@ -110,6 +124,13 @@ void fossil_secure_free_page(void *p, size_t n){
   }
   if( !VirtualFree(p, 0, MEM_RELEASE) ){
     fossil_fatal("VirtualFree failed: %lu\n", GetLastError());
+  }
+#elif defined(USE_MMAN_H)
+  if( munlock(p, n) ){
+    fossil_fatal("munlock failed: %d\n", errno);
+  }
+  if( munmap(p, n) ){
+    fossil_fatal("munmap failed: %d\n", errno);
   }
 #else
   fossil_free(p);

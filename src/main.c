@@ -922,12 +922,16 @@ static void get_version_blob(
   const char *zRc;
 #endif
   Stmt q;
+  size_t pageSize = 0;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
   if( !bVerbose ) return;
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
+  fossil_get_page_size(&pageSize);
+  blob_appendf(pOut, "Detected memory page size is %lu bytes\n",
+               (unsigned long)pageSize);
 #if defined(FOSSIL_ENABLE_MINIZ)
   blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
 #else
@@ -993,6 +997,9 @@ static void get_version_blob(
 #endif
 #if defined(HAVE_PLEDGE)
   blob_append(pOut, "HAVE_PLEDGE\n", -1);
+#endif
+#if defined(USE_MMAN_H)
+  blob_append(pOut, "USE_MMAN_H\n", -1);
 #endif
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);
