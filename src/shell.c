@@ -2208,6 +2208,97 @@ static void ctxErrorMsg(sqlite3_context *ctx, const char *zFmt, ...){
   va_end(ap);
 }
 
+#if defined(_WIN32)
+/*
+** This function is designed to convert a Win32 FILETIME structure into the
+** number of seconds since the Unix Epoch (1970-01-01 00:00:00 UTC).
+*/
+static sqlite3_uint64 fileTimeToUnixTime(
+  LPFILETIME pFileTime
+){
+  SYSTEMTIME epochSystemTime;
+  ULARGE_INTEGER epochIntervals;
+  FILETIME epochFileTime;
+  ULARGE_INTEGER fileIntervals;
+
+  memset(&epochSystemTime, 0, sizeof(SYSTEMTIME));
+  epochSystemTime.wYear = 1970;
+  epochSystemTime.wMonth = 1;
+  epochSystemTime.wDay = 1;
+  SystemTimeToFileTime(&epochSystemTime, &epochFileTime);
+  epochIntervals.LowPart = epochFileTime.dwLowDateTime;
+  epochIntervals.HighPart = epochFileTime.dwHighDateTime;
+
+  fileIntervals.LowPart = pFileTime->dwLowDateTime;
+  fileIntervals.HighPart = pFileTime->dwHighDateTime;
+
+  return (fileIntervals.QuadPart - epochIntervals.QuadPart) / 10000000;
+}
+
+/*
+** This function attempts to normalize the time values found in the stat()
+** buffer to UTC.  This is necessary on Win32, where the runtime library
+** appears to return these values as local times.
+*/
+static void statTimesToUtc(
+  const char *zPath,
+  struct stat *pStatBuf
+){
+  HANDLE hFindFile;
+  WIN32_FIND_DATAW fd;
+  LPWSTR zUnicodeName;
+  extern LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
+  zUnicodeName = sqlite3_win32_utf8_to_unicode(zPath);
+  if( zUnicodeName ){
+    memset(&fd, 0, sizeof(WIN32_FIND_DATA));
+    hFindFile = FindFirstFileW(zUnicodeName, &fd);
+    if( hFindFile!=NULL ){
+      pStatBuf->st_ctime = (time_t)fileTimeToUnixTime(&fd.ftCreationTime);
+      pStatBuf->st_atime = (time_t)fileTimeToUnixTime(&fd.ftLastAccessTime);
+      pStatBuf->st_mtime = (time_t)fileTimeToUnixTime(&fd.ftLastWriteTime);
+      FindClose(hFindFile);
+    }
+    sqlite3_free(zUnicodeName);
+  }
+}
+#endif
+
+/*
+** This function is used in place of stat().  On Windows, special handling
+** is required in order for the included time to be returned as UTC.  On all
+** other systems, this function simply calls stat().
+*/
+static int fileStat(
+  const char *zPath,
+  struct stat *pStatBuf
+){
+#if defined(_WIN32)
+  int rc = stat(zPath, pStatBuf);
+  if( rc==0 ) statTimesToUtc(zPath, pStatBuf);
+  return rc;
+#else
+  return stat(zPath, pStatBuf);
+#endif
+}
+
+/*
+** This function is used in place of lstat().  On Windows, special handling
+** is required in order for the included time to be returned as UTC.  On all
+** other systems, this function simply calls lstat().
+*/
+static int fileLinkStat(
+  const char *zPath,
+  struct stat *pStatBuf
+){
+#if defined(_WIN32)
+  int rc = lstat(zPath, pStatBuf);
+  if( rc==0 ) statTimesToUtc(zPath, pStatBuf);
+  return rc;
+#else
+  return lstat(zPath, pStatBuf);
+#endif
+}
+
 /*
 ** Argument zFile is the name of a file that will be created and/or written
 ** by SQL function writefile(). This function ensures that the directory
@@ -2239,7 +2330,7 @@ static int makeDirectory(
       if( i==nCopy ) break;
       zCopy[i] = '\0';
 
-      rc2 = stat(zCopy, &sStat);
+      rc2 = fileStat(zCopy, &sStat);
       if( rc2!=0 ){
         if( mkdir(zCopy, mode & 0777) ) rc = SQLITE_ERROR;
       }else{
@@ -2281,7 +2372,7 @@ static int writeFile(
         ** to do so using chmod(), it is not an error.  */
         struct stat sStat;
         if( errno!=EEXIST
-         || 0!=stat(zFile, &sStat)
+         || 0!=fileStat(zFile, &sStat)
          || !S_ISDIR(sStat.st_mode)
          || ((sStat.st_mode&0777)!=(mode&0777) && 0!=chmod(zFile, mode&0777))
         ){
@@ -2328,6 +2419,9 @@ static int writeFile(
     lastWrite.dwLowDateTime = (DWORD)intervals;
     lastWrite.dwHighDateTime = intervals >> 32;
     zUnicodeName = sqlite3_win32_utf8_to_unicode(zFile);
+    if( zUnicodeName==0 ){
+      return 1;
+    }
     hFile = CreateFileW(
       zUnicodeName, FILE_WRITE_ATTRIBUTES, 0, NULL, OPEN_EXISTING,
       FILE_FLAG_BACKUP_SEMANTICS, NULL
@@ -2340,7 +2434,7 @@ static int writeFile(
     }else{
       return 1;
     }
-#elif defined(AT_FDCWD) && 0 /* utimensat() is not univerally available */
+#elif defined(AT_FDCWD) && 0 /* utimensat() is not universally available */
     /* Recent unix */
     struct timespec times[2];
     times[0].tv_nsec = times[1].tv_nsec = 0;
@@ -2617,7 +2711,7 @@ static int fsdirNext(sqlite3_vtab_cursor *cur){
       sqlite3_free(pCur->zPath);
       pCur->zPath = sqlite3_mprintf("%s/%s", pLvl->zDir, pEntry->d_name);
       if( pCur->zPath==0 ) return SQLITE_NOMEM;
-      if( lstat(pCur->zPath, &pCur->sStat) ){
+      if( fileLinkStat(pCur->zPath, &pCur->sStat) ){
         fsdirSetErrmsg(pCur, "cannot stat file: %s", pCur->zPath);
         return SQLITE_ERROR;
       }
@@ -2751,7 +2845,7 @@ static int fsdirFilter(
   if( pCur->zPath==0 ){
     return SQLITE_NOMEM;
   }
-  if( lstat(pCur->zPath, &pCur->sStat) ){
+  if( fileLinkStat(pCur->zPath, &pCur->sStat) ){
     fsdirSetErrmsg(pCur, "cannot stat file: %s", pCur->zPath);
     return SQLITE_ERROR;
   }
@@ -2958,7 +3052,7 @@ struct completion_cursor {
 #define COMPLETION_INDEXES       5
 #define COMPLETION_TRIGGERS      6
 #define COMPLETION_DATABASES     7
-#define COMPLETION_TABLES        8
+#define COMPLETION_TABLES        8    /* Also VIEWs and TRIGGERs */
 #define COMPLETION_COLUMNS       9
 #define COMPLETION_MODULES       10
 #define COMPLETION_EOF           11
@@ -3130,8 +3224,7 @@ static int completionNext(sqlite3_vtab_cursor *cur){
             const char *zDb = (const char*)sqlite3_column_text(pS2, 1);
             zSql = sqlite3_mprintf(
                "%z%s"
-               "SELECT name FROM \"%w\".sqlite_master"
-               " WHERE type='table'",
+               "SELECT name FROM \"%w\".sqlite_master",
                zSql, zSep, zDb
             );
             if( zSql==0 ) return SQLITE_NOMEM;
@@ -5474,6 +5567,19 @@ static u32 zipfileGetTime(sqlite3_value *pVal){
 }
 
 /*
+** Unless it is NULL, entry pOld is currently part of the pTab->pFirstEntry
+** linked list.  Remove it from the list and free the object.
+*/
+static void zipfileRemoveEntryFromList(ZipfileTab *pTab, ZipfileEntry *pOld){
+  if( pOld ){
+    ZipfileEntry **pp;
+    for(pp=&pTab->pFirstEntry; (*pp)!=pOld; pp=&((*pp)->pNext));
+    *pp = (*pp)->pNext;
+    zipfileEntryFree(pOld);
+  }
+}
+
+/*
 ** xUpdate method.
 */
 static int zipfileUpdate(
@@ -5497,6 +5603,8 @@ static int zipfileUpdate(
   u8 *pFree = 0;                  /* Free this */
   char *zFree = 0;                /* Also free this */
   ZipfileEntry *pOld = 0;
+  ZipfileEntry *pOld2 = 0;
+  int bUpdate = 0;                /* True for an update that modifies "name" */
   int bIsDir = 0;
   u32 iCrc32 = 0;
 
@@ -5509,6 +5617,12 @@ static int zipfileUpdate(
   if( sqlite3_value_type(apVal[0])!=SQLITE_NULL ){
     const char *zDelete = (const char*)sqlite3_value_text(apVal[0]);
     int nDelete = (int)strlen(zDelete);
+    if( nVal>1 ){
+      const char *zUpdate = (const char*)sqlite3_value_text(apVal[1]);
+      if( zUpdate && zipfileComparePath(zUpdate, zDelete, nDelete)!=0 ){
+        bUpdate = 1;
+      }
+    }
     for(pOld=pTab->pFirstEntry; 1; pOld=pOld->pNext){
       if( zipfileComparePath(pOld->cds.zFile, zDelete, nDelete)==0 ){
         break;
@@ -5586,8 +5700,9 @@ static int zipfileUpdate(
       }
     }
 
-    /* Check that we're not inserting a duplicate entry */
-    if( pOld==0 && rc==SQLITE_OK ){
+    /* Check that we're not inserting a duplicate entry -OR- updating an
+    ** entry with a path, thereby making it into a duplicate. */
+    if( (pOld==0 || bUpdate) && rc==SQLITE_OK ){
       ZipfileEntry *p;
       for(p=pTab->pFirstEntry; p; p=p->pNext){
         if( zipfileComparePath(p->cds.zFile, zPath, nPath)==0 ){
@@ -5596,7 +5711,7 @@ static int zipfileUpdate(
               goto zipfile_update_done;
             }
             case SQLITE_REPLACE: {
-              pOld = p;
+              pOld2 = p;
               break;
             }
             default: {
@@ -5634,18 +5749,17 @@ static int zipfileUpdate(
     }
   }
 
-  if( rc==SQLITE_OK && pOld ){
-    ZipfileEntry **pp;
+  if( rc==SQLITE_OK && (pOld || pOld2) ){
     ZipfileCsr *pCsr;
     for(pCsr=pTab->pCsrList; pCsr; pCsr=pCsr->pCsrNext){
-      if( pCsr->pCurrent==pOld ){
-        pCsr->pCurrent = pOld->pNext;
+      if( pCsr->pCurrent && (pCsr->pCurrent==pOld || pCsr->pCurrent==pOld2) ){
+        pCsr->pCurrent = pCsr->pCurrent->pNext;
         pCsr->bNoop = 1;
       }
     }
-    for(pp=&pTab->pFirstEntry; (*pp)!=pOld; pp=&((*pp)->pNext));
-    *pp = (*pp)->pNext;
-    zipfileEntryFree(pOld);
+
+    zipfileRemoveEntryFromList(pTab, pOld);
+    zipfileRemoveEntryFromList(pTab, pOld2);
   }
 
 zipfile_update_done:
@@ -10284,7 +10398,12 @@ static int shell_exec(
           sqlite3_finalize(pExplain);
           sqlite3_free(zEQP);
         }
-        sqlite3_db_config(db, SQLITE_DBCONFIG_TRIGGER_EQP, triggerEQP, 0);
+        if( pArg->autoEQP>=AUTOEQP_trigger && triggerEQP==0 ){
+          sqlite3_db_config(db, SQLITE_DBCONFIG_TRIGGER_EQP, 0, 0);
+          /* Reprepare pStmt before reactiving trace modes */
+          sqlite3_finalize(pStmt);
+          sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
+        }
         restore_debug_trace_modes();
       }
 
