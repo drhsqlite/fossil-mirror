@@ -508,6 +508,10 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   ** creates lots of aliases and the warning alarms people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
+#ifndef FOSSIL_DEBUG
+  /* Disable the automatic index warning except in FOSSIL_DEBUG builds. */
+  if( iCode==SQLITE_WARNING_AUTOINDEX ) return;
+#endif
   if( iCode==SQLITE_SCHEMA ) return;
   if( g.dbIgnoreErrors ) return;
 #ifdef SQLITE_READONLY_DIRECTORY

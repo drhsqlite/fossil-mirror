@@ -1,5 +1,5 @@
-C Add\sthe\smagic\scomment\sto\sthe\squery\sfor\s/tagtimeline\sto\ssuppress\sthe\nsort-w/o-index\swarning\smessage\sfrom\sFOSSIL_DEBUG.
-D 2018-03-23T14:00:18.341
+C Disable\sthe\sSQLite\sautomatic\sindex\swarning\son\snon-debug\sbuilds.
+D 2018-03-23T15:37:22.051
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,7 +506,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 02f58804f8fda109d8240e41a04878527bd2f03e5aa57f6cf73b44292a564d35
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 03538ead6b4d9f0ff1423f9a13435cb2591b672131feae52d4c5d15f9457bad3
+F src/main.c 9b1df234f567954c91a4d6715f7671b68f40177df0fa09592db13a87e9db7619
 F src/main.mk 21892660d0221ce74810b104eee520dac40ffe902aa9c684fcfc606cf593ada3
 F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1849c6e205c9ede7c9d2f64e55f700bfad156b9efe165d2a3dcc5b1209c7a949
-R 3290ad30884670baf07549b6bf7f5308
+P 55a3316b627d3ade86faad8de691358468912492c6d73b21830dc5358cb29398
+R f9eb8c231f451611b46b753c037d4941
 U drh
-Z 04614abf21180427d4ca2df07e4fb904
+Z 8be3c47c0724d1193ee658c4d2181bd7
