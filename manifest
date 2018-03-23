@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\spre-release\ssnapshot\sfor\sbeta\ntesting.
-D 2018-03-22T19:43:50.609
+C Add\sthe\smagic\scomment\sto\sthe\squery\sfor\s/tagtimeline\sto\ssuppress\sthe\nsort-w/o-index\swarning\smessage\sfrom\sFOSSIL_DEBUG.
+D 2018-03-23T14:00:18.341
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -561,7 +561,7 @@ F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c ada2d6bccc677a018a296c68edfb049c6bfd8b49c4bd84f791204738f907ae34
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
-F src/tag.c 24c77636171affc22088c1a7d7e608822d937e9747cbd5cd48f51dfae70a00c9
+F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c d83930676cb1e321fcb7a6f80824397ba81a001d5b386c33a80e4571ce96b8fd
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5ca5384a07b700f710204935d991833aa19c96d4c42c8e6c1035a74c9361097
-R 6f2e38624c5c9f167dc5c3c80ecc86c1
+P 1849c6e205c9ede7c9d2f64e55f700bfad156b9efe165d2a3dcc5b1209c7a949
+R 3290ad30884670baf07549b6bf7f5308
 U drh
-Z 682ac5b44c246b1e58e5538a6c3a386e
+Z 04614abf21180427d4ca2df07e4fb904
