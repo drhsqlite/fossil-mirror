@@ -134,7 +134,7 @@ void etag_check(unsigned eFlags, const char *zHash){
 /*
 ** Accept a new Last-Modified time.  This routine should be called by
 ** page generators that know a valid last-modified time.  This routine
-** might generate a 304 Not Modified reply and exit(), never returnning.
+** might generate a 304 Not Modified reply and exit(), never returning.
 ** Or, if not, it will cause a Last-Modified: header to be included in the
 ** reply.
 */
