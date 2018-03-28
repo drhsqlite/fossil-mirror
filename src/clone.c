@@ -146,7 +146,7 @@ void clone_cmd(void){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
   }
   db_open_config(0, 0);
-  if( -1 != file_size(g.argv[3]) ){
+  if( -1 != file_size(g.argv[3], ExtFILE) ){
     fossil_fatal("file already exists: %s", g.argv[3]);
   }
 
@@ -168,8 +168,10 @@ void clone_cmd(void){
     }
     fossil_print("Repository cloned into %s\n", g.argv[3]);
   }else{
+    db_close_config();
     db_create_repository(g.argv[3]);
     db_open_repository(g.argv[3]);
+    db_open_config(0,0);
     db_begin_transaction();
     db_record_repository_filename(g.argv[3]);
     db_initial_setup(0, 0, zDefaultUser);

@@ -57,7 +57,7 @@ static void bundle_attach_file(
   int rc;
   char *zErrMsg = 0;
   char *zSql;
-  if( !doInit && file_size(zFile)<0 ){
+  if( !doInit && file_size(zFile, ExtFILE)<0 ){
     fossil_fatal("no such file: %s", zFile);
   }
   assert( g.db );
@@ -163,7 +163,7 @@ static void bundle_append_cmd(void){
   db_begin_transaction();
   for(i=4; i<g.argc; i++){
     int sz;
-    blob_read_from_file(&content, g.argv[i]);
+    blob_read_from_file(&content, g.argv[i], ExtFILE);
     sz = blob_size(&content);
     sha1sum_blob(&content, &hash);
     blob_compress(&content, &content);

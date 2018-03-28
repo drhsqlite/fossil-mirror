@@ -61,7 +61,7 @@ typedef __int64 cson_int_t;
 typedef long long cson_int_t;
 #define CSON_INT_T_SFMT "lld"
 #define CSON_INT_T_PFMT "lld"
-#else
+#else 
 typedef long cson_int_t;
 #define CSON_INT_T_SFMT "ld"
 #define CSON_INT_T_PFMT "ld"
@@ -217,7 +217,7 @@ typedef enum cson_type_id cson_type_id;
 typedef struct cson_value cson_value;
 
 /** @struct cson_value
-
+   
    The core value type of this API. It is opaque to clients, and
    only the cson public API should be used for setting or
    inspecting their values.
@@ -233,7 +233,7 @@ typedef struct cson_value cson_value;
    original copy, meaning that if its value is changed once, it is
    changed everywhere. Also beware that multi-threaded write
    operations on such references leads to undefined behaviour.
-
+   
    PLEASE read the ACHTUNGEN below...
 
    ACHTUNG #1:
@@ -246,29 +246,29 @@ typedef struct cson_value cson_value;
    recursion or stepping on invalid (freed) pointers).
 
    ACHTUNG #2:
-
+   
    ALL cson_values returned as non-const cson_value pointers from any
    public functions in the cson API are to be treated as if they are
    heap-allocated, and MUST be freed by client by doing ONE of:
-
+   
    - Passing it to cson_value_free().
-
+   
    - Adding it to an Object or Array, in which case the object/array
    takes over ownership. As of 20110323, a value may be inserted into
    a single container multiple times, or into multiple containers,
    in which case they all share ownership (via reference counting)
    of the original value (meaning any changes to it are visible in
    all references to it).
-
+   
    Each call to cson_value_new_xxx() MUST eventually be followed up
    by one of those options.
-
+   
    Some cson_value_new_XXX() implementations do not actually allocate
    memory, but this is an internal implementation detail. Client code
    MUST NOT rely on this behaviour and MUST treat each object
    returned by such a function as if it was a freshly-allocated copy
    (even if their pointer addresses are the same).
-
+   
    ACHTUNG #3:
 
    Note that ACHTUNG #2 tells us that we must always free (or transfer
@@ -317,7 +317,7 @@ typedef struct cson_value cson_value;
    else if( cson_rc.AllocError == rc ) { ... allocation error ... }
    ...
    @endcode
-
+   
    The entries named Parse_XXX are generally only returned by
    cson_parse() and friends.
 */
@@ -474,7 +474,7 @@ struct cson_parse_info
        Length, in bytes.
     */
     unsigned int length;
-
+    
     /**
        Error code of the parse run (0 for no error).
     */
@@ -525,7 +525,7 @@ struct cson_output_opt
        are:
 
        (0) == no extra indentation.
-
+       
        (1) == 1 TAB character for each level.
 
        (>1) == that number of SPACES for each level.
@@ -538,7 +538,7 @@ struct cson_output_opt
        value is used to figure out when to abort the traversal.
     */
     unsigned short maxDepth;
-
+    
     /**
        If true, a newline will be added to generated output,
        else not.
@@ -638,7 +638,7 @@ typedef int (*cson_data_source_f)( void * state, void * dest, unsigned int * n )
    cson_rc).
 
    These functions are called relatively often during the JSON-output
-   process, and should try to be fast.
+   process, and should try to be fast.   
 */
 typedef int (*cson_data_dest_f)( void * state, void const * src, unsigned int n );
 
@@ -666,11 +666,11 @@ typedef int (*cson_data_dest_f)( void * state, void const * src, unsigned int n 
     The info argument may be NULL. If it is not NULL then the parser
     populates it with information which is useful in error
     reporting. Namely, it contains the line/column of parse errors.
-
+    
     The srcState argument is ignored by this function but is passed on to src,
     so any output-destination-specific state can be stored there and accessed
     via the src callback.
-
+    
     Non-parse error conditions include:
 
     - (!tgt) or !src: cson_rc.ArgError
@@ -727,7 +727,7 @@ typedef int (*cson_data_dest_f)( void * state, void const * src, unsigned int n 
     - Buffer the input in larger chunks. We currently read
     byte-by-byte, but i'm too tired to write/test the looping code for
     the buffering.
-
+    
     @see cson_parse_FILE()
     @see cson_parse_string()
 */
@@ -788,7 +788,7 @@ int cson_parse_string( cson_value ** tgt, char const * src, unsigned int len,
 
    Returns 0 on success. On error, any amount of output might have been
    generated before the error was triggered.
-
+   
    Example:
 
    @code
@@ -927,11 +927,11 @@ typedef struct cson_string cson_string;
    on the concrete type of val:
 
    undef or null: false
-
+   
    boolean: same
-
+   
    integer, double: 0 or 0.0 == false, else true
-
+   
    object, array: true
 
    string: length-0 string is false, else true.
@@ -947,14 +947,14 @@ int cson_value_fetch_bool( cson_value const * val, char * v );
    The conversion, if any, depends on the concrete type of val:
 
    NULL, null, undefined: *v is set to 0 and 0 is returned.
-
+   
    string, object, array: *v is set to 0 and
    cson_rc.TypeError is returned. The error may normally be safely
    ignored, but it is provided for those wanted to know whether a direct
    conversion was possible.
 
    integer: *v is set to the int value and 0 is returned.
-
+   
    double: *v is set to the value truncated to int and 0 is returned.
 */
 int cson_value_fetch_integer( cson_value const * val, cson_int_t * v );
@@ -1086,7 +1086,7 @@ int cson_string_cmp( cson_string const * lhs, cson_string const * rhs );
    the length of lhs. If the strings do not match, but compare equal
    up to the just-described comparison length, the shorter string is
    considered to be less-than the longer one.
-
+   
    - If lhs and rhs are both NULL, or both have a length of 0 then they will
    compare equal.
 
@@ -1112,7 +1112,7 @@ int cson_string_cmp_cstr( cson_string const * lhs, char const * rhs );
 
    TODO: add cson_string_length_chars() (is O(N) unless we add another
    member to store the char length).
-
+   
    @see cson_string_cstr()
 */
 unsigned int cson_string_length_bytes( cson_string const * str );
@@ -1209,7 +1209,7 @@ unsigned int cson_array_length_get( cson_array const * ar );
    (NULL values).
 
    On success, 0 is returned and ownership of v is transfered to ar.
-
+  
    On error ownership of v is NOT modified, and the caller may still
    need to clean it up. For example, the following code will introduce
    a leak if this function fails:
@@ -1242,7 +1242,7 @@ int cson_array_set( cson_array * ar, unsigned int ndx, cson_value * v );
    cson_array_set(ar,cson_array_length_get(ar),v), but this
    implementation has slightly different array-preallocation policy
    (it grows more eagerly).
-
+   
    Returns 0 on success, non-zero on error. Error cases include:
 
    - ar or v are NULL: cson_rc.ArgError
@@ -1285,21 +1285,21 @@ cson_value * cson_new_bool(char v);
 /**
    Returns the special JSON "null" value. When outputing JSON,
    its string representation is "null" (without the quotes).
-
+   
    See cson_value_new_bool() for notes regarding the returned
    value's memory.
 */
-cson_value * cson_value_null();
+cson_value * cson_value_null( void );
 
 /**
    Equivalent to cson_value_new_bool(1).
 */
-cson_value * cson_value_true();
+cson_value * cson_value_true( void );
 
 /**
    Equivalent to cson_value_new_bool(0).
 */
-cson_value * cson_value_false();
+cson_value * cson_value_false( void );
 
 /**
    Semantically the same as cson_value_new_bool(), but for integers.
@@ -1325,12 +1325,12 @@ cson_value * cson_new_double(cson_double_t v);
    Semantically the same as cson_value_new_bool(), but for strings.
    This creates a JSON value which copies the first n bytes of str.
    The string will automatically be NUL-terminated.
-
+   
    Note that if str is NULL or n is 0, this function still
    returns non-NULL value representing that empty string.
-
+   
    Returns NULL on allocation error.
-
+   
    See cson_value_new_bool() for important information about the
    returned memory.
 */
@@ -1348,7 +1348,7 @@ cson_value * cson_value_new_string( char const * str, unsigned int n );
    @see cson_value_new_array()
    @see cson_value_free()
 */
-cson_value * cson_value_new_object();
+cson_value * cson_value_new_object( void );
 
 /**
    This works like cson_value_new_object() but returns an Object
@@ -1356,20 +1356,20 @@ cson_value * cson_value_new_object();
 
    The value handle for the returned object can be fetched with
    cson_object_value(theObject).
-
+   
    Ownership is transfered to the caller, who must eventually free it
    by passing the Value handle (NOT the Object handle) to
    cson_value_free() or passing ownership to a parent container.
 
    Returns NULL on error (out of memory).
 */
-cson_object * cson_new_object();
+cson_object * cson_new_object( void );
 
 /**
    Identical to cson_new_object() except that it creates
    an Array.
 */
-cson_array * cson_new_array();
+cson_array * cson_new_array( void );
 
 /**
    Identical to cson_new_object() except that it creates
@@ -1405,7 +1405,7 @@ void cson_free_string(cson_string *x);
    @see cson_value_new_object()
    @see cson_value_free()
 */
-cson_value * cson_value_new_array();
+cson_value * cson_value_new_array( void );
 
 /**
    Frees any resources owned by v, then frees v. If v is a container
@@ -1421,7 +1421,7 @@ cson_value * cson_value_new_array();
    the perspective of that client code, to have been
    destroyed/invalidated by this call.
 
-
+   
    @see cson_value_new_object()
    @see cson_value_new_array()
    @see cson_value_add_reference()
@@ -1447,7 +1447,7 @@ void cson_free_value(cson_value * v);
    The key may be encoded as ASCII or UTF8. Results are undefined
    with other encodings, and the errors won't show up here, but may
    show up later, e.g. during output.
-
+   
    Returns 0 on success, non-0 on error. It has the following error
    cases:
 
@@ -1500,7 +1500,7 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v );
 
 /**
    Removes a property from an object.
-
+   
    If obj contains the given key, it is removed and 0 is returned. If
    it is not found, cson_rc.NotFoundError is returned (which can
    normally be ignored by client code).
@@ -1571,12 +1571,12 @@ cson_value * cson_object_take( cson_object * obj, char const * key );
     to it.  If tgt is NULL then this function has no side-effects but
     will return 0 if the given path is found within the object, so it can be used
     to test for existence without fetching it.
-
+    
     Returns 0 if it finds an entry, cson_rc.NotFoundError if it finds
     no item, and any other non-zero error code on a "real" error. Errors include:
 
    - obj or path are NULL: cson_rc.ArgError
-
+    
     - separator is 0, or path is an empty string or contains only
     separator characters: cson_rc.RangeError
 
@@ -1584,7 +1584,7 @@ cson_value * cson_object_take( cson_object * obj, char const * key );
     be (some "reasonable" internal size), and cson_rc.RangeError is
     returned if that length is violated.
 
-
+    
     Limitations:
 
     - It has no way to fetch data from arrays this way. i could
@@ -1593,7 +1593,7 @@ cson_value * cson_object_take( cson_object * obj, char const * key );
     lazy/tired to add this.
 
     Example usage:
-
+    
 
     Assume we have a JSON structure which abstractly looks like:
 
@@ -1615,7 +1615,7 @@ cson_value * cson_object_take( cson_object * obj, char const * key );
     is not legal as a separator character because we cannot
     distinguish that use from the real end-of-string without requiring
     the caller to also pass in the length of the string.
-
+   
     Multiple successive separators in the list are collapsed into a
     single separator for parsing purposes. e.g. the path "a...b...c"
     (separator='.') is equivalent to "a.b.c".
@@ -1702,7 +1702,7 @@ int cson_object_merge( cson_object * dest, cson_object const * src, int flags );
 */
 struct cson_object_iterator
 {
-
+    
     /** @internal
         The underlying object.
     */
@@ -1773,7 +1773,7 @@ typedef struct cson_kvp cson_kvp;
    @endcode
 
    There is no need to clean up an iterator, as it holds no dynamic resources.
-
+   
    @see cson_kvp_key()
    @see cson_kvp_value()
 */
@@ -1865,7 +1865,7 @@ struct cson_buffer
 
        (You might also need to store buf.used and buf.capacity,
        depending on what you want to do with the memory.)
-
+       
        When doing so, the memory must eventually be passed to free()
        to deallocate it.
     */
@@ -1896,7 +1896,7 @@ extern const cson_buffer cson_buffer_empty;
    - Invalid arguments: cson_rc.ArgError
 
    - Buffer cannot be expanded (runs out of memory): cson_rc.AllocError
-
+   
    Example usage:
 
    @code
@@ -1920,9 +1920,9 @@ extern const cson_buffer cson_buffer_empty;
        free(mem);
    }
    @endcode
-
+   
    @see cson_output()
-
+   
 */
 int cson_output_buffer( cson_value const * v, cson_buffer * buf,
                         cson_output_opt const * opt );
@@ -1995,7 +1995,7 @@ cson_size_t cson_buffer_fill( cson_buffer * buf, char c );
    dest->mem might (and possibly will) be (re)allocated by this
    function, so any pointers to it held from before this call might be
    invalidated by this call.
-
+   
    On error non-0 is returned and dest has almost certainly been
    modified but its state must be considered incomplete.
 
@@ -2044,7 +2044,7 @@ cson_size_t cson_buffer_fill( cson_buffer * buf, char c );
     @endcode
 
     In which case the memory must eventually be passed to free() to
-    free it.
+    free it.    
 */
 int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * state );
 
@@ -2074,7 +2074,7 @@ int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * st
    Normally any such value handles would be invalidated when the
    parent container(s) is/are cleaned up, but this function can be
    used to effectively delay the cleanup.
-
+   
    This function, at its lowest level, increments the value's
    reference count by 1.
 
@@ -2093,7 +2093,7 @@ int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * st
    to via this function).
 
    Insider notes which clients really need to know:
-
+   
    For shared/constant value instances, such as those returned by
    cson_value_true() and cson_value_null(), this function has no side
    effects - it does not actually modify the reference count because
@@ -2175,7 +2175,7 @@ int cson_value_refcount_set( cson_value * v, unsigned short rc );
    ACHTUNG: if orig contains any cyclic references at any depth level
    this function will endlessly recurse. (Having _any_ cyclic
    references violates this library's requirements.)
-
+   
    Returns NULL if orig is NULL or if cloning fails. Assuming that
    orig is in a valid state, the only "likely" error case is that an
    allocation fails while constructing the clone. In other words, if
@@ -2280,7 +2280,7 @@ unsigned int cson_value_msize(cson_value const * v);
    --key= : Treats key as a JSON null (not literal NULL) value.
 
    Arguments not starting with a dash are skipped.
-
+   
    Each key/value pair is inserted into an object.  If a given key
    appears more than once then only the final entry is actually
    stored.
@@ -2436,18 +2436,18 @@ extern "C" {
 
    st must be a sqlite3_step()'d row and col must be a 0-based column
    index within that result row.
- */
+ */       
 cson_value * cson_sqlite3_column_to_value( sqlite3_stmt * st, int col );
 
 /**
    Creates a JSON Array object containing the names of all columns
-   of the given prepared statement handle.
-
+   of the given prepared statement handle. 
+    
    Returns a new array value on success, which the caller owns. Its elements
    are in the same order as in the underlying query.
 
    On error NULL is returned.
-
+    
    st is not traversed or freed by this function - only the column
    count and names are read.
 */
@@ -2496,18 +2496,18 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st );
 /**
     Converts the results of an sqlite3 SELECT statement to JSON,
     in the form of a cson_value object tree.
-
+    
     st must be a prepared, but not yet traversed, SELECT query.
     tgt must be a pointer to NULL (see the example below). If
     either of those arguments are NULL, cson_rc.ArgError is returned.
-
+    
     This walks the query results and returns a JSON object which
     has a different structure depending on the value of the 'fat'
     argument.
-
-
+    
+    
     If 'fat' is 0 then the structure is:
-
+    
     @code
     {
         "columns":["colName1",..."colNameN"],
@@ -2518,12 +2518,12 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st );
         ]
     }
     @endcode
-
+    
     In the "non-fat" format the order of the columns and row values is
     guaranteed to be the same as that of the underlying query.
-
+    
     If 'fat' is not 0 then the structure is:
-
+    
     @code
     {
         "columns":["colName1",..."colNameN"],
@@ -2545,29 +2545,29 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st );
     JSON object tree (using the above structure), which the caller owns.
     If the query returns no rows, the "rows" value will be an empty
     array, as opposed to null.
-
+    
     On error non-0 is returned and *tgt is not modified.
-
+    
     The error code cson_rc.IOError is used to indicate a db-level
     error, and cson_rc.TypeError is returned if sqlite3_column_count(st)
     returns 0 or less (indicating an invalid or non-SELECT statement).
-
+    
     The JSON data types are determined by the column type as reported
     by sqlite3_column_type():
-
+    
     SQLITE_INTEGER: integer
-
+    
     SQLITE_FLOAT: double
-
+    
     SQLITE_TEXT or SQLITE_BLOB: string, and this will only work if
     the data is UTF8 compatible.
-
+    
     If the db returns a literal or SQL NULL for a value it is converted
     to a JSON null. If it somehow finds a column type it cannot handle,
     the value is also converted to a NULL in the output.
 
     Example
-
+    
     @code
     cson_value * json = NULL;
     int rc = cson_sqlite3_stmt_to_json( myStatement, &json, 1 );
@@ -2605,11 +2605,11 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
    Returns 0 on success, non-0 on error.
  */
 int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v );
-
+    
 #if defined(__cplusplus)
 } /*extern "C"*/
 #endif
-
+    
 #endif /* CSON_ENABLE_SQLITE3 */
 #endif /* WANDERINGHORSE_NET_CSON_SQLITE3_H_INCLUDED */
 /* end file include/wh/cson/cson_sqlite3.h */

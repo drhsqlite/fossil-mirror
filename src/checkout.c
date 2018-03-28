@@ -116,7 +116,7 @@ void checkout_set_all_exe(int vid){
     int isExe;
     blob_append(&filename, pFile->zName, -1);
     isExe = pFile->zPerm && strstr(pFile->zPerm, "x");
-    file_wd_setexe(blob_str(&filename), isExe);
+    file_setexe(blob_str(&filename), isExe);
     set_or_clear_isexe(pFile->zName, vid, isExe);
     blob_resize(&filename, baseLen);
   }

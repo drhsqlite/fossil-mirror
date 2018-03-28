@@ -353,7 +353,7 @@ void test_match_cmd(void){
   if( zGap==0 ) zGap = " ... ";
   p = search_init(g.argv[2], zBegin, zEnd, zGap, flg);
   for(i=3; i<g.argc; i++){
-    blob_read_from_file(&x, g.argv[i]);
+    blob_read_from_file(&x, g.argv[i], ExtFILE);
     zDoc = blob_str(&x);
     score = search_match(p, 1, (const char**)&zDoc);
     fossil_print("%s: %d\n", g.argv[i], p->iScore);
@@ -752,7 +752,7 @@ static void search_fullscan(
       ")"
       "INSERT INTO x(label,url,score,id,date,snip)"
       "  SELECT printf('Check-in [%%.10s] on %%s',uuid,datetime(mtime)),"
-      "         printf('/timeline?c=%%s&n=8&y=ci',uuid),"
+      "         printf('/timeline?c=%%s',uuid),"
       "         search_score(),"
       "         'c'||rid,"
       "         datetime(mtime),"
@@ -954,6 +954,7 @@ static char *cleanSnippet(const char *zSnip){
   int i;
   int n = 0;
   char *z;
+  if( zSnip==0 ) zSnip = "";
   for(i=0; zSnip[i]; i++) if( zSnip[i]=='<' ) n++;
   z = fossil_malloc( i+n*4+1 );
   i = 0;
@@ -1073,7 +1074,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     zDisable2 = " disabled";
     zPattern = "";
   }else{
-    zDisable1 = " autofocus";
+    zDisable1 = ""; /* Was: " autofocus" */
     zDisable2 = "";
     zPattern = PD("s","");
   }
@@ -1423,7 +1424,7 @@ void test_convert_stext(void){
   Blob in, out;
   db_find_and_open_repository(0,0);
   if( g.argc!=4 ) usage("FILENAME MIMETYPE");
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   blob_init(&out, 0, 0);
   get_stext_by_mimetype(&in, g.argv[3], &out);
   fossil_print("%s\n",blob_str(&out));
@@ -1776,7 +1777,7 @@ void fts_config_cmd(void){
      { 5,  "stemmer"  },
   };
   static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
-     { "search-ckin",     "check-in search:",  "c" },
+     { "search-ci",       "check-in search:",  "c" },
      { "search-doc",      "document search:",  "d" },
      { "search-tkt",      "ticket search:",    "t" },
      { "search-wiki",     "wiki search:",      "w" },

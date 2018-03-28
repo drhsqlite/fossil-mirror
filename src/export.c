@@ -37,12 +37,12 @@ static struct {
 **              It will always begin with a ':'.
 **   -rid: The unique object ID that identifies this commit within the
 **         repository database.
-**   -uuid: The SHA-1 of artifact corresponding to rid.
+**   -uuid: The SHA-1/SHA-3 of artifact corresponding to rid.
 */
 struct mark_t{
   char *name;
   int rid;
-  char uuid[41];
+  char uuid[65];
 };
 #endif
 
@@ -342,9 +342,9 @@ int parse_mark(char *line, struct mark_t *mark){
   }
 
   cur_tok = strtok(NULL, "\n");
-  if( !cur_tok || strlen(cur_tok)!=40 ){
+  if( !cur_tok || (strlen(cur_tok)!=40 && strlen(cur_tok)!=64) ){
     free(mark->name);
-    fossil_trace("Invalid SHA-1 in marks file: %s\n", cur_tok);
+    fossil_trace("Invalid SHA-1/SHA-3 in marks file: %s\n", cur_tok);
     return -1;
   }else{
     sqlite3_snprintf(sizeof(mark->uuid), mark->uuid, "%s", cur_tok);
@@ -353,7 +353,7 @@ int parse_mark(char *line, struct mark_t *mark){
   /* make sure that rid corresponds to UUID */
   if( fast_uuid_to_rid(mark->uuid)!=mark->rid ){
     free(mark->name);
-    fossil_trace("Non-existent SHA-1 in marks file: %s\n", mark->uuid);
+    fossil_trace("Non-existent SHA-1/SHA-3 in marks file: %s\n", mark->uuid);
     return -1;
   }
 

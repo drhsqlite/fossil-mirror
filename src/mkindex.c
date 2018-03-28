@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -33,7 +33,7 @@
 ** Command names can divided into three classes:  1st-tier, 2nd-tier,
 ** and test.  1st-tier commands are the most frequently used and the
 ** ones that show up with "fossil help".  2nd-tier are seldom-used and/or
-** legacy command.  Test commands are unsupported commands used for testing
+** legacy commands.  Test commands are unsupported commands used for testing
 ** and analysis only.
 **
 ** Commands are 1st-tier by default.  If the command name begins with

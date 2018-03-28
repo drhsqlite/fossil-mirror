@@ -504,10 +504,24 @@ void login_page(void){
   login_check_credentials();
   if( login_wants_https_redirect() ){
     const char *zQS = P("QUERY_STRING");
+    if( P("redir")!=0 ){
+      style_header("Insecure Connection");
+      @ <h1>Unable To Establish An Encrypted Connection</h1>
+      @ <p>This website requires that login credentials be sent over
+      @ an encrypted connection.  The current connection is not encrypted
+      @ across the entire route between your browser and the server.
+      @ An attempt was made to redirect to %h(g.zHttpsURL) but
+      @ the connection is still insecure even after the redirect.</p>
+      @ <p>This is probably some kind of configuration problem.  Please
+      @ contact your sysadmin.</p>
+      @ <p>Sorry it did not work out.</p>
+      style_footer();
+      return;
+    }
     if( zQS==0 ){
-      zQS = "";
+      zQS = "?redir=1";
     }else if( zQS[0]!=0 ){
-      zQS = mprintf("?%s", zQS);
+      zQS = mprintf("?%s&redir=1", zQS);
     }
     cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
     return;
@@ -634,7 +648,14 @@ void login_page(void){
       @ <p>Login as a named user to access page <b>%h(zAbbrev)</b>.
     }
   }
-  form_begin(0, "%R/login");
+  if( g.sslNotAvailable==0
+   && strncmp(g.zBaseURL,"https:",6)!=0
+   && db_get_boolean("https-login",0)
+  ){
+    form_begin(0, "https:%s/login", g.zBaseURL+5);
+  }else{
+    form_begin(0, "%R/login");
+  }
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }else if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
@@ -657,6 +678,19 @@ void login_page(void){
   }else{
     @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
   }
+  if( P("HTTPS")==0 ){
+    @ <td width="15"><td rowspan="3">
+    @ <p class='securityWarning'>
+    @ Warning: Your password will be sent in the clear over an
+    @ unencrypted connection.
+    if( g.sslNotAvailable ){
+      @ No encrypted connection is available on this server.
+    }else{
+      @ Consider logging in at
+      @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+    }
+    @ </p>
+  }
   @ </tr>
   @ <tr>
   @  <td class="login_out_label">Password:</td>
@@ -669,24 +703,9 @@ void login_page(void){
   }
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="in" value="Login"
-  @        onClick="chngAction(this.form)" /></td>
+  @   <td><input type="submit" name="in" value="Login">
   @ </tr>
   @ </table>
-  @ <script>
-  @   gebi('u').focus()
-  @   function chngAction(form){
-  if( g.sslNotAvailable==0
-   && strncmp(g.zBaseURL,"https:",6)!=0
-   && db_get_boolean("https-login",0)
-  ){
-     char *zSSL = mprintf("https:%s", &g.zBaseURL[5]);
-     @  if( form.u.value!="anonymous" ){
-     @     form.action = "%h(zSSL)/login";
-     @  }
-  }
-  @ }
-  @ </script>
   @ <p>Pressing the Login button grants permission to store a cookie.</p>
   if( db_get_boolean("self-register", 0) ){
     @ <p>If you do not have an account, you can
@@ -705,8 +724,9 @@ void login_page(void){
     @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
-        @ <input type="button" value="Fill out captcha"
-        @  onclick="gebi('u').value='anonymous'; gebi('p').value='%s(zDecoded)';" />
+       @ <input type="button" value="Fill out captcha" id='autofillButton' \
+       @ data-af='%s(zDecoded)' />
+       style_load_one_js_file("login.js");
     }
     @ </div>
     free(zCaptcha);
@@ -935,8 +955,8 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-        (g.fSshClient & CGI_SSH_CLIENT)!=0 )
+  if( ( cgi_is_loopback(zIpAddr)
+       || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -1346,7 +1366,7 @@ void login_needed(int anonOk){
     const char *zQS = P("QUERY_STRING");
     Blob redir;
     blob_init(&redir, 0, 0);
-    if( login_wants_https_redirect() ){
+    if( login_wants_https_redirect() && !g.sslNotAvailable ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
@@ -1567,7 +1587,7 @@ int login_group_sql(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRepoName = db_column_text(&q, 1);
-    if( file_size(zRepoName)<0 ){
+    if( file_size(zRepoName, ExtFILE)<0 ){
       /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
       db_multi_exec(
@@ -1663,7 +1683,7 @@ void login_group_join(
   }
 
   /* Make sure the other repository is a valid Fossil database */
-  if( file_size(zRepo)<0 ){
+  if( file_size(zRepo, ExtFILE)<0 ){
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }

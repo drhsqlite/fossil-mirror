@@ -121,6 +121,7 @@ void socket_global_shutdown(void){
 void socket_close(void){
   if( iSocket>=0 ){
 #if defined(_WIN32)
+    if( shutdown(iSocket,1)==0 ) shutdown(iSocket,0);
     closesocket(iSocket);
 #else
     close(iSocket);

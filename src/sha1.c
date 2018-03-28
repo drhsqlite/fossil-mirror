@@ -354,13 +354,13 @@ char *sha1sum_finish(Blob *pOut){
 **
 ** Return the number of errors.
 */
-int sha1sum_file(const char *zFilename, Blob *pCksum){
+int sha1sum_file(const char *zFilename, int eFType, Blob *pCksum){
   FILE *in;
   SHA1Context ctx;
   unsigned char zResult[20];
   char zBuf[10240];
 
-  if( file_wd_islink(zFilename) ){
+  if( eFType==RepoFILE && file_islink(zFilename) ){
     /* Instead of file content, return sha1 of link destination path */
     Blob destinationPath;
     int rc;
@@ -522,11 +522,21 @@ void sha1_shared_secret_sql_function(
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
 ** If a file is named "-" then take its content from standard input.
+** Options:
+**
+**    -h, --dereference     If FILE is a symbolic link, compute the hash
+**                          on the object that the link points to.  Normally,
+**                          the hash is over the name of the object that
+**                          the link points to.
 */
 void sha1sum_test(void){
   int i;
   Blob in;
   Blob cksum;
+  int eFType = SymFILE;
+  if( find_option("dereference","h",0)!=0 ){
+    eFType = ExtFILE;
+  }
 
   for(i=2; i<g.argc; i++){
     blob_init(&cksum, "************** not found ***************", -1);
@@ -534,7 +544,7 @@ void sha1sum_test(void){
       blob_read_from_channel(&in, stdin, -1);
       sha1sum_blob(&in, &cksum);
     }else{
-      sha1sum_file(g.argv[i], &cksum);
+      sha1sum_file(g.argv[i], eFType, &cksum);
     }
     fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);

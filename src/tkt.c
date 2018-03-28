@@ -749,7 +749,7 @@ void tktedit_page(void){
     cgi_redirectf("tktview?name=%T", zName);
   }
   style_header("Edit Ticket");
-  if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
+  if( zName==0 || (nName = strlen(zName))<4 || nName>HNAME_LEN_SHA1
           || !validate16(zName,nName) ){
     @ <span class="tktError">Not a valid ticket id: "%h(zName)"</span>
     style_footer();
@@ -1379,7 +1379,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
+      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1))==0 ){
         fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",

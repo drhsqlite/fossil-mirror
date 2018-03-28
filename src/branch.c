@@ -395,7 +395,8 @@ static void new_brlist_page(void){
 
   db_prepare(&q, brlistQuery/*works-like:""*/);
   rNow = db_double(0.0, "SELECT julianday('now')");
-  @ <div class="brlist"><table id="branchlisttable">
+  @ <div class="brlist">
+  @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
   @ <th>Branch Name</th>
   @ <th>Age</th>
@@ -441,7 +442,7 @@ static void new_brlist_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  output_table_sorting_javascript("branchlisttable","tkNtt",2);
+  style_table_sorter();
   style_footer();
 }
 

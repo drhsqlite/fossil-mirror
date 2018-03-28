@@ -609,8 +609,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       case 'K': {
         if( p->zTicketUuid!=0 ) SYNTAX("more than one K-card");
         p->zTicketUuid = next_token(&x, &sz);
-        if( sz!=UUID_SIZE ) SYNTAX("K-card UUID is the wrong size");
-        if( !validate16(p->zTicketUuid, UUID_SIZE) ){
+        if( sz!=HNAME_LEN_SHA1 ) SYNTAX("K-card UUID is the wrong size");
+        if( !validate16(p->zTicketUuid, sz) ){
           SYNTAX("invalid K-card UUID");
         }
         break;
@@ -1028,7 +1028,7 @@ void manifest_test_parse_cmd(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
-  blob_read_from_file(&b, g.argv[2]);
+  blob_read_from_file(&b, g.argv[2], ExtFILE);
   if( g.argc>3 ) n = atoi(g.argv[3]);
   for(i=0; i<n; i++){
     Blob b2;
@@ -1269,6 +1269,9 @@ static ManifestFile *manifest_file_seek_base(
   int lwr, upr;
   int c;
   int i;
+  if( p->aFile==0 ){
+    return 0;
+  }
   lwr = 0;
   upr = p->nFile - 1;
   if( p->iFile>=lwr && p->iFile<upr ){

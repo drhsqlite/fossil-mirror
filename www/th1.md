@@ -347,6 +347,7 @@ The possible features are:
   1. **markdown** -- _Support for Markdown documentation format._
   1. **unicodeCmdLine** -- _The command line arguments are Unicode._
   1. **dynamicBuild** -- _Dynamically linked to libraries._
+  1. **mman** -- _Uses POSIX memory APIs from "sys/mman.h"._
   1. **see** -- _Uses the SQLite Encryption Extension._
 
 Specifying an unknown feature will return a value of false, it will not

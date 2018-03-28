@@ -786,19 +786,37 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 ** Initialize a blob to be the content of a file.  If the filename
 ** is blank or "-" then read from standard input.
 **
+** If zFilename is a symbolic link, behavior depends on the eFType
+** parameter:
+**
+**    *  If eFType is ExtFILE or allow-symlinks is OFF, then the
+**       pBlob is initialized to the *content* of the object to which
+**       the zFilename symlink points.
+**
+**    *  If eFType is RepoFILE and allow-symlinks is ON, then the
+**       pBlob is initialized to the *name* of the object to which
+**       the zFilename symlink points.
+**
 ** Any prior content of the blob is discarded, not freed.
 **
 ** Return the number of bytes read. Calls fossil_fatal() on error (i.e.
 ** it exit()s and does not return).
 */
-sqlite3_int64 blob_read_from_file(Blob *pBlob, const char *zFilename){
+sqlite3_int64 blob_read_from_file(
+  Blob *pBlob,               /* The blob to be initialized */
+  const char *zFilename,     /* Extract content from this file */
+  int eFType                 /* ExtFILE or RepoFILE - see above */
+){
   sqlite3_int64 size, got;
   FILE *in;
   if( zFilename==0 || zFilename[0]==0
         || (zFilename[0]=='-' && zFilename[1]==0) ){
     return blob_read_from_channel(pBlob, stdin, -1);
   }
-  size = file_wd_size(zFilename);
+  if( file_islink(zFilename) ){
+    return blob_read_link(pBlob, zFilename);
+  }
+  size = file_size(zFilename, eFType);
   blob_zero(pBlob);
   if( size<0 ){
     fossil_fatal("no such file: %s", zFilename);
@@ -844,11 +862,15 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
 #endif
 }
 
-
 /*
 ** Write the content of a blob into a file.
 **
 ** If the filename is blank or "-" then write to standard output.
+**
+** This routine always assumes ExtFILE.  If zFilename is a symbolic link
+** then the content is written into the object that symbolic link points
+** to, not into the symbolic link itself.  This is true regardless of
+** the allow-symlinks setting.
 **
 ** Return the number of bytes written.
 */
@@ -870,7 +892,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     _setmode(_fileno(stdout), _O_TEXT);
 #endif
   }else{
-    file_mkfolder(zFilename, 1, 0);
+    file_mkfolder(zFilename, ExtFILE, 1, 0);
     out = fossil_fopen(zFilename, "wb");
     if( out==0 ){
 #if _WIN32
@@ -935,7 +957,7 @@ void blob_compress(Blob *pIn, Blob *pOut){
 void compress_cmd(void){
   Blob f;
   if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
-  blob_read_from_file(&f, g.argv[2]);
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
   blob_compress(&f, &f);
   blob_write_to_file(&f, g.argv[3]);
 }
@@ -994,8 +1016,8 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
 void compress2_cmd(void){
   Blob f1, f2;
   if( g.argc!=5 ) usage("INPUTFILE1 INPUTFILE2 OUTPUTFILE");
-  blob_read_from_file(&f1, g.argv[2]);
-  blob_read_from_file(&f2, g.argv[3]);
+  blob_read_from_file(&f1, g.argv[2], ExtFILE);
+  blob_read_from_file(&f2, g.argv[3], ExtFILE);
   blob_compress2(&f1, &f2, &f1);
   blob_write_to_file(&f1, g.argv[4]);
 }
@@ -1046,7 +1068,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 void uncompress_cmd(void){
   Blob f;
   if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
-  blob_read_from_file(&f, g.argv[2]);
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
   blob_uncompress(&f, &f);
   blob_write_to_file(&f, g.argv[3]);
 }
@@ -1061,7 +1083,7 @@ void test_cycle_compress(void){
   int i;
   Blob b1, b2, b3;
   for(i=2; i<g.argc; i++){
-    blob_read_from_file(&b1, g.argv[i]);
+    blob_read_from_file(&b1, g.argv[i], ExtFILE);
     blob_compress(&b1, &b2);
     blob_uncompress(&b2, &b3);
     if( blob_compare(&b1, &b3) ){

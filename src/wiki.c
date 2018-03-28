@@ -924,7 +924,7 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
-  diffFlags = construct_diff_flags(1,0);
+  diffFlags = construct_diff_flags(1);
   text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
   @ <pre class="udiff">
   @ %s(blob_str(&d))
@@ -1253,7 +1253,7 @@ void wiki_cmd(void){
     if( g.argc==4 ){
       blob_read_from_channel(&content, stdin, -1);
     }else{
-      blob_read_from_file(&content, g.argv[4]);
+      blob_read_from_file(&content, g.argv[4], ExtFILE);
     }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
@@ -1377,7 +1377,7 @@ void test_markdown_render(void){
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   markdown_to_html(&in, 0, &out);
   blob_write_to_file(&out, "-");
 }

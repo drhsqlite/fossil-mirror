@@ -35,6 +35,7 @@ SRC = \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/content.c \
+  $(SRCDIR)/cookies.c \
   $(SRCDIR)/db.c \
   $(SRCDIR)/delta.c \
   $(SRCDIR)/deltacmd.c \
@@ -44,6 +45,7 @@ SRC = \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
+  $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
@@ -144,6 +146,10 @@ SRC = \
 
 EXTRA_FILES = \
   $(SRCDIR)/../skins/aht/details.txt \
+  $(SRCDIR)/../skins/ardoise/css.txt \
+  $(SRCDIR)/../skins/ardoise/details.txt \
+  $(SRCDIR)/../skins/ardoise/footer.txt \
+  $(SRCDIR)/../skins/ardoise/header.txt \
   $(SRCDIR)/../skins/black_and_white/css.txt \
   $(SRCDIR)/../skins/black_and_white/details.txt \
   $(SRCDIR)/../skins/black_and_white/footer.txt \
@@ -194,8 +200,19 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
+  $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/graph.js \
+  $(SRCDIR)/href.js \
+  $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
+  $(SRCDIR)/menu.js \
+  $(SRCDIR)/sbsdiff.js \
+  $(SRCDIR)/scroll.js \
+  $(SRCDIR)/skin.js \
+  $(SRCDIR)/sorttable.js \
+  $(SRCDIR)/tree.js \
+  $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \
@@ -219,6 +236,7 @@ TRANS_SRC = \
   $(OBJDIR)/comformat_.c \
   $(OBJDIR)/configure_.c \
   $(OBJDIR)/content_.c \
+  $(OBJDIR)/cookies_.c \
   $(OBJDIR)/db_.c \
   $(OBJDIR)/delta_.c \
   $(OBJDIR)/deltacmd_.c \
@@ -228,6 +246,7 @@ TRANS_SRC = \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
+  $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
@@ -347,6 +366,7 @@ OBJ = \
  $(OBJDIR)/comformat.o \
  $(OBJDIR)/configure.o \
  $(OBJDIR)/content.o \
+ $(OBJDIR)/cookies.o \
  $(OBJDIR)/db.o \
  $(OBJDIR)/delta.o \
  $(OBJDIR)/deltacmd.o \
@@ -356,6 +376,7 @@ OBJ = \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
+ $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
@@ -485,6 +506,9 @@ $(OBJDIR)/mkbuiltin:	$(SRCDIR)/mkbuiltin.c
 $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 	$(XBCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
 
+$(OBJDIR)/mkcss:	$(SRCDIR)/mkcss.c
+	$(XBCC) -o $(OBJDIR)/mkcss $(SRCDIR)/mkcss.c
+
 $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 	$(XBCC) -o $(OBJDIR)/codecheck1 $(SRCDIR)/codecheck1.c
 
@@ -506,6 +530,9 @@ test:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
+
+$(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
+	$(OBJDIR)/mkcss $(SRCDIR)/default_css.txt $(OBJDIR)/default_css.h
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
@@ -529,10 +556,38 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
-                 -DSQLITE_ENABLE_STMTVTAB
+                 -DSQLITE_ENABLE_STMTVTAB \
+                 -DSQLITE_USE_ZLIB \
+                 -DSQLITE_INTROSPECTION_PRAGMAS \
+                 -DSQLITE_ENABLE_DBPAGE_VTAB
 
 # Setup the options used to compile the included SQLite shell.
-SHELL_OPTIONS = -Dmain=sqlite3_shell \
+SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_THREADSAFE=0 \
+                -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                -DSQLITE_OMIT_DECLTYPE \
+                -DSQLITE_OMIT_DEPRECATED \
+                -DSQLITE_OMIT_GET_TABLE \
+                -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                -DSQLITE_OMIT_SHARED_CACHE \
+                -DSQLITE_OMIT_LOAD_EXTENSION \
+                -DSQLITE_MAX_EXPR_DEPTH=0 \
+                -DSQLITE_USE_ALLOCA \
+                -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                -DSQLITE_ENABLE_FTS4 \
+                -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                -DSQLITE_ENABLE_DBSTAT_VTAB \
+                -DSQLITE_ENABLE_JSON1 \
+                -DSQLITE_ENABLE_FTS5 \
+                -DSQLITE_ENABLE_STMTVTAB \
+                -DSQLITE_USE_ZLIB \
+                -DSQLITE_INTROSPECTION_PRAGMAS \
+                -DSQLITE_ENABLE_DBPAGE_VTAB \
+                -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
@@ -617,7 +672,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 	$(OBJDIR)/mkbuiltin --prefix $(SRCDIR)/ $(EXTRA_FILES) >$@
 
-$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
+$(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
@@ -638,6 +693,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h \
 	$(OBJDIR)/configure_.c:$(OBJDIR)/configure.h \
 	$(OBJDIR)/content_.c:$(OBJDIR)/content.h \
+	$(OBJDIR)/cookies_.c:$(OBJDIR)/cookies.h \
 	$(OBJDIR)/db_.c:$(OBJDIR)/db.h \
 	$(OBJDIR)/delta_.c:$(OBJDIR)/delta.h \
 	$(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h \
@@ -647,6 +703,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
+	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
@@ -746,7 +803,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/mak
 	$(OBJDIR)/zip_.c:$(OBJDIR)/zip.h \
 	$(SRCDIR)/sqlite3.h \
 	$(SRCDIR)/th.h \
-	$(OBJDIR)/VERSION.h
+	$(OBJDIR)/VERSION.h 
 	touch $(OBJDIR)/headers
 $(OBJDIR)/headers: Makefile
 $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_config.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_dir.o $(OBJDIR)/json_finfo.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_status.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
@@ -911,6 +968,14 @@ $(OBJDIR)/content.o:	$(OBJDIR)/content_.c $(OBJDIR)/content.h $(SRCDIR)/config.h
 
 $(OBJDIR)/content.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/cookies_.c:	$(SRCDIR)/cookies.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/cookies.c >$@
+
+$(OBJDIR)/cookies.o:	$(OBJDIR)/cookies_.c $(OBJDIR)/cookies.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/cookies.o -c $(OBJDIR)/cookies_.c
+
+$(OBJDIR)/cookies.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/db_.c:	$(SRCDIR)/db.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/db.c >$@
 
@@ -982,6 +1047,14 @@ $(OBJDIR)/encode.o:	$(OBJDIR)/encode_.c $(OBJDIR)/encode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/encode.o -c $(OBJDIR)/encode_.c
 
 $(OBJDIR)/encode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/etag_.c:	$(SRCDIR)/etag.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/etag.c >$@
+
+$(OBJDIR)/etag.o:	$(OBJDIR)/etag_.c $(OBJDIR)/etag.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/etag.o -c $(OBJDIR)/etag_.c
+
+$(OBJDIR)/etag.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/event_.c:	$(SRCDIR)/event.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/event.c >$@
@@ -1554,7 +1627,7 @@ $(OBJDIR)/statrep.h:	$(OBJDIR)/headers
 $(OBJDIR)/style_.c:	$(SRCDIR)/style.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/style.c >$@
 
-$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(SRCDIR)/config.h
+$(OBJDIR)/style.o:	$(OBJDIR)/style_.c $(OBJDIR)/style.h $(OBJDIR)/default_css.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/style.o -c $(OBJDIR)/style_.c
 
 $(OBJDIR)/style.h:	$(OBJDIR)/headers

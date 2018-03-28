@@ -88,7 +88,7 @@ static void locate_unmanaged_files(
     for(i=0; i<argc; i++){
       file_canonical_name(argv[i], &name, 0);
       zName = blob_str(&name);
-      isDir = file_wd_isdir(zName);
+      isDir = file_isdir(zName, RepoFILE);
       if( isDir==1 ){
         vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0);
       }else if( isDir==0 ){
@@ -211,7 +211,7 @@ static void status_report(
     int isNew = isManaged && !db_column_int(&q, 5);
     int isRenamed = db_column_int(&q, 6);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    int isMissing = !file_wd_isfile_or_link(zFullName);
+    int isMissing = !file_isfile_or_link(zFullName);
 
     /* Determine the file change classification, if any. */
     if( isDeleted ){
@@ -256,7 +256,7 @@ static void status_report(
       zClass = "UNEXEC";
     }else if( (flags & C_META) && isChnged==9 ){
       zClass = "UNLINK";
-    }else if( (flags & C_CONFLICT) && isChnged && !file_wd_islink(zFullName)
+    }else if( (flags & C_CONFLICT) && isChnged && !file_islink(zFullName)
            && file_contains_merge_marker(zFullName) ){
       zClass = "CONFLICT";
     }else if( (flags & (C_EDITED | C_CHANGED)) && isChnged
@@ -474,6 +474,8 @@ void status_cmd(void){
   unsigned flags = 0;
   int vid, i;
 
+  fossil_pledge("stdio rpath wpath cpath fattr id flock tty chown");
+
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
     if( (command==CHANGES || !(flagDefs[i].mask & C_CLASSIFY))
@@ -557,8 +559,9 @@ void status_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),
-                   g.zLocalRoot);
+      fossil_print(
+        "Changes for %s at %s:\n", db_get("project-name", "<unnamed>"),
+        g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
   }else if( verboseFlag ){
@@ -766,7 +769,7 @@ void ls_cmd(void){
         type = "ADDED      ";
       }else if( isDeleted ){
         type = "DELETED    ";
-      }else if( !file_wd_isfile_or_link(zFullName) ){
+      }else if( !file_isfile_or_link(zFullName) ){
         if( file_access(zFullName, F_OK)==0 ){
           type = "NOT_A_FILE ";
         }else{
@@ -865,7 +868,7 @@ void extras_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
+      fossil_print("Extras for %s at %s:\n", db_get("project-name","<unnamed>"),
                    g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
@@ -1223,7 +1226,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
       fossil_fatal("editor aborted: \"%s\"", zCmd);
     }
 
-    blob_read_from_file(&reply, zFile);
+    blob_read_from_file(&reply, zFile, ExtFILE);
   }else{
     char zIn[300];
     blob_zero(&reply);
@@ -1564,7 +1567,7 @@ static void create_manifest(
     if( isSelected ){
       int mPerm;
 
-      mPerm = file_wd_perm(blob_str(&filename));
+      mPerm = file_perm(blob_str(&filename), RepoFILE);
       isExe = ( mPerm==PERM_EXE );
       isLink = ( mPerm==PERM_LNK );
     }
@@ -1910,11 +1913,7 @@ void test_commit_warning(void){
     binOk = db_column_int(&q, 3);
     encodingOk = db_column_int(&q, 4);
     blob_zero(&content);
-    if( file_wd_islink(zFullname) ){
-      blob_read_link(&content, zFullname);
-    }else{
-      blob_read_from_file(&content, zFullname);
-    }
+    blob_read_from_file(&content, zFullname, RepoFILE);
     blob_zero(&reason);
     fileRc = commit_warning(&content, crlfOk, binOk, encodingOk, 2,
                             zFullname, &reason);
@@ -2305,7 +2304,7 @@ void commit_cmd(void){
     blob_append(&comment, zComment, -1);
   }else if( zComFile ){
     blob_zero(&comment);
-    blob_read_from_file(&comment, zComFile);
+    blob_read_from_file(&comment, zComFile, ExtFILE);
     blob_to_utf8_no_bom(&comment, 1);
   }else if( dryRunFlag ){
     blob_zero(&comment);
@@ -2376,12 +2375,7 @@ void commit_cmd(void){
     encodingOk = db_column_int(&q, 5);
 
     blob_zero(&content);
-    if( file_wd_islink(zFullname) ){
-      /* Instead of file content, put link destination path */
-      blob_read_link(&content, zFullname);
-    }else{
-      blob_read_from_file(&content, zFullname);
-    }
+    blob_read_from_file(&content, zFullname, RepoFILE);
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crlfOk, binOk,
@@ -2493,7 +2487,7 @@ void commit_cmd(void){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
     blob_reset(&manifest);
-    blob_read_from_file(&manifest, zManifestFile);
+    blob_read_from_file(&manifest, zManifestFile, ExtFILE);
     free(zManifestFile);
   }
 

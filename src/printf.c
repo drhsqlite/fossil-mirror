@@ -277,6 +277,7 @@ int vxprintf(
   etByte flag_long;          /* True if "l" flag is present */
   etByte flag_longlong;      /* True if the "ll" flag is present */
   etByte done;               /* Loop termination flag */
+  etByte cThousand;          /* Thousands separator for %d and %u */
   u64 longvalue;             /* Value for integer types */
   long double realvalue;     /* Value for real types */
   const et_info *infop;      /* Pointer to the appropriate info structure */
@@ -314,7 +315,7 @@ int vxprintf(
       break;
     }
     /* Find out what flags are present */
-    flag_leftjustify = flag_plussign = flag_blanksign =
+    flag_leftjustify = flag_plussign = flag_blanksign = cThousand =
      flag_alternateform = flag_altform2 = flag_zeropad = 0;
     done = 0;
     do{
@@ -325,6 +326,7 @@ int vxprintf(
         case '#':   flag_alternateform = 1;   break;
         case '!':   flag_altform2 = 1;        break;
         case '0':   flag_zeropad = 1;         break;
+        case ',':   cThousand = ',';          break;
         default:    done = 1;                 break;
       }
     }while( !done && (c=(*++fmt))!=0 );
@@ -456,8 +458,23 @@ int vxprintf(
           }while( longvalue>0 );
         }
         length = &buf[etBUFSIZE-1]-bufpt;
-        for(idx=precision-length; idx>0; idx--){
+        while( precision>length ){
           *(--bufpt) = '0';                             /* Zero pad */
+          length++;
+        }
+        if( cThousand ){
+          int nn = (length - 1)/3;  /* Number of "," to insert */
+          int ix = (length - 1)%3 + 1;
+          bufpt -= nn;
+          for(idx=0; nn>0; idx++){
+            bufpt[idx] = bufpt[idx+nn];
+            ix--;
+            if( ix==0 ){
+              bufpt[++idx] = cThousand;
+              nn--;
+              ix = 3;
+            }
+          }
         }
         if( prefix ) *(--bufpt) = prefix;               /* Add sign */
         if( flag_alternateform && infop->prefix ){      /* Add "0" or "0x" */
@@ -1133,7 +1150,7 @@ void fossil_warning(const char *zFormat, ...){
   fossil_errorlog("warning: %s", z);
 #ifdef FOSSIL_ENABLE_JSON
   if(g.json.isJsonMode){
-    json_warn( FSL_JSON_W_UNKNOWN, z );
+    json_warn( FSL_JSON_W_UNKNOWN, "%s", z );
   }else
 #endif
   {

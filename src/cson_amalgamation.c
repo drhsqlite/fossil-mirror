@@ -21,10 +21,10 @@
 #		    define JSON_PARSER_DLL_API __declspec(dllimport)
 #       endif
 #   else
-#	    define JSON_PARSER_DLL_API
+#	    define JSON_PARSER_DLL_API 
 #   endif
 #else
-#	define JSON_PARSER_DLL_API
+#	define JSON_PARSER_DLL_API 
 #endif
 
 /* Determine the integer type use to parse non-floating point numbers */
@@ -36,7 +36,7 @@ typedef __int64 JSON_int_t;
 typedef long long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%lld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%lld"
-#else
+#else 
 typedef long JSON_int_t;
 #define JSON_PARSER_INTEGER_SSCANF_TOKEN "%ld"
 #define JSON_PARSER_INTEGER_SPRINTF_TOKEN "%ld"
@@ -45,9 +45,9 @@ typedef long JSON_int_t;
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif 
 
-typedef enum
+typedef enum 
 {
     JSON_E_NONE = 0,
     JSON_E_INVALID_CHAR,
@@ -62,7 +62,7 @@ typedef enum
     JSON_E_OUT_OF_MEMORY
 } JSON_error;
 
-typedef enum
+typedef enum 
 {
     JSON_T_NONE = 0,
     JSON_T_ARRAY_BEGIN,
@@ -82,9 +82,9 @@ typedef enum
 typedef struct JSON_value_struct {
     union {
         JSON_int_t integer_value;
-
+        
         double float_value;
-
+        
         struct {
             const char* value;
             size_t length;
@@ -94,17 +94,17 @@ typedef struct JSON_value_struct {
 
 typedef struct JSON_parser_struct* JSON_parser;
 
-/*! \brief JSON parser callback
+/*! \brief JSON parser callback 
 
     \param ctx The pointer passed to new_JSON_parser.
-    \param type An element of JSON_type but not JSON_T_NONE.
+    \param type An element of JSON_type but not JSON_T_NONE.    
     \param value A representation of the parsed value. This parameter is NULL for
         JSON_T_ARRAY_BEGIN, JSON_T_ARRAY_END, JSON_T_OBJECT_BEGIN, JSON_T_OBJECT_END,
         JSON_T_NULL, JSON_T_TRUE, and JSON_T_FALSE. String values are always returned
         as zero-terminated C strings.
 
     \return Non-zero if parsing should continue, else zero.
-*/
+*/    
 typedef int (*JSON_parser_callback)(void* ctx, int type, const JSON_value* value);
 
 
@@ -117,7 +117,7 @@ typedef void* (*JSON_malloc_t)(size_t n);
 */
 typedef void (*JSON_free_t)(void* mem);
 
-/*! \brief The structure used to configure a JSON parser object
+/*! \brief The structure used to configure a JSON parser object 
 */
 typedef struct {
     /** Pointer to a callback, called when the parser has something to tell
@@ -178,13 +178,13 @@ typedef struct {
 */
 JSON_PARSER_DLL_API void init_JSON_config(JSON_config * config);
 
-/*! \brief Create a JSON parser object
+/*! \brief Create a JSON parser object 
 
     \param config. Used to configure the parser. Set to NULL to use
         the default configuration. See init_JSON_config.  Its contents are
         copied by this function, so it need not outlive the returned
         object.
-
+    
     \return The parser object, which is owned by the caller and must eventually
     be freed by calling delete_JSON_parser().
 */
@@ -202,12 +202,12 @@ JSON_PARSER_DLL_API int JSON_parser_char(JSON_parser jc, int next_char);
 /*! \brief Finalize parsing.
 
     Call this method once after all input characters have been consumed.
-
+    
     \return Non-zero, if all parsed characters are valid JSON, zero otherwise.
 */
 JSON_PARSER_DLL_API int JSON_parser_done(JSON_parser jc);
 
-/*! \brief Determine if a given string is valid JSON white space
+/*! \brief Determine if a given string is valid JSON white space 
 
     \return Non-zero if the string is valid, zero otherwise.
 */
@@ -228,8 +228,8 @@ JSON_PARSER_DLL_API int JSON_parser_reset(JSON_parser jc);
 
 #ifdef __cplusplus
 }
-#endif
-
+#endif 
+    
 
 #endif /* JSON_PARSER_H */
 /* end file parser/JSON_parser.h */
@@ -324,7 +324,7 @@ SOFTWARE.
 
 #define true  1
 #define false 0
-#define __   -1     /* the universal error code */
+#define XX   -1     /* the universal error code */
 
 /* values chosen so that the object size is approx equal to one page (4K) */
 #ifndef JSON_PARSER_STACK_SIZE
@@ -416,10 +416,10 @@ static const signed char ascii_class[128] = {
     The remaining Unicode characters should be mapped to C_ETC.
     Non-whitespace control characters are errors.
 */
-    __,      __,      __,      __,      __,      __,      __,      __,
-    __,      C_WHITE, C_WHITE, __,      __,      C_WHITE, __,      __,
-    __,      __,      __,      __,      __,      __,      __,      __,
-    __,      __,      __,      __,      __,      __,      __,      __,
+    XX,      XX,      XX,      XX,      XX,      XX,      XX,      XX,
+    XX,      C_WHITE, C_WHITE, XX,      XX,      C_WHITE, XX,      XX,
+    XX,      XX,      XX,      XX,      XX,      XX,      XX,      XX,
+    XX,      XX,      XX,      XX,      XX,      XX,      XX,      XX,
 
     C_SPACE, C_ETC,   C_QUOTE, C_ETC,   C_ETC,   C_ETC,   C_ETC,   C_ETC,
     C_ETC,   C_ETC,   C_STAR,   C_PLUS, C_COMMA, C_MINUS, C_POINT, C_SLASH,
@@ -450,7 +450,7 @@ enum states {
     VA,  /* value    */
     AR,  /* array    */
     ST,  /* string   */
-    ES,  /* escape   */
+    ESC,  /* escape   */
     U1,  /* u1       */
     U2,  /* u2       */
     U3,  /* u3       */
@@ -508,42 +508,42 @@ static const signed char state_transition_table[NR_STATES][NR_CLASSES] = {
 
                  white                                      1-9                                   ABCDF  etc
              space |  {  }  [  ]  :  ,  "  \  /  +  -  .  0  |  a  b  c  d  e  f  l  n  r  s  t  u  |  E  |  * */
-/*start  GO*/ {GO,GO,-6,__,-5,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*ok     OK*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*object OB*/ {OB,OB,__,-9,__,__,__,__,SB,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*key    KE*/ {KE,KE,__,__,__,__,__,__,SB,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*colon  CO*/ {CO,CO,__,__,__,__,-2,__,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*value  VA*/ {VA,VA,-6,__,-5,__,__,__,SB,__,CB,__,MX,__,ZX,IX,__,__,__,__,__,FA,__,NU,__,__,TR,__,__,__,__,__},
-/*array  AR*/ {AR,AR,-6,__,-5,-7,__,__,SB,__,CB,__,MX,__,ZX,IX,__,__,__,__,__,FA,__,NU,__,__,TR,__,__,__,__,__},
-/*string ST*/ {ST,__,ST,ST,ST,ST,ST,ST,-4,EX,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST},
-/*escape ES*/ {__,__,__,__,__,__,__,__,ST,ST,ST,__,__,__,__,__,__,ST,__,__,__,ST,__,ST,ST,__,ST,U1,__,__,__,__},
-/*u1     U1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,U2,U2,U2,U2,U2,U2,U2,U2,__,__,__,__,__,__,U2,U2,__,__},
-/*u2     U2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,U3,U3,U3,U3,U3,U3,U3,U3,__,__,__,__,__,__,U3,U3,__,__},
-/*u3     U3*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,U4,U4,U4,U4,U4,U4,U4,U4,__,__,__,__,__,__,U4,U4,__,__},
-/*u4     U4*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,UC,UC,UC,UC,UC,UC,UC,UC,__,__,__,__,__,__,UC,UC,__,__},
-/*minus  MI*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,ZE,IT,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*zero   ZE*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,DF,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*int    IT*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,DF,IT,IT,__,__,__,__,DE,__,__,__,__,__,__,__,__,DE,__,__},
-/*frac   FR*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,__,FR,FR,__,__,__,__,E1,__,__,__,__,__,__,__,__,E1,__,__},
-/*e      E1*/ {__,__,__,__,__,__,__,__,__,__,__,E2,E2,__,E3,E3,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*ex     E2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,E3,E3,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*exp    E3*/ {OK,OK,__,-8,__,-7,__,-3,__,__,__,__,__,__,E3,E3,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*tr     T1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,T2,__,__,__,__,__,__,__},
-/*tru    T2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,T3,__,__,__,__},
-/*true   T3*/ {__,__,__,__,__,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,OK,__,__,__,__,__,__,__,__,__,__,__},
-/*fa     F1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,F2,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*fal    F2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,F3,__,__,__,__,__,__,__,__,__},
-/*fals   F3*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,F4,__,__,__,__,__,__},
-/*false  F4*/ {__,__,__,__,__,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,OK,__,__,__,__,__,__,__,__,__,__,__},
-/*nu     N1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,N2,__,__,__,__},
-/*nul    N2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,N3,__,__,__,__,__,__,__,__,__},
-/*null   N3*/ {__,__,__,__,__,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,OK,__,__,__,__,__,__,__,__,__},
-/*/      C1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,C2},
+/*start  GO*/ {GO,GO,-6,XX,-5,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*ok     OK*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*object OB*/ {OB,OB,XX,-9,XX,XX,XX,XX,SB,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*key    KE*/ {KE,KE,XX,XX,XX,XX,XX,XX,SB,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*colon  CO*/ {CO,CO,XX,XX,XX,XX,-2,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*value  VA*/ {VA,VA,-6,XX,-5,XX,XX,XX,SB,XX,CB,XX,MX,XX,ZX,IX,XX,XX,XX,XX,XX,FA,XX,NU,XX,XX,TR,XX,XX,XX,XX,XX},
+/*array  AR*/ {AR,AR,-6,XX,-5,-7,XX,XX,SB,XX,CB,XX,MX,XX,ZX,IX,XX,XX,XX,XX,XX,FA,XX,NU,XX,XX,TR,XX,XX,XX,XX,XX},
+/*string ST*/ {ST,XX,ST,ST,ST,ST,ST,ST,-4,EX,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST},
+/*escape ES*/ {XX,XX,XX,XX,XX,XX,XX,XX,ST,ST,ST,XX,XX,XX,XX,XX,XX,ST,XX,XX,XX,ST,XX,ST,ST,XX,ST,U1,XX,XX,XX,XX},
+/*u1     U1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U2,U2,U2,U2,U2,U2,U2,U2,XX,XX,XX,XX,XX,XX,U2,U2,XX,XX},
+/*u2     U2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U3,U3,U3,U3,U3,U3,U3,U3,XX,XX,XX,XX,XX,XX,U3,U3,XX,XX},
+/*u3     U3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U4,U4,U4,U4,U4,U4,U4,U4,XX,XX,XX,XX,XX,XX,U4,U4,XX,XX},
+/*u4     U4*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,UC,UC,UC,UC,UC,UC,UC,UC,XX,XX,XX,XX,XX,XX,UC,UC,XX,XX},
+/*minus  MI*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,ZE,IT,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*zero   ZE*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,DF,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*int    IT*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,DF,IT,IT,XX,XX,XX,XX,DE,XX,XX,XX,XX,XX,XX,XX,XX,DE,XX,XX},
+/*frac   FR*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,XX,FR,FR,XX,XX,XX,XX,E1,XX,XX,XX,XX,XX,XX,XX,XX,E1,XX,XX},
+/*e      E1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,E2,E2,XX,E3,E3,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*ex     E2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,E3,E3,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*exp    E3*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,XX,XX,XX,XX,E3,E3,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*tr     T1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,T2,XX,XX,XX,XX,XX,XX,XX},
+/*tru    T2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,T3,XX,XX,XX,XX},
+/*true   T3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,OK,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*fa     F1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,F2,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*fal    F2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,F3,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*fals   F3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,F4,XX,XX,XX,XX,XX,XX},
+/*false  F4*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,OK,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*nu     N1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,N2,XX,XX,XX,XX},
+/*nul    N2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,N3,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*null   N3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,OK,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*/      C1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,C2},
 /*/star  C2*/ {C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C3},
 /**      C3*/ {C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,CE,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C3},
-/*_.     FX*/ {OK,OK,__,-8,__,-7,__,-3,__,__,__,__,__,__,FR,FR,__,__,__,__,E1,__,__,__,__,__,__,__,__,E1,__,__},
-/*\      D1*/ {__,__,__,__,__,__,__,__,__,D2,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*\      D2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,U1,__,__,__,__},
+/*_.     FX*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,XX,XX,XX,XX,FR,FR,XX,XX,XX,XX,E1,XX,XX,XX,XX,XX,XX,XX,XX,E1,XX,XX},
+/*\      D1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,D2,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*\      D2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U1,XX,XX,XX,XX},
 };
 
 
@@ -1052,7 +1052,7 @@ JSON_parser_char(JSON_parser jc, int next_char)
         next_class = C_ETC;
     } else {
         next_class = ascii_class[next_char];
-        if (next_class <= __) {
+        if (next_class <= XX) {
             set_error(jc);
             return false;
         }
@@ -1092,7 +1092,7 @@ JSON_parser_char(JSON_parser jc, int next_char)
 /* escaped char */
         case EX:
             jc->escaped = 1;
-            jc->state = ES;
+            jc->state = ESC;
             break;
 /* integer detected by minus */
         case MX:
@@ -1403,6 +1403,10 @@ void init_JSON_config(JSON_config* config)
     }
 }
 
+#undef XX
+#undef COUNTOF
+#undef parse_buffer_clear
+#undef parse_buffer_pop_back_char
 /* end file parser/JSON_parser.c */
 /* begin file ./cson.c */
 #include <assert.h>
@@ -1433,7 +1437,7 @@ extern "C" {
 #endif
 
 
-
+    
 /**
    This type holds the "vtbl" for type-specific operations when
    working with cson_value objects.
@@ -1585,7 +1589,7 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 /**
    Assumes V is a pointer to memory which is allocated as part of a
    cson_value instance (the bytes immediately after that part).
-   Returns a pointer a cson_value by subtracting sizeof(cson_value)
+   Returns a pointer a a cson_value by subtracting sizeof(cson_value)
    from that address and casting it to a (cson_value*)
 */
 #define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
@@ -1609,7 +1613,7 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 
 /**
  Holds special shared "constant" (though they are non-const)
- values.
+ values. 
 */
 static struct CSON_EMPTY_HOLDER_
 {
@@ -1622,13 +1626,13 @@ static struct CSON_EMPTY_HOLDER_
 
 /**
     Indexes into the CSON_SPECIAL_VALUES array.
-
+    
     If this enum changes in any way,
     makes damned sure that CSON_SPECIAL_VALUES is updated
     to match!!!
 */
 enum CSON_INTERNAL_VALUES {
-
+    
     CSON_VAL_UNDEF = 0,
     CSON_VAL_NULL = 1,
     CSON_VAL_TRUE = 2,
@@ -1644,7 +1648,7 @@ enum CSON_INTERNAL_VALUES {
 
   These values MUST be initialized in the order specified
   by the CSON_INTERNAL_VALUES enum.
-
+   
   Note that they are not const because they are used as
   shared-allocation objects in non-const contexts. However, the
   public API provides no way to modifying them, and clients who
@@ -1667,7 +1671,7 @@ static cson_value CSON_SPECIAL_VALUES[] = {
     Returns non-0 (true) if m is one of our special
     "built-in" values, e.g. from CSON_SPECIAL_VALUES and some
     "empty" values.
-
+     
     If this returns true, m MUST NOT be free()d!
  */
 static char cson_value_is_builtin( void const * m )
@@ -2185,7 +2189,7 @@ static int cson_value_list_visit( cson_value_list * self,
                                   void * visitorState );
 #endif
 #endif
-
+    
 #if 0
 #  define LIST_T cson_value_list
 #  define VALUE_T cson_value *
@@ -2364,7 +2368,7 @@ cson_value * cson_value_new_object()
 
 cson_object * cson_new_object()
 {
-
+    
     return cson_value_get_object( cson_value_new_object() );
 }
 
@@ -2610,7 +2614,7 @@ int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
         int rc = 0;
         switch(val->api->typeID)
         {
-            case CSON_TYPE_UNDEF:
+            case CSON_TYPE_UNDEF: 
             case CSON_TYPE_NULL:
               i = 0;
               break;
@@ -2663,7 +2667,7 @@ int cson_value_fetch_double( cson_value const * val, cson_double_t * v )
         int rc = 0;
         switch(val->api->typeID)
         {
-          case CSON_TYPE_UNDEF:
+          case CSON_TYPE_UNDEF: 
           case CSON_TYPE_NULL:
               d = 0;
               break;
@@ -2793,7 +2797,7 @@ int cson_array_append( cson_array * ar, cson_value * v )
    Removes and returns the last value from the given array,
    shrinking its size by 1. Returns NULL if ar is NULL,
    ar->list.count is 0, or the element at that index is NULL.
-
+   
 
    If removeRef is true then cson_value_free() is called to remove
    ar's reference count for the value. In that case NULL is returned,
@@ -2860,7 +2864,7 @@ cson_value * cson_value_new_integer( cson_int_t v )
 #endif
         if( c )
         {
-            memcpy(CSON_INT(c), &v, sizeof(v));
+            memcpy( CSON_INT(c), &v, sizeof(v) );
         }
         return c;
     }
@@ -2879,7 +2883,7 @@ cson_value * cson_value_new_double( cson_double_t v )
         cson_value * c = cson_value_new(CSON_TYPE_DOUBLE,0);
         if( c )
         {
-            memcpy(CSON_DBL(c), &v, sizeof(v));
+            memcpy( CSON_DBL(c), &v, sizeof(v) );
         }
         return c;
     }
@@ -3070,7 +3074,7 @@ static void cson_object_sort_props( cson_object * obj )
     }
 
 }
-#endif
+#endif    
 
 int cson_object_unset( cson_object * obj, char const * key )
 {
@@ -3240,7 +3244,7 @@ cson_value * cson_object_take( cson_object * obj, char const * key )
    Returns cson_rc.AllocError if an allocation fails.
 
    Returns 0 on success. On error, parsing must be ceased immediately.
-
+   
    Ownership of val is ALWAYS TRANSFERED to this function. If this
    function fails, val will be cleaned up and destroyed. (This
    simplifies error handling in the core parser.)
@@ -3487,7 +3491,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
       }
       case JSON_T_STRING: {
           cson_value * v = cson_value_new_string( value->vu.str.value, value->vu.str.length );
-          rc = ( NULL == v )
+          rc = ( NULL == v ) 
             ? cson_rc.AllocError
             : cson_parser_push_value( p, v );
           break;
@@ -3534,7 +3538,7 @@ static int cson_json_err_to_rc( JSON_error jrc )
 
    - Copy p->root's pointer and set p->root to NULL.
    - Eventually free up p->root with cson_value_free().
-
+   
    If you do not set p->root to NULL, p->root will be freed along with
    any other items inserted into it (or under it) during the parsing
    process.
@@ -3573,7 +3577,7 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
     cson_parse_info info = info_ ? *info_ : cson_parse_info_empty;
     cson_parser p = cson_parser_empty;
     if( ! tgt || ! src ) return cson_rc.ArgError;
-
+    
     {
         JSON_config jopt = {0};
         init_JSON_config( &jopt );
@@ -3782,7 +3786,7 @@ static int cson_str_to_json( char const * str, unsigned int len,
         int ch;
         unsigned char clen = 0;
         char escChar[3] = {'\\',0,0};
-        enum { UBLen = 13 };
+        enum { UBLen = 20 };
         char ubuf[UBLen];
         int rc = 0;
         rc = f(state, "\"", 1 );
@@ -4642,7 +4646,7 @@ static cson_value * cson_value_clone_ref( cson_value * v )
     cson_value_add_reference(rc);
     return rc;
 }
-
+    
 static cson_value * cson_value_clone_array( cson_value const * orig )
 {
     unsigned int i = 0;
@@ -4682,7 +4686,7 @@ static cson_value * cson_value_clone_array( cson_value const * orig )
     }
     return destV;
 }
-
+    
 static cson_value * cson_value_clone_object( cson_value const * orig )
 {
     cson_object const * src = cson_value_get_object( orig );
@@ -4836,7 +4840,7 @@ char * cson_pod_to_string( cson_value const * orig )
               cson_string const * jstr = cson_value_get_string(orig);
               unsigned const int slen = cson_string_length_bytes( jstr );
               assert( NULL != jstr );
-              v = cson_strdup( cson_string_cstr( jstr ), slen );
+              v = cson_strdup( cson_string_cstr( jstr ), slen ); 
               break;
           }
           case CSON_TYPE_INTEGER: {
@@ -4889,7 +4893,7 @@ char * cson_pod_to_string( cson_value const * orig )
               cson_string const * jstr = cson_value_get_string(orig);
               unsigned const int slen = cson_string_length_bytes( jstr );
               assert( NULL != jstr );
-              v = cson_strdup( cson_string_cstr( jstr ), slen );
+              v = cson_strdup( cson_string_cstr( jstr ), slen ); 
               break;
           }
           case CSON_TYPE_INTEGER: {
@@ -5353,7 +5357,7 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
     assert(st);
     colCount = sqlite3_column_count(st);
     if( colCount <= 0 ) return NULL;
-
+    
     aryV = cson_value_new_array();
     if( ! aryV ) return NULL;
     ary = cson_value_get_array(aryV);
@@ -5493,7 +5497,7 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st )
     return aryV;
 }
 
-
+    
 /**
     Internal impl of cson_sqlite3_stmt_to_json() when the 'fat'
     parameter is non-0.
@@ -5638,7 +5642,7 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
         rc = cson_sqlite3_stmt_to_json( st, tgt, fat );
         sqlite3_finalize( st );
         return rc;
-    }
+    }        
 }
 
 int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v )

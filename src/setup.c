@@ -22,6 +22,21 @@
 #include "setup.h"
 
 /*
+** Increment the "cfgcnt" variable, so that ETags will know that
+** the configuration has changed.
+*/
+void setup_incr_cfgcnt(void){
+  static int once = 1;
+  if( once ){
+    once = 0;
+    db_multi_exec("UPDATE config SET value=value+1 WHERE name='cfgcnt'");
+    if( db_changes()==0 ){
+      db_multi_exec("INSERT INTO config(name,value) VALUES('cfgcnt',1)");
+    }
+  }
+}
+
+/*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
@@ -166,7 +181,7 @@ void setup_ulist(void){
     style_header("User List");
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
     @ <thead><tr>
-    @   <th>UID <th>Category
+    @   <th>Category
     @   <th>Capabilities (<a href='%R/setup_ucap_list'>key</a>)
     @   <th>Info <th>Last Change</tr></thead>
     @ <tbody>
@@ -182,7 +197,6 @@ void setup_ulist(void){
       const char *zCap = db_column_text(&s, 2);
       const char *zDate = db_column_text(&s, 4);
       @ <tr>
-      @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
       @ <td><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
       @ <td>%h(zCap)
 
@@ -210,12 +224,13 @@ void setup_ulist(void){
   }
   @ </tbody></table>
   @ <div class='section'>Users</div>
-  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable' id='userlist'>
+  @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
+  @  data-column-types='ktxTTK' data-init-sort='2'>
   @ <thead><tr>
-  @ <th>ID<th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
+  @ <th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
   @ <tbody>
   db_multi_exec(
-     "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL) WITHOUT ROWID;"
+    "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL) WITHOUT ROWID;"
   );
   if( db_table_exists("repository","accesslog") ){
     db_multi_exec(
@@ -223,7 +238,8 @@ void setup_ulist(void){
       " SELECT uname, max(mtime) FROM ("
       "    SELECT uname, mtime FROM accesslog WHERE success"
       "    UNION ALL"
-      "    SELECT login AS uname, rcvfrom.mtime AS mtime FROM rcvfrom JOIN user USING(uid))"
+      "    SELECT login AS uname, rcvfrom.mtime AS mtime"
+      "      FROM rcvfrom JOIN user USING(uid))"
       " GROUP BY 1;"
     );
   }
@@ -257,7 +273,6 @@ void setup_ulist(void){
       zAge = human_readable_age(rNow - rATime);
     }
     @ <tr>
-    @ <td><a href='setup_uedit?id=%d(uid)'>%d(uid)</a>
     @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
     @ <td>%h(zInfo)
@@ -269,7 +284,7 @@ void setup_ulist(void){
   }
   @ </tbody></table>
   db_finalize(&s);
-  output_table_sorting_javascript("userlist","nktxTTK",2);
+  style_table_sorter();
   style_footer();
 }
 
@@ -452,7 +467,7 @@ void user_edit(void){
   ** modified user record.  After writing the user record, redirect
   ** to the page that displays a list of users.
   */
-  doWrite = cgi_all("login","info","pw") && !higherUser;
+  doWrite = cgi_all("login","info","pw") && !higherUser && cgi_csrf_safe(1);
   if( doWrite ){
     char c;
     char zCap[50], zNm[4];
@@ -498,6 +513,7 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, zLogin, P("info"), zPw, zCap
     );
+    setup_incr_cfgcnt();
     admin_log( "Updated user [%q] with capabilities [%q].",
                zLogin, zCap );
     if( atoi(PD("all","0"))>0 ){
@@ -602,9 +618,10 @@ void user_edit(void){
 
   /* Begin generating the page
   */
-  style_submenu_element("Cancel", cgi_referer("setup_ulist"));
+  style_submenu_element("Cancel", "%s", cgi_referer("setup_ulist"));
   if( uid ){
     style_header("Edit User %h", zLogin);
+    style_submenu_element("Access Log", "%R/access_log?u=%t", zLogin);
   }else{
     style_header("Add A New User");
   }
@@ -617,43 +634,6 @@ void user_edit(void){
     @ <input type="hidden" name="pw" value="*">
   }
   @ <input type="hidden" name="referer" value="%h(cgi_referer("setup_ulist"))">
-  @ <script>
-  @ function updateCapabilityString(){
-  @   /*
-  @   ** This function updates the "#usetupEditCapability" span content
-  @   ** with the capabilities selected by the interactive user, based
-  @   ** upon the state of the capability checkboxes.
-  @   */
-  @   try {
-  @     var inputs = document.getElementsByTagName('input');
-  @     if( inputs && inputs.length ){
-  @       var output = document.getElementById('usetupEditCapability');
-  @       if( output ){
-  @         var permsIds = [], x = 0;
-  @         for(var i = 0; i < inputs.length; i++){
-  @           var e = inputs[i];
-  @           if( !e.name || !e.type ) continue;
-  @           if( e.type.toLowerCase()!=='checkbox' ) continue;
-  @           if( e.name.length===2 && e.name[0]==='a' ){
-  @             // looks like a capability checkbox
-  @             if( e.checked ){
-  @               // grab the second character of the element
-  @               // name, which is the textual flag for this
-  @               // capability, and then add it to the result
-  @               // array.
-  @               permsIds[x++] = e.name[1];
-  @             }
-  @           }
-  @         }
-  @         permsIds.sort();
-  @         output.innerHTML = permsIds.join('');
-  @       }
-  @     }
-  @   } catch (e) {
-  @     /* ignore errors */
-  @   }
-  @ }
-  @ </script>
   @ <table>
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
@@ -681,86 +661,60 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s'])
-    @                onchange="updateCapabilityString()"/>
+    @  <label><input type="checkbox" name="as"%s(oa['s']) />
     @  Setup%s(B('s'))</label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aa"%s(oa['a']) />
   @  Admin%s(B('a'))</label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ad"%s(oa['d']) />
   @  Delete%s(B('d'))</label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ae"%s(oa['e']) />
   @  Email%s(B('e'))</label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ap"%s(oa['p']) />
   @  Password%s(B('p'))</label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ai"%s(oa['i']) />
   @  Check-In%s(B('i'))</label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ao"%s(oa['o']) />
   @  Check-Out%s(B('o'))</label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ah"%s(oa['h']) />
   @  Hyperlinks%s(B('h'))</label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ab"%s(oa['b']) />
   @  Attachments%s(B('b'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oa['u'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="au"%s(oa['u']) />
   @  Reader%s(B('u'))</label><br />
-  @  <label><input type="checkbox" name="av"%s(oa['v'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="av"%s(oa['v']) />
   @  Developer%s(B('v'))</label><br />
-  @  <label><input type="checkbox" name="ag"%s(oa['g'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ag"%s(oa['g']) />
   @  Clone%s(B('g'))</label><br />
-  @  <label><input type="checkbox" name="aj"%s(oa['j'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aj"%s(oa['j']) />
   @  Read Wiki%s(B('j'))</label><br />
-  @  <label><input type="checkbox" name="af"%s(oa['f'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="af"%s(oa['f']) />
   @  New Wiki%s(B('f'))</label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="am"%s(oa['m']) />
   @  Append Wiki%s(B('m'))</label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ak"%s(oa['k']) />
   @  Write Wiki%s(B('k'))</label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="al"%s(oa['l']) />
   @  Moderate Wiki%s(B('l'))</label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oa['r'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ar"%s(oa['r']) />
   @  Read Ticket%s(B('r'))</label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="an"%s(oa['n']) />
   @  New Tickets%s(B('n'))</label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ac"%s(oa['c']) />
   @  Append To Ticket%s(B('c'))</label><br />
-  @  <label><input type="checkbox" name="aw"%s(oa['w'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aw"%s(oa['w']) />
   @  Write Tickets%s(B('w'))</label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="aq"%s(oa['q']) />
   @  Moderate Tickets%s(B('q'))</label><br />
-  @  <label><input type="checkbox" name="at"%s(oa['t'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="at"%s(oa['t']) />
   @  Ticket Report%s(B('t'))</label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ax"%s(oa['x']) />
   @  Private%s(B('x'))</label><br />
-  @  <label><input type="checkbox" name="ay"%s(oa['y'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="ay"%s(oa['y']) />
   @  Write Unversioned%s(B('y'))</label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z'])
-  @                onchange="updateCapabilityString()" />
+  @  <label><input type="checkbox" name="az"%s(oa['z']) />
   @  Download Zip%s(B('z'))</label>
   @ </td></tr>
   @ </table>
@@ -804,7 +758,7 @@ void user_edit(void){
   @ </table>
   @ </div></form>
   @ </div>
-  @ <script>updateCapabilityString();</script>
+  style_load_one_js_file("useredit.js");
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
@@ -1412,7 +1366,7 @@ void setup_login_group(void){
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' id='configTab'>
+    @ <table border='1' class='sortable' data-column-types='ttt' data-init-sort='1'>
     @ <thead><tr>
     @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
     @ </thead><tbody>
@@ -1428,7 +1382,7 @@ void setup_login_group(void){
     }
     db_finalize(&q);
     @ </tbody></table>
-    output_table_sorting_javascript("configTab","ttt",1);
+    style_table_sorter();
   }
   style_footer();
 }
@@ -1459,8 +1413,8 @@ void setup_timeline(void){
   db_begin_transaction();
   @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
-
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+
   @ <hr />
   onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0, 0);
@@ -1710,7 +1664,7 @@ void setup_config(void){
   @ No sanitization is done. This means that it is very possible for malicious
   @ users to inject dangerous HTML, CSS and JavaScript code into your wiki.</p>
   @ <p>This should <strong>only</strong> be enabled when wiki editing is limited
-  @ to trusted users. It should <strong>not</strong> be used on a publically
+  @ to trusted users. It should <strong>not</strong> be used on a publicly
   @ editable wiki.</p>
   @ (Property: "wiki-use-html")
   @ <hr />
@@ -1780,7 +1734,7 @@ void setup_adunit(void){
     return;
   }
   db_begin_transaction();
-  if( P("clear")!=0 ){
+  if( P("clear")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     cgi_replace_parameter("adunit","");
   }
@@ -1869,7 +1823,9 @@ void setup_logo(void){
     return;
   }
   db_begin_transaction();
-  if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
+  if( !cgi_csrf_safe(1) ){
+    /* Allow no state changes if not safe from CSRF */
+  }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
     Stmt ins;
     blob_init(&img, aLogoImg, szLogoImg);
@@ -2004,7 +1960,7 @@ int raw_sql_query_authorizer(
 ** Requires Admin privileges.
 */
 void sql_page(void){
-  const char *zQ = P("q");
+  const char *zQ;
   int go = P("go")!=0;
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -2013,6 +1969,7 @@ void sql_page(void){
   }
   add_content_sql_commands(g.db);
   db_begin_transaction();
+  zQ = cgi_csrf_safe(1) ? P("q") : 0;
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
@@ -2212,8 +2169,9 @@ void page_admin_log(){
     "SELECT datetime(time,'unixepoch'), who, page, what "
     "FROM admin_log "
     "ORDER BY time DESC");
-
-  @ <table id="adminLogTable" class="adminLogTable" width="100%%">
+  style_table_sorter();
+  @ <table class="sortable adminLogTable" width="100%%" \
+  @  data-column-types='Tttx' data-init-sort='1'>
   @ <thead>
   @ <th>Time</th>
   @ <th>User</th>
@@ -2239,8 +2197,6 @@ void page_admin_log(){
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>
   }
-
-  output_table_sorting_javascript("adminLogTable", "Tttx", 1);
   style_footer();
 }
 
@@ -2335,6 +2291,7 @@ static void setup_update_url_alias(
   const char *zNewName,
   const char *zValue
 ){
+  if( !cgi_csrf_safe(1) ) return;
   if( zNewName[0]==0 || zValue[0]==0 ){
     if( zOldName[0] ){
       blob_append_sql(pSql,

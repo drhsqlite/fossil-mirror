@@ -550,7 +550,7 @@ void merge_cmd(void){
     fossil_print("%s %s\n", isExe ? "EXECUTABLE" : "UNEXEC", zName);
     if( !dryRunFlag ){
       char *zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-      file_wd_setexe(zFullPath, isExe);
+      file_setexe(zFullPath, isExe);
       free(zFullPath);
       db_multi_exec("UPDATE vfile SET isexe=%d WHERE id=%d", isExe, idv);
     }
@@ -630,7 +630,7 @@ void merge_cmd(void){
     }else{
       fossil_print("MERGE %s\n", zName);
     }
-    if( islinkv || islinkm /* || file_wd_islink(zFullPath) */ ){
+    if( islinkv || islinkm ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
       nConflict++;
     }else{
@@ -648,7 +648,7 @@ void merge_cmd(void){
       if( rc>=0 ){
         if( !dryRunFlag ){
           blob_write_to_file(&r, zFullPath);
-          file_wd_setexe(zFullPath, isExe);
+          file_setexe(zFullPath, isExe);
         }
         db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
         if( rc>0 ){
@@ -738,24 +738,24 @@ void merge_cmd(void){
         zFullOldPath = mprintf("%s%s", g.zLocalRoot, zOldName);
       }
       zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
-      if( file_wd_size(zFullNewPath)>=0 ){
+      if( file_size(zFullNewPath, RepoFILE)>=0 ){
         Blob tmpPath;
         file_tempname(&tmpPath, "");
         db_multi_exec("INSERT INTO tmprn(fn,tmpfn) VALUES(%Q,%Q)",
                       zNewName, blob_str(&tmpPath));
-        if( file_wd_islink(zFullNewPath) ){
+        if( file_islink(zFullNewPath) ){
           symlink_copy(zFullNewPath, blob_str(&tmpPath));
         }else{
           file_copy(zFullNewPath, blob_str(&tmpPath));
         }
         blob_reset(&tmpPath);
       }
-      if( file_wd_islink(zFullOldPath) ){
+      if( file_islink(zFullOldPath) ){
         symlink_copy(zFullOldPath, zFullNewPath);
       }else{
         file_copy(zFullOldPath, zFullNewPath);
       }
-      file_wd_setexe(zFullNewPath, isExe);
+      file_setexe(zFullNewPath, isExe);
       file_delete(zFullOldPath);
       free(zFullNewPath);
       free(zFullOldPath);
@@ -791,7 +791,7 @@ void merge_cmd(void){
     );
     zName = db_column_text(&q, 1);
     zFullName = mprintf("%s%s", g.zLocalRoot, zName);
-    if( file_wd_isfile_or_link(zFullName)
+    if( file_isfile_or_link(zFullName)
         && !db_exists("SELECT 1 FROM fv WHERE fn=%Q", zName) ){
       fossil_print("ADDED %s (overwrites an unmanaged file)\n", zName);
       nOverwrite++;

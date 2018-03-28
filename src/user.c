@@ -636,6 +636,7 @@ void access_log_page(void){
   int y = atoi(PD("y","3"));
   int n = atoi(PD("n","200"));
   int skip = atoi(PD("o","0"));
+  const char *zUser = P("u");
   Blob sql;
   Stmt q;
   int cnt = 0;
@@ -675,7 +676,11 @@ void access_log_page(void){
     "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"
     "  FROM accesslog"
   );
-  if( y==1 ){
+  if( zUser ){
+    blob_append_sql(&sql, "  WHERE uname=%Q", zUser);
+    n = 1000000000;
+    skip = 0;
+  }else if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);
   }else if( y==2 ){
     blob_append(&sql, "  WHERE NOT success", -1);
@@ -689,7 +694,8 @@ void access_log_page(void){
   fLogEnabled = db_get_boolean("access-log", 0);
   @ <div align="center">Access logging is %s(fLogEnabled?"on":"off").
   @ (Change this on the <a href="setup_settings">settings</a> page.)</div>
-  @ <table border="1" cellpadding="5" id="logtable" align="center">
+  @ <table border="1" cellpadding="5" class="sortable" align="center" \
+  @  data-column-types='Ttt' data-init-sort='1'>
   @ <thead><tr><th width="33%%">Date</th><th width="34%%">User</th>
   @ <th width="33%%">IP Address</th></tr></thead><tbody>
   while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
@@ -736,6 +742,6 @@ void access_log_page(void){
   @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
-  output_table_sorting_javascript("logtable", "Ttt", 1);
+  style_table_sorter();
   style_footer();
 }

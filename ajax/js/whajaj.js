@@ -149,7 +149,7 @@ WhAjaj.stringify = function(val) {
     back-end) may be re-implemented to use a client's preferred
     connection mechanism (e.g. jQuery).
 
-    The optional opt paramater may be an object with any (or all) of
+    The optional opt parameter may be an object with any (or all) of
     the properties documented for WhAjaj.Connector.options.ajax.
     Properties set here (or later via modification of the "options"
     property of this object) will be used in calls to

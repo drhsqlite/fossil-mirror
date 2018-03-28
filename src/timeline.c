@@ -52,7 +52,7 @@ void tag_private_status(int rid){
 */
 void hyperlink_to_uuid(const char *zUuid){
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class='timelineHistLink'","%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ %z(chref("timelineHistLink","%R/info/%!S",zUuid))[%S(zUuid)]</a>
   }else{
     @ <span class="timelineHistDsp">[%S(zUuid)]</span>
   }
@@ -93,18 +93,26 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
-#define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
-#define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
-#define TIMELINE_GRAPH    0x0008  /* Compute a graph */
-#define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
-#define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
-#define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
-#define TIMELINE_UCOLOR   0x0080  /* Background color by user */
-#define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x0200  /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x0400  /* Show RID values in addition to UUIDs */
-#define TIMELINE_BISECT   0x0800  /* Show supplimental bisect information */
+#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines */
+#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc */
+#define TIMELINE_BRIEF    0x000004  /* Combine adjacent elements of same obj */
+#define TIMELINE_GRAPH    0x000008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x000010  /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x000020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x000040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x000080  /* Background color by user */
+#define TIMELINE_FRENAMES 0x000100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x000200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x000400  /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x000800  /* Show supplimental bisect information */
+#define TIMELINE_COMPACT  0x001000  /* Use the "compact" view style */
+#define TIMELINE_VERBOSE  0x002000  /* Use the "detailed" view style */
+#define TIMELINE_MODERN   0x004000  /* Use the "modern" view style */
+#define TIMELINE_COLUMNAR 0x008000  /* Use the "columns" view style */
+#define TIMELINE_CLASSIC  0x010000  /* Use the "classic" view style */
+#define TIMELINE_VIEWS    0x01f000  /* Mask for all of the view styles */
+#define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
+#define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
 #endif
 
 /*
@@ -250,16 +258,31 @@ void www_print_timeline(
   int vid = 0;                /* Current checkout version */
   int dateFormat = 0;         /* 0: HH:MM (default) */
   int bCommentGitStyle = 0;   /* Only show comments through first blank line */
+  const char *zStyle;         /* Sub-name for classes for the style */
   const char *zDateFmt;
   int iTableId = timeline_tableid();
 
-  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")==0 && db_open_local(0) ){
+  if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
   }
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
+  if( (tmFlags & TIMELINE_VIEWS)==0 ){
+    tmFlags |= timeline_ss_cookie();
+  }
+  if( tmFlags & TIMELINE_COLUMNAR ){
+    zStyle = "Columnar";
+  }else if( tmFlags & TIMELINE_COMPACT ){
+    zStyle = "Compact";
+  }else if( tmFlags & TIMELINE_VERBOSE ){
+    zStyle = "Verbose";
+  }else if( tmFlags & TIMELINE_CLASSIC ){
+    zStyle = "Classic";
+  }else{
+    zStyle = "Modern";
+  }
   zDateFmt = P("datefmt");
   if( zDateFmt ) dateFormat = atoi(zDateFmt);
   if( tmFlags & TIMELINE_GRAPH ){
@@ -287,6 +310,9 @@ void www_print_timeline(
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
     char *zDateLink;          /* URL for the link on the timestamp */
+    int drawDetailEllipsis;   /* True to show ellipsis in place of detail */
+    int gidx = 0;             /* Graph row identifier */
+    int isSelectedOrCurrent = 0;  /* True if current row is selected */
     char zTime[20];
 
     if( zDate==0 ){
@@ -312,9 +338,6 @@ void www_print_timeline(
     }
     if( pendingEndTr ){
       @ </td></tr>
-      if( pendingEndTr>1 ){
-        @ <tr class="timelineSpacer"></tr>
-      }
       pendingEndTr = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
@@ -360,15 +383,25 @@ void www_print_timeline(
     }
     pendingEndTr = 1;
     if( rid==selectedRid ){
-      @ <tr class="timelineSpacer"></tr>
       @ <tr class="timelineSelected">
-      pendingEndTr = 2;
+      isSelectedOrCurrent = 1;
     }else if( rid==vid ){
       @ <tr class="timelineCurrent">
+      isSelectedOrCurrent = 1;
     }else {
       @ <tr>
     }
-    zDateLink = href("%R/timeline?c=%!S&unhide", zUuid);
+    if( zType[0]=='e' && tagid ){
+      char *zId;
+      zId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
+                        tagid);
+      zDateLink = href("%R/technote/%s",zId);
+      free(zId);
+    }else if( zUuid ){
+      zDateLink = chref("timelineHistLink", "%R/info/%!S", zUuid);
+    }else{
+      zDateLink = mprintf("<a>");
+    }
     @ <td class="timelineTime">%z(zDateLink)%s(zTime)</a></td>
     @ <td class="timelineGraph">
     if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
@@ -390,10 +423,9 @@ void www_print_timeline(
         }
       }
     }
-    if( zType[0]=='c' && (pGraph || (tmFlags & TIMELINE_BRCOLOR)!=0) ){
+    if( zType[0]=='c' && pGraph ){
       int nParent = 0;
       int aParent[GR_MAX_RAIL];
-      int gidx;
       static Stmt qparent;
       db_static_prepare(&qparent,
         "SELECT pid FROM plink"
@@ -409,12 +441,18 @@ void www_print_timeline(
                            zUuid, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
+    }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
+      /* For technotes, make a graph node with nParent==(-1).  This will
+      ** not actually draw anything on the graph, but it will set the
+      ** background color of the timeline entry */
+      gidx = graph_add_row(pGraph, rid, -1, 0, zBr, zBgClr, zUuid, 0);
+      @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
     @</td>
-    if( zBgClr && zBgClr[0] && rid!=selectedRid ){
-      @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
+    if( !isSelectedOrCurrent ){
+      @ <td class="timeline%s(zStyle)Cell" id='mc%d(gidx)'>
     }else{
-      @ <td class="timelineTableCell">
+      @ <td class="timeline%s(zStyle)Cell">
     }
     if( pGraph && zType[0]!='c' ){
       @ &bull;
@@ -422,89 +460,137 @@ void www_print_timeline(
     if( modPending ){
       @ <span class="modpending">(Awaiting Moderator Approval)</span>
     }
-    if( zType[0]=='c' ){
-      if( tmFlags & TIMELINE_BISECT ){
-        static Stmt bisectQuery;
-        db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
-        db_bind_int(&bisectQuery, ":rid", rid);
-        if( db_step(&bisectQuery)==SQLITE_ROW ){
-          @ <b>%s(db_column_text(&bisectQuery,1))</b>
-          @ (%d(db_column_int(&bisectQuery,0)))
-        }
-        db_reset(&bisectQuery);
+    if( (tmFlags & TIMELINE_BISECT)!=0 && zType[0]=='c' ){
+      static Stmt bisectQuery;
+      db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
+      db_bind_int(&bisectQuery, ":rid", rid);
+      if( db_step(&bisectQuery)==SQLITE_ROW ){
+        @ <b>%s(db_column_text(&bisectQuery,1))</b>
+        @ (%d(db_column_int(&bisectQuery,0)))
       }
-      hyperlink_to_uuid(zUuid);
-      if( isLeaf ){
-        if( db_exists("SELECT 1 FROM tagxref"
-                      " WHERE rid=%d AND tagid=%d AND tagtype>0",
-                      rid, TAG_CLOSED) ){
-          @ <span class="timelineLeaf">Closed-Leaf:</span>
-        }else{
-          @ <span class="timelineLeaf">Leaf:</span>
-        }
-      }
-    }else if( zType[0]=='e' && tagid ){
-      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
-    }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
-      hyperlink_to_uuid(zUuid);
+      db_reset(&bisectQuery);
     }
-    if( tmFlags & TIMELINE_SHOWRID ){
-      int srcId = delta_source_rid(rid);
-      if( srcId ){
-        @ (%d(rid)&larr;%d(srcId))
-      }else{
-        @ (%d(rid))
-      }
-    }
+    drawDetailEllipsis = (tmFlags & (TIMELINE_COMPACT))!=0;
     db_column_blob(pQuery, commentColumn, &comment);
+    if( tmFlags & TIMELINE_COMPACT ){
+      @ <span class='timelineCompactComment' data-id='%d(rid)'>
+    }else{
+      @ <span class='timeline%s(zStyle)Comment'>
+    }
+    if( (tmFlags & TIMELINE_CLASSIC)!=0 ){
+      if( zType[0]=='c' ){
+        hyperlink_to_uuid(zUuid);
+        if( isLeaf ){
+          if( db_exists("SELECT 1 FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
+                        rid, TAG_CLOSED) ){
+            @ <span class="timelineLeaf">Closed-Leaf:</span>
+          }else{
+            @ <span class="timelineLeaf">Leaf:</span>
+          }
+        }
+      }else if( zType[0]=='e' && tagid ){
+        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
+      }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
+        hyperlink_to_uuid(zUuid);
+      }
+      if( tmFlags & TIMELINE_SHOWRID ){
+        int srcId = delta_source_rid(rid);
+        if( srcId ){
+          @ (%d(rid)&larr;%d(srcId))
+        }else{
+          @ (%d(rid))
+        }
+      }
+    }
     if( zType[0]!='c' ){
       /* Comments for anything other than a check-in are generated by
       ** "fossil rebuild" and expect to be rendered as text/x-fossil-wiki */
       wiki_convert(&comment, 0, WIKI_INLINE);
-    }else if( bCommentGitStyle ){
-      /* Truncate comment at first blank line */
-      int ii, jj;
-      int n = blob_size(&comment);
-      char *z = blob_str(&comment);
-      for(ii=0; ii<n; ii++){
-        if( z[ii]=='\n' ){
-          for(jj=ii+1; jj<n && z[jj]!='\n' && fossil_isspace(z[jj]); jj++){}
-          if( z[jj]=='\n' ) break;
-        }
-      }
-      z[ii] = 0;
-      @ <span class="timelineComment">%W(z)</span>
-    }else if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
-      Blob truncated;
-      blob_zero(&truncated);
-      blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
-      blob_append(&truncated, "...", 3);
-      @ <span class="timelineComment">%W(blob_str(&truncated))</span>
-      blob_reset(&truncated);
     }else{
-      @ <span class="timelineComment">%W(blob_str(&comment))</span>
+      if( bCommentGitStyle ){
+        /* Truncate comment at first blank line */
+        int ii, jj;
+        int n = blob_size(&comment);
+        char *z = blob_str(&comment);
+        for(ii=0; ii<n; ii++){
+          if( z[ii]=='\n' ){
+            for(jj=ii+1; jj<n && z[jj]!='\n' && fossil_isspace(z[jj]); jj++){}
+            if( z[jj]=='\n' ) break;
+          }
+        }
+        z[ii] = 0;
+        cgi_printf("%W",z);
+      }else if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+        Blob truncated;
+        blob_zero(&truncated);
+        blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
+        blob_append(&truncated, "...", 3);
+        @ %W(blob_str(&truncated))
+        blob_reset(&truncated);
+        drawDetailEllipsis = 0;
+      }else{
+        cgi_printf("%W",blob_str(&comment));
+      }
     }
+    @ </span>
     blob_reset(&comment);
 
-    /* Generate the "user: USERNAME" at the end of the comment, together
-    ** with a hyperlink to another timeline for that user.
+    /* Generate extra information and hyperlinks to follow the comment.
+    ** Example:  "(check-in: [abcdefg], user: drh, tags: trunk)"
     */
-    if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
-      @ (user: %z(href("%z",zLink))%h(zDispUser)</a>%s(zTagList?",":"\051")
-    }else{
-      @ (user: %h(zDispUser)%s(zTagList?",":"\051")
+    if( drawDetailEllipsis ){
+      @ <span class='timelineEllipsis' id='ellipsis-%d(rid)' \
+      @ data-id='%d(rid)'>...</span>
+    }
+    if( tmFlags & TIMELINE_COLUMNAR ){
+      if( !isSelectedOrCurrent ){
+        @ <td class="timelineDetailCell" id='md%d(gidx)'>
+      }else{
+        @ <td class="timelineDetailCell">
+      }
+    }
+    if( tmFlags & TIMELINE_COMPACT ){
+      cgi_printf("<span class='clutter' id='detail-%d'>",rid);
+    }
+    cgi_printf("<span class='timeline%sDetail'>", zStyle);
+    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+      cgi_printf("(");
     }
 
-    /* Generate a "detail" link for tags. */
-    if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
-      @ [%z(href("%R/info/%!S",zUuid))details</a>]
+    if( (tmFlags & TIMELINE_CLASSIC)==0 ){
+      if( zType[0]=='c' ){
+        if( isLeaf ){
+          if( db_exists("SELECT 1 FROM tagxref"
+                        " WHERE rid=%d AND tagid=%d AND tagtype>0",
+                        rid, TAG_CLOSED) ){
+            @ <span class='timelineLeaf'>Closed-Leaf</span>
+          }else{
+            @ <span class='timelineLeaf'>Leaf</span>
+          }
+        }
+        cgi_printf("check-in:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
+      }else if( zType[0]=='e' && tagid ){
+        cgi_printf("technote:&nbsp;");
+        hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
+      }else{
+        cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
+      }
+    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' ){
+      cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
+    }
+
+    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
+      cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
+    }else{
+      cgi_printf("user:&nbsp;%h", zDispUser);
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
     ** with hyperlinks to the tag list.
     */
+    if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( zTagList ){
       if( g.perm.Hyperlink ){
         int i;
@@ -524,17 +610,33 @@ void www_print_timeline(
           if( z[i]==0 ) break;
           z += i+2;
         }
-        @ tags: %s(blob_str(&links)))
+        cgi_printf(" tags:&nbsp;%s", blob_str(&links));
         blob_reset(&links);
       }else{
-        @ tags: %h(zTagList))
+        cgi_printf(" tags:&nbsp;%h", zTagList);
+      }
+    }
+
+    if( tmFlags & TIMELINE_SHOWRID ){
+      int srcId = delta_source_rid(rid);
+      if( srcId ){
+        cgi_printf(" id:&nbsp;%d&larr;%d", rid, srcId);
+      }else{
+        cgi_printf(" id:&nbsp;%d", rid);
       }
     }
     tag_private_status(rid);
-
-    /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
       xExtra(rid);
+    }
+    /* End timelineDetail */
+    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+      cgi_printf(")");
+    }
+    if( tmFlags & TIMELINE_COMPACT ){
+      @ </span></span>
+    }else{
+      @ </span>
     }
 
     /* Generate the file-change list if requested */
@@ -615,7 +717,7 @@ void www_print_timeline(
           }else{
             @ <li>%s(zA)%h(zFilename)</a>%s(zId) &nbsp; %s(zUnpub)
           }
-          @ %z(href("%R/fdiff?sbs=1&v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
+          @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zOld,zNew))[diff]</a></li>
         }
         fossil_free(zA);
       }
@@ -644,7 +746,7 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, iTableId, 0);
+  timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
 }
 
 /*
@@ -684,11 +786,10 @@ static const char *bg_to_fg(const char *zIn){
 */
 void timeline_output_graph_javascript(
   GraphContext *pGraph,     /* The graph to be displayed */
-  int omitDescenders,       /* True to omit descenders */
-  int iTableId,             /* Identifier for the timelineTable */
-  int fileDiff              /* True for file diff.  False for check-in diff */
+  int tmFlags,              /* Flags that control rendering */
+  int iTableId              /* Which graph is this for */
 ){
-  if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
+  if( pGraph && pGraph->nErr==0 ){
     GraphRow *pRow;
     int i;
     char cSep;
@@ -697,26 +798,37 @@ void timeline_output_graph_javascript(
     int circleNodes;     /* True for circle nodes.  False for square nodes */
     int colorGraph;      /* Use colors for graph lines */
     int iTopRow;         /* Index of the top row of the graph */
+    int fileDiff;        /* True for file diff.  False for check-in diff */
+    int omitDescenders;  /* True to omit descenders */
+    int scrollToSelect;  /* True to scroll to the selection */
 
     iRailPitch = atoi(PD("railpitch","0"));
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
     circleNodes = skin_detail_boolean("timeline-circle-nodes");
     colorGraph = skin_detail_boolean("timeline-color-graph-lines");
+    iTopRow = pGraph->pFirst ? pGraph->pFirst->idx : 0;
+    omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
+    fileDiff = (tmFlags & TIMELINE_FILEDIFF)!=0;
+    scrollToSelect = (tmFlags & TIMELINE_NOSCROLL)==0;
+    @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
+    @   "iTableId": %d(iTableId),
+    @   "circleNodes": %d(circleNodes),
+    @   "showArrowheads": %d(showArrowheads),
+    @   "iRailPitch": %d(iRailPitch),
+    @   "colorGraph": %d(colorGraph),
+    @   "nomo": %d(PB("nomo")),
+    @   "iTopRow": %d(iTopRow),
+    @   "omitDescenders": %d(omitDescenders),
+    @   "fileDiff": %d(fileDiff),
+    @   "scrollToSelect": %d(scrollToSelect),
+    @   "nrail": %d(pGraph->mxRail+1),
+    @   "baseUrl": "%R",
+    if( pGraph->nRow==0 ){
+      @   "rowinfo": null
+    }else{
+      @   "rowinfo": [
+    }
 
-    @ <script>(function(){
-    @ "use strict";
-    @ var css = "";
-    if( circleNodes ){
-      @ css += ".tl-node, .tl-node:after { border-radius: 50%%; }";
-    }
-    if( !showArrowheads ){
-      @ css += ".tl-arrow.u { display: none; }";
-    }
-    @ if( css!=="" ){
-    @   var style = document.createElement("style");
-    @   style.textContent = css;
-    @   document.querySelector("head").appendChild(style);
-    @ }
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
     **
@@ -748,20 +860,16 @@ void timeline_output_graph_javascript(
     **        the screen.
     **    h:  The artifact hash of the object being graphed
     */
-    iTopRow = pGraph->pFirst ? pGraph->pFirst->idx : 0;
-    cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
-        pRow->idx,                      /* id */
-        pRow->zBgClr,                   /* bg */
-        pRow->iRail,                    /* r */
-        pRow->bDescender,               /* d */
-        pRow->mergeOut,                 /* mo */
-        pRow->mergeUpto,                /* mu */
-        pRow->aiRiser[pRow->iRail],     /* u */
-        pRow->isLeaf ? 1 : 0            /* f */
-      );
-      /* au */
+      cgi_printf("{\"id\":%d,",     pRow->idx);
+      cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
+      cgi_printf("\"r\":%d,",       pRow->iRail);
+      cgi_printf("\"d\":%d,",       pRow->bDescender);
+      cgi_printf("\"mo\":%d,",      pRow->mergeOut);
+      cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
+      cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
+      cgi_printf("\"f\":%d,",       pRow->isLeaf ? 1 : 0);
+      cgi_printf("\"au\":");
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -773,10 +881,10 @@ void timeline_output_graph_javascript(
       if( cSep=='[' ) cgi_printf("[");
       cgi_printf("],");
       if( colorGraph && pRow->zBgClr[0]=='#' ){
-        cgi_printf("fg:\"%s\",", bg_to_fg(pRow->zBgClr));
+        cgi_printf("\"fg\":\"%s\",", bg_to_fg(pRow->zBgClr));
       }
       /* mi */
-      cgi_printf("mi:");
+      cgi_printf("\"mi\":");
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
@@ -787,263 +895,12 @@ void timeline_output_graph_javascript(
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],h:\"%!S\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
+      cgi_printf("],\"h\":\"%!S\"}%s",
+                 pRow->zUuid, pRow->pNext ? ",\n" : "]\n");
     }
-    cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
+    @ }</script>
+    style_graph_generator();
     graph_free(pGraph);
-    @ var canvasDiv;
-    @ var railPitch;
-    @ var mergeOffset;
-    @ var node, arrow, arrowSmall, line, mArrow, mLine, wArrow, wLine;
-    @ function initGraph(){
-    @   var parent = gebi("timelineTable%d(iTableId)").rows[0].cells[1];
-    @   parent.style.verticalAlign = "top";
-    @   canvasDiv = document.createElement("div");
-    @   canvasDiv.className = "tl-canvas";
-    @   canvasDiv.style.position = "absolute";
-    @   parent.appendChild(canvasDiv);
-    @
-    @   var elems = {};
-    @   var elemClasses = [
-    @     "rail", "mergeoffset", "node", "arrow u", "arrow u sm", "line",
-    @     "arrow merge r", "line merge", "arrow warp", "line warp"
-    @   ];
-    @   for( var i=0; i<elemClasses.length; i++ ){
-    @     var cls = elemClasses[i];
-    @     var elem = document.createElement("div");
-    @     elem.className = "tl-" + cls;
-    @     if( cls.indexOf("line")==0 ) elem.className += " v";
-    @     canvasDiv.appendChild(elem);
-    @     var k = cls.replace(/\s/g, "_");
-    @     var r = elem.getBoundingClientRect();
-    @     var w = Math.round(r.right - r.left);
-    @     var h = Math.round(r.bottom - r.top);
-    @     elems[k] = {w: w, h: h, cls: cls};
-    @   }
-    @   node = elems.node;
-    @   arrow = elems.arrow_u;
-    @   arrowSmall = elems.arrow_u_sm;
-    @   line = elems.line;
-    @   mArrow = elems.arrow_merge_r;
-    @   mLine = elems.line_merge;
-    @   wArrow = elems.arrow_warp;
-    @   wLine = elems.line_warp;
-    @
-    @   var minRailPitch = Math.ceil((node.w+line.w)/2 + mArrow.w + 1);
-    if( iRailPitch ){
-      @   railPitch = %d(iRailPitch);
-    }else{
-      @   railPitch = elems.rail.w;
-      @   railPitch -= Math.floor((nrail-1)*(railPitch-minRailPitch)/21);
-    }
-    @   railPitch = Math.max(railPitch, minRailPitch);
-    @
-    if( PB("nomo") ){
-      @   mergeOffset = 0;
-    }else{
-      @   mergeOffset = railPitch-minRailPitch-mLine.w;
-      @   mergeOffset = Math.min(mergeOffset, elems.mergeoffset.w);
-      @   mergeOffset = mergeOffset>0 ? mergeOffset + line.w/2 : 0;
-    }
-    @
-    @   var canvasWidth = (nrail-1)*railPitch + node.w;
-    @   canvasDiv.style.width = canvasWidth + "px";
-    @   canvasDiv.style.position = "relative";
-    @ }
-    @ function drawBox(cls,color,x0,y0,x1,y1){
-    @   var n = document.createElement("div");
-    @   x0 = Math.floor(x0);
-    @   y0 = Math.floor(y0);
-    @   x1 = x1 || x1===0 ? Math.floor(x1) : x0;
-    @   y1 = y1 || y1===0 ? Math.floor(y1) : y0;
-    @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
-    @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
-    @   var w = x1-x0;
-    @   var h = y1-y0;
-    @   n.style.position = "absolute";
-    @   n.style.left = x0+"px";
-    @   n.style.top = y0+"px";
-    @   if( w ) n.style.width = w+"px";
-    @   if( h ) n.style.height = h+"px";
-    @   if( color ) n.style.backgroundColor = color;
-    @   n.className = "tl-"+cls;
-    @   canvasDiv.appendChild(n);
-    @   return n;
-    @ }
-    @ function absoluteY(obj){
-    @   var top = 0;
-    @   if( obj.offsetParent ){
-    @     do{
-    @       top += obj.offsetTop;
-    @     }while( obj = obj.offsetParent );
-    @   }
-    @   return top;
-    @ }
-    @ function miLineY(p){
-    @   return p.y + node.h - mLine.w - 1;
-    @ }
-    @ function drawLine(elem,color,x0,y0,x1,y1){
-    @   var cls = elem.cls + " ";
-    @   if( x1===null ){
-    @     x1 = x0+elem.w;
-    @     cls += "v";
-    @   }else{
-    @     y1 = y0+elem.w;
-    @     cls += "h";
-    @   }
-    @   drawBox(cls,color,x0,y0,x1,y1);
-    @ }
-    @ function drawUpArrow(from,to,color){
-    @   var y = to.y + node.h;
-    @   var arrowSpace = from.y - y + (!from.id || from.r!=to.r ? node.h/2 : 0);
-    @   var arw = arrowSpace < arrow.h*1.5 ? arrowSmall : arrow;
-    @   var x = to.x + (node.w-line.w)/2;
-    @   var y0 = from.y + node.h/2;
-    @   var y1 = Math.ceil(to.y + node.h + arw.h/2);
-    @   drawLine(line,color,x,y0,null,y1);
-    @   x = to.x + (node.w-arw.w)/2;
-    @   var n = drawBox(arw.cls,null,x,y);
-    @   n.style.borderBottomColor = color;
-    @ }
-    @ function drawMergeLine(x0,y0,x1,y1){
-    @   drawLine(mLine,null,x0,y0,x1,y1);
-    @ }
-    @ function drawMergeArrow(p,rail){
-    @   var x0 = rail*railPitch + node.w/2;
-    @   if( rail in mergeLines ){
-    @     x0 += mergeLines[rail];
-    @     if( p.r<rail ) x0 += mLine.w;
-    @   }else{
-    @     x0 += (p.r<rail ? -1 : 1)*line.w/2;
-    @   }
-    @   var x1 = mArrow.w ? mArrow.w/2 : -node.w/2;
-    @   x1 = p.x + (p.r<rail ? node.w + Math.ceil(x1) : -x1);
-    @   var y = miLineY(p);
-    @   drawMergeLine(x0,y,x1,null);
-    @   var x = p.x + (p.r<rail ? node.w : -mArrow.w);
-    @   var cls = "arrow merge " + (p.r<rail ? "l" : "r");
-    @   drawBox(cls,null,x,y+(mLine.w-mArrow.h)/2);
-    @ }
-    @ function drawNode(p, btm){
-    @   if( p.u>0 ) drawUpArrow(p,rowinfo[p.u-%d(iTopRow)],p.fg);
-    @   var cls = node.cls;
-    @   if( p.mi.length ) cls += " merge";
-    @   if( p.f&1 ) cls += " leaf";
-    @   var n = drawBox(cls,p.bg,p.x,p.y);
-    @   n.id = "tln"+p.id;
-    @   n.onclick = clickOnNode;
-    @   n.style.zIndex = 10;
-    if( !omitDescenders ){
-      @   if( p.u==0 ) drawUpArrow(p,{x: p.x, y: -node.h},p.fg);
-      @   if( p.d ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
-    }
-    @   if( p.mo>=0 ){
-    @     var x0 = p.x + node.w/2;
-    @     var x1 = p.mo*railPitch + node.w/2;
-    @     var u = rowinfo[p.mu-%d(iTopRow)];
-    @     var y1 = miLineY(u);
-    @     if( p.u<0 || p.mo!=p.r ){
-    @       x1 += mergeLines[p.mo] = -mLine.w/2;
-    @       var y0 = p.y+2;
-    @       if( p.r!=p.mo ) drawMergeLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
-    @       drawMergeLine(x1,y0+mLine.w,null,y1);
-    @     }else if( mergeOffset ){
-    @       mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
-    @       x1 += mergeLines[p.mo];
-    @       drawMergeLine(x1,p.y+node.h/2,null,y1);
-    @     }else{
-    @       delete mergeLines[p.mo];
-    @     }
-    @   }
-    @   for( var i=0; i<p.au.length; i+=2 ){
-    @     var rail = p.au[i];
-    @     var x0 = p.x + node.w/2;
-    @     var x1 = rail*railPitch + (node.w-line.w)/2;
-    @     if( x0<x1 ){
-    @       x0 = Math.ceil(x0);
-    @       x1 += line.w;
-    @     }
-    @     var y0 = p.y + (node.h-line.w)/2;
-    @     var u = rowinfo[p.au[i+1]-%d(iTopRow)];
-    @     if( u.id<p.id ){
-    @       drawLine(line,u.fg,x0,y0,x1,null);
-    @       drawUpArrow(p,u,u.fg);
-    @     }else{
-    @       var y1 = u.y + (node.h-line.w)/2;
-    @       drawLine(wLine,u.fg,x0,y0,x1,null);
-    @       drawLine(wLine,u.fg,x1-line.w,y0,null,y1+line.w);
-    @       drawLine(wLine,u.fg,x1,y1,u.x-wArrow.w/2,null);
-    @       var x = u.x-wArrow.w;
-    @       var y = u.y+(node.h-wArrow.h)/2;
-    @       var n = drawBox(wArrow.cls,null,x,y);
-    @       if( u.fg ) n.style.borderLeftColor = u.fg;
-    @     }
-    @   }
-    @   for( var i=0; i<p.mi.length; i++ ){
-    @     var rail = p.mi[i];
-    @     if( rail<0 ){
-    @       rail = -rail;
-    @       mergeLines[rail] = -mLine.w/2;
-    @       var x = rail*railPitch + (node.w-mLine.w)/2;
-    @       drawMergeLine(x,miLineY(p),null,btm);
-    @     }
-    @     drawMergeArrow(p,rail);
-    @   }
-    @ }
-    @ var mergeLines;
-    @ function renderGraph(){
-    @   mergeLines = {};
-    @   canvasDiv.innerHTML = "";
-    @   var canvasY = absoluteY(canvasDiv);
-    @   for( var i=0; i<rowinfo.length; i++ ){
-    @     rowinfo[i].y = absoluteY(gebi("m"+rowinfo[i].id)) - canvasY;
-    @     rowinfo[i].x = rowinfo[i].r*railPitch;
-    @   }
-    @   var tlBtm = document.querySelector(".timelineBottom");
-    @   if( tlBtm.offsetHeight<node.h ){
-    @     tlBtm.style.height = node.h + "px";
-    @   }
-    @   var btm = absoluteY(tlBtm) - canvasY + tlBtm.offsetHeight;
-    @   for( var i=rowinfo.length-1; i>=0; i-- ){
-    @     drawNode(rowinfo[i], btm);
-    @   }
-    @ }
-    @ var selRow;
-    @ function clickOnNode(){
-    @   var p = rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-%d(iTopRow)];
-    @   if( !selRow ){
-    @     selRow = p;
-    @     this.className += " sel";
-    @     canvasDiv.className += " sel";
-    @   }else if( selRow==p ){
-    @     selRow = null;
-    @     this.className = this.className.replace(" sel", "");
-    @     canvasDiv.className = canvasDiv.className.replace(" sel", "");
-    @   }else{
-    if( fileDiff ){
-      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h+"&sbs=1";
-    }else{
-      if( db_get_boolean("show-version-diffs", 0)==0 ){
-        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=0";
-      }else{
-        @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h+"&sbs=1";
-      }
-    }
-    @   }
-    @ }
-    @ var lastRow = gebi("m"+rowinfo[rowinfo.length-1].id);
-    @ var lastY = 0;
-    @ function checkHeight(){
-    @   var h = absoluteY(lastRow);
-    @   if( h!=lastY ){
-    @     renderGraph();
-    @     lastY = h;
-    @   }
-    @   setTimeout(checkHeight, 1000);
-    @ }
-    @ initGraph();
-    @ checkHeight();
-    @ }())</script>
   }
 }
 
@@ -1096,21 +953,6 @@ const char *timeline_query_for_www(void){
   ;
   return zBase;
 }
-
-/*
-** Generate a submenu element with a single parameter change.
-*/
-static void timeline_submenu(
-  HQuery *pUrl,            /* Base URL */
-  const char *zMenuName,   /* Submenu name */
-  const char *zParam,      /* Parameter value to add or change */
-  const char *zValue,      /* Value of the new parameter */
-  const char *zRemove      /* Parameter to omit */
-){
-  style_submenu_element(zMenuName, "%s",
-                        url_render(pUrl, zParam, zValue, zRemove, 0));
-}
-
 
 /*
 ** Convert a symbolic name used as an argument to the a=, b=, or c=
@@ -1172,7 +1014,7 @@ char *names_of_file(const char *zUuid){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN = db_column_text(&q, 0);
     blob_appendf(&out, "%s%z%h</a>", zSep,
-          href("%R/finfo?name=%t", zFN), zFN);
+          href("%R/finfo?name=%t&m=%!S", zFN, zUuid), zFN);
     zSep = " or ";
   }
   db_finalize(&q);
@@ -1215,6 +1057,42 @@ static void timeline_y_submenu(int isDisabled){
   if( i>2 ){
     style_submenu_multichoice("y", i/2, az, isDisabled);
   }
+}
+
+/*
+** Convert the current "ss" display preferences cookie into an
+** appropriate TIMELINE_* flag
+*/
+int timeline_ss_cookie(void){
+  int tmFlags;
+  switch( cookie_value("ss","m")[0] ){
+    case 'c':  tmFlags = TIMELINE_COMPACT;  break;
+    case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
+    case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
+    case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
+    default:   tmFlags = TIMELINE_MODERN;   break;
+  }    
+  return tmFlags;
+}
+
+/*
+** Add the select/option box to the timeline submenu that is used to
+** set the ss= parameter that determines the viewing mode.
+**
+** Return the TIMELINE_* value appropriate for the view-style.
+*/
+int timeline_ss_submenu(void){
+  static const char *azViewStyles[] = {
+     "m", "Modern View",
+     "j", "Columnar View",
+     "c", "Compact View",
+     "v", "Verbose View",
+     "x", "Classic View",
+  };
+  cookie_link_parameter("ss","ss","m");
+  style_submenu_multichoice("ss", sizeof(azViewStyles)/(2*sizeof(azViewStyles[0])),
+                            azViewStyles, 0);
+  return timeline_ss_cookie();
 }
 
 /*
@@ -1463,47 +1341,52 @@ static const char *tagMatchExpression(
 **
 ** Query parameters:
 **
-**    a=TIMEORTAG    After this event
-**    b=TIMEORTAG    Before this event
-**    c=TIMEORTAG    "Circa" this event
-**    m=TIMEORTAG    Mark this event
-**    n=COUNT        Suggested number of events in output
-**    p=CHECKIN      Parents and ancestors of CHECKIN
-**    d=CHECKIN      Descendants of CHECIN
-**    dp=CHECKIN     The same as d=CHECKIN&p=CHECKIN
-**    t=TAG          Show only check-ins with the given TAG
-**    r=TAG          Show check-ins related to TAG, equivalent to t=TAG&rel
-**    rel            Show related check-ins as well as those matching t=TAG
-**    mionly         Limit rel to show ancestors but not descendants
-**    ms=STYLE       Set tag match style to EXACT, GLOB, LIKE, REGEXP
-**    u=USER         Only show items associated with USER
-**    y=TYPE         'ci', 'w', 't', 'e', or (default) 'all'
-**    ng             No Graph.
-**    nd             Do not highlight the focus check-in
-**    v              Show details of files changed
-**    f=CHECKIN      Show family (immediate parents and children) of CHECKIN
-**    from=CHECKIN   Path from...
-**    to=CHECKIN       ... to this
-**    shortest         ... show only the shortest path
-**    uf=FILE_HASH   Show only check-ins that contain the given file version
-**    chng=GLOBLIST  Show only check-ins that involve changes to a file whose
-**                     name matches one of the comma-separate GLOBLIST
-**    brbg           Background color from branch name
-**    ubg            Background color from user
-**    namechng       Show only check-ins that have filename changes
-**    forks          Show only forks and their children
-**    ym=YYYY-MM     Show only events for the given year/month
-**    yw=YYYY-WW     Show only events for the given week of the given year
-**    ymd=YYYY-MM-DD Show only events on the given day
-**    datefmt=N      Override the date format
-**    bisect         Show the check-ins that are in the current bisect
-**    showid         Show RIDs
-**    showsql        Show the SQL text
+**    a=TIMEORTAG     After this event
+**    b=TIMEORTAG     Before this event
+**    c=TIMEORTAG     "Circa" this event
+**    m=TIMEORTAG     Mark this event
+**    n=COUNT         Maximum number of events.  "all" for no limit
+**    p=CHECKIN       Parents and ancestors of CHECKIN
+**    d=CHECKIN       Children and descendants of CHECKIN
+**    dp=CHECKIN      The same as d=CHECKIN&p=CHECKIN
+**    t=TAG           Show only check-ins with the given TAG
+**    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
+**    rel             Show related check-ins as well as those matching t=TAG
+**    mionly          Limit rel to show ancestors but not descendants
+**    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
+**    u=USER          Only show items associated with USER
+**    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
+**    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
+**    advm            Use the "Advanced" or "Busy" menu design.
+**    ng              No Graph.
+**    nd              Do not highlight the focus check-in
+**    v               Show details of files changed
+**    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
+**    from=CHECKIN    Path from...
+**    to=CHECKIN        ... to this
+**    shortest          ... show only the shortest path
+**    uf=FILE_HASH    Show only check-ins that contain the given file version
+**    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
+**                      name matches one of the comma-separate GLOBLIST
+**    brbg            Background color from branch name
+**    ubg             Background color from user
+**    namechng        Show only check-ins that have filename changes
+**    forks           Show only forks and their children
+**    ym=YYYY-MM      Show only events for the given year/month
+**    yw=YYYY-WW      Show only events for the given week of the given year
+**    ymd=YYYY-MM-DD  Show only events on the given day
+**    datefmt=N       Override the date format
+**    bisect          Show the check-ins that are in the current bisect
+**    showid          Show RIDs
+**    showsql         Show the SQL text
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If both a= and b= appear then both upper and lower bounds are honored.
+**
+** CHECKIN or TIMEORTAG can be a check-in hash prefix, or a tag, or the
+** name of a branch.
 */
 void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
@@ -1514,7 +1397,7 @@ void page_timeline(void){
   int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
   int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
-  const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  const char *zType;                 /* Type of events to display */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
@@ -1550,28 +1433,34 @@ void page_timeline(void){
   double rBefore, rAfter, rCirca;     /* Boundary times */
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
+  char *zNewerButton = 0;             /* URL for Newer button at the top */
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
+  int advancedMenu = 0;               /* Use the advanced menu design */
 
   /* Set number of rows to display */
+  cookie_read_parameter("n","n");
   z = P("n");
+  if( z==0 ) z = db_get("timeline-default-length",0);
   if( z ){
     if( fossil_strcmp(z,"all")==0 ){
       nEntry = 0;
     }else{
       nEntry = atoi(z);
       if( nEntry<=0 ){
-        cgi_replace_query_parameter("n","10");
+        z = "10";
         nEntry = 10;
       }
     }
-  }else if( zCirca ){
-    cgi_replace_query_parameter("n","11");
-    nEntry = 11;
   }else{
-    cgi_replace_query_parameter("n","50");
+    z = "50";
     nEntry = 50;
   }
+  cgi_replace_query_parameter("n",z);
+  cookie_write_parameter("n","n",0);
+  tmFlags |= timeline_ss_submenu();  
+  cookie_link_parameter("advm","advm","0");
+  advancedMenu = atoi(PD("advm","0"));
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1586,6 +1475,16 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
+  cookie_read_parameter("y","y");
+  zType = P("y");
+  if( zType==0 ){
+    zType = g.perm.Read ? "ci" : "all";
+    cgi_set_parameter("y", zType);
+  }
+  if( zType[0]=='a' || zType[0]=='c' ){
+    cookie_write_parameter("y","y",zType);
+  }
+  cookie_render();
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
@@ -1618,7 +1517,9 @@ void page_timeline(void){
     }
 
     /* Display a checkbox to enable/disable display of related check-ins. */
-    style_submenu_checkbox("rel", "Related", 0, 0);
+    if( advancedMenu ){
+      style_submenu_checkbox("rel", "Related", 0, 0);
+    }
 
     /* Construct the tag match expression. */
     zTagSql = tagMatchExpression(matchStyle, zTagName, &zMatchDesc, &zError);
@@ -1706,6 +1607,9 @@ void page_timeline(void){
   }
 
   style_header("Timeline");
+  if( advancedMenu ){
+    style_submenu_element("Help", "%R/help?cmd=/timeline");
+  }
   login_anonymous_available();
   timeline_temp_table();
   blob_zero(&sql);
@@ -1750,14 +1654,16 @@ void page_timeline(void){
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    if( advancedMenu ){
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+    }
     blob_appendf(&desc, "%d check-ins going from ",
                  db_int(0, "SELECT count(*) FROM timeline"));
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
     addFileGlobDescription(zChng, &desc);
-  }else if( (p_rid || d_rid) && g.perm.Read ){
+  }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -1800,7 +1706,9 @@ void page_timeline(void){
         zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", d_rid);
       }
     }
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    if( advancedMenu ){
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+    }
     style_submenu_entry("n","Max:",4,0);
     timeline_y_submenu(1);
   }else if( f_rid && g.perm.Read ){
@@ -1820,8 +1728,10 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
     tmFlags |= TIMELINE_DISJOINT;
-    style_submenu_checkbox("unhide", "Unhide", 0, 0);
-    style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
+    if( advancedMenu ){
+      style_submenu_checkbox("unhide", "Unhide", 0, 0);
+      style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
+    }
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -2084,7 +1994,6 @@ void page_timeline(void){
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
             rDate-ONE_SECOND, blob_sql_text(&cond))
         ){
-          timeline_submenu(&url, "Older", "b", zDate, "a");
           zOlderButton = fossil_strdup(url_render(&url, "b", zDate, "a", 0));
         }
         free(zDate);
@@ -2100,18 +2009,22 @@ void page_timeline(void){
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
             rDate+ONE_SECOND, blob_sql_text(&cond))
         ){
-          timeline_submenu(&url, "Newer", "a", zDate, "b");
+          zNewerButton = fossil_strdup(url_render(&url, "a", zDate, "b", 0));
         }
         free(zDate);
       }
-      if( zType[0]=='a' || zType[0]=='c' ){
-        style_submenu_checkbox("unhide", "Unhide", 0, 0);
+      if( advancedMenu ){
+        if( zType[0]=='a' || zType[0]=='c' ){
+          style_submenu_checkbox("unhide", "Unhide", 0, 0);
+        }
+        style_submenu_checkbox("v", "Files",(zType[0]!='a' && zType[0]!='c'),0);
       }
-      style_submenu_checkbox("v", "Files", zType[0]!='a' && zType[0]!='c', 0);
       style_submenu_entry("n","Max:",4,0);
       timeline_y_submenu(disableY);
-      style_submenu_entry("t", "Tag Filter:", -8, 0);
-      style_submenu_multichoice("ms", count(azMatchStyles)/2, azMatchStyles, 0);
+      if( advancedMenu ){
+        style_submenu_entry("t", "Tag Filter:", -8, 0);
+        style_submenu_multichoice("ms", count(azMatchStyles)/2,azMatchStyles,0);
+      }
     }
     blob_zero(&cond);
   }
@@ -2120,6 +2033,11 @@ void page_timeline(void){
   }
   if( search_restrict(SRCH_CKIN)!=0 ){
     style_submenu_element("Search", "%R/search?y=c");
+  }
+  if( advancedMenu ){
+    style_submenu_element("Basic", "%s", url_render(&url, "advm", "0", 0, 0));
+  }else{
+    style_submenu_element("Advanced", "%s", url_render(&url, "advm", "1", 0, 0));
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
@@ -2136,10 +2054,13 @@ void page_timeline(void){
     @ <p class="generalError">%h(zError)</p>
   }
 
+  if( zNewerButton ){
+    @ %z(chref("button","%z",zNewerButton))More&nbsp;&uarr;</a>
+  }
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
-    @ %z(xhref("class='button'","%z",zOlderButton))Older</a>
+    @ %z(chref("button","%z",zOlderButton))More&nbsp;&darr;</a>
   }
   style_footer();
 }
@@ -2330,7 +2251,8 @@ static int isIsoDate(const char *z){
 ** Return true if the input string can be converted to a julianday.
 */
 static int fossil_is_julianday(const char *zDate){
-  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd WHERE jd IS NOT NULL)", zDate);
+  return db_int(0, "SELECT EXISTS (SELECT julianday(%Q) AS jd"
+                   " WHERE jd IS NOT NULL)", zDate);
 }
 
 /*
@@ -2633,7 +2555,9 @@ void test_timewarp_page(void){
     const char *zUser = db_column_text(&q, 3);
     char *zHref = href("%R/timeline?c=%S", zCkin);
     if( cnt==0 ){
-      @ <div class="brlist"><table id="timewarptable">
+      style_table_sorter();
+      @ <div class="brlist">
+      @ <table class='sortable' data-column-types='tttt' data-init-sort='2'>
       @ <thead><tr>
       @ <th>Check-in</th>
       @ <th>Date</th>
@@ -2655,7 +2579,6 @@ void test_timewarp_page(void){
     @ <p>No timewarps in this repository</p>
   }else{
     @ </tbody></table></div>
-    output_table_sorting_javascript("timewarptable","tttt",2);
   }
   style_footer();
 }

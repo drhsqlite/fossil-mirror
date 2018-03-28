@@ -56,15 +56,11 @@ static void undo_one(const char *zPathname, int redoFlag){
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
-    new_exists = file_wd_size(zFullname)>=0;
-    new_link = file_wd_islink(0);
+    new_exists = file_size(zFullname, RepoFILE)>=0;
+    new_link = file_islink(0);
     if( new_exists ){
-      if( new_link ){
-        blob_read_link(&current, zFullname);
-      }else{
-        blob_read_from_file(&current, zFullname);
-      }
-      new_exe = file_wd_isexe(0);
+      blob_read_from_file(&current, zFullname, RepoFILE);
+      new_exe = file_isexe(0,0);
     }else{
       blob_zero(&current);
       new_exe = 0;
@@ -89,7 +85,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       }else{
         blob_write_to_file(&new, zFullname);
       }
-      file_wd_setexe(zFullname, old_exe);
+      file_setexe(zFullname, old_exe);
     }else{
       fossil_print("DELETE %s\n", zPathname);
       file_delete(zFullname);
@@ -319,24 +315,20 @@ int undo_maybe_save(const char *zPathname, i64 limit){
   if( undoDisable ) return UNDO_DISABLED;
   if( !undoActive ) return UNDO_INACTIVE;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  size = file_wd_size(zFullname);
+  size = file_size(zFullname, RepoFILE);
   if( limit<0 || size<=limit ){
     int existsFlag = (size>=0);
-    int isLink = file_wd_islink(zFullname);
+    int isLink = file_islink(zFullname);
     Stmt q;
     Blob content;
     db_prepare(&q,
       "INSERT OR IGNORE INTO"
       "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
       " VALUES(%Q,0,%d,%d,%d,:c)",
-      zPathname, existsFlag, file_wd_isexe(zFullname), isLink
+      zPathname, existsFlag, file_isexe(zFullname,RepoFILE), isLink
     );
     if( existsFlag ){
-      if( isLink ){
-        blob_read_link(&content, zFullname);
-      }else{
-        blob_read_from_file(&content, zFullname);
-      }
+      blob_read_from_file(&content, zFullname, RepoFILE);
       db_bind_blob(&q, ":c", &content);
     }
     db_step(&q);

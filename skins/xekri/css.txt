@@ -709,89 +709,164 @@ span.tktError {
  * Timeline
  */
 
-div.divider {
-  color: #ee0;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-top: 1rem;
-  white-space: nowrap;
-}
-
 /* The suppressed duplicates lines in timeline, .. */
-span.timelineDisabled {
-  font-size: 0.5rem;
+.timelineDisabled {
+  font-size:  0.5rem;
   font-style: italic;
 }
 
-/* the format for the timeline data table */
-table.timelineTable {
-  border: 0;
+/* the format for the timeline version display(no history permission!) */
+.timelineHistDsp {
+  font-weight: bold;
 }
 
-/* The row in the timeline table that contains the entry of interest */
-tr.timelineSelected {
-  border: 1px solid #eee;
-  border-radius: 1rem;
+.content .timelineTable {
+  border:         0;
+  border-spacing: 0 0.5rem;
 }
 
-tr.timelineSelected td.timelineTime
-, tr.timelineSelected td.timelineTableCell {
-  background-color: #333;
-  box-shadow: 2px 2px 1px #000;
-  padding: 0.5rem;
+.content .timelineTable tr {
+  background: #222;
+  border:     0;
+  padding:    0;
+  box-shadow: none;
 }
 
-tr.timelineSelected td.timelineTime {
+.timelineTable .timelineDate {
+  color:       #ee0;
+  font-size:   1.2rem;
+  font-weight: bold;
+  margin-top:  1rem;
+  white-space: nowrap;
+}
+
+.timelineTable .timelineTime {
+  border-radius: 0;
+  border-width:  0;
+  padding:       0.25rem 0.5rem 0.5rem 0.5rem;
+  white-space:   nowrap;
+}
+
+.timelineGraph {
+  text-align:     left;
+  vertical-align: top;
+  width:          20px;
+}
+
+.timelineTable .timelineModernCell  ,
+.timelineTable .timelineCompactCell ,
+.timelineTable .timelineVerboseCell ,
+.timelineTable .timelineDetailCell  {
+/*
+  background:    linear-gradient(to bottom, #222 0%, #333 16%, #222 100%);
+*/
+  border-radius: 0;
+  border-width:  0;
+  padding:       0.25rem 0.5rem 0.5rem 0.5rem;
+}
+
+.timelineTable .timelineColumnarCell {
+/*
+  background:    linear-gradient(to bottom, #222 0%, #333 16%, #222 100%);
+*/
+  border-radius: 0;
+  border-width:  0;
+  padding:       0.25rem 0.5rem 0.5rem 0.5rem;
+}
+
+.timelineTable .timelineModernCell[id]   ,
+.timelineTable .timelineCompactCell[id]  ,
+.timelineTable .timelineVerboseCell[id]  ,
+.timelineTable .timelineColumnarCell[id] ,
+.timelineTable .timelineDetailCell[id]   {
+  background: #272727;
+}
+
+.timelineTable .timelineCurrent .timelineTime {
+  background:    #333;
   border-radius: 1rem 0 0 1rem;
+  border-width:  0;
 }
 
-tr.timelineSelected td.timelineTableCell {
+.timelineTable .timelineCurrent .timelineColumnarCell {
+  background:    #333;
+}
+
+.timelineTable .timelineCurrent .timelineModernCell  ,
+.timelineTable .timelineCurrent .timelineCompactCell ,
+.timelineTable .timelineCurrent .timelineVerboseCell ,
+.timelineTable .timelineCurrent .timelineDetailCell  {
+  background:    #333;
   border-radius: 0 1rem 1rem 0;
 }
 
-/* the format for the timeline data cells */
-td.timelineTableCell {
-  padding: 0.3rem;
-  text-align: left;
-  vertical-align: top;
+.timelineTable .timelineSelected {
+  background: #222;
+  border:     0;
+  box-shadow: none;
 }
 
-td.timelineTableCell[style] {
-  color: #000;
+.timelineTable .timelineSelected .timelineTime {
+  background:    #333;
+  border-radius: 1rem 0 0 1rem;
+  box-shadow:    2px 2px 1px #000;
 }
 
-/* the format for the timeline data cell of the current checkout */
-tr.timelineCurrent td.timelineTableCell {
-  border: 0;
-  border-radius: 1em 0em;
+.timelineTable .timelineSelected .timelineColumnarCell {
+  background: #333;
+  box-shadow: 2px 2px 1px #000;
 }
 
-/* the format for the timeline leaf marks */
-span.timelineLeaf {
+.timelineTable .timelineSelected .timelineModernCell  ,
+.timelineTable .timelineSelected .timelineCompactCell ,
+.timelineTable .timelineSelected .timelineVerboseCell ,
+.timelineTable .timelineSelected .timelineDetailCell  {
+  background:    #333;
+  border-radius: 0 1rem 1rem 0;
+  box-shadow:    2px 2px 1px #000;
+}
+
+.timelineTable .timelineModernCell  .timelineModernComment  ,
+.timelineTable .timelineModernCell  .timelineModernDetail   ,
+.timelineTable .timelineCompactCell .timelineCompactComment ,
+.timelineTable .timelineCompactCell .timelineCompactDetail  ,
+.timelineTable .timelineVerboseCell .timelineVerboseComment ,
+.timelineTable .timelineVerboseCell .timelineVerboseDetail  {
+}
+
+.timelineTable .timelineModernCell     .timelineLeaf ,
+.timelineTable .timelineCompactCell    .timelineLeaf ,
+.timelineTable .timelineVerboseCell    .timelineLeaf ,
+.timelineTable .timelineVerboseComment .timelineLeaf {
   font-weight: bold;
+}
+
+.timelineTable .timelineModernCell .timelineModernDetail ,
+.timelineTable .timelineDetailCell {
+  font-size: 85%;
+}
+
+.timelineTable .timelineDetailCell .timelineColumnarDetail {
+  white-space: pre-line;
+}
+
+.timelineTable .timelineDetailCell ul.filelist::before {
+  content: "files:";
+}
+
+.timelineTable .timelineDetailCell ul.filelist {
+  margin-left:  0;
+  padding-left: 0;
+}
+
+.timelineTable .timelineDetailCell ul.filelist li {
+  margin-left:  1.5rem;
+  padding-left: 0;
+  white-space:  nowrap;
 }
 
 /* the format for the timeline version links */
 a.timelineHistLink {
-}
-
-/* the format for the timeline version display(no history permission!) */
-span.timelineHistDsp {
-  font-weight: bold;
-}
-
-/* the format for the timeline time display */
-td.timelineTime {
-  text-align: right;
-  vertical-align: top;
-  white-space: nowrap;
-}
-
-/* the format for the grap placeholder cells in timelines */
-td.timelineGraph {
-  text-align: left;
-  vertical-align: top;
-  width: 20px;
 }
 
 
@@ -940,7 +1015,7 @@ input.checkinUserColor {
   * ** to the header and configure the java script file with
   * ** 1. use as bindClass :checkinUserColor
   * ** 2. change the default hash adding behaviour to ON
-  * ** or change the class defition of element identified by
+  * ** or change the class definition of element identified by
   * id="clrcust"
   * ** to a standard jscolor definition with java script in the footer.
   * */
@@ -989,7 +1064,7 @@ blockquote.reportError {
 p.noMoreShun {
   color: #00f;
 }
-/* format for artifact lines beeing shunned */
+/* format for artifact lines being shunned */
 p.shunned {
   color: #00f;
 }

@@ -60,7 +60,7 @@ you have to enable the "Private" capability (the "x" capability) in order
 to enable private branch syncing.  The Admin ("a") and Superuser ("s") do
 <u>not</u> imply Private ("x"); you'll have to set "x" in addition to
 "a" or "s".  This is a little extra work, but there is a purpose here:
-the interface is designed to make it very difficult to accidently
+the interface is designed to make it very difficult to accidentally
 sync a private branch to a public server.  It is highly recommended that
 you leave the "x" capability turned off on all repositories used for
 collaboration (repositories to which many people push and pull) and
@@ -69,7 +69,7 @@ branches.
 
 Private branch sync only works if you use the --private command-line option.
 Private branches are never synced via the auto-sync mechanism.  Once
-again, this restriction is designed to make it hard to accidently
+again, this restriction is designed to make it hard to accidentally
 push private branches beyond their intended audience.
 
 <h2>Purging Private Branches</h2>

@@ -246,12 +246,12 @@ void url_parse_local(
       i = 5;
     }
     zFile = mprintf("%s", &zUrl[i]);
-  }else if( file_isfile(zUrl) ){
+  }else if( file_isfile(zUrl, ExtFILE) ){
     pUrlData->isFile = 1;
     zFile = mprintf("%s", zUrl);
-  }else if( file_isdir(zUrl)==1 ){
+  }else if( file_isdir(zUrl, ExtFILE)==1 ){
     zFile = mprintf("%s/FOSSIL", zUrl);
-    if( file_isfile(zFile) ){
+    if( file_isfile(zFile, ExtFILE) ){
       pUrlData->isFile = 1;
     }else{
       free(zFile);

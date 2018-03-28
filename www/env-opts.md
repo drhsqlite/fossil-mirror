@@ -75,9 +75,6 @@ local time.
 `--nocgi`: Prevent fossil from acting as a CGI by default even if the
 `GATEWAY_INTERFACE` environment variable is set.
 
-`--no-dir-symlinks`: Disables support for directory symlinks, thus
-preventing them from being traversed into.
-
 `--no-th-hook`: (Sets `g.fNoThHook`.) Override the `th1-hooks` setting
 and prevent any TH1 hooks from being executed.
 

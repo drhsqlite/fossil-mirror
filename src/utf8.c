@@ -307,12 +307,12 @@ void fossil_path_free(void *pOld){
 ** to a file, -1 is returned and nothing is written
 ** to the console.
 */
+#ifdef _WIN32
 int fossil_utf8_to_console(
   const char *zUtf8,
   int nByte,
   int toStdErr
 ){
-#ifdef _WIN32
   int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
@@ -354,7 +354,5 @@ int fossil_utf8_to_console(
   }
   fossil_free(zUnicode);
   return nChar;
-#else
-  return -1;  /* No-op on unix */
-#endif
 }
+#endif

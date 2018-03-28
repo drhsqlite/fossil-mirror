@@ -1627,7 +1627,7 @@ void cmd_test_xfer(void){
     usage("?MESSAGEFILE?");
   }
   blob_zero(&g.cgiIn);
-  blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
+  blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2], ExtFILE);
   disableLogin = 1;
   page_xfer();
   fossil_print("%s\n", cgi_extract_content());

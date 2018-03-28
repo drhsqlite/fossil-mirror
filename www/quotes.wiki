@@ -129,6 +129,14 @@ the entire program in a single file!
 
 <ol>
 <li value=15>
+After prolonged exposure to fossil, i tend to get the jitters when I work with git...
+
+<blockquote>
+<i>sriku - at [https://news.ycombinator.com/item?id=16104427]</i>
+</blockquote>
+
+
+<li>
 Just want to say thanks for fossil making my life easier....
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 

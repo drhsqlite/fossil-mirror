@@ -199,7 +199,11 @@ void page_dir(void){
     }
   }else{
     @ <h2>The union of all files from all check-ins
-    @ %s(blob_str(&dirname))</h2>
+    @ %s(blob_str(&dirname))
+    if( zD ){
+      @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
+    }
+    @ </h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
   style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
@@ -845,76 +849,7 @@ void page_tree(void){
   }
   @ </ul>
   @ </ul></div>
-  @ <script>(function(){
-  @ function isExpanded(ul){
-  @   return ul.className=='';
-  @ }
-  @
-  @ function toggleDir(ul, useInitValue){
-  @   if( !useInitValue ){
-  @     expandMap[ul.id] = !isExpanded(ul);
-  @     history.replaceState(expandMap, '');
-  @   }
-  @   ul.className = expandMap[ul.id] ? '' : 'collapsed';
-  @ }
-  @
-  @ function toggleAll(tree, useInitValue){
-  @   var lists = tree.querySelectorAll('.subdir > ul > li ul');
-  @   if( !useInitValue ){
-  @     var expand = true;  /* Default action: make all sublists visible */
-  @     for( var i=0; lists[i]; i++ ){
-  @       if( isExpanded(lists[i]) ){
-  @         expand = false; /* Any already visible - make them all hidden */
-  @         break;
-  @       }
-  @     }
-  @     expandMap = {'*': expand};
-  @     history.replaceState(expandMap, '');
-  @   }
-  @   var className = expandMap['*'] ? '' : 'collapsed';
-  @   for( var i=0; lists[i]; i++ ){
-  @     lists[i].className = className;
-  @   }
-  @ }
-  @
-  @ function checkState(){
-  @   expandMap = history.state || {};
-  @   if( '*' in expandMap ) toggleAll(outer_ul, true);
-  @   for( var id in expandMap ){
-  @     if( id!=='*' ) toggleDir(gebi(id), true);
-  @   }
-  @ }
-  @
-  @ function belowSubdir(node){
-  @   do{
-  @     node = node.parentNode;
-  @     if( node==subdir ) return true;
-  @   } while( node && node!=outer_ul );
-  @   return false;
-  @ }
-  @
-  @ var history = window.history || {};
-  @ if( !history.replaceState ) history.replaceState = function(){};
-  @ var outer_ul = document.querySelector('.filetree > ul');
-  @ var subdir = outer_ul.querySelector('.subdir');
-  @ var expandMap = {};
-  @ checkState();
-  @ outer_ul.onclick = function(e){
-  @   e = e || window.event;
-  @   var a = e.target || e.srcElement;
-  @   if( a.nodeName!='A' ) return true;
-  @   if( a.parentNode.parentNode==subdir ){
-  @     toggleAll(outer_ul);
-  @     return false;
-  @   }
-  @   if( !belowSubdir(a) ) return true;
-  @   var ul = a.parentNode.nextSibling;
-  @   while( ul && ul.nodeName!='UL' ) ul = ul.nextSibling;
-  @   if( !ul ) return true; /* This is a file link, not a directory */
-  @   toggleDir(ul);
-  @   return false;
-  @ }
-  @ }())</script>
+  style_load_one_js_file("tree.js");
   style_footer();
 
   /* We could free memory used by sTree here if we needed to.  But
@@ -1148,14 +1083,14 @@ void fileage_page(void){
     db_reset(&q2);
     @ </td>
     @ <td>
-    @ %z(href("%R/info/%!S",zUuid))[%S(zUuid)]</a>
+    @ %W(zComment)
+    @ (check-in:&nbsp;%z(href("%R/ci/%!S",zUuid))%S(zUuid)</a>,
     if( showId ){
-      @ (%d(mid))
+      @ id: %d(mid)
     }
-    @ %W(zComment) (user:
-    @ %z(href("%R/timeline?u=%t&c=%!S&nd&n=200",zUser,zUuid))%h(zUser)</a>,
-    @ branch:
-    @ %z(href("%R/timeline?r=%t&c=%!S&nd&n=200",zBranch,zUuid))%h(zBranch)</a>)
+    @ user:&nbsp;%z(href("%R/timeline?u=%t&c=%!S&nd",zUser,zUuid))%h(zUser)</a>,
+    @ branch:&nbsp;\
+    @ %z(href("%R/timeline?r=%t&c=%!S&nd",zBranch,zUuid))%h(zBranch)</a>)
     @ </td></tr>
     @
     fossil_free(zAge);

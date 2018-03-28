@@ -134,7 +134,7 @@ void test_gzip_cmd(void){
   if( g.argc!=3 ) usage("FILENAME");
   sqlite3_open(":memory:", &g.db);
   gzip_begin(-1);
-  blob_read_from_file(&b, g.argv[2]);
+  blob_read_from_file(&b, g.argv[2], ExtFILE);
   zOut = mprintf("%s.gz", g.argv[2]);
   gzip_step(blob_buffer(&b), blob_size(&b));
   blob_reset(&b);

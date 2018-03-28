@@ -52,16 +52,6 @@
 #endif
 
 /*
-** Size of a UUID in characters.   A UUID is a randomly generated
-** lower-case hexadecimal number used to identify tickets.
-**
-** In Fossil 1.x, UUID also referred to a SHA1 artifact hash.  But that
-** usage is now obsolete.  The term UUID should now mean only a very large
-** random number used as a unique identifier for tickets or other objects.
-*/
-#define UUID_SIZE 40
-
-/*
 ** Maximum number of auxiliary parameters on reports
 */
 #define MX_AUX  5
@@ -233,10 +223,10 @@ struct Global {
   const char *azAuxVal[MX_AUX];  /* Value of each aux() or option() value */
   const char **azAuxOpt[MX_AUX]; /* Options of each option() value */
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
-
   int allowSymlinks;             /* Cached "allow-symlinks" option */
-
   int mainTimerId;               /* Set to fossil_timer_start() */
+  int nPendingRequest;           /* # of HTTP requests in "fossil server" */
+  int nRequest;                  /* Total # of HTTP request */
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
     int isJsonMode;            /* True if running in JSON mode, else
@@ -518,8 +508,17 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   ** creates lots of aliases and the warning alarms people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
+#ifndef FOSSIL_DEBUG
+  /* Disable the automatic index warning except in FOSSIL_DEBUG builds. */
+  if( iCode==SQLITE_WARNING_AUTOINDEX ) return;
+#endif
   if( iCode==SQLITE_SCHEMA ) return;
   if( g.dbIgnoreErrors ) return;
+#ifdef SQLITE_READONLY_DIRECTORY
+  if( iCode==SQLITE_READONLY_DIRECTORY ){
+    zErrmsg = "database is in a read-only directory";
+  }
+#endif
   fossil_warning("%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
 }
 
@@ -927,12 +926,16 @@ static void get_version_blob(
   const char *zRc;
 #endif
   Stmt q;
+  size_t pageSize = 0;
   blob_zero(pOut);
   blob_appendf(pOut, "This is fossil version %s\n", get_version());
   if( !bVerbose ) return;
   blob_appendf(pOut, "Compiled on %s %s using %s (%d-bit)\n",
                __DATE__, __TIME__, COMPILER_NAME, sizeof(void*)*8);
   blob_appendf(pOut, "Schema version %s\n", AUX_SCHEMA_MAX);
+  fossil_get_page_size(&pageSize);
+  blob_appendf(pOut, "Detected memory page size is %lu bytes\n",
+               (unsigned long)pageSize);
 #if defined(FOSSIL_ENABLE_MINIZ)
   blob_appendf(pOut, "miniz %s, loaded %s\n", MZ_VERSION, mz_version());
 #else
@@ -995,6 +998,12 @@ static void get_version_blob(
   blob_append(pOut, "FOSSIL_DYNAMIC_BUILD\n", -1);
 #else
   blob_append(pOut, "FOSSIL_STATIC_BUILD\n", -1);
+#endif
+#if defined(HAVE_PLEDGE)
+  blob_append(pOut, "HAVE_PLEDGE\n", -1);
+#endif
+#if defined(USE_MMAN_H)
+  blob_append(pOut, "USE_MMAN_H\n", -1);
 #endif
 #if defined(USE_SEE)
   blob_append(pOut, "USE_SEE\n", -1);
@@ -1183,7 +1192,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
     file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( !noJail ){
-      if( file_isdir(zDir)==1 ){
+      if( file_isdir(zDir, ExtFILE)==1 ){
         if( file_chdir(zDir, 1) ){
           fossil_fatal("unable to chroot into %s", zDir);
         }
@@ -1210,7 +1219,7 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
     if(i){
       fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
-    if( g.db==0 && file_isfile(zRepo) ){
+    if( g.db==0 && file_isfile(zRepo, ExtFILE) ){
       db_open_repository(zRepo);
     }
   }
@@ -1278,41 +1287,87 @@ static int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
-    @ <h1>Available Repositories:</h1>
-    @ <ol>
+    sqlite3_int64 iNow, iMTime;
+    @ <h1 align="center">Fossil Repositories</h1>
+    @ <table border="0" class="sortable" data-init-sort="1" \
+    @ data-column-types="tnk"><thead>
+    @ <tr><th>Filename<th width="20"><th>Last Modified</tr>
+    @ </thead><tbody>
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
+    iNow = db_int64(0, "SELECT strftime('%%s','now')");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       int nName = (int)strlen(zName);
       char *zUrl;
+      char *zAge;
+      char *zFull;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
+      if( zName[0]=='/'
+#ifdef _WIN32
+          || sqlite3_strglob("[a-zA-Z]:/*", zName)==0
+#endif
+      ){
+        zFull = mprintf("%s", zName);
+      }else if ( allRepo ){
+        zFull = mprintf("/%s", zName);
+      }else{
+        zFull = mprintf("%s/%s", g.zRepositoryName, zName);
+      }
+      iMTime = file_mtime(zFull, ExtFILE);
+      fossil_free(zFull);
+      if( iMTime<=0 ){
+        zAge = mprintf("...");
+      }else{
+        zAge = human_readable_age((iNow - iMTime)/86400.0);
+      }
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
-        @ <li>%h(zName)</li>
+        @ <tr><td>%h(zName)
       } else if( sqlite3_strglob("*/.*", zName)==0 ){
         /* Do not show hidden repos */
-        @ <li>%h(zName) (hidden)</li>
+        @ <tr><td>%h(zName) (hidden)
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        @ <li><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a></li>
+        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a>
       }else{
-        @ <li><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a></li>
+        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a>
       }
+      @ <td></td><td data-sortkey='%010llx(iNow - iMTime)'>%h(zAge)</tr>
+      fossil_free(zAge);
       sqlite3_free(zUrl);
     }
-    @ </ol>
+    @ </tbody></table>
   }else{
     @ <h1>No Repositories Found</h1>
   }
+  @ <script>%s(builtin_text("sorttable.js"))</script>
   @ </body>
   @ </html>
   cgi_reply();
   sqlite3_close(g.db);
   g.db = 0;
   return n;
+}
+
+/*
+** COMMAND: test-list-page
+**
+** Usage: %fossil test-list-page DIRECTORY
+**
+** Show all repositories underneath DIRECTORY.  Or if DIRECTORY is "/"
+** show all repositories in the ~/.fossil file.
+*/
+void test_list_page(void){
+  if( g.argc<3 ){
+    g.zRepositoryName = "/";
+  }else{
+    g.zRepositoryName = g.argv[2];
+  }
+  g.httpOut = stdout;
+  repo_list_page();
 }
 
 /*
@@ -1429,7 +1484,7 @@ static void process_one_web_page(
       */
       zCleanRepo = file_cleanup_fullpath(zRepo);
       if( szFile==0 && sqlite3_strglob("*/.fossil",zRepo)!=0 ){
-        szFile = file_size(zCleanRepo);
+        szFile = file_size(zCleanRepo, ExtFILE);
         if( g.fHttpTrace ){
           char zBuf[24];
           sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", szFile);
@@ -1449,7 +1504,7 @@ static void process_one_web_page(
 
         /* The PATH_INFO prefix seen so far is a valid directory.
         ** Continue the loop with the next element of the PATH_INFO */
-        if( zPathInfo[i]=='/' && file_isdir(zCleanRepo)==1 ){
+        if( zPathInfo[i]=='/' && file_isdir(zCleanRepo, ExtFILE)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
@@ -1467,14 +1522,14 @@ static void process_one_web_page(
         ** pages.
         */
         if( pFileGlob!=0
-         && file_isfile(zCleanRepo)
+         && file_isfile(zCleanRepo, ExtFILE)
          && glob_match(pFileGlob, file_cleanup_fullpath(zRepo))
          && sqlite3_strglob("*.fossil*",zRepo)!=0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
         ){
           Blob content;
-          blob_read_from_file(&content, file_cleanup_fullpath(zRepo));
+          blob_read_from_file(&content, file_cleanup_fullpath(zRepo), ExtFILE);
           cgi_set_content_type(zMimetype);
           cgi_set_content(&content);
           cgi_reply();
@@ -1544,8 +1599,29 @@ static void process_one_web_page(
   }
 
   /* At this point, the appropriate repository database file will have
-  ** been opened.  Use the first element of PATH_INFO as the page name
-  ** and deliver the appropriate page back to the user.
+  ** been opened.
+  **
+  ** Check to see if the the PATH_INFO begins with "draft[1-9]" and if
+  ** so activate the special handling for draft skins
+  */
+  if( zPathInfo && strncmp(zPathInfo,"/draft",6)==0
+   && zPathInfo[6]>='1' && zPathInfo[6]<='9'
+   && (zPathInfo[7]=='/' || zPathInfo[7]==0)
+  ){
+    int iSkin = zPathInfo[6] - '0';
+    char *zNewScript;
+    skin_use_draft(iSkin);
+    zNewScript = mprintf("%s/draft%d", P("SCRIPT_NAME"), iSkin);
+    if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
+    if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
+    zPathInfo += 7;
+    cgi_replace_parameter("PATH_INFO", zPathInfo);
+    cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+  }
+
+  /* If the content type is application/x-fossil or 
+  ** application/x-fossil-debug, then a sync/push/pull/clone is
+  ** desired, so default the PATH_INFO to /xfer
   */
   if( g.zContentType &&
       strncmp(g.zContentType, "application/x-fossil", 20)==0 ){
@@ -1554,6 +1630,10 @@ static void process_one_web_page(
     ** invoke the sync page. */
     zPathInfo = "/xfer";
   }
+
+  /* Use the first element of PATH_INFO as the page name
+  ** and deliver the appropriate page back to the user.
+  */
   set_base_url(0);
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
@@ -1846,7 +1926,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
-  blob_read_from_file(&config, zFile);
+  blob_read_from_file(&config, zFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
@@ -2003,7 +2083,7 @@ void cmd_cgi(void){
 ** contains multiple repositories that can be served.  If g.argv[arg]
 ** is a directory, the repositories it contains must be named
 ** "*.fossil".  If g.argv[arg] does not exist, then we must be within
-** an open check-out and the repository serve is the repository of
+** an open check-out and the repository to serve is the repository of
 ** that check-out.
 **
 ** Open the repository to be served if it is known.  If g.argv[arg] is
@@ -2020,7 +2100,7 @@ static void find_server_repository(int arg, int fCreate){
     db_must_be_within_tree();
   }else{
     const char *zRepo = g.argv[arg];
-    int isDir = file_isdir(zRepo);
+    int isDir = file_isdir(zRepo, ExtFILE);
     if( isDir==1 ){
       g.zRepositoryName = mprintf("%s", zRepo);
       file_simplify_name(g.zRepositoryName, -1, 0);
@@ -2297,6 +2377,15 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
+** Send a time-out reply
+*/
+void sigalrm_handler(int x){
+  printf("TIMEOUT\n");
+  fflush(stdout);
+  exit(1);
+}
+
+/*
 ** COMMAND: server*
 ** COMMAND: ui
 **
@@ -2347,6 +2436,8 @@ static int binaryOnPath(const char *zBinary){
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             signal a request coming in via https
+**   --max-latency N     Do not let any single HTTP request run for more than N
+**                       seconds (only works on unix)
 **   --nojail            Drop root privileges but do not enter the chroot jail
 **   --nossl             signal that no SSL connections are available
 **   --notfound URL      Redirect
@@ -2370,6 +2461,7 @@ void cmd_webserver(void){
   int flags = 0;            /* Server flags */
 #if !defined(_WIN32)
   int noJail;               /* Do not enter the chroot jail */
+  const char *zMaxLatency;   /* Maximum runtime of any single HTTP request */
 #endif
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
@@ -2397,6 +2489,7 @@ void cmd_webserver(void){
   skin_override();
 #if !defined(_WIN32)
   noJail = find_option("nojail",0,0)!=0;
+  zMaxLatency = find_option("max-latency",0,1);
 #endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
@@ -2416,9 +2509,6 @@ void cmd_webserver(void){
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
-  }else{
-    /* without --https, defaults to not available. */
-    g.sslNotAvailable = 1;
   }
   if( find_option("localhost", 0, 0)!=0 ){
     flags |= HTTP_SERVER_LOCALHOST;
@@ -2453,11 +2543,17 @@ void cmd_webserver(void){
     }
   }
   if( zPort ){
-    int i;
-    for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
-    if( i>0 ){
-      zIpAddr = mprintf("%.*s", i, zPort);
-      zPort += i+1;
+    if( strchr(zPort,':') ){
+      int i;
+      for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
+      if( i>0 ){
+        if( zPort[0]=='[' && zPort[i-1]==']' ){
+          zIpAddr = mprintf("%.*s", i-2, zPort+1);
+        }else{
+          zIpAddr = mprintf("%.*s", i, zPort);
+        }
+        zPort += i+1;
+      }
     }
     iPort = mxPort = atoi(zPort);
   }else{
@@ -2484,12 +2580,15 @@ void cmd_webserver(void){
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
-    if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
-                            zBrowser, zIpAddr, zInitPage);
-    }else{
+    if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
                             zBrowser, zInitPage);
+    }else if( strchr(zIpAddr,':') ){
+      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
+    }else{
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }
   }
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
@@ -2497,6 +2596,10 @@ void cmd_webserver(void){
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
+  }
+  if( zMaxLatency ){
+    signal(SIGALRM, sigalrm_handler);
+    alarm(atoi(zMaxLatency));
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
@@ -2520,12 +2623,15 @@ void cmd_webserver(void){
   /* Win32 implementation */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
-    if( zIpAddr ){
-      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
-                            zBrowser, zIpAddr, zInitPage);
-    }else{
+    if( zIpAddr==0 ){
       zBrowserCmd = mprintf("%s http://localhost:%%d/%s &",
                             zBrowser, zInitPage);
+    }else if( strchr(zIpAddr,':') ){
+      zBrowserCmd = mprintf("%s http://[%s]:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
+    }else{
+      zBrowserCmd = mprintf("%s http://%s:%%d/%s &",
+                            zBrowser, zIpAddr, zInitPage);
     }
   }
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;

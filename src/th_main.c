@@ -751,6 +751,7 @@ static int searchableCmd(
 ** "markdown"        = FOSSIL_ENABLE_MARKDOWN
 ** "unicodeCmdLine"  = !BROKEN_MINGW_CMDLINE
 ** "dynamicBuild"    = FOSSIL_DYNAMIC_BUILD
+** "mman"            = USE_MMAN_H
 ** "see"             = USE_SEE
 **
 ** Specifying an unknown feature will return a value of false, it will not
@@ -829,6 +830,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_DYNAMIC_BUILD)
   else if( 0 == fossil_strnicmp( zArg, "dynamicBuild\0", 13 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(USE_MMAN_H)
+  else if( 0 == fossil_strnicmp( zArg, "mman\0", 5 ) ){
     rc = 1;
   }
 #endif
@@ -2521,7 +2527,7 @@ void test_th_render(void){
     usage("FILE");
   }
   blob_zero(&in);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   Th_Render(blob_str(&in));
   Th_PrintTraceLog();
   if( forceCgi ) cgi_reply();
@@ -2624,7 +2630,7 @@ void test_th_source(void){
     usage("file");
   }
   blob_zero(&in);
-  blob_read_from_file(&in, g.argv[2]);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
   Th_FossilInit(TH_INIT_DEFAULT);
   rc = Th_Eval(g.interp, 0, blob_str(&in), -1);
   zRc = Th_ReturnCodeName(rc, 1);
