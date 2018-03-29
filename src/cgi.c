@@ -587,7 +587,7 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( fossil_islower(zName[0]) && fossil_all_alnum(zName+1) ){
+    if( fossil_islower(zName[0]) && fossil_no_strange_characters(zName+1) ){
       cgi_set_parameter_nocopy(zName, zValue, isQP);
     }
 #ifdef FOSSIL_ENABLE_JSON

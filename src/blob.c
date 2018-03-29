@@ -120,8 +120,8 @@ int fossil_isalnum(char c){
 /* Return true if and only if the entire string consists of only
 ** alphanumeric characters.
 */
-int fossil_all_alnum(const char *z){
-  while( z && fossil_isalnum(z[0]) ) z++;
+int fossil_no_strange_characters(const char *z){
+  while( z && (fossil_isalnum(z[0]) || z[0]=='_') ) z++;
   return z[0]==0;
 }
 
