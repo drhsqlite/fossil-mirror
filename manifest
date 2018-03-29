@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\s3.23.0\sbeta.
-D 2018-03-29T15:42:11.300
+C Also\sallow\sthe\s'-'\scharacter\sin\sparameter\sand\scookie\snames.\s\sThis\sis\snecessary\nfor\sthe\slogin\scookie.
+D 2018-03-29T17:03:57.722
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -430,7 +430,7 @@ F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c b5b1578354a9fa26db82b9f4206ec5bb2e82d66fd718e9e5f18c5e46b5520ef4
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
-F src/blob.c 07aa63f9c556af3e960abe6d920156d30672ee8511d032268f26a3707c48943c
+F src/blob.c 38d1df4cce7aaaed6de62b526a53e65f1a04f668b09fc2d4eff63805f6afd91f
 F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
 F src/browse.c 10353b275aa4a217995268a7cc8846ebf735f84cd6c4f7112a000fae0a9fe09c
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c02983d0a9185f725b0167e33b462d4bf1c0e333fc89c0114c91328a02a9f1e
-R 39e7790f41ae10f622cda0b30c554aae
+P 032188a698d937324770389d03e3d98f6416ea3a7029442f788cee6fd78b929d
+R 0f71795079027f8e44ccf33d61addc67
 U drh
-Z b99a868242dfb8dcce79f92c6605b5bb
+Z f59d3e5e0b645efbac07552e10137e11

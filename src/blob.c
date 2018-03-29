@@ -121,7 +121,7 @@ int fossil_isalnum(char c){
 ** alphanumeric characters.
 */
 int fossil_no_strange_characters(const char *z){
-  while( z && (fossil_isalnum(z[0]) || z[0]=='_') ) z++;
+  while( z && (fossil_isalnum(z[0]) || z[0]=='_' || z[0]=='-') ) z++;
   return z[0]==0;
 }
 
