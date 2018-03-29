@@ -558,6 +558,11 @@ void cgi_setenv(const char *zName, const char *zValue){
 **         override the value of an environment variable since
 **         environment variables always have uppercase names.
 **
+** 2018-03-29:  Also ignore the entry if NAME that contains any characters
+** other than [a-zA-Z0-9_].  There are no known exploits involving unusual
+** names that contain characters outside that set, but it never hurts to
+** be extra cautious when sanitizing inputs.
+**
 ** Parameters are separated by the "terminator" character.  Whitespace
 ** before the NAME is ignored.
 **
