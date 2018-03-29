@@ -117,6 +117,14 @@ int fossil_isalnum(char c){
   return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
 }
 
+/* Return true if and only if the entire string consists of only
+** alphanumeric characters.
+*/
+int fossil_all_alnum(const char *z){
+  while( z && fossil_isalnum(z[0]) ) z++;
+  return z[0]==0;
+}
+
 
 /*
 ** COMMAND: test-isspace
