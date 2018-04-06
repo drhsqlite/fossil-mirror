@@ -1,5 +1,5 @@
-C Fix\sMakefile\stypo,\sSQLITE_USE_ZLIB\sshould\sbe\sSQLITE_HAVE_ZLIB.
-D 2018-04-02T11:40:09.677
+C Enhance\sthe\s/tarball,\s/zip,\sand\s/sqlar\spages\sso\sthat\sthe\scheckin\sname\nto\sbe\sdownloaded\scan\sbe\sexpressed\sas\spart\sof\sthe\sURI,\sand\swithout\sthe\sneed\nfor\squery\sparameters.
+D 2018-04-06T12:01:23.009
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -442,7 +442,7 @@ F src/checkin.c 9dd1580ea2b588fe741fa881e9c6de74f7a37ce74a07f1695af17803629160cd
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 39756ecd3586daaccca6ac5445657a183aaafcc83b6802c47d7e3795fc4d3157
+F src/clone.c 560f9c07b6ba7f9e6778fee962beabe54eebf3a10a8759db0dfb09d0cee8690f
 F src/codecheck1.c 4b4bbebe7285545db72ee94406086a3ddbf1839367df76e7672025428465d43c
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
@@ -482,7 +482,7 @@ F src/http_socket.c c9dba13158d28e3f7b904b41a00f83d2172856eeccae31270b7c9ab4a55d
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c 4519efff1fa16b07cdb60ffe884d0a9a9bd1e175ad72be656dda2b55d02ed515
-F src/info.c 54b261db8d4eeaf1c8cd5ecb24fa2348a72ae1e3cb830bb51cbdd577e243cafd
+F src/info.c ed68e10e145ece54953f1b84343fe543e7f653cd9ee6b03ce6687b2ee69f86e1
 F src/json.c 20b82a01a75413ba43f41df627b85bd7d651d56842680eaab21752e7b3389ac6
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c be9d259fbaf431e38630a430e232e2988552ccfd27b156340cd5a30cd6230582
@@ -562,7 +562,7 @@ F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c ada2d6bccc677a018a296c68edfb049c6bfd8b49c4bd84f791204738f907ae34
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
-F src/tar.c d83930676cb1e321fcb7a6f80824397ba81a001d5b386c33a80e4571ce96b8fd
+F src/tar.c 6e64099b33e948a6803c855c32a9c02df10a8ce97a6685e6a48b94bc76507db7
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
@@ -592,7 +592,7 @@ F src/winhttp.c cac4936b567c5b6f8c22b0c10c74400ce6f327d61d1a41f8a41e88ef17079e65
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c fce28035ed0f193433f5836d5c9b9b5ef38a068c9980268bcb81279817c397e6
+F src/zip.c 39b893f0de94f75e0a2f13ccc1204d4970f31813ce01c804675da7a580ca8a6d
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 699cefc88e698cff16e5dd41dc3ed14e43f675d23b68efa2f38113529681278c
-R 03b59eac660f6aa0de506dd6a2e77846
-U mistachkin
-Z ebc2b79f3bac211ebc0a383135aa1156
+P 508c42a6398f87bbb9198dcf0a58c22133f41225db72ff42020edee122e6b86c
+R e2cf58d5102261614df51f43cde85290
+U drh
+Z 7e5148499867583e7468c53329f79dd6

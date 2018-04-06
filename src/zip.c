@@ -838,6 +838,15 @@ void sqlar_cmd(void){
 ** Generate a ZIP or SQL archive for the check-in specified by the "r"
 ** query parameter.  Return the archive as the HTTP reply content.
 **
+** If the NAME contains one "/" then the part before the "/" is taken
+** as the TAG and the part after the "/" becomes the true name.  Hence,
+** the following URLs are all equivalent:
+**
+**     /sqlar/508c42a6398f8/download.sqlar
+**     /sqlar?r=508c42a6398f8&name=download.sqlar
+**     /sqlar/download.sqlar?r=508c42a6398f8
+**     /sqlar?name=508c42a6398f8/download.sqlar
+**
 ** Query parameters:
 **
 **   name=NAME           The base name of the output file.  The default
@@ -885,10 +894,11 @@ void baseline_zip_page(void){
   }
   load_control();
   zName = mprintf("%s", PD("name",""));
-  nName = strlen(zName);
   z = P("r");
   if( z==0 ) z = P("uuid");
+  if( z==0 ) z = tar_uuid_from_name(&zName);
   if( z==0 ) z = "trunk";
+  nName = strlen(zName);
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
   zInclude = P("in");

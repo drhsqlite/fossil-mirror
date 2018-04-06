@@ -650,12 +650,49 @@ void tarball_cmd(void){
 }
 
 /*
+** Check to see if the input string is of the form:
+**
+**        checkin-name/filename.ext
+**
+** In other words, check to see if the input contains a single '/'
+** character that separates a valid check-in name from a filename.
+**
+** If the condition is true, return the check-in name and set the
+** input string to be the filename.
+**
+** If the condition is false, return NULL
+*/
+char *tar_uuid_from_name(char **pzName){
+  char *zName = *pzName;
+  int i, n;
+  for(i=n=0; zName[i]; i++){
+    if( zName[i]=='/' ){
+      if( n==0 ) n = i;
+      else return 0;
+    }
+  }
+  if( n==0 ) return 0;
+  if( zName[n+1]==0 ) return 0;
+  zName[n] = 0;
+  *pzName = fossil_strdup(&zName[n+1]);
+  return zName;
+}
+
+/*
 ** WEBPAGE: tarball
 ** URL: /tarball
 **
 ** Generate a compressed tarball for the check-in specified by the "r"
 ** query parameter.  Return that compressed tarball as the HTTP reply
 ** content.
+**
+** The r= and name= query parameters can be specified as extensions to the
+** URI.  Example, the following URIs are all equivalent:
+**
+**      /tarball/release/xyz.tar.gz
+**      /tarball?r=release&name=xyz.tar.gz
+**      /tarball/xyz.tar.gz?r=release
+**      /tarball?name=release/xyz.tar.gz
 **
 ** Query parameters:
 **
@@ -667,8 +704,11 @@ void tarball_cmd(void){
 **   r=TAG               The check-in that is turned into a compressed tarball.
 **                       Defaults to "trunk".  This query parameter used to
 **                       be called "uuid" and "uuid" is still accepted for
-**                       backwards compatibility.  If omitted, the default
-**                       check-in name is "trunk".
+**                       backwards compatibility.  If the name= query parameter
+**                       contains one "/" character then the part before the /
+**                       is the TAG and the part after the / is the true name.
+**                       If no TAG is specified by any of the above means, then
+**                       "trunk" is used as the default.
 **
 **   in=PATTERN          Only include files that match the comma-separate
 **                       list of GLOB patterns in PATTERN, as with ex=
@@ -693,10 +733,10 @@ void tarball_page(void){
   login_check_credentials();
   if( !g.perm.Zip ){ login_needed(g.anon.Zip); return; }
   load_control();
-  zName = mprintf("%s", PD("name",""));
-  nName = strlen(zName);
+  zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");
+  if( z==0 ) z = tar_uuid_from_name(&zName);
   if( z==0 ) z = "trunk";
   g.zOpenRevision = zRid = fossil_strdup(z);
   nRid = strlen(zRid);
@@ -704,6 +744,7 @@ void tarball_page(void){
   if( zInclude ) pInclude = glob_create(zInclude);
   zExclude = P("ex");
   if( zExclude ) pExclude = glob_create(zExclude);
+  nName = strlen(zName);
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
