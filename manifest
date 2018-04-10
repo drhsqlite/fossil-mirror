@@ -1,5 +1,5 @@
-C Enhance\sthe\s/tarball,\s/zip,\sand\s/sqlar\spages\sso\sthat\sthe\scheckin\sname\nto\sbe\sdownloaded\scan\sbe\sexpressed\sas\spart\sof\sthe\sURI,\sand\swithout\sthe\sneed\nfor\squery\sparameters.
-D 2018-04-06T12:01:23.009
+C Enhance\sthe\sreplacement\salgorithm\sfor\sthe\starball\scache\sso\sthat\sit\sgives\nextra\sweight\sto\starballs\sthat\shave\sbeen\saccessed\smore\sthan\sonce.
+D 2018-04-10T11:55:54.085
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
 F src/browse.c 10353b275aa4a217995268a7cc8846ebf735f84cd6c4f7112a000fae0a9fe09c
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
-F src/cache.c f29373b765932f9c6435da4bbfc4c0d442ffa715dce25f9bf295085a80099d83
+F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
 F src/cgi.c da970218b42f69cba4e01ff2510c4e6bd200f0bfb0c9667b07c1b43b10b62723
 F src/checkin.c 9dd1580ea2b588fe741fa881e9c6de74f7a37ce74a07f1695af17803629160cd
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 508c42a6398f87bbb9198dcf0a58c22133f41225db72ff42020edee122e6b86c
-R e2cf58d5102261614df51f43cde85290
+P 3e94c7ed74a0774134fbd96d672ee70cd55160213bfa1373303edb6f894bf0e8
+R 0832f5e4007ce70e074bef7d6b13bb9e
 U drh
-Z 7e5148499867583e7468c53329f79dd6
+Z c7346f81e9ee980fc9de248b2bd8ebbc

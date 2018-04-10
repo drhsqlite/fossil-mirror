@@ -167,13 +167,21 @@ void cache_write(Blob *pContent, const char *zKey){
   rc = sqlite3_changes(db);
 
   /* If the write was successful, truncate the cache to keep at most
-  ** max-cache-entry entries in the cache */
+  ** max-cache-entry entries in the cache.
+  **
+  ** The cache entry replacement algorithm is approximately LRU
+  ** (least recently used).  However, each access of an entry buys
+  ** that entry an extra hour of grace, so that more commonly accessed
+  ** entries are held in cache longer.  The extra "grace" allotted to
+  ** an entry is limited to 2 days worth.
+  */
   if( rc ){
     nKeep = db_get_int("max-cache-entry",10);
     sqlite3_finalize(pStmt);
     pStmt = cacheStmt(db,
                  "DELETE FROM cache WHERE rowid IN ("
-                    "SELECT rowid FROM cache ORDER BY tm DESC"
+                    "SELECT rowid FROM cache"
+                    " ORDER BY (tm + 3600*min(nRef,48)) DESC"
                     " LIMIT -1 OFFSET ?1)");
     if( pStmt ){
       sqlite3_bind_int(pStmt, 1, nKeep);
@@ -293,7 +301,8 @@ void cache_cmd(void){
     }else{
       fossil_print("nothing to clear; cache does not exist\n");
     }
-  }else if(( strncmp(zCmd, "list", nCmd)==0 ) || ( strncmp(zCmd, "ls", nCmd)==0 )){
+  }else if(( strncmp(zCmd, "list", nCmd)==0 )
+             || ( strncmp(zCmd, "ls", nCmd)==0 )){
     db = cacheOpen(0);
     if( db==0 ){
       fossil_print("cache does not exist\n");
@@ -352,7 +361,7 @@ void cache_page(void){
     pStmt = cacheStmt(db,
          "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
          "  FROM cache"
-         " ORDER BY tm DESC"
+         " ORDER BY (tm + 3600*min(nRef,48)) DESC"
     );
     if( pStmt ){
       @ <ol>
