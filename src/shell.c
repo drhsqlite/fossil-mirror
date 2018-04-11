@@ -150,6 +150,9 @@ typedef unsigned char u8;
 # ifndef access
 #  define access(f,m) _access((f),(m))
 # endif
+# ifndef unlink
+#  define unlink _unlink
+# endif
 # undef popen
 # define popen _popen
 # undef pclose
@@ -2142,6 +2145,9 @@ SQLITE_EXTENSION_INIT1
 #  include <direct.h>
 /* #  include "test_windirent.h" */
 #  define dirent DIRENT
+#  ifndef chmod
+#    define chmod _chmod
+#  endif
 #  ifndef stat
 #    define stat _stat
 #  endif
@@ -6127,9 +6133,11 @@ void zipfileStep(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal){
   p->body.n += zipfileSerializeLFH(&e, &p->body.a[p->body.n]);
 
   /* Append the data to the body of the new archive */
-  if( (rc = zipfileBufferGrow(&p->body, nData)) ) goto zipfile_step_out;
-  memcpy(&p->body.a[p->body.n], aData, nData);
-  p->body.n += nData;
+  if( nData>0 ){
+    if( (rc = zipfileBufferGrow(&p->body, nData)) ) goto zipfile_step_out;
+    memcpy(&p->body.a[p->body.n], aData, nData);
+    p->body.n += nData;
+  }
 
   /* Append the CDS record to the directory of the new archive */
   nByte = ZIPFILE_CDS_FIXED_SZ + e.cds.nFile + 9;
@@ -11249,7 +11257,6 @@ static FILE *output_file_open(const char *zFile, int bTextMode){
   return f;
 }
 
-#if !defined(SQLITE_UNTESTABLE)
 #if !defined(SQLITE_OMIT_TRACE) && !defined(SQLITE_OMIT_FLOATING_POINT)
 /*
 ** A routine for handling output from sqlite3_trace().
@@ -11271,7 +11278,6 @@ static int sql_trace_callback(
   }
   return 0;
 }
-#endif
 #endif
 
 /*
@@ -12855,11 +12861,11 @@ static int arCreateOrUpdateCommand(
     rc = arExecSql(pAr, zCreate);
   }
   for(i=0; i<pAr->nArg && rc==SQLITE_OK; i++){
-    char *zSql = sqlite3_mprintf(zInsertFmt[pAr->bZip], zTab,
+    char *zSql2 = sqlite3_mprintf(zInsertFmt[pAr->bZip], zTab,
         pAr->bVerbose ? "shell_putsnl(name)" : "name",
         pAr->azArg[i], pAr->zDir);
-    rc = arExecSql(pAr, zSql);
-    sqlite3_free(zSql);
+    rc = arExecSql(pAr, zSql2);
+    sqlite3_free(zSql2);
   }
 end_ar_transaction:
   if( rc!=SQLITE_OK ){
@@ -14137,8 +14143,8 @@ static int do_meta_command(char *zLine, ShellState *p){
       }
     }
     if( zName!=0 ){
-      int isMaster = sqlite3_strlike(zName, "sqlite_master", 0)==0;
-      if( isMaster || sqlite3_strlike(zName,"sqlite_temp_master",0)==0 ){
+      int isMaster = sqlite3_strlike(zName, "sqlite_master", '\\')==0;
+      if( isMaster || sqlite3_strlike(zName,"sqlite_temp_master", '\\')==0 ){
         char *new_argv[2], *new_colv[2];
         new_argv[0] = sqlite3_mprintf(
                       "CREATE TABLE %s (\n"
@@ -14198,13 +14204,18 @@ static int do_meta_command(char *zLine, ShellState *p){
       appendText(&sSelect, ") WHERE ", 0);
       if( zName ){
         char *zQarg = sqlite3_mprintf("%Q", zName);
+        int bGlob = strchr(zName, '*') != 0 || strchr(zName, '?') != 0 ||
+                    strchr(zName, '[') != 0;
         if( strchr(zName, '.') ){
           appendText(&sSelect, "lower(printf('%s.%s',sname,tbl_name))", 0);
         }else{
           appendText(&sSelect, "lower(tbl_name)", 0);
         }
-        appendText(&sSelect, strchr(zName, '*') ? " GLOB " : " LIKE ", 0);
+        appendText(&sSelect, bGlob ? " GLOB " : " LIKE ", 0);
         appendText(&sSelect, zQarg, 0);
+        if( !bGlob ){
+          appendText(&sSelect, " ESCAPE '\\' ", 0);
+        }
         appendText(&sSelect, " AND ", 0);
         sqlite3_free(zQarg);
       }
@@ -14619,7 +14630,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       }else{
         zLike = z;
         bSeparate = 1;
-        if( sqlite3_strlike("sqlite_%", zLike, 0)==0 ) bSchema = 1;
+        if( sqlite3_strlike("sqlite\\_%", zLike, '\\')==0 ) bSchema = 1;
       }
     }
     if( bSchema ){
@@ -15925,6 +15936,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #endif
     }else if( strcmp(z,"-append")==0 ){
       data.openMode = SHELL_OPEN_APPENDVFS;
+    }else if( strcmp(z,"-readonly")==0 ){
+      data.openMode = SHELL_OPEN_READONLY;
     }else if( strcmp(z,"-ascii")==0 ){
       data.mode = MODE_Ascii;
       sqlite3_snprintf(sizeof(data.colSeparator), data.colSeparator,

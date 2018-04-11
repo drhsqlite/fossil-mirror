@@ -319,10 +319,12 @@ void download_page(void){
   }else{
     const char *zDLTag = db_get("download-tag","trunk");
     const char *zNm = db_get("short-project-name","download");
-    char *zUrl = href("%R/zip/%t.zip?uuid=%t", zNm, zDLTag);
+    char *zUrl = href("%R/zip/%t/%t.zip", zDLTag, zNm);
     @ <p>ZIP Archive: %z(zUrl)%h(zNm).zip</a>
-    zUrl = href("%R/tarball/%t.tar.gz?uuid=%t", zNm, zDLTag);
+    zUrl = href("%R/tarball/%t/%t.tar.gz", zDLTag, zNm);
     @ <p>Tarball: %z(zUrl)%h(zNm).tar.gz</a>
+    zUrl = href("%R/sqlar/%t/%t.sqlar", zDLTag, zNm);
+    @ <p>SQLite Archive: %z(zUrl)%h(zNm).sqlar</a>
   }
   if( !g.perm.Clone ){
     @ <p>You are not authorized to clone this repository.

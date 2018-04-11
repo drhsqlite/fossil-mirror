@@ -176,7 +176,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.0h
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1-pre4
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -2299,7 +2299,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_ENABLE_STMTVTAB \
-                 -DSQLITE_USE_ZLIB \
+                 -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_INTROSPECTION_PRAGMAS \
                  -DSQLITE_ENABLE_DBPAGE_VTAB \
                  -DSQLITE_WIN32_NO_ANSI \
@@ -2329,7 +2329,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_ENABLE_JSON1 \
                 -DSQLITE_ENABLE_FTS5 \
                 -DSQLITE_ENABLE_STMTVTAB \
-                -DSQLITE_USE_ZLIB \
+                -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_INTROSPECTION_PRAGMAS \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
                 -Dmain=sqlite3_shell \

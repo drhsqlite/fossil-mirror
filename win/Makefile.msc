@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.0h
+SSLDIR    = $(B)\compat\openssl-1.1.1-pre4
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -335,7 +335,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
                  /DSQLITE_ENABLE_STMTVTAB \
-                 /DSQLITE_USE_ZLIB \
+                 /DSQLITE_HAVE_ZLIB \
                  /DSQLITE_INTROSPECTION_PRAGMAS \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
                  /DSQLITE_WIN32_NO_ANSI
@@ -362,7 +362,7 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_ENABLE_JSON1 \
                 /DSQLITE_ENABLE_FTS5 \
                 /DSQLITE_ENABLE_STMTVTAB \
-                /DSQLITE_USE_ZLIB \
+                /DSQLITE_HAVE_ZLIB \
                 /DSQLITE_INTROSPECTION_PRAGMAS \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
                 /Dmain=sqlite3_shell \
