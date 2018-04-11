@@ -1020,7 +1020,7 @@ void setup_skin(void){
   @ CSS changes will take effect.</p>
   @
   @ <a hame='step6'></a>
-  @ <h1>Step 6: Interate</h1>
+  @ <h1>Step 6: Iterate</h1>
   @
   @ <p>Repeat <a href='#step4'>step 4</a> and
   @ <a href='#step5'>step 5</a> as many times as necessary to create
