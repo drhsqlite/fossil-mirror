@@ -218,7 +218,7 @@ a two-clause BSD license.
 
 Consider the difference between GPL and BSD licenses:  GPL is designed
 to make writing easier at the expense of making reading harder.  BSD is
-designed to make reading easier and the expense of making writing harder.
+designed to make reading easier at the expense of making writing harder.
 
 To a first approximation, the GPL license grants the right to read
 source code to anyone who promises to give back enhancements.  In other
