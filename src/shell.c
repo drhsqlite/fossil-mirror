@@ -454,6 +454,12 @@ void utf8_printf(FILE *out, const char *zFormat, ...){
 # define raw_printf fprintf
 #endif
 
+/* Indicate out-of-memory and exit. */
+static void shell_out_of_memory(void){
+  raw_printf(stderr,"Error: out of memory\n");
+  exit(1);
+}
+
 /*
 ** Write I/O traces to the following stream.
 */
@@ -8529,6 +8535,22 @@ struct ExpertInfo {
   int bVerbose;
 };
 
+/* A single line in the EQP output */
+typedef struct EQPGraphRow EQPGraphRow;
+struct EQPGraphRow {
+  int iSelectId;        /* The SelectID for this row */
+  EQPGraphRow *pNext;   /* Next row in sequence */
+  char zText[1];        /* Text to display for this row */
+};
+
+/* All EQP output is collected into an instance of the following */
+typedef struct EQPGraph EQPGraph;
+struct EQPGraph {
+  EQPGraphRow *pRow;    /* Linked list of all rows of the EQP output */
+  EQPGraphRow *pLast;   /* Last element of the pRow list */
+  char zPrefix[100];    /* Graph prefix */
+};
+
 /*
 ** State information about the database connection is contained in an
 ** instance of the following structure.
@@ -8542,6 +8564,8 @@ struct ShellState {
   u8 scanstatsOn;        /* True to display scan stats before each finalize */
   u8 openMode;           /* SHELL_OPEN_NORMAL, _APPENDVFS, or _ZIPFILE */
   u8 doXdgOpen;          /* Invoke start/open/xdg-open in output_reset() */
+  u8 nEqpLevel;          /* Depth of the EQP output graph */
+  unsigned mEqpLines;    /* Mask of veritical lines in the EQP output graph */
   int outCount;          /* Revert to stdout when reaching zero */
   int cnt;               /* Number of records displayed so far */
   FILE *out;             /* Write results here */
@@ -8575,6 +8599,7 @@ struct ShellState {
   int *aiIndent;         /* Array of indents used in MODE_Explain */
   int nIndent;           /* Size of array aiIndent[] */
   int iIndent;           /* Index of current op in aiIndent[] */
+  EQPGraph sGraph;       /* Information for the graphical EXPLAIN QUERY PLAN */
 #if defined(SQLITE_ENABLE_SESSION)
   int nSession;             /* Number of active sessions */
   OpenSession aSession[4];  /* Array of sessions.  [0] is in focus. */
@@ -8631,6 +8656,7 @@ struct ShellState {
 #define MODE_Explain  9  /* Like MODE_Column, but do not truncate data */
 #define MODE_Ascii   10  /* Use ASCII unit and record separators (0x1F/0x1E) */
 #define MODE_Pretty  11  /* Pretty-print schemas */
+#define MODE_EQP     12  /* Converts EXPLAIN QUERY PLAN output into a graph */
 
 static const char *modeDescr[] = {
   "line",
@@ -8645,6 +8671,7 @@ static const char *modeDescr[] = {
   "explain",
   "ascii",
   "prettyprint",
+  "eqp"
 };
 
 /*
@@ -9193,7 +9220,106 @@ static int wsToEol(const char *z){
   }
   return 1;
 }
-    
+
+/*
+** Add a new entry to the EXPLAIN QUERY PLAN data
+*/
+static void eqp_append(ShellState *p, int iSelectId, const char *zText){
+  EQPGraphRow *pNew;
+  int nText = strlen30(zText);
+  pNew = sqlite3_malloc64( sizeof(*pNew) + nText );
+  if( pNew==0 ) shell_out_of_memory();
+  pNew->iSelectId = iSelectId;
+  memcpy(pNew->zText, zText, nText+1);
+  pNew->pNext = 0;
+  if( p->sGraph.pLast ){
+    p->sGraph.pLast->pNext = pNew;
+  }else{
+    p->sGraph.pRow = pNew;
+  }
+  p->sGraph.pLast = pNew;
+}
+
+/*
+** Free and reset the EXPLAIN QUERY PLAN data that has been collected
+** in p->sGraph.
+*/
+static void eqp_reset(ShellState *p){
+  EQPGraphRow *pRow, *pNext;
+  for(pRow = p->sGraph.pRow; pRow; pRow = pNext){
+    pNext = pRow->pNext;
+    sqlite3_free(pRow);
+  }
+  memset(&p->sGraph, 0, sizeof(p->sGraph));
+}
+
+/* Return the next EXPLAIN QUERY PLAN line with iSelectId that occurs after
+** pOld, or return the first such line if pOld is NULL
+*/
+static EQPGraphRow *eqp_next_row(ShellState *p, int iSelectId, EQPGraphRow *pOld){
+  EQPGraphRow *pRow = pOld ? pOld->pNext : p->sGraph.pRow;
+  while( pRow && pRow->iSelectId!=iSelectId ) pRow = pRow->pNext;
+  return pRow;
+}
+
+/* Render a single level of the graph shell having iSelectId.  Called
+** recursively to render sublevels.
+*/
+static void eqp_render_level(ShellState *p, int iSelectId){
+  EQPGraphRow *pRow, *pNext;
+  int i;
+  int n = strlen30(p->sGraph.zPrefix);
+  char *z;
+  for(pRow = eqp_next_row(p, iSelectId, 0); pRow; pRow = pNext){
+    pNext = eqp_next_row(p, iSelectId, pRow);
+    z = pRow->zText;
+    utf8_printf(p->out, "%s%s%s\n", p->sGraph.zPrefix, pNext ? "|--" : "`--", z);
+    if( n<sizeof(p->sGraph.zPrefix)-7 && (z = strstr(z, " SUBQUER"))!=0 ){
+      memcpy(&p->sGraph.zPrefix[n], pNext ? "|  " : "   ", 4);
+      if( strncmp(z, " SUBQUERY ", 9)==0 && (i = atoi(z+10))>iSelectId ){
+        eqp_render_level(p, i);
+      }else if( strncmp(z, " SUBQUERIES ", 12)==0 ){
+        i = atoi(z+12);
+        if( i>iSelectId ){
+          utf8_printf(p->out, "%s|--SUBQUERY %d\n", p->sGraph.zPrefix, i);
+          memcpy(&p->sGraph.zPrefix[n+3],"|  ",4);
+          eqp_render_level(p, i);
+        }
+        z = strstr(z, " AND ");
+        if( z && (i = atoi(z+5))>iSelectId ){
+          p->sGraph.zPrefix[n+3] = 0;
+          utf8_printf(p->out, "%s`--SUBQUERY %d\n", p->sGraph.zPrefix, i);
+          memcpy(&p->sGraph.zPrefix[n+3],"   ",4);
+          eqp_render_level(p, i);
+        }
+      }
+      p->sGraph.zPrefix[n] = 0;
+    }
+  }
+}
+
+/*
+** Display and reset the EXPLAIN QUERY PLAN data
+*/
+static void eqp_render(ShellState *p){
+  EQPGraphRow *pRow = p->sGraph.pRow;
+  if( pRow ){
+    if( pRow->zText[0]=='-' ){
+      if( pRow->pNext==0 ){
+        eqp_reset(p);
+        return;
+      }
+      utf8_printf(p->out, "%s\n", pRow->zText+3);
+      p->sGraph.pRow = pRow->pNext;
+      sqlite3_free(pRow);
+    }else{
+      utf8_printf(p->out, "QUERY PLAN\n");
+    }
+    p->sGraph.zPrefix[0] = 0;
+    eqp_render_level(p, 0);
+    eqp_reset(p);
+  }
+}
 
 /*
 ** This is the callback routine that the shell
@@ -9544,6 +9670,10 @@ static int shell_callback(
       utf8_printf(p->out, "%s", p->rowSeparator);
       break;
     }
+    case MODE_EQP: {
+      eqp_append(p, atoi(azArg[0]), azArg[3]);
+      break;
+    }
   }
   return 0;
 }
@@ -9642,10 +9772,7 @@ static void set_table_name(ShellState *p, const char *zName){
   n = strlen30(zName);
   if( cQuote ) n += n+2;
   z = p->zDestTable = malloc( n+1 );
-  if( z==0 ){
-    raw_printf(stderr,"Error: out of memory\n");
-    exit(1);
-  }
+  if( z==0 ) shell_out_of_memory();
   n = 0;
   if( cQuote ) z[n++] = cQuote;
   for(i=0; zName[i]; i++){
@@ -10385,11 +10512,12 @@ static int shell_exec(
         rc = sqlite3_prepare_v2(db, zEQP, -1, &pExplain, 0);
         if( rc==SQLITE_OK ){
           while( sqlite3_step(pExplain)==SQLITE_ROW ){
-            raw_printf(pArg->out,"--EQP-- %d,",sqlite3_column_int(pExplain, 0));
-            raw_printf(pArg->out,"%d,", sqlite3_column_int(pExplain, 1));
-            raw_printf(pArg->out,"%d,", sqlite3_column_int(pExplain, 2));
-            utf8_printf(pArg->out,"%s\n", sqlite3_column_text(pExplain, 3));
+            const char *zEQPLine = (const char*)sqlite3_column_text(pExplain,3);
+            int iSelectId = sqlite3_column_int(pExplain, 0);
+            if( zEQPLine[0]=='-' ) eqp_render(pArg);
+            eqp_append(pArg, iSelectId, zEQPLine);
           }
+          eqp_render(pArg);
         }
         sqlite3_finalize(pExplain);
         sqlite3_free(zEQP);
@@ -10417,11 +10545,16 @@ static int shell_exec(
 
       if( pArg ){
         pArg->cMode = pArg->mode;
-        if( pArg->autoExplain
-         && sqlite3_column_count(pStmt)==8
-         && sqlite3_strlike("EXPLAIN%", zStmtSql,0)==0
-        ){
-          pArg->cMode = MODE_Explain;
+        if( pArg->autoExplain ){
+          if( sqlite3_column_count(pStmt)==8
+           && sqlite3_strlike("EXPLAIN%", zStmtSql,0)==0
+          ){
+            pArg->cMode = MODE_Explain;
+          }
+          if( sqlite3_column_count(pStmt)==4
+           && sqlite3_strlike("EXPLAIN QUERY PLAN%", zStmtSql,0)==0 ){
+            pArg->cMode = MODE_EQP;
+          }
         }
 
         /* If the shell is currently in ".explain" mode, gather the extra
@@ -10433,6 +10566,7 @@ static int shell_exec(
 
       exec_prepared_stmt(pArg, pStmt);
       explain_data_delete(pArg);
+      eqp_render(pArg);
 
       /* print usage stats if stats on */
       if( pArg && pArg->statsOn ){
@@ -10510,10 +10644,7 @@ static char **tableColumnList(ShellState *p, const char *zTab){
     if( nCol>=nAlloc-2 ){
       nAlloc = nAlloc*2 + nCol + 10;
       azCol = sqlite3_realloc(azCol, nAlloc*sizeof(azCol[0]));
-      if( azCol==0 ){
-        raw_printf(stderr, "Error: out of memory\n");
-        exit(1);
-      }
+      if( azCol==0 ) shell_out_of_memory();
     }
     azCol[++nCol] = sqlite3_mprintf("%s", sqlite3_column_text(pStmt, 1));
     if( sqlite3_column_int(pStmt, 5) ){
@@ -11008,7 +11139,6 @@ static int deduceDatabaseType(const char *zName, int dfltZip){
 */
 static void open_db(ShellState *p, int keepAlive){
   if( p->db==0 ){
-    sqlite3_initialize();
     if( p->openMode==SHELL_OPEN_UNSPEC && access(p->zDbFilename,0)==0 ){
       p->openMode = (u8)deduceDatabaseType(p->zDbFilename, 0);
     }
@@ -11311,10 +11441,7 @@ static void import_append_char(ImportCtx *p, int c){
   if( p->n+1>=p->nAlloc ){
     p->nAlloc += p->nAlloc + 100;
     p->z = sqlite3_realloc64(p->z, p->nAlloc);
-    if( p->z==0 ){
-      raw_printf(stderr, "out of memory\n");
-      exit(1);
-    }
+    if( p->z==0 ) shell_out_of_memory();
   }
   p->z[p->n++] = (char)c;
 }
@@ -11475,10 +11602,7 @@ static void tryToCloneData(
   }
   n = sqlite3_column_count(pQuery);
   zInsert = sqlite3_malloc64(200 + nTable + n*3);
-  if( zInsert==0 ){
-    raw_printf(stderr, "out of memory\n");
-    goto end_data_xfer;
-  }
+  if( zInsert==0 ) shell_out_of_memory();
   sqlite3_snprintf(200+nTable,zInsert,
                    "INSERT OR IGNORE INTO \"%s\" VALUES(?", zTable);
   i = strlen30(zInsert);
@@ -11816,14 +11940,6 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
 static int shellDatabaseError(sqlite3 *db){
   const char *zErr = sqlite3_errmsg(db);
   utf8_printf(stderr, "Error: %s\n", zErr);
-  return 1;
-}
-
-/*
-** Print an out-of-memory message to stderr and return 1.
-*/
-static int shellNomemError(void){
-  raw_printf(stderr, "Error: out of memory\n");
   return 1;
 }
 
@@ -13520,9 +13636,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     sCtx.cRowSep = p->rowSeparator[0];
     zSql = sqlite3_mprintf("SELECT * FROM %s", zTable);
     if( zSql==0 ){
-      raw_printf(stderr, "Error: out of memory\n");
       xCloser(sCtx.in);
-      return 1;
+      shell_out_of_memory();
     }
     nByte = strlen30(zSql);
     rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
@@ -13567,9 +13682,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     if( nCol==0 ) return 0; /* no columns, no error */
     zSql = sqlite3_malloc64( nByte*2 + 20 + nCol*2 );
     if( zSql==0 ){
-      raw_printf(stderr, "Error: out of memory\n");
       xCloser(sCtx.in);
-      return 1;
+      shell_out_of_memory();
     }
     sqlite3_snprintf(nByte+20, zSql, "INSERT INTO \"%w\" VALUES(?", zTable);
     j = strlen30(zSql);
@@ -13645,12 +13759,17 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_stmt *pStmt;
     int tnum = 0;
     int i;
-    if( nArg!=3 ){
-      utf8_printf(stderr, "Usage: .imposter INDEX IMPOSTER\n");
+    if( !(nArg==3 || (nArg==2 && sqlite3_stricmp(azArg[1],"off")==0)) ){
+      utf8_printf(stderr, "Usage: .imposter INDEX IMPOSTER\n"
+                          "       .imposter off\n");
       rc = 1;
       goto meta_command_exit;
     }
     open_db(p, 0);
+    if( nArg==2 ){
+      sqlite3_test_control(SQLITE_TESTCTRL_IMPOSTER, p->db, "main", 0, 1);
+      goto meta_command_exit;
+    }
     zSql = sqlite3_mprintf("SELECT rootpage FROM sqlite_master"
                            " WHERE name='%q' AND type='index'", azArg[1]);
     sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
@@ -14835,18 +14954,12 @@ static int do_meta_command(char *zLine, ShellState *p){
         char **azNew;
         int n2 = nAlloc*2 + 10;
         azNew = sqlite3_realloc64(azResult, sizeof(azResult[0])*n2);
-        if( azNew==0 ){
-          rc = shellNomemError();
-          break;
-        }
+        if( azNew==0 ) shell_out_of_memory();
         nAlloc = n2;
         azResult = azNew;
       }
       azResult[nRow] = sqlite3_mprintf("%s", sqlite3_column_text(pStmt, 0));
-      if( 0==azResult[nRow] ){
-        rc = shellNomemError();
-        break;
-      }
+      if( 0==azResult[nRow] ) shell_out_of_memory();
       nRow++;
     }
     if( sqlite3_finalize(pStmt)!=SQLITE_OK ){
@@ -15417,10 +15530,7 @@ static int process_input(ShellState *p, FILE *in){
     if( nSql+nLine+2>=nAlloc ){
       nAlloc = nSql+nLine+100;
       zSql = realloc(zSql, nAlloc);
-      if( zSql==0 ){
-        raw_printf(stderr, "Error: out of memory\n");
-        exit(1);
-      }
+      if( zSql==0 ) shell_out_of_memory();
     }
     nSqlPrior = nSql;
     if( nSql==0 ){
@@ -15549,7 +15659,6 @@ static void process_sqliterc(
                       " cannot read ~/.sqliterc\n");
       return;
     }
-    sqlite3_initialize();
     zBuf = sqlite3_mprintf("%s/.sqliterc",home_dir);
     sqliterc = zBuf;
   }
@@ -15600,6 +15709,9 @@ static const char zOptions[] =
   "   -quote               set output mode to 'quote'\n"
   "   -readonly            open the database read-only\n"
   "   -separator SEP       set output column separator. Default: '|'\n"
+#ifdef SQLITE_ENABLE_SORTER_REFERENCES
+  "   -sorterref SIZE      sorter references threshold size\n"
+#endif
   "   -stats               print memory stats before each finalize\n"
   "   -version             show SQLite version\n"
   "   -vfs NAME            use NAME as the default VFS\n"
@@ -15624,6 +15736,17 @@ static void usage(int showDetail){
 }
 
 /*
+** Internal check:  Verify that the SQLite is uninitialized.  Print a
+** error message if it is initialized.
+*/
+static void verify_uninitialized(void){
+  if( sqlite3_config(-1)==SQLITE_MISUSE ){
+    utf8_printf(stdout, "WARNING: attempt to configuration SQLite after"
+                        " initialization.\n");
+  }
+}
+
+/*
 ** Initialize the state information in data
 */
 static void main_init(ShellState *data) {
@@ -15634,6 +15757,7 @@ static void main_init(ShellState *data) {
   memcpy(data->rowSeparator,SEP_Row, 2);
   data->showHeader = 0;
   data->shellFlgs = SHFLG_Lookaside;
+  verify_uninitialized();
   sqlite3_config(SQLITE_CONFIG_URI, 1);
   sqlite3_config(SQLITE_CONFIG_LOG, shellLog, data);
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -15697,6 +15821,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   int readStdin = 1;
   int nCmd = 0;
   char **azCmd = 0;
+  const char *zVfs = 0;           /* Value of -vfs command-line option */
 
   setBinaryMode(stdin, 0);
   setvbuf(stderr, 0, _IONBF, 0); /* Make sure stderr is unbuffered */
@@ -15721,23 +15846,14 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #if !SQLITE_SHELL_IS_UTF8
   sqlite3_initialize();
   argv = malloc(sizeof(argv[0])*argc);
-  if( argv==0 ){
-    raw_printf(stderr, "out of memory\n");
-    exit(1);
-  }
+  if( argv==0 ) shell_out_of_memory();
   for(i=0; i<argc; i++){
     char *z = sqlite3_win32_unicode_to_utf8(wargv[i]);
     int n;
-    if( z==0 ){
-      raw_printf(stderr, "out of memory\n");
-      exit(1);
-    }
+    if( z==0 ) shell_out_of_memory();
     n = (int)strlen(z);
     argv[i] = malloc( n+1 );
-    if( argv[i]==0 ){
-      raw_printf(stderr, "out of memory\n");
-      exit(1);
-    }
+    if( argv[i]==0 ) shell_out_of_memory();
     memcpy(argv[i], z, n+1);
     sqlite3_free(z);
   }
@@ -15773,6 +15889,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   ** the size of the alternative malloc heap,
   ** and the first command to execute.
   */
+  verify_uninitialized();
   for(i=1; i<argc; i++){
     char *z;
     z = argv[i];
@@ -15785,10 +15902,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
         readStdin = 0;
         nCmd++;
         azCmd = realloc(azCmd, sizeof(azCmd[0])*nCmd);
-        if( azCmd==0 ){
-          raw_printf(stderr, "out of memory\n");
-          exit(1);
-        }
+        if( azCmd==0 ) shell_out_of_memory();
         azCmd[nCmd-1] = z;
       }
     }
@@ -15855,14 +15969,13 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
     }else if( strcmp(z,"-mmap")==0 ){
       sqlite3_int64 sz = integerValue(cmdline_option_value(argc,argv,++i));
       sqlite3_config(SQLITE_CONFIG_MMAP_SIZE, sz, sz);
+#ifdef SQLITE_ENABLE_SORTER_REFERENCES
+    }else if( strcmp(z,"-sorterref")==0 ){
+      sqlite3_int64 sz = integerValue(cmdline_option_value(argc,argv,++i));
+      sqlite3_config(SQLITE_CONFIG_SORTERREF_SIZE, (int)sz);
+#endif
     }else if( strcmp(z,"-vfs")==0 ){
-      sqlite3_vfs *pVfs = sqlite3_vfs_find(cmdline_option_value(argc,argv,++i));
-      if( pVfs ){
-        sqlite3_vfs_register(pVfs, 1);
-      }else{
-        utf8_printf(stderr, "no such VFS: \"%s\"\n", argv[i]);
-        exit(1);
-      }
+      zVfs = cmdline_option_value(argc, argv, ++i);
 #ifdef SQLITE_HAVE_ZLIB
     }else if( strcmp(z,"-zip")==0 ){
       data.openMode = SHELL_OPEN_ZIPFILE;
@@ -15879,6 +15992,34 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #endif
     }
   }
+  verify_uninitialized();
+
+
+#ifdef SQLITE_SHELL_INIT_PROC
+  {
+    /* If the SQLITE_SHELL_INIT_PROC macro is defined, then it is the name
+    ** of a C-function that will perform initialization actions on SQLite that
+    ** occur just before or after sqlite3_initialize(). Use this compile-time
+    ** option to embed this shell program in larger applications. */
+    extern void SQLITE_SHELL_INIT_PROC(void);
+    SQLITE_SHELL_INIT_PROC();
+  }
+#else
+  /* All the sqlite3_config() calls have now been made. So it is safe
+  ** to call sqlite3_initialize() and process any command line -vfs option. */
+  sqlite3_initialize();
+#endif
+
+  if( zVfs ){
+    sqlite3_vfs *pVfs = sqlite3_vfs_find(zVfs);
+    if( pVfs ){
+      sqlite3_vfs_register(pVfs, 1);
+    }else{
+      utf8_printf(stderr, "no such VFS: \"%s\"\n", argv[i]);
+      exit(1);
+    }
+  }
+
   if( data.zDbFilename==0 ){
 #ifndef SQLITE_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";
@@ -15991,6 +16132,10 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
       i+=2;
     }else if( strcmp(z,"-mmap")==0 ){
       i++;
+#ifdef SQLITE_ENABLE_SORTER_REFERENCES
+    }else if( strcmp(z,"-sorterref")==0 ){
+      i++;
+#endif
     }else if( strcmp(z,"-vfs")==0 ){
       i++;
 #ifdef SQLITE_ENABLE_VFSTRACE

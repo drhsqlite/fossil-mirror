@@ -208,7 +208,8 @@ set SHELL_OPTIONS [concat $SQLITE_OPTIONS {
   -DSQLITE_SHELL_IS_UTF8=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
-  -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+  -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname
+  -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
 }]
 
 # miniz (libz drop-in alternative) precompiler flags.
