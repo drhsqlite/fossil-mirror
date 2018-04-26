@@ -1414,6 +1414,7 @@ void page_timeline(void){
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
+  char *zYearWeekStart = 0;          /* YYYY-MM-DD for start of YYYY-WW */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
@@ -1760,6 +1761,22 @@ void page_timeline(void){
                    zYearMonth);
     }
     else if( zYearWeek ){
+      char *z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
+      if( z && z[0] ){
+        zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
+                                 zYearWeek);
+        zYearWeek = z;
+      }else{
+        zYearWeekStart = db_text(0,
+           "SELECT date('%.4q-01-01','+%q weeks','weekday 1')",
+           zYearWeek, zYearWeek+5);
+        if( zYearWeekStart==0 || zYearWeekStart[0]==0 ){
+          zYearWeekStart = db_text(0,
+             "SELECT date('now','-6 days','weekday 1');");
+          zYearWeek = db_text(0,
+             "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
+        }
+      }
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
     }
@@ -1916,7 +1933,8 @@ void page_timeline(void){
     if( zYearMonth ){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
+      blob_appendf(&desc, "%s events for year/week %h (%h)", 
+                   zEType, zYearWeek, zYearWeekStart);
     }else if( zDay ){
       blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
