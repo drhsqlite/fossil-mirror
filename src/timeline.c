@@ -1441,6 +1441,7 @@ void page_timeline(void){
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
   int advancedMenu = 0;               /* Use the advanced menu design */
+  char *zPlural;                      /* Ending for plural forms */
 
   /* Set number of rows to display */
   cookie_read_parameter("n","n");
@@ -1770,9 +1771,13 @@ void page_timeline(void){
                                  zYearWeek);
         zYearWeek = z;
       }else{
-        zYearWeekStart = db_text(0,
-           "SELECT date('%.4q-01-01','+%q weeks','weekday 1')",
-           zYearWeek, zYearWeek+5);
+        if( strlen(zYearWeek)==7 ){       
+          zYearWeekStart = db_text(0,
+             "SELECT date('%.4q-01-01','+%d days','weekday 1')",
+             zYearWeek, atoi(zYearWeek+5)*7);
+        }else{
+          zYearWeekStart = 0;
+        }
         if( zYearWeekStart==0 || zYearWeekStart[0]==0 ){
           zYearWeekStart = db_text(0,
              "SELECT date('now','-6 days','weekday 1');");
@@ -1943,20 +1948,21 @@ void page_timeline(void){
     db_multi_exec("%s", blob_sql_text(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
+    zPlural = n==1 ? "" : "s";
     if( zYearMonth ){
-      blob_appendf(&desc, "%ss for %h", zEType, zYearMonth);
+      blob_appendf(&desc, "%d %s%s for %h", n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%ss for week %h beginning on %h", 
-                   zEType, zYearWeek, zYearWeekStart);
+      blob_appendf(&desc, "%d %s%s for week %h beginning on %h", 
+                   n, zEType, zPlural, zYearWeek, zYearWeekStart);
     }else if( zDay ){
-      blob_appendf(&desc, "%ss occurring on %h", zEType, zDay);
+      blob_appendf(&desc, "%d %s%s occurring on %h", n, zEType, zPlural, zDay);
     }else if( zNDays ){
-      blob_appendf(&desc, "%ss within the past %d day%s",
-                          zEType, nDays, nDays>1 ? "s" : "");
+      blob_appendf(&desc, "%d %s%s within the past %d day%s",
+                          n, zEType, zPlural, nDays, nDays>1 ? "s" : "");
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
-      blob_appendf(&desc, "%d most recent %ss", n, zEType);
+      blob_appendf(&desc, "%d most recent %s%s", n, zEType, zPlural);
     }else{
-      blob_appendf(&desc, "%d %ss", n, zEType);
+      blob_appendf(&desc, "%d %s%s", n, zEType, zPlural);
     }
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
