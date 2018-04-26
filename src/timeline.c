@@ -1787,6 +1787,7 @@ void page_timeline(void){
       }
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
+      nEntry = -1;
     }
     else if( zDay ){
       zDay = db_text(0, "SELECT date(%Q)", zDay);
@@ -1795,12 +1796,14 @@ void page_timeline(void){
       }
       blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
                    zDay);
+      nEntry = -1;
     }
     else if( zNDays ){
       nDays = atoi(zNDays);
       if( nDays<1 ) nDays = 1;
       blob_append_sql(&cond, " AND event.mtime>=julianday('now','-%d days') ",
                       nDays);
+      nEntry = -1;
     }
     if( zTagSql ){
       blob_append_sql(&cond,
