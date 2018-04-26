@@ -1933,7 +1933,7 @@ void page_timeline(void){
     if( zYearMonth ){
       blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%s events for year/week %h (%h)", 
+      blob_appendf(&desc, "%s events for week %h (the week starting %h)", 
                    zEType, zYearWeek, zYearWeekStart);
     }else if( zDay ){
       blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
