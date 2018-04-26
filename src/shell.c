@@ -792,45 +792,12 @@ static void appendText(ShellText *p, char const *zAppend, char quote){
 ** Return '"' if quoting is required.  Return 0 if no quoting is required.
 */
 static char quoteChar(const char *zName){
-  /* All SQLite keywords, in alphabetical order */
-  static const char *azKeywords[] = {
-    "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND", "AS",
-    "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN", "BY",
-    "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT",
-    "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_DATE",
-    "CURRENT_TIME", "CURRENT_TIMESTAMP", "DATABASE", "DEFAULT", "DEFERRABLE",
-    "DEFERRED", "DELETE", "DESC", "DETACH", "DISTINCT", "DROP", "EACH",
-    "ELSE", "END", "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN",
-    "FAIL", "FOR", "FOREIGN", "FROM", "FULL", "GLOB", "GROUP", "HAVING", "IF",
-    "IGNORE", "IMMEDIATE", "IN", "INDEX", "INDEXED", "INITIALLY", "INNER",
-    "INSERT", "INSTEAD", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "KEY",
-    "LEFT", "LIKE", "LIMIT", "MATCH", "NATURAL", "NO", "NOT", "NOTNULL",
-    "NULL", "OF", "OFFSET", "ON", "OR", "ORDER", "OUTER", "PLAN", "PRAGMA",
-    "PRIMARY", "QUERY", "RAISE", "RECURSIVE", "REFERENCES", "REGEXP",
-    "REINDEX", "RELEASE", "RENAME", "REPLACE", "RESTRICT", "RIGHT",
-    "ROLLBACK", "ROW", "SAVEPOINT", "SELECT", "SET", "TABLE", "TEMP",
-    "TEMPORARY", "THEN", "TO", "TRANSACTION", "TRIGGER", "UNION", "UNIQUE",
-    "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE",
-    "WITH", "WITHOUT",
-  };
-  int i, lwr, upr, mid, c;
+  int i;
   if( !isalpha((unsigned char)zName[0]) && zName[0]!='_' ) return '"';
   for(i=0; zName[i]; i++){
     if( !isalnum((unsigned char)zName[i]) && zName[i]!='_' ) return '"';
   }
-  lwr = 0;
-  upr = sizeof(azKeywords)/sizeof(azKeywords[0]) - 1;
-  while( lwr<=upr ){
-    mid = (lwr+upr)/2;
-    c = sqlite3_stricmp(azKeywords[mid], zName);
-    if( c==0 ) return '"';
-    if( c<0 ){
-      lwr = mid+1;
-    }else{
-      upr = mid-1;
-    }
-  }
-  return 0;
+  return sqlite3_keyword_check(zName, i) ? '"' : 0;
 }
 
 /*
@@ -3048,6 +3015,7 @@ struct completion_cursor {
   char *zPrefix;             /* The prefix for the word we want to complete */
   char *zLine;               /* The whole that we want to complete */
   const char *zCurrentRow;   /* Current output row */
+  int szRow;                 /* Length of the zCurrentRow string */
   sqlite3_stmt *pStmt;       /* Current statement */
   sqlite3_int64 iRowid;      /* The rowid */
   int ePhase;                /* Current phase */
@@ -3161,32 +3129,6 @@ static int completionClose(sqlite3_vtab_cursor *cur){
 }
 
 /*
-** All SQL keywords understood by SQLite
-*/
-static const char *completionKwrds[] = {
-  "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND", "AS",
-  "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN", "BY",
-  "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT",
-  "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_DATE",
-  "CURRENT_TIME", "CURRENT_TIMESTAMP", "DATABASE", "DEFAULT", "DEFERRABLE",
-  "DEFERRED", "DELETE", "DESC", "DETACH", "DISTINCT", "DROP", "EACH",
-  "ELSE", "END", "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN",
-  "FAIL", "FOR", "FOREIGN", "FROM", "FULL", "GLOB", "GROUP", "HAVING", "IF",
-  "IGNORE", "IMMEDIATE", "IN", "INDEX", "INDEXED", "INITIALLY", "INNER",
-  "INSERT", "INSTEAD", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "KEY",
-  "LEFT", "LIKE", "LIMIT", "MATCH", "NATURAL", "NO", "NOT", "NOTNULL",
-  "NULL", "OF", "OFFSET", "ON", "OR", "ORDER", "OUTER", "PLAN", "PRAGMA",
-  "PRIMARY", "QUERY", "RAISE", "RECURSIVE", "REFERENCES", "REGEXP",
-  "REINDEX", "RELEASE", "RENAME", "REPLACE", "RESTRICT", "RIGHT",
-  "ROLLBACK", "ROW", "SAVEPOINT", "SELECT", "SET", "TABLE", "TEMP",
-  "TEMPORARY", "THEN", "TO", "TRANSACTION", "TRIGGER", "UNION", "UNIQUE",
-  "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE",
-  "WITH", "WITHOUT",
-};
-#define completionKwCount \
-   (int)(sizeof(completionKwrds)/sizeof(completionKwrds[0]))
-
-/*
 ** Advance a completion_cursor to its next row of output.
 **
 ** The ->ePhase, ->j, and ->pStmt fields of the completion_cursor object
@@ -3208,11 +3150,11 @@ static int completionNext(sqlite3_vtab_cursor *cur){
   while( pCur->ePhase!=COMPLETION_EOF ){
     switch( pCur->ePhase ){
       case COMPLETION_KEYWORDS: {
-        if( pCur->j >= completionKwCount ){
+        if( pCur->j >= sqlite3_keyword_count() ){
           pCur->zCurrentRow = 0;
           pCur->ePhase = COMPLETION_DATABASES;
         }else{
-          pCur->zCurrentRow = completionKwrds[pCur->j++];
+          sqlite3_keyword_name(pCur->j++, &pCur->zCurrentRow, &pCur->szRow);
         }
         iCol = -1;
         break;
@@ -3284,6 +3226,7 @@ static int completionNext(sqlite3_vtab_cursor *cur){
       if( sqlite3_step(pCur->pStmt)==SQLITE_ROW ){
         /* Extract the next row of content */
         pCur->zCurrentRow = (const char*)sqlite3_column_text(pCur->pStmt, iCol);
+        pCur->szRow = sqlite3_column_bytes(pCur->pStmt, iCol);
       }else{
         /* When all rows are finished, advance to the next phase */
         sqlite3_finalize(pCur->pStmt);
@@ -3293,7 +3236,9 @@ static int completionNext(sqlite3_vtab_cursor *cur){
       }
     }
     if( pCur->nPrefix==0 ) break;
-    if( sqlite3_strnicmp(pCur->zPrefix, pCur->zCurrentRow, pCur->nPrefix)==0 ){
+    if( pCur->nPrefix<=pCur->szRow
+     && sqlite3_strnicmp(pCur->zPrefix, pCur->zCurrentRow, pCur->nPrefix)==0
+    ){
       break;
     }
   }
@@ -3313,7 +3258,7 @@ static int completionColumn(
   completion_cursor *pCur = (completion_cursor*)cur;
   switch( i ){
     case COMPLETION_COLUMN_CANDIDATE: {
-      sqlite3_result_text(ctx, pCur->zCurrentRow, -1, SQLITE_TRANSIENT);
+      sqlite3_result_text(ctx, pCur->zCurrentRow, pCur->szRow,SQLITE_TRANSIENT);
       break;
     }
     case COMPLETION_COLUMN_PREFIX: {
@@ -15020,9 +14965,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       { "byteorder",          SQLITE_TESTCTRL_BYTEORDER,     ""                   },
     /*{ "fault_install",      SQLITE_TESTCTRL_FAULT_INSTALL, ""                }, */
       { "imposter",           SQLITE_TESTCTRL_IMPOSTER,   "SCHEMA ON/OFF ROOTPAGE"},
-#ifdef SQLITE_N_KEYWORD
-      { "iskeyword",          SQLITE_TESTCTRL_ISKEYWORD,     "IDENTIFIER"         },
-#endif
       { "localtime_fault",    SQLITE_TESTCTRL_LOCALTIME_FAULT,"BOOLEAN"           },
       { "never_corrupt",      SQLITE_TESTCTRL_NEVER_CORRUPT, "BOOLEAN"            },
       { "optimizations",      SQLITE_TESTCTRL_OPTIMIZATIONS, "DISABLE-MASK"       },
@@ -15133,17 +15075,6 @@ static int do_meta_command(char *zLine, ShellState *p){
             isOk = 3;
           }
           break;
-
-        /* sqlite3_test_control(int, char *) */
-#ifdef SQLITE_N_KEYWORD
-        case SQLITE_TESTCTRL_ISKEYWORD:
-          if( nArg==3 ){
-            const char *opt = azArg[2];
-            rc2 = sqlite3_test_control(testctrl, opt);
-            isOk = 1;
-          }
-          break;
-#endif
 
         case SQLITE_TESTCTRL_IMPOSTER:
           if( nArg==5 ){
