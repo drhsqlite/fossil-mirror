@@ -1951,7 +1951,7 @@ void page_timeline(void){
     }else if( zDay ){
       blob_appendf(&desc, "%ss occurring on %h", zEType, zDay);
     }else if( zNDays ){
-      blob_appendf(&desc, "%ss with the past %d day%s",
+      blob_appendf(&desc, "%ss within the past %d day%s",
                           zEType, nDays, nDays>1 ? "s" : "");
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
