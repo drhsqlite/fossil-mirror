@@ -1375,6 +1375,7 @@ static const char *tagMatchExpression(
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
 **    ymd=YYYY-MM-DD  Show only events on the given day
+**    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
@@ -1416,6 +1417,8 @@ void page_timeline(void){
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
   char *zYearWeekStart = 0;          /* YYYY-MM-DD for start of YYYY-WW */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zNDays = P("days");    /* Show events over the previous N days */
+  int nDays;                         /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
@@ -1788,6 +1791,12 @@ void page_timeline(void){
       blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
                    zDay);
     }
+    else if( zNDays ){
+      nDays = atoi(zNDays);
+      if( nDays<1 ) nDays = 1;
+      blob_append_sql(&cond, " AND event.mtime>=julianday('now','-%d days') ",
+                      nDays);
+    }
     if( zTagSql ){
       blob_append_sql(&cond,
         " AND (EXISTS(SELECT 1 FROM tagxref NATURAL JOIN tag"
@@ -1941,6 +1950,9 @@ void page_timeline(void){
                    zEType, zYearWeek, zYearWeekStart);
     }else if( zDay ){
       blob_appendf(&desc, "%ss occurring on %h", zEType, zDay);
+    }else if( zNDays ){
+      blob_appendf(&desc, "%ss with the past %d day%s",
+                          zEType, nDays, nDays>1 ? "s" : "");
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
