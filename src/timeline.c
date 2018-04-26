@@ -1736,7 +1736,7 @@ void page_timeline(void){
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
-    const char *zEType = "timeline item";
+    const char *zEType = "event";
     char *zDate;
     Blob cond;
     blob_zero(&cond);
@@ -1781,7 +1781,11 @@ void page_timeline(void){
                    zYearWeek);
     }
     else if( zDay ){
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+      zDay = db_text(0, "SELECT date(%Q)", zDay);
+      if( zDay==0 || zDay[0]==0 ){
+        zDay = db_text(0, "SELECT date('now')");
+      }
+      blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
                    zDay);
     }
     if( zTagSql ){
@@ -1856,7 +1860,7 @@ void page_timeline(void){
       if( zType[0]=='c' ){
         zEType = "check-in";
       }else if( zType[0]=='w' ){
-        zEType = "wiki edit";
+        zEType = "wiki";
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
       }else if( zType[0]=='e' ){
@@ -1931,12 +1935,12 @@ void page_timeline(void){
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zYearMonth ){
-      blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+      blob_appendf(&desc, "%ss for %h", zEType, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%s events for week %h (the week starting %h)", 
+      blob_appendf(&desc, "%ss for week %h beginning on %h", 
                    zEType, zYearWeek, zYearWeekStart);
     }else if( zDay ){
-      blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
+      blob_appendf(&desc, "%ss occurring on %h", zEType, zDay);
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
@@ -2064,6 +2068,9 @@ void page_timeline(void){
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  if( fossil_islower(desc.aData[0]) ){
+    desc.aData[0] = fossil_toupper(desc.aData[0]);
+  }
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
 

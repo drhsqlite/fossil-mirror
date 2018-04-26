@@ -1,5 +1,5 @@
-C Merge\sin\sthe\slatest\s3.24.0\salpha\sversion\sof\sSQLite\sincluding\sthe\nORDER\sBY\sLIMIT\sperformance\senhancement.
-D 2018-04-26T19:23:38.887
+C Further\simprovements\sto\sthe\syw=\sbanner.\s\sMore\sflexible\shandling\sof\symd=.
+D 2018-04-26T19:39:06.917
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -568,7 +568,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c b76ad3e58e3800b48b11434c5a4bbee5d1ccd93bc8d609adeb6ad4a6aa7f6326
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c e1b29fa1ba5b9e0d9a1461cb1b95e5b0da208a54f5838445130d2d4bfa1220da
+F src/timeline.c 808b8bf74edfc97c106030f3933434b3072ffe7330a6249f962f1532c0358cab
 F src/tkt.c 2f5516ba766f6fa92fd172b61e533b4bd954bba0ee0f36c33a1671e6d67b2b5a
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b89e74526bc80eddb6e3f4db61b6bdb5d9c1ae2ab430e5158e515374cb5cb28d
-R fdf9937c9bb1a600dc2774800f21d12d
+P 7b1599884cba7e0b138ca8a48db61ebe851da8430ee9c9a6ecae24fa0d79f41b
+R e371c2ff427208c21fa997691bf2fe85
 U drh
-Z f5121f8fb4b6104a873d5f216381efad
+Z 8e87a105d0d358f9bbd2ac30f1ae1696
