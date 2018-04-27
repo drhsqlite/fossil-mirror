@@ -2352,8 +2352,8 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** if the origin= query parameter is used to specify some future check-in
 ** (example: "origin=trunk") then these pages show changes moving towards
 ** that alternative origin.  Thus using "origin=trunk" on an historical
-** version of the file shows the first time each line in the file was been
-** changed in subsequent check-ins.
+** version of the file shows the first time each line in the file was changed
+** or removed by any subsequent check-in.
 **
 ** Query parameters:
 **
@@ -2370,7 +2370,6 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           Specify "origin=trunk" or similar for a reverse
 **                           annotation
 **    w=BOOLEAN           Ignore whitespace
-**
 */
 void annotation_page(void){
   int i;
@@ -2540,8 +2539,8 @@ void annotation_page(void){
 ** if the -o|--origin option is used to specify some future check-in
 ** (example: "-o trunk") then these commands show changes moving towards
 ** that alternative origin.  Thus using "-o trunk" on an historical version
-** of the file shows the first time each line in the file was been changed
-** by subsequent check-ins.
+** of the file shows the first time each line in the file was changed or
+** removed by any subsequent check-in.
 **
 ** Options:
 **   --filevers                  Show file version numbers rather than

@@ -1,5 +1,5 @@
-C Do\snot\slimit\sthe\snumber\sof\srows\sshown\sin\sa\stimeline\susing\sthe\sn=\squery\nparameter\sif\sany\sof\sthe\syw=,\symd=,\sor\sdays=\squery\sparameters\sare\spresent.
-D 2018-04-26T20:54:11.840
+C Fix\stypo\sin\sannotate\sdocumentation
+D 2018-04-27T00:52:08.166
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -457,7 +457,7 @@ F src/default_css.txt 75d8873223cc2dd20e9e72ef571f5ace421d29da235f1419d1fcf687ac
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
-F src/diff.c 3340923c7d0ab525f21b193a83b3b657330333bb8ebd1a3f501ad827599f154b
+F src/diff.c a97d1f282108136a64fa1cd82621324c91690851c5d78ec8a2f95dfd6c748afb
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
@@ -846,7 +846,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5fd4e2681fd007c60e23a4534c3fd90f00df36fb883eda205f84d559b04e5ee
-R 73c575004002756eb52744cb4a7a6cfc
-U drh
-Z 134aa13abfa03599ccb976fd8357a827
+P 58804979ab3bc93706041f100f55e321ac09659cc763dd5089c460e7d3934f5d
+U andygoth
+Z f36d6630b398e6c99f987d6dafa96ae6
