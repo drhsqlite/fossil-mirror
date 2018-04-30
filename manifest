@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sannotate\sdocumentation
-D 2018-04-27T00:52:08.166
+C Fix\sa\sbug\sin\smakeheaders.c\sfound\sby\sSeth\sKingsley.
+D 2018-04-30T00:20:21.329
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -508,7 +508,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 9b1df234f567954c91a4d6715f7671b68f40177df0fa09592db13a87e9db7619
 F src/main.mk 44757094b799a3398a30fa4f50208673990039f5568ad4ef7c9ccd621b653669
-F src/makeheaders.c ef97646ffc78b8400b06ab9751925bcc7b28dbc1
+F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e7ad9bc51e990111053f417faccd0210cedac2aff5c63859b30c33cc2add1811
 F src/manifest.c 9ad4b4be4642c35c2f311cca6af70b1381c1313e439d0197076dd80126ebb034
@@ -846,6 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58804979ab3bc93706041f100f55e321ac09659cc763dd5089c460e7d3934f5d
-U andygoth
-Z f36d6630b398e6c99f987d6dafa96ae6
+P 4dcda7d991b3b5e39f95a96b431fe22ae3adbe4507c54e6704cb36ec7c31e1bf
+R 0f76376f6d61bab44b88212e0c42071a
+U drh
+Z c131adf1d8f2247eee0b2300fca03322
