@@ -1374,6 +1374,7 @@ static const char *tagMatchExpression(
 **    forks           Show only forks and their children
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
+**    yw=YYYY-MM-DD   Show events for the week that includes the given day
 **    ymd=YYYY-MM-DD  Show only events on the given day
 **    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format
