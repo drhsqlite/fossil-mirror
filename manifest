@@ -1,5 +1,5 @@
-C When\sbuilding\swith\s--internal-sqlite,\srequire\sat\sleast\sSQLite\s3.24.0.\sLet's\shope\sthat\sthe\snew\ssqlite3_keyword_*()\sfunctions\sdon't\schange\ssignature\sin\sSQLite\s3.24.0\sfinal.
-D 2018-05-04T08:20:31.273
+C Update\scustom\smingw\smakefile
+D 2018-05-04T11:50:10.854
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -722,7 +722,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 213a11badf4e1b31f52548c8cb3e6e51fe79f3eebdcbe714b4cb475f0155a43b
 F win/Makefile.dmc b5d1ed42ed4e5f0ec4bff7da63acc810b0800cbea8061a629dc1a734b6a847e9
 F win/Makefile.mingw ccf871811d3b25451ec4b8ae4c5c84bfc1163d8f0fa366a5b0d0678c3b2f0cd9
-F win/Makefile.mingw.mistachkin e8f04ca291389500292d77bfa573398dcb77797fe06157840e00aee1c4057fe2
+F win/Makefile.mingw.mistachkin 4941c336d0bd0adc9fe831a569621fe276f14f2faf26e99f3aea01cf19243fba
 F win/Makefile.msc 14a8669b2669e2df95b09f56a9d1044335ea9d1e6cd65b7a199bba14d8b379c9
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98b4cb33468df9156cb4c661a225b650129696bd9f083dda5a2f6d87ade3c432
-R f2658bc1e5e83a2a2998598c40ca4faf
+P c2b1bfb2f154746501bf8bdf527c02dbc74bf79597b6c07d50af4bf4bb0963a3
+R 9ff95f7e87d7799c118ade05593eaa8e
 U jan.nijtmans
-Z 7c4b5d05be0c6ac7b76e005bfb1a9c1d
+Z 23e1b63ae378c9985946080dbc4c328d
