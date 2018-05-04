@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning\sin\stimeline.c.
-D 2018-05-04T13:52:22.402
+C When\sdoing\s"fossil\sexport"\smake\ssure\sthe\soutput\sis\sin\sstrict\stopological\norders,\ssince\sGit\shates\stimewarps.
+D 2018-05-04T15:39:25.129
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
 F src/etag.c 535a623ccd7217482053906e7c39aa6f632c43fe6cffa56b109cd8ff67723300
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
-F src/export.c 20d1516bc49301bf0d0016711c53da231e90687b250187708513a144e1342930
+F src/export.c 89d87a32795fcdda4d822910faedfef9ad2e44c65749144de880b076906d164d
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9718f3b078370eb4798239505ae1157c956ce9617a6c0fd0878705a48ebcfcf9
-R 248767c3165dcccbc4c1f0d339b93924
+P 8d1cb59fe074bb0d6fdd8371495434ea1275f4d020789496cb1cc5a5066c3c8b
+R 9c75213326223bc51058f62ca8847169
 U drh
-Z 71ba935c2f4cc5aff5f94f8b6c0e09ac
+Z 8630f4ec69dea4781a71e0b9a456260c
