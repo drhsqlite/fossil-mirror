@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.24.0"
 #define SQLITE_VERSION_NUMBER 3024000
-#define SQLITE_SOURCE_ID      "2018-04-26 18:34:26 9fd0faf517993587d2f54212638545fc85fbbc84a031bcfae8c1e5894825d83b"
+#define SQLITE_SOURCE_ID      "2018-05-05 01:23:28 9191ff670cb7f36e0b2dac4a22888679b639845687aef8edcc3c05e35ba71eda"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2112,6 +2112,21 @@ struct sqlite3_mem_methods {
 ** 0 or 1 to indicate whether output-for-triggers has been disabled - 0 if 
 ** it is not disabled, 1 if it is.  
 ** </dd>
+**
+** <dt>SQLITE_DBCONFIG_RESET_DATABASE</dt>
+** <dd> Set the SQLITE_DBCONFIG_RESET_DATABASE flag and then run
+** [VACUUM] in order to reset a database back to an empty database
+** with no schema and no content. The following process works even for
+** a badly corrupted database file:
+** <ol>
+** <li> sqlite3_db_config(db, SQLITE_DBCONFIG_RESET_DATABASE, 1, 0);
+** <li> [sqlite3_exec](db, "[VACUUM]", 0, 0, 0);
+** <li> sqlite3_db_config(db, SQLITE_DBCONFIG_RESET_DATABASE, 0, 0);
+** </ol>
+** Because resetting a database is destructive and irreversible, the
+** process requires the use of this obscure API and multiple steps to help
+** ensure that it does not happen by accident.
+** </dd>
 ** </dl>
 */
 #define SQLITE_DBCONFIG_MAINDBNAME            1000 /* const char* */
@@ -2123,7 +2138,8 @@ struct sqlite3_mem_methods {
 #define SQLITE_DBCONFIG_NO_CKPT_ON_CLOSE      1006 /* int int* */
 #define SQLITE_DBCONFIG_ENABLE_QPSG           1007 /* int int* */
 #define SQLITE_DBCONFIG_TRIGGER_EQP           1008 /* int int* */
-#define SQLITE_DBCONFIG_MAX                   1008 /* Largest DBCONFIG */
+#define SQLITE_DBCONFIG_RESET_DATABASE        1009 /* int int* */
+#define SQLITE_DBCONFIG_MAX                   1009 /* Largest DBCONFIG */
 
 /*
 ** CAPI3REF: Enable Or Disable Extended Result Codes
@@ -5508,6 +5524,41 @@ SQLITE_API SQLITE_EXTERN char *sqlite3_temp_directory;
 ** or else the use of the [data_store_directory pragma] should be avoided.
 */
 SQLITE_API SQLITE_EXTERN char *sqlite3_data_directory;
+
+/*
+** CAPI3REF: Win32 Specific Interface
+**
+** These interfaces are available only on Windows.  The
+** [sqlite3_win32_set_directory] interface is used to set the value associated
+** with the [sqlite3_temp_directory] or [sqlite3_data_directory] variable, to
+** zValue, depending on the value of the type parameter.  The zValue parameter
+** should be NULL to cause the previous value to be freed via [sqlite3_free];
+** a non-NULL value will be copied into memory obtained from [sqlite3_malloc]
+** prior to being used.  The [sqlite3_win32_set_directory] interface returns
+** [SQLITE_OK] to indicate success, [SQLITE_ERROR] if the type is unsupported,
+** or [SQLITE_NOMEM] if memory could not be allocated.  The value of the
+** [sqlite3_data_directory] variable is intended to act as a replacement for
+** the current directory on the sub-platforms of Win32 where that concept is
+** not present, e.g. WinRT and UWP.  The [sqlite3_win32_set_directory8] and
+** [sqlite3_win32_set_directory16] interfaces behave exactly the same as the
+** sqlite3_win32_set_directory interface except the string parameter must be
+** UTF-8 or UTF-16, respectively.
+*/
+SQLITE_API int sqlite3_win32_set_directory(
+  unsigned long type, /* Identifier for directory being set or reset */
+  void *zValue        /* New value for directory being set or reset */
+);
+SQLITE_API int sqlite3_win32_set_directory8(unsigned long type, const char *zValue);
+SQLITE_API int sqlite3_win32_set_directory16(unsigned long type, const void *zValue);
+
+/*
+** CAPI3REF: Win32 Directory Types
+**
+** These macros are only available on Windows.  They define the allowed values
+** for the type argument to the [sqlite3_win32_set_directory] interface.
+*/
+#define SQLITE_WIN32_DATA_DIRECTORY_TYPE  1
+#define SQLITE_WIN32_TEMP_DIRECTORY_TYPE  2
 
 /*
 ** CAPI3REF: Test For Auto-Commit Mode
