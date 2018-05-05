@@ -564,6 +564,24 @@ static const char zRenameQuery[] =
 @  ORDER BY 1 DESC, 2;
 ;
 
+/* Query to extract distinct rename operations */
+static const char zDistinctRenameQuery[] =
+@ SELECT
+@     min(datetime(event.mtime)),
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid
+@  GROUP BY 2, 3
+@  ORDER BY 1 DESC, 2;
+;
+
 /*
 ** WEBPAGE: test-rename-list
 **
@@ -576,14 +594,20 @@ void test_rename_list_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("List Of File Name Changes");
-  @ <h3>NB: Experimental Page</h3>
+  if( P("all")!=0 ){
+    style_header("List Of All File Name Changes");
+    db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
+    style_submenu_element("Distinct", "%R/test-rename-list");
+  }else{
+    style_header("List Of Distinct File Name Changes");
+    db_prepare(&q, "%s", zDistinctRenameQuery/*safe-for-%s*/);
+    style_submenu_element("All", "%R/test-rename-list?all");
+  }
   @ <table border="1" width="100%%">
   @ <tr><th>Date &amp; Time</th>
   @ <th>Old Name</th>
   @ <th>New Name</th>
   @ <th>Check-in</th></tr>
-  db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zOld = db_column_text(&q, 1);
