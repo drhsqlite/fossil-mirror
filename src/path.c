@@ -609,7 +609,7 @@ void test_rename_list_page(void){
   nCheckin = db_int(0, "SELECT count(DISTINCT checkin) FROM renames;");
   db_prepare(&q, "SELECT date, old_name, new_name, checkin FROM renames"
                  " ORDER BY date DESC, old_name ASC");
-  @ <h1>%d(nRename) rename operations in %d(nCheckin) check-ins</h1>
+  @ <h1>%d(nRename) file name changes in %d(nCheckin) check-ins</h1>
   @ <table class='sortable' data-column-types='tttt' data-init-sort='1'\
   @  border="1" cellpadding="2" cellspacing="0">
   @ <thead><tr><th>Date &amp; Time</th>
