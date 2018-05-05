@@ -603,11 +603,12 @@ void test_rename_list_page(void){
     db_prepare(&q, "%s", zDistinctRenameQuery/*safe-for-%s*/);
     style_submenu_element("All", "%R/test-rename-list?all");
   }
-  @ <table border="1" width="100%%">
-  @ <tr><th>Date &amp; Time</th>
+  @ <table class='sortable' data-column-types='tttt' data-init-sort='1'\
+  @  border="1" cellpadding="2" cellspacing="0">
+  @ <thead><tr><th>Date &amp; Time</th>
   @ <th>Old Name</th>
   @ <th>New Name</th>
-  @ <th>Check-in</th></tr>
+  @ <th>Check-in</th></tr></thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zOld = db_column_text(&q, 1);
@@ -619,7 +620,8 @@ void test_rename_list_page(void){
     @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
     @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
-  @ </table>
+  @ </tbody></table>
   db_finalize(&q);
+  style_table_sorter();
   style_footer();
 }
