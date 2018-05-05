@@ -597,11 +597,11 @@ void test_rename_list_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( P("all")!=0 ){
-    style_header("List Of All File Name Changes");
+    style_header("List Of All Filename Changes");
     db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
     style_submenu_element("Distinct", "%R/test-rename-list");
   }else{
-    style_header("List Of Distinct File Name Changes");
+    style_header("List Of Distinct Filename Changes");
     db_multi_exec("%s", zDistinctRenameQuery/*safe-for-%s*/);
     style_submenu_element("All", "%R/test-rename-list?all");
   }
