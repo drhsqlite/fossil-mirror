@@ -549,28 +549,29 @@ void test_name_change(void){
 
 /* Query to extract all rename operations */
 static const char zRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
 @ SELECT
-@     datetime(event.mtime),
+@     datetime(event.mtime) AS date,
 @     F.name AS old_name,
 @     T.name AS new_name,
-@     blob.uuid
+@     blob.uuid AS checkin
 @   FROM mlink, filename F, filename T, event, blob
 @  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
 @    AND F.fnid=mlink.pfnid
 @    AND T.fnid=mlink.fnid
 @    AND event.objid=mlink.mid
 @    AND event.type='ci'
-@    AND blob.rid=mlink.mid
-@  ORDER BY 1 DESC, 2;
+@    AND blob.rid=mlink.mid;
 ;
 
 /* Query to extract distinct rename operations */
 static const char zDistinctRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
 @ SELECT
-@     min(datetime(event.mtime)),
+@     min(datetime(event.mtime)) AS date,
 @     F.name AS old_name,
 @     T.name AS new_name,
-@     blob.uuid
+@     blob.uuid AS checkin
 @   FROM mlink, filename F, filename T, event, blob
 @  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
 @    AND F.fnid=mlink.pfnid
@@ -578,8 +579,7 @@ static const char zDistinctRenameQuery[] =
 @    AND event.objid=mlink.mid
 @    AND event.type='ci'
 @    AND blob.rid=mlink.mid
-@  GROUP BY 2, 3
-@  ORDER BY 1 DESC, 2;
+@  GROUP BY 2, 3;
 ;
 
 /*
@@ -591,18 +591,25 @@ static const char zDistinctRenameQuery[] =
 */
 void test_rename_list_page(void){
   Stmt q;
+  int nRename;
+  int nCheckin;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( P("all")!=0 ){
     style_header("List Of All File Name Changes");
-    db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
+    db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
     style_submenu_element("Distinct", "%R/test-rename-list");
   }else{
     style_header("List Of Distinct File Name Changes");
-    db_prepare(&q, "%s", zDistinctRenameQuery/*safe-for-%s*/);
+    db_multi_exec("%s", zDistinctRenameQuery/*safe-for-%s*/);
     style_submenu_element("All", "%R/test-rename-list?all");
   }
+  nRename = db_int(0, "SELECT count(*) FROM renames;");
+  nCheckin = db_int(0, "SELECT count(DISTINCT checkin) FROM renames;");
+  db_prepare(&q, "SELECT date, old_name, new_name, checkin FROM renames"
+                 " ORDER BY date DESC, old_name ASC");
+  @ <h1>%d(nRename) rename operations in %d(nCheckin) check-ins</h1>
   @ <table class='sortable' data-column-types='tttt' data-init-sort='1'\
   @  border="1" cellpadding="2" cellspacing="0">
   @ <thead><tr><th>Date &amp; Time</th>

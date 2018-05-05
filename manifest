@@ -1,5 +1,5 @@
-C Make\sthe\stable\sgenerated\sby\s/test-rename-list\ssortable.
-D 2018-05-05T17:47:21.010
+C Further\senhance\sthe\stest-rename-list\sto\sinclude\sa\stitle\swith\sthe\snumber\nof\srenames\sand\sthe\snumber\sof\sassociated\scheck-ins.
+D 2018-05-05T19:02:54.727
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -526,7 +526,7 @@ F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
-F src/path.c 6433f4f311954bf6180c3ca8a29b43ea09b0837331fba791cd1868740dfb2064
+F src/path.c 2396ecdb98dbe262da962cec13d58a041914fdc5b2164259527933c2f8f6e98e
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c d8c6f6e91772e17893f477402da1efb431b85b8fbf7a938b64a905e04e376a15
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98fe1d88f31916379a4ff6899b303d1130ea5db8d1deaa88dd2fbc6034a1a28c
-R aa1338cba5f794ce2f4557553a90ab59
+P 80ec9d532c81b58abdc2c059d98886ddf4d43031711cce14dd69f8763cb97409
+R e296f2c0707a9c507bf0f668b9116325
 U drh
-Z 7ce0acf40d4968f30e7ff68abcfb34be
+Z 884168fbec8e029ba0e87ad87c559bde
