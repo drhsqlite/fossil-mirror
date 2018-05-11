@@ -151,10 +151,12 @@ void etag_last_modified(sqlite3_int64 mtime){
   x = cgi_rfc822_parsedate(zIfModifiedSince);
   if( x<=0 || x>mtime ) return;
 
+#if 0  
   /* If the Fossil executable is more recent than If-Modified-Since,
   ** go ahead and regenerate the resource. */
   exeMtime = file_mtime(g.nameOfExe, ExtFILE);
   if( exeMtime>x ) return;
+#endif
 
   /* If we reach this point, it means that the resource has not changed
   ** and that we should generate a 304 Not Modified reply */

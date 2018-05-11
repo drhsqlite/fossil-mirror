@@ -1,5 +1,5 @@
-C If\sthe\sbanner\suses\s"filename"\sas\sone\sword,\sthe\stitle\sought\sto\stoo.
-D 2018-05-05T19:10:20.858
+C Honor\sthe\sIf-Modified-Since\sheader\seven\sif\sthe\sFossil\sexecutable\sis\smore\nrecent.\s\sAssume\sthat\sany\schanges\sin\sthe\sFossil\sexecutable\swill\smake\sminimal\ndifference\sin\sthe\soutput.
+D 2018-05-11T15:02:34.142
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
-F src/etag.c 535a623ccd7217482053906e7c39aa6f632c43fe6cffa56b109cd8ff67723300
+F src/etag.c 9ef915be0444d6b1c0350923577068f6c451c3ad60c2b70cf3e75f97207a5754
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 89d87a32795fcdda4d822910faedfef9ad2e44c65749144de880b076906d164d
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c027368b50ee93fa445b56fef268309cf058dab8637a233e2bb2580b0a5564a0
-R cb0e64d066d70192de6f4b5a1453758e
+P c0ed95060c17ab4ebdf83f9800f08e1c143fd36bf0b80fe973747ec30ce470d3
+R f19d977197704f47df1921a09dc1c64f
 U drh
-Z 9295aaf4340bd5c669d4f2d1da9b0acb
+Z 9e647eea081eae03996ffc8f9e082397
