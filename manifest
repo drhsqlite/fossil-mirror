@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sand\sSQLite\sshell\sto\sthe\slatest\s3.24.0\salpha\sversion.
-D 2018-05-14T00:41:57.537
+C If\sthe\sfossil\sbinary\sis\slaunched\swith\sno\scommand-line\sarguments,\scheck\nto\ssee\sif\sthere\sis\san\sappended\srepository\sand\sif\sthere\sis,\srun\s"ui"\sagainst\nthat\srepository.
+D 2018-05-14T00:55:04.960
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,7 +506,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 02f58804f8fda109d8240e41a04878527bd2f03e5aa57f6cf73b44292a564d35
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 9b1df234f567954c91a4d6715f7671b68f40177df0fa09592db13a87e9db7619
+F src/main.c be79af96ae399667cb40e639d35f0d61cc00920fb607f2c608d60cd00bc07ee2
 F src/main.mk 44757094b799a3398a30fa4f50208673990039f5568ad4ef7c9ccd621b653669
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -846,7 +846,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0419048804762787ac7b44cb5ad089942c543b41fc014ba9791ec85226654e6b
-R 5fa9004b073a278fecfdc47316b653ed
+P a09b33d51e23fecb016460d9d1731eb57c88cd0eeb414a6bf6e2bdf396d1c2e7
+R 8a618b8397d6bf1a6f2242c40da211c8
+T *branch * use-appendvfs
+T *sym-use-appendvfs *
+T -sym-trunk *
 U drh
-Z adc45cf7283ba246e8738c6c7115221e
+Z 6b0944ed390c5f79a058c7c6cc8a448e
