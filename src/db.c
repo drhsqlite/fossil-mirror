@@ -1094,6 +1094,10 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3 *db;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
+  if( strcmp(zDbName, g.nameOfExe)==0 ){
+    sqlite3_appendvfs_init(0,0,0);
+    g.zVfsName = "apndvfs";
+  }
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,

@@ -546,8 +546,6 @@ static int fossilExeHasAppendedRepo(void){
   extern int deduceDatabaseType(const char*,int);
   if( 2==deduceDatabaseType(g.nameOfExe,0) ){
     static char *azAltArgv[] = { 0, "ui", 0, 0 };
-    sqlite3_appendvfs_init(0,0,0);
-    g.zVfsName = "apndvfs";
     azAltArgv[0] = g.nameOfExe;
     azAltArgv[2] = g.nameOfExe;
     g.argv = azAltArgv;
