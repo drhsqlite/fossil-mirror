@@ -538,6 +538,25 @@ static void fossil_init_flags_from_options(void){
 }
 
 /*
+** Check to see if the Fossil binary contains an appended repository
+** file using the appendvfs extension.  If so, change command-line arguments
+** to cause Fossil to launch with "fossil ui" on that repo.
+*/
+static int fossilExeHasAppendedRepo(void){
+  extern int deduceDatabaseType(const char*,int);
+  if( 2==deduceDatabaseType(g.nameOfExe,0) ){
+    static char *azAltArgv[] = { 0, "ui", 0, 0 };
+    azAltArgv[0] = g.nameOfExe;
+    azAltArgv[2] = g.nameOfExe;
+    g.argv = azAltArgv;
+    g.argc = 3;
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** This procedure runs first.
 */
 #if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
@@ -600,7 +619,7 @@ int main(int argc, char **argv)
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
-  }else if( g.argc<2 ){
+  }else if( g.argc<2 && !fossilExeHasAppendedRepo() ){
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
