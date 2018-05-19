@@ -789,7 +789,7 @@ int topological_sort_checkins(int bVerbose){
 
   /* Find a timewarp instance */
   db_prepare(&q1,
-    "SELECT P.tid, P.tseq, C.tid, C.tseq\n"
+    "SELECT P.tseq, C.tid, C.tseq\n"
     "  FROM toponode P, toponode C, topolink X\n"
     " WHERE X.tparent=P.tid\n"
     "   AND X.tchild=C.tid\n"
@@ -802,10 +802,9 @@ int topological_sort_checkins(int bVerbose){
   );
 
   while( db_step(&q1)==SQLITE_ROW ){
-    int iParent = db_column_int(&q1, 0);
-    i64 iParentTime = db_column_int64(&q1, 1);
-    int iChild = db_column_int(&q1, 2);
-    i64 iChildTime = db_column_int64(&q1, 3);
+    i64 iParentTime = db_column_int64(&q1, 0);
+    int iChild = db_column_int(&q1, 1);
+    i64 iChildTime = db_column_int64(&q1, 2);
     nChange++;
     if( nChange>10000 ){
       fossil_fatal("failed to fix all timewarps after 100000 attempts");

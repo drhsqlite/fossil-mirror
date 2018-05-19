@@ -140,7 +140,7 @@ void etag_check(unsigned eFlags, const char *zHash){
 */
 void etag_last_modified(sqlite3_int64 mtime){
   const char *zIfModifiedSince;
-  sqlite3_int64 x, exeMtime;
+  sqlite3_int64 x;
   assert( iEtagMtime==0 );   /* Only call this routine once */
   assert( mtime>0 );         /* Only call with a valid mtime */
   iEtagMtime = mtime;
@@ -154,8 +154,7 @@ void etag_last_modified(sqlite3_int64 mtime){
 #if 0  
   /* If the Fossil executable is more recent than If-Modified-Since,
   ** go ahead and regenerate the resource. */
-  exeMtime = file_mtime(g.nameOfExe, ExtFILE);
-  if( exeMtime>x ) return;
+  if( file_mtime(g.nameOfExe, ExtFILE)>x ) return;
 #endif
 
   /* If we reach this point, it means that the resource has not changed
