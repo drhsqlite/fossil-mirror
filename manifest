@@ -1,5 +1,5 @@
-C Fix\s2\s(harmless)\scompiler\swarnings\sabout\sunused\svariables
-D 2018-05-19T06:47:45.503
+C Fix\sharmless\scompiler\swarning.
+D 2018-05-21T01:01:30.073
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -452,7 +452,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c a787acfc98d43f06c30ccd08b7492e4cf26598fb9b8d5db105277aac1cebd59b
+F src/db.c 24dfbdf3986be8bf80b435a6859ac5d34ede1040d50856403aac4896147be1ef
 F src/default_css.txt 75d8873223cc2dd20e9e72ef571f5ace421d29da235f1419d1fcf687ac3483f3
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37b2eb99917e0b18170a412aba7745486ba373f158e5579dba6ee395ade8ecf5
-R a0fc9e7f11bcb08d66f71ff744b13213
-U jan.nijtmans
-Z 2650078bbb01111cc4f13f7ae8255dad
+P 961787df0662be13e849054a66101a3a637e971ba64a812ad8c1ad12c9c77fc2
+R 190fa5a8e73a688f661102d0d9f09778
+U mistachkin
+Z a9c3fe52b1b408630cf60fee998bf0df
