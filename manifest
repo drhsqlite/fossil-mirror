@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning.
-D 2018-05-21T01:01:30.073
+C Fix\sthe\s"mv"\scommand\sso\sthat\sit\swill\smove\sdirectories.\nPatch\sfrom\sDingyuan\sWang.
+D 2018-05-29T14:23:47.504
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -425,7 +425,7 @@ F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 87636805a1489c17d6b54e6f22eccf215944dd6bd1ef9a17b54816272058a3d7
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c bb2fc0bd2fdc4cc60dbba5e870ebd3690b5d64b0fe96404771174941c8f0d2ca
+F src/add.c 19bd421613f16a8831f352a2e3245f0c25c8d44a1adac8e4c16d2e9aa5417550
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c b5b1578354a9fa26db82b9f4206ec5bb2e82d66fd718e9e5f18c5e46b5520ef4
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -846,7 +846,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 961787df0662be13e849054a66101a3a637e971ba64a812ad8c1ad12c9c77fc2
-R 190fa5a8e73a688f661102d0d9f09778
-U mistachkin
-Z a9c3fe52b1b408630cf60fee998bf0df
+P a7056e6499407c3eee76437e93ec43a43aaf6007edbb1352e6184ec28720b3e6
+R d8f9bb99376aee5e505d369b0a3bddd2
+U drh
+Z 83bd535ca36596eda2c6532aee8f8a76
