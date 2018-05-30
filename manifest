@@ -1,5 +1,5 @@
-C Update\sthe\sbuild-in\sSQLite\sto\sthe\sfirst\s3.24.0\sbeta.
-D 2018-05-30T01:28:42.869
+C Added\sthe\sMakefile.osx-jaguar
+D 2018-05-30T05:34:46.407
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -14,6 +14,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic f0e49e92670a94553f0e59764ee3787d85cf81d9
 F Makefile.in ac1ac1b46232f52f68aa13f4e9097b2888b588dcf23da5bd5372a628547cfccc x
+F Makefile.osx-jaguar b5a414e980f250a4aa0334d556bd4b57bef33c03cd069fa104df47165bf74778
 F VERSION 823b416463d02932b3f5fed25158b3fccc402aad76a3c53363a0a49dad0ae6f4
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -846,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a34967beb57cfa1f86d8e16579307743e8a3be2dd3eadbac56b543fa310c440
-R 7935a27ddbb385b3638161e25e0da379
+P bbdfec3f3150c66c3ebb31269ee5196a14c0f6fb1befb3667f8754388f0d33d3
+R 647e7097f73c2b4101575969214c0a1b
 U drh
-Z 428870f1501871b634cf5f2d2d3ec813
+Z 4090d11c3ed98e8e902c09adf277410c
