@@ -1,5 +1,5 @@
-C Added\sthe\sMakefile.osx-jaguar
-D 2018-05-30T05:34:46.407
+C Fix\sover-length\ssource\scode\slines\sin\smerge.c.
+D 2018-05-31T14:32:29.990
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb9
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c c93323af5cc35c307406ca0e72d778344b73edd1ee82c6d323ce80ff8a86a960
+F src/merge.c 6283c41b3924b4d9499024deeb523fb242306df46acbdd333fbb88c43ecf92e5
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac502d
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bbdfec3f3150c66c3ebb31269ee5196a14c0f6fb1befb3667f8754388f0d33d3
-R 647e7097f73c2b4101575969214c0a1b
+P 3c5ba9f5e8b34945b5d2cd13957187b50b4da09e0bfc8f402b288ada6bbc3383
+R 06b012150243806cad20e121319b0292
 U drh
-Z 4090d11c3ed98e8e902c09adf277410c
+Z 4ffdf6a492be407ce68b0c1f54ef9a3e
