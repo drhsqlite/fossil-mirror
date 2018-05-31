@@ -1,5 +1,5 @@
-C Fix\sthe\smerge\spivot\sfinder\sso\sthat\sit\shonors\stime-warp\sfixes.
-D 2018-05-31T14:40:09.396
+C Improvement\sto\sthe\spivot-finder\sso\sthat\sit\sworks\seven\sif\sthere\sare\ntime-warps\sin\sthe\sgraph.
+D 2018-05-31T15:21:11.510
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -529,7 +529,7 @@ F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
-F src/pivot.c 863d48e8042856bacf479c963e751480f5d5d8dcdca56b87b6f3339d6786647c
+F src/pivot.c 05a3331209c8df9a431d958c309d0055b8648ce085685cd945651551f74bcdc4
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3a56bc49bc7ed5cf1e7a1818ab55c3e3658b8179fbf3d264a5654ad3baf1a417
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a88b5f6637199f8e9c3b1e4ef5084d67414748d123d66e5bfac893f29a6c05d
-R 567bb3ce0a27d2f19f8c19b4543dbee0
+P cf6fa2f34a1dd1cea32ba25bd3d44e866336c2261a38659a1aefba16cd5d56ba
+R dfef0de52a5d16aed2dd671e62601c0d
 U drh
-Z da496b5b8d707a18c6b6e3be4418203f
+Z 9c191cc14189b1825f00eebcf3bf308b

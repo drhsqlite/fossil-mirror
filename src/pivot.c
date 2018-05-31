@@ -120,7 +120,7 @@ int pivot_find(int ignoreMerges){
   /* Add to the queue all ancestors of :rid.
   */
   db_prepare(&i1,
-    "INSERT OR IGNORE INTO aqueue "
+    "REPLACE INTO aqueue "
     "SELECT plink.pid,"
     "       coalesce((SELECT mtime FROM event X WHERE X.objid=plink.pid), 0.0),"
     "       1,"
