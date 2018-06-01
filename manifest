@@ -1,5 +1,5 @@
-C Improvement\sto\sthe\spivot-finder\sso\sthat\sit\sworks\seven\sif\sthere\sare\ntime-warps\sin\sthe\sgraph.
-D 2018-05-31T15:21:11.510
+C An\soff-mailing-list\spatch\swhich\sfixes\sthe\slack\sof\sdeleted\sfiles\sfrom\s/json/timeline/checkin's\sfile\slist.\sThanks\sto\sEdgardo\sCruz\sfor\stracking\sthis\sdown.
+D 2018-06-01T20:16:17.473
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -497,7 +497,7 @@ F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c a59f343f3f361a6932caac35a9b14173eedefc0cab8cf57f30d3ad395f9f5cd6
 F src/json_tag.c e2b68b9735e706e9e47fb07f063abf7c94da2d76
-F src/json_timeline.c 5a9ce59def16a55b7affbf834dd1e13d876efe76
+F src/json_timeline.c 783af93b54c535cc3346a8acb56a94ee5806d9110fd2ff56226cb06f062e8beb
 F src/json_user.c 779af89a12af7c0c228d0194fa564379ec77ac76
 F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf6fa2f34a1dd1cea32ba25bd3d44e866336c2261a38659a1aefba16cd5d56ba
-R dfef0de52a5d16aed2dd671e62601c0d
-U drh
-Z 9c191cc14189b1825f00eebcf3bf308b
+P 917f1c21e52a299048c78491147a53d405f65b39a56e86f600cd1c63dc0b9171
+R 952526fd6c459a6c0f2e6ea7f4eddd5f
+U stephan
+Z 2c9703f8a70d41ee8000909fe8a6c853
