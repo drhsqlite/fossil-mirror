@@ -1,5 +1,5 @@
-C An\soff-mailing-list\spatch\swhich\sfixes\sthe\slack\sof\sdeleted\sfiles\sfrom\s/json/timeline/checkin's\sfile\slist.\sThanks\sto\sEdgardo\sCruz\sfor\stracking\sthis\sdown.
-D 2018-06-01T20:16:17.473
+C Update\sthe\sstats.wiki\spage\swith\srecent\snumbers.
+D 2018-06-04T02:43:53.516
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -832,7 +832,7 @@ F www/server.wiki bbd97b79fff06214bf14a5855d4b380090b582f21ea957c72ffa84fc321dee
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
-F www/stats.wiki 6558a7e417d5e9d29271c26ebb3195dddec31855
+F www/stats.wiki 4c08c7205a255834525a1407a9d46837f9e76d7402f9599dca2a59139ecb4713
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 917f1c21e52a299048c78491147a53d405f65b39a56e86f600cd1c63dc0b9171
-R 952526fd6c459a6c0f2e6ea7f4eddd5f
-U stephan
-Z 2c9703f8a70d41ee8000909fe8a6c853
+P cd55efe7754dd7e531e0c903e53a278b1ae7ccdc005446d0420825fe129c90db
+R 05b43a28b2489aeeaaaf864da7e57c76
+U drh
+Z 0ab7344959266aaf50b7955a636a8925
