@@ -297,7 +297,7 @@ other.
    nearly as many features and they are not nearly as convenient to use.
 
 
-<h2>4.2 Features found in Git but missing from Fossil</h2>
+<h3>4.2 Features found in Git but missing from Fossil</h3>
 
   *  <b>Rebase</b>
 
