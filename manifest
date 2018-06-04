@@ -1,5 +1,5 @@
-C More\stweaks\sto\sthe\sfossil-v-git.wiki\sdocument.
-D 2018-06-04T14:00:29.518
+C Update\sthe\ssync\sprotocol\sdocument.
+D 2018-06-04T14:47:35.478
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -834,7 +834,7 @@ F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 4c08c7205a255834525a1407a9d46837f9e76d7402f9599dca2a59139ecb4713
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki 54f36924056d9b854a509ed1a87d15595605bc403f1dca18231439c44619a298
+F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 1408ca3a0fbdd03e470e1098ddc586e9fe778476893585459c06d8c97e9f6fa8
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce4fb80e868ebd2bbe7e13dc52d13a82161fa89da9388c254ae0ba3bdb464784
-R 68cc4b20e9eca756a7ce6040358860ba
+P 6ae97be7a7edbca7fce33999195d52e0fa385233c59249b11f27d564dd4d0764
+R e7cbf0da56dcada1a6b150bf5c24e4b6
 U drh
-Z 0b7e71d9da581d801c60c721ea4f4071
+Z a675513d5185e508e58baa97ed99fb6e
