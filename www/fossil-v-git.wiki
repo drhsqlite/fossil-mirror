@@ -10,10 +10,10 @@ but they also have important differences.
 See the table below for
 a high-level summary and the text that follows for more details.
 
-Keep in mind that you are reading this on a Fossil website,
-so the information here
-might be biased in favor of Fossil.  Ask around with people who have
-used both Fossil and Git for other opinions.
+Keep in mind that you are reading this on a Fossil website, and though
+we try to be fair, the information here
+might be biased in favor of Fossil.  Ask around for second opinions from
+people who have used <em>both</em> Fossil and Git.
 
 &#185;<small><i>Git does not support
 wiki, tickets, or tech-notes, so those elements will not transfer when
