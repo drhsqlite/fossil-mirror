@@ -1,5 +1,5 @@
-C Fixed\san\sh2\s->\sh3\sheader\slevel\sin\sthe\sFossil\svs.\sGit\sdocument.
-D 2018-06-04T12:39:59.588
+C Grammar\stweak\sin\sthe\sFossil\svs.\sGit\sdocument.
+D 2018-06-04T12:40:48.308
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -797,7 +797,7 @@ F www/fileformat.wiki c5e5f4a278c4babc29f071a07d177b1dddbfbac3
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki abc6079b80e903a619360a9d9639739709566478e719d145c2f4e2e4ee36a028
+F www/fossil-v-git.wiki ea49e08a205660b6bef4dd53097d23dd6325608c882a307249d2bb762a46be9d
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abc13d76c914bdab476f393d81a34cb7a0d31376ba1326b1c73393303eb70328
-R 6aae761bd23874649e3ff6d49bbefe93
+P 3b02193a04c45f052de36ab73f1da5dc72308bd7f8c27999bedca78f0c59f4f4
+R df2d47801c9b4c4c033c3b3ceb79ee80
 U wyoung
-Z 66f3eefc089196004f65f133ad5bc817
+Z bebf19adb1467500960fbd177c8cfcd7

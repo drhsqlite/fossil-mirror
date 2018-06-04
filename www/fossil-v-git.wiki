@@ -304,7 +304,7 @@ other.
    Because of its emphasis on recording history exactly as it happened,
    rather than as we would have liked it to happen, Fossil deliberately
    does not provide a "rebase" command.  One can rebase manually in Fossil,
-   with sufficient perserverence, but it not something that can be done with
+   with sufficient perserverence, but it is not something that can be done with
    a single command.
 
   *  <b>Push or pull a single branch</b>
