@@ -19,7 +19,10 @@ people who have used <em>both</em> Fossil and Git.
 wiki, tickets, or tech-notes, so those elements will not transfer when
 exporting from Fossil to Git.</i></small>
 
-<h2>2.0 Executive Summary:</h2>
+<h2>2.0 Differences Between Fossil And Git</h2>
+
+Differences between Fossil and Git are summarized by the following table,
+with further description in the text that follows.
 
 <blockquote><table border=1 cellpadding=5 align=center>
 <tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
@@ -38,9 +41,7 @@ exporting from Fossil to Git.</i></small>
 <tr><td>GPL</td><td>BSD</td></tr>
 </table></blockquote>
 
-<h2>3.0 Discussion</h2>
-
-<h3>3.1 Feature Set</h3>
+<h3>2.1 Feature Set</h3>
 
 Git provides file versioning services only, whereas Fossil adds
 integrated [./wikitheory.wiki | wiki],
@@ -65,7 +66,7 @@ and managing a wide assortment of separate tools.  Standing up a developer
 website using Fossil can be done in minutes, whereas doing the same using
 Git requires hours or days.
 
-<h3>3.2 Database</h3>
+<h3>2.2 Database</h3>
 
 The baseline data structures for Fossil and Git are the same (modulo
 formatting details).  Both systems store check-ins as immutable
@@ -109,7 +110,7 @@ in ways that help developers
 maintain enhanced awareness and comprehension
 and avoid errors.
 
-<h3>3.3 Cathedral vs. Bazaar</h3>
+<h3>2.3 Cathedral vs. Bazaar</h3>
 
 Fossil and Git promote different development styles.  Git promotes a
 "bazaar" development style in which numerous anonymous developers make
@@ -139,7 +140,7 @@ of the project, and the changes underway by all developers, so that
 all developers and especially the project leader can maintain a better
 mental picture of what is happening, and better situational awareness.
 
-<h3>3.4 Linux vs. SQLite</h3>
+<h3>2.4 Linux vs. SQLite</h3>
 
 Git was specifically designed to support the development of Linux.
 Fossil was specifically designed to support the development of SQLite.
@@ -160,7 +161,7 @@ comes from just three programmers, 64% from just the lead developer.
 And all SQLite developers know each other well and interact daily.
 Fossil is designed for this development model.
 
-<h3>3.5 Lots of little tools vs. Self-contained system</h3>
+<h3>2.5 Lots of little tools vs. Self-contained system</h3>
 
 Git consists of many small tools, each doing one small part of the job,
 which can be recombined (by experts) to perform powerful operations.
@@ -178,7 +179,7 @@ Fossil says that the unix philosophy is "it just works".  Both
 individuals have written their DVCSes to reflect their own view
 of the "unix philosophy".
 
-<h3>3.6 One vs. Many Check-outs per Repository</h3>
+<h3>2.6 One vs. Many Check-outs per Repository</h3>
 
 A "repository" in Git is a pile-of-files in the ".git" subdirectory
 of a single check-out.  The check-out and the repository are inseperable.
@@ -190,7 +191,7 @@ open on different branches or on different snapshots of the same branch.
 Long-running tests or builds can be running in one check-out while
 changes are being committed in another.
 
-<h3>3.7 What you should have done vs. What you actually did</h3>
+<h3>2.7 What you should have done vs. What you actually did</h3>
 
 Git puts a lot of emphasis on maintaining
 a "clean" check-in history.  Extraneous and experimental branches by
@@ -211,7 +212,7 @@ is not a factor.
 One commentator has mused that Git records history according to
 the victors, whereas Fossil records history as it actually happened.
 
-<h3>3.8 GPL vs. BSD</h3>
+<h3>2.8 GPL vs. BSD</h3>
 
 Git is covered by the GPL license whereas Fossil is covered by
 a two-clause BSD license.
@@ -247,7 +248,7 @@ and siloed development, which are hallmarks of the GPL/bazaar approach to
 software, whereas Fossil encourages a more tightly collaborative,
 cliquish, cathedral-style approach more typical of BSD-licensed projects.
 
-<h2>4.0 Missing Features</h2>
+<h2>3.0 Missing Features</h2>
 
 Most of the capabilities found in Git are also available in Fossil and
 the other way around. For example, both systems have local check-outs,
@@ -258,7 +259,7 @@ of immutable check-in objects.
 But there are a few capabilities in one system that are missing from the
 other.
 
-<h3>4.1 Features found in Fossil but missing from Git</h3>
+<h3>3.1 Features found in Fossil but missing from Git</h3>
 
   *  <b>The ability to show descendents of a check-in.</b>
 
@@ -297,7 +298,7 @@ other.
    nearly as many features and they are not nearly as convenient to use.
 
 
-<h3>4.2 Features found in Git but missing from Fossil</h3>
+<h3>3.2 Features found in Git but missing from Fossil</h3>
 
   *  <b>Rebase</b>
 
