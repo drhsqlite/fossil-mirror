@@ -15745,7 +15745,7 @@ static void usage(int showDetail){
 */
 static void verify_uninitialized(void){
   if( sqlite3_config(-1)==SQLITE_MISUSE ){
-    utf8_printf(stdout, "WARNING: attempt to configuration SQLite after"
+    utf8_printf(stdout, "WARNING: attempt to configure SQLite after"
                         " initialization.\n");
   }
 }

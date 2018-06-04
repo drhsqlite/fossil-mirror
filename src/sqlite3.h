@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.24.0"
 #define SQLITE_VERSION_NUMBER 3024000
-#define SQLITE_SOURCE_ID      "2018-05-30 01:14:20 86ee267ee86f5264774a9f215b1158aeaa2d605e77c205731b5ee3945d7de4c2"
+#define SQLITE_SOURCE_ID      "2018-06-04 19:24:41 c7ee0833225bfd8c5ec2f9bf62b97c4e04d03bd9566366d5221ac8fb199a87ca"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9038,7 +9038,7 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_recover(sqlite3 *db, const c
 ** been a prior call to [sqlite3_deserialize(D,S,...)] with the same
 ** values of D and S.
 ** The size of the database is written into *P even if the 
-** SQLITE_SERIALIZE_NOCOPY bit is set but no contigious copy
+** SQLITE_SERIALIZE_NOCOPY bit is set but no contiguous copy
 ** of the database exists.
 **
 ** A call to sqlite3_serialize(D,S,P,F) might return NULL even if the
