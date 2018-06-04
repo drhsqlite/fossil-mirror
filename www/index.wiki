@@ -11,6 +11,7 @@
 <li> [./faq.wiki | FAQ]
 <li> [./changes.wiki | Change Log]
 <li> [./hacker-howto.wiki | Hacker How-To]
+<li> [./fossil-v-git.wiki | Fossil vs. Git]
 <li> [./hints.wiki | Tip &amp; Hints]
 <li> [./permutedindex.html | Documentation Index]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
