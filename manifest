@@ -1,5 +1,5 @@
-C Update\sthe\ssync\sprotocol\sdocument.
-D 2018-06-04T14:47:35.478
+C Experimental\soption\s--fast\son\sthe\sclone\scommand\sonly\sclones\smanifest\nartifacts\sand\srelated\stags.\s\sThis\sis\san\sexperiment\sto\ssee\show\smuch\sbandwidth\nand\stime\sare\ssaved\sby\somitting\sthe\sdownload\sof\sfile\scontent\suntil\sit\sis\nactually\sneeded.
+D 2018-06-04T16:27:52.713
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/checkin.c 9dd1580ea2b588fe741fa881e9c6de74f7a37ce74a07f1695af17803629160cd
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 560f9c07b6ba7f9e6778fee962beabe54eebf3a10a8759db0dfb09d0cee8690f
+F src/clone.c e1b56e15fe07486c20dbe66ad919b361ab34baf6fee59eb747cde1396158ab87
 F src/codecheck1.c 4b4bbebe7285545db72ee94406086a3ddbf1839367df76e7672025428465d43c
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
@@ -591,7 +591,7 @@ F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba2
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c cac4936b567c5b6f8c22b0c10c74400ce6f327d61d1a41f8a41e88ef17079e65
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
+F src/xfer.c b49fd24361d6c8ef222259b1989a0cddc6886aabd2179ca72fd0e7e0472e7198
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 39b893f0de94f75e0a2f13ccc1204d4970f31813ce01c804675da7a580ca8a6d
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -847,7 +847,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ae97be7a7edbca7fce33999195d52e0fa385233c59249b11f27d564dd4d0764
-R e7cbf0da56dcada1a6b150bf5c24e4b6
+P 55cd6153dee1cb36e973dd58df0e4c6c81769f412e2afc0713e1800c130585c1
+R f8ea518186a27e00d5795a287d2c7b34
+T *branch * fast-clone
+T *sym-fast-clone *
+T -sym-trunk *
 U drh
-Z a675513d5185e508e58baa97ed99fb6e
+Z cd1067bfcb17c51dbb462c0c890e20aa

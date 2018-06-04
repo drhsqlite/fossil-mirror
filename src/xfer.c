@@ -51,8 +51,11 @@ struct Xfer {
   int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
+  u8 ckinOnly;        /* Clone only check-ins and related artifacts */
+  u8 useOkToSend;     /* Omit artifacts found in okToSend */
   u32 clientVersion;  /* Version of the client software */
   time_t maxTime;     /* Time when this transfer should be finished */
+  Bag okToSend;       /* IDs of BLOBs acceptable to send */
 };
 
 
@@ -1354,7 +1357,10 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      if( db_get_boolean("uv-sync",0) && !uvCatalogSent ){
+      if( db_get_boolean("uv-sync",0)
+       && !uvCatalogSent
+       && !xfer.ckinOnly
+      ){
         @ pragma uv-pull-only
         send_unversioned_catalog(&xfer);
         uvCatalogSent = 1;
@@ -1371,7 +1377,9 @@ void page_xfer(void){
         max = db_int(0, "SELECT max(rid) FROM blob");
         while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max){
           if( time(NULL) >= xfer.maxTime ) break;
-          if( iVers>=3 ){
+          if( xfer.useOkToSend && bag_find(&xfer.okToSend, seqno)==0 ){
+            /* no-op */
+          }else if( iVers>=3 ){
             send_compressed_file(&xfer, seqno);
           }else{
             send_file(&xfer, seqno, 0, 1);
@@ -1519,6 +1527,35 @@ void page_xfer(void){
         xfer.resync = 0x7fffffff;
       }
 
+      /*   pragma ckin-only
+      **
+      ** Only send manifests and related tag artifacts.  Omit
+      ** file content, wiki, and ticket artifacts.
+      */
+      if( blob_eq(&xfer.aToken[1], "ckin-only") ){
+        Stmt q;
+        if( !xfer.useOkToSend ){
+          xfer.useOkToSend = 1;
+          bag_init(&xfer.okToSend);
+        }
+        db_prepare(&q, "SELECT objid FROM event WHERE type='ci'");
+        while( db_step(&q)==SQLITE_ROW ){
+          bag_insert(&xfer.okToSend, db_column_int(&q, 0));
+        }
+        db_finalize(&q);
+        db_prepare(&q,
+          "SELECT srcid FROM tagxref"
+          " WHERE srcid!=0"
+          "   AND srcid!=rid"
+          "   AND rid IN (SELECT objid FROM event WHERE type='ci')"
+        );
+        while( db_step(&q)==SQLITE_ROW ){
+          bag_insert(&xfer.okToSend, db_column_int(&q, 0));
+        }
+        db_finalize(&q);
+        xfer.ckinOnly = 1;
+      }
+
       /*   pragma client-version VERSION
       **
       ** Let the server know what version of Fossil is running on the client.
@@ -1656,6 +1693,7 @@ static const char zBriefFormat[] =
 #define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
 #define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
 #define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
+#define SYNC_ONLY_CKIN      0x0800    /* Only manifasts & related tags */
 #endif
 
 /*
@@ -1747,7 +1785,12 @@ int client_sync(
 
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
-    blob_append(&send, "pragma send-private\n", -1);
+    blob_append(&send, "pragma send-private\n", -1); nCardSent++;
+  }
+
+  /* Let the server know if we are only interested in check-ins */
+  if( syncFlags & SYNC_ONLY_CKIN ){
+    blob_appendf(&send, "pragma ckin-only\n"); nCardSent++;
   }
 
   /* When syncing unversioned files, create a TEMP table in which to store
@@ -1824,7 +1867,8 @@ int client_sync(
     ** for all leaves.
     */
     if( (syncFlags & SYNC_PULL)!=0
-     || ((syncFlags & SYNC_CLONE)!=0 && cloneSeqno==1)
+     || ((syncFlags & (SYNC_CLONE|SYNC_ONLY_CKIN))==SYNC_CLONE
+           && cloneSeqno==1)
     ){
       request_phantoms(&xfer, mxPhantomReq);
     }
@@ -2171,8 +2215,12 @@ int client_sync(
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        if( cloneSeqno>0 ) blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
-        nCardSent++;
+        if( cloneSeqno>0 ){
+          if( syncFlags & SYNC_ONLY_CKIN ){
+            blob_appendf(&send, "pragma ckin-only\n"); nCardSent++;
+          }
+          blob_appendf(&send, "clone 3 %d\n", cloneSeqno); nCardSent++;
+        }
       }else
 
       /*   config NAME SIZE \n CONTENT

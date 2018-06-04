@@ -111,6 +111,7 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
+**    --fast                     Minimal clone - most content left on server
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
@@ -131,6 +132,7 @@ void clone_cmd(void){
 
   /* Also clone private branches */
   if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
+  if( find_option("fast",0,0)!=0 ) syncFlags |= SYNC_ONLY_CKIN;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
   if( find_option("verbose","v",0)!=0) syncFlags |= SYNC_VERBOSE;
   if( find_option("unversioned","u",0)!=0 ) syncFlags |= SYNC_UNVERSIONED;
