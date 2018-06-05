@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.24.0\srelease.
-D 2018-06-04T19:52:53.639
+C Fix\sa\sbug\sin\sthe\spivot-finder\sintroduced\sby\scheck-in\n[917f1c21e52a29904]\sfrom\s5\sdays\sago.
+D 2018-06-05T23:06:21.305
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -529,7 +529,7 @@ F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
 F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
-F src/pivot.c 05a3331209c8df9a431d958c309d0055b8648ce085685cd945651551f74bcdc4
+F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 3a56bc49bc7ed5cf1e7a1818ab55c3e3658b8179fbf3d264a5654ad3baf1a417
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55cd6153dee1cb36e973dd58df0e4c6c81769f412e2afc0713e1800c130585c1
-R 9b0b107a4c8b7a388a99d55ad55b8895
+P f39d0a729075e4e4bc6d09a52c444aee771dbe4ef2ad64b29a2c61757a2abf99
+R 3598038b5afcdf1fc922945f9aca35db
 U drh
-Z 124fcefce5826483e9b6e3ab0bee41c4
+Z e5b0beb76e2ebf1e29e523ba8cf424da

@@ -40,11 +40,12 @@ void pivot_set_primary(int rid){
   /* Set up table used to do the search */
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS aqueue("
-    "  rid INTEGER PRIMARY KEY,"  /* The record id for this version */
+    "  rid INTEGER,"              /* The record id for this version */
     "  mtime REAL,"               /* Time when this version was created */
     "  pending BOOLEAN,"          /* True if we have not check this one yet */
-    "  src BOOLEAN"               /* 1 for primary.  0 for others */
-    ");"
+    "  src BOOLEAN,"               /* 1 for primary.  0 for others */
+    "  PRIMARY KEY(rid,src)"
+    ") WITHOUT ROWID;"
     "DELETE FROM aqueue;"
     "CREATE INDEX IF NOT EXISTS aqueue_idx1 ON aqueue(pending, mtime);"
   );
