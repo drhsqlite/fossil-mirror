@@ -22,6 +22,21 @@
 #include "setup.h"
 
 /*
+** Increment the "cfgcnt" variable, so that ETags will know that
+** the configuration has changed.
+*/
+void setup_incr_cfgcnt(void){
+  static int once = 1;
+  if( once ){
+    once = 0;
+    db_multi_exec("UPDATE config SET value=value+1 WHERE name='cfgcnt'");
+    if( db_changes()==0 ){
+      db_multi_exec("INSERT INTO config(name,value) VALUES('cfgcnt',1)");
+    }
+  }
+}
+
+/*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
@@ -498,6 +513,7 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,%Q,now())",
       uid, zLogin, P("info"), zPw, zCap
     );
+    setup_incr_cfgcnt();
     admin_log( "Updated user [%q] with capabilities [%q].",
                zLogin, zCap );
     if( atoi(PD("all","0"))>0 ){

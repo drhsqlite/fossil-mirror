@@ -1112,8 +1112,8 @@ static int is_ticket(
   static int once = 1;
   int n;
   int rc;
-  char zLower[UUID_SIZE+1];
-  char zUpper[UUID_SIZE+1];
+  char zLower[HNAME_MAX+1];
+  char zUpper[HNAME_MAX+1];
   n = strlen(zTarget);
   memcpy(zLower, zTarget, n+1);
   canonical16(zLower, n+1);
@@ -1220,7 +1220,7 @@ static void openHyperlink(
     blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
   }else if( is_valid_hname(zTarget) ){
     int isClosed = 0;
-    if( strlen(zTarget)<=UUID_SIZE && is_ticket(zTarget, &isClosed) ){
+    if( strlen(zTarget)<=HNAME_MAX && is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
       */
@@ -1833,7 +1833,7 @@ void wiki_extract_links(
       case TOKEN_LINK: {
         char *zTarget;
         int i, c;
-        char zLink[42];
+        char zLink[HNAME_MAX+4];
 
         zTarget = &z[1];
         for(i=0; zTarget[i] && zTarget[i]!='|' && zTarget[i]!=']'; i++){}

@@ -517,7 +517,7 @@ void tag_cmd(void){
                     " SELECT rid FROM tagxref"
                     "  WHERE tagtype>0 AND tagid=%d"
                     ")"
-          " ORDER BY event.mtime DESC",
+          " ORDER BY event.mtime DESC /*sort*/",
           timeline_query_for_tty(), zType, tagid
         );
         db_prepare(&q, "%s", blob_sql_text(&sql));
@@ -703,7 +703,7 @@ void tagtimeline_page(void){
     "                     WHERE tagtype=1 AND srcid>0"
     "                       AND tagid IN (SELECT tagid FROM tag "
     "                                      WHERE tagname GLOB 'sym-*'))"
-    " ORDER BY event.mtime DESC",
+    " ORDER BY event.mtime DESC /*sort*/",
     timeline_query_for_www()
   );
   www_print_timeline(&q, 0, 0, 0, 0, 0);

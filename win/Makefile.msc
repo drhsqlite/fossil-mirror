@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2n
+SSLDIR    = $(B)\compat\openssl-1.0.2o
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -335,16 +335,42 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
                  /DSQLITE_ENABLE_STMTVTAB \
-                 /DSQLITE_USE_ZLIB \
+                 /DSQLITE_HAVE_ZLIB \
                  /DSQLITE_INTROSPECTION_PRAGMAS \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
                  /DSQLITE_WIN32_NO_ANSI
 
-SHELL_OPTIONS = /Dmain=sqlite3_shell \
+SHELL_OPTIONS = /DNDEBUG=1 \
+                /DSQLITE_THREADSAFE=0 \
+                /DSQLITE_DEFAULT_MEMSTATUS=0 \
+                /DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                /DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                /DSQLITE_OMIT_DECLTYPE \
+                /DSQLITE_OMIT_DEPRECATED \
+                /DSQLITE_OMIT_GET_TABLE \
+                /DSQLITE_OMIT_PROGRESS_CALLBACK \
+                /DSQLITE_OMIT_SHARED_CACHE \
+                /DSQLITE_OMIT_LOAD_EXTENSION \
+                /DSQLITE_MAX_EXPR_DEPTH=0 \
+                /DSQLITE_USE_ALLOCA \
+                /DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                /DSQLITE_ENABLE_FTS4 \
+                /DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                /DSQLITE_ENABLE_DBSTAT_VTAB \
+                /DSQLITE_ENABLE_JSON1 \
+                /DSQLITE_ENABLE_FTS5 \
+                /DSQLITE_ENABLE_STMTVTAB \
+                /DSQLITE_HAVE_ZLIB \
+                /DSQLITE_INTROSPECTION_PRAGMAS \
+                /DSQLITE_ENABLE_DBPAGE_VTAB \
+                /Dmain=sqlite3_shell \
                 /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 /DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
-                /DSQLITE_SHELL_DBNAME_PROC=fossil_open \
+                /DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
+                /DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
                 /Daccess=file_access \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
@@ -384,6 +410,7 @@ SRC   = add_.c \
         dispatch_.c \
         doc_.c \
         encode_.c \
+        etag_.c \
         event_.c \
         export_.c \
         file_.c \
@@ -583,6 +610,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\dispatch$O \
         $(OX)\doc$O \
         $(OX)\encode$O \
+        $(OX)\etag$O \
         $(OX)\event$O \
         $(OX)\export$O \
         $(OX)\file$O \
@@ -771,6 +799,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
 	echo $(OX)\encode.obj >> $@
+	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
 	echo $(OX)\export.obj >> $@
 	echo $(OX)\file.obj >> $@
@@ -1169,6 +1198,12 @@ $(OX)\encode$O : encode_.c encode.h
 	$(TCC) /Fo$@ -c encode_.c
 
 encode_.c : $(SRCDIR)\encode.c
+	translate$E $** > $@
+
+$(OX)\etag$O : etag_.c etag.h
+	$(TCC) /Fo$@ -c etag_.c
+
+etag_.c : $(SRCDIR)\etag.c
 	translate$E $** > $@
 
 $(OX)\event$O : event_.c event.h
@@ -1787,6 +1822,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
 			encode_.c:encode.h \
+			etag_.c:etag.h \
 			event_.c:event.h \
 			export_.c:export.h \
 			file_.c:file.h \

@@ -177,12 +177,20 @@ static void sqlcmd_atexit(void) {
 }
 
 /*
-** This routine is called by the patched sqlite3 command-line shell in order
-** to load the name and database connection for the open Fossil database.
+** This routine is called by the sqlite3 command-line shell to
+** to load the name the Fossil repository database.
 */
-void fossil_open(const char **pzRepoName){
-  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
+void sqlcmd_get_dbname(const char **pzRepoName){
   *pzRepoName = g.zRepositoryName;
+}
+
+/*
+** This routine is called by the sqlite3 command-line shell to do
+** extra initialization prior to starting up the shell.
+*/
+void sqlcmd_init_proc(void){
+  sqlite3_initialize();
+  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
 }
 
 #if USE_SEE

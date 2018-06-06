@@ -57,6 +57,7 @@ set src {
   dispatch
   doc
   encode
+  etag
   event
   export
   file
@@ -191,7 +192,7 @@ set SQLITE_OPTIONS {
   -DSQLITE_ENABLE_JSON1
   -DSQLITE_ENABLE_FTS5
   -DSQLITE_ENABLE_STMTVTAB
-  -DSQLITE_USE_ZLIB
+  -DSQLITE_HAVE_ZLIB
   -DSQLITE_INTROSPECTION_PRAGMAS
   -DSQLITE_ENABLE_DBPAGE_VTAB
 }
@@ -202,13 +203,14 @@ set SQLITE_OPTIONS {
 
 # Options used to compile the included SQLite shell.
 #
-set SHELL_OPTIONS {
+set SHELL_OPTIONS [concat $SQLITE_OPTIONS {
   -Dmain=sqlite3_shell
   -DSQLITE_SHELL_IS_UTF8=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
-  -DSQLITE_SHELL_DBNAME_PROC=fossil_open
-}
+  -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname
+  -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
+}]
 
 # miniz (libz drop-in alternative) precompiler flags.
 #
@@ -625,6 +627,10 @@ BCC = $(BCCEXE)
 #
 # USE_SYSTEM_SQLITE = 1
 
+#### Use POSIX memory APIs from "sys/mman.h"
+#
+# USE_MMAN_H = 1
+
 #### Use the SQLite Encryption Extension
 #
 # USE_SEE = 1
@@ -698,7 +704,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2n
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2o
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -860,6 +866,12 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
+endif
+
+# With "sys/mman.h" support
+ifdef USE_MMAN_H
+TCC += -DUSE_MMAN_H=1
+RCC += -DUSE_MMAN_H=1
 endif
 
 # With SQLite Encryption Extension support
@@ -1544,7 +1556,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2n
+SSLDIR    = $(B)\compat\openssl-1.0.2o
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll

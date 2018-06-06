@@ -93,25 +93,26 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x00001  /* Show artifact IDs on non-check-in lines */
-#define TIMELINE_LEAFONLY 0x00002  /* Show "Leaf" but not "Merge", "Fork" etc */
-#define TIMELINE_BRIEF    0x00004  /* Combine adjacent elements of same obj */
-#define TIMELINE_GRAPH    0x00008  /* Compute a graph */
-#define TIMELINE_DISJOINT 0x00010  /* Elements are not contiguous */
-#define TIMELINE_FCHANGES 0x00020  /* Detail file changes */
-#define TIMELINE_BRCOLOR  0x00040  /* Background color by branch name */
-#define TIMELINE_UCOLOR   0x00080  /* Background color by user */
-#define TIMELINE_FRENAMES 0x00100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x00200  /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x00400  /* Show RID values in addition to UUIDs */
-#define TIMELINE_BISECT   0x00800  /* Show supplimental bisect information */
-#define TIMELINE_COMPACT  0x01000  /* Use the "compact" view style */
-#define TIMELINE_VERBOSE  0x02000  /* Use the "detailed" view style */
-#define TIMELINE_MODERN   0x04000  /* Use the "modern" view style */
-#define TIMELINE_COLUMNAR 0x08000  /* Use the "columns view style */
-#define TIMELINE_VIEWS    0x0f000  /* Mask for all of the view styles */
-#define TIMELINE_NOSCROLL 0x10000  /* Don't scroll to the selection */
-#define TIMELINE_FILEDIFF 0x20000  /* Show File differences, not ckin diffs */
+#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines */
+#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc */
+#define TIMELINE_BRIEF    0x000004  /* Combine adjacent elements of same obj */
+#define TIMELINE_GRAPH    0x000008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x000010  /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x000020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x000040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x000080  /* Background color by user */
+#define TIMELINE_FRENAMES 0x000100  /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x000200  /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x000400  /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x000800  /* Show supplimental bisect information */
+#define TIMELINE_COMPACT  0x001000  /* Use the "compact" view style */
+#define TIMELINE_VERBOSE  0x002000  /* Use the "detailed" view style */
+#define TIMELINE_MODERN   0x004000  /* Use the "modern" view style */
+#define TIMELINE_COLUMNAR 0x008000  /* Use the "columns" view style */
+#define TIMELINE_CLASSIC  0x010000  /* Use the "classic" view style */
+#define TIMELINE_VIEWS    0x01f000  /* Mask for all of the view styles */
+#define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
+#define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
 #endif
 
 /*
@@ -277,6 +278,8 @@ void www_print_timeline(
     zStyle = "Compact";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
+  }else if( tmFlags & TIMELINE_CLASSIC ){
+    zStyle = "Classic";
   }else{
     zStyle = "Modern";
   }
@@ -467,14 +470,14 @@ void www_print_timeline(
       }
       db_reset(&bisectQuery);
     }
-    drawDetailEllipsis = (tmFlags & TIMELINE_COMPACT)!=0;
+    drawDetailEllipsis = (tmFlags & (TIMELINE_COMPACT))!=0;
     db_column_blob(pQuery, commentColumn, &comment);
     if( tmFlags & TIMELINE_COMPACT ){
       @ <span class='timelineCompactComment' data-id='%d(rid)'>
     }else{
       @ <span class='timeline%s(zStyle)Comment'>
     }
-    if( (tmFlags & TIMELINE_VERBOSE)!=0 ){
+    if( (tmFlags & TIMELINE_CLASSIC)!=0 ){
       if( zType[0]=='c' ){
         hyperlink_to_uuid(zUuid);
         if( isLeaf ){
@@ -551,11 +554,11 @@ void www_print_timeline(
       cgi_printf("<span class='clutter' id='detail-%d'>",rid);
     }
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
-    if( (tmFlags & (TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
       cgi_printf("(");
     }
 
-    if( (tmFlags & TIMELINE_VERBOSE)==0 ){
+    if( (tmFlags & TIMELINE_CLASSIC)==0 ){
       if( zType[0]=='c' ){
         if( isLeaf ){
           if( db_exists("SELECT 1 FROM tagxref"
@@ -627,7 +630,7 @@ void www_print_timeline(
       xExtra(rid);
     }
     /* End timelineDetail */
-    if( (tmFlags & (TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
+    if( (tmFlags & (TIMELINE_CLASSIC|TIMELINE_VERBOSE|TIMELINE_COMPACT))!=0 ){
       cgi_printf(")");
     }
     if( tmFlags & TIMELINE_COMPACT ){
@@ -1066,6 +1069,7 @@ int timeline_ss_cookie(void){
     case 'c':  tmFlags = TIMELINE_COMPACT;  break;
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
+    case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
     default:   tmFlags = TIMELINE_MODERN;   break;
   }    
   return tmFlags;
@@ -1080,12 +1084,14 @@ int timeline_ss_cookie(void){
 int timeline_ss_submenu(void){
   static const char *azViewStyles[] = {
      "m", "Modern View",
+     "j", "Columnar View",
      "c", "Compact View",
      "v", "Verbose View",
-     "j", "Columnar View",
+     "x", "Classic View",
   };
   cookie_link_parameter("ss","ss","m");
-  style_submenu_multichoice("ss", 4, azViewStyles, 0);
+  style_submenu_multichoice("ss", sizeof(azViewStyles)/(2*sizeof(azViewStyles[0])),
+                            azViewStyles, 0);
   return timeline_ss_cookie();
 }
 
@@ -1368,7 +1374,9 @@ static const char *tagMatchExpression(
 **    forks           Show only forks and their children
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
+**    yw=YYYY-MM-DD   Show events for the week that includes the given day
 **    ymd=YYYY-MM-DD  Show only events on the given day
+**    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
@@ -1408,7 +1416,10 @@ void page_timeline(void){
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
+  char *zYearWeekStart = 0;          /* YYYY-MM-DD for start of YYYY-WW */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zNDays = P("days");    /* Show events over the previous N days */
+  int nDays = 0;                     /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
@@ -1431,6 +1442,7 @@ void page_timeline(void){
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
   int advancedMenu = 0;               /* Use the advanced menu design */
+  char *zPlural;                      /* Ending for plural forms */
 
   /* Set number of rows to display */
   cookie_read_parameter("n","n");
@@ -1657,7 +1669,7 @@ void page_timeline(void){
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
     addFileGlobDescription(zChng, &desc);
-  }else if( (p_rid || d_rid) && g.perm.Read ){
+  }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -1729,7 +1741,7 @@ void page_timeline(void){
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
-    const char *zEType = "timeline item";
+    const char *zEType = "event";
     char *zDate;
     Blob cond;
     blob_zero(&cond);
@@ -1754,12 +1766,45 @@ void page_timeline(void){
                    zYearMonth);
     }
     else if( zYearWeek ){
+      char *z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
+      if( z && z[0] ){
+        zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
+                                 zYearWeek);
+        zYearWeek = z;
+      }else{
+        if( strlen(zYearWeek)==7 ){       
+          zYearWeekStart = db_text(0,
+             "SELECT date('%.4q-01-01','+%d days','weekday 1')",
+             zYearWeek, atoi(zYearWeek+5)*7);
+        }else{
+          zYearWeekStart = 0;
+        }
+        if( zYearWeekStart==0 || zYearWeekStart[0]==0 ){
+          zYearWeekStart = db_text(0,
+             "SELECT date('now','-6 days','weekday 1');");
+          zYearWeek = db_text(0,
+             "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
+        }
+      }
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
+      nEntry = -1;
     }
     else if( zDay ){
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+      zDay = db_text(0, "SELECT date(%Q)", zDay);
+      if( zDay==0 || zDay[0]==0 ){
+        zDay = db_text(0, "SELECT date('now')");
+      }
+      blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
                    zDay);
+      nEntry = -1;
+    }
+    else if( zNDays ){
+      nDays = atoi(zNDays);
+      if( nDays<1 ) nDays = 1;
+      blob_append_sql(&cond, " AND event.mtime>=julianday('now','-%d days') ",
+                      nDays);
+      nEntry = -1;
     }
     if( zTagSql ){
       blob_append_sql(&cond,
@@ -1833,7 +1878,7 @@ void page_timeline(void){
       if( zType[0]=='c' ){
         zEType = "check-in";
       }else if( zType[0]=='w' ){
-        zEType = "wiki edit";
+        zEType = "wiki";
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
       }else if( zType[0]=='e' ){
@@ -1907,16 +1952,21 @@ void page_timeline(void){
     db_multi_exec("%s", blob_sql_text(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
+    zPlural = n==1 ? "" : "s";
     if( zYearMonth ){
-      blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+      blob_appendf(&desc, "%d %s%s for %h", n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
+      blob_appendf(&desc, "%d %s%s for week %h beginning on %h", 
+                   n, zEType, zPlural, zYearWeek, zYearWeekStart);
     }else if( zDay ){
-      blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
+      blob_appendf(&desc, "%d %s%s occurring on %h", n, zEType, zPlural, zDay);
+    }else if( zNDays ){
+      blob_appendf(&desc, "%d %s%s within the past %d day%s",
+                          n, zEType, zPlural, nDays, nDays>1 ? "s" : "");
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
-      blob_appendf(&desc, "%d most recent %ss", n, zEType);
+      blob_appendf(&desc, "%d most recent %s%s", n, zEType, zPlural);
     }else{
-      blob_appendf(&desc, "%d %ss", n, zEType);
+      blob_appendf(&desc, "%d %s%s", n, zEType, zPlural);
     }
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
@@ -2040,6 +2090,9 @@ void page_timeline(void){
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  if( fossil_islower(desc.aData[0]) ){
+    desc.aData[0] = fossil_toupper(desc.aData[0]);
+  }
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
 

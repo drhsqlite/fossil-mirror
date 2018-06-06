@@ -45,6 +45,7 @@ SRC = \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
   $(SRCDIR)/encode.c \
+  $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
@@ -245,6 +246,7 @@ TRANS_SRC = \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
   $(OBJDIR)/encode_.c \
+  $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
@@ -374,6 +376,7 @@ OBJ = \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
  $(OBJDIR)/encode.o \
+ $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
@@ -554,16 +557,42 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
                  -DSQLITE_ENABLE_STMTVTAB \
-                 -DSQLITE_USE_ZLIB \
+                 -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_INTROSPECTION_PRAGMAS \
                  -DSQLITE_ENABLE_DBPAGE_VTAB
 
 # Setup the options used to compile the included SQLite shell.
-SHELL_OPTIONS = -Dmain=sqlite3_shell \
+SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_THREADSAFE=0 \
+                -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                -DSQLITE_OMIT_DECLTYPE \
+                -DSQLITE_OMIT_DEPRECATED \
+                -DSQLITE_OMIT_GET_TABLE \
+                -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                -DSQLITE_OMIT_SHARED_CACHE \
+                -DSQLITE_OMIT_LOAD_EXTENSION \
+                -DSQLITE_MAX_EXPR_DEPTH=0 \
+                -DSQLITE_USE_ALLOCA \
+                -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                -DSQLITE_ENABLE_FTS4 \
+                -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                -DSQLITE_ENABLE_DBSTAT_VTAB \
+                -DSQLITE_ENABLE_JSON1 \
+                -DSQLITE_ENABLE_FTS5 \
+                -DSQLITE_ENABLE_STMTVTAB \
+                -DSQLITE_HAVE_ZLIB \
+                -DSQLITE_INTROSPECTION_PRAGMAS \
+                -DSQLITE_ENABLE_DBPAGE_VTAB \
+                -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
-                -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+                -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
+                -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
 
 # Setup the options used to compile the included miniz library.
 MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
@@ -676,6 +705,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
+	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
@@ -1019,6 +1049,14 @@ $(OBJDIR)/encode.o:	$(OBJDIR)/encode_.c $(OBJDIR)/encode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/encode.o -c $(OBJDIR)/encode_.c
 
 $(OBJDIR)/encode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/etag_.c:	$(SRCDIR)/etag.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/etag.c >$@
+
+$(OBJDIR)/etag.o:	$(OBJDIR)/etag_.c $(OBJDIR)/etag.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/etag.o -c $(OBJDIR)/etag_.c
+
+$(OBJDIR)/etag.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/event_.c:	$(SRCDIR)/event.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/event.c >$@

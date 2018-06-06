@@ -133,6 +133,13 @@
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
+#    elif defined(__FreeBSD__)
+#      ifndef TCL_LIBRARY_NAME
+#        define TCL_LIBRARY_NAME "libtcl86.so\0"
+#      endif
+#      ifndef TCL_MINOR_OFFSET
+#        define TCL_MINOR_OFFSET (7)
+#      endif
 #    else
 #      ifndef TCL_LIBRARY_NAME
 #        define TCL_LIBRARY_NAME "libtcl8.6.so\0"

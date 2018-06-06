@@ -474,7 +474,7 @@ void status_cmd(void){
   unsigned flags = 0;
   int vid, i;
 
-  fossil_pledge("stdio rpath wpath cpath id flock tty chown");
+  fossil_pledge("stdio rpath wpath cpath fattr id flock tty chown");
 
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
@@ -559,8 +559,9 @@ void status_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),
-                   g.zLocalRoot);
+      fossil_print(
+        "Changes for %s at %s:\n", db_get("project-name", "<unnamed>"),
+        g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
   }else if( verboseFlag ){
@@ -867,7 +868,7 @@ void extras_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
+      fossil_print("Extras for %s at %s:\n", db_get("project-name","<unnamed>"),
                    g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");

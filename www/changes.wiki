@@ -1,5 +1,34 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_6'></a>
+<h2>Changes for Version 2.6 (2018-05-04)</h2>
+
+  *  Fix a bug that was causing crashes while trying to clone the TCL
+     repository.  This fix is the main reason for the current release.
+  *  Added the new "Classic" timeline viewing mode.  "Classic" is the
+     same as "Verbose" in the previous release.  The "Verbose" mode is
+     now like "Compact" except the extra check-in details are shown by
+     default.
+  *  Add support for ETags:, Last-Modified:, and If-Modified-Since:
+     cache control mechanisms.
+  *  Enhance the [/help?cmd=/tarball|/tarball], 
+     [/help?cmd=/zip|/zip], and 
+     [/help?cmd=/sqlar|/sqlar] pages so that the checkin
+     name to be downloaded can be expressed as part of the URI,
+     and without the need for query parameters.
+  *  On the [/help?cmd=/timeline|/timeline] webpage, add the days=N
+     query parameter and enhance the ymd=DATE and yw=DATE query parameters
+     to accept 'now' as an argument to show the latest day or week.
+  *  In the web page that comes up in response to the
+     [/help?cmd=all|fossil all ui] command, show the last modification
+     time for each repository, and allow click-to-sort on the modification
+     time column.
+  *  In the tarball cache replacement algorithm, give extra weight to
+     tarballs that have been accessed more than once.
+  *  Additional defenses against web-based attacks.  There have not been
+     any known vulnerabilities.  We are just being paranoid.
+  *  Update the built-in SQLite to an alpha version of 3.24.0.
+
 <a name='v2_5'></a>
 <h2>Changes for Version 2.5 (2018-02-07)</h2>
 

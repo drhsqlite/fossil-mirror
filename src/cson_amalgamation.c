@@ -324,7 +324,7 @@ SOFTWARE.
 
 #define true  1
 #define false 0
-#define __   -1     /* the universal error code */
+#define XX   -1     /* the universal error code */
 
 /* values chosen so that the object size is approx equal to one page (4K) */
 #ifndef JSON_PARSER_STACK_SIZE
@@ -416,10 +416,10 @@ static const signed char ascii_class[128] = {
     The remaining Unicode characters should be mapped to C_ETC.
     Non-whitespace control characters are errors.
 */
-    __,      __,      __,      __,      __,      __,      __,      __,
-    __,      C_WHITE, C_WHITE, __,      __,      C_WHITE, __,      __,
-    __,      __,      __,      __,      __,      __,      __,      __,
-    __,      __,      __,      __,      __,      __,      __,      __,
+    XX,      XX,      XX,      XX,      XX,      XX,      XX,      XX,
+    XX,      C_WHITE, C_WHITE, XX,      XX,      C_WHITE, XX,      XX,
+    XX,      XX,      XX,      XX,      XX,      XX,      XX,      XX,
+    XX,      XX,      XX,      XX,      XX,      XX,      XX,      XX,
 
     C_SPACE, C_ETC,   C_QUOTE, C_ETC,   C_ETC,   C_ETC,   C_ETC,   C_ETC,
     C_ETC,   C_ETC,   C_STAR,   C_PLUS, C_COMMA, C_MINUS, C_POINT, C_SLASH,
@@ -450,7 +450,7 @@ enum states {
     VA,  /* value    */
     AR,  /* array    */
     ST,  /* string   */
-    ES,  /* escape   */
+    ESC,  /* escape   */
     U1,  /* u1       */
     U2,  /* u2       */
     U3,  /* u3       */
@@ -508,42 +508,42 @@ static const signed char state_transition_table[NR_STATES][NR_CLASSES] = {
 
                  white                                      1-9                                   ABCDF  etc
              space |  {  }  [  ]  :  ,  "  \  /  +  -  .  0  |  a  b  c  d  e  f  l  n  r  s  t  u  |  E  |  * */
-/*start  GO*/ {GO,GO,-6,__,-5,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*ok     OK*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*object OB*/ {OB,OB,__,-9,__,__,__,__,SB,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*key    KE*/ {KE,KE,__,__,__,__,__,__,SB,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*colon  CO*/ {CO,CO,__,__,__,__,-2,__,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*value  VA*/ {VA,VA,-6,__,-5,__,__,__,SB,__,CB,__,MX,__,ZX,IX,__,__,__,__,__,FA,__,NU,__,__,TR,__,__,__,__,__},
-/*array  AR*/ {AR,AR,-6,__,-5,-7,__,__,SB,__,CB,__,MX,__,ZX,IX,__,__,__,__,__,FA,__,NU,__,__,TR,__,__,__,__,__},
-/*string ST*/ {ST,__,ST,ST,ST,ST,ST,ST,-4,EX,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST},
-/*escape ES*/ {__,__,__,__,__,__,__,__,ST,ST,ST,__,__,__,__,__,__,ST,__,__,__,ST,__,ST,ST,__,ST,U1,__,__,__,__},
-/*u1     U1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,U2,U2,U2,U2,U2,U2,U2,U2,__,__,__,__,__,__,U2,U2,__,__},
-/*u2     U2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,U3,U3,U3,U3,U3,U3,U3,U3,__,__,__,__,__,__,U3,U3,__,__},
-/*u3     U3*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,U4,U4,U4,U4,U4,U4,U4,U4,__,__,__,__,__,__,U4,U4,__,__},
-/*u4     U4*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,UC,UC,UC,UC,UC,UC,UC,UC,__,__,__,__,__,__,UC,UC,__,__},
-/*minus  MI*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,ZE,IT,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*zero   ZE*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,DF,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*int    IT*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,DF,IT,IT,__,__,__,__,DE,__,__,__,__,__,__,__,__,DE,__,__},
-/*frac   FR*/ {OK,OK,__,-8,__,-7,__,-3,__,__,CB,__,__,__,FR,FR,__,__,__,__,E1,__,__,__,__,__,__,__,__,E1,__,__},
-/*e      E1*/ {__,__,__,__,__,__,__,__,__,__,__,E2,E2,__,E3,E3,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*ex     E2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,E3,E3,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*exp    E3*/ {OK,OK,__,-8,__,-7,__,-3,__,__,__,__,__,__,E3,E3,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*tr     T1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,T2,__,__,__,__,__,__,__},
-/*tru    T2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,T3,__,__,__,__},
-/*true   T3*/ {__,__,__,__,__,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,OK,__,__,__,__,__,__,__,__,__,__,__},
-/*fa     F1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,F2,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*fal    F2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,F3,__,__,__,__,__,__,__,__,__},
-/*fals   F3*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,F4,__,__,__,__,__,__},
-/*false  F4*/ {__,__,__,__,__,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,OK,__,__,__,__,__,__,__,__,__,__,__},
-/*nu     N1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,N2,__,__,__,__},
-/*nul    N2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,N3,__,__,__,__,__,__,__,__,__},
-/*null   N3*/ {__,__,__,__,__,__,__,__,__,__,CB,__,__,__,__,__,__,__,__,__,__,__,OK,__,__,__,__,__,__,__,__,__},
-/*/      C1*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,C2},
+/*start  GO*/ {GO,GO,-6,XX,-5,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*ok     OK*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*object OB*/ {OB,OB,XX,-9,XX,XX,XX,XX,SB,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*key    KE*/ {KE,KE,XX,XX,XX,XX,XX,XX,SB,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*colon  CO*/ {CO,CO,XX,XX,XX,XX,-2,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*value  VA*/ {VA,VA,-6,XX,-5,XX,XX,XX,SB,XX,CB,XX,MX,XX,ZX,IX,XX,XX,XX,XX,XX,FA,XX,NU,XX,XX,TR,XX,XX,XX,XX,XX},
+/*array  AR*/ {AR,AR,-6,XX,-5,-7,XX,XX,SB,XX,CB,XX,MX,XX,ZX,IX,XX,XX,XX,XX,XX,FA,XX,NU,XX,XX,TR,XX,XX,XX,XX,XX},
+/*string ST*/ {ST,XX,ST,ST,ST,ST,ST,ST,-4,EX,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST,ST},
+/*escape ES*/ {XX,XX,XX,XX,XX,XX,XX,XX,ST,ST,ST,XX,XX,XX,XX,XX,XX,ST,XX,XX,XX,ST,XX,ST,ST,XX,ST,U1,XX,XX,XX,XX},
+/*u1     U1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U2,U2,U2,U2,U2,U2,U2,U2,XX,XX,XX,XX,XX,XX,U2,U2,XX,XX},
+/*u2     U2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U3,U3,U3,U3,U3,U3,U3,U3,XX,XX,XX,XX,XX,XX,U3,U3,XX,XX},
+/*u3     U3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U4,U4,U4,U4,U4,U4,U4,U4,XX,XX,XX,XX,XX,XX,U4,U4,XX,XX},
+/*u4     U4*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,UC,UC,UC,UC,UC,UC,UC,UC,XX,XX,XX,XX,XX,XX,UC,UC,XX,XX},
+/*minus  MI*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,ZE,IT,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*zero   ZE*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,DF,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*int    IT*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,DF,IT,IT,XX,XX,XX,XX,DE,XX,XX,XX,XX,XX,XX,XX,XX,DE,XX,XX},
+/*frac   FR*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,CB,XX,XX,XX,FR,FR,XX,XX,XX,XX,E1,XX,XX,XX,XX,XX,XX,XX,XX,E1,XX,XX},
+/*e      E1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,E2,E2,XX,E3,E3,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*ex     E2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,E3,E3,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*exp    E3*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,XX,XX,XX,XX,E3,E3,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*tr     T1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,T2,XX,XX,XX,XX,XX,XX,XX},
+/*tru    T2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,T3,XX,XX,XX,XX},
+/*true   T3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,OK,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*fa     F1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,F2,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*fal    F2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,F3,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*fals   F3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,F4,XX,XX,XX,XX,XX,XX},
+/*false  F4*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,OK,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*nu     N1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,N2,XX,XX,XX,XX},
+/*nul    N2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,N3,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*null   N3*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,CB,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,OK,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*/      C1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,C2},
 /*/star  C2*/ {C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C3},
 /**      C3*/ {C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,CE,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C3},
-/*_.     FX*/ {OK,OK,__,-8,__,-7,__,-3,__,__,__,__,__,__,FR,FR,__,__,__,__,E1,__,__,__,__,__,__,__,__,E1,__,__},
-/*\      D1*/ {__,__,__,__,__,__,__,__,__,D2,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__},
-/*\      D2*/ {__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,__,U1,__,__,__,__},
+/*_.     FX*/ {OK,OK,XX,-8,XX,-7,XX,-3,XX,XX,XX,XX,XX,XX,FR,FR,XX,XX,XX,XX,E1,XX,XX,XX,XX,XX,XX,XX,XX,E1,XX,XX},
+/*\      D1*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,D2,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX},
+/*\      D2*/ {XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,XX,U1,XX,XX,XX,XX},
 };
 
 
@@ -1052,7 +1052,7 @@ JSON_parser_char(JSON_parser jc, int next_char)
         next_class = C_ETC;
     } else {
         next_class = ascii_class[next_char];
-        if (next_class <= __) {
+        if (next_class <= XX) {
             set_error(jc);
             return false;
         }
@@ -1092,7 +1092,7 @@ JSON_parser_char(JSON_parser jc, int next_char)
 /* escaped char */
         case EX:
             jc->escaped = 1;
-            jc->state = ES;
+            jc->state = ESC;
             break;
 /* integer detected by minus */
         case MX:
@@ -1403,6 +1403,10 @@ void init_JSON_config(JSON_config* config)
     }
 }
 
+#undef XX
+#undef COUNTOF
+#undef parse_buffer_clear
+#undef parse_buffer_pop_back_char
 /* end file parser/JSON_parser.c */
 /* begin file ./cson.c */
 #include <assert.h>

@@ -504,10 +504,24 @@ void login_page(void){
   login_check_credentials();
   if( login_wants_https_redirect() ){
     const char *zQS = P("QUERY_STRING");
+    if( P("redir")!=0 ){
+      style_header("Insecure Connection");
+      @ <h1>Unable To Establish An Encrypted Connection</h1>
+      @ <p>This website requires that login credentials be sent over
+      @ an encrypted connection.  The current connection is not encrypted
+      @ across the entire route between your browser and the server.
+      @ An attempt was made to redirect to %h(g.zHttpsURL) but
+      @ the connection is still insecure even after the redirect.</p>
+      @ <p>This is probably some kind of configuration problem.  Please
+      @ contact your sysadmin.</p>
+      @ <p>Sorry it did not work out.</p>
+      style_footer();
+      return;
+    }
     if( zQS==0 ){
-      zQS = "";
+      zQS = "?redir=1";
     }else if( zQS[0]!=0 ){
-      zQS = mprintf("?%s", zQS);
+      zQS = mprintf("?%s&redir=1", zQS);
     }
     cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
     return;
@@ -663,6 +677,19 @@ void login_page(void){
     @ <td><input type="text" id="u" name="u" value="anonymous" size="30" /></td>
   }else{
     @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
+  }
+  if( P("HTTPS")==0 ){
+    @ <td width="15"><td rowspan="3">
+    @ <p class='securityWarning'>
+    @ Warning: Your password will be sent in the clear over an
+    @ unencrypted connection.
+    if( g.sslNotAvailable ){
+      @ No encrypted connection is available on this server.
+    }else{
+      @ Consider logging in at
+      @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+    }
+    @ </p>
   }
   @ </tr>
   @ <tr>
@@ -1339,7 +1366,7 @@ void login_needed(int anonOk){
     const char *zQS = P("QUERY_STRING");
     Blob redir;
     blob_init(&redir, 0, 0);
-    if( login_wants_https_redirect() ){
+    if( login_wants_https_redirect() && !g.sslNotAvailable ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);

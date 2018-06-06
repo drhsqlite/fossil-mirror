@@ -545,7 +545,8 @@ void style_footer(void){
   if( nSubmenu+nSubmenuCtrl>0 ){
     int i;
     if( nSubmenuCtrl ){
-      cgi_printf("<form id='f01' method='GET' action='%R/%s'>", g.zPath);
+      @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
+      @ <input type='hidden' name='udc' value='1'>
     }
     @ <div class="submenu">
     if( nSubmenu>0 ){
@@ -835,11 +836,16 @@ void page_style_css(void){
 **
 ** Return the built-in text given by FILENAME.  This is used internally 
 ** by many Fossil web pages to load built-in javascript files.
+**
+** If the id= query parameter is present, then Fossil assumes that the
+** result is immutable and sets a very large cache retention time (1 year).
 */
 void page_builtin_text(void){
   Blob out;
   const char *zName = P("name");
   const char *zTxt = 0;
+  const char *zId = P("id");
+  int nId;
   if( zName ) zTxt = builtin_text(zName);
   if( zTxt==0 ){
     cgi_set_status(404, "Not Found");
@@ -851,9 +857,13 @@ void page_builtin_text(void){
   }else{
     cgi_set_content_type("text/plain");
   }
+  if( zId && (nId = (int)strlen(zId))>=8 && strncmp(zId,MANIFEST_UUID,nId)==0 ){
+    g.isConst = 1;
+  }else{
+    etag_check(0,0);
+  }
   blob_init(&out, zTxt, -1);
   cgi_set_content(&out);
-  g.isConst = 1;
 }
 
 
@@ -872,7 +882,8 @@ void page_test_env(void){
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
     "HTTP_ACCEPT_LANGUAGE", "HTTP_AUTHENICATION",
-    "HTTP_CONNECTION", "HTTP_HOST", "HTTP_IF_NONE_MATCH",
+    "HTTP_CONNECTION", "HTTP_HOST",
+    "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
     "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
     "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
     "REMOTE_USER", "REQUEST_METHOD",
