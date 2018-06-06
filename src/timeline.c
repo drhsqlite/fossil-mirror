@@ -1116,7 +1116,7 @@ static void addFileGlobDescription(
   Blob *pDescription        /* Result description */
 ){
   if( zChng==0 || zChng[0]==0 ) return;
-  blob_appendf(pDescription, " that include changes to files matching %Q",
+  blob_appendf(pDescription, " that include changes to files matching '%h'",
                zChng);
 }
 
