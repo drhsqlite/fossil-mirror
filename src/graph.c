@@ -536,7 +536,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pRow->pChild ){
       assignChildrenToRail(pRow);
     }else if( !omitDescenders && count_nonbranch_children(pRow->rid)!=0 ){
-      riser_to_top(pRow);
+      if( !pRow->timeWarp ) riser_to_top(pRow);
     }
     if( pParent ){
       for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
