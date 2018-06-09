@@ -131,7 +131,7 @@ Perhaps the two most interesting datapoints in the above table are SQLite
 and SLT.  SQLite is a long-running project with long revision chains.
 Some of the files in SQLite have been edited over a thousand times.
 Each of these edits is stored as a delta, and hence the SQLite project
-gets excellent 73:1 compression.  SLT, on the other hand, consists of
+gets excellent 80:1 compression.  SLT, on the other hand, consists of
 many large (megabyte-sized) SQL scripts that have one or maybe two
 edits each.  There is very little delta compression occurring and so the
 overall repository compression ratio is much lower.  Note also that
