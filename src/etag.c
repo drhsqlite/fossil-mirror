@@ -149,7 +149,7 @@ void etag_last_modified(sqlite3_int64 mtime){
   zIfModifiedSince = P("HTTP_IF_MODIFIED_SINCE");
   if( zIfModifiedSince==0 ) return;
   x = cgi_rfc822_parsedate(zIfModifiedSince);
-  if( x<=0 || x>mtime ) return;
+  if( x<mtime ) return;
 
 #if 0  
   /* If the Fossil executable is more recent than If-Modified-Since,

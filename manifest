@@ -1,5 +1,5 @@
-C Update\ssecondary\smention\sof\sSQLite\scompression\sratio\sto\smatch\stable
-D 2018-06-09T16:37:44.401
+C Fix\sto\sthe\sIfModifiedSince\scache\sprocessing.
+D 2018-06-11T10:36:42.379
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -464,7 +464,7 @@ F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
 F src/encode.c ea4254b5c4c17757056c67ebe5fae2404356892b
-F src/etag.c 0afe42f3bdf0efbae7ca2df91fc9cef9a693569db28efe3eba39090b22283a28
+F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1eee6c70aa90b9939aee6baa738dd4c2de016ce6214327006c46fb063442477e
-R 994b2c1faf3e4625633026d806d08a82
-U andygoth
-Z dc252dcb64da1dd04aff9ae3d8192247
+P b46141f4581dbf3ad51f2460167604f4a27983513d414bc1d2c00a63048992cb
+R ddee13198b69f3fb9d6f79d8cd398af9
+U drh
+Z 6ec3aa5cb247776a03cb96aaf3e59b76
