@@ -1,5 +1,5 @@
-C Fix\sto\sthe\sIfModifiedSince\scache\sprocessing.
-D 2018-06-11T10:36:42.379
+C Disable\sthe\stime_fudge\scorrections\sfor\scheck-ins\sthat\shave\smtimes\sthat\nare\smodified\susing\sa\stag.
+D 2018-06-11T20:36:38.234
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/main.mk 44757094b799a3398a30fa4f50208673990039f5568ad4ef7c9ccd621b653669
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e7ad9bc51e990111053f417faccd0210cedac2aff5c63859b30c33cc2add1811
-F src/manifest.c 9ad4b4be4642c35c2f311cca6af70b1381c1313e439d0197076dd80126ebb034
+F src/manifest.c 5d402b3dac8a4fab3fe7c93b4a7b25863f8f6e20ed5a7d1961dc42be1a7db355
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b46141f4581dbf3ad51f2460167604f4a27983513d414bc1d2c00a63048992cb
-R ddee13198b69f3fb9d6f79d8cd398af9
+P 33fb3a97372f36276904189f3de9a46c719bbabd893151038b94006b06b3e816
+R 570264425f932da8080e5dcecbd93196
 U drh
-Z 6ec3aa5cb247776a03cb96aaf3e59b76
+Z e7044d53c573919b34c8629c0811a6be

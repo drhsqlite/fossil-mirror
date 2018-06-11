@@ -1756,7 +1756,8 @@ int manifest_crosslink_end(int flags){
   if( db_exists("SELECT 1 FROM time_fudge") ){
     db_multi_exec(
       "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
-      " WHERE objid IN (SELECT mid FROM time_fudge);"
+      " WHERE objid IN (SELECT mid FROM time_fudge)"
+      " AND (mtime=omtime OR omtime IS NULL)"
     );
   }
   db_multi_exec("DROP TABLE time_fudge;");
@@ -1931,6 +1932,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   const char *zScript = 0;
   const char *zUuid = 0;
 
+  if( g.fSqlTrace ){
+    fossil_trace("-- manifest_crosslink(%d)\n", rid);
+  }
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
