@@ -1909,7 +1909,7 @@ void output_text_with_line_numbers(
       iStart = iEnd = atoi(&zLn[i++]);
     }while( zLn[i] && iStart && iEnd );
   }
-  db_prepare(&q, "SELECT min(iStart), iEnd FROM lnos");
+  db_prepare(&q, "SELECT min(iStart), max(iEnd) FROM lnos");
   if( db_step(&q)==SQLITE_ROW ){
     iStart = db_column_int(&q, 0);
     iEnd = db_column_int(&q, 1);
