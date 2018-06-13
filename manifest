@@ -1,5 +1,5 @@
-C Reduce\sautomatic\sscroll\soffset\swhen\smultiple\sranges\sare\sselected
-D 2018-06-12T18:52:11.302
+C Incomplete\simplementation\sof\sthe\s"fossil\sgrep"\scommand.
+D 2018-06-13T02:02:31.401
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -536,7 +536,7 @@ F src/printf.c 3a56bc49bc7ed5cf1e7a1818ab55c3e3658b8179fbf3d264a5654ad3baf1a417
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c e094c603fc58ee957d1e9dd3832a19534f61a28280104900cdf7f1f2c0c93d2a
-F src/regexp.c 11ed4c905c2e471efe9c1e9c4650004ad91d6ebb
+F src/regexp.c a5fc3a0fc08836496d7452e2a3b5165acb339c75f06eca2deb08eb0ed37525e4
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -847,6 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e08f9c042309d8812b066a8fdd59d3c737b4b84456b912dfbc33a6e884616ef6
-U andygoth
-Z f63a7fb2b4530ee42cfb78a3f31e536d
+P d46491d6e66f9a85e780e7eee44f63595bd9d1c1c8d6f5ea2bf090b3dc0e1785
+R 40ff0a6836c56b14a676dee7aaa2fd8d
+U drh
+Z 3cbfc194524e7cc34cc4a74d454f951a

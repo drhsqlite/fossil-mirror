@@ -738,9 +738,9 @@ int re_add_sql_func(sqlite3 *db){
 }
 
 /*
-** Run a "grep" over a single file
+** Run a "grep" over a single file read from disk.
 */
-static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
+static void grep_file(ReCompiled *pRe, const char *zFile, FILE *in){
   int ln = 0;
   int n;
   char zLine[2000];
@@ -749,9 +749,41 @@ static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
     n = (int)strlen(zLine);
     while( n && (zLine[n-1]=='\n' || zLine[n-1]=='\r') ) n--;
     if( re_match(pRe, (const unsigned char*)zLine, n) ){
-      printf("%s:%d:%.*s\n", zFile, ln, n, zLine);
+      fossil_print("%s:%d:%.*s\n", zFile, ln, n, zLine);
     }
   }
+}
+
+/*
+** Flags for grep_buffer()
+*/
+#define GREP_EXISTS    0x001    /* If any match, print only the name and stop */
+
+/*
+** Run a "grep" over a text file
+*/
+static int grep_buffer(
+  ReCompiled *pRe,
+  const char *zName,
+  const char *z,
+  u32 flags
+){
+  int i, j, n, ln, cnt;
+  for(i=j=ln=cnt=0; z[i]; i=j+1){
+    for(j=i; z[j] && z[j]!='\n'; j++){}
+    n = j - i;
+    if( z[j]=='\n' ) j++;
+    ln++;
+    if( re_match(pRe, (const unsigned char*)(z+i), j-i) ){
+      cnt++;
+      if( flags & GREP_EXISTS ){
+        fossil_print("%s\n", zName);
+        break;
+      }
+      fossil_print("%s:%d:%.*s\n", zName, ln, n, z+i);
+    }
+  }
+  return cnt;
 }
 
 /*
@@ -776,7 +808,7 @@ void re_test_grep(void){
   zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
   if( g.argc==3 ){
-    grep(pRe, "-", stdin);
+    grep_file(pRe, "-", stdin);
   }else{
     int i;
     for(i=3; i<g.argc; i++){
@@ -784,10 +816,67 @@ void re_test_grep(void){
       if( in==0 ){
         fossil_warning("cannot open \"%s\"", g.argv[i]);
       }else{
-        grep(pRe, g.argv[i], in);
+        grep_file(pRe, g.argv[i], in);
         fclose(in);
       }
     }
   }
   re_free(pRe);
+}
+
+/*
+** COMMAND: grep
+**
+** Usage: %fossil grep [OPTIONS] PATTERN FILENAME|CHECKIN
+**
+** Run grep over all historic version of FILENAME or over all files
+** in CHECKIN.
+**
+** Options:
+**
+**     -i|--ignore-case         Ignore case
+**     -l|--files-with-matches  Print only filenames that match
+**     -v|--verbose             Show each file as it is analyzed
+*/
+void re_grep_cmd(void){
+  u32 flags = 0;
+  int bVerbose = 0;
+  ReCompiled *pRe;
+  const char *zErr;
+  int ignoreCase = 0;
+  Blob fullName;
+
+  if( find_option("ignore-case","i",0)!=0 ) ignoreCase = 1;
+  if( find_option("files-with-matches","l",0)!=0 ) flags |= GREP_EXISTS;
+  if( find_option("verbose","v",0)!=0 ) bVerbose = 1;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  if( g.argc<3 ){
+    usage("REGEXP FILENAME|CHECKIN");
+  }
+  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
+  if( zErr ) fossil_fatal("%s", zErr);
+
+  if( file_tree_name(g.argv[3], &fullName, 0, 0) ){
+    int fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q",
+                      blob_str(&fullName));
+    Stmt q;
+    if( fnid==0 ){
+      fossil_fatal("no such file: \"%s\"", blob_str(&fullName));
+    }
+    add_content_sql_commands(g.db);
+    db_prepare(&q,
+      "SELECT content(uuid), substr(uuid,1,10)"
+      "  FROM mlink, blob, event"
+      " WHERE mlink.mid=event.objid"
+      "   AND mlink.fid=blob.rid"
+      "   AND mlink.fnid=%d"
+      " ORDER BY event.mtime DESC",
+      fnid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      grep_buffer(pRe, db_column_text(&q,1), db_column_text(&q,0), flags);
+    }
+    db_finalize(&q);
+  }
 }
