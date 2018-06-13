@@ -827,10 +827,9 @@ void re_test_grep(void){
 /*
 ** COMMAND: grep
 **
-** Usage: %fossil grep [OPTIONS] PATTERN FILENAME|CHECKIN
+** Usage: %fossil grep [OPTIONS] PATTERN FILENAME
 **
-** Run grep over all historic version of FILENAME or over all files
-** in CHECKIN.
+** Run grep over all historic version of FILENAME
 **
 ** Options:
 **
@@ -852,7 +851,7 @@ void re_grep_cmd(void){
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<3 ){
-    usage("REGEXP FILENAME|CHECKIN");
+    usage("REGEXP FILENAME");
   }
   zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
@@ -860,23 +859,25 @@ void re_grep_cmd(void){
   if( file_tree_name(g.argv[3], &fullName, 0, 0) ){
     int fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q",
                       blob_str(&fullName));
-    Stmt q;
-    if( fnid==0 ){
-      fossil_fatal("no such file: \"%s\"", blob_str(&fullName));
+    if( fnid ){
+      Stmt q;
+      add_content_sql_commands(g.db);
+      db_prepare(&q,
+        "SELECT content(ux), substr(ux,1,10) FROM ("
+        "  SELECT blob.uuid AS ux, min(event.mtime) AS mx"
+        "    FROM mlink, blob, event"
+        "   WHERE mlink.mid=event.objid"
+        "     AND mlink.fid=blob.rid"
+        "     AND mlink.fnid=%d"
+        "   GROUP BY blob.uuid"
+        ") ORDER BY mx DESC;",
+        fnid
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        if( bVerbose ) fossil_print("%s:\n", db_column_text(&q,1));
+        grep_buffer(pRe, db_column_text(&q,1), db_column_text(&q,0), flags);
+      }
+      db_finalize(&q);
     }
-    add_content_sql_commands(g.db);
-    db_prepare(&q,
-      "SELECT content(uuid), substr(uuid,1,10)"
-      "  FROM mlink, blob, event"
-      " WHERE mlink.mid=event.objid"
-      "   AND mlink.fid=blob.rid"
-      "   AND mlink.fnid=%d"
-      " ORDER BY event.mtime DESC",
-      fnid
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      grep_buffer(pRe, db_column_text(&q,1), db_column_text(&q,0), flags);
-    }
-    db_finalize(&q);
   }
 }
