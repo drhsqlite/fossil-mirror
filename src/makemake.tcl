@@ -63,6 +63,7 @@ set src {
   file
   finfo
   foci
+  forum
   fshell
   fusefs
   glob

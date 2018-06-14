@@ -1,5 +1,5 @@
-C Reinstate\sthe\stimeline\sarrow\sforeground\scolor\schanges\sthat\swere\sremoved\nby\scheck-in\s[7ac88481a69dd],\sbut\swith\sfixes\sto\savoid\sinteger\soverflow.
-D 2018-06-14T13:48:23.534
+C This\scode\sdemonstrates\sideas\son\show\sto\simplement\sa\sForum\sfeature\sin\sFossil.\nThis\sis\sjust\sideas\s-\sit\sis\snot\seven\sa\sworking\sprototype.\s\sThis\schange\swas\noriginally\sstashed,\sbut\sthen\sI\sthought\sit\sbetter\sto\scheck\sit\sin\son\sa\sbranch\nfor\sthe\shistorical\srecord.
+D 2018-06-14T19:17:51.999
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -470,6 +470,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
+F src/forum.c 05f5536c809164e57c1f2b397a675897f1c1f9f8edfa1581eb5ffa556c969e8c
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -504,14 +505,14 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 02f58804f8fda109d8240e41a04878527bd2f03e5aa57f6cf73b44292a564d35
+F src/login.c fb6a730b71e1fa2d1d05adad4aa9f88bc7afc63cc0de394600dd80b8b39708df
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 20e0ebbd82eefd68d136762e10277e1ccc09bf37a6ffee3ba9579389ec0af961
-F src/main.mk 44757094b799a3398a30fa4f50208673990039f5568ad4ef7c9ccd621b653669
+F src/main.c 2d014630e30c53dac7db2d4ab006ef5058a1f9178da83824bd1f78cf1681779c
+F src/main.mk 330f72d642c40a23d6dfec59ff0feb927022f6f29d9c151222ccab66577b0045
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl e7ad9bc51e990111053f417faccd0210cedac2aff5c63859b30c33cc2add1811
+F src/makemake.tcl ce6dc13e38208ec650888d9bab3fd0bc4dbfc583f2c16c8dc1ecfacbcda490e5
 F src/manifest.c 5d402b3dac8a4fab3fe7c93b4a7b25863f8f6e20ed5a7d1961dc42be1a7db355
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -544,7 +545,7 @@ F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
 F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
-F src/setup.c 661862611abf84f94e0043a5219ba4793482495d46089e8f993b8f950fd7d858
+F src/setup.c c4fb62ac851b91cb039e5883932942e0fe7a8a8554ee159511413758c3fb11c5
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -721,10 +722,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 213a11badf4e1b31f52548c8cb3e6e51fe79f3eebdcbe714b4cb475f0155a43b
-F win/Makefile.dmc b5d1ed42ed4e5f0ec4bff7da63acc810b0800cbea8061a629dc1a734b6a847e9
-F win/Makefile.mingw ccf871811d3b25451ec4b8ae4c5c84bfc1163d8f0fa366a5b0d0678c3b2f0cd9
+F win/Makefile.dmc 9309730569112f7bc0484f6dad6db71a74d28e381036061d552b40cfd6be15e7
+F win/Makefile.mingw e2c417879641cec851b1fb4dc33fb6fafd3424e8d7197065551ac5a363c7cd9d
 F win/Makefile.mingw.mistachkin 4941c336d0bd0adc9fe831a569621fe276f14f2faf26e99f3aea01cf19243fba
-F win/Makefile.msc 14a8669b2669e2df95b09f56a9d1044335ea9d1e6cd65b7a199bba14d8b379c9
+F win/Makefile.msc d68339d0ec0a59956bdc4c1e246eca742dc9e62ab18e915fc3f4d3c975d7c529
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -847,8 +848,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6499c93dbfbabcdf6b36b45a80f6ca97e135d28a48f8dde0525d28dc578c2947 4f2b230944317fd78520f51db11185da488b39880745d44b88f12d663838015a
-R b8ff3133839648ea018a09ed099beb76
-T +closed 4f2b230944317fd78520f51db11185da488b39880745d44b88f12d663838015a
+P 57a0143b52d5c90f5bba64e10356c4016a35d5d7495de1db260d8e8633a6b4f1
+R 76856965e93f42ba68067ad2526c4aa9
+T *branch * forum-brainstorm-1
+T *sym-forum-brainstorm-1 *
+T -sym-trunk *
 U drh
-Z 450b6672df4c16565d2f0d99310a0bfc
+Z ddc18288e6b99b461f6d9e21a61255ae

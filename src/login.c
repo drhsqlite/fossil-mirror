@@ -1198,6 +1198,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->NewTkt = p->Password = p->RdAddr =
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt = p->Delete =
+                             p->RdForum = p->WrForum = p->ModForum =
                              p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1226,6 +1227,10 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'b':   p->Attach = 1;                               break;
       case 'x':   p->Private = 1;                              break;
       case 'y':   p->WrUnver = 1;                              break;
+
+      case '2':   p->RdForum = 1;                              break;
+      case '3':   p->WrForum = 1;                              break;
+      case '4':   p->ModForum = 1;                             break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */

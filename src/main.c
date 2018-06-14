@@ -85,6 +85,9 @@ struct FossilUserPerms {
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
   char WrUnver;          /* y: can push unversioned content */
+  char RdForum;          /* 2: Read forum posts and comments */
+  char WrForum;          /* 3: Create new forum posts and comments */
+  char ModForum;         /* 4: Moderate forum posts and comments */
 };
 
 #ifdef FOSSIL_ENABLE_TCL

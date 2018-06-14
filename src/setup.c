@@ -348,6 +348,12 @@ static void setup_usercap_table(void){
      @   <td><i>Write-Unver:</i> Push unversioned files</td></tr>
      @ <tr><th valign="top">z</th>
      @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
+     @ <tr><th valign="top">2</th>
+     @   <td><i>Forum-Read:</i> Read Forum posts by others </td></tr>
+     @ <tr><th valign="top">3</th>
+     @   <td><i>Forum-Append:</i> Add new Forum posts or comments</td></tr>
+     @ <tr><th valign="top">4</th>
+     @   <td><i>Forum-Moderator:</i> Moderate Forums</td></tr>
   @ </table>
 }
 
@@ -470,10 +476,15 @@ void user_edit(void){
   doWrite = cgi_all("login","info","pw") && !higherUser && cgi_csrf_safe(1);
   if( doWrite ){
     char c;
-    char zCap[50], zNm[4];
+    char zCap[60], zNm[4];
     zNm[0] = 'a';
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
+      zNm[1] = c;
+      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      if( a[c&0x7f] ) zCap[i++] = c;
+    }
+    for(c='0'; c<='9'; c++){
       zNm[1] = c;
       a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
       if( a[c&0x7f] ) zCap[i++] = c;
@@ -566,6 +577,7 @@ void user_edit(void){
   zCap = "";
   zPw = "";
   for(i='a'; i<='z'; i++) oa[i] = "";
+  for(i='0'; i<='9'; i++) oa[i] = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -573,7 +585,9 @@ void user_edit(void){
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     for(i=0; zCap[i]; i++){
       char c = zCap[i];
-      if( c>='a' && c<='z' ) oa[c&0x7f] = " checked=\"checked\"";
+      if( (c>='a' && c<='z') || (c>='0' && c<='9') ){
+        oa[c&0x7f] = " checked=\"checked\"";
+      }
     }
   }
 
@@ -680,9 +694,9 @@ void user_edit(void){
   @  Hyperlinks%s(B('h'))</label><br />
   @  <label><input type="checkbox" name="ab"%s(oa['b']) />
   @  Attachments%s(B('b'))</label><br />
-  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="au"%s(oa['u']) />
-  @  Reader%s(B('u'))</label><br />
+  @  Reader%s(B('u'))</label>
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="av"%s(oa['v']) />
   @  Developer%s(B('v'))</label><br />
   @  <label><input type="checkbox" name="ag"%s(oa['g']) />
@@ -697,13 +711,13 @@ void user_edit(void){
   @  Write Wiki%s(B('k'))</label><br />
   @  <label><input type="checkbox" name="al"%s(oa['l']) />
   @  Moderate Wiki%s(B('l'))</label><br />
-  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="ar"%s(oa['r']) />
   @  Read Ticket%s(B('r'))</label><br />
   @  <label><input type="checkbox" name="an"%s(oa['n']) />
   @  New Tickets%s(B('n'))</label><br />
   @  <label><input type="checkbox" name="ac"%s(oa['c']) />
-  @  Append To Ticket%s(B('c'))</label><br />
+  @  Append To Ticket%s(B('c'))</label>
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="aw"%s(oa['w']) />
   @  Write Tickets%s(B('w'))</label><br />
   @  <label><input type="checkbox" name="aq"%s(oa['q']) />
@@ -715,7 +729,13 @@ void user_edit(void){
   @  <label><input type="checkbox" name="ay"%s(oa['y']) />
   @  Write Unversioned%s(B('y'))</label><br />
   @  <label><input type="checkbox" name="az"%s(oa['z']) />
-  @  Download Zip%s(B('z'))</label>
+  @  Download Zip%s(B('z'))</label><br />
+  @  <label><input type="checkbox" name="a2"%s(oa['2']) />
+  @  Read Forum%s(B('2'))</label><br />
+  @  <label><input type="checkbox" name="a3"%s(oa['3']) />
+  @  Write Forum%s(B('3'))</label><br />
+  @  <label><input type="checkbox" name="a4"%s(oa['4']) />
+  @  Moderate Forum%s(B('4'))</label>
   @ </td></tr>
   @ </table>
   @   </td>
