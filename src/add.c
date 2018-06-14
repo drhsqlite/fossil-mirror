@@ -255,7 +255,7 @@ static int add_files_in_sfile(int vid){
 ** with "." are excluded by default.  To include such files, add
 ** the "--dotfiles" option to the command-line.
 **
-** The --ignore and --clean options are comma-separate lists of glob patterns
+** The --ignore and --clean options are comma-separated lists of glob patterns
 ** for files to be excluded.  Example:  '*.o,*.obj,*.exe'  If the --ignore
 ** option does not appear on the command line then the "ignore-glob" setting
 ** is used.  If the --clean option does not appear on the command line then

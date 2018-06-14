@@ -936,8 +936,8 @@ void setup_skin(void){
   @
   if( isSetup ){
     @ <p>As an administrator, you can make any edits you like to this or
-    @ any other skin.  You can also authorized other users to edit this
-    @ skin.  Any user whose login name matches the comma-separate list
+    @ any other skin.  You can also authorize other users to edit this
+    @ skin.  Any user whose login name matches the comma-separated list
     @ of GLOB expressions below is given special permission to edit
     @ the draft%d(iSkin) skin:
     @
