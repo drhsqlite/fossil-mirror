@@ -749,7 +749,6 @@ void www_print_timeline(
   timeline_output_graph_javascript(pGraph, tmFlags, iTableId);
 }
 
-#if 0  /* not used */
 /*
 ** Change the RGB background color given in the argument in a foreground
 ** color with the same hue.
@@ -775,12 +774,15 @@ static const char *bg_to_fg(const char *zIn){
   }else{
     /* Make the color darker */
     static const unsigned int t = 128;
-    if( mx>t ) for(i=0; i<3; i++) x[i] -= mx - t;
+    if( mx>t ){
+      for(i=0; i<3; i++){
+        x[i] = x[i]>=mx-t ? x[i] - (mx-t) : 0;
+      }
+    }
   }
   sqlite3_snprintf(sizeof(zRes),zRes,"#%02x%02x%02x",x[0],x[1],x[2]);
   return zRes;
 }
-#endif /* not used */
 
 /*
 ** Generate all of the necessary javascript to generate a timeline
@@ -882,11 +884,9 @@ void timeline_output_graph_javascript(
       }
       if( cSep=='[' ) cgi_printf("[");
       cgi_printf("],");
-#if 0
       if( colorGraph && pRow->zBgClr[0]=='#' ){
         cgi_printf("\"fg\":\"%s\",", bg_to_fg(pRow->zBgClr));
       }
-#endif
       /* mi */
       cgi_printf("\"mi\":");
       cSep = '[';
