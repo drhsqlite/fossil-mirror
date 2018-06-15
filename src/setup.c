@@ -349,11 +349,16 @@ static void setup_usercap_table(void){
      @ <tr><th valign="top">z</th>
      @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
      @ <tr><th valign="top">2</th>
-     @   <td><i>Forum-Read:</i> Read Forum posts by others </td></tr>
+     @   <td><i>Forum-Read:</i> Read forum posts by others </td></tr>
      @ <tr><th valign="top">3</th>
-     @   <td><i>Forum-Append:</i> Add new Forum posts or comments</td></tr>
+     @   <td><i>Forum-Append:</i> Add new forum posts</td></tr>
      @ <tr><th valign="top">4</th>
-     @   <td><i>Forum-Moderator:</i> Moderate Forums</td></tr>
+     @   <td><i>Forum-Trusted:</i> Add pre-approved forum posts </td></tr>
+     @ <tr><th valign="top">5</th>
+     @   <td><i>Forum-Moderator:</i> Approve or disapprove forum posts</td></tr>
+     @ <tr><th valign="top">6</th>
+     @   <td><i>Forum-Supervisor:</i> \
+     @ Edit forum posts submitted by others</td></tr>
   @ </table>
 }
 
@@ -680,6 +685,10 @@ void user_edit(void){
   }
   @  <label><input type="checkbox" name="aa"%s(oa['a']) />
   @  Admin%s(B('a'))</label><br />
+  @  <label><input type="checkbox" name="au"%s(oa['u']) />
+  @  Reader%s(B('u'))</label><br>
+  @  <label><input type="checkbox" name="av"%s(oa['v']) />
+  @  Developer%s(B('v'))</label><br />
   @  <label><input type="checkbox" name="ad"%s(oa['d']) />
   @  Delete%s(B('d'))</label><br />
   @  <label><input type="checkbox" name="ae"%s(oa['e']) />
@@ -693,16 +702,13 @@ void user_edit(void){
   @  <label><input type="checkbox" name="ah"%s(oa['h']) />
   @  Hyperlinks%s(B('h'))</label><br />
   @  <label><input type="checkbox" name="ab"%s(oa['b']) />
-  @  Attachments%s(B('b'))</label><br />
-  @  <label><input type="checkbox" name="au"%s(oa['u']) />
-  @  Reader%s(B('u'))</label>
+  @  Attachments%s(B('b'))</label>
+
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="av"%s(oa['v']) />
-  @  Developer%s(B('v'))</label><br />
   @  <label><input type="checkbox" name="ag"%s(oa['g']) />
   @  Clone%s(B('g'))</label><br />
   @  <label><input type="checkbox" name="aj"%s(oa['j']) />
-  @  Read Wiki%s(B('j'))</label><br />
+  @  Read Wiki%s(B('j'))</label><br>
   @  <label><input type="checkbox" name="af"%s(oa['f']) />
   @  New Wiki%s(B('f'))</label><br />
   @  <label><input type="checkbox" name="am"%s(oa['m']) />
@@ -716,12 +722,13 @@ void user_edit(void){
   @  <label><input type="checkbox" name="an"%s(oa['n']) />
   @  New Tickets%s(B('n'))</label><br />
   @  <label><input type="checkbox" name="ac"%s(oa['c']) />
-  @  Append To Ticket%s(B('c'))</label>
-  @ </td><td><td width="40"></td><td valign="top">
+  @  Append To Ticket%s(B('c'))</label><br>
   @  <label><input type="checkbox" name="aw"%s(oa['w']) />
   @  Write Tickets%s(B('w'))</label><br />
   @  <label><input type="checkbox" name="aq"%s(oa['q']) />
-  @  Moderate Tickets%s(B('q'))</label><br />
+  @  Moderate Tickets%s(B('q'))</label>
+
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="at"%s(oa['t']) />
   @  Ticket Report%s(B('t'))</label><br />
   @  <label><input type="checkbox" name="ax"%s(oa['x']) />
@@ -735,7 +742,11 @@ void user_edit(void){
   @  <label><input type="checkbox" name="a3"%s(oa['3']) />
   @  Write Forum%s(B('3'))</label><br />
   @  <label><input type="checkbox" name="a4"%s(oa['4']) />
-  @  Moderate Forum%s(B('4'))</label>
+  @  WriteTrusted Forum%s(B('4'))</label><br>
+  @  <label><input type="checkbox" name="a5"%s(oa['5']) />
+  @  Moderate Forum%s(B('5'))</label><br>
+  @  <label><input type="checkbox" name="a6"%s(oa['6']) />
+  @  Supervise Forum%s(B('6'))</label>
   @ </td></tr>
   @ </table>
   @   </td>
@@ -744,6 +755,7 @@ void user_edit(void){
   @   <td class="usetupEditLabel">Selected Cap.:</td>
   @   <td>
   @     <span id="usetupEditCapability">(missing JS?)</span>
+  @     <a href="%R/setup_ucap_list">(key)</a>
   @   </td>
   @ </tr>
   if( !login_is_special(zLogin) ){
