@@ -1,5 +1,5 @@
-C Progress\stoward\sgetting\sthe\sforum\sto\sactually\swork.\s\sThis\sis\san\nincremental\scheck-in.
-D 2018-06-16T13:36:39.396
+C Fix\sminor\sissues\swith\sForum\sediting.
+D 2018-06-16T15:08:51.844
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -470,7 +470,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 080d7f7ea2f4d31c9b6ddb949461c5e55ff3b69b2351c1418efde43562f52e67
+F src/forum.c ed2140b28f76749c9be470335c883d17189cc480a034ce52a56a9a566a0755e8
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -848,7 +848,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8927901c2c6579c8f926e38aa136ba257df466178b1e5887e05ac1498c766cd
-R eebd5df02daf7dc6c4426c8d29c9e492
+P 4814c41a9a9be4044fc96f88e9635f28d8741e4569df7b18d7c1153129cff992
+R 4f908d223508719a42279aa95ff7fc24
 U drh
-Z 16623b2f730eae94b86ecbcfa07c85e3
+Z 0121fcad42acfa6ea01d0c0bbc86a1d4

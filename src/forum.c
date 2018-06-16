@@ -277,6 +277,20 @@ void forum_edit_page(void){
       return;
     }
   }
+  if( itemId && (P("m")==0 || P("b")==0) ){
+    Stmt q;
+    db_prepare(&q, "SELECT mimetype, mbody FROM forumpost"
+                   " WHERE mpostid=%d", itemId);
+    if( db_step(&q)==SQLITE_ROW ){
+      if( P("m")==0 ){
+        cgi_set_query_parameter("m", db_column_text(&q, 0));
+      }
+      if( P("b")==0 ){
+        cgi_set_query_parameter("b", db_column_text(&q, 1));
+      }
+    }
+    db_finalize(&q);
+  }
   zMime = wiki_filter_mimetypes(P("m"));
   if( itemId>0 ){
     style_header("Edit Forum Post");
