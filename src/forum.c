@@ -78,23 +78,28 @@ void forum_page(void){
   style_header("Forum");
   itemId = atoi(PD("item","0"));
   if( itemId>0 ){
+    int iUp;
+    style_submenu_element("Topics", "%R/forum");
+    iUp = db_int(0, "SELECT inreplyto FROM forumpost WHERE mpostid=%d", itemId);
+    if( iUp ){
+      style_submenu_element("Parent", "%R/forum?item=%d", iUp);
+    }
     double rNow = db_double(0.0, "SELECT julianday('now')");
     /* Show the post given by itemId and all its descendents */
     db_prepare(&q,
       "WITH RECURSIVE"
       " post(id,uname,mstat,mime,ipaddr,parent,mbody,depth,mtime) AS ("
       "    SELECT mpostid, uname, mstatus, mimetype, ipaddr, inreplyto, mbody,"
-      "           0, 1 FROM forumpost WHERE mpostid=%d"
+      "           0, mtime FROM forumpost WHERE mpostid=%d"
       "  UNION"
       "  SELECT f.mpostid, f.uname, f.mstatus, f.mimetype, f.ipaddr,"
       "         f.inreplyto, f.mbody, p.depth+1 AS xdepth, f.mtime AS xtime"
       "    FROM forumpost AS f, post AS p"
-      "   WHERE forumpost.inreplyto=post.id"
+      "   WHERE f.inreplyto=p.id"
       "   ORDER BY xdepth DESC, xtime ASC"
       ") SELECT * FROM post;",
       itemId
     );
-    @ <table border=0 class="forumtable">
     while( db_step(&q)==SQLITE_ROW ){
       int id = db_column_int(&q, 0);
       const char *zUser = db_column_text(&q, 1);
@@ -106,25 +111,28 @@ void forum_page(void){
       char *zAge = db_timespan_name(rNow - rMTime);
       Blob body;
       @ <!-- Forum post %d(id) -->
+      @ <table class="forum_post">
       @ <tr>
-      @ <td class="forum_margin" width="%d((iDepth-1)*10)" rowspan="3"></td>
-      @ <td>%h(zUser) %z(zAge) ago</td>
-      @ </tr>
-      @ <tr><td class="forum_body">
-      blob_init(&body, db_column_text(&q,6), db_column_bytes(&q,6));
-      wiki_render_by_mimetype(&body, zMime);
-      blob_reset(&body);
-      @ </td></tr>
-      @ <tr><td class="forum_buttons">
+      @ <td class="forum_margin" width="%d(iDepth*25)" rowspan="2">
+      @ <td><span class="forum_author">%h(zUser)</span>
+      @ <span class="forum_age">%s(zAge) ago</span>
+      sqlite3_free(zAge);
       if( g.perm.WrForum ){
+        @ <span class="forum_buttons">
         if( g.perm.AdminForum || fossil_strcmp(g.zLogin, zUser)==0 ){
           @ <a href='%R/forumedit?item=%d(id)'>Edit</a>
         }
         @ <a href='%R/forumedit?replyto=%d(id)'>Reply</a>
+        @ </span>
       }
-      @ </td></tr>
+      @ </tr>
+      @ <tr><td><div class="forum_body">
+      blob_init(&body, db_column_text(&q,6), db_column_bytes(&q,6));
+      wiki_render_by_mimetype(&body, zMime);
+      blob_reset(&body);
+      @ </div></td></tr>
+      @ </table>
     }
-    @ </table>
   }else{
     /* If we reach this point, that means the users wants a list of
     ** recent threads.
@@ -140,17 +148,17 @@ void forum_page(void){
     if( g.perm.WrForum ){
       style_submenu_element("New", "%R/forumedit");
     }
-    @ <h1>Recent Forum Threads</h>
-    while( db_step(&q)==SQLITE_OK ){
+    @ <h1>Recent Forum Threads</h1>
+    while( db_step(&q)==SQLITE_ROW ){
       int n = db_column_int(&q,1);
       int itemid = db_column_int(&q,2);
       const char *zTitle = db_column_text(&q,0);
-      if( i==0 ){
+      if( (i++)==0 ){
         @ <ol>
       }
-      @ <li>
-      @ %z(href("%R/forum?item=%d",itemid))%h(zTitle)</a><br>
-      @ %d(n) post%s(n==1?"":"s")</li>
+      @ <li><span class="forum_title">
+      @ %z(href("%R/forum?item=%d",itemid))%h(zTitle)</a></span>
+      @ <span class="forum_npost">%d(n) post%s(n==1?"":"s")</span></li>
     }
     if( i ){
       @ </ol>
@@ -177,6 +185,7 @@ static int forum_post(int itemId, int parentId, char **pzErr){
   const char *zSubject = 0;
   int threadId;
   double rNow = db_double(0.0, "SELECT julianday('now')");
+  const char *zMime = wiki_filter_mimetypes(P("m"));
   if( itemId==0 && parentId==0 ){
     /* Start a new thread.  Subject required. */
     sqlite3_uint64 r1, r2;
@@ -193,8 +202,18 @@ static int forum_post(int itemId, int parentId, char **pzErr){
       zSubject, rNow
     );
     threadId = db_last_insert_rowid();
+  }else{
+    threadId = db_int(0, "SELECT mthreadid FROM forumpost"
+                         " WHERE mpostid=%d", itemId ? itemId : parentId);
   }
   if( itemId ){
+    if( db_int(0, "SELECT inreplyto IS NULL FROM forumpost"
+                  " WHERE mpostid=%d", itemId) ){
+      db_multi_exec(
+        "UPDATE forumthread SET mtitle=%Q WHERE mthreadid=%d",
+        PT("s"), threadId
+      );
+    }
     db_multi_exec(
        "UPDATE forumpost SET"
        " mtime=%!.17g,"
@@ -208,13 +227,13 @@ static int forum_post(int itemId, int parentId, char **pzErr){
     db_multi_exec(
        "INSERT INTO forumpost(mposthash,mthreadid,uname,mtime,"
        "  mstatus,mimetype,ipaddr,inreplyto,mbody) VALUES"
-       "  (lower(hex(randomblob(32))),%d,%Q,%!.17g,%Q,%Q,%Q,NULL,%Q)",
-       threadId,g.zLogin,rNow,NULL,P("m"),P("REMOTE_ADDR"),P("b"));
+       "  (lower(hex(randomblob(32))),%d,%Q,%!.17g,%Q,%Q,%Q,nullif(%d,0),%Q)",
+       threadId,g.zLogin,rNow,NULL,zMime,P("REMOTE_ADDR"),parentId,P("b"));
     itemId = db_last_insert_rowid();
   }
   if( zSubject==0 ){
     db_multi_exec(
-      "UPDATE forumthread SET mtime=%!.17g"
+      "UPDATE forumthread SET mtime=%!.17g, npost=npost+1"
       " WHERE mthreadid=(SELECT mthreadid FROM forumpost WHERE mpostid=%d)",
       rNow, itemId
     );
@@ -235,10 +254,10 @@ static int forum_post(int itemId, int parentId, char **pzErr){
 **    x              Submit changes
 **    p              Preview changes
 */
-static void forum_reply_page(void){
+void forum_edit_page(void){
   int itemId;
   int parentId;
-  const char *zErr = 0;
+  char *zErr = 0;
   login_check_credentials();
   const char *zBody;
   const char *zMime;
@@ -247,6 +266,10 @@ static void forum_reply_page(void){
   forum_verify_schema();
   itemId = atoi(PD("item","0"));
   parentId = atoi(PD("replyto","0"));
+  if( P("cancel")!=0 ){
+    cgi_redirectf("%R/forum?item=%d", itemId ? itemId : parentId);
+    return;
+  }
   if( P("x")!=0 && cgi_csrf_safe(1) ){
     itemId = forum_post(itemId,parentId,&zErr);
     if( itemId ){
@@ -254,8 +277,15 @@ static void forum_reply_page(void){
       return;
     }
   }
-  style_header("Edit Forum Post");
-  @ <form method="POST">
+  zMime = wiki_filter_mimetypes(P("m"));
+  if( itemId>0 ){
+    style_header("Edit Forum Post");
+  }else if( parentId>0 ){
+    style_header("Comment On Forum Post");
+  }else{
+    style_header("New Forum Thread");
+  }
+  @ <form action="%R/forumedit" method="POST">
   if( itemId ){
     @ <input type="hidden" name="item" value="%d(itemId)">
   }
@@ -274,11 +304,38 @@ static void forum_reply_page(void){
     blob_reset(&x);
     @ </div>
     @ </div>
+    @ <hr>
   }
   @ <table border="0" class="forumeditform"> 
-  if( itemId==0 && parentId==0 ){
-    zSub = PT("s");
+  if( zErr ){
+    @ <tr><td colspan="2">
+    @ <span class='forumFormErr'>%h(zErr)</span>
   }
+  if( (itemId==0 && parentId==0)
+   || (itemId && db_int(0, "SELECT inreplyto IS NULL FROM forumpost"
+                           " WHERE mpostid=%d", itemId))
+  ){
+    zSub = PT("s");
+    if( zSub==0 && itemId ){
+      zSub = db_text("",
+         "SELECT mtitle FROM forumthread"
+         " WHERE mthreadid=(SELECT mthreadid FROM forumpost"
+                          "  WHERE mpostid=%d)", itemId);
+    }
+    @ <tr><td>Subject:</td>
+    @ <td><input type='text' class='forumFormSubject' name='s' value='%h(zSub)'>
+  }
+  @ <tr><td>Markup:</td><td>
+  mimetype_option_menu(zMime);
+  @ <tr><td>Comment:</td><td>
+  @ <textarea name="b" class="wikiedit" cols="80"\
+  @  rows="20" wrap="virtual">%h(PD("b",""))</textarea></td>
+  @ <tr><td></td><td>
+  @ <input type="submit" name="p" value="Preview">
+  if( P("p")!=0 ){
+    @ <input type="submit" name="x" value="Submit">
+  }
+  @ <input type="submit" name="cancel" value="Cancel">
   @ </table>
   @ </form>
   style_footer();

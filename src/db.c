@@ -274,7 +274,7 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
   rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, 0);
-  if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)!=0 ){
+  if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
   pStmt->pNext = pStmt->pPrev = 0;

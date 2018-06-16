@@ -633,3 +633,27 @@ table.label-value th {
   text-align: right;
   padding: 0.2ex 1ex;
 }
+table.forum_post {
+  top-margin: 1ex;
+  bottom-margin: 1ex;
+  left-margin: 0;
+  right-margin: 0;
+  border-spacing: 0;
+}
+span.forum_author {
+  color: #888;
+}
+span.forum_age {
+  color: #888;
+  font-size: 75%;
+}
+span.forum_buttons {
+  font-size: 75%;
+}
+span.forum_npost {
+  color: #888;
+  font-size: 75%;
+}
+table.forumeditform td {
+  vertical-align: top;
+}

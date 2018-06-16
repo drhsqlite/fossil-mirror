@@ -941,7 +941,7 @@ void page_test_env(void){
   @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
   @ <hr />
   P("HTTP_USER_AGENT");
-  cgi_print_all(showAll);
+  cgi_print_all(showAll, 0);
   if( showAll && blob_size(&g.httpHeader)>0 ){
     @ <hr />
     @ <pre>
