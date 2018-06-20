@@ -670,3 +670,7 @@ table.forumeditform td {
 div.forum_body p {
   margin-top: 0;
 }
+td.form_label {
+  vertical-align: top;
+  text-align: right;
+}

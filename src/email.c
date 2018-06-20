@@ -32,6 +32,16 @@ static const char zEmailInit[] =
 @ -- In the last case the suname column points from the subscriber entry
 @ -- to the USER entry.
 @ --
+@ -- The ssub field is a string where each character indicates a particular
+@ -- type of event to subscribe to.  Choices:
+@ --     a - Announcements
+@ --     c - Check-ins
+@ --     t - Ticket changes
+@ --     w - Wiki changes
+@ -- Probably different codes will be added in the future.  In the future
+@ -- we might also add a separate table that allows subscribing to email
+@ -- notifications for specific branches or tags or tickets.
+@ --
 @ CREATE TABLE repository.subscriber(
 @   subscriberId INTEGER PRIMARY KEY, -- numeric subscriber ID.  Internal use
 @   subscriberCode TEXT UNIQUE,       -- UUID for subscriber.  External use
@@ -47,44 +57,6 @@ static const char zEmailInit[] =
 @   sipaddr TEXT,                     -- IP address for last change
 @   spswdHash TEXT                    -- SHA3 hash of password
 @ );
-@ 
-@ -- Each subscriber is associated with zero or more subscriptions.  Each
-@ -- subscription identifies events for which the subscriber desires
-@ -- email notification.
-@ -- 
-@ -- The stype field can be:
-@ --
-@ --    'c'     Check-ins
-@ --    'w'     Wiki pages
-@ --    't'     Tickets
-@ --    'e'     Tech-notes
-@ --    'g'     Tags
-@ --    'f'     Forum posts
-@ --    'm'     Any item in need of moderation
-@ --
-@ -- stype values are restricted to items that suname is allowed to see.
-@ -- If suname is NULL, then stype values are restricted to things that
-@ -- user "nobody" is allowed to see.
-@ --
-@ -- The sarg field provides additional restrictions.  Since it is
-@ -- part of the primary key, sarg cannot be NULL.  Use an empty string
-@ -- instead.
-@ --
-@ -- For check-ins, sargs can be a tag that is on the check-in.  Examples:
-@ -- 'trunk', or 'release'.  Notifications are only sent if that tag is
-@ -- present.  For wiki, the sarg is a glob pattern matching the page name.
-@ -- For tickets, sarg is the UUID of the ticket.  And so forth.
-@ --
-@ -- For the 'x' subscription, email is sent for any timeline event whose
-@ -- text matches the GLOB pattern defined by sarg.
-@ --
-@ CREATE TABLE repository.subscription(
-@   subscriberId INTEGER,  -- Which user has subscribed
-@   stype TEXT,            -- event type
-@   sarg TEXT,             -- additional event restriction
-@   PRIMARY KEY(stype,sarg,subscriberId)
-@ ) WITHOUT ROWID;
-@ CREATE INDEX repository.subscription_x1 ON subscription(subscriberId);
 @ 
 @ -- Email notifications that need to be sent.
 @ --
@@ -358,6 +330,10 @@ void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
 **
 ** Subcommands:
 **
+**    reset                   Hard reset of all email notification tables
+**                            in the repository.  This erases all subscription
+**                            information.  Use with extreme care.
+**
 **    send TO [OPTIONS]       Send a single email message using whatever
 **                            email sending mechanism is currently configured.
 **                            Use this for testing the email configuration.
@@ -378,6 +354,26 @@ void email_cmd(void){
   email_schema();
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
+  if( strncmp(zCmd, "reset", nCmd)==0 ){
+    Blob yn;
+    int c;
+    fossil_print(
+        "This will erase all content in the repository tables, thus\n"
+        "deleting all subscriber information.  The information will be\n"
+        "unrecoverable.\n");
+    prompt_user("Continue? (y/N) ", &yn);
+    c = blob_str(&yn)[0];
+    if( c=='y' ){
+      db_multi_exec(
+        "DROP TABLE IF EXISTS subscriber;\n"
+        "DROP TABLE IF EXISTS subscription;\n"
+        "DROP TABLE IF EXISTS email_pending;\n"
+        "DROP TABLE IF EXISTS email_bounce;\n"
+      );
+      email_schema();
+    }
+    blob_zero(&yn);
+  }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
     Blob prompt, body, hdr;
     int sendAsBoth = find_option("both",0,0)!=0;
@@ -440,7 +436,7 @@ void email_cmd(void){
     }
   }
   else{
-    usage("send|setting");
+    usage("reset|send|setting");
   }
 }
 
@@ -451,30 +447,73 @@ void email_cmd(void){
 ** verify their subscription.
 */
 void subscribe_page(void){
+  int needCaptcha;
+  unsigned int uSeed;
+  const char *zDecoded;
+  char *zCaptcha;
+
   login_check_credentials();
   if( !g.perm.EmailAlert ){
     login_needed(g.anon.EmailAlert);
     return;
   }
   style_header("Email Subscription");
+  needCaptcha = P("usecaptcha")!=0 || login_is_nobody()
+                  || login_is_special(g.zLogin);
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>
-  @  <td class="subscribe_label">Nickname:</td>
-  @  <td><input type="text" id="nn" value="" size="30"></td>
-  @  <td><span class="optionalTag">(optional)</span></td>
-  @ </tr>
-  @ <tr>
-  @  <td class="subscribe_label">Email&nbsp;Address:</td>
-  @  <td><input type="text" id="e" value="" size="30"></td>
+  @  <td class="form_label">Email&nbsp;Address:</td>
+  @  <td><input type="text" name="e" value="" size="30"></td>
   @  <td></td>
   @ </tr>
+  if( needCaptcha ){
+    uSeed = captcha_seed();
+    zDecoded = captcha_decode(uSeed);
+    zCaptcha = captcha_render(zDecoded);
+    @ <tr>
+    @  <td class="form_label">Security Code:</td>
+    @  <td><input type="text" name="captcha" value="" size="30">
+    @  <input type="hidden" name="usecaptcha" value="1"></td>
+    @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
+    @  <td><span class="optionalTag">(copy from below)</span></td>
+    @ </tr>
+  }
   @ <tr>
-  @  <td class="subscribe_label">Password:</td>
-  @  <td><input type="password" id="p1" value="" size="30"></td>
+  @  <td class="form_label">Nickname:</td>
+  @  <td><input type="text" name="nn" value="" size="30"></td>
   @  <td><span class="optionalTag">(optional)</span></td>
   @ </tr>
-
-
-  
+  @ <tr>
+  @  <td class="form_label">Password:</td>
+  @  <td><input type="password" name="pw" value="" size="30"></td>
+  @  <td><span class="optionalTag">(optional)</span></td>
+  @ </tr>
+  @ <tr>
+  @  <td class="form_label">Options:</td>
+  @  <td><label><input type="checkbox" name="sa" value="0">\
+  @  Announcements</label><br>
+  @  <label><input type="checkbox" name="sc" value="0">\
+  @  Check-ins</label><br>
+  @  <label><input type="checkbox" name="st" value="0">\
+  @  Ticket changes</label><br>
+  @  <label><input type="checkbox" name="sw" value="0">\
+  @  Wiki</label><br>
+  @  <label><input type="checkbox" name="di" value="0">\
+  @  Daily digest only</label><br></td>
+  @ </tr>
+  @ <tr>
+  @  <td></td>
+  @  <td><input type="submit" value="Submit"></td>
+  @ </tr>
+  @ </table>
+  if( needCaptcha ){
+    @ <div class="captcha"><table class="captcha"><tr><td><pre>
+    @ %h(zCaptcha)
+    @ </pre>
+    @ Enter the 8 characters above in the "Security Code" box
+    @ </td></tr></table></div>
+  }
+  @ </form>
+  style_footer();
 }
