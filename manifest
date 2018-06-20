@@ -1,5 +1,5 @@
-C Add\sa\snew\scapability\sthat\sallows\ssignup\sfor\semail\snotification.\s\sChange\sthe\nname\sof\sthe\solder\s"EMail"\sprivilege\sto\s"View-PII"\sto\savoid\sconfusion.
-D 2018-06-20T19:04:04.455
+C Mange\sthe\semail.c\sfile.\s\sAccidentally\somitted\sfrom\sthe\sprevious\sthree\scheck-ins.\nBummer.
+D 2018-06-20T19:56:30.186
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,6 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
+F src/email.c 92394276a0d1a5034e6174a7c6d1801e1269c58258fbe52f076188741f8cea8a
 F src/encode.c 00a02b372ec66111d764122abf13ee37a85110adf3728e08872deb2bc2de8c0e
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -848,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a2e5f47170b4f2d86e23c1b2cb37d5b284e7982e91c91f6c7520da0e9e17cb3
-R 20e2474d278214e958187073669ee639
+P 25eafed11494e801c28babfbc5784f877c3aa0b7ea675f970b2c6038b0d4255f
+R a53f72f496753625f3b765d17329e8a5
 U drh
-Z c7f7b056a2ebd78f9252622832e4b16d
+Z fb236b06baaab1386e6bf1f2b31cf8e2
