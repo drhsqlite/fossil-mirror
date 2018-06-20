@@ -1,5 +1,5 @@
-C Add\s/json/timeline/event\sfor\saccess\sto\sminimal\sinformation\sabout\sevents.
-D 2018-06-19T10:31:47.614
+C Include\sname\s(not\suuid)\sin\s/json/timeline/event,\sbecause\sthe\suuid\sis\snot\sterribly\suseful.
+D 2018-06-20T09:41:27.415
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -497,7 +497,7 @@ F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c a59f343f3f361a6932caac35a9b14173eedefc0cab8cf57f30d3ad395f9f5cd6
 F src/json_tag.c e2b68b9735e706e9e47fb07f063abf7c94da2d76
-F src/json_timeline.c 7749bff4be94b78f9be9e71f4fbc37309c68569a473041c5f8f9509e3d86ecd0
+F src/json_timeline.c af76bd766a6b1fbd0c918882425ac23fe4bf575ed3459bba2a85a2cd2060c591
 F src/json_user.c 779af89a12af7c0c228d0194fa564379ec77ac76
 F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
@@ -847,10 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 862d630ffb8821c99cd9a7c753f04385be2ec15e681408ea004951c369d5fe98
-R ab1eff571f2e81f53c6fea1e5049d127
-T *branch * ben-json-timeline
-T *sym-ben-json-timeline *
-T -sym-trunk *
+P c760791644ad94f52ee7396accbb8aaf685311c687e0be6f92a210abd1a5fb8e
+R d9c0fd0f57013e1c917dee945351cfb0
 U ben
-Z 90bd82ce0bd1b4cd757c6d3c3a8f704a
+Z 19ea860e877bfce57f2d0d0358b1d2a5
