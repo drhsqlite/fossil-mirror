@@ -76,7 +76,8 @@ void setup_page(void){
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
     @ <tt>&lt;base href="$secureurl/$current_page"&gt;</tt> after
-    @ <tt>&lt;head&gt;</tt> in the <a href="setup_skinedit?w=2">HTML header</a>!</p>
+    @ <tt>&lt;head&gt;</tt> in the
+    @ <a href="setup_skinedit?w=2">HTML header</a>!</p>
   }
 
 #if !defined(_WIN32)
@@ -230,7 +231,8 @@ void setup_ulist(void){
   @ <th>Login Name<th>Caps<th>Info<th>Date<th>Expire<th>Last Login</tr></thead>
   @ <tbody>
   db_multi_exec(
-    "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL) WITHOUT ROWID;"
+    "CREATE TEMP TABLE lastAccess(uname TEXT PRIMARY KEY, atime REAL)"
+    "WITHOUT ROWID;"
   );
   if( db_table_exists("repository","accesslog") ){
     db_multi_exec(
@@ -249,7 +251,8 @@ void setup_ulist(void){
     zWith = "";
   }
   db_prepare(&s,
-     "SELECT uid, login, cap, info, date(mtime,'unixepoch'), lower(login) AS sortkey, "
+     "SELECT uid, login, cap, info, date(mtime,'unixepoch'),"
+     "       lower(login) AS sortkey, "
      "       CASE WHEN info LIKE '%%expires 20%%'"
              "    THEN substr(info,instr(lower(info),'expires')+8,10)"
              "    END AS exp,"
@@ -273,7 +276,8 @@ void setup_ulist(void){
       zAge = human_readable_age(rNow - rATime);
     }
     @ <tr>
-    @ <td data-sortkey='%h(zSortKey)'><a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
+    @ <td data-sortkey='%h(zSortKey)'>\
+    @ <a href='setup_uedit?id=%d(uid)'>%h(zLogin)</a>
     @ <td>%h(zCap)
     @ <td>%h(zInfo)
     @ <td>%h(zDate?zDate:"")
@@ -354,9 +358,9 @@ static void setup_usercap_table(void){
 /*
 ** WEBPAGE: setup_ulist_notes
 **
-** A documentation page showing notes about user configuration.  This information
-** used to be a side-bar on the user list page, but has been factored out for
-** improved presentation.
+** A documentation page showing notes about user configuration.  This
+** information used to be a side-bar on the user list page, but has been
+** factored out for improved presentation.
 */
 void setup_ulist_notes(void){
   style_header("User Configuration Notes");
@@ -483,10 +487,11 @@ void user_edit(void){
     zPw = P("pw");
     zLogin = P("login");
     if( strlen(zLogin)==0 ){
+      char *zRef = cgi_referer("setup_ulist");
       style_header("User Creation Error");
       @ <span class="loginError">Empty login not allowed.</span>
       @
-      @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(cgi_referer("setup_ulist"))">
+      @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
       @ [Bummer]</a></p>
       style_footer();
       return;
@@ -497,12 +502,13 @@ void user_edit(void){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
-    if( db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid) ){
+    if( db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d",zLogin,uid) ){
+      char *zRef = cgi_referer("setup_ulist");
       style_header("User Creation Error");
       @ <span class="loginError">Login "%h(zLogin)" is already used by
       @ a different user.</span>
       @
-      @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(cgi_referer("setup_ulist"))">
+      @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
       @ [Bummer]</a></p>
       style_footer();
       return;
@@ -545,11 +551,12 @@ void user_edit(void){
                  "with capabilities [%q].",
                  zLogin, zCap );
       if( zErr ){
+        char *zRef = cgi_referer("setup_ulist");
         style_header("User Change Error");
         admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
         @ <span class="loginError">%h(zErr)</span>
         @
-        @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(cgi_referer("setup_ulist"))">
+        @ <p><a href="setup_uedit?id=%d(uid)&referer=%T(zRef)">
         @ [Bummer]</a></p>
         style_footer();
         return;
@@ -783,14 +790,16 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritAnonymous"><sub>A</sub></span>" subscript suffix
+  @ The "<span class="ueditInheritAnonymous"><sub>A</sub></span>"
+  @ subscript suffix
   @ indicates the privileges of <span class="usertype">anonymous</span> that
   @ are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>" subscript suffix
-  @ indicates the privileges of <span class="usertype">developer</span> that
+  @ The "<span class="ueditInheritDeveloper"><sub>D</sub></span>"
+  @ subscript suffix indicates the privileges of 
+  @ <span class="usertype">developer</span> that
   @ are inherited by all users with the
   @ <span class="capability">Developer</span> privilege.
   @ </p></li>
@@ -975,7 +984,8 @@ void entry_attribute(
               zVar, 20, zQ, (nZQ>20 ? "..." : ""));
     zVal = zQ;
   }
-  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" size="%d(width)"
+  @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" \
+  @ size="%d(width)"
   if( disabled ){
     @ disabled="disabled"
   }
@@ -1366,7 +1376,8 @@ void setup_login_group(void){
     @ <hr /><h2>Implementation Details</h2>
     @ <p>The following are fields from the CONFIG table related to login-groups,
     @ provided here for instructional and debugging purposes:</p>
-    @ <table border='1' class='sortable' data-column-types='ttt' data-init-sort='1'>
+    @ <table border='1' class='sortable' data-column-types='ttt' \
+    @ data-init-sort='1'>
     @ <thead><tr>
     @ <th>Config.Name<th>Config.Value<th>Config.mtime</tr>
     @ </thead><tbody>
@@ -1460,10 +1471,10 @@ void setup_timeline(void){
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
   @ <p>If the "HH:MM" or "HH:MM:SS" format is selected, then the date is shown
-  @ in a separate box (using CSS class "timelineDate") whenever the date changes.
-  @ With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats, the complete date
-  @ and time is shown on every timeline entry using the CSS class "timelineTime".
-  @ (Preperty: "timeline-date-format")</p>
+  @ in a separate box (using CSS class "timelineDate") whenever the date
+  @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
+  @ the complete date and time is shown on every timeline entry using the
+  @ CSS class "timelineTime". (Preperty: "timeline-date-format")</p>
 
   @ <hr />
   onoff_attribute("Show version differences by default",
@@ -1608,9 +1619,9 @@ void setup_config(void){
   @ <hr />
   entry_attribute("Tarball and ZIP-archive Prefix", 20, "short-project-name",
                   "spn", "", 0);
-  @ <p>This is used as a prefix on the names of generated tarballs and ZIP archive.
-  @ For best results, keep this prefix brief and avoid special characters such
-  @ as "/" and "\".
+  @ <p>This is used as a prefix on the names of generated tarballs and
+  @ ZIP archive. For best results, keep this prefix brief and avoid special
+  @ characters such as "/" and "\".
   @ If no tarball prefix is specified, then the full Project Name above is used.
   @ (Property: "short-project-name")
   @ </p>
@@ -1618,9 +1629,9 @@ void setup_config(void){
   entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
   @ <p>The <a href='%R/download'>/download</a> page is designed to provide 
   @ a convenient place for newbies
-  @ to download a ZIP archive or a tarball of the project.  By default, the latest
-  @ trunk check-in is downloaded.  Change this tag to something else (ex: release)
-  @ to alter the behavior of the /download page.
+  @ to download a ZIP archive or a tarball of the project.  By default,
+  @ the latest trunk check-in is downloaded.  Change this tag to something
+  @ else (ex: release) to alter the behavior of the /download page.
   @ (Property: "download-tag")
   @ </p>
   @ <hr />
@@ -1765,7 +1776,8 @@ void setup_adunit(void){
   @ <li>Leave both Ad-Units blank to disable all advertising.
   @ <li>The "Banner Ad-Unit" is used for wide pages.
   @ <li>The "Right-Column Ad-Unit" is used on pages with tall, narrow content.
-  @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is used on all pages.
+  @ <li>If the "Right-Column Ad-Unit" is blank, the "Banner Ad-Unit" is
+  @     used on all pages.
   @ <li>Properties: "adunit", "adunit-right", "adunit-omit-if-admin", and
   @     "adunit-omit-if-user".
   @ <li>Suggested <a href="setup_skinedit?w=0">CSS</a> changes:
@@ -1878,7 +1890,8 @@ void setup_logo(void){
   style_header("Edit Project Logo And Background");
   @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" alt="logo" border="1" />
+  @ <blockquote><p><img src="%s(g.zTop)/logo/%z(zLogoMtime)" \
+  @ alt="logo" border="1" />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"
@@ -1901,7 +1914,8 @@ void setup_logo(void){
   @
   @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
   @ and looks like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" alt="background" border=1 />
+  @ <blockquote><p><img src="%s(g.zTop)/background/%z(zBgMtime)" \
+  @ alt="background" border=1 />
   @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"
@@ -1993,7 +2007,8 @@ void sql_page(void){
     /* If the user presses the "CONFIG Table Query" button, populate the
     ** query text with a pre-packaged query against the CONFIG table */
     zQ = "SELECT\n"
-         " CASE WHEN length(name)<50 THEN name ELSE printf('%.50s...',name) END AS name,\n"
+         " CASE WHEN length(name)<50 THEN name ELSE printf('%.50s...',name)"
+         "  END AS name,\n"
          " CASE WHEN typeof(value)<>'blob' AND length(value)<80 THEN value\n"
          "           ELSE '...' END AS value,\n"
          " datetime(mtime, 'unixepoch') AS mtime\n"
@@ -2013,7 +2028,8 @@ void sql_page(void){
   @ </form>
   if( P("schema") ){
     zQ = sqlite3_mprintf(
-            "SELECT sql FROM repository.sqlite_master WHERE sql IS NOT NULL ORDER BY name");
+            "SELECT sql FROM repository.sqlite_master"
+            " WHERE sql IS NOT NULL ORDER BY name");
     go = 1;
   }else if( P("tablelist") ){
     zQ = sqlite3_mprintf(
@@ -2391,39 +2407,44 @@ void page_waliassetup(){
   @ </td><td></td></tr>
   @ </table></form>
   @ <hr>
-  @ <p>When the first term of an incoming URL exactly matches one of the "Aliases" on
-  @ the left-hand side (LHS) above, the URL is converted into the corresponding form
-  @ on the right-hand side (RHS).
+  @ <p>When the first term of an incoming URL exactly matches one of
+  @ the "Aliases" on the left-hand side (LHS) above, the URL is
+  @ converted into the corresponding form on the right-hand side (RHS).
   @ <ul>
   @ <li><p>
   @ The LHS is compared against only the first term of the incoming URL.
   @ All LHS entries in the alias table should therefore begin with a
   @ single "/" followed by a single path element.
   @ <li><p>
-  @ The RHS entries in the alias table should begin with a single "/" followed by
-  @ a path element, and optionally followed by "?" and a list of query parameters.
+  @ The RHS entries in the alias table should begin with a single "/"
+  @ followed by a path element, and optionally followed by "?" and a
+  @ list of query parameters.
   @ <li><p>
   @ Query parameters on the RHS are added to the set of query parameters
   @ in the incoming URL.
   @ <li><p>
-  @ If the same query parameter appears in both the incoming URL and on the RHS of the
-  @ alias, the RHS query parameter value overwrites the value on the incoming URL.
+  @ If the same query parameter appears in both the incoming URL and
+  @ on the RHS of the alias, the RHS query parameter value overwrites
+  @ the value on the incoming URL.
   @ <li><p>
-  @ If a query parameter on the RHS of the alias is of the form "X!" (a name followed
-  @ by "!") then the X query parameter is removed from the incoming URL if it exists.
+  @ If a query parameter on the RHS of the alias is of the form "X!"
+  @ (a name followed by "!") then the X query parameter is removed
+  @ from the incoming URL if
+  @ it exists.
   @ <li><p>
   @ Only a single alias operation occurs.  It is not possible to nest aliases.
   @ The RHS entries must be built-in webpage names.
   @ <li><p>
-  @ The alias table is only checked if no built-in webpage matches the incoming URL.
-  @ Hence, it is not possible to override a built-in webpage using aliases.  This is
-  @ by design.
+  @ The alias table is only checked if no built-in webpage matches
+  @ the incoming URL.
+  @ Hence, it is not possible to override a built-in webpage using aliases.
+  @ This is by design.
   @ </ul>
   @
   @ <p>To delete an entry from the alias table, change its name or value to an
   @ empty string and press "Apply Changes".
   @
-  @ <p>To add a new alias, fill in the name and value in the bottom row of the table
-  @ above and press "Apply Changes".
+  @ <p>To add a new alias, fill in the name and value in the bottom row
+  @ of the table above and press "Apply Changes".
   style_footer();
 }
