@@ -300,7 +300,8 @@ void cmd_sqlite3(void){
 #endif
   atexit(sqlcmd_atexit);
   g.zConfigDbName = zConfigDb;
-  sqlite3_shell(g.argc-1, g.argv+1);
+  g.argv[1] = "-quote";
+  sqlite3_shell(g.argc, g.argv);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);
 }

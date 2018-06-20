@@ -1,5 +1,5 @@
-C Add\sa\ssetup\spage\sfor\semail\snotification.\s\sThere\sis\sno\slogic\sbehind\sthe\ssetup,\nyet.
-D 2018-06-20T13:16:14.118
+C Rig\sthe\s"fossil\ssql"\scommand\sso\sthat\sit\salways\scomes\sup\sin\s--quote\smode.\nThis\smode\sis\smore\suseful\sfor\sFossil\srepos\sdues\sto\sthe\smany\sbinary\sblobs.
+D 2018-06-20T13:40:24.407
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -554,7 +554,7 @@ F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
-F src/sqlcmd.c 5e6c8fa715f88c40c990f92b32e3d75c81b939856926a9184f9cca1887dcd709
+F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
 F src/sqlite3.h d9d37ccb6d77420e9eb71b47604e13b3ee65183fa7e71522e569167ce9ae56ac
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
@@ -847,7 +847,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7001228a093ba66e3027d7c69bd160c576b46ec2c4f61593576f5abc06ccb6d1
-R b0220e4d13f8e09a35df7aeb1372a359
+P ccf50f06192f86ac6ff1409362813afd9e8b42d5e7909c05ccb90ad2aa1c5de8
+R db7479c7a0022c97f16db61f708cd587
 U drh
-Z 5e255ce45db7001b905893444e2b5adc
+Z 769367359f590fa37c75a73159aebfd7
