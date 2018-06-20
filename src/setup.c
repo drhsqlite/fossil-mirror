@@ -307,7 +307,8 @@ static void setup_usercap_table(void){
      @ <tr><th valign="top">d</th>
      @   <td><i>Delete:</i> Delete wiki and tickets</td></tr>
      @ <tr><th valign="top">e</th>
-     @   <td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
+     @   <td><i>View-PII:</i> \
+     @ View sensitive data such as email addresses</td></tr>
      @ <tr><th valign="top">f</th>
      @   <td><i>New-Wiki:</i> Create new wiki pages</td></tr>
      @ <tr><th valign="top">g</th>
@@ -363,7 +364,9 @@ static void setup_usercap_table(void){
      @   <td><i>Forum-Moderator:</i> Approve or disapprove forum posts</td></tr>
      @ <tr><th valign="top">6</th>
      @   <td><i>Forum-Supervisor:</i> \
-     @ Edit forum posts submitted by others</td></tr>
+     @ <tr><th valign="top">7</th>
+     @   <td><i>Email-Notify:</i> \
+     @ Sign up for email notifications</td></tr>
   @ </table>
 }
 
@@ -504,7 +507,7 @@ void user_edit(void){
     zPw = P("pw");
     zLogin = P("login");
     if( strlen(zLogin)==0 ){
-      char *zRef = cgi_referer("setup_ulist");
+      const char *zRef = cgi_referer("setup_ulist");
       style_header("User Creation Error");
       @ <span class="loginError">Empty login not allowed.</span>
       @
@@ -520,7 +523,7 @@ void user_edit(void){
     }
     zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
     if( db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d",zLogin,uid) ){
-      char *zRef = cgi_referer("setup_ulist");
+      const char *zRef = cgi_referer("setup_ulist");
       style_header("User Creation Error");
       @ <span class="loginError">Login "%h(zLogin)" is already used by
       @ a different user.</span>
@@ -568,7 +571,7 @@ void user_edit(void){
                  "with capabilities [%q].",
                  zLogin, zCap );
       if( zErr ){
-        char *zRef = cgi_referer("setup_ulist");
+        const char *zRef = cgi_referer("setup_ulist");
         style_header("User Change Error");
         admin_log( "Error updating user '%q': %s'.", zLogin, zErr );
         @ <span class="loginError">%h(zErr)</span>
@@ -700,7 +703,7 @@ void user_edit(void){
   @  <label><input type="checkbox" name="ad"%s(oa['d']) />
   @  Delete%s(B('d'))</label><br />
   @  <label><input type="checkbox" name="ae"%s(oa['e']) />
-  @  Email%s(B('e'))</label><br />
+  @  View-PII%s(B('e'))</label><br />
   @  <label><input type="checkbox" name="ap"%s(oa['p']) />
   @  Password%s(B('p'))</label><br />
   @  <label><input type="checkbox" name="ai"%s(oa['i']) />
@@ -754,7 +757,9 @@ void user_edit(void){
   @  <label><input type="checkbox" name="a5"%s(oa['5']) />
   @  Moderate Forum%s(B('5'))</label><br>
   @  <label><input type="checkbox" name="a6"%s(oa['6']) />
-  @  Supervise Forum%s(B('6'))</label>
+  @  Supervise Forum%s(B('6'))</label><br>
+  @  <label><input type="checkbox" name="a7"%s(oa['7']) />
+  @  Email Alerts%s(B('7'))</label>
   @ </td></tr>
   @ </table>
   @   </td>
@@ -902,8 +907,9 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">EMail</span> privilege allows the display of
-  @ sensitive information such as the email address of users and contact
+  @ The <span class="capability">View-PII</span> privilege allows the display
+  @ of personally-identifiable information information such as the
+  @ email address of users and contact
   @ information on tickets. Recommended OFF for
   @ <span class="usertype">anonymous</span> and for
   @ <span class="usertype">nobody</span> but ON for

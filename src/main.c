@@ -90,6 +90,7 @@ struct FossilUserPerms {
   char WrTForum;         /* 4: Post to forums not subject to moderation */
   char ModForum;         /* 5: Moderate (approve or reject) forum posts */
   char AdminForum;       /* 6: Edit forum posts by other users */
+  char EmailAlert;       /* 7: Sign up for email notifications */
 };
 
 #ifdef FOSSIL_ENABLE_TCL
