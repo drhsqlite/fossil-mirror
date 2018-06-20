@@ -1103,6 +1103,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
   int i;
   zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) zIn = zDefault;
+  if( zIn==0 ) return 0;
   while( fossil_isspace(zIn[0]) ) zIn++;
   zOut = fossil_strdup(zIn);
   for(i=0; zOut[i]; i++){}
@@ -1183,7 +1184,7 @@ int cgi_all(const char *z, ...){
 **
 ** Omit the values of the cookies unless showAll is true.
 */
-void cgi_print_all(int showAll){
+void cgi_print_all(int showAll, int onConsole){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
@@ -1192,7 +1193,11 @@ void cgi_print_all(int showAll){
       if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
       if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
-    cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    if( onConsole ){
+      fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+    }else{
+      cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    }
   }
 }
 

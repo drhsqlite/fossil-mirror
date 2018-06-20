@@ -633,3 +633,40 @@ table.label-value th {
   text-align: right;
   padding: 0.2ex 1ex;
 }
+table.forum_post {
+  margin-top: 1ex;
+  margin-bottom: 1ex;
+  margin-left: 0;
+  margin-right: 0;
+  border-spacing: 0;
+}
+span.forum_author {
+  color: #888;
+  font-size: 75%;
+}
+span.forum_author::after {
+  content: " | ";
+}
+span.forum_age {
+  color: #888;
+  font-size: 85%;
+}
+span.forum_buttons {
+  font-size: 85%;
+}
+span.forum_buttons::before {
+  color: #888;
+  content: " | ";
+}
+span.forum_npost {
+  color: #888;
+  font-size: 75%;
+}
+table.forumeditform td {
+  vertical-align: top;
+  border-collapse: collapse;
+  padding: 1px;
+}
+div.forum_body p {
+  margin-top: 0;
+}

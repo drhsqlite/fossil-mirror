@@ -85,6 +85,11 @@ struct FossilUserPerms {
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
   char WrUnver;          /* y: can push unversioned content */
+  char RdForum;          /* 2: Read forum posts */
+  char WrForum;          /* 3: Create new forum posts */
+  char WrTForum;         /* 4: Post to forums not subject to moderation */
+  char ModForum;         /* 5: Moderate (approve or reject) forum posts */
+  char AdminForum;       /* 6: Edit forum posts by other users */
 };
 
 #ifdef FOSSIL_ENABLE_TCL
@@ -135,7 +140,8 @@ struct Global {
   int eHashPolicy;        /* Current hash policy.  One of HPOLICY_* */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
-  int fSqlPrint;          /* True if -sqlprint flag is present */
+  int fSqlPrint;          /* True if --sqlprint flag is present */
+  int fCgiTrace;          /* True if --cgitrace is enabled */
   int fQuiet;             /* True if -quiet flag is present */
   int fJail;              /* True if running with a chroot jail */
   int fHttpTrace;         /* Trace outbound HTTP requests */
@@ -646,6 +652,7 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
+    g.fCgiTrace = find_option("cgitrace", 0, 0)!=0;
     g.fSshClient = 0;
     g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
@@ -653,7 +660,8 @@ int main(int argc, char **argv)
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
 #endif
-    g.fAnyTrace = g.fSqlTrace|g.fSystemTrace|g.fSshTrace|g.fHttpTrace;
+    g.fAnyTrace = g.fSqlTrace|g.fSystemTrace|g.fSshTrace|
+                  g.fHttpTrace|g.fCgiTrace;
     g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
@@ -1762,6 +1770,10 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+    if( g.fCgiTrace ){
+      fossil_trace("######## Calling %s #########\n", pCmd->zName);
+      cgi_print_all(1, 1);
+    }
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     /*
     ** The TH1 return codes from the hook will be handled as follows:

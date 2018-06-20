@@ -52,6 +52,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/forum.c \
   $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
@@ -254,6 +255,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/forum_.c \
   $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
@@ -385,6 +387,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/forum.o \
  $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
@@ -714,6 +717,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
 	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
@@ -1108,6 +1112,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/forum_.c:	$(SRCDIR)/forum.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/forum.c >$@
+
+$(OBJDIR)/forum.o:	$(OBJDIR)/forum_.c $(OBJDIR)/forum.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/forum.o -c $(OBJDIR)/forum_.c
+
+$(OBJDIR)/forum.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
