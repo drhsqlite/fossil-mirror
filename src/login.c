@@ -667,81 +667,80 @@ void login_page(void){
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
     @ <input type="submit" name="out" value="Logout"></p>
-    @ <hr />
-    @ <p>Change user:
-  }
-  @ <table class="login_out">
-  @ <tr>
-  @   <td class="login_out_label">User ID:</td>
-  if( anonFlag ){
-    @ <td><input type="text" id="u" name="u" value="anonymous" size="30" /></td>
   }else{
-    @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
-  }
-  if( P("HTTPS")==0 ){
-    @ <td width="15"><td rowspan="3">
-    @ <p class='securityWarning'>
-    @ Warning: Your password will be sent in the clear over an
-    @ unencrypted connection.
-    if( g.sslNotAvailable ){
-      @ No encrypted connection is available on this server.
+    @ <table class="login_out">
+    @ <tr>
+    @   <td class="form_label">User ID:</td>
+    if( anonFlag ){
+      @ <td><input type="text" id="u" name="u" value="anonymous" size="30"></td>
     }else{
-      @ Consider logging in at
-      @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+      @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
     }
-    @ </p>
-  }
-  @ </tr>
-  @ <tr>
-  @  <td class="login_out_label">Password:</td>
-  @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
-  @ </tr>
-  if( g.zLogin==0 && (anonFlag || zGoto==0) ){
-    zAnonPw = db_text(0, "SELECT pw FROM user"
-                         " WHERE login='anonymous'"
-                         "   AND cap!=''");
-  }
-  @ <tr>
-  @   <td></td>
-  @   <td><input type="submit" name="in" value="Login">
-  @ </tr>
-  @ </table>
-  @ <p>Pressing the Login button grants permission to store a cookie.</p>
-  if( db_get_boolean("self-register", 0) ){
-    @ <p>If you do not have an account, you can
-    @ <a href="%R/register?g=%T(P("G"))">create one</a>.
-  }
-  if( zAnonPw ){
-    unsigned int uSeed = captcha_seed();
-    const char *zDecoded = captcha_decode(uSeed);
-    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
-    char *zCaptcha = captcha_render(zDecoded);
-
-    @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
-    @ Visitors may enter <b>anonymous</b> as the user-ID with
-    @ the 8-character hexadecimal password shown below:</p>
-    @ <div class="captcha"><table class="captcha"><tr><td><pre>
-    @ %h(zCaptcha)
-    @ </pre></td></tr></table>
-    if( bAutoCaptcha ) {
-       @ <input type="button" value="Fill out captcha" id='autofillButton' \
-       @ data-af='%s(zDecoded)' />
-       style_load_one_js_file("login.js");
+    if( P("HTTPS")==0 ){
+      @ <td width="15"><td rowspan="3">
+      @ <p class='securityWarning'>
+      @ Warning: Your password will be sent in the clear over an
+      @ unencrypted connection.
+      if( g.sslNotAvailable ){
+        @ No encrypted connection is available on this server.
+      }else{
+        @ Consider logging in at
+        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+      }
+      @ </p>
     }
-    @ </div>
-    free(zCaptcha);
+    @ </tr>
+    @ <tr>
+    @  <td class="form_label">Password:</td>
+    @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @ </tr>
+    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
+      zAnonPw = db_text(0, "SELECT pw FROM user"
+                           " WHERE login='anonymous'"
+                           "   AND cap!=''");
+    }
+    @ <tr>
+    @   <td></td>
+    @   <td><input type="submit" name="in" value="Login">
+    @ </tr>
+    @ </table>
+    @ <p>Pressing the Login button grants permission to store a cookie.</p>
+    if( db_get_boolean("self-register", 0) ){
+      @ <p>If you do not have an account, you can
+      @ <a href="%R/register?g=%T(P("G"))">create one</a>.
+    }
+    if( zAnonPw ){
+      unsigned int uSeed = captcha_seed();
+      const char *zDecoded = captcha_decode(uSeed);
+      int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
+      char *zCaptcha = captcha_render(zDecoded);
+  
+      @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
+      @ Visitors may enter <b>anonymous</b> as the user-ID with
+      @ the 8-character hexadecimal password shown below:</p>
+      @ <div class="captcha"><table class="captcha"><tr><td><pre>
+      @ %h(zCaptcha)
+      @ </pre></td></tr></table>
+      if( bAutoCaptcha ) {
+         @ <input type="button" value="Fill out captcha" id='autofillButton' \
+         @ data-af='%s(zDecoded)' />
+         style_load_one_js_file("login.js");
+      }
+      @ </div>
+      free(zCaptcha);
+    }
+    @ </form>
   }
-  @ </form>
   if( g.zLogin && g.perm.Password ){
     @ <hr />
     @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");
     @ <table>
-    @ <tr><td class="login_out_label">Old Password:</td>
+    @ <tr><td class="form_label">Old Password:</td>
     @ <td><input type="password" name="p" size="30" /></td></tr>
-    @ <tr><td class="login_out_label">New Password:</td>
+    @ <tr><td class="form_label">New Password:</td>
     @ <td><input type="password" name="n1" size="30" /></td></tr>
-    @ <tr><td class="login_out_label">Repeat New Password:</td>
+    @ <tr><td class="form_label">Repeat New Password:</td>
     @ <td><input type="password" name="n2" size="30" /></td></tr>
     @ <tr><td></td>
     @ <td><input type="submit" value="Change Password" /></td></tr>
@@ -1525,23 +1524,23 @@ void register_page(void){
   @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
   @ <table class="login_out">
   @ <tr>
-  @   <td class="login_out_label" align="right">User ID:</td>
+  @   <td class="form_label" align="right">User ID:</td>
   @   <td><input type="text" id="u" name="u" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Password:</td>
+  @   <td class="form_label" align="right">Password:</td>
   @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Confirm password:</td>
+  @   <td class="form_label" align="right">Confirm password:</td>
   @   <td><input type="password" id="cp" name="cp" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Contact info:</td>
+  @   <td class="form_label" align="right">Contact info:</td>
   @   <td><input type="text" id="c" name="c" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Captcha text (below):</td>
+  @   <td class="form_label" align="right">Captcha text (below):</td>
   @   <td><input type="text" id="cap" name="cap" value="" size="30" /></td>
   @ </tr>
   @ <tr><td></td>

@@ -1,5 +1,5 @@
-C First\sattempt\sat\sa\s/subscribe\spage.\s\sNon-functional\sdisplay\sonly.
-D 2018-06-20T22:39:55.647
+C Do\snot\sshow\sthe\s"Change\suser:"\sform\son\sthe\s/logout\spage.\s\sIt\sadds\slittle\svalue\nbut\smuch\sconfusion.
+D 2018-06-20T22:53:02.663
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -506,7 +506,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 13cf84d33fa41c98c00d4458d6c2863f7b54928e3e01fdc9923df040390faccc
+F src/login.c b3c64d1a2257e37a8e6af7926c1e1973aae7b41037cd0672b334f0c6dc24f492
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 48ec43c79b42d474d19166c964a4bd4cb44bdf29623eacff99e2ae3b67f1ca21
@@ -849,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa83e4b3e1eb55ccbe6ac5c402287cd5cce2a679e35431bf21a9d0c47c10b6d0
-R d0d6f592921177c9e30b78ea11e6a2ed
+P fb3934ec53e86be5d2694cdcd0577fc542eb18fcb4ff07111b412087be96fa9f
+R ff6610d89f7eb863d0a8cac544c9b40c
 U drh
-Z b538d82fb99cf869cc492f061e2c3744
+Z 3c949aacb43e5c96208a2e7db0a209ac
