@@ -555,7 +555,7 @@ cson_value * json_timeline_event(){
   blob_reset(&sql);
   db_prepare(&q, "SELECT"
              // uuid is not useful for events
-             " substr((SELECT tagname FROM tag AS tn WHERE tn.tagid=tagId AND tagname LIKE 'event-%%'),7) AS name,"
+             " substr((SELECT tagname FROM tag AS tn WHERE tn.tagid=json_timeline.tagId AND tagname LIKE 'event-%%'),7) AS name,"
              " mtime AS timestamp,"
 #if 0
              " timestampString AS timestampString,"
