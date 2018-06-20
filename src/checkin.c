@@ -1194,13 +1194,15 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   }
 #endif
   if( zEditor==0 ){
-    blob_append(pPrompt,
-       "#\n"
-       "# Since no default text editor is set using EDITOR or VISUAL\n"
-       "# environment variables or the \"fossil set editor\" command,\n"
-       "# and because no comment was specified using the \"-m\" or \"-M\"\n"
-       "# command-line options, you will need to enter the comment below.\n"
-       "# Type \".\" on a line by itself when you are done:\n", -1);
+    if( blob_size(pPrompt)>0 ){
+      blob_append(pPrompt,
+         "#\n"
+         "# Since no default text editor is set using EDITOR or VISUAL\n"
+         "# environment variables or the \"fossil set editor\" command,\n"
+         "# and because no comment was specified using the \"-m\" or \"-M\"\n"
+         "# command-line options, you will need to enter the comment below.\n"
+         "# Type \".\" on a line by itself when you are done:\n", -1);
+    }
     zFile = mprintf("-");
   }else{
     Blob fname;
@@ -1218,7 +1220,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
 #if defined(_WIN32)
   blob_add_cr(pPrompt);
 #endif
-  blob_write_to_file(pPrompt, zFile);
+  if( blob_size(pPrompt)>0 ) blob_write_to_file(pPrompt, zFile);
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
     fossil_print("%s\n", zCmd);

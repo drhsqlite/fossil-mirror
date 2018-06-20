@@ -436,19 +436,12 @@ static unsigned char zBase[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
-** Encode a string using a base-64 encoding.
-** The encoding can be reversed using the <b>decode64</b> function.
-**
-** Space to hold the result comes from malloc().
+** Translate nData bytes of content from zData into
+** ((nData+2)/3)*4) bytes of base64 encoded content and
+** put the result in z64.  Add a zero-terminator at the end.
 */
-char *encode64(const char *zData, int nData){
-  char *z64;
+int translateBase64(const char *zData, int nData, char *z64){
   int i, n;
-
-  if( nData<=0 ){
-    nData = strlen(zData);
-  }
-  z64 = fossil_malloc( (nData*4)/3 + 8 );
   for(i=n=0; i+2<nData; i+=3){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
@@ -467,6 +460,22 @@ char *encode64(const char *zData, int nData){
     z64[n++] = '=';
   }
   z64[n] = 0;
+  return n;
+}
+
+/*
+** Encode a string using a base-64 encoding.
+** The encoding can be reversed using the <b>decode64</b> function.
+**
+** Space to hold the result comes from malloc().
+*/
+char *encode64(const char *zData, int nData){
+  char *z64;
+  if( nData<=0 ){
+    nData = strlen(zData);
+  }
+  z64 = fossil_malloc( (nData*4)/3 + 8 );
+  translateBase64(zData, nData, z64);
   return z64;
 }
 
