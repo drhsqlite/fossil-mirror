@@ -56,6 +56,7 @@ set src {
   diffcmd
   dispatch
   doc
+  email
   encode
   etag
   event

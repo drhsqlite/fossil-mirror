@@ -44,6 +44,7 @@ SRC = \
   $(SRCDIR)/diffcmd.c \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
+  $(SRCDIR)/email.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
@@ -245,6 +246,7 @@ TRANS_SRC = \
   $(OBJDIR)/diffcmd_.c \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
+  $(OBJDIR)/email_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
@@ -375,6 +377,7 @@ OBJ = \
  $(OBJDIR)/diffcmd.o \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
+ $(OBJDIR)/email.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
@@ -703,6 +706,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
+	$(OBJDIR)/email_.c:$(OBJDIR)/email.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -1040,6 +1044,14 @@ $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/doc.o -c $(OBJDIR)/doc_.c
 
 $(OBJDIR)/doc.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/email_.c:	$(SRCDIR)/email.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/email.c >$@
+
+$(OBJDIR)/email.o:	$(OBJDIR)/email_.c $(OBJDIR)/email.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/email.o -c $(OBJDIR)/email_.c
+
+$(OBJDIR)/email.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/encode.c >$@

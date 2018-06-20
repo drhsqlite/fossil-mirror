@@ -409,6 +409,7 @@ SRC   = add_.c \
         diffcmd_.c \
         dispatch_.c \
         doc_.c \
+        email_.c \
         encode_.c \
         etag_.c \
         event_.c \
@@ -609,6 +610,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\diffcmd$O \
         $(OX)\dispatch$O \
         $(OX)\doc$O \
+        $(OX)\email$O \
         $(OX)\encode$O \
         $(OX)\etag$O \
         $(OX)\event$O \
@@ -798,6 +800,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\diffcmd.obj >> $@
 	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
+	echo $(OX)\email.obj >> $@
 	echo $(OX)\encode.obj >> $@
 	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
@@ -1192,6 +1195,12 @@ $(OX)\doc$O : doc_.c doc.h
 	$(TCC) /Fo$@ -c doc_.c
 
 doc_.c : $(SRCDIR)\doc.c
+	translate$E $** > $@
+
+$(OX)\email$O : email_.c email.h
+	$(TCC) /Fo$@ -c email_.c
+
+email_.c : $(SRCDIR)\email.c
 	translate$E $** > $@
 
 $(OX)\encode$O : encode_.c encode.h
@@ -1821,6 +1830,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			diffcmd_.c:diffcmd.h \
 			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
+			email_.c:email.h \
 			encode_.c:encode.h \
 			etag_.c:etag.h \
 			event_.c:event.h \

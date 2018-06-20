@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -116,6 +116,7 @@ void setup_page(void){
     "Configure the built-in search engine");
   setup_menu_entry("URL Aliases", "waliassetup",
     "Configure URL aliases");
+  setup_menu_entry("Email", "setup_email", "Email notifications");
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -1030,7 +1031,7 @@ const char *textarea_attribute(
 /*
 ** Generate a text box for an attribute.
 */
-static void multiple_choice_attribute(
+void multiple_choice_attribute(
   const char *zLabel,   /* The text label on the menu */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQP,      /* The query parameter */
@@ -1474,7 +1475,7 @@ void setup_timeline(void){
   @ in a separate box (using CSS class "timelineDate") whenever the date
   @ changes.  With the "YYYY-MM-DD&nbsp;HH:MM" and "YYMMDD ..." formats,
   @ the complete date and time is shown on every timeline entry using the
-  @ CSS class "timelineTime". (Preperty: "timeline-date-format")</p>
+  @ CSS class "timelineTime". (Property: "timeline-date-format")</p>
 
   @ <hr />
   onoff_attribute("Show version differences by default",
