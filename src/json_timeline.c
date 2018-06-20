@@ -554,21 +554,15 @@ cson_value * json_timeline_event(){
   db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
   blob_reset(&sql);
   db_prepare(&q, "SELECT"
-             // uuid is not useful for events
+             /* For events, the name is generally more useful than
+                the uuid, but the uuid is unambiguous and can be used
+                with commands like 'artifact'. */
              " substr((SELECT tagname FROM tag AS tn WHERE tn.tagid=json_timeline.tagId AND tagname LIKE 'event-%%'),7) AS name,"
+             " uuid as uuid,"
              " mtime AS timestamp,"
-#if 0
-             " timestampString AS timestampString,"
-#endif
              " comment AS comment, "
              " user AS user,"
              " eventType AS eventType"
-#if 0
-             /* TODO implement tags for events */
-             " tags AS tags," /*FIXME: split this into
-                                a JSON array*/
-             " tagId AS tagId,"
-#endif
              " FROM json_timeline"
              " ORDER BY rowid");
   list = cson_new_array();
