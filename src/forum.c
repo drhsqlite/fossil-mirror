@@ -113,7 +113,7 @@ void forum_page(void){
       @ <!-- Forum post %d(id) -->
       @ <table class="forum_post">
       @ <tr>
-      @ <td class="forum_margin" width="%d(iDepth*25)" rowspan="2">
+      @ <td class="forum_margin" width="%d(iDepth*40)" rowspan="2">
       @ <td><span class="forum_author">%h(zUser)</span>
       @ <span class="forum_age">%s(zAge) ago</span>
       sqlite3_free(zAge);
@@ -169,7 +169,7 @@ void forum_page(void){
 
 /*
 ** Use content in CGI parameters "s" (subject), "b" (body), and
-** "m" (mimetype) to create a new forum entry.
+** "mimetype" (mimetype) to create a new forum entry.
 ** Return the id of the new forum entry.
 **
 ** If any problems occur, return 0 and set *pzErr to a description of
@@ -185,7 +185,7 @@ static int forum_post(int itemId, int parentId, char **pzErr){
   const char *zSubject = 0;
   int threadId;
   double rNow = db_double(0.0, "SELECT julianday('now')");
-  const char *zMime = wiki_filter_mimetypes(P("m"));
+  const char *zMime = wiki_filter_mimetypes(P("mimetype"));
   if( itemId==0 && parentId==0 ){
     /* Start a new thread.  Subject required. */
     sqlite3_uint64 r1, r2;
@@ -198,7 +198,7 @@ static int forum_post(int itemId, int parentId, char **pzErr){
     sqlite3_randomness(sizeof(r2), &r2);
     db_multi_exec(
       "INSERT INTO forumthread(mthreadhash, mtitle, mtime, npost)"
-      "VALUES(lower(hex(randomblob(32))),%Q,%!.17g,1)",
+      "VALUES(lower(hex(randomblob(28))),%Q,%!.17g,1)",
       zSubject, rNow
     );
     threadId = db_last_insert_rowid();
@@ -221,13 +221,13 @@ static int forum_post(int itemId, int parentId, char **pzErr){
        " ipaddr=%Q,"
        " mbody=%Q"
        " WHERE mpostid=%d",
-       rNow, PT("m"), P("REMOTE_ADDR"), PT("b"), itemId
+       rNow, PT("mimetype"), P("REMOTE_ADDR"), PT("b"), itemId
     );
   }else{
     db_multi_exec(
        "INSERT INTO forumpost(mposthash,mthreadid,uname,mtime,"
        "  mstatus,mimetype,ipaddr,inreplyto,mbody) VALUES"
-       "  (lower(hex(randomblob(32))),%d,%Q,%!.17g,%Q,%Q,%Q,nullif(%d,0),%Q)",
+       "  (lower(hex(randomblob(28))),%d,%Q,%!.17g,%Q,%Q,%Q,nullif(%d,0),%Q)",
        threadId,g.zLogin,rNow,NULL,zMime,P("REMOTE_ADDR"),parentId,P("b"));
     itemId = db_last_insert_rowid();
   }
@@ -277,13 +277,13 @@ void forum_edit_page(void){
       return;
     }
   }
-  if( itemId && (P("m")==0 || P("b")==0) ){
+  if( itemId && (P("mimetype")==0 || P("b")==0) ){
     Stmt q;
     db_prepare(&q, "SELECT mimetype, mbody FROM forumpost"
                    " WHERE mpostid=%d", itemId);
     if( db_step(&q)==SQLITE_ROW ){
-      if( P("m")==0 ){
-        cgi_set_query_parameter("m", db_column_text(&q, 0));
+      if( P("mimetype")==0 ){
+        cgi_set_query_parameter("mimetype", db_column_text(&q, 0));
       }
       if( P("b")==0 ){
         cgi_set_query_parameter("b", db_column_text(&q, 1));
@@ -291,7 +291,7 @@ void forum_edit_page(void){
     }
     db_finalize(&q);
   }
-  zMime = wiki_filter_mimetypes(P("m"));
+  zMime = wiki_filter_mimetypes(P("mimetype"));
   if( itemId>0 ){
     style_header("Edit Forum Post");
   }else if( parentId>0 ){
@@ -314,7 +314,7 @@ void forum_edit_page(void){
     }
     @ <div class="forumpreviewbody">
     blob_init(&x, PT("b"), -1);
-    wiki_render_by_mimetype(&x, PT("m"));
+    wiki_render_by_mimetype(&x, PT("mimetype"));
     blob_reset(&x);
     @ </div>
     @ </div>
