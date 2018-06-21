@@ -877,6 +877,32 @@ void db_fromlocal_function(
   }
 }
 
+/*
+** If the input is a hexadecimal string, convert that string into a BLOB.
+** If the input is not a hexadecimal string, return NULL.
+*/
+void db_hextoblob(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *zIn = sqlite3_value_text(argv[0]);
+  int nIn = sqlite3_value_bytes(argv[0]);
+  unsigned char *zOut;
+  if( zIn==0 ) return;
+  if( nIn&1 ) return;
+  if( !validate16(zIn, nIn) ) return;
+  zOut = sqlite3_malloc64( nIn/2 );
+  if( zOut==0 ){
+    sqlite3_result_error_nomem(context);
+    return;
+  }
+  decode16(zIn, zOut, nIn);
+  sqlite3_result_blob(context, zOut, nIn/2, sqlite3_free);
+}
+
+/*
+** 
 
 /*
 ** Register the SQL functions that are useful both to the internal
@@ -895,6 +921,8 @@ void db_add_aux_functions(sqlite3 *db){
                           db_tolocal_function, 0, 0);
   sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
                           db_fromlocal_function, 0, 0);
+  sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
+                          db_hextoblob, 0, 0);
 }
 
 #if USE_SEE

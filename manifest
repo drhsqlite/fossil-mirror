@@ -1,5 +1,5 @@
-C Remove\sthe\sconfiguration\sof\sthe\sshow-version-diffs\sproperty\sfrom\nthe\s/setup_timeline\spage\sas\sthat\sproperty\sis\sno\slonger\sused.
-D 2018-06-21T12:24:00.316
+C Non-working\scode\sfor\sthe\s/subscribe\sand\s/alerts\sweb\spages.\s\sThis\sis\san\nincremental\scheck-in.
+D 2018-06-21T12:34:02.739
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 9ba164112a34201a3717c29060bf76d672daa31f
-F src/cgi.c 7e03e10abee2369ebf8c42523adb4f9e7d048d09a9051a5876da74b91e582d5a
+F src/cgi.c ded87857fde0def1ac2829a112e83ef6af879a9f0fb039f5bc22fcc6e10c9867
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -453,7 +453,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 13168a9e006362d38cc845dc4f9e427894b6d47556109cca30ffd5a1961250b0
+F src/db.c 79ea30abdcf7a036e0844f9d924587e60486ab846d392443463c47a4345e6194
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -463,8 +463,8 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c e85da4640977fcf85b4878c82034cf09365abb3aa92657039321b9782f5f1bdd
-F src/encode.c 00a02b372ec66111d764122abf13ee37a85110adf3728e08872deb2bc2de8c0e
+F src/email.c 2cc2863825db9d0405acd4ac53e49a63240a6c0966797887fb355eb5b7f3db84
+F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
@@ -506,7 +506,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c b3c64d1a2257e37a8e6af7926c1e1973aae7b41037cd0672b334f0c6dc24f492
+F src/login.c f1af892e4ef6549e8a4015bdde924f6e103f25b5dc5c5e6c92e576959c38a3aa
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 48ec43c79b42d474d19166c964a4bd4cb44bdf29623eacff99e2ae3b67f1ca21
@@ -849,7 +849,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00bed59b694c7bf0f3f1f3555a4b3f2e302e283df5d4eafc2cb403d072e391b3
-R 93f672fefac33ab464f32c2e2c6259ea
+P 8d230be45cd12378a061088ed052db51b8a3cd38542e41db8143140beafc8b11
+R e40a840dc452c105fde60818d7579994
+T *branch * email-alerts
+T *sym-email-alerts *
+T -sym-trunk *
 U drh
-Z 08754168fc3cb5c29f0f5cfbbb9608d3
+Z 72d1fca7efe3dd92670982743dd562ee

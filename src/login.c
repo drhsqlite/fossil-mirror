@@ -1352,6 +1352,15 @@ int login_is_nobody(void){
 }
 
 /*
+** Return true if the user is a specific individual, not "nobody" or
+** "anonymous".
+*/
+int login_is_individual(void){
+  return g.zLogin!=0 && g.zLogin[0]!=0 && fossil_strcmp(g.zLogin,"nobody")!=0
+           && fossil_strcmp(g.zLogin,"anonymous")!=0;
+}
+
+/*
 ** Return the login name.  If no login name is specified, return "nobody".
 */
 const char *login_name(void){

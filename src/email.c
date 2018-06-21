@@ -22,6 +22,11 @@
 #include <assert.h>
 
 /*
+** Maximum size of the subscriberCode blob, in bytes
+*/
+#define SUBSCRIBER_CODE_SZ 32
+
+/*
 ** SQL code to implement the tables needed by the email notification
 ** system.
 */
@@ -44,19 +49,19 @@ static const char zEmailInit[] =
 @ --
 @ CREATE TABLE repository.subscriber(
 @   subscriberId INTEGER PRIMARY KEY, -- numeric subscriber ID.  Internal use
-@   subscriberCode TEXT UNIQUE,       -- UUID for subscriber.  External use
-@   sname TEXT,                       -- Human readable name
-@   suname TEXT,                      -- Corresponding USER or NULL
+@   subscriberCode BLOB UNIQUE,       -- UUID for subscriber.  External use
 @   semail TEXT,                      -- email address
+@   suname TEXT,                      -- corresponding USER entry
 @   sverify BOOLEAN,                  -- email address verified
 @   sdonotcall BOOLEAN,               -- true for Do Not Call 
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
 @   sctime DATE,                      -- When this entry was created. JulianDay
 @   smtime DATE,                      -- Last change.  JulianDay
-@   sipaddr TEXT,                     -- IP address for last change
-@   spswdHash TEXT                    -- SHA3 hash of password
+@   smip TEXT                         -- IP address of last change
 @ );
+@ CREATE INDEX repository.subscriberUname
+@   ON subscriber(suname) WHERE suname IS NOT NULL;
 @ 
 @ -- Email notifications that need to be sent.
 @ --
@@ -457,14 +462,19 @@ void subscribe_page(void){
     login_needed(g.anon.EmailAlert);
     return;
   }
+  if( login_is_individual()
+   && db_exists("SELECT 1 FROM subscriber WHERE suname=%Q",g.zLogin)
+  ){
+    cgi_redirect("%R/alerts");
+    return;
+  }
   style_header("Email Subscription");
-  needCaptcha = P("usecaptcha")!=0 || login_is_nobody()
-                  || login_is_special(g.zLogin);
+  needCaptcha = P("usecaptcha")!=0 || !login_is_individual();
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
-  @  <td><input type="text" name="e" value="" size="30"></td>
+  @  <td><input type="text" name="e" value="%h(PD("e",""))" size="30"></td>
   @  <td></td>
   @ </tr>
   if( needCaptcha ){
@@ -476,30 +486,27 @@ void subscribe_page(void){
     @  <td><input type="text" name="captcha" value="" size="30">
     @  <input type="hidden" name="usecaptcha" value="1"></td>
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
-    @  <td><span class="optionalTag">(copy from below)</span></td>
+    @ </tr>
+  }
+  if( g.perm.Admin ){
+    @ <tr>
+    @  <td class="form_label">User:</td>
+    @  <td><input type="text" name="suname" value="%h(PD("suname",g.zLogin))" \
+    @  size="30"></td>
+    @  <td></td>
     @ </tr>
   }
   @ <tr>
-  @  <td class="form_label">Nickname:</td>
-  @  <td><input type="text" name="nn" value="" size="30"></td>
-  @  <td><span class="optionalTag">(optional)</span></td>
-  @ </tr>
-  @ <tr>
-  @  <td class="form_label">Password:</td>
-  @  <td><input type="password" name="pw" value="" size="30"></td>
-  @  <td><span class="optionalTag">(optional)</span></td>
-  @ </tr>
-  @ <tr>
   @  <td class="form_label">Options:</td>
-  @  <td><label><input type="checkbox" name="sa" value="0">\
+  @  <td><label><input type="checkbox" name="sa" value="%d(P10("sa"))">\
   @  Announcements</label><br>
-  @  <label><input type="checkbox" name="sc" value="0">\
+  @  <label><input type="checkbox" name="sc" value="%d(P01("sc"))">\
   @  Check-ins</label><br>
-  @  <label><input type="checkbox" name="st" value="0">\
+  @  <label><input type="checkbox" name="st" value="%d(P01("st"))">\
   @  Ticket changes</label><br>
-  @  <label><input type="checkbox" name="sw" value="0">\
+  @  <label><input type="checkbox" name="sw" value="%d(P01("sw"))">\
   @  Wiki</label><br>
-  @  <label><input type="checkbox" name="di" value="0">\
+  @  <label><input type="checkbox" name="di" value="%d(P01("di"))">\
   @  Daily digest only</label><br></td>
   @ </tr>
   @ <tr>
@@ -515,5 +522,152 @@ void subscribe_page(void){
     @ </td></tr></table></div>
   }
   @ </form>
+  style_footer();
+}
+
+/*
+** WEBPAGE: alerts
+**
+** Edit email alert and notification settings.
+**
+** The subscriber entry is identified in either of two ways:
+**
+**    (1)  The name= query parameter contains the subscriberCode.
+**         
+**    (2)  The user is logged into an account other than "nobody" or
+**         "anonymous".  In that case the notification settings
+**         associated with that account can be edited without needing
+**         to know the subscriber code.
+*/
+void alerts_page(void){
+  const char *zName = P("name");
+  Stmt q;
+  int sa, sc, st, sw;
+  int sdigest, sdonotcall, sverify;
+  const char *ssub;
+  const char *semail;
+  const char *sctime;
+  const char *smtime;
+  const char *smip;
+  int i;
+
+
+  login_check_credentials();
+  if( !g.perm.EmailAlert ){
+    cgi_redirect("subscribe");
+    return;
+  }
+  if( zName==0 && login_is_individual() ){
+    zName = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
+                       " WHERE suname=%Q", g.zLogin);
+  }
+  if( zName==0 || !validate16(zName, -1) ){
+    cgi_redirect("subscribe");
+    return;
+  }
+  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+    int sdonotcall = PB("sdonotcall");
+    int sdigest = PB("sdigest");
+    char ssub[10];
+    int nsub = 0;
+    if( PB("sa") ) ssub[nsub++] = 'a';
+    if( PB("sc") ) ssub[nsub++] = 'c';
+    if( PB("st") ) ssub[nsub++] = 't';
+    if( PB("sw") ) ssub[nsub++] = 'w';
+    ssub[nsub] = 0;
+    db_multi_exec(
+      "UPDATE subscriber SET"
+      " sdonotcall=%d,"
+      " sdigest=%d,"
+      " ssub=%Q,"
+      " smtime=julianday('now'),"
+      " smip=%Q"
+      " WHERE subscriberCode=hextoblob(%Q)",
+      sdonotcall,
+      sdigest,
+      ssub,
+      g.zIpAddr,
+      zName
+    );
+  }
+  if( PB("dodelete") && P("delete")!=0 && cgi_csrf_safe(1) ){
+    db_multi_exec(
+      "DELETE FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
+      zName
+    );
+  }
+  db_prepare(&q,
+    "SELECT"
+    "  semail,"
+    "  sverify,"
+    "  sdonotcall,"
+    "  sdigest,"
+    "  ssub,"
+    "  datetime(sctime),"
+    "  datetime(smtime),"
+    "  smip"
+    " FROM subscriber WHERE subscriberCode=hextoblob(%Q)", zName);
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    cgi_redirect("subscribe");
+    return;
+  }
+  style_header("Update Subscription");
+  semail = db_column_text(&q, 0);
+  sverify = db_column_int(&q, 1);
+  sdonotcall = db_column_int(&q, 2);
+  sdigest = db_column_int(&q, 3);
+  ssub = db_column_text(&q, 4);
+  sa = strchr(ssub,'a')!=0;
+  sc = strchr(ssub,'c')!=0;
+  st = strchr(ssub,'t')!=0;
+  sw = strchr(ssub,'w')!=0;
+  sctime = db_column_text(&q, 5);
+  smtime = db_column_text(&q, 6);
+  smip = db_column_text(&q, 7);
+  form_begin(0, "%R/alerts");
+  @ <table class="subscribe">
+  @ <tr>
+  @  <td class="form_label">Email&nbsp;Address:</td>
+  @  <td>%h(semail)</td>
+  @ </tr>
+  if( g.perm.Admin ){
+    @ <tr>
+    @  <td class='form_label'>IP Address:</td>
+    @  <td>%h(smip)</td>
+    @ </tr>
+  }
+  @ <tr>
+  @  <td class="form_label">Options:</td>
+  @  <td><label><input type="checkbox" name="sa" value="%d(sa)">\
+  @  Announcements</label><br>
+  @  <label><input type="checkbox" name="sc" value="%d(sc)">\
+  @  Check-ins</label><br>
+  @  <label><input type="checkbox" name="st" value="%d(st)">\
+  @  Ticket changes</label><br>
+  @  <label><input type="checkbox" name="sw" value="%d(sw)">\
+  @  Wiki</label><br>
+  @  <label><input type="checkbox" name="sdigest" value="%d(sdigest)">\
+  @  Daily digest only</label><br>
+  if( g.perm.Admin ){
+    @  <label><input type="checkbox" name="sdonotcall" value="%d(sdonotcall)">\
+    @  Do not call</label><br>
+    @  <label><input type="checkbox" name="sverify" value="%d(sverify)">\
+    @  Verified</label><br>
+  }
+  @ </td></tr>
+  @ <tr>
+  @  <td></td>
+  @  <td><input type="submit" value="Submit"></td>
+  @ </tr>
+  @ <tr>
+  @  <td></td>
+  @  <td><label><input type="checkbox" name="dodelete" value="0">
+  @  Delete this subscription</label>
+  @  <input type="submit" name="delete" value="Delete"></td>
+  @ </tr>
+  @ </table>
+  @ </form>
+  db_finalize(&q);
   style_footer();
 }

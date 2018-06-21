@@ -58,6 +58,8 @@
 #define PT(x)       cgi_parameter_trimmed((x),0)
 #define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 #define PB(x)       cgi_parameter_boolean(x)
+#define P10(x)      cgi_parameter_01(x,1)
+#define P01(x)      cgi_parameter_01(x,0)
 
 
 /*
@@ -1118,6 +1120,15 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
 int cgi_parameter_boolean(const char *zName){
   const char *zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) return 0;
+  return zIn[0]==0 || is_truth(zIn);
+}
+
+/*
+** Return 0 or 1 according to the value of CGI parameter zName. 
+*/
+int cgi_parameter_01(const char *zName, int iDefault){
+  const char *zIn = cgi_parameter(zName, 0);
+  if( zIn==0 ) return iDefault;
   return zIn[0]==0 || is_truth(zIn);
 }
 

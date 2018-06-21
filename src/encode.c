@@ -636,6 +636,7 @@ int decode16(const unsigned char *zIn, unsigned char *pOut, int N){
 */
 int validate16(const char *zIn, int nIn){
   int i;
+  if( nIn<0 ) nIn = (int)strlen(zIn);
   for(i=0; i<nIn; i++, zIn++){
     if( zDecode[zIn[0]&0xff]>63 ){
       return zIn[0]==0;
