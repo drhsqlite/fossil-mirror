@@ -115,6 +115,7 @@ void setup_email(void){
   }
   db_begin_transaction();
 
+  style_submenu_element("Subscriber List", "%R/subscribers");
   style_header("Email Notification Setup");
   @ <form action="%R/setup_email" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
@@ -663,20 +664,20 @@ void subscribe_page(void){
   }
   @ <tr>
   @  <td class="form_label">Options:</td>
-  @  <td><label><input type="checkbox" name="sa" %s(PCK("sa"))>\
+  @  <td><label><input type="checkbox" name="sa" %s(PCK("sa"))> \
   @  Announcements</label><br>
-  @  <label><input type="checkbox" name="sc" %s(PCK("sc"))>\
+  @  <label><input type="checkbox" name="sc" %s(PCK("sc"))> \
   @  Check-ins</label><br>
-  @  <label><input type="checkbox" name="st" %s(PCK("st"))>\
+  @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
   @  Ticket changes</label><br>
-  @  <label><input type="checkbox" name="sw" %s(PCK("sw"))>\
+  @  <label><input type="checkbox" name="sw" %s(PCK("sw"))> \
   @  Wiki</label><br>
-  @  <label><input type="checkbox" name="di" %s(PCK("di"))>\
+  @  <label><input type="checkbox" name="di" %s(PCK("di"))> \
   @  Daily digest only</label><br>
   if( g.perm.Admin ){
-    @  <label><input type="checkbox" name="vi" %s(PCK("vi"))>\
+    @  <label><input type="checkbox" name="vi" %s(PCK("vi"))> \
     @  Verified</label><br>
-    @  <label><input type="checkbox" name="dnc" %s(PCK("dnc"))>\
+    @  <label><input type="checkbox" name="dnc" %s(PCK("dnc"))> \
     @  Do not call</label><br>
   }
   @ </td>
@@ -862,7 +863,7 @@ void alerts_page(void){
   @  Daily digest only</label><br>
   if( g.perm.Admin ){
     @  <label><input type="checkbox" name="sdonotcall" \
-    @  %s(sdonotcall?"checked":"")>Do not call</label><br>
+    @  %s(sdonotcall?"checked":"")> Do not call</label><br>
     @  <label><input type="checkbox" name="sverified" \
     @  %s(sverified?"checked":"")>\
     @  Verified</label><br>
@@ -882,6 +883,47 @@ void alerts_page(void){
   @ </table>
   @ </form>
   fossil_free(zErr);
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: subscribers
+**
+** This page, accessible to administrators only,
+** shows a list of email notification email addresses with
+** links to facilities for editing.
+*/
+void subscriber_list_page(void){
+  Blob sql;
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    fossil_redirect_home();
+    return;
+  }
+  style_header("Subscriber List");
+  blob_init(&sql, 0, 0);
+  blob_append_sql(&sql,
+    "SELECT hex(subscriberCode),"
+    "       semail,"
+    "       ssub,"
+    "       suname,"
+    "       sverified"
+    " FROM subscriber"
+  );
+  db_prepare_blob(&q, &sql);
+  @ <table>
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr>
+    @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
+    @ %h(db_column_text(&q,1))</a></td>
+    @ <td>%h(db_column_text(&q,3))</td>
+    @ <td>%h(db_column_text(&q,4))</td>
+    @ <td>%s(db_column_int(&q,5)?"":"unverified")</td>
+    @ </tr>
+  }
+  @ </table>
   db_finalize(&q);
   style_footer();
 }

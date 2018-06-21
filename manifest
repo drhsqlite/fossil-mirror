@@ -1,5 +1,5 @@
-C Further\sprogress\stoward\sget\semail\ssubscription\swebpages\sworking.
-D 2018-06-21T19:51:17.971
+C Add\sthe\s/subscribers\spage.\s\sFix\sminor\sissues.\s\sAll\spages\sstill\sneed\nimprovement.
+D 2018-06-21T21:02:08.384
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -453,7 +453,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 79ea30abdcf7a036e0844f9d924587e60486ab846d392443463c47a4345e6194
+F src/db.c d01e620a974589d441c955ec960382e620031bbf9fe94ef742c887337f0f0f80
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c 4edf72b580c1db212fcdb30bd2f6599737e1ad80456726d621dc4b0a06f64a5c
+F src/email.c 9c99a138181a294859f0f34d176f34e3ca0ebe6dd003c93daa85d40b14d777fe
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -849,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31be2e17a4833ce839712cf7757687e035d8cfb6fea16df19c4d4da9e2e9d2b0
-R 5ee18f092486a70dc5cff5522e4aede0
+P adf068faebbe64f380066e8c3ffe58ae976a2e23ad1fdc10e77583c144863c3c
+R 293b6d22484238a3001081f72f8ee54f
 U drh
-Z 14237ee53fa8e087a0d18dccb34d7fcb
+Z 4e6d95a4bfa6ff586e4a320bb01a5c22

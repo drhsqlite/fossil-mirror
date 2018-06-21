@@ -313,6 +313,27 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
   return rc;
 }
 
+/* Prepare a statement using text placed inside a Blob
+** using blob_append_sql().
+*/
+int db_prepare_blob(Stmt *pStmt, Blob *pSql){
+  int rc;
+  char *zSql;
+  pStmt->sql = *pSql;
+  blob_init(pSql, 0, 0);
+  zSql = blob_sql_text(&pStmt->sql);
+  db.nPrepare++;
+  rc = sqlite3_prepare_v3(g.db, zSql, -1, 0, &pStmt->pStmt, 0);
+  if( rc!=0 ){
+    db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
+  }
+  pStmt->pNext = pStmt->pPrev = 0;
+  pStmt->nStep = 0;
+  pStmt->rc = rc;
+  return rc;
+}
+
+
 /*
 ** Return the index of a bind parameter
 */
