@@ -180,6 +180,13 @@ static void append_base64(Blob *pOut, Blob *pMsg){
   }
 }
 
+#if defined(_WIN32) || defined(WIN32)
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
+#endif
+
 /*
 ** Send an email message using whatever sending mechanism is configured
 ** by these settings:
