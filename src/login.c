@@ -732,6 +732,11 @@ void login_page(void){
     @ </form>
   }
   if( g.zLogin && g.perm.Password ){
+    if( email_enabled() ){
+      @ <hr>
+      @ <p>Configure <a href="%R/alerts">Email Alerts</a>
+      @ for user <b>%h(g.zLogin)</b></p>
+    }
     @ <hr />
     @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");

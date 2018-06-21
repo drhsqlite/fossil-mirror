@@ -1024,9 +1024,9 @@ void entry_attribute(
     zVal = zQ;
   }
   @ <input type="text" id="%s(zQParm)" name="%s(zQParm)" value="%h(zVal)" \
-  @ size="%d(width)"
+  @ size="%d(width)" \
   if( disabled ){
-    @ disabled="disabled"
+    @ disabled="disabled" \
   }
   @ /> <b>%s(zLabel)</b>
 }

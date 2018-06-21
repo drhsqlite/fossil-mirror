@@ -95,6 +95,25 @@ void email_schema(void){
   }
 }
 
+/*
+** Return true if email alerts are active.
+*/
+int email_enabled(void){
+  if( !db_table_exists("repository", "subscriber") ) return 0;
+  if( fossil_strcmp(db_get("email-send-method","off"),"off")==0 ) return 0;
+  return 1;
+}
+
+/*
+** Insert a "Subscriber List" submenu link if the current user
+** is an administrator.
+*/
+void email_subscriber_list_link(void){
+  if( g.perm.Admin ){
+    style_submenu_element("Subscriber List","%R/subscribers");
+  }
+}
+
 
 /*
 ** WEBPAGE: setup_email
@@ -115,48 +134,48 @@ void setup_email(void){
   }
   db_begin_transaction();
 
-  style_submenu_element("Subscriber List", "%R/subscribers");
+  email_subscriber_list_link();
   style_header("Email Notification Setup");
   @ <form action="%R/setup_email" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
   login_insert_csrf_secret();
-  multiple_choice_attribute("Email Send Method","email-send-method",
-       "esm", "off", count(azSendMethods)/2, azSendMethods);
+  multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
+       "off", count(azSendMethods)/2, azSendMethods);
   @ <p>How to send email.  The "Pipe to a command"
   @ method is the usual choice in production.
   @ (Property: "email-send-method")</p>
   @ <hr>
-  entry_attribute("Command To Pipe Email To", 80, "esc",
-                   "email-send-command", "sendmail -t", 0);
+  entry_attribute("Command To Pipe Email To", 80, "email-send-command",
+                   "ecmd", "sendmail -t", 0);
   @ <p>When the send method is "pipe to a command", this is the command
   @ that is run.  Email messages are piped into the standard input of this
   @ command.  The command is expected to extract the sender address,
   @ recepient addresses, and subject from the header of the piped email
   @ text.  (Property: "email-send-command")</p>
 
-  entry_attribute("Database In Which To Store Email", 60, "esdb",
-                   "email-send-db", "", 0);
+  entry_attribute("Database In Which To Store Email", 60, "email-send-db",
+                   "esdb", "", 0);
   @ <p>When the send method is "store in a databaes", each email message is
   @ stored in an SQLite database file with the name given here.
   @ (Property: "email-send-db")</p>
 
-  entry_attribute("Directory In Which To Store Email", 60, "esdir",
-                   "email-send-dir", "", 0);
+  entry_attribute("Directory In Which To Store Email", 60, "email-send-dir",
+                   "esdir", "", 0);
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
   @ <hr>
 
-  entry_attribute("\"From\" email address", 40, "ef",
-                   "email-self", "", 0);
+  entry_attribute("\"From\" email address", 40, "email-self",
+                   "eself", "", 0);
   @ <p>This is the email from which email notifications are sent.  The
   @ system administrator should arrange for emails sent to this address
   @ to be handed off to the "fossil email incoming" command so that Fossil
   @ can handle bounces. (Property: "email-self")</p>
   @ <hr>
 
-  entry_attribute("Administrator email address", 40, "ea",
-                   "email-admin", "", 0);
+  entry_attribute("Administrator email address", 40, "email-admin",
+                   "eadmin", "", 0);
   @ <p>This is the email for the human administrator for the system.
   @ Abuse and trouble reports are send here.
   @ (Property: "email-admin")</p>
@@ -568,9 +587,10 @@ void subscribe_page(void){
     /* This person is already signed up for email alerts.  Jump
     ** to the screen that lets them edit their alert preferences.
     */
-    cgi_redirect("%R/alerts");
+    cgi_redirectf("%R/alerts");
     return;
   }
+  email_subscriber_list_link();
   needCaptcha = !login_is_individual();
   if( P("submit")
    && cgi_csrf_safe(1)
@@ -684,7 +704,12 @@ void subscribe_page(void){
   @ </tr>
   @ <tr>
   @  <td></td>
-  @  <td><input type="submit" name="submit" value="Submit"></td>
+  if( needCaptcha && !email_enabled() ){
+    @  <td><input type="submit" name="submit" value="Submit" disabled>
+    @  (Email current disabled)</td>
+  }else{
+    @  <td><input type="submit" name="submit" value="Submit"></td>
+  }
   @ </tr>
   @ </table>
   if( needCaptcha ){
@@ -741,6 +766,7 @@ void alerts_page(void){
     cgi_redirect("subscribe");
     return;
   }
+  email_subscriber_list_link();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
     int sdonotcall = PB("sdonotcall");
     int sdigest = PB("sdigest");
@@ -909,18 +935,27 @@ void subscriber_list_page(void){
     "       semail,"
     "       ssub,"
     "       suname,"
-    "       sverified"
+    "       sverified,"
+    "       sdigest"
     " FROM subscriber"
   );
   db_prepare_blob(&q, &sql);
-  @ <table>
+  @ <table border="1">
+  @ <tr>
+  @ <th>Email
+  @ <th>Events
+  @ <th>Digest-Only?
+  @ <th>User
+  @ <th>Verified?
+  @ </tr>
   while( db_step(&q)==SQLITE_ROW ){
     @ <tr>
     @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
+    @ <td>%h(db_column_text(&q,2))</td>
+    @ <td>%s(db_column_int(&q,5)?"digest":"")</td>
     @ <td>%h(db_column_text(&q,3))</td>
-    @ <td>%h(db_column_text(&q,4))</td>
-    @ <td>%s(db_column_int(&q,5)?"":"unverified")</td>
+    @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
     @ </tr>
   }
   @ </table>
