@@ -1,5 +1,5 @@
-C Provide\san\simplementation\sfor\spopen()\sand\spclose()\son\sWindows\sto\sfix\sthe\sbuild.
-D 2018-06-21T15:02:42.763
+C Strengthen\sthe\scodecheck1.c\sutility\sprogram\sto\shelp\sfind\scases\swhere\squery\nparameters\sare\sused\sin\sunsafe\sways.\s\sNo\sunsafe\susage\sof\squery\sparameters\nwas\sdetected\sin\sthe\scurrent\scode.
+D 2018-06-21T16:40:35.334
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f055760
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 560f9c07b6ba7f9e6778fee962beabe54eebf3a10a8759db0dfb09d0cee8690f
-F src/codecheck1.c 4b4bbebe7285545db72ee94406086a3ddbf1839367df76e7672025428465d43c
+F src/codecheck1.c c9a0fcba1d1f53f290bae46700437e503e41f2b6cd3160dfe1068c3e119fafd2
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
@@ -506,10 +506,10 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c b3c64d1a2257e37a8e6af7926c1e1973aae7b41037cd0672b334f0c6dc24f492
+F src/login.c 7e335c510d2c6c9c9a9317e45b82422092ac28013dde20197cd01dd5db3c513c
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 48ec43c79b42d474d19166c964a4bd4cb44bdf29623eacff99e2ae3b67f1ca21
+F src/main.c 8f821b1763258273db49fbcc51d301e0d12b503aac43a450693316896794d60a
 F src/main.mk e925233bfdf31fd16342e147fe4cd37a3896ea0cd717db67ecb84327c0475377
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -595,7 +595,7 @@ F src/winhttp.c cac4936b567c5b6f8c22b0c10c74400ce6f327d61d1a41f8a41e88ef17079e65
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 668af421d7b956373a7834ad5cccfb98d2020342949aee03ef05c60ac72e68fd
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 39b893f0de94f75e0a2f13ccc1204d4970f31813ce01c804675da7a580ca8a6d
+F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -849,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d230be45cd12378a061088ed052db51b8a3cd38542e41db8143140beafc8b11
-R ab46e1fff300e77b461853d8802d4b03
+P 565b5ff0c29e6b3198f167f171279c1ccc6959ceb47d7ad2c78aa3cb4b6d6c6d
+R b774f4eafd840c83620572aa14b45dbf
 U drh
-Z 4d6d42d02c350726c0fba9bc30adb665
+Z d4d9810c654d5451221582e29df375bc

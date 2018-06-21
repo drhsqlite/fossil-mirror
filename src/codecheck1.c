@@ -42,6 +42,11 @@
 #include <assert.h>
 
 /*
+** Debugging switch
+*/
+static int eVerbose = 0;
+
+/*
 ** Malloc, aborting if it fails.
 */
 void *safe_malloc(int nByte){
@@ -202,6 +207,28 @@ static const char *skip_space(const char *z){
 }
 
 /*
+** Remove excess whitespace and nested "()" from string z.
+*/
+static char *simplify_expr(char *z){
+  int n = (int)strlen(z);
+  while( n>0 ){
+    if( isspace(z[0]) ){
+      z++;
+      n--;
+      continue;
+    }
+    if( z[0]=='(' && z[n-1]==')' ){
+      z++;
+      n -= 2;
+      continue;
+    }
+    break;
+  }
+  z[n] = 0;
+  return z;
+}
+
+/*
 ** Return true if the input is a string literal.
 */
 static int is_string_lit(const char *z){
@@ -270,7 +297,7 @@ static const char *azSafeFunc[] = {
 ** Return true if the input is an argument that is safe to use with %s
 ** while building an SQL statement.
 */
-static int is_s_safe(const char *z){
+static int is_sql_safe(const char *z){
   int len, eType;
   int i;
 
@@ -301,9 +328,23 @@ static int is_s_safe(const char *z){
 }
 
 /*
+** Return true if the input is an argument that is never safe for use
+** with %s.
+*/
+static int never_safe(const char *z){
+  if( strstr(z,"/*safe-for-%s*/")!=0 ) return 0;
+  if( z[0]=='P' ) return 1;  /* CGI macros like P() and PD() */
+  if( strncmp(z,"cgi_param",9)==0 ) return 1;
+  return 0;
+}
+
+/*
 ** Processing flags
 */
-#define FMT_NO_S   0x00001     /* Do not allow %s substitutions */
+#define FMT_SQL   0x00001     /* Generates SQL text */
+#define FMT_HTML  0x00002     /* Generates HTML text */
+#define FMT_URL   0x00004     /* Generates URLs */
+#define FMT_SAFE  0x00008     /* Always safe for %s */
 
 /*
 ** A list of internal Fossil interfaces that take a printf-style format
@@ -315,51 +356,51 @@ struct {
   unsigned fmtFlags;     /* Processing flags */
 } aFmtFunc[] = {
   { "admin_log",               1, 0 },
-  { "blob_append_sql",         2, FMT_NO_S },
+  { "blob_append_sql",         2, FMT_SQL },
   { "blob_appendf",            2, 0 },
-  { "cgi_debug",               1, 0 },
-  { "cgi_panic",               1, 0 },
-  { "cgi_printf",              1, 0 },
-  { "cgi_redirectf",           1, 0 },
-  { "chref",                   2, 0 },
-  { "db_blob",                 2, FMT_NO_S },
-  { "db_debug",                1, FMT_NO_S },
-  { "db_double",               2, FMT_NO_S },
+  { "cgi_debug",               1, FMT_SAFE },
+  { "cgi_panic",               1, FMT_SAFE },
+  { "cgi_printf",              1, FMT_HTML },
+  { "cgi_redirectf",           1, FMT_URL },
+  { "chref",                   2, FMT_URL },
+  { "db_blob",                 2, FMT_SQL },
+  { "db_debug",                1, FMT_SQL },
+  { "db_double",               2, FMT_SQL },
   { "db_err",                  1, 0 },
-  { "db_exists",               1, FMT_NO_S },
+  { "db_exists",               1, FMT_SQL },
   { "db_get_mprintf",          2, 0 },
-  { "db_int",                  2, FMT_NO_S },
-  { "db_int64",                2, FMT_NO_S },
-  { "db_multi_exec",           1, FMT_NO_S },
-  { "db_optional_sql",         2, FMT_NO_S },
-  { "db_prepare",              2, FMT_NO_S },
-  { "db_prepare_ignore_error", 2, FMT_NO_S },
+  { "db_int",                  2, FMT_SQL },
+  { "db_int64",                2, FMT_SQL },
+  { "db_multi_exec",           1, FMT_SQL },
+  { "db_optional_sql",         2, FMT_SQL },
+  { "db_prepare",              2, FMT_SQL },
+  { "db_prepare_ignore_error", 2, FMT_SQL },
   { "db_set_mprintf",          3, 0 },
-  { "db_static_prepare",       2, FMT_NO_S },
-  { "db_text",                 2, FMT_NO_S },
+  { "db_static_prepare",       2, FMT_SQL },
+  { "db_text",                 2, FMT_SQL },
   { "db_unset_mprintf",        2, 0 },
-  { "form_begin",              2, 0 },
-  { "fossil_error",            2, 0 },
-  { "fossil_errorlog",         1, 0 },
-  { "fossil_fatal",            1, 0 },
-  { "fossil_fatal_recursive",  1, 0 },
-  { "fossil_panic",            1, 0 },
-  { "fossil_print",            1, 0 },
-  { "fossil_trace",            1, 0 },
-  { "fossil_warning",          1, 0 },
-  { "href",                    1, 0 },
+  { "form_begin",              2, FMT_URL },
+  { "fossil_error",            2, FMT_SAFE },
+  { "fossil_errorlog",         1, FMT_SAFE },
+  { "fossil_fatal",            1, FMT_SAFE },
+  { "fossil_fatal_recursive",  1, FMT_SAFE },
+  { "fossil_panic",            1, FMT_SAFE },
+  { "fossil_print",            1, FMT_SAFE },
+  { "fossil_trace",            1, FMT_SAFE },
+  { "fossil_warning",          1, FMT_SAFE },
+  { "href",                    1, FMT_URL },
   { "json_new_string_f",       1, 0 },
   { "json_set_err",            2, 0 },
   { "json_warn",               2, 0 },
   { "mprintf",                 1, 0 },
   { "socket_set_errmsg",       1, 0 },
   { "ssl_set_errmsg",          1, 0 },
-  { "style_header",            1, 0 },
-  { "style_set_current_page",  1, 0 },
-  { "style_submenu_element",   2, 0 },
-  { "style_submenu_sql",       3, 0 },
-  { "webpage_error",           1, 0 },
-  { "xhref",                   2, 0 },
+  { "style_header",            1, FMT_HTML },
+  { "style_set_current_page",  1, FMT_URL },
+  { "style_submenu_element",   2, FMT_URL },
+  { "style_submenu_sql",       3, FMT_SQL },
+  { "webpage_error",           1, FMT_SAFE },
+  { "xhref",                   2, FMT_URL },
 };
 
 /*
@@ -466,12 +507,13 @@ static int checkFormatFunc(
   nArg = 0;
   z = zCopy;
   while( z[0] ){
+    char cEnd;
     len = distance_to(z, ',');
-    azArg = safe_realloc((char*)azArg, (sizeof(azArg[0])+1)*(nArg+1));
-    azArg[nArg++] = skip_space(z);
-    if( z[len]==0 ) break;
+    cEnd = z[len];
     z[len] = 0;
-    for(i=len-1; i>0 && isspace(z[i]); i--){ z[i] = 0; }
+    azArg = safe_realloc((char*)azArg, (sizeof(azArg[0])+1)*(nArg+1));
+    azArg[nArg++] = simplify_expr(z);
+    if( cEnd==0 ) break;
     z += len + 1;
   }
   acType = (char*)&azArg[nArg];
@@ -494,14 +536,21 @@ static int checkFormatFunc(
              zFilename, lnFCall, (nArg<fmtArg+k ? "few" : "many"),
              szFName, zFCall, nArg, fmtArg+k);
       nErr++;
-    }else if( fmtFlags & FMT_NO_S ){
+    }else if( (fmtFlags & FMT_SAFE)==0 ){
       for(i=0; i<nArg && i<k; i++){
-        if( (acType[i]=='s' || acType[i]=='z' || acType[i]=='b')
-         && !is_s_safe(azArg[fmtArg+i])
-        ){
-           printf("%s:%d: Argument %d to %.*s() not safe for SQL\n",
-             zFilename, lnFCall, i+fmtArg, szFName, zFCall);
-           nErr++;
+        if( (acType[i]=='s' || acType[i]=='z' || acType[i]=='b') ){
+          const char *zExpr = azArg[fmtArg+i];
+          if( never_safe(zExpr) ){
+            printf("%s:%d: Argument %d to %.*s() is not safe for"
+                   " a query parameter\n",
+               zFilename, lnFCall, i+fmtArg, szFName, zFCall);
+             nErr++;
+   
+          }else if( (fmtFlags & FMT_SQL)!=0 && !is_sql_safe(zExpr) ){
+            printf("%s:%d: Argument %d to %.*s() not safe for SQL\n",
+               zFilename, lnFCall, i+fmtArg, szFName, zFCall);
+             nErr++;
+          }
         }
       }
     }
@@ -510,8 +559,10 @@ static int checkFormatFunc(
     for(i=0; i<nArg; i++){
       printf("   arg[%d]: %s\n", i, azArg[i]);
     }
+  }else if( eVerbose>1 ){
+    printf("%s:%d: %.*s() ok for %d arguments\n",
+      zFilename, lnFCall, szFName, zFCall, nArg);
   }
-
   free((char*)azArg);
   free(zCopy);
   return nErr;
@@ -565,12 +616,20 @@ static int scan_file(const char *zName, const char *zContent){
 /*
 ** Check for format-string design rule violations on all files listed
 ** on the command-line.
+**
+** The eVerbose global variable is incremented with each "-v" argument.
 */
 int main(int argc, char **argv){
   int i;
   int nErr = 0;
   for(i=1; i<argc; i++){
-    char *zFile = read_file(argv[i]);
+    char *zFile;
+    if( strcmp(argv[i],"-v")==0 ){
+      eVerbose++;
+      continue;
+    }
+    if( eVerbose>0 ) printf("Processing %s...\n", argv[i]);
+    zFile = read_file(argv[i]);
     nErr += scan_file(argv[i], zFile);
     free(zFile);
   }
