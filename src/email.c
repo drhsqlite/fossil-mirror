@@ -52,7 +52,7 @@ static const char zEmailInit[] =
 @   subscriberCode BLOB UNIQUE,       -- UUID for subscriber.  External use
 @   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
-@   sverify BOOLEAN,                  -- email address verified
+@   sverified BOOLEAN,                -- email address verified
 @   sdonotcall BOOLEAN,               -- true for Do Not Call 
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
@@ -527,12 +527,12 @@ static int subscribe_error_check(
 */
 static const char zConfirmMsg[] = 
 @ Someone has signed you up for email alerts on the Fossil repository
-@ at %R.
+@ at %s.
 @
 @ To confirm your subscription and begin receiving alerts, click on
 @ the following hyperlink:
 @
-@    %R/alerts/%s
+@    %s/alerts/%s
 @
 @ Save the hyperlink above!  You can reuse this same hyperlink to
 @ unsubscribe or to change the kinds of alerts you receive.
@@ -588,12 +588,12 @@ void subscribe_page(void){
     ssub[nsub] = 0;
     db_multi_exec(
       "INSERT INTO subscriber(subscriberCode,semail,suname,"
-      "  sverify,sdonotcall,sdigest,ssub,sctime,smtime,smip)"
+      "  sverified,sdonotcall,sdigest,ssub,sctime,smtime,smip)"
       "VALUES(randomblob(32),%Q,%Q,%d,0,%d,%Q,"
       " julianday('now'),julianday('now'),%Q)",
       /* semail */    zEAddr,
       /* suname */    needCaptcha==0 ? g.zLogin : 0,
-      /* sverify */   needCaptcha==0,
+      /* sverified */ needCaptcha==0,
       /* sdigest */   PB("di"),
       /* ssub */      ssub,
       /* smip */      g.zIpAddr
@@ -615,7 +615,8 @@ void subscribe_page(void){
       blob_init(&body,0,0);
       blob_appendf(&hdr, "To: %s\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
-      blob_appendf(&body, zConfirmMsg/*works-like:"%s"*/, zCode);
+      blob_appendf(&body, zConfirmMsg/*works-like:"%s%s%s"*/,
+                   g.zBaseURL, g.zBaseURL, zCode);
       email_send(&hdr, &body, 0, 0);
       style_header("Email Alert Verification");
       @ <p>An email has been sent to "%h(zEAddr)". That email contains a
@@ -715,14 +716,16 @@ void alerts_page(void){
   const char *zName = P("name");
   Stmt q;
   int sa, sc, st, sw;
-  int sdigest, sdonotcall, sverify;
+  int sdigest, sdonotcall, sverified;
   const char *ssub;
   const char *semail;
   const char *sctime;
   const char *smtime;
   const char *smip;
+  const char *suname;
   int i;
-
+  int eErr = 0;
+  char *zErr = 0;
 
   login_check_credentials();
   if( !g.perm.EmailAlert ){
@@ -742,42 +745,60 @@ void alerts_page(void){
     int sdigest = PB("sdigest");
     char ssub[10];
     int nsub = 0;
+    const char *suname = 0;
     if( PB("sa") ) ssub[nsub++] = 'a';
     if( PB("sc") ) ssub[nsub++] = 'c';
     if( PB("st") ) ssub[nsub++] = 't';
     if( PB("sw") ) ssub[nsub++] = 'w';
     ssub[nsub] = 0;
+    if( g.perm.Admin ){
+      suname = PT("suname");
+      if( suname && suname[0]==0 ) suname = 0;
+    }
     db_multi_exec(
       "UPDATE subscriber SET"
       " sdonotcall=%d,"
       " sdigest=%d,"
       " ssub=%Q,"
       " smtime=julianday('now'),"
-      " smip=%Q"
+      " smip=%Q,"
+      " suname=COALESCE(%Q,suname)"
       " WHERE subscriberCode=hextoblob(%Q)",
       sdonotcall,
       sdigest,
       ssub,
       g.zIpAddr,
+      suname,
       zName
     );
   }
-  if( PB("dodelete") && P("delete")!=0 && cgi_csrf_safe(1) ){
-    db_multi_exec(
-      "DELETE FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
-      zName
-    );
+  if( P("delete")!=0 && cgi_csrf_safe(1) ){
+    if( !PB("dodelete") ){
+      eErr = 9;
+      zErr = mprintf("Select this checkbox and press \"Unsubscribe\" to"
+                     " unsubscribe");
+    }else{
+      db_multi_exec(
+        "DELETE FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
+        zName
+      );
+      style_header("Email Subscription Deleted");
+      @ <p>The email subscription has been deleted</p>
+      style_footer();
+      return;
+    }
   }
   db_prepare(&q,
     "SELECT"
     "  semail,"
-    "  sverify,"
+    "  sverified,"
     "  sdonotcall,"
     "  sdigest,"
     "  ssub,"
     "  datetime(sctime),"
     "  datetime(smtime),"
-    "  smip"
+    "  smip,"
+    "  suname"
     " FROM subscriber WHERE subscriberCode=hextoblob(%Q)", zName);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
@@ -786,7 +807,7 @@ void alerts_page(void){
   }
   style_header("Update Subscription");
   semail = db_column_text(&q, 0);
-  sverify = db_column_int(&q, 1);
+  sverified = db_column_int(&q, 1);
   sdonotcall = db_column_int(&q, 2);
   sdigest = db_column_int(&q, 3);
   ssub = db_column_text(&q, 4);
@@ -797,7 +818,21 @@ void alerts_page(void){
   sctime = db_column_text(&q, 5);
   smtime = db_column_text(&q, 6);
   smip = db_column_text(&q, 7);
+  suname = db_column_text(&q, 8);
+  if( !g.perm.Admin && !sverified ){
+    db_multi_exec(
+      "UPDATE subscriber SET sverified=1 WHERE subscriberCode=hextoblob(%Q)",
+      zName);
+    @ <h1>Your email alert subscription has been verified!</h1>
+    @ <p>Use the form below to update your subscription information.</p>
+    @ <p>Hint:  Bookmark this page so that you can more easily update
+    @ your subscription information in the future</p>
+  }else{
+    @ <p>Make changes to the email subscription shown below and
+    @ press "Submit".</p>
+  }
   form_begin(0, "%R/alerts");
+  @ <input type="hidden" name="name" value="%h(zName)">
   @ <table class="subscribe">
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
@@ -808,38 +843,45 @@ void alerts_page(void){
     @  <td class='form_label'>IP Address:</td>
     @  <td>%h(smip)</td>
     @ </tr>
+    @ <tr>
+    @  <td class='form_label'>User:</td>
+    @  <td>%h(suname?suname:"")</td>
+    @ </tr>
   }
   @ <tr>
   @  <td class="form_label">Options:</td>
-  @  <td><label><input type="checkbox" name="sa" value="%d(sa)">\
+  @  <td><label><input type="checkbox" name="sa" %s(sa?"checked":"")>\
   @  Announcements</label><br>
-  @  <label><input type="checkbox" name="sc" value="%d(sc)">\
+  @  <label><input type="checkbox" name="sc" %s(sc?"checked":"")>\
   @  Check-ins</label><br>
-  @  <label><input type="checkbox" name="st" value="%d(st)">\
+  @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
   @  Ticket changes</label><br>
-  @  <label><input type="checkbox" name="sw" value="%d(sw)">\
+  @  <label><input type="checkbox" name="sw" %s(sw?"checked":"")>\
   @  Wiki</label><br>
-  @  <label><input type="checkbox" name="sdigest" value="%d(sdigest)">\
+  @  <label><input type="checkbox" name="sdigest" %s(sdigest?"checked":"")>\
   @  Daily digest only</label><br>
   if( g.perm.Admin ){
-    @  <label><input type="checkbox" name="sdonotcall" value="%d(sdonotcall)">\
-    @  Do not call</label><br>
-    @  <label><input type="checkbox" name="sverify" value="%d(sverify)">\
+    @  <label><input type="checkbox" name="sdonotcall" \
+    @  %s(sdonotcall?"checked":"")>Do not call</label><br>
+    @  <label><input type="checkbox" name="sverified" \
+    @  %s(sverified?"checked":"")>\
     @  Verified</label><br>
   }
+  @  <label><input type="checkbox" name="dodelete">
+  @  Unsubscribe</label> \
+  if( eErr==9 ){
+    @ <span class="loginError">&larr; %h(zErr)</span>\
+  }
+  @ <br>
   @ </td></tr>
   @ <tr>
   @  <td></td>
-  @  <td><input type="submit" value="Submit"></td>
-  @ </tr>
-  @ <tr>
-  @  <td></td>
-  @  <td><label><input type="checkbox" name="dodelete" value="0">
-  @  Delete this subscription</label>
-  @  <input type="submit" name="delete" value="Delete"></td>
+  @  <td><input type="submit" name="submit" value="Submit">
+  @  <input type="submit" name="delete" value="Unsubscribe">
   @ </tr>
   @ </table>
   @ </form>
+  fossil_free(zErr);
   db_finalize(&q);
   style_footer();
 }
