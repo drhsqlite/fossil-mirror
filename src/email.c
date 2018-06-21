@@ -180,6 +180,15 @@ void setup_email(void){
   @ Abuse and trouble reports are send here.
   @ (Property: "email-admin")</p>
   @ <hr>
+
+  entry_attribute("Inbound email directory", 40, "email-receive-dir",
+                   "erdir", "", 0);
+  @ <p>Inbound emails can be stored in a directory for analysis as
+  @ a debugging aid.  Put the name of that directory in this entry box.
+  @ Disable saving of inbound email by making this an empty string.
+  @ Abuse and trouble reports are send here.
+  @ (Property: "email-receive-dir")</p>
+  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
@@ -198,6 +207,19 @@ static void append_base64(Blob *pOut, Blob *pMsg){
     blob_append(pOut, zBuf, k);
     blob_append(pOut, "\r\n", 2);
   }
+}
+
+/*
+** Come up with a unique filename in the zDir directory.
+**
+** Space to hold the filename is obtained from mprintf() and must
+** be freed using fossil_free() by the caller.
+*/
+static char *emailTempFilename(const char *zDir){
+  char *zFile = db_text(0,
+     "SELECT %Q||strftime('/%%Y%%m%%d%%H%%M%%S-','now')||hex(randomblob(8))",
+        zDir);
+  return zFile;
 }
 
 #if defined(_WIN32) || defined(WIN32)
@@ -308,15 +330,27 @@ void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
     }
   }else if( strcmp(zDest, "dir")==0 ){
     const char *zDir = db_get("email-send-dir","./");
-    char *zFile = db_text(0,
-        "SELECT %Q||strftime('/%%Y%%m%%d%%H%%M%%S','now')||hex(randomblob(8))",
-        zDir);
+    char *zFile = emailTempFilename(zDir);
     blob_write_to_file(&all, zFile);
     fossil_free(zFile);
   }else if( strcmp(zDest, "stdout")==0 ){
     fossil_print("%s\n", blob_str(&all));
   }
   blob_zero(&all);
+}
+
+/*
+** Analyze and act on a received email.
+**
+** This routine takes ownership of the Blob parameter and is responsible
+** for freeing that blob when it is done with it.
+**
+** This routine acts on all email messages received from the
+** "fossil email inbound" command.
+*/
+void email_receive(Blob *pMsg){
+  /* To Do:  Look for bounce messages and possibly disable subscriptions */
+  blob_zero(pMsg);
 }
 
 /*
@@ -353,6 +387,12 @@ void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
 ** This is the email address for the repository.  Outbound emails add
 ** this email address as the "From:" field.
 */
+/*
+** SETTING: email-receive-dir         width=40
+** Inbound email messages are saved as separate files in this directory,
+** for debugging analysis.  Disable saving of inbound emails omitting
+** this setting, or making it an empty string.
+*/
 
 
 /*
@@ -361,6 +401,10 @@ void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
 ** Usage: %fossil email SUBCOMMAND ARGS...
 **
 ** Subcommands:
+**
+**    inbound [FILE]          Receive an inbound email message.  This message
+**                            is analyzed to see if it is a bounce, and if
+**                            necessary, subscribers may be disabled.
 **
 **    reset                   Hard reset of all email notification tables
 **                            in the repository.  This erases all subscription
@@ -386,6 +430,21 @@ void email_cmd(void){
   email_schema();
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
+  if( strncmp(zCmd, "inbound", nCmd)==0 ){
+    Blob email;
+    const char *zInboundDir = db_get("email-receive-dir","");
+    verify_all_options();
+    if( g.argc!=3 && g.argc!=4 ){
+      usage("inbound [FILE]");
+    }
+    blob_read_from_file(&email, g.argc==3 ? "-" : g.argv[3], ExtFILE);
+    if( zInboundDir[0] ){
+      char *zFN = emailTempFilename(zInboundDir);
+      blob_write_to_file(&email, zFN);
+      fossil_free(zFN);
+    }
+    email_receive(&email);
+  }else
   if( strncmp(zCmd, "reset", nCmd)==0 ){
     Blob yn;
     int c;
@@ -468,7 +527,7 @@ void email_cmd(void){
     }
   }
   else{
-    usage("reset|send|setting");
+    usage("inbound|reset|send|setting");
   }
 }
 
