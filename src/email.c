@@ -50,7 +50,7 @@ static const char zEmailInit[] =
 @ CREATE TABLE repository.subscriber(
 @   subscriberId INTEGER PRIMARY KEY, -- numeric subscriber ID.  Internal use
 @   subscriberCode BLOB UNIQUE,       -- UUID for subscriber.  External use
-@   semail TEXT,                      -- email address
+@   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
 @   sverify BOOLEAN,                  -- email address verified
 @   sdonotcall BOOLEAN,               -- true for Do Not Call 
@@ -453,6 +453,96 @@ void email_cmd(void){
 }
 
 /*
+** Do error checking on a submitted subscription form.  Return TRUE
+** if the submission is valid.  Return false if any problems are seen.
+*/
+static int subscribe_error_check(
+  int *peErr,        /* Type of error */
+  char **pzErr,      /* Error message text */
+  int needCaptcha    /* True if captcha check needed */
+){
+  const char *zEAddr;
+  int i, j, n;
+  char c;
+
+  *peErr = 0;
+  *pzErr = 0;
+
+  /* Check the validity of the email address.
+  **
+  **  (1) Exactly one '@' character.
+  **  (2) No other characters besides [a-zA-Z0-9._-]
+  */
+  zEAddr = P("e");
+  if( zEAddr==0 ) return 0;
+  for(i=j=0; (c = zEAddr[i])!=0; i++){
+    if( c=='@' ){
+      n = i;
+      j++;
+      continue;
+    }
+    if( !fossil_isalnum(c) && c!='.' && c!='_' && c!='-' ){
+      *peErr = 1;
+      *pzErr = mprintf("illegal character in email address: 0x%x '%c'",
+                   c, c);
+      return 0;
+    }
+  }
+  if( j!=1 ){
+    *peErr = 1;
+    *pzErr = mprintf("email address should contain exactly one '@'");
+    return 0;
+  }
+  if( n<1 ){
+    *peErr = 1;
+    *pzErr = mprintf("name missing before '@' in email address");
+    return 0;
+  }
+  if( n>i-5 ){
+    *peErr = 1;
+    *pzErr = mprintf("email domain too short");
+     return 0;
+  }
+
+  /* Verify the captcha */
+  if( needCaptcha && !captcha_is_correct(1) ){
+    *peErr = 2;
+    *pzErr = mprintf("incorrect security code");
+    return 0;
+  }
+
+  /* Check to make sure the email address is available for reuse */
+  if( db_exists("SELECT 1 FROM subscriber WHERE semail=%Q", zEAddr) ){
+    *peErr = 1;
+    *pzErr = mprintf("this email address is used by someone else");
+    return 0;
+  }
+
+  /* If we reach this point, all is well */
+  return 1;
+}
+
+/*
+** Text of email message sent in order to confirm a subscription.
+*/
+static const char zConfirmMsg[] = 
+@ Someone has signed you up for email alerts on the Fossil repository
+@ at %R.
+@
+@ To confirm your subscription and begin receiving alerts, click on
+@ the following hyperlink:
+@
+@    %R/alerts/%s
+@
+@ Save the hyperlink above!  You can reuse this same hyperlink to
+@ unsubscribe or to change the kinds of alerts you receive.
+@
+@ If you do not want to subscribe, you can simply ignore this message.
+@ You will not be contacted again.
+@
+;
+
+/*
 ** WEBPAGE: subscribe
 **
 ** Allow users to subscribe to email notifications, or to change or
@@ -463,6 +553,8 @@ void subscribe_page(void){
   unsigned int uSeed;
   const char *zDecoded;
   char *zCaptcha;
+  char *zErr = 0;
+  int eErr = 0;
 
   login_check_credentials();
   if( !g.perm.EmailAlert ){
@@ -472,17 +564,78 @@ void subscribe_page(void){
   if( login_is_individual()
    && db_exists("SELECT 1 FROM subscriber WHERE suname=%Q",g.zLogin)
   ){
+    /* This person is already signed up for email alerts.  Jump
+    ** to the screen that lets them edit their alert preferences.
+    */
     cgi_redirect("%R/alerts");
     return;
   }
-  style_header("Email Subscription");
-  needCaptcha = P("usecaptcha")!=0 || !login_is_individual();
+  needCaptcha = !login_is_individual();
+  if( P("submit")
+   && cgi_csrf_safe(1)
+   && subscribe_error_check(&eErr,&zErr,needCaptcha)
+  ){
+    /* A validated request for a new subscription has been received. */
+    char ssub[20];
+    const char *zEAddr = P("e");
+    sqlite3_int64 id;   /* New subscriber Id */
+    const char *zCode;  /* New subscriber code (in hex) */
+    int nsub = 0;
+    if( PB("sa") ) ssub[nsub++] = 'a';
+    if( PB("sc") ) ssub[nsub++] = 'c';
+    if( PB("st") ) ssub[nsub++] = 't';
+    if( PB("sw") ) ssub[nsub++] = 'w';
+    ssub[nsub] = 0;
+    db_multi_exec(
+      "INSERT INTO subscriber(subscriberCode,semail,suname,"
+      "  sverify,sdonotcall,sdigest,ssub,sctime,smtime,smip)"
+      "VALUES(randomblob(32),%Q,%Q,%d,0,%d,%Q,"
+      " julianday('now'),julianday('now'),%Q)",
+      /* semail */    zEAddr,
+      /* suname */    needCaptcha==0 ? g.zLogin : 0,
+      /* sverify */   needCaptcha==0,
+      /* sdigest */   PB("di"),
+      /* ssub */      ssub,
+      /* smip */      g.zIpAddr
+    );
+    id = db_last_insert_rowid();
+    zCode = db_text(0,
+         "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
+         id);
+    if( !needCaptcha ){
+      /* The new subscription has been added on behalf of a logged-in user.
+      ** No verification is required.  Jump immediately to /alerts page.
+      */
+      cgi_redirectf("%R/alerts/%s", zCode);
+      return;
+    }else{
+      /* We need to send a verification email */
+      Blob hdr, body;
+      blob_init(&hdr,0,0);
+      blob_init(&body,0,0);
+      blob_appendf(&hdr, "To: %s\n", zEAddr);
+      blob_appendf(&hdr, "Subject: Subscription verification\n");
+      blob_appendf(&body, zConfirmMsg/*works-like:"%s"*/, zCode);
+      email_send(&hdr, &body, 0, 0);
+      style_header("Email Alert Verification");
+      @ <p>An email has been sent to "%h(zEAddr)". That email contains a
+      @ hyperlink that you must click on in order to activate your
+      @ subscription.</p>
+      style_footer();
+    }
+    return;
+  }
+  style_header("Signup For Email Alerts");
+  @ <p>To receive email notifications for changes to this
+  @ repository, fill out the form below and press "Submit" button.</p>
   form_begin(0, "%R/subscribe");
   @ <table class="subscribe">
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
   @  <td><input type="text" name="e" value="%h(PD("e",""))" size="30"></td>
-  @  <td></td>
+  if( eErr==1 ){
+    @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+  }
   @ </tr>
   if( needCaptcha ){
     uSeed = captcha_seed();
@@ -491,8 +644,10 @@ void subscribe_page(void){
     @ <tr>
     @  <td class="form_label">Security Code:</td>
     @  <td><input type="text" name="captcha" value="" size="30">
-    @  <input type="hidden" name="usecaptcha" value="1"></td>
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
+    if( eErr==2 ){
+      @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+    }
     @ </tr>
   }
   if( g.perm.Admin ){
@@ -500,25 +655,34 @@ void subscribe_page(void){
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(PD("suname",g.zLogin))" \
     @  size="30"></td>
-    @  <td></td>
+    if( eErr==3 ){
+      @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+    }
     @ </tr>
   }
   @ <tr>
   @  <td class="form_label">Options:</td>
-  @  <td><label><input type="checkbox" name="sa" value="%d(P10("sa"))">\
+  @  <td><label><input type="checkbox" name="sa" %s(PCK("sa"))>\
   @  Announcements</label><br>
-  @  <label><input type="checkbox" name="sc" value="%d(P01("sc"))">\
+  @  <label><input type="checkbox" name="sc" %s(PCK("sc"))>\
   @  Check-ins</label><br>
-  @  <label><input type="checkbox" name="st" value="%d(P01("st"))">\
+  @  <label><input type="checkbox" name="st" %s(PCK("st"))>\
   @  Ticket changes</label><br>
-  @  <label><input type="checkbox" name="sw" value="%d(P01("sw"))">\
+  @  <label><input type="checkbox" name="sw" %s(PCK("sw"))>\
   @  Wiki</label><br>
-  @  <label><input type="checkbox" name="di" value="%d(P01("di"))">\
-  @  Daily digest only</label><br></td>
+  @  <label><input type="checkbox" name="di" %s(PCK("di"))>\
+  @  Daily digest only</label><br>
+  if( g.perm.Admin ){
+    @  <label><input type="checkbox" name="vi" %s(PCK("vi"))>\
+    @  Verified</label><br>
+    @  <label><input type="checkbox" name="dnc" %s(PCK("dnc"))>\
+    @  Do not call</label><br>
+  }
+  @ </td>
   @ </tr>
   @ <tr>
   @  <td></td>
-  @  <td><input type="submit" value="Submit"></td>
+  @  <td><input type="submit" name="submit" value="Submit"></td>
   @ </tr>
   @ </table>
   if( needCaptcha ){
@@ -529,6 +693,7 @@ void subscribe_page(void){
     @ </td></tr></table></div>
   }
   @ </form>
+  fossil_free(zErr);
   style_footer();
 }
 
