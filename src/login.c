@@ -523,7 +523,7 @@ void login_page(void){
     }else if( zQS[0]!=0 ){
       zQS = mprintf("?%s&redir=1", zQS);
     }
-    cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    cgi_redirectf("%s%T%s", g.zHttpsURL, P("PATH_INFO"), zQS);
     return;
   }
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,

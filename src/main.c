@@ -1639,7 +1639,7 @@ static void process_one_web_page(
     int iSkin = zPathInfo[6] - '0';
     char *zNewScript;
     skin_use_draft(iSkin);
-    zNewScript = mprintf("%s/draft%d", P("SCRIPT_NAME"), iSkin);
+    zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
     if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
