@@ -456,6 +456,14 @@ void email_receive(Blob *pMsg){
 **
 ** Subcommands:
 **
+**    exec                    Compose and send pending email alerts.
+**                            Some installations may want to do this via
+**                            a cron-job to make sure alerts are sent
+**                            in a timely manner.
+**                            Options:
+**
+**                               --digest     Send digests
+**
 **    inbound [FILE]          Receive an inbound email message.  This message
 **                            is analyzed to see if it is a bounce, and if
 **                            necessary, subscribers may be disabled.
@@ -476,6 +484,10 @@ void email_receive(Blob *pMsg){
 **
 **    settings [NAME VALUE]   With no arguments, list all email settings.
 **                            Or change the value of a single email setting.
+**
+**    subscribers [PATTERN]   List all subscribers matching PATTERN.
+**
+**    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
 void email_cmd(void){
   const char *zCmd;
@@ -484,6 +496,12 @@ void email_cmd(void){
   email_schema();
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
+  if( strncmp(zCmd, "exec", nCmd)==0 ){
+    u32 eFlags = 0;
+    if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
+    verify_all_options();
+    email_send_alerts(eFlags);
+  }else
   if( strncmp(zCmd, "inbound", nCmd)==0 ){
     Blob email;
     const char *zInboundDir = db_get("email-receive-dir","");
@@ -566,8 +584,8 @@ void email_cmd(void){
     blob_zero(&hdr);
     blob_zero(&body);
     blob_zero(&prompt);
-  }
-  else if( strncmp(zCmd, "settings", nCmd)==0 ){
+  }else
+  if( strncmp(zCmd, "settings", nCmd)==0 ){
     int isGlobal = find_option("global",0,0)!=0;
     int nSetting;
     const Setting *pSetting = setting_info(&nSetting);
@@ -588,9 +606,37 @@ void email_cmd(void){
       if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
       print_setting(pSetting);
     }
-  }
-  else{
-    usage("inbound|reset|send|setting");
+  }else
+  if( strncmp(zCmd, "subscribers", nCmd)==0 ){
+    Stmt q;
+    verify_all_options();
+    if( g.argc!=3 && g.argc!=4 ) usage("subscribers [PATTERN]");
+    if( g.argc==4 ){
+      char *zPattern = g.argv[3];
+      db_prepare(&q,
+        "SELECT semail FROM subscriber"
+        " WHERE semail LIKE '%%%q%%' OR suname LIKE '%%%q%%'"
+        "  OR semail GLOB '*%q*' or suname GLOB '*%q*'"
+        " ORDER BY semail",
+        zPattern, zPattern, zPattern, zPattern);
+    }else{
+      db_prepare(&q,
+        "SELECT semail FROM subscriber"
+        " ORDER BY semail");
+    }
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%s\n", db_column_text(&q, 0));
+    }
+    db_finalize(&q);
+  }else
+  if( strncmp(zCmd, "unsubscribe", nCmd)==0 ){
+    verify_all_options();
+    if( g.argc!=4 ) usage("unsubscribe EMAIL");
+    db_multi_exec(
+      "DELETE FROM subscriber WHERE semail=%Q", g.argv[3]);
+  }else
+  {
+    usage("exec|inbound|reset|send|setting|subscribers|unsubscribe");
   }
 }
 
@@ -1396,6 +1442,27 @@ void test_generate_alert_cmd(void){
   db_end_transaction(0);
 }
 
+/*
+** COMMAND:  test-add-alerts
+**
+** Usage: %fossil test-add-alerts EVENTID ...
+**
+** Add one or more events to the pending_alert queue.  Use this
+** command during testing to force email notifications for specific
+** events.
+*/
+void test_add_alert_cmd(void){
+  int i;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  db_begin_transaction();
+  email_schema();
+  for(i=2; i<g.argc; i++){
+    db_multi_exec("INSERT INTO pending_alert(eventId) VALUES(%Q)", g.argv[i]);
+  }
+  db_end_transaction(0);
+}
+
 #if INTERFACE
 /*
 ** Flags for email_send_alerts()
@@ -1418,13 +1485,14 @@ void email_send_alerts(u32 flags){
   const char *zRepoName;
   const char *zFrom;
 
-  if( !email_enabled() ) return;
+  db_begin_transaction();
+  if( !email_enabled() ) goto send_alerts_done;
   zUrl = db_get("email-url",0);
-  if( zUrl==0 ) return;
+  if( zUrl==0 ) goto send_alerts_done;
   zRepoName = db_get("email-subname",0);
-  if( zRepoName==0 ) return;
+  if( zRepoName==0 ) goto send_alerts_done;
   zFrom = db_get("email-self",0);
-  if( zFrom==0 ) return;
+  if( zFrom==0 ) goto send_alerts_done;
   db_multi_exec(
     "DROP TABLE IF EXISTS temp.wantalert;"
     "CREATE TEMP TABLE wantalert(eventId TEXT);"
@@ -1495,4 +1563,6 @@ void email_send_alerts(u32 flags){
     }
     db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep");
   }
+send_alerts_done:
+  db_end_transaction(0);
 }
