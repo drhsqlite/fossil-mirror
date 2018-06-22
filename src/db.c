@@ -912,7 +912,7 @@ void db_hextoblob(
   unsigned char *zOut;
   if( zIn==0 ) return;
   if( nIn&1 ) return;
-  if( !validate16(zIn, nIn) ) return;
+  if( !validate16((const char*)zIn, nIn) ) return;
   zOut = sqlite3_malloc64( nIn/2 );
   if( zOut==0 ){
     sqlite3_result_error_nomem(context);
@@ -921,9 +921,6 @@ void db_hextoblob(
   decode16(zIn, zOut, nIn);
   sqlite3_result_blob(context, zOut, nIn/2, sqlite3_free);
 }
-
-/*
-** 
 
 /*
 ** Register the SQL functions that are useful both to the internal

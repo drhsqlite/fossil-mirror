@@ -543,7 +543,6 @@ void email_cmd(void){
   }
   else if( strncmp(zCmd, "settings", nCmd)==0 ){
     int isGlobal = find_option("global",0,0)!=0;
-    int i;
     int nSetting;
     const Setting *pSetting = setting_info(&nSetting);
     db_open_config(1, 0);
@@ -669,7 +668,7 @@ void subscribe_page(void){
   int needCaptcha;
   unsigned int uSeed;
   const char *zDecoded;
-  char *zCaptcha;
+  char *zCaptcha = 0;
   char *zErr = 0;
   int eErr = 0;
 
@@ -842,11 +841,8 @@ void alerts_page(void){
   int sdigest, sdonotcall, sverified;
   const char *ssub;
   const char *semail;
-  const char *sctime;
-  const char *smtime;
   const char *smip;
   const char *suname;
-  int i;
   int eErr = 0;
   char *zErr = 0;
 
@@ -919,8 +915,6 @@ void alerts_page(void){
     "  sdonotcall,"
     "  sdigest,"
     "  ssub,"
-    "  datetime(sctime),"
-    "  datetime(smtime),"
     "  smip,"
     "  suname"
     " FROM subscriber WHERE subscriberCode=hextoblob(%Q)", zName);
@@ -939,10 +933,8 @@ void alerts_page(void){
   sc = strchr(ssub,'c')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
-  sctime = db_column_text(&q, 5);
-  smtime = db_column_text(&q, 6);
-  smip = db_column_text(&q, 7);
-  suname = db_column_text(&q, 8);
+  smip = db_column_text(&q, 5);
+  suname = db_column_text(&q, 6);
   if( !g.perm.Admin && !sverified ){
     db_multi_exec(
       "UPDATE subscriber SET sverified=1 WHERE subscriberCode=hextoblob(%Q)",

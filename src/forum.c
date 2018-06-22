@@ -103,9 +103,7 @@ void forum_page(void){
     while( db_step(&q)==SQLITE_ROW ){
       int id = db_column_int(&q, 0);
       const char *zUser = db_column_text(&q, 1);
-      const char *zStat = db_column_text(&q, 2);
       const char *zMime = db_column_text(&q, 3);
-      const char *zIp = db_column_text(&q, 4);
       int iDepth = db_column_int(&q, 7);
       double rMTime = db_column_double(&q, 8);
       char *zAge = db_timespan_name(rNow - rMTime);
@@ -259,7 +257,6 @@ void forum_edit_page(void){
   int parentId;
   char *zErr = 0;
   login_check_credentials();
-  const char *zBody;
   const char *zMime;
   const char *zSub;
   if( !g.perm.WrForum ){ login_needed(g.anon.WrForum); return; }
