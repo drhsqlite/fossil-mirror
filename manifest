@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarnings.
-D 2018-06-22T01:28:10.159
+C Add\sthe\s/unsubscribe\spage.
+D 2018-06-22T03:17:00.384
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c 7e20f79d5a22fddee8b0fcb213b663ef734fc9ed83ba15c6afa858f1e781a2f6
+F src/email.c e3cc67d6cdba2a6a906834007f1ace0d0641e16479b1d7f1e40bf9e6ca50ef68
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -849,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c4b92ad3e27bb17bdde5ce5005f6b12852513b80a77581f6b1e39a93e402a53
-R 4c865a954e790c512a329a33f8943fa3
+P 5fde17bbbc2cba69d3f8e2af67bf12890d9a7a13b8f19c8b2fb60445ce810b58
+R 71acef2e4c6349b6d6be921378b8f5ce
 U drh
-Z c416fc1f4da5e2079487dd6cfa51da75
+Z 0e2e7afb2e2aaeaca69128a8cc0e3290

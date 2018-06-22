@@ -154,7 +154,7 @@ void setup_email(void){
     "off",  "Disabled",
     "pipe", "Pipe to a command",
     "db",   "Store in a database",
-    "file", "Store in a directory"
+    "dir",  "Store in a directory"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -573,9 +573,9 @@ void email_cmd(void){
 ** if the submission is valid.  Return false if any problems are seen.
 */
 static int subscribe_error_check(
-  int *peErr,        /* Type of error */
-  char **pzErr,      /* Error message text */
-  int needCaptcha    /* True if captcha check needed */
+  int *peErr,           /* Type of error */
+  char **pzErr,         /* Error message text */
+  int needCaptcha       /* True if captcha check needed */
 ){
   const char *zEAddr;
   int i, j, n;
@@ -821,6 +821,31 @@ void subscribe_page(void){
 }
 
 /*
+** Either shutdown or completely delete a subscription entry given
+** by the hex value zName.  Then paint a webpage that explains that
+** the entry has been removed.
+*/
+static void email_unsubscribe(const char *zName){
+  char *zEmail;
+  zEmail = db_text(0, "SELECT semail FROM subscriber"
+                      " WHERE subscriberCode=hextoblob(%Q)", zName);
+  if( zEmail==0 ){
+    style_header("Unsubscribe Fail");
+    @ <p>Unable to locate a subscriber with the requested key</p>
+  }else{
+    db_multi_exec(
+      "DELETE FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
+      zName
+    );
+    style_header("Unsubscribed");
+    @ <p>The "%h(zEmail)" email address has been delisted.
+    @ All traces of that email address have been removed</p>
+  }
+  style_footer();
+  return;
+}
+
+/*
 ** WEBPAGE: alerts
 **
 ** Edit email alert and notification settings.
@@ -898,13 +923,7 @@ void alerts_page(void){
       zErr = mprintf("Select this checkbox and press \"Unsubscribe\" to"
                      " unsubscribe");
     }else{
-      db_multi_exec(
-        "DELETE FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
-        zName
-      );
-      style_header("Email Subscription Deleted");
-      @ <p>The email subscription has been deleted</p>
-      style_footer();
+      email_unsubscribe(zName);
       return;
     }
   }
@@ -999,6 +1018,148 @@ void alerts_page(void){
   @ </form>
   fossil_free(zErr);
   db_finalize(&q);
+  style_footer();
+}
+
+/* This is the message that gets sent to describe how to change
+** or modify a subscription
+*/
+static const char zUnsubMsg[] = 
+@ To changes your subscription settings at %s visit this link:
+@
+@    %s/alerts/%s
+@
+@ To completely unsubscribe from %s, visit the following link:
+@
+@    %s/unsubscribe/%s
+;
+
+/*
+** WEBPAGE: unsubscribe
+**
+** Users visit this page to be delisted from email alerts.
+**
+** If a valid subscriber code is supplied in the name= query parameter,
+** then that subscriber is delisted.
+**
+** Otherwise, If the users is logged in, then they are redirected
+** to the /alerts page where they have an unsubscribe button.
+**
+** Non-logged-in users with no name= query parameter are invited to enter
+** an email address to which will be sent the unsubscribe link that
+** contains the correct subscriber code.
+*/
+void unsubscribe_page(void){
+  const char *zName = P("name");
+  char *zErr = 0;
+  int eErr = 0;
+  unsigned int uSeed;
+  const char *zDecoded;
+  char *zCaptcha = 0;
+  int dx;
+  int bSubmit;
+  const char *zEAddr;
+  char *zCode = 0;
+
+  /* If a valid subscriber code is supplied, then unsubscribe immediately.
+  */
+  if( zName 
+   && db_exists("SELECT 1 FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
+                zName)
+  ){
+    email_unsubscribe(zName);
+    return;
+  }
+
+  /* Logged in users are redirected to the /alerts page */
+  login_check_credentials();
+  if( login_is_individual() ){
+    cgi_redirectf("%R/alerts");
+    return;
+  }
+
+  zEAddr = PD("e","");
+  dx = atoi(PD("dx","0"));
+  bSubmit = P("submit")!=0 && P("e")!=0 && cgi_csrf_safe(1);
+  if( bSubmit ){
+    if( !captcha_is_correct(1) ){
+      eErr = 2;
+      zErr = mprintf("enter the security code shown below");
+      bSubmit = 0;
+    }
+  }
+  if( bSubmit ){
+    zCode = db_text(0,"SELECT hex(subscriberCode) FROM subscriber"
+                      " WHERE semail=%Q", zEAddr);
+    if( zCode==0 ){
+      eErr = 1;
+      zErr = mprintf("not a valid email address");
+      bSubmit = 0;
+    }
+  }
+  if( bSubmit ){
+    /* If we get this far, it means that a valid unsubscribe request has
+    ** been submitted.  Send the appropriate email. */
+    Blob hdr, body;
+    blob_init(&hdr,0,0);
+    blob_init(&body,0,0);
+    blob_appendf(&hdr, "To: %s\n", zEAddr);
+    blob_appendf(&hdr, "Subject: Unsubscribe Instructions\n");
+    blob_appendf(&body, zUnsubMsg/*works-like:"%s%s%s%s%s%s"*/,
+                  g.zBaseURL, g.zBaseURL, zCode, g.zBaseURL, g.zBaseURL, zCode);
+    email_send(&hdr, &body, 0, 0);
+    style_header("Unsubscribe Instructions Sent");
+    @ <p>An email has been sent to "%h(zEAddr)" that explains how to
+    @ unsubscribe and/or modify your subscription settings</p>
+    style_footer();
+    return;
+  }  
+
+  /* Non-logged-in users have to enter an email address to which is
+  ** sent a message containing the unsubscribe link.
+  */
+  style_header("Unsubscribe Request");
+  @ <p>Fill out the form below to request an email message that will
+  @ explain how to unsubscribe and/or change your subscription settings.</p>
+  @
+  form_begin(0, "%R/unsubscribe");
+  @ <table class="subscribe">
+  @ <tr>
+  @  <td class="form_label">Email&nbsp;Address:</td>
+  @  <td><input type="text" name="e" value="%h(zEAddr)" size="30"></td>
+  if( eErr==1 ){
+    @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+  }
+  @ </tr>
+  uSeed = captcha_seed();
+  zDecoded = captcha_decode(uSeed);
+  zCaptcha = captcha_render(zDecoded);
+  @ <tr>
+  @  <td class="form_label">Security Code:</td>
+  @  <td><input type="text" name="captcha" value="" size="30">
+  @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
+  if( eErr==2 ){
+    @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+  }
+  @ </tr>
+  @ <tr>
+  @  <td class="form_label">Options:</td>
+  @  <td><label><input type="radio" name="dx" value="0" %s(dx?"":"checked")>\
+  @  Modify subscription</label><br>
+  @  <label><input type="radio" name="dx" value="1" %s(dx?"checked":"")>\
+  @  Completely unsubscribe</label><br>
+  @ <tr>
+  @  <td></td>
+  @  <td><input type="submit" name="submit" value="Submit"></td>
+  @ </tr>
+  @ </table>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ %h(zCaptcha)
+  @ </pre>
+  @ Enter the 8 characters above in the "Security Code" box
+  @ </td></tr></table></div>
+  @ </form>
+  fossil_free(zErr);
   style_footer();
 }
 
