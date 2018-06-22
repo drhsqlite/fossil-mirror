@@ -134,13 +134,20 @@ int email_enabled(void){
   return 1;
 }
 
+
+
 /*
 ** Insert a "Subscriber List" submenu link if the current user
 ** is an administrator.
 */
-void email_subscriber_list_link(void){
+void email_submenu_common(void){
   if( g.perm.Admin ){
-    style_submenu_element("Subscriber List","%R/subscribers");
+    if( fossil_strcmp(g.zPath,"subscribers") ){
+      style_submenu_element("List Subscribers","%R/subscribers");
+    }
+    if( fossil_strcmp(g.zPath,"subscribe") ){
+      style_submenu_element("Add New Subscriber","%R/subscribe");
+    }
   }
 }
 
@@ -164,7 +171,7 @@ void setup_email(void){
   }
   db_begin_transaction();
 
-  email_subscriber_list_link();
+  email_submenu_common();
   style_header("Email Notification Setup");
   @ <form action="%R/setup_email" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
@@ -754,11 +761,22 @@ void subscribe_page(void){
   ){
     /* This person is already signed up for email alerts.  Jump
     ** to the screen that lets them edit their alert preferences.
+    ** Except, administrators can create subscriptions for others so
+    ** do not jump for them.
     */
-    cgi_redirectf("%R/alerts");
-    return;
+    if( g.perm.Admin ){
+      /* Admins get a link to admin their own account, but they
+      ** stay on this page so that they can create subscriptions
+      ** for other people. */
+      style_submenu_element("My Subscription","%R/alerts");
+    }else{
+      /* Everybody else jumps to the page to administer their own
+      ** account only. */
+      cgi_redirectf("%R/alerts");
+      return;
+    }
   }
-  email_subscriber_list_link();
+  email_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
    && cgi_csrf_safe(1)
@@ -770,6 +788,9 @@ void subscribe_page(void){
     sqlite3_int64 id;   /* New subscriber Id */
     const char *zCode;  /* New subscriber code (in hex) */
     int nsub = 0;
+    const char *suname = PT("suname");
+    if( suname==0 && needCaptcha==0 && !g.perm.Admin ) suname = g.zLogin;
+    if( suname && suname[0]==0 ) suname = 0;
     if( PB("sa") ) ssub[nsub++] = 'a';
     if( PB("sc") ) ssub[nsub++] = 'c';
     if( PB("st") ) ssub[nsub++] = 't';
@@ -781,7 +802,7 @@ void subscribe_page(void){
       "VALUES(randomblob(32),%Q,%Q,%d,0,%d,%Q,"
       " julianday('now'),julianday('now'),%Q)",
       /* semail */    zEAddr,
-      /* suname */    needCaptcha==0 ? g.zLogin : 0,
+      /* suname */    suname,
       /* sverified */ needCaptcha==0,
       /* sdigest */   PB("di"),
       /* ssub */      ssub,
@@ -956,38 +977,55 @@ void alerts_page(void){
     cgi_redirect("subscribe");
     return;
   }
-  email_subscriber_list_link();
+  email_submenu_common();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
     int sdonotcall = PB("sdonotcall");
     int sdigest = PB("sdigest");
     char ssub[10];
     int nsub = 0;
-    const char *suname = 0;
     if( PB("sa") ) ssub[nsub++] = 'a';
     if( PB("sc") ) ssub[nsub++] = 'c';
     if( PB("st") ) ssub[nsub++] = 't';
     if( PB("sw") ) ssub[nsub++] = 'w';
     ssub[nsub] = 0;
     if( g.perm.Admin ){
-      suname = PT("suname");
+      const char *suname = PT("suname");
       if( suname && suname[0]==0 ) suname = 0;
+      int sverified = PB("sverified");
+      db_multi_exec(
+        "UPDATE subscriber SET"
+        " sdonotcall=%d,"
+        " sdigest=%d,"
+        " ssub=%Q,"
+        " smtime=julianday('now'),"
+        " smip=%Q,"
+        " suname=%Q,"
+        " sverified=%d"
+        " WHERE subscriberCode=hextoblob(%Q)",
+        sdonotcall,
+        sdigest,
+        ssub,
+        g.zIpAddr,
+        suname,
+        sverified,
+        zName
+      );
+    }else{
+      db_multi_exec(
+        "UPDATE subscriber SET"
+        " sdonotcall=%d,"
+        " sdigest=%d,"
+        " ssub=%Q,"
+        " smtime=julianday('now'),"
+        " smip=%Q,"
+        " WHERE subscriberCode=hextoblob(%Q)",
+        sdonotcall,
+        sdigest,
+        ssub,
+        g.zIpAddr,
+        zName
+      );
     }
-    db_multi_exec(
-      "UPDATE subscriber SET"
-      " sdonotcall=%d,"
-      " sdigest=%d,"
-      " ssub=%Q,"
-      " smtime=julianday('now'),"
-      " smip=%Q,"
-      " suname=COALESCE(%Q,suname)"
-      " WHERE subscriberCode=hextoblob(%Q)",
-      sdonotcall,
-      sdigest,
-      ssub,
-      g.zIpAddr,
-      suname,
-      zName
-    );
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
@@ -1051,8 +1089,9 @@ void alerts_page(void){
     @  <td>%h(smip)</td>
     @ </tr>
     @ <tr>
-    @  <td class='form_label'>User:</td>
-    @  <td>%h(suname?suname:"")</td>
+    @  <td class="form_label">User:</td>
+    @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
+    @  size="30"></td>
     @ </tr>
   }
   @ <tr>
@@ -1250,6 +1289,7 @@ void subscriber_list_page(void){
     fossil_redirect_home();
     return;
   }
+  email_submenu_common();
   style_header("Subscriber List");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
