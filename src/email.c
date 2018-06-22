@@ -65,12 +65,12 @@ static const char zEmailInit[] =
 @ 
 @ -- Email notifications that need to be sent.
 @ --
-@ -- If the eventid key is an integer, then it corresponds to the
-@ -- EVENT.OBJID table.  Other kinds of eventids are reserved for
-@ -- future expansion.
+@ -- The first character of the eventid determines the event type.
+@ -- Remaining characters determine the specific event.  For example,
+@ -- 'c4413' means check-in with rid=4413.
 @ --
-@ CREATE TABLE repository.email_pending(
-@   eventid ANY PRIMARY KEY,          -- Object that changed
+@ CREATE TABLE repository.pending_alert(
+@   eventid TEXT PRIMARY KEY,         -- Object that changed
 @   sentSep BOOLEAN DEFAULT false,    -- individual emails sent
 @   sentDigest BOOLEAN DEFAULT false  -- digest emails sent
 @ ) WITHOUT ROWID;
@@ -92,7 +92,36 @@ static const char zEmailInit[] =
 void email_schema(void){
   if( !db_table_exists("repository", "subscriber") ){
     db_multi_exec(zEmailInit/*works-like:""*/);
+    email_triggers_enable();
   }
+}
+
+/*
+** Enable triggers that automatically populate the event_pending
+** table.
+*/
+void email_triggers_enable(void){
+  if( !db_table_exists("repository","pending_alert") ) return;
+  db_multi_exec(
+    "CREATE TRIGGER IF NOT EXISTS repository.email_trigger1\n"
+    "AFTER INSERT ON event BEGIN\n"
+    "  INSERT INTO pending_alert(eventid)\n"
+    "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
+    "    ON CONFLICT(eventId) DO NOTHING;\n"
+    "END;"
+  );
+}
+
+/*
+** Disable triggers the event_pending triggers.
+**
+** This must be called before rebuilding the EVENT table, for example
+** via the "fossil rebuild" command.
+*/
+void email_triggers_disable(void){
+  db_multi_exec(
+    "DROP TRIGGER IF EXISTS repository.email_trigger1;\n"
+  );
 }
 
 /*
@@ -446,24 +475,33 @@ void email_cmd(void){
     email_receive(&email);
   }else
   if( strncmp(zCmd, "reset", nCmd)==0 ){
-    Blob yn;
     int c;
-    fossil_print(
-        "This will erase all content in the repository tables, thus\n"
-        "deleting all subscriber information.  The information will be\n"
-        "unrecoverable.\n");
-    prompt_user("Continue? (y/N) ", &yn);
-    c = blob_str(&yn)[0];
+    int bForce = find_option("force","f",0)!=0;
+    verify_all_options();
+    if( bForce ){
+      c = 'y';
+    }else{
+      Blob yn;
+      fossil_print(
+          "This will erase all content in the repository tables, thus\n"
+          "deleting all subscriber information.  The information will be\n"
+          "unrecoverable.\n");
+      prompt_user("Continue? (y/N) ", &yn);
+      c = blob_str(&yn)[0];
+      blob_zero(&yn);
+    }
     if( c=='y' ){
+      email_triggers_disable();
       db_multi_exec(
         "DROP TABLE IF EXISTS subscriber;\n"
-        "DROP TABLE IF EXISTS subscription;\n"
-        "DROP TABLE IF EXISTS email_pending;\n"
+        "DROP TABLE IF EXISTS pending_alert;\n"
         "DROP TABLE IF EXISTS email_bounce;\n"
+        /* Legacy */
+        "DROP TABLE IF EXISTS email_pending;\n"
+        "DROP TABLE IF EXISTS subscription;\n"
       );
       email_schema();
     }
-    blob_zero(&yn);
   }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
     Blob prompt, body, hdr;
