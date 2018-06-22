@@ -2338,6 +2338,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
 **   --offset P           skip P changes
+**   --sql                Show the SQL used to generate the timeline
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = technical notes only
@@ -2369,6 +2370,7 @@ void timeline_cmd(void){
   int iOffset;
   const char *zFilePattern = 0;
   Blob treeName;
+  int showSql = 0;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
@@ -2379,6 +2381,7 @@ void timeline_cmd(void){
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   zFilePattern = find_option("path","p",1);
+  showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
     zLimit = find_option("count",0,1);
@@ -2522,7 +2525,10 @@ void timeline_cmd(void){
      * will not determine the end-marker correctly! */
     blob_append_sql(&sql, "\n LIMIT -1 OFFSET %d", iOffset);
   }
-  db_prepare(&q, "%s", blob_sql_text(&sql));
+  if( showSql ){
+    fossil_print("%s\n", blob_str(&sql));
+  }
+  db_prepare_blob(&q, &sql);
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
