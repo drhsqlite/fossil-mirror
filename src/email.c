@@ -168,12 +168,42 @@ void setup_email(void){
   @ <form action="%R/setup_email" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
   login_insert_csrf_secret();
+
+  entry_attribute("Canonical Server URL", 40, "email-url",
+                   "eurl", "", 0);
+  @ <p><b>Required.</b>
+  @ This is URL used as the basename for hyperlinks included in
+  @ email alert text.  Omit the trailing "/".
+  @ Suggested value: "%h(g.zBaseURL)"
+  @ (Property: "email-url")</p>
+  @ <hr>
+
+  entry_attribute("\"From\" email address", 20, "email-self",
+                   "eself", "", 0);
+  @ <p><b>Required.</b>
+  @ This is the email from which email notifications are sent.  The
+  @ system administrator should arrange for emails sent to this address
+  @ to be handed off to the "fossil email incoming" command so that Fossil
+  @ can handle bounces. (Property: "email-self")</p>
+  @ <hr>
+
+  entry_attribute("Repository Nickname", 16, "email-subname",
+                   "enn", "", 0);
+  @ <p><b>Required.</b>
+  @ This is short name used to identifies the repository in the
+  @ Subject: line of email alerts.  Traditionally this name is
+  @ included in square brackets.  Examples: "[fossil-src]", "[sqlite-src]".
+  @ (Property: "email-subname")</p>
+  @ <hr>
+
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
   @ <p>How to send email.  The "Pipe to a command"
   @ method is the usual choice in production.
   @ (Property: "email-send-method")</p>
   @ <hr>
+
+
   entry_attribute("Command To Pipe Email To", 80, "email-send-command",
                    "ecmd", "sendmail -t", 0);
   @ <p>When the send method is "pipe to a command", this is the command
@@ -193,14 +223,6 @@ void setup_email(void){
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
-  @ <hr>
-
-  entry_attribute("\"From\" email address", 40, "email-self",
-                   "eself", "", 0);
-  @ <p>This is the email from which email notifications are sent.  The
-  @ system administrator should arrange for emails sent to this address
-  @ to be handed off to the "fossil email incoming" command so that Fossil
-  @ can handle bounces. (Property: "email-self")</p>
   @ <hr>
 
   entry_attribute("Administrator email address", 40, "email-admin",
@@ -1214,4 +1236,125 @@ void subscriber_list_page(void){
   @ </table>
   db_finalize(&q);
   style_footer();
+}
+
+#if LOCAL_INTERFACE
+/* Allowed values for the mAlert flags parameter to email_alert_text
+*/
+#define ALERT_HTML     0x01      /* Generate HTML instead of plain text */
+#endif
+
+/*
+** Append the text for a single alert to the end of pOut
+*/
+void email_one_alert(const char *zEvent, u32 mAlert, Blob *pOut){
+  static Stmt q;
+  int id;
+  const char *zType = "";
+  db_static_prepare(&q,
+    "SELECT"
+    " blob.uuid,"  /* 0 */
+    " datetime(event.mtime),"  /* 1 */
+    " coalesce(ecomment,comment)"
+    "  || ' (user: ' || coalesce(euser,user,'?')"
+    "  || (SELECT case when length(x)>0 then ' tags: ' || x else '' end"
+    "      FROM (SELECT group_concat(substr(tagname,5), ', ') AS x"
+    "              FROM tag, tagxref"
+    "             WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+    "               AND tagxref.rid=blob.rid AND tagxref.tagtype>0))"
+    "  || ')' as comment,"  /* 2 */
+    " tagxref.value AS branch"  /* 3 */
+    " FROM tag CROSS JOIN event CROSS JOIN blob"
+    "  LEFT JOIN tagxref ON tagxref.tagid=tag.tagid"
+    "                       AND tagxref.tagtype>0"
+    "                       AND tagxref.rid=blob.rid"
+    " WHERE blob.rid=event.objid"
+    "   AND tag.tagname='branch'"
+    "   AND event.objid=:objid"
+  );
+  switch( zEvent[0] ){
+    case 'c':  zType = "Check-In";        break;
+    case 't':  zType = "Wiki Edit";       break;
+    case 'w':  zType = "Ticket Change";   break;
+    default:   return;
+  }
+  id = atoi(zEvent+1);
+  if( id<=0 ) return;
+  db_bind_int(&q, ":objid", id);
+  if( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(pOut,"\n== %s %s ==\n%s\n%s/info/%.20s\n",
+      db_column_text(&q,1),
+      zType,
+      db_column_text(&q,2),
+      db_get("email-url","http://localhost:8080"),
+      db_column_text(&q,0)
+    );
+  }
+  db_reset(&q);
+}
+
+/*
+** Put a header on an alert email
+*/
+void email_header(u32 mAlert, Blob *pOut){
+  blob_appendf(pOut,
+    "This is an automated email reporting changes "
+    "on Fossil repository %s (%s/timeline)\n",
+    db_get("email-subname","(unknown)"),
+    db_get("email-url","http://localhost:8080"));
+}
+
+/*
+** Append the "unsubscribe" notification and other footer text to
+** the end of an email alert being assemblied in pOut.
+*/
+void email_footer(u32 mAlert, Blob *pOut){
+  blob_appendf(pOut, "\n%.72c\nTo unsubscribe: %s/unsubscribe\n",
+     '-', db_get("email-url","http://localhost:8080"));
+}
+
+/*
+** COMMAND:  test-generate-alert
+**
+** Usage: %fossil test-generate-alert [--html] [--actual] EVENTID ...
+**
+** Generate the text of an email alert for all of the EVENTIDs
+** listed on the command-line.  Write that text to standard
+** output.  If the --actual flag is present, then the EVENTIDs are
+** the actual event-ids in the pending_alert table.
+**
+** This command is intended for testing and debugging the logic
+** that generates email alert text.
+**
+** The mimetype is text/plain by default.  Use the --html option
+** to generate text/html alert text.
+*/
+void test_generate_alert_cmd(void){
+  u32 mAlert = 0;
+  int bActual = find_option("actual",0,0)!=0;
+  Blob out;
+  int i;
+
+  if( find_option("html",0,0)!=0 ) mAlert |= ALERT_HTML;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  email_schema();
+  blob_init(&out, 0, 0);
+  email_header(mAlert, &out);
+  if( bActual ){
+    Stmt q;
+    db_prepare(&q, "SELECT eventid FROM pending_alert");
+    while( db_step(&q)==SQLITE_ROW ){
+      email_one_alert(db_column_text(&q,0), mAlert, &out);
+    }
+    db_finalize(&q);
+  }else{
+    int i;
+    for(i=2; i<g.argc; i++){
+      email_one_alert(g.argv[i], mAlert, &out);
+    }
+  }
+  email_footer(mAlert, &out);
+  fossil_print("%s", blob_str(&out));
+  blob_zero(&out);
 }
