@@ -309,6 +309,7 @@ void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
                        " boundary=\"%s\"\r\n", zBoundary);
   }
   if( pPlain ){
+    blob_add_final_newline(pPlain);
     if( zBoundary ){
       blob_appendf(&all, "\r\n--%s\r\n", zBoundary);
     }
@@ -317,6 +318,7 @@ void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
     append_base64(&all, pPlain);
   }
   if( pHtml ){
+    blob_add_final_newline(pHtml);
     if( zBoundary ){
       blob_appendf(&all, "--%s\r\n", zBoundary);
     }
@@ -526,6 +528,7 @@ void email_cmd(void){
     }else{
       prompt_for_user_comment(&body, &prompt);
     }
+    blob_add_final_newline(&body);
     if( sendAsHtml ){
       email_send(&hdr, 0, &body, zDest);
     }else if( sendAsBoth ){

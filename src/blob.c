@@ -657,6 +657,16 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 }
 
 /*
+** Ensure that the text in pBlob ends with '\n'
+*/
+void blob_add_final_newline(Blob *pBlob){
+  if( pBlob->nUsed<=0 ) return;
+  if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
+    blob_append(pBlob, "\n", 1);
+  }
+}
+
+/*
 ** Return true if the blob contains a valid base16 identifier artifact hash.
 **
 ** The value returned is actually one of HNAME_SHA1 OR HNAME_K256 if the
