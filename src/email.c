@@ -72,7 +72,7 @@ static const char zEmailInit[] =
 @ CREATE TABLE repository.pending_alert(
 @   eventid TEXT PRIMARY KEY,         -- Object that changed
 @   sentSep BOOLEAN DEFAULT false,    -- individual emails sent
-@   sentDigest BOOLEAN DEFAULT false  -- digest emails sent
+@   mtime DATETIME                    -- when added to queue
 @ ) WITHOUT ROWID;
 @ 
 @ -- Record bounced emails.  If too many bounces are received within
@@ -105,8 +105,9 @@ void email_triggers_enable(void){
   db_multi_exec(
     "CREATE TRIGGER IF NOT EXISTS repository.email_trigger1\n"
     "AFTER INSERT ON event BEGIN\n"
-    "  INSERT INTO pending_alert(eventid)\n"
-    "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
+    "  INSERT INTO pending_alert(eventid,mtime)\n"
+    "    SELECT printf('%%.1c%%d',new.type,new.objid),"
+    "           julianday('now') WHERE true\n"
     "    ON CONFLICT(eventId) DO NOTHING;\n"
     "END;"
   );
@@ -1343,7 +1344,11 @@ void test_generate_alert_cmd(void){
   email_header(mAlert, &out);
   if( bActual ){
     Stmt q;
-    db_prepare(&q, "SELECT eventid FROM pending_alert");
+    db_prepare(&q,
+       "SELECT eventid FROM pending_alert, event"
+       " WHERE event.objid=substr(pending_alert.eventid,2)+0"
+       " ORDER BY event.mtime"
+    );
     while( db_step(&q)==SQLITE_ROW ){
       email_one_alert(db_column_text(&q,0), mAlert, &out);
     }
