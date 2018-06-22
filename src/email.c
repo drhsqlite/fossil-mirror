@@ -72,7 +72,7 @@ static const char zEmailInit[] =
 @ CREATE TABLE repository.pending_alert(
 @   eventid TEXT PRIMARY KEY,         -- Object that changed
 @   sentSep BOOLEAN DEFAULT false,    -- individual emails sent
-@   mtime DATETIME                    -- when added to queue
+@   sendDigest BOOLEAN DEFAULT false, -- digest emails sent
 @ ) WITHOUT ROWID;
 @ 
 @ -- Record bounced emails.  If too many bounces are received within
@@ -1240,19 +1240,44 @@ void subscriber_list_page(void){
 }
 
 #if LOCAL_INTERFACE
-/* Allowed values for the mAlert flags parameter to email_alert_text
+/*
+** A single event that might appear in an alert is recorded as an
+** instance of the following object.
 */
-#define ALERT_HTML     0x01      /* Generate HTML instead of plain text */
+struct EmailEvent {
+  int type;          /* 'c', 't', 'w', etc. */
+  Blob txt;          /* Text description to appear in an alert */
+  EmailEvent *pNext; /* Next in chronological order */
+};
 #endif
 
 /*
-** Append the text for a single alert to the end of pOut
+** Free a linked list of EmailEvent objects
 */
-void email_one_alert(const char *zEvent, u32 mAlert, Blob *pOut){
-  static Stmt q;
-  int id;
-  const char *zType = "";
-  db_static_prepare(&q,
+void email_free_eventlist(EmailEvent *p){
+  while( p ){
+    EmailEvent *pNext = p->pNext;
+    blob_zero(&p->txt);
+    fossil_free(p);
+    p = pNext;
+  }
+}
+
+/*
+** Compute and return a linked list of EmailEvent objects
+** corresponding to the current content of the temp.wantalert
+** table which should be defined as follows:
+**
+**     CREATE TEMP TABLE wantalert(eventId TEXT);
+*/
+EmailEvent *email_compute_event_text(int *pnEvent){
+  Stmt q;
+  EmailEvent *p;
+  EmailEvent anchor;
+  EmailEvent *pLast;
+  const char *zUrl = db_get("email-url","http://localhost:8080");
+
+  db_prepare(&q,
     "SELECT"
     " blob.uuid,"  /* 0 */
     " datetime(event.mtime),"  /* 1 */
@@ -1264,40 +1289,50 @@ void email_one_alert(const char *zEvent, u32 mAlert, Blob *pOut){
     "             WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
     "               AND tagxref.rid=blob.rid AND tagxref.tagtype>0))"
     "  || ')' as comment,"  /* 2 */
-    " tagxref.value AS branch"  /* 3 */
-    " FROM tag CROSS JOIN event CROSS JOIN blob"
+    " tagxref.value AS branch,"  /* 3 */
+    " wantalert.eventId"     /* 4 */
+    " FROM temp.wantalert JOIN tag CROSS JOIN event CROSS JOIN blob"
     "  LEFT JOIN tagxref ON tagxref.tagid=tag.tagid"
     "                       AND tagxref.tagtype>0"
     "                       AND tagxref.rid=blob.rid"
     " WHERE blob.rid=event.objid"
     "   AND tag.tagname='branch'"
-    "   AND event.objid=:objid"
+    "   AND event.objid=substr(wantalert.eventId,2)+0"
+    " ORDER BY event.mtime"
   );
-  switch( zEvent[0] ){
-    case 'c':  zType = "Check-In";        break;
-    case 't':  zType = "Wiki Edit";       break;
-    case 'w':  zType = "Ticket Change";   break;
-    default:   return;
-  }
-  id = atoi(zEvent+1);
-  if( id<=0 ) return;
-  db_bind_int(&q, ":objid", id);
-  if( db_step(&q)==SQLITE_ROW ){
-    blob_appendf(pOut,"\n== %s %s ==\n%s\n%s/info/%.20s\n",
+  memset(&anchor, 0, sizeof(anchor));
+  pLast = &anchor;
+  *pnEvent = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zType = "";
+    p = fossil_malloc( sizeof(EmailEvent) );
+    pLast->pNext = p;
+    pLast = p;
+    p->type = db_column_text(&q, 4)[0];
+    p->pNext = 0;
+    switch( p->type ){
+      case 'c':  zType = "Check-In";        break;
+      case 't':  zType = "Wiki Edit";       break;
+      case 'w':  zType = "Ticket Change";   break;
+    }
+    blob_init(&p->txt, 0, 0);
+    blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
       zType,
       db_column_text(&q,2),
-      db_get("email-url","http://localhost:8080"),
+      zUrl,
       db_column_text(&q,0)
     );
+    *pnEvent++;
   }
-  db_reset(&q);
+  db_finalize(&q);
+  return anchor.pNext;
 }
 
 /*
 ** Put a header on an alert email
 */
-void email_header(u32 mAlert, Blob *pOut){
+void email_header(Blob *pOut){
   blob_appendf(pOut,
     "This is an automated email reporting changes "
     "on Fossil repository %s (%s/timeline)\n",
@@ -1309,7 +1344,7 @@ void email_header(u32 mAlert, Blob *pOut){
 ** Append the "unsubscribe" notification and other footer text to
 ** the end of an email alert being assemblied in pOut.
 */
-void email_footer(u32 mAlert, Blob *pOut){
+void email_footer(Blob *pOut){
   blob_appendf(pOut, "\n%.72c\nTo unsubscribe: %s/unsubscribe\n",
      '-', db_get("email-url","http://localhost:8080"));
 }
@@ -1326,40 +1361,37 @@ void email_footer(u32 mAlert, Blob *pOut){
 **
 ** This command is intended for testing and debugging the logic
 ** that generates email alert text.
-**
-** The mimetype is text/plain by default.  Use the --html option
-** to generate text/html alert text.
 */
 void test_generate_alert_cmd(void){
-  u32 mAlert = 0;
   int bActual = find_option("actual",0,0)!=0;
   Blob out;
   int i;
+  int nEvent;
+  EmailEvent *pEvent, *p;
 
-  if( find_option("html",0,0)!=0 ) mAlert |= ALERT_HTML;
   db_find_and_open_repository(0, 0);
   verify_all_options();
+  db_begin_transaction();
   email_schema();
-  blob_init(&out, 0, 0);
-  email_header(mAlert, &out);
+  db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT)");
   if( bActual ){
-    Stmt q;
-    db_prepare(&q,
-       "SELECT eventid FROM pending_alert, event"
-       " WHERE event.objid=substr(pending_alert.eventid,2)+0"
-       " ORDER BY event.mtime"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      email_one_alert(db_column_text(&q,0), mAlert, &out);
-    }
-    db_finalize(&q);
+    db_multi_exec("INSERT INTO wantalert SELECT eventid FROM pending_alert");
   }else{
     int i;
     for(i=2; i<g.argc; i++){
-      email_one_alert(g.argv[i], mAlert, &out);
+      db_multi_exec("INSERT INTO wantalert VALUES(%Q)", g.argv[i]);
     }
   }
-  email_footer(mAlert, &out);
+  blob_init(&out, 0, 0);
+  email_header(&out);
+  pEvent = email_compute_event_text(&nEvent);
+  for(p=pEvent; p; p=p->pNext){
+    blob_append(&out, "\n", 1);
+    blob_append(&out, blob_buffer(&p->txt), blob_size(&p->txt));
+  }
+  email_free_eventlist(pEvent);
+  email_footer(&out);
   fossil_print("%s", blob_str(&out));
   blob_zero(&out);
+  db_end_transaction(0);
 }
