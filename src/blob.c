@@ -484,6 +484,13 @@ void blob_rewind(Blob *p){
 }
 
 /*
+** Truncate a blob back to zero length
+*/
+void blob_truncate(Blob *p){
+  p->nUsed = 0;
+}
+
+/*
 ** Seek the cursor in a blob to the indicated offset.
 */
 int blob_seek(Blob *p, int offset, int whence){

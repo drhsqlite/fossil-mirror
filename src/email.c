@@ -1395,3 +1395,104 @@ void test_generate_alert_cmd(void){
   blob_zero(&out);
   db_end_transaction(0);
 }
+
+#if INTERFACE
+/*
+** Flags for email_send_alerts()
+*/
+#define SENDALERT_DIGEST      0x0001    /* Send a digest */
+#define SENDALERT_PRESERVE    0x0002    /* Do not mark the task as done */
+
+#endif /* INTERFACE */
+
+/*
+** Send alert emails to all subscribers
+*/
+void email_send_alerts(u32 flags){
+  EmailEvent *pEvents, *p;
+  int nEvent = 0;
+  Stmt q;
+  const char *zDigest = "false";
+  Blob hdr, body;
+  const char *zUrl;
+  const char *zRepoName;
+  const char *zFrom;
+
+  if( !email_enabled() ) return;
+  zUrl = db_get("email-url",0);
+  if( zUrl==0 ) return;
+  zRepoName = db_get("email-subname",0);
+  if( zRepoName==0 ) return;
+  zFrom = db_get("email-self",0);
+  if( zFrom==0 ) return;
+  db_multi_exec(
+    "DROP TABLE IF EXISTS temp.wantalert;"
+    "CREATE TEMP TABLE wantalert(eventId TEXT);"
+  );
+  if( flags & SENDALERT_DIGEST ){
+    db_multi_exec(
+      "INSERT INTO wantalert SELECT eventid FROM pending_alert"
+      "  WHERE sentDigest IS FALSE"
+    );
+    zDigest = "true";
+  }else{
+    db_multi_exec(
+      "INSERT INTO wantalert SELECT eventid FROM pending_alert"
+      "  WHERE sentSep IS FALSE"
+    );
+  }
+  pEvents = email_compute_event_text(&nEvent);
+  if( nEvent==0 ) return;
+  blob_init(&hdr, 0, 0);
+  blob_init(&body, 0, 0);
+  db_prepare(&q,
+     "SELECT"
+     " subscriberCode,"  /* 0 */
+     " semail,"          /* 1 */
+     " ssub"             /* 2 */
+     " FROM subscriber"
+     " WHERE sverified AND NOT sdonotcall"
+     "  AND sdigest IS %s",
+     zDigest/*safe-for-%s*/
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zCode = db_column_text(&q, 0);
+    const char *zSub = db_column_text(&q, 2);
+    const char *zEmail = db_column_text(&q, 1);
+    int nHit = 0;
+    for(p=pEvents; p; p=p->pNext){
+      if( strchr(zSub,p->type)==0 ) continue;
+      if( nHit==0 ){
+        blob_appendf(&hdr,"To: %s\n", zEmail);
+        blob_appendf(&hdr,"From: %s\n", zFrom);
+        blob_appendf(&hdr,"Subject: %s activity alert\n", zRepoName);
+        blob_appendf(&body,
+          "This is an automated email sent by the Fossil repository "
+          "at %s to alert you to changes.\n",
+          zUrl
+        );
+      }
+      nHit++;
+      blob_append(&body, "\n", 1);
+      blob_append(&body, blob_buffer(&p->txt), blob_size(&p->txt));
+    }
+    if( nHit==0 ) continue;
+    blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
+         '-', zUrl, zCode);
+    email_send(&hdr,&body,0,0);
+    blob_truncate(&hdr);
+    blob_truncate(&body);
+  }
+  blob_zero(&hdr);
+  blob_zero(&body);
+  db_finalize(&q);
+  email_free_eventlist(pEvents);
+  if( (flags & SENDALERT_PRESERVE)==0 ){
+    if( flags & SENDALERT_DIGEST ){
+      db_multi_exec("UPDATE pending_alert SET sentDigest=true");
+    }else{
+      db_multi_exec("UPDATE pending_alert SET sentSep=true");
+    }
+    db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep");
+  }
+}
