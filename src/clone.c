@@ -111,6 +111,7 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
+**    --nocompress               Omit extra delta compression
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
@@ -128,6 +129,7 @@ void clone_cmd(void){
   int nErr = 0;
   int urlFlags = URL_PROMPT_PW | URL_REMEMBER;
   int syncFlags = SYNC_CLONE;
+  int noCompress = find_option("nocompress",0,0)!=0;
 
   /* Also clone private branches */
   if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
@@ -213,10 +215,13 @@ void clone_cmd(void){
   db_begin_transaction();
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
-  fossil_print("Extra delta compression... "); fflush(stdout);
-  extra_deltification();
+  if( !noCompress ){
+    fossil_print("Extra delta compression... "); fflush(stdout);
+    extra_deltification();
+    fossil_print("\n");
+  }
   db_end_transaction(0);
-  fossil_print("\nVacuuming the database... "); fflush(stdout);
+  fossil_print("Vacuuming the database... "); fflush(stdout);
   if( db_int(0, "PRAGMA page_count")>1000
    && db_int(0, "PRAGMA page_size")<8192 ){
      db_multi_exec("PRAGMA page_size=8192;");

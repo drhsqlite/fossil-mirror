@@ -1,5 +1,5 @@
-C Strengthen\sthe\scodecheck1.c\sutility\sprogram\sto\shelp\sfind\scases\swhere\squery\nparameters\sare\sused\sin\sunsafe\sways.\s\sNo\sunsafe\susage\sof\squery\sparameters\nwas\sdetected\sin\sthe\scurrent\scode.
-D 2018-06-21T16:40:35.334
+C Add\sthe\s--nocompress\soption\sto\sthe\s"fossil\sclone"\scommand.
+D 2018-06-22T01:37:26.771
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 560f9c07b6ba7f9e6778fee962beabe54eebf3a10a8759db0dfb09d0cee8690f
+F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c c9a0fcba1d1f53f290bae46700437e503e41f2b6cd3160dfe1068c3e119fafd2
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
@@ -849,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 565b5ff0c29e6b3198f167f171279c1ccc6959ceb47d7ad2c78aa3cb4b6d6c6d
-R b774f4eafd840c83620572aa14b45dbf
+P bb9233a61a83ebae4e4bd723f65c85608644ee6637c298d42c673a0252ccb228
+R 9d05254ac6f1c97ad31a37ba2146bf2d
 U drh
-Z d4d9810c654d5451221582e29df375bc
+Z a4b001200a6b4a89d991498d3a6b1547
