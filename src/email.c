@@ -31,6 +31,7 @@
 ** system.
 */
 static const char zEmailInit[] =
+@ DROP TABLE IF EXISTS repository.subscriber;
 @ -- Subscribers are distinct from users.  A person can have a log-in in
 @ -- the USER table without being a subscriber.  Or a person can be a
 @ -- subscriber without having a USER table entry.  Or they can have both.
@@ -63,6 +64,7 @@ static const char zEmailInit[] =
 @ CREATE INDEX repository.subscriberUname
 @   ON subscriber(suname) WHERE suname IS NOT NULL;
 @ 
+@ DROP TABLE IF EXISTS repository.pending_alert;
 @ -- Email notifications that need to be sent.
 @ --
 @ -- The first character of the eventid determines the event type.
@@ -75,6 +77,7 @@ static const char zEmailInit[] =
 @   sentDigest BOOLEAN DEFAULT false  -- digest emails sent
 @ ) WITHOUT ROWID;
 @ 
+@ DROP TABLE IF EXISTS repository.email_bounce;
 @ -- Record bounced emails.  If too many bounces are received within
 @ -- some defined time range, then cancel the subscription.  Older
 @ -- entries are periodically purged.
@@ -87,17 +90,32 @@ static const char zEmailInit[] =
 ;
 
 /*
-** Make sure the unversioned table exists in the repository.
+** Return true if the email notification tables exist.
 */
-void email_schema(void){
-  if( !db_table_exists("repository", "subscriber") ){
+int email_tables_exist(void){
+  return db_table_exists("repository", "subscriber");
+}
+
+/*
+** Make sure the table needed for email notification exist in the repository.
+**
+** If the bOnlyIfEnabled option is true, then tables are only created
+** if the email-send-method is something other than "off".
+*/
+void email_schema(int bOnlyIfEnabled){
+  if( !email_tables_exist() ){
+    if( bOnlyIfEnabled
+     && fossil_strcmp(db_get("email-send-method","off"),"off")==0
+    ){
+      return;  /* Don't create table for disabled email */
+    }
     db_multi_exec(zEmailInit/*works-like:""*/);
     email_triggers_enable();
   }
 }
 
 /*
-** Enable triggers that automatically populate the event_pending
+** Enable triggers that automatically populate the pending_alert
 ** table.
 */
 void email_triggers_enable(void){
@@ -128,12 +146,24 @@ void email_triggers_disable(void){
 ** Return true if email alerts are active.
 */
 int email_enabled(void){
-  if( !db_table_exists("repository", "subscriber") ) return 0;
+  if( !email_tables_exist() ) return 0;
   if( fossil_strcmp(db_get("email-send-method","off"),"off")==0 ) return 0;
   return 1;
 }
 
-
+/*
+** If the subscriber table does not exist, then paint an error message
+** web page and return true.
+**
+** If the subscriber table does exist, return 0 without doing anything.
+*/
+static int email_webpages_disabled(void){
+  if( email_tables_exist() ) return 0;
+  style_header("Email Alerts Are Disabled");
+  @ <p>Email alerts are disabled on this server</p>
+  style_footer();
+  return 1;
+}
 
 /*
 ** Insert a "Subscriber List" submenu link if the current user
@@ -210,7 +240,7 @@ void setup_email(void){
   @ method is the usual choice in production.
   @ (Property: "email-send-method")</p>
   @ <hr>
-
+  email_schema(1);
 
   entry_attribute("Command To Pipe Email To", 80, "email-send-command",
                    "ecmd", "sendmail -t", 0);
@@ -581,7 +611,7 @@ void email_cmd(void){
   const char *zCmd;
   int nCmd;
   db_find_and_open_repository(0, 0);
-  email_schema();
+  email_schema(0);
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
   if( strncmp(zCmd, "exec", nCmd)==0 ){
@@ -634,7 +664,7 @@ void email_cmd(void){
         "DROP TABLE IF EXISTS email_pending;\n"
         "DROP TABLE IF EXISTS subscription;\n"
       );
-      email_schema();
+      email_schema(0);
     }
   }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
@@ -837,6 +867,7 @@ void subscribe_page(void){
   char *zErr = 0;
   int eErr = 0;
 
+  if( email_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.EmailAlert ){
     login_needed(g.anon.EmailAlert);
@@ -1061,6 +1092,7 @@ void alerts_page(void){
   int eErr = 0;
   char *zErr = 0;
 
+  if( email_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.EmailAlert ){
     cgi_redirect("subscribe");
@@ -1394,6 +1426,7 @@ void unsubscribe_page(void){
 void subscriber_list_page(void){
   Blob sql;
   Stmt q;
+  if( email_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
     fossil_redirect_home();
@@ -1566,7 +1599,7 @@ void test_alert_cmd(void){
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_transaction();
-  email_schema();
+  email_schema(0);
   db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT)");
   if( g.argc==2 ){
     db_multi_exec("INSERT INTO wantalert SELECT eventid FROM pending_alert");
@@ -1609,7 +1642,7 @@ void test_add_alert_cmd(void){
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_transaction();
-  email_schema();
+  email_schema(0);
   for(i=2; i<g.argc; i++){
     db_multi_exec("REPLACE INTO pending_alert(eventId) VALUES(%Q)", g.argv[i]);
   }
