@@ -1,5 +1,5 @@
-C Futher\scorrections\sto\sthe\semail\salert\strigger.
-D 2018-06-23T01:33:27.541
+C Rework\sthe\sinternal\semail\ssending\slogic\sso\sthat\sit\sis\sconnection-oriented.\nThis\smakes\sit\smore\sefficient\sand\smakes\sit\seasier\sto\sadd\ssupport\sfor\san\nSMTP\ssending\smethod\sat\sa\slater\sdate.
+D 2018-06-23T14:24:24.238
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c c4b30fd0c399461dc15356f8e27539819833ea7e3144293933de99cd1c323416
+F src/email.c 64b92216a5ebe0d3c56bcbd2b85db96acceb1bacee24fb9ff0903e0b62e3eec2
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -849,7 +849,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7ccfb64a321da20b0f111313357dce6d1543ebe077bc421262ef36bd9841be3
-R 06fdc74e77680c3e36e592d09cdf6eb3
+P 2c3b903043c65cbf30355d7585797a140ad448e165d7d91b725ea365d5f125e8
+R 3d02901ed361a55a0385ddf24e8d4be2
 U drh
-Z 19fae48992f460a9ed3dcfa88576c902
+Z 489925113eecc3bbe00f34bdb0ae67bc

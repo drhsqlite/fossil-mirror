@@ -287,14 +287,142 @@ static char *emailTempFilename(const char *zDir){
 # define pclose _pclose
 #endif
 
+#if INTERFACE
 /*
-** Send an email message using whatever sending mechanism is configured
-** by these settings:
+** An instance of the following object is used to send emails.
+*/
+struct EmailSender {
+  sqlite3 *db;               /* Database emails are sent to */
+  sqlite3_stmt *pStmt;       /* Stmt to insert into the database */
+  const char *zDest;         /* How to send email. */
+  const char *zDb;           /* Name of database file */
+  const char *zDir;          /* Directory in which to store as email files */
+  const char *zCmd;          /* Command to run for each email */
+  const char *zFrom;         /* Emails come from here */
+  char *zErr;                /* Error message */
+  int bImmediateFail;        /* On any error, call fossil_fatal() */
+};
+#endif /* INTERFACE */
+
+/*
+** Shutdown an emailer.  Clear all information other than the error message.
+*/
+static void emailerShutdown(EmailSender *p){
+  sqlite3_finalize(p->pStmt);
+  p->pStmt = 0;
+  sqlite3_free(p->db);
+  p->db = 0;
+  p->zDb = 0;
+  p->zDir = 0;
+  p->zCmd = 0;
+  p->zDest = "off";
+}
+
+/*
+** Put the EmailSender into an error state.
+*/
+static void emailerError(EmailSender *p, const char *zFormat, ...){
+  va_list ap;
+  fossil_free(p->zErr);
+  va_start(ap, zFormat);
+  p->zErr = vmprintf(zFormat, ap);
+  va_end(ap);
+  emailerShutdown(p);
+  if( p->bImmediateFail ){
+    fossil_fatal("%s", p->zErr);
+  }
+}
+
+/*
+** Free an email sender object
+*/
+void email_sender_free(EmailSender *p){
+  emailerShutdown(p);
+  fossil_free(p->zErr);
+  fossil_free(p);
+}
+
+/*
+** Get an email setting value.  Report an error if not configured.
+** Return 0 on success and one if there is an error.
+*/
+static int emailerGetSetting(
+  EmailSender *p,        /* Where to report the error */
+  const char **pzVal,    /* Write the setting value here */
+  const char *zName      /* Name of the setting */
+){
+  const char *z = db_get(zName, 0);
+  int rc = 0;
+  if( z==0 || z[0]==0 ){
+    emailerError(p, "missing \"%s\" setting", zName);
+    rc = 1;
+  }else{
+    *pzVal = z;
+  }
+  return rc;
+}
+
+/*
+** Create a new EmailSender object.
 **
-**   email-send-method    "off"   Do not send any emails
-**                        "pipe"  Pipe the email to email-send-command
-**                        "db"    Store the mail in database email-send-db
-**                        "file"  Store the email as a file in email-send-dir 
+** The method used for sending email is determined by various email-*
+** settings, and especially email-send-method.  The repository
+** email-send-method can be overridden by the zAltDest argument to
+** cause a different sending mechanism to be used.  Pass "stdout" to
+** zAltDest to cause all emails to be printed to the console for
+** debugging purposes.
+**
+** The EmailSender object returned must be freed using email_sender_free().
+*/
+EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
+  EmailSender *p;
+  char *zMissing = 0;
+
+  p = fossil_malloc(sizeof(*p));
+  memset(p, 0, sizeof(*p));
+  p->bImmediateFail = bImmediateFail;
+  if( zAltDest ){
+    p->zDest = zAltDest;
+  }else{
+    p->zDest = db_get("email-send-method","off");
+  }
+  if( fossil_strcmp(p->zDest,"off")==0 ) return p;
+  if( emailerGetSetting(p, &p->zFrom, "email-self") ) return p;
+  if( fossil_strcmp(p->zDest,"db")==0 ){
+    char *zErr;
+    int rc;
+    if( emailerGetSetting(p, &p->zDb, "email-send-db") ) return p;
+    rc = sqlite3_open(p->zDb, &p->db);
+    if( rc ){
+      emailerError(p, "unable to open output database file \"%s\": %s",
+                   p->zDb, sqlite3_errmsg(p->db));
+      return p;
+    }
+    rc = sqlite3_exec(p->db, "CREATE TABLE IF NOT EXISTS email(\n"
+                          "  emailid INTEGER PRIMARY KEY,\n"
+                          "  msg TEXT\n);", 0, 0, &zErr);
+    if( zErr ){
+      emailerError(p, "CREATE TABLE failed with \"%s\"", zErr);
+      sqlite3_free(zErr);
+      return p;
+    }
+    rc = sqlite3_prepare_v2(p->db, "INSERT INTO email(msg) VALUES(?1)", -1,
+                            &p->pStmt, 0);
+    if( rc ){
+      emailerError(p, "cannot prepare INSERT statement: %s",
+                 sqlite3_errmsg(p->db));
+      return p;
+    }
+  }else if( fossil_strcmp(p->zDest, "pipe")==0 ){
+    emailerGetSetting(p, &p->zCmd, "email-send-command");
+  }else if( fossil_strcmp(p->zDest, "dir")==0 ){
+    emailerGetSetting(p, &p->zDir, "email-send-dir");
+  }
+  return p;
+}
+
+/*
+** Send a single email message.
 **
 ** The recepient(s) must be specified using  "To:" or "Cc:" or "Bcc:" fields
 ** in the header.  Likewise, the header must contains a "Subject:" line.
@@ -307,93 +435,46 @@ static char *emailTempFilename(const char *zDir){
 **     Content-Type:
 **     Content-Transfer-Encoding:
 **     
-** At least one body must be supplied.
-**
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
 ** not free them.
-**
-** If zDest is not NULL then it is an overwrite for the email-send-method.
-** zDest can be "stdout" to send output to the console for debugging.
 */
-void email_send(Blob *pHdr, Blob *pPlain, Blob *pHtml, const char *zDest){
-  const char *zFrom = db_get("email-self", 0);
-  char *zBoundary = 0;
+void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   Blob all;
-  if( zFrom==0 ){
-    fossil_warning("Missing configuration: \"email-self\"");
-    return;
-  }
-  if( zDest==0 ) zDest = db_get("email-send-method", "off");
-  if( strcmp(zDest, "off")==0 ){
+  if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
   }
   blob_init(&all, 0, 0);
   blob_append(&all, blob_buffer(pHdr), blob_size(pHdr));
-  blob_appendf(&all, "From: %s\r\n", zFrom);
-  if( pPlain && pHtml ){
-    blob_appendf(&all, "MIME-Version: 1.0\r\n");
-    zBoundary = db_text(0, "SELECT hex(randomblob(20))");
-    blob_appendf(&all, "Content-Type: multipart/alternative;"
-                       " boundary=\"%s\"\r\n", zBoundary);
-  }
-  if( pPlain ){
-    blob_add_final_newline(pPlain);
-    if( zBoundary ){
-      blob_appendf(&all, "\r\n--%s\r\n", zBoundary);
+  blob_appendf(&all, "From: %s\r\n", p->zFrom);
+  blob_add_final_newline(pBody);
+  blob_appendf(&all,"Content-Type: text/plain\r\n");
+  blob_appendf(&all, "Content-Transfer-Encoding: base64\r\n\r\n");
+  append_base64(&all, pBody);
+  if( p->pStmt ){
+    int i, rc;
+    sqlite3_bind_text(p->pStmt, 1, blob_str(&all), -1, SQLITE_TRANSIENT);
+    for(i=0; i<100 && sqlite3_step(p->pStmt)==SQLITE_BUSY; i++){
+      sqlite3_sleep(10);
     }
-    blob_appendf(&all,"Content-Type: text/plain\r\n");
-    blob_appendf(&all, "Content-Transfer-Encoding: base64\r\n\r\n");
-    append_base64(&all, pPlain);
-  }
-  if( pHtml ){
-    blob_add_final_newline(pHtml);
-    if( zBoundary ){
-      blob_appendf(&all, "--%s\r\n", zBoundary);
+    rc = sqlite3_reset(p->pStmt);
+    if( rc!=SQLITE_OK ){
+      emailerError(p, "Failed to insert email message into output queue.\n"
+                      "%s", sqlite3_errmsg(p->db));
     }
-    blob_appendf(&all,"Content-Type: text/html\r\n");
-    blob_appendf(&all, "Content-Transfer-Encoding: base64\r\n\r\n");
-    append_base64(&all, pHtml);
-  }
-  if( zBoundary ){
-    blob_appendf(&all, "--%s--\r\n", zBoundary);
-    fossil_free(zBoundary);
-    zBoundary = 0;
-  }
-  if( strcmp(zDest, "db")==0 ){
-    sqlite3 *db;
-    sqlite3_stmt *pStmt;
-    int rc;
-    const char *zDb = db_get("email-send-db",0);
-    rc = sqlite3_open(zDb, &db);
-    if( rc==SQLITE_OK ){
-      sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS email(\n"
-                       "  emailid INTEGER PRIMARY KEY,\n"
-                       "  msg TEXT\n);", 0, 0, 0);
-      rc = sqlite3_prepare_v2(db, "INSERT INTO email(msg) VALUES(?1)", -1,
-                              &pStmt, 0);
-      if( rc==SQLITE_OK ){
-        sqlite3_bind_text(pStmt, 1, blob_str(&all), -1, SQLITE_TRANSIENT);
-        sqlite3_step(pStmt);
-        sqlite3_finalize(pStmt);
-      }
-      sqlite3_close(db);
+  }else if( p->zCmd ){
+    FILE *out = popen(p->zCmd, "w");
+    if( out ){
+      fwrite(blob_buffer(&all), 1, blob_size(&all), out);
+      fclose(out);
+    }else{
+      emailerError(p, "Could not open output pipe \"%s\"", p->zCmd);
     }
-  }else if( strcmp(zDest, "pipe")==0 ){
-    const char *zCmd = db_get("email-send-command", 0);
-    if( zCmd ){
-      FILE *out = popen(zCmd, "w");
-      if( out ){
-        fwrite(blob_buffer(&all), 1, blob_size(&all), out);
-        fclose(out);
-      }
-    }
-  }else if( strcmp(zDest, "dir")==0 ){
-    const char *zDir = db_get("email-send-dir","./");
-    char *zFile = emailTempFilename(zDir);
+  }else if( p->zDir ){
+    char *zFile = emailTempFilename(p->zDir);
     blob_write_to_file(&all, zFile);
     fossil_free(zFile);
-  }else if( strcmp(zDest, "stdout")==0 ){
+  }else if( strcmp(p->zDest, "stdout")==0 ){
     fossil_print("%s\n", blob_str(&all));
   }
   blob_zero(&all);
@@ -485,7 +566,6 @@ void email_receive(Blob *pMsg){
 **                            Options:
 **
 **                              --body FILENAME
-**                              --html
 **                              --stdout
 **                              --subject|-S SUBJECT
 **
@@ -558,12 +638,11 @@ void email_cmd(void){
   }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
     Blob prompt, body, hdr;
-    int sendAsBoth = find_option("both",0,0)!=0;
-    int sendAsHtml = find_option("html",0,0)!=0;
     const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
     int i;
     const char *zSubject = find_option("subject", "S", 1);
     const char *zSource = find_option("body", 0, 1);
+    EmailSender *pSender;
     verify_all_options();
     blob_init(&prompt, 0, 0);
     blob_init(&body, 0, 0);
@@ -580,17 +659,9 @@ void email_cmd(void){
       prompt_for_user_comment(&body, &prompt);
     }
     blob_add_final_newline(&body);
-    if( sendAsHtml ){
-      email_send(&hdr, 0, &body, zDest);
-    }else if( sendAsBoth ){
-      Blob html;
-      blob_init(&html, 0, 0);
-      blob_appendf(&html, "<pre>\n%h</pre>\n", blob_str(&body));
-      email_send(&hdr, &body, &html, zDest);
-      blob_zero(&html);
-    }else{
-      email_send(&hdr, &body, 0, zDest);
-    }
+    pSender = email_sender_new(zDest, 1);
+    email_send(pSender, &hdr, &body);
+    email_sender_free(pSender);
     blob_zero(&hdr);
     blob_zero(&body);
     blob_zero(&prompt);
@@ -824,17 +895,28 @@ void subscribe_page(void){
     }else{
       /* We need to send a verification email */
       Blob hdr, body;
+      EmailSender *pSender = email_sender_new(0,0);
       blob_init(&hdr,0,0);
       blob_init(&body,0,0);
       blob_appendf(&hdr, "To: %s\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
       blob_appendf(&body, zConfirmMsg/*works-like:"%s%s%s"*/,
                    g.zBaseURL, g.zBaseURL, zCode);
-      email_send(&hdr, &body, 0, 0);
+      email_send(pSender, &hdr, &body);
       style_header("Email Alert Verification");
-      @ <p>An email has been sent to "%h(zEAddr)". That email contains a
-      @ hyperlink that you must click on in order to activate your
-      @ subscription.</p>
+      if( pSender->zErr ){
+        @ <h1>Internal Error</h1>
+        @ <p>The following internal error was encountered while trying
+        @ to send the confirmation email:
+        @ <blockquote><pre>
+        @ %h(pSender->zErr)
+        @ </pre></blockquote>
+      }else{
+        @ <p>An email has been sent to "%h(zEAddr)". That email contains a
+        @ hyperlink that you must click on in order to activate your
+        @ subscription.</p>
+      }
+      email_sender_free(pSender);
       style_footer();
     }
     return;
@@ -1215,16 +1297,27 @@ void unsubscribe_page(void){
     /* If we get this far, it means that a valid unsubscribe request has
     ** been submitted.  Send the appropriate email. */
     Blob hdr, body;
+    EmailSender *pSender = email_sender_new(0,0);
     blob_init(&hdr,0,0);
     blob_init(&body,0,0);
     blob_appendf(&hdr, "To: %s\n", zEAddr);
     blob_appendf(&hdr, "Subject: Unsubscribe Instructions\n");
     blob_appendf(&body, zUnsubMsg/*works-like:"%s%s%s%s%s%s"*/,
                   g.zBaseURL, g.zBaseURL, zCode, g.zBaseURL, g.zBaseURL, zCode);
-    email_send(&hdr, &body, 0, 0);
+    email_send(pSender, &hdr, &body);
     style_header("Unsubscribe Instructions Sent");
-    @ <p>An email has been sent to "%h(zEAddr)" that explains how to
-    @ unsubscribe and/or modify your subscription settings</p>
+    if( pSender->zErr ){
+      @ <h1>Internal Error</h1>
+      @ <p>The following error was encountered while trying to send an
+      @ email to %h(zEAddr):
+      @ <blockquote><pre>
+      @ %h(pSender->zErr)
+      @ </pre></blockquote>
+    }else{
+      @ <p>An email has been sent to "%h(zEAddr)" that explains how to
+      @ unsubscribe and/or modify your subscription settings</p>
+    }
+    email_sender_free(pSender);
     style_footer();
     return;
   }  
@@ -1527,6 +1620,7 @@ void email_send_alerts(u32 flags){
   const char *zRepoName;
   const char *zFrom;
   const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
+  EmailSender *pSender = 0;
 
   db_begin_transaction();
   if( !email_enabled() ) goto send_alerts_done;
@@ -1536,6 +1630,7 @@ void email_send_alerts(u32 flags){
   if( zRepoName==0 ) goto send_alerts_done;
   zFrom = db_get("email-self",0);
   if( zFrom==0 ) goto send_alerts_done;
+  pSender = email_sender_new(zDest, 0);
   db_multi_exec(
     "DROP TABLE IF EXISTS temp.wantalert;"
     "CREATE TEMP TABLE wantalert(eventId TEXT);"
@@ -1589,7 +1684,7 @@ void email_send_alerts(u32 flags){
     if( nHit==0 ) continue;
     blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
          '-', zUrl, zCode);
-    email_send(&hdr,&body,0,zDest);
+    email_send(pSender,&hdr,&body);
     blob_truncate(&hdr);
     blob_truncate(&body);
   }
@@ -1606,5 +1701,6 @@ void email_send_alerts(u32 flags){
     db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep");
   }
 send_alerts_done:
+  email_sender_free(pSender);
   db_end_transaction(0);
 }
