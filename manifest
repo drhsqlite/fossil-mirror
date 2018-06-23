@@ -1,5 +1,5 @@
-C Fix\stypos\sand\supdate\sdocumentation.
-D 2018-06-23T20:11:08.551
+C Fix\sdocumentation\stypos.
+D 2018-06-23T20:30:49.104
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -782,7 +782,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md 22af0607d3199f811596c8294d670b598dd52eb5ba53c99c9f18fa9a2cac5639
+F www/emaildesign.md 183f03a00517d61670e07990c7e94c938a742cfdcd5a632bddf037a85e9ac2ad
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 159105895173a45d54d8586064e1d220c5d2fc7cff782a60686022b0bdc79c98
-R 3b4d503310343aa5dfcd2f001421313e
+P 08165ad45eb6135b62b46d9483967eaaef6d7e8c57190e457c3fe1b7657edf1e
+R b66c117043d832d366b1e5efe5964803
 U drh
-Z 20721820f09e684d92253ac98d699584
+Z 64322d199817eb7596b54a4318c2f025

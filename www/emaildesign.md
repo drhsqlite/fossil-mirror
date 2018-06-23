@@ -8,7 +8,7 @@ with doing custom configurations, or to help contribute features.
 
 This document assumes expert-level systems knowledge.  A separate
 tutorial for setting up email notification by non-experts will be
-generated once the email notification systems stablizes.
+generated once the email notification system stabilizes.
 
 Email notification is under active development as of this writing
 (2018-06-23).  Check back frequently for updates.
@@ -75,7 +75,7 @@ email messages from Fossil to the external mail agent:
       the email queue database and forwards email messages to the
       Postfix mail transfer agent.  There is an example TCL script in the
       [tools/email-sender.tcl](/file/tools/email-sender.tcl) file
-      of the source tree that shows how to this is done.
+      of the source tree that shows how this is done.
 
   3.  <b>"dir"</b> &rarr; Write outgoing email messages as individual
       files in a designated directory.  This might be useful for
