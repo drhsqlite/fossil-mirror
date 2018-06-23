@@ -72,7 +72,7 @@ static const char zEmailInit[] =
 @ CREATE TABLE repository.pending_alert(
 @   eventid TEXT PRIMARY KEY,         -- Object that changed
 @   sentSep BOOLEAN DEFAULT false,    -- individual emails sent
-@   sendDigest BOOLEAN DEFAULT false, -- digest emails sent
+@   sendDigest BOOLEAN DEFAULT false  -- digest emails sent
 @ ) WITHOUT ROWID;
 @ 
 @ -- Record bounced emails.  If too many bounces are received within
@@ -1409,7 +1409,7 @@ EmailEvent *email_compute_event_text(int *pnEvent){
       zUrl,
       db_column_text(&q,0)
     );
-    *pnEvent++;
+    (*pnEvent)++;
   }
   db_finalize(&q);
   return anchor.pNext;
@@ -1451,7 +1451,6 @@ void email_footer(Blob *pOut){
 void test_generate_alert_cmd(void){
   int bActual = find_option("actual",0,0)!=0;
   Blob out;
-  int i;
   int nEvent;
   EmailEvent *pEvent, *p;
 
