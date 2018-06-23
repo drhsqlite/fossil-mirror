@@ -72,7 +72,7 @@ static const char zEmailInit[] =
 @ CREATE TABLE repository.pending_alert(
 @   eventid TEXT PRIMARY KEY,         -- Object that changed
 @   sentSep BOOLEAN DEFAULT false,    -- individual emails sent
-@   sendDigest BOOLEAN DEFAULT false  -- digest emails sent
+@   sentDigest BOOLEAN DEFAULT false  -- digest emails sent
 @ ) WITHOUT ROWID;
 @ 
 @ -- Record bounced emails.  If too many bounces are received within
@@ -470,6 +470,7 @@ void email_receive(Blob *pMsg){
 **                            Options:
 **
 **                               --digest     Send digests
+**                               --test       Resets to standard output
 **
 **    inbound [FILE]          Receive an inbound email message.  This message
 **                            is analyzed to see if it is a bounce, and if
@@ -506,6 +507,9 @@ void email_cmd(void){
   if( strncmp(zCmd, "exec", nCmd)==0 ){
     u32 eFlags = 0;
     if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
+    if( find_option("test",0,0)!=0 ){
+      eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
+    }
     verify_all_options();
     email_send_alerts(eFlags);
   }else
@@ -1436,20 +1440,19 @@ void email_footer(Blob *pOut){
 }
 
 /*
-** COMMAND:  test-generate-alert
+** COMMAND:  test-alert
 **
-** Usage: %fossil test-generate-alert [--html] [--actual] EVENTID ...
+** Usage: %fossil test-alert EVENTID ...
 **
 ** Generate the text of an email alert for all of the EVENTIDs
-** listed on the command-line.  Write that text to standard
-** output.  If the --actual flag is present, then the EVENTIDs are
-** the actual event-ids in the pending_alert table.
+** listed on the command-line.  Or if no events are listed on the
+** command line, generate text for all events named in the
+** pending_alert table.
 **
 ** This command is intended for testing and debugging the logic
 ** that generates email alert text.
 */
-void test_generate_alert_cmd(void){
-  int bActual = find_option("actual",0,0)!=0;
+void test_alert_cmd(void){
   Blob out;
   int nEvent;
   EmailEvent *pEvent, *p;
@@ -1459,7 +1462,7 @@ void test_generate_alert_cmd(void){
   db_begin_transaction();
   email_schema();
   db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT)");
-  if( bActual ){
+  if( g.argc==2 ){
     db_multi_exec("INSERT INTO wantalert SELECT eventid FROM pending_alert");
   }else{
     int i;
@@ -1497,7 +1500,7 @@ void test_add_alert_cmd(void){
   db_begin_transaction();
   email_schema();
   for(i=2; i<g.argc; i++){
-    db_multi_exec("INSERT INTO pending_alert(eventId) VALUES(%Q)", g.argv[i]);
+    db_multi_exec("REPLACE INTO pending_alert(eventId) VALUES(%Q)", g.argv[i]);
   }
   db_end_transaction(0);
 }
@@ -1508,6 +1511,7 @@ void test_add_alert_cmd(void){
 */
 #define SENDALERT_DIGEST      0x0001    /* Send a digest */
 #define SENDALERT_PRESERVE    0x0002    /* Do not mark the task as done */
+#define SENDALERT_STDOUT      0x0004    /* Print emails instead of sending */
 
 #endif /* INTERFACE */
 
@@ -1523,6 +1527,7 @@ void email_send_alerts(u32 flags){
   const char *zUrl;
   const char *zRepoName;
   const char *zFrom;
+  const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
 
   db_begin_transaction();
   if( !email_enabled() ) goto send_alerts_done;
@@ -1554,9 +1559,9 @@ void email_send_alerts(u32 flags){
   blob_init(&body, 0, 0);
   db_prepare(&q,
      "SELECT"
-     " subscriberCode,"  /* 0 */
-     " semail,"          /* 1 */
-     " ssub"             /* 2 */
+     " hex(subscriberCode),"  /* 0 */
+     " semail,"               /* 1 */
+     " ssub"                  /* 2 */
      " FROM subscriber"
      " WHERE sverified AND NOT sdonotcall"
      "  AND sdigest IS %s",
@@ -1571,11 +1576,10 @@ void email_send_alerts(u32 flags){
       if( strchr(zSub,p->type)==0 ) continue;
       if( nHit==0 ){
         blob_appendf(&hdr,"To: %s\n", zEmail);
-        blob_appendf(&hdr,"From: %s\n", zFrom);
         blob_appendf(&hdr,"Subject: %s activity alert\n", zRepoName);
         blob_appendf(&body,
           "This is an automated email sent by the Fossil repository "
-          "at %s to alert you to changes.\n",
+          "at %s to report changes.\n",
           zUrl
         );
       }
@@ -1586,7 +1590,7 @@ void email_send_alerts(u32 flags){
     if( nHit==0 ) continue;
     blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
          '-', zUrl, zCode);
-    email_send(&hdr,&body,0,0);
+    email_send(&hdr,&body,0,zDest);
     blob_truncate(&hdr);
     blob_truncate(&body);
   }
