@@ -86,7 +86,12 @@ Internally, there is a fourth email sending method named "stdout"
 which simply writes the text of the email message on standard output.
 The "stdout" method is used for testing and debugging.
 
-Perhaps we will add an "smtp" sending method in the future.
+Perhaps we will add an "smtp" sending method in the future.  The
+main problem with an "smtp" delivery method is that front-line Fossil
+running inside the privilege jail would need to deal with all kinds
+of errors from SMTP, such as unable to connect, or connection resets,
+etc.  SMTP expects the sender to have the ability to retry, does it
+not?
 
 The emails transmitted have a well-formed header.  The downstream
 processing is expected to extract the "To:", "From:", "Subject:" and

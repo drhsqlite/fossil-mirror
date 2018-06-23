@@ -1,5 +1,5 @@
-C Webpages\sfunction\s(with\san\ssensible\serror)\sif\sthe\semail\snotification\stables\nare\snot\sin\sthe\sschema.
-D 2018-06-23T17:07:12.229
+C New\snote\son\swhy\sSMTP\smight\sbe\shard\sto\simplement\sas\sa\ssending\smethod.
+D 2018-06-23T17:17:23.131
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -781,7 +781,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md cabe963a6f1c3f756f2e5089ca07ba3c9f5c448dd0a009d0c8d14bb9e4ce288c
+F www/emaildesign.md b859fc86716d760512323aadd06edee95efb5d48aac936ebf1887a01f63b453a
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -852,7 +852,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9cf915d4af14ec641d744b1e103f6bb029346351f48633c62cb96c926f7a4e71
-R 232f17076ba6eda86ab48ce3add727e5
+P 98d2338a431b95efa2172a214fc802bb5b7ee633bf5ab31ecf197f022274135d
+R 3e8280a3442ebf08386368ea1991902b
 U drh
-Z fe590c720c357d17a168df68c4aa6761
+Z 6d2edda3f9c5845974860f8982caf2c7
