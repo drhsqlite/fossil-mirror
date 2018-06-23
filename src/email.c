@@ -857,7 +857,7 @@ static const char zConfirmMsg[] =
 ** Allow users to subscribe to email notifications.
 **
 ** This page is usually run by users who are not logged in.
-** A logged-in user can add email notificates on the /alerts page.
+** A logged-in user can add email notifications on the /alerts page.
 ** Access to this page by a logged in user (other than an
 ** administrator) results in a redirect to the /alerts page.
 **

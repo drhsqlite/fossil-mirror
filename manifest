@@ -1,5 +1,5 @@
-C Do\snot\srequire\sEmail-Notify\spermission\sto\soperate\sthe\s/alerts\spage\swith\na\svalid\ssubscriberCode.
-D 2018-06-23T19:55:52.976
+C Fix\stypos\sand\supdate\sdocumentation.
+D 2018-06-23T20:11:08.551
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c 8da0ceef7dd9af0fa2e8e4cf4fad888920459ec4764ee422ba2d2b15c0277420
+F src/email.c be30097c9b97d200ae0146bcd0c29fa08c455465984a51da5d7fc1f0a02cf8e6
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -782,7 +782,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md b859fc86716d760512323aadd06edee95efb5d48aac936ebf1887a01f63b453a
+F www/emaildesign.md 22af0607d3199f811596c8294d670b598dd52eb5ba53c99c9f18fa9a2cac5639
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43532cd1d563bc66bed5d65d20b04667e30125d7166805f94ffefc1e39813ff2
-R 4622823c33ce2edbd2dacb1d29a430f5
+P 159105895173a45d54d8586064e1d220c5d2fc7cff782a60686022b0bdc79c98
+R 3b4d503310343aa5dfcd2f001421313e
 U drh
-Z 360b57392a8edaee1500d57a389f7eba
+Z 20721820f09e684d92253ac98d699584

@@ -68,17 +68,16 @@ email messages from Fossil to the external mail agent:
       them to the appropriate destination.
 
   2.  <b>"db"</b> &rarr; Write outgoing email messages into an
-      SQLite database file.  The self-hosting Fossil website will
-      probably use this technique because Fossil runs inside a
-      reduced-privilege chroot jail and cannot invoke commands
-      like /usr/sbin/sendmail.  A separate TCL script running on
-      the outside of the jail monitors the database and forwards
-      email messages to the Postfix mail transfer agent.  There is
-      an example TCL script in the
-      [tools/email-monitor.tcl](/file/tools/email-monitor.tcl) file
-      of the source tree that shows how to do this.
+      SQLite database file.  The self-hosting Fossil website uses
+      this technique because Fossil runs inside a reduced-privilege
+      chroot jail and cannot invoke commands like /usr/sbin/sendmail.
+      A separate TCL script running outside of the jail monitors
+      the email queue database and forwards email messages to the
+      Postfix mail transfer agent.  There is an example TCL script in the
+      [tools/email-sender.tcl](/file/tools/email-sender.tcl) file
+      of the source tree that shows how to this is done.
 
-  3.  <b>"dir"</b> $rarr; Write outgoing email messages as individual
+  3.  <b>"dir"</b> &rarr; Write outgoing email messages as individual
       files in a designated directory.  This might be useful for
       testing and debugging.
 
@@ -125,6 +124,7 @@ Web pages:
    *  The [/subscribe](/help?cmd=/subscribe) page
    *  The [/alerts](/help?cmd=/alerts) page
    *  The [/unsubscribe](/help?cmd=/unsubscribe) page
+   *  The [/msgadmin](/help?cmd=/msgadmin) page
 
 Web pages for administrators only:
 
