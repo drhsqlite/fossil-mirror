@@ -1790,3 +1790,98 @@ void email_auto_exec(void){
 autoexec_done:
   db_end_transaction(0);
 }
+
+/*
+** WEBPAGE: msgadmin
+**
+** A web-form to send a message to the repository administrator.
+*/
+void msgadmin_page(void){
+  const char *zAdminEmail = db_get("email-admin",0);
+  unsigned int uSeed;
+  const char *zDecoded;
+  char *zCaptcha = 0;
+
+  if( zAdminEmail==0 || zAdminEmail[0]==0 ){
+    style_header("Admin Messaging Disabled");
+    @ <p>Messages to the administrator are disabled on this repository
+    style_footer();
+    return;
+  }
+  if( P("submit")!=0 
+   && P("subject")!=0
+   && P("msg")!=0
+   && P("from")!=0
+   && cgi_csrf_safe(1)
+   && captcha_is_correct(0)
+  ){
+    Blob hdr, body;
+    EmailSender *pSender = email_sender_new(0,0);
+    blob_init(&hdr, 0, 0);
+    blob_appendf(&hdr, "To: %s\nSubject: %s administrator message\n",
+                 zAdminEmail, db_get("email-subname","Fossil Repo"));
+    blob_init(&body, 0, 0);
+    blob_appendf(&body, "Message from [%s]\n", PT("from")/*safe-for-%s*/);
+    blob_appendf(&body, "Subject: [%s]\n\n", PT("subject")/*safe-for-%s*/);
+    blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
+    email_send(pSender, &hdr, &body);
+    style_header("Message Sent");
+    if( pSender->zErr ){
+      @ <h1>Internal Error</h1>
+      @ <p>The following error was reported by the system:
+      @ <blockquote><pre>
+      @ %h(pSender->zErr)
+      @ </pre></blockquote>
+    }else{
+      @ <p>Your message has been sent to the repository administrator.
+      @ Thank you for your input.</p>
+    }
+    email_sender_free(pSender);
+    style_footer();
+    return;
+  }
+  if( captcha_needed() ){
+    uSeed = captcha_seed();
+    zDecoded = captcha_decode(uSeed);
+    zCaptcha = captcha_render(zDecoded);
+  }
+  style_header("Message To Administrator");
+  form_begin(0, "%R/msgadmin");
+  @ <p>Enter a message for the repository administrator below:</p>
+  @ <table class="subscribe">
+  if( zCaptcha ){
+    @ <tr>
+    @  <td class="form_label">Security&nbsp;Code:</td>
+    @  <td><input type="text" name="captcha" value="" size="10">
+    @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
+    @ </tr>
+  }
+  @ <tr>
+  @  <td class="form_label">Your&nbsp;Email&nbsp;Address:</td>
+  @  <td><input type="text" name="from" value="%h(PT("from"))" size="30"></td>
+  @ </tr>
+  @ <tr>
+  @  <td class="form_label">Subject:</td>
+  @  <td><input type="text" name="subject" value="%h(PT("subject"))"\
+  @  size="80"></td>
+  @ </tr>
+  @ <tr>
+  @  <td class="form_label">Message:</td>
+  @  <td><textarea name="msg" cols="80" rows="10" wrap="virtual">\
+  @ %h(PT("msg"))</textarea>
+  @ </tr>
+  @ <tr>
+  @   <td></td>
+  @   <td><input type="submit" name="submit" value="Send Message">
+  @ </tr>
+  @ </table>
+  if( zCaptcha ){
+    @ <div class="captcha"><table class="captcha"><tr><td><pre>
+    @ %h(zCaptcha)
+    @ </pre>
+    @ Enter the 8 characters above in the "Security Code" box
+    @ </td></tr></table></div>
+  }
+  @ </form>
+  style_footer();
+}
