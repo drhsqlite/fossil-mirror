@@ -1,5 +1,5 @@
-C Fix\sthe\suse\sof\scaptchas\son\sthe\s/msgadmin\spage.
-D 2018-06-23T19:51:34.225
+C Do\snot\srequire\sEmail-Notify\spermission\sto\soperate\sthe\s/alerts\spage\swith\na\svalid\ssubscriberCode.
+D 2018-06-23T19:55:52.976
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c 06e048043e95b3189b7b54550efcedf6512825c94acbb050d0a9573b75d02b98
+F src/email.c 8da0ceef7dd9af0fa2e8e4cf4fad888920459ec4764ee422ba2d2b15c0277420
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c4d3c128ae0df31c619f6b2ea04be19b0ee369661cf287e8f17c272d96c1900
-R 8ce0799ec55a167f9efa2294280be951
+P 43532cd1d563bc66bed5d65d20b04667e30125d7166805f94ffefc1e39813ff2
+R 4622823c33ce2edbd2dacb1d29a430f5
 U drh
-Z b8938f62973174abc0642c29fad0cc62
+Z 360b57392a8edaee1500d57a389f7eba
