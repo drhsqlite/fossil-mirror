@@ -971,7 +971,7 @@ void user_edit(void){
 /*
 ** Generate a checkbox for an attribute.
 */
-static void onoff_attribute(
+void onoff_attribute(
   const char *zLabel,   /* The text label on the checkbox */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */

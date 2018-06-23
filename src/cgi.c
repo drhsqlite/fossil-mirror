@@ -338,6 +338,11 @@ void cgi_reply(void){
   }
   fflush(g.httpOut);
   CGIDEBUG(("DONE\n"));
+
+  /* After the webpage has been sent, do any useful background
+  /* processing.
+  */
+  email_auto_exec();
 }
 
 /*

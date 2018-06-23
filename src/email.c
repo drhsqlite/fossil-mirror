@@ -234,6 +234,15 @@ void setup_email(void){
   @ (Property: "email-subname")</p>
   @ <hr>
 
+  onoff_attribute("Automatic Email Exec", "email-autoexec",
+                   "eauto", 0, 0);
+  @ <p>If enabled, then email notifications are automatically
+  @ dispatched after some webpages are accessed.  This eliminates the
+  @ need to have a cron job running to invoke "fossil email exec"
+  @ periodically.
+  @ (Property: "email-autoexec")</p>
+  @ <hr>
+
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
   @ <p>How to send email.  The "Pipe to a command"
@@ -1660,7 +1669,7 @@ void test_add_alert_cmd(void){
 #endif /* INTERFACE */
 
 /*
-** Send alert emails to all subscribers
+** Send alert emails to all subscribers.
 */
 void email_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
@@ -1754,5 +1763,30 @@ void email_send_alerts(u32 flags){
   }
 send_alerts_done:
   email_sender_free(pSender);
+  db_end_transaction(0);
+}
+
+/*
+** Check to see if any email notifications need to occur, and then
+** do them.
+**
+** This routine is called after certain webpages have been run and
+** have already responded.
+*/
+void email_auto_exec(void){
+  int iJulianDay;
+  if( g.db==0 ) return;
+  db_begin_transaction();
+  if( !email_tables_exist() ) goto autoexec_done;
+  if( !db_get_boolean("email-autoexec",0) ) goto autoexec_done;
+  if( !db_exists("SELECT 1 FROM pending_alert") ) goto autoexec_done;
+  email_send_alerts(0);
+  iJulianDay = db_int(0, "SELECT julianday('now')");
+  if( iJulianDay>db_get_int("email-last-digest",0) ){
+    email_send_alerts(SENDALERT_DIGEST);
+    db_set_int("email-last-digest", iJulianDay, 0);
+  }
+
+autoexec_done:
   db_end_transaction(0);
 }
