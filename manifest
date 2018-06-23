@@ -1,5 +1,5 @@
-C Rework\sthe\sinternal\semail\ssending\slogic\sso\sthat\sit\sis\sconnection-oriented.\nThis\smakes\sit\smore\sefficient\sand\smakes\sit\seasier\sto\sadd\ssupport\sfor\san\nSMTP\ssending\smethod\sat\sa\slater\sdate.
-D 2018-06-23T14:24:24.238
+C Add\san\sinitial\sdraft\sof\sdesign\snotes\sfor\sthe\semail\snotification\ssystem.
+D 2018-06-23T15:48:49.031
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -716,6 +716,7 @@ F tools/cvs2fossil/lib/trouble.tcl c6cef7555cede649dab283c4a15ea0d2ec71d042
 F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
 F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
+F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
@@ -779,6 +780,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
+F www/emaildesign.md f4f71deb519244ef8644c04bc01593f1f5d36b9b9e2fe498f97154aede00e9b1
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -849,7 +851,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2c3b903043c65cbf30355d7585797a140ad448e165d7d91b725ea365d5f125e8
-R 3d02901ed361a55a0385ddf24e8d4be2
+P b42189878e66cfd569298fa26a4a73a3face1fd4a3c4ec193ab13b4da408339f
+R 8400b14e1a4278ab73f129ab18ab8778
 U drh
-Z 489925113eecc3bbe00f34bdb0ae67bc
+Z a874765670843f5e54abb64bfafc505e
