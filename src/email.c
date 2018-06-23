@@ -105,7 +105,7 @@ void email_triggers_enable(void){
   db_multi_exec(
     "CREATE TRIGGER IF NOT EXISTS repository.email_trigger1\n"
     "AFTER INSERT ON event BEGIN\n"
-    "  INSERT INTO pending_alert(eventid,mtime)\n"
+    "  INSERT INTO pending_alert(eventid)\n"
     "    SELECT printf('%%.1c%%d',new.type,new.objid),"
     "           julianday('now') WHERE true\n"
     "    ON CONFLICT(eventId) DO NOTHING;\n"
