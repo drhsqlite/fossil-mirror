@@ -596,7 +596,7 @@ static int submitTicketCmd(
   int needMod;
 
   login_verify_csrf_secret();
-  if( !captcha_is_correct() ){
+  if( !captcha_is_correct(0) ){
     @ <p class="generalError">Error: Incorrect security code.</p>
     return TH_OK;
   }

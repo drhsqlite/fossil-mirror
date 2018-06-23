@@ -484,6 +484,13 @@ void blob_rewind(Blob *p){
 }
 
 /*
+** Truncate a blob back to zero length
+*/
+void blob_truncate(Blob *p){
+  p->nUsed = 0;
+}
+
+/*
 ** Seek the cursor in a blob to the indicated offset.
 */
 int blob_seek(Blob *p, int offset, int whence){
@@ -654,6 +661,16 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
     blob_append(pTo, &pFrom->aData[pFrom->iCursor], i - pFrom->iCursor);
   }
   pFrom->iCursor = i;
+}
+
+/*
+** Ensure that the text in pBlob ends with '\n'
+*/
+void blob_add_final_newline(Blob *pBlob){
+  if( pBlob->nUsed<=0 ) return;
+  if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
+    blob_append(pBlob, "\n", 1);
+  }
 }
 
 /*

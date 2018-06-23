@@ -58,6 +58,8 @@
 #define PT(x)       cgi_parameter_trimmed((x),0)
 #define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 #define PB(x)       cgi_parameter_boolean(x)
+#define PCK(x)      cgi_parameter_checked(x,1)
+#define PIF(x,y)    cgi_parameter_checked(x,y)
 
 
 /*
@@ -1119,6 +1121,29 @@ int cgi_parameter_boolean(const char *zName){
   const char *zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) return 0;
   return zIn[0]==0 || is_truth(zIn);
+}
+
+/*
+** Return either an empty string "" or the string "checked" depending
+** on whether or not parameter zName has value iValue.  If parameter
+** zName does not exist, that is assumed to be the same as value 0.
+**
+** This routine implements the PCK(x) and PIF(x,y) macros.  The PIF(x,y)
+** macro generateds " checked" if the value of parameter x equals integer y.
+** PCK(x) is the same as PIF(x,1).  These macros are used to generate
+** the "checked" attribute on checkbox and radio controls of forms.
+*/
+const char *cgi_parameter_checked(const char *zName, int iValue){
+  const char *zIn = cgi_parameter(zName,0);
+  int x;
+  if( zIn==0 ){
+    x = 0;
+  }else if( !fossil_isdigit(zIn[0]) ){
+    x = is_truth(zIn);
+  }else{
+    x = atoi(zIn);
+  }
+  return x==iValue ? "checked" : "";
 }
 
 /*

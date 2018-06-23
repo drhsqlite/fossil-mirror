@@ -333,7 +333,11 @@ static int is_sql_safe(const char *z){
 */
 static int never_safe(const char *z){
   if( strstr(z,"/*safe-for-%s*/")!=0 ) return 0;
-  if( z[0]=='P' ) return 1;  /* CGI macros like P() and PD() */
+  if( z[0]=='P' ){
+    if( strncmp(z,"PIF(",4)==0 ) return 0;
+    if( strncmp(z,"PCK(",4)==0 ) return 0;
+    return 1;
+  }
   if( strncmp(z,"cgi_param",9)==0 ) return 1;
   return 0;
 }

@@ -146,7 +146,8 @@ static void rebuild_update_schema(void){
 **       is greater than or equal to 40, not exactly equal to 40.
 */
 void rebuild_schema_update_2_0(void){
-  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master WHERE name='blob'");
+  char *z = db_text(0, "SELECT sql FROM repository.sqlite_master"
+                       " WHERE name='blob'");
   if( z ){
     /* Search for:  length(uuid)==40
     **              0123456789 12345   */
@@ -359,6 +360,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
+  email_triggers_disable();
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
   db_prepare(&q,
@@ -367,7 +369,8 @@ int rebuild_db(int randomize, int doOut, int doClustering){
      " AND name NOT IN ('admin_log', 'blob','delta','rcvfrom','user','alias',"
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
-                       "'purgeevent','purgeitem','unversioned')"
+                       "'purgeevent','purgeitem','unversioned',"
+                       "'subscriber','pending_alert','email_bounce')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );
@@ -448,6 +451,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
+  email_triggers_enable();
   if(!g.fQuiet && ttyOutput ){
     percent_complete(1000);
     fossil_print("\n");

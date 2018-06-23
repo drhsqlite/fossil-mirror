@@ -732,6 +732,11 @@ void login_page(void){
     @ </form>
   }
   if( g.zLogin && g.perm.Password ){
+    if( email_enabled() ){
+      @ <hr>
+      @ <p>Configure <a href="%R/alerts">Email Alerts</a>
+      @ for user <b>%h(g.zLogin)</b></p>
+    }
     @ <hr />
     @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");
@@ -1349,6 +1354,15 @@ void login_as_user(const char *zUser){
 */
 int login_is_nobody(void){
   return g.zLogin==0 || g.zLogin[0]==0 || fossil_strcmp(g.zLogin,"nobody")==0;
+}
+
+/*
+** Return true if the user is a specific individual, not "nobody" or
+** "anonymous".
+*/
+int login_is_individual(void){
+  return g.zLogin!=0 && g.zLogin[0]!=0 && fossil_strcmp(g.zLogin,"nobody")!=0
+           && fossil_strcmp(g.zLogin,"anonymous")!=0;
 }
 
 /*
