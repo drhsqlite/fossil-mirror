@@ -1802,6 +1802,7 @@ void msgadmin_page(void){
   const char *zDecoded;
   char *zCaptcha = 0;
 
+  login_check_credentials();
   if( zAdminEmail==0 || zAdminEmail[0]==0 ){
     style_header("Admin Messaging Disabled");
     @ <p>Messages to the administrator are disabled on this repository
@@ -1847,7 +1848,7 @@ void msgadmin_page(void){
   }
   style_header("Message To Administrator");
   form_begin(0, "%R/msgadmin");
-  @ <p>Enter a message for the repository administrator below:</p>
+  @ <p>Enter a message to the repository administrator below:</p>
   @ <table class="subscribe">
   if( zCaptcha ){
     @ <tr>
