@@ -107,3 +107,26 @@ Inbound email messages (for example bounces from failed notification
 emails) should be relayed to the "fossil email inbound" command.  That
 command is currently a no-op place-holder.  At some point, we will need
 to design and write a bounce-message processing system for Fossil.
+
+Controlling The Setup
+---------------------
+
+Commands:
+
+   *  The [email](/help?cmd=email) command
+
+Web pages:
+
+   *  The [/subscribe](/help?cmd=/subscribe) page
+   *  The [/alerts](/help?cmd=/alerts) page
+   *  The [/unsubscribe](/help?cmd=/unsubscribe) page
+
+Web pages for administrators only:
+
+   *  The [/setup_email](/help?cmd=/setup_email) page
+   *  The [/subscribers](/help?cmd=/subscribers) page
+
+Test command:
+
+   *  The [test-alert](/help?cmd=test-alert) command
+   *  The [test-add-alerts](/help?cmd=test-add-alerts) command

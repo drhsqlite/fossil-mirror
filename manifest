@@ -1,5 +1,5 @@
-C Add\sthe\sdecode-email.c\sutility\sprogram\ssource\scode.
-D 2018-06-23T15:49:57.750
+C Improved\sdocumentation.\s\sNo\ssubstantive\scode\schanges.
+D 2018-06-23T16:44:04.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
-F src/email.c 64b92216a5ebe0d3c56bcbd2b85db96acceb1bacee24fb9ff0903e0b62e3eec2
+F src/email.c 25970ebeafe3a24300d7c1ae6aa4a075a8138553d5f0e2699265c574e3b5a4b0
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -546,7 +546,7 @@ F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
 F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
-F src/setup.c b2f6e37523b7dc5230eae2347e9952680bc3260c5586440b56f4e2ed3f3e6f5e
+F src/setup.c 0a1eb4a079b44316be458f11e43170022986529cda37fe5e612cea801e9fd3ac
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -781,7 +781,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md f4f71deb519244ef8644c04bc01593f1f5d36b9b9e2fe498f97154aede00e9b1
+F www/emaildesign.md cabe963a6f1c3f756f2e5089ca07ba3c9f5c448dd0a009d0c8d14bb9e4ce288c
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -852,7 +852,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aeb98be80f1d51f583b478de25919b2153d49c3a577925b8c6864b7ecfd67bd2
-R a84f229d66d3e0590569f30c02bcef51
+P 17b4d3e49a3797f1434ec3261a61fda70ebc6448bdbd031156430971756be99e
+R c63277fb224931cbcb04bfc0c6bc8bc6
 U drh
-Z cbc8a2aff369b95ac0707407f98320b3
+Z 683e04d49da1b355b51de77c0452d986

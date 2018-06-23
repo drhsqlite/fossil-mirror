@@ -364,8 +364,9 @@ static void setup_usercap_table(void){
      @   <td><i>Forum-Moderator:</i> Approve or disapprove forum posts</td></tr>
      @ <tr><th valign="top">6</th>
      @   <td><i>Forum-Supervisor:</i> \
+     @ Forum administrator
      @ <tr><th valign="top">7</th>
-     @   <td><i>Email-Notify:</i> \
+     @   <td><i>Email-Alerts:</i> \
      @ Sign up for email notifications</td></tr>
   @ </table>
 }

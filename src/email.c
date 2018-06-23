@@ -154,7 +154,8 @@ void email_submenu_common(void){
 /*
 ** WEBPAGE: setup_email
 **
-** Administrative page for configuring and controlling email notification
+** Administrative page for configuring and controlling email notification.
+** Normally accessible via the /Admin/Email menu.
 */
 void setup_email(void){
   static const char *const azSendMethods[] = {
@@ -814,8 +815,19 @@ static const char zConfirmMsg[] =
 /*
 ** WEBPAGE: subscribe
 **
-** Allow users to subscribe to email notifications, or to change or
-** verify their subscription.
+** Allow users to subscribe to email notifications.
+**
+** This page is usually run by users who are not logged in.
+** A logged-in user can add email notificates on the /alerts page.
+** Access to this page by a logged in user (other than an
+** administrator) results in a redirect to the /alerts page.
+**
+** Administrators can visit this page in order to sign up other
+** users.
+**
+** The Email-Alerts permission ("7") is required to access this
+** page.  To allow anonymous passers-by to sign up for email
+** notification, set Email-Alerts on user "nobody" or "anonymous".
 */
 void subscribe_page(void){
   int needCaptcha;
@@ -1028,7 +1040,7 @@ static void email_unsubscribe(const char *zName){
 **
 ** Edit email alert and notification settings.
 **
-** The subscriber entry is identified in either of two ways:
+** The subscriber is identified in either of two ways:
 **
 **    (1)  The name= query parameter contains the subscriberCode.
 **         
@@ -1374,8 +1386,10 @@ void unsubscribe_page(void){
 ** WEBPAGE: subscribers
 **
 ** This page, accessible to administrators only,
-** shows a list of email notification email addresses with
-** links to facilities for editing.
+** shows a list of email notification email addresses.
+** Clicking on an email takes one to the /alerts page
+** for that email where the delivery settings can be
+** modified.
 */
 void subscriber_list_page(void){
   Blob sql;
@@ -1584,6 +1598,11 @@ void test_alert_cmd(void){
 ** Add one or more events to the pending_alert queue.  Use this
 ** command during testing to force email notifications for specific
 ** events.
+**
+** EVENTIDs are text.  The first character is 'c', 'w', or 't'
+** for check-in, wiki, or ticket.  The remaining text is a
+** integer that references the EVENT.OBJID value for the event.
+** Run /timeline?showid to see these OBJID values.
 */
 void test_add_alert_cmd(void){
   int i;
