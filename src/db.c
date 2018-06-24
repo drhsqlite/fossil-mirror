@@ -176,7 +176,7 @@ void db_begin_transaction(void){
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
   if( db.nBegin<=0 ){
-    fossil_warning("Extra call to db_end_transaction\n");
+    fossil_warning("Extra call to db_end_transaction");
     return;
   }
   if( rollbackFlag ){
@@ -1779,7 +1779,7 @@ void db_close(int reportErrors){
     db_finalize(db.pAllStmt);
   }
   if( db.nBegin ){
-    fossil_warning("Missed call to db_end_transaction(). Rolling back.\n");
+    fossil_warning("Missed call to db_end_transaction(). Rolling back.");
     db_end_transaction(1);
   }
   pStmt = 0;

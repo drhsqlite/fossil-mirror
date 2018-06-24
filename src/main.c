@@ -2726,11 +2726,16 @@ void test_echo_cmd(void){
 */
 void test_warning_page(void){
   int iCase = atoi(PD("case","1"));
+  int i;
   login_check_credentials();
   if( !g.perm.Admin ){ fossil_redirect_home(); return; }
   style_header("Warning Test Page");
-  @ <p>This is the test page for case=%d(iCase)</p>
-  @ <ol>
+  @ <p>This is the test page for case=%d(iCase).  Cases:
+  for(i=1; i<=3; i++){
+    @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
+  }
+  @ </p>
+  @ <p><ol>
   @ <li value='1'> Call fossil_warning()
   if( iCase==1 ){
     fossil_warning("Test warning message from /test-warning");

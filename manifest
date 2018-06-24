@@ -1,5 +1,5 @@
-C Extra\sdefenses\sagainst\srunning\sthe\sdigest\salert\sgenerator\sin\sa\scontext\swhere\nthe\stransaction\swill\srollback,\sthus\sfailing\sto\srecord\sthe\snew\sdigest\stime.\nChange\sthe\s"fossil\sserver"\sand\s"fossil\sui"\scommands\sto\salways\slog\serrors\sto\nthe\sconsole\sif\sno\sother\serror\slogging\sis\sdefined.
-D 2018-06-24T17:44:57.110
+C Improvements\sto\sthe\s/test-warning\swebpage.
+D 2018-06-24T17:51:39.264
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -453,7 +453,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c dab8a982345f3639d43537fbc5770478b11da9944d3d834e905b1c0ec90cbf68
+F src/db.c 1669f427e30a7e9904402b831cc435a61a2c8b6a53102344a0737ac5f1f1073c
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -509,7 +509,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 68d89a3a9e784108ee3ba02a5e86f7611cad4b65a7c44bf17eeb4a4f6680ff13
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 40bd6e5c8a5148ee0d9544d36dcb78190f145aca4547711c2b82215cd3121570
+F src/main.c 551450aa735375b2e64861afdb7a2faa39e9a0b4117681c9fb8fd0306b0323cb
 F src/main.mk e925233bfdf31fd16342e147fe4cd37a3896ea0cd717db67ecb84327c0475377
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3de8b663256229dc5f02bec62160160d521a5622ee063869aeb08c46cf0ab21
-R 65bf05d4767461a882328906de87759f
+P f87fb02780a03b1d128528ad1fda9bb78030443256fd329d7979d2738a845b66
+R aa9e08f35ce38b091f4a1c527379efca
 U drh
-Z 1a703020781504471e526cf68af94102
+Z 360ae171718358bb98a7412a497c6e96
