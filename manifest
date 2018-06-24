@@ -1,5 +1,5 @@
-C Fix\sthe\s/doc\swebpage\sso\sthat\sit\sdoes\snot\scall\sfossil_fatal()\swhen\sit\ncannot\sfind\sthe\srequested\sdocument.\s\sIt\ssimply\sdoes\sa\s404\sroutine.\nBy\snot\scalling\sfossil_fatal(),\sit\savoids\sunnecessary\sentries\sin\sthe\nerror\slog.
-D 2018-06-24T18:47:10.535
+C Do\snot\sreport\serrors\sto\sthe\serror\slog\son\sa\s304\sreply.
+D 2018-06-24T19:27:33.710
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -453,7 +453,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 1669f427e30a7e9904402b831cc435a61a2c8b6a53102344a0737ac5f1f1073c
+F src/db.c 3d86182edc241ee9ed2c416d652ec3c7640f57ae66931142c748dce83e9306de
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -465,7 +465,7 @@ F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982d
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
 F src/email.c 4bce232ff2c448d2ce8491ab3b920f81b1f3f1a78e30af328dd2ece45978d71a
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
-F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
+F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4eb3e0f20e04edc563d903065486c85a56d883e323c6a1e15503e21ff85c9969
-R ee5d688733dc8926a9f1cdecbc3b21e9
+P 29cb8260c0d62ec60ff098bbe99336eb2d46a2d53e39bcc2b8540a1aa0167242
+R 1f0e05f73ff4b0689f251e3ae26febb1
 U drh
-Z 7593ae4401ae8e9fc7b34cca40cc17a0
+Z ee61b4ec5b3f693743c92e05fddeb1a2

@@ -128,6 +128,7 @@ void etag_check(unsigned eFlags, const char *zHash){
   cgi_reset_content();
   cgi_set_status(304, "Not Modified");
   cgi_reply();
+  db_close(0);
   fossil_exit(0);
 }
 
@@ -162,6 +163,7 @@ void etag_last_modified(sqlite3_int64 mtime){
   cgi_reset_content();
   cgi_set_status(304, "Not Modified");
   cgi_reply();
+  db_close(0);
   fossil_exit(0);
 }
 

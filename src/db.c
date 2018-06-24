@@ -1778,7 +1778,7 @@ void db_close(int reportErrors){
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
-  if( db.nBegin ){
+  if( db.nBegin && reportErrors ){
     fossil_warning("Missed call to db_end_transaction(). Rolling back.");
     db_end_transaction(1);
   }
