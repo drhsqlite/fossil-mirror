@@ -2510,6 +2510,10 @@ void cmd_webserver(void){
   zStopperFile = find_option("stopper", 0, 1);
 #endif
 
+  if( g.zErrlog==0 ){
+    g.zErrlog = "-";
+    g.fAnyTrace = 1;
+  }
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2708,4 +2712,38 @@ void test_echo_cmd(void){
       fossil_print("]\n");
     }
   }
+}
+
+/*
+** WEBPAGE: test-warning
+**
+** Test error and warning log operation.  This webpage is accessible to
+** the administrator only.
+**
+**     case=1           Issue a fossil_warning() while generating the page.
+**     case=2           Extra db_begin_transaction()
+**     case=3           Extra db_end_transaction()
+*/
+void test_warning_page(void){
+  int iCase = atoi(PD("case","1"));
+  login_check_credentials();
+  if( !g.perm.Admin ){ fossil_redirect_home(); return; }
+  style_header("Warning Test Page");
+  @ <p>This is the test page for case=%d(iCase)</p>
+  @ <ol>
+  @ <li value='1'> Call fossil_warning()
+  if( iCase==1 ){
+    fossil_warning("Test warning message from /test-warning");
+  }
+  @ <li value='2'> Call db_begin_transaction()
+  if( iCase==2 ){
+    db_begin_transaction();
+  }
+  @ <li value='3'> Call db_end_transaction()
+  if( iCase==3 ){
+    db_end_transaction(0);
+  }
+  @ </ol>
+  @ <p>End of test</p>
+  style_footer();
 }

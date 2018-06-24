@@ -137,6 +137,14 @@ void db_delete_on_failure(const char *zFilename){
 }
 
 /*
+** Return the transaction nesting depth.  0 means we are currently
+** not in a transaction.
+*/
+int db_transaction_nesting_depth(void){
+  return db.nBegin;
+}
+
+/*
 ** This routine is called by the SQLite commit-hook mechanism
 ** just prior to each commit.  All this routine does is verify
 ** that nBegin really is zero.  That insures that transactions
@@ -167,7 +175,10 @@ void db_begin_transaction(void){
 }
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
-  if( db.nBegin<=0 ) return;
+  if( db.nBegin<=0 ){
+    fossil_warning("Extra call to db_end_transaction\n");
+    return;
+  }
   if( rollbackFlag ){
     db.doRollback = 1;
     if( g.fSqlTrace ) fossil_trace("-- ROLLBACK by request\n");
@@ -1767,9 +1778,12 @@ void db_close(int reportErrors){
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
-  db_end_transaction(1);
+  if( db.nBegin ){
+    fossil_warning("Missed call to db_end_transaction(). Rolling back.\n");
+    db_end_transaction(1);
+  }
   pStmt = 0;
-  g.dbIgnoreErrors++;  /* Stop "database locked" warnings from PRAGMA optimize */
+  g.dbIgnoreErrors++; /* Stop "database locked" warnings from PRAGMA optimize */
   sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
   g.dbIgnoreErrors--;
   db_close_config();

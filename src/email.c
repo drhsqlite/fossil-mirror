@@ -1774,20 +1774,23 @@ send_alerts_done:
 void email_auto_exec(void){
   int iJulianDay;
   if( g.db==0 ) return;
+  if( db_transaction_nesting_depth()!=0 ){
+    fossil_warning("Called email_auto_exec() from within a transaction");
+    return;
+  }
   db_begin_transaction();
   if( !email_tables_exist() ) goto autoexec_done;
   if( !db_get_boolean("email-autoexec",0) ) goto autoexec_done;
   if( !db_exists("SELECT 1 FROM pending_alert") ) goto autoexec_done;
   email_send_alerts(0);
   iJulianDay = db_int(0, "SELECT julianday('now')");
-  if( g.fSqlTrace ) fossil_trace("-- iJulianDay: %d\n", iJulianDay);
   if( iJulianDay>db_get_int("email-last-digest",0) ){
-    db_multi_exec(
-      "REPLACE INTO repository.config(name,value,mtime)"
-      " VALUES('email-last-digest',%d,now())",
-      iJulianDay
-    );
-    email_send_alerts(SENDALERT_DIGEST);
+    if( db_transaction_nesting_depth()!=1 ){
+      fossil_warning("Transaction nesting error prior to digest processing");
+    }else{
+      db_set_int("email-last-digest",iJulianDay,0);
+      email_send_alerts(SENDALERT_DIGEST);
+    }
   }
 
 autoexec_done:

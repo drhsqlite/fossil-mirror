@@ -994,8 +994,12 @@ static void fossil_errorlog(const char *zFormat, ...){
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
-  out = fossil_fopen(g.zErrlog, "a");
-  if( out==0 ) return;
+  if( g.zErrlog[0]=='-' && g.zErrlog[1]==0 ){
+    out = stderr;
+  }else{
+    out = fossil_fopen(g.zErrlog, "a");
+    if( out==0 ) return;
+  }
   now = time(0);
   pNow = gmtime(&now);
   fprintf(out, "------------- %04d-%02d-%02d %02d:%02d:%02d UTC ------------\n",
