@@ -1,5 +1,5 @@
-C Do\snot\sreport\serrors\sto\sthe\serror\slog\son\sa\s304\sreply.
-D 2018-06-24T19:27:33.710
+C Any\scall\sto\sfossil_fatal()\swhile\sgenerating\sa\swebpage\schanges\sthe\soutput\nto\sa\s400\sBad\sRequest\swith\san\sappropriately\sformatted\sweb\spage.
+D 2018-06-24T23:17:49.259
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 68d89a3a9e784108ee3ba02a5e86f7611cad4b65a7c44bf17eeb4a4f6680ff13
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 551450aa735375b2e64861afdb7a2faa39e9a0b4117681c9fb8fd0306b0323cb
+F src/main.c a20b6f676e58726fe1664ec4ab3e60eb8a103c625d42c30da73e18ca2534611d
 F src/main.mk e925233bfdf31fd16342e147fe4cd37a3896ea0cd717db67ecb84327c0475377
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -534,7 +534,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c f82a361fa921bac296d60994231dc3d1cf61ece514c965f2e543fb68abd6a175
+F src/printf.c 4e9a0c44250c7c92438a0907c77fd5457aa1e0c4619a6a2408f920b5bc38fcdf
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29cb8260c0d62ec60ff098bbe99336eb2d46a2d53e39bcc2b8540a1aa0167242
-R 1f0e05f73ff4b0689f251e3ae26febb1
+P 60c8eca305b1ea95bd479eed8cad24a3e4cfe1c81ec67e77ab214d7c05b05abc
+R fb10f3b26fb8b8068cbb409f9724a9a6
 U drh
-Z ee61b4ec5b3f693743c92e05fddeb1a2
+Z aa001899303521d12772eeff411e6654

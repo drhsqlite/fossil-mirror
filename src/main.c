@@ -164,7 +164,7 @@ struct Global {
   char *zErrMsg;          /* Text of an error message */
   int sslNotAvailable;    /* SSL is not available.  Do not redirect to https: */
   Blob cgiIn;             /* Input to an xfer www method */
-  int cgiOutput;          /* Write error and status messages to CGI */
+  int cgiOutput;          /* 0: command-line 1: CGI. 2: CGI after an error */
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */

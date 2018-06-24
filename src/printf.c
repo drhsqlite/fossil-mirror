@@ -1058,6 +1058,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   {
     if( g.cgiOutput ){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
+      cgi_set_status(500, "Internal Server Error");
       cgi_reply();
     }else if( !g.fQuiet ){
       fossil_force_newline();
@@ -1088,16 +1089,20 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
   else
 #endif
   {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
+    if( g.cgiOutput==1 ){
+      g.cgiOutput = 2;
+      cgi_reset_content();
+      style_header("Bad Request");
+      @ <p class="generalError">%h(z)</p>
+      cgi_set_status(400, "Bad Request");
+      style_footer();
       cgi_reply();
     }else if( !g.fQuiet ){
       fossil_force_newline();
       fossil_trace("%s\n", z);
     }
   }
-  free(z);
+  fossil_free(z);
   db_force_rollback();
   fossil_exit(rc);
 }
@@ -1133,6 +1138,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
     if( g.cgiOutput ){
       g.cgiOutput = 0;
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
+      cgi_set_status(400, "Bad Request");
       cgi_reply();
     }else{
       fossil_force_newline();
