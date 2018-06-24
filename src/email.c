@@ -1679,6 +1679,7 @@ void email_send_alerts(u32 flags){
   const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
   EmailSender *pSender = 0;
 
+  if( g.fSqlTrace ) fossil_trace("-- BEGIN email_send_alerts(%u)\n", flags);
   db_begin_transaction();
   if( !email_enabled() ) goto send_alerts_done;
   zUrl = db_get("email-url",0);
@@ -1705,7 +1706,7 @@ void email_send_alerts(u32 flags){
     );
   }
   pEvents = email_compute_event_text(&nEvent);
-  if( nEvent==0 ) return;
+  if( nEvent==0 ) goto send_alerts_done;
   blob_init(&hdr, 0, 0);
   blob_init(&body, 0, 0);
   db_prepare(&q,
@@ -1759,6 +1760,7 @@ void email_send_alerts(u32 flags){
   }
 send_alerts_done:
   email_sender_free(pSender);
+  if( g.fSqlTrace ) fossil_trace("-- END email_send_alerts(%u)\n", flags);
   db_end_transaction(0);
 }
 
@@ -1778,9 +1780,14 @@ void email_auto_exec(void){
   if( !db_exists("SELECT 1 FROM pending_alert") ) goto autoexec_done;
   email_send_alerts(0);
   iJulianDay = db_int(0, "SELECT julianday('now')");
+  if( g.fSqlTrace ) fossil_trace("-- iJulianDay: %d\n", iJulianDay);
   if( iJulianDay>db_get_int("email-last-digest",0) ){
+    db_multi_exec(
+      "REPLACE INTO repository.config(name,value,mtime)"
+      " VALUES('email-last-digest',%d,now())",
+      iJulianDay
+    );
     email_send_alerts(SENDALERT_DIGEST);
-    db_set_int("email-last-digest", iJulianDay, 0);
   }
 
 autoexec_done:

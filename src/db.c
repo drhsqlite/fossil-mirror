@@ -161,13 +161,17 @@ void db_begin_transaction(void){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
     db.nPriorChanges = sqlite3_total_changes(g.db);
+    db.doRollback = 0;
   }
   db.nBegin++;
 }
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
   if( db.nBegin<=0 ) return;
-  if( rollbackFlag ) db.doRollback = 1;
+  if( rollbackFlag ){
+    db.doRollback = 1;
+    if( g.fSqlTrace ) fossil_trace("-- ROLLBACK by request\n");
+  }
   db.nBegin--;
   if( db.nBegin==0 ){
     int i;
@@ -182,7 +186,11 @@ void db_end_transaction(int rollbackFlag){
       leaf_do_pending_checks();
     }
     for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
-      db.doRollback |= db.aHook[i].xHook();
+      int rc = db.aHook[i].xHook();
+      if( rc ){
+        db.doRollback = 1;
+        if( g.fSqlTrace ) fossil_trace("-- ROLLBACK due to aHook[%d]\n", i);
+      }
     }
     while( db.pAllStmt ){
       db_finalize(db.pAllStmt);
