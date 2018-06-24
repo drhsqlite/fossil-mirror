@@ -342,7 +342,9 @@ void cgi_reply(void){
   /* After the webpage has been sent, do any useful background
   /* processing.
   */
-  email_auto_exec();
+  if( iReplyStatus==200 ){
+    email_auto_exec();
+  }
 }
 
 /*

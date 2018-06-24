@@ -425,8 +425,10 @@ int name_to_typed_rid(const char *zName, const char *zType){
   if( zName==0 || zName[0]==0 ) return 0;
   rid = symbolic_name_to_rid(zName, zType);
   if( rid<0 ){
+    cgi_set_status(404, "Not Found");
     fossil_fatal("ambiguous name: %s", zName);
   }else if( rid==0 ){
+    cgi_set_status(404, "Not Found");
     fossil_fatal("not found: %s", zName);
   }
   return rid;
