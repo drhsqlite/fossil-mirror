@@ -1,5 +1,5 @@
-C Any\scall\sto\sfossil_fatal()\swhile\sgenerating\sa\swebpage\schanges\sthe\soutput\nto\sa\s400\sBad\sRequest\swith\san\sappropriately\sformatted\sweb\spage.
-D 2018-06-24T23:17:49.259
+C Include\sthe\sHTTP_REFERER\svalue\sin\sthe\serror\slog\sfile.\s\sAlso,\somit\sempty\nenvironment\svariables\sfrom\sthe\serror\slog.
+D 2018-06-24T23:22:07.813
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -534,7 +534,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 4e9a0c44250c7c92438a0907c77fd5457aa1e0c4619a6a2408f920b5bc38fcdf
+F src/printf.c a664d9df69b74719a7c48eacf8f4dd6fc65ea501c145f6fa257374cf98bb9970
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60c8eca305b1ea95bd479eed8cad24a3e4cfe1c81ec67e77ab214d7c05b05abc
-R fb10f3b26fb8b8068cbb409f9724a9a6
+P a0863d2b46174995a79f0f8e1c4c0fbf51020513d74152ece711e5b9fb0130d6
+R b475b04a75669a7c720bbd63543816bc
 U drh
-Z aa001899303521d12772eeff411e6654
+Z e38695f48eaef0c8ce61e2b6464f3d6f

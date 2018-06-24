@@ -990,7 +990,8 @@ static void fossil_errorlog(const char *zFormat, ...){
   const char *z;
   int i;
   va_list ap;
-  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_REFERER",
+      "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
@@ -1011,10 +1012,10 @@ static void fossil_errorlog(const char *zFormat, ...){
   va_end(ap);
   for(i=0; i<count(azEnv); i++){
     char *p;
-    if( (p = fossil_getenv(azEnv[i]))!=0 ){
+    if( (p = fossil_getenv(azEnv[i]))!=0 && p[0]!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);
       fossil_path_free(p);
-    }else if( (z = P(azEnv[i]))!=0 ){
+    }else if( (z = P(azEnv[i]))!=0 && z[0]!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
   }
