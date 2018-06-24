@@ -1,5 +1,5 @@
-C Only\sinvoke\sthe\semail\salert\ssender\safter\sa\ssuccessful\sHTTP\srequest.\nMark\sNot\sFound\srequests\sas\s404,\sunsuccessful.
-D 2018-06-24T18:22:53.094
+C Fix\sthe\s/doc\swebpage\sso\sthat\sit\sdoes\snot\scall\sfossil_fatal()\swhen\sit\ncannot\sfind\sthe\srequested\sdocument.\s\sIt\ssimply\sdoes\sa\s404\sroutine.\nBy\snot\scalling\sfossil_fatal(),\sit\savoids\sunnecessary\sentries\sin\sthe\nerror\slog.
+D 2018-06-24T18:47:10.535
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,7 +462,7 @@ F src/diff.c a97d1f282108136a64fa1cd82621324c91690851c5d78ec8a2f95dfd6c748afb
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
-F src/doc.c dbf23864f87604d8352cb2a4d6502aa83dc88e0d84f532e4b0987df94f7be52a
+F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
 F src/email.c 4bce232ff2c448d2ce8491ab3b920f81b1f3f1a78e30af328dd2ece45978d71a
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c d35e7c482862aca179518e2b26b46f1ddffd0be241f4dd2981f2b3670311977c
@@ -528,7 +528,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
-F src/name.c f55933d2d3c72fe0cd32e28f9b7fa3ad697841e59b06aef90cd1f8b35ea0f4c3
+F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d9ad7501e1fc4acafbccc260512f1832cae88c61fc2db759778468c62f4f4f3
-R 0118e8b81352e0d1c656426b92e1f527
+P 4eb3e0f20e04edc563d903065486c85a56d883e323c6a1e15503e21ff85c9969
+R ee5d688733dc8926a9f1cdecbc3b21e9
 U drh
-Z 8f7c5600d47dadaada404d863c97cefe
+Z 7593ae4401ae8e9fc7b34cca40cc17a0

@@ -666,8 +666,8 @@ void doc_page(void){
       }
       fossil_free(zFullpath);
     }else{
-      vid = name_to_typed_rid(zCheckin, "ci");
-      rid = doc_load_content(vid, zName, &filebody);
+      vid = symbolic_name_to_rid(zCheckin, "ci");
+      rid = vid>0 ? doc_load_content(vid, zName, &filebody) : 0;
     }
   }
   g.zPath = mprintf("%s/%s", g.zPath, zPathSuffix);
@@ -766,7 +766,6 @@ doc_not_found:
     @ in %z(href("%R/tree?ci=%T",zCheckin))%h(zCheckin)</a>
   }
   style_footer();
-  db_end_transaction(0);
   return;
 }
 
