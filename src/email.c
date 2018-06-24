@@ -1151,7 +1151,7 @@ void alerts_page(void){
         " sdigest=%d,"
         " ssub=%Q,"
         " smtime=julianday('now'),"
-        " smip=%Q,"
+        " smip=%Q"
         " WHERE subscriberCode=hextoblob(%Q)",
         sdonotcall,
         sdigest,
