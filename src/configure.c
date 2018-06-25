@@ -38,7 +38,7 @@
 #define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 #define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
-#define CONFIGSET_ALERT     0x000200     /* Email alerts */
+#define CONFIGSET_SCRIBERS  0x000200     /* Email subscribers */
 #define CONFIGSET_FORUM     0x000400     /* Forum posts */
 
 #define CONFIGSET_ALL       0x0007ff     /* Everything */
@@ -72,8 +72,8 @@ static struct {
   { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
   { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
   { "/alias",        CONFIGSET_ALIAS, "URL Aliases",                         },
-  { "/alert",        CONFIGSET_ALERT, "Notification sent by email",          },
-  { "/forum",        CONFIGSET_FORUM, "Forum posts",                         },
+  { "/subscribers",  CONFIGSET_SCRIBERS,"Email notification subscriber list" },
+/*  { "/forum",        CONFIGSET_FORUM, "Forum posts",                   }, */
   { "/all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
@@ -163,7 +163,7 @@ static struct {
 
   { "@alias",                 CONFIGSET_ALIAS },
 
-  { "@subscriber",            CONFIGSET_ALERT },
+  { "@subscriber",            CONFIGSET_SCRIBERS },
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
@@ -237,7 +237,7 @@ int configure_is_exportable(const char *zName){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
-        m &= ~(CONFIGSET_USER|CONFIGSET_ALERT);
+        m &= ~(CONFIGSET_USER|CONFIGSET_SCRIBERS);
       }
       if( !g.perm.RdForum ){
         m &= ~(CONFIGSET_FORUM);
@@ -326,7 +326,7 @@ static int safeInt(const char *z){
 ** zName is one of:
 **
 **     "/config", "/user",  "/shun", "/reportfmt", "/concealed",
-**     "/alert", "/forum"
+**     "/subscriber",
 **
 ** zName indicates the table that holds the configuration information being
 ** transferred.  pContent is a string that consist of alternating Fossil
@@ -352,7 +352,7 @@ static int safeInt(const char *z){
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
   int checkMask;   /* Masks for which we must first check existance of tables */
 
-  checkMask = CONFIGSET_ALERT;
+  checkMask = CONFIGSET_SCRIBERS;
   if( zName[0]=='/' ){
     /* The new format */
     char *azToken[24];
@@ -405,7 +405,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     if( (thisMask & groupMask)==0 ) return;
     if( (thisMask & checkMask)!=0 ){
-      if( (thisMask & CONFIGSET_ALERT)!=0 ){
+      if( (thisMask & CONFIGSET_SCRIBERS)!=0 ){
         email_schema(1);
       }
       checkMask &= ~thisMask;
@@ -587,7 +587,7 @@ int configure_send_group(
     }
     db_finalize(&q);
   }
-  if( (groupMask & CONFIGSET_ALERT)!=0
+  if( (groupMask & CONFIGSET_SCRIBERS)!=0
    && db_table_exists("repository","subscriber")
   ){
     db_prepare(&q, "SELECT mtime, quote(semail),"
@@ -654,7 +654,8 @@ int configure_name_to_mask(const char *z, int notFoundIsFatal){
   if( notFoundIsFatal ){
     fossil_print("Available configuration areas:\n");
     for(i=0; i<count(aGroupName); i++){
-      fossil_print("  %-10s %s\n", &aGroupName[i].zName[1], aGroupName[i].zHelp);
+      fossil_print("  %-13s %s\n",
+            &aGroupName[i].zName[1], aGroupName[i].zHelp);
     }
     fossil_fatal("no such configuration area: \"%s\"", z);
   }

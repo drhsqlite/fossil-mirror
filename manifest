@@ -1,5 +1,5 @@
-C Fix\sanother\sSQL\serror\son\sthe\sreceiver\sside\sof\s"fossil\sconfig\spull"
-D 2018-06-25T18:20:34.009
+C Fix\san\sextra\scall\sto\sdb_end_transaction()\sin\s"fossil\sconfig\spull\sticket".
+D 2018-06-25T18:43:45.465
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -447,7 +447,7 @@ F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c 3da69f1393165f3d1634c5367ae3f42b5c73754f36d9a743b39c3fe49753c0e6
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
-F src/configure.c 95522dd7c2076ad3b0dc638da0c3a1d3e0f45672a345c4918cb5f6ebb8829548
+F src/configure.c 1953ed8d6e545bf081b83f59f7c0bf82fdd97f287e40b082b46337df447b838c
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -572,7 +572,7 @@ F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c b76ad3e58e3800b48b11434c5a4bbee5d1ccd93bc8d609adeb6ad4a6aa7f6326
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
 F src/timeline.c 4199aaba0bd58243f91e4c9b25e8752331fd9629de35f11e627672f4bc3aab81
-F src/tkt.c 2a2312c9278b67fd4187384edd2ee75fda2dafe32ad85b16e2cc2c264268819a
+F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e699c295b70a5fed670151ddf6e5ab390afb4e18733c0417a280776fd79060f
-R 92b5dbaa9449f4a7310f33fc4440a777
+P 0b6d3eaf6cc3e221580d2f9ad95b7e045b7cc1d32bd376f883e4aca3af07b590
+R 79c6789254b1c7aef0799cc25a63e1cf
 U drh
-Z a152ae8e8af183292092db92af15ffd2
+Z 74ebcc6c58eeb82fe04cbc6b0b802519

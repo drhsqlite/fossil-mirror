@@ -374,7 +374,7 @@ void ticket_create_table(int separateConnection){
   );
   zSql = ticket_table_schema();
   if( separateConnection ){
-    db_end_transaction(0);
+    if( db_transaction_nesting_depth() ) db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
