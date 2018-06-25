@@ -347,7 +347,7 @@ static int safeInt(const char *z){
 **    /shun       $MTIME $UUID scom $VALUE
 **    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE
 **    /concealed  $MTIME $HASH content $VALUE
-**    /subscriber $SMTIME $SEMAIL suname $V sdigest $V sdonotcall $V ssub $V
+**    /subscriber $SMTIME $SEMAIL suname $V ...
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
   int checkMask;   /* Masks for which we must first check existance of tables */
@@ -355,7 +355,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
   checkMask = CONFIGSET_ALERT;
   if( zName[0]=='/' ){
     /* The new format */
-    char *azToken[12];
+    char *azToken[20];
     int nToken = 0;
     int ii, jj;
     int thisMask;
@@ -365,15 +365,19 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       const char *zPrimKey;      /* Primary key column */
       const char *zMTime;        /* Column holding the mtime */
       int nField;                /* Number of data fields */
-      const char *azField[4];    /* Names of the data fields */
+      const char *azField[5];    /* Names of the data fields */
+      const char *zExtraFields;  /* Extra field names */
+      const char *zExtraVals;    /* Values for the extra fields */
     } aType[] = {
-      { "/config",    "name",  "mtime", 1, { "value", 0, 0, 0 }             },
-      { "@user",      "login", "mtime", 4, { "pw", "cap", "info", "photo" }  },
-      { "@shun",      "uuid",  "mtime", 1, { "scom", 0, 0, 0 }               },
-      { "@reportfmt", "title", "mtime", 3, { "owner", "cols", "sqlcode", 0 } },
-      { "@concealed", "hash",  "mtime", 1, { "content", 0, 0, 0 }            },
-      { "@subscriber","semail","smtime",4, { "suname","sdigest",
-                                             "sdonotcall","ssub"}            },
+      { "/config",    "name",  "mtime", 1, { "value", 0, 0, 0 }, 0, 0        },
+      { "@user",      "login", "mtime", 4, { "pw","cap","info","photo"},0,0  },
+      { "@shun",      "uuid",  "mtime", 1, { "scom", 0, 0, 0 },0,0           },
+      { "@reportfmt", "title", "mtime", 3, { "owner","cols","sqlcode",0},0,0 },
+      { "@concealed", "hash",  "mtime", 1, { "content", 0, 0, 0 },0,0        },
+      { "@subscriber","semail","smtime",5,
+         { "suname","sdigest","sdonotcall","ssub","sctime"},
+         "subscriberCode,sverified", 
+         "randomblob(32),1"                                                  },
     };
     for(ii=0; ii<count(aType); ii++){
       if( fossil_strcmp(&aType[ii].zName[1],&zName[1])==0 ) break;
@@ -425,10 +429,16 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }
+    if( aType[ii].zExtraFields ){
+      blob_append_sql(&sql,",%s", aType[ii].zExtraFields/*safe-for-%s*/);
+    }
     blob_append_sql(&sql,") VALUES(%s,%s",
        azToken[1] /*safe-for-%s*/, azToken[0] /*safe-for-%s*/);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
+    }
+    if( aType[ii].zExtraVals ){
+      blob_append_sql(&sql,",%s", aType[ii].zExtraVals/*safe-for-%s*/);
     }
     db_multi_exec("%s)", blob_sql_text(&sql));
     if( db_changes()==0 ){
@@ -591,17 +601,19 @@ int configure_send_group(
   ){
     db_prepare(&q, "SELECT (smtime-2440587.5)*86400,"
                    " quote(semail), quote(suname), quote(sdigest),"
-                   " quote(sdonotcall), quote(ssub)"
+                   " quote(sdonotcall), quote(ssub), quote(sctime)"
                    " FROM subscriber WHERE sverified"
                    " AND (smtime-2440587.5)*86400>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%lld %s suname %s sdigest %s sdonotcall %s ssub %s",
+      blob_appendf(&rec,
+        "%lld %s suname %s sdigest %s sdonotcall %s ssub %s sctime %s",
         db_column_int64(&q, 0), /* smtime */
         db_column_text(&q, 1),  /* semail (PK) */
         db_column_text(&q, 2),  /* suname */
         db_column_text(&q, 3),  /* sdigest */
         db_column_text(&q, 4),  /* sdonotcall */
-        db_column_text(&q, 5)   /* ssub */
+        db_column_text(&q, 5),  /* ssub */
+        db_column_text(&q, 6)   /* sctime */
       );
       blob_appendf(pOut, "config /subscriber %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
