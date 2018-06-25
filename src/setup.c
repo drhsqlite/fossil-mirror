@@ -490,7 +490,7 @@ void user_edit(void){
   doWrite = cgi_all("login","info","pw") && !higherUser && cgi_csrf_safe(1);
   if( doWrite ){
     char c;
-    char zCap[60], zNm[4];
+    char zCap[70], zNm[4];
     zNm[0] = 'a';
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
@@ -500,7 +500,12 @@ void user_edit(void){
     }
     for(c='0'; c<='9'; c++){
       zNm[1] = c;
-      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      a[c&0x7f] = P(zNm)!=0;
+      if( a[c&0x7f] ) zCap[i++] = c;
+    }
+    for(c='A'; c<='Z'; c++){
+      zNm[1] = c;
+      a[c&0x7f] = P(zNm)!=0;
       if( a[c&0x7f] ) zCap[i++] = c;
     }
 
@@ -595,6 +600,7 @@ void user_edit(void){
   zPw = "";
   for(i='a'; i<='z'; i++) oa[i] = "";
   for(i='0'; i<='9'; i++) oa[i] = "";
+  for(i='A'; i<='Z'; i++) oa[i] = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -602,7 +608,7 @@ void user_edit(void){
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     for(i=0; zCap[i]; i++){
       char c = zCap[i];
-      if( (c>='a' && c<='z') || (c>='0' && c<='9') ){
+      if( (c>='a' && c<='z') || (c>='0' && c<='9') || (c>='A' && c<='Z') ){
         oa[c&0x7f] = " checked=\"checked\"";
       }
     }
