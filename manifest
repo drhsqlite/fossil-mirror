@@ -1,5 +1,5 @@
-C Make\ssure\semailerShutdown()\scorrectly\scloses\sthe\semailqueue\sdatabase.
-D 2018-06-25T13:32:58.362
+C Add\sinformation\sabout\sthe\sserver\serror\slog\sto\sthe\ssecurity\saudit\spage.\nProvide\sthe\snew\s/errorlog\spage\sfor\sviewing\sthe\sserver\slogfile\sonline.
+D 2018-06-25T13:47:36.248
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -545,7 +545,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
-F src/security_audit.c 39296d083197aaf8f70b2144abff9342a0c4f94a2fd11ae2351547b86c1b1c0d
+F src/security_audit.c 09c6259414bb97e8e95e200dce1489f22b6dd8113f229cb56d63fe452c86fd0a
 F src/setup.c 4f19662215e9d713ca8d764ddf25f312cd06017e109911d27b6f15c7ea4ffc4c
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c839973e4ae1b485b5b6f1df263841ed15768707fa86b631e775313e2eaa81c
-R a5f3996d839d0898994bbe7453119f55
+P b9121b4797a15636ae5a95f5e17c4939b58ae26f78f166ec838ac6d2f9ce9c03
+R 6145c66e684ea70940cc0f5cb0093d43
 U drh
-Z 1b7dcb83b2ff2cd93bce23fde65664a0
+Z 0dfad0aa0debe1252479126193dacc65
