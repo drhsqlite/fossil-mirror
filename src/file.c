@@ -1616,3 +1616,51 @@ const char *file_cleanup_fullpath(const char *z){
 #endif
   return z;
 }
+
+/*
+** Count the number of objects (files and subdirectores) in a given
+** directory.  Return the count.  Return -1 of the object is not a
+** directory.
+*/
+int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
+  char *zNative;
+  DIR *d;
+  int n = -1;
+  zNative = fossil_utf8_to_path(zDir,1);
+  d = opendir(zNative);
+  if( d ){
+    struct dirent *pEntry;
+    n = 0;
+    while( (pEntry=readdir(d))!=0 ){
+      if( pEntry->d_name[0]==0 ) continue;
+      if( omitDotFiles && pEntry->d_name[0]=='.' ) continue;
+      if( zGlob && sqlite3_strglob(zGlob, pEntry->d_name)!=0 ) continue;
+      n++;
+    }
+    closedir(d);
+  }
+  fossil_path_free(zNative);
+  return n;
+}
+
+/*
+** COMMAND: test-dir-size
+**
+** Usage: %fossil test-dir-size NAME [GLOB] [--nodots]
+**
+** Return the number of objects in the directory NAME.  If GLOB is
+** provided, then only count objects that match the GLOB pattern.
+** if --nodots is specified, omit files that begin with ".".
+*/
+void test_dir_size_cmd(void){
+  int omitDotFiles = find_option("nodots",0,0)!=0;
+  const char *zGlob;
+  const char *zDir;
+  verify_all_options();
+  if( g.argc!=3 && g.argc!=4 ){
+    usage("NAME [GLOB] [-nodots]");
+  }
+  zDir = g.argv[2];
+  zGlob = g.argc==4 ? g.argv[3] : 0;
+  fossil_print("%d\n", file_directory_size(zDir, zGlob, omitDotFiles));
+}

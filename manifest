@@ -1,5 +1,5 @@
-C More\srandom\sand\sslightly\sincoherient\snotes\son\sthe\swww/emaildesign.md\ndocument.
-D 2018-06-25T19:26:53.403
+C Add\sthe\sfile_directory_size()\sutility\sfunction\sfor\smeasuring\sthe\snumber\sof\nobjects\sin\sa\sdirectory.
+D 2018-06-25T20:26:27.344
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -468,7 +468,7 @@ F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
 F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
-F src/file.c d1d99096ad0283231a4565a545462b803ef2586687b99744d51c3af7aa3accdf
+F src/file.c 895ae9eef50bd811c3f5eb19927c1e5c7a6355e6652bee2e588aef3148ff9a6a
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/forum.c 13cff4cdb96ca577cf9e6be30aa194f62927948f0e7170dcf4d33bd61464af11
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5eb03f5e585cdd5678888f4479178ef6f901e022aa82f9176df69817389f2e7
-R 69049e8ef93caf4dc48910bbe387a051
+P 6f0e0598ce5db256b191be601573cb67e8af177dd4ccd17694e08b2957de4ea6
+R cc4bee2d1bbc6f5b66030d81ba50932f
 U drh
-Z a196ad4fe5767c4d6a99d64e5dfd01ec
+Z 125857272d74a6bc9e21ece31a87dbde
