@@ -1,5 +1,5 @@
-C Add\sthe\sfile_directory_size()\sutility\sfunction\sfor\smeasuring\sthe\snumber\sof\nobjects\sin\sa\sdirectory.
-D 2018-06-25T20:26:27.344
+C Report\son\sthe\semail\snotification\ssetup\sand\sstatus\sin\sthe\s/stat\spage\sfor\nadministrators.
+D 2018-06-25T20:56:15.137
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
-F src/email.c a59b14d9c75fd920a0575f29f0b770067cca0681cebf766a8a5925bb85f9451e
+F src/email.c c63b3d8f862fe65994b5dd4774f0543781a92f5f2f2cac8c11c5231cdc8286a4
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -560,7 +560,7 @@ F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
 F src/sqlite3.h d9d37ccb6d77420e9eb71b47604e13b3ee65183fa7e71522e569167ce9ae56ac
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
-F src/stat.c 39a33f66a4d803c036f73993bd043f5484816b54f8cded166b07c100cc4097fd
+F src/stat.c 8728e38f6739a944ea99c976c892eb88113f2d26f5c7fabcb314b6bddbcfba51
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 5c0407f4d95cc29f507cb73fe4d208e52cb24cb7effa5e17432b3769a3e54d92
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f0e0598ce5db256b191be601573cb67e8af177dd4ccd17694e08b2957de4ea6
-R cc4bee2d1bbc6f5b66030d81ba50932f
+P 94e846d282b0f7af94969b3b3f50bd46f6b8cabfffa7c9676bbdd091257edaa8
+R 44654be34f58da5eaeb760411a131ff2
 U drh
-Z 125857272d74a6bc9e21ece31a87dbde
+Z 2a9e5b462ae670cf0dd4b018b646e57d

@@ -1447,7 +1447,7 @@ void subscriber_list_page(void){
   if( email_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
-    fossil_redirect_home();
+    login_needed(0);
     return;
   }
   email_submenu_common();
