@@ -355,7 +355,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
   checkMask = CONFIGSET_ALERT;
   if( zName[0]=='/' ){
     /* The new format */
-    char *azToken[20];
+    char *azToken[24];
     int nToken = 0;
     int ii, jj;
     int thisMask;
@@ -363,26 +363,24 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     static const struct receiveType {
       const char *zName;         /* Configuration key for this table */
       const char *zPrimKey;      /* Primary key column */
-      const char *zMTime;        /* Column holding the mtime */
       int nField;                /* Number of data fields */
-      const char *azField[5];    /* Names of the data fields */
-      const char *zExtraFields;  /* Extra field names */
-      const char *zExtraVals;    /* Values for the extra fields */
+      const char *azField[6];    /* Names of the data fields */
     } aType[] = {
-      { "/config",    "name",  "mtime", 1, { "value", 0, 0, 0 }, 0, 0        },
-      { "@user",      "login", "mtime", 4, { "pw","cap","info","photo"},0,0  },
-      { "@shun",      "uuid",  "mtime", 1, { "scom", 0, 0, 0 },0,0           },
-      { "@reportfmt", "title", "mtime", 3, { "owner","cols","sqlcode",0},0,0 },
-      { "@concealed", "hash",  "mtime", 1, { "content", 0, 0, 0 },0,0        },
-      { "@subscriber","semail","smtime",5,
-         { "suname","sdigest","sdonotcall","ssub","sctime"},
-         "subscriberCode,sverified", 
-         "randomblob(32),1"                                                  },
+      { "/config",    "name",  1, { "value", 0,0,0,0,0 }           },
+      { "@user",      "login", 4, { "pw","cap","info","photo",0,0} },
+      { "@shun",      "uuid",  1, { "scom", 0,0,0,0,0}             },
+      { "@reportfmt", "title", 3, { "owner","cols","sqlcode",0,0,0}},
+      { "@concealed", "hash",  1, { "content", 0,0,0,0,0 }         },
+      { "@subscriber","semail",6,
+         { "suname","sdigest","sdonotcall","ssub","sctime","smip"}         },
     };
+
+    /* Locate the receiveType in aType[ii] */
     for(ii=0; ii<count(aType); ii++){
       if( fossil_strcmp(&aType[ii].zName[1],&zName[1])==0 ) break;
     }
     if( ii>=count(aType) ) return;
+
     while( blob_token(pContent, &name) && blob_sqltoken(pContent, &value) ){
       char *z = blob_terminate(&name);
       if( !safeSql(z) ) return;
@@ -397,7 +395,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       azToken[nToken++] = z;
       azToken[nToken++] = z = blob_terminate(&value);
       if( !safeSql(z) ) return;
-      if( nToken>=count(azToken) ) break;
+      if( nToken>=count(azToken)-1 ) break;
     }
     if( nToken<2 ) return;
     if( aType[ii].zName[0]=='/' ){
@@ -412,7 +410,6 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       }
       checkMask &= ~thisMask;
     }
-     
 
     blob_zero(&sql);
     if( groupMask & CONFIGSET_OVERWRITE ){
@@ -424,34 +421,28 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }else{
       blob_append_sql(&sql, "INSERT OR IGNORE INTO ");
     }
-    blob_append_sql(&sql, "\"%w\"(\"%w\", \"%w\"",
-         &zName[1], aType[ii].zPrimKey, aType[ii].zMTime);
+    blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
+         &zName[1], aType[ii].zPrimKey);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }
-    if( aType[ii].zExtraFields ){
-      blob_append_sql(&sql,",%s", aType[ii].zExtraFields/*safe-for-%s*/);
-    }
-    blob_append_sql(&sql,") VALUES(%s,%s",
-       azToken[1] /*safe-for-%s*/, azToken[0] /*safe-for-%s*/);
+    blob_append_sql(&sql,") VALUES(%s",
+       azToken[1] /*safe-for-%s*/);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
-    }
-    if( aType[ii].zExtraVals ){
-      blob_append_sql(&sql,",%s", aType[ii].zExtraVals/*safe-for-%s*/);
     }
     db_multi_exec("%s)", blob_sql_text(&sql));
     if( db_changes()==0 ){
       blob_reset(&sql);
-      blob_append_sql(&sql, "UPDATE \"%w\" SET \"%w\"=%s",
-                      &zName[1], aType[ii].zMTime, azToken[0]/*safe-for-%s*/);
+      blob_append_sql(&sql, "UPDATE \"%w\" SET mtime=%s",
+                      &zName[1], azToken[0]/*safe-for-%s*/);
       for(jj=2; jj<nToken; jj+=2){
         blob_append_sql(&sql, ", \"%w\"=%s",
                         azToken[jj], azToken[jj+1]/*safe-for-%s*/);
       }
-      blob_append_sql(&sql, " WHERE \"%w\"=%s AND \"%w\"<%s",
+      blob_append_sql(&sql, " WHERE \"%w\"=%s AND mtime<%s",
                    aType[ii].zPrimKey, azToken[1]/*safe-for-%s*/,
-                   aType[ii].zMTime, azToken[0]/*safe-for-%s*/);
+                   azToken[0]/*safe-for-%s*/);
       db_multi_exec("%s", blob_sql_text(&sql));
     }
     blob_reset(&sql);
@@ -599,21 +590,24 @@ int configure_send_group(
   if( (groupMask & CONFIGSET_ALERT)!=0
    && db_table_exists("repository","subscriber")
   ){
-    db_prepare(&q, "SELECT (smtime-2440587.5)*86400,"
-                   " quote(semail), quote(suname), quote(sdigest),"
-                   " quote(sdonotcall), quote(ssub), quote(sctime)"
+    db_prepare(&q, "SELECT mtime, quote(semail),"
+                   " quote(suname), quote(sdigest),"
+                   " quote(sdonotcall), quote(ssub),"
+                   " quote(sctime), quote(smip),"
                    " FROM subscriber WHERE sverified"
-                   " AND (smtime-2440587.5)*86400>=%lld", iStart);
+                   " AND mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(&rec,
-        "%lld %s suname %s sdigest %s sdonotcall %s ssub %s sctime %s",
-        db_column_int64(&q, 0), /* smtime */
+        "%lld %s suname %s sdigest %s sdonotcall %s ssub %s"
+        " sctime %s smip %s",
+        db_column_int64(&q, 0), /* mtime */
         db_column_text(&q, 1),  /* semail (PK) */
         db_column_text(&q, 2),  /* suname */
         db_column_text(&q, 3),  /* sdigest */
         db_column_text(&q, 4),  /* sdonotcall */
         db_column_text(&q, 5),  /* ssub */
-        db_column_text(&q, 6)   /* sctime */
+        db_column_text(&q, 6),  /* sctime */
+        db_column_text(&q, 7)   /* smip */
       );
       blob_appendf(pOut, "config /subscriber %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
@@ -840,7 +834,7 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM concealed");
       }else if( fossil_strcmp(zName,"@shun")==0 ){
         db_multi_exec("DELETE FROM shun");
-      }else if( fossil_strcmp(zName,"@alert")==0 ){
+      }else if( fossil_strcmp(zName,"@subscriber")==0 ){
         if( db_table_exists("repository","subscriber") ){
           db_multi_exec("DELETE FROM subscriber");
         }

@@ -50,15 +50,15 @@ static const char zEmailInit[] =
 @ --
 @ CREATE TABLE repository.subscriber(
 @   subscriberId INTEGER PRIMARY KEY, -- numeric subscriber ID.  Internal use
-@   subscriberCode BLOB UNIQUE,       -- UUID for subscriber.  External use
+@   subscriberCode BLOB DEFAULT (randomblob(32)) UNIQUE, -- UUID for subscriber
 @   semail TEXT UNIQUE COLLATE nocase,-- email address
 @   suname TEXT,                      -- corresponding USER entry
-@   sverified BOOLEAN,                -- email address verified
+@   sverified BOOLEAN DEFAULT true,   -- email address verified
 @   sdonotcall BOOLEAN,               -- true for Do Not Call 
 @   sdigest BOOLEAN,                  -- true for daily digests only
 @   ssub TEXT,                        -- baseline subscriptions
-@   sctime DATE,                      -- When this entry was created. JulianDay
-@   smtime DATE,                      -- Last change.  JulianDay
+@   sctime INTDATE,                   -- When this entry was created. unixtime
+@   mtime INTDATE,                    -- Last change.  unixtime
 @   smip TEXT                         -- IP address of last change
 @ );
 @ CREATE INDEX repository.subscriberUname
@@ -922,10 +922,9 @@ void subscribe_page(void){
     if( PB("sw") ) ssub[nsub++] = 'w';
     ssub[nsub] = 0;
     db_multi_exec(
-      "INSERT INTO subscriber(subscriberCode,semail,suname,"
-      "  sverified,sdonotcall,sdigest,ssub,sctime,smtime,smip)"
-      "VALUES(randomblob(32),%Q,%Q,%d,0,%d,%Q,"
-      " julianday('now'),julianday('now'),%Q)",
+      "INSERT INTO subscriber(semail,suname,"
+      "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
+      "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)",
       /* semail */    zEAddr,
       /* suname */    suname,
       /* sverified */ needCaptcha==0,
@@ -1097,7 +1096,7 @@ void alerts_page(void){
   const char *semail;
   const char *smip;
   const char *suname;
-  const char *smtime;
+  const char *mtime;
   const char *sctime;
   int eErr = 0;
   char *zErr = 0;
@@ -1132,7 +1131,7 @@ void alerts_page(void){
         " sdonotcall=%d,"
         " sdigest=%d,"
         " ssub=%Q,"
-        " smtime=julianday('now'),"
+        " mtime=strftime('%%s','now'),"
         " smip=%Q,"
         " suname=%Q,"
         " sverified=%d"
@@ -1151,7 +1150,7 @@ void alerts_page(void){
         " sdonotcall=%d,"
         " sdigest=%d,"
         " ssub=%Q,"
-        " smtime=julianday('now'),"
+        " mtime=strftime('%%s','now'),"
         " smip=%Q"
         " WHERE subscriberCode=hextoblob(%Q)",
         sdonotcall,
@@ -1174,15 +1173,15 @@ void alerts_page(void){
   }
   db_prepare(&q,
     "SELECT"
-    "  semail,"           /* 0 */
-    "  sverified,"        /* 1 */
-    "  sdonotcall,"       /* 2 */
-    "  sdigest,"          /* 3 */
-    "  ssub,"             /* 4 */
-    "  smip,"             /* 5 */
-    "  suname,"           /* 6 */
-    "  datetime(smtime)," /* 7 */
-    "  datetime(sctime)"  /* 8 */
+    "  semail,"                       /* 0 */
+    "  sverified,"                    /* 1 */
+    "  sdonotcall,"                   /* 2 */
+    "  sdigest,"                      /* 3 */
+    "  ssub,"                         /* 4 */
+    "  smip,"                         /* 5 */
+    "  suname,"                       /* 6 */
+    "  datetime(mtime,'unixepoch'),"  /* 7 */
+    "  datetime(sctime,'unixepoch')"  /* 8 */
     " FROM subscriber WHERE subscriberCode=hextoblob(%Q)", zName);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
@@ -1201,7 +1200,7 @@ void alerts_page(void){
   sw = strchr(ssub,'w')!=0;
   smip = db_column_text(&q, 5);
   suname = db_column_text(&q, 6);
-  smtime = db_column_text(&q, 7);
+  mtime = db_column_text(&q, 7);
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
     db_multi_exec(
@@ -1229,7 +1228,7 @@ void alerts_page(void){
     @ </tr>
     @ <tr>
     @  <td class='form_label'>Last Modified:</td>
-    @  <td>%h(smtime)</td>
+    @  <td>%h(mtime)</td>
     @ </tr>
     @ <tr>
     @  <td class='form_label'>IP Address:</td>
@@ -1455,14 +1454,14 @@ void subscriber_list_page(void){
   style_header("Subscriber List");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
-    "SELECT hex(subscriberCode)," /* 0 */
-    "       semail,"              /* 1 */
-    "       ssub,"                /* 2 */
-    "       suname,"              /* 3 */
-    "       sverified,"           /* 4 */
-    "       sdigest,"             /* 5 */
-    "       date(sctime),"        /* 6 */
-    "       smtime"               /* 7 */
+    "SELECT hex(subscriberCode),"          /* 0 */
+    "       semail,"                       /* 1 */
+    "       ssub,"                         /* 2 */
+    "       suname,"                       /* 3 */
+    "       sverified,"                    /* 4 */
+    "       sdigest,"                      /* 5 */
+    "       date(sctime,'unixepoch'),"     /* 6 */
+    "       julianday(mtime,'unixepoch')"  /* 7 */
     " FROM subscriber"
   );
   db_prepare_blob(&q, &sql);
