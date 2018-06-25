@@ -1,5 +1,5 @@
-C Fix\san\sextra\scall\sto\sdb_end_transaction()\sin\s"fossil\sconfig\spull\sticket".
-D 2018-06-25T18:43:45.465
+C More\srandom\sand\sslightly\sincoherient\snotes\son\sthe\swww/emaildesign.md\ndocument.
+D 2018-06-25T19:26:53.403
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -782,7 +782,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md 183f03a00517d61670e07990c7e94c938a742cfdcd5a632bddf037a85e9ac2ad
+F www/emaildesign.md 66d0ee649409e8a8b801b4275bb4c8a166d4f9b9f5d8188498044b7826378c9a
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0b6d3eaf6cc3e221580d2f9ad95b7e045b7cc1d32bd376f883e4aca3af07b590
-R 79c6789254b1c7aef0799cc25a63e1cf
+P f5eb03f5e585cdd5678888f4479178ef6f901e022aa82f9176df69817389f2e7
+R 69049e8ef93caf4dc48910bbe387a051
 U drh
-Z 74ebcc6c58eeb82fe04cbc6b0b802519
+Z a196ad4fe5767c4d6a99d64e5dfd01ec
