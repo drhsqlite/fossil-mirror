@@ -240,7 +240,7 @@ void stat_page(void){
     nPend = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentSep");
     nDPend = db_int(0,"SELECT count(*) FROM pending_alert"
                       " WHERE NOT sentDigest");
-    @ <tr><th>Alerts:</th><td>
+    @ <tr><th>Pending&nbsp;Alerts:</th><td>
     @ %,d(nPend) normal, %,d(nDPend) digest
     @ </td></tr>
     @ <tr><th>Subscribers:</th><td>
