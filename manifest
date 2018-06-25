@@ -1,5 +1,5 @@
-C Make\ssure\sthe\ssubscriber\stable\sis\snot\ssynced\sunless\sthe\sclient\shas\sappropriate\npermissions.
-D 2018-06-25T22:01:39.588
+C Fix\sa\stypo\sin\sthe\sprocessing\sof\sForum\srecord\ssyncs.
+D 2018-06-25T22:44:02.672
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -593,7 +593,7 @@ F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba2
 F src/winfile.c 6a822c13410839851e2e9a4e52cdd0a083fe3fed33dce28ac5beb62fe1091d7c
 F src/winhttp.c cac4936b567c5b6f8c22b0c10c74400ce6f327d61d1a41f8a41e88ef17079e65
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c f0d42103e861bf21b7cb82040c6a056946422774236e1f5dc47c8562755e5dc7
+F src/xfer.c 2c91d8cf244b6856bf90f8d26fbdb664f750b02cf99cd40e236edbb080474ab7
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f34395cc815b1104267e23d3e4d4c60dfcffc545e225ab4477b8d1abff85040
-R db8e61d594af21a39a6960ac790d3b7d
+P 7f0c7fcfcee67d07f4351f04986b808992a91779ff93be629b2ebfa8bf9e3d8b
+R 67b3f6670107f334051eb1254d018b16
 U drh
-Z 051e6a34bc401581c42f67c5f7f2099f
+Z d6292f465bee670aa5d8e857196e6058

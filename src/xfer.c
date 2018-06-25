@@ -1423,7 +1423,7 @@ void page_xfer(void){
           /* New style configuration transfer */
           int groupMask = configure_name_to_mask(&zName[1], 0);
           if( !g.perm.Admin ) groupMask &= ~(CONFIGSET_USER|CONFIGSET_SCRIBER);
-          if( !g.perm.RdForum ) groupMask & ~CONFIGSET_FORUM;
+          if( !g.perm.RdForum ) groupMask &= ~CONFIGSET_FORUM;
           if( !g.perm.RdAddr ) groupMask &= ~CONFIGSET_ADDR;
           configure_send_group(xfer.pOut, groupMask, 0);
         }
