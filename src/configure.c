@@ -38,8 +38,10 @@
 #define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 #define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
+#define CONFIGSET_ALERT     0x000200     /* Email alerts */
+#define CONFIGSET_FORUM     0x000400     /* Forum posts */
 
-#define CONFIGSET_ALL       0x0001ff     /* Everything */
+#define CONFIGSET_ALL       0x0007ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 
@@ -70,6 +72,8 @@ static struct {
   { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
   { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
   { "/alias",        CONFIGSET_ALIAS, "URL Aliases",                         },
+  { "/alert",        CONFIGSET_ALERT, "Notification sent by email",          },
+  { "/forum",        CONFIGSET_FORUM, "Forum posts",                         },
   { "/all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
@@ -159,6 +163,8 @@ static struct {
 
   { "@alias",                 CONFIGSET_ALIAS },
 
+  { "@subscriber",            CONFIGSET_ALERT },
+
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
   { "xfer-commit-script",     CONFIGSET_XFER },
@@ -215,7 +221,7 @@ const char *configure_inop_rhs(int iMask){
 ** Return the mask for the named configuration parameter if it can be
 ** safely exported.  Return 0 if the parameter is not safe to export.
 **
-** "Safe" in the previous paragraph means the permission is created to
+** "Safe" in the previous paragraph means the permission is granted to
 ** export the property.  In other words, the requesting side has presented
 ** login credentials and has sufficient capabilities to access the requested
 ** information.
@@ -231,7 +237,10 @@ int configure_is_exportable(const char *zName){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
-        m &= ~CONFIGSET_USER;
+        m &= ~(CONFIGSET_USER|CONFIGSET_ALERT);
+      }
+      if( !g.perm.RdForum ){
+        m &= ~(CONFIGSET_FORUM);
       }
       if( !g.perm.RdAddr ){
         m &= ~CONFIGSET_ADDR;
@@ -314,7 +323,11 @@ static int safeInt(const char *z){
 **
 ** NEW FORMAT:
 **
-** zName is one of "/config", "/user", "/shun", "/reportfmt", or "/concealed".
+** zName is one of:
+**
+**     "/config", "/user",  "/shun", "/reportfmt", "/concealed",
+**     "/alert", "/forum"
+**
 ** zName indicates the table that holds the configuration information being
 ** transferred.  pContent is a string that consist of alternating Fossil
 ** and SQL tokens.  The First token is a timestamp in seconds since 1970.
@@ -334,26 +347,12 @@ static int safeInt(const char *z){
 **    /shun       $MTIME $UUID scom $VALUE
 **    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE
 **    /concealed  $MTIME $HASH content $VALUE
-**
-** OLD FORMAT:
-**
-** The old format is retained for backwards compatibility, but is deprecated.
-** The cutover from old format to new was on 2011-04-25.  After sufficient
-** time has passed, support for the old format will be removed.
-** Update: Support for the old format was removed on 2017-09-20.
-**
-** zName is either the NAME of an element of the CONFIG table, or else
-** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".
-** If zName is a CONFIG table name, then CONTENT replaces (overwrites) the
-** element in the CONFIG table.  For one of the @-labels, CONTENT is raw
-** SQL that is evaluated.  Note that the raw SQL in CONTENT might not
-** insert directly into the target table but might instead use a proxy
-** table like _fer_reportfmt or _xfer_user.  Such tables must be created
-** ahead of time using configure_prepare_to_receive().  Then after multiple
-** calls to this routine, configure_finalize_receive() to transfer the
-** information received into the true target table.
+**    /subscriber $SMTIME $SEMAIL suname $V sdigest $V sdonotcall $V ssub $V
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
+  int checkMask;   /* Masks for which we must first check existance of tables */
+
+  checkMask = CONFIGSET_ALERT;
   if( zName[0]=='/' ){
     /* The new format */
     char *azToken[12];
@@ -362,16 +361,19 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     int thisMask;
     Blob name, value, sql;
     static const struct receiveType {
-      const char *zName;
-      const char *zPrimKey;
-      int nField;
-      const char *azField[4];
+      const char *zName;         /* Configuration key for this table */
+      const char *zPrimKey;      /* Primary key column */
+      const char *zMTime;        /* Column holding the mtime */
+      int nField;                /* Number of data fields */
+      const char *azField[4];    /* Names of the data fields */
     } aType[] = {
-      { "/config",    "name",  1, { "value", 0, 0, 0 }              },
-      { "@user",      "login", 4, { "pw", "cap", "info", "photo" }  },
-      { "@shun",      "uuid",  1, { "scom", 0, 0, 0 }               },
-      { "@reportfmt", "title", 3, { "owner", "cols", "sqlcode", 0 } },
-      { "@concealed", "hash",  1, { "content", 0, 0, 0 }            },
+      { "/config",    "name",  "mtime", 1, { "value", 0, 0, 0 }             },
+      { "@user",      "login", "mtime", 4, { "pw", "cap", "info", "photo" }  },
+      { "@shun",      "uuid",  "mtime", 1, { "scom", 0, 0, 0 }               },
+      { "@reportfmt", "title", "mtime", 3, { "owner", "cols", "sqlcode", 0 } },
+      { "@concealed", "hash",  "mtime", 1, { "content", 0, 0, 0 }            },
+      { "@subscriber","semail","smtime",4, { "suname","sdigest",
+                                             "sdonotcall","ssub"}            },
     };
     for(ii=0; ii<count(aType); ii++){
       if( fossil_strcmp(&aType[ii].zName[1],&zName[1])==0 ) break;
@@ -400,6 +402,13 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       thisMask = configure_is_exportable(aType[ii].zName);
     }
     if( (thisMask & groupMask)==0 ) return;
+    if( (thisMask & checkMask)!=0 ){
+      if( (thisMask & CONFIGSET_ALERT)!=0 ){
+        email_schema(1);
+      }
+      checkMask &= ~thisMask;
+    }
+     
 
     blob_zero(&sql);
     if( groupMask & CONFIGSET_OVERWRITE ){
@@ -411,7 +420,8 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }else{
       blob_append_sql(&sql, "INSERT OR IGNORE INTO ");
     }
-    blob_append_sql(&sql, "\"%w\"(\"%w\", mtime", &zName[1], aType[ii].zPrimKey);
+    blob_append_sql(&sql, "\"%w\"(\"%w\", \"%w\"",
+         &zName[1], aType[ii].zPrimKey, aType[ii].zMTime);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }
@@ -423,15 +433,15 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     db_multi_exec("%s)", blob_sql_text(&sql));
     if( db_changes()==0 ){
       blob_reset(&sql);
-      blob_append_sql(&sql, "UPDATE \"%w\" SET mtime=%s",
-                      &zName[1], azToken[0]/*safe-for-%s*/);
+      blob_append_sql(&sql, "UPDATE \"%w\" SET \"%w\"=%s",
+                      &zName[1], aType[ii].zMTime, azToken[0]/*safe-for-%s*/);
       for(jj=2; jj<nToken; jj+=2){
         blob_append_sql(&sql, ", \"%w\"=%s",
                         azToken[jj], azToken[jj+1]/*safe-for-%s*/);
       }
-      blob_append_sql(&sql, " WHERE \"%w\"=%s AND mtime<%s",
+      blob_append_sql(&sql, " WHERE \"%w\"=%s AND \"%w\"<%s",
                    aType[ii].zPrimKey, azToken[1]/*safe-for-%s*/,
-                   azToken[0]/*safe-for-%s*/);
+                   aType[ii].zMTime, azToken[0]/*safe-for-%s*/);
       db_multi_exec("%s", blob_sql_text(&sql));
     }
     blob_reset(&sql);
@@ -570,6 +580,30 @@ int configure_send_group(
         db_column_text(&q, 2)
       );
       blob_appendf(pOut, "config /config %d\n%s\n",
+                   blob_size(&rec), blob_str(&rec));
+      nCard++;
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
+  if( (groupMask & CONFIGSET_ALERT)!=0
+   && db_table_exists("repository","subscriber")
+  ){
+    db_prepare(&q, "SELECT (smtime-2440587.5)*86400,"
+                   " quote(semail), quote(suname), quote(sdigest),"
+                   " quote(sdonotcall), quote(ssub)"
+                   " FROM subscriber WHERE sverified"
+                   " AND (smtime-2440587.5)*86400>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%lld %s suname %s sdigest %s sdonotcall %s ssub %s",
+        db_column_int64(&q, 0), /* smtime */
+        db_column_text(&q, 1),  /* semail (PK) */
+        db_column_text(&q, 2),  /* suname */
+        db_column_text(&q, 3),  /* sdigest */
+        db_column_text(&q, 4),  /* sdonotcall */
+        db_column_text(&q, 5)   /* ssub */
+      );
+      blob_appendf(pOut, "config /subscriber %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
       blob_reset(&rec);
@@ -794,6 +828,15 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM concealed");
       }else if( fossil_strcmp(zName,"@shun")==0 ){
         db_multi_exec("DELETE FROM shun");
+      }else if( fossil_strcmp(zName,"@alert")==0 ){
+        if( db_table_exists("repository","subscriber") ){
+          db_multi_exec("DELETE FROM subscriber");
+        }
+      }else if( fossil_strcmp(zName,"@forum")==0 ){
+        if( db_table_exists("repository","forumpost") ){
+          db_multi_exec("DELETE FROM forumpost");
+          db_multi_exec("DELETE FROM forumthread");
+        }
       }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
         assert( strchr(zRepositorySchemaDefaultReports,'%')==0 );

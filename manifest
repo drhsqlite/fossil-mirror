@@ -1,5 +1,5 @@
-C Enhancements\sto\sadministrator\saccess\sto\sthe\ssubscriber\slist.
-D 2018-06-25T14:45:56.130
+C Add\sthe\sability\sto\stransfer\ssubscriber\sinformation\susing\sthe\n"fossil\sconfig\ssync\salert"\scommand.
+D 2018-06-25T15:56:20.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -447,7 +447,7 @@ F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c 3da69f1393165f3d1634c5367ae3f42b5c73754f36d9a743b39c3fe49753c0e6
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
-F src/configure.c 49176c95e281ba0fd63e8c4a3f7a2b4b5bdf0d6de33aef44ec504b0bcc385044
+F src/configure.c 0e5d431af904332354e9d6b909b5529c10fc212f9b286ab723efc6a51fa34858
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e45cfde7aa17ab642a962f6fcd2cda4832a7715a5d5843f52e88e746ce6eef83
-R 14981b74e0bda311ba8199bcca55525d
+P b7b877ef4928572c63029857d5c5ea3634cbeab34988e93d08fe0fafa0d34049
+R 8e51f6463778c2ed14abbce5eb96b17c
 U drh
-Z 5a5e429b2a947fda6fc8fffdba2673ef
+Z 3b8823e241b43e785c195c38232e0629
