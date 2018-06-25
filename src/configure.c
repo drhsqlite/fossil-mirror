@@ -426,8 +426,8 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }
-    blob_append_sql(&sql,") VALUES(%s",
-       azToken[1] /*safe-for-%s*/);
+    blob_append_sql(&sql,") VALUES(%s,%s",
+       azToken[1] /*safe-for-%s*/, azToken[0]/*safe-for-%s*/);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
