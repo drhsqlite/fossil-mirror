@@ -38,7 +38,7 @@
 #define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 #define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
-#define CONFIGSET_SCRIBERS  0x000200     /* Email subscribers */
+#define CONFIGSET_SCRIBER   0x000200     /* Email subscribers */
 #define CONFIGSET_FORUM     0x000400     /* Forum posts */
 
 #define CONFIGSET_ALL       0x0007ff     /* Everything */
@@ -62,19 +62,19 @@ static struct {
   int groupMask;       /* Mask for that configuration set */
   const char *zHelp;   /* What it does */
 } aGroupName[] = {
-  { "/email",        CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
-  { "/project",      CONFIGSET_PROJ,  "Project name and description"         },
-  { "/skin",         CONFIGSET_SKIN | CONFIGSET_CSS,
-                                      "Web interface appearance settings"    },
-  { "/css",          CONFIGSET_CSS,   "Style sheet"                          },
-  { "/shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
-  { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
-  { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
-  { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
-  { "/alias",        CONFIGSET_ALIAS, "URL Aliases",                         },
-  { "/subscribers",  CONFIGSET_SCRIBERS,"Email notification subscriber list" },
-/*  { "/forum",        CONFIGSET_FORUM, "Forum posts",                   }, */
-  { "/all",          CONFIGSET_ALL,   "All of the above"                     },
+  { "/email",       CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
+  { "/project",     CONFIGSET_PROJ,  "Project name and description"         },
+  { "/skin",        CONFIGSET_SKIN | CONFIGSET_CSS,
+                                     "Web interface appearance settings"    },
+  { "/css",         CONFIGSET_CSS,   "Style sheet"                          },
+  { "/shun",        CONFIGSET_SHUN,  "List of shunned artifacts"            },
+  { "/ticket",      CONFIGSET_TKT,   "Ticket setup",                        },
+  { "/user",        CONFIGSET_USER,  "Users and privilege settings"         },
+  { "/xfer",        CONFIGSET_XFER,  "Transfer setup",                      },
+  { "/alias",       CONFIGSET_ALIAS, "URL Aliases",                         },
+  { "/subscriber",  CONFIGSET_SCRIBER,"Email notification subscriber list" },
+/*{ "/forum",       CONFIGSET_FORUM, "Forum posts",                         },*/
+  { "/all",         CONFIGSET_ALL,   "All of the above"                     },
 };
 
 
@@ -163,7 +163,7 @@ static struct {
 
   { "@alias",                 CONFIGSET_ALIAS },
 
-  { "@subscriber",            CONFIGSET_SCRIBERS },
+  { "@subscriber",            CONFIGSET_SCRIBER },
 
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
@@ -237,7 +237,7 @@ int configure_is_exportable(const char *zName){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
-        m &= ~(CONFIGSET_USER|CONFIGSET_SCRIBERS);
+        m &= ~(CONFIGSET_USER|CONFIGSET_SCRIBER);
       }
       if( !g.perm.RdForum ){
         m &= ~(CONFIGSET_FORUM);
@@ -352,7 +352,7 @@ static int safeInt(const char *z){
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
   int checkMask;   /* Masks for which we must first check existance of tables */
 
-  checkMask = CONFIGSET_SCRIBERS;
+  checkMask = CONFIGSET_SCRIBER;
   if( zName[0]=='/' ){
     /* The new format */
     char *azToken[24];
@@ -405,7 +405,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     if( (thisMask & groupMask)==0 ) return;
     if( (thisMask & checkMask)!=0 ){
-      if( (thisMask & CONFIGSET_SCRIBERS)!=0 ){
+      if( (thisMask & CONFIGSET_SCRIBER)!=0 ){
         email_schema(1);
       }
       checkMask &= ~thisMask;
@@ -587,7 +587,7 @@ int configure_send_group(
     }
     db_finalize(&q);
   }
-  if( (groupMask & CONFIGSET_SCRIBERS)!=0
+  if( (groupMask & CONFIGSET_SCRIBER)!=0
    && db_table_exists("repository","subscriber")
   ){
     db_prepare(&q, "SELECT mtime, quote(semail),"
