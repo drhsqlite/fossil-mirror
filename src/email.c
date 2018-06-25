@@ -1098,6 +1098,8 @@ void alerts_page(void){
   const char *semail;
   const char *smip;
   const char *suname;
+  char *smtime;
+  char *sctime;
   int eErr = 0;
   char *zErr = 0;
 
@@ -1173,13 +1175,15 @@ void alerts_page(void){
   }
   db_prepare(&q,
     "SELECT"
-    "  semail,"
-    "  sverified,"
-    "  sdonotcall,"
-    "  sdigest,"
-    "  ssub,"
-    "  smip,"
-    "  suname"
+    "  semail,"           /* 0 */
+    "  sverified,"        /* 1 */
+    "  sdonotcall,"       /* 2 */
+    "  sdigest,"          /* 3 */
+    "  ssub,"             /* 4 */
+    "  smip,"             /* 5 */
+    "  suname,"           /* 6 */
+    "  datetime(smtime)," /* 7 */
+    "  datetime(sctime)"  /* 8 */
     " FROM subscriber WHERE subscriberCode=hextoblob(%Q)", zName);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
@@ -1198,6 +1202,8 @@ void alerts_page(void){
   sw = strchr(ssub,'w')!=0;
   smip = db_column_text(&q, 5);
   suname = db_column_text(&q, 6);
+  smtime = db_column_text(&q, 7);
+  sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
     db_multi_exec(
       "UPDATE subscriber SET sverified=1 WHERE subscriberCode=hextoblob(%Q)",
@@ -1218,6 +1224,14 @@ void alerts_page(void){
   @  <td>%h(semail)</td>
   @ </tr>
   if( g.perm.Admin ){
+    @ <tr>
+    @  <td class='form_label'>Created:</td>
+    @  <td>%h(sctime)</td>
+    @ </tr>
+    @ <tr>
+    @  <td class='form_label'>Last Modified:</td>
+    @  <td>%h(smtime)</td>
+    @ </tr>
     @ <tr>
     @  <td class='form_label'>IP Address:</td>
     @  <td>%h(smip)</td>
@@ -1431,6 +1445,7 @@ void unsubscribe_page(void){
 void subscriber_list_page(void){
   Blob sql;
   Stmt q;
+  double rNow;
   if( email_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -1441,15 +1456,18 @@ void subscriber_list_page(void){
   style_header("Subscriber List");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
-    "SELECT hex(subscriberCode),"
-    "       semail,"
-    "       ssub,"
-    "       suname,"
-    "       sverified,"
-    "       sdigest"
+    "SELECT hex(subscriberCode)," /* 0 */
+    "       semail,"              /* 1 */
+    "       ssub,"                /* 2 */
+    "       suname,"              /* 3 */
+    "       sverified,"           /* 4 */
+    "       sdigest,"             /* 5 */
+    "       date(sctime),"        /* 6 */
+    "       smtime"               /* 7 */
     " FROM subscriber"
   );
   db_prepare_blob(&q, &sql);
+  rNow = db_double(0.0,"SELECT julianday('now')");
   @ <table border="1">
   @ <tr>
   @ <th>Email
@@ -1457,8 +1475,11 @@ void subscriber_list_page(void){
   @ <th>Digest-Only?
   @ <th>User
   @ <th>Verified?
+  @ <th>Last change
+  @ <th>Created
   @ </tr>
   while( db_step(&q)==SQLITE_ROW ){
+    double rAge = rNow - db_column_double(&q, 7);
     @ <tr>
     @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
@@ -1466,6 +1487,8 @@ void subscriber_list_page(void){
     @ <td>%s(db_column_int(&q,5)?"digest":"")</td>
     @ <td>%h(db_column_text(&q,3))</td>
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
+    @ <td>%z(human_readable_age(rAge)) ago</td>
+    @ <td>%h(db_column_text(&q,6))</td>
     @ </tr>
   }
   @ </table>
@@ -1781,7 +1804,6 @@ void email_auto_exec(void){
   db_begin_transaction();
   if( !email_tables_exist() ) goto autoexec_done;
   if( !db_get_boolean("email-autoexec",0) ) goto autoexec_done;
-  if( !db_exists("SELECT 1 FROM pending_alert") ) goto autoexec_done;
   email_send_alerts(0);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){

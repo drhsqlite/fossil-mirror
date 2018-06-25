@@ -1,5 +1,5 @@
-C Extend\sthe\suser\scapability\ssystem\sto\sallow\sthe\suse\sof\supper-case\sASCII\nletters\sfor\snew\scapabilities.
-D 2018-06-25T14:26:49.861
+C Enhancements\sto\sadministrator\saccess\sto\sthe\ssubscriber\slist.
+D 2018-06-25T14:45:56.130
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
-F src/email.c 44026b34b624b3ef98cb2ed6fa00652d1fb9ff39c586384ed52797f9c01cc132
+F src/email.c 9144c9d07aab9efc4e9848fff8276a524c8671f37a1ae9c84e61c962984d5e06
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9e74eb311f315da24dbb7f1cc59d0f79f43a5cce51121fc109ec993c73f7b10
-R 43fa26d8808ac7417f3ddce857957cec
+P e45cfde7aa17ab642a962f6fcd2cda4832a7715a5d5843f52e88e746ce6eef83
+R 14981b74e0bda311ba8199bcca55525d
 U drh
-Z 0d79a912d0cb8277227965c2427f6724
+Z 5a5e429b2a947fda6fc8fffdba2673ef
