@@ -350,7 +350,7 @@ struct EmailSender {
 static void emailerShutdown(EmailSender *p){
   sqlite3_finalize(p->pStmt);
   p->pStmt = 0;
-  sqlite3_free(p->db);
+  sqlite3_close(p->db);
   p->db = 0;
   p->zDb = 0;
   p->zDir = 0;
