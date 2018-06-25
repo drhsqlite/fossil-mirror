@@ -593,7 +593,7 @@ int configure_send_group(
     db_prepare(&q, "SELECT mtime, quote(semail),"
                    " quote(suname), quote(sdigest),"
                    " quote(sdonotcall), quote(ssub),"
-                   " quote(sctime), quote(smip),"
+                   " quote(sctime), quote(smip)"
                    " FROM subscriber WHERE sverified"
                    " AND mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
