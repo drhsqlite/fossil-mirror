@@ -1,5 +1,5 @@
-C Enhance\sthe\ssubscriber\ssince\sto\sinclude\sthe\screation\stime\sand\sso\sthat\na\snew\srandom\ssubscriber\scode\sis\sset.
-D 2018-06-25T16:14:51.187
+C Fix\sharmless\scompiler\swarnings.\s\sAlso\sremove\sthe\s"ago"\stext\sfrom\sthe\n"Last\sChange"\scolumn\sin\sthe\ssubscriber\slist\swebpage.
+D 2018-06-25T16:19:30.578
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 321e270de0c1218ce4c0a001c9e0ee32d36e5ba22290e4396542a6d1cda67a71
+F src/cgi.c 02fe157594de951b9fa38f42660d087a0b97497fc8ae008bb758957fc7ad7c23
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
-F src/email.c 9144c9d07aab9efc4e9848fff8276a524c8671f37a1ae9c84e61c962984d5e06
+F src/email.c bc330ec4be8b3af41dbaa2ffa5820f12fcba4acbaa12bd0c96c7aa22be46ba7f
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -545,7 +545,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
-F src/security_audit.c 09c6259414bb97e8e95e200dce1489f22b6dd8113f229cb56d63fe452c86fd0a
+F src/security_audit.c 479c457a37bfa4b70ea6b6b48547e5e2c1997a3686e3c87f9b2a01ad77055cd7
 F src/setup.c 8d88b3709aa3e81e31724f84114d5fc34c8676adc8d06cf69d81bf81c3f696a0
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22c3354dcbb718927396250ca32e2579b96e9fa1de1b629fd94786d689aeb7ea
-R 203d4084b1ee6a6ebd7d524afb4a71e6
+P 7e87699dcf78eb2ee625733a8c0cf64bc06f112697c1d873ca1cd6f8c4eb4d1c
+R 4915e557eac855a3715fa866debbe5a5
 U drh
-Z c4f16d0a6abea331eedfffbd406ee5d8
+Z cffe00f8a03930606799f02e9e83f646

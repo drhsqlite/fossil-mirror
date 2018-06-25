@@ -412,7 +412,6 @@ void errorlog_page(void){
   login_check_credentials();
   i64 szFile;
   FILE *in;
-  long got;
   char z[10000];
   if( !g.perm.Setup && !g.perm.Admin ){
     login_needed(0);

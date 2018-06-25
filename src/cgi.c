@@ -340,7 +340,7 @@ void cgi_reply(void){
   CGIDEBUG(("DONE\n"));
 
   /* After the webpage has been sent, do any useful background
-  /* processing.
+  ** processing.
   */
   if( iReplyStatus==200 ){
     email_auto_exec();

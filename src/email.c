@@ -416,7 +416,6 @@ static int emailerGetSetting(
 */
 EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
   EmailSender *p;
-  char *zMissing = 0;
 
   p = fossil_malloc(sizeof(*p));
   memset(p, 0, sizeof(*p));
@@ -1098,8 +1097,8 @@ void alerts_page(void){
   const char *semail;
   const char *smip;
   const char *suname;
-  char *smtime;
-  char *sctime;
+  const char *smtime;
+  const char *sctime;
   int eErr = 0;
   char *zErr = 0;
 
@@ -1487,7 +1486,7 @@ void subscriber_list_page(void){
     @ <td>%s(db_column_int(&q,5)?"digest":"")</td>
     @ <td>%h(db_column_text(&q,3))</td>
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
-    @ <td>%z(human_readable_age(rAge)) ago</td>
+    @ <td>%z(human_readable_age(rAge))</td>
     @ <td>%h(db_column_text(&q,6))</td>
     @ </tr>
   }
