@@ -409,10 +409,10 @@ void takeitprivate_page(void){
 ** this page.
 */
 void errorlog_page(void){
-  login_check_credentials();
   i64 szFile;
   FILE *in;
   char z[10000];
+  login_check_credentials();
   if( !g.perm.Setup && !g.perm.Admin ){
     login_needed(0);
     return;

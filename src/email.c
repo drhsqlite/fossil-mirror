@@ -1179,8 +1179,8 @@ void alerts_page(void){
     ssub[nsub] = 0;
     if( g.perm.Admin ){
       const char *suname = PT("suname");
-      if( suname && suname[0]==0 ) suname = 0;
       int sverified = PB("sverified");
+      if( suname && suname[0]==0 ) suname = 0;
       db_multi_exec(
         "UPDATE subscriber SET"
         " sdonotcall=%d,"
@@ -2037,7 +2037,6 @@ static char *email_send_announcement(void){
 ** individual email to anyone.
 */
 void announce_page(void){
-  const char *zTo = PT("to");
   login_check_credentials();
   if( !g.perm.Announce ){
     login_needed(0);

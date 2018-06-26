@@ -1623,7 +1623,7 @@ const char *file_cleanup_fullpath(const char *z){
 ** directory.
 */
 int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
-  char *zNative;
+  void *zNative;
   DIR *d;
   int n = -1;
   zNative = fossil_utf8_to_path(zDir,1);
@@ -1634,7 +1634,12 @@ int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
     while( (pEntry=readdir(d))!=0 ){
       if( pEntry->d_name[0]==0 ) continue;
       if( omitDotFiles && pEntry->d_name[0]=='.' ) continue;
-      if( zGlob && sqlite3_strglob(zGlob, pEntry->d_name)!=0 ) continue;
+      if( zGlob ){
+        char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+        int rc = sqlite3_strglob(zGlob, zUtf8);
+        fossil_path_free(zUtf8);
+        if( rc ) continue;
+      }
       n++;
     }
     closedir(d);

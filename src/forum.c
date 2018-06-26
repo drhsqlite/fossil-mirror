@@ -79,12 +79,13 @@ void forum_page(void){
   itemId = atoi(PD("item","0"));
   if( itemId>0 ){
     int iUp;
+    double rNow;
     style_submenu_element("Topics", "%R/forum");
     iUp = db_int(0, "SELECT inreplyto FROM forumpost WHERE mpostid=%d", itemId);
     if( iUp ){
       style_submenu_element("Parent", "%R/forum?item=%d", iUp);
     }
-    double rNow = db_double(0.0, "SELECT julianday('now')");
+    rNow = db_double(0.0, "SELECT julianday('now')");
     /* Show the post given by itemId and all its descendents */
     db_prepare(&q,
       "WITH RECURSIVE"
@@ -256,9 +257,10 @@ void forum_edit_page(void){
   int itemId;
   int parentId;
   char *zErr = 0;
-  login_check_credentials();
   const char *zMime;
   const char *zSub;
+
+  login_check_credentials();
   if( !g.perm.WrForum ){ login_needed(g.anon.WrForum); return; }
   forum_verify_schema();
   itemId = atoi(PD("item","0"));
