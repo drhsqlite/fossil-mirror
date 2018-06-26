@@ -25,24 +25,6 @@
 #include "cygsup.h"
 
 /*
-** WARNING: For Fossil version x.x this value was always zero.  For Fossil-NG
-**          it will probably always be one.  When this value is zero,
-**          files in the checkout will not be moved by the "mv" command and
-**          files in the checkout will not be removed by the "rm" command.
-**
-**          If the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option is used,
-**          the "mv-rm-files" setting will be consulted instead of using
-**          this value.
-**
-**          To retain the Fossil version 2.x behavior when using Fossil-NG
-**          the FOSSIL_ENABLE_LEGACY_MV_RM compile-time option must be used
-**          -AND- the "mv-rm-files" setting must be set to zero.
-*/
-#ifndef FOSSIL_MV_RM_FILE
-#define FOSSIL_MV_RM_FILE                        (0)
-#endif
-
-/*
 ** This routine returns the names of files in a working checkout that
 ** are created by Fossil itself, and hence should not be added, deleted,
 ** or merge, and should be omitted from "clean" and "extras" lists.
@@ -426,16 +408,13 @@ static void process_files_to_remove(
 ** The 'rm' and 'delete' commands do NOT normally remove the files from
 ** disk.  They just mark the files as no longer being part of the project.
 ** In other words, future changes to the named files will not be versioned.
-** However, the default behavior of this command may be overridden via the
-** command line options listed below and/or the 'mv-rm-files' setting.
+** However, the default behavior of this command may be overridden using
+** the --hard or --soft command line options or by changing the
+** 'mv-rm-files' setting.
 **
 ** The 'forget' command never removes files from disk, even when the command
 ** line options and/or the 'mv-rm-files' setting would otherwise require it
 ** to do so.
-**
-** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
-**          setting is non-zero, files WILL BE removed from disk as well.
-**          This does NOT apply to the 'forget' command.
 **
 ** Options:
 **   --soft                  Skip removing files from the checkout.
@@ -470,11 +449,7 @@ void delete_cmd(void){
   }else if( hardFlag ){
     removeFiles = 1;
   }else{
-#if FOSSIL_ENABLE_LEGACY_MV_RM
     removeFiles = db_get_boolean("mv-rm-files",0);
-#else
-    removeFiles = FOSSIL_MV_RM_FILE;
-#endif
   }
   db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -833,17 +808,13 @@ static void process_files_to_move(
 **
 ** The 'mv' command does NOT normally rename or move the files on disk.
 ** This command merely records the fact that file names have changed so
-** that appropriate notations can be made at the next commit/check-in.
-** However, the default behavior of this command may be overridden via
-** command line options listed below and/or the 'mv-rm-files' setting.
+** that appropriate notations can be made at the next commit/check-in. 
+** This behavior can be changed using the --hard or --soft command-line
+** options or by changing the 'mv-rm-files' setting.
 **
 ** The 'rename' command never renames or moves files on disk, even when the
 ** command line options and/or the 'mv-rm-files' setting would otherwise
 ** require it to do so.
-**
-** WARNING: If the "--hard" option is specified -OR- the "mv-rm-files"
-**          setting is non-zero, files WILL BE renamed or moved on disk
-**          as well.  This does NOT apply to the 'rename' command.
 **
 ** Options:
 **   --soft                  Skip moving files within the checkout.
@@ -891,11 +862,7 @@ void mv_cmd(void){
   }else if( hardFlag ){
     moveFiles = 1;
   }else{
-#if FOSSIL_ENABLE_LEGACY_MV_RM
     moveFiles = db_get_boolean("mv-rm-files",0);
-#else
-    moveFiles = FOSSIL_MV_RM_FILE;
-#endif
   }
   file_tree_name(zDest, &dest, 0, 1);
   db_multi_exec(

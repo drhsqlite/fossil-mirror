@@ -1,5 +1,5 @@
-C Fix\sa\scritical\sbug\sin\sthe\snew\sblob_append_char()\sroutine\sthat\swas\sadded\nto\sthe\sprevious\scheck-in.\s\sThis\sbug\scauses\scrashes.\s\sAlso\schange\sthe\nquoted-printable\sencoding\sto\sescape\sthe\s':'\scharacter\sso\sthat\slines\nin\sthe\sbody\sof\san\semail\swill\snever\sbe\sconfused\swith\sa\sheader\sline\nlike\s"From:".
-D 2018-06-26T02:26:14.917
+C Make\sthe\smv-rm-files\savailable\swithout\sspecial\scompile-time\soptions.
+D 2018-06-26T11:21:08.975
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -426,7 +426,7 @@ F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 87636805a1489c17d6b54e6f22eccf215944dd6bd1ef9a17b54816272058a3d7
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c f454dc59c64dcac69fd7d5c3ab5e8fad78ef7f45db2ea1093f92433f39b0a9bb
+F src/add.c a19c2ac514cafcacc710addd2ed26a774aea86940f9aa6f5053b94f2bbd2e290
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
@@ -453,7 +453,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3d86182edc241ee9ed2c416d652ec3c7640f57ae66931142c748dce83e9306de
+F src/db.c 7b25872ff6b2f248c1feefcba99562ab5a9b16cffec8fb55e186b8c868f4e5bc
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6a13c45bd0e59cc584c8f8408dd53bc3690d7225b6f7cff42042fcc29126717
-R 71cdef992f9e8287c9fb6fe557f8add9
+P 122905c29b43f5358911a0b6e5f1868b53bd9621143904864ce2442098859446
+R 996bfff12a2e792985f54c7ba7ae9232
 U drh
-Z 31df62dfa5abe35d640d639b634ccc1c
+Z a9560056a6621abec3d5e1355bcd6007
