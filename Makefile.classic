@@ -44,6 +44,9 @@ TCC = gcc -g -Os -Wall
 # To add support for HTTPS
 TCC += -DFOSSIL_ENABLE_SSL
 
+# To enable legacy mv/rm support
+TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
+
 #### We sometimes add the -static option here so that we can build a
 #    static executable that will run in a chroot jail.
 #LIB = -static
