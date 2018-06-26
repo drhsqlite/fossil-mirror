@@ -366,8 +366,9 @@ static void setup_usercap_table(void){
      @   <td><i>Forum-Supervisor:</i> \
      @ Forum administrator
      @ <tr><th valign="top">7</th>
-     @   <td><i>Email-Alerts:</i> \
-     @ Sign up for email notifications</td></tr>
+     @   <td><i>Email-Alerts:</i> Sign up for email nofications</td></tr>
+     @ <tr><th valign="top">A</th>
+     @   <td><i>Announce:</i> Send announcements</td></tr>
   @ </table>
 }
 
@@ -766,7 +767,9 @@ void user_edit(void){
   @  <label><input type="checkbox" name="a6"%s(oa['6']) />
   @  Supervise Forum%s(B('6'))</label><br>
   @  <label><input type="checkbox" name="a7"%s(oa['7']) />
-  @  Email Alerts%s(B('7'))</label>
+  @  Email Alerts%s(B('7'))</label><br>
+  @  <label><input type="checkbox" name="aA"%s(oa['A']) />
+  @  Send Announcements%s(B('A'))</label>
   @ </td></tr>
   @ </table>
   @   </td>

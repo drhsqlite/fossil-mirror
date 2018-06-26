@@ -124,7 +124,7 @@ Web pages:
    *  The [/subscribe](/help?cmd=/subscribe) page
    *  The [/alerts](/help?cmd=/alerts) page
    *  The [/unsubscribe](/help?cmd=/unsubscribe) page
-   *  The [/msgadmin](/help?cmd=/msgadmin) page
+   *  The [/msgtoadmin](/help?cmd=/msgtoadmin) page
 
 Web pages for administrators only:
 

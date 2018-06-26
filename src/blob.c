@@ -486,8 +486,8 @@ void blob_rewind(Blob *p){
 /*
 ** Truncate a blob back to zero length
 */
-void blob_truncate(Blob *p){
-  p->nUsed = 0;
+void blob_truncate(Blob *p, int sz){
+  if( sz>=0 && sz<p->nUsed ) p->nUsed = sz;
 }
 
 /*

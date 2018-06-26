@@ -1204,7 +1204,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt = p->Delete =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum =
-                             p->EmailAlert = 
+                             p->EmailAlert = p->Announce =
                              p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1241,6 +1241,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case '2':   p->RdForum = 1;                              break;
 
       case '7':   p->EmailAlert = 1;                           break;
+      case 'A':   p->Announce = 1;                             break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1314,6 +1315,13 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'x':  rc = p->Private;   break;
       case 'y':  rc = p->WrUnver;   break;
       case 'z':  rc = p->Zip;       break;
+      case '2':  rc = p->RdForum;   break;
+      case '3':  rc = p->WrForum;   break;
+      case '4':  rc = p->WrTForum;  break;
+      case '5':  rc = p->ModForum;  break;
+      case '6':  rc = p->AdminForum;break;
+      case '7':  rc = p->EmailAlert;break;
+      case 'A':  rc = p->Announce;  break;
       default:   rc = 0;            break;
     }
   }

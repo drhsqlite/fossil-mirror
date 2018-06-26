@@ -339,6 +339,7 @@ struct EmailSender {
   const char *zDir;          /* Directory in which to store as email files */
   const char *zCmd;          /* Command to run for each email */
   const char *zFrom;         /* Emails come from here */
+  Blob out;                  /* For zDest=="blob" */
   char *zErr;                /* Error message */
   int bImmediateFail;        /* On any error, call fossil_fatal() */
 };
@@ -356,6 +357,7 @@ static void emailerShutdown(EmailSender *p){
   p->zDir = 0;
   p->zCmd = 0;
   p->zDest = "off";
+  blob_zero(&p->out);
 }
 
 /*
@@ -456,6 +458,8 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
     emailerGetSetting(p, &p->zCmd, "email-send-command");
   }else if( fossil_strcmp(p->zDest, "dir")==0 ){
     emailerGetSetting(p, &p->zDir, "email-send-dir");
+  }else if( fossil_strcmp(p->zDest, "blob")==0 ){
+    blob_init(&p->out, 0, 0);
   }
   return p;
 }
@@ -479,17 +483,25 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
 ** not free them.
 */
 void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
-  Blob all;
+  Blob all, *pOut;
   if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
   }
-  blob_init(&all, 0, 0);
-  blob_append(&all, blob_buffer(pHdr), blob_size(pHdr));
-  blob_appendf(&all, "From: %s\r\n", p->zFrom);
+  if( fossil_strcmp(p->zDest, "blob")==0 ){
+    pOut = &p->out;
+    if( blob_size(pOut) ){
+      blob_appendf(pOut, "%.72c\n", '=');
+    }
+  }else{
+    blob_init(&all, 0, 0);
+    pOut = &all;
+  }
+  blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
+  blob_appendf(pOut, "From: %s\r\n", p->zFrom);
   blob_add_final_newline(pBody);
-  blob_appendf(&all,"Content-Type: text/plain\r\n");
-  blob_appendf(&all, "Content-Transfer-Encoding: base64\r\n\r\n");
-  append_base64(&all, pBody);
+  blob_appendf(pOut,"Content-Type: text/plain\r\n");
+  blob_appendf(pOut, "Content-Transfer-Encoding: base64\r\n\r\n");
+  append_base64(pOut, pBody);
   if( p->pStmt ){
     int i, rc;
     sqlite3_bind_text(p->pStmt, 1, blob_str(&all), -1, SQLITE_TRANSIENT);
@@ -1764,8 +1776,8 @@ void email_send_alerts(u32 flags){
     blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
          '-', zUrl, zCode);
     email_send(pSender,&hdr,&body);
-    blob_truncate(&hdr);
-    blob_truncate(&body);
+    blob_truncate(&hdr, 0);
+    blob_truncate(&body, 0);
   }
   blob_zero(&hdr);
   blob_zero(&body);
@@ -1818,11 +1830,11 @@ autoexec_done:
 }
 
 /*
-** WEBPAGE: msgadmin
+** WEBPAGE: msgtoadmin
 **
 ** A web-form to send a message to the repository administrator.
 */
-void msgadmin_page(void){
+void msgtoadmin_page(void){
   const char *zAdminEmail = db_get("email-admin",0);
   unsigned int uSeed;
   const char *zDecoded;
@@ -1873,7 +1885,7 @@ void msgadmin_page(void){
     zCaptcha = captcha_render(zDecoded);
   }
   style_header("Message To Administrator");
-  form_begin(0, "%R/msgadmin");
+  form_begin(0, "%R/msgtoadmin");
   @ <p>Enter a message to the repository administrator below:</p>
   @ <table class="subscribe">
   if( zCaptcha ){
@@ -1909,6 +1921,138 @@ void msgadmin_page(void){
     @ Enter the 8 characters above in the "Security Code" box
     @ </td></tr></table></div>
   }
+  @ </form>
+  style_footer();
+}
+
+/*
+** Send an annoucement message described by query parameter.
+** Permission to do this has already been verified.
+*/
+static char *email_send_announcement(void){
+  EmailSender *pSender;
+  char *zErr;
+  const char *zTo = PT("to");
+  char *zSubject = PT("subject");
+  int bAll = PB("all");
+  int bAA = PB("aa");
+  const char *zSub = db_get("email-subname", "[Fossil Repo]");
+  int bTest2 = fossil_strcmp(P("name"),"test2")==0;
+  Blob hdr, body;
+  blob_init(&body, 0, 0);
+  blob_init(&hdr, 0, 0);
+  blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
+  pSender = email_sender_new(bTest2 ? "blob" : 0, 0);
+  if( zTo[0] ){
+    blob_appendf(&hdr, "To: %s\nSubject: %s %s\n", zTo, zSub, zSubject);
+    email_send(pSender, &hdr, &body);
+  }
+  if( bAll || bAA ){
+    Stmt q;
+    int nUsed = blob_size(&body);
+    const char *zURL =  db_get("email-url",0);
+    db_prepare(&q, "SELECT semail, subscriberCode FROM subscriber "
+                   " WHERE sverified AND NOT sdonotcall %s",
+                   bAll ? "" : " AND ssub LIKE '%a%'");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zCode = db_column_text(&q, 1);
+      zTo = db_column_text(&q, 0);
+      blob_truncate(&hdr, 0);
+      blob_appendf(&hdr, "To: %s\nSubject: %s %s\n", zTo, zSub, zSubject);
+      if( zURL ){
+        blob_truncate(&body, nUsed);
+        blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
+           '-', zURL, zCode);
+      }
+      email_send(pSender, &hdr, &body);
+    }
+    db_finalize(&q);
+  }
+  if( bTest2 ){
+    /* If the URL is /announce/test2 instead of just /announce, then no
+    ** email is actually sent.  Instead, the text of the email that would
+    ** have been sent is displayed in the result window. */
+    @ <pre style='border: 2px solid blue; padding: 1ex'>
+    @ %h(blob_str(&pSender->out))
+    @ </pre>
+  }
+  zErr = pSender->zErr;
+  pSender->zErr = 0;
+  email_sender_free(pSender);
+  return zErr;
+}
+
+
+/*
+** WEBPAGE: announce
+**
+** A web-form, available to users with the "Send-Announcement" or "A"
+** capability, that allows one to to send an announcements to whomever
+** has subscribed to them.  The administrator can also send an announcement
+** to the entire mailing list (including people who have elected to
+** receive no announcements or notifications of any kind, or to
+** individual email to anyone.
+*/
+void announce_page(void){
+  const char *zTo = PT("to");
+  login_check_credentials();
+  if( !g.perm.Announce ){
+    login_needed(0);
+    return;
+  }
+  if( fossil_strcmp(P("name"),"test1")==0 ){
+    /* Visit the /announce/test1 page to see the CGI variables */
+    @ <p style='border: 1px solid black; padding: 1ex;'>
+    cgi_print_all(0, 0);
+    @ </p>
+  }else
+  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+    char *zErr = email_send_announcement();
+    style_header("Announcement Sent");
+    if( zErr ){
+      @ <h1>Internal Error</h1>
+      @ <p>The following error was reported by the system:
+      @ <blockquote><pre>
+      @ %h(zErr)
+      @ </pre></blockquote>
+    }else{
+      @ <p>The announcement has been sent.</p>
+    }
+    style_footer();    
+    return;
+  }
+  style_header("Send Announcement");
+  @ <form method="POST">
+  @ <table class="subscribe">
+  if( g.perm.Admin ){
+    int aa = PB("aa");
+    int all = PB("all");
+    const char *aack = aa ? "checked" : "";
+    const char *allck = all ? "checked" : "";
+    @ <tr>
+    @  <td class="form_label">To:</td>
+    @  <td><input type="text" name="to" value="%h(PT("to"))" size="30"><br>
+    @  <label><input type="checkbox" name="aa" %s(aack)> \
+    @  All "announcement" subscribers</label><br>
+    @  <label><input type="checkbox" name="all" %s(allck)> \
+    @  All subscribers</label></td>
+    @ </tr>
+  }
+  @ <tr>
+  @  <td class="form_label">Subject:</td>
+  @  <td><input type="text" name="subject" value="%h(PT("subject"))"\
+  @  size="80"></td>
+  @ </tr>
+  @ <tr>
+  @  <td class="form_label">Message:</td>
+  @  <td><textarea name="msg" cols="80" rows="10" wrap="virtual">\
+  @ %h(PT("msg"))</textarea>
+  @ </tr>
+  @ <tr>
+  @   <td></td>
+  @   <td><input type="submit" name="submit" value="Send Message">
+  @ </tr>
+  @ </table>
   @ </form>
   style_footer();
 }
