@@ -300,7 +300,7 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 ** Append a single character to the blob
 */
 void blob_append_char(Blob *pBlob, char c){
-  if( pBlob->nUsed+1>pBlob->nAlloc ){
+  if( pBlob->nUsed+1 >= pBlob->nAlloc ){
     pBlob->xRealloc(pBlob, pBlob->nUsed + pBlob->nAlloc + 100);
     if( pBlob->nUsed + 1 >= pBlob->nAlloc ){
       blob_panic();

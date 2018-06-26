@@ -318,7 +318,7 @@ static void append_quoted(Blob *pOut, Blob *pMsg){
   char c;
   int iCol = 0;
   while( (c = *(zIn++))!=0 ){
-    if( (c>='!' && c<='~' && c!='=')
+    if( (c>='!' && c<='~' && c!='=' && c!=':')
      || (c==' ' && zIn[0]!='\r' && zIn[0]!='\n')
     ){
       blob_append_char(pOut, c);
