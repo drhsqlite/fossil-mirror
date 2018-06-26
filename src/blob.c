@@ -297,6 +297,19 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 }
 
 /*
+** Append a single character to the blob
+*/
+void blob_append_char(Blob *pBlob, char c){
+  if( pBlob->nUsed+1>pBlob->nAlloc ){
+    pBlob->xRealloc(pBlob, pBlob->nUsed + pBlob->nAlloc + 100);
+    if( pBlob->nUsed + 1 >= pBlob->nAlloc ){
+      blob_panic();
+    }
+  }
+  pBlob->aData[pBlob->nUsed++] = c;    
+}
+
+/*
 ** Copy a blob
 */
 void blob_copy(Blob *pTo, Blob *pFrom){
@@ -311,7 +324,7 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
+    blob_append_char(p, 0); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
   if( p->aData[p->nUsed]!=0 ){
@@ -669,7 +682,7 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
 void blob_add_final_newline(Blob *pBlob){
   if( pBlob->nUsed<=0 ) return;
   if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
-    blob_append(pBlob, "\n", 1);
+    blob_append_char(pBlob, '\n');
   }
 }
 
@@ -1256,12 +1269,12 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
     }
   }
   if( n>0 && !fossil_isspace(z[n-1]) ){
-    blob_append(pBlob, " ", 1);
+    blob_append_char(pBlob, ' ');
   }
-  if( needEscape ) blob_append(pBlob, &cQuote, 1);
+  if( needEscape ) blob_append_char(pBlob, cQuote);
   if( zIn[0]=='-' ) blob_append(pBlob, "./", 2);
   blob_append(pBlob, zIn, -1);
-  if( needEscape ) blob_append(pBlob, &cQuote, 1);
+  if( needEscape ) blob_append_char(pBlob, cQuote);
 }
 
 /*
@@ -1332,7 +1345,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
       }
     }
     /* Make sure the blob contains two terminating 0-bytes */
-    blob_append(pBlob, "", 1);
+    blob_append_char(pBlob, 0);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_set_dynamic(pBlob, zUtf8);

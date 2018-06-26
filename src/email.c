@@ -293,6 +293,7 @@ void setup_email(void){
   style_footer();
 }
 
+#if 0
 /*
 ** Encode pMsg as MIME base64 and append it to pOut
 */
@@ -304,6 +305,43 @@ static void append_base64(Blob *pOut, Blob *pMsg){
     k = translateBase64(blob_buffer(pMsg)+i, i+54<n ? 54 : n-i, zBuf);
     blob_append(pOut, zBuf, k);
     blob_append(pOut, "\r\n", 2);
+  }
+}
+#endif
+
+/*
+** Encode pMsg using the quoted-printable email encoding and
+** append it onto pOut
+*/
+static void append_quoted(Blob *pOut, Blob *pMsg){
+  char *zIn = blob_str(pMsg);
+  char c;
+  int iCol = 0;
+  while( (c = *(zIn++))!=0 ){
+    if( (c>='!' && c<='~' && c!='=')
+     || (c==' ' && zIn[0]!='\r' && zIn[0]!='\n')
+    ){
+      blob_append_char(pOut, c);
+      iCol++;
+      if( iCol>=70 ){
+        blob_append(pOut, "=\n", 2);
+        iCol = 0;
+      }
+    }else if( c=='\r' && zIn[0]=='\n' ){
+      zIn++;
+      blob_append(pOut, "\r\n", 2);
+      iCol = 0;
+    }else if( c=='\n' ){
+      blob_append(pOut, "\r\n", 2);
+      iCol = 0;
+    }else{
+      char x[3];
+      x[0] = '=';
+      x[1] = "0123456789ABCDEF"[(c>>4)&0xf];
+      x[2] = "0123456789ABCDEF"[c&0xf];
+      blob_append(pOut, x, 3);
+      iCol += 3;
+    }
   }
 }
 
@@ -500,8 +538,13 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   blob_appendf(pOut, "From: %s\r\n", p->zFrom);
   blob_add_final_newline(pBody);
   blob_appendf(pOut,"Content-Type: text/plain\r\n");
+#if 0
   blob_appendf(pOut, "Content-Transfer-Encoding: base64\r\n\r\n");
   append_base64(pOut, pBody);
+#else
+  blob_appendf(pOut, "Content-Transfer-Encoding: quoted-printable\r\n\r\n");
+  append_quoted(pOut, pBody);
+#endif
   if( p->pStmt ){
     int i, rc;
     sqlite3_bind_text(p->pStmt, 1, blob_str(&all), -1, SQLITE_TRANSIENT);
@@ -1612,8 +1655,8 @@ void email_header(Blob *pOut){
 ** the end of an email alert being assemblied in pOut.
 */
 void email_footer(Blob *pOut){
-  blob_appendf(pOut, "\n%.72c\nTo unsubscribe: %s/unsubscribe\n",
-     '-', db_get("email-url","http://localhost:8080"));
+  blob_appendf(pOut, "\n-- \nTo unsubscribe: %s/unsubscribe\n",
+     db_get("email-url","http://localhost:8080"));
 }
 
 /*
@@ -1773,8 +1816,8 @@ void email_send_alerts(u32 flags){
       blob_append(&body, blob_buffer(&p->txt), blob_size(&p->txt));
     }
     if( nHit==0 ) continue;
-    blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
-         '-', zUrl, zCode);
+    blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
+         zUrl, zCode);
     email_send(pSender,&hdr,&body);
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
@@ -1951,7 +1994,7 @@ static char *email_send_announcement(void){
     Stmt q;
     int nUsed = blob_size(&body);
     const char *zURL =  db_get("email-url",0);
-    db_prepare(&q, "SELECT semail, subscriberCode FROM subscriber "
+    db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
                    " WHERE sverified AND NOT sdonotcall %s",
                    bAll ? "" : " AND ssub LIKE '%a%'");
     while( db_step(&q)==SQLITE_ROW ){
@@ -1961,8 +2004,8 @@ static char *email_send_announcement(void){
       blob_appendf(&hdr, "To: %s\nSubject: %s %s\n", zTo, zSub, zSubject);
       if( zURL ){
         blob_truncate(&body, nUsed);
-        blob_appendf(&body,"\n%.72c\nSubscription info: %s/alerts/%s\n",
-           '-', zURL, zCode);
+        blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
+           zURL, zCode);
       }
       email_send(pSender, &hdr, &body);
     }
