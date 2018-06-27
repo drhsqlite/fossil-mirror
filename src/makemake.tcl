@@ -126,6 +126,7 @@ set src {
   shun
   sitemap
   skins
+  smtp
   sqlcmd
   stash
   stat

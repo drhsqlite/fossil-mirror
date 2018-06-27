@@ -480,6 +480,7 @@ SRC   = add_.c \
         shun_.c \
         sitemap_.c \
         skins_.c \
+        smtp_.c \
         sqlcmd_.c \
         stash_.c \
         stat_.c \
@@ -683,6 +684,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\shun$O \
         $(OX)\sitemap$O \
         $(OX)\skins$O \
+        $(OX)\smtp$O \
         $(OX)\sqlcmd$O \
         $(OX)\sqlite3$O \
         $(OX)\stash$O \
@@ -874,6 +876,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\shun.obj >> $@
 	echo $(OX)\sitemap.obj >> $@
 	echo $(OX)\skins.obj >> $@
+	echo $(OX)\smtp.obj >> $@
 	echo $(OX)\sqlcmd.obj >> $@
 	echo $(OX)\sqlite3.obj >> $@
 	echo $(OX)\stash.obj >> $@
@@ -1626,6 +1629,12 @@ $(OX)\skins$O : skins_.c skins.h
 skins_.c : $(SRCDIR)\skins.c
 	translate$E $** > $@
 
+$(OX)\smtp$O : smtp_.c smtp.h
+	$(TCC) /Fo$@ -c smtp_.c
+
+smtp_.c : $(SRCDIR)\smtp.c
+	translate$E $** > $@
+
 $(OX)\sqlcmd$O : sqlcmd_.c sqlcmd.h
 	$(TCC) /Fo$@ -c sqlcmd_.c
 
@@ -1910,6 +1919,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			shun_.c:shun.h \
 			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \
+			smtp_.c:smtp.h \
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \
 			stat_.c:stat.h \

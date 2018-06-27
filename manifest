@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\smanpage\sfor\sthe\s/announce\spage.
-D 2018-06-27T17:02:20.872
+C Begin\sthe\ssmtp.c\smodule.\s\sStart\swith\sa\sroutine\sto\slocate\sthe\shostname\son\nwhich\sto\scontact\sthe\sSMTP\sserver\sfor\sa\sdomain.
+D 2018-06-27T19:15:54.059
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def fe198463c1f14b7d4a757256e5ad96e78ccca49072744a24c2d33d5c8dad9521
+F auto.def 553af26bfe4aa6b37db078d5610271d9ab8944d34a9feefae4779cba468b6b52
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -481,7 +481,7 @@ F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
-F src/http_socket.c c9dba13158d28e3f7b904b41a00f83d2172856eeccae31270b7c9ab4a55d8776
+F src/http_socket.c 012683c506324c07b3b5235c59aed378170c14546aad0da48100d329417ca60d
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 43bf993a931c1a6cafb051566e06c841173ec350dedc0cb6887e112bc05a147c
 F src/import.c 4519efff1fa16b07cdb60ffe884d0a9a9bd1e175ad72be656dda2b55d02ed515
@@ -510,10 +510,10 @@ F src/login.c 1ae037e7875fcaee7fb209edc8d96b43d988123ec991e86a7fe31b4c4061e6f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 28dfae9e3beee20d8bc07e7752aba4f2e870eedc6727c7e1ee118f7eb433d5bb
-F src/main.mk e925233bfdf31fd16342e147fe4cd37a3896ea0cd717db67ecb84327c0475377
+F src/main.mk 505656531b46ce16e9027f30bf2802061d72287c167717eb454bb1687bf9c587
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 2421f883f2db414d2c893d53e2ed3d29e49d85d4343e1cbd8d02c6e61d44245e
+F src/makemake.tcl 8262bef572f44fa3598681968936ca21c090d7a16b6b0b0c448122764780515d
 F src/manifest.c 5d402b3dac8a4fab3fe7c93b4a7b25863f8f6e20ed5a7d1961dc42be1a7db355
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -726,10 +726,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 213a11badf4e1b31f52548c8cb3e6e51fe79f3eebdcbe714b4cb475f0155a43b
-F win/Makefile.dmc ccb8a2d092ade16a8ed674ec41ccbb454027452232df7c4bee531da46ca84bb4
-F win/Makefile.mingw 26820ebf6675aad67e72e41bf85d375ce2bb25fa7e8f62ebdabcec8c61ae4e24
+F win/Makefile.dmc f9ce19f0a41a1f54ce80b06ad4842cc207b68c5d3fdd44482a57638ccbca2d80
+F win/Makefile.mingw 924997973e4e144bea2bf7186ce653ca70146b3645b0a383fc268a85ae88940e
 F win/Makefile.mingw.mistachkin 4941c336d0bd0adc9fe831a569621fe276f14f2faf26e99f3aea01cf19243fba
-F win/Makefile.msc 35df73c466507a7ae2df8156d024d28f0411c6a3ef281e32f8d7b241dd8875c1
+F win/Makefile.msc 7b66906a63b31aab17b3254ea3f913b8bfc39295b806c9eff4665017b2f09726
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -853,7 +853,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bc4b0a580282a257b7fa362963650ae36b9eba3345917102c772d4216c3fe1f
-R 5d2d64f7bea64a91155e3f56e7f84c0f
+P c1bce3f515ddc7ebf8d3734d842f406cf3193e49cffa69ae800aed7946989fb9
+R 81373ae6a38f3f427ae8806bb6568196
+T *branch * smtp
+T *sym-smtp *
+T -sym-trunk *
 U drh
-Z dffe10d899bec333a2366be27be7f2f2
+Z 5240a587406ce89d529433d576d1e982
