@@ -220,7 +220,7 @@ static int contains_whitespace(const char *zName){
 **
 ** Subcommands:
 **
-**    add FILE ...         Add or update an unversioned files in the local
+**    add FILE ...         Add or update unversioned files in the local
 **                         repository so that it matches FILE on disk.
 **                         Use "--as UVFILE" to give the file a different name
 **                         in the repository than what it called on disk.
@@ -251,7 +251,7 @@ static int contains_whitespace(const char *zName){
 **
 **    sync ?URL?           Synchronize the state of all unversioned files with
 **                         the remote repository URL.  The most recent version
-**                         of each file is propagate to all repositories and
+**                         of each file is propagated to all repositories and
 **                         all prior versions are permanently forgotten.
 **
 **                         Options:
