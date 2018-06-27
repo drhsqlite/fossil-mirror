@@ -2030,7 +2030,7 @@ static char *email_send_announcement(void){
 ** WEBPAGE: announce
 **
 ** A web-form, available to users with the "Send-Announcement" or "A"
-** capability, that allows one to to send an announcements to whomever
+** capability, that allows one to send an announcements to whomever
 ** has subscribed to them.  The administrator can also send an announcement
 ** to the entire mailing list (including people who have elected to
 ** receive no announcements or notifications of any kind, or to
