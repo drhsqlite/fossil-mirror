@@ -1,5 +1,5 @@
-C Fix\scompiler\swarnings\son\swindows.\s\sFix\sthe\sfile_directory_size()\sfunction\sso\sthat\sit\sworks\son\swindows.
-D 2018-06-26T11:54:29.060
+C Fix\sa\swarning\sabout\san\sunclosed\stransaction\swhen\sdoing\sa\sno-op\n"fossil\scheckout".
+D 2018-06-27T02:22:33.349
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -440,7 +440,7 @@ F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
 F src/cgi.c 02fe157594de951b9fa38f42660d087a0b97497fc8ae008bb758957fc7ad7c23
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
-F src/checkout.c b27d81846a1b2f8c961c9ea4eec93c15186432de63d97e650e413e96f0557604
+F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27e5e5ce65262f5a0520cdffbd4851359849d2b604b756ce3fd4b41568660a47
-R ed76db666cc7e1eeb5ad38729ef04b00
+P 6a7d2ad8f1dd5c542eba0b885418328803d8d80252382c3fb36b8c02803dd3ce
+R 99c9218568b99baa4abef45e47b28cc0
 U drh
-Z 8d51cd501b101d50fd7054b6c16ca956
+Z 32020da1113809c68480e84e81ac6f62
