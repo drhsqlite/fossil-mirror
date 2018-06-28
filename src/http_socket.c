@@ -81,8 +81,10 @@ void socket_set_errmsg(const char *zFormat, ...){
 /*
 ** Return the current socket error message
 */
-const char *socket_errmsg(void){
-  return socketErrMsg;
+char *socket_errmsg(void){
+  char *zResult = socketErrMsg;
+  socketErrMsg = 0;
+  return zResult;
 }
 
 /*
