@@ -262,7 +262,7 @@ static void smtp_recv_line(SmtpSession *p, Blob *in){
         p->atEof = 1;
         return;
       }else{
-        sqlite3_sleep(25);
+        sqlite3_sleep(100);
       }
     }while( n<1 || z[n-1]!='\n' );
     blob_truncate(&p->inbuf, n);
@@ -322,6 +322,7 @@ int smtp_client_quit(SmtpSession *p){
   do{
     smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
   }while( bMore );
+  p->atEof = 1;
   socket_close();
   return 0;
 }
@@ -366,7 +367,6 @@ int smtp_client_startup(SmtpSession *p){
 */
 void test_smtp_probe(void){
   SmtpSession *p;
-  int rc;
   const char *zDomain;
   const char *zSelf;
   if( g.argc!=3 && g.argc!=4 ) usage("DOMAIN [ME]");
@@ -377,10 +377,185 @@ void test_smtp_probe(void){
     fossil_fatal("%s", p->zErr);
   }
   fossil_print("Connection to \"%s\"\n", p->zHostname);
-  rc = smtp_client_startup(p);
-  if( !rc ) smtp_client_quit(p);
+  smtp_client_startup(p);
+  smtp_client_quit(p);
   if( p->zErr ){
     fossil_fatal("ERROR: %s\n", p->zErr);
   }
   smtp_session_free(p);
+}
+
+/*
+** Send the content of an email message followed by a single
+** "." line.  All lines must be \r\n terminated.  Any isolated
+** \n line terminators in the input must be converted.  Also,
+** an line contain using "." should be converted to "..".
+*/
+static void smtp_send_email_body(
+  const char *zMsg,                          /* Message to send */
+  size_t (*xSend)(void*,const void*,size_t), /* Sender callback function */
+  void *pArg                                 /* First arg to sender */
+){
+  Blob in;
+  Blob out = BLOB_INITIALIZER;
+  Blob line;
+  blob_init(&in, zMsg, -1);
+  while( blob_line(&in, &line) ){
+    char *z = blob_buffer(&line);
+    int n = blob_size(&line);
+    if( n==0 ) break;
+    n--;
+    if( n && z[n-1]=='\r' ) n--;
+    if( n==1 && z[0]=='.' ){
+      blob_append(&out, "..\r\n", 4);
+    }else{
+      blob_append(&out, z, n);
+      blob_append(&out, "\r\n", 2);
+    }
+  }
+  blob_append(&out, ".\r\n", 3);
+  xSend(pArg, blob_buffer(&out), blob_size(&out));
+  blob_zero(&out);
+  blob_zero(&line);
+}
+
+/* A sender function appropriate for use by smtp_send_email_body() to
+** send all content to the console, for testing.
+*/
+static size_t smtp_test_sender(void *NotUsed, const void *pContent, size_t N){
+  return fwrite(pContent, 1, N, stdout);
+}
+
+/*
+** COMMAND: test-smtp-senddata
+**
+** Usage: %fossil test-smtp-senddata FILE
+**
+** Read content from FILE, then send it to stdout encoded as if sent
+** to the DATA portion of an SMTP session.  This command is used to
+** test the encoding logic.
+*/
+void test_smtp_senddata(void){
+  Blob f;
+  if( g.argc!=3 ) usage("FILE");
+  blob_read_from_file(&f, g.argv[2], ExtFILE);
+  smtp_send_email_body(blob_str(&f), smtp_test_sender, 0);
+  blob_zero(&f);
+}
+
+/*
+** Send a single email message to the SMTP server.
+**
+** All email addresses (zFrom and azTo) must be plain "local@domain"
+** format with the surrounding "<..>".  This routine will add the
+** necessary "<..>".
+**
+** The body of the email should be well-structured.  This routine will
+** convert any \n line endings into \r\n and will escape lines containing
+** just ".", but will not make any other alterations or corrections to
+** the message content.
+**
+** Return 0 on success.  Otherwise an error code.
+*/
+int smtp_send_msg(
+  SmtpSession *p,        /* The SMTP server to which the message is sent */
+  const char *zFrom,     /* Who the message is from */
+  int nTo,               /* Number of receipients */
+  const char **azTo,     /* Email address of each recipient */
+  const char *zMsg       /* Body of the message */
+){
+  int i;
+  int iCode = 0;
+  int bMore = 0;
+  char *zArg = 0;
+  Blob in;
+  blob_init(&in, 0, 0);
+  smtp_send_line(p, "MAIL FROM:<%s>\r\n", zFrom);
+  do{
+    smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
+  }while( bMore );
+  if( iCode!=250 ) return 1;
+  for(i=0; i<nTo; i++){
+    smtp_send_line(p, "RCPT TO:<%s>\r\n", azTo[i]);
+    do{
+      smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
+    }while( bMore );
+    if( iCode!=250 ) return 1;
+  }
+  smtp_send_line(p, "DATA\r\n");
+  do{
+    smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
+  }while( bMore );
+  if( iCode!=354 ) return 1;
+  smtp_send_email_body(zMsg, socket_send, 0);
+  if( p->smtpFlags & SMTP_TRACE_STDOUT ){
+    fossil_print("C: # message content\nC: .\n");
+  }
+  if( p->smtpFlags & SMTP_TRACE_FILE ){
+    fprintf(p->logFile, "C: # message content\nC: .\n");
+  }
+  if( p->smtpFlags & SMTP_TRACE_BLOB ){
+    blob_appendf(p->pTranscript, "C: # message content\nC: .\n");
+  }
+  do{
+    smtp_get_reply_from_server(p, &in, &iCode, &bMore, &zArg);
+  }while( bMore );
+  if( iCode!=250 ) return 1;
+  return 0;
+}
+
+/*
+** The input is a base email address of the form "local@domain".
+** Return a pointer to just the "domain" part.
+*/
+static const char *domainOfAddr(const char *z){
+  while( z[0] && z[0]!='@' ) z++;
+  if( z[0]==0 ) return 0;
+  return z+1;
+}
+
+
+/*
+** COMMAND: test-smtp-send
+**
+** Usage: %fossil test-smtp-send EMAIL FROM TO ...
+**
+** Use SMTP to send the email message contained in the file named EMAIL
+** to the list of users TO.  FROM is the sender of the email.
+**
+** Options:
+**
+**      --trace               Show the SMTP conversation on the console
+*/
+void test_smtp_send(void){
+  SmtpSession *p;
+  const char *zFrom;
+  int nTo;
+  const char *zToDomain;
+  const char *zFromDomain;
+  const char **azTo;
+  Blob body;
+  u32 smtpFlags = 0;
+  if( find_option("trace",0,0)!=0 ) smtpFlags |= SMTP_TRACE_STDOUT;
+  verify_all_options();
+  if( g.argc<5 ) usage("EMAIL FROM TO ...");
+  blob_read_from_file(&body, g.argv[2], ExtFILE);
+  zFrom = g.argv[3];
+  nTo = g.argc-4;
+  azTo = (const char**)g.argv+4;
+  zFromDomain = domainOfAddr(zFrom);
+  zToDomain = domainOfAddr(azTo[0]);
+  p = smtp_session_new(zFromDomain, zToDomain, smtpFlags);
+  if( p->zErr ){
+    fossil_fatal("%s", p->zErr);
+  }
+  fossil_print("Connection to \"%s\"\n", p->zHostname);
+  smtp_client_startup(p);
+  smtp_send_msg(p, zFrom, nTo, azTo, blob_str(&body));
+  smtp_client_quit(p);
+  if( p->zErr ){
+    fossil_fatal("ERROR: %s\n", p->zErr);
+  }
+  smtp_session_free(p);
+  blob_zero(&body);
 }

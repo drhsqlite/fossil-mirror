@@ -1,5 +1,5 @@
-C The\stest-smtp-probe\scommand\sis\snow\sworking.
-D 2018-06-28T17:15:48.399
+C Add\sthe\ssmtp_send_msg()\sfunction\scapable\sof\sencoding\sand\ssending\sa\scomplete\nemail\smessage.
+D 2018-06-28T21:38:32.148
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
-F src/http_socket.c 8a6fdf10fe98dbbd0797fe834eebc8cdc0fa3c0805e3c015225ca1c2337072ce
+F src/http_socket.c e83d5f3f890526f1b95caf83df3e47e0c8783525be5d80742da5e8c3fe2f096c
 F src/http_ssl.c 55266e0d4b2dd2d03af062c1e0e2a06c70d28adf6bb82b13f18a7d4beb543423
 F src/http_transport.c 4799cab705e506ec5f3aaf92f86fa1ad1cf13771780be54e0cb5b08b83d47952
 F src/import.c 4519efff1fa16b07cdb60ffe884d0a9a9bd1e175ad72be656dda2b55d02ed515
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
-F src/smtp.c e82c2fb2a2c158d190bea36e580c27487dc6b707b1bd3a386e02425ce1391487
+F src/smtp.c 39681920b5f35c9c99ea4c6c8e87da2335579b578ba7c0cda8f2a25e877eedb8
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
@@ -854,7 +854,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20006a866c8dbb59ba596f1ea31e62803847bb63cb2dddbe14dd0810efa4f0f6
-R a3d6819c579918c2ceda3c120444e6e9
+P 9281d52a91d8d2fb15d42437195e8b55652f24dace0d8c09e6701cebbc91ebb6
+R 918553dcd87cdaa94f300dadd344bc01
 U drh
-Z d11ebfab5f037b3e40f083e8f6f09b37
+Z fa8d5b731110c1ba691a244668b8ac19
