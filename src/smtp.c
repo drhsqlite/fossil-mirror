@@ -119,7 +119,9 @@ struct SmtpSession {
   FILE *logFile;            /* Write session transcript to this log file */
   Blob *pTranscript;        /* Record session transcript here */
   const char *zLabel;       /* Either "CS" or "SC" */
+  int atEof;                /* True after connection closes */
   char *zErr;               /* Error message */
+  Blob inbuf;               /* Input buffer */
 };
 
 /* Allowed values for SmtpSession.smtpFlags */
@@ -134,6 +136,7 @@ struct SmtpSession {
 */
 void smtp_session_free(SmtpSession *pSession){
   socket_close();
+  blob_zero(&pSession->inbuf);
   fossil_free(pSession->zHostname);
   fossil_free(pSession->zErr);
   fossil_free(pSession);
@@ -161,6 +164,7 @@ SmtpSession *smtp_session_new(
   p->zDest = zDest;
   p->zLabel = zDest==0 ? "CS" : "SC";
   p->smtpFlags = smtpFlags;
+  blob_init(&p->inbuf, 0, 0);
   va_start(ap, smtpFlags);
   if( smtpFlags & SMTP_TRACE_FILE ){
     p->logFile = va_arg(ap, FILE*);
@@ -170,6 +174,7 @@ SmtpSession *smtp_session_new(
   va_end(ap);
   p->zHostname = smtp_mx_host(zDest);
   if( p->zHostname==0 ){
+    p->atEof = 1;
     p->zErr = mprintf("cannot locate SMTP server for \"%s\"", zDest);
     return p;
   }
@@ -178,6 +183,7 @@ SmtpSession *smtp_session_new(
   url.port = 25;
   socket_global_init();
   if( socket_open(&url) ){
+    p->atEof = 1;
     p->zErr = socket_errmsg();
     socket_close();
   }
@@ -192,6 +198,7 @@ static void smtp_send_line(SmtpSession *p, const char *zFormat, ...){
   va_list ap;
   char *z;
   int n;
+  if( p->atEof ) return;
   va_start(ap, zFormat);
   blob_vappendf(&b, zFormat, ap);
   va_end(ap);
@@ -214,23 +221,56 @@ static void smtp_send_line(SmtpSession *p, const char *zFormat, ...){
 }
 
 /*
-** Read a line of input received from the SMTP server.  Append
-** the received line onto the end of the blob.
+** Read a line of input received from the SMTP server.  Make in point
+** to the next input line.
+**
+** Content is actually read into the p->in buffer.  Then blob_line()
+** is used to extract individual lines, passing each to "in".
 */
 static void smtp_recv_line(SmtpSession *p, Blob *in){
-  int n = blob_size(in);
-  int iStart = n;
-  char *z;
-  do{
-    size_t got;
-    blob_resize(in, n+1000);
-    z = blob_buffer(in);
-    got = socket_receive(0, z+n, 1000);
-    in->nUsed += got;
-    n += got;
-  }while( n<1 || z[n-1]!='\n' );
-  z = blob_buffer(in) + iStart;
-  n = blob_size(in) - iStart - 1;
+  int n = blob_size(&p->inbuf);
+  char *z = blob_buffer(&p->inbuf);
+  int i = blob_tell(&p->inbuf);
+  int nDelay = 0;
+  if( i<n && z[n-1]=='\n' ){
+    blob_line(&p->inbuf, in);
+  }else if( p->atEof ){
+    blob_init(in, 0, 0);
+  }else{
+    if( n>0 && i>=n ){
+      blob_truncate(&p->inbuf, 0);
+      blob_rewind(&p->inbuf);
+      n = 0;
+    }
+    do{
+      size_t got;
+      blob_resize(&p->inbuf, n+1000);
+      z = blob_buffer(&p->inbuf);
+      got = socket_receive(0, z+n, 1000, 1);
+      if( got>0 ){
+        in->nUsed += got;
+        n += got;
+        z[n] = 0;
+        if( n>0 && z[n-1]=='\n' ) break;
+        if( got==1000 ) continue;
+      }
+      nDelay++;
+      if( nDelay>100 ){
+        blob_init(in, 0, 0);
+        p->zErr = mprintf("timeout");
+        socket_close();
+        p->atEof = 1;
+        return;
+      }else{
+        sqlite3_sleep(25);
+      }
+    }while( n<1 || z[n-1]!='\n' );
+    blob_truncate(&p->inbuf, n);
+    blob_line(&p->inbuf, in);
+  }
+  z = blob_buffer(in);
+  n = blob_size(in);
+  if( n && z[n-1]=='\n' ) n--;
   if( n && z[n-1]=='\r' ) n--;
   if( p->smtpFlags & SMTP_TRACE_STDOUT ){
     fossil_print("%c: %.*s\n", p->zLabel[0], n, z);
@@ -253,11 +293,21 @@ static void smtp_get_reply_from_server(
   int *pbMore,      /* True if the reply is not complete */
   char **pzArg      /* Argument */
 ){
+  int n;
+  char *z;
   blob_truncate(in, 0);
   smtp_recv_line(p, in);
-  *piCode = atoi(blob_str(in));
-  *pbMore = blob_size(in)>=4 && blob_str(in)[3]=='-';
-  *pzArg = blob_size(in)>=4 ? blob_str(in)+4 : "";
+  z = blob_str(in);
+  n = blob_size(in);
+  if( z[0]=='#' ){
+    *piCode = 0;
+    *pbMore = 1;
+    *pzArg = z;
+  }else{
+    *piCode = atoi(z);
+    *pbMore = n>=4 && z[3]=='-';
+    *pzArg = n>=4 ? z+4 : "";
+  }
 }
 
 /*
@@ -308,24 +358,29 @@ int smtp_client_startup(SmtpSession *p){
 /*
 ** COMMAND: test-smtp-probe
 **
-** Usage: %fossil test-smtp-probe DOMAIN ME
+** Usage: %fossil test-smtp-probe DOMAIN [ME]
 **
 ** Interact with the SMTP server for DOMAIN by setting up a connection
 ** and then immediately shutting it back down.  Log all interaction
 ** on the console.  Use ME as the domain name of the sender.
 */
 void test_smtp_probe(void){
-  char *zHost;
   SmtpSession *p;
   int rc;
-  if( g.argc!=4 ) usage("DOMAIN ME");
-  zHost = smtp_mx_host(g.argv[2]);
-  if( zHost==0 ){
-    fossil_fatal("cannot resolve the MX for \"%s\"", g.argv[2]);
+  const char *zDomain;
+  const char *zSelf;
+  if( g.argc!=3 && g.argc!=4 ) usage("DOMAIN [ME]");
+  zDomain = g.argv[2];
+  zSelf = g.argc==4 ? g.argv[3] : "fossil-scm.org";
+  p = smtp_session_new(zSelf, zDomain, SMTP_TRACE_STDOUT);
+  if( p->zErr ){
+    fossil_fatal("%s", p->zErr);
   }
-  fossil_print("Contacting host \"%s\"\n", zHost);
-  p = smtp_session_new(g.argv[3], zHost, SMTP_TRACE_STDOUT);
+  fossil_print("Connection to \"%s\"\n", p->zHostname);
   rc = smtp_client_startup(p);
   if( !rc ) smtp_client_quit(p);
+  if( p->zErr ){
+    fossil_fatal("ERROR: %s\n", p->zErr);
+  }
   smtp_session_free(p);
 }

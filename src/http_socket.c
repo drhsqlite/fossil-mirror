@@ -209,13 +209,18 @@ size_t socket_send(void *NotUsed, void *pContent, size_t N){
 
 /*
 ** Receive content back from the open socket connection.
+** Return the number of bytes read.
+**
+** When bDontBlock is false, this function blocks until all N bytes
+** have been read.
 */
-size_t socket_receive(void *NotUsed, void *pContent, size_t N){
+size_t socket_receive(void *NotUsed, void *pContent, size_t N, int bDontBlock){
   ssize_t got;
   size_t total = 0;
+  int flags = bDontBlock ? MSG_DONTWAIT : 0;
   while( N>0 ){
     /* WinXP fails for large values of N.  So limit it to 64KiB. */
-    got = recv(iSocket, pContent, N>65536 ? 65536 : N, 0);
+    got = recv(iSocket, pContent, N>65536 ? 65536 : N, flags);
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;
