@@ -2030,11 +2030,11 @@ static char *email_send_announcement(void){
 ** WEBPAGE: announce
 **
 ** A web-form, available to users with the "Send-Announcement" or "A"
-** capability, that allows one to send an announcements to whomever
-** has subscribed to them.  The administrator can also send an announcement
-** to the entire mailing list (including people who have elected to
-** receive no announcements or notifications of any kind, or to
-** individual email to anyone.
+** capability, that allows one to send announcements to whomever
+** has subscribed to receive announcements.  The administrator can
+** also send a message to an arbitrary email address and/or to all
+** subscribers regardless of whether or not they have elected to
+** receive announcements.
 */
 void announce_page(void){
   login_check_credentials();
