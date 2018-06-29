@@ -1,5 +1,5 @@
-C Baseline\simplementation\sof\sthe\s"smtp"\scommand.
-D 2018-06-29T03:12:23.548
+C Add\sfeatures\sto\smake\sit\seasier\sto\stest\sand\sdebug\sthe\s"fossil\ssmtp"\scommand\nfrom\sthe\scommand-line\susing\sstdin\sand\sstdout.
+D 2018-06-29T03:29:06.177
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
-F src/smtp.c dc949f9588beaa6464e4128f05d54b11ced362f2609368ea7201957fdda339a6
+F src/smtp.c 24dc29fc8825eee5793a88e04001341b15bbc494886c37112de3f10b70d54039
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
@@ -854,7 +854,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03888604076d42a27ea216886d0bf97f356c2ef7474bfca44043b1a1c91299cc
-R 672aca8cfe8c08d94810717624401185
+P be55fc60c07438490f94d9b56dd9204ef29258a9a6248f38ab7307e523e32ba3
+R 9867927499186265f2a4ee93d9ab2e2d
 U drh
-Z fd8ede1cd9b5714c4631f1168d245fde
+Z ef39560c5ad659d56f9c69a78a348f20

@@ -615,6 +615,7 @@ struct SmtpServer {
 #define SMTPSRV_CLEAR_MSG    1   /* smtp_server_clear() last message only */
 #define SMTPSRV_CLEAR_ALL    2   /* smtp_server_clear() everything */
 #define SMTPSRV_LOG       0x001  /* Record a transcript of the interaction */
+#define SMTPSRV_STDERR    0x002  /* Transcription written to stderr */
 
 #endif /* LOCAL_INTERFACE */
 
@@ -670,6 +671,9 @@ static void smtp_server_send(SmtpServer *p, const char *zFormat, ...){
   if( p->srvrFlags & SMTPSRV_LOG ){
     blob_appendf(&p->transcript, "S: %.*s\n", n-2, z);
   }
+  if( p->srvrFlags & SMTPSRV_STDERR ){
+    fprintf(stderr, "S: %.*s\n", n-2, z);
+  }
   fwrite(z, n, 1, stdout);
   fflush(stdout);
   blob_zero(&b);
@@ -680,8 +684,13 @@ static void smtp_server_send(SmtpServer *p, const char *zFormat, ...){
 */
 static int smtp_server_gets(SmtpServer *p, char *aBuf, int nBuf){
   int rc = fgets(aBuf, nBuf, stdin)!=0;
-  if( rc && (p->srvrFlags & SMTPSRV_LOG)!=0 ){
-    blob_appendf(&p->transcript, "C: %s\n", aBuf);
+  if( rc ){
+    if( (p->srvrFlags & SMTPSRV_LOG)!=0 ){
+      blob_appendf(&p->transcript, "C: %s", aBuf);
+    }
+    if( (p->srvrFlags & SMTPSRV_STDERR)!=0 ){
+      fprintf(stderr, "C: %s", aBuf);
+    }
   }
   return rc;
 }
@@ -691,12 +700,22 @@ static int smtp_server_gets(SmtpServer *p, char *aBuf, int nBuf){
 ** lines of "..\r\n" into just ".\r\n".
 */
 static void smtp_server_capture_data(SmtpServer *p, char *z, int n){
+  int nLine = 0;
   while( fgets(z, n, stdin) ){
-    if( strncmp(z, ".\r\n", 3)==0 ) return;
-    if( strncmp(z, "..\r\n", 4)==0 ){
+    if( strncmp(z, ".\r\n", 3)==0 || strncmp(z, ".\n",2)==0 ) break;
+    nLine++;
+    if( strncmp(z, "..\r\n", 4)==0 || strncmp(z, "..\n",3)==0 ){
       memmove(z, z+1, 4);
     }
     blob_append(&p->msg, z, -1);
+  }
+  if( p->srvrFlags & SMTPSRV_LOG ){
+    blob_appendf(&p->transcript, "C: # %d lines, %d bytes of content\n",
+          nLine, blob_size(&p->msg));
+  }
+  if( p->srvrFlags & SMTPSRV_STDERR ){
+    fprintf(stderr, "C: # %d lines, %d bytes of content\n",
+          nLine, blob_size(&p->msg));
   }
 }
 
@@ -719,12 +738,13 @@ void smtp_server(void){
   smtp_server_init(&x);
   zDomain = find_option("domain",0,1);
   if( zDomain==0 ) zDomain = "unspecified.domain";
+  if( find_option("trace",0,0)!=0 ) x.srvrFlags |= SMTPSRV_STDERR;
   verify_all_options();
   if( g.argc!=3 ) usage("DBNAME");
   zDbName = g.argv[2];
   zDbName = enter_chroot_jail(zDbName, 0);
-  smtp_server_send(&x, "220 %s ESMTP Fossil ([%.*s] %s)\r\n",
-                   zDomain, 16, MANIFEST_VERSION, MANIFEST_DATE);
+  smtp_server_send(&x, "220 %s ESMTP https://fossil-scm.org/ %s\r\n",
+                   zDomain, MANIFEST_VERSION);
   while( smtp_server_gets(&x, z, sizeof(z)) ){
     if( strncmp(z, "EHLO ", 5)==0 ){
       smtp_server_send(&x, "250 ok\r\n");
