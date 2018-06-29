@@ -598,6 +598,49 @@ void test_smtp_send(void){
 *****************************************************************************/
 
 /*
+** Scan the header of the email message in pMsg looking for the
+** (first) occurrance of zField.  Fill pValue with the content of
+** that field.
+**
+** This routine initializes pValue.  Any prior content of pValue is
+** discarded (leaked).
+**
+** Return non-zero on success.  Return 0 if no instance of the header
+** is found.
+*/
+int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
+  int nField = (int)strlen(zField);
+  Blob line;
+  blob_rewind(pMsg);
+  blob_init(pValue,0,0);
+  while( blob_line(pMsg, &line) ){
+    int n, i;
+    char *z;
+    blob_trim(&line);
+    n = blob_size(&line);
+    if( n==0 ) return 0;
+    if( n<nField+1 ) continue;
+    z = blob_buffer(&line);
+    if( sqlite3_strnicmp(z, zField, nField)==0 && z[nField]==':' ){
+      for(i=nField+1; i<n && fossil_isspace(z[i]); i++){}
+      blob_init(pValue, z+i, n-i);
+      while( blob_line(pMsg, &line) ){
+        blob_trim(&line);
+        n = blob_size(&line);
+        if( n==0 ) break;
+        z = blob_buffer(&line);
+        if( !fossil_isspace(z[0]) ) break;
+        for(i=1; i<n && fossil_isspace(z[i]); i++){}
+        blob_append(pValue, " ", 1);
+        blob_append(pValue, z+i, n-i);
+      }
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
 ** Schema used by the email processing system.
 */
 static const char zEmailSchema[] = 
@@ -856,11 +899,15 @@ static void smtp_server_send_one_user(
     blob_tail(&line, &tail);
     if( blob_size(&tail)==0 ) continue;
     if( blob_eq_str(&token, "mbox", 4) ){
+      Blob subj;
+      email_header_value(&p->msg, "subject", &subj);
       db_multi_exec(
-        "INSERT INTO emailbox(euser,edate,efrom,emsgid,ets,estate)"
-        " VALUES(%Q,now(),%Q,%lld,%lld,0)",
-          blob_str(&tail), p->zFrom, p->idMsg, p->idTranscript
+        "INSERT INTO emailbox(euser,edate,efrom,emsgid,ets,estate,esubject)"
+        " VALUES(%Q,now(),%Q,%lld,%lld,0,%Q)",
+          blob_str(&tail), p->zFrom, p->idMsg, p->idTranscript,
+          blob_str(&subj)
       );
+      blob_reset(&subj);
     }
     if( blob_eq_str(&token, "forward", 7) ){
       smtp_append_to(p, fossil_strdup(blob_str(&tail)), 1);
@@ -875,7 +922,7 @@ static void smtp_server_send_one_user(
 */
 static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
   Stmt s;
-  int i, j;
+  int i;
   if( p->zFrom
    && p->nTo
    && blob_size(&p->msg)
