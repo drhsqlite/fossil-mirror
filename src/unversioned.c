@@ -220,50 +220,55 @@ static int contains_whitespace(const char *zName){
 **
 ** Subcommands:
 **
-**    add FILE ...         Add or update unversioned files in the local
-**                         repository so that it matches FILE on disk.
-**                         Use "--as UVFILE" to give the file a different name
-**                         in the repository than what it called on disk.
-**                         Changes are not pushed to other repositories until
-**                         the next sync.
+**    add FILE ...           Add or update one or more unversioned files in
+**                           the local repository so that they match FILEs
+**                           on disk. Changes are not pushed to other
+**                           repositories until the next sync.
 **
-**    cat FILE ...         Concatenate the content of FILEs to stdout.
+**    add FILE --as UVFILE   Add or update a single file named FILE on disk
+**                           and UVFILE in the repository unversioned file
+**                           namespace. This variant of the 'add' command allows
+**                           the name to be different in the repository versus
+**                           what appears on disk, but it only allows adding
+**                           a single file at a time.
 **
-**    edit FILE            Bring up FILE in a text editor for modification.
+**    cat FILE ...           Concatenate the content of FILEs to stdout.
 **
-**    export FILE OUTPUT   Write the content of FILE into OUTPUT on disk
+**    edit FILE              Bring up FILE in a text editor for modification.
 **
-**    list | ls            Show all unversioned files held in the local
-**                         repository.
+**    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
-**    revert ?URL?         Restore the state of all unversioned files in the
-**                         local repository to match the remote repository
-**                         URL.
+**    list | ls              Show all unversioned files held in the local
+**                           repository.
 **
-**                         Options:
-**                            -v|--verbose     Extra diagnostic output
-**                            -n|--dryrun      Show what would have happened
+**    revert ?URL?           Restore the state of all unversioned files in the
+**                           local repository to match the remote repository
+**                           URL.
+**
+**                           Options:
+**                              -v|--verbose     Extra diagnostic output
+**                              -n|--dryrun      Show what would have happened
 **
 **    remove|rm|delete FILE ...
-**                         Remove unversioned files from the local repository.
-**                         Changes are not pushed to other repositories until
-**                         the next sync.
+**                           Remove unversioned files from the local repository.
+**                           Changes are not pushed to other repositories until
+**                           the next sync.
 **
-**    sync ?URL?           Synchronize the state of all unversioned files with
-**                         the remote repository URL.  The most recent version
-**                         of each file is propagated to all repositories and
-**                         all prior versions are permanently forgotten.
+**    sync ?URL?             Synchronize the state of all unversioned files with
+**                           the remote repository URL.  The most recent version
+**                           of each file is propagated to all repositories and
+**                           all prior versions are permanently forgotten.
 **
-**                         Options:
-**                            -v|--verbose     Extra diagnostic output
-**                            -n|--dryrun      Show what would have happened
+**                           Options:
+**                              -v|--verbose     Extra diagnostic output
+**                              -n|--dryrun      Show what would have happened
 **
-**    touch FILE ...       Update the TIMESTAMP on all of the listed files
+**    touch FILE ...         Update the TIMESTAMP on all of the listed files
 **
 ** Options:
 **
-**   --mtime TIMESTAMP     Use TIMESTAMP instead of "now" for the "add",
-**                         "edit", "remove", and "touch" subcommands.
+**   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
+**                           "edit", "remove", and "touch" subcommands.
 */
 void unversioned_cmd(void){
   const char *zCmd;
