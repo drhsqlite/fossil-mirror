@@ -690,6 +690,7 @@ struct SmtpServer {
 #define SMTPSRV_CLEAR_ALL    2   /* smtp_server_clear() everything */
 #define SMTPSRV_LOG       0x001  /* Record a transcript of the interaction */
 #define SMTPSRV_STDERR    0x002  /* Transcription written to stderr */
+#define SMTPSRV_DRYRUN    0x004  /* Do not record anything in database */
 
 #endif /* LOCAL_INTERFACE */
 
@@ -875,7 +876,11 @@ static void smtp_server_send_one_user(
 static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
   Stmt s;
   int i, j;
-  if( p->zFrom && p->nTo && blob_size(&p->msg) ){
+  if( p->zFrom
+   && p->nTo
+   && blob_size(&p->msg)
+   && (p->srvrFlags & SMTPSRV_DRYRUN)==0
+  ){
     db_begin_transaction();
     if( p->idTranscript==0 ) smtp_server_schema(0);
     db_prepare(&s,
@@ -922,10 +927,51 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 /*
 ** Make a copy of the input string up to but not including the
 ** first ">" character.
+**
+** Verify that the string really that is to be copied really is a
+** valid email address.  If it is not, then return NULL.
+**
+** This routine is more restrictive than necessary.  It does not
+** allow comments, IP address, quoted strings, or certain uncommon
+** characters.  The only non-alphanumerics allowed in the local
+** part are "_", "+", "-" and "+".
 */
 static char *extractEmail(const char *z){
   int i;
-  for(i=0; z[i] && z[i]!='>'; i++){}
+  int nAt = 0;
+  int nDot = 0;
+  char c;
+  if( z[0]=='.' ) return 0;  /* Local part cannot begin with "." */
+  for(i=0; (c = z[i])!=0 && c!='>'; i++){
+    if( fossil_isalnum(c) ){
+      /* Alphanumerics are always ok */
+    }else if( c=='@' ){
+      if( nAt ) return 0;   /* Only a single "@"  allowed */
+      if( i>64 ) return 0;  /* Local part too big */
+      nAt = 1;
+      nDot = 0;
+      if( i==0 ) return 0;  /* Disallow empty local part */
+      if( z[i-1]=='.' ) return 0; /* Last char of local cannot be "." */
+      if( z[i+1]=='.' || z[i+1]=='-' ){
+        return 0; /* Domain cannot begin with "." or "-" */
+      }
+    }else if( c=='-' ){
+      if( z[i+1]=='>' ) return 0;  /* Last character cannot be "-" */
+    }else if( c=='.' ){
+      if( z[i+1]=='.' ) return 0;  /* Do not allow ".." */
+      if( z[i+1]=='>' ) return 0;  /* Domain may not end with . */
+      nDot++;
+    }else if( (c=='_' || c=='+') && nAt==0 ){
+      /* _ and + are ok in the local part */
+    }else{
+      return 0;   /* Anything else is an error */
+    }
+  }
+  if( c!='>' ) return 0;      /* Missing final ">" */
+  if( nAt==0 ) return 0;      /* No "@" found anywhere */
+  if( nDot==0 ) return 0;     /* No "." in the domain */
+
+  /* If we reach this point, the email address is valid */
   return mprintf("%.*s", i, z);
 }
 
@@ -935,8 +981,14 @@ static char *extractEmail(const char *z){
 ** Usage: %fossil smtpd [OPTIONS] REPOSITORY
 **
 ** Begin a SMTP conversation with a client using stdin/stdout.  The
-** received email is stored in REPOSITORY
+** received email is stored in REPOSITORY.
 **
+** Options:
+**
+**      --dryrun          Do not record any emails in the database
+**
+**      --trace           Print a transcript of the conversation on stderr
+**                        for debugging and analysis
 */
 void smtp_server(void){
   char *zDbName;
@@ -949,6 +1001,7 @@ void smtp_server(void){
   if( zDomain==0 ) zDomain = "";
   x.srvrFlags = SMTPSRV_LOG;
   if( find_option("trace",0,0)!=0 ) x.srvrFlags |= SMTPSRV_STDERR;
+  if( find_option("dryrun",0,0)!=0 ) x.srvrFlags |= SMTPSRV_DRYRUN;
   verify_all_options();
   if( g.argc!=3 ) usage("DBNAME");
   zDbName = g.argv[2];
@@ -957,20 +1010,33 @@ void smtp_server(void){
   smtp_server_send(&x, "220 %s ESMTP https://fossil-scm.org/ %s\r\n",
                    zDomain, MANIFEST_VERSION);
   while( smtp_server_gets(&x, z, sizeof(z)) ){
-    if( strncmp(z, "EHLO ", 5)==0 ){
+    if( strncmp(z, "EHLO", 4)==0  && fossil_isspace(z[4]) ){
       smtp_server_send(&x, "250 ok\r\n");
     }else
-    if( strncmp(z, "HELO ", 5)==0 ){
+    if( strncmp(z, "HELO", 4)==0  && fossil_isspace(z[4]) ){
       smtp_server_send(&x, "250 ok\r\n");
     }else
     if( strncmp(z, "MAIL FROM:<", 11)==0 ){
       smtp_server_route_incoming(&x, 0);
       smtp_server_clear(&x, SMTPSRV_CLEAR_MSG);
       x.zFrom = extractEmail(z+11);
-      smtp_server_send(&x, "250 ok\r\n");
+      if( x.zFrom==0 ){
+        smtp_server_send(&x, "500 unacceptable email address\r\n");
+      }else{
+        smtp_server_send(&x, "250 ok\r\n");
+      }
     }else
     if( strncmp(z, "RCPT TO:<", 9)==0 ){
-      char *zAddr = extractEmail(z+9);
+      char *zAddr;
+      if( x.zFrom==0 ){
+        smtp_server_send(&x, "500 missing MAIL FROM\r\n");
+        continue;
+      }
+      zAddr = extractEmail(z+9);
+      if( zAddr==0 ){
+        smtp_server_send(&x, "505 no such user\r\n");
+        continue;
+      }
       smtp_append_to(&x, zAddr, 0);
       if( x.nTo>=100 ){
         smtp_server_send(&x, "452 too many recipients\r\n");
@@ -978,19 +1044,23 @@ void smtp_server(void){
       }
       smtp_server_send(&x, "250 ok\r\n");
     }else
-    if( strncmp(z, "DATA", 4)==0 ){
+    if( strncmp(z, "DATA", 4)==0 && fossil_isspace(z[4]) ){
+      if( x.zFrom==0 || x.nTo==0 ){
+        smtp_server_send(&x, "500 missing RCPT TO\r\n");
+        continue;
+      }
       smtp_server_send(&x, "354 ready\r\n");
       smtp_server_capture_data(&x, z, sizeof(z));
       smtp_server_send(&x, "250 ok\r\n");
     }else
-    if( strncmp(z, "QUIT", 4)==0 ){
+    if( strncmp(z, "QUIT", 4)==0 && fossil_isspace(z[4]) ){
       smtp_server_send(&x, "221 closing connection\r\n");
+      smtp_server_route_incoming(&x, 1);
       break;
     }else
     {
       smtp_server_send(&x, "500 unknown command\r\n");
     }
   }
-  smtp_server_route_incoming(&x, 1);
   smtp_server_clear(&x, SMTPSRV_CLEAR_ALL);
 }
