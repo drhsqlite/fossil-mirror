@@ -221,7 +221,7 @@ static int contains_whitespace(const char *zName){
 ** Subcommands:
 **
 **    add FILE ...         Add or update unversioned files in the local
-**                         repository so that it matches FILE on disk.
+**                         repository so that they match FILEs on disk.
 **                         Use "--as UVFILE" to give the file a different name
 **                         in the repository than what it called on disk.
 **                         Changes are not pushed to other repositories until

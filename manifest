@@ -1,5 +1,5 @@
-C Fix\sthe\swording\son\sthe\sdocumentation\sof\sthe\s/announce\sweb\spage.
-D 2018-06-28T17:22:19.536
+C Further\swording\senhancements\sto\sthe\son-line\sdocumentation\sto\sthe\n"fossil\suv"\scommand.
+D 2018-06-29T11:40:02.943
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -578,7 +578,7 @@ F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 0af37ce94fb9984a23737e0289a9b61ddf647fc6f37aed5c1ce94fa5b2c74d5a
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
-F src/unversioned.c 402a729c8b1979d4aa8b4df77e7d4b9713446ac9ad2237b23b8704297012fc2b
+F src/unversioned.c 3d6168e5751e11b19aaf71d9d59b12398865eb01531928a5f986473565dcfd74
 F src/update.c 073b324327d22aae32023f6337c1393a15621683ef5e2920e30a6982237c0372
 F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c1bce3f515ddc7ebf8d3734d842f406cf3193e49cffa69ae800aed7946989fb9
-R 4d50d7fd28190a50ca6e945e0dab0ebe
+P dfe0cf7ebf1f6362947378d7dd26e4164f44a42364e94a0eaf74da053b418a01
+R 93d175d1a5d43e98b4d514b3c97fcb27
 U drh
-Z 164bd4942e371359a025dcf0128b688c
+Z bf75f3cc5d58fb47e8ddc9159b9122ce
