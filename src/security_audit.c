@@ -329,9 +329,7 @@ void secaudit0_page(void){
 
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <li><p>
-    @ <b>Caution:</b>
-    @ No server error log is defined. It is recommended that you establish
-    @ an error log on Fossil servers and monitor that log for problems.
+    @ The server error log is disabled.
     @ To set up an error log:
     @ <ul>
     @ <li>If running from CGI, make an entry "errorlog: <i>FILENAME</i>"
