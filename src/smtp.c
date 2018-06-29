@@ -118,7 +118,6 @@ struct SmtpSession {
   u32 smtpFlags;            /* Flags changing the operation */
   FILE *logFile;            /* Write session transcript to this log file */
   Blob *pTranscript;        /* Record session transcript here */
-  const char *zLabel;       /* Either "CS" or "SC" */
   int atEof;                /* True after connection closes */
   char *zErr;               /* Error message */
   Blob inbuf;               /* Input buffer */
@@ -128,6 +127,8 @@ struct SmtpSession {
 #define SMTP_TRACE_STDOUT   0x00001     /* Debugging info to console */
 #define SMTP_TRACE_FILE     0x00002     /* Debugging info to logFile */
 #define SMTP_TRACE_BLOB     0x00004     /* Record transcript */
+#define SMTP_DIRECT         0x00008     /* Skip the MX lookup */
+#define SMTP_PORT           0x00010     /* Use an alternate port number */
 
 #endif
 
@@ -145,12 +146,17 @@ void smtp_session_free(SmtpSession *pSession){
 /*
 ** Allocate a new SmtpSession object.
 **
-** Both zFrom and zDest must be specified for a client side SMTP connection.
-** For a server-side, specify only zFrom.
+** Both zFrom and zDest must be specified.
+**
+** The ... arguments are in this order:
+**
+**    SMTP_PORT:            int
+**    SMTP_TRACE_FILE:      FILE*
+**    SMTP_TRACE_BLOB:      Blob*
 */
 SmtpSession *smtp_session_new(
-  const char *zFrom,    /* Domain name of our end. */
-  const char *zDest,    /* Domain of the other end. */
+  const char *zFrom,    /* Domain for the client */
+  const char *zDest,    /* Domain of the server */
   u32 smtpFlags,        /* Flags */
   ...                   /* Arguments depending on the flags */
 ){
@@ -162,25 +168,32 @@ SmtpSession *smtp_session_new(
   memset(p, 0, sizeof(*p));
   p->zFrom = zFrom;
   p->zDest = zDest;
-  p->zLabel = zDest==0 ? "CS" : "SC";
   p->smtpFlags = smtpFlags;
+  memset(&url, 0, sizeof(url));
+  url.port = 25;
   blob_init(&p->inbuf, 0, 0);
   va_start(ap, smtpFlags);
+  if( smtpFlags & SMTP_PORT ){
+    url.port = va_arg(ap, int);
+  }
   if( smtpFlags & SMTP_TRACE_FILE ){
     p->logFile = va_arg(ap, FILE*);
-  }else if( smtpFlags & SMTP_TRACE_BLOB ){
+  }
+  if( smtpFlags & SMTP_TRACE_BLOB ){
     p->pTranscript = va_arg(ap, Blob*);
   }
   va_end(ap);
-  p->zHostname = smtp_mx_host(zDest);
+  if( (smtpFlags & SMTP_DIRECT)!=0 ){
+    p->zHostname = fossil_strdup(zDest);
+  }else{
+    p->zHostname = smtp_mx_host(zDest);
+  }
   if( p->zHostname==0 ){
     p->atEof = 1;
     p->zErr = mprintf("cannot locate SMTP server for \"%s\"", zDest);
     return p;
   }
-  memset(&url, 0, sizeof(url));
   url.name = p->zHostname;
-  url.port = 25;
   socket_global_init();
   if( socket_open(&url) ){
     p->atEof = 1;
@@ -208,13 +221,13 @@ static void smtp_send_line(SmtpSession *p, const char *zFormat, ...){
   assert( z[n-1]=='\n' );
   assert( z[n-2]=='\r' );
   if( p->smtpFlags & SMTP_TRACE_STDOUT ){
-    fossil_print("%c: %.*s\n", p->zLabel[1], n-2, z);
+    fossil_print("C: %.*s\n", n-2, z);
   }
   if( p->smtpFlags & SMTP_TRACE_FILE ){
-    fprintf(p->logFile, "%c: %.*s\n", p->zLabel[1], n-2, z);
+    fprintf(p->logFile, "C: %.*s\n", n-2, z);
   }
   if( p->smtpFlags & SMTP_TRACE_BLOB ){
-    blob_appendf(p->pTranscript, "%c: %.*s\n", p->zLabel[1], n-2, z);
+    blob_appendf(p->pTranscript, "C: %.*s\n", n-2, z);
   }
   socket_send(0, z, n);
   blob_zero(&b);
@@ -273,13 +286,13 @@ static void smtp_recv_line(SmtpSession *p, Blob *in){
   if( n && z[n-1]=='\n' ) n--;
   if( n && z[n-1]=='\r' ) n--;
   if( p->smtpFlags & SMTP_TRACE_STDOUT ){
-    fossil_print("%c: %.*s\n", p->zLabel[0], n, z);
+    fossil_print("S: %.*s\n", n, z);
   }
   if( p->smtpFlags & SMTP_TRACE_FILE ){
-    fprintf(p->logFile, "%c: %.*s\n", p->zLabel[0], n, z);
+    fprintf(p->logFile, "S: %.*s\n", n, z);
   }
   if( p->smtpFlags & SMTP_TRACE_BLOB ){
-    blob_appendf(p->pTranscript, "%c: %.*s\n", p->zLabel[0], n-2, z);
+    blob_appendf(p->pTranscript, "S: %.*s\n", n-2, z);
   }
 }
 
@@ -364,15 +377,28 @@ int smtp_client_startup(SmtpSession *p){
 ** Interact with the SMTP server for DOMAIN by setting up a connection
 ** and then immediately shutting it back down.  Log all interaction
 ** on the console.  Use ME as the domain name of the sender.
+**
+** Options:
+**
+**    --direct              Use DOMAIN directly without going through MX
+**    --port N              Talk on TCP port N
 */
 void test_smtp_probe(void){
   SmtpSession *p;
   const char *zDomain;
   const char *zSelf;
+  const char *zPort;
+  int iPort = 25;
+  u32 smtpFlags = SMTP_TRACE_STDOUT|SMTP_PORT;
+
+  if( find_option("direct",0,0)!=0 ) smtpFlags |= SMTP_DIRECT;
+  zPort = find_option("port",0,1);
+  if( zPort ) iPort = atoi(zPort);
+  verify_all_options();
   if( g.argc!=3 && g.argc!=4 ) usage("DOMAIN [ME]");
   zDomain = g.argv[2];
   zSelf = g.argc==4 ? g.argv[3] : "fossil-scm.org";
-  p = smtp_session_new(zSelf, zDomain, SMTP_TRACE_STDOUT);
+  p = smtp_session_new(zSelf, zDomain, smtpFlags, iPort);
   if( p->zErr ){
     fossil_fatal("%s", p->zErr);
   }
@@ -525,6 +551,8 @@ static const char *domainOfAddr(const char *z){
 **
 ** Options:
 **
+**      --direct              Go directly to the TO domain.  Bypass MX lookup
+**      --port N              Use TCP port N instead of 25
 **      --trace               Show the SMTP conversation on the console
 */
 void test_smtp_send(void){
@@ -534,9 +562,14 @@ void test_smtp_send(void){
   const char *zToDomain;
   const char *zFromDomain;
   const char **azTo;
+  int smtpPort = 25;
+  const char *zPort;
   Blob body;
-  u32 smtpFlags = 0;
+  u32 smtpFlags = SMTP_PORT;
   if( find_option("trace",0,0)!=0 ) smtpFlags |= SMTP_TRACE_STDOUT;
+  if( find_option("direct",0,0)!=0 ) smtpFlags |= SMTP_DIRECT;
+  zPort = find_option("port",0,1);
+  if( zPort ) smtpPort = atoi(zPort);
   verify_all_options();
   if( g.argc<5 ) usage("EMAIL FROM TO ...");
   blob_read_from_file(&body, g.argv[2], ExtFILE);
@@ -545,7 +578,7 @@ void test_smtp_send(void){
   azTo = (const char**)g.argv+4;
   zFromDomain = domainOfAddr(zFrom);
   zToDomain = domainOfAddr(azTo[0]);
-  p = smtp_session_new(zFromDomain, zToDomain, smtpFlags);
+  p = smtp_session_new(zFromDomain, zToDomain, smtpFlags, smtpPort);
   if( p->zErr ){
     fossil_fatal("%s", p->zErr);
   }
@@ -558,4 +591,167 @@ void test_smtp_send(void){
   }
   smtp_session_free(p);
   blob_zero(&body);
+}
+
+/*****************************************************************************
+** Server implementation
+*****************************************************************************/
+
+#if LOCAL_INTERFACE
+/*
+** State information for the server
+*/
+struct SmtpServer {
+  sqlite3 *db;           /* Database into which the email is delivered */
+  char *zEhlo;           /* Client domain on the EHLO line */
+  char *zFrom;           /* MAIL FROM: argument */
+  int nTo;               /* Number of RCPT TO: lines seen */
+  char **azTo;           /* Address in each RCPT TO line */
+  u32 srvrFlags;         /* Control flags */
+  Blob msg;              /* Content following DATA */
+  Blob transcript;       /* Session transcript */
+};
+
+#define SMTPSRV_CLEAR_MSG    1   /* smtp_server_clear() last message only */
+#define SMTPSRV_CLEAR_ALL    2   /* smtp_server_clear() everything */
+#define SMTPSRV_LOG       0x001  /* Record a transcript of the interaction */
+
+#endif /* LOCAL_INTERFACE */
+
+/*
+** Clear the SmtpServer object.  Deallocate resources.
+** How much to clear depends on eHowMuch 
+*/
+static void smtp_server_clear(SmtpServer *p, int eHowMuch){
+  int i;
+  if( eHowMuch>=SMTPSRV_CLEAR_MSG ){
+    fossil_free(p->zFrom);
+    p->zFrom = 0;
+    for(i=0; i<p->nTo; i++) fossil_free(p->azTo[0]);
+    fossil_free(p->azTo);
+    p->azTo = 0;
+    p->nTo = 0;
+    blob_zero(&p->msg);
+  }
+  if( eHowMuch>=SMTPSRV_CLEAR_ALL ){
+    blob_zero(&p->transcript);
+    sqlite3_close(p->db);
+    p->db = 0;
+    fossil_free(p->zEhlo);
+    p->zEhlo = 0;
+  }
+}
+
+/*
+** Turn raw memory into an SmtpServer object.
+*/
+static void smtp_server_init(SmtpServer *p){
+  memset(p, 0, sizeof(*p));
+  blob_init(&p->msg, 0, 0);
+  blob_init(&p->transcript, 0, 0);
+}
+
+/*
+** Send a single line of output from the server to the client.
+*/
+static void smtp_server_send(SmtpServer *p, const char *zFormat, ...){
+  Blob b = empty_blob;
+  va_list ap;
+  char *z;
+  int n;
+  va_start(ap, zFormat);
+  blob_vappendf(&b, zFormat, ap);
+  va_end(ap);
+  z = blob_buffer(&b);
+  n = blob_size(&b);
+  assert( n>=2 );
+  assert( z[n-1]=='\n' );
+  assert( z[n-2]=='\r' );
+  if( p->srvrFlags & SMTPSRV_LOG ){
+    blob_appendf(&p->transcript, "S: %.*s\n", n-2, z);
+  }
+  fwrite(z, n, 1, stdout);
+  fflush(stdout);
+  blob_zero(&b);
+}
+
+/*
+** Read a single line from the client.
+*/
+static int smtp_server_gets(SmtpServer *p, char *aBuf, int nBuf){
+  int rc = fgets(aBuf, nBuf, stdin)!=0;
+  if( rc && (p->srvrFlags & SMTPSRV_LOG)!=0 ){
+    blob_appendf(&p->transcript, "C: %s\n", aBuf);
+  }
+  return rc;
+}
+
+/*
+** Capture the incoming email data into the p->msg blob.  Dequote
+** lines of "..\r\n" into just ".\r\n".
+*/
+static void smtp_server_capture_data(SmtpServer *p, char *z, int n){
+  while( fgets(z, n, stdin) ){
+    if( strncmp(z, ".\r\n", 3)==0 ) return;
+    if( strncmp(z, "..\r\n", 4)==0 ){
+      memmove(z, z+1, 4);
+    }
+    blob_append(&p->msg, z, -1);
+  }
+}
+
+/*
+** COMMAND: smtp
+**
+** Usage: %fossil smtp [options] DBNAME
+**
+** Begin a SMTP conversation with a client using stdin/stdout.  (This
+** command is expected to be launched from xinetd or the equivalent.)
+** Use information in the SQLite database at DBNAME to find configuration
+** information and as a place to store the incoming content.
+*/
+void smtp_server(void){
+  char *zDbName;
+  const char *zDomain;
+  SmtpServer x;
+  char z[5000];
+
+  smtp_server_init(&x);
+  zDomain = find_option("domain",0,1);
+  if( zDomain==0 ) zDomain = "unspecified.domain";
+  verify_all_options();
+  if( g.argc!=3 ) usage("DBNAME");
+  zDbName = g.argv[2];
+  zDbName = enter_chroot_jail(zDbName, 0);
+  smtp_server_send(&x, "220 %s ESMTP Fossil ([%.*s] %s)\r\n",
+                   zDomain, 16, MANIFEST_VERSION, MANIFEST_DATE);
+  while( smtp_server_gets(&x, z, sizeof(z)) ){
+    if( strncmp(z, "EHLO ", 5)==0 ){
+      smtp_server_send(&x, "250 ok\r\n");
+    }else
+    if( strncmp(z, "HELO ", 5)==0 ){
+      smtp_server_send(&x, "250 ok\r\n");
+    }else
+    if( strncmp(z, "MAIL FROM:<", 11)==0 ){
+      smtp_server_send(&x, "250 ok\r\n");
+    }else
+    if( strncmp(z, "RCPT TO:<", 9)==0 ){
+      smtp_server_send(&x, "250 ok\r\n");
+    }else
+    if( strncmp(z, "DATA", 4)==0 ){
+      smtp_server_send(&x, "354 ready\r\n");
+      smtp_server_capture_data(&x, z, sizeof(z));
+      smtp_server_send(&x, "250 ok\r\n");
+      smtp_server_clear(&x, SMTPSRV_CLEAR_MSG);
+    }else
+    if( strncmp(z, "QUIT", 4)==0 ){
+      smtp_server_send(&x, "221 closing connection\r\n");
+      break;
+    }else
+    {
+      smtp_server_send(&x, "500 unknown command\r\n");
+    }
+  }
+  fclose(stdin);
+  smtp_server_clear(&x, SMTPSRV_CLEAR_ALL);
 }

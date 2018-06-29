@@ -1207,7 +1207,7 @@ NORETURN void fossil_redirect_home(void){
 ** privileges are still lowered to that of the user-id and group-id
 ** of the repository file.
 */
-static char *enter_chroot_jail(char *zRepo, int noJail){
+char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
