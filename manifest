@@ -1,5 +1,5 @@
-C Further\swording\senhancements\sto\sthe\son-line\sdocumentation\sto\sthe\n"fossil\suv"\scommand.
-D 2018-06-29T11:40:02.943
+C Attempt\sto\smake\san\serror\slog\sentry\sfollowing\sa\ssegfault.
+D 2018-06-29T12:56:24.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
-F src/email.c e22a4e89eb84a3e1951bc438ec48bb2738dade0052ce29f6198b88eaa3b97b38
+F src/email.c 393258fd2cd1fe0e8099709fbfe5e4c9730dc6a059ff16ec52e95e2fecbeced7
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -509,7 +509,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 1ae037e7875fcaee7fb209edc8d96b43d988123ec991e86a7fe31b4c4061e6f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 28dfae9e3beee20d8bc07e7752aba4f2e870eedc6727c7e1ee118f7eb433d5bb
+F src/main.c 0441f6940562345216cb5e7f474f8408be95494c409b387559a7eb61c39e8ffc
 F src/main.mk e925233bfdf31fd16342e147fe4cd37a3896ea0cd717db67ecb84327c0475377
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -534,7 +534,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c a664d9df69b74719a7c48eacf8f4dd6fc65ea501c145f6fa257374cf98bb9970
+F src/printf.c 85a33a6be6da702131ad1bf2431aaf191dde4e1c946a13b3126776a9fb66c629
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfe0cf7ebf1f6362947378d7dd26e4164f44a42364e94a0eaf74da053b418a01
-R 93d175d1a5d43e98b4d514b3c97fcb27
+P c4ab8834218197fcc31be4245694fabe054aae4e69806a047d0fcace03a1e065
+R ffb59b5c6e3b2242b9a27f196fe1dd28
 U drh
-Z bf75f3cc5d58fb47e8ddc9159b9122ce
+Z 7b1715201f224072cb180337bccd1634

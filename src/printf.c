@@ -983,7 +983,7 @@ void fossil_trace(const char *zFormat, ...){
 ** Write a message to the error log, if the error log filename is
 ** defined.
 */
-static void fossil_errorlog(const char *zFormat, ...){
+void fossil_errorlog(const char *zFormat, ...){
   struct tm *pNow;
   time_t now;
   FILE *out;

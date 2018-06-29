@@ -1207,7 +1207,7 @@ NORETURN void fossil_redirect_home(void){
 ** privileges are still lowered to that of the user-id and group-id
 ** of the repository file.
 */
-static char *enter_chroot_jail(char *zRepo, int noJail){
+char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1400,6 +1400,14 @@ void test_list_page(void){
 }
 
 /*
+** Called whenever a crash is encountered while processing a webpage.
+*/
+void sigsegv_handler(int x){
+  fossil_errorlog("Segfault");
+  exit(1);
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1431,6 +1439,10 @@ static void process_one_web_page(
   int i;
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
+
+#if !defined(_WIN32)
+  signal(SIGSEGV, sigsegv_handler);
+#endif
 
   /* Handle universal query parameters */
   if( PB("utc") ){

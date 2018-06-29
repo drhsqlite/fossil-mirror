@@ -417,9 +417,11 @@ static void emailerError(EmailSender *p, const char *zFormat, ...){
 ** Free an email sender object
 */
 void email_sender_free(EmailSender *p){
-  emailerShutdown(p);
-  fossil_free(p->zErr);
-  fossil_free(p);
+  if( p ){
+    emailerShutdown(p);
+    fossil_free(p->zErr);
+    fossil_free(p);
+  }
 }
 
 /*
