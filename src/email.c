@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** Email notification features
+** Logic for email notification, also known as "alerts".
 */
 #include "config.h"
 #include "email.h"
@@ -395,7 +395,7 @@ static void emailerShutdown(EmailSender *p){
   p->zDir = 0;
   p->zCmd = 0;
   p->zDest = "off";
-  blob_zero(&p->out);
+  blob_reset(&p->out);
 }
 
 /*
@@ -573,7 +573,7 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   }else if( strcmp(p->zDest, "stdout")==0 ){
     fossil_print("%s\n", blob_str(&all));
   }
-  blob_zero(&all);
+  blob_reset(&all);
 }
 
 /*
@@ -587,7 +587,7 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
 */
 void email_receive(Blob *pMsg){
   /* To Do:  Look for bounce messages and possibly disable subscriptions */
-  blob_zero(pMsg);
+  blob_reset(pMsg);
 }
 
 /*
@@ -717,7 +717,7 @@ void email_cmd(void){
           "unrecoverable.\n");
       prompt_user("Continue? (y/N) ", &yn);
       c = blob_str(&yn)[0];
-      blob_zero(&yn);
+      blob_reset(&yn);
     }
     if( c=='y' ){
       email_triggers_disable();
@@ -758,9 +758,9 @@ void email_cmd(void){
     pSender = email_sender_new(zDest, 1);
     email_send(pSender, &hdr, &body);
     email_sender_free(pSender);
-    blob_zero(&hdr);
-    blob_zero(&body);
-    blob_zero(&prompt);
+    blob_reset(&hdr);
+    blob_reset(&body);
+    blob_reset(&prompt);
   }else
   if( strncmp(zCmd, "settings", nCmd)==0 ){
     int isGlobal = find_option("global",0,0)!=0;
@@ -1569,7 +1569,7 @@ struct EmailEvent {
 void email_free_eventlist(EmailEvent *p){
   while( p ){
     EmailEvent *pNext = p->pNext;
-    blob_zero(&p->txt);
+    blob_reset(&p->txt);
     fossil_free(p);
     p = pNext;
   }
@@ -1702,7 +1702,7 @@ void test_alert_cmd(void){
   email_free_eventlist(pEvent);
   email_footer(&out);
   fossil_print("%s", blob_str(&out));
-  blob_zero(&out);
+  blob_reset(&out);
   db_end_transaction(0);
 }
 
@@ -1824,8 +1824,8 @@ void email_send_alerts(u32 flags){
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
   }
-  blob_zero(&hdr);
-  blob_zero(&body);
+  blob_reset(&hdr);
+  blob_reset(&body);
   db_finalize(&q);
   email_free_eventlist(pEvents);
   if( (flags & SENDALERT_PRESERVE)==0 ){

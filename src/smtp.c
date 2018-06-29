@@ -137,7 +137,7 @@ struct SmtpSession {
 */
 void smtp_session_free(SmtpSession *pSession){
   socket_close();
-  blob_zero(&pSession->inbuf);
+  blob_reset(&pSession->inbuf);
   fossil_free(pSession->zHostname);
   fossil_free(pSession->zErr);
   fossil_free(pSession);
@@ -230,7 +230,7 @@ static void smtp_send_line(SmtpSession *p, const char *zFormat, ...){
     blob_appendf(p->pTranscript, "C: %.*s\n", n-2, z);
   }
   socket_send(0, z, n);
-  blob_zero(&b);
+  blob_reset(&b);
 }
 
 /*
@@ -441,8 +441,8 @@ static void smtp_send_email_body(
   }
   blob_append(&out, ".\r\n", 3);
   xSend(pArg, blob_buffer(&out), blob_size(&out));
-  blob_zero(&out);
-  blob_zero(&line);
+  blob_reset(&out);
+  blob_reset(&line);
 }
 
 /* A sender function appropriate for use by smtp_send_email_body() to
@@ -466,7 +466,7 @@ void test_smtp_senddata(void){
   if( g.argc!=3 ) usage("FILE");
   blob_read_from_file(&f, g.argv[2], ExtFILE);
   smtp_send_email_body(blob_str(&f), smtp_test_sender, 0);
-  blob_zero(&f);
+  blob_reset(&f);
 }
 
 /*
@@ -590,26 +590,100 @@ void test_smtp_send(void){
     fossil_fatal("ERROR: %s\n", p->zErr);
   }
   smtp_session_free(p);
-  blob_zero(&body);
+  blob_reset(&body);
 }
 
 /*****************************************************************************
 ** Server implementation
 *****************************************************************************/
 
+/*
+** Schema used by the email processing system.
+*/
+static const char zEmailSchema[] = 
+@ -- bulk storage is in a separate table.  This table can store either
+@ -- the body of email messages or transcripts of smtp sessions.
+@ CREATE TABLE IF NOT EXISTS repository.emailblob(
+@   emailid INTEGER PRIMARY KEY,  -- numeric idea for the entry
+@   ets INT,                      -- Corresponding transcript, or NULL
+@   etime INT,                    -- insertion time, secs since 1970
+@   etxt TEXT                     -- content of this entry
+@ );
+@
+@ -- One row for each mailbox entry.  All users emails are stored in
+@ -- this same table.
+@ CREATE TABLE IF NOT EXISTS repository.emailbox(
+@   euser TEXT,          -- User who received this email
+@   edate INT,           -- Date received.  Seconds since 1970
+@   efrom TEXT,          -- Who is the email from
+@   emsgid INT,          -- Raw email text
+@   ets INT,             -- Transcript of the receiving SMTP session
+@   estate INT,          -- Unread, read, starred, etc.
+@   esubject TEXT        -- Subject line for display
+@ );
+@
+@ -- Information on how to deliver incoming email.
+@ CREATE TABLE IF NOT EXISTS repository.emailroute(
+@   eaddr TEXT PRIMARY KEY,  -- Email address
+@   epolicy TEXT             -- How to handle email sent to this address
+@ ) WITHOUT ROWID;
+@
+@ -- Outgoing email queue
+@ CREATE TABLE IF NOT EXISTS repository.emailoutq(
+@   edomain TEXT,            -- Destination domain.  (ex: "fossil-scm.org")
+@   efrom TEXT,              -- Sender email address
+@   eto TEXT,                -- Receipient email address
+@   emsgid INT,              -- Message body in the emailblob table
+@   ectime INT,              -- Time enqueued.  Seconds since 1970
+@   emtime INT,              -- Time of last send attempt.  Sec since 1970
+@   ensend INT,              -- Number of send attempts
+@   ets INT                  -- Transcript of last failed attempt
+@ );
+;
+
+/*
+** Code used to delete the email tables.
+*/
+static const char zEmailDrop[] =
+@ DROP TABLE IF EXISTS emailblob;
+@ DROP TABLE IF EXISTS emailbox;
+@ DROP TABLE IF EXISTS emailroute;
+@ DROP TABLE IF EXISTS emailqueue;
+;
+
+/*
+** Populate the schema of a database.
+**
+**   eForce==0          Fast
+**   eForce==1          Run CREATE TABLE statements every time
+**   eForce==2          DROP then rerun CREATE TABLE
+*/
+void smtp_server_schema(int eForce){
+  if( eForce==2 ){
+    db_multi_exec(zEmailDrop/*works-like:""*/);
+  }
+  if( eForce==1 || !db_table_exists("repository","emailblob") ){
+    db_multi_exec(zEmailSchema/*works-like:""*/);
+  }
+}
+
 #if LOCAL_INTERFACE
 /*
 ** State information for the server
 */
 struct SmtpServer {
-  sqlite3 *db;           /* Database into which the email is delivered */
-  char *zEhlo;           /* Client domain on the EHLO line */
-  char *zFrom;           /* MAIL FROM: argument */
-  int nTo;               /* Number of RCPT TO: lines seen */
-  char **azTo;           /* Address in each RCPT TO line */
-  u32 srvrFlags;         /* Control flags */
-  Blob msg;              /* Content following DATA */
-  Blob transcript;       /* Session transcript */
+  sqlite3_int64 idTranscript; /* Transcript ID number */
+  sqlite3_int64 idMsg;        /* Message ID number */
+  char *zEhlo;                /* Client domain on the EHLO line */
+  char *zFrom;                /* MAIL FROM: argument */
+  int nTo;                    /* Number of RCPT TO: lines seen */
+  struct SmtpTo {
+    char *z;                    /* Address in each RCPT TO line */
+    int okRemote;               /* zTo can be in another domain */
+  } *aTo;
+  u32 srvrFlags;              /* Control flags */
+  Blob msg;                   /* Content following DATA */
+  Blob transcript;            /* Session transcript */
 };
 
 #define SMTPSRV_CLEAR_MSG    1   /* smtp_server_clear() last message only */
@@ -628,16 +702,16 @@ static void smtp_server_clear(SmtpServer *p, int eHowMuch){
   if( eHowMuch>=SMTPSRV_CLEAR_MSG ){
     fossil_free(p->zFrom);
     p->zFrom = 0;
-    for(i=0; i<p->nTo; i++) fossil_free(p->azTo[0]);
-    fossil_free(p->azTo);
-    p->azTo = 0;
+    for(i=0; i<p->nTo; i++) fossil_free(p->aTo[i].z);
+    fossil_free(p->aTo);
+    p->aTo = 0;
     p->nTo = 0;
-    blob_zero(&p->msg);
+    blob_reset(&p->msg);
+    p->idMsg = 0;
   }
   if( eHowMuch>=SMTPSRV_CLEAR_ALL ){
-    blob_zero(&p->transcript);
-    sqlite3_close(p->db);
-    p->db = 0;
+    blob_reset(&p->transcript);
+    p->idTranscript = 0;
     fossil_free(p->zEhlo);
     p->zEhlo = 0;
   }
@@ -650,6 +724,29 @@ static void smtp_server_init(SmtpServer *p){
   memset(p, 0, sizeof(*p));
   blob_init(&p->msg, 0, 0);
   blob_init(&p->transcript, 0, 0);
+}
+
+/*
+** Append a new TO entry to the SmtpServer object.  Do not do the
+** append if the same entry is already on the list.
+**
+** The zAddr argument is obtained from fossil_malloc().  This
+** routine assumes ownership of the allocation.
+*/
+static void smtp_append_to(SmtpServer *p, char *zAddr, int okRemote){
+  int i;
+  for(i=0; zAddr[i]; i++){ zAddr[i] = fossil_tolower(zAddr[i]); }
+  for(i=0; i<p->nTo; i++){
+    if( strcmp(zAddr, p->aTo[i].z)==0 ){
+      fossil_free(zAddr);
+      if( p->aTo[i].okRemote==0 ) p->aTo[i].okRemote = okRemote;
+      return;
+    }
+  }
+  p->aTo = fossil_realloc(p->aTo, (p->nTo+1)*sizeof(p->aTo[0]));
+  p->aTo[p->nTo].z = zAddr;
+  p->aTo[p->nTo].okRemote = okRemote;
+  p->nTo++;
 }
 
 /*
@@ -676,7 +773,7 @@ static void smtp_server_send(SmtpServer *p, const char *zFormat, ...){
   }
   fwrite(z, n, 1, stdout);
   fflush(stdout);
-  blob_zero(&b);
+  blob_reset(&b);
 }
 
 /*
@@ -720,14 +817,126 @@ static void smtp_server_capture_data(SmtpServer *p, char *z, int n){
 }
 
 /*
-** COMMAND: smtp
+** Send an email to a single email addess that is registered with
+** this system, according to the instructions in emailroute.  If
+** zAddr is not in the emailroute table, then this routine is a
+** no-op.  Or if zAddr has already been processed, then this
+** routine is a no-op.
+*/
+static void smtp_server_send_one_user(
+  SmtpServer *p,         /* The current inbound email */
+  const char *zAddr,     /* Who to forward this to */
+  int okRemote           /* True if ok to foward to another domain */
+){
+  char *zPolicy;
+  Blob policy, line, token, tail;
+
+  zPolicy = db_text(0, 
+    "SELECT epolicy FROM emailroute WHERE eaddr=%Q", zAddr);
+  if( zPolicy==0 ){
+    if( okRemote ){
+      int i;
+      for(i=0; zAddr[i] && zAddr[i]!='@'; i++){}
+      if( zAddr[i]=='@' && zAddr[i+1]!=0 ){
+        db_multi_exec(
+          "INSERT INTO emailoutq(edomain,efrom,eto,emsgid,ectime,"
+                                "emtime,ensend)"
+          "VALUES(%Q,%Q,%Q,%lld,now(),0,0)",
+          zAddr+i+1, p->zFrom, zAddr, p->idMsg
+        );
+      }
+    }
+    return;
+  }
+  blob_init(&policy, zPolicy, -1);
+  while( blob_line(&policy, &line) ){
+    blob_trim(&line);
+    blob_token(&line, &token);
+    blob_tail(&line, &tail);
+    if( blob_size(&tail)==0 ) continue;
+    if( blob_eq_str(&token, "mbox", 4) ){
+      db_multi_exec(
+        "INSERT INTO emailbox(euser,edate,efrom,emsgid,ets,estate)"
+        " VALUES(%Q,now(),%Q,%lld,%lld,0)",
+          blob_str(&tail), p->zFrom, p->idMsg, p->idTranscript
+      );
+    }
+    if( blob_eq_str(&token, "forward", 7) ){
+      smtp_append_to(p, fossil_strdup(blob_str(&tail)), 1);
+    }
+    blob_reset(&tail);
+  }
+}
+
+/*
+** The SmtpServer object contains a complete incoming email.
+** Add this email to the database.
+*/
+static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
+  Stmt s;
+  int i, j;
+  if( p->zFrom && p->nTo && blob_size(&p->msg) ){
+    db_begin_transaction();
+    if( p->idTranscript==0 ) smtp_server_schema(0);
+    db_prepare(&s,
+      "INSERT INTO emailblob(ets,etime,etxt)"
+      " VALUES(:ets,now(),:etxt)"
+    );
+    if( !bFinish && p->idTranscript==0 ){
+      db_bind_null(&s, ":ets");
+      db_bind_null(&s, ":etxt");
+      db_step(&s);
+      db_reset(&s);
+      p->idTranscript = db_last_insert_rowid();
+    }else if( bFinish ){
+      if( p->idTranscript ){
+        db_multi_exec("UPDATE emailblob SET etxt=%Q WHERE emailid=%lld",
+           blob_str(&p->transcript), p->idTranscript);
+      }else{
+        db_bind_null(&s, ":ets");
+        db_bind_str(&s, ":etxt", &p->transcript);
+        db_step(&s);
+        db_reset(&s);
+        p->idTranscript = db_last_insert_rowid();
+      }
+    }
+    db_bind_int64(&s, ":ets", p->idTranscript);
+    db_bind_str(&s, ":etxt", &p->msg);
+    db_step(&s);
+    db_finalize(&s);
+    p->idMsg = db_last_insert_rowid();
+
+    /* make entries in emailbox and emailoutq */
+    for(i=0; i<p->nTo; i++){
+      int okRemote = p->aTo[i].okRemote;
+      p->aTo[i].okRemote = 1;
+      smtp_server_send_one_user(p, p->aTo[i].z, okRemote);
+    }
+
+    /* Finish the transaction after all changes are implemented */
+    db_end_transaction(0);
+  }
+  smtp_server_clear(p, SMTPSRV_CLEAR_MSG);
+}
+
+/*
+** Make a copy of the input string up to but not including the
+** first ">" character.
+*/
+static char *extractEmail(const char *z){
+  int i;
+  for(i=0; z[i] && z[i]!='>'; i++){}
+  return mprintf("%.*s", i, z);
+}
+
+/*
+** COMMAND: smtpd
 **
-** Usage: %fossil smtp [options] DBNAME
+** Usage: %fossil smtpd [OPTIONS] REPOSITORY
 **
-** Begin a SMTP conversation with a client using stdin/stdout.  (This
-** command is expected to be launched from xinetd or the equivalent.)
-** Use information in the SQLite database at DBNAME to find configuration
-** information and as a place to store the incoming content.
+** Begin a SMTP conversation with a client using stdin/stdout.  The
+** received email is stored in REPOSITORY
+**
 */
 void smtp_server(void){
   char *zDbName;
@@ -737,12 +946,14 @@ void smtp_server(void){
 
   smtp_server_init(&x);
   zDomain = find_option("domain",0,1);
-  if( zDomain==0 ) zDomain = "unspecified.domain";
+  if( zDomain==0 ) zDomain = "";
+  x.srvrFlags = SMTPSRV_LOG;
   if( find_option("trace",0,0)!=0 ) x.srvrFlags |= SMTPSRV_STDERR;
   verify_all_options();
   if( g.argc!=3 ) usage("DBNAME");
   zDbName = g.argv[2];
   zDbName = enter_chroot_jail(zDbName, 0);
+  db_open_repository(zDbName);
   smtp_server_send(&x, "220 %s ESMTP https://fossil-scm.org/ %s\r\n",
                    zDomain, MANIFEST_VERSION);
   while( smtp_server_gets(&x, z, sizeof(z)) ){
@@ -753,16 +964,24 @@ void smtp_server(void){
       smtp_server_send(&x, "250 ok\r\n");
     }else
     if( strncmp(z, "MAIL FROM:<", 11)==0 ){
+      smtp_server_route_incoming(&x, 0);
+      smtp_server_clear(&x, SMTPSRV_CLEAR_MSG);
+      x.zFrom = extractEmail(z+11);
       smtp_server_send(&x, "250 ok\r\n");
     }else
     if( strncmp(z, "RCPT TO:<", 9)==0 ){
+      char *zAddr = extractEmail(z+9);
+      smtp_append_to(&x, zAddr, 0);
+      if( x.nTo>=100 ){
+        smtp_server_send(&x, "452 too many recipients\r\n");
+        continue;
+      }
       smtp_server_send(&x, "250 ok\r\n");
     }else
     if( strncmp(z, "DATA", 4)==0 ){
       smtp_server_send(&x, "354 ready\r\n");
       smtp_server_capture_data(&x, z, sizeof(z));
       smtp_server_send(&x, "250 ok\r\n");
-      smtp_server_clear(&x, SMTPSRV_CLEAR_MSG);
     }else
     if( strncmp(z, "QUIT", 4)==0 ){
       smtp_server_send(&x, "221 closing connection\r\n");
@@ -772,6 +991,6 @@ void smtp_server(void){
       smtp_server_send(&x, "500 unknown command\r\n");
     }
   }
-  fclose(stdin);
+  smtp_server_route_incoming(&x, 1);
   smtp_server_clear(&x, SMTPSRV_CLEAR_ALL);
 }
