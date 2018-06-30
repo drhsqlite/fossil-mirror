@@ -20,6 +20,7 @@
 #include "config.h"
 #include "email.h"
 #include <assert.h>
+#include <time.h>
 
 /*
 ** Maximum size of the subscriberCode blob, in bytes
@@ -526,7 +527,6 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
 */
 void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   Blob all, *pOut;
-  char *zDate;
   u64 r1, r2;
   if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
