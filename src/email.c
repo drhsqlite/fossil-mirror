@@ -388,8 +388,14 @@ struct EmailSender {
   SmtpSession *pSmtp;        /* SMTP relay connection */
   Blob out;                  /* For zDest=="blob" */
   char *zErr;                /* Error message */
+  u32 mFlags;                /* Flags */
   int bImmediateFail;        /* On any error, call fossil_fatal() */
 };
+
+/* Allowed values for EmailSender flags */
+#define EMAIL_IMMEDIATE_FAIL   0x0001   /* Call fossil_fatal() on any error */
+#define EMAIL_SMTP_TRACE       0x0002   /* Write SMTP transcript to console */
+
 #endif /* INTERFACE */
 
 /*
@@ -404,6 +410,7 @@ static void emailerShutdown(EmailSender *p){
   p->zDir = 0;
   p->zCmd = 0;
   if( p->pSmtp ){
+    smtp_client_quit(p->pSmtp);
     smtp_session_free(p->pSmtp);
     p->pSmtp = 0;
   }
@@ -420,7 +427,7 @@ static void emailerError(EmailSender *p, const char *zFormat, ...){
   p->zErr = vmprintf(zFormat, ap);
   va_end(ap);
   emailerShutdown(p);
-  if( p->bImmediateFail ){
+  if( p->mFlags & EMAIL_IMMEDIATE_FAIL ){
     fossil_fatal("%s", p->zErr);
   }
 }
@@ -468,13 +475,13 @@ static int emailerGetSetting(
 **
 ** The EmailSender object returned must be freed using email_sender_free().
 */
-EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
+EmailSender *email_sender_new(const char *zAltDest, u32 mFlags){
   EmailSender *p;
 
   p = fossil_malloc(sizeof(*p));
   memset(p, 0, sizeof(*p));
   blob_init(&p->out, 0, 0);
-  p->bImmediateFail = bImmediateFail;
+  p->mFlags = mFlags;
   if( zAltDest ){
     p->zDest = zAltDest;
   }else{
@@ -517,7 +524,10 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
     const char *zRelay = 0;
     emailerGetSetting(p, &zRelay, "email-send-relayhost");
     if( zRelay ){
-      p->pSmtp = smtp_session_new(p->zFrom, zRelay, SMTP_DIRECT);
+      u32 smtpFlags = SMTP_DIRECT;
+      if( mFlags & EMAIL_SMTP_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
+      p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
+      smtp_client_startup(p->pSmtp);
     }
   }
   return p;
@@ -731,7 +741,7 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     int nTo = 0;
     email_header_to(pHdr, &nTo, &azTo);
     if( nTo>0 ){
-      smtp_send_msg(p->pSmtp, p->zFrom, nTo, azTo, blob_str(&all));
+      smtp_send_msg(p->pSmtp, p->zFrom, nTo, (const char**)azTo,blob_str(&all));
       email_header_to_free(nTo, azTo);
     }
   }else if( strcmp(p->zDest, "stdout")==0 ){
@@ -803,6 +813,13 @@ void email_receive(Blob *pMsg){
 ** for debugging analysis.  Disable saving of inbound emails omitting
 ** this setting, or making it an empty string.
 */
+/*
+** SETTING: email-send-relayhost      width=40
+** This is the hostname and TCP port to which output email messages
+** are sent when email-send-method is "relay".  There should be an
+** SMTP server configured as a Mail Submission Agent listening on the
+** designated host and port and all times.
+*/
 
 
 /*
@@ -835,6 +852,7 @@ void email_receive(Blob *pMsg){
 **                            Options:
 **
 **                              --body FILENAME
+**                              --smtp-trace
 **                              --stdout
 **                              --subject|-S SUBJECT
 **
@@ -909,9 +927,11 @@ void email_cmd(void){
     Blob prompt, body, hdr;
     const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
     int i;
+    u32 mFlags = EMAIL_IMMEDIATE_FAIL;
     const char *zSubject = find_option("subject", "S", 1);
     const char *zSource = find_option("body", 0, 1);
     EmailSender *pSender;
+    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_SMTP_TRACE;
     verify_all_options();
     blob_init(&prompt, 0, 0);
     blob_init(&body, 0, 0);
@@ -931,7 +951,7 @@ void email_cmd(void){
       prompt_for_user_comment(&body, &prompt);
     }
     blob_add_final_newline(&body);
-    pSender = email_sender_new(zDest, 1);
+    pSender = email_sender_new(zDest, mFlags);
     email_send(pSender, &hdr, &body);
     email_sender_free(pSender);
     blob_reset(&hdr);
@@ -1181,7 +1201,7 @@ void subscribe_page(void){
       EmailSender *pSender = email_sender_new(0,0);
       blob_init(&hdr,0,0);
       blob_init(&body,0,0);
-      blob_appendf(&hdr, "To: %s\n", zEAddr);
+      blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
       blob_appendf(&body, zConfirmMsg/*works-like:"%s%s%s"*/,
                    g.zBaseURL, g.zBaseURL, zCode);
