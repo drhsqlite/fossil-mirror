@@ -190,10 +190,11 @@ void email_submenu_common(void){
 */
 void setup_email(void){
   static const char *const azSendMethods[] = {
-    "off",  "Disabled",
-    "pipe", "Pipe to a command",
-    "db",   "Store in a database",
-    "dir",  "Store in a directory"
+    "off",   "Disabled",
+    "pipe",  "Pipe to a command",
+    "db",    "Store in a database",
+    "dir",   "Store in a directory",
+    "relay", "SMTP relay"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -246,13 +247,10 @@ void setup_email(void){
 
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
-  @ <p>How to send email.  The "Pipe to a command"
-  @ method is the usual choice in production.
-  @ (Property: "email-send-method")</p>
-  @ <hr>
+  @ <p>How to send email.  Requires auxiliary information from the fields
+  @ that follow. (Property: "email-send-method")</p>
   email_schema(1);
-
-  entry_attribute("Command To Pipe Email To", 80, "email-send-command",
+  entry_attribute("Command To Pipe Email To", 60, "email-send-command",
                    "ecmd", "sendmail -t", 0);
   @ <p>When the send method is "pipe to a command", this is the command
   @ that is run.  Email messages are piped into the standard input of this
@@ -271,6 +269,15 @@ void setup_email(void){
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
+
+  entry_attribute("SMTP relay host", 60, "email-send-relayhost",
+                   "esrh", "", 0);
+  @ <p>When the send method is "SMTP relay", each email message is
+  @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
+  @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
+  @ append a colon and TCP port number (ex: smtp.example.com:587).
+  @ The default TCP port number is 25.
+  @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
   entry_attribute("Administrator email address", 40, "email-admin",
@@ -378,6 +385,7 @@ struct EmailSender {
   const char *zDir;          /* Directory in which to store as email files */
   const char *zCmd;          /* Command to run for each email */
   const char *zFrom;         /* Emails come from here */
+  SmtpSession *pSmtp;        /* SMTP relay connection */
   Blob out;                  /* For zDest=="blob" */
   char *zErr;                /* Error message */
   int bImmediateFail;        /* On any error, call fossil_fatal() */
@@ -395,7 +403,10 @@ static void emailerShutdown(EmailSender *p){
   p->zDb = 0;
   p->zDir = 0;
   p->zCmd = 0;
-  p->zDest = "off";
+  if( p->pSmtp ){
+    smtp_session_free(p->pSmtp);
+    p->pSmtp = 0;
+  }
   blob_reset(&p->out);
 }
 
@@ -462,6 +473,7 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
 
   p = fossil_malloc(sizeof(*p));
   memset(p, 0, sizeof(*p));
+  blob_init(&p->out, 0, 0);
   p->bImmediateFail = bImmediateFail;
   if( zAltDest ){
     p->zDest = zAltDest;
@@ -501,8 +513,141 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
     emailerGetSetting(p, &p->zDir, "email-send-dir");
   }else if( fossil_strcmp(p->zDest, "blob")==0 ){
     blob_init(&p->out, 0, 0);
+  }else if( fossil_strcmp(p->zDest, "relay")==0 ){
+    const char *zRelay = 0;
+    emailerGetSetting(p, &zRelay, "email-send-relayhost");
+    if( zRelay ){
+      p->pSmtp = smtp_session_new(p->zFrom, zRelay, SMTP_DIRECT);
+    }
   }
   return p;
+}
+
+/*
+** Scan the header of the email message in pMsg looking for the
+** (first) occurrance of zField.  Fill pValue with the content of
+** that field.
+**
+** This routine initializes pValue.  Any prior content of pValue is
+** discarded (leaked).
+**
+** Return non-zero on success.  Return 0 if no instance of the header
+** is found.
+*/
+int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
+  int nField = (int)strlen(zField);
+  Blob line;
+  blob_rewind(pMsg);
+  blob_init(pValue,0,0);
+  while( blob_line(pMsg, &line) ){
+    int n, i;
+    char *z;
+    blob_trim(&line);
+    n = blob_size(&line);
+    if( n==0 ) return 0;
+    if( n<nField+1 ) continue;
+    z = blob_buffer(&line);
+    if( sqlite3_strnicmp(z, zField, nField)==0 && z[nField]==':' ){
+      for(i=nField+1; i<n && fossil_isspace(z[i]); i++){}
+      blob_init(pValue, z+i, n-i);
+      while( blob_line(pMsg, &line) ){
+        blob_trim(&line);
+        n = blob_size(&line);
+        if( n==0 ) break;
+        z = blob_buffer(&line);
+        if( !fossil_isspace(z[0]) ) break;
+        for(i=1; i<n && fossil_isspace(z[i]); i++){}
+        blob_append(pValue, " ", 1);
+        blob_append(pValue, z+i, n-i);
+      }
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
+** Make a copy of the input string up to but not including the
+** first ">" character.
+**
+** Verify that the string really that is to be copied really is a
+** valid email address.  If it is not, then return NULL.
+**
+** This routine is more restrictive than necessary.  It does not
+** allow comments, IP address, quoted strings, or certain uncommon
+** characters.  The only non-alphanumerics allowed in the local
+** part are "_", "+", "-" and "+".
+*/
+char *email_copy_addr(const char *z){
+  int i;
+  int nAt = 0;
+  int nDot = 0;
+  char c;
+  if( z[0]=='.' ) return 0;  /* Local part cannot begin with "." */
+  for(i=0; (c = z[i])!=0 && c!='>'; i++){
+    if( fossil_isalnum(c) ){
+      /* Alphanumerics are always ok */
+    }else if( c=='@' ){
+      if( nAt ) return 0;   /* Only a single "@"  allowed */
+      if( i>64 ) return 0;  /* Local part too big */
+      nAt = 1;
+      nDot = 0;
+      if( i==0 ) return 0;  /* Disallow empty local part */
+      if( z[i-1]=='.' ) return 0; /* Last char of local cannot be "." */
+      if( z[i+1]=='.' || z[i+1]=='-' ){
+        return 0; /* Domain cannot begin with "." or "-" */
+      }
+    }else if( c=='-' ){
+      if( z[i+1]=='>' ) return 0;  /* Last character cannot be "-" */
+    }else if( c=='.' ){
+      if( z[i+1]=='.' ) return 0;  /* Do not allow ".." */
+      if( z[i+1]=='>' ) return 0;  /* Domain may not end with . */
+      nDot++;
+    }else if( (c=='_' || c=='+') && nAt==0 ){
+      /* _ and + are ok in the local part */
+    }else{
+      return 0;   /* Anything else is an error */
+    }
+  }
+  if( c!='>' ) return 0;      /* Missing final ">" */
+  if( nAt==0 ) return 0;      /* No "@" found anywhere */
+  if( nDot==0 ) return 0;     /* No "." in the domain */
+
+  /* If we reach this point, the email address is valid */
+  return mprintf("%.*s", i, z);
+}
+
+/*
+** Extract all To: header values from the email header supplied.
+** Store them in the array list.
+*/
+void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
+  int nTo = 0;
+  char **azTo = 0;
+  Blob v;
+  char *z, *zAddr;
+  int i;
+  
+  email_header_value(pMsg, "to", &v);
+  z = blob_str(&v);
+  for(i=0; z[i]; i++){
+    if( z[i]=='<' && (zAddr = email_copy_addr(&z[i+1]))!=0 ){
+      azTo = fossil_realloc(azTo, sizeof(azTo[0])*(nTo+1) );
+      azTo[nTo++] = zAddr;
+    }
+  }
+  *pnTo = nTo;
+  *pazTo = azTo;
+}
+
+/*
+** Free a list of To addresses obtained from a prior call to 
+** email_header_to()
+*/
+void email_header_to_free(int nTo, char **azTo){
+  int i;
+  for(i=0; i<nTo; i++) fossil_free(azTo[i]);
+  fossil_free(azTo);
 }
 
 /*
@@ -581,7 +726,23 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     char *zFile = emailTempFilename(p->zDir);
     blob_write_to_file(&all, zFile);
     fossil_free(zFile);
+  }else if( p->pSmtp ){
+    char **azTo = 0;
+    int nTo = 0;
+    email_header_to(pHdr, &nTo, &azTo);
+    if( nTo>0 ){
+      smtp_send_msg(p->pSmtp, p->zFrom, nTo, azTo, blob_str(&all));
+      email_header_to_free(nTo, azTo);
+    }
   }else if( strcmp(p->zDest, "stdout")==0 ){
+    char **azTo = 0;
+    int nTo = 0;
+    int i;
+    email_header_to(pHdr, &nTo, &azTo);
+    for(i=0; i<nTo; i++){
+      fossil_print("X-To-Test-%d: [%s]\r\n", i, azTo[i]);
+    }
+    email_header_to_free(nTo, azTo);
     blob_add_final_newline(&all);
     fossil_print("%s", blob_str(&all));
   }

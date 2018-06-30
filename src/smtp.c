@@ -184,7 +184,13 @@ SmtpSession *smtp_session_new(
   }
   va_end(ap);
   if( (smtpFlags & SMTP_DIRECT)!=0 ){
+    int i;
     p->zHostname = fossil_strdup(zDest);
+    for(i=0; p->zHostname[i] && p->zHostname[i]!=':'; i++){}
+    if( p->zHostname[i]==':' ){
+      p->zHostname[i] = 0;
+      url.port = atoi(&p->zHostname[i+1]);
+    }
   }else{
     p->zHostname = smtp_mx_host(zDest);
   }
@@ -473,7 +479,7 @@ void test_smtp_senddata(void){
 ** Send a single email message to the SMTP server.
 **
 ** All email addresses (zFrom and azTo) must be plain "local@domain"
-** format with the surrounding "<..>".  This routine will add the
+** format without the surrounding "<..>".  This routine will add the
 ** necessary "<..>".
 **
 ** The body of the email should be well-structured.  This routine will
@@ -596,49 +602,6 @@ void test_smtp_send(void){
 /*****************************************************************************
 ** Server implementation
 *****************************************************************************/
-
-/*
-** Scan the header of the email message in pMsg looking for the
-** (first) occurrance of zField.  Fill pValue with the content of
-** that field.
-**
-** This routine initializes pValue.  Any prior content of pValue is
-** discarded (leaked).
-**
-** Return non-zero on success.  Return 0 if no instance of the header
-** is found.
-*/
-int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
-  int nField = (int)strlen(zField);
-  Blob line;
-  blob_rewind(pMsg);
-  blob_init(pValue,0,0);
-  while( blob_line(pMsg, &line) ){
-    int n, i;
-    char *z;
-    blob_trim(&line);
-    n = blob_size(&line);
-    if( n==0 ) return 0;
-    if( n<nField+1 ) continue;
-    z = blob_buffer(&line);
-    if( sqlite3_strnicmp(z, zField, nField)==0 && z[nField]==':' ){
-      for(i=nField+1; i<n && fossil_isspace(z[i]); i++){}
-      blob_init(pValue, z+i, n-i);
-      while( blob_line(pMsg, &line) ){
-        blob_trim(&line);
-        n = blob_size(&line);
-        if( n==0 ) break;
-        z = blob_buffer(&line);
-        if( !fossil_isspace(z[0]) ) break;
-        for(i=1; i<n && fossil_isspace(z[i]); i++){}
-        blob_append(pValue, " ", 1);
-        blob_append(pValue, z+i, n-i);
-      }
-      return 1;
-    }
-  }
-  return 0;
-}
 
 /*
 ** Schema used by the email processing system.
@@ -972,57 +935,6 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 }
 
 /*
-** Make a copy of the input string up to but not including the
-** first ">" character.
-**
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
-**
-** This routine is more restrictive than necessary.  It does not
-** allow comments, IP address, quoted strings, or certain uncommon
-** characters.  The only non-alphanumerics allowed in the local
-** part are "_", "+", "-" and "+".
-*/
-static char *extractEmail(const char *z){
-  int i;
-  int nAt = 0;
-  int nDot = 0;
-  char c;
-  if( z[0]=='.' ) return 0;  /* Local part cannot begin with "." */
-  for(i=0; (c = z[i])!=0 && c!='>'; i++){
-    if( fossil_isalnum(c) ){
-      /* Alphanumerics are always ok */
-    }else if( c=='@' ){
-      if( nAt ) return 0;   /* Only a single "@"  allowed */
-      if( i>64 ) return 0;  /* Local part too big */
-      nAt = 1;
-      nDot = 0;
-      if( i==0 ) return 0;  /* Disallow empty local part */
-      if( z[i-1]=='.' ) return 0; /* Last char of local cannot be "." */
-      if( z[i+1]=='.' || z[i+1]=='-' ){
-        return 0; /* Domain cannot begin with "." or "-" */
-      }
-    }else if( c=='-' ){
-      if( z[i+1]=='>' ) return 0;  /* Last character cannot be "-" */
-    }else if( c=='.' ){
-      if( z[i+1]=='.' ) return 0;  /* Do not allow ".." */
-      if( z[i+1]=='>' ) return 0;  /* Domain may not end with . */
-      nDot++;
-    }else if( (c=='_' || c=='+') && nAt==0 ){
-      /* _ and + are ok in the local part */
-    }else{
-      return 0;   /* Anything else is an error */
-    }
-  }
-  if( c!='>' ) return 0;      /* Missing final ">" */
-  if( nAt==0 ) return 0;      /* No "@" found anywhere */
-  if( nDot==0 ) return 0;     /* No "." in the domain */
-
-  /* If we reach this point, the email address is valid */
-  return mprintf("%.*s", i, z);
-}
-
-/*
 ** COMMAND: smtpd
 **
 ** Usage: %fossil smtpd [OPTIONS] REPOSITORY
@@ -1066,7 +978,7 @@ void smtp_server(void){
     if( strncmp(z, "MAIL FROM:<", 11)==0 ){
       smtp_server_route_incoming(&x, 0);
       smtp_server_clear(&x, SMTPSRV_CLEAR_MSG);
-      x.zFrom = extractEmail(z+11);
+      x.zFrom = email_copy_addr(z+11);
       if( x.zFrom==0 ){
         smtp_server_send(&x, "500 unacceptable email address\r\n");
       }else{
@@ -1079,7 +991,7 @@ void smtp_server(void){
         smtp_server_send(&x, "500 missing MAIL FROM\r\n");
         continue;
       }
-      zAddr = extractEmail(z+9);
+      zAddr = email_copy_addr(z+9);
       if( zAddr==0 ){
         smtp_server_send(&x, "505 no such user\r\n");
         continue;
