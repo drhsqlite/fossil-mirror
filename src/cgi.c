@@ -1931,8 +1931,8 @@ static const char *const azMonths[] =
 /*
 ** Returns an RFC822-formatted time string suitable for HTTP headers.
 ** The timezone is always GMT.  The value returned is always a
-** string obtained from mprintf() and must be freed using free() to
-** avoid a memory leak.
+** string obtained from mprintf() and must be freed using fossil_free()
+** to avoid a memory leak.
 **
 ** See http://www.faqs.org/rfcs/rfc822.html, section 5
 ** and http://www.faqs.org/rfcs/rfc2616.html, section 3.3.
@@ -1943,7 +1943,7 @@ char *cgi_rfc822_datestamp(time_t now){
   if( pTm==0 ){
     return mprintf("");
   }else{
-    return mprintf("%s, %d %s %02d %02d:%02d:%02d GMT",
+    return mprintf("%s, %d %s %02d %02d:%02d:%02d +0000",
                    azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
                    pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
