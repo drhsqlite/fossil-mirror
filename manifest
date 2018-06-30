@@ -1,5 +1,5 @@
-C Less\ssevere\swarning\son\sthe\ssecurity\saudit\sif\sthe\sserver\serror\slog\sis\sdisabled.
-D 2018-06-29T15:29:11.112
+C Fix\sthe\sfossil_fatal()\sroutine\sso\sthat\sit\savoids\strying\sto\sdo\sa\swebpage\ndisplay\sif\sthe\srepository\sdatabase\shas\snot\syet\sbeen\sopened.
+D 2018-06-30T10:39:22.203
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -534,7 +534,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 85a33a6be6da702131ad1bf2431aaf191dde4e1c946a13b3126776a9fb66c629
+F src/printf.c a2bd5b3c922be125758cff0ca35b192bcab921c4cbe58a17a95eb60170017cc5
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66815ed3901570d055179c78228123f467670e3b4777f9bd171c17cb7c91a9a3
-R 1291ec9e8748769a72f2b571e4d2cbf7
+P fe5e9de1cd53da5f8bfd96f9ea4696617edc9148b2e10d9193e4bf0f58935e7f
+R e2d65a0200e2c502641a4b21da25c4d2
 U drh
-Z defe4f0547e3e2b39209a2b774e657eb
+Z a8138e7f2e8ad26cbcef5ee0b3882f9a
