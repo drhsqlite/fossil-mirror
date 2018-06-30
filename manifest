@@ -1,5 +1,5 @@
-C Adjust\sthe\scgi_rfc822_datetime()\sroutine\sto\suse\sthe\snewer\nrfc2822\sdate/time\sformat\sthat\suses\s"+0000"\sfor\sthe\stimezone\ninstead\sof\s"GMT".
-D 2018-06-30T13:42:59.604
+C Merge\sfixes\sfrom\strunk.
+D 2018-06-30T14:00:00.487
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0336ac7715e721c3d05be1a08907a775db4d4077d441913459af3a3f72cce5b9
+P d2a94aa96c78ede34ff4f23f8a554bf7db891a355c964ef6e8458c113330d519
 R 7061f21261cf40aab118cbf4fa2c6c64
 U drh
-Z dfadd48349f4b44f01e22a86be9d76ca
+Z e740148147b98c848ccc23cf36022d31
