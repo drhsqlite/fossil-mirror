@@ -503,6 +503,7 @@ SRC   = add_.c \
         util_.c \
         verify_.c \
         vfile_.c \
+        webmail_.c \
         wiki_.c \
         wikiformat_.c \
         winfile_.c \
@@ -711,6 +712,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\util$O \
         $(OX)\verify$O \
         $(OX)\vfile$O \
+        $(OX)\webmail$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
         $(OX)\winfile$O \
@@ -903,6 +905,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
+	echo $(OX)\webmail.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
 	echo $(OX)\winfile.obj >> $@
@@ -1767,6 +1770,12 @@ $(OX)\vfile$O : vfile_.c vfile.h
 vfile_.c : $(SRCDIR)\vfile.c
 	translate$E $** > $@
 
+$(OX)\webmail$O : webmail_.c webmail.h
+	$(TCC) /Fo$@ -c webmail_.c
+
+webmail_.c : $(SRCDIR)\webmail.c
+	translate$E $** > $@
+
 $(OX)\wiki$O : wiki_.c wiki.h
 	$(TCC) /Fo$@ -c wiki_.c
 
@@ -1942,6 +1951,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			util_.c:util.h \
 			verify_.c:verify.h \
 			vfile_.c:vfile.h \
+			webmail_.c:webmail.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
 			winfile_.c:winfile.h \

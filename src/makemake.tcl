@@ -149,6 +149,7 @@ set src {
   util
   verify
   vfile
+  webmail
   wiki
   wikiformat
   winfile

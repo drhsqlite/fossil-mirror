@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\s"SMTP\srelay"\salert\ssend\smethod.\s\sAdd\sthe\s--smtp-trace\soption\nto\sthe\s"fossil\semail\ssend"\scommand.\s\sExpose\sand\sdocument\nthe\s"email-send-relayhost"\ssetting.
-D 2018-06-30T18:29:46.769
+C First\scode\sfor\sthe\s/webmail\spage.\s\sBarely\sfunctional.
+D 2018-06-30T20:38:27.666
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -510,10 +510,10 @@ F src/login.c 1ae037e7875fcaee7fb209edc8d96b43d988123ec991e86a7fe31b4c4061e6f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 0441f6940562345216cb5e7f474f8408be95494c409b387559a7eb61c39e8ffc
-F src/main.mk 505656531b46ce16e9027f30bf2802061d72287c167717eb454bb1687bf9c587
+F src/main.mk 8545f5d9bf30812115b73a11ac54cb85d698415092839722923ba39f5794ab94
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 8262bef572f44fa3598681968936ca21c090d7a16b6b0b0c448122764780515d
+F src/makemake.tcl 7019f84cbc13b848a83afea47ecdf6c4e939e0f778336a51547007677db048bc
 F src/manifest.c 5d402b3dac8a4fab3fe7c93b4a7b25863f8f6e20ed5a7d1961dc42be1a7db355
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -588,6 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 74d0258c52ecdc354ef84391ac2c3529f9c65f641c9478a8021f7bdaaea5517b
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
+F src/webmail.c 38f5837c928a8cdef134e5cc9fdba453326e3acb5f227cf71c6e33a013ec3b82
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -727,10 +728,10 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 213a11badf4e1b31f52548c8cb3e6e51fe79f3eebdcbe714b4cb475f0155a43b
-F win/Makefile.dmc f9ce19f0a41a1f54ce80b06ad4842cc207b68c5d3fdd44482a57638ccbca2d80
-F win/Makefile.mingw 924997973e4e144bea2bf7186ce653ca70146b3645b0a383fc268a85ae88940e
+F win/Makefile.dmc 223cde38b74a8cd0d9bb83dc4cdf0493e0636662e347c833fbe0d9cf18082db7
+F win/Makefile.mingw 5eecf1b7530ba7d8640260a04ba45c142687e471f197c105c89231b329b00559
 F win/Makefile.mingw.mistachkin 4941c336d0bd0adc9fe831a569621fe276f14f2faf26e99f3aea01cf19243fba
-F win/Makefile.msc 7b66906a63b31aab17b3254ea3f913b8bfc39295b806c9eff4665017b2f09726
+F win/Makefile.msc 71b82033d1f9247ec8e79122bff8672be3c9db8fec9604e1f759e5a90af2ae73
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -854,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b96415f047707df245270cbe40bd72f4389e463a4a504182dc800a2db24b5216
-R 3e21424477cac72fe96ece40d5086257
+P 006cc8143740974fc64a7ee2c3ed7a56b14e5d8db7c3bb382531bdcf6660c555
+R 707ddb723878bc539b294d71dfb71d3a
 U drh
-Z 53e1cfbd3390325f34ef70ca54fc653e
+Z c70bf733f30db83debc110cd1ea43b2a
