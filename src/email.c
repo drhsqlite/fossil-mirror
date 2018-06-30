@@ -324,7 +324,7 @@ static void append_quoted(Blob *pOut, Blob *pMsg){
       blob_append_char(pOut, c);
       iCol++;
       if( iCol>=70 ){
-        blob_append(pOut, "=\n", 2);
+        blob_append(pOut, "=\r\n", 3);
         iCol = 0;
       }
     }else if( c=='\r' && zIn[0]=='\n' ){
@@ -515,6 +515,8 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
 ** This routine will add fields to the header as follows:
 **
 **     From:
+**     Date:
+**     Message-Id:
 **     Content-Type:
 **     Content-Transfer-Encoding:
 **     
@@ -524,6 +526,8 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
 */
 void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   Blob all, *pOut;
+  char *zDate;
+  u64 r1, r2;
   if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
   }
@@ -537,7 +541,14 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     pOut = &all;
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
-  blob_appendf(pOut, "From: %s\r\n", p->zFrom);
+  blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
+  blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
+  /* Message-id format:  "<$(date)x$(random).$(from)>" where $(date) is
+  ** the current unix-time in hex, $(random) is a 64-bit random number,
+  ** and $(from) is the sender. */
+  sqlite3_randomness(sizeof(r1), &r1);
+  r2 = time(0);
+  blob_appendf(pOut, "Message-Id: <%llxx%016llx.%s>\r\n", r2, r1, p->zFrom);
   blob_add_final_newline(pBody);
   blob_appendf(pOut,"Content-Type: text/plain\r\n");
 #if 0
@@ -571,7 +582,8 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     blob_write_to_file(&all, zFile);
     fossil_free(zFile);
   }else if( strcmp(p->zDest, "stdout")==0 ){
-    fossil_print("%s\n", blob_str(&all));
+    blob_add_final_newline(&all);
+    fossil_print("%s", blob_str(&all));
   }
   blob_zero(&all);
 }
@@ -743,11 +755,14 @@ void email_cmd(void){
     blob_init(&prompt, 0, 0);
     blob_init(&body, 0, 0);
     blob_init(&hdr, 0, 0);
+    blob_appendf(&hdr,"To: ");
     for(i=3; i<g.argc; i++){
-      blob_appendf(&hdr, "To: %s\n", g.argv[i]);
+      if( i>3 ) blob_append(&hdr, ", ", 2);
+      blob_appendf(&hdr, "<%s>", g.argv[i]);
     }
+    blob_append(&hdr,"\r\n",2);
     if( zSubject ){
-      blob_appendf(&hdr, "Subject: %s\n", zSubject);
+      blob_appendf(&hdr, "Subject: %s\r\n", zSubject);
     }
     if( zSource ){
       blob_read_from_file(&body, zSource, ExtFILE);
@@ -1418,8 +1433,8 @@ void unsubscribe_page(void){
     EmailSender *pSender = email_sender_new(0,0);
     blob_init(&hdr,0,0);
     blob_init(&body,0,0);
-    blob_appendf(&hdr, "To: %s\n", zEAddr);
-    blob_appendf(&hdr, "Subject: Unsubscribe Instructions\n");
+    blob_appendf(&hdr, "To: <%s>\r\n", zEAddr);
+    blob_appendf(&hdr, "Subject: Unsubscribe Instructions\r\n");
     blob_appendf(&body, zUnsubMsg/*works-like:"%s%s%s%s%s%s"*/,
                   g.zBaseURL, g.zBaseURL, zCode, g.zBaseURL, g.zBaseURL, zCode);
     email_send(pSender, &hdr, &body);
@@ -1805,8 +1820,8 @@ void email_send_alerts(u32 flags){
     for(p=pEvents; p; p=p->pNext){
       if( strchr(zSub,p->type)==0 ) continue;
       if( nHit==0 ){
-        blob_appendf(&hdr,"To: %s\n", zEmail);
-        blob_appendf(&hdr,"Subject: %s activity alert\n", zRepoName);
+        blob_appendf(&hdr,"To: <%s>\r\n", zEmail);
+        blob_appendf(&hdr,"Subject: %s activity alert\r\n", zRepoName);
         blob_appendf(&body,
           "This is an automated email sent by the Fossil repository "
           "at %s to report changes.\n",
@@ -1902,7 +1917,7 @@ void msgtoadmin_page(void){
     Blob hdr, body;
     EmailSender *pSender = email_sender_new(0,0);
     blob_init(&hdr, 0, 0);
-    blob_appendf(&hdr, "To: %s\nSubject: %s administrator message\n",
+    blob_appendf(&hdr, "To: <%s>\r\nSubject: %s administrator message\r\n",
                  zAdminEmail, db_get("email-subname","Fossil Repo"));
     blob_init(&body, 0, 0);
     blob_appendf(&body, "Message from [%s]\n", PT("from")/*safe-for-%s*/);
@@ -1989,7 +2004,7 @@ static char *email_send_announcement(void){
   blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
   pSender = email_sender_new(bTest2 ? "blob" : 0, 0);
   if( zTo[0] ){
-    blob_appendf(&hdr, "To: %s\nSubject: %s %s\n", zTo, zSub, zSubject);
+    blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
     email_send(pSender, &hdr, &body);
   }
   if( bAll || bAA ){
@@ -2003,7 +2018,7 @@ static char *email_send_announcement(void){
       const char *zCode = db_column_text(&q, 1);
       zTo = db_column_text(&q, 0);
       blob_truncate(&hdr, 0);
-      blob_appendf(&hdr, "To: %s\nSubject: %s %s\n", zTo, zSub, zSubject);
+      blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
       if( zURL ){
         blob_truncate(&body, nUsed);
         blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
