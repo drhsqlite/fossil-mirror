@@ -1,5 +1,5 @@
-C Fix\sthe\sfossil_fatal()\sroutine\sso\sthat\sit\savoids\strying\sto\sdo\sa\swebpage\ndisplay\sif\sthe\srepository\sdatabase\shas\snot\syet\sbeen\sopened.
-D 2018-06-30T10:39:22.203
+C Adjust\sthe\scgi_rfc822_datetime()\sroutine\sto\suse\sthe\snewer\nrfc2822\sdate/time\sformat\sthat\suses\s"+0000"\sfor\sthe\stimezone\ninstead\sof\s"GMT".
+D 2018-06-30T13:42:59.604
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 02fe157594de951b9fa38f42660d087a0b97497fc8ae008bb758957fc7ad7c23
+F src/cgi.c 0e05d86c8d3a4fdde766c822ec1a0a9058291d4a28effbf3fcb536a2f12d5e3a
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -853,7 +853,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fe5e9de1cd53da5f8bfd96f9ea4696617edc9148b2e10d9193e4bf0f58935e7f
-R e2d65a0200e2c502641a4b21da25c4d2
+P 0336ac7715e721c3d05be1a08907a775db4d4077d441913459af3a3f72cce5b9
+R 7061f21261cf40aab118cbf4fa2c6c64
 U drh
-Z a8138e7f2e8ad26cbcef5ee0b3882f9a
+Z dfadd48349f4b44f01e22a86be9d76ca
