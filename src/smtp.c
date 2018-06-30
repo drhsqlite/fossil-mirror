@@ -895,7 +895,7 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     if( p->idTranscript==0 ) smtp_server_schema(0);
     db_prepare(&s,
       "INSERT INTO emailblob(ets,etime,etxt)"
-      " VALUES(:ets,now(),:etxt)"
+      " VALUES(:ets,now(),compress(:etxt))"
     );
     if( !bFinish && p->idTranscript==0 ){
       db_bind_null(&s, ":ets");
@@ -905,7 +905,9 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
       p->idTranscript = db_last_insert_rowid();
     }else if( bFinish ){
       if( p->idTranscript ){
-        db_multi_exec("UPDATE emailblob SET etxt=%Q WHERE emailid=%lld",
+        db_multi_exec(
+           "UPDATE emailblob SET etxt=compress(%Q)"
+           " WHERE emailid=%lld",
            blob_str(&p->transcript), p->idTranscript);
       }else{
         db_bind_null(&s, ":ets");
@@ -966,6 +968,7 @@ void smtp_server(void){
   zDbName = g.argv[2];
   zDbName = enter_chroot_jail(zDbName, 0);
   db_open_repository(zDbName);
+  add_content_sql_commands(g.db);
   smtp_server_send(&x, "220 %s ESMTP https://fossil-scm.org/ %s\r\n",
                    zDomain, MANIFEST_VERSION);
   while( smtp_server_gets(&x, z, sizeof(z)) ){

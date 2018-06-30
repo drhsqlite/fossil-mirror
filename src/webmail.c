@@ -47,10 +47,12 @@ void webmail_page(void){
     style_footer();
     return;
   }
+  add_content_sql_commands(g.db);
   emailid = atoi(PD("id","0"));
   if( emailid>0 ){
     blob_init(&sql, 0, 0);
-    blob_append_sql(&sql, "SELECT etxt FROM emailblob WHERE emailid=%d",
+    blob_append_sql(&sql, "SELECT decompress(etxt)"
+                          " FROM emailblob WHERE emailid=%d",
                           emailid);
     if( !g.perm.Admin ){
       blob_append_sql(&sql, " AND EXISTS(SELECT 1 FROM emailbox WHERE"
