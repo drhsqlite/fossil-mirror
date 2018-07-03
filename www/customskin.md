@@ -93,7 +93,7 @@ the skin of the repository from which it was cloned.
 Header And Footer Processing
 ----------------------------
 
-The header.txt and footer.txt files of a scan are merely the HTML text
+The header.txt and footer.txt files of a skin are merely the HTML text
 of the header and footer.  Except, before being prepended and appended to
 the content, the header and footer text are run through a
 [TH1 interpreter](./th1.md) that might adjust the text as follows:

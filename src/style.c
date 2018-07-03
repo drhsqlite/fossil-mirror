@@ -424,7 +424,7 @@ void style_header(const char *zTitleFormat, ...){
   if( !login_is_nobody() ){
     Th_Store("login", g.zLogin);
   }
-  if( sqlite3_strlike("%<body>%", zHeader, 0)!=0 ){
+  if( sqlite3_strlike("%<body%", zHeader, 0)!=0 ){
     Th_Render(zDfltHeader);
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
