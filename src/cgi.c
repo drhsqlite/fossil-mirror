@@ -202,7 +202,8 @@ void cgi_append_header(const char *zLine){
 }
 
 /*
-** Set a cookie.
+** Set a cookie by queuing up the appropriate HTTP header output. If
+** !g.isHTTP, this is a no-op.
 **
 ** Zero lifetime implies a session cookie.
 */
@@ -212,8 +213,9 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
-  char *zSecure = "";
-  if( zPath==0 ){
+  char const *zSecure = "";
+  if(!g.isHTTP) return /* e.g. JSON CLI mode, where g.zTop is not set */;
+  else if( zPath==0 ){
     zPath = g.zTop;
     if( zPath[0]==0 ) zPath = "/";
   }
