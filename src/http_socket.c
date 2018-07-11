@@ -81,8 +81,10 @@ void socket_set_errmsg(const char *zFormat, ...){
 /*
 ** Return the current socket error message
 */
-const char *socket_errmsg(void){
-  return socketErrMsg;
+char *socket_errmsg(void){
+  char *zResult = socketErrMsg;
+  socketErrMsg = 0;
+  return zResult;
 }
 
 /*
@@ -134,8 +136,8 @@ void socket_close(void){
 ** Open a socket connection.  The identify of the server is determined
 ** by pUrlData
 **
-**    pUrlDAta->name       Name of the server.  Ex: www.fossil-scm.org
-**    pUrlDAta->port       TCP/IP port to use.  Ex: 80
+**    pUrlData->name       Name of the server.  Ex: www.fossil-scm.org
+**    pUrlData->port       TCP/IP port to use.  Ex: 80
 **
 ** Return the number of errors.
 */
@@ -192,7 +194,7 @@ end_socket_open:
 /*
 ** Send content out over the open socket connection.
 */
-size_t socket_send(void *NotUsed, void *pContent, size_t N){
+size_t socket_send(void *NotUsed, const void *pContent, size_t N){
   size_t sent;
   size_t total = 0;
   while( N>0 ){
@@ -207,13 +209,21 @@ size_t socket_send(void *NotUsed, void *pContent, size_t N){
 
 /*
 ** Receive content back from the open socket connection.
+** Return the number of bytes read.
+**
+** When bDontBlock is false, this function blocks until all N bytes
+** have been read.
 */
-size_t socket_receive(void *NotUsed, void *pContent, size_t N){
+size_t socket_receive(void *NotUsed, void *pContent, size_t N, int bDontBlock){
   ssize_t got;
   size_t total = 0;
+  int flags = 0;
+#ifdef MSG_DONTWAIT
+  if( bDontBlock ) flags |= MSG_DONTWAIT;
+#endif
   while( N>0 ){
     /* WinXP fails for large values of N.  So limit it to 64KiB. */
-    got = recv(iSocket, pContent, N>65536 ? 65536 : N, 0);
+    got = recv(iSocket, pContent, N>65536 ? 65536 : N, flags);
     if( got<=0 ) break;
     total += (size_t)got;
     N -= (size_t)got;

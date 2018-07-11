@@ -126,6 +126,7 @@ set src {
   shun
   sitemap
   skins
+  smtp
   sqlcmd
   stash
   stat
@@ -148,6 +149,7 @@ set src {
   util
   verify
   vfile
+  webmail
   wiki
   wikiformat
   winfile

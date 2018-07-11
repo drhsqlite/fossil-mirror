@@ -116,7 +116,10 @@ void setup_page(void){
     "Configure the built-in search engine");
   setup_menu_entry("URL Aliases", "waliassetup",
     "Configure URL aliases");
-  setup_menu_entry("Email", "setup_email", "Email notifications");
+  setup_menu_entry("Notification", "setup_notification",
+    "Automatic notifications of changes via outbound email");
+  setup_menu_entry("Email-Server", "setup_smtp",
+    "Activate and configure the built-in email server");
   setup_menu_entry("Transfers", "xfersetup",
     "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",

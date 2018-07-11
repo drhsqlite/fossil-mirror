@@ -327,7 +327,7 @@ static int transport_fetch(UrlData *pUrlData, char *zBuf, int N){
   }else if( pUrlData->isFile ){
     got = fread(zBuf, 1, N, transport.pFile);
   }else{
-    got = socket_receive(0, zBuf, N);
+    got = socket_receive(0, zBuf, N, 0);
   }
   /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
   if( transport.pLog ){

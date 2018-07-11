@@ -115,6 +115,7 @@ SRC = \
   $(SRCDIR)/shun.c \
   $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
+  $(SRCDIR)/smtp.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
   $(SRCDIR)/stat.c \
@@ -137,6 +138,7 @@ SRC = \
   $(SRCDIR)/util.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
+  $(SRCDIR)/webmail.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
@@ -318,6 +320,7 @@ TRANS_SRC = \
   $(OBJDIR)/shun_.c \
   $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
+  $(OBJDIR)/smtp_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
   $(OBJDIR)/stat_.c \
@@ -340,6 +343,7 @@ TRANS_SRC = \
   $(OBJDIR)/util_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
+  $(OBJDIR)/webmail_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
@@ -450,6 +454,7 @@ OBJ = \
  $(OBJDIR)/shun.o \
  $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
+ $(OBJDIR)/smtp.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
  $(OBJDIR)/stat.o \
@@ -472,6 +477,7 @@ OBJ = \
  $(OBJDIR)/util.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
+ $(OBJDIR)/webmail.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
@@ -780,6 +786,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
 	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
+	$(OBJDIR)/smtp_.c:$(OBJDIR)/smtp.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
 	$(OBJDIR)/stat_.c:$(OBJDIR)/stat.h \
@@ -802,6 +809,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/util_.c:$(OBJDIR)/util.h \
 	$(OBJDIR)/verify_.c:$(OBJDIR)/verify.h \
 	$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
+	$(OBJDIR)/webmail_.c:$(OBJDIR)/webmail.h \
 	$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
 	$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 	$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
@@ -1617,6 +1625,14 @@ $(OBJDIR)/skins.o:	$(OBJDIR)/skins_.c $(OBJDIR)/skins.h $(SRCDIR)/config.h
 
 $(OBJDIR)/skins.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/smtp_.c:	$(SRCDIR)/smtp.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/smtp.c >$@
+
+$(OBJDIR)/smtp.o:	$(OBJDIR)/smtp_.c $(OBJDIR)/smtp.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/smtp.o -c $(OBJDIR)/smtp_.c
+
+$(OBJDIR)/smtp.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/sqlcmd_.c:	$(SRCDIR)/sqlcmd.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/sqlcmd.c >$@
 
@@ -1792,6 +1808,14 @@ $(OBJDIR)/vfile.o:	$(OBJDIR)/vfile_.c $(OBJDIR)/vfile.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/vfile.o -c $(OBJDIR)/vfile_.c
 
 $(OBJDIR)/vfile.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/webmail_.c:	$(SRCDIR)/webmail.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/webmail.c >$@
+
+$(OBJDIR)/webmail.o:	$(OBJDIR)/webmail_.c $(OBJDIR)/webmail.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/webmail.o -c $(OBJDIR)/webmail_.c
+
+$(OBJDIR)/webmail.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/wiki_.c:	$(SRCDIR)/wiki.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/wiki.c >$@

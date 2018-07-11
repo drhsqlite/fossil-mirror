@@ -480,6 +480,7 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
+cc-check-function-in-lib ns_name_uncompress resolv
 cc-check-functions utime
 cc-check-functions usleep
 cc-check-functions strchrnul

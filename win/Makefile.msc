@@ -480,6 +480,7 @@ SRC   = add_.c \
         shun_.c \
         sitemap_.c \
         skins_.c \
+        smtp_.c \
         sqlcmd_.c \
         stash_.c \
         stat_.c \
@@ -502,6 +503,7 @@ SRC   = add_.c \
         util_.c \
         verify_.c \
         vfile_.c \
+        webmail_.c \
         wiki_.c \
         wikiformat_.c \
         winfile_.c \
@@ -683,6 +685,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\shun$O \
         $(OX)\sitemap$O \
         $(OX)\skins$O \
+        $(OX)\smtp$O \
         $(OX)\sqlcmd$O \
         $(OX)\sqlite3$O \
         $(OX)\stash$O \
@@ -709,6 +712,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\util$O \
         $(OX)\verify$O \
         $(OX)\vfile$O \
+        $(OX)\webmail$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
         $(OX)\winfile$O \
@@ -874,6 +878,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\shun.obj >> $@
 	echo $(OX)\sitemap.obj >> $@
 	echo $(OX)\skins.obj >> $@
+	echo $(OX)\smtp.obj >> $@
 	echo $(OX)\sqlcmd.obj >> $@
 	echo $(OX)\sqlite3.obj >> $@
 	echo $(OX)\stash.obj >> $@
@@ -900,6 +905,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
+	echo $(OX)\webmail.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
 	echo $(OX)\winfile.obj >> $@
@@ -1626,6 +1632,12 @@ $(OX)\skins$O : skins_.c skins.h
 skins_.c : $(SRCDIR)\skins.c
 	translate$E $** > $@
 
+$(OX)\smtp$O : smtp_.c smtp.h
+	$(TCC) /Fo$@ -c smtp_.c
+
+smtp_.c : $(SRCDIR)\smtp.c
+	translate$E $** > $@
+
 $(OX)\sqlcmd$O : sqlcmd_.c sqlcmd.h
 	$(TCC) /Fo$@ -c sqlcmd_.c
 
@@ -1756,6 +1768,12 @@ $(OX)\vfile$O : vfile_.c vfile.h
 	$(TCC) /Fo$@ -c vfile_.c
 
 vfile_.c : $(SRCDIR)\vfile.c
+	translate$E $** > $@
+
+$(OX)\webmail$O : webmail_.c webmail.h
+	$(TCC) /Fo$@ -c webmail_.c
+
+webmail_.c : $(SRCDIR)\webmail.c
 	translate$E $** > $@
 
 $(OX)\wiki$O : wiki_.c wiki.h
@@ -1910,6 +1928,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			shun_.c:shun.h \
 			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \
+			smtp_.c:smtp.h \
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \
 			stat_.c:stat.h \
@@ -1932,6 +1951,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			util_.c:util.h \
 			verify_.c:verify.h \
 			vfile_.c:vfile.h \
+			webmail_.c:webmail.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
 			winfile_.c:winfile.h \

@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** Email notification features
+** Logic for email notification, also known as "alerts".
 */
 #include "config.h"
 #include "email.h"
@@ -183,17 +183,18 @@ void email_submenu_common(void){
 
 
 /*
-** WEBPAGE: setup_email
+** WEBPAGE: setup_notification
 **
 ** Administrative page for configuring and controlling email notification.
-** Normally accessible via the /Admin/Email menu.
+** Normally accessible via the /Admin/Notification menu.
 */
-void setup_email(void){
+void setup_notification(void){
   static const char *const azSendMethods[] = {
-    "off",  "Disabled",
-    "pipe", "Pipe to a command",
-    "db",   "Store in a database",
-    "dir",  "Store in a directory"
+    "off",   "Disabled",
+    "pipe",  "Pipe to a command",
+    "db",    "Store in a database",
+    "dir",   "Store in a directory",
+    "relay", "SMTP relay"
   };
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -204,7 +205,7 @@ void setup_email(void){
 
   email_submenu_common();
   style_header("Email Notification Setup");
-  @ <form action="%R/setup_email" method="post"><div>
+  @ <form action="%R/setup_notification" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
   login_insert_csrf_secret();
 
@@ -246,13 +247,10 @@ void setup_email(void){
 
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
-  @ <p>How to send email.  The "Pipe to a command"
-  @ method is the usual choice in production.
-  @ (Property: "email-send-method")</p>
-  @ <hr>
+  @ <p>How to send email.  Requires auxiliary information from the fields
+  @ that follow. (Property: "email-send-method")</p>
   email_schema(1);
-
-  entry_attribute("Command To Pipe Email To", 80, "email-send-command",
+  entry_attribute("Command To Pipe Email To", 60, "email-send-command",
                    "ecmd", "sendmail -t", 0);
   @ <p>When the send method is "pipe to a command", this is the command
   @ that is run.  Email messages are piped into the standard input of this
@@ -271,6 +269,15 @@ void setup_email(void){
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
+
+  entry_attribute("SMTP relay host", 60, "email-send-relayhost",
+                   "esrh", "", 0);
+  @ <p>When the send method is "SMTP relay", each email message is
+  @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
+  @ Agent" or "MSA" (rfc4409) at the hostname shown here.  Optionally
+  @ append a colon and TCP port number (ex: smtp.example.com:587).
+  @ The default TCP port number is 25.
+  @ (Property: "email-send-relayhost")</p>
   @ <hr>
 
   entry_attribute("Administrator email address", 40, "email-admin",
@@ -378,10 +385,17 @@ struct EmailSender {
   const char *zDir;          /* Directory in which to store as email files */
   const char *zCmd;          /* Command to run for each email */
   const char *zFrom;         /* Emails come from here */
+  SmtpSession *pSmtp;        /* SMTP relay connection */
   Blob out;                  /* For zDest=="blob" */
   char *zErr;                /* Error message */
+  u32 mFlags;                /* Flags */
   int bImmediateFail;        /* On any error, call fossil_fatal() */
 };
+
+/* Allowed values for EmailSender flags */
+#define EMAIL_IMMEDIATE_FAIL   0x0001   /* Call fossil_fatal() on any error */
+#define EMAIL_SMTP_TRACE       0x0002   /* Write SMTP transcript to console */
+
 #endif /* INTERFACE */
 
 /*
@@ -395,8 +409,12 @@ static void emailerShutdown(EmailSender *p){
   p->zDb = 0;
   p->zDir = 0;
   p->zCmd = 0;
-  p->zDest = "off";
-  blob_zero(&p->out);
+  if( p->pSmtp ){
+    smtp_client_quit(p->pSmtp);
+    smtp_session_free(p->pSmtp);
+    p->pSmtp = 0;
+  }
+  blob_reset(&p->out);
 }
 
 /*
@@ -409,7 +427,7 @@ static void emailerError(EmailSender *p, const char *zFormat, ...){
   p->zErr = vmprintf(zFormat, ap);
   va_end(ap);
   emailerShutdown(p);
-  if( p->bImmediateFail ){
+  if( p->mFlags & EMAIL_IMMEDIATE_FAIL ){
     fossil_fatal("%s", p->zErr);
   }
 }
@@ -457,12 +475,13 @@ static int emailerGetSetting(
 **
 ** The EmailSender object returned must be freed using email_sender_free().
 */
-EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
+EmailSender *email_sender_new(const char *zAltDest, u32 mFlags){
   EmailSender *p;
 
   p = fossil_malloc(sizeof(*p));
   memset(p, 0, sizeof(*p));
-  p->bImmediateFail = bImmediateFail;
+  blob_init(&p->out, 0, 0);
+  p->mFlags = mFlags;
   if( zAltDest ){
     p->zDest = zAltDest;
   }else{
@@ -501,8 +520,144 @@ EmailSender *email_sender_new(const char *zAltDest, int bImmediateFail){
     emailerGetSetting(p, &p->zDir, "email-send-dir");
   }else if( fossil_strcmp(p->zDest, "blob")==0 ){
     blob_init(&p->out, 0, 0);
+  }else if( fossil_strcmp(p->zDest, "relay")==0 ){
+    const char *zRelay = 0;
+    emailerGetSetting(p, &zRelay, "email-send-relayhost");
+    if( zRelay ){
+      u32 smtpFlags = SMTP_DIRECT;
+      if( mFlags & EMAIL_SMTP_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
+      p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
+      smtp_client_startup(p->pSmtp);
+    }
   }
   return p;
+}
+
+/*
+** Scan the header of the email message in pMsg looking for the
+** (first) occurrance of zField.  Fill pValue with the content of
+** that field.
+**
+** This routine initializes pValue.  Any prior content of pValue is
+** discarded (leaked).
+**
+** Return non-zero on success.  Return 0 if no instance of the header
+** is found.
+*/
+int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
+  int nField = (int)strlen(zField);
+  Blob line;
+  blob_rewind(pMsg);
+  blob_init(pValue,0,0);
+  while( blob_line(pMsg, &line) ){
+    int n, i;
+    char *z;
+    blob_trim(&line);
+    n = blob_size(&line);
+    if( n==0 ) return 0;
+    if( n<nField+1 ) continue;
+    z = blob_buffer(&line);
+    if( sqlite3_strnicmp(z, zField, nField)==0 && z[nField]==':' ){
+      for(i=nField+1; i<n && fossil_isspace(z[i]); i++){}
+      blob_init(pValue, z+i, n-i);
+      while( blob_line(pMsg, &line) ){
+        blob_trim(&line);
+        n = blob_size(&line);
+        if( n==0 ) break;
+        z = blob_buffer(&line);
+        if( !fossil_isspace(z[0]) ) break;
+        for(i=1; i<n && fossil_isspace(z[i]); i++){}
+        blob_append(pValue, " ", 1);
+        blob_append(pValue, z+i, n-i);
+      }
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
+** Make a copy of the input string up to but not including the
+** first ">" character.
+**
+** Verify that the string really that is to be copied really is a
+** valid email address.  If it is not, then return NULL.
+**
+** This routine is more restrictive than necessary.  It does not
+** allow comments, IP address, quoted strings, or certain uncommon
+** characters.  The only non-alphanumerics allowed in the local
+** part are "_", "+", "-" and "+".
+*/
+char *email_copy_addr(const char *z){
+  int i;
+  int nAt = 0;
+  int nDot = 0;
+  char c;
+  if( z[0]=='.' ) return 0;  /* Local part cannot begin with "." */
+  for(i=0; (c = z[i])!=0 && c!='>'; i++){
+    if( fossil_isalnum(c) ){
+      /* Alphanumerics are always ok */
+    }else if( c=='@' ){
+      if( nAt ) return 0;   /* Only a single "@"  allowed */
+      if( i>64 ) return 0;  /* Local part too big */
+      nAt = 1;
+      nDot = 0;
+      if( i==0 ) return 0;  /* Disallow empty local part */
+      if( z[i-1]=='.' ) return 0; /* Last char of local cannot be "." */
+      if( z[i+1]=='.' || z[i+1]=='-' ){
+        return 0; /* Domain cannot begin with "." or "-" */
+      }
+    }else if( c=='-' ){
+      if( z[i+1]=='>' ) return 0;  /* Last character cannot be "-" */
+    }else if( c=='.' ){
+      if( z[i+1]=='.' ) return 0;  /* Do not allow ".." */
+      if( z[i+1]=='>' ) return 0;  /* Domain may not end with . */
+      nDot++;
+    }else if( (c=='_' || c=='+') && nAt==0 ){
+      /* _ and + are ok in the local part */
+    }else{
+      return 0;   /* Anything else is an error */
+    }
+  }
+  if( c!='>' ) return 0;      /* Missing final ">" */
+  if( nAt==0 ) return 0;      /* No "@" found anywhere */
+  if( nDot==0 ) return 0;     /* No "." in the domain */
+
+  /* If we reach this point, the email address is valid */
+  return mprintf("%.*s", i, z);
+}
+
+/*
+** Extract all To: header values from the email header supplied.
+** Store them in the array list.
+*/
+void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
+  int nTo = 0;
+  char **azTo = 0;
+  Blob v;
+  char *z, *zAddr;
+  int i;
+  
+  email_header_value(pMsg, "to", &v);
+  z = blob_str(&v);
+  for(i=0; z[i]; i++){
+    if( z[i]=='<' && (zAddr = email_copy_addr(&z[i+1]))!=0 ){
+      azTo = fossil_realloc(azTo, sizeof(azTo[0])*(nTo+1) );
+      azTo[nTo++] = zAddr;
+    }
+  }
+  *pnTo = nTo;
+  *pazTo = azTo;
+}
+
+/*
+** Free a list of To addresses obtained from a prior call to 
+** email_header_to()
+*/
+void email_header_to_free(int nTo, char **azTo){
+  int i;
+  for(i=0; i<nTo; i++) fossil_free(azTo[i]);
+  fossil_free(azTo);
 }
 
 /*
@@ -581,11 +736,27 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     char *zFile = emailTempFilename(p->zDir);
     blob_write_to_file(&all, zFile);
     fossil_free(zFile);
+  }else if( p->pSmtp ){
+    char **azTo = 0;
+    int nTo = 0;
+    email_header_to(pHdr, &nTo, &azTo);
+    if( nTo>0 ){
+      smtp_send_msg(p->pSmtp, p->zFrom, nTo, (const char**)azTo,blob_str(&all));
+      email_header_to_free(nTo, azTo);
+    }
   }else if( strcmp(p->zDest, "stdout")==0 ){
+    char **azTo = 0;
+    int nTo = 0;
+    int i;
+    email_header_to(pHdr, &nTo, &azTo);
+    for(i=0; i<nTo; i++){
+      fossil_print("X-To-Test-%d: [%s]\r\n", i, azTo[i]);
+    }
+    email_header_to_free(nTo, azTo);
     blob_add_final_newline(&all);
     fossil_print("%s", blob_str(&all));
   }
-  blob_zero(&all);
+  blob_reset(&all);
 }
 
 /*
@@ -599,7 +770,7 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
 */
 void email_receive(Blob *pMsg){
   /* To Do:  Look for bounce messages and possibly disable subscriptions */
-  blob_zero(pMsg);
+  blob_reset(pMsg);
 }
 
 /*
@@ -642,6 +813,13 @@ void email_receive(Blob *pMsg){
 ** for debugging analysis.  Disable saving of inbound emails omitting
 ** this setting, or making it an empty string.
 */
+/*
+** SETTING: email-send-relayhost      width=40
+** This is the hostname and TCP port to which output email messages
+** are sent when email-send-method is "relay".  There should be an
+** SMTP server configured as a Mail Submission Agent listening on the
+** designated host and port and all times.
+*/
 
 
 /*
@@ -674,6 +852,7 @@ void email_receive(Blob *pMsg){
 **                            Options:
 **
 **                              --body FILENAME
+**                              --smtp-trace
 **                              --stdout
 **                              --subject|-S SUBJECT
 **
@@ -729,7 +908,7 @@ void email_cmd(void){
           "unrecoverable.\n");
       prompt_user("Continue? (y/N) ", &yn);
       c = blob_str(&yn)[0];
-      blob_zero(&yn);
+      blob_reset(&yn);
     }
     if( c=='y' ){
       email_triggers_disable();
@@ -748,9 +927,11 @@ void email_cmd(void){
     Blob prompt, body, hdr;
     const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
     int i;
+    u32 mFlags = EMAIL_IMMEDIATE_FAIL;
     const char *zSubject = find_option("subject", "S", 1);
     const char *zSource = find_option("body", 0, 1);
     EmailSender *pSender;
+    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_SMTP_TRACE;
     verify_all_options();
     blob_init(&prompt, 0, 0);
     blob_init(&body, 0, 0);
@@ -770,12 +951,12 @@ void email_cmd(void){
       prompt_for_user_comment(&body, &prompt);
     }
     blob_add_final_newline(&body);
-    pSender = email_sender_new(zDest, 1);
+    pSender = email_sender_new(zDest, mFlags);
     email_send(pSender, &hdr, &body);
     email_sender_free(pSender);
-    blob_zero(&hdr);
-    blob_zero(&body);
-    blob_zero(&prompt);
+    blob_reset(&hdr);
+    blob_reset(&body);
+    blob_reset(&prompt);
   }else
   if( strncmp(zCmd, "settings", nCmd)==0 ){
     int isGlobal = find_option("global",0,0)!=0;
@@ -1020,7 +1201,7 @@ void subscribe_page(void){
       EmailSender *pSender = email_sender_new(0,0);
       blob_init(&hdr,0,0);
       blob_init(&body,0,0);
-      blob_appendf(&hdr, "To: %s\n", zEAddr);
+      blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
       blob_appendf(&body, zConfirmMsg/*works-like:"%s%s%s"*/,
                    g.zBaseURL, g.zBaseURL, zCode);
@@ -1584,7 +1765,7 @@ struct EmailEvent {
 void email_free_eventlist(EmailEvent *p){
   while( p ){
     EmailEvent *pNext = p->pNext;
-    blob_zero(&p->txt);
+    blob_reset(&p->txt);
     fossil_free(p);
     p = pNext;
   }
@@ -1717,7 +1898,7 @@ void test_alert_cmd(void){
   email_free_eventlist(pEvent);
   email_footer(&out);
   fossil_print("%s", blob_str(&out));
-  blob_zero(&out);
+  blob_reset(&out);
   db_end_transaction(0);
 }
 
@@ -1839,8 +2020,8 @@ void email_send_alerts(u32 flags){
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
   }
-  blob_zero(&hdr);
-  blob_zero(&body);
+  blob_reset(&hdr);
+  blob_reset(&body);
   db_finalize(&q);
   email_free_eventlist(pEvents);
   if( (flags & SENDALERT_PRESERVE)==0 ){
