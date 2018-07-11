@@ -1,5 +1,5 @@
-C The\semail-server\senhancements\sare\sfar\sfrom\scomplete,\sbut\sthey\sat\sleast\ncompile\snow\son\snon-linux\ssystems,\sso\sit\sseems\ssafe\sto\smerge\sthe\sexisting\nskeleton\sto\strunk\sand\scontinue\sdevelopment\sthere\swhere\sit\scan\sbe\smore\neasily\stested\son\slive\ssystems.
-D 2018-07-11T19:55:25.055
+C Rename\sthe\s/msgtoadmin\spage\sto\s/contact_admin.\s\sImprovements\sto\sthe\nsetup\spages\sfor\snotifications.
+D 2018-07-11T20:37:55.737
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
-F src/email.c a01a3f65268d12ffc1e88f57df4d5250c282f2cb28d52543135db55a0d2ab4b2
+F src/email.c f213321b27ee8f34134beefb0830428017916e29381bbdbed7c70642e51161bf
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -855,8 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae73e4ed327e46939f82a31544b1e579bc93c400e199a3bed4ad420313cad479 31d274d02ea8944c6e2400228a8dba9366baed2fe12c30af1a36fdda8cf277e5
-R 1cde8733e01f1afdbb1f9ec499869bef
-T +closed 31d274d02ea8944c6e2400228a8dba9366baed2fe12c30af1a36fdda8cf277e5
+P 0a201f7159b88336c61841c4f7bc59dbe2d926f1ccf0d67aee65bb9923a8f3fd
+R d02eaec9d190bc4c625c991d47ecad5a
 U drh
-Z 3c5641953af414c0d94f4c06d94d8fc4
+Z 2b976f4008c2fa6c5f42bde5a7a2f029

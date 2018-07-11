@@ -204,6 +204,7 @@ void setup_notification(void){
   db_begin_transaction();
 
   email_submenu_common();
+  style_submenu_element("Send Announcement","%R/announce");
   style_header("Email Notification Setup");
   @ <form action="%R/setup_notification" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
@@ -248,9 +249,11 @@ void setup_notification(void){
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
   @ <p>How to send email.  Requires auxiliary information from the fields
-  @ that follow. (Property: "email-send-method")</p>
+  @ that follow.  Hint: Use the <a href="%R/announce">/announce</a> page
+  @ to send test message to debug this setting.
+  @ (Property: "email-send-method")</p>
   email_schema(1);
-  entry_attribute("Command To Pipe Email To", 60, "email-send-command",
+  entry_attribute("Pipe Email Text Into This Command", 60, "email-send-command",
                    "ecmd", "sendmail -t", 0);
   @ <p>When the send method is "pipe to a command", this is the command
   @ that is run.  Email messages are piped into the standard input of this
@@ -258,19 +261,19 @@ void setup_notification(void){
   @ recepient addresses, and subject from the header of the piped email
   @ text.  (Property: "email-send-command")</p>
 
-  entry_attribute("Database In Which To Store Email", 60, "email-send-db",
+  entry_attribute("Store Emails In This Database", 60, "email-send-db",
                    "esdb", "", 0);
   @ <p>When the send method is "store in a databaes", each email message is
   @ stored in an SQLite database file with the name given here.
   @ (Property: "email-send-db")</p>
 
-  entry_attribute("Directory In Which To Store Email", 60, "email-send-dir",
+  entry_attribute("Store Emails In This Directory", 60, "email-send-dir",
                    "esdir", "", 0);
   @ <p>When the send method is "store in a directory", each email message is
   @ stored as a separate file in the directory shown here.
   @ (Property: "email-send-dir")</p>
 
-  entry_attribute("SMTP relay host", 60, "email-send-relayhost",
+  entry_attribute("SMTP Relay Host", 60, "email-send-relayhost",
                    "esrh", "", 0);
   @ <p>When the send method is "SMTP relay", each email message is
   @ transmitted via the SMTP protocol (rfc5321) to a "Mail Submission
@@ -1717,6 +1720,10 @@ void subscriber_list_page(void){
     "       julianday(mtime,'unixepoch')"  /* 7 */
     " FROM subscriber"
   );
+  if( P("only")!=0 ){
+    blob_append_sql(&sql, " WHERE ssub LIKE '%%%q%%'", P("only"));
+    style_submenu_element("Show All","%R/subscribers");
+  }
   db_prepare_blob(&q, &sql);
   rNow = db_double(0.0,"SELECT julianday('now')");
   @ <table border="1">
@@ -2071,11 +2078,12 @@ autoexec_done:
 }
 
 /*
-** WEBPAGE: msgtoadmin
+** WEBPAGE: contact_admin
 **
-** A web-form to send a message to the repository administrator.
+** A web-form to send an email message to the repository administrator,
+** or (with appropriate permissions) to anybody.
 */
-void msgtoadmin_page(void){
+void contact_admin_page(void){
   const char *zAdminEmail = db_get("email-admin",0);
   unsigned int uSeed;
   const char *zDecoded;
@@ -2083,8 +2091,8 @@ void msgtoadmin_page(void){
 
   login_check_credentials();
   if( zAdminEmail==0 || zAdminEmail[0]==0 ){
-    style_header("Admin Messaging Disabled");
-    @ <p>Messages to the administrator are disabled on this repository
+    style_header("Outbound Email Disabled");
+    @ <p>Outbound email is disabled on this repository
     style_footer();
     return;
   }
@@ -2126,7 +2134,7 @@ void msgtoadmin_page(void){
     zCaptcha = captcha_render(zDecoded);
   }
   style_header("Message To Administrator");
-  form_begin(0, "%R/msgtoadmin");
+  form_begin(0, "%R/contact_admin");
   @ <p>Enter a message to the repository administrator below:</p>
   @ <table class="subscribe">
   if( zCaptcha ){
@@ -2273,9 +2281,11 @@ void announce_page(void){
     @  <td class="form_label">To:</td>
     @  <td><input type="text" name="to" value="%h(PT("to"))" size="30"><br>
     @  <label><input type="checkbox" name="aa" %s(aack)> \
-    @  All "announcement" subscribers</label><br>
+    @  All "announcement" subscribers</label> \
+    @  <a href="%R/subscribers?only=a" target="_blank">(list)</a><br>
     @  <label><input type="checkbox" name="all" %s(allck)> \
-    @  All subscribers</label></td>
+    @  All subscribers</label> \
+    @  <a href="%R/subscribers" target="_blank">(list)</a><br></td>
     @ </tr>
   }
   @ <tr>
