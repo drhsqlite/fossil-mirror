@@ -2218,6 +2218,8 @@ static void annotate_file(
   int iLimit;            /* Maximum number of versions to analyze */
   sqlite3_int64 mxTime;  /* Halt at this time if not already complete */
 
+  memset(p, 0, sizeof(*p));
+
   if( zLimit ){
     if( strcmp(zLimit,"none")==0 ){
       iLimit = 0;
@@ -2237,7 +2239,7 @@ static void annotate_file(
   }
   db_begin_transaction();
 
-  /* Get the artificate ID for the check-in begin analyzed */
+  /* Get the artifact ID for the check-in begin analyzed */
   if( zRevision ){
     cid = name_to_typed_rid(zRevision, "ci");
   }else{
@@ -2310,6 +2312,15 @@ static void annotate_file(
     p->nVers++;
     cnt++;
   }
+
+  if( p->nVers==0 ){
+    if( zRevision ){
+      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRevision);
+    }else{
+      fossil_fatal("no history for file: %s", zFilename);
+    }
+  }
+
   db_finalize(&q);
   db_end_transaction(0);
 }
