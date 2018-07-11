@@ -22,17 +22,16 @@
 #include "smtp.h"
 #include <assert.h>
 
+#ifdef __linux__
+# define FOSSIL_ENABLE_DNS_LOOKUP
+#endif
 
-#if !defined(FOSSIL_OMIT_SMTP)
-#if defined(_WIN32)
-   /* Don't yet know how to do this on windows */
-#else
+#if defined(FOSSIL_ENABLE_DNS_LOOKUP)
 #  include <sys/types.h>
 #  include <netinet/in.h>
 #  include <arpa/nameser.h>
 #  include <resolv.h>
-#endif
-#endif /* !defined(FOSSIL_OMIT_SMTP) */
+#endif /* defined(FOSSIL_ENABLE_DNS_LOOKUP) */
 
 
 /*
@@ -45,7 +44,7 @@
 ** and should be released using fossil_free().
 */
 char *smtp_mx_host(const char *zDomain){
-#if !defined(_WIN32) && !defined(FOSSIL_OMIT_SMTP)
+#if defined(FOSSIL_ENABLE_DNS_LOOKUP)
   int nDns;                       /* Length of the DNS reply */
   int rc;                         /* Return code from various APIs */
   int i;                          /* Loop counter */
@@ -83,7 +82,7 @@ char *smtp_mx_host(const char *zDomain){
                        zHostname, sizeof(zHostname));
     return fossil_strdup(zHostname);
   }
-#endif /* not windows */
+#endif /* defined(FOSSIL_ENABLE_DNS_LOOKUP) */
   return 0;
 }
 
@@ -672,6 +671,25 @@ void smtp_server_schema(int eForce){
     db_multi_exec(zEmailSchema/*works-like:""*/);
   }
 }
+
+/*
+** WEBPAGE: setup_smtp
+**
+** Administrative page for configuring and controlling inbound email and
+** output email queuing.  This page is available to administrators
+** only via the /Admin/EmailServer menu.
+*/
+void setup_smtp(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  style_header("Email Server Setup");
+  @ <i>Pending...</i>
+  style_footer();
+}
+
 
 #if LOCAL_INTERFACE
 /*

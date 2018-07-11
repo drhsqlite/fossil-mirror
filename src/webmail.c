@@ -36,6 +36,7 @@ void webmail_page(void){
   int emailid;
   Stmt q;
   Blob sql;
+  int showAll = 0;
   login_check_credentials();
   if( g.zLogin==0 ){
     login_needed(0);
@@ -72,11 +73,24 @@ void webmail_page(void){
   style_header("Webmail");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
-        /*    0       1                           2        3        4  */
-    "SELECT efrom, datetime(edate,'unixepoch'), estate, esubject, emsgid"
+        /*    0       1                           2        3        4      5 */
+    "SELECT efrom, datetime(edate,'unixepoch'), estate, esubject, emsgid, euser"
     " FROM emailbox"
   );
-  if( !g.perm.Admin || P("all")==0 ){
+  if( g.perm.Admin ){
+    const char *zUser = P("user");
+    if( P("all")!=0 ){
+      /* Show all email messages */
+      showAll = 1;
+    }else{
+      style_submenu_element("All", "%R/webmail?all");
+      if( zUser ){
+        blob_append_sql(&sql, " WHERE euser=%Q", zUser);
+      }else{
+        blob_append_sql(&sql, " WHERE euser=%Q", g.zLogin);
+      }
+    }
+  }else{
     blob_append_sql(&sql, " WHERE euser=%Q", g.zLogin);
   }
   blob_append_sql(&sql, " ORDER BY edate DESC limit 50");
@@ -89,6 +103,10 @@ void webmail_page(void){
     const char *zDate = db_column_text(&q, 1);
     const char *zSubject = db_column_text(&q, 3);
     @ <li>
+    if( showAll ){
+      const char *zTo = db_column_text(&q,5);
+      @ <a href="%R/webmail?user=%t(zTo)">%h(zTo)</a>:
+    }
     @ <a href="%R/webmail?id=%d(emailid)">%h(zFrom) &rarr; %h(zSubject)</a>
     @ %h(zDate)
   }

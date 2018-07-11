@@ -183,12 +183,12 @@ void email_submenu_common(void){
 
 
 /*
-** WEBPAGE: setup_email
+** WEBPAGE: setup_notification
 **
 ** Administrative page for configuring and controlling email notification.
-** Normally accessible via the /Admin/Email menu.
+** Normally accessible via the /Admin/Notification menu.
 */
-void setup_email(void){
+void setup_notification(void){
   static const char *const azSendMethods[] = {
     "off",   "Disabled",
     "pipe",  "Pipe to a command",
@@ -205,7 +205,7 @@ void setup_email(void){
 
   email_submenu_common();
   style_header("Email Notification Setup");
-  @ <form action="%R/setup_email" method="post"><div>
+  @ <form action="%R/setup_notification" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
   login_insert_csrf_secret();
 
