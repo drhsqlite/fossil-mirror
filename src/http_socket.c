@@ -217,7 +217,10 @@ size_t socket_send(void *NotUsed, const void *pContent, size_t N){
 size_t socket_receive(void *NotUsed, void *pContent, size_t N, int bDontBlock){
   ssize_t got;
   size_t total = 0;
-  int flags = bDontBlock ? MSG_DONTWAIT : 0;
+  int flags = 0;
+#ifdef MSG_DONTWAIT
+  if( bDontBlock ) flags |= MSG_DONTWAIT;
+#endif
   while( N>0 ){
     /* WinXP fails for large values of N.  So limit it to 64KiB. */
     got = recv(iSocket, pContent, N>65536 ? 65536 : N, flags);
