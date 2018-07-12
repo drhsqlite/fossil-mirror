@@ -944,7 +944,7 @@ endif
 
 #### Library required for DNS lookups.
 #
-LIB += ldnsapi
+LIB += -ldnsapi
 
 #### Tcl shell for use in running the fossil test suite.  This is only
 #    used for testing.

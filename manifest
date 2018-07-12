@@ -1,5 +1,5 @@
-C For\snew\ssubscribers,\sdefault\sall\salert\soptions\sto\s"on".
-D 2018-07-12T15:19:20.269
+C Fix\stypo\sin\smakemake.tcl.
+D 2018-07-12T17:08:56.940
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -513,7 +513,7 @@ F src/main.c 49b74ae5a80c06892da55fd5b8ba5e728bf4f66b7ca837641cc2d2b9e9ebe894
 F src/main.mk 8545f5d9bf30812115b73a11ac54cb85d698415092839722923ba39f5794ab94
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 40e09ed9b42cfda62e65846ba3fe1a9a3b2b605a64ec2909fb717c4258e23609
+F src/makemake.tcl f6e08cdf6f671d4f7b6726c74eb2a9f04690c93515fb951c1a19f0048c7081b0
 F src/manifest.c 5d402b3dac8a4fab3fe7c93b4a7b25863f8f6e20ed5a7d1961dc42be1a7db355
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c931dd7b585ff7453d49872864c59999051fcfe1b669155763f9c7a757fb557d
-R d2b0b9ae1a0d60a5e189d9c852d12cc2
-U drh
-Z b4e04f569e390547ed666aa97742e685
+P 9c38803597cb5ac3812a4a4d1fa37389658edc05ec09e0ab2913b265d7a4538b
+R 20160acef0a00c70d5832502be0944fb
+U tsbg
+Z 9b5b0f794b5bda038a9c13246fc8c867
