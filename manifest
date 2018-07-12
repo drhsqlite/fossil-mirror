@@ -1,5 +1,5 @@
-C Work\stoward\san\semail\sformat\sdecoder.\s\sThis\sis\san\sincremental\scheck-in.
-D 2018-07-12T20:36:07.481
+C Another\sincremental\scheck-in\son\sthe\semail\sformat\sdecoder.
+D 2018-07-12T22:16:41.694
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 74d0258c52ecdc354ef84391ac2c3529f9c65f641c9478a8021f7bdaaea5517b
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 5c303f078ba4cacd09430114daaaa1b635771e3fc6f2241981793557b962bee3
+F src/webmail.c 2bf532729704a428f97be4e4dfdb1011e71f260e934124e6db0d041a8a028766
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e817f1b08d660244bff357d7b3b34cd7bfb11375bc7c2b6cb5dfdbf693371cc1
-R db74431050b0fbb9df11e7e9068c6f3c
+P 11c82d816969039bb371e0a44c03ffe876146e6086247686a2d592620d989c80
+R 0270c464718fdd7b67bc0d2043417693
 U drh
-Z e6cd02ede8ef93e1608eb394ca2c545c
+Z b54787797b215a9365839e87838942f3

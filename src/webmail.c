@@ -41,7 +41,7 @@ struct EmailBody {
   char zMimetype[32];     /* Mimetype */
   u8 encoding;            /* Type of encoding */
   char *zFilename;        /* From content-disposition: */
-  Blob content;           /* Encoded content for this segment */
+  char *zContent;         /* Content.  \0 terminator inserted */
 };
 
 /*
@@ -51,7 +51,7 @@ struct EmailBody {
 struct EmailToc {
   int nHdr;              /* Number of header lines */
   int nHdrAlloc;         /* Number of header lines allocated */
-  int *aHdr;             /* Two integers for each hdr line, offset and length */
+  char **azHdr;          /* Pointer to header line.  \0 terminator inserted */
   int nBody;             /* Number of body segments */
   int nBodyAlloc;        /* Number of body segments allocated */
   EmailBody *aBody;      /* Location of body information */
@@ -63,10 +63,9 @@ struct EmailToc {
 */
 void emailtoc_free(EmailToc *p){
   int i;
-  fossil_free(p->aHdr);
+  fossil_free(p->azHdr);
   for(i=0; i<p->nBody; i++){
     fossil_free(p->aBody[i].zFilename);
-    blob_reset(&p->aBody[i].content);
   }
   fossil_free(p->aBody);
   fossil_free(p);
@@ -93,21 +92,19 @@ EmailBody *emailtoc_new_body(EmailToc *p){
   }
   pNew = &p->aBody[p->nBody-1];
   memset(pNew, 0, sizeof(*pNew));
-  pNew->content = empty_blob;
   return pNew;
 }
 
 /*
 ** Add a new header line to the EmailToc.
 */
-void emailtoc_new_header_line(EmailToc *p, int iOfst, int nAmt){
+void emailtoc_new_header_line(EmailToc *p, char *z){
   p->nHdr++;
   if( p->nHdr>p->nHdrAlloc ){
     p->nHdrAlloc = (p->nHdrAlloc+1)*2;
-    p->aHdr = fossil_realloc(p->aHdr, sizeof(int)*2*p->nHdrAlloc);
+    p->azHdr = fossil_realloc(p->azHdr, sizeof(p->azHdr[0])*p->nHdrAlloc);
   }
-  p->aHdr[p->nHdr*2-2] = iOfst;
-  p->aHdr[p->nHdr*2-1] = nAmt;
+  p->azHdr[p->nHdr-1] = z;
 }
 
 /*
@@ -126,45 +123,30 @@ static int email_line_length(const char *z){
 /*
 ** Return a pointer to the first non-whitespace character in z
 */
-static const char *firstToken(const char *z, int n){
-  while( n>0 && fossil_isspace(*z) ){
-    n--;
+static const char *firstToken(const char *z){
+  while( fossil_isspace(*z) ){
     z++;
   }
-  return n>0 ? z : 0;
+  return z;
 }
 
 /*
-** The n-bytes of content in z are a multipart/ body component for
-** an email message.  Decode this into its individual segments.
+** The n-bytes of content in z is a single multipart mime segment
+** with its own header and body.  Decode this one segment and add it to p;
 **
-** The component should start and end with a boundary line.  There
-** may be additional boundary lines in the middle.
+** Rows of the header of the segment are added to p if bAddHeader is
+** true.
 */
-static void emailtoc_add_multipart(
+LOCAL void emailtoc_add_multipart_segment(
   EmailToc *p,          /* Append the segments here */
-  Blob *pEmail,         /* The original full email raw text */
-  const char *z,        /* The body component */
-  int n                 /* Bytes of content in z[] */
+  char *z,              /* The body component */
+  int bAddHeader        /* True to add header lines to p */
 ){
-  return;
-}
-
-
-/*
-** Compute a table-of-contents (EmailToc) for the email message
-** provided on the input.
-*/
-EmailToc *emailtoc_from_email(Blob *pEmail){
-  const char *z;
-  int i;
+  int i, j;
   int n;
   int multipartBody = 0;
-  EmailToc *p = emailtoc_alloc();
   EmailBody *pBody = emailtoc_new_body(p);
-  blob_terminate(pEmail);
-  z = blob_buffer(pEmail);
-  i = 0; 
+  i = 0;
   while( z[i] ){
     n = email_line_length(&z[i]);
     if( (n==2 && z[i]=='\r' && z[i+1]=='\n') || z[i]=='\n' || n==0 ){
@@ -172,8 +154,10 @@ EmailToc *emailtoc_from_email(Blob *pEmail){
       i += n;
       break;
     }
+    for(j=i+n; j>i && fossil_isspace(z[j-1]); j--){}
+    z[j] = 0;
     if( sqlite3_strnicmp(z+i, "Content-Type:", 13)==0 ){
-      const char *z2 = firstToken(z+i+13, n-13);
+      const char *z2 = firstToken(z+i+13);
       if( z2 && strncmp(z2, "multipart/", 10)==0 ){
         multipartBody = 1;
       }else{
@@ -186,7 +170,7 @@ EmailToc *emailtoc_from_email(Blob *pEmail){
     }
                            /*  123456789 123456789 123456 */
     if( sqlite3_strnicmp(z+i, "Content-Transfer-Encoding:", 26)==0 ){
-      const char *z2 = firstToken(z+(i+26), n-26);
+      const char *z2 = firstToken(z+(i+26));
       if( z2 && sqlite3_strnicmp(z2, "base64", 6)==0 ){
         pBody->encoding = EMAILENC_B64;
                                  /*  123456789 123456 */
@@ -196,16 +180,68 @@ EmailToc *emailtoc_from_email(Blob *pEmail){
         pBody->encoding = EMAILENC_NONE;
       }
     }
-    emailtoc_new_header_line(p, i, n);
+    if( bAddHeader ) emailtoc_new_header_line(p, z+i);
     i += n;
   }
-  n = blob_size(pEmail) - i;
   if( multipartBody ){
     p->nBody--;
-    emailtoc_add_multipart(p, pEmail, z+i, n);
+    emailtoc_add_multipart(p, z+i);
   }else{
-    blob_init(&pBody->content, z+i, n);
+    pBody->zContent = z+i;
   }
+}
+
+/*
+** The n-bytes of content in z are a multipart/ body component for
+** an email message.  Decode this into its individual segments.
+**
+** The component should start and end with a boundary line.  There
+** may be additional boundary lines in the middle.
+*/
+LOCAL void emailtoc_add_multipart(
+  EmailToc *p,          /* Append the segments here */
+  char *z               /* The body component.  zero-terminated */
+){
+  int nB;               /* Size of the boundary string */
+  int iStart;           /* Start of the coding region past boundary mark */
+  int i;                /* Loop index */
+  char *zBoundary = 0;  /* Boundary marker */
+
+  /* Find the length of the boundary mark. */
+  while( fossil_isspace(z[0]) ) z++;
+  zBoundary = z;
+  for(nB=0; z[nB] && !fossil_isspace(z[nB]); nB++){}
+  if( nB==0 ) return;
+  z += nB;
+  while( fossil_isspace(z[0]) ) z++;
+  zBoundary[nB] = 0;
+  for(i=iStart=0; z[i]; i++){
+    if( z[i]=='\n' && strncmp(z+i+1, zBoundary, nB)==0 ){
+      z[i+1] = 0;
+      emailtoc_add_multipart_segment(p, z+iStart, 0);
+      iStart = i+nB;
+      if( z[iStart]=='-' && z[iStart+1]=='-' ) return;
+      while( fossil_isspace(z[iStart]) ) iStart++;
+      i = iStart;
+    }
+  }
+}
+
+
+/*
+** Compute a table-of-contents (EmailToc) for the email message
+** provided on the input.
+**
+** This routine will cause pEmail to become zero-terminated if it is
+** not already.  It will also insert zero characters into parts of
+** the message, to delimit the various components.
+*/
+EmailToc *emailtoc_from_email(Blob *pEmail){
+  char *z;
+  EmailToc *p = emailtoc_alloc();
+  blob_terminate(pEmail);
+  z = blob_buffer(pEmail);
+  emailtoc_add_multipart_segment(p, z, 1);
   return p;
 }
 
@@ -221,21 +257,19 @@ void test_email_decode_cmd(void){
   Blob email;
   EmailToc *p;
   int i;
-  const char *z;
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_read_from_file(&email, g.argv[2], ExtFILE);
   p = emailtoc_from_email(&email);
-  z = blob_buffer(&email);
   fossil_print("%d header line and %d content segments\n",
                p->nHdr, p->nBody);
   for(i=0; i<p->nHdr; i++){
-    fossil_print("%3d: %.*s", i, p->aHdr[i*2+1], z+p->aHdr[i*2]);
+    fossil_print("%3d: %s\n", i, p->azHdr[i]);
   }
   for(i=0; i<p->nBody; i++){
     fossil_print("\nBODY %d mime \"%s\" encoding %d:\n",
                  i, p->aBody[i].zMimetype, p->aBody[i].encoding);
-    fossil_print("%s\n", blob_str(&p->aBody[i].content));
+    fossil_print("%s\n", p->aBody[i].zContent);
   }
   emailtoc_free(p);
   blob_reset(&email);
