@@ -21,17 +21,15 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-
-#ifdef __linux__
-# define FOSSIL_ENABLE_DNS_LOOKUP
-#endif
-
-#if defined(FOSSIL_ENABLE_DNS_LOOKUP)
+#if !defined(_WIN32)
 #  include <sys/types.h>
 #  include <netinet/in.h>
 #  include <arpa/nameser.h>
 #  include <resolv.h>
-#endif /* defined(FOSSIL_ENABLE_DNS_LOOKUP) */
+#else
+#  include <windows.h>
+#  include <windns.h>
+#endif
 
 
 /*
@@ -44,7 +42,7 @@
 ** and should be released using fossil_free().
 */
 char *smtp_mx_host(const char *zDomain){
-#if defined(FOSSIL_ENABLE_DNS_LOOKUP)
+#if !defined(_WIN32)
   int nDns;                       /* Length of the DNS reply */
   int rc;                         /* Return code from various APIs */
   int i;                          /* Loop counter */
@@ -82,8 +80,35 @@ char *smtp_mx_host(const char *zDomain){
                        zHostname, sizeof(zHostname));
     return fossil_strdup(zHostname);
   }
-#endif /* defined(FOSSIL_ENABLE_DNS_LOOKUP) */
   return 0;
+#else /* !defined(_WIN32) */
+  DNS_STATUS status;           /* Return status */
+  PDNS_RECORDA pDnsRecord, p;  /* Pointer to DNS_RECORD structure */
+  int iBestPriority = 9999999; /* Best priority */
+  char *pBest = 0;             /* RDATA for the best answer */
+
+  status = DnsQuery_UTF8(zDomain,            /* Domain name */
+                         DNS_TYPE_MX,        /* DNS record type */
+                         DNS_QUERY_STANDARD, /* Query options */
+                         NULL,               /* List of DNS servers */
+                         &pDnsRecord,        /* Query results */
+                         NULL);              /* Reserved */
+  if( status ) return NULL;
+
+  p = pDnsRecord;
+  while( p ){
+    if( p->Data.MX.wPreference<iBestPriority ){
+      iBestPriority = p->Data.MX.wPreference;
+      pBest = p->Data.MX.pNameExchange;
+    }
+    p = p->pNext;
+  }
+  if( pBest ){
+    pBest = fossil_strdup(pBest); 
+  }
+  DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
+  return pBest;
+#endif /* !defined(_WIN32) */
 }
 
 /*
@@ -96,7 +121,7 @@ char *smtp_mx_host(const char *zDomain){
 */
 void test_find_mx(void){
   int i;
-  if( g.argc<2 ){
+  if( g.argc<=2 ){
     usage("DOMAIN ...");
   }
   for(i=2; i<g.argc; i++){

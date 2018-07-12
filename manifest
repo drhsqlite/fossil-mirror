@@ -1,5 +1,5 @@
-C Make\ssure\s-ldl\sis\sappended\safter\s-lcrypto;\sFixes\slink\serrors\swith\sstatic\sbuild.
-D 2018-07-12T06:46:37.525
+C Get\sDNS\slookup\sfor\smail\shosts\sworking\son\sWindows.
+D 2018-07-12T09:39:13.630
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -513,7 +513,7 @@ F src/main.c 0441f6940562345216cb5e7f474f8408be95494c409b387559a7eb61c39e8ffc
 F src/main.mk 8545f5d9bf30812115b73a11ac54cb85d698415092839722923ba39f5794ab94
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 7019f84cbc13b848a83afea47ecdf6c4e939e0f778336a51547007677db048bc
+F src/makemake.tcl 40e09ed9b42cfda62e65846ba3fe1a9a3b2b605a64ec2909fb717c4258e23609
 F src/manifest.c 5d402b3dac8a4fab3fe7c93b4a7b25863f8f6e20ed5a7d1961dc42be1a7db355
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
-F src/smtp.c b3b9995353a312ce38e5348113935ff9fada168f3e2fb432cc3724ed87438d06
+F src/smtp.c 6e77ecae757ad9fd9bc2529e4aea5ce7ad8b0e315aa86dd834dca8328e86dbd3
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
@@ -727,11 +727,11 @@ F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
-F win/Makefile.PellesCGMake 213a11badf4e1b31f52548c8cb3e6e51fe79f3eebdcbe714b4cb475f0155a43b
-F win/Makefile.dmc 223cde38b74a8cd0d9bb83dc4cdf0493e0636662e347c833fbe0d9cf18082db7
-F win/Makefile.mingw 5eecf1b7530ba7d8640260a04ba45c142687e471f197c105c89231b329b00559
+F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b88f14f94af2f
+F win/Makefile.dmc 5a9bb36e13d7b635a3975ef40ecd3cfc34874183f281e01dcd70824eed56f369
+F win/Makefile.mingw f0fae9c151867be8785e0928365c50a510ecd03a29ab6b5e32ba42901bed8b2c
 F win/Makefile.mingw.mistachkin 4941c336d0bd0adc9fe831a569621fe276f14f2faf26e99f3aea01cf19243fba
-F win/Makefile.msc 71b82033d1f9247ec8e79122bff8672be3c9db8fec9604e1f759e5a90af2ae73
+F win/Makefile.msc 55ac267c4007f7053876c33cecd39c90dad62d3e6f8f1ed041ea51086870c12c
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -855,7 +855,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9830d7cbedf0e379ba67fc933acddb2a87f95e922def239afb4e53da77c3cb2b
-R 533b7ffd7c4c34e038c3029ad23c539c
-U ashepilko
-Z bec1c13c41420eb395c9148933934181
+P efbc319c32a38fab4df9bcce655bca77123ff7ea8ead6d52e006f1bf84c067ba
+R 0e0b0f763a8f039dde3e959a8d09c507
+T *branch * smtp-win
+T *sym-smtp-win *
+T -sym-trunk *
+U tsbg
+Z c794400c0601a33327d006e7bb85a9d9

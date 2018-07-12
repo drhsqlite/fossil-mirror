@@ -410,6 +410,10 @@ else
 LIB += -lkernel32 -lws2_32
 endif
 
+#### Library required for DNS lookups.
+#
+LIB += ldnsapi
+
 #### Tcl shell for use in running the fossil test suite.  This is only
 #    used for testing.
 #

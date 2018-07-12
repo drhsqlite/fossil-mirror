@@ -247,7 +247,7 @@ BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
 MTC       = mt
-LIBS      = ws2_32.lib advapi32.lib
+LIBS      = ws2_32.lib advapi32.lib dnsapi.lib
 LIBDIR    =
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
