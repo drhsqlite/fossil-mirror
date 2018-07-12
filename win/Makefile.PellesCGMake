@@ -60,7 +60,7 @@ ZLIBSRCDIR=../../zlib/
 
 # define linker command and options
 LINK=$(PellesCDir)/bin/polink.exe
-LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib Crtmt$(TARGETEXTEND).lib
+LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib dnsapi.lib Crtmt$(TARGETEXTEND).lib
 
 # define standard C-compiler and flags, used to compile
 # the fossil binary. Some special definitions follow for

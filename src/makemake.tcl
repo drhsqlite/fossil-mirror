@@ -942,6 +942,10 @@ else
 LIB += -lkernel32 -lws2_32
 endif
 
+#### Library required for DNS lookups.
+#
+LIB += ldnsapi
+
 #### Tcl shell for use in running the fossil test suite.  This is only
 #    used for testing.
 #
@@ -1315,7 +1319,7 @@ SSL    =
 CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
-LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
+LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32 dnsapi
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
@@ -1707,7 +1711,7 @@ BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
 MTC       = mt
-LIBS      = ws2_32.lib advapi32.lib
+LIBS      = ws2_32.lib advapi32.lib dnsapi.lib
 LIBDIR    =
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
@@ -2100,7 +2104,7 @@ ZLIBSRCDIR=../../zlib/
 
 # define linker command and options
 LINK=$(PellesCDir)/bin/polink.exe
-LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib Crtmt$(TARGETEXTEND).lib
+LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib dnsapi.lib Crtmt$(TARGETEXTEND).lib
 
 # define standard C-compiler and flags, used to compile
 # the fossil binary. Some special definitions follow for
