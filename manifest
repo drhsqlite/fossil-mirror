@@ -1,5 +1,5 @@
-C Add\s"Truncate"\sand\s"Download"\sbuttons\sto\sthe\s/errorlog\sdisplay.\s\sProvide\na\slink\sto\sthe\serror\slog\son\sthe\s/setup\spage.
-D 2018-07-12T14:09:35.629
+C Put\sa\slink\sto\sthe\serror\slog\son\sthe\s/stat\spage.\s\sThe\slink\sis\sonly\svisible\nto\sadministrators.
+D 2018-07-12T14:21:54.692
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -561,7 +561,7 @@ F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
 F src/sqlite3.h d9d37ccb6d77420e9eb71b47604e13b3ee65183fa7e71522e569167ce9ae56ac
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
-F src/stat.c 5456308fd2f8f72da5f79b3a1f55ee93c510fa5efa55132b6e4a8e3cd668a57b
+F src/stat.c e4f43cff69ab5871c5fa69bb964d2c16d788bb9b1e631f71f3dec02033cbbe4a
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c ee73748920ef50d0a1a887b1b7ce9b81253b5d9037c3e3446d830ee3849e106c
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9a6c6c2cdacf4d8dc84377f62d0ccd884ae1341f5db65deb434f9d2340f16713
-R 3460dc494c8414179deca55e10a74c5a
+P 8e3bad04eef13d83fc44cc980a345b153cdc1c22a8a6e804f2f99a4d70b5af7e
+R b5596121e06e8944c576dbd5982e19a8
 U drh
-Z 5472cb1c1c1b4a08b5a3f049a79e3b36
+Z 858766ed90edebf1d63b7e74043006c1

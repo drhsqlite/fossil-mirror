@@ -200,6 +200,14 @@ void stat_page(void){
   @ %s(db_text(0, "PRAGMA repository.encoding")),
   @ %s(db_text(0, "PRAGMA repository.journal_mode")) mode
   @ </td></tr>
+  if( g.perm.Admin && g.zErrlog && g.zErrlog[0] ){
+    i64 szFile = file_size(g.zErrlog, ExtFILE);
+    if( szFile>=0 ){
+      @ <tr><th>Error Log:</th>
+      @ <td><a href='%R/errorlog'>%h(g.zErrlog)</a> (%,lld(szFile) bytes)
+    }
+    @ </td></tr>
+  }
   if( g.perm.Admin && email_enabled() ){
     const char *zDest = db_get("email-send-method",0);
     int nSub, nASub, nPend, nDPend;
