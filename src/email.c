@@ -1229,6 +1229,15 @@ void subscribe_page(void){
     return;
   }
   style_header("Signup For Email Alerts");
+  if( P("submit")==0 ){
+    /* If this is the first visit to this page (if this HTTP request did not
+    ** come from a prior Submit of the form) then default all of the
+    ** subscription options to "on" */
+    cgi_set_parameter_nocopy("sa","1",1);
+    cgi_set_parameter_nocopy("sc","1",1);
+    cgi_set_parameter_nocopy("st","1",1);
+    cgi_set_parameter_nocopy("sw","1",1);
+  }
   @ <p>To receive email notifications for changes to this
   @ repository, fill out the form below and press "Submit" button.</p>
   form_begin(0, "%R/subscribe");

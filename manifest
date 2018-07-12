@@ -1,5 +1,5 @@
-C Add\s"Download",\s"Test",\sand\s"Truncate"\ssubmenu\sbuttons\son\sthe\s/errorlog\npage.\s\sShow\sa\sconfirmation\spage\sprior\sto\struncating\sthe\serror\slog.\nImprovements\sto\sthe\s/test-warning\spage,\sincluding\sa\slink\sback\sto\s/errorlog\nthrough\sthe\ssubmenu.
-D 2018-07-12T14:55:51.789
+C For\snew\ssubscribers,\sdefault\sall\salert\soptions\sto\s"on".
+D 2018-07-12T15:19:20.269
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 5ccaa1ef9e8d9bc427f7c9a144aa76d87ad917a7a3235dda72964b3f26e931fe
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 72033252c034877f1d0d50c7609232acca4a3d58902bf227eb181d55a39bcff4
-F src/email.c 593d4887262d791f27ca610ec8e24f84d7c48ed026de4294af36f57e6d559550
+F src/email.c ebec452e8062eabc46c8883fe3df0f65d8edfd47393367fbe246e42ffb6f6c14
 F src/encode.c 654d926334aef22531d05dcbcb1020e012bdcc8b2e3cd0b25bac6de24560a83d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 5d4a12252f765b5a1fa43fc6ddd087e79dfad65e3533369c1b47deb5b4be52d0
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83b12c3a780d027436f295bdef09de338fc8d10e1c6cdc865035d6da17fd1c89
-R 0a212e0c90e5ac84535648c32f0a7cf0
+P c931dd7b585ff7453d49872864c59999051fcfe1b669155763f9c7a757fb557d
+R d2b0b9ae1a0d60a5e189d9c852d12cc2
 U drh
-Z a232ba9f7f54588a161898c37cae6f4f
+Z b4e04f569e390547ed666aa97742e685
