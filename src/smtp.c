@@ -21,14 +21,17 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-#if !defined(_WIN32)
+#if defined(__linux__)
 #  include <sys/types.h>
 #  include <netinet/in.h>
 #  include <arpa/nameser.h>
 #  include <resolv.h>
-#else
+#  define FOSSIL_UNIX_STYLE_DNS 1
+#endif
+#if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
 #  include <windows.h>
 #  include <windns.h>
+#  define FOSSIL_WINDOWS_STYLE_DNS 1
 #endif
 
 
@@ -42,7 +45,7 @@
 ** and should be released using fossil_free().
 */
 char *smtp_mx_host(const char *zDomain){
-#if !defined(_WIN32)
+#if defined(FOSSIL_UNIX_STYLE_DNS)
   int nDns;                       /* Length of the DNS reply */
   int rc;                         /* Return code from various APIs */
   int i;                          /* Loop counter */
@@ -81,7 +84,8 @@ char *smtp_mx_host(const char *zDomain){
     return fossil_strdup(zHostname);
   }
   return 0;
-#else /* !defined(_WIN32) */
+#endif /* defined(FOSSIL_UNIX_SYTLE_DNS) */
+#if defined(FOSSIL_WINDOWS_STYLE_DNS)
   DNS_STATUS status;           /* Return status */
   PDNS_RECORDA pDnsRecord, p;  /* Pointer to DNS_RECORD structure */
   int iBestPriority = 9999999; /* Best priority */
@@ -108,7 +112,7 @@ char *smtp_mx_host(const char *zDomain){
   }
   DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
   return pBest;
-#endif /* !defined(_WIN32) */
+#endif /* defined(FOSSIL_WINDOWS_STYLE_DNS) */
 }
 
 /*
