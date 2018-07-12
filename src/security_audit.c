@@ -398,7 +398,7 @@ void takeitprivate_page(void){
 /*
 ** The maximum number of bytes of log to show
 */
-#define MXSHOWLOG 20000
+#define MXSHOWLOG 50000
 
 /*
 ** WEBPAGE: errorlog
@@ -417,7 +417,6 @@ void errorlog_page(void){
   }
   style_header("Server Error Log");
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
-    @ <p>There is no server error log!
     @ <p>To create a server error log:
     @ <ol>
     @ <li><p>
@@ -435,8 +434,24 @@ void errorlog_page(void){
     style_footer();
     return;
   }
+  if( P("truncate") && cgi_csrf_safe(1) ){
+    fclose(fopen(g.zErrlog,"w"));
+  }
+  if( P("download") ){
+    Blob log;
+    blob_read_from_file(&log, g.zErrlog, ExtFILE);
+    cgi_set_content_type("text/plain");
+    cgi_set_content(&log);
+    return;
+  }
   szFile = file_size(g.zErrlog, ExtFILE);
+  @ <form action="%R/errorlog" method="POST">
   @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
+  if( szFile>1000 ){
+    @ <input type="submit" name="download" value="Download">
+    @ <input type="submit" name="truncate" value="Truncate">
+  }
+  @ </form>
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
     @ <p class='generalError'>Unable top open that file for reading!</p>

@@ -143,6 +143,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Administrative Log", "admin_log",
     "View the admin_log entries");
+  setup_menu_entry("Error Log", "errorlog",
+    "View the Fossil server error log");
   setup_menu_entry("Unversioned Files", "uvlist?byage=1",
     "Show all unversioned files held");
   setup_menu_entry("Stats", "stat",
