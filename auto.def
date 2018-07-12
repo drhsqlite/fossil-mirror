@@ -497,7 +497,6 @@ if {![cc-check-functions getpassphrase]} {
     # Haiku needs this
     cc-check-function-in-lib getpass bsd
 }
-cc-check-function-in-lib dlopen dl
 cc-check-function-in-lib sin m
 
 # Check for the FuseFS library
@@ -508,6 +507,12 @@ if {[opt-bool fusefs]} {
      define-append LIBS -lfuse
      msg-result "FuseFS support enabled"
   }
+}
+
+# Finally, append -ldl to make sure it's the last in the list.
+# The library order matters in case of static linking.
+if {[check-function-in-lib dlopen dl]} {
+  define-append LIBS -ldl
 }
 
 make-template Makefile.in
