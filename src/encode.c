@@ -495,6 +495,46 @@ void test_encode64_cmd(void){
 }
 
 
+/* Decode base64 text.  Write the output into zData.  The caller
+** must ensure that zData is large enough.  It is ok for z64 and
+** zData to be the same buffer.  In other words, it is ok to decode
+** in-place.  A zero terminator is always placed at the end of zData.
+*/
+void decodeBase64(const char *z64, int *pnByte, char *zData){
+  const unsigned char *zIn = (const unsigned char*)z64;
+  int i, j, k;
+  int x[4];
+  static int isInit = 0;
+  static signed char trans[256];
+
+  if( !isInit ){
+    for(i=0; i<256; i++){ trans[i] = -1; }
+    for(i=0; zBase[i]; i++){ trans[zBase[i] & 0x7f] = i; }
+    isInit = 1;
+  }
+  for(j=k=0; zIn[0]; zIn++){
+    int v = trans[zIn[0]];
+    if( v>=0 ){
+      x[k++] = v;
+      if( k==4 ){
+        zData[j++] = ((x[0]<<2) & 0xfc) | ((x[1]>>4) & 0x03);
+        zData[j++] = ((x[1]<<4) & 0xf0) | ((x[2]>>2) & 0x0f);
+        zData[j++] = ((x[2]<<6) & 0xc0) | (x[3] & 0x3f);
+        k = 0;
+      }
+    }
+  }
+  if( k>=2 ){
+    zData[j++] = ((x[0]<<2) & 0xfc) | ((x[1]>>4) & 0x03);
+    if( k==3 ){
+      zData[j++] = ((x[1]<<4) & 0xf0) | ((x[2]>>2) & 0x0f);
+    }
+  }
+  zData[j] = 0;
+  *pnByte = j;
+}
+
+
 /*
 ** This function treats its input as a base-64 string and returns the
 ** decoded value of that string.  Characters of input that are not
@@ -506,42 +546,10 @@ void test_encode64_cmd(void){
 */
 char *decode64(const char *z64, int *pnByte){
   char *zData;
-  int n64;
-  int i, j;
-  int a, b, c, d;
-  static int isInit = 0;
-  static int trans[128];
-
-  if( !isInit ){
-    for(i=0; i<128; i++){ trans[i] = 0; }
-    for(i=0; zBase[i]; i++){ trans[zBase[i] & 0x7f] = i; }
-    isInit = 1;
-  }
-  n64 = strlen(z64);
+  int n64 = (int)strlen(z64);
   while( n64>0 && z64[n64-1]=='=' ) n64--;
   zData = fossil_malloc( (n64*3)/4 + 4 );
-  for(i=j=0; i+3<n64; i+=4){
-    a = trans[z64[i] & 0x7f];
-    b = trans[z64[i+1] & 0x7f];
-    c = trans[z64[i+2] & 0x7f];
-    d = trans[z64[i+3] & 0x7f];
-    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
-    zData[j++] = ((b<<4) & 0xf0) | ((c>>2) & 0x0f);
-    zData[j++] = ((c<<6) & 0xc0) | (d & 0x3f);
-  }
-  if( i+2<n64 ){
-    a = trans[z64[i] & 0x7f];
-    b = trans[z64[i+1] & 0x7f];
-    c = trans[z64[i+2] & 0x7f];
-    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
-    zData[j++] = ((b<<4) & 0xf0) | ((c>>2) & 0x0f);
-  }else if( i+1<n64 ){
-    a = trans[z64[i] & 0x7f];
-    b = trans[z64[i+1] & 0x7f];
-    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
-  }
-  zData[j] = 0;
-  *pnByte = j;
+  decodeBase64(z64, pnByte, zData);
   return zData;
 }
 
@@ -556,7 +564,7 @@ void test_decode64_cmd(void){
   for(i=2; i<g.argc; i++){
     z = decode64(g.argv[i], &n);
     fossil_print("%d: %s\n", n, z);
-    free(z);
+    fossil_free(z);
   }
 }
 
@@ -655,6 +663,31 @@ void canonical16(char *z, int n){
     *z = zEncode[zDecode[(*z)&0x7f]&0x1f];
     z++;
   }
+}
+
+/*
+** Decode a string encoded using "quoted-printable".
+**
+**   (1)  "=" followed by two hex digits becomes a single
+**        byte specified by the two digits
+**
+** The decoding is done in-place.
+*/
+void decodeQuotedPrintable(char *z, int *pnByte){
+  int i, j, c;
+  for(i=j=0; (c = z[i])!=0; i++){
+    if( c=='=' ){
+      if( z[i+1]!='\r' ){
+        decode16((unsigned char*)&z[i+1], (unsigned char*)&z[j], 2);
+        j++;
+      }
+      i += 2;
+    }else{
+      z[j++] = c;
+    }
+  }
+  if( pnByte ) *pnByte = j;
+  z[j] = 0;
 }
 
 /* Randomness used for XOR-ing by the obscure() and unobscure() routines */

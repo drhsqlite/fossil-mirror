@@ -269,7 +269,26 @@ void test_email_decode_cmd(void){
   for(i=0; i<p->nBody; i++){
     fossil_print("\nBODY %d mime \"%s\" encoding %d:\n",
                  i, p->aBody[i].zMimetype, p->aBody[i].encoding);
-    fossil_print("%s\n", p->aBody[i].zContent);
+    switch( p->aBody[i].encoding ){
+      case EMAILENC_B64: {
+        int n = 0;
+        decodeBase64(p->aBody[i].zContent, &n, p->aBody[i].zContent);
+        fossil_print("%s", p->aBody[i].zContent);
+        if( n && p->aBody[i].zContent[n-1]!='\n' ) fossil_print("\n");
+        break;
+      }
+      case EMAILENC_QUOTED: {
+        int n = 0;
+        decodeQuotedPrintable(p->aBody[i].zContent, &n);
+        fossil_print("%s", p->aBody[i].zContent);
+        if( n && p->aBody[i].zContent[n-1]!='\n' ) fossil_print("\n");
+        break;
+      }
+      default: {
+        fossil_print("%s\n", p->aBody[i].zContent);
+        break;
+      }
+    }
   }
   emailtoc_free(p);
   blob_reset(&email);
