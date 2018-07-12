@@ -779,14 +779,15 @@ void email_receive(Blob *pMsg){
 /*
 ** SETTING: email-send-method         width=5 default=off
 ** Determine the method used to send email.  Allowed values are
-** "off", "pipe", "dir", "db", and "stdout".  The "off" value means
-** no email is ever sent.  The "pipe" value means email messages are
-** piped into a command determined by the email-send-command setting.
-** The "dir" value means emails are written to individual files in a
-** directory determined by the email-send-dir setting.  The "db" value
-** means that emails are added to an SQLite database named by the
-** email-send-db setting.  The "stdout" value writes email text to
-** standard output, for debugging.
+** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
+** means no email is ever sent.  The "relay" value means emails are sent
+** to an Mail Sending Agent using SMTP located at email-send-relayhost.
+** The "pipe" value means email messages are piped into a command 
+** determined by the email-send-command setting. The "dir" value means
+** emails are written to individual files in a directory determined
+** by the email-send-dir setting.  The "db" value means that emails
+** are added to an SQLite database named by the* email-send-db setting.
+** The "stdout" value writes email text to standard output, for debugging.
 */
 /*
 ** SETTING: email-send-command       width=40
