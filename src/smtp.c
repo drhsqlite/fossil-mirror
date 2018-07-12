@@ -84,8 +84,7 @@ char *smtp_mx_host(const char *zDomain){
     return fossil_strdup(zHostname);
   }
   return 0;
-#endif /* defined(FOSSIL_UNIX_SYTLE_DNS) */
-#if defined(FOSSIL_WINDOWS_STYLE_DNS)
+#elif defined(FOSSIL_WINDOWS_STYLE_DNS)
   DNS_STATUS status;           /* Return status */
   PDNS_RECORDA pDnsRecord, p;  /* Pointer to DNS_RECORD structure */
   int iBestPriority = 9999999; /* Best priority */
@@ -112,6 +111,8 @@ char *smtp_mx_host(const char *zDomain){
   }
   DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
   return pBest;
+#else
+  return 0;
 #endif /* defined(FOSSIL_WINDOWS_STYLE_DNS) */
 }
 
