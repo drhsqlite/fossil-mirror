@@ -2738,12 +2738,21 @@ void test_echo_cmd(void){
 **     case=3           Extra db_end_transaction()
 */
 void test_warning_page(void){
-  int iCase = atoi(PD("case","1"));
+  int iCase = atoi(PD("case","0"));
   int i;
   login_check_credentials();
-  if( !g.perm.Admin ){ fossil_redirect_home(); return; }
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
   style_header("Warning Test Page");
-  @ <p>This is the test page for case=%d(iCase).  Cases:
+  style_submenu_element("Error Log","%R/errorlog");
+  if( iCase<1 || iCase>3 ){
+    @ <p>Generate a message to the <a href="%R/errorlog">error log</a>
+    @ by clicking on one of the following cases:
+  }else{
+    @ <p>This is the test page for case=%d(iCase).  All possible cases:
+  }
   for(i=1; i<=3; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }

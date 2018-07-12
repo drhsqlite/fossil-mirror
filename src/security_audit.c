@@ -434,7 +434,7 @@ void errorlog_page(void){
     style_footer();
     return;
   }
-  if( P("truncate") && cgi_csrf_safe(1) ){
+  if( P("truncate1") && cgi_csrf_safe(1) ){
     fclose(fopen(g.zErrlog,"w"));
   }
   if( P("download") ){
@@ -445,13 +445,19 @@ void errorlog_page(void){
     return;
   }
   szFile = file_size(g.zErrlog, ExtFILE);
-  @ <form action="%R/errorlog" method="POST">
-  @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
-  if( szFile>1000 ){
-    @ <input type="submit" name="download" value="Download">
-    @ <input type="submit" name="truncate" value="Truncate">
+  if( P("truncate") ){
+    @ <form action="%R/errorlog" method="POST">
+    @ <p>Confirm that you want to truncate the %,lld(szFile)-byte error log:
+    @ <input type="submit" name="truncate1" value="Confirm">
+    @ <input type="submit" name="cancel" value="Cancel">
+    @ </form>
+    style_footer();
+    return;
   }
-  @ </form>
+  @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
+  style_submenu_element("Test", "%R/test-warning");
+  style_submenu_element("Download", "%R/errorlog?download");
+  style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
   if( in==0 ){
     @ <p class='generalError'>Unable top open that file for reading!</p>
