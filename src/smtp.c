@@ -654,7 +654,8 @@ static const char zEmailSchema[] =
 @   emsgid INT,          -- Raw email text
 @   ets INT,             -- Transcript of the receiving SMTP session
 @   estate INT,          -- Unread, read, starred, etc.
-@   esubject TEXT        -- Subject line for display
+@   esubject TEXT,       -- Subject line for display
+@   etags TEXT           -- zero or more tags
 @ );
 @
 @ -- Information on how to deliver incoming email.
@@ -685,6 +686,16 @@ static const char zEmailDrop[] =
 @ DROP TABLE IF EXISTS emailroute;
 @ DROP TABLE IF EXISTS emailqueue;
 ;
+
+#if INTERFACE
+/*
+** Mailbox message states
+*/
+#define MSG_UNREAD    0
+#define MSG_READ      1
+#define MSG_TRASH     2
+#endif /* INTERFACE */
+
 
 /*
 ** Populate the schema of a database.

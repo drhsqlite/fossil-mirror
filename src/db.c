@@ -522,6 +522,12 @@ void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
   blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
               sqlite3_column_bytes(pStmt->pStmt, N));
 }
+Blob db_column_text_as_blob(Stmt *pStmt, int N){
+  Blob x;
+  blob_init(&x, sqlite3_column_text(pStmt->pStmt,N),
+            sqlite3_column_bytes(pStmt->pStmt,N));
+  return x;
+}
 
 /*
 ** Initialize a blob to an ephemeral copy of the content of a
