@@ -1388,6 +1388,7 @@ static char *extract_token(char *zInput, char **zLeftOver){
 ** each call.
 */
 char *cgi_remote_ip(int fd){
+#if 0
   static char zIp[100];
   struct sockaddr_in6 addr;
   socklen_t sz = sizeof(addr);
@@ -1397,6 +1398,12 @@ char *cgi_remote_ip(int fd){
     return 0;
   }
   return zIp;
+#else
+  struct sockaddr_in remoteName;
+  socklen_t size = sizeof(struct sockaddr_in);
+  if( getpeername(fd, (struct sockaddr*)&remoteName, &size) ) return 0;
+  return inet_ntoa(remoteName.sin_addr);
+#endif
 }
 
 /*

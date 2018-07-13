@@ -1,5 +1,5 @@
-C Improved\scode\sto\sdiscover\sthe\sIP\saddress\sof\sthe\speer.\s\sRecord\sthe\sIP\naddress\sof\sthe\speer\sin\sa\sReceived:\sheader\sline\sof\sall\sinput\semails.
-D 2018-07-13T18:20:54.845
+C Attempts\sto\sobtain\sthe\sIPv6\saddress\sof\sthe\speer\sdo\snot\sseem\sto\swork.\nFallback\sto\sgetting\sthe\sIPv4\saddress\suntil\swe\sfigure\sthis\sout.
+D 2018-07-13T18:40:59.957
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c fa6b4ae6e0509b72d918a65f870606bbbab41bc1dfe1c6125a78d6cdae2b718e
+F src/cgi.c 76c78d97b98f61b59162109bb821c7c508f950923b8006b4c6e6274c372aa20c
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43336f67c37beb7d1b4cad0804d1bd79da046cf69a77cb1626416dc539d4ba1e
-R 1ea0f3f292ca54147cf4227bf6b840c5
+P 9979edbdef54f547ffd2f41882691a4c60fa6df5a4fbbb9445aa6b150a73ef2f
+R 253e12035237b37a16b7977f6c0d4ef6
 U drh
-Z 517de333275288e120c22b3d468fc3b4
+Z e406c1ddea112168afc3bee4f98ec5d4
