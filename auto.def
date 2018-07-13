@@ -512,7 +512,9 @@ if {[opt-bool fusefs]} {
 # Finally, append -ldl to make sure it's the last in the list.
 # The library order matters in case of static linking.
 if {[check-function-in-lib dlopen dl]} {
-  define-append LIBS -ldl
+    # Some platforms (*BSD) have the dl functions already in libc and no libdl.
+    # In such case we can link directly without -ldl.
+    define-append LIBS [get-define lib_dlopen]
 }
 
 make-template Makefile.in

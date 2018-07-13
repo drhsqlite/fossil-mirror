@@ -1,5 +1,5 @@
-C An\salternative\sto\sremoving\sFOSSIL_ENABLE_LEGACY_MV_RM\sthat\sjust\smakes\sit\sthe\sdefault.
-D 2018-07-13T05:46:05.039
+C Append\s-ldl\sonly\swhen\sneeded\son\sthe\starget\splatform;\sOpenBSD\sresolves\sit\sfrom\sthe\sstandard\slibc.
+D 2018-07-13T10:04:45.171
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 964d0913d01d38466dfe7e85db4d864099f23864de9851961e9e5b736487f1e0
+F auto.def b20223fd5a4e215dc9ce3b488b39d52e4f833595bc6d17f2e13138d3ba717dfd
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -855,8 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0ae0898ded03e032ed1df2447ce4b37c6bfa99c3b3b0c7f042aec1aba61d31e efb0f88063193c7ce2176fd5082ce033e4c861f4c1adaddd203a8a02b189161e
-R 6d10b111fc5fb2068b3d3b88b8dbd2f6
-T +closed efb0f88063193c7ce2176fd5082ce033e4c861f4c1adaddd203a8a02b189161e
-U mistachkin
-Z ffb9a4a3f0c38b32571f174119eab3b5
+P 9951fd7b40f314d2e12d7582d02b8a84e05f2f16017fe7cb4abda07458967535
+R 63e52288769abc79d82cca0616247c25
+U ashepilko
+Z 5856d2231c9e887d9b16bd3f8305b2d8
