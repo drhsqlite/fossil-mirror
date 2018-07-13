@@ -1,5 +1,5 @@
-C Use\sthe\semail\scontent\sparser\sto\sthe\sprototype\swebmail\spage.
-D 2018-07-13T15:07:13.307
+C When\srendering\sSQLite\slog\smessages\sto\sthe\serror\slog,\sinclude\sthe\sSQL\sfor\sall\nbusy\sSQL\sstatements\sin\sthe\slog\smessage.
+D 2018-07-13T16:06:44.348
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 1ae037e7875fcaee7fb209edc8d96b43d988123ec991e86a7fe31b4c4061e6f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 49b74ae5a80c06892da55fd5b8ba5e728bf4f66b7ca837641cc2d2b9e9ebe894
+F src/main.c 038912e16222764a2748af73d404ea15b4823501e17b4797c31f661b017b68ee
 F src/main.mk 8545f5d9bf30812115b73a11ac54cb85d698415092839722923ba39f5794ab94
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7cdb522b42aad6a16207d884d5331cd754d1978dc7b2300934e492e1f07dd53d
-R a1e1734333fbe02649c937e94683b9ba
+P 264223fc5981cd27b255e5f4170c2a81c9a24e69622bb6dc29c42c892e7087b2
+R bd690be5a195c97efa6a75a4bb01d16e
 U drh
-Z bdac1a2864fd9bc64a1ffb27ec0031a1
+Z 8032286c59b66d33cd94750807bacc0d

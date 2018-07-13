@@ -511,9 +511,11 @@ static const char *fossil_sqlite_return_code_name(int rc){
 
 /* Error logs from SQLite */
 static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
+  sqlite3_stmt *p;
+  Blob msg;
 #ifdef __APPLE__
   /* Disable the file alias warning on apple products because Time Machine
-  ** creates lots of aliases and the warning alarms people. */
+  ** creates lots of aliases and the warnings alarm people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
 #ifndef FOSSIL_DEBUG
@@ -527,7 +529,19 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
     zErrmsg = "database is in a read-only directory";
   }
 #endif
-  fossil_warning("%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
+  blob_init(&msg, 0, 0);
+  blob_appendf(&msg, "%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
+  if( g.db ){
+    for(p=sqlite3_next_stmt(g.db, 0); p; p=sqlite3_next_stmt(g.db,p)){
+      const char *zSql;
+      if( !sqlite3_stmt_busy(p) ) continue;
+      zSql = sqlite3_sql(p);
+      if( zSql==0 ) continue;
+      blob_appendf(&msg, "\nSQL: %s", zSql);
+    }
+  }
+  fossil_warning("%s", blob_str(&msg));
+  blob_reset(&msg);
 }
 
 /*
@@ -2747,13 +2761,13 @@ void test_warning_page(void){
   }
   style_header("Warning Test Page");
   style_submenu_element("Error Log","%R/errorlog");
-  if( iCase<1 || iCase>3 ){
+  if( iCase<1 || iCase>4 ){
     @ <p>Generate a message to the <a href="%R/errorlog">error log</a>
     @ by clicking on one of the following cases:
   }else{
     @ <p>This is the test page for case=%d(iCase).  All possible cases:
   }
-  for(i=1; i<=3; i++){
+  for(i=1; i<=4; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -2769,6 +2783,14 @@ void test_warning_page(void){
   @ <li value='3'> Call db_end_transaction()
   if( iCase==3 ){
     db_end_transaction(0);
+  }
+  @ <li value='4'> warning during SQL
+  if( iCase==4 ){
+    Stmt q;
+    db_prepare(&q, "SELECT uuid FROM blob LIMIT 5");
+    db_step(&q);
+    sqlite3_log(SQLITE_ERROR, "Test warning message during SQL");
+    db_finalize(&q);
   }
   @ </ol>
   @ <p>End of test</p>
