@@ -1,5 +1,5 @@
-C When\slogging\stransaction\serrors\son\sthe\serror\slog,\stry\sto\sinclude\ninformation\sabout\swhere\sthe\stransaction\sstarted.
-D 2018-07-13T16:26:12.587
+C Improved\scode\sto\sdiscover\sthe\sIP\saddress\sof\sthe\speer.\s\sRecord\sthe\sIP\naddress\sof\sthe\speer\sin\sa\sReceived:\sheader\sline\sof\sall\sinput\semails.
+D 2018-07-13T18:20:54.845
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 4ca425688041b46f2f7ad510c05333d28dde9f5aa96dfa0503794fd8443f6287
+F src/cgi.c fa6b4ae6e0509b72d918a65f870606bbbab41bc1dfe1c6125a78d6cdae2b718e
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
-F src/smtp.c d1a8f1adc1223e448801e4ec84312c050fe704ced91d4a973f41de9cd4c0082a
+F src/smtp.c 478595b1b9b912da834bd3d624336f5d2dc2d51fc47ca0fa5b1a6c48a0b1872d
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6ecf21f37a809151d93f5d1384706f899bcca53ba0cf6e6632410f77ded0a95
-R 2f4300dae2e0236cde35df2978a25764
+P 43336f67c37beb7d1b4cad0804d1bd79da046cf69a77cb1626416dc539d4ba1e
+R 1ea0f3f292ca54147cf4227bf6b840c5
 U drh
-Z aef5d51f8f739b3a9adc45ca2281b2ed
+Z 517de333275288e120c22b3d468fc3b4

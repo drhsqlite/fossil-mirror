@@ -1381,6 +1381,25 @@ static char *extract_token(char *zInput, char **zLeftOver){
 }
 
 /*
+** Determine the IP address on the other side of a connection.
+** Return a pointer to a string.  Or return 0 if unable.
+**
+** The string is held in a static buffer that is overwritten on
+** each call.
+*/
+char *cgi_remote_ip(int fd){
+  static char zIp[100];
+  struct sockaddr_in6 addr;
+  socklen_t sz = sizeof(addr);
+  if( getpeername(fd, &addr, &sz) ) return 0;
+  zIp[0] = 0;
+  if( inet_ntop(AF_INET6, &addr, zIp, sizeof(zIp))==0 ){
+    return 0;
+  }
+  return zIp;
+}
+
+/*
 ** This routine handles a single HTTP request which is coming in on
 ** g.httpIn and which replies on g.httpOut
 **
@@ -1393,8 +1412,6 @@ static char *extract_token(char *zInput, char **zLeftOver){
 void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
-  struct sockaddr_in remoteName;
-  socklen_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
@@ -1422,11 +1439,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName,
-                                &size)>=0
-  ){
-    zIpAddr = inet_ntoa(remoteName.sin_addr);
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_remote_ip(fileno(g.httpIn));
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);

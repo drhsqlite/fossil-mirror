@@ -739,6 +739,7 @@ void setup_smtp(void){
 struct SmtpServer {
   sqlite3_int64 idTranscript; /* Transcript ID number */
   sqlite3_int64 idMsg;        /* Message ID number */
+  const char *zIpAddr;        /* Remote IP address */
   char *zEhlo;                /* Client domain on the EHLO line */
   char *zFrom;                /* MAIL FROM: argument */
   int nTo;                    /* Number of RCPT TO: lines seen */
@@ -856,6 +857,14 @@ static int smtp_server_gets(SmtpServer *p, char *aBuf, int nBuf){
     }
   }
   return rc;
+}
+
+/*
+** RFC-5321 requires certain content be prepended to an email header
+** as that email is received.
+*/
+static void smtp_server_prepend_header_lines(SmtpServer *p){
+  blob_appendf(&p->msg, "Received: from %s by Fossil-smtp\r\n", p->zIpAddr);
 }
 
 /*
@@ -1009,6 +1018,10 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 **
 **      --trace           Print a transcript of the conversation on stderr
 **                        for debugging and analysis
+**
+**      --ipaddr ADDR     The SMTP connection originates at ADDR.  Or if ADDR
+**                        is the name of an environment variable, the address
+**                        is ready from that environment variable.
 */
 void smtp_server(void){
   char *zDbName;
@@ -1022,6 +1035,15 @@ void smtp_server(void){
   x.srvrFlags = SMTPSRV_LOG;
   if( find_option("trace",0,0)!=0 ) x.srvrFlags |= SMTPSRV_STDERR;
   if( find_option("dryrun",0,0)!=0 ) x.srvrFlags |= SMTPSRV_DRYRUN;
+  x.zIpAddr = find_option("ipaddr",0,1);
+  if( x.zIpAddr ){
+    const char *zNew = fossil_getenv(x.zIpAddr);
+    if( zNew && zNew[0] ) x.zIpAddr = zNew;
+  }
+  if( x.zIpAddr==0 ){
+    x.zIpAddr = cgi_remote_ip(0);
+    if( x.zIpAddr==0 ) x.zIpAddr = "?.?.?.?";
+  }
   verify_all_options();
   if( g.argc!=3 ) usage("DBNAME");
   zDbName = g.argv[2];
@@ -1071,6 +1093,7 @@ void smtp_server(void){
         continue;
       }
       smtp_server_send(&x, "354 ready\r\n");
+      smtp_server_prepend_header_lines(&x);
       smtp_server_capture_data(&x, z, sizeof(z));
       smtp_server_send(&x, "250 ok\r\n");
     }else
