@@ -605,7 +605,7 @@ BCC = $(BCCEXE)
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
-# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+FOSSIL_ENABLE_LEGACY_MV_RM = 1
 
 #### Enable TH1 scripts in embedded documentation files
 #
@@ -1525,7 +1525,7 @@ FOSSIL_ENABLE_JSON = 0
 
 # Enable legacy treatment of the mv/rm commands?
 !ifndef FOSSIL_ENABLE_LEGACY_MV_RM
-FOSSIL_ENABLE_LEGACY_MV_RM = 0
+FOSSIL_ENABLE_LEGACY_MV_RM = 1
 !endif
 
 # Enable use of miniz instead of zlib?

@@ -73,7 +73,7 @@ BCC = $(BCCEXE)
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
-# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+FOSSIL_ENABLE_LEGACY_MV_RM = 1
 
 #### Enable TH1 scripts in embedded documentation files
 #

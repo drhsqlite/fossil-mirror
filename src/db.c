@@ -3135,6 +3135,7 @@ struct Setting {
 ** are hashed to detect changes, which can be slow for large
 ** projects.
 */
+#if FOSSIL_ENABLE_LEGACY_MV_RM
 /*
 ** SETTING: mv-rm-files      boolean default=off
 ** If enabled, the "mv" and "rename" commands will also move
@@ -3142,6 +3143,7 @@ struct Setting {
 ** and "delete" commands will also remove the associated
 ** files from within the checkout.
 */
+#endif
 /*
 ** SETTING: pgp-command      width=40
 ** Command used to clear-sign manifests at check-in.

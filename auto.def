@@ -10,7 +10,7 @@ options {
                          => {Look for zlib in the given path, automatically, or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
-    with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
+    with-legacy-mv-rm=1  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
