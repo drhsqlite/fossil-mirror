@@ -126,6 +126,8 @@ static struct DbLocalData {
   char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
   int nBeforeCommit;        /* Number of entries in azBeforeCommit */
   int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
+  const char *zStartFile;   /* File in which transaction was started */
+  int iStartLine;           /* Line of zStartFile where transaction started */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -142,6 +144,14 @@ void db_delete_on_failure(const char *zFilename){
 */
 int db_transaction_nesting_depth(void){
   return db.nBegin;
+}
+
+/*
+** Return a pointer to a string that is the code point where the
+** current transaction was started.
+*/
+char *db_transaction_start_point(void){
+  return mprintf("%s:%d", db.zStartFile, db.iStartLine);
 }
 
 /*
@@ -162,14 +172,24 @@ static int db_verify_at_commit(void *notUsed){
 }
 
 /*
+** Silently add the filename and line number as parameter to each
+** db_begin_transaction call.
+*/
+#if INTERFACE
+#define db_begin_transaction() db_begin_transaction_real(__FILE__,__LINE__)
+#endif
+
+/*
 ** Begin and end a nested transaction
 */
-void db_begin_transaction(void){
+void db_begin_transaction_real(const char *zStartFile, int iStartLine){
   if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
     db.nPriorChanges = sqlite3_total_changes(g.db);
     db.doRollback = 0;
+    db.zStartFile = zStartFile;
+    db.iStartLine = iStartLine;
   }
   db.nBegin++;
 }
@@ -524,7 +544,7 @@ void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
 }
 Blob db_column_text_as_blob(Stmt *pStmt, int N){
   Blob x;
-  blob_init(&x, sqlite3_column_text(pStmt->pStmt,N),
+  blob_init(&x, (char*)sqlite3_column_text(pStmt->pStmt,N),
             sqlite3_column_bytes(pStmt->pStmt,N));
   return x;
 }
@@ -1785,7 +1805,8 @@ void db_close(int reportErrors){
     db_finalize(db.pAllStmt);
   }
   if( db.nBegin && reportErrors ){
-    fossil_warning("Missed call to db_end_transaction(). Rolling back.");
+    fossil_warning("Transaction started at %s:%d never commits",
+                   db.zStartFile, db.iStartLine);
     db_end_transaction(1);
   }
   pStmt = 0;

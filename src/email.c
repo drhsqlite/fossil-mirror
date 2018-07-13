@@ -2066,7 +2066,8 @@ void email_auto_exec(void){
   int iJulianDay;
   if( g.db==0 ) return;
   if( db_transaction_nesting_depth()!=0 ){
-    fossil_warning("Called email_auto_exec() from within a transaction");
+    fossil_warning("Called email_auto_exec() from within transaction "
+                   "started at %z", db_transaction_start_point());
     return;
   }
   db_begin_transaction();
