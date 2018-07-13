@@ -1938,6 +1938,10 @@ int cgi_http_server(
         int iStatus = 0;
         pid_t x = waitpid(-1, &iStatus, WNOHANG);
         if( x<=0 ) break;
+        if( WIFSIGNALED(iStatus) && g.fAnyTrace ){
+          fprintf(stderr, "/***** Child %d exited on signal %d (%s) *****/\n",
+                  x, WTERMSIG(iStatus), strsignal(WTERMSIG(iStatus)));
+        }
         nchildren--;
       }
     }  

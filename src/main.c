@@ -1422,6 +1422,19 @@ void sigsegv_handler(int x){
 }
 
 /*
+** Called if a server gets a SIGPIPE.  This often happens when a client
+** webbrowser opens a connection but never sends the HTTP request
+*/
+void sigpipe_handler(int x){
+#ifndef _WIN32
+  if( g.fAnyTrace ){
+    fprintf(stderr, "-- sigpipe received by subprocess %d --\n", getpid());
+  }
+#endif
+  fossil_exit(1);
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -2666,8 +2679,14 @@ void cmd_webserver(void){
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
-  if( g.fHttpTrace || g.fSqlTrace ){
-    fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
+
+#if !defined(_WIN32)
+  signal(SIGSEGV, sigsegv_handler);
+  signal(SIGPIPE, sigpipe_handler);
+#endif
+
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
   }
   g.cgiOutput = 1;
   find_server_repository(2, 0);
@@ -2682,6 +2701,10 @@ void cmd_webserver(void){
     cgi_handle_http_request(0);
   }
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
+            getpid());
+  }
 #else
   /* Win32 implementation */
   if( isUiCmd ){

@@ -43,6 +43,12 @@
 */
 NORETURN void fossil_exit(int rc){
   db_close(1);
+#ifndef _WIN32
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Subprocess %d exit(%d) *****/\n", getpid(), rc);
+    fflush(stderr);
+  }
+#endif
   exit(rc);
 }
 
