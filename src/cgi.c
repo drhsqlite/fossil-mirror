@@ -889,9 +889,13 @@ void cgi_trace(const char *z){
   }
   if( pLog==0 ){
     char zFile[50];
+#if defined(_WIN32)
     unsigned r;
     sqlite3_randomness(sizeof(r), &r);
     sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+#else
+    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%05d.txt", getpid());
+#endif
     pLog = fossil_fopen(zFile, "wb");
     if( pLog ){
       fprintf(stderr, "# open log on %s\n", zFile);
@@ -1472,7 +1476,12 @@ void cgi_handle_http_request(const char *zIpAddr){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
     if( fossil_strcmp(zFieldName,"accept-encoding:")==0 ){
-      cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
+      /* Hack:  Ignore the accept-encoding value (thus preventing the
+      ** output from being compressed) for the "fossil test-http" command.
+      ** This simplifies debugging. */
+      if( g.argc<2 || fossil_strncmp(g.argv[1],"test-http",9)!=0 ){
+        cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
+      }
     }else if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
