@@ -1,5 +1,5 @@
-C Webmail\snavigation\supdates.\s\sMove\smessage\sbetween\sUnread/Read/Trash.\s\sShow\n50\smessages\sper\spage\swith\sNewer\sand\sOlder\slinks\swhen\sappropriate.
-D 2018-07-14T18:36:52.347
+C New\s"Normal"\smode\sfor\sviewing\semail\smessages\sin\swebmail.
+D 2018-07-14T19:40:46.376
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
-F src/smtp.c b104ccdf64065e1b0fff8e6001266c184c06f66911b95137e452f5a43df08ad8
+F src/smtp.c e6eaa1154be5cd6211a78ed1dc4b1104ddf1196b51210eda20bc8e0bc75d0f38
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 49632b4886991f7c2ac551e3c1fcb6e0c2b6447c81aacab552a517467827b774
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 77021962ed5b7e4476dd5d93232188f6ebd677a5c35d6b45ec404bbfd006319d
+F src/webmail.c 418cb193afe8c408b4f9ec5092334a8f695e4f3b2e1d4d2fa5e165212ba3d230
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c1f8668bca7a7eb78f73e6eecb1c20a6934209f258c62ab1d438317ef706d9b6
-R 69c9a2d54a465cff65b711298935e2d1
+P 485d01fb17d22f6da320da797bde045d3800c99be1423375d935b519cee1fcba
+R ee9ef6121f1771118685a3f867aaee48
 U drh
-Z b9f823a51490d30517c12ab30d62b046
+Z 348435acc00f95181a4c99b29280de96

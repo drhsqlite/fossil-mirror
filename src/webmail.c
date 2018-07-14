@@ -356,6 +356,34 @@ void test_email_decode_cmd(void){
 }
 
 /*
+** Add the select/option box to the timeline submenu that shows
+** the various email message formats.
+*/
+static void webmail_f_submenu(void){
+  static const char *az[] = {
+     "0", "Normal",
+     "1", "Decoded",
+     "2", "Raw",
+  };
+  style_submenu_multichoice("f", sizeof(az)/(2*sizeof(az[0])), az, 0);
+}
+
+/*
+** If the first N characters of z[] are the name of a header field
+** that should be shown in "Normal" mode, then return 1.
+*/
+static int webmail_normal_header(const char *z, int N){
+  static const char *az[] = {
+    "To",  "Cc",  "Bcc",  "Date", "From",  "Subject",
+  };
+  int i;
+  for(i=0; i<sizeof(az)/sizeof(az[0]); i++){
+    if( sqlite3_strnicmp(z, az[i], N)==0 ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** Paint a page showing a single email message
 */
 static void webmail_show_one_message(
@@ -368,6 +396,7 @@ static void webmail_show_one_message(
   int eState = -1;
   char zENum[30];
   style_submenu_element("Index", "%s", url_render(pUrl,"id",0,0,0));
+  webmail_f_submenu();
   blob_init(&sql, 0, 0);
   db_begin_transaction();
   blob_append_sql(&sql,
@@ -384,19 +413,17 @@ static void webmail_show_one_message(
     Blob msg = db_column_text_as_blob(&q, 0);
     int eFormat = atoi(PD("f","0"));
     eState = db_column_int(&q, 1);
-    url_add_parameter(pUrl, "id", P("id"));
-    if( eFormat==1 ){
+    if( eFormat==2 ){
       @ <pre>%h(db_column_text(&q, 0))</pre>
-      style_submenu_element("Decoded", "%s", url_render(pUrl,"f",0,0,0));
     }else{      
       EmailToc *p = emailtoc_from_email(&msg);
       int i, j;
-      style_submenu_element("Raw", "%s", url_render(pUrl,"f","1",0,0));
       @ <p>
       for(i=0; i<p->nHdr; i++){
         char *z = p->azHdr[i];
         email_hdr_unfold(z);
         for(j=0; z[j] && z[j]!=':'; j++){}
+        if( eFormat==0 && !webmail_normal_header(z, j) ) continue;
         if( z[j]!=':' ){
           @ %h(z)<br>
         }else{
@@ -410,7 +437,12 @@ static void webmail_show_one_message(
           @ "%h(p->aBody[i].zFilename)"
         }
         @ </b>
-        if( strncmp(p->aBody[i].zMimetype, "text/", 5)!=0 ) continue;
+        if( eFormat==0 ){
+          if( strncmp(p->aBody[i].zMimetype, "text/plain", 10)!=0 ) continue;
+          if( p->aBody[i].zFilename ) continue;
+        }else{
+          if( strncmp(p->aBody[i].zMimetype, "text/", 5)!=0 ) continue;
+        }
         switch( p->aBody[i].encoding ){
           case EMAILENC_B64: {
             int n = 0;
@@ -454,6 +486,10 @@ static void webmail_show_one_message(
     style_submenu_element("Mark As Unread", "%s",
       url_render(pUrl,"unread","1",zENum,"1"));
   }
+  if( eState==3 ){
+    style_submenu_element("Delete", "%s",
+      url_render(pUrl,"trash","1",zENum,"1"));
+  }
 
   db_end_transaction(0);
   style_footer();
@@ -465,6 +501,8 @@ static void webmail_show_one_message(
 ** form "eN" where N is an integer.  For all such integers, change
 ** the state of every emailbox entry with ebid==N to eStateNew provided
 ** that either zUser is NULL or matches.
+**
+** Or if eNewState==99, then delete the entries.
 */
 static void webmail_change_state(int eNewState, const char *zUser){
   Blob sql;
@@ -474,8 +512,12 @@ static void webmail_change_state(int eNewState, const char *zUser){
   int n;
   if( !cgi_csrf_safe(0) ) return;
   blob_init(&sql, 0, 0);
-  blob_append_sql(&sql, "UPDATE emailbox SET estate=%d WHERE ebid IN ",
-                  eNewState);
+  if( eNewState==99 ){
+    blob_append_sql(&sql, "DELETE FROM emailbox WHERE estate==2 AND ebid IN ");
+  }else{
+    blob_append_sql(&sql, "UPDATE emailbox SET estate=%d WHERE ebid IN ",
+                    eNewState);
+  }
   for(i=0; (zName = cgi_parameter_name(i))!=0; i++){
     if( zName[0]!='e' ) continue;
     if( !fossil_isdigit(zName[1]) ) continue;
@@ -504,7 +546,8 @@ static void webmail_d_submenu(void){
      "0", "InBox",
      "1", "Unread",
      "2", "Trash",
-     "3", "Everything",
+     "3", "Sent",
+     "4", "Everything",
   };
   style_submenu_multichoice("d", sizeof(az)/(2*sizeof(az[0])), az, 0);
 }
@@ -578,6 +621,7 @@ void webmail_page(void){
   if( P("trash")!=0 ) webmail_change_state(2,zUser);
   if( P("unread")!=0 ) webmail_change_state(0,zUser);
   if( P("read")!=0 ) webmail_change_state(1,zUser);
+  if( P("purge")!=0 ) webmail_change_state(99,zUser);
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
     "CREATE TEMP TABLE tmbox AS "
@@ -603,7 +647,11 @@ void webmail_page(void){
       blob_append_sql(&sql, " WHERE estate=2");
       break;
     }
-    case 3: {   /* Everything */
+    case 3: {   /* Outgoing email only */
+      blob_append_sql(&sql, " WHERE estate=3");
+      break;
+    }
+    case 4: {   /* Everything */
       blob_append_sql(&sql, " WHERE 1");
       break;
     }
@@ -637,6 +685,7 @@ void webmail_page(void){
   @ <tr><td align="left">
   if( d==2 ){
     @ <input type="submit" name="read" value="Undelete">
+    @ <input type="submit" name="purge" value="Delete Permanently">
   }else{
     @ <input type="submit" name="trash", value="Delete">
     if( d!=1 ){
@@ -644,6 +693,7 @@ void webmail_page(void){
     }
     @ <input type="submit" name="read" value="Mark as read">
   }
+  @ <a href="%s(url_render(&url,0,0,0,0))">refresh</a>
   @ </td><td align="right">
   if( pg>0 ){
     sqlite3_snprintf(sizeof(zPPg), zPPg, "%d", pg-1);

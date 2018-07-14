@@ -654,7 +654,7 @@ static const char zEmailSchema[] =
 @   efrom TEXT,          -- Who is the email from
 @   emsgid INT,          -- Raw email text
 @   ets INT,             -- Transcript of the receiving SMTP session
-@   estate INT,          -- 0: Unread, 1: read, 2: trash
+@   estate INT,          -- 0: Unread, 1: read, 2: trash 3: sent
 @   esubject TEXT,       -- Subject line for display
 @   etags TEXT           -- zero or more tags
 @ );
