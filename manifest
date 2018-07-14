@@ -1,5 +1,5 @@
-C Fixes\sto\slogin\schecking\sfor\sthe\sskin\seditor.
-D 2018-07-14T19:57:42.112
+C Fix\sdisplay\stext\stypo\son\sthe\sskin\seditor\spage\sfor\snon-administrators.
+D 2018-07-14T20:07:39.636
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -554,7 +554,7 @@ F src/shell.c b10bfd88021a0a01e573e715e4694a339010e77c579ddd31ede8403d92afc715
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c c9e0bac9aa544b2baae3b9461f95f68415b905127a8a759182450ac55f050264
+F src/skins.c 3151d63308d69e3f885fc13f2b8cefdd4956f50ea06221480097e561be0e6f8d
 F src/smtp.c 239f03e9b64c424134cf2d592ec6f92ea9fd3fa046eececa5678eed1b9ec6d7f
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b7332766ff4ea0f30782ed5f77f7850b6822556e04064c10a99a39cf52d1f8f
-R cac732e9073527d4ed2f817da2e6e8cc
+P 09e6fc3df383db287298ef7953a422e8c6abb2aebb3b02cf1d7ed33943421e45
+R 35a61cfb3767dd979fa81a30c76f36c2
 U drh
-Z 940520c37c275de1c7b307e227730244
+Z 75f2ad89abea4bd78b54c03a15e7c6c2

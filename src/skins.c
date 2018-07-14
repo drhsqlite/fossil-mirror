@@ -1061,8 +1061,8 @@ void setup_skin(void){
   @ <h1>Step 8: Cleanup and Undo Actions</h1>
   @
   if( !g.perm.Setup ){
-    @ <p>Administrators can optionally remove save legacy skins, or
-    @ undo a prior publish
+    @ <p>Administrators can optionally save or restore legacy skins, and/or
+    @ undo a prior publish.
   }else{
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.
