@@ -1,5 +1,5 @@
-C Fix\sdisplay\stext\stypo\son\sthe\sskin\seditor\spage\sfor\snon-administrators.
-D 2018-07-14T20:07:39.636
+C The\s-DFOSSIL_OMIT_DNS\scompile-time\soption\savoids\strying\sto\slink\s-lresolv.
+D 2018-07-14T20:11:37.068
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 3151d63308d69e3f885fc13f2b8cefdd4956f50ea06221480097e561be0e6f8d
-F src/smtp.c 239f03e9b64c424134cf2d592ec6f92ea9fd3fa046eececa5678eed1b9ec6d7f
+F src/smtp.c 8b4b9e5c0e5fe71d1456c22708e1567333198126e7cc13c2cdcd6017b82deecb
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09e6fc3df383db287298ef7953a422e8c6abb2aebb3b02cf1d7ed33943421e45
-R 35a61cfb3767dd979fa81a30c76f36c2
+P 3a903bfd492ce233a4162b36ebc933dcdaf80d8b8bf46656a686fd1338bce3a2
+R 5ad0f94f26061ad2349ed2abdf6778a7
 U drh
-Z 75f2ad89abea4bd78b54c03a15e7c6c2
+Z cea3d6d9702d53778a19574c65d1b40f
