@@ -531,7 +531,8 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
   }
 #endif
   blob_init(&msg, 0, 0);
-  blob_appendf(&msg, "%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
+  blob_appendf(&msg, "%s(%d): %s",
+     fossil_sqlite_return_code_name(iCode), iCode, zErrmsg);
   if( g.db ){
     for(p=sqlite3_next_stmt(g.db, 0); p; p=sqlite3_next_stmt(g.db,p)){
       const char *zSql;

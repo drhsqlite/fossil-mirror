@@ -1,5 +1,5 @@
-C Add\sthe\s--nocompress\soption\sto\sthe\s"ui",\s"server",\sand\s"http"\scommands.\sThis\noption\sprevents\sHTTP\sreply\scompression,\swhich\sis\suseful\sduring\sdebugging.\nThe\soption\sis\son\sby\sdefault\sfor\s"test-http".\s\sAlso,\smake\ssure\sthe\smimetype\nfor\serror\smessages\sis\sset\sto\stext/html.
-D 2018-07-14T14:13:31.710
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slastest\s3.25.0\salpha\sversion\sdue\sto\nimproved\serror\smessage\sprocessing\sin\sthat\sversion.\s\s3.25.0\salso\sincludes\nsupport\sfor\swindow\sfunctions,\sbut\swe\sdo\snot\s(yet)\suse\sthat\sfeature\sin\sFossil.
+D 2018-07-14T15:12:53.152
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 1ae037e7875fcaee7fb209edc8d96b43d988123ec991e86a7fe31b4c4061e6f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c cfd747117ca0d3b289326532d71d593cceb07c61bc961c7ff15fb23f7b0e0c82
+F src/main.c 9ba9a5a6effc28a92892dc044d1eea4d6477a6204a543baca98c898ef3f1b069
 F src/main.mk 8545f5d9bf30812115b73a11ac54cb85d698415092839722923ba39f5794ab94
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -550,7 +550,7 @@ F src/setup.c acbe2b3f1570a51eae289e01a743465c4a8121634576539755f7b0822d2b86da
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c ab67844eb2a214c794f60198a3a0a96bc720583982308eccdc6d61fc78dca1e0
+F src/shell.c b10bfd88021a0a01e573e715e4694a339010e77c579ddd31ede8403d92afc715
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -558,8 +558,8 @@ F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
 F src/smtp.c 239f03e9b64c424134cf2d592ec6f92ea9fd3fa046eececa5678eed1b9ec6d7f
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
-F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
-F src/sqlite3.h d9d37ccb6d77420e9eb71b47604e13b3ee65183fa7e71522e569167ce9ae56ac
+F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
+F src/sqlite3.h 35498c67b0b5c92b511fdee1e0c4a6f8cacdc78e915fd5082522406937a57682
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c e4f43cff69ab5871c5fa69bb964d2c16d788bb9b1e631f71f3dec02033cbbe4a
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e6e3c8b254b745ed97e12e41685c38b488af31a6b66da018503d213f5d30a37
-R 9f9bafaa95f3ede01ed26b645e5e4d9d
+P cfc7aca2c1b573add275ceac2d3055b48800ecb9a19f7a4316464c2da5315674
+R 7ac19bc9ba0b56905fa19343179d9b86
 U drh
-Z 56a90cb8b2e352c9ba92f57570f6eff5
+Z 4cc6bd4d98760146f103ac77ef9a26a2
