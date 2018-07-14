@@ -1,5 +1,5 @@
-C The\s-DFOSSIL_OMIT_DNS\scompile-time\soption\savoids\strying\sto\slink\s-lresolv.
-D 2018-07-14T20:11:37.068
+C More\scases\sof\sincorrect\spermission\schecks.
+D 2018-07-14T22:16:33.490
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -527,7 +527,7 @@ F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac50
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
-F src/moderate.c 2540f90b20778a4d62156a3b4af962b401d4c89f
+F src/moderate.c f470c77af2692869e626edf4a2e970e06d882294e2f17bc2c22eb3c4c644b312
 F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
@@ -554,7 +554,7 @@ F src/shell.c b10bfd88021a0a01e573e715e4694a339010e77c579ddd31ede8403d92afc715
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 3151d63308d69e3f885fc13f2b8cefdd4956f50ea06221480097e561be0e6f8d
+F src/skins.c 25df288894a3924dd330e1b350566357e061f964a816fd4f0cd7a50e0ce2d49c
 F src/smtp.c 8b4b9e5c0e5fe71d1456c22708e1567333198126e7cc13c2cdcd6017b82deecb
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a903bfd492ce233a4162b36ebc933dcdaf80d8b8bf46656a686fd1338bce3a2
-R 5ad0f94f26061ad2349ed2abdf6778a7
+P 023ce4edde8ceb2dfb4cd37400b5619b784c30a6dd846c417658f10ebc4ab531
+R 27b4e488611edd4b65716b13a332cb1a
 U drh
-Z cea3d6d9702d53778a19574c65d1b40f
+Z 46a15ecd4ba9ed2cd709eeac14660023

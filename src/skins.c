@@ -722,12 +722,15 @@ void setup_skinedit(void){
 
   /* Check that the user is authorized to edit this skin. */
   if( !g.perm.Setup ){
-    char *zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    char *zAllowedEditors = "";
     Glob *pAllowedEditors;
     int isMatch = 0;
+    if( login_is_individual() ){
+      zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    }
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      isMatch = glob_match(pAllowedEditors, zAllowedEditors);
+      isMatch = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
     }
     if( isMatch==0 ){
