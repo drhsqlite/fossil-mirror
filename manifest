@@ -1,5 +1,5 @@
-C Add\sthe\s--nocompress\soption\sto\sthe\s"ui",\s"server",\sand\s"http"\scommands.\sThis\noption\sprevents\sHTTP\sreply\scompression,\swhich\sis\suseful\sduring\sdebugging.\nThe\soption\sis\son\sby\sdefault\sfor\s"test-http".\s\sAlso,\smake\ssure\sthe\smimetype\nfor\serror\smessages\sis\sset\sto\stext/html.
-D 2018-07-14T14:13:31.710
+C Work\stoward\srevamping\sthe\swebmail\spage.
+D 2018-07-14T14:58:32.537
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 26cb8f538ec2f725bf36a3f54e067da315a096fbf8939e6159e3770801afb7e3
-F src/smtp.c 239f03e9b64c424134cf2d592ec6f92ea9fd3fa046eececa5678eed1b9ec6d7f
+F src/smtp.c b104ccdf64065e1b0fff8e6001266c184c06f66911b95137e452f5a43df08ad8
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 05dad54b318935156c164412b6424c7b83e53d4d7ebdf922eb97e747ca2c97d4
 F src/sqlite3.c 0d384704e1c66026228336d1e91771d295bf688c9c44c7a44f25a4c16c26ab3c
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 49632b4886991f7c2ac551e3c1fcb6e0c2b6447c81aacab552a517467827b774
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c e9725daa84dd34bfe759f83c957cf60d70cb16c278be9ce8027fa8ebfc29c369
+F src/webmail.c bb1825c0a44531e41012868405790d8714e90f05a067c4e9961f51dbcfa5a5d3
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e6e3c8b254b745ed97e12e41685c38b488af31a6b66da018503d213f5d30a37
-R 9f9bafaa95f3ede01ed26b645e5e4d9d
+P cfc7aca2c1b573add275ceac2d3055b48800ecb9a19f7a4316464c2da5315674
+R d04d863f7f3f765d8650ed6330912041
+T *branch * webmail
+T *sym-webmail *
+T -sym-trunk *
 U drh
-Z 56a90cb8b2e352c9ba92f57570f6eff5
+Z a6afe86945c3d239ab1cf981d662b2f5

@@ -648,12 +648,13 @@ static const char zEmailSchema[] =
 @ -- One row for each mailbox entry.  All users emails are stored in
 @ -- this same table.
 @ CREATE TABLE IF NOT EXISTS repository.emailbox(
+@   ebid INTEGER PRIMARY KEY,  -- Unique id for each mailbox entry
 @   euser TEXT,          -- User who received this email
 @   edate INT,           -- Date received.  Seconds since 1970
 @   efrom TEXT,          -- Who is the email from
 @   emsgid INT,          -- Raw email text
 @   ets INT,             -- Transcript of the receiving SMTP session
-@   estate INT,          -- Unread, read, starred, etc.
+@   estate INT,          -- 0: Unread, 1: read, 2: trash
 @   esubject TEXT,       -- Subject line for display
 @   etags TEXT           -- zero or more tags
 @ );

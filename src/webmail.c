@@ -360,6 +360,19 @@ void test_email_decode_cmd(void){
 **
 ** This page can be used to read content from the EMAILBOX table
 ** that contains email received by the "fossil smtpd" command.
+**
+** Query parameters:
+**
+**     id=N                 Show a single email entry emailbox.ebid==N
+**     f=N                  Display format.  0: decoded 1: raw
+**     u=USER               Show mailbox for USER (admin only).
+**     u=*                  Show mailbox for all users (admin only).
+**     d=N                  0: inbox+unread 1: unread-only 2: trash 3: all
+**     eN                   Select email entry emailbox.ebid==N
+**     trash                Move selected entries to trash (estate=2)
+**     read                 Mark selected entries as read (estate=1)
+**     unread               Mark selected entries as unread (estate=0)
+**  
 */
 void webmail_page(void){
   int emailid;
@@ -369,7 +382,7 @@ void webmail_page(void){
   const char *zUser = 0;
   HQuery url;
   login_check_credentials();
-  if( g.zLogin==0 ){
+  if( !login_is_individual() ){
     login_needed(0);
     return;
   }
