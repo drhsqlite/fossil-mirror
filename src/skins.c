@@ -724,13 +724,15 @@ void setup_skinedit(void){
   if( !g.perm.Setup ){
     char *zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
     Glob *pAllowedEditors;
+    int isMatch = 0;
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      if( !glob_match(pAllowedEditors, zAllowedEditors) ){
-        login_needed(0);
-        return;
-      }
+      isMatch = glob_match(pAllowedEditors, zAllowedEditors);
       glob_free(pAllowedEditors);
+    }
+    if( isMatch==0 ){
+      login_needed(0);
+      return;
     }
   }
 
@@ -876,6 +878,10 @@ void setup_skin(void){
   ** changes and/or edits
   */
   login_check_credentials();
+  if( !login_is_individual() ){
+    login_needed(0);
+    return;
+  }
   zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   if( g.perm.Setup ){
     isSetup = isEditor = 1;
@@ -884,7 +890,7 @@ void setup_skin(void){
     isSetup = isEditor = 0;
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      isEditor = glob_match(pAllowedEditors, zAllowedEditors);
+      isEditor = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
     }
   }
