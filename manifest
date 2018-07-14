@@ -1,5 +1,5 @@
-C Do\snot\sallow\speople\sto\ssubscribe\sto\snotifications\sfor\swhich\sthey\sdo\snot\shave\nread\spermission.
-D 2018-07-14T00:54:34.185
+C Add\sthe\s--nocompress\soption\sto\sthe\s"ui",\s"server",\sand\s"http"\scommands.\sThis\noption\sprevents\sHTTP\sreply\scompression,\swhich\sis\suseful\sduring\sdebugging.\nThe\soption\sis\son\sby\sdefault\sfor\s"test-http".\s\sAlso,\smake\ssure\sthe\smimetype\nfor\serror\smessages\sis\sset\sto\stext/html.
+D 2018-07-14T14:13:31.710
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c c87eb0ee5b326ca742fd51010bf01c29a75600b2f7fca1d30c28ec5722e9b841
 F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c c868d51d70f470dcaae7e23ab9294aa54170bb3e8ed7318457177d00555321f2
+F src/cgi.c bfccfd9cf8cba44e7d5da079d714fa8997c969902a715cf16e212bc8d60f6d5b
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -509,7 +509,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 1ae037e7875fcaee7fb209edc8d96b43d988123ec991e86a7fe31b4c4061e6f1
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 48140d1be530e6eb0c1225cc3c7438326fb14a51235f803032c074a6370dca60
+F src/main.c cfd747117ca0d3b289326532d71d593cceb07c61bc961c7ff15fb23f7b0e0c82
 F src/main.mk 8545f5d9bf30812115b73a11ac54cb85d698415092839722923ba39f5794ab94
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -534,7 +534,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c a2bd5b3c922be125758cff0ca35b192bcab921c4cbe58a17a95eb60170017cc5
+F src/printf.c 072d823ae3a74c42e0464e3a6073ba955b3cf2af41aba7122fc7bca032d91632
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f698cae20e3740796f6ffa65f69324f27f19d96c
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83b171bcd10a713c260ec3a74e8a4fce32d035943e1e0b61eda539f6d0ae6bb5
-R 70151dc5545870429f1f2474a6bef300
+P 6e6e3c8b254b745ed97e12e41685c38b488af31a6b66da018503d213f5d30a37
+R 9f9bafaa95f3ede01ed26b645e5e4d9d
 U drh
-Z c7a33dd2555f44e9962d799d8538e145
+Z 56a90cb8b2e352c9ba92f57570f6eff5

@@ -152,6 +152,7 @@ struct Global {
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
   int fSshClient;         /* HTTP client flags for SSH client */
+  int fNoHttpCompress;    /* Do not compress HTTP traffic (for debugging) */
   char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
@@ -2276,6 +2277,7 @@ void parse_pid_key_value(
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
+**   --nocompress     Do not compress HTTP replies
 **   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
@@ -2321,6 +2323,7 @@ void cmd_http(void){
   allowRepoList = find_option("repolist",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
   if( zAltBase ) set_base_url(zAltBase);
@@ -2411,6 +2414,7 @@ void cmd_test_http(void){
   g.httpOut = stdout;
   find_server_repository(2, 0);
   g.cgiOutput = 1;
+  g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
   zIpAddr = cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
@@ -2510,6 +2514,7 @@ void sigalrm_handler(int x){
 **   --https             signal a request coming in via https
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
+**   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
 **   --nossl             signal that no SSL connections are available
 **   --notfound URL      Redirect
@@ -2575,6 +2580,7 @@ void cmd_webserver(void){
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
+  if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
   if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;

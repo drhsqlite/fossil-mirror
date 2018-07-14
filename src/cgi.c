@@ -238,6 +238,7 @@ void cgi_set_cookie(
 ** Return true if the response should be sent with Content-Encoding: gzip.
 */
 static int is_gzippable(void){
+  if( g.fNoHttpCompress ) return 0;
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
   return strncmp(zContentType, "text/", 5)==0
     || sqlite3_strglob("application/*xml", zContentType)==0
@@ -1476,12 +1477,7 @@ void cgi_handle_http_request(const char *zIpAddr){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
     if( fossil_strcmp(zFieldName,"accept-encoding:")==0 ){
-      /* Hack:  Ignore the accept-encoding value (thus preventing the
-      ** output from being compressed) for the "fossil test-http" command.
-      ** This simplifies debugging. */
-      if( g.argc<2 || fossil_strncmp(g.argv[1],"test-http",9)!=0 ){
-        cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
-      }
+      cgi_setenv("HTTP_ACCEPT_ENCODING", zVal);
     }else if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
     }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
@@ -1920,7 +1916,7 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fAnyTrace ){
+          if( 0 && !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;

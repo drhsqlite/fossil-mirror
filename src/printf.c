@@ -1093,6 +1093,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
     if( g.cgiOutput==1 && g.db ){
       g.cgiOutput = 2;
       cgi_reset_content();
+      cgi_set_content_type("text/html");
       style_header("Bad Request");
       @ <p class="generalError">%h(z)</p>
       cgi_set_status(400, "Bad Request");
