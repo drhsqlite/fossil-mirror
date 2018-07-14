@@ -356,6 +356,160 @@ void test_email_decode_cmd(void){
 }
 
 /*
+** Paint a page showing a single email message
+*/
+static void webmail_show_one_message(
+  HQuery *pUrl,          /* Calling context */
+  int emailid,           /* emailbox.ebid to display */
+  const char *zUser      /* User who owns it, or NULL if does not matter */
+){
+  Blob sql;
+  Stmt q;
+  int eState = -1;
+  char zENum[30];
+  style_submenu_element("Index", "%s", url_render(pUrl,"id",0,0,0));
+  blob_init(&sql, 0, 0);
+  db_begin_transaction();
+  blob_append_sql(&sql,
+    "SELECT decompress(etxt), estate"
+    " FROM emailblob, emailbox"
+    " WHERE emailid=emsgid AND ebid=%d",
+     emailid
+  );
+  if( zUser ) blob_append_sql(&sql, " AND euser=%Q", zUser);
+  db_prepare_blob(&q, &sql);
+  blob_reset(&sql);
+  style_header("Message %d",emailid);
+  if( db_step(&q)==SQLITE_ROW ){
+    Blob msg = db_column_text_as_blob(&q, 0);
+    int eFormat = atoi(PD("f","0"));
+    eState = db_column_int(&q, 1);
+    url_add_parameter(pUrl, "id", P("id"));
+    if( eFormat==1 ){
+      @ <pre>%h(db_column_text(&q, 0))</pre>
+      style_submenu_element("Decoded", "%s", url_render(pUrl,"f",0,0,0));
+    }else{      
+      EmailToc *p = emailtoc_from_email(&msg);
+      int i, j;
+      style_submenu_element("Raw", "%s", url_render(pUrl,"f","1",0,0));
+      @ <p>
+      for(i=0; i<p->nHdr; i++){
+        char *z = p->azHdr[i];
+        email_hdr_unfold(z);
+        for(j=0; z[j] && z[j]!=':'; j++){}
+        if( z[j]!=':' ){
+          @ %h(z)<br>
+        }else{
+          z[j] = 0;
+          @ <b>%h(z):</b> %h(z+j+1)<br>
+        }
+      }
+      for(i=0; i<p->nBody; i++){
+        @ <hr><b>Messsage Body #%d(i): %h(p->aBody[i].zMimetype) \
+        if( p->aBody[i].zFilename ){
+          @ "%h(p->aBody[i].zFilename)"
+        }
+        @ </b>
+        if( strncmp(p->aBody[i].zMimetype, "text/", 5)!=0 ) continue;
+        switch( p->aBody[i].encoding ){
+          case EMAILENC_B64: {
+            int n = 0;
+            decodeBase64(p->aBody[i].zContent, &n, p->aBody[i].zContent);
+            break;
+          }
+          case EMAILENC_QUOTED: {
+            int n = 0;
+            decodeQuotedPrintable(p->aBody[i].zContent, &n);
+            break;
+          }
+        }
+        @ <pre>%h(p->aBody[i].zContent)</pre>
+      }
+    }
+  }
+  db_finalize(&q);
+
+  if( eState==0 ){
+    /* If is message is currently Unread, change it to Read */
+    blob_append_sql(&sql,
+      "UPDATE emailbox SET estate=1 "
+      " WHERE estate=0 AND ebid=%d",
+       emailid
+    );
+    if( zUser ) blob_append_sql(&sql, " AND euser=%Q", zUser);
+    db_multi_exec("%s", blob_sql_text(&sql));
+    blob_reset(&sql);
+    eState = 1;
+  }
+
+  url_add_parameter(pUrl, "id", 0);
+  sqlite3_snprintf(sizeof(zENum), zENum, "e%d", emailid);
+  if( eState==2 ){
+    style_submenu_element("Undelete","%s",
+      url_render(pUrl,"read","1",zENum,"1"));
+  }
+  if( eState==1 ){
+    style_submenu_element("Delete", "%s",
+      url_render(pUrl,"trash","1",zENum,"1"));
+    style_submenu_element("Mark As Unread", "%s",
+      url_render(pUrl,"unread","1",zENum,"1"));
+  }
+
+  db_end_transaction(0);
+  style_footer();
+  return;
+}
+
+/*
+** Scan the query parameters looking for parameters with name of the
+** form "eN" where N is an integer.  For all such integers, change
+** the state of every emailbox entry with ebid==N to eStateNew provided
+** that either zUser is NULL or matches.
+*/
+static void webmail_change_state(int eNewState, const char *zUser){
+  Blob sql;
+  int sep = '(';
+  int i;
+  const char *zName;
+  int n;
+  if( !cgi_csrf_safe(0) ) return;
+  blob_init(&sql, 0, 0);
+  blob_append_sql(&sql, "UPDATE emailbox SET estate=%d WHERE ebid IN ",
+                  eNewState);
+  for(i=0; (zName = cgi_parameter_name(i))!=0; i++){
+    if( zName[0]!='e' ) continue;
+    if( !fossil_isdigit(zName[1]) ) continue;
+    n = atoi(zName+1);
+    blob_append_sql(&sql, "%c%d", sep, n);
+    sep = ',';
+  }
+  if( zUser ){
+    blob_append_sql(&sql, ") AND euser=%Q", zUser);
+  }else{
+    blob_append_sql(&sql, ")");
+  }
+  if( sep==',' ){
+    db_multi_exec("%s", blob_sql_text(&sql));
+  }
+  blob_reset(&sql);
+}
+
+
+/*
+** Add the select/option box to the timeline submenu that shows
+** which messages to include in the index.
+*/
+static void webmail_d_submenu(void){
+  static const char *az[] = {
+     "0", "InBox",
+     "1", "Unread",
+     "2", "Trash",
+     "3", "Everything",
+  };
+  style_submenu_multichoice("d", sizeof(az)/(2*sizeof(az[0])), az, 0);
+}
+
+/*
 ** WEBPAGE:  webmail
 **
 ** This page can be used to read content from the EMAILBOX table
@@ -380,6 +534,12 @@ void webmail_page(void){
   Blob sql;
   int showAll = 0;
   const char *zUser = 0;
+  int d = 0;               /* Display mode.  0..3.  d= query parameter */
+  int pg = 0;              /* Page number */
+  int N = 50;              /* Results per page */
+  int got;                 /* Number of results on this page */
+  char zPPg[30];           /* Previous page */
+  char zNPg[30];           /* Next page */
   HQuery url;
   login_check_credentials();
   if( !login_is_individual() ){
@@ -404,75 +564,23 @@ void webmail_page(void){
         zUser = 0;
       }
     }
+  }else{
+    zUser = g.zLogin;
   }
+  if( P("d") ) url_add_parameter(&url, "d", P("d"));
   if( emailid>0 ){
-    style_submenu_element("Index", "%s", url_render(&url,"id",0,0,0));
-    blob_init(&sql, 0, 0);
-    db_begin_transaction();
-    blob_append_sql(&sql, "SELECT decompress(etxt)"
-                          " FROM emailblob, emailbox"
-                          " WHERE emailid=emsgid AND ebid=%d",
-                          emailid);
-    if( !g.perm.Admin ){
-      blob_append_sql(&sql, " AND euser=%Q", g.zLogin);
-    }
-    db_prepare_blob(&q, &sql);
-    blob_reset(&sql);
-    if( db_step(&q)==SQLITE_ROW ){
-      Blob msg = db_column_text_as_blob(&q, 0);
-      int eFormat = atoi(PD("f","0"));
-      url_add_parameter(&url, "id", P("id"));
-      style_header("Message %d",emailid);
-      if( eFormat==1 ){
-        @ <pre>%h(db_column_text(&q, 0))</pre>
-        style_submenu_element("Decoded", "%s", url_render(&url,"f",0,0,0));
-      }else{      
-        EmailToc *p = emailtoc_from_email(&msg);
-        int i, j;
-        style_submenu_element("Raw", "%s", url_render(&url,"f","1",0,0));
-        @ <p>
-        for(i=0; i<p->nHdr; i++){
-          char *z = p->azHdr[i];
-          email_hdr_unfold(z);
-          for(j=0; z[j] && z[j]!=':'; j++){}
-          if( z[j]!=':' ){
-            @ %h(z)<br>
-          }else{
-            z[j] = 0;
-            @ <b>%h(z):</b> %h(z+j+1)<br>
-          }
-        }
-        for(i=0; i<p->nBody; i++){
-          @ <hr><b>Messsage Body #%d(i): %h(p->aBody[i].zMimetype) \
-          if( p->aBody[i].zFilename ){
-            @ "%h(p->aBody[i].zFilename)"
-          }
-          @ </b>
-          if( strncmp(p->aBody[i].zMimetype, "text/", 5)!=0 ) continue;
-          switch( p->aBody[i].encoding ){
-            case EMAILENC_B64: {
-              int n = 0;
-              decodeBase64(p->aBody[i].zContent, &n, p->aBody[i].zContent);
-              break;
-            }
-            case EMAILENC_QUOTED: {
-              int n = 0;
-              decodeQuotedPrintable(p->aBody[i].zContent, &n);
-              break;
-            }
-          }
-          @ <pre>%h(p->aBody[i].zContent)</pre>
-        }
-      }      
-      style_footer();
-      db_finalize(&q);
-      return;
-    }
-    db_finalize(&q);
+    webmail_show_one_message(&url, emailid, zUser);
+    return;
   }
   style_header("Webmail");
+  webmail_d_submenu();
+  db_begin_transaction();
+  if( P("trash")!=0 ) webmail_change_state(2,zUser);
+  if( P("unread")!=0 ) webmail_change_state(0,zUser);
+  if( P("read")!=0 ) webmail_change_state(1,zUser);
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
+    "CREATE TEMP TABLE tmbox AS "
     "SELECT ebid,"                   /* 0 */
     " efrom,"                        /* 1 */
     " datetime(edate,'unixepoch'),"  /* 2 */
@@ -481,7 +589,8 @@ void webmail_page(void){
     " euser"                         /* 5 */
     " FROM emailbox"
   );
-  switch( atoi(PD("d","0")) ){
+  d = atoi(PD("d","0"));
+  switch( d ){
     case 0: {   /* Show unread and read */
       blob_append_sql(&sql, " WHERE estate<=1");
       break;
@@ -499,7 +608,6 @@ void webmail_page(void){
       break;
     }
   }
-
   if( showAll ){
     style_submenu_element("My Emails", "%s", url_render(&url,"user",0,0,0));
   }else if( zUser!=0 ){
@@ -518,10 +626,34 @@ void webmail_page(void){
     }
     blob_append_sql(&sql, " AND euser=%Q", g.zLogin);
   }
-  blob_append_sql(&sql, " ORDER BY edate DESC limit 50");
-  db_prepare_blob(&q, &sql);
+  pg = atoi(PD("pg","0"));
+  blob_append_sql(&sql, " ORDER BY edate DESC limit %d offset %d", N+1, pg*N);
+  db_multi_exec("%s", blob_sql_text(&sql));
+  got = db_int(0, "SELECT count(*) FROM tmbox");
+  db_prepare(&q, "SELECT * FROM tmbox LIMIT %d", N);
   blob_reset(&sql);
   @ <form action="%R/webmail" method="POST">
+  @ <table border="0" width="100%%">
+  @ <tr><td align="left">
+  if( d==2 ){
+    @ <input type="submit" name="read" value="Undelete">
+  }else{
+    @ <input type="submit" name="trash", value="Delete">
+    if( d!=1 ){
+      @ <input type="submit" name="unread" value="Mark as unread">
+    }
+    @ <input type="submit" name="read" value="Mark as read">
+  }
+  @ </td><td align="right">
+  if( pg>0 ){
+    sqlite3_snprintf(sizeof(zPPg), zPPg, "%d", pg-1);
+    @ <a href="%s(url_render(&url,"pg",zPPg,0,0))">&lt; Newer</a>&nbsp;&nbsp;
+  }
+  if( got>50 ){
+    sqlite3_snprintf(sizeof(zNPg),zNPg,"%d",pg+1);
+    @ <a href="%s(url_render(&url,"pg",zNPg,0,0))">Older &gt;</a></td>
+  }
+  @ </table>
   @ <table>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zId = db_column_text(&q,0);
@@ -542,5 +674,6 @@ void webmail_page(void){
   db_finalize(&q);
   @ </table>
   @ </form>
-  style_footer(); 
+  style_footer();
+  db_end_transaction(0);
 }

@@ -1,5 +1,5 @@
-C Merge\schanges\sfrom\strunk.
-D 2018-07-14T16:35:20.499
+C Webmail\snavigation\supdates.\s\sMove\smessage\sbetween\sUnread/Read/Trash.\s\sShow\n50\smessages\sper\spage\swith\sNewer\sand\sOlder\slinks\swhen\sappropriate.
+D 2018-07-14T18:36:52.347
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 49632b4886991f7c2ac551e3c1fcb6e0c2b6447c81aacab552a517467827b774
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 0fa8321a6d075c4012afdc6dfe86a0ee9bc26e4ba9b94be56216a74ad7dd1dbb
+F src/webmail.c 77021962ed5b7e4476dd5d93232188f6ebd677a5c35d6b45ec404bbfd006319d
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0af017583ec46feb7c60c7328511c2f9f27243cff63e357e0e4b705527f1f6d8 9b7332766ff4ea0f30782ed5f77f7850b6822556e04064c10a99a39cf52d1f8f
-R df0717fc5213ef4e1eff86caac793a83
+P c1f8668bca7a7eb78f73e6eecb1c20a6934209f258c62ab1d438317ef706d9b6
+R 69c9a2d54a465cff65b711298935e2d1
 U drh
-Z 0e1cf45603e530bbe37be2b3aeab6bd6
+Z b9f823a51490d30517c12ab30d62b046
