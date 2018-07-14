@@ -1174,9 +1174,10 @@ void subscribe_page(void){
     if( suname==0 && needCaptcha==0 && !g.perm.Admin ) suname = g.zLogin;
     if( suname && suname[0]==0 ) suname = 0;
     if( PB("sa") ) ssub[nsub++] = 'a';
-    if( PB("sc") ) ssub[nsub++] = 'c';
-    if( PB("st") ) ssub[nsub++] = 't';
-    if( PB("sw") ) ssub[nsub++] = 'w';
+    if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
+    if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
+    if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
+    if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     ssub[nsub] = 0;
     db_multi_exec(
       "INSERT INTO subscriber(semail,suname,"
@@ -1234,9 +1235,10 @@ void subscribe_page(void){
     ** come from a prior Submit of the form) then default all of the
     ** subscription options to "on" */
     cgi_set_parameter_nocopy("sa","1",1);
-    cgi_set_parameter_nocopy("sc","1",1);
-    cgi_set_parameter_nocopy("st","1",1);
-    cgi_set_parameter_nocopy("sw","1",1);
+    if( g.perm.Read )    cgi_set_parameter_nocopy("sc","1",1);
+    if( g.perm.RdForum ) cgi_set_parameter_nocopy("sf","1",1);
+    if( g.perm.RdTkt )   cgi_set_parameter_nocopy("st","1",1);
+    if( g.perm.RdWiki )  cgi_set_parameter_nocopy("sw","1",1);
   }
   @ <p>To receive email notifications for changes to this
   @ repository, fill out the form below and press "Submit" button.</p>
@@ -1276,12 +1278,22 @@ void subscribe_page(void){
   @  <td class="form_label">Options:</td>
   @  <td><label><input type="checkbox" name="sa" %s(PCK("sa"))> \
   @  Announcements</label><br>
-  @  <label><input type="checkbox" name="sc" %s(PCK("sc"))> \
-  @  Check-ins</label><br>
-  @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
-  @  Ticket changes</label><br>
-  @  <label><input type="checkbox" name="sw" %s(PCK("sw"))> \
-  @  Wiki</label><br>
+  if( g.perm.Read ){
+    @  <label><input type="checkbox" name="sc" %s(PCK("sc"))> \
+    @  Check-ins</label><br>
+  }
+  if( g.perm.RdForum ){
+    @  <label><input type="checkbox" name="sf" %s(PCK("sf"))> \
+    @  Forum Posts</label><br>
+  }
+  if( g.perm.RdTkt ){
+    @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
+    @  Ticket changes</label><br>
+  }
+  if( g.perm.RdWiki ){
+    @  <label><input type="checkbox" name="sw" %s(PCK("sw"))> \
+    @  Wiki</label><br>
+  }
   @  <label><input type="checkbox" name="di" %s(PCK("di"))> \
   @  Daily digest only</label><br>
   if( g.perm.Admin ){
@@ -1356,7 +1368,7 @@ static void email_unsubscribe(const char *zName){
 void alerts_page(void){
   const char *zName = P("name");
   Stmt q;
-  int sa, sc, st, sw;
+  int sa, sc, sf, st, sw;
   int sdigest, sdonotcall, sverified;
   const char *ssub;
   const char *semail;
@@ -1383,10 +1395,11 @@ void alerts_page(void){
     int sdigest = PB("sdigest");
     char ssub[10];
     int nsub = 0;
-    if( PB("sa") ) ssub[nsub++] = 'a';
-    if( PB("sc") ) ssub[nsub++] = 'c';
-    if( PB("st") ) ssub[nsub++] = 't';
-    if( PB("sw") ) ssub[nsub++] = 'w';
+    if( PB("sa") )                   ssub[nsub++] = 'a';
+    if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
+    if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
+    if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
+    if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     ssub[nsub] = 0;
     if( g.perm.Admin ){
       const char *suname = PT("suname");
@@ -1462,6 +1475,7 @@ void alerts_page(void){
   ssub = db_column_text(&q, 4);
   sa = strchr(ssub,'a')!=0;
   sc = strchr(ssub,'c')!=0;
+  sf = strchr(ssub,'f')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
   smip = db_column_text(&q, 5);
@@ -1510,12 +1524,22 @@ void alerts_page(void){
   @  <td class="form_label">Options:</td>
   @  <td><label><input type="checkbox" name="sa" %s(sa?"checked":"")>\
   @  Announcements</label><br>
-  @  <label><input type="checkbox" name="sc" %s(sc?"checked":"")>\
-  @  Check-ins</label><br>
-  @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
-  @  Ticket changes</label><br>
-  @  <label><input type="checkbox" name="sw" %s(sw?"checked":"")>\
-  @  Wiki</label><br>
+  if( g.perm.Read ){
+    @  <label><input type="checkbox" name="sc" %s(sc?"checked":"")>\
+    @  Check-ins</label><br>
+  }
+  if( g.perm.RdForum ){
+    @  <label><input type="checkbox" name="sf" %s(sf?"checked":"")>\
+    @  Forum Posts</label><br>
+  }
+  if( g.perm.RdTkt ){
+    @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
+    @  Ticket changes</label><br>
+  }
+  if( g.perm.RdWiki ){
+    @  <label><input type="checkbox" name="sw" %s(sw?"checked":"")>\
+    @  Wiki</label><br>
+  }
   @  <label><input type="checkbox" name="sdigest" %s(sdigest?"checked":"")>\
   @  Daily digest only</label><br>
   if( g.perm.Admin ){

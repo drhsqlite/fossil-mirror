@@ -1428,7 +1428,7 @@ void sigsegv_handler(int x){
 void sigpipe_handler(int x){
 #ifndef _WIN32
   if( g.fAnyTrace ){
-    fprintf(stderr, "-- sigpipe received by subprocess %d --\n", getpid());
+    fprintf(stderr,"/**** sigpipe received by subprocess %d ****\n", getpid());
   }
 #endif
   fossil_exit(1);
@@ -2552,7 +2552,6 @@ void cmd_webserver(void){
 
   if( g.zErrlog==0 ){
     g.zErrlog = "-";
-    g.fAnyTrace = 1;
   }
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
