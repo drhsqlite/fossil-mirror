@@ -365,8 +365,8 @@ void test_email_decode_cmd(void){
 **
 **     id=N                 Show a single email entry emailbox.ebid==N
 **     f=N                  Display format.  0: decoded 1: raw
-**     u=USER               Show mailbox for USER (admin only).
-**     u=*                  Show mailbox for all users (admin only).
+**     user=USER            Show mailbox for USER (admin only).
+**     user=*               Show mailbox for all users (admin only).
 **     d=N                  0: inbox+unread 1: unread-only 2: trash 3: all
 **     eN                   Select email entry emailbox.ebid==N
 **     trash                Move selected entries to trash (estate=2)
@@ -408,26 +408,28 @@ void webmail_page(void){
   if( emailid>0 ){
     style_submenu_element("Index", "%s", url_render(&url,"id",0,0,0));
     blob_init(&sql, 0, 0);
+    db_begin_transaction();
     blob_append_sql(&sql, "SELECT decompress(etxt)"
-                          " FROM emailblob WHERE emailid=%d",
+                          " FROM emailblob, emailbox"
+                          " WHERE emailid=emsgid AND ebid=%d",
                           emailid);
     if( !g.perm.Admin ){
-      blob_append_sql(&sql, " AND EXISTS(SELECT 1 FROM emailbox WHERE"
-                            " euser=%Q AND emsgid=emailid)", g.zLogin);
+      blob_append_sql(&sql, " AND euser=%Q", g.zLogin);
     }
     db_prepare_blob(&q, &sql);
     blob_reset(&sql);
     if( db_step(&q)==SQLITE_ROW ){
       Blob msg = db_column_text_as_blob(&q, 0);
+      int eFormat = atoi(PD("f","0"));
       url_add_parameter(&url, "id", P("id"));
       style_header("Message %d",emailid);
-      if( PB("raw") ){
+      if( eFormat==1 ){
         @ <pre>%h(db_column_text(&q, 0))</pre>
-        style_submenu_element("Decoded", "%s", url_render(&url,"raw",0,0,0));
+        style_submenu_element("Decoded", "%s", url_render(&url,"f",0,0,0));
       }else{      
         EmailToc *p = emailtoc_from_email(&msg);
         int i, j;
-        style_submenu_element("Raw", "%s", url_render(&url,"raw","1",0,0));
+        style_submenu_element("Raw", "%s", url_render(&url,"f","1",0,0));
         @ <p>
         for(i=0; i<p->nHdr; i++){
           char *z = p->azHdr[i];
@@ -471,10 +473,33 @@ void webmail_page(void){
   style_header("Webmail");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
-        /*    0       1                           2        3        4      5 */
-    "SELECT efrom, datetime(edate,'unixepoch'), estate, esubject, emsgid, euser"
+    "SELECT ebid,"                   /* 0 */
+    " efrom,"                        /* 1 */
+    " datetime(edate,'unixepoch'),"  /* 2 */
+    " estate,"                       /* 3 */
+    " esubject,"                     /* 4 */
+    " euser"                         /* 5 */
     " FROM emailbox"
   );
+  switch( atoi(PD("d","0")) ){
+    case 0: {   /* Show unread and read */
+      blob_append_sql(&sql, " WHERE estate<=1");
+      break;
+    }
+    case 1: {   /* Unread messages only */
+      blob_append_sql(&sql, " WHERE estate=0");
+      break;
+    }
+    case 2: {   /* Trashcan only */
+      blob_append_sql(&sql, " WHERE estate=2");
+      break;
+    }
+    case 3: {   /* Everything */
+      blob_append_sql(&sql, " WHERE 1");
+      break;
+    }
+  }
+
   if( showAll ){
     style_submenu_element("My Emails", "%s", url_render(&url,"user",0,0,0));
   }else if( zUser!=0 ){
@@ -483,35 +508,39 @@ void webmail_page(void){
       style_submenu_element("My Emails", "%s", url_render(&url,"user",0,0,0));
     }
     if( zUser ){
-      blob_append_sql(&sql, " WHERE euser=%Q", zUser);
+      blob_append_sql(&sql, " AND euser=%Q", zUser);
     }else{
-      blob_append_sql(&sql, " WHERE euser=%Q", g.zLogin);
+      blob_append_sql(&sql, " AND euser=%Q", g.zLogin);
     }
   }else{
     if( g.perm.Admin ){
       style_submenu_element("All Users", "%s", url_render(&url,"user","*",0,0));
     }
-    blob_append_sql(&sql, " WHERE euser=%Q", g.zLogin);
+    blob_append_sql(&sql, " AND euser=%Q", g.zLogin);
   }
   blob_append_sql(&sql, " ORDER BY edate DESC limit 50");
   db_prepare_blob(&q, &sql);
   blob_reset(&sql);
-  @ <ol>
+  @ <form action="%R/webmail" method="POST">
+  @ <table>
   while( db_step(&q)==SQLITE_ROW ){
-    char *zId = db_column_text(&q,4);
-    const char *zFrom = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zSubject = db_column_text(&q, 3);
-    @ <li>
+    const char *zId = db_column_text(&q,0);
+    const char *zFrom = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zSubject = db_column_text(&q, 4);
+    @ <tr>
+    @ <td><input type="checkbox" name="e%s(zId)"></td>
+    @ <td>%h(zFrom)</td>
+    @ <td><a href="%s(url_render(&url,"id",zId,0,0))">%h(zSubject)</a> \
+    @ %s(zDate)</td>
     if( showAll ){
       const char *zTo = db_column_text(&q,5);
-      @ <a href="%s(url_render(&url,"user",zTo,0,0))">%h(zTo)</a>:
+      @ <td><a href="%s(url_render(&url,"user",zTo,0,0))">%h(zTo)</a></td>
     }
-    @ <a href="%s(url_render(&url,"id",zId,0,0))">\
-    @ %h(zFrom) &rarr; %h(zSubject)</a>
-    @ %h(zDate)
+    @ </tr>
   }
   db_finalize(&q);
-  @ </ol>
+  @ </table>
+  @ </form>
   style_footer(); 
 }
