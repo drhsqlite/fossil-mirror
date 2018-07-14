@@ -485,7 +485,7 @@ void webmail_page(void){
   blob_reset(&sql);
   @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
-    char *zId = db_column_text(&q,4);
+    const char *zId = db_column_text(&q,4);
     const char *zFrom = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zSubject = db_column_text(&q, 3);

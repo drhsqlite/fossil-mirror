@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slastest\s3.25.0\salpha\sversion\sdue\sto\nimproved\serror\smessage\sprocessing\sin\sthat\sversion.\s\s3.25.0\salso\sincludes\nsupport\sfor\swindow\sfunctions,\sbut\swe\sdo\snot\s(yet)\suse\sthat\sfeature\sin\sFossil.
-D 2018-07-14T15:12:53.152
+C Silence\sconst\swarning\s(GCC\s8.1.1)
+D 2018-07-14T16:22:23.908
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 49632b4886991f7c2ac551e3c1fcb6e0c2b6447c81aacab552a517467827b774
 F src/verify.c 5799825d086464bb9e19e69ffeec84a710d1681b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c e9725daa84dd34bfe759f83c957cf60d70cb16c278be9ce8027fa8ebfc29c369
+F src/webmail.c 158ad64eb5f50968589661a480e4ace112e2968beabe1cc456d1302459c69d39
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cfc7aca2c1b573add275ceac2d3055b48800ecb9a19f7a4316464c2da5315674
-R 7ac19bc9ba0b56905fa19343179d9b86
-U drh
-Z 4cc6bd4d98760146f103ac77ef9a26a2
+P d66f322457dce8a860ba586eadf5c4c72fc10d1238f85d95092b1529a8328d61
+R a859824e25edf4546be14ae45529036b
+U andygoth
+Z fe870ebe0be70592db8c590fc7702d0d
