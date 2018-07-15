@@ -1062,6 +1062,12 @@ static int fossil_print_error(int rc, const char *z){
 ** Print an error message, rollback all databases, and quit.  These
 ** routines never return.
 **
+** The only different between fossil_fatal() and fossil_panic() is that
+** fossil_panic() makes an entry in the error log whereas fossil_fatal()
+** does not.  If there is not error log, then both routines work the
+** same.  Hence, the routines are interchangable for commands and only
+** make a difference with processing web pages.
+**
 ** Use fossil_fatal() for malformed inputs that should be reported back
 ** to the user, but which do not represent a configuration problem or bug.
 **

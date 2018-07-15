@@ -47,7 +47,7 @@ static void verify_rid(int rid){
   }
   if( content_get(rid, &content) ){
     if( !hname_verify_hash(&content, blob_buffer(&uuid), blob_size(&uuid)) ){
-      fossil_fatal("hash of rid %d does not match its uuid (%b)",
+      fossil_panic("hash of rid %d does not match its uuid (%b)",
                     rid, &uuid);
     }
     blob_reset(&content);

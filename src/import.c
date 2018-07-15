@@ -608,7 +608,7 @@ static void git_fast_import(FILE *pIn){
         gg.aData = fossil_malloc( gg.nData+1 );
         got = fread(gg.aData, 1, gg.nData, pIn);
         if( got!=gg.nData ){
-          fossil_fatal("short read: got %d of %d bytes", got, gg.nData);
+          fossil_panic("short read: got %d of %d bytes", got, gg.nData);
         }
         gg.aData[got] = '\0';
         if( gg.zComment==0 &&

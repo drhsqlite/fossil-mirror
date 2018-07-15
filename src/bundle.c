@@ -62,7 +62,7 @@ static void bundle_attach_file(
   }
   assert( g.db );
   zSql = sqlite3_mprintf("ATTACH %Q AS %Q", zFile, zBName);
-  if( zSql==0 ) fossil_fatal("out of memory");
+  if( zSql==0 ) fossil_panic("out of memory");
   rc = sqlite3_exec(g.db, zSql, 0, 0, &zErrMsg);
   sqlite3_free(zSql);
   if( rc!=SQLITE_OK || zErrMsg ){
@@ -75,14 +75,14 @@ static void bundle_attach_file(
     sqlite3_stmt *pStmt;
     zSql = sqlite3_mprintf("SELECT bcname, bcvalue"
                            "  FROM \"%w\".bconfig", zBName);
-    if( zSql==0 ) fossil_fatal("out of memory");
+    if( zSql==0 ) fossil_panic("out of memory");
     rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, 0);
     if( rc ) fossil_fatal("not a valid bundle: %s", zFile);
     sqlite3_free(zSql);
     sqlite3_finalize(pStmt);
     zSql = sqlite3_mprintf("SELECT blobid, uuid, sz, delta, notes, data"
                            "  FROM \"%w\".bblob", zBName);
-    if( zSql==0 ) fossil_fatal("out of memory");
+    if( zSql==0 ) fossil_panic("out of memory");
     rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, 0);
     if( rc ) fossil_fatal("not a valid bundle: %s", zFile);
     sqlite3_free(zSql);

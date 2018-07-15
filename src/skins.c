@@ -256,7 +256,7 @@ const char *skin_detail(const char *zName){
   struct SkinDetail *pDetail;
   skin_detail_initialize();
   pDetail = skin_detail_find(zName);
-  if( pDetail==0 ) fossil_fatal("no such skin detail: %s", zName);
+  if( pDetail==0 ) fossil_panic("no such skin detail: %s", zName);
   return pDetail->zValue;
 }
 int skin_detail_boolean(const char *zName){

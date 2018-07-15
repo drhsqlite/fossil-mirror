@@ -490,7 +490,7 @@ int db_finalize(Stmt *pStmt){
 int db_last_insert_rowid(void){
   i64 x = sqlite3_last_insert_rowid(g.db);
   if( x<0 || x>(i64)2147483647 ){
-    fossil_fatal("rowid out of range (0..2147483647)");
+    fossil_panic("rowid out of range (0..2147483647)");
   }
   return (int)x;
 }
@@ -1032,7 +1032,7 @@ static void db_save_encryption_key(
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
   if( blobSize>pageSize ){
-    fossil_fatal("key blob too large: %u versus %u", blobSize, pageSize);
+    fossil_panic("key blob too large: %u versus %u", blobSize, pageSize);
   }
   p = fossil_secure_alloc_page(&n);
   assert( p!=NULL );
@@ -1066,7 +1066,7 @@ void db_set_saved_encryption_key(
       db_unsave_encryption_key();
     }else{
       if( blobSize>savedKeySize ){
-        fossil_fatal("key blob too large: %u versus %u",
+        fossil_panic("key blob too large: %u versus %u",
                      blobSize, savedKeySize);
       }
       fossil_secure_zero(zSavedKey, savedKeySize);
@@ -1096,7 +1096,7 @@ void db_read_saved_encryption_key_from_process(
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
   if( nSize>pageSize ){
-    fossil_fatal("key too large: %u versus %u", nSize, pageSize);
+    fossil_panic("key too large: %u versus %u", nSize, pageSize);
   }
   p = fossil_secure_alloc_page(&n);
   assert( p!=NULL );
@@ -1112,16 +1112,16 @@ void db_read_saved_encryption_key_from_process(
         zSavedKey = p;
         savedKeySize = n;
       }else{
-        fossil_fatal("bad size read, %u out of %u bytes at %p from pid %lu",
+        fossil_panic("bad size read, %u out of %u bytes at %p from pid %lu",
                      nRead, nSize, pAddress, processId);
       }
     }else{
       CloseHandle(hProcess);
-      fossil_fatal("failed read, %u bytes at %p from pid %lu: %lu", nSize,
+      fossil_panic("failed read, %u bytes at %p from pid %lu: %lu", nSize,
                    pAddress, processId, GetLastError());
     }
   }else{
-    fossil_fatal("failed to open pid %lu: %lu", processId, GetLastError());
+    fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
   }
 }
 #endif /* defined(_WIN32) */
@@ -1267,7 +1267,7 @@ void db_attach(const char *zDbName, const char *zLabel){
 */
 void db_set_main_schemaname(sqlite3 *db, const char *zLabel){
   if( sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, zLabel) ){
-    fossil_fatal("Fossil requires a version of SQLite that supports the "
+    fossil_panic("Fossil requires a version of SQLite that supports the "
                  "SQLITE_DBCONFIG_MAINDBNAME interface.");
   }
 }
@@ -1368,7 +1368,7 @@ int db_open_config(int useAttach, int isOptional){
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_fatal("cannot locate home directory - please set the "
+    fossil_panic("cannot locate home directory - please set the "
                  "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
                  "environment variables");
   }
@@ -1378,13 +1378,13 @@ int db_open_config(int useAttach, int isOptional){
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_fatal("cannot locate home directory - please set the "
+    fossil_panic("cannot locate home directory - please set the "
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome, ExtFILE)!=1 ){
     if( isOptional ) return 0;
-    fossil_fatal("invalid home directory: %s", zHome);
+    fossil_panic("invalid home directory: %s", zHome);
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
@@ -1395,13 +1395,13 @@ int db_open_config(int useAttach, int isOptional){
   if( file_size(zDbName, ExtFILE)<1024*3 ){
     if( file_access(zHome, W_OK) ){
       if( isOptional ) return 0;
-      fossil_fatal("home directory %s must be writeable", zHome);
+      fossil_panic("home directory %s must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
   if( file_access(zDbName, W_OK) ){
     if( isOptional ) return 0;
-    fossil_fatal("configuration file %s must be writeable", zDbName);
+    fossil_panic("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb");
@@ -1682,9 +1682,9 @@ rep_not_found:
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
     if( nArgUsed==0 ){
-      fossil_fatal("use --repository or -R to specify the repository database");
+      fossil_panic("use --repository or -R to specify the repository database");
     }else{
-      fossil_fatal("specify the repository name as a command-line argument");
+      fossil_panic("specify the repository name as a command-line argument");
     }
   }
 }

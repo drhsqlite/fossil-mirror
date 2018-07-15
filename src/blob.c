@@ -341,7 +341,7 @@ char *blob_str(Blob *p){
 char *blob_sql_text(Blob *p){
   blob_is_init(p);
   if( (p->blobFlags & BLOBFLAG_NotSQL) ){
-    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+    fossil_panic("use of blob_appendf() to construct SQL text");
   }
   return blob_str(p);
 }
