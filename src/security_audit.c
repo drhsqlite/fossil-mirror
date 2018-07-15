@@ -416,6 +416,7 @@ void errorlog_page(void){
     return;
   }
   style_header("Server Error Log");
+  style_submenu_element("Test", "%R/test-warning");
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <p>To create a server error log:
     @ <ol>
@@ -455,7 +456,6 @@ void errorlog_page(void){
     return;
   }
   @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
-  style_submenu_element("Test", "%R/test-warning");
   style_submenu_element("Download", "%R/errorlog?download");
   style_submenu_element("Truncate", "%R/errorlog?truncate");
   in = fossil_fopen(g.zErrlog, "rb");
