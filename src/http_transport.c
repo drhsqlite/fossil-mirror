@@ -129,7 +129,7 @@ int transport_ssh_open(UrlData *pUrlData){
     blob_append_escaped_arg(&zCmd, pUrlData->name);
   }
   if( !is_safe_fossil_command(pUrlData->fossil) ){
-    fossil_fatal("the ssh:// URL is asking to run an unsafe command [%s] on "
+    fossil_panic("the ssh:// URL is asking to run an unsafe command [%s] on "
                  "the server.", pUrlData->fossil);
   }
   blob_append_escaped_arg(&zCmd, pUrlData->fossil);
@@ -137,7 +137,7 @@ int transport_ssh_open(UrlData *pUrlData){
   if( pUrlData->path && pUrlData->path[0] ){
     blob_append_escaped_arg(&zCmd, pUrlData->path);
   }else{
-    fossil_fatal("ssh:// URI does not specify a path to the repository");
+    fossil_panic("ssh:// URI does not specify a path to the repository");
   }
   if( g.fSshTrace ){
     fossil_print("%s\n", blob_str(&zCmd));  /* Show the whole SSH command */
@@ -183,7 +183,7 @@ int transport_open(UrlData *pUrlData){
                                        g.zRepositoryName, iRandId);
       transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
-        fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
+        fossil_panic("cannot output temporary file: %s", transport.zOutFile);
       }
       transport.isOpen = 1;
     }else{

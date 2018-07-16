@@ -286,7 +286,7 @@ static NORETURN void winhttp_fatal(
   const char *zService,
   const char *zErr
 ){
-  fossil_fatal("unable to %s service '%s': %s", zOp, zService, zErr);
+  fossil_panic("unable to %s service '%s': %s", zOp, zService, zErr);
 }
 
 /*
@@ -562,7 +562,7 @@ void win32_http_server(
   }
 #endif
   if( WSAStartup(MAKEWORD(2,0), &wd) ){
-    fossil_fatal("unable to initialize winsock");
+    fossil_panic("unable to initialize winsock");
   }
   DualSocket_init(&ds);
   while( iPort<=mxPort ){
@@ -584,14 +584,14 @@ void win32_http_server(
   }
   if( iPort>mxPort ){
     if( mnPort==mxPort ){
-      fossil_fatal("unable to open listening socket on port %d", mnPort);
+      fossil_panic("unable to open listening socket on port %d", mnPort);
     }else{
-      fossil_fatal("unable to open listening socket on any"
+      fossil_panic("unable to open listening socket on any"
                    " port in the range %d..%d", mnPort, mxPort);
     }
   }
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
-    fossil_fatal("unable to get path to the temporary directory.");
+    fossil_panic("unable to get path to the temporary directory.");
   }
   zTempPrefix = mprintf("%sfossil_server_P%d",
                         fossil_unicode_to_utf8(zTmpPath), iPort);
@@ -642,7 +642,7 @@ void win32_http_server(
         return;
       }else{
         WSACleanup();
-        fossil_fatal("error from accept()");
+        fossil_panic("error from accept()");
       }
     }
     if( client.s4!=INVALID_SOCKET ){
@@ -742,7 +742,7 @@ static char *win32_get_last_errmsg(void){
   if( nMsg ){
     zMsg = fossil_unicode_to_utf8(tmp);
   }else{
-    fossil_fatal("unable to get system error message.");
+    fossil_panic("unable to get system error message.");
   }
   if( tmp ){
     LocalFree((HLOCAL) tmp);
@@ -887,7 +887,7 @@ int win32_http_service(
     if( GetLastError()==ERROR_FAILED_SERVICE_CONTROLLER_CONNECT ){
       return 1;
     }else{
-      fossil_fatal("error from StartServiceCtrlDispatcher()");
+      fossil_panic("error from StartServiceCtrlDispatcher()");
     }
   }
   return 0;

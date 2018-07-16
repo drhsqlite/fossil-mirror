@@ -21,7 +21,7 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-#if defined(__linux__)
+#if defined(__linux__) && !defined(FOSSIL_OMIT_DNS)
 #  include <sys/types.h>
 #  include <netinet/in.h>
 #  include <arpa/nameser.h>

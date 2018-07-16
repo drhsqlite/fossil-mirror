@@ -877,7 +877,7 @@ void mv_cmd(void){
 
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_fatal("no checkout rename files in");
+    fossil_fatal("no checkout in which to rename files");
   }
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");

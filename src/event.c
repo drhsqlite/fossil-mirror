@@ -589,7 +589,7 @@ void event_cmd_commit(
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_ASSERT;
 #endif
-    fossil_fatal("Internal error: Fossil tried to make an "
+    fossil_panic("Internal error: Fossil tried to make an "
                  "invalid artifact for the technote.");
   }
 }

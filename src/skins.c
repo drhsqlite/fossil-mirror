@@ -256,7 +256,7 @@ const char *skin_detail(const char *zName){
   struct SkinDetail *pDetail;
   skin_detail_initialize();
   pDetail = skin_detail_find(zName);
-  if( pDetail==0 ) fossil_fatal("no such skin detail: %s", zName);
+  if( pDetail==0 ) fossil_panic("no such skin detail: %s", zName);
   return pDetail->zValue;
 }
 int skin_detail_boolean(const char *zName){
@@ -722,15 +722,20 @@ void setup_skinedit(void){
 
   /* Check that the user is authorized to edit this skin. */
   if( !g.perm.Setup ){
-    char *zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    char *zAllowedEditors = "";
     Glob *pAllowedEditors;
+    int isMatch = 0;
+    if( login_is_individual() ){
+      zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    }
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      if( !glob_match(pAllowedEditors, zAllowedEditors) ){
-        login_needed(0);
-        return;
-      }
+      isMatch = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
+    }
+    if( isMatch==0 ){
+      login_needed(0);
+      return;
     }
   }
 
@@ -876,6 +881,10 @@ void setup_skin(void){
   ** changes and/or edits
   */
   login_check_credentials();
+  if( !login_is_individual() ){
+    login_needed(0);
+    return;
+  }
   zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   if( g.perm.Setup ){
     isSetup = isEditor = 1;
@@ -884,7 +893,7 @@ void setup_skin(void){
     isSetup = isEditor = 0;
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      isEditor = glob_match(pAllowedEditors, zAllowedEditors);
+      isEditor = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
     }
   }
@@ -1055,8 +1064,8 @@ void setup_skin(void){
   @ <h1>Step 8: Cleanup and Undo Actions</h1>
   @
   if( !g.perm.Setup ){
-    @ <p>Administrators can optionally remove save legacy skins, or
-    @ undo a prior publish
+    @ <p>Administrators can optionally save or restore legacy skins, and/or
+    @ undo a prior publish.
   }else{
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.

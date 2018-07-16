@@ -731,7 +731,7 @@ void login_page(void){
     }
     @ </form>
   }
-  if( g.zLogin && g.perm.Password ){
+  if( login_is_individual() && g.perm.Password ){
     if( email_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>

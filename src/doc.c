@@ -300,7 +300,7 @@ static void mimetype_verify(void){
   int i;
   for(i=1; i<count(aMime); i++){
     if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
-      fossil_fatal("mimetypes out of sequence: %s before %s",
+      fossil_panic("mimetypes out of sequence: %s before %s",
                    aMime[i-1].zSuffix, aMime[i].zSuffix);
     }
   }

@@ -169,7 +169,7 @@ int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
     zQ = &z[i];
   }
   if( dispatch_name_search(z, CMDFLAG_WEBPAGE, ppCmd) ){
-    fossil_fatal("\"%s\" aliased to \"%s\" but \"%s\" does not exist",
+    fossil_panic("\"%s\" aliased to \"%s\" but \"%s\" does not exist",
                  zName, z, z);
   }
   z = zQ;

@@ -284,7 +284,7 @@ void win32_getcwd(char *zBuf, int nBuf){
   char *zUtf8;
   wchar_t *zWide = fossil_malloc( sizeof(wchar_t)*nBuf );
   if( GetCurrentDirectoryW(nBuf, zWide)==0 ){
-    fossil_fatal("cannot find current working directory.");
+    fossil_panic("cannot find current working directory.");
   }
   zUtf8 = fossil_path_to_utf8(zWide);
   fossil_free(zWide);

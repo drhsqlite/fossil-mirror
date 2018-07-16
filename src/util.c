@@ -100,18 +100,18 @@ void *fossil_secure_alloc_page(size_t *pN){
 #if defined(_WIN32)
   p = VirtualAlloc(NULL, pageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
   if( p==NULL ){
-    fossil_fatal("VirtualAlloc failed: %lu\n", GetLastError());
+    fossil_panic("VirtualAlloc failed: %lu\n", GetLastError());
   }
   if( !VirtualLock(p, pageSize) ){
-    fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
+    fossil_panic("VirtualLock failed: %lu\n", GetLastError());
   }
 #elif defined(USE_MMAN_H)
   p = mmap(0, pageSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
   if( p==MAP_FAILED ){
-    fossil_fatal("mmap failed: %d\n", errno);
+    fossil_panic("mmap failed: %d\n", errno);
   }
   if( mlock(p, pageSize) ){
-    fossil_fatal("mlock failed: %d\n", errno);
+    fossil_panic("mlock failed: %d\n", errno);
   }
 #else
   p = fossil_malloc(pageSize);
@@ -126,17 +126,17 @@ void fossil_secure_free_page(void *p, size_t n){
   fossil_secure_zero(p, n);
 #if defined(_WIN32)
   if( !VirtualUnlock(p, n) ){
-    fossil_fatal("VirtualUnlock failed: %lu\n", GetLastError());
+    fossil_panic("VirtualUnlock failed: %lu\n", GetLastError());
   }
   if( !VirtualFree(p, 0, MEM_RELEASE) ){
-    fossil_fatal("VirtualFree failed: %lu\n", GetLastError());
+    fossil_panic("VirtualFree failed: %lu\n", GetLastError());
   }
 #elif defined(USE_MMAN_H)
   if( munlock(p, n) ){
-    fossil_fatal("munlock failed: %d\n", errno);
+    fossil_panic("munlock failed: %d\n", errno);
   }
   if( munmap(p, n) ){
-    fossil_fatal("munmap failed: %d\n", errno);
+    fossil_panic("munmap failed: %d\n", errno);
   }
 #else
   fossil_free(p);
@@ -324,7 +324,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
   if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
-      fossil_fatal("Invalid call to fetch a non-allocated "
+      fossil_panic("Invalid call to fetch a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -344,7 +344,7 @@ sqlite3_uint64 fossil_timer_reset(int timerId){
   if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
-      fossil_fatal("Invalid call to reset a non-allocated "
+      fossil_panic("Invalid call to reset a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -522,7 +522,7 @@ void fossil_limit_memory(int onOff){
 */
 void fossil_pledge(const char *promises){
   if( pledge(promises, 0) ){
-    fossil_fatal("pledge(\"%s\",NULL) fails with errno=%d",
+    fossil_panic("pledge(\"%s\",NULL) fails with errno=%d",
       promises, (int)errno);
   }
 }

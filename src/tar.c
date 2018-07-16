@@ -254,7 +254,7 @@ static void add_pax_header(
   blob_appendf(&tball.pax, "%d %s=%*.*s\n", blen, zField, nValue, nValue, zValue);
   /* this _must_ be right */
   if(blob_size(&tball.pax) != blen){
-    fossil_fatal("internal error: PAX tar header has bad length");
+    fossil_panic("internal error: PAX tar header has bad length");
   }
 }
 

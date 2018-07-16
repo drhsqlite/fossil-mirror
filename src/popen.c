@@ -27,7 +27,7 @@
 ** Print a fatal error and quit.
 */
 static void win32_fatal_error(const char *zMsg){
-  fossil_fatal("%s", zMsg);
+  fossil_panic("%s", zMsg);
 }
 #else
 #include <signal.h>
