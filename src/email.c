@@ -1040,7 +1040,7 @@ static int subscribe_error_check(
   */
   zEAddr = P("e");
   if( zEAddr==0 ) return 0;
-  for(i=j=0; (c = zEAddr[i])!=0; i++){
+  for(i=j=n=0; (c = zEAddr[i])!=0; i++){
     if( c=='@' ){
       n = i;
       j++;
