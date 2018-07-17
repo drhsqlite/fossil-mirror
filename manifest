@@ -1,5 +1,5 @@
-C Store\sthe\suncompressed\sartifact\ssize\sas\san\sinteger\sfield\sin\sthe\nemailblob\stable.
-D 2018-07-17T20:59:29.695
+C Initial\simplementation\sof\sthe\s"fossil\spop3d"\scommand.
+D 2018-07-17T23:50:09.299
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c 317e7232c5c006a768e7ea5223a17c102e226331d188334535a66950e09d2e1b
+F src/smtp.c cf349d722c98cebdae08df38e41b40619f187f866be54e3b78c522bce2eb4fb3
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15a533086928eb88a3448390e752e0588346cde2caaee8ae39abb08eda07a567
-R d5e26e599875fc6d47c3cfe86d725912
+P 34b9502698d25a52e9cfee5962f6d4e1b4f5c01edd68b662938da15299dbdd08
+R 9abd03afcbcfe5d28561687c2dd51ad7
 U drh
-Z baec1b97f29f7a8e125b43fe1ff510bf
+Z f48de66fabad368773c2a9f41838078b

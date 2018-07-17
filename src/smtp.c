@@ -1319,3 +1319,194 @@ void smtp_server(void){
   }
   smtp_server_clear(&x, SMTPSRV_CLEAR_ALL);
 }
+
+/*
+** Zero-terminate the argument.  Return a pointer the start of the
+** next argument, or to NULL if there are no more arguments.
+*/
+static char *pop3d_arg(char *z){
+  if( z[0]==0 || fossil_isspace(z[0]) ){
+    return 0;
+  }
+  z++;
+  while( z[0] && !fossil_isspace(z[0]) ){ z++; }
+  if( z[0]==0 ) return 0;
+  z[0] = 0;
+  z++;
+  if( z[0]==0 || fossil_isspace(z[0]) ) return 0;
+  return z;
+}
+
+/*
+** COMMAND: pop3d
+**
+** Usage: %fossil pop3d [OPTIONS] REPOSITORY
+**
+** Begin a POP3 conversation with a client using stdin/stdout using
+** the mailboxes stored in REPOSITORY.
+*/
+void pop3d_command(void){
+  char *zDbName;
+  char *zA1, *zA2, *zCmd, *z;
+  int inAuth = 1;
+  int i;
+  Stmt q;
+  char zIn[1000];
+  char zUser[100];
+  verify_all_options();
+  if( g.argc!=3 ) usage("DBNAME");
+  zDbName = g.argv[2];
+  zDbName = enter_chroot_jail(zDbName, 0);
+  db_open_repository(zDbName);
+  add_content_sql_commands(g.db);
+    printf("+OK POP3 server ready\r\n");
+  fflush(stdout);
+  while( fgets(zIn, sizeof(zIn), stdin) ){
+    zCmd = zIn;
+    zA1 = pop3d_arg(zCmd);
+    zA2 = zA1 ? pop3d_arg(zA1) : 0;
+    for(i=0; zCmd[i]; i++){ zCmd[i] = fossil_tolower(zCmd[i]); }
+    if( inAuth ){
+      if( strcmp(zCmd,"user")==0 ){
+        if( zA1==0 || zA2!=0 ) goto cmd_error;
+        sqlite3_snprintf(sizeof(zUser),zUser,"%s",zA1);
+        goto cmd_ok;
+      }
+      if( strcmp(zCmd,"pass")==0 ){
+        if( zA1==0 || zA2!=0 ) goto cmd_error;
+        if( login_search_uid(zUser,zA1)==0 ){
+          goto cmd_error;
+        }else{
+          inAuth = 0;
+          db_multi_exec(
+            "CREATE TEMP TABLE pop3("
+            "  id INTEGER PRIMARY KEY,"
+            "  emailid INT,"
+            "  ebid INT,"
+            "  isDel INT,"
+            "  esz INT"
+            ");"
+            "INSERT INTO pop3(id,emailid,ebid,isDel,esz)"
+            "  SELECT NULL, emailid, ebid, 0, esz FROM emailblob, emailbox"
+            "  WHERE emailid=emsgid AND euser=%Q AND estate<=1"
+            "  ORDER BY edate;",
+            zUser
+          );
+          goto cmd_ok;
+        }   
+      }
+      if( strcmp(zCmd,"quit")==0 ) break;
+      /* Fossil cannot process APOP since the users clear-text password is
+      ** unknown. */
+      goto cmd_error;
+    }else{
+      if( strcmp(zCmd,"quit")==0 ){
+        db_multi_exec(
+          "UPDATE emailbox SET estate=2"
+          " WHERE estate<2 AND ebid IN (SELECT ebid FROM pop3 WHERE isDel);"
+        );
+        break;
+      }
+      if( strcmp(zCmd,"stat")==0 ){
+        db_prepare(&q, "SELECT count(*), sum(esz) FROM pop3 WHERE NOT isDel");
+        if( db_step(&q)==SQLITE_ROW ){
+          printf("+OK %d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+        }else{
+          printf("-ERR\r\n");
+        }
+        db_finalize(&q);
+        fflush(stdout);
+        continue;
+      }
+      if( strcmp(zCmd,"list")==0 ){
+        if( zA1 ){
+          db_prepare(&q, "SELECT id, esz FROM pop3"
+                         " WHERE id=%d AND NOT isDel", atoi(zA1));
+          if( db_step(&q)==SQLITE_ROW ){
+            printf("+OK %d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+          }else{
+            printf("-ERR\r\n");
+          }
+        }else{
+          printf("+OK\r\n");
+          db_prepare(&q, "SELECT id, esz FROM pop3 WHERE NOT isDel");
+          while( db_step(&q)==SQLITE_ROW ){
+            printf("%d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+          }
+          printf(".\r\n");
+        }
+        fflush(stdout);
+        db_finalize(&q);
+        continue;
+      }
+      if( strcmp(zCmd,"retr")==0 ){
+        Blob all, line;
+        if( zA1==0 ) goto cmd_error;
+        z = db_text(0, "SELECT decompress(emailblob.etxt) "
+                       "  FROM emailblob, pop3"
+                       " WHERE emailblob.emailid=pop3.emailid"
+                       "   AND pop3.id=%d AND NOT pop3.isDel",
+                       atoi(zA1));
+        if( z==0 ) goto cmd_error;
+        blob_init(&all, z, -1);
+        while( blob_line(&all, &line) ){
+          if( blob_buffer(&line)[0]=='.' ){
+            fputc('.', stdout);
+          }
+          fwrite(blob_buffer(&line), 1, blob_size(&line), stdout);
+        }
+        printf(".\r\n");
+        fossil_free(z);
+        blob_reset(&all);
+        blob_reset(&line);
+        fflush(stdout);
+        goto cmd_ok;
+      }
+      if( strcmp(zCmd,"dele")==0 ){
+        if( zA1==0 ) goto cmd_error;
+        db_multi_exec("UPDATE pop3 SET isDel=1 WHERE id=%d",atoi(zA1));
+        goto cmd_ok;
+      }
+      if( strcmp(zCmd,"rset")==0 ){
+        db_multi_exec("UPDATE pop3 SET isDel=0");
+        goto cmd_ok;
+      }
+      if( strcmp(zCmd,"top")==0 ){
+        goto cmd_error;
+      }
+      if( strcmp(zCmd,"uidl")==0 ){
+        if( zA1 ){
+          db_prepare(&q, "SELECT id, emailid FROM pop3"
+                         " WHERE id=%d AND NOT isDel", atoi(zA1));
+          if( db_step(&q)==SQLITE_ROW ){
+            printf("+OK %d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+          }else{
+            printf("-ERR\r\n");
+          }
+        }else{
+          printf("+OK\r\n");
+          db_prepare(&q, "SELECT id, emailid FROM pop3 WHERE NOT isDel");
+          while( db_step(&q)==SQLITE_ROW ){
+            printf("%d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+          }
+          printf(".\r\n");
+        }
+        fflush(stdout);
+        db_finalize(&q);
+        continue;
+      }
+      if( strcmp(zCmd,"noop")==0 ){
+        goto cmd_ok;
+      }
+      /* Else, fall through into cmd_error */
+    }
+  cmd_error:
+    printf("-ERR\r\n");
+    fflush(stdout);
+    continue;
+  cmd_ok:
+    printf("+OK\r\n");
+    fflush(stdout);
+    continue;
+  }
+}
