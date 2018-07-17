@@ -643,6 +643,7 @@ static const char zEmailSchema[] =
 @   enref INT,                    -- Number of references to this blob
 @   ets INT,                      -- Corresponding transcript, or NULL
 @   etime INT,                    -- insertion time, secs since 1970
+@   esz INT,                      -- uncompressed content size
 @   etxt TEXT                     -- content of this entry
 @ );
 @
@@ -1071,25 +1072,28 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     if( p->idTranscript==0 ) smtp_server_schema(0);
     p->nRef = 0;
     db_prepare(&s,
-      "INSERT INTO emailblob(ets,etime,etxt,enref)"
-      " VALUES(:ets,now(),compress(:etxt),0)"
+      "INSERT INTO emailblob(ets,etime,etxt,enref,esz)"
+      " VALUES(:ets,now(),compress(:etxt),0,:esz)"
     );
     p->nEts++;
     if( !bFinish && p->idTranscript==0 ){
       db_bind_null(&s, ":ets");
       db_bind_null(&s, ":etxt");
+      db_bind_null(&s, ":esz");
       db_step(&s);
       db_reset(&s);
       p->idTranscript = db_last_insert_rowid();
     }else if( bFinish ){
       if( p->idTranscript ){
         db_multi_exec(
-           "UPDATE emailblob SET etxt=compress(%Q), enref=%d"
+           "UPDATE emailblob SET etxt=compress(%Q), enref=%d, esz=%d"
            " WHERE emailid=%lld",
-           blob_str(&p->transcript), p->nEts, p->idTranscript);
+           blob_str(&p->transcript), p->nEts, blob_size(&p->transcript),
+           p->idTranscript);
       }else{
         db_bind_null(&s, ":ets");
         db_bind_str(&s, ":etxt", &p->transcript);
+        db_bind_int(&s, ":esz", blob_size(&p->transcript));
         db_step(&s);
         db_reset(&s);
         p->idTranscript = db_last_insert_rowid();
@@ -1102,6 +1106,7 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     }
     db_bind_int64(&s, ":ets", p->idTranscript);
     db_bind_str(&s, ":etxt", &p->msg);
+    db_bind_int(&s, ":esz", blob_size(&p->msg));
     db_step(&s);
     db_finalize(&s);
     p->idMsg = db_last_insert_rowid();

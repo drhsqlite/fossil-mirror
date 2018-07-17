@@ -821,17 +821,19 @@ void webmail_emailblob_page(void){
     db_finalize(&q);
   }else{
     db_prepare(&q,
-       "SELECT emailid, enref, ets, datetime(etime,'unixepoch'),"
+       "SELECT emailid, enref, ets, datetime(etime,'unixepoch'), esz,"
        " length(etxt)"
        " FROM emailblob ORDER BY etime DESC, emailid DESC");
     @ <table border="1" cellpadding="5" cellspacing="0">
-    @ <tr><th> emailid <th> enref <th> ets <th> etime <th> size </tr>
+    @ <tr><th> emailid <th> enref <th> ets <th> etime \
+    @ <th> uncompressed <th> compressed </tr>
     while( db_step(&q)==SQLITE_ROW ){
       int id = db_column_int(&q, 0);
       int nref = db_column_int(&q, 1);
       int ets = db_column_int(&q, 2);
       const char *zDate = db_column_text(&q, 3);
       int sz = db_column_int(&q,4);
+      int csz = db_column_int(&q,5);
       @ <tr>
       @  <td align="right"><a href="%R/emailblob?id=%d(id)">%d(id)</a>
       @  <td align="right">%d(nref)</td>
@@ -842,6 +844,7 @@ void webmail_emailblob_page(void){
       }
       @  <td>%h(zDate)</td>
       @  <td align="right">%,d(sz)</td>
+      @  <td align="right">%,d(csz)</td>
       @ </tr>
     }
     @ </table>

@@ -1,5 +1,5 @@
-C The\semailblob\stable\sholds\scontent\sa\slittle\swhile\sbefore\sdeleting\sit.\nChange\sthe\s/test-emailblob\spage\sto\s/emailblob,\sthough\sit\sis\sstill\sonly\naccessible\sby\sthe\sadministrator.
-D 2018-07-17T19:45:30.646
+C Store\sthe\suncompressed\sartifact\ssize\sas\san\sinteger\sfield\sin\sthe\nemailblob\stable.
+D 2018-07-17T20:59:29.695
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c 36ab4217de09461a7df2ba295752b42ffb370f7336027e551a65e980b27e7287
+F src/smtp.c 317e7232c5c006a768e7ea5223a17c102e226331d188334535a66950e09d2e1b
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c d27ea685105b4cd1720335a5e284fadb06cc3ea1ec26a21f3a5c2af0b3cac8af
+F src/webmail.c 71b14b5c7ce3ed0eb5f650dd97f1145c7b0cff8886c914ebdde227f14950b54a
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f880aa82aad218ae64317f0338909da924f3004ef1abfa3976133ae1ac302d2c
-R 445594e9c7156c0980e5fae1db0350c2
+P 15a533086928eb88a3448390e752e0588346cde2caaee8ae39abb08eda07a567
+R d5e26e599875fc6d47c3cfe86d725912
 U drh
-Z c03875e0be60b1d4a802f7c07d9ba4e4
+Z baec1b97f29f7a8e125b43fe1ff510bf
