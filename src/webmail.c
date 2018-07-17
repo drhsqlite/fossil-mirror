@@ -727,3 +727,86 @@ void webmail_page(void){
   style_footer();
   db_end_transaction(0);
 }
+
+/*
+** WEBPAGE:  test-emailblob
+**
+** This page, accessible only to administrators, allows easy viewing of
+** the emailblob table - the table that contains the text of email messages
+** both inbound and outbound, and transcripts of SMTP sessions.
+**
+**    id=N          Show the text of emailblob with emailid==N
+**    
+*/
+void webmail_emailblob_page(void){
+  int id = atoi(PD("id","0"));
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  add_content_sql_commands(g.db);
+  style_header("emailblob table");
+  if( id>0 ){
+    style_submenu_element("Index", "%R/test-emailblob");
+    @ <ul>
+    db_prepare(&q, "SELECT emailid FROM emailblob WHERE ets=%d", id);
+    while( db_step(&q)==SQLITE_ROW ){
+      int id = db_column_int(&q, 0);
+      @ <li> <a href="%R/test-emailblob?id=%d(id)">emailblob entry %d(id)</a>
+    }
+    db_finalize(&q);
+    db_prepare(&q, "SELECT euser, estate FROM emailbox WHERE emsgid=%d", id);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUser = db_column_text(&q, 0);
+      int e = db_column_int(&q, 1);
+      @ <li> emailbox for %h(zUser) state %d(e)
+    }
+    db_finalize(&q);
+    db_prepare(&q, "SELECT efrom, eto FROM emailoutq WHERE emsgid=%d", id);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&q, 0);
+      const char *zTo = db_column_text(&q, 1);
+      @ <li> emailoutq message body from %h(zFrom) to %h(zTo)
+    }
+    db_finalize(&q);
+    db_prepare(&q, "SELECT efrom, eto FROM emailoutq WHERE ets=%d", id);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&q, 0);
+      const char *zTo = db_column_text(&q, 1);
+      @ <li> emailoutq transcript from %h(zFrom) to %h(zTo)
+    }
+    db_finalize(&q);
+    @ </ul>
+    @ <hr>
+    db_prepare(&q, "SELECT decompress(etxt) FROM emailblob WHERE emailid=%d",
+               id);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zContent = db_column_text(&q, 0);
+      @ <pre>%h(zContent)</pre>
+    }
+    db_finalize(&q);
+  }else{
+    db_prepare(&q,
+       "SELECT emailid, enref, ets, datetime(etime,'unixepoch')"
+       " FROM emailblob ORDER BY etime DESC, emailid DESC");
+    @ <table border="1" cellpadding="5" cellspacing="0">
+    @ <tr><th> emailid <th> enref <th> ets <th> etime</tr>
+    while( db_step(&q)==SQLITE_ROW ){
+      int id = db_column_int(&q, 0);
+      int nref = db_column_int(&q, 1);
+      int ets = db_column_int(&q, 2);
+      const char *zDate = db_column_text(&q, 3);
+      @ <tr>
+      @  <td><a href="%R/test-emailblob?id=%d(id)">%d(id)</a>
+      @  <td>%d(nref)</td>
+      @  <td>%d(ets)</td>
+      @  <td>%h(zDate)</td>
+      @ </tr>
+    }
+    @ </table>
+    db_finalize(&q);
+  }
+  style_footer();
+}

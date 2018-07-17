@@ -1,5 +1,5 @@
-C Add\sa\sreference\scount\sfield\sto\sthe\semailblob\stable\sand\striggers\sto\skeep\nthe\sreference\scount\scurrent\sand\sto\sdrop\sentries\swhen\sthe\sreference\scount\nreaches\szero.
-D 2018-07-17T13:54:59.039
+C Add\sthe\stest-emailblob\spage.
+D 2018-07-17T14:47:09.708
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -588,7 +588,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 418cb193afe8c408b4f9ec5092334a8f695e4f3b2e1d4d2fa5e165212ba3d230
+F src/webmail.c 47168c1113f0a6751c732c11fd0730c2ef570f466fd4d54f8011c2947a17f5cd
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03a9b6f897b5d0e038ccc4724b2e9a0ff8eaeb4515cb9c33c98751ed0f7c2beb
-R 19e018aba053fec7a0bf248b957789e8
+P 94da0fb27c3969f610f21830e328587b395adc3265289e8ca06eeebad6cf9b3f
+R 0a4e7ad079a51438cacdea80baac6a21
 U drh
-Z 203ce8356011c49d491cb0f3554f07b6
+Z 9acb4109f840fb866895da3f3eb79e70
