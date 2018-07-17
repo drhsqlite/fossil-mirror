@@ -345,7 +345,7 @@ void cgi_reply(void){
   /* After the webpage has been sent, do any useful background
   ** processing.
   */
-  if( iReplyStatus==200 && fossil_strcmp(zContentType,"test/html")==0 ){
+  if( iReplyStatus==200 && fossil_strcmp(zContentType,"text/html")==0 ){
     email_auto_exec();
   }
 }
