@@ -206,6 +206,16 @@ void setup_notification(void){
   email_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");
   style_header("Email Notification Setup");
+  @ <h1>Status</h1>
+  @ <table class="label-value">
+  if( email_enabled() ){
+    stats_for_email();
+  }else{
+    @ <th>Disabled</th>
+  }
+  @ </table>
+  @ <hr>
+  @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
   login_insert_csrf_secret();
@@ -2094,9 +2104,9 @@ void email_auto_exec(void){
                    "started at %z", db_transaction_start_point());
     return;
   }
-  db_begin_transaction();
-  if( !email_tables_exist() ) goto autoexec_done;
-  if( !db_get_boolean("email-autoexec",0) ) goto autoexec_done;
+  if( !email_tables_exist() ) return;
+  if( !db_get_boolean("email-autoexec",0) ) return;
+  db_begin_write();
   email_send_alerts(0);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
@@ -2107,9 +2117,7 @@ void email_auto_exec(void){
       email_send_alerts(SENDALERT_DIGEST);
     }
   }
-
-autoexec_done:
-  db_end_transaction(0);
+  db_commit_transaction();
 }
 
 /*

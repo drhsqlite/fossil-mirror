@@ -640,6 +640,7 @@ static const char zEmailSchema[] =
 @ -- the body of email messages or transcripts of smtp sessions.
 @ CREATE TABLE IF NOT EXISTS repository.emailblob(
 @   emailid INTEGER PRIMARY KEY,  -- numeric idea for the entry
+@   enref INT,                    -- Number of references to this blob
 @   ets INT,                      -- Corresponding transcript, or NULL
 @   etime INT,                    -- insertion time, secs since 1970
 @   etxt TEXT                     -- content of this entry
@@ -648,12 +649,12 @@ static const char zEmailSchema[] =
 @ -- One row for each mailbox entry.  All users emails are stored in
 @ -- this same table.
 @ CREATE TABLE IF NOT EXISTS repository.emailbox(
+@   ebid INTEGER PRIMARY KEY,  -- Unique id for each mailbox entry
 @   euser TEXT,          -- User who received this email
 @   edate INT,           -- Date received.  Seconds since 1970
 @   efrom TEXT,          -- Who is the email from
 @   emsgid INT,          -- Raw email text
-@   ets INT,             -- Transcript of the receiving SMTP session
-@   estate INT,          -- Unread, read, starred, etc.
+@   estate INT,          -- 0: Unread, 1: read, 2: trash 3: sent
 @   esubject TEXT,       -- Subject line for display
 @   etags TEXT           -- zero or more tags
 @ );
@@ -675,6 +676,25 @@ static const char zEmailSchema[] =
 @   ensend INT,              -- Number of send attempts
 @   ets INT                  -- Transcript of last failed attempt
 @ );
+@
+@ -- Triggers to automatically keep the emailblob.enref field up to date
+@ -- as entries in the emailblob, emailbox, and emailoutq tables are
+@ -- deleted.
+@ CREATE TRIGGER IF NOT EXISTS repository.emailblob_d1
+@ AFTER DELETE ON emailblob BEGIN
+@   DELETE FROM emailblob WHERE enref<=1 AND emailid=old.ets;
+@   UPDATE emailblob SET enref=enref-1 WHERE emailid=old.ets;
+@ END;
+@ CREATE TRIGGER IF NOT EXISTS repository.emailbox_d1
+@ AFTER DELETE ON emailbox BEGIN
+@   DELETE FROM emailblob WHERE enref<=1 AND emailid=old.emsgid;
+@   UPDATE emailblob SET enref=enref-1 WHERE emailid=old.emsgid;
+@ END;
+@ CREATE TRIGGER IF NOT EXISTS repository.emailoutq_d1
+@ AFTER DELETE ON emailoutq BEGIN
+@   DELETE FROM emailblob WHERE enref<=1 AND emailid IN (old.ets,old.emsgid);
+@   UPDATE emailblob SET enref=enref-1 WHERE emailid IN (old.ets,old.emsgid);
+@ END;
 ;
 
 /*
@@ -830,6 +850,8 @@ struct SmtpServer {
     int okRemote;               /* zTo can be in another domain */
   } *aTo;
   u32 srvrFlags;              /* Control flags */
+  int nEts;                   /* Number of references to the transcript */
+  int nRef;                   /* Number of references to idMsg */
   Blob msg;                   /* Content following DATA */
   Blob transcript;            /* Session transcript */
 };
@@ -1001,6 +1023,7 @@ static void smtp_server_send_one_user(
           "VALUES(%Q,%Q,%Q,%lld,now(),0,0)",
           zAddr+i+1, p->zFrom, zAddr, p->idMsg
         );
+        p->nRef++;
       }
     }
     return;
@@ -1015,12 +1038,13 @@ static void smtp_server_send_one_user(
       Blob subj;
       email_header_value(&p->msg, "subject", &subj);
       db_multi_exec(
-        "INSERT INTO emailbox(euser,edate,efrom,emsgid,ets,estate,esubject)"
-        " VALUES(%Q,now(),%Q,%lld,%lld,0,%Q)",
-          blob_str(&tail), p->zFrom, p->idMsg, p->idTranscript,
+        "INSERT INTO emailbox(euser,edate,efrom,emsgid,estate,esubject)"
+        " VALUES(%Q,now(),%Q,%lld,0,%Q)",
+          blob_str(&tail), p->zFrom, p->idMsg,
           blob_str(&subj)
       );
       blob_reset(&subj);
+      p->nRef++;
     }
     if( blob_eq_str(&token, "forward", 7) ){
       smtp_append_to(p, fossil_strdup(blob_str(&tail)), 1);
@@ -1041,27 +1065,31 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
    && blob_size(&p->msg)
    && (p->srvrFlags & SMTPSRV_DRYRUN)==0
   ){
-    db_begin_transaction();
+    db_begin_write();
     if( p->idTranscript==0 ) smtp_server_schema(0);
+    p->nRef = 0;
     db_prepare(&s,
-      "INSERT INTO emailblob(ets,etime,etxt)"
-      " VALUES(:ets,now(),compress(:etxt))"
+      "INSERT INTO emailblob(ets,etime,etxt,enref)"
+      " VALUES(:ets,now(),compress(:etxt),:enref)"
     );
+    p->nEts++;
     if( !bFinish && p->idTranscript==0 ){
       db_bind_null(&s, ":ets");
       db_bind_null(&s, ":etxt");
+      db_bind_int(&s, ":enref", 0);
       db_step(&s);
       db_reset(&s);
       p->idTranscript = db_last_insert_rowid();
     }else if( bFinish ){
       if( p->idTranscript ){
         db_multi_exec(
-           "UPDATE emailblob SET etxt=compress(%Q)"
+           "UPDATE emailblob SET etxt=compress(%Q), enref=%d"
            " WHERE emailid=%lld",
-           blob_str(&p->transcript), p->idTranscript);
+           blob_str(&p->transcript), p->nEts, p->idTranscript);
       }else{
         db_bind_null(&s, ":ets");
         db_bind_str(&s, ":etxt", &p->transcript);
+        db_bind_int(&s, ":enref", p->nEts);
         db_step(&s);
         db_reset(&s);
         p->idTranscript = db_last_insert_rowid();
@@ -1069,6 +1097,7 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     }
     db_bind_int64(&s, ":ets", p->idTranscript);
     db_bind_str(&s, ":etxt", &p->msg);
+    db_bind_int(&s, ":enref", 0);
     db_step(&s);
     db_finalize(&s);
     p->idMsg = db_last_insert_rowid();
@@ -1080,11 +1109,87 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
       smtp_server_send_one_user(p, p->aTo[i].z, okRemote);
     }
 
+    /* Fix up the emailblob.enref field of the email message body */
+    if( p->nRef ){
+      db_multi_exec(
+        "UPDATE emailblob SET enref=%d WHERE emailid=%lld", 
+        p->nRef, p->idMsg
+      );
+    }else{
+      db_multi_exec(
+        "DELETE FROM emailblob WHERE emailid=%lld", p->idMsg
+      );
+    }
+
     /* Finish the transaction after all changes are implemented */
-    db_end_transaction(0);
+    db_commit_transaction();
   }
   smtp_server_clear(p, SMTPSRV_CLEAR_MSG);
 }
+
+/*
+** COMMAND: test-emailblob-refcheck
+**
+** Usage: %fossil test-emailblob-refcheck [--repair] [--full]
+**
+** Verify that the emailblob.enref field is correct.  Report any errors.
+** Use the --repair command to fix up the enref field.  The --full option
+** gives a full report showing the enref value on all entries in the
+** emailblob table.
+*/
+void test_refcheck_emailblob(void){
+  int doRepair;
+  int fullReport;
+  Blob sql;
+  Stmt q;
+  int nErr = 0;
+  db_find_and_open_repository(0, 0);
+  fullReport = find_option("full",0,0)!=0;
+  doRepair = find_option("repair",0,0)!=0;
+  verify_all_options();
+  if( !db_table_exists("repository","emailblob") ){
+    fossil_print("emailblob table is not configured - nothing to check\n");
+    return;
+  }
+  db_multi_exec(
+    "CREATE TEMP TABLE refcnt(id INTEGER PRIMARY KEY, n);"
+    "INSERT INTO refcnt SELECT ets, count(*) FROM ("
+    "  SELECT ets FROM emailblob"
+    "  UNION ALL"
+    "  SELECT emsgid FROM emailbox"
+    "  UNION ALL"
+    "  SELECT emsgid FROM emailoutq"
+    ") WHERE ets IS NOT NULL GROUP BY 1;"
+    "INSERT OR IGNORE INTO refcnt(id,n) SELECT emailid, 0 FROM emailblob;"
+  );
+  if( doRepair ){
+    db_multi_exec(
+      "UPDATE emailblob SET enref=(SELECT n FROM refcnt WHERE id=emailid)"
+    );
+  }
+  blob_init(&sql, 0, 0);
+  blob_append_sql(&sql, 
+    "SELECT a.emailid, a.enref, b.n"
+    "  FROM emailblob AS a JOIN refcnt AS b ON a.emailid=b.id"
+  );
+  if( !fullReport ){
+    blob_append_sql(&sql, " WHERE a.enref!=b.n");
+  }
+  db_prepare_blob(&q, &sql);
+  blob_reset(&sql);
+  while( db_step(&q)==SQLITE_ROW ){
+    sqlite3_int64 id = db_column_int64(&q,0);
+    int n1 = db_column_int(&q, 1);
+    int n2 = db_column_int(&q, 2);
+    if( n1!=n2 ) nErr++;
+    fossil_print("%12lld %4d %4d%s\n", id, n1, n2, n1!=n2 ? " ERROR" : "");
+  }
+  db_finalize(&q);
+  if( nErr ){
+    fossil_print("Number of incorrect emailblob.enref values: %d\n",nErr);
+  }
+}
+
 
 /*
 ** COMMAND: smtpd

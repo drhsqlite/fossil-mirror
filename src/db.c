@@ -176,11 +176,14 @@ static int db_verify_at_commit(void *notUsed){
 ** db_begin_transaction call.
 */
 #if INTERFACE
-#define db_begin_transaction() db_begin_transaction_real(__FILE__,__LINE__)
+#define db_begin_transaction()    db_begin_transaction_real(__FILE__,__LINE__)
+#define db_begin_write()          db_begin_write_real(__FILE__,__LINE__)
+#define db_commit_transaction()   db_end_transaction(0)
+#define db_rollback_transaction() db_end_transaction(1)
 #endif
 
 /*
-** Begin and end a nested transaction
+** Begin a nested transaction
 */
 void db_begin_transaction_real(const char *zStartFile, int iStartLine){
   if( db.nBegin==0 ){
@@ -193,6 +196,28 @@ void db_begin_transaction_real(const char *zStartFile, int iStartLine){
   }
   db.nBegin++;
 }
+/*
+** Begin a new transaction for writing.
+*/
+void db_begin_write_real(const char *zStartFile, int iStartLine){
+  if( db.nBegin==0 ){
+    db_multi_exec("BEGIN IMMEDIATE");
+    sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+    db.nPriorChanges = sqlite3_total_changes(g.db);
+    db.doRollback = 0;
+    db.zStartFile = zStartFile;
+    db.iStartLine = iStartLine;
+  }else{
+    fossil_warning("read txn at %s:%d might cause SQLITE_BUSY "
+       "for the write txn at %s:%d",
+       db.zStartFile, db.iStartLine, zStartFile, iStartLine);
+  }
+  db.nBegin++;
+}
+
+/* End a transaction previously started using db_begin_transaction()
+** or db_begin_write().
+*/
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
   if( db.nBegin<=0 ){
