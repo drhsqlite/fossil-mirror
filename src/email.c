@@ -206,6 +206,16 @@ void setup_notification(void){
   email_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");
   style_header("Email Notification Setup");
+  @ <h1>Status</h1>
+  @ <table class="label-value">
+  if( email_enabled() ){
+    stats_for_email();
+  }else{
+    @ <th>Disabled</th>
+  }
+  @ </table>
+  @ <hr>
+  @ <h1> Configuration </h1>
   @ <form action="%R/setup_notification" method="post"><div>
   @ <input type="submit"  name="submit" value="Apply Changes" /><hr>
   login_insert_csrf_secret();
