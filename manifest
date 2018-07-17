@@ -1,5 +1,5 @@
-C Webmail\schanges\scompile\son\slinux,\smac,\sand\swindows\snow,\sso\smerge\sthem\sto\ntrunk.\s\sThey\sare\snot\sready\sfor\suse,\sbut\sthey\sshould\snot\sinterfere\swith\nthe\sstable\sparts\sof\sthe\scode,\sand\sit\sis\seasier\sto\stest\sfrom\strunk.
-D 2018-07-17T15:32:42.766
+C Set\san\stimeout\son\sthe\sdatabase\sconnection\sto\sthe\sweb-cache.\s\sUse\sthe\nsqlite3_table_column_metadata()\sinterface\sto\scheck\sto\ssee\sif\sthe\sweb-cache\ndatabase\sfile\sneeds\sto\sbe\sinitialized\sprior\sto\sactually\sinitializing\sit.
+D 2018-07-17T15:48:23.628
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
 F src/browse.c 10353b275aa4a217995268a7cc8846ebf735f84cd6c4f7112a000fae0a9fe09c
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
-F src/cache.c 490d53695671cea6ba96a7d074834ea9ad6ce4aca66f87ae783253ebd89499d1
+F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
 F src/cgi.c a9bdf9efc46175283878590334a8781755515ca9aac433abfa97cd26bfbde093
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
@@ -855,8 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P adc23c107d30df86b3887d65a12bf058c01fe1f04bc0b9ff89df1dd1324603cd e2fd46ddcc4c859fce13d359cdc0d23484bdd0fe5ffd77046199d5f28ec084fc
-R 2f19def4cbac91e4e7c7c1520300a32d
-T +closed e2fd46ddcc4c859fce13d359cdc0d23484bdd0fe5ffd77046199d5f28ec084fc
+P 0f6a5ee117dfb8c1759e19a93fb7561148a6962fc09b0035e20ffbe11727bfc1
+R 22c90794363bbe9d44936f6ba44e1cfb
 U drh
-Z d5313c3a8e466b0e0fc78961227c74d3
+Z 951579c6c4e2078a43bf0b8ddb5bb8d3
