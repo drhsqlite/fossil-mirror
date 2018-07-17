@@ -1095,6 +1095,8 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
           "UPDATE emailblob SET enref=%d WHERE emailid=%lld",
           p->nEts, p->idTranscript);
       }
+      smtp_server_send(p, "221-Transcript id %lld nref %d\r\n",
+         p->idTranscript, p->nEts);
     }
     db_bind_int64(&s, ":ets", p->idTranscript);
     db_bind_str(&s, ":etxt", &p->msg);
@@ -1285,8 +1287,8 @@ void smtp_server(void){
       smtp_server_send(&x, "250 ok\r\n");
     }else
     if( strncmp(z, "QUIT", 4)==0 && fossil_isspace(z[4]) ){
-      smtp_server_send(&x, "221 closing connection\r\n");
       smtp_server_route_incoming(&x, 1);
+      smtp_server_send(&x, "221 closing connection\r\n");
       break;
     }else
     {

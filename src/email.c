@@ -405,9 +405,10 @@ struct EmailSender {
   int bImmediateFail;        /* On any error, call fossil_fatal() */
 };
 
-/* Allowed values for EmailSender flags */
+/* Allowed values for mFlags to email_sender_new().
+*/
 #define EMAIL_IMMEDIATE_FAIL   0x0001   /* Call fossil_fatal() on any error */
-#define EMAIL_SMTP_TRACE       0x0002   /* Write SMTP transcript to console */
+#define EMAIL_TRACE            0x0002   /* Log sending process on console */
 
 #endif /* INTERFACE */
 
@@ -538,7 +539,7 @@ EmailSender *email_sender_new(const char *zAltDest, u32 mFlags){
     emailerGetSetting(p, &zRelay, "email-send-relayhost");
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
-      if( mFlags & EMAIL_SMTP_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
+      if( mFlags & EMAIL_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
       p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
       smtp_client_startup(p->pSmtp);
     }
@@ -696,6 +697,9 @@ void email_header_to_free(int nTo, char **azTo){
 void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   Blob all, *pOut;
   u64 r1, r2;
+  if( p->mFlags & EMAIL_TRACE ){
+    fossil_print("Sending email\n");
+  }
   if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
   }
@@ -945,7 +949,7 @@ void email_cmd(void){
     const char *zSubject = find_option("subject", "S", 1);
     const char *zSource = find_option("body", 0, 1);
     EmailSender *pSender;
-    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_SMTP_TRACE;
+    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_TRACE;
     verify_all_options();
     blob_init(&prompt, 0, 0);
     blob_init(&body, 0, 0);
@@ -1956,7 +1960,7 @@ void test_alert_cmd(void){
 /*
 ** COMMAND:  test-add-alerts
 **
-** Usage: %fossil test-add-alerts EVENTID ...
+** Usage: %fossil test-add-alerts [--autoexec] EVENTID ...
 **
 ** Add one or more events to the pending_alert queue.  Use this
 ** command during testing to force email notifications for specific
@@ -1966,17 +1970,25 @@ void test_alert_cmd(void){
 ** for check-in, wiki, or ticket.  The remaining text is a
 ** integer that references the EVENT.OBJID value for the event.
 ** Run /timeline?showid to see these OBJID values.
+**
+** If the --autoexec option is included, then email_auto_exec() is run
+** after all alerts have been added.  This will cause the alerts to
+** be sent out with the SENDALERT_TRACE option.
 */
 void test_add_alert_cmd(void){
   int i;
+  int doAuto = find_option("autoexec",0,0)!=0;
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  db_begin_transaction();
+  db_begin_write();
   email_schema(0);
   for(i=2; i<g.argc; i++){
     db_multi_exec("REPLACE INTO pending_alert(eventId) VALUES(%Q)", g.argv[i]);
   }
   db_end_transaction(0);
+  if( doAuto ){
+    email_auto_exec(SENDALERT_TRACE);
+  }
 }
 
 #if INTERFACE
@@ -1986,6 +1998,7 @@ void test_add_alert_cmd(void){
 #define SENDALERT_DIGEST      0x0001    /* Send a digest */
 #define SENDALERT_PRESERVE    0x0002    /* Do not mark the task as done */
 #define SENDALERT_STDOUT      0x0004    /* Print emails instead of sending */
+#define SENDALERT_TRACE       0x0008    /* Trace operation for debugging */
 
 #endif /* INTERFACE */
 
@@ -2003,6 +2016,7 @@ void email_send_alerts(u32 flags){
   const char *zFrom;
   const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
   EmailSender *pSender = 0;
+  u32 senderFlags = 0;
 
   if( g.fSqlTrace ) fossil_trace("-- BEGIN email_send_alerts(%u)\n", flags);
   db_begin_transaction();
@@ -2013,7 +2027,10 @@ void email_send_alerts(u32 flags){
   if( zRepoName==0 ) goto send_alerts_done;
   zFrom = db_get("email-self",0);
   if( zFrom==0 ) goto send_alerts_done;
-  pSender = email_sender_new(zDest, 0);
+  if( flags & SENDALERT_TRACE ){
+    senderFlags |= EMAIL_TRACE;
+  }
+  pSender = email_sender_new(zDest, senderFlags);
   db_multi_exec(
     "DROP TABLE IF EXISTS temp.wantalert;"
     "CREATE TEMP TABLE wantalert(eventId TEXT);"
@@ -2095,8 +2112,12 @@ send_alerts_done:
 **
 ** This routine is called after certain webpages have been run and
 ** have already responded.
+**
+** The mFlags option is zero or more of the SENDALERT_* flags.  Normally
+** this flag is zero, but the test-set-alert command sets it to
+** SENDALERT_TRACE.
 */
-void email_auto_exec(void){
+void email_auto_exec(u32 mFlags){
   int iJulianDay;
   if( g.db==0 ) return;
   if( db_transaction_nesting_depth()!=0 ){
@@ -2107,14 +2128,14 @@ void email_auto_exec(void){
   if( !email_tables_exist() ) return;
   if( !db_get_boolean("email-autoexec",0) ) return;
   db_begin_write();
-  email_send_alerts(0);
+  email_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
     if( db_transaction_nesting_depth()!=1 ){
       fossil_warning("Transaction nesting error prior to digest processing");
     }else{
       db_set_int("email-last-digest",iJulianDay,0);
-      email_send_alerts(SENDALERT_DIGEST);
+      email_send_alerts(SENDALERT_DIGEST|mFlags);
     }
   }
   db_commit_transaction();

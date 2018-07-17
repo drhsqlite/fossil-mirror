@@ -346,7 +346,7 @@ void cgi_reply(void){
   ** processing.
   */
   if( iReplyStatus==200 && fossil_strcmp(zContentType,"text/html")==0 ){
-    email_auto_exec();
+    email_auto_exec(0);
   }
 }
 

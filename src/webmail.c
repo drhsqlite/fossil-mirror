@@ -716,6 +716,7 @@ void webmail_page(void){
     }
     @ <input type="submit" name="read" value="Mark as read">
   }
+  @ <button onclick="webmailSelectAll(); return false;">Select All</button>
   @ <a href="%s(url_render(&url,0,0,0,0))">refresh</a>
   @ </td><td align="right">
   if( pg>0 ){
@@ -734,7 +735,7 @@ void webmail_page(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zSubject = db_column_text(&q, 4);
     @ <tr>
-    @ <td><input type="checkbox" name="e%s(zId)"></td>
+    @ <td><input type="checkbox" class="webmailckbox" name="e%s(zId)"></td>
     @ <td>%h(zFrom)</td>
     @ <td><a href="%s(url_render(&url,"id",zId,0,0))">%h(zSubject)</a> \
     @ %s(zDate)</td>
@@ -748,6 +749,14 @@ void webmail_page(void){
   @ </table>
   @ </form>
   style_footer();
+  @ <script>
+  @ function webmailSelectAll(){
+  @   var x = document.getElementsByClassName("webmailckbox");
+  @   for(i=0; i<x.length; i++){
+  @     x[i].checked = true;
+  @   }
+  @ }
+  @ </script>
   db_end_transaction(0);
 }
 
