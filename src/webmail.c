@@ -761,7 +761,7 @@ void webmail_page(void){
 }
 
 /*
-** WEBPAGE:  test-emailblob
+** WEBPAGE:  emailblob
 **
 ** This page, accessible only to administrators, allows easy viewing of
 ** the emailblob table - the table that contains the text of email messages
@@ -781,12 +781,12 @@ void webmail_emailblob_page(void){
   add_content_sql_commands(g.db);
   style_header("emailblob table");
   if( id>0 ){
-    style_submenu_element("Index", "%R/test-emailblob");
+    style_submenu_element("Index", "%R/emailblob");
     @ <ul>
     db_prepare(&q, "SELECT emailid FROM emailblob WHERE ets=%d", id);
     while( db_step(&q)==SQLITE_ROW ){
       int id = db_column_int(&q, 0);
-      @ <li> <a href="%R/test-emailblob?id=%d(id)">emailblob entry %d(id)</a>
+      @ <li> <a href="%R/emailblob?id=%d(id)">emailblob entry %d(id)</a>
     }
     db_finalize(&q);
     db_prepare(&q, "SELECT euser, estate FROM emailbox WHERE emsgid=%d", id);
@@ -821,20 +821,27 @@ void webmail_emailblob_page(void){
     db_finalize(&q);
   }else{
     db_prepare(&q,
-       "SELECT emailid, enref, ets, datetime(etime,'unixepoch')"
+       "SELECT emailid, enref, ets, datetime(etime,'unixepoch'),"
+       " length(etxt)"
        " FROM emailblob ORDER BY etime DESC, emailid DESC");
     @ <table border="1" cellpadding="5" cellspacing="0">
-    @ <tr><th> emailid <th> enref <th> ets <th> etime</tr>
+    @ <tr><th> emailid <th> enref <th> ets <th> etime <th> size </tr>
     while( db_step(&q)==SQLITE_ROW ){
       int id = db_column_int(&q, 0);
       int nref = db_column_int(&q, 1);
       int ets = db_column_int(&q, 2);
       const char *zDate = db_column_text(&q, 3);
+      int sz = db_column_int(&q,4);
       @ <tr>
-      @  <td><a href="%R/test-emailblob?id=%d(id)">%d(id)</a>
-      @  <td>%d(nref)</td>
-      @  <td>%d(ets)</td>
+      @  <td align="right"><a href="%R/emailblob?id=%d(id)">%d(id)</a>
+      @  <td align="right">%d(nref)</td>
+      if( ets>0 ){
+        @  <td align="right">%d(ets)</td>
+      }else{
+        @  <td>&nbsp;</td>
+      }
       @  <td>%h(zDate)</td>
+      @  <td align="right">%,d(sz)</td>
       @ </tr>
     }
     @ </table>

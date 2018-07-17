@@ -639,7 +639,7 @@ static const char zEmailSchema[] =
 @ -- bulk storage is in a separate table.  This table can store either
 @ -- the body of email messages or transcripts of smtp sessions.
 @ CREATE TABLE IF NOT EXISTS repository.emailblob(
-@   emailid INTEGER PRIMARY KEY,  -- numeric idea for the entry
+@   emailid INTEGER PRIMARY KEY AUTOINCREMENT,  -- numeric idea for the entry
 @   enref INT,                    -- Number of references to this blob
 @   ets INT,                      -- Corresponding transcript, or NULL
 @   etime INT,                    -- insertion time, secs since 1970
@@ -682,19 +682,20 @@ static const char zEmailSchema[] =
 @ -- deleted.
 @ CREATE TRIGGER IF NOT EXISTS repository.emailblob_d1
 @ AFTER DELETE ON emailblob BEGIN
-@   DELETE FROM emailblob WHERE enref<=1 AND emailid=old.ets;
 @   UPDATE emailblob SET enref=enref-1 WHERE emailid=old.ets;
 @ END;
 @ CREATE TRIGGER IF NOT EXISTS repository.emailbox_d1
 @ AFTER DELETE ON emailbox BEGIN
-@   DELETE FROM emailblob WHERE enref<=1 AND emailid=old.emsgid;
 @   UPDATE emailblob SET enref=enref-1 WHERE emailid=old.emsgid;
 @ END;
 @ CREATE TRIGGER IF NOT EXISTS repository.emailoutq_d1
 @ AFTER DELETE ON emailoutq BEGIN
-@   DELETE FROM emailblob WHERE enref<=1 AND emailid IN (old.ets,old.emsgid);
 @   UPDATE emailblob SET enref=enref-1 WHERE emailid IN (old.ets,old.emsgid);
 @ END;
+@
+@ -- An index on the emailblob entries which are unreferenced.
+@ CREATE INDEX IF NOT EXISTS repository.emailblob_nref ON emailblob(enref)
+@ WHERE enref<=0;
 ;
 
 /*
@@ -1060,6 +1061,7 @@ static void smtp_server_send_one_user(
 static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
   Stmt s;
   int i;
+  int nEtsStart = p->nEts;
   if( p->zFrom
    && p->nTo
    && blob_size(&p->msg)
@@ -1095,8 +1097,8 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
           "UPDATE emailblob SET enref=%d WHERE emailid=%lld",
           p->nEts, p->idTranscript);
       }
-      smtp_server_send(p, "221-Transcript id %lld nref %d\r\n",
-         p->idTranscript, p->nEts);
+      /* smtp_server_send(p, "221-Transcript id %lld nref %d\r\n",
+      **   p->idTranscript, p->nEts); */
     }
     db_bind_int64(&s, ":ets", p->idTranscript);
     db_bind_str(&s, ":etxt", &p->msg);
@@ -1121,6 +1123,12 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
       db_multi_exec(
         "DELETE FROM emailblob WHERE emailid=%lld", p->idMsg
       );
+      p->nEts = nEtsStart;
+    }
+
+    /* Clean out legacy entries */
+    if( bFinish ){
+      db_multi_exec("DELETE FROM emailblob WHERE enref<=0");
     }
 
     /* Finish the transaction after all changes are implemented */
@@ -1132,22 +1140,25 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 /*
 ** COMMAND: test-emailblob-refcheck
 **
-** Usage: %fossil test-emailblob-refcheck [--repair] [--full]
+** Usage: %fossil test-emailblob-refcheck [--repair] [--full] [--clean]
 **
 ** Verify that the emailblob.enref field is correct.  Report any errors.
 ** Use the --repair command to fix up the enref field.  The --full option
 ** gives a full report showing the enref value on all entries in the
-** emailblob table.
+** emailblob table.  If the --clean flags is used together with --repair,
+** then emailblob table entires with enref==0 are removed.
 */
 void test_refcheck_emailblob(void){
   int doRepair;
   int fullReport;
+  int doClean;
   Blob sql;
   Stmt q;
   int nErr = 0;
   db_find_and_open_repository(0, 0);
   fullReport = find_option("full",0,0)!=0;
   doRepair = find_option("repair",0,0)!=0;
+  doClean = find_option("clean",0,0)!=0;
   verify_all_options();
   if( !db_table_exists("repository","emailblob") ){
     fossil_print("emailblob table is not configured - nothing to check\n");
@@ -1168,6 +1179,12 @@ void test_refcheck_emailblob(void){
     db_multi_exec(
       "UPDATE emailblob SET enref=(SELECT n FROM refcnt WHERE id=emailid)"
     );
+    if( doClean ){
+      db_multi_exec(
+        "UPDATE emailblob SET ets=NULL WHERE enref<=0;"
+        "DELETE FROM emailblob WHERE enref<=0;"
+      );
+    }
   }
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql, 
