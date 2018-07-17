@@ -534,6 +534,7 @@ char *url_render(
   if( zName1 && zValue1 ){
     blob_appendf(&p->url, "%s%s", zSep, zName1);
     if( zValue1[0] ) blob_appendf(&p->url, "=%T", zValue1);
+    zSep = "&";
   }
   if( zName2 && zValue2 ){
     blob_appendf(&p->url, "%s%s", zSep, zName2);

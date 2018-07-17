@@ -394,13 +394,14 @@ static void webmail_show_one_message(
   Blob sql;
   Stmt q;
   int eState = -1;
+  int eTranscript = 0;
   char zENum[30];
   style_submenu_element("Index", "%s", url_render(pUrl,"id",0,0,0));
   webmail_f_submenu();
   blob_init(&sql, 0, 0);
   db_begin_transaction();
   blob_append_sql(&sql,
-    "SELECT decompress(etxt), estate"
+    "SELECT decompress(etxt), estate, emailblob.ets"
     " FROM emailblob, emailbox"
     " WHERE emailid=emsgid AND ebid=%d",
      emailid
@@ -413,6 +414,7 @@ static void webmail_show_one_message(
     Blob msg = db_column_text_as_blob(&q, 0);
     int eFormat = atoi(PD("f","0"));
     eState = db_column_int(&q, 1);
+    eTranscript = db_column_int(&q, 2);
     if( eFormat==2 ){
       @ <pre>%h(db_column_text(&q, 0))</pre>
     }else{      
@@ -460,6 +462,25 @@ static void webmail_show_one_message(
     }
   }
   db_finalize(&q);
+
+  /* Optionally show the SMTP transcript */
+  if( eTranscript>0 ){
+    if( P("ts")==0 ){
+      sqlite3_snprintf(sizeof(zENum), zENum, "%d", emailid);
+      style_submenu_element("SMTP Transcript","%s",
+            url_render(pUrl, "ts", "1", "id", zENum));
+    }else{
+      db_prepare(&q,
+        "SELECT decompress(etxt) FROM emailblob WHERE emailid=%d", eTranscript
+      );
+      if( db_step(&q)==SQLITE_ROW ){
+        const char *zTranscript = db_column_text(&q, 0);
+        @ <hr>
+        @ <pre>%h(zTranscript)</pre>
+      }
+      db_finalize(&q);
+    }
+  }
 
   if( eState==0 ){
     /* If is message is currently Unread, change it to Read */

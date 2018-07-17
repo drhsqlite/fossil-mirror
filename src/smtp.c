@@ -669,7 +669,7 @@ static const char zEmailSchema[] =
 @ CREATE TABLE IF NOT EXISTS repository.emailoutq(
 @   edomain TEXT,            -- Destination domain.  (ex: "fossil-scm.org")
 @   efrom TEXT,              -- Sender email address
-@   eto TEXT,                -- Receipient email address
+@   eto TEXT,                -- Recipient email address
 @   emsgid INT,              -- Message body in the emailblob table
 @   ectime INT,              -- Time enqueued.  Seconds since 1970
 @   emtime INT,              -- Time of last send attempt.  Sec since 1970
@@ -1070,13 +1070,12 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     p->nRef = 0;
     db_prepare(&s,
       "INSERT INTO emailblob(ets,etime,etxt,enref)"
-      " VALUES(:ets,now(),compress(:etxt),:enref)"
+      " VALUES(:ets,now(),compress(:etxt),0)"
     );
     p->nEts++;
     if( !bFinish && p->idTranscript==0 ){
       db_bind_null(&s, ":ets");
       db_bind_null(&s, ":etxt");
-      db_bind_int(&s, ":enref", 0);
       db_step(&s);
       db_reset(&s);
       p->idTranscript = db_last_insert_rowid();
@@ -1089,15 +1088,16 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
       }else{
         db_bind_null(&s, ":ets");
         db_bind_str(&s, ":etxt", &p->transcript);
-        db_bind_int(&s, ":enref", p->nEts);
         db_step(&s);
         db_reset(&s);
         p->idTranscript = db_last_insert_rowid();
+        db_multi_exec(
+          "UPDATE emailblob SET enref=%d WHERE emailid=%lld",
+          p->nEts, p->idTranscript);
       }
     }
     db_bind_int64(&s, ":ets", p->idTranscript);
     db_bind_str(&s, ":etxt", &p->msg);
-    db_bind_int(&s, ":enref", 0);
     db_step(&s);
     db_finalize(&s);
     p->idMsg = db_last_insert_rowid();

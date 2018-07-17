@@ -1,5 +1,5 @@
-C Set\san\stimeout\son\sthe\sdatabase\sconnection\sto\sthe\sweb-cache.\s\sUse\sthe\nsqlite3_table_column_metadata()\sinterface\sto\scheck\sto\ssee\sif\sthe\sweb-cache\ndatabase\sfile\sneeds\sto\sbe\sinitialized\sprior\sto\sactually\sinitializing\sit.
-D 2018-07-17T15:48:23.628
+C In\sthe\swebmail\sinterface,\sprovide\sthe\soption\sto\sshow\sthe\sSMTP\stranscript\nwhen\sthat\stranscript\sis\savailable.
+D 2018-07-17T16:24:10.101
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c 0bbde6cfd5164b76d62cc75f4b598b429fda92fef5ab3394576cd6b8c7221ead
+F src/smtp.c 112f9de6969049537eeab7bd4907338a740d3b58603d1e3d7428a9f60dba70ee
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -581,14 +581,14 @@ F src/undo.c 0af37ce94fb9984a23737e0289a9b61ddf647fc6f37aed5c1ce94fa5b2c74d5a
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
 F src/unversioned.c c3e497239a311d7f38671a250b4e1c800803a371c56b29a7634b51ff9bb72267
 F src/update.c 073b324327d22aae32023f6337c1393a15621683ef5e2920e30a6982237c0372
-F src/url.c 61b100991bd4e1375ad67ca8204beb4603f6076e668d2d5fedc6331fccda2005
+F src/url.c d12b5af2810f06b6d4840a10217bc8450df4533cd7695cdce9d41f7b7fb7daed
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 47168c1113f0a6751c732c11fd0730c2ef570f466fd4d54f8011c2947a17f5cd
+F src/webmail.c c9146050f05c8904b7ec5f29bbc8378d1a49594312b586a92d4792815f3e42ac
 F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f6a5ee117dfb8c1759e19a93fb7561148a6962fc09b0035e20ffbe11727bfc1
-R 22c90794363bbe9d44936f6ba44e1cfb
+P e6e806a91e0770c7392aa9ee697e757d6719d2fda3dff0e7ed8899e87e54ae0d
+R 5737d8aa23a162a900db9bbb7705bae4
 U drh
-Z 951579c6c4e2078a43bf0b8ddb5bb8d3
+Z ed99d4f97043fbe38f8fc151651f2b1e
