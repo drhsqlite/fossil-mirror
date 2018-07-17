@@ -1,5 +1,5 @@
-C Merge\senhancements\sfrom\strunk.
-D 2018-07-16T11:35:42.526
+C Add\sa\sreference\scount\sfield\sto\sthe\semailblob\stable\sand\striggers\sto\skeep\nthe\sreference\scount\scurrent\sand\sto\sdrop\sentries\swhen\sthe\sreference\scount\nreaches\szero.
+D 2018-07-17T13:54:59.039
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -453,7 +453,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 9d4a61e86bdb0e7b4f2015f3efb508b664cf595f0084590ed913cab4fa979d0d
+F src/db.c 8a8dea12900f407bedc71bfbf236b2ca27b9e07981b06e4ebb087c3e8a088250
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -463,7 +463,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 3d568ac54c184412bb8b7b2918d611904b9a0b831e0b403b943d2d22d1abd2d8
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c 47e5531c0c414c94d1399da2369970991bbfe78b55946e0cb1796922758c009e
+F src/email.c 8ba5291ac8ffaf9b9e5d49136d64204496533400a74f7b0a271061e0ac37f822
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c 232d6535af217291a12ef05823215fc8f95e10654246a6653bd2dbd71193fe97
+F src/smtp.c 0bbde6cfd5164b76d62cc75f4b598b429fda92fef5ab3394576cd6b8c7221ead
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ddc8817137f74459df37513567c82aeeddf19dddafa8c1e19dc043d3997def9 3f5ab71744cb6e2aa400352e6e8c7df8cf9ead7c90a12d4192f58c20e289f171
-R 621442ac0a6c0d8bcbb2c8ead34cf6e8
+P 03a9b6f897b5d0e038ccc4724b2e9a0ff8eaeb4515cb9c33c98751ed0f7c2beb
+R 19e018aba053fec7a0bf248b957789e8
 U drh
-Z 640f209043caf4e0dc2d9c14c6b0f711
+Z 203ce8356011c49d491cb0f3554f07b6
