@@ -1208,7 +1208,7 @@ void test_refcheck_emailblob(void){
 **
 **      --ipaddr ADDR     The SMTP connection originates at ADDR.  Or if ADDR
 **                        is the name of an environment variable, the address
-**                        is ready from that environment variable.
+**                        is taken from that environment variable.
 */
 void smtp_server(void){
   char *zDbName;

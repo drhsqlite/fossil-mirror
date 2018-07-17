@@ -1,5 +1,5 @@
-C In\sthe\swebmail\sinterface,\sprovide\sthe\soption\sto\sshow\sthe\sSMTP\stranscript\nwhen\sthat\stranscript\sis\savailable.
-D 2018-07-17T16:24:10.101
+C Fix\sa\stypo\sin\sthe\son-line\sdocumentation\sfor\sthe\s"fossil\ssmtpd"\scommand.
+D 2018-07-17T16:59:20.710
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c 112f9de6969049537eeab7bd4907338a740d3b58603d1e3d7428a9f60dba70ee
+F src/smtp.c 9c1aac7017d5f77332c39f6d85d0fcf973d4cf5410ecf66209e23fdf77c96840
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e6e806a91e0770c7392aa9ee697e757d6719d2fda3dff0e7ed8899e87e54ae0d
-R 5737d8aa23a162a900db9bbb7705bae4
+P bb8b60378deb428c4c10496755c7ee2b9fef21d08e49bd48eff0089397452eb0
+R 2f957cae7f4f4c42f3c2792bf86f55e6
 U drh
-Z ed99d4f97043fbe38f8fc151651f2b1e
+Z c811c49e9508116ae46ed6c5bfb3b74c
