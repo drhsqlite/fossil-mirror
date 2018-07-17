@@ -464,7 +464,9 @@ static void webmail_show_one_message(
   db_finalize(&q);
 
   /* Optionally show the SMTP transcript */
-  if( eTranscript>0 ){
+  if( eTranscript>0
+   && db_exists("SELECT 1 FROM emailblob WHERE emailid=%d", eTranscript)
+  ){
     if( P("ts")==0 ){
       sqlite3_snprintf(sizeof(zENum), zENum, "%d", emailid);
       style_submenu_element("SMTP Transcript","%s",
