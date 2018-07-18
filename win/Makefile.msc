@@ -383,6 +383,7 @@ MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
 SRC   = add_.c \
         allrepo_.c \
         attach_.c \
+        backoffice_.c \
         bag_.c \
         bisect_.c \
         blob_.c \
@@ -586,6 +587,7 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \
+        $(OX)\backoffice$O \
         $(OX)\bag$O \
         $(OX)\bisect$O \
         $(OX)\blob$O \
@@ -779,6 +781,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
 	echo $(OX)\allrepo.obj >> $@
 	echo $(OX)\attach.obj >> $@
+	echo $(OX)\backoffice.obj >> $@
 	echo $(OX)\bag.obj >> $@
 	echo $(OX)\bisect.obj >> $@
 	echo $(OX)\blob.obj >> $@
@@ -1048,6 +1051,12 @@ $(OX)\attach$O : attach_.c attach.h
 	$(TCC) /Fo$@ -c attach_.c
 
 attach_.c : $(SRCDIR)\attach.c
+	translate$E $** > $@
+
+$(OX)\backoffice$O : backoffice_.c backoffice.h
+	$(TCC) /Fo$@ -c backoffice_.c
+
+backoffice_.c : $(SRCDIR)\backoffice.c
 	translate$E $** > $@
 
 $(OX)\bag$O : bag_.c bag.h
@@ -1831,6 +1840,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
+			backoffice_.c:backoffice.h \
 			bag_.c:bag.h \
 			bisect_.c:bisect.h \
 			blob_.c:blob.h \
