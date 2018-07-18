@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sTOP\sand\sCAPA\sto\spop3d.
-D 2018-07-18T02:09:33.992
+C Enhance\sthe\spop3\sTOP\scommand\sso\sthat\sthe\ssecond\sargument\scan\sbe\szero.
+D 2018-07-18T02:14:52.778
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c 6b3c3b65afaed34bf51cc34e91954570a277dee3b7981b68bb628a2039a38a84
+F src/smtp.c e60ae790d2a0b8a200b029c5bf2a60b9616171bb7039b975496af01b12ddc3e0
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 25b35708c00e1d3aa0e750f4ac7a0197ae848389d8215b3751f18d091ccf3bb7
@@ -855,7 +855,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2332efb74a214db22d59845dc519b1261816ce750a9ab34b7a3b28981640cb4a
-R d06de1d4d317a390eafdfaf8a1abb825
+P 2c18ed076e008633641ff49d4ca0e1787f04496b3273307eeb66724a750a51d0
+R a15833aa4f8eeac3f23d4bde9200f12f
 U drh
-Z 9ac4b0443ea9790e0f7bc6e5570ef6d3
+Z b829d2674eb0dac8d404100ab5c92fff

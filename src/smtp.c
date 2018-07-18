@@ -1489,10 +1489,10 @@ void pop3d_command(void){
         Blob all, line;
         int nLine = 0;
         int iLimit;
-        int hdrSeen = 0;
+        int hdrPending = 1;
         if( zA1==0 ) goto cmd_error;
         iLimit = zA2 ? atoi(zA2) : 2147483647;
-        if( iLimit<=0 ) goto cmd_error;
+        if( iLimit<0 ) goto cmd_error;
         z = db_text(0, "SELECT decompress(emailblob.etxt) "
                        "  FROM emailblob, pop3"
                        " WHERE emailblob.emailid=pop3.emailid"
@@ -1501,16 +1501,16 @@ void pop3d_command(void){
         if( z==0 ) goto cmd_error;
         pop3_print(pLog, "+OK");
         blob_init(&all, z, -1);
-        while( iLimit && blob_line(&all, &line) ){
+        while( (hdrPending || iLimit>0) && blob_line(&all, &line) ){
           char c = blob_buffer(&line)[0];
           if( c=='.' ){
             fputc('.', stdout);
           }else if( c=='\r' || c=='\n' ){
-            hdrSeen = 1;
+            hdrPending = 0;
           }
           fwrite(blob_buffer(&line), 1, blob_size(&line), stdout);
           nLine++;
-          if( hdrSeen ) iLimit--;
+          if( !hdrPending ) iLimit--;
         }
         if( pLog ) fprintf(pLog, "S: # %d lines of content\n", nLine);
         pop3_print(pLog, ".");
