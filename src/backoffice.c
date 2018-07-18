@@ -41,7 +41,9 @@
 #include "config.h"
 #include "backoffice.h"
 #include <time.h>
-#if !defined(_WIN32)
+#if defined(_WIN32)
+# include <windows.h>
+#else
 # include <sys/types.h>
 # include <signal.h>
 #endif
@@ -143,11 +145,9 @@ static int backofficeProcessDone(sqlite3_uint64 pid){
 */
 static sqlite3_uint64 backofficeProcessId(void){
 #if defined(_WIN32)
-  ULONG Id = 0;
-  GetCurrentProcessId(&Id);
-  return Id;
+  return (sqlite3_uint64)GetCurrentProcessId();
 #else
-  return getpid();
+  return (sqlite3_uint64)getpid();
 #endif
 }
 

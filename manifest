@@ -1,5 +1,5 @@
-C Add\sthe\sbackoffice\smodule\sfor\sdoing\spost-processing\sactions\ssuch\sas\ssending\nalerts\sand/or\ssyncing\srepositories.
-D 2018-07-18T16:43:23.130
+C Fix\sthe\scode\sfor\sobtaining\sprocess\sids\son\swindows.
+D 2018-07-18T16:54:28.997
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c 6d4e1fbf3214cd56308259355afa002e1073d119ffdc556d65a28fcace16f09e w src/daemon.c
+F src/backoffice.c 269015ba67f4e90b2fd198cb3b1674d12242785c3267f2a925c221377579be21
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -856,10 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 065070385a51e584d4ba8e45b043c7841c837474c49e8b341c716d110a211f3c
-R 00df5406774e74619483a9e647016b6c
-T *branch * backoffice
-T *sym-backoffice *
-T -sym-trunk *
+P 86b43a4648568698830f238073a8a52113cdaf6401b28f8e3bc93fdbea05df4c
+R 7afbb1b69707d68779365e21e43d053f
 U drh
-Z 28d6ee2ff268f37e52b17ed07bc16768
+Z 7a0028d77d6d7571f225bc505ab6050e
