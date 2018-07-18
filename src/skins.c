@@ -53,6 +53,7 @@ static struct BuiltinSkin {
   { "Black & White, Menu on Left",       "black_and_white",   0 },
   { "Plain Gray, No Logo",               "plain_gray",        0 },
   { "Khaki, No Logo",                    "khaki",             0 },
+  { "Ardoise",                           "ardoise",           0 },
 };
 
 /*
@@ -255,7 +256,7 @@ const char *skin_detail(const char *zName){
   struct SkinDetail *pDetail;
   skin_detail_initialize();
   pDetail = skin_detail_find(zName);
-  if( pDetail==0 ) fossil_fatal("no such skin detail: %s", zName);
+  if( pDetail==0 ) fossil_panic("no such skin detail: %s", zName);
   return pDetail->zValue;
 }
 int skin_detail_boolean(const char *zName){
@@ -468,72 +469,74 @@ void setup_skin_admin(void){
     aBuiltinSkin[i].zSQL = getSkin(aBuiltinSkin[i].zLabel);
   }
 
-  /* Process requests to delete a user-defined skin */
-  if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
-    style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
-    @ <p>Deletion of a custom skin is a permanent action that cannot
-    @ be undone.  Please confirm that this is what you want to do:</p>
-    @ <input type="hidden" name="sn" value="%h(P("sn"))" />
-    @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
-    @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
-    login_insert_csrf_secret();
-    @ </div></form>
-    style_footer();
-    return;
-  }
-  if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
-    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
-  }
-  if( P("draftdel")!=0 ){
-    const char *zDraft = P("name");
-    if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
-      db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
+  if( cgi_csrf_safe(1) ){
+    /* Process requests to delete a user-defined skin */
+    if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
+      style_header("Confirm Custom Skin Delete");
+      @ <form action="%s(g.zTop)/setup_skin_admin" method="post"><div>
+      @ <p>Deletion of a custom skin is a permanent action that cannot
+      @ be undone.  Please confirm that this is what you want to do:</p>
+      @ <input type="hidden" name="sn" value="%h(P("sn"))" />
+      @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
+      @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
+      login_insert_csrf_secret();
+      @ </div></form>
+      style_footer();
+      return;
     }
-  }
-  if( skinRename() ) return;
-  if( skinSave(zCurrent) ) return;
-
-  /* The user pressed one of the "Install" buttons. */
-  if( P("load") && (z = P("sn"))!=0 && z[0] ){
-    int seen = 0;
-
-    /* Check to see if the current skin is already saved.  If it is, there
-    ** is no need to create a backup */
-    zCurrent = getSkin(0);
-    for(i=0; i<count(aBuiltinSkin); i++){
-      if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
-        seen = 1;
-        break;
+    if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
+      db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+    }
+    if( P("draftdel")!=0 ){
+      const char *zDraft = P("name");
+      if( sqlite3_strglob("draft[1-9]",zDraft)==0 ){
+        db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
       }
     }
-    if( !seen ){
-      seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
-                       " AND value=%Q", zCurrent);
+    if( skinRename() ) return;
+    if( skinSave(zCurrent) ) return;
+  
+    /* The user pressed one of the "Install" buttons. */
+    if( P("load") && (z = P("sn"))!=0 && z[0] ){
+      int seen = 0;
+  
+      /* Check to see if the current skin is already saved.  If it is, there
+      ** is no need to create a backup */
+      zCurrent = getSkin(0);
+      for(i=0; i<count(aBuiltinSkin); i++){
+        if( fossil_strcmp(aBuiltinSkin[i].zSQL, zCurrent)==0 ){
+          seen = 1;
+          break;
+        }
+      }
       if( !seen ){
-        db_multi_exec(
-          "INSERT INTO config(name,value,mtime) VALUES("
-          "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
-          "  %Q,now())", zCurrent
-        );
+        seen = db_exists("SELECT 1 FROM config WHERE name GLOB 'skin:*'"
+                         " AND value=%Q", zCurrent);
+        if( !seen ){
+          db_multi_exec(
+            "INSERT INTO config(name,value,mtime) VALUES("
+            "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
+            "  %Q,now())", zCurrent
+          );
+        }
       }
-    }
-    seen = 0;
-    for(i=0; i<count(aBuiltinSkin); i++){
-      if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
-        seen = 1;
-        zCurrent = aBuiltinSkin[i].zSQL;
+      seen = 0;
+      for(i=0; i<count(aBuiltinSkin); i++){
+        if( fossil_strcmp(aBuiltinSkin[i].zDesc, z)==0 ){
+          seen = 1;
+          zCurrent = aBuiltinSkin[i].zSQL;
+          db_multi_exec("%s", zCurrent/*safe-for-%s*/);
+          break;
+        }
+      }
+      if( !seen ){
+        zName = skinVarName(z,0);
+        zCurrent = db_get(zName, 0);
         db_multi_exec("%s", zCurrent/*safe-for-%s*/);
-        break;
       }
-    }
-    if( !seen ){
-      zName = skinVarName(z,0);
-      zCurrent = db_get(zName, 0);
-      db_multi_exec("%s", zCurrent/*safe-for-%s*/);
     }
   }
-
+  
   style_header("Skins");
   if( zErr ){
     @ <p style="color:red">%h(zErr)</p>
@@ -668,7 +671,7 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
   if( fossil_strcmp(zLabel, "current")==0 ){
     zResult = db_get(zFile, "");
   }else if( sqlite3_strglob("draft[1-9]", zLabel)==0 ){
-    zResult = db_get_mprintf("%s-%s", "", zLabel, zFile);
+    zResult = db_get_mprintf("", "%s-%s", zLabel, zFile);
   }else{
     while( 1 ){
       char *zKey = mprintf("skins/%s/%s.txt", zLabel, zFile);
@@ -719,15 +722,20 @@ void setup_skinedit(void){
 
   /* Check that the user is authorized to edit this skin. */
   if( !g.perm.Setup ){
-    char *zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+    char *zAllowedEditors = "";
     Glob *pAllowedEditors;
+    int isMatch = 0;
+    if( login_is_individual() ){
+      zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    }
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      if( !glob_match(pAllowedEditors, zAllowedEditors) ){
-        login_needed(0);
-        return;
-      }
+      isMatch = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
+    }
+    if( isMatch==0 ){
+      login_needed(0);
+      return;
     }
   }
 
@@ -802,7 +810,7 @@ static void skin_initialize_draft(int iSkin, const char *zTemplate){
   if( zTemplate==0 ) return;
   for(i=0; i<count(azSkinFile); i++){
     const char *z = skin_file_content(zTemplate, azSkinFile[i]);
-    db_set_mprintf("draft%d-%s", z, 0, iSkin, azSkinFile[i]);
+    db_set_mprintf(z, 0, "draft%d-%s", iSkin, azSkinFile[i]);
   }
 }
 
@@ -839,7 +847,7 @@ static void skin_publish(int iSkin){
 
   /* Publish draft iSkin */
   for(i=0; i<count(azSkinFile); i++){
-    char *zNew = db_get_mprintf("draft%d-%s", "", iSkin, azSkinFile[i]);
+    char *zNew = db_get_mprintf("", "draft%d-%s", iSkin, azSkinFile[i]);
     db_set(azSkinFile[i], zNew, 0);
   }
 }
@@ -873,7 +881,11 @@ void setup_skin(void){
   ** changes and/or edits
   */
   login_check_credentials();
-  zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+  if( !login_is_individual() ){
+    login_needed(0);
+    return;
+  }
+  zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   if( g.perm.Setup ){
     isSetup = isEditor = 1;
   }else{
@@ -881,7 +893,7 @@ void setup_skin(void){
     isSetup = isEditor = 0;
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      isEditor = glob_match(pAllowedEditors, zAllowedEditors);
+      isEditor = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
     }
   }
@@ -891,8 +903,8 @@ void setup_skin(void){
     skin_initialize_draft(iSkin, P("initskin"));
   }
   if( P("submit2")!=0 && isSetup ){
-    db_set_mprintf("draft%d-users", PD("editors",""), 0, iSkin);
-    zAllowedEditors = db_get_mprintf("draft%d-users", "", iSkin);
+    db_set_mprintf(PD("editors",""), 0, "draft%d-users", iSkin);
+    zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   }
 
   /* Publish the draft skin */
@@ -933,8 +945,8 @@ void setup_skin(void){
   @
   if( isSetup ){
     @ <p>As an administrator, you can make any edits you like to this or
-    @ any other skin.  You can also authorized other users to edit this
-    @ skin.  Any user whose login name matches the comma-separate list
+    @ any other skin.  You can also authorize other users to edit this
+    @ skin.  Any user whose login name matches the comma-separated list
     @ of GLOB expressions below is given special permission to edit
     @ the draft%d(iSkin) skin:
     @
@@ -960,7 +972,7 @@ void setup_skin(void){
   @ <h1>Step 3: Initialize The Draft</h1>
   @
   if( !isEditor ){
-    @ <p>You are not allowed to initialize draft%(iSkin).  Contact
+    @ <p>You are not allowed to initialize draft%d(iSkin).  Contact
     @ the administrator for this repository for more information.
   }else{
     @ <p>Initialize the draft%d(iSkin) skin to one of the built-in skins
@@ -1017,7 +1029,7 @@ void setup_skin(void){
   @ CSS changes will take effect.</p>
   @
   @ <a hame='step6'></a>
-  @ <h1>Step 6: Interate</h1>
+  @ <h1>Step 6: Iterate</h1>
   @
   @ <p>Repeat <a href='#step4'>step 4</a> and
   @ <a href='#step5'>step 5</a> as many times as necessary to create
@@ -1052,8 +1064,8 @@ void setup_skin(void){
   @ <h1>Step 8: Cleanup and Undo Actions</h1>
   @
   if( !g.perm.Setup ){
-    @ <p>Administrators can optionally remove save legacy skins, or
-    @ undo a prior publish
+    @ <p>Administrators can optionally save or restore legacy skins, and/or
+    @ undo a prior publish.
   }else{
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.

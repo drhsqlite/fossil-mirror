@@ -58,6 +58,8 @@
 #define PT(x)       cgi_parameter_trimmed((x),0)
 #define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 #define PB(x)       cgi_parameter_boolean(x)
+#define PCK(x)      cgi_parameter_checked(x,1)
+#define PIF(x,y)    cgi_parameter_checked(x,y)
 
 
 /*
@@ -200,7 +202,8 @@ void cgi_append_header(const char *zLine){
 }
 
 /*
-** Set a cookie.
+** Set a cookie by queuing up the appropriate HTTP header output. If
+** !g.isHTTP, this is a no-op.
 **
 ** Zero lifetime implies a session cookie.
 */
@@ -210,8 +213,9 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
-  char *zSecure = "";
-  if( zPath==0 ){
+  char const *zSecure = "";
+  if(!g.isHTTP) return /* e.g. JSON CLI mode, where g.zTop is not set */;
+  else if( zPath==0 ){
     zPath = g.zTop;
     if( zPath[0]==0 ) zPath = "/";
   }
@@ -219,10 +223,9 @@ void cgi_set_cookie(
     zSecure = " secure;";
   }
   if( lifetime>0 ){
-    lifetime += (int)time(0);
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; expires=%z; HttpOnly;%s Version=1\r\n",
-        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime), zSecure);
+       "Set-Cookie: %s=%t; Path=%s; max-age=%d; HttpOnly;%s Version=1\r\n",
+        zName, zValue, zPath, lifetime, zSecure);
   }else{
     blob_appendf(&extraHeader,
        "Set-Cookie: %s=%t; Path=%s; HttpOnly;%s Version=1\r\n",
@@ -230,63 +233,12 @@ void cgi_set_cookie(
   }
 }
 
-#if 0
-/*
-** Add an ETag header line
-*/
-static char *cgi_add_etag(char *zTxt, int nLen){
-  MD5Context ctx;
-  unsigned char digest[16];
-  int i, j;
-  char zETag[64];
-
-  MD5Init(&ctx);
-  MD5Update(&ctx,zTxt,nLen);
-  MD5Final(digest,&ctx);
-  for(j=i=0; i<16; i++,j+=2){
-    bprintf(&zETag[j],sizeof(zETag)-j,"%02x",(int)digest[i]);
-  }
-  blob_appendf(&extraHeader, "ETag: %s\r\n", zETag);
-  return fossil_strdup(zETag);
-}
-
-/*
-** Do some cache control stuff. First, we generate an ETag and include it in
-** the response headers. Second, we do whatever is necessary to determine if
-** the request was asking about caching and whether we need to send back the
-** response body. If we shouldn't send a body, return non-zero.
-**
-** Currently, we just check the ETag against any If-None-Match header.
-**
-** FIXME: In some cases (attachments, file contents) we could check
-** If-Modified-Since headers and always include Last-Modified in responses.
-*/
-static int check_cache_control(void){
-  /* FIXME: there's some gotchas wth cookies and some headers. */
-  char *zETag = cgi_add_etag(blob_buffer(&cgiContent),blob_size(&cgiContent));
-  char *zMatch = P("HTTP_IF_NONE_MATCH");
-
-  if( zETag!=0 && zMatch!=0 ) {
-    char *zBuf = fossil_strdup(zMatch);
-    if( zBuf!=0 ){
-      char *zTok = 0;
-      char *zPos;
-      for( zTok = strtok_r(zBuf, ",\"",&zPos);
-           zTok && fossil_stricmp(zTok,zETag);
-           zTok =  strtok_r(0, ",\"",&zPos)){}
-      fossil_free(zBuf);
-      if(zTok) return 1;
-    }
-  }
-
-  return 0;
-}
-#endif
 
 /*
 ** Return true if the response should be sent with Content-Encoding: gzip.
 */
 static int is_gzippable(void){
+  if( g.fNoHttpCompress ) return 0;
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
   return strncmp(zContentType, "text/", 5)==0
     || sqlite3_strglob("application/*xml", zContentType)==0
@@ -303,17 +255,6 @@ void cgi_reply(void){
     zReplyStatus = "OK";
   }
 
-#if 0
-  if( iReplyStatus==200 && check_cache_control() ) {
-    /* change the status to "unchanged" and we can skip sending the
-    ** actual response body. Obviously we only do this when we _have_ a
-    ** body (code 200).
-    */
-    iReplyStatus = 304;
-    zReplyStatus = "Not Modified";
-  }
-#endif
-
   if( g.fullHttpReply ){
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
@@ -321,6 +262,20 @@ void cgi_reply(void){
     fprintf(g.httpOut, "X-UA-Compatible: IE=edge\r\n");
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
+  }
+  if( g.isConst ){
+    /* isConst means that the reply is guaranteed to be invariant, even
+    ** after configuration changes and/or Fossil binary recompiles. */
+    fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
+  }else if( etag_tag()!=0 ){
+    fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
+    fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
+  }else{
+    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
+  }
+  if( etag_mtime()>0 ){
+    fprintf(g.httpOut, "Last-Modified: %s\r\n",
+            cgi_rfc822_datestamp(etag_mtime()));
   }
 
   if( blob_size(&extraHeader)>0 ){
@@ -344,20 +299,6 @@ void cgi_reply(void){
   ** These headers are probably best added by the web server hosting fossil as
   ** a CGI script.
   */
-
-  if( g.isConst ){
-    /* constant means that the input URL will _never_ generate anything
-    ** else. In the case of attachments, the contents won't change because
-    ** an attempt to change them generates a new attachment number. In the
-    ** case of most /getfile calls for specific versions, the only way the
-    ** content changes is if someone breaks the SCM. And if that happens, a
-    ** stale cache is the least of the problem. So we provide an Expires
-    ** header set to a reasonable period (default: one week).
-    */
-    fprintf(g.httpOut, "Cache-control: max-age=28800\r\n");
-  }else{
-    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
-  }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
@@ -400,6 +341,14 @@ void cgi_reply(void){
   }
   fflush(g.httpOut);
   CGIDEBUG(("DONE\n"));
+
+  /* After the webpage has been sent, do any useful background
+  ** processing.
+  */
+  if( g.db!=0 && db_repository_has_changed() ){
+    if( g.fAnyTrace ) fprintf(stderr, "-- repository changes have occurred\n");
+    backoffice_run();
+  }
 }
 
 /*
@@ -457,6 +406,29 @@ const char *cgi_referer(const char *zDefault){
     if( zRef==0 ) zRef = zDefault;
   }
   return zRef;
+}
+
+/*
+** Return true if the current request appears to be safe from a
+** Cross-Site Request Forgery (CSRF) attack.  Conditions that must
+** be met:
+**
+**    *   The HTTP_REFERER must have the same origin
+**    *   The REQUEST_METHOD must be POST - or requirePost==0
+*/
+int cgi_csrf_safe(int requirePost){
+  const char *zRef = P("HTTP_REFERER");
+  int nBase;
+  if( zRef==0 ) return 0;
+  if( requirePost ){
+    const char *zMethod = P("REQUEST_METHOD");
+    if( zMethod==0 ) return 0;
+    if( strcmp(zMethod,"POST")!=0 ) return 0;
+  }
+  nBase = (int)strlen(g.zBaseURL);
+  if( strncmp(g.zBaseURL,zRef,nBase)!=0 ) return 0;
+  if( zRef[nBase]!=0 && zRef[nBase]!='/' ) return 0;
+  return 1;
 }
 
 /*
@@ -599,6 +571,11 @@ void cgi_setenv(const char *zName, const char *zValue){
 **         override the value of an environment variable since
 **         environment variables always have uppercase names.
 **
+** 2018-03-29:  Also ignore the entry if NAME that contains any characters
+** other than [a-zA-Z0-9_].  There are no known exploits involving unusual
+** names that contain characters outside that set, but it never hurts to
+** be extra cautious when sanitizing inputs.
+**
 ** Parameters are separated by the "terminator" character.  Whitespace
 ** before the NAME is ignored.
 **
@@ -628,7 +605,7 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( fossil_islower(zName[0]) ){
+    if( fossil_islower(zName[0]) && fossil_no_strange_characters(zName+1) ){
       cgi_set_parameter_nocopy(zName, zValue, isQP);
     }
 #ifdef FOSSIL_ENABLE_JSON
@@ -914,9 +891,13 @@ void cgi_trace(const char *z){
   }
   if( pLog==0 ){
     char zFile[50];
+#if defined(_WIN32)
     unsigned r;
     sqlite3_randomness(sizeof(r), &r);
     sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+#else
+    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%05d.txt", getpid());
+#endif
     pLog = fossil_fopen(zFile, "wb");
     if( pLog ){
       fprintf(stderr, "# open log on %s\n", zFile);
@@ -1139,6 +1120,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
   int i;
   zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) zIn = zDefault;
+  if( zIn==0 ) return 0;
   while( fossil_isspace(zIn[0]) ) zIn++;
   zOut = fossil_strdup(zIn);
   for(i=0; zOut[i]; i++){}
@@ -1154,6 +1136,29 @@ int cgi_parameter_boolean(const char *zName){
   const char *zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) return 0;
   return zIn[0]==0 || is_truth(zIn);
+}
+
+/*
+** Return either an empty string "" or the string "checked" depending
+** on whether or not parameter zName has value iValue.  If parameter
+** zName does not exist, that is assumed to be the same as value 0.
+**
+** This routine implements the PCK(x) and PIF(x,y) macros.  The PIF(x,y)
+** macro generateds " checked" if the value of parameter x equals integer y.
+** PCK(x) is the same as PIF(x,1).  These macros are used to generate
+** the "checked" attribute on checkbox and radio controls of forms.
+*/
+const char *cgi_parameter_checked(const char *zName, int iValue){
+  const char *zIn = cgi_parameter(zName,0);
+  int x;
+  if( zIn==0 ){
+    x = 0;
+  }else if( !fossil_isdigit(zIn[0]) ){
+    x = is_truth(zIn);
+  }else{
+    x = atoi(zIn);
+  }
+  return x==iValue ? "checked" : "";
 }
 
 /*
@@ -1219,7 +1224,7 @@ int cgi_all(const char *z, ...){
 **
 ** Omit the values of the cookies unless showAll is true.
 */
-void cgi_print_all(int showAll){
+void cgi_print_all(int showAll, int onConsole){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
@@ -1228,7 +1233,11 @@ void cgi_print_all(int showAll){
       if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
       if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
-    cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    if( onConsole ){
+      fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+    }else{
+      cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    }
   }
 }
 
@@ -1345,8 +1354,10 @@ NORETURN void cgi_panic(const char *zFormat, ...){
 */
 static const char *cgi_accept_forwarded_for(const char *z){
   int i;
-  if( fossil_strcmp(g.zIpAddr, "127.0.0.1")!=0 ) return 0;
-
+  if( !cgi_is_loopback(g.zIpAddr) ){
+    /* Only accept X-FORWARDED-FOR if input coming from the local machine */
+    return 0;
+  }
   i = strlen(z)-1;
   while( i>=0 && z[i]!=',' && !fossil_isspace(z[i]) ) i--;
   return &z[++i];
@@ -1376,6 +1387,32 @@ static char *extract_token(char *zInput, char **zLeftOver){
 }
 
 /*
+** Determine the IP address on the other side of a connection.
+** Return a pointer to a string.  Or return 0 if unable.
+**
+** The string is held in a static buffer that is overwritten on
+** each call.
+*/
+char *cgi_remote_ip(int fd){
+#if 0
+  static char zIp[100];
+  struct sockaddr_in6 addr;
+  socklen_t sz = sizeof(addr);
+  if( getpeername(fd, &addr, &sz) ) return 0;
+  zIp[0] = 0;
+  if( inet_ntop(AF_INET6, &addr, zIp, sizeof(zIp))==0 ){
+    return 0;
+  }
+  return zIp;
+#else
+  struct sockaddr_in remoteName;
+  socklen_t size = sizeof(struct sockaddr_in);
+  if( getpeername(fd, (struct sockaddr*)&remoteName, &size) ) return 0;
+  return inet_ntoa(remoteName.sin_addr);
+#endif
+}
+
+/*
 ** This routine handles a single HTTP request which is coming in on
 ** g.httpIn and which replies on g.httpOut
 **
@@ -1388,8 +1425,6 @@ static char *extract_token(char *zInput, char **zLeftOver){
 void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
-  struct sockaddr_in remoteName;
-  socklen_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
@@ -1417,11 +1452,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName,
-                                &size)>=0
-  ){
-    zIpAddr = inet_ntoa(remoteName.sin_addr);
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_remote_ip(fileno(g.httpIn));
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
@@ -1784,6 +1816,7 @@ int cgi_http_server(
 #else
   int listener = -1;           /* The server socket */
   int connection;              /* A socket for each individual connection */
+  int nRequest = 0;            /* Number of requests handled so far */
   fd_set readfds;              /* Set of file descriptors for select() */
   socklen_t lenaddr;           /* Length of the inaddr structure */
   int child;                   /* PID of the child process */
@@ -1871,7 +1904,10 @@ int cgi_http_server(
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){
-          if( child>0 ) nchildren++;
+          if( child>0 ){
+            nchildren++;
+            nRequest++;
+          }
           close(connection);
         }else{
           int nErr = 0, fd;
@@ -1881,13 +1917,14 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fAnyTrace ){
+          if( 0 && !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;
           }
           close(connection);
           g.nPendingRequest = nchildren+1;
+          g.nRequest = nRequest+1;
           return nErr;
         }
       }
@@ -1898,6 +1935,10 @@ int cgi_http_server(
         int iStatus = 0;
         pid_t x = waitpid(-1, &iStatus, WNOHANG);
         if( x<=0 ) break;
+        if( WIFSIGNALED(iStatus) && g.fAnyTrace ){
+          fprintf(stderr, "/***** Child %d exited on signal %d (%s) *****/\n",
+                  x, WTERMSIG(iStatus), strsignal(WTERMSIG(iStatus)));
+        }
         nchildren--;
       }
     }  
@@ -1923,8 +1964,8 @@ static const char *const azMonths[] =
 /*
 ** Returns an RFC822-formatted time string suitable for HTTP headers.
 ** The timezone is always GMT.  The value returned is always a
-** string obtained from mprintf() and must be freed using free() to
-** avoid a memory leak.
+** string obtained from mprintf() and must be freed using fossil_free()
+** to avoid a memory leak.
 **
 ** See http://www.faqs.org/rfcs/rfc822.html, section 5
 ** and http://www.faqs.org/rfcs/rfc2616.html, section 3.3.
@@ -1935,7 +1976,7 @@ char *cgi_rfc822_datestamp(time_t now){
   if( pTm==0 ){
     return mprintf("");
   }else{
-    return mprintf("%s, %d %s %02d %02d:%02d:%02d GMT",
+    return mprintf("%s, %d %s %02d %02d:%02d:%02d +0000",
                    azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
                    pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
@@ -1949,51 +1990,38 @@ char *cgi_rfc822_datestamp(time_t now){
 ** most popular one (the one generated by cgi_rfc822_datestamp(), actually).
 */
 time_t cgi_rfc822_parsedate(const char *zDate){
-  struct tm t;
-  char zIgnore[16];
-  char zMonth[16];
-
-  memset(&t, 0, sizeof(t));
-  if( 7==sscanf(zDate, "%12[A-Za-z,] %d %12[A-Za-z] %d %d:%d:%d", zIgnore,
-                       &t.tm_mday, zMonth, &t.tm_year, &t.tm_hour, &t.tm_min,
-                       &t.tm_sec)){
-
-    if( t.tm_year > 1900 ) t.tm_year -= 1900;
-    for(t.tm_mon=0; azMonths[t.tm_mon]; t.tm_mon++){
-      if( !fossil_strnicmp( azMonths[t.tm_mon], zMonth, 3 )){
-        return mkgmtime(&t);
+  int mday, mon, year, yday, hour, min, sec;
+  char zIgnore[4];
+  char zMonth[4];
+  static const char *const azMonths[] =
+    {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 0};
+  if( 7==sscanf(zDate, "%3[A-Za-z], %d %3[A-Za-z] %d %d:%d:%d", zIgnore,
+                       &mday, zMonth, &year, &hour, &min, &sec)){
+    if( year > 1900 ) year -= 1900;
+    for(mon=0; azMonths[mon]; mon++){
+      if( !strncmp( azMonths[mon], zMonth, 3 )){
+        int nDay;
+        int isLeapYr;
+        static int priorDays[] =
+         {  0, 31, 59, 90,120,151,181,212,243,273,304,334 };
+        if( mon<0 ){
+          int nYear = (11 - mon)/12;
+          year -= nYear;
+          mon += nYear*12;
+        }else if( mon>11 ){
+          year += mon/12;
+          mon %= 12;
+        }
+        isLeapYr = year%4==0 && (year%100!=0 || (year+300)%400==0);
+        yday = priorDays[mon] + mday - 1;
+        if( isLeapYr && mon>1 ) yday++;
+        nDay = (year-70)*365 + (year-69)/4 - year/100 + (year+300)/400 + yday;
+        return ((time_t)(nDay*24 + hour)*60 + min)*60 + sec;
       }
     }
   }
-
   return 0;
-}
-
-/*
-** Convert a struct tm* that represents a moment in UTC into the number
-** of seconds in 1970, UTC.
-*/
-time_t mkgmtime(struct tm *p){
-  time_t t;
-  int nDay;
-  int isLeapYr;
-  /* Days in each month:       31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 */
-  static int priorDays[]   = {  0, 31, 59, 90,120,151,181,212,243,273,304,334 };
-  if( p->tm_mon<0 ){
-    int nYear = (11 - p->tm_mon)/12;
-    p->tm_year -= nYear;
-    p->tm_mon += nYear*12;
-  }else if( p->tm_mon>11 ){
-    p->tm_year += p->tm_mon/12;
-    p->tm_mon %= 12;
-  }
-  isLeapYr = p->tm_year%4==0 && (p->tm_year%100!=0 || (p->tm_year+300)%400==0);
-  p->tm_yday = priorDays[p->tm_mon] + p->tm_mday - 1;
-  if( isLeapYr && p->tm_mon>1 ) p->tm_yday++;
-  nDay = (p->tm_year-70)*365 + (p->tm_year-69)/4 -p->tm_year/100 +
-         (p->tm_year+300)/400 + p->tm_yday;
-  t = ((nDay*24 + p->tm_hour)*60 + p->tm_min)*60 + p->tm_sec;
-  return t;
 }
 
 /*
@@ -2027,4 +2055,13 @@ const char *cgi_ssh_remote_addr(const char *zDefault){
     }
   }
   return zDefault;
+}
+
+/*
+** Return true if information is coming from the loopback network.
+*/
+int cgi_is_loopback(const char *zIpAddr){
+  return fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
+         fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0 ||
+         fossil_strcmp(zIpAddr, "::1")==0;
 }

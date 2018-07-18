@@ -636,6 +636,7 @@ void access_log_page(void){
   int y = atoi(PD("y","3"));
   int n = atoi(PD("n","200"));
   int skip = atoi(PD("o","0"));
+  const char *zUser = P("u");
   Blob sql;
   Stmt q;
   int cnt = 0;
@@ -675,7 +676,11 @@ void access_log_page(void){
     "SELECT uname, ipaddr, datetime(mtime,toLocal()), success"
     "  FROM accesslog"
   );
-  if( y==1 ){
+  if( zUser ){
+    blob_append_sql(&sql, "  WHERE uname=%Q", zUser);
+    n = 1000000000;
+    skip = 0;
+  }else if( y==1 ){
     blob_append(&sql, "  WHERE success", -1);
   }else if( y==2 ){
     blob_append(&sql, "  WHERE NOT success", -1);

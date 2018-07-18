@@ -500,7 +500,7 @@ data elements.
 <b>reqconfig</b> <i>configuration-name</i>
 </blockquote>
 
-<p>As of [/timeline?r=trunk&c=2015-03-19+03%3A57%3A46&n=20|2015-03-19], the configuration-name must be one of the
+<p>As of 2018-06-04, the configuration-name must be one of the
 following values:
 
 <table border=0 align="center">
@@ -509,6 +509,7 @@ following values:
 <li> css
 <li> header
 <li> footer
+<li> details
 <li> logo-mimetype
 <li> logo-image
 <li> background-mimetype
@@ -517,11 +518,15 @@ following values:
 <li> timeline-block-markup
 <li> timeline-max-comment
 <li> timeline-plaintext
-<ul></td><td valign="top"><ul>
 <li> adunit
 <li> adunit-omit-if-admin
 <li> adunit-omit-if-user
-<li> white-foreground
+<ul></td><td valign="top"><ul>
+<li> th1-docs
+<li> th1-hooks
+<li> th1-setup
+<li> tcl
+<li> tcl-setup
 <li> project-name
 <li> short-project-name
 <li> project-description
@@ -529,27 +534,35 @@ following values:
 <li> manifest
 <li> binary-glob
 <li> clean-glob
-<ul></td><td valign="top"><ul>
 <li> ignore-glob
 <li> keep-glob
 <li> crlf-glob
+<ul></td><td valign="top"><ul>
 <li> crnl-glob
 <li> encoding-glob
 <li> empty-dirs
 <li> allow-symlinks
 <li> dotfiles
+<li> parent-project-code
+<li> parent-projet-name
+<li> hash-policy
+<li> mv-rm-files
 <li> ticket-table
 <li> ticket-common
 <li> ticket-change
 <li> ticket-newpage
-<ul></td><td valign="top"><ul>
 <li> ticket-viewpage
 <li> ticket-editpage
+<ul></td><td valign="top"><ul>
 <li> ticket-reportlist
 <li> ticket-report-template
 <li> ticket-key-template
 <li> ticket-title-expr
 <li> ticket-closed-expr
+<li> xfer-common-script
+<li> xfer-push-script
+<li> xfer-commit-script
+<li> xfer-ticket-script
 <li> @reportfmt
 <li> @user
 <li> @concealed
@@ -674,7 +687,7 @@ permission.</p>
 <p>Any card that begins with "#" (ASCII 0x23) is a comment card and
 is silently ignored.</p>
 
-<h3>3.13 Error Cards</h3>
+<h3>3.13 Message and Error Cards</h3>
 
 <p>If the server discovers anything wrong with a request, it generates
 an error card in its reply.  When the client sees the error card,
@@ -693,6 +706,15 @@ newline (ASCII 0x0a) is "\n" (ASCII 0x6C, x6E).  A backslash
 space and newline, no other whitespace characters nor any
 unprintable characters are allowed in
 the error message.</p>
+
+<p>The server can also send a message card that also prints a
+message on the client console, but which is not an error:
+
+<blockquote>
+<b>message</b> <i>message-text</i>
+</blockquote>
+
+<p>The message-text uses the same format as an error message.
 
 <h3>3.14 Unknown Cards</h3>
 
@@ -915,6 +937,7 @@ fit comfortably in a single HTTP request.
     <li> <b>config</b> <i>parameter-name size</i> <b>\n</b> <i>content</i>
     <li> <b>pragma</b> <i>name</i> <i>value...</i>
     <li> <b>error</b> <i>error-message</i>
+    <li> <b>message</b> <i>text-messate</i>
     <li> <b>#</b> <i>arbitrary-text...</i>
     </ul>
 <li>Phantoms are artifacts that a repository knows exist but does not possess.

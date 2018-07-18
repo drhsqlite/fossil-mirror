@@ -379,7 +379,7 @@ void attachadd_page(void){
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
-  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct(0)) ){
     int needModerator = (zTkt!=0 && ticket_need_moderation(0)) ||
                         (zPage!=0 && wiki_need_moderation(0));
     const char *zComment = PD("comment", "");

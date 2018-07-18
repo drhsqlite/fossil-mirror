@@ -7,7 +7,7 @@ Does it use a lot of disk space or bandwidth?  Is it scalable?
 In an attempt to answers these questions, this report looks at several
 projects that use fossil for configuration management and examines how
 well they are working.  The following table is a summary of the results.
-(Last updated on 2015-02-28.)
+(Last updated on 2018-06-04.)
 Explanation and analysis follows the table.
 
 <table border=1>
@@ -15,7 +15,7 @@ Explanation and analysis follows the table.
 <th>Project</th>
 <th>Number Of Artifacts</th>
 <th>Number Of Check-ins</th>
-<th>Project&nbsp;Duration<br>(as of 2015-02-28)</th>
+<th>Project&nbsp;Duration<br>(as of 2018-06-04)</th>
 <th>Uncompressed Size</th>
 <th>Repository Size</th>
 <th>Compression Ratio</th>
@@ -24,68 +24,68 @@ Explanation and analysis follows the table.
 
 <tr align="center">
 <td>[http://www.sqlite.org/src/timeline | SQLite]
-<td>56089
-<td>14357
-<td>5388&nbsp;days<br>14.75&nbsp;years
-<td>3.4&nbsp;GB
-<td>45.5&nbsp;MB
-<td>73:1
-<td>29.9&nbsp;MB
+<td>77492
+<td>20686
+<td>6580&nbsp;days<br>18.02&nbsp;years
+<td>5.6&nbsp;GB
+<td>70.0&nbsp;MB
+<td>80:1
+<td>51.1&nbsp;MB
 </tr>
 
 <tr align="center">
-<td>[http://core.tcl-lang.org/tcl/timeline | TCL]
-<td>139662
-<td>18125
-<td>6183&nbsp;days<br>16.93&nbsp;years
-<td>6.6&nbsp;GB
-<td>192.6&nbsp;MB
-<td>34:1
-<td>117.1&nbsp;MB
+<td>[http://core.tcl.tk/tcl/timeline | TCL]
+<td>161991
+<td>23146
+<td>7375&nbsp;days<br>20.19&nbsp;years
+<td>8.0&nbsp;GB
+<td>222.0&nbsp;MB
+<td>36:1
+<td>150.5&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[/timeline | Fossil]
-<td>29937
-<td>8238
-<td>2779&nbsp;days<br>7.61&nbsp;years
-<td>2.3&nbsp;GB
-<td>34.0&nbsp;MB
-<td>67:1
-<td>21.5&nbsp;MB
+<td>39148
+<td>11266
+<td>3971&nbsp;days<br>10.87&nbsp;years
+<td>3.8&nbsp;GB
+<td>42.0&nbsp;MB
+<td>90:1
+<td>27.4&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[http://www.sqlite.org/slt/timeline | SLT]
-<td>2278
-<td>136
-<td>2282&nbsp;days<br>6.25&nbsp;years
-<td>2.0&nbsp;GB
-<td>144.7&nbsp;MB
-<td>13:1
-<td>142.1&nbsp;MB
+<td>2384
+<td>169
+<td>3474&nbsp;days<br>9.51&nbsp;years
+<td>2.1&nbsp;GB
+<td>145.9&nbsp;MB
+<td>14:1
+<td>143.4&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[http://www.sqlite.org/th3.html | TH3]
-<td>8729
-<td>2406
-<td>2347&nbsp;days<br>6.43&nbsp;years
-<td>386&nbsp;MB
-<td>15.2&nbsp;MB
-<td>25:1
-<td>12.6&nbsp;MB
+<td>12406
+<td>3718
+<td>3539&nbsp;days<br>9.69&nbsp;years
+<td>544&nbsp;MB
+<td>18.0&nbsp;MB
+<td>30:1
+<td>14.7&nbsp;MB
 </tr>
 
 <tr align="center">
 <td>[http://www.sqlite.org/docsrc/timeline | SQLite Docs]
-<td>5503
-<td>1631
-<td>2666&nbsp;days<br>7.30&nbsp;years
-<td>194&nbsp;MB
-<td>10.9&nbsp;MB
-<td>17:1
-<td>8.37&nbsp;MB
+<td>8752
+<td>2783
+<td>3857&nbsp;days<br>10.56&nbsp;years
+<td>349.9&nbsp;MB
+<td>16.3&nbsp;MB
+<td>21:1
+<td>13.57&nbsp;MB
 </tr>
 
 </table>
@@ -131,7 +131,7 @@ Perhaps the two most interesting datapoints in the above table are SQLite
 and SLT.  SQLite is a long-running project with long revision chains.
 Some of the files in SQLite have been edited over a thousand times.
 Each of these edits is stored as a delta, and hence the SQLite project
-gets excellent 73:1 compression.  SLT, on the other hand, consists of
+gets excellent 80:1 compression.  SLT, on the other hand, consists of
 many large (megabyte-sized) SQL scripts that have one or maybe two
 edits each.  There is very little delta compression occurring and so the
 overall repository compression ratio is much lower.  Note also that

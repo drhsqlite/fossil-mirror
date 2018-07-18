@@ -63,23 +63,27 @@ static sqlite3 *cacheOpen(int bForce){
     sqlite3_close(db);
     return 0;
   }
-  rc = sqlite3_exec(db,
-     "PRAGMA page_size=8192;"
-     "CREATE TABLE IF NOT EXISTS blob(id INTEGER PRIMARY KEY, data BLOB);"
-     "CREATE TABLE IF NOT EXISTS cache("
-       "key TEXT PRIMARY KEY,"     /* Key used to access the cache */
-       "id INT REFERENCES blob,"   /* The cache content */
-       "sz INT,"                   /* Size of content in bytes */
-       "tm INT,"                   /* Last access time (unix timestampe) */
-       "nref INT"                  /* Number of uses */
-     ");"
-     "CREATE TRIGGER IF NOT EXISTS cacheDel AFTER DELETE ON cache BEGIN"
-     "  DELETE FROM blob WHERE id=OLD.id;"
-     "END;",
-     0, 0, 0);
-  if( rc!=SQLITE_OK ){
-    sqlite3_close(db);
-    return 0;
+  sqlite3_busy_timeout(db, 5000);
+  if( sqlite3_table_column_metadata(db,0,"blob","key",0,0,0,0,0)!=SQLITE_OK ){
+    rc = sqlite3_exec(db,
+       "PRAGMA page_size=8192;"
+       "CREATE TABLE IF NOT EXISTS blob(id INTEGER PRIMARY KEY, data BLOB);"
+       "CREATE TABLE IF NOT EXISTS cache("
+         "key TEXT PRIMARY KEY,"     /* Key used to access the cache */
+         "id INT REFERENCES blob,"   /* The cache content */
+         "sz INT,"                   /* Size of content in bytes */
+         "tm INT,"                   /* Last access time (unix timestampe) */
+         "nref INT"                  /* Number of uses */
+       ");"
+       "CREATE TRIGGER IF NOT EXISTS cacheDel AFTER DELETE ON cache BEGIN"
+       "  DELETE FROM blob WHERE id=OLD.id;"
+       "END;",
+       0, 0, 0
+    );
+    if( rc!=SQLITE_OK ){
+      sqlite3_close(db);
+      return 0;
+    }
   }
   return db;
 }
@@ -167,13 +171,21 @@ void cache_write(Blob *pContent, const char *zKey){
   rc = sqlite3_changes(db);
 
   /* If the write was successful, truncate the cache to keep at most
-  ** max-cache-entry entries in the cache */
+  ** max-cache-entry entries in the cache.
+  **
+  ** The cache entry replacement algorithm is approximately LRU
+  ** (least recently used).  However, each access of an entry buys
+  ** that entry an extra hour of grace, so that more commonly accessed
+  ** entries are held in cache longer.  The extra "grace" allotted to
+  ** an entry is limited to 2 days worth.
+  */
   if( rc ){
     nKeep = db_get_int("max-cache-entry",10);
     sqlite3_finalize(pStmt);
     pStmt = cacheStmt(db,
                  "DELETE FROM cache WHERE rowid IN ("
-                    "SELECT rowid FROM cache ORDER BY tm DESC"
+                    "SELECT rowid FROM cache"
+                    " ORDER BY (tm + 3600*min(nRef,48)) DESC"
                     " LIMIT -1 OFFSET ?1)");
     if( pStmt ){
       sqlite3_bind_int(pStmt, 1, nKeep);
@@ -293,7 +305,8 @@ void cache_cmd(void){
     }else{
       fossil_print("nothing to clear; cache does not exist\n");
     }
-  }else if(( strncmp(zCmd, "list", nCmd)==0 ) || ( strncmp(zCmd, "ls", nCmd)==0 )){
+  }else if(( strncmp(zCmd, "list", nCmd)==0 )
+             || ( strncmp(zCmd, "ls", nCmd)==0 )){
     db = cacheOpen(0);
     if( db==0 ){
       fossil_print("cache does not exist\n");
@@ -352,7 +365,7 @@ void cache_page(void){
     pStmt = cacheStmt(db,
          "SELECT key, sizename(sz), nRef, datetime(tm,'unixepoch')"
          "  FROM cache"
-         " ORDER BY tm DESC"
+         " ORDER BY (tm + 3600*min(nRef,48)) DESC"
     );
     if( pStmt ){
       @ <ol>

@@ -474,6 +474,8 @@ void status_cmd(void){
   unsigned flags = 0;
   int vid, i;
 
+  fossil_pledge("stdio rpath wpath cpath fattr id flock tty chown");
+
   /* Load affirmative flag options. */
   for( i=0; i<count(flagDefs); ++i ){
     if( (command==CHANGES || !(flagDefs[i].mask & C_CLASSIFY))
@@ -557,8 +559,9 @@ void status_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Changes for %s at %s:\n", db_get("project-name", "???"),
-                   g.zLocalRoot);
+      fossil_print(
+        "Changes for %s at %s:\n", db_get("project-name", "<unnamed>"),
+        g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
   }else if( verboseFlag ){
@@ -865,7 +868,7 @@ void extras_cmd(void){
   status_report(&report, flags);
   if( blob_size(&report) ){
     if( showHdr ){
-      fossil_print("Extras for %s at %s:\n", db_get("project-name","???"),
+      fossil_print("Extras for %s at %s:\n", db_get("project-name","<unnamed>"),
                    g.zLocalRoot);
     }
     blob_write_to_file(&report, "-");
@@ -1191,13 +1194,15 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   }
 #endif
   if( zEditor==0 ){
-    blob_append(pPrompt,
-       "#\n"
-       "# Since no default text editor is set using EDITOR or VISUAL\n"
-       "# environment variables or the \"fossil set editor\" command,\n"
-       "# and because no comment was specified using the \"-m\" or \"-M\"\n"
-       "# command-line options, you will need to enter the comment below.\n"
-       "# Type \".\" on a line by itself when you are done:\n", -1);
+    if( blob_size(pPrompt)>0 ){
+      blob_append(pPrompt,
+         "#\n"
+         "# Since no default text editor is set using EDITOR or VISUAL\n"
+         "# environment variables or the \"fossil set editor\" command,\n"
+         "# and because no comment was specified using the \"-m\" or \"-M\"\n"
+         "# command-line options, you will need to enter the comment below.\n"
+         "# Type \".\" on a line by itself when you are done:\n", -1);
+    }
     zFile = mprintf("-");
   }else{
     Blob fname;
@@ -1215,7 +1220,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
 #if defined(_WIN32)
   blob_add_cr(pPrompt);
 #endif
-  blob_write_to_file(pPrompt, zFile);
+  if( blob_size(pPrompt)>0 ) blob_write_to_file(pPrompt, zFile);
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
     fossil_print("%s\n", zCmd);

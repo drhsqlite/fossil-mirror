@@ -18,6 +18,7 @@ SRC = \
   $(SRCDIR)/add.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
+  $(SRCDIR)/backoffice.c \
   $(SRCDIR)/bag.c \
   $(SRCDIR)/bisect.c \
   $(SRCDIR)/blob.c \
@@ -44,12 +45,15 @@ SRC = \
   $(SRCDIR)/diffcmd.c \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
+  $(SRCDIR)/email.c \
   $(SRCDIR)/encode.c \
+  $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/forum.c \
   $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
@@ -112,6 +116,7 @@ SRC = \
   $(SRCDIR)/shun.c \
   $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
+  $(SRCDIR)/smtp.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
   $(SRCDIR)/stat.c \
@@ -134,6 +139,7 @@ SRC = \
   $(SRCDIR)/util.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
+  $(SRCDIR)/webmail.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
@@ -145,6 +151,10 @@ SRC = \
 
 EXTRA_FILES = \
   $(SRCDIR)/../skins/aht/details.txt \
+  $(SRCDIR)/../skins/ardoise/css.txt \
+  $(SRCDIR)/../skins/ardoise/details.txt \
+  $(SRCDIR)/../skins/ardoise/footer.txt \
+  $(SRCDIR)/../skins/ardoise/header.txt \
   $(SRCDIR)/../skins/black_and_white/css.txt \
   $(SRCDIR)/../skins/black_and_white/details.txt \
   $(SRCDIR)/../skins/black_and_white/footer.txt \
@@ -214,6 +224,7 @@ TRANS_SRC = \
   $(OBJDIR)/add_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
+  $(OBJDIR)/backoffice_.c \
   $(OBJDIR)/bag_.c \
   $(OBJDIR)/bisect_.c \
   $(OBJDIR)/blob_.c \
@@ -240,12 +251,15 @@ TRANS_SRC = \
   $(OBJDIR)/diffcmd_.c \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
+  $(OBJDIR)/email_.c \
   $(OBJDIR)/encode_.c \
+  $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/forum_.c \
   $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
@@ -308,6 +322,7 @@ TRANS_SRC = \
   $(OBJDIR)/shun_.c \
   $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
+  $(OBJDIR)/smtp_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
   $(OBJDIR)/stat_.c \
@@ -330,6 +345,7 @@ TRANS_SRC = \
   $(OBJDIR)/util_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
+  $(OBJDIR)/webmail_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
@@ -343,6 +359,7 @@ OBJ = \
  $(OBJDIR)/add.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
+ $(OBJDIR)/backoffice.o \
  $(OBJDIR)/bag.o \
  $(OBJDIR)/bisect.o \
  $(OBJDIR)/blob.o \
@@ -369,12 +386,15 @@ OBJ = \
  $(OBJDIR)/diffcmd.o \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
+ $(OBJDIR)/email.o \
  $(OBJDIR)/encode.o \
+ $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/forum.o \
  $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
@@ -437,6 +457,7 @@ OBJ = \
  $(OBJDIR)/shun.o \
  $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
+ $(OBJDIR)/smtp.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
  $(OBJDIR)/stat.o \
@@ -459,6 +480,7 @@ OBJ = \
  $(OBJDIR)/util.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
+ $(OBJDIR)/webmail.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
@@ -549,14 +571,43 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
-                 -DSQLITE_ENABLE_STMTVTAB
+                 -DSQLITE_ENABLE_STMTVTAB \
+                 -DSQLITE_HAVE_ZLIB \
+                 -DSQLITE_INTROSPECTION_PRAGMAS \
+                 -DSQLITE_ENABLE_DBPAGE_VTAB
 
 # Setup the options used to compile the included SQLite shell.
-SHELL_OPTIONS = -Dmain=sqlite3_shell \
+SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_THREADSAFE=0 \
+                -DSQLITE_DEFAULT_MEMSTATUS=0 \
+                -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
+                -DSQLITE_LIKE_DOESNT_MATCH_BLOBS \
+                -DSQLITE_OMIT_DECLTYPE \
+                -DSQLITE_OMIT_DEPRECATED \
+                -DSQLITE_OMIT_GET_TABLE \
+                -DSQLITE_OMIT_PROGRESS_CALLBACK \
+                -DSQLITE_OMIT_SHARED_CACHE \
+                -DSQLITE_OMIT_LOAD_EXTENSION \
+                -DSQLITE_MAX_EXPR_DEPTH=0 \
+                -DSQLITE_USE_ALLOCA \
+                -DSQLITE_ENABLE_LOCKING_STYLE=0 \
+                -DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
+                -DSQLITE_ENABLE_FTS4 \
+                -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+                -DSQLITE_ENABLE_DBSTAT_VTAB \
+                -DSQLITE_ENABLE_JSON1 \
+                -DSQLITE_ENABLE_FTS5 \
+                -DSQLITE_ENABLE_STMTVTAB \
+                -DSQLITE_HAVE_ZLIB \
+                -DSQLITE_INTROSPECTION_PRAGMAS \
+                -DSQLITE_ENABLE_DBPAGE_VTAB \
+                -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
-                -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+                -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
+                -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
 
 # Setup the options used to compile the included miniz library.
 MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
@@ -641,6 +692,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
+	$(OBJDIR)/backoffice_.c:$(OBJDIR)/backoffice.h \
 	$(OBJDIR)/bag_.c:$(OBJDIR)/bag.h \
 	$(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h \
 	$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
@@ -667,12 +719,15 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
+	$(OBJDIR)/email_.c:$(OBJDIR)/email.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
+	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
 	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
@@ -735,6 +790,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
 	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
+	$(OBJDIR)/smtp_.c:$(OBJDIR)/smtp.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
 	$(OBJDIR)/stat_.c:$(OBJDIR)/stat.h \
@@ -757,6 +813,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/util_.c:$(OBJDIR)/util.h \
 	$(OBJDIR)/verify_.c:$(OBJDIR)/verify.h \
 	$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
+	$(OBJDIR)/webmail_.c:$(OBJDIR)/webmail.h \
 	$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
 	$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 	$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
@@ -795,6 +852,14 @@ $(OBJDIR)/attach.o:	$(OBJDIR)/attach_.c $(OBJDIR)/attach.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/attach.o -c $(OBJDIR)/attach_.c
 
 $(OBJDIR)/attach.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/backoffice_.c:	$(SRCDIR)/backoffice.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/backoffice.c >$@
+
+$(OBJDIR)/backoffice.o:	$(OBJDIR)/backoffice_.c $(OBJDIR)/backoffice.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/backoffice.o -c $(OBJDIR)/backoffice_.c
+
+$(OBJDIR)/backoffice.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/bag_.c:	$(SRCDIR)/bag.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/bag.c >$@
@@ -1004,6 +1069,14 @@ $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
 
 $(OBJDIR)/doc.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/email_.c:	$(SRCDIR)/email.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/email.c >$@
+
+$(OBJDIR)/email.o:	$(OBJDIR)/email_.c $(OBJDIR)/email.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/email.o -c $(OBJDIR)/email_.c
+
+$(OBJDIR)/email.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/encode.c >$@
 
@@ -1011,6 +1084,14 @@ $(OBJDIR)/encode.o:	$(OBJDIR)/encode_.c $(OBJDIR)/encode.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/encode.o -c $(OBJDIR)/encode_.c
 
 $(OBJDIR)/encode.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/etag_.c:	$(SRCDIR)/etag.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/etag.c >$@
+
+$(OBJDIR)/etag.o:	$(OBJDIR)/etag_.c $(OBJDIR)/etag.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/etag.o -c $(OBJDIR)/etag_.c
+
+$(OBJDIR)/etag.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/event_.c:	$(SRCDIR)/event.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/event.c >$@
@@ -1051,6 +1132,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/forum_.c:	$(SRCDIR)/forum.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/forum.c >$@
+
+$(OBJDIR)/forum.o:	$(OBJDIR)/forum_.c $(OBJDIR)/forum.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/forum.o -c $(OBJDIR)/forum_.c
+
+$(OBJDIR)/forum.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
@@ -1548,6 +1637,14 @@ $(OBJDIR)/skins.o:	$(OBJDIR)/skins_.c $(OBJDIR)/skins.h $(SRCDIR)/config.h
 
 $(OBJDIR)/skins.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/smtp_.c:	$(SRCDIR)/smtp.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/smtp.c >$@
+
+$(OBJDIR)/smtp.o:	$(OBJDIR)/smtp_.c $(OBJDIR)/smtp.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/smtp.o -c $(OBJDIR)/smtp_.c
+
+$(OBJDIR)/smtp.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/sqlcmd_.c:	$(SRCDIR)/sqlcmd.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/sqlcmd.c >$@
 
@@ -1723,6 +1820,14 @@ $(OBJDIR)/vfile.o:	$(OBJDIR)/vfile_.c $(OBJDIR)/vfile.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/vfile.o -c $(OBJDIR)/vfile_.c
 
 $(OBJDIR)/vfile.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/webmail_.c:	$(SRCDIR)/webmail.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/webmail.c >$@
+
+$(OBJDIR)/webmail.o:	$(OBJDIR)/webmail_.c $(OBJDIR)/webmail.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/webmail.o -c $(OBJDIR)/webmail_.c
+
+$(OBJDIR)/webmail.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/wiki_.c:	$(SRCDIR)/wiki.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/wiki.c >$@

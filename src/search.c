@@ -1777,7 +1777,7 @@ void fts_config_cmd(void){
      { 5,  "stemmer"  },
   };
   static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
-     { "search-ckin",     "check-in search:",  "c" },
+     { "search-ci",       "check-in search:",  "c" },
      { "search-doc",      "document search:",  "d" },
      { "search-tkt",      "ticket search:",    "t" },
      { "search-wiki",     "wiki search:",      "w" },

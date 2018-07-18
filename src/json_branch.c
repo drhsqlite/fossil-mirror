@@ -142,7 +142,7 @@ static cson_value * json_branch_list(){
     }
   }
   if( sawConversionError ){
-    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,sawConversionError);
+    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,"%s",sawConversionError);
     free(sawConversionError);
   }
   return payV;
@@ -290,11 +290,11 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 
   brid = content_put(&branch);
   if( brid==0 ){
-    fossil_fatal("Problem committing manifest: %s", g.zErrMsg);
+    fossil_panic("Problem committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
   if( manifest_crosslink(brid, &branch, MC_PERMIT_HOOKS)==0 ){
-    fossil_fatal("%s", g.zErrMsg);
+    fossil_panic("%s", g.zErrMsg);
   }
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, &brid, 1, 0);
@@ -361,7 +361,7 @@ static cson_value * json_branch_create(){
 
   rc = json_branch_new( &opt, &rid );
   if(rc){
-    json_set_err(rc, opt.rcErrMsg);
+    json_set_err(rc, "%s", opt.rcErrMsg);
     goto error;
   }
   assert(0 != rid);

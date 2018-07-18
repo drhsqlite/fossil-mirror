@@ -210,6 +210,7 @@ function TimelineGraph(tx){
       e = document.getElementById("md"+p.id);
       if(e) e.style.backgroundColor = p.bg;
     }
+    if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
     var cls = node.cls;
     if( p.mi.length ) cls += " merge";
@@ -344,18 +345,23 @@ function TimelineGraph(tx){
       if( y>0 ) window.scrollTo(0, y);
     }
   }
-  var lastRow = document.getElementById("m"+tx.rowinfo[tx.rowinfo.length-1].id);
-  var lastY = 0;
-  function checkHeight(){
-    var h = absoluteY(lastRow);
-    if( h!=lastY ){
-      renderGraph();
-      lastY = h;
+  if( tx.rowinfo ){
+    var lastRow = 
+       document.getElementById("m"+tx.rowinfo[tx.rowinfo.length-1].id);
+    var lastY = 0;
+    function checkHeight(){
+      var h = absoluteY(lastRow);
+      if( h!=lastY ){
+        renderGraph();
+        lastY = h;
+      }
+      setTimeout(checkHeight, 1000);
     }
-    setTimeout(checkHeight, 1000);
+    initGraph();
+    checkHeight();
+  }else{
+    function checkHeight(){}
   }
-  initGraph();
-  checkHeight();
   if( tx.scrollToSelect ){
     scrollToSelected();
   }
@@ -384,6 +390,6 @@ function TimelineGraph(tx){
     if(!dataObj) break;
     var txJson = dataObj.textContent || dataObj.innerText;
     var tx = JSON.parse(txJson);
-    if(tx.rowinfo) TimelineGraph(tx);
+    TimelineGraph(tx);
   }
 }())

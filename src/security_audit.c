@@ -327,6 +327,30 @@ void secaudit0_page(void){
   }
 #endif
 
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    @ <li><p>
+    @ The server error log is disabled.
+    @ To set up an error log:
+    @ <ul>
+    @ <li>If running from CGI, make an entry "errorlog: <i>FILENAME</i>"
+    @ in the CGI script.
+    @ <li>If running the "fossil server" or "fossil http" commands,
+    @ add the "--errorlog <i>FILENAME</i>" command-line option.
+    @ </ul>
+  }else{
+    FILE *pTest = fossil_fopen(g.zErrlog,"a");
+    if( pTest==0 ){
+      @ <li><p>
+      @ <b>Error:</b>
+      @ There is an error log at "%h(g.zErrlog)" but that file is not
+      @ writable and so no logging will occur.
+    }else{
+      fclose(pTest);
+      @ <li><p>
+      @ The error log at "<a href='%R/errorlog'>%h(g.zErrlog)</a>" that is
+      @ %,lld(file_size(g.zErrlog, ExtFILE)) bytes in size.
+    }
+  }
 
   @ </ol>
   style_footer();
@@ -368,5 +392,88 @@ void takeitprivate_page(void){
   @ <input type="submit" name="cancel" value="Cancel">
   @ </form>
 
+  style_footer();
+}
+
+/*
+** The maximum number of bytes of log to show
+*/
+#define MXSHOWLOG 50000
+
+/*
+** WEBPAGE: errorlog
+**
+** Show the content of the error log.  Only the administrator can view
+** this page.
+*/
+void errorlog_page(void){
+  i64 szFile;
+  FILE *in;
+  char z[10000];
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Server Error Log");
+  style_submenu_element("Test", "%R/test-warning");
+  if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
+    @ <p>To create a server error log:
+    @ <ol>
+    @ <li><p>
+    @ If the server is running as CGI, then create a line in the CGI file
+    @ like this:
+    @ <blockquote><pre>
+    @ errorlog: <i>FILENAME</i>
+    @ </pre></blockquote>
+    @ <li><p>
+    @ If the server is running using one of 
+    @ the "fossil http" or "fossil server" commands then add
+    @ a command-line option "--errorlog <i>FILENAME</i>" to that
+    @ command.
+    @ </ol>
+    style_footer();
+    return;
+  }
+  if( P("truncate1") && cgi_csrf_safe(1) ){
+    fclose(fopen(g.zErrlog,"w"));
+  }
+  if( P("download") ){
+    Blob log;
+    blob_read_from_file(&log, g.zErrlog, ExtFILE);
+    cgi_set_content_type("text/plain");
+    cgi_set_content(&log);
+    return;
+  }
+  szFile = file_size(g.zErrlog, ExtFILE);
+  if( P("truncate") ){
+    @ <form action="%R/errorlog" method="POST">
+    @ <p>Confirm that you want to truncate the %,lld(szFile)-byte error log:
+    @ <input type="submit" name="truncate1" value="Confirm">
+    @ <input type="submit" name="cancel" value="Cancel">
+    @ </form>
+    style_footer();
+    return;
+  }
+  @ <p>The server error log at "%h(g.zErrlog)" is %,lld(szFile) bytes in size.
+  style_submenu_element("Download", "%R/errorlog?download");
+  style_submenu_element("Truncate", "%R/errorlog?truncate");
+  in = fossil_fopen(g.zErrlog, "rb");
+  if( in==0 ){
+    @ <p class='generalError'>Unable top open that file for reading!</p>
+    style_footer();
+    return;
+  }
+  if( szFile>MXSHOWLOG ){
+    @ Only the last %,d(MXSHOWLOG) bytes are shown.
+    fseek(in, -MXSHOWLOG, SEEK_END);
+  }
+  @ <hr>
+  @ <pre>
+  while( fgets(z, sizeof(z), in) ){
+    @ %h(z)\
+  }
+  fclose(in);
+  @ </pre>
   style_footer();
 }

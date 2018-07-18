@@ -1928,7 +1928,7 @@ static size_t parse_table(
     }
 
     /* parse alignments if provided */
-    if( col && (aligns=malloc(align_size * sizeof *aligns))!=0 ){
+    if( col && (aligns=fossil_malloc(align_size * sizeof *aligns))!=0 ){
       for(i=0; i<align_size; i++) aligns[i] = 0;
       col = 0;
       i = head_end+1;
@@ -1970,7 +1970,7 @@ static size_t parse_table(
   /* cleanup */
   if( head ) release_work_buffer(rndr, head);
   if( rows!=&fallback ) release_work_buffer(rndr, rows);
-  free(aligns);
+  fossil_free(aligns);
   return i;
 }
 

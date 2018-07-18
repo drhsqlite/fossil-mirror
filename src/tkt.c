@@ -374,7 +374,7 @@ void ticket_create_table(int separateConnection){
   );
   zSql = ticket_table_schema();
   if( separateConnection ){
-    db_end_transaction(0);
+    if( db_transaction_nesting_depth() ) db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
@@ -596,7 +596,7 @@ static int submitTicketCmd(
   int needMod;
 
   login_verify_csrf_secret();
-  if( !captcha_is_correct() ){
+  if( !captcha_is_correct(0) ){
     @ <p class="generalError">Error: Incorrect security code.</p>
     return TH_OK;
   }
@@ -749,7 +749,7 @@ void tktedit_page(void){
     cgi_redirectf("tktview?name=%T", zName);
   }
   style_header("Edit Ticket");
-  if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
+  if( zName==0 || (nName = strlen(zName))<4 || nName>HNAME_LEN_SHA1
           || !validate16(zName,nName) ){
     @ <span class="tktError">Not a valid ticket id: "%h(zName)"</span>
     style_footer();
@@ -1379,7 +1379,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1)) ){
+      if( ticket_put(&tktchng, zTktUuid, ticket_need_moderation(1))==0 ){
         fossil_fatal("%s", g.zErrMsg);
       }else{
         fossil_print("ticket %s succeeded for %s\n",

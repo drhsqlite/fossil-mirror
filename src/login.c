@@ -504,12 +504,26 @@ void login_page(void){
   login_check_credentials();
   if( login_wants_https_redirect() ){
     const char *zQS = P("QUERY_STRING");
-    if( zQS==0 ){
-      zQS = "";
-    }else if( zQS[0]!=0 ){
-      zQS = mprintf("?%s", zQS);
+    if( P("redir")!=0 ){
+      style_header("Insecure Connection");
+      @ <h1>Unable To Establish An Encrypted Connection</h1>
+      @ <p>This website requires that login credentials be sent over
+      @ an encrypted connection.  The current connection is not encrypted
+      @ across the entire route between your browser and the server.
+      @ An attempt was made to redirect to %h(g.zHttpsURL) but
+      @ the connection is still insecure even after the redirect.</p>
+      @ <p>This is probably some kind of configuration problem.  Please
+      @ contact your sysadmin.</p>
+      @ <p>Sorry it did not work out.</p>
+      style_footer();
+      return;
     }
-    cgi_redirectf("%s%s%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    if( zQS==0 ){
+      zQS = "?redir=1";
+    }else if( zQS[0]!=0 ){
+      zQS = mprintf("?%s&redir=1", zQS);
+    }
+    cgi_redirectf("%s%T%s", g.zHttpsURL, P("PATH_INFO"), zQS);
     return;
   }
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
@@ -653,68 +667,85 @@ void login_page(void){
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
     @ <input type="submit" name="out" value="Logout"></p>
-    @ <hr />
-    @ <p>Change user:
-  }
-  @ <table class="login_out">
-  @ <tr>
-  @   <td class="login_out_label">User ID:</td>
-  if( anonFlag ){
-    @ <td><input type="text" id="u" name="u" value="anonymous" size="30" /></td>
   }else{
-    @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
-  }
-  @ </tr>
-  @ <tr>
-  @  <td class="login_out_label">Password:</td>
-  @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
-  @ </tr>
-  if( g.zLogin==0 && (anonFlag || zGoto==0) ){
-    zAnonPw = db_text(0, "SELECT pw FROM user"
-                         " WHERE login='anonymous'"
-                         "   AND cap!=''");
-  }
-  @ <tr>
-  @   <td></td>
-  @   <td><input type="submit" name="in" value="Login">
-  @ </tr>
-  @ </table>
-  @ <p>Pressing the Login button grants permission to store a cookie.</p>
-  if( db_get_boolean("self-register", 0) ){
-    @ <p>If you do not have an account, you can
-    @ <a href="%R/register?g=%T(P("G"))">create one</a>.
-  }
-  if( zAnonPw ){
-    unsigned int uSeed = captcha_seed();
-    const char *zDecoded = captcha_decode(uSeed);
-    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
-    char *zCaptcha = captcha_render(zDecoded);
-
-    @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
-    @ Visitors may enter <b>anonymous</b> as the user-ID with
-    @ the 8-character hexadecimal password shown below:</p>
-    @ <div class="captcha"><table class="captcha"><tr><td><pre>
-    @ %h(zCaptcha)
-    @ </pre></td></tr></table>
-    if( bAutoCaptcha ) {
-       @ <input type="button" value="Fill out captcha" id='autofillButton' \
-       @ data-af='%s(zDecoded)' />
-       style_load_one_js_file("login.js");
+    @ <table class="login_out">
+    @ <tr>
+    @   <td class="form_label">User ID:</td>
+    if( anonFlag ){
+      @ <td><input type="text" id="u" name="u" value="anonymous" size="30"></td>
+    }else{
+      @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
     }
-    @ </div>
-    free(zCaptcha);
+    if( P("HTTPS")==0 ){
+      @ <td width="15"><td rowspan="3">
+      @ <p class='securityWarning'>
+      @ Warning: Your password will be sent in the clear over an
+      @ unencrypted connection.
+      if( g.sslNotAvailable ){
+        @ No encrypted connection is available on this server.
+      }else{
+        @ Consider logging in at
+        @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
+      }
+      @ </p>
+    }
+    @ </tr>
+    @ <tr>
+    @  <td class="form_label">Password:</td>
+    @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @ </tr>
+    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
+      zAnonPw = db_text(0, "SELECT pw FROM user"
+                           " WHERE login='anonymous'"
+                           "   AND cap!=''");
+    }
+    @ <tr>
+    @   <td></td>
+    @   <td><input type="submit" name="in" value="Login">
+    @ </tr>
+    @ </table>
+    @ <p>Pressing the Login button grants permission to store a cookie.</p>
+    if( db_get_boolean("self-register", 0) ){
+      @ <p>If you do not have an account, you can
+      @ <a href="%R/register?g=%T(P("G"))">create one</a>.
+    }
+    if( zAnonPw ){
+      unsigned int uSeed = captcha_seed();
+      const char *zDecoded = captcha_decode(uSeed);
+      int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
+      char *zCaptcha = captcha_render(zDecoded);
+  
+      @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
+      @ Visitors may enter <b>anonymous</b> as the user-ID with
+      @ the 8-character hexadecimal password shown below:</p>
+      @ <div class="captcha"><table class="captcha"><tr><td><pre>
+      @ %h(zCaptcha)
+      @ </pre></td></tr></table>
+      if( bAutoCaptcha ) {
+         @ <input type="button" value="Fill out captcha" id='autofillButton' \
+         @ data-af='%s(zDecoded)' />
+         style_load_one_js_file("login.js");
+      }
+      @ </div>
+      free(zCaptcha);
+    }
+    @ </form>
   }
-  @ </form>
-  if( g.zLogin && g.perm.Password ){
+  if( login_is_individual() && g.perm.Password ){
+    if( email_enabled() ){
+      @ <hr>
+      @ <p>Configure <a href="%R/alerts">Email Alerts</a>
+      @ for user <b>%h(g.zLogin)</b></p>
+    }
     @ <hr />
     @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
     form_begin(0, "%R/login");
     @ <table>
-    @ <tr><td class="login_out_label">Old Password:</td>
+    @ <tr><td class="form_label">Old Password:</td>
     @ <td><input type="password" name="p" size="30" /></td></tr>
-    @ <tr><td class="login_out_label">New Password:</td>
+    @ <tr><td class="form_label">New Password:</td>
     @ <td><input type="password" name="n1" size="30" /></td></tr>
-    @ <tr><td class="login_out_label">Repeat New Password:</td>
+    @ <tr><td class="form_label">Repeat New Password:</td>
     @ <td><input type="password" name="n2" size="30" /></td></tr>
     @ <tr><td></td>
     @ <td><input type="submit" value="Change Password" /></td></tr>
@@ -928,8 +959,8 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
-        (g.fSshClient & CGI_SSH_CLIENT)!=0 )
+  if( ( cgi_is_loopback(zIpAddr)
+       || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -1171,6 +1202,9 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->NewTkt = p->Password = p->RdAddr =
                              p->TktFmt = p->Attach = p->ApndTkt =
                              p->ModWiki = p->ModTkt = p->Delete =
+                             p->RdForum = p->WrForum = p->ModForum =
+                             p->WrTForum = p->AdminForum =
+                             p->EmailAlert = p->Announce =
                              p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1199,6 +1233,15 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'b':   p->Attach = 1;                               break;
       case 'x':   p->Private = 1;                              break;
       case 'y':   p->WrUnver = 1;                              break;
+
+      case '6':   p->AdminForum = 1;
+      case '5':   p->ModForum = 1;
+      case '4':   p->WrTForum = 1;
+      case '3':   p->WrForum = 1;
+      case '2':   p->RdForum = 1;                              break;
+
+      case '7':   p->EmailAlert = 1;                           break;
+      case 'A':   p->Announce = 1;                             break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1272,6 +1315,13 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'x':  rc = p->Private;   break;
       case 'y':  rc = p->WrUnver;   break;
       case 'z':  rc = p->Zip;       break;
+      case '2':  rc = p->RdForum;   break;
+      case '3':  rc = p->WrForum;   break;
+      case '4':  rc = p->WrTForum;  break;
+      case '5':  rc = p->ModForum;  break;
+      case '6':  rc = p->AdminForum;break;
+      case '7':  rc = p->EmailAlert;break;
+      case 'A':  rc = p->Announce;  break;
       default:   rc = 0;            break;
     }
   }
@@ -1315,6 +1365,15 @@ int login_is_nobody(void){
 }
 
 /*
+** Return true if the user is a specific individual, not "nobody" or
+** "anonymous".
+*/
+int login_is_individual(void){
+  return g.zLogin!=0 && g.zLogin[0]!=0 && fossil_strcmp(g.zLogin,"nobody")!=0
+           && fossil_strcmp(g.zLogin,"anonymous")!=0;
+}
+
+/*
 ** Return the login name.  If no login name is specified, return "nobody".
 */
 const char *login_name(void){
@@ -1339,7 +1398,7 @@ void login_needed(int anonOk){
     const char *zQS = P("QUERY_STRING");
     Blob redir;
     blob_init(&redir, 0, 0);
-    if( login_wants_https_redirect() ){
+    if( login_wants_https_redirect() && !g.sslNotAvailable ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
@@ -1487,23 +1546,23 @@ void register_page(void){
   @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
   @ <table class="login_out">
   @ <tr>
-  @   <td class="login_out_label" align="right">User ID:</td>
+  @   <td class="form_label" align="right">User ID:</td>
   @   <td><input type="text" id="u" name="u" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Password:</td>
+  @   <td class="form_label" align="right">Password:</td>
   @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Confirm password:</td>
+  @   <td class="form_label" align="right">Confirm password:</td>
   @   <td><input type="password" id="cp" name="cp" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Contact info:</td>
+  @   <td class="form_label" align="right">Contact info:</td>
   @   <td><input type="text" id="c" name="c" value="" size="30" /></td>
   @ </tr>
   @ <tr>
-  @   <td class="login_out_label" align="right">Captcha text (below):</td>
+  @   <td class="form_label" align="right">Captcha text (below):</td>
   @   <td><input type="text" id="cap" name="cap" value="" size="30" /></td>
   @ </tr>
   @ <tr><td></td>

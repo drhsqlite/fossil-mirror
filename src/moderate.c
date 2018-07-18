@@ -146,8 +146,8 @@ void modreq_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.RdWiki && !g.perm.RdTkt ){
-    login_needed(g.anon.RdWiki && g.anon.RdTkt);
+  if( !g.perm.ModWiki && !g.perm.ModTkt ){
+    login_needed(g.anon.ModWiki && g.anon.ModTkt);
     return;
   }
   style_header("Pending Moderation Requests");

@@ -19,6 +19,10 @@
 */
 #include "config.h"
 #include "util.h"
+#if defined(USE_MMAN_H)
+# include <sys/mman.h>
+# include <unistd.h>
+#endif
 
 /*
 ** For the fossil_timer_xxx() family of functions...
@@ -39,6 +43,12 @@
 */
 NORETURN void fossil_exit(int rc){
   db_close(1);
+#ifndef _WIN32
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Subprocess %d exit(%d) *****/\n", getpid(), rc);
+    fflush(stderr);
+  }
+#endif
   exit(rc);
 }
 
@@ -74,13 +84,15 @@ void fossil_get_page_size(size_t *piPageSize){
   memset(&sysInfo, 0, sizeof(SYSTEM_INFO));
   GetSystemInfo(&sysInfo);
   *piPageSize = (size_t)sysInfo.dwPageSize;
+#elif defined(USE_MMAN_H)
+  *piPageSize = (size_t)sysconf(_SC_PAGE_SIZE);
 #else
   *piPageSize = 4096; /* FIXME: What for POSIX? */
 #endif
 }
 void *fossil_secure_alloc_page(size_t *pN){
   void *p;
-  size_t pageSize;
+  size_t pageSize = 0;
 
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
@@ -88,10 +100,18 @@ void *fossil_secure_alloc_page(size_t *pN){
 #if defined(_WIN32)
   p = VirtualAlloc(NULL, pageSize, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
   if( p==NULL ){
-    fossil_fatal("VirtualAlloc failed: %lu\n", GetLastError());
+    fossil_panic("VirtualAlloc failed: %lu\n", GetLastError());
   }
   if( !VirtualLock(p, pageSize) ){
-    fossil_fatal("VirtualLock failed: %lu\n", GetLastError());
+    fossil_panic("VirtualLock failed: %lu\n", GetLastError());
+  }
+#elif defined(USE_MMAN_H)
+  p = mmap(0, pageSize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  if( p==MAP_FAILED ){
+    fossil_panic("mmap failed: %d\n", errno);
+  }
+  if( mlock(p, pageSize) ){
+    fossil_panic("mlock failed: %d\n", errno);
   }
 #else
   p = fossil_malloc(pageSize);
@@ -106,10 +126,17 @@ void fossil_secure_free_page(void *p, size_t n){
   fossil_secure_zero(p, n);
 #if defined(_WIN32)
   if( !VirtualUnlock(p, n) ){
-    fossil_fatal("VirtualUnlock failed: %lu\n", GetLastError());
+    fossil_panic("VirtualUnlock failed: %lu\n", GetLastError());
   }
   if( !VirtualFree(p, 0, MEM_RELEASE) ){
-    fossil_fatal("VirtualFree failed: %lu\n", GetLastError());
+    fossil_panic("VirtualFree failed: %lu\n", GetLastError());
+  }
+#elif defined(USE_MMAN_H)
+  if( munlock(p, n) ){
+    fossil_panic("munlock failed: %d\n", errno);
+  }
+  if( munmap(p, n) ){
+    fossil_panic("munmap failed: %d\n", errno);
   }
 #else
   fossil_free(p);
@@ -297,7 +324,7 @@ sqlite3_uint64 fossil_timer_fetch(int timerId){
   if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
-      fossil_fatal("Invalid call to fetch a non-allocated "
+      fossil_panic("Invalid call to fetch a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -317,7 +344,7 @@ sqlite3_uint64 fossil_timer_reset(int timerId){
   if( timerId>0 && timerId<=FOSSIL_TIMER_COUNT ){
     struct FossilTimer * start = &fossilTimerList[timerId-1];
     if( !start->id ){
-      fossil_fatal("Invalid call to reset a non-allocated "
+      fossil_panic("Invalid call to reset a non-allocated "
                    "timer (#%d)", timerId);
       /*NOTREACHED*/
     }else{
@@ -378,13 +405,12 @@ int is_valid_fd(int fd){
 }
 
 /*
-** Returns TRUE if zSym is exactly UUID_SIZE bytes long and contains
-** only lower-case ASCII hexadecimal values.
+** Returns TRUE if zSym is exactly HNAME_LEN_SHA1 or HNAME_LEN_K256
+** bytes long and contains only lower-case ASCII hexadecimal values.
 */
 int fossil_is_uuid(const char *zSym){
-  return zSym
-    && (UUID_SIZE==strlen(zSym))
-    && validate16(zSym, UUID_SIZE);
+  int sz = zSym ? (int)strlen(zSym) : 0;
+  return (HNAME_LEN_SHA1==sz || HNAME_LEN_K256==sz) && validate16(zSym, sz);
 }
 
 /*
@@ -485,3 +511,19 @@ void fossil_limit_memory(int onOff){
 #endif /* defined(RLIMIT_STACK) */
 #endif /* defined(__unix__) */
 }
+
+#if defined(HAVE_PLEDGE)
+/*
+** Interface to pledge() on OpenBSD 5.9 and later.
+**
+** On platforms that have pledge(), use this routine.
+** On all other platforms, this routine does not exist, but instead
+** a macro defined in config.h is used to provide a no-op.
+*/
+void fossil_pledge(const char *promises){
+  if( pledge(promises, 0) ){
+    fossil_panic("pledge(\"%s\",NULL) fails with errno=%d",
+      promises, (int)errno);
+  }
+}
+#endif /* defined(HAVE_PLEDGE) */

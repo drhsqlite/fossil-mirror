@@ -536,7 +536,7 @@ void wikiedit_page(void){
     }
   }
   if( P("submit")!=0 && zBody!=0
-   && (goodCaptcha = captcha_is_correct())
+   && (goodCaptcha = captcha_is_correct(0))
   ){
     char *zDate;
     Blob cksum;
@@ -760,7 +760,7 @@ void wikiappend_page(void){
     return;
   }
   if( P("submit")!=0 && P("r")!=0 && P("u")!=0
-   && (goodCaptcha = captcha_is_correct())
+   && (goodCaptcha = captcha_is_correct(0))
   ){
     char *zDate;
     Blob cksum;

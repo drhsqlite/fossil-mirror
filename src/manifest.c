@@ -609,8 +609,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       case 'K': {
         if( p->zTicketUuid!=0 ) SYNTAX("more than one K-card");
         p->zTicketUuid = next_token(&x, &sz);
-        if( sz!=UUID_SIZE ) SYNTAX("K-card UUID is the wrong size");
-        if( !validate16(p->zTicketUuid, UUID_SIZE) ){
+        if( sz!=HNAME_LEN_SHA1 ) SYNTAX("K-card UUID is the wrong size");
+        if( !validate16(p->zTicketUuid, sz) ){
           SYNTAX("invalid K-card UUID");
         }
         break;
@@ -1061,7 +1061,7 @@ static int fetch_baseline(Manifest *p, int throwError){
         );
         return 1;
       }
-      fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
+      fossil_panic("cannot access baseline manifest %S", p->zBaseline);
     }
   }
   return 0;
@@ -1269,6 +1269,9 @@ static ManifestFile *manifest_file_seek_base(
   int lwr, upr;
   int c;
   int i;
+  if( p->aFile==0 ){
+    return 0;
+  }
   lwr = 0;
   upr = p->nFile - 1;
   if( p->iFile>=lwr && p->iFile<upr ){
@@ -1753,7 +1756,8 @@ int manifest_crosslink_end(int flags){
   if( db_exists("SELECT 1 FROM time_fudge") ){
     db_multi_exec(
       "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
-      " WHERE objid IN (SELECT mid FROM time_fudge);"
+      " WHERE objid IN (SELECT mid FROM time_fudge)"
+      " AND (mtime=omtime OR omtime IS NULL)"
     );
   }
   db_multi_exec("DROP TABLE time_fudge;");
@@ -1928,6 +1932,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   const char *zScript = 0;
   const char *zUuid = 0;
 
+  if( g.fSqlTrace ){
+    fossil_trace("-- manifest_crosslink(%d)\n", rid);
+  }
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){

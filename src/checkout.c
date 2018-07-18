@@ -293,6 +293,7 @@ void checkout_cmd(void){
   }
   vid = load_vfile(zVers, forceMissingFlag);
   if( prior==vid ){
+    db_end_transaction(0);
     return;
   }
   if( !keepFlag ){

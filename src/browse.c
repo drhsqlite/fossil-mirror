@@ -199,7 +199,11 @@ void page_dir(void){
     }
   }else{
     @ <h2>The union of all files from all check-ins
-    @ %s(blob_str(&dirname))</h2>
+    @ %s(blob_str(&dirname))
+    if( zD ){
+      @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
+    }
+    @ </h2>
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
   style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));

@@ -255,7 +255,7 @@ static int add_files_in_sfile(int vid){
 ** with "." are excluded by default.  To include such files, add
 ** the "--dotfiles" option to the command-line.
 **
-** The --ignore and --clean options are comma-separate lists of glob patterns
+** The --ignore and --clean options are comma-separated lists of glob patterns
 ** for files to be excluded.  Example:  '*.o,*.obj,*.exe'  If the --ignore
 ** option does not appear on the command line then the "ignore-glob" setting
 ** is used.  If the --clean option does not appear on the command line then
@@ -861,6 +861,8 @@ void mv_cmd(void){
   int dryRunFlag;
   int softFlag;
   int hardFlag;
+  int origType;
+  int destType;
   char *zDest;
   Blob dest;
   Stmt q;
@@ -875,7 +877,7 @@ void mv_cmd(void){
 
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_fatal("no checkout rename files in");
+    fossil_fatal("no checkout in which to rename files");
   }
   if( g.argc<4 ){
     usage("OLDNAME NEWNAME");
@@ -902,11 +904,19 @@ void mv_cmd(void){
   db_multi_exec(
     "CREATE TEMP TABLE mv(f TEXT UNIQUE ON CONFLICT IGNORE, t TEXT);"
   );
-  if( file_isdir(zDest, RepoFILE)!=1 ){
+  if( g.argc!=4 ){
+    origType = -1;
+  }else{
+    origType = (file_isdir(g.argv[2], RepoFILE) == 1);
+  }
+  destType = file_isdir(zDest, RepoFILE);
+  if( origType==-1 && destType!=1 ){
+    usage("OLDNAME NEWNAME");
+  }else if( origType==1 && destType==2 ){
+    fossil_fatal("cannot rename '%s' to '%s' since another file named"
+                 " '%s' exists", g.argv[2], zDest, zDest);
+  }else if( origType==0 && destType!=1 ){
     Blob orig;
-    if( g.argc!=4 ){
-      usage("OLDNAME NEWNAME");
-    }
     file_tree_name(g.argv[2], &orig, 0, 1);
     db_multi_exec(
       "INSERT INTO mv VALUES(%B,%B)", &orig, &dest
@@ -938,6 +948,8 @@ void mv_cmd(void){
         const char *zTail;
         if( nPath==nOrig ){
           zTail = file_tail(zPath);
+        }else if( destType==1 ){
+          zTail = &zPath[nOrig-strlen(file_tail(zOrig))];
         }else{
           zTail = &zPath[nOrig+1];
         }

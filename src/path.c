@@ -549,11 +549,29 @@ void test_name_change(void){
 
 /* Query to extract all rename operations */
 static const char zRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
 @ SELECT
-@     datetime(event.mtime),
+@     datetime(event.mtime) AS date,
 @     F.name AS old_name,
 @     T.name AS new_name,
-@     blob.uuid
+@     blob.uuid AS checkin
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid;
+;
+
+/* Query to extract distinct rename operations */
+static const char zDistinctRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
+@ SELECT
+@     min(datetime(event.mtime)) AS date,
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid AS checkin
 @   FROM mlink, filename F, filename T, event, blob
 @  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
 @    AND F.fnid=mlink.pfnid
@@ -561,7 +579,7 @@ static const char zRenameQuery[] =
 @    AND event.objid=mlink.mid
 @    AND event.type='ci'
 @    AND blob.rid=mlink.mid
-@  ORDER BY 1 DESC, 2;
+@  GROUP BY 2, 3;
 ;
 
 /*
@@ -573,17 +591,31 @@ static const char zRenameQuery[] =
 */
 void test_rename_list_page(void){
   Stmt q;
+  int nRename;
+  int nCheckin;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("List Of File Name Changes");
-  @ <h3>NB: Experimental Page</h3>
-  @ <table border="1" width="100%%">
-  @ <tr><th>Date &amp; Time</th>
+  if( P("all")!=0 ){
+    style_header("List Of All Filename Changes");
+    db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
+    style_submenu_element("Distinct", "%R/test-rename-list");
+  }else{
+    style_header("List Of Distinct Filename Changes");
+    db_multi_exec("%s", zDistinctRenameQuery/*safe-for-%s*/);
+    style_submenu_element("All", "%R/test-rename-list?all");
+  }
+  nRename = db_int(0, "SELECT count(*) FROM renames;");
+  nCheckin = db_int(0, "SELECT count(DISTINCT checkin) FROM renames;");
+  db_prepare(&q, "SELECT date, old_name, new_name, checkin FROM renames"
+                 " ORDER BY date DESC, old_name ASC");
+  @ <h1>%d(nRename) filename changes in %d(nCheckin) check-ins</h1>
+  @ <table class='sortable' data-column-types='tttt' data-init-sort='1'\
+  @  border="1" cellpadding="2" cellspacing="0">
+  @ <thead><tr><th>Date &amp; Time</th>
   @ <th>Old Name</th>
   @ <th>New Name</th>
-  @ <th>Check-in</th></tr>
-  db_prepare(&q, "%s", zRenameQuery/*safe-for-%s*/);
+  @ <th>Check-in</th></tr></thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zOld = db_column_text(&q, 1);
@@ -595,7 +627,8 @@ void test_rename_list_page(void){
     @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
     @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
   }
-  @ </table>
+  @ </tbody></table>
   db_finalize(&q);
+  style_table_sorter();
   style_footer();
 }

@@ -289,7 +289,8 @@ void merge_cmd(void){
     */
     Stmt q;
     if( pickFlag || backoutFlag || integrateFlag){
-      fossil_fatal("cannot use --backout, --cherrypick or --integrate with a fork merge");
+      fossil_fatal("cannot use --backout, --cherrypick or --integrate "
+                   "with a fork merge");
     }
     mid = fossil_find_nearest_fork(vid, db_open_local(0));
     if( mid==0 ){
@@ -327,12 +328,13 @@ void merge_cmd(void){
       fossil_fatal("not a version: %s", zPivot);
     }
     if( pickFlag ){
-      fossil_fatal("incompatible options: --cherrypick & --baseline");
+      fossil_fatal("incompatible options: --cherrypick and --baseline");
     }
   }
   if( pickFlag || backoutFlag ){
     if( integrateFlag ){
-      fossil_fatal("incompatible options: --integrate & --cherrypick or --backout");
+      fossil_fatal("incompatible options: --integrate and --cherrypick "
+                   "with --backout");
     }
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
@@ -381,7 +383,8 @@ void merge_cmd(void){
     integrateFlag = 0;
   }
   if( verboseFlag ){
-    print_checkin_description(mid, 12, integrateFlag?"integrate:":"merge-from:");
+    print_checkin_description(mid, 12,
+              integrateFlag ? "integrate:" : "merge-from:");
     print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
