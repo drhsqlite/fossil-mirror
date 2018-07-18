@@ -1353,6 +1353,28 @@ static void pop3_print(FILE *pLog, const char *zFormat, ...){
 }
 
 /*
+** Try to log in for zUser and zPass.
+**
+** If zUser/zPass does not work as written, then modify zUser by
+** omitting everything after the "@" (if there is one) and trying
+** again.
+*/
+static int pop3_login(char *zUser, char *zPass){
+  int uid;
+  int i;
+  uid = login_search_uid(zUser, zPass);
+  if( uid ) return 1;
+  for(i=0; zUser[i] && zUser[i]!='@'; i++){}
+  if( zUser[i]=='@' ){
+    zUser[i] = 0;
+    uid = login_search_uid(zUser, zPass);
+    if( uid ) return 1;
+    zUser[i] = '@';
+  }
+  return 0; 
+}
+
+/*
 ** COMMAND: pop3d
 **
 ** Usage: %fossil pop3d [OPTIONS] REPOSITORY
@@ -1429,7 +1451,7 @@ void pop3d_command(void){
       }
       if( strcmp(zCmd,"pass")==0 ){
         if( zA1==0 || zA2!=0 ) goto cmd_error;
-        if( login_search_uid(zUser,zA1)==0 ){
+        if( pop3_login(zUser,zA1)==0 ){
           goto cmd_error;
         }else{
           inAuth = 0;

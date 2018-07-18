@@ -1,5 +1,5 @@
-C Use\sthe\snew\sSQLITE_FCNTL_DATA_VERSION\sinterface\sin\sSQLite\sto\slimit\srunning\nthe\sbackoffice\sprocessing\sto\scase\swhen\sthe\srepository\sfile\schanges.
-D 2018-07-18T19:22:31.047
+C The\spop3d\scommand\sallows\sthe\susername\sto\scontain\san\sextra\s@domain\ssuffix.
+D 2018-07-18T20:32:43.130
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -556,7 +556,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 094a24ebdb9b43f11ea424de29fe42ffa067427ae4634806c3aa08fd02dad08a
-F src/smtp.c c56c6a9e80027ba6a4364e0f7557c0b7bfb409f5ff17531eb8a534d9277feb0f
+F src/smtp.c 21fa41230c394c296dddf97147c6787734bc5c119364582c3dbfdce15219b472
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 61fd6c872966fc9b55bd9ed2a7acd81ac225a6797dcb56de567777322e494c45
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abacf2e5bfd83f5206b6c304c3f270d6d0e450212b0b6febd2388ee5fc99f942
-R f87aedb1095ade0bf0c95255e9425829
+P 752ea432d1cf20faeed74be61adefc7e20d700b54c5691e58efeac80ccc6aba5
+R 25e1de42bd8a23445ae2d97785bafe84
 U drh
-Z 67bde104b939e2f39d660916e0a6cbf4
+Z e6312e64377429c3debf12c818c6e80d
