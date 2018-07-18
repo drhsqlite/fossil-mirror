@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.25.0"
 #define SQLITE_VERSION_NUMBER 3025000
-#define SQLITE_SOURCE_ID      "2018-07-13 20:28:54 148d9b61471a874a16a9ec9c9603da03cadb3a40662fb550af51cb36212426b1"
+#define SQLITE_SOURCE_ID      "2018-07-18 19:09:07 a5087c5c87ad65f92e3bc96bbc84afb43faf10ab6b9ed3ba16304b5c60ad069f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1073,6 +1073,25 @@ struct sqlite3_io_methods {
 ** a file lock using the xLock or xShmLock methods of the VFS to wait
 ** for up to M milliseconds before failing, where M is the single 
 ** unsigned integer parameter.
+**
+** <li>[[SQLITE_FCNTL_DATA_VERSION]]
+** The [SQLITE_FCNTL_DATA_VERSION] opcode is used to detect changes to
+** a database file.  The argument is a pointer to a 32-bit unsigned integer.
+** The "data version" for the pager is written into the pointer.  The
+** "data version" changes whenever any change occurs to the corresponding
+** database file, either through SQL statements on the same database
+** connection, or through transactions committed by separate database
+** connections possibly in other processes. The [sqlite3_total_changes()]
+** interface can be used to find if any database on the connection has changed,
+** but that interface response to changes on TEMP as well as MAIN and does
+** not provide a mechanism to detect changes to MAIN only.  Also, the
+** [sqlite3_total_changes()] interface response to internal changes only and
+** omits changes made by other database connections.  The
+** [PRAGMA data_version] command provide a mechanism to detect changes to
+** a single attached database that occur due to other database connections,
+** but omits changes implemented by the database connection for which it is
+** called.  This file control is the only mechanism to detect changes that
+** happen either internally or externally on a single database.
 ** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
@@ -1108,6 +1127,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_COMMIT_ATOMIC_WRITE    32
 #define SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE  33
 #define SQLITE_FCNTL_LOCK_TIMEOUT           34
+#define SQLITE_FCNTL_DATA_VERSION           35
 
 /* deprecated names */
 #define SQLITE_GET_LOCKPROXYFILE      SQLITE_FCNTL_GET_LOCKPROXYFILE
@@ -2276,12 +2296,17 @@ SQLITE_API void sqlite3_set_last_insert_rowid(sqlite3*,sqlite3_int64);
 ** program, the value returned reflects the number of rows modified by the 
 ** previous INSERT, UPDATE or DELETE statement within the same trigger.
 **
-** See also the [sqlite3_total_changes()] interface, the
-** [count_changes pragma], and the [changes() SQL function].
-**
 ** If a separate thread makes changes on the same database connection
 ** while [sqlite3_changes()] is running then the value returned
 ** is unpredictable and not meaningful.
+**
+** See also:
+** <ul>
+** <li> the [sqlite3_total_changes()] interface
+** <li> the [count_changes pragma]
+** <li> the [changes() SQL function]
+** <li> the [data_version pragma]
+** </ul>
 */
 SQLITE_API int sqlite3_changes(sqlite3*);
 
@@ -2299,13 +2324,26 @@ SQLITE_API int sqlite3_changes(sqlite3*);
 ** count, but those made as part of REPLACE constraint resolution are
 ** not. ^Changes to a view that are intercepted by INSTEAD OF triggers 
 ** are not counted.
-** 
-** See also the [sqlite3_changes()] interface, the
-** [count_changes pragma], and the [total_changes() SQL function].
 **
+** This the [sqlite3_total_changes(D)] interface only reports the number
+** of rows that changed due to SQL statement run against database
+** connection D.  Any changes by other database connections are ignored.
+** To detect changes against a database file from other database
+** connections use the [PRAGMA data_version] command or the
+** [SQLITE_FCNTL_DATA_VERSION] [file control].
+** 
 ** If a separate thread makes changes on the same database connection
 ** while [sqlite3_total_changes()] is running then the value
 ** returned is unpredictable and not meaningful.
+**
+** See also:
+** <ul>
+** <li> the [sqlite3_changes()] interface
+** <li> the [count_changes pragma]
+** <li> the [changes() SQL function]
+** <li> the [data_version pragma]
+** <li> the [SQLITE_FCNTL_DATA_VERSION] [file control]
+** </ul>
 */
 SQLITE_API int sqlite3_total_changes(sqlite3*);
 
@@ -7077,6 +7115,7 @@ SQLITE_API sqlite3_mutex *sqlite3_db_mutex(sqlite3*);
 /*
 ** CAPI3REF: Low-Level Control Of Database Files
 ** METHOD: sqlite3
+** KEYWORDS: {file control}
 **
 ** ^The [sqlite3_file_control()] interface makes a direct call to the
 ** xFileControl method for the [sqlite3_io_methods] object associated
@@ -7091,11 +7130,18 @@ SQLITE_API sqlite3_mutex *sqlite3_db_mutex(sqlite3*);
 ** the xFileControl method.  ^The return value of the xFileControl
 ** method becomes the return value of this routine.
 **
+** A few opcodes for [sqlite3_file_control()] are handled directly
+** by the SQLite core and never invoke the 
+** sqlite3_io_methods.xFileControl method.
 ** ^The [SQLITE_FCNTL_FILE_POINTER] value for the op parameter causes
 ** a pointer to the underlying [sqlite3_file] object to be written into
-** the space pointed to by the 4th parameter.  ^The [SQLITE_FCNTL_FILE_POINTER]
-** case is a short-circuit path which does not actually invoke the
-** underlying sqlite3_io_methods.xFileControl method.
+** the space pointed to by the 4th parameter.  The
+** [SQLITE_FCNTL_JOURNAL_POINTER] works similarly except that it returns
+** the [sqlite3_file] object associated with the journal file instead of
+** the main database.  The [SQLITE_FCNTL_VFS_POINTER] opcode returns
+** a pointer to the underlying [sqlite3_vfs] object for the file.
+** The [SQLITE_FCNTL_DATA_VERSION] returns the data version counter
+** from the pager.
 **
 ** ^If the second parameter (zDbName) does not match the name of any
 ** open database file, then SQLITE_ERROR is returned.  ^This error
