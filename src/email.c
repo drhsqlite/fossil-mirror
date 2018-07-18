@@ -2106,26 +2106,14 @@ send_alerts_done:
 */
 void email_auto_exec(u32 mFlags){
   int iJulianDay;
-  if( g.db==0 ) return;
-  if( db_transaction_nesting_depth()!=0 ){
-    fossil_warning("Called email_auto_exec() from within transaction "
-                   "started at %z", db_transaction_start_point());
-    return;
-  }
   if( !email_tables_exist() ) return;
   if( !db_get_boolean("email-autoexec",0) ) return;
-  db_begin_write();
   email_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
-    if( db_transaction_nesting_depth()!=1 ){
-      fossil_warning("Transaction nesting error prior to digest processing");
-    }else{
-      db_set_int("email-last-digest",iJulianDay,0);
-      email_send_alerts(SENDALERT_DIGEST|mFlags);
-    }
+    db_set_int("email-last-digest",iJulianDay,0);
+    email_send_alerts(SENDALERT_DIGEST|mFlags);
   }
-  db_commit_transaction();
 }
 
 /*

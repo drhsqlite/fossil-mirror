@@ -18,6 +18,7 @@ SRC = \
   $(SRCDIR)/add.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
+  $(SRCDIR)/backoffice.c \
   $(SRCDIR)/bag.c \
   $(SRCDIR)/bisect.c \
   $(SRCDIR)/blob.c \
@@ -223,6 +224,7 @@ TRANS_SRC = \
   $(OBJDIR)/add_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
+  $(OBJDIR)/backoffice_.c \
   $(OBJDIR)/bag_.c \
   $(OBJDIR)/bisect_.c \
   $(OBJDIR)/blob_.c \
@@ -357,6 +359,7 @@ OBJ = \
  $(OBJDIR)/add.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
+ $(OBJDIR)/backoffice.o \
  $(OBJDIR)/bag.o \
  $(OBJDIR)/bisect.o \
  $(OBJDIR)/blob.o \
@@ -689,6 +692,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
+	$(OBJDIR)/backoffice_.c:$(OBJDIR)/backoffice.h \
 	$(OBJDIR)/bag_.c:$(OBJDIR)/bag.h \
 	$(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h \
 	$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
@@ -848,6 +852,14 @@ $(OBJDIR)/attach.o:	$(OBJDIR)/attach_.c $(OBJDIR)/attach.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/attach.o -c $(OBJDIR)/attach_.c
 
 $(OBJDIR)/attach.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/backoffice_.c:	$(SRCDIR)/backoffice.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/backoffice.c >$@
+
+$(OBJDIR)/backoffice.o:	$(OBJDIR)/backoffice_.c $(OBJDIR)/backoffice.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/backoffice.o -c $(OBJDIR)/backoffice_.c
+
+$(OBJDIR)/backoffice.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/bag_.c:	$(SRCDIR)/bag.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/bag.c >$@

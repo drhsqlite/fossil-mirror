@@ -30,6 +30,7 @@ set src {
   add
   allrepo
   attach
+  backoffice
   bag
   bisect
   blob
