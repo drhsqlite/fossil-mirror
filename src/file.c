@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "file.h"
 
 /*
@@ -1470,20 +1471,47 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 #endif
 }
 
+/*
+** Compute a temporary filename in zDir.  The filename is based on
+** the current time.
+*/
+char *file_time_tempname(const char *zDir, const char *zSuffix){
+  struct tm *tm;
+  unsigned int r;
+  static unsigned int cnt = 0;
+  time_t t;
+  t = time(0);
+  tm = gmtime(&t);
+  sqlite3_randomness(sizeof(r), &r);
+  return mprintf("%s/%04d%02d%02d%02d%02d%02d%04d%06d%s",
+      zDir, tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+            tm->tm_hour, tm->tm_min, tm->tm_sec, cnt++, r%1000000, zSuffix);
+}
+
 
 /*
 ** COMMAND: test-tempname
-** Usage:  fossil test-name BASENAME ...
+** Usage:  fossil test-name [--time SUFFIX] BASENAME ...
 **
-** Generate temporary filenames derived from BASENAME
+** Generate temporary filenames derived from BASENAME.  Use the --time
+** option to generate temp names based on the time of day.
 */
 void file_test_tempname(void){
   int i;
+  char *zSuffix = find_option("time",0,1);
   Blob x = BLOB_INITIALIZER;
+  char *z;
+  verify_all_options();
   for(i=2; i<g.argc; i++){
-    file_tempname(&x, g.argv[i]);
-    fossil_print("%s\n", blob_str(&x));
-    blob_reset(&x);
+    if( zSuffix ){
+      z = file_time_tempname(g.argv[i], zSuffix);
+      fossil_print("%s\n", z);
+      fossil_free(z);
+    }else{
+      file_tempname(&x, g.argv[i]);
+      fossil_print("%s\n", blob_str(&x));
+      blob_reset(&x);
+    }
   }
 }
 

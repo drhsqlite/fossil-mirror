@@ -366,19 +366,6 @@ static void append_quoted(Blob *pOut, Blob *pMsg){
   }
 }
 
-/*
-** Come up with a unique filename in the zDir directory.
-**
-** Space to hold the filename is obtained from mprintf() and must
-** be freed using fossil_free() by the caller.
-*/
-static char *emailTempFilename(const char *zDir){
-  char *zFile = db_text(0,
-     "SELECT %Q||strftime('/%%Y%%m%%d%%H%%M%%S-','now')||hex(randomblob(8))",
-        zDir);
-  return zFile;
-}
-
 #if defined(_WIN32) || defined(WIN32)
 # undef popen
 # define popen _popen
@@ -750,7 +737,7 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
       emailerError(p, "Could not open output pipe \"%s\"", p->zCmd);
     }
   }else if( p->zDir ){
-    char *zFile = emailTempFilename(p->zDir);
+    char *zFile = file_time_tempname(p->zDir, ".email");
     blob_write_to_file(&all, zFile);
     fossil_free(zFile);
   }else if( p->pSmtp ){
@@ -906,7 +893,7 @@ void email_cmd(void){
     }
     blob_read_from_file(&email, g.argc==3 ? "-" : g.argv[3], ExtFILE);
     if( zInboundDir[0] ){
-      char *zFN = emailTempFilename(zInboundDir);
+      char *zFN = file_time_tempname(zInboundDir,".email");
       blob_write_to_file(&email, zFN);
       fossil_free(zFN);
     }

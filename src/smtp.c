@@ -1338,30 +1338,63 @@ static char *pop3d_arg(char *z){
 }
 
 /*
+** Write formatted output back to the pop3 client, and also to the
+** log file, if there is a log file.
+*/
+static void pop3_print(FILE *pLog, const char *zFormat, ...){
+  va_list ap;
+  char zLine[500];
+  va_start(ap, zFormat);
+  sqlite3_vsnprintf(sizeof(zLine),zLine,zFormat,ap);
+  va_end(ap);
+  printf("%s\r\n", zLine);
+  fflush(stdout);
+  if( pLog ) fprintf(pLog, "S: %s\n", zLine);
+}
+
+/*
 ** COMMAND: pop3d
 **
 ** Usage: %fossil pop3d [OPTIONS] REPOSITORY
 **
 ** Begin a POP3 conversation with a client using stdin/stdout using
 ** the mailboxes stored in REPOSITORY.
+**
+** If launched as root, the process first enters a chroot jail using
+** the directory of REPOSITORY as root, then drops all privileges and
+** assumes the user and group of REPOSITORY before reading any content
+** off of the wire.
+**
+**   --logdir  DIR        Each pop3d session creates a new logfile
+**                        in the directory DIR and records a transcript
+**                        of the session there.  The logfile is opened
+**                        before entering the chroot jail.
 */
 void pop3d_command(void){
   char *zDbName;
   char *zA1, *zA2, *zCmd, *z;
   int inAuth = 1;
   int i;
+  FILE *pLog;
+  const char *zDir;
   Stmt q;
   char zIn[1000];
   char zUser[100];
+  zDir = find_option("logdir",0,1);
+  if( zDir ){
+    char *zFile = file_time_tempname(zDir, ".txt");
+    pLog = fossil_fopen(zFile, "w");
+    fossil_free(zFile);
+  }
   verify_all_options();
   if( g.argc!=3 ) usage("DBNAME");
   zDbName = g.argv[2];
   zDbName = enter_chroot_jail(zDbName, 0);
   db_open_repository(zDbName);
   add_content_sql_commands(g.db);
-    printf("+OK POP3 server ready\r\n");
-  fflush(stdout);
+  pop3_print(pLog, "+OK POP3 server ready");
   while( fgets(zIn, sizeof(zIn), stdin) ){
+    if( pLog ) fprintf(pLog, "C: %s", zIn);
     zCmd = zIn;
     zA1 = pop3d_arg(zCmd);
     zA2 = zA1 ? pop3d_arg(zA1) : 0;
@@ -1410,12 +1443,12 @@ void pop3d_command(void){
       if( strcmp(zCmd,"stat")==0 ){
         db_prepare(&q, "SELECT count(*), sum(esz) FROM pop3 WHERE NOT isDel");
         if( db_step(&q)==SQLITE_ROW ){
-          printf("+OK %d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+          pop3_print(pLog, "+OK %d %d",
+                     db_column_int(&q,0), db_column_int(&q,1));
         }else{
-          printf("-ERR\r\n");
+          pop3_print(pLog,"-ERR");
         }
         db_finalize(&q);
-        fflush(stdout);
         continue;
       }
       if( strcmp(zCmd,"list")==0 ){
@@ -1423,24 +1456,26 @@ void pop3d_command(void){
           db_prepare(&q, "SELECT id, esz FROM pop3"
                          " WHERE id=%d AND NOT isDel", atoi(zA1));
           if( db_step(&q)==SQLITE_ROW ){
-            printf("+OK %d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+            pop3_print(pLog, "+OK %d %d",
+                       db_column_int(&q,0), db_column_int(&q,1));
           }else{
-            printf("-ERR\r\n");
+            pop3_print(pLog, "-ERR");
           }
         }else{
-          printf("+OK\r\n");
+          pop3_print(pLog, "+OK");
           db_prepare(&q, "SELECT id, esz FROM pop3 WHERE NOT isDel");
           while( db_step(&q)==SQLITE_ROW ){
-            printf("%d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+            pop3_print(pLog, "%d %d",
+                       db_column_int(&q,0), db_column_int(&q,1));
           }
-          printf(".\r\n");
+          pop3_print(pLog, ".");
         }
-        fflush(stdout);
         db_finalize(&q);
         continue;
       }
       if( strcmp(zCmd,"retr")==0 ){
         Blob all, line;
+        int nLine = 0;
         if( zA1==0 ) goto cmd_error;
         z = db_text(0, "SELECT decompress(emailblob.etxt) "
                        "  FROM emailblob, pop3"
@@ -1448,19 +1483,22 @@ void pop3d_command(void){
                        "   AND pop3.id=%d AND NOT pop3.isDel",
                        atoi(zA1));
         if( z==0 ) goto cmd_error;
+        pop3_print(pLog, "+OK");
         blob_init(&all, z, -1);
         while( blob_line(&all, &line) ){
           if( blob_buffer(&line)[0]=='.' ){
             fputc('.', stdout);
           }
           fwrite(blob_buffer(&line), 1, blob_size(&line), stdout);
+          nLine++;
         }
-        printf(".\r\n");
+        if( pLog ) fprintf(pLog, "S: # %d lines of content\n", nLine);
+        pop3_print(pLog, ".");
         fossil_free(z);
         blob_reset(&all);
         blob_reset(&line);
         fflush(stdout);
-        goto cmd_ok;
+        continue;
       }
       if( strcmp(zCmd,"dele")==0 ){
         if( zA1==0 ) goto cmd_error;
@@ -1479,19 +1517,20 @@ void pop3d_command(void){
           db_prepare(&q, "SELECT id, emailid FROM pop3"
                          " WHERE id=%d AND NOT isDel", atoi(zA1));
           if( db_step(&q)==SQLITE_ROW ){
-            printf("+OK %d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+            pop3_print(pLog, "+OK %d %d",
+                       db_column_int(&q,0), db_column_int(&q,1));
           }else{
-            printf("-ERR\r\n");
+            pop3_print(pLog,"-ERR");
           }
         }else{
-          printf("+OK\r\n");
+          pop3_print(pLog, "+OK");
           db_prepare(&q, "SELECT id, emailid FROM pop3 WHERE NOT isDel");
           while( db_step(&q)==SQLITE_ROW ){
-            printf("%d %d\r\n", db_column_int(&q,0), db_column_int(&q,1));
+            pop3_print(pLog, "%d %d",
+                       db_column_int(&q,0), db_column_int(&q,1));
           }
-          printf(".\r\n");
+          pop3_print(pLog, ".");
         }
-        fflush(stdout);
         db_finalize(&q);
         continue;
       }
@@ -1501,12 +1540,11 @@ void pop3d_command(void){
       /* Else, fall through into cmd_error */
     }
   cmd_error:
-    printf("-ERR\r\n");
-    fflush(stdout);
+    pop3_print(pLog, "-ERR");
     continue;
   cmd_ok:
-    printf("+OK\r\n");
-    fflush(stdout);
+    pop3_print(pLog, "+OK");
     continue;
   }
+  if( pLog ) fclose(pLog);
 }
