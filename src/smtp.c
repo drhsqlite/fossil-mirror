@@ -1399,6 +1399,16 @@ void pop3d_command(void){
     zA1 = pop3d_arg(zCmd);
     zA2 = zA1 ? pop3d_arg(zA1) : 0;
     for(i=0; zCmd[i]; i++){ zCmd[i] = fossil_tolower(zCmd[i]); }
+    if( strcmp(zCmd,"quit")==0 ){
+      if( !inAuth ){
+        db_multi_exec(
+          "UPDATE emailbox SET estate=2"
+          " WHERE estate<2 AND ebid IN (SELECT ebid FROM pop3 WHERE isDel);"
+        );
+      }
+      pop3_print(pLog, "+OK");
+      break;
+    }
     if( strcmp(zCmd,"capa")==0 ){
       static const char *azCap[] = {
           "TOP", "USER", "UIDL",
@@ -1440,18 +1450,10 @@ void pop3d_command(void){
           goto cmd_ok;
         }   
       }
-      if( strcmp(zCmd,"quit")==0 ) break;
       /* Fossil cannot process APOP since the users clear-text password is
       ** unknown. */
       goto cmd_error;
     }else{
-      if( strcmp(zCmd,"quit")==0 ){
-        db_multi_exec(
-          "UPDATE emailbox SET estate=2"
-          " WHERE estate<2 AND ebid IN (SELECT ebid FROM pop3 WHERE isDel);"
-        );
-        break;
-      }
       if( strcmp(zCmd,"stat")==0 ){
         db_prepare(&q, "SELECT count(*), sum(esz) FROM pop3 WHERE NOT isDel");
         if( db_step(&q)==SQLITE_ROW ){
