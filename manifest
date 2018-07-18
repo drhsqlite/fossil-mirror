@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.25.0\salpha\sthat\sincludes\ssupport\nfor\sthe\sSQLITE_FCNTL_DATA_VERSION\sfile\scontrol.
-D 2018-07-18T19:11:04.173
+C Use\sthe\snew\sSQLITE_FCNTL_DATA_VERSION\sinterface\sin\sSQLite\sto\slimit\srunning\nthe\sbackoffice\sprocessing\sto\scase\swhen\sthe\srepository\sfile\schanges.
+D 2018-07-18T19:22:31.047
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 7366cc2294d8d95a8bbfd780c32574eeed2bd774ac960296a0caa57516c201ee
+F src/cgi.c 9cfd66ec1934737a5df8f5c1e8ec6fd78ec4d151d176c12bb9641c15c4a6b7d4
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -454,7 +454,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8a8dea12900f407bedc71bfbf236b2ca27b9e07981b06e4ebb087c3e8a088250
+F src/db.c a7c749fe3470177d4044e470b40ee428f4243cc00a4706cac0f4b6a4a2d1007c
 F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -510,7 +510,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 4484479a821d5110fd0f6699528da5250f2bb89dd3a05fbfe7fa7cc4e3f3b754
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 0bdcd1931fb51e2091ccb4411d7b855a78569bfd6d7f65df05ad3b2bfe4e7a72
+F src/main.c ef65cb9c1e7eda65573dc45858d7a91eeee33c4fa1b9b51f37baa821bdb4ab39
 F src/main.mk 4eb7deeec077a760189cbd458deddbfbfabc94446c59761d26e94ad66514e398
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 947081aa2f650228b30bc6baef189d63164d09dac741403375ce1d2fcf2ec2b9
-R fc110c12e4357b7c9660b1fbfd7e151b
+P abacf2e5bfd83f5206b6c304c3f270d6d0e450212b0b6febd2388ee5fc99f942
+R f87aedb1095ade0bf0c95255e9425829
 U drh
-Z 28e9fb523f152a37e03db3046f573f34
+Z 67bde104b939e2f39d660916e0a6cbf4

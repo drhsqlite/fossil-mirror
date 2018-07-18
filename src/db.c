@@ -1648,6 +1648,8 @@ void db_open_repository(const char *zDbName){
   g.zRepositoryName = mprintf("%s", zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
+  sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
+                       &g.iRepoDataVers);
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks",
                                    db_allow_symlinks_by_default());
@@ -1662,6 +1664,21 @@ void db_open_repository(const char *zDbName){
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+}
+
+/*
+** Return true if there have been any changes to the repository
+** database since it was opened.
+**
+** Changes to "config" and "localdb" and "temp" do not count.
+** This routine only returns true if there have been changes
+** to "repository".
+*/
+int db_repository_has_changed(void){
+  unsigned int v;
+  if( !g.repositoryOpen ) return 0;
+  sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION, &v);
+  return g.iRepoDataVers != v;               
 }
 
 /*

@@ -345,7 +345,8 @@ void cgi_reply(void){
   /* After the webpage has been sent, do any useful background
   ** processing.
   */
-  if( g.db!=0 && sqlite3_total_changes(g.db)>0 ){
+  if( g.db!=0 && db_repository_has_changed() ){
+    if( g.fAnyTrace ) fprintf(stderr, "-- repository changes have occurred\n");
     backoffice_run();
   }
 }
