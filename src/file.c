@@ -1498,7 +1498,7 @@ char *file_time_tempname(const char *zDir, const char *zSuffix){
 */
 void file_test_tempname(void){
   int i;
-  char *zSuffix = find_option("time",0,1);
+  const char *zSuffix = find_option("time",0,1);
   Blob x = BLOB_INITIALIZER;
   char *z;
   verify_all_options();
