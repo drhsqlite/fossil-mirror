@@ -1375,7 +1375,7 @@ void pop3d_command(void){
   char *zA1, *zA2, *zCmd, *z;
   int inAuth = 1;
   int i;
-  FILE *pLog;
+  FILE *pLog = 0;
   const char *zDir;
   Stmt q;
   char zIn[1000];
@@ -1399,6 +1399,18 @@ void pop3d_command(void){
     zA1 = pop3d_arg(zCmd);
     zA2 = zA1 ? pop3d_arg(zA1) : 0;
     for(i=0; zCmd[i]; i++){ zCmd[i] = fossil_tolower(zCmd[i]); }
+    if( strcmp(zCmd,"capa")==0 ){
+      static const char *azCap[] = {
+          "TOP", "USER", "UIDL",
+      };
+      int i;
+      pop3_print(pLog, "+OK");
+      for(i=0; i<sizeof(azCap)/sizeof(azCap[0]); i++){
+        pop3_print(pLog, azCap[i]);
+      }
+      pop3_print(pLog, ".");
+      continue;
+    }
     if( inAuth ){
       if( strcmp(zCmd,"user")==0 ){
         if( zA1==0 || zA2!=0 ) goto cmd_error;
@@ -1473,10 +1485,14 @@ void pop3d_command(void){
         db_finalize(&q);
         continue;
       }
-      if( strcmp(zCmd,"retr")==0 ){
+      if( strcmp(zCmd,"retr")==0 || strcmp(zCmd,"top")==0 ){
         Blob all, line;
         int nLine = 0;
+        int iLimit;
+        int hdrSeen = 0;
         if( zA1==0 ) goto cmd_error;
+        iLimit = zA2 ? atoi(zA2) : 2147483647;
+        if( iLimit<=0 ) goto cmd_error;
         z = db_text(0, "SELECT decompress(emailblob.etxt) "
                        "  FROM emailblob, pop3"
                        " WHERE emailblob.emailid=pop3.emailid"
@@ -1485,12 +1501,16 @@ void pop3d_command(void){
         if( z==0 ) goto cmd_error;
         pop3_print(pLog, "+OK");
         blob_init(&all, z, -1);
-        while( blob_line(&all, &line) ){
-          if( blob_buffer(&line)[0]=='.' ){
+        while( iLimit && blob_line(&all, &line) ){
+          char c = blob_buffer(&line)[0];
+          if( c=='.' ){
             fputc('.', stdout);
+          }else if( c=='\r' || c=='\n' ){
+            hdrSeen = 1;
           }
           fwrite(blob_buffer(&line), 1, blob_size(&line), stdout);
           nLine++;
+          if( hdrSeen ) iLimit--;
         }
         if( pLog ) fprintf(pLog, "S: # %d lines of content\n", nLine);
         pop3_print(pLog, ".");
@@ -1508,9 +1528,6 @@ void pop3d_command(void){
       if( strcmp(zCmd,"rset")==0 ){
         db_multi_exec("UPDATE pop3 SET isDel=0");
         goto cmd_ok;
-      }
-      if( strcmp(zCmd,"top")==0 ){
-        goto cmd_error;
       }
       if( strcmp(zCmd,"uidl")==0 ){
         if( zA1 ){
