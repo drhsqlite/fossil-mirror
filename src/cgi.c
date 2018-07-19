@@ -345,7 +345,9 @@ void cgi_reply(void){
   /* After the webpage has been sent, do any useful background
   ** processing.
   */
-  backoffice_run();
+  if( g.db!=0 && iReplyStatus==200 ){
+    backoffice_run();
+  }
 }
 
 /*

@@ -417,6 +417,7 @@ void errorlog_page(void){
   }
   style_header("Server Error Log");
   style_submenu_element("Test", "%R/test-warning");
+  style_submenu_element("Refresh", "%R/errorlog");
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <p>To create a server error log:
     @ <ol>
@@ -464,8 +465,11 @@ void errorlog_page(void){
     style_footer();
     return;
   }
-  if( szFile>MXSHOWLOG ){
-    @ Only the last %,d(MXSHOWLOG) bytes are shown.
+  if( szFile>MXSHOWLOG && P("all")==0 ){
+    @ <form action="%R/errorlog" method="POST">
+    @ <p>Only the last %,d(MXSHOWLOG) bytes are shown.
+    @ <input type="submit" name="all" value="Show All">
+    @ </form>
     fseek(in, -MXSHOWLOG, SEEK_END);
   }
   @ <hr>
