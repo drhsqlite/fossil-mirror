@@ -423,6 +423,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
          &zName[1], aType[ii].zPrimKey);
+    if( fossil_stricmp(zName,"/subscriber") ) email_schema(0);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }

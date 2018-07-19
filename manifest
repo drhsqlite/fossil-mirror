@@ -1,5 +1,5 @@
-C Improved\serror\slogging\sfollowing\sa\ssegfault.
-D 2018-07-19T13:29:16.094
+C The\sconfiguration\sloader\sautomatically\screates\sthe\ssubscriber\stable\sif\nnecessary.\s\sThis\sfixes\sthe\s"fossil\sclone"\scommand\sfor\sprivileged\susers.
+D 2018-07-19T15:35:46.655
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -448,7 +448,7 @@ F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c 3da69f1393165f3d1634c5367ae3f42b5c73754f36d9a743b39c3fe49753c0e6
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
-F src/configure.c 0139cddfa4b74e067d053612c399589972a4c68c0d7d959a1f2ae549a9d8fc16
+F src/configure.c 506880ba1fddc29affb9aaf1a416c1ae62c6fd606460943924075c2f6beb7a9f
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -856,8 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5542cd43b3fe305c41009ff4f6c1e6ddf3562cf00ecfb8a8959ae12ac21753d3 3e03913b6f210546b68245c4f76e90c66c85fe77dc72e8c34cd253c6edb416d7
-R c56ce3e4fe2fad1e188823a6b4d2f92c
-T +closed 3e03913b6f210546b68245c4f76e90c66c85fe77dc72e8c34cd253c6edb416d7
+P a8d220b9ff6deba678b979749b44485521b1aeb261f0ab9f0088c6d5c37c90c3
+R ee1585010d05b9b49eb689f5bbf4a21a
 U drh
-Z 22112431389a4392486bc8cefc84c43b
+Z 7c0f44bbad354473e35876860237665e
