@@ -1,5 +1,5 @@
-C Fix\sminor\scomment\stypo.\s\sNo\scode\schanges.
-D 2018-07-19T18:54:39.374
+C Proposed\snew\sdesign\sfor\sthe\sforum.\s\sIndividual\sposts\sare\sstored\sas\sordinary\nartifacts\sand\sthus\sparticipate\sin\ssync\sjust\slike\sany\sother\sartifact.\s\sThere\nis\sa\snew\sartifact\stype\sused\sto\sdescribe\sforum\sposts.\s\sThis\scheck-in\sdefines\nthe\sformat\sof\sthe\snew\sartifact\stype.\s\sFollow-up\scheck-ins\son\sthis\sthread\swill\nattempt\sto\sflesh-out\sthe\sidea\sin\scode.
+D 2018-07-19T19:43:57.504
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -802,7 +802,7 @@ F www/env-opts.md c2bab5d2cfe289979b83ff8409e6b156f102bf477a1e71e6002c8761172fed
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki c5e5f4a278c4babc29f071a07d177b1dddbfbac3
+F www/fileformat.wiki 51ccb9664bc7ce7fc5f7589bdaa7c2b9bbd752af6e035336e1409284c2e372b0
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -856,7 +856,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f535b028a86539ceead3f8ff5878dcd1e97ae3a0d3a6190cdc172b84d3ddb0e
-R 60cabdaf395a534cd737fa1bcf790303
+P ac6657e2d35c974d7f2e05db5b4d21848c3298c07a7c1ba619f79aa9470aeba6
+R 481e054690581ea495e6b4963ee84586
+T *branch * forum-v2
+T *sym-forum-v2 *
+T -sym-trunk *
 U drh
-Z b80bfb8f626bcda5ec9fabdc7c62d34c
+Z 20bc7045c67099999443ae83001f7b86
