@@ -695,6 +695,17 @@ or more such cards are required.
 <td>&nbsp;</td>
 </tr>
 <tr>
+<td><b>G</b> <i>thread-root</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+</tr>
+<tr>
 <td><b>H</b> <i>thread-title</i></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>

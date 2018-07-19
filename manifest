@@ -1,5 +1,5 @@
-C Proposed\snew\sdesign\sfor\sthe\sforum.\s\sIndividual\sposts\sare\sstored\sas\sordinary\nartifacts\sand\sthus\sparticipate\sin\ssync\sjust\slike\sany\sother\sartifact.\s\sThere\nis\sa\snew\sartifact\stype\sused\sto\sdescribe\sforum\sposts.\s\sThis\scheck-in\sdefines\nthe\sformat\sof\sthe\snew\sartifact\stype.\s\sFollow-up\scheck-ins\son\sthis\sthread\swill\nattempt\sto\sflesh-out\sthe\sidea\sin\scode.
-D 2018-07-19T19:43:57.504
+C Enhance\sthe\smanifest\sparser\sto\ssupport\sparsing\sof\sForum\sposts\sartifacts.\nAt\sthe\ssame\stime,\ssimplify\sthe\sartifact\ssyntax\serror\sdetection\slogic\nusing\stables\srather\sthan\sstraight\scode.
+D 2018-07-19T21:31:34.363
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -515,7 +515,7 @@ F src/main.mk 4eb7deeec077a760189cbd458deddbfbfabc94446c59761d26e94ad66514e398
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 54ffb340b5ecb21add47dbfb1efdbe37b315ab2e4d7a42dd4961c4d1a4071e37
-F src/manifest.c 5294ac6bb4692d92b85aa052d5b54ecd2f031224c0be6df0cc3916b01d7165b7
+F src/manifest.c a992196e94371bed7e212b10a19d9028671a22c17b11ae0cfb21a82faab95557
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -802,7 +802,7 @@ F www/env-opts.md c2bab5d2cfe289979b83ff8409e6b156f102bf477a1e71e6002c8761172fed
 F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 51ccb9664bc7ce7fc5f7589bdaa7c2b9bbd752af6e035336e1409284c2e372b0
+F www/fileformat.wiki 3b74370b86f3c1e87069383ae6f2ccffd007e69bb34c69b543e802f48944b07f
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -856,10 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac6657e2d35c974d7f2e05db5b4d21848c3298c07a7c1ba619f79aa9470aeba6
-R 481e054690581ea495e6b4963ee84586
-T *branch * forum-v2
-T *sym-forum-v2 *
-T -sym-trunk *
+P 15fa605318fc0e4e8a6de1b58500770e32a4ee6f7c8972439c974ccf4fb390a8
+R 6b74276ff0f76cdc1695c32df659def5
 U drh
-Z 20bc7045c67099999443ae83001f7b86
+Z 823bd6ca68613168a02aabe4bbc9b205
