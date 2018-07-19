@@ -50,6 +50,9 @@
 #  include "cson_amalgamation.h" /* JSON API. */
 #  include "json_detail.h"
 #endif
+#ifdef HAVE_BACKTRACE
+# include <execinfo.h>
+#endif
 
 /*
 ** Maximum number of auxiliary parameters on reports
