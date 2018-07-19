@@ -191,7 +191,7 @@ void backoffice_run(void){
     fossil_panic("database not open for backoffice processing");
   }
   if( db_transaction_nesting_depth()!=0 ){
-    fossil_panic("transaction %z not closed prior to backoffice processing",
+    fossil_panic("transaction %s not closed prior to backoffice processing",
                  db_transaction_start_point());
   }
   idSelf = backofficeProcessId();

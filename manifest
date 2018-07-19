@@ -1,5 +1,5 @@
-C The\sconfiguration\sloader\sautomatically\screates\sthe\ssubscriber\stable\sif\nnecessary.\s\sThis\sfixes\sthe\s"fossil\sclone"\scommand\sfor\sprivileged\susers.
-D 2018-07-19T15:35:46.655
+C Run\sthe\sbackoffice\sprocessing\safter\severy\swebpage.\s\sFix\sa\smemory\serror\sin\none\sof\sthe\sbackoffice\serror\smessages.
+D 2018-07-19T15:43:08.890
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c 7e9a5e8b69d30b57b36ffb09e396b5f581d0cbb560c78d59bdfb9327c85f0f3a
+F src/backoffice.c 59925e65d76c97d56e25b7d17bc4ca8d6104d6c6c0dee7703c3b358ce727d5d2
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -439,7 +439,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 9cfd66ec1934737a5df8f5c1e8ec6fd78ec4d151d176c12bb9641c15c4a6b7d4
+F src/cgi.c 3e62cef3120c21b8009791d1d49324a96615d8663cde68926ca4e48ca106b094
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8d220b9ff6deba678b979749b44485521b1aeb261f0ab9f0088c6d5c37c90c3
-R ee1585010d05b9b49eb689f5bbf4a21a
+P 06586ef70f36afb7f2838cd4f0e9dc1ca778ce46a4a77c090424d67ac9b83fba
+R 88e7e9d9c73a0edbfc05397b5d3167f7
 U drh
-Z 7c0f44bbad354473e35876860237665e
+Z 04c38e80fe34d7121431422819a113ef
