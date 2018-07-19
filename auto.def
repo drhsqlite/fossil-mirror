@@ -485,6 +485,7 @@ cc-check-functions utime
 cc-check-functions usleep
 cc-check-functions strchrnul
 cc-check-functions pledge
+cc-check-functions backtrace
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {

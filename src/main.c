@@ -50,6 +50,9 @@
 #  include "cson_amalgamation.h" /* JSON API. */
 #  include "json_detail.h"
 #endif
+#ifdef HAVE_BACKTRACE
+# include <execinfo.h>
+#endif
 
 /*
 ** Maximum number of auxiliary parameters on reports
@@ -1420,7 +1423,23 @@ void test_list_page(void){
 ** Called whenever a crash is encountered while processing a webpage.
 */
 void sigsegv_handler(int x){
-  fossil_errorlog("Segfault");
+#if HAVE_BACKTRACE
+  void *array[20];
+  size_t size;
+  char **strings;
+  size_t i;
+  Blob out;
+  size = backtrace(array, sizeof(array)/sizeof(array[0]));
+  strings = backtrace_symbols(array, size);
+  blob_init(&out, 0, 0);
+  blob_appendf(&out, "Segfault");
+  for(i=0; i<size; i++){
+    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+  }
+  fossil_panic("%s", blob_str(&out));
+#else
+  fossil_panic("Segfault");
+#endif
   exit(1);
 }
 
@@ -2780,6 +2799,8 @@ void test_echo_cmd(void){
 **     case=1           Issue a fossil_warning() while generating the page.
 **     case=2           Extra db_begin_transaction()
 **     case=3           Extra db_end_transaction()
+**     case=4           Error during SQL processing
+**     case=5           Call the segfault handler
 */
 void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
@@ -2797,7 +2818,7 @@ void test_warning_page(void){
   }else{
     @ <p>This is the test page for case=%d(iCase).  All possible cases:
   }
-  for(i=1; i<=4; i++){
+  for(i=1; i<=5; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -2821,6 +2842,10 @@ void test_warning_page(void){
     db_step(&q);
     sqlite3_log(SQLITE_ERROR, "Test warning message during SQL");
     db_finalize(&q);
+  }
+  @ <li value='5'> simulate segfault handling
+  if( iCase==5 ){
+    sigsegv_handler(0);
   }
   @ </ol>
   @ <p>End of test</p>

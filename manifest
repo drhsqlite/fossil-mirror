@@ -1,5 +1,5 @@
-C Fix\sthe\sbackoffice\sdelay\sso\sthat\sit\sextends\sthe\sdeadline\sfor\sthe\sfollow-on\nprocess\sif\sthe\scurrent\sprocess\sruns\sovertime.\s\sThis\sprevents\smultiple\nfollow-ons.
-D 2018-07-19T02:37:09.616
+C Improved\serror\slogging\sfollowing\sa\ssegfault.
+D 2018-07-19T13:29:16.094
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def b20223fd5a4e215dc9ce3b488b39d52e4f833595bc6d17f2e13138d3ba717dfd
+F auto.def 5df2f75a5ac2b853ae65b9111cd6fe6c5ddd21d314a929891b98b24f94f5e54b
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -510,7 +510,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 4484479a821d5110fd0f6699528da5250f2bb89dd3a05fbfe7fa7cc4e3f3b754
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c ef65cb9c1e7eda65573dc45858d7a91eeee33c4fa1b9b51f37baa821bdb4ab39
+F src/main.c ff592f43b3ee1be493e5dfbbfd959eeb5876e9e093fc761c746899de796a5ee2
 F src/main.mk 4eb7deeec077a760189cbd458deddbfbfabc94446c59761d26e94ad66514e398
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -856,7 +856,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86b0a3d3f3492648f0c08b3cdb3060c67d0c6410e757604adba24c9b056597b5
-R 11e8e9b53a9f57b661827d734c7b4149
+P 5542cd43b3fe305c41009ff4f6c1e6ddf3562cf00ecfb8a8959ae12ac21753d3 3e03913b6f210546b68245c4f76e90c66c85fe77dc72e8c34cd253c6edb416d7
+R c56ce3e4fe2fad1e188823a6b4d2f92c
+T +closed 3e03913b6f210546b68245c4f76e90c66c85fe77dc72e8c34cd253c6edb416d7
 U drh
-Z 96eccf2ab4a39b33dbcc671e83cade04
+Z 22112431389a4392486bc8cefc84c43b
