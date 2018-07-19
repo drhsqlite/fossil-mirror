@@ -1,5 +1,5 @@
-C Improved\sSQL\slogging\safter\sSIGPIPE.\s\sExponential\sbackoff\sin\sthe\swarnings\nissued\swhen\sthe\sbackoffice\sprocess\smisses\sits\sdeadline.
-D 2018-07-19T16:27:51.346
+C The\semail_auto_exec\sproperty\sis\sremoved.\s\sThe\sroutine\sthat\ssends\salert\semails\nis\srenamed\sto\semail_backoffice()\sand\sit\sis\sconfigured\sto\salways\sauto-run.
+D 2018-07-19T17:22:04.827
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c 5703b35eeb3bb225c7ce4265d86a88be0f4bae9749caa79067de444941f029f7
+F src/backoffice.c a2ebf05afb475bbd9e6ea54532f098b8c802d0ce8fc22ee58cfc54c7df11d4fb
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -464,7 +464,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 3d568ac54c184412bb8b7b2918d611904b9a0b831e0b403b943d2d22d1abd2d8
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c b3726dd24970792270a31e80bf86590759d100e6dae9cd4d9960a09ca68de292
+F src/email.c 3e9d921b2bfdfbe49286bebe60ff304113eccab159169b60db4726d726ae8adc
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a32a92d227be56631b204ef761e05121bfb3d08de16f84dc7a3adee1775fc49c
-R 0f8118f135be491ae33d906f8258811d
+P f525b6d5e9dcb775a931aa2949684d9b02ce57f959fa3aff4c9982f4be2a5699
+R 0a14d2c410f047ac71f52e38b392c74d
 U drh
-Z 2b0c04d84761f668066fe51a20a76894
+Z 2310d5a7ec46da806cc94bfef0842059

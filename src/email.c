@@ -247,15 +247,6 @@ void setup_notification(void){
   @ (Property: "email-subname")</p>
   @ <hr>
 
-  onoff_attribute("Automatic Email Exec", "email-autoexec",
-                   "eauto", 0, 0);
-  @ <p>If enabled, then email notifications are automatically
-  @ dispatched after some webpages are accessed.  This eliminates the
-  @ need to have a cron job running to invoke "fossil email exec"
-  @ periodically.
-  @ (Property: "email-autoexec")</p>
-  @ <hr>
-
   multiple_choice_attribute("Email Send Method", "email-send-method", "esm",
        "off", count(azSendMethods)/2, azSendMethods);
   @ <p>How to send email.  Requires auxiliary information from the fields
@@ -1947,7 +1938,7 @@ void test_alert_cmd(void){
 /*
 ** COMMAND:  test-add-alerts
 **
-** Usage: %fossil test-add-alerts [--autoexec] EVENTID ...
+** Usage: %fossil test-add-alerts [--backoffice] EVENTID ...
 **
 ** Add one or more events to the pending_alert queue.  Use this
 ** command during testing to force email notifications for specific
@@ -1958,13 +1949,13 @@ void test_alert_cmd(void){
 ** integer that references the EVENT.OBJID value for the event.
 ** Run /timeline?showid to see these OBJID values.
 **
-** If the --autoexec option is included, then email_auto_exec() is run
+** If the --backoffice option is included, then email_backoffice() is run
 ** after all alerts have been added.  This will cause the alerts to
 ** be sent out with the SENDALERT_TRACE option.
 */
 void test_add_alert_cmd(void){
   int i;
-  int doAuto = find_option("autoexec",0,0)!=0;
+  int doAuto = find_option("backoffice",0,0)!=0;
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_write();
@@ -1974,7 +1965,7 @@ void test_add_alert_cmd(void){
   }
   db_end_transaction(0);
   if( doAuto ){
-    email_auto_exec(SENDALERT_TRACE);
+    email_backoffice(SENDALERT_TRACE);
   }
 }
 
@@ -2094,20 +2085,19 @@ send_alerts_done:
 }
 
 /*
-** Check to see if any email notifications need to occur, and then
+** Do backoffice processing for email notifications.  In other words,
+** check to see if any email notifications need to occur, and then
 ** do them.
 **
-** This routine is called after certain webpages have been run and
-** have already responded.
+** This routine is intended to run in the background, after webpages.
 **
 ** The mFlags option is zero or more of the SENDALERT_* flags.  Normally
 ** this flag is zero, but the test-set-alert command sets it to
 ** SENDALERT_TRACE.
 */
-void email_auto_exec(u32 mFlags){
+void email_backoffice(u32 mFlags){
   int iJulianDay;
   if( !email_tables_exist() ) return;
-  if( !db_get_boolean("email-autoexec",0) ) return;
   email_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
