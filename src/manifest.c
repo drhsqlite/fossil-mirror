@@ -2465,6 +2465,18 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     );
     blob_reset(&comment);
   }
+  if( p->type==CFTYPE_FORUM ){
+    int froot, fprev, firt;
+    schema_forum();
+    froot = uuid_to_rid(p->zThreadRoot, 1);
+    fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
+    firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;
+    db_multi_exec(
+      "INSERT INTO forumpost(fpid,froot,fprev,firt,fmtime)"
+      "VALUES(%d,%d,nullif(%d,0),nullif(%d,0),%.17g)",
+      p->rid, froot, fprev, firt, p->rDate
+    );
+  }
   db_end_transaction(0);
   if( permitHooks ){
     rc = xfer_run_common_script();
