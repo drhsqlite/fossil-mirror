@@ -1450,10 +1450,11 @@ void sigsegv_handler(int x){
 void sigpipe_handler(int x){
 #ifndef _WIN32
   if( g.fAnyTrace ){
-    fprintf(stderr,"/**** sigpipe received by subprocess %d ****\n", getpid());
+    fprintf(stderr,"/***** sigpipe received by subprocess %d ****\n", getpid());
   }
 #endif
-  fossil_exit(1);
+  db_panic_close();
+  exit(1);
 }
 
 /*

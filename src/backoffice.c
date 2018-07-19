@@ -186,6 +186,7 @@ void backoffice_run(void){
   sqlite3_uint64 tmNow;
   sqlite3_uint64 idSelf;
   int lastWarning = 0;
+  int warningDelay = 30;
 
   if( g.db==0 ){
     fossil_panic("database not open for backoffice processing");
@@ -232,11 +233,12 @@ void backoffice_run(void){
     if( x.tmCurrent >= tmNow ){
       sqlite3_sleep(1000*(x.tmCurrent - tmNow + 1));
     }else{
-      if( lastWarning+30 < tmNow ){
+      if( lastWarning+warningDelay < tmNow ){
         fossil_warning(
            "backoffice process %lld still running after %d seconds",
            x.idCurrent, (int)(BKOFCE_LEASE_TIME + tmNow - x.tmCurrent));
         lastWarning = tmNow;
+        warningDelay *= 2;
       }
       sqlite3_sleep(1000);
     }

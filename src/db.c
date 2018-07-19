@@ -1888,6 +1888,20 @@ void db_close(int reportErrors){
   assert( g.zConfigDbName==0 );
 }
 
+/*
+** Close the database as quickly as possible without unnecessary processing.
+*/
+void db_panic_close(void){
+  if( g.db ){
+    int rc;
+    sqlite3_wal_checkpoint(g.db, 0);
+    rc = sqlite3_close(g.db);
+    if( g.fSqlTrace ) fossil_trace("-- sqlite3_close(%d)\n", rc);
+  }
+  g.db = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
+}
 
 /*
 ** Create a new empty repository database with the given name.
