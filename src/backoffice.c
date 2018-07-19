@@ -226,7 +226,7 @@ void backoffice_run(void){
     /* This process needs to queue up and wait for the current lease
     ** to expire before continuing. */
     x.idNext = idSelf;
-    x.tmNext = x.tmCurrent + BKOFCE_LEASE_TIME;
+    x.tmNext = (tmNow>x.tmCurrent ? tmNow : x.tmCurrent) + BKOFCE_LEASE_TIME;
     backofficeWriteLease(&x);
     db_end_transaction(0);
     if( x.tmCurrent >= tmNow ){
@@ -250,4 +250,16 @@ void backoffice_run(void){
 */
 void backoffice_work(void){
   email_auto_exec(0);
+}
+
+/*
+** COMMAND: test-backoffice
+**
+** Usage: test-backoffice
+**
+** Run backoffice processing
+*/
+void test_backoffice_command(void){
+  db_find_and_open_repository(0,0);
+  backoffice_run();
 }
