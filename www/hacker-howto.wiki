@@ -9,6 +9,7 @@ or enhance Fossil.  Ordinary users can safely ignore this information.
   *  [./tech_overview.wiki | A Technical Overview of Fossil]
   *  [./adding_code.wiki | Adding Features To Fossil]
   *  [./contribute.wiki|Contributing Code Or Enhancements To The Fossil Project]
+  *  [./fileformat.wiki|Fossil Artifact File Format]
   *  [./style.wiki | Coding Style Guidelines]
   *  [./checkin.wiki | Pre-checkin Checklist]
   *  [../test/release-checklist.wiki | Release Checklist]

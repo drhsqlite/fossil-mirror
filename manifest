@@ -1,5 +1,5 @@
-C The\semail_auto_exec\sproperty\sis\sremoved.\s\sThe\sroutine\sthat\ssends\salert\semails\nis\srenamed\sto\semail_backoffice()\sand\sit\sis\sconfigured\sto\salways\sauto-run.
-D 2018-07-19T17:22:04.827
+C Make\sthe\sfile\sformat\sdocument\sand\sthe\shacker\show-to\sdocument\seasier\sto\sfind.
+D 2018-07-19T17:51:47.267
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -818,16 +818,16 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
-F www/hacker-howto.wiki e30361cfbc08462444e4ea943b977abe0b952dbe
+F www/hacker-howto.wiki 012a5eb40a981a965e6644b821a037f8903993034bfb3bb4ee3d5411f63206c1
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki bcc55536f299e9e93b2197602d9b4a5ce30a43852a3b1271bc6bec8f71933109
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750fcbf
-F www/mkindex.tcl 675d640d6256ade2b008e1ce8cc146b7ba68d05823b271b2632397a015e37d4d x
+F www/mkindex.tcl 686b6b169d533b2a1574ac5d5eca9f9bf3e46846f0b23d0741c170f4e1349da8 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 8fa0b5807aee65975705f6cbd6722e148c10fdc0b8f223f32c18b71b1249fce6
+F www/permutedindex.html 7981b7f97d96f836550038e539d496b7c6d441a3e0a21778c5aaf1c653ed417a
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f525b6d5e9dcb775a931aa2949684d9b02ce57f959fa3aff4c9982f4be2a5699
-R 0a14d2c410f047ac71f52e38b392c74d
+P ada7ecde5bf91e18fdaee1367f0aa25cf48830dd06ecfcbedc9783977728d737
+R 8736fce2184983fd3e2361e03636f92b
 U drh
-Z 2310d5a7ec46da806cc94bfef0842059
+Z 2c1fe45b28e77917a69b5d72b497966e
