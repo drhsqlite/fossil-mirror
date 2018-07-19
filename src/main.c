@@ -2796,6 +2796,8 @@ void test_echo_cmd(void){
 **     case=1           Issue a fossil_warning() while generating the page.
 **     case=2           Extra db_begin_transaction()
 **     case=3           Extra db_end_transaction()
+**     case=4           Error during SQL processing
+**     case=5           Call the segfault handler
 */
 void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
@@ -2813,7 +2815,7 @@ void test_warning_page(void){
   }else{
     @ <p>This is the test page for case=%d(iCase).  All possible cases:
   }
-  for(i=1; i<=4; i++){
+  for(i=1; i<=5; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -2837,6 +2839,10 @@ void test_warning_page(void){
     db_step(&q);
     sqlite3_log(SQLITE_ERROR, "Test warning message during SQL");
     db_finalize(&q);
+  }
+  @ <li value='5'> simulate segfault handling
+  if( iCase==5 ){
+    sigsegv_handler(0);
   }
   @ </ol>
   @ <p>End of test</p>

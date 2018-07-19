@@ -1,5 +1,5 @@
-C Add\sGCC\sbacktraces\sto\sthe\ssegv\shandler.
-D 2018-07-19T11:40:09.114
+C Add\sa\ssegfault\ssimulator\sto\sthe\stest-warning\spage.
+D 2018-07-19T13:13:11.598
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -510,7 +510,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 4484479a821d5110fd0f6699528da5250f2bb89dd3a05fbfe7fa7cc4e3f3b754
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c ff36dacfa1cf7019bad83ade49754aed0ff346df605893fd192c4482d05d38e1
+F src/main.c 66b3f272b57bd0312860290cceab0b8eb9f32ae9948c8ff86abcb23377d3e2a9
 F src/main.mk 4eb7deeec077a760189cbd458deddbfbfabc94446c59761d26e94ad66514e398
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -856,10 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5542cd43b3fe305c41009ff4f6c1e6ddf3562cf00ecfb8a8959ae12ac21753d3
-R e7b97322af6d8ee5de9a320930e27d0a
-T *branch * segvhandler
-T *sym-segvhandler *
-T -sym-trunk *
+P cc8c33ee8aff995b170421ebf78598a314e49ed7248c080ba58818a05d5631d8
+R c765929681e4289019c0e10360eb1a21
 U drh
-Z f6b6babbd341dc9d86e3eabe5ae4b9dd
+Z ca18cf032a9c9a688503180de8f6eb76
