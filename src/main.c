@@ -1420,7 +1420,23 @@ void test_list_page(void){
 ** Called whenever a crash is encountered while processing a webpage.
 */
 void sigsegv_handler(int x){
-  fossil_errorlog("Segfault");
+#if HAVE_BACKTRACE
+  void *array[20];
+  size_t size;
+  char **strings;
+  size_t i;
+  Blob out;
+  size = backtrace(array, sizeof(array)/sizeof(array[0]));
+  strings = backtrace_symbols(array, size);
+  blob_init(&out, 0, 0);
+  blob_appendf(&out, "Segfault");
+  for(i=0; i<size; i++){
+    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+  }
+  fossil_panic("%s", blob_str(&out));
+#else
+  fossil_panic("Segfault");
+#endif
   exit(1);
 }
 
