@@ -1,5 +1,5 @@
-C Make\sthe\sfile\sformat\sdocument\sand\sthe\shacker\show-to\sdocument\seasier\sto\sfind.
-D 2018-07-19T17:51:47.267
+C Fix\sminor\scomment\stypo.\s\sNo\scode\schanges.
+D 2018-07-19T18:54:39.374
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -528,7 +528,7 @@ F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac50
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
-F src/moderate.c f470c77af2692869e626edf4a2e970e06d882294e2f17bc2c22eb3c4c644b312
+F src/moderate.c fffb8102dae30ba1205b0e3c660b17dbb4fefb4124618d7df482629a53fa19b7
 F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ada7ecde5bf91e18fdaee1367f0aa25cf48830dd06ecfcbedc9783977728d737
-R 8736fce2184983fd3e2361e03636f92b
+P 2f535b028a86539ceead3f8ff5878dcd1e97ae3a0d3a6190cdc172b84d3ddb0e
+R 60cabdaf395a534cd737fa1bcf790303
 U drh
-Z 2c1fe45b28e77917a69b5d72b497966e
+Z b80bfb8f626bcda5ec9fabdc7c62d34c
