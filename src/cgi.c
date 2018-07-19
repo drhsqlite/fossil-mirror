@@ -346,6 +346,8 @@ void cgi_reply(void){
   ** processing.
   */
   if( g.db!=0 && iReplyStatus==200 ){
+    fclose(g.httpOut);
+    g.httpOut = fossil_fopen("/dev/null", "wb");
     backoffice_run();
   }
 }
