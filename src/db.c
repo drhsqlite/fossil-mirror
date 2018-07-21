@@ -341,7 +341,14 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
+#if 1
+    pStmt->pNext = db.pAllStmt;
+    pStmt->pPrev = 0;
+    if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
+    db.pAllStmt = pStmt;
+#else
   pStmt->pNext = pStmt->pPrev = 0;
+#endif
   pStmt->nStep = 0;
   pStmt->rc = rc;
   return rc;
@@ -368,10 +375,12 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
     va_list ap;
     va_start(ap, zFormat);
     rc = db_vprepare(pStmt, DB_PREPARE_PERSISTENT, zFormat, ap);
+#if 0
     pStmt->pNext = db.pAllStmt;
     pStmt->pPrev = 0;
     if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
     db.pAllStmt = pStmt;
+#endif
     va_end(ap);
   }
   return rc;

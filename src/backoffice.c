@@ -224,7 +224,8 @@ void backoffice_run(void){
       backofficeWriteLease(&x);
       db_end_transaction(0);
       if( g.fAnyTrace ){
-        fprintf(stderr, "/***** Begin Backoffice Processing *****/\n");
+        fprintf(stderr, "/***** Begin Backoffice Processing %d *****/\n",
+                        getpid());
       }
       backoffice_work();
       break;
