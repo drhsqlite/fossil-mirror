@@ -341,7 +341,10 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
   if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
-  pStmt->pNext = pStmt->pPrev = 0;
+  pStmt->pNext = db.pAllStmt;
+  pStmt->pPrev = 0;
+  if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
+  db.pAllStmt = pStmt;
   pStmt->nStep = 0;
   pStmt->rc = rc;
   return rc;
@@ -362,16 +365,16 @@ int db_prepare_ignore_error(Stmt *pStmt, const char *zFormat, ...){
   va_end(ap);
   return rc;
 }
+
+/* This variant of db_prepare() checks to see if the statement has
+** already been prepared, and if it has it becomes a no-op.
+*/
 int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
   int rc = SQLITE_OK;
   if( blob_size(&pStmt->sql)==0 ){
     va_list ap;
     va_start(ap, zFormat);
     rc = db_vprepare(pStmt, DB_PREPARE_PERSISTENT, zFormat, ap);
-    pStmt->pNext = db.pAllStmt;
-    pStmt->pPrev = 0;
-    if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
-    db.pAllStmt = pStmt;
     va_end(ap);
   }
   return rc;

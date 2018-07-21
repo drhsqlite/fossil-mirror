@@ -187,7 +187,12 @@ void backoffice_run(void){
   sqlite3_uint64 idSelf;
   int lastWarning = 0;
   int warningDelay = 30;
+  static int once = 0;
 
+  if( once ){
+    fossil_panic("multiple calls to backoffice_run()");
+  }
+  once = 1;
   if( g.db==0 ){
     fossil_panic("database not open for backoffice processing");
   }
@@ -219,7 +224,8 @@ void backoffice_run(void){
       backofficeWriteLease(&x);
       db_end_transaction(0);
       if( g.fAnyTrace ){
-        fprintf(stderr, "/***** Begin Backoffice Processing *****/\n");
+        fprintf(stderr, "/***** Begin Backoffice Processing %d *****/\n",
+                        getpid());
       }
       backoffice_work();
       break;
