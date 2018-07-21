@@ -1,5 +1,5 @@
-C Fix\sminor\scomment\stypo.\s\sNo\scode\schanges.
-D 2018-07-19T18:54:39.374
+C Issue\sa\spanic\sif\sthere\sis\san\sattempt\sto\sinvoke\sbackoffice_run()\smore\sthan\nonce.
+D 2018-07-21T14:29:31.596
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c a2ebf05afb475bbd9e6ea54532f098b8c802d0ce8fc22ee58cfc54c7df11d4fb
+F src/backoffice.c 4a6a2ec7672e29afde556fa5775e81585c6ca2d17dadf4aef600114ae3fb3313
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f535b028a86539ceead3f8ff5878dcd1e97ae3a0d3a6190cdc172b84d3ddb0e
-R 60cabdaf395a534cd737fa1bcf790303
+P ac6657e2d35c974d7f2e05db5b4d21848c3298c07a7c1ba619f79aa9470aeba6
+R b162a8e945089dc7eaa8b7fbf6431426
 U drh
-Z b80bfb8f626bcda5ec9fabdc7c62d34c
+Z 7eaf42579317fd8ec1607cb0939de48d
