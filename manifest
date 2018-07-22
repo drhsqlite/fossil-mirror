@@ -1,5 +1,5 @@
-C Allow\sCFLAGS\soverride\swithout\sduplicating\scompile\soptions\sby\sdefault
-D 2018-07-22T16:22:39.350
+C Remove\sduplicate\sFOSSIL_ENABLE_LEGACY_MV_RM\sdefine
+D 2018-07-22T18:25:29.914
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
-F Makefile.in 345223e4b732859564a8d699255fe845e25c67c6bf40935084e7f9688b1a23e2 x
+F Makefile.in 553ba13c765da9b74f3c8ba366feb5ae1469a6882162959c51c12f30c97bfecf x
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
 F VERSION 823b416463d02932b3f5fed25158b3fccc402aad76a3c53363a0a49dad0ae6f4
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 5df2f75a5ac2b853ae65b9111cd6fe6c5ddd21d314a929891b98b24f94f5e54b
+F auto.def 3d0e1c4bfdeb800190162779e29542c06857421743e609503d362e18ecbf5854
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d216ea9a8466de398c54edb42016b88d36a37e7fbd7f354faca5d379f5bac855
-R 24f6afb9040182b5a530b0a25f0a9e1c
+P 09f41885d67708c8534cdc863184272e93f1d5211c3209b8fc9a4663c39900ea
+R be8d6ea8c361c7554540800ac9f6c93e
 U ashepilko
-Z 6ba8ea2162be6189c95ec5bd94b5c9f6
+Z 01b36bdd11a9c80c8e9ef2f854a600b9

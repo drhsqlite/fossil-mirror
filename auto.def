@@ -169,7 +169,7 @@ if {[opt-bool json]} {
 }
 
 if {[opt-bool with-legacy-mv-rm]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM=1
     define FOSSIL_ENABLE_LEGACY_MV_RM
     msg-result "Legacy mv/rm support enabled"
 }
