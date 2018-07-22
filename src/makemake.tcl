@@ -283,8 +283,8 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
-XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
-XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
+XBCC = $(BCC) $(BCCFLAGS)
+XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
 }
 writeln -nonewline "SRC ="

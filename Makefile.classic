@@ -21,6 +21,7 @@ OBJDIR = ./bld
 #    See TCC below for the C compiler for building the finished binary.
 #
 BCC = gcc
+BCCFLAGS = $(CFLAGS)
 
 #### The suffix to add to final executable file.  When cross-compiling
 #    to windows, make this ".exe".  Otherwise leave it blank.
@@ -51,6 +52,8 @@ TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 #    static executable that will run in a chroot jail.
 #LIB = -static
 TCC += -DFOSSIL_DYNAMIC_BUILD=1
+
+TCCFLAGS = $(CFLAGS)
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library unless the miniz

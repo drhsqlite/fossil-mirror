@@ -35,6 +35,7 @@ OBJDIR = bld
 #    See TCC below for the C compiler for building the finished binary.
 #
 BCC = cc
+BCCFLAGS = $(CFLAGS)
 
 #### The suffix to add to final executable file.  When cross-compiling
 #    to windows, make this ".exe".  Otherwise leave it blank.
@@ -42,6 +43,7 @@ BCC = cc
 E = 
 
 TCC = cc
+TCCFLAGS = $(CFLAGS)
 
 #### Tcl shell for use in running the fossil testsuite.  If you do not
 #    care about testing the end result, this can be blank.
