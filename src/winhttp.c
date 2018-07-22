@@ -473,7 +473,8 @@ static void win32_scgi_request(void *pAppData){
   assert( g.zRepositoryName && g.zRepositoryName[0] );
   zIp = SocketAddr_toString(&p->addr);
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
+    "\"%s\" http --in \"%s\" --out \"%s\" --ipaddr %s \"%s\""
+    " --scgi --nossl --nodelay%s",
     g.nameOfExe, zRequestFName, zReplyFName, zIp,
     g.zRepositoryName, p->zOptions
   );

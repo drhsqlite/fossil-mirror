@@ -1,5 +1,5 @@
-C New\soptions\sto\sthe\s"fossil\shttp"\scommand:\s\s--in\sFILE,\s--out\sFILE,\s\n--ipaddr\sADDRESS,\sand\s--nodelay.\s\sUse\sthe\s--in,\s--out,\sand\s--inaddr\soptions\nfor\ssubprocesses\sthat\shandle\sHTTP\srequests\svia\sfile\sI/O.\s\sThis\sreplaced\nthe\solder\sand\sundocumented\sform\sof\sthe\s"fossil\shttp"\scommand\sthat\saccepted\nextra\sarguments.\s\sUse\sthe\s--nodelay\soption\sto\sprevent\slengthy\sbackoffice\nprocessing.\s\sThe\suse\sof\s--nodelay\sduring\s"fossil\sui"\son\sWindows\sprevents\nannoying\spauses\son\sthat\splatform.
-D 2018-07-22T18:58:07.437
+C Untested\schange\sto\sget\s"fossil\sserver\s--scgi"\sworking\sagain\son\sWindows.
+D 2018-07-22T18:59:49.804
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -594,7 +594,7 @@ F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c ae1948838bff49ef4a4ffbf8fe089c8ca538a1aa1433217c8ce6789475238422
+F src/winhttp.c 947cfe0e0fbac540be921caff9b88ae155f5e9ddfb5a96ff04d8f2e89e7046f9
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 2c91d8cf244b6856bf90f8d26fbdb664f750b02cf99cd40e236edbb080474ab7
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2230c8116c3ab0c3bf09f4f54d1d7a48da1a4ed6cebfb9e44a3cc44502beb451
-R 575d052048d14b054dac078b2bbd4936
+P 52943029e201bddac24ed24b79690c1093a58e74baf02063d52346bb25e4c336
+R f8788aac9e3f2a82d3fbe23543cb33fe
 U drh
-Z 5f8c73d5b84dd03a9398261348a3d645
+Z 0db55e3bcfceeaa26d5bcd2f2380b179
