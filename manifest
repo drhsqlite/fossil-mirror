@@ -1,5 +1,5 @@
-C Remove\sduplicate\sFOSSIL_ENABLE_LEGACY_MV_RM\sdefine
-D 2018-07-22T18:25:29.914
+C New\soptions\sto\sthe\s"fossil\shttp"\scommand:\s\s--in\sFILE,\s--out\sFILE,\s\n--ipaddr\sADDRESS,\sand\s--nodelay.\s\sUse\sthe\s--in,\s--out,\sand\s--inaddr\soptions\nfor\ssubprocesses\sthat\shandle\sHTTP\srequests\svia\sfile\sI/O.\s\sThis\sreplaced\nthe\solder\sand\sundocumented\sform\sof\sthe\s"fossil\shttp"\scommand\sthat\saccepted\nextra\sarguments.\s\sUse\sthe\s--nodelay\soption\sto\sprevent\slengthy\sbackoffice\nprocessing.\s\sThe\suse\sof\s--nodelay\sduring\s"fossil\sui"\son\sWindows\sprevents\nannoying\spauses\son\sthat\splatform.
+D 2018-07-22T18:58:07.437
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c 5a1f1d639f6bdd068ece6c6e0bf978480aae1455cc367056bf496996bd566326
+F src/backoffice.c e1f2954ba7da8a4f40705124c48a422de031e171174e549e61c0fbfc55e1c345
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -484,7 +484,7 @@ F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c a84161dc376d1decf9ce604a668226eee5c22d32a66030bdf7cfd1fd7b09fc91
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
-F src/http_transport.c 65881df4d8d254a1e1f9318d29a8033124e9507c4c25ed36cb023ba6499f0d34
+F src/http_transport.c 842e840000336be86d03cc20e60844bc6305dbea5de3525be2d80bff5471f833
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 20582c3c1c3160e411e2d1072f6d341980b2aa5eca566c35a28a7727fab7f2f0
 F src/json.c 28a0a82d4451506e5456f0d385bda27b1fde6cb920f250906fed032f9667630a
@@ -510,7 +510,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 4484479a821d5110fd0f6699528da5250f2bb89dd3a05fbfe7fa7cc4e3f3b754
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c c1ae4874815630cb53e4ee0a89c4fe4ff21cb68ffb817abf2b983c3978eb007a
+F src/main.c 72d81810ebf4d2292624c14feaf6667def7e30bcbd651114b03ecb8a5e34eb4a
 F src/main.mk ce3fc4f202fdb9a6a4f11707a6ff5cb7eb03fe07266bfbb99ab67af5d086d7cd
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -594,7 +594,7 @@ F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c c2ce678de52398cf279a104f93dcda0ae9cca2629c768aed22a918d9cb4342a7
+F src/winhttp.c ae1948838bff49ef4a4ffbf8fe089c8ca538a1aa1433217c8ce6789475238422
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 2c91d8cf244b6856bf90f8d26fbdb664f750b02cf99cd40e236edbb080474ab7
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09f41885d67708c8534cdc863184272e93f1d5211c3209b8fc9a4663c39900ea
-R be8d6ea8c361c7554540800ac9f6c93e
-U ashepilko
-Z 01b36bdd11a9c80c8e9ef2f854a600b9
+P 2230c8116c3ab0c3bf09f4f54d1d7a48da1a4ed6cebfb9e44a3cc44502beb451
+R 575d052048d14b054dac078b2bbd4936
+U drh
+Z 5f8c73d5b84dd03a9398261348a3d645
