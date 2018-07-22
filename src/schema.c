@@ -292,10 +292,16 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE leaf(rid INTEGER PRIMARY KEY);
 @
-@ -- Events used to generate a timeline
+@ -- Events used to generate a timeline.  Type meanings:
+@ --     ci    Check-ins
+@ --     e     Technotes
+@ --     f     Forum posts
+@ --     g     Tags
+@ --     t     Ticket changes
+@ --     w     Wiki page edit
 @ --
 @ CREATE TABLE event(
-@   type TEXT,                      -- Type of event: 'ci', 'w', 'e', 't', 'g'
+@   type TEXT,                      -- Type of event: ci, e, f, g, t, w
 @   mtime DATETIME,                 -- Time of occurrence. Julian day.
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
 @   tagid INTEGER,                  -- Associated ticket or wiki name tag
