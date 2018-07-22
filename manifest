@@ -1,5 +1,5 @@
-C Set\sdebug\sdefines\sin\sCFLAGS\swhen\sin\sdebug\sconfig,\sso\sit\sapplies\sproject\swide
-D 2018-07-22T20:04:51.480
+C In\sdebug\sconfig,\s\sreference\sthe\scompiled\ssources;\sthis\sallows\sstepping\sthrough\sthe\sactual\scode\sin\sthe\sdebugger
+D 2018-07-22T21:10:31.718
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -576,7 +576,7 @@ F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
 F src/timeline.c 4199aaba0bd58243f91e4c9b25e8752331fd9629de35f11e627672f4bc3aab81
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
-F src/translate.c e0ba36f347faf5b5105eacc8e42e3f907febfe5abb0401f2227dec26cc60a5f5
+F src/translate.c ac4dca938716b9ed3f8f8d48d21a7cfad47c4f6b1e93060f519c1d452689e826
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 0af37ce94fb9984a23737e0289a9b61ddf647fc6f37aed5c1ce94fa5b2c74d5a
 F src/unicode.c 1a3686d1851ac88eeeef3428c9ace3c471b8286fb785606ad63b800c8e688926
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 449c6fd749f5b4771e6d373dd88335b98bbda605c66a2a8d25a52e5965a84465
-R 80beeeae65a04de3d038f5d5476eeda8
+P eb0f689dcc39c3b4ad3204d5c59239337a21cb5b166af3a0d8fe0a4fcc91f7ef
+R 648ff05473ce26eada5da2dc6b103e3b
 U ashepilko
-Z f47b01f009f3140b359e7baf2cd9c291
+Z 2bf5746ec4a0f976d9bac00569ae723b
