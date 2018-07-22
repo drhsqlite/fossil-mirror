@@ -498,7 +498,7 @@ all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+	cp $(APPNAME) $(INSTALLDIR)
 
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
