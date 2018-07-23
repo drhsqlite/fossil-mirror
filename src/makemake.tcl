@@ -283,8 +283,8 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
-XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
-XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
+XBCC = $(BCC) $(BCCFLAGS)
+XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
 }
 writeln -nonewline "SRC ="
@@ -318,7 +318,7 @@ all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+	cp $(APPNAME) $(INSTALLDIR)
 
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
@@ -1052,10 +1052,10 @@ endif
 install:	$(OBJDIR) $(APPNAME)
 ifdef USE_WINDOWS
 	$(MKDIR) $(subst /,\,$(INSTALLDIR))
-	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
+	$(CP) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
 else
 	$(MKDIR) $(INSTALLDIR)
-	$(MV) $(APPNAME) $(INSTALLDIR)
+	$(CP) $(APPNAME) $(INSTALLDIR)
 endif
 
 $(OBJDIR):

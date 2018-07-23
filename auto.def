@@ -136,8 +136,8 @@ if {[string match *-solaris* [get-define host]]} {
 }
 
 if {[opt-bool fossil-debug]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
     define CFLAGS {-g -O0 -Wall}
+    define-append CFLAGS -DFOSSIL_DEBUG
     msg-result "Debugging support enabled"
 }
 
@@ -169,7 +169,7 @@ if {[opt-bool json]} {
 }
 
 if {[opt-bool with-legacy-mv-rm]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM=1
     define FOSSIL_ENABLE_LEGACY_MV_RM
     msg-result "Legacy mv/rm support enabled"
 }

@@ -389,11 +389,11 @@ static void win32_http_request(void *pAppData){
   zIp = SocketAddr_toString(&p->addr);
   if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
     assert( g.zRepositoryName && g.zRepositoryName[0] );
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s\n%s",
       get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zRepositoryName
     );
   }else{
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s",
       get_utf8_bom(0), zRequestFName, zReplyFName, zIp
     );
   }
@@ -402,7 +402,8 @@ static void win32_http_request(void *pAppData){
   if( aux==0 ) goto end_request;
   fwrite(zCmd, 1, strlen(zCmd), aux);
 
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http -args \"%s\" --nossl%s",
+  sqlite3_snprintf(sizeof(zCmd), zCmd,
+    "\"%s\" http -args \"%s\" --nossl --nodelay%s",
     g.nameOfExe, zCmdFName, p->zOptions
   );
   in = fossil_fopen(zReplyFName, "w+b");
@@ -472,7 +473,8 @@ static void win32_scgi_request(void *pAppData){
   assert( g.zRepositoryName && g.zRepositoryName[0] );
   zIp = SocketAddr_toString(&p->addr);
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
+    "\"%s\" http --in \"%s\" --out \"%s\" --ipaddr %s \"%s\""
+    " --scgi --nossl --nodelay%s",
     g.nameOfExe, zRequestFName, zReplyFName, zIp,
     g.zRepositoryName, p->zOptions
   );

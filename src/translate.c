@@ -215,6 +215,13 @@ int main(int argc, char **argv){
       exit(1);
     }
     zInFile = argv[1];
+#ifndef FOSSIL_DEBUG
+    /* Set source line reference to the original source file.
+     * This makes compiler show the original file name in the compile error
+     * messages, instead of referring to the translated file.
+     * NOTE: This somewhat complicates stepping in debugger, as the resuling
+     * code would not match the referenced sources.
+     */
     printf("#line 1 \"");
     for(arg=argv[1]; *arg; arg++){
       if( *arg!='\\' ){
@@ -224,6 +231,7 @@ int main(int argc, char **argv){
       }
     }
     printf("\"\n");
+#endif
     trans(in, stdout);
     fclose(in);
   }else{

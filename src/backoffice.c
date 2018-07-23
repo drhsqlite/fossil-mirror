@@ -73,6 +73,22 @@ struct Lease {
 #endif
 
 /*
+** Set to prevent backoffice processing from every entering sleep or
+** otherwise taking a long time to complete.  Set this when a user-visible
+** process might need to wait for backoffice to complete.
+*/
+static int backofficeNoDelay = 0;
+
+
+/*
+** Disable the backoffice
+*/
+void backoffice_no_delay(void){
+  backofficeNoDelay = 1;
+}
+
+
+/*
 ** Parse a unsigned 64-bit integer from a string.  Return a pointer
 ** to the character of z[] that occurs after the integer.
 */
@@ -228,6 +244,13 @@ void backoffice_run(void){
                         getpid());
       }
       backoffice_work();
+      break;
+    }
+    if( backofficeNoDelay ){
+      /* If the no-delay flag is set, exit immediately rather than queuing
+      ** up.  Assume that some future request will come along and handle any
+      ** necessary backoffice work. */
+      db_end_transaction(0);
       break;
     }
     /* This process needs to queue up and wait for the current lease

@@ -974,10 +974,10 @@ endif
 install:	$(OBJDIR) $(APPNAME)
 ifdef USE_WINDOWS
 	$(MKDIR) $(subst /,\,$(INSTALLDIR))
-	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
+	$(CP) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
 else
 	$(MKDIR) $(INSTALLDIR)
-	$(MV) $(APPNAME) $(INSTALLDIR)
+	$(CP) $(APPNAME) $(INSTALLDIR)
 endif
 
 $(OBJDIR):

@@ -2256,12 +2256,6 @@ void parse_pid_key_value(
 #endif
 
 /*
-** undocumented format:
-**
-**        fossil http INFILE OUTFILE IPADDR ?REPOSITORY?
-**
-** The argv==6 form (with no options) is used by the win32 server only.
-**
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
@@ -2299,10 +2293,14 @@ void parse_pid_key_value(
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
-**   --nocompress     Do not compress HTTP replies
+**   --in FILE        Take input from FILE instead of standard input
+**   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --nocompress     do not compress HTTP replies
+**   --nodelay        omit backoffice processing if it would delay process exit
 **   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
+**   --out FILE       write results to FILE instead of to standard output
 **   --repolist       If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
@@ -2318,6 +2316,8 @@ void cmd_http(void){
   const char *zHost;
   const char *zAltBase;
   const char *zFileGlob;
+  const char *zInFile;
+  const char *zOutFile;
   int useSCGI;
   int noJail;
   int allowRepoList;
@@ -2346,8 +2346,24 @@ void cmd_http(void){
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
+  zInFile = find_option("in",0,1);
+  if( zInFile ){
+    g.httpIn = fossil_fopen(zInFile, "rb");
+    if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
+  }else{
+    g.httpIn = stdin;
+  }
+  zOutFile = find_option("out",0,1);
+  if( zOutFile ){
+    g.httpOut = fossil_fopen(zOutFile, "wb");
+    if( g.httpOut==0 ) fossil_fatal("cannot open \"%s\" for writing", zOutFile);
+  }else{
+    g.httpOut = stdout;
+  }
+  zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
+  if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ){
     zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */
@@ -2370,21 +2386,10 @@ void cmd_http(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
-    fossil_panic("no repository specified");
-  }
+  if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
-  if( g.argc>=5 ){
-    g.httpIn = fossil_fopen(g.argv[2], "rb");
-    g.httpOut = fossil_fopen(g.argv[3], "wb");
-    zIpAddr = g.argv[4];
-    find_server_repository(5, 0);
-  }else{
-    g.httpIn = stdin;
-    g.httpOut = stdout;
-    find_server_repository(2, 0);
-  }
+  find_server_repository(2, 0);
   if( zIpAddr==0 ){
     zIpAddr = cgi_ssh_remote_addr(0);
     if( zIpAddr && zIpAddr[0] ){
