@@ -577,7 +577,7 @@ Fossil wiki format.
 
 The optional P card specifies a prior forum post for which this
 forum post is an edit.  For display purposes, only the child post
-is shown, thought the historical post is retained as a record.
+is shown, though the historical post is retained as a record.
 If P cards are used and there exist multiple versions of the same
 forum post, then I cards for other artifacts refer to whichever
 version of the post was current at the time the reply was made,
