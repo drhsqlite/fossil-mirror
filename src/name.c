@@ -930,6 +930,21 @@ void describe_artifacts(const char *zWhere){
     zWhere /*safe-for-%s*/
   );
 
+  /* Forum posts */
+  if( db_table_exists("repository","forumpost") ){
+    db_multi_exec(
+      "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+      "SELECT postblob.rid, postblob.uuid, forumpost.fmtime, 'forumpost',\n"
+      "       CASE WHEN fpid=froot THEN 'forum-post '\n"
+      "            ELSE 'forum-reply-to ' END || substr(rootblob.uuid,1,14)\n"
+      "  FROM forumpost, blob AS postblob, blob AS rootblob\n"
+      " WHERE (forumpost.fpid %s)\n"
+      "   AND postblob.rid=forumpost.fpid"
+      "   AND rootblob.rid=forumpost.froot",
+      zWhere /*safe-for-%s*/
+    );
+  }
+
   /* Everything else */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,type,summary)\n"
