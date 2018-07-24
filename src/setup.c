@@ -1310,6 +1310,8 @@ void setup_access(void){
   @ the self-registration procedure (if enabled), or <li>access "public"
   @ pages identified by the public-pages glob pattern above, or <li>
   @ are users newly created by the administrator.</ul>
+  @ <p>Recommended value: "u" for Reader.
+  @ <a href="%R/setup_ucap_list">Capability Key</a>.
   @ (Property: "default-perms")
   @ </p>
 

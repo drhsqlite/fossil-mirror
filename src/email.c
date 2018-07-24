@@ -570,7 +570,7 @@ int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
 
 /*
 ** Make a copy of the input string up to but not including the
-** first ">" character.
+** first cTerm character.
 **
 ** Verify that the string really that is to be copied really is a
 ** valid email address.  If it is not, then return NULL.
@@ -580,13 +580,13 @@ int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
 ** characters.  The only non-alphanumerics allowed in the local
 ** part are "_", "+", "-" and "+".
 */
-char *email_copy_addr(const char *z){
+char *email_copy_addr(const char *z, char cTerm ){
   int i;
   int nAt = 0;
   int nDot = 0;
   char c;
   if( z[0]=='.' ) return 0;  /* Local part cannot begin with "." */
-  for(i=0; (c = z[i])!=0 && c!='>'; i++){
+  for(i=0; (c = z[i])!=0 && c!=cTerm; i++){
     if( fossil_isalnum(c) ){
       /* Alphanumerics are always ok */
     }else if( c=='@' ){
@@ -600,10 +600,10 @@ char *email_copy_addr(const char *z){
         return 0; /* Domain cannot begin with "." or "-" */
       }
     }else if( c=='-' ){
-      if( z[i+1]=='>' ) return 0;  /* Last character cannot be "-" */
+      if( z[i+1]==cTerm ) return 0;  /* Last character cannot be "-" */
     }else if( c=='.' ){
       if( z[i+1]=='.' ) return 0;  /* Do not allow ".." */
-      if( z[i+1]=='>' ) return 0;  /* Domain may not end with . */
+      if( z[i+1]==cTerm ) return 0;  /* Domain may not end with . */
       nDot++;
     }else if( (c=='_' || c=='+') && nAt==0 ){
       /* _ and + are ok in the local part */
@@ -611,7 +611,7 @@ char *email_copy_addr(const char *z){
       return 0;   /* Anything else is an error */
     }
   }
-  if( c!='>' ) return 0;      /* Missing final ">" */
+  if( c!=cTerm ) return 0;    /* Missing terminator */
   if( nAt==0 ) return 0;      /* No "@" found anywhere */
   if( nDot==0 ) return 0;     /* No "." in the domain */
 
@@ -633,7 +633,7 @@ void email_header_to(Blob *pMsg, int *pnTo, char ***pazTo){
   email_header_value(pMsg, "to", &v);
   z = blob_str(&v);
   for(i=0; z[i]; i++){
-    if( z[i]=='<' && (zAddr = email_copy_addr(&z[i+1]))!=0 ){
+    if( z[i]=='<' && (zAddr = email_copy_addr(&z[i+1],'>'))!=0 ){
       azTo = fossil_realloc(azTo, sizeof(azTo[0])*(nTo+1) );
       azTo[nTo++] = zAddr;
     }

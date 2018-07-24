@@ -1459,10 +1459,13 @@ void login_verify_csrf_secret(void){
 ** must be enabled for this page to operate.
 */
 void register_page(void){
-  const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
+  const char *zUserID, *zPasswd, *zConfirm, *zEAddr;
+  const char *zDName;
   unsigned int uSeed;
   const char *zDecoded;
   char *zCaptcha;
+  int iErrLine = -1;
+  const char *zErr;
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
@@ -1472,65 +1475,61 @@ void register_page(void){
   }
 
   style_header("Register");
-  zUsername = P("u");
-  zPasswd = P("p");
-  zConfirm = P("cp");
-  zContact = P("c");
-  zCap = P("cap");
-  zCS = P("cs"); /* Captcha Secret */
+  zUserID = PDT("u","");
+  zPasswd = PDT("p","");
+  zConfirm = PDT("cp","");
+  zEAddr = PDT("ea","");
+  zDName = PDT("dn","");
 
   /* Try to make any sense from user input. */
-  if( P("new") ){
-    if( zCS==0 ) fossil_redirect_home();  /* Forged request */
-    zPw = captcha_decode((unsigned int)atoi(zCS));
-    if( !(zUsername && zPasswd && zConfirm && zContact) ){
-      @ <p><span class="loginError">
-      @ All fields are obligatory.
-      @ </span></p>
-    }else if( strlen(zPasswd) < 6){
-      @ <p><span class="loginError">
-      @ Password too weak.
-      @ </span></p>
-    }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
-      @ <p><span class="loginError">
-      @ The two copies of your new passwords do not match.
-      @ </span></p>
-    }else if( fossil_stricmp(zPw, zCap)!=0 ){
-      @ <p><span class="loginError">
-      @ Captcha text invalid.
-      @ </span></p>
-    }else{
-      /* This almost is stupid copy-paste of code from user.c:user_cmd(). */
-      Blob passwd, login, caps, contact;
-
-      blob_init(&login, zUsername, -1);
-      blob_init(&contact, zContact, -1);
-      blob_init(&caps, db_get("default-perms", "u"), -1);
-      blob_init(&passwd, zPasswd, -1);
-
-      if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
-        /* Here lies the reason I don't use zErrMsg - it would not substitute
-         * this %s(zUsername), or at least I don't know how to force it to.*/
-        @ <p><span class="loginError">
-        @ %h(zUsername) already exists.
-        @ </span></p>
-      }else{
-        char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
-        int uid;
-        db_multi_exec(
-            "INSERT INTO user(login,pw,cap,info,mtime)"
-            "VALUES(%B,%Q,%B,%B,strftime('%%s','now'))",
-            &login, zPw, &caps, &contact
-            );
-        free(zPw);
-
-        /* The user is registered, now just log him in. */
-        uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
-        login_set_user_cookie( zUsername, uid, NULL );
-        redirect_to_g();
-
-      }
-    }
+  if( P("new")==0 || !cgi_csrf_safe(1) ){
+    /* This is not a valid form submission.  Fall through into
+    ** the form display */
+  }else if( !captcha_is_correct(1) ){
+    iErrLine = 6;
+    zErr = "Incorrect CAPTCHA";
+  }else if( strlen(zUserID)<3 ){
+    iErrLine = 1;
+    zErr = "User ID too short. Must be at least 3 characters.";
+  }else if( sqlite3_strglob("*[^-a-zA-Z0-9_.]*",zUserID)==0 ){
+    iErrLine = 1;
+    zErr = "User ID may not contain spaces or special characters.";
+  }else if( zDName[0]==0 ){
+    iErrLine = 2;
+    zErr = "Required";
+  }else if( zEAddr[0]==0 ){
+    iErrLine = 3;
+    zErr = "Required";
+  }else if( email_copy_addr(zEAddr,0)==0 ){
+    iErrLine = 3;
+    zErr = "Not a valid email address";
+  }else if( strlen(zPasswd)<6 ){
+    iErrLine = 4;
+    zErr = "Password must be at least 6 characters long";
+  }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
+    iErrLine = 5;
+    zErr = "Passwords do not match";
+  }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zUserID) ){
+    iErrLine = 1;
+    zErr = "This User ID is already taken. Choose something different.";
+  }else if( db_exists("SELECT 1 FROM user WHERE info LIKE '%%%q%%'", zEAddr) ){
+    iErrLine = 3;
+    zErr = "This address is already used.";
+  }else{
+    Blob sql;
+    int uid;
+    char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
+    blob_init(&sql, 0, 0);
+    blob_append_sql(&sql,
+       "INSERT INTO user(login,pw,cap,info,mtime)\n"
+       "VALUES(%Q,%Q,%Q,"
+       "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
+       zUserID, zPass, db_get("default-perms","u"), zDName, zEAddr, g.zIpAddr);
+    fossil_free(zPass);
+    db_multi_exec("%s", blob_sql_text(&sql));
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
+    login_set_user_cookie(zUserID, uid, NULL);
+    redirect_to_g();
   }
 
   /* Prepare the captcha. */
@@ -1543,27 +1542,49 @@ void register_page(void){
   if( P("g") ){
     @ <input type="hidden" name="g" value="%h(P("g"))" />
   }
-  @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
+  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
   @ <table class="login_out">
   @ <tr>
   @   <td class="form_label" align="right">User ID:</td>
-  @   <td><input type="text" id="u" name="u" value="" size="30" /></td>
+  @   <td><input type="text" name="u" value="%h(zUserID)" size="30"></td>
+  if( iErrLine==1 ){
+    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }
+  @ </tr>
+  @ <tr>
+  @   <td class="form_label" align="right">Display Name:</td>
+  @   <td><input type="text" name="dn" value="%h(zDName)" size="30"></td>
+  if( iErrLine==2 ){
+    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }
+  @ </tr>
+  @ <tr>
+  @   <td class="form_label" align="right">Email Address:</td>
+  @   <td><input type="text" name="ea" value="%h(zEAddr)" size="30"></td>
+  if( iErrLine==3 ){
+    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }
   @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Password:</td>
-  @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
+  @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
+  if( iErrLine==4 ){
+    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }
   @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Confirm password:</td>
-  @   <td><input type="password" id="cp" name="cp" value="" size="30" /></td>
-  @ </tr>
-  @ <tr>
-  @   <td class="form_label" align="right">Contact info:</td>
-  @   <td><input type="text" id="c" name="c" value="" size="30" /></td>
+  @   <td><input type="password" name="cp" value="%h(zConfirm)" size="30"></td>
+  if( iErrLine==5 ){
+    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }
   @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Captcha text (below):</td>
-  @   <td><input type="text" id="cap" name="cap" value="" size="30" /></td>
+  @   <td><input type="text" name="captcha" value="" size="30"></td>
+  if( iErrLine==6 ){
+    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }
   @ </tr>
   @ <tr><td></td>
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
