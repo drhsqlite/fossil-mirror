@@ -22,15 +22,49 @@
 #include "forum.h"
 
 /*
+** Render a forum post for display
+*/
+void forum_render(const char *zMimetype, const char *zContent){
+  Blob x;
+  blob_init(&x, zContent, -1);
+  wiki_render_by_mimetype(&x, zMimetype);
+  blob_reset(&x);
+}
+
+/*
 ** Display all posts in a forum thread in chronological order
 */
 static void forum_thread_chronological(int froot){
   Stmt q;
-  db_prepare(&q, "SELECT fpid FROM forumpost WHERE froot=%d"
-                 " ORDER BY fmtime", froot);
+  int i = 0;
+  db_prepare(&q,
+      "SELECT fpid, fprev, firt, uuid, datetime(fmtime,'unixepoch')\n"
+      " FROM forumpost, blob\n"
+      " WHERE froot=%d AND rid=fpid\n"
+      " ORDER BY fmtime", froot);
   while( db_step(&q)==SQLITE_ROW ){
     int fpid = db_column_int(&q, 0);
+    int fprev = db_column_int(&q, 1);
+    int firt = db_column_int(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    const char *zDate = db_column_text(&q, 4);
     Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
+    if( i==0 ){
+      @ <hr>
+    }
+    i++;
+    @ <p>%d(fpid) %h(zUuid)<br>
+    @ By %h(pPost->zUser) on %h(zDate)
+    if( fprev ){
+      @ edit of %d(fprev) %h(pPost->azParent[0])
+    }
+    if( firt ){
+      @ in reply to %d(firt) %h(pPost->zInReplyTo)
+    }
+    if( pPost->zThreadTitle ){
+      @ <h1>%h(pPost->zThreadTitle)</h1>
+    }
+    forum_render(pPost->zMimetype, pPost->zWiki);
     if( pPost==0 ) continue;
     manifest_destroy(pPost);
   }
@@ -88,8 +122,10 @@ static int forum_need_moderation(void){
 
 /*
 ** Add a new Forum Post artifact to the repository.
+**
+** Return true if a redirect occurs.
 */
-static void forum_post(
+static int forum_post(
   const char *zTitle,          /* Title.  NULL for replies */
   int iInReplyTo,              /* Post replying to.  0 for new threads */
   int iEdit,                   /* Post being edited, or zero for a new post */
@@ -144,22 +180,14 @@ static void forum_post(
   if( P("dryrun") ){
     @ <pre>%h(blob_str(&x))</pre><hr>
   }else{
-    wiki_put(&x, 0, forum_need_moderation());
-    return;
+    int nrid = wiki_put(&x, 0, forum_need_moderation());
+    cgi_redirectf("%R/forumthread/%S", rid_to_uuid(nrid));
+    return 1;
   }
 
 forum_post_error:
   blob_reset(&x);
-}
-
-/*
-** Render a forum post for display
-*/
-void forum_render(const char *zMimetype, const char *zContent){
-  Blob x;
-  blob_init(&x, zContent, -1);
-  wiki_render_by_mimetype(&x, zMimetype);
-  blob_reset(&x);
+  return 0;
 }
 
 /*
@@ -180,7 +208,7 @@ void forumnew_page(void){
     return;
   }
   if( P("submit") ){
-    forum_post(zTitle, 0, 0, 0, zMimetype, zContent);
+    if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
   }
   if( P("preview") ){
     @ <h1>%h(zTitle)</h1>

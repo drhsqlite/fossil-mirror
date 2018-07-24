@@ -428,7 +428,7 @@ void wiki_page(void){
 /*
 ** Write a wiki artifact into the repository
 */
-void wiki_put(Blob *pWiki, int parent, int needMod){
+int wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
   if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
@@ -441,6 +441,7 @@ void wiki_put(Blob *pWiki, int parent, int needMod){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki, MC_NONE);
+  return nrid;
 }
 
 /*

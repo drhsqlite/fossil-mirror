@@ -2468,7 +2468,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_FORUM ){
     int froot, fprev, firt;
     schema_forum();
-    froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : p->rid;
+    froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
     firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;
     db_multi_exec(
@@ -2476,6 +2476,26 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       "VALUES(%d,%d,nullif(%d,0),nullif(%d,0),%.17g)",
       p->rid, froot, fprev, firt, p->rDate
     );
+    if( froot!=p->rid ){
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('f',%.17g,%d,%Q,'Reply to:'||"
+        "coalesce(substr((SELECT comment FROM event"
+                        " WHERE objid=%d),12),' post '||substr(%Q,1,14)))",
+        p->rDate, rid, p->zUser, froot, zUuid
+      );
+    }else{
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('f',%.17g,%d,%Q,'Forum post: %q')",
+        p->rDate, rid, p->zUser, p->zThreadTitle
+      );
+      db_multi_exec(
+        "UPDATE event SET comment='Reply to: %q' WHERE objid IN"
+        " (SELECT fpid FROM forumpost WHERE froot=%d AND fpid!=froot)",
+        p->zThreadTitle, rid
+      );
+    }
   }
   db_end_transaction(0);
   if( permitHooks ){
