@@ -494,11 +494,6 @@ int db_reset(Stmt *pStmt){
 }
 int db_finalize(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
-  blob_reset(&pStmt->sql);
-  rc = sqlite3_finalize(pStmt->pStmt);
-  db_check_result(rc);
-  pStmt->pStmt = 0;
   if( pStmt->pNext ){
     pStmt->pNext->pPrev = pStmt->pPrev;
   }
@@ -509,6 +504,11 @@ int db_finalize(Stmt *pStmt){
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
+  db_stats(pStmt);
+  blob_reset(&pStmt->sql);
+  rc = sqlite3_finalize(pStmt->pStmt);
+  db_check_result(rc);
+  pStmt->pStmt = 0;
   return rc;
 }
 
