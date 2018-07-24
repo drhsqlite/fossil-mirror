@@ -80,13 +80,134 @@ void forumthread_page(void){
 }
 
 /*
+** Return true if a forum post should be moderated.
+*/
+static int forum_need_moderation(void){
+  return !g.perm.WrTForum && !g.perm.ModForum && P("domod")==0;
+}
+
+/*
+** Add a new Forum Post artifact to the repository.
+*/
+static void forum_post(
+  const char *zTitle,          /* Title.  NULL for replies */
+  int iInReplyTo,              /* Post replying to.  0 for new threads */
+  int iEdit,                   /* Post being edited, or zero for a new post */
+  const char *zUser,           /* Username.  NULL means use login name */
+  const char *zMimetype,       /* Mimetype of content. */
+  const char *zContent         /* Content */
+){
+  Blob x, cksum;
+  char *zDate;
+  schema_forum();
+  blob_init(&x, 0, 0);
+  zDate = date_in_standard_format("now");
+  blob_appendf(&x, "D %s\n", zDate);
+  fossil_free(zDate);
+  if( zTitle ){
+    blob_appendf(&x, "H %F\n", zTitle);
+  }else{
+    char *zG = db_text(0, 
+       "SELECT uuid FROM blob, forumpost"
+       " WHERE blob.rid==forumpost.froot"
+       "   AND forumpost.fpid=%d", iInReplyTo);
+    char *zI;
+    if( zG==0 ) goto forum_post_error;
+    blob_appendf(&x, "G %s\n", zG);
+    fossil_free(zG);
+    zI = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iInReplyTo);
+    if( zI==0 ) goto forum_post_error;
+    blob_appendf(&x, "I %s\n", zI);
+    fossil_free(zI);
+  }
+  if( fossil_strcmp(zMimetype,"text/x-fossil-wiki")!=0 ){
+    blob_appendf(&x, "N %s\n", zMimetype);
+  }
+  if( iEdit>0 ){
+    char *zP = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iEdit);
+    if( zP==0 ) goto forum_post_error;
+    blob_appendf(&x, "P %s\n", zP);
+    fossil_free(zP);
+  }
+  if( zUser==0 ){
+    if( login_is_nobody() ){
+      zUser = "anonymous";
+    }else{
+      zUser = login_name();
+    }
+  }
+  blob_appendf(&x, "U %F\n", zUser);
+  blob_appendf(&x, "W %d\n%s\n", strlen(zContent), zContent);
+  md5sum_blob(&x, &cksum);
+  blob_appendf(&x, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+  if( P("dryrun") ){
+    @ <pre>%h(blob_str(&x))</pre><hr>
+  }else{
+    wiki_put(&x, 0, forum_need_moderation());
+    return;
+  }
+
+forum_post_error:
+  blob_reset(&x);
+}
+
+/*
+** Render a forum post for display
+*/
+void forum_render(const char *zMimetype, const char *zContent){
+  Blob x;
+  blob_init(&x, zContent, -1);
+  wiki_render_by_mimetype(&x, zMimetype);
+  blob_reset(&x);
+}
+
+/*
 ** WEBPAGE: forumnew
+** WEBPAGE: test-forumnew
 **
-** Start a new forum thread.
+** Start a new forum thread.  The /test-forumnew works just like
+** /forumnew except that it provides additional controls for testing
+** and debugging.
 */
 void forumnew_page(void){
-  style_header("Pending");
-  @ TBD...
+  const char *zTitle = PDT("t","");
+  const char *zMimetype = PD("mt","text/x-fossil-wiki");
+  const char *zContent = PDT("x","");
+  login_check_credentials();
+  if( !g.perm.WrForum ){
+    login_needed(g.anon.WrForum);
+    return;
+  }
+  if( P("submit") ){
+    forum_post(zTitle, 0, 0, 0, zMimetype, zContent);
+  }
+  if( P("preview") ){
+    @ <h1>%h(zTitle)</h1>
+    forum_render(zMimetype, zContent);
+    @ <hr>
+  }
+  style_header("New Forum Thread");
+  @ <form action="%R/%s(g.zPath)" method="POST">
+  @ Title: <input type="input" name="t" value="%h(zTitle)" size="50"><br>
+  @ Markup style:
+  mimetype_option_menu(zMimetype);
+  @ <br><textarea name="x" class="wikiedit" cols="80" \
+  @ rows="25" wrap="virtual">%h(zContent)</textarea><br>
+  @ <input type="submit" name="preview" value="Preview">
+  if( P("preview") ){
+    @ <input type="submit" name="submit" value="Submit">
+  }else{
+    @ <input type="submit" name="submit" value="Submit" disabled>
+  }
+  if( g.zPath[0]=='t' ){
+    /* For the test-forumnew page add these extra debugging controls */
+    @ <br><label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
+    @ Dry run</label>
+    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
+    @ Require moderator approval</label>
+  }
+  @ </form>
   style_footer();
 }
 

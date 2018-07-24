@@ -428,7 +428,7 @@ void wiki_page(void){
 /*
 ** Write a wiki artifact into the repository
 */
-static void wiki_put(Blob *pWiki, int parent, int needMod){
+void wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
   if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);

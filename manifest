@@ -1,5 +1,5 @@
-C Revamp\sthe\s/register\spage\sfor\sadded\ssecurity.\s\sRequire\sentry\sof\sa\ndisplay\sname\sand\semail\saddress.\s\sValidate\sthe\semail\saddress\sformat\sand\ncheck\sfor\sduplicate\semail\saddresses.
-D 2018-07-24T13:30:14.906
+C Work\stoward\spages\sto\senter\sforum\sposts.\s\sThis\sis\san\sincremental\scheck-in\nto\ssave\sstate\sand\sdefinitely\sdoes\snot\swork.
+D 2018-07-24T19:44:30.767
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 7bf245008a824befb668e033ec7190eeda8c21541ea0cfbab95c75d7e107cf78
+F src/cgi.c 48bf973bb3d3dc16f853466df0c9346af45bbf4d6ea6d6f9bc7842c9f6817836
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c c8f00986bd6f40e18544032eec4f3cef2d47167b2b6312c760cb663ff5863fb3
+F src/forum.c 274f2fd6ec49faf02c6871ec47492d621abbf0eefe1a76b5b0a34796bac85bf5
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -515,7 +515,7 @@ F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 1e9b11c36f4a674ad5391ed7c6d3c3e94a531600346106b4dd5d8053d3915f17
-F src/manifest.c 67fe748050f72b09374148b06a8acc1953d10e352ea5dc4ecdc7fc7ad8d3f31a
+F src/manifest.c 7d544e12efc3a05e7ef7c892b6e3b81367f0821e8491e203b71a495989f8af04
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -543,7 +543,7 @@ F src/regexp.c 89c45caf71ab5375a232f6b6064c3075419aa42e1275dcf648a82d28ccb03e3c
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c bfe4cf2ce7f3f8e1047f31c8d2a5d111303be79d9ba4524e96b6c5cff68fffc1
+F src/schema.c a46e8bb2f6fe513c47ab7014b97858b7ba7ab32677f7ba0b3c979db999be0113
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
 F src/security_audit.c 3366c625a0d797253b612b8eaa028bbb40d6dae80295a7dbe3766b6d1aa22e61
@@ -590,7 +590,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c 71b14b5c7ce3ed0eb5f650dd97f1145c7b0cff8886c914ebdde227f14950b54a
-F src/wiki.c bcf688325e4d5a9bff23fbabc1a392faa1e48f8aef02d302e55a7485bff38f3b
+F src/wiki.c 7dcd57049699725445153c4289cf3f4c124d694ad3b81c2c0bf93958103745f8
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 452be61b2deb6c9cb9e88ceb0fea1538f4cd8f5365d202fd3b62d96ddabc5c85
-R e58b1e225e1a8efbbbbf2e5e2a39d98e
+P d8b20a555fba69212893102e08f71e15d405c3684d39d40adf10da46f1abbb93
+R 0d117c0d713e6cd399da5a66b761cbb0
 U drh
-Z 17b55c67bdb7d777e8f16f4cafe501f7
+Z 573c3f3ae8607dbadd64848cccbaefa8

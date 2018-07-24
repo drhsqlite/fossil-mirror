@@ -2468,7 +2468,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_FORUM ){
     int froot, fprev, firt;
     schema_forum();
-    froot = uuid_to_rid(p->zThreadRoot, 1);
+    froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : p->rid;
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
     firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;
     db_multi_exec(
