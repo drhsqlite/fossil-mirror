@@ -1150,7 +1150,7 @@ void fossil_warning(const char *zFormat, ...){
   }else
 #endif
   {
-    if( g.cgiOutput ){
+    if( g.cgiOutput==1 ){
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
       fossil_force_newline();

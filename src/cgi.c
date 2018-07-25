@@ -345,6 +345,7 @@ void cgi_reply(void){
   /* After the webpage has been sent, do any useful background
   ** processing.
   */
+  g.cgiOutput = 2;
   if( g.db!=0 && iReplyStatus==200 ){
     fclose(g.httpOut);
     g.httpOut = fossil_fopen("/dev/null", "wb");

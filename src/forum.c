@@ -54,28 +54,40 @@ static void forum_thread_chronological(int froot){
       @ <hr>
     }
     i++;
-    @ <p>%d(fpid) %h(zUuid)<br>
-    @ By %h(pPost->zUser) on %h(zDate)
+    if( pPost->zThreadTitle ){
+      @ <h1>%h(pPost->zThreadTitle)</h1>
+    }
+    @ <p>By %h(pPost->zUser) on %h(zDate)
     if( fprev ){
       @ edit of %d(fprev) %h(pPost->azParent[0])
     }
     if( firt ){
       @ in reply to %d(firt) %h(pPost->zInReplyTo)
     }
-    if( pPost->zThreadTitle ){
-      @ <h1>%h(pPost->zThreadTitle)</h1>
-    }
     forum_render(pPost->zMimetype, pPost->zWiki);
     if( g.perm.WrForum ){
+      int sameUser = login_is_individual()
+                     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+      int isPrivate = content_is_private(fpid);
       @ <p><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(zUuid)">
-      @ <input type="submit" name="reply" value="Reply">
-      if( g.perm.Admin || fossil_strcmp(pPost->zUser,g.zLogin)==0 ){
-        @ <input type="submit" name="edit" value="Edit">
-      }
-      if( g.perm.ModForum && content_is_private(fpid) ){
+      if( !isPrivate ){
+        /* Reply and Edit are only available if the post has already
+        ** been approved */
+        @ <input type="submit" name="reply" value="Reply">
+        if( g.perm.Admin || sameUser ){
+          @ <input type="submit" name="edit" value="Edit">
+          @ <input type="submit" name="nullout" value="Delete">
+        }
+      }else if( g.perm.ModForum ){
+        /* Provide moderators with moderation buttons for posts that
+        ** are pending moderation */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
+      }else if( sameUser ){
+        /* A post that is pending moderation can be deleted by the
+        ** person who originally submitted the post */
+        @ <input type="submit" name="reject" value="Delete">
       }
       @ </form></p>
     }
@@ -204,6 +216,23 @@ forum_post_error:
 }
 
 /*
+** Paint the form elements for entering a Forum post
+*/
+static void forum_entry_widget(
+  const char *zTitle,
+  const char *zMimetype,
+  const char *zContent
+){
+  if( zTitle ){
+    @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"><br>
+  }
+  @ Markup style:
+  mimetype_option_menu(zMimetype);
+  @ <br><textarea name="content" class="wikiedit" cols="80" \
+  @ rows="25" wrap="virtual">%h(zContent)</textarea><br>
+}
+
+/*
 ** WEBPAGE: forumnew
 ** WEBPAGE: test-forumnew
 **
@@ -212,9 +241,9 @@ forum_post_error:
 ** and debugging.
 */
 void forumnew_page(void){
-  const char *zTitle = PDT("t","");
-  const char *zMimetype = PD("mt","text/x-fossil-wiki");
-  const char *zContent = PDT("x","");
+  const char *zTitle = PDT("title","");
+  const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
+  const char *zContent = PDT("content","");
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
@@ -230,11 +259,7 @@ void forumnew_page(void){
   }
   style_header("New Forum Thread");
   @ <form action="%R/%s(g.zPath)" method="POST">
-  @ Title: <input type="input" name="t" value="%h(zTitle)" size="50"><br>
-  @ Markup style:
-  mimetype_option_menu(zMimetype);
-  @ <br><textarea name="x" class="wikiedit" cols="80" \
-  @ rows="25" wrap="virtual">%h(zContent)</textarea><br>
+  forum_entry_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
   if( P("preview") ){
     @ <input type="submit" name="submit" value="Submit">
@@ -278,30 +303,70 @@ void forumedit_page(void){
   int fpid;
   Manifest *pPost;
 
-  fpid = symbolic_name_to_rid(PD("fpid",""), "f");
   login_check_credentials();
   if( !g.perm.WrForum ){
     login_needed(g.anon.WrForum);
     return;
   }
+  fpid = symbolic_name_to_rid(PD("fpid",""), "f");
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
     return;
   }
-#if 0
   if( g.perm.ModForum ){
     if( P("approve") ){
+      webpage_not_yet_implemented();
+      return;
     }
     if( P("reject") ){
+      webpage_not_yet_implemented();
+      return;
     }
   }
-  if( P("submit") ){
+  if( P("submitdryrun") ){
+    cgi_set_parameter_nocopy("dryrun","1",1);
+    cgi_set_parameter_nocopy("submit","1",1);
+  }
+  if( P("submit") && cgi_csrf_safe(1) ){
+    int done = 1;
+    const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
+    const char *zContent = PDT("content","");
+    if( P("reply") ){
+      done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
+    }else if( P("edit") ){
+      done = forum_post(0, 0, fpid, 0, zMimetype, zContent);
+    }else{
+      webpage_error("Need one of 'edit' or 'reply' query parameters");
+    }
+    if( done ) return;
   }
   if( P("edit") ){
-  }
-  if( P("reply") ){
+    /* Provide an edit to the fpid post */
+    webpage_not_yet_implemented();
+    return;
+  }else{
+    const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
+    const char *zContent = PDT("content","");
+    style_header("Forum Reply");
+    @ <h1>Replying To:</h1>
+    forum_render(pPost->zMimetype, pPost->zWiki);
+    if( P("preview") ){
+      @ <h1>Preview:</h1>
+      forum_render(zMimetype,zContent);
+    }
+    @ <h1>Enter A Reply:</h1>
+    @ <form action="%R/forumedit" method="POST">
+    @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
+    @ <input type="hidden" name="reply" value="1">
+    forum_entry_widget(0, zMimetype, zContent);
+    @ <input type="submit" name="preview" value="Preview">
+    if( P("preview") ){
+      @ <input type="submit" name="submit" value="Submit">
+      if( g.perm.Setup ){
+        @ <input type="submit" name="submitdryrun" value="Dry Run">
+      }
+    }
+    @ </form>
   }
   style_footer();
-#endif
-  webpage_error("Not yet implemented");
 }

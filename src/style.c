@@ -1016,3 +1016,10 @@ void webpage_error(const char *zFormat, ...){
   }
   style_footer();
 }
+
+/*
+** Generate a Not Yet Implemented error page.
+*/
+void webpage_not_yet_implemented(void){
+  webpage_error("Not yet implemented");
+}
