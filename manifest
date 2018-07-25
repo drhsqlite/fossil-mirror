@@ -1,5 +1,5 @@
-C Make\sforum\sposts\svisible\sto\sobject_description().\s\sAdd\snew\sdiagnostics\nvisible\sto\susers\swith\sthe\snew\s"D"\scapability.
-D 2018-07-25T13:48:20.166
+C If\sthe\suser\shas\sthe\s'D'\scapability\sand\sthe\s"showqp"\squery\sparameter\nexists,\sthen\sall\squery\sparameters\sare\sshown\sat\sthe\stop\sof\sthe\swebpage.\nAlso,\sfix\ssome\sissues\swith\sforum.
+D 2018-07-25T15:02:27.348
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c bf1c79ace521440571b39de70f0063eea9f648375ef59abbc3278f7e1b5c0546
+F src/cgi.c 17a26b96b4cf25b650636e12495d1aa1cb1f55053ff443c487d14ad85f3d6d6d
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 55c85a47888d49da1a2ef7be79638a501a70e82ae69e775474b2aa83cea7d9a0
+F src/forum.c 6af774e22cce2b7b92b3421e835181ef602faab9b7b9094701b01d8d078f2391
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -564,7 +564,7 @@ F src/sqlite3.h 30b01b90bfe45bad6cf4c72664c3eb146c9daec0bb6a87d1f5147a94773d90bb
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 95ff08ce6e08d541a25ba9eff193ba6af7a9944f53d6bae27cd5b591812b75de
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 805418a2cf2accded684e12b7a452d1165fa97069a22f1bf4563fe7e4437e7b6
+F src/style.c 20c0a4c97ad0966290b8f3c36beadf29d44a5c593765b11d05717226649a4f22
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 94262a8c3236b2f81a79caf7812da8f7294424c57cf79972855508e64149b53e
-R 818939c59fbe6370d3720c45cb8d280a
+P 2883fb80cf155f493a111d7e57b4963665b0c49d7aa316793941956469860f70
+R e462b820057e7b58e0b24bc8cd15ee14
 U drh
-Z 199170306416acb2f77381fdb165fd35
+Z e1db44db4403ebc2f31e32840f68f2a8

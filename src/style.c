@@ -435,6 +435,11 @@ void style_header(const char *zTitleFormat, ...){
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
   sideboxUsed = 0;
+  if( g.perm.Debug && P("showqp") ){
+    @ <div class="debug">
+    cgi_print_all(0, 0);
+    @ </div>
+  }
 }
 
 #if INTERFACE

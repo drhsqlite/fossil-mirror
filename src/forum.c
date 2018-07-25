@@ -26,7 +26,8 @@
 */
 void forum_render(const char *zMimetype, const char *zContent){
   Blob x;
-  blob_init(&x, zContent, -1);
+  blob_init(&x, 0, 0);
+  blob_append(&x, zContent, -1);
   wiki_render_by_mimetype(&x, zMimetype);
   blob_reset(&x);
 }
@@ -207,7 +208,10 @@ static int forum_post(
   blob_appendf(&x, "Z %b\n", &cksum);
   blob_reset(&cksum);
   if( P("dryrun") ){
-    @ <pre>%h(blob_str(&x))</pre><hr>
+    @ <div class='debug'>
+    @ This is the artifact that would have been generated:
+    @ <pre>%h(blob_str(&x))</pre>
+    @ </div>
   }else{
     int nrid = wiki_put(&x, 0, forum_need_moderation());
     cgi_redirectf("%R/forumthread/%S", rid_to_uuid(nrid));
@@ -274,6 +278,8 @@ void forumnew_page(void){
     @ Dry run</label>
     @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
     @ Require moderator approval</label>
+    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
+    @ Show query parameters</label>
     @ </div>
   }
   @ </form>
@@ -326,10 +332,6 @@ void forumedit_page(void){
       return;
     }
   }
-  if( P("submitdryrun") ){
-    cgi_set_parameter_nocopy("dryrun","1",1);
-    cgi_set_parameter_nocopy("submit","1",1);
-  }
   if( P("submit") && cgi_csrf_safe(1) ){
     int done = 1;
     const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
@@ -373,6 +375,8 @@ void forumedit_page(void){
       @ Dry run</label>
       @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
       @ Require moderator approval</label>
+      @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
+      @ Show query parameters</label>
       @ </div>
     }
     @ </form>

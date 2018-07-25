@@ -1130,7 +1130,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
     zOut[j++] = c;
   }
   zOut[j] = 0;
-  while( i>0 && fossil_isspace(zOut[j-1]) ) zOut[--j] = 0;
+  while( j>0 && fossil_isspace(zOut[j-1]) ) zOut[--j] = 0;
   return zOut;
 }
 
