@@ -2808,6 +2808,8 @@ void test_echo_cmd(void){
 **     case=3           Extra db_end_transaction()
 **     case=4           Error during SQL processing
 **     case=5           Call the segfault handler
+**     case=6           Call webpage_assert()
+**     case=7           Call webpage_error()
 */
 void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
@@ -2825,7 +2827,7 @@ void test_warning_page(void){
   }else{
     @ <p>This is the test page for case=%d(iCase).  All possible cases:
   }
-  for(i=1; i<=5; i++){
+  for(i=1; i<=7; i++){
     @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
   }
   @ </p>
@@ -2853,6 +2855,15 @@ void test_warning_page(void){
   @ <li value='5'> simulate segfault handling
   if( iCase==5 ){
     sigsegv_handler(0);
+  }
+  @ <li value='6'> call webpage_assert(0)
+  if( iCase==6 ){
+    webpage_assert( 5==7 );
+  }
+  @ <li value='7'> call webpage_error()"
+  if( iCase==7 ){
+    cgi_reset_content();
+    webpage_error("Case 7 from /test-warning");
   }
   @ </ol>
   @ <p>End of test</p>

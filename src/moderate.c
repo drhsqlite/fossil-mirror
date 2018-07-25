@@ -103,6 +103,9 @@ void moderation_disapprove(int objid){
       "DELETE FROM attachment WHERE attachid=%d;",
       rid, rid, rid, rid, rid, rid
     );
+    if( db_table_exists("repository","forumpost") ){
+      db_multi_exec("DELETE FROM forumpost WHERE fpid=%d", rid);
+    }
     zTktid = db_text(0, "SELECT tktid FROM modreq WHERE objid=%d", rid);
     if( zTktid && zTktid[0] ){
       ticket_rebuild_entry(zTktid);

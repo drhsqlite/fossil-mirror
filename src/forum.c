@@ -128,25 +128,17 @@ void forumthread_page(void){
     login_needed(g.anon.RdForum);
     return;
   }
-  style_header("Forum");
   if( zName==0 ){
-    @ <p class='generalError'>Missing name= query parameter</p>
-    style_footer();
-    return;
+    webpage_error("Missing \"name=\" query parameter");
   }
   fpid = symbolic_name_to_rid(zName, "f");
   if( fpid<=0 ){
-    @ <p class='generalError'>Unknown or ambiguous forum id in the "name="
-    @ query parameter</p>
-    style_footer();
-    return;
+    webpage_error("Unknown or ambiguous forum id: \"%s\"", zName);
   }
+  style_header("Forum");
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
-    @ <p class='generalError'>Invalid forum id in the "name="
-    @ query parameter</p>
-    style_footer();
-    return;
+    webpage_error("Not a forum post: \"%s\"", zName);
   }
   forum_thread_chronological(froot);
   style_footer();
@@ -156,7 +148,10 @@ void forumthread_page(void){
 ** Return true if a forum post should be moderated.
 */
 static int forum_need_moderation(void){
-  return !g.perm.WrTForum && !g.perm.ModForum && P("domod")==0;
+  if( P("domod") ) return 1;
+  if( g.perm.WrTForum ) return 0;
+  if( g.perm.ModForum ) return 0;
+  return 1;
 }
 
 /*
@@ -237,9 +232,7 @@ static int forum_post(
   if( pPost==0 ){
     webpage_error("malformed forum post artifact - %s", blob_str(&errMsg));
   }
-  if( pPost->type!=CFTYPE_FORUM ){
-    webpage_error("forum post artifact malformed");
-  }
+  webpage_assert( pPost->type==CFTYPE_FORUM );
   manifest_destroy(pPost);
 
   if( P("dryrun") ){
@@ -332,6 +325,8 @@ void forumedit_page(void){
   const char *zMimetype = 0;
   const char *zContent = 0;
   const char *zTitle = 0;
+  int isCsrfSafe;
+  int isDelete = 0;
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -342,30 +337,54 @@ void forumedit_page(void){
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
   }
-  if( g.perm.ModForum ){
+  if( P("cancel") ){
+    cgi_redirectf("%R/forumthread/%S",P("fpid"));
+    return;
+  }
+  isCsrfSafe = cgi_csrf_safe(1);
+  if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
-      webpage_not_yet_implemented();
+      moderation_approve(fpid);
+      cgi_redirectf("%R/forumthread/%S",P("fpid"));
       return;
     }
     if( P("reject") ){
-      webpage_not_yet_implemented();
+      moderation_disapprove(fpid);
+      cgi_redirectf("%R/forumthread/%S",P("fpid"));
       return;
     }
   }
-  if( P("submit") && cgi_csrf_safe(1) ){
+  isDelete = P("nullout")!=0;
+  if( P("submit") && isCsrfSafe ){
     int done = 1;
     const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
     const char *zContent = PDT("content","");
     if( P("reply") ){
       done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
-    }else if( P("edit") ){
+    }else if( P("edit") || isDelete ){
       done = forum_post(P("title"), 0, fpid, 0, zMimetype, zContent);
     }else{
       webpage_error("Missing 'reply' query parameter");
     }
     if( done ) return;
   }
-  if( P("edit") ){
+  if( isDelete ){
+    zMimetype = "text/x-fossil-wiki";
+    zContent = "<i>Deleted</i>";
+    if( pPost->zThreadTitle ) zTitle = "<i>Deleted</i>";
+    @ <h1>Original Post:</h1>
+    forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
+    @ <h1>Change Into:</h1>
+    forum_render(zTitle, zMimetype, zContent);
+    @ <form action="%R/forumedit" method="POST">
+    @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
+    @ <input type="hidden" name="nullout" value="1">
+    @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
+    @ <input type="hidden" name="content" value="%h(zContent)">
+    if( zTitle ){
+      @ <input type="hidden" name="title" value="%h(zTitle)">
+    }
+  }else if( P("edit") ){
     /* Provide an edit to the fpid post */
     zMimetype = P("mimetype");
     zContent = PT("content");
@@ -375,20 +394,20 @@ void forumedit_page(void){
     if( zTitle==0 && pPost->zThreadTitle!=0 ){
       zTitle = fossil_strdup(pPost->zThreadTitle);
     }
-    style_header("Forum Edit");
+    style_header("Edit Forum Post");
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
     if( P("preview") ){
       @ <h1>Preview Of Editted Post:</h1>
       forum_render(zTitle, zMimetype, zContent);
     }
-    @ <h1>
     @ <h1>Enter A Reply:</h1>
     @ <form action="%R/forumedit" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
     forum_entry_widget(zTitle, zMimetype, zContent);
   }else{
+    /* Reply */
     zMimetype = PD("mimetype","text/x-fossil-wiki");
     zContent = PDT("content","");
     style_header("Forum Reply");
@@ -404,8 +423,11 @@ void forumedit_page(void){
     @ <input type="hidden" name="reply" value="1">
     forum_entry_widget(0, zMimetype, zContent);
   }
-  @ <input type="submit" name="preview" value="Preview">
-  if( P("preview") ){
+  if( !isDelete ){
+    @ <input type="submit" name="preview" value="Preview">
+  }
+  @ <input type="submit" name="cancel" value="Cancel">
+  if( P("preview") || isDelete ){
     @ <input type="submit" name="submit" value="Submit">
   }
   if( g.perm.Debug ){

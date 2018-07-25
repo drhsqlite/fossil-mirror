@@ -1,5 +1,5 @@
-C Add\sthe\swebsite_assert()\smacro.\s\sFixes\sto\sforum\spost\sediting.
-D 2018-07-25T16:10:49.816
+C Further\simprovements\sto\swebpage_error()\sand\swebpage_assert().\s\sFix\nforum\sprocessing\sso\sthat\smoderator\sapproval\sand\sdisapproval\swork.\nAdd\sthe\s"Delete"\sfeature\sto\sforum\sthat\ssimply\snulls\sout\sthe\spage\susing\nan\sedit.
+D 2018-07-25T17:53:13.493
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 44373807c3c266e13e668d31edf4fb249aa7ac520bdc0b908ebfb359eeaca20f
+F src/forum.c 2e032aefa9f31856bb8ca87438f6e9794f32b8d224e7fd6a42d0e16743a757f4
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -510,7 +510,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 301e9699d9af68d4056b777a461611b224be758d3fc3d4d97eeefd2ed2240082
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c e0cb269da4a246b899c4da8f1af1cc9f955ba7e5278dae481080a4b690ce935f
+F src/main.c a699557c77f714151fabff44cbc56f17d630abfcb170c052d947367affc5c2d4
 F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -528,7 +528,7 @@ F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac50
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
-F src/moderate.c fffb8102dae30ba1205b0e3c660b17dbb4fefb4124618d7df482629a53fa19b7
+F src/moderate.c 84544c62eed8bdfa64530a11e4a4b4860674a7e82837bad9e908acf9ece4e3b3
 F src/name.c 44fedd65aa9dc0786b81b777478a170a0b0c18d359e53abf934c64fbf6f73582
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
@@ -564,7 +564,7 @@ F src/sqlite3.h 30b01b90bfe45bad6cf4c72664c3eb146c9daec0bb6a87d1f5147a94773d90bb
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 95ff08ce6e08d541a25ba9eff193ba6af7a9944f53d6bae27cd5b591812b75de
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 0a616e6611000dc2cdbe627567d237315c4aa52093720d0e2b5fc2afbbd06075
+F src/style.c 2a87d2285e217fca4d9c933e80d5442fc225e470b6f3820930be8ab03a56657f
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b48068ded31082893420da4407984a456fb1e02bb0f5afd486ad98d920e70188
-R 5050e7a08e6fa76a295d61592b614af0
+P e67efdd784156e6af05dee43e873e0f208f7580aacfc13a3fd9981925a664bd4
+R f4025c5ff3389d5466bfdb3170381116
 U drh
-Z 0e113deb76428536f57b61a9f35792f3
+Z c44c5127888fded5a0972d3e167bbddc

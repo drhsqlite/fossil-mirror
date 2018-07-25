@@ -972,6 +972,7 @@ void webpage_error(const char *zFormat, ...){
     style_header("Bad Request");
     @ <h1>/%h(g.zPath): %h(zErr)</h1>
     showAll = 0;
+    cgi_set_status(500, "Bad Request");
   }else if( !isAuth ){
     login_needed(0);
     return;
@@ -1018,7 +1019,8 @@ void webpage_error(const char *zFormat, ...){
   }
   style_footer();
   if( zErr ){
-    fossil_panic("webpage_error: %s", zErr);
+    cgi_reply();
+    fossil_exit(1);
   }
 }
 
@@ -1029,7 +1031,15 @@ void webpage_not_yet_implemented(void){
   webpage_error("Not yet implemented");
 }
 
+/*
+** Generate a webpage for a webpage_assert().
+*/
+void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
+  fossil_warning("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
+  cgi_reset_content();
+  webpage_error("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
+}
+
 #if INTERFACE
-# define webpage_assert(T) \
-   if(!(T)){webpage_error("assertion failed %s:%d: %s",__FILE__,__LINE__,#T);}
+# define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
 #endif
