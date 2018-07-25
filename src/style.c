@@ -866,6 +866,39 @@ void page_builtin_text(void){
   cgi_set_content(&out);
 }
 
+/*
+** All possible capabilities
+*/
+static const char allCap[] = 
+  "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKL";
+
+/*
+** Compute the current login capabilities
+*/
+static char *find_capabilities(char *zCap){
+  int i, j;
+  char c;
+  for(i=j=0; (c = allCap[j])!=0; j++){
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  return zCap;
+}
+
+/*
+** Compute the current login capabilities that were
+** contributed by Anonymous
+*/
+static char *find_anon_capabilities(char *zCap){
+  int i, j;
+  char c;
+  for(i=j=0; (c = allCap[j])!=0; j++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+      && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  return zCap;
+}
 
 /*
 ** WEBPAGE: test_env
@@ -874,10 +907,35 @@ void page_builtin_text(void){
 ** environment, for debugging and trouble-shooting purposes.
 */
 void page_test_env(void){
-  char c;
+  webpage_error("");
+}
+
+/*
+** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
+*/
+void honeypot_page(void){
+  cgi_set_status(403, "Forbidden");
+  @ <p>Please enable javascript or log in to see this content</p>
+}
+
+/*
+** Webpages that encounter an error due to missing or incorrect
+** query parameters can jump to this routine to render an error
+** message screen.
+**
+** For administators, or if the test_env_enable setting is true, then
+** details of the request environment are displayed.  Otherwise, just
+** the error message is shown.
+**
+** If zFormat is an empty string, then this is the /test_env page.
+*/
+void webpage_error(const char *zFormat, ...){
   int i;
   int showAll;
-  char zCap[30];
+  char *zErr;
+  int isAuth = 0;
+  char zCap[100];
   static const char *const azCgiVars[] = {
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
@@ -897,15 +955,32 @@ void page_test_env(void){
   };
 
   login_check_credentials();
-  if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed(0);
-    return;
+  if( g.perm.Admin || g.perm.Setup  || db_get_boolean("test_env_enable",0) ){
+    isAuth = 1;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
-  style_header("Environment Test");
-  showAll = PB("showall");
-  style_submenu_checkbox("showall", "Cookies", 0, 0);
-  style_submenu_element("Stats", "%R/stat");
+  if( zFormat[0] ){
+    va_list ap;
+    va_start(ap, zFormat);
+    zErr = vmprintf(zFormat, ap);
+    va_end(ap);
+    style_header("Bad Request");
+    @ <h1>/%h(g.zPath): %h(zErr)</h1>
+    fossil_free(zErr);
+    showAll = 0;
+    if( !isAuth ){
+      style_footer();
+      return;
+    }
+  }else if( !isAuth ){
+    login_needed(0);
+    return;
+  }else{
+    style_header("Environment Test");
+    showAll = PB("showall");
+    style_submenu_checkbox("showall", "Cookies", 0, 0);
+    style_submenu_element("Stats", "%R/stat");
+  }
 
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
@@ -914,10 +989,6 @@ void page_test_env(void){
   @ g.zHttpsURL = %h(g.zHttpsURL)<br />
   @ g.zTop = %h(g.zTop)<br />
   @ g.zPath = %h(g.zPath)<br />
-  for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
-  }
-  zCap[i] = 0;
   @ g.userUid = %d(g.userUid)<br />
   @ g.zLogin = %h(g.zLogin)<br />
   @ g.isHuman = %d(g.isHuman)<br />
@@ -927,14 +998,9 @@ void page_test_env(void){
   if( g.nPendingRequest>1 ){
     @ g.nPendingRequest = %d(g.nPendingRequest)<br />
   }
-  @ capabilities = %s(zCap)<br />
-  for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1, LOGIN_ANON)
-         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
-  }
-  zCap[i] = 0;
-  if( i>0 ){
-    @ anonymous-adds = %s(zCap)<br />
+  @ capabilities = %s(find_capabilities(zCap))<br />
+  if( zCap[0] ){
+    @ anonymous-adds = %s(find_anon_capabilities(zCap))<br />
   }
   @ g.zRepositoryName = %h(g.zRepositoryName)<br />
   @ load_average() = %f(load_average())<br />
@@ -948,19 +1014,5 @@ void page_test_env(void){
     @ %h(blob_str(&g.httpHeader))
     @ </pre>
   }
-  if( g.perm.Setup ){
-    const char *zRedir = P("redirect");
-    if( zRedir ) cgi_redirect(zRedir);
-  }
   style_footer();
-  if( g.perm.Admin && P("err") ) fossil_fatal("%s", P("err"));
-}
-
-/*
-** WEBPAGE: honeypot
-** This page is a honeypot for spiders and bots.
-*/
-void honeypot_page(void){
-  cgi_set_status(403, "Forbidden");
-  @ <p>Please enable javascript or log in to see this content</p>
 }

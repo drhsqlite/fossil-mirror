@@ -984,21 +984,6 @@ void winfo_page(void){
 }
 
 /*
-** Show a webpage error message
-*/
-void webpage_error(const char *zFormat, ...){
-  va_list ap;
-  const char *z;
-  va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
-  va_end(ap);
-  style_header("URL Error");
-  @ <h1>Error</h1>
-  @ <p>%h(z)</p>
-  style_footer();
-}
-
-/*
 ** Find an check-in based on query parameter zParam and parse its
 ** manifest.  Return the number of errors.
 */

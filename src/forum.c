@@ -49,7 +49,8 @@ static void forum_thread_chronological(int froot){
     const char *zUuid = db_column_text(&q, 3);
     const char *zDate = db_column_text(&q, 4);
     Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
-    if( i==0 ){
+    if( pPost==0 ) continue;
+    if( i>0 ){
       @ <hr>
     }
     i++;
@@ -65,7 +66,19 @@ static void forum_thread_chronological(int froot){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     forum_render(pPost->zMimetype, pPost->zWiki);
-    if( pPost==0 ) continue;
+    if( g.perm.WrForum ){
+      @ <p><form action="%R/forumedit" method="POST">
+      @ <input type="hidden" name="fpid" value="%s(zUuid)">
+      @ <input type="submit" name="reply" value="Reply">
+      if( g.perm.Admin || fossil_strcmp(pPost->zUser,g.zLogin)==0 ){
+        @ <input type="submit" name="edit" value="Edit">
+      }
+      if( g.perm.ModForum && content_is_private(fpid) ){
+        @ <input type="submit" name="approve" value="Approve">
+        @ <input type="submit" name="reject" value="Reject">
+      }
+      @ </form></p>
+    }
     manifest_destroy(pPost);
   }
   db_finalize(&q);
@@ -262,7 +275,33 @@ void forumreply_page(void){
 **   name=X        Hash of the post to be editted.  REQUIRED
 */
 void forumedit_page(void){
-  style_header("Pending");
-  @ TBD...
+  int fpid;
+  Manifest *pPost;
+
+  fpid = symbolic_name_to_rid(PD("fpid",""), "f");
+  login_check_credentials();
+  if( !g.perm.WrForum ){
+    login_needed(g.anon.WrForum);
+    return;
+  }
+  if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
+    webpage_error("Missing or invalid fpid query parameter");
+    return;
+  }
+#if 0
+  if( g.perm.ModForum ){
+    if( P("approve") ){
+    }
+    if( P("reject") ){
+    }
+  }
+  if( P("submit") ){
+  }
+  if( P("edit") ){
+  }
+  if( P("reply") ){
+  }
   style_footer();
+#endif
+  webpage_error("Not yet implemented");
 }
