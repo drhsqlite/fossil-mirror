@@ -1242,6 +1242,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 
       case '7':   p->EmailAlert = 1;                           break;
       case 'A':   p->Announce = 1;                             break;
+      case 'D':   p->Debug = 1;                                break;
 
       /* The "u" privileges is a little different.  It recursively
       ** inherits all privileges of the user named "reader" */
@@ -1322,6 +1323,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case '6':  rc = p->AdminForum;break;
       case '7':  rc = p->EmailAlert;break;
       case 'A':  rc = p->Announce;  break;
+      case 'D':  rc = p->Debug;     break;
       default:   rc = 0;            break;
     }
   }

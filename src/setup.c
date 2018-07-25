@@ -374,6 +374,8 @@ static void setup_usercap_table(void){
      @   <td><i>Email-Alerts:</i> Sign up for email nofications</td></tr>
      @ <tr><th valign="top">A</th>
      @   <td><i>Announce:</i> Send announcements</td></tr>
+     @ <tr><th valign="top">D</th>
+     @   <td><i>Debug:</i> Enable debugging features</td></tr>
   @ </table>
 }
 
@@ -726,11 +728,11 @@ void user_edit(void){
   @  <label><input type="checkbox" name="ah"%s(oa['h']) />
   @  Hyperlinks%s(B('h'))</label><br />
   @  <label><input type="checkbox" name="ab"%s(oa['b']) />
-  @  Attachments%s(B('b'))</label>
-
-  @ </td><td><td width="40"></td><td valign="top">
+  @  Attachments%s(B('b'))</label><br>
   @  <label><input type="checkbox" name="ag"%s(oa['g']) />
   @  Clone%s(B('g'))</label><br />
+
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="aj"%s(oa['j']) />
   @  Read Wiki%s(B('j'))</label><br>
   @  <label><input type="checkbox" name="af"%s(oa['f']) />
@@ -750,13 +752,13 @@ void user_edit(void){
   @  <label><input type="checkbox" name="aw"%s(oa['w']) />
   @  Write Tickets%s(B('w'))</label><br />
   @  <label><input type="checkbox" name="aq"%s(oa['q']) />
-  @  Moderate Tickets%s(B('q'))</label>
-
-  @ </td><td><td width="40"></td><td valign="top">
+  @  Moderate Tickets%s(B('q'))</label><br>
   @  <label><input type="checkbox" name="at"%s(oa['t']) />
   @  Ticket Report%s(B('t'))</label><br />
   @  <label><input type="checkbox" name="ax"%s(oa['x']) />
-  @  Private%s(B('x'))</label><br />
+  @  Private%s(B('x'))</label>
+
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="ay"%s(oa['y']) />
   @  Write Unversioned%s(B('y'))</label><br />
   @  <label><input type="checkbox" name="az"%s(oa['z']) />
@@ -774,7 +776,9 @@ void user_edit(void){
   @  <label><input type="checkbox" name="a7"%s(oa['7']) />
   @  Email Alerts%s(B('7'))</label><br>
   @  <label><input type="checkbox" name="aA"%s(oa['A']) />
-  @  Send Announcements%s(B('A'))</label>
+  @  Send Announcements%s(B('A'))</label><br>
+  @  <label><input type="checkbox" name="aD"%s(oa['D']) />
+  @  Enable Debug%s(B('D'))</label>
   @ </td></tr>
   @ </table>
   @   </td>

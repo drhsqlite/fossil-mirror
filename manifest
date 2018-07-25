@@ -1,5 +1,5 @@
-C In\sdebug\sconfig,\s\sreference\sthe\scompiled\ssources;\sthis\sallows\sstepping\sthrough\sthe\sactual\scode\sin\sthe\sdebugger
-D 2018-07-22T21:10:31.718
+C Add\sthe\s'D'\sDebug\suser\scapability.\s\sThis\sis\sdesigned\sto\sshow\sadditional\ninformation\sand\scontrols\son\swebpages\sfor\sdebugging\spurposes.\s\sAlso\stake\nsteps\sto\savoid\strying\sto\sgenerate\sa\swebpage\serror\smessage\safter\sthe\swebpage\nhas\salready\sgone\sout.
+D 2018-07-25T13:20:15.431
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 7bf245008a824befb668e033ec7190eeda8c21541ea0cfbab95c75d7e107cf78
+F src/cgi.c 7a476ad7e188e96d5d16e0ccc95cbff09c4f2ae14348b7b9bc0d7cdd04d2317a
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -507,10 +507,10 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 4484479a821d5110fd0f6699528da5250f2bb89dd3a05fbfe7fa7cc4e3f3b754
+F src/login.c f470e301fc95a5643ea451bdee5b20cd833726a558b9ddf913f094763ab2f8d2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 72d81810ebf4d2292624c14feaf6667def7e30bcbd651114b03ecb8a5e34eb4a
+F src/main.c e0cb269da4a246b899c4da8f1af1cc9f955ba7e5278dae481080a4b690ce935f
 F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -535,7 +535,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 44d0236d6feb11f8c410c217d2cab1ecda483c32d61d34d03e6237b5d2f9bf32
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 28b832affdb6be3b495e3883d86504f02b8cfbac199a18f3a209884577add2c0
+F src/printf.c 15ae8d3874b90f9ee498e27563251ff240d1aa537b5694d8bc7f1db20fbbcc68
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -547,7 +547,7 @@ F src/schema.c f72846e4a8e2929fb8b48220a8cd9744e5210986
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
 F src/security_audit.c 3366c625a0d797253b612b8eaa028bbb40d6dae80295a7dbe3766b6d1aa22e61
-F src/setup.c acbe2b3f1570a51eae289e01a743465c4a8121634576539755f7b0822d2b86da
+F src/setup.c 7cf0e4873fb31825992ab49eee1f9e33abf7e10f58ad3471905d766450d76d8b
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eb0f689dcc39c3b4ad3204d5c59239337a21cb5b166af3a0d8fe0a4fcc91f7ef
-R 648ff05473ce26eada5da2dc6b103e3b
-U ashepilko
-Z 2bf5746ec4a0f976d9bac00569ae723b
+P 58bf02d1273e386086503360b95e1e56a26ce3732f16c517b2e3f6e09f5f905d
+R c2594f642942ad88bf6625e1ba2d6236
+U drh
+Z 18e39edf412afd695d7178678019cd56
