@@ -63,6 +63,7 @@ static void forumthread_delete(ForumThread *pThread){
   fossil_free(pThread);
 }
 
+#if 0 /* not used */
 /*
 ** Search a ForumEntry list forwards looking for the entry with fpid
 */
@@ -70,6 +71,7 @@ static ForumEntry *forumentry_forward(ForumEntry *p, int fpid){
   while( p && p->fpid!=fpid ) p = p->pNext;
   return p;
 }
+#endif
 
 /*
 ** Search backwards for a ForumEntry
@@ -223,11 +225,14 @@ void forumthread_cmd(void){
 ** Render a forum post for display
 */
 void forum_render(
-  const char *zTitle,
-  const char *zMimetype,
-  const char *zContent
+  const char *zTitle,         /* The title.  Might be NULL for no title */
+  const char *zMimetype,      /* Mimetype of the message */
+  const char *zContent,       /* Content of the message */
+  const char *zClass          /* Put in a <div> if not NULL */
 ){
-  @ <div style='border: 1px solid black;padding: 1ex;'>
+  if( zClass ){
+    @ <div class='%s(zClass)'>
+  }
   if( zTitle ){
     if( zTitle[0] ){
       @ <h1>%h(zTitle)</h1>
@@ -244,7 +249,9 @@ void forum_render(
   }else{
     @ <i>Deleted</i>
   }
-  @ </div>
+  if( zClass ){
+    @ </div>
+  }
 }
 
 /*
@@ -252,7 +259,6 @@ void forum_render(
 */
 static void forum_display_chronological(int froot, int target){
   Stmt q;
-  int i = 0;
   db_prepare(&q,
       "SELECT fpid, fprev, firt, uuid, datetime(fmtime,'unixepoch')\n"
       " FROM forumpost, blob\n"
@@ -266,10 +272,7 @@ static void forum_display_chronological(int froot, int target){
     const char *zDate = db_column_text(&q, 4);
     Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
-    if( i>0 ){
-      @ <hr>
-    }
-    i++;
+    @ <div id="forum%d(fpid)" class="forumTime">
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
@@ -284,7 +287,7 @@ static void forum_display_chronological(int froot, int target){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(zUuid)">artifact</a></span>
     }
-    forum_render(0, pPost->zMimetype, pPost->zWiki);
+    forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
     if( g.perm.WrForum ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -312,6 +315,7 @@ static void forum_display_chronological(int froot, int target){
       @ </form></p>
     }
     manifest_destroy(pPost);
+    @ </div>
   }
   db_finalize(&q);
 }
@@ -319,7 +323,7 @@ static void forum_display_chronological(int froot, int target){
 /*
 ** Display all messages in a forumthread with indentation.
 */
-static void forum_display(int froot, int target){
+static int forum_display_hierarchical(int froot, int target){
   ForumThread *pThread;
   ForumEntry *p;
   Manifest *pPost;
@@ -329,8 +333,13 @@ static void forum_display(int froot, int target){
 
   pThread = forumthread_create(froot);
   for(p=pThread->pDisplay; p; p=p->pDisplay){
-    @ <div style='margin-left: %d((p->nIndent-1)*3)ex;'>
     fpid = p->pLeaf ? p->pLeaf->fpid : p->fpid;
+    if( p->nIndent==1 ){
+      @ <div id='forum(%d(fpid)' class='forumHierRoot'>
+    }else{
+      @ <div id='forum%d(fpid)' class='forumHier' \
+      @ style='margin-left: %d((p->nIndent-1)*3)ex;'>
+    }
     pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
     if( pPost->zThreadTitle ){
@@ -344,7 +353,7 @@ static void forum_display(int froot, int target){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(zUuid)">artifact</a></span>
     }
-    forum_render(0, pPost->zMimetype, pPost->zWiki);
+    forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
     if( g.perm.WrForum ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -375,7 +384,14 @@ static void forum_display(int froot, int target){
     fossil_free(zUuid);
     @ </div>
   }
+  for(p=pThread->pFirst; p; p=p->pNext){
+    if( p->fpid==target ){
+      if( p->pLeaf ) target = p->pLeaf->fpid;
+      break;
+    }
+  }
   forumthread_delete(pThread);
+  return target;
 }
 
 /*
@@ -409,10 +425,17 @@ void forumthread_page(void){
     webpage_error("Not a forum post: \"%s\"", zName);
   }
   if( P("t") ){
+    if( g.perm.Debug ){
+      style_submenu_element("Hierarchical", "%R/forumthread/%s", zName);
+    }                          
     forum_display_chronological(froot, fpid);
   }else{
-    forum_display(froot, fpid);
+    if( g.perm.Debug ){
+      style_submenu_element("Chronological", "%R/forumthread/%s?t", zName);
+    }                          
+    fpid = forum_display_hierarchical(froot, fpid);
   }
+  
   style_footer();
 }
 
@@ -557,7 +580,7 @@ void forumnew_page(void){
   }
   if( P("preview") ){
     @ <h1>Preview:</h1>
-    forum_render(zTitle, zMimetype, zContent);
+    forum_render(zTitle, zMimetype, zContent, "forumEdit");
   }
   style_header("New Forum Thread");
   @ <form action="%R/%s(g.zPath)" method="POST">
@@ -646,9 +669,10 @@ void forumedit_page(void){
     if( pPost->zThreadTitle ) zTitle = "";
     style_header("Delete %s", zTitle ? "Post" : "Reply");
     @ <h1>Original Post:</h1>
-    forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
+    forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
+                 "forumEdit");
     @ <h1>Change Into:</h1>
-    forum_render(zTitle, zMimetype, zContent);
+    forum_render(zTitle, zMimetype, zContent,"forumEdit");
     @ <form action="%R/forumedit" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
@@ -669,10 +693,11 @@ void forumedit_page(void){
     }
     style_header("Edit %s", zTitle ? "Post" : "Reply");
     @ <h1>Original Post:</h1>
-    forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
+    forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
+                 "forumEdit");
     if( P("preview") ){
       @ <h1>Preview Of Editted Post:</h1>
-      forum_render(zTitle, zMimetype, zContent);
+      forum_render(zTitle, zMimetype, zContent,"forumEdit");
     }
     @ <h1>Enter A Reply:</h1>
     @ <form action="%R/forumedit" method="POST">
@@ -685,10 +710,10 @@ void forumedit_page(void){
     zContent = PDT("content","");
     style_header("Reply");
     @ <h1>Replying To:</h1>
-    forum_render(0, pPost->zMimetype, pPost->zWiki);
+    forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
     if( P("preview") ){
       @ <h1>Preview:</h1>
-      forum_render(0, zMimetype,zContent);
+      forum_render(0, zMimetype,zContent, "forumEdit");
     }
     @ <h1>Enter A Reply:</h1>
     @ <form action="%R/forumedit" method="POST">
