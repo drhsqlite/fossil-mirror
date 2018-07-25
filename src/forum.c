@@ -29,15 +29,23 @@ void forum_render(
   const char *zMimetype,
   const char *zContent
 ){
-  Blob x;
   @ <div style='border: 1px solid black;padding: 1ex;'>
   if( zTitle ){
-    @ <h1>%h(zTitle)</h1>
+    if( zTitle[0] ){
+      @ <h1>%h(zTitle)</h1>
+    }else{
+      @ <h1><i>Deleted</i></h1>
+    }
   }
-  blob_init(&x, 0, 0);
-  blob_append(&x, zContent, -1);
-  wiki_render_by_mimetype(&x, zMimetype);
-  blob_reset(&x);
+  if( zContent && zContent[0] ){
+    Blob x;
+    blob_init(&x, 0, 0);
+    blob_append(&x, zContent, -1);
+    wiki_render_by_mimetype(&x, zMimetype);
+    blob_reset(&x);
+  }else{
+    @ <i>Deleted</i>
+  }
   @ </div>
 }
 
@@ -370,8 +378,9 @@ void forumedit_page(void){
   }
   if( isDelete ){
     zMimetype = "text/x-fossil-wiki";
-    zContent = "<i>Deleted</i>";
-    if( pPost->zThreadTitle ) zTitle = "<i>Deleted</i>";
+    zContent = "";
+    if( pPost->zThreadTitle ) zTitle = "";
+    style_header("Delete %s", zTitle ? "Post" : "Reply");
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
     @ <h1>Change Into:</h1>
@@ -394,7 +403,7 @@ void forumedit_page(void){
     if( zTitle==0 && pPost->zThreadTitle!=0 ){
       zTitle = fossil_strdup(pPost->zThreadTitle);
     }
-    style_header("Edit Forum Post");
+    style_header("Edit %s", zTitle ? "Post" : "Reply");
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
     if( P("preview") ){
@@ -410,7 +419,7 @@ void forumedit_page(void){
     /* Reply */
     zMimetype = PD("mimetype","text/x-fossil-wiki");
     zContent = PDT("content","");
-    style_header("Forum Reply");
+    style_header("Reply");
     @ <h1>Replying To:</h1>
     forum_render(0, pPost->zMimetype, pPost->zWiki);
     if( P("preview") ){

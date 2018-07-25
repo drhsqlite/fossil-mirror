@@ -1,5 +1,5 @@
-C Further\simprovements\sto\swebpage_error()\sand\swebpage_assert().\s\sFix\nforum\sprocessing\sso\sthat\smoderator\sapproval\sand\sdisapproval\swork.\nAdd\sthe\s"Delete"\sfeature\sto\sforum\sthat\ssimply\snulls\sout\sthe\spage\susing\nan\sedit.
-D 2018-07-25T17:53:13.493
+C Improved\stimeline\smessages\sfor\sforum\sevents.
+D 2018-07-25T19:00:29.791
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 2e032aefa9f31856bb8ca87438f6e9794f32b8d224e7fd6a42d0e16743a757f4
+F src/forum.c e9398d428813a44f3452bd9372dbae0790a8b32ceb3bce1b4ec85c645350adcb
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -515,7 +515,7 @@ F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 1e9b11c36f4a674ad5391ed7c6d3c3e94a531600346106b4dd5d8053d3915f17
-F src/manifest.c 02ecbad4e11d81dbbd502626c5de0badd4e38241209519ebbf5b9d58ffd4facc
+F src/manifest.c 2fc05bd6cea689d1f088cd4831d4e44570a5278a56ec2eeab804dd09d5bf5822
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e67efdd784156e6af05dee43e873e0f208f7580aacfc13a3fd9981925a664bd4
-R f4025c5ff3389d5466bfdb3170381116
+P 32bbb9a9fc6ee546042859c663465093899048862bff23a4f9dcf8b23578ba74
+R 09203c8b38189ee9779dd739a44cff9c
 U drh
-Z c44c5127888fded5a0972d3e167bbddc
+Z 644cd15d9aa1cfb023d829c9ee5ec430

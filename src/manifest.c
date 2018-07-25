@@ -2467,6 +2467,8 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }
   if( p->type==CFTYPE_FORUM ){
     int froot, fprev, firt;
+    char *zFType;
+    const char *zTitle;
     schema_forum();
     froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
@@ -2476,25 +2478,52 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       "VALUES(%d,%d,nullif(%d,0),nullif(%d,0),%.17g)",
       p->rid, froot, fprev, firt, p->rDate
     );
-    if( froot!=p->rid ){
+    if( firt==0 ){
+      /* This is the start of a new thread, either the initial entry
+      ** or an edit of the initial entry. */
+      zTitle = p->zThreadTitle;
+      if( zTitle==0 || zTitle[0]==0 ){
+        zTitle = "<i>Deleted</i>";
+      }
+      zFType = fprev ? "Edit" : "Post";
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
-        "VALUES('f',%.17g,%d,%Q,'Reply to:'||"
-        "coalesce(substr((SELECT comment FROM event"
-                        " WHERE objid=%d),12),' post '||substr(%Q,1,14)))",
-        p->rDate, rid, p->zUser, froot, zUuid
+        "VALUES('f',%.17g,%d,%Q,'%q: %q')",
+        p->rDate, rid, p->zUser, zFType, zTitle
       );
+      /*
+      ** If this edit is the most recent, then make it the title for
+      ** all other entries for the same thread
+      */
+      if( !db_exists("SELECT 1 FROM forumpost WHERE froot=%d AND firt=0"
+                     "   AND fpid!=%d AND fmtime>%.17g", froot, rid, p->rDate)
+      ){
+        /* This entry establishes a new title for all entries on the thread */
+        db_multi_exec(
+          "UPDATE event"
+          " SET comment=substr(comment,1,instr(comment,':')) || ' %q'"
+          " WHERE objid IN (SELECT fpid FROM forumpost WHERE froot=%d)",
+          zTitle, froot
+        );
+      }
     }else{
+      /* This is a reply to a prior post.  Take the title from the root. */
+      zTitle = db_text(0, "SELECT substr(comment,instr(comment,':')+2)"
+                          "  FROM event WHERE objid=%d", froot);
+      if( zTitle==0 ) zTitle = fossil_strdup("<i>Unknown</i>");
+      if( p->zWiki[0]==0 ){
+        zFType = "Delete reply";
+      }else if( fprev ){
+        zFType = "Edit reply";
+      }else{
+        zFType = "Reply";
+      }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
-        "VALUES('f',%.17g,%d,%Q,'Forum post: %q')",
-        p->rDate, rid, p->zUser, p->zThreadTitle
+        "VALUES('f',%.17g,%d,%Q,'%q: %q')",
+        p->rDate, rid, p->zUser, zFType, zTitle
       );
-      db_multi_exec(
-        "UPDATE event SET comment='Reply to: %q' WHERE objid IN"
-        " (SELECT fpid FROM forumpost WHERE froot=%d AND fpid!=froot)",
-        p->zThreadTitle, rid
-      );
+      fossil_free(zTitle);
     }
   }
   db_end_transaction(0);
