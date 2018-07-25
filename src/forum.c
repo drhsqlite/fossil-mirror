@@ -24,12 +24,21 @@
 /*
 ** Render a forum post for display
 */
-void forum_render(const char *zMimetype, const char *zContent){
+void forum_render(
+  const char *zTitle,
+  const char *zMimetype,
+  const char *zContent
+){
   Blob x;
+  @ <div style='border: 1px solid black;padding: 1ex;'>
+  if( zTitle ){
+    @ <h1>%h(zTitle)</h1>
+  }
   blob_init(&x, 0, 0);
   blob_append(&x, zContent, -1);
   wiki_render_by_mimetype(&x, zMimetype);
   blob_reset(&x);
+  @ </div>
 }
 
 /*
@@ -67,9 +76,9 @@ static void forum_thread_chronological(int froot){
     }
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(zUuid)">raw artifact</a></span>
+      @ <a href="%R/artifact/%h(zUuid)">artifact</a></span>
     }
-    forum_render(pPost->zMimetype, pPost->zWiki);
+    forum_render(0, pPost->zMimetype, pPost->zWiki);
     if( g.perm.WrForum ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -163,26 +172,38 @@ static int forum_post(
   const char *zMimetype,       /* Mimetype of content. */
   const char *zContent         /* Content */
 ){
-  Blob x, cksum;
   char *zDate;
+  char *zI;
+  char *zG;
+  int iBasis;
+  Blob x, cksum, formatCheck, errMsg;
+  Manifest *pPost;
+
   schema_forum();
+  if( iInReplyTo==0 && iEdit>0 ){
+    iBasis = iEdit;
+    iInReplyTo = db_int(0, "SELECT firt FROM forumpost WHERE fpid=%d", iEdit);
+  }else{
+    iBasis = iInReplyTo;
+  }
+  webpage_assert( (zTitle==0)+(iInReplyTo==0)==1 );
   blob_init(&x, 0, 0);
   zDate = date_in_standard_format("now");
   blob_appendf(&x, "D %s\n", zDate);
   fossil_free(zDate);
-  if( zTitle ){
-    blob_appendf(&x, "H %F\n", zTitle);
-  }else{
-    char *zG = db_text(0, 
-       "SELECT uuid FROM blob, forumpost"
-       " WHERE blob.rid==forumpost.froot"
-       "   AND forumpost.fpid=%d", iInReplyTo);
-    char *zI;
-    if( zG==0 ) goto forum_post_error;
+  zG = db_text(0, 
+     "SELECT uuid FROM blob, forumpost"
+     " WHERE blob.rid==forumpost.froot"
+     "   AND forumpost.fpid=%d", iBasis);
+  if( zG ){
     blob_appendf(&x, "G %s\n", zG);
     fossil_free(zG);
-    zI = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iInReplyTo);
-    if( zI==0 ) goto forum_post_error;
+  }
+  if( zTitle ){
+    blob_appendf(&x, "H %F\n", zTitle);
+  }
+  zI = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iInReplyTo);
+  if( zI ){
     blob_appendf(&x, "I %s\n", zI);
     fossil_free(zI);
   }
@@ -191,7 +212,7 @@ static int forum_post(
   }
   if( iEdit>0 ){
     char *zP = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", iEdit);
-    if( zP==0 ) goto forum_post_error;
+    if( zP==0 ) webpage_error("missing edit artifact %d", iEdit);
     blob_appendf(&x, "P %s\n", zP);
     fossil_free(zP);
   }
@@ -207,20 +228,32 @@ static int forum_post(
   md5sum_blob(&x, &cksum);
   blob_appendf(&x, "Z %b\n", &cksum);
   blob_reset(&cksum);
+
+  /* Verify that the artifact we are creating is well-formed */
+  blob_init(&formatCheck, 0, 0);
+  blob_init(&errMsg, 0, 0);
+  blob_copy(&formatCheck, &x);
+  pPost = manifest_parse(&formatCheck, 0, &errMsg);
+  if( pPost==0 ){
+    webpage_error("malformed forum post artifact - %s", blob_str(&errMsg));
+  }
+  if( pPost->type!=CFTYPE_FORUM ){
+    webpage_error("forum post artifact malformed");
+  }
+  manifest_destroy(pPost);
+
   if( P("dryrun") ){
     @ <div class='debug'>
     @ This is the artifact that would have been generated:
     @ <pre>%h(blob_str(&x))</pre>
     @ </div>
+    blob_reset(&x);
+    return 0;
   }else{
     int nrid = wiki_put(&x, 0, forum_need_moderation());
     cgi_redirectf("%R/forumthread/%S", rid_to_uuid(nrid));
     return 1;
   }
-
-forum_post_error:
-  blob_reset(&x);
-  return 0;
 }
 
 /*
@@ -258,9 +291,8 @@ void forumnew_page(void){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
   }
   if( P("preview") ){
-    @ <h1>%h(zTitle)</h1>
-    forum_render(zMimetype, zContent);
-    @ <hr>
+    @ <h1>Preview:</h1>
+    forum_render(zTitle, zMimetype, zContent);
   }
   style_header("New Forum Thread");
   @ <form action="%R/%s(g.zPath)" method="POST">
@@ -287,20 +319,6 @@ void forumnew_page(void){
 }
 
 /*
-** WEBPAGE: forumreply
-**
-** Reply to a forum message.
-** Query parameters:
-**
-**   name=X        Hash of the post to reply to.  REQUIRED
-*/
-void forumreply_page(void){
-  style_header("Pending");
-  @ TBD...
-  style_footer();
-}
-
-/*
 ** WEBPAGE: forumedit
 **
 ** Edit an existing forum message.
@@ -311,6 +329,9 @@ void forumreply_page(void){
 void forumedit_page(void){
   int fpid;
   Manifest *pPost;
+  const char *zMimetype = 0;
+  const char *zContent = 0;
+  const char *zTitle = 0;
 
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -320,7 +341,6 @@ void forumedit_page(void){
   fpid = symbolic_name_to_rid(PD("fpid",""), "f");
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
-    return;
   }
   if( g.perm.ModForum ){
     if( P("approve") ){
@@ -339,47 +359,66 @@ void forumedit_page(void){
     if( P("reply") ){
       done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
     }else if( P("edit") ){
-      done = forum_post(0, 0, fpid, 0, zMimetype, zContent);
+      done = forum_post(P("title"), 0, fpid, 0, zMimetype, zContent);
     }else{
-      webpage_error("Need one of 'edit' or 'reply' query parameters");
+      webpage_error("Missing 'reply' query parameter");
     }
     if( done ) return;
   }
   if( P("edit") ){
     /* Provide an edit to the fpid post */
-    webpage_not_yet_implemented();
-    return;
+    zMimetype = P("mimetype");
+    zContent = PT("content");
+    zTitle = P("title");
+    if( zContent==0 ) zContent = fossil_strdup(pPost->zWiki);
+    if( zMimetype==0 ) zMimetype = fossil_strdup(pPost->zMimetype);
+    if( zTitle==0 && pPost->zThreadTitle!=0 ){
+      zTitle = fossil_strdup(pPost->zThreadTitle);
+    }
+    style_header("Forum Edit");
+    @ <h1>Original Post:</h1>
+    forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki);
+    if( P("preview") ){
+      @ <h1>Preview Of Editted Post:</h1>
+      forum_render(zTitle, zMimetype, zContent);
+    }
+    @ <h1>
+    @ <h1>Enter A Reply:</h1>
+    @ <form action="%R/forumedit" method="POST">
+    @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
+    @ <input type="hidden" name="edit" value="1">
+    forum_entry_widget(zTitle, zMimetype, zContent);
   }else{
-    const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
-    const char *zContent = PDT("content","");
+    zMimetype = PD("mimetype","text/x-fossil-wiki");
+    zContent = PDT("content","");
     style_header("Forum Reply");
     @ <h1>Replying To:</h1>
-    forum_render(pPost->zMimetype, pPost->zWiki);
+    forum_render(0, pPost->zMimetype, pPost->zWiki);
     if( P("preview") ){
       @ <h1>Preview:</h1>
-      forum_render(zMimetype,zContent);
+      forum_render(0, zMimetype,zContent);
     }
     @ <h1>Enter A Reply:</h1>
     @ <form action="%R/forumedit" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
     forum_entry_widget(0, zMimetype, zContent);
-    @ <input type="submit" name="preview" value="Preview">
-    if( P("preview") ){
-      @ <input type="submit" name="submit" value="Submit">
-    }
-    if( g.perm.Debug ){
-      /* For the test-forumnew page add these extra debugging controls */
-      @ <div class="debug">
-      @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
-      @ Dry run</label>
-      @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
-      @ Require moderator approval</label>
-      @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
-      @ Show query parameters</label>
-      @ </div>
-    }
-    @ </form>
   }
+  @ <input type="submit" name="preview" value="Preview">
+  if( P("preview") ){
+    @ <input type="submit" name="submit" value="Submit">
+  }
+  if( g.perm.Debug ){
+    /* For the test-forumnew page add these extra debugging controls */
+    @ <div class="debug">
+    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
+    @ Dry run</label>
+    @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
+    @ Require moderator approval</label>
+    @ <br><label><input type="checkbox" name="showqp" %s(PCK("showqp"))> \
+    @ Show query parameters</label>
+    @ </div>
+  }
+  @ </form>
   style_footer();
 }

@@ -938,7 +938,7 @@ void honeypot_page(void){
 void webpage_error(const char *zFormat, ...){
   int i;
   int showAll;
-  char *zErr;
+  char *zErr = 0;
   int isAuth = 0;
   char zCap[100];
   static const char *const azCgiVars[] = {
@@ -971,12 +971,7 @@ void webpage_error(const char *zFormat, ...){
     va_end(ap);
     style_header("Bad Request");
     @ <h1>/%h(g.zPath): %h(zErr)</h1>
-    fossil_free(zErr);
     showAll = 0;
-    if( !isAuth ){
-      style_footer();
-      return;
-    }
   }else if( !isAuth ){
     login_needed(0);
     return;
@@ -987,39 +982,44 @@ void webpage_error(const char *zFormat, ...){
     style_submenu_element("Stats", "%R/stat");
   }
 
-#if !defined(_WIN32)
-  @ uid=%d(getuid()), gid=%d(getgid())<br />
-#endif
-  @ g.zBaseURL = %h(g.zBaseURL)<br />
-  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
-  @ g.zTop = %h(g.zTop)<br />
-  @ g.zPath = %h(g.zPath)<br />
-  @ g.userUid = %d(g.userUid)<br />
-  @ g.zLogin = %h(g.zLogin)<br />
-  @ g.isHuman = %d(g.isHuman)<br />
-  if( g.nRequest ){
-    @ g.nRequest = %d(g.nRequest)<br />
-  }
-  if( g.nPendingRequest>1 ){
-    @ g.nPendingRequest = %d(g.nPendingRequest)<br />
-  }
-  @ capabilities = %s(find_capabilities(zCap))<br />
-  if( zCap[0] ){
-    @ anonymous-adds = %s(find_anon_capabilities(zCap))<br />
-  }
-  @ g.zRepositoryName = %h(g.zRepositoryName)<br />
-  @ load_average() = %f(load_average())<br />
-  @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
-  @ <hr />
-  P("HTTP_USER_AGENT");
-  cgi_print_all(showAll, 0);
-  if( showAll && blob_size(&g.httpHeader)>0 ){
+  if( isAuth ){
+  #if !defined(_WIN32)
+    @ uid=%d(getuid()), gid=%d(getgid())<br />
+  #endif
+    @ g.zBaseURL = %h(g.zBaseURL)<br />
+    @ g.zHttpsURL = %h(g.zHttpsURL)<br />
+    @ g.zTop = %h(g.zTop)<br />
+    @ g.zPath = %h(g.zPath)<br />
+    @ g.userUid = %d(g.userUid)<br />
+    @ g.zLogin = %h(g.zLogin)<br />
+    @ g.isHuman = %d(g.isHuman)<br />
+    if( g.nRequest ){
+      @ g.nRequest = %d(g.nRequest)<br />
+    }
+    if( g.nPendingRequest>1 ){
+      @ g.nPendingRequest = %d(g.nPendingRequest)<br />
+    }
+    @ capabilities = %s(find_capabilities(zCap))<br />
+    if( zCap[0] ){
+      @ anonymous-adds = %s(find_anon_capabilities(zCap))<br />
+    }
+    @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+    @ load_average() = %f(load_average())<br />
+    @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
     @ <hr />
-    @ <pre>
-    @ %h(blob_str(&g.httpHeader))
-    @ </pre>
+    P("HTTP_USER_AGENT");
+    cgi_print_all(showAll, 0);
+    if( showAll && blob_size(&g.httpHeader)>0 ){
+      @ <hr />
+      @ <pre>
+      @ %h(blob_str(&g.httpHeader))
+      @ </pre>
+    }
   }
   style_footer();
+  if( zErr ){
+    fossil_panic("webpage_error: %s", zErr);
+  }
 }
 
 /*
@@ -1028,3 +1028,8 @@ void webpage_error(const char *zFormat, ...){
 void webpage_not_yet_implemented(void){
   webpage_error("Not yet implemented");
 }
+
+#if INTERFACE
+# define webpage_assert(T) \
+   if(!(T)){webpage_error("assertion failed %s:%d: %s",__FILE__,__LINE__,#T);}
+#endif
