@@ -95,6 +95,7 @@ struct FossilUserPerms {
   char AdminForum;       /* 6: Edit forum posts by other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
+  char Debug;            /* D: show extra Fossil debugging features */
 };
 
 #ifdef FOSSIL_ENABLE_TCL
