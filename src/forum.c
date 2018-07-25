@@ -57,12 +57,16 @@ static void forum_thread_chronological(int froot){
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
-    @ <p>By %h(pPost->zUser) on %h(zDate)
+    @ <p>By %h(pPost->zUser) on %h(zDate) (%d(fpid))
     if( fprev ){
-      @ edit of %d(fprev) %h(pPost->azParent[0])
+      @ edit of %d(fprev)
     }
     if( firt ){
-      @ in reply to %d(firt) %h(pPost->zInReplyTo)
+      @ reply to %d(firt)
+    }
+    if( g.perm.Debug ){
+      @ <span class="debug">\
+      @ <a href="%R/artifact/%h(zUuid)">raw artifact</a></span>
     }
     forum_render(pPost->zMimetype, pPost->zWiki);
     if( g.perm.WrForum ){
@@ -234,11 +238,8 @@ static void forum_entry_widget(
 
 /*
 ** WEBPAGE: forumnew
-** WEBPAGE: test-forumnew
 **
-** Start a new forum thread.  The /test-forumnew works just like
-** /forumnew except that it provides additional controls for testing
-** and debugging.
+** Start a new forum thread.
 */
 void forumnew_page(void){
   const char *zTitle = PDT("title","");
@@ -266,12 +267,14 @@ void forumnew_page(void){
   }else{
     @ <input type="submit" name="submit" value="Submit" disabled>
   }
-  if( g.zPath[0]=='t' ){
+  if( g.perm.Debug ){
     /* For the test-forumnew page add these extra debugging controls */
-    @ <br><label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
+    @ <div class="debug">
+    @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
     @ Dry run</label>
     @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
     @ Require moderator approval</label>
+    @ </div>
   }
   @ </form>
   style_footer();
@@ -362,9 +365,15 @@ void forumedit_page(void){
     @ <input type="submit" name="preview" value="Preview">
     if( P("preview") ){
       @ <input type="submit" name="submit" value="Submit">
-      if( g.perm.Setup ){
-        @ <input type="submit" name="submitdryrun" value="Dry Run">
-      }
+    }
+    if( g.perm.Debug ){
+      /* For the test-forumnew page add these extra debugging controls */
+      @ <div class="debug">
+      @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
+      @ Dry run</label>
+      @ <br><label><input type="checkbox" name="domod" %s(PCK("domod"))> \
+      @ Require moderator approval</label>
+      @ </div>
     }
     @ </form>
   }

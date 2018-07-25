@@ -674,3 +674,7 @@ td.form_label {
   vertical-align: top;
   text-align: right;
 }
+.debug {
+  background-color: #ffc;
+  border: 2px solid #ff0;
+}

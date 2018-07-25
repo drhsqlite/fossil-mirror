@@ -1233,6 +1233,7 @@ void vdiff_page(void){
 #define OBJTYPE_TAG        0x0040
 #define OBJTYPE_SYMLINK    0x0080
 #define OBJTYPE_EXE        0x0100
+#define OBJTYPE_FORUM      0x0200
 
 /*
 ** Possible flags for the second parameter to
@@ -1425,6 +1426,9 @@ int object_description(
         }else{
           @ Attachment to technote
         }
+      }else if( zType[0]=='f' ){
+        objType |= OBJTYPE_FORUM;
+        @ Forum post
       }else{
         @ Tag referencing
       }

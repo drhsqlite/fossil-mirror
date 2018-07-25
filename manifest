@@ -1,5 +1,5 @@
-C Merge\senhancements\sfrom\strunk.
-D 2018-07-25T13:21:49.018
+C Make\sforum\sposts\svisible\sto\sobject_description().\s\sAdd\snew\sdiagnostics\nvisible\sto\susers\swith\sthe\snew\s"D"\scapability.
+D 2018-07-25T13:48:20.166
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c bd4fafaad5495c9e118cf2c5685360137a66a39076ec92f36e0a4424c71223a1
-F src/default_css.txt eaf2497b8c98c3ebb8a7d62096811341c47ebf8e63ebf3b8d8d02a3b20baf8f0
+F src/default_css.txt 3d47ade15224f443b608bb337454ccae5b636bfe39c09a274264ba156dc03443
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 872627bd2408c8b72fd4be97bf990528345a30376ce0b8b8d2403529bf5b8c41
+F src/forum.c 55c85a47888d49da1a2ef7be79638a501a70e82ae69e775474b2aa83cea7d9a0
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -486,7 +486,7 @@ F src/http_socket.c a84161dc376d1decf9ce604a668226eee5c22d32a66030bdf7cfd1fd7b09
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 842e840000336be86d03cc20e60844bc6305dbea5de3525be2d80bff5471f833
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 423479fc25e5a4569ad84a70cbf6b1297413bc4d7082f5b24480ad3a8d13a85b
+F src/info.c c5ee57892d15ba36dbfbecc30ce4ff5e7f8c3d16b9c3c7db030f12ec4548e877
 F src/json.c 28a0a82d4451506e5456f0d385bda27b1fde6cb920f250906fed032f9667630a
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c dae5996cca66f4e6a4081d7882bf10c9439341d2d1d06801c0b320e84e1966cb
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c35fe945d2b3a2fe1572b8757d4fb01c58cfe62d16f6dfd2c8af3a41b9922f6e fd3198322a6f902a38dcabdea1663de940ce017b3daf658ffad548f5f3f19f9b
-R 5d23132395e5411ed09bb9f08cc2a16d
+P 94262a8c3236b2f81a79caf7812da8f7294424c57cf79972855508e64149b53e
+R 818939c59fbe6370d3720c45cb8d280a
 U drh
-Z 6a303bb5a892ed78329ef9b5f94080f0
+Z 199170306416acb2f77381fdb165fd35
