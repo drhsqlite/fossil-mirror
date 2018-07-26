@@ -1,5 +1,5 @@
-C Automatic\sscroll\sto\sthe\sspecific\smessage\sof\sthe\sthread\swhen\scalling\n/info\son\sa\sforum\smessage.
-D 2018-07-26T01:33:18.213
+C Add\sthe\smissing\sforum.js\sfile.\s\sAdjust\sforum.js\sso\sthat\sit\sdoes\sa\sbetter\njob\sof\sautoscrolling\sto\sthe\sselected\sforum\smessage.
+D 2018-07-26T10:50:51.025
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,6 +473,7 @@ F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/forum.c 3e3625bcd3b7a24e065389b02dafeebd369490974ffbcba102ea924b31ac0a0c
+F src/forum.js c0bbb2dfdab153501587d89560acf7008e03bb2932c4de86437d2bc14c3bec9e
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -856,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9757488a5dc0edc899cc5fca0c78b73dc43a5f808cb6b5189edf722fe771a1ca
-R 6252d423e5dc0ff1ce0d16b1cd0b8935
+P 8f0e18f4b0f4ebab2c512b1661bd791fc994ff8417c8c2f45d17a08f56d73e45
+R 43ae4525bf7647b0a31caa97852285ce
 U drh
-Z 06fa91270186157773d5b1c100f56ad8
+Z edbe4a48100408f167c86cfd662147ff
