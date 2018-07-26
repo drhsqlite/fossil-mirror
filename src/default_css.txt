@@ -689,3 +689,6 @@ div.forumHier, div.forumTime {
   padding-right: 1ex;
   margin-top: 1ex;
 }
+div.forumSel {
+  background-color: #cef;
+}

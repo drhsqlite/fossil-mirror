@@ -1,5 +1,5 @@
-C Begin\sadding\sstyle\sto\sthe\sforum\sdisplay.
-D 2018-07-25T22:34:27.574
+C Fixes\sto\sthe\sforum\shierarchical\sdisplay\salgorithm.
+D 2018-07-26T01:02:58.777
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c bd4fafaad5495c9e118cf2c5685360137a66a39076ec92f36e0a4424c71223a1
-F src/default_css.txt dffde1a3941357f247bac950f652741258802343620a7f59f373d3a38edc1837
+F src/default_css.txt a124c6ae45bcbbb5f2d8df35fb550ba7c23e8dbaddb372ba0ad0b972e7c6dda4
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 2cf144b4986b0eebd570a1022589bd02f9966aa7ab7b69ea3d1b0627d09f213a
+F src/forum.c 1e370d0f935514487b87ff28e55fb394167d0c2278013a0dde889c15f35a9abd
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7da12996859b46c1c5867dd0aa2aabbc35ee318ff90fb8e4c33fe2e243fd9a2a
-R 49e3eb3ca7e0daabfa5fc9ca6725e53f
+P 8eccd9a221fd165563ad23c3e976171b8ae5c0b6f26274dd2e587bcb3220a4cc
+R 4639453848f73f53e140339c36cd1fa2
 U drh
-Z cae38cc40240d5a1e1d5f519aa45be44
+Z 7e92932bdb2f125c9e02142740fec579

@@ -105,7 +105,7 @@ static void forumthread_display_order(
   int nIndent
 ){
   while( p ){
-    if( p->pEdit==0 && p->mfirt==fpid ){
+    if( p->fprev==0 && p->mfirt==fpid ){
       p->nIndent = nIndent;
       forumentry_add_to_display(pThread, p);
       forumthread_display_order(pThread, p->pNext, p->fpid, nIndent+1);
@@ -150,7 +150,7 @@ static ForumThread *forumthread_create(int froot){
   for(pEntry=pThread->pFirst; pEntry; pEntry=pEntry->pNext){
     if( pEntry->fprev ){
       ForumEntry *pBase, *p;
-      pBase = p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
+      p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
       pEntry->pEdit = p;
       while( p ){
         pBase = p;
@@ -158,7 +158,7 @@ static ForumThread *forumthread_create(int froot){
         p = pBase->pEdit;
       }
       for(p=pEntry->pNext; p; p=p->pNext){
-        if( p->mfirt==pEntry->fpid ) p->mfirt = pBase->mfirt;
+        if( p->mfirt==pEntry->fpid ) p->mfirt = pBase->fpid;
       }
     }
   }
@@ -272,7 +272,11 @@ static void forum_display_chronological(int froot, int target){
     const char *zDate = db_column_text(&q, 4);
     Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
-    @ <div id="forum%d(fpid)" class="forumTime">
+    if( fpid==target ){
+      @ <div id="forum%d(fpid)" class="forumTime forumSel">
+    }else{
+      @ <div id="forum%d(fpid)" class="forumTime">
+    }
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
@@ -326,18 +330,34 @@ static void forum_display_chronological(int froot, int target){
 static int forum_display_hierarchical(int froot, int target){
   ForumThread *pThread;
   ForumEntry *p;
-  Manifest *pPost;
+  Manifest *pPost, *pOPost;
   int fpid;
   char *zDate;
   char *zUuid;
+  const char *zSel;
 
   pThread = forumthread_create(froot);
+  for(p=pThread->pFirst; p; p=p->pNext){
+    if( p->fpid==target ){
+      while( p->pEdit ) p = p->pEdit;
+      target = p->fpid;
+      break;
+    }
+  }
   for(p=pThread->pDisplay; p; p=p->pDisplay){
-    fpid = p->pLeaf ? p->pLeaf->fpid : p->fpid;
-    if( p->nIndent==1 ){
-      @ <div id='forum(%d(fpid)' class='forumHierRoot'>
+    pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+    if( p->pLeaf ){
+      fpid = p->pLeaf->fpid;
+      pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     }else{
-      @ <div id='forum%d(fpid)' class='forumHier' \
+      fpid = p->fpid;
+      pPost = pOPost;
+    }
+    zSel = p->fpid==target ? " forumSel" : "";
+    if( p->nIndent==1 ){
+      @ <div id='forum(%d(fpid)' class='forumHierRoot%s(zSel)'>
+    }else{
+      @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
       @ style='margin-left: %d((p->nIndent-1)*3)ex;'>
     }
     pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
@@ -345,13 +365,29 @@ static int forum_display_hierarchical(int froot, int target){
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
-    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <p>By %h(pPost->zUser) on %h(zDate) (%d(fpid))
+    zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
+    @ <p>By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
-    zUuid = rid_to_uuid(fpid);
+    zUuid = rid_to_uuid(p->fpid);
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(zUuid)">artifact</a></span>
+      @ <a href="%R/artifact/%h(zUuid)">(%d(p->fpid))</a></span>
+    }
+    if( p->pLeaf ){
+      zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+      if( fossil_strcmp(pOPost->zUser,pPost->zUser)==0 ){
+        @ and edited on %h(zDate)
+      }else{
+        @ as edited by %h(pPost->zUser) on %h(zDate)
+      }
+      fossil_free(zDate);
+      fossil_free(zUuid);
+      zUuid = rid_to_uuid(fpid);
+      if( g.perm.Debug ){
+        @ <span class="debug">\
+        @ <a href="%R/artifact/%h(zUuid)">(%d(fpid))</a></span>
+      }
+      manifest_destroy(pOPost);
     }
     forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
     if( g.perm.WrForum ){
@@ -383,12 +419,6 @@ static int forum_display_hierarchical(int froot, int target){
     manifest_destroy(pPost);
     fossil_free(zUuid);
     @ </div>
-  }
-  for(p=pThread->pFirst; p; p=p->pNext){
-    if( p->fpid==target ){
-      if( p->pLeaf ) target = p->pLeaf->fpid;
-      break;
-    }
   }
   forumthread_delete(pThread);
   return target;
