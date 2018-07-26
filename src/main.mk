@@ -207,6 +207,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \

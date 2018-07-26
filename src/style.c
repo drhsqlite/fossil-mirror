@@ -511,9 +511,30 @@ void style_load_one_js_file(const char *zFile){
 }
 
 /*
+** All extra JS files to load.
+*/
+static const char *azJsToLoad[4];
+static int nJsToLoad = 0;
+
+/*
+** Register a new JS file to load at the end of the document.
+*/
+void style_load_js(const char *zName){
+  int i;
+  for(i=0; i<nJsToLoad; i++){
+    if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
+  }
+  if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
+    fossil_panic("too man JS files");
+  }
+  azJsToLoad[nJsToLoad++] = zName;
+}
+
+/*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
+  int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover;
@@ -529,6 +550,9 @@ static void style_load_all_js_files(void){
   }
   if( needGraphJs ){
     style_load_one_js_file("graph.js");
+  }
+  for(i=0; i<nJsToLoad; i++){
+    style_load_one_js_file(azJsToLoad[i]);
   }
 }
 

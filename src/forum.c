@@ -465,7 +465,7 @@ void forumthread_page(void){
     }                          
     fpid = forum_display_hierarchical(froot, fpid);
   }
-  
+  style_load_js("forum.js");
   style_footer();
 }
 

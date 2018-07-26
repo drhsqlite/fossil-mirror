@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\sforum\shierarchical\sdisplay\salgorithm.
-D 2018-07-26T01:02:58.777
+C Automatic\sscroll\sto\sthe\sspecific\smessage\sof\sthe\sthread\swhen\scalling\n/info\son\sa\sforum\smessage.
+D 2018-07-26T01:33:18.213
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 1e370d0f935514487b87ff28e55fb394167d0c2278013a0dde889c15f35a9abd
+F src/forum.c 3e3625bcd3b7a24e065389b02dafeebd369490974ffbcba102ea924b31ac0a0c
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -511,7 +511,7 @@ F src/login.c 301e9699d9af68d4056b777a461611b224be758d3fc3d4d97eeefd2ed2240082
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c a699557c77f714151fabff44cbc56f17d630abfcb170c052d947367affc5c2d4
-F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
+F src/main.mk f6f799ce51c54f50d8cc2dc63670ed5bb267de7f53ba6a05ba9ab2b964a65a46
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 1e9b11c36f4a674ad5391ed7c6d3c3e94a531600346106b4dd5d8053d3915f17
@@ -564,7 +564,7 @@ F src/sqlite3.h 30b01b90bfe45bad6cf4c72664c3eb146c9daec0bb6a87d1f5147a94773d90bb
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 95ff08ce6e08d541a25ba9eff193ba6af7a9944f53d6bae27cd5b591812b75de
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 2a87d2285e217fca4d9c933e80d5442fc225e470b6f3820930be8ab03a56657f
+F src/style.c e09eb1d5140b0dc27e7e1409c9ef55716e7cb125607a526905b5065ac65a447b
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -730,9 +730,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b88f14f94af2f
 F win/Makefile.dmc 53c4c0c72960fb4646f43c5e5987ef048dda52caf045fb9b9db8f2c95da6a8c3
-F win/Makefile.mingw 512085908cc6f1bcfe9e6c648e6617abff7e65e3b5f20a3b117b06d58a8ae69a
+F win/Makefile.mingw dc24b3f50b9efdda503b5f9ec7e1f10a8082d83d95f56fabf025dab463b73b1a
 F win/Makefile.mingw.mistachkin 52f3a9a4452cc28846934bf1f016f932eb52c8b811d953c29426ce3d28e86d3e
-F win/Makefile.msc 3d8f2c7aba709c86990501e215bb77bea5a0462ea8422731f65e11487af97175
+F win/Makefile.msc 15579287e6c87569b37ddbb82622f8aa6a68bf167cc9300be800d85f69403a1b
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8eccd9a221fd165563ad23c3e976171b8ae5c0b6f26274dd2e587bcb3220a4cc
-R 4639453848f73f53e140339c36cd1fa2
+P 9757488a5dc0edc899cc5fca0c78b73dc43a5f808cb6b5189edf722fe771a1ca
+R 6252d423e5dc0ff1ce0d16b1cd0b8935
 U drh
-Z 7e92932bdb2f125c9e02142740fec579
+Z 06fa91270186157773d5b1c100f56ad8
