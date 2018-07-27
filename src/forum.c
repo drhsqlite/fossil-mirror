@@ -289,17 +289,17 @@ static void forum_display_chronological(int froot, int target){
     @ <p>By %h(pPost->zUser) on %h(zDate) (%d(p->fpid))
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumthread/%S?t",p->pEdit->zUuid))%d(p->fprev)</a>
+      @ edit of %z(href("%R/forumpost/%S?t",p->pEdit->zUuid))%d(p->fprev)</a>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ reply to %z(href("%R/forumthread/%S?t",pIrt->zUuid))%d(p->firt)</a>
+        @ reply to %z(href("%R/forumpost/%S?t",pIrt->zUuid))%d(p->firt)</a>
       }
     }
     if( p->pLeaf ){
-      @ updated by %z(href("%R/forumthread/%S?t",p->pLeaf->zUuid))\
+      @ updated by %z(href("%R/forumpost/%S?t",p->pLeaf->zUuid))\
       @ %d(p->pLeaf->fpid)</a>
     }
     if( g.perm.Debug ){
@@ -307,7 +307,7 @@ static void forum_display_chronological(int froot, int target){
       @ <a href="%R/artifact/%h(p->zUuid)">artifact</a></span>
     }
     if( p->fpid!=target ){
-      @ %z(href("%R/forumthread/%S?t",p->zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S?t",p->zUuid))[link]</a>
     }
     forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
     if( g.perm.WrForum && p->pLeaf==0 ){
@@ -407,7 +407,7 @@ static int forum_display_hierarchical(int froot, int target){
       manifest_destroy(pOPost);
     }
     if( fpid!=target ){
-      @ %z(href("%R/forumthread/%S",zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
     forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
     if( g.perm.WrForum ){
@@ -444,13 +444,32 @@ static int forum_display_hierarchical(int froot, int target){
 }
 
 /*
-** WEBPAGE: forumthread
+** WEBPAGE: forumpost
 **
-** Show all forum messages associated with a particular message thread.
+** Show a single forum posting. The posting is shown in context with
+** it's entire thread.  The selected posting is enclosed within
+** <div class='forumSel'>...</div>.  Javascript is used to move the
+** selected posting into view after the page loads.
 **
 ** Query parameters:
 **
-**   name=X        The hash of the first post of the thread.  REQUIRED
+**   name=X        REQUIRED.  The hash of the post to display
+**   t             Show a chronologic listing instead of hierarchical
+*/
+void forumpost_page(void){
+  forumthread_page();
+}
+
+/*
+** WEBPAGE: forumthread
+**
+** Show all forum messages associated with a particular message thread.
+** The result is basically the same as /forumpost except that none of
+** the postings in the thread are selected.
+**
+** Query parameters:
+**
+**   name=X        REQUIRED.  The hash of any post of the thread.
 **   t             Show a chronologic listing instead of hierarchical
 */
 void forumthread_page(void){
@@ -474,14 +493,15 @@ void forumthread_page(void){
   if( froot==0 ){
     webpage_error("Not a forum post: \"%s\"", zName);
   }
+  if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
   if( P("t") ){
     if( g.perm.Debug ){
-      style_submenu_element("Hierarchical", "%R/forumthread/%s", zName);
+      style_submenu_element("Hierarchical", "%R/%s/%s", g.zPath, zName);
     }                          
     forum_display_chronological(froot, fpid);
   }else{
     if( g.perm.Debug ){
-      style_submenu_element("Chronological", "%R/forumthread/%s?t", zName);
+      style_submenu_element("Chronological", "%R/%s/%s?t", g.zPath, zName);
     }                          
     forum_display_hierarchical(froot, fpid);
   }
@@ -589,7 +609,7 @@ static int forum_post(
     return 0;
   }else{
     int nrid = wiki_put(&x, 0, forum_need_moderation());
-    cgi_redirectf("%R/forumthread/%S", rid_to_uuid(nrid));
+    cgi_redirectf("%R/forumpost/%S", rid_to_uuid(nrid));
     return 1;
   }
 }
@@ -683,19 +703,19 @@ void forumedit_page(void){
     webpage_error("Missing or invalid fpid query parameter");
   }
   if( P("cancel") ){
-    cgi_redirectf("%R/forumthread/%S",P("fpid"));
+    cgi_redirectf("%R/forumpost/%S",P("fpid"));
     return;
   }
   isCsrfSafe = cgi_csrf_safe(1);
   if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
       moderation_approve(fpid);
-      cgi_redirectf("%R/forumthread/%S",P("fpid"));
+      cgi_redirectf("%R/forumpost/%S",P("fpid"));
       return;
     }
     if( P("reject") ){
       moderation_disapprove(fpid);
-      cgi_redirectf("%R/forumthread/%S",P("fpid"));
+      cgi_redirectf("%R/forumpost/%S",P("fpid"));
       return;
     }
   }
