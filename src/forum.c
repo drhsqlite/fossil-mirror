@@ -32,6 +32,7 @@ struct ForumEntry {
   int fprev;             /* zero if initial entry.  non-zero if an edit */
   int firt;              /* This entry replies to firt */
   int mfirt;             /* Root in-reply-to */
+  char *zUuid;           /* Artifact hash */
   ForumEntry *pLeaf;     /* Most recent edit for this entry */
   ForumEntry *pEdit;     /* This entry is an edit of pEditee */
   ForumEntry *pNext;     /* Next in chronological order */
@@ -58,6 +59,7 @@ static void forumthread_delete(ForumThread *pThread){
   ForumEntry *pEntry, *pNext;
   for(pEntry=pThread->pFirst; pEntry; pEntry = pNext){
     pNext = pEntry->pNext;
+    fossil_free(pEntry->zUuid);
     fossil_free(pEntry);
   }
   fossil_free(pThread);
@@ -117,20 +119,25 @@ static void forumthread_display_order(
 /*
 ** Construct a ForumThread object given the root record id.
 */
-static ForumThread *forumthread_create(int froot){
+static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumThread *pThread;
   ForumEntry *pEntry;
   Stmt q;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
-  db_prepare(&q, "SELECT fpid, firt, fprev FROM forumpost"
-                 " WHERE froot=%d ORDER BY fmtime", froot);
+  db_prepare(&q,
+     "SELECT fpid, firt, fprev, (SELECT uuid FROM blob WHERE rid=fpid)"
+     "  FROM forumpost"
+     " WHERE froot=%d ORDER BY fmtime",
+     froot
+  );
   while( db_step(&q)==SQLITE_ROW ){
     pEntry = fossil_malloc( sizeof(*pEntry) );
     memset(pEntry, 0, sizeof(*pEntry));
     pEntry->fpid = db_column_int(&q, 0);
     pEntry->firt = db_column_int(&q, 1);
     pEntry->fprev = db_column_int(&q, 2);
+    pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
     pEntry->mfirt = pEntry->firt;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
@@ -163,11 +170,13 @@ static ForumThread *forumthread_create(int froot){
     }
   }
 
-  /* Compute the display order */
-  pEntry = pThread->pFirst;
-  pEntry->nIndent = 1;
-  forumentry_add_to_display(pThread, pEntry);
-  forumthread_display_order(pThread, pEntry, pEntry->fpid, 2);
+  if( computeHierarchy ){
+    /* Compute the hierarchical display order */
+    pEntry = pThread->pFirst;
+    pEntry->nIndent = 1;
+    forumentry_add_to_display(pThread, pEntry);
+    forumthread_display_order(pThread, pEntry, pEntry->fpid, 2);
+  }
 
   /* Return the result */
   return pThread;
@@ -201,7 +210,7 @@ void forumthread_cmd(void){
   }
   fossil_print("fpid  = %d\n", fpid);
   fossil_print("froot = %d\n", froot);
-  pThread = forumthread_create(froot);
+  pThread = forumthread_create(froot, 1);
   fossil_print("Chronological:\n");
            /*   123456789 123456789 123456789 123456789 123456789  */
   fossil_print("     fpid      firt     fprev     mfirt     pLeaf\n");
@@ -258,46 +267,55 @@ void forum_render(
 ** Display all posts in a forum thread in chronological order
 */
 static void forum_display_chronological(int froot, int target){
-  Stmt q;
-  db_prepare(&q,
-      "SELECT fpid, fprev, firt, uuid, datetime(fmtime,'unixepoch')\n"
-      " FROM forumpost, blob\n"
-      " WHERE froot=%d AND rid=fpid\n"
-      " ORDER BY fmtime", froot);
-  while( db_step(&q)==SQLITE_ROW ){
-    int fpid = db_column_int(&q, 0);
-    int fprev = db_column_int(&q, 1);
-    int firt = db_column_int(&q, 2);
-    const char *zUuid = db_column_text(&q, 3);
-    const char *zDate = db_column_text(&q, 4);
-    Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
+  ForumThread *pThread = forumthread_create(froot, 0);
+  ForumEntry *p;
+  for(p=pThread->pFirst; p; p=p->pNext){
+    char *zDate;
+    Manifest *pPost;
+
+    pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
-    if( fpid==target ){
-      @ <div id="forum%d(fpid)" class="forumTime forumSel">
+    if( p->fpid==target ){
+      @ <div id="forum%d(p->fpid)" class="forumTime forumSel">
+    }else if( p->pLeaf!=0 ){
+      @ <div id="forum%d(p->fpid)" class="forumTime forumObs">
     }else{
-      @ <div id="forum%d(fpid)" class="forumTime">
+      @ <div id="forum%d(p->fpid)" class="forumTime">
     }
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
-    @ <p>By %h(pPost->zUser) on %h(zDate) (%d(fpid))
-    if( fprev ){
-      @ edit of %d(fprev)
+    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+    @ <p>By %h(pPost->zUser) on %h(zDate) (%d(p->fpid))
+    fossil_free(zDate);
+    if( p->pEdit ){
+      @ edit of %z(href("%R/forumthread/%S?t",p->pEdit->zUuid))%d(p->fprev)</a>
     }
-    if( firt ){
-      @ reply to %d(firt)
+    if( p->firt ){
+      ForumEntry *pIrt = p->pPrev;
+      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
+      if( pIrt ){
+        @ reply to %z(href("%R/forumthread/%S?t",pIrt->zUuid))%d(p->firt)</a>
+      }
+    }
+    if( p->pLeaf ){
+      @ updated by %z(href("%R/forumthread/%S?t",p->pLeaf->zUuid))\
+      @ %d(p->pLeaf->fpid)</a>
     }
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(zUuid)">artifact</a></span>
+      @ <a href="%R/artifact/%h(p->zUuid)">artifact</a></span>
+    }
+    if( p->fpid!=target ){
+      @ %z(href("%R/forumthread/%S?t",p->zUuid))[link]</a>
     }
     forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
-    if( g.perm.WrForum ){
+    if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      int isPrivate = content_is_private(fpid);
+      int isPrivate = content_is_private(p->fpid);
       @ <p><form action="%R/forumedit" method="POST">
-      @ <input type="hidden" name="fpid" value="%s(zUuid)">
+      @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
         /* Reply and Edit are only available if the post has already
         ** been approved */
@@ -321,7 +339,7 @@ static void forum_display_chronological(int froot, int target){
     manifest_destroy(pPost);
     @ </div>
   }
-  db_finalize(&q);
+  forumthread_delete(pThread);
 }
 
 /*
@@ -332,11 +350,11 @@ static int forum_display_hierarchical(int froot, int target){
   ForumEntry *p;
   Manifest *pPost, *pOPost;
   int fpid;
+  const char *zUuid;
   char *zDate;
-  char *zUuid;
   const char *zSel;
 
-  pThread = forumthread_create(froot);
+  pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
     if( p->fpid==target ){
       while( p->pEdit ) p = p->pEdit;
@@ -348,9 +366,11 @@ static int forum_display_hierarchical(int froot, int target){
     pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( p->pLeaf ){
       fpid = p->pLeaf->fpid;
+      zUuid = p->pLeaf->zUuid;
       pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     }else{
       fpid = p->fpid;
+      zUuid = p->zUuid;
       pPost = pOPost;
     }
     zSel = p->fpid==target ? " forumSel" : "";
@@ -368,10 +388,9 @@ static int forum_display_hierarchical(int froot, int target){
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
     @ <p>By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
-    zUuid = rid_to_uuid(p->fpid);
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(zUuid)">(%d(p->fpid))</a></span>
+      @ <a href="%R/artifact/%h(p->zUuid)">(%d(p->fpid))</a></span>
     }
     if( p->pLeaf ){
       zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
@@ -381,13 +400,14 @@ static int forum_display_hierarchical(int froot, int target){
         @ as edited by %h(pPost->zUser) on %h(zDate)
       }
       fossil_free(zDate);
-      fossil_free(zUuid);
-      zUuid = rid_to_uuid(fpid);
       if( g.perm.Debug ){
         @ <span class="debug">\
-        @ <a href="%R/artifact/%h(zUuid)">(%d(fpid))</a></span>
+        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">(%d(fpid))</a></span>
       }
       manifest_destroy(pOPost);
+    }
+    if( fpid!=target ){
+      @ %z(href("%R/forumthread/%S",zUuid))[link]</a>
     }
     forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
     if( g.perm.WrForum ){
@@ -417,7 +437,6 @@ static int forum_display_hierarchical(int froot, int target){
       @ </form></p>
     }
     manifest_destroy(pPost);
-    fossil_free(zUuid);
     @ </div>
   }
   forumthread_delete(pThread);
@@ -432,6 +451,7 @@ static int forum_display_hierarchical(int froot, int target){
 ** Query parameters:
 **
 **   name=X        The hash of the first post of the thread.  REQUIRED
+**   t             Show a chronologic listing instead of hierarchical
 */
 void forumthread_page(void){
   int fpid;
@@ -463,7 +483,7 @@ void forumthread_page(void){
     if( g.perm.Debug ){
       style_submenu_element("Chronological", "%R/forumthread/%s?t", zName);
     }                          
-    fpid = forum_display_hierarchical(froot, fpid);
+    forum_display_hierarchical(froot, fpid);
   }
   style_load_js("forum.js");
   style_footer();

@@ -692,3 +692,6 @@ div.forumHier, div.forumTime {
 div.forumSel {
   background-color: #cef;
 }
+div.forumObs {
+  color: #bbb;
+}
