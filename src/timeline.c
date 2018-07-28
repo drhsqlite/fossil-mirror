@@ -1483,7 +1483,7 @@ void page_timeline(void){
     p_rid = d_rid = pd_rid;
   }
   login_check_credentials();
-  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki)
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectOnly && !g.perm.Setup)
   ){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
