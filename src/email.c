@@ -2053,7 +2053,7 @@ void email_send_alerts(u32 flags){
     int nHit = 0;
     for(p=pEvents; p; p=p->pNext){
       if( strchr(zSub,p->type)==0 ) continue;
-      if( strchr(zSub,'s')!=0 || strchr(zSub,'a')!=0 ){
+      if( strchr(zCap,'s')!=0 || strchr(zCap,'a')!=0 ){
         /* Setup and admin users can get any notification */
       }else{
         char xType = '*';
@@ -2063,7 +2063,7 @@ void email_send_alerts(u32 flags){
           case 't':  xType = 'r';  break;
           case 'w':  xType = 'j';  break;
         }
-        if( strchr(zSub,xType)==0 ) continue;
+        if( strchr(zCap,xType)==0 ) continue;
       }
       if( nHit==0 ){
         blob_appendf(&hdr,"To: <%s>\r\n", zEmail);
