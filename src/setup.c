@@ -369,7 +369,7 @@ static void setup_usercap_table(void){
      @   <td><i>Forum-Moderator:</i> Approve or disapprove forum posts</td></tr>
      @ <tr><th valign="top">6</th>
      @   <td><i>Forum-Supervisor:</i> \
-     @ Forum administrator
+     @ Forum administrator: Set or remove capability "4" for other users
      @ <tr><th valign="top">7</th>
      @   <td><i>Email-Alerts:</i> Sign up for email nofications</td></tr>
      @ <tr><th valign="top">A</th>

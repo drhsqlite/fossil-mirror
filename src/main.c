@@ -92,7 +92,7 @@ struct FossilUserPerms {
   char WrForum;          /* 3: Create new forum posts */
   char WrTForum;         /* 4: Post to forums not subject to moderation */
   char ModForum;         /* 5: Moderate (approve or reject) forum posts */
-  char AdminForum;       /* 6: Edit forum posts by other users */
+  char AdminForum;       /* 6: Set or remove capability 4 on other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
   char Debug;            /* D: show extra Fossil debugging features */

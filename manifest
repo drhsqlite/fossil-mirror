@@ -1,5 +1,5 @@
-C Improvements\sto\serror\sdetection\sand\sreporting\sin\sthe\sartifact\sparser.\nAdd\sthe\stest-parse-all-blobs\scommand\sfor\sverifying\sthe\sartifact\sparser\nagainst\shistorical\srepositories.
-D 2018-07-30T14:14:33.876
+C Add\snew\ssecurity-audit\schecks\sfor\sforum\sand\s"Announce"\sprivileges.
+D 2018-07-30T16:01:59.641
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -511,7 +511,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 301e9699d9af68d4056b777a461611b224be758d3fc3d4d97eeefd2ed2240082
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 5cd3476bb2a9b6e41fc5abe18d38a571e3ec49ebbfb0cfed0501249ebb9bb8d5
+F src/main.c decf952edeedbb79c4e37c74ec876d62663a73bd04d501cb47f4b1f0626bae84
 F src/main.mk f6f799ce51c54f50d8cc2dc63670ed5bb267de7f53ba6a05ba9ab2b964a65a46
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -547,8 +547,8 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c a46e8bb2f6fe513c47ab7014b97858b7ba7ab32677f7ba0b3c979db999be0113
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
-F src/security_audit.c 3366c625a0d797253b612b8eaa028bbb40d6dae80295a7dbe3766b6d1aa22e61
-F src/setup.c 0c24101cb9d3878150ce2798d31492448509b5619a68bacea2159a8ff28fcc89
+F src/security_audit.c 64df87e37b1e3885e93751d7cb6a2e2af392b56d9c0263cd83022f9af85f5035
+F src/setup.c c9fdd9209bfdbff96f4c72d3599a42e7f156a8595f2f1f2e65193fca72519471
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb50f0dce86d1793af17ed59458ba0b232bb3264e749b216a7ce80d97793d31c
-R 604b6b88900ddd0fdf571e281b62997c
+P d2d1a86fa29f12a69735c90478d3638d4d50383d7134069dd5c7fe21c717cacb
+R 9e710065828500729ab711731aad3933
 U drh
-Z e9c51b2d7a0e1b366d376e3399f2d0d5
+Z 5b3e6601088309dac26f72fb7aa3c91a
