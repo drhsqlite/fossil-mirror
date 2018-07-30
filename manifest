@@ -1,5 +1,5 @@
-C Merge\sbackoffice\senhancements\sfrom\strunk.
-D 2018-07-30T13:34:06.307
+C Improvements\sto\serror\sdetection\sand\sreporting\sin\sthe\sartifact\sparser.\nAdd\sthe\stest-parse-all-blobs\scommand\sfor\sverifying\sthe\sartifact\sparser\nagainst\shistorical\srepositories.
+D 2018-07-30T14:14:33.876
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -516,7 +516,7 @@ F src/main.mk f6f799ce51c54f50d8cc2dc63670ed5bb267de7f53ba6a05ba9ab2b964a65a46
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 1e9b11c36f4a674ad5391ed7c6d3c3e94a531600346106b4dd5d8053d3915f17
-F src/manifest.c 2fc05bd6cea689d1f088cd4831d4e44570a5278a56ec2eeab804dd09d5bf5822
+F src/manifest.c 42ce0a809193a8c08c4dd570d9a4788520c739dd5f1db99c0578aeb6ac38c999
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 327c51b4230e22e0557cf03435b023b8cbcad340ffa6118074e68314e9dc3834 07356e44c1a8cf7bee5617dfb692bb3f9149899ffe8ea7dbcaf2f9df259b8514
-R 9259fc9a6cdaecd828655bbbd915c554
+P bb50f0dce86d1793af17ed59458ba0b232bb3264e749b216a7ce80d97793d31c
+R 604b6b88900ddd0fdf571e281b62997c
 U drh
-Z a0ae18299271d0fd0e29b16fac117c15
+Z e9c51b2d7a0e1b366d376e3399f2d0d5

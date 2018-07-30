@@ -423,7 +423,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int n;
   char *zUuid;
   int sz = 0;
-  int isRepeat, hasSelfRefTag = 0;
+  int isRepeat;
+  int nSelfTag = 0;     /* Number of T cards referring to this manifest */
+  int nSimpleTag = 0;   /* Number of T cards with "+" prefix */
   static Bag seen;
   const char *zErr = 0;
   unsigned int m;
@@ -884,13 +886,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zValue ) defossilize(zValue);
         if( hname_validate(zUuid, sz) ){
           /* A valid artifact hash */
-          if( p->zEventId ) SYNTAX("non-self-referential T-card in technote");
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
-          hasSelfRefTag = 1;
-          if( p->zEventId && zName[0]!='+' ){
-            SYNTAX("propagating T-card in event");
-          }
+          nSelfTag++;
         }else{
           SYNTAX("malformed artifact hash on T-card");
         }
@@ -898,6 +896,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' ){
           SYNTAX("T-card name does not begin with '-', '+', or '*'");
         }
+        if( zName[0]=='+' ) nSimpleTag++;
         if( validate16(&zName[1], strlen(&zName[1])) ){
           /* Do not allow tags whose names look like a hash */
           SYNTAX("T-card name looks like a hexadecimal hash");
@@ -1020,6 +1019,19 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
   /* Additional checks based on artifact type */
   switch( p->type ){
+    case CFTYPE_CONTROL: {
+      if( nSelfTag ) SYNTAX("self-referential T-card in control artifact");
+      break;
+    }
+    case CFTYPE_EVENT: {
+      if( p->nTag!=nSelfTag ){
+        SYNTAX("non-self-referential T-card in technote");
+      }
+      if( p->nTag!=nSimpleTag ){
+        SYNTAX("T-card with '*' or '-' in technote");
+      }
+      break;
+    }
     case CFTYPE_FORUM: {
       if( p->zThreadTitle && p->zInReplyTo ){
         SYNTAX("cannot have I-card and H-card in a forum post");
@@ -1101,7 +1113,8 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 **
 ** Usage: %fossil test-parse-manifest FILENAME ?N?
 **
-** Parse the manifest and discarded.  Use for testing only.
+** Parse the manifest(s) given on the command-line and report any
+** errors.  If the N argument is given, run the parsing N times.
 */
 void manifest_test_parse_cmd(void){
   Manifest *p;
@@ -1124,6 +1137,43 @@ void manifest_test_parse_cmd(void){
     blob_reset(&err);
     manifest_destroy(p);
   }
+}
+
+/*
+** COMMAND: test-parse-all-blobs
+**
+** Usage: %fossil test-parse-all-blobs
+**
+** Parse all entries in the BLOB table that are believed to be non-data
+** artifacts and report any errors.  Run this test command on historical
+** repositories after making any changes to the manifest_parse()
+** implementation to confirm that the changes did not break anything.
+*/
+void manifest_test_parse_all_blobs_cmd(void){
+  Manifest *p;
+  Blob err;
+  Stmt q;
+  int nTest = 0;
+  int nErr = 0;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  db_prepare(&q, "SELECT DISTINCT objid FROM EVENT");
+  while( db_step(&q)==SQLITE_ROW ){
+    int id = db_column_int(&q,0);
+    fossil_print("Checking %d       \r", id);
+    nTest++;
+    fflush(stdout);
+    blob_init(&err, 0, 0);
+    p = manifest_get(id, CFTYPE_ANY, &err);
+    if( p==0 ){
+      fossil_print("%d ERROR: %s\n", id, blob_str(&err));
+      nErr++;
+    }
+    blob_reset(&err);
+    manifest_destroy(p);
+  }
+  db_finalize(&q);
+  fossil_print("%d tests with %d errors\n", nTest, nErr);
 }
 
 /*
@@ -2468,7 +2518,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   if( p->type==CFTYPE_FORUM ){
     int froot, fprev, firt;
     char *zFType;
-    const char *zTitle;
+    char *zTitle;
     schema_forum();
     froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
