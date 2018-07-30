@@ -75,7 +75,6 @@ static void db_err(const char *zFormat, ...){
   static int rcLooping = 0;
   va_list ap;
   char *z;
-  int rc = 1;
   if( rcLooping ) exit(rcLooping);
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
@@ -89,22 +88,12 @@ static void db_err(const char *zFormat, ...){
   }
   else
 #endif /* FOSSIL_ENABLE_JSON */
-  if( g.xferPanic ){
+  if( g.xferPanic && g.cgiOutput==1 ){
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
-      cgi_reply();
-  }
-  else if( g.cgiOutput ){
-    g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
-  }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
-  free(z);
-  rcLooping = rc;
-  db_force_rollback();
-  fossil_exit(rc);
+  fossil_panic("Database error: %s", z);
 }
 
 /*
