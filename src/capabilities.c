@@ -274,3 +274,86 @@ void capabilities_table(void){
      @   <td><i>Debug:</i> Enable debugging features</td></tr>
   @ </table>
 }
+
+/*
+** Generate a "capability summary table" that shows the major capabilities
+** against the various user categories.
+*/
+void capability_summary(void){
+  Stmt q;
+  db_prepare(&q,
+    "WITH t(id,seq) AS (VALUES('nobody',1),('anonymous',2),('reader',3),"
+                       "('developer',4))"
+    " SELECT id, fullcap(user.cap),seq FROM t LEFT JOIN user ON t.id=user.login"
+    " UNION ALL"
+    " SELECT 'Regular Users', fullcap(capunion(cap)), 5 FROM user"
+    " WHERE cap NOT GLOB '*[as]*'"
+    " UNION ALL"
+    " SELECT 'Admins', fullcap(capunion(cap)), 6 FROM user"
+    " WHERE cap GLOB '*[as]*'"
+    " ORDER BY 3 ASC"
+  );
+  @ <table id='capabilitySummary' cellpadding="0" cellspacing="0" border="1">
+  @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki\
+  @ <th>Unversioned Content</th></tr>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zId = db_column_text(&q, 0);
+    const char *zCap = db_column_text(&q, 1);
+    int eType;
+    static const char *azType[] = { "off", "read", "write" };
+
+    /* Code */
+    @ <tr><th align="right">%h(zId)</th>
+    if( sqlite3_strglob("*[asi]*",zCap)==0 ){
+      eType = 2;
+    }else if( sqlite3_strglob("*[oz]*",zCap)==0 ){
+      eType = 1;
+    }else{
+      eType = 0;
+    }
+    @ <td>%s(azType[eType])</td>
+
+    /* Forum */
+    if( sqlite3_strglob("*[as3456]*",zCap)==0 ){
+      eType = 2;
+    }else if( sqlite3_strglob("*2*",zCap)==0 ){
+      eType = 1;
+    }else{
+      eType = 0;
+    }
+    @ <td>%s(azType[eType])</td>
+
+    /* Ticket */
+    if( sqlite3_strglob("*[ascdnqtw]*",zCap)==0 ){
+      eType = 2;
+    }else if( sqlite3_strglob("*r*",zCap)==0 ){
+      eType = 1;
+    }else{
+      eType = 0;
+    }
+    @ <td>%s(azType[eType])</td>
+
+    /* Wiki */
+    if( sqlite3_strglob("*[asdfjlm]*",zCap)==0 ){
+      eType = 2;
+    }else if( sqlite3_strglob("*j*",zCap)==0 ){
+      eType = 1;
+    }else{
+      eType = 0;
+    }
+    @ <td>%s(azType[eType])</td>
+
+    /* Unversioned */
+    if( sqlite3_strglob("*y*",zCap)==0 ){
+      eType = 2;
+    }else if( sqlite3_strglob("*o*",zCap)==0 ){
+      eType = 1;
+    }else{
+      eType = 0;
+    }
+    @ <td>%s(azType[eType])</td>
+
+  }
+  db_finalize(&q);
+  @ </table>
+}

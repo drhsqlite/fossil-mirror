@@ -695,3 +695,10 @@ div.forumSel {
 div.forumObs {
   color: #bbb;
 }
+#capabilitySummary {
+  text-align: center;
+}
+#capabilitySummary td {
+  padding-left: 3ex;
+  padding-right: 3ex;
+}

@@ -385,6 +385,9 @@ void secaudit0_page(void){
     }
   }
 
+  @ <li><p> User capability summary:
+  capability_summary();
+
   @ </ol>
   style_footer();
 }
