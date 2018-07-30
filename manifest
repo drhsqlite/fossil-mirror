@@ -1,5 +1,5 @@
-C Add\snew\ssecurity-audit\schecks\sfor\sforum\sand\s"Announce"\sprivileges.
-D 2018-07-30T16:01:59.641
+C Invoke\sabort()\safter\sa\scall\sto\sfossil_panic(),\snot\sexit(1).\s\sThis\swill\sleave\na\score\sfile\sif\sthe\ssystem\sis\scorrectly\sconfigured.\s\sAlso\sshow\sthe\spanic\son\ndebugging\slogs.
+D 2018-07-30T16:44:11.392
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -536,7 +536,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 44d0236d6feb11f8c410c217d2cab1ecda483c32d61d34d03e6237b5d2f9bf32
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 15ae8d3874b90f9ee498e27563251ff240d1aa537b5694d8bc7f1db20fbbcc68
+F src/printf.c 2976750b03c9a9b33d800cea66bb468088f35924c26b679193650afee00b1735
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d2d1a86fa29f12a69735c90478d3638d4d50383d7134069dd5c7fe21c717cacb
-R 9e710065828500729ab711731aad3933
+P 5d6fc9678d36bc6f1d76b8f62924022a89bb2f58d82f64c0cc03c968cf86605a
+R fcf7f64c1f9bba16973afc6f19398274
 U drh
-Z 5b3e6601088309dac26f72fb7aa3c91a
+Z 114b7c7ca4e9d774576f27e2ea9fc3a7
