@@ -60,7 +60,7 @@ void secaudit0_page(void){
   ** "Private" repos require (non-anonymous) login to access all content,
   ** though some content may be accessible anonymously.
   */
-  zAnonCap = db_text("", "SELECT group_concat(coalesce(cap,'')) FROM user"
+  zAnonCap = db_text("", "SELECT capunion(cap) FROM user"
                          " WHERE login IN ('anonymous','nobody')");
   zPubPages = db_get("public-pages",0);
   if( hasAnyCap(zAnonCap,"as") ){

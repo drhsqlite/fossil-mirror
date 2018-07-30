@@ -39,6 +39,7 @@ set src {
   builtin
   bundle
   cache
+  capabilities
   captcha
   cgi
   checkin

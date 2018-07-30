@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright (c) 2018 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -16,7 +16,12 @@
 *******************************************************************************
 **
 ** Logic for email notification, also known as "alerts".
-*/
+**
+** Are you looking for the code that reads and writes the internet
+** email protocol?  That is not here.  See the "smtp.c" file instead.
+** Yes, the choice of source code filenames is not the greatest, but
+** it is not so bad that changing them seems justified.
+*/ 
 #include "config.h"
 #include "email.h"
 #include <assert.h>
@@ -1786,7 +1791,7 @@ void subscriber_list_page(void){
 ** instance of the following object.
 */
 struct EmailEvent {
-  int type;          /* 'c', 't', 'w', etc. */
+  int type;          /* 'c', 't', 'w', 'f' */
   Blob txt;          /* Text description to appear in an alert */
   EmailEvent *pNext; /* Next in chronological order */
 };
@@ -2033,7 +2038,8 @@ void email_send_alerts(u32 flags){
      "SELECT"
      " hex(subscriberCode),"  /* 0 */
      " semail,"               /* 1 */
-     " ssub"                  /* 2 */
+     " ssub,"                 /* 2 */
+     " fullcap((SELECT cap FROM user WHERE login=suname))"  /* 3 */
      " FROM subscriber"
      " WHERE sverified AND NOT sdonotcall"
      "  AND sdigest IS %s",
@@ -2043,9 +2049,22 @@ void email_send_alerts(u32 flags){
     const char *zCode = db_column_text(&q, 0);
     const char *zSub = db_column_text(&q, 2);
     const char *zEmail = db_column_text(&q, 1);
+    const char *zCap = db_column_text(&q, 3);
     int nHit = 0;
     for(p=pEvents; p; p=p->pNext){
       if( strchr(zSub,p->type)==0 ) continue;
+      if( strchr(zSub,'s')!=0 || strchr(zSub,'a')!=0 ){
+        /* Setup and admin users can get any notification */
+      }else{
+        char xType = '*';
+        switch( p->type ){
+          case 'c':  xType = 'o';  break;
+          case 'f':  xType = '2';  break;
+          case 't':  xType = 'r';  break;
+          case 'w':  xType = 'j';  break;
+        }
+        if( strchr(zSub,xType)==0 ) continue;
+      }
       if( nHit==0 ){
         blob_appendf(&hdr,"To: <%s>\r\n", zEmail);
         blob_appendf(&hdr,"Subject: %s activity alert\r\n", zRepoName);

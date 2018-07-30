@@ -392,6 +392,7 @@ SRC   = add_.c \
         builtin_.c \
         bundle_.c \
         cache_.c \
+        capabilities_.c \
         captcha_.c \
         cgi_.c \
         checkin_.c \
@@ -597,6 +598,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\builtin$O \
         $(OX)\bundle$O \
         $(OX)\cache$O \
+        $(OX)\capabilities$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
         $(OX)\checkin$O \
@@ -791,6 +793,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\builtin.obj >> $@
 	echo $(OX)\bundle.obj >> $@
 	echo $(OX)\cache.obj >> $@
+	echo $(OX)\capabilities.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
 	echo $(OX)\checkin.obj >> $@
@@ -1106,6 +1109,12 @@ $(OX)\cache$O : cache_.c cache.h
 	$(TCC) /Fo$@ -c cache_.c
 
 cache_.c : $(SRCDIR)\cache.c
+	translate$E $** > $@
+
+$(OX)\capabilities$O : capabilities_.c capabilities.h
+	$(TCC) /Fo$@ -c capabilities_.c
+
+capabilities_.c : $(SRCDIR)\capabilities.c
 	translate$E $** > $@
 
 $(OX)\captcha$O : captcha_.c captcha.h
@@ -1850,6 +1859,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			builtin_.c:builtin.h \
 			bundle_.c:bundle.h \
 			cache_.c:cache.h \
+			capabilities_.c:capabilities.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \
 			checkin_.c:checkin.h \
