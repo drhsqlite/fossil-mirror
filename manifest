@@ -1,5 +1,5 @@
-C Add\sthe\s'D'\sDebug\suser\scapability.\s\sThis\sis\sdesigned\sto\sshow\sadditional\ninformation\sand\scontrols\son\swebpages\sfor\sdebugging\spurposes.\s\sAlso\stake\nsteps\sto\savoid\strying\sto\sgenerate\sa\swebpage\serror\smessage\safter\sthe\swebpage\nhas\salready\sgone\sout.
-D 2018-07-25T13:20:15.431
+C Backoffice\sprocessing\simprovements:\s\sSet\sa\stimer\son\sthe\sbackoffice\sto\sprevent\nit\sfrom\srunning\stoo\slong.\s\sReport\serrors\son\sfailed\sattempts\sto\sopen\n/dev/null.\s\sUse\s"NUL"\sinstead\sof\s"/dev/null"\son\sWindows.
+D 2018-07-30T13:25:56.079
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c e1f2954ba7da8a4f40705124c48a422de031e171174e549e61c0fbfc55e1c345
+F src/backoffice.c ca05047462ccc84f87cdffe1d09d05cbab24afdb0cf157946cd7ffff753f9ffe
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -439,7 +439,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c 7a476ad7e188e96d5d16e0ccc95cbff09c4f2ae14348b7b9bc0d7cdd04d2317a
+F src/cgi.c 1bed0616401fb1d660b03b80d91bbea0bcf25601ef492da2525d331b7acc9193
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -510,7 +510,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c f470e301fc95a5643ea451bdee5b20cd833726a558b9ddf913f094763ab2f8d2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c e0cb269da4a246b899c4da8f1af1cc9f955ba7e5278dae481080a4b690ce935f
+F src/main.c 5c4ad2d026608a45578c5a313a555331d52bdd063361c420d18900e5b908a18d
 F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58bf02d1273e386086503360b95e1e56a26ce3732f16c517b2e3f6e09f5f905d
-R c2594f642942ad88bf6625e1ba2d6236
+P fd3198322a6f902a38dcabdea1663de940ce017b3daf658ffad548f5f3f19f9b
+R 59f2992d22f3719b0533da2c50019631
 U drh
-Z 18e39edf412afd695d7178678019cd56
+Z b8ce982c0a059fccec1d22f26fce6b2e

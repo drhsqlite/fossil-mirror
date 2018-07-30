@@ -348,8 +348,16 @@ void cgi_reply(void){
   g.cgiOutput = 2;
   if( g.db!=0 && iReplyStatus==200 ){
     fclose(g.httpOut);
+#ifdef _WIN32
+    g.httpOut = fossil_fopen("NUL", "wb");
+#else
     g.httpOut = fossil_fopen("/dev/null", "wb");
-    backoffice_run();
+#endif
+    if( g.httpOut==0 ){
+      fossil_warning("failed ot open /dev/null");
+    }else{
+      backoffice_run();
+    }
   }
 }
 

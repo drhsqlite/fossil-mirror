@@ -44,6 +44,7 @@
 #if defined(_WIN32)
 # include <windows.h>
 #else
+# include <unistd.h>
 # include <sys/types.h>
 # include <signal.h>
 #endif
@@ -168,6 +169,24 @@ static sqlite3_uint64 backofficeProcessId(void){
 }
 
 /*
+** Set an alarm to cause the process to exit after "x" seconds.  This
+** prevents any kind of bug from keeping a backoffice process running
+** indefinitely.
+*/
+#if !defined(_WIN32)
+static void backofficeSigalrmHandler(int x){
+  fossil_panic("backoffice timeout");
+}
+#endif
+static void backofficeTimeout(int x){
+#if !defined(_WIN32)
+  signal(SIGALRM, backofficeSigalrmHandler);
+  alarm(x);
+#endif
+}
+
+
+/*
 ** COMMAND: test-process-id
 **
 ** Usage: %fossil [--sleep N] PROCESS-ID ...
@@ -216,6 +235,7 @@ void backoffice_run(void){
     fossil_panic("transaction %s not closed prior to backoffice processing",
                  db_transaction_start_point());
   }
+  backofficeTimeout(BKOFCE_LEASE_TIME*2);
   idSelf = backofficeProcessId();
   while(1){
     tmNow = time(0);
@@ -259,6 +279,9 @@ void backoffice_run(void){
     x.tmNext = (tmNow>x.tmCurrent ? tmNow : x.tmCurrent) + BKOFCE_LEASE_TIME;
     backofficeWriteLease(&x);
     db_end_transaction(0);
+    if( g.fAnyTrace ){
+      fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  getpid());
+    }
     if( x.tmCurrent >= tmNow ){
       sqlite3_sleep(1000*(x.tmCurrent - tmNow + 1));
     }else{
