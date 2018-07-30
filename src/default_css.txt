@@ -702,3 +702,16 @@ div.forumObs {
   padding-left: 3ex;
   padding-right: 3ex;
 }
+#capabilitySummary th {
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
+.capsumOff {
+  background-color: #bbb;
+}
+.capsumRead {
+  background-color: #bfb;
+}
+.capsumWrite {
+  background-color: #ffb;
+}

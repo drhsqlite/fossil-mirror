@@ -301,6 +301,7 @@ void capability_summary(void){
     const char *zCap = db_column_text(&q, 1);
     int eType;
     static const char *azType[] = { "off", "read", "write" };
+    static const char *azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
 
     /* Code */
     @ <tr><th align="right">%h(zId)</th>
@@ -311,7 +312,7 @@ void capability_summary(void){
     }else{
       eType = 0;
     }
-    @ <td>%s(azType[eType])</td>
+    @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Forum */
     if( sqlite3_strglob("*[as3456]*",zCap)==0 ){
@@ -321,7 +322,7 @@ void capability_summary(void){
     }else{
       eType = 0;
     }
-    @ <td>%s(azType[eType])</td>
+    @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Ticket */
     if( sqlite3_strglob("*[ascdnqtw]*",zCap)==0 ){
@@ -331,7 +332,7 @@ void capability_summary(void){
     }else{
       eType = 0;
     }
-    @ <td>%s(azType[eType])</td>
+    @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Wiki */
     if( sqlite3_strglob("*[asdfjlm]*",zCap)==0 ){
@@ -341,7 +342,7 @@ void capability_summary(void){
     }else{
       eType = 0;
     }
-    @ <td>%s(azType[eType])</td>
+    @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Unversioned */
     if( sqlite3_strglob("*y*",zCap)==0 ){
@@ -351,7 +352,7 @@ void capability_summary(void){
     }else{
       eType = 0;
     }
-    @ <td>%s(azType[eType])</td>
+    @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
   }
   db_finalize(&q);
