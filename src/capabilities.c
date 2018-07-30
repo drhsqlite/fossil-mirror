@@ -72,6 +72,20 @@ CapabilityString *capability_remove(CapabilityString *pIn, const char *zCap){
 }
 
 /*
+** Return true if any of the capabilities in zNeeded are found in pCap
+*/
+int capability_has_any(CapabilityString *p, const char *zNeeded){
+  if( p==0 ) return 0;
+  if( zNeeded==0 ) return 0;
+  while( zNeeded[0] ){
+    int c = zNeeded[0];
+    if( fossil_isalnum(c) && p->x[c] ) return 1;
+    zNeeded++;
+  }
+  return 0;
+}
+
+/*
 ** Delete a CapabilityString object.
 */
 void capability_free(CapabilityString *p){

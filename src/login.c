@@ -474,6 +474,24 @@ int referred_from_login(void){
 }
 
 /*
+** Return TRUE if self-registration is available.  If the zNeeded
+** argument is not NULL, then only return true if self-registration is
+** available and any of the capabilities named in zNeeded are available
+** to self-registered users.
+*/
+int login_self_register_available(const char *zNeeded){
+  CapabilityString *pCap;
+  int rc;
+  if( !db_get_boolean("self-register",0) ) return 0;
+  if( zNeeded==0 ) return 1;
+  pCap = capability_add(0, db_get("default-perms",""));
+  capability_expand(pCap);
+  rc = capability_has_any(pCap, zNeeded);
+  capability_free(pCap);
+  return rc;
+}
+
+/*
 ** There used to be a page named "my" that was designed to show information
 ** about a specific user.  The "my" page was linked from the "Logged in as USER"
 ** line on the title bar.  The "my" page was never completed so it is now
@@ -536,6 +554,12 @@ void login_page(void){
   if( P("out") ){
     login_clear_login_data();
     redirect_to_g();
+    return;
+  }
+
+  /* Redirect for create-new-account requests */
+  if( P("self") ){
+    cgi_redirectf("%R/register");
     return;
   }
 
@@ -677,7 +701,7 @@ void login_page(void){
       @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
     }
     if( P("HTTPS")==0 ){
-      @ <td width="15"><td rowspan="3">
+      @ <td width="15"><td rowspan="2">
       @ <p class='securityWarning'>
       @ Warning: Your password will be sent in the clear over an
       @ unencrypted connection.
@@ -692,7 +716,7 @@ void login_page(void){
     @ </tr>
     @ <tr>
     @  <td class="form_label">Password:</td>
-    @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
     @ </tr>
     if( g.zLogin==0 && (anonFlag || zGoto==0) ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
@@ -701,14 +725,19 @@ void login_page(void){
     }
     @ <tr>
     @   <td></td>
-    @   <td><input type="submit" name="in" value="Login">
+    @   <td><input type="submit" name="in" value="Login"></td>
+    @   <td colspan="2">&larr; Pressing this button grants\
+    @   permission to store a cookie
     @ </tr>
-    @ </table>
-    @ <p>Pressing the Login button grants permission to store a cookie.</p>
-    if( db_get_boolean("self-register", 0) ){
-      @ <p>If you do not have an account, you can
-      @ <a href="%R/register?g=%T(P("G"))">create one</a>.
+    if( login_self_register_available(0) ){
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="self" value="Create A New Account">
+      @   <td colspan="2"> \
+      @   &larr; Don't have a login?  Click this button to create one.
+      @ </tr>
     }
+    @ </table>
     if( zAnonPw ){
       unsigned int uSeed = captcha_seed();
       const char *zDecoded = captcha_decode(uSeed);
