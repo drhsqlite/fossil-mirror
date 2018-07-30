@@ -2484,9 +2484,7 @@ static int binaryOnPath(const char *zBinary){
 ** Send a time-out reply
 */
 void sigalrm_handler(int x){
-  printf("TIMEOUT\n");
-  fflush(stdout);
-  exit(1);
+  fossil_panic("TIMEOUT");
 }
 
 /*
