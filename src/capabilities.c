@@ -284,14 +284,18 @@ void capability_summary(void){
   db_prepare(&q,
     "WITH t(id,seq) AS (VALUES('nobody',1),('anonymous',2),('reader',3),"
                        "('developer',4))"
-    " SELECT id, fullcap(user.cap),seq FROM t LEFT JOIN user ON t.id=user.login"
+    " SELECT id, fullcap(user.cap),seq,1"
+    "   FROM t LEFT JOIN user ON t.id=user.login"
     " UNION ALL"
-    " SELECT 'Regular Users', fullcap(capunion(cap)), 5 FROM user"
+    " SELECT 'New User Default', fullcap(%Q), 10, 1"
+    " UNION ALL"
+    " SELECT 'Regular User', fullcap(capunion(cap)), 20, count(*) FROM user"
     " WHERE cap NOT GLOB '*[as]*'"
     " UNION ALL"
-    " SELECT 'Admins', fullcap(capunion(cap)), 6 FROM user"
+    " SELECT 'Adminstator', fullcap(capunion(cap)), 30, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
-    " ORDER BY 3 ASC"
+    " ORDER BY 3 ASC",
+    db_get("default-perms","")
   );
   @ <table id='capabilitySummary' cellpadding="0" cellspacing="0" border="1">
   @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki\
@@ -299,12 +303,21 @@ void capability_summary(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zId = db_column_text(&q, 0);
     const char *zCap = db_column_text(&q, 1);
+    int n = db_column_int(&q, 3);
     int eType;
     static const char *azType[] = { "off", "read", "write" };
     static const char *azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
 
+    if( n==0 ) continue;
+
     /* Code */
-    @ <tr><th align="right">%h(zId)</th>
+    if( db_column_int(&q,2)<10 ){
+      @ <tr><th align="right"><tt>"%h(zId)"</tt></th>
+    }else if( n>1 ){
+      @ <tr><th align="right">%d(n) %h(zId)s</th>
+    }else{
+      @ <tr><th align="right">%h(zId)</th>
+    }
     if( sqlite3_strglob("*[asi]*",zCap)==0 ){
       eType = 2;
     }else if( sqlite3_strglob("*[oz]*",zCap)==0 ){
@@ -347,7 +360,7 @@ void capability_summary(void){
     /* Unversioned */
     if( sqlite3_strglob("*y*",zCap)==0 ){
       eType = 2;
-    }else if( sqlite3_strglob("*o*",zCap)==0 ){
+    }else if( sqlite3_strglob("*[ioas]*",zCap)==0 ){
       eType = 1;
     }else{
       eType = 0;
