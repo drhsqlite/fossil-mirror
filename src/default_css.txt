@@ -536,6 +536,10 @@ pre.th1error {
   word-wrap: break-word;
   color: red;
 }
+pre.textPlain {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 .statistics-report-graph-line {
   background-color: #446979;
 }

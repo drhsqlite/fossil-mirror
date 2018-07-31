@@ -169,7 +169,7 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
     @ %s(blob_str(&tail))
     blob_reset(&tail);
   }else{
-    @ <pre>
+    @ <pre class='textPlain'>
     @ %h(blob_str(pWiki))
     @ </pre>
   }
