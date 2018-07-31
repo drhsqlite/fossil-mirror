@@ -3029,6 +3029,12 @@ struct Setting {
 ** number of attempts if there is a sync failure.
 */
 /*
+** SETTING: backoffice-nodelay boolean default=off
+** If backoffice-nodelay is true, then the backoffice processing
+** will never invoke sleep().  If it has nothing useful to do,
+** it simply exits.
+*/
+/*
 ** SETTING: binary-glob     width=40 versionable block-text
 ** The VALUE of this setting is a comma or newline-separated list of
 ** GLOB patterns that should be treated as binary files
