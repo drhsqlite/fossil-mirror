@@ -388,6 +388,15 @@ void secaudit0_page(void){
   @ <li><p> User capability summary:
   capability_summary();
 
+  if( email_enabled() ){
+    @ <li><p> Email alert configuration summary:
+    @ <table class="label-value">
+    stats_for_email();
+    @ </table>
+  }else{
+    @ <li><p> Email alerts are disabled
+  }
+
   @ </ol>
   style_footer();
 }

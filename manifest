@@ -1,5 +1,5 @@
-C Add\sthe\s/forum\spage\swith\ssearch\sand\sa\slist\sof\srecent\sthreads.
-D 2018-07-31T04:08:22.705
+C Add\sthe\semail\salerts\sconfiguration\ssummary\sto\sthe\ssecurity\saudit\spage.
+D 2018-07-31T04:18:05.580
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -548,7 +548,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c a46e8bb2f6fe513c47ab7014b97858b7ba7ab32677f7ba0b3c979db999be0113
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
-F src/security_audit.c 631dd753d08d4294268f1b3d3211f55f109bf72c5ad838aee30550b0881352dd
+F src/security_audit.c fc83d40ecc75f9dc08f14df953677d79e226c04c0f46c8328affe12ce84d8fdd
 F src/setup.c d08a5235592f6ee87aebd0aee5b5fe5d4952dbb08de38b2258379b9fbb9ef79e
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3c1ba372e7687121298ea5e6edc03dd427d10d80d7b545c3430c814f3613818
-R 9259d2921a650b8d9a6546b44a901434
+P 05105248a1568220b61c85cbb271f9b08af570fa3f1f7e8b1a473b4bab92fa04
+R 7a664b19ee58591fad00b7dca95fe20b
 U drh
-Z 6753ce8b052fa41f56c224d8311bc593
+Z 56cbc3b9b58f179d4dfa075d5459c1ea
