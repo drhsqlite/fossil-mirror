@@ -3029,7 +3029,7 @@ struct Setting {
 ** number of attempts if there is a sync failure.
 */
 /*
-** SETTING: backoffice-nodelay boolean default=off
+** SETTING: backoffice-nodelay boolean default=on
 ** If backoffice-nodelay is true, then the backoffice processing
 ** will never invoke sleep().  If it has nothing useful to do,
 ** it simply exits.

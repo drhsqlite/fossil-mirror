@@ -1,5 +1,5 @@
-C Make\sthe\sbackoffice-nodelay\sa\ssetting\svisible\son\sthe\ssettings\sdisplay,\nand\smake\sit\son\sby\sdefault.\s\sThis\sis\sa\stemporary\sfix\sto\savoid\swebserver\nproblems\suntil\ssuch\stime\sas\sI\scan\sfigure\sout\swhat\sit\sis\sabout\sbackserver\nsleeping\sthat\sis\scausing\sthe\swebserver\sto\slatch\sup.
-D 2018-07-31T23:37:10.543
+C Make\sbackoffice-nodelay\sconsistently\sdefault\son.
+D 2018-07-31T23:38:39.648
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c914c293d355107d154c0829096fc49cd8cb9591cd9f4575c49f189be64b9527
+F src/db.c c9d418a077b980243e1e086c66721626b5d255848dffb40ccc67dd9e04bd1ca9
 F src/default_css.txt 6d167b97a147ed264a6fb9524391837b8d158df258a70674719af7c722e107a9
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 46697ca1951622905d5f829fd3e44e976bbabe0881b254ecd9a08031ec435ce5
-R 42227c4a36e8ae2eb8d24780a4dad83b
+P 2566a37efa5c93b42a67916b91458bebc2d984a66dac08efa9e84fc6170aaf58
+R e959bed63ea48f5e8453dff450081b8b
 U drh
-Z febb5df95db7c3c5be44c81ddf679fd5
+Z 88c3c318fc4466e951354e9b431159ca
