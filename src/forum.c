@@ -885,3 +885,54 @@ void forumedit_page(void){
   @ </form>
   style_footer();
 }
+
+/*
+** WEBPAGE: forum
+**
+** The main page for the forum feature.  Show a list of recent forum
+** threads.  Also show a search box at the top if search is enabled,
+** and a button for creating a new thread, if enabled.
+*/
+void forum_main_page(void){
+  Stmt q;
+  int iLimit, iOfst;
+  login_check_credentials();
+  sqlite3_int64 iNow = time(NULL);
+  if( !g.perm.RdForum ){
+    login_needed(g.anon.RdForum);
+    return;
+  }
+  style_header("Forum");
+  if( g.perm.WrForum ){
+    style_submenu_element("New Message","%R/forumnew");
+  }
+  if( search_screen(SRCH_FORUM, 0) ){
+    style_submenu_element("Recent Threads","%R/forum");
+    style_footer();
+    return;
+  }
+  iLimit = 50;
+  iOfst = 0;
+  @ <h1>Recent Threads</h1>
+  @ <div class='fileage'><table width="100%%">
+  db_prepare(&q,
+     "SELECT julianday('now') - max(fmtime),"
+     "       (SELECT uuid FROM blob WHERE rid=fpid),"
+     "       (SELECT substr(comment,instr(comment,':')+2)"
+     "          FROM event WHERE objid=fpid)"
+     "  FROM forumpost"
+     " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d",
+     iLimit, iOfst
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zAge = human_readable_age(db_column_double(&q,0));
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zTitle = db_column_text(&q, 2);
+    @ <tr><td>%h(zAge) ago</td>
+    @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>
+    @ </tr>
+    fossil_free(zAge);
+  }
+  @ </table></div>
+  style_footer();
+}

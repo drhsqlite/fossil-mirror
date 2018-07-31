@@ -1068,16 +1068,23 @@ int search_run_and_output(
 ** permissions and the server configuration.  The entry box is shown
 ** disabled if srchFlags is 0 after these restrictions are applied.
 **
-** If useYparam is true, then this routine also looks at the y= query
-** parameter for further search restrictions.
+** The mFlags value controls options:
+**
+**     0x01    If the y= query parameter is present, use it as an addition
+**             restriction what to search.
+**
+**     0x02    Show nothing if search is disabled.
+**
+** Return true if there are search results.
 */
-void search_screen(unsigned srchFlags, int useYparam){
+int search_screen(unsigned srchFlags, int mFlags){
   const char *zType = 0;
   const char *zClass = 0;
   const char *zDisable1;
   const char *zDisable2;
   const char *zPattern;
   int fDebug = PB("debug");
+  int haveResult = 0;
   srchFlags = search_restrict(srchFlags);
   switch( srchFlags ){
     case SRCH_CKIN:     zType = " Check-ins";  zClass = "Ckin"; break;
@@ -1088,6 +1095,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     case SRCH_FORUM:    zType = " Forum";      zClass = "Frm";  break;
   }
   if( srchFlags==0 ){
+    if( mFlags & 0x02 ) return 0;
     zDisable1 = " disabled";
     zDisable2 = " disabled";
     zPattern = "";
@@ -1103,7 +1111,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     @ <div class='searchForm'>
   }
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
-  if( useYparam && (srchFlags & (srchFlags-1))!=0 && useYparam ){
+  if( (mFlags & 0x01)!=0 && (srchFlags & (srchFlags-1))!=0 ){
     static const struct { char *z; char *zNm; unsigned m; } aY[] = {
        { "all",  "All",        SRCH_ALL      },
        { "c",    "Check-ins",  SRCH_CKIN     },
@@ -1148,7 +1156,9 @@ void search_screen(unsigned srchFlags, int useYparam){
       @ <p class='searchEmpty'>No matches for: <span>%h(zPattern)</span></p>
     }
     @ </div>
+    haveResult = 1;
   }
+  return haveResult;
 }
 
 /*
