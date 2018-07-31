@@ -375,7 +375,7 @@ static int forum_display_hierarchical(int froot, int target){
     }
     zSel = p->fpid==target ? " forumSel" : "";
     if( p->nIndent==1 ){
-      @ <div id='forum(%d(fpid)' class='forumHierRoot%s(zSel)'>
+      @ <div id='forum%d(fpid)' class='forumHierRoot%s(zSel)'>
     }else{
       @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
       @ style='margin-left: %d((p->nIndent-1)*3)ex;'>
@@ -785,8 +785,18 @@ void forumedit_page(void){
       return;
     }
     if( P("reject") ){
+      char *zParent = 
+        db_text(0,
+          "SELECT uuid FROM forumpost, blob"
+          " WHERE forumpost.fpid=%d AND blob.rid=forumpost.firt",
+          fpid
+        );
       moderation_disapprove(fpid);
-      cgi_redirectf("%R/forumpost/%S",P("fpid"));
+      if( zParent ){
+        cgi_redirectf("%R/forumpost/%S",zParent);
+      }else{
+        cgi_redirectf("%R/forum");
+      }
       return;
     }
   }
@@ -897,7 +907,6 @@ void forum_main_page(void){
   Stmt q;
   int iLimit, iOfst;
   login_check_credentials();
-  sqlite3_int64 iNow = time(NULL);
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
     return;

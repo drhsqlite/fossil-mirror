@@ -1,5 +1,5 @@
-C Add\sthe\sbackoffice-nodelay\ssetting\sas\sa\stemporary\smeasure\sto\said\sin\ndebugging\sthe\sunseemly\sdelays\scurrently\sbeing\sexperienced\sin\sthe\sUI.
-D 2018-07-31T14:22:07.652
+C Fix\sthe\sredirect\sthat\soccurs\safter\sa\sforum\spost\sis\srejected\sby\sthe\smoderator.
+D 2018-07-31T15:49:10.910
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 4a886a05a737fbfe17ee12c37cbbc3950b6a7ab4818da332033d41843161d6fe
+F src/forum.c 63f9c74858f09cf3ea58ddfee71e6d3117ac5a5ec405acb35094a8007a0d07da
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fa8ef25777721236b40060a740316d6b0f4cec34786751ec07a3a3704b50f12d
-R cb968585d8e63f09b0a6e0d03293e3e8
+P 0efaa98247a9c89c6cb41159a43121957b6b21f1ff827a5580977bba3975b77c
+R f6bf7470e862c1ce77fd8985c45a83fc
 U drh
-Z d8b45ac59a95fffaf1fdd208c81b4a03
+Z da3230329e02c40c136c69449ca754fc
