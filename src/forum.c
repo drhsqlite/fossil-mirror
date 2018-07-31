@@ -633,6 +633,75 @@ static void forum_entry_widget(
 
 /*
 ** WEBPAGE: forumnew
+** WEBPAGE: forumedit
+**
+** Start a new thread on the forum or reply to an existing thread.
+** But first prompt to see if the user would like to log in.
+*/
+void forum_page_init(void){
+  int isEdit;
+  char *zGoto;
+  login_check_credentials();
+  if( !g.perm.WrForum ){
+    login_needed(g.anon.WrForum);
+    return;
+  }
+  if( sqlite3_strglob("*edit*", g.zPath)==0 ){
+    zGoto = mprintf("%R/forume2?fpid=%S",PD("fpid",""));
+    isEdit = 1;
+  }else{
+    zGoto = mprintf("%R/forume1");
+    isEdit = 0;
+  }
+  if( login_is_individual() ){
+    if( isEdit ){
+      forumedit_page();
+    }else{
+      forumnew_page();
+    }
+    return;
+  }
+  style_header("%h As Anonymous?", isEdit ? "Reply" : "Post");
+  @ <p>You are not logged in.
+  @ <p><table border="0" cellpadding="10">
+  @ <tr><td>
+  @ <form action="%s(zGoto)" method="POST">
+  @ <input type="submit" value="Remain Anonymous">
+  @ </form>
+  @ <td>Post to the forum anonymously
+  if( login_self_register_available(0) ){
+    @ <tr><td>
+    @ <form action="%R/register" method="POST">
+    @ <input type="hidden" name="g" value="%s(zGoto)">
+    @ <input type="submit" value="Create An Account">
+    @ </form>
+    @ <td>Create a new account and post using that new account
+  }
+  @ <tr><td>
+  @ <form action="%R/login" method="POST">
+  @ <input type="hidden" name="g" value="%s(zGoto)">
+  @ <input type="hidden" name="noanon" value="1">
+  @ <input type="submit" value="Login">
+  @ </form>
+  @ <td>Log into an existing account
+  @ </table>
+  style_footer();
+  fossil_free(zGoto);
+}
+
+/*
+** Write the "From: USER" line on the webpage.
+*/
+static void forum_from_line(void){
+  if( login_is_nobody() ){
+    @ From: anonymous<br>
+  }else{
+    @ From: %h(login_name())<br>
+  }
+}
+
+/*
+** WEBPAGE: forume1
 **
 ** Start a new forum thread.
 */
@@ -653,7 +722,9 @@ void forumnew_page(void){
     forum_render(zTitle, zMimetype, zContent, "forumEdit");
   }
   style_header("New Forum Thread");
-  @ <form action="%R/%s(g.zPath)" method="POST">
+  @ <form action="%R/forume1" method="POST">
+  @ <h1>New Message:</h1>
+  forum_from_line();
   forum_entry_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
   if( P("preview") ){
@@ -677,12 +748,12 @@ void forumnew_page(void){
 }
 
 /*
-** WEBPAGE: forumedit
+** WEBPAGE: forume2
 **
 ** Edit an existing forum message.
 ** Query parameters:
 **
-**   name=X        Hash of the post to be editted.  REQUIRED
+**   fpid=X        Hash of the post to be editted.  REQUIRED
 */
 void forumedit_page(void){
   int fpid;
@@ -743,7 +814,7 @@ void forumedit_page(void){
                  "forumEdit");
     @ <h1>Change Into:</h1>
     forum_render(zTitle, zMimetype, zContent,"forumEdit");
-    @ <form action="%R/forumedit" method="POST">
+    @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
     @ <input type="hidden" name="mimetype" value="%h(zMimetype)">
@@ -769,10 +840,11 @@ void forumedit_page(void){
       @ <h1>Preview Of Editted Post:</h1>
       forum_render(zTitle, zMimetype, zContent,"forumEdit");
     }
-    @ <h1>Enter A Reply:</h1>
-    @ <form action="%R/forumedit" method="POST">
+    @ <h1>Revised Message:</h1>
+    @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
+    forum_from_line();
     forum_entry_widget(zTitle, zMimetype, zContent);
   }else{
     /* Reply */
@@ -785,10 +857,11 @@ void forumedit_page(void){
       @ <h1>Preview:</h1>
       forum_render(0, zMimetype,zContent, "forumEdit");
     }
-    @ <h1>Enter A Reply:</h1>
-    @ <form action="%R/forumedit" method="POST">
+    @ <h1>Enter Reply:</h1>
+    @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
+    forum_from_line();
     forum_entry_widget(0, zMimetype, zContent);
   }
   if( !isDelete ){

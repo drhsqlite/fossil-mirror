@@ -518,6 +518,7 @@ void login_page(void){
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
   const char *zReferer;
+  int noAnon = P("noanon")!=0;
 
   login_check_credentials();
   if( login_wants_https_redirect() ){
@@ -657,7 +658,7 @@ void login_page(void){
   style_header("Login/Logout");
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
-  if( zGoto ){
+  if( zGoto && !noAnon ){
     char *zAbbrev = fossil_strdup(zGoto);
     int i;
     for(i=0; zAbbrev[i] && zAbbrev[i]!='?'; i++){}
@@ -729,7 +730,7 @@ void login_page(void){
     @   <td colspan="2">&larr; Pressing this button grants\
     @   permission to store a cookie
     @ </tr>
-    if( login_self_register_available(0) ){
+    if( !noAnon && login_self_register_available(0) ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="self" value="Create A New Account">
@@ -738,7 +739,7 @@ void login_page(void){
       @ </tr>
     }
     @ </table>
-    if( zAnonPw ){
+    if( zAnonPw && !noAnon ){
       unsigned int uSeed = captcha_seed();
       const char *zDecoded = captcha_decode(uSeed);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
