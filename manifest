@@ -1,5 +1,5 @@
-C Try\sto\smake\smoderation\sa\slittle\seasier,\sas\srecent\sexperience\ssuggests\sthat\nwill\sbe\sa\sbig\sdeal\swith\sthe\sforum.
-D 2018-07-31T17:05:56.738
+C Only\sshow\sthe\s"Moderation\sRequests"\ssubmenu\sbutton\sif\sthere\sexist\sone\sor\smore\nposts\sin\sneed\sof\smoderation.
+D 2018-07-31T17:13:59.446
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 65d942b49d53d02a36cf3dcabc3418ad669af95c1aeb86a33aaf4d769ae664dc
+F src/forum.c 4039e67056f6c143950ee828641b4db78f0112bd5175adea42366974d3a8c495
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -530,7 +530,7 @@ F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac50
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
-F src/moderate.c 67544330b6ae3c7f90fd6c1021f8971eeacbced01b162ff5dc62b43c4149a74d
+F src/moderate.c e0a2586665e8a583711db2516656f239c045c3b7b34812d91744a313d5cdaf6c
 F src/name.c 44fedd65aa9dc0786b81b777478a170a0b0c18d359e53abf934c64fbf6f73582
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6a667edb0964140c1be60ef1d6bbcfff32a2d4258d98ff9c1be66e878234f082
-R c1f0df17b83bb90d587fdd0fa6e338fe
+P a9e5a1eefd71c5b7f48474197f59573675768ceb5fe29fa5f7f763d96f7b7082
+R 12f52b3de82bd1fff2657e22471e99a2
 U drh
-Z ae1715030900ba76f9c0266ce2c956b6
+Z 5ebb6d85b9f717bab0a1176f502dc906

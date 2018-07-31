@@ -72,6 +72,15 @@ int moderation_pending_www(int rid){
   return pending;
 }
 
+
+/*
+** Return TRUE if there any pending moderation requests.
+*/
+int moderation_needed(void){
+  if( !moderation_table_exists() ) return 0;
+  return db_exists("SELECT 1 FROM modreq");
+}
+
 /*
 ** Check to see if the object identified by RID is used for anything.
 */
