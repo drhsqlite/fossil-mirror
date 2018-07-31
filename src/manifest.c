@@ -2533,7 +2533,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       ** or an edit of the initial entry. */
       zTitle = p->zThreadTitle;
       if( zTitle==0 || zTitle[0]==0 ){
-        zTitle = "<i>Deleted</i>";
+        zTitle = "(Deleted)";
       }
       zFType = fprev ? "Edit" : "Post";
       db_multi_exec(
