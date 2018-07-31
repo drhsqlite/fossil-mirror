@@ -1,5 +1,5 @@
-C Add\sthe\semail\salerts\sconfiguration\ssummary\sto\sthe\ssecurity\saudit\spage.
-D 2018-07-31T04:18:05.580
+C Fix\sa\sminor\sproblem\swith\sthe\suser\scapability\ssummary\sdisplay.
+D 2018-07-31T10:30:28.653
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/browse.c 10353b275aa4a217995268a7cc8846ebf735f84cd6c4f7112a000fae0a9fe09c
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
-F src/capabilities.c e34a78cca4dd7fc0ac12dfbcb97a08f417615b9f8ae86cef9dc3eda6bb233e37
+F src/capabilities.c ba1baaea14c8eddfbc67ecdee9c94e1f5f6d3318555f394712b1963e2893fed3
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
 F src/cgi.c 0197364d1785df634a4157e5401e21b20761f582143b29131fc4689cf82ac312
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05105248a1568220b61c85cbb271f9b08af570fa3f1f7e8b1a473b4bab92fa04
-R 7a664b19ee58591fad00b7dca95fe20b
+P a9e67fe615fdd1e2c663ea6f995fc0cb585300c97969bd7c54e369380b237323
+R 9ffc78bd6e70c0ad0bc6f2475ce02c30
 U drh
-Z 56cbc3b9b58f179d4dfa075d5459c1ea
+Z 941e77d304d3fef1f83f6e68344291d5

@@ -362,7 +362,7 @@ void capability_summary(void){
     @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Wiki */
-    if( sqlite3_strglob("*[asdfjlm]*",zCap)==0 ){
+    if( sqlite3_strglob("*[asdfklm]*",zCap)==0 ){
       eType = 2;
     }else if( sqlite3_strglob("*j*",zCap)==0 ){
       eType = 1;
