@@ -1,5 +1,5 @@
-C If\sthe\suser\sis\snot\slogged\sin,\sprompt\sthem\sto\sdo\sso\sbefore\scontinuing\sto\sthe\nforum\sentry\spages.
-D 2018-07-31T01:03:33.110
+C Enable\ssearch\sover\sthe\sforum.
+D 2018-07-31T03:14:21.368
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -547,9 +547,9 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c a46e8bb2f6fe513c47ab7014b97858b7ba7ab32677f7ba0b3c979db999be0113
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 41c7f1c7da757a8ebae82d0da6bcebbddb2a7f5de453a532d3b7333b2d4e0174
+F src/search.c 50b9c16b7624c27b1bf47ff67955a4e27737bb027b897fbb6f775724d7da4821
 F src/security_audit.c 631dd753d08d4294268f1b3d3211f55f109bf72c5ad838aee30550b0881352dd
-F src/setup.c 922d661e92118a2bb89b1c10096f3910d292fc39b464ffc131aa051d2f9a06e3
+F src/setup.c d08a5235592f6ee87aebd0aee5b5fe5d4952dbb08de38b2258379b9fbb9ef79e
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14335899ef335f78aec72ad5160c5f454364e393bcb8fadfa599603ca587cb4a
-R 91182a1a95b2a44fdbc550a6c9e76682
+P 009ca1f74e48b232cd7ac5762ab4b45494d8916a416f7d6bc3193ce72595be6d
+R 85494104c6a75024cf454ea3b8414e69
 U drh
-Z dec997c453e3638128f70e5c7e8d5e3c
+Z e574a574ad38686ac7e9f6a6424902b7

@@ -640,7 +640,8 @@ void search_cmd(void){
 #define SRCH_TKT      0x0004    /* Search over tickets */
 #define SRCH_WIKI     0x0008    /* Search over wiki */
 #define SRCH_TECHNOTE 0x0010    /* Search over tech notes */
-#define SRCH_ALL      0x001f    /* Search over everything */
+#define SRCH_FORUM    0x0020    /* Search over forum messages */
+#define SRCH_ALL      0x003f    /* Search over everything */
 #endif
 
 /*
@@ -656,11 +657,13 @@ unsigned int search_restrict(unsigned int srchFlags){
      { SRCH_TKT,      "search-tkt"  },
      { SRCH_WIKI,     "search-wiki" },
      { SRCH_TECHNOTE, "search-technote" },
+     { SRCH_FORUM,    "search-forum" },
   };
   int i;
   if( g.perm.Read==0 )   srchFlags &= ~(SRCH_CKIN|SRCH_DOC|SRCH_TECHNOTE);
   if( g.perm.RdTkt==0 )  srchFlags &= ~(SRCH_TKT);
   if( g.perm.RdWiki==0 ) srchFlags &= ~(SRCH_WIKI);
+  if( g.perm.RdForum==0) srchFlags &= ~(SRCH_FORUM);
   for(i=0; i<count(aSetng); i++){
     unsigned int m = aSetng[i].m;
     if( (srchFlags & m)==0 ) continue;
@@ -795,6 +798,19 @@ static void search_fullscan(
       "   WHERE search_match('',body('e',rid,NULL));"
     );
   }
+  if( (srchFlags & SRCH_FORUM)!=0 ){
+    db_multi_exec(
+      "INSERT INTO x(label,url,score,id,date,snip)"
+      "  SELECT 'Forum '||comment,"
+      "         '/forumpost/'||uuid,"
+      "         search_score(),"
+      "         'f'||rid,"
+      "         datetime(event.mtime),"
+      "         search_snippet()"
+      "    FROM event JOIN blob on event.objid=blob.rid"
+      "   WHERE search_match('',body('f',rid,NULL));"
+    );
+  }
 }
 
 /*
@@ -915,6 +931,7 @@ static void search_indexed(
        { SRCH_TKT,      't' },
        { SRCH_WIKI,     'w' },
        { SRCH_TECHNOTE, 'e' },
+       { SRCH_FORUM,    'f' },
     };
     int i;
     for(i=0; i<count(aMask); i++){
@@ -1068,6 +1085,7 @@ void search_screen(unsigned srchFlags, int useYparam){
     case SRCH_TKT:      zType = " Tickets";    zClass = "Tkt";  break;
     case SRCH_WIKI:     zType = " Wiki";       zClass = "Wiki"; break;
     case SRCH_TECHNOTE: zType = " Tech Notes"; zClass = "Note"; break;
+    case SRCH_FORUM:    zType = " Forum";      zClass = "Frm";  break;
   }
   if( srchFlags==0 ){
     zDisable1 = " disabled";
@@ -1093,6 +1111,7 @@ void search_screen(unsigned srchFlags, int useYparam){
        { "t",    "Tickets",    SRCH_TKT      },
        { "w",    "Wiki",       SRCH_WIKI     },
        { "e",    "Tech Notes", SRCH_TECHNOTE },
+       { "f",    "Forum",      SRCH_FORUM    },
     };
     const char *zY = PD("y","all");
     unsigned newFlags = srchFlags;
@@ -1145,6 +1164,7 @@ void search_screen(unsigned srchFlags, int useYparam){
 **                      t -> tickets
 **                      w -> wiki
 **                      e -> tech notes
+**                      f -> forum
 **                    all -> everything
 */
 void search_page(void){
@@ -1252,6 +1272,7 @@ static void append_all_ticket_fields(Blob *pAccum, Stmt *pQuery, int iTitle){
 **                      c      Check-in comment
 **                      t      Ticket text
 **                      e      Tech note
+**                      f      Forum
 **
 **    rid               The RID of an artifact that defines the object
 **                      being searched.
@@ -1277,13 +1298,23 @@ void search_stext(
       blob_reset(&doc);
       break;
     }
+    case 'f':     /* Forum messages */
     case 'e':     /* Tech Notes */
     case 'w': {   /* Wiki */
       Manifest *pWiki = manifest_get(rid,
-          cType == 'e' ? CFTYPE_EVENT : CFTYPE_WIKI, 0);
+          cType == 'e' ? CFTYPE_EVENT :
+          cType == 'f' ? CFTYPE_FORUM : CFTYPE_WIKI, 0);
       Blob wiki;
       if( pWiki==0 ) break;
-      blob_init(&wiki, pWiki->zWiki, -1);
+      if( cType=='f' ){
+        blob_init(&wiki, 0, 0);
+        if( pWiki->zThreadTitle ){
+          blob_appendf(&wiki, "<h1>%h</h1>\n", pWiki->zThreadTitle);
+        }
+        blob_appendf(&wiki, "From %s:\n\n%s", pWiki->zUser, pWiki->zWiki);
+      }else{
+        blob_init(&wiki, pWiki->zWiki, -1);
+      }
       get_stext_by_mimetype(&wiki, wiki_filter_mimetypes(pWiki->zMimetype),
                             pOut);
       blob_reset(&wiki);
@@ -1518,7 +1549,7 @@ void search_fill_index(void){
   );
   db_multi_exec(
     "INSERT OR IGNORE INTO ftsdocs(type,rid,name,idxed)"
-    "  SELECT 'e', objid, comment, 0 FROM event WHERE type='e';"
+    "  SELECT type, objid, comment, 0 FROM event WHERE type IN ('e','f');"
   );
 }
 
@@ -1555,6 +1586,7 @@ void search_doc_touch(char cType, int rid, const char *zName){
         cType, zName, rid
       );
     }
+    /* All forum posts are always indexed */
   }
 }
 
@@ -1685,6 +1717,29 @@ static void search_update_wiki_index(void){
 }
 
 /*
+** Deal with all of the unindexed 'f' terms in FTSDOCS
+*/
+static void search_update_forum_index(void){
+  db_multi_exec(
+    "INSERT INTO ftsidx(docid,title,body)"
+    " SELECT rowid, title('f',rid,NULL),body('f',rid,NULL) FROM ftsdocs"
+    "  WHERE type='f' AND NOT idxed;"
+  );
+  if( db_changes()==0 ) return;
+  db_multi_exec(
+    "UPDATE ftsdocs SET idxed=1, name=NULL,"
+    " (label,url,mtime) = "
+    "  (SELECT 'Forum '||event.comment,"
+    "          '/forumpost/'||blob.uuid,"
+    "          event.mtime"
+    "     FROM event, blob"
+    "    WHERE event.objid=ftsdocs.rid"
+    "      AND blob.rid=ftsdocs.rid)"
+    "WHERE ftsdocs.type='f' AND NOT ftsdocs.idxed"
+  );
+}
+
+/*
 ** Deal with all of the unindexed 'e' terms in FTSDOCS
 */
 static void search_update_technote_index(void){
@@ -1729,6 +1784,9 @@ void search_update_index(unsigned int srchFlags){
   }
   if( srchFlags & SRCH_TECHNOTE ){
     search_update_technote_index();
+  }
+  if( srchFlags & SRCH_FORUM ){
+    search_update_forum_index();
   }
 }
 
@@ -1782,6 +1840,7 @@ void fts_config_cmd(void){
      { "search-tkt",      "ticket search:",    "t" },
      { "search-wiki",     "wiki search:",      "w" },
      { "search-technote", "tech note search:", "e" },
+     { "search-forum",    "forum search:",     "f" },
   };
   char *zSubCmd = 0;
   int i, j, n;
