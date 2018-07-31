@@ -42,6 +42,7 @@
 #include "backoffice.h"
 #include <time.h>
 #if defined(_WIN32)
+# include <process.h>
 # include <windows.h>
 #else
 # include <unistd.h>
@@ -173,13 +174,43 @@ static sqlite3_uint64 backofficeProcessId(void){
 ** prevents any kind of bug from keeping a backoffice process running
 ** indefinitely.
 */
-#if !defined(_WIN32)
 static void backofficeSigalrmHandler(int x){
-  fossil_panic("backoffice timeout");
+  fossil_panic("backoffice timeout (%d seconds)", x);
+}
+#if defined(_WIN32)
+static void *threadHandle = NULL;
+static void __stdcall backofficeWin32NoopApcProc(ULONG_PTR pArg){} /* NO-OP */
+static void backofficeWin32ThreadCleanup(){
+  if( threadHandle!=NULL ){
+    /* Queue no-op asynchronous procedure call to the sleeping
+     * thread.  This will cause it to wake up with a non-zero
+     * return value. */
+    if( QueueUserAPC(backofficeWin32NoopApcProc, threadHandle, 0) ){
+      /* Wait for the thread to wake up and then exit. */
+      WaitForSingleObject(threadHandle, INFINITE);
+    }
+    CloseHandle(threadHandle);
+    threadHandle = NULL;
+  }
+}
+static unsigned __stdcall backofficeWin32SigalrmThreadProc(
+  void *pArg /* IN: Pointer to integer number of whole seconds. */
+){
+  int seconds = FOSSIL_PTR_TO_INT(pArg);
+  if( SleepEx((DWORD)seconds * 1000, TRUE)==0 ){
+    backofficeSigalrmHandler(seconds);
+  }
+  _endthreadex(0);
+  return 0; /* NOT REACHED */
 }
 #endif
 static void backofficeTimeout(int x){
-#if !defined(_WIN32)
+#if defined(_WIN32)
+  if( threadHandle!=NULL ) return;
+  threadHandle = (void*)_beginthreadex(
+    0, 0, backofficeWin32SigalrmThreadProc, FOSSIL_INT_TO_PTR(x), 0, 0
+  );
+#else
   signal(SIGALRM, backofficeSigalrmHandler);
   alarm(x);
 #endif
@@ -295,6 +326,9 @@ void backoffice_run(void){
       sqlite3_sleep(1000);
     }
   }
+#if defined(_WIN32)
+  backofficeWin32ThreadCleanup();
+#endif
   return;
 }
 
