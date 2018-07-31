@@ -937,10 +937,7 @@ void winfo_page(void){
   if( g.perm.Setup ){
     @ (%d(rid))
   }
-  modPending = moderation_pending(rid);
-  if( modPending ){
-    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-  }
+  modPending = moderation_pending_www(rid);
   @ </td></tr>
   @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
   @ <tr><th>Date:</th><td>
@@ -2239,10 +2236,7 @@ void tinfo_page(void){
   if( g.perm.Setup ){
     @ (%d(rid))
   }
-  modPending = moderation_pending(rid);
-  if( modPending ){
-    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-  }
+  modPending = moderation_pending_www(rid);
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
   if( zTktTitle ){

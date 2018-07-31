@@ -58,6 +58,21 @@ int moderation_pending(int rid){
 }
 
 /*
+** If the rid object is being held for moderation, write out
+** an "awaiting moderation" message and return true.
+**
+** If the object is not being held for moderation, simply return
+** false without generating any output.
+*/
+int moderation_pending_www(int rid){
+  int pending = moderation_pending(rid);
+  if( pending ){
+    @ <span class="modpending">(Awaiting Moderator Approval)</span>
+  }
+  return pending;
+}
+
+/*
 ** Check to see if the object identified by RID is used for anything.
 */
 static int object_used(int rid){
@@ -149,8 +164,8 @@ void modreq_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.ModWiki && !g.perm.ModTkt ){
-    login_needed(g.anon.ModWiki && g.anon.ModTkt);
+  if( !g.perm.ModWiki && !g.perm.ModTkt && !g.perm.ModForum ){
+    login_needed(g.anon.ModWiki && g.anon.ModTkt && g.anon.ModForum);
     return;
   }
   style_header("Pending Moderation Requests");

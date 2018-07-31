@@ -915,6 +915,9 @@ void forum_main_page(void){
   if( g.perm.WrForum ){
     style_submenu_element("New Message","%R/forumnew");
   }
+  if( g.perm.ModForum ){
+    style_submenu_element("Moderation Requests", "%R/modreq");
+  }
   if( search_screen(SRCH_FORUM, 0) ){
     style_submenu_element("Recent Threads","%R/forum");
     style_footer();
