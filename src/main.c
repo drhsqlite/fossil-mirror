@@ -2024,7 +2024,7 @@ void cmd_cgi(void){
 #if !defined(_WIN32)
   /* Work around a bug in older versions of althttpd by making sure no
   ** file descriptors other than 0, 1, and 2 are open. */
-  { int i; for(i=3; close(i)==0; i++){} }
+  { int i; for(i=3; close(i)==0 || i<6; i++){} }
 #endif
   g.cgiOutput = 1;
   blob_read_from_file(&config, zFile, ExtFILE);
