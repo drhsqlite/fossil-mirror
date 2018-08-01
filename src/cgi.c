@@ -1931,12 +1931,8 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( 0 && !g.fAnyTrace ){
-            close(2);
-            fd = dup(connection);
-            if( fd!=2 ) nErr++;
-          }
           close(connection);
+          for(fd=3; close(fd)==0; fd++){}
           g.nPendingRequest = nchildren+1;
           g.nRequest = nRequest+1;
           return nErr;
