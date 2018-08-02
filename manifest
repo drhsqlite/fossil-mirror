@@ -1,5 +1,5 @@
-C Allow\sout-of-source\sbuild\swith\sMSVC\son\sWindows.
-D 2018-08-02T09:55:41.224
+C Improve\scomment.
+D 2018-08-02T11:44:29.997
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -734,7 +734,7 @@ F win/Makefile.dmc 53c4c0c72960fb4646f43c5e5987ef048dda52caf045fb9b9db8f2c95da6a
 F win/Makefile.mingw 512085908cc6f1bcfe9e6c648e6617abff7e65e3b5f20a3b117b06d58a8ae69a
 F win/Makefile.mingw.mistachkin b75280e1194762517f1796b70cf2e81fd838fa660097ef6a2b1e0777ed8736da
 F win/Makefile.msc a8f773a6ed6e4bae7988eece7dd57c74aec87fc279c70fc67e75aace071310af
-F win/buildmsvc.bat bfce8abf9a84d7160846c02e16694495d72500961653c7885b578d0eae026ef3 x
+F win/buildmsvc.bat 1243828dc8ad2a1c4d96ff948884a6aad62afcec2c5b849f0c31056ddc0f46ee x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 685e884752132aa4ed9b705d6f77624dc687826729109f1675590d13aa0020d6
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba8ba160f94e35a45840da45daaf71fef0176ac5e12619be03c0ac9904a1d104
-R 688d687794c801daff95b6b6e89de5bf
-U ashepilko
-Z 8096431791b7c36399b13752949d8fe1
+P fc8281ee9ce08a3521490e01b5ac8f2a3e50bf6e7c17e02bed4e95b0ef689ba9
+R 9415d2a2f6a23c46fe80c7daa777701c
+U mistachkin
+Z aa421c2a534060e323105a2c0a88715f

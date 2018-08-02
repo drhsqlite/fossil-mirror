@@ -200,8 +200,8 @@ IF DEFINED USE_V110SDK71A (
 REM
 REM NOTE: Attempt to execute NMAKE for the Fossil MSVC makefile, passing
 REM       anything extra from our command line along (e.g. extra options).
-REM       Pass the base directory of the Fossil source tree.
-REM       This allows an out-of-source build.
+REM       Also, pass the base directory of the Fossil source tree as this
+REM       allows an out-of-source-tree build.
 REM
 %__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" %NMAKE_ARGS% %*
 
