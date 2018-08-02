@@ -91,6 +91,23 @@ void backoffice_no_delay(void){
 
 
 /*
+** Sleeps for the specified number of milliseconds -OR- until interrupted
+** by another thread (if supported by the underlying platform).  Non-zero
+** will be returned if the sleep was interrupted.
+*/
+static int backofficeSleep(int milliseconds){
+#if defined(_WIN32)
+  assert( milliseconds>=0 );
+  if( SleepEx((DWORD)milliseconds, TRUE)==WAIT_IO_COMPLETION ){
+    return 1;
+  }
+#else
+  sqlite3_sleep(milliseconds);
+#endif
+  return 0;
+}
+
+/*
 ** Parse a unsigned 64-bit integer from a string.  Return a pointer
 ** to the character of z[] that occurs after the integer.
 */
@@ -332,7 +349,14 @@ void backoffice_run(void){
       fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  getpid());
     }
     if( x.tmCurrent >= tmNow ){
-      sqlite3_sleep(1000*(x.tmCurrent - tmNow + 1));
+      if( backofficeSleep(1000*(x.tmCurrent - tmNow + 1)) ){
+        /* The sleep was interrupted by a signal from another thread. */
+        if( g.fAnyTrace ){
+          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", getpid());
+        }
+        db_end_transaction(0);
+        break;
+      }
     }else{
       if( lastWarning+warningDelay < tmNow ){
         fossil_warning(
@@ -341,7 +365,14 @@ void backoffice_run(void){
         lastWarning = tmNow;
         warningDelay *= 2;
       }
-      sqlite3_sleep(1000);
+      if( backofficeSleep(1000) ){
+        /* The sleep was interrupted by a signal from another thread. */
+        if( g.fAnyTrace ){
+          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", getpid());
+        }
+        db_end_transaction(0);
+        break;
+      }
     }
   }
 #if defined(_WIN32)
