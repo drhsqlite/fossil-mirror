@@ -1,5 +1,5 @@
-C Build\sFossil\svia\sExternalProject
-D 2018-08-02T09:24:14.211
+C Allow\sreading\sthe\slist\sof\sinput\sresources\sfrom\sa\sfile\swith\s--reslist\soption.
+D 2018-08-02T09:37:57.272
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -525,7 +525,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 6283c41b3924b4d9499024deeb523fb242306df46acbdd333fbb88c43ecf92e5
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
-F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac502d
+F src/mkbuiltin.c 08aaf713175611189f06a366c9c10fd17885204edcbbf6987363532cc23f2872
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19997e99c4549e7c46627046364a6594b35c4d5ccae8ac9836bdd8ea790a87bd
-R 23dbdd3221826323528bb2417231e5b6
+P cddc7bb0e4fe905deaf93d1a0222000146a5a2c8f271e09145687461df4150ae
+R e139881ac6d03dd5377a2ec64ca2e85d
 U ashepilko
-Z aa97d986c9da2de2dd3b2c9468f7be3f
+Z 0ce28100a867f066093e5f4990081c2b
