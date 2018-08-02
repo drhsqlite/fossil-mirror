@@ -239,7 +239,7 @@ static unsigned __stdcall backofficeWin32SigalrmThreadProc(
 #endif
 static void backofficeTimeout(int x){
 #if defined(_WIN32)
-  if( threadHandle!=NULL ) return;
+  backofficeWin32ThreadCleanup();
   threadHandle = (void*)_beginthreadex(
     0, 0, backofficeWin32SigalrmThreadProc, FOSSIL_INT_TO_PTR(x), 0, 0
   );

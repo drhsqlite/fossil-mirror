@@ -1,5 +1,5 @@
-C Wrap\suse\sof\sgetpid()\sin\sthe\strace\sstatements.
-D 2018-08-02T03:03:01.534
+C Just\sin\scase,\smodify\sbackofficeTimeout()\sto\shandle\sbeing\scalled\smore\sthan\sonce\son\sWin32.
+D 2018-08-02T03:05:30.377
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c ea835751f70fd7db9bddc70746dba18d94f65a53704c41e8acfe59368568bf9b
-F src/backoffice.c 52d8acd8aae7a2d8dab6988210a9e948d95e395928fed72c056be907041ec73b
+F src/backoffice.c 41d7ba12d0c064e768c4de5b90b9ae2398fc63db7772e99c7039cd0e60524aa6
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9840313b1ce0b528bbedbfcd0cea921c2058a2b822bdef452e44acd4dee2151e
-R 87809c5f8dfd05b643e78264c8c0d310
+P 842bf225d2b93e896d544d7f232ef0f9bd9bf585627bdd1eaf694cc804f6d999
+R 937c8f309d6db2da924a3f9c2e6f2313
 U mistachkin
-Z e7c3dd9a98391ee123711c95de307ce0
+Z 2d72e81c5e3644bfbaedc805eb119a3f
