@@ -135,12 +135,30 @@ static void backofficeWriteLease(Lease *pLease){
 }
 
 /*
+** Check to see if the specified Win32 process is still alive.  It
+** should be noted that even if this function returns non-zero, the
+** process may die before another operation on it can be completed.
+*/
+#if defined(_WIN32)
+#ifndef PROCESS_QUERY_LIMITED_INFORMATION
+#  define PROCESS_QUERY_LIMITED_INFORMATION  (0x1000)
+#endif
+static int backofficeWin32ProcessExists(DWORD dwProcessId){
+  HANDLE hProcess;
+  hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION,FALSE,dwProcessId);
+  if( hProcess==NULL ) return 0;
+  CloseHandle(hProcess);
+  return 1;
+}
+#endif
+
+/*
 ** Check to see if the process identified by selfId is alive.  If
 ** we cannot prove the the process is dead, return true.
 */
 static int backofficeProcessExists(sqlite3_uint64 pid){
 #if defined(_WIN32)
-  return 1;
+  return pid>0 && backofficeWin32ProcessExists((DWORD)pid)!=0;
 #else
   return pid>0 && kill((pid_t)pid, 0)==0;
 #endif 
@@ -152,7 +170,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
 */
 static int backofficeProcessDone(sqlite3_uint64 pid){
 #if defined(_WIN32)
-  return 1;
+  return pid<=0 || backofficeWin32ProcessExists((DWORD)pid)==0;
 #else
   return pid<=0 || kill((pid_t)pid, 0)!=0;
 #endif 
