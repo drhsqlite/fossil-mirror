@@ -1,0 +1,194 @@
+#
+# Copyright (c) 2013 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+#
+# Tests for 'fossil revert'
+#
+#
+
+# Test 'fossil revert' against expected results from 'fossil changes' and
+# 'fossil addremove -n', as well as by verifying the existence of files
+# on the file system. 'fossil undo' is called after each test
+#
+proc revert-test {testid revertArgs expectedRevertOutput args} {
+  global RESULT
+  set passed 1
+
+  set args [dict merge {
+    -changes {} -addremove {} -exists {} -notexists {}
+  } $args]
+
+  set result [fossil revert {*}$revertArgs]
+  test_status_list revert-$testid $result $expectedRevertOutput
+
+  set statusListTests [list -changes changes -addremove {addremove -n}]
+  foreach {key fossilArgs} $statusListTests {
+    set expected [dict get $args $key]
+    set result [fossil {*}$fossilArgs]
+    test_status_list revert-$testid$key $result $expected
+  }
+
+  set fileExistsTests [list -exists 1 does -notexists 0 should]
+  foreach {key expected verb} $fileExistsTests {
+    foreach path [dict get $args $key] {
+      if {[file exists $path] != $expected} {
+        set passed 0
+        protOut "  Failure: File $verb not exist: $path"
+      }
+    }
+    test revert-$testid$key $passed
+  }
+
+  fossil undo
+}
+
+require_no_open_checkout
+test_setup
+
+# Prepare first commit
+#
+write_file f1 "f1"
+write_file f2 "f2"
+write_file f3 "f3"
+fossil add f1 f2 f3
+fossil commit -m "c1"
+
+# Make changes to be reverted
+#
+# Add f0
+write_file f0 "f0"
+fossil add f0
+# Remove f1
+file delete f1
+fossil rm f1
+# Edit f2
+write_file f2 "f2.1"
+# Rename f3 to f3n
+file rename -force f3 f3n
+fossil mv f3 f3n
+
+# Test 'fossil revert' with no arguments
+#
+revert-test 1-1 {} {
+  UNMANAGE f0
+  REVERT   f1
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
+} -addremove {
+  ADDED f0
+} -exists {f0 f1 f2 f3} -notexists f3n
+
+# Test with a single filename argument
+#
+revert-test 1-2 f0 {
+  UNMANAGE f0
+} -changes {
+  DELETED f1
+  EDITED f2
+  RENAMED f3n
+} -addremove {
+  ADDED f0
+} -exists {f0 f2 f3n} -notexists f3
+
+revert-test 1-3 f1 {
+  REVERT   f1
+} -changes {
+  ADDED f0
+  EDITED f2
+  RENAMED f3n
+} -exists {f0 f1 f2 f3n} -notexists f3
+
+revert-test 1-4 f2 {
+  REVERT   f2
+} -changes {
+  ADDED f0
+  DELETED f1
+  RENAMED f3n
+} -exists {f0 f2 f3n} -notexists {f1 f3}
+
+# Both files involved in a rename are reverted regardless of which filename
+# is used as an argument to 'fossil revert'
+#
+revert-test 1-5 f3 {
+  REVERT   f3
+  DELETE   f3n
+} -changes {
+  ADDED f0
+  DELETED f1
+  EDITED f2
+} -exists {f0 f2 f3} -notexists {f1 f3n}
+
+revert-test 1-6 f3n {
+  REVERT   f3
+  DELETE   f3n
+} -changes {
+  ADDED f0
+  DELETED f1
+  EDITED f2
+} -exists {f0 f2 f3} -notexists {f1 f3n}
+
+# Test with multiple filename arguments
+#
+revert-test 1-7 {f0 f2 f3n} {
+  UNMANAGE f0
+  REVERT   f2
+  REVERT   f3
+  DELETE   f3n
+} -changes {
+  DELETED f1
+} -addremove {
+  ADDED f0
+} -exists {f0 f2 f3} -notexists {f1 f3n}
+
+
+# Test reverting the combination of a renamed file and an added file that
+# uses the renamed file's original filename.
+#
+test_setup
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+
+write_file f1n "f1n"
+fossil mv f1 f1n
+write_file f1 "f1b"
+fossil add f1
+
+revert-test 2-1 {} {
+  REVERT   f1
+  DELETE   f1n
+} -exists {f1} -notexists {f1n}
+
+
+# Test reverting a rename in the repo but not completed in the file
+# system
+test_setup
+write_file f1 "f1"
+fossil add f1
+fossil commit -m "add f1"
+fossil mv --soft f1 f1new
+test 3-mv-1 {[file exists f1]}
+test 3-mv-2 {![file exists f1new]}
+revert-test 3-1 {} {
+  REVERT f1
+  DELETE f1new
+} -exists {f1} -notexists {f1n}
+
+###############################################################################
+
+test_cleanup

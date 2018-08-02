@@ -1,0 +1,76 @@
+#!/usr/bin/make
+#
+# This is the top-level makefile for Fossil when the build is occurring
+# on a unix platform.  This works out-of-the-box on most unix platforms.
+# But you are free to vary some of the definitions if desired.
+#
+#### The toplevel directory of the source tree.  Fossil can be built
+#    in a directory that is separate from the source tree.  Just change
+#    the following to point from the build directory to the src/ folder.
+#
+SRCDIR = @srcdir@/src
+
+#### The directory into which object code files should be written.
+#    Having a "./" prefix in the value of this variable breaks our use of the
+#    "makeheaders" tool when running make on the MinGW platform, apparently
+#    due to some command line argument manipulation performed automatically
+#    by the shell.
+#
+#
+OBJDIR = bld
+
+#### C Compiler and options for use in building executables that
+#    will run on the platform that is doing the build.  This is used
+#    to compile code-generator programs as part of the build process.
+#    See TCC below for the C compiler for building the finished binary.
+#
+BCC = @CC_FOR_BUILD@
+
+#### The suffix to add to final executable file.  When cross-compiling
+#    to windows, make this ".exe".  Otherwise leave it blank.
+#
+E = @EXEEXT@
+
+TCC = @CC@
+
+#### Tcl shell for use in running the fossil testsuite.  If you do not
+#    care about testing the end result, this can be blank.
+#
+TCLSH = tclsh
+
+CFLAGS = @CFLAGS@
+LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
+BCCFLAGS =	@CPPFLAGS@ $(CFLAGS)
+TCCFLAGS =	@EXTRA_CFLAGS@ @CPPFLAGS@ $(CFLAGS) -DHAVE_AUTOCONFIG_H -D_HAVE_SQLITE_CONFIG_H
+INSTALLDIR = $(DESTDIR)@prefix@/bin
+USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
+USE_LINENOISE = @USE_LINENOISE@
+USE_MMAN_H = @USE_MMAN_H@
+USE_SEE = @USE_SEE@
+FOSSIL_ENABLE_MINIZ = @FOSSIL_ENABLE_MINIZ@
+
+include $(SRCDIR)/main.mk
+
+distclean: clean
+	rm -f autoconfig.h config.log Makefile
+
+reconfig:
+	@AUTOREMAKE@
+
+# Automatically reconfigure whenever an autosetup file or one of the
+# make source files change.
+#
+# The "touch" is necessary to avoid a make loop due to a new upstream
+# feature in autosetup (GH 0a71e3c3b7) which rewrites *.in outputs only
+# if doing so will write different contents; otherwise, it leaves them
+# alone so the mtime doesn't change.  This means that if you change one
+# our depdendencies besides Makefile.in, we'll reconfigure but Makefile
+# won't change, so this rule will remain out of date, so we'll reconfig
+# but Makefile won't change, so we'll reconfig but... endlessly.
+#
+# This is also why we repeat the reconfig target's command here instead
+# of delegating to it with "$(MAKE) reconfig": having children running
+# around interfering makes this failure mode even worse.
+Makefile: @srcdir@/Makefile.in $(SRCDIR)/main.mk @AUTODEPS@
+	@AUTOREMAKE@
+	touch @builddir@/Makefile

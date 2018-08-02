@@ -5,7 +5,7 @@ official release.
 
 <ol>
 <li><p>
-From a private directory (not the source tree) run 
+From a private directory (not the source tree) run
 "<b>tclsh $SRC/test/tester.tcl $FOSSIL</b>" where $FOSSIL is the
 name of the executable under test and $SRC is the source tree.
 Verify that there are no errors.
@@ -16,6 +16,29 @@ Click on each of the links in in the
 rendered correctly.
 
 <li><p>
+Click on each of the links in in the
+[./diff-test-1.wiki] document and verify that all diffs are
+rendered correctly.
+
+<li><p>
+Click on the following link to verify that it works: [./test-page%2b%2b.wiki | ./test-page++.wiki]
+(NB:  Many web servers automatically block
+or rewrite URLs that contain "+" characters, even when those "+"
+characters are encoded as "%2B".  On such web servers, the URL
+above will not work.  This test is only guaranteed to work
+when running "fossil ui".)
+
+<li><p>
+Shift-click on each of the links in [./fileage-test-1.wiki] and verify
+correct operation of the file-age computation.
+
+<li><p>
+Verify correct name-change tracking behavior (no net changes) for:
+<blockquote><b>
+fossil test-name-changes --debug  b120bc8b262ac 374920b20944b
+</b></blockquote>
+
+<li><p>
 Compile for all of the following platforms:
 <ol type="a">
 <li> Linux x86
@@ -23,11 +46,12 @@ Compile for all of the following platforms:
 <li> Mac x86
 <li> Mac x86_64
 <li> Windows (mingw)
+<li> Windows (vc++)
 <li> OpenBSD
 </ol>
 
 <li><p>
-Run at least one occurrence of the the following commands on every
+Run at least one occurrence of the following commands on every
 platform:
 <ol type="a">
 <li> <b>fossil rebuild</b>
@@ -45,7 +69,8 @@ uninitialized value that occurs within zlib).
 </ol>
 
 <li><p>
-Inspect all code changes since the previous release, paying particular
+
+Inspect [http://www.fossil-scm.org/index.html/vdiff?from=release&to=trunk&sbs=1|all code changes since the previous release], paying particular
 attention to the following details:
 <ol type="a">
 <li> Can a malicious HTTP request cause a buffer overrun.
@@ -58,9 +83,14 @@ attention to the following details:
 Use the release candidate version of fossil in production on the
 [http://www.fossil-scm.org/] website for at least 48 hours (without
 incident) prior to making the release official.
+
+<li><p>
+Verify that the [../www/changes.wiki | Change Log] is correct and
+up-to-date.
 </ol>
 
 <hr>
 
 Upon successful completion of all tests above, tag the release candidate
-with the "release" tag and set its background color to "#d0c0ff".
+with the "release" tag and set its background color to "#d0c0ff".  Update
+the www/changes.wiki file to show the date of the release.

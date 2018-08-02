@@ -18,10 +18,11 @@
 ** This module implements the delta compress algorithm.
 **
 ** Though developed specifically for fossil, the code in this file
-** is generally appliable and is thus easily separated from the
+** is generally applicable and is thus easily separated from the
 ** fossil source code base.  Nothing in this file depends on anything
 ** else in fossil.
 */
+#include "config.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -66,7 +67,7 @@ static const char *print16(const char *z){
 typedef unsigned int u32;
 
 /*
-** Must be a 16-bit value 
+** Must be a 16-bit value
 */
 typedef short int s16;
 typedef unsigned short int u16;
@@ -83,7 +84,7 @@ typedef unsigned short int u16;
 ** The current state of the rolling hash.
 **
 ** z[] holds the values that have been hashed.  z[] is a circular buffer.
-** z[i] is the first entry and z[(i+NHASH-1)%NHASH] is the last entry of 
+** z[i] is the first entry and z[(i+NHASH-1)%NHASH] is the last entry of
 ** the window.
 **
 ** Hash.a is the sum of all elements of hash.z[].  Hash.b is a weighted
@@ -103,12 +104,12 @@ struct hash {
 */
 static void hash_init(hash *pHash, const char *z){
   u16 a, b, i;
-  a = b = 0;
-  for(i=0; i<NHASH; i++){
+  a = b = z[0];
+  for(i=1; i<NHASH; i++){
     a += z[i];
-    b += (NHASH-i)*z[i];
-    pHash->z[i] = z[i];
+    b += a;
   }
+  memcpy(pHash->z, z, NHASH);
   pHash->a = a & 0xffff;
   pHash->b = b & 0xffff;
   pHash->i = 0;
@@ -133,10 +134,28 @@ static u32 hash_32bit(hash *pHash){
 }
 
 /*
+** Compute a hash on NHASH bytes.
+**
+** This routine is intended to be equivalent to:
+**    hash h;
+**    hash_init(&h, zInput);
+**    return hash_32bit(&h);
+*/
+static u32 hash_once(const char *z){
+  u16 a, b, i;
+  a = b = z[0];
+  for(i=1; i<NHASH; i++){
+    a += z[i];
+    b += a;
+  }
+  return a | (((u32)b)<<16);
+}
+
+/*
 ** Write an base-64 integer into the given buffer.
 */
 static void putInt(unsigned int v, char **pz){
-  static const char zDigits[] = 
+  static const char zDigits[] =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~";
   /*  123456789 123456789 123456789 123456789 123456789 123456789 123 */
   int i, j;
@@ -192,45 +211,78 @@ static int digit_count(int v){
   return i;
 }
 
+#ifdef __GNUC__
+# define GCC_VERSION (__GNUC__*1000000+__GNUC_MINOR__*1000+__GNUC_PATCHLEVEL__)
+#else
+# define GCC_VERSION 0
+#endif
+
 /*
-** Compute a 32-bit checksum on the N-byte buffer.  Return the result.
+** Compute a 32-bit big-endian checksum on the N-byte buffer.  If the
+** buffer is not a multiple of 4 bytes length, compute the sum that would
+** have occurred if the buffer was padded with zeros to the next multiple
+** of four bytes.
 */
 static unsigned int checksum(const char *zIn, size_t N){
+  static const int byteOrderTest = 1;
   const unsigned char *z = (const unsigned char *)zIn;
-  unsigned sum0 = 0;
-  unsigned sum1 = 0;
-  unsigned sum2 = 0;
-  unsigned sum3 = 0;
-  while(N >= 16){
-    sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
-    sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
-    sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
-    sum3 += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
-    z += 16;
-    N -= 16;
+  const unsigned char *zEnd = (const unsigned char*)&zIn[N&~3];
+  unsigned sum = 0;
+  assert( (z - (const unsigned char*)0)%4==0 );  /* Four-byte alignment */
+  if( 0==*(char*)&byteOrderTest ){
+    /* This is a big-endian machine */
+    while( z<zEnd ){
+      sum += *(unsigned*)z;
+      z += 4;
+    }
+  }else{
+    /* A little-endian machine */
+#if GCC_VERSION>=4003000
+    while( z<zEnd ){
+      sum += __builtin_bswap32(*(unsigned*)z);
+      z += 4;
+    }
+#elif defined(_MSC_VER) && _MSC_VER>=1300
+    while( z<zEnd ){
+      sum += _byteswap_ulong(*(unsigned*)z);
+      z += 4;
+    }
+#else
+    unsigned sum0 = 0;
+    unsigned sum1 = 0;
+    unsigned sum2 = 0;
+    while(N >= 16){
+      sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
+      sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
+      sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
+      sum  += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
+      z += 16;
+      N -= 16;
+    }
+    while(N >= 4){
+      sum0 += z[0];
+      sum1 += z[1];
+      sum2 += z[2];
+      sum  += z[3];
+      z += 4;
+      N -= 4;
+    }
+    sum += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
+#endif
   }
-  while(N >= 4){
-    sum0 += z[0];
-    sum1 += z[1];
-    sum2 += z[2];
-    sum3 += z[3];
-    z += 4;
-    N -= 4;
-  }
-  sum3 += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
-  switch(N){
-    case 3:   sum3 += (z[2] << 8);
-    case 2:   sum3 += (z[1] << 16);
-    case 1:   sum3 += (z[0] << 24);
+  switch(N&3){
+    case 3:   sum += (z[2] << 8);
+    case 2:   sum += (z[1] << 16);
+    case 1:   sum += (z[0] << 24);
     default:  ;
   }
-  return sum3;
+  return sum;
 }
 
 /*
 ** Create a new delta.
 **
-** The delta is written into a preallocated buffer, zDelta, which 
+** The delta is written into a preallocated buffer, zDelta, which
 ** should be at least 60 bytes longer than the target file, zOut.
 ** The delta string will be NUL-terminated, but it might also contain
 ** embedded NUL characters if either the zSrc or zOut files are
@@ -246,7 +298,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 ** found there.  The delta_output_size() routine does exactly this.
 **
 ** After the initial size number, the delta consists of a series of
-** literal text segments and commands to copy from the SOURCE file.  
+** literal text segments and commands to copy from the SOURCE file.
 ** A copy command looks like this:
 **
 **     NNN@MMM,
@@ -284,7 +336,7 @@ static unsigned int checksum(const char *zIn, size_t N){
 ** made to extend the matching section to regions that come before
 ** and after the 16-byte hash window.  A copy command is only issued
 ** if the result would use less space that just quoting the text
-** literally. Literal text is added to the delta for sections that 
+** literally. Literal text is added to the delta for sections that
 ** do not match or which can not be encoded efficiently using copy
 ** commands.
 */
@@ -327,13 +379,10 @@ int delta_create(
   */
   nHash = lenSrc/NHASH;
   collide = fossil_malloc( nHash*2*sizeof(int) );
+  memset(collide, -1, nHash*2*sizeof(int));
   landmark = &collide[nHash];
-  memset(landmark, -1, nHash*sizeof(int));
-  memset(collide, -1, nHash*sizeof(int));
   for(i=0; i<lenSrc-NHASH; i+=NHASH){
-    int hv;
-    hash_init(&h, &zSrc[i]);
-    hv = hash_32bit(&h) % nHash;
+    int hv = hash_once(&zSrc[i]) % nHash;
     collide[i/NHASH] = landmark[hv];
     landmark[hv] = i/NHASH;
   }
@@ -357,9 +406,9 @@ int delta_create(
       iBlock = landmark[hv];
       while( iBlock>=0 && (limit--)>0 ){
         /*
-        ** The hash window has identified a potential match against 
+        ** The hash window has identified a potential match against
         ** landmark block iBlock.  But we need to investigate further.
-        ** 
+        **
         ** Look for a region in zOut that matches zSrc. Anchor the search
         ** at zSrc[iSrc] and zOut[base+i].  Do not include anything prior to
         ** zOut[base] or after zOut[outLen] nor anything after zSrc[srcLen].
@@ -374,14 +423,17 @@ int delta_create(
         int cnt, ofst, litsz;
         int j, k, x, y;
         int sz;
+        int limitX;
 
         /* Beginning at iSrc, match forwards as far as we can.  j counts
         ** the number of characters that match */
         iSrc = iBlock*NHASH;
-        for(j=0, x=iSrc, y=base+i; x<lenSrc && y<lenOut; j++, x++, y++){
+        y = base+i;
+        limitX = ( lenSrc-iSrc <= lenOut-y ) ? lenSrc : iSrc + lenOut - y;
+        for(x=iSrc; x<limitX; x++, y++){
           if( zSrc[x]!=zOut[y] ) break;
         }
-        j--;
+        j = x - iSrc - 1;
 
         /* Beginning at iSrc-1, match backwards as far as we can.  k counts
         ** the number of characters that match */
@@ -468,13 +520,13 @@ int delta_create(
   /* Output the final checksum record. */
   putInt(checksum(zOut, lenOut), &zDelta);
   *(zDelta++) = ';';
-  free(collide);
-  return zDelta - zOrigDelta; 
+  fossil_free(collide);
+  return zDelta - zOrigDelta;
 }
 
 /*
 ** Return the size (in bytes) of the output from applying
-** a delta. 
+** a delta.
 **
 ** This routine is provided so that an procedure that is able
 ** to call delta_apply() can learn how much space is required
@@ -521,7 +573,7 @@ int delta_apply(
 ){
   unsigned int limit;
   unsigned int total = 0;
-#ifndef FOSSIL_OMIT_DELTA_CKSUM_TEST
+#ifdef FOSSIL_ENABLE_DELTA_CKSUM_TEST
   char *zOrigOut = zOut;
 #endif
 
@@ -578,7 +630,7 @@ int delta_apply(
       case ';': {
         zDelta++; lenDelta--;
         zOut[0] = 0;
-#ifndef FOSSIL_OMIT_DELTA_CKSUM_TEST
+#ifdef FOSSIL_ENABLE_DELTA_CKSUM_TEST
         if( cnt!=checksum(zOrigOut, total) ){
           /* ERROR:  bad checksum */
           return -1;
@@ -589,6 +641,67 @@ int delta_apply(
           return -1;
         }
         return total;
+      }
+      default: {
+        /* ERROR: unknown delta operator */
+        return -1;
+      }
+    }
+  }
+  /* ERROR: unterminated delta */
+  return -1;
+}
+
+/*
+** Analyze a delta.  Figure out the total number of bytes copied from
+** source to target, and the total number of bytes inserted by the delta,
+** and return both numbers.
+*/
+int delta_analyze(
+  const char *zDelta,    /* Delta to apply to the pattern */
+  int lenDelta,          /* Length of the delta */
+  int *pnCopy,           /* OUT: Number of bytes copied */
+  int *pnInsert          /* OUT: Number of bytes inserted */
+){
+  unsigned int nInsert = 0;
+  unsigned int nCopy = 0;
+
+  (void)getInt(&zDelta, &lenDelta);
+  if( *zDelta!='\n' ){
+    /* ERROR: size integer not terminated by "\n" */
+    return -1;
+  }
+  zDelta++; lenDelta--;
+  while( *zDelta && lenDelta>0 ){
+    unsigned int cnt;
+    cnt = getInt(&zDelta, &lenDelta);
+    switch( zDelta[0] ){
+      case '@': {
+        zDelta++; lenDelta--;
+        (void)getInt(&zDelta, &lenDelta);
+        if( lenDelta>0 && zDelta[0]!=',' ){
+          /* ERROR: copy command not terminated by ',' */
+          return -1;
+        }
+        zDelta++; lenDelta--;
+        nCopy += cnt;
+        break;
+      }
+      case ':': {
+        zDelta++; lenDelta--;
+        nInsert += cnt;
+        if( cnt>lenDelta ){
+          /* ERROR: insert count exceeds size of delta */
+          return -1;
+        }
+        zDelta += cnt;
+        lenDelta -= cnt;
+        break;
+      }
+      case ';': {
+        *pnCopy = nCopy;
+        *pnInsert = nInsert;
+        return 0;
       }
       default: {
         /* ERROR: unknown delta operator */

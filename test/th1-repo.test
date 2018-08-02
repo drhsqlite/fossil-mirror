@@ -1,0 +1,88 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+# Copyright (c) 2015 Ch. Drexler
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+#   Chris Drexler <ckolumbus@ac-drexler.de>
+#
+############################################################################
+#
+# TH1 tests that may modify the repository
+#
+
+set path [file dirname [info script]]
+
+require_no_open_checkout
+
+########################################
+# Setup: Add Files and Commit          #
+########################################
+
+test_setup; set rootDir [file normalize [pwd]]
+
+write_file f1.md  "f1"
+write_file f2.md  "f2"
+write_file f3.txt "f3"
+write_file f4.md  "f4"
+
+file mkdir [file join $rootDir subdirA]
+# NOTE: There are no files in subdirA.
+
+file mkdir [file join $rootDir subdirB]
+write_file [file join $rootDir subdirB f5.md] "f5"
+write_file [file join $rootDir subdirB f6.md] "f6"
+write_file [file join $rootDir subdirB f7.txt] "f7"
+write_file [file join $rootDir subdirB f8.md] "f8"
+write_file [file join $rootDir subdirB f9.wiki] "f9"
+
+file mkdir [file join $rootDir subdirC]
+write_file [file join $rootDir subdirC f10.md] "f10"
+write_file [file join $rootDir subdirC f11t.xt] "f11"
+
+set files_md [list subdirB/f5.md subdirB/f6.md subdirB/f8.md subdirC/f10.md]
+
+fossil add $rootDir
+fossil commit -m "c1"
+
+###############################################################################
+
+fossil test-th-eval --open-config "dir trunk subdir*/*.md"
+test th1-dir-1 {[llength $RESULT] eq [llength $files_md]}
+
+set n 1
+foreach i $RESULT j $files_md {
+   test th1-dir-2.$n {$i eq $j}
+   set n [expr {$n + 1}]
+}
+
+###############################################################################
+
+set dateTime {\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}}
+fossil test-th-eval --open-config "dir trunk subdir*/*.md 1"
+test th1-dir-3.1 {[lindex [lindex $RESULT 0] 0] eq "subdirB/f5.md"}
+test th1-dir-3.2 {[lindex [lindex $RESULT 0] 1] == 2}
+test th1-dir-3.3 {[regexp -- $dateTime [lindex [lindex $RESULT 0] 2]]}
+test th1-dir-3.4 {[lindex [lindex $RESULT 1] 0] eq "subdirB/f6.md"}
+test th1-dir-3.5 {[lindex [lindex $RESULT 1] 1] == 2}
+test th1-dir-3.6 {[regexp -- $dateTime [lindex [lindex $RESULT 1] 2]]}
+test th1-dir-3.7 {[lindex [lindex $RESULT 2] 0] eq "subdirB/f8.md"}
+test th1-dir-3.8 {[lindex [lindex $RESULT 2] 1] == 2}
+test th1-dir-3.9 {[regexp -- $dateTime [lindex [lindex $RESULT 2] 2]]}
+test th1-dir-3.10 {[lindex [lindex $RESULT 3] 0] eq "subdirC/f10.md"}
+test th1-dir-3.11 {[lindex [lindex $RESULT 3] 1] == 3}
+test th1-dir-3.12 {[regexp -- $dateTime [lindex [lindex $RESULT 3] 2]]}
+
+###############################################################################
+
+test_cleanup

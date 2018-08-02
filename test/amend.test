@@ -1,0 +1,405 @@
+#
+# Copyright (c) 2015 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests for the "amend" command.
+#
+
+proc artifact_from_timeline {res var} {
+  upvar $var artid
+  regexp {(?x)[0-9]{2}(?::[0-9]{2}){2}\s+\[([0-9a-f]+)]} $res m artid
+}
+
+proc manifest_comment {comment} {
+  string map [list { } {\\s} \n {\\n} \r {\\r}] $comment
+}
+
+proc uuid_from_commit {res var} {
+  upvar $var UUID
+  regexp {^New_Version: ([0-9a-f]{40})[0-9a-f]*$} $res m UUID
+}
+
+proc uuid_from_branch {res var} {
+  upvar $var UUID
+  regexp {^New branch: ([0-9a-f]{40})[0-9a-f]*$} $res m UUID
+}
+
+proc uuid_from_checkout {var} {
+  global RESULT
+  upvar $var UUID
+  fossil status
+  regexp {checkout:\s+([0-9a-f]{40})} $RESULT m UUID
+}
+
+# Make sure we are not in an open repository and initialize new repository
+test_setup
+
+########################################
+# Setup: Add file and commit           #
+########################################
+
+if {![uuid_from_checkout UUIDINIT]} {
+  test amend-checkout-failure false
+  test_cleanup_then_return
+}
+write_file datafile "data"
+fossil add datafile
+fossil commit -m "c1"
+if {![uuid_from_commit $RESULT UUID]} {
+  test amend-setup-failure false
+  test_cleanup_then_return
+}
+
+########################################
+# Test: -branch                        #
+########################################
+set UUIDB UUIDB
+write_file datafile "data.file"
+fossil commit -m "c2"
+if {![uuid_from_commit $RESULT UUIDB]} {
+  test amend-branch.setup false
+}
+fossil amend $UUIDB -branch amended-branch
+test amend-branch-1.1 {[regexp {tags:\s+amended-branch} $RESULT]}
+fossil branch ls
+test amend-branch-1.2 {[string first "* amended-branch" $RESULT] != -1}
+fossil tag list
+test amend-branch-1.3 {[string first amended-branch $RESULT] != -1}
+fossil tag list --raw $UUIDB
+test amend-branch-1.4 {[string first "branch=amended-branch" $RESULT] != -1}
+test amend-branch-1.5 {[string first "sym-amended-branch" $RESULT] != -1}
+fossil timeline -n 1
+test amend-branch-1.6 {[string match {*Move*to*branch*amended-branch*} $RESULT]}
+
+########################################
+# Test: -bgcolor                       #
+########################################
+set tc 0
+foreach {color result} {
+  0 0
+  a a
+  abcdef #abcdef
+  abc123 #abc123
+  123efg 123efg
+  abcdefg abcdefg
+  abcdeg abcdeg
+  blue blue
+  acf #acf
+  123 #123
+  #1234 #1234
+  1234 1234
+  123456 #123456
+} {
+  incr tc
+  fossil amend $UUID -bgcolor $color
+  test amend-bgcolor-1.$tc.a {[string match "*uuid:*$UUID*" $RESULT]}
+  fossil tag list --raw $UUID
+  test amend-bgcolor-1.$tc.b {[string first "bgcolor=$result" $RESULT] != -1}
+  fossil timeline -n 1
+  test amend-bgcolor-1.$tc.c {
+    [string match "*Change*background*color*to*\"$result\"*" $RESULT]
+  }
+  if {[artifact_from_timeline $RESULT artid]} {
+    fossil artifact $artid
+    test amend-bgcolor-1.$tc.d {
+      [string match "*T +bgcolor $UUID* $result*" $RESULT]
+    }
+  } else {
+    if {$VERBOSE} { protOut "No artifact found in timeline output" }
+    test amend-bgcolor-1.$tc.d false
+  }
+}
+fossil amend $UUID -bgcolor {}
+test amend-bgcolor-2.1 {[string match "*uuid:*$UUID*" $RESULT]}
+fossil tag list --raw $UUID
+test amend-bgcolor-2.2 {
+  [string first "bgcolor=" $RESULT] == -1 &&
+  [string first "bgcolor" $RESULT] != -1
+}
+fossil timeline -n 1
+test amend-bgcolor-2.3 {[string match "*Cancel*background*color.*" $RESULT]}
+if {[artifact_from_timeline $RESULT artid]} {
+  fossil artifact $artid
+  test amend-bgcolor-2.4 {[string match "*T -bgcolor $UUID*" $RESULT]}
+} else {
+  if {$VERBOSE} { protOut "No artifact found in timeline output" }
+  test amend-bgcolor-2.4 false
+}
+
+########################################
+# Test: -branchcolor                   #
+########################################
+set UUID2 UUID2
+fossil branch new brclr $UUID
+if {![uuid_from_branch $RESULT UUID2]} {
+  test amend-branchcolor.setup false
+}
+fossil update $UUID2
+fossil amend $UUID2 -branchcolor yellow
+test amend-branchcolor-1.1 {[string match "*uuid:*$UUID2*" $RESULT]}
+fossil tag ls --raw $UUID2
+test amend-branchcolor-1.2 {[string first "bgcolor=yellow" $RESULT] != -1}
+fossil timeline -n 1
+test amend-branchcolor-1.3 {
+  [string match {*Change*branch*background*color*to*"yellow".*} $RESULT]
+}
+if {[regexp {(?x)[0-9]{2}(?::[0-9]{2}){2}\s+\[([0-9a-f]+)]} $RESULT m artid]} {
+  fossil artifact $artid
+  test amend-branchcolor-1.4 {
+    [string match "*T \*bgcolor $UUID2* yellow*" $RESULT]
+  }
+} else {
+  if {$VERBOSE} { protOut "No artifact found in timeline output" }
+  test amend-branchcolor-1.4 false
+}
+
+set UUIDN UUIDN
+write_file datafile "brclr"
+fossil commit -m "brclr"
+if {![uuid_from_commit $RESULT UUIDN]} {
+  test amend-branchcolor-propagating.setup false
+}
+write_file datafile "bc1"
+fossil commit -m "mc1"
+write_file datafile "bc2"
+fossil commit -m "mc2"
+fossil amend $UUIDN -branchcolor deadbe
+test amend-branchcolor-2.1 {[string match "*uuid:*$UUIDN*" $RESULT]}
+fossil tag ls --raw current
+test amend-branchcolor-2.2 {[string first "bgcolor=#deadbe" $RESULT] != -1}
+fossil timeline -n 1
+test amend-branchcolor-2.3 {
+  [string match {*Change*branch*background*color*to*"#deadbe".*} $RESULT]
+}
+
+########################################
+# Test: -author                        #
+########################################
+fossil amend $UUID -author author-test
+test amend-author-1.1 {[string match {*comment:*(user:*author-test)*} $RESULT]}
+fossil tag ls --raw $UUID
+test amend-author-1.2 {[string first "user=author-test" $RESULT] != -1}
+fossil timeline -n 1
+test amend-author-1.3 {[string match {*Change*user*to*"author-test".*} $RESULT]}
+
+########################################
+# Test: -date                          #
+########################################
+set timestamp [clock scan yesterday]
+set date [clock format $timestamp -format "%Y-%m-%d" -gmt 1]
+set time [clock format $timestamp -format "%H:%M:%S" -gmt 1]
+set datetime "$date $time"
+fossil amend $UUIDINIT -date $datetime
+test amend-date-1.1 {[string match "*uuid:*$UUIDINIT*$datetime*" $RESULT]}
+fossil tag ls --raw $UUIDINIT
+test amend-date-1.2 {[string first "date=$datetime" $RESULT] != -1}
+fossil timeline -n 1
+test amend-date-1.3 {[string match "*Timestamp*$date*$time*" $RESULT]}
+set badformats {
+  "%+"
+  "%Y-%m-%d %H:%M%:%S %Z"
+  "%d/%m/%Y %H:%M%:%S %Z"
+  "%d/%m/%Y %H:%M%:%S"
+  "%d/%m/%Y"
+}
+set sc 0
+foreach badformat $badformats {
+  incr sc
+  set datetime [clock format $timestamp -format $badformat -gmt 1]
+  fossil amend $UUIDINIT -date $datetime -expectError
+  test amend-date-2.$sc {[string first "YYYY-MM-DD HH:MM:SS" $RESULT] != -1}
+}
+
+########################################
+# Test: -hide                          #
+########################################
+set UUIDH UUIDH
+fossil revert
+fossil update trunk
+fossil branch new tohide current
+if {![uuid_from_branch $RESULT UUIDH]} {
+  test amend-hide-setup false
+}
+fossil amend $UUIDH -hide
+test amend-hide-1.1 {[string match "*uuid:*$UUIDH*" $RESULT]}
+fossil tag ls --raw $UUIDH
+test amend-hide-1.2 {[string first "hidden" $RESULT] != -1}
+fossil timeline -n 1
+test amend-hide-1.3 {[string match {*Add*propagating*"hidden".*} $RESULT]}
+
+########################################
+# Test: -close                          #
+########################################
+set UUIDC UUIDC
+fossil branch new cllf $UUID
+if {![uuid_from_branch $RESULT UUIDC]} {
+  test amend-close.setup false
+}
+fossil update $UUIDC
+fossil amend $UUIDC -close
+test amend-close-1.1.a {[string match "*uuid:*$UUIDC*" $RESULT]}
+test amend-close-1.1.b {
+  [string match "*comment:*Create*new*branch*named*\"cllf\"*" $RESULT]
+}
+fossil tag ls --raw $UUIDC
+test amend-close-1.2 {[string first "closed" $RESULT] != -1}
+fossil timeline -n 1
+test amend-close-1.3 {[string match {*Mark*"Closed".*} $RESULT]}
+write_file datafile "cllf"
+fossil commit -m "should fail" -expectError
+test amend-close-2 {[string first "closed leaf" $RESULT] != -1}
+
+set UUID3 UUID3
+fossil revert
+fossil update trunk
+write_file datafile "cb"
+fossil commit -m "closed-branch" --branch "closebranch"
+if {![uuid_from_commit $RESULT UUID3]} {
+  test amend-close-3.setup false
+}
+write_file datafile "b1"
+fossil commit -m "m1"
+write_file datafile "b2"
+fossil commit -m "m2"
+fossil amend $UUID3 --close
+test amend-close-3.1 {[string match "*uuid:*$UUID3*" $RESULT]}
+fossil tag ls --raw current
+test amend-close-3.2 {[string first "closed" $RESULT] != -1}
+fossil timeline -n 1
+test amend-close-3.3 {
+  [string match "*Add*propagating*\"closed\".*" $RESULT]
+}
+write_file datafile "changed"
+fossil commit -m "should fail" -expectError
+test amend-close-3.4 {[string first "closed leaf" $RESULT] != -1}
+
+########################################
+# Test: -tag/-cancel                   #
+########################################
+set tagtests {
+  tagged tagged
+  {000000 lower Upper alpha 0alpha} {000000 0alpha Upper alpha lower}
+}
+set tc 0
+foreach {tagt result} $tagtests {
+  incr tc
+  set tags {}
+  set cancels {}
+  set t1exp ""
+  set t2exp "*"
+  set t3exp "*"
+  set t5exp "*"
+  foreach tag $tagt {
+    lappend tags -tag $tag
+    lappend cancels -cancel $tag
+  }
+  foreach res $result {
+    append t1exp ", $res"
+    append t2exp "sym-$res*"
+    append t3exp "Add*tag*\"$res\".*"
+    append t5exp "Cancel*tag*\"$res\".*"
+  }
+  eval fossil amend $UUID $tags
+  test amend-tag-$tc.1 {[string match "*uuid:*$UUID*tags:*$t1exp*" $RESULT]}
+  fossil tag ls --raw $UUID
+  test amend-tag-$tc.2 {[string match $t2exp $RESULT]}
+  fossil timeline -n 1
+  test amend-tag-$tc.3 {[string match $t3exp $RESULT]}
+  eval fossil amend $UUID $cancels
+  test amend-tag-$tc.4 {![string match "*tags:*$t1exp*" $RESULT]}
+  fossil timeline -n 1
+  test amend-tag-$tc.5 {[string match $t5exp $RESULT]}
+}
+
+########################################
+# Test: -comment                       #
+########################################
+proc prep-test {comment content} {
+  global UUID RESULT
+
+  fossil revert
+  fossil update trunk
+  write_file datafile $comment
+  fossil commit -m $content
+  if {![uuid_from_commit $RESULT UUID]} {
+    set UUID ""
+  }
+}
+
+proc test-comment {name UUID comment} {
+  global VERBOSE RESULT
+
+  test amend-comment-$name.1 {
+    [string match "*uuid:*$UUID*comment:*$comment*" $RESULT]
+  }
+  fossil timeline -n 1
+  if {[artifact_from_timeline $RESULT artid]} {
+    fossil artifact $artid
+    test amend-comment-$name.2 {
+      [string match "*T +comment $UUID* *[manifest_comment $comment]*" $RESULT]
+    }
+  } else {
+    if {$VERBOSE} { protOut "No artifact found in timeline output: $RESULT" }
+    test amend-comment-$name.2 false
+  }
+  fossil timeline -n 1
+  test amend-comment-$name.3 {
+    [string match "*[short_uuid $UUID]*Edit*check-in*comment.*" $RESULT]
+  }
+  fossil info $UUID
+  test amend-comment-$name.4 {
+    [string match "*uuid:*$UUID*comment:*$comment*" $RESULT]
+  }
+}
+
+prep-test "revision 1" "revision 1"
+fossil amend $UUID -comment "revised revision 1"
+test-comment 1 $UUID "revised revision 1"
+
+prep-test "revision 2" "revision 2"
+fossil amend $UUID -m "revised revision 2 with -m"
+test-comment 2 $UUID "revised revision 2 with -m"
+
+prep-test "revision 3" "revision 3"
+write_file commitmsg "revision 3 revised"
+fossil amend $UUID -message-file commitmsg
+test-comment 3 $UUID "revision 3 revised"
+
+prep-test "revision 4" "revision 4"
+write_file commitmsg "revision 4 revised with -M"
+fossil amend $UUID -M commitmsg
+test-comment 4 $UUID "revision 4 revised with -M"
+
+prep-test "final comment" "final content"
+if {[catch {exec which ed} result]} {
+  if {$VERBOSE} { protOut "Install ed for interactive comment test: $result" }
+  test-comment 5 $UUID "ed required for interactive edit"
+} else {
+  fossil settings editor "ed -s"
+  set comment "interactive edited comment"
+  fossil_maybe_answer "a\n$comment\n.\nw\nq\n" amend $UUID --edit-comment
+  test-comment 5 $UUID $comment
+}
+
+########################################
+# Test: NULL UUID                      #
+########################################
+fossil amend {} -close -expectError
+test amend-null-uuid {$CODE && [string first "no such check-in" $RESULT] != -1}
+
+###############################################################################
+
+test_cleanup

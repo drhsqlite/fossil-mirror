@@ -1,0 +1,57 @@
+<title>Graph Test One</title>
+
+This page contains list of URLs of interesting diffs.
+Click on all URLs, one by one, to verify
+the correct operation of the diff logic.
+For correct testing, many of these require <tt>show-version-diffs</tt>
+to be enabled in the [/setup_timeline|Timeline Display Preferences]
+configuration page.
+
+  *  <a href="../../../info/030035345c#chunk73" target="testwindow">
+     Multiple edits on a single line.</a>  This is an SQLite version
+     update diff.  It is a large diff and contains many other interesting
+     features.  Scan the whole diff.
+  *  <a href="../../../fdiff?v1=6da016415dc52d61&v2=af6df3466e3c4a88"
+     target="testwindow">Tricky alignment and multiple edits per line</a>.
+  *  <a href="../../../fdiff?v1=7108d4748b111d23&v2=2303a98525b39d19#chunk3"
+     target="testwindow">Add a column to a table</a>
+  *  <a href="../../../fdiff?v1=d1c60722e0b9d775&v2=58d1a8991bacb113"
+     target="testwindow">Column alignment with multibyte characters.</a>
+     The edit of a line with multibyte characters is the first chunk.
+  *  <a href="../../../fdiff?v1=57b0d8183cab0e3d&v2=37b3ef49d73cdfe6"
+     target="testwindow">Large diff of sqlite3.c</a>.  This diff was very
+     slow prior to the performance enhancement change [9e15437e97].
+  *  <a href="../../../info/bda00cbada#chunk49" target="testwindow">
+     A difficult indentation change.</a>
+  *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk13"
+      target="testwindow">Another tricky indentation.</a>  Notice especially
+      lines 59398 and 59407 on the left.
+  *  <a href="../../../fdiff?v2=955cc67ace8fb622&v1=e2e1c87b86664b45#chunk13"
+      target="testwindow">Inverse of the previous.</a>
+  *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk24"
+      target="testwindow">A complex change</a> that is difficult to align, and
+      hence falls back to the "delete left and insert right" strategy.
+  *  <a href="../../../fdiff?v2=955cc67ace8fb622&v1=e2e1c87b86664b45#chunk24"
+      target="testwindow">Inverse of the previous.</a>
+  *  <a href="../../../fdiff?v1=21f9a00fe2fa4a17&v2=d5c4ff0532bd89c3#chunk5"
+      target="testwindow">sqlite3.c changes</a>
+      that are difficult to align.
+  *  <a href="../../../fdiff?v2=21f9a00fe2fa4a17&v1=d5c4ff0532bd89c3#chunk5"
+      target="testwindow">sqlite3.c changes inverted.</a>
+  *  <a href="../../../fdiff?v1=4f70c682e44f&v2=55659c6e062994f"
+      target="testwindow">Lorem Ipsum in Greek.</a>
+  *  <a href="../../../fdiff?v2=4f70c682e44f&v1=55659c6e062994f"
+      target="testwindow">Lorem Ipsum in Greek inverted.</a>
+
+External:
+
+  *  <a href="http://www.sqlite.org/src/fdiff?v1=aafcb21a74e41f9a&v2=a6d127dd05daf0f9#chunk3" target="testwindow">
+     Code indentation change.</a>
+  *  <a href="http://www.sqlite.org/src/info/52e755943f" target="testwindow">
+     A complex change (chunk 1) in which the alignment becomes so complex
+     that it is better for clarity to abandon it and just show the left
+     and right sides contiguously.</a>
+  *  <a href="http://www.sqlite.org/src/info/3d65c70343#chunk5"
+     target="testwindow">
+     An indentation change.  See especially lines 2313 and 2317 on the right,
+     that their green indentation addition is left-justified.</a>

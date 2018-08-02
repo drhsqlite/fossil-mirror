@@ -14,7 +14,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** This file contains string constants that implement the database schema.
 */
 #include "config.h"
@@ -23,7 +23,7 @@
 /*
 ** The database schema for the ~/.fossil configuration database.
 */
-const char zConfigSchema[] = 
+const char zConfigSchema[] =
 @ -- This file contains the schema for the database that is kept in the
 @ -- ~/.fossil file and that stores information about the users setup.
 @ --
@@ -31,6 +31,10 @@ const char zConfigSchema[] =
 @   name TEXT PRIMARY KEY,
 @   value TEXT
 @ );
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLG'.
+@ PRAGMA application_id=252006675;
 ;
 
 #if INTERFACE
@@ -42,13 +46,17 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "2"
-#define AUX_SCHEMA      "2011-04-25 19:50"
+#define AUX_SCHEMA_MIN  "2011-04-25 19:50"
+#define AUX_SCHEMA_MAX  "2015-01-24"
+/* NB:  Some features require the latest schema.  Warning or error messages
+** will appear if an older schema is used.  However, the older schemas are
+** adequate for many common functions. */
 
 #endif /* INTERFACE */
 
 
 /*
-** The schema for a repository database.  
+** The schema for a repository database.
 **
 ** Schema1[] contains parts of the schema that are fixed and unchanging
 ** across versions.  Schema2[] contains parts of the schema that can
@@ -56,7 +64,7 @@ const char zConfigSchema[] =
 ** is reconstructed from the information in Schema1[] by the "rebuild"
 ** operation.
 */
-const char zRepositorySchema1[] = 
+const char zRepositorySchema1[] =
 @ -- The BLOB and DELTA tables contain all records held in the repository.
 @ --
 @ -- The BLOB.CONTENT column is always compressed using zlib.  This
@@ -67,19 +75,19 @@ const char zRepositorySchema1[] =
 @ -- entry that holds the source of the delta.  Deltas can be chained.
 @ --
 @ -- The blob and delta tables collectively hold the "global state" of
-@ -- a Fossil repository.  
+@ -- a Fossil repository.
 @ --
 @ CREATE TABLE blob(
 @   rid INTEGER PRIMARY KEY,        -- Record ID
 @   rcvid INTEGER,                  -- Origin of this record
 @   size INTEGER,                   -- Size of content. -1 for a phantom.
-@   uuid TEXT UNIQUE NOT NULL,      -- SHA1 hash of the content
+@   uuid TEXT UNIQUE NOT NULL,      -- hash of the content
 @   content BLOB,                   -- Compressed content of this record
-@   CHECK( length(uuid)==40 AND rid>0 )
+@   CHECK( length(uuid)>=40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
-@   rid INTEGER PRIMARY KEY,                 -- Record ID
-@   srcid INTEGER NOT NULL REFERENCES blob   -- Record holding source document
+@   rid INTEGER PRIMARY KEY,                 -- BLOB that is delta-compressed
+@   srcid INTEGER NOT NULL REFERENCES blob   -- Baseline for delta-compression
 @ );
 @ CREATE INDEX delta_i1 ON delta(srcid);
 @
@@ -87,7 +95,7 @@ const char zRepositorySchema1[] =
 @ -- The BLOB and DELTA tables above hold the "global state" of a Fossil
 @ -- project; the stuff that is normally exchanged during "sync".  The
 @ -- "local state" of a repository is contained in the remaining tables of
-@ -- the zRepositorySchema1 string.  
+@ -- the zRepositorySchema1 string.
 @ -------------------------------------------------------------------------
 @
 @ -- Whenever new blobs are received into the repository, an entry
@@ -123,7 +131,7 @@ const char zRepositorySchema1[] =
 @   photo BLOB                      -- JPEG image of this user
 @ );
 @
-@ -- The VAR table holds miscellanous information about the repository.
+@ -- The config table holds miscellanous information about the repository.
 @ -- in the form of name-value pairs.
 @ --
 @ CREATE TABLE config(
@@ -166,7 +174,32 @@ const char zRepositorySchema1[] =
 @    cols TEXT,               -- A color-key specification
 @    sqlcode TEXT             -- An SQL SELECT statement for this report
 @ );
-@ INSERT INTO reportfmt(title,mtime,cols,sqlcode) 
+@
+@ -- Some ticket content (such as the originators email address or contact
+@ -- information) needs to be obscured to protect privacy.  This is achieved
+@ -- by storing an SHA1 hash of the content.  For display, the hash is
+@ -- mapped back into the original text using this table.
+@ --
+@ -- This table contains sensitive information and should not be shared
+@ -- with unauthorized users.
+@ --
+@ CREATE TABLE concealed(
+@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
+@   mtime DATE,               -- Time created.  Seconds since 1970
+@   content TEXT              -- Content intended to be concealed
+@ );
+@
+@ -- The application ID helps the unix "file" command to identify the
+@ -- database as a fossil repository.
+@ PRAGMA application_id=252006673;
+;
+
+/*
+** The default reportfmt entry for the schema. This is in an extra
+** script so that (configure reset) can install the default report.
+*/
+const char zRepositorySchemaDefaultReports[] =
+@ INSERT INTO reportfmt(title,mtime,cols,sqlcode)
 @ VALUES('All Tickets',julianday('1970-01-01'),'#ffffff Key:
 @ #f2dcdc Active
 @ #e8e8e8 Review
@@ -187,20 +220,6 @@ const char zRepositorySchema1[] =
 @   subsystem,
 @   title
 @ FROM ticket');
-@
-@ -- Some ticket content (such as the originators email address or contact
-@ -- information) needs to be obscured to protect privacy.  This is achieved
-@ -- by storing an SHA1 hash of the content.  For display, the hash is
-@ -- mapped back into the original text using this table.  
-@ --
-@ -- This table contains sensitive information and should not be shared
-@ -- with unauthorized users.
-@ --
-@ CREATE TABLE concealed(
-@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
-@   mtime DATE,               -- Time created.  Seconds since 1970
-@   content TEXT              -- Content intended to be concealed
-@ );
 ;
 
 const char zRepositorySchema2[] =
@@ -211,40 +230,63 @@ const char zRepositorySchema2[] =
 @   name TEXT UNIQUE             -- Name of file page
 @ );
 @
-@ -- Linkages between checkins, files created by each checkin, and
+@ -- Linkages between check-ins, files created by each check-in, and
 @ -- the names of those files.
 @ --
-@ -- pid==0 if the file is added by checkin mid.
-@ -- fid==0 if the file is removed by checkin mid.
+@ -- Each entry represents a file that changed content from pid to fid
+@ -- due to the check-in that goes from pmid to mid.  fnid is the name
+@ -- of the file in the mid check-in.  If the file was renamed as part
+@ -- of the mid check-in, then pfnid is the previous filename.
+@
+@ -- There can be multiple entries for (mid,fid) if the mid check-in was
+@ -- a merge.  Entries with isaux==0 are from the primary parent.  Merge
+@ -- parents have isaux set to true.
+@ --
+@ -- Field name mnemonics:
+@ --    mid = Manifest ID.  (Each check-in is stored as a "Manifest")
+@ --    fid = File ID.
+@ --    pmid = Parent Manifest ID.
+@ --    pid = Parent file ID.
+@ --    fnid = File Name ID.
+@ --    pfnid = Parent File Name ID.
+@ --    isaux = pmid IS AUXiliary parent, not primary parent
+@ --
+@ -- pid==0    if the file is added by check-in mid.
+@ -- pid==(-1) if the file exists in a merge parents but not in the primary
+@  --          parent.  In other words, if the file file was added by merge.
+@ -- fid==0    if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
-@   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
-@   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
-@   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
-@   fnid INTEGER REFERENCES filename,   -- Name of the file
-@   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
-@   mperm INTEGER                       -- File permissions.  1==exec
+@   mid INTEGER,                       -- Check-in that contains fid
+@   fid INTEGER,                       -- New file content. 0 if deleted
+@   pmid INTEGER,                      -- Check-in that contains pid
+@   pid INTEGER,                       -- Prev file content. 0 if new. -1 merge
+@   fnid INTEGER REFERENCES filename,  -- Name of the file
+@   pfnid INTEGER REFERENCES filename, -- Previous name. 0 if unchanged
+@   mperm INTEGER,                     -- File permissions.  1==exec
+@   isaux BOOLEAN DEFAULT 0            -- TRUE if pmid is the primary
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages between checkins
+@ -- Parent/child linkages between check-ins
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
 @   cid INTEGER REFERENCES blob,    -- Child manifest
 @   isprim BOOLEAN,                 -- pid is the primary parent of cid
 @   mtime DATETIME,                 -- the date/time stamp on cid.  Julian day.
+@   baseid INTEGER REFERENCES blob, -- Baseline if cid is a delta manifest.
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
 @
-@ -- A "leaf" checkin is a checkin that has no children in the same
+@ -- A "leaf" check-in is a check-in that has no children in the same
 @ -- branch.  The set of all leaves is easily computed with a join,
 @ -- between the plink and tagxref tables, but it is a slower join for
-@ -- very large repositories (repositories with 100,000 or more checkins)
+@ -- very large repositories (repositories with 100,000 or more check-ins)
 @ -- and so it makes sense to precompute the set of leaves.  There is
 @ -- one entry in the following table for each leaf.
 @ --
@@ -253,7 +295,7 @@ const char zRepositorySchema2[] =
 @ -- Events used to generate a timeline
 @ --
 @ CREATE TABLE event(
-@   type TEXT,                      -- Type of event: 'ci', 'w', 'e', 't'
+@   type TEXT,                      -- Type of event: 'ci', 'w', 'e', 't', 'g'
 @   mtime DATETIME,                 -- Time of occurrence. Julian day.
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
 @   tagid INTEGER,                  -- Associated ticket or wiki name tag
@@ -308,9 +350,9 @@ const char zRepositorySchema2[] =
 @
 @ -- Each baseline or manifest can have one or more tags.  A tag
 @ -- is defined by a row in the next table.
-@ -- 
+@ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
-@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where 
+@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where
 @ -- UUID is the indentifier of the ticket.  Tags used to assign symbolic
 @ -- names to baselines are branches are of the form "sym-NAME" where
 @ -- NAME is the symbolic name.
@@ -329,6 +371,7 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(8, 'branch');          -- TAG_BRANCH
 @ INSERT INTO tag VALUES(9, 'closed');          -- TAG_CLOSED
 @ INSERT INTO tag VALUES(10,'parent');          -- TAG_PARENT
+@ INSERT INTO tag VALUES(11,'note');            -- TAG_NOTE
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -355,7 +398,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE backlink(
 @   target TEXT,           -- Where the hyperlink points to
 @   srctype INT,           -- 0: check-in  1: ticket  2: wiki
-@   srcid INT,             -- rid for checkin or wiki.  tkt_id for ticket.
+@   srcid INT,             -- rid for check-in or wiki.  tkt_id for ticket.
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
 @ );
@@ -387,6 +430,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
+@   tkt_ctime DATE,
 @   -- Add as many field as required below this line
 @   type TEXT,
 @   status TEXT,
@@ -399,6 +443,18 @@ const char zRepositorySchema2[] =
 @   title TEXT,
 @   comment TEXT
 @ );
+@ CREATE TABLE ticketchng(
+@   -- Do not change any column that begins with tkt_
+@   tkt_id INTEGER REFERENCES ticket,
+@   tkt_rid INTEGER REFERENCES blob,
+@   tkt_mtime DATE,
+@   -- Add as many fields as required below this line
+@   login TEXT,
+@   username TEXT,
+@   mimetype TEXT,
+@   icomment TEXT
+@ );
+@ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
 ;
 
 /*
@@ -409,20 +465,18 @@ const char zRepositorySchema2[] =
 # define TAG_COMMENT    2     /* The check-in comment */
 # define TAG_USER       3     /* User who made a checking */
 # define TAG_DATE       4     /* The date of a check-in */
-# define TAG_HIDDEN     5     /* Do not display or sync */
-# define TAG_PRIVATE    6     /* Display but do not sync */
+# define TAG_HIDDEN     5     /* Do not display in timeline */
+# define TAG_PRIVATE    6     /* Do not sync */
 # define TAG_CLUSTER    7     /* A cluster */
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
-# define TAG_PARENT     10    /* Change to parentage on a checkin */
-#endif
-#if EXPORT_INTERFACE
-# define MAX_INT_TAG    16    /* The largest pre-assigned tag id */
+# define TAG_PARENT     10    /* Change to parentage on a check-in */
+# define TAG_NOTE       11    /* Extra text appended to a check-in comment */
 #endif
 
 /*
-** The schema for the locate FOSSIL database file found at the root
-** of very check-out.  This database contains the complete state of
+** The schema for the local FOSSIL database file found at the root
+** of every check-out.  This database contains the complete state of
 ** the checkout.
 */
 const char zLocalSchema[] =
@@ -449,20 +503,21 @@ const char zLocalSchema[] =
 @ -- added but not yet committed.
 @ --
 @ -- Vfile.chnged is 0 for unmodified files, 1 for files that have
-@ -- been edited or which have been subjected to a 3-way merge.  
+@ -- been edited or which have been subjected to a 3-way merge.
 @ -- Vfile.chnged is 2 if the file has been replaced from a different
 @ -- version by the merge and 3 if the file has been added by a merge.
-@ -- The difference between vfile.chnged==2 and a regular add is that
-@ -- with vfile.chnged==2 we know that the current version of the file
-@ -- is already in the repository.
-@ -- 
+@ -- Vfile.chnged is 4|5 is the same as 2|3, but the operation has been
+@ -- done by an --integrate merge.  The difference between vfile.chnged==3|5
+@ -- and a regular add is that with vfile.chnged==3|5 we know that the
+@ -- current version of the file is already in the repository.
 @ --
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
-@   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
+@   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
+@   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
+@   islink BOOLEAN,                   -- True if file should be symlink
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
 @   mtime INTEGER,                    -- Mtime of file on disk. sec since 1970
@@ -475,12 +530,17 @@ const char zLocalSchema[] =
 @ -- file tree.  If a VFILE entry with id has merged with another
 @ -- record, there is an entry in this table with (id,merge) where
 @ -- merge is the RECORD table entry that the file merged against.
-@ -- An id of 0 here means the version record itself.
+@ -- An id of 0 or <-3 here means the version record itself.  When
+@ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
+@ -- backout merge and id==(-4) is a integrate merge.
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
 @   merge INTEGER,                    -- Merged with this record
 @   UNIQUE(id, merge)
 @ );
-@   
+@
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLC'.
+@ PRAGMA application_id=252006674;
 ;

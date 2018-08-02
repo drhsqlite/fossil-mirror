@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -14,6 +14,8 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
+**
+** SYNOPSIS:
 **
 ** Input lines that begin with the "@" character are translated into
 ** either cgi_printf() statements or string literals and the
@@ -30,6 +32,27 @@
 ** the middle of a C program.  This program then translates the text
 ** into standard C by inserting all necessary backslashes and other
 ** punctuation.
+**
+** Enhancement #1:
+**
+** If the last non-whitespace character prior to the first "@" of a
+** @-block is "=" or "," then the @-block is a string literal initializer
+** rather than text that is to be output via cgi_printf().  Render it
+** as such.
+**
+** Enhancement #2:
+**
+** Comments of the form:  "|* @-comment: CC" (where "|" is really "/")
+** cause CC to become a comment character for the @-substitution.
+** Typical values for CC are "--" (for SQL text) or "#" (for Tcl script)
+** or "//" (for C++ code).  Lines of subsequent @-blocks that begin with
+** CC are omitted from the output.
+**
+** Enhancement #3:
+**
+** If a non-enhancement #1 line ends in backslash, the backslash and the
+** newline (\n) are not included in the argument to cgi_printf().  This
+** is used to split one long output line across multiple source lines.
 */
 #include <stdio.h>
 #include <ctype.h>
@@ -54,6 +77,11 @@ static int inPrint = 0;
 static int inStr = 0;
 
 /*
+** Name of files being processed
+*/
+static const char *zInFile = "(stdin)";
+
+/*
 ** Terminate an active cgi_printf() or free string
 */
 static void end_block(FILE *out){
@@ -73,11 +101,13 @@ static void trans(FILE *in, FILE *out){
   char c1, c2;          /* Characters used to start a comment */
   int lastWasEq = 0;    /* True if last non-whitespace character was "=" */
   int lastWasComma = 0; /* True if last non-whitespace character was "," */
+  int lineNo = 0;       /* Line number */
   char zLine[2000];     /* A single line of input */
   char zOut[4000];      /* The input line translated into appropriate output */
 
   c1 = c2 = '-';
   while( fgets(zLine, sizeof(zLine), in) ){
+    lineNo++;
     for(i=0; zLine[i] && isspace(zLine[i]); i++){}
     if( zLine[i]!='@' ){
       if( inPrint || inStr ) end_block(out);
@@ -99,6 +129,7 @@ static void trans(FILE *in, FILE *out){
       ** and end of line.
       */
       int indent, omitline;
+      char *zNewline = "\\n";
       i++;
       if( isspace(zLine[i]) ){ i++; }
       indent = i - 2;
@@ -106,58 +137,97 @@ static void trans(FILE *in, FILE *out){
       omitline = 0;
       for(j=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){
         if( zLine[i]==c1 && (c2==' ' || zLine[i+1]==c2) ){
-           omitline = 1; break; 
+           omitline = 1; break;
         }
-        if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
+        if( zLine[i]=='\\' && (zLine[i+1]==0 || zLine[i+1]=='\r'
+                                 || zLine[i+1]=='\n') ){
+          zLine[i] = 0;
+          zNewline = "";
+          /* fprintf(stderr, "%s:%d: omit newline\n", zInFile, lineNo); */
+          break;
+        }
+        if( zLine[i]=='\\' || zLine[i]=='"' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
       }
-      while( j>0 && isspace(zOut[j-1]) ){ j--; }
+      if( zNewline[0] ) while( j>0 && isspace(zOut[j-1]) ){ j--; }
       zOut[j] = 0;
       if( j<=0 && omitline ){
         fprintf(out,"\n");
       }else{
-        fprintf(out,"%*s\"%s\\n\"\n",indent, "", zOut);
+        fprintf(out,"%*s\"%s%s\"\n",indent, "", zOut, zNewline);
       }
     }else{
       /* Otherwise (if the last non-whitespace was not '=') then generate
       ** a cgi_printf() statement whose format is the text following the '@'.
-      ** Substrings of the form "%C(...)" where C is any character will
-      ** puts "%C" in the format and add the "..." as an argument to the
-      ** cgi_printf call.
+      ** Substrings of the form "%C(...)" (where C is any sequence of
+      ** characters other than \000 and '(') will put "%C" in the
+      ** format and add the "(...)" as an argument to the cgi_printf call.
       */
+      const char *zNewline = "\\n";
       int indent;
+      int nC;
+      char c;
       i++;
       if( isspace(zLine[i]) ){ i++; }
       indent = i;
       for(j=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){
+        if( zLine[i]=='\\' && (!zLine[i+1] || zLine[i+1]=='\r'
+                                           || zLine[i+1]=='\n') ){
+          zNewline = "";
+          break;
+        }
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
         zOut[j++] = zLine[i];
         if( zLine[i]!='%' || zLine[i+1]=='%' || zLine[i+1]==0 ) continue;
-        if( zLine[i+2]!='(' ) continue;
-        i++;
-        zOut[j++] = zLine[i];
+        for(nC=1; zLine[i+nC] && zLine[i+nC]!='('; nC++){}
+        if( zLine[i+nC]!='(' || !isalpha(zLine[i+nC-1]) ) continue;
+        while( --nC ) zOut[j++] = zLine[++i];
         zArg[nArg++] = ',';
-        i += 2;
-        k = 1;
-        while( zLine[i] ){
-          if( zLine[i]==')' ){
+        k = 0; i++;
+        while( (c = zLine[i])!=0 ){
+          zArg[nArg++] = c;
+          if( c==')' ){
             k--;
             if( k==0 ) break;
-          }else if( zLine[i]=='(' ){
+          }else if( c=='(' ){
             k++;
           }
-          zArg[nArg++] = zLine[i++];
+          i++;
         }
       }
       zOut[j] = 0;
       if( !inPrint ){
-        fprintf(out,"%*scgi_printf(\"%s\\n\"",indent-2,"", zOut);
+        fprintf(out,"%*scgi_printf(\"%s%s\"",indent-2,"", zOut, zNewline);
         inPrint = 1;
       }else{
-        fprintf(out,"\n%*s\"%s\\n\"",indent+5, "", zOut);
+        fprintf(out,"\n%*s\"%s%s\"",indent+5, "", zOut, zNewline);
       }
-    }      
+    }
   }
+}
+
+static void print_source_ref(const char *zSrcFile, FILE *out){
+/* Set source line reference to the original source file.
+ * This makes compiler show the original file name in the compile error
+ * messages, instead of referring to the translated file.
+ * NOTE: This somewhat complicates stepping in debugger, as the resuling
+ * code would not match the referenced sources.
+ */
+#ifndef FOSSIL_DEBUG
+  const char *arg;
+  if( !*zSrcFile ){
+    return;
+  }
+  fprintf(out,"#line 1 \"");
+  for(arg=zSrcFile; *arg; arg++){
+    if( *arg!='\\' ){
+      fprintf(out,"%c", *arg);
+    }else{
+      fprintf(out,"\\\\");
+    }
+  }
+  fprintf(out,"\"\n");
+#endif
 }
 
 int main(int argc, char **argv){
@@ -167,6 +237,8 @@ int main(int argc, char **argv){
       fprintf(stderr,"can not open %s\n", argv[1]);
       exit(1);
     }
+    zInFile = argv[1];
+    print_source_ref(zInFile, stdout);
     trans(in, stdout);
     fclose(in);
   }else{

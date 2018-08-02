@@ -27,8 +27,11 @@
 ** Print a fatal error and quit.
 */
 static void win32_fatal_error(const char *zMsg){
-  fossil_fatal("%s");
+  fossil_panic("%s", zMsg);
 }
+#else
+#include <signal.h>
+#include <sys/wait.h>
 #endif
 
 /*
@@ -37,7 +40,7 @@ static void win32_fatal_error(const char *zMsg){
 ** to the next, so we have developed the following set of #if statements
 ** to generate appropriate macros for a wide range of compilers.
 **
-** The correct "ANSI" way to do this is to use the intptr_t type. 
+** The correct "ANSI" way to do this is to use the intptr_t type.
 ** Unfortunately, that typedef is not available on all compilers, or
 ** if it is available, it requires an #include of specific headers
 ** that vary from one machine to the next.
@@ -67,13 +70,13 @@ static void win32_fatal_error(const char *zMsg){
 ** Return the number of errors.
 */
 static int win32_create_child_process(
-  char *zCmd,          /* The command that the child process will run */
+  wchar_t *zCmd,       /* The command that the child process will run */
   HANDLE hIn,          /* Standard input */
   HANDLE hOut,         /* Standard output */
   HANDLE hErr,         /* Standard error */
   DWORD *pChildPid     /* OUT: Child process handle */
 ){
-  STARTUPINFO si;
+  STARTUPINFOW si;
   PROCESS_INFORMATION pi;
   BOOL rc;
 
@@ -86,7 +89,7 @@ static int win32_create_child_process(
   si.hStdOutput = hOut;
   SetHandleInformation(hErr, HANDLE_FLAG_INHERIT, TRUE);
   si.hStdError  = hErr;
-  rc = CreateProcess(
+  rc = CreateProcessW(
      NULL,  /* Application Name */
      zCmd,  /* Command-line */
      NULL,  /* Process attributes */
@@ -111,7 +114,7 @@ static int win32_create_child_process(
 
 /*
 ** Create a child process running shell command "zCmd".  *ppOut is
-** a FILE that becomes the standard input of the child process.  
+** a FILE that becomes the standard input of the child process.
 ** (The caller writes to *ppOut in order to send text to the child.)
 ** *ppIn is stdout from the child process.  (The caller
 ** reads from *ppIn in order to receive input from the child.)
@@ -123,13 +126,13 @@ static int win32_create_child_process(
 int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 #ifdef _WIN32
   HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr, hStderr;
-  SECURITY_ATTRIBUTES saAttr;    
+  SECURITY_ATTRIBUTES saAttr;
   DWORD childPid = 0;
   int fd;
 
   saAttr.nLength = sizeof(saAttr);
   saAttr.bInheritHandle = TRUE;
-  saAttr.lpSecurityDescriptor = NULL; 
+  saAttr.lpSecurityDescriptor = NULL;
   hStderr = GetStdHandle(STD_ERROR_HANDLE);
   if( !CreatePipe(&hStdoutRd, &hStdoutWr, &saAttr, 4096) ){
     win32_fatal_error("cannot create pipe for stdout");
@@ -140,14 +143,14 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
     win32_fatal_error("cannot create pipe for stdin");
   }
   SetHandleInformation( hStdinWr, HANDLE_FLAG_INHERIT, FALSE);
-  
-  win32_create_child_process((char*)zCmd, 
+
+  win32_create_child_process(fossil_utf8_to_unicode(zCmd),
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);
   fd = _open_osfhandle(PTR_TO_INT(hStdinWr), 0);
   *ppOut = _fdopen(fd, "w");
-  CloseHandle(hStdinRd); 
+  CloseHandle(hStdinRd);
   CloseHandle(hStdoutWr);
   return 0;
 #else
@@ -173,14 +176,19 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
     *pChildPid = 0;
     return 1;
   }
+  signal(SIGPIPE,SIG_IGN);
   if( *pChildPid==0 ){
+    int fd;
+    int nErr = 0;
     /* This is the child process */
     close(0);
-    dup(pout[0]);
+    fd = dup(pout[0]);
+    if( fd!=0 ) nErr++;
     close(pout[0]);
     close(pout[1]);
     close(1);
-    dup(pin[1]);
+    fd = dup(pin[1]);
+    if( fd!=1 ) nErr++;
     close(pin[0]);
     close(pin[1]);
     execl("/bin/sh", "/bin/sh", "-c", zCmd, (char*)0);
@@ -198,7 +206,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 
 /*
 ** Close the connection to a child process previously created using
-** popen2().  Kill off the child process, then close the pipes.
+** popen2().
 */
 void pclose2(int fdIn, FILE *pOut, int childPid){
 #ifdef _WIN32
@@ -208,6 +216,6 @@ void pclose2(int fdIn, FILE *pOut, int childPid){
 #else
   close(fdIn);
   fclose(pOut);
-  kill(childPid, SIGINT);
+  while( waitpid(0, 0, WNOHANG)>0 ) {}
 #endif
 }

@@ -1,0 +1,182 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# TH1/Tcl integration
+#
+
+set path [file dirname [info script]]
+
+###############################################################################
+
+fossil test-th-eval "hasfeature tcl"
+
+if {[normalize_result] ne "1"} {
+  puts "Fossil was not compiled with Tcl support."
+  test_cleanup_then_return
+}
+
+###############################################################################
+
+test_setup
+
+###############################################################################
+
+set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl1.txt]]
+
+test th1-tcl-1 {[regexp -- {^tclReady\(before\) = 0
+tclReady\(after\) = 1
+\d+
+\d+
+\d+
+via Tcl invoke
+4
+4
+two words
+one_word
+three words now
+\d+
+two words
+4
+\d+
+two words
+4
+\d+
+one_word
+three words now$} [normalize_result]]}
+
+###############################################################################
+
+if {[catch {package require sqlite3}] == 0} {
+  fossil test-th-render --open-config \
+      [file nativename [file join $path th1-tcl2.txt]]
+
+  test th1-tcl-2 {[regexp -- {^\d+$} [normalize_result]]}
+} else {
+  puts stderr "Skipping 'th1-tcl-2', SQLite package for Tcl not available"
+}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl3.txt]]
+
+test th1-tcl-3 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+invalid command name &quot;bad_command&quot;</p>}}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl4.txt]]
+
+test th1-tcl-4 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+divide by zero</p>}}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl5.txt]]
+
+test th1-tcl-5 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+Tcl command not found: bad_command</p>} || $RESULT eq {<hr /><p\
+class="thmainError">ERROR: invalid command name &quot;bad_command&quot;</p>}}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl6.txt]]
+
+test th1-tcl-6 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+no such command:  bad_command</p>}}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl7.txt]]
+
+test th1-tcl-7 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+syntax error in expression: &quot;2**0&quot;</p>}}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl8.txt]]
+
+test th1-tcl-8 {$RESULT eq {<hr /><p class="thmainError">ERROR:\
+cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr /><p\
+class="thmainError">ERROR: tailcall can only be called from a proc or\
+lambda</p>} || $RESULT eq {<hr /><p class="thmainError">ERROR: This test\
+requires Tcl 8.6 or higher.</p>}}
+
+###############################################################################
+
+fossil test-th-render --open-config \
+    [file nativename [file join $path th1-tcl9.txt]]
+
+test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 3 \
+[list test-th-render --open-config [file nativename [file join $path \
+th1-tcl9.txt]]]]}
+
+###############################################################################
+
+fossil test-th-eval "tclMakeSafe a"
+test th1-tcl-10 {[normalize_result] eq \
+{TH_ERROR: wrong # args: should be "tclMakeSafe"}}
+
+###############################################################################
+
+fossil test-th-eval "list \[tclIsSafe\] \[tclMakeSafe\] \[tclIsSafe\]"
+test th1-tcl-11 {[normalize_result] eq {0 {} 1}}
+
+###############################################################################
+
+fossil test-th-eval "tclMakeSafe; tclMakeSafe"
+test th1-tcl-12 {[normalize_result] eq \
+{TH_ERROR: Tcl interpreter is already 'safe'}}
+
+###############################################################################
+
+fossil test-th-eval "tclEval pwd; tclMakeSafe; tclEval pwd"
+test th1-tcl-13 {[normalize_result] eq {TH_ERROR: invalid command name "pwd"}}
+
+###############################################################################
+
+fossil test-th-eval "tclMakeSafe; tclExpr {0 + \[string length \[pwd\]\]}"
+test th1-tcl-14 {[normalize_result] eq {TH_ERROR: invalid command name "pwd"}}
+
+###############################################################################
+
+fossil test-th-eval "tclInvoke pwd; tclMakeSafe; tclInvoke pwd"
+test th1-tcl-15 {[normalize_result] eq {TH_ERROR: Tcl command not found: pwd}}
+
+###############################################################################
+
+fossil test-th-eval "tclMakeSafe; tclEval set x 2"
+test th1-tcl-16 {[normalize_result] eq {2}}
+
+###############################################################################
+
+fossil test-th-eval "tclMakeSafe; tclEval set x 2; tclEval info vars x"
+test th1-tcl-17 {[normalize_result] eq {x}}
+
+###############################################################################
+
+test_cleanup

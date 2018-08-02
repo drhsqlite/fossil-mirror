@@ -1,0 +1,51 @@
+<h1>Integrating Fossil in the Microsoft Express 2010 IDE</h1>
+
+<i>Contributed by Gilles Ganault on 2013-05-24.</i>
+
+The Express version of Visual Studio doesn't support add-in's and plug-in's,
+but it's not an issue since it's still possible to use Fossil through the
+External Tools menu and Fossil is a CLI application anyway:
+
+<ol type="1">
+    <li>Tools &gt; Settings &gt; Expert Settings</li>
+    <li>Tools &gt; External Tools, where the items in this list map
+        to "External Tool X" that we'll add to our own Fossil
+        menu later: </li>
+    <ol type="1">
+        <li>Rename the default "&#91;New Tool 1&#93;" to eg.
+        "Commit"&nbsp;&nbsp;&nbsp;2.
+        </li>
+        <li>Change Command to where Fossil is located eg.
+            "c:\fossil.exe"</li>
+        <li>Change Arguments to the required command, eg.
+            "commit -m".
+        The user will be prompted to type the comment that Commit expects</li>
+        <li>Set "Initial Directory" to point it to the work directory
+        where the source files are currently checked out
+        by Fossil (eg. c:\Workspace). It's also possible to use system
+        variables such as "$(ProjectDir)" instead of hard-coding the path</li>
+        <li>Check "Prompt for arguments", since Commit
+        requires typing a comment. Useless for commands like Changes
+        that don't require arguments</li>
+        <li>Uncheck "Close on Exit", so we can see what Fossil says
+        before closing the DOS box. Note that "Use Output Window"
+        will display the output in a child window within the IDE instead of
+        opening a DOS box</li>
+        <li>Click on OK</li>
+    </ol>
+    <li>Tools &gt; Customize &gt; Commands</li>
+    <ol type="1">
+        <li>With "Menu bar = Menu Bar" selected, click on "Add
+        New Menu". A new "Fossil" menu is displayed in the
+        IDE's menu bar</li>
+        <li>Click on "Modify Selection" to rename it
+        "Fossil", and...</li>
+        <li>Use the "Move Down" button to move it lower in
+        the list</li>
+    </ol>
+    <li>Still in Customize dialog: In the "Menu bar" combo, select
+    the new Fossil menu you just created, and Click on "Add Command...":
+    From Categories, select Tools, and select "External Command 1".
+    Click on Close. It's unfortunate that the IDE doesn't say which command
+    maps to "External Command X".</li>
+</ol>

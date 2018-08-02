@@ -1,0 +1,199 @@
+<title>The Fossil Ticket System</title>
+
+<h2>1.0 File Format</h2>
+
+At its lowest level, the tickets of Fossil consist solely of
+[./fileformat.wiki#tktchng | ticket change artifacts].
+Each ticket change artifact corresponds to a single change
+to a ticket.  The act of creating a ticket is considered a
+change.
+
+Each ticket change artifact contains the following information:
+
+<ul>
+<li>The ID of the ticket that was changed
+<li>The timestamp for when the change occurred
+<li>The user who made the change
+<li>A list of key/value pairs that show what changed in the ticket
+</ul>
+
+To determine the current state of a particular ticket, Fossil orders
+the change artifacts for that ticket from oldest to most recent,
+then applies each change in timestamp order.
+
+On each change artifact, there are one or more key/value pairs that
+implement the change.  The key corresponds to a field of the ticket
+that is modified.  The value may either replace the earlier value for
+that key, or the value may be appended to the prior value.
+
+<h2>2.0 Ticket Tables</h2>
+
+The low-level artifact format for ticket content is tedious and
+cumbersome to access in realtime.  To facility reporting and display
+of tickets, the low-level artifact information is collected and
+summarized in a pair of SQL tables in each local repository.  Display
+and reporting of tickets is accomplished by querying these two tables.
+
+Note that only the low-level ticket change artifacts are synced.  The
+content of the two ticket tables can always be reconstructed from the
+ticket change artifacts.  And, indeed, the reconstruction of the ticket
+tables from low-level artifacts happens automatically whenever new
+ticket change artifacts are received by the system.  The important point
+to remember is that display of tickets is accomplished using SQL tables
+but that recording and syncing of ticket information is accomplished using
+ticket change artifacts.
+
+<h3>2.1 Ticket Table Schema</h3>
+
+The two ticket tables are called TICKET and TICKETCHNG.
+The default schema (as of this writing) for these two tables is shown
+below:
+
+<blockquote><verbatim>
+CREATE TABLE ticket(
+  -- Do not change any column that begins with tkt_
+  tkt_id INTEGER PRIMARY KEY,
+  tkt_uuid TEXT UNIQUE,
+  tkt_mtime DATE,
+  tkt_ctime DATE,
+  -- Add as many fields as required below this line
+  type TEXT,
+  status TEXT,
+  subsystem TEXT,
+  priority TEXT,
+  severity TEXT,
+  foundin TEXT,
+  private_contact TEXT,
+  resolution TEXT,
+  title TEXT,
+  comment TEXT
+);
+CREATE TABLE ticketchng(
+  -- Do not change any column that begins with tkt_
+  tkt_id INTEGER REFERENCES ticket,
+  tkt_rid INTEGER REFERENCES blob,
+  tkt_mtime DATE,
+  -- Add as many fields as required below this line
+  login TEXT,
+  username TEXT,
+  mimetype TEXT,
+  icomment TEXT
+);
+CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
+</verbatim></blockquote>
+
+Generally speaking, there is one row in the TICKETCHNG table for each
+change to each ticket.  In other words, there is one row in the
+TICKETCHNG table for each low-level ticket change artifact.  The
+TICKET table, on the other hand, contains a summary of the current
+status of each ticket.
+
+Fields of the TICKET and TICKETCHNG tables that begin with "tkt_" are
+used internally by Fossil.  The logic inside of Fossil that converts
+ticket change artifacts into row data for the two ticket tables expects
+the "tkt_" fields to always be present.  All of the other fields of the
+TICKET and TICKETCHNG tables are "user defined" in the sense that they
+can be anything the administrator of the system wants them to be.  The
+user-defined fields should correspond to keys in the key/value pairs of
+the ticket change artifacts.
+
+The <b>tkt_id</b> fields of TICKET and TICKETCHNG are an integer key
+used to uniquely identify the ticket to which the row belongs.  These
+keys are for internal use only and may change when doing a "fossil rebuild".
+
+The <b>tkt_uuid</b> field is the unique hexadecimal identifier for the ticket.
+Ticket identifiers appear to be SHA1 hash strings, but they
+are not really the hash of any identifiable artifact.  They are
+just random hexadecimal numbers.  When creating a new ticket, Fossil uses
+a (high-quality) pseudo-random number generator to create the ticket
+number.  The ticket numbers are large so that the chance of collision
+between any two tickets is vanishingly small.
+
+The <b>tkt_mtime</b> field of TICKET shows the time (as a Julian day number)
+of the most recent ticket change artifact for that ticket.  The
+<b>tkt_mtime</b> field of TICKETCHNG shows the timestamp on the ticket
+change artifact that the TICKETCHNG row refers to.  The
+<b>tkt_ctime</b> field of TICKET is the time of the oldest ticket change
+artifact for that ticket, thus holding the time that the ticket was
+created.
+
+The <b>tkt_rid</b> field of TICKETCHNG is the integer primary key in the
+BLOB table of the ticket change artifact that gave rise to the row in the
+TICKETCHNG table.
+
+All the other fields of the TICKET and TICKETCHNG tables are available
+for customization for individual projects.  None of the remaining fields
+are required, but all of them are needed in order to use the default
+ticket creating, viewing, and editing scripts.  It is recommended that
+the other fields be retained and that customizations be restricted to
+adding new fields above and beyond the default.
+
+<h3>2.2 Translating Artifacts To Tables</h3>
+
+Each row in the TICKETCHNG table corresponds to a single ticket change
+artifact.  The tkt_id field is the integer primary key of the TICKET
+table entry for the corresponding ticket.  The tkt_rid field is the
+integer primary key for the BLOB table entry that contains the low-level
+artifact text.  The tkt_mtime field is the timestamp on the ticket
+change artifact, expressed as a julian day number.  If the ticket
+change artifact contains a key/value pair where the key is "login",
+then the corresponding value is stored in the login field of the
+TICKETCHNG table.  The same it true for "username", "mimetype", and
+"icomment" fields.  Any time there is a key/value pair in the ticket
+change artifact and the key corresponds to the name of a field in the
+TICKETCHNG table, then the value of that key/value pair is stored in
+the TICKETCHNG table.  If the TICKETCHNG table has a field for which there
+is no corresponding key/value pair in the artifact, then that field of
+the TICKETCHNG table is NULL.  If there are key/value pairs in the
+artifact that have no corresponding field in the TICKETCHNG table, those
+key/value pairs are silently ignored.
+
+Each row in the TICKET table records the overall status of a ticket.
+The tkt_id field is a unique integer primary key for the ticket.
+the tkt_uuid field is the global ticket identifier - a larger random
+hexadecimal constant.  The tkt_mtime and tkt_ctime fields hold the
+times of the most recent and the oldest ticket change artifacts for
+this ticket, respectively.
+
+To reconstruct the TICKET table, the ticket change
+artifacts are visited in timestamp order.  As each ticket change artifact is
+visited, its key/value pairs are examined.  For any key/value pair in
+which the key is the same as a field in the TICKET table, the value
+of that pair either replaces or is appended to the previous value
+of the corresponding field in the TICKET table.  Whether a value is
+replaced or appended is determined by markings in the ticket change
+artifact itself.  Most fields are usually replaced. (For example, to change
+the status from "Open" to "Fixed" would involve a key value pair
+"status/Fixed" with the replace attribute set).  The main exception
+is the "comment" field, which is usually appended with new comment
+text.
+
+Note that the replace-or-append mark on ticket change artifacts is
+only used by the TICKET table.  Since the initial value of all fields
+in the TICKETCHNG table is NULL, the replace-or-append mark makes no
+difference there.
+
+<h3>2.3 Old-Style versus New-Style Tickets</h3>
+
+Older versions of Fossil
+(before [/timeline?c=2012-11-27T16:26:29 | 2012-11-27])
+only supported the TICKET table.
+In this older style, new comments were added to tickets by using
+the append-value feature on the comment field.  Thus the TICKET.COMMENT
+field contains the complete text of all user comments already appended
+together and ready for display.
+
+A problem with the old approach is that all comment text had to
+be in the same format.  In other words, the all comment text had to be
+either plaintext or wiki or HTML.  It was not possible for some comments
+to be in HTML and others to be plaintext.  Some site administrators wanted the
+ability to mix plaintext, wiki, and HTML comments and display each
+comment according to its chosen format.  Hence, Fossil was enhanced to
+support the "new-style" tickets.
+
+The TICKETCHNG table was added to support new-style tickets.  In the new
+style, comment text is stored with the "icomment" (for "Incremental Comment")
+key and appears separately, and with its on mimetype, in multiple rows
+of the TICKETCHNG table.  It then falls to the TH1 script code on the
+View Ticket Page to query the TICKETCHNG table and extract and format
+the various comments in timestamp order.

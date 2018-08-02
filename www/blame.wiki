@@ -1,0 +1,62 @@
+<title>The Annotate Algorithm</title>
+
+<h2>1.0 Introduction</h2>
+
+The [/help?cmd=annotate|fossil annotate],
+[/help?cmd=blame|fossil blame], and
+[/help?cmd=praise|fossil praise] commands, and the
+[/help?cmd=/annotate|/annotate],
+[/help?cmd=/blame|/blame], and
+[/help?cmd=/praise|/praise] web pages are all used to show the most
+recent check-in that modified each line of a particular file.
+This article overviews the algorithm used to compute the annotation
+for a file in Fossil.
+
+<h2>2.0 Algorithm</h2>
+
+<ol type='1'>
+<li>Locate the check-in that contains the file that is to be
+    annotated.  Call this check-in C0.
+<li>Find all direct ancestors of C0.  A direct ancestor is the closure
+    of the primary parent of C0.  Merged in branches are not part of
+    the direct ancestors of C0.
+<li>Prune the list of ancestors of C0 so that it contains only
+    check-in in which the file to be annotated was modified.
+<li>Load the complete text of the file to be annotated from check-in C0.
+    Call this version of the file F0.
+<li>Parse F0 into lines.  Mark each line as "unchanged".
+<li>For each ancestor of C0 on the pruned list (call the ancestor CX),
+    beginning with the most
+    recent ancestor and moving toward the oldest ancestor, do the
+    following steps:
+<ol type='a'>
+<li>Load the text for the file to be annotated as it existed in check-in CX.
+    Call this text FX.
+<li>Compute a diff going from FX to F0.
+<li>For each line of F0 that is changed in the diff and which was previously
+    marked "unchanged", update the mark to indicated that line
+    was modified by CX.
+</ol>
+<li>Show each line of F0 together with its change mark, appropriately
+    formatted.
+</ol>
+
+<h2>3.0 Discussion and Notes</h2>
+
+The time-consuming part of this algorithm is step 6b - computing the
+diff from all historical versions of the file to the version of the file
+under analysis.  For a large file that has many historical changes, this
+can take several seconds.  For this reason, the default
+[/help?cmd=/annotate|/annotate] webpage only shows those lines that where
+changed by the 20 most recent modifications to the file.  This allows
+the loop on step 6 to terminate after only 19 diffs instead of the hundreds
+or thousands of diffs that might be required for a frequently modified file.
+
+As currently implemented (as of 2015-12-12) the annotate algorithm does not
+follow files across name changes.  File name change information is
+available in the database, and so the algorithm could be enhanced to follow
+files across name changes by modifications to step 3.
+
+Step 2 is interesting in that it is
+[/artifact/6cb824a0417?ln=196-201 | implemented] using a
+[https://www.sqlite.org/lang_with.html#recursivecte|recursive common table expression].

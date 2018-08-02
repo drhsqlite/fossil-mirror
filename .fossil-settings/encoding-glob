@@ -1,0 +1,4 @@
+compat/zlib/contrib/dotzlib/DotZLib/*.cs
+test/utf16be.txt
+test/utf16le.txt
+win/fossil.rc

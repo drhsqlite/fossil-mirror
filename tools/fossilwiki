@@ -1,0 +1,132 @@
+#!/usr/bin/perl
+# vim: cin :
+
+$repofile = shift;
+$repocmd = '';
+$repocmd = "-R $repofile" if -f $repofile;
+$mainpage = '';
+
+@rep = ();
+if ( ! -f $repofile )
+{
+	@rep = `fossil info | grep 'project-name'`;
+}
+else
+{
+	@rep = `fossil info $repofile | grep 'project-name'`;
+}
+
+$mainpage = $rep[0];
+chomp $mainpage;
+$mainpage =~ s/^project-name:\s+//;
+
+
+@pages = `fossil wiki list $repocmd`;
+
+%pages = ();
+foreach $page ( @pages )
+{
+	chomp $page;
+	$text = `fossil wiki export "$page" $repocmd`;
+	$pages{$page} = $text;
+}
+
+@orphans = ();
+@nointernals = ();
+@terminals = ();
+@empties = ();
+%badlinks = ();
+%alllinks = ();
+%links = ();
+foreach $page ( keys %pages )
+{
+	my @links = ();
+	my $text = $pages{$page};
+	while ( $text =~ m/\[([^][]+)\]/g )
+	{
+		push @links,$1;
+	}
+
+	$numlinks = $#links;
+
+	if (@links == ())
+	{
+		push @terminals, $page;
+	}
+	else
+	{
+		my @internals = grep { $_ !~ /(http:)|(mailto:)|(https:)/ } @links;
+		if (@internals == ())
+		{
+			push @nointernals, $page;
+		}
+		else
+		{
+			@{$links{$page}{'links'}} = map {my ($a,$b) = split /\|/; $a;} @internals;
+			foreach $internal ( @internals )
+			{
+				my ($int_link, $display) = split /\|/, $internal;
+				${$links{$int_link}{'refs'}}++;
+				$alllinks{$int_link} = 1;
+			}
+		}
+	}
+
+	if ($text eq '' || $text =~ m/^<i>Empty Page<\/i>/)
+	{
+		chomp $tail;
+		my ($head, $tail) = split /\/i>/ , $text;
+		if ($tail =~ m/^\s*$/s) {
+		 	push @empties, $page;
+		}
+	}
+}
+foreach $page ( keys %links )
+{
+	if ($page ne $mainpage &&  (${$links{$page}{'refs'}} == 0))
+	{
+		push @orphans, $page;
+	}
+}
+foreach $link (keys %alllinks )
+{
+	if (! exists($pages{$link}) && $link !~ /^\./ && $link !~ /^\//)
+	{
+		$badlinks{$link} = 1;
+	}
+}
+foreach $empty ( @empties )
+{
+	print ("empty: '$empty'\n");
+}
+foreach $nointernals ( @nointernals )
+{
+	print ("nointernals: '$nointernals'\n");
+}
+foreach $terminal ( @terminals )
+{
+	print ("terminal: '$terminal'\n");
+}
+foreach $orphan ( @orphans )
+{
+	print ("orphan: '$orphan'\n");
+}
+foreach $link ( keys %badlinks )
+{
+	print ("badlink: '$link'\n");
+}
+foreach $page ( sort keys %links )
+{
+	my @links = @{$links{$page}{'links'}};
+	if (@links != ())
+	{
+		if ($page eq $mainpage)
+		{
+			print "links: *** '$page' *** -> ", join (", ", @links), "\n";
+		}
+		else
+		{
+			print "links: '$page' -> ", join (", ", @links), "\n";
+		}
+	}
+}

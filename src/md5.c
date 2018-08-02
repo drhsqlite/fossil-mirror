@@ -18,10 +18,21 @@
  * needed on buffers full of bytes, and then call MD5Final, which
  * will fill a supplied 16-byte array with the digest.
  */
+#include "config.h"
 #include <string.h>
 #include <stdio.h>
 #include <sqlite3.h>
 #include "md5.h"
+
+#ifdef FOSSIL_ENABLE_SSL
+
+# include <openssl/md5.h>
+# define MD5Context MD5_CTX
+# define MD5Init MD5_Init
+# define MD5Update MD5_Update
+# define MD5Final MD5_Final
+
+#else
 
 /*
  * If compiled on a machine that doesn't have a 32-bit integer,
@@ -43,7 +54,10 @@ struct Context {
 };
 typedef struct Context MD5Context;
 
-#if defined(__i386__) || defined(__x86_64__) || defined(_WIN32)
+#if defined(i386)     || defined(__i386__)   || defined(_M_IX86) ||    \
+    defined(__x86_64) || defined(__x86_64__) || defined(_M_X64)  ||    \
+    defined(_M_AMD64) || defined(_M_ARM)     || defined(__x86)   ||    \
+    defined(__arm__)  || defined(_WIN32)
 # define byteReverse(A,B)
 #else
 /*
@@ -165,7 +179,7 @@ static void MD5Transform(uint32 buf[4], const uint32 in[16]){
  * initialization constants.
  */
 static void MD5Init(MD5Context *ctx){
-	ctx->isInit = 1;
+        ctx->isInit = 1;
         ctx->buf[0] = 0x67452301;
         ctx->buf[1] = 0xefcdab89;
         ctx->buf[2] = 0x98badcfe;
@@ -178,7 +192,7 @@ static void MD5Init(MD5Context *ctx){
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-static 
+static
 void MD5Update(MD5Context *pCtx, const unsigned char *buf, unsigned int len){
         struct Context *ctx = (struct Context *)pCtx;
         uint32 t;
@@ -225,7 +239,7 @@ void MD5Update(MD5Context *pCtx, const unsigned char *buf, unsigned int len){
 }
 
 /*
- * Final wrapup - pad to 64-byte boundary with the bit pattern 
+ * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
@@ -260,14 +274,14 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
         byteReverse(ctx->in, 14);
 
         /* Append length in bits and transform */
-        ((uint32 *)ctx->in)[ 14 ] = ctx->bits[0];
-        ((uint32 *)ctx->in)[ 15 ] = ctx->bits[1];
+        memcpy(&ctx->in[14*sizeof(uint32)], ctx->bits, 2*sizeof(uint32));
 
         MD5Transform(ctx->buf, (uint32 *)ctx->in);
         byteReverse((unsigned char *)ctx->buf, 4);
         memcpy(digest, ctx->buf, 16);
-        memset(ctx, 0, sizeof(ctx));    /* In case it's sensitive */
+        memset(ctx, 0, sizeof(*ctx));    /* In case it's sensitive */
 }
+#endif
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
@@ -276,7 +290,7 @@ static void MD5Final(unsigned char digest[16], MD5Context *pCtx){
 ** be "char zBuf[33]".
 */
 static void DigestToBase16(unsigned char *digest, char *zBuf){
-  static char const zEncode[] = "0123456789abcdef";
+  static const char zEncode[] = "0123456789abcdef";
   int i, j;
 
   for(j=i=0; i<16; i++){
@@ -345,7 +359,7 @@ const char *md5sum_current_state(void){
 
 /*
 ** Finish the incremental MD5 checksum.  Store the result in blob pOut
-** if pOut!=0.  Also return a pointer to the result.  
+** if pOut!=0.  Also return a pointer to the result.
 **
 ** This resets the incremental checksum preparing for the next round
 ** of computation.  The return pointer points to a static buffer that
@@ -368,7 +382,7 @@ char *md5sum_finish(Blob *pOut){
 
 /*
 ** Compute the MD5 checksum of a file on disk.  Store the resulting
-** checksum in the blob pCksum.  pCksum is assumed to be ininitialized.
+** checksum in the blob pCksum.  pCksum is assumed to be initialized.
 **
 ** Return the number of errors.
 */
@@ -423,17 +437,20 @@ int md5sum_blob(const Blob *pIn, Blob *pCksum){
 
 
 /*
-** COMMAND: test-md5sum
+** COMMAND: md5sum*
+**
+** Usage: %fossil md5sum FILES....
 **
 ** Compute an MD5 checksum of all files named on the command-line.
-** If an file is named "-" then take its content from standard input.
+** If a file is named "-" then content is read from standard input.
 */
 void md5sum_test(void){
   int i;
   Blob in;
   Blob cksum;
-  
+
   for(i=2; i<g.argc; i++){
+    blob_init(&cksum, "********** not found ***********", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
       blob_read_from_channel(&in, stdin, -1);
       md5sum_blob(&in, &cksum);

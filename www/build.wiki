@@ -1,79 +1,175 @@
-<title>Building and Installing Fossil</title>
-
-<p>This page describes how to build and install Fossil.  The
-whole process is designed to be very easy.</p>
+<title>Compiling and Installing Fossil</title>
 
 <h2>0.0 Using A Pre-compiled Binary</h2>
 
-<p>You can skip steps 1.0 and 2.0 below by downloading
-a <a href="http://www.fossil-scm.org/download.html">pre-compiled binary</a>
-appropriate for your platform.  If you use a pre-compiled binary
-jump immediate to step 3.0.</p>
+<p>[/uv/download.html|Pre-compiled binaries] are available for recent
+releases. Just download
+the appropriate executable for your platform
+and put it on your $PATH.
+To uninstall, simply delete the executable.
+To upgrade from an older release, just overwrite the older binary with
+the newer one.</p>
+
+<h2>0.1 Executive Summary</h2>
+
+<p>Building and installing is very simple.  Three steps:</p>
+
+<ol>
+<li> Download and unpack a source tarball or ZIP.
+<li> <b>./configure; make</b>
+<li> Move the resulting "fossil" or "fossil.exe" executable to someplace on
+your $PATH.
+</ol>
+
+<p><hr>
 
 <h2>1.0 Obtaining The Source Code</h2>
 
-<p>Fossil is self-hosting, so you can obtain a ZIP archive containing
-a snapshot of the latest version directly from fossil's own fossil
-repository.  Follow these steps:</p>
+<p>Fossil is self-hosting, so you can obtain a ZIP archive or tarball
+containing a snapshot of the <em>latest</em> version directly from
+Fossil's own fossil repository. Additionally, source archives of
+<em>released</em> versions of
+fossil are available from the [/uv/download.html|downloads page].
+To obtain a development version of fossil, follow these steps:</p>
 
 <ol>
-<li><p>Pointer your web browser at
-<a href="http://www.fossil-scm.org/">
-http://www.fossil-scm.org/</a>.  Click on the "Login" menu button.</p></li>
+<li><p>Point your web browser to [https://www.fossil-scm.org/]</li>
 
-<li><p>Log in as anonymous.  The password is shown on screen.
-The reason for requiring this login is to prevent spiders from
-walking the entire website, downloading ZIP archives
-of every historical version, and thereby soaking up all our bandwidth.</p></li>
+<li><p>Click on the [/timeline|Timeline]
+link at the top of the page.</p></li>
 
-<li><p>Click on the 
-<a href="http://www.fossil-scm.org/fossil/timeline">Timeline</a> or
-<a href="http://www.fossil-scm.org/fossil/leaves">Leaves</a> link at
-the top of the page.</p></li>
+<li><p>Select a version of of Fossil you want to download.  The latest
+version on the trunk branch is usually a good choice.  Click on its
+link.</p></li>
 
-<li><p>Select a version of of fossil you want to download.  Click on its
-link.  Note that you must successfully log in as "anonymous" in step 1
-above in order to see the link to the detailed version information.</p></li>
-
-<li><p>Finally, click on the
-"Zip Archive" link.  This link will build a ZIP archive of the 
-complete source code and download it to your browser.
+<li><p>Finally, click on one of the
+"Zip Archive" or "Tarball" links, according to your preference.
+These link will build a ZIP archive or a gzip-compressed tarball of the
+complete source code and download it to your computer.
 </ol>
+
+<h2>Aside: Is it really safe to use an unreleased development version of
+the Fossil source code?</h2>
+
+Yes!  Any check-in on the
+[/timeline?t=trunk | trunk branch] of the Fossil
+[http://fossil-scm.org/fossil/timeline | Fossil self-hosting repository]
+will work fine.  (Dodgy code is always on a branch.)  In the unlikely
+event that you pick a version with a serious bug, it still won't
+clobber your files.  Fossil uses several
+[./selfcheck.wiki | self-checks] prior to committing any
+repository change that prevent loss-of-work due to bugs.
+
+The Fossil [./selfhost.wiki | self-hosting repositories], especially
+the one at [http://www.fossil-scm.org/fossil], usually run a version
+of trunk that is less than a week or two old.  Look at the bottom
+left-hand corner of this screen (to the right of "This page was
+generated in...") to see exactly which version of Fossil is
+rendering this page.  It is always safe to use whatever version
+of the Fossil code you find running on the main Fossil website.
 
 <h2>2.0 Compiling</h2>
 
-<p>Follow these steps to compile on a unix platform
-(Linux, *BSD, MacOS, etc):</p>
-
 <ol>
-<li value="6">
-<p>Create a directory to hold the source code.  Then unzip the
-ZIP archive you downloaded into that directory.  You should be
-in the top-level folder of that directory</p></li>
+<li value="5">
+<p>Unpack the ZIP or tarball you downloaded then
+<b>cd</b> into the directory created.</p></li>
 
-<li><p><b>(Optional:)</b>
-Edit the Makefile to set it up like you want.  You probably do not
-need to do anything.  Do not be intimidated:  There are less than 10
-variables in the makefile that can be changed.  The whole Makefile
-is only a few dozen lines long and most of those lines are comments.</p>
+<li><i>(Optional, Unix only)</i>
+Run <b>./configure</b> to construct a makefile.
 
-<li><p>Type "<b>make</b>"
+<ol type="a">
+<li><p>
+If you do not have the OpenSSL library installed on your system, then
+add <b>--with-openssl=none</b> to omit the https functionality.
+
+<li><p>
+To build a statically linked binary (suitable for use inside a chroot
+jail) add the <b>--static</b> option.
+
+<li><p>
+To enable the native [./th1.md#tclEval | Tcl integration feature] feature,
+add the <b>--with-tcl=1</b> and <b>--with-tcl-private-stubs=1</b> options.
+
+<li><p>
+Other configuration options can be seen by running
+<b>./configure --help</b>
 </ol>
 
-<p>To build on windows, use an alternative makefile suitable for your
-particular build environment.  The alternative windows makefiles are
-all found in the win/ subdirectory of the source tree.  So, for example,
-if you want build using the 
-[http://www.mingw.org/ | mingw/msys compiler package] for windows, then
-run "<b>make -f win/Makefile.mingw</b>" instead of just "<b>make</b>"
-in step 8 above.</p>
+<li><p>Run "<b>make</b>" to build the "fossil" or "fossil.exe" executable.
+The details depend on your platform and compiler.
+
+<ol type="a">
+<li><p><i>Unix</i> → the configure-generated Makefile should work on
+all Unix and Unix-like systems.  Simply type "<b>make</b>".
+
+<li><p><i>Unix without running "configure"</i> → if you prefer to avoid
+running configure, you can also use: <b>make -f Makefile.classic</b>.  You may
+want to make minor edits to Makefile.classic to configure the build for your
+system.
+
+<li><p><i>MinGW 3.x (<u>not</u> 4.x) / MinGW-w64</i> → Use the MinGW makefile:
+"<b>make -f win/Makefile.mingw</b>".  On a Windows box you will need either
+Cygwin or Msys as build environment. On Cygwin, Linux or Darwin you may want
+to make minor edits to win/Makefile.mingw to configure the cross-compile
+environment.
+
+To enable the native [./th1.md#tclEval | Tcl integration feature], use a
+command line like the following (all on one line):
+
+<b>make -f win/Makefile.mingw FOSSIL_ENABLE_TCL=1 FOSSIL_ENABLE_TCL_STUBS=1 FOSSIL_ENABLE_TCL_PRIVATE_STUBS=1</b>
+
+Alternatively, <b>./configure</b> may now be used to create a Makefile
+suitable for use with MinGW; however, options passed to configure that are
+not applicable on Windows may cause the configuration or compilation to fail
+(e.g. fusefs, internal-sqlite, etc).
+
+<i>HINT</i>: Do <u>not</u> use MinGW-4.x, it may compile but the Fossil binary
+will not work correctly, see
+[https://www.fossil-scm.org/index.html/tktview/18cff45a4e210430e24c | ticket].
+
+<li><p><i>MSVC</i> → Use the MSVC makefile.  First
+change to the "win/" subdirectory ("<b>cd win</b>") then run
+"<b>nmake /f Makefile.msc</b>".<br><br>Alternatively, the batch
+file "<b>win\buildmsvc.bat</b>" may be used and it will attempt to
+detect and use the latest installed version of MSVC.<br><br>To enable
+the optional <a href="https://www.openssl.org/">OpenSSL</a> support,
+first <a href="https://www.openssl.org/source/">download the official
+source code for OpenSSL</a> and extract it to an appropriately named
+"<b>openssl-X.Y.ZA</b>" subdirectory within the local
+[/tree?ci=trunk&name=compat | compat] directory (e.g.
+"<b>compat/openssl-1.0.2o</b>"), then make sure that some recent
+<a href="http://www.perl.org/">Perl</a> binaries are installed locally,
+and finally run one of the following commands:
+<blockquote><pre>
+nmake /f Makefile.msc FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
+</pre></blockquote>
+<blockquote><pre>
+buildmsvc.bat FOSSIL_ENABLE_SSL=1 FOSSIL_BUILD_SSL=1 PERLDIR=C:\full\path\to\Perl\bin
+</pre></blockquote>
+To enable the optional native [./th1.md#tclEval | Tcl integration feature],
+run one of the following commands or add the &quot;FOSSIL_ENABLE_TCL=1&quot;
+argument to one of the other NMAKE command lines:
+<blockquote><pre>
+nmake /f Makefile.msc FOSSIL_ENABLE_TCL=1
+</pre></blockquote>
+<blockquote><pre>
+buildmsvc.bat FOSSIL_ENABLE_TCL=1
+</pre></blockquote>
+
+<li><p><i>Cygwin</i> → The same as other Unix-like systems. It is
+recommended to configure using: "<b>configure --disable-internal-sqlite</b>",
+making sure you have the "libsqlite3-devel" , "zlib-devel" and
+"openssl-devel" packages installed first.
+</ol>
+</ol>
 
 <h2>3.0 Installing</h2>
 
 <ol>
-<li value="9">
-<p>The finished binary is named "fossil" (or "fossil.exe" on windows).  
-Put this binary in a 
+<li value="8">
+<p>The finished binary is named "fossil" (or "fossil.exe" on Windows).
+Put this binary in a
 directory that is somewhere on your PATH environment variable.
 It does not matter where.</p>
 
@@ -84,9 +180,29 @@ To uninstall, just delete the binary.</p>
 
 <h2>4.0 Additional Considerations</h2>
 
-</nowiki>
-  *  If the makefiles that come with Fossil do not work for
-     you, or for some other reason you want to know how to build
-     Fossil manually, then refer to the
-     [./makefile.wiki | Fossil Build Process] document which describes
-     in detail what the makefiles do behind the scenes.
+<ul>
+<li><p>
+  If the makefiles that come with Fossil do not work for
+  you, or for some other reason you want to know how to build
+  Fossil manually, then refer to the
+  [./makefile.wiki | Fossil Build Process] document which describes
+  in detail what the makefiles do behind the scenes.
+
+<li><p>
+  The fossil executable is self-contained and stand-alone and usually
+  requires no special libraries or other software to be installed.  However,
+  the "--tk" option to the [/help/diff|diff command] requires that Tcl/Tk
+  be installed on the local machine.  You can get Tcl/Tk from
+  [http://www.activestate.com/activetcl|ActiveState].
+
+<li><p>
+  To build on older Macs (circa 2002, MacOS 10.2) edit the Makefile
+  generated by configure to add the following lines:
+  <blockquote><pre>
+  TCC += -DSQLITE_WITHOUT_ZONEMALLOC
+  TCC += -D_BSD_SOURCE
+  TCC += -DWITHOUT_ICONV
+  TCC += -Dsocketlen_t=int
+  TCC += -DSQLITE_MAX_MMAP_SIZE=0
+</pre></blockquote>
+</ul>

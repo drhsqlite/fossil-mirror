@@ -1181,7 +1181,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	sym::tag    {}
 	rev         {}
     }
-					
+
     typevariable myitemmap     -array {} ; # Map from items (tagged)
 					   # to the list of changesets
 					   # containing it. Each item

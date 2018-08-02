@@ -1,0 +1,190 @@
+#
+# Copyright (c) 2013 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test glob pattern parsing
+#
+
+test_setup ""
+
+proc glob-parse {testname args} {
+  set i 1
+  foreach {pattern string result} $args {
+    fossil test-glob $pattern $string
+    test glob-parse-$testname.$i {$::RESULT eq $result}
+    incr i
+  }
+}
+
+glob-parse 100 test test [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'test')
+pattern[0] = [test]
+1 test}]
+
+glob-parse 101 "one two" one [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'one' OR x GLOB 'two')
+pattern[0] = [one]
+pattern[1] = [two]
+1 one}]
+
+glob-parse 102 t* test [string map [list \r\n \n] \
+{SQL expression: (x GLOB 't*')
+pattern[0] = [t*]
+1 test}]
+
+glob-parse 103 "o* two" one [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*' OR x GLOB 'two')
+pattern[0] = [o*]
+pattern[1] = [two]
+1 one}]
+
+glob-parse 104 {"o* two" "three four"} "one two" [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o* two' OR x GLOB 'three four')
+pattern[0] = [o* two]
+pattern[1] = [three four]
+1 one two}]
+
+glob-parse 105 {"o* two" "three four"} "two one" [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o* two' OR x GLOB 'three four')
+pattern[0] = [o* two]
+pattern[1] = [three four]
+0 two one}]
+
+glob-parse 106 "\"o*\ntwo\" \"three\nfour\"" "one\ntwo" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*
+two' OR x GLOB 'three
+four')
+pattern[0] = [o*
+two]
+pattern[1] = [three
+four]
+1 one
+two}]
+
+glob-parse 107 "\"o*\ntwo\" \"three\nfour\"" "two\none" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*
+two' OR x GLOB 'three
+four')
+pattern[0] = [o*
+two]
+pattern[1] = [three
+four]
+0 two
+one}]
+
+glob-parse 108 "\"o*\rtwo\" \"three\rfour\"" "one\rtwo" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*
+two' OR x GLOB 'three
+four')
+pattern[0] = [o*
+two]
+pattern[1] = [three
+four]
+1 one
+two}]
+
+glob-parse 109 "\"o*\rtwo\" \"three\rfour\"" "two\rone" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*
+two' OR x GLOB 'three
+four')
+pattern[0] = [o*
+two]
+pattern[1] = [three
+four]
+0 two
+one}]
+
+glob-parse 110 "'o*\ntwo' 'three\nfour'" "one\ntwo" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*
+two' OR x GLOB 'three
+four')
+pattern[0] = [o*
+two]
+pattern[1] = [three
+four]
+1 one
+two}]
+
+glob-parse 111 "'o*\ntwo' 'three\nfour'" "two\none" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*
+two' OR x GLOB 'three
+four')
+pattern[0] = [o*
+two]
+pattern[1] = [three
+four]
+0 two
+one}]
+
+glob-parse 112 "\"'o*' 'two'\" \"'three' 'four'\"" "'one' 'two'" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB '''o*'' ''two''' OR x GLOB '''three'' ''four''')
+pattern[0] = ['o*' 'two']
+pattern[1] = ['three' 'four']
+1 'one' 'two'}]
+
+glob-parse 113 "\"'o*' 'two'\" \"'three' 'four'\"" "two one" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB '''o*'' ''two''' OR x GLOB '''three'' ''four''')
+pattern[0] = ['o*' 'two']
+pattern[1] = ['three' 'four']
+0 two one}]
+
+glob-parse 114 o*,two one [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*' OR x GLOB 'two')
+pattern[0] = [o*]
+pattern[1] = [two]
+1 one}]
+
+glob-parse 115 "o*,two three,four" "one two" [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*' OR x GLOB 'two' OR x GLOB 'three' OR x GLOB 'four')
+pattern[0] = [o*]
+pattern[1] = [two]
+pattern[2] = [three]
+pattern[3] = [four]
+1 one two}]
+
+glob-parse 116 'o*,two' one [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*,two')
+pattern[0] = [o*,two]
+0 one}]
+
+glob-parse 117 'o*,two' one,two [string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*,two')
+pattern[0] = [o*,two]
+1 one,two}]
+
+glob-parse 118 "'o*,two three,four'" "one two three,four" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*,two three,four')
+pattern[0] = [o*,two three,four]
+0 one two three,four}]
+
+glob-parse 119 "'o*,two three,four'" "one,two three,four" \
+[string map [list \r\n \n] \
+{SQL expression: (x GLOB 'o*,two three,four')
+pattern[0] = [o*,two three,four]
+1 one,two three,four}]
+
+###############################################################################
+
+test_cleanup

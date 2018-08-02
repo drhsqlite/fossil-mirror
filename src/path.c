@@ -15,7 +15,7 @@
 *******************************************************************************
 **
 ** This file contains code used to trace paths of through the
-** directed acyclic graph (DAG) of checkins.
+** directed acyclic graph (DAG) of check-ins.
 */
 #include "config.h"
 #include "path.h"
@@ -28,6 +28,7 @@ struct PathNode {
   int rid;                 /* ID for this node */
   u8 fromIsParent;         /* True if pFrom is the parent of rid */
   u8 isPrim;               /* True if primary side of common ancestor */
+  u8 isHidden;             /* Abbreviate output in "fossil bisect ls" */
   PathNode *pFrom;         /* Node we came from */
   union {
     PathNode *pPeer;       /* List of nodes of the same generation */
@@ -46,7 +47,6 @@ static struct {
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   PathNode *pStart;     /* Earliest node */
-  PathNode *pPivot;     /* Common ancestor of pStart and pEnd */
   PathNode *pEnd;       /* Most recent */
 } path;
 
@@ -91,17 +91,15 @@ void path_reset(void){
     fossil_free(p);
   }
   bag_clear(&path.seen);
-  path.pCurrent = 0;
-  path.pAll = 0;
-  path.pEnd = 0;
-  path.nStep = 0;
+  memset(&path, 0, sizeof(path));
 }
 
 /*
 ** Construct the path from path.pStart to path.pEnd in the u.pTo fields.
 */
-void path_reverse_path(void){
+static void path_reverse_path(void){
   PathNode *p;
+  assert( path.pEnd!=0 );
   for(p=path.pEnd; p && p->pFrom; p = p->pFrom){
     p->pFrom->u.pTo = p;
   }
@@ -115,13 +113,18 @@ void path_reverse_path(void){
 ** If directOnly is true, then use only the "primary" links from parent to
 ** child.  In other words, ignore merges.
 **
-** Return a pointer to the beginning of the path (the iFrom node).  
+** Return a pointer to the beginning of the path (the iFrom node).
 ** Elements of the path can be traversed by following the PathNode.u.pTo
 ** pointer chain.
 **
 ** Return NULL if no path is found.
 */
-PathNode *path_shortest(int iFrom, int iTo, int directOnly){
+PathNode *path_shortest(
+  int iFrom,          /* Path starts here */
+  int iTo,            /* Path ends here */
+  int directOnly,     /* No merge links if true */
+  int oneWayOnly      /* Parent->child only if true */
+){
   Stmt s;
   PathNode *pPrev;
   PathNode *p;
@@ -132,14 +135,22 @@ PathNode *path_shortest(int iFrom, int iTo, int directOnly){
     path.pEnd = path.pStart;
     return path.pStart;
   }
-  if( directOnly ){
-    db_prepare(&s, 
+  if( oneWayOnly && directOnly ){
+    db_prepare(&s,
+        "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim"
+    );
+  }else if( oneWayOnly ){
+    db_prepare(&s,
+        "SELECT cid, 1 FROM plink WHERE pid=:pid "
+    );
+  }else if( directOnly ){
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
         "UNION ALL "
         "SELECT pid, 0 FROM plink WHERE cid=:pid AND isprim"
     );
   }else{
-    db_prepare(&s, 
+    db_prepare(&s,
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
         "UNION ALL "
         "SELECT pid, 0 FROM plink WHERE cid=:pid"
@@ -185,11 +196,43 @@ PathNode *path_midpoint(void){
 }
 
 /*
-** COMMAND:  test-shortest-path
+** Compute the shortest path between two check-ins and then transfer
+** that path into the "ancestor" table.  This is a utility used by
+** both /annotate and /finfo.  See also: compute_direct_ancestors().
+*/
+void path_shortest_stored_in_ancestor_table(
+  int origid,     /* RID for check-in at start of the path */
+  int cid         /* RID for check-in at the end of the path */
+){
+  PathNode *pPath;
+  int gen = 0;
+  Stmt ins;
+  pPath = path_shortest(cid, origid, 1, 0);
+  db_multi_exec(
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor("
+    "  rid INT UNIQUE,"
+    "  generation INTEGER PRIMARY KEY"
+    ");"
+    "DELETE FROM ancestor;"
+  );
+  db_prepare(&ins, "INSERT INTO ancestor(rid, generation) VALUES(:rid,:gen)");
+  while( pPath ){
+    db_bind_int(&ins, ":rid", pPath->rid);
+    db_bind_int(&ins, ":gen", ++gen);
+    db_step(&ins);
+    db_reset(&ins);
+    pPath = pPath->u.pTo;
+  }
+  db_finalize(&ins);
+  path_reset();
+}
+
+/*
+** COMMAND: test-shortest-path
 **
 ** Usage: %fossil test-shortest-path ?--no-merge? VERSION1 VERSION2
 **
-** Report the shortest path between two checkins.  If the --no-merge flag
+** Report the shortest path between two check-ins.  If the --no-merge flag
 ** is used, follow only direct parent-child paths and omit merge links.
 */
 void shortest_path_test_cmd(void){
@@ -198,13 +241,15 @@ void shortest_path_test_cmd(void){
   PathNode *p;
   int n;
   int directOnly;
+  int oneWay;
 
   db_find_and_open_repository(0,0);
   directOnly = find_option("no-merge",0,0)!=0;
+  oneWay = find_option("one-way",0,0)!=0;
   if( g.argc!=4 ) usage("VERSION1 VERSION2");
   iFrom = name_to_rid(g.argv[2]);
   iTo = name_to_rid(g.argv[3]);
-  p = path_shortest(iFrom, iTo, directOnly);
+  p = path_shortest(iFrom, iTo, directOnly, oneWay);
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
@@ -215,10 +260,10 @@ void shortest_path_test_cmd(void){
       "  FROM blob, event"
       " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
       p->rid, p->rid);
-    fossil_print("%4d: %s", n, z);
+    fossil_print("%4d: %5d %s", n, p->rid, z);
     fossil_free(z);
     if( p->u.pTo ){
-      fossil_print(" is a %s of\n", 
+      fossil_print(" is a %s of\n",
                    p->u.pTo->fromIsParent ? "parent" : "child");
     }else{
       fossil_print("\n");
@@ -289,7 +334,7 @@ int path_common_ancestor(int iMe, int iYou){
 }
 
 /*
-** COMMAND:  test-ancestor-path
+** COMMAND: test-ancestor-path
 **
 ** Usage: %fossil test-ancestor-path VERSION1 VERSION2
 **
@@ -315,7 +360,7 @@ void ancestor_path_test_cmd(void){
       "  FROM blob, event"
       " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
       p->rid, p->rid);
-    fossil_print("%4d: %s", n, z);
+    fossil_print("%4d: %5d %s", n, p->rid, z);
     fossil_free(z);
     if( p->rid==iFrom ) fossil_print(" VERSION1");
     if( p->rid==iTo ) fossil_print(" VERSION2");
@@ -337,26 +382,30 @@ struct NameChange {
 };
 
 /*
-** Compute all file name changes that occur going from checkin iFrom
-** to checkin iTo.
+** Compute all file name changes that occur going from check-in iFrom
+** to check-in iTo.
 **
 ** The number of name changes is written into *pnChng.  For each name
-** change, two integers are allocated for *piChng.  The first is the 
-** filename.fnid for the original name and the second is for new name.
+** change, two integers are allocated for *piChng.  The first is the
+** filename.fnid for the original name as seen in check-in iFrom and
+** the second is for new name as it is used in check-in iTo.
+**
 ** Space to hold *piChng is obtained from fossil_malloc() and should
 ** be released by the caller.
 **
-** This routine really has nothing to do with pathion.  It is located
+** This routine really has nothing to do with path.  It is located
 ** in this path.c module in order to leverage some of the path
 ** infrastructure.
 */
 void find_filename_changes(
-  int iFrom,
-  int iTo,
-  int *pnChng,
-  int **aiChng
+  int iFrom,               /* Ancestor check-in */
+  int iTo,                 /* Recent check-in */
+  int revOk,               /* Ok to move backwards (child->parent) if true */
+  int *pnChng,             /* Number of name changes along the path */
+  int **aiChng,            /* Name changes */
+  const char *zDebug       /* Generate trace output if no NULL */
 ){
-  PathNode *p;           /* For looping over path from iFrom to iTo */
+  PathNode *p;             /* For looping over path from iFrom to iTo */
   NameChange *pAll = 0;    /* List of all name changes seen so far */
   NameChange *pChng;       /* For looping through the name change list */
   int nChng = 0;           /* Number of files whose names have changed */
@@ -366,13 +415,20 @@ void find_filename_changes(
 
   *pnChng = 0;
   *aiChng = 0;
+  if(0==iFrom){
+    fossil_fatal("Invalid 'from' RID: 0");
+  }else if(0==iTo){
+    fossil_fatal("Invalid 'to' RID: 0");
+  }
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 1);
+  p = path_shortest(iFrom, iTo, 1, revOk==0);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
-     "SELECT pfnid, fnid FROM mlink WHERE mid=:mid AND pfnid>0"
+     "SELECT pfnid, fnid FROM mlink"
+     " WHERE mid=:mid AND (pfnid>0 OR fid==0)"
+     " ORDER BY pfnid"
   );
   for(p=path.pStart; p; p=p->u.pTo){
     int fnid, pfnid;
@@ -382,12 +438,25 @@ void find_filename_changes(
     }
     db_bind_int(&q1, ":mid", p->rid);
     while( db_step(&q1)==SQLITE_ROW ){
-      if( p->fromIsParent ){
-        fnid = db_column_int(&q1, 1);
-        pfnid = db_column_int(&q1, 0);
-      }else{
-        fnid = db_column_int(&q1, 0);
-        pfnid = db_column_int(&q1, 1);
+      fnid = db_column_int(&q1, 1);
+      pfnid = db_column_int(&q1, 0);
+      if( pfnid==0 ){
+        pfnid = fnid;
+        fnid = 0;
+      }
+      if( !p->fromIsParent ){
+        int t = fnid;
+        fnid = pfnid;
+        pfnid = t;
+      }
+      if( zDebug ){
+        fossil_print("%s at %d%s %.10z: %d[%z] -> %d[%z]\n",
+           zDebug, p->rid, p->fromIsParent ? ">" : "<",
+           db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid),
+           pfnid,
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", pfnid),
+           fnid,
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", fnid));
       }
       for(pChng=pAll; pChng; pChng=pChng->pNext){
         if( pChng->curName==pfnid ){
@@ -395,7 +464,7 @@ void find_filename_changes(
           break;
         }
       }
-      if( pChng==0 ){
+      if( pChng==0 && fnid>0 ){
         pChng = fossil_malloc( sizeof(*pChng) );
         pChng->pNext = pAll;
         pAll = pChng;
@@ -405,17 +474,30 @@ void find_filename_changes(
         nChng++;
       }
     }
-    for(pChng=pAll; pChng; pChng=pChng->pNext) pChng->curName = pChng->newName;
+    for(pChng=pAll; pChng; pChng=pChng->pNext){
+      pChng->curName = pChng->newName;
+    }
     db_reset(&q1);
   }
   db_finalize(&q1);
   if( nChng ){
-    *pnChng = nChng;
     aChng = *aiChng = fossil_malloc( nChng*2*sizeof(int) );
-    for(pChng=pAll, i=0; pChng; pChng=pChng->pNext, i+=2){
+    for(pChng=pAll, i=0; pChng; pChng=pChng->pNext){
+      if( pChng->newName==0 ) continue;
+      if( pChng->origName==0 ) continue;
       aChng[i] = pChng->origName;
       aChng[i+1] = pChng->newName;
+      if( zDebug ){
+        fossil_print("%s summary %d[%z] -> %d[%z]\n",
+           zDebug,
+           aChng[i],
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i]),
+           aChng[i+1],
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i+1]));
+      }
+      i += 2;
     }
+    *pnChng = i/2;
     while( pAll ){
       pChng = pAll;
       pAll = pAll->pNext;
@@ -427,7 +509,7 @@ void find_filename_changes(
 /*
 ** COMMAND: test-name-changes
 **
-** Usage: %fossil test-name-changes VERSION1 VERSION2
+** Usage: %fossil test-name-changes [--debug] VERSION1 VERSION2
 **
 ** Show all filename changes that occur going from VERSION1 to VERSION2
 */
@@ -437,20 +519,116 @@ void test_name_change(void){
   int *aChng;
   int nChng;
   int i;
+  const char *zDebug = 0;
+  int revOk = 0;
 
   db_find_and_open_repository(0,0);
-  if( g.argc!=4 ) usage("VERSION1 VERSION2");
-  iFrom = name_to_rid(g.argv[2]);
-  iTo = name_to_rid(g.argv[3]);
-  find_filename_changes(iFrom, iTo, &nChng, &aChng);
-  for(i=0; i<nChng; i++){
-    char *zFrom, *zTo;
+  zDebug = find_option("debug",0,0)!=0 ? "debug" : 0;
+  revOk = find_option("bidirectional",0,0)!=0;
+  if( g.argc<4 ) usage("VERSION1 VERSION2");
+  while( g.argc>=4 ){
+    iFrom = name_to_rid(g.argv[2]);
+    iTo = name_to_rid(g.argv[3]);
+    find_filename_changes(iFrom, iTo, revOk, &nChng, &aChng, zDebug);
+    fossil_print("------ Changes for (%d) %s -> (%d) %s\n",
+                 iFrom, g.argv[2], iTo, g.argv[3]);
+    for(i=0; i<nChng; i++){
+      char *zFrom, *zTo;
 
-    zFrom = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2]);
-    zTo = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
-    fossil_print("[%s] -> [%s]\n", zFrom, zTo);
-    fossil_free(zFrom);
-    fossil_free(zTo);
+      zFrom = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2]);
+      zTo = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
+      fossil_print("[%s] -> [%s]\n", zFrom, zTo);
+      fossil_free(zFrom);
+      fossil_free(zTo);
+    }
+    fossil_free(aChng);
+    g.argv += 2;
+    g.argc -= 2;
   }
-  fossil_free(aChng);
+}
+
+/* Query to extract all rename operations */
+static const char zRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
+@ SELECT
+@     datetime(event.mtime) AS date,
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid AS checkin
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid;
+;
+
+/* Query to extract distinct rename operations */
+static const char zDistinctRenameQuery[] =
+@ CREATE TEMP TABLE renames AS
+@ SELECT
+@     min(datetime(event.mtime)) AS date,
+@     F.name AS old_name,
+@     T.name AS new_name,
+@     blob.uuid AS checkin
+@   FROM mlink, filename F, filename T, event, blob
+@  WHERE coalesce(mlink.pfnid,0)!=0 AND mlink.pfnid!=mlink.fnid
+@    AND F.fnid=mlink.pfnid
+@    AND T.fnid=mlink.fnid
+@    AND event.objid=mlink.mid
+@    AND event.type='ci'
+@    AND blob.rid=mlink.mid
+@  GROUP BY 2, 3;
+;
+
+/*
+** WEBPAGE: test-rename-list
+**
+** Print a list of all file rename operations throughout history.
+** This page is intended for for testing purposes only and may change
+** or be discontinued without notice.
+*/
+void test_rename_list_page(void){
+  Stmt q;
+  int nRename;
+  int nCheckin;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  if( P("all")!=0 ){
+    style_header("List Of All Filename Changes");
+    db_multi_exec("%s", zRenameQuery/*safe-for-%s*/);
+    style_submenu_element("Distinct", "%R/test-rename-list");
+  }else{
+    style_header("List Of Distinct Filename Changes");
+    db_multi_exec("%s", zDistinctRenameQuery/*safe-for-%s*/);
+    style_submenu_element("All", "%R/test-rename-list?all");
+  }
+  nRename = db_int(0, "SELECT count(*) FROM renames;");
+  nCheckin = db_int(0, "SELECT count(DISTINCT checkin) FROM renames;");
+  db_prepare(&q, "SELECT date, old_name, new_name, checkin FROM renames"
+                 " ORDER BY date DESC, old_name ASC");
+  @ <h1>%d(nRename) filename changes in %d(nCheckin) check-ins</h1>
+  @ <table class='sortable' data-column-types='tttt' data-init-sort='1'\
+  @  border="1" cellpadding="2" cellspacing="0">
+  @ <thead><tr><th>Date &amp; Time</th>
+  @ <th>Old Name</th>
+  @ <th>New Name</th>
+  @ <th>Check-in</th></tr></thead><tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zOld = db_column_text(&q, 1);
+    const char *zNew = db_column_text(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    @ <tr>
+    @ <td>%z(href("%R/timeline?c=%t",zDate))%s(zDate)</a></td>
+    @ <td>%z(href("%R/finfo?name=%t",zOld))%h(zOld)</a></td>
+    @ <td>%z(href("%R/finfo?name=%t",zNew))%h(zNew)</a></td>
+    @ <td>%z(href("%R/info/%!S",zUuid))%S(zUuid)</a></td></tr>
+  }
+  @ </tbody></table>
+  db_finalize(&q);
+  style_table_sorter();
+  style_footer();
 }

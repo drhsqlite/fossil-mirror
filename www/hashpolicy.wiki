@@ -1,0 +1,173 @@
+<title>Hash Policy</title>
+
+<h2> Executive Summary, Or How To Avoid Reading This Article </h2>
+
+There is much angst over the [http://www.shattered.io|Shattered attack]
+against SHA1.  If you are concerned about this and its implications for
+Fossil, simply upgrade to Fossil 2.0 or later and the problem will go away.
+Everything will continue to work as before.  All of your legacy repositories
+will continue to work and all of your old check-ins will still have the
+same name.  Your workflow will be unchanged.
+
+But if you are curious and want a deeper understanding of what is
+going on, read on...
+
+
+<h2> Introduction </h2>
+
+The first snapshot-based distributed version control system
+was [http://www.monotone.ca|Monotone].  Many of the ideas behind the design
+of Fossil were copied from Monotone, including the use of a SHA1 hash to
+assign names to artifacts.  Git and Mercurial did the same thing.
+
+The SHA1 hash algorithm is used only to create names for artifacts in Fossil
+(and in Git, Mercurial, and Monotone).  It is not used for security.
+Nevertheless, when the [http://www.shattered.io|Shattered attack] found
+two different PDF files with the same SHA1 hash, many users learned that
+"SHA1 is broken".  They see that Fossil (and Git, Mercurial, and Monotone)
+use SHA1 and they therefore conclude that "Fossil is broken".  This is
+not true, but it is a public relations problem.  So the decision
+was made to migrate Fossil away from SHA1.
+
+This article describes how that migration is occurring.
+
+<h2>Use Of Hardened SHA1</h2>
+
+In Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]),
+the internal SHA1 implementation was changed from a generic
+FIPS PUB 180-4 SHA1 implementation to a "Hardened SHA1"
+&#91;[https://github.com/cr-marcstevens/sha1collisiondetection|1]&#93;
+&#91;[https://marc-stevens.nl/research/papers/C13-S.pdf|2]&#93;.
+
+The Hardened SHA1 implement automatically detects when the artifact
+being hashed is specifically designed to exploit the known weaknesses
+in the SHA1 algorithm, and when it detects such an attack it changes
+the hash algorithm (by increasing the number of rounds in the compression
+function) to make the algorithm secure again.  If the attack detection
+gets a false possible, that means that Hardened SHA1 will get a different
+answer than the standard FIPS PUB 180-4 SHA1, but the creators of
+Hardened SHA1 (see the second paper
+&#91;[https://marc-stevens.nl/research/papers/C13-S.pdf|2]&#93;)
+report that the probability of a false positive is vanishingly small -
+less than 1 false positive out of 10<sup><font size=1>27</font></sup>
+hashes.
+
+Hardened SHA1 is slower (and a lot bigger) but Fossil does not do that
+much hashing, so performance is not really an issue.
+
+All versions of Fossil moving forward will use Hardened SHA1.  So if
+someone says "SHA1 is broken, and Fossil uses SHA1, therefore Fossil is
+broken", you can rebut the argument by pointing out that Fossil uses
+<em>Hardened SHA1</em> not generic SHA1 and Hardened SHA1 is <em>not</em>
+broken.
+
+<h2>Support For SHA3-256</h2>
+
+Prior to Fossil version 2.0 ([/timeline?c=version-2.0|2017-03-03]),
+all artifacts in all Fossil repositories were named
+by only a SHA1 hash.
+Version 2.0 extended the [./fileformat.wiki|Fossil file format]
+to allow artifacts to be named by either SHA1 or SHA3-256 hashes.
+(SHA3-256 is the only variant of SHA3 that
+Fossil uses for artifact naming, so for the remainder of this article
+it will be called simply "SHA3".  Similarly, "Hardened SHA1" will
+shortened to "SHA1" in the sequel.)
+
+Other than permitting the use of SHA3 in addition to SHA1, there
+were no file format changes in Fossil version 2.0 relative
+to the previous version 1.37.  Both Fossil 2.0 and Fossil 1.37 read
+and write all the same repositories and sync with one another, as long
+as none of the repositories contain artifacts named using SHA3.  If
+a repository does contain artifacts named using SHA3, Fossil 1.37 will
+not know how to interpret those artifacts and will generate various warnings
+and errors.
+
+<h2>How Fossil Decides Which Hash Algorithm To Use</h2>
+
+If newer versions of Fossil are able to use either SHA1 or SHA3 to
+name artifacts, which hash algorithm is actually used?  That question
+is answered by the "hash policy".  These are the supported hash policies:
+
+<table cellpadding=10>
+<tr>
+<td valign='top'>sha1</td>
+<td>Name all new artifacts using the (Hardened) SHA1 hash algorithm.</td>
+</tr>
+<tr>
+<td valign='top'>auto</td>
+<td>Name new artifacts using the SHA1 hash algorithm.  But if any
+artifacts are encountered which are already named using SHA3, then
+automatically switch the hash policy to "sha3"</td>
+</tr>
+<tr>
+<td valign='top'>sha3</td>
+<td>Name new artifacts using the SHA3 hash algorithm if the artifact
+does not already have a SHA1 name.  If the artifact already has a SHA1
+name, then continue to use the older SHA1 name.  Use SHA3 for new
+artifacts that have never before been encountered.</td>
+</tr>
+<tr>
+<td valign='top'>sha3-only</td>
+<td>Name new artifacts using the SHA3 hash algorithm even if the artifact
+already has a SHA1 name.  In other words, force the use of SHA3.  This can
+cause some artifacts to be added to the respository twice, once under their
+SHA1 name and again under their SHA3 name.  But delta compression will
+prevent that from causing repository size problems.</td>
+</tr>
+<tr>
+<td valign='top'>shun-sha1</td>
+<td>Like "sha3-only" but at this level do not accept a push of SHA1-named
+artifacts.  If another Fossil instance tries to push a SHA1-named artifact,
+that artifact is discarded and ignored.
+</tr>
+</table>
+
+For Fossil 2.0, and obviously also for Fossil 1.37 and before, the
+only hash policy supported was "sha1".  All new artifacts were named
+using their SHA1 hash.
+Even though Fossil 2.0 was capable of understanding SHA3 hashes, it
+never actually generates any SHA3 hashes.
+
+Beginning with Fossil 2.1, the default hash policy for legacy repositories
+changed to "auto".
+That means Fossil 2.1 will continue to generate only SHA1 hashes until it
+encounters one artifact with a SHA3 hash.  Once a single SHA3 hash is
+seen, Fossil automatically switches to "sha3" mode and thereafter generates
+only SHA3 hashes.
+
+When a new repository is created by cloning, the hash policy is copied
+from the parent.
+
+For new repositories created using the
+[/help?cmd=new|fossil new] command the default hash policy is "sha3".
+That means new repositories
+will normally hold nothing except SHA3 hashes.  The hash policy for new
+repositories can be overridden using the "--sha1" option to the
+"fossil new" command.
+
+Even after upgrading to Fossil 2.1, Fossil will continue to use nothing
+but SHA1 hashes on legacy repositories, thus preserving complete
+compatibility with Fossil 1.37 and before.  If you want Fossil to go
+ahead and start using SHA3 hashes, change the hash policy to
+"sha3" using a command like this:
+
+<blockquote><verbatim>
+fossil hash-policy sha3
+</verbatim></blockquote>
+
+The next check-in will use a SHA3 hash.  And when that check-in is pushed
+to colleagues, their copies of Fossil will see the new SHA3-named artifact
+and automatically convert to SHA3 as well.
+
+Of course, if some members of your team stubbornly refuse to upgrade past
+Fossil 1.37, you should avoid changing the hash policy and creating
+artifacts with SHA3 names, because once you do that your recalcitrant
+coworkers will no longer be able to collaborate.
+
+<h2>A Pure SHA3 Future</h2>
+
+At some point in the future, years from now, after everybody has finally
+upgraded to Fossil 2.0 or later, the default hash policy will probably
+change to "sha3", or maybe even "shun-sha1".  By the time that happens,
+you will probably already be using SHA3 on all your projects and so you
+are unlikely to notice.

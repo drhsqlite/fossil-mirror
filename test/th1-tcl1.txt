@@ -1,0 +1,29 @@
+<th1>
+  #
+  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
+  # The corresponding test file executes this file using the test-th-render
+  # Fossil command.
+  #
+  proc doOut {msg} {puts $msg; puts \n}
+  doOut "tclReady(before) = [tclReady]"
+  set channel stdout; tclInvoke set channel $channel
+  doOut "tclReady(after) = [tclReady]"
+  doOut [tclEval clock seconds]
+  doOut [tclEval {set x [clock seconds]}]
+  tclEval {puts $channel "[clock seconds]"}
+  tclInvoke puts $channel "via Tcl invoke"
+  doOut [tclExpr 2+2]
+  doOut [tclExpr 2 + 2]
+  doOut [tclInvoke set x "two words"]
+  doOut [tclInvoke eval set y one_word]
+  doOut [tclInvoke eval {set z "three words now"}]
+  doOut [set x [tclEval {set x [clock seconds]}]]
+  doOut [tclInvoke th1Eval {set y "two words"}]
+  doOut [set z [tclInvoke th1Expr {2+2}]]
+  doOut $x
+  doOut $y
+  doOut $z
+  doOut [tclEval set x]
+  doOut [tclEval set y]
+  doOut [tclEval set z]
+</th1>

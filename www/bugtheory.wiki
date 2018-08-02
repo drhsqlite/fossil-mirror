@@ -29,7 +29,7 @@ unordered collection of <i>artifacts</i>.  (See the
 <a href="fileformat.wiki">file format document</a> for details.)
 Some artifacts have a special format, and among those are
 <a href="fileformat.wiki#tktchng">Ticket Change Artifacts</a>.
-One or more ticket change artifacts are associated with each 
+One or more ticket change artifacts are associated with each
 ticket.  A ticket is created by a ticket change artifact.
 Each subsequent modification of the ticket is a separate artifact.
 
@@ -114,7 +114,7 @@ and is not shared with other repositories during a sync, push, or pull.
 Each repository also defines scripts used to generate web pages for
 creating new tickets, viewing existing tickets, and modifying an
 existing ticket.  These scripts consist of HTML with an embedded
-scripts written an a Tcl-like language called "TH1".  Every new fossil
+scripts written a Tcl-like language called "TH1".  Every new fossil
 repository is created with default scripts.  Paul Ruizendaal has written
 documentation on the TH1 language that is available at
 [http://www.sqliteconcepts.org/THManual.pdf].  Administrators wishing to

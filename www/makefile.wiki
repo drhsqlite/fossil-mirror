@@ -4,19 +4,20 @@
 
 The build process for Fossil is tricky in that the source code
 needs to be processed by three different preprocessor programs
-before it is compiled.  Most users will download a 
-[http://www.fossil-scm.org/download.html | precompiled binary]
+before it is compiled.  Most users will download a
+[https://www.fossil-scm.org/fossil/uv/download.html | precompiled binary]
 so this is of no consequence to them, and even those who
-want to compile the code themselves can use one of the 
-[./build.wiki | existing makefiles].  
+want to compile the code themselves can use one of the
+[./build.wiki | existing makefiles].
 So must people do not need to be concerned with the
 build complexities of Fossil.  But hard-core developers who desire
 a deep understanding of how Fossil is put together can benefit
 from reviewing this article.
 
+<a name="srctour"></a>
 <h1>2.0 Source Code Tour</h1>
 
-The source code for Fossil is found in the 
+The source code for Fossil is found in the
 [/dir?ci=trunk&name=src | src/] subdirectory of the
 source tree.  The src/ subdirectory contains all code, including
 the code for the separate preprocessor programs.
@@ -25,11 +26,11 @@ Each preprocessor program is a separate C program implemented in
 a single file of C source code.  The three preprocessor programs
 are:
 
-  1.  mkindex.c
-  2.  translate.c
-  3.  makeheaders.c
+  1.  [/file/src/mkindex.c | mkindex.c]
+  2.  [/file/src/translate.c | translate.c]
+  3.  [/file/src/makeheaders.c | makeheaders.c]
 
-Fossil makes use of [http://www.sqlite.org/ | SQLite] for on-disk
+Fossil uses [http://www.sqlite.org/ | SQLite] for on-disk
 storage.  The SQLite implementation is contained in three source
 code files that do not participate in the preprocessing steps.
 These three files that implement SQLite are:
@@ -38,45 +39,89 @@ These three files that implement SQLite are:
   5.  sqlite3.h
   6.  shell.c
 
-The sqlite3.c and sqlite3.h source files are byte-for-byte copies of a
+All three SQLite source files are byte-for-byte copies of files by
+the same name in the
 standard [http://www.sqlite.org/amalgamation.html | amalgamation].
-The shell.c source file is code for the SQLite
-[http://www.sqlite.org/sqlite.html | command-line shell] that is used
-to help implement the [/help/sqlite3 | fossil sql] command.  The
-shell.c source file has been modified slightly from the standard
-shell.c file in the SQLite release.  Search for "Fossil Patch" in
-the shell.c source file of Fossil to see the changes.
+The sqlite3.c file implements the database engine.  The shell.c file
+implements the command-line shell, which is accessed in fossil using
+the [/help?cmd=sqlite3 | fossil sql] command.
+
+The shell.c command-line shell uses the [https://github.com/antirez/linenoise |
+linenoise] library to implement line editing.  linenoise comprises two
+source files which were copied from the upstream repository with only
+very minor portability edits:
+
+  7.  linenoise.c
+  8.  linenoise.h
 
 The TH1 script engine is implemented using files:
 
-  7.  th.c
-  8.  th.h
+  9.  th.c
+  10.  th.h
 
-These two files are imports like the SQLite source files, 
-and so are not preprocessed.
+The proprocessing steps are omitted for all of these imported
+files.
+
+The VERSION.h header file is generated from other information sources
+using a small program called:
+
+  11.  [/file/src/mkversion.c | mkversion.c]
+
+The builtin_data.h header file contains the definitions of C-language
+byte-array constants that contain various resources such as scripts and
+images.  The builtin_data.h header file is generate from the original
+resource files using a small program called:
+
+  12   [/file/src/mkbuiltin.c | mkbuildin.c]
+
+Examples of built-in resources include the [/file/src/diff.tcl | diff.tcl]
+script used to implement the --tk option to [/help?cmd=diff| fossil diff],
+the [/file/src/markdown.md | markdown documentation], and the various
+CSS scripts, headers, and footers used to implement built-in skins.  New
+resources files are added to the "extra_files" variable in
+[/file/src/makemake.tcl | makemake.tcl].
 
 The src/ subdirectory also contains documentation about the
 makeheaders preprocessor program:
 
-  9.  [../src/makeheaders.html | makeheaders.html]
+  13.  [../src/makeheaders.html | makeheaders.html]
 
 Click on the link to read this documentation.  In addition there is
-a [http://www.tcl.tk/ | Tcl] script used to build the various makefiles:
+a [http://www.tcl-lang.org/ | Tcl] script used to build the various makefiles:
 
-  10.  makemake.tcl
+  14.  makemake.tcl
 
 Running this Tcl script will automatically regenerate all makefiles.
 In order to add a new source file to the Fossil implementation, simply
 edit makemake.tcl to add the new filename, then rerun the script, and
 all of the makefiles for all targets will be rebuild.
 
+There is an option code verification step implemented using
+
+  15.  [/file/src/codecheck1.c | codecheck1.c]
+
+This file implements a small utility program ("codecheck1")
+that scans other Fossil source files looking for errors in printf-style 
+format strings.
+The codecheck1 utility detects missing or surplus arguments on 
+printf-like functions and dangerous uses of "%s" that might
+permit SQL injection or cross-site scripting attacks.  This code
+check step is run automatically on each build of Fossil, and can
+also be run separately by typing "make codecheck".  Note that the
+built-in printf format checking of GCC does not function for Fossil
+since Fossil implements its own printf (in the
+[/file/src/printf.c | printf.c] source file) that includes special
+features and formatting letters that are useful to Fossil.  The
+codecheck1 utility can be seen as an enhanced application-specific
+replacement for the GCC printf format checker.
+
 Finally, there is one of the makefiles generated by makemake.tcl:
 
-  11.  main.mk
+  16.  main.mk
 
 The main.mk makefile is invoked from the Makefile in the top-level
 directory.  The main.mk is generated by makemake.tcl and should not
-be hand edited.  Other makefiles generated by makemake.tcl are in 
+be hand edited.  Other makefiles generated by makemake.tcl are in
 other subdirectories (currently all in the win/ subdirectory).
 
 All the other files in the src/ subdirectory (79 files at the time of
@@ -91,28 +136,44 @@ the exceptions described above.
 
 The "VERSION.h" header file contains some C preprocessor macros that
 identify the version of Fossil that is to be build.  The VERSION.h file is
-generated automatically from information extracted from the "manifest"
-and "manifest.uuid" source files in the root directory of the source tree.
+generated automatically from information extracted from the "manifest",
+"manifest.uuid", and "VERSION" source files in the root directory of the
+source tree.
 (The "manifest" and "manifest.uuid" files are automatically generated and
 updated by Fossil itself.  See the [/help/setting | fossil set manifest]
 command for additional information.)
 
-Under unix, there is an AWK script that converts manifest and manifest.uuid
-into VERSION.h.  For windows, there is a C program: win/version.c.  
-(Unix builds could also used the version.c convert, if desired, but AWK
-seems easier there.)  To run the VERSION.h generator, first compile
-the win/version.c source file into a command-line program (named "version.exe")
-than run:
+The VERSION.h header file is generated by
+a C program: src/mkversion.c.
+To run the VERSION.h generator, first compile the src/mkversion.c
+ source file into a command-line program (named "mkversion.exe")
+then run:
 
 <blockquote><pre>
-version.exe manifest.uuid manifest VERSION.h
+mkversion.exe manifest.uuid manifest VERSION &gt;VERSION.h
 </pre></blockquote>
 
 The pathnames in the above command might need to be adjusted to get the
-directories right.  The point is that the manifest.uuid and manifest files
-in the root of the source tree are the first two arguments and the name of
-the generated VERSION.h file is the third and final argument.
+directories right.  The point is that the manifest.uuid, manifest, and
+VERSION files
+in the root of the source tree are the three arguments and
+the generated VERSION.h file appears on standard output.
 
+The builtin_data.h header file is generated by a C program: src/mkbuiltin.c.
+The builtin_data.h file contains C-langauge byte-array definitions for
+the content of resource files used by Fossil.  To generate the
+builtin_data.h file, first compile the mkbuiltin.c program, then run:
+
+<blockquote><pre>
+mkbuiltin.exe diff.tcl <i>OtherFiles...</i> &gt;builtin_data.h
+</pre></blockquote>
+
+At the time of this writing, the "diff.tcl" script (a Tcl/Tk script used
+to generate implement --tk option on the diff command) is the only resource
+file processed using mkbuiltin.exe.  However, new resources will likely be
+added using this facility in future versions of Fossil.
+
+<a name="preprocessing"></a>
 <h1>4.0 Preprocessing</h1>
 
 There are three preprocessors for the Fossil sources.  The mkindex
@@ -122,7 +183,7 @@ preprocessor must be run after translate.
 <h2>4.1 The mkindex preprocessor</h2>
 
 The mkindex program scans the "src.c" source files looking for special
-comments that identify routines that implement of various Fossil commands,
+comments that identify routines that implement various Fossil commands,
 web interface methods, and help text comments.  The mkindex program
 generates some C code that Fossil uses in order to dispatch commands and
 HTTP requests and to show on-line help.  Compile the mkindex program
@@ -137,7 +198,7 @@ files of Fossil - all source files except for the exceptions described in
 section 2.0 above.
 
 The output of the mkindex program is a header file that is #include-ed by
-the main.c source file during the final compilation step.  
+the main.c source file during the final compilation step.
 
 <h2>4.2 The translate preprocessor</h2>
 
@@ -155,7 +216,7 @@ is run on each of the other ordinary source files separately, like this:
 In this case, the "src.c" file represents any single source file from the
 set of ordinary source files as described in section 2.0 above.  Note that
 each source file is translated separately.  By convention, the names of
-the translated source files are the names of the input sources with a 
+the translated source files are the names of the input sources with a
 single "_" character at the end.  But a new makefile can use any naming
 convention it wants - the "_" is not critical to the build process.
 
@@ -183,12 +244,12 @@ makeheaders src_.c:src.h sqlite3.h th.h VERSION.h
 </pre></blockquote>
 
 In the example above the "src_.c" and "src.h" names represent all of the
-(79) ordinary C source files, each as a separate argument.  
+(79) ordinary C source files, each as a separate argument.
 
 <h1>5.0 Compilation</h1>
 
 After all generated files have been created and all ordinary source files
-have been preprocessed, the generated and preprocessed files can be 
+have been preprocessed, the generated and preprocessed files can be
 combined into a single executable using a C compiler.  This can be done
 all at once, or each preprocessed source file can be compiled into a
 separate object code file and the resulting object code files linked
@@ -197,20 +258,22 @@ together in a final step.
 Some files require special C-preprocessor macro definitions.
 When compiling sqlite.c, the following macros are recommended:
 
-  *  -Dlocaltime=fossil_localtime
   *  -DSQLITE_OMIT_LOAD_EXTENSION=1
+  *  -DSQLITE_ENABLE_DBSTAT_VTAB=1
+  *  -DSQLITE_ENABLE_FTS4=1
   *  -DSQLITE_ENABLE_LOCKING_STYLE=0
+  *  -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1
   *  -DSQLITE_THREADSAFE=0
   *  -DSQLITE_DEFAULT_FILE_FORMAT=4
-  *  -DSQLITE_ENABLE_STAT2
+  *  -DSQLITE_ENABLE_EXPLAIN_COMMENTS=1
 
-The first and second symbol definitions above are required; the others
-are merely recommended.  The "localtime()" library function in SQLite must
-be redefined to invoke fossil_localtime() instead.  The fossil_localtime()
-routine will invoke either gmtime() or localtime() depending on the 
-"Use UTC" setting for the fossil repository.  Extension loading is omitted
-as a security measure.  Fossil is single-threaded so mutexing is disabled
-in SQLite as a performance enhancement.
+The first three symbol definitions above are required; the others are merely
+recommended.  Extension loading is omitted as a security measure. The dbstat
+virtual table is needed for the [/help?cmd=/repo-tabsize|/repo-tabsize] page.
+FTS4 is needed for the search feature.  Fossil is single-threaded so mutexing
+is disabled in SQLite as a performance enhancement.  The
+SQLITE_ENABLE_EXPLAIN_COMMENTS option makes the output of "EXPLAIN" queries
+in the  "[/help?cmd=sqlite3|fossil sql]" command much more readable.
 
 When compiling the shell.c source file, these macros are required:
 
@@ -219,7 +282,7 @@ When compiling the shell.c source file, these macros are required:
 
 The "main()" routine in the shell must be changed into sqlite3_main()
 to prevent it from colliding with the real main() in Fossil, and to give
-Fossil an entry point to jump to when the 
+Fossil an entry point to jump to when the
 [/help/sqlite3 | fossil sql] command is invoked.
 
 All the other source code files can be compiled without any special
@@ -232,3 +295,11 @@ the HTTPS option is enabled, then it will also need to link against
 the appropriate SSL implementation.  And, of course, Fossil needs to
 link against the standard C library.  No other libraries or external
 dependences are used.
+
+Fossil includes a copy of [https://github.com/richgel999/miniz | miniz]
+which can be used as an alternative to zlib.
+
+<h1>7.0 See Also</h1>
+
+  *  [./tech_overview.wiki | A Technical Overview Of Fossil]
+  *  [./adding_code.wiki | How To Add Features To Fossil]

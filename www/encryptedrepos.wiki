@@ -1,0 +1,69 @@
+<title>How To Use Encrypted Repositories</title>
+<h2>Introduction</h2><blockquote>
+Fossil can be compiled so that it works with encrypted repositories using
+the [https://www.sqlite.org/see/doc/trunk/www/readme.wiki|SQLite Encryption Extension].
+This technical note explains the process.
+</blockquote>
+<h2>Building An Encryption-Enabled Fossil</h2><blockquote>
+The SQLite Encryption Extension (SEE) is proprietary software and requires
+[http://www.hwaci.com/cgi-bin/see-step1|purchasing a license].
+<p>
+Assuming you have an SEE license, the first step of compiling Fossil to
+use SEE is to create an SEE-enabled version of the SQLite database source code.
+This alternative SQLite database source file should be called "sqlite3-see.c"
+and should be placed in the src/ subfolder of the Fossil sources, right beside
+the public-domain "sqlite3.c" source file.  Also make a copy of the SEE-enabled
+"shell.c" file, renamed as "shell-see.c", and place it in the src/ subfolder
+beside the original "shell.c".
+<p>
+Add the --with-see command-line option to the configuration script to enable
+the use of SEE on unix-like systems.
+<blockquote><pre>
+./configure --with-see; make
+</pre></blockquote>
+<p>To build for Windows using MSVC, add
+the "USE_SEE=1" argument to the "nmake" command line.
+<blockquote><pre>
+nmake -f makefile.msc USE_SEE=1
+</pre></blockquote>
+</blockquote>
+<h2>Using Encrypted Repositories</h2><blockquote>
+Any Fossil repositories whose filename ends with ".efossil" is taken to be
+an encrypted repository.  Fossil will prompt for the encryption password and
+attempt to open the repository database using that password.
+<p>
+Every invocation of fossil on an encrypted repository requires retyping the
+encryption password.
+To avoid excess password typing, consider using the "fossil shell"
+command which prompts for the password just once, then reuses it for each
+subsequent Fossil command entered at the prompt.
+<p>
+On Windows, the "fossil server", "fossil ui", and "fossil shell" commands do not
+(currently) work on an encrypted repository.
+</blockquote>
+<h2>Additional Security</h2><blockquote>
+Use the FOSSIL_SECURITY_LEVEL environment for additional protection.
+<blockquote><pre>
+export FOSSIL_SECURITY_LEVEL=1
+</pre></blockquote>
+A setting of 1 or greater
+prevents fossil from trying to remember the previous sync password.
+<blockquote><pre>
+export FOSSIL_SECURITY_LEVEL=2
+</pre></blockquote>
+A setting of 2 or greater
+causes all password prompts to be preceeded by a random translation matrix similar
+to the following:
+<blockquote><pre>
+abcde fghij klmno pqrst uvwyz
+qresw gjymu dpcoa fhkzv inlbt
+</pre></blockquote>
+When entering the password, the user must substitute the letter on the second
+line that corresponds to the letter on the first line.  Uppercase substitutes
+for uppercase inputs, and lowercase substitutes for lowercase inputs.  Letters
+that are not in the translation matrix (digits, punctuation, and "x") are not
+modified.  For example, given the
+translation matrix above, if the password is "pilot-9crazy-xube", then the user
+must type "fmpav-9ekqtb-xirw".  This simple substitution cypher helps prevent
+password capture by keyloggers.
+</blockquote>

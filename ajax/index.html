@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title>Fossil/JSON raw request sending</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script type="text/javascript" src="js/whajaj.js"></script>
+    <script type="text/javascript" src="js/fossil-ajaj.js"></script>
+
+<style type='text/css'>
+th {
+  text-align: left;
+  background-color: #ececec;
+}
+
+.dangerWillRobinson {
+    background-color: yellow;
+}
+</style>
+
+<script type='text/javascript'>
+WhAjaj.Connector.options.ajax.url =
+/*
+    Change this to your CGI/server root path:
+*/
+     //'http://fjson/cgi-bin/fossil.cgi'
+     //'/repos/fossil-sgb/json.cgi'
+    '/cgi-bin/fossil-json.cgi'
+     ;
+var TheApp = {
+      response:null,
+      sessionID:null,
+      jqe:{}/*jqe==jQuery Elements*/,
+      ajaxCount:0,
+      cgi: new FossilAjaj()
+};
+
+
+TheApp.startAjaxNotif = function()
+{
+    ++this.ajaxCount;
+    TheApp.jqe.responseContainer.removeClass('dangerWillRobinson');
+    this.jqe.ajaxNotification.attr( 'title', this.ajaxCount+" pending AJAX operation(s)..." );
+    if( 1 == this.ajaxCount ) this.jqe.ajaxNotification.fadeIn();
+};
+
+TheApp.endAjaxNotif = function()
+{
+    --this.ajaxCount;
+    this.jqe.ajaxNotification.attr( 'title', this.ajaxCount+" pending AJAX operation(s)..." );
+    if( 0 == this.ajaxCount ) this.jqe.ajaxNotification.fadeOut();
+};
+
+TheApp.responseContainsError = function(resp) {
+    if( resp && resp.resultCode ) {
+        //alert("Error response:\n"+JSON.stringify(resp,0,4));
+        TheApp.jqe.taResponse.val( "RESPONSE CONTAINS ERROR INFO:\n"+WhAjaj.stringify(resp) );
+        //TheApp.jqe.responseContainer.css({backgroundColor:'yellow'});
+        //TheApp.jqe.responseContainer.addClass('dangerWillRobinson');
+        TheApp.jqe.responseContainer.flash( '255,0,0', 1500 );
+        return true;
+    }
+    return false;
+};
+
+
+TheApp.sendRequest = function() {
+    var path = this.jqe.textPath.val();
+    var self = this;
+    var data = this.jqe.taRequest.val();
+    var doPost = (data && data.length);
+    var req;
+    if( doPost ) try {
+        req = JSON.parse(data);
+    }
+    catch(e) {
+        TheApp.jqe.taResponse.val("Request is not valid JSON.\n"+e);
+        return;
+    }
+    if( req ) {
+        req.requestId = this.cgi.generateRequestId();
+    }
+    var self = this;
+    var opt = {
+        url: WhAjaj.Connector.options.ajax.url + path,
+        method: doPost ? 'POST' : 'GET'
+    };
+    this.cgi.sendRequest( req, opt );
+};
+jQuery.fn.animateHighlight = function(highlightColor, duration) {
+    var highlightBg = highlightColor || "#FFFF9C";
+    var animateMs = duration || 1500;
+    var originalBg = this.css("backgroundColor");
+    this.stop().css("background-color", highlightBg).animate({backgroundColor: originalBg}, animateMs);
+};
+jQuery.fn.flash = function( color, duration )
+{
+    var current = this.css( 'color' );
+    this.animate( { color: 'rgb(' + color + ')' }, duration / 2);
+    this.animate( { color: current }, duration / 2 );
+};
+
+function myJsonPCallback(obj){
+    alert("JSONP callback got:\n"+WhAjaj.stringify(obj));
+}
+
+jQuery(document).ready(function(){
+    var ids = [// list of HTML element IDs we use often.
+        'btnSend',
+        'ajaxNotification',
+        'currentAuthToken',
+        'responseContainer',
+        'taRequest',
+        'taRequestOpt',
+        'taResponse',
+        'textPath',
+        'timer'
+    ];
+    var i, k;
+    for( i = 0; i < ids.length; ++i ) {
+        k = ids[i];
+        TheApp.jqe[k] = jQuery('#'+k);
+    }
+    TheApp.jqe.textPath.
+        keyup(function(event){
+            if(event.keyCode == 13){
+                TheApp.sendRequest();
+            }
+        });
+    TheApp.timer = {
+        _tstart:0,_tend:0,duration:0,
+        start:function(){
+            this._tstart = (new Date()).getTime();
+        },
+        end:function(){
+            this._tend = (new Date()).getTime();
+            return this.duration = this._tend - this._tstart;
+        }
+    };
+
+    var ajcb = TheApp.cgi.ajaj.callbacks;
+    ajcb.beforeSend = function(req,opt) {
+        TheApp.timer.start();
+        var val =
+            req ?
+            (('string'===typeof req) ? req : WhAjaj.stringify(req))
+            : '';
+        TheApp.jqe.taResponse.val('');
+        TheApp.jqe.taRequest.val( val );
+        TheApp.jqe.taRequestOpt.val( opt ? WhAjaj.stringify(opt) : '' );
+        TheApp.startAjaxNotif();
+    };
+    ajcb.afterSend = function(req,opt) {
+        TheApp.timer.end();
+        TheApp.endAjaxNotif();
+        TheApp.jqe.timer.text( "(Round-trip time (incl. JS overhead): "+TheApp.timer.duration+'ms)' );
+    };
+    ajcb.onResponse = function(resp,req, opt) {
+        var val;
+        if(this.jsonp) return /*was already handled*/;
+        try {
+            val = WhAjaj.stringify(resp);
+        }
+        catch(e) {
+            val = WhAjaj.stringify(e)
+        }
+        //alert("onResponse this:"+WhAjaj.stringify(this));
+        //alert("val="+val);
+        // FIXME: this.url is hosed for login because of how i overload onResponse()
+        if( opt.url ) TheApp.jqe.textPath.val(opt.url.replace(WhAjaj.Connector.options.ajax.url,''));
+        TheApp.jqe.taResponse.val( val );
+    };
+    ajcb.onError = function(req,opt) {
+        TheApp.jqe.taResponse.val( "ERROR SENDING REQUEST:\n"+WhAjaj.stringify(opt) );
+    };
+
+    TheApp.cgi.onLogin = function(){
+      TheApp.jqe.taResponse.val( "Logged in:\n"+WhAjaj.stringify(this.auth));
+      TheApp.jqe.currentAuthToken.html("Logged in: "+WhAjaj.stringify(this.auth));
+    };
+    TheApp.cgi.onLogout = function(){
+      TheApp.jqe.taResponse.val( "Logged out!" );
+      TheApp.jqe.currentAuthToken.text("Not logged in");
+    };
+    TheApp.cgi.whoami();
+    jQuery('#headerArea').click(function(){
+        jQuery(this).slideUp('fast',function(){
+            jQuery(this).remove();
+        });
+    });
+});
+
+</script>
+
+</head>
+
+<body>
+<span id='ajaxNotification'></span>
+<div id='headerArea'>
+<h1>You know, for sending raw JSON requests to Fossil...</h1>
+
+If you're actually using this page, then you know what you're doing and don't
+need help text, hoverhelp, and a snazzy interface.
+
+<br><br>
+
+
+JSON API docs: <a href='https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit'>https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit</a>
+
+</div><!-- #headerArea -->
+See also: <a href='wiki-editor.html'>prototype wiki editor</a>.
+
+<h2>Request...</h2>
+
+Path: <input type='text' size='40' id='textPath' value='/json/HAI'/>
+<input type='button' value='Send...' id='btnSend' onclick='TheApp.sendRequest()' /><br/>
+If the POST textarea is not empty then it will be posted with the request.
+<hr/>
+<strong>Quick-posts:</strong><br/>
+<input type='button' value='HAI' onclick='TheApp.cgi.HAI()' />
+<input type='button' value='HAI JSONP' onclick='TheApp.cgi.sendCommand("/json/HAI",undefined,{jsonp:"myJsonPCallback"});' />
+<input type='button' value='version' onclick='TheApp.cgi.sendCommand("/json/version")' />
+<input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat?full=0")' />
+<input type='button' value='whoami' onclick='TheApp.cgi.whoami()' />
+<input type='button' value='cap' onclick='TheApp.cgi.sendCommand("/json/cap")' />
+<input type='button' value='resultCodes' onclick='TheApp.cgi.sendCommand("/json/resultCodes")' />
+<input type='button' value='g' onclick='TheApp.cgi.sendCommand("/json/g")' />
+
+<br/>
+
+<input type='button' value='branch/list' onclick='TheApp.cgi.sendCommand("/json/branch/list")' />
+<input type='button' value='timeline/ci' onclick='TheApp.cgi.sendCommand("/json/timeline/ci?files=true")' />
+<input type='button' value='timeline/wiki' onclick='TheApp.cgi.sendCommand("/json/timeline/wiki")' />
+<input type='button' value='timeline/ticket' onclick='TheApp.cgi.sendCommand("/json/timeline/ticket")' />
+<input type='button' value='timeline/branch' onclick='TheApp.cgi.sendCommand("/json/timeline/branch")' />
+
+<br/>
+
+<input type='button' value='wiki/list' onclick='TheApp.cgi.sendCommand("/json/wiki/list")' />
+<input type='button' value='wiki/list verbose' onclick='TheApp.cgi.sendCommand("/json/wiki/list",{verbose:1})' />
+<input type='button' value='wiki/get Fossil' onclick='TheApp.cgi.sendCommand("/json/wiki/get",{name:"Fossil"})' />
+<input type='button' value='wiki/get/Fossil' onclick='TheApp.cgi.sendCommand("/json/wiki/get/Fossil")' />
+<input type='button' value='wiki/diff' onclick='TheApp.cgi.sendCommand("/json/wiki/diff/e32ccdcda59e930c77c/e15992f475760cdf3a9")' />
+
+<br/>
+
+<input type='button' value='user/list' onclick='TheApp.cgi.sendCommand("/json/user/list")' />
+<input type='button' value='user/get' onclick='TheApp.cgi.sendCommand("/json/user/get?name=anonymous")' />
+<input type='button' value='tag/list' onclick='TheApp.cgi.sendCommand("/json/tag/list?includeTickets=false&raw=false")' />
+<input type='button' value='tag/list/json' onclick='TheApp.cgi.sendCommand("/json/tag/list/json?raw=false")' />
+<input type='button' value='tag/add'
+    onclick='TheApp.cgi.sendCommand("/json/tag/add",{name:"json-add-tag-test",checkin:"json",value:"tag test",propagate:false,raw:false})' />
+<input type='button' value='tag/cancel'
+    onclick='TheApp.cgi.sendCommand("/json/tag/cancel",{name:"json-add-tag-test",checkin:"json",raw:false})' />
+<input type='button' value='tag/find'
+    onclick='TheApp.cgi.sendCommand("/json/tag/find",{name:"json",type:"*",raw:false,limit:5})' />
+
+<br/>
+
+<input type='button' value='diff'
+    onclick='TheApp.cgi.sendCommand("/json/diff",{v1:"b0e9b45baed6f885",v2:"5f225e261d836287",context:2})' />
+<input type='button' value='diff/A/B'
+    onclick='TheApp.cgi.sendCommand("/json/diff/b0e9b45baed6f885/5f225e261d836287?context=2")' />
+
+<input type='button' value='query'
+    onclick='TheApp.cgi.sendCommand("/json/query?format=o","SELECT * from user")' />
+
+<input type='button' value='report list'
+    onclick='TheApp.cgi.sendCommand("/json/report/list")' />
+<input type='button' value='report get'
+    onclick='TheApp.cgi.sendCommand("/json/report/get",2)' />
+
+<input type='button' value='report run'
+    onclick='TheApp.cgi.sendCommand("/json/report/run",{"report":2,"format":"o"})' />
+
+<input type='button' value='config/get' onclick='TheApp.cgi.sendCommand("/json/config/get")' />
+
+<!-- not yet ready...
+<input type='button' value='artifact/XYZ' onclick='TheApp.cgi.sendCommand("/json/artifact?uuid=json")' />
+-->
+
+<!--
+<input type='button' value='get whiki' onclick='TheApp.cgi.getPages("whiki")' />
+<input type='button' value='get more' onclick='TheApp.cgi.getPages("HelloWorld/WhikiNews")' />
+<input type='button' value='get client data' onclick='TheApp.cgi.getPageClientData("HelloWorld/whiki/WhikiCommands")' />
+<input type='button' value='save client data' onclick='TheApp.cgi.savePageClientData({"HelloWorld":[1,3,5]})' />
+-->
+<hr/>
+<b>Login:</b>
+<br/>
+<input type='button' value='Anon. PW' onclick='TheApp.cgi.sendCommand("/json/anonymousPassword")' />
+<input type='button' value='Anon. PW+Login' onclick='TheApp.cgi.login()' />
+<br/>
+name:<input type='text' id='textUser' value='json-demo' size='12'/>
+pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
+<input type='button' value='login' onclick='TheApp.cgi.login(jQuery("#textUser").val(),jQuery("#textPassword").val(),{onResponse:TheApp.onLogin})' />
+<input type='button' value='logout' onclick='TheApp.cgi.logout()' />
+<br/>
+<span id='currentAuthToken' style='font-family:monospaced'></span>
+
+<br/>
+
+<hr/>
+
+<table>
+    <tr>
+        <th>POST data</th>
+        <th>Request AJAJ options</th>
+    </tr>
+    <tr>
+        <td width='50%' valign='top'>
+            <textarea id='taRequest' rows='10' cols='50'></textarea>
+        </td>
+        <td width='50%' valign='top'>
+            <textarea id='taRequestOpt' rows='10' cols='40' readonly></textarea>
+        </td>
+    </tr>
+    <tr>
+        <th colspan='2'>Response <span id='timer'></span></th>
+    </tr>
+    <tr>
+        <td colspan='2' id='responseContainer' valign='top'>
+            <textarea id='taResponse' rows='20' cols='80' readonly></textarea>
+        </td>
+    </tr>
+</table>
+<div></div>
+<div></div>
+<div></div>
+
+</body></html>

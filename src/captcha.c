@@ -15,12 +15,12 @@
 **
 *******************************************************************************
 **
-** This file contains code to a simple text-based CAPTCHA.  Though eaily
+** This file contains code to a simple text-based CAPTCHA.  Though easily
 ** defeated by a sophisticated attacker, this CAPTCHA does at least make
 ** scripting attacks more difficult.
 */
-#include <assert.h>
 #include "config.h"
+#include <assert.h>
 #include "captcha.h"
 
 #if INTERFACE
@@ -30,7 +30,7 @@
 /*
 ** Convert a hex digit into a value between 0 and 15
 */
-static int hexValue(char c){
+int hex_digit_value(char c){
   if( c>='0' && c<='9' ){
     return c - '0';
   }else if( c>='a' && c<='f' ){
@@ -71,13 +71,13 @@ static const unsigned int aFont1[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 500 );
+  char *z = fossil_malloc( 9*6*strlen(zPw) + 7 );
   int i, j, k, m;
 
   k = 0;
   for(i=0; i<6; i++){
-    for(j=0; j<8; j++){
-      unsigned char v = hexValue(zPw[j]);
+    for(j=0; zPw[j]; j++){
+      unsigned char v = hex_digit_value(zPw[j]);
       v = (aFont1[v] >> ((5-i)*4)) & 0xf;
       for(m=8; m>=1; m = m>>1){
         if( v & m ){
@@ -94,13 +94,13 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==1 */
 
 
 #if CAPTCHA==2
-static const char *azFont2[] = {
+static const char *const azFont2[] = {
  /* 0 */
  "  __  ",
  " /  \\ ",
@@ -150,7 +150,7 @@ static const char *azFont2[] = {
  " /_/  ",
 
  /* 8 */
- " ___ ", 
+ " ___ ",
  "( _ )",
  "/ _ \\",
  "\\___/",
@@ -204,14 +204,14 @@ static const char *azFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 300 );
+  char *z = fossil_malloc( 7*4*strlen(zPw) + 5 );
   int i, j, k, m;
   const char *zChar;
 
   k = 0;
   for(i=0; i<4; i++){
-    for(j=0; j<8; j++){
-      unsigned char v = hexValue(zPw[j]);
+    for(j=0; zPw[j]; j++){
+      unsigned char v = hex_digit_value(zPw[j]);
       zChar = azFont2[4*v + i];
       for(m=0; zChar[m]; m++){
         z[k++] = zChar[m];
@@ -220,12 +220,12 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==2 */
 
 #if CAPTCHA==3
-static const char *azFont3[] = {
+static const char *const azFont3[] = {
   /* 0 */
   "  ___  ",
   " / _ \\ ",
@@ -233,7 +233,7 @@ static const char *azFont3[] = {
   "| | | |",
   "| |_| |",
   " \\___/ ",
-                                                                                                               
+
   /* 1 */
   " __ ",
   "/_ |",
@@ -241,7 +241,7 @@ static const char *azFont3[] = {
   " | |",
   " | |",
   " |_|",
-                                                                                                               
+
   /* 2 */
   " ___  ",
   "|__ \\ ",
@@ -249,7 +249,7 @@ static const char *azFont3[] = {
   "  / / ",
   " / /_ ",
   "|____|",
-                                                                                                               
+
   /* 3 */
   " ____  ",
   "|___ \\ ",
@@ -257,7 +257,7 @@ static const char *azFont3[] = {
   " |__ < ",
   " ___) |",
   "|____/ ",
-                                                                                                               
+
   /* 4 */
   " _  _   ",
   "| || |  ",
@@ -265,7 +265,7 @@ static const char *azFont3[] = {
   "|__   _|",
   "   | |  ",
   "   |_|  ",
-                                                                                                               
+
   /* 5 */
   " _____ ",
   "| ____|",
@@ -273,7 +273,7 @@ static const char *azFont3[] = {
   "|___ \\ ",
   " ___) |",
   "|____/ ",
-                                                                                                               
+
   /* 6 */
   "   __  ",
   "  / /  ",
@@ -281,7 +281,7 @@ static const char *azFont3[] = {
   "| '_ \\ ",
   "| (_) |",
   " \\___/ ",
-                                                                                                               
+
   /* 7 */
   " ______ ",
   "|____  |",
@@ -289,7 +289,7 @@ static const char *azFont3[] = {
   "   / /  ",
   "  / /   ",
   " /_/    ",
-                                                                                                               
+
   /* 8 */
   "  ___  ",
   " / _ \\ ",
@@ -297,7 +297,7 @@ static const char *azFont3[] = {
   " > _ < ",
   "| (_) |",
   " \\___/ ",
-                                                                                                               
+
   /* 9 */
   "  ___  ",
   " / _ \\ ",
@@ -305,7 +305,7 @@ static const char *azFont3[] = {
   " \\__, |",
   "   / / ",
   "  /_/  ",
-                                                                                                               
+
   /* A */
   "          ",
   "    /\\    ",
@@ -313,7 +313,7 @@ static const char *azFont3[] = {
   "  / /\\ \\  ",
   " / ____ \\ ",
   "/_/    \\_\\",
-                                                                                                               
+
   /* B */
   " ____  ",
   "|  _ \\ ",
@@ -321,7 +321,7 @@ static const char *azFont3[] = {
   "|  _ < ",
   "| |_) |",
   "|____/ ",
-                                                                                                               
+
   /* C */
   "  _____ ",
   " / ____|",
@@ -329,7 +329,7 @@ static const char *azFont3[] = {
   "| |     ",
   "| |____ ",
   " \\_____|",
-                                                                                                               
+
   /* D */
   " _____  ",
   "|  __ \\ ",
@@ -337,7 +337,7 @@ static const char *azFont3[] = {
   "| |  | |",
   "| |__| |",
   "|_____/ ",
-                                                                                                               
+
   /* E */
   " ______ ",
   "|  ____|",
@@ -345,7 +345,7 @@ static const char *azFont3[] = {
   "|  __|  ",
   "| |____ ",
   "|______|",
-                                                                                                               
+
   /* F */
   " ______ ",
   "|  ____|",
@@ -361,15 +361,48 @@ static const char *azFont3[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = fossil_malloc( 600 );
+  char *z = fossil_malloc( 10*6*strlen(zPw) + 7 );
   int i, j, k, m;
   const char *zChar;
+  unsigned char x;
+  int y;
 
   k = 0;
   for(i=0; i<6; i++){
-    for(j=0; j<8; j++){
-      unsigned char v = hexValue(zPw[j]);
+    x = 0;
+    for(j=0; zPw[j]; j++){
+      unsigned char v = hex_digit_value(zPw[j]);
+      x = (x<<4) + v;
+      switch( x ){
+        case 0x7a:
+        case 0xfa:
+          y = 3;
+          break;
+        case 0x47:
+          y = 2;
+          break;
+        case 0xf6:
+        case 0xa9:
+        case 0xa4:
+        case 0xa1:
+        case 0x9a:
+        case 0x76:
+        case 0x61:
+        case 0x67:
+        case 0x69:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x4a:
+          y = 1;
+          break;
+        default:
+          y = 0;
+          break;
+      }
       zChar = azFont3[6*v + i];
+      while( y && zChar[0]==' ' ){ y--; zChar++; }
+      while( y && z[k-1]==' ' ){ y--; k--; }
       for(m=0; zChar[m]; m++){
         z[k++] = zChar[m];
       }
@@ -377,12 +410,14 @@ char *captcha_render(const char *zPw){
     z[k++] = '\n';
   }
   z[k] = 0;
-  return z;     
+  return z;
 }
 #endif /* CAPTCHA==3 */
 
 /*
 ** COMMAND: test-captcha
+**
+** Render an ASCII-art captcha for numbers given on the command line.
 */
 void test_captcha(void){
   int i;
@@ -414,8 +449,10 @@ unsigned int captcha_seed(void){
 
 /*
 ** Translate a captcha seed value into the captcha password string.
+** The returned string is static and overwritten on each call to
+** this function.
 */
-char *captcha_decode(unsigned int seed){
+const char *captcha_decode(unsigned int seed){
   const char *zSecret;
   const char *z;
   Blob b;
@@ -437,4 +474,139 @@ char *captcha_decode(unsigned int seed){
   memcpy(zRes, z, 8);
   zRes[8] = 0;
   return zRes;
+}
+
+/*
+** Return true if a CAPTCHA is required for editing wiki or tickets or for
+** adding attachments.
+**
+** A CAPTCHA is required in those cases if the user is not logged in (if they
+** are user "nobody") and if the "require-captcha" setting is true.  The
+** "require-captcha" setting is controlled on the Admin/Access page.  It
+** defaults to true.
+*/
+int captcha_needed(void){
+  return login_is_nobody() && db_get_boolean("require-captcha", 1);
+}
+
+/*
+** If a captcha is required but the correct captcha code is not supplied
+** in the query parameters, then return false (0).
+**
+** If no captcha is required or if the correct captcha is supplied, return
+** true (non-zero).
+**
+** The query parameters examined are "captchaseed" for the seed value and
+** "captcha" for text that the user types in response to the captcha prompt.
+*/
+int captcha_is_correct(int bAlwaysNeeded){
+  const char *zSeed;
+  const char *zEntered;
+  const char *zDecode;
+  char z[30];
+  int i;
+  if( !bAlwaysNeeded && !captcha_needed() ){
+    return 1;  /* No captcha needed */
+  }
+  zSeed = P("captchaseed");
+  if( zSeed==0 ) return 0;
+  zEntered = P("captcha");
+  if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
+  zDecode = captcha_decode((unsigned int)atoi(zSeed));
+  assert( strlen(zDecode)==8 );
+  if( strlen(zEntered)!=8 ) return 0;
+  for(i=0; i<8; i++){
+    char c = zEntered[i];
+    if( c>='A' && c<='F' ) c += 'a' - 'A';
+    if( c=='O' ) c = '0';
+    z[i] = c;
+  }
+  if( strncmp(zDecode,z,8)!=0 ) return 0;
+  return 1;
+}
+
+/*
+** Generate a captcha display together with the necessary hidden parameter
+** for the seed and the entry box into which the user will type the text of
+** the captcha.  This is typically done at the very bottom of a form.
+**
+** This routine is a no-op if no captcha is required.
+*/
+void captcha_generate(int showButton){
+  unsigned int uSeed;
+  const char *zDecoded;
+  char *zCaptcha;
+
+  if( !captcha_needed() ) return;
+  uSeed = captcha_seed();
+  zDecoded = captcha_decode(uSeed);
+  zCaptcha = captcha_render(zDecoded);
+  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ %h(zCaptcha)
+  @ </pre>
+  @ Enter security code shown above:
+  @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
+  @ <input type="text" name="captcha" size=8 />
+  if( showButton ){
+    @ <input type="submit" value="Submit">
+  }
+  @ </td></tr></table></div>
+}
+
+/*
+** WEBPAGE: test-captcha
+** Test the captcha-generator by rendering the value of the name= query
+** parameter using ascii-art.  If name= is omitted, show a random 16-digit
+** hexadecimal number.
+*/
+void captcha_test(void){
+  const char *zPw = P("name");
+  if( zPw==0 || zPw[0]==0 ){
+    u64 x;
+    sqlite3_randomness(sizeof(x), &x);
+    zPw = mprintf("%016llx", x);
+  }
+  style_header("Captcha Test");
+  @ <pre>
+  @ %s(captcha_render(zPw))
+  @ </pre>
+  style_footer();
+}
+
+/*
+** Check to see if the current request is coming from an agent that might
+** be a spider.  If the agent is not a spider, then return 0 without doing
+** anything.  But if the user agent appears to be a spider, offer
+** a captcha challenge to allow the user agent to prove that it is human
+** and return non-zero.
+*/
+int exclude_spiders(void){
+  const char *zCookieValue;
+  char *zCookieName;
+  if( g.isHuman ) return 0;
+#if 0
+  {
+    const char *zReferer = P("HTTP_REFERER");
+    if( zReferer && strncmp(g.zBaseURL, zReferer, strlen(g.zBaseURL))==0 ){
+      return 0;
+    }
+  }
+#endif
+  zCookieName = mprintf("fossil-cc-%.10s", db_get("project-code","x"));
+  zCookieValue = P(zCookieName);
+  if( zCookieValue && atoi(zCookieValue)==1 ) return 0;
+  if( captcha_is_correct(0) ){
+    cgi_set_cookie(zCookieName, "1", login_cookie_path(), 8*3600);
+    return 0;
+  }
+
+  /* This appears to be a spider.  Offer the captcha */
+  style_header("Verification");
+  @ <form method='POST' action='%s(g.zPath)'>
+  cgi_query_parameters_to_hidden();
+  @ <p>Please demonstrate that you are human, not a spider or robot</p>
+  captcha_generate(1);
+  @ </form>
+  style_footer();
+  return 1;
 }

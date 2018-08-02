@@ -1,0 +1,36 @@
+#
+# Copyright (c) 2012 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test command line parsing
+#
+
+test_setup ""
+
+proc cmd-line {testname args} {
+  set i 1
+  foreach {cmdline result} $args {
+    fossil test-echo $cmdline
+    test cmd-line-$testname.$i {[lrange [split $::RESULT \n] 3 end]=="\{argv\[2\] = \[$result\]\}"}
+    incr i
+  }
+}
+cmd-line 100 abc abc a\"bc a\"bc \"abc\" \"abc\"
+cmd-line 101 * * *.* *.*
+
+###############################################################################
+
+test_cleanup

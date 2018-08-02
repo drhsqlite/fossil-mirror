@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title>Fossil/JSON Wiki Editor Prototype</title>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/whajaj.js"></script>
+    <script type="text/javascript" src="js/fossil-ajaj.js"></script>
+
+<style type='text/css'>
+th {
+  text-align: left;
+  background-color: #ececec;
+}
+
+.dangerWillRobinson {
+    background-color: yellow;
+}
+
+.wikiPageLink {
+    text-decoration: underline;
+}
+</style>
+
+<script type='text/javascript'>
+WhAjaj.Connector.options.ajax.url =
+/*
+    Change this to your CGI/server root path:
+*/
+     //'http://fjson/cgi-bin/fossil.cgi'
+     //'/repos/fossil-sgb/json.cgi'
+    '/cgi-bin/fossil-json.cgi'
+     ;
+var TheApp = {
+      response:null,
+      sessionID:null,
+      jqe:{}/*jqe==jQuery Elements*/,
+      ajaxCount:0,
+      cgi: new FossilAjaj(),
+      pages:{}
+};
+
+
+TheApp.startAjaxNotif = function()
+{
+    ++this.ajaxCount;
+    TheApp.jqe.responseContainer.removeClass('dangerWillRobinson');
+    this.jqe.ajaxNotification.attr( 'title', this.ajaxCount+" pending AJAX operation(s)..." );
+    if( 1 == this.ajaxCount ) this.jqe.ajaxNotification.fadeIn();
+};
+
+TheApp.endAjaxNotif = function()
+{
+    --this.ajaxCount;
+    this.jqe.ajaxNotification.attr( 'title', this.ajaxCount+" pending AJAX operation(s)..." );
+    if( 0 == this.ajaxCount ) this.jqe.ajaxNotification.fadeOut();
+};
+
+TheApp.responseContainsError = function(resp) {
+    if( !resp || resp.resultCode ) {
+        //alert("Error response:\n"+JSON.stringify(resp,0,4));
+        TheApp.jqe.taResponse.val( "RESPONSE CONTAINS ERROR INFO:\n"+WhAjaj.stringify(resp) );
+        //TheApp.jqe.responseContainer.css({backgroundColor:'yellow'});
+        //TheApp.jqe.responseContainer.addClass('dangerWillRobinson');
+        TheApp.jqe.responseContainer.flash( '255,0,0', 1500 );
+        return true;
+    }
+    return false;
+};
+
+
+TheApp.sendRequest = function() {
+    var path = this.jqe.textPath.val();
+    var self = this;
+    var data = this.jqe.pageListArea.val();
+    var doPost = (data && data.length);
+    var req;
+    if( doPost ) try {
+        req = JSON.parse(data);
+    }
+    catch(e) {
+        TheApp.jqe.taResponse.val("Request is not valid JSON.\n"+e);
+        return;
+    }
+    if( req ) {
+        req.requestId = this.cgi.generateRequestId();
+    }
+    var self = this;
+    var opt = {
+        url: WhAjaj.Connector.options.ajax.url + path,
+        method: doPost ? 'POST' : 'GET'
+    };
+    this.cgi.sendRequest( req, opt );
+};
+jQuery.fn.animateHighlight = function(highlightColor, duration) {
+    var highlightBg = highlightColor || "#FFFF9C";
+    var animateMs = duration || 1500;
+    var originalBg = this.css("backgroundColor");
+    this.stop().css("background-color", highlightBg).animate({backgroundColor: originalBg}, animateMs);
+};
+jQuery.fn.flash = function( color, duration )
+{
+    var current = this.css( 'color' );
+    this.animate( { color: 'rgb(' + color + ')' }, duration / 2);
+    this.animate( { color: current }, duration / 2 );
+};
+
+jQuery(document).ready(function(){
+    var ids = [
+        'btnSend',
+        'ajaxNotification',
+        'currentAuthToken',
+        'responseContainer',
+        'spanPageName',
+        'pageListArea',
+        'taPageContent',
+        'taResponse',
+        'textPath', // list of HTML element IDs we use often.
+        'timer'
+    ];
+    var i, k;
+    for( i = 0; i < ids.length; ++i ) {
+        k = ids[i];
+        TheApp.jqe[k] = jQuery('#'+k);
+    }
+    TheApp.jqe.textPath.
+        keyup(function(event){
+            if(event.keyCode == 13){
+                TheApp.sendRequest();
+            }
+        });
+    TheApp.timer = {
+        _tstart:0,_tend:0,duration:0,
+        start:function(){
+            this._tstart = (new Date()).getTime();
+        },
+        end:function(){
+            this._tend = (new Date()).getTime();
+            return this.duration = this._tend - this._tstart;
+        }
+    };
+    var ajcb = TheApp.cgi.ajaj.callbacks;
+    ajcb.beforeSend = TheApp.beforeSend = function(req,opt) {
+        TheApp.timer.start();
+        var val =
+            req ?
+            (('string'===typeof req) ? req : WhAjaj.stringify(req))
+            : '';
+        TheApp.jqe.taResponse.val('');
+        TheApp.startAjaxNotif();
+    };
+    ajcb.afterSend = TheApp.afterSend = function(req,opt) {
+        TheApp.timer.end();
+        TheApp.endAjaxNotif();
+        TheApp.jqe.timer.text( "(Round-trip time: "+TheApp.timer.duration+'ms)' );
+    };
+    ajcb.onResponse = TheApp.onResponse = function(resp,req) {
+        var val;
+        try {
+            val = WhAjaj.stringify(resp);
+        }
+        catch(e) {
+            val = WhAjaj.stringify(e)
+        }
+        if(resp.resultCode){
+            alert("Response contains error info:\n"+val);
+        }
+        TheApp.jqe.taResponse.val( val );
+    };
+    ajcb.onError = function(req,opt) {
+        TheApp.jqe.taResponse.val( "ERROR SENDING REQUEST:\n"+WhAjaj.stringify(opt) );
+    };
+
+    TheApp.jqe.taPageContent.blur(function(){
+        var p = TheApp.currentPage;
+        if(! p ) return;
+        p.content = TheApp.jqe.taPageContent.val();
+    });
+
+    TheApp.cgi.onLogin = function(){
+      TheApp.jqe.taResponse.val( "Logged in: "+WhAjaj.stringify(this.auth));
+      TheApp.jqe.currentAuthToken.text("Logged in: "+WhAjaj.stringify(this.auth));
+    };
+    TheApp.cgi.onLogout = function(){
+      TheApp.jqe.taResponse.val( "Logged out!" );
+      TheApp.jqe.currentAuthToken.text("");
+    };
+
+    TheApp.showPage = function(name){
+        function doShow(page){
+            TheApp.currentPage = page;
+            TheApp.jqe.spanPageName.text('('+page.name+')');
+            TheApp.jqe.taPageContent.val(page.content);
+        }
+        var p = ('object' === typeof name) ? name : TheApp.pages[name];
+        if(('object' === typeof p) && p.content) {
+            doShow(p);
+            return;
+        }
+        TheApp.cgi.sendCommand('/json/wiki/get',{
+            name:name
+        },{
+            onResponse:function(resp,req){
+                TheApp.onResponse(resp,req);
+                if(resp.resultCode) return;
+                var p = resp.payload;
+                doShow( TheApp.pages[p.name] = p );
+            }
+        });
+    };
+    TheApp.refreshPageListView = function(){
+        var list = (function(){
+            var k, v, li = [];
+            for( k in TheApp.pages ){
+                if(!TheApp.pages.hasOwnProperty(k)) continue;
+                li.push(k);
+            }
+            return li;
+        })();
+        var i, p, a, tgt = TheApp.jqe.pageListArea;
+        tgt.text('');
+        function makeLink(name){
+            var link = jQuery('<span></span>');
+            link.text(name);
+            link.addClass('wikiPageLink');
+            link.click(function(e){
+                TheApp.showPage(name);
+                e.preventDefault();
+                return false;
+            });
+            return link;
+        }
+        list.sort();
+        for( i = 0; i < list.length; ++i ){
+            tgt.append(makeLink(list[i]));
+            tgt.append('<br/>');
+        }
+    };
+
+    TheApp.loadPageList = function(){
+        TheApp.cgi.sendCommand('/json/wiki/list',null,{
+            onResponse:function(resp,req){
+                TheApp.onResponse(resp,req);
+                if(resp.resultCode) return;
+                var i, v, p, ar = resp.payload;
+                for( i = 0; i < ar.length; ++i ){
+                    v = ar[i];
+                    p = TheApp.pages[v];
+                    if( !p ) TheApp.pages[v] = {name:v};
+                }
+                TheApp.refreshPageListView();
+            }
+        });
+        return false /*for click handlers*/;
+    }
+
+    TheApp.savePage = function(p){
+        p = p || TheApp.currentPage;
+        if( 'object' !== typeof p ){
+            p = TheApp.pages[p];
+        }
+        if('object' !== typeof p){
+            alert("savePage() argument is not a page object or known page name.");
+        }
+        TheApp.pages[p.name] = p;
+        p.content = TheApp.jqe.taPageContent.val();
+        var req = {
+            name:p.name,
+            content:p.content
+        };
+        if(! confirm("Really save wiki page ["+p.name+"]?") ) return;
+        TheApp.cgi.sendCommand('/json/wiki/'+(p.isNew?'create':'save'),req,{
+            onResponse:function(resp,req){
+                TheApp.onResponse(resp,req);
+                if(resp.resultCode) return;
+                delete p.isNew;
+                p.timestamp = resp.payload.timestamp;
+            }
+        });
+
+    };
+
+    TheApp.createNewPage = function(){
+        var name = prompt("New page name?");
+        if(!name) return;
+        var p = {
+            name:name,
+            content:"New, empty page.",
+            isNew:true
+        };
+        TheApp.pages[name] = p;
+        TheApp.refreshPageListView();
+        TheApp.showPage(p);
+/*
+        if(! confirm("Really create new wiki page ["+name+"]?") ) return;
+        TheApp.cgi.sendCommand('/json/wiki/create',req,{
+            onResponse:function(resp,req){
+                TheApp.onResponse(resp,req);
+                if(resp.resultCode) return;
+                TheApp.pages[p.name] = p;
+                TheApp.refreshPageListView();
+            }
+        });
+*/
+    };
+
+    TheApp.cgi.whoami();
+
+});
+
+</script>
+
+</head>
+
+<body>
+<span id='ajaxNotification'></span>
+<h1>PROTOTYPE JSON-based Fossil Wiki Editor</h1>
+
+See also: <a href='index.html'>main test page</a>.
+
+<br>
+<b>Login:</b>
+<br/>
+<input type='button' value='Anon. Login' onclick='TheApp.cgi.login()' />
+or:
+name:<input type='text' id='textUser' value='json-demo' size='12'/>
+pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
+<input type='button' value='login' onclick='TheApp.cgi.login(jQuery("#textUser").val(),jQuery("#textPassword").val(),{onResponse:TheApp.onLogin})' />
+<input type='button' value='logout' onclick='TheApp.cgi.logout()' />
+
+<br/>
+<span id='currentAuthToken' style='font-family:monospaced'></span>
+
+<hr/>
+<strong>Quick-posts:</strong><br/>
+<input type='button' value='HAI' onclick='TheApp.cgi.HAI()' />
+<input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat")' />
+<input type='button' value='whoami' onclick='TheApp.cgi.whoami()' />
+<input type='button' value='wiki/list' onclick='TheApp.loadPageList()' />
+<!--
+<input type='button' value='timeline/ci' onclick='TheApp.cgi.sendCommand("/json/timeline/ci")' />
+-->
+
+<!--
+<input type='button' value='get whiki' onclick='TheApp.cgi.getPages("whiki")' />
+<input type='button' value='get more' onclick='TheApp.cgi.getPages("HelloWorld/WhikiNews")' />
+<input type='button' value='get client data' onclick='TheApp.cgi.getPageClientData("HelloWorld/whiki/WhikiCommands")' />
+<input type='button' value='save client data' onclick='TheApp.cgi.savePageClientData({"HelloWorld":[1,3,5]})' />
+-->
+<hr/>
+
+<table>
+    <tr>
+        <th>Page List</th>
+        <th>Content <span id='spanPageName'></span></th>
+    </tr>
+    <tr>
+        <td width='25%' valign='top'>
+            <input type='button' value='Create new...' onclick='TheApp.createNewPage()' /><br/>
+            <div id='pageListArea'></div>
+        </td>
+        <td width='75%' valign='top'>
+            <input type='button' value='Save' onclick='TheApp.savePage()' /><br/>
+            <textarea id='taPageContent' rows='20' cols='60'></textarea>
+        </td>
+    </tr>
+    <tr>
+        <th colspan='2'>Response <span id='timer'></span></th>
+    </tr>
+    <tr>
+        <td colspan='2' id='responseContainer'>
+            <textarea id='taResponse' rows='20' cols='80' readonly></textarea>
+        </td>
+    </tr>
+</table>
+<div></div>
+<div></div>
+<div></div>
+
+</body></html>

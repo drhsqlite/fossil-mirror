@@ -1,0 +1,38 @@
+This is the README for how to set up the Fossil/JSON test web page
+under Apache on Unix systems. This is only intended only for
+Fossil/JSON developers/tinkerers:
+
+First, copy cgi-bin/fossil-json.cgi.example to
+cgi-bin/fossil-json.cgi.  Edit it and correct the paths to the fossil
+binary and the repo you want to serve. Make it executable.
+
+MAKE SURE that the fossil repo you use is world-writable OR that your
+Web/CGI server is set up to run as the user ID of the owner of the
+fossil file. ALSO: the DIRECTORY CONTAINING the repo file must be
+writable by the CGI process.
+
+Next, set up an apache vhost entry. Mine looks like:
+
+<VirtualHost *:80>
+    ServerAlias fjson
+    ScriptAlias /cgi-bin/ /home/stephan/cvs/fossil/fossil-json/ajax/cgi-bin/
+    DocumentRoot /home/stephan/cvs/fossil/fossil-json/ajax
+</VirtualHost>
+
+Now add your preferred vhost name (fjson in the above example) to /etc/hosts:
+
+  127.0.0.1 ...other aliases... fjson
+
+Restart your Apache.
+
+Now visit: http://fjson/
+
+that will show the test/demo page. If it doesn't, edit index.html and
+make sure that:
+
+  WhAjaj.Connector.options.ajax.url = ...;
+
+points to your CGI script. In theory you can also do this over fossil
+standalone server mode, but i haven't yet tested that particular test
+page in that mode.
+

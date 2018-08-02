@@ -1,0 +1,76 @@
+<title>Up and running in 5 minutes as a single user</title>
+
+<p align="center"><b><i>
+The following document was contributed by Gilles Ganault on 2013-01-08.
+</i></b>
+</p><hr>
+
+<h1>Up and running in 5 minutes as a single user</h1>
+<p>This short document explains the main basic Fossil commands for a single
+user, i.e. with no additional users, with no need to synchronize with some remote
+repository, and no need for branching/forking.</p>
+
+<h2>Create a new repository</h2>
+<p>fossil new c:\test.repo</p>
+<p>This will create the new SQLite binary file that holds the repository, i.e.
+files, tickets, wiki, etc. It can be located anywhere, although it's considered
+best practice to keep it outside the work directory where you will work on files
+after they've been checked out of the repository.</p>
+
+<h2>Open the repository</h2>
+<p>cd c:\temp\test.fossil</p>
+<p>fossil open c:\test.repo</p>
+<p>This will check out the last revision of all the files in the repository,
+if any, into the current work directory. In addition, it will create a binary
+file _FOSSIL_ to keep track of changes (on non-Windows systems it is called
+<tt>.fslckout</tt>).</p>
+
+<h2>Add new files</h2>
+<p>fossil add .</p>
+<p>To tell Fossil to add new files to the repository. The files aren't actually
+added until you run &quot;commit&quot;. When using &quot;.&quot;, it tells Fossil
+to add all the files in the current directory recursively, i.e. including all
+the files in all the subdirectories.</p>
+<p>Note: To tell Fossil to ignore some extensions:</p>
+<p>fossil settings ignore-glob &quot;*.o,*.obj,*.exe&quot; --global</p>
+
+<h2>Remove files that haven't been committed yet</h2>
+<p>fossil delete myfile.c</p>
+<p>This will simply remove the item from the list of files that were previously
+added through &quot;fossil add&quot;.</p>
+
+<h2>Check current status</h2>
+<p>fossil changes</p>
+<p>This shows the list of changes that have been done and will be committed the
+next time you run &quot;fossil commit&quot;. It's a useful command to run before
+running &quot;fossil commit&quot; just to check that things are OK before proceeding.</p>
+
+<h2>Commit changes</h2>
+<p>To actually apply the pending changes to the repository, e.g. new files marked
+for addition, checked-out files that have been edited and must be checked-in,
+etc.</p>
+
+<p>fossil commit -m "Added stuff"</p>
+
+If no file names are provided on the command-line then all changes will be checked in,
+otherwise just the listed file(s) will be checked in.
+
+<h2>Compare two revisions of a file</h2>
+<p>If you wish to compare the last revision of a file and its checked out version
+in your work directory:</p>
+<p>fossil gdiff myfile.c</p>
+<p>If you wish to compare two different revisions of a file in the repository:</p>
+<p>fossil finfo myfile: Note the first hash, which is the UUID of the commit
+when the file was committed</p>
+<p>fossil gdiff --from UUID#1 --to UUID#2 myfile.c</p>
+<h2>Cancel changes and go back to previous revision</h2>
+<p>fossil revert myfile.c</p>
+<p>Fossil does not prompt when reverting a file. It simply reminds the user about the
+"undo" command, just in case the revert was a mistake.</p>
+
+
+<h2>Close the repository</h2>
+<p>fossil close</p>
+<p>This will simply remove the _FOSSIL_ at the root of the work directory but
+will not delete the files in the work directory. From then on, any use of &quot;fossil&quot;
+will trigger an error since there is no longer any connection.</p>

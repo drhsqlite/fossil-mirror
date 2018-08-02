@@ -1,0 +1,113 @@
+<title>Checklist For Successful Open-Source Projects</title>
+<nowiki>
+
+<p>This checklist is loosely derived from Tom "Spot" Callaway's Fail Score
+blog post <a href="http://spot.livejournal.com/308370.html">
+http://spot.livejournal.com/308370.html</a> (see also
+<a href="http://www.theopensourceway.org/book/The_Open_Source_Way-How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL.html">[1]</a> and
+<a href="https://www.theopensourceway.org/wiki/How_to_tell_if_a_FLOSS_project_is_doomed_to_FAIL">[2]</a>).
+Tom's original post assigned point scores to the various elements and
+by adding together the individual points, the reader is supposed to be able
+to judge the likelihood that the project will fail.
+The point scores, and the items on the list, clearly reflect Tom's
+biases and are not necessarily those of the larger open-source community.
+Nevertheless, the policy of the Fossil shall be to strive for a perfect
+score.</p>
+
+<p>This checklist is an inversion of Tom's original post in that it strives to
+say what the project should do in order to succeed rather than what it
+should not do to avoid failure.  The point values are omitted.</p>
+
+<p>See also:
+<ul>
+<li><a href="http://offog.org/articles/packaging/">
+http://offog.org/articles/packaging/</a>
+<li>
+<a href="http://www.gnu.org/prep/standards/standards.html#Managing-Releases">
+http://www.gnu.org/prep/standards/standards.html#Managing-Releases</a>
+</ul>
+
+<hr>
+
+<ol>
+<li><p>The source code size is less than 100 MB, uncompressed.
+
+<li><p>The project uses a Version Control System (VCS).
+<ol type="a">
+<li>The VCS has a working web interface.
+<li>There is documentation on how to use the VCS.
+<li>The VCS is general-purpose, not something hacked together for this
+    one project.
+</ol>
+
+<li><p>The project comes with documentation on how to build from source
+and that documentation is lucid, correct, and up-to-date.
+
+<li><p>The project is configurable using an autoconf-generated configure
+script, or the equivalent, and does not require:
+<ol type="a">
+<li>Manually editing flat files
+<li>Editing code header files
+</ol>
+
+<li><p>The project should be buildable using commonly available and
+       standard tools like "make".
+
+<li><p>The project does not depend on 3rd-party proprietary build tools.
+
+<li><p>The project is able to dynamically link against standard libraries
+      such as zlib and libjpeg.
+<ol type="a">
+<li>The project does not ship with the sources to standard libraries.
+    <i>(On the Fossil project, we will allow the SQLite library sources
+    to be included in the source tree as long as a system-installed
+    SQLite library can be used in its stead.)</i>
+<li>The project does not use slightly modified versions of standard
+    libraries.  Any required bug fixes in standard libraries are pushed
+    back upstream.
+</ol>
+
+
+<li><p>"make install" works and can be configured to target any
+       directory of the installer's choosing.
+<ol type="a">
+<li>The project contains no unconfigurable hard-coded pathnames like
+    "/opt" or "/usr/local".
+<li>After installation, the source tree can be moved or deleted and
+    the application will continue working.
+</ol>
+
+
+<li><p>The source code uses only \n for line endings, not \r\n.
+
+<li><p>The code does not depend on any special compiler features or bugs.
+
+<li><p>The project has a mailing list and announces releases on
+       the mailing list.
+
+<li><p>The project has a bug tracker.
+
+<li><p>The project has a website.
+
+<li><p>Release version numbers are in the traditional X.Y or X.Y.Z format.
+
+<li><p>Releases can be downloaded as tarball using
+       gzip or bzip2 compression.
+
+<li><p>Releases unpack into a versioned top-level directory.
+       (ex:  "projectname-1.2.3/").
+
+<li><p>A statement of license appears at the top of every source code file
+       and the complete text of the license is included in the source code
+       tarball.
+
+<li><p>There are no incompatible licenses in the code.
+
+<li><p>The project has not been blithely proclaimed "public domain" without
+having gone through the tedious and exacting legal steps to actually put it
+in the public domain.
+
+<li><p>There is an accurate change log in the code and on the website.
+
+<li><p>There is documentation in the code and on the website.
+</ol>

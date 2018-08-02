@@ -1,9 +1,9 @@
 #ifndef _UNISTD_H
 #define _UNISTD_H	 1
 
-/* This file intended to serve as a drop-in replacement for 
+/* This file intended to serve as a drop-in replacement for
  *  unistd.h on Windows
- *  Please add functionality as neeeded 
+ *  Please add functionality as neeeded
  */
 
 #include <stdlib.h>
@@ -24,13 +24,13 @@
 #define X_OK 1
 #endif /* not X_OK */
 
-#ifndef R_OK
-#define R_OK 2
-#endif /* not R_OK */
-
 #ifndef W_OK
-#define W_OK 4
+#define W_OK 2
 #endif /* not W_OK */
+
+#ifndef R_OK
+#define R_OK 4
+#endif /* not R_OK */
 
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)

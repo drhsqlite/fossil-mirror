@@ -1,0 +1,14 @@
+<th1>
+  #
+  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
+  # The corresponding test file executes this file using the test-th-render
+  # Fossil command.
+  #
+  proc doOut {msg} {puts $msg; puts \n}
+
+  if {[tclInvoke set tcl_version] >= 8.6} {
+    doOut [tclInvoke tailcall set x 1]
+  } else {
+    error "This test requires Tcl 8.6 or higher."
+  }
+</th1>

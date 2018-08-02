@@ -21,9 +21,14 @@
 ** State information is stored in static variables, so this implementation
 ** can only be building up a single GZIP file at a time.
 */
-#include <assert.h>
-#include <zlib.h>
 #include "config.h"
+#include <assert.h>
+#if defined(FOSSIL_ENABLE_MINIZ)
+#  define MINIZ_HEADER_FILE_ONLY
+#  include "miniz.c"
+#else
+#  include <zlib.h>
+#endif
 #include "gzip.h"
 
 /*
@@ -49,19 +54,20 @@ static void put32(char *z, int v){
 /*
 ** Begin constructing a gzip file.
 */
-void gzip_begin(void){
+void gzip_begin(sqlite3_int64 now){
   char aHdr[10];
-  sqlite3_int64 now;
   assert( gzip.eState==0 );
   blob_zero(&gzip.out);
   aHdr[0] = 0x1f;
   aHdr[1] = 0x8b;
   aHdr[2] = 8;
   aHdr[3] = 0;
-  now = db_int64(0, "SELECT (julianday('now') - 2440587.5)*86400.0");
+  if( now==-1 ){
+    now = db_int64(0, "SELECT (julianday('now') - 2440587.5)*86400.0");
+  }
   put32(&aHdr[4], now&0xffffffff);
   aHdr[8] = 2;
-  aHdr[9] = 255;
+  aHdr[9] = -1;
   blob_append(&gzip.out, aHdr, 10);
   gzip.iCRC = 0;
   gzip.eState = 1;
@@ -74,7 +80,7 @@ void gzip_begin(void){
 void gzip_step(const char *pIn, int nIn){
   char *zOutBuf;
   int nOut;
-  
+
   nOut = nIn + nIn/10 + 100;
   if( nOut<100000 ) nOut = 100000;
   zOutBuf = fossil_malloc(nOut);
@@ -127,8 +133,8 @@ void test_gzip_cmd(void){
   char *zOut;
   if( g.argc!=3 ) usage("FILENAME");
   sqlite3_open(":memory:", &g.db);
-  gzip_begin();
-  blob_read_from_file(&b, g.argv[2]);
+  gzip_begin(-1);
+  blob_read_from_file(&b, g.argv[2], ExtFILE);
   zOut = mprintf("%s.gz", g.argv[2]);
   gzip_step(blob_buffer(&b), blob_size(&b));
   blob_reset(&b);

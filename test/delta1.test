@@ -18,6 +18,8 @@
 # Tests of the delta mechanism.
 #
 
+test_setup ""
+
 # Use test script files as the basis for this test.
 #
 # For each test, copy the file intact to "./t1".  Make
@@ -34,12 +36,25 @@ foreach f $filelist {
   for {set i 0} {$i<100} {incr i} {
     write_file t2 [random_changes $f1 1 1 0 0.1]
     fossil test-delta t1 t2
-    test delta-$base-$i-1 {$RESULT=="ok"}
+    test delta-$base-$i-1 {[normalize_result]=="ok"}
     write_file t2 [random_changes $f1 1 1 0 0.2]
     fossil test-delta t1 t2
-    test delta-$base-$i-2 {$RESULT=="ok"}
+    test delta-$base-$i-2 {[normalize_result]=="ok"}
     write_file t2 [random_changes $f1 1 1 0 0.4]
     fossil test-delta t1 t2
-    test delta-$base-$i-3 {$RESULT=="ok"}
+    test delta-$base-$i-3 {[normalize_result]=="ok"}
   }
 }
+
+set empties { "" "" "" a a "" }
+set i 0
+foreach {f1 f2} $empties {
+  incr i
+  write_file t1 $f1
+  write_file t2 $f2
+  fossil test-delta t1 t2
+  test delta-empty-$i {[normalize_result]=="ok"}
+}
+###############################################################################
+
+test_cleanup

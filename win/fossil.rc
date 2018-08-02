@@ -1,38 +1,212 @@
-#include <windows.h>
+/*
+** Copyright (c) 2012 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains resource information for the executable on Windows.
+*/
+
+#if !defined(_WIN32_WCE)
+#include "winresrc.h"
+#else
+#include "windows.h"
+#endif /* !defined(_WIN32_WCE) */
+
+#if !defined(VS_FF_NONE)
+#  define VS_FF_NONE            0x00000000L
+#endif /* !defined(VS_FF_NONE) */
+
 #include "VERSION.h"
 #define _RC_COMPILE_
 #include "config.h"
+#include "sqlite3.h"
 
-LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
+#if defined(FOSSIL_ENABLE_MINIZ)
+#if defined(__MINGW32__)
+#include "minizver.h"
+#else
+#define MINIZ_HEADER_FILE_ONLY
+#include "miniz.c"
+#endif /* defined(__MINGW32__) */
+#else
+#include "zlib.h"
+#endif /* defined(FOSSIL_ENABLE_MINIZ) */
+
+#if defined(FOSSIL_ENABLE_SSL)
+#include "openssl/opensslv.h"
+#endif /* defined(FOSSIL_ENABLE_SSL) */
+
+#if defined(FOSSIL_ENABLE_TCL)
+#include "tcl.h"
+#endif /* defined(FOSSIL_ENABLE_TCL) */
+
+#if defined(FOSSIL_ENABLE_JSON)
+#include "json_detail.h"
+#endif /* defined(FOSSIL_ENABLE_JSON) */
+
+/*
+ * English (U.S.) resources
+ */
+
+#if defined(_WIN32)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif /* defined(_WIN32) */
+
+/*
+ * Icon
+ */
+
+#define IDI_FOSSIL 8001
+
+IDI_FOSSIL ICON "fossil.ico"
+
+/*
+ * Version
+ */
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 1,0,0,0
-PRODUCTVERSION 1,0,0,0
-FILEFLAGSMASK 0x3F
-FILEFLAGS 0x0
-FILEOS VOS__WINDOWS32
-FILETYPE VFT_APP
-FILESUBTYPE VFT2_UNKNOWN
+  FILEVERSION RELEASE_RESOURCE_VERSION
+  PRODUCTVERSION RELEASE_RESOURCE_VERSION
+  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#if defined(_DEBUG)
+  FILEFLAGS VS_FF_DEBUG
+#else
+  FILEFLAGS VS_FF_NONE
+#endif /* defined(_DEBUG) */
+  FILEOS VOS__WINDOWS32
+  FILETYPE VFT_APP
+  FILESUBTYPE VFT2_UNKNOWN
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
-    BLOCK "040904B0"
+    BLOCK "040904b0"
     BEGIN
-      VALUE "FileDescription", "distributed source code control system with integrated wiki and ticket-system\0"
-      VALUE "Comments", "compiler: "COMPILER_NAME"\0"
-      VALUE "FileVersion", MANIFEST_UUID"("COMPILER_NAME"\0"
+      VALUE "CompanyName", "Fossil Development Team\0"
+      VALUE "FileDescription", "Fossil is a simple, high-reliability, distributed software configuration management system.\0"
+      VALUE "ProductName", "Fossil\0"
+      VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
+      VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "InternalName", "fossil\0"
-      VALUE "LegalCopyright", "Copyright (c) "MANIFEST_YEAR" D. Richard Hipp\0"
+      VALUE "LegalCopyright", "Copyright © " MANIFEST_YEAR " by D. Richard Hipp.  All rights reserved.\0"
       VALUE "OriginalFilename", "fossil.exe\0"
-      VALUE "ProductName", "fossil\0"
-      VALUE "ProductVersion", MANIFEST_VERSION" "MANIFEST_DATE" UTC\0"
+      VALUE "CompilerName", COMPILER_NAME "\0"
+      VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
+#if defined(FOSSIL_DYNAMIC_BUILD)
+      VALUE "DynamicBuild", "Yes\0"
+#else
+      VALUE "DynamicBuild", "No\0"
+#endif
+#if defined(FOSSIL_ENABLE_MINIZ)
+      VALUE "MinizVersion", "miniz " MZ_VERSION "\0"
+#else
+      VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
+#endif /* defined(FOSSIL_ENABLE_MINIZ) */
+#if defined(BROKEN_MINGW_CMDLINE)
+      VALUE "CommandLineIsUnicode", "No\0"
+#else
+      VALUE "CommandLineIsUnicode", "Yes\0"
+#endif /* defined(BROKEN_MINGW_CMDLINE) */
+#if defined(FOSSIL_ENABLE_SSL)
+      VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
+#endif /* defined(FOSSIL_ENABLE_SSL) */
+#if defined(FOSSIL_ENABLE_LEGACY_MV_RM)
+      VALUE "LegacyMvRm", "Yes\0"
+#else
+      VALUE "LegacyMvRm", "No\0"
+#endif /* defined(FOSSIL_ENABLE_LEGACY_MV_RM) */
+#if defined(FOSSIL_ENABLE_EXEC_REL_PATHS)
+      VALUE "ExecRelPaths", "Yes\0"
+#else
+      VALUE "ExecRelPaths", "No\0"
+#endif /* defined(FOSSIL_ENABLE_EXEC_REL_PATHS) */
+#if defined(FOSSIL_ENABLE_TH1_DOCS)
+      VALUE "Th1Docs", "Yes\0"
+#else
+      VALUE "Th1Docs", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TH1_DOCS) */
+#if defined(FOSSIL_ENABLE_TH1_HOOKS)
+      VALUE "Th1Hooks", "Yes\0"
+#else
+      VALUE "Th1Hooks", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TH1_HOOKS) */
+#if defined(FOSSIL_ENABLE_TCL)
+      VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
+#if defined(USE_TCL_STUBS)
+      VALUE "UseTclStubsEnabled", "Yes\0"
+#else
+      VALUE "UseTclStubsEnabled", "No\0"
+#endif /* defined(USE_TCL_STUBS) */
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+      VALUE "TclStubsEnabled", "Yes\0"
+#else
+      VALUE "TclStubsEnabled", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TCL_STUBS) */
+#if defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS)
+      VALUE "TclPrivateStubsEnabled", "Yes\0"
+#else
+      VALUE "TclPrivateStubsEnabled", "No\0"
+#endif /* defined(FOSSIL_ENABLE_TCL_PRIVATE_STUBS) */
+#endif /* defined(FOSSIL_ENABLE_TCL) */
+#if defined(FOSSIL_ENABLE_JSON)
+      VALUE "JsonEnabled", "Yes, cson " FOSSIL_JSON_API_VERSION "\0"
+#endif /* defined(FOSSIL_ENABLE_JSON) */
+#if defined(USE_MMAN_H)
+      VALUE "UseMmanEnabled", "Yes\0"
+#else
+      VALUE "UseMmanEnabled", "No\0"
+#endif /* defined(USE_MMAN_H) */
+#if defined(USE_SEE)
+      VALUE "UseSeeEnabled", "Yes\0"
+#else
+      VALUE "UseSeeEnabled", "No\0"
+#endif /* defined(USE_SEE) */
+      VALUE "MarkdownEnabled", "Yes\0"
+#if defined(FOSSIL_DEBUG)
+      VALUE "Debug", "Yes\0"
+#else
+      VALUE "Debug", "No\0"
+#endif /* defined(FOSSIL_DEBUG) */
+#if defined(FOSSIL_OMIT_DELTA_CKSUM_TEST)
+      VALUE "OmitDeltaCksumTest", "Yes\0"
+#else
+      VALUE "OmitDeltaCksumTest", "No\0"
+#endif /* defined(FOSSIL_OMIT_DELTA_CKSUM_TEST) */
+#if defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES)
+      VALUE "AllowOutOfOrderDates", "Yes\0"
+#else
+      VALUE "AllowOutOfOrderDates", "No\0"
+#endif /* defined(FOSSIL_ALLOW_OUT_OF_ORDER_DATES) */
     END
   END
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x409, 0x4B0
+    VALUE "Translation", 0x409, 0x4b0
   END
 END
 
-8001 ICON "fossil.ico"
+/*
+ * This embedded manifest is needed for Windows 8.1.
+ */
 
+#ifndef RT_MANIFEST
+#define RT_MANIFEST     24
+#endif /* RT_MANIFEST */
+
+#ifndef CREATEPROCESS_MANIFEST_RESOURCE_ID
+#define CREATEPROCESS_MANIFEST_RESOURCE_ID 1
+#endif /* CREATEPROCESS_MANIFEST_RESOURCE_ID */
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "fossil.exe.manifest"

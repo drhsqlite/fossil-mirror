@@ -1,0 +1,129 @@
+<html>
+<head>
+<title>Fossil UI Test</title>
+</head>
+<body>
+<script>
+  var aTest = [
+///////////////////////////////////////////////////////////////////////////
+///  Add pages to be tested below:
+//////////////////////////////////////////////////////////////////////////
+{
+ url: "timeline",
+ desc:
+   "Simple timeline of most recent check-ins. Verify that all submenus work."
+},
+{
+ url: "timeline?n=125",
+ desc:
+   "Timeline with 125 entries.  Verify that submenus preserve the entry count."
+},
+{
+ url: "wiki",
+ desc:
+   "The wiki homepage"
+}
+//////////////////////////////////////////////////////////////////////////////
+///  End of testing data
+/////////////////////////////////////////////////////////////////////////////
+  ];
+  var iTest = 0;
+  var nTest = aTest.length;
+  var totalTest = nTest;
+  var firstTest = aTest[0];
+  function gebi(x){ return document.getElementById(x); }
+</script>
+<style type="text/css">
+  a {
+    padding-top:5px;
+    padding-bottom:5px;
+    padding-left:10px;
+    padding-right:10px;
+    text-align: right;
+    color: #000;
+    background-color: #eef;
+    vertical-align:middle;
+    box-shadow: 0px 3px 4px #999;
+    border-radius: 10px;
+  }
+</style>
+<p>Test frame for the Fossil server at <span id="x1">???</span>.</p>
+<ul>
+<li> <span id="x2">0</span> of <span id="x3">0</span> pages checked so far.
+<li> Current page: <b><span id="x5"></span></b>
+<li> <span id="x6">Press "Begin" to begin testing</span>
+</ul>
+<a id="x-start" target="fossiltest" onclick="startTest()">Begin</a>
+<a id="x-prev" target="fossiltest" onclick="prevTest()">Previous</a>
+<a id="x-next" target="fossiltest" onclick="nextTest()">Next</a>
+<a id="x-pass" target="fossiltest" onclick="passTest()">Test Passes</a>
+<p id="x-done" style="color:green;">Testing Complete!</p>
+<script>
+  var re = new RegExp("/doc/[^/]+/www/.*$");
+  var baseURI = document.location.href.replace(re,"/");
+  gebi("x1").innerHTML = '"' + baseURI + '"';
+  gebi("x3").innerHTML = nTest;
+  var xprev = gebi("x-prev");
+  var xnext = gebi("x-next");
+  var xpass = gebi("x-pass");
+  var xstart = gebi("x-start");
+  gebi("x-done").hidden = 1;
+  function loadPage(){
+    var x = aTest[iTest];
+    gebi("x5").innerHTML = x.url;
+    gebi("x6").innerHTML = x.desc;
+    gebi("x2").innerHTML = totalTest-nTest;
+    xstart.hidden = 1;
+    xpass.hidden = 0;
+    if( iTest>0 ){
+      var y = aTest[iTest-1];
+      xprev.href = baseURI + y.url;
+      xprev.hidden = 0;
+    }else{
+      xprev.hidden = 1;
+    }
+    if( iTest+1<nTest ){
+      var z = aTest[iTest+1];
+      xnext.href = baseURI + z.url;
+      xpass.href = baseURI + z.url;
+      xnext.hidden = 0;
+    }else{
+      xnext.hidden = 1;
+      if( nTest>1 ) xpass.href = xprev.href;
+    }
+  }
+  gebi("x3").innerHTML = nTest;
+  xprev.hidden = 1;
+  xnext.hidden = 1;
+  xpass.hidden = 1;
+  xstart.hidden = 0;
+  xstart.href = baseURI + aTest[0].url;
+  function startTest(){
+    setTimeout(loadPage,1);
+  }
+  function prevTest(){
+    if( iTest<=0 ) return false;
+    iTest--;
+    setTimeout(loadPage,1);
+  }
+  function nextTest(){
+    if( iTest+1>=nTest ) return false;
+    iTest++;
+    setTimeout(loadPage,1);
+  }
+  function passTest(){
+    if( nTest==1 ){
+      xpass.hidden = 1;
+      xnext.hidden = 1;
+      xprev.hidden = 1;
+      gebi("x2").innerHTML = totalTest;
+      gebi("x-done").hidden = 0;
+      return false;
+    }else{
+      aTest.splice(iTest, 1);
+      nTest--;
+      if( iTest>=nTest ) iTest = nTest-1;
+      setTimeout(loadPage,1);
+    }
+  }
+</script>

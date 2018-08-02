@@ -39,9 +39,7 @@ faq {
 
   When you are checking in a new change using the <b>[/help/commit|commit]</b>
   command, you can add the option  "--branch <i>BRANCH-NAME</i>" to
-  make the new check-in be the first check-in for a new branch.  You can
-  also add the "--bgcolor <i>COLOR</i>" option to give the branch a
-  specific background color on timelines.
+  make the new check-in be the first check-in for a new branch.
 
   If you want to create a new branch whose initial content is the
   same as an existing check-in, use this command:
@@ -59,8 +57,8 @@ faq {
   First locate the check-in that you want to be
   the initial check-in of your branch on the timeline and click on its
   link so that you are on the <b>ci</b> page.  Then find the "<b>edit</b>"
-  link (near the "Commands:" label) and click on that.  On the 
-  "Edit Check-in" page, check the box beside "Branching:" and fill in 
+  link (near the "Commands:" label) and click on that.  On the
+  "Edit Check-in" page, check the box beside "Branching:" and fill in
   the name of your new branch to the right and press the "Apply Changes"
   button.
 }
@@ -72,7 +70,9 @@ faq {
 
   When you are checking in a new change using the <b>[/help/commit|commit]</b>
   command, you can add a tag to that check-in using the
-  "--tag <i>TAGNAME</i>" command-line option.
+  "--tag <i>TAGNAME</i>" command-line option.  You can repeat the --tag
+  option to give a check-in multiple tags.  Tags need not be unique.  So,
+  for example, it is common to give every released version a "release" tag.
 
   If you want add a tag to an existing check-in, you can use the
   <b>[/help/tag|tag]</b> command.  For example:
@@ -85,27 +85,27 @@ faq {
   [./checkin_names.wiki | valid check-in name format].
 
   You can also add (and remove) tags from a check-in using the
-  [./webui.wiki | web interface].  First locate the check-in that you 
-  what to tag on the tmline, then click on the link to go the detailed
+  [./webui.wiki | web interface].  First locate the check-in that you
+  what to tag on the timeline, then click on the link to go the detailed
   information page for that check-in.  Then find the "<b>edit</b>"
   link (near the "Commands:" label) and click on that.  There are
   controls on the edit page that allow new tags to be added and existing
   tags to be removed.
-}  
+}
 
 faq {
   How do I create a private branch that won't get pushed back to the
   main repository.
 } {
-  Use the <b>--private</b> command-line option on the 
+  Use the <b>--private</b> command-line option on the
   <b>commit</b> command.  The result will be a check-in which exists on
-  your local repository only and is never pushed to other repositories.  
-  All descendents of a private check-in are also private.
-  
+  your local repository only and is never pushed to other repositories.
+  All descendants of a private check-in are also private.
+
   Unless you specify something different using the <b>--branch</b> and/or
   <b>--bgcolor</b> options, the new private check-in will be put on a branch
   named "private" with an orange background color.
-  
+
   You can merge from the trunk into your private branch in order to keep
   your private branch in sync with the latest changes on the trunk.  Once
   you have everything in your private branch the way you want it, you can

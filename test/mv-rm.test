@@ -1,0 +1,440 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# MV / RM Commands
+#
+
+set path [file dirname [info script]]
+
+require_no_open_checkout
+
+########################################
+# Setup: Add Files and Commit          #
+########################################
+
+test_setup; set rootDir [file normalize [pwd]]
+
+set undoMsg "\n \"fossil undo\" is\
+available to undo changes to the\
+working checkout."
+
+write_file f1 "f1"
+write_file f2 "f2"
+write_file f3 "f3"
+write_file f4 "f4"
+write_file f5 "f5"
+write_file f6 "f6"
+write_file f7 "f7"
+write_file f8 "f8"
+
+file mkdir [file join $rootDir subdirA]
+# NOTE: There are no files in subdirA.
+
+file mkdir [file join $rootDir subdirB]
+write_file [file join $rootDir subdirB f9] "f9"
+
+file mkdir [file join $rootDir subdirC]
+write_file [file join $rootDir subdirC f10] "f10"
+write_file [file join $rootDir subdirC f11] "f11"
+write_file f12 "f12"
+
+fossil add f1 f2 f3 f4 f5 f6 f7 f8 subdirB/f9 subdirC/f10 subdirC/f11 f12
+fossil commit -m "c1"
+
+########################################
+# Test 1: Soft Move Relative Directory #
+########################################
+
+file mkdir [file join $rootDir subdir1]
+cd [file join $rootDir subdir1]
+
+fossil mv ../f1 .
+test mv-soft-relative-1 {$RESULT eq "RENAME f1 subdir1/f1"}
+
+fossil revert
+test mv-soft-relative-2 {
+  [normalize_result] eq "DELETE   subdir1/f1\nREVERT   f1${undoMsg}"
+}
+
+cd $rootDir
+
+###################################
+# Test 2: Soft Move Relative File #
+###################################
+
+file mkdir [file join $rootDir subdir2]
+cd [file join $rootDir subdir2]
+
+fossil mv ../f2 ./f2
+test mv-soft-relative-3 {$RESULT eq "RENAME f2 subdir2/f2"}
+
+fossil revert
+test mv-soft-relative-4 {
+  [normalize_result] eq "DELETE   subdir2/f2\nREVERT   f2${undoMsg}"
+}
+
+cd $rootDir
+
+########################################
+# Test 3: Hard Move Relative Directory #
+########################################
+
+file mkdir [file join $rootDir subdir3]
+cd [file join $rootDir subdir3]
+
+fossil mv --hard ../f3 .
+test mv-hard-relative-1 {
+  [normalize_result] eq "RENAME f3 subdir3/f3\nMOVED_FILE ${rootDir}/f3"
+}
+
+fossil revert
+test mv-hard-relative-2 {
+  [normalize_result] eq "DELETE   subdir3/f3\nREVERT   f3${undoMsg}"
+}
+
+cd $rootDir
+
+###################################
+# Test 4: Hard Move Relative File #
+###################################
+
+file mkdir [file join $rootDir subdir4]
+cd [file join $rootDir subdir4]
+
+fossil mv --hard ../f4 ./f4
+test mv-hard-relative-3 {
+  [normalize_result] eq "RENAME f4 subdir4/f4\nMOVED_FILE ${rootDir}/f4"
+}
+
+fossil revert
+test mv-hard-relative-4 {
+  [normalize_result] eq "DELETE   subdir4/f4\nREVERT   f4${undoMsg}"
+}
+
+cd $rootDir
+
+########################################
+# Test 5: Soft Move Absolute Directory #
+########################################
+
+file mkdir [file join $rootDir subdir5]
+cd [file join $rootDir subdir5]
+
+fossil mv [file join $rootDir f5] [file join $rootDir subdir5]
+test mv-soft-absolute-1 {$RESULT eq "RENAME f5 subdir5/f5"}
+
+fossil revert
+test mv-soft-absolute-2 {
+  [normalize_result] eq "DELETE   subdir5/f5\nREVERT   f5${undoMsg}"
+}
+
+cd $rootDir
+
+###################################
+# Test 6: Soft Move Absolute File #
+###################################
+
+file mkdir [file join $rootDir subdir6]
+cd [file join $rootDir subdir6]
+
+fossil mv [file join $rootDir f6] [file join $rootDir subdir6 f6]
+test mv-soft-absolute-3 {$RESULT eq "RENAME f6 subdir6/f6"}
+
+fossil revert
+test mv-soft-absolute-4 {
+  [normalize_result] eq "DELETE   subdir6/f6\nREVERT   f6${undoMsg}"
+}
+
+cd $rootDir
+
+########################################
+# Test 7: Hard Move Absolute Directory #
+########################################
+
+file mkdir [file join $rootDir subdir7]
+cd [file join $rootDir subdir7]
+
+fossil mv --hard [file join $rootDir f7] [file join $rootDir subdir7]
+test mv-hard-absolute-1 {
+  [normalize_result] eq "RENAME f7 subdir7/f7\nMOVED_FILE ${rootDir}/f7"
+}
+
+fossil revert
+test mv-hard-absolute-2 {
+  [normalize_result] eq "DELETE   subdir7/f7\nREVERT   f7${undoMsg}"
+}
+
+cd $rootDir
+
+###################################
+# Test 8: Hard Move Absolute File #
+###################################
+
+file mkdir [file join $rootDir subdir8]
+cd [file join $rootDir subdir8]
+
+fossil mv --hard [file join $rootDir f8] [file join $rootDir subdir8 f8]
+test mv-hard-absolute-3 {
+  [normalize_result] eq "RENAME f8 subdir8/f8\nMOVED_FILE ${rootDir}/f8"
+}
+
+fossil revert
+test mv-hard-absolute-4 {
+  [normalize_result] eq "DELETE   subdir8/f8\nREVERT   f8${undoMsg}"
+}
+
+cd $rootDir
+
+##########################################
+# Test 9: Soft Remove Relative Directory #
+##########################################
+
+file mkdir [file join $rootDir subdir1]
+cd [file join $rootDir subdir1]
+
+fossil rm ../subdirA
+test rm-soft-relative-1 {$RESULT eq ""}
+
+fossil rm ../subdirB
+test rm-soft-relative-2 {$RESULT eq "DELETED subdirB/f9"}
+
+fossil rm ../subdirC
+test rm-soft-relative-3 {
+  [normalize_result] eq "DELETED subdirC/f10\nDELETED subdirC/f11"
+}
+
+fossil revert
+test rm-soft-relative-4 {
+  [normalize_result] eq \
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
+}
+
+cd $rootDir
+
+######################################
+# Test 10: Soft Remove Relative File #
+######################################
+
+file mkdir [file join $rootDir subdir2]
+cd [file join $rootDir subdir2]
+
+fossil rm ../f2
+test rm-soft-relative-5 {$RESULT eq "DELETED f2"}
+
+fossil revert
+test rm-soft-relative-6 {
+  [normalize_result] eq "REVERT   f2${undoMsg}"
+}
+
+cd $rootDir
+
+###########################################
+# Test 11: Hard Remove Relative Directory #
+###########################################
+
+file mkdir [file join $rootDir subdir3]
+cd [file join $rootDir subdir3]
+
+fossil rm --hard ../subdirA
+test rm-hard-relative-1 {
+  [normalize_result] eq ""
+}
+
+fossil rm --hard ../subdirB
+test rm-hard-relative-2 {
+  [normalize_result] eq \
+  "DELETED subdirB/f9\nDELETED_FILE ${rootDir}/subdirB/f9"
+}
+
+fossil rm --hard ../subdirC
+test rm-hard-relative-3 {
+  [normalize_result] eq \
+  "DELETED subdirC/f10\nDELETED subdirC/f11\nDELETED_FILE\
+${rootDir}/subdirC/f10\nDELETED_FILE ${rootDir}/subdirC/f11"
+}
+
+fossil revert
+test rm-hard-relative-4 {
+  [normalize_result] eq \
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
+}
+
+cd $rootDir
+
+######################################
+# Test 12: Hard Remove Relative File #
+######################################
+
+file mkdir [file join $rootDir subdir4]
+cd [file join $rootDir subdir4]
+
+fossil rm --hard ../f4
+test rm-hard-relative-5 {
+  [normalize_result] eq "DELETED f4\nDELETED_FILE ${rootDir}/f4"
+}
+
+fossil revert
+test rm-hard-relative-6 {
+  [normalize_result] eq "REVERT   f4${undoMsg}"
+}
+
+cd $rootDir
+
+###########################################
+# Test 13: Soft Remove Absolute Directory #
+###########################################
+
+file mkdir [file join $rootDir subdir5]
+cd [file join $rootDir subdir5]
+
+fossil rm [file join $rootDir subdirA]
+test rm-soft-absolute-1 {$RESULT eq ""}
+
+fossil rm [file join $rootDir subdirB]
+test rm-soft-absolute-2 {$RESULT eq "DELETED subdirB/f9"}
+
+fossil rm [file join $rootDir subdirC]
+test rm-soft-absolute-3 {
+  [normalize_result] eq "DELETED subdirC/f10\nDELETED subdirC/f11"
+}
+
+fossil revert
+test rm-soft-absolute-4 {
+  [normalize_result] eq \
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
+}
+
+cd $rootDir
+
+######################################
+# Test 14: Soft Remove Absolute File #
+######################################
+
+file mkdir [file join $rootDir subdir6]
+cd [file join $rootDir subdir6]
+
+fossil rm [file join $rootDir f6]
+test rm-soft-absolute-5 {$RESULT eq "DELETED f6"}
+
+fossil revert
+test rm-soft-absolute-6 {
+  [normalize_result] eq "REVERT   f6${undoMsg}"
+}
+
+cd $rootDir
+
+###########################################
+# Test 15: Hard Remove Absolute Directory #
+###########################################
+
+file mkdir [file join $rootDir subdir7]
+cd [file join $rootDir subdir7]
+
+fossil rm --hard [file join $rootDir subdirA]
+test rm-hard-absolute-1 {$RESULT eq ""}
+
+fossil rm --hard [file join $rootDir subdirB]
+test rm-hard-absolute-2 {
+  [normalize_result] eq \
+  "DELETED subdirB/f9\nDELETED_FILE ${rootDir}/subdirB/f9"
+}
+
+fossil rm --hard [file join $rootDir subdirC]
+test rm-hard-absolute-3 {
+  [normalize_result] eq \
+  "DELETED subdirC/f10\nDELETED subdirC/f11\nDELETED_FILE\
+${rootDir}/subdirC/f10\nDELETED_FILE ${rootDir}/subdirC/f11"
+}
+
+fossil revert
+test rm-hard-absolute-4 {
+  [normalize_result] eq \
+  "REVERT   subdirB/f9\nREVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
+}
+
+cd $rootDir
+
+######################################
+# Test 16: Hard Remove Absolute File #
+######################################
+
+file mkdir [file join $rootDir subdir8]
+cd [file join $rootDir subdir8]
+
+fossil rm --hard [file join $rootDir f8]
+test rm-hard-absolute-5 {
+  [normalize_result] eq "DELETED f8\nDELETED_FILE ${rootDir}/f8"
+}
+
+fossil revert
+test rm-hard-absolute-6 {
+  [normalize_result] eq "REVERT   f8${undoMsg}"
+}
+
+cd $rootDir
+
+#######################################
+# Test 17: Move File to New Directory #
+#######################################
+
+fossil mv --hard f12 d2/f13
+test mv-file-new-directory-1 {
+  [normalize_result] eq "RENAME f12 d2/f13\nMOVED_FILE ${rootDir}/f12"
+}
+
+test mv-file-new-directory-2 {[file size d2/f13] == 3}
+test mv-file-new-directory-3 {[read_file d2/f13] eq "f12"}
+
+fossil revert
+test mv-file-new-directory-4 {
+  [normalize_result] eq "DELETE   d2/f13\nREVERT   f12${undoMsg}"
+}
+
+test mv-file-new-directory-5 {[file size f12] == 3}
+test mv-file-new-directory-6 {[read_file f12] eq "f12"}
+
+cd $rootDir
+
+############################################
+# Test 18: Move Directory to New Directory #
+############################################
+
+fossil mv --hard subdirC subdirD
+test mv-file-new-directory-7 {
+  [normalize_result] eq "RENAME subdirC subdirD\nMOVED_FILE ${rootDir}/subdirC"
+}
+
+test mv-file-new-directory-8 {[file size subdirD/f10] == 3}
+test mv-file-new-directory-9 {[read_file subdirD/f10] eq "f10"}
+test mv-file-new-directory-10 {[file size subdirD/f11] == 3}
+test mv-file-new-directory-11 {[read_file subdirD/f11] eq "f11"}
+
+fossil revert
+test mv-file-new-directory-12 {
+  [normalize_result] eq "REVERT   subdirC/f10\nREVERT   subdirC/f11${undoMsg}"
+}
+
+test mv-file-new-directory-13 {[file size subdirC/f10] == 3}
+test mv-file-new-directory-14 {[read_file subdirC/f10] eq "f10"}
+test mv-file-new-directory-15 {[file size subdirC/f11] == 3}
+test mv-file-new-directory-16 {[read_file subdirC/f11] eq "f11"}
+
+cd $rootDir
+
+###############################################################################
+
+test_cleanup

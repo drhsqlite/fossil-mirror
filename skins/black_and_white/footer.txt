@@ -1,0 +1,3 @@
+<div class="footer">
+Fossil $release_version $manifest_version $manifest_date
+</div>
