@@ -1,5 +1,5 @@
-C Refactor\sto\sfix\san\sunused\svar\swarning\sin\sdebug\sbuild
-D 2018-08-02T06:54:31.452
+C Use\sthe\snative\sdirectory\sseparator\sfor\sthe\sextra\sfiles\sin\sthe\sMSVC\smakefile.
+D 2018-08-02T11:56:08.060
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/main.c cbd221a404fdecedb2481d8caa8be110c676fd58b4d560dd6396c15cdfdf8d85
 F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 1e9b11c36f4a674ad5391ed7c6d3c3e94a531600346106b4dd5d8053d3915f17
+F src/makemake.tcl 75312b0621e0115d2e5e62180d8d6606caef0691fcbf9a4879d54f6b8dd9e7bf
 F src/manifest.c 5294ac6bb4692d92b85aa052d5b54ecd2f031224c0be6df0cc3916b01d7165b7
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -732,7 +732,7 @@ F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b
 F win/Makefile.dmc 53c4c0c72960fb4646f43c5e5987ef048dda52caf045fb9b9db8f2c95da6a8c3
 F win/Makefile.mingw 512085908cc6f1bcfe9e6c648e6617abff7e65e3b5f20a3b117b06d58a8ae69a
 F win/Makefile.mingw.mistachkin b75280e1194762517f1796b70cf2e81fd838fa660097ef6a2b1e0777ed8736da
-F win/Makefile.msc 3d8f2c7aba709c86990501e215bb77bea5a0462ea8422731f65e11487af97175
+F win/Makefile.msc b4d0973d22365db7163a83f638e24854552cd4ffa3651cd189e748dab639fdb9
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccc6676374be472788a4181c523496ba7b69a5c2af6793d55f6dfa91f8e79af9
-R b82d8788a095afe56e944f6ac5e3178f
-U ashepilko
-Z 58302fb70f9dcbf3a451f8cc234cb11f
+P 811333a5010ec2bf32be050a26e4efc1b8c65bb4fc98a44ba6c21be512353571
+R 2c2e890dcbf3e083a61b72dea28a3c80
+U mistachkin
+Z 0cbbe3b22957828b5c76ca9070f76cf3
