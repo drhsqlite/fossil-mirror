@@ -1,5 +1,5 @@
-C Update\sthe\scustom\sMinGW\smakefile.
-D 2018-07-31T00:09:54.264
+C Add\swinsock2.h\sfor\sWinXP\scompatibility;\swas\sbreaking\sthe\sbuild
+D 2018-08-02T03:35:55.897
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -594,7 +594,7 @@ F src/wiki.c 7f38ef359a91f632a1b44526fdf0e754ef7844b040f610de5d97703ba99610a4
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c 947cfe0e0fbac540be921caff9b88ae155f5e9ddfb5a96ff04d8f2e89e7046f9
+F src/winhttp.c 723d229579cc2ecfc97e24913f07c30222ae5a693e9a6642bf6968b816c167ab
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c 2c91d8cf244b6856bf90f8d26fbdb664f750b02cf99cd40e236edbb080474ab7
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea2e51515320126f1cedd52f62eb54cb7276bcb29c7c940bb61d60fd16a733db
-R b559350cce11f805ddb1a3f37cf64c2b
-U mistachkin
-Z 27459abbea96066367719334caf3ace7
+P d5c41263af48fc11315d47043f8e206405a49df2fb95d64b84c8de7561c33607
+R 572a4ea16a100ec5b7f7095d10b9aba3
+U ashepilko
+Z 4c3724985a5452142b5ba81dce9ca492
