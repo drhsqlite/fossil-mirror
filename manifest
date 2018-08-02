@@ -1,5 +1,5 @@
-C Add\swinsock2.h\sfor\sWinXP\scompatibility;\swas\sbreaking\sthe\sbuild
-D 2018-08-02T03:35:55.897
+C Exit\swith\serror\sstatus\swhen\shalt\sis\striggered\son\serror
+D 2018-08-02T03:53:17.403
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -642,7 +642,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl df32381d274820e8d9350196d6294a473e4a56dfe149dfd74763e2e537b614f4
+F test/tester.tcl 2f84508e2f421db4081005580662fc408bee773658ee26d7705cab756be232d6
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -856,7 +856,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5c41263af48fc11315d47043f8e206405a49df2fb95d64b84c8de7561c33607
-R 572a4ea16a100ec5b7f7095d10b9aba3
+P 889bc0f79488ccc9799fce3b74b17f6f48502b97ad7cd5aeb9b8e2ebfaf69e7e
+R 5772aa6290b1bdf0507693178a21832d
 U ashepilko
-Z 4c3724985a5452142b5ba81dce9ca492
+Z 35d4db50bcf8eefbe3e27c706bfaddbc
