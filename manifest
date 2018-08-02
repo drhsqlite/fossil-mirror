@@ -1,5 +1,5 @@
-C Improve\scomment.
-D 2018-08-02T11:44:29.997
+C Merge\supdates\sfrom\strunk.
+D 2018-08-02T11:58:00.063
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -515,7 +515,7 @@ F src/main.c cbd221a404fdecedb2481d8caa8be110c676fd58b4d560dd6396c15cdfdf8d85
 F src/main.mk 60912b77bdf22b508682544b2c891d15c9167d58dcae01b2008ac29538804746
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl d72ce6bce4bdc32ef5fbe6427de469f14dcae2d8492268331a2e16f4aa5bb04c
+F src/makemake.tcl 70366dccca2cf670252f93b85bf5484cf200ee03d1dcedc44bf6017a9dc8a46b
 F src/manifest.c 5294ac6bb4692d92b85aa052d5b54ecd2f031224c0be6df0cc3916b01d7165b7
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -733,7 +733,7 @@ F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b
 F win/Makefile.dmc 53c4c0c72960fb4646f43c5e5987ef048dda52caf045fb9b9db8f2c95da6a8c3
 F win/Makefile.mingw 512085908cc6f1bcfe9e6c648e6617abff7e65e3b5f20a3b117b06d58a8ae69a
 F win/Makefile.mingw.mistachkin b75280e1194762517f1796b70cf2e81fd838fa660097ef6a2b1e0777ed8736da
-F win/Makefile.msc a8f773a6ed6e4bae7988eece7dd57c74aec87fc279c70fc67e75aace071310af
+F win/Makefile.msc 731fd612a4426d161bdbbb953a04c0f15ed017c1ee2e12707e8e34862105b6c5
 F win/buildmsvc.bat 1243828dc8ad2a1c4d96ff948884a6aad62afcec2c5b849f0c31056ddc0f46ee x
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc8281ee9ce08a3521490e01b5ac8f2a3e50bf6e7c17e02bed4e95b0ef689ba9
-R 9415d2a2f6a23c46fe80c7daa777701c
+P f9ba9d94ac8e720a4191d249a2518d4abba2358374c11c8ad0e7a1a859525595 774bdc83556442c5373ff2c1bb4b98994256e07af678cc62b929ba04ceb8b643
+R 902ef8633e3b74b418dc6ae172f1f53a
 U mistachkin
-Z aa421c2a534060e323105a2c0a88715f
+Z f74984a73ae2f611f6ec58c3fc901cd5
