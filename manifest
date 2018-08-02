@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2018-08-02T08:32:50.597
+C Build\sFossil\svia\sExternalProject
+D 2018-08-02T09:24:14.211
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -10,10 +10,10 @@ F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
-F CMakeLists.txt c9b8b55e4f3a73c53ea08ef54c624677fae41b8f
+F CMakeLists.txt 5fa80cb02ce5306322001080623518e142333341818cc2f70608749bbf71fd8d
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
-F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc w Makefile
+F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
 F Makefile.in 553ba13c765da9b74f3c8ba366feb5ae1469a6882162959c51c12f30c97bfecf x
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
 F VERSION 823b416463d02932b3f5fed25158b3fccc402aad76a3c53363a0a49dad0ae6f4
@@ -323,7 +323,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh a178ffe4795ef9cc3ef3550572c20fe4110c8f87d9368f06526714ff12e33823
 F fossil.1 740ad69dfd64430b1e31d22ac799a6086c622ef8
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
-F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf w fossil.nsi
+F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
@@ -528,7 +528,7 @@ F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac502d
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
-F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7 w win/version.c
+F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c fffb8102dae30ba1205b0e3c660b17dbb4fefb4124618d7df482629a53fa19b7
 F src/name.c d99ecd151807f79cc9b5376b894d0bd9d4b3d561bb0f8905cee9451c8b0b5a16
 F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
@@ -828,7 +828,7 @@ F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750
 F www/mkindex.tcl 686b6b169d533b2a1574ac5d5eca9f9bf3e46846f0b23d0741c170f4e1349da8 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 7981b7f97d96f836550038e539d496b7c6d441a3e0a21778c5aaf1c653ed417a w www/permutedindex.wiki
+F www/permutedindex.html 7981b7f97d96f836550038e539d496b7c6d441a3e0a21778c5aaf1c653ed417a
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2150860bed99571dbe5d9e0dfd6c57ac55217e895b95e1b615b05d419153b1a4 811333a5010ec2bf32be050a26e4efc1b8c65bb4fc98a44ba6c21be512353571
-R 2ac55de4060a32cee94bf5333d97f730
+P 19997e99c4549e7c46627046364a6594b35c4d5ccae8ac9836bdd8ea790a87bd
+R 23dbdd3221826323528bb2417231e5b6
 U ashepilko
-Z e903689323e647a4a565489a68eba451
+Z aa97d986c9da2de2dd3b2c9468f7be3f

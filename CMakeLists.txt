@@ -1,215 +1,354 @@
-PROJECT(Fossil C)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+project(fossil C)
+include(ExternalProject)
 
-# Build options.
-OPTION(FOSSIL_BUILD_STATIC "Build Fossil static" TRUE)
-OPTION(FOSSIL_ENABLE_SSL "Enable SSL support" FALSE)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
-# Include some macros.
-INCLUDE(CheckIncludeFile)
 
-# Source files which gets processed by the translate program.
-SET(TRANS_SRCS
-  add allrepo attach bag bisect blob branch browse captcha cgi checkin
-  checkout clearsign clone comformat configure content db delta deltacmd
-  descendants diff diffcmd doc encode event export file finfo glob graph gzip
-  http http_socket http_transport import info leaf login main manifest md5
-  merge merge3 name path pivot popen pqueue printf rebuild report rss schema
-  search setup sha1 shun skins sqlcmd stash stat style sync tag tar th_main
-  timeline tkt tktsetup undo update url user verify vfile wiki wikiformat
-  winhttp xfer zip http_ssl
+set(default_build_type "RelWithDebInfo")
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
+    set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+        STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+else()
+    message(STATUS "'${CMAKE_BUILD_TYPE}' build type")
+endif()
+
+
+## VARIABLES ---------------------------------------------------------------
+## Additional parameters can be passed in the following variables which can
+## be defined on cmake command line (or in cache).
+##
+## The parameters correspond to the ones used in the external fossil build
+## process (as specified at configure, make, and make test)
+##
+if(FOSSIL_CONFIGURE)
+    message(STATUS "Fossil build configuration '${FOSSIL_CONFIGURE}'")
+    set(configure_FLAGS ${FOSSIL_CONFIGURE})
+endif()
+
+if(FOSSIL_BUILD)
+    message(STATUS "Fossil build variables '${FOSSIL_BUILD}'")
+    set(build_FLAGS ${FOSSIL_BUILD})
+endif()
+
+if(FOSSIL_TEST)
+    message(STATUS "Fossil test configuration '${FOSSIL_TEST}'")
+    set(test_FLAGS ${FOSSIL_TEST})
+endif()
+
+
+add_executable(fossil-exe IMPORTED)
+
+set(fossil_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(fossil_EXE_DIR "${fossil_INSTALL_DIR}/bin")
+set(fossil_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(fossil_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/fossil)
+if(MSVC)
+    set(fossil_BUILD_DIR ${fossil_BINARY_DIR}/msvcbld)
+else(MSVC)
+    set(fossil_BUILD_DIR ${fossil_BINARY_DIR}/bld)
+endif(MSVC)
+set(fossil_TEST_DIR "${fossil_BINARY_DIR}/test")
+
+set(EXE ${CMAKE_EXECUTABLE_SUFFIX})
+set(fossil_EXE "${fossil_EXE_DIR}/fossil${EXE}")
+file(TO_NATIVE_PATH "${fossil_EXE}" fossil_EXE)
+set_target_properties(fossil-exe PROPERTIES
+    IMPORTED_LOCATION "${fossil_EXE}"
 )
 
-# Additional source files.
-SET(OTHER_SRCS
-  src/sqlite3.c src/shell.c src/th.c src/th_lang.c
+## SETUP IDE ---------------------------------------------------------------
+## Setup Project Sources View
+## Add more source files for convenience; otherwise only actual dependencies
+## would appear in the Projects tree pane.
+##
+file(GLOB_RECURSE project_sources_DIRS
+    #"autosetup/*"   #may be useful when debuging configure
+    "skins/*"
+    "src/*"
+    "test/*.test" "test/tester.tcl"
+    "win/*"
+    "www/*.wiki" "www/*.md" "www/*.html"
 )
 
-# Add the resource file on windows to the source files.
-IF(WIN32)
-  SET(OTHER_SRCS ${OTHER_SRCS} win/fossil.rc)
-ENDIF(WIN32)
+file(GLOB project_sources_FILES
+    "auto.def"
+    "configure"
 
-# Set compile definitions for src/shell.c.
-SET(SHELL_COMP_DEFS
-  main=sqlite3_shell
-  SQLITE_OMIT_LOAD_EXTENSION=1
-)
-SET_SOURCE_FILES_PROPERTIES(src/shell.c
-  PROPERTIES COMPILE_DEFINITIONS "${SHELL_COMP_DEFS}"
-)
+    "fossil.1"
+    "manifest.uuid"
+    "VERSION"
 
-# Set compile definitions for src/sqlite.c.
-SET(SQLITE3_COMP_DEFS
-  SQLITE_OMIT_LOAD_EXTENSION=1
-  SQLITE_THREADSAFE=0
-  SQLITE_DEFAULT_FILE_FORMAT=4
-  SQLITE_ENABLE_STAT2
-  SQLITE_ENABLE_LOCKING_STYLE=0
-  localtime=fossil_localtime
-)
-SET_SOURCE_FILES_PROPERTIES(src/sqlite3.c
-  PROPERTIES COMPILE_DEFINITIONS "${SQLITE3_COMP_DEFS}"
+    "${fossil_BINARY_DIR}/autoconfig.h"
+    "${fossil_BINARY_DIR}/Makefile*"
+
+    "${fossil_BUILD_DIR}/*.[h]"
+    #"${fossil_BUILD_DIR}/main_.c"
 )
 
-# Build the makeheaders program.
-ADD_EXECUTABLE(makeheaders src/makeheaders.c)
-GET_TARGET_PROPERTY(MAKEHEADERS_LOC makeheaders LOCATION)
-
-# Build the translate program.
-ADD_EXECUTABLE(translate src/translate.c)
-GET_TARGET_PROPERTY(TRANSLATE_LOC translate LOCATION)
-
-# Build the mkindex program.
-ADD_EXECUTABLE(mkindex src/mkindex.c)
-GET_TARGET_PROPERTY(MKINDEX_LOC mkindex LOCATION)
-
-# Build the version program.
-ADD_EXECUTABLE(version win/version.c)
-GET_TARGET_PROPERTY(VERSION_LOC version LOCATION)
-
-# Custom command to build the VERSION.h include file.
-ADD_CUSTOM_COMMAND(
-  OUTPUT  ${PROJECT_BINARY_DIR}/VERSION.h
-  DEPENDS version
-          ${PROJECT_SOURCE_DIR}/manifest.uuid
-          ${PROJECT_SOURCE_DIR}/manifest
-  COMMAND ${VERSION_LOC}
-  ARGS    ${PROJECT_SOURCE_DIR}/manifest.uuid
-          ${PROJECT_SOURCE_DIR}/manifest
-        > ${PROJECT_BINARY_DIR}/VERSION.h
-  COMMENT "Generating VERSION.h ..."
+include_directories(
+    "${fossil_BUILD_DIR}"
+    "${PROJECT_SOURCE_DIR}/src"
+    "${PROJECT_SOURCE_DIR}"
 )
 
-# Custom commands to build the translated sources.
-FOREACH(SRC ${TRANS_SRCS})
-
-  ADD_CUSTOM_COMMAND(
-    OUTPUT  ${PROJECT_BINARY_DIR}/${SRC}_.c
-    DEPENDS translate
-            ${PROJECT_SOURCE_DIR}/src/${SRC}.c
-    COMMAND ${TRANSLATE_LOC}
-    ARGS    ${PROJECT_SOURCE_DIR}/src/${SRC}.c
-          > ${PROJECT_BINARY_DIR}/${SRC}_.c
-    COMMENT "Translating src/${SRC}.c ..."
-  )
-
-  # Build a list of all the results.
-  SET(TRANS_SRC ${TRANS_SRC} ${PROJECT_BINARY_DIR}/${SRC}_.c)
-
-ENDFOREACH(SRC)
-
-# Custom command to build page_index.h.
-ADD_CUSTOM_COMMAND(
-  OUTPUT  ${PROJECT_BINARY_DIR}/page_index.h
-  DEPENDS mkindex
-          ${TRANS_SRC}
-  COMMAND ${MKINDEX_LOC}
-  ARGS    ${TRANS_SRC}
-        > ${PROJECT_BINARY_DIR}/page_index.h
-  COMMENT "Generating page_index.h ..."
+add_custom_target(project-sources ALL
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    SOURCES ${project_sources_DIRS} ${project_sources_FILES}
 )
-ADD_CUSTOM_TARGET(page_index DEPENDS ${PROJECT_BINARY_DIR}/page_index.h)
 
-# Create an input file for the makeheaders program.
-FILE(WRITE ${PROJECT_BINARY_DIR}/mkhdr.dat
-"# Warning: this file is automatically generated by CMake.
-${PROJECT_SOURCE_DIR}/src/sqlite3.h
-${PROJECT_SOURCE_DIR}/src/th.h
-${PROJECT_BINARY_DIR}/VERSION.h\n"
+## CONFIGURE ---------------------------------------------------------------
+##
+set(fossil_configure_FLAGS "")
+if(configure_FLAGS)
+    set(fossil_configure_FLAGS ${configure_FLAGS})
+endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(MSVC)
+        if(NOT "${fossil_configure_FLAGS}" MATCHES "FOSSIL_DEBUG")
+            set(fossil_configure_FLAGS "FOSSIL_DEBUG=1" ${fossil_configure_FLAGS})
+        endif()
+    else(MSVC)
+        if(NOT "${fossil_configure_FLAGS}" MATCHES "--fossil-debug")
+            set(fossil_configure_FLAGS "--fossil-debug" ${fossil_configure_FLAGS})
+        endif()
+    endif(MSVC)
+endif()
+
+## BUILD ---------------------------------------------------------------
+##
+# Build fossil as an external project; just pass the options for configure and
+# build stages. This way we rely upon the existing build scripts.
+#
+# Install the resulting binary into the local binary dir, such that the fossil
+# binary can be located at the fixed location on target platform.
+#
+# Then we define CMake install targets to copy the binaries from the local
+# binary dir.
+#
+
+set(fossil_build_FLAGS "")
+if(build_FLAGS)
+    set(fossil_build_FLAGS ${build_FLAGS})
+endif()
+
+separate_arguments(fossil_configure_FLAGS)
+separate_arguments(fossil_build_FLAGS)
+
+if(MSVC)
+    file(RELATIVE_PATH fossil_DESTDIR "${fossil_BINARY_DIR}" "${fossil_EXE_DIR}")
+    file(TO_NATIVE_PATH "${fossil_DESTDIR}" fossil_DESTDIR)
+
+    ExternalProject_Add(fossil
+        PREFIX fossil
+        SOURCE_DIR "${fossil_SOURCE_DIR}"
+        CONFIGURE_COMMAND ""
+        BINARY_DIR "${fossil_BINARY_DIR}"
+        BUILD_COMMAND "${fossil_SOURCE_DIR}/win/buildmsvc.bat" all install
+                      ${fossil_configure_FLAGS}
+                      DESTDIR=${fossil_DESTDIR}
+                      ${fossil_build_FLAGS}
+                      VERBATIM
+        INSTALL_COMMAND ""
+        STEP_TARGETS configure build install
+    )
+
+else(MSVC)
+
+    file(RELATIVE_PATH fossil_DESTDIR "${fossil_BINARY_DIR}" "${fossil_INSTALL_DIR}")
+
+    ExternalProject_Add(fossil
+        PREFIX fossil
+        SOURCE_DIR "${fossil_SOURCE_DIR}"
+        CONFIGURE_COMMAND "${fossil_SOURCE_DIR}/configure"
+                           --prefix=/ ${fossil_configure_FLAGS}
+                          VERBATIM
+        BINARY_DIR "${fossil_BINARY_DIR}"
+        BUILD_COMMAND "${CMAKE_MAKE_PROGRAM}"
+                      ${fossil_build_FLAGS}
+                      VERBATIM
+        INSTALL_COMMAND "${CMAKE_MAKE_PROGRAM}" install
+                        DESTDIR=${fossil_DESTDIR}
+        STEP_TARGETS configure build install
+    )
+
+endif(MSVC)
+
+set_property(DIRECTORY APPEND PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES "${fossil_BUILD_DIR}"
+                                "${fossil_EXE_DIR}"
 )
-FOREACH(SRC ${TRANS_SRCS})
-  FILE(APPEND ${PROJECT_BINARY_DIR}/mkhdr.dat
-    "${PROJECT_BINARY_DIR}/${SRC}_.c:${PROJECT_BINARY_DIR}/${SRC}.h\n"
-  )
-  # Build a list of all the generated header files.
-  SET(GEN_HDRS ${GEN_HDRS} ${PROJECT_BINARY_DIR}/${SRC}.h)
-ENDFOREACH(SRC)
 
-# Custom commands to build the header files.
-ADD_CUSTOM_COMMAND(
-  OUTPUT  ${PROJECT_BINARY_DIR}/headers ${GEN_HDRS}
-  DEPENDS makeheaders
-          ${PROJECT_SOURCE_DIR}/src/sqlite3.h
-          ${PROJECT_SOURCE_DIR}/src/th.h
-          ${PROJECT_BINARY_DIR}/VERSION.h
-          ${TRANS_SRC}
-  COMMAND ${MAKEHEADERS_LOC}
-  ARGS    -f mkhdr.dat
-  COMMAND ${CMAKE_COMMAND}
-  ARGS    -E echo Headers generated > ${PROJECT_BINARY_DIR}/headers
-  COMMENT "Generating header files..."
+ExternalProject_Add_Step(fossil forcebuild
+    COMMAND "${CMAKE_COMMAND}" -E echo "Build fossil"
+    DEPENDEES configure
+    DEPENDERS build
+    ALWAYS 1
 )
-ADD_CUSTOM_TARGET(hdr_files DEPENDS ${PROJECT_BINARY_DIR}/headers)
 
-# Make sure that the CMake output directory and the source file directory
-# gets searched for include files.
-SET(FOSSIL_INCL_DIRS ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/src)
+add_dependencies(fossil-exe fossil)
 
-# Disable internationalization.
-SET(FOSSIL_COMP_DEFS FOSSIL_I18N=0)
 
-# Fossil requires the Zlib library.
-CHECK_INCLUDE_FILE(zlib.h ZLIB_INTRINSIC)
-IF(ZLIB_INTRINSIC)
-  SET(FOSSIL_LINK_LIBS ${FOSSIL_LINK_LIBS} z)
-ELSE(ZLIB_INTRINSIC)
-  FIND_PACKAGE(ZLIB REQUIRED)
-  IF(ZLIB_FOUND)
-    SET(FOSSIL_LINK_LIBS ${FOSSIL_LINK_LIBS} ${ZLIB_LIBRARIES})
-    SET(FOSSIL_INCL_DIRS ${FOSSIL_INCL_DIRS} ${ZLIB_INCLUDE_DIRS})
-  ENDIF(ZLIB_FOUND)
-ENDIF(ZLIB_INTRINSIC)
+## We need an executable target, so that IDEs can infer what to run/debug.
+## Define a substitute executable target to stand in for the actual fossil binary
+## that we just built via ExternalProject_Add.
+## Keep the actual fossil binary, clean up the built substitute artifacts.
 
-IF(FOSSIL_ENABLE_SSL)
-  CHECK_INCLUDE_FILE(openssl/ssl.h OPENSSL_INTRINSIC)
-  IF(OPENSSL_INTRINSIC)
-    SET(FOSSIL_LINK_LIBS ${FOSSIL_LINK_LIBS} ssl crypto)
-  ELSE(OPENSSL_INTRINSIC)
-    FIND_PACKAGE(OpenSSL REQUIRED)
-    IF(OPENSSL_FOUND)
-      SET(FOSSIL_LINK_LIBS ${FOSSIL_LINK_LIBS} ${OPENSSL_LIBRARIES})
-      SET(FOSSIL_INCL_DIRS ${FOSSIL_INCL_DIRS} ${OPENSSL_INCLUDE_DIR})
-    ENDIF(OPENSSL_FOUND)
-  ENDIF(OPENSSL_INTRINSIC)
-  SET(FOSSIL_COMP_DEFS ${FOSSIL_COMP_DEFS} FOSSIL_ENABLE_SSL=1)
-ENDIF(FOSSIL_ENABLE_SSL)
+get_filename_component(app_NAME "${fossil_EXE}" NAME_WE)
+get_filename_component(app_DIR "${fossil_EXE}" DIRECTORY)
+file(TO_NATIVE_PATH "${app_DIR}" app_DIR)
 
-# On Windows, Fossil requires the socket library.
-IF(WIN32)
-  SET(FOSSIL_LINK_LIBS ${FOSSIL_LINK_LIBS} ws2_32)
-ENDIF(WIN32)
+file(WRITE "${CMAKE_BINARY_DIR}/app.c" "int main(){ return 0; }\n")
+add_executable(app app.c)
 
-# Set the include diretories.
-INCLUDE_DIRECTORIES(BEFORE ${FOSSIL_INCL_DIRS})
+set_target_properties(app PROPERTIES
+    OUTPUT_NAME "${app_NAME}"
+    RUNTIME_OUTPUT_DIRECTORY "${app_DIR}"
+)
+if(MSVC)
+    set_target_properties(app PROPERTIES
+        PDB_NAME "${app_NAME}"
+        LINK_FLAGS "/INCREMENTAL:NO /MANIFEST:NO"
+    )
+endif()
+add_custom_command(TARGET app PRE_LINK
+    COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
+            "${CMAKE_COMMAND}" -E rename "$<TARGET_FILE_NAME:app>"
+                                         "$<TARGET_FILE_NAME:app>-imported"
+)
+if(MSVC)
+    add_custom_command(TARGET app PRE_LINK
+        COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
+                "${CMAKE_COMMAND}" -E rename "$<TARGET_PROPERTY:app,PDB_NAME>.pdb"
+                                             "$<TARGET_PROPERTY:app,PDB_NAME>.pdb-imported"
+    )
+endif()
+add_custom_command(TARGET app POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
+            "${CMAKE_COMMAND}" -E remove "$<TARGET_FILE_NAME:app>"
+    COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
+            "${CMAKE_COMMAND}" -E rename "$<TARGET_FILE_NAME:app>-imported"
+                                         "$<TARGET_FILE_NAME:app>"
+)
+if(MSVC)
+    add_custom_command(TARGET app POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
+                "${CMAKE_COMMAND}" -E rename "$<TARGET_PROPERTY:app,PDB_NAME>.pdb-imported"
+                                             "$<TARGET_PROPERTY:app,PDB_NAME>.pdb"
+    )
+endif(MSVC)
 
-# Build the Fossil program.
-ADD_EXECUTABLE(fossil ${TRANS_SRC} ${OTHER_SRCS})
+add_dependencies(app fossil-exe)
 
-# Fossil depends on the generated header files.
-ADD_DEPENDENCIES(fossil hdr_files page_index)
 
-# Set flags for building fossil static.
-IF(FOSSIL_BUILD_STATIC)
-  SET(FOSSIL_LINK_FLAGS ${FOSSIL_LINK_FLAGS} -static)
-ENDIF(FOSSIL_BUILD_STATIC)
+## TEST ---------------------------------------------------------------
+##
+add_custom_target(test-fossil-setup
+    COMMENT "Setting up test-fossil"
+    DEPENDS fossil-install
+)
+add_custom_command(TARGET test-fossil-setup PRE_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+            "${fossil_SOURCE_DIR}/test" "${fossil_TEST_DIR}"
+    WORKING_DIRECTORY "${fossil_BINARY_DIR}"
+    COMMENT "Copying data for test-fossil"
+    VERBATIM
+)
+add_custom_command(TARGET test-fossil-setup POST_BUILD
+    COMMAND "${fossil_EXE}" new "${fossil_BINARY_DIR}/test-fossil.fsl"
+            --admin-user testuser
+    COMMAND "${fossil_EXE}" open "${fossil_BINARY_DIR}/test-fossil.fsl"
+    COMMAND "${fossil_EXE}" user default testuser --user testuser
+    WORKING_DIRECTORY "${fossil_TEST_DIR}"
+    COMMENT "Setting up repository for test-fossil"
+    VERBATIM
+)
 
-# Set the additional link flags for the fossil target.
-IF(DEFINED FOSSIL_LINK_FLAGS)
-  SET_TARGET_PROPERTIES(fossil PROPERTIES
-    LINK_FLAGS ${FOSSIL_LINK_FLAGS}
-  )
-ENDIF(DEFINED FOSSIL_LINK_FLAGS)
 
-# Set the compile definitions for the fossil target.
-IF(DEFINED FOSSIL_COMP_DEFS)
-  SET_TARGET_PROPERTIES(fossil PROPERTIES
-    COMPILE_DEFINITIONS "${FOSSIL_COMP_DEFS}"
-  )
-ENDIF(DEFINED FOSSIL_COMP_DEFS)
+# Run the test suite.
+# Other flags that can be included in TESTFLAGS are:
+#
+#  -halt     Stop testing after the first failed test
+#  -keep     Keep the temporary workspace for debugging
+#  -prot     Write a detailed log of the tests to the file ./prot
+#  -verbose  Include even more details in the output
+#  -quiet    Hide most output from the terminal
+#  -strict   Treat known bugs as failures
+#
+# TESTFLAGS can also include names of specific test files to limit
+# the run to just those test cases.
 
-# Set the additional link libraries for the fossil target.
-IF(DEFINED FOSSIL_LINK_LIBS)
-  TARGET_LINK_LIBRARIES(fossil ${FOSSIL_LINK_LIBS})
-ENDIF(DEFINED FOSSIL_LINK_LIBS)
+set(TCL "tclsh")
+if( test_FLAGS )
+    set(fossil_test_FLAGS ${test_FLAGS})
+endif()
+
+separate_arguments(fossil_test_FLAGS)
+add_custom_target(test-fossil
+    COMMAND "${TCL}" tester.tcl "${fossil_EXE}" -quiet ${fossil_test_FLAGS}
+    VERBATIM
+    WORKING_DIRECTORY "${fossil_TEST_DIR}"
+    COMMENT "Running test-fossil"
+    DEPENDS fossil-install
+)
+
+add_custom_target(test-fossil-clean
+    COMMENT "Tearing down test-fossil"
+    DEPENDS fossil-install
+)
+add_custom_command(TARGET test-fossil-clean PRE_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E remove "${fossil_BINARY_DIR}/test-fossil.fsl"
+    WORKING_DIRECTORY "${fossil_TEST_DIR}"
+    COMMENT "Removing repository for test-fossil"
+    VERBATIM
+)
+add_custom_command(TARGET test-fossil-clean POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E remove_directory "${fossil_TEST_DIR}"
+    WORKING_DIRECTORY "${fossil_BINARY_DIR}"
+    COMMENT "Removing data for test-fossil"
+    VERBATIM
+)
+
+add_custom_target(clean-fossil
+    COMMAND "${CMAKE_COMMAND}" -E remove_directory "${fossil_EXE_DIR}"
+            VERBATIM
+    COMMAND "${CMAKE_MAKE_PROGRAM}" clean
+            VERBATIM
+    WORKING_DIRECTORY "${fossil_BINARY_DIR}"
+    COMMENT "Cleaning fossil build artifacts"
+    DEPENDS fossil-configure
+)
+
+
+enable_testing()
+add_test(NAME setup
+         COMMAND "${CMAKE_COMMAND}" --build . --target test-fossil-setup
+)
+add_test(NAME test
+         COMMAND "${CMAKE_COMMAND}" --build . --target test-fossil
+)
+add_test(NAME clean
+         COMMAND "${CMAKE_COMMAND}" --build . --target test-fossil-clean
+)
+set_property(TEST test APPEND PROPERTY
+             DEPENDS setup)
+set_property(TEST clean APPEND PROPERTY
+             DEPENDS setup)
+
+add_custom_target(check
+    COMMAND "${CMAKE_CTEST_COMMAND}" -V
+    DEPENDS test-fossil
+)
+
+## INSTALL ---------------------------------------------------------------
+##
+install(DIRECTORY ${fossil_EXE_DIR}/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
+    USE_SOURCE_PERMISSIONS
+)
