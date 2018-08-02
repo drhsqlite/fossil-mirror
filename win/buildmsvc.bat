@@ -183,29 +183,6 @@ REM
 %_VECHO% VcInstallDir = '%VCINSTALLDIR%'
 
 REM
-REM NOTE: Attempt to create the build output directory, if necessary.
-REM
-IF NOT EXIST "%ROOT%\msvcbld" (
-  %__ECHO% MKDIR "%ROOT%\msvcbld"
-
-  IF ERRORLEVEL 1 (
-    ECHO Could not make directory "%ROOT%\msvcbld".
-    GOTO errors
-  )
-)
-
-REM
-REM NOTE: Attempt to change to the created build output directory so that
-REM       the generated files will be placed there.
-REM
-%__ECHO2% PUSHD "%ROOT%\msvcbld"
-
-IF ERRORLEVEL 1 (
-  ECHO Could not change to directory "%ROOT%\msvcbld".
-  GOTO errors
-)
-
-REM
 REM NOTE: If requested, setup the build environment to refer to the Windows
 REM       SDK v7.1A, which is required if the binaries are being built with
 REM       Visual Studio 201x and need to work on Windows XP.
@@ -223,8 +200,10 @@ IF DEFINED USE_V110SDK71A (
 REM
 REM NOTE: Attempt to execute NMAKE for the Fossil MSVC makefile, passing
 REM       anything extra from our command line along (e.g. extra options).
+REM       Pass the base directory of the Fossil source tree.
+REM       This allows an out-of-source build.
 REM
-%__ECHO% nmake /f "%TOOLS%\Makefile.msc" %NMAKE_ARGS% %*
+%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" %NMAKE_ARGS% %*
 
 IF ERRORLEVEL 1 (
   GOTO errors
