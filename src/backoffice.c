@@ -44,10 +44,12 @@
 #if defined(_WIN32)
 # include <process.h>
 # include <windows.h>
+# define GETPID (int)GetCurrentProcessId
 #else
 # include <unistd.h>
 # include <sys/types.h>
 # include <signal.h>
+# define GETPID getpid
 #endif
 
 /*
@@ -197,11 +199,7 @@ static int backofficeProcessDone(sqlite3_uint64 pid){
 ** Return a process id number for the current process
 */
 static sqlite3_uint64 backofficeProcessId(void){
-#if defined(_WIN32)
-  return (sqlite3_uint64)GetCurrentProcessId();
-#else
-  return (sqlite3_uint64)getpid();
-#endif
+  return (sqlite3_uint64)GETPID();
 }
 
 /*
@@ -327,7 +325,7 @@ void backoffice_run(void){
       db_end_transaction(0);
       if( g.fAnyTrace ){
         fprintf(stderr, "/***** Begin Backoffice Processing %d *****/\n",
-                        getpid());
+                        GETPID());
       }
       backoffice_work();
       break;
@@ -346,13 +344,13 @@ void backoffice_run(void){
     backofficeWriteLease(&x);
     db_end_transaction(0);
     if( g.fAnyTrace ){
-      fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  getpid());
+      fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  GETPID());
     }
     if( x.tmCurrent >= tmNow ){
       if( backofficeSleep(1000*(x.tmCurrent - tmNow + 1)) ){
         /* The sleep was interrupted by a signal from another thread. */
         if( g.fAnyTrace ){
-          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", getpid());
+          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", GETPID());
         }
         db_end_transaction(0);
         break;
@@ -368,7 +366,7 @@ void backoffice_run(void){
       if( backofficeSleep(1000) ){
         /* The sleep was interrupted by a signal from another thread. */
         if( g.fAnyTrace ){
-          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", getpid());
+          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", GETPID());
         }
         db_end_transaction(0);
         break;
