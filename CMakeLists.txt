@@ -154,11 +154,11 @@ if(MSVC)
         SOURCE_DIR "${fossil_SOURCE_DIR}"
         CONFIGURE_COMMAND ""
         BINARY_DIR "${fossil_BINARY_DIR}"
-        BUILD_COMMAND "${fossil_SOURCE_DIR}/win/buildmsvc.bat" all install
+        BUILD_COMMAND "${fossil_SOURCE_DIR}/win/buildmsvc.bat"
                       ${fossil_configure_FLAGS}
-                      DESTDIR=${fossil_DESTDIR}
                       ${fossil_build_FLAGS}
-                      VERBATIM
+                      all
+                      install DESTDIR=${fossil_DESTDIR}
         INSTALL_COMMAND ""
         STEP_TARGETS configure build install
     )
