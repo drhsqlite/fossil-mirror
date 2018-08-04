@@ -19,6 +19,10 @@ else()
     message(STATUS "'${CMAKE_BUILD_TYPE}' build type")
 endif()
 
+set(isDebugBuild FALSE)
+if(CMAKE_BUILD_TYPE MATCHES "[Dd][Ee][Bb][Uu][Gg]" )
+    set(isDebugBuild TRUE)
+endif()
 
 ## VARIABLES ---------------------------------------------------------------
 ## Additional parameters can be passed in the following variables which can
@@ -109,7 +113,7 @@ set(fossil_configure_FLAGS "")
 if(configure_FLAGS)
     set(fossil_configure_FLAGS ${configure_FLAGS})
 endif()
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(isDebugBuild)
     if(MSVC)
         if(NOT "${fossil_configure_FLAGS}" MATCHES "FOSSIL_DEBUG")
             set(fossil_configure_FLAGS "FOSSIL_DEBUG=1" ${fossil_configure_FLAGS})
@@ -211,10 +215,12 @@ set_target_properties(app PROPERTIES
     OUTPUT_NAME "${app_NAME}"
     RUNTIME_OUTPUT_DIRECTORY "${app_DIR}"
 )
-if(MSVC)
+set_target_properties(app PROPERTIES
+    LINK_FLAGS "/INCREMENTAL:NO /MANIFEST:NO"
+)
+if(MSVC AND isDebugBuild)
     set_target_properties(app PROPERTIES
         PDB_NAME "${app_NAME}"
-        LINK_FLAGS "/INCREMENTAL:NO /MANIFEST:NO"
     )
 endif()
 add_custom_command(TARGET app PRE_LINK
@@ -222,7 +228,7 @@ add_custom_command(TARGET app PRE_LINK
             "${CMAKE_COMMAND}" -E rename "$<TARGET_FILE_NAME:app>"
                                          "$<TARGET_FILE_NAME:app>-imported"
 )
-if(MSVC)
+if(MSVC AND isDebugBuild)
     add_custom_command(TARGET app PRE_LINK
         COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
                 "${CMAKE_COMMAND}" -E rename "$<TARGET_PROPERTY:app,PDB_NAME>.pdb"
@@ -236,13 +242,13 @@ add_custom_command(TARGET app POST_BUILD
             "${CMAKE_COMMAND}" -E rename "$<TARGET_FILE_NAME:app>-imported"
                                          "$<TARGET_FILE_NAME:app>"
 )
-if(MSVC)
+if(MSVC AND isDebugBuild)
     add_custom_command(TARGET app POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
                 "${CMAKE_COMMAND}" -E rename "$<TARGET_PROPERTY:app,PDB_NAME>.pdb-imported"
                                              "$<TARGET_PROPERTY:app,PDB_NAME>.pdb"
     )
-endif(MSVC)
+endif()
 
 add_dependencies(app fossil-exe)
 
