@@ -159,6 +159,7 @@ if(MSVC)
                       ${fossil_build_FLAGS}
                       all
                       install DESTDIR=${fossil_DESTDIR}
+                      VERBATIM
         INSTALL_COMMAND ""
         STEP_TARGETS configure build install
     )
