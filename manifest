@@ -1,5 +1,5 @@
-C Change\sthe\sorder\sof\sextra\sbuild\sflags\sto\sallow\soverrides.\r\n
-D 2018-08-04T10:55:30.485
+C Enumerate\stests\sto\spreserve\sthe\sorder,\sMSVS2017\sdoes\snot\sseem\sto\sfollow\r\ntest\sdependencies.\r\n
+D 2018-08-04T11:01:56.900
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -10,7 +10,7 @@ F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
-F CMakeLists.txt 0ee184cf29744e21f0fcdebb71cfa27981ff2b5a88efdfc2d80398b71531bcb6
+F CMakeLists.txt 9d79c4a3e75f69f8cafe19ba93282f6bedcc36d21ab8f8994b4e82f15b77a28d
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
@@ -857,7 +857,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b7430ba100f68f92a876ed79e47a8d79b925c7227633e0654eddec75e0e35343
-R cc92b167f6a3ba715b1a3955e951dc4f
+P f59ccb03a84a22d89955755ba5fb576472d7e5296f0227f32eab262b7826e703
+R 933528a3908e84824261e6d3478aefd4
 U ashepilko
-Z 122b0ebc398e9cfd24b3428ad10d9997
+Z eebf95d5ae3e6545cc5176578794b3da

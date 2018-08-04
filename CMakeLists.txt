@@ -333,19 +333,19 @@ add_custom_target(clean-fossil
 
 
 enable_testing()
-add_test(NAME setup
+add_test(NAME 01-setup
          COMMAND "${CMAKE_COMMAND}" --build . --target test-fossil-setup
 )
-add_test(NAME test
+add_test(NAME 02-test
          COMMAND "${CMAKE_COMMAND}" --build . --target test-fossil
 )
-add_test(NAME clean
+add_test(NAME 03-clean
          COMMAND "${CMAKE_COMMAND}" --build . --target test-fossil-clean
 )
-set_property(TEST test APPEND PROPERTY
-             DEPENDS setup)
-set_property(TEST clean APPEND PROPERTY
-             DEPENDS setup)
+set_property(TEST 02-test APPEND PROPERTY
+             DEPENDS 01-setup)
+set_property(TEST 03-clean APPEND PROPERTY
+             DEPENDS 01-setup)
 
 add_custom_target(check
     COMMAND "${CMAKE_CTEST_COMMAND}" -V
