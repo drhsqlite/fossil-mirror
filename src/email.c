@@ -79,8 +79,9 @@ static const char zEmailInit[] =
 @ --
 @ CREATE TABLE repository.pending_alert(
 @   eventid TEXT PRIMARY KEY,         -- Object that changed
-@   sentSep BOOLEAN DEFAULT false,    -- individual emails sent
-@   sentDigest BOOLEAN DEFAULT false  -- digest emails sent
+@   sentSep BOOLEAN DEFAULT false,    -- individual alert sent
+@   sentDigest BOOLEAN DEFAULT false, -- digest alert sent
+@   sentMod BOOLEAN DEFAULT false     -- pending moderation alert sent
 @ ) WITHOUT ROWID;
 @ 
 @ DROP TABLE IF EXISTS repository.email_bounce;
@@ -117,6 +118,11 @@ void email_schema(int bOnlyIfEnabled){
     }
     db_multi_exec(zEmailInit/*works-like:""*/);
     email_triggers_enable();
+  }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
+    db_multi_exec(
+      "ALTER TABLE repository.pending_alert"
+      " ADD COLUMN sentMod BOOLEAN DEFAULT false;"
+    );
   }
 }
 
@@ -296,14 +302,6 @@ void setup_notification(void){
   @ (Property: "email-admin")</p>
   @ <hr>
 
-  entry_attribute("Inbound email directory", 40, "email-receive-dir",
-                   "erdir", "", 0);
-  @ <p>Inbound emails can be stored in a directory for analysis as
-  @ a debugging aid.  Put the name of that directory in this entry box.
-  @ Disable saving of inbound email by making this an empty string.
-  @ Abuse and trouble reports are send here.
-  @ (Property: "email-receive-dir")</p>
-  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
@@ -760,20 +758,6 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
 }
 
 /*
-** Analyze and act on a received email.
-**
-** This routine takes ownership of the Blob parameter and is responsible
-** for freeing that blob when it is done with it.
-**
-** This routine acts on all email messages received from the
-** "fossil email inbound" command.
-*/
-void email_receive(Blob *pMsg){
-  /* To Do:  Look for bounce messages and possibly disable subscriptions */
-  blob_reset(pMsg);
-}
-
-/*
 ** SETTING: email-send-method         width=5 default=off
 ** Determine the method used to send email.  Allowed values are
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
@@ -809,12 +793,6 @@ void email_receive(Blob *pMsg){
 ** this email address as the "From:" field.
 */
 /*
-** SETTING: email-receive-dir         width=40
-** Inbound email messages are saved as separate files in this directory,
-** for debugging analysis.  Disable saving of inbound emails omitting
-** this setting, or making it an empty string.
-*/
-/*
 ** SETTING: email-send-relayhost      width=40
 ** This is the hostname and TCP port to which output email messages
 ** are sent when email-send-method is "relay".  There should be an
@@ -824,43 +802,44 @@ void email_receive(Blob *pMsg){
 
 
 /*
-** COMMAND: email
+** COMMAND: alerts
 ** 
-** Usage: %fossil email SUBCOMMAND ARGS...
+** Usage: %fossil alerts SUBCOMMAND ARGS...
 **
 ** Subcommands:
 **
-**    exec                    Compose and send pending email alerts.
+**    pending                 Show all pending alerts.  Useful for debugging.
+**
+**    reset                   Hard reset of all email notification tables
+**                            in the repository.  This erases all subscription
+**                            information.  ** Use with extreme care **
+**
+**    send                    Compose and send pending email alerts.
 **                            Some installations may want to do this via
 **                            a cron-job to make sure alerts are sent
 **                            in a timely manner.
 **                            Options:
 **
 **                               --digest     Send digests
-**                               --test       Resets to standard output
+**                               --test       Write to standard output
 **
-**    inbound [FILE]          Receive an inbound email message.  This message
-**                            is analyzed to see if it is a bounce, and if
-**                            necessary, subscribers may be disabled.
+**    settings [NAME VALUE]   With no arguments, list all email settings.
+**                            Or change the value of a single email setting.
 **
-**    reset                   Hard reset of all email notification tables
-**                            in the repository.  This erases all subscription
-**                            information.  Use with extreme care.
+**    status                  Report on the status of the email alert
+**                            subsystem
 **
-**    send TO [OPTIONS]       Send a single email message using whatever
+**    subscribers [PATTERN]   List all subscribers matching PATTERN.
+**
+**    test-message TO [OPTS]  Send a single email message using whatever
 **                            email sending mechanism is currently configured.
-**                            Use this for testing the email configuration.
-**                            Options:
+**                            Use this for testing the email notification
+**                            configuration.  Options:
 **
 **                              --body FILENAME
 **                              --smtp-trace
 **                              --stdout
 **                              --subject|-S SUBJECT
-**
-**    settings [NAME VALUE]   With no arguments, list all email settings.
-**                            Or change the value of a single email setting.
-**
-**    subscribers [PATTERN]   List all subscribers matching PATTERN.
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
@@ -871,29 +850,20 @@ void email_cmd(void){
   email_schema(0);
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
-  if( strncmp(zCmd, "exec", nCmd)==0 ){
-    u32 eFlags = 0;
-    if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
-    if( find_option("test",0,0)!=0 ){
-      eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
-    }
+  if( strncmp(zCmd, "pending", nCmd)==0 ){
+    Stmt q;
     verify_all_options();
-    email_send_alerts(eFlags);
-  }else
-  if( strncmp(zCmd, "inbound", nCmd)==0 ){
-    Blob email;
-    const char *zInboundDir = db_get("email-receive-dir","");
-    verify_all_options();
-    if( g.argc!=3 && g.argc!=4 ){
-      usage("inbound [FILE]");
+    if( g.argc!=3 ) usage("pending");
+    db_prepare(&q,"SELECT eventid, sentSep, sentDigest, sentMod"
+                  "  FROM pending_alert");
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%10s %7s %10s %7s\n",
+         db_column_text(&q,0),
+         db_column_int(&q,1) ? "sentSep" : "",
+         db_column_int(&q,2) ? "sentDigest" : "",
+         db_column_int(&q,3) ? "sentMod" : "");
     }
-    blob_read_from_file(&email, g.argc==3 ? "-" : g.argv[3], ExtFILE);
-    if( zInboundDir[0] ){
-      char *zFN = file_time_tempname(zInboundDir,".email");
-      blob_write_to_file(&email, zFN);
-      fossil_free(zFN);
-    }
-    email_receive(&email);
+    db_finalize(&q);
   }else
   if( strncmp(zCmd, "reset", nCmd)==0 ){
     int c;
@@ -925,6 +895,81 @@ void email_cmd(void){
     }
   }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
+    u32 eFlags = 0;
+    if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
+    if( find_option("test",0,0)!=0 ){
+      eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
+    }
+    verify_all_options();
+    email_send_alerts(eFlags);
+  }else
+  if( strncmp(zCmd, "settings", nCmd)==0 ){
+    int isGlobal = find_option("global",0,0)!=0;
+    int nSetting;
+    const Setting *pSetting = setting_info(&nSetting);
+    db_open_config(1, 0);
+    verify_all_options();
+    if( g.argc!=3 && g.argc!=5 ) usage("setting [NAME VALUE]");
+    if( g.argc==5 ){
+      const char *zLabel = g.argv[3];
+      if( strncmp(zLabel, "email-", 6)!=0
+       || (pSetting = db_find_setting(zLabel, 1))==0 ){
+        fossil_fatal("not a valid email setting: \"%s\"", zLabel);
+      }
+      db_set(pSetting->name, g.argv[4], isGlobal);
+      g.argc = 3;
+    }
+    pSetting = setting_info(&nSetting);
+    for(; nSetting>0; nSetting--, pSetting++ ){
+      if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
+      print_setting(pSetting);
+    }
+  }else
+  if( strncmp(zCmd, "status", nCmd)==0 ){
+    int nSetting, n;
+    static const char *zFmt = "%-29s %d\n";
+    const Setting *pSetting = setting_info(&nSetting);
+    db_open_config(1, 0);
+    verify_all_options();
+    if( g.argc!=3 ) usage("status");
+    pSetting = setting_info(&nSetting);
+    for(; nSetting>0; nSetting--, pSetting++ ){
+      if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
+      print_setting(pSetting);
+    }
+    n = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentSep");
+    fossil_print(zFmt/*works-like:"%s%d"*/, "pending-alerts", n);
+    n = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentDigest");
+    fossil_print(zFmt/*works-like:"%s%d"*/, "pending-digest-alerts", n);
+    n = db_int(0,"SELECT count(*) FROM subscriber");
+    fossil_print(zFmt/*works-like:"%s%d"*/, "total-subscribers", n);
+    n = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
+                   " AND NOT sdonotcall AND length(ssub)>1");
+    fossil_print(zFmt/*works-like:"%s%d"*/, "active-subscribers", n);
+  }else
+  if( strncmp(zCmd, "subscribers", nCmd)==0 ){
+    Stmt q;
+    verify_all_options();
+    if( g.argc!=3 && g.argc!=4 ) usage("subscribers [PATTERN]");
+    if( g.argc==4 ){
+      char *zPattern = g.argv[3];
+      db_prepare(&q,
+        "SELECT semail FROM subscriber"
+        " WHERE semail LIKE '%%%q%%' OR suname LIKE '%%%q%%'"
+        "  OR semail GLOB '*%q*' or suname GLOB '*%q*'"
+        " ORDER BY semail",
+        zPattern, zPattern, zPattern, zPattern);
+    }else{
+      db_prepare(&q,
+        "SELECT semail FROM subscriber"
+        " ORDER BY semail");
+    }
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%s\n", db_column_text(&q, 0));
+    }
+    db_finalize(&q);
+  }else
+  if( strncmp(zCmd, "test-message", nCmd)==0 ){
     Blob prompt, body, hdr;
     const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
     int i;
@@ -959,50 +1004,6 @@ void email_cmd(void){
     blob_reset(&body);
     blob_reset(&prompt);
   }else
-  if( strncmp(zCmd, "settings", nCmd)==0 ){
-    int isGlobal = find_option("global",0,0)!=0;
-    int nSetting;
-    const Setting *pSetting = setting_info(&nSetting);
-    db_open_config(1, 0);
-    verify_all_options();
-    if( g.argc!=3 && g.argc!=5 ) usage("setting [NAME VALUE]");
-    if( g.argc==5 ){
-      const char *zLabel = g.argv[3];
-      if( strncmp(zLabel, "email-", 6)!=0
-       || (pSetting = db_find_setting(zLabel, 1))==0 ){
-        fossil_fatal("not a valid email setting: \"%s\"", zLabel);
-      }
-      db_set(pSetting->name, g.argv[4], isGlobal);
-      g.argc = 3;
-    }
-    pSetting = setting_info(&nSetting);
-    for(; nSetting>0; nSetting--, pSetting++ ){
-      if( strncmp(pSetting->name,"email-",6)!=0 ) continue;
-      print_setting(pSetting);
-    }
-  }else
-  if( strncmp(zCmd, "subscribers", nCmd)==0 ){
-    Stmt q;
-    verify_all_options();
-    if( g.argc!=3 && g.argc!=4 ) usage("subscribers [PATTERN]");
-    if( g.argc==4 ){
-      char *zPattern = g.argv[3];
-      db_prepare(&q,
-        "SELECT semail FROM subscriber"
-        " WHERE semail LIKE '%%%q%%' OR suname LIKE '%%%q%%'"
-        "  OR semail GLOB '*%q*' or suname GLOB '*%q*'"
-        " ORDER BY semail",
-        zPattern, zPattern, zPattern, zPattern);
-    }else{
-      db_prepare(&q,
-        "SELECT semail FROM subscriber"
-        " ORDER BY semail");
-    }
-    while( db_step(&q)==SQLITE_ROW ){
-      fossil_print("%s\n", db_column_text(&q, 0));
-    }
-    db_finalize(&q);
-  }else
   if( strncmp(zCmd, "unsubscribe", nCmd)==0 ){
     verify_all_options();
     if( g.argc!=4 ) usage("unsubscribe EMAIL");
@@ -1010,7 +1011,8 @@ void email_cmd(void){
       "DELETE FROM subscriber WHERE semail=%Q", g.argv[3]);
   }else
   {
-    usage("exec|inbound|reset|send|setting|subscribers|unsubscribe");
+    usage("pending|reset|send|setting|status|"
+          "subscribers|test-message|unsubscribe");
   }
 }
 
@@ -1791,7 +1793,8 @@ void subscriber_list_page(void){
 ** instance of the following object.
 */
 struct EmailEvent {
-  int type;          /* 'c', 't', 'w', 'f' */
+  int type;          /* 'c', 'f', 'm', 't', 'w' */
+  int needMod;       /* Pending moderator approval */
   Blob txt;          /* Text description to appear in an alert */
   EmailEvent *pNext; /* Next in chronological order */
 };
@@ -1814,9 +1817,9 @@ void email_free_eventlist(EmailEvent *p){
 ** corresponding to the current content of the temp.wantalert
 ** table which should be defined as follows:
 **
-**     CREATE TEMP TABLE wantalert(eventId TEXT);
+**     CREATE TEMP TABLE wantalert(eventId TEXT, needMod BOOLEAN);
 */
-EmailEvent *email_compute_event_text(int *pnEvent){
+EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
   Stmt q;
   EmailEvent *p;
   EmailEvent anchor;
@@ -1825,8 +1828,8 @@ EmailEvent *email_compute_event_text(int *pnEvent){
 
   db_prepare(&q,
     "SELECT"
-    " blob.uuid,"  /* 0 */
-    " datetime(event.mtime),"  /* 1 */
+    " blob.uuid,"                /* 0 */
+    " datetime(event.mtime),"    /* 1 */
     " coalesce(ecomment,comment)"
     "  || ' (user: ' || coalesce(euser,user,'?')"
     "  || (SELECT case when length(x)>0 then ' tags: ' || x else '' end"
@@ -1834,9 +1837,10 @@ EmailEvent *email_compute_event_text(int *pnEvent){
     "              FROM tag, tagxref"
     "             WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
     "               AND tagxref.rid=blob.rid AND tagxref.tagtype>0))"
-    "  || ')' as comment,"  /* 2 */
+    "  || ')' as comment,"       /* 2 */
     " tagxref.value AS branch,"  /* 3 */
-    " wantalert.eventId"     /* 4 */
+    " wantalert.eventId,"        /* 4 */
+    " wantalert.needMod"         /* 5 */
     " FROM temp.wantalert JOIN tag CROSS JOIN event CROSS JOIN blob"
     "  LEFT JOIN tagxref ON tagxref.tagid=tag.tagid"
     "                       AND tagxref.tagtype>0"
@@ -1855,9 +1859,11 @@ EmailEvent *email_compute_event_text(int *pnEvent){
     pLast->pNext = p;
     pLast = p;
     p->type = db_column_text(&q, 4)[0];
+    p->needMod = db_column_int(&q, 5);
     p->pNext = 0;
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
+      case 'f':  zType = "Forum post";      break;
       case 't':  zType = "Wiki Edit";       break;
       case 'w':  zType = "Ticket Change";   break;
     }
@@ -1869,6 +1875,12 @@ EmailEvent *email_compute_event_text(int *pnEvent){
       zUrl,
       db_column_text(&q,0)
     );
+    if( p->needMod ){
+      blob_appendf(&p->txt,
+        "** Pending moderator approval (%s/modreq) **\n",
+        zUrl
+      );
+    }
     (*pnEvent)++;
   }
   db_finalize(&q);
@@ -1907,28 +1919,40 @@ void email_footer(Blob *pOut){
 **
 ** This command is intended for testing and debugging the logic
 ** that generates email alert text.
+**
+** Options:
+**
+**      --digest           Generate digest alert text
+**      --needmod          Assume all events are pending moderator approval
 */
 void test_alert_cmd(void){
   Blob out;
   int nEvent;
+  int needMod;
+  int doDigest;
   EmailEvent *pEvent, *p;
 
+  doDigest = find_option("digest",0,0)!=0;
+  needMod = find_option("needmod",0,0)!=0;
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_transaction();
   email_schema(0);
-  db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT)");
+  db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT, needMod BOOLEAN)");
   if( g.argc==2 ){
-    db_multi_exec("INSERT INTO wantalert SELECT eventid FROM pending_alert");
+    db_multi_exec(
+      "INSERT INTO wantalert(eventId,needMod)"
+      " SELECT eventid, %d FROM pending_alert", needMod);
   }else{
     int i;
     for(i=2; i<g.argc; i++){
-      db_multi_exec("INSERT INTO wantalert VALUES(%Q)", g.argv[i]);
+      db_multi_exec("INSERT INTO wantalert(eventId,needMod) VALUES(%Q,%d)",
+           g.argv[i], needMod);
     }
   }
   blob_init(&out, 0, 0);
   email_header(&out);
-  pEvent = email_compute_event_text(&nEvent);
+  pEvent = email_compute_event_text(&nEvent, doDigest);
   for(p=pEvent; p; p=p->pNext){
     blob_append(&out, "\n", 1);
     blob_append(&out, blob_buffer(&p->txt), blob_size(&p->txt));
@@ -1949,8 +1973,8 @@ void test_alert_cmd(void){
 ** command during testing to force email notifications for specific
 ** events.
 **
-** EVENTIDs are text.  The first character is 'c', 'w', or 't'
-** for check-in, wiki, or ticket.  The remaining text is a
+** EVENTIDs are text.  The first character is 'c', 'f', 't', or 'w'
+** for check-in, forum, ticket, or wiki.  The remaining text is a
 ** integer that references the EVENT.OBJID value for the event.
 ** Run /timeline?showid to see these OBJID values.
 **
@@ -1986,7 +2010,31 @@ void test_add_alert_cmd(void){
 #endif /* INTERFACE */
 
 /*
-** Send alert emails to all subscribers.
+** Send alert emails to subscribers.
+**
+** This procedure is run by either the backoffice, or in response to the
+** "fossil alerts send" command.  Details of operation are controlled by
+** the flags parameter.
+**
+** Here is a summary of what happens:
+**
+**   (1) Create a TEMP table wantalert(eventId,needMod) and fill it with
+**       all the events that we want to send alerts about.  The needMod
+**       flags is set if and only if the event is still awaiting
+**       moderator approval.  Events with the needMod flag are only
+**       shown to users that have moderator privileges.
+**
+**   (2) Call email_compute_event_text() to compute a list of EmailEvent
+**       objects that describe all events about which we want to send
+**       alerts.
+**
+**   (3) Loop over all subscribers.  Compose and send one or more email
+**       messages to each subscriber that describe the events for
+**       which the subscriber has expressed interest and has
+**       appropriate privileges.
+**
+**   (4) Update the pending_alerts table to indicate that alerts have been
+**       sent.
 */
 void email_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
@@ -2003,6 +2051,7 @@ void email_send_alerts(u32 flags){
 
   if( g.fSqlTrace ) fossil_trace("-- BEGIN email_send_alerts(%u)\n", flags);
   db_begin_transaction();
+  email_schema(0);
   if( !email_enabled() ) goto send_alerts_done;
   zUrl = db_get("email-url",0);
   if( zUrl==0 ) goto send_alerts_done;
@@ -2016,21 +2065,32 @@ void email_send_alerts(u32 flags){
   pSender = email_sender_new(zDest, senderFlags);
   db_multi_exec(
     "DROP TABLE IF EXISTS temp.wantalert;"
-    "CREATE TEMP TABLE wantalert(eventId TEXT);"
+    "CREATE TEMP TABLE wantalert(eventId TEXT, needMod BOOLEAN, sentMod);"
   );
   if( flags & SENDALERT_DIGEST ){
+    /* Unmoderated changes are never sent as part of a digest */
     db_multi_exec(
-      "INSERT INTO wantalert SELECT eventid FROM pending_alert"
+      "INSERT INTO wantalert(eventId,needMod)"
+      " SELECT eventid, 0"
+      "   FROM pending_alert"
       "  WHERE sentDigest IS FALSE"
+      "    AND NOT EXISTS(SELECT 1 FROM private WHERE rid=substr(eventid,2));"
     );
     zDigest = "true";
   }else{
+    /* Immediate alerts might include events that are subject to
+    ** moderator approval */
     db_multi_exec(
-      "INSERT INTO wantalert SELECT eventid FROM pending_alert"
-      "  WHERE sentSep IS FALSE"
+      "INSERT INTO wantalert(eventId,needMod,sentMod)"
+      " SELECT eventid,"
+      "        EXISTS(SELECT 1 FROM private WHERE rid=substr(eventid,2)),"
+      "        sentMod"
+      "   FROM pending_alert"
+      "  WHERE sentSep IS FALSE;"
+      "DELETE FROM wantalert WHERE needMod AND sentMod;"
     );
   }
-  pEvents = email_compute_event_text(&nEvent);
+  pEvents = email_compute_event_text(&nEvent, (flags & SENDALERT_DIGEST)!=0);
   if( nEvent==0 ) goto send_alerts_done;
   blob_init(&hdr, 0, 0);
   blob_init(&body, 0, 0);
@@ -2053,9 +2113,22 @@ void email_send_alerts(u32 flags){
     int nHit = 0;
     for(p=pEvents; p; p=p->pNext){
       if( strchr(zSub,p->type)==0 ) continue;
-      if( strchr(zCap,'s')!=0 || strchr(zCap,'a')!=0 ){
-        /* Setup and admin users can get any notification */
+      if( p->needMod ){
+        /* For events that require moderator approval, only send an alert
+        ** if the recipient is a moderator for that type of event */
+        char xType = '*';
+        switch( p->type ){
+          case 'f':  xType = '5';  break;
+          case 't':  xType = 'q';  break;
+          case 'w':  xType = 'l';  break;
+        }
+        if( strchr(zCap,xType)==0 ) continue;
+      }else if( strchr(zCap,'s')!=0 || strchr(zCap,'a')!=0 ){
+        /* Setup and admin users can get any notification that does not
+        ** require moderation */
       }else{
+        /* Other users only see the alert if they have sufficient
+        ** privilege to view the event itself */
         char xType = '*';
         switch( p->type ){
           case 'c':  xType = 'o';  break;
@@ -2091,11 +2164,20 @@ void email_send_alerts(u32 flags){
   email_free_eventlist(pEvents);
   if( (flags & SENDALERT_PRESERVE)==0 ){
     if( flags & SENDALERT_DIGEST ){
-      db_multi_exec("UPDATE pending_alert SET sentDigest=true");
+      db_multi_exec(
+        "UPDATE pending_alert SET sentDigest=true"
+        " WHERE eventid IN (SELECT eventid FROM wantalert);"
+        "DELETE FROM pending_alert WHERE sentDigest AND sentSep;"
+      );
     }else{
-      db_multi_exec("UPDATE pending_alert SET sentSep=true");
+      db_multi_exec(
+        "UPDATE pending_alert SET sentSep=true"
+        " WHERE eventid IN (SELECT eventid FROM wantalert WHERE NOT needMod);"
+        "UPDATE pending_alert SET sentMod=true"
+        " WHERE eventid IN (SELECT eventid FROM wantalert WHERE needMod);"
+        "DELETE FROM pending_alert WHERE sentDigest AND sentSep;"
+      );
     }
-    db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep");
   }
 send_alerts_done:
   email_sender_free(pSender);

@@ -710,7 +710,7 @@ void webmail_page(void){
     @ <input type="submit" name="read" value="Undelete">
     @ <input type="submit" name="purge" value="Delete Permanently">
   }else{
-    @ <input type="submit" name="trash", value="Delete">
+    @ <input type="submit" name="trash" value="Delete">
     if( d!=1 ){
       @ <input type="submit" name="unread" value="Mark as unread">
     }
@@ -734,6 +734,7 @@ void webmail_page(void){
     const char *zFrom = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zSubject = db_column_text(&q, 4);
+    if( zSubject==0 || zSubject[0]==0 ) zSubject = "(no subject)";
     @ <tr>
     @ <td><input type="checkbox" class="webmailckbox" name="e%s(zId)"></td>
     @ <td>%h(zFrom)</td>
