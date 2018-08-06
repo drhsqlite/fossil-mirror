@@ -808,30 +808,20 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
 **
 ** Subcommands:
 **
-**    exec                    Compose and send pending email alerts.
+**    pending                 Show all pending alerts.  Useful for debugging.
+**
+**    reset                   Hard reset of all email notification tables
+**                            in the repository.  This erases all subscription
+**                            information.  ** Use with extreme care **
+**
+**    send                    Compose and send pending email alerts.
 **                            Some installations may want to do this via
 **                            a cron-job to make sure alerts are sent
 **                            in a timely manner.
 **                            Options:
 **
 **                               --digest     Send digests
-**                               --test       Resets to standard output
-**
-**    pending                 Show all pending alerts.  Useful for debugging.
-**
-**    reset                   Hard reset of all email notification tables
-**                            in the repository.  This erases all subscription
-**                            information.  Use with extreme care.
-**
-**    send TO [OPTIONS]       Send a single email message using whatever
-**                            email sending mechanism is currently configured.
-**                            Use this for testing the email configuration.
-**                            Options:
-**
-**                              --body FILENAME
-**                              --smtp-trace
-**                              --stdout
-**                              --subject|-S SUBJECT
+**                               --test       Write to standard output
 **
 **    settings [NAME VALUE]   With no arguments, list all email settings.
 **                            Or change the value of a single email setting.
@@ -840,6 +830,16 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
 **                            subsystem
 **
 **    subscribers [PATTERN]   List all subscribers matching PATTERN.
+**
+**    test-message TO [OPTS]  Send a single email message using whatever
+**                            email sending mechanism is currently configured.
+**                            Use this for testing the email notification
+**                            configuration.  Options:
+**
+**                              --body FILENAME
+**                              --smtp-trace
+**                              --stdout
+**                              --subject|-S SUBJECT
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
@@ -850,15 +850,6 @@ void email_cmd(void){
   email_schema(0);
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
-  if( strncmp(zCmd, "exec", nCmd)==0 ){
-    u32 eFlags = 0;
-    if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
-    if( find_option("test",0,0)!=0 ){
-      eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
-    }
-    verify_all_options();
-    email_send_alerts(eFlags);
-  }else
   if( strncmp(zCmd, "pending", nCmd)==0 ){
     Stmt q;
     verify_all_options();
@@ -904,39 +895,13 @@ void email_cmd(void){
     }
   }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
-    Blob prompt, body, hdr;
-    const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
-    int i;
-    u32 mFlags = EMAIL_IMMEDIATE_FAIL;
-    const char *zSubject = find_option("subject", "S", 1);
-    const char *zSource = find_option("body", 0, 1);
-    EmailSender *pSender;
-    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_TRACE;
+    u32 eFlags = 0;
+    if( find_option("digest",0,0)!=0 ) eFlags |= SENDALERT_DIGEST;
+    if( find_option("test",0,0)!=0 ){
+      eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
+    }
     verify_all_options();
-    blob_init(&prompt, 0, 0);
-    blob_init(&body, 0, 0);
-    blob_init(&hdr, 0, 0);
-    blob_appendf(&hdr,"To: ");
-    for(i=3; i<g.argc; i++){
-      if( i>3 ) blob_append(&hdr, ", ", 2);
-      blob_appendf(&hdr, "<%s>", g.argv[i]);
-    }
-    blob_append(&hdr,"\r\n",2);
-    if( zSubject ){
-      blob_appendf(&hdr, "Subject: %s\r\n", zSubject);
-    }
-    if( zSource ){
-      blob_read_from_file(&body, zSource, ExtFILE);
-    }else{
-      prompt_for_user_comment(&body, &prompt);
-    }
-    blob_add_final_newline(&body);
-    pSender = email_sender_new(zDest, mFlags);
-    email_send(pSender, &hdr, &body);
-    email_sender_free(pSender);
-    blob_reset(&hdr);
-    blob_reset(&body);
-    blob_reset(&prompt);
+    email_send_alerts(eFlags);
   }else
   if( strncmp(zCmd, "settings", nCmd)==0 ){
     int isGlobal = find_option("global",0,0)!=0;
@@ -961,7 +926,6 @@ void email_cmd(void){
     }
   }else
   if( strncmp(zCmd, "status", nCmd)==0 ){
-    int isGlobal = find_option("global",0,0)!=0;
     int nSetting, n;
     static const char *zFmt = "%-29s %d\n";
     const Setting *pSetting = setting_info(&nSetting);
@@ -1005,6 +969,41 @@ void email_cmd(void){
     }
     db_finalize(&q);
   }else
+  if( strncmp(zCmd, "test-message", nCmd)==0 ){
+    Blob prompt, body, hdr;
+    const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
+    int i;
+    u32 mFlags = EMAIL_IMMEDIATE_FAIL;
+    const char *zSubject = find_option("subject", "S", 1);
+    const char *zSource = find_option("body", 0, 1);
+    EmailSender *pSender;
+    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_TRACE;
+    verify_all_options();
+    blob_init(&prompt, 0, 0);
+    blob_init(&body, 0, 0);
+    blob_init(&hdr, 0, 0);
+    blob_appendf(&hdr,"To: ");
+    for(i=3; i<g.argc; i++){
+      if( i>3 ) blob_append(&hdr, ", ", 2);
+      blob_appendf(&hdr, "<%s>", g.argv[i]);
+    }
+    blob_append(&hdr,"\r\n",2);
+    if( zSubject ){
+      blob_appendf(&hdr, "Subject: %s\r\n", zSubject);
+    }
+    if( zSource ){
+      blob_read_from_file(&body, zSource, ExtFILE);
+    }else{
+      prompt_for_user_comment(&body, &prompt);
+    }
+    blob_add_final_newline(&body);
+    pSender = email_sender_new(zDest, mFlags);
+    email_send(pSender, &hdr, &body);
+    email_sender_free(pSender);
+    blob_reset(&hdr);
+    blob_reset(&body);
+    blob_reset(&prompt);
+  }else
   if( strncmp(zCmd, "unsubscribe", nCmd)==0 ){
     verify_all_options();
     if( g.argc!=4 ) usage("unsubscribe EMAIL");
@@ -1012,7 +1011,8 @@ void email_cmd(void){
       "DELETE FROM subscriber WHERE semail=%Q", g.argv[3]);
   }else
   {
-    usage("exec|pending|reset|send|setting|status|subscribers|unsubscribe");
+    usage("pending|reset|send|setting|status|"
+          "subscribers|test-message|unsubscribe");
   }
 }
 
@@ -1973,8 +1973,8 @@ void test_alert_cmd(void){
 ** command during testing to force email notifications for specific
 ** events.
 **
-** EVENTIDs are text.  The first character is 'c', 'w', or 't'
-** for check-in, wiki, or ticket.  The remaining text is a
+** EVENTIDs are text.  The first character is 'c', 'f', 't', or 'w'
+** for check-in, forum, ticket, or wiki.  The remaining text is a
 ** integer that references the EVENT.OBJID value for the event.
 ** Run /timeline?showid to see these OBJID values.
 **
@@ -2010,7 +2010,31 @@ void test_add_alert_cmd(void){
 #endif /* INTERFACE */
 
 /*
-** Send alert emails to all subscribers.
+** Send alert emails to subscribers.
+**
+** This procedure is run by either the backoffice, or in response to the
+** "fossil alerts send" command.  Details of operation are controlled by
+** the flags parameter.
+**
+** Here is a summary of what happens:
+**
+**   (1) Create a TEMP table wantalert(eventId,needMod) and fill it with
+**       all the events that we want to send alerts about.  The needMod
+**       flags is set if and only if the event is still awaiting
+**       moderator approval.  Events with the needMod flag are only
+**       shown to users that have moderator privileges.
+**
+**   (2) Call email_compute_event_text() to compute a list of EmailEvent
+**       objects that describe all events about which we want to send
+**       alerts.
+**
+**   (3) Loop over all subscribers.  Compose and send one or more email
+**       messages to each subscriber that describe the events for
+**       which the subscriber has expressed interest and has
+**       appropriate privileges.
+**
+**   (4) Update the pending_alerts table to indicate that alerts have been
+**       sent.
 */
 void email_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
