@@ -1840,37 +1840,39 @@ static void process_one_web_page(
       cgi_print_all(1, 1);
     }
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
-    /*
-    ** The TH1 return codes from the hook will be handled as follows:
-    **
-    ** TH_OK: The xFunc() and the TH1 notification will both be executed.
-    **
-    ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
-    **           skipped.  If the xFunc() is being hooked, the error message
-    **           will be emitted.
-    **
-    ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
-    **
-    ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
-    **            skipped.
-    **
-    ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
-    **              executed.
-    */
-    int rc;
-    if( !g.fNoThHook ){
-      rc = Th_WebpageHook(pCmd->zName+1, pCmd->eCmdFlags);
-    }else{
-      rc = TH_OK;
-    }
-    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
-      if( rc==TH_OK || rc==TH_RETURN ){
-#endif
-        pCmd->xFunc();
-#ifdef FOSSIL_ENABLE_TH1_HOOKS
+    {
+      /*
+      ** The TH1 return codes from the hook will be handled as follows:
+      **
+      ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+      **
+      ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
+      **           skipped.  If the xFunc() is being hooked, the error message
+      **           will be emitted.
+      **
+      ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+      **
+      ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+      **            skipped.
+      **
+      ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+      **              executed.
+      */
+      int rc;
+      if( !g.fNoThHook ){
+        rc = Th_WebpageHook(pCmd->zName+1, pCmd->eCmdFlags);
+      }else{
+        rc = TH_OK;
       }
-      if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
-        Th_WebpageNotify(pCmd->zName+1, pCmd->eCmdFlags);
+      if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+        if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+          pCmd->xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+        }
+        if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+          Th_WebpageNotify(pCmd->zName+1, pCmd->eCmdFlags);
+        }
       }
     }
 #endif
