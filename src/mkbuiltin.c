@@ -62,7 +62,7 @@ static unsigned char *read_file(const char *zFilename, int *pnByte){
 */
 typedef struct Resource Resource;
 struct Resource {
-  const char *zName;
+  char *zName;
   int nByte;
   int idx;
 };
@@ -149,10 +149,14 @@ int main(int argc, char **argv){
   printf("};\n");
   printf("static const BuiltinFileTable aBuiltinFiles[] = {\n");
   for(i=0; i<nRes; i++){
-    const char *z = aRes[i].zName;
+    char *z = aRes[i].zName;
     if( strlen(z)>=nPrefix ) z += nPrefix;
-    while( z[0]=='.' || z[0]=='/' ){ z++; }
+    while( z[0]=='.' || z[0]=='/' || z[0]=='\\' ){ z++; }
     aRes[i].zName = z;
+    while( z[0] ){
+      if( z[0]=='\\' ) z[0] = '/';
+      z++;
+    }
   }
   qsort(aRes, nRes, sizeof(aRes[0]), compareResource);
   for(i=0; i<nRes; i++){
