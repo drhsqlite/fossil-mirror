@@ -2133,7 +2133,7 @@ void email_backoffice(u32 mFlags){
 */
 void contact_admin_page(void){
   const char *zAdminEmail = db_get("email-admin",0);
-  unsigned int uSeed;
+  unsigned int uSeed = 0;
   const char *zDecoded;
   char *zCaptcha = 0;
 
