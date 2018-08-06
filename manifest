@@ -1,5 +1,5 @@
-C Boo.\s\sAll\sday\sI\shave\sbeen\schecking\sin\schanges\sto\sthe\sfailed-fix\sbranch\swhen\nI\sshould\shave\sbeen\sputting\sthem\son\sthe\sforum-v2\sbranch.\s\sThis\sis\sa\scherry-pick\nmerge\sthat\smoves\sall\sof\sthe\schanges\sfrom\stoday\sfrom\sfailed-fix\sover\sto\nforum-v2\sin\sone\sgo.\s\sThe\s"email"\scommand\sis\srenamed\sto\s"alert"\sand\sis\srevised\nfor\sa\sbetter\sinterface.\s\sEvents\sthat\sare\swaiting\son\smoderator\sapproval\sare\nnot\sshown\sto\snon-moderator\susers.
-D 2018-08-06T20:47:42.195
+C Merge\sthe\smkbuiltin.c\sfix\sfrom\strunk.
+D 2018-08-06T21:20:35.742
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -526,7 +526,7 @@ F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 6283c41b3924b4d9499024deeb523fb242306df46acbdd333fbb88c43ecf92e5
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
-F src/mkbuiltin.c e09eeef79ae18d9b98c8d5e3d977f5fa6b5cfe6a1650fc57063f253561ac502d
+F src/mkbuiltin.c ff60b7353e9ac4afd9ab993909fc017d22c8e159c4c6435539d20dedcf00c22b
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 725bf3ba3bc76a6af0b0806bba4e685976be0db1d61dd30a91a91d865ede9287 174ab076eb801cbc1d7c5c8206f105faca616aa38a09c8dbb09567870cbd22c8
-R b12d48a3ec644a07fa7e4911a6fcf13d
+P 3c532ec55bf24a4c175976436cee6b6a61931aa9684c0934e8f1e74cd2008703 030bf2002f64c3f30c4c49afab99fa221dda4d06b301bd467f32b24283d54844
+R 213f7fa33903d375058d656d5d0cfe39
 U drh
-Z a089ef65aff4f62a719aca594ae3d1e8
+Z 4bce802bd571d2a45c2d398bcdb49b87
