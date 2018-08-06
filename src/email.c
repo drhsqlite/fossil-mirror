@@ -2076,6 +2076,7 @@ void email_send_alerts(u32 flags){
       "  WHERE sentDigest IS FALSE"
       "    AND NOT EXISTS(SELECT 1 FROM private WHERE rid=substr(eventid,2));"
     );
+    zDigest = "true";
   }else{
     /* Immediate alerts might include events that are subject to
     ** moderator approval */
