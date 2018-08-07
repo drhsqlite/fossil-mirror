@@ -1,5 +1,5 @@
-C Use\sthe\sWindows\s_wspawnv()\sinterface\swith\sthe\s_P_NOWAIT\soption\sto\sstart\na\sseparate\sbackoffice\sprocess\swhenever\snecessary.\s\sAdd\sthe\nbackoffice-logfile\ssetting\sfor\smonitoring\sbackoffice\soperation.
-D 2018-08-07T20:11:10.187
+C Improved\swindows\scode\sfor\sthe\sbackoffice.\sProperly\scheck\sto\ssee\sif\sprocesses\nstill\sexist.\s\sProvide\sa\stimeout\sfeature.
+D 2018-08-07T20:58:19.465
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 2170ed0b9fd998383baddef0a77595a51ed89ca3b2ed0cc6219b570ce77cedc4
+F src/backoffice.c 0cee1198c6f2f90437ab60bf9c3565df8485a25f411f977e8bff28e9e23447ba
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -858,7 +858,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b3ccc4bf34a525a4d8563ab3119a08bd6f4d44b988471ffa7ed12e60c7df3905
-R bcea883656d3666c122cc34915db87fd
+P 2583cae18a4bcf03408e3f56544a53de23ea53876a1551fa7948ef5ee0dcb289 0ef0e10557e1e5a204bc1a12d99162bf69f10c236bdacb7be0555dbb6abd43cd
+R 366fa5bf4b8aa09e356892266c50b976
+T +closed 0ef0e10557e1e5a204bc1a12d99162bf69f10c236bdacb7be0555dbb6abd43cd
 U drh
-Z d3d87fb1e7ce482bc14b1d98e7c0d8c6
+Z 0e70df595115098435a73ee897e2669e

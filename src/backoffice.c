@@ -64,10 +64,12 @@
 # include <windows.h>
 # include <stdio.h>
 # include <process.h>
+# define GETPID (int)GetCurrentProcessId
 #else
 # include <unistd.h>
 # include <sys/types.h>
 # include <signal.h>
+# define GETPID getpid
 #endif
 
 /*
@@ -129,6 +131,23 @@ void backoffice_no_delay(void){
 }
 
 /*
+** Sleeps for the specified number of milliseconds -OR- until interrupted
+** by another thread (if supported by the underlying platform).  Non-zero
+** will be returned if the sleep was interrupted.
+*/
+static int backofficeSleep(int milliseconds){
+#if defined(_WIN32)
+  assert( milliseconds>=0 );
+  if( SleepEx((DWORD)milliseconds, TRUE)==WAIT_IO_COMPLETION ){
+    return 1;
+  }
+#else
+  sqlite3_sleep(milliseconds);
+#endif
+  return 0;
+}
+
+/*
 ** Parse a unsigned 64-bit integer from a string.  Return a pointer
 ** to the character of z[] that occurs after the integer.
 */
@@ -173,12 +192,30 @@ static void backofficeWriteLease(Lease *pLease){
 }
 
 /*
+** Check to see if the specified Win32 process is still alive.  It
+** should be noted that even if this function returns non-zero, the
+** process may die before another operation on it can be completed.
+*/
+#if defined(_WIN32)
+#ifndef PROCESS_QUERY_LIMITED_INFORMATION
+#  define PROCESS_QUERY_LIMITED_INFORMATION  (0x1000)
+#endif
+static int backofficeWin32ProcessExists(DWORD dwProcessId){
+  HANDLE hProcess;
+  hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION,FALSE,dwProcessId);
+  if( hProcess==NULL ) return 0;
+  CloseHandle(hProcess);
+  return 1;
+}
+#endif
+
+/*
 ** Check to see if the process identified by pid is alive.  If
 ** we cannot prove the the process is dead, return true.
 */
 static int backofficeProcessExists(sqlite3_uint64 pid){
 #if defined(_WIN32)
-  return 1;
+  return pid>0 && backofficeWin32ProcessExists((DWORD)pid)!=0;
 #else
   return pid>0 && kill((pid_t)pid, 0)==0;
 #endif 
@@ -190,7 +227,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
 */
 static int backofficeProcessDone(sqlite3_uint64 pid){
 #if defined(_WIN32)
-  return 1;
+  return pid<=0 || backofficeWin32ProcessExists((DWORD)pid)==0;
 #else
   return pid<=0 || kill((pid_t)pid, 0)!=0;
 #endif 
@@ -200,11 +237,7 @@ static int backofficeProcessDone(sqlite3_uint64 pid){
 ** Return a process id number for the current process
 */
 static sqlite3_uint64 backofficeProcessId(void){
-#if defined(_WIN32)
-  return (sqlite3_uint64)GetCurrentProcessId();
-#else
-  return (sqlite3_uint64)getpid();
-#endif
+  return (sqlite3_uint64)GETPID();
 }
 
 /*
@@ -212,13 +245,43 @@ static sqlite3_uint64 backofficeProcessId(void){
 ** prevents any kind of bug from keeping a backoffice process running
 ** indefinitely.
 */
-#if !defined(_WIN32)
 static void backofficeSigalrmHandler(int x){
-  fossil_panic("backoffice timeout");
+  fossil_panic("backoffice timeout (%d seconds)", x);
+}
+#if defined(_WIN32)
+static void *threadHandle = NULL;
+static void __stdcall backofficeWin32NoopApcProc(ULONG_PTR pArg){} /* NO-OP */
+static void backofficeWin32ThreadCleanup(){
+  if( threadHandle!=NULL ){
+    /* Queue no-op asynchronous procedure call to the sleeping
+     * thread.  This will cause it to wake up with a non-zero
+     * return value. */
+    if( QueueUserAPC(backofficeWin32NoopApcProc, threadHandle, 0) ){
+      /* Wait for the thread to wake up and then exit. */
+      WaitForSingleObject(threadHandle, INFINITE);
+    }
+    CloseHandle(threadHandle);
+    threadHandle = NULL;
+  }
+}
+static unsigned __stdcall backofficeWin32SigalrmThreadProc(
+  void *pArg /* IN: Pointer to integer number of whole seconds. */
+){
+  int seconds = FOSSIL_PTR_TO_INT(pArg);
+  if( SleepEx((DWORD)seconds * 1000, TRUE)==0 ){
+    backofficeSigalrmHandler(seconds);
+  }
+  _endthreadex(0);
+  return 0; /* NOT REACHED */
 }
 #endif
 static void backofficeTimeout(int x){
-#if !defined(_WIN32)
+#if defined(_WIN32)
+  backofficeWin32ThreadCleanup();
+  threadHandle = (void*)_beginthreadex(
+    0, 0, backofficeWin32SigalrmThreadProc, FOSSIL_INT_TO_PTR(x), 0, 0
+  );
+#else
   signal(SIGALRM, backofficeSigalrmHandler);
   alarm(x);
 #endif
@@ -336,7 +399,7 @@ static void backoffice_thread(void){
       db_end_transaction(0);
       if( g.fAnyTrace ){
         fprintf(stderr, "/***** Begin Backoffice Processing %d *****/\n",
-                        getpid());
+                        GETPID());
       }
       backoffice_work();
       break;
@@ -355,10 +418,17 @@ static void backoffice_thread(void){
     backofficeWriteLease(&x);
     db_end_transaction(0);
     if( g.fAnyTrace ){
-      fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  getpid());
+      fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  GETPID());
     }
     if( x.tmCurrent >= tmNow ){
-      sqlite3_sleep(1000*(x.tmCurrent - tmNow + 1));
+      if( backofficeSleep(1000*(x.tmCurrent - tmNow + 1)) ){
+        /* The sleep was interrupted by a signal from another thread. */
+        if( g.fAnyTrace ){
+          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", GETPID());
+        }
+        db_end_transaction(0);
+        break;
+      }
     }else{
       if( lastWarning+warningDelay < tmNow ){
         fossil_warning(
@@ -367,9 +437,19 @@ static void backoffice_thread(void){
         lastWarning = tmNow;
         warningDelay *= 2;
       }
-      sqlite3_sleep(1000);
+      if( backofficeSleep(1000) ){
+        /* The sleep was interrupted by a signal from another thread. */
+        if( g.fAnyTrace ){
+          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", GETPID());
+        }
+        db_end_transaction(0);
+        break;
+      }
     }
   }
+#if defined(_WIN32)
+  backofficeWin32ThreadCleanup();
+#endif
   return;
 }
 
