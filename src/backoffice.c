@@ -121,6 +121,30 @@ static char *backofficeDb = 0;
 ****************************************************************************/
 
 /*
+** This function emits a diagnostic message related to the processing in
+** this module.
+*/
+#if defined(_WIN32)
+# define BKOFCE_ALWAYS_TRACE   (1)
+#else
+# define BKOFCE_ALWAYS_TRACE   (0)
+#endif
+static void backofficeTrace(const char *zFormat, ...){
+  char *zMsg = 0;
+  if( BKOFCE_ALWAYS_TRACE || g.fAnyTrace ){
+    va_list ap;
+    va_start(ap, zFormat);
+    zMsg = sqlite3_vmprintf(zFormat, ap);
+    va_end(ap);
+#if defined(_WIN32)
+    sqlite3_win32_write_debug(zMsg, -1);
+#endif
+  }
+  if( g.fAnyTrace ) fprintf(stderr, "%s", zMsg);
+  if( zMsg ) sqlite3_free(zMsg);
+}
+
+/*
 ** Do not allow backoffice processes to sleep waiting on a timeslot.
 ** They must either do their work immediately or exit.
 **
@@ -448,10 +472,8 @@ static void backoffice_thread(void){
       x.tmNext = 0;
       backofficeWriteLease(&x);
       db_end_transaction(0);
-      if( g.fAnyTrace ){
-        fprintf(stderr, "/***** Begin Backoffice Processing %d *****/\n",
-                        GETPID());
-      }
+      backofficeTrace("/***** Begin Backoffice Processing %d *****/\n",
+                      GETPID());
       backoffice_work();
       break;
     }
@@ -468,15 +490,11 @@ static void backoffice_thread(void){
     x.tmNext = (tmNow>x.tmCurrent ? tmNow : x.tmCurrent) + BKOFCE_LEASE_TIME;
     backofficeWriteLease(&x);
     db_end_transaction(0);
-    if( g.fAnyTrace ){
-      fprintf(stderr, "/***** Backoffice On-deck %d *****/\n",  GETPID());
-    }
+    backofficeTrace("/***** Backoffice On-deck %d *****/\n",  GETPID());
     if( x.tmCurrent >= tmNow ){
       if( backofficeSleep(1000*(x.tmCurrent - tmNow + 1)) ){
         /* The sleep was interrupted by a signal from another thread. */
-        if( g.fAnyTrace ){
-          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", GETPID());
-        }
+        backofficeTrace("/***** Backoffice Interrupt %d *****/\n", GETPID());
         db_end_transaction(0);
         break;
       }
@@ -490,9 +508,7 @@ static void backoffice_thread(void){
       }
       if( backofficeSleep(1000) ){
         /* The sleep was interrupted by a signal from another thread. */
-        if( g.fAnyTrace ){
-          fprintf(stderr, "/***** Backoffice Interrupt %d *****/\n", GETPID());
-        }
+        backofficeTrace("/***** Backoffice Interrupt %d *****/\n", GETPID());
         db_end_transaction(0);
         break;
       }
@@ -565,11 +581,9 @@ void backoffice_run_if_needed(void){
     for(i=0; i<=3; i++) ax[i] = fossil_utf8_to_unicode(argv[i]);
     x = _wspawnv(_P_NOWAIT, ax[0], (const wchar_t * const *)ax);
     for(i=0; i<=3; i++) fossil_unicode_free(ax[i]);
-    if( g.fAnyTrace ){
-      fprintf(stderr, 
-        "/***** Subprocess %d creates backoffice child %d *****/\n",
-        GETPID(), (int)x);
-    }
+    backofficeTrace(
+      "/***** Subprocess %d creates backoffice child %d *****/\n",
+      GETPID(), (int)x);
     if( x>=0 ) return;
   }
 #else /* unix */
@@ -577,11 +591,9 @@ void backoffice_run_if_needed(void){
     pid_t pid = fork();
     if( pid>0 ){
       /* This is the parent in a successful fork().  Return immediately. */
-      if( g.fAnyTrace ){
-        fprintf(stderr, 
-          "/***** Subprocess %d creates backoffice child %d *****/\n",
-          GETPID(), (int)pid);
-      }
+      backofficeTrace(
+        "/***** Subprocess %d creates backoffice child %d *****/\n",
+        GETPID(), (int)pid);
       return;
     }
     if( pid==0 ){
@@ -591,9 +603,7 @@ void backoffice_run_if_needed(void){
       backofficeDb = "x";
       backoffice_thread();
       db_close(1);
-      if( g.fAnyTrace ){
-        fprintf(stderr, "/***** Backoffice Child %d exits *****/\n", GETPID());
-      }
+      backofficeTrace("/***** Backoffice Child %d exits *****/\n", GETPID());
       exit(0);
     }
   }
