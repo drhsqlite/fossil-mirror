@@ -642,7 +642,7 @@ int main(int argc, char **argv)
     if( pVfs ){
       sqlite3_vfs_register(pVfs, 1);
     }else{
-      fossil_panic("no such VFS: \"%s\"", g.zVfsName);
+      fossil_fatal("no such VFS: \"%s\"", g.zVfsName);
     }
   }
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
@@ -693,7 +693,7 @@ int main(int argc, char **argv)
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
     if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && file_chdir(zChdir, 0) ){
-      fossil_panic("unable to change directories to %s", zChdir);
+      fossil_fatal("unable to change directories to %s", zChdir);
     }
     if( find_option("help",0,0)!=0 ){
       /* If --help is found anywhere on the command line, translate the command
@@ -758,7 +758,7 @@ int main(int argc, char **argv)
     if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
       if( rc==TH_OK || rc==TH_RETURN ){
 #endif
-        fossil_panic("%s: unknown command: %s\n"
+        fossil_fatal("%s: unknown command: %s\n"
                      "%s: use \"help\" for more information",
                      g.argv[0], zCmdName, g.argv[0]);
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
@@ -823,7 +823,7 @@ int main(int argc, char **argv)
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fossil_panic("Usage: %s %s %s", g.argv[0], g.argv[1], zFormat);
+  fossil_fatal("Usage: %s %s %s", g.argv[0], g.argv[1], zFormat);
 }
 
 /*
@@ -941,7 +941,7 @@ void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
     if( g.argv[i][0]=='-' && g.argv[i][1]!=0 ){
-      fossil_panic(
+      fossil_fatal(
         "unrecognized command-line option, or missing argument: %s",
         g.argv[i]);
     }
@@ -1160,7 +1160,7 @@ static void set_base_url(const char *zAltBase){
       /* it is already HTTPS, use it. */
       g.zHttpsURL = mprintf("%s", g.zTop);
     }else{
-      fossil_panic("argument to --baseurl should be 'http://host/path'"
+      fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
     }
     for(i=n=0; (c = g.zTop[i])!=0; i++){
@@ -1173,7 +1173,7 @@ static void set_base_url(const char *zAltBase){
       }
     }
     if( g.zTop==g.zBaseURL ){
-      fossil_panic("argument to --baseurl should be 'http://host/path'"
+      fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
     }
     if( g.zTop[1]==0 ) g.zTop++;
@@ -1262,12 +1262,12 @@ char *enter_chroot_jail(char *zRepo, int noJail){
       }
     }
     if( stat(zRepo, &sStat)!=0 ){
-      fossil_panic("cannot stat() repository: %s", zRepo);
+      fossil_fatal("cannot stat() repository: %s", zRepo);
     }
     i = setgid(sStat.st_gid);
     i = i || setuid(sStat.st_uid);
     if(i){
-      fossil_panic("setgid/uid() failed with errno %d", errno);
+      fossil_fatal("setgid/uid() failed with errno %d", errno);
     }
     if( g.db==0 && file_isfile(zRepo, ExtFILE) ){
       db_open_repository(zRepo);
@@ -2253,7 +2253,7 @@ void parse_pid_key_value(
   if( sscanf(zPidKey, "%lu:%p:%u", pProcessId, ppAddress, &nSize)==3 ){
     *pnSize = (SIZE_T)nSize;
   }else{
-    fossil_panic("failed to parse pid key");
+    fossil_fatal("failed to parse pid key");
   }
 }
 #endif
@@ -2704,7 +2704,7 @@ void cmd_webserver(void){
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
-    fossil_panic("unable to listen on TCP socket %d", iPort);
+    fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   if( zMaxLatency ){
     signal(SIGALRM, sigalrm_handler);

@@ -1195,7 +1195,7 @@ static int fetch_baseline(Manifest *p, int throwError){
         );
         return 1;
       }
-      fossil_panic("cannot access baseline manifest %S", p->zBaseline);
+      fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
     }
   }
   return 0;

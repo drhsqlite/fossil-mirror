@@ -1627,18 +1627,18 @@ void db_open_repository(const char *zDbName){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
-      fossil_panic("repository does not exist or"
+      fossil_fatal("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DENIED;
 #endif
-      fossil_panic("read permission denied for repository %s", zDbName);
+      fossil_fatal("read permission denied for repository %s", zDbName);
     }else{
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
 #endif
-      fossil_panic("not a valid repository: %s", zDbName);
+      fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
   g.zRepositoryName = mprintf("%s", zDbName);
