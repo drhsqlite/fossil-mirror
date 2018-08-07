@@ -1308,7 +1308,7 @@ void page_xfer(void){
       const char *zPCode;
       zPCode = db_get("project-code", 0);
       if( zPCode==0 ){
-        fossil_panic("missing project code");
+        fossil_fatal("missing project code");
       }
       if( !blob_eq_str(&xfer.aToken[2], zPCode, -1) ){
         cgi_reset_content();

@@ -536,6 +536,10 @@ pre.th1error {
   word-wrap: break-word;
   color: red;
 }
+pre.textPlain {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 .statistics-report-graph-line {
   background-color: #446979;
 }
@@ -673,4 +677,45 @@ div.forum_body p {
 td.form_label {
   vertical-align: top;
   text-align: right;
+}
+.debug {
+  background-color: #ffc;
+  border: 2px solid #ff0;
+}
+div.forumEdit {
+  border: 1px solid black;
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
+div.forumHier, div.forumTime {
+  border: 1px solid black;
+  padding-left: 1ex;
+  padding-right: 1ex;
+  margin-top: 1ex;
+}
+div.forumSel {
+  background-color: #cef;
+}
+div.forumObs {
+  color: #bbb;
+}
+#capabilitySummary {
+  text-align: center;
+}
+#capabilitySummary td {
+  padding-left: 3ex;
+  padding-right: 3ex;
+}
+#capabilitySummary th {
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
+.capsumOff {
+  background-color: #bbb;
+}
+.capsumRead {
+  background-color: #bfb;
+}
+.capsumWrite {
+  background-color: #ffb;
 }

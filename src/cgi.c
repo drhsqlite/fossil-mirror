@@ -346,7 +346,7 @@ void cgi_reply(void){
   ** processing.
   */
   g.cgiOutput = 2;
-  if( g.db!=0 && iReplyStatus==200 ){
+  if( g.db!=0 && iReplyStatus==200 && !g.fSshClient ){
     fclose(g.httpOut);
 #ifdef _WIN32
     g.httpOut = fossil_fopen("NUL", "wb");
@@ -1122,19 +1122,23 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
 /*
 ** Return the value of a CGI parameter with leading and trailing
-** spaces removed.
+** spaces removed and with internal \r\n changed to just \n
 */
 char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
   const char *zIn;
-  char *zOut;
-  int i;
+  char *zOut, c;
+  int i, j;
   zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) zIn = zDefault;
   if( zIn==0 ) return 0;
   while( fossil_isspace(zIn[0]) ) zIn++;
   zOut = fossil_strdup(zIn);
-  for(i=0; zOut[i]; i++){}
-  while( i>0 && fossil_isspace(zOut[i-1]) ) zOut[--i] = 0;
+  for(i=j=0; (c = zOut[i])!=0; i++){
+    if( c=='\r' && zOut[i+1]=='\n' ) continue;
+    zOut[j++] = c;
+  }
+  zOut[j] = 0;
+  while( j>0 && fossil_isspace(zOut[j-1]) ) zOut[--j] = 0;
   return zOut;
 }
 

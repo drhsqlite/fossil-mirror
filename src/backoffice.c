@@ -80,14 +80,12 @@ struct Lease {
 */
 static int backofficeNoDelay = 0;
 
-
 /*
 ** Disable the backoffice
 */
 void backoffice_no_delay(void){
   backofficeNoDelay = 1;
 }
-
 
 /*
 ** Parse a unsigned 64-bit integer from a string.  Return a pointer
@@ -266,7 +264,7 @@ void backoffice_run(void){
       backoffice_work();
       break;
     }
-    if( backofficeNoDelay ){
+    if( backofficeNoDelay || db_get_boolean("backoffice-nodelay",1) ){
       /* If the no-delay flag is set, exit immediately rather than queuing
       ** up.  Assume that some future request will come along and handle any
       ** necessary backoffice work. */

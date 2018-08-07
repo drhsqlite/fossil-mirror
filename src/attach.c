@@ -108,11 +108,9 @@ void attachlist_page(void){
     }
     @ <li><p>
     @ Attachment %z(href("%R/ainfo/%!S",zUuid))%S(zUuid)</a>
-    if( moderation_pending(attachid) ){
-      @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-    }
+    moderation_pending_www(attachid);
     @ <br /><a href="%R/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
+    @ [<a href="%R/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
       @ %!W(zComment)<br />
@@ -566,10 +564,7 @@ void ainfo_page(void){
   if( g.perm.Setup ){
     @ (%d(rid))
   }
-  modPending = moderation_pending(rid);
-  if( modPending ){
-    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-  }
+  modPending = moderation_pending_www(rid);
   if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>

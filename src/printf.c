@@ -1087,8 +1087,12 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** panic on %d *****/\n", getpid());
+  }
   fossil_errorlog("panic: %s", z);
   rc = fossil_print_error(rc, z);
+  abort();
   exit(rc);
 }
 NORETURN void fossil_fatal(const char *zFormat, ...){

@@ -75,7 +75,6 @@ static void db_err(const char *zFormat, ...){
   static int rcLooping = 0;
   va_list ap;
   char *z;
-  int rc = 1;
   if( rcLooping ) exit(rcLooping);
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
@@ -89,22 +88,12 @@ static void db_err(const char *zFormat, ...){
   }
   else
 #endif /* FOSSIL_ENABLE_JSON */
-  if( g.xferPanic ){
+  if( g.xferPanic && g.cgiOutput==1 ){
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
-      cgi_reply();
-  }
-  else if( g.cgiOutput ){
-    g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
-  }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
-  free(z);
-  rcLooping = rc;
-  db_force_rollback();
-  fossil_exit(rc);
+  fossil_panic("Database error: %s", z);
 }
 
 /*
@@ -494,11 +483,6 @@ int db_reset(Stmt *pStmt){
 }
 int db_finalize(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
-  blob_reset(&pStmt->sql);
-  rc = sqlite3_finalize(pStmt->pStmt);
-  db_check_result(rc);
-  pStmt->pStmt = 0;
   if( pStmt->pNext ){
     pStmt->pNext->pPrev = pStmt->pPrev;
   }
@@ -509,6 +493,11 @@ int db_finalize(Stmt *pStmt){
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
+  db_stats(pStmt);
+  blob_reset(&pStmt->sql);
+  rc = sqlite3_finalize(pStmt->pStmt);
+  db_check_result(rc);
+  pStmt->pStmt = 0;
   return rc;
 }
 
@@ -1014,6 +1003,10 @@ void db_add_aux_functions(sqlite3 *db){
                           db_fromlocal_function, 0, 0);
   sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
                           db_hextoblob, 0, 0);
+  sqlite3_create_function(db, "capunion", 1, SQLITE_UTF8, 0,
+                          0, capability_union_step, capability_union_finalize);
+  sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
+                          capability_fullcap, 0, 0);
 }
 
 #if USE_SEE
@@ -1634,18 +1627,18 @@ void db_open_repository(const char *zDbName){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
-      fossil_panic("repository does not exist or"
+      fossil_fatal("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DENIED;
 #endif
-      fossil_panic("read permission denied for repository %s", zDbName);
+      fossil_fatal("read permission denied for repository %s", zDbName);
     }else{
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
 #endif
-      fossil_panic("not a valid repository: %s", zDbName);
+      fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
   g.zRepositoryName = mprintf("%s", zDbName);
@@ -1727,9 +1720,9 @@ rep_not_found:
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
     if( nArgUsed==0 ){
-      fossil_panic("use --repository or -R to specify the repository database");
+      fossil_fatal("use --repository or -R to specify the repository database");
     }else{
-      fossil_panic("specify the repository name as a command-line argument");
+      fossil_fatal("specify the repository name as a command-line argument");
     }
   }
 }
@@ -3034,6 +3027,12 @@ struct Setting {
 ** If autosync is enabled setting this to a value greater
 ** than zero will cause autosync to try no more than this
 ** number of attempts if there is a sync failure.
+*/
+/*
+** SETTING: backoffice-nodelay boolean default=on
+** If backoffice-nodelay is true, then the backoffice processing
+** will never invoke sleep().  If it has nothing useful to do,
+** it simply exits.
 */
 /*
 ** SETTING: binary-glob     width=40 versionable block-text

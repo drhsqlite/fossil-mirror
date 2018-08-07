@@ -1273,7 +1273,7 @@ void smtp_server(void){
     if( strncmp(z, "MAIL FROM:<", 11)==0 ){
       smtp_server_route_incoming(&x, 0);
       smtp_server_clear(&x, SMTPSRV_CLEAR_MSG);
-      x.zFrom = email_copy_addr(z+11);
+      x.zFrom = email_copy_addr(z+11,'>');
       if( x.zFrom==0 ){
         smtp_server_send(&x, "500 unacceptable email address\r\n");
       }else{
@@ -1286,7 +1286,7 @@ void smtp_server(void){
         smtp_server_send(&x, "500 missing MAIL FROM\r\n");
         continue;
       }
-      zAddr = email_copy_addr(z+9);
+      zAddr = email_copy_addr(z+9, '>');
       if( zAddr==0 ){
         smtp_server_send(&x, "505 no such user\r\n");
         continue;

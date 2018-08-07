@@ -27,6 +27,7 @@ SRC = \
   $(SRCDIR)/builtin.c \
   $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
+  $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/checkin.c \
@@ -207,6 +208,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
@@ -233,6 +235,7 @@ TRANS_SRC = \
   $(OBJDIR)/builtin_.c \
   $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
+  $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/checkin_.c \
@@ -368,6 +371,7 @@ OBJ = \
  $(OBJDIR)/builtin.o \
  $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
+ $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/checkin.o \
@@ -701,6 +705,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
 	$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
+	$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
 	$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
@@ -924,6 +929,14 @@ $(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/cache.o -c $(OBJDIR)/cache_.c
 
 $(OBJDIR)/cache.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/capabilities_.c:	$(SRCDIR)/capabilities.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/capabilities.c >$@
+
+$(OBJDIR)/capabilities.o:	$(OBJDIR)/capabilities_.c $(OBJDIR)/capabilities.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/capabilities.o -c $(OBJDIR)/capabilities_.c
+
+$(OBJDIR)/capabilities.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/captcha.c >$@

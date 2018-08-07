@@ -73,9 +73,10 @@ artifacts:
 <li> [#tktchng | Ticket Changes] </li>
 <li> [#attachment | Attachments] </li>
 <li> [#event | TechNotes] </li>
+<li> [#forum | Forum Posts] </li>
 </ul>
 
-These seven structural artifact types are described in subsections below.
+These eight structural artifact types are described in subsections below.
 
 Structural artifacts are ASCII text.  The artifact may be PGP clearsigned.
 After removal of the PGP clearsign header and suffix (if any) a structural
@@ -527,6 +528,80 @@ technote.  The format of the W card is exactly the same as for a
 
 The Z card is the required checksum over the rest of the artifact.
 
+<a name="forum"></a>
+<h3>2.8 Forum Posts</h3>
+
+Forum posts are intended as a mechanism for users and developers to 
+discuss a project.  Forum mosts are like messages on a mailing list.
+
+The following cards are allowed on an forum post artifact:
+
+<blockquote>
+<b>D</b> <i>time-and-date-stamp</i><br />
+<b>G</b> <i>thread-root</i><br />
+<b>H</b> <i>thread-title</i><br />
+<b>I</b> <i>in-reply-to</i><br />
+<b>N</b> <i>mimetype</i><br />
+<b>P</b> <i>parent-artifact-id</i><br />
+<b>U</b> <i>user-name</i><br />
+<b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
+<b>Z</b> <i>checksum</i>
+</blockquote>
+
+Every forum post must have either one I card and one G card
+or one H card.  
+Forum posts are organized into topic threads.  The initial
+post for a thread (the root post) has an H card giving the title or
+subject for that thread.  The argument to the H card is a string
+in the same format as a comment string in a C card.
+All follow-up posts have an I card that
+indicates which prior post in the same thread the current forum
+post is replying to, and a G card specifying the root post for
+the entire thread.  The argument to G and I cards is the
+artifact hash for the prior forum post to which the card refers.
+
+In theory, it is sufficient for follow-up posts to have only an
+I card, since the G card value could be computed by following a
+chain of I cards.  However, the G card is required in order to
+associate the artifact with a forum thread in the case where an
+intermediate artifact in the I card chain is shunned or otherwise
+becomes unreadable.
+
+A single D card is required to give the date and time when the
+forum post was created.
+
+The optional N card specifies the mimetype of the text of the technote
+that is contained in the W card.  If the N card is omitted, then the
+W card text mimetype is assumed to be text/x-fossil, which is the
+Fossil wiki format.
+
+The optional P card specifies a prior forum post for which this
+forum post is an edit.  For display purposes, only the child post
+is shown, though the historical post is retained as a record.
+If P cards are used and there exist multiple versions of the same
+forum post, then I cards for other artifacts refer to whichever
+version of the post was current at the time the reply was made,
+but G cards refer to the initial, unedited root post for the thread.
+Thus, following the chain of I cards back to the root of the thread
+may land on a different post than the one given in the G card.
+However, following the chain of I cards back to the thread root,
+then following P cards back to the initial version of the thread
+root must give the same artifact as is provided by the G card,
+otherwise the artifact containing the G card is considered invalid
+and should be ignored.
+
+In general, P cards may contain multiple arguments, indicating a
+merge.  But since forum posts cannot be merged, the
+P card of a forum post may only contain a single argument.
+
+The U card gives name of the user who entered the forum post.
+
+A single W card provides wiki text for the forum post.
+The format of the W card is exactly the same as for a
+[#wikichng | wiki artifact].
+
+The Z card is the required checksum over the rest of the artifact.
+
 
 <a name="summary"></a>
 <h2>3.0 Card Summary</h2>
@@ -541,7 +616,7 @@ or more such cards are required.
 <table border=1 width="100%">
 <tr>
 <th rowspan=2 valign=bottom>Card Format</th>
-<th colspan=7>Used By</th>
+<th colspan=8>Used By</th>
 </tr>
 <tr>
 <th>Manifest</th>
@@ -551,6 +626,7 @@ or more such cards are required.
 <th>Ticket</th>
 <th>Attachment</th>
 <th>Technote</th>
+<th>Forum</th>
 </tr>
 <tr>
 <td><b>A</b> <i>filename</i> <i>target</i> ?<i>source</i>?</td>
@@ -561,10 +637,12 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td align=center><b>1</b></td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>B</b> <i>baseline</i></td>
-<td align=center><b>0-1*</b></td>
+<td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -572,7 +650,6 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
-<tr><td>&nbsp;</td><td colspan='7'>* = Required for delta manifests</td></tr>
 <tr>
 <td><b>C</b> <i>comment-text</i></td>
 <td align=center><b>1</b></td>
@@ -582,11 +659,13 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
 <td align=center><b>0-1</b></td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>D</b> <i>date-time-stamp</i></td>
 <td align=center><b>1</b></td>
 <td>&nbsp;</td>
+<td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
@@ -602,6 +681,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>1</b></td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>F</b> <i>filename</i> ?<i>uuid</i>? ?<i>permissions</i>? ?<i>oldname</i>?</td>
@@ -612,6 +692,40 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><b>G</b> <i>thread-root</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+</tr>
+<tr>
+<td><b>H</b> <i>thread-title</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
+</tr>
+<tr>
+<td><b>I</b> <i>in-reply-to</i></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>J</b> <i>name</i> ?<i>value</i>?</td>
@@ -620,6 +734,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>1+</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
@@ -632,6 +747,7 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>L</b> <i>wiki-title</i></td>
@@ -642,11 +758,13 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>M</b> <i>uuid</i></td>
 <td>&nbsp;</td>
 <td align=center><b>1+</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -662,6 +780,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
 <td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>P</b> <i>uuid ...</i></td>
@@ -672,10 +791,12 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>0-1</b></td>
+<td align=center><b>0-1</b></td>
 </tr>
 <tr>
 <td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid</i> ?<i>uuid</i>?</td>
 <td align=center><b>0+</b></td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
@@ -692,6 +813,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td>&nbsp;</td>
 <tr>
 <td><b>T</b> (<b>+</b>|<b>*</b>|<b>-</b>)<i>tagname</i> <i>uuid</i> ?<i>value</i>?</td>
 <td align=center><b>0+</b></td>
@@ -701,6 +823,7 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>0+</b></td>
+<td>&nbsp;</td>
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>
@@ -711,6 +834,7 @@ or more such cards are required.
 <td align=center><b>1</b></td>
 <td align=center><b>0-1</b></td>
 <td align=center><b>0-1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b></td>
@@ -721,9 +845,11 @@ or more such cards are required.
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>1</b></td>
+<td align=center><b>1</b></td>
 </tr>
 <tr>
 <td><b>Z</b> <i>md5sum</i></td>
+<td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>
 <td align=center><b>1</b></td>

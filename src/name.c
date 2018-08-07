@@ -96,7 +96,7 @@ int start_of_branch(int rid, int inBranch){
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
 ** match any known object.  Or return -1 if the name is ambiguous.
 **
-** The zType parameter specifies the type of artifact: ci, t, w, e, g.
+** The zType parameter specifies the type of artifact: ci, t, w, e, g, f.
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
 ** If zType is "br" then find the first check-in of the named branch
 ** rather than the last.
@@ -104,7 +104,7 @@ int start_of_branch(int rid, int inBranch){
 ** a check-in.
 **
 ** Note that the input zTag for types "t" and "e" is the artifact hash of
-** the ticket-change or event-change artifact, not the randomly generated
+** the ticket-change or technote-change artifact, not the randomly generated
 ** hexadecimal identifier assigned to tickets and events.  Those identifiers
 ** live in a separate namespace.
 */
@@ -605,7 +605,8 @@ void whatis_rid(int rid, int verboseFlag){
     switch( db_column_text(&q,0)[0] ){
       case 'c':  zType = "Check-in";       break;
       case 'w':  zType = "Wiki-edit";      break;
-      case 'e':  zType = "Event";          break;
+      case 'e':  zType = "Technote";       break;
+      case 'f':  zType = "Forum-post";     break;
       case 't':  zType = "Ticket-change";  break;
       case 'g':  zType = "Tag-change";     break;
       default:   zType = "Unknown";        break;
@@ -928,6 +929,21 @@ void describe_artifacts(const char *zWhere){
     "   AND blob.uuid=attachment.src",
     zWhere /*safe-for-%s*/
   );
+
+  /* Forum posts */
+  if( db_table_exists("repository","forumpost") ){
+    db_multi_exec(
+      "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
+      "SELECT postblob.rid, postblob.uuid, forumpost.fmtime, 'forumpost',\n"
+      "       CASE WHEN fpid=froot THEN 'forum-post '\n"
+      "            ELSE 'forum-reply-to ' END || substr(rootblob.uuid,1,14)\n"
+      "  FROM forumpost, blob AS postblob, blob AS rootblob\n"
+      " WHERE (forumpost.fpid %s)\n"
+      "   AND postblob.rid=forumpost.fpid"
+      "   AND rootblob.rid=forumpost.froot",
+      zWhere /*safe-for-%s*/
+    );
+  }
 
   /* Everything else */
   db_multi_exec(

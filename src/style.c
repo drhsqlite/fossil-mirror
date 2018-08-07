@@ -435,6 +435,11 @@ void style_header(const char *zTitleFormat, ...){
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
   sideboxUsed = 0;
+  if( g.perm.Debug && P("showqp") ){
+    @ <div class="debug">
+    cgi_print_all(0, 0);
+    @ </div>
+  }
 }
 
 #if INTERFACE
@@ -506,9 +511,30 @@ void style_load_one_js_file(const char *zFile){
 }
 
 /*
+** All extra JS files to load.
+*/
+static const char *azJsToLoad[4];
+static int nJsToLoad = 0;
+
+/*
+** Register a new JS file to load at the end of the document.
+*/
+void style_load_js(const char *zName){
+  int i;
+  for(i=0; i<nJsToLoad; i++){
+    if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
+  }
+  if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
+    fossil_panic("too man JS files");
+  }
+  azJsToLoad[nJsToLoad++] = zName;
+}
+
+/*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
+  int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover;
@@ -524,6 +550,9 @@ static void style_load_all_js_files(void){
   }
   if( needGraphJs ){
     style_load_one_js_file("graph.js");
+  }
+  for(i=0; i<nJsToLoad; i++){
+    style_load_one_js_file(azJsToLoad[i]);
   }
 }
 
@@ -866,6 +895,39 @@ void page_builtin_text(void){
   cgi_set_content(&out);
 }
 
+/*
+** All possible capabilities
+*/
+static const char allCap[] = 
+  "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKL";
+
+/*
+** Compute the current login capabilities
+*/
+static char *find_capabilities(char *zCap){
+  int i, j;
+  char c;
+  for(i=j=0; (c = allCap[j])!=0; j++){
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  return zCap;
+}
+
+/*
+** Compute the current login capabilities that were
+** contributed by Anonymous
+*/
+static char *find_anon_capabilities(char *zCap){
+  int i, j;
+  char c;
+  for(i=j=0; (c = allCap[j])!=0; j++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+      && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  return zCap;
+}
 
 /*
 ** WEBPAGE: test_env
@@ -874,10 +936,35 @@ void page_builtin_text(void){
 ** environment, for debugging and trouble-shooting purposes.
 */
 void page_test_env(void){
-  char c;
+  webpage_error("");
+}
+
+/*
+** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
+*/
+void honeypot_page(void){
+  cgi_set_status(403, "Forbidden");
+  @ <p>Please enable javascript or log in to see this content</p>
+}
+
+/*
+** Webpages that encounter an error due to missing or incorrect
+** query parameters can jump to this routine to render an error
+** message screen.
+**
+** For administators, or if the test_env_enable setting is true, then
+** details of the request environment are displayed.  Otherwise, just
+** the error message is shown.
+**
+** If zFormat is an empty string, then this is the /test_env page.
+*/
+void webpage_error(const char *zFormat, ...){
   int i;
   int showAll;
-  char zCap[30];
+  char *zErr = 0;
+  int isAuth = 0;
+  char zCap[100];
   static const char *const azCgiVars[] = {
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
@@ -897,70 +984,86 @@ void page_test_env(void){
   };
 
   login_check_credentials();
-  if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed(0);
-    return;
+  if( g.perm.Admin || g.perm.Setup  || db_get_boolean("test_env_enable",0) ){
+    isAuth = 1;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
-  style_header("Environment Test");
-  showAll = PB("showall");
-  style_submenu_checkbox("showall", "Cookies", 0, 0);
-  style_submenu_element("Stats", "%R/stat");
+  if( zFormat[0] ){
+    va_list ap;
+    va_start(ap, zFormat);
+    zErr = vmprintf(zFormat, ap);
+    va_end(ap);
+    style_header("Bad Request");
+    @ <h1>/%h(g.zPath): %h(zErr)</h1>
+    showAll = 0;
+    cgi_set_status(500, "Bad Request");
+  }else if( !isAuth ){
+    login_needed(0);
+    return;
+  }else{
+    style_header("Environment Test");
+    showAll = PB("showall");
+    style_submenu_checkbox("showall", "Cookies", 0, 0);
+    style_submenu_element("Stats", "%R/stat");
+  }
 
-#if !defined(_WIN32)
-  @ uid=%d(getuid()), gid=%d(getgid())<br />
-#endif
-  @ g.zBaseURL = %h(g.zBaseURL)<br />
-  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
-  @ g.zTop = %h(g.zTop)<br />
-  @ g.zPath = %h(g.zPath)<br />
-  for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
-  }
-  zCap[i] = 0;
-  @ g.userUid = %d(g.userUid)<br />
-  @ g.zLogin = %h(g.zLogin)<br />
-  @ g.isHuman = %d(g.isHuman)<br />
-  if( g.nRequest ){
-    @ g.nRequest = %d(g.nRequest)<br />
-  }
-  if( g.nPendingRequest>1 ){
-    @ g.nPendingRequest = %d(g.nPendingRequest)<br />
-  }
-  @ capabilities = %s(zCap)<br />
-  for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1, LOGIN_ANON)
-         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
-  }
-  zCap[i] = 0;
-  if( i>0 ){
-    @ anonymous-adds = %s(zCap)<br />
-  }
-  @ g.zRepositoryName = %h(g.zRepositoryName)<br />
-  @ load_average() = %f(load_average())<br />
-  @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
-  @ <hr />
-  P("HTTP_USER_AGENT");
-  cgi_print_all(showAll, 0);
-  if( showAll && blob_size(&g.httpHeader)>0 ){
+  if( isAuth ){
+  #if !defined(_WIN32)
+    @ uid=%d(getuid()), gid=%d(getgid())<br />
+  #endif
+    @ g.zBaseURL = %h(g.zBaseURL)<br />
+    @ g.zHttpsURL = %h(g.zHttpsURL)<br />
+    @ g.zTop = %h(g.zTop)<br />
+    @ g.zPath = %h(g.zPath)<br />
+    @ g.userUid = %d(g.userUid)<br />
+    @ g.zLogin = %h(g.zLogin)<br />
+    @ g.isHuman = %d(g.isHuman)<br />
+    if( g.nRequest ){
+      @ g.nRequest = %d(g.nRequest)<br />
+    }
+    if( g.nPendingRequest>1 ){
+      @ g.nPendingRequest = %d(g.nPendingRequest)<br />
+    }
+    @ capabilities = %s(find_capabilities(zCap))<br />
+    if( zCap[0] ){
+      @ anonymous-adds = %s(find_anon_capabilities(zCap))<br />
+    }
+    @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+    @ load_average() = %f(load_average())<br />
+    @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
     @ <hr />
-    @ <pre>
-    @ %h(blob_str(&g.httpHeader))
-    @ </pre>
-  }
-  if( g.perm.Setup ){
-    const char *zRedir = P("redirect");
-    if( zRedir ) cgi_redirect(zRedir);
+    P("HTTP_USER_AGENT");
+    cgi_print_all(showAll, 0);
+    if( showAll && blob_size(&g.httpHeader)>0 ){
+      @ <hr />
+      @ <pre>
+      @ %h(blob_str(&g.httpHeader))
+      @ </pre>
+    }
   }
   style_footer();
-  if( g.perm.Admin && P("err") ) fossil_fatal("%s", P("err"));
+  if( zErr ){
+    cgi_reply();
+    fossil_exit(1);
+  }
 }
 
 /*
-** WEBPAGE: honeypot
-** This page is a honeypot for spiders and bots.
+** Generate a Not Yet Implemented error page.
 */
-void honeypot_page(void){
-  cgi_set_status(403, "Forbidden");
-  @ <p>Please enable javascript or log in to see this content</p>
+void webpage_not_yet_implemented(void){
+  webpage_error("Not yet implemented");
 }
+
+/*
+** Generate a webpage for a webpage_assert().
+*/
+void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
+  fossil_warning("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
+  cgi_reset_content();
+  webpage_error("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
+}
+
+#if INTERFACE
+# define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
+#endif
