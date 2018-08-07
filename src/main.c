@@ -2299,6 +2299,7 @@ void parse_pid_key_value(
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
 **   --nocompress     do not compress HTTP replies
+**   --nodelay        omit backoffice processing if it would delay process exit
 **   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
@@ -2365,6 +2366,7 @@ void cmd_http(void){
   zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
+  if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ){
     zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */

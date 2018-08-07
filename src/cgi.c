@@ -346,18 +346,8 @@ void cgi_reply(void){
   ** processing.
   */
   g.cgiOutput = 2;
-  if( g.db!=0 && iReplyStatus==200 && !g.fSshClient ){
-    fclose(g.httpOut);
-#ifdef _WIN32
-    g.httpOut = fossil_fopen("NUL", "wb");
-#else
-    g.httpOut = fossil_fopen("/dev/null", "wb");
-#endif
-    if( g.httpOut==0 ){
-      fossil_warning("failed ot open /dev/null");
-    }else{
-      backoffice_check_if_needed();
-    }
+  if( g.db!=0 && iReplyStatus==200 ){
+    backoffice_check_if_needed();
   }
 }
 

@@ -946,5 +946,6 @@ void forum_main_page(void){
     fossil_free(zAge);
   }
   @ </table></div>
+  db_finalize(&q);
   style_footer();
 }

@@ -95,6 +95,19 @@ static char *backofficeDb = 0;
 ****************************************************************************/
 
 /*
+** Do not allow backoffice processes to sleep waiting on a timeslot.
+** They must either do their work immediately or exit.
+**
+** In a perfect world, this interface would not exist, as there would
+** never be a problem with waiting backoffice threads.  But in some cases
+** a backoffice will delay a UI thread, so we don't want them to run for
+** longer than needed.
+*/
+void backoffice_no_delay(void){
+  backofficeNoDelay = 1;
+}
+
+/*
 ** Parse a unsigned 64-bit integer from a string.  Return a pointer
 ** to the character of z[] that occurs after the integer.
 */
@@ -377,8 +390,9 @@ void backoffice_run_if_needed(void){
     if( pid>0 ){
       /* This is the parent in a successful fork().  Return immediately. */
       if( g.fAnyTrace ){
-        fprintf(stderr, "/***** Backoffice Child Creates as %d *****/\n",
-                        (int)pid);
+        fprintf(stderr, 
+          "/***** Subprocess %d creates backoffice child %d *****/\n",
+          getpid(), (int)pid);
       }
       return;
     }
