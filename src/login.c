@@ -1497,7 +1497,7 @@ void register_page(void){
   const char *zDecoded;
   char *zCaptcha;
   int iErrLine = -1;
-  const char *zErr;
+  const char *zErr = 0;
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the

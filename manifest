@@ -1,5 +1,5 @@
-C Fix\serror\swhen\scompiling\swith\sJSON\ssupport\senabled\s(TODO:\sreview\ssemantics\sto\spreserve\sJSON\serror\shandling).
-D 2018-08-07T21:43:42.967
+C Fix\sharmless\scompiler\swarning.
+D 2018-08-07T21:44:02.246
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 4e7cdb5c6af4063e80a8df2e25f1e32c780c2053f7c15b5be843fd9bfbf75d33
+F src/login.c c35d07390b723a242d1dfd80e26b0c4cba35e129caf000f18e74fa2006a7f8fc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c e4d498e8c5b4e6607c201b460935328fd4020f8ee57a54b47d6e34b2dd1d51e9
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32641d15d8282c54bac34309ce4f3206b34455b34c01a3d754e275815a7dc395
-R 167cefdaf3d3b9ce51c59f5f5faaeda8
+P f430f6234abb45c49c0a4c751fd144ef81f5b981fee8737378a392cbadc77b3d
+R 84ebde872a7be818c346535ecbad2e4d
 U mistachkin
-Z af396b39b2ae125dcfadc85485c84429
+Z fbc2ce0fd259887a0e363c21e4bae194
