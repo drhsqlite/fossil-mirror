@@ -268,6 +268,10 @@ void stat_page(void){
     }
     @ </td></tr>
   }
+  if( g.perm.Admin ){
+    @ <tr><th>Backoffice:</th>
+    @ <td>Last run: %z(backoffice_last_run())</td></tr>
+  }
   if( g.perm.Admin && email_enabled() ){
     stats_for_email();
   }

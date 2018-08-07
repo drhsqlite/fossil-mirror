@@ -164,6 +164,17 @@ static const char *backofficeParseInt(const char *z, sqlite3_uint64 *pVal){
 
 /*
 ** Read the "backoffice" property and parse it into a Lease object.
+**
+** The backoffice property should consist of four integers:
+**
+**    (1)  Process ID for the active backoffice process.
+**    (2)  Time (seconds since 1970) for when the active backoffice
+**         lease expires.
+**    (3)  Process ID for the on-deck backoffice process.
+**    (4)  Time when the on-deck process should expire.
+**
+** No other process should start active backoffice processing until
+** process (1) no longer exists and the current time exceeds (2).
 */
 static void backofficeReadLease(Lease *pLease){
   Stmt q;
@@ -178,6 +189,26 @@ static void backofficeReadLease(Lease *pLease){
     backofficeParseInt(z, &pLease->tmNext);
   }
   db_finalize(&q);
+}
+
+/*
+** Return a string that describes how long it has been since the
+** last backoffice run.  The string is obtained from fossil_malloc().
+*/
+char *backoffice_last_run(void){
+  Lease x;
+  sqlite3_uint64 tmNow;
+  double rAge;
+  backofficeReadLease(&x);
+  tmNow = time(0);
+  if( x.tmCurrent==0 ){
+    return fossil_strdup("never");
+  }
+  if( tmNow<=(x.tmCurrent-BKOFCE_LEASE_TIME) ){
+    return fossil_strdup("moments ago");
+  }
+  rAge = (tmNow - (x.tmCurrent-BKOFCE_LEASE_TIME))/86400.0;
+  return mprintf("%z ago", human_readable_age(rAge));
 }
 
 /*
