@@ -285,7 +285,7 @@ static void backofficeSigalrmHandler(int x){
 #if defined(_WIN32)
 static void *threadHandle = NULL;
 static void __stdcall backofficeWin32NoopApcProc(ULONG_PTR pArg){} /* NO-OP */
-static void backofficeWin32ThreadCleanup(){
+static void backofficeWin32ThreadCleanup(int bStrict){
   if( threadHandle!=NULL ){
     /* Queue no-op asynchronous procedure call to the sleeping
      * thread.  This will cause it to wake up with a non-zero
@@ -293,9 +293,26 @@ static void backofficeWin32ThreadCleanup(){
     if( QueueUserAPC(backofficeWin32NoopApcProc, threadHandle, 0) ){
       /* Wait for the thread to wake up and then exit. */
       WaitForSingleObject(threadHandle, INFINITE);
+    }else if(bStrict){
+      DWORD dwLastError = GetLastError();
+      fossil_errorlog(
+        "backofficeWin32ThreadCleanup: QueueUserAPC failed, code %lu",
+        dwLastError
+      );
+      if( !TerminateThread(threadHandle, dwLastError) ){
+        dwLastError = GetLastError();
+        fossil_panic(
+          "backofficeWin32ThreadCleanup: TerminateThread failed, code %lu",
+          dwLastError
+        );
+      }
     }
     CloseHandle(threadHandle);
     threadHandle = NULL;
+  }else if(bStrict){
+    fossil_panic(
+      "backofficeWin32ThreadCleanup: no timeout thread handle"
+    );
   }
 }
 static unsigned __stdcall backofficeWin32SigalrmThreadProc(
@@ -311,7 +328,7 @@ static unsigned __stdcall backofficeWin32SigalrmThreadProc(
 #endif
 static void backofficeTimeout(int x){
 #if defined(_WIN32)
-  backofficeWin32ThreadCleanup();
+  backofficeWin32ThreadCleanup(0);
   threadHandle = (void*)_beginthreadex(
     0, 0, backofficeWin32SigalrmThreadProc, FOSSIL_INT_TO_PTR(x), 0, 0
   );
@@ -482,8 +499,7 @@ static void backoffice_thread(void){
     }
   }
 #if defined(_WIN32)
-  assert( threadHandle!=NULL );
-  backofficeWin32ThreadCleanup();
+  backofficeWin32ThreadCleanup(1);
 #endif
   return;
 }
@@ -547,7 +563,7 @@ void backoffice_run_if_needed(void){
     argv[3] = backofficeDb;
     ax[4] = 0;
     for(i=0; i<=3; i++) ax[i] = fossil_utf8_to_unicode(argv[i]);
-    x = _wspawnv(_P_NOWAIT, ax[0], ax);
+    x = _wspawnv(_P_NOWAIT, ax[0], (const wchar_t * const *)ax);
     for(i=0; i<=3; i++) fossil_unicode_free(ax[i]);
     if( g.fAnyTrace ){
       fprintf(stderr, 
