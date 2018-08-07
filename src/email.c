@@ -696,12 +696,14 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
   blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
-  /* Message-id format:  "<$(date)x$(random).$(from)>" where $(date) is
-  ** the current unix-time in hex, $(random) is a 64-bit random number,
-  ** and $(from) is the sender. */
-  sqlite3_randomness(sizeof(r1), &r1);
-  r2 = time(0);
-  blob_appendf(pOut, "Message-Id: <%llxx%016llx.%s>\r\n", r2, r1, p->zFrom);
+  if( strstr(blob_str(pHdr), "\r\nMessage-Id:")==0 ){
+    /* Message-id format:  "<$(date)x$(random).$(from)>" where $(date) is
+    ** the current unix-time in hex, $(random) is a 64-bit random number,
+    ** and $(from) is the sender. */
+    sqlite3_randomness(sizeof(r1), &r1);
+    r2 = time(0);
+    blob_appendf(pOut, "Message-Id: <%llxx%016llx.%s>\r\n", r2, r1, p->zFrom);
+  }
   blob_add_final_newline(pBody);
   blob_appendf(pOut,"Content-Type: text/plain\r\n");
 #if 0
@@ -988,9 +990,8 @@ void email_cmd(void){
       blob_appendf(&hdr, "<%s>", g.argv[i]);
     }
     blob_append(&hdr,"\r\n",2);
-    if( zSubject ){
-      blob_appendf(&hdr, "Subject: %s\r\n", zSubject);
-    }
+    if( zSubject==0 ) zSubject = "fossil alerts test-message";
+    blob_appendf(&hdr, "Subject: %s\r\n", zSubject);
     if( zSource ){
       blob_read_from_file(&body, zSource, ExtFILE);
     }else{
@@ -1795,6 +1796,7 @@ void subscriber_list_page(void){
 struct EmailEvent {
   int type;          /* 'c', 'f', 'm', 't', 'w' */
   int needMod;       /* Pending moderator approval */
+  Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
   EmailEvent *pNext; /* Next in chronological order */
 };
@@ -1807,6 +1809,7 @@ void email_free_eventlist(EmailEvent *p){
   while( p ){
     EmailEvent *pNext = p->pNext;
     blob_reset(&p->txt);
+    blob_reset(&p->hdr);
     fossil_free(p);
     p = pNext;
   }
@@ -1825,7 +1828,11 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
   EmailEvent anchor;
   EmailEvent *pLast;
   const char *zUrl = db_get("email-url","http://localhost:8080");
+  const char *zFrom;
+  const char *zSub;
 
+
+  /* First do non-forum post events */
   db_prepare(&q,
     "SELECT"
     " blob.uuid,"                /* 0 */
@@ -1838,17 +1845,14 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     "             WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
     "               AND tagxref.rid=blob.rid AND tagxref.tagtype>0))"
     "  || ')' as comment,"       /* 2 */
-    " tagxref.value AS branch,"  /* 3 */
-    " wantalert.eventId,"        /* 4 */
-    " wantalert.needMod"         /* 5 */
-    " FROM temp.wantalert JOIN tag CROSS JOIN event CROSS JOIN blob"
-    "  LEFT JOIN tagxref ON tagxref.tagid=tag.tagid"
-    "                       AND tagxref.tagtype>0"
-    "                       AND tagxref.rid=blob.rid"
+    " wantalert.eventId,"        /* 3 */
+    " wantalert.needMod"         /* 4 */
+    " FROM temp.wantalert CROSS JOIN event CROSS JOIN blob"
     " WHERE blob.rid=event.objid"
-    "   AND tag.tagname='branch'"
     "   AND event.objid=substr(wantalert.eventId,2)+0"
-    " ORDER BY event.mtime"
+    "   AND (%d OR eventId NOT GLOB 'f*')"
+    " ORDER BY event.mtime",
+    doDigest
   );
   memset(&anchor, 0, sizeof(anchor));
   pLast = &anchor;
@@ -1858,8 +1862,8 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
-    p->type = db_column_text(&q, 4)[0];
-    p->needMod = db_column_int(&q, 5);
+    p->type = db_column_text(&q, 3)[0];
+    p->needMod = db_column_int(&q, 4);
     p->pNext = 0;
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
@@ -1867,6 +1871,7 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
       case 't':  zType = "Wiki Edit";       break;
       case 'w':  zType = "Ticket Change";   break;
     }
+    blob_init(&p->hdr, 0, 0);
     blob_init(&p->txt, 0, 0);
     blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
@@ -1884,6 +1889,79 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     (*pnEvent)++;
   }
   db_finalize(&q);
+
+  /* Early-out if forumpost is not a table in this repository */
+  if( !db_table_exists("repository","forumpost") ){
+    return anchor.pNext;
+  }
+
+  /* For digests, the previous loop also handled forumposts already */
+  if( doDigest ){
+    return anchor.pNext;
+  }
+
+  /* If we reach this point, it means that forumposts exist and this
+  ** is a normal email alert.  Construct full-text forum post alerts
+  ** using a format that enables them to be sent as separate emails.
+  */
+  db_prepare(&q,
+    "SELECT"
+    " forumpost.fpid,"                                      /* 0 */
+    " (SELECT uuid FROM blob WHERE rid=forumpost.fpid),"    /* 1 */
+    " datetime(event.mtime),"                               /* 2 */
+    " substr(comment,instr(comment,':')+2),"                /* 3 */
+    " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
+    " wantalert.needMod"                                    /* 5 */
+    " FROM temp.wantalert, event, forumpost"
+    " WHERE event.objid=substr(wantalert.eventId,2)+0"
+    "   AND eventId GLOB 'f*'"
+    "   AND forumpost.fpid=event.objid"
+  );
+  zFrom = db_get("email-self",0);
+  zSub = db_get("email-subname","");
+  while( db_step(&q)==SQLITE_ROW ){
+    Manifest *pPost = manifest_get(db_column_int(&q,0), CFTYPE_FORUM, 0);
+    const char *zIrt;
+    const char *zUuid;
+    const char *zTitle;
+    if( pPost==0 ) continue;
+    p = fossil_malloc( sizeof(EmailEvent) );
+    pLast->pNext = p;
+    pLast = p;
+    p->type = 'f';
+    p->needMod = db_column_int(&q, 5);
+    p->pNext = 0;
+    blob_init(&p->hdr, 0, 0);
+    zUuid = db_column_text(&q, 1);
+    zTitle = db_column_text(&q, 3);
+    if( p->needMod ){
+      blob_appendf(&p->hdr, "Subject: %s Pending Moderation: %s\r\n",
+                   zSub, zTitle);
+    }else{
+      blob_appendf(&p->hdr, "Subject: %s %s\r\n", zSub, zTitle);
+      blob_appendf(&p->hdr, "Message-Id: <%s.%s>\r\n", zUuid, zFrom);
+      zIrt = db_column_text(&q, 4);
+      if( zIrt && zIrt[0] ){
+        blob_appendf(&p->hdr, "In-Reply-To: <%s.%s>\r\n", zIrt, zFrom);
+      }
+    }
+    blob_init(&p->txt, 0, 0);
+    if( p->needMod ){
+      blob_appendf(&p->txt,
+        "** Pending moderator approval (%s/modreq) **\n",
+        zUrl
+      );
+    }
+    blob_appendf(&p->txt,
+      "Forum post by %s on %s\n",
+      pPost->zUser, db_column_text(&q, 2));
+    blob_appendf(&p->txt, "%s/forumpost/%S\n\n", zUrl, zUuid);
+    blob_append(&p->txt, pPost->zWiki, -1);
+    manifest_destroy(pPost);
+    (*pnEvent)++;
+  }
+  db_finalize(&q);
+
   return anchor.pNext;
 }
 
@@ -1955,6 +2033,10 @@ void test_alert_cmd(void){
   pEvent = email_compute_event_text(&nEvent, doDigest);
   for(p=pEvent; p; p=p->pNext){
     blob_append(&out, "\n", 1);
+    if( blob_size(&p->hdr) ){
+      blob_append(&out, blob_buffer(&p->hdr), blob_size(&p->hdr));
+      blob_append(&out, "\n", 1);
+    }
     blob_append(&out, blob_buffer(&p->txt), blob_size(&p->txt));
   }
   email_free_eventlist(pEvent);
@@ -1967,7 +2049,7 @@ void test_alert_cmd(void){
 /*
 ** COMMAND:  test-add-alerts
 **
-** Usage: %fossil test-add-alerts [--backoffice] EVENTID ...
+** Usage: %fossil test-add-alerts [OPTIONS] EVENTID ...
 **
 ** Add one or more events to the pending_alert queue.  Use this
 ** command during testing to force email notifications for specific
@@ -1978,13 +2060,29 @@ void test_alert_cmd(void){
 ** integer that references the EVENT.OBJID value for the event.
 ** Run /timeline?showid to see these OBJID values.
 **
-** If the --backoffice option is included, then email_backoffice() is run
-** after all alerts have been added.  This will cause the alerts to
-** be sent out with the SENDALERT_TRACE option.
+** Options:
+**
+**    --backoffice        Run email_backoffice() after all alerts have
+**                        been added.  This will cause the alerts to be
+**                        sent out with the SENDALERT_TRACE option.
+**
+**    --debug             Like --backoffice, but add the SENDALERT_STDOUT
+**                        so that emails are printed to standard output
+**                        rather than being sent.
+**
+**    --digest            Process emails using SENDALERT_DIGEST
 */
 void test_add_alert_cmd(void){
   int i;
   int doAuto = find_option("backoffice",0,0)!=0;
+  unsigned mFlags = 0;
+  if( find_option("debug",0,0)!=0 ){
+    doAuto = 1;
+    mFlags = SENDALERT_STDOUT;
+  }
+  if( find_option("digest",0,0)!=0 ){
+    mFlags |= SENDALERT_DIGEST;
+  }
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_write();
@@ -1994,7 +2092,7 @@ void test_add_alert_cmd(void){
   }
   db_end_transaction(0);
   if( doAuto ){
-    email_backoffice(SENDALERT_TRACE);
+    email_backoffice(SENDALERT_TRACE|mFlags);
   }
 }
 
@@ -2138,18 +2236,34 @@ void email_send_alerts(u32 flags){
         }
         if( strchr(zCap,xType)==0 ) continue;
       }
-      if( nHit==0 ){
-        blob_appendf(&hdr,"To: <%s>\r\n", zEmail);
-        blob_appendf(&hdr,"Subject: %s activity alert\r\n", zRepoName);
-        blob_appendf(&body,
-          "This is an automated email sent by the Fossil repository "
-          "at %s to report changes.\n",
-          zUrl
-        );
+      if( blob_size(&p->hdr)>0 ){
+        /* This alert should be sent as a separate email */
+        Blob fhdr, fbody;
+        blob_init(&fhdr, 0, 0);
+        blob_appendf(&fhdr, "To: <%s>\r\n", zEmail);
+        blob_append(&fhdr, blob_buffer(&p->hdr), blob_size(&p->hdr));
+        blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
+        blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
+           zUrl, zCode);
+        email_send(pSender,&fhdr,&fbody);
+        blob_reset(&fhdr);
+        blob_reset(&fbody);
+      }else{
+        /* Events other than forum posts are gathered together into
+        ** a single email message */
+        if( nHit==0 ){
+          blob_appendf(&hdr,"To: <%s>\r\n", zEmail);
+          blob_appendf(&hdr,"Subject: %s activity alert\r\n", zRepoName);
+          blob_appendf(&body,
+            "This is an automated email sent by the Fossil repository "
+            "at %s to report changes.\n",
+            zUrl
+          );
+        }
+        nHit++;
+        blob_append(&body, "\n", 1);
+        blob_append(&body, blob_buffer(&p->txt), blob_size(&p->txt));
       }
-      nHit++;
-      blob_append(&body, "\n", 1);
-      blob_append(&body, blob_buffer(&p->txt), blob_size(&p->txt));
     }
     if( nHit==0 ) continue;
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
