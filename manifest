@@ -1,5 +1,5 @@
-C Report\sthe\stime\sof\sthe\slast\sbackoffice\srun\sin\sthe\s/stat\spage\sfor\nadministrators.
-D 2018-08-07T21:21:48.690
+C Update\sthe\scustom\sMinGW\smakefile.
+D 2018-08-07T21:42:48.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -733,7 +733,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b88f14f94af2f
 F win/Makefile.dmc 41b77ff523358069a06ff7bcb8b8a68789b1bc1dccd04e56cd6520549270374b
 F win/Makefile.mingw 2a2e90df99038032ce64c6985461171d909142fbe90abe75c36e46f2d5f8b6f4
-F win/Makefile.mingw.mistachkin b75280e1194762517f1796b70cf2e81fd838fa660097ef6a2b1e0777ed8736da
+F win/Makefile.mingw.mistachkin 009d4bd169061ef02fc3d0b68b5f51ceb7818a4d786f21d4551b4f7dc56420b7
 F win/Makefile.msc eb2d21833d3fc14c947356744d0fdc855d341913a29e20517dcf56b8e65fed08
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 43c29877be3939b16a5abcf5be925a15c7b44382f8752bcc2b11f23d6ba62ef8
-R 509fe1d418e44d5c8417473149ccf9be
-U drh
-Z 59b4dbad2ce2f800d47e451acc77da71
+P ae6e8d97713001c79bec4e362d481e7c810a3b0c885ee31f958fec3f2ab0c348
+R b0c9d40c9144dd3b245e96b9f50ea4e1
+U mistachkin
+Z 92bad82f22f0983fb7c84561be079ad9
