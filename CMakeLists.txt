@@ -98,6 +98,7 @@ file(GLOB project_sources_FILES
 
 include_directories(
     "${fossil_BUILD_DIR}"
+    "${fossil_BINARY_DIR}"
     "${PROJECT_SOURCE_DIR}/src"
     "${PROJECT_SOURCE_DIR}"
 )
