@@ -1,5 +1,5 @@
-C A\snew\simplementation\sfor\s"Forum"\sin\swhich\seach\sforum\spost\sis\san\sartifact.\nThis\smerge\sincludes\slots\sof\senhancements\sto\semail\snotification,\sbackoffice,\nconfiguration,\sand\sother\ssubsystems,\sall\sin\ssupport\sof\sthe\snew\sforum\sartifacts.\nThe\sforum\sfeature\sis\snot\scomplete\snor\sbug-free\sbut\sat\sthis\spoint\sit\sseems\ngood\senough\sto\scontinue\sdevelopment\son\strunk.
-D 2018-08-07T15:12:41.052
+C Improvements\sto\sthe\sway\sbackoffice\sis\slaunched,\sespecially\son\sunix\swhere\sit\nnow\sruns\sin\sa\sseparate\sprocess\susing\sfork().\s\sAlso\sfix\ssome\sminor\sbugs\sin\nother\sparts\sof\sthe\ssystem\sthat\swere\sfound\swhile\stesting\sbackoffice.
+D 2018-08-07T18:30:15.898
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c d2cf5ceb442267a81385242d656ae9281fdadef6d522b40a578135a04aef8c41
+F src/backoffice.c 9f534e929721362cdd0a13f2534b25ce115d8f023335809e406fedadcd6cf503
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -440,7 +440,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/capabilities.c ba1baaea14c8eddfbc67ecdee9c94e1f5f6d3318555f394712b1963e2893fed3
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
-F src/cgi.c d9259722ffcd4191b57c17bab165dce7ce86e135eae0ee74fcdbcf2c70674df0
+F src/cgi.c 12eb17258e769ae463d396662b60db8a66932cab823f17a6004813b7de1e5762
 F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -455,7 +455,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 27342387c77b135effffc38839311b61ac3d3b7027d57e96311a8ef476bf0965
+F src/db.c 3c3cf815ee9ad8a19e29e16cb5672963463cc770598fbc1dfcb661561fa56672
 F src/default_css.txt 6d167b97a147ed264a6fb9524391837b8d158df258a70674719af7c722e107a9
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 4039e67056f6c143950ee828641b4db78f0112bd5175adea42366974d3a8c495
+F src/forum.c d38f5bcf1d78dd73664165086927ad194194a860494e1f04c277ed31315ec63e
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -486,7 +486,7 @@ F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c a84161dc376d1decf9ce604a668226eee5c22d32a66030bdf7cfd1fd7b09fc91
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
-F src/http_transport.c 842e840000336be86d03cc20e60844bc6305dbea5de3525be2d80bff5471f833
+F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 7f1829c005cabfa6cd7d5ab5fddf89dcd71427b70b8058032d2c452151ae1bc3
 F src/json.c 28a0a82d4451506e5456f0d385bda27b1fde6cb920f250906fed032f9667630a
@@ -537,7 +537,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 2976750b03c9a9b33d800cea66bb468088f35924c26b679193650afee00b1735
+F src/printf.c d6f54c13c37a2497e6b2db0e1724d93243a664b09f81a65e86e94e3f830f2f3d
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 390a4407b48cc423e319442f4d0cd83c183a2daabfc6a76419c689c3dfd2093d
@@ -596,7 +596,7 @@ F src/wiki.c 1d2b4f904c5297379c8b4b0387982f7177a04cb14cec2377183eebb6de9be2fc
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c 723d229579cc2ecfc97e24913f07c30222ae5a693e9a6642bf6968b816c167ab
+F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
 F src/xfer.c d984602ed31a7104b1adac25c19f967ca92523082fd018a9d1791ee0c484311b
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -858,8 +858,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 030bf2002f64c3f30c4c49afab99fa221dda4d06b301bd467f32b24283d54844 4b4e133a8c4497d1eaf65a4e36f9391b60286629b7941162735a82bbd4fdba09
-R 66f49995c8de7a2c20a559008f28225a
-T +closed 4b4e133a8c4497d1eaf65a4e36f9391b60286629b7941162735a82bbd4fdba09
+P 99fcc43f5d57ee530dd94aabf799ce0d3dc74ce8edd97182b54bb7feb85a3e7b 1b54dd79bfc98862cb5745f458c0f7536efafd0aed9746a40b2c478cb00d7a6c
+R c32be307be93385169e35c9e8c161d62
+T +closed 1b54dd79bfc98862cb5745f458c0f7536efafd0aed9746a40b2c478cb00d7a6c
 U drh
-Z d4a8e0468b0deff9c76987e698955d2a
+Z 414f31002f2f28e2ba827fdf24b96ed7

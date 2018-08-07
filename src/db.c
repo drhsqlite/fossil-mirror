@@ -1882,6 +1882,7 @@ void db_close(int reportErrors){
   g.localOpen = 0;
   assert( g.dbConfig==0 );
   assert( g.zConfigDbName==0 );
+  backoffice_run_if_needed();
 }
 
 /*

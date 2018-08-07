@@ -1083,7 +1083,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   if( once ) exit(1);
   once = 1;
   mainInFatalError = 1;
-  db_force_rollback();
+  /* db_force_rollback(); */
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);

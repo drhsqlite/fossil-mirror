@@ -37,6 +37,25 @@
 ** process table, doing nothing on rarely accessed repositories, and
 ** if the Fossil binary is updated on a system, the backoffice processes
 ** will restart using the new binary automatically.
+**
+** At any point in time there should be at most two backoffice processes.
+** There is a main process that is doing the actually work, and there is
+** a second stand-by process that is waiting for the main process to finish
+** and that will become the main process after a delay.
+**
+** After any successful web page reply, the backoffice_check_if_needed()
+** routine is called.  That routine checks to see if both one or both of
+** the backoffice processes are already running.  That routine remembers the
+** status in a global variable.
+**
+** Later, after the repository database is closed, the
+** backoffice_run_if_needed() routine is called.  If the prior call
+** to backoffice_check_if_needed() indicated that backoffice processing
+** might be required, the run_if_needed() attempts to kick off a backoffice
+** process.
+**
+** All work performance by the backoffice is in the backoffice_work()
+** routine.
 */
 #include "config.h"
 #include "backoffice.h"
@@ -54,34 +73,54 @@
 ** processing run is valid.  Each backoffice run monopolizes the lease for
 ** at least this amount of time.  Hopefully all backoffice processing is
 ** finished much faster than this - usually in less than a second.  But
-** regardless of how fast each invocations run, successive backoffice runs
+** regardless of how long each invocation lasts, successive backoffice runs
 ** must be spaced out by at least this much time.
 */
-#define BKOFCE_LEASE_TIME   60    /* Length of lease validity */
+#define BKOFCE_LEASE_TIME   60    /* Length of lease validity in seconds */
 
 #if LOCAL_INTERFACE
 /*
 ** An instance of the following object describes a lease on the backoffice
 ** processing timeslot.  This lease is used to help ensure that no more than
-** one processing is running backoffice at a time.
+** one process is running backoffice at a time.
 */
 struct Lease {
-  sqlite3_uint64 idCurrent;   /* ID for the current lease holder */
-  sqlite3_uint64 tmCurrent;   /* Expiration of the current lease */
-  sqlite3_uint64 idNext;      /* ID for the next lease holder on queue */
-  sqlite3_uint64 tmNext;      /* Expiration of the next lease */
+  sqlite3_uint64 idCurrent; /* process ID for the current lease holder */
+  sqlite3_uint64 tmCurrent; /* Expiration of the current lease */
+  sqlite3_uint64 idNext;    /* process ID for the next lease holder on queue */
+  sqlite3_uint64 tmNext;    /* Expiration of the next lease */
 };
 #endif
 
-/*
-** Set to prevent backoffice processing from every entering sleep or
+/***************************************************************************
+** Local state variables
+**
+** Set to prevent backoffice processing from ever entering sleep or
 ** otherwise taking a long time to complete.  Set this when a user-visible
 ** process might need to wait for backoffice to complete.
 */
 static int backofficeNoDelay = 0;
 
+/* This variable is set to the name of a database on which backoffice
+** should run if backoffice process is needed.  It is set by the
+** backoffice_check_if_needed() routine which must be run while the database
+** file is open.  Later, after the database is closed, the
+** backoffice_run_if_needed() will consult this variable to see if it
+** should be a no-op.
+*/
+static char *backofficeDb = 0;
+
+/* End of state variables
+****************************************************************************/
+
 /*
-** Disable the backoffice
+** Do not allow backoffice processes to sleep waiting on a timeslot.
+** They must either do their work immediately or exit.
+**
+** In a perfect world, this interface would not exist, as there would
+** never be a problem with waiting backoffice threads.  But in some cases
+** a backoffice will delay a UI thread, so we don't want them to run for
+** longer than needed.
 */
 void backoffice_no_delay(void){
   backofficeNoDelay = 1;
@@ -132,7 +171,7 @@ static void backofficeWriteLease(Lease *pLease){
 }
 
 /*
-** Check to see if the process identified by selfId is alive.  If
+** Check to see if the process identified by pid is alive.  If
 ** we cannot prove the the process is dead, return true.
 */
 static int backofficeProcessExists(sqlite3_uint64 pid){
@@ -144,7 +183,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
 }
 
 /*
-** Check to see if the process identified by selfId has finished.  If
+** Check to see if the process identified by pid has finished.  If
 ** we cannot prove the the process is still running, return true.
 */
 static int backofficeProcessDone(sqlite3_uint64 pid){
@@ -207,25 +246,38 @@ void test_process_id_command(void){
   }
 }
 
-/* This is the main public interface to the backoffice.  A process invokes this
-** routine in an attempt to become the backoffice.  If another process is
-** already working as the backoffice, this routine returns very quickly
-** without doing any work - allowing the other process to continue.  But
-** if no other processes are currently operating as the backoffice, this
-** routine enters a loop to do background work periodically.
+/*
+** If backoffice processing is needed set the backofficeDb variable to the
+** name of the database file.  If no backoffice processing is needed,
+** this routine makes no changes to state.
 */
-void backoffice_run(void){
+void backoffice_check_if_needed(void){
   Lease x;
   sqlite3_uint64 tmNow;
-  sqlite3_uint64 idSelf;
-  int lastWarning = 0;
-  int warningDelay = 30;
-  static int once = 0;
 
-  if( once ){
-    fossil_panic("multiple calls to backoffice_run()");
+  if( backofficeDb ) return;
+  if( g.zRepositoryName==0 ) return;
+  if( g.db==0 ) return;
+  tmNow = time(0);
+  backofficeReadLease(&x);
+  if( x.tmNext>=tmNow && backofficeProcessExists(x.idNext) ){
+    /* Another backoffice process is already queued up to run.  This
+    ** process does not need to do any backoffice work. */
+    return;
+  }else{
+    /* We need to run backup to be (at a minimum) on-deck */
+    backofficeDb = fossil_strdup(g.zRepositoryName);
   }
-  once = 1;
+}
+
+/*
+** Check for errors prior to running backoffice_thread() or backoffice_run().
+*/
+static void backoffice_error_check_one(int *pOnce){
+  if( *pOnce ){
+    fossil_panic("multiple calls to backoffice()");
+  }
+  *pOnce = 1;
   if( g.db==0 ){
     fossil_panic("database not open for backoffice processing");
   }
@@ -233,6 +285,29 @@ void backoffice_run(void){
     fossil_panic("transaction %s not closed prior to backoffice processing",
                  db_transaction_start_point());
   }
+}
+
+/* This is the main loop for backoffice processing.
+**
+** If another process is already working as the current backoffice and
+** the on-deck backoffice, then this routine returns very quickly
+** without doing any work.
+**
+** If no backoffice processes are running at all, this routine becomes
+** the main backoffice.
+**
+** If a primary backoffice is running, but a on-deck backoffice is
+** needed, this routine becomes that on-desk backoffice.
+*/
+static void backoffice_thread(void){
+  Lease x;
+  sqlite3_uint64 tmNow;
+  sqlite3_uint64 idSelf;
+  int lastWarning = 0;
+  int warningDelay = 30;
+  static int once = 0;
+
+  backoffice_error_check_one(&once);
   backofficeTimeout(BKOFCE_LEASE_TIME*2);
   idSelf = backofficeProcessId();
   while(1){
@@ -305,13 +380,60 @@ void backoffice_work(void){
 }
 
 /*
-** COMMAND: test-backoffice
+** COMMAND: backoffice
 **
-** Usage: test-backoffice
+** Usage: backoffice [-R repository]
 **
-** Run backoffice processing
+** Run backoffice processing.  This might be done by a cron job or
+** similar to make sure backoffice processing happens periodically.
 */
-void test_backoffice_command(void){
+void backoffice_command(void){
+  verify_all_options();
   db_find_and_open_repository(0,0);
-  backoffice_run();
+  backoffice_thread();
+}
+
+/*
+** This is the main interface to backoffice from the rest of the system.
+** This routine launches either backoffice_thread() directly or as a
+** subprocess.
+*/
+void backoffice_run_if_needed(void){
+  if( backofficeDb==0 ) return;
+  if( strcmp(backofficeDb,"x")==0 ) return;
+  if( g.db ) return;
+  if( g.repositoryOpen ) return;
+#if !defined(_WIN32)
+  {
+    pid_t pid = fork();
+    if( pid>0 ){
+      /* This is the parent in a successful fork().  Return immediately. */
+      if( g.fAnyTrace ){
+        fprintf(stderr, 
+          "/***** Subprocess %d creates backoffice child %d *****/\n",
+          getpid(), (int)pid);
+      }
+      return;
+    }
+    if( pid==0 ){
+      /* This is the child of a successful fork().  Run backoffice. */
+      db_open_repository(backofficeDb);
+      backofficeDb = "x";
+      backoffice_thread();
+      db_close(1);
+      if( g.fAnyTrace ){
+        fprintf(stderr, "/***** Backoffice Child %d exits *****/\n", getpid());
+      }
+      exit(0);
+    }
+  }
+#endif
+  /* Fork() failed or is unavailable.  Run backoffice in this process, but
+  ** do so with the no-delay setting.
+  */
+  backofficeNoDelay = 1;
+  db_open_repository(backofficeDb);
+  backofficeDb = "x";
+  backoffice_thread();
+  db_close(1);
 }
