@@ -62,6 +62,8 @@
 #include <time.h>
 #if defined(_WIN32)
 # include <windows.h>
+# include <stdio.h>
+# include <process.h>
 #else
 # include <unistd.h>
 # include <sys/types.h>
@@ -376,6 +378,20 @@ static void backoffice_thread(void){
 ** backoffice processing tasks, add them here.
 */
 void backoffice_work(void){
+  /* Log the backoffice run for testing purposes.  For production deployments
+  ** the "backoffice-logfile" property should be unset and the following code
+  ** should be a no-op. */
+  char *zLog = db_get("backoffice-logfile",0);
+  if( zLog && zLog[0] ){
+    FILE *pLog = fossil_fopen(zLog, "a");
+    if( pLog ){
+      char *zDate = db_text(0, "SELECT datetime('now');");
+      fprintf(pLog, "%s (%d) backoffice running\n", zDate, getpid());
+      fclose(pLog);
+    }
+  }
+
+  /* Here is where the actual work of the backoffice happens */
   email_backoffice(0);
 }
 
@@ -388,8 +404,9 @@ void backoffice_work(void){
 ** similar to make sure backoffice processing happens periodically.
 */
 void backoffice_command(void){
-  verify_all_options();
+  if( find_option("trace",0,0)!=0 ) g.fAnyTrace = 1;
   db_find_and_open_repository(0,0);
+  verify_all_options();
   backoffice_thread();
 }
 
@@ -403,7 +420,28 @@ void backoffice_run_if_needed(void){
   if( strcmp(backofficeDb,"x")==0 ) return;
   if( g.db ) return;
   if( g.repositoryOpen ) return;
-#if !defined(_WIN32)
+#if defined(_WIN32)
+  {
+    int i;
+    intptr_t x;
+    char *argv[4];
+    wchar_t *ax[5];
+    argv[0] = g.nameOfExe;
+    argv[1] = "backoffice";
+    argv[2] = "-R";
+    argv[3] = backofficeDb;
+    ax[4] = 0;
+    for(i=0; i<=3; i++) ax[i] = fossil_utf8_to_unicode(argv[i]);
+    x = _wspawnv(_P_NOWAIT, ax[0], ax);
+    for(i=0; i<=3; i++) fossil_unicode_free(ax[i]);
+    if( g.fAnyTrace ){
+      fprintf(stderr, 
+        "/***** Subprocess %d creates backoffice child %d *****/\n",
+        getpid(), (int)x);
+    }
+    if( x>=0 ) return;
+  }
+#else /* unix */
   {
     pid_t pid = fork();
     if( pid>0 ){
@@ -417,6 +455,7 @@ void backoffice_run_if_needed(void){
     }
     if( pid==0 ){
       /* This is the child of a successful fork().  Run backoffice. */
+      setsid();
       db_open_repository(backofficeDb);
       backofficeDb = "x";
       backoffice_thread();

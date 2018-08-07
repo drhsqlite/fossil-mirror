@@ -3036,6 +3036,13 @@ struct Setting {
 ** it simply exits.
 */
 /*
+** SETTING: backoffice-logfile width=40
+** If backoffice-logfile is not an empty string and is a valid
+** filename, then a one-line message is appended to that file
+** every time the backoffice runs.  This can be used for debugging,
+** to ensure that backoffice is running appropriately.
+*/
+/*
 ** SETTING: binary-glob     width=40 versionable block-text
 ** The VALUE of this setting is a comma or newline-separated list of
 ** GLOB patterns that should be treated as binary files
