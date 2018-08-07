@@ -37,6 +37,25 @@
 ** process table, doing nothing on rarely accessed repositories, and
 ** if the Fossil binary is updated on a system, the backoffice processes
 ** will restart using the new binary automatically.
+**
+** At any point in time there should be at most two backoffice processes.
+** There is a main process that is doing the actually work, and there is
+** a second stand-by process that is waiting for the main process to finish
+** and that will become the main process after a delay.
+**
+** After any successful web page reply, the backoffice_check_if_needed()
+** routine is called.  That routine checks to see if both one or both of
+** the backoffice processes are already running.  That routine remembers the
+** status in a global variable.
+**
+** Later, after the repository database is closed, the
+** backoffice_run_if_needed() routine is called.  If the prior call
+** to backoffice_check_if_needed() indicated that backoffice processing
+** might be required, the run_if_needed() attempts to kick off a backoffice
+** process.
+**
+** All work performance by the backoffice is in the backoffice_work()
+** routine.
 */
 #include "config.h"
 #include "backoffice.h"
@@ -54,22 +73,22 @@
 ** processing run is valid.  Each backoffice run monopolizes the lease for
 ** at least this amount of time.  Hopefully all backoffice processing is
 ** finished much faster than this - usually in less than a second.  But
-** regardless of how fast each invocations run, successive backoffice runs
+** regardless of how long each invocation lasts, successive backoffice runs
 ** must be spaced out by at least this much time.
 */
-#define BKOFCE_LEASE_TIME   60    /* Length of lease validity */
+#define BKOFCE_LEASE_TIME   60    /* Length of lease validity in seconds */
 
 #if LOCAL_INTERFACE
 /*
 ** An instance of the following object describes a lease on the backoffice
 ** processing timeslot.  This lease is used to help ensure that no more than
-** one processing is running backoffice at a time.
+** one process is running backoffice at a time.
 */
 struct Lease {
-  sqlite3_uint64 idCurrent;   /* ID for the current lease holder */
-  sqlite3_uint64 tmCurrent;   /* Expiration of the current lease */
-  sqlite3_uint64 idNext;      /* ID for the next lease holder on queue */
-  sqlite3_uint64 tmNext;      /* Expiration of the next lease */
+  sqlite3_uint64 idCurrent; /* process ID for the current lease holder */
+  sqlite3_uint64 tmCurrent; /* Expiration of the current lease */
+  sqlite3_uint64 idNext;    /* process ID for the next lease holder on queue */
+  sqlite3_uint64 tmNext;    /* Expiration of the next lease */
 };
 #endif
 
@@ -152,7 +171,7 @@ static void backofficeWriteLease(Lease *pLease){
 }
 
 /*
-** Check to see if the process identified by selfId is alive.  If
+** Check to see if the process identified by pid is alive.  If
 ** we cannot prove the the process is dead, return true.
 */
 static int backofficeProcessExists(sqlite3_uint64 pid){
@@ -164,7 +183,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
 }
 
 /*
-** Check to see if the process identified by selfId has finished.  If
+** Check to see if the process identified by pid has finished.  If
 ** we cannot prove the the process is still running, return true.
 */
 static int backofficeProcessDone(sqlite3_uint64 pid){
@@ -228,7 +247,7 @@ void test_process_id_command(void){
 }
 
 /*
-** If backoffice processing is needed set the backofficeDb value to the
+** If backoffice processing is needed set the backofficeDb variable to the
 ** name of the database file.  If no backoffice processing is needed,
 ** this routine makes no changes to state.
 */
@@ -270,7 +289,7 @@ static void backoffice_error_check_one(int *pOnce){
 
 /* This is the main loop for backoffice processing.
 **
-** If others process is already working as the current backoffice and
+** If another process is already working as the current backoffice and
 ** the on-deck backoffice, then this routine returns very quickly
 ** without doing any work.
 **
@@ -278,7 +297,7 @@ static void backoffice_error_check_one(int *pOnce){
 ** the main backoffice.
 **
 ** If a primary backoffice is running, but a on-deck backoffice is
-** needed, this routine becomes that backoffice.
+** needed, this routine becomes that on-desk backoffice.
 */
 static void backoffice_thread(void){
   Lease x;
