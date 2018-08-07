@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sway\sbackoffice\sis\slaunched,\sespecially\son\sunix\swhere\sit\nnow\sruns\sin\sa\sseparate\sprocess\susing\sfork().\s\sAlso\sfix\ssome\sminor\sbugs\sin\nother\sparts\sof\sthe\ssystem\sthat\swere\sfound\swhile\stesting\sbackoffice.
-D 2018-08-07T18:30:15.898
+C Allow\smanifest\sartifacts\sto\somit\sthe\sC\sand\sU\scards,\sbecause\sotherwise\sthere\nare\ssome\shistorical\smanifest\sartifacts\sin\sFossil\sitself\sthat\swill\snot\sparse,\nand\sthere\smay\sbe\ssimilar\sartifacts\sin\sother\srepositories.
+D 2018-08-07T18:53:46.516
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/main.mk 460695ff5a78ff8b9e8be5b72145767909b769cf1d38ea6f66270691c71fa055
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl f08dbe43ae4983e12cf4d55e3728a8e8027d456a2374a09418a2eb14490f1428
-F src/manifest.c 8bb2e3b618b75d5e9b70fa3b80428258c355be28b442639838c8546699e962d5
+F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
@@ -858,8 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99fcc43f5d57ee530dd94aabf799ce0d3dc74ce8edd97182b54bb7feb85a3e7b 1b54dd79bfc98862cb5745f458c0f7536efafd0aed9746a40b2c478cb00d7a6c
-R c32be307be93385169e35c9e8c161d62
-T +closed 1b54dd79bfc98862cb5745f458c0f7536efafd0aed9746a40b2c478cb00d7a6c
+P 4180dc6b5a6c226fd22c8b3551dcd26bd0aa936eeb00dd2c6c897e70a2fac4eb
+R 309b6e0c199135e51c6ccec35df77c5a
 U drh
-Z 414f31002f2f28e2ba827fdf24b96ed7
+Z e2dfa05cfb34b93c9bb73dcb86fb019c

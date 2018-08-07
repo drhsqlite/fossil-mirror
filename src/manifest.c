@@ -127,7 +127,9 @@ static struct {
   const char *zRequired;    /* Required cards.  Human-readable */
 } manifestCardTypes[] = {
   /*                           Allowed          Required    */
-  /* CFTYPE_MANIFEST   1 */ { "BCDFNPQRTUZ",   "CDUZ"        },
+  /* CFTYPE_MANIFEST   1 */ { "BCDFNPQRTUZ",   "DZ"          },
+                     /* Wants to be "CDUZ" ----^^^^
+                     ** but we must limit for historical compatibility */
   /* CFTYPE_CLUSTER    2 */ { "MZ",            "MZ"          },
   /* CFTYPE_CONTROL    3 */ { "DTUZ",          "DTUZ"        },
   /* CFTYPE_WIKI       4 */ { "DLNPUWZ",       "DLUWZ"       },
@@ -994,7 +996,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   /* If the artifact type has not yet been determined, then compute
   ** it now. */
   if( p->type==0 ){
-    p->type = p->zComment!=0 ? CFTYPE_MANIFEST : CFTYPE_CONTROL;
+    if( p->zComment!=0 || p->nFile>0 || p->nParent>0 ){
+      p->type = CFTYPE_MANIFEST;
+    }else{
+      p->type = CFTYPE_CONTROL;
+    }
   }
 
   /* Verify that no disallowed cards are present for this artifact type */
@@ -1121,7 +1127,8 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
-  sqlite3_open(":memory:", &g.db);
+  db_find_and_open_repository(0,0);
+  verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
