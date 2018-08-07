@@ -407,7 +407,7 @@ static void win32_http_request(void *pAppData){
   fwrite(zCmd, 1, strlen(zCmd), aux);
 
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http -args \"%s\" --nossl --nodelay%s",
+    "\"%s\" http -args \"%s\" --nossl%s",
     g.nameOfExe, zCmdFName, p->zOptions
   );
   in = fossil_fopen(zReplyFName, "w+b");
@@ -478,7 +478,7 @@ static void win32_scgi_request(void *pAppData){
   zIp = SocketAddr_toString(&p->addr);
   sqlite3_snprintf(sizeof(zCmd), zCmd,
     "\"%s\" http --in \"%s\" --out \"%s\" --ipaddr %s \"%s\""
-    " --scgi --nossl --nodelay%s",
+    " --scgi --nossl%s",
     g.nameOfExe, zRequestFName, zReplyFName, zIp,
     g.zRepositoryName, p->zOptions
   );

@@ -356,7 +356,7 @@ void cgi_reply(void){
     if( g.httpOut==0 ){
       fossil_warning("failed ot open /dev/null");
     }else{
-      backoffice_run();
+      backoffice_check_if_needed();
     }
   }
 }
