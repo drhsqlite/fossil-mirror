@@ -1720,9 +1720,9 @@ rep_not_found:
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
     if( nArgUsed==0 ){
-      fossil_panic("use --repository or -R to specify the repository database");
+      fossil_fatal("use --repository or -R to specify the repository database");
     }else{
-      fossil_panic("specify the repository name as a command-line argument");
+      fossil_fatal("specify the repository name as a command-line argument");
     }
   }
 }
