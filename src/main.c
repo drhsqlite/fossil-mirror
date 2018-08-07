@@ -22,6 +22,7 @@
 #include "config.h"
 #if defined(_WIN32)
 #  include <windows.h>
+#  define GETPID (int)GetCurrentProcessId
 #endif
 #include "main.h"
 #include <string.h>
@@ -32,6 +33,9 @@
 #include <stdlib.h> /* atexit() */
 #if !defined(_WIN32)
 #  include <errno.h> /* errno global */
+#  include <unistd.h>
+#  include <signal.h>
+#  define GETPID getpid
 #endif
 #ifdef FOSSIL_ENABLE_SSL
 #  include "openssl/crypto.h"
@@ -601,6 +605,23 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
+
+#if !defined(_WIN32_WCE)
+  if( fossil_getenv("FOSSIL_BREAK") ){
+    if( isatty(0) && isatty(2) ){
+      fprintf(stderr,
+          "attach debugger to process %d and press any key to continue.\n",
+          GETPID());
+      fgetc(stdin);
+    }else{
+#if defined(_WIN32) || defined(WIN32)
+      DebugBreak();
+#elif defined(SIGTRAP)
+      raise(SIGTRAP);
+#endif
+    }
+  }
+#endif
 
   fossil_limit_memory(1);
   if( sqlite3_libversion_number()<3014000 ){
