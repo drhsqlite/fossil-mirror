@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning.
-D 2018-08-07T21:44:02.246
+C In\sthe\sbackoffice\smodule,\suse\sGETPID\smacro\sconsistently,\sfix\scompiler\swarning\swith\sMinGW,\sand\sadd\san\sassert().
+D 2018-08-07T21:45:18.063
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 60126d85b7673156ff69842a590bbab8762b9326b1b8f9161e1e6bcee084d630
+F src/backoffice.c 0195808aec1049c7d6fdc32b4a77750e7dfff2cb83c2370012014278a345eb3e
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f430f6234abb45c49c0a4c751fd144ef81f5b981fee8737378a392cbadc77b3d
-R 84ebde872a7be818c346535ecbad2e4d
+P 014bb2d7debc98e594df94668ed8f658fe834bc51db4210515f8a1e23360661e
+R 9ec09dc6546d1888a17faf2df48a95a3
 U mistachkin
-Z fbc2ce0fd259887a0e363c21e4bae194
+Z d4e5cb0582ba10cedca5c6e12c87d9ff

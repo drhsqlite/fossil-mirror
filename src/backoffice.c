@@ -64,6 +64,9 @@
 # include <windows.h>
 # include <stdio.h>
 # include <process.h>
+# if defined(__MINGW32__)
+#  include <wchar.h>
+# endif
 # define GETPID (int)GetCurrentProcessId
 #else
 # include <unistd.h>
@@ -479,6 +482,7 @@ static void backoffice_thread(void){
     }
   }
 #if defined(_WIN32)
+  assert( threadHandle!=NULL );
   backofficeWin32ThreadCleanup();
 #endif
   return;
@@ -497,7 +501,7 @@ void backoffice_work(void){
     FILE *pLog = fossil_fopen(zLog, "a");
     if( pLog ){
       char *zDate = db_text(0, "SELECT datetime('now');");
-      fprintf(pLog, "%s (%d) backoffice running\n", zDate, getpid());
+      fprintf(pLog, "%s (%d) backoffice running\n", zDate, GETPID());
       fclose(pLog);
     }
   }
@@ -548,7 +552,7 @@ void backoffice_run_if_needed(void){
     if( g.fAnyTrace ){
       fprintf(stderr, 
         "/***** Subprocess %d creates backoffice child %d *****/\n",
-        getpid(), (int)x);
+        GETPID(), (int)x);
     }
     if( x>=0 ) return;
   }
@@ -560,7 +564,7 @@ void backoffice_run_if_needed(void){
       if( g.fAnyTrace ){
         fprintf(stderr, 
           "/***** Subprocess %d creates backoffice child %d *****/\n",
-          getpid(), (int)pid);
+          GETPID(), (int)pid);
       }
       return;
     }
@@ -572,7 +576,7 @@ void backoffice_run_if_needed(void){
       backoffice_thread();
       db_close(1);
       if( g.fAnyTrace ){
-        fprintf(stderr, "/***** Backoffice Child %d exits *****/\n", getpid());
+        fprintf(stderr, "/***** Backoffice Child %d exits *****/\n", GETPID());
       }
       exit(0);
     }
