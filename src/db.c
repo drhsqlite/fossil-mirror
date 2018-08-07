@@ -72,19 +72,14 @@ const struct Stmt empty_Stmt = empty_Stmt_m;
 ** Call this routine when a database error occurs.
 */
 static void db_err(const char *zFormat, ...){
-  static int rcLooping = 0;
   va_list ap;
   char *z;
-  if( rcLooping ) exit(rcLooping);
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     json_err( 0, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
   }
   else
 #endif /* FOSSIL_ENABLE_JSON */
