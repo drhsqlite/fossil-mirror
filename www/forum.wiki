@@ -15,11 +15,11 @@ built-in forum feature:
 
   *  Posts are stored in the Fossil repository using the same
      [./fileformat.wiki | block chain technology] that Fossil uses to
-     store your check-ins, wiki documents, etc. Posts sync to clone
+     store your check-ins, wiki documents, etc. Posts sync to cloned
      repositories in a tamper-proof fashion.
 
   *  Because of Fossil's [./delta_format.wiki | delta compression
-     technology], discussions add little space to the size of a cloned
+     technology], discussions add little to the size of a cloned
      repository. Ten years of the SQLite project's discussions —
      averaging 2 or 3 dozen posts per day — compress down to just
      35&nbsp;MB of space in a Fossil Forums repository.
@@ -46,9 +46,9 @@ built-in forum feature:
      because your third-party forum software or mailing list search
      engine changed its URL scheme.
 
-  *  Forum permissions use the same role-based access control mechanism
-     as Fossil itself.
-     
+  *  The forum uses the same role-based access control mechanism as
+     Fossil uses for all other accesses.
+
   *  Since Fossil has an [./fileformat.wiki | open and well-documented
      file format], your discussion archives are truly that:
      <em>archives</em>. You are no longer dependent on a third-party
@@ -62,6 +62,18 @@ built-in forum feature:
      (good for security) or to allow HTML-formatted MIME email (good for
      complex discussions). Fossil Forums provide <em>enough</em>
      formatting without giving up security.
+
+  *  Fossil forums integrate with third-party [mail transfer
+     agents][MTA]. If you've got mail service configured on the server
+     hosting your Fossil instance, it can send notifications of new
+     posts to interested forum users, complete with message content for
+     those that prefer to visit the forum only when they need to post
+     something.
+
+  *  Because Fossil accepts forum posts only via the web UI, it is
+     inherently [./antibot.wiki | protected against bots].
+
+[MTA]: https://en.wikipedia.org/wiki/Message_transfer_agent
 
 
 <h2>Setting up a Fossil Forum</h2>
@@ -84,6 +96,28 @@ There are several dedicated permsissions for forums:
      moderation tasks.
   *  <b>Administer</b>: User can grant <b>Write Trusted</b> permission
      to another user, or revoke it. (Currently unimplemented.)
+
+By default, no Fossil user has permission to use the forums except for
+users with Setup and Admin capabilities, which get these as part of the
+large package of other capabilities they get.
+
+For public Fossil repositories that wish to accept new users without
+involving a human, go into Admin &rarr; Access and enable the "Allow
+users to register themselves" setting. You may also wish to give the
+`anonymous` user category the Read Forum (2) and Write Forum (3)
+capabilities: this allows people to post without creating an account
+simply by solving [./antibot.wiki | a simple CAPTCHA].
+
+For a private repository, you will likely wish to give the "23"
+capability pair to the `reader` user category instead.
+
+For either type of repository, you are likely to want to give at least
+the Write Trusted (4) capability to the `developer` user category.
+
+By following this advice, you should not need to tediously add
+capabilities to individual accounts, except in atypical cases, such as
+to grant the Moderate Forum capability (5) to an uncommonly
+highly-trusted user.
 
 
 <h3>Single Sign-On</h3>
