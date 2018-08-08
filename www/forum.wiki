@@ -63,17 +63,16 @@ built-in forum feature:
      complex discussions). Fossil Forums provide <em>enough</em>
      formatting without giving up security.
 
-  *  Fossil forums integrate with third-party [mail transfer
-     agents][MTA]. If you've got mail service configured on the server
-     hosting your Fossil instance, it can send notifications of new
-     posts to interested forum users, complete with message content for
-     those that prefer to visit the forum only when they need to post
-     something.
+  *  Fossil forums integrate with third-party
+     [https://en.wikipedia.org/wiki/Message_transfer_agent | message transfer agents]
+     such as Postfix, Exim, and Sendmail.  If you've got mail service
+     configured on the server hosting your Fossil instance, it can send
+     notifications of new posts to interested forum users, complete with
+     message content for those that prefer to visit the forum only when
+     they need to post something.
 
   *  Because Fossil accepts forum posts only via the web UI, it is
      inherently [./antibot.wiki | protected against bots].
-
-[MTA]: https://en.wikipedia.org/wiki/Message_transfer_agent
 
 
 <h2>Setting up a Fossil Forum</h2>
