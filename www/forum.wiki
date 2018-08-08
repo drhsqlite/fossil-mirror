@@ -120,6 +120,31 @@ to grant the Moderate Forum capability (5) to an uncommonly
 highly-trusted user.
 
 
+<h3>Skin Setup</h3>
+
+If you create a new Fossil repository with version 2.7 or newer, its
+default skin is already set up correctly for typical forum
+configurations.
+
+Those upgrading existing repositories will need to edit the Header part
+of their existing Fossil skin in Admin &rarr; Skins, adding something
+like this to create the navbar link:
+
+<verbatim>
+  if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+    menulink /forum Forum
+  }
+</verbatim>
+
+These rules say that any logged-in user with any forum-related
+capability (2-6 inclusive, as of this writing) or an anonymous user with
+read or write capability on the forum (2, 3) will see the "Forum" navbar
+link, which just takes you to <tt>/forum</tt>.
+
+The exact code you need here varies depending on which skin you're
+using. Follow the style you see for the other navbar links.
+
+
 <h3>Single Sign-On</h3>
 
 If you choose to host your discussion forums within the same repository
