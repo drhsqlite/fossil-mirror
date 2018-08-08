@@ -14,12 +14,8 @@
 <li> [./fossil-v-git.wiki | Fossil vs. Git]
 <li> [./hints.wiki | Tip &amp; Hints]
 <li> [./permutedindex.html | Documentation Index]
-<li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
-<li> Mailing list
-     <ul>
-     <li> [http://mailinglists.sqlite.org/cgi-bin/mailman/listinfo/fossil-users | sign-up]
-     <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
-     </ul>
+<li> [https://fossil-scm.org/forum | Forum ]
+<li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | Mailing list archives]
 </ul>
 <img src="fossil3.gif" align="center">
 </div>
