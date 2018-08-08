@@ -166,6 +166,14 @@ void backoffice_no_delay(void){
 }
 
 /*
+** Signal that the backoffice should not be run at the conclusion of
+** the current session.
+*/
+void backoffice_do_not_run(void){
+  backofficeDb = "x";
+}
+
+/*
 ** Sleeps for the specified number of milliseconds -OR- until interrupted
 ** by another thread (if supported by the underlying platform).  Non-zero
 ** will be returned if the sleep was interrupted.
@@ -432,6 +440,59 @@ void test_backoffice_lease(void){
   }else{
     fossil_print("\n");
   }
+}
+
+
+/*
+** WEBPAGE: test-backoffice-lease
+**
+** Print out information about the backoffice "lease" entry in the
+** config table that controls whether or not backoffice should run.
+*/
+void test_backoffice_lease_page(void){
+  sqlite3_int64 tmNow = time(0);
+  Lease x;
+  const char *zLease;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  style_header("Backoffice Lease");
+  backoffice_do_not_run();
+  @ <table class='label-value'>
+  zLease = db_get("backoffice","");
+  @ <tr><th>Now:</th><td>%lld(tmNow)</td></tr>
+  @ <tr><th>Lease:</th><td colspan="3">"%h(zLease)"</td></tr>
+  backofficeReadLease(&x);
+  @ <tr><th>idCurrent:</th><td>%lld(x.idCurrent)</td><td>&nbsp;</td><td>\
+  if( backofficeProcessExists(x.idCurrent) ){
+    @ (exists) \
+  }
+  if( backofficeProcessDone(x.idCurrent) ){
+    @ (done) \
+  }
+  @ </td></tr>
+  @ <tr><th>tmCurrent:</th><td>%lld(x.tmCurrent)</td><td></td><td>\
+  if( x.tmCurrent>0 ){
+    @ (now%+lld(x.tmCurrent-tmNow)) \
+  }
+  @ </td></tr>
+  @ <tr><th>idNext:</th><td>%lld(x.idNext)</td><td>&nbsp;</td><td>\
+  if( backofficeProcessExists(x.idNext) ){
+    @ (exists) \
+  }
+  if( backofficeProcessDone(x.idNext) ){
+    @ (done) \
+  }
+  @ </td></tr>
+  @ <tr><th>tmNext:</th><td>%lld(x.tmNext)</td><td></td><td>\
+  if( x.tmNext>0 ){
+    @ (now%+lld(x.tmNext-tmNow)) \
+  }
+  @ </td></tr>
+  @ </table>
+  style_footer();
 }
 
 /*
