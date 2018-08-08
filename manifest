@@ -1,5 +1,5 @@
-C Add\sthe\stest-backoffice-lease\scommand\sfor\stesting\sthe\sbackoffice.
-D 2018-08-08T00:01:32.138
+C Fix\ssome\scompiler\swarnings.
+D 2018-08-08T00:03:19.694
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c c56d3d847c949da0583859bcdf63926ea73a48784944eaf42f01b1e05fdfb82a
+F src/backoffice.c d1e31a098aefa5d4eb2a879c009dd59ad024818585c8c661aff48f888b69f889
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -512,7 +512,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c c35d07390b723a242d1dfd80e26b0c4cba35e129caf000f18e74fa2006a7f8fc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 0bcaf81719407b268d24b95dd098e0ef5eb6bde2bf00bb0b9bde02da4c1a0fbd
+F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
 F src/main.mk 460695ff5a78ff8b9e8be5b72145767909b769cf1d38ea6f66270691c71fa055
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -858,7 +858,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fe9da816feba1bc9455cce2b3d8a120718e727462011a70a67b9c1154f2cf2f
-R 35acf14c2163d6fdd05e0ec2e5a98bd3
-U drh
-Z 2b477d04d2182f3b8130e30f163c420f
+P f26ef80609602e61dd912477b1a44101e999e219a314868503c52672fa21b9f2
+R a52b2a9a654a3309e8c0793fc4de480f
+U mistachkin
+Z a6b5490d0665e5ccf1ee1b39e41bc715

@@ -126,6 +126,7 @@ static char *backofficeDb = 0;
 */
 #if defined(_WIN32)
 # define BKOFCE_ALWAYS_TRACE   (1)
+extern void sqlite3_win32_write_debug(const char *, int);
 #else
 # define BKOFCE_ALWAYS_TRACE   (0)
 #endif

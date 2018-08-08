@@ -22,6 +22,8 @@
 #include "config.h"
 #if defined(_WIN32)
 #  include <windows.h>
+#  include <io.h>
+#  define isatty(h) _isatty(h)
 #  define GETPID (int)GetCurrentProcessId
 #endif
 #include "main.h"
