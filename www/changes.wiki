@@ -1,5 +1,11 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_7'></a>
+<h2>Changes for Version 2.7 (2018-??-??)</h2>
+
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 10.0 to 11.0.
+
 <a name='v2_6'></a>
 <h2>Changes for Version 2.6 (2018-05-04)</h2>
 
