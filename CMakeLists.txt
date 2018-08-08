@@ -217,14 +217,17 @@ set_target_properties(app PROPERTIES
     OUTPUT_NAME "${app_NAME}"
     RUNTIME_OUTPUT_DIRECTORY "${app_DIR}"
 )
-set_target_properties(app PROPERTIES
-    LINK_FLAGS "/INCREMENTAL:NO /MANIFEST:NO"
-)
-if(MSVC AND isDebugBuild)
+if(MSVC)
     set_target_properties(app PROPERTIES
-        PDB_NAME "${app_NAME}"
+        LINK_FLAGS "/INCREMENTAL:NO /MANIFEST:NO"
     )
+    if(isDebugBuild)
+        set_target_properties(app PROPERTIES
+            PDB_NAME "${app_NAME}"
+        )
+    endif()
 endif()
+
 add_custom_command(TARGET app PRE_LINK
     COMMAND "${CMAKE_COMMAND}" -E chdir  "$<TARGET_FILE_DIR:app>"
             "${CMAKE_COMMAND}" -E rename "$<TARGET_FILE_NAME:app>"
