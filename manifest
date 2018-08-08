@@ -1,5 +1,5 @@
-C Enhance\sthe\s/register\spage\sso\sthat\sit\salso\sdoes\semail\ssubscriptions\sif\sthat\nis\senabled\sfor\sself-registered\susers.
-D 2018-08-08T20:01:46.992
+C Disable\sbackoffice\stimeouts.\s\sThis\sis\sa\stemporary\smeasure\sto\savoid\sa\nhorrible\sbug\sin\swhich\sa\stimeout\scauses\sthe\semail\snotification\ssending\sprocess\nto\sexit\sbefore\srecording\sthe\sfact\sthat\snotifications\shave\salready\sbeen\ssent,\nand\sthus\scausing\sthe\ssame\snotifications\sto\sbe\ssent\sagain\son\sthe\snext\nbackoffice\scycle,\sand\sso\sforth\sover\sand\sover\sand\sover.
+D 2018-08-08T20:56:50.655
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 45114291b7964466834ee347b581b90a8fd5fe27be43504ab16e033bb6965c74
+F src/backoffice.c d606449a55249c85edcfe50478575126c68227b4481b2b1d4c59bffcd233adfa
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc303c0ec006ab3109261788dcf99d71dc8b671df8dbfea68ac74b2922d0182f
-R 4db223ab1074f4a4bde676a8d233cb90
+P 2e308280444314cc181e8fb3cc90fedecdcfd2b98d313d608a5b73e53e554b56
+R 9defba162ea8073941cf53b6b4683b9d
 U drh
-Z 5769599b8b1ad6302bdddaf549380391
+Z f51b0cb0704caccbe79214f5ec9644e4

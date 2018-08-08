@@ -307,6 +307,7 @@ static sqlite3_uint64 backofficeProcessId(void){
   return (sqlite3_uint64)GETPID();
 }
 
+#if 0 /* Disable the backoffice timeout for now */
 /*
 ** Set an alarm to cause the process to exit after "x" seconds.  This
 ** prevents any kind of bug from keeping a backoffice process running
@@ -370,7 +371,10 @@ static void backofficeTimeout(int x){
   alarm(x);
 #endif
 }
-
+#else  /* Real timeout (above) is disabled.  In its place is the following */
+       /* stub routine */
+static void backofficeTimeout(int x){ /* no-op */ }
+#endif
 
 /*
 ** COMMAND: test-process-id
