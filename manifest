@@ -1,5 +1,5 @@
-C Adjust\sthe\shomepage\sto\spoint\sto\sthe\snew\sforum\sinstead\sof\sto\sthe\slegacy\nmailing\slists.
-D 2018-08-08T12:27:18.357
+C Add\stable\ssorting\sto\sthe\ssubscriber\slist.
+D 2018-08-08T13:47:25.679
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c 0b017cda4dd791d4025c4667b7193792d5d6017753fb3985e7f53059cd2ddf1c
+F src/email.c a3c9775809030e59ee3539278a7b4630b4f0bb7c41b48ab292d19fe9993efb38
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -860,7 +860,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 62411f371f376e05e34d914d3c7f68eef0f87d059b2c550d04d69ccd3480228f
-R 29db9695831f4fc7a3e751932c42ab86
+P ec88836dd68627bec4a5f9f7482562e333fba9acdcf7b8eae582518315910f7e
+R 5234eae87810ed4507f8a6390410f278
 U drh
-Z 80e43ba2433f622af70c448e5208d163
+Z f76644fafa94c549d282041c7ffe956d

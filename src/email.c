@@ -1733,7 +1733,7 @@ void unsubscribe_page(void){
 void subscriber_list_page(void){
   Blob sql;
   Stmt q;
-  double rNow;
+  sqlite3_int64 iNow;
   if( email_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -1750,17 +1750,20 @@ void subscriber_list_page(void){
     "       suname,"                       /* 3 */
     "       sverified,"                    /* 4 */
     "       sdigest,"                      /* 5 */
-    "       date(sctime,'unixepoch'),"     /* 6 */
-    "       julianday(mtime,'unixepoch')"  /* 7 */
+    "       mtime,"                        /* 6 */
+    "       date(sctime,'unixepoch')"      /* 7 */
     " FROM subscriber"
   );
   if( P("only")!=0 ){
     blob_append_sql(&sql, " WHERE ssub LIKE '%%%q%%'", P("only"));
     style_submenu_element("Show All","%R/subscribers");
   }
+  blob_append_sql(&sql," ORDER BY mtime DESC");
   db_prepare_blob(&q, &sql);
-  rNow = db_double(0.0,"SELECT julianday('now')");
-  @ <table border="1">
+  iNow = time(0);
+  @ <table border='1' class='sortable' \
+  @ data-init-sort='6' data-column-types='tttttKt'>
+  @ <thead>
   @ <tr>
   @ <th>Email
   @ <th>Events
@@ -1770,8 +1773,10 @@ void subscriber_list_page(void){
   @ <th>Last change
   @ <th>Created
   @ </tr>
+  @ </thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
-    double rAge = rNow - db_column_double(&q, 7);
+    sqlite3_int64 iMtime = db_column_int64(&q, 6);
+    double rAge = (iNow - iMtime)/86400.0;
     @ <tr>
     @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
@@ -1779,12 +1784,13 @@ void subscriber_list_page(void){
     @ <td>%s(db_column_int(&q,5)?"digest":"")</td>
     @ <td>%h(db_column_text(&q,3))</td>
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
-    @ <td>%z(human_readable_age(rAge))</td>
-    @ <td>%h(db_column_text(&q,6))</td>
+    @ <td data-sortkey='%010llx(iMtime)'>%z(human_readable_age(rAge))</td>
+    @ <td>%h(db_column_text(&q,7))</td>
     @ </tr>
   }
-  @ </table>
+  @ </tbody></table>
   db_finalize(&q);
+  style_table_sorter();
   style_footer();
 }
 
