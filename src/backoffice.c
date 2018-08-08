@@ -646,7 +646,9 @@ void backoffice_run_if_needed(void){
     }
     if( pid==0 ){
       /* This is the child of a successful fork().  Run backoffice. */
+      int i;
       setsid();
+      for(i=3; close(i)==0 || i<10; i++){}
       db_open_repository(backofficeDb);
       backofficeDb = "x";
       backoffice_thread();
