@@ -1,5 +1,5 @@
-C Disable\sbackoffice\stimeouts.\s\sThis\sis\sa\stemporary\smeasure\sto\savoid\sa\nhorrible\sbug\sin\swhich\sa\stimeout\scauses\sthe\semail\snotification\ssending\sprocess\nto\sexit\sbefore\srecording\sthe\sfact\sthat\snotifications\shave\salready\sbeen\ssent,\nand\sthus\scausing\sthe\ssame\snotifications\sto\sbe\ssent\sagain\son\sthe\snext\nbackoffice\scycle,\sand\sso\sforth\sover\sand\sover\sand\sover.
-D 2018-08-08T20:56:50.655
+C Go\sahead\sand\spermanently\sremove\sthe\sbackoffice\stimeout\smechanism,\sas\sit\nseems\sclear\swe\swill\snot\shave\sa\suse\sfor\sit\smoving\sforward.
+D 2018-08-08T23:59:54.071
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c d606449a55249c85edcfe50478575126c68227b4481b2b1d4c59bffcd233adfa
+F src/backoffice.c 2c2243f25d025ee1de1e1636ad7c71341bc9a1581e0ba0af3cbbb0912e1c0101
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e308280444314cc181e8fb3cc90fedecdcfd2b98d313d608a5b73e53e554b56
-R 9defba162ea8073941cf53b6b4683b9d
+P 628d63c4cfb32928340ba99364446b9250752447bbd2e6eb768d71f4688ee95e
+R aeeba6daa0926df7aa4f640bb15c5970
 U drh
-Z f51b0cb0704caccbe79214f5ec9644e4
+Z 8f389f381ef2cd3fd488c84035b96030
