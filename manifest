@@ -1,5 +1,5 @@
-C Update\sinternal\sUnicode\scharacter\stables,\sused\sin\sregular\sexpression\n\shandling,\sfrom\sversion\s10.0\sto\s11.0.
-D 2018-08-08T09:21:13.715
+C Add\sinitial\sdocumentation\sabout\semail\salerts.\s\sRemove\sobsolete\sforum\nfeatures\sfrom\sthe\s"fossil\sconfig"\scommand.
+D 2018-08-08T11:35:48.107
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -449,7 +449,7 @@ F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c 3da69f1393165f3d1634c5367ae3f42b5c73754f36d9a743b39c3fe49753c0e6
 F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
-F src/configure.c 506880ba1fddc29affb9aaf1a416c1ae62c6fd606460943924075c2f6beb7a9f
+F src/configure.c 1269180c331bf2e8ccad402d30cb450eafcc6048ae7255ad2096e096357cb3ff
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -598,7 +598,7 @@ F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba2
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c cc88a482a2fdec2fcfaf432e6bdb1ac444ebb1d4
-F src/xfer.c d984602ed31a7104b1adac25c19f967ca92523082fd018a9d1791ee0c484311b
+F src/xfer.c d8bc971622ad842c7b5d79d93d343ab6cbd3374cee23dbe17b43b53b26eec817
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -748,6 +748,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 99aa5e1f5bb489c7e981e002a054d90121dd6463587a5d45f28df6b9e3e7ab09
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
+F www/alerts.md cfd73e0de7ea1d1d1a81a015eb07c8e93facb66df8a06d3495da92b91f82babf
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -767,7 +768,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki a202280b643f7381c8697471c274d5c9caaeb61965b077ac134ca12ceac0f446
-F www/changes.wiki e93732493df4d5340c70f638893ad515630dff47c78bef1a00ebcbabdd8ba4df
+F www/changes.wiki 9ebd27f0b8901ea51f2c683dceb600adfed8196e98e1a5cc85e1f7b10ce44c6a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -827,10 +828,10 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki bcc55536f299e9e93b2197602d9b4a5ce30a43852a3b1271bc6bec8f71933109
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750fcbf
-F www/mkindex.tcl e05703020fb04c6d9c20266512accdb380f290349c44080cecd28ebeaa4bc696 x
+F www/mkindex.tcl b2b90c7561ffa43f334247e06bf89f316bc82d59d80d3b944d271a41441b397d x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html cc7c257a3a7b9204300d3e4ca1f69482aafd5f93ede64ab2f0077ee0535955e3
+F www/permutedindex.html 75a49c51b77f2d3e758dccccd2d8f43e15f7852c40d5df17b10a597b40802703
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -859,7 +860,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 88240d4d4a3bea69f5c9d42dda8e1d508f4503c344013bf33e27d5e3526ac5f7
-R 60be08bf5c02264ae7229530e37fb49a
-U jan.nijtmans
-Z fcc514aa1a4ec969edbd4770342e49a8
+P 1aff43a74a9eeefb8b792736bb7e0a4e88902da36cec2ea73b7e5fd7699d44dd
+R dbe20057d04d4b4275d1942c0053ca45
+U drh
+Z 4f9bb3c3f892ce5c04f8d5699a5166a3

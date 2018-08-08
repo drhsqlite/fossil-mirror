@@ -39,9 +39,7 @@
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 #define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
 #define CONFIGSET_SCRIBER   0x000200     /* Email subscribers */
-#define CONFIGSET_FORUM     0x000400     /* Forum posts */
-
-#define CONFIGSET_ALL       0x0007ff     /* Everything */
+#define CONFIGSET_ALL       0x0003ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 
@@ -72,8 +70,7 @@ static struct {
   { "/user",        CONFIGSET_USER,  "Users and privilege settings"         },
   { "/xfer",        CONFIGSET_XFER,  "Transfer setup",                      },
   { "/alias",       CONFIGSET_ALIAS, "URL Aliases",                         },
-  { "/subscriber",  CONFIGSET_SCRIBER,"Email notification subscriber list" },
-/*{ "/forum",       CONFIGSET_FORUM, "Forum posts",                         },*/
+  { "/subscriber",  CONFIGSET_SCRIBER,"Email notification subscriber list"  },
   { "/all",         CONFIGSET_ALL,   "All of the above"                     },
 };
 
@@ -238,9 +235,6 @@ int configure_is_exportable(const char *zName){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
         m &= ~(CONFIGSET_USER|CONFIGSET_SCRIBER);
-      }
-      if( !g.perm.RdForum ){
-        m &= ~(CONFIGSET_FORUM);
       }
       if( !g.perm.RdAddr ){
         m &= ~CONFIGSET_ADDR;
@@ -699,7 +693,9 @@ static void export_config(
 **    %fossil configuration export AREA FILENAME
 **
 **         Write to FILENAME exported configuration information for AREA.
-**         AREA can be one of:  all email project shun skin ticket user alias
+**         AREA can be one of:
+**
+**             all email project shun skin ticket user alias subscriber
 **
 **    %fossil configuration import FILENAME
 **
