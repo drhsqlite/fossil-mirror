@@ -21,12 +21,6 @@
 #include "VERSION.h"
 #include "config.h"
 #include "style.h"
-#ifndef _WIN32
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <fcntl.h># 
-#endif
-
 
 /*
 ** Elements of the submenu are collected into the following
@@ -445,13 +439,6 @@ void style_header(const char *zTitleFormat, ...){
     cgi_print_all(0, 0);
     @ </div>
   }
-#ifndef _WIN32
-  g.fdDevNull = open("/dev/null", O_RDWR);
-  if( g.fdDevNull<0 ){
-    fossil_warning("cannot open /dev/null");
-    webpage_error("Cannot open /dev/null");
-  }
-#endif
 }
 
 #if INTERFACE

@@ -711,9 +711,7 @@ void backoffice_run_if_needed(void){
   }
 #else /* unix */
   {
-    pid_t pid;
-    if( g.fdDevNull<0 ) return;
-    pid = fork();
+    pid_t pid = fork();
     if( pid>0 ){
       /* This is the parent in a successful fork().  Return immediately. */
       backofficeTrace(
@@ -727,7 +725,7 @@ void backoffice_run_if_needed(void){
       setsid();
       for(i=0; i<=2; i++){
         close(i);
-        dup(g.fdDevNull);
+        open("/dev/null", O_RDWR);
       }
       for(i=3; i<100; i++){ close(i); }
       db_open_repository(backofficeDb);

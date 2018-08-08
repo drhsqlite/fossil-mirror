@@ -1,5 +1,5 @@
-C In\sthe\sbackoffice\sprocess,\sclose\sthe\s0,\s1,\sand\s2\sfile\sdescriptiors\sand\nreopen\sthem\sas\s/dev/null,\son\sunix.
-D 2018-08-08T17:57:44.149
+C A\ssimpler\smethod\sof\sensuring\sthat\sbackoffice\sdoes\snot\scling\sto\sthe\nstandard\sinput\sand\soutput.
+D 2018-08-08T18:10:22.844
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c b133f4c6524a7d9cc1f20218b5f909c681403e7c9befd235540fbdde967a624d
+F src/backoffice.c 414b1e249a3495d47ac8b831d2446fcebb43b2c21b29558d8e410de5ef45522d
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -512,7 +512,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c c35d07390b723a242d1dfd80e26b0c4cba35e129caf000f18e74fa2006a7f8fc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c eed93aab13ff6feb347ccf024d6fa8b4d7acef51fbcb772e56b1689afdd4a101
+F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
 F src/main.mk 460695ff5a78ff8b9e8be5b72145767909b769cf1d38ea6f66270691c71fa055
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -566,7 +566,7 @@ F src/sqlite3.h 30b01b90bfe45bad6cf4c72664c3eb146c9daec0bb6a87d1f5147a94773d90bb
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 45d6082e23bd38df710e910c925c8cdb8e69417d6d7614b8a753207ade718035
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 2bbf87b74167290cb4b07db446c01175c4f3f400fbb6f2241f7b84f454124a09
+F src/style.c 7d807cdc0881dbb2af36d296e7ebd2ed2bebe3bac1ef407c39a84f964270473b
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -860,10 +860,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 918e1ddd8e566541a7786d7280208390ff6bab04aef3b84edb80ff9164b632bf
-R 56b965ec8d18bc50bf7700d29e8c4701
-T *branch * backoffice-full-close
-T *sym-backoffice-full-close *
-T -sym-trunk *
+P 6865fb72cf5c8acb78be7e67a0638795093d206e86b18f4f356bf12b6b5eb974
+R f1ace258dd4d90612a64d9cc4066d330
 U drh
-Z be810a7dcf8d932df145805a0f30e5f7
+Z afe163c42dd21e8db19db6aa279ce4dd
