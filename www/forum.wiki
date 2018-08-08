@@ -103,15 +103,16 @@ large package of other capabilities they get.
 For public Fossil repositories that wish to accept new users without
 involving a human, go into Admin &rarr; Access and enable the "Allow
 users to register themselves" setting. You may also wish to give the
-`anonymous` user category the Read Forum (2) and Write Forum (3)
+<tt>anonymous</tt> user category the Read Forum (2) and Write Forum (3)
 capabilities: this allows people to post without creating an account
 simply by solving [./antibot.wiki | a simple CAPTCHA].
 
 For a private repository, you will likely wish to give the "23"
-capability pair to the `reader` user category instead.
+capability pair to the <tt>reader</tt> user category instead.
 
 For either type of repository, you are likely to want to give at least
-the Write Trusted (4) capability to the `developer` user category.
+the Write Trusted (4) capability to the <tt>developer</tt> user
+category.
 
 By following this advice, you should not need to tediously add
 capabilities to individual accounts, except in atypical cases, such as
