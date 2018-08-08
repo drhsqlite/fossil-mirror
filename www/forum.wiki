@@ -158,18 +158,21 @@ software where you either end up with two separate user tables and
 permission sets, or you must go to significant effort to integrate the
 two login systems.
 
-You may instead choose to host your forums in a separate Fossil
-repository from your other assets. A good reason to do this is that you
-have a public project where very few of those participating in the forum
-have special capability bits for assets managed by Fossil for the
-project itself, so you wish to segregate the two user sets.
+You may instead choose to host your forums in a Fossil repository
+separate from your project's main Fossil repository. A good reason to do
+this is that you have a public project where very few of those
+participating in the forum have special capability bits for project
+assets managed by Fossil, so you wish to segregate the two user sets.
 
-Fossil offers a way to split the difference: you can host your forum in
-a repository separate from your other Fossil-managed content yet still
-have single sign-on for that common set of users that will have logins
-on both repositories. Simply enable Fossil's login groups feature in
-Admin &rarr; Login-Group, which allows one Fossil repository to
-recognize users authorized on another repository.
+Yet, what of the users who will have logins on both repositories? Some
+users will be trusted with access to the project's main Fossil
+repository, and these users will probably also participate in the
+project's Fossil-hosted forum.
+
+Fossil has a feature to solve this problem that is probably less well
+known than it should be, which has been in the software since April of
+2011: Admin &rarr; Login-Group, which allows one Fossil repository to
+recognize users authorized on another Fossil repository.
 
 
 <h3>Email Notification</h3>
