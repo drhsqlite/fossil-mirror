@@ -711,7 +711,9 @@ void backoffice_run_if_needed(void){
   }
 #else /* unix */
   {
-    pid_t pid = fork();
+    pid_t pid;
+    if( g.fdDevNull<0 ) return;
+    pid = fork();
     if( pid>0 ){
       /* This is the parent in a successful fork().  Return immediately. */
       backofficeTrace(
@@ -723,7 +725,11 @@ void backoffice_run_if_needed(void){
       /* This is the child of a successful fork().  Run backoffice. */
       int i;
       setsid();
-      for(i=3; close(i)==0 || i<10; i++){}
+      for(i=0; i<=2; i++){
+        close(i);
+        dup(g.fdDevNull);
+      }
+      for(i=3; i<100; i++){ close(i); }
       db_open_repository(backofficeDb);
       backofficeDb = "x";
       backoffice_thread();
