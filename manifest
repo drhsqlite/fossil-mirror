@@ -1,5 +1,5 @@
-C More\senhancements\sto\sbackoffice\sdiagnostics.
-D 2018-08-08T02:15:05.037
+C Fix\sthe\sbuild\son\sunix.
+D 2018-08-08T02:21:00.631
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 72896ebd274a01b1289317d09f601bb24a7fd53638048afe73dbf2ea0b8b3a9a
+F src/backoffice.c 596b68e93cc0731f4fe6daed05c8afa79132a3a6296e048486f89931ca5ddad3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -859,7 +859,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6522a0fe01c11c0f1a7071d63ea18e44fe13192ba0d1f84ff366dbcbf47171d
-R b4aa46c3cde48b9e618c1bce41e71946
-U mistachkin
-Z c328432321fff8921562f14c13fcdebe
+P 864a6f3922ed20829a196189c12edd8f2ed1a957273035e502dc8ba5ca1fbc2d
+R 736561cf7c11a2b7497f5e29c880aa56
+U drh
+Z ab16993375d4570da7b7671869e7ca6c

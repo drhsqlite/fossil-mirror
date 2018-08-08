@@ -78,6 +78,7 @@
 # include <unistd.h>
 # include <sys/types.h>
 # include <signal.h>
+# include <errno.h>
 # define GETPID getpid
 #endif
 
