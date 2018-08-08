@@ -57,6 +57,12 @@
 ** All work performance by the backoffice is in the backoffice_work()
 ** routine.
 */
+#if defined(_WIN32)
+# if defined(_WIN32_WINNT)
+#  undef _WIN32_WINNT
+# endif
+# define _WIN32_WINNT 0x501
+#endif
 #include "config.h"
 #include "backoffice.h"
 #include <time.h>
@@ -623,8 +629,8 @@ void backoffice_run_if_needed(void){
     x = _wspawnv(_P_NOWAIT, ax[0], (const wchar_t * const *)ax);
     for(i=0; i<=3; i++) fossil_unicode_free(ax[i]);
     backofficeTrace(
-      "/***** Subprocess %d creates backoffice child %d *****/\n",
-      GETPID(), (int)x);
+      "/***** Subprocess %d creates backoffice child %lu *****/\n",
+      GETPID(), GetProcessId((HANDLE)x));
     if( x>=0 ) return;
   }
 #else /* unix */
@@ -647,6 +653,8 @@ void backoffice_run_if_needed(void){
       backofficeTrace("/***** Backoffice Child %d exits *****/\n", GETPID());
       exit(0);
     }
+    fossil_warning("backoffice process %d fork failed, errno %d", GETPID(),
+                   errno);
   }
 #endif
   /* Fork() failed or is unavailable.  Run backoffice in this process, but
