@@ -1,5 +1,5 @@
-C A\ssimpler\smethod\sof\sensuring\sthat\sbackoffice\sdoes\snot\scling\sto\sthe\nstandard\sinput\sand\soutput.
-D 2018-08-08T18:10:22.844
+C Set\sthe\sdefault\sbackoffice-nodelay\sback\sto\soff.
+D 2018-08-08T18:13:01.590
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 414b1e249a3495d47ac8b831d2446fcebb43b2c21b29558d8e410de5ef45522d
+F src/backoffice.c 913568003c31eef2e4f593d5c2858c40461a793aaf5492e895f7d410c4de2694
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -455,7 +455,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4e65c960207d872bd1f1a6cf16fb0517f9014621a56911f470bffd61d005b7c3
+F src/db.c c9c14df8c5ae68e34bee182fccbac03d028cf5aa5f5b844a42220d5ab1de07a0
 F src/default_css.txt 6d167b97a147ed264a6fb9524391837b8d158df258a70674719af7c722e107a9
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -860,7 +860,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6865fb72cf5c8acb78be7e67a0638795093d206e86b18f4f356bf12b6b5eb974
-R f1ace258dd4d90612a64d9cc4066d330
+P 8c52c6741283f61f78cfa3a6587f1328c1ad80b061b0ba8bed7b4f03e410ebe4
+R 741bcfbfe9467123c1012f0095614dd9
 U drh
-Z afe163c42dd21e8db19db6aa279ce4dd
+Z 945399ab065f870ca12fc0bad57f235e
