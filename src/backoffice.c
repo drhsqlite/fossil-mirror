@@ -387,6 +387,46 @@ void test_process_id_command(void){
 }
 
 /*
+** COMMAND: test-backoffice-lease
+**
+** Usage: %fossil test-backoffice-lease
+**
+** Print out information about the backoffice "lease" entry in the
+** config table that controls whether or not backoffice should run.
+*/
+void test_backoffice_lease(void){
+  sqlite3_int64 tmNow = time(0);
+  Lease x;
+  const char *zLease;
+  db_find_and_open_repository(0,0);
+  verify_all_options();
+  zLease = db_get("backoffice","");
+  fossil_print("now:        %lld\n", tmNow);
+  fossil_print("lease:      \"%s\"\n", zLease);
+  backofficeReadLease(&x);
+  fossil_print("idCurrent:  %-20lld", x.idCurrent);
+  if( backofficeProcessExists(x.idCurrent) ) fossil_print(" (exists)");
+  if( backofficeProcessDone(x.idCurrent) ) fossil_print(" (done)");
+  fossil_print("\n");
+  fossil_print("tmCurrent:  %-20lld", x.tmCurrent);
+  if( x.tmCurrent>0 ){
+    fossil_print(" (now%+d)\n",x.tmCurrent-tmNow);
+  }else{
+    fossil_print("\n");
+  }
+  fossil_print("idNext:     %-20lld", x.idNext);
+  if( backofficeProcessExists(x.idNext) ) fossil_print(" (exists)");
+  if( backofficeProcessDone(x.idNext) ) fossil_print(" (done)");
+  fossil_print("\n");
+  fossil_print("tmNext:     %-20lld", x.tmNext);
+  if( x.tmNext>0 ){
+    fossil_print(" (now%+d)\n",x.tmNext-tmNow);
+  }else{
+    fossil_print("\n");
+  }
+}
+
+/*
 ** If backoffice processing is needed set the backofficeDb variable to the
 ** name of the database file.  If no backoffice processing is needed,
 ** this routine makes no changes to state.
