@@ -82,7 +82,8 @@ built-in forum feature:
 Fossil forums use the same role-based access control mechanism as
 for normal Fossil repository logins.
 
-There are several dedicated permsissions for forums:
+There are several dedicated forum-related capability bits you can grant
+a user:
 
   *  <b>Read</b>: The user may read forum posts
   *  <b>Write</b>: The user may create new forum threads and reply to
@@ -93,7 +94,7 @@ There are several dedicated permsissions for forums:
      either delete or approve posts held for moderation. User also gets
      access to a page (<tt>/modreq</tt>) showing the list of pending
      moderation tasks.
-  *  <b>Administer</b>: User can grant <b>Write Trusted</b> permission
+  *  <b>Administer</b>: User can grant <b>Write Trusted</b> capability
      to another user, or revoke it. (Currently unimplemented.)
 
 By default, no Fossil user has permission to use the forums except for
@@ -113,10 +114,12 @@ capability "2" to the <tt>reader</tt> user category.
 
 For either type of repository, you are likely to want to give at least
 the Write Trusted (4) capability to the <tt>developer</tt> user
-category.
+category. If you did not give forum read capability (2) to
+<tt>anonymous</tt> above, you should give <tt>developer</tt> that
+capability here, if you choose to give it capability 3 or 4.
 
 By following this advice, you should not need to tediously add
-capabilities to individual accounts, except in atypical cases, such as
+capabilities to individual accounts except in atypical cases, such as
 to grant the Moderate Forum capability (5) to an uncommonly
 highly-trusted user.
 
@@ -158,8 +161,8 @@ two login systems.
 You may instead choose to host your forums in a separate Fossil
 repository from your other assets. A good reason to do this is that you
 have a public project where very few of those participating in the forum
-have special permissions for assets managed by Fossil for the project
-itself, so you wish to segregate the two user sets.
+have special capability bits for assets managed by Fossil for the
+project itself, so you wish to segregate the two user sets.
 
 Fossil offers a way to split the difference: you can host your forum in
 a repository separate from your other Fossil-managed content yet still

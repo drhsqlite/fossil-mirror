@@ -1,5 +1,5 @@
-C Small\stweak\sto\sthe\sadvice\sfor\s"reader"\scategory\scapability\sfor\sforums
-D 2018-08-08T19:25:09.199
+C More\stweaks\sto\sthe\sforum.wiki\sdoc
+D 2018-08-08T19:30:23.739
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki c62827e0c42fb88593539cdc89cef464ed012a47b9fb26c2f84b4126e839a877
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 0c4ac111c1f7f5aa2a1bf961f365b91185e67c8648ebee569a00fc094db70f8a
+F www/forum.wiki c6ce3122304bf501008d5e0cc5c71baacd0012812751437f47bfb5ec624bddca
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3ec8f0a960649064d8d90087769904e5493a8733dfd27d08056bd92e49869930
-R 1e1bdbc309184db1c98f79a6a2cdd90d
+P ea67aadeee78ede48dee8a66a5e256fa8f1e2ed37773232e802a7231853a5050
+R df7a4f554b8ddc174d94821d4b51de00
 U wyoung
-Z ad1558a0b98c6709ff77aefe27e4b68f
+Z 6bff7498d2600d2dc706bbe6443bb8a6
