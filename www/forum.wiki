@@ -107,8 +107,9 @@ users to register themselves" setting. You may also wish to give the
 capabilities: this allows people to post without creating an account
 simply by solving [./antibot.wiki | a simple CAPTCHA].
 
-For a private repository, you will likely wish to give the "23"
-capability pair to the <tt>reader</tt> user category instead.
+For a private repository, you probably won't want to give the
+<tt>anonymous</tt> user any forum access, but you may wish to give
+capability "2" to the <tt>reader</tt> user category.
 
 For either type of repository, you are likely to want to give at least
 the Write Trusted (4) capability to the <tt>developer</tt> user
