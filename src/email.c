@@ -1108,6 +1108,15 @@ static const char zConfirmMsg[] =
 ;
 
 /*
+** Append the text of an email confirmation message to the given
+** Blob.  The security code is in zCode.
+*/
+void email_append_confirmation_message(Blob *pMsg, const char *zCode){
+  blob_appendf(pMsg, zConfirmMsg/*works-like:"%s%s%s"*/,
+                   g.zBaseURL, g.zBaseURL, zCode);
+}
+
+/*
 ** WEBPAGE: subscribe
 **
 ** Allow users to subscribe to email notifications.
@@ -1208,8 +1217,7 @@ void subscribe_page(void){
       blob_init(&body,0,0);
       blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
-      blob_appendf(&body, zConfirmMsg/*works-like:"%s%s%s"*/,
-                   g.zBaseURL, g.zBaseURL, zCode);
+      email_append_confirmation_message(&body, zCode);
       email_send(pSender, &hdr, &body);
       style_header("Email Alert Verification");
       if( pSender->zErr ){

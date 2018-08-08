@@ -1,5 +1,5 @@
-C More\sSSO\sdiscussion\simprovements\sin\sforum.wiki
-D 2018-08-08T19:43:11.134
+C Enhance\sthe\s/register\spage\sso\sthat\sit\salso\sdoes\semail\ssubscriptions\sif\sthat\nis\senabled\sfor\sself-registered\susers.
+D 2018-08-08T20:01:46.992
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c a3c9775809030e59ee3539278a7b4630b4f0bb7c41b48ab292d19fe9993efb38
+F src/email.c 03468eb60c092961df8a29a80c03c9f7fffcbaeca6f9ad8c2f34a00db9dc938c
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c c35d07390b723a242d1dfd80e26b0c4cba35e129caf000f18e74fa2006a7f8fc
+F src/login.c be5cc7d6451f58905161baaea7634b13d58e664c27442ef9391f72d61c07e6b6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d75504af03e0451a7dde0d6d1749b3c748dddc679acf81285222b296b2cb473
-R d60e04c25b50fec4b196a9b6934905d7
-U wyoung
-Z c9edb1fb99010a3dd04c3b27f8dec9ce
+P bc303c0ec006ab3109261788dcf99d71dc8b671df8dbfea68ac74b2922d0182f
+R 4db223ab1074f4a4bde676a8d233cb90
+U drh
+Z 5769599b8b1ad6302bdddaf549380391

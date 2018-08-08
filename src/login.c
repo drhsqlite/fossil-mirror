@@ -1498,6 +1498,8 @@ void register_page(void){
   char *zCaptcha;
   int iErrLine = -1;
   const char *zErr = 0;
+  char *zPerms;             /* Permissions for the default user */
+  int canDoAlerts = 0;      /* True if receiving email alerts is possible */
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
@@ -1505,8 +1507,14 @@ void register_page(void){
     style_footer();
     return;
   }
+  zPerms = db_get("default-perms","u");
 
-  style_header("Register");
+  /* Prompt the user for email alerts if this repository is configured for
+  ** email alerts and if the default permissions include "7" */
+  canDoAlerts = email_tables_exist() && db_int(0,
+    "SELECT fullcap(%Q) GLOB '*7*'", zPerms
+  );
+
   zUserID = PDT("u","");
   zPasswd = PDT("p","");
   zConfirm = PDT("cp","");
@@ -1556,11 +1564,69 @@ void register_page(void){
        "INSERT INTO user(login,pw,cap,info,mtime)\n"
        "VALUES(%Q,%Q,%Q,"
        "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
-       zUserID, zPass, db_get("default-perms","u"), zDName, zEAddr, g.zIpAddr);
+       zUserID, zPass, zPerms, zDName, zEAddr, g.zIpAddr);
     fossil_free(zPass);
     db_multi_exec("%s", blob_sql_text(&sql));
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
     login_set_user_cookie(zUserID, uid, NULL);
+    if( canDoAlerts && atoi(PD("alerts","1"))!=0 ){
+      /* Also make the new user a subscriber. */
+      Blob hdr, body;
+      EmailSender *pSender;
+      sqlite3_int64 id;   /* New subscriber Id */
+      const char *zCode;  /* New subscriber code (in hex) */
+      const char *zGoto = P("g");
+      int nsub = 0;
+      char ssub[20];
+      ssub[nsub++] = 'a';
+      if( g.perm.Read )    ssub[nsub++] = 'c';
+      if( g.perm.RdForum ) ssub[nsub++] = 'f';
+      if( g.perm.RdTkt )   ssub[nsub++] = 't';
+      if( g.perm.RdWiki )  ssub[nsub++] = 'w';
+      ssub[nsub] = 0;
+      db_multi_exec(
+        "INSERT INTO subscriber(semail,suname,"
+        "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
+        "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)",
+        /* semail */    zEAddr,
+        /* suname */    zUserID,
+        /* sverified */ 0,
+        /* sdigest */   0,
+        /* ssub */      ssub,
+        /* smip */      g.zIpAddr
+      );
+      id = db_last_insert_rowid();
+      zCode = db_text(0,
+           "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
+           id);
+      /* A verification email */
+      pSender = email_sender_new(0,0);
+      blob_init(&hdr,0,0);
+      blob_init(&body,0,0);
+      blob_appendf(&hdr, "To: <%s>\n", zEAddr);
+      blob_appendf(&hdr, "Subject: Subscription verification\n");
+      email_append_confirmation_message(&body, zCode);
+      email_send(pSender, &hdr, &body);
+      style_header("Email Verification");
+      if( pSender->zErr ){
+        @ <h1>Internal Error</h1>
+        @ <p>The following internal error was encountered while trying
+        @ to send the confirmation email:
+        @ <blockquote><pre>
+        @ %h(pSender->zErr)
+        @ </pre></blockquote>
+      }else{
+        @ <p>An email has been sent to "%h(zEAddr)". That email contains a
+        @ hyperlink that you must click on in order to activate your
+        @ subscription.</p>
+      }
+      email_sender_free(pSender);
+      if( zGoto ){
+        @ <p><a href='%h(zGoto)'>Continue</a>
+      }
+      style_footer();
+      return;
+    }
     redirect_to_g();
   }
 
@@ -1569,6 +1635,7 @@ void register_page(void){
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
 
+  style_header("Register");
   /* Print out the registration form. */
   form_begin(0, "%R/register");
   if( P("g") ){
@@ -1597,6 +1664,15 @@ void register_page(void){
     @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
   }
   @ </tr>
+  if( canDoAlerts ){
+    int a = atoi(PD("alerts","1"));
+    @ <tr>
+    @   <td class="form_label" align="right">Receive Email Alerts?</td>
+    @   <td><select size='1' name='alerts'>
+    @       <option value="1" %s(a?"selected":"")>Yes</option>
+    @       <option value="0" %s(!a?"selected":"")>No</option>
+    @   </select></td></tr>
+  }
   @ <tr>
   @   <td class="form_label" align="right">Password:</td>
   @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
