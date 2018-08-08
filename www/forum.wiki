@@ -1,0 +1,124 @@
+<title>Fossil Forums</title>
+
+<h2>Introduction</h2>
+
+As of Fossil 2.7, Fossil includes a built-in discussion forum feature.
+
+Any project complex enough to be managed by Fossil can probably benefit
+from having a discussion forum. Even if your project has a discussion
+forum already, there are further benefits that stem from using Fossil's
+built-in forum feature:
+
+  *  Third-party discussion forum and mailing list software tends to be
+     difficult to install, set up, and administer.  Fossil Forums aim to
+     be as close to zero-configuration as is practical.
+
+  *  Posts are stored in the Fossil repository using the same
+     [./fileformat.wiki | block chain technology] that Fossil uses to
+     store your check-ins, wiki documents, etc. Posts sync to clone
+     repositories in a tamper-proof fashion.
+
+  *  Because of Fossil's [./delta_format.wiki | delta compression
+     technology], discussions add little space to the size of a cloned
+     repository. Ten years of the SQLite project's discussions —
+     averaging 2 or 3 dozen posts per day — compress down to just
+     35&nbsp;MB of space in a Fossil Forums repository.
+
+  *  Fossil Forums use [https://sqlite.org/fts3.html | SQLite's powerful
+     FTS4 full-text search engine]. If your project currently uses a
+     mailing list for discussions, this means you are no longer reliant
+     upon third-party mailing list archive services to provide a useful
+     search engine for your discussions.
+
+  *  Because Fossil is a [./concepts.wiki | distributed version control
+     system], project members can search your forum archive while
+     disconnected from the network where the central Fossil instance
+     runs. Your past discussions are potentially just as valuable as a
+     wiki document or checkin comment: there is no good reason why you
+     should have to wait to get back on the Internet or back to the
+     office before you can search for past posts.
+
+  *  Because forum posts are normal Fossil artifacts, you can interlink
+     them with other Fossil artifacts using short internal links: link
+     to forum threads from a [./tickets.wiki | ticket], link to a wiki
+     document from a forum post, etc. These links are internal and
+     managed by Fossil itself, so links never become invalid simply
+     because your third-party forum software or mailing list search
+     engine changed its URL scheme.
+
+  *  Forum permissions use the same role-based access control mechanism
+     as Fossil itself.
+     
+  *  Since Fossil has an [./fileformat.wiki | open and well-documented
+     file format], your discussion archives are truly that:
+     <em>archives</em>. You are no longer dependent on a third-party
+     piece of software or service sticking around. Should you choose to
+     stop using Fossil, you can easily extract your discussion traffic
+     for transfer to another system.
+
+  *  Posts can be marked up using Fossil's existing [/md_rules |
+     Markdown] and [/wiki_rules | Wiki] markup languages. No longer must
+     you choose to restrict your discussion forums to plain text only
+     (good for security) or to allow HTML-formatted MIME email (good for
+     complex discussions). Fossil Forums provide <em>enough</em>
+     formatting without giving up security.
+
+
+<h2>Setting up a Fossil Forum</h2>
+
+<h3>Permissions</h3>
+
+Fossil forums use the same role-based access control mechanism as
+for normal Fossil repository logins.
+
+There are several dedicated permsissions for forums:
+
+  *  <b>Read</b>: The user may read forum posts
+  *  <b>Write</b>: The user may create new forum threads and reply to
+     existing threads. New posts are held for moderation.
+  *  <b>Write Trusted</b>: Same as <b>Write</b>, but posts are inserted
+     into the block chain immediately without being held for moderation.
+  *  <b>Moderate</b>: User gets buttons on posts which allow them to
+     either delete or approve posts held for moderation. User also gets
+     access to a page (<tt>/modreq</tt>) showing the list of pending
+     moderation tasks.
+  *  <b>Administer</b>: User can grant <b>Write Trusted</b> permission
+     to another user, or revoke it. (Currently unimplemented.)
+
+
+<h3>Single Sign-On</h3>
+
+If you choose to host your discussion forums within the same repository
+as your other Fossil-managed content, you inherently have a single
+sign-on system. Contrast a mailing list or a third-party forum system,
+where you either end up with two seaprate user tables and permission
+sets, or you must go to significant effort to integrate the two login
+systems.
+
+You may instead choose to host your forums in a separate repository from
+your other assets, as may be done for a public project where very few of
+those participating in the forum have special permissions for assets
+managed by Fossil for the project itself.
+
+Or, you may split the difference, hosting the forum in a separate
+repository from the other assets yet use Fossil's login groups feature
+to get single sign-on for both repositories.  You might choose to do
+this to remove the forum traffic from the size of the main respository's
+clones, for example.
+
+
+<h3>Email Notification</h3>
+
+See [./emaildesign.md | the email notification design document] for now.
+More administration-oriented documentation TODO.
+
+
+
+<h2>Moderation</h2>
+
+TODO
+
+
+<h2>Troubleshooting</h2>
+
+TODO

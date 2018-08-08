@@ -1,5 +1,5 @@
-C If\sthe\s"fds"\squery\sparameter\sis\sprovided,\sthen\sthe\s/test-backoffice-lease\nwebpage\sshows\sthe\sopen\sfile\sdescriptors.
-D 2018-08-08T16:20:25.480
+C Added\sinitial\sversion\sof\swww/forum.wiki\sdocument\sand\sa\slink\sto\sit\sfrom\nthe\sfront\spage.
+D 2018-08-08T17:21:14.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,6 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 594b66eed6db21f46af2930003c3b7c87e5fac663b1e59a64ffe5779ab890e3b
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
+F www/forum.wiki 6ce69e4afbfb5c6a1de9e03197fe0d3d5b13b7fd5aa8207a3818f9c554ee3f47
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -825,7 +826,7 @@ F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki 3bf9b7115598df00249c0f82214f0ef2324a5ae9f98699e88c56fa50126f6ad1
+F www/index.wiki a3f18b1cf91528dec6f2ef672f332b5a34bb988988e95a6ec11041af5e27397b
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750fcbf
 F www/mkindex.tcl b2b90c7561ffa43f334247e06bf89f316bc82d59d80d3b944d271a41441b397d x
@@ -860,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af599d6adcd2c43c4926b4f4cb6db2138f02823c618e9b87081ee66d6fce9283
-R 67d2cea903d603f13587696a5ceb829f
-U drh
-Z 62aef14e7d73147d7a32fd05cd54cd4a
+P 918e1ddd8e566541a7786d7280208390ff6bab04aef3b84edb80ff9164b632bf
+R 84c7163fee7038280696897e922300c0
+U wyoung
+Z 503122b19e64d1c69afda2c346e22761

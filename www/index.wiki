@@ -23,11 +23,12 @@
 <p>Fossil is a simple, high-reliability, distributed software configuration
 management system with these advanced features:
 
-  1.  <b>Integrated Bug Tracking, Wiki, and Technotes</b> -
+  1.  <b>Integrated Bug Tracking, Wiki, Forum, and Technotes</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], and [./event.wiki | technotes].
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum], and
+      [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -
       Fossil has a built-in,
