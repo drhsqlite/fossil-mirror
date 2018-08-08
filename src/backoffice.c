@@ -167,14 +167,6 @@ void backoffice_no_delay(void){
 }
 
 /*
-** Signal that the backoffice should not be run at the conclusion of
-** the current session.
-*/
-void backoffice_do_not_run(void){
-  backofficeDb = "x";
-}
-
-/*
 ** Sleeps for the specified number of milliseconds -OR- until interrupted
 ** by another thread (if supported by the underlying platform).  Non-zero
 ** will be returned if the sleep was interrupted.
@@ -443,72 +435,6 @@ void test_backoffice_lease(void){
   }
 }
 
-
-/*
-** WEBPAGE: test-backoffice-lease
-**
-** Print out information about the backoffice "lease" entry in the
-** config table that controls whether or not backoffice should run.
-*/
-void test_backoffice_lease_page(void){
-  sqlite3_int64 tmNow = time(0);
-  Lease x;
-  const char *zLease;
-  login_check_credentials();
-  if( !g.perm.Setup ){
-    login_needed(0);
-    return;
-  }
-  style_header("Backoffice Lease");
-  backoffice_do_not_run();
-  @ <table class='label-value'>
-  zLease = db_get("backoffice","");
-  @ <tr><th>Now:</th><td>%lld(tmNow)</td></tr>
-  @ <tr><th>Lease:</th><td colspan="3">"%h(zLease)"</td></tr>
-  backofficeReadLease(&x);
-  @ <tr><th>idCurrent:</th><td>%lld(x.idCurrent)</td><td>&nbsp;</td><td>\
-  if( backofficeProcessExists(x.idCurrent) ){
-    @ (exists) \
-  }
-  if( backofficeProcessDone(x.idCurrent) ){
-    @ (done) \
-  }
-  @ </td></tr>
-  @ <tr><th>tmCurrent:</th><td>%lld(x.tmCurrent)</td><td></td><td>\
-  if( x.tmCurrent>0 ){
-    @ (now%+lld(x.tmCurrent-tmNow)) \
-  }
-  @ </td></tr>
-  @ <tr><th>idNext:</th><td>%lld(x.idNext)</td><td>&nbsp;</td><td>\
-  if( backofficeProcessExists(x.idNext) ){
-    @ (exists) \
-  }
-  if( backofficeProcessDone(x.idNext) ){
-    @ (done) \
-  }
-  @ </td></tr>
-  @ <tr><th>tmNext:</th><td>%lld(x.tmNext)</td><td></td><td>\
-  if( x.tmNext>0 ){
-    @ (now%+lld(x.tmNext-tmNow)) \
-  }
-  @ </td></tr>
-#ifndef _WIN32
-  if( P("fds")!=0 ){
-    int i;
-    @ <tr><th>open fds:</th><td colspan="3">
-    for(i=0; i<1000; i++){
-      int rc = fcntl(i, F_GETFL, 0);
-      if( rc<0 ) continue;
-      @ %d(i) \
-    }
-    @ </td></tr>
-  }
-#endif
-
-  @ </table>
-  style_footer();
-}
-
 /*
 ** If backoffice processing is needed set the backofficeDb variable to the
 ** name of the database file.  If no backoffice processing is needed,
@@ -600,7 +526,7 @@ static void backoffice_thread(void){
       backoffice_work();
       break;
     }
-    if( backofficeNoDelay || db_get_boolean("backoffice-nodelay",1) ){
+    if( backofficeNoDelay || db_get_boolean("backoffice-nodelay",0) ){
       /* If the no-delay flag is set, exit immediately rather than queuing
       ** up.  Assume that some future request will come along and handle any
       ** necessary backoffice work. */
@@ -723,7 +649,11 @@ void backoffice_run_if_needed(void){
       /* This is the child of a successful fork().  Run backoffice. */
       int i;
       setsid();
-      for(i=3; close(i)==0 || i<10; i++){}
+      for(i=0; i<=2; i++){
+        close(i);
+        open("/dev/null", O_RDWR);
+      }
+      for(i=3; i<100; i++){ close(i); }
       db_open_repository(backofficeDb);
       backofficeDb = "x";
       backoffice_thread();

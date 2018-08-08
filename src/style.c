@@ -22,7 +22,6 @@
 #include "config.h"
 #include "style.h"
 
-
 /*
 ** Elements of the submenu are collected into the following
 ** structure and displayed below the main menu.

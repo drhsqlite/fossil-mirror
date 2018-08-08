@@ -1,5 +1,5 @@
-C Added\sinitial\sversion\sof\swww/forum.wiki\sdocument\sand\sa\slink\sto\sit\sfrom\nthe\sfront\spage.
-D 2018-08-08T17:21:14.935
+C Fix\sthe\sbackoffice\sprocesses\son\sunix\sso\sthat\sthey\sclose\sfile\sdescriptors\s0,\n1,\sand\s2\sand\sreopen\sthem\son\s/dev/null,\sso\sas\snot\sto\sinterfere\swith\sparent\nprocesses\sin\sany\sway.\s\sRestore\sthe\sdefault\sof\sbackoffice-nodelay\sback\sto\soff.\nRemove\sthe\s/test-backoffice-lease\swebpage,\swhich\sdid\snot\swork\scorrectly.
+D 2018-08-08T18:17:42.964
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c bd548bc4688e112f932375a841f40281e583500afde618e963533eb2f85e39ec
+F src/backoffice.c 45114291b7964466834ee347b581b90a8fd5fe27be43504ab16e033bb6965c74
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -455,7 +455,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 4e65c960207d872bd1f1a6cf16fb0517f9014621a56911f470bffd61d005b7c3
+F src/db.c c9c14df8c5ae68e34bee182fccbac03d028cf5aa5f5b844a42220d5ab1de07a0
 F src/default_css.txt 6d167b97a147ed264a6fb9524391837b8d158df258a70674719af7c722e107a9
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -566,7 +566,7 @@ F src/sqlite3.h 30b01b90bfe45bad6cf4c72664c3eb146c9daec0bb6a87d1f5147a94773d90bb
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 45d6082e23bd38df710e910c925c8cdb8e69417d6d7614b8a753207ade718035
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c e09eb1d5140b0dc27e7e1409c9ef55716e7cb125607a526905b5065ac65a447b
+F src/style.c 7d807cdc0881dbb2af36d296e7ebd2ed2bebe3bac1ef407c39a84f964270473b
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -861,7 +861,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 918e1ddd8e566541a7786d7280208390ff6bab04aef3b84edb80ff9164b632bf
-R 84c7163fee7038280696897e922300c0
-U wyoung
-Z 503122b19e64d1c69afda2c346e22761
+P 4ed14b1f3f101f19e628643c08661610d84a6bcf84f07c75f8670a6821a58eb7 b6aadace396e54c6370c6eaae56eda275049bdad87af5705da0f0413df38df25
+R 4a49be0d7c5e3fed413d12330c0a9b9b
+T +closed b6aadace396e54c6370c6eaae56eda275049bdad87af5705da0f0413df38df25
+U drh
+Z 20cd265941b624453f2bd0e8b7b9e76d
