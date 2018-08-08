@@ -109,6 +109,9 @@ if {[anoncap o]} {
   menulink /brlist Branches
   menulink /taglist Tags
 }
+if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+  menulink /forum Forum
+}
 if {[anoncap r]} {
   menulink /ticket Tickets
 }
