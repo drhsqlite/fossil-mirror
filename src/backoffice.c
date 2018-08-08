@@ -586,7 +586,7 @@ static void backoffice_thread(void){
       backoffice_work();
       break;
     }
-    if( backofficeNoDelay || db_get_boolean("backoffice-nodelay",0) ){
+    if( backofficeNoDelay || db_get_boolean("backoffice-nodelay",1) ){
       /* If the no-delay flag is set, exit immediately rather than queuing
       ** up.  Assume that some future request will come along and handle any
       ** necessary backoffice work. */
