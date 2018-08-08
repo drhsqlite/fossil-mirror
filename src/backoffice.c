@@ -79,6 +79,7 @@
 # include <sys/types.h>
 # include <signal.h>
 # include <errno.h>
+# include <fcntl.h>
 # define GETPID getpid
 #endif
 
@@ -491,6 +492,19 @@ void test_backoffice_lease_page(void){
     @ (now%+lld(x.tmNext-tmNow)) \
   }
   @ </td></tr>
+#ifndef _WIN32
+  if( P("fds")!=0 ){
+    int i;
+    @ <tr><th>open fds:</th><td colspan="3">
+    for(i=0; i<1000; i++){
+      int rc = fcntl(i, F_GETFL, 0);
+      if( rc<0 ) continue;
+      @ %d(i) \
+    }
+    @ </td></tr>
+  }
+#endif
+
   @ </table>
   style_footer();
 }
