@@ -123,22 +123,24 @@ highly-trusted user.
 <h3>Single Sign-On</h3>
 
 If you choose to host your discussion forums within the same repository
-as your other Fossil-managed content, you inherently have a single
-sign-on system. Contrast a mailing list or a third-party forum system,
-where you either end up with two seaprate user tables and permission
-sets, or you must go to significant effort to integrate the two login
-systems.
+as your project's other Fossil-managed content, you inherently have a
+single sign-on system. Contrast third-party mailing list and forum
+software where you either end up with two separate user tables and
+permission sets, or you must go to significant effort to integrate the
+two login systems.
 
-You may instead choose to host your forums in a separate repository from
-your other assets, as may be done for a public project where very few of
-those participating in the forum have special permissions for assets
-managed by Fossil for the project itself.
+You may instead choose to host your forums in a separate Fossil
+repository from your other assets. A good reason to do this is that you
+have a public project where very few of those participating in the forum
+have special permissions for assets managed by Fossil for the project
+itself, so you wish to segregate the two user sets.
 
-Or, you may split the difference, hosting the forum in a separate
-repository from the other assets yet use Fossil's login groups feature
-to get single sign-on for both repositories.  You might choose to do
-this to remove the forum traffic from the size of the main respository's
-clones, for example.
+Fossil offers a way to split the difference: you can host your forum in
+a repository separate from your other Fossil-managed content yet still
+have single sign-on for that common set of users that will have logins
+on both repositories. Simply enable Fossil's login groups feature in
+Admin &rarr; Login-Group, which allows one Fossil repository to
+recognize users authorized on another repository.
 
 
 <h3>Email Notification</h3>

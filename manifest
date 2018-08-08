@@ -1,5 +1,5 @@
-C Fixed\ssome\sincorrect\suses\sof\sMarkdown\sbackticks\sin\sa\sdocument\sdeclared\nas\swiki\sformat.
-D 2018-08-08T18:58:54.727
+C Expanded\sthe\sSSO\sdiscussion\sin\sthe\snew\sforum.wiki\sdocument
+D 2018-08-08T19:09:26.221
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki c62827e0c42fb88593539cdc89cef464ed012a47b9fb26c2f84b4126e839a877
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 6628d9f3a10e6f51981857401153f6ebdafbab90b8bcb24773cbc337c2c0e7ee
+F www/forum.wiki d62cf53e72adcac28c7f73ce2b94e1c6c0488637bc6114acdede4621e186765b
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be74f25902dfdc754f1a4811da223fbc900af3e4fbe97784f11240c575a677bb
-R 2f31d2c42f1f55c0aa0e194152b7b206
+P 76ca1f829f9b3b1370e321332f1564301c466c92f3fad5d6f55948b3e0dfde33
+R 0d733a74a7168761f78943b2267b36d9
 U wyoung
-Z a90bf5dae8ac1b4878ea17dc4da42ebb
+Z 1941e6794d6d4fa9ded6b85b3cd377e3
