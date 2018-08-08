@@ -1,5 +1,5 @@
-C Fix\sthe\sbackoffice\sprocesses\son\sunix\sso\sthat\sthey\sclose\sfile\sdescriptors\s0,\n1,\sand\s2\sand\sreopen\sthem\son\s/dev/null,\sso\sas\snot\sto\sinterfere\swith\sparent\nprocesses\sin\sany\sway.\s\sRestore\sthe\sdefault\sof\sbackoffice-nodelay\sback\sto\soff.\nRemove\sthe\s/test-backoffice-lease\swebpage,\swhich\sdid\snot\swork\scorrectly.
-D 2018-08-08T18:17:42.964
+C Fixed\ssome\sMarkdown\sformatting\sproblems\sin\swww/emaildesign.md.\s\sMade\sa\nfew\sminor\sgrammar\stweaks\swhile\sin\sthere.
+D 2018-08-08T18:29:09.119
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -789,7 +789,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md 725f935cd09a60e83b3fa6f17bde4371117e561623f4fe96d9f3ab376969a50c
+F www/emaildesign.md feb687dec6ec44d27c00300d573fcb011ca61eb8c64c826c60049fcc87dffa0c
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -861,8 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4ed14b1f3f101f19e628643c08661610d84a6bcf84f07c75f8670a6821a58eb7 b6aadace396e54c6370c6eaae56eda275049bdad87af5705da0f0413df38df25
-R 4a49be0d7c5e3fed413d12330c0a9b9b
-T +closed b6aadace396e54c6370c6eaae56eda275049bdad87af5705da0f0413df38df25
-U drh
-Z 20cd265941b624453f2bd0e8b7b9e76d
+P c09b2512b3f86e507deec2d418dd9961b3233bf8811b55d48feeefa7911b21ae
+R a1fb5c2fb5f19acc5097b165c991c82f
+U wyoung
+Z fde95cb962f0f45a0c2ee0c37eaffa70

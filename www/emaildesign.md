@@ -24,7 +24,7 @@ come into existance if email notification is configured and used.
   *  <b>SUBSCRIBER</b> &rarr;
      The subscriber table records the email address for people who
      want to receive email notifications.  Each subscriber has a
-     "subscriberCode" which is a random 32-byte blob that uniquely
+     `subscriberCode` which is a random 32-byte blob that uniquely
      identifies the subscriber.  There are also fields to indicate
      what kinds of notifications the subscriber wishes to receive,
      whether or not the email address of the subscriber has been
@@ -57,7 +57,7 @@ being a user.
 Sending Email Messages
 ----------------------
 
-Fossil expects to interact with an external mail agent.
+Fossil expects to interact with an external [mail transfer agent][MTA].
 There are currently three different methods for sending outbound
 email messages from Fossil to the external mail agent:
 
@@ -104,6 +104,9 @@ the Fossil source tree.  If you compile this program, you can use it
 to convert the base64 transfer-encoding into human-readable output for
 testing and debugging.
 
+[MTA]: https://en.wikipedia.org/wiki/Message_transfer_agent
+
+
 Receiving Email Messages
 ------------------------
 
@@ -142,26 +145,26 @@ Email Address Verification
 When anonymous passers-by on the internet sign up for email notifications,
 their email address must first be verified.  An email message is sent to
 the address supplied inviting the user to click on a link.  The link includes
-the random 32-byte subscriberCode in hex.  If anyone visits the link, the
+the random 32-byte `subscriberCode` in hex.  If anyone visits the link, the
 email address is verified.
 
-There is no password.  Knowledge of the subscriberCode is sufficient to
+There is no password.  Knowledge of the `subscriberCode` is sufficient to
 control the subscription.  This is not a secure as a separate password,
 but on the other hand it is easier for the average subscriber to deal
 with in that they don't have to come up with yet another password.  Also,
-even if the subscriberCode is stolen, the worst that can happens is that
+even if the `subscriberCode` is stolen, the worst that can happens is that
 the thief can change your subscription settings.  No PII (other than
 the subscriber's email address) is available to an attacker with the
-subscriberCode.  Nor can knowledge of the subscriberCode lead to a
+`subscriberCode`.  Nor can knowledge of the `subscriberCode` lead to a
 email flood or other annoyance attack, as far as I can see.
 
 If subscriberCodes are ever compromised, new ones can be generated
 as follows:
 
->   UPDATE subscriber SET subscriberCode=randomblob(32);
+        UPDATE subscriber SET subscriberCode=randomblob(32);
 
 Perhaps the system be enhanced to randomize the
-subscriberCodes periodically - say just before each daily digest
+`subscriberCodes` periodically - say just before each daily digest
 is sent out?
 
 User Control Of Their Subscription
@@ -172,49 +175,49 @@ the repository, then their subscription is linked to their account.
 On the /login page is a link to a page to control their subscription.
 
 For users without logins, they can request a link to a page for
-controling their subscription on the /alerts or /unsubscribe page.
-The link is sent via email, and includes the subscriberCode.
+controling their subscription on the `/alerts` or `/unsubscribe` page.
+The link is sent via email, and includes the `subscriberCode`.
 
 Internal Processing Flow
 ------------------------
 
-Almost all of the email notification code is found in the "src/email.c"
+Almost all of the email notification code is found in the `src/email.c`
 source file.
 
 When email notifications are enabled, a trigger is created in the schema
-(the "email_trigger1" trigger) that adds a new entry to the
-PENDING_ALERT table every time a row is added to the EVENT table.
-During a "rebuild", the EVENT table is rebuilt from scratch, and we
+(the `email_trigger1` trigger) that adds a new entry to the
+`PENDING_ALERT` table every time a row is added to the `EVENT` table.
+During a `fossil rebuild`, the `EVENT` table is rebuilt from scratch; since we
 do not want users to get notifications for every historical check-in,
-so the trigger is disabled during "rebuild".
+the trigger is disabled during `rebuild`.
 
-Email notifications are sent out by the email_send_alerts() function.
+Email notifications are sent out by the `email_send_alerts()` function.
 This function is can be called by having a cron job invoke the
-"fossil email exec" command.  Or, if the email-autoexec setting is
-enabled, then email_send_alerts() is invoked automatically after each
+`fossil email exec` command.  Or, if the email-autoexec setting is
+enabled, then `email_send_alerts()` is invoked automatically after each
 successful webpage is generated.  The latter approach is used on the
-Fossil self-hosting repository.  The email_send_alerts() function is
+Fossil self-hosting repository.  The `email_send_alerts()` function is
 a no-op (obviously) if there are no pending events to be sent.
 
 Digests are handled by recording the time of the last digest in the
-"email-last-digest" setting, and only sending a new digest if the
+`email-last-digest` setting, and only sending a new digest if the
 current time is one day or later after the last digest.
 
 Individual emails are sent to each subscriber.  I ran tests and found
-that I could send about 1200 emails/second, which is fast enough so that
+that I could send about 1200 emails/second, which is fast enough that
 I do not need to resort to trying to notify multiple subscribers with
 a single email.  Because each subscriber gets a separate email, the
 system can include information in the email that is unique to the
 subscriber, such as a link to the page to edit their subscription.  That
-link includes the subscriberCode.
+link includes the `subscriberCode`., 
 
 Other Notes
 -----------
 
-The "fossil configuration pull subscriber" command pulls down the content
-of the SUBSCRIBER table.  This is intended to as a backup-only.  It
+The `fossil configuration pull subscriber` command pulls down the content
+of the `SUBSCRIBER` table.  This is intended to as a backup-only.  It
 is not desirable to have two or more systems sending emails to the
 same people for the same repository, as that would mean users would
-receive duplicate emails.  Hence the settings that control email 
-notifications are not transmitted with the pull.  The "push", "export",
-and "import" commands all work similarly
+receive duplicate emails.  Hence, the settings that control email 
+notifications are not transmitted with the pull.  The `push`, `export`,
+and `import` commands all work similarly.
