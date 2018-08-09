@@ -121,7 +121,7 @@ of which you cannot get by using third-party alternatives:
      servers that require STARTTLS encryption.
 
 
-<h2>Setting up aFossil Forum</h2>
+<h2>Setting up a Fossil Forum</h2>
 
 <h3>Permissions</h3>
 
@@ -219,12 +219,11 @@ assets managed by Fossil, so you wish to segregate the two user sets.
 Yet, what of the users who will have logins on both repositories? Some
 users will be trusted with access to the project's main Fossil
 repository, and these users will probably also participate in the
-project's Fossil-hosted forum.
-
-Fossil has a feature to solve this problem that is probably less well
-known than it should be, which has been in the software since April of
-2011: Admin &rarr; Login-Group, which allows one Fossil repository to
-recognize users authorized on another Fossil repository.
+project's Fossil-hosted forum. Fossil has a feature to solve this
+problem which is probably less well known than it should be, and which
+has been a feature of Fossil since April of 2011: Admin &rarr;
+Login-Group. This allows one Fossil repository to recognize users
+authorized on a different Fossil repository.
 
 
 <h3>Email Notification</h3>
