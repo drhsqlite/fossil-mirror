@@ -99,15 +99,16 @@ of which you cannot get by using third-party alternatives:
      providing so much power as to risk
      [https://wonko.com/post/html-escaping | security problems].
 
-  *  <b>Easy Notification Emails:</b> Fossil's forum feature integrates
-     with popular [https://en.wikipedia.org/wiki/Message_transfer_agent
-     | message transfer agents] (MTAs) such as Postfix, Exim, and
-     Sendmail. It is easy to configure Fossil to send notifications of
-     new posts to interested forum users via your Fossil server's
-     existing MTA.  Notification emails include the complete message
-     content for the benefit of those that prefer to visit the forum
-     only when they need to post something.
-     
+  *  <b>Easy Notification Emails:</b> It is easy to configure Fossil to
+     send email notifications of new posts to interested forum users via
+     your Fossil server's existing
+     [https://en.wikipedia.org/wiki/Message_transfer_agent | message
+     transfer agent] (MTA): Postfix, Exim, Sendmail... Notification
+     emails include the complete message content for the benefit of
+     those that prefer to visit the forum only when they need to post
+     something. Notifications are optional, and each user gets the
+     choice of immediate or daily digest delivery.
+
   *  <b>Talks to Everyone:</b> Because Fossil delegates email handling
      to your existing MTA, it does not need to implement the
      [http://sqlite.1065341.n5.nabble.com/Many-ML-emails-going-to-GMail-s-SPAM-tp98685p98722.html
