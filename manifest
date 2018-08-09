@@ -1,5 +1,5 @@
-C Clarity\spass\son\sthe\sforum\scapability\snames\sin\swww/forum.wiki\sto\smatch\nnomenclature\son\sthe\sAdmin\s->\sUsers\spage.
-D 2018-08-09T04:34:56.756
+C More\sfeature\srah-rah\sin\swww/forum.wiki,\splus\sbetter\sformatting.
+D 2018-08-09T06:04:12.205
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki c62827e0c42fb88593539cdc89cef464ed012a47b9fb26c2f84b4126e839a877
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 1190370958f4c9da95e9d070d5ef84e00df874c265f66ce77c3e1857bb5454e4
+F www/forum.wiki 49253b1c29d940d83d54b2a6a804d30779d082203fe629f5fc1b59da7d09cd52
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89ab99e3805848b426d0d136669aa710a4c241f748b52bf0e5124d8fb9d07efe
-R ca53ad9d07ba11180aeffb8da5e16a5a
+P 2490bfba999c5e341ad86f500e033d22f28312e988948fb80320cf744f6e66ea
+R b700bd9192169e9f6d5b6d000d025fb1
 U wyoung
-Z b47834f1ffd33bfec7dcba08a23958d8
+Z 828ddbee2fc290fc18fef760a7d15e3f

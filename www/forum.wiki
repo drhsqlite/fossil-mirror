@@ -4,84 +4,123 @@
 
 As of Fossil 2.7, Fossil includes a built-in discussion forum feature.
 
-Any project complex enough to be managed by Fossil can probably benefit
-from having a discussion forum. Even if your project has a discussion
-forum already, there are further benefits that stem from using Fossil's
-built-in forum feature:
+Any project complex enough to benefit from being managed by Fossil and
+which has more than one user can probably also benefit from having a
+discussion forum. Even if your project has a discussion forum already,
+there are many benefits to using Fossil's built-in forum feature, some
+of which you cannot get by using third-party alternatives:
 
-  *  Third-party discussion forum and mailing list software tends to be
-     difficult to install, set up, and administer.  Fossil Forums aim to
-     be as close to zero-configuration as is practical.
+  *  <b>Easy to administer:</b> Third-party discussion forum and mailing
+     list software tends to be difficult to install, set up, and
+     administer. The Fossil forum feature aims to be as close to
+     zero-configuration as is practical.
 
-  *  Posts are stored in the Fossil repository using the same
-     [./fileformat.wiki | block chain technology] that Fossil uses to
-     store your check-ins, wiki documents, etc. Posts sync to cloned
-     repositories in a tamper-proof fashion.
+  *  <b>Malefactor resistant:</b> Because Fossil accepts forum posts
+     only via the web UI, it is inherently [./antibot.wiki | protected
+     against bots].
 
-  *  Because of Fossil's [./delta_format.wiki | delta compression
-     technology], discussions add little to the size of a cloned
-     repository. Ten years of the SQLite project's discussions —
-     averaging 2 or 3 dozen posts per day — compress down to just
-     35&nbsp;MB of space in a Fossil Forums repository.
+  *  <b>Distributed and Tamper-Proof:</b> Posts are stored in the Fossil
+     repository using the same [./fileformat.wiki | block chain technology]
+     that Fossil uses to store your check-ins, wiki documents, etc.
+     Posts sync to cloned repositories in a tamper-proof fashion.
 
-  *  Fossil Forums use [https://sqlite.org/fts3.html | SQLite's powerful
-     FTS4 full-text search engine]. If your project currently uses a
-     mailing list for discussions, this means you are no longer reliant
-     upon third-party mailing list archive services to provide a useful
-     search engine for your discussions.
+  *  <b>Space Efficient:</b> Because of Fossil's [./delta_format.wiki |
+     delta compression technology], discussions add little to the size
+     of a cloned repository. Ten years of the SQLite project's
+     discussions — averaging about 2 dozen posts per day — compress down
+     to [/forumpost/9b6f3f36bdb | just 35&nbsp;MB of space] in a Fossil
+     forum repository.
 
-  *  Because Fossil is a [./concepts.wiki | distributed version control
-     system], project members can search your forum archive while
-     disconnected from the network where the central Fossil instance
-     runs. Your past discussions are potentially just as valuable as a
-     wiki document or checkin comment: there is no good reason why you
-     should have to wait to get back on the Internet or back to the
-     office before you can search for past posts.
+  *  <b>Built-in Full-Text Search:</b> Fossil forums use
+     [https://sqlite.org/fts3.html | SQLite's powerful FTS4 engine] to
+     handle searches. If your project currently uses a mailing list for
+     discussions, this means you are no longer reliant upon third-party
+     mailing list archive services to provide a useful search engine for
+     your discussions. If you are running a private Fossil repository,
+     you may not even have the <em>option</em> of delegating this useful
+     service to a third-party; Fossil provides this service out of the
+     box.
 
-  *  When you search the forum archives via the Fossil web interface,
-     you get only one result for each matching post. When you search a
-     mailing list's archives using a standard web search engine, you
-     might get a result from the project site's own mail archive plus
-     one from Nabble, one from Gmane, one from The Mail Archive...
+  *  <b>One Result Per Matching Post:</b> When you search the forum
+     archives via the Fossil web interface, you get only one result for
+     each matching post. When you search for project information via a
+     standard web search engine, you might get a result from the project
+     site's own mail archive plus one from Nabble, one from Gmane, one
+     from The Mail Archive...
 
-  *  Because forum posts are normal Fossil artifacts, you can interlink
-     them with other Fossil artifacts using short internal links: link
-     to forum threads from a [./tickets.wiki | ticket], link to a wiki
-     document from a forum post, etc. These links are internal and
-     managed by Fossil itself, so links never become invalid simply
-     because your third-party forum software or mailing list search
-     engine changed its URL scheme.
+  *  <b>Search Off-Line:</b> Because Fossil is a [./concepts.wiki |
+     distributed version control system], project members can search
+     your forum archive while disconnected from the network where the
+     central Fossil instance runs. Your past discussions are potentially
+     just as valuable as a wiki document or checkin comment: there is no
+     good reason why you should have to wait to get back on the Internet
+     or back to the office before you can search for past posts.
 
-  *  The forum uses the same role-based access control mechanism as
-     Fossil uses for all other accesses.
+  *  <b>Contribute Off-Line:</b> Fossil forum posts work like any other
+     insertion into the repository, so a user can create new threads and
+     reply to existing ones while off-line, then sync their
+     contributions to the server they cloned from when back on-line.
+     Yes, you can post to the forum from inside a tent, miles from the
+     nearest wifi router or cellular data tower.
 
-  *  Since Fossil has an [./fileformat.wiki | open and well-documented
-     file format], your discussion archives are truly that:
-     <em>archives</em>. You are no longer dependent on a third-party
-     piece of software or service sticking around. Should you choose to
-     stop using Fossil, you can easily extract your discussion traffic
-     for transfer to another system.
+  *  <b>Interlink with Other Fossil-Managed Artifacts:</b> Because forum
+     posts are normal Fossil artifacts, you can interlink them with
+     other Fossil artifacts using short internal links: link to forum
+     threads from a [./tickets.wiki | ticket], link to a wiki document
+     from a forum post, etc.
+     
+  *  <b>Durable Links:</b> Once you create a valid internal artifact
+     link in Fossil, it <em>remains</em> valid, durably. With
+     third-party forum software and mailing list search engines, your
+     links are only valid until the third-party component changes its
+     URL scheme or disappears from the web.
 
-  *  Posts can be marked up using Fossil's existing [/md_rules |
-     Markdown] and [/wiki_rules | Wiki] markup languages. No longer must
-     you choose to restrict your discussion forums to plain text only
-     (good for security) or to allow HTML-formatted MIME email (good for
-     complex discussions). Fossil Forums provide <em>enough</em>
-     formatting without giving up security.
+  *  <b>Role-Based Access Control:</b> The forum uses the same
+     [https://en.wikipedia.org/wiki/Role-based_access_control | RBAC
+     system] that Fossil uses to control all other repository accesses.
+     The Fossil forum feature simply adds several new fine-grained
+     capability bits to the existing system.
 
-  *  Fossil forums integrate with third-party
-     [https://en.wikipedia.org/wiki/Message_transfer_agent | message transfer agents]
-     such as Postfix, Exim, and Sendmail.  If you've got mail service
-     configured on the server hosting your Fossil instance, it can send
-     notifications of new posts to interested forum users, complete with
-     message content for those that prefer to visit the forum only when
-     they need to post something.
+  *  <b>Enduring, Open File Format:</b> Since Fossil has an
+     [./fileformat.wiki | open and well-documented file format], your
+     discussion archives are truly that: <em>archives</em>. You are no
+     longer dependent on the lifetime and business model of a
+     third-party piece of software or service. Should you choose to stop
+     using Fossil, you can easily extract your discussion traffic for
+     transfer to another system.
 
-  *  Because Fossil accepts forum posts only via the web UI, it is
-     inherently [./antibot.wiki | protected against bots].
+  *  <b>Lightweight Markup:</b> Posts can be marked up using Fossil's
+     existing [/md_rules | Markdown] and [/wiki_rules | Wiki] markup
+     processors. No longer must you choose between two bad options: to
+     restrict posts to plain text only or to allow wild-west
+     HTML-formatted MIME email. Fossil's lightweight markup language
+     formatting features give you a middle path, providing your users
+     enough formatting power to communicate complex ideas well without
+     providing so much power as to risk
+     [https://wonko.com/post/html-escaping | security problems].
+
+  *  <b>Easy Notification Emails:</b> Fossil's forum feature integrates
+     with popular [https://en.wikipedia.org/wiki/Message_transfer_agent
+     | message transfer agents] (MTAs) such as Postfix, Exim, and
+     Sendmail. It is easy to configure Fossil to send notifications of
+     new posts to interested forum users via your Fossil server's
+     existing MTA.  Notification emails include the complete message
+     content for the benefit of those that prefer to visit the forum
+     only when they need to post something.
+     
+  *  <b>Talks to Everyone:</b> Because Fossil delegates email handling
+     to your existing MTA, it does not need to implement the
+     [http://sqlite.1065341.n5.nabble.com/Many-ML-emails-going-to-GMail-s-SPAM-tp98685p98722.html
+     | roughly two dozen]
+     [https://en.wikipedia.org/wiki/Request_for_Comments | RFCs] needed
+     to properly support SMTP email in this complex world we've built.
+     As well, this design choice means you do not need to do duplicate
+     configuration, such as to point Fossil at your server's TLS
+     certificate private key in order to support users behind mail
+     servers that require STARTTLS encryption.
 
 
-<h2>Setting up a Fossil Forum</h2>
+<h2>Setting up aFossil Forum</h2>
 
 <h3>Permissions</h3>
 
