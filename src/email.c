@@ -623,6 +623,20 @@ char *email_copy_addr(const char *z, char cTerm ){
 }
 
 /*
+** Return the hostname portion of an email address - the part following
+** the @
+*/
+char *email_hostname(const char *zAddr){
+  char *z = strchr(zAddr, '@');
+  if( z ){
+    z++;
+  }else{
+    z = (char*)zAddr;
+  }
+  return z;
+}
+
+/*
 ** Extract all To: header values from the email header supplied.
 ** Store them in the array list.
 */
@@ -670,6 +684,7 @@ void email_header_to_free(int nTo, char **azTo){
 **     Message-Id:
 **     Content-Type:
 **     Content-Transfer-Encoding:
+**     MIME-Version:
 **     
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
@@ -702,10 +717,12 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     ** and $(from) is the sender. */
     sqlite3_randomness(sizeof(r1), &r1);
     r2 = time(0);
-    blob_appendf(pOut, "Message-Id: <%llxx%016llx.%s>\r\n", r2, r1, p->zFrom);
+    blob_appendf(pOut, "Message-Id: <%llxx%016llx@%s>\r\n",
+                 r2, r1, email_hostname(p->zFrom));
   }
   blob_add_final_newline(pBody);
-  blob_appendf(pOut,"Content-Type: text/plain\r\n");
+  blob_appendf(pOut, "MIME-Version: 1.0\r\n");
+  blob_appendf(pOut, "Content-Type: text/plain; charset=\"UTF-8\"\r\n");
 #if 0
   blob_appendf(pOut, "Content-Transfer-Encoding: base64\r\n\r\n");
   append_base64(pOut, pBody);
@@ -1953,10 +1970,12 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
                    zSub, zTitle);
     }else{
       blob_appendf(&p->hdr, "Subject: %s %s\r\n", zSub, zTitle);
-      blob_appendf(&p->hdr, "Message-Id: <%s.%s>\r\n", zUuid, zFrom);
+      blob_appendf(&p->hdr, "Message-Id: <%.32s@%s>\r\n", 
+                   zUuid, email_hostname(zFrom));
       zIrt = db_column_text(&q, 4);
       if( zIrt && zIrt[0] ){
-        blob_appendf(&p->hdr, "In-Reply-To: <%s.%s>\r\n", zIrt, zFrom);
+        blob_appendf(&p->hdr, "In-Reply-To: <%.32s@%s>\r\n",
+                     zIrt, email_hostname(zFrom));
       }
     }
     blob_init(&p->txt, 0, 0);
@@ -2337,7 +2356,6 @@ void email_send_alerts(u32 flags){
 send_alerts_done:
   email_sender_free(pSender);
   if( g.fSqlTrace ) fossil_trace("-- END email_send_alerts(%u)\n", flags);
-  db_end_transaction(0);
 }
 
 /*

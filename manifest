@@ -1,5 +1,5 @@
-C Take\scare\sthat\sa\sbug\sin\sthe\semail\salert\ssender\sresults\sin\smissed\salerts\nrather\sthan\san\sendless\scascade\sof\sduplicate\salerts.
-D 2018-08-09T14:15:59.842
+C Improvements\sto\sformatting\sin\sgenerated\semails\sto\smake\sthem\sappear\sless\nlike\sspam.\s\sSuggestions\sfrom\s"gahr"\son\sthe\sforum.
+D 2018-08-09T15:39:47.337
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c d80f594b1e0caa35ee9716de7a5debecab3185cd83e9e59b4f9bb8ebdcd039d3
+F src/email.c 1d0f6f1a13eabb3702c34de6f69fd706800b8277678131d190746c45093fc5fb
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 635d2f6317915efb454087cd3484f8901e82ae94bf4932b3bc47692f8bd23d27
-R d4433ac61f32abb3337f379151080be9
+P 164c3d1a6a16ff2f6fc490cb139a110a424f0461344850ef7726017f080e67f4
+R 2cbae29fa07a9c2f46869817595131ec
 U drh
-Z c8a9a16e50a4cc88f18209496dc78cae
+Z 619b73170d883b01bceee0403903a254
