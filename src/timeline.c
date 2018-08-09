@@ -462,7 +462,8 @@ void www_print_timeline(
     }
     if( (tmFlags & TIMELINE_BISECT)!=0 && zType[0]=='c' ){
       static Stmt bisectQuery;
-      db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
+      db_static_prepare(&bisectQuery,
+          "SELECT seq, stat FROM bilog WHERE rid=:rid");
       db_bind_int(&bisectQuery, ":rid", rid);
       if( db_step(&bisectQuery)==SQLITE_ROW ){
         @ <b>%s(db_column_text(&bisectQuery,1))</b>
