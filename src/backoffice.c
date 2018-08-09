@@ -498,9 +498,6 @@ static void backoffice_thread(void){
       }
     }
   }
-#if defined(_WIN32)
-  backofficeWin32ThreadCleanup(1);
-#endif
   return;
 }
 
