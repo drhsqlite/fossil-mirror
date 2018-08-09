@@ -2147,6 +2147,13 @@ void test_add_alert_cmd(void){
 **
 **   (4) Update the pending_alerts table to indicate that alerts have been
 **       sent.
+**
+** Update 2018-08-09:  Do step (3) before step (4).  Update the
+** pending_alerts table *before* the emails are sent.  That way, if
+** the process malfunctions or crashes, some notifications may never
+** be sent.  But that is better than some recurring bug causing
+** subscribers to be flooded with repeated notifications every 60
+** seconds!
 */
 void email_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
@@ -2162,7 +2169,6 @@ void email_send_alerts(u32 flags){
   u32 senderFlags = 0;
 
   if( g.fSqlTrace ) fossil_trace("-- BEGIN email_send_alerts(%u)\n", flags);
-  db_begin_transaction();
   email_schema(0);
   if( !email_enabled() ) goto send_alerts_done;
   zUrl = db_get("email-url",0);
@@ -2175,6 +2181,9 @@ void email_send_alerts(u32 flags){
     senderFlags |= EMAIL_TRACE;
   }
   pSender = email_sender_new(zDest, senderFlags);
+
+  /* Step (1):  Compute the alerts that need sending
+  */
   db_multi_exec(
     "DROP TABLE IF EXISTS temp.wantalert;"
     "CREATE TEMP TABLE wantalert(eventId TEXT, needMod BOOLEAN, sentMod);"
@@ -2202,8 +2211,37 @@ void email_send_alerts(u32 flags){
       "DELETE FROM wantalert WHERE needMod AND sentMod;"
     );
   }
+
+  /* Step 2: compute EmailEvent objects for every notification that
+  ** needs sending.
+  */
   pEvents = email_compute_event_text(&nEvent, (flags & SENDALERT_DIGEST)!=0);
   if( nEvent==0 ) goto send_alerts_done;
+
+  /* Step 4a: Update the pending_alerts table to designate the
+  ** alerts as having all been sent.  This is done *before* step (3)
+  ** so that a crash will not cause alerts to be sent multiple times.
+  ** Better a missed alert than being spammed with hundreds of alerts
+  ** due to a bug.
+  */
+  if( (flags & SENDALERT_PRESERVE)==0 ){
+    if( flags & SENDALERT_DIGEST ){
+      db_multi_exec(
+        "UPDATE pending_alert SET sentDigest=true"
+        " WHERE eventid IN (SELECT eventid FROM wantalert);"
+      );
+    }else{
+      db_multi_exec(
+        "UPDATE pending_alert SET sentSep=true"
+        " WHERE eventid IN (SELECT eventid FROM wantalert WHERE NOT needMod);"
+        "UPDATE pending_alert SET sentMod=true"
+        " WHERE eventid IN (SELECT eventid FROM wantalert WHERE needMod);"
+      );
+    }
+  }
+
+  /* Step 3: Loop over subscribers.  Send alerts
+  */
   blob_init(&hdr, 0, 0);
   blob_init(&body, 0, 0);
   db_prepare(&q,
@@ -2290,23 +2328,12 @@ void email_send_alerts(u32 flags){
   blob_reset(&body);
   db_finalize(&q);
   email_free_eventlist(pEvents);
-  if( (flags & SENDALERT_PRESERVE)==0 ){
-    if( flags & SENDALERT_DIGEST ){
-      db_multi_exec(
-        "UPDATE pending_alert SET sentDigest=true"
-        " WHERE eventid IN (SELECT eventid FROM wantalert);"
-        "DELETE FROM pending_alert WHERE sentDigest AND sentSep;"
-      );
-    }else{
-      db_multi_exec(
-        "UPDATE pending_alert SET sentSep=true"
-        " WHERE eventid IN (SELECT eventid FROM wantalert WHERE NOT needMod);"
-        "UPDATE pending_alert SET sentMod=true"
-        " WHERE eventid IN (SELECT eventid FROM wantalert WHERE needMod);"
-        "DELETE FROM pending_alert WHERE sentDigest AND sentSep;"
-      );
-    }
-  }
+
+  /* Step 4b: Update the pending_alerts table to remove all of the
+  ** alerts that have been completely sent.
+  */
+  db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep;");
+
 send_alerts_done:
   email_sender_free(pSender);
   if( g.fSqlTrace ) fossil_trace("-- END email_send_alerts(%u)\n", flags);
