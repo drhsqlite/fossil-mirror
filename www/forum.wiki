@@ -91,17 +91,23 @@ for normal Fossil repository logins.
 There are several dedicated forum-related capability bits you can grant
 a user:
 
-  *  <b>Read</b>: The user may read forum posts
-  *  <b>Write</b>: The user may create new forum threads and reply to
-     existing threads. New posts are held for moderation.
-  *  <b>Write Trusted</b>: Same as <b>Write</b>, but posts are inserted
-     into the block chain immediately without being held for moderation.
-  *  <b>Moderate</b>: User gets buttons on posts which allow them to
-     either delete or approve posts held for moderation. User also gets
+  *  <b>Read Forum</b>: The user may read forum posts
+
+  *  <b>Write Forum</b>: The user may create new forum threads and reply
+     to existing threads. New posts are held for moderation.
+
+  *  <b>WriteTrusted Forum</b>: Same as <b>Write Forum</b> except that
+     posts are inserted into the block chain immediately without being held
+     for moderation.
+
+  *  <b>Moderate Forum</b>: User gets buttons on posts which allow them
+     to either delete or approve posts held for moderation. User also gets
      access to a page (<tt>/modreq</tt>) showing the list of pending
      moderation tasks.
-  *  <b>Administer</b>: User can grant <b>Write Trusted</b> capability
-     to another user, or revoke it. (Currently unimplemented.)
+
+  *  <b>Supervise Forum</b>: User can grant or revoke
+     <b>WriteTrusted</b> capability for other users. (Currently
+     unimplemented.)
 
 By default, no Fossil user has permission to use the forums except for
 users with Setup and Admin capabilities, which get these as part of the
@@ -109,20 +115,20 @@ large package of other capabilities they get.
 
 For public Fossil repositories that wish to accept new users without
 involving a human, go into Admin &rarr; Access and enable the "Allow
-users to register themselves" setting. You may also wish to give the
-<tt>anonymous</tt> user category the Read Forum (2) and Write Forum (3)
-capabilities: this allows people to post without creating an account
+users to register themselves" setting. You may also wish to give users
+in the <tt>anonymous</tt> category the Read Forum (2) and Write Forum
+(3) capabilities: this allows people to post without creating an account
 simply by solving [./antibot.wiki | a simple CAPTCHA].
 
 For a private repository, you probably won't want to give the
-<tt>anonymous</tt> user any forum access, but you may wish to give
-capability "2" to the <tt>reader</tt> user category.
+<tt>anonymous</tt> user any forum access, but you may wish to give the
+Read Forum capability (2) to users in the <tt>reader</tt> category.
 
 For either type of repository, you are likely to want to give at least
-the Write Trusted (4) capability to the <tt>developer</tt> user
-category. If you did not give forum read capability (2) to
+the WriteTrusted capability (4) to users in the <tt>developer</tt>
+category. If you did not give the Read Forum capability (2) to
 <tt>anonymous</tt> above, you should give <tt>developer</tt> that
-capability here, if you choose to give it capability 3 or 4.
+capability here if you choose to give it capability 3 or 4.
 
 By following this advice, you should not need to tediously add
 capabilities to individual accounts except in atypical cases, such as
