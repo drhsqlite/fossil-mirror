@@ -1,5 +1,5 @@
-C Tightned\sup\sthe\slogin-groups\ssub-section\sof\sthe\sSSO\ssection\sin\nforum.wiki.
-D 2018-08-09T06:17:34.831
+C Minor\simprovements\sto\sforum.wiki
+D 2018-08-09T06:59:51.818
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki c62827e0c42fb88593539cdc89cef464ed012a47b9fb26c2f84b4126e839a877
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 0924252e89b47cd9aa507f5c6cec9d59595c73fa2fe116b565aff4c77dcd7a6e
+F www/forum.wiki f94b831c6d66cb291eb3385dcc2e54be3fa75e80406811ba9d7b095e5747fdd3
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b51d62122312698c53726a5c43fb2010d4a9955b92282074c1726603e0d09171
-R 597385c9db5256a2b40822b8d7106301
+P 60c586d7d7954ec642dcffcaca0f4d384f7e37cdfeb6121adbedbca359f0d5c7
+R d8fab3dbc0119c1e5e8b172c5007c276
 U wyoung
-Z eea17fb7986a3f0502f9642cef197347
+Z 83036a3512fb98aa103f815dea9766a1

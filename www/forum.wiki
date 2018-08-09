@@ -10,12 +10,12 @@ discussion forum. Even if your project has a discussion forum already,
 there are many benefits to using Fossil's built-in forum feature, some
 of which you cannot get by using third-party alternatives:
 
-  *  <b>Easy to administer:</b> Third-party discussion forum and mailing
+  *  <b>Easy to Administer:</b> Third-party discussion forum and mailing
      list software tends to be difficult to install, set up, and
      administer. The Fossil forum feature aims to be as close to
      zero-configuration as is practical.
 
-  *  <b>Malefactor resistant:</b> Because Fossil accepts forum posts
+  *  <b>Malefactor Resistant:</b> Because Fossil accepts forum posts
      only via the web UI, it is inherently [./antibot.wiki | protected
      against bots].
 
@@ -113,12 +113,12 @@ of which you cannot get by using third-party alternatives:
      to your existing MTA, it does not need to implement the
      [http://sqlite.1065341.n5.nabble.com/Many-ML-emails-going-to-GMail-s-SPAM-tp98685p98722.html
      | roughly two dozen]
-     [https://en.wikipedia.org/wiki/Request_for_Comments | RFCs] needed
-     to properly support SMTP email in this complex world we've built.
-     As well, this design choice means you do not need to do duplicate
-     configuration, such as to point Fossil at your server's TLS
-     certificate private key in order to support users behind mail
-     servers that require STARTTLS encryption.
+     [https://en.wikipedia.org/wiki/Request_for_Comments | RFCs]
+     required in order to properly support SMTP email in this complex
+     world we've built.  As well, this design choice means you do not
+     need to do duplicate configuration, such as to point Fossil at your
+     server's TLS certificate private key in order to support users
+     behind mail servers that require STARTTLS encryption.
 
 
 <h2>Setting up a Fossil Forum</h2>
