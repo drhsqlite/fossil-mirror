@@ -38,6 +38,12 @@ built-in forum feature:
      should have to wait to get back on the Internet or back to the
      office before you can search for past posts.
 
+  *  When you search the forum archives via the Fossil web interface,
+     you get only one result for each matching post. When you search a
+     mailing list's archives using a standard web search engine, you
+     might get a result from the project site's own mail archive plus
+     one from Nabble, one from Gmane, one from The Mail Archive...
+
   *  Because forum posts are normal Fossil artifacts, you can interlink
      them with other Fossil artifacts using short internal links: link
      to forum threads from a [./tickets.wiki | ticket], link to a wiki
