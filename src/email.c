@@ -623,6 +623,42 @@ char *email_copy_addr(const char *z, char cTerm ){
 }
 
 /*
+** Scan the input string for a valid email address enclosed in <...>
+** If the string contains one or more email addresses, extract the first
+** one into memory obtained from mprintf() and return a pointer to it.
+** If no valid email address can be found, return NULL.
+*/
+char *email_find_emailaddr(const char *zIn){
+  char *zOut = 0;
+  while( zIn!=0 ){
+     zIn = (const char*)strchr(zIn, '<');
+     if( zIn==0 ) break;
+     zIn++;
+     zOut = email_copy_addr(zIn, '>');
+     if( zOut!=0 ) break;
+  }
+  return zOut;
+}
+
+/*
+** SQL function:  find_emailaddr(X)
+**
+** Return the first valid email address of the form <...> in input string
+** X.  Or return NULL if not found.
+*/
+void email_find_emailaddr_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zIn = (const char*)sqlite3_value_text(argv[0]);
+  char *zOut = email_find_emailaddr(zIn);
+  if( zOut ){
+    sqlite3_result_text(context, zOut, -1, fossil_free);
+  }
+}
+
+/*
 ** Return the hostname portion of an email address - the part following
 ** the @
 */

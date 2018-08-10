@@ -1002,6 +1002,8 @@ void db_add_aux_functions(sqlite3 *db){
                           0, capability_union_step, capability_union_finalize);
   sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
                           capability_fullcap, 0, 0);
+  sqlite3_create_function(db, "find_emailaddr", 1, SQLITE_UTF8, 0,
+                          email_find_emailaddr_func, 0, 0);
 }
 
 #if USE_SEE
