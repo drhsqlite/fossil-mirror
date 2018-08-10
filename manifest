@@ -1,5 +1,5 @@
-C Also\sremember\sthe\sname\sthe\suser\sfor\swebmail.
-D 2018-08-10T17:08:06.070
+C Be\ssure\sto\ssend\sforum\sevent\snotifications\sin\schronological\sorder.
+D 2018-08-10T20:30:29.449
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c ea489268ed1bde424807827c1cf05e9ffc0047c3c187758323e8d3f388c30e9a
+F src/email.c aeec702efe4fda80576f4f966ad303eee7800dae43289afd6380890f27ab29c0
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0377d04f5a7369be7720b3fc196a30f9dd957864b9a328f0b3a1a9c39773a73
-R e58ad1d5702fe33662018a9026cd850b
+P 800cd27da76b31a24d19a87b1362507d5381dea8907421f0f7f629d737bbf900
+R 5db9ce322f7c93ac7cafd9df5717510b
 U drh
-Z e88482e731f6e7b8ccb5fb241b724307
+Z 4a24061169a14fe02c96016be4fce3eb

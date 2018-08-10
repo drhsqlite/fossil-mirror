@@ -1914,7 +1914,7 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     "  || ')' as comment,"       /* 2 */
     " wantalert.eventId,"        /* 3 */
     " wantalert.needMod"         /* 4 */
-    " FROM temp.wantalert CROSS JOIN event CROSS JOIN blob"
+    " FROM temp.wantalert, event, blob"
     " WHERE blob.rid=event.objid"
     "   AND event.objid=substr(wantalert.eventId,2)+0"
     "   AND (%d OR eventId NOT GLOB 'f*')"
@@ -1983,6 +1983,7 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     " WHERE event.objid=substr(wantalert.eventId,2)+0"
     "   AND eventId GLOB 'f*'"
     "   AND forumpost.fpid=event.objid"
+    " ORDER BY event.mtime"
   );
   zFrom = db_get("email-self",0);
   zSub = db_get("email-subname","");
