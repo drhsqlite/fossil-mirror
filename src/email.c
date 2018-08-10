@@ -726,7 +726,12 @@ void email_header_to_free(int nTo, char **azTo){
 ** read the Blobs and send them onward to the email system, but it will
 ** not free them.
 */
-void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
+void email_send(
+  EmailSender *p,           /* Emailer context */
+  Blob *pHdr,               /* Email header (incomplete) */
+  Blob *pBody,              /* Email body */
+  const char *zFromName     /* Optional human-readable name of sender */
+){
   Blob all, *pOut;
   u64 r1, r2;
   if( p->mFlags & EMAIL_TRACE ){
@@ -745,7 +750,11 @@ void email_send(EmailSender *p, Blob *pHdr, Blob *pBody){
     pOut = &all;
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
-  blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
+  if( zFromName ){
+    blob_appendf(pOut, "From: %s <%s>\r\n", zFromName, p->zFrom);
+  }else{
+    blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
+  }
   blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
   if( strstr(blob_str(pHdr), "\r\nMessage-Id:")==0 ){
     /* Message-id format:  "<$(date)x$(random).$(from)>" where $(date) is
@@ -1052,7 +1061,7 @@ void email_cmd(void){
     }
     blob_add_final_newline(&body);
     pSender = email_sender_new(zDest, mFlags);
-    email_send(pSender, &hdr, &body);
+    email_send(pSender, &hdr, &body, 0);
     email_sender_free(pSender);
     blob_reset(&hdr);
     blob_reset(&body);
@@ -1271,7 +1280,7 @@ void subscribe_page(void){
       blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
       email_append_confirmation_message(&body, zCode);
-      email_send(pSender, &hdr, &body);
+      email_send(pSender, &hdr, &body, 0);
       style_header("Email Alert Verification");
       if( pSender->zErr ){
         @ <h1>Internal Error</h1>
@@ -1716,7 +1725,7 @@ void unsubscribe_page(void){
     blob_appendf(&hdr, "Subject: Unsubscribe Instructions\r\n");
     blob_appendf(&body, zUnsubMsg/*works-like:"%s%s%s%s%s%s"*/,
                   g.zBaseURL, g.zBaseURL, zCode, g.zBaseURL, g.zBaseURL, zCode);
-    email_send(pSender, &hdr, &body);
+    email_send(pSender, &hdr, &body, 0);
     style_header("Unsubscribe Instructions Sent");
     if( pSender->zErr ){
       @ <h1>Internal Error</h1>
@@ -1865,6 +1874,7 @@ struct EmailEvent {
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
+  char *zFromName;   /* Human name of the sender */
   EmailEvent *pNext; /* Next in chronological order */
 };
 #endif
@@ -1877,6 +1887,7 @@ void email_free_eventlist(EmailEvent *p){
     EmailEvent *pNext = p->pNext;
     blob_reset(&p->txt);
     blob_reset(&p->hdr);
+    fossil_free(p->zFromName);
     fossil_free(p);
     p = pNext;
   }
@@ -1931,6 +1942,7 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     pLast = p;
     p->type = db_column_text(&q, 3)[0];
     p->needMod = db_column_int(&q, 4);
+    p->zFromName = 0;
     p->pNext = 0;
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
@@ -1978,8 +1990,10 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     " datetime(event.mtime),"                               /* 2 */
     " substr(comment,instr(comment,':')+2),"                /* 3 */
     " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
-    " wantalert.needMod"                                    /* 5 */
+    " wantalert.needMod,"                                   /* 5 */
+    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user)"   /* 6 */
     " FROM temp.wantalert, event, forumpost"
+    "      LEFT JOIN user ON (login=coalesce(euser,user))"
     " WHERE event.objid=substr(wantalert.eventId,2)+0"
     "   AND eventId GLOB 'f*'"
     "   AND forumpost.fpid=event.objid"
@@ -1992,12 +2006,15 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     const char *zIrt;
     const char *zUuid;
     const char *zTitle;
+    const char *z;
     if( pPost==0 ) continue;
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
     p->type = 'f';
     p->needMod = db_column_int(&q, 5);
+    z = db_column_text(&q,6);
+    p->zFromName = z && z[0] ? fossil_strdup(z) : 0;
     p->pNext = 0;
     blob_init(&p->hdr, 0, 0);
     zUuid = db_column_text(&q, 1);
@@ -2305,8 +2322,8 @@ void email_send_alerts(u32 flags){
      " hex(subscriberCode),"  /* 0 */
      " semail,"               /* 1 */
      " ssub,"                 /* 2 */
-     " fullcap((SELECT cap FROM user WHERE login=suname))"  /* 3 */
-     " FROM subscriber"
+     " fullcap(user.cap)"     /* 3 */
+     " FROM subscriber LEFT JOIN user ON (login=suname)"
      " WHERE sverified AND NOT sdonotcall"
      "  AND sdigest IS %s",
      zDigest/*safe-for-%s*/
@@ -2353,7 +2370,7 @@ void email_send_alerts(u32 flags){
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
         blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
            zUrl, zCode);
-        email_send(pSender,&fhdr,&fbody);
+        email_send(pSender,&fhdr,&fbody,p->zFromName);
         blob_reset(&fhdr);
         blob_reset(&fbody);
       }else{
@@ -2376,7 +2393,7 @@ void email_send_alerts(u32 flags){
     if( nHit==0 ) continue;
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
-    email_send(pSender,&hdr,&body);
+    email_send(pSender,&hdr,&body,0);
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
   }
@@ -2452,7 +2469,7 @@ void contact_admin_page(void){
     blob_appendf(&body, "Message from [%s]\n", PT("from")/*safe-for-%s*/);
     blob_appendf(&body, "Subject: [%s]\n\n", PT("subject")/*safe-for-%s*/);
     blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
-    email_send(pSender, &hdr, &body);
+    email_send(pSender, &hdr, &body, 0);
     style_header("Message Sent");
     if( pSender->zErr ){
       @ <h1>Internal Error</h1>
@@ -2534,7 +2551,7 @@ static char *email_send_announcement(void){
   pSender = email_sender_new(bTest2 ? "blob" : 0, 0);
   if( zTo[0] ){
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
-    email_send(pSender, &hdr, &body);
+    email_send(pSender, &hdr, &body, 0);
   }
   if( bAll || bAA ){
     Stmt q;
@@ -2553,7 +2570,7 @@ static char *email_send_announcement(void){
         blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
            zURL, zCode);
       }
-      email_send(pSender, &hdr, &body);
+      email_send(pSender, &hdr, &body, 0);
     }
     db_finalize(&q);
   }

@@ -1624,7 +1624,7 @@ void register_page(void){
       blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
       email_append_confirmation_message(&body, zCode);
-      email_send(pSender, &hdr, &body);
+      email_send(pSender, &hdr, &body, 0);
       style_header("Email Verification");
       if( pSender->zErr ){
         @ <h1>Internal Error</h1>
