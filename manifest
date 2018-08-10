@@ -1,5 +1,5 @@
-C Fix\sthe\s/forum\swebpage\sso\sthat\sit\sworks\seven\sif\sthe\sforumpost\stable\sdoes\nnot\sexist\sin\sthe\srepository.
-D 2018-08-10T16:51:44.215
+C Fix\sthe\swebmail\sscreen\sso\sthat\sit\sremembers\sthe\sfolder\sthat\sis\sbeing\sviewed.
+D 2018-08-10T16:59:24.187
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -591,7 +591,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 55415cd6758c94d1ea2439552d571162043b550153c8c2b0850e6b948ead8da1
+F src/webmail.c 87d0e272290773f7bd9ce353f1a48c891665b725250567871ed03c4b5310ec99
 F src/wiki.c 1d2b4f904c5297379c8b4b0387982f7177a04cb14cec2377183eebb6de9be2fc
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c91be8bf085e85f7755d3029ef03c8053d24239b86aac772c64ceccbb57c8f5
-R 52d2031140ffa703f1fc7ec64df47c62
+P d73c5fd27e8af1a91c7b875a6ae9d60552554c2d9cf971e7d969f994a5fcdb62
+R f430f4600273f841cf32457976b928d4
 U drh
-Z b8b9cf101b2c4af0a5100581b45a4bca
+Z 24d7e9fbce774a1321c3101df145b660
