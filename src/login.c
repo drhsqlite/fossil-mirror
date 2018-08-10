@@ -213,17 +213,35 @@ static void record_login_attempt(
 */
 int login_search_uid(const char *zUsername, const char *zPasswd){
   char *zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
-  int const uid =
-      db_int(0,
-             "SELECT uid FROM user"
-             " WHERE login=%Q"
-             "   AND length(cap)>0 AND length(pw)>0"
-             "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
-             "   AND (info NOT LIKE '%%expires 20%%'"
-             "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
-             zUsername, zSha1Pw, zPasswd
-             );
+  int uid = db_int(0,
+    "SELECT uid FROM user"
+    " WHERE login=%Q"
+    "   AND length(cap)>0 AND length(pw)>0"
+    "   AND login NOT IN ('anonymous','nobody','developer','reader')"
+    "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
+    "   AND (info NOT LIKE '%%expires 20%%'"
+    "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
+    zUsername, zSha1Pw, zPasswd
+  );
+
+  /* If we did not find a login on the first attempt, and the username
+  ** looks like an email address, the perhaps the user entired their
+  ** email address instead of their login.  Try again to match the user
+  ** against email addresses contained in the "info" field.
+  */
+  if( uid==0 && strchr(zUsername,'@')!=0 ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT login FROM user"
+      " WHERE find_emailaddr(info)=%Q"
+      "   AND instr(login,'@')==0",
+      zUsername
+    );
+    while( uid==0 && db_step(&q)==SQLITE_ROW ){
+       uid = login_search_uid(db_column_text(&q,0),zPasswd);
+    }
+    db_finalize(&q);
+  }    
   free(zSha1Pw);
   return uid;
 }
