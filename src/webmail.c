@@ -706,6 +706,7 @@ void webmail_page(void){
   @ <form action="%R/webmail" method="POST">
   @ <table border="0" width="100%%">
   @ <input type="hidden" name="d" value="%d(d)">
+  @ <input type="hidden" name="user" value="%h(zUser)">
   @ <tr><td align="left">
   if( d==2 ){
     @ <input type="submit" name="read" value="Undelete">
