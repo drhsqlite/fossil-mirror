@@ -1,5 +1,5 @@
-C Allow\slogin\susing\seither\sthe\susername\sor\sthe\sfirst\semail\saddress\sfound\nin\sthe\sUSER.INFO\scolumn.\s\sNote\sthat\sit\smight\sbe\suseful\sto\screate\san\nindex\son\suser(find_emailaddr(info))\sto\smake\sthis\sefficient\sin\sthe\scase\nwhere\sthere\sare\smany\srows\sin\sthe\suser\stable.
-D 2018-08-10T16:44:48.635
+C Fix\sthe\s/forum\swebpage\sso\sthat\sit\sworks\seven\sif\sthe\sforumpost\stable\sdoes\nnot\sexist\sin\sthe\srepository.
+D 2018-08-10T16:51:44.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c d38f5bcf1d78dd73664165086927ad194194a860494e1f04c277ed31315ec63e
+F src/forum.c d33e207b1b60bb8aebfc553a2ed907a69f1304b4a0145f7df0cab4bb805aa3d4
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a20d41fce12bec5d275bf13f8158533eba96add3cdf3bb5b40e564417a3f871
-R fd77c889a84946c89ae4bad4eea1d9a0
+P 8c91be8bf085e85f7755d3029ef03c8053d24239b86aac772c64ceccbb57c8f5
+R 52d2031140ffa703f1fc7ec64df47c62
 U drh
-Z db077949af9f11aa290ab977a71cb31b
+Z b8b9cf101b2c4af0a5100581b45a4bca

@@ -927,25 +927,27 @@ void forum_main_page(void){
   iOfst = 0;
   @ <h1>Recent Threads</h1>
   @ <div class='fileage'><table width="100%%">
-  db_prepare(&q,
-     "SELECT julianday('now') - max(fmtime),"
-     "       (SELECT uuid FROM blob WHERE rid=fpid),"
-     "       (SELECT substr(comment,instr(comment,':')+2)"
-     "          FROM event WHERE objid=fpid)"
-     "  FROM forumpost"
-     " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d",
-     iLimit, iOfst
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    char *zAge = human_readable_age(db_column_double(&q,0));
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zTitle = db_column_text(&q, 2);
-    @ <tr><td>%h(zAge) ago</td>
-    @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>
-    @ </tr>
-    fossil_free(zAge);
+  if( db_table_exists("repository","forumpost") ){
+    db_prepare(&q,
+       "SELECT julianday('now') - max(fmtime),"
+       "       (SELECT uuid FROM blob WHERE rid=fpid),"
+       "       (SELECT substr(comment,instr(comment,':')+2)"
+       "          FROM event WHERE objid=fpid)"
+       "  FROM forumpost"
+       " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d",
+       iLimit, iOfst
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      char *zAge = human_readable_age(db_column_double(&q,0));
+      const char *zUuid = db_column_text(&q, 1);
+      const char *zTitle = db_column_text(&q, 2);
+      @ <tr><td>%h(zAge) ago</td>
+      @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>
+      @ </tr>
+      fossil_free(zAge);
+    }
+    db_finalize(&q);
   }
   @ </table></div>
-  db_finalize(&q);
   style_footer();
 }
