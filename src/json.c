@@ -1892,6 +1892,15 @@ cson_value * json_page_cap(){
   ADD(RdAddr,"readPrivate");
   ADD(Zip,"zip");
   ADD(Private,"xferPrivate");
+  ADD(WrUnver,"writeUnversioned");
+  ADD(RdForum,"readForum");
+  ADD(WrForum,"writeForum");
+  ADD(WrTForum,"writeForumTrusted");
+  ADD(ModForum,"moderateForum");
+  ADD(AdminForum,"adminForum");
+  ADD(EmailAlert,"emailAlert");
+  ADD(Announce,"announce");
+  ADD(Debug,"debug");
 #undef ADD
   return payload;
 }
