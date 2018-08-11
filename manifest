@@ -1,5 +1,5 @@
-C Try\sto\sput\sthe\shuman\sname\sof\sthe\sperson\swho\sposted\son\sthe\sFrom:\sline\sof\nemail\snotifications\sfor\snew\sforum\sposts.
-D 2018-08-10T23:28:19.821
+C Fix\sto\scheckin\s[8c91be8b],\swhich\swas\sintended\sto\sallow\sthe\suser\sto\slog\nin\swith\sthe\semail\sfound\sin\sthe\scontact\sinfo\sfield\sof\sthe\suser\stable.\nThat\scheckin\sis\sfine\sas\sfar\sas\sit\sgoes,\sbut\sit\sonly\sworks\sif\sthe\scaller\ndoesn't\ssubsequently\stry\sto\suse\sthe\spassed\suser\sname\sfor\sanything\selse,\nsince\sit\sisn't\sactually\sa\suser\sname.\s\sThis\scheckin\scauses\sthe\slow-level\nlogin\schecking\sfunction\sto\sre-point\sthe\suser\sname\spointer\sat\sthe\sactual\nlogin\sname\sdiscovered\swhile\sscanning\sfor\smatching\semail\saddresses.
+D 2018-08-11T16:59:58.064
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -497,7 +497,7 @@ F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
 F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
 F src/json_finfo.c 1061327153acf9d8f29228ae27c98e8f0c089955
-F src/json_login.c f446046e74c6cc8da4c791dd34459998c7f88ed8
+F src/json_login.c 3531595edce8ff47682bf8f2ddd9456d0d39f0a6b71c92179f79e5f83f44c7e0
 F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c 04ab48bbf4ed654e9963c771d2afaeff849c14717d82618b78e5004270fc56db
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c b16221ffb736caa21beb8f9b9e09f775251a2846a203f7d30996b1b13eb54ad8
+F src/login.c 1fccd3f6abaccef2ebf9a550d486d8f60be4ac2d342d9417403234f78ba5538a
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
@@ -558,7 +558,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 25df288894a3924dd330e1b350566357e061f964a816fd4f0cd7a50e0ce2d49c
-F src/smtp.c af99354c2df4032dd83e5f310e6a94dfed3e137640a994fabb8cb04a9be45add
+F src/smtp.c 7ff598ce05ec0c1935a42ffca3b549ff82974d934d7d2363472b4c2b527c9cad
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 82ecfc0861b4d7b56eb2aec24669269f0b0e5ca08febe82b1d22c2674957c77a
@@ -861,7 +861,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4602502114bef6035687e1695743ed7132a1d584e37ab709d247204c83f3799
-R b1041eaa8ecf8b8a79a67d19bb913a1f
-U drh
-Z 9b6452cc94134d9c1905ecf96f507f9b
+P ad4193315f363aab15ea63f0fa782641e676ef25c04e45f847dd85729f43a374
+R 8663eae80fb402fd4d3964cf34ca08ec
+T *branch * login-with-email
+T *sym-login-with-email *
+T -sym-trunk *
+U wyoung
+Z 5452d25495228223cda32a940d725b0e

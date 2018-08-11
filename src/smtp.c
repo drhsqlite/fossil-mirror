@@ -1355,23 +1355,11 @@ static void pop3_print(FILE *pLog, const char *zFormat, ...){
 /*
 ** Try to log in for zUser and zPass.
 **
-** If zUser/zPass does not work as written, then modify zUser by
-** omitting everything after the "@" (if there is one) and trying
-** again.
+** zUser can either point to a Fossil user name or to an email address
+** found in the user table's info field, in angle brackets.
 */
-static int pop3_login(char *zUser, char *zPass){
-  int uid;
-  int i;
-  uid = login_search_uid(zUser, zPass);
-  if( uid ) return 1;
-  for(i=0; zUser[i] && zUser[i]!='@'; i++){}
-  if( zUser[i]=='@' ){
-    zUser[i] = 0;
-    uid = login_search_uid(zUser, zPass);
-    if( uid ) return 1;
-    zUser[i] = '@';
-  }
-  return 0; 
+static int pop3_login(const char *zUser, char *zPass){
+  return login_search_uid(&zUser, zPass) != 0;
 }
 
 /*
