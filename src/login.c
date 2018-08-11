@@ -219,8 +219,8 @@ static void record_login_attempt(
 ** zPassword may be either the plain-text form or the encrypted
 ** form of the user's password.
 */
-int login_search_uid(const char **zUsername, const char *zPasswd){
-  char *zSha1Pw = sha1_shared_secret(zPasswd, *zUsername, 0);
+int login_search_uid(const char **pzUsername, const char *zPasswd){
+  char *zSha1Pw = sha1_shared_secret(zPasswd, *pzUsername, 0);
   int uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
@@ -229,7 +229,7 @@ int login_search_uid(const char **zUsername, const char *zPasswd){
     "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
     "   AND (info NOT LIKE '%%expires 20%%'"
     "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
-    *zUsername, zSha1Pw, zPasswd
+    *pzUsername, zSha1Pw, zPasswd
   );
 
   /* If we did not find a login on the first attempt, and the username
@@ -237,18 +237,18 @@ int login_search_uid(const char **zUsername, const char *zPasswd){
   ** email address instead of their login.  Try again to match the user
   ** against email addresses contained in the "info" field.
   */
-  if( uid==0 && strchr(*zUsername,'@')!=0 ){
+  if( uid==0 && strchr(*pzUsername,'@')!=0 ){
     Stmt q;
     db_prepare(&q,
       "SELECT login FROM user"
       " WHERE find_emailaddr(info)=%Q"
       "   AND instr(login,'@')==0",
-      *zUsername
+      *pzUsername
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zLogin = db_column_text(&q,0);
       if( (uid = login_search_uid(&zLogin, zPasswd) ) != 0 ){
-        *zUsername = fossil_strdup(zLogin);
+        *pzUsername = fossil_strdup(zLogin);
         break;
       }
     }
