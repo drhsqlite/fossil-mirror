@@ -201,6 +201,20 @@ The exact code you need here varies depending on which skin you're
 using. Follow the style you see for the other navbar links.
 
 
+<h3>Enable Forum Search</h3>
+
+One of the underlying assumptions of the forum feature is that you will
+want to be able to search the forum archives, so the <tt>/forum</tt>
+page always includes a search box. Since that depends on search being
+enabled on the Fossil repository, Fossil warns that search is disabled
+until you go into Admin &rarr; Search and enable the "Search Forum"
+setting.
+
+You may want to enable some of the other Fossil search features while
+you're in there. All of this does come at some CPU and I/O cost, which
+is why it's disabled by default.
+
+
 <h3>Single Sign-On</h3>
 
 If you choose to host your discussion forums within the same repository
