@@ -1,5 +1,5 @@
-C Try\sto\sput\sthe\shuman\sname\sof\sthe\sperson\swho\sposted\son\sthe\sFrom:\sline\sof\nemail\snotifications\sfor\snew\sforum\sposts.
-D 2018-08-10T23:28:19.821
+C Zeroed\sa\spointer\sin\sits\sdeclaration\sto\ssquish\sa\swarning\sfrom\sGCC\s4.8.4\non\sUbuntu\s14.04\sabout\suse\sof\sa\spotentially\suninitted\spointer.\s\sI\sdon't\nthink\sit's\sactually\spossible\sfor\sthe\scurrent\scode\sto\suse\sthe\spointer\sin\nthe\swindow\sbetween\sits\sdeclaration\sand\sfirst\suse,\sbut\sI\sthink\swe\scan\nafford\sthe\sextra\smachine\sinstruction\sthis\swill\scost\sus.\s\s(I\sassume\snewer\nGCCs\sare\ssmart\senough\sto\sanalyze\sthis\ssituation\scorrectly,\swhich\sis\swhy\nthe\swarning\shasn't\sbeen\ssquished\searlier.)
+D 2018-08-11T19:28:17.094
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c d33e207b1b60bb8aebfc553a2ed907a69f1304b4a0145f7df0cab4bb805aa3d4
+F src/forum.c 3c0b36644e350c88700977331bf644ab7c3e2d484f7a4e6d7e4d8373f5edcc17
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4602502114bef6035687e1695743ed7132a1d584e37ab709d247204c83f3799
-R b1041eaa8ecf8b8a79a67d19bb913a1f
-U drh
-Z 9b6452cc94134d9c1905ecf96f507f9b
+P ad4193315f363aab15ea63f0fa782641e676ef25c04e45f847dd85729f43a374
+R 7838ef7d563e2a1dc3ffc0c96a9cffb3
+U wyoung
+Z 9119abfa5188ae4b90d427daec64f95c

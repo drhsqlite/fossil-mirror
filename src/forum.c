@@ -156,7 +156,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   */
   for(pEntry=pThread->pFirst; pEntry; pEntry=pEntry->pNext){
     if( pEntry->fprev ){
-      ForumEntry *pBase, *p;
+      ForumEntry *pBase = 0, *p;
       p = forumentry_backward(pEntry->pPrev, pEntry->fprev);
       pEntry->pEdit = p;
       while( p ){
