@@ -1,5 +1,5 @@
-C The\speriodic\s"updateClock()"\scall\smade\sin\sthe\sheader\sfor\sseveral\sof\sthe\nbuilt-in\sskins\s(Eagle,\sEnhanced1,\sand\sXekri)\sviolates\sthe\snew\sstricter\nCSP,\ssince\sit\srequires\sa\sJS\seval.\s\sWe\sdon't\sneed\san\seval\shere:\swe\scan\npass\sthe\sfunction's\sname\sliterally\sto\swindow.setTimeout\sinstead,\swhich\ntreats\sit\sas\sa\sFunction\sobject,\swhich\sdoesn't\sneed\sto\sbe\seval'd.
-D 2018-08-11T20:49:49.447
+C Added\sforumSel\sadjustment\sadvice\sto\sforum.wiki.
+D 2018-08-11T21:04:34.214
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki c62827e0c42fb88593539cdc89cef464ed012a47b9fb26c2f84b4126e839a877
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 0978f81196b9dacf9ef5d7a68c68699441d52c5e2847b362a0a0e9522769400f
+F www/forum.wiki c4323510d72b06c4cda7f5c12d6074e9028cae4d2d666638553f0faac0aafd72
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc5d2e1f175562f98e707e3032ed9c44a02192a2712fb2aa4d3ef517efb366d8
-R 1339ec24b48c6a162a777186027dea81
+P eac15b4c63321d173124786259fb5d6d77a2e2b1c4e50618123efff5cfaf2428
+R d77caba07cf28e1a6ff73cd22da262a5
 U wyoung
-Z 1468204ef2834850388cc4a861bd7921
+Z e1e85c3bcd491bcfee4a96a5fb70f470

@@ -200,6 +200,32 @@ link, which just takes you to <tt>/forum</tt>.
 The exact code you need here varies depending on which skin you're
 using. Follow the style you see for the other navbar links.
 
+The new forum feature also brings many new CSS styles to the table. If
+you're using the stock skin or something sufficiently close, the changes
+may work with your existing skin as-is. Otherwise, you might need to
+adjust some things, such as the background color used for the selected
+forum post:
+
+<verbatim>
+  div.forumSel {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+</verbatim>
+
+That overrides the default — a hard-coded light cyan — with a 95%
+transparent black overlay instead, which simply darkens your skin's
+normal background color underneath the selected post. That should work
+with almost any background color except for very dark background colors.
+For dark skins, an inverse of the above trick will work better:
+
+<verbatim>
+  div.forumSel {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+</verbatim>
+
+That overlays the background with 5% white to lighten it slightly.
+
 
 <h3>Enable Forum Search</h3>
 
