@@ -359,8 +359,8 @@ below.
 If you use the same user name and email address as you used for your
 normal user login, Fossil will simply tie your alert preferences to your
 login, and it will be considered already-verified. Otherwise, Fossil
-will create up an alert-only record, and you will have to verify the
-email address before Fossil will send notifications to it.
+will create an alert-only record, and you will have to verify the email
+address before Fossil will send notifications to it.
 
 This shows a key aspect of the way Fossil's email alerts system works,
 by the way: a user can be signed up for email alerts without having a
@@ -371,9 +371,9 @@ are the two records tied together under the hood.
 <h4>Test the Email Subsystem</h4>
 
 If you'd rather not create an inane "testing" post in your Fossil
-instance just to force out an email alert, we can check whether the
-email subsystem separate from the rest of the Fossil Email Alerts system
-is working with the following command:
+instance just to force out an email alert, we can test the email
+subsystem separately from the rest of the Fossil email alerts system
+with the following command:
 
 <verbatim>
     $ fossil alerts test-message you@example.com --body README.md --subject Test
@@ -393,8 +393,8 @@ readme file]. Of course it does. Why would it not?
 Since you've already edited the skin per [#skin | the instructions
 above], you can click the "Forum" link in the navbar and create a new
 post. I suggest taking the time to compose a suitable introductory
-message especially for your project's forum, suitable for pointing new
-forum users at.
+message especially for your project's forum, one which a new user would
+find helpful.
 
 Wait a few seconds, and you should receive a notification email with the
 post's subject and body text in the email.
@@ -436,18 +436,24 @@ pending alerts to send out.
 
 <verbatim>
     $ fossil alert pending
+</verbatim>
+
+Show any pending alerts. The number of lines output here should equal
+the [#status | status output above].
+
+<verbatim>
     $ fossil test-add-alerts f5900
     $ fossil alert send
 </verbatim>
 
-If the first command gives no output and <tt>pending-alerts</tt> in the
-earlier command is 0, the second command will add another alert, which
-should shortly cause another notification email. The <tt>f</tt> in the
-final parameter means you're scheduling a "forum" alert, and the integer
-is the ID of a forum post, which you can find by visiting
-<tt>/timeline?showid</tt> on your Fossil instance.
+Manually create an email alert and push it out immediately.
 
-The third command above is necessary because the
+The <tt>f</tt> in the first command's final parameter means you're
+scheduling a "forum" alert. The integer is the ID of a forum post, which
+you can find by visiting <tt>/timeline?showid</tt> on your Fossil
+instance.
+
+The second command above is necessary because the
 <tt>test-add-alerts</tt> command doesn't kick off a backoffice run.
 
 <verbatim>
