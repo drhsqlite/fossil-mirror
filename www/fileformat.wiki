@@ -497,7 +497,7 @@ the most recent D card is the only one used.  The technote-id must be a
 
 The optional N card specifies the mimetype of the text of the technote
 that is contained in the W card.  If the N card is omitted, then the
-W card text mimetype is assumed to be text/x-fossil, which is the
+W card text mimetype is assumed to be text/x-fossil-wiki, which is the
 Fossil wiki format.
 
 The optional P card specifies a prior technote with the same technote-id
@@ -572,7 +572,7 @@ forum post was created.
 
 The optional N card specifies the mimetype of the text of the technote
 that is contained in the W card.  If the N card is omitted, then the
-W card text mimetype is assumed to be text/x-fossil, which is the
+W card text mimetype is assumed to be text/x-fossil-wiki, which is the
 Fossil wiki format.
 
 The optional P card specifies a prior forum post for which this
