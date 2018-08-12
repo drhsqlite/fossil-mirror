@@ -1,5 +1,5 @@
-C Merge\sthe\sfix\sto\sthe\slogin-by-email-address\spatch.
-D 2018-08-12T10:42:50.128
+C Add\s/forum\slink\sto\ssitemap\sif\suser\shas\sRdForum\scapability
+D 2018-08-12T21:35:53.404
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -555,7 +555,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 1e555272ad6e675a7e14be11fb010b5475093e289370b405b92e89ce6fdab026
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
-F src/sitemap.c 60b9f066776bd05db01f7db31353f4cae2df4faf
+F src/sitemap.c bf45768f587d570a260be469d5c3d9217fbcf1d61015f7f922cffbcccf64dfb3
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 25df288894a3924dd330e1b350566357e061f964a816fd4f0cd7a50e0ce2d49c
 F src/smtp.c 7ff598ce05ec0c1935a42ffca3b549ff82974d934d7d2363472b4c2b527c9cad
@@ -861,8 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 542c5576b3173bbeaabdae31be4ee0d72758e9741da603411fd3b0f69ff3b006 52b9caa5027e717f02deb6d012ee2a2d99cd968d151f6e4d7b87d1fa8b88cc1b
-R 0e8ceb536f6b1bab3c6f662d788c4d05
-T +closed 52b9caa5027e717f02deb6d012ee2a2d99cd968d151f6e4d7b87d1fa8b88cc1b
-U drh
-Z 483ee236c3b3df463eaa15f2c90b71c6
+P 9b4e157b1e1e51247b285e6773fe510de12f71b3e58d26491262a557ce5a9299
+R e6b7c149ba3ab2f76c6606f3f95c72bf
+U wyoung
+Z 56266cbb839aeeb68944530c680b2f63
