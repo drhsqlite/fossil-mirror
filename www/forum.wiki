@@ -350,11 +350,11 @@ Status section at the top should show:
 Above, we see that there are no subscribers, so the next step is to add
 one.
 
-Go to the <tt>/subscribe</tt> page on your Fossil instance and sign your
-regular Fossil user up for email alerts. (Alternate path: click the
-login/logout link in the upper right corner, then go to "Email Alerts".)
-You will need "Forum Posts" checked at the least for the testing steps
-below.
+Go to the <tt>/alerts</tt> page on your Fossil instance and sign your
+regular Fossil user up for email alerts. (Alternate path: click the user
+name or login/logout link in the upper right corner, depending on the
+skin you're using, then go to "Email Alerts".) You will need "Forum
+Posts" checked at the least for the testing steps below.
 
 If you use the same user name and email address as you used for your
 normal user login, Fossil will simply tie your alert preferences to your
