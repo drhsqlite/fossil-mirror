@@ -339,9 +339,9 @@ running at a given site.
 Status section at the top should show:
 
 <verbatim>
-    Outgoing Email:	Piped to command "sendmail -t"
-    Pending Alerts:	0 normal, 0 digest
-    Subscribers:	0 active, 0 total
+    Outgoing Email: Piped to command "sendmail -t"
+    Pending Alerts: 0 normal, 0 digest
+    Subscribers:    0 active, 0 total
 </verbatim>
 
 
@@ -464,9 +464,63 @@ This only does the same thing as the final command above, rather than
 send you an ale, as you might be hoping. Sorry.
 
 
-<h2 id="moderation">Moderation</h2>
+<h2 id="moderation">How Moderation Works</h2>
 
-Fossil forum moderation is easy:
+When a person with the normal <b>Write Forum</b> capability (<tt>3</tt>)
+either:
+
+  *  creates a new post, or
+  *  replies to an existing post, or
+  *  edits a post/reply
+  
+...the new content is saved into Fossil's block chain, but two special
+things happen to it:
+
+<ol>
+    <li>The artifact's ID is saved to the <tt>private</tt> table,
+    preventing Fossil from sending such artifacts to any of the
+    repository's clones.  (This is the same mechanism behind
+    [./private.wiki | private branches].)</li>
+
+    <li>A reference to that artifact is saved in the <tt>modreq</tt>
+    table, which backs the moderation feature.  This is what causes
+    Fossil to leave out the Reply button when rendering that post's HTML
+    in the forum's web interface.</li>
+</ol>
+
+When a moderator approves a post, Fossil deletes these references in the
+<tt>private</tt> and <tt>modreq</tt> tables so that the contribution is
+effectively written semi-permanently into the Fossil block chain. The
+artifact will now sync to clones, if the clone is done by a user with
+<b>Check-Out</b> capability (<tt>o</tt>).
+
+When a forum user edits a moderator-approved artifact, what actually
+happens under the hood is that Fossil writes another artifact to the
+repository which refers to the original version as its parent, causing
+Fossil UI to present the new version instead of the original. The
+original version remains in the repository, just as with historical
+checkins. The parent must remain in the repository for referential
+integrity purposes.
+
+When you "Delete" such content through Fossil UI, it's actually an edit
+with blank content.  The only way to truly delete such artifacts is
+through [./shunning.wiki | shunning].
+
+When a post is made by a user with <b>WriteTrusted Forum</b> capability
+(<tt>4</tt>), it is posted in the same way, just with the
+<tt>private</tt> and <tt>modreq</tt> table insertions skipped.
+
+When a moderator rejects a post, reply, or edit, that artifact is
+unceremoniously removed from the tip of the block chain. This is safe
+since such a post cannot have any replies, so there will be no other
+artifacts referring to it.
+
+
+<h2 id="mod-user">Using the Moderation Feature</h2>
+
+All of the above is work performed under the hood by Fossil on behalf of
+its users. There is little work left for the administrators and
+moderators of the repository:
 
 <ol>
     <li>Add the <b>Moderate Forum</b> (<tt>5</tt>) capability to any of
@@ -477,15 +531,15 @@ Fossil forum moderation is easy:
     | already included].</li>
 
     <li>When someone without <b>WriteTrusted Forum</b> (<tt>4</tt>)
-    capability submits a post, you'll get a notice on the timeline if
-    the type filter is set to "Forum" or "Any Type". It will also appear
-    on the <tt>/modreq</tt> page; you might want to keep that page open
-    in a tab in your browser, and reload it occasionally to check for
-    pending moderation requests.</li>
+    capability submits a post, reply, or edit, an entry will appear on
+    the timeline if the type filter is set to "Forum" or "Any Type". A
+    notification will also appear on the <tt>/modreq</tt> page; a
+    moderator may wish to keep that page open in a browser tab,
+    reloading it occasionally to check for pending moderation
+    requests.</li>
 
-    <li>On an unmoderated post, click the "Approve" or "Reject" button.
-    "Approve" writes the message semi-permanently into the Fossil
-    blockchain, from which only [./shunning.wiki | shunning] can remove
-    it. "Reject" deletes the post permanently, with no way to retrieve
-    it. Be careful!</li>
+    <li>A moderator viewing an unmoderated post sees two buttons at the
+    bottom, "Approve" and "Reject" in place of the "Delete" button that
+    the post's creator sees. Beware that both actions are durable and
+    have no undo. Be careful!</li>
 </ol>
