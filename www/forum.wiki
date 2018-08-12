@@ -466,4 +466,26 @@ send you an ale, as you might be hoping. Sorry.
 
 <h2>Moderation</h2>
 
-TODO
+Fossil forum moderation is easy:
+
+<ol>
+    <li>Add the <b>Moderate Forum</b> (<tt>5</tt>) capability to any of
+    your users who should have this ability. You don't need to do this
+    for any user with Setup (<tt>s</tt>) or Admin (<tt>a</tt>)
+    capability; it's
+    [http://fossil-scm.org/index.html/artifact/b16221ffb736caa2?ln=1246-1257
+    | already included].</li>
+
+    <li>When someone without <b>WriteTrusted Forum</b> (<tt>4</tt>)
+    capability submits a post, you'll get a notice on the timeline if
+    the type filter is set to "Forum" or "Any Type". It will also appear
+    on the <tt>/modreq</tt> page; you might want to keep that page open
+    in a tab in your browser, and reload it occasionally to check for
+    pending moderation requests.</li>
+
+    <li>On an unmoderated post, click the "Approve" or "Reject" button.
+    "Approve" writes the message semi-permanently into the Fossil
+    blockchain, from which only [./shunning.wiki | shunning] can remove
+    it. "Reject" deletes the post permanently, with no way to retrieve
+    it. Be careful!</li>
+</ol>
