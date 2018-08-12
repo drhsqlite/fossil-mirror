@@ -121,9 +121,9 @@ of which you cannot get by using third-party alternatives:
      behind mail servers that require STARTTLS encryption.
 
 
-<h2>Setting up a Fossil Forum</h2>
+<h2 id="setup">Setting up a Fossil Forum</h2>
 
-<h3>Permissions</h3>
+<h3 id="caps">Capabilities</h3>
 
 Fossil forums use the same role-based access control mechanism as
 for normal Fossil repository logins.
@@ -227,7 +227,7 @@ For dark skins, an inverse of the above trick will work better:
 That overlays the background with 5% white to lighten it slightly.
 
 
-<h3>Enable Forum Search</h3>
+<h3 id="search">Enable Forum Search</h3>
 
 One of the underlying assumptions of the forum feature is that you will
 want to be able to search the forum archives, so the <tt>/forum</tt>
@@ -241,7 +241,7 @@ you're in there. All of this does come at some CPU and I/O cost, which
 is why it's disabled by default.
 
 
-<h3>Single Sign-On</h3>
+<h3 id="sso">Single Sign-On</h3>
 
 If you choose to host your discussion forums within the same repository
 as your project's other Fossil-managed content, you inherently have a
@@ -266,7 +266,7 @@ Login-Group. This allows one Fossil repository to recognize users
 authorized on a different Fossil repository.
 
 
-<h3>Email Notification</h3>
+<h3 id="alerts">Email Notifications (Alerts)</h3>
 
 The detailed information for this feature of Fossil is in two other
 documents:
@@ -279,7 +279,7 @@ of that complexity necessarily leaks out to the configuration of email
 notification in Fossil.
 
 
-<h4>Quick Setup</h4>
+<h4 id="quick">Quick Setup</h4>
 
 However, if you've already got a working Postfix, Exim, or Sendmail
 server on the machine running your Fossil instance(s), and you aren't
@@ -345,7 +345,7 @@ Status section at the top should show:
 </verbatim>
 
 
-<h4>Subscribe to Alerts</h4>
+<h4 id="subscribe">Subscribe to Alerts</h4>
 
 Above, we see that there are no subscribers, so the next step is to add
 one.
@@ -368,7 +368,7 @@ full-fledged Fossil user account. Only when both user names are the same
 are the two records tied together under the hood.
 
 
-<h4>Test the Email Subsystem</h4>
+<h4 id="alert-test">Test the Email Subsystem</h4>
 
 If you'd rather not create an inane "testing" post in your Fossil
 instance just to force out an email alert, we can test the email
@@ -388,7 +388,7 @@ That command assumes that your project [./foss-cklist.wiki | contains a
 readme file]. Of course it does. Why would it not?
 
 
-<h4>Frist Post</h4>
+<h4 id="frist" name="first">First Post</h4>
 
 Since you've already edited the skin per [#skin | the instructions
 above], you can click the "Forum" link in the navbar and create a new
@@ -400,7 +400,7 @@ Wait a few seconds, and you should receive a notification email with the
 post's subject and body text in the email.
 
 
-<h4>Troubleshooting</h4>
+<h4 id="trouble">Troubleshooting</h4>
 
 If email alerts aren't working, there are several useful commands you
 can give to figure out why.
@@ -464,7 +464,7 @@ This only does the same thing as the final command above, rather than
 send you an ale, as you might be hoping. Sorry.
 
 
-<h2>Moderation</h2>
+<h2 id="moderation">Moderation</h2>
 
 Fossil forum moderation is easy:
 
