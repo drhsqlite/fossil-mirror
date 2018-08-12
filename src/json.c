@@ -1895,7 +1895,7 @@ cson_value * json_page_cap(){
   ADD(WrUnver,"writeUnversioned");
   ADD(RdForum,"readForum");
   ADD(WrForum,"writeForum");
-  ADD(WrTForum,"writeForumTrusted");
+  ADD(WrTForum,"writeTrustedForum");
   ADD(ModForum,"moderateForum");
   ADD(AdminForum,"adminForum");
   ADD(EmailAlert,"emailAlert");

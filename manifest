@@ -1,5 +1,5 @@
-C Update\sJSON\scode\sto\saccount\sfor\snew\scapabilities.\s\sAlso,\sthe\s'setup'\scapability\sshould\simply\s'debug'.
-D 2018-08-11T23:47:35.008
+C Update\swording\sto\smatch\sdocumentation.
+D 2018-08-12T03:38:17.055
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 7f1829c005cabfa6cd7d5ab5fddf89dcd71427b70b8058032d2c452151ae1bc3
-F src/json.c 95c72475708c87d47cf301e14158dded497232909018bc4bf89b12629e595165
+F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c dae5996cca66f4e6a4081d7882bf10c9439341d2d1d06801c0b320e84e1966cb
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -861,10 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0194fb677490c6f7819f9f1104892162539854035fc553b572fa643d1ced29e0
-R ee9ec0aeef6956c5e9a2010afa996651
-T *branch * updNewCaps
-T *sym-updNewCaps *
-T -sym-trunk *
+P 7ce44fab2401a39f2af0f164ee210af1470c6788301d64079897e491f522eb87
+R 0961f7bedacc1de660740b00d75802e5
 U mistachkin
-Z 6067a3dd9af3d45abd7acc7df03f8ffb
+Z 7b78c8538e34c294b42749649a2ba3e8
