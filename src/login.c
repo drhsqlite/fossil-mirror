@@ -208,11 +208,19 @@ static void record_login_attempt(
 ** On success it returns a positive value. On error it returns 0.
 ** On serious (DB-level) error it will probably exit.
 **
+** zUsername uses double indirection because we may re-point *zUsername
+** at a C string allocated with fossil_strdup() if you pass an email
+** address instead and we find that address in the user table's info
+** field, which is expected to contain a string of the form "Human Name
+** <human@example.com>".  In that case, *zUsername will point to that
+** user's actual login name on return, causing a leak unless the caller
+** is diligent enough to check whether its pointer was re-pointed.
+**
 ** zPassword may be either the plain-text form or the encrypted
 ** form of the user's password.
 */
-int login_search_uid(const char *zUsername, const char *zPasswd){
-  char *zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
+int login_search_uid(const char **pzUsername, const char *zPasswd){
+  char *zSha1Pw = sha1_shared_secret(zPasswd, *pzUsername, 0);
   int uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
@@ -221,24 +229,28 @@ int login_search_uid(const char *zUsername, const char *zPasswd){
     "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
     "   AND (info NOT LIKE '%%expires 20%%'"
     "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
-    zUsername, zSha1Pw, zPasswd
+    *pzUsername, zSha1Pw, zPasswd
   );
 
   /* If we did not find a login on the first attempt, and the username
-  ** looks like an email address, the perhaps the user entired their
+  ** looks like an email address, then perhaps the user entered their
   ** email address instead of their login.  Try again to match the user
   ** against email addresses contained in the "info" field.
   */
-  if( uid==0 && strchr(zUsername,'@')!=0 ){
+  if( uid==0 && strchr(*pzUsername,'@')!=0 ){
     Stmt q;
     db_prepare(&q,
       "SELECT login FROM user"
       " WHERE find_emailaddr(info)=%Q"
       "   AND instr(login,'@')==0",
-      zUsername
+      *pzUsername
     );
-    while( uid==0 && db_step(&q)==SQLITE_ROW ){
-       uid = login_search_uid(db_column_text(&q,0),zPasswd);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zLogin = db_column_text(&q,0);
+      if( (uid = login_search_uid(&zLogin, zPasswd) ) != 0 ){
+        *pzUsername = fossil_strdup(zLogin);
+        break;
+      }
     }
     db_finalize(&q);
   }    
@@ -652,7 +664,7 @@ void login_page(void){
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     /* Attempting to log in as a user other than anonymous.
     */
-    uid = login_search_uid(zUsername, zPasswd);
+    uid = login_search_uid(&zUsername, zPasswd);
     if( uid<=0 ){
       sleep(1);
       zErrMsg =
@@ -953,7 +965,7 @@ static int logic_basic_authentication(const char *zIpAddr){
     /* Attempting to log in as the user provided by HTTP
     ** basic auth
     */
-    uid = login_search_uid(zUsername, zPasswd);
+    uid = login_search_uid(&zUsername, zPasswd);
     if( uid>0 ){
       record_login_attempt(zUsername, zIpAddr, 1);
     }else{
