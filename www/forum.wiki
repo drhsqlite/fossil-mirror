@@ -176,7 +176,7 @@ to grant the Moderate Forum capability (5) to an uncommonly
 highly-trusted user.
 
 
-<h3>Skin Setup</h3>
+<h3 id="skin">Skin Setup</h3>
 
 If you create a new Fossil repository with version 2.7 or newer, its
 default skin is already set up correctly for typical forum
@@ -268,16 +268,196 @@ authorized on a different Fossil repository.
 
 <h3>Email Notification</h3>
 
-See [./emaildesign.md | the email notification design document] for now.
-More administration-oriented documentation TODO.
+The detailed information for this feature of Fossil is in two other
+documents:
 
+  *  [./alerts.md | Email Alerts]
+  *  [./emaildesign.md | Email Notification Design]
+
+You may want to study those in detail, since email is complicated. Some
+of that complexity necessarily leaks out to the configuration of email
+notification in Fossil.
+
+
+<h4>Quick Setup</h4>
+
+However, if you've already got a working Postfix, Exim, or Sendmail
+server on the machine running your Fossil instance(s), and you aren't
+using Fossil's <tt>chroot</tt> feature to wall it off from the rest of
+the machine, it's fairly simple to set up email notifications:
+
+<ol>
+    <li>Go to Admin &rarr; Notification and fill out all of the
+    <b>Required</b> fields:</li>
+
+    <ul>
+        <li><b>Canonical server URL</b> — Use the suggested URL</li>
+        <li><b>"From" email address</b> — <tt>forum-bounces@example.com</tt>
+        is traditional, but do what you like</li>
+        <li><b>Repository nickname</b> — See the suggested examples on
+        the web page.</li>
+    </ul>
+
+    <li>Set "Email Send Method" to "Pipe to a command"</li>
+
+    <li>Set the "Administrator email address" to a suitable email address.
+    It could be the same value you used for the "From" address above,
+    or it could be a different value like
+    <tt>admin@example.com</tt>.</li>
+</ol>
+
+Save your changes.
+
+<a id="cd"></a>For all of the following <tt>fossil</tt> CLI commands,
+we're going to assume that you've <tt>cd</tt>'d into a checkout
+directory for your repository on the central server.  Otherwise, we'd
+need to add <tt>-R /path/to/repo.fossil</tt> to each of them.
+
+Give this command:
+
+<verbatim>
+    $ fossil set email-send-command
+</verbatim>
+
+If that gives a blank value instead of <tt>sendmail -t</tt>, say
+
+<verbatim>
+    $ fossil set email-send-command "sendmail -t"
+</verbatim>
+
+to force the setting. That's a
+[https://fossil-scm.org/forum/forumpost/840b676410 | known bug] which
+should be squished soon.
+
+This is the correct command even if you're running Postfix or Exim
+rather than Sendmail. These mail servers (and perhaps others) provide a
+<tt>sendmail</tt> command for this very sort of reason: it lets programs
+send email without having to care exactly which server implementation is
+running at a given site.
+
+<a id="status"></a>If you reload the Email Notification Setup page, the
+Status section at the top should show:
+
+<verbatim>
+    Outgoing Email:	Piped to command "sendmail -t"
+    Pending Alerts:	0 normal, 0 digest
+    Subscribers:	0 active, 0 total
+</verbatim>
+
+
+<h4>Subscribe to Alerts</h4>
+
+Above, we see that there are no subscribers, so the next step is to add
+one.
+
+Go to the <tt>/subscribe</tt> page on your Fossil instance and sign your
+regular Fossil user up for email alerts. (Alternate path: click the
+login/logout link in the upper right corner, then go to "Email Alerts".)
+You will need "Forum Posts" checked at the least for the testing steps
+below.
+
+If you use the same user name and email address as you used for your
+normal user login, Fossil will simply tie your alert preferences to your
+login, and it will be considered already-verified. Otherwise, Fossil
+will create up an alert-only record, and you will have to verify the
+email address before Fossil will send notifications to it.
+
+This shows a key aspect of the way Fossil's email alerts system works,
+by the way: a user can be signed up for email alerts without having a
+full-fledged Fossil user account. Only when both user names are the same
+are the two records tied together under the hood.
+
+
+<h4>Test the Email Subsystem</h4>
+
+If you'd rather not create an inane "testing" post in your Fossil
+instance just to force out an email alert, we can check whether the
+email subsystem separate from the rest of the Fossil Email Alerts system
+is working with the following command:
+
+<verbatim>
+    $ fossil alerts test-message you@example.com --body README.md --subject Test
+</verbatim>
+
+That should send you an email with "Test" in the subject line and the
+contents of your project's <tt>README.md</tt> file in the body. If it
+works, the file's contents may be truncated. I'm uncertain whether
+that's due to an intentionally-small buffer size or if it's a bug.
+
+That command assumes that your project [./foss-cklist.wiki | contains a
+readme file]. Of course it does. Why would it not?
+
+
+<h4>Frist Post</h4>
+
+Since you've already edited the skin per [#skin | the instructions
+above], you can click the "Forum" link in the navbar and create a new
+post. I suggest taking the time to compose a suitable introductory
+message especially for your project's forum, suitable for pointing new
+forum users at.
+
+Wait a few seconds, and you should receive a notification email with the
+post's subject and body text in the email.
+
+
+<h4>Troubleshooting</h4>
+
+If email alerts aren't working, there are several useful commands you
+can give to figure out why.
+
+(Be sure to [#cd | <tt>cd</tt> into a repo checkout directory] first!)
+
+<verbatim>
+    $ fossil alerts status
+</verbatim>
+
+This should give much the same information as you saw [#status | above].
+One difference is that, since you've created a forum post, the
+<tt>pending-alerts</tt> value should only be zero if you did in fact get
+the requested email alert. If it's zero, check your mailer's spam
+folder. If it's nonzero, continue with these troubleshooting steps.
+
+<verbatim>
+    $ fossil backoffice
+</verbatim>
+
+That forces Fossil to run its [./backoffice.md | "back office" process].
+Its only purpose at the time of this writing is to push out alert
+emails, but it might do other things later. Sometimes it can get stuck
+and needs to be kicked. For that reason, you might want to set up a
+crontab entry to make sure it runs occasionally.
+
+<verbatim>
+    $ fossil alerts send
+</verbatim>
+
+This should also kick off the backoffice processing, if there are any
+pending alerts to send out.
+
+<verbatim>
+    $ fossil alert pending
+    $ fossil test-add-alerts f5900
+    $ fossil alert send
+</verbatim>
+
+If the first command gives no output and <tt>pending-alerts</tt> in the
+earlier command is 0, the second command will add another alert, which
+should shortly cause another notification email. The <tt>f</tt> in the
+final parameter means you're scheduling a "forum" alert, and the integer
+is the ID of a forum post, which you can find by visiting
+<tt>/timeline?showid</tt> on your Fossil instance.
+
+The third command above is necessary because the
+<tt>test-add-alerts</tt> command doesn't kick off a backoffice run.
+
+<verbatim>
+    $ fossil ale send
+</verbatim>
+
+This only does the same thing as the final command above, rather than
+send you an ale, as you might be hoping. Sorry.
 
 
 <h2>Moderation</h2>
-
-TODO
-
-
-<h2>Troubleshooting</h2>
 
 TODO
