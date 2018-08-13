@@ -131,23 +131,28 @@ for normal Fossil repository logins.
 There are several dedicated forum-related capability bits you can grant
 a user:
 
-  *  <b>Read Forum</b>: The user may read forum posts
+  *  <b>Read Forum</b> (<tt>2</tt>): The user may read forum posts.
 
-  *  <b>Write Forum</b>: The user may create new forum threads and reply
-     to existing threads. New posts are held for moderation.
+  *  <b>Write Forum</b> (<tt>3</tt>): The user may create new forum
+     threads, reply to existing threads, and edit their own posts. New
+     posts are held for moderation, and they are marked to prevent them
+     from being included in clone and sync operations.
 
-  *  <b>WriteTrusted Forum</b>: Same as <b>Write Forum</b> except that
-     posts are inserted into the block chain immediately without being held
-     for moderation.
+  *  <b>WriteTrusted Forum</b> (<tt>4</tt>): Same as <b>Write Forum</b>
+     except that forum updates bypass the [#moderation | moderation and
+     private artifact restrictions].
 
-  *  <b>Moderate Forum</b>: User gets buttons on posts which allow them
-     to either delete or approve posts held for moderation. User also gets
-     access to a page (<tt>/modreq</tt>) showing the list of pending
-     moderation tasks.
+  *  <b>Moderate Forum</b> (<tt>5</tt>): User gets buttons on posts
+     which allow them to either reject or approve posts held for
+     moderation. User also gets access to a page (<tt>/modreq</tt>)
+     showing the list of pending moderation tasks.
 
-  *  <b>Supervise Forum</b>: User can grant or revoke
+  *  <b>Supervise Forum</b> (<tt>6</tt>): User can grant or revoke
      <b>WriteTrusted</b> capability for other users. (Currently
      unimplemented.)
+
+  *  <b>Email Alerts</b> (<tt>7</tt>): User can sign themselves up for
+     email notifications, a.k.a. alerts.
 
 By default, no Fossil user has permission to use the forums except for
 users with Setup and Admin capabilities, which get these as part of the
@@ -169,6 +174,18 @@ the WriteTrusted capability (4) to users in the <tt>developer</tt>
 category. If you did not give the Read Forum capability (2) to
 <tt>anonymous</tt> above, you should give <tt>developer</tt> that
 capability here if you choose to give it capability 3 or 4.
+
+You must give at least one user or user category the Email Alerts
+capability (7), else the only people able to sign themselves up for
+email notifications are those with the Setup or Admin capability. Those
+users could sign others up via Admin &rarr; Notification, but you
+probably want to give this capability to one of the user categories.
+Give it to <tt>nobody</tt> if you want anyone to sign up without any
+restrictions.  Give it to <tt>anonymous</tt> if you want the user to
+solve a simple CAPTCHA before signing up. Give it to <tt>reader</tt> or
+<tt>developer</tt> if you want only users with Fossil logins to have
+this ability. (That's assuming you give one or both of these
+capabilities to every user on your Fossil repository.)
 
 By following this advice, you should not need to tediously add
 capabilities to individual accounts except in atypical cases, such as
@@ -528,23 +545,25 @@ behalf of its users, we can now give the short list of work left for the
 repository's administrators and moderators:
 
 <ol>
-    <li>Add the <b>Moderate Forum</b> (<tt>5</tt>) capability to any of
+    <li>Add the <b>Moderate Forum</b> capability (<tt>5</tt>) to any of
     your users who should have this ability. You don't need to do this
     for any user with Setup (<tt>s</tt>) or Admin (<tt>a</tt>)
     capability; it's
     [http://fossil-scm.org/index.html/artifact/b16221ffb736caa2?ln=1246-1257
     | already included].</li>
 
-    <li>When someone without <b>WriteTrusted Forum</b> (<tt>4</tt>)
-    capability submits a post, reply, or edit, an entry will appear on
-    the timeline if the type filter is set to "Forum" or "Any Type". A
-    notification will also appear on the <tt>/modreq</tt> page; a
-    moderator may wish to keep that page open in a browser tab,
-    reloading it occasionally to check for pending moderation
-    requests.</li>
+    <li>When someone updates the forum, an entry will appear in the
+    timeline if the type filter is set to "Forum" or "Any Type". If that
+    user has only the <b>Write Forum</b> capability (<tt>3</tt>), any
+    other user with the <b>Moderate Forum</b> capability (<tt>5</tt>)
+    will see a conditional link appear at the top of the main forum
+    page: "Moderation Requests".  Clicking this takes the moderator to
+    the <tt>/modreq</tt> page. A moderator may wish to keep the main
+    forum page open in a browser tab, reloading it occasionally to see
+    when the "Moderation Requests" link reappears.</li>
 
-    <li>A moderator viewing an unmoderated post sees two buttons at the
-    bottom, "Approve" and "Reject" in place of the "Delete" button that
-    the post's creator sees. Beware that both actions are durable and
-    have no undo. Be careful!</li>
+    <li>A moderator viewing an update pending moderation sees two
+    buttons at the bottom, "Approve" and "Reject" in place of the
+    "Delete" button that the post's creator sees. Beware that both
+    actions are durable and have no undo. Be careful!</li>
 </ol>

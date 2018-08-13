@@ -1,5 +1,5 @@
-C Assorted\sminor\simprovements\sto\sthe\swww/alerts.md\sdocument.\s\sThe\smajor\none\sis\sre-emphasizing\sthe\sneed\sto\sgive\scapability\s7\sto\ssome\suser\sor\suser\ncategory.\s\sAsk\sme\show\sI\scame\sto\sthink\sthis\snecessary.\s:)
-D 2018-08-13T03:23:59.274
+C Covered\scapability\s7\sin\sthe\sforum.wiki\sdocument,\sand\smade\sseveral\nimprovements\sto\sthe\s"Using\sthe\sModeration\sFeature"\ssection.
+D 2018-08-13T03:51:18.283
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki adf75191d6d1fc1230f00e8b69abe5f0b98ae298713a0c2e517fec0101b4855f
+F www/forum.wiki 1c79a0bad787f6eeee5ae1bf3898654dd5eda9720d5eb806ad5f14787963a398
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3d9c8e082d2bd3379b5439f2169f82f10c96c642083082dcad2fa5cbafda3d3
-R eb0616c0cafd267d4b7f989f11663a2d
+P 3e75a683efb801f73c3d14cbd3cdac7b478ed867bf416a578e34707dc50a1018
+R 580aa3d04a5353fd1c7b12750bab22c6
 U wyoung
-Z 7e3182faffcf62403188dd9509f81db4
+Z 422ebeccb86cc00032f05a642d659c69
