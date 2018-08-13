@@ -509,23 +509,23 @@ When you "Delete" a moderator-approved post or reply through Fossil UI,
 it's actually an edit with blank replacement content. The only way to
 truly delete such artifacts is through [./shunning.wiki | shunning].
 
-When a post is made by a user with <b>WriteTrusted Forum</b> capability
-(<tt>4</tt>), it is posted in the same way, just with the
-<tt>private</tt> and <tt>modreq</tt> table insertions skipped.
+When a user with <b>WriteTrusted Forum</b> capability (<tt>4</tt>)
+updates the forum, it happens in the same way except that Fossil skips
+the <tt>private</tt> and <tt>modreq</tt> table insertions.
 
 When a moderator rejects an update, that artifact is unceremoniously
 removed from the tip of the block chain. This is safe because Fossil
-prevents the creation of any replies to posts and replies that require
-moderator approval, so there will be no other artifacts referring to it.
-Rejecting an edit is even safer, since the original post remains behind,
-maintaining referential integrity.
+prevents replies to a reply or post awaiting moderator approval, so
+referential integrity cannot be harmed.  Rejecting an edit is even
+safer, since the original post remains behind, so that replies continue
+to refer to that original post.
 
 
 <h2 id="mod-user">Using the Moderation Feature</h2>
 
-Having described all of the work that Fossil performs under the hood by
-Fossil on behalf of its users, we can now give the short list of work
-left for the repository's administrators and moderators:
+Having described all of the work that Fossil performs under the hood on
+behalf of its users, we can now give the short list of work left for the
+repository's administrators and moderators:
 
 <ol>
     <li>Add the <b>Moderate Forum</b> (<tt>5</tt>) capability to any of
