@@ -2,7 +2,7 @@ Email Alerts
 ============
 
 The email alert system is a work-in-progress.
-This documentation was last updated on 2018-08-08.
+This documentation was last updated on 2018-08-12.
 Check back later for updates.
 
 Email Alerts And Notifications
@@ -19,19 +19,20 @@ of changes:
   *  New forum posts
   *  Announcements
 
-Subscribers can elect to receive emails as soon as these events happen,
-or to receive a daily digest of the events.
+Subscribers can either elect to receive emails as soon as these events happen,
+or they can receive a daily digest of the events instead.
 
 Email alerts are sent by a [Fossil server](./server.wiki).  You must
-have a server setup to make use of email alerts.  Email alerts do not
-(currently) work if you are only using Fossil from the command-line.
+have a server [set up to make use of email alerts](#setup).  Email
+alerts do not currently work if you are only using Fossil from the
+command line.
 
 Users and Subscribers
 ---------------------
 
 Fossil makes a distinction between "users" and "subscribers".  A
-"user" is someone with a username and password - someone who can
-log in.  A "subscriber" is someone who receives email alerts.  Users
+user is someone with a username and password — someone who can
+log in.  A subscriber is someone who receives email alerts.  Users
 can also be subscribers and subscribers can be users, but that does
 not have to be the case.  It is possible to be a user without being
 a subscriber and to be a subscriber without being a user.
@@ -39,13 +40,14 @@ a subscriber and to be a subscriber without being a user.
 In the repository database file, users are tracked with the USER table
 and subscribers are tracked via the SUBSCRIBER table.
 
+<a id="setup"></a>
 Activating Email Alerts
 -----------------------
 
 Email alerts are turned off by default.  To activate them, log into
 the Fossil server as an administrator and visit the 
 [Admin/Notification](/setup_notification)
-setup page ([/setup_notification](/setup_notification)).
+setup page. ([`/setup_notification`](/setup_notification))
 
 Important:  Email alerts are configured using Admin/Notification, not
 Admin/Email-Server.  The Email-Server setup screen is used to configure
@@ -60,7 +62,7 @@ setup parameter is the "Email Send Method".
 
 Fossil supports multiple methods for sending email alerts:
 
-  1.  Pipe the email message text into a command, such as "sendmail".
+  1.  Pipe the email message text into a command, such as `sendmail`.
   2.  Store email messages as individual files in a directory and let
       some other process set up by the administrator take care of
       reading and forwarding those files.
@@ -83,9 +85,9 @@ hand off messages to "procmail" directly.  The daemon that monitors the
 email database is a [short TCL script](/file/tools/email-sender.tcl).
 That daemon is started automatically by adding this line:
 
-> /usr/bin/tclsh /home/www/fossil/email-sender.tcl &
+      /usr/bin/tclsh /home/www/fossil/email-sender.tcl &
 
-To the "/etc/rc.local" file of the Ubuntu server that hosts the
+To the `/etc/rc.local` file of the Ubuntu server that hosts the
 repository.
 
 After making necessary changes to the Admin/Notification page, test
@@ -94,6 +96,7 @@ at the top of the page.  Fill in your email address in the "To:"
 line and a test message below, and press "Send Message" to verify that
 outgoing email is working.
 
+<a id="cap7"></a>
 Once email notification is working, one must also adjust user permissions
 to allow users to subscribe to email notification.  On the 
 Setup/User page, under the permissions for each user, is a new capability
@@ -101,14 +104,27 @@ called "Email Alerts".  The corresponding capability letter is "7".
 That new "7" capability must be enabled in order for
 users to be able to become subscribers.  To allow anonymous passers-by
 on the internet to subscribe, simply enable "Email Alerts" for the
-special "nobody" user.
+"nobody" user category. To require that the user solve a simple CAPTCHA
+first, add it to the "anonymous" user category instead.
 
 Signing Up For Email Notification
 ---------------------------------
 
 Users and/or anonymous passers-by can visit the 
-[/subscribe](/subscribe) page to sign
-up for email notification.  After signing up, a single verification email
+[`/subscribe`](/subscribe) page to sign
+up for email notification.
+
+If your users are getting the following complaint from Fossil:
+
+<blockquote>
+  Use a different login with greater privilege than FOO to access
+  /subscribe
+</blockquote>
+
+...then you forgot to [give capability 7](#cap7) to that user or to a
+user category that the user is a member of.
+
+After signing up, a single verification email
 is sent.  The new subscriber must click a link on that email in order to
 activate the subscription.
 
@@ -120,7 +136,7 @@ an administrator must intervene to reset the subscription.
 
 Every subscriber has a long random hexadecimal security code that serves
 as their password.  All email notifications contain a link back to the
-Fossil server, incorporating this security code, that allows the 
+Fossil server, incorporating this security code, which allows the 
 subscriber to adjust their subscription options.
 
 Administrator Activities
@@ -147,6 +163,6 @@ email notifications.  If you were to replicate the email notification
 settings to a separate repository, then subscribers would get multiple
 notifications for each event, which would be bad.
 
-However, the subscriber list can be synced for backup purposes.  
-Use the "[fossil config pull subscriber](/help?cmd=configuration)" command
-to pull the latest subscriber list from a server into a backup repository.
+However, the subscriber list can be synced for backup purposes.  Use the
+[`fossil config pull subscriber`](/help?cmd=configuration) command to
+pull the latest subscriber list from a server into a backup repository.
