@@ -113,7 +113,7 @@ is sent.  The new subscriber must click a link on that email in order to
 activate the subscription.
 
 Subscription verification emails are only sent once.  This is a defense
-against malecious robots that try to harass innocent internet users
+against malicious robots that try to harass innocent internet users
 by having subscription pages send multiple verification emails.
 If the initial subscription verification does not go through correctly,
 an administrator must intervene to reset the subscription.
