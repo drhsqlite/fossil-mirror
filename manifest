@@ -1,5 +1,5 @@
-C Changed\sall\sof\sthe\s"sendmail\s-t"\scommands\sto\s"sendmail\s-ti"\sto\smake\sit\nignore\slines\scontaining\sonly\sa\sdot.\s\sThis\sis\sseparate\sfrom\sthe\ssmtp.c\nfix\schecked\sin\sjust\sprior:\sthat's\sabout\sthe\sSMTP\slevel,\swhere\sa\sleading\ndot\sis\streated\ssomewhat\sdifferently\sthan\sthe\slone\sdot\srule\sfor\nsendmail(1)'s\sstdin.\s\sNeed\sfor\sfix\snoticed\sby\sgumblex\son\sthe\sforums.
-D 2018-08-14T05:59:45.554
+C Don't\suse\s"file\snativename"\sin\smakemake.tcl,\sbecause\sit\sgives\sa\sdifferent\swin/Makefile.msc\swhen\srun\son\sUNIX
+D 2018-08-14T13:05:33.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -516,7 +516,7 @@ F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
 F src/main.mk 460695ff5a78ff8b9e8be5b72145767909b769cf1d38ea6f66270691c71fa055
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl f08dbe43ae4983e12cf4d55e3728a8e8027d456a2374a09418a2eb14490f1428
+F src/makemake.tcl 9894c26a17a696d67e7711706dec68182b9f84b874e59b6f001cc5f8c1799f2f
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6787aac97f2553e7fb399cc6512fb62b12804e99d758283d2010d2ac87111f77
-R 68af2145c09ec25a6e7b4fd2220b61b1
-U wyoung
-Z 6e6ec22bf35d8d23524424c9c3bf42cc
+P 8c0ec30bc3e84013b63447f8ea0c92ea5ac34297e487e72b1c671442d9e7fae3
+R dac29aa0962ce3fa306245f5afc3295d
+U jan.nijtmans
+Z 39887bd2d2cf010f6a048b66c048bc77

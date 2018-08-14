@@ -1808,7 +1808,7 @@ foreach s [lsort $extra_files] {
     writeln " \\"
     writeln -nonewline "        "
   }
-  set s [file nativename $s]
+  set s [regsub -all / $s \\]
   writeln -nonewline "\$(SRCDIR)\\${s}"; incr i
 }
 writeln "\n"
