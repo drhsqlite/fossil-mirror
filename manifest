@@ -1,5 +1,5 @@
-C Fixed\sthe\sblob-to-SMTP\sencoding\slogic\sto\sprevent\sa\spossible\sdata\ntruncation\swhen\sthe\sline\swrapping\shappens\sto\splace\sa\speriod\salone\sat\sthe\nstart\sof\sa\snew\sline.\s\sSMTP\streats\sthat\sas\send-of-message.\s\sFix\sdiagnosed\nby\sgumblex,\s/forumpost/4290f75ba1.
-D 2018-08-14T03:55:56.809
+C URL\sfix
+D 2018-08-14T04:39:43.204
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 1c79a0bad787f6eeee5ae1bf3898654dd5eda9720d5eb806ad5f14787963a398
+F www/forum.wiki e564e93e4dfd594a860ccb6ef8c88a67db6680edf31ec555b60299d842612786
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31631b756e08ae1e4840befe24541237d6a8ace3806d8cf52282294ff42d7fc6
-R 3f29b76a1ea12cc432d85b5e6bfc02a3
+P 51740ce45fd4d498256d9610d3273f3bb2ee5f8bb11dc7058186801d00888601
+R 50b017d6378105957ac9b1f793e6f705
 U wyoung
-Z 0531dbe74f844606d47b076156439626
+Z 7b010669f04658c23d0d3afde4d6b897

@@ -28,8 +28,8 @@ of which you cannot get by using third-party alternatives:
      delta compression technology], discussions add little to the size
      of a cloned repository. Ten years of the SQLite project's
      discussions — averaging about 2 dozen posts per day — compress down
-     to [/forumpost/9b6f3f36bdb | just 35&nbsp;MB of space] in a Fossil
-     forum repository.
+     to [https://fossil-scm.org/forum/forumpost/9b6f3f36bdb | just
+     35&nbsp;MB of space] in a Fossil forum repository.
 
   *  <b>Built-in Full-Text Search:</b> Fossil forums use
      [https://sqlite.org/fts3.html | SQLite's powerful FTS4 engine] to
