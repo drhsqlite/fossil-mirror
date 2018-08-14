@@ -266,7 +266,7 @@ void setup_notification(void){
   @ (Property: "email-send-method")</p>
   email_schema(1);
   entry_attribute("Pipe Email Text Into This Command", 60, "email-send-command",
-                   "ecmd", "sendmail -t", 0);
+                   "ecmd", "sendmail -ti", 0);
   @ <p>When the send method is "pipe to a command", this is the command
   @ that is run.  Email messages are piped into the standard input of this
   @ command.  The command is expected to extract the sender address,

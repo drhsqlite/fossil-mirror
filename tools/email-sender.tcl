@@ -6,7 +6,7 @@
 #
 set POLLING_INTERVAL 10000   ;# milliseconds
 set DBFILE /home/www/fossil/emailqueue.db
-set PIPE "/usr/sbin/sendmail -t"
+set PIPE "/usr/sbin/sendmail -ti"
 
 package require sqlite3
 # puts "SQLite version [sqlite3 -version]"

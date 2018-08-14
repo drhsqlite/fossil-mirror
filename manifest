@@ -1,5 +1,5 @@
-C URL\sfix
-D 2018-08-14T04:39:43.204
+C Changed\sall\sof\sthe\s"sendmail\s-t"\scommands\sto\s"sendmail\s-ti"\sto\smake\sit\nignore\slines\scontaining\sonly\sa\sdot.\s\sThis\sis\sseparate\sfrom\sthe\ssmtp.c\nfix\schecked\sin\sjust\sprior:\sthat's\sabout\sthe\sSMTP\slevel,\swhere\sa\sleading\ndot\sis\streated\ssomewhat\sdifferently\sthan\sthe\slone\sdot\srule\sfor\nsendmail(1)'s\sstdin.\s\sNeed\sfor\sfix\snoticed\sby\sgumblex\son\sthe\sforums.
+D 2018-08-14T05:59:45.554
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c b97f7c62cf9e47b4f61264399c7171081bedbbbe965657d409353a2799cb9ca1
+F src/email.c 35cb902031e3d393258a72d527e4f2cd7b2a38c9675992f984fcfcd5131dfe08
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -723,7 +723,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073
-F tools/email-sender.tcl 7c0c7873ee941ea5caf878f326a21551419c418391be5e10cc982a25f8b89b0d
+F tools/email-sender.tcl abab880f7aa8d6a2f83337f1dbe1dbd65dca3224ebaaaab184e5de091591306f x
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
@@ -808,7 +808,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki e564e93e4dfd594a860ccb6ef8c88a67db6680edf31ec555b60299d842612786
+F www/forum.wiki e4a6092cc9eb6cf032c0a7f0accbf0beaddccbd89a50f4604066152cf80e3403
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 51740ce45fd4d498256d9610d3273f3bb2ee5f8bb11dc7058186801d00888601
-R 50b017d6378105957ac9b1f793e6f705
+P 6787aac97f2553e7fb399cc6512fb62b12804e99d758283d2010d2ac87111f77
+R 68af2145c09ec25a6e7b4fd2220b61b1
 U wyoung
-Z 7b010669f04658c23d0d3afde4d6b897
+Z 6e6ec22bf35d8d23524424c9c3bf42cc

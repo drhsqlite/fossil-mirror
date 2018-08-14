@@ -336,10 +336,10 @@ Give this command:
     $ fossil set email-send-command
 </verbatim>
 
-If that gives a blank value instead of <tt>sendmail -t</tt>, say
+If that gives a blank value instead of <tt>sendmail -ti</tt>, say
 
 <verbatim>
-    $ fossil set email-send-command "sendmail -t"
+    $ fossil set email-send-command "sendmail -ti"
 </verbatim>
 
 to force the setting. That's a
@@ -356,7 +356,7 @@ running at a given site.
 Status section at the top should show:
 
 <verbatim>
-    Outgoing Email: Piped to command "sendmail -t"
+    Outgoing Email: Piped to command "sendmail -ti"
     Pending Alerts: 0 normal, 0 digest
     Subscribers:    0 active, 0 total
 </verbatim>
