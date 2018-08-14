@@ -450,7 +450,8 @@ void test_smtp_probe(void){
 ** Send the content of an email message followed by a single
 ** "." line.  All lines must be \r\n terminated.  Any isolated
 ** \n line terminators in the input must be converted.  Also,
-** an line contain using "." should be converted to "..".
+** a line beginning with "." must have the dot doubled per
+** https://tools.ietf.org/html/rfc5321#section-4.5.2
 */
 static void smtp_send_email_body(
   const char *zMsg,                          /* Message to send */
@@ -467,12 +468,13 @@ static void smtp_send_email_body(
     if( n==0 ) break;
     n--;
     if( n && z[n-1]=='\r' ) n--;
-    if( n==1 && z[0]=='.' ){
-      blob_append(&out, "..\r\n", 4);
+    if( z[0]=='.' ){
+      blob_append(&out, "..", 2);   /* RFC 5321 § 4.5.2 */
+      blob_append(&out, z+1, n-1);
     }else{
       blob_append(&out, z, n);
-      blob_append(&out, "\r\n", 2);
     }
+    blob_append(&out, "\r\n", 2);
   }
   blob_append(&out, ".\r\n", 3);
   xSend(pArg, blob_buffer(&out), blob_size(&out));
