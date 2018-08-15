@@ -1,5 +1,5 @@
-C Improved\stitle\son\son\sthe\s/forum\spage.
-D 2018-08-15T20:50:07.237
+C Do\snot\sissue\sa\swarning\sabout\sduplicate\sbranch\snames\swhen\sdoing\sa\s--private\ncheck-in.
+D 2018-08-15T21:28:33.972
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -441,7 +441,7 @@ F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/capabilities.c ba1baaea14c8eddfbc67ecdee9c94e1f5f6d3318555f394712b1963e2893fed3
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
 F src/cgi.c 12eb17258e769ae463d396662b60db8a66932cab823f17a6004813b7de1e5762
-F src/checkin.c c839ed9a9790de462c4463a36a0cc975ec48802273edb212c769587b0f7c3c88
+F src/checkin.c 19b0e7b7d06e5bd21b10e33f5bbe3984d76e7b3f9b365ce1c223e3c3d7102435
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aff20904fad05b078dfe5470686d106247fcffd3decf326bfb5a82e74e2c1c76
-R f9450bbd608529e2c08f126e67a2e306
+P dbd96b2c74520c21d39e31a96c07b287ef4d4e24c17b9b5ce3a4a937932178af
+R aeec10c8d49038c5ef16d07909233af2
 U drh
-Z b3d95da8b42ab920746faa168d1ebb1c
+Z d35c470f255cbd95a03cf7b30253c71a
