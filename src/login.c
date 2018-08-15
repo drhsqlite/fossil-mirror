@@ -1530,6 +1530,7 @@ void register_page(void){
   const char *zErr = 0;
   char *zPerms;             /* Permissions for the default user */
   int canDoAlerts = 0;      /* True if receiving email alerts is possible */
+  int doAlerts = 0;         /* True if subscription is wanted too */
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
@@ -1544,6 +1545,7 @@ void register_page(void){
   canDoAlerts = email_tables_exist() && db_int(0,
     "SELECT fullcap(%Q) GLOB '*7*'", zPerms
   );
+  doAlerts = canDoAlerts && atoi(PD("alerts","1"))!=0;
 
   zUserID = PDT("u","");
   zPasswd = PDT("p","");
@@ -1582,9 +1584,18 @@ void register_page(void){
   }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
-  }else if( db_exists("SELECT 1 FROM user WHERE info LIKE '%%%q%%'", zEAddr) ){
+  }else if(
+      /* If the email is found anywhere in USER.INFO... */
+      db_exists("SELECT 1 FROM user WHERE info LIKE '%%%q%%'", zEAddr)
+    ||
+      /* Or if the email is a verify subscriber email with an associated
+      ** user... */
+      db_exists(
+        "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
+        " AND sverified",zEAddr)
+   ){
     iErrLine = 3;
-    zErr = "This address is already used.";
+    zErr = "This email address is already claimed by another user";
   }else{
     Blob sql;
     int uid;
@@ -1599,7 +1610,7 @@ void register_page(void){
     db_multi_exec("%s", blob_sql_text(&sql));
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
     login_set_user_cookie(zUserID, uid, NULL);
-    if( canDoAlerts && atoi(PD("alerts","1"))!=0 ){
+    if( doAlerts ){
       /* Also make the new user a subscriber. */
       Blob hdr, body;
       EmailSender *pSender;
@@ -1617,7 +1628,9 @@ void register_page(void){
       db_multi_exec(
         "INSERT INTO subscriber(semail,suname,"
         "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
-        "VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)",
+        " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+        " ON CONFLICT(semail) DO UPDATE"
+        "   SET suname=excluded.suname",
         /* semail */    zEAddr,
         /* suname */    zUserID,
         /* sverified */ 0,
@@ -1626,6 +1639,13 @@ void register_page(void){
         /* smip */      g.zIpAddr
       );
       id = db_last_insert_rowid();
+      if( db_exists("SELECT 1 FROM subscriber WHERE semail=%Q"
+                    "  AND sverified", zEAddr) ){
+        /* This the case where the user was formerly a verified subscriber
+        ** and here they have also registered as a user as well.  It is
+        ** not necessary to repeat the verfication step */
+        redirect_to_g();
+      }
       zCode = db_text(0,
            "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
            id);
@@ -1708,6 +1728,8 @@ void register_page(void){
   @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
   if( iErrLine==4 ){
     @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+  }else{
+    @   <td>&larr; Must be at least 6 characters</td>
   }
   @ </tr>
   @ <tr>

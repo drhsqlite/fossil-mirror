@@ -1,5 +1,5 @@
-C Remove\san\sdb_begin_transaction()\sthat\shad\sno\smatching\sdb_end_transaction().
-D 2018-08-15T15:53:39.900
+C Improvements\sto\sself-register\s(the\s/register\spage)\sso\sthat\sit\sworks\scorrectly\nfor\susers\show\sare\salready\ssubscribers\sand\senter\sthe\ssubscriber\semail.
+D 2018-08-15T18:14:43.435
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 254281eabd11c0d0f681bfe705cccedd98af640070a88369fccbadc7454aed85
+F src/login.c e0d21004f549463f805f0f0d64ed8d59284c2e111195477889667717a133c0dc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f3cb278fdb0ac3f42d31bda1754139092e2c4cc805bfc0369f7297ed2706049
-R 2d830297f048123257a3d71f6fdfcc5e
+P b2fca3dd4dc8e15b4dafb68b896f814322ac7c75989889cadbaae5de2880a6d9
+R e6f15c51140337ab5c5437ff3a613f37
 U drh
-Z 8e4ffd7556d805eba8217bbdb1225103
+Z 8848015b1848a2f6cbb4b11dea7c9e8c
