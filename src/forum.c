@@ -935,10 +935,9 @@ void forum_main_page(void){
   }
   iLimit = atoi(PD("n","25"));
   iOfst = atoi(PD("x","0"));
-  @ <h1>Recent Threads</h1>
-  @ <div class='fileage'><table width="100%%">
+  iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
-    db_prepare(&q,
+     db_prepare(&q,
       "SELECT"
       "  julianday('now') - max(fmtime) AS a,"                       /* 0 */
       "  max(fmtime) - min(fmtime) AS b,"                            /* 1 */
@@ -952,21 +951,29 @@ void forum_main_page(void){
       " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d;",
       iLimit+1, iOfst
     );
-    iCnt = 0;
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = 0;
       char *zDuration = 0;
       int nMsg = db_column_int(&q, 2);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
-      if( iCnt==0 && iOfst>0 ){
-        if( iOfst>iLimit ){
-          @ <tr><td colspan="3">\
-          @ %z(href("%R/forum?x=%d&n=%d",iOfst-iLimit,iLimit))\
-          @ &uarr; Newer...</a></td></tr>
+      zAge = human_readable_age(db_column_double(&q,0));
+      if( iCnt==0 ){
+        if( iOfst>0 ){
+          @ <h1>Threads at least %s(zAge) old</h1>
         }else{
-          @ <tr><td colspan="3">%z(href("%R/forum?n=%d",iLimit))\
-          @ &uarr; Newer...</a></td></tr>
+          @ <h1>Most recent threads</h1>
+        }
+        @ <div class='fileage'><table width="100%%">
+        if( iOfst>0 ){
+          if( iOfst>iLimit ){
+            @ <tr><td colspan="3">\
+            @ %z(href("%R/forum?x=%d&n=%d",iOfst-iLimit,iLimit))\
+            @ &uarr; Newer...</a></td></tr>
+          }else{
+            @ <tr><td colspan="3">%z(href("%R/forum?n=%d",iLimit))\
+            @ &uarr; Newer...</a></td></tr>
+          }
         }
       }
       iCnt++;
@@ -974,9 +981,9 @@ void forum_main_page(void){
         @ <tr><td colspan="3">\
         @ %z(href("%R/forum?x=%d&n=%d",iOfst+iLimit,iLimit))\
         @ &darr; Older...</a></td></tr>
+        fossil_free(zAge);
         break;
       }
-      zAge = human_readable_age(db_column_double(&q,0));
       @ <tr><td>%h(zAge) ago</td>
       @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
       if( nMsg<2 ){
@@ -991,6 +998,10 @@ void forum_main_page(void){
     }
     db_finalize(&q);
   }
-  @ </table></div>
+  if( iCnt>0 ){
+    @ </table></div>
+  }else{
+    @ <h1>No forum posts found</h1>
+  }
   style_footer();
 }
