@@ -1,5 +1,5 @@
-C Update\sto\sopenssl-1.0.2p
-D 2018-08-15T11:05:45.773
+C Change\sthe\sdefault\smarkup\slanguage\sfor\sForum\sto\sMarkdown.
+D 2018-08-15T12:09:03.257
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 3c0b36644e350c88700977331bf644ab7c3e2d484f7a4e6d7e4d8373f5edcc17
+F src/forum.c 779c605fdfe7a5cb587f99ca57734a52acac76abe056eba9985f4fbf6441b63a
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P af80be5cef31634825d94815cf8164dddfe2fc3977670fcd41a0c7383604287d
-R 7b39f2cecd8b226afb8ade372a27fa0e
-U jan.nijtmans
-Z 1c341944b0cf0ba38150ec43ad5ba192
+P 38638cfcdd18f4b43d3c9dde15d3f87c7199643592168aaf1f26893b65253404
+R 751b1fbcf2945304c6b07d4f3c888804
+U drh
+Z 2409ef036dc03c519a0f56d908db19d9

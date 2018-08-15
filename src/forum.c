@@ -21,6 +21,11 @@
 #include <assert.h>
 #include "forum.h"
 
+/*
+** Default to using Markdown markup
+*/
+#define DEFAULT_FORUM_MIMETYPE  "text/x-markdown"
+
 #if INTERFACE
 /*
 ** Each instance of the following object represents a single message - 
@@ -707,7 +712,7 @@ static void forum_from_line(void){
 */
 void forumnew_page(void){
   const char *zTitle = PDT("title","");
-  const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
+  const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
   const char *zContent = PDT("content","");
   login_check_credentials();
   if( !g.perm.WrForum ){
@@ -803,7 +808,7 @@ void forumedit_page(void){
   isDelete = P("nullout")!=0;
   if( P("submit") && isCsrfSafe ){
     int done = 1;
-    const char *zMimetype = PD("mimetype","text/x-fossil-wiki");
+    const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     const char *zContent = PDT("content","");
     if( P("reply") ){
       done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
@@ -858,7 +863,7 @@ void forumedit_page(void){
     forum_entry_widget(zTitle, zMimetype, zContent);
   }else{
     /* Reply */
-    zMimetype = PD("mimetype","text/x-fossil-wiki");
+    zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
     @ <h1>Replying To:</h1>
