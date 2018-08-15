@@ -1,5 +1,5 @@
-C Improvements\sto\sself-register\s(the\s/register\spage)\sso\sthat\sit\sworks\scorrectly\nfor\susers\show\sare\salready\ssubscribers\sand\senter\sthe\ssubscriber\semail.
-D 2018-08-15T18:14:43.435
+C On\sthe\s"Recent\sThreads"\spage\s(/forum)\sshow\sthe\snumber\sof\smessages\sand\sthe\nduration\sof\seach\sthread.
+D 2018-08-15T20:17:24.672
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 779c605fdfe7a5cb587f99ca57734a52acac76abe056eba9985f4fbf6441b63a
+F src/forum.c c47abe0c45a7a5e7d4bfebd33a8c732b389b7052bfe371be6dc314918679543b
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2fca3dd4dc8e15b4dafb68b896f814322ac7c75989889cadbaae5de2880a6d9
-R e6f15c51140337ab5c5437ff3a613f37
+P 4c43f2cd43a0dcf40576edf0f5318fc9310d4da49dd19532987e7547bc24fbd1
+R f3985da5911e2e996bf5294fea130f6b
 U drh
-Z 8848015b1848a2f6cbb4b11dea7c9e8c
+Z 9e20dc2bcb5f2228e438c254c9ecfb73

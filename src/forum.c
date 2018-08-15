@@ -934,22 +934,35 @@ void forum_main_page(void){
   @ <div class='fileage'><table width="100%%">
   if( db_table_exists("repository","forumpost") ){
     db_prepare(&q,
-       "SELECT julianday('now') - max(fmtime),"
-       "       (SELECT uuid FROM blob WHERE rid=fpid),"
-       "       (SELECT substr(comment,instr(comment,':')+2)"
-       "          FROM event WHERE objid=fpid)"
-       "  FROM forumpost"
-       " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d",
-       iLimit, iOfst
+      "SELECT"
+      "  julianday('now') - max(fmtime) AS a,"                       /* 0 */
+      "  max(fmtime) - min(fmtime) AS b,"                            /* 1 */
+      "  sum(fprev IS NULL) AS c,"                                   /* 2 */
+      "  (SELECT substr(uuid,1,10) FROM blob WHERE rid=froot),"      /* 3 */
+      "  (SELECT substr(comment,instr(comment,':')+2)"               /* 4 */
+      "     FROM event WHERE objid=(SELECT fpid FROM forumpost AS y"
+      "                              WHERE y.froot=x.froot"
+      "                              ORDER BY fmtime DESC LIMIT 1))"
+      " FROM forumpost AS x"
+      " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d;",
+      iLimit, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = human_readable_age(db_column_double(&q,0));
-      const char *zUuid = db_column_text(&q, 1);
-      const char *zTitle = db_column_text(&q, 2);
+      char *zDuration = human_readable_age(db_column_double(&q,1));
+      int nMsg = db_column_int(&q, 2);
+      const char *zUuid = db_column_text(&q, 3);
+      const char *zTitle = db_column_text(&q, 4);
       @ <tr><td>%h(zAge) ago</td>
-      @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a>
+      @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
+      if( nMsg<2 ){
+        @ <td>no replies</td>
+      }else{
+        @ <td>%d(nMsg) posts spanning %h(zDuration)</td>
+      }
       @ </tr>
       fossil_free(zAge);
+      fossil_free(zDuration);
     }
     db_finalize(&q);
   }
