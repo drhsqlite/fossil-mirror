@@ -907,10 +907,15 @@ void forumedit_page(void){
 ** The main page for the forum feature.  Show a list of recent forum
 ** threads.  Also show a search box at the top if search is enabled,
 ** and a button for creating a new thread, if enabled.
+**
+** Query parameters:
+**
+**    n=N             The number of threads to show on each page
+**    x=X             Skip the first X threads
 */
 void forum_main_page(void){
   Stmt q;
-  int iLimit, iOfst;
+  int iLimit, iOfst, iCnt;
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -928,8 +933,8 @@ void forum_main_page(void){
     style_footer();
     return;
   }
-  iLimit = 50;
-  iOfst = 0;
+  iLimit = atoi(PD("n","25"));
+  iOfst = atoi(PD("x","0"));
   @ <h1>Recent Threads</h1>
   @ <div class='fileage'><table width="100%%">
   if( db_table_exists("repository","forumpost") ){
@@ -945,19 +950,39 @@ void forum_main_page(void){
       "                              ORDER BY fmtime DESC LIMIT 1))"
       " FROM forumpost AS x"
       " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d;",
-      iLimit, iOfst
+      iLimit+1, iOfst
     );
+    iCnt = 0;
     while( db_step(&q)==SQLITE_ROW ){
-      char *zAge = human_readable_age(db_column_double(&q,0));
-      char *zDuration = human_readable_age(db_column_double(&q,1));
+      char *zAge = 0;
+      char *zDuration = 0;
       int nMsg = db_column_int(&q, 2);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
+      if( iCnt==0 && iOfst>0 ){
+        if( iOfst>iLimit ){
+          @ <tr><td colspan="3">\
+          @ %z(href("%R/forum?x=%d&n=%d",iOfst-iLimit,iLimit))\
+          @ &uarr; Newer...</a></td></tr>
+        }else{
+          @ <tr><td colspan="3">%z(href("%R/forum?n=%d",iLimit))\
+          @ &uarr; Newer...</a></td></tr>
+        }
+      }
+      iCnt++;
+      if( iCnt>iLimit ){
+        @ <tr><td colspan="3">\
+        @ %z(href("%R/forum?x=%d&n=%d",iOfst+iLimit,iLimit))\
+        @ &darr; Older...</a></td></tr>
+        break;
+      }
+      zAge = human_readable_age(db_column_double(&q,0));
       @ <tr><td>%h(zAge) ago</td>
       @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
       if( nMsg<2 ){
         @ <td>no replies</td>
       }else{
+        zDuration = human_readable_age(db_column_double(&q,1));
         @ <td>%d(nMsg) posts spanning %h(zDuration)</td>
       }
       @ </tr>
