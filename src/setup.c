@@ -1952,7 +1952,6 @@ void sql_page(void){
     return;
   }
   add_content_sql_commands(g.db);
-  db_begin_transaction();
   zQ = cgi_csrf_safe(1) ? P("q") : 0;
   style_header("Raw SQL Commands");
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be

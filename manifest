@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\smarkup\slanguage\sfor\sForum\sto\sMarkdown.
-D 2018-08-15T12:09:03.257
+C Remove\san\sdb_begin_transaction()\sthat\shad\sno\smatching\sdb_end_transaction().
+D 2018-08-15T15:53:39.900
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/schema.c a46e8bb2f6fe513c47ab7014b97858b7ba7ab32677f7ba0b3c979db999be0113
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c fc83d40ecc75f9dc08f14df953677d79e226c04c0f46c8328affe12ce84d8fdd
-F src/setup.c d08a5235592f6ee87aebd0aee5b5fe5d4952dbb08de38b2258379b9fbb9ef79e
+F src/setup.c 26f3e939cbcdf5d8ca53875e4f9da21369adcfea5eed6bb25bb6d609112b9500
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 38638cfcdd18f4b43d3c9dde15d3f87c7199643592168aaf1f26893b65253404
-R 751b1fbcf2945304c6b07d4f3c888804
+P 5f3cb278fdb0ac3f42d31bda1754139092e2c4cc805bfc0369f7297ed2706049
+R 2d830297f048123257a3d71f6fdfcc5e
 U drh
-Z 2409ef036dc03c519a0f56d908db19d9
+Z 8e4ffd7556d805eba8217bbdb1225103
