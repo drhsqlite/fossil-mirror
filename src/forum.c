@@ -274,9 +274,12 @@ void forum_render(
 static void forum_display_chronological(int froot, int target){
   ForumThread *pThread = forumthread_create(froot, 0);
   ForumEntry *p;
+  int notAnon = login_is_individual();
   for(p=pThread->pFirst; p; p=p->pNext){
     char *zDate;
     Manifest *pPost;
+    int isPrivate;        /* True for posts awaiting moderation */
+    int sameUser;         /* True if author is also the reader */
 
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -314,11 +317,16 @@ static void forum_display_chronological(int froot, int target){
     if( p->fpid!=target ){
       @ %z(href("%R/forumpost/%S?t",p->zUuid))[link]</a>
     }
-    forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+    isPrivate = content_is_private(p->fpid);
+    sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+    if( isPrivate && !g.perm.ModForum && !sameUser ){
+      @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+    }else{
+      forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+    }
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
                      && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      int isPrivate = content_is_private(p->fpid);
       @ <p><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
       if( !isPrivate ){
@@ -358,6 +366,7 @@ static int forum_display_hierarchical(int froot, int target){
   const char *zUuid;
   char *zDate;
   const char *zSel;
+  int notAnon = login_is_individual();
 
   pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
@@ -368,6 +377,8 @@ static int forum_display_hierarchical(int froot, int target){
     }
   }
   for(p=pThread->pDisplay; p; p=p->pDisplay){
+    int isPrivate;         /* True for posts awaiting moderation */
+    int sameUser;          /* True if reader is also the poster */
     pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( p->pLeaf ){
       fpid = p->pLeaf->fpid;
@@ -414,11 +425,14 @@ static int forum_display_hierarchical(int froot, int target){
     if( fpid!=target ){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
-    forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+    isPrivate = content_is_private(fpid);
+    sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+    if( isPrivate && !g.perm.ModForum && !sameUser ){
+      @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+    }else{
+      forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+    }
     if( g.perm.WrForum ){
-      int sameUser = login_is_individual()
-                     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
-      int isPrivate = content_is_private(fpid);
       @ <p><form action="%R/forumedit" method="POST">
       @ <input type="hidden" name="fpid" value="%s(zUuid)">
       if( !isPrivate ){
