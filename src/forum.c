@@ -937,20 +937,34 @@ void forum_main_page(void){
   iOfst = atoi(PD("x","0"));
   iCnt = 0;
   if( db_table_exists("repository","forumpost") ){
-     db_prepare(&q,
+    db_prepare(&q,
+      "WITH thread(age,duration,cnt,root,last) AS ("
+      "  SELECT"
+      "    julianday('now') - max(fmtime),"
+      "    max(fmtime) - min(fmtime),"
+      "    sum(fprev IS NULL),"
+      "    froot,"
+      "    (SELECT fpid FROM forumpost AS y"
+      "      WHERE y.froot=x.froot %s"
+      "      ORDER BY y.fmtime DESC LIMIT 1)"
+      "  FROM forumpost AS x"
+      "  WHERE %s"
+      "  GROUP BY froot"
+      "  ORDER BY 1 LIMIT %d OFFSET %d"
+      ")"
       "SELECT"
-      "  julianday('now') - max(fmtime) AS a,"                       /* 0 */
-      "  max(fmtime) - min(fmtime) AS b,"                            /* 1 */
-      "  sum(fprev IS NULL) AS c,"                                   /* 2 */
-      "  (SELECT substr(uuid,1,10) FROM blob, forumpost AS z"        /* 3 */
-      "    WHERE rid=z.fpid AND z.froot=x.froot"
-      "    ORDER BY z.fmtime DESC LIMIT 1),"
-      "  (SELECT substr(comment,instr(comment,':')+2)"               /* 4 */
-      "     FROM event WHERE objid=(SELECT fpid FROM forumpost AS y"
-      "                              WHERE y.froot=x.froot"
-      "                              ORDER BY fmtime DESC LIMIT 1))"
-      " FROM forumpost AS x"
-      " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d;",
+      "  thread.age,"                                         /* 0 */
+      "  thread.duration,"                                    /* 1 */
+      "  thread.cnt,"                                         /* 2 */
+      "  blob.uuid,"                                          /* 3 */
+      "  substr(event.comment,instr(event.comment,':')+1),"   /* 4 */
+      "  thread.last"                                         /* 5 */
+      " FROM thread, blob, event"
+      " WHERE blob.rid=thread.last"
+      "  AND event.objid=thread.last"
+      " ORDER BY 1;",
+      g.perm.ModForum ? "" : "AND y.fpid NOT IN private" /*safe-for-%s*/,
+      g.perm.ModForum ? "true" : "fpid NOT IN private" /*safe-for-%s*/,
       iLimit+1, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -986,11 +1000,16 @@ void forum_main_page(void){
       }
       @ <tr><td>%h(zAge) ago</td>
       @ <td>%z(href("%R/forumpost/%S",zUuid))%h(zTitle)</a></td>
+      @ <td>\
+      if( g.perm.ModForum && moderation_pending(db_column_int(&q,5)) ){
+        @ <span class="modpending">\
+        @ Awaiting Moderator Approval</span><br>
+      }
       if( nMsg<2 ){
-        @ <td>no replies</td>
+        @ no replies</td>
       }else{
         char *zDuration = human_readable_age(db_column_double(&q,1));
-        @ <td>%d(nMsg) posts spanning %h(zDuration)</td>
+        @ %d(nMsg) posts spanning %h(zDuration)</td>
         fossil_free(zDuration);
       }
       @ </tr>

@@ -1,5 +1,5 @@
-C Fix\sthe\s/forum\spage\sso\sthat\sit\slinks\sto\sthe\smost\srecent\spost.
-D 2018-08-16T12:31:40.867
+C Adjust\sthe\s/forum\spage\sso\sthat\sit\sfor\susers\swithout\sforum\smoderator\sprivilege,\nit\spretends\sthat\sunmoderated\sposts\sdo\snot\sexist,\sand\sfor\suser\swith\nmoderator\sprivilege\sit\spaints\san\s"Awaiting\sModerator\sApproval"\smessage\son\nposts\sthat\sneed\smoderation.
+D 2018-08-16T16:13:04.504
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 3a531495d4177de0c639eab0a752708491abcade1a8aad6fd11b4fd3a4a17af8
+F src/forum.c a63e418140181a8370ac93df994084ed3de9fb4716f821db1b7a1c2f9f153012
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -545,7 +545,7 @@ F src/regexp.c 89c45caf71ab5375a232f6b6064c3075419aa42e1275dcf648a82d28ccb03e3c
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c a46e8bb2f6fe513c47ab7014b97858b7ba7ab32677f7ba0b3c979db999be0113
+F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c fc83d40ecc75f9dc08f14df953677d79e226c04c0f46c8328affe12ce84d8fdd
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09103fd2f0c7fca6cdab73ee0dbcb39b71693b4ad7e301d0c940febba0a3c543
-R 4a8ff815cb279c8973f5ed8a9676c8fd
+P b0ae37c0391dc267daa9306491f0300b83ec82d7b877474ceeb106c682358178
+R 5591cfbdc6e3defbf40892722555ffdf
 U drh
-Z 44a0e7729d96808e7298aaa79dd73adb
+Z b6fde2dd325b542977b860bca5713d3e

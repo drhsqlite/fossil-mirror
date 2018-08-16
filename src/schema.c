@@ -564,7 +564,7 @@ static const char zForumSchema[] =
 @   firt INT,                  -- This post is in-reply-to
 @   fmtime REAL                -- When posted.  Julian day
 @ );
-@ CREATE INDEX repository.forumthread ON forumpost(froot);
+@ CREATE INDEX repository.forumthread ON forumpost(froot,fmtime);
 ;
 
 /* Create the forum-post schema if it does not already exist */
