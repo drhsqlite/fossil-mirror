@@ -942,7 +942,9 @@ void forum_main_page(void){
       "  julianday('now') - max(fmtime) AS a,"                       /* 0 */
       "  max(fmtime) - min(fmtime) AS b,"                            /* 1 */
       "  sum(fprev IS NULL) AS c,"                                   /* 2 */
-      "  (SELECT substr(uuid,1,10) FROM blob WHERE rid=froot),"      /* 3 */
+      "  (SELECT substr(uuid,1,10) FROM blob, forumpost AS z"        /* 3 */
+      "    WHERE rid=z.fpid AND z.froot=x.froot"
+      "    ORDER BY z.fmtime DESC LIMIT 1),"
       "  (SELECT substr(comment,instr(comment,':')+2)"               /* 4 */
       "     FROM event WHERE objid=(SELECT fpid FROM forumpost AS y"
       "                              WHERE y.froot=x.froot"
