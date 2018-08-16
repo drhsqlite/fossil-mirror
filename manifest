@@ -1,5 +1,5 @@
-C Add\scomments\sto\sthe\s/register\spage\simplementation.\s\sNo\slogic\schanges.
-D 2018-08-16T01:43:03.540
+C Fixes\sto\sthe\s/webmail\sscreen
+D 2018-08-16T01:46:22.097
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -591,7 +591,7 @@ F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
-F src/webmail.c 4c150dbb2de2025122933c1b2f54597c266ede2251041878a9ad8a0c2577ee86
+F src/webmail.c f209eda5b2becca1fd892cdfee5653a4b50f6ca67c1d513804419fa0c817a0db
 F src/wiki.c 1d2b4f904c5297379c8b4b0387982f7177a04cb14cec2377183eebb6de9be2fc
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d7e45aae70b1e82684faf2e9d47a74ab545c2bf84b2c33b1afa0bd9afcf9b9d3
-R 86235ef6908a07415953038506990ba0
+P a4419c6c022e03f775a885afac86229fbbc185ef080e3b4fd1d5c470bce1e79c
+R 9f873de458d94d8a96680e74a2f57945
 U drh
-Z c4358254e28ee56db54bd63a23ba1a1e
+Z 3f79c37bab20a42f7ab350169c014a65

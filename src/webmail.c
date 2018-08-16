@@ -622,7 +622,7 @@ void webmail_page(void){
   emailid = atoi(PD("id","0"));
   url_initialize(&url, "webmail");
   if( g.perm.Admin ){
-    zUser = P("user");
+    zUser = PD("user",g.zLogin);
     if( zUser ){
       url_add_parameter(&url, "user", zUser);
       if( fossil_strcmp(zUser,"*")==0 ){
@@ -704,9 +704,9 @@ void webmail_page(void){
   db_prepare(&q, "SELECT * FROM tmbox LIMIT %d", N);
   blob_reset(&sql);
   @ <form action="%R/webmail" method="POST">
-  @ <table border="0" width="100%%">
   @ <input type="hidden" name="d" value="%d(d)">
-  @ <input type="hidden" name="user" value="%h(zUser)">
+  @ <input type="hidden" name="user" value="%h(zUser?zUser:"*")">
+  @ <table border="0" width="100%%">
   @ <tr><td align="left">
   if( d==2 ){
     @ <input type="submit" name="read" value="Undelete">
@@ -719,7 +719,7 @@ void webmail_page(void){
     @ <input type="submit" name="read" value="Mark as read">
   }
   @ <button onclick="webmailSelectAll(); return false;">Select All</button>
-  @ <a href="%s(url_render(&url,0,0,0,0))">refresh</a>
+  @ <a href="%h(url_render(&url,0,0,0,0))">refresh</a>
   @ </td><td align="right">
   if( pg>0 ){
     sqlite3_snprintf(sizeof(zPPg), zPPg, "%d", pg-1);
@@ -740,18 +740,17 @@ void webmail_page(void){
     @ <tr>
     @ <td><input type="checkbox" class="webmailckbox" name="e%s(zId)"></td>
     @ <td>%h(zFrom)</td>
-    @ <td><a href="%s(url_render(&url,"id",zId,0,0))">%h(zSubject)</a> \
+    @ <td><a href="%h(url_render(&url,"id",zId,0,0))">%h(zSubject)</a> \
     @ %s(zDate)</td>
     if( showAll ){
       const char *zTo = db_column_text(&q,5);
-      @ <td><a href="%s(url_render(&url,"user",zTo,0,0))">%h(zTo)</a></td>
+      @ <td><a href="%h(url_render(&url,"user",zTo,0,0))">%h(zTo)</a></td>
     }
     @ </tr>
   }
   db_finalize(&q);
   @ </table>
   @ </form>
-  style_footer();
   @ <script>
   @ function webmailSelectAll(){
   @   var x = document.getElementsByClassName("webmailckbox");
@@ -760,6 +759,7 @@ void webmail_page(void){
   @   }
   @ }
   @ </script>
+  style_footer();
   db_end_transaction(0);
 }
 
