@@ -1,5 +1,5 @@
-C Fix\sthe\shextoblob()\sfunction\sso\sthat\sdoes\snot\sreport\sout-of-memory\nif\sthe\ssize\sof\sthe\sinput\sstring\sis\szero\sbytes.\s\sThis\sfixes\sthe\sinstances\nof\s"out-of-memory"\sreports\swhen\saccessing\sthe\s/alerts\spage\swithout\san\nargument.
-D 2018-08-16T02:03:59.020
+C Replaced\sa\sdeclare-and-init\sline\spair\swith\sa\ssingle\sdefine-with-value\nline.\s\sNo\sfunctional\schange.
+D 2018-08-16T06:36:44.887
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 3339e5832f652c89cacef61bcbeaa1c9ce6f5ff185915af279b475d6b1fa6144
+F src/forum.c 013fb92894b0fd5e2b7f34232b1f2e4d7b726aa30b702023486d145d46e8674d
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a24de3f9fc4f3eb36a4b811d06bb1723ccc4b076c66fac94ca2ebc84b6787dfc
-R 26a2c4c90f6674aa14e789e3a003e7c3
-U drh
-Z 34d01134d599d1320eacd5702bc16d4e
+P 5519c6b8fc5cee35adfb0648ec69866840b71336f254433ce74d638747ec31c7
+R 81b25426600fc29116e8c3960300c6dc
+U wyoung
+Z f71b3c5783e0d2f453c0094bcc12ec06

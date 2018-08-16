@@ -952,12 +952,11 @@ void forum_main_page(void){
       iLimit+1, iOfst
     );
     while( db_step(&q)==SQLITE_ROW ){
-      char *zAge = 0;
+      char *zAge = human_readable_age(db_column_double(&q,0));
       char *zDuration = 0;
       int nMsg = db_column_int(&q, 2);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
-      zAge = human_readable_age(db_column_double(&q,0));
       if( iCnt==0 ){
         if( iOfst>0 ){
           @ <h1>Threads at least %s(zAge) old</h1>
