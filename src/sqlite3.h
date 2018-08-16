@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.25.0"
 #define SQLITE_VERSION_NUMBER 3025000
-#define SQLITE_SOURCE_ID      "2018-07-24 22:02:12 2bd593332da0aade467e7a4ee89e966aa6302f37540a2c5e23671f98a6cb599c"
+#define SQLITE_SOURCE_ID      "2018-08-16 16:24:24 456842924bb33c0af8af29402f06e5f25b6791f698a0d12a080258b20b0cfb61"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -9000,7 +9000,7 @@ typedef struct sqlite3_snapshot {
 ** in this case. 
 **
 ** <ul>
-**   <li> The database handle must be in [autocommit mode].
+**   <li> The database handle must not be in [autocommit mode].
 **
 **   <li> Schema S of [database connection] D must be a [WAL mode] database.
 **
@@ -9035,22 +9035,33 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_get(
 ** CAPI3REF: Start a read transaction on an historical snapshot
 ** METHOD: sqlite3_snapshot
 **
-** ^The [sqlite3_snapshot_open(D,S,P)] interface starts a
-** read transaction for schema S of
-** [database connection] D such that the read transaction
-** refers to historical [snapshot] P, rather than the most
-** recent change to the database.
-** ^The [sqlite3_snapshot_open()] interface returns SQLITE_OK on success
-** or an appropriate [error code] if it fails.
+** ^The [sqlite3_snapshot_open(D,S,P)] interface either starts a new read 
+** transaction or upgrades an existing one for schema S of 
+** [database connection] D such that the read transaction refers to 
+** historical [snapshot] P, rather than the most recent change to the 
+** database. ^The [sqlite3_snapshot_open()] interface returns SQLITE_OK 
+** on success or an appropriate [error code] if it fails.
 **
-** ^In order to succeed, a call to [sqlite3_snapshot_open(D,S,P)] must be
-** the first operation following the [BEGIN] that takes the schema S
-** out of [autocommit mode].
-** ^In other words, schema S must not currently be in
-** a transaction for [sqlite3_snapshot_open(D,S,P)] to work, but the
-** database connection D must be out of [autocommit mode].
-** ^A [snapshot] will fail to open if it has been overwritten by a
-** [checkpoint].
+** ^In order to succeed, the database connection must not be in 
+** [autocommit mode] when [sqlite3_snapshot_open(D,S,P)] is called. If there
+** is already a read transaction open on schema S, then the database handle
+** must have no active statements (SELECT statements that have been passed
+** to sqlite3_step() but not sqlite3_reset() or sqlite3_finalize()). 
+** SQLITE_ERROR is returned if either of these conditions is violated, or
+** if schema S does not exist, or if the snapshot object is invalid.
+**
+** ^A call to sqlite3_snapshot_open() will fail to open if the specified
+** snapshot has been overwritten by a [checkpoint]. In this case 
+** SQLITE_BUSY_SNAPSHOT is returned.
+**
+** If there is already a read transaction open when this function is 
+** invoked, then the same read transaction remains open (on the same
+** database snapshot) if SQLITE_ERROR, SQLITE_BUSY or SQLITE_BUSY_SNAPSHOT
+** is returned. If another error code - for example SQLITE_PROTOCOL or an
+** SQLITE_IOERR error code - is returned, then the final state of the
+** read transaction is undefined. If SQLITE_OK is returned, then the 
+** read transaction is now open on database snapshot P.
+**
 ** ^(A call to [sqlite3_snapshot_open(D,S,P)] will fail if the
 ** database connection D does not know that the database file for
 ** schema S is in [WAL mode].  A database connection might not know
