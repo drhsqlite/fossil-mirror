@@ -758,23 +758,28 @@ void email_header_to_free(int nTo, char **azTo){
 ** This routine will add fields to the header as follows:
 **
 **     From:
-**     Return-Path:
 **     Date:
 **     Message-Id:
 **     Content-Type:
 **     Content-Transfer-Encoding:
 **     MIME-Version:
+**     X-Fossil-From:
 **     
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
 ** not free them.
 **
+** The Message-Id: field is added if there is not already a Message-Id
+** in the pHdr parameter.
+**
 ** If the zFromName argument is not NULL, then it should be a human-readable
 ** name or handle for the sender.  In that case, "From:" becomes a made-up
 ** email address based on a hash of zFromName and the domain of email-self,
-** and an additional "Reply-To:" field is inserted with the email-self
-** address.  If zFromName is a NULL pointer, then both "From:" and
-** Return-Path: are set to the email-self value.
+** and an additional "X-Fossil-From:" field is inserted with the email-self
+** address.  Downstream software might use the X-Fossil-From header to set
+** the envelope-from address of the email.  If zFromName is a NULL pointer, 
+** then the "From:" is set to the email-self value and X-Fossil-From is
+** omitted.
 */
 void email_send(
   EmailSender *p,           /* Emailer context */
@@ -803,15 +808,15 @@ void email_send(
   if( zFromName ){
     blob_appendf(pOut, "From: %s <%s@%s>\r\n",
        zFromName, email_mailbox_name(zFromName), email_hostname(p->zFrom));
+    blob_appendf(pOut, "X-Fossil-From: <%s>\r\n", p->zFrom);
   }else{
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   }
-  blob_appendf(pOut, "Return-Path: <%s>\r\n", p->zFrom);
   blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
   if( strstr(blob_str(pHdr), "\r\nMessage-Id:")==0 ){
-    /* Message-id format:  "<$(date)x$(random).$(from)>" where $(date) is
+    /* Message-id format:  "<$(date)x$(random)@$(from-host)>" where $(date) is
     ** the current unix-time in hex, $(random) is a 64-bit random number,
-    ** and $(from) is the sender. */
+    ** and $(from) is the domain part of the email-self setting. */
     sqlite3_randomness(sizeof(r1), &r1);
     r2 = time(0);
     blob_appendf(pOut, "Message-Id: <%llxx%016llx@%s>\r\n",
