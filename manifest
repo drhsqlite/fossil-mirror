@@ -1,5 +1,5 @@
-C Do\snot\sposts\sthat\sare\sawaiting\smoderation\sto\susers\swithout\smoderator\nprivilege\sunless\sthey\sare\sthe\ssame\suser\sthat\sgenerated\sthe\spost\sin\sthe\nfirst\splace.
-D 2018-08-16T16:45:10.497
+C For\semail\snotifications\sabound\sevents\sfrom\sa\ssingle\suser\s(such\sas\sindividual\nforum\spost\snotifications)\smake\sthe\sFrom:\saddress\sbe\sa\s"noreply"\shash\sbased\non\sthe\susers\shuman-readable\sname\sor\shandle.\s\sAlways\sinclude\sa\sReturn-Path:\nfield\sin\sthe\sheader\sthat\sis\sthe\semail-self\ssetting,\sto\sbe\sused\sby\sMTUs\sthat\nneed\sto\sbounce\sthe\smessage.
+D 2018-08-16T18:56:55.028
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
-F src/email.c 35cb902031e3d393258a72d527e4f2cd7b2a38c9675992f984fcfcd5131dfe08
+F src/email.c 880f8f0caca4f9a6f43ea6d16d42f3e21da7790c65fce75bded597cd732183e0
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f8994f8975d86d224965b89d5a616fef7ec55a3760b066a5c91058a1f921638e
-R b1bdce746d5d44a3d9b55aad9554cac1
+P 16c42a08084c2f996a222d795766020d0c0cbeafeb6ac082f36e0fdd12963b49
+R 940657e0135e51f930de3c2b99acf344
 U drh
-Z 2a62ad683f355cbffb392cf6aec35c39
+Z bcfe0e169922ae7652a7aebadf608bbb

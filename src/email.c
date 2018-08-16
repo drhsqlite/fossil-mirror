@@ -240,11 +240,14 @@ void setup_notification(void){
   @ (Property: "email-url")</p>
   @ <hr>
 
-  entry_attribute("\"From\" email address", 20, "email-self",
+  entry_attribute("\"Return-Path\" email address", 20, "email-self",
                    "eself", "", 0);
   @ <p><b>Required.</b>
-  @ This is the email from which email notifications are sent.  The
-  @ system administrator should arrange for emails sent to this address
+  @ This is the email to which email notification bounces should be sent.
+  @ In cases where the email notification does not align with a specific
+  @ Fossil login account (for example, digest messages), this is also
+  @ the "From:" address of the email notification.
+  @ The system administrator should arrange for emails sent to this address
   @ to be handed off to the "fossil email incoming" command so that Fossil
   @ can handle bounces. (Property: "email-self")</p>
   @ <hr>
@@ -673,6 +676,45 @@ char *email_hostname(const char *zAddr){
 }
 
 /*
+** Return a pointer to a fake email mailbox name that corresponds
+** to human-readable name zFromName.  The fake mailbox name is based
+** on a hash.  No huge problems arise if there is a hash collisions,
+** but it is still better if collisions can be avoided.
+**
+** The returned string is held in a static buffer and is overwritten
+** by each subsequent call to this routine.
+*/
+static char *email_mailbox_name(const char *zFromName){
+  static char zHash[20];
+  unsigned int x = 0;
+  int n = 0;
+  while( zFromName[0] ){
+    n++;
+    x = x*1103515245 + 12345 + ((unsigned char*)zFromName)[0];
+    zFromName++;
+  }
+  sqlite3_snprintf(sizeof(zHash), zHash,
+      "noreply%x%08x", n, x);
+  return zHash;
+}
+
+/*
+** COMMAND: test-mailbox-hashname
+**
+** Usage: %fossil test-mailbox-hashname HUMAN-NAME ...
+**
+** Return the mailbox hash name corresponding to each human-readable
+** name on the command line.  This is a test interface for the
+** email_mailbox_name() function.
+*/
+void email_test_mailbox_hashname(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%30s: %s\n", g.argv[i], email_mailbox_name(g.argv[i]));
+  }
+}
+
+/*
 ** Extract all To: header values from the email header supplied.
 ** Store them in the array list.
 */
@@ -716,6 +758,7 @@ void email_header_to_free(int nTo, char **azTo){
 ** This routine will add fields to the header as follows:
 **
 **     From:
+**     Return-Path:
 **     Date:
 **     Message-Id:
 **     Content-Type:
@@ -725,6 +768,13 @@ void email_header_to_free(int nTo, char **azTo){
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
 ** not free them.
+**
+** If the zFromName argument is not NULL, then it should be a human-readable
+** name or handle for the sender.  In that case, "From:" becomes a made-up
+** email address based on a hash of zFromName and the domain of email-self,
+** and an additional "Reply-To:" field is inserted with the email-self
+** address.  If zFromName is a NULL pointer, then both "From:" and
+** Return-Path: are set to the email-self value.
 */
 void email_send(
   EmailSender *p,           /* Emailer context */
@@ -751,10 +801,12 @@ void email_send(
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
   if( zFromName ){
-    blob_appendf(pOut, "From: %s <%s>\r\n", zFromName, p->zFrom);
+    blob_appendf(pOut, "From: %s <%s@%s>\r\n",
+       zFromName, email_mailbox_name(zFromName), email_hostname(p->zFrom));
   }else{
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   }
+  blob_appendf(pOut, "Return-Path: <%s>\r\n", p->zFrom);
   blob_appendf(pOut, "Date: %z\r\n", cgi_rfc822_datestamp(time(0)));
   if( strstr(blob_str(pHdr), "\r\nMessage-Id:")==0 ){
     /* Message-id format:  "<$(date)x$(random).$(from)>" where $(date) is
