@@ -946,7 +946,8 @@ void forum_main_page(void){
       "  (SELECT substr(comment,instr(comment,':')+2)"               /* 4 */
       "     FROM event WHERE objid=(SELECT fpid FROM forumpost AS y"
       "                              WHERE y.froot=x.froot"
-      "                              ORDER BY fmtime DESC LIMIT 1))"
+      "                              ORDER BY fmtime DESC LIMIT 1)),"
+      "  fpid"                                                       /* 5 */
       " FROM forumpost AS x"
       " GROUP BY froot ORDER BY 1 LIMIT %d OFFSET %d;",
       iLimit+1, iOfst
@@ -957,6 +958,12 @@ void forum_main_page(void){
       int nMsg = db_column_int(&q, 2);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
+      int fpid = db_column_int(&q, 5);
+      int needMod = content_is_private(fpid);
+      Manifest *pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
+      int sameUser = login_is_individual() && pPost
+                     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+      if( needMod && !g.perm.ModForum && !sameUser ) continue;
       if( iCnt==0 ){
         if( iOfst>0 ){
           @ <h1>Threads at least %s(zAge) old</h1>
