@@ -1553,7 +1553,7 @@ void register_page(void){
   zEAddr = PDT("ea","");
   zDName = PDT("dn","");
 
-  /* Try to make any sense from user input. */
+  /* Verify user imputs */
   if( P("new")==0 || !cgi_csrf_safe(1) ){
     /* This is not a valid form submission.  Fall through into
     ** the form display */
@@ -1597,6 +1597,8 @@ void register_page(void){
     iErrLine = 3;
     zErr = "This email address is already claimed by another user";
   }else{
+    /* If all of the tests above have passed, that means that the submitted
+    ** form contains valid data and we can proceed to create the new login */
     Blob sql;
     int uid;
     char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
@@ -1625,6 +1627,7 @@ void register_page(void){
       if( g.perm.RdTkt )   ssub[nsub++] = 't';
       if( g.perm.RdWiki )  ssub[nsub++] = 'w';
       ssub[nsub] = 0;
+      /* Also add the user to the subscriber table. */
       db_multi_exec(
         "INSERT INTO subscriber(semail,suname,"
         "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
