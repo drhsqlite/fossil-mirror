@@ -970,7 +970,7 @@ void db_hextoblob(
   if( zIn==0 ) return;
   if( nIn&1 ) return;
   if( !validate16((const char*)zIn, nIn) ) return;
-  zOut = sqlite3_malloc64( nIn/2 );
+  zOut = sqlite3_malloc64( nIn/2 + 1 );
   if( zOut==0 ){
     sqlite3_result_error_nomem(context);
     return;
