@@ -953,7 +953,6 @@ void forum_main_page(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       char *zAge = human_readable_age(db_column_double(&q,0));
-      char *zDuration = 0;
       int nMsg = db_column_int(&q, 2);
       const char *zUuid = db_column_text(&q, 3);
       const char *zTitle = db_column_text(&q, 4);
@@ -988,12 +987,12 @@ void forum_main_page(void){
       if( nMsg<2 ){
         @ <td>no replies</td>
       }else{
-        zDuration = human_readable_age(db_column_double(&q,1));
+        char *zDuration = human_readable_age(db_column_double(&q,1));
         @ <td>%d(nMsg) posts spanning %h(zDuration)</td>
+        fossil_free(zDuration);
       }
       @ </tr>
       fossil_free(zAge);
-      fossil_free(zDuration);
     }
     db_finalize(&q);
   }
