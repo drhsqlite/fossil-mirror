@@ -638,8 +638,8 @@ void test_smtp_send(void){
 ** Schema used by the email processing system.
 */
 static const char zEmailSchema[] = 
-@ -- bulk storage is in a separate table.  This table can store either
-@ -- the body of email messages or transcripts of smtp sessions.
+@ -- bulk storage is in this table.  This table can store either
+@ -- the body of email messages or transcripts of an smtp session.
 @ CREATE TABLE IF NOT EXISTS repository.emailblob(
 @   emailid INTEGER PRIMARY KEY AUTOINCREMENT,  -- numeric idea for the entry
 @   enref INT,                    -- Number of references to this blob
@@ -671,8 +671,8 @@ static const char zEmailSchema[] =
 @ -- Outgoing email queue
 @ CREATE TABLE IF NOT EXISTS repository.emailoutq(
 @   edomain TEXT,            -- Destination domain.  (ex: "fossil-scm.org")
-@   efrom TEXT,              -- Sender email address
-@   eto TEXT,                -- Recipient email address
+@   efrom TEXT,              -- Sender email address (envelope "from")
+@   eto TEXT,                -- Recipient email address (envelope "to")
 @   emsgid INT,              -- Message body in the emailblob table
 @   ectime INT,              -- Time enqueued.  Seconds since 1970
 @   emtime INT,              -- Time of last send attempt.  Sec since 1970
@@ -1145,6 +1145,20 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
 }
 
 /*
+** Remove stale content from the emailblob table.
+*/
+void smtp_cleanup(void){
+  if( db_table_exists("repository","emailblob") ){
+    db_begin_transaction();
+    db_multi_exec(
+      "UPDATE emailblob SET ets=NULL WHERE enref<=0;"
+      "DELETE FROM emailblob WHERE enref<=0;"
+    );
+    db_end_transaction(0);
+  }
+}
+
+/*
 ** COMMAND: test-emailblob-refcheck
 **
 ** Usage: %fossil test-emailblob-refcheck [--repair] [--full] [--clean]
@@ -1187,10 +1201,7 @@ void test_refcheck_emailblob(void){
       "UPDATE emailblob SET enref=(SELECT n FROM refcnt WHERE id=emailid)"
     );
     if( doClean ){
-      db_multi_exec(
-        "UPDATE emailblob SET ets=NULL WHERE enref<=0;"
-        "DELETE FROM emailblob WHERE enref<=0;"
-      );
+      smtp_cleanup();
     }
   }
   blob_init(&sql, 0, 0);

@@ -521,6 +521,7 @@ void backoffice_work(void){
 
   /* Here is where the actual work of the backoffice happens */
   email_backoffice(0);
+  smtp_cleanup();
 }
 
 /*

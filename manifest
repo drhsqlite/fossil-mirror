@@ -1,5 +1,5 @@
-C Do\snot\sput\s"Return-Path:"\sheaders\sin\snotification\semails\sto\sbe\ssent.\s\sThat\nis\sa\sviolation\sof\sstandards\sas\sonly\sthe\sreceiving\sSMTP\sserver\sshould\sadd\nthe\sReturn-Path\sheader.\s\sInstead,\sinclude\sa\scustom\sX-Fossil-From:\sheader\nthat\sdownstream\ssoftware\scan\suse\s(if\sdesired)\sto\sset\sthe\senvelope\sheader\nof\sthe\smessage.
-D 2018-08-16T19:51:25.501
+C Enhance\sthe\sbackoffice\sto\sautomatically\spurge\sstale\sentries\sfrom\sthe\nemailblob\stable,\sif\sthat\stable\sexists.
+D 2018-08-16T20:48:06.265
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 02ed31a2942ba071cb69a641a6ce3be7253f57b9e363f49481f7900404f599f5
+F src/backoffice.c 7ce0efdcb0760c7c02bb7e82661556638e32b45c90e3069918684db2a5e66563
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -558,7 +558,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c bf45768f587d570a260be469d5c3d9217fbcf1d61015f7f922cffbcccf64dfb3
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 25df288894a3924dd330e1b350566357e061f964a816fd4f0cd7a50e0ce2d49c
-F src/smtp.c 58d5014510a6d8997b4e803fb61115d7549f205595db5cb62aa2d9d680cc0928
+F src/smtp.c 02e65910cffd264080ba51b8fa87a55637b83cf03860b07093e4e2426ea4c9c5
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 0619f9965988649bca29ac539c463a3682cc52ba4c3e8f250a2e2c7ad630a19e
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 475c9d11e9028f9b060b3b57c0b15e6749e176ba6dd3bb46cef776d78cb809ff
-R b70d94191db8152f82fbf08b38fd3ade
+P 731836b8698a2ab178d2d29aa28b52c382fef076a524c4bae1bfbe61c41a2d6b
+R cf17df28fbacca7708f9669a100182a8
 U drh
-Z 911b77463b59847176930e256c19f3a6
+Z c078284a44771ed3d916959e4d931295
