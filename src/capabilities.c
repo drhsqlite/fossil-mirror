@@ -102,6 +102,7 @@ void capability_expand(CapabilityString *pIn){
   static char *zAnon = 0;
   static char *zReader = 0;
   static char *zDev = 0;
+  int doneV = 0;
 
   if( pIn==0 ){
     fossil_free(zNobody); zNobody = 0;
@@ -110,24 +111,24 @@ void capability_expand(CapabilityString *pIn){
     fossil_free(zDev);    zDev = 0;
     return;
   }
-  if( pIn->x['v'] ){
-    if( zDev==0 ){
-      zDev = db_text(0, "SELECT cap FROM user WHERE login='developer'");
-    }
-    pIn = capability_add(pIn, zDev);
-  }
-  if( pIn->x['u'] ){
-    if( zReader==0 ){
-      zReader = db_text(0, "SELECT cap FROM user WHERE login='reader'");
-    }
-    pIn = capability_add(pIn, zReader);
-  }
   if( zNobody==0 ){
     zNobody = db_text(0, "SELECT cap FROM user WHERE login='nobody'");
     zAnon = db_text(0, "SELECT cap FROM user WHERE login='anonymous'");
+    zReader = db_text(0, "SELECT cap FROM user WHERE login='reader'");
+    zDev = db_text(0, "SELECT cap FROM user WHERE login='developer'");
   }
   pIn = capability_add(pIn, zAnon);
   pIn = capability_add(pIn, zNobody);
+  if( pIn->x['v'] ){
+    pIn = capability_add(pIn, zDev);
+    doneV = 1;
+  }
+  if( pIn->x['u'] ){
+    pIn = capability_add(pIn, zReader);
+    if( pIn->x['v'] && !doneV ){
+      pIn = capability_add(pIn, zDev);
+    }
+  }
 }
 
 /*

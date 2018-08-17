@@ -102,6 +102,9 @@ struct FossilUserPerms {
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
   char Debug;            /* D: show extra Fossil debugging features */
+  /* These last two are included to block infinite recursion */
+  char XReader;          /* u: Inherit all privileges of "reader" */
+  char XDeveloper;       /* v: Inherit all privileges of "developer" */
 };
 
 #ifdef FOSSIL_ENABLE_TCL

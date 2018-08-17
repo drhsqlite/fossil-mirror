@@ -1,5 +1,5 @@
-C Allow\s+\ssigns\sin\semail\saddresses.\s\sAdded\sa\scomment\sto\slink\sto\sa\ssource\ngiving\sthe\strue\slimit\son\slegal\scharacters\sin\semail\saddresses,\swhich\sare\ncurrently\sfar\sless\srestrictive\sthan\sour\snewly-expanded\slimits.
-D 2018-08-17T01:27:46.791
+C Improvements\sto\sprivilege\sprocessing\sand\sthe\s"Security\sAudit"\spage\s/secaudit0.
+D 2018-08-17T12:32:26.565
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/browse.c 10353b275aa4a217995268a7cc8846ebf735f84cd6c4f7112a000fae0a9fe09c
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
-F src/capabilities.c ba1baaea14c8eddfbc67ecdee9c94e1f5f6d3318555f394712b1963e2893fed3
+F src/capabilities.c 660e8b37ce23f832ad33377153ce9615dd1841a264997197eda5ff7103b6aa36
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
 F src/cgi.c 12eb17258e769ae463d396662b60db8a66932cab823f17a6004813b7de1e5762
 F src/checkin.c 19b0e7b7d06e5bd21b10e33f5bbe3984d76e7b3f9b365ce1c223e3c3d7102435
@@ -509,10 +509,10 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c a386d6655cfe50301ee5c4604c8507acd3f4d91ce4c964cc7cf1219bf475ce5e
+F src/login.c 9f878979565d0133ec7ba233a2bd35a548b7a4a62541e82ceed8607ec6fd116f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 302650afec5ac850ae1917d3e39689e199ecf9565bded4306df9bfbaddd9bcf5
+F src/main.c cc92305b016331e69fcc1174ac9e370d6f7607c638c5c1934a2ecdb31da7b223
 F src/main.mk 460695ff5a78ff8b9e8be5b72145767909b769cf1d38ea6f66270691c71fa055
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -548,8 +548,8 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
-F src/security_audit.c fc83d40ecc75f9dc08f14df953677d79e226c04c0f46c8328affe12ce84d8fdd
-F src/setup.c 26f3e939cbcdf5d8ca53875e4f9da21369adcfea5eed6bb25bb6d609112b9500
+F src/security_audit.c a8ba14e51a2490a4b66bfb6fe2ce6d05cdd64a22830dff98c1128cb989ca0a42
+F src/setup.c 01be596cc91ab146950aa1922b803fa2051fb23add44d7753b611348b1cac907
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -861,7 +861,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c7edd4cfd252ec94ecb3e0f1fa042fcdf6db295a055fc8bdd7daf103c2c8bd1
-R 1645616d468792acabef17115c1ddc63
-U wyoung
-Z 0651e6a8e74467d1994de26baae3a6ec
+P 1bfd790352f944f131805e938251c5477b9202801be54a08f81fdeecb11f6f49
+R c1ad35f810b67f4181aa39766b6e7b32
+U drh
+Z a93542b0103d3c01cbaf3b21d42df960

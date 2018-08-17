@@ -1304,24 +1304,26 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'A':   p->Announce = 1;                             break;
       case 'D':   p->Debug = 1;                                break;
 
-      /* The "u" privileges is a little different.  It recursively
+      /* The "u" privilege recursively
       ** inherits all privileges of the user named "reader" */
       case 'u': {
-        if( (flags & LOGIN_IGNORE_UV)==0 ){
+        if( p->XReader==0 ){
           const char *zUser;
+          p->XReader = 1;
           zUser = db_text("", "SELECT cap FROM user WHERE login='reader'");
-          login_set_capabilities(zUser, flags | LOGIN_IGNORE_UV);
+          login_set_capabilities(zUser, flags);
         }
         break;
       }
 
-      /* The "v" privileges is a little different.  It recursively
+      /* The "v" privilege recursively
       ** inherits all privileges of the user named "developer" */
       case 'v': {
-        if( (flags & LOGIN_IGNORE_UV)==0 ){
+        if( p->XDeveloper==0 ){
           const char *zDev;
+          p->XDeveloper = 1;
           zDev = db_text("", "SELECT cap FROM user WHERE login='developer'");
-          login_set_capabilities(zDev, flags | LOGIN_IGNORE_UV);
+          login_set_capabilities(zDev, flags);
         }
         break;
       }

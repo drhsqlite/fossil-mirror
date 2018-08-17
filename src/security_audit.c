@@ -60,8 +60,7 @@ void secaudit0_page(void){
   ** "Private" repos require (non-anonymous) login to access all content,
   ** though some content may be accessible anonymously.
   */
-  zAnonCap = db_text("", "SELECT capunion(cap) FROM user"
-                         " WHERE login IN ('anonymous','nobody')");
+  zAnonCap = db_text("", "SELECT fullcap(NULL)");
   zPubPages = db_get("public-pages",0);
   if( hasAnyCap(zAnonCap,"as") ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
@@ -133,7 +132,7 @@ void secaudit0_page(void){
     @ Anonymous users can view email addresses and other personally
     @ identifiable information on tickets.
     @ <p>Fix this by removing the "Email" privilege
-    @ (<a href="setup_ucap_list">capability "e") from users
+    @ (<a href="setup_ucap_list">capability "e"</a>) from users
     @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
@@ -225,16 +224,22 @@ void secaudit0_page(void){
   ** specific individuals, not to entire classes of people.
   ** And not too many people should have administrator privilege.
   */
-  z = db_text(0, "SELECT group_concat(login,' AND ') FROM user"
-                 " WHERE cap GLOB '*[as]*'"
-                 "   AND login in ('anonymous','nobody','reader','developer')");
+  z = db_text(0,
+    "SELECT group_concat("
+                 "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
+             "' and ')"
+    " FROM user"
+    " WHERE cap GLOB '*[as]*'"
+    "   AND login in ('anonymous','nobody','reader','developer')"
+  );
   if( z && z[0] ){
-    @ <li><p>
-    @ Administrative privilege is granted to an entire class of users
-    @ (%h(z)).  Ideally, the Write-Unver privilege should only be
+    @ <li><p><b>WARNING:</b>
+    @ Administrative privilege ('a' or 's')
+    @ is granted to an entire class of users: %s(z).
+    @ Administrative privilege should only be
     @ granted to specific individuals.
   }
-  n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*[as]*'");
+  n = db_int(0,"SELECT count(*) FROM user WHERE fullcap(cap) GLOB '*[as]*'");
   if( n==0 ){
     @ <li><p>
     @ No users have administrator privilege.
@@ -244,13 +249,13 @@ void secaudit0_page(void){
                  "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
              "', ')"
       " FROM user"
-      " WHERE cap GLOB '*[as]*'"
+      " WHERE fullcap(cap) GLOB '*[as]*'"
     );
     @ <li><p>
     @ Users with administrator privilege are: %s(z)
     fossil_free(z);
     if( n>3 ){
-      @ <p><b>Caution</b>:
+      @ <li><p><b>WARNING:</b>
       @ Administrator privilege is granted to
       @ <a href='setup_ulist?with=as'>%d(n) users</a>.
       @ Ideally, administator privilege ('s' or 'a') should only
@@ -271,10 +276,9 @@ void secaudit0_page(void){
     "   AND login in ('anonymous','nobody','reader','developer')"
   );
   if( z && z[0] ){
-    @ <li><p>
-    @ The "Write-Unver" privilege is granted to an entire class of users
-    @ (%s(z)).  Ideally, the Write-Unver privilege should only be
-    @ granted to specific individuals.
+    @ <li><p><b>WARNING:</b>
+    @ The "Write-Unver" privilege is granted to an entire class of users: %s(z).
+    @ The Write-Unver privilege should only be granted to specific individuals.
     fossil_free(z);
   }
   n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*y*'");
@@ -282,7 +286,7 @@ void secaudit0_page(void){
     z = db_text(0,
        "SELECT group_concat("
           "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),', ')"
-       " FROM user WHERE cap GLOB '*y*'"
+       " FROM user WHERE fullcap(cap) GLOB '*y*'"
     );
     @ <li><p>
     @ Users with "Write-Unver" privilege: %s(z)

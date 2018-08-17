@@ -252,7 +252,7 @@ void setup_ulist(void){
     );
   }
   if( zWith && zWith[0] ){
-    zWith = mprintf(" AND cap GLOB '*[%q]*'", zWith);
+    zWith = mprintf(" AND fullcap(cap) GLOB '*[%q]*'", zWith);
   }else{
     zWith = "";
   }
