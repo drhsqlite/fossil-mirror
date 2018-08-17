@@ -476,6 +476,7 @@ SRC   = add_.c \
         search_.c \
         security_audit_.c \
         setup_.c \
+        setupuser_.c \
         sha1_.c \
         sha1hard_.c \
         sha3_.c \
@@ -683,6 +684,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\search$O \
         $(OX)\security_audit$O \
         $(OX)\setup$O \
+        $(OX)\setupuser$O \
         $(OX)\sha1$O \
         $(OX)\sha1hard$O \
         $(OX)\sha3$O \
@@ -878,6 +880,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\search.obj >> $@
 	echo $(OX)\security_audit.obj >> $@
 	echo $(OX)\setup.obj >> $@
+	echo $(OX)\setupuser.obj >> $@
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\sha1hard.obj >> $@
 	echo $(OX)\sha3.obj >> $@
@@ -1615,6 +1618,12 @@ $(OX)\setup$O : setup_.c setup.h
 setup_.c : $(SRCDIR)\setup.c
 	translate$E $** > $@
 
+$(OX)\setupuser$O : setupuser_.c setupuser.h
+	$(TCC) /Fo$@ -c setupuser_.c
+
+setupuser_.c : $(SRCDIR)\setupuser.c
+	translate$E $** > $@
+
 $(OX)\sha1$O : sha1_.c sha1.h
 	$(TCC) /Fo$@ -c sha1_.c
 
@@ -1943,6 +1952,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			search_.c:search.h \
 			security_audit_.c:security_audit.h \
 			setup_.c:setup.h \
+			setupuser_.c:setupuser.h \
 			sha1_.c:sha1.h \
 			sha1hard_.c:sha1hard.h \
 			sha3_.c:sha3.h \

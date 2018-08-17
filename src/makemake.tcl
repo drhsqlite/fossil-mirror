@@ -122,6 +122,7 @@ set src {
   search
   security_audit
   setup
+  setupuser
   sha1
   sha1hard
   sha3

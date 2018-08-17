@@ -111,6 +111,7 @@ SRC = \
   $(SRCDIR)/search.c \
   $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
+  $(SRCDIR)/setupuser.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/sha1hard.c \
   $(SRCDIR)/sha3.c \
@@ -319,6 +320,7 @@ TRANS_SRC = \
   $(OBJDIR)/search_.c \
   $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
+  $(OBJDIR)/setupuser_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/sha1hard_.c \
   $(OBJDIR)/sha3_.c \
@@ -455,6 +457,7 @@ OBJ = \
  $(OBJDIR)/search.o \
  $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
+ $(OBJDIR)/setupuser.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/sha1hard.o \
  $(OBJDIR)/sha3.o \
@@ -789,6 +792,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
 	$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
+	$(OBJDIR)/setupuser_.c:$(OBJDIR)/setupuser.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
 	$(OBJDIR)/sha3_.c:$(OBJDIR)/sha3.h \
@@ -1601,6 +1605,14 @@ $(OBJDIR)/setup.o:	$(OBJDIR)/setup_.c $(OBJDIR)/setup.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/setup.o -c $(OBJDIR)/setup_.c
 
 $(OBJDIR)/setup.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/setupuser_.c:	$(SRCDIR)/setupuser.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/setupuser.c >$@
+
+$(OBJDIR)/setupuser.o:	$(OBJDIR)/setupuser_.c $(OBJDIR)/setupuser.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/setupuser.o -c $(OBJDIR)/setupuser_.c
+
+$(OBJDIR)/setupuser.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/sha1_.c:	$(SRCDIR)/sha1.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/sha1.c >$@
