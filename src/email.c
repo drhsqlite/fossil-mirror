@@ -1155,7 +1155,11 @@ static int subscribe_error_check(
   /* Check the validity of the email address.
   **
   **  (1) Exactly one '@' character.
-  **  (2) No other characters besides [a-zA-Z0-9._-]
+  **  (2) No other characters besides [a-zA-Z0-9._+-]
+  **
+  **  The local part is currently more restrictive than RFC 5322 allows:
+  **  https://stackoverflow.com/a/2049510/142454  We will expand this as
+  **  necessary.
   */
   zEAddr = P("e");
   if( zEAddr==0 ) return 0;
@@ -1165,7 +1169,7 @@ static int subscribe_error_check(
       j++;
       continue;
     }
-    if( !fossil_isalnum(c) && c!='.' && c!='_' && c!='-' ){
+    if( !fossil_isalnum(c) && c!='.' && c!='_' && c!='-' && c!='+' ){
       *peErr = 1;
       *pzErr = mprintf("illegal character in email address: 0x%x '%c'",
                    c, c);
