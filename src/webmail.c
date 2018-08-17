@@ -823,13 +823,15 @@ void webmail_emailblob_page(void){
     }
     db_finalize(&q);
   }else{
+    style_submenu_element("emailoutq table","%R/emailoutq");
     db_prepare(&q,
        "SELECT emailid, enref, ets, datetime(etime,'unixepoch'), esz,"
        " length(etxt)"
        " FROM emailblob ORDER BY etime DESC, emailid DESC");
-    @ <table border="1" cellpadding="5" cellspacing="0">
-    @ <tr><th> emailid <th> enref <th> ets <th> etime \
-    @ <th> uncompressed <th> compressed </tr>
+    @ <table border="1" cellpadding="5" cellspacing="0" class="sortable" \
+    @ data-column-types='nnntkk'>
+    @ <thead><tr><th> emailid <th> enref <th> ets <th> etime \
+    @ <th> uncompressed <th> compressed </tr></thead><tbody>
     while( db_step(&q)==SQLITE_ROW ){
       int id = db_column_int(&q, 0);
       int nref = db_column_int(&q, 1);
@@ -846,12 +848,70 @@ void webmail_emailblob_page(void){
         @  <td>&nbsp;</td>
       }
       @  <td>%h(zDate)</td>
-      @  <td align="right">%,d(sz)</td>
-      @  <td align="right">%,d(csz)</td>
+      @  <td align="right" data-sortkey='%08x(sz)'>%,d(sz)</td>
+      @  <td align="right" data-sortkey='%08x(csz)'>%,d(csz)</td>
       @ </tr>
     }
-    @ </table>
+    @ </tbody></table>
     db_finalize(&q);
+    style_table_sorter();
   }
+  style_footer();
+}
+
+/*
+** WEBPAGE:  emailoutq
+**
+** This page, accessible only to administrators, allows easy viewing of
+** the emailoutq table - the table that contains the email messages
+** that are queued for transmission via SMTP.
+*/
+void webmail_emailoutq_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  add_content_sql_commands(g.db);
+  style_header("emailoutq table");
+  style_submenu_element("emailblob table","%R/emailblob");
+  db_prepare(&q,
+     "SELECT edomain, efrom, eto, emsgid, "
+     "       datetime(ectime,'unixepoch'),"
+     "       datetime(nullif(emtime,0),'unixepoch'),"
+     "       ensend, ets"
+     " FROM emailoutq"
+  );
+  @ <table border="1" cellpadding="5" cellspacing="0" class="sortable" \
+  @ data-column-types='tttnttnn'>
+  @ <thead><tr><th> edomain <th> efrom <th> eto <th> emsgid \
+  @ <th> ectime <th> emtime <th> ensend <th> ets </tr></thead><tbody>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDomain = db_column_text(&q, 0);
+    const char *zFrom = db_column_text(&q, 1);
+    const char *zTo = db_column_text(&q, 2);
+    int emsgid = db_column_int(&q, 3);
+    const char *zCTime = db_column_text(&q, 4);
+    const char *zMTime = db_column_text(&q, 5);
+    int ensend = db_column_int(&q, 6);
+    int ets = db_column_int(&q, 7);
+    @ <tr>
+    @  <td>%h(zDomain)
+    @  <td>%h(zFrom)
+    @  <td>%h(zTo)
+    @  <td align="right"><a href="%R/emailblob?id=%d(emsgid)">%d(emsgid)</a>
+    @  <td>%h(zCTime)
+    @  <td>%h(zMTime)
+    @  <td align="right">%d(ensend)
+    if( ets>0 ){
+      @  <td align="right"><a href="%R/emailblob?id=%d(ets)">%d(ets)</a></td>
+    }else{
+      @  <td>&nbsp;</td>
+    }
+  }
+  @ </tbody></table>
+  db_finalize(&q);
+  style_table_sorter();
   style_footer();
 }
