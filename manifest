@@ -1,5 +1,5 @@
-C Add\sthe\s/emailoutq\spage,\saccessible\sonly\sby\sthe\sadministrator.
-D 2018-08-17T14:24:03.215
+C Fix\sthe\s/setup_smtp\spage\sso\sthat\sit\sedits\sthe\srouting\stable\ssensibly.
+D 2018-08-17T15:38:43.204
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -559,7 +559,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c bf45768f587d570a260be469d5c3d9217fbcf1d61015f7f922cffbcccf64dfb3
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 25df288894a3924dd330e1b350566357e061f964a816fd4f0cd7a50e0ce2d49c
-F src/smtp.c 02e65910cffd264080ba51b8fa87a55637b83cf03860b07093e4e2426ea4c9c5
+F src/smtp.c 6c9b2692ea368736ed4679eb7b4cdad68a674a679954b7cae5bc332048995c75
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 0619f9965988649bca29ac539c463a3682cc52ba4c3e8f250a2e2c7ad630a19e
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a49ed35bb79e7f1c934e3179e84ea33f8346164a72db0f5d49de0010aaadf1d0
-R 0ca4c55081af320ba2775ed46b9fe53b
+P ca732777c4a0c1655da9bed0bc544c1d5fd1f560a96128c7446e7afe6d769091
+R b97900b95a36dc8d96b67f55269930e3
 U drh
-Z d3f1ac3b93343f6593d31c6d06d1f9b8
+Z 58a02b574af0a8ec5d9c0665cd24190c

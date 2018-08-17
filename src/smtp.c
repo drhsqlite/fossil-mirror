@@ -738,49 +738,6 @@ void smtp_server_schema(int eForce){
 }
 
 /*
-** Process POST change requests from the setup_smtp page
-*/
-static void handle_smtp_setup_edit(char **pzErr, int *piErr){
-  *piErr = 0;
-  *pzErr = 0;
-  if( !cgi_csrf_safe(1) ) return;
-  if( P("new")!=0 ){
-    const char *zEAddr = PDT("eaddr","");
-    const char *zEPolicy = PDT("epolicy","");
-    smtp_server_schema(0);
-    if( db_exists("SELECT 1 FROM emailroute WHERE eaddr=%Q", zEAddr) ){
-      *pzErr = mprintf("\"%s\" already exists", zEAddr);
-      *piErr = 100;
-      return;
-    }
-    db_multi_exec("INSERT INTO emailroute(eaddr,epolicy)"
-                  "VALUES(%Q,%Q)", zEAddr, zEPolicy);
-    return;
-  }
-  if( P("delete")!=0 ){
-    const char *zEAddr = PDT("eaddr","");
-    const char *zEPolicy = PDT("epolicy","");
-    smtp_server_schema(0);
-    if( zEPolicy[0] ){
-      *pzErr = mprintf("Erase routing information to delete");
-      *piErr = 200;
-      return;
-    }
-    db_multi_exec("DELETE FROM emailroute WHERE eaddr=%Q", zEAddr);
-    return;
-  }
-  if( P("change")!=0 ){
-    const char *zEAddr = PDT("eaddr","");
-    const char *zEPolicy = PDT("epolicy","");
-    smtp_server_schema(0);
-    db_multi_exec("UPDATE emailroute SET epolicy=%Q WHERE eaddr=%Q",
-                   zEPolicy, zEAddr);
-    return;
-  }
-}
-
-
-/*
 ** WEBPAGE: setup_smtp
 **
 ** Administrative page for configuring and controlling inbound email and
@@ -789,8 +746,6 @@ static void handle_smtp_setup_edit(char **pzErr, int *piErr){
 */
 void setup_smtp(void){
   Stmt q;
-  char *zErr = 0;
-  int iErr = 0;
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -798,44 +753,161 @@ void setup_smtp(void){
   }
   db_begin_transaction();
   style_header("Email Server Setup");
-  handle_smtp_setup_edit(&zErr, &iErr);
   if( db_table_exists("repository","emailroute") ){
+    style_submenu_element("emailblob table", "%R/emailblob");
+    style_submenu_element("emailoutq table", "%R/emailoutq");
     db_prepare(&q, "SELECT eaddr, epolicy FROM emailroute ORDER BY 1");
   }else{
     db_prepare(&q, "SELECT null, null WHERE false");
   }
-  @ <table class="emailroutetab">
+  @ <h1>Email Routing Table</h1>
+  @ <table class="emailroutetab" cellpadding="5" border="1" cellspacing="0">
   @ <thead>
-  @ <tr><th>Email Address
-  @ <th>Routing
-  @ <th></th>
+  @ <tr>
+  @   <th>Email Address
+  @   <th>Routing
+  @   <th>
+  @ </tr>
   @ </thead><tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zEAddr = db_column_text(&q, 0);
     const char *zEPolicy = db_column_text(&q, 1);
-    @ <tr><form action="%R/setup_smtp" method="POST">
-    @ <td valign="top">%h(zEAddr)\
-    @ <input type="hidden" name="eaddr" value="%h(zEAddr)"></td>
-    @ <td valign="top">\
-    @ <textarea name="epolicy" rows="3" cols="40">%h(zEPolicy)</textarea>\
-    @ </td>
-    @ <td valign="top">\
-    @ <input type="submit" name="change" value="Apply Changes"><br>\
-    @ <input type="submit" name="delete" value="Delete"></td>
-    @ </form></tr>
+    @ <tr>
+    @  <td valign="top">%h(zEAddr)</td>
+    @  <td valign="top"><span style="white-space:pre;">%h(zEPolicy)</span></td>
+    @  <td valign="top"><form method="POST" action="%R/setup_smtp_route">
+    @    <input type="hidden" name="oaddr" value="%h(zEAddr)">
+    @    <input type="submit" value="Edit">
+    @    </form>
   }
   db_finalize(&q);
-  @ <tr><form action="%R/setup_smtp" method="POST">
-  @ <td valign="top">
-  @ <input type="text" name="eaddr" width="30"></td>
-  @ <td valign="top">\
-  @ <textarea name="epolicy" rows="3" cols="40"></textarea>\
-  @ </td>
-  @ <td valign="top"><input type="submit" name="new" value="New"></td>
-  @ </form></tr>
+  @ <tr>
+  @   <td colspan="3">
+  @   <form method="POST" action="%R/setup_smtp_route">
+  @   <input type="submit" value="New">
+  @    &larr; Add a new email address
+  @   </form>
+  @ </table>
   style_footer();
-  fossil_free(zErr);
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_smtp_route
+**
+** Edit a single entry in the emailroute table.
+** Query parameters:
+**
+**    eaddr=ADDR          ADDR is the email address as edited.
+**
+**    oaddr=ADDR          The original email address prior to editing.
+**                        Omit to add a new address.
+**
+**    epolicy=TXT         The routing policy.
+*/
+void setup_smtp_route(void){
+  char *zEAddr = PT("eaddr");         /* new email address */
+  char *zEPolicy = PT("epolicy");     /* new routing policy */
+  char *zOAddr = PT("oaddr");         /* original email address */
+  char *zErr;
+  int iErr;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+  style_header("Email Route Editor");
+
+  if( P("edit") && cgi_csrf_safe(1) && zEAddr!=0 && zEPolicy!=0 ){
+    smtp_server_schema(0);
+    if( (zOAddr==0 || fossil_strcmp(zEAddr,zOAddr)!=0) ){
+      /* New or changed email address */
+      if( db_exists("SELECT 1 FROM emailroute WHERE eaddr=%Q",zEAddr) ){
+        iErr = 1;
+        zErr = mprintf("email address \"%h(zEAddr)\" already exists",zEAddr);
+        goto smtp_route_edit;
+      }
+      if( zEPolicy[0]==0 ){
+        iErr = 2;
+        zErr = mprintf("empty route");
+        goto smtp_route_edit;
+      }
+    }
+    /* If the email address has changed, or if the new policy is blank,
+    ** delete the old address and route information
+    */
+    db_begin_transaction();
+    if( (zOAddr && fossil_strcmp(zEAddr,zOAddr)!=0) || zEPolicy[0]==0 ){
+      db_multi_exec("DELETE FROM emailroute WHERE eaddr=%Q", zOAddr);
+    }
+    if( zEPolicy[0] ){
+      /* Insert the new address and route */
+      db_multi_exec(
+        "REPLACE INTO emailroute(eaddr,epolicy) VALUES(%Q,%Q)",
+        zEAddr, zEPolicy
+      );
+    }
+    db_end_transaction(0);
+    cgi_redirectf("%R/setup_smtp");
+  }
+  if( P("cancel")!=0 ){
+    cgi_redirectf("%R/setup_smtp");
+  }
+
+smtp_route_edit:
+  if( zEAddr==0 ) zEAddr = zOAddr;
+  if( zEPolicy==0 && db_table_exists("repository","emailroute") ){
+    zEPolicy = db_text(0, "SELECT epolicy FROM emailroute WHERE eaddr=%Q",
+                      zEAddr);
+  }
+  if( zEPolicy==0 ) zEPolicy = "";
+  @ <form method="POST" action="%R/setup_smtp_route">
+  if( zOAddr ){
+    @ <input type="hidden" name="oaddr" value="%h(zOAddr)">
+  }
+  @ <table class="label-value">
+  @ <tr>
+  @   <th>Email Address:</th>
+  @   <td><input type="text" size=30 name="eaddr" value="%h(zEAddr)">
+  if( iErr==1 ){
+    @ <td><span class="generalError">&larr; %z(zErr)</span>
+  }
+  @ </tr>
+  if( zOAddr && fossil_strcmp(zOAddr,zEAddr)!=0 ){
+    @ <tr>
+    @   <th>Original Address:</th>
+    @   <td>%h(zOAddr)
+    @ </tr>
+  }
+  @ <tr>
+  @   <th>Routing:</th>
+  @   <td><textarea name="epolicy" rows="3" cols="40">%h(zEPolicy)</textarea>
+  if( iErr==2 ){
+    @ <td valign="top"><span class="generalError">&larr; %z(zErr)</span>
+  }
+  @ </tr>
+  @ <tr>
+  @   <td>&nbsp;
+  @   <td><input type="submit" name="edit" value="Apply">
+  @       <input type="submit" name="cancel" value="Cancel">
+  @ </tr>
+  @ </table>
+  @ <hr>
+  @ <h1>Instructions</h1>
+  @ 
+  @ <p>The "Routing" field consists of zero or more lines where each
+  @ line is an "action" followed by an "argument".  Available actions:
+  @ <ul>
+  @ <li><p><b>forward</b> <i>email-address</i>
+  @ <p>Forward the message to <i>email-address</i>.
+  @ <li><p><b>mbox</b> <i>login-name</i>
+  @ <p>Store the message in the local mailbox for the user
+  @ with USER.LOGIN=<i>login-name</i>.
+  @ </ul>
+  @ 
+  @ <p>To delete a route &rarr; erase all text from the "Routing" field then
+  @ press the "Apply" button.
+  style_footer();
 }
 
 #if LOCAL_INTERFACE
