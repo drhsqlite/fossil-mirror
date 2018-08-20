@@ -187,7 +187,7 @@ span.wikiTagCancelled {
   text-decoration: line-through;
 }
 div.columns {
-  padding: 2em;
+  padding: 0 2em 0 2em;
   max-width: 1000px;
 }
 div.columns ul {
@@ -354,7 +354,6 @@ td.usetupListCon {
   text-align: left
 }
 div.ueditCapBox {
-  float: left;
   margin-right: 20px;
   margin-bottom: 20px;
 }
@@ -721,4 +720,7 @@ div.forumObs {
 }
 .capsumWrite {
   background-color: #ffb;
+}
+label {
+  white-space: nowrap;
 }
