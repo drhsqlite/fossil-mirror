@@ -809,8 +809,8 @@ void setup_smtp_route(void){
   char *zEAddr = PT("eaddr");         /* new email address */
   char *zEPolicy = PT("epolicy");     /* new routing policy */
   char *zOAddr = PT("oaddr");         /* original email address */
-  char *zErr;
-  int iErr;
+  char *zErr = 0;
+  int iErr = 0;
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);

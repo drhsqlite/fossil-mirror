@@ -123,7 +123,6 @@ void page_dir(void){
   char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
-  int cnt, i;
   char *zPrefix;
   Stmt q;
   const char *zCI = P("ci");
@@ -270,7 +269,6 @@ void page_dir(void){
   ** directory.
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
-  cnt = db_int(0, "SELECT count(*) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
   @ <div class="columns" style="column-width: %d(mxLen)ex;">
