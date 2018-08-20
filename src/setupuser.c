@@ -461,7 +461,7 @@ void user_edit(void){
     @ <input type="hidden" name="pw" value="*">
   }
   @ <input type="hidden" name="referer" value="%h(cgi_referer("setup_ulist"))">
-  @ <table>
+  @ <table width="100%%">
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
   if( uid ){
@@ -484,85 +484,81 @@ void user_edit(void){
   @ </tr>
   @ <tr>
   @   <td class="usetupEditLabel">Capabilities:</td>
-  @   <td>
+  @   <td width="100%%">
 #define B(x) inherit[x]
-  @ <table border=0><tr><td valign="top">
+  @ <div class="columns" style="column-width:13em;">
+  @ <ul style="list-style-type: none;">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oa['s']) />
-    @  Setup%s(B('s'))</label><br />
+    @  <li><label><input type="checkbox" name="as"%s(oa['s']) />
+    @  Setup%s(B('s'))</label>
   }
-  @  <label><input type="checkbox" name="aa"%s(oa['a']) />
-  @  Admin%s(B('a'))</label><br />
-  @  <label><input type="checkbox" name="au"%s(oa['u']) />
-  @  Reader%s(B('u'))</label><br>
-  @  <label><input type="checkbox" name="av"%s(oa['v']) />
-  @  Developer%s(B('v'))</label><br />
-  @  <label><input type="checkbox" name="ad"%s(oa['d']) />
-  @  Delete%s(B('d'))</label><br />
-  @  <label><input type="checkbox" name="ae"%s(oa['e']) />
-  @  View-PII%s(B('e'))</label><br />
-  @  <label><input type="checkbox" name="ap"%s(oa['p']) />
-  @  Password%s(B('p'))</label><br />
-  @  <label><input type="checkbox" name="ai"%s(oa['i']) />
-  @  Check-In%s(B('i'))</label><br />
-  @  <label><input type="checkbox" name="ao"%s(oa['o']) />
-  @  Check-Out%s(B('o'))</label><br />
-  @  <label><input type="checkbox" name="ah"%s(oa['h']) />
-  @  Hyperlinks%s(B('h'))</label><br />
-  @  <label><input type="checkbox" name="ab"%s(oa['b']) />
-  @  Attachments%s(B('b'))</label><br>
-  @  <label><input type="checkbox" name="ag"%s(oa['g']) />
-  @  Clone%s(B('g'))</label><br />
-
-  @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="aj"%s(oa['j']) />
-  @  Read Wiki%s(B('j'))</label><br>
-  @  <label><input type="checkbox" name="af"%s(oa['f']) />
-  @  New Wiki%s(B('f'))</label><br />
-  @  <label><input type="checkbox" name="am"%s(oa['m']) />
-  @  Append Wiki%s(B('m'))</label><br />
-  @  <label><input type="checkbox" name="ak"%s(oa['k']) />
-  @  Write Wiki%s(B('k'))</label><br />
-  @  <label><input type="checkbox" name="al"%s(oa['l']) />
-  @  Moderate Wiki%s(B('l'))</label><br />
-  @  <label><input type="checkbox" name="ar"%s(oa['r']) />
-  @  Read Ticket%s(B('r'))</label><br />
-  @  <label><input type="checkbox" name="an"%s(oa['n']) />
-  @  New Tickets%s(B('n'))</label><br />
-  @  <label><input type="checkbox" name="ac"%s(oa['c']) />
-  @  Append To Ticket%s(B('c'))</label><br>
-  @  <label><input type="checkbox" name="aw"%s(oa['w']) />
-  @  Write Tickets%s(B('w'))</label><br />
-  @  <label><input type="checkbox" name="aq"%s(oa['q']) />
-  @  Moderate Tickets%s(B('q'))</label><br>
-  @  <label><input type="checkbox" name="at"%s(oa['t']) />
-  @  Ticket Report%s(B('t'))</label><br />
-  @  <label><input type="checkbox" name="ax"%s(oa['x']) />
+  @  <li><label><input type="checkbox" name="aa"%s(oa['a']) />
+  @  Admin%s(B('a'))</label>
+  @  <li><label><input type="checkbox" name="au"%s(oa['u']) />
+  @  Reader%s(B('u'))</label>
+  @  <li><label><input type="checkbox" name="av"%s(oa['v']) />
+  @  Developer%s(B('v'))</label>
+  @  <li><label><input type="checkbox" name="ad"%s(oa['d']) />
+  @  Delete%s(B('d'))</label>
+  @  <li><label><input type="checkbox" name="ae"%s(oa['e']) />
+  @  View-PII%s(B('e'))</label>
+  @  <li><label><input type="checkbox" name="ap"%s(oa['p']) />
+  @  Password%s(B('p'))</label>
+  @  <li><label><input type="checkbox" name="ai"%s(oa['i']) />
+  @  Check-In%s(B('i'))</label>
+  @  <li><label><input type="checkbox" name="ao"%s(oa['o']) />
+  @  Check-Out%s(B('o'))</label>
+  @  <li><label><input type="checkbox" name="ah"%s(oa['h']) />
+  @  Hyperlinks%s(B('h'))</label>
+  @  <li><label><input type="checkbox" name="ab"%s(oa['b']) />
+  @  Attachments%s(B('b'))</label>
+  @  <li><label><input type="checkbox" name="ag"%s(oa['g']) />
+  @  Clone%s(B('g'))</label>
+  @  <li><label><input type="checkbox" name="aj"%s(oa['j']) />
+  @  Read Wiki%s(B('j'))</label>
+  @  <li><label><input type="checkbox" name="af"%s(oa['f']) />
+  @  New Wiki%s(B('f'))</label>
+  @  <li><label><input type="checkbox" name="am"%s(oa['m']) />
+  @  Append Wiki%s(B('m'))</label>
+  @  <li><label><input type="checkbox" name="ak"%s(oa['k']) />
+  @  Write Wiki%s(B('k'))</label>
+  @  <li><label><input type="checkbox" name="al"%s(oa['l']) />
+  @  Moderate Wiki%s(B('l'))</label>
+  @  <li><label><input type="checkbox" name="ar"%s(oa['r']) />
+  @  Read Ticket%s(B('r'))</label>
+  @  <li><label><input type="checkbox" name="an"%s(oa['n']) />
+  @  New Tickets%s(B('n'))</label>
+  @  <li><label><input type="checkbox" name="ac"%s(oa['c']) />
+  @  Append To Ticket%s(B('c'))</label>
+  @  <li><label><input type="checkbox" name="aw"%s(oa['w']) />
+  @  Write Tickets%s(B('w'))</label>
+  @  <li><label><input type="checkbox" name="aq"%s(oa['q']) />
+  @  Moderate Tickets%s(B('q'))</label>
+  @  <li><label><input type="checkbox" name="at"%s(oa['t']) />
+  @  Ticket Report%s(B('t'))</label>
+  @  <li><label><input type="checkbox" name="ax"%s(oa['x']) />
   @  Private%s(B('x'))</label>
-
-  @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ay"%s(oa['y']) />
-  @  Write Unversioned%s(B('y'))</label><br />
-  @  <label><input type="checkbox" name="az"%s(oa['z']) />
-  @  Download Zip%s(B('z'))</label><br />
-  @  <label><input type="checkbox" name="a2"%s(oa['2']) />
-  @  Read Forum%s(B('2'))</label><br />
-  @  <label><input type="checkbox" name="a3"%s(oa['3']) />
-  @  Write Forum%s(B('3'))</label><br />
-  @  <label><input type="checkbox" name="a4"%s(oa['4']) />
-  @  WriteTrusted Forum%s(B('4'))</label><br>
-  @  <label><input type="checkbox" name="a5"%s(oa['5']) />
-  @  Moderate Forum%s(B('5'))</label><br>
-  @  <label><input type="checkbox" name="a6"%s(oa['6']) />
-  @  Supervise Forum%s(B('6'))</label><br>
-  @  <label><input type="checkbox" name="a7"%s(oa['7']) />
-  @  Email Alerts%s(B('7'))</label><br>
-  @  <label><input type="checkbox" name="aA"%s(oa['A']) />
-  @  Send Announcements%s(B('A'))</label><br>
-  @  <label><input type="checkbox" name="aD"%s(oa['D']) />
+  @  <li><label><input type="checkbox" name="ay"%s(oa['y']) />
+  @  Write Unversioned%s(B('y'))</label>
+  @  <li><label><input type="checkbox" name="az"%s(oa['z']) />
+  @  Download Zip%s(B('z'))</label>
+  @  <li><label><input type="checkbox" name="a2"%s(oa['2']) />
+  @  Read Forum%s(B('2'))</label>
+  @  <li><label><input type="checkbox" name="a3"%s(oa['3']) />
+  @  Write Forum%s(B('3'))</label>
+  @  <li><label><input type="checkbox" name="a4"%s(oa['4']) />
+  @  WriteTrusted Forum%s(B('4'))</label>
+  @  <li><label><input type="checkbox" name="a5"%s(oa['5']) />
+  @  Moderate Forum%s(B('5'))</label>
+  @  <li><label><input type="checkbox" name="a6"%s(oa['6']) />
+  @  Supervise Forum%s(B('6'))</label>
+  @  <li><label><input type="checkbox" name="a7"%s(oa['7']) />
+  @  Email Alerts%s(B('7'))</label>
+  @  <li><label><input type="checkbox" name="aA"%s(oa['A']) />
+  @  Send Announcements%s(B('A'))</label>
+  @  <li><label><input type="checkbox" name="aD"%s(oa['D']) />
   @  Enable Debug%s(B('D'))</label>
-  @ </td></tr>
-  @ </table>
+  @ </ul></div>
   @   </td>
   @ </tr>
   @ <tr>
@@ -605,7 +601,8 @@ void user_edit(void){
   @ </div></form>
   @ </div>
   style_load_one_js_file("useredit.js");
-  @ <h2>Privileges And Capabilities:</h2>
+  @ <hr>
+  @ <h1>Notes On Privileges And Capabilities:</h1>
   @ <ul>
   if( higherUser ){
     @ <li><p class="missingPriv">
