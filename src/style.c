@@ -374,6 +374,7 @@ static char zDfltHeader[] =
 @ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" \
 @  content="default-src 'self' data: 'unsafe-inline'" />
+@ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
 @  href="$home/timeline.rss" />

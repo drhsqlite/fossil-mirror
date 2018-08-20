@@ -1,5 +1,5 @@
-C Add\sautomatic\scolumnation\sof\sthe\scapabilities\sin\sthe\s/setup_uedit\sscreen.
-D 2018-08-20T17:51:36.913
+C Enable\sresponsive\sdesign\sby\sdefault\son\sall\sskins.
+D 2018-08-20T18:04:26.032
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,10 +391,10 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt 720093d7f53b6ffc28a17105d59d0f2cd666bc3cefbd65ad1d41cc8589974af9
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 1bdd3bc3ca455c0695a90252f3d68d7d20428c440b26f98ee052b8d67cff2800
+F skins/default/css.txt daad856b521d414d8e4d62815ffff4097074f32ad1c3b95e20da9161b780e9bd
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
-F skins/default/header.txt fab18caa89d1c07c293330e3c90e3905ec162f30a44515f0ba6fea54fba785e5
+F skins/default/header.txt 04e7e5b1fd362db83176d0e7439150e82c8619bcb5bc78abf68fdc5a9bcb160d
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -413,7 +413,7 @@ F skins/original/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/original/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/original/header.txt 125c69e193a1d3648f458421dea9aba5f1cebdced9ddc899db6386d3ef61e0be
 F skins/plain_gray/css.txt a1a70c6c0fadd1ccd0f47c953c4ecb90ec66c355
-F skins/plain_gray/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
+F skins/plain_gray/details.txt cb5c331f05a6a2f242eb14ea2bc6c48d6a32cf197f12d6aed0b4031f45aa745e
 F skins/plain_gray/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
 F skins/plain_gray/header.txt 2fa4da404e8086d4de59c71e1e803766bd00d772c6e0d8b2bd7b108521c1f07b
 F skins/rounded1/css.txt 280f19dfec8424ac18ab6cc6c55532dfb7d533f6
@@ -567,7 +567,7 @@ F src/sqlite3.h 3d1bf136c00be85bd971bd3881f6f6eebb12b8bde5d13a29a21e95c4c9664c5c
 F src/stash.c 8f0bc283ba1099458e48ecd4c059a85bef34aef02066d972f61c165f2c47177b
 F src/stat.c 45d6082e23bd38df710e910c925c8cdb8e69417d6d7614b8a753207ade718035
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 7d807cdc0881dbb2af36d296e7ebd2ed2bebe3bac1ef407c39a84f964270473b
+F src/style.c 3ddb75727f053fed8e43b62c2ce7ac1b33b7f631e560d78d73a2dec9734c3aaa
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 50698a3c277ae7cb2ad55736a64404785fb0f8f3591c92f43048731fdaeec866
-R 9b08aabefdaf0dffeb10bb53262ad2c2
+P 4f4956f831cbad204258d715d269b22c9137fa58e8ad3f8abee1a5222bbb6486
+R bf243944d3b15e4e82a5a66c4b0fb075
 U drh
-Z e1bcbef4d444d9cfeb709e63e053675e
+Z af1ef0f671cd6e908074996ee70aaf1b
