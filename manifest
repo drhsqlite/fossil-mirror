@@ -1,5 +1,5 @@
-C For\stimeline\sgraphs\son\snarrow\sscreens,\sset\sthe\srail\spitch\sto\sits\sminimum\svalue\nto\sconserve\shorizontal\sspace.
-D 2018-08-20T19:30:31.844
+C Add\s10%\smore\shorizontal\sspace\sin\scolumns\sof\sthe\sfile\sbrowser\s/dir\spage.
+D 2018-08-20T23:36:50.229
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt 720093d7f53b6ffc28a17105d59d0f2cd666bc3cefbd65ad1d41cc8589974af9
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt daad856b521d414d8e4d62815ffff4097074f32ad1c3b95e20da9161b780e9bd
+F skins/default/css.txt a5e9d50d0225b4f592df3fcdcd1d4e04278631577aec1c188ee076c63a92fd93
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 04e7e5b1fd362db83176d0e7439150e82c8619bcb5bc78abf68fdc5a9bcb160d
@@ -434,7 +434,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
 F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
-F src/browse.c 549276a3e2299d79a68caf23c100203161d8c6970eda1840bf230d2e11dbe9f3
+F src/browse.c 3674d616727d22e14f4cfd1713458f5f289b32168e7232e2e74cf53bb181bf1b
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8fc7c1b1bb7ad597ae77f67dcdb55e3f3f6933609b2cdab7112d1f7f34d9ea7b
-R 96912840da2b35c986e87b2564657e71
+P e63da90deeca0c64597699a56614bfef694afeb3c3c1c4df7b3cc0a3b7a39af7
+R beab6e8887fda61c8fa291259612ea7b
 U drh
-Z 80d77a3d6c29e2a93a60d8160ac5dd29
+Z 2b62b0a788fb13476f8051d6024024ce

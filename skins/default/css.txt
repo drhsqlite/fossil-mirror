@@ -84,7 +84,7 @@ hr {
     background:#eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
     border:1px solid #eaeaea;
     border-radius:5px;
-    overflow: auto;
+    overflow-x: auto;
     white-space: nowrap;
 }
 

@@ -271,7 +271,7 @@ void page_dir(void){
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
-  @ <div class="columns" style="column-width: %d(mxLen)ex;">
+  @ <div class="columns" style="column-width: %d(mxLen+(mxLen+9)/10)ex;">
   @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN;
