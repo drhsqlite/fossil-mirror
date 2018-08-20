@@ -1,5 +1,5 @@
-C Fix\sthe\s/setup_smtp\spage\sso\sthat\sit\sedits\sthe\srouting\stable\ssensibly.
-D 2018-08-17T15:38:43.204
+C Simple\schanges\sto\sthe\sdefault\sCSS\sand\sHeader\sthat\sseem\sto\shelp\sFossil\swork\nbetter\son\smobile\sby\savoiding\smenu\swraps.
+D 2018-08-20T16:06:04.897
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,10 +391,10 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt 720093d7f53b6ffc28a17105d59d0f2cd666bc3cefbd65ad1d41cc8589974af9
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt fc48018f2e87f3f7d868154400b50a5cfb5fcafab81b93b16af3786722e096e4
+F skins/default/css.txt 1bdd3bc3ca455c0695a90252f3d68d7d20428c440b26f98ee052b8d67cff2800
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
-F skins/default/header.txt 04e7e5b1fd362db83176d0e7439150e82c8619bcb5bc78abf68fdc5a9bcb160d
+F skins/default/header.txt fab18caa89d1c07c293330e3c90e3905ec162f30a44515f0ba6fea54fba785e5
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -862,7 +862,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ca732777c4a0c1655da9bed0bc544c1d5fd1f560a96128c7446e7afe6d769091
-R b97900b95a36dc8d96b67f55269930e3
+P 5416287d18f9486096bd318fcbd0c6f8848ec7710c53a376a595a96783fda534
+R f6604999d311d4c8b2c3b7491d8767f1
+T *branch * mobile
+T *sym-mobile *
+T -sym-trunk *
 U drh
-Z 58a02b574af0a8ec5d9c0665cd24190c
+Z 7cdc605eaf1e1bf449907c16a3731228

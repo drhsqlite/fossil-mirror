@@ -1,6 +1,24 @@
+/* Add the "mobileonly" class to any elements that should be visible
+** on narrow-screen mobile devices only */
+@media screen and (min-width: 600px){
+  /* Settings for wide desktop screens */
+  .mobileonly {display: none;}
+}
+/* Add the "desktoponly" class to any elements that should be visible
+** on desktops with at least 600 pixels of horizontal space. */
+@media screen and (max-width: 600px){
+  /* Settings for narrow mobile screens */
+  .desktoponly {display: none;}
+}
+/* Add the "wideonly" class to any elements that should be visible
+** on wide-screen desktops with  */
+@media screen and (max-width: 800px){
+  /* Settings for screens that are less than 800px wide */
+  .wideonly {display: none;}
+}
+
 body {
     margin: 0 auto;
-    min-width: 800px;
     padding: 0px 20px;
     background-color: white;
     font-family: sans-serif;
@@ -85,6 +103,8 @@ hr {
     background:#eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
     border:1px solid #eaeaea;
     border-radius:5px;
+    overflow: auto;
+    white-space: nowrap;
 }
 
 .mainmenu a {
@@ -201,4 +221,10 @@ div.timelineDate {
 }
 span.submenuctrl, span.submenuctrl input, select.submenuctrl {
   color: #777;
+}
+span.submenuctrl {
+  white-space: nowrap;
+}
+div.submenu label {
+  white-space: nowrap;
 }
