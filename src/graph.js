@@ -109,13 +109,17 @@ function TimelineGraph(tx){
     wLine = elems.line_warp;
   
     var minRailPitch = Math.ceil((node.w+line.w)/2 + mArrow.w + 1);
-    if( tx.iRailPitch>0 ){
-      railPitch = tx.iRailPitch;
+    if( window.innerWidth<400 ){
+      railPitch = minRailPitch;
     }else{
-      railPitch = elems.rail.w;
-      railPitch -= Math.floor((tx.nrail-1)*(railPitch-minRailPitch)/21);
+      if( tx.iRailPitch>0 ){
+        railPitch = tx.iRailPitch;
+      }else{
+        railPitch = elems.rail.w;
+        railPitch -= Math.floor((tx.nrail-1)*(railPitch-minRailPitch)/21);
+      }
+      railPitch = Math.max(railPitch, minRailPitch);
     }
-    railPitch = Math.max(railPitch, minRailPitch);
   
     if( tx.nomo ){
       mergeOffset = 0;
