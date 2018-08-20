@@ -123,7 +123,6 @@ void page_dir(void){
   char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
-  int nCol, nRow;
   int cnt, i;
   char *zPrefix;
   Stmt q;
@@ -273,20 +272,11 @@ void page_dir(void){
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   cnt = db_int(0, "SELECT count(*) FROM localfiles /*scan*/");
   if( mxLen<12 ) mxLen = 12;
-  nCol = 100/mxLen;
-  if( nCol<1 ) nCol = 1;
-  if( nCol>5 ) nCol = 5;
-  nRow = (cnt+nCol-1)/nCol;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
-  @ <table class="browser"><tr><td class="browser"><ul class="browser">
-  i = 0;
+  @ <div class="columns" style="column-width: %d(mxLen)ex;">
+  @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN;
-    if( i==nRow ){
-      @ </ul></td><td class="browser"><ul class="browser">
-      i = 0;
-    }
-    i++;
     zFN = db_column_text(&q, 0);
     if( zFN[0]=='/' ){
       zFN++;
@@ -304,7 +294,7 @@ void page_dir(void){
   }
   db_finalize(&q);
   manifest_destroy(pM);
-  @ </ul></td></tr></table>
+  @ </ul></div>
 
   /* If the directory contains a readme file, then display its content below
   ** the list of files

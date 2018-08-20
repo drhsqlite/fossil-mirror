@@ -1,5 +1,5 @@
-C Simple\schanges\sto\sthe\sdefault\sCSS\sand\sHeader\sthat\sseem\sto\shelp\sFossil\swork\nbetter\son\smobile\sby\savoiding\smenu\swraps.
-D 2018-08-20T16:06:04.897
+C On\sthe\sflat\s/dir\swebpage,\sautomatically\sadjust\sthe\snumber\sof\scolumns\sbased\non\sthe\sscreen\swidth.
+D 2018-08-20T17:31:51.744
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
 F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
-F src/browse.c 10353b275aa4a217995268a7cc8846ebf735f84cd6c4f7112a000fae0a9fe09c
+F src/browse.c e25b2abe7a1d85581b83f7c2fddec6125016bc2294def0a23b0a195b5200c5ff
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
@@ -456,7 +456,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 0c00b51a5d7d8e87229b3aee7dce06185a7edabe192a051430421e73ee470b47
-F src/default_css.txt 6d167b97a147ed264a6fb9524391837b8d158df258a70674719af7c722e107a9
+F src/default_css.txt 7ae00a75c6ddc004f24828baa470d4bf22f6b4d07f82a14d8bfe795f7cfa6514
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -862,10 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5416287d18f9486096bd318fcbd0c6f8848ec7710c53a376a595a96783fda534
-R f6604999d311d4c8b2c3b7491d8767f1
-T *branch * mobile
-T *sym-mobile *
-T -sym-trunk *
+P 5fb040810e8f8ee47cbad0b80999a23442e748c9ccaf0a0a3e9d94cfe947732c
+R 2faf9a94c09b45ac007c0274ee5c5338
 U drh
-Z 7cdc605eaf1e1bf449907c16a3731228
+Z 62fecb4771dc6ab76154bf5657328239

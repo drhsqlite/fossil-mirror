@@ -186,13 +186,16 @@ span.infoTag {
 span.wikiTagCancelled {
   text-decoration: line-through;
 }
-table.browser {
-  width: 100%;
-  border: 0;
+div.columns {
+  padding: 2em;
+  max-width: 1000px;
 }
-td.browser {
-  width: 24%;
-  vertical-align: top;
+div.columns ul {
+  margin: 0;
+  padding: 0;
+}
+div.columns ul li:first-child {
+  margin-top:0px;
 }
 .filetree {
   margin: 1em 0;
