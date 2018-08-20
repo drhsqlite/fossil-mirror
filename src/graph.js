@@ -378,6 +378,18 @@ function TimelineGraph(tx){
   for(i=0; i<lx.length; i++){
     if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
   }
+  if( window.innerWidth<400 ){
+    /* On narrow displays, shift the date from the first column to the
+    ** third column, to make the first column narrower */
+    lx = topObj.getElementsByClassName('timelineDateRow');
+    for(i=0; i<lx.length; i++){
+      var rx = lx[i];
+      if( rx.getAttribute('data-reordered') ) break;
+      rx.setAttribute('data-reordered',1);
+      rx.appendChild(rx.firstChild);
+      rx.insertBefore(rx.childNodes[1],rx.firstChild);
+    }
+  }
 }
   
 /* Look for all timeline-data-NN objects.  Load each one and draw

@@ -358,7 +358,7 @@ void www_print_timeline(
     if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
-        @ <tr><td>
+        @ <tr class="timelineDateRow"><td>
         @   <div class="divider timelineDate">%s(zPrevDate)</div>
         @ </td><td></td><td></td></tr>
       }
