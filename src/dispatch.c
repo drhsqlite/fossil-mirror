@@ -351,132 +351,68 @@ void help_page(void){
       }
     }
   }else{
-    int i, j, n;
+    int i;
 
     style_header("Help");
 
     @ <a name='commands'></a>
     @ <h1>Available commands:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
-      if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
-      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
-      j++;
-    }
-    n = (j+5)/6;
-    for(i=j=0; i<MX_COMMAND; i++){
+    @ <div class="columns" style="column-width: 12ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       const char *zBoldOn  = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"<b>" :"";
       const char *zBoldOff = aCommand[i].eCmdFlags&CMDFLAG_1ST_TIER?"</b>":"";
       if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
-      }
       @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a></li>
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
-      }
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
+    @ </ui></div>
 
     @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
+    @ <div class="columns" style="column-width: 18ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( '/'!=*z ) continue;
-      j++;
-    }
-    n = (j+4)/5;
-    for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
-      if( '/'!=*z ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
-      }
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
         @ <li>%s(z+1)</li>
       }
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
-      }
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
+    @ </ul></div>
 
     @ <a name='unsupported'></a>
     @ <h1>Unsupported commands:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
+    @ <div class="columns" style="column-width: 20ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( strncmp(z,"test",4)!=0 ) continue;
-      j++;
-    }
-    n = (j+3)/4;
-    for(i=j=0; i<MX_COMMAND; i++){
-      const char *z = aCommand[i].zName;
-      if( strncmp(z,"test",4)!=0 ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
-      }
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
-      }
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
+    @ </ul></div>
 
     @ <a name='settings'></a>
     @ <h1>Settings:</h1>
-    @ <table border="0"><tr>
-    for(i=j=0; i<MX_COMMAND; i++){
-      if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
-      j++;
-    }
-    n = (j+4)/5;
-    for(i=j=0; i<MX_COMMAND; i++){
+    @ <div class="columns" style="column-width: 20ex;">
+    @ <ul>
+    for(i=0; i<MX_COMMAND; i++){
       const char *z = aCommand[i].zName;
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)==0 ) continue;
-      if( j==0 ){
-        @ <td valign="top"><ul>
-      }
       if( aCommand[i].zHelp[0] ){
         @ <li><a href="%R/help?cmd=%s(z)">%s(z)</a></li>
       }else{
         @ <li>%s(z)</li>
       }
-      j++;
-      if( j>=n ){
-        @ </ul></td>
-        j = 0;
-      }
     }
-    if( j>0 ){
-      @ </ul></td>
-    }
-    @ </tr></table>
+    @ </ul></div>
 
   }
   style_footer();

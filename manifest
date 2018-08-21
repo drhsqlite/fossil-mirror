@@ -1,5 +1,5 @@
-C Add\s10%\smore\shorizontal\sspace\sin\scolumns\sof\sthe\sfile\sbrowser\s/dir\spage.
-D 2018-08-20T23:36:50.229
+C Dynamic\snumber\sof\scolumns\son\sthe\s/help\spage,\sbased\son\sscreen\swidth
+D 2018-08-21T01:33:38.520
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -463,7 +463,7 @@ F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
 F src/diff.c 5610fd7ea0e5ef01c982841bbe8d9f8a5651aa41613d63968f8c301066d7198b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
-F src/dispatch.c 15e80d7d8df0f6988cf702de068a06af7690305f36a8fe318c9af29c0db982db
+F src/dispatch.c 129a4751ee83520dd7c2c0c503a457b56be73c634d54460c7332829492e7649f
 F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
 F src/email.c dba99958ae7c49ee1c7bea87866b6cd6a1949468754a5eeb0cc562b337a0e642
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e63da90deeca0c64597699a56614bfef694afeb3c3c1c4df7b3cc0a3b7a39af7
-R beab6e8887fda61c8fa291259612ea7b
+P 0acb670e53d623410f35132b3f3a04e3ecbcdc19ef9152472f957713b83e1d61
+R 42db3bb5db8366bb0c50545189f28e70
 U drh
-Z 2b62b0a788fb13476f8051d6024024ce
+Z 5a8a4222e4067a71489b43670cbd6242
