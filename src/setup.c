@@ -1433,6 +1433,7 @@ void page_admin_log(){
     @ <td>%h(zMessage)</td>
     @ </tr>
   }
+  db_finalize(&stLog);
   @ </tbody></table>
   if( counter>ofst+limit ){
     @ <p><a href="admin_log?n=%d(limit)&x=%d(limit+ofst)">[Older]</a></p>

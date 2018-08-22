@@ -1,5 +1,5 @@
-C Dynamic\snumber\sof\scolumns\son\sthe\s/help\spage,\sbased\son\sscreen\swidth
-D 2018-08-21T01:33:38.520
+C Fix\sa\sunfinalized\squery\sin\sthe\s/admin_log\spage.
+D 2018-08-22T19:43:07.436
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c a8ba14e51a2490a4b66bfb6fe2ce6d05cdd64a22830dff98c1128cb989ca0a42
-F src/setup.c 771ae421c5a1061a830a4c24366272df2e5b569b933413fa9a511dae29dfd7f6
+F src/setup.c 25f03f1dcfec148976c0be2965093f4955cfb6c9415fbfdda27f1674fe213432
 F src/setupuser.c 9b651cce6ee54b460f886bb76162fb947b186d5271ff0c6199b661135fce3405
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0acb670e53d623410f35132b3f3a04e3ecbcdc19ef9152472f957713b83e1d61
-R 42db3bb5db8366bb0c50545189f28e70
+P 1d495e89e24896deafa222b3c9429c439bb9dd6c222fedb56f94dfcd54b74553
+R 33ff88a92438866ad049db99b6f7f3ef
 U drh
-Z 5a8a4222e4067a71489b43670cbd6242
+Z d2f0cd0a03eee2577e928be5fc20cd44
