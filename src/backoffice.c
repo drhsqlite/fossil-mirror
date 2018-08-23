@@ -383,6 +383,7 @@ void backoffice_check_if_needed(void){
   if( backofficeDb ) return;
   if( g.zRepositoryName==0 ) return;
   if( g.db==0 ) return;
+  if( !db_table_exists("repository","config") ) return;
   tmNow = time(0);
   backofficeReadLease(&x);
   if( x.tmNext>=tmNow && backofficeProcessExists(x.idNext) ){
