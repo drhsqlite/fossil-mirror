@@ -1,5 +1,5 @@
-C Fix\sa\sunfinalized\squery\sin\sthe\s/admin_log\spage.
-D 2018-08-22T19:43:07.436
+C Add\sthe\smeta-viewport\sheader\sto\sthe\srepository\slist\spage.
+D 2018-08-23T15:07:35.810
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 9f878979565d0133ec7ba233a2bd35a548b7a4a62541e82ceed8607ec6fd116f
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c cc92305b016331e69fcc1174ac9e370d6f7607c638c5c1934a2ecdb31da7b223
+F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
 F src/main.mk c3dbc8baaf6a2a736d78b38655c5bdf128b5280ab22a3fbd37913bc16f56241b
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d495e89e24896deafa222b3c9429c439bb9dd6c222fedb56f94dfcd54b74553
-R 33ff88a92438866ad049db99b6f7f3ef
+P 6022ad49c483f5e9526b6499306fd77eee88491aa34327b773136f98e5d58a84
+R bde6d54d2de45e445e6ca4a6c31ea786
 U drh
-Z d2f0cd0a03eee2577e928be5fc20cd44
+Z 8d26a99f49165f4d143f18f9d7b6aa91
