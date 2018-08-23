@@ -10,7 +10,7 @@ options {
                          => {Look for zlib in the given path, automatically, or in the source tree}
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
-    with-legacy-mv-rm=0  => {Enable legacy behavior for mv/rm (skip checkout files)}
+    with-legacy-mv-rm=1  => {Enable legacy behavior for mv/rm (skip checkout files)}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
@@ -93,13 +93,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_vtab_collation() can be found as well. If we can find open() but
-      # not vtab_collation(), then the system SQLite is too old to link against
+      # if sqlite3_keyword_check() can be found as well. If we can find open() but
+      # not keyword_check(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_vtab_collation sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.22.0)"
+        if {![check-function-in-lib sqlite3_keyword_check sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.24.0)"
         }
 
         # Success. Update symbols and return.
@@ -136,8 +136,8 @@ if {[string match *-solaris* [get-define host]]} {
 }
 
 if {[opt-bool fossil-debug]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
     define CFLAGS {-g -O0 -Wall}
+    define-append CFLAGS -DFOSSIL_DEBUG
     msg-result "Debugging support enabled"
 }
 
@@ -169,7 +169,7 @@ if {[opt-bool json]} {
 }
 
 if {[opt-bool with-legacy-mv-rm]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_LEGACY_MV_RM=1
     define FOSSIL_ENABLE_LEGACY_MV_RM
     msg-result "Legacy mv/rm support enabled"
 }
@@ -480,10 +480,12 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
+cc-check-function-in-lib ns_name_uncompress resolv
 cc-check-functions utime
 cc-check-functions usleep
 cc-check-functions strchrnul
 cc-check-functions pledge
+cc-check-functions backtrace
 
 # Check for getloadavg(), and if it doesn't exist, define FOSSIL_OMIT_LOAD_AVERAGE
 if {![cc-check-functions getloadavg]} {
@@ -496,7 +498,6 @@ if {![cc-check-functions getpassphrase]} {
     # Haiku needs this
     cc-check-function-in-lib getpass bsd
 }
-cc-check-function-in-lib dlopen dl
 cc-check-function-in-lib sin m
 
 # Check for the FuseFS library
@@ -507,6 +508,14 @@ if {[opt-bool fusefs]} {
      define-append LIBS -lfuse
      msg-result "FuseFS support enabled"
   }
+}
+
+# Finally, append -ldl to make sure it's the last in the list.
+# The library order matters in case of static linking.
+if {[check-function-in-lib dlopen dl]} {
+    # Some platforms (*BSD) have the dl functions already in libc and no libdl.
+    # In such case we can link directly without -ldl.
+    define-append LIBS [get-define lib_dlopen]
 }
 
 make-template Makefile.in

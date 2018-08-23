@@ -11,14 +11,11 @@
 <li> [./faq.wiki | FAQ]
 <li> [./changes.wiki | Change Log]
 <li> [./hacker-howto.wiki | Hacker How-To]
+<li> [./fossil-v-git.wiki | Fossil vs. Git]
 <li> [./hints.wiki | Tip &amp; Hints]
 <li> [./permutedindex.html | Documentation Index]
-<li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
-<li> Mailing list
-     <ul>
-     <li> [http://mailinglists.sqlite.org/cgi-bin/mailman/listinfo/fossil-users | sign-up]
-     <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
-     </ul>
+<li> [https://fossil-scm.org/forum | Forum ]
+<li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | Mailing list archives]
 </ul>
 <img src="fossil3.gif" align="center">
 </div>
@@ -26,14 +23,17 @@
 <p>Fossil is a simple, high-reliability, distributed software configuration
 management system with these advanced features:
 
-  1.  <b>Integrated Bug Tracking, Wiki, and Technotes</b> -
+  1.  <b>Integrated Bug Tracking, Wiki, Forum, and Technotes</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
       Fossil also supports [./bugtheory.wiki | bug tracking],
-      [./wikitheory.wiki | wiki], and [./event.wiki | technotes].
+      [./wikitheory.wiki | wiki], [./forum.wiki | forum], and
+      [./event.wiki | technotes].
 
   2.  <b>Built-in Web Interface</b> -
-      Fossil has a built-in and intuitive [./webui.wiki | web interface]
+      Fossil has a built-in,
+      [https://fossil-scm.org/skins/index.html | themeable],
+      and intuitive [./webui.wiki | web interface]
       with a rich variety of information pages
       ([./webpage-ex.md|examples]) promoting situational awareness.
 
@@ -95,10 +95,6 @@ management system with these advanced features:
   *  [./quickstart.wiki | Quick Start] guide to using Fossil.
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at Fossil.
   *  [./build.wiki | Compiling and Installing]
-  *  "Fuel" is cross-platform GUI front-end for Fossil
-     written in Qt.  [http://fuelscm.org/].
-     Fuel is an independent project run by a different group of
-     developers.
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
   *  Fossil uses an [./fileformat.wiki | enduring file format] that is

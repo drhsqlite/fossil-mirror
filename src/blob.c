@@ -297,6 +297,19 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 }
 
 /*
+** Append a single character to the blob
+*/
+void blob_append_char(Blob *pBlob, char c){
+  if( pBlob->nUsed+1 >= pBlob->nAlloc ){
+    pBlob->xRealloc(pBlob, pBlob->nUsed + pBlob->nAlloc + 100);
+    if( pBlob->nUsed + 1 >= pBlob->nAlloc ){
+      blob_panic();
+    }
+  }
+  pBlob->aData[pBlob->nUsed++] = c;    
+}
+
+/*
 ** Copy a blob
 */
 void blob_copy(Blob *pTo, Blob *pFrom){
@@ -311,7 +324,7 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 char *blob_str(Blob *p){
   blob_is_init(p);
   if( p->nUsed==0 ){
-    blob_append(p, "", 1); /* NOTE: Changes nUsed. */
+    blob_append_char(p, 0); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
   if( p->aData[p->nUsed]!=0 ){
@@ -328,7 +341,7 @@ char *blob_str(Blob *p){
 char *blob_sql_text(Blob *p){
   blob_is_init(p);
   if( (p->blobFlags & BLOBFLAG_NotSQL) ){
-    fossil_fatal("Internal error: Use of blob_appendf() to construct SQL text");
+    fossil_panic("use of blob_appendf() to construct SQL text");
   }
   return blob_str(p);
 }
@@ -481,6 +494,13 @@ int blob_extract(Blob *pFrom, int N, Blob *pTo){
 */
 void blob_rewind(Blob *p){
   p->iCursor = 0;
+}
+
+/*
+** Truncate a blob back to zero length
+*/
+void blob_truncate(Blob *p, int sz){
+  if( sz>=0 && sz<p->nUsed ) p->nUsed = sz;
 }
 
 /*
@@ -654,6 +674,16 @@ void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
     blob_append(pTo, &pFrom->aData[pFrom->iCursor], i - pFrom->iCursor);
   }
   pFrom->iCursor = i;
+}
+
+/*
+** Ensure that the text in pBlob ends with '\n'
+*/
+void blob_add_final_newline(Blob *pBlob){
+  if( pBlob->nUsed<=0 ) return;
+  if( pBlob->aData[pBlob->nUsed-1]!='\n' ){
+    blob_append_char(pBlob, '\n');
+  }
 }
 
 /*
@@ -1239,12 +1269,12 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
     }
   }
   if( n>0 && !fossil_isspace(z[n-1]) ){
-    blob_append(pBlob, " ", 1);
+    blob_append_char(pBlob, ' ');
   }
-  if( needEscape ) blob_append(pBlob, &cQuote, 1);
+  if( needEscape ) blob_append_char(pBlob, cQuote);
   if( zIn[0]=='-' ) blob_append(pBlob, "./", 2);
   blob_append(pBlob, zIn, -1);
-  if( needEscape ) blob_append(pBlob, &cQuote, 1);
+  if( needEscape ) blob_append_char(pBlob, cQuote);
 }
 
 /*
@@ -1315,7 +1345,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
       }
     }
     /* Make sure the blob contains two terminating 0-bytes */
-    blob_append(pBlob, "", 1);
+    blob_append_char(pBlob, 0);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_set_dynamic(pBlob, zUtf8);

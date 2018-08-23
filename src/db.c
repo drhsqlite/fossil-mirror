@@ -72,39 +72,23 @@ const struct Stmt empty_Stmt = empty_Stmt_m;
 ** Call this routine when a database error occurs.
 */
 static void db_err(const char *zFormat, ...){
-  static int rcLooping = 0;
   va_list ap;
   char *z;
-  int rc = 1;
-  if( rcLooping ) exit(rcLooping);
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
 #ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     json_err( 0, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
   }
   else
 #endif /* FOSSIL_ENABLE_JSON */
-  if( g.xferPanic ){
+  if( g.xferPanic && g.cgiOutput==1 ){
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
-      cgi_reply();
-  }
-  else if( g.cgiOutput ){
-    g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n<p>%h</p>\n", z);
     cgi_reply();
-  }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
-  free(z);
-  rcLooping = rc;
-  db_force_rollback();
-  fossil_exit(rc);
+  fossil_panic("Database error: %s", z);
 }
 
 /*
@@ -126,6 +110,8 @@ static struct DbLocalData {
   char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
   int nBeforeCommit;        /* Number of entries in azBeforeCommit */
   int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
+  const char *zStartFile;   /* File in which transaction was started */
+  int iStartLine;           /* Line of zStartFile where transaction started */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -134,6 +120,22 @@ static struct DbLocalData {
 void db_delete_on_failure(const char *zFilename){
   assert( db.nDeleteOnFail<count(db.azDeleteOnFail) );
   db.azDeleteOnFail[db.nDeleteOnFail++] = fossil_strdup(zFilename);
+}
+
+/*
+** Return the transaction nesting depth.  0 means we are currently
+** not in a transaction.
+*/
+int db_transaction_nesting_depth(void){
+  return db.nBegin;
+}
+
+/*
+** Return a pointer to a string that is the code point where the
+** current transaction was started.
+*/
+char *db_transaction_start_point(void){
+  return mprintf("%s:%d", db.zStartFile, db.iStartLine);
 }
 
 /*
@@ -154,20 +156,62 @@ static int db_verify_at_commit(void *notUsed){
 }
 
 /*
-** Begin and end a nested transaction
+** Silently add the filename and line number as parameter to each
+** db_begin_transaction call.
 */
-void db_begin_transaction(void){
+#if INTERFACE
+#define db_begin_transaction()    db_begin_transaction_real(__FILE__,__LINE__)
+#define db_begin_write()          db_begin_write_real(__FILE__,__LINE__)
+#define db_commit_transaction()   db_end_transaction(0)
+#define db_rollback_transaction() db_end_transaction(1)
+#endif
+
+/*
+** Begin a nested transaction
+*/
+void db_begin_transaction_real(const char *zStartFile, int iStartLine){
   if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
     db.nPriorChanges = sqlite3_total_changes(g.db);
+    db.doRollback = 0;
+    db.zStartFile = zStartFile;
+    db.iStartLine = iStartLine;
   }
   db.nBegin++;
 }
+/*
+** Begin a new transaction for writing.
+*/
+void db_begin_write_real(const char *zStartFile, int iStartLine){
+  if( db.nBegin==0 ){
+    db_multi_exec("BEGIN IMMEDIATE");
+    sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+    db.nPriorChanges = sqlite3_total_changes(g.db);
+    db.doRollback = 0;
+    db.zStartFile = zStartFile;
+    db.iStartLine = iStartLine;
+  }else{
+    fossil_warning("read txn at %s:%d might cause SQLITE_BUSY "
+       "for the write txn at %s:%d",
+       db.zStartFile, db.iStartLine, zStartFile, iStartLine);
+  }
+  db.nBegin++;
+}
+
+/* End a transaction previously started using db_begin_transaction()
+** or db_begin_write().
+*/
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
-  if( db.nBegin<=0 ) return;
-  if( rollbackFlag ) db.doRollback = 1;
+  if( db.nBegin<=0 ){
+    fossil_warning("Extra call to db_end_transaction");
+    return;
+  }
+  if( rollbackFlag ){
+    db.doRollback = 1;
+    if( g.fSqlTrace ) fossil_trace("-- ROLLBACK by request\n");
+  }
   db.nBegin--;
   if( db.nBegin==0 ){
     int i;
@@ -182,7 +226,11 @@ void db_end_transaction(int rollbackFlag){
       leaf_do_pending_checks();
     }
     for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
-      db.doRollback |= db.aHook[i].xHook();
+      int rc = db.aHook[i].xHook();
+      if( rc ){
+        db.doRollback = 1;
+        if( g.fSqlTrace ) fossil_trace("-- ROLLBACK due to aHook[%d]\n", i);
+      }
     }
     while( db.pAllStmt ){
       db_finalize(db.pAllStmt);
@@ -274,10 +322,13 @@ int db_vprepare(Stmt *pStmt, int flags, const char *zFormat, va_list ap){
     prepFlags = SQLITE_PREPARE_PERSISTENT;
   }
   rc = sqlite3_prepare_v3(g.db, zSql, -1, prepFlags, &pStmt->pStmt, 0);
-  if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)!=0 ){
+  if( rc!=0 && (flags & DB_PREPARE_IGNORE_ERROR)==0 ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
-  pStmt->pNext = pStmt->pPrev = 0;
+  pStmt->pNext = db.pAllStmt;
+  pStmt->pPrev = 0;
+  if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
+  db.pAllStmt = pStmt;
   pStmt->nStep = 0;
   pStmt->rc = rc;
   return rc;
@@ -298,20 +349,41 @@ int db_prepare_ignore_error(Stmt *pStmt, const char *zFormat, ...){
   va_end(ap);
   return rc;
 }
+
+/* This variant of db_prepare() checks to see if the statement has
+** already been prepared, and if it has it becomes a no-op.
+*/
 int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
   int rc = SQLITE_OK;
   if( blob_size(&pStmt->sql)==0 ){
     va_list ap;
     va_start(ap, zFormat);
     rc = db_vprepare(pStmt, DB_PREPARE_PERSISTENT, zFormat, ap);
-    pStmt->pNext = db.pAllStmt;
-    pStmt->pPrev = 0;
-    if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
-    db.pAllStmt = pStmt;
     va_end(ap);
   }
   return rc;
 }
+
+/* Prepare a statement using text placed inside a Blob
+** using blob_append_sql().
+*/
+int db_prepare_blob(Stmt *pStmt, Blob *pSql){
+  int rc;
+  char *zSql;
+  pStmt->sql = *pSql;
+  blob_init(pSql, 0, 0);
+  zSql = blob_sql_text(&pStmt->sql);
+  db.nPrepare++;
+  rc = sqlite3_prepare_v3(g.db, zSql, -1, 0, &pStmt->pStmt, 0);
+  if( rc!=0 ){
+    db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
+  }
+  pStmt->pNext = pStmt->pPrev = 0;
+  pStmt->nStep = 0;
+  pStmt->rc = rc;
+  return rc;
+}
+
 
 /*
 ** Return the index of a bind parameter
@@ -406,11 +478,6 @@ int db_reset(Stmt *pStmt){
 }
 int db_finalize(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
-  blob_reset(&pStmt->sql);
-  rc = sqlite3_finalize(pStmt->pStmt);
-  db_check_result(rc);
-  pStmt->pStmt = 0;
   if( pStmt->pNext ){
     pStmt->pNext->pPrev = pStmt->pPrev;
   }
@@ -421,6 +488,11 @@ int db_finalize(Stmt *pStmt){
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
+  db_stats(pStmt);
+  blob_reset(&pStmt->sql);
+  rc = sqlite3_finalize(pStmt->pStmt);
+  db_check_result(rc);
+  pStmt->pStmt = 0;
   return rc;
 }
 
@@ -430,7 +502,7 @@ int db_finalize(Stmt *pStmt){
 int db_last_insert_rowid(void){
   i64 x = sqlite3_last_insert_rowid(g.db);
   if( x<0 || x>(i64)2147483647 ){
-    fossil_fatal("rowid out of range (0..2147483647)");
+    fossil_panic("rowid out of range (0..2147483647)");
   }
   return (int)x;
 }
@@ -481,6 +553,12 @@ char *db_column_malloc(Stmt *pStmt, int N){
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
   blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
               sqlite3_column_bytes(pStmt->pStmt, N));
+}
+Blob db_column_text_as_blob(Stmt *pStmt, int N){
+  Blob x;
+  blob_init(&x, (char*)sqlite3_column_text(pStmt->pStmt,N),
+            sqlite3_column_bytes(pStmt->pStmt,N));
+  return x;
 }
 
 /*
@@ -877,6 +955,29 @@ void db_fromlocal_function(
   }
 }
 
+/*
+** If the input is a hexadecimal string, convert that string into a BLOB.
+** If the input is not a hexadecimal string, return NULL.
+*/
+void db_hextoblob(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *zIn = sqlite3_value_text(argv[0]);
+  int nIn = sqlite3_value_bytes(argv[0]);
+  unsigned char *zOut;
+  if( zIn==0 ) return;
+  if( nIn&1 ) return;
+  if( !validate16((const char*)zIn, nIn) ) return;
+  zOut = sqlite3_malloc64( nIn/2 + 1 );
+  if( zOut==0 ){
+    sqlite3_result_error_nomem(context);
+    return;
+  }
+  decode16(zIn, zOut, nIn);
+  sqlite3_result_blob(context, zOut, nIn/2, sqlite3_free);
+}
 
 /*
 ** Register the SQL functions that are useful both to the internal
@@ -895,6 +996,14 @@ void db_add_aux_functions(sqlite3 *db){
                           db_tolocal_function, 0, 0);
   sqlite3_create_function(db, "fromLocal", 0, SQLITE_UTF8, 0,
                           db_fromlocal_function, 0, 0);
+  sqlite3_create_function(db, "hextoblob", 1, SQLITE_UTF8, 0,
+                          db_hextoblob, 0, 0);
+  sqlite3_create_function(db, "capunion", 1, SQLITE_UTF8, 0,
+                          0, capability_union_step, capability_union_finalize);
+  sqlite3_create_function(db, "fullcap", 1, SQLITE_UTF8, 0,
+                          capability_fullcap, 0, 0);
+  sqlite3_create_function(db, "find_emailaddr", 1, SQLITE_UTF8, 0,
+                          email_find_emailaddr_func, 0, 0);
 }
 
 #if USE_SEE
@@ -941,7 +1050,7 @@ static void db_save_encryption_key(
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
   if( blobSize>pageSize ){
-    fossil_fatal("key blob too large: %u versus %u", blobSize, pageSize);
+    fossil_panic("key blob too large: %u versus %u", blobSize, pageSize);
   }
   p = fossil_secure_alloc_page(&n);
   assert( p!=NULL );
@@ -975,7 +1084,7 @@ void db_set_saved_encryption_key(
       db_unsave_encryption_key();
     }else{
       if( blobSize>savedKeySize ){
-        fossil_fatal("key blob too large: %u versus %u",
+        fossil_panic("key blob too large: %u versus %u",
                      blobSize, savedKeySize);
       }
       fossil_secure_zero(zSavedKey, savedKeySize);
@@ -1005,7 +1114,7 @@ void db_read_saved_encryption_key_from_process(
   fossil_get_page_size(&pageSize);
   assert( pageSize>0 );
   if( nSize>pageSize ){
-    fossil_fatal("key too large: %u versus %u", nSize, pageSize);
+    fossil_panic("key too large: %u versus %u", nSize, pageSize);
   }
   p = fossil_secure_alloc_page(&n);
   assert( p!=NULL );
@@ -1021,16 +1130,16 @@ void db_read_saved_encryption_key_from_process(
         zSavedKey = p;
         savedKeySize = n;
       }else{
-        fossil_fatal("bad size read, %u out of %u bytes at %p from pid %lu",
+        fossil_panic("bad size read, %u out of %u bytes at %p from pid %lu",
                      nRead, nSize, pAddress, processId);
       }
     }else{
       CloseHandle(hProcess);
-      fossil_fatal("failed read, %u bytes at %p from pid %lu: %lu", nSize,
+      fossil_panic("failed read, %u bytes at %p from pid %lu: %lu", nSize,
                    pAddress, processId, GetLastError());
     }
   }else{
-    fossil_fatal("failed to open pid %lu: %lu", processId, GetLastError());
+    fossil_panic("failed to open pid %lu: %lu", processId, GetLastError());
   }
 }
 #endif /* defined(_WIN32) */
@@ -1094,6 +1203,13 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3 *db;
 
   if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
+  if( strcmp(zDbName, g.nameOfExe)==0 ){
+    extern int sqlite3_appendvfs_init(
+      sqlite3 *, char **, const sqlite3_api_routines *
+    );
+    sqlite3_appendvfs_init(0,0,0);
+    g.zVfsName = "apndvfs";
+  }
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -1169,7 +1285,7 @@ void db_attach(const char *zDbName, const char *zLabel){
 */
 void db_set_main_schemaname(sqlite3 *db, const char *zLabel){
   if( sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, zLabel) ){
-    fossil_fatal("Fossil requires a version of SQLite that supports the "
+    fossil_panic("Fossil requires a version of SQLite that supports the "
                  "SQLITE_DBCONFIG_MAINDBNAME interface.");
   }
 }
@@ -1226,8 +1342,10 @@ void db_close_config(){
     g.dbConfig = 0;
     g.zConfigDbName = 0;
   }else if( g.db && 0==iSlot ){
+    int rc;
     sqlite3_wal_checkpoint(g.db, 0);
-    sqlite3_close(g.db);
+    rc = sqlite3_close(g.db);
+    if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
     g.zConfigDbName = 0;
   }
@@ -1268,7 +1386,7 @@ int db_open_config(int useAttach, int isOptional){
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_fatal("cannot locate home directory - please set the "
+    fossil_panic("cannot locate home directory - please set the "
                  "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
                  "environment variables");
   }
@@ -1278,13 +1396,13 @@ int db_open_config(int useAttach, int isOptional){
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_fatal("cannot locate home directory - please set the "
+    fossil_panic("cannot locate home directory - please set the "
                  "FOSSIL_HOME or HOME environment variables");
   }
 #endif
   if( file_isdir(zHome, ExtFILE)!=1 ){
     if( isOptional ) return 0;
-    fossil_fatal("invalid home directory: %s", zHome);
+    fossil_panic("invalid home directory: %s", zHome);
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
@@ -1295,13 +1413,13 @@ int db_open_config(int useAttach, int isOptional){
   if( file_size(zDbName, ExtFILE)<1024*3 ){
     if( file_access(zHome, W_OK) ){
       if( isOptional ) return 0;
-      fossil_fatal("home directory %s must be writeable", zHome);
+      fossil_panic("home directory %s must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
   if( file_access(zDbName, W_OK) ){
     if( isOptional ) return 0;
-    fossil_fatal("configuration file %s must be writeable", zDbName);
+    fossil_panic("configuration file %s must be writeable", zDbName);
   }
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb");
@@ -1506,23 +1624,25 @@ void db_open_repository(const char *zDbName){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
-      fossil_panic("repository does not exist or"
+      fossil_fatal("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DENIED;
 #endif
-      fossil_panic("read permission denied for repository %s", zDbName);
+      fossil_fatal("read permission denied for repository %s", zDbName);
     }else{
 #ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
 #endif
-      fossil_panic("not a valid repository: %s", zDbName);
+      fossil_fatal("not a valid repository: %s", zDbName);
     }
   }
   g.zRepositoryName = mprintf("%s", zDbName);
   db_open_or_attach(g.zRepositoryName, "repository");
   g.repositoryOpen = 1;
+  sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION,
+                       &g.iRepoDataVers);
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
   g.allowSymlinks = db_get_boolean("allow-symlinks",
                                    db_allow_symlinks_by_default());
@@ -1537,6 +1657,21 @@ void db_open_repository(const char *zDbName){
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+}
+
+/*
+** Return true if there have been any changes to the repository
+** database since it was opened.
+**
+** Changes to "config" and "localdb" and "temp" do not count.
+** This routine only returns true if there have been changes
+** to "repository".
+*/
+int db_repository_has_changed(void){
+  unsigned int v;
+  if( !g.repositoryOpen ) return 0;
+  sqlite3_file_control(g.db, "repository", SQLITE_FCNTL_DATA_VERSION, &v);
+  return g.iRepoDataVers != v;               
 }
 
 /*
@@ -1706,9 +1841,13 @@ void db_close(int reportErrors){
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
-  db_end_transaction(1);
+  if( db.nBegin && reportErrors ){
+    fossil_warning("Transaction started at %s:%d never commits",
+                   db.zStartFile, db.iStartLine);
+    db_end_transaction(1);
+  }
   pStmt = 0;
-  g.dbIgnoreErrors++;  /* Stop "database locked" warnings from PRAGMA optimize */
+  g.dbIgnoreErrors++; /* Stop "database locked" warnings from PRAGMA optimize */
   sqlite3_exec(g.db, "PRAGMA optimize", 0, 0, 0);
   g.dbIgnoreErrors--;
   db_close_config();
@@ -1728,6 +1867,7 @@ void db_close(int reportErrors){
     int rc;
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
+    if( g.fSqlTrace ) fossil_trace("-- sqlite3_close(%d)\n", rc);
     if( rc==SQLITE_BUSY && reportErrors ){
       while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
         fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
@@ -1739,8 +1879,23 @@ void db_close(int reportErrors){
   g.localOpen = 0;
   assert( g.dbConfig==0 );
   assert( g.zConfigDbName==0 );
+  backoffice_run_if_needed();
 }
 
+/*
+** Close the database as quickly as possible without unnecessary processing.
+*/
+void db_panic_close(void){
+  if( g.db ){
+    int rc;
+    sqlite3_wal_checkpoint(g.db, 0);
+    rc = sqlite3_close(g.db);
+    if( g.fSqlTrace ) fossil_trace("-- sqlite3_close(%d)\n", rc);
+  }
+  g.db = 0;
+  g.repositoryOpen = 0;
+  g.localOpen = 0;
+}
 
 /*
 ** Create a new empty repository database with the given name.
@@ -2745,7 +2900,7 @@ void cmd_open(void){
 ** Print the current value of a setting identified by the pSetting
 ** pointer.
 */
-static void print_setting(const Setting *pSetting){
+void print_setting(const Setting *pSetting){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
@@ -2870,6 +3025,19 @@ struct Setting {
 ** If autosync is enabled setting this to a value greater
 ** than zero will cause autosync to try no more than this
 ** number of attempts if there is a sync failure.
+*/
+/*
+** SETTING: backoffice-nodelay boolean default=off
+** If backoffice-nodelay is true, then the backoffice processing
+** will never invoke sleep().  If it has nothing useful to do,
+** it simply exits.
+*/
+/*
+** SETTING: backoffice-logfile width=40
+** If backoffice-logfile is not an empty string and is a valid
+** filename, then a one-line message is appended to that file
+** every time the backoffice runs.  This can be used for debugging,
+** to ensure that backoffice is running appropriately.
 */
 /*
 ** SETTING: binary-glob     width=40 versionable block-text

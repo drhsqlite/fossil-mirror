@@ -177,12 +177,20 @@ static void sqlcmd_atexit(void) {
 }
 
 /*
-** This routine is called by the patched sqlite3 command-line shell in order
-** to load the name and database connection for the open Fossil database.
+** This routine is called by the sqlite3 command-line shell to
+** to load the name the Fossil repository database.
 */
-void fossil_open(const char **pzRepoName){
-  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
+void sqlcmd_get_dbname(const char **pzRepoName){
   *pzRepoName = g.zRepositoryName;
+}
+
+/*
+** This routine is called by the sqlite3 command-line shell to do
+** extra initialization prior to starting up the shell.
+*/
+void sqlcmd_init_proc(void){
+  sqlite3_initialize();
+  sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
 }
 
 #if USE_SEE
@@ -209,7 +217,7 @@ void fossil_key(const char **pzKey, int *pnKey){
       *pnKey = -1;
     }
   }else{
-    fossil_fatal("failed to allocate %u bytes for key", nByte);
+    fossil_panic("failed to allocate %u bytes for key", nByte);
   }
 }
 #endif
@@ -292,7 +300,8 @@ void cmd_sqlite3(void){
 #endif
   atexit(sqlcmd_atexit);
   g.zConfigDbName = zConfigDb;
-  sqlite3_shell(g.argc-1, g.argv+1);
+  g.argv[1] = "-quote";
+  sqlite3_shell(g.argc, g.argv);
   sqlite3_cancel_auto_extension((void(*)(void))sqlcmd_autoinit);
   fossil_close(0, noRepository);
 }

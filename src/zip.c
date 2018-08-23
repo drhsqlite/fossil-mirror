@@ -893,7 +893,7 @@ void baseline_zip_page(void){
     zType = "ZIP";
   }
   load_control();
-  zName = mprintf("%s", PD("name",""));
+  zName = fossil_strdup(PD("name",""));
   z = P("r");
   if( z==0 ) z = P("uuid");
   if( z==0 ) z = tar_uuid_from_name(&zName);

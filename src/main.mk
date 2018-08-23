@@ -10,14 +10,15 @@
 # This file is included by primary Makefile.
 #
 
-XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
-XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
+XBCC = $(BCC) $(BCCFLAGS)
+XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
 
 SRC = \
   $(SRCDIR)/add.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
+  $(SRCDIR)/backoffice.c \
   $(SRCDIR)/bag.c \
   $(SRCDIR)/bisect.c \
   $(SRCDIR)/blob.c \
@@ -26,6 +27,7 @@ SRC = \
   $(SRCDIR)/builtin.c \
   $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
+  $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/checkin.c \
@@ -44,6 +46,7 @@ SRC = \
   $(SRCDIR)/diffcmd.c \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
+  $(SRCDIR)/email.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
@@ -51,6 +54,7 @@ SRC = \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
+  $(SRCDIR)/forum.c \
   $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
   $(SRCDIR)/glob.c \
@@ -107,12 +111,14 @@ SRC = \
   $(SRCDIR)/search.c \
   $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
+  $(SRCDIR)/setupuser.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/sha1hard.c \
   $(SRCDIR)/sha3.c \
   $(SRCDIR)/shun.c \
   $(SRCDIR)/sitemap.c \
   $(SRCDIR)/skins.c \
+  $(SRCDIR)/smtp.c \
   $(SRCDIR)/sqlcmd.c \
   $(SRCDIR)/stash.c \
   $(SRCDIR)/stat.c \
@@ -135,6 +141,7 @@ SRC = \
   $(SRCDIR)/util.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
+  $(SRCDIR)/webmail.c \
   $(SRCDIR)/wiki.c \
   $(SRCDIR)/wikiformat.c \
   $(SRCDIR)/winfile.c \
@@ -202,6 +209,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
@@ -219,6 +227,7 @@ TRANS_SRC = \
   $(OBJDIR)/add_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
+  $(OBJDIR)/backoffice_.c \
   $(OBJDIR)/bag_.c \
   $(OBJDIR)/bisect_.c \
   $(OBJDIR)/blob_.c \
@@ -227,6 +236,7 @@ TRANS_SRC = \
   $(OBJDIR)/builtin_.c \
   $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
+  $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/checkin_.c \
@@ -245,6 +255,7 @@ TRANS_SRC = \
   $(OBJDIR)/diffcmd_.c \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
+  $(OBJDIR)/email_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
@@ -252,6 +263,7 @@ TRANS_SRC = \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
+  $(OBJDIR)/forum_.c \
   $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
   $(OBJDIR)/glob_.c \
@@ -308,12 +320,14 @@ TRANS_SRC = \
   $(OBJDIR)/search_.c \
   $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
+  $(OBJDIR)/setupuser_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/sha1hard_.c \
   $(OBJDIR)/sha3_.c \
   $(OBJDIR)/shun_.c \
   $(OBJDIR)/sitemap_.c \
   $(OBJDIR)/skins_.c \
+  $(OBJDIR)/smtp_.c \
   $(OBJDIR)/sqlcmd_.c \
   $(OBJDIR)/stash_.c \
   $(OBJDIR)/stat_.c \
@@ -336,6 +350,7 @@ TRANS_SRC = \
   $(OBJDIR)/util_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
+  $(OBJDIR)/webmail_.c \
   $(OBJDIR)/wiki_.c \
   $(OBJDIR)/wikiformat_.c \
   $(OBJDIR)/winfile_.c \
@@ -349,6 +364,7 @@ OBJ = \
  $(OBJDIR)/add.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
+ $(OBJDIR)/backoffice.o \
  $(OBJDIR)/bag.o \
  $(OBJDIR)/bisect.o \
  $(OBJDIR)/blob.o \
@@ -357,6 +373,7 @@ OBJ = \
  $(OBJDIR)/builtin.o \
  $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
+ $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/checkin.o \
@@ -375,6 +392,7 @@ OBJ = \
  $(OBJDIR)/diffcmd.o \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
+ $(OBJDIR)/email.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
@@ -382,6 +400,7 @@ OBJ = \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
+ $(OBJDIR)/forum.o \
  $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
  $(OBJDIR)/glob.o \
@@ -438,12 +457,14 @@ OBJ = \
  $(OBJDIR)/search.o \
  $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
+ $(OBJDIR)/setupuser.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/sha1hard.o \
  $(OBJDIR)/sha3.o \
  $(OBJDIR)/shun.o \
  $(OBJDIR)/sitemap.o \
  $(OBJDIR)/skins.o \
+ $(OBJDIR)/smtp.o \
  $(OBJDIR)/sqlcmd.o \
  $(OBJDIR)/stash.o \
  $(OBJDIR)/stat.o \
@@ -466,6 +487,7 @@ OBJ = \
  $(OBJDIR)/util.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
+ $(OBJDIR)/webmail.o \
  $(OBJDIR)/wiki.o \
  $(OBJDIR)/wikiformat.o \
  $(OBJDIR)/winfile.o \
@@ -483,7 +505,7 @@ all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+	cp $(APPNAME) $(INSTALLDIR)
 
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
@@ -591,7 +613,8 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
-                -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+                -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
+                -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
 
 # Setup the options used to compile the included miniz library.
 MINIZ_OPTIONS = -DMINIZ_NO_STDIO \
@@ -676,6 +699,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
+	$(OBJDIR)/backoffice_.c:$(OBJDIR)/backoffice.h \
 	$(OBJDIR)/bag_.c:$(OBJDIR)/bag.h \
 	$(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h \
 	$(OBJDIR)/blob_.c:$(OBJDIR)/blob.h \
@@ -684,6 +708,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
 	$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
+	$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
 	$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
@@ -702,6 +727,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
+	$(OBJDIR)/email_.c:$(OBJDIR)/email.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -709,6 +735,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
+	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
 	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
@@ -765,12 +792,14 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
 	$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
+	$(OBJDIR)/setupuser_.c:$(OBJDIR)/setupuser.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
 	$(OBJDIR)/sha3_.c:$(OBJDIR)/sha3.h \
 	$(OBJDIR)/shun_.c:$(OBJDIR)/shun.h \
 	$(OBJDIR)/sitemap_.c:$(OBJDIR)/sitemap.h \
 	$(OBJDIR)/skins_.c:$(OBJDIR)/skins.h \
+	$(OBJDIR)/smtp_.c:$(OBJDIR)/smtp.h \
 	$(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h \
 	$(OBJDIR)/stash_.c:$(OBJDIR)/stash.h \
 	$(OBJDIR)/stat_.c:$(OBJDIR)/stat.h \
@@ -793,6 +822,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/util_.c:$(OBJDIR)/util.h \
 	$(OBJDIR)/verify_.c:$(OBJDIR)/verify.h \
 	$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
+	$(OBJDIR)/webmail_.c:$(OBJDIR)/webmail.h \
 	$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
 	$(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h \
 	$(OBJDIR)/winfile_.c:$(OBJDIR)/winfile.h \
@@ -831,6 +861,14 @@ $(OBJDIR)/attach.o:	$(OBJDIR)/attach_.c $(OBJDIR)/attach.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/attach.o -c $(OBJDIR)/attach_.c
 
 $(OBJDIR)/attach.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/backoffice_.c:	$(SRCDIR)/backoffice.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/backoffice.c >$@
+
+$(OBJDIR)/backoffice.o:	$(OBJDIR)/backoffice_.c $(OBJDIR)/backoffice.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/backoffice.o -c $(OBJDIR)/backoffice_.c
+
+$(OBJDIR)/backoffice.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/bag_.c:	$(SRCDIR)/bag.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/bag.c >$@
@@ -895,6 +933,14 @@ $(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/cache.o -c $(OBJDIR)/cache_.c
 
 $(OBJDIR)/cache.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/capabilities_.c:	$(SRCDIR)/capabilities.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/capabilities.c >$@
+
+$(OBJDIR)/capabilities.o:	$(OBJDIR)/capabilities_.c $(OBJDIR)/capabilities.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/capabilities.o -c $(OBJDIR)/capabilities_.c
+
+$(OBJDIR)/capabilities.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/captcha.c >$@
@@ -1040,6 +1086,14 @@ $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
 
 $(OBJDIR)/doc.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/email_.c:	$(SRCDIR)/email.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/email.c >$@
+
+$(OBJDIR)/email.o:	$(OBJDIR)/email_.c $(OBJDIR)/email.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/email.o -c $(OBJDIR)/email_.c
+
+$(OBJDIR)/email.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/encode.c >$@
 
@@ -1095,6 +1149,14 @@ $(OBJDIR)/foci.o:	$(OBJDIR)/foci_.c $(OBJDIR)/foci.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/foci.o -c $(OBJDIR)/foci_.c
 
 $(OBJDIR)/foci.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/forum_.c:	$(SRCDIR)/forum.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/forum.c >$@
+
+$(OBJDIR)/forum.o:	$(OBJDIR)/forum_.c $(OBJDIR)/forum.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/forum.o -c $(OBJDIR)/forum_.c
+
+$(OBJDIR)/forum.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/fshell_.c:	$(SRCDIR)/fshell.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/fshell.c >$@
@@ -1544,6 +1606,14 @@ $(OBJDIR)/setup.o:	$(OBJDIR)/setup_.c $(OBJDIR)/setup.h $(SRCDIR)/config.h
 
 $(OBJDIR)/setup.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/setupuser_.c:	$(SRCDIR)/setupuser.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/setupuser.c >$@
+
+$(OBJDIR)/setupuser.o:	$(OBJDIR)/setupuser_.c $(OBJDIR)/setupuser.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/setupuser.o -c $(OBJDIR)/setupuser_.c
+
+$(OBJDIR)/setupuser.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/sha1_.c:	$(SRCDIR)/sha1.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/sha1.c >$@
 
@@ -1591,6 +1661,14 @@ $(OBJDIR)/skins.o:	$(OBJDIR)/skins_.c $(OBJDIR)/skins.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/skins.o -c $(OBJDIR)/skins_.c
 
 $(OBJDIR)/skins.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/smtp_.c:	$(SRCDIR)/smtp.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/smtp.c >$@
+
+$(OBJDIR)/smtp.o:	$(OBJDIR)/smtp_.c $(OBJDIR)/smtp.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/smtp.o -c $(OBJDIR)/smtp_.c
+
+$(OBJDIR)/smtp.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/sqlcmd_.c:	$(SRCDIR)/sqlcmd.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/sqlcmd.c >$@
@@ -1767,6 +1845,14 @@ $(OBJDIR)/vfile.o:	$(OBJDIR)/vfile_.c $(OBJDIR)/vfile.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/vfile.o -c $(OBJDIR)/vfile_.c
 
 $(OBJDIR)/vfile.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/webmail_.c:	$(SRCDIR)/webmail.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/webmail.c >$@
+
+$(OBJDIR)/webmail.o:	$(OBJDIR)/webmail_.c $(OBJDIR)/webmail.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/webmail.o -c $(OBJDIR)/webmail_.c
+
+$(OBJDIR)/webmail.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/wiki_.c:	$(SRCDIR)/wiki.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/wiki.c >$@

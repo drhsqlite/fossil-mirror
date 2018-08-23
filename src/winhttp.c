@@ -22,6 +22,10 @@
 #include "config.h"
 #ifdef _WIN32
 /* This code is for win32 only */
+# if !defined(_WIN32_WINNT)
+#  define _WIN32_WINNT 0x0501
+# endif
+#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <process.h>
@@ -286,7 +290,7 @@ static NORETURN void winhttp_fatal(
   const char *zService,
   const char *zErr
 ){
-  fossil_fatal("unable to %s service '%s': %s", zOp, zService, zErr);
+  fossil_panic("unable to %s service '%s': %s", zOp, zService, zErr);
 }
 
 /*
@@ -389,11 +393,11 @@ static void win32_http_request(void *pAppData){
   zIp = SocketAddr_toString(&p->addr);
   if( (p->flags & HTTP_SERVER_HAD_CHECKOUT)==0 ){
     assert( g.zRepositoryName && g.zRepositoryName[0] );
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s\n%s",
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s\n%s",
       get_utf8_bom(0), zRequestFName, zReplyFName, zIp, g.zRepositoryName
     );
   }else{
-    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s%s\n%s\n%s",
+    sqlite3_snprintf(sizeof(zCmd), zCmd, "%s--in %s\n--out %s\n--ipaddr %s",
       get_utf8_bom(0), zRequestFName, zReplyFName, zIp
     );
   }
@@ -402,7 +406,8 @@ static void win32_http_request(void *pAppData){
   if( aux==0 ) goto end_request;
   fwrite(zCmd, 1, strlen(zCmd), aux);
 
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http -args \"%s\" --nossl%s",
+  sqlite3_snprintf(sizeof(zCmd), zCmd,
+    "\"%s\" http -args \"%s\" --nossl%s",
     g.nameOfExe, zCmdFName, p->zOptions
   );
   in = fossil_fopen(zReplyFName, "w+b");
@@ -472,7 +477,8 @@ static void win32_scgi_request(void *pAppData){
   assert( g.zRepositoryName && g.zRepositoryName[0] );
   zIp = SocketAddr_toString(&p->addr);
   sqlite3_snprintf(sizeof(zCmd), zCmd,
-    "\"%s\" http \"%s\" \"%s\" %s \"%s\" --scgi --nossl%s",
+    "\"%s\" http --in \"%s\" --out \"%s\" --ipaddr %s \"%s\""
+    " --scgi --nossl%s",
     g.nameOfExe, zRequestFName, zReplyFName, zIp,
     g.zRepositoryName, p->zOptions
   );
@@ -562,7 +568,7 @@ void win32_http_server(
   }
 #endif
   if( WSAStartup(MAKEWORD(2,0), &wd) ){
-    fossil_fatal("unable to initialize winsock");
+    fossil_panic("unable to initialize winsock");
   }
   DualSocket_init(&ds);
   while( iPort<=mxPort ){
@@ -584,14 +590,14 @@ void win32_http_server(
   }
   if( iPort>mxPort ){
     if( mnPort==mxPort ){
-      fossil_fatal("unable to open listening socket on port %d", mnPort);
+      fossil_panic("unable to open listening socket on port %d", mnPort);
     }else{
-      fossil_fatal("unable to open listening socket on any"
+      fossil_panic("unable to open listening socket on any"
                    " port in the range %d..%d", mnPort, mxPort);
     }
   }
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
-    fossil_fatal("unable to get path to the temporary directory.");
+    fossil_panic("unable to get path to the temporary directory.");
   }
   zTempPrefix = mprintf("%sfossil_server_P%d",
                         fossil_unicode_to_utf8(zTmpPath), iPort);
@@ -642,7 +648,7 @@ void win32_http_server(
         return;
       }else{
         WSACleanup();
-        fossil_fatal("error from accept()");
+        fossil_panic("error from accept()");
       }
     }
     if( client.s4!=INVALID_SOCKET ){
@@ -742,7 +748,7 @@ static char *win32_get_last_errmsg(void){
   if( nMsg ){
     zMsg = fossil_unicode_to_utf8(tmp);
   }else{
-    fossil_fatal("unable to get system error message.");
+    fossil_panic("unable to get system error message.");
   }
   if( tmp ){
     LocalFree((HLOCAL) tmp);
@@ -887,7 +893,7 @@ int win32_http_service(
     if( GetLastError()==ERROR_FAILED_SERVICE_CONTROLLER_CONNECT ){
       return 1;
     }else{
-      fossil_fatal("error from StartServiceCtrlDispatcher()");
+      fossil_panic("error from StartServiceCtrlDispatcher()");
     }
   }
   return 0;

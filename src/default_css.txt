@@ -186,13 +186,16 @@ span.infoTag {
 span.wikiTagCancelled {
   text-decoration: line-through;
 }
-table.browser {
-  width: 100%;
-  border: 0;
+div.columns {
+  padding: 0 2em 0 2em;
+  max-width: 1000px;
 }
-td.browser {
-  width: 24%;
-  vertical-align: top;
+div.columns ul {
+  margin: 0;
+  padding: 0;
+}
+div.columns ul li:first-child {
+  margin-top:0px;
 }
 .filetree {
   margin: 1em 0;
@@ -351,7 +354,6 @@ td.usetupListCon {
   text-align: left
 }
 div.ueditCapBox {
-  float: left;
   margin-right: 20px;
   margin-bottom: 20px;
 }
@@ -536,6 +538,10 @@ pre.th1error {
   word-wrap: break-word;
   color: red;
 }
+pre.textPlain {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 .statistics-report-graph-line {
   background-color: #446979;
 }
@@ -632,4 +638,89 @@ table.label-value th {
   vertical-align: top;
   text-align: right;
   padding: 0.2ex 1ex;
+}
+table.forum_post {
+  margin-top: 1ex;
+  margin-bottom: 1ex;
+  margin-left: 0;
+  margin-right: 0;
+  border-spacing: 0;
+}
+span.forum_author {
+  color: #888;
+  font-size: 75%;
+}
+span.forum_author::after {
+  content: " | ";
+}
+span.forum_age {
+  color: #888;
+  font-size: 85%;
+}
+span.forum_buttons {
+  font-size: 85%;
+}
+span.forum_buttons::before {
+  color: #888;
+  content: " | ";
+}
+span.forum_npost {
+  color: #888;
+  font-size: 75%;
+}
+table.forumeditform td {
+  vertical-align: top;
+  border-collapse: collapse;
+  padding: 1px;
+}
+div.forum_body p {
+  margin-top: 0;
+}
+td.form_label {
+  vertical-align: top;
+  text-align: right;
+}
+.debug {
+  background-color: #ffc;
+  border: 2px solid #ff0;
+}
+div.forumEdit {
+  border: 1px solid black;
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
+div.forumHier, div.forumTime {
+  border: 1px solid black;
+  padding-left: 1ex;
+  padding-right: 1ex;
+  margin-top: 1ex;
+}
+div.forumSel {
+  background-color: #cef;
+}
+div.forumObs {
+  color: #bbb;
+}
+#capabilitySummary {
+  text-align: center;
+}
+#capabilitySummary td {
+  padding-left: 3ex;
+  padding-right: 3ex;
+}
+#capabilitySummary th {
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
+.capsumOff {
+  background-color: #bbb;
+}
+.capsumRead {
+  background-color: #bfb;
+}
+.capsumWrite {
+  background-color: #ffb;
+}
+label {
+  white-space: nowrap;
 }

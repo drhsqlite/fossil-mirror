@@ -2218,6 +2218,8 @@ static void annotate_file(
   int iLimit;            /* Maximum number of versions to analyze */
   sqlite3_int64 mxTime;  /* Halt at this time if not already complete */
 
+  memset(p, 0, sizeof(*p));
+
   if( zLimit ){
     if( strcmp(zLimit,"none")==0 ){
       iLimit = 0;
@@ -2237,7 +2239,7 @@ static void annotate_file(
   }
   db_begin_transaction();
 
-  /* Get the artificate ID for the check-in begin analyzed */
+  /* Get the artifact ID for the check-in begin analyzed */
   if( zRevision ){
     cid = name_to_typed_rid(zRevision, "ci");
   }else{
@@ -2310,6 +2312,15 @@ static void annotate_file(
     p->nVers++;
     cnt++;
   }
+
+  if( p->nVers==0 ){
+    if( zRevision ){
+      fossil_fatal("file %s does not exist in check-in %s", zFilename, zRevision);
+    }else{
+      fossil_fatal("no history for file: %s", zFilename);
+    }
+  }
+
   db_finalize(&q);
   db_end_transaction(0);
 }
@@ -2352,8 +2363,8 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 ** if the origin= query parameter is used to specify some future check-in
 ** (example: "origin=trunk") then these pages show changes moving towards
 ** that alternative origin.  Thus using "origin=trunk" on an historical
-** version of the file shows the first time each line in the file was been
-** changed in subsequent check-ins.
+** version of the file shows the first time each line in the file was changed
+** or removed by any subsequent check-in.
 **
 ** Query parameters:
 **
@@ -2370,7 +2381,6 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           Specify "origin=trunk" or similar for a reverse
 **                           annotation
 **    w=BOOLEAN           Ignore whitespace
-**
 */
 void annotation_page(void){
   int i;
@@ -2540,8 +2550,8 @@ void annotation_page(void){
 ** if the -o|--origin option is used to specify some future check-in
 ** (example: "-o trunk") then these commands show changes moving towards
 ** that alternative origin.  Thus using "-o trunk" on an historical version
-** of the file shows the first time each line in the file was been changed
-** by subsequent check-ins.
+** of the file shows the first time each line in the file was changed or
+** removed by any subsequent check-in.
 **
 ** Options:
 **   --filevers                  Show file version numbers rather than

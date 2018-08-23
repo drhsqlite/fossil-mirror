@@ -92,6 +92,9 @@ void sitemap_page(void){
     @   </ul>
     @ </li>
   }
+  if( g.perm.RdForum ){
+    @ <li>%z(href("%R/forum"))Forum</a></li>
+  }
   if( g.perm.RdTkt ){
     @ <li>%z(href("%R/reportlist"))Tickets</a>
     @   <ul>

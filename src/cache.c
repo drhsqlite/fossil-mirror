@@ -63,23 +63,27 @@ static sqlite3 *cacheOpen(int bForce){
     sqlite3_close(db);
     return 0;
   }
-  rc = sqlite3_exec(db,
-     "PRAGMA page_size=8192;"
-     "CREATE TABLE IF NOT EXISTS blob(id INTEGER PRIMARY KEY, data BLOB);"
-     "CREATE TABLE IF NOT EXISTS cache("
-       "key TEXT PRIMARY KEY,"     /* Key used to access the cache */
-       "id INT REFERENCES blob,"   /* The cache content */
-       "sz INT,"                   /* Size of content in bytes */
-       "tm INT,"                   /* Last access time (unix timestampe) */
-       "nref INT"                  /* Number of uses */
-     ");"
-     "CREATE TRIGGER IF NOT EXISTS cacheDel AFTER DELETE ON cache BEGIN"
-     "  DELETE FROM blob WHERE id=OLD.id;"
-     "END;",
-     0, 0, 0);
-  if( rc!=SQLITE_OK ){
-    sqlite3_close(db);
-    return 0;
+  sqlite3_busy_timeout(db, 5000);
+  if( sqlite3_table_column_metadata(db,0,"blob","key",0,0,0,0,0)!=SQLITE_OK ){
+    rc = sqlite3_exec(db,
+       "PRAGMA page_size=8192;"
+       "CREATE TABLE IF NOT EXISTS blob(id INTEGER PRIMARY KEY, data BLOB);"
+       "CREATE TABLE IF NOT EXISTS cache("
+         "key TEXT PRIMARY KEY,"     /* Key used to access the cache */
+         "id INT REFERENCES blob,"   /* The cache content */
+         "sz INT,"                   /* Size of content in bytes */
+         "tm INT,"                   /* Last access time (unix timestampe) */
+         "nref INT"                  /* Number of uses */
+       ");"
+       "CREATE TRIGGER IF NOT EXISTS cacheDel AFTER DELETE ON cache BEGIN"
+       "  DELETE FROM blob WHERE id=OLD.id;"
+       "END;",
+       0, 0, 0
+    );
+    if( rc!=SQLITE_OK ){
+      sqlite3_close(db);
+      return 0;
+    }
   }
   return db;
 }

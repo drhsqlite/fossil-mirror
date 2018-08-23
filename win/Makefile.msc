@@ -61,7 +61,7 @@ FOSSIL_ENABLE_JSON = 0
 
 # Enable legacy treatment of the mv/rm commands?
 !ifndef FOSSIL_ENABLE_LEGACY_MV_RM
-FOSSIL_ENABLE_LEGACY_MV_RM = 0
+FOSSIL_ENABLE_LEGACY_MV_RM = 1
 !endif
 
 # Enable use of miniz instead of zlib?
@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1-pre4
+SSLDIR    = $(B)\compat\openssl-1.1.1-pre8
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -247,7 +247,7 @@ BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
 MTC       = mt
-LIBS      = ws2_32.lib advapi32.lib
+LIBS      = ws2_32.lib advapi32.lib dnsapi.lib
 LIBDIR    =
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
@@ -369,7 +369,8 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                 /DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE) \
-                /DSQLITE_SHELL_DBNAME_PROC=fossil_open \
+                /DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname \
+                /DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc \
                 /Daccess=file_access \
                 /Dsystem=fossil_system \
                 /Dgetenv=fossil_getenv \
@@ -382,6 +383,7 @@ MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
 SRC   = add_.c \
         allrepo_.c \
         attach_.c \
+        backoffice_.c \
         bag_.c \
         bisect_.c \
         blob_.c \
@@ -390,6 +392,7 @@ SRC   = add_.c \
         builtin_.c \
         bundle_.c \
         cache_.c \
+        capabilities_.c \
         captcha_.c \
         cgi_.c \
         checkin_.c \
@@ -408,6 +411,7 @@ SRC   = add_.c \
         diffcmd_.c \
         dispatch_.c \
         doc_.c \
+        email_.c \
         encode_.c \
         etag_.c \
         event_.c \
@@ -415,6 +419,7 @@ SRC   = add_.c \
         file_.c \
         finfo_.c \
         foci_.c \
+        forum_.c \
         fshell_.c \
         fusefs_.c \
         glob_.c \
@@ -471,12 +476,14 @@ SRC   = add_.c \
         search_.c \
         security_audit_.c \
         setup_.c \
+        setupuser_.c \
         sha1_.c \
         sha1hard_.c \
         sha3_.c \
         shun_.c \
         sitemap_.c \
         skins_.c \
+        smtp_.c \
         sqlcmd_.c \
         stash_.c \
         stat_.c \
@@ -499,6 +506,7 @@ SRC   = add_.c \
         util_.c \
         verify_.c \
         vfile_.c \
+        webmail_.c \
         wiki_.c \
         wikiformat_.c \
         winfile_.c \
@@ -508,63 +516,64 @@ SRC   = add_.c \
         xfersetup_.c \
         zip_.c
 
-EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
-        $(SRCDIR)\../skins/ardoise/css.txt \
-        $(SRCDIR)\../skins/ardoise/details.txt \
-        $(SRCDIR)\../skins/ardoise/footer.txt \
-        $(SRCDIR)\../skins/ardoise/header.txt \
-        $(SRCDIR)\../skins/black_and_white/css.txt \
-        $(SRCDIR)\../skins/black_and_white/details.txt \
-        $(SRCDIR)\../skins/black_and_white/footer.txt \
-        $(SRCDIR)\../skins/black_and_white/header.txt \
-        $(SRCDIR)\../skins/blitz/css.txt \
-        $(SRCDIR)\../skins/blitz/details.txt \
-        $(SRCDIR)\../skins/blitz/footer.txt \
-        $(SRCDIR)\../skins/blitz/header.txt \
-        $(SRCDIR)\../skins/blitz/ticket.txt \
-        $(SRCDIR)\../skins/blitz_no_logo/css.txt \
-        $(SRCDIR)\../skins/blitz_no_logo/details.txt \
-        $(SRCDIR)\../skins/blitz_no_logo/footer.txt \
-        $(SRCDIR)\../skins/blitz_no_logo/header.txt \
-        $(SRCDIR)\../skins/blitz_no_logo/ticket.txt \
-        $(SRCDIR)\../skins/bootstrap/css.txt \
-        $(SRCDIR)\../skins/bootstrap/details.txt \
-        $(SRCDIR)\../skins/bootstrap/footer.txt \
-        $(SRCDIR)\../skins/bootstrap/header.txt \
-        $(SRCDIR)\../skins/default/css.txt \
-        $(SRCDIR)\../skins/default/details.txt \
-        $(SRCDIR)\../skins/default/footer.txt \
-        $(SRCDIR)\../skins/default/header.txt \
-        $(SRCDIR)\../skins/eagle/css.txt \
-        $(SRCDIR)\../skins/eagle/details.txt \
-        $(SRCDIR)\../skins/eagle/footer.txt \
-        $(SRCDIR)\../skins/eagle/header.txt \
-        $(SRCDIR)\../skins/enhanced1/css.txt \
-        $(SRCDIR)\../skins/enhanced1/details.txt \
-        $(SRCDIR)\../skins/enhanced1/footer.txt \
-        $(SRCDIR)\../skins/enhanced1/header.txt \
-        $(SRCDIR)\../skins/khaki/css.txt \
-        $(SRCDIR)\../skins/khaki/details.txt \
-        $(SRCDIR)\../skins/khaki/footer.txt \
-        $(SRCDIR)\../skins/khaki/header.txt \
-        $(SRCDIR)\../skins/original/css.txt \
-        $(SRCDIR)\../skins/original/details.txt \
-        $(SRCDIR)\../skins/original/footer.txt \
-        $(SRCDIR)\../skins/original/header.txt \
-        $(SRCDIR)\../skins/plain_gray/css.txt \
-        $(SRCDIR)\../skins/plain_gray/details.txt \
-        $(SRCDIR)\../skins/plain_gray/footer.txt \
-        $(SRCDIR)\../skins/plain_gray/header.txt \
-        $(SRCDIR)\../skins/rounded1/css.txt \
-        $(SRCDIR)\../skins/rounded1/details.txt \
-        $(SRCDIR)\../skins/rounded1/footer.txt \
-        $(SRCDIR)\../skins/rounded1/header.txt \
-        $(SRCDIR)\../skins/xekri/css.txt \
-        $(SRCDIR)\../skins/xekri/details.txt \
-        $(SRCDIR)\../skins/xekri/footer.txt \
-        $(SRCDIR)\../skins/xekri/header.txt \
+EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
+        $(SRCDIR)\..\skins\ardoise\css.txt \
+        $(SRCDIR)\..\skins\ardoise\details.txt \
+        $(SRCDIR)\..\skins\ardoise\footer.txt \
+        $(SRCDIR)\..\skins\ardoise\header.txt \
+        $(SRCDIR)\..\skins\black_and_white\css.txt \
+        $(SRCDIR)\..\skins\black_and_white\details.txt \
+        $(SRCDIR)\..\skins\black_and_white\footer.txt \
+        $(SRCDIR)\..\skins\black_and_white\header.txt \
+        $(SRCDIR)\..\skins\blitz\css.txt \
+        $(SRCDIR)\..\skins\blitz\details.txt \
+        $(SRCDIR)\..\skins\blitz\footer.txt \
+        $(SRCDIR)\..\skins\blitz\header.txt \
+        $(SRCDIR)\..\skins\blitz\ticket.txt \
+        $(SRCDIR)\..\skins\blitz_no_logo\css.txt \
+        $(SRCDIR)\..\skins\blitz_no_logo\details.txt \
+        $(SRCDIR)\..\skins\blitz_no_logo\footer.txt \
+        $(SRCDIR)\..\skins\blitz_no_logo\header.txt \
+        $(SRCDIR)\..\skins\blitz_no_logo\ticket.txt \
+        $(SRCDIR)\..\skins\bootstrap\css.txt \
+        $(SRCDIR)\..\skins\bootstrap\details.txt \
+        $(SRCDIR)\..\skins\bootstrap\footer.txt \
+        $(SRCDIR)\..\skins\bootstrap\header.txt \
+        $(SRCDIR)\..\skins\default\css.txt \
+        $(SRCDIR)\..\skins\default\details.txt \
+        $(SRCDIR)\..\skins\default\footer.txt \
+        $(SRCDIR)\..\skins\default\header.txt \
+        $(SRCDIR)\..\skins\eagle\css.txt \
+        $(SRCDIR)\..\skins\eagle\details.txt \
+        $(SRCDIR)\..\skins\eagle\footer.txt \
+        $(SRCDIR)\..\skins\eagle\header.txt \
+        $(SRCDIR)\..\skins\enhanced1\css.txt \
+        $(SRCDIR)\..\skins\enhanced1\details.txt \
+        $(SRCDIR)\..\skins\enhanced1\footer.txt \
+        $(SRCDIR)\..\skins\enhanced1\header.txt \
+        $(SRCDIR)\..\skins\khaki\css.txt \
+        $(SRCDIR)\..\skins\khaki\details.txt \
+        $(SRCDIR)\..\skins\khaki\footer.txt \
+        $(SRCDIR)\..\skins\khaki\header.txt \
+        $(SRCDIR)\..\skins\original\css.txt \
+        $(SRCDIR)\..\skins\original\details.txt \
+        $(SRCDIR)\..\skins\original\footer.txt \
+        $(SRCDIR)\..\skins\original\header.txt \
+        $(SRCDIR)\..\skins\plain_gray\css.txt \
+        $(SRCDIR)\..\skins\plain_gray\details.txt \
+        $(SRCDIR)\..\skins\plain_gray\footer.txt \
+        $(SRCDIR)\..\skins\plain_gray\header.txt \
+        $(SRCDIR)\..\skins\rounded1\css.txt \
+        $(SRCDIR)\..\skins\rounded1\details.txt \
+        $(SRCDIR)\..\skins\rounded1\footer.txt \
+        $(SRCDIR)\..\skins\rounded1\header.txt \
+        $(SRCDIR)\..\skins\xekri\css.txt \
+        $(SRCDIR)\..\skins\xekri\details.txt \
+        $(SRCDIR)\..\skins\xekri\footer.txt \
+        $(SRCDIR)\..\skins\xekri\header.txt \
         $(SRCDIR)\ci_edit.js \
         $(SRCDIR)\diff.tcl \
+        $(SRCDIR)\forum.js \
         $(SRCDIR)\graph.js \
         $(SRCDIR)\href.js \
         $(SRCDIR)\login.js \
@@ -581,6 +590,7 @@ EXTRA_FILES   = $(SRCDIR)\../skins/aht/details.txt \
 OBJ   = $(OX)\add$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \
+        $(OX)\backoffice$O \
         $(OX)\bag$O \
         $(OX)\bisect$O \
         $(OX)\blob$O \
@@ -589,6 +599,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\builtin$O \
         $(OX)\bundle$O \
         $(OX)\cache$O \
+        $(OX)\capabilities$O \
         $(OX)\captcha$O \
         $(OX)\cgi$O \
         $(OX)\checkin$O \
@@ -608,6 +619,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\diffcmd$O \
         $(OX)\dispatch$O \
         $(OX)\doc$O \
+        $(OX)\email$O \
         $(OX)\encode$O \
         $(OX)\etag$O \
         $(OX)\event$O \
@@ -615,6 +627,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
+        $(OX)\forum$O \
         $(OX)\fshell$O \
         $(OX)\fusefs$O \
         $(OX)\glob$O \
@@ -671,6 +684,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\search$O \
         $(OX)\security_audit$O \
         $(OX)\setup$O \
+        $(OX)\setupuser$O \
         $(OX)\sha1$O \
         $(OX)\sha1hard$O \
         $(OX)\sha3$O \
@@ -678,6 +692,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\shun$O \
         $(OX)\sitemap$O \
         $(OX)\skins$O \
+        $(OX)\smtp$O \
         $(OX)\sqlcmd$O \
         $(OX)\sqlite3$O \
         $(OX)\stash$O \
@@ -704,6 +719,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\util$O \
         $(OX)\verify$O \
         $(OX)\vfile$O \
+        $(OX)\webmail$O \
         $(OX)\wiki$O \
         $(OX)\wikiformat$O \
         $(OX)\winfile$O \
@@ -770,6 +786,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
 	echo $(OX)\allrepo.obj >> $@
 	echo $(OX)\attach.obj >> $@
+	echo $(OX)\backoffice.obj >> $@
 	echo $(OX)\bag.obj >> $@
 	echo $(OX)\bisect.obj >> $@
 	echo $(OX)\blob.obj >> $@
@@ -778,6 +795,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\builtin.obj >> $@
 	echo $(OX)\bundle.obj >> $@
 	echo $(OX)\cache.obj >> $@
+	echo $(OX)\capabilities.obj >> $@
 	echo $(OX)\captcha.obj >> $@
 	echo $(OX)\cgi.obj >> $@
 	echo $(OX)\checkin.obj >> $@
@@ -797,6 +815,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\diffcmd.obj >> $@
 	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
+	echo $(OX)\email.obj >> $@
 	echo $(OX)\encode.obj >> $@
 	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
@@ -804,6 +823,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
+	echo $(OX)\forum.obj >> $@
 	echo $(OX)\fshell.obj >> $@
 	echo $(OX)\fusefs.obj >> $@
 	echo $(OX)\glob.obj >> $@
@@ -860,6 +880,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\search.obj >> $@
 	echo $(OX)\security_audit.obj >> $@
 	echo $(OX)\setup.obj >> $@
+	echo $(OX)\setupuser.obj >> $@
 	echo $(OX)\sha1.obj >> $@
 	echo $(OX)\sha1hard.obj >> $@
 	echo $(OX)\sha3.obj >> $@
@@ -867,6 +888,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\shun.obj >> $@
 	echo $(OX)\sitemap.obj >> $@
 	echo $(OX)\skins.obj >> $@
+	echo $(OX)\smtp.obj >> $@
 	echo $(OX)\sqlcmd.obj >> $@
 	echo $(OX)\sqlite3.obj >> $@
 	echo $(OX)\stash.obj >> $@
@@ -893,6 +915,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
+	echo $(OX)\webmail.obj >> $@
 	echo $(OX)\wiki.obj >> $@
 	echo $(OX)\wikiformat.obj >> $@
 	echo $(OX)\winfile.obj >> $@
@@ -1037,6 +1060,12 @@ $(OX)\attach$O : attach_.c attach.h
 attach_.c : $(SRCDIR)\attach.c
 	translate$E $** > $@
 
+$(OX)\backoffice$O : backoffice_.c backoffice.h
+	$(TCC) /Fo$@ -c backoffice_.c
+
+backoffice_.c : $(SRCDIR)\backoffice.c
+	translate$E $** > $@
+
 $(OX)\bag$O : bag_.c bag.h
 	$(TCC) /Fo$@ -c bag_.c
 
@@ -1083,6 +1112,12 @@ $(OX)\cache$O : cache_.c cache.h
 	$(TCC) /Fo$@ -c cache_.c
 
 cache_.c : $(SRCDIR)\cache.c
+	translate$E $** > $@
+
+$(OX)\capabilities$O : capabilities_.c capabilities.h
+	$(TCC) /Fo$@ -c capabilities_.c
+
+capabilities_.c : $(SRCDIR)\capabilities.c
 	translate$E $** > $@
 
 $(OX)\captcha$O : captcha_.c captcha.h
@@ -1193,6 +1228,12 @@ $(OX)\doc$O : doc_.c doc.h
 doc_.c : $(SRCDIR)\doc.c
 	translate$E $** > $@
 
+$(OX)\email$O : email_.c email.h
+	$(TCC) /Fo$@ -c email_.c
+
+email_.c : $(SRCDIR)\email.c
+	translate$E $** > $@
+
 $(OX)\encode$O : encode_.c encode.h
 	$(TCC) /Fo$@ -c encode_.c
 
@@ -1233,6 +1274,12 @@ $(OX)\foci$O : foci_.c foci.h
 	$(TCC) /Fo$@ -c foci_.c
 
 foci_.c : $(SRCDIR)\foci.c
+	translate$E $** > $@
+
+$(OX)\forum$O : forum_.c forum.h
+	$(TCC) /Fo$@ -c forum_.c
+
+forum_.c : $(SRCDIR)\forum.c
 	translate$E $** > $@
 
 $(OX)\fshell$O : fshell_.c fshell.h
@@ -1571,6 +1618,12 @@ $(OX)\setup$O : setup_.c setup.h
 setup_.c : $(SRCDIR)\setup.c
 	translate$E $** > $@
 
+$(OX)\setupuser$O : setupuser_.c setupuser.h
+	$(TCC) /Fo$@ -c setupuser_.c
+
+setupuser_.c : $(SRCDIR)\setupuser.c
+	translate$E $** > $@
+
 $(OX)\sha1$O : sha1_.c sha1.h
 	$(TCC) /Fo$@ -c sha1_.c
 
@@ -1605,6 +1658,12 @@ $(OX)\skins$O : skins_.c skins.h
 	$(TCC) /Fo$@ -c skins_.c
 
 skins_.c : $(SRCDIR)\skins.c
+	translate$E $** > $@
+
+$(OX)\smtp$O : smtp_.c smtp.h
+	$(TCC) /Fo$@ -c smtp_.c
+
+smtp_.c : $(SRCDIR)\smtp.c
 	translate$E $** > $@
 
 $(OX)\sqlcmd$O : sqlcmd_.c sqlcmd.h
@@ -1739,6 +1798,12 @@ $(OX)\vfile$O : vfile_.c vfile.h
 vfile_.c : $(SRCDIR)\vfile.c
 	translate$E $** > $@
 
+$(OX)\webmail$O : webmail_.c webmail.h
+	$(TCC) /Fo$@ -c webmail_.c
+
+webmail_.c : $(SRCDIR)\webmail.c
+	translate$E $** > $@
+
 $(OX)\wiki$O : wiki_.c wiki.h
 	$(TCC) /Fo$@ -c wiki_.c
 
@@ -1794,6 +1859,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
+			backoffice_.c:backoffice.h \
 			bag_.c:bag.h \
 			bisect_.c:bisect.h \
 			blob_.c:blob.h \
@@ -1802,6 +1868,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			builtin_.c:builtin.h \
 			bundle_.c:bundle.h \
 			cache_.c:cache.h \
+			capabilities_.c:capabilities.h \
 			captcha_.c:captcha.h \
 			cgi_.c:cgi.h \
 			checkin_.c:checkin.h \
@@ -1820,6 +1887,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			diffcmd_.c:diffcmd.h \
 			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
+			email_.c:email.h \
 			encode_.c:encode.h \
 			etag_.c:etag.h \
 			event_.c:event.h \
@@ -1827,6 +1895,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			file_.c:file.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \
+			forum_.c:forum.h \
 			fshell_.c:fshell.h \
 			fusefs_.c:fusefs.h \
 			glob_.c:glob.h \
@@ -1883,12 +1952,14 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			search_.c:search.h \
 			security_audit_.c:security_audit.h \
 			setup_.c:setup.h \
+			setupuser_.c:setupuser.h \
 			sha1_.c:sha1.h \
 			sha1hard_.c:sha1hard.h \
 			sha3_.c:sha3.h \
 			shun_.c:shun.h \
 			sitemap_.c:sitemap.h \
 			skins_.c:skins.h \
+			smtp_.c:smtp.h \
 			sqlcmd_.c:sqlcmd.h \
 			stash_.c:stash.h \
 			stat_.c:stat.h \
@@ -1911,6 +1982,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			util_.c:util.h \
 			verify_.c:verify.h \
 			vfile_.c:vfile.h \
+			webmail_.c:webmail.h \
 			wiki_.c:wiki.h \
 			wikiformat_.c:wikiformat.h \
 			winfile_.c:winfile.h \

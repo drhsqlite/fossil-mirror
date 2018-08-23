@@ -58,6 +58,8 @@
 #define PT(x)       cgi_parameter_trimmed((x),0)
 #define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 #define PB(x)       cgi_parameter_boolean(x)
+#define PCK(x)      cgi_parameter_checked(x,1)
+#define PIF(x,y)    cgi_parameter_checked(x,y)
 
 
 /*
@@ -200,7 +202,8 @@ void cgi_append_header(const char *zLine){
 }
 
 /*
-** Set a cookie.
+** Set a cookie by queuing up the appropriate HTTP header output. If
+** !g.isHTTP, this is a no-op.
 **
 ** Zero lifetime implies a session cookie.
 */
@@ -210,8 +213,9 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
-  char *zSecure = "";
-  if( zPath==0 ){
+  char const *zSecure = "";
+  if(!g.isHTTP) return /* e.g. JSON CLI mode, where g.zTop is not set */;
+  else if( zPath==0 ){
     zPath = g.zTop;
     if( zPath[0]==0 ) zPath = "/";
   }
@@ -234,6 +238,7 @@ void cgi_set_cookie(
 ** Return true if the response should be sent with Content-Encoding: gzip.
 */
 static int is_gzippable(void){
+  if( g.fNoHttpCompress ) return 0;
   if( strstr(PD("HTTP_ACCEPT_ENCODING", ""), "gzip")==0 ) return 0;
   return strncmp(zContentType, "text/", 5)==0
     || sqlite3_strglob("application/*xml", zContentType)==0
@@ -336,6 +341,14 @@ void cgi_reply(void){
   }
   fflush(g.httpOut);
   CGIDEBUG(("DONE\n"));
+
+  /* After the webpage has been sent, do any useful background
+  ** processing.
+  */
+  g.cgiOutput = 2;
+  if( g.db!=0 && iReplyStatus==200 ){
+    backoffice_check_if_needed();
+  }
 }
 
 /*
@@ -878,9 +891,13 @@ void cgi_trace(const char *z){
   }
   if( pLog==0 ){
     char zFile[50];
+#if defined(_WIN32)
     unsigned r;
     sqlite3_randomness(sizeof(r), &r);
     sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+#else
+    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%05d.txt", getpid());
+#endif
     pLog = fossil_fopen(zFile, "wb");
     if( pLog ){
       fprintf(stderr, "# open log on %s\n", zFile);
@@ -1095,18 +1112,23 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
 /*
 ** Return the value of a CGI parameter with leading and trailing
-** spaces removed.
+** spaces removed and with internal \r\n changed to just \n
 */
 char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
   const char *zIn;
-  char *zOut;
-  int i;
+  char *zOut, c;
+  int i, j;
   zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) zIn = zDefault;
+  if( zIn==0 ) return 0;
   while( fossil_isspace(zIn[0]) ) zIn++;
   zOut = fossil_strdup(zIn);
-  for(i=0; zOut[i]; i++){}
-  while( i>0 && fossil_isspace(zOut[i-1]) ) zOut[--i] = 0;
+  for(i=j=0; (c = zOut[i])!=0; i++){
+    if( c=='\r' && zOut[i+1]=='\n' ) continue;
+    zOut[j++] = c;
+  }
+  zOut[j] = 0;
+  while( j>0 && fossil_isspace(zOut[j-1]) ) zOut[--j] = 0;
   return zOut;
 }
 
@@ -1118,6 +1140,29 @@ int cgi_parameter_boolean(const char *zName){
   const char *zIn = cgi_parameter(zName, 0);
   if( zIn==0 ) return 0;
   return zIn[0]==0 || is_truth(zIn);
+}
+
+/*
+** Return either an empty string "" or the string "checked" depending
+** on whether or not parameter zName has value iValue.  If parameter
+** zName does not exist, that is assumed to be the same as value 0.
+**
+** This routine implements the PCK(x) and PIF(x,y) macros.  The PIF(x,y)
+** macro generateds " checked" if the value of parameter x equals integer y.
+** PCK(x) is the same as PIF(x,1).  These macros are used to generate
+** the "checked" attribute on checkbox and radio controls of forms.
+*/
+const char *cgi_parameter_checked(const char *zName, int iValue){
+  const char *zIn = cgi_parameter(zName,0);
+  int x;
+  if( zIn==0 ){
+    x = 0;
+  }else if( !fossil_isdigit(zIn[0]) ){
+    x = is_truth(zIn);
+  }else{
+    x = atoi(zIn);
+  }
+  return x==iValue ? "checked" : "";
 }
 
 /*
@@ -1183,7 +1228,7 @@ int cgi_all(const char *z, ...){
 **
 ** Omit the values of the cookies unless showAll is true.
 */
-void cgi_print_all(int showAll){
+void cgi_print_all(int showAll, int onConsole){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
@@ -1192,7 +1237,11 @@ void cgi_print_all(int showAll){
       if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
       if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
-    cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    if( onConsole ){
+      fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+    }else{
+      cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    }
   }
 }
 
@@ -1342,6 +1391,32 @@ static char *extract_token(char *zInput, char **zLeftOver){
 }
 
 /*
+** Determine the IP address on the other side of a connection.
+** Return a pointer to a string.  Or return 0 if unable.
+**
+** The string is held in a static buffer that is overwritten on
+** each call.
+*/
+char *cgi_remote_ip(int fd){
+#if 0
+  static char zIp[100];
+  struct sockaddr_in6 addr;
+  socklen_t sz = sizeof(addr);
+  if( getpeername(fd, &addr, &sz) ) return 0;
+  zIp[0] = 0;
+  if( inet_ntop(AF_INET6, &addr, zIp, sizeof(zIp))==0 ){
+    return 0;
+  }
+  return zIp;
+#else
+  struct sockaddr_in remoteName;
+  socklen_t size = sizeof(struct sockaddr_in);
+  if( getpeername(fd, (struct sockaddr*)&remoteName, &size) ) return 0;
+  return inet_ntoa(remoteName.sin_addr);
+#endif
+}
+
+/*
 ** This routine handles a single HTTP request which is coming in on
 ** g.httpIn and which replies on g.httpOut
 **
@@ -1354,8 +1429,6 @@ static char *extract_token(char *zInput, char **zLeftOver){
 void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
-  struct sockaddr_in remoteName;
-  socklen_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
@@ -1383,11 +1456,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName,
-                                &size)>=0
-  ){
-    zIpAddr = inet_ntoa(remoteName.sin_addr);
+  if( zIpAddr==0 ){
+    zIpAddr = cgi_remote_ip(fileno(g.httpIn));
   }
   if( zIpAddr ){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
@@ -1851,7 +1921,7 @@ int cgi_http_server(
           close(1);
           fd = dup(connection);
           if( fd!=1 ) nErr++;
-          if( !g.fAnyTrace ){
+          if( 0 && !g.fAnyTrace ){
             close(2);
             fd = dup(connection);
             if( fd!=2 ) nErr++;
@@ -1869,6 +1939,10 @@ int cgi_http_server(
         int iStatus = 0;
         pid_t x = waitpid(-1, &iStatus, WNOHANG);
         if( x<=0 ) break;
+        if( WIFSIGNALED(iStatus) && g.fAnyTrace ){
+          fprintf(stderr, "/***** Child %d exited on signal %d (%s) *****/\n",
+                  x, WTERMSIG(iStatus), strsignal(WTERMSIG(iStatus)));
+        }
         nchildren--;
       }
     }  
@@ -1894,8 +1968,8 @@ static const char *const azMonths[] =
 /*
 ** Returns an RFC822-formatted time string suitable for HTTP headers.
 ** The timezone is always GMT.  The value returned is always a
-** string obtained from mprintf() and must be freed using free() to
-** avoid a memory leak.
+** string obtained from mprintf() and must be freed using fossil_free()
+** to avoid a memory leak.
 **
 ** See http://www.faqs.org/rfcs/rfc822.html, section 5
 ** and http://www.faqs.org/rfcs/rfc2616.html, section 3.3.
@@ -1906,7 +1980,7 @@ char *cgi_rfc822_datestamp(time_t now){
   if( pTm==0 ){
     return mprintf("");
   }else{
-    return mprintf("%s, %d %s %02d %02d:%02d:%02d GMT",
+    return mprintf("%s, %d %s %02d %02d:%02d:%02d +0000",
                    azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
                    pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }

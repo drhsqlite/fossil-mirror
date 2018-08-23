@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "file.h"
 
 /*
@@ -898,9 +899,9 @@ void file_getcwd(char *zBuf, int nBuf){
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
-      fossil_fatal("pwd too big: max %d", nBuf-1);
+      fossil_panic("pwd too big: max %d", nBuf-1);
     }else{
-      fossil_fatal("cannot find current working directory; %s",
+      fossil_panic("cannot find current working directory; %s",
                    strerror(errno));
     }
   }
@@ -1470,20 +1471,47 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
 #endif
 }
 
+/*
+** Compute a temporary filename in zDir.  The filename is based on
+** the current time.
+*/
+char *file_time_tempname(const char *zDir, const char *zSuffix){
+  struct tm *tm;
+  unsigned int r;
+  static unsigned int cnt = 0;
+  time_t t;
+  t = time(0);
+  tm = gmtime(&t);
+  sqlite3_randomness(sizeof(r), &r);
+  return mprintf("%s/%04d%02d%02d%02d%02d%02d%04d%06d%s",
+      zDir, tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+            tm->tm_hour, tm->tm_min, tm->tm_sec, cnt++, r%1000000, zSuffix);
+}
+
 
 /*
 ** COMMAND: test-tempname
-** Usage:  fossil test-name BASENAME ...
+** Usage:  fossil test-name [--time SUFFIX] BASENAME ...
 **
-** Generate temporary filenames derived from BASENAME
+** Generate temporary filenames derived from BASENAME.  Use the --time
+** option to generate temp names based on the time of day.
 */
 void file_test_tempname(void){
   int i;
+  const char *zSuffix = find_option("time",0,1);
   Blob x = BLOB_INITIALIZER;
+  char *z;
+  verify_all_options();
   for(i=2; i<g.argc; i++){
-    file_tempname(&x, g.argv[i]);
-    fossil_print("%s\n", blob_str(&x));
-    blob_reset(&x);
+    if( zSuffix ){
+      z = file_time_tempname(g.argv[i], zSuffix);
+      fossil_print("%s\n", z);
+      fossil_free(z);
+    }else{
+      file_tempname(&x, g.argv[i]);
+      fossil_print("%s\n", blob_str(&x));
+      blob_reset(&x);
+    }
   }
 }
 
@@ -1615,4 +1643,57 @@ const char *file_cleanup_fullpath(const char *z){
   while( z[0]=='/' && z[1]=='/' ) z++;
 #endif
   return z;
+}
+
+/*
+** Count the number of objects (files and subdirectores) in a given
+** directory.  Return the count.  Return -1 of the object is not a
+** directory.
+*/
+int file_directory_size(const char *zDir, const char *zGlob, int omitDotFiles){
+  void *zNative;
+  DIR *d;
+  int n = -1;
+  zNative = fossil_utf8_to_path(zDir,1);
+  d = opendir(zNative);
+  if( d ){
+    struct dirent *pEntry;
+    n = 0;
+    while( (pEntry=readdir(d))!=0 ){
+      if( pEntry->d_name[0]==0 ) continue;
+      if( omitDotFiles && pEntry->d_name[0]=='.' ) continue;
+      if( zGlob ){
+        char *zUtf8 = fossil_path_to_utf8(pEntry->d_name);
+        int rc = sqlite3_strglob(zGlob, zUtf8);
+        fossil_path_free(zUtf8);
+        if( rc ) continue;
+      }
+      n++;
+    }
+    closedir(d);
+  }
+  fossil_path_free(zNative);
+  return n;
+}
+
+/*
+** COMMAND: test-dir-size
+**
+** Usage: %fossil test-dir-size NAME [GLOB] [--nodots]
+**
+** Return the number of objects in the directory NAME.  If GLOB is
+** provided, then only count objects that match the GLOB pattern.
+** if --nodots is specified, omit files that begin with ".".
+*/
+void test_dir_size_cmd(void){
+  int omitDotFiles = find_option("nodots",0,0)!=0;
+  const char *zGlob;
+  const char *zDir;
+  verify_all_options();
+  if( g.argc!=3 && g.argc!=4 ){
+    usage("NAME [GLOB] [-nodots]");
+  }
+  zDir = g.argv[2];
+  zGlob = g.argc==4 ? g.argv[3] : 0;
+  fossil_print("%d\n", file_directory_size(zDir, zGlob, omitDotFiles));
 }

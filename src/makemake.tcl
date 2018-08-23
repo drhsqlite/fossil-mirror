@@ -30,6 +30,7 @@ set src {
   add
   allrepo
   attach
+  backoffice
   bag
   bisect
   blob
@@ -38,6 +39,7 @@ set src {
   builtin
   bundle
   cache
+  capabilities
   captcha
   cgi
   checkin
@@ -56,6 +58,7 @@ set src {
   diffcmd
   dispatch
   doc
+  email
   encode
   etag
   event
@@ -63,6 +66,7 @@ set src {
   file
   finfo
   foci
+  forum
   fshell
   fusefs
   glob
@@ -118,12 +122,14 @@ set src {
   search
   security_audit
   setup
+  setupuser
   sha1
   sha1hard
   sha3
   shun
   sitemap
   skins
+  smtp
   sqlcmd
   stash
   stat
@@ -146,6 +152,7 @@ set src {
   util
   verify
   vfile
+  webmail
   wiki
   wikiformat
   winfile
@@ -208,7 +215,8 @@ set SHELL_OPTIONS [concat $SQLITE_OPTIONS {
   -DSQLITE_SHELL_IS_UTF8=1
   -DSQLITE_OMIT_LOAD_EXTENSION=1
   -DUSE_SYSTEM_SQLITE=$(USE_SYSTEM_SQLITE)
-  -DSQLITE_SHELL_DBNAME_PROC=fossil_open
+  -DSQLITE_SHELL_DBNAME_PROC=sqlcmd_get_dbname
+  -DSQLITE_SHELL_INIT_PROC=sqlcmd_init_proc
 }]
 
 # miniz (libz drop-in alternative) precompiler flags.
@@ -277,8 +285,8 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
-XBCC = $(BCC) $(BCCFLAGS) $(CFLAGS)
-XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS) $(CFLAGS)
+XBCC = $(BCC) $(BCCFLAGS)
+XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
 }
 writeln -nonewline "SRC ="
@@ -312,7 +320,7 @@ all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+	cp $(APPNAME) $(INSTALLDIR)
 
 codecheck:	$(TRANS_SRC) $(OBJDIR)/codecheck1
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
@@ -600,7 +608,7 @@ BCC = $(BCCEXE)
 
 #### Enable legacy treatment of mv/rm (skip checkout files)
 #
-# FOSSIL_ENABLE_LEGACY_MV_RM = 1
+FOSSIL_ENABLE_LEGACY_MV_RM = 1
 
 #### Enable TH1 scripts in embedded documentation files
 #
@@ -703,7 +711,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1-pre4
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1-pre9
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -937,6 +945,10 @@ else
 LIB += -lkernel32 -lws2_32
 endif
 
+#### Library required for DNS lookups.
+#
+LIB += -ldnsapi
+
 #### Tcl shell for use in running the fossil test suite.  This is only
 #    used for testing.
 #
@@ -1042,10 +1054,10 @@ endif
 install:	$(OBJDIR) $(APPNAME)
 ifdef USE_WINDOWS
 	$(MKDIR) $(subst /,\,$(INSTALLDIR))
-	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
+	$(CP) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
 else
 	$(MKDIR) $(INSTALLDIR)
-	$(MV) $(APPNAME) $(INSTALLDIR)
+	$(CP) $(APPNAME) $(INSTALLDIR)
 endif
 
 $(OBJDIR):
@@ -1310,7 +1322,7 @@ SSL    =
 CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
-LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
+LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32 dnsapi
 }
 writeln "SQLITE_OPTIONS = [join $SQLITE_OPTIONS { }]\n"
 writeln "SHELL_OPTIONS = [join $SHELL_WIN32_OPTIONS { }]\n"
@@ -1516,7 +1528,7 @@ FOSSIL_ENABLE_JSON = 0
 
 # Enable legacy treatment of the mv/rm commands?
 !ifndef FOSSIL_ENABLE_LEGACY_MV_RM
-FOSSIL_ENABLE_LEGACY_MV_RM = 0
+FOSSIL_ENABLE_LEGACY_MV_RM = 1
 !endif
 
 # Enable use of miniz instead of zlib?
@@ -1555,7 +1567,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1-pre4
+SSLDIR    = $(B)\compat\openssl-1.1.1-pre9
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1702,7 +1714,7 @@ BCC       = $(CC) $(CFLAGS)
 TCC       = $(CC) /c $(CFLAGS) $(MSCDEF) $(INCL)
 RCC       = $(RC) /D_WIN32 /D_MSC_VER $(MSCDEF) $(INCL)
 MTC       = mt
-LIBS      = ws2_32.lib advapi32.lib
+LIBS      = ws2_32.lib advapi32.lib dnsapi.lib
 LIBDIR    =
 
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
@@ -1797,6 +1809,7 @@ foreach s [lsort $extra_files] {
     writeln " \\"
     writeln -nonewline "        "
   }
+  set s [regsub -all / $s \\]
   writeln -nonewline "\$(SRCDIR)\\${s}"; incr i
 }
 writeln "\n"
@@ -2095,7 +2108,7 @@ ZLIBSRCDIR=../../zlib/
 
 # define linker command and options
 LINK=$(PellesCDir)/bin/polink.exe
-LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib Crtmt$(TARGETEXTEND).lib
+LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib dnsapi.lib Crtmt$(TARGETEXTEND).lib
 
 # define standard C-compiler and flags, used to compile
 # the fossil binary. Some special definitions follow for

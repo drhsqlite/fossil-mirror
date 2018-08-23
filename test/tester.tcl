@@ -722,7 +722,7 @@ proc test {name expr {constraints ""}} {
       protOut "test $name FAILED!" 1
       if {$::QUIET} {protOut "RESULT: $RESULT" 1}
       lappend bad_test $name
-      if {$::HALT} exit
+      if {$::HALT} {exit 1}
     }
   }
 }

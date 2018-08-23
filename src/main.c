@@ -22,6 +22,9 @@
 #include "config.h"
 #if defined(_WIN32)
 #  include <windows.h>
+#  include <io.h>
+#  define isatty(h) _isatty(h)
+#  define GETPID (int)GetCurrentProcessId
 #endif
 #include "main.h"
 #include <string.h>
@@ -32,6 +35,9 @@
 #include <stdlib.h> /* atexit() */
 #if !defined(_WIN32)
 #  include <errno.h> /* errno global */
+#  include <unistd.h>
+#  include <signal.h>
+#  define GETPID getpid
 #endif
 #ifdef FOSSIL_ENABLE_SSL
 #  include "openssl/crypto.h"
@@ -49,6 +55,9 @@
 #ifdef FOSSIL_ENABLE_JSON
 #  include "cson_amalgamation.h" /* JSON API. */
 #  include "json_detail.h"
+#endif
+#ifdef HAVE_BACKTRACE
+# include <execinfo.h>
 #endif
 
 /*
@@ -85,6 +94,17 @@ struct FossilUserPerms {
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
   char WrUnver;          /* y: can push unversioned content */
+  char RdForum;          /* 2: Read forum posts */
+  char WrForum;          /* 3: Create new forum posts */
+  char WrTForum;         /* 4: Post to forums not subject to moderation */
+  char ModForum;         /* 5: Moderate (approve or reject) forum posts */
+  char AdminForum;       /* 6: Set or remove capability 4 on other users */
+  char EmailAlert;       /* 7: Sign up for email notifications */
+  char Announce;         /* A: Send announcements */
+  char Debug;            /* D: show extra Fossil debugging features */
+  /* These last two are included to block infinite recursion */
+  char XReader;          /* u: Inherit all privileges of "reader" */
+  char XDeveloper;       /* v: Inherit all privileges of "developer" */
 };
 
 #ifdef FOSSIL_ENABLE_TCL
@@ -125,6 +145,7 @@ struct Global {
   const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
+  unsigned iRepoDataVers;  /* Initial data version for repository database */
   char *zRepositoryOption; /* Most recent cached repository option value */
   char *zRepositoryName;  /* Name of the repository database file */
   char *zLocalDbName;     /* Name of the local database file */
@@ -135,7 +156,8 @@ struct Global {
   int eHashPolicy;        /* Current hash policy.  One of HPOLICY_* */
   int fSqlTrace;          /* True if --sqltrace flag is present */
   int fSqlStats;          /* True if --sqltrace or --sqlstats are present */
-  int fSqlPrint;          /* True if -sqlprint flag is present */
+  int fSqlPrint;          /* True if --sqlprint flag is present */
+  int fCgiTrace;          /* True if --cgitrace is enabled */
   int fQuiet;             /* True if -quiet flag is present */
   int fJail;              /* True if running with a chroot jail */
   int fHttpTrace;         /* Trace outbound HTTP requests */
@@ -144,6 +166,7 @@ struct Global {
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fSshTrace;          /* Trace the SSH setup traffic */
   int fSshClient;         /* HTTP client flags for SSH client */
+  int fNoHttpCompress;    /* Do not compress HTTP traffic (for debugging) */
   char *zSshCmd;          /* SSH command string */
   int fNoSync;            /* Do not do an autosync ever.  --nosync */
   int fIPv4;              /* Use only IPv4, not IPv6. --ipv4 */
@@ -157,7 +180,7 @@ struct Global {
   char *zErrMsg;          /* Text of an error message */
   int sslNotAvailable;    /* SSL is not available.  Do not redirect to https: */
   Blob cgiIn;             /* Input to an xfer www method */
-  int cgiOutput;          /* Write error and status messages to CGI */
+  int cgiOutput;          /* 0: command-line 1: CGI. 2: after CGI */
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
@@ -503,9 +526,11 @@ static const char *fossil_sqlite_return_code_name(int rc){
 
 /* Error logs from SQLite */
 static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
+  sqlite3_stmt *p;
+  Blob msg;
 #ifdef __APPLE__
   /* Disable the file alias warning on apple products because Time Machine
-  ** creates lots of aliases and the warning alarms people. */
+  ** creates lots of aliases and the warnings alarm people. */
   if( iCode==SQLITE_WARNING ) return;
 #endif
 #ifndef FOSSIL_DEBUG
@@ -519,7 +544,20 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
     zErrmsg = "database is in a read-only directory";
   }
 #endif
-  fossil_warning("%s: %s", fossil_sqlite_return_code_name(iCode), zErrmsg);
+  blob_init(&msg, 0, 0);
+  blob_appendf(&msg, "%s(%d): %s",
+     fossil_sqlite_return_code_name(iCode), iCode, zErrmsg);
+  if( g.db ){
+    for(p=sqlite3_next_stmt(g.db, 0); p; p=sqlite3_next_stmt(g.db,p)){
+      const char *zSql;
+      if( !sqlite3_stmt_busy(p) ) continue;
+      zSql = sqlite3_sql(p);
+      if( zSql==0 ) continue;
+      blob_appendf(&msg, "\nSQL: %s", zSql);
+    }
+  }
+  fossil_warning("%s", blob_str(&msg));
+  blob_reset(&msg);
 }
 
 /*
@@ -534,6 +572,25 @@ static void fossil_init_flags_from_options(void){
     g.comFmtFlags = atoi(zValue);
   }else{
     g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+  }
+}
+
+/*
+** Check to see if the Fossil binary contains an appended repository
+** file using the appendvfs extension.  If so, change command-line arguments
+** to cause Fossil to launch with "fossil ui" on that repo.
+*/
+static int fossilExeHasAppendedRepo(void){
+  extern int deduceDatabaseType(const char*,int);
+  if( 2==deduceDatabaseType(g.nameOfExe,0) ){
+    static char *azAltArgv[] = { 0, "ui", 0, 0 };
+    azAltArgv[0] = g.nameOfExe;
+    azAltArgv[2] = g.nameOfExe;
+    g.argv = azAltArgv;
+    g.argc = 3;
+    return 1;
+  }else{
+    return 0;
   }
 }
 
@@ -554,9 +611,26 @@ int main(int argc, char **argv)
   const CmdOrPage *pCmd = 0;
   int rc;
 
+#if !defined(_WIN32_WCE)
+  if( fossil_getenv("FOSSIL_BREAK") ){
+    if( isatty(0) && isatty(2) ){
+      fprintf(stderr,
+          "attach debugger to process %d and press any key to continue.\n",
+          GETPID());
+      fgetc(stdin);
+    }else{
+#if defined(_WIN32) || defined(WIN32)
+      DebugBreak();
+#elif defined(SIGTRAP)
+      raise(SIGTRAP);
+#endif
+    }
+  }
+#endif
+
   fossil_limit_memory(1);
   if( sqlite3_libversion_number()<3014000 ){
-    fossil_fatal("Unsuitable SQLite version %s, must be at least 3.14.0",
+    fossil_panic("Unsuitable SQLite version %s, must be at least 3.14.0",
                  sqlite3_libversion());
   }
   sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -600,7 +674,7 @@ int main(int argc, char **argv)
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
-  }else if( g.argc<2 ){
+  }else if( g.argc<2 && !fossilExeHasAppendedRepo() ){
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
@@ -627,6 +701,7 @@ int main(int argc, char **argv)
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
+    g.fCgiTrace = find_option("cgitrace", 0, 0)!=0;
     g.fSshClient = 0;
     g.zSshCmd = 0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
@@ -634,7 +709,8 @@ int main(int argc, char **argv)
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
 #endif
-    g.fAnyTrace = g.fSqlTrace|g.fSystemTrace|g.fSshTrace|g.fHttpTrace;
+    g.fAnyTrace = g.fSqlTrace|g.fSystemTrace|g.fSshTrace|
+                  g.fHttpTrace|g.fCgiTrace;
     g.zHttpAuth = 0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
@@ -692,7 +768,7 @@ int main(int argc, char **argv)
       g.cgiOutput = 1;
       g.httpOut = stdout;
       g.fullHttpReply = !g.isHTTP;
-      fossil_fatal("file descriptor 2 is not open. (fd=%d, errno=%d)",
+      fossil_panic("file descriptor 2 is not open. (fd=%d, errno=%d)",
                    fd, x);
     }
   }
@@ -1178,7 +1254,7 @@ NORETURN void fossil_redirect_home(void){
 ** privileges are still lowered to that of the user-id and group-id
 ** of the repository file.
 */
-static char *enter_chroot_jail(char *zRepo, int noJail){
+char *enter_chroot_jail(char *zRepo, int noJail){
 #if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
@@ -1194,17 +1270,17 @@ static char *enter_chroot_jail(char *zRepo, int noJail){
     if( !noJail ){
       if( file_isdir(zDir, ExtFILE)==1 ){
         if( file_chdir(zDir, 1) ){
-          fossil_fatal("unable to chroot into %s", zDir);
+          fossil_panic("unable to chroot into %s", zDir);
         }
         g.fJail = 1;
         zRepo = "/";
       }else{
         for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
-        if( zDir[i]!='/' ) fossil_fatal("bad repository name: %s", zRepo);
+        if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
         if( i>0 ){
           zDir[i] = 0;
           if( file_chdir(zDir, 1) ){
-            fossil_fatal("unable to chroot into %s", zDir);
+            fossil_panic("unable to chroot into %s", zDir);
           }
           zDir[i] = '/';
         }
@@ -1281,6 +1357,7 @@ static int repo_list_page(void){
   @ <html>
   @ <head>
   @ <base href="%s(g.zBaseURL)/" />
+  @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
   @ <title>Repository List</title>
   @ </head>
   @ <body>
@@ -1371,6 +1448,44 @@ void test_list_page(void){
 }
 
 /*
+** Called whenever a crash is encountered while processing a webpage.
+*/
+void sigsegv_handler(int x){
+#if HAVE_BACKTRACE
+  void *array[20];
+  size_t size;
+  char **strings;
+  size_t i;
+  Blob out;
+  size = backtrace(array, sizeof(array)/sizeof(array[0]));
+  strings = backtrace_symbols(array, size);
+  blob_init(&out, 0, 0);
+  blob_appendf(&out, "Segfault");
+  for(i=0; i<size; i++){
+    blob_appendf(&out, "\n(%d) %s", i, strings[i]);
+  }
+  fossil_panic("%s", blob_str(&out));
+#else
+  fossil_panic("Segfault");
+#endif
+  exit(1);
+}
+
+/*
+** Called if a server gets a SIGPIPE.  This often happens when a client
+** webbrowser opens a connection but never sends the HTTP request
+*/
+void sigpipe_handler(int x){
+#ifndef _WIN32
+  if( g.fAnyTrace ){
+    fprintf(stderr,"/***** sigpipe received by subprocess %d ****\n", getpid());
+  }
+#endif
+  db_panic_close();
+  exit(1);
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1402,6 +1517,10 @@ static void process_one_web_page(
   int i;
   const CmdOrPage *pCmd = 0;
   const char *zBase = g.zRepositoryName;
+
+#if !defined(_WIN32)
+  signal(SIGSEGV, sigsegv_handler);
+#endif
 
   /* Handle universal query parameters */
   if( PB("utc") ){
@@ -1558,7 +1677,12 @@ static void process_one_web_page(
             return;
           }
 #endif
+          @ <html><head>
+          @ <meta name="viewport" \
+          @ content="width=device-width, initial-scale=1.0">
+          @ </head><body>
           @ <h1>Not Found</h1>
+          @ </body>
           cgi_set_status(404, "not found");
           cgi_reply();
         }
@@ -1611,7 +1735,7 @@ static void process_one_web_page(
     int iSkin = zPathInfo[6] - '0';
     char *zNewScript;
     skin_use_draft(iSkin);
-    zNewScript = mprintf("%s/draft%d", P("SCRIPT_NAME"), iSkin);
+    zNewScript = mprintf("%T/draft%d", P("SCRIPT_NAME"), iSkin);
     if( g.zTop ) g.zTop = mprintf("%s/draft%d", g.zTop, iSkin);
     if( g.zBaseURL ) g.zBaseURL = mprintf("%s/draft%d", g.zBaseURL, iSkin);
     zPathInfo += 7;
@@ -1743,38 +1867,44 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
-#ifdef FOSSIL_ENABLE_TH1_HOOKS
-    /*
-    ** The TH1 return codes from the hook will be handled as follows:
-    **
-    ** TH_OK: The xFunc() and the TH1 notification will both be executed.
-    **
-    ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
-    **           skipped.  If the xFunc() is being hooked, the error message
-    **           will be emitted.
-    **
-    ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
-    **
-    ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
-    **            skipped.
-    **
-    ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
-    **              executed.
-    */
-    int rc;
-    if( !g.fNoThHook ){
-      rc = Th_WebpageHook(pCmd->zName+1, pCmd->eCmdFlags);
-    }else{
-      rc = TH_OK;
+    if( g.fCgiTrace ){
+      fossil_trace("######## Calling %s #########\n", pCmd->zName);
+      cgi_print_all(1, 1);
     }
-    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
-      if( rc==TH_OK || rc==TH_RETURN ){
-#endif
-        pCmd->xFunc();
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
+    {
+      /*
+      ** The TH1 return codes from the hook will be handled as follows:
+      **
+      ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+      **
+      ** TH_ERROR: The xFunc() will be skipped, the TH1 notification will be
+      **           skipped.  If the xFunc() is being hooked, the error message
+      **           will be emitted.
+      **
+      ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+      **
+      ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+      **            skipped.
+      **
+      ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+      **              executed.
+      */
+      int rc;
+      if( !g.fNoThHook ){
+        rc = Th_WebpageHook(pCmd->zName+1, pCmd->eCmdFlags);
+      }else{
+        rc = TH_OK;
       }
-      if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
-        Th_WebpageNotify(pCmd->zName+1, pCmd->eCmdFlags);
+      if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+        if( rc==TH_OK || rc==TH_RETURN ){
+#endif
+          pCmd->xFunc();
+#ifdef FOSSIL_ENABLE_TH1_HOOKS
+        }
+        if( !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+          Th_WebpageNotify(pCmd->zName+1, pCmd->eCmdFlags);
+        }
       }
     }
 #endif
@@ -2161,12 +2291,6 @@ void parse_pid_key_value(
 #endif
 
 /*
-** undocumented format:
-**
-**        fossil http INFILE OUTFILE IPADDR ?REPOSITORY?
-**
-** The argv==6 form (with no options) is used by the win32 server only.
-**
 ** COMMAND: http*
 **
 ** Usage: %fossil http ?REPOSITORY? ?OPTIONS?
@@ -2204,9 +2328,14 @@ void parse_pid_key_value(
 **   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
+**   --in FILE        Take input from FILE instead of standard input
+**   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --nocompress     do not compress HTTP replies
+**   --nodelay        omit backoffice processing if it would delay process exit
 **   --nojail         drop root privilege but do not enter the chroot jail
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
+**   --out FILE       write results to FILE instead of to standard output
 **   --repolist       If REPOSITORY is directory, URL "/" lists all repos
 **   --scgi           Interpret input as SCGI rather than HTTP
 **   --skin LABEL     Use override skin LABEL
@@ -2222,6 +2351,8 @@ void cmd_http(void){
   const char *zHost;
   const char *zAltBase;
   const char *zFileGlob;
+  const char *zInFile;
+  const char *zOutFile;
   int useSCGI;
   int noJail;
   int allowRepoList;
@@ -2249,8 +2380,25 @@ void cmd_http(void){
   allowRepoList = find_option("repolist",0,0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
+  zInFile = find_option("in",0,1);
+  if( zInFile ){
+    g.httpIn = fossil_fopen(zInFile, "rb");
+    if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
+  }else{
+    g.httpIn = stdin;
+  }
+  zOutFile = find_option("out",0,1);
+  if( zOutFile ){
+    g.httpOut = fossil_fopen(zOutFile, "wb");
+    if( g.httpOut==0 ) fossil_fatal("cannot open \"%s\" for writing", zOutFile);
+  }else{
+    g.httpOut = stdout;
+  }
+  zIpAddr = find_option("ipaddr",0,1);
   useSCGI = find_option("scgi", 0, 0)!=0;
   zAltBase = find_option("baseurl", 0, 1);
+  if( find_option("nodelay",0,0)!=0 ) backoffice_no_delay();
   if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ){
     zIpAddr = fossil_getenv("REMOTE_HOST"); /* From stunnel */
@@ -2273,21 +2421,10 @@ void cmd_http(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  if( g.argc!=2 && g.argc!=3 && g.argc!=5 && g.argc!=6 ){
-    fossil_fatal("no repository specified");
-  }
+  if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
-  if( g.argc>=5 ){
-    g.httpIn = fossil_fopen(g.argv[2], "rb");
-    g.httpOut = fossil_fopen(g.argv[3], "wb");
-    zIpAddr = g.argv[4];
-    find_server_repository(5, 0);
-  }else{
-    g.httpIn = stdin;
-    g.httpOut = stdout;
-    find_server_repository(2, 0);
-  }
+  find_server_repository(2, 0);
   if( zIpAddr==0 ){
     zIpAddr = cgi_ssh_remote_addr(0);
     if( zIpAddr && zIpAddr[0] ){
@@ -2339,6 +2476,7 @@ void cmd_test_http(void){
   g.httpOut = stdout;
   find_server_repository(2, 0);
   g.cgiOutput = 1;
+  g.fNoHttpCompress = 1;
   g.fullHttpReply = 1;
   zIpAddr = cgi_ssh_remote_addr(0);
   if( zIpAddr && zIpAddr[0] ){
@@ -2380,9 +2518,7 @@ static int binaryOnPath(const char *zBinary){
 ** Send a time-out reply
 */
 void sigalrm_handler(int x){
-  printf("TIMEOUT\n");
-  fflush(stdout);
-  exit(1);
+  fossil_panic("TIMEOUT");
 }
 
 /*
@@ -2438,6 +2574,7 @@ void sigalrm_handler(int x){
 **   --https             signal a request coming in via https
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
+**   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
 **   --nossl             signal that no SSL connections are available
 **   --notfound URL      Redirect
@@ -2478,6 +2615,9 @@ void cmd_webserver(void){
   zStopperFile = find_option("stopper", 0, 1);
 #endif
 
+  if( g.zErrlog==0 ){
+    g.zErrlog = "-";
+  }
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2500,6 +2640,7 @@ void cmd_webserver(void){
   }
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
+  if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
   zAltBase = find_option("baseurl", 0, 1);
   fCreate = find_option("create",0,0)!=0;
   if( find_option("scgi", 0, 0)!=0 ) flags |= HTTP_SERVER_SCGI;
@@ -2603,8 +2744,14 @@ void cmd_webserver(void){
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
-  if( g.fHttpTrace || g.fSqlTrace ){
-    fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
+
+#if !defined(_WIN32)
+  signal(SIGSEGV, sigsegv_handler);
+  signal(SIGPIPE, sigpipe_handler);
+#endif
+
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Subprocess %d *****/\n", getpid());
   }
   g.cgiOutput = 1;
   find_server_repository(2, 0);
@@ -2619,6 +2766,10 @@ void cmd_webserver(void){
     cgi_handle_http_request(0);
   }
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
+            getpid());
+  }
 #else
   /* Win32 implementation */
   if( isUiCmd ){
@@ -2676,4 +2827,77 @@ void test_echo_cmd(void){
       fossil_print("]\n");
     }
   }
+}
+
+/*
+** WEBPAGE: test-warning
+**
+** Test error and warning log operation.  This webpage is accessible to
+** the administrator only.
+**
+**     case=1           Issue a fossil_warning() while generating the page.
+**     case=2           Extra db_begin_transaction()
+**     case=3           Extra db_end_transaction()
+**     case=4           Error during SQL processing
+**     case=5           Call the segfault handler
+**     case=6           Call webpage_assert()
+**     case=7           Call webpage_error()
+*/
+void test_warning_page(void){
+  int iCase = atoi(PD("case","0"));
+  int i;
+  login_check_credentials();
+  if( !g.perm.Setup && !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  style_header("Warning Test Page");
+  style_submenu_element("Error Log","%R/errorlog");
+  if( iCase<1 || iCase>4 ){
+    @ <p>Generate a message to the <a href="%R/errorlog">error log</a>
+    @ by clicking on one of the following cases:
+  }else{
+    @ <p>This is the test page for case=%d(iCase).  All possible cases:
+  }
+  for(i=1; i<=7; i++){
+    @ <a href='./test-warning?case=%d(i)'>[%d(i)]</a>
+  }
+  @ </p>
+  @ <p><ol>
+  @ <li value='1'> Call fossil_warning()
+  if( iCase==1 ){
+    fossil_warning("Test warning message from /test-warning");
+  }
+  @ <li value='2'> Call db_begin_transaction()
+  if( iCase==2 ){
+    db_begin_transaction();
+  }
+  @ <li value='3'> Call db_end_transaction()
+  if( iCase==3 ){
+    db_end_transaction(0);
+  }
+  @ <li value='4'> warning during SQL
+  if( iCase==4 ){
+    Stmt q;
+    db_prepare(&q, "SELECT uuid FROM blob LIMIT 5");
+    db_step(&q);
+    sqlite3_log(SQLITE_ERROR, "Test warning message during SQL");
+    db_finalize(&q);
+  }
+  @ <li value='5'> simulate segfault handling
+  if( iCase==5 ){
+    sigsegv_handler(0);
+  }
+  @ <li value='6'> call webpage_assert(0)
+  if( iCase==6 ){
+    webpage_assert( 5==7 );
+  }
+  @ <li value='7'> call webpage_error()"
+  if( iCase==7 ){
+    cgi_reset_content();
+    webpage_error("Case 7 from /test-warning");
+  }
+  @ </ol>
+  @ <p>End of test</p>
+  style_footer();
 }

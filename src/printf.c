@@ -983,19 +983,24 @@ void fossil_trace(const char *zFormat, ...){
 ** Write a message to the error log, if the error log filename is
 ** defined.
 */
-static void fossil_errorlog(const char *zFormat, ...){
+void fossil_errorlog(const char *zFormat, ...){
   struct tm *pNow;
   time_t now;
   FILE *out;
   const char *z;
   int i;
   va_list ap;
-  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_USER_AGENT",
+  static const char *const azEnv[] = { "HTTP_HOST", "HTTP_REFERER",
+      "HTTP_USER_AGENT",
       "PATH_INFO", "QUERY_STRING", "REMOTE_ADDR", "REQUEST_METHOD",
       "REQUEST_URI", "SCRIPT_NAME" };
   if( g.zErrlog==0 ) return;
-  out = fossil_fopen(g.zErrlog, "a");
-  if( out==0 ) return;
+  if( g.zErrlog[0]=='-' && g.zErrlog[1]==0 ){
+    out = stderr;
+  }else{
+    out = fossil_fopen(g.zErrlog, "a");
+    if( out==0 ) return;
+  }
   now = time(0);
   pNow = gmtime(&now);
   fprintf(out, "------------- %04d-%02d-%02d %02d:%02d:%02d UTC ------------\n",
@@ -1007,10 +1012,10 @@ static void fossil_errorlog(const char *zFormat, ...){
   va_end(ap);
   for(i=0; i<count(azEnv); i++){
     char *p;
-    if( (p = fossil_getenv(azEnv[i]))!=0 ){
+    if( (p = fossil_getenv(azEnv[i]))!=0 && p[0]!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], p);
       fossil_path_free(p);
-    }else if( (z = P(azEnv[i]))!=0 ){
+    }else if( (z = P(azEnv[i]))!=0 && z[0]!=0 ){
       fprintf(out, "%s=%s\n", azEnv[i], z);
     }
   }
@@ -1025,8 +1030,49 @@ static void fossil_errorlog(const char *zFormat, ...){
 static int mainInFatalError = 0;
 
 /*
+** Write error message output
+*/
+static int fossil_print_error(int rc, const char *z){
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }
+  else
+#endif
+  if( g.cgiOutput==1 && g.db ){
+    g.cgiOutput = 2;
+    cgi_reset_content();
+    cgi_set_content_type("text/html");
+    style_header("Bad Request");
+    @ <p class="generalError">%h(z)</p>
+    cgi_set_status(400, "Bad Request");
+    style_footer();
+    cgi_reply();
+  }else if( !g.fQuiet ){
+    fossil_force_newline();
+    fossil_trace("%s\n", z);
+  }
+  return rc;
+}
+
+/*
 ** Print an error message, rollback all databases, and quit.  These
 ** routines never return.
+**
+** The only different between fossil_fatal() and fossil_panic() is that
+** fossil_panic() makes an entry in the error log whereas fossil_fatal()
+** does not.  If there is not error log, then both routines work the
+** same.  Hence, the routines are interchangable for commands and only
+** make a difference with processing web pages.
+**
+** Use fossil_fatal() for malformed inputs that should be reported back
+** to the user, but which do not represent a configuration problem or bug.
+**
+** Use fossil_panic() for any kind of error that should be brought to the
+** attention of the system administrator.
 */
 NORETURN void fossil_panic(const char *zFormat, ...){
   va_list ap;
@@ -1037,34 +1083,18 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   if( once ) exit(1);
   once = 1;
   mainInFatalError = 1;
-  db_force_rollback();
+  /* db_force_rollback(); */
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** panic on %d *****/\n", getpid());
+  }
   fossil_errorlog("panic: %s", z);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( 0, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  }
-  else
-#endif
-  {
-    if( g.cgiOutput ){
-      cgi_printf("<p class=\"generalError\">%h</p>", z);
-      cgi_reply();
-    }else if( !g.fQuiet ){
-      fossil_force_newline();
-      fossil_puts("Fossil internal error: ", 1);
-      fossil_puts(z, 1);
-      fossil_puts("\n", 1);
-    }
-  }
+  rc = fossil_print_error(rc, z);
+  abort();
   exit(rc);
 }
-
 NORETURN void fossil_fatal(const char *zFormat, ...){
   char *z;
   int rc = 1;
@@ -1073,27 +1103,8 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  fossil_errorlog("fatal: %s", z);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( g.json.resultCode, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  }
-  else
-#endif
-  {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-      cgi_reply();
-    }else if( !g.fQuiet ){
-      fossil_force_newline();
-      fossil_trace("%s\n", z);
-    }
-  }
-  free(z);
+  rc = fossil_print_error(rc, z);
+  fossil_free(z);
   db_force_rollback();
   fossil_exit(rc);
 }
@@ -1116,31 +1127,20 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  fossil_errorlog("fatal: %s", z);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( g.json.resultCode, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  } else
-#endif
-  {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-      cgi_reply();
-    }else{
-      fossil_force_newline();
-      fossil_trace("%s\n", z);
-    }
-  }
+  rc = fossil_print_error(rc, z);
   db_force_rollback();
   fossil_exit(rc);
 }
 
 
-/* Print a warning message */
+/* Print a warning message.
+**
+** Unlike fossil_fatal() and fossil_panic(), this routine does return
+** and processing attempts to continue.  A message is written to the
+** error log, however, so this routine should only be used for situations
+** that require administrator or developer attention.  Minor problems
+** in user inputs should not use this routine.
+*/
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;
@@ -1154,7 +1154,7 @@ void fossil_warning(const char *zFormat, ...){
   }else
 #endif
   {
-    if( g.cgiOutput ){
+    if( g.cgiOutput==1 ){
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
       fossil_force_newline();

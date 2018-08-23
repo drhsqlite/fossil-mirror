@@ -602,13 +602,16 @@ void export_cmd(void){
 
   /* Output the commit records.
   */
+  topological_sort_checkins(0);
   db_prepare(&q,
     "SELECT strftime('%%s',mtime), objid, coalesce(ecomment,comment),"
     "       coalesce(euser,user),"
     "       (SELECT value FROM tagxref WHERE rid=objid AND tagid=%d)"
-    "  FROM event"
-    " WHERE type='ci' AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE objid=rid)"
-    " ORDER BY mtime ASC",
+    "  FROM toponode, event"
+    " WHERE toponode.tid=event.objid"
+    "   AND event.type='ci'"
+    "   AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE toponode.tid=rid)"
+    " ORDER BY toponode.tseq ASC",
     TAG_BRANCH
   );
   db_prepare(&q2, "INSERT INTO oldcommit VALUES (:rid)");
@@ -625,7 +628,9 @@ void export_cmd(void){
     db_bind_int(&q2, ":rid", ckinId);
     db_step(&q2);
     db_reset(&q2);
-    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ) zBranch = gexport.zTrunkName;
+    if( zBranch==0 || fossil_strcmp(zBranch, "trunk")==0 ){
+      zBranch = gexport.zTrunkName;
+    }
     zMark = mark_name_from_rid(ckinId, &unused_mark);
     printf("commit refs/heads/");
     print_ref(zBranch);
@@ -738,4 +743,97 @@ void export_cmd(void){
   }
   bag_clear(&blobs);
   bag_clear(&vers);
+}
+
+/*
+** Construct the temporary table toposort as follows:
+**
+**     CREATE TEMP TABLE toponode(
+**        tid INTEGER PRIMARY KEY,   -- Check-in id
+**        tseq INT                   -- integer total order on check-ins.
+**     );
+**
+** This table contains all check-ins of the repository in topological
+** order.  "Topological order" means that every parent check-in comes
+** before all of its children.  Topological order is *almost* the same
+** thing as "ORDER BY event.mtime".  Differences only arrise when there
+** are timewarps.  In as much as Git hates timewarps, we have to compute
+** a correct topological order when doing an export.
+**
+** Since mtime is a usually already nearly in topological order, the
+** algorithm is to start with mtime, then make adjustments as necessary
+** for timewarps.  This is not a great algorithm for the general case,
+** but it is very fast for the overwhelmingly common case where there
+** are few timewarps.
+*/
+int topological_sort_checkins(int bVerbose){
+  int nChange = 0;
+  Stmt q1;
+  Stmt chng;
+  db_multi_exec(
+    "CREATE TEMP TABLE toponode(\n"
+    "  tid INTEGER PRIMARY KEY,\n"
+    "  tseq INT\n"
+    ");\n"
+    "INSERT INTO toponode(tid,tseq) "
+    " SELECT objid, CAST(mtime*8640000 AS int) FROM event WHERE type='ci';\n"
+    "CREATE TEMP TABLE topolink(\n"
+    "  tparent INT,\n"
+    "  tchild INT,\n"
+    "  PRIMARY KEY(tparent,tchild)\n"
+    ") WITHOUT ROWID;"
+    "INSERT INTO topolink(tparent,tchild)"
+    "  SELECT pid, cid FROM plink;\n"
+    "CREATE INDEX topolink_child ON topolink(tchild);\n"
+  );
+
+  /* Find a timewarp instance */
+  db_prepare(&q1,
+    "SELECT P.tseq, C.tid, C.tseq\n"
+    "  FROM toponode P, toponode C, topolink X\n"
+    " WHERE X.tparent=P.tid\n"
+    "   AND X.tchild=C.tid\n"
+    "   AND P.tseq>=C.tseq;"
+  );
+
+  /* Update the timestamp on :tid to have value :tseq */
+  db_prepare(&chng,
+    "UPDATE toponode SET tseq=:tseq WHERE tid=:tid"
+  );
+
+  while( db_step(&q1)==SQLITE_ROW ){
+    i64 iParentTime = db_column_int64(&q1, 0);
+    int iChild = db_column_int(&q1, 1);
+    i64 iChildTime = db_column_int64(&q1, 2);
+    nChange++;
+    if( nChange>10000 ){
+      fossil_fatal("failed to fix all timewarps after 100000 attempts");
+    }
+    db_reset(&q1);
+    db_bind_int64(&chng, ":tid", iChild);
+    db_bind_int64(&chng, ":tseq", iParentTime+1);
+    db_step(&chng);
+    db_reset(&chng);
+    if( bVerbose ){
+      fossil_print("moving %d from %lld to %lld\n",
+                   iChild, iChildTime, iParentTime+1);
+    }
+  }
+
+  db_finalize(&q1);
+  db_finalize(&chng);
+  return nChange;
+}
+
+/*
+** COMMAND: test-topological-sort
+**
+** Invoke the topological_sort_checkins() interface for testing
+** purposes.
+*/
+void test_topological_sort(void){
+  int n;
+  db_find_and_open_repository(0, 0);
+  n = topological_sort_checkins(1);
+  fossil_print("%d reorderings required\n", n);
 }

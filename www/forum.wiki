@@ -1,0 +1,569 @@
+<title>Fossil Forums</title>
+
+<h2>Introduction</h2>
+
+As of Fossil 2.7, Fossil includes a built-in discussion forum feature.
+
+Any project complex enough to benefit from being managed by Fossil and
+which has more than one user can probably also benefit from having a
+discussion forum. Even if your project has a discussion forum already,
+there are many benefits to using Fossil's built-in forum feature, some
+of which you cannot get by using third-party alternatives:
+
+  *  <b>Easy to Administer:</b> Third-party discussion forum and mailing
+     list software tends to be difficult to install, set up, and
+     administer. The Fossil forum feature aims to be as close to
+     zero-configuration as is practical.
+
+  *  <b>Malefactor Resistant:</b> Because Fossil accepts forum posts
+     only via the web UI, it is inherently [./antibot.wiki | protected
+     against bots].
+
+  *  <b>Distributed and Tamper-Proof:</b> Posts are stored in the Fossil
+     repository using the same [./fileformat.wiki | block chain technology]
+     that Fossil uses to store your check-ins, wiki documents, etc.
+     Posts sync to cloned repositories in a tamper-proof fashion.
+
+  *  <b>Space Efficient:</b> Because of Fossil's [./delta_format.wiki |
+     delta compression technology], discussions add little to the size
+     of a cloned repository. Ten years of the SQLite project's
+     discussions — averaging about 2 dozen posts per day — compress down
+     to [https://fossil-scm.org/forum/forumpost/9b6f3f36bdb | just
+     35&nbsp;MB of space] in a Fossil forum repository.
+
+  *  <b>Built-in Full-Text Search:</b> Fossil forums use
+     [https://sqlite.org/fts3.html | SQLite's powerful FTS4 engine] to
+     handle searches. If your project currently uses a mailing list for
+     discussions, this means you are no longer reliant upon third-party
+     mailing list archive services to provide a useful search engine for
+     your discussions. If you are running a private Fossil repository,
+     you may not even have the <em>option</em> of delegating this useful
+     service to a third-party; Fossil provides this service out of the
+     box.
+
+  *  <b>One Result Per Matching Post:</b> When you search the forum
+     archives via the Fossil web interface, you get only one result for
+     each matching post. When you search for project information via a
+     standard web search engine, you might get a result from the project
+     site's own mail archive plus one from Nabble, one from Gmane, one
+     from The Mail Archive...
+
+  *  <b>Search Off-Line:</b> Because Fossil is a [./concepts.wiki |
+     distributed version control system], project members can search
+     your forum archive while disconnected from the network where the
+     central Fossil instance runs. Your past discussions are potentially
+     just as valuable as a wiki document or checkin comment: there is no
+     good reason why you should have to wait to get back on the Internet
+     or back to the office before you can search for past posts.
+
+  *  <b>Contribute Off-Line:</b> Fossil forum posts work like any other
+     insertion into the repository, so a user can create new threads and
+     reply to existing ones while off-line, then sync their
+     contributions to the server they cloned from when back on-line.
+     Yes, you can post to the forum from inside a tent, miles from the
+     nearest wifi router or cellular data tower.
+
+  *  <b>Interlink with Other Fossil-Managed Artifacts:</b> Because forum
+     posts are normal Fossil artifacts, you can interlink them with
+     other Fossil artifacts using short internal links: link to forum
+     threads from a [./tickets.wiki | ticket], link to a wiki document
+     from a forum post, etc.
+     
+  *  <b>Durable Links:</b> Once you create a valid internal artifact
+     link in Fossil, it <em>remains</em> valid, durably. With
+     third-party forum software and mailing list search engines, your
+     links are only valid until the third-party component changes its
+     URL scheme or disappears from the web.
+
+  *  <b>Role-Based Access Control:</b> The forum uses the same
+     [https://en.wikipedia.org/wiki/Role-based_access_control | RBAC
+     system] that Fossil uses to control all other repository accesses.
+     The Fossil forum feature simply adds several new fine-grained
+     capability bits to the existing system.
+
+  *  <b>Enduring, Open File Format:</b> Since Fossil has an
+     [./fileformat.wiki | open and well-documented file format], your
+     discussion archives are truly that: <em>archives</em>. You are no
+     longer dependent on the lifetime and business model of a
+     third-party piece of software or service. Should you choose to stop
+     using Fossil, you can easily extract your discussion traffic for
+     transfer to another system.
+
+  *  <b>Lightweight Markup:</b> Posts can be marked up using Fossil's
+     existing [/md_rules | Markdown] and [/wiki_rules | Wiki] markup
+     processors. No longer must you choose between two bad options: to
+     restrict posts to plain text only or to allow wild-west
+     HTML-formatted MIME email. Fossil's lightweight markup language
+     formatting features give you a middle path, providing your users
+     enough formatting power to communicate complex ideas well without
+     providing so much power as to risk
+     [https://wonko.com/post/html-escaping | security problems].
+
+  *  <b>Easy Notification Emails:</b> It is easy to configure Fossil to
+     send email notifications of new posts to interested forum users via
+     your Fossil server's existing
+     [https://en.wikipedia.org/wiki/Message_transfer_agent | message
+     transfer agent] (MTA): Postfix, Exim, Sendmail... Notification
+     emails include the complete message content for the benefit of
+     those that prefer to visit the forum only when they need to post
+     something. Notifications are optional, and each user gets the
+     choice of immediate or daily digest delivery.
+
+  *  <b>Talks to Everyone:</b> Because Fossil delegates email handling
+     to your existing MTA, it does not need to implement the
+     [http://sqlite.1065341.n5.nabble.com/Many-ML-emails-going-to-GMail-s-SPAM-tp98685p98722.html
+     | roughly two dozen]
+     [https://en.wikipedia.org/wiki/Request_for_Comments | RFCs]
+     required in order to properly support SMTP email in this complex
+     world we've built.  As well, this design choice means you do not
+     need to do duplicate configuration, such as to point Fossil at your
+     server's TLS certificate private key in order to support users
+     behind mail servers that require STARTTLS encryption.
+
+
+<h2 id="setup">Setting up a Fossil Forum</h2>
+
+<h3 id="caps">Capabilities</h3>
+
+Fossil forums use the same role-based access control mechanism as
+for normal Fossil repository logins.
+
+There are several dedicated forum-related capability bits you can grant
+a user:
+
+  *  <b>Read Forum</b> (<tt>2</tt>): The user may read forum posts.
+
+  *  <b>Write Forum</b> (<tt>3</tt>): The user may create new forum
+     threads, reply to existing threads, and edit their own posts. New
+     posts are held for moderation, and they are marked to prevent them
+     from being included in clone and sync operations.
+
+  *  <b>WriteTrusted Forum</b> (<tt>4</tt>): Same as <b>Write Forum</b>
+     except that forum updates bypass the [#moderation | moderation and
+     private artifact restrictions].
+
+  *  <b>Moderate Forum</b> (<tt>5</tt>): User gets buttons on posts
+     which allow them to either reject or approve posts held for
+     moderation. User also gets access to a page (<tt>/modreq</tt>)
+     showing the list of pending moderation tasks.
+
+  *  <b>Supervise Forum</b> (<tt>6</tt>): User can grant or revoke
+     <b>WriteTrusted</b> capability for other users. (Currently
+     unimplemented.)
+
+  *  <b>Email Alerts</b> (<tt>7</tt>): User can sign themselves up for
+     email notifications, a.k.a. alerts.
+
+By default, no Fossil user has permission to use the forums except for
+users with Setup and Admin capabilities, which get these as part of the
+large package of other capabilities they get.
+
+For public Fossil repositories that wish to accept new users without
+involving a human, go into Admin &rarr; Access and enable the "Allow
+users to register themselves" setting. You may also wish to give users
+in the <tt>anonymous</tt> category the Read Forum (2) and Write Forum
+(3) capabilities: this allows people to post without creating an account
+simply by solving [./antibot.wiki | a simple CAPTCHA].
+
+For a private repository, you probably won't want to give the
+<tt>anonymous</tt> user any forum access, but you may wish to give the
+Read Forum capability (2) to users in the <tt>reader</tt> category.
+
+For either type of repository, you are likely to want to give at least
+the WriteTrusted capability (4) to users in the <tt>developer</tt>
+category. If you did not give the Read Forum capability (2) to
+<tt>anonymous</tt> above, you should give <tt>developer</tt> that
+capability here if you choose to give it capability 3 or 4.
+
+You must give at least one user or user category the Email Alerts
+capability (7), else the only people able to sign themselves up for
+email notifications are those with the Setup or Admin capability. Those
+users could sign others up via Admin &rarr; Notification, but you
+probably want to give this capability to one of the user categories.
+Give it to <tt>nobody</tt> if you want anyone to sign up without any
+restrictions.  Give it to <tt>anonymous</tt> if you want the user to
+solve a simple CAPTCHA before signing up. Give it to <tt>reader</tt> or
+<tt>developer</tt> if you want only users with Fossil logins to have
+this ability. (That's assuming you give one or both of these
+capabilities to every user on your Fossil repository.)
+
+By following this advice, you should not need to tediously add
+capabilities to individual accounts except in atypical cases, such as
+to grant the Moderate Forum capability (5) to an uncommonly
+highly-trusted user.
+
+
+<h3 id="skin">Skin Setup</h3>
+
+If you create a new Fossil repository with version 2.7 or newer, its
+default skin is already set up correctly for typical forum
+configurations.
+
+Those upgrading existing repositories will need to edit the Header part
+of their existing Fossil skin in Admin &rarr; Skins, adding something
+like this to create the navbar link:
+
+<verbatim>
+  if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+    menulink /forum Forum
+  }
+</verbatim>
+
+These rules say that any logged-in user with any forum-related
+capability (2-6 inclusive, as of this writing) or an anonymous user with
+read or write capability on the forum (2, 3) will see the "Forum" navbar
+link, which just takes you to <tt>/forum</tt>.
+
+The exact code you need here varies depending on which skin you're
+using. Follow the style you see for the other navbar links.
+
+The new forum feature also brings many new CSS styles to the table. If
+you're using the stock skin or something sufficiently close, the changes
+may work with your existing skin as-is. Otherwise, you might need to
+adjust some things, such as the background color used for the selected
+forum post:
+
+<verbatim>
+  div.forumSel {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+</verbatim>
+
+That overrides the default — a hard-coded light cyan — with a 95%
+transparent black overlay instead, which simply darkens your skin's
+normal background color underneath the selected post. That should work
+with almost any background color except for very dark background colors.
+For dark skins, an inverse of the above trick will work better:
+
+<verbatim>
+  div.forumSel {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+</verbatim>
+
+That overlays the background with 5% white to lighten it slightly.
+
+
+<h3 id="search">Enable Forum Search</h3>
+
+One of the underlying assumptions of the forum feature is that you will
+want to be able to search the forum archives, so the <tt>/forum</tt>
+page always includes a search box. Since that depends on search being
+enabled on the Fossil repository, Fossil warns that search is disabled
+until you go into Admin &rarr; Search and enable the "Search Forum"
+setting.
+
+You may want to enable some of the other Fossil search features while
+you're in there. All of this does come at some CPU and I/O cost, which
+is why it's disabled by default.
+
+
+<h3 id="sso">Single Sign-On</h3>
+
+If you choose to host your discussion forums within the same repository
+as your project's other Fossil-managed content, you inherently have a
+single sign-on system. Contrast third-party mailing list and forum
+software where you either end up with two separate user tables and
+permission sets, or you must go to significant effort to integrate the
+two login systems.
+
+You may instead choose to host your forums in a Fossil repository
+separate from your project's main Fossil repository. A good reason to do
+this is that you have a public project where very few of those
+participating in the forum have special capability bits for project
+assets managed by Fossil, so you wish to segregate the two user sets.
+
+Yet, what of the users who will have logins on both repositories? Some
+users will be trusted with access to the project's main Fossil
+repository, and these users will probably also participate in the
+project's Fossil-hosted forum. Fossil has a feature to solve this
+problem which is probably less well known than it should be, and which
+has been a feature of Fossil since April of 2011: Admin &rarr;
+Login-Group. This allows one Fossil repository to recognize users
+authorized on a different Fossil repository.
+
+
+<h3 id="alerts">Email Notifications (Alerts)</h3>
+
+The detailed information for this feature of Fossil is in two other
+documents:
+
+  *  [./alerts.md | Email Alerts]
+  *  [./emaildesign.md | Email Notification Design]
+
+You may want to study those in detail, since email is complicated. Some
+of that complexity necessarily leaks out to the configuration of email
+notification in Fossil.
+
+
+<h4 id="quick">Quick Setup</h4>
+
+However, if you've already got a working Postfix, Exim, or Sendmail
+server on the machine running your Fossil instance(s), and you aren't
+using Fossil's <tt>chroot</tt> feature to wall it off from the rest of
+the machine, it's fairly simple to set up email notifications:
+
+<ol>
+    <li>Go to Admin &rarr; Notification and fill out all of the
+    <b>Required</b> fields:</li>
+
+    <ul>
+        <li><b>Canonical server URL</b> — Use the suggested URL</li>
+        <li><b>"From" email address</b> — <tt>forum-bounces@example.com</tt>
+        is traditional, but do what you like</li>
+        <li><b>Repository nickname</b> — See the suggested examples on
+        the web page.</li>
+    </ul>
+
+    <li>Set "Email Send Method" to "Pipe to a command"</li>
+
+    <li>Set the "Administrator email address" to a suitable email address.
+    It could be the same value you used for the "From" address above,
+    or it could be a different value like
+    <tt>admin@example.com</tt>.</li>
+</ol>
+
+Save your changes.
+
+<a id="cd"></a>For all of the following <tt>fossil</tt> CLI commands,
+we're going to assume that you've <tt>cd</tt>'d into a checkout
+directory for your repository on the central server.  Otherwise, we'd
+need to add <tt>-R /path/to/repo.fossil</tt> to each of them.
+
+Give this command:
+
+<verbatim>
+    $ fossil set email-send-command
+</verbatim>
+
+If that gives a blank value instead of <tt>sendmail -ti</tt>, say
+
+<verbatim>
+    $ fossil set email-send-command "sendmail -ti"
+</verbatim>
+
+to force the setting. That's a
+[https://fossil-scm.org/forum/forumpost/840b676410 | known bug] which
+should be squished soon.
+
+This is the correct command even if you're running Postfix or Exim
+rather than Sendmail. These mail servers (and perhaps others) provide a
+<tt>sendmail</tt> command for this very sort of reason: it lets programs
+send email without having to care exactly which server implementation is
+running at a given site.
+
+<a id="status"></a>If you reload the Email Notification Setup page, the
+Status section at the top should show:
+
+<verbatim>
+    Outgoing Email: Piped to command "sendmail -ti"
+    Pending Alerts: 0 normal, 0 digest
+    Subscribers:    0 active, 0 total
+</verbatim>
+
+
+<h4 id="subscribe">Subscribe to Alerts</h4>
+
+Above, we see that there are no subscribers, so the next step is to add
+one.
+
+Go to the <tt>/alerts</tt> page on your Fossil instance and sign your
+regular Fossil user up for email alerts. (Alternate path: click the user
+name or login/logout link in the upper right corner, depending on the
+skin you're using, then go to "Email Alerts".) You will need "Forum
+Posts" checked at the least for the testing steps below.
+
+If you use the same user name and email address as you used for your
+normal user login, Fossil will simply tie your alert preferences to your
+login record, and the email address in your user's Contact Info field
+will be considered already-verified. Otherwise, Fossil will create an
+alert-only record, and you will have to verify the email address before
+Fossil will send notifications to it.
+
+This shows a key aspect of the way Fossil's email alerts system works,
+by the way: a user can be signed up for email alerts without having a
+full-fledged Fossil user account. Only when both user names are the same
+are the two records tied together under the hood.
+
+
+<h4 id="alert-test">Test the Email Subsystem</h4>
+
+If you'd rather not create an inane "testing" post in your Fossil
+instance just to force out an email alert, you can test the email
+subsystem separately from the rest of the Fossil email alerts system
+with the following command:
+
+<verbatim>
+    $ fossil alerts test-message you@example.com --body README.md --subject Test
+</verbatim>
+
+That should send you an email with "Test" in the subject line and the
+contents of your project's <tt>README.md</tt> file in the body. If it
+works, the file's contents may be truncated. I'm uncertain whether
+that's due to an intentionally-small buffer size or if it's a bug.
+
+That command assumes that your project [./foss-cklist.wiki | contains a
+readme file]. Of course it does. Why would it not?
+
+
+<h4 id="frist" name="first">First Post</h4>
+
+Since you've already edited the skin per [#skin | the instructions
+above], you can click the "Forum" link in the navbar and create a new
+post. I suggest taking the time to compose a suitable introductory
+message especially for your project's forum, one which a new user would
+find helpful.
+
+Wait a few seconds, and you should receive a notification email with the
+post's subject and body text in the email.
+
+
+<h4 id="trouble">Troubleshooting</h4>
+
+If email alerts aren't working, there are several useful commands you
+can give to figure out why.
+
+(Be sure to [#cd | <tt>cd</tt> into a repo checkout directory] first!)
+
+<verbatim>
+    $ fossil alerts status
+</verbatim>
+
+This should give much the same information as you saw [#status | above].
+One difference is that, since you've created a forum post, the
+<tt>pending-alerts</tt> value should only be zero if you did in fact get
+the requested email alert. If it's zero, check your mailer's spam
+folder. If it's nonzero, continue with these troubleshooting steps.
+
+<verbatim>
+    $ fossil backoffice
+</verbatim>
+
+That forces Fossil to run its [./backoffice.md | "back office" process].
+Its only purpose at the time of this writing is to push out alert
+emails, but it might do other things later. Sometimes it can get stuck
+and needs to be kicked. For that reason, you might want to set up a
+crontab entry to make sure it runs occasionally.
+
+<verbatim>
+    $ fossil alerts send
+</verbatim>
+
+This should also kick off the backoffice processing, if there are any
+pending alerts to send out.
+
+<verbatim>
+    $ fossil alert pending
+</verbatim>
+
+Show any pending alerts. The number of lines output here should equal
+the [#status | status output above].
+
+<verbatim>
+    $ fossil test-add-alerts f5900
+    $ fossil alert send
+</verbatim>
+
+Manually create an email alert and push it out immediately.
+
+The <tt>f</tt> in the first command's final parameter means you're
+scheduling a "forum" alert. The integer is the ID of a forum post, which
+you can find by visiting <tt>/timeline?showid</tt> on your Fossil
+instance.
+
+The second command above is necessary because the
+<tt>test-add-alerts</tt> command doesn't kick off a backoffice run.
+
+<verbatim>
+    $ fossil ale send
+</verbatim>
+
+This only does the same thing as the final command above, rather than
+send you an ale, as you might be hoping. Sorry.
+
+
+<h2 id="moderation">How Moderation Works</h2>
+
+In this section, we're going to call all of the following a "forum
+update:"
+
+  *  create a new post
+  *  reply to an existing post
+  *  edit a post or reply
+
+When a person with the normal <b>Write Forum</b> capability (<tt>3</tt>)
+updates the forum, Fossil saves the update in its block chain, but this
+update is impermanent because of two other table updates made at the
+same time:
+
+<ol>
+    <li>Fossil saves the update artifact's ID in its <tt>private</tt>
+    table, preventing Fossil from sending such artifacts to any of the
+    repository's clones.  (This is the same mechanism behind
+    [./private.wiki | private branches].)</li>
+
+    <li>Fossil also adds a reference to that artifact in the
+    <tt>modreq</tt> table, which backs the moderation feature.  This is
+    what causes Fossil to leave out the Reply button when rendering that
+    post's HTML in the forum's web interface.</li>
+</ol>
+
+When a moderator approves an update, Fossil deletes these table entries,
+making the update semi-permanent. This changes how Fossil renders the
+HTML for that update. It also means the artifact will now sync to
+clones, if the sync is done by a user with <b>Check-Out</b> capability
+(<tt>o</tt>).
+
+When a forum user edits a moderator-approved artifact, what actually
+happens under the hood is that Fossil writes another artifact to the
+repository which refers to the original version as its parent, causing
+Fossil UI to present the new version instead of the original. The
+original version remains in the repository, just as with historical
+checkins. The parent must remain in the repository for referential
+integrity purposes.
+
+When you "Delete" a moderator-approved post or reply through Fossil UI,
+it's actually an edit with blank replacement content. The only way to
+truly delete such artifacts is through [./shunning.wiki | shunning].
+
+When a user with <b>WriteTrusted Forum</b> capability (<tt>4</tt>)
+updates the forum, it happens in the same way except that Fossil skips
+the <tt>private</tt> and <tt>modreq</tt> table insertions.
+
+When a moderator rejects an update, that artifact is unceremoniously
+removed from the tip of the block chain. This is safe because Fossil
+prevents replies to a reply or post awaiting moderator approval, so
+referential integrity cannot be harmed.  Rejecting an edit is even
+safer, since the original post remains behind, so that replies continue
+to refer to that original post.
+
+
+<h2 id="mod-user">Using the Moderation Feature</h2>
+
+Having described all of the work that Fossil performs under the hood on
+behalf of its users, we can now give the short list of work left for the
+repository's administrators and moderators:
+
+<ol>
+    <li>Add the <b>Moderate Forum</b> capability (<tt>5</tt>) to any of
+    your users who should have this ability. You don't need to do this
+    for any user with Setup (<tt>s</tt>) or Admin (<tt>a</tt>)
+    capability; it's
+    [http://fossil-scm.org/index.html/artifact/b16221ffb736caa2?ln=1246-1257
+    | already included].</li>
+
+    <li>When someone updates the forum, an entry will appear in the
+    timeline if the type filter is set to "Forum" or "Any Type". If that
+    user has only the <b>Write Forum</b> capability (<tt>3</tt>), any
+    other user with the <b>Moderate Forum</b> capability (<tt>5</tt>)
+    will see a conditional link appear at the top of the main forum
+    page: "Moderation Requests".  Clicking this takes the moderator to
+    the <tt>/modreq</tt> page. A moderator may wish to keep the main
+    forum page open in a browser tab, reloading it occasionally to see
+    when the "Moderation Requests" link reappears.</li>
+
+    <li>A moderator viewing an update pending moderation sees two
+    buttons at the bottom, "Approve" and "Reject" in place of the
+    "Delete" button that the post's creator sees. Beware that both
+    actions are durable and have no undo. Be careful!</li>
+</ol>

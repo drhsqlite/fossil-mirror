@@ -722,15 +722,20 @@ void setup_skinedit(void){
 
   /* Check that the user is authorized to edit this skin. */
   if( !g.perm.Setup ){
-    char *zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    char *zAllowedEditors = "";
     Glob *pAllowedEditors;
+    int isMatch = 0;
+    if( login_is_individual() ){
+      zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
+    }
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      if( !glob_match(pAllowedEditors, zAllowedEditors) ){
-        login_needed(0);
-        return;
-      }
+      isMatch = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
+    }
+    if( isMatch==0 ){
+      login_needed(0);
+      return;
     }
   }
 
@@ -876,6 +881,10 @@ void setup_skin(void){
   ** changes and/or edits
   */
   login_check_credentials();
+  if( !login_is_individual() ){
+    login_needed(0);
+    return;
+  }
   zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
   if( g.perm.Setup ){
     isSetup = isEditor = 1;
@@ -884,7 +893,7 @@ void setup_skin(void){
     isSetup = isEditor = 0;
     if( zAllowedEditors[0] ){
       pAllowedEditors = glob_create(zAllowedEditors);
-      isEditor = glob_match(pAllowedEditors, zAllowedEditors);
+      isEditor = glob_match(pAllowedEditors, g.zLogin);
       glob_free(pAllowedEditors);
     }
   }
@@ -936,8 +945,8 @@ void setup_skin(void){
   @
   if( isSetup ){
     @ <p>As an administrator, you can make any edits you like to this or
-    @ any other skin.  You can also authorized other users to edit this
-    @ skin.  Any user whose login name matches the comma-separate list
+    @ any other skin.  You can also authorize other users to edit this
+    @ skin.  Any user whose login name matches the comma-separated list
     @ of GLOB expressions below is given special permission to edit
     @ the draft%d(iSkin) skin:
     @
@@ -1020,7 +1029,7 @@ void setup_skin(void){
   @ CSS changes will take effect.</p>
   @
   @ <a hame='step6'></a>
-  @ <h1>Step 6: Interate</h1>
+  @ <h1>Step 6: Iterate</h1>
   @
   @ <p>Repeat <a href='#step4'>step 4</a> and
   @ <a href='#step5'>step 5</a> as many times as necessary to create
@@ -1055,8 +1064,8 @@ void setup_skin(void){
   @ <h1>Step 8: Cleanup and Undo Actions</h1>
   @
   if( !g.perm.Setup ){
-    @ <p>Administrators can optionally remove save legacy skins, or
-    @ undo a prior publish
+    @ <p>Administrators can optionally save or restore legacy skins, and/or
+    @ undo a prior publish.
   }else{
     @ <p>Visit the <a href='%R/setup_skin_admin'>Skin Admin</a> page
     @ for cleanup and recovery actions.

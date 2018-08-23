@@ -55,6 +55,66 @@ void approxSizeName(int nOut, char *zOut, sqlite3_int64 v){
 }
 
 /*
+** Generate stats for the email notification subsystem.
+*/
+void stats_for_email(void){
+  const char *zDest = db_get("email-send-method",0);
+  int nSub, nASub, nPend, nDPend;
+  const char *zDir, *zDb, *zCmd, *zRelay;
+  @ <tr><th>Outgoing&nbsp;Email:</th><td>
+  if( fossil_strcmp(zDest,"pipe")==0
+   && (zCmd = db_get("email-send-command",0))!=0
+  ){
+    @ Piped to command "%h(zCmd)"
+  }else
+  if( fossil_strcmp(zDest,"db")==0
+   && (zDb = db_get("email-send-db",0))!=0
+  ){
+    sqlite3 *db;
+    sqlite3_stmt *pStmt;
+    int rc;
+    @ Queued to database "%h(zDb)"
+    rc = sqlite3_open(zDb, &db);
+    if( rc==SQLITE_OK ){
+      rc = sqlite3_prepare_v2(db, "SELECT count(*) FROM email",-1,&pStmt,0);
+      if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+        @ (%,d(sqlite3_column_int(pStmt,0)) messages,
+        @ %,d(file_size(zDb,ExtFILE)) bytes)
+      }
+      sqlite3_finalize(pStmt);
+    }
+    sqlite3_close(db);
+  }else
+  if( fossil_strcmp(zDest,"dir")==0
+   && (zDir = db_get("email-send-dir",0))!=0
+  ){
+    @ Written to files in "%h(zDir)"
+    @ (%,d(file_directory_size(zDir,0,1)) messages)
+  }else
+  if( fossil_strcmp(zDest,"relay")==0
+   && (zRelay = db_get("email-send-relayhost",0))!=0
+  ){
+    @ Relay to %h(zRelay) using SMTP
+  }
+  else{
+    @ Off
+  }
+  @ </td></tr>
+  nPend = db_int(0,"SELECT count(*) FROM pending_alert WHERE NOT sentSep");
+  nDPend = db_int(0,"SELECT count(*) FROM pending_alert"
+                    " WHERE NOT sentDigest");
+  @ <tr><th>Pending&nbsp;Alerts:</th><td>
+  @ %,d(nPend) normal, %,d(nDPend) digest
+  @ </td></tr>
+  @ <tr><th>Subscribers:</th><td>
+  nSub = db_int(0, "SELECT count(*) FROM subscriber");
+  nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
+                   " AND NOT sdonotcall AND length(ssub)>1");
+  @ %,d(nASub) active, %,d(nSub) total
+  @ </td></tr>
+}
+
+/*
 ** WEBPAGE: stat
 **
 ** Show statistics and global information about the repository.
@@ -200,6 +260,21 @@ void stat_page(void){
   @ %s(db_text(0, "PRAGMA repository.encoding")),
   @ %s(db_text(0, "PRAGMA repository.journal_mode")) mode
   @ </td></tr>
+  if( g.perm.Admin && g.zErrlog && g.zErrlog[0] ){
+    i64 szFile = file_size(g.zErrlog, ExtFILE);
+    if( szFile>=0 ){
+      @ <tr><th>Error Log:</th>
+      @ <td><a href='%R/errorlog'>%h(g.zErrlog)</a> (%,lld(szFile) bytes)
+    }
+    @ </td></tr>
+  }
+  if( g.perm.Admin ){
+    @ <tr><th>Backoffice:</th>
+    @ <td>Last run: %z(backoffice_last_run())</td></tr>
+  }
+  if( g.perm.Admin && email_enabled() ){
+    stats_for_email();
+  }
 
   @ </table>
   style_footer();

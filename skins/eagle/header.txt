@@ -86,7 +86,7 @@ function updateClock(){
       f(d.getUTCDate())      + ' ' +
       f(d.getUTCHours())     + ':' +
       f(d.getUTCMinutes());
-    setTimeout("updateClock();",(60-d.getUTCSeconds())*1000);
+    setTimeout(updateClock,(60-d.getUTCSeconds())*1000);
   }
 }
 updateClock();

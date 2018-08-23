@@ -5,7 +5,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -169,7 +169,7 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
     @ %s(blob_str(&tail))
     blob_reset(&tail);
   }else{
-    @ <pre>
+    @ <pre class='textPlain'>
     @ %h(blob_str(pWiki))
     @ </pre>
   }
@@ -428,7 +428,7 @@ void wiki_page(void){
 /*
 ** Write a wiki artifact into the repository
 */
-static void wiki_put(Blob *pWiki, int parent, int needMod){
+int wiki_put(Blob *pWiki, int parent, int needMod){
   int nrid;
   if( !needMod ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
@@ -441,6 +441,7 @@ static void wiki_put(Blob *pWiki, int parent, int needMod){
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki, MC_NONE);
+  return nrid;
 }
 
 /*
@@ -536,7 +537,7 @@ void wikiedit_page(void){
     }
   }
   if( P("submit")!=0 && zBody!=0
-   && (goodCaptcha = captcha_is_correct())
+   && (goodCaptcha = captcha_is_correct(0))
   ){
     char *zDate;
     Blob cksum;
@@ -760,7 +761,7 @@ void wikiappend_page(void){
     return;
   }
   if( P("submit")!=0 && P("r")!=0 && P("u")!=0
-   && (goodCaptcha = captcha_is_correct())
+   && (goodCaptcha = captcha_is_correct(0))
   ){
     char *zDate;
     Blob cksum;

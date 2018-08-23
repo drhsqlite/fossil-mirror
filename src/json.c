@@ -998,7 +998,7 @@ static void json_mode_bootstrap(){
       : fossil_fopen(jfile,"rb");
     if(!inFile){
       g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
-      fossil_fatal("Could not open JSON file [%s].",jfile)
+      fossil_panic("Could not open JSON file [%s].",jfile)
         /* Does not return. */
         ;
     }

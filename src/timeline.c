@@ -358,7 +358,7 @@ void www_print_timeline(
     if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
-        @ <tr><td>
+        @ <tr class="timelineDateRow"><td>
         @   <div class="divider timelineDate">%s(zPrevDate)</div>
         @ </td><td></td><td></td></tr>
       }
@@ -462,7 +462,8 @@ void www_print_timeline(
     }
     if( (tmFlags & TIMELINE_BISECT)!=0 && zType[0]=='c' ){
       static Stmt bisectQuery;
-      db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
+      db_static_prepare(&bisectQuery,
+          "SELECT seq, stat FROM bilog WHERE rid=:rid");
       db_bind_int(&bisectQuery, ":rid", rid);
       if( db_step(&bisectQuery)==SQLITE_ROW ){
         @ <b>%s(db_column_text(&bisectQuery,1))</b>
@@ -576,7 +577,7 @@ void www_print_timeline(
       }else{
         cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
       }
-    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' ){
+    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' || zType[0]=='f'){
       cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
     }
 
@@ -774,7 +775,11 @@ static const char *bg_to_fg(const char *zIn){
   }else{
     /* Make the color darker */
     static const unsigned int t = 128;
-    if( mx>t ) for(i=0; i<3; i++) x[i] -= mx - t;
+    if( mx>t ){
+      for(i=0; i<3; i++){
+        x[i] = x[i]>=mx-t ? x[i] - (mx-t) : 0;
+      }
+    }
   }
   sqlite3_snprintf(sizeof(zRes),zRes,"#%02x%02x%02x",x[0],x[1],x[2]);
   return zRes;
@@ -1029,7 +1034,7 @@ char *names_of_file(const char *zUuid){
 */
 static void timeline_y_submenu(int isDisabled){
   static int i = 0;
-  static const char *az[12];
+  static const char *az[14];
   if( i==0 ){
     az[0] = "all";
     az[1] = "Any Type";
@@ -1051,6 +1056,10 @@ static void timeline_y_submenu(int isDisabled){
     if( g.perm.RdWiki ){
       az[i++] = "w";
       az[i++] = "Wiki";
+    }
+    if( g.perm.RdForum ){
+      az[i++] = "f";
+      az[i++] = "Forum";
     }
     assert( i<=count(az) );
   }
@@ -1116,7 +1125,7 @@ static void addFileGlobDescription(
   Blob *pDescription        /* Result description */
 ){
   if( zChng==0 || zChng[0]==0 ) return;
-  blob_appendf(pDescription, " that include changes to files matching %Q",
+  blob_appendf(pDescription, " that include changes to files matching '%h'",
                zChng);
 }
 
@@ -1355,7 +1364,7 @@ static const char *tagMatchExpression(
 **    mionly          Limit rel to show ancestors but not descendants
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
-**    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
+**    y=TYPE          'ci', 'w', 't', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
@@ -1374,7 +1383,9 @@ static const char *tagMatchExpression(
 **    forks           Show only forks and their children
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
+**    yw=YYYY-MM-DD   Show events for the week that includes the given day
 **    ymd=YYYY-MM-DD  Show only events on the given day
+**    days=N          Show events over the previous N days
 **    datefmt=N       Override the date format
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
@@ -1414,7 +1425,10 @@ void page_timeline(void){
   const char *zUses = P("uf");       /* Only show check-ins hold this file */
   const char *zYearMonth = P("ym");  /* Show check-ins for the given YYYY-MM */
   const char *zYearWeek = P("yw");   /* Check-ins for YYYY-WW (week-of-year) */
+  char *zYearWeekStart = 0;          /* YYYY-MM-DD for start of YYYY-WW */
   const char *zDay = P("ymd");       /* Check-ins for the day YYYY-MM-DD */
+  const char *zNDays = P("days");    /* Show events over the previous N days */
+  int nDays = 0;                     /* Numeric value for zNDays */
   const char *zChng = P("chng");     /* List of GLOBs for files that changed */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
@@ -1437,6 +1451,7 @@ void page_timeline(void){
   int selectedRid = -9999999;         /* Show a highlight on this RID */
   int disableY = 0;                   /* Disable type selector on submenu */
   int advancedMenu = 0;               /* Use the advanced menu design */
+  char *zPlural;                      /* Ending for plural forms */
 
   /* Set number of rows to display */
   cookie_read_parameter("n","n");
@@ -1469,7 +1484,7 @@ void page_timeline(void){
     p_rid = d_rid = pd_rid;
   }
   login_check_credentials();
-  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki)
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectOnly && !g.perm.Setup)
   ){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
@@ -1735,7 +1750,7 @@ void page_timeline(void){
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
-    const char *zEType = "timeline item";
+    const char *zEType = "event";
     char *zDate;
     Blob cond;
     blob_zero(&cond);
@@ -1760,12 +1775,45 @@ void page_timeline(void){
                    zYearMonth);
     }
     else if( zYearWeek ){
+      char *z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
+      if( z && z[0] ){
+        zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
+                                 zYearWeek);
+        zYearWeek = z;
+      }else{
+        if( strlen(zYearWeek)==7 ){       
+          zYearWeekStart = db_text(0,
+             "SELECT date('%.4q-01-01','+%d days','weekday 1')",
+             zYearWeek, atoi(zYearWeek+5)*7);
+        }else{
+          zYearWeekStart = 0;
+        }
+        if( zYearWeekStart==0 || zYearWeekStart[0]==0 ){
+          zYearWeekStart = db_text(0,
+             "SELECT date('now','-6 days','weekday 1');");
+          zYearWeek = db_text(0,
+             "SELECT strftime('%%Y-%%W','now','-6 days','weekday 1')");
+        }
+      }
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%W',event.mtime) ",
                    zYearWeek);
+      nEntry = -1;
     }
     else if( zDay ){
-      blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m-%%d',event.mtime) ",
+      zDay = db_text(0, "SELECT date(%Q)", zDay);
+      if( zDay==0 || zDay[0]==0 ){
+        zDay = db_text(0, "SELECT date('now')");
+      }
+      blob_append_sql(&cond, " AND %Q=date(event.mtime) ",
                    zDay);
+      nEntry = -1;
+    }
+    else if( zNDays ){
+      nDays = atoi(zNDays);
+      if( nDays<1 ) nDays = 1;
+      blob_append_sql(&cond, " AND event.mtime>=julianday('now','-%d days') ",
+                      nDays);
+      nEntry = -1;
     }
     if( zTagSql ){
       blob_append_sql(&cond,
@@ -1813,6 +1861,7 @@ void page_timeline(void){
      || (zType[0]=='e' && !g.perm.RdWiki)
      || (zType[0]=='c' && !g.perm.Read)
      || (zType[0]=='g' && !g.perm.Read)
+     || (zType[0]=='f' && !g.perm.RdForum)
     ){
       zType = "all";
     }
@@ -1832,6 +1881,10 @@ void page_timeline(void){
           blob_append_sql(&cond, "%c't'", cSep);
           cSep = ',';
         }
+        if( g.perm.RdForum ){
+          blob_append_sql(&cond, "%c'f'", cSep);
+          cSep = ',';
+        }
         blob_append_sql(&cond, ")");
       }
     }else{ /* zType!="all" */
@@ -1839,13 +1892,15 @@ void page_timeline(void){
       if( zType[0]=='c' ){
         zEType = "check-in";
       }else if( zType[0]=='w' ){
-        zEType = "wiki edit";
+        zEType = "wiki";
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
       }else if( zType[0]=='e' ){
         zEType = "technical note";
       }else if( zType[0]=='g' ){
         zEType = "tag";
+      }else if( zType[0]=='f' ){
+        zEType = "forum post";
       }
     }
     if( zUser ){
@@ -1913,16 +1968,21 @@ void page_timeline(void){
     db_multi_exec("%s", blob_sql_text(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
+    zPlural = n==1 ? "" : "s";
     if( zYearMonth ){
-      blob_appendf(&desc, "%s events for %h", zEType, zYearMonth);
+      blob_appendf(&desc, "%d %s%s for %h", n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%s events for year/week %h", zEType, zYearWeek);
+      blob_appendf(&desc, "%d %s%s for week %h beginning on %h", 
+                   n, zEType, zPlural, zYearWeek, zYearWeekStart);
     }else if( zDay ){
-      blob_appendf(&desc, "%s events occurring on %h", zEType, zDay);
+      blob_appendf(&desc, "%d %s%s occurring on %h", n, zEType, zPlural, zDay);
+    }else if( zNDays ){
+      blob_appendf(&desc, "%d %s%s within the past %d day%s",
+                          n, zEType, zPlural, nDays, nDays>1 ? "s" : "");
     }else if( zBefore==0 && zCirca==0 && n>=nEntry && nEntry>0 ){
-      blob_appendf(&desc, "%d most recent %ss", n, zEType);
+      blob_appendf(&desc, "%d most recent %s%s", n, zEType, zPlural);
     }else{
-      blob_appendf(&desc, "%d %ss", n, zEType);
+      blob_appendf(&desc, "%d %s%s", n, zEType, zPlural);
     }
     if( zUses ){
       char *zFilenames = names_of_file(zUses);
@@ -2046,6 +2106,9 @@ void page_timeline(void){
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  if( fossil_islower(desc.aData[0]) ){
+    desc.aData[0] = fossil_toupper(desc.aData[0]);
+  }
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
 
@@ -2287,6 +2350,7 @@ static int fossil_is_julianday(const char *zDate){
 **   -p|--path PATH       Output items affecting PATH only.
 **                        PATH can be a file or a sub directory.
 **   --offset P           skip P changes
+**   --sql                Show the SQL used to generate the timeline
 **   -t|--type TYPE       Output items from the given types only, such as:
 **                            ci = file commits only
 **                            e  = technical notes only
@@ -2318,6 +2382,7 @@ void timeline_cmd(void){
   int iOffset;
   const char *zFilePattern = 0;
   Blob treeName;
+  int showSql = 0;
 
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag){
@@ -2328,6 +2393,7 @@ void timeline_cmd(void){
   zWidth = find_option("width","W",1);
   zType = find_option("type","t",1);
   zFilePattern = find_option("path","p",1);
+  showSql = find_option("sql",0,0)!=0;
 
   if( !zLimit ){
     zLimit = find_option("count",0,1);
@@ -2471,7 +2537,10 @@ void timeline_cmd(void){
      * will not determine the end-marker correctly! */
     blob_append_sql(&sql, "\n LIMIT -1 OFFSET %d", iOffset);
   }
-  db_prepare(&q, "%s", blob_sql_text(&sql));
+  if( showSql ){
+    fossil_print("%s\n", blob_str(&sql));
+  }
+  db_prepare_blob(&q, &sql);
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);

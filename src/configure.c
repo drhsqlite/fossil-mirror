@@ -38,8 +38,8 @@
 #define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
 #define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 #define CONFIGSET_ALIAS     0x000100     /* URL Aliases */
-
-#define CONFIGSET_ALL       0x0001ff     /* Everything */
+#define CONFIGSET_SCRIBER   0x000200     /* Email subscribers */
+#define CONFIGSET_ALL       0x0003ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 
@@ -60,17 +60,18 @@ static struct {
   int groupMask;       /* Mask for that configuration set */
   const char *zHelp;   /* What it does */
 } aGroupName[] = {
-  { "/email",        CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
-  { "/project",      CONFIGSET_PROJ,  "Project name and description"         },
-  { "/skin",         CONFIGSET_SKIN | CONFIGSET_CSS,
-                                      "Web interface appearance settings"    },
-  { "/css",          CONFIGSET_CSS,   "Style sheet"                          },
-  { "/shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
-  { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
-  { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
-  { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
-  { "/alias",        CONFIGSET_ALIAS, "URL Aliases",                         },
-  { "/all",          CONFIGSET_ALL,   "All of the above"                     },
+  { "/email",       CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
+  { "/project",     CONFIGSET_PROJ,  "Project name and description"         },
+  { "/skin",        CONFIGSET_SKIN | CONFIGSET_CSS,
+                                     "Web interface appearance settings"    },
+  { "/css",         CONFIGSET_CSS,   "Style sheet"                          },
+  { "/shun",        CONFIGSET_SHUN,  "List of shunned artifacts"            },
+  { "/ticket",      CONFIGSET_TKT,   "Ticket setup",                        },
+  { "/user",        CONFIGSET_USER,  "Users and privilege settings"         },
+  { "/xfer",        CONFIGSET_XFER,  "Transfer setup",                      },
+  { "/alias",       CONFIGSET_ALIAS, "URL Aliases",                         },
+  { "/subscriber",  CONFIGSET_SCRIBER,"Email notification subscriber list"  },
+  { "/all",         CONFIGSET_ALL,   "All of the above"                     },
 };
 
 
@@ -159,6 +160,8 @@ static struct {
 
   { "@alias",                 CONFIGSET_ALIAS },
 
+  { "@subscriber",            CONFIGSET_SCRIBER },
+
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
   { "xfer-commit-script",     CONFIGSET_XFER },
@@ -215,7 +218,7 @@ const char *configure_inop_rhs(int iMask){
 ** Return the mask for the named configuration parameter if it can be
 ** safely exported.  Return 0 if the parameter is not safe to export.
 **
-** "Safe" in the previous paragraph means the permission is created to
+** "Safe" in the previous paragraph means the permission is granted to
 ** export the property.  In other words, the requesting side has presented
 ** login credentials and has sufficient capabilities to access the requested
 ** information.
@@ -231,7 +234,7 @@ int configure_is_exportable(const char *zName){
     if( strncmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.perm.Admin ){
-        m &= ~CONFIGSET_USER;
+        m &= ~(CONFIGSET_USER|CONFIGSET_SCRIBER);
       }
       if( !g.perm.RdAddr ){
         m &= ~CONFIGSET_ADDR;
@@ -314,7 +317,11 @@ static int safeInt(const char *z){
 **
 ** NEW FORMAT:
 **
-** zName is one of "/config", "/user", "/shun", "/reportfmt", or "/concealed".
+** zName is one of:
+**
+**     "/config", "/user",  "/shun", "/reportfmt", "/concealed",
+**     "/subscriber",
+**
 ** zName indicates the table that holds the configuration information being
 ** transferred.  pContent is a string that consist of alternating Fossil
 ** and SQL tokens.  The First token is a timestamp in seconds since 1970.
@@ -334,49 +341,40 @@ static int safeInt(const char *z){
 **    /shun       $MTIME $UUID scom $VALUE
 **    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE
 **    /concealed  $MTIME $HASH content $VALUE
-**
-** OLD FORMAT:
-**
-** The old format is retained for backwards compatibility, but is deprecated.
-** The cutover from old format to new was on 2011-04-25.  After sufficient
-** time has passed, support for the old format will be removed.
-** Update: Support for the old format was removed on 2017-09-20.
-**
-** zName is either the NAME of an element of the CONFIG table, or else
-** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".
-** If zName is a CONFIG table name, then CONTENT replaces (overwrites) the
-** element in the CONFIG table.  For one of the @-labels, CONTENT is raw
-** SQL that is evaluated.  Note that the raw SQL in CONTENT might not
-** insert directly into the target table but might instead use a proxy
-** table like _fer_reportfmt or _xfer_user.  Such tables must be created
-** ahead of time using configure_prepare_to_receive().  Then after multiple
-** calls to this routine, configure_finalize_receive() to transfer the
-** information received into the true target table.
+**    /subscriber $SMTIME $SEMAIL suname $V ...
 */
 void configure_receive(const char *zName, Blob *pContent, int groupMask){
+  int checkMask;   /* Masks for which we must first check existance of tables */
+
+  checkMask = CONFIGSET_SCRIBER;
   if( zName[0]=='/' ){
     /* The new format */
-    char *azToken[12];
+    char *azToken[24];
     int nToken = 0;
     int ii, jj;
     int thisMask;
     Blob name, value, sql;
     static const struct receiveType {
-      const char *zName;
-      const char *zPrimKey;
-      int nField;
-      const char *azField[4];
+      const char *zName;         /* Configuration key for this table */
+      const char *zPrimKey;      /* Primary key column */
+      int nField;                /* Number of data fields */
+      const char *azField[6];    /* Names of the data fields */
     } aType[] = {
-      { "/config",    "name",  1, { "value", 0, 0, 0 }              },
-      { "@user",      "login", 4, { "pw", "cap", "info", "photo" }  },
-      { "@shun",      "uuid",  1, { "scom", 0, 0, 0 }               },
-      { "@reportfmt", "title", 3, { "owner", "cols", "sqlcode", 0 } },
-      { "@concealed", "hash",  1, { "content", 0, 0, 0 }            },
+      { "/config",    "name",  1, { "value", 0,0,0,0,0 }           },
+      { "@user",      "login", 4, { "pw","cap","info","photo",0,0} },
+      { "@shun",      "uuid",  1, { "scom", 0,0,0,0,0}             },
+      { "@reportfmt", "title", 3, { "owner","cols","sqlcode",0,0,0}},
+      { "@concealed", "hash",  1, { "content", 0,0,0,0,0 }         },
+      { "@subscriber","semail",6,
+         { "suname","sdigest","sdonotcall","ssub","sctime","smip"}         },
     };
+
+    /* Locate the receiveType in aType[ii] */
     for(ii=0; ii<count(aType); ii++){
       if( fossil_strcmp(&aType[ii].zName[1],&zName[1])==0 ) break;
     }
     if( ii>=count(aType) ) return;
+
     while( blob_token(pContent, &name) && blob_sqltoken(pContent, &value) ){
       char *z = blob_terminate(&name);
       if( !safeSql(z) ) return;
@@ -391,7 +389,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       azToken[nToken++] = z;
       azToken[nToken++] = z = blob_terminate(&value);
       if( !safeSql(z) ) return;
-      if( nToken>=count(azToken) ) break;
+      if( nToken>=count(azToken)-1 ) break;
     }
     if( nToken<2 ) return;
     if( aType[ii].zName[0]=='/' ){
@@ -400,6 +398,12 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       thisMask = configure_is_exportable(aType[ii].zName);
     }
     if( (thisMask & groupMask)==0 ) return;
+    if( (thisMask & checkMask)!=0 ){
+      if( (thisMask & CONFIGSET_SCRIBER)!=0 ){
+        email_schema(1);
+      }
+      checkMask &= ~thisMask;
+    }
 
     blob_zero(&sql);
     if( groupMask & CONFIGSET_OVERWRITE ){
@@ -411,12 +415,14 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }else{
       blob_append_sql(&sql, "INSERT OR IGNORE INTO ");
     }
-    blob_append_sql(&sql, "\"%w\"(\"%w\", mtime", &zName[1], aType[ii].zPrimKey);
+    blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
+         &zName[1], aType[ii].zPrimKey);
+    if( fossil_stricmp(zName,"/subscriber") ) email_schema(0);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }
     blob_append_sql(&sql,") VALUES(%s,%s",
-       azToken[1] /*safe-for-%s*/, azToken[0] /*safe-for-%s*/);
+       azToken[1] /*safe-for-%s*/, azToken[0]/*safe-for-%s*/);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",%s", azToken[jj+1] /*safe-for-%s*/);
     }
@@ -576,6 +582,35 @@ int configure_send_group(
     }
     db_finalize(&q);
   }
+  if( (groupMask & CONFIGSET_SCRIBER)!=0
+   && db_table_exists("repository","subscriber")
+  ){
+    db_prepare(&q, "SELECT mtime, quote(semail),"
+                   " quote(suname), quote(sdigest),"
+                   " quote(sdonotcall), quote(ssub),"
+                   " quote(sctime), quote(smip)"
+                   " FROM subscriber WHERE sverified"
+                   " AND mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,
+        "%lld %s suname %s sdigest %s sdonotcall %s ssub %s"
+        " sctime %s smip %s",
+        db_column_int64(&q, 0), /* mtime */
+        db_column_text(&q, 1),  /* semail (PK) */
+        db_column_text(&q, 2),  /* suname */
+        db_column_text(&q, 3),  /* sdigest */
+        db_column_text(&q, 4),  /* sdonotcall */
+        db_column_text(&q, 5),  /* ssub */
+        db_column_text(&q, 6),  /* sctime */
+        db_column_text(&q, 7)   /* smip */
+      );
+      blob_appendf(pOut, "config /subscriber %d\n%s\n",
+                   blob_size(&rec), blob_str(&rec));
+      nCard++;
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
   db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
                  " WHERE name=:name AND mtime>=%lld", iStart);
   for(ii=0; ii<count(aConfig); ii++){
@@ -614,7 +649,8 @@ int configure_name_to_mask(const char *z, int notFoundIsFatal){
   if( notFoundIsFatal ){
     fossil_print("Available configuration areas:\n");
     for(i=0; i<count(aGroupName); i++){
-      fossil_print("  %-10s %s\n", &aGroupName[i].zName[1], aGroupName[i].zHelp);
+      fossil_print("  %-13s %s\n",
+            &aGroupName[i].zName[1], aGroupName[i].zHelp);
     }
     fossil_fatal("no such configuration area: \"%s\"", z);
   }
@@ -657,7 +693,9 @@ static void export_config(
 **    %fossil configuration export AREA FILENAME
 **
 **         Write to FILENAME exported configuration information for AREA.
-**         AREA can be one of:  all email project shun skin ticket user alias
+**         AREA can be one of:
+**
+**             all email project shun skin ticket user alias subscriber
 **
 **    %fossil configuration import FILENAME
 **
@@ -794,6 +832,15 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM concealed");
       }else if( fossil_strcmp(zName,"@shun")==0 ){
         db_multi_exec("DELETE FROM shun");
+      }else if( fossil_strcmp(zName,"@subscriber")==0 ){
+        if( db_table_exists("repository","subscriber") ){
+          db_multi_exec("DELETE FROM subscriber");
+        }
+      }else if( fossil_strcmp(zName,"@forum")==0 ){
+        if( db_table_exists("repository","forumpost") ){
+          db_multi_exec("DELETE FROM forumpost");
+          db_multi_exec("DELETE FROM forumthread");
+        }
       }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
         assert( strchr(zRepositorySchemaDefaultReports,'%')==0 );

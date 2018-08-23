@@ -838,6 +838,7 @@ const char *diff_get_binary_glob(void){
 **   --exec-rel-paths           Force relative path names with external commands.
 **   --from|-r VERSION          Select VERSION as source for the diff
 **   --internal|-i              Use internal diff logic
+**   --new-file|-N              Show complete text of added and deleted files
 **   --numstat                  Show only the number of lines delete and added
 **   --side-by-side|-y          Side-by-side diff
 **   --strip-trailing-cr        Strip trailing CR

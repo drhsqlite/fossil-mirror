@@ -206,24 +206,39 @@ static void trans(FILE *in, FILE *out){
   }
 }
 
+static void print_source_ref(const char *zSrcFile, FILE *out){
+/* Set source line reference to the original source file.
+ * This makes compiler show the original file name in the compile error
+ * messages, instead of referring to the translated file.
+ * NOTE: This somewhat complicates stepping in debugger, as the resuling
+ * code would not match the referenced sources.
+ */
+#ifndef FOSSIL_DEBUG
+  const char *arg;
+  if( !*zSrcFile ){
+    return;
+  }
+  fprintf(out,"#line 1 \"");
+  for(arg=zSrcFile; *arg; arg++){
+    if( *arg!='\\' ){
+      fprintf(out,"%c", *arg);
+    }else{
+      fprintf(out,"\\\\");
+    }
+  }
+  fprintf(out,"\"\n");
+#endif
+}
+
 int main(int argc, char **argv){
   if( argc==2 ){
-    char *arg;
     FILE *in = fopen(argv[1], "r");
     if( in==0 ){
       fprintf(stderr,"can not open %s\n", argv[1]);
       exit(1);
     }
     zInFile = argv[1];
-    printf("#line 1 \"");
-    for(arg=argv[1]; *arg; arg++){
-      if( *arg!='\\' ){
-        printf("%c", *arg);
-      }else{
-        printf("\\\\");
-      }
-    }
-    printf("\"\n");
+    print_source_ref(zInFile, stdout);
     trans(in, stdout);
     fclose(in);
   }else{

@@ -36,6 +36,7 @@
 #define CFTYPE_TICKET     5
 #define CFTYPE_ATTACHMENT 6
 #define CFTYPE_EVENT      7
+#define CFTYPE_FORUM      8
 
 /*
 ** File permissions used by Fossil internally.
@@ -78,12 +79,15 @@ struct Manifest {
   char *zWiki;          /* Text of the wiki page.  W card. */
   char *zWikiTitle;     /* Name of the wiki page. L card. */
   char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
+  char *zThreadTitle;   /* The forum thread title. H card */
   double rEventDate;    /* Date of an event.  E card. */
   char *zEventId;       /* Artifact hash for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
   char *zAttachName;    /* Filename of an attachment. A card. */
   char *zAttachSrc;     /* Artifact hash for document being attached. A card. */
   char *zAttachTarget;  /* Ticket or wiki that attachment applies to.  A card */
+  char *zThreadRoot;    /* Thread root artifact.  G card */
+  char *zInReplyTo;     /* Forum in-reply-to artifact.  I card */
   int nFile;            /* Number of F cards */
   int nFileAlloc;       /* Slots allocated in aFile[] */
   int iFile;            /* Index of current file in iterator */
@@ -114,6 +118,40 @@ struct Manifest {
   } *aField;            /* One for each J card */
 };
 #endif
+
+/*
+** Allowed and required card types in each style of artifact
+*/
+static struct {
+  const char *zAllowed;     /* Allowed cards.  Human-readable */
+  const char *zRequired;    /* Required cards.  Human-readable */
+} manifestCardTypes[] = {
+  /*                           Allowed          Required    */
+  /* CFTYPE_MANIFEST   1 */ { "BCDFNPQRTUZ",   "DZ"          },
+                     /* Wants to be "CDUZ" ----^^^^
+                     ** but we must limit for historical compatibility */
+  /* CFTYPE_CLUSTER    2 */ { "MZ",            "MZ"          },
+  /* CFTYPE_CONTROL    3 */ { "DTUZ",          "DTUZ"        },
+  /* CFTYPE_WIKI       4 */ { "DLNPUWZ",       "DLUWZ"       },
+  /* CFTYPE_TICKET     5 */ { "DJKUZ",         "DJKUZ"       },
+  /* CFTYPE_ATTACHMENT 6 */ { "ACDNUZ",        "ADZ"         },
+  /* CFTYPE_EVENT      7 */ { "CDENPTUWZ",     "DEWZ"        },
+  /* CFTYPE_FORUM      8 */ { "DGHINPUWZ",     "DUWZ"        },
+};
+
+/*
+** Names of manifest types
+*/
+static const char *azNameOfMType[] = {
+  "manifest",
+  "cluster",
+  "tag",
+  "wiki",
+  "ticket",
+  "attachment",
+  "technote",
+  "forum post"
+};
 
 /*
 ** A cache of parsed manifests.  This reduces the number of
@@ -148,6 +186,31 @@ void manifest_destroy(Manifest *p){
     memset(p, 0, sizeof(*p));
     fossil_free(p);
   }
+}
+
+/*
+** Given a string of upper-case letters, compute a mask of the letters
+** present.  For example,  "ABC" computes 0x0007.  "DE" gives 0x0018".
+*/
+static unsigned int manifest_card_mask(const char *z){
+  unsigned int m = 0;
+  char c;
+  while( (c = *(z++))>='A' && c<='Z' ){
+    m |= 1 << (c - 'A');
+  }
+  return m;
+}
+
+/*
+** Given an integer mask representing letters A-Z, return the
+** letter which is the first bit set in the mask.  Example:
+** 0x03520 gives 'F' since the F-bit is the lowest.
+*/
+static char maskToType(unsigned int x){
+  char c = 'A';
+  if( x==0 ) return '?';
+  while( (x&1)==0 ){ x >>= 1; c++; }
+  return c;
 }
 
 /*
@@ -354,7 +417,6 @@ static char next_card(ManifestText *p){
 */
 Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   Manifest *p;
-  int seenZ = 0;
   int i, lineNo=0;
   ManifestText x;
   char cPrevType = 0;
@@ -363,9 +425,14 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int n;
   char *zUuid;
   int sz = 0;
-  int isRepeat, hasSelfRefTag = 0;
+  int isRepeat;
+  int nSelfTag = 0;     /* Number of T cards referring to this manifest */
+  int nSimpleTag = 0;   /* Number of T cards with "+" prefix */
   static Bag seen;
   const char *zErr = 0;
+  unsigned int m;
+  unsigned int seenCard = 0;   /* Which card types have been seen */
+  char zErrBuf[100];           /* Write error messages here */
 
   if( rid==0 ){
     isRepeat = 1;
@@ -424,6 +491,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   x.atEol = 1;
   while( (cType = next_card(&x))!=0 && cType>=cPrevType ){
     lineNo++;
+    if( cType<'A' || cType>'Z' ) SYNTAX("bad card type");
+    seenCard |= 1 << (cType-'A');
     switch( cType ){
       /*
       **     A <filename> <target> ?<source>?
@@ -456,6 +525,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->zAttachName = (char*)file_tail(zName);
         p->zAttachSrc = zSrc;
         p->zAttachTarget = zTarget;
+        p->type = CFTYPE_ATTACHMENT;
         break;
       }
 
@@ -471,6 +541,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( !hname_validate(p->zBaseline,sz) ){
           SYNTAX("invalid hash on B-card");
         }
+        p->type = CFTYPE_MANIFEST;
         break;
       }
 
@@ -522,6 +593,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( !hname_validate(p->zEventId, sz) ){
           SYNTAX("malformed hash on E-card");
         }
+        p->type = CFTYPE_EVENT;
         break;
       }
 
@@ -567,6 +639,55 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
           SYNTAX("incorrect F-card sort order");
         }
+        p->type = CFTYPE_MANIFEST;
+        break;
+      }
+
+      /*
+      **    G <hash>
+      **
+      ** A G-card identifies the initial root forum post for the thread
+      ** of which this post is a part.  Forum posts only.
+      */
+      case 'G': {
+        if( p->zThreadRoot!=0 ) SYNTAX("more than one G-card");
+        p->zThreadRoot = next_token(&x, &sz);
+        if( p->zThreadRoot==0 ) SYNTAX("missing hash on G-card");
+        if( !hname_validate(p->zThreadRoot,sz) ){
+          SYNTAX("Invalid hash on G-card");
+        }
+        p->type = CFTYPE_FORUM;
+        break;
+      }
+
+      /*
+      **     H <threadtitle>
+      **
+      ** The title for a forum thread.
+      */
+      case 'H': {
+        if( p->zThreadTitle!=0 ) SYNTAX("more than one H-card");
+        p->zThreadTitle = next_token(&x,0);
+        if( p->zThreadTitle==0 ) SYNTAX("missing title on H-card");
+        defossilize(p->zThreadTitle);
+        p->type = CFTYPE_FORUM;
+        break;
+      }
+
+      /*
+      **    I <hash>
+      **
+      ** A I-card identifies another forum post that the current forum post
+      ** is in reply to.
+      */
+      case 'I': {
+        if( p->zInReplyTo!=0 ) SYNTAX("more than one I-card");
+        p->zInReplyTo = next_token(&x, &sz);
+        if( p->zInReplyTo==0 ) SYNTAX("missing hash on I-card");
+        if( !hname_validate(p->zInReplyTo,sz) ){
+          SYNTAX("Invalid hash on I-card");
+        }
+        p->type = CFTYPE_FORUM;
         break;
       }
 
@@ -596,6 +717,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( i>0 && fossil_strcmp(p->aField[i-1].zName, zName)>=0 ){
           SYNTAX("incorrect J-card sort order");
         }
+        p->type = CFTYPE_TICKET;
         break;
       }
 
@@ -613,6 +735,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( !validate16(p->zTicketUuid, sz) ){
           SYNTAX("invalid K-card UUID");
         }
+        p->type = CFTYPE_TICKET;
         break;
       }
 
@@ -630,6 +753,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( !wiki_name_is_wellformed((const unsigned char *)p->zWikiTitle) ){
           SYNTAX("L-card has malformed wiki name");
         }
+        p->type = CFTYPE_WIKI;
         break;
       }
 
@@ -655,6 +779,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( i>0 && fossil_strcmp(p->azCChild[i-1], zUuid)>=0 ){
           SYNTAX("M-card in the wrong order");
         }
+        p->type = CFTYPE_CLUSTER;
         break;
       }
 
@@ -719,6 +844,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zUuid && !hname_validate(zUuid,sz) ){
           SYNTAX("invalid second hash on Q-card");
         }
+        p->type = CFTYPE_MANIFEST;
         break;
       }
 
@@ -733,6 +859,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         p->zRepoCksum = next_token(&x, &sz);
         if( sz!=32 ) SYNTAX("wrong size cksum on R-card");
         if( !validate16(p->zRepoCksum, 32) ) SYNTAX("malformed R-card cksum");
+        p->type = CFTYPE_MANIFEST;
         break;
       }
 
@@ -761,13 +888,9 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zValue ) defossilize(zValue);
         if( hname_validate(zUuid, sz) ){
           /* A valid artifact hash */
-          if( p->zEventId ) SYNTAX("non-self-referential T-card in event");
         }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
-          hasSelfRefTag = 1;
-          if( p->zEventId && zName[0]!='+' ){
-            SYNTAX("propagating T-card in event");
-          }
+          nSelfTag++;
         }else{
           SYNTAX("malformed artifact hash on T-card");
         }
@@ -775,6 +898,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' ){
           SYNTAX("T-card name does not begin with '-', '+', or '*'");
         }
+        if( zName[0]=='+' ) nSimpleTag++;
         if( validate16(&zName[1], strlen(&zName[1])) ){
           /* Do not allow tags whose names look like a hash */
           SYNTAX("T-card name looks like a hexadecimal hash");
@@ -860,7 +984,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zUuid = next_token(&x, &sz);
         if( sz!=32 ) SYNTAX("wrong size for Z-card cksum");
         if( !validate16(zUuid, 32) ) SYNTAX("malformed Z-card cksum");
-        seenZ = 1;
         break;
       }
       default: {
@@ -870,81 +993,60 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   if( x.z<x.zEnd ) SYNTAX("extra characters at end of card");
 
-  if( p->nCChild>0 ){
-    if( p->zAttachName
-     || p->zBaseline
-     || p->zComment
-     || p->rDate>0.0
-     || p->zEventId
-     || p->nFile>0
-     || p->nField>0
-     || p->zTicketUuid
-     || p->zWikiTitle
-     || p->zMimetype
-     || p->nParent>0
-     || p->nCherrypick>0
-     || p->zRepoCksum
-     || p->nTag>0
-     || p->zUser
-     || p->zWiki
-    ){
-      SYNTAX("cluster contains a card other than M- or Z-");
+  /* If the artifact type has not yet been determined, then compute
+  ** it now. */
+  if( p->type==0 ){
+    if( p->zComment!=0 || p->nFile>0 || p->nParent>0 ){
+      p->type = CFTYPE_MANIFEST;
+    }else{
+      p->type = CFTYPE_CONTROL;
     }
-    if( !seenZ ) SYNTAX("missing Z-card on cluster");
-    p->type = CFTYPE_CLUSTER;
-  }else if( p->zEventId ){
-    if( p->zAttachName ) SYNTAX("A-card in event");
-    if( p->zBaseline ) SYNTAX("B-card in event");
-    if( p->rDate<=0.0 ) SYNTAX("missing date on event");
-    if( p->nFile>0 ) SYNTAX("F-card in event");
-    if( p->nField>0 ) SYNTAX("J-card in event");
-    if( p->zTicketUuid ) SYNTAX("K-card in event");
-    if( p->zWikiTitle!=0 ) SYNTAX("L-card in event");
-    if( p->zRepoCksum ) SYNTAX("R-card in event");
-    if( p->zWiki==0 ) SYNTAX("missing W-card on event");
-    if( !seenZ ) SYNTAX("missing Z-card on event");
-    p->type = CFTYPE_EVENT;
-  }else if( p->zWiki!=0 || p->zWikiTitle!=0 ){
-    if( p->zAttachName ) SYNTAX("A-card in wiki");
-    if( p->zBaseline ) SYNTAX("B-card in wiki");
-    if( p->rDate<=0.0 ) SYNTAX("missing date on wiki");
-    if( p->nFile>0 ) SYNTAX("F-card in wiki");
-    if( p->nField>0 ) SYNTAX("J-card in wiki");
-    if( p->zTicketUuid ) SYNTAX("K-card in wiki");
-    if( p->zWikiTitle==0 ) SYNTAX("missing L-card on wiki");
-    if( p->zRepoCksum ) SYNTAX("R-card in wiki");
-    if( p->nTag>0 ) SYNTAX("T-card in wiki");
-    if( p->zWiki==0 ) SYNTAX("missing W-card on wiki");
-    if( !seenZ ) SYNTAX("missing Z-card on wiki");
-    p->type = CFTYPE_WIKI;
-  }else if( hasSelfRefTag || p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline
-      || p->nParent>0 ){
-    if( p->zAttachName ) SYNTAX("A-card in manifest");
-    if( p->rDate<=0.0 ) SYNTAX("missing date on manifest");
-    if( p->nField>0 ) SYNTAX("J-card in manifest");
-    if( p->zTicketUuid ) SYNTAX("K-card in manifest");
-    p->type = CFTYPE_MANIFEST;
-  }else if( p->nField>0 || p->zTicketUuid!=0 ){
-    if( p->zAttachName ) SYNTAX("A-card in ticket");
-    if( p->rDate<=0.0 ) SYNTAX("missing date on ticket");
-    if( p->nField==0 ) SYNTAX("missing J-card on ticket");
-    if( p->zTicketUuid==0 ) SYNTAX("missing K-card on ticket");
-    if( p->zMimetype) SYNTAX("N-card in ticket");
-    if( p->nTag>0 ) SYNTAX("T-card in ticket");
-    if( p->zUser==0 ) SYNTAX("missing U-card on ticket");
-    if( !seenZ ) SYNTAX("missing Z-card on ticket");
-    p->type = CFTYPE_TICKET;
-  }else if( p->zAttachName ){
-    if( p->rDate<=0.0 ) SYNTAX("missing date on attachment");
-    if( p->nTag>0 ) SYNTAX("T-card in attachment");
-    if( !seenZ ) SYNTAX("missing Z-card on attachment");
-    p->type = CFTYPE_ATTACHMENT;
-  }else{
-    if( p->rDate<=0.0 ) SYNTAX("missing date on control");
-    if( p->zMimetype ) SYNTAX("N-card in control");
-    if( !seenZ ) SYNTAX("missing Z-card on control");
-    p->type = CFTYPE_CONTROL;
   }
+
+  /* Verify that no disallowed cards are present for this artifact type */
+  m = manifest_card_mask(manifestCardTypes[p->type-1].zAllowed);
+  if( seenCard & ~m ){
+    sqlite3_snprintf(sizeof(zErrBuf), zErrBuf, "%c-card in %s",
+                     maskToType(seenCard & ~m),
+                     azNameOfMType[p->type-1]);
+    zErr = zErrBuf;
+    goto manifest_syntax_error;
+  }
+
+  /* Verify that all required cards are present for this artifact type */
+  m = manifest_card_mask(manifestCardTypes[p->type-1].zRequired);
+  if( ~seenCard & m ){
+    sqlite3_snprintf(sizeof(zErrBuf), zErrBuf, "%c-card missing in %s",
+                     maskToType(~seenCard & m),
+                     azNameOfMType[p->type-1]);
+    zErr = zErrBuf;
+    goto manifest_syntax_error;
+  }
+
+  /* Additional checks based on artifact type */
+  switch( p->type ){
+    case CFTYPE_CONTROL: {
+      if( nSelfTag ) SYNTAX("self-referential T-card in control artifact");
+      break;
+    }
+    case CFTYPE_EVENT: {
+      if( p->nTag!=nSelfTag ){
+        SYNTAX("non-self-referential T-card in technote");
+      }
+      if( p->nTag!=nSimpleTag ){
+        SYNTAX("T-card with '*' or '-' in technote");
+      }
+      break;
+    }
+    case CFTYPE_FORUM: {
+      if( p->zThreadTitle && p->zInReplyTo ){
+        SYNTAX("cannot have I-card and H-card in a forum post");
+      }
+      if( p->nParent>1 ) SYNTAX("too many arguments to P-card");
+      break;
+    }
+  }
+
   md5sum_init();
   if( !isRepeat ) g.parseCnt[p->type]++;
   return p;
@@ -953,7 +1055,7 @@ manifest_syntax_error:
   {
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( zUuid ){
-      blob_appendf(pErr, "manifest [%s] ", zUuid);
+      blob_appendf(pErr, "artifact [%s] ", zUuid);
       fossil_free(zUuid);
     }
   }
@@ -1017,14 +1119,16 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 **
 ** Usage: %fossil test-parse-manifest FILENAME ?N?
 **
-** Parse the manifest and discarded.  Use for testing only.
+** Parse the manifest(s) given on the command-line and report any
+** errors.  If the N argument is given, run the parsing N times.
 */
 void manifest_test_parse_cmd(void){
   Manifest *p;
   Blob b;
   int i;
   int n = 1;
-  sqlite3_open(":memory:", &g.db);
+  db_find_and_open_repository(0,0);
+  verify_all_options();
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
@@ -1040,6 +1144,43 @@ void manifest_test_parse_cmd(void){
     blob_reset(&err);
     manifest_destroy(p);
   }
+}
+
+/*
+** COMMAND: test-parse-all-blobs
+**
+** Usage: %fossil test-parse-all-blobs
+**
+** Parse all entries in the BLOB table that are believed to be non-data
+** artifacts and report any errors.  Run this test command on historical
+** repositories after making any changes to the manifest_parse()
+** implementation to confirm that the changes did not break anything.
+*/
+void manifest_test_parse_all_blobs_cmd(void){
+  Manifest *p;
+  Blob err;
+  Stmt q;
+  int nTest = 0;
+  int nErr = 0;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  db_prepare(&q, "SELECT DISTINCT objid FROM EVENT");
+  while( db_step(&q)==SQLITE_ROW ){
+    int id = db_column_int(&q,0);
+    fossil_print("Checking %d       \r", id);
+    nTest++;
+    fflush(stdout);
+    blob_init(&err, 0, 0);
+    p = manifest_get(id, CFTYPE_ANY, &err);
+    if( p==0 ){
+      fossil_print("%d ERROR: %s\n", id, blob_str(&err));
+      nErr++;
+    }
+    blob_reset(&err);
+    manifest_destroy(p);
+  }
+  db_finalize(&q);
+  fossil_print("%d tests with %d errors\n", nTest, nErr);
 }
 
 /*
@@ -1756,7 +1897,8 @@ int manifest_crosslink_end(int flags){
   if( db_exists("SELECT 1 FROM time_fudge") ){
     db_multi_exec(
       "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
-      " WHERE objid IN (SELECT mid FROM time_fudge);"
+      " WHERE objid IN (SELECT mid FROM time_fudge)"
+      " AND (mtime=omtime OR omtime IS NULL)"
     );
   }
   db_multi_exec("DROP TABLE time_fudge;");
@@ -1931,6 +2073,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   const char *zScript = 0;
   const char *zUuid = 0;
 
+  if( g.fSqlTrace ){
+    fossil_trace("-- manifest_crosslink(%d)\n", rid);
+  }
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
@@ -2376,6 +2521,67 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       p->rDate, rid, p->zUser, blob_str(&comment)+1
     );
     blob_reset(&comment);
+  }
+  if( p->type==CFTYPE_FORUM ){
+    int froot, fprev, firt;
+    char *zFType;
+    char *zTitle;
+    schema_forum();
+    froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
+    fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
+    firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;
+    db_multi_exec(
+      "INSERT INTO forumpost(fpid,froot,fprev,firt,fmtime)"
+      "VALUES(%d,%d,nullif(%d,0),nullif(%d,0),%.17g)",
+      p->rid, froot, fprev, firt, p->rDate
+    );
+    if( firt==0 ){
+      /* This is the start of a new thread, either the initial entry
+      ** or an edit of the initial entry. */
+      zTitle = p->zThreadTitle;
+      if( zTitle==0 || zTitle[0]==0 ){
+        zTitle = "(Deleted)";
+      }
+      zFType = fprev ? "Edit" : "Post";
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('f',%.17g,%d,%Q,'%q: %q')",
+        p->rDate, rid, p->zUser, zFType, zTitle
+      );
+      /*
+      ** If this edit is the most recent, then make it the title for
+      ** all other entries for the same thread
+      */
+      if( !db_exists("SELECT 1 FROM forumpost WHERE froot=%d AND firt=0"
+                     "   AND fpid!=%d AND fmtime>%.17g", froot, rid, p->rDate)
+      ){
+        /* This entry establishes a new title for all entries on the thread */
+        db_multi_exec(
+          "UPDATE event"
+          " SET comment=substr(comment,1,instr(comment,':')) || ' %q'"
+          " WHERE objid IN (SELECT fpid FROM forumpost WHERE froot=%d)",
+          zTitle, froot
+        );
+      }
+    }else{
+      /* This is a reply to a prior post.  Take the title from the root. */
+      zTitle = db_text(0, "SELECT substr(comment,instr(comment,':')+2)"
+                          "  FROM event WHERE objid=%d", froot);
+      if( zTitle==0 ) zTitle = fossil_strdup("<i>Unknown</i>");
+      if( p->zWiki[0]==0 ){
+        zFType = "Delete reply";
+      }else if( fprev ){
+        zFType = "Edit reply";
+      }else{
+        zFType = "Reply";
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('f',%.17g,%d,%Q,'%q: %q')",
+        p->rDate, rid, p->zUser, zFType, zTitle
+      );
+      fossil_free(zTitle);
+    }
   }
   db_end_transaction(0);
   if( permitHooks ){

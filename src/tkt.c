@@ -374,7 +374,7 @@ void ticket_create_table(int separateConnection){
   );
   zSql = ticket_table_schema();
   if( separateConnection ){
-    db_end_transaction(0);
+    if( db_transaction_nesting_depth() ) db_end_transaction(0);
     db_init_database(g.zRepositoryName, zSql, 0);
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
@@ -596,7 +596,7 @@ static int submitTicketCmd(
   int needMod;
 
   login_verify_csrf_secret();
-  if( !captcha_is_correct() ){
+  if( !captcha_is_correct(0) ){
     @ <p class="generalError">Error: Incorrect security code.</p>
     return TH_OK;
   }
