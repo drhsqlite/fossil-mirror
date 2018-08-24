@@ -1,5 +1,5 @@
-C Merge\strunk.\sUpdate\sto\sBeta\s7\sof\sOpenSSL\s1.1.1\s(pre\srelease\s9,\swith\sTLS\s1.3\ssupport\s!!!)
-D 2018-08-23T15:14:16.069
+C Add\sconfigurations\s"enable-capieng"\s(use\sWindows\sCertificate\sStore)\sand\s"no-weak-ssl-ciphers"\s(disable\sRC4\ssupport)
+D 2018-08-24T08:25:41.014
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -516,7 +516,7 @@ F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
 F src/main.mk c3dbc8baaf6a2a736d78b38655c5bdf128b5280ab22a3fbd37913bc16f56241b
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 26b7060e2b5c70c24e4fb178a64136c05a8843cb75c5144e79e529331ca69d0d
+F src/makemake.tcl db10f5351a7d287f2e842f0f89d3c30a642e51550f279bd34506a3441f9d2a28
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
@@ -733,9 +733,9 @@ F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b88f14f94af2f
 F win/Makefile.dmc ad2c4c55b5c75e1fb0727b0306a3fccdad129770fb06d975beac34e5323d9c54
-F win/Makefile.mingw 0257e8bf0df40cbb9fd6e3ca2ec22646d488acb19af93c09c02aaeb28c6ff42f
-F win/Makefile.mingw.mistachkin e143181d6a265f42ef386d0a2c62a93b467caae4c4b91c3c1e84f2eb4ecdd1b0
-F win/Makefile.msc 073f13c91f71d38657da46a29c3e098aeb2f0961715097e44e505309ef17ffcf
+F win/Makefile.mingw 2d5dbf54d7b3933a099fd864572c106d64a8929019a137ec2b9cd3a4f0451279
+F win/Makefile.mingw.mistachkin 011e7ebfab9e15e18e15a312a884e69e78cc1313b4891141241068e0c5034707
+F win/Makefile.msc 88385693847bbb26db2585808ced072c3039c7317bb33585a736fd06da3bbaf0
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 87f3c9467735e641c5c2cf0e05e7745d597ba12d06f539a5fb95dafa57eb7a9e bb7c2d91df62d54f4944d26a17b7f07f0a7c6790667c07a279f48a4667d5d4d9
-R a583ccd873fdcae8e150790836aa361c
+P cbdbc0a0ceaba9f90481f9f0ed1daee0547d01b00331f48d554da8e5fe641478
+R 5a5b5265b004fc3977e38f5e4bbea4aa
 U jan.nijtmans
-Z cb02bfd96230ae4e99ef8f66655d389b
+Z a47d8b41385774573ee9b69ec84530b6

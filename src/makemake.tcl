@@ -697,7 +697,7 @@ endif
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
 #    for SSLv3 (i.e. thereby forcing the use of TLS).
 #
-SSLCONFIG += no-ssl3 no-shared
+SSLCONFIG += no-ssl3 enable-capieng no-weak-ssl-ciphers no-shared
 
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
@@ -1579,7 +1579,7 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl3
+# SSLCONFIG = VC-WIN64A no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64A no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1599,7 +1599,7 @@ SSLCFLAGS = -DOPENSSL_NO_SSL3
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl3
+# SSLCONFIG = VC-WIN64I no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64I no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1619,7 +1619,7 @@ SSLCFLAGS = -DOPENSSL_NO_SSL3
 !else
 !message Assuming 'x86' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl3
+# SSLCONFIG = VC-WIN32 no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN32 no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
