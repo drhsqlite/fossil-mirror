@@ -1,5 +1,5 @@
-C Add\sconfigurations\s"enable-capieng"\s(use\sWindows\sCertificate\sStore)\sand\s"no-weak-ssl-ciphers"\s(disable\sRC4\ssupport)
-D 2018-08-24T08:25:41.014
+C Merge\strunk.\sUndo\sunintended\schanges\sin\sprevious\scommit
+D 2018-08-24T08:29:15.217
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 7ce0efdcb0760c7c02bb7e82661556638e32b45c90e3069918684db2a5e66563
+F src/backoffice.c ce8a16ba256b18c77bdc6e4e15f20d7c03a587d63dabe8fa398145379978ec1a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -734,7 +734,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b88f14f94af2f
 F win/Makefile.dmc ad2c4c55b5c75e1fb0727b0306a3fccdad129770fb06d975beac34e5323d9c54
 F win/Makefile.mingw 2d5dbf54d7b3933a099fd864572c106d64a8929019a137ec2b9cd3a4f0451279
-F win/Makefile.mingw.mistachkin 011e7ebfab9e15e18e15a312a884e69e78cc1313b4891141241068e0c5034707
+F win/Makefile.mingw.mistachkin bb6bf958b015463e53f6d965b05aaab9a036204cf5269eefef89a1885822517e
 F win/Makefile.msc 88385693847bbb26db2585808ced072c3039c7317bb33585a736fd06da3bbaf0
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbdbc0a0ceaba9f90481f9f0ed1daee0547d01b00331f48d554da8e5fe641478
-R 5a5b5265b004fc3977e38f5e4bbea4aa
+P b5a11142ee080ccf2cf6025890916ad8063b9ede2f54b083580013a0376a8402 3f5b25493212ff39f848879233b23a66d4ed118027284def9072e86d653bf274
+R 255d5ee59b3d161a16707aed721470f9
 U jan.nijtmans
-Z a47d8b41385774573ee9b69ec84530b6
+Z a587cc687c893fae6e3c71f438f02e9b
