@@ -992,7 +992,7 @@ void forum_main_page(void){
         }else{
           @ <h1>Most recent threads</h1>
         }
-        @ <div class='fileage'><table width="100%%">
+        @ <div class='forumPosts fileage'><table width="100%%">
         if( iOfst>0 ){
           if( iOfst>iLimit ){
             @ <tr><td colspan="3">\

@@ -1357,6 +1357,7 @@ static int repo_list_page(void){
   @ <html>
   @ <head>
   @ <base href="%s(g.zBaseURL)/" />
+  @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
   @ <title>Repository List</title>
   @ </head>
   @ <body>
@@ -1676,7 +1677,12 @@ static void process_one_web_page(
             return;
           }
 #endif
+          @ <html><head>
+          @ <meta name="viewport" \
+          @ content="width=device-width, initial-scale=1.0">
+          @ </head><body>
           @ <h1>Not Found</h1>
+          @ </body>
           cgi_set_status(404, "not found");
           cgi_reply();
         }
