@@ -1,5 +1,5 @@
-C Merged\sforum-skin-links\sbranch\sto\strunk.
-D 2018-08-25T17:24:19.141
+C Coloring\sthe\shyperlinks\sto\sthe\snewest\sforum\sposts\sfrom\s/forum\swith\sa\ndimmer\sand\sless\ssaturated\sversion\sof\sthe\snormal\shyperlink\scolor\sin\sthe\ndefault\sskin,\sto\stest\sthe\snew\sdiv.forumPosts\sselector.\s\sOther\sskins\sto\nbe\supdated\slater\sif\sthis\sis\sapproved.
+D 2018-08-25T20:41:54.965
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt a5e9d50d0225b4f592df3fcdcd1d4e04278631577aec1c188ee076c63a92fd93
+F skins/default/css.txt cdf3891966ff2365c9826a16b01a23e1eec8cd8940321077ccbfc77462f8e370
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt cc5c62f6ff4057aedd549735262fa2693552d735b7b15d9f6f64b299444cbf8a
@@ -862,8 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77782490334646c4a68e0c90e6311685422899eaa1363c756b1107c5c033d901 4344f806d6944ed2410121df448b37927a16228ee6c22851687131acf5869b75
-R b91fdd511d365b626551d28a8d3c9096
-T +closed 4344f806d6944ed2410121df448b37927a16228ee6c22851687131acf5869b75
+P 91c2b1b6c584a8dc42ad2965dc1d72895a2d824cfbc5c4ecec13e01c9062663f
+R b66a617da7e5ea1d86077a7fa3f3d5bb
 U wyoung
-Z af642ad1e5551162644db13773f2c8a2
+Z 745b8c8b4dd35cf547d580a438f3d732

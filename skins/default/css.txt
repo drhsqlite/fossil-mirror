@@ -17,6 +17,9 @@ a:hover {
     color: #4183C4;
     text-decoration: underline;
 }
+div.forumPosts a:visited {
+    color: #6A7F94;
+}
 
 hr {
     color: #eee;
