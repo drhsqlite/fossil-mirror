@@ -1,5 +1,5 @@
-C Do\snot\stry\sto\srun\sbackoffice\sif\snot\sconnected\sto\sa\svalid\srepository.
-D 2018-08-23T16:02:02.519
+C Added\snew\sCSS\sclass\sforumPosts\sto\sthe\s<div>\scontaining\sthe\slist\sof\sposts\non\sthe\s/forum\spage\sso\sthat\sskins\scan\starget\selements\sof\sthis\slist\ndifferently\sthan\sothers.\s\sOne\simmediate\suse\sfor\sthis\sis\sstyling\sread\nthreads\sdifferently\svia\sa:visited\sstyling.\s\sCurrently,\sonly\sone\sof\sthe\nstock\sskins\sships\swith\san\sunconditional\sa:visited\schange,\sso\sthat\sall\nlinks\sshow\sin\sthe\ssame\scolor\sregardless\sof\stheir\sstate.\s\sThat's\sfine\sin\nmost\sareas\sof\sthe\sUI,\sbut\sin\sthe\sforum,\sa\sskin\sdeveloper\smay\swant\nsomething\sspecial,\sso\swe\sneed\sa\sway\sto\smark\sthem\sdifferently.\s\sThis\n<div>\swas\salready\susing\sthe\sbroadly-used\s"fileage"\sstyle,\sbut\swe\sdon't\nwant\schanges\sto\sa:visited\sand\ssuch\sto\saffect\sall\sother\susers\sof\sfileage,\nso\swe\sneed\sa\sunique\sstyle\sto\sthis\spage.
+D 2018-08-25T16:06:29.284
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 12808e50068d86c1ca141a59796a7847bcd51d8ea6f2067049252a6a4375180c
+F src/forum.c 36fe4f14954d1411131a973d4be0fec78da75032104feeb421e453e618768d5b
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb7c2d91df62d54f4944d26a17b7f07f0a7c6790667c07a279f48a4667d5d4d9
-R 6047e43549fc7274b202f162eaa19801
-U drh
-Z 05d640d913e739498efbe8928257017f
+P 3f5b25493212ff39f848879233b23a66d4ed118027284def9072e86d653bf274
+R 8f2cbe8772eeaa4cee0afac576756305
+U wyoung
+Z ad1331127aefa9a6435ebb6744debbae
