@@ -1,5 +1,5 @@
-C Merge\senhancements\sfrom\strunk.
-D 2018-08-25T17:50:18.820
+C Applied\sthe\snew\sCSP\snonce\sto\sthe\s<script>\stags\sin\sthe\sheader\sfor\sthe\nEnhanced\sOriginal,\sEagle,\sand\sXekri\sskins,\selse\sthe\sclock\sin\sthe\supper\nright\sbreaks\sand\sChrome\sgives\san\serror\sabout\sthe\sCSP\sviolation.
+D 2018-08-26T03:35:14.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -399,11 +399,11 @@ F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
-F skins/eagle/header.txt 6a15f1acce442f3ab6c47bef4ee5ce1b02be1e85de03c1763b75cf351b585cd0
+F skins/eagle/header.txt 69e5d8e521eece71dfaaa5dba0be9b02f56e1389f27c3802b22380a10abecd0f
 F skins/enhanced1/css.txt e7c642d607fb6a1972e61b6c02e830f72af3c8b9
 F skins/enhanced1/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/enhanced1/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
-F skins/enhanced1/header.txt 6c458b63c459ac8730d25794e5eca1af18ba887a80828280cee906e6f5db358b
+F skins/enhanced1/header.txt d5c9d575ca22fb661d693c84d30360f0aad32700ea9055b5427b8687cb67cdd5
 F skins/khaki/css.txt fe1d5a7fa33fb49986825bf2eddba5c42ab6c636
 F skins/khaki/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/khaki/footer.txt b8103a3b864f4f0900825f135256c5a48b5323bc1760cc8378da9304e329066c
@@ -424,7 +424,7 @@ F skins/xekri/README.md 4acf7362d3bae2959b35f0d07694128a081f7049
 F skins/xekri/css.txt f0f6c6e8788205465fd2a980ee92aea1de3ccfca2a8a73b1a433f9cfacd97c8d
 F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f4d6889631e
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
-F skins/xekri/header.txt 7fd90ced0b925bed14a84c929ab1fba52c265e0ef9445d80e4546d4839d0b26c
+F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89c40851f08a77e67bb6d1ca5e673783fc1d8935a6858db757d8f4dd2057842f 91c2b1b6c584a8dc42ad2965dc1d72895a2d824cfbc5c4ecec13e01c9062663f
-R f283ed9b90fa0a8cffae54181538dda4
-U drh
-Z 4dfac5a5ab324657b0e7d47074775b86
+P 17b9ecbea6dc58d912e8612570e63d976150f873b8c934886a9922c45f045a6b
+R 4f8e12bcdcf2e128092f861ba394876c
+U wyoung
+Z 5067d41fccf9ffe581524034f9337d47
