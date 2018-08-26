@@ -1,5 +1,5 @@
-C Coloring\sthe\shyperlinks\sto\sthe\snewest\sforum\sposts\sfrom\s/forum\swith\sa\ndimmer\sand\sless\ssaturated\sversion\sof\sthe\snormal\shyperlink\scolor\sin\sthe\ndefault\sskin,\sto\stest\sthe\snew\sdiv.forumPosts\sselector.\s\sOther\sskins\sto\nbe\supdated\slater\sif\sthis\sis\sapproved.
-D 2018-08-25T20:41:54.965
+C Update\sJSON\scode\sto\saccount\sfor\snew\scapabilities.\sAlso,\sthe\s'setup'\sand\s'admin'\scapabilities\sshould\simply\s'debug'.
+D 2018-08-26T02:20:57.230
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 7f1829c005cabfa6cd7d5ab5fddf89dcd71427b70b8058032d2c452151ae1bc3
-F src/json.c 28a0a82d4451506e5456f0d385bda27b1fde6cb920f250906fed032f9667630a
+F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c dae5996cca66f4e6a4081d7882bf10c9439341d2d1d06801c0b320e84e1966cb
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 9f878979565d0133ec7ba233a2bd35a548b7a4a62541e82ceed8607ec6fd116f
+F src/login.c f9079718843a9a5fc937560e7d87e1a9797aa9fcc90acb6b0a2083a2cf8cb346
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
@@ -862,7 +862,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 91c2b1b6c584a8dc42ad2965dc1d72895a2d824cfbc5c4ecec13e01c9062663f
-R b66a617da7e5ea1d86077a7fa3f3d5bb
-U wyoung
-Z 745b8c8b4dd35cf547d580a438f3d732
+P 86ff84dac89c243b7775e24fc8864d2fbeb25b07726acc0f5c65aaa6bcadd93c cbfbfa8c722aaea5e037dba9c5070fa8266807937cf95e002f78f1cb2ab3a1d2
+R c28984e8061ea3426e67de134512b5aa
+T +closed cbfbfa8c722aaea5e037dba9c5070fa8266807937cf95e002f78f1cb2ab3a1d2
+U mistachkin
+Z 7ca4340de432842f4a25cf49d8d7c3c9
