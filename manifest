@@ -1,5 +1,5 @@
-C Update\sJSON\scode\sto\saccount\sfor\snew\scapabilities.\sAlso,\sthe\s'setup'\sand\s'admin'\scapabilities\sshould\simply\s'debug'.
-D 2018-08-26T02:20:57.230
+C Correct\smarkdown\sreference\sdocumentation\son\soptional\soutermost\s|\scharacters
+D 2018-08-27T15:00:32.875
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -519,7 +519,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl a04286b85ddc6f651b550331728caa40a3e0c0519da71befc06a93ec671fae1b
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
-F src/markdown.md 28d326a7f52366213a2803a1889e5b41c559de15cf5b7d17ae95167d9aafb98d
+F src/markdown.md ce356441f737497965852284e0d1968dfaeb48c5789f07d020feafb148db8de6
 F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -862,8 +862,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86ff84dac89c243b7775e24fc8864d2fbeb25b07726acc0f5c65aaa6bcadd93c cbfbfa8c722aaea5e037dba9c5070fa8266807937cf95e002f78f1cb2ab3a1d2
-R c28984e8061ea3426e67de134512b5aa
-T +closed cbfbfa8c722aaea5e037dba9c5070fa8266807937cf95e002f78f1cb2ab3a1d2
-U mistachkin
-Z 7ca4340de432842f4a25cf49d8d7c3c9
+P 3f12d4066184e92bbf933e01ae12334e216b85a7ba53385aede3475813500f4d
+U andygoth
+Z f8ac878a0eba66e5f516c05f2d840bba
