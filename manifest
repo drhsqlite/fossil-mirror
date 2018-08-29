@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"How\sThe\sDownload\sPage\sWorks"\sdocument.
-D 2018-08-29T11:17:29.761
+C Improvements\sto\sthe\scapability\slisting\spage:\s\s/setup_ucap_list
+D 2018-08-29T12:57:00.343
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -438,7 +438,7 @@ F src/browse.c 3674d616727d22e14f4cfd1713458f5f289b32168e7232e2e74cf53bb181bf1b
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
-F src/capabilities.c 660e8b37ce23f832ad33377153ce9615dd1841a264997197eda5ff7103b6aa36
+F src/capabilities.c 284becd46517998e2f3004b730dab92002288f684bb8f10f93bdebd608a49f00
 F src/captcha.c 20ccbd0859b3d3a99042d7f1f3ce6a3273dc3368a1df05691d9bae760fa4f3ef
 F src/cgi.c 12eb17258e769ae463d396662b60db8a66932cab823f17a6004813b7de1e5762
 F src/checkin.c 19b0e7b7d06e5bd21b10e33f5bbe3984d76e7b3f9b365ce1c223e3c3d7102435
@@ -550,7 +550,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c a8ba14e51a2490a4b66bfb6fe2ce6d05cdd64a22830dff98c1128cb989ca0a42
 F src/setup.c 25f03f1dcfec148976c0be2965093f4955cfb6c9415fbfdda27f1674fe213432
-F src/setupuser.c 9b651cce6ee54b460f886bb76162fb947b186d5271ff0c6199b661135fce3405
+F src/setupuser.c 732ca982b14e1e22b4e1eef8413a8eda768f05c0b50d4e7d614a91a7b875a39f
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff747b5151fa2edaedfd7dd2b109b1c172663315b88e17bb03d9a353dcff8cca
-R a8504da48a0c51535866f559315d06f9
+P 498cfbf76aa6270d3a7d39ef51c9be9253d54c0c5996f01b6e6aa6edf2bb96e2
+R 6f46c812fc5c0b50d40d133eddeefa7f
 U drh
-Z 9771c2ac0468cbcf6a0c555acee5f77b
+Z 9d936f701c354885ff1bfce94bb18a78

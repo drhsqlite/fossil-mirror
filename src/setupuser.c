@@ -201,7 +201,7 @@ void setup_ulist_notes(void){
   @ </p></li>
   @
   @ <li><p>The permission flags are as follows:</p>
-  capabilities_table();
+  capabilities_table(CAPCLASS_ALL);
   @ </li>
   @ </ol>
   style_footer();
@@ -215,7 +215,22 @@ void setup_ulist_notes(void){
 */
 void setup_ucap_list(void){
   style_header("User Capability Codes");
-  capabilities_table();
+  @ <h1>All capabilities</h1>
+  capabilities_table(CAPCLASS_ALL);
+  @ <h1>Capabilities associated with checked-in content</h1>
+  capabilities_table(CAPCLASS_CODE);
+  @ <h1>Capabilities associated with data transfer and sync</h1>
+  capabilities_table(CAPCLASS_DATA);
+  @ <h1>Capabilities associated with the forum</h1>
+  capabilities_table(CAPCLASS_FORUM);
+  @ <h1>Capabilities associated with tickets</h1>
+  capabilities_table(CAPCLASS_TKT);
+  @ <h1>Capabilities associated with wiki</h1>
+  capabilities_table(CAPCLASS_WIKI);
+  @ <h1>Administrative capabilities</h1>
+  capabilities_table(CAPCLASS_SUPER);
+  @ <h1>Miscellaneous capabilities</h1>
+  capabilities_table(CAPCLASS_OTHER);
   style_footer();
 }
 
