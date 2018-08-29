@@ -1,5 +1,5 @@
-C Fixed\ssome\sMarkdown-isms\sjust\schecked\sinto\swww/forum.wiki.
-D 2018-08-29T03:31:04.780
+C Try\sto\sstart\sa\snew\swrite\stransaction\sbefore\supdating\sthe\sVCACHE\stable.\s\sThis\nwill\shopefully\sprevent\soccasional\s"database\sis\slocked"\serrors\swhen\sbrowsing\nthe\sdocumentation.
+D 2018-08-29T11:04:19.346
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -464,7 +464,7 @@ F src/diff.c 5610fd7ea0e5ef01c982841bbe8d9f8a5651aa41613d63968f8c301066d7198b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 129a4751ee83520dd7c2c0c503a457b56be73c634d54460c7332829492e7649f
-F src/doc.c 8bdecf001fe50f555ea62933151ca091fde2a4ca9d958dd766c71030b9dc9269
+F src/doc.c b40e2b92dafe85979e6063784ed1e688695483bb952e97d196f94b4c7f187a06
 F src/email.c dba99958ae7c49ee1c7bea87866b6cd6a1949468754a5eeb0cc562b337a0e642
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 04d4bde1706ea2464ff171183687392f2d23dbadfc7770cb81b606a895c4b487
-R 8672b926573c580c9af94df666ab97dd
-U wyoung
-Z 83821d3e114eeb7a8512187fb2647e4e
+P 34a3bc12b0a699de7bdfb62a580ea8f6a0ef6884980f96f7512975749d830bc5
+R 4a81340022de63d6f79294b1a67e8ada
+U drh
+Z ed0f86d8e186cae47a673f2b0544eef0
