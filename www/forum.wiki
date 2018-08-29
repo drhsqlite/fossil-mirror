@@ -200,18 +200,32 @@ If you create a new Fossil repository with version 2.7 or newer, its
 default skin is already set up correctly for typical forum
 configurations.
 
-Those upgrading existing repositories will need to edit the Header part
-of their existing Fossil skin in Admin &rarr; Skins, adding something
-like this to create the navbar link:
+If you have an existing repository, you have two choices if you want its
+skin to be upgraded to support forums:
+
+1.  Go into Admin &rarr; Skins and switch from your current skin to one
+    of the stock skins.  If you were on a stock skin, just switch away
+    from your current one to the actual stock skin, since they will be
+    different after the upgrade.
+
+2.  If you have local customization that you do not want to throw away,
+    you can use the diff feature of Fossil's skin editor to show how the
+    skins differ.
+
+The remainder of this section summarizes the differences you're expected
+to see when taking option #2.
+
+The first thing is that you'll need to add something like the following
+to the Header part of the skin to create the navbar link:
 
 <verbatim>
-  if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+  if {[anycap 234567] || [anoncap 2] || [anoncap 3]} {
     menulink /forum Forum
   }
 </verbatim>
 
 These rules say that any logged-in user with any forum-related
-capability (2-6 inclusive, as of this writing) or an anonymous user with
+capability (2-7 inclusive, as of this writing) or an anonymous user with
 read or write capability on the forum (2, 3) will see the "Forum" navbar
 link, which just takes you to <tt>/forum</tt>.
 
@@ -243,6 +257,32 @@ For dark skins, an inverse of the above trick will work better:
 </verbatim>
 
 That overlays the background with 5% white to lighten it slightly.
+
+Another new forum-related CSS style you might want to reflect into your
+existing skin is:
+
+<verbatim>
+  div.forumPosts a:visited {
+    color: #6A7F94;
+  }
+</verbatim>
+
+This changes the clicked-hyperlink color for the forum post links on the
+main `/forum` page only, which allows your browser's history mechanism
+to show which threads a user has read and which not. The link color will
+change back to the normal link color — indicating "unread" — when a
+reply is added to an existing thread because that changes where the link
+from the `/forum` page points, taking you to the newest post in the
+thread.
+
+The color given above is suitable for the stock skin.
+
+Beware that when changing this example, there are some [stringent
+restrictions][vpriv] in modern browsers to prevent snoopy web sites from
+brute-forcing your browsing history. (See the link for the method, which
+explains the restrictions.)
+
+[vpriv]: https://hacks.mozilla.org/2010/03/privacy-related-changes-coming-to-css-vistited/
 
 
 <h3 id="search">Enable Forum Search</h3>
