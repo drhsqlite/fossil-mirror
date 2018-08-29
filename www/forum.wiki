@@ -175,17 +175,18 @@ category. If you did not give the Read Forum capability (2) to
 <tt>anonymous</tt> above, you should give <tt>developer</tt> that
 capability here if you choose to give it capability 3 or 4.
 
-You must give at least one user or user category the Email Alerts
-capability (7), else the only people able to sign themselves up for
-email notifications are those with the Setup or Admin capability. Those
-users could sign others up via Admin &rarr; Notification, but you
-probably want to give this capability to one of the user categories.
-Give it to <tt>nobody</tt> if you want anyone to sign up without any
-restrictions.  Give it to <tt>anonymous</tt> if you want the user to
-solve a simple CAPTCHA before signing up. Give it to <tt>reader</tt> or
-<tt>developer</tt> if you want only users with Fossil logins to have
-this ability. (That's assuming you give one or both of these
-capabilities to every user on your Fossil repository.)
+If you want to use the email notification feature, by default only those
+users in the Setup and Admin user categories can make use of it. Grant
+the Email Alerts capability (7) to give others access to this feature.
+Alternately, you can handle notification signups outside of Fossil, with
+a Setup or Admin users manually signing users up via Admin &rarr;
+Notification. You'll want to grant this capability to the
+<tt>nobody</tt> user category if you want anyone to sign up without any
+restrictions.  Give it to <tt>anonymous</tt> instead if you want the
+user to solve a simple CAPTCHA before signing up. Or, give it to
+<tt>reader</tt> or <tt>developer</tt> if you want only users with Fossil
+logins to have this ability. (That's assuming you give one or both of
+these capabilities to every user on your Fossil repository.)
 
 By following this advice, you should not need to tediously add
 capabilities to individual accounts except in atypical cases, such as
