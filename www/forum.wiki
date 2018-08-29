@@ -203,14 +203,16 @@ configurations.
 If you have an existing repository, you have two choices if you want its
 skin to be upgraded to support forums:
 
-1.  Go into Admin &rarr; Skins and switch from your current skin to one
-    of the stock skins.  If you were on a stock skin, just switch away
-    from your current one to the actual stock skin, since they will be
-    different after the upgrade.
+<ol>
+  <li>Go into Admin &rarr; Skins and switch from your current skin to
+  one of the stock skins.  If you were on a stock skin, just switch away
+  from your current one to the actual stock skin, since they will be
+  different after the upgrade.</li>
 
-2.  If you have local customization that you do not want to throw away,
-    you can use the diff feature of Fossil's skin editor to show how the
-    skins differ.
+  <li>If you have local customization that you do not want to throw
+  away, you can use the diff feature of Fossil's skin editor to show how
+  the skins differ.</li>
+</ol>
 
 The remainder of this section summarizes the differences you're expected
 to see when taking option #2.
@@ -268,21 +270,20 @@ existing skin is:
 </verbatim>
 
 This changes the clicked-hyperlink color for the forum post links on the
-main `/forum` page only, which allows your browser's history mechanism
-to show which threads a user has read and which not. The link color will
-change back to the normal link color — indicating "unread" — when a
-reply is added to an existing thread because that changes where the link
-from the `/forum` page points, taking you to the newest post in the
-thread.
+main <tt>/forum</tt> page only, which allows your browser's history
+mechanism to show which threads a user has read and which not. The link
+color will change back to the normal link color — indicating "unread" —
+when a reply is added to an existing thread because that changes where
+the link from the <tt>/forum</tt> page points, taking you to the newest
+post in the thread.
 
 The color given above is suitable for the stock skin.
 
-Beware that when changing this example, there are some [stringent
-restrictions][vpriv] in modern browsers to prevent snoopy web sites from
-brute-forcing your browsing history. (See the link for the method, which
-explains the restrictions.)
-
-[vpriv]: https://hacks.mozilla.org/2010/03/privacy-related-changes-coming-to-css-vistited/
+Beware that when changing this example, there are some
+[https://hacks.mozilla.org/2010/03/privacy-related-changes-coming-to-css-vistited/
+| stringent restrictions] in modern browsers to prevent snoopy web sites
+from brute-forcing your browsing history. (See the link for the method,
+which explains the restrictions.)
 
 
 <h3 id="search">Enable Forum Search</h3>
