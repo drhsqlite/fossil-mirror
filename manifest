@@ -1,5 +1,5 @@
-C Disallow\sinline\sjavascript\sunless\sprotected\sby\sa\snonce.
-D 2018-08-29T11:06:36.174
+C Updates\sto\sthe\s"How\sThe\sDownload\sPage\sWorks"\sdocument.
+D 2018-08-29T11:17:29.761
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -747,7 +747,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
-F www/aboutdownload.wiki 99aa5e1f5bb489c7e981e002a054d90121dd6463587a5d45f28df6b9e3e7ab09
+F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/alerts.md ad73f33922131ef40d21ced0e7f1e682639b7c623cfca0fb335d9ba4d2652cb6
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
@@ -862,8 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03979823d152afbd0ddd057d050aa5e0a5f5c20e04245b8746588dc26c35e874 b9d86ed2616d10d921ff3449f250b8a8dd2eaf8f594812e7826745d3d9933e57
-R 657fca48997c06ce5671267e34d14461
-T +closed b9d86ed2616d10d921ff3449f250b8a8dd2eaf8f594812e7826745d3d9933e57
+P ff747b5151fa2edaedfd7dd2b109b1c172663315b88e17bb03d9a353dcff8cca
+R a8504da48a0c51535866f559315d06f9
 U drh
-Z a01d1a24272b9375510965c50c994dfb
+Z 9771c2ac0468cbcf6a0c555acee5f77b

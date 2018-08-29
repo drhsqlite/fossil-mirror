@@ -8,14 +8,15 @@ repository is implemented using [./unvers.wiki|unversioned files].
 The "download.html" screen itself, and the various build products
 are all stored as unversioned content.  The download.html page
 uses AJAX to retrieve the [/help?cmd=/juvlist|/juvlist] webpage
-for a list of all unversioned files.  Javascript within the
-download.html page then figures out which unversioned files are
+for a list of all unversioned files.  Javascript in the
+[/uv/download.js?mimetype=text/plain|download.js] file (which is
+sourced by "download.html") then figures out which unversioned files are
 build products and paints appropriate icons on the displayed
 download page.
 
 When a new version is generated, the developers use the
 [/help?cmd=uv|fossil uv edit] command to make minor changes
-to the "[/uv/download.html?mimetype=text/plain|download.html]"
+to the "[/uv/download.js?mimetype=text/plain|download.js]"
 file so that it knows about the
 new version number.  Then the developers run
 the [/help?cmd=uv|fossil uv add] command for each
@@ -27,27 +28,32 @@ are updated automatically.
 
 <h2>2.0 Details</h2>
 
-The current text of the "download.html" file can be seen
-[/uv/download.html?mimetype=text/plain|here].  (Mouse-over that
-hyperlink to see how the "mimetype=text/plain" query parameter
-is added in order to display the file as plain text instead of
-the usual HTML.)  The default mimetype for "download.html" is
-text/html.  But because the entire page is enclosed within
+The current text of the "download.html" and "download.js" files can
+be seen at:
 
+   *   [/uv/download.html?mimetype=text/plain]
+   *   [/uv/download.js?mimetype=text/plain]
+
+Notice how the hyperlinks above use the "mimetype=text/plain"
+query parameter in order to display the file as plain text
+instead of the usual HTML or Javascript.
+
+The default mimetype for "download.html" is
+text/html.  But because the entire page is enclosed within
 
     <b>&lt;div class='fossil-doc' data-title='Download Page'&gt;...&lt;/div&gt;</b>
 
 Fossil knows to add its standard header and footer information to the
 document, making it look just like any other page.  See
 "[./embeddeddoc.wiki|embedded documentation]" for further details on
-how this works.
+how &lt;div class='fossil-doc'&gt; this works.
 
 With each new release, the "releases" variable in the javascript on
-the [/uv/download.html?mimetype=text/plain|download.html] page is
-edited (using "[/help?cmd=uv|fossil uv edit download.html]") to add
+the [/uv/download.js?mimetype=text/plain|download.js] page is
+edited (using "[/help?cmd=uv|fossil uv edit download.js]") to add
 details of the release.
 
-When the javascript on the "download.html" page runs, it requests
+When the javascript in the "download.js" file runs, it requests
 a listing of all unversioned content using the /juvlist URL.
 ([/juvlist|sample /juvlist output]).  The content of the download page is
 constructed by matching unversioned files against regular expressions
@@ -64,7 +70,7 @@ out the release and compiles it, then runs
 each build product.
 
 When older builds are retired from the download page, the
-[/uv/download.html?mimetype=text/plain|download.html] page is again
+[/uv/download.js?mimetype=text/plain|download.js] page is again
 edited to remove the corresponding entry from the "release" variable
 and the edit is synced using
 [/help?cmd=uv|fossil uv sync].  This causes the build products to
