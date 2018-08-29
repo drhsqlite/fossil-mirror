@@ -89,6 +89,12 @@ static int needSortJs = 0;   /* sorttable.js */
 static int needGraphJs = 0;  /* graph.js */
 
 /*
+** Extra JS added to the end of the file.
+*/
+static Blob blobJs = BLOB_INITIALIZER;
+static Blob blobOnLoad = BLOB_INITIALIZER;
+
+/*
 ** Generate and return a anchor tag like this:
 **
 **        <a href="URL">
@@ -364,6 +370,20 @@ static void image_url_var(const char *zImageName){
 }
 
 /*
+** Return a random nonce that is stored in static space.  For a particular
+** run, the same nonce is always returned.
+*/
+char *style_nonce(void){
+  static char zNonce[52];
+  if( zNonce[0]==0 ){
+    unsigned char zSeed[24];
+    sqlite3_randomness(24, zSeed);
+    encode16(zSeed,(unsigned char*)zNonce,24);
+  }
+  return zNonce;
+}
+
+/*
 ** Default HTML page header text through <body>.  If the repository-specific
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
@@ -373,7 +393,9 @@ static char zDfltHeader[] =
 @ <head>
 @ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" \
-@  content="default-src 'self' data: 'unsafe-inline'" />
+@  content="default-src 'self' data: ; \
+@  script-src 'self' 'nonce-$<nonce>' ;\
+@  style-src 'self' 'unsafe-inline'" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
@@ -404,6 +426,7 @@ void style_header(const char *zTitleFormat, ...){
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
+  Th_Store("nonce", style_nonce());
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
   Th_Store("title", zTitle);
@@ -525,7 +548,7 @@ void style_load_js(const char *zName){
     if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
   }
   if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
-    fossil_panic("too man JS files");
+    fossil_panic("too many JS files");
   }
   azJsToLoad[nJsToLoad++] = zName;
 }
@@ -543,17 +566,36 @@ static void style_load_all_js_files(void){
                  && db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
-    style_load_one_js_file("href.js");
+  }
+  @ <script nonce="%h(style_nonce())">
+  if( needHrefJs ){
+    cgi_append_content(builtin_text("href.js"),-1);
   }
   if( needSortJs ){
-    style_load_one_js_file("sorttable.js");
+    cgi_append_content(builtin_text("sorttable.js"),-1);
   }
   if( needGraphJs ){
-    style_load_one_js_file("graph.js");
+    cgi_append_content(builtin_text("graph.js"),-1);
   }
   for(i=0; i<nJsToLoad; i++){
-    style_load_one_js_file(azJsToLoad[i]);
+    cgi_append_content(builtin_text(azJsToLoad[i]),-1);
   }
+  if( blob_size(&blobOnLoad)>0 ){
+    @ window.onload = function(){
+    cgi_append_content(blob_buffer(&blobOnLoad), blob_size(&blobOnLoad));
+    cgi_append_content("\n}\n", -1);
+  }
+  @ </script>
+}
+
+/*
+** Extra JS to run after all content is loaded.
+*/
+void style_js_onload(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  blob_vappendf(&blobOnLoad, zFormat, ap);
+  va_end(ap);
 }
 
 /*
