@@ -91,7 +91,6 @@ static int needGraphJs = 0;  /* graph.js */
 /*
 ** Extra JS added to the end of the file.
 */
-static Blob blobJs = BLOB_INITIALIZER;
 static Blob blobOnLoad = BLOB_INITIALIZER;
 
 /*
