@@ -400,7 +400,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     if( (thisMask & groupMask)==0 ) return;
     if( (thisMask & checkMask)!=0 ){
       if( (thisMask & CONFIGSET_SCRIBER)!=0 ){
-        email_schema(1);
+        alert_schema(1);
       }
       checkMask &= ~thisMask;
     }
@@ -417,7 +417,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
          &zName[1], aType[ii].zPrimKey);
-    if( fossil_stricmp(zName,"/subscriber") ) email_schema(0);
+    if( fossil_stricmp(zName,"/subscriber") ) alert_schema(0);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }

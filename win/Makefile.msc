@@ -381,6 +381,7 @@ MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
                 /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = add_.c \
+        alerts_.c \
         allrepo_.c \
         attach_.c \
         backoffice_.c \
@@ -411,7 +412,6 @@ SRC   = add_.c \
         diffcmd_.c \
         dispatch_.c \
         doc_.c \
-        email_.c \
         encode_.c \
         etag_.c \
         event_.c \
@@ -588,6 +588,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\wiki.wiki
 
 OBJ   = $(OX)\add$O \
+        $(OX)\alerts$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \
         $(OX)\backoffice$O \
@@ -619,7 +620,6 @@ OBJ   = $(OX)\add$O \
         $(OX)\diffcmd$O \
         $(OX)\dispatch$O \
         $(OX)\doc$O \
-        $(OX)\email$O \
         $(OX)\encode$O \
         $(OX)\etag$O \
         $(OX)\event$O \
@@ -784,6 +784,7 @@ $(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(O
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
+	echo $(OX)\alerts.obj >> $@
 	echo $(OX)\allrepo.obj >> $@
 	echo $(OX)\attach.obj >> $@
 	echo $(OX)\backoffice.obj >> $@
@@ -815,7 +816,6 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\diffcmd.obj >> $@
 	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
-	echo $(OX)\email.obj >> $@
 	echo $(OX)\encode.obj >> $@
 	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
@@ -1048,6 +1048,12 @@ $(OX)\add$O : add_.c add.h
 add_.c : $(SRCDIR)\add.c
 	translate$E $** > $@
 
+$(OX)\alerts$O : alerts_.c alerts.h
+	$(TCC) /Fo$@ -c alerts_.c
+
+alerts_.c : $(SRCDIR)\alerts.c
+	translate$E $** > $@
+
 $(OX)\allrepo$O : allrepo_.c allrepo.h
 	$(TCC) /Fo$@ -c allrepo_.c
 
@@ -1226,12 +1232,6 @@ $(OX)\doc$O : doc_.c doc.h
 	$(TCC) /Fo$@ -c doc_.c
 
 doc_.c : $(SRCDIR)\doc.c
-	translate$E $** > $@
-
-$(OX)\email$O : email_.c email.h
-	$(TCC) /Fo$@ -c email_.c
-
-email_.c : $(SRCDIR)\email.c
 	translate$E $** > $@
 
 $(OX)\encode$O : encode_.c encode.h
@@ -1857,6 +1857,7 @@ fossil.res : $B\win\fossil.rc
 
 headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 	makeheaders$E add_.c:add.h \
+			alerts_.c:alerts.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
 			backoffice_.c:backoffice.h \
@@ -1887,7 +1888,6 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			diffcmd_.c:diffcmd.h \
 			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
-			email_.c:email.h \
 			encode_.c:encode.h \
 			etag_.c:etag.h \
 			event_.c:event.h \
