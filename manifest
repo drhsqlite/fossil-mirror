@@ -1,5 +1,5 @@
-C Attempt\sto\smake\sthe\s/subscribe\sand\s/alerts\sforms\sless\sconfusing.
-D 2018-08-30T14:43:55.541
+C Add\sthe\sability\sto\sdelete\susers\sto\sthe\s/setup_uedit\swebpage.
+D 2018-08-30T16:05:03.898
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -550,7 +550,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c a8ba14e51a2490a4b66bfb6fe2ce6d05cdd64a22830dff98c1128cb989ca0a42
 F src/setup.c 25f03f1dcfec148976c0be2965093f4955cfb6c9415fbfdda27f1674fe213432
-F src/setupuser.c 732ca982b14e1e22b4e1eef8413a8eda768f05c0b50d4e7d614a91a7b875a39f
+F src/setupuser.c 53ae6abd6f927f531dd79ce14aa3a3c889615c53a42f79c45cc80702a5ed5fa1
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 57e80ad20a127617f490da05904666756b888e71f8fc3570f77c7c77212b2e39
-R 182401779719b253f072d5af7e17583c
+P 6d04bab418cac24435ff59a06085df96d475d4245de162aa4c271cd4cb02fe8c
+R 99285e3772861c30a41a77403a2121be
 U drh
-Z 8a890326ca0e945047e8b3418dc10030
+Z 29b6d60d36203dff622b637f19ed13f8

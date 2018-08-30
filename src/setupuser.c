@@ -258,8 +258,8 @@ void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   const char *zGroup;
   const char *zOldLogin;
-  int doWrite;
   int uid, i;
+  char *zDeleteVerify = 0;   /* Delete user verification text */
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
   const char *inherit[128];
@@ -288,12 +288,43 @@ void user_edit(void){
     return;
   }
 
+  /* Check for requests to delete the user */
+  if( P("delete") && cgi_csrf_safe(1) ){
+    int n;
+    if( P("verifydelete") ){
+      /* Verified delete user request */
+      db_multi_exec("DELETE FROM user WHERE uid=%d", uid);
+      cgi_redirect(cgi_referer("setup_ulist"));
+      return;
+    }
+    n = db_int(0, "SELECT count(*) FROM event"
+                  " WHERE user=%Q AND objid NOT IN private",
+                  P("login"));
+    if( n==0 ){
+      zDeleteVerify = mprintf("Check this box and press \"Delete User\" again");
+    }else{
+      zDeleteVerify = mprintf(
+        "User \"%s\" has %d or more artifacts in the block-chain. "
+        "Delete anyhow?",
+        P("login")/*safe-for-%s*/, n);
+    }
+  }
+
   /* If we have all the necessary information, write the new or
   ** modified user record.  After writing the user record, redirect
   ** to the page that displays a list of users.
   */
-  doWrite = cgi_all("login","info","pw") && !higherUser && cgi_csrf_safe(1);
-  if( doWrite ){
+  if( !cgi_all("login","info","pw","apply") ){
+    /* need all of the above properties to make a change.  Since one or
+    ** more are missing, no-op */
+  }else if( higherUser ){
+    /* An Admin (a) user cannot edit a Superuser (s) */
+  }else if( zDeleteVerify!=0 ){
+    /* Need to verify a delete request */
+  }else if( !cgi_csrf_safe(1) ){
+    /* This might be a cross-site request forgery, so ignore it */
+  }else{
+    /* We have all the information we need to make the change to the user */
     char c;
     char zCap[70], zNm[4];
     zNm[0] = 'a';
@@ -577,7 +608,7 @@ void user_edit(void){
   @   </td>
   @ </tr>
   @ <tr>
-  @   <td class="usetupEditLabel">Selected Cap.:</td>
+  @   <td class="usetupEditLabel">Selected Cap:</td>
   @   <td>
   @     <span id="usetupEditCapability">(missing JS?)</span>
   @     <a href="%R/setup_ucap_list">(key)</a>
@@ -607,9 +638,22 @@ void user_edit(void){
     @ login group.</td></tr>
   }
   if( !higherUser ){
+    if( zDeleteVerify ){
+      @ <tr>
+      @   <td valign="top" align="right">Verify:</td>
+      @   <td><label><input type="checkbox" name="verifydelete">\
+      @   Confirm Delete \
+      @   <span class="loginError">&larr; %h(zDeleteVerify)</span>
+      @   </label></td>
+      @ <tr>
+    }
     @ <tr>
     @   <td>&nbsp;</td>
-    @   <td><input type="submit" name="submit" value="Apply Changes" /></td>
+    @   <td><input type="submit" name="apply" value="Apply Changes">
+    if( !login_is_special(zLogin) ){
+      @   <input type="submit" name="delete" value="Delete User">
+    }
+    @   <input type="submit" name="can" value="Cancel"></td>
     @ </tr>
   }
   @ </table>
