@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.25.0"
 #define SQLITE_VERSION_NUMBER 3025000
-#define SQLITE_SOURCE_ID      "2018-08-16 16:24:24 456842924bb33c0af8af29402f06e5f25b6791f698a0d12a080258b20b0cfb61"
+#define SQLITE_SOURCE_ID      "2018-08-30 01:52:10 58078c0d2647a194279fa80e032670441b296ffc3acee692901faa5beca460b7"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -6440,6 +6440,7 @@ struct sqlite3_index_info {
 #define SQLITE_INDEX_CONSTRAINT_ISNOTNULL 70
 #define SQLITE_INDEX_CONSTRAINT_ISNULL    71
 #define SQLITE_INDEX_CONSTRAINT_IS        72
+#define SQLITE_INDEX_CONSTRAINT_FUNCTION 150
 
 /*
 ** CAPI3REF: Register A Virtual Table Implementation
