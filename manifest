@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.25.0\salpha\sversion,\sfor\stesting.
-D 2018-08-30T14:03:13.673
+C Attempt\sto\smake\sthe\s/subscribe\sand\s/alerts\sforms\sless\sconfusing.
+D 2018-08-30T14:43:55.541
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -465,7 +465,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c 129a4751ee83520dd7c2c0c503a457b56be73c634d54460c7332829492e7649f
 F src/doc.c b40e2b92dafe85979e6063784ed1e688695483bb952e97d196f94b4c7f187a06
-F src/email.c dba99958ae7c49ee1c7bea87866b6cd6a1949468754a5eeb0cc562b337a0e642
+F src/email.c 258c2803ea131ae40adc4d06024e4dff487d8c8cfe8bd5a71915fa4013ae6863
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8689cf8b834bb3e9ae8139b8215fc8c8a53e4fce97771069d47ba0b18e73117b
-R 804352952f2b89bbc4db6cc9c4851435
+P 57e80ad20a127617f490da05904666756b888e71f8fc3570f77c7c77212b2e39
+R 182401779719b253f072d5af7e17583c
 U drh
-Z e40753d925f3ff9588cf12cc01afad26
+Z 8a890326ca0e945047e8b3418dc10030

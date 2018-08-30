@@ -1263,6 +1263,7 @@ void subscribe_page(void){
   char *zCaptcha = 0;
   char *zErr = 0;
   int eErr = 0;
+  int di;
 
   if( email_webpages_disabled() ) return;
   login_check_credentials();
@@ -1406,7 +1407,7 @@ void subscribe_page(void){
     @ </tr>
   }
   @ <tr>
-  @  <td class="form_label">Options:</td>
+  @  <td class="form_label">Topics:</td>
   @  <td><label><input type="checkbox" name="sa" %s(PCK("sa"))> \
   @  Announcements</label><br>
   if( g.perm.Read ){
@@ -1425,16 +1426,23 @@ void subscribe_page(void){
     @  <label><input type="checkbox" name="sw" %s(PCK("sw"))> \
     @  Wiki</label><br>
   }
-  @  <label><input type="checkbox" name="di" %s(PCK("di"))> \
-  @  Daily digest only</label><br>
+  di = PB("di");
+  @ </td></tr>
+  @ <tr>
+  @  <td class="form_label">Delivery:</td>
+  @  <td><select size="1" name="di">
+  @     <option value="0" %s(di?"":"selected")>Individual Emails</option>
+  @     <option value="1" %s(di?"selected":"")>Daily Digest</option>
+  @     </select></td>
+  @ </tr>
   if( g.perm.Admin ){
+    @ <tr>
+    @  <td class="form_label">Admin Options:</td><td>
     @  <label><input type="checkbox" name="vi" %s(PCK("vi"))> \
     @  Verified</label><br>
     @  <label><input type="checkbox" name="dnc" %s(PCK("dnc"))> \
-    @  Do not call</label><br>
+    @  Do not call</label></td></tr>
   }
-  @ </td>
-  @ </tr>
   @ <tr>
   @  <td></td>
   if( needCaptcha && !email_enabled() ){
@@ -1574,7 +1582,7 @@ void alerts_page(void){
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
       eErr = 9;
-      zErr = mprintf("Select this checkbox and press \"Unsubscribe\" to"
+      zErr = mprintf("Select this checkbox and press \"Unsubscribe\" again to"
                      " unsubscribe");
     }else{
       email_unsubscribe(zName);
@@ -1652,7 +1660,7 @@ void alerts_page(void){
     @ </tr>
   }
   @ <tr>
-  @  <td class="form_label">Options:</td>
+  @  <td class="form_label">Topics:</td>
   @  <td><label><input type="checkbox" name="sa" %s(sa?"checked":"")>\
   @  Announcements</label><br>
   if( g.perm.Read ){
@@ -1669,24 +1677,37 @@ void alerts_page(void){
   }
   if( g.perm.RdWiki ){
     @  <label><input type="checkbox" name="sw" %s(sw?"checked":"")>\
-    @  Wiki</label><br>
+    @  Wiki</label>
   }
+  @ </td></tr>
+  @ <tr>
+  @  <td class="form_label">Delivery:</td>
+  @  <td><select size="1" name="sdigest">
+  @     <option value="0" %s(sdigest?"":"selected")>Individual Emails</option>
+  @     <option value="1" %s(sdigest?"selected":"")>Daily Digest</option>
+  @     </select></td>
+  @ </tr>
+#if 0
   @  <label><input type="checkbox" name="sdigest" %s(sdigest?"checked":"")>\
   @  Daily digest only</label><br>
+#endif
   if( g.perm.Admin ){
+    @ <tr>
+    @  <td class="form_label">Admin Options:</td><td>
     @  <label><input type="checkbox" name="sdonotcall" \
     @  %s(sdonotcall?"checked":"")> Do not call</label><br>
     @  <label><input type="checkbox" name="sverified" \
     @  %s(sverified?"checked":"")>\
-    @  Verified</label><br>
+    @  Verified</label></td></tr>
   }
-  @  <label><input type="checkbox" name="dodelete">
-  @  Unsubscribe</label> \
   if( eErr==9 ){
-    @ <span class="loginError">&larr; %h(zErr)</span>\
+    @ <tr>
+    @  <td class="form_label">Verify:</td><td>
+    @  <label><input type="checkbox" name="dodelete">
+    @  Unsubscribe</label>
+    @ <span class="loginError">&larr; %h(zErr)</span>
+    @ </td></tr>
   }
-  @ <br>
-  @ </td></tr>
   @ <tr>
   @  <td></td>
   @  <td><input type="submit" name="submit" value="Submit">
