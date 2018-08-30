@@ -792,7 +792,7 @@ void login_page(void){
     @ </form>
   }
   if( login_is_individual() && g.perm.Password ){
-    if( email_enabled() ){
+    if( alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
       @ for user <b>%h(g.zLogin)</b></p>
@@ -1544,7 +1544,7 @@ void register_page(void){
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
-  canDoAlerts = email_tables_exist() && db_int(0,
+  canDoAlerts = alert_tables_exist() && db_int(0,
     "SELECT fullcap(%Q) GLOB '*7*'", zPerms
   );
   doAlerts = canDoAlerts && atoi(PD("alerts","1"))!=0;
@@ -1617,7 +1617,7 @@ void register_page(void){
     if( doAlerts ){
       /* Also make the new user a subscriber. */
       Blob hdr, body;
-      EmailSender *pSender;
+      AlertSender *pSender;
       sqlite3_int64 id;   /* New subscriber Id */
       const char *zCode;  /* New subscriber code (in hex) */
       const char *zGoto = P("g");
@@ -1655,13 +1655,13 @@ void register_page(void){
            "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
            id);
       /* A verification email */
-      pSender = email_sender_new(0,0);
+      pSender = alert_sender_new(0,0);
       blob_init(&hdr,0,0);
       blob_init(&body,0,0);
       blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
-      email_append_confirmation_message(&body, zCode);
-      email_send(pSender, &hdr, &body, 0);
+      alert_append_confirmation_message(&body, zCode);
+      alert_send(pSender, &hdr, &body, 0);
       style_header("Email Verification");
       if( pSender->zErr ){
         @ <h1>Internal Error</h1>
@@ -1675,7 +1675,7 @@ void register_page(void){
         @ hyperlink that you must click on in order to activate your
         @ subscription.</p>
       }
-      email_sender_free(pSender);
+      alert_sender_free(pSender);
       if( zGoto ){
         @ <p><a href='%h(zGoto)'>Continue</a>
       }

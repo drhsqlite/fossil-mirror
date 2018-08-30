@@ -28,6 +28,7 @@
 #
 set src {
   add
+  alerts
   allrepo
   attach
   backoffice
@@ -58,7 +59,6 @@ set src {
   diffcmd
   dispatch
   doc
-  email
   encode
   etag
   event

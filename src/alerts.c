@@ -23,7 +23,7 @@
 ** it is not so bad that changing them seems justified.
 */ 
 #include "config.h"
-#include "email.h"
+#include "alerts.h"
 #include <assert.h>
 #include <time.h>
 
@@ -36,7 +36,7 @@
 ** SQL code to implement the tables needed by the email notification
 ** system.
 */
-static const char zEmailInit[] =
+static const char zAlertInit[] =
 @ DROP TABLE IF EXISTS repository.subscriber;
 @ -- Subscribers are distinct from users.  A person can have a log-in in
 @ -- the USER table without being a subscriber.  Or a person can be a
@@ -84,12 +84,12 @@ static const char zEmailInit[] =
 @   sentMod BOOLEAN DEFAULT false     -- pending moderation alert sent
 @ ) WITHOUT ROWID;
 @ 
-@ DROP TABLE IF EXISTS repository.email_bounce;
+@ DROP TABLE IF EXISTS repository.alert_bounce;
 @ -- Record bounced emails.  If too many bounces are received within
 @ -- some defined time range, then cancel the subscription.  Older
 @ -- entries are periodically purged.
 @ --
-@ CREATE TABLE repository.email_bounce(
+@ CREATE TABLE repository.alert_bounce(
 @   subscriberId INTEGER, -- to whom the email was sent.
 @   sendTime INTEGER,     -- seconds since 1970 when email was sent
 @   rcvdTime INTEGER      -- seconds since 1970 when bounce was received
@@ -99,7 +99,7 @@ static const char zEmailInit[] =
 /*
 ** Return true if the email notification tables exist.
 */
-int email_tables_exist(void){
+int alert_tables_exist(void){
   return db_table_exists("repository", "subscriber");
 }
 
@@ -109,15 +109,15 @@ int email_tables_exist(void){
 ** If the bOnlyIfEnabled option is true, then tables are only created
 ** if the email-send-method is something other than "off".
 */
-void email_schema(int bOnlyIfEnabled){
-  if( !email_tables_exist() ){
+void alert_schema(int bOnlyIfEnabled){
+  if( !alert_tables_exist() ){
     if( bOnlyIfEnabled
      && fossil_strcmp(db_get("email-send-method","off"),"off")==0
     ){
       return;  /* Don't create table for disabled email */
     }
-    db_multi_exec(zEmailInit/*works-like:""*/);
-    email_triggers_enable();
+    db_multi_exec(zAlertInit/*works-like:""*/);
+    alert_triggers_enable();
   }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
     db_multi_exec(
       "ALTER TABLE repository.pending_alert"
@@ -130,10 +130,10 @@ void email_schema(int bOnlyIfEnabled){
 ** Enable triggers that automatically populate the pending_alert
 ** table.
 */
-void email_triggers_enable(void){
+void alert_triggers_enable(void){
   if( !db_table_exists("repository","pending_alert") ) return;
   db_multi_exec(
-    "CREATE TRIGGER IF NOT EXISTS repository.email_trigger1\n"
+    "CREATE TRIGGER IF NOT EXISTS repository.alert_trigger1\n"
     "AFTER INSERT ON event BEGIN\n"
     "  INSERT INTO pending_alert(eventid)\n"
     "    SELECT printf('%%.1c%%d',new.type,new.objid) WHERE true\n"
@@ -148,17 +148,18 @@ void email_triggers_enable(void){
 ** This must be called before rebuilding the EVENT table, for example
 ** via the "fossil rebuild" command.
 */
-void email_triggers_disable(void){
+void alert_triggers_disable(void){
   db_multi_exec(
-    "DROP TRIGGER IF EXISTS repository.email_trigger1;\n"
+    "DROP TRIGGER IF EXISTS repository.alert_trigger1;\n"
+    "DROP TRIGGER IF EXISTS repository.email_trigger1;\n" // Legacy
   );
 }
 
 /*
 ** Return true if email alerts are active.
 */
-int email_enabled(void){
-  if( !email_tables_exist() ) return 0;
+int alert_enabled(void){
+  if( !alert_tables_exist() ) return 0;
   if( fossil_strcmp(db_get("email-send-method","off"),"off")==0 ) return 0;
   return 1;
 }
@@ -169,8 +170,8 @@ int email_enabled(void){
 **
 ** If the subscriber table does exist, return 0 without doing anything.
 */
-static int email_webpages_disabled(void){
-  if( email_tables_exist() ) return 0;
+static int alert_webpages_disabled(void){
+  if( alert_tables_exist() ) return 0;
   style_header("Email Alerts Are Disabled");
   @ <p>Email alerts are disabled on this server</p>
   style_footer();
@@ -181,7 +182,7 @@ static int email_webpages_disabled(void){
 ** Insert a "Subscriber List" submenu link if the current user
 ** is an administrator.
 */
-void email_submenu_common(void){
+void alert_submenu_common(void){
   if( g.perm.Admin ){
     if( fossil_strcmp(g.zPath,"subscribers") ){
       style_submenu_element("List Subscribers","%R/subscribers");
@@ -214,12 +215,12 @@ void setup_notification(void){
   }
   db_begin_transaction();
 
-  email_submenu_common();
+  alert_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");
   style_header("Email Notification Setup");
   @ <h1>Status</h1>
   @ <table class="label-value">
-  if( email_enabled() ){
+  if( alert_enabled() ){
     stats_for_email();
   }else{
     @ <th>Disabled</th>
@@ -267,7 +268,7 @@ void setup_notification(void){
   @ that follow.  Hint: Use the <a href="%R/announce">/announce</a> page
   @ to send test message to debug this setting.
   @ (Property: "email-send-method")</p>
-  email_schema(1);
+  alert_schema(1);
   entry_attribute("Pipe Email Text Into This Command", 60, "email-send-command",
                    "ecmd", "sendmail -ti", 0);
   @ <p>When the send method is "pipe to a command", this is the command
@@ -374,7 +375,7 @@ static void append_quoted(Blob *pOut, Blob *pMsg){
 /*
 ** An instance of the following object is used to send emails.
 */
-struct EmailSender {
+struct AlertSender {
   sqlite3 *db;               /* Database emails are sent to */
   sqlite3_stmt *pStmt;       /* Stmt to insert into the database */
   const char *zDest;         /* How to send email. */
@@ -389,17 +390,17 @@ struct EmailSender {
   int bImmediateFail;        /* On any error, call fossil_fatal() */
 };
 
-/* Allowed values for mFlags to email_sender_new().
+/* Allowed values for mFlags to alert_sender_new().
 */
-#define EMAIL_IMMEDIATE_FAIL   0x0001   /* Call fossil_fatal() on any error */
-#define EMAIL_TRACE            0x0002   /* Log sending process on console */
+#define ALERT_IMMEDIATE_FAIL   0x0001   /* Call fossil_fatal() on any error */
+#define ALERT_TRACE            0x0002   /* Log sending process on console */
 
 #endif /* INTERFACE */
 
 /*
 ** Shutdown an emailer.  Clear all information other than the error message.
 */
-static void emailerShutdown(EmailSender *p){
+static void emailerShutdown(AlertSender *p){
   sqlite3_finalize(p->pStmt);
   p->pStmt = 0;
   sqlite3_close(p->db);
@@ -416,16 +417,16 @@ static void emailerShutdown(EmailSender *p){
 }
 
 /*
-** Put the EmailSender into an error state.
+** Put the AlertSender into an error state.
 */
-static void emailerError(EmailSender *p, const char *zFormat, ...){
+static void emailerError(AlertSender *p, const char *zFormat, ...){
   va_list ap;
   fossil_free(p->zErr);
   va_start(ap, zFormat);
   p->zErr = vmprintf(zFormat, ap);
   va_end(ap);
   emailerShutdown(p);
-  if( p->mFlags & EMAIL_IMMEDIATE_FAIL ){
+  if( p->mFlags & ALERT_IMMEDIATE_FAIL ){
     fossil_fatal("%s", p->zErr);
   }
 }
@@ -433,7 +434,7 @@ static void emailerError(EmailSender *p, const char *zFormat, ...){
 /*
 ** Free an email sender object
 */
-void email_sender_free(EmailSender *p){
+void alert_sender_free(AlertSender *p){
   if( p ){
     emailerShutdown(p);
     fossil_free(p->zErr);
@@ -446,7 +447,7 @@ void email_sender_free(EmailSender *p){
 ** Return 0 on success and one if there is an error.
 */
 static int emailerGetSetting(
-  EmailSender *p,        /* Where to report the error */
+  AlertSender *p,        /* Where to report the error */
   const char **pzVal,    /* Write the setting value here */
   const char *zName      /* Name of the setting */
 ){
@@ -462,7 +463,7 @@ static int emailerGetSetting(
 }
 
 /*
-** Create a new EmailSender object.
+** Create a new AlertSender object.
 **
 ** The method used for sending email is determined by various email-*
 ** settings, and especially email-send-method.  The repository
@@ -471,10 +472,10 @@ static int emailerGetSetting(
 ** zAltDest to cause all emails to be printed to the console for
 ** debugging purposes.
 **
-** The EmailSender object returned must be freed using email_sender_free().
+** The AlertSender object returned must be freed using alert_sender_free().
 */
-EmailSender *email_sender_new(const char *zAltDest, u32 mFlags){
-  EmailSender *p;
+AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
+  AlertSender *p;
 
   p = fossil_malloc(sizeof(*p));
   memset(p, 0, sizeof(*p));
@@ -523,7 +524,7 @@ EmailSender *email_sender_new(const char *zAltDest, u32 mFlags){
     emailerGetSetting(p, &zRelay, "email-send-relayhost");
     if( zRelay ){
       u32 smtpFlags = SMTP_DIRECT;
-      if( mFlags & EMAIL_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
+      if( mFlags & ALERT_TRACE ) smtpFlags |= SMTP_TRACE_STDOUT;
       p->pSmtp = smtp_session_new(p->zFrom, zRelay, smtpFlags);
       smtp_client_startup(p->pSmtp);
     }
@@ -631,7 +632,7 @@ char *email_copy_addr(const char *z, char cTerm ){
 ** one into memory obtained from mprintf() and return a pointer to it.
 ** If no valid email address can be found, return NULL.
 */
-char *email_find_emailaddr(const char *zIn){
+char *alert_find_emailaddr(const char *zIn){
   char *zOut = 0;
   while( zIn!=0 ){
      zIn = (const char*)strchr(zIn, '<');
@@ -649,13 +650,13 @@ char *email_find_emailaddr(const char *zIn){
 ** Return the first valid email address of the form <...> in input string
 ** X.  Or return NULL if not found.
 */
-void email_find_emailaddr_func(
+void alert_find_emailaddr_func(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
   const char *zIn = (const char*)sqlite3_value_text(argv[0]);
-  char *zOut = email_find_emailaddr(zIn);
+  char *zOut = alert_find_emailaddr(zIn);
   if( zOut ){
     sqlite3_result_text(context, zOut, -1, fossil_free);
   }
@@ -665,7 +666,7 @@ void email_find_emailaddr_func(
 ** Return the hostname portion of an email address - the part following
 ** the @
 */
-char *email_hostname(const char *zAddr){
+char *alert_hostname(const char *zAddr){
   char *z = strchr(zAddr, '@');
   if( z ){
     z++;
@@ -684,7 +685,7 @@ char *email_hostname(const char *zAddr){
 ** The returned string is held in a static buffer and is overwritten
 ** by each subsequent call to this routine.
 */
-static char *email_mailbox_name(const char *zFromName){
+static char *alert_mailbox_name(const char *zFromName){
   static char zHash[20];
   unsigned int x = 0;
   int n = 0;
@@ -705,12 +706,12 @@ static char *email_mailbox_name(const char *zFromName){
 **
 ** Return the mailbox hash name corresponding to each human-readable
 ** name on the command line.  This is a test interface for the
-** email_mailbox_name() function.
+** alert_mailbox_name() function.
 */
-void email_test_mailbox_hashname(void){
+void alert_test_mailbox_hashname(void){
   int i;
   for(i=2; i<g.argc; i++){
-    fossil_print("%30s: %s\n", g.argv[i], email_mailbox_name(g.argv[i]));
+    fossil_print("%30s: %s\n", g.argv[i], alert_mailbox_name(g.argv[i]));
   }
 }
 
@@ -781,15 +782,15 @@ void email_header_to_free(int nTo, char **azTo){
 ** then the "From:" is set to the email-self value and X-Fossil-From is
 ** omitted.
 */
-void email_send(
-  EmailSender *p,           /* Emailer context */
+void alert_send(
+  AlertSender *p,           /* Emailer context */
   Blob *pHdr,               /* Email header (incomplete) */
   Blob *pBody,              /* Email body */
   const char *zFromName     /* Optional human-readable name of sender */
 ){
   Blob all, *pOut;
   u64 r1, r2;
-  if( p->mFlags & EMAIL_TRACE ){
+  if( p->mFlags & ALERT_TRACE ){
     fossil_print("Sending email\n");
   }
   if( fossil_strcmp(p->zDest, "off")==0 ){
@@ -807,7 +808,7 @@ void email_send(
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
   if( zFromName ){
     blob_appendf(pOut, "From: %s <%s@%s>\r\n",
-       zFromName, email_mailbox_name(zFromName), email_hostname(p->zFrom));
+       zFromName, alert_mailbox_name(zFromName), alert_hostname(p->zFrom));
     blob_appendf(pOut, "X-Fossil-From: <%s>\r\n", p->zFrom);
   }else{
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
@@ -820,7 +821,7 @@ void email_send(
     sqlite3_randomness(sizeof(r1), &r1);
     r2 = time(0);
     blob_appendf(pOut, "Message-Id: <%llxx%016llx@%s>\r\n",
-                 r2, r1, email_hostname(p->zFrom));
+                 r2, r1, alert_hostname(p->zFrom));
   }
   blob_add_final_newline(pBody);
   blob_appendf(pOut, "MIME-Version: 1.0\r\n");
@@ -964,11 +965,11 @@ void email_send(
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
-void email_cmd(void){
+void alert_cmd(void){
   const char *zCmd;
   int nCmd;
   db_find_and_open_repository(0, 0);
-  email_schema(0);
+  alert_schema(0);
   zCmd = g.argc>=3 ? g.argv[2] : "x";
   nCmd = (int)strlen(zCmd);
   if( strncmp(zCmd, "pending", nCmd)==0 ){
@@ -1003,16 +1004,16 @@ void email_cmd(void){
       blob_reset(&yn);
     }
     if( c=='y' ){
-      email_triggers_disable();
+      alert_triggers_disable();
       db_multi_exec(
         "DROP TABLE IF EXISTS subscriber;\n"
         "DROP TABLE IF EXISTS pending_alert;\n"
-        "DROP TABLE IF EXISTS email_bounce;\n"
+        "DROP TABLE IF EXISTS alert_bounce;\n"
         /* Legacy */
-        "DROP TABLE IF EXISTS email_pending;\n"
+        "DROP TABLE IF EXISTS alert_pending;\n"
         "DROP TABLE IF EXISTS subscription;\n"
       );
-      email_schema(0);
+      alert_schema(0);
     }
   }else
   if( strncmp(zCmd, "send", nCmd)==0 ){
@@ -1022,7 +1023,7 @@ void email_cmd(void){
       eFlags |= SENDALERT_PRESERVE|SENDALERT_STDOUT;
     }
     verify_all_options();
-    email_send_alerts(eFlags);
+    alert_send_alerts(eFlags);
   }else
   if( strncmp(zCmd, "settings", nCmd)==0 ){
     int isGlobal = find_option("global",0,0)!=0;
@@ -1094,11 +1095,11 @@ void email_cmd(void){
     Blob prompt, body, hdr;
     const char *zDest = find_option("stdout",0,0)!=0 ? "stdout" : 0;
     int i;
-    u32 mFlags = EMAIL_IMMEDIATE_FAIL;
+    u32 mFlags = ALERT_IMMEDIATE_FAIL;
     const char *zSubject = find_option("subject", "S", 1);
     const char *zSource = find_option("body", 0, 1);
-    EmailSender *pSender;
-    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= EMAIL_TRACE;
+    AlertSender *pSender;
+    if( find_option("smtp-trace",0,0)!=0 ) mFlags |= ALERT_TRACE;
     verify_all_options();
     blob_init(&prompt, 0, 0);
     blob_init(&body, 0, 0);
@@ -1117,9 +1118,9 @@ void email_cmd(void){
       prompt_for_user_comment(&body, &prompt);
     }
     blob_add_final_newline(&body);
-    pSender = email_sender_new(zDest, mFlags);
-    email_send(pSender, &hdr, &body, 0);
-    email_sender_free(pSender);
+    pSender = alert_sender_new(zDest, mFlags);
+    alert_send(pSender, &hdr, &body, 0);
+    alert_sender_free(pSender);
     blob_reset(&hdr);
     blob_reset(&body);
     blob_reset(&prompt);
@@ -1234,7 +1235,7 @@ static const char zConfirmMsg[] =
 ** Append the text of an email confirmation message to the given
 ** Blob.  The security code is in zCode.
 */
-void email_append_confirmation_message(Blob *pMsg, const char *zCode){
+void alert_append_confirmation_message(Blob *pMsg, const char *zCode){
   blob_appendf(pMsg, zConfirmMsg/*works-like:"%s%s%s"*/,
                    g.zBaseURL, g.zBaseURL, zCode);
 }
@@ -1252,7 +1253,7 @@ void email_append_confirmation_message(Blob *pMsg, const char *zCode){
 ** Administrators can visit this page in order to sign up other
 ** users.
 **
-** The Email-Alerts permission ("7") is required to access this
+** The Alerts permission ("7") is required to access this
 ** page.  To allow anonymous passers-by to sign up for email
 ** notification, set Email-Alerts on user "nobody" or "anonymous".
 */
@@ -1265,7 +1266,7 @@ void subscribe_page(void){
   int eErr = 0;
   int di;
 
-  if( email_webpages_disabled() ) return;
+  if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.EmailAlert ){
     login_needed(g.anon.EmailAlert);
@@ -1291,7 +1292,7 @@ void subscribe_page(void){
       return;
     }
   }
-  email_submenu_common();
+  alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
    && cgi_csrf_safe(1)
@@ -1336,13 +1337,13 @@ void subscribe_page(void){
     }else{
       /* We need to send a verification email */
       Blob hdr, body;
-      EmailSender *pSender = email_sender_new(0,0);
+      AlertSender *pSender = alert_sender_new(0,0);
       blob_init(&hdr,0,0);
       blob_init(&body,0,0);
       blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
-      email_append_confirmation_message(&body, zCode);
-      email_send(pSender, &hdr, &body, 0);
+      alert_append_confirmation_message(&body, zCode);
+      alert_send(pSender, &hdr, &body, 0);
       style_header("Email Alert Verification");
       if( pSender->zErr ){
         @ <h1>Internal Error</h1>
@@ -1356,7 +1357,7 @@ void subscribe_page(void){
         @ hyperlink that you must click on in order to activate your
         @ subscription.</p>
       }
-      email_sender_free(pSender);
+      alert_sender_free(pSender);
       style_footer();
     }
     return;
@@ -1445,7 +1446,7 @@ void subscribe_page(void){
   }
   @ <tr>
   @  <td></td>
-  if( needCaptcha && !email_enabled() ){
+  if( needCaptcha && !alert_enabled() ){
     @  <td><input type="submit" name="submit" value="Submit" disabled>
     @  (Email current disabled)</td>
   }else{
@@ -1470,7 +1471,7 @@ void subscribe_page(void){
 ** by the hex value zName.  Then paint a webpage that explains that
 ** the entry has been removed.
 */
-static void email_unsubscribe(const char *zName){
+static void alert_unsubscribe(const char *zName){
   char *zEmail;
   zEmail = db_text(0, "SELECT semail FROM subscriber"
                       " WHERE subscriberCode=hextoblob(%Q)", zName);
@@ -1504,7 +1505,7 @@ static void email_unsubscribe(const char *zName){
 **         associated with that account can be edited without needing
 **         to know the subscriber code.
 */
-void alerts_page(void){
+void alert_page(void){
   const char *zName = P("name");
   Stmt q;
   int sa, sc, sf, st, sw;
@@ -1518,7 +1519,7 @@ void alerts_page(void){
   int eErr = 0;
   char *zErr = 0;
 
-  if( email_webpages_disabled() ) return;
+  if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( zName==0 && login_is_individual() ){
     zName = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
@@ -1528,7 +1529,7 @@ void alerts_page(void){
     cgi_redirect("subscribe");
     return;
   }
-  email_submenu_common();
+  alert_submenu_common();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
     int sdonotcall = PB("sdonotcall");
     int sdigest = PB("sdigest");
@@ -1585,7 +1586,7 @@ void alerts_page(void){
       zErr = mprintf("Select this checkbox and press \"Unsubscribe\" again to"
                      " unsubscribe");
     }else{
-      email_unsubscribe(zName);
+      alert_unsubscribe(zName);
       return;
     }
   }
@@ -1766,7 +1767,7 @@ void unsubscribe_page(void){
    && db_exists("SELECT 1 FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
                 zName)
   ){
-    email_unsubscribe(zName);
+    alert_unsubscribe(zName);
     return;
   }
 
@@ -1800,14 +1801,14 @@ void unsubscribe_page(void){
     /* If we get this far, it means that a valid unsubscribe request has
     ** been submitted.  Send the appropriate email. */
     Blob hdr, body;
-    EmailSender *pSender = email_sender_new(0,0);
+    AlertSender *pSender = alert_sender_new(0,0);
     blob_init(&hdr,0,0);
     blob_init(&body,0,0);
     blob_appendf(&hdr, "To: <%s>\r\n", zEAddr);
     blob_appendf(&hdr, "Subject: Unsubscribe Instructions\r\n");
     blob_appendf(&body, zUnsubMsg/*works-like:"%s%s%s%s%s%s"*/,
                   g.zBaseURL, g.zBaseURL, zCode, g.zBaseURL, g.zBaseURL, zCode);
-    email_send(pSender, &hdr, &body, 0);
+    alert_send(pSender, &hdr, &body, 0);
     style_header("Unsubscribe Instructions Sent");
     if( pSender->zErr ){
       @ <h1>Internal Error</h1>
@@ -1820,7 +1821,7 @@ void unsubscribe_page(void){
       @ <p>An email has been sent to "%h(zEAddr)" that explains how to
       @ unsubscribe and/or modify your subscription settings</p>
     }
-    email_sender_free(pSender);
+    alert_sender_free(pSender);
     style_footer();
     return;
   }  
@@ -1886,13 +1887,13 @@ void subscriber_list_page(void){
   Blob sql;
   Stmt q;
   sqlite3_int64 iNow;
-  if( email_webpages_disabled() ) return;
+  if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
-  email_submenu_common();
+  alert_submenu_common();
   style_header("Subscriber List");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
@@ -1964,7 +1965,7 @@ struct EmailEvent {
 /*
 ** Free a linked list of EmailEvent objects
 */
-void email_free_eventlist(EmailEvent *p){
+void alert_free_eventlist(EmailEvent *p){
   while( p ){
     EmailEvent *pNext = p->pNext;
     blob_reset(&p->txt);
@@ -1982,7 +1983,7 @@ void email_free_eventlist(EmailEvent *p){
 **
 **     CREATE TEMP TABLE wantalert(eventId TEXT, needMod BOOLEAN);
 */
-EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
+EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   Stmt q;
   EmailEvent *p;
   EmailEvent anchor;
@@ -2107,11 +2108,11 @@ EmailEvent *email_compute_event_text(int *pnEvent, int doDigest){
     }else{
       blob_appendf(&p->hdr, "Subject: %s %s\r\n", zSub, zTitle);
       blob_appendf(&p->hdr, "Message-Id: <%.32s@%s>\r\n", 
-                   zUuid, email_hostname(zFrom));
+                   zUuid, alert_hostname(zFrom));
       zIrt = db_column_text(&q, 4);
       if( zIrt && zIrt[0] ){
         blob_appendf(&p->hdr, "In-Reply-To: <%.32s@%s>\r\n",
-                     zIrt, email_hostname(zFrom));
+                     zIrt, alert_hostname(zFrom));
       }
     }
     blob_init(&p->txt, 0, 0);
@@ -2149,7 +2150,7 @@ void email_header(Blob *pOut){
 ** Append the "unsubscribe" notification and other footer text to
 ** the end of an email alert being assemblied in pOut.
 */
-void email_footer(Blob *pOut){
+void alert_footer(Blob *pOut){
   blob_appendf(pOut, "\n-- \nTo unsubscribe: %s/unsubscribe\n",
      db_get("email-url","http://localhost:8080"));
 }
@@ -2184,7 +2185,7 @@ void test_alert_cmd(void){
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_transaction();
-  email_schema(0);
+  alert_schema(0);
   db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT, needMod BOOLEAN)");
   if( g.argc==2 ){
     db_multi_exec(
@@ -2199,7 +2200,7 @@ void test_alert_cmd(void){
   }
   blob_init(&out, 0, 0);
   email_header(&out);
-  pEvent = email_compute_event_text(&nEvent, doDigest);
+  pEvent = alert_compute_event_text(&nEvent, doDigest);
   for(p=pEvent; p; p=p->pNext){
     blob_append(&out, "\n", 1);
     if( blob_size(&p->hdr) ){
@@ -2208,8 +2209,8 @@ void test_alert_cmd(void){
     }
     blob_append(&out, blob_buffer(&p->txt), blob_size(&p->txt));
   }
-  email_free_eventlist(pEvent);
-  email_footer(&out);
+  alert_free_eventlist(pEvent);
+  alert_footer(&out);
   fossil_print("%s", blob_str(&out));
   blob_reset(&out);
   db_end_transaction(0);
@@ -2231,7 +2232,7 @@ void test_alert_cmd(void){
 **
 ** Options:
 **
-**    --backoffice        Run email_backoffice() after all alerts have
+**    --backoffice        Run alert_backoffice() after all alerts have
 **                        been added.  This will cause the alerts to be
 **                        sent out with the SENDALERT_TRACE option.
 **
@@ -2255,19 +2256,19 @@ void test_add_alert_cmd(void){
   db_find_and_open_repository(0, 0);
   verify_all_options();
   db_begin_write();
-  email_schema(0);
+  alert_schema(0);
   for(i=2; i<g.argc; i++){
     db_multi_exec("REPLACE INTO pending_alert(eventId) VALUES(%Q)", g.argv[i]);
   }
   db_end_transaction(0);
   if( doAuto ){
-    email_backoffice(SENDALERT_TRACE|mFlags);
+    alert_backoffice(SENDALERT_TRACE|mFlags);
   }
 }
 
 #if INTERFACE
 /*
-** Flags for email_send_alerts()
+** Flags for alert_send_alerts()
 */
 #define SENDALERT_DIGEST      0x0001    /* Send a digest */
 #define SENDALERT_PRESERVE    0x0002    /* Do not mark the task as done */
@@ -2291,7 +2292,7 @@ void test_add_alert_cmd(void){
 **       moderator approval.  Events with the needMod flag are only
 **       shown to users that have moderator privileges.
 **
-**   (2) Call email_compute_event_text() to compute a list of EmailEvent
+**   (2) Call alert_compute_event_text() to compute a list of EmailEvent
 **       objects that describe all events about which we want to send
 **       alerts.
 **
@@ -2310,7 +2311,7 @@ void test_add_alert_cmd(void){
 ** subscribers to be flooded with repeated notifications every 60
 ** seconds!
 */
-void email_send_alerts(u32 flags){
+void alert_send_alerts(u32 flags){
   EmailEvent *pEvents, *p;
   int nEvent = 0;
   Stmt q;
@@ -2320,22 +2321,22 @@ void email_send_alerts(u32 flags){
   const char *zRepoName;
   const char *zFrom;
   const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
-  EmailSender *pSender = 0;
+  AlertSender *pSender = 0;
   u32 senderFlags = 0;
 
-  if( g.fSqlTrace ) fossil_trace("-- BEGIN email_send_alerts(%u)\n", flags);
-  email_schema(0);
-  if( !email_enabled() ) goto send_alerts_done;
+  if( g.fSqlTrace ) fossil_trace("-- BEGIN alert_send_alerts(%u)\n", flags);
+  alert_schema(0);
+  if( !alert_enabled() ) goto send_alert_done;
   zUrl = db_get("email-url",0);
-  if( zUrl==0 ) goto send_alerts_done;
+  if( zUrl==0 ) goto send_alert_done;
   zRepoName = db_get("email-subname",0);
-  if( zRepoName==0 ) goto send_alerts_done;
+  if( zRepoName==0 ) goto send_alert_done;
   zFrom = db_get("email-self",0);
-  if( zFrom==0 ) goto send_alerts_done;
+  if( zFrom==0 ) goto send_alert_done;
   if( flags & SENDALERT_TRACE ){
-    senderFlags |= EMAIL_TRACE;
+    senderFlags |= ALERT_TRACE;
   }
-  pSender = email_sender_new(zDest, senderFlags);
+  pSender = alert_sender_new(zDest, senderFlags);
 
   /* Step (1):  Compute the alerts that need sending
   */
@@ -2370,8 +2371,8 @@ void email_send_alerts(u32 flags){
   /* Step 2: compute EmailEvent objects for every notification that
   ** needs sending.
   */
-  pEvents = email_compute_event_text(&nEvent, (flags & SENDALERT_DIGEST)!=0);
-  if( nEvent==0 ) goto send_alerts_done;
+  pEvents = alert_compute_event_text(&nEvent, (flags & SENDALERT_DIGEST)!=0);
+  if( nEvent==0 ) goto send_alert_done;
 
   /* Step 4a: Update the pending_alerts table to designate the
   ** alerts as having all been sent.  This is done *before* step (3)
@@ -2452,7 +2453,7 @@ void email_send_alerts(u32 flags){
         blob_init(&fbody, blob_buffer(&p->txt), blob_size(&p->txt));
         blob_appendf(&fbody, "\n-- \nSubscription info: %s/alerts/%s\n",
            zUrl, zCode);
-        email_send(pSender,&fhdr,&fbody,p->zFromName);
+        alert_send(pSender,&fhdr,&fbody,p->zFromName);
         blob_reset(&fhdr);
         blob_reset(&fbody);
       }else{
@@ -2475,23 +2476,23 @@ void email_send_alerts(u32 flags){
     if( nHit==0 ) continue;
     blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
          zUrl, zCode);
-    email_send(pSender,&hdr,&body,0);
+    alert_send(pSender,&hdr,&body,0);
     blob_truncate(&hdr, 0);
     blob_truncate(&body, 0);
   }
   blob_reset(&hdr);
   blob_reset(&body);
   db_finalize(&q);
-  email_free_eventlist(pEvents);
+  alert_free_eventlist(pEvents);
 
   /* Step 4b: Update the pending_alerts table to remove all of the
   ** alerts that have been completely sent.
   */
   db_multi_exec("DELETE FROM pending_alert WHERE sentDigest AND sentSep;");
 
-send_alerts_done:
-  email_sender_free(pSender);
-  if( g.fSqlTrace ) fossil_trace("-- END email_send_alerts(%u)\n", flags);
+send_alert_done:
+  alert_sender_free(pSender);
+  if( g.fSqlTrace ) fossil_trace("-- END alert_send_alerts(%u)\n", flags);
 }
 
 /*
@@ -2505,14 +2506,14 @@ send_alerts_done:
 ** this flag is zero, but the test-set-alert command sets it to
 ** SENDALERT_TRACE.
 */
-void email_backoffice(u32 mFlags){
+void alert_backoffice(u32 mFlags){
   int iJulianDay;
-  if( !email_tables_exist() ) return;
-  email_send_alerts(mFlags);
+  if( !alert_tables_exist() ) return;
+  alert_send_alerts(mFlags);
   iJulianDay = db_int(0, "SELECT julianday('now')");
   if( iJulianDay>db_get_int("email-last-digest",0) ){
     db_set_int("email-last-digest",iJulianDay,0);
-    email_send_alerts(SENDALERT_DIGEST|mFlags);
+    alert_send_alerts(SENDALERT_DIGEST|mFlags);
   }
 }
 
@@ -2543,7 +2544,7 @@ void contact_admin_page(void){
    && captcha_is_correct(0)
   ){
     Blob hdr, body;
-    EmailSender *pSender = email_sender_new(0,0);
+    AlertSender *pSender = alert_sender_new(0,0);
     blob_init(&hdr, 0, 0);
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s administrator message\r\n",
                  zAdminEmail, db_get("email-subname","Fossil Repo"));
@@ -2551,7 +2552,7 @@ void contact_admin_page(void){
     blob_appendf(&body, "Message from [%s]\n", PT("from")/*safe-for-%s*/);
     blob_appendf(&body, "Subject: [%s]\n\n", PT("subject")/*safe-for-%s*/);
     blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
-    email_send(pSender, &hdr, &body, 0);
+    alert_send(pSender, &hdr, &body, 0);
     style_header("Message Sent");
     if( pSender->zErr ){
       @ <h1>Internal Error</h1>
@@ -2563,7 +2564,7 @@ void contact_admin_page(void){
       @ <p>Your message has been sent to the repository administrator.
       @ Thank you for your input.</p>
     }
-    email_sender_free(pSender);
+    alert_sender_free(pSender);
     style_footer();
     return;
   }
@@ -2617,8 +2618,8 @@ void contact_admin_page(void){
 ** Send an annoucement message described by query parameter.
 ** Permission to do this has already been verified.
 */
-static char *email_send_announcement(void){
-  EmailSender *pSender;
+static char *alert_send_announcement(void){
+  AlertSender *pSender;
   char *zErr;
   const char *zTo = PT("to");
   char *zSubject = PT("subject");
@@ -2630,10 +2631,10 @@ static char *email_send_announcement(void){
   blob_init(&body, 0, 0);
   blob_init(&hdr, 0, 0);
   blob_appendf(&body, "%s", PT("msg")/*safe-for-%s*/);
-  pSender = email_sender_new(bTest2 ? "blob" : 0, 0);
+  pSender = alert_sender_new(bTest2 ? "blob" : 0, 0);
   if( zTo[0] ){
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
-    email_send(pSender, &hdr, &body, 0);
+    alert_send(pSender, &hdr, &body, 0);
   }
   if( bAll || bAA ){
     Stmt q;
@@ -2652,7 +2653,7 @@ static char *email_send_announcement(void){
         blob_appendf(&body,"\n-- \nSubscription info: %s/alerts/%s\n",
            zURL, zCode);
       }
-      email_send(pSender, &hdr, &body, 0);
+      alert_send(pSender, &hdr, &body, 0);
     }
     db_finalize(&q);
   }
@@ -2666,7 +2667,7 @@ static char *email_send_announcement(void){
   }
   zErr = pSender->zErr;
   pSender->zErr = 0;
-  email_sender_free(pSender);
+  alert_sender_free(pSender);
   return zErr;
 }
 
@@ -2694,7 +2695,7 @@ void announce_page(void){
     @ </p>
   }else
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
-    char *zErr = email_send_announcement();
+    char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
       @ <h1>Internal Error</h1>
