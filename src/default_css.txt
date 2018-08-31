@@ -305,6 +305,9 @@ table.captcha {
   border-style: double;
   border-color: black;
 }
+pre.captcha {
+  font-size: 50%;
+}
 td.login_out_label {
   text-align: center;
 }

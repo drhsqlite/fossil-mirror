@@ -778,7 +778,8 @@ void login_page(void){
       @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
       @ Visitors may enter <b>anonymous</b> as the user-ID with
       @ the 8-character hexadecimal password shown below:</p>
-      @ <div class="captcha"><table class="captcha"><tr><td><pre>
+      @ <div class="captcha"><table class="captcha"><tr><td>\
+      @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
       if( bAutoCaptcha ) {
@@ -1758,7 +1759,7 @@ void register_page(void){
   @ <tr><td></td>
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre></td></tr></table></div>
   @ </form>

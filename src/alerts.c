@@ -1455,7 +1455,7 @@ void subscribe_page(void){
   @ </tr>
   @ </table>
   if( needCaptcha ){
-    @ <div class="captcha"><table class="captcha"><tr><td><pre>
+    @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
     @ %h(zCaptcha)
     @ </pre>
     @ Enter the 8 characters above in the "Security Code" box
@@ -1868,7 +1868,7 @@ void unsubscribe_page(void){
   @  <td><input type="submit" name="submit" value="Submit"></td>
   @ </tr>
   @ </table>
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre>
   @ Enter the 8 characters above in the "Security Code" box
@@ -2608,7 +2608,7 @@ void contact_admin_page(void){
   @ </tr>
   @ </table>
   if( zCaptcha ){
-    @ <div class="captcha"><table class="captcha"><tr><td><pre>
+    @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
     @ %h(zCaptcha)
     @ </pre>
     @ Enter the 8 characters above in the "Security Code" box
