@@ -705,7 +705,9 @@ void setup_skinedit(void){
     /* 3 */ { "details", "Display Details", "Details", },
   };
   const char *zBasis;         /* The baseline file */
+  const char *zOrig;          /* Original content prior to editing */
   const char *zContent;       /* Content after editing */
+  const char *zDflt;          /* Default content */
   char *zDraft;               /* Which draft:  "draft%d" */
   char *zKey;                 /* CONFIG table key name: "draft%d-%s" */
   char *zTitle;               /* Title of this page */
@@ -713,6 +715,7 @@ void setup_skinedit(void){
   int iSkin;                  /* draft number.  1..9 */
   int ii;                     /* Index in aSkinAttr[] of this file */
   int j;                      /* Loop counter */
+  int isRevert = 0;           /* True if Revert-to-Baseline was pressed */
 
   login_check_credentials();
 
@@ -747,11 +750,17 @@ void setup_skinedit(void){
   zKey = mprintf("draft%d-%s", iSkin, zFile);
   zTitle = mprintf("%s for Draft%d", aSkinAttr[ii].zTitle, iSkin);
   zBasis = PD("basis","current");
+  zDflt = skin_file_content(zBasis, zFile);
+  zOrig = db_get(zKey, zDflt);
+  zContent = PD(zFile,zOrig);
+  if( P("revert")!=0 && cgi_csrf_safe(0) ){
+    zContent = zDflt;
+    isRevert = 1;
+  }
 
   db_begin_transaction();
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
-    if( j==ii ) continue;
     style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h&sk=%d",j,zBasis,iSkin);
   }
@@ -760,16 +769,18 @@ void setup_skinedit(void){
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
-  zContent = textarea_attribute(
-        "",                      /* Text label */
-        10, 80,                  /* Height and width of the edit area */
-        zKey,                    /* Name of CONFIG table entry */
-        zFile,                              /* CGI query parameter name */
-        skin_file_content(zBasis, zFile),   /* Default value of the text */
-        0                                   /* Disabled flag */
-  );
+  if( P("submit") && cgi_csrf_safe(0) && strcmp(zOrig,zContent)!=0 ){
+    db_set(zKey, zContent, 0);
+  }
+  @ <textarea name="%s(zFile)" rows="10" cols="80">\
+  @ %h(zContent)</textarea>
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
+  if( isRevert ){
+    @ &larr; Press to complete reversion to "%s(zBasis)"
+  }else if( fossil_strcmp(zContent,zDflt)!=0 ){
+    @ <input type="submit" name="revert" value='Revert To "%s(zBasis)"' />
+  }
   @ <hr />
   @ Baseline: \
   skin_emit_skin_selector("basis", zBasis, zDraft);
