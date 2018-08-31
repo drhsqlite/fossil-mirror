@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\s/sitemap\spage.\s\sNew\sconfiguration\soptions\sto\sadd\noptional\sentries\sto\sthe\s/sitemap\spage.
-D 2018-08-31T10:47:27.218
+C Fix\sto\sthe\sconfiguration\spage\sfor\sthe\sLicense\slink\sin\s/sitemap.
+D 2018-08-31T10:57:23.231
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c e84908c0469da94360440f93de17acb42ca683a35168c81fb11e82df4c8a3087
-F src/setup.c 712fa11ef8f8f6c2595b68379f05d091529d1c9e483efb12a210581ba3f043fe
+F src/setup.c e717bb261978f50019bc818cd83e1b26e2975ced3249d1b62fb48291c61c6dab
 F src/setupuser.c 53ae6abd6f927f531dd79ce14aa3a3c889615c53a42f79c45cc80702a5ed5fa1
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc5c7d2625aab1cc90570408f927b43035e51a55e4a72797719453532958b4af
-R 728e2b0209d33990fba13c320645c607
+P 6898b3e73040889d57b5ca2917cf302cefc69a023f361fa3a3389d64e7018169
+R 336c9b29c5c03401e5c4e79f19111b99
 U drh
-Z 76f26cbc7de8da72433296a94e1aa1be
+Z 8adc1212522550c17ab52653be851f59

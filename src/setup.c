@@ -902,15 +902,12 @@ void setup_config(void){
   entry_attribute("Download", 40, "sitemap-download", "smdownload",
                   "", 0);
   @ (Property: sitemap-download)<br>
-  entry_attribute("Copyright", 40, "sitemap-copyright", "smcopyright",
+  entry_attribute("License", 40, "sitemap-license", "smlicense",
                   "", 0);
-  @ (Property: sitemap-copyright)<br>
+  @ (Property: sitemap-license)<br>
   entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
                   "", 0);
   @ (Property: sitemap-contact)
-  entry_attribute("Purchase", 40, "sitemap-purchase", "smcontact",
-                  "", 0);
-  @ (Property: sitemap-purchase)
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
