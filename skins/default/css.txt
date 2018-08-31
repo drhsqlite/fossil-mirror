@@ -208,7 +208,7 @@ div.submenu label {
 }
 
 @media screen and (max-width: 600px) {
-  /* Adjustments for mobile */
+  /* Spacing for mobile */
   body {
     padding-left: 4px;
     padding-right: 4px;
@@ -223,6 +223,9 @@ div.submenu label {
   }
   .mainmenu {
     padding: 10px;
+  }
+  .desktoponly {
+    display: none;
   }
 }
 @media screen and (min-width: 600px) {
@@ -241,5 +244,11 @@ div.submenu label {
   }
   .mainmenu {
     padding: 10px;
+  }
+}
+@media screen and (max-width: 950px) {
+  /* Special declarations for narrow desktop or wide mobile */
+  .wideonly {
+    display: none;
   }
 }

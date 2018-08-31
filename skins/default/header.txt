@@ -10,38 +10,42 @@
 </div>
 <div class="mainmenu">
 <th1>
-proc menulink {url name} {
+proc menulink {url name cls} {
   upvar current_page current
   upvar home home
   if {[string range $url 0 [string length $current]] eq "/$current"} {
-    html "<a href='$home$url' class='active'>$name</a>\n"
+    html "<a href='$home$url' class='active $cls'>$name</a>\n"
   } else {
-    html "<a href='$home$url'>$name</a>\n"
+    html "<a href='$home$url' class='$cls'>$name</a>\n"
   }
 }
-menulink $index_page Home
+menulink $index_page Home {}
 if {[anycap jor]} {
-  menulink /timeline Timeline
+  menulink /timeline Timeline {}
 }
 if {[hascap oh]} {
-  menulink /dir?ci=tip Files
+  menulink /dir?ci=tip Files desktoponly
 }
 if {[hascap o]} {
-  menulink  /brlist Branches
-  menulink  /taglist Tags
+  menulink  /brlist Branches desktoponly
+  menulink  /taglist Tags wideonly
 }
 if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
-  menulink /forum Forum
+  menulink /forum Forum wideonly
 }
 if {[hascap r]} {
-  menulink /ticket Tickets
+  menulink /ticket Tickets wideonly
 }
 if {[hascap j]} {
-  menulink /wiki Wiki
+  menulink /wiki Wiki wideonly
 }
 if {[hascap s]} {
-  menulink /setup Admin
+  menulink /setup Admin {}
+  menulink /sitemap More... wideonly
 } elseif {[hascap a]} {
-  menulink /setup_ulist Users
+  menulink /setup_ulist Users {}
+  menulink /sitemap More... {}
+} else {
+  menulink /sitemap More... {}
 }
 </th1></div>
