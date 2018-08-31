@@ -731,10 +731,15 @@ void login_page(void){
     }else{
       @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
     }
+    @ </tr>
+    @ <tr>
+    @  <td class="form_label">Password:</td>
+    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @ </tr>
     if( P("HTTPS")==0 ){
-      @ <td width="15"><td rowspan="2">
-      @ <p class='securityWarning'>
-      @ Warning: Your password will be sent in the clear over an
+      @ <tr><td class="form_label">Warning:</td>
+      @ <td><span class='securityWarning'>
+      @ Your password will be sent in the clear over an
       @ unencrypted connection.
       if( g.sslNotAvailable ){
         @ No encrypted connection is available on this server.
@@ -742,13 +747,8 @@ void login_page(void){
         @ Consider logging in at
         @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
       }
-      @ </p>
+      @ </span></td></tr>
     }
-    @ </tr>
-    @ <tr>
-    @  <td class="form_label">Password:</td>
-    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
-    @ </tr>
     if( g.zLogin==0 && (anonFlag || zGoto==0) ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
                            " WHERE login='anonymous'"
@@ -757,15 +757,11 @@ void login_page(void){
     @ <tr>
     @   <td></td>
     @   <td><input type="submit" name="in" value="Login"></td>
-    @   <td colspan="2">&larr; Pressing this button grants\
-    @   permission to store a cookie
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="self" value="Create A New Account">
-      @   <td colspan="2"> \
-      @   &larr; Don't have a login?  Click this button to create one.
       @ </tr>
     }
     @ </table>
@@ -1706,28 +1702,29 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right">User ID:</td>
   @   <td><input type="text" name="u" value="%h(zUserID)" size="30"></td>
+  @
   if( iErrLine==1 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
-  @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Display Name:</td>
   @   <td><input type="text" name="dn" value="%h(zDName)" size="30"></td>
+  @ </tr>
   if( iErrLine==2 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Email Address:</td>
   @   <td><input type="text" name="ea" value="%h(zEAddr)" size="30"></td>
-  if( iErrLine==3 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
-  }
   @ </tr>
+  if( iErrLine==3 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   if( canDoAlerts ){
     int a = atoi(PD("alerts","1"));
     @ <tr>
-    @   <td class="form_label" align="right">Receive Email Alerts?</td>
+    @   <td class="form_label" align="right">Email&nbsp;Alerts?</td>
     @   <td><select size='1' name='alerts'>
     @       <option value="1" %s(a?"selected":"")>Yes</option>
     @       <option value="0" %s(!a?"selected":"")>No</option>
@@ -1736,32 +1733,32 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right">Password:</td>
   @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
+  @ <tr>
   if( iErrLine==4 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
-  }else{
-    @   <td>&larr; Must be at least 6 characters</td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
-  @ </tr>
   @ <tr>
-  @   <td class="form_label" align="right">Confirm password:</td>
+  @   <td class="form_label" align="right">Confirm:</td>
   @   <td><input type="password" name="cp" value="%h(zConfirm)" size="30"></td>
+  @ </tr>
   if( iErrLine==5 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
-  @ </tr>
   @ <tr>
-  @   <td class="form_label" align="right">Captcha text (below):</td>
+  @   <td class="form_label" align="right">Captcha:</td>
   @   <td><input type="text" name="captcha" value="" size="30"></td>
-  if( iErrLine==6 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
-  }
   @ </tr>
+  if( iErrLine==6 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   @ <tr><td></td>
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
-  @ </pre></td></tr></table></div>
+  @ </pre>
+  @ Enter this 8-letter code in the "Captcha" box above.
+  @ </td></tr></table></div>
   @ </form>
   style_footer();
 

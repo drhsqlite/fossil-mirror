@@ -1380,8 +1380,9 @@ void subscribe_page(void){
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
   @  <td><input type="text" name="e" value="%h(PD("e",""))" size="30"></td>
+  @ <tr>
   if( eErr==1 ){
-    @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ </tr>
   if( needCaptcha ){
@@ -1392,8 +1393,9 @@ void subscribe_page(void){
     @  <td class="form_label">Security Code:</td>
     @  <td><input type="text" name="captcha" value="" size="30">
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
+    @ </tr>
     if( eErr==2 ){
-      @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+      @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
     }
     @ </tr>
   }
@@ -1402,8 +1404,9 @@ void subscribe_page(void){
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(PD("suname",g.zLogin))" \
     @  size="30"></td>
+    @ </tr>
     if( eErr==3 ){
-      @  <td><span class="loginError">&larr; %h(zErr)</span></td>
+      @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
     }
     @ </tr>
   }

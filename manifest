@@ -1,5 +1,5 @@
-C Render\scaptchas\sin\sa\ssmaller\sfont\sthat\sworks\sbetter\son\smobile.
-D 2018-08-31T21:07:43.565
+C Login\sand\ssubscription\sforms\swork\sbetter\son\smobile.
+D 2018-08-31T22:03:13.230
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -427,7 +427,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c f5c5e447af47000506bdd703cd20c5aafdc4a4c3eaf35828d5cb7ef7250d534e
+F src/alerts.c bbef3993c612636cd9b818386386a250b67ddde510fea5db0de0a7ba8e321888
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 9484eff46bdf7deae8f7fcc519cd213274c90b7bfacff1dabc8df28fe0770f2d
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c fd0d44c83f5a1908e875e5f2adc7d8ea70f799346453f6c8a72aa7bc7aa19333
+F src/login.c 0fda31b6683c206ac2cc527270d3228d8d9995b4cf18c438751b1bf3f6865ad8
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 447d273214bfdaf32cd63ebd522524f9015a680da553afd65a3f7103488bdab0
-R 0a0e90f1fa29e297abe6f214207fa3bb
+P 75c89def6b42a1146c5c9ff4c987c5a79726d3ee628a246917fe1f374d97d628
+R eea16c6aa20db91b184b42a8b89af031
 U drh
-Z a74e22f7eecc1b2b4f3f04bc21cf6c81
+Z d700c51510d16fe42c21ecc825899e00
