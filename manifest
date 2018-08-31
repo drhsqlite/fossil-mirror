@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sskin\seditor.
-D 2018-08-31T13:05:36.063
+C Changes\sto\sthe\sCSS\sfor\sthe\sdefault\sskin\sso\sthat\sit\sworks\sbetter\son\smobile.
+D 2018-08-31T17:15:29.070
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt cdf3891966ff2365c9826a16b01a23e1eec8cd8940321077ccbfc77462f8e370
+F skins/default/css.txt 65fa70883d6e6da5ead809d07811a3b271996f23dcb364f36ba2bac192347a3f
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt cc5c62f6ff4057aedd549735262fa2693552d735b7b15d9f6f64b299444cbf8a
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6cd1477d453c8954bc107a8f755734c8fe57d1d61342090b2146b8ed650b93a
-R 6a41958f0059b0167483c253272bd851
+P bd2bf81c352f67940f1cfbb8556ff94c65858680a61f9393fbd5536a5f262338
+R b578b05e68d1655754c76a2af573138d
 U drh
-Z d82e4e6d083d1c5ff1c38b023fbc4268
+Z 8364fc8202b1aae306b39a47c79f3560

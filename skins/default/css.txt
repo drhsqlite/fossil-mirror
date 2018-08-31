@@ -1,6 +1,5 @@
 body {
     margin: 0 auto;
-    padding: 0px 20px;
     background-color: white;
     font-family: sans-serif;
     font-size:14pt;
@@ -28,8 +27,6 @@ hr {
 .title {
     color: #4183C4;
     float:left;
-    padding-top: 30px;
-    padding-bottom: 10px;
 }
 .title h1 {
     display:inline;
@@ -77,13 +74,11 @@ hr {
 .status {
     float:right;
     font-size:.7em;
-    padding-top:50px;
 }
 
 .mainmenu {
     font-size:.8em;
     clear:both;
-    padding:10px;
     background:#eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
     border:1px solid #eaeaea;
     border-radius:5px;
@@ -92,7 +87,6 @@ hr {
 }
 
 .mainmenu a {
-    padding: 10px 20px;
     text-decoration:none;
     color: #777;
     border-right:1px solid #eaeaea;
@@ -211,4 +205,41 @@ span.submenuctrl {
 }
 div.submenu label {
   white-space: nowrap;
+}
+
+@media screen and (max-width: 600px) {
+  /* Adjustments for mobile */
+  body {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .title {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  .status {padding-top: 0px;}
+  .mainmenu a {
+    padding: 10px 10px;
+  }
+  .mainmenu {
+    padding: 10px;
+  }
+}
+@media screen and (min-width: 600px) {
+  /* Spacing for desktop */
+  body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .title {
+    padding-top: 30px;
+    padding-bottom: 10px;
+  }
+  .status {padding-top: 50px;}
+  .mainmenu a {
+    padding: 10px 20px;
+  }
+  .mainmenu {
+    padding: 10px;
+  }
 }
