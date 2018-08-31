@@ -1,5 +1,5 @@
-C Login\sand\ssubscription\sforms\swork\sbetter\son\smobile.
-D 2018-08-31T22:03:13.230
+C Remove\sthe\sn=200\squery\sparameter\sfrom\sthe\stimeline\slink\son\sthe\s/sitemap.
+D 2018-08-31T22:41:28.603
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -556,7 +556,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 665da53202d92b6926048b939dfee91fb710920e6634b9530c6f7959ea0d2062
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
-F src/sitemap.c 12a7f994470906df8ae339f8a7b97063a7965abcdd2468434e28db7a1617dc4c
+F src/sitemap.c 60502086cd49995726daff5aad7e371020b214f00bbe7bc8ee8508d0545e335a
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c efc7cf16e1a1f736dbd45eabf625cf66e519d8456b7751d2ee0c171d8897b24e
 F src/smtp.c ac922e9cb1466715aac93408220e75721032a1f5c6d9f87b9874d929953e5581
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 75c89def6b42a1146c5c9ff4c987c5a79726d3ee628a246917fe1f374d97d628
-R eea16c6aa20db91b184b42a8b89af031
+P 27769be9d07145b7e5b744127b25c9f8741f350af949d483e371f27ae98e4678
+R 0a5e5e2cb2bd507cc714aa65c272e3be
 U drh
-Z d700c51510d16fe42c21ecc825899e00
+Z 3db787089b584b086dec92a0966b9e2b

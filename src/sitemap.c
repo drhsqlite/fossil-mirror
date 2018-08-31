@@ -85,7 +85,7 @@ void sitemap_page(void){
     @ </ul>
   }
   if( g.perm.Read ){
-    @ <li>%z(href("%R/timeline?n=200"))Project Timeline</a></li>
+    @ <li>%z(href("%R/timeline"))Project Timeline</a></li>
     @ <ul>
     @   <li>%z(href("%R/reports"))Activity Reports</a></li>
     @   <li>%z(href("%R/timeline?n=all&namechng"))File name changes</a></li>
