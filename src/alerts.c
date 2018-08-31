@@ -1521,6 +1521,10 @@ void alert_page(void){
 
   if( alert_webpages_disabled() ) return;
   login_check_credentials();
+  if( !g.perm.EmailAlert ){
+    login_needed(g.anon.EmailAlert);
+    return;
+  }
   if( zName==0 && login_is_individual() ){
     zName = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
                        " WHERE suname=%Q", g.zLogin);

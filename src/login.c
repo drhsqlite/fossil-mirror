@@ -791,26 +791,28 @@ void login_page(void){
     }
     @ </form>
   }
-  if( login_is_individual() && g.perm.Password ){
-    if( alert_enabled() ){
+  if( login_is_individual() ){
+    if( g.perm.EmailAlert && alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
       @ for user <b>%h(g.zLogin)</b></p>
     }
-    @ <hr />
-    @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
-    form_begin(0, "%R/login");
-    @ <table>
-    @ <tr><td class="form_label">Old Password:</td>
-    @ <td><input type="password" name="p" size="30" /></td></tr>
-    @ <tr><td class="form_label">New Password:</td>
-    @ <td><input type="password" name="n1" size="30" /></td></tr>
-    @ <tr><td class="form_label">Repeat New Password:</td>
-    @ <td><input type="password" name="n2" size="30" /></td></tr>
-    @ <tr><td></td>
-    @ <td><input type="submit" value="Change Password" /></td></tr>
-    @ </table>
-    @ </form>
+    if( g.perm.Password ){
+      @ <hr>
+      @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
+      form_begin(0, "%R/login");
+      @ <table>
+      @ <tr><td class="form_label">Old Password:</td>
+      @ <td><input type="password" name="p" size="30" /></td></tr>
+      @ <tr><td class="form_label">New Password:</td>
+      @ <td><input type="password" name="n1" size="30" /></td></tr>
+      @ <tr><td class="form_label">Repeat New Password:</td>
+      @ <td><input type="password" name="n2" size="30" /></td></tr>
+      @ <tr><td></td>
+      @ <td><input type="submit" value="Change Password" /></td></tr>
+      @ </table>
+      @ </form>
+    }
   }
   style_footer();
 }

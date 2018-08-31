@@ -31,23 +31,43 @@
 */
 void sitemap_page(void){
   int srchFlags;
+  int inSublist = 0;
+  int i;
+  const struct {
+    const char *zTitle;
+    const char *zProperty;
+  } aExtra[] = {
+    { "Documentation",  "sitemap-docidx" },
+    { "Download",       "sitemap-download" },
+    { "License",        "sitemap-license" },
+    { "Contact",        "sitemap-contact" },
+  };
+
   login_check_credentials();
   srchFlags = search_restrict(SRCH_ALL);
   style_header("Site Map");
   style_adunit_config(ADUNIT_RIGHT_OK);
-#if 0
-  @ <p>
-  @ The following links are just a few of the many web-pages available for
-  @ this Fossil repository:
-  @ </p>
-  @
-#endif
   @ <ul>
   @ <li>%z(href("%R/home"))Home Page</a>
+  for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
+    char *z = db_get(aExtra[i].zProperty,0);
+    if( z==0 ) continue;
+    if( !inSublist ){
+      @ <ul>
+      inSublist = 1;
+    }
+    @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</li>
+  }
   if( srchFlags & SRCH_DOC ){
-    @   <ul>
-    @   <li>%z(href("%R/docsrch"))Search Project Documentation</a></li>
-    @   </ul>
+    if( !inSublist ){
+      @ <ul>
+      inSublist = 1;
+    }
+    @ <li>%z(href("%R/docsrch"))Documentation Search</a></li>
+  }
+  if( inSublist ){
+    @ </ul>
+    inSublist = 0;    
   }
   @ </li>
   if( g.perm.Read ){
@@ -57,6 +77,7 @@ void sitemap_page(void){
     @        Trunk Check-in</a></li>
     @   <li>%z(href("%R/tree?type=flat"))Flat-view</a></li>
     @   <li>%z(href("%R/fileage?name=trunk"))File ages for Trunk</a></li>
+    @   <li>%z(href("%R/uvlist"))Unversioned Files</a>
     @ </ul>
   }
   if( g.perm.Read ){
@@ -72,28 +93,19 @@ void sitemap_page(void){
   if( g.perm.Read ){
     @ <li>%z(href("%R/brlist"))Branches</a></li>
     @ <ul>
+    @   <li>%z(href("%R/taglist"))Tags</a></li>
     @   <li>%z(href("%R/leaves"))Leaf Check-ins</a></li>
-    @   <li>%z(href("%R/taglist"))List of Tags</a></li>
     @ </ul>
     @ </li>
   }
-  if( g.perm.RdWiki ){
-    @ <li>%z(href("%R/wikihelp"))Wiki</a>
-    @   <ul>
-    if( srchFlags & SRCH_WIKI ){
-      @     <li>%z(href("%R/wikisrch"))Wiki Search</a></li>
-    }
-    @     <li>%z(href("%R/wcontent"))List of Wiki Pages</a></li>
-    @     <li>%z(href("%R/timeline?y=w"))Recent activity</a></li>
-    @     <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
-    @     <li>%z(href("%R/md_rules"))Markdown Formatting Rules</a></li>
-    @     <li>%z(href("%R/wiki?name=Sandbox"))Sandbox</a></li>
-    @     <li>%z(href("%R/attachlist"))List of Attachments</a></li>
-    @   </ul>
-    @ </li>
+  if( srchFlags ){
+    @ <li>%z(href("%R/search"))Search</a></li>
   }
   if( g.perm.RdForum ){
-    @ <li>%z(href("%R/forum"))Forum</a></li>
+    @ <li>%z(href("%R/forum"))Forum</a>
+    @ <ul>
+    @   <li>%z(href("%R/timeline?y=f"))Recent activity</a></li>
+    @ </ul>
   }
   if( g.perm.RdTkt ){
     @ <li>%z(href("%R/reportlist"))Tickets</a>
@@ -106,13 +118,52 @@ void sitemap_page(void){
     @   </ul>
     @ </li>
   }
-  if( g.perm.Read ){
-    @ <li>%z(href("%R/uvlist"))Unversioned Files</a>
+  if( g.perm.RdWiki ){
+    @ <li>%z(href("%R/wikihelp"))Wiki</a>
+    @   <ul>
+    if( srchFlags & SRCH_WIKI ){
+      @     <li>%z(href("%R/wikisrch"))Wiki Search</a></li>
+    }
+    @     <li>%z(href("%R/wcontent"))List of Wiki Pages</a></li>
+    @     <li>%z(href("%R/timeline?y=w"))Recent activity</a></li>
+    @     <li>%z(href("%R/wiki?name=Sandbox"))Sandbox</a></li>
+    @     <li>%z(href("%R/attachlist"))List of Attachments</a></li>
+    @   </ul>
+    @ </li>
   }
-  if( srchFlags ){
-    @ <li>%z(href("%R/search"))Full-Text Search</a></li>
+
+  if( !g.zLogin ){
+    @ <li>%z(href("%R/login"))Login</a>
+    if( login_self_register_available(0) ){
+       @ <ul>
+       @ <li>%z(href("%R/register"))Create a new account</a></li>
+       inSublist = 1;
+    }
+  }else {
+    @ <li>%z(href("%R/logout"))Logout</a>
+    if( g.perm.Password ){
+      @ <ul>
+      @ <li>%z(href("%R/logout"))Change Password</a></li>
+      inSublist = 1;
+    }
   }
-  @ <li>%z(href("%R/login"))Login/Logout/Change Password</a></li>
+  if( alert_enabled() && g.perm.EmailAlert ){
+    if( !inSublist ){
+      inSublist = 1;
+      @ <ul>
+    }
+    if( login_is_individual() ){
+      @ <li>%z(href("%R/alerts"))Email Alerts</a></li>
+    }else{
+      @ <li>%z(href("%R/subscribe"))Subscribe to Email Alerts</a></li>
+    }
+  }
+  if( inSublist ){
+    @ </ul>
+    inSublist = 0;
+  }
+  @ </li>
+
   if( g.perm.Read ){
     @ <li>%z(href("%R/stat"))Repository Status</a>
     @   <ul>
@@ -126,8 +177,10 @@ void sitemap_page(void){
     @   </ul>
     @ </li>
   }
-  @ <li>On-line Documentation
+  @ <li>Help
   @   <ul>
+  @   <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
+  @   <li>%z(href("%R/md_rules"))Markdown Formatting Rules</a></li>
   @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
   @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
   @   <li>%z(href("%R/mimetype_list"))Filename suffix to mimetype map</a></li>

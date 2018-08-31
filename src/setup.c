@@ -888,6 +888,29 @@ void setup_config(void){
   @ "<b>/home</b>" will work but "<b>home</b>" will not, since it omits the
   @ leading "/".</p>
   @ <p>(Property: "index-page")
+  @ <hr>
+  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
+  @ Often these are filled in with links like 
+  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to 
+  @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
+  @ to wiki pages.
+  @ Leave blank to omit.
+  @ <p>
+  entry_attribute("Documentation Index", 40, "sitemap-docidx", "smdocidx",
+                  "", 0);
+  @ (Property: sitemap-docidx)<br>
+  entry_attribute("Download", 40, "sitemap-download", "smdownload",
+                  "", 0);
+  @ (Property: sitemap-download)<br>
+  entry_attribute("Copyright", 40, "sitemap-copyright", "smcopyright",
+                  "", 0);
+  @ (Property: sitemap-copyright)<br>
+  entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
+                  "", 0);
+  @ (Property: sitemap-contact)
+  entry_attribute("Purchase", 40, "sitemap-purchase", "smcontact",
+                  "", 0);
+  @ (Property: sitemap-purchase)
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
