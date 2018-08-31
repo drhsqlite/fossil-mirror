@@ -1,5 +1,5 @@
-C Less\svertical\sspace\son\sthe\sdefault\smenus\sand\stitle.
-D 2018-08-31T19:21:10.226
+C Fix\san\sunterminated\stransaction\sin\sthe\s/admin_th1\spage.
+D 2018-08-31T20:24:44.774
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c e84908c0469da94360440f93de17acb42ca683a35168c81fb11e82df4c8a3087
-F src/setup.c e717bb261978f50019bc818cd83e1b26e2975ced3249d1b62fb48291c61c6dab
+F src/setup.c 4953798b9745c186c056900d4fe63b7b188bebb0ac52232e6a3bd5e6f6035a92
 F src/setupuser.c 53ae6abd6f927f531dd79ce14aa3a3c889615c53a42f79c45cc80702a5ed5fa1
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 306f8ffdef2e6063200d12ae62a4137c683606edcf254a6158e6ff876525e839
-R e86b81c775c932832bb2efd0df72aac0
+P 96938c42a6ecb4e7eb8b8d577481896eba63411e2543272e9e0b063af509e8d8
+R d5db73ad58bcf75c56ce556de56ce92c
 U drh
-Z 5a1d223ce9497bf5ae6092adee20237c
+Z deecc4cd394c788d059511ce9f692f90

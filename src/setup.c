@@ -1365,7 +1365,6 @@ void th1_page(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
   style_header("Raw TH1 Commands");
   @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
   @ run by this page.  If Tcl integration was enabled at compile-time and
