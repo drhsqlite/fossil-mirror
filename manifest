@@ -1,5 +1,5 @@
-C Fix\shyperlinks\sfor\sextra\spages\son\sthe\s/sitemap\sso\sthat\sthey\scorrectly\nresolve\sto\sthe\sroot\sof\sthe\srepository.
-D 2018-08-31T11:05:10.125
+C Omit\sthe\sForum\sSearch\sat\sthe\stop\sof\sthe\s/forum\spage\sif\ssearch\sis\sdisabled.
+D 2018-08-31T11:32:20.966
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 36fe4f14954d1411131a973d4be0fec78da75032104feeb421e453e618768d5b
+F src/forum.c 86ff3ee3ebaaa578b8f1b7666e73876d94a285ce7326f7b7f779dc25ab4e45f9
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ace123b7ad24e2fbc112c25c83234947079246d905daa0576b5c3f34cc58fce3
-R 841995f3e2a1a5a5eaf2ed8bbf3531ec
+P 96fbcd1311c57e8dbbeb65b84c34caa8fecbff406370a6c28b4b2cc166439aae
+R 4840dd80ea41a4fabd7657fd9f58a2c1
 U drh
-Z a7e37b8565c39a590a66352c285db478
+Z 9c29a884231da84c0f3ec4790f872d59

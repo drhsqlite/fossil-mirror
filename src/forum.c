@@ -930,7 +930,9 @@ void forumedit_page(void){
 void forum_main_page(void){
   Stmt q;
   int iLimit, iOfst, iCnt;
+  int srchFlags;
   login_check_credentials();
+  srchFlags = search_restrict(SRCH_FORUM);
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
     return;
@@ -942,10 +944,12 @@ void forum_main_page(void){
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");
   }
-  if( search_screen(SRCH_FORUM, 0) ){
-    style_submenu_element("Recent Threads","%R/forum");
-    style_footer();
-    return;
+  if( (srchFlags & SRCH_FORUM)!=0 ){
+    if( search_screen(SRCH_FORUM, 0) ){
+      style_submenu_element("Recent Threads","%R/forum");
+      style_footer();
+      return;
+    }
   }
   iLimit = atoi(PD("n","25"));
   iOfst = atoi(PD("x","0"));
