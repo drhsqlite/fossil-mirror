@@ -51,12 +51,16 @@ void sitemap_page(void){
   @ <li>%z(href("%R/home"))Home Page</a>
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
     char *z = db_get(aExtra[i].zProperty,0);
-    if( z==0 ) continue;
+    if( z==0 || z[0]==0 ) continue;
     if( !inSublist ){
       @ <ul>
       inSublist = 1;
     }
-    @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</li>
+    if( z[0]=='/' ){
+      @ <li>%z(href("%R%s",z))%s(aExtra[i].zTitle)</li>
+    }else{
+      @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</li>
+    }
   }
   if( srchFlags & SRCH_DOC ){
     if( !inSublist ){
