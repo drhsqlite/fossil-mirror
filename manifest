@@ -1,5 +1,5 @@
-C Omit\sthe\sForum\sSearch\sat\sthe\stop\sof\sthe\s/forum\spage\sif\ssearch\sis\sdisabled.
-D 2018-08-31T11:32:20.966
+C Fix\sthe\s"Public\sPages"\ssetting\sso\sthat\sthe\sinitial\spart\sof\sthe\spath\sthat\nidentifies\sa\sparticular\srepository\sis\signored.
+D 2018-08-31T11:59:44.914
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -509,7 +509,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 028cfec5985cded32c5b2da2fb3a417a74f4155d96741119c52343f894957e40
+F src/login.c 703041e2b6171e65ab3f7d9e4f3d273f469cf47faa1d0be539ac445b95edbcf9
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 96fbcd1311c57e8dbbeb65b84c34caa8fecbff406370a6c28b4b2cc166439aae
-R 4840dd80ea41a4fabd7657fd9f58a2c1
+P d4281bbc03f1b02493331a89c823612786e5ae7671e0872531b48e591a8bb31b
+R cb2e9633c8938a1bb1e486bc983ce7a7
 U drh
-Z 9c29a884231da84c0f3ec4790f872d59
+Z 87c6d57e874dcba50e195fd0ee71044c

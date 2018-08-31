@@ -1198,7 +1198,9 @@ void login_check_credentials(void){
   zPublicPages = db_get("public-pages",0);
   if( zPublicPages!=0 ){
     Glob *pGlob = glob_create(zPublicPages);
-    if( glob_match(pGlob, PD("REQUEST_URI","no-match")) ){
+    const char *zUri = PD("REQUEST_URI","");
+    zUri += (int)strlen(g.zTop);
+    if( glob_match(pGlob, zUri) ){
       login_set_capabilities(db_get("default-perms","u"), 0);
     }
     glob_free(pGlob);
