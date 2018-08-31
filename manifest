@@ -1,5 +1,5 @@
-C In\sthe\sdefault\sskin,\sadjust\sthe\slabels\sin\sthe\smenu\sbar\sdepending\son\sscreen\nwidth.
-D 2018-08-31T19:03:35.411
+C Less\svertical\sspace\son\sthe\sdefault\smenus\sand\stitle.
+D 2018-08-31T19:21:10.226
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 85e6c46368a6ed6b943d214b1d2ecc80a162b4446441d7018c38718e14f07680
+F skins/default/css.txt c0e960657cb16c2ea17c49200911eed4db384986fa81e0fb01c42cee9c504447
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 80b02b8acf720f6e87526e97adf537b4018abf65aab64b783c0c5ed22aa6d32f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c565732f78b03407839c237351295357ee5c22a0270de292ae6330abb43b5227
-R 206dfb4991c044f02934da2824653ba5
+P 306f8ffdef2e6063200d12ae62a4137c683606edcf254a6158e6ff876525e839
+R e86b81c775c932832bb2efd0df72aac0
 U drh
-Z c864dd28bf49293d40280a199f54f1a5
+Z 5a1d223ce9497bf5ae6092adee20237c

@@ -99,7 +99,6 @@ hr {
 
 .submenu {
     font-size: .7em;
-    margin-top: 10px;
     padding: 10px;
     border-bottom: 1px solid #ccc;
 }
@@ -235,10 +234,10 @@ div.submenu label {
     padding-right: 20px;
   }
   .title {
-    padding-top: 30px;
+    padding-top: 10px;
     padding-bottom: 10px;
   }
-  .status {padding-top: 50px;}
+  .status {padding-top: 30px;}
   .mainmenu a {
     padding: 10px 20px;
   }
