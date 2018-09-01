@@ -1,5 +1,5 @@
-C Added\s"overflow-y:\shidden;"\sto\sthe\sCSS\sfor\sthe\sdefault\sskin\sto\sprevent\nsome\sbrowsers\s(Chrome,\sFirefox,\sand\sSafari\son\smacOS,\sat\sleast)\sfrom\nadding\sa\svertical\sscroll\sbar\sto\sthe\snavbar.\s\sThis\swas\sonly\snecesasry\son\nthis\sskin\sbecause\sof\sthe\srecently-added\s"overflow-x:\sauto"\sstyle,\swhich\ntells\sthe\sbrowser\sto\sclip\sor\shorizontally-scroll\sthe\snavbar\sif\sthe\nscreen\swidth\sisn't\ssufficient\sto\sshow\sthe\swhole\sthing;\spreviously\sin\nthis\sskin,\sand\scurrently\sin\sall\sother\sskins,\sthis\scondition\scauses\sthe\nnavbar\sto\swrap\sto\sthe\snext\sline,\swhich\slooks\sparticularly\sbad\son\sthe\ndefault\sskin.\s\sI\sbelieve\sthis\sthen\smade\sthese\sbrowsers\scalculate\ssome\nextra\sspace\sfor\sa\spossible\shorizontal\sscroll\sbar,\swhich\sthen\sran\sthe\nlayout\sengine\sout\sof\sspace,\sso\sit\sincluded\sthe\svertical\sbar\sjust\sin\ncase.\s\sThis\smay\sbe\smacOS\sspecific,\sdue\sto\sthe\sscroll\sbar\shiding\sbehavior\nintroduced\sseveral\sOS\srelease\sback.
-D 2018-09-01T20:19:55.473
+C Noted\sthe\sresponsive\sdesign\schanges\sto\sthe\sdefault\sskin\sin\sthe\schange\nlog,\sand\sexpanded\son\sthe\sforum\sand\salerts\sfeature\sitems.\s\sAlso\schanged\nall\sthe\spast-tense\sverbs\sto\spresent\stense\sto\smatch\sthe\srest\sof\sthe\sitems\nand\sthe\sprevailing\sstyle\sin\spast\schangelog\sentries.
+D 2018-09-01T20:49:31.988
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -769,7 +769,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki bd786dff5cc78c482f07a011a99163bd4e9362f35b9222be6da54baef755ae47
-F www/changes.wiki 9ebd27f0b8901ea51f2c683dceb600adfed8196e98e1a5cc85e1f7b10ce44c6a
+F www/changes.wiki 9a51d9a290d3acf9af0b84656ae9c94cbcb46aebef8d41233ff70f31969a7223
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c429bb79174ea5f949702f0a7a5db01a15118aeaf4fc0e25b095d6657ee9662b
-R 05e75f53dbfb16827ff2994a748c71a7
+P e8783b9aa2f6a0f0b5d9066e960256f0dd123b8a2870712753aef8d03db5cb0a
+R 3b6e5d9dc6b5a3c9ecb31cced28c3a33
 U wyoung
-Z afed999d10647a4ca1df32966292052c
+Z 1b18bd63512afa0acb098982a9188983

@@ -3,13 +3,16 @@
 <a name='v2_7'></a>
 <h2>Changes for Version 2.7 (2018-??-??)</h2>
 
-  *  Add support for [./alerts.md|email alerts].
-  *  Add support for forums.
-  *  Added new user capabilities letters needed to support alerts and forum.
+  *  Add the [./alerts.md|email alerts] feature for commits, ticket
+     changes, wiki changes, forum posts, and announcements.
+  *  Add the discussion forum feature.
+  *  Add new user capabilities letters needed to support alerts and forum.
      Formerly, user capabilities were letters from &#91;a-z&#93;, but with the
      enhancements, the supply of lower case letters was exhausted.
      User capabilities are now letters in &#91;a-zA-Z0-9&#93;.
-  *  Added the [./backoffice.md|backoffice].
+  *  The default skin is now responsive, providing better layout on
+     small screens, including mobile devices.
+  *  Add the [./backoffice.md|backoffice].
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 10.0 to 11.0.
   *  Improvements to the "Security Audit" administration page
