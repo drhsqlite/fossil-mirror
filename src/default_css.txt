@@ -190,11 +190,11 @@ div.columns {
   padding: 0 2em 0 2em;
   max-width: 1000px;
 }
-div.columns ul {
+div.columns > ul {
   margin: 0;
   padding: 0;
 }
-div.columns ul li:first-child {
+div.columns > ul li:first-child {
   margin-top:0px;
 }
 .filetree {
