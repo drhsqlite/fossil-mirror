@@ -1,5 +1,5 @@
-C Add\s1em\sof\sleft\spadding\sto\smulti-column\sunordered\slists.\s\sThis\sextra\npadding\sis\snecessary\sto\sget\sChrome\sand\sEdge\sto\sdisplay\sthe\sbullets\son\nsecond\sand\ssubsequent\scolumns.
-D 2018-09-01T14:52:39.619
+C Added\s"overflow-y:\shidden;"\sto\sthe\sCSS\sfor\sthe\sdefault\sskin\sto\sprevent\nsome\sbrowsers\s(Chrome,\sFirefox,\sand\sSafari\son\smacOS,\sat\sleast)\sfrom\nadding\sa\svertical\sscroll\sbar\sto\sthe\snavbar.\s\sThis\swas\sonly\snecesasry\son\nthis\sskin\sbecause\sof\sthe\srecently-added\s"overflow-x:\sauto"\sstyle,\swhich\ntells\sthe\sbrowser\sto\sclip\sor\shorizontally-scroll\sthe\snavbar\sif\sthe\nscreen\swidth\sisn't\ssufficient\sto\sshow\sthe\swhole\sthing;\spreviously\sin\nthis\sskin,\sand\scurrently\sin\sall\sother\sskins,\sthis\scondition\scauses\sthe\nnavbar\sto\swrap\sto\sthe\snext\sline,\swhich\slooks\sparticularly\sbad\son\sthe\ndefault\sskin.\s\sI\sbelieve\sthis\sthen\smade\sthese\sbrowsers\scalculate\ssome\nextra\sspace\sfor\sa\spossible\shorizontal\sscroll\sbar,\swhich\sthen\sran\sthe\nlayout\sengine\sout\sof\sspace,\sso\sit\sincluded\sthe\svertical\sbar\sjust\sin\ncase.\s\sThis\smay\sbe\smacOS\sspecific,\sdue\sto\sthe\sscroll\sbar\shiding\sbehavior\nintroduced\sseveral\sOS\srelease\sback.
+D 2018-09-01T20:19:55.473
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt c0e960657cb16c2ea17c49200911eed4db384986fa81e0fb01c42cee9c504447
+F skins/default/css.txt 2fdb21db9cbbef3aeebe0ff387971fa508c245e830b79d0d6f596a4bcae74fdd
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 7dd553d65672572ea94a53ba3f858f3dcaf3f771889987a73d81c149cf7e9c52
 F skins/default/header.txt 80b02b8acf720f6e87526e97adf537b4018abf65aab64b783c0c5ed22aa6d32f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 894cff0ace351f3e79f75c967979d130f53b1593d8c5232c224f7bdd2a964a00
-R 4e0596455081f34a7e79bbf244ef4916
-U drh
-Z b918417700ad1b41ce01ff3ab69adae4
+P c429bb79174ea5f949702f0a7a5db01a15118aeaf4fc0e25b095d6657ee9662b
+R 05e75f53dbfb16827ff2994a748c71a7
+U wyoung
+Z afed999d10647a4ca1df32966292052c

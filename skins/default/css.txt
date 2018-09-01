@@ -83,6 +83,7 @@ hr {
     border:1px solid #eaeaea;
     border-radius:5px;
     overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
 }
 
