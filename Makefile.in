@@ -36,7 +36,7 @@ TCC = @CC@
 #### Tcl shell for use in running the fossil testsuite.  If you do not
 #    care about testing the end result, this can be blank.
 #
-TCLSH = tclsh
+TCLSH = @TCLSH@
 
 CFLAGS = @CFLAGS@
 LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
