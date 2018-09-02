@@ -1,5 +1,5 @@
-C Explained\s"Why\scan't\swe\suse\sJim\sTcl\sfor\sthe\stest\ssuite?"\sin\sthe\sauto.def\ncomment\sabove\sthe\scheck\sfor\sa\ssuitable\stclsh\sversion.\s\sBasically,\sI\ntried\sit\sand\sthen\sdocumented\sa\sfew\sof\sthe\sresulting\sfailures.
-D 2018-09-02T21:00:05.825
+C Fixed\san\sincorrect\sTcl\sstring\scomparison\schecked\sin\swith\s[e449cb09].
+D 2018-09-02T21:46:51.272
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def a26e5fc5e8d7adca17d7c5cc0644ff67f916cb4338749385301c2b0bd6f520e9
+F auto.def ee4f4577e1fb0b2dee1f029d6ea880b054276bdcdb091aa78d0e4c47e697dffa
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e449cb09c18004ed6034f2742ad0bf91dc19856fe76caf743f3608a78aa169ec
-R 15754e46fa6c6f074cef489aa7bbc299
+P 91eaef6131e816bdcab192bfd800e87de02302a330fcba6ecba796d996444191
+R 3c3c808baaad3bb41380d1baf8de85e6
 U wyoung
-Z 126c30cbacc99d563922c7f46496fd6a
+Z 38862da49a009d2e25b83d7e33891207
