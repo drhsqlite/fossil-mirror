@@ -31,8 +31,9 @@ set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
 
-if {$tcl_platform(platform) eq "windows" && \
+if {$is_windows && \
     [string length [file extension $fossilexe]] == 0} {
   append fossilexe .exe
 }
@@ -445,7 +446,7 @@ proc test_cleanup {} {
 
 proc delete_temporary_home {} {
   if {$::KEEP} {return}; # All cleanup disabled?
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
     robust_delete [file join $::tempHomePath .fossil]
@@ -630,7 +631,7 @@ proc getTemporaryPath {} {
   #
   # NOTE: On non-Windows systems, fallback to /tmp if it is usable.
   #
-  if {$::tcl_platform(platform) ne "windows"} {
+  if {!$::is_windows} {
     set value /tmp
 
     if {[file exists $value] && [file isdirectory $value]} {
@@ -802,7 +803,7 @@ proc test_start_server { repository {varName ""} } {
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
   }
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     set stopArg [file join [getTemporaryPath] [appendArgs \
         [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
     lappend command --stopper $stopArg
@@ -812,7 +813,7 @@ proc test_start_server { repository {varName ""} } {
       [getSeqNo]]].out
   lappend command $repository >&$outFileName &
   set pid [eval $command]
-  if {$::tcl_platform(platform) ne "windows"} {
+  if {!$::is_windows} {
     set stopArg $pid
   }
   after 1000; # output might not be there yet
@@ -829,7 +830,7 @@ proc test_start_server { repository {varName ""} } {
 # will vary by platform as will the exact method used to stop the server.
 # The fileName argument is the name of a temporary output file to delete.
 proc test_stop_server { stopArg pid fileName } {
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     #
     # NOTE: On Windows, the "stop argument" must be the name of a file
     #       that does NOT already exist.
@@ -956,7 +957,7 @@ proc third_to_last_data_line {} {
 
 set tempPath [getTemporaryPath]
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   set tempPath [string map [list \\ /] $tempPath]
 }
 

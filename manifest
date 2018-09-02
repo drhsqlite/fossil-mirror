@@ -1,5 +1,5 @@
-C Removed\sa\sdebug\smessage\saccidentally\schecked\sin.
-D 2018-09-02T21:51:07.620
+C Cached\sthe\sresult\sof\s"$tcl_platform(platform)\seq\s"windows""\sin\ntest/tester.tcl\sand\sreplaced\sall\sof\sthe\srepetitions\sof\sthis\s\nexpression\swith\sa\stest\sof\sthe\svariable.
+D 2018-09-02T23:05:53.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -645,7 +645,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 5f8c72f836bafdb989815965a67eed3e780d8dabfeeda009c848a8894f9cb203
+F test/tester.tcl d0b34638923f28ecf11038ae6c33e0897fc5237e2b2ad4543de44135d477c7f9
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee2ffe359965a22f34dc64ecfb3f8e0ec4c8586891e29da05a8af7af015cfb59
-R 3c3c808baaad3bb41380d1baf8de85e6
+P 8eadf4c428a79880dee6fac1fe65c217241c50149f84a5775e01032a1d876ff8
+R 4fab2594c7c0a6227f0128b646790d7a
 U wyoung
-Z 0c78936a6613fc5441efc15e365ad8c8
+Z de7145ae414a29018d74ee7fc1354c5b
