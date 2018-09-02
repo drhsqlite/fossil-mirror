@@ -35,8 +35,17 @@ cc-with {-includes {stdint.h inttypes.h}} {
 # Use pread/pwrite system calls in place of seek + read/write if possible
 define USE_PREAD [cc-check-functions pread]
 
-# Find tclsh for the test suite.  We can't use jimsh for this: the test
-# suite uses features of Tcl that Jim doesn't support.
+# Find tclsh for the test suite.
+#
+# We can't use jimsh for this: the test suite uses features of Tcl that
+# Jim doesn't support, either statically or due to the way it's built by
+# autosetup.  For example, Jim supports `file normalize`, but only if
+# you build it with HAVE_REALPATH, which won't ever be defined in this
+# context because autosetup doesn't try to discover platform-specific
+# details like that before it decides to build jimsh0.  Besides which,
+# autosetup won't build jimsh0 at all if it can find tclsh itself.
+# Ironically, this means we may right now be running under either jimsh0
+# or a version of tclsh that we find unsuitable below!
 cc-check-progs tclsh
 set hbtd /usr/local/Cellar/tcl-tk
 if {[get-define TCLSH] != false} {
