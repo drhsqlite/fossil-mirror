@@ -1,5 +1,5 @@
-C Noted\sthe\sresponsive\sdesign\schanges\sto\sthe\sdefault\sskin\sin\sthe\schange\nlog,\sand\sexpanded\son\sthe\sforum\sand\salerts\sfeature\sitems.\s\sAlso\schanged\nall\sthe\spast-tense\sverbs\sto\spresent\stense\sto\smatch\sthe\srest\sof\sthe\sitems\nand\sthe\sprevailing\sstyle\sin\spast\schangelog\sentries.
-D 2018-09-01T20:49:31.988
+C In\sthe\sfile\sbrowser,\slimit\sthe\smaximum\snumber\sof\scolumns\sto\sbe\sthe\snumber\sof\nfiles,\sso\sthat\sa\ssingle\sfile\sis\snever\ssplit\sacross\stwo\scolumns.
+D 2018-09-02T10:07:09.317
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
 F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
-F src/browse.c 3674d616727d22e14f4cfd1713458f5f289b32168e7232e2e74cf53bb181bf1b
+F src/browse.c 792a70361970a7c875945bbcd53e30beead55d11966757f85acb6588568a2fcd
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e8783b9aa2f6a0f0b5d9066e960256f0dd123b8a2870712753aef8d03db5cb0a
-R 3b6e5d9dc6b5a3c9ecb31cced28c3a33
-U wyoung
-Z 1b18bd63512afa0acb098982a9188983
+P 6f87b4af085be3f7b18bcfb7b843eecdb3a1068eb926878bf632a9daf6703f0d
+R 22217b6309d6eefc937061df1c51d169
+U drh
+Z 4df8201d628cbefa76512d624953bab1
