@@ -41,6 +41,7 @@ dolor sic amet
 }
 
 # try long lines
+puts "LL: [pwd]"
 set a3 "abcdefgh"
 set a4 $a3$a3
 set a5 $a4$a4

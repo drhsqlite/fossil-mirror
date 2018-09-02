@@ -1,5 +1,5 @@
-C In\sthe\sfile\sbrowser,\slimit\sthe\smaximum\snumber\sof\scolumns\sto\sbe\sthe\snumber\sof\nfiles,\sso\sthat\sa\ssingle\sfile\sis\snever\ssplit\sacross\stwo\scolumns.
-D 2018-09-02T10:07:09.317
+C Merged\stclsh-macos\sdown\sto\strunk.
+D 2018-09-02T21:47:23.980
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
-F Makefile.in 553ba13c765da9b74f3c8ba366feb5ae1469a6882162959c51c12f30c97bfecf
+F Makefile.in 29d05ac027bee27d542f975eff094120f277777e65496e329ca2ee57dcb470cd
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
 F VERSION 823b416463d02932b3f5fed25158b3fccc402aad76a3c53363a0a49dad0ae6f4
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def ffe8cd455dfba8db6f292eeab54bae24049dc548d86592e5a3a98b54ece4e6d0
+F auto.def ee4f4577e1fb0b2dee1f029d6ea880b054276bdcdb091aa78d0e4c47e697dffa
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -608,7 +608,7 @@ F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663
 F test/clean.test 4ea7e9a6eb25b06a543cec6ece2c21103afb1338
 F test/cmdline.test df50383ebf00e7a444e29f2f755867f843c37df7
 F test/comment.test ebdb00c7ed84b3d124e36caa948409ae05612564
-F test/commit-warning.test a850532cb74a091a13aa24a9b59f232e6566c3d7722dd29041f17578665930c4
+F test/commit-warning.test 73329652b9489aef114c6c3f990865f0ae54dac42c30bf32e575c2c4f1e7ae98
 F test/contains-selector.test cf46a39b3c1ff72d2fc674f4ccbeecfb94add7d2
 F test/delta1.test c3ea182ab06554a35203285774606ba37fdc620d
 F test/diff-test-1.wiki 1ca941eded0cbf5aa81212d86551512d62717515e0553ddf8a11f15b4603973d
@@ -645,7 +645,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 2f84508e2f421db4081005580662fc408bee773658ee26d7705cab756be232d6
+F test/tester.tcl 5f8c72f836bafdb989815965a67eed3e780d8dabfeeda009c848a8894f9cb203
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 3d2c5998f4b499ffd762e836425309e3ba7ed554ba3493534b6d82f68b33557d
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -862,7 +862,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f87b4af085be3f7b18bcfb7b843eecdb3a1068eb926878bf632a9daf6703f0d
-R 22217b6309d6eefc937061df1c51d169
-U drh
-Z 4df8201d628cbefa76512d624953bab1
+P e585c3e676a9f4157335d71edba82d4a09c419009ec7c985de29d4efc4759a86 c94617b57d0325009d20ccca1532c03b60cc43169576249d13d30b12d6830d1e
+R ed152a1792750c2cef2c75a8b2c5f7ab
+T +closed c94617b57d0325009d20ccca1532c03b60cc43169576249d13d30b12d6830d1e
+U wyoung
+Z c09d64425f6669d35086a92f5bb70f9b

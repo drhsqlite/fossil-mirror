@@ -23,6 +23,10 @@
 # is the name of the executable to be tested.
 #
 
+# We use some things introduced in 8.6 such as lmap.  auto.def should
+# have found us a suitable Tcl installation.
+package require Tcl 8.6
+
 set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
