@@ -18,7 +18,7 @@
 # TH1 Docs
 #
 
-if {[outside_fossil_repo]} {
+if {$::outside_fossil_repo} {
   puts "Skipping th1-docs-* tests: not in Fossil repo checkout."
   test_cleanup_then_return
 }

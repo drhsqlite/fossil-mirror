@@ -33,9 +33,13 @@ set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
 set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
 
-if {$is_windows && \
-    [string length [file extension $fossilexe]] == 0} {
-  append fossilexe .exe
+if {$::is_windows} {
+  if {[string length [file extension $fossilexe]] == 0} {
+    append fossilexe .exe
+  }
+  set outside_fossil_repo ![file exists "$::testfiledir\\..\\_FOSSIL_"]
+} else {
+  set outside_fossil_repo ![file exists "$::testfiledir/../.fslckout"]
 }
 
 set argv [lrange $argv 1 end]
@@ -524,8 +528,8 @@ proc are_th1_hooks_usable_by_fossil {} {
 # Callers of this function must ensure two things:
 #
 # 1. This test run is in fact being done from within a Fossil repo
-#    checkout directory.  If you are unsure, call outside_fossil_repo
-#    or one of the test_* wrappers below it which do call it first.
+#    checkout directory.  If you are unsure, test $::outside_fossil_repo
+#    or call one of the test_* wrappers below which do that for you.
 #
 #    As a rule, you should not be calling this function directly!
 #
@@ -540,24 +544,13 @@ proc run_in_checkout { script {dir ""} } {
   return -code $code $result
 }
 
-# Return zero if we're being run from within a Fossil repo checkout.
-# Used to skip uses of run_in_checkout so that those tests don't fail
-# when run elsewhere, such as from a release tarball checkout.
-proc outside_fossil_repo {} {
-  if {$::is_windows} {
-    return ![file exists "$::testfiledir\\..\\_FOSSIL_"]
-  } else {
-    return ![file exists "$::testfiledir/../.fslckout"]
-  }
-}
-
 # Wrapper for the above function pair.  The tscript parameter is an
 # optional post-run test script.  Some callers choose instead to put
 # the tests inline with the rscript commands.
 #
 # Be sure to adhere to the requirements of run_in_checkout!
 proc test_block_in_checkout { name rscript {tscript ""} } {
-  if {[outside_fossil_repo]} {
+  if {$::outside_fossil_repo} {
     puts "Skipping $name test: not in Fossil repo checkout."
   } else {
     run_in_checkout $rscript

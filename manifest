@@ -1,5 +1,5 @@
-C Replaced\smost\sof\sthe\sdirect\scalls\sto\srun_in_checkout\sfrom\swithin\sthe\ntest\ssuite\swith\sone\sof\stwo\swrapper\sfunctions\sthat\sskip\sthose\stests\swhen\nyou\srun\s"make\stest"\soutside\sa\sFossil\srepository\scheckout\sdirectory,\ssuch\nas\sfrom\sa\sdirectory\scontaining\san\sunpacked\ssource\srelease\starball.\s\s(The\ntwo\sremaining\sdirect\scalls\sto\sthat\sproc\sfrom\stest/*.test\sare\spreceded\sby\na\scheck\sthat\sskips\sthe\swhole\sfile\sthey're\sin,\ssince\sthat\swhole\sfile\sdoes\nnothing\selse.)\s\s\sThis\sis\sbeing\schecked\sin\son\sa\sbranch\sbecause\sit\sis\snot\nyet\sthoroughly\stested,\syet\sI\sneed\sthe\scheckpoint.
-D 2018-09-03T00:40:05.567
+C Extracted\sthe\slogic\sthat\swas\sin\stester.tcl's\snew\soutside_fossil_repo\nproc\sto\sthe\sglobal\slevel\swhich\sjust\ssaves\sthe\sresult\sto\sa\sglobal\nvariable\sso\sthe\slogic\sdoesn't\shave\sto\sbe\sre-run\sfor\seach\stest\sthat\nrelies\son\sit.\s\sThe\sresult\sdoesn't\schange\sfrom\sone\scall\sto\sthe\snext,\sas\nyou'd\shope\sfor\sa\sproc\swithout\sparameters.
+D 2018-09-03T02:57:47.585
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -645,9 +645,9 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 8ae9aa84a6386a62fcfe55ac4517428a57e085c72df7566ba867a806ec78572b
+F test/tester.tcl 0c626531cb27285efcc8869c04600f3fda5b4d68fb6481415a55d67c4fc8b00b
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 9df41cd560fd2c3a8760155b2cb49c60296a0637edcbab91c9bb05bd2f15de3e
+F test/th1-docs.test 8b552a574638b7a2cce43c7ef9d53df2b8a40e1657703c80bb64aca7992a8047
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 5923feea5dc7516f082f85bd813fe7db6afebdf8127f2aa2a4b765ac271c14f2
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
@@ -862,10 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 401a4c3d463bd0485f80dc98bb2cb8407f7da749277acdd0a518596bc798d10a
-R 89ff064cb1e71fa4b86010bee150695e
-T *branch * wrap-run_in_checkout
-T *sym-wrap-run_in_checkout *
-T -sym-trunk *
+P 33efa2fa05c1ff76376b1c96164dfebb16635ce3cec8a49ac6e019389f3da8cf
+R 452345ad5b838192382e5cab987921e6
 U wyoung
-Z 0348e74ddbf0260a824ea76ede610388
+Z efe5d8f2288e0de02cc5d88d997ae41c
