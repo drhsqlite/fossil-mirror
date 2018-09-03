@@ -288,6 +288,7 @@ writeln {#
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
+TESTFLAGS := -quiet
 }
 writeln -nonewline "SRC ="
 foreach s [lsort $src] {
@@ -363,7 +364,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 # the run to just those test cases.
 #
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \

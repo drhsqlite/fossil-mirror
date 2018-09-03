@@ -1,5 +1,5 @@
-C Cached\sthe\sresult\sof\s"$tcl_platform(platform)\seq\s"windows""\sin\ntest/tester.tcl\sand\sreplaced\sall\sof\sthe\srepetitions\sof\sthis\s\nexpression\swith\sa\stest\sof\sthe\svariable.
-D 2018-09-02T23:05:53.077
+C The\s-quiet\sflag\spassed\sby\sdefault\sto\stester.tcl\scan\snow\sbe\soverridden\sby\npassing\sTESTFLAGS\sto\smake.\s\sBefore,\sthere\swas\sno\sway\sto\sset\s-verbose\nthis\sway\sbecause\s"-quiet\s-verbose"\smeans\sthe\ssame\sthing\sas\s"-quiet".
+D 2018-09-03T00:24:33.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -513,10 +513,10 @@ F src/login.c 0fda31b6683c206ac2cc527270d3228d8d9995b4cf18c438751b1bf3f6865ad8
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
-F src/main.mk 78a82f47b6d5ff717b3cf597f791297108fe104806fec7f254cfff5d09c6f2eb
+F src/main.mk 9d092f049964013c6c4118383fea42ebf43f54ec7cb8908260ba655a0e22c4f8
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl e604385d309e7224c30f0d2b8af730263efa1e992d8e5ce75e1e32ff56dc4146
+F src/makemake.tcl 3c74dc6a3612f81245e6c0ec31e7c8136022bab5a48a651f9bbdc017799d629a x
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md ce356441f737497965852284e0d1968dfaeb48c5789f07d020feafb148db8de6
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8eadf4c428a79880dee6fac1fe65c217241c50149f84a5775e01032a1d876ff8
-R 4fab2594c7c0a6227f0128b646790d7a
+P 2e4143aa4b8800dc7b6453bc612386371a5b4960e9a26dcebdd5121e417da3ed
+R 512bd64307fa29663df482926a2beb05
 U wyoung
-Z de7145ae414a29018d74ee7fc1354c5b
+Z 37ba1179411952898c9e25d61652a812
