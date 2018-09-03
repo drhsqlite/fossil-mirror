@@ -1,5 +1,5 @@
-C Extracted\sthe\slogic\sthat\swas\sin\stester.tcl's\snew\soutside_fossil_repo\nproc\sto\sthe\sglobal\slevel\swhich\sjust\ssaves\sthe\sresult\sto\sa\sglobal\nvariable\sso\sthe\slogic\sdoesn't\shave\sto\sbe\sre-run\sfor\seach\stest\sthat\nrelies\son\sit.\s\sThe\sresult\sdoesn't\schange\sfrom\sone\scall\sto\sthe\snext,\sas\nyou'd\shope\sfor\sa\sproc\swithout\sparameters.
-D 2018-09-03T02:57:47.585
+C Fixed\sa\sTcl\slogic\serror\scommitted\swith\s[33efa2fa].
+D 2018-09-03T06:13:30.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -645,7 +645,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 0c626531cb27285efcc8869c04600f3fda5b4d68fb6481415a55d67c4fc8b00b
+F test/tester.tcl 8b90ccdc4381cee920e037b4e36fdeb6335878795f0dc9e59d18d92fef7f5a03
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 8b552a574638b7a2cce43c7ef9d53df2b8a40e1657703c80bb64aca7992a8047
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33efa2fa05c1ff76376b1c96164dfebb16635ce3cec8a49ac6e019389f3da8cf
-R 452345ad5b838192382e5cab987921e6
+P 1a4e87dcc118aa5c0e10602a4a9b65c89368e8bd895a6603e7d94cae491022aa
+R 41fa813d73cd935e9236b295a4c479b8
 U wyoung
-Z efe5d8f2288e0de02cc5d88d997ae41c
+Z 587cc8bb8359bf6184ff359e5e77e5da

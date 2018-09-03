@@ -37,9 +37,9 @@ if {$::is_windows} {
   if {[string length [file extension $fossilexe]] == 0} {
     append fossilexe .exe
   }
-  set outside_fossil_repo ![file exists "$::testfiledir\\..\\_FOSSIL_"]
+  set outside_fossil_repo [expr ![file exists "$::testfiledir\\..\\_FOSSIL_"]]
 } else {
-  set outside_fossil_repo ![file exists "$::testfiledir/../.fslckout"]
+  set outside_fossil_repo [expr ![file exists "$::testfiledir/../.fslckout"]]
 }
 
 set argv [lrange $argv 1 end]
