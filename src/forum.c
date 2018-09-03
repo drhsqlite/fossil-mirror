@@ -776,7 +776,7 @@ void forumnew_page(void){
 */
 void forumedit_page(void){
   int fpid;
-  Manifest *pPost;
+  Manifest *pPost = 0;
   const char *zMimetype = 0;
   const char *zContent = 0;
   const char *zTitle = 0;
