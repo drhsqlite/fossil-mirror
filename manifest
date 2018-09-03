@@ -1,5 +1,5 @@
-C Partially\sreverted\sone\sof\sthe\srun_in_checkout\sreplacements\sin\ntest/th1.test:\sit\swas\sinside\sa\sforeach\sloop,\swhich\smeans\sthe\stest\sfor\nwhether\swe're\sinside\sthe\sFossil\srepo\scheckout\swas\sbeing\sdone\s26\stimes.\nThis\sis\snot\sonly\sinefficient,\sit\sspammed\sthe\soutput\swith\s"Skipping\stest\nblabla..."\slines.\s\sNow\sdoing\sa\smanual\scheck\soutside\sthe\sloop\sand\nskipping\sthe\sin-repo\stests\ssilently\sinside\sthe\sloop.
-D 2018-09-03T06:22:54.263
+C The\stest\sharness\snow\sskips\sall\stests\sdone\sin\sthe\sFossil\ssource\srepo\ncheckout\sdirectory\swhile\sthere\sare\suncommitted\schanges\sbecause\sthat\swill\naffect\sthe\sbehavior\sof\sfossil\sstatus,\sfossil\sdiff,\setc.,\swhich\sin\sturn\ntends\sto\screate\sfalse\spositives\sin\stest\sharness\scode\sthat\schecks\sfor\nchanges\sin\sfossil\scommand\soutput.
+D 2018-09-03T06:27:07.369
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -645,9 +645,9 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 86abd8569887210feea157e7850961fe261e03b5e9a6c304ab77d754f1555b10
+F test/tester.tcl 8056f9b16bbfcdb24b6de2f2ebc146339eb1b6dbb0aa957950fb22eea31598f4
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
-F test/th1-docs.test 8b552a574638b7a2cce43c7ef9d53df2b8a40e1657703c80bb64aca7992a8047
+F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-hooks.test 5923feea5dc7516f082f85bd813fe7db6afebdf8127f2aa2a4b765ac271c14f2
 F test/th1-repo.test 985c195a770c571b0d3bb30bf4390fcf13fa55d0
@@ -661,7 +661,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 7b7f91ba2962e6a437b6277804594391eabc3f940ac36fb6988376860a89f90a
+F test/th1.test f46881dae015bf5d5736df89d6c3584256b35a9aa1ef23da625c8ae44b58b53f
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4315d4646280b86039bb887f133d8b2f8a3590d21fd000940dc25282e3b2c198
-R 10bfbb3ab67fa66bf25aa3f36b61a106
+P 3cb1b4f0a4e1f8b880d6589007b7b4ff729b7d9a4ff072327c9c2cd54c4adb08
+R 867908a89881b08c19b259f81b5a2fb7
 U wyoung
-Z 1bd5a80b055b8a6d95179a28e1c1e7f3
+Z b2201c913ee836085814d168bbe5f834

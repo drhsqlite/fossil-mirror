@@ -42,6 +42,9 @@ if {$::is_windows} {
   set outside_fossil_repo [expr ![file exists "$::testfiledir/../.fslckout"]]
 }
 
+catch {exec $::fossilexe changes --changed} res
+set dirty_ckout [string length $res]
+
 set argv [lrange $argv 1 end]
 
 set i [lsearch $argv -keep]
@@ -533,7 +536,14 @@ proc are_th1_hooks_usable_by_fossil {} {
 #
 #    As a rule, you should not be calling this function directly!
 #
-# 2. The test does NOT modify the Fossil checkout tree in any way.
+# 2. This test run is being done from a repo checkout directory that
+#    doesn't have any uncommitted changes.  If it does, that affects the
+#    output of any test based on the output of "fossil status",
+#    "... diff", etc., which is likely to make the test appear to fail.
+#    If you must call this function directly, test $::dirty_ckout and
+#    skip the call if it's true.  The test_* wrappers do this for you.
+#
+# 3. The test does NOT modify the Fossil checkout tree in any way.
 proc run_in_checkout { script {dir ""} } {
   if {[string length $dir] == 0} {set dir $::testfiledir}
   set savedPwd [pwd]; cd $dir
@@ -550,8 +560,7 @@ proc run_in_checkout { script {dir ""} } {
 #
 # Be sure to adhere to the requirements of run_in_checkout!
 proc test_block_in_checkout { name rscript {tscript ""} } {
-  if {$::outside_fossil_repo} {
-    puts "Skipping $name test: not in Fossil repo checkout."
+  if {$::outside_fossil_repo || $::dirty_ckout} {
     set $::CODE 0
     set $::RESULT ""
   } else {

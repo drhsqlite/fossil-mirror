@@ -18,11 +18,6 @@
 # TH1 Docs
 #
 
-if {$::outside_fossil_repo} {
-  puts "Skipping th1-docs-* tests: not in Fossil repo checkout."
-  test_cleanup_then_return
-}
-
 fossil test-th-eval "hasfeature th1Docs"
 
 if {[normalize_result] ne "1"} {
@@ -34,6 +29,14 @@ fossil test-th-eval "hasfeature tcl"
 
 if {[normalize_result] ne "1"} {
   puts "Fossil was not compiled with Tcl support."
+  test_cleanup_then_return
+}
+
+if {$::outside_fossil_repo} {
+  puts "Skipping th1-docs-* tests: not in Fossil repo checkout."
+  test_cleanup_then_return
+} elseif ($::dirty_ckout) {
+  puts "Skipping th1-docs-* tests: uncommitted changes in Fossil checkout."
   test_cleanup_then_return
 }
 

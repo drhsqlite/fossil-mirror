@@ -559,6 +559,8 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 set skip_anycap 1
 if {$::outside_fossil_repo} {
   puts "Skipping th1-anycap-*-1 perm tests: not in Fossil repo checkout."
+} elseif ($::dirty_ckout) {
+  puts "Skipping th1-anycap-*-1 perm tests: uncommitted changes in Fossil checkout."
 } else {
   set skip_anycap 0
 }
