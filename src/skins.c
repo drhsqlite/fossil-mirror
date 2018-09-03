@@ -482,6 +482,7 @@ void setup_skin_admin(void){
       login_insert_csrf_secret();
       @ </div></form>
       style_footer();
+      db_end_transaction(1);
       return;
     }
     if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
@@ -493,8 +494,10 @@ void setup_skin_admin(void){
         db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
       }
     }
-    if( skinRename() ) return;
-    if( skinSave(zCurrent) ) return;
+    if( skinRename() || skinSave(zCurrent) ){
+      db_end_transaction(0);
+      return;
+    }
   
     /* The user pressed one of the "Install" buttons. */
     if( P("load") && (z = P("sn"))!=0 && z[0] ){
