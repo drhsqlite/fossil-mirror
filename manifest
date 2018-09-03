@@ -1,5 +1,5 @@
-C Fixed\sa\sTcl\ssyntax\serror\schecked\sin\swith\s[33efa2fa].\s\s(Yay\sdynamic\nlanguages\sthat\srun\sthe\scode\seven\sif\sit's\ssyntactically\sinvalid.\s\sP'tui!)
-D 2018-09-03T06:19:13.853
+C Partially\sreverted\sone\sof\sthe\srun_in_checkout\sreplacements\sin\ntest/th1.test:\sit\swas\sinside\sa\sforeach\sloop,\swhich\smeans\sthe\stest\sfor\nwhether\swe're\sinside\sthe\sFossil\srepo\scheckout\swas\sbeing\sdone\s26\stimes.\nThis\sis\snot\sonly\sinefficient,\sit\sspammed\sthe\soutput\swith\s"Skipping\stest\nblabla..."\slines.\s\sNow\sdoing\sa\smanual\scheck\soutside\sthe\sloop\sand\nskipping\sthe\sin-repo\stests\ssilently\sinside\sthe\sloop.
+D 2018-09-03T06:22:54.263
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -661,7 +661,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 8f85d914984e2d22fe93a232ea54069102d60461bd1736d05317506023adbeb4
+F test/th1.test 7b7f91ba2962e6a437b6277804594391eabc3f940ac36fb6988376860a89f90a
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2aaee4841e0f7587538dd19791466f1bea35e43ecb9adfef457bd383f0d2929b
-R 3a216e616b59d43696e1c9926bb39af3
+P 4315d4646280b86039bb887f133d8b2f8a3590d21fd000940dc25282e3b2c198
+R 10bfbb3ab67fa66bf25aa3f36b61a106
 U wyoung
-Z 0603906a1e6f615a01c08ef03132c08a
+Z 1bd5a80b055b8a6d95179a28e1c1e7f3

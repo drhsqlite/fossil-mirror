@@ -556,6 +556,13 @@ test th1-expr-49 {$RESULT eq {TH_ERROR: expected integer, got: "-0x"}}
 
 ###############################################################################
 
+set skip_anycap 1
+if {$::outside_fossil_repo} {
+  puts "Skipping th1-anycap-*-1 perm tests: not in Fossil repo checkout."
+} else {
+  set skip_anycap 0
+}
+
 foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
   if {$perm eq "u"} continue; # NOTE: Skip "reader" meta-permission.
   if {$perm eq "v"} continue; # NOTE: Skip "developer" meta-permission.
@@ -569,7 +576,9 @@ foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
   fossil test-th-eval "anoncap $perm"
   test th1-anoncap-no-$perm-1 {$RESULT eq {0}}
 
-  test_block_in_checkout "th1-anycap-*-1 perm" {
+  if {$skip_anycap} { continue }
+
+  run_in_checkout {
     fossil test-th-eval --set-user-caps "anycap $perm"
     test th1-anycap-yes-$perm-1 {$RESULT eq {1}}
 
