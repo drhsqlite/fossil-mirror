@@ -1,5 +1,5 @@
-C The\snew\stest_block_in_checkout\sproc\sin\stester.tcl\swas\snot\ssetting\sthe\sCODE\nand\sRESULT\sglobal\svariables\swhen\sit\sskipped\sa\stest,\sso\sthere\swas\sa\nchance\sthat\sa\stest\swould\send\sup\schecking\sthe\sprior\svalues\sand\sthrow\sa\nfalse\spositive.
-D 2018-09-03T06:15:39.667
+C Fixed\sa\sTcl\ssyntax\serror\schecked\sin\swith\s[33efa2fa].\s\s(Yay\sdynamic\nlanguages\sthat\srun\sthe\scode\seven\sif\sit's\ssyntactically\sinvalid.\s\sP'tui!)
+D 2018-09-03T06:19:13.853
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -661,7 +661,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test ab743e00450d395000b448d36cd324540af08d20624c265d960153fcb5f199a2
+F test/th1.test 8f85d914984e2d22fe93a232ea54069102d60461bd1736d05317506023adbeb4
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 024305978f53f9fb6175a01bc9b0eabe22058459b148ad67b7804afc438b4f93
-R 598e09119c499af2846f2c033b298436
+P 2aaee4841e0f7587538dd19791466f1bea35e43ecb9adfef457bd383f0d2929b
+R 3a216e616b59d43696e1c9926bb39af3
 U wyoung
-Z 1fe1ce7c41aa09d789ed67fca9ebf017
+Z 0603906a1e6f615a01c08ef03132c08a

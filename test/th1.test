@@ -670,7 +670,7 @@ test_block_in_checkout "test-anoncap-*" {
 test_in_checkout th1-checkout-1 {
   # NOTE: The "1" here forces the checkout to be opened.
   fossil test-th-eval "checkout 1"
-} [string length $RESULT] > 0}
+} {[string length $RESULT] > 0}
 
 ###############################################################################
 
