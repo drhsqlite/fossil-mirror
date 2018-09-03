@@ -552,6 +552,8 @@ proc run_in_checkout { script {dir ""} } {
 proc test_block_in_checkout { name rscript {tscript ""} } {
   if {$::outside_fossil_repo} {
     puts "Skipping $name test: not in Fossil repo checkout."
+    set $::CODE 0
+    set $::RESULT ""
   } else {
     run_in_checkout $rscript
     if {[string length $tscript] == 0} {
