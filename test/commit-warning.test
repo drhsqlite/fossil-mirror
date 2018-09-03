@@ -163,143 +163,143 @@ test pre-commit-warnings-1 {[normalize_result] eq \
 # Unless the real goal of this test is to document a collection
 # of source files that MUST NEVER BE TEXT.
 #
-run_in_checkout {
+test_block_in_checkout pre-commit-warnings-fossil-1 {
   fossil test-commit-warning --no-settings
+} {
+  test pre-commit-warnings-fossil-1 {[normalize_result] eq \
+      [subst -nocommands -novariables [string trim {
+  1\tart/branching.odp\tbinary data
+  1\tart/concept1.dia\tbinary data
+  1\tart/concept2.dia\tbinary data
+  1\tcompat/zlib/contrib/blast/test.pk\tbinary data
+  1\tcompat/zlib/contrib/dotzlib/DotZLib.build\tCR/LF line endings
+  1\tcompat/zlib/contrib/dotzlib/DotZLib.chm\tbinary data
+  1\tcompat/zlib/contrib/dotzlib/DotZLib.sln\tCR/LF line endings
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/AssemblyInfo.cs\tCR/LF line endings
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/ChecksumImpl.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/CircularBuffer.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/CodecBase.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/Deflater.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/DotZLib.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/DotZLib.csproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/GZipStream.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/Inflater.cs\tinvalid UTF-8
+  1\tcompat/zlib/contrib/dotzlib/DotZLib/UnitTests.cs\tCR/LF line endings
+  1\tcompat/zlib/contrib/dotzlib/LICENSE_1_0.txt\tCR/LF line endings
+  1\tcompat/zlib/contrib/dotzlib/readme.txt\tCR/LF line endings
+  1\tcompat/zlib/contrib/gcc_gvmat64/gvmat64.S\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx64/bld_ml64.bat\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx64/gvmat64.asm\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx64/inffas8664.c\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx64/inffasx64.asm\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx64/readme.txt\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx86/bld_ml32.bat\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx86/inffas32.asm\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx86/match686.asm\tCR/LF line endings
+  1\tcompat/zlib/contrib/masmx86/readme.txt\tCR/LF line endings
+  1\tcompat/zlib/contrib/puff/zeros.raw\tbinary data
+  1\tcompat/zlib/contrib/testzlib/testzlib.c\tCR/LF line endings
+  1\tcompat/zlib/contrib/testzlib/testzlib.txt\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/readme.txt\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/miniunz.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/miniunz.vcxproj.filters\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/minizip.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/minizip.vcxproj.filters\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/testzlib.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/testzlib.vcxproj.filters\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj.filters\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlib.rc\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj.filters\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.def\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.sln\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.vcxproj.filters\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/miniunz.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/minizip.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/testzlib.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/testzlibdll.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/zlib.rc\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/zlibstat.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.def\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.sln\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.vcxproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc12/zlibvc.def\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc14/zlibvc.def\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/miniunz.vcproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/minizip.vcproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/testzlib.vcproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/testzlibdll.vcproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/zlib.rc\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/zlibstat.vcproj\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.def\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.sln\tCR/LF line endings
+  1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.vcproj\tCR/LF line endings
+  1\tcompat/zlib/win32/zlib.def\tCR/LF line endings
+  1\tcompat/zlib/zlib.3.pdf\tbinary data
+  1\tcompat/zlib/zlib.map\tCR/LF line endings
+  1\tsetup/fossil.iss\tCR/LF line endings
+  1\tskins/blitz/arrow_project.png\tbinary data
+  1\tskins/blitz/dir.png\tbinary data
+  1\tskins/blitz/file.png\tbinary data
+  1\tskins/blitz/fossil_100.png\tbinary data
+  1\tskins/blitz/fossil_80_reversed_darkcyan.png\tbinary data
+  1\tskins/blitz/fossil_80_reversed_darkcyan_text.png\tbinary data
+  1\tskins/blitz/rss_20.png\tbinary data
+  1\tskins/bootstrap/css.txt\tlong lines
+  1\ttest/th1-docs-input.txt\tCR/LF line endings
+  1\ttest/th1-hooks-input.txt\tCR/LF line endings
+  1\ttest/utf16be.txt\tUnicode
+  1\ttest/utf16le.txt\tUnicode
+  1\twin/buildmsvc.bat\tCR/LF line endings
+  1\twin/fossil.ico\tbinary data
+  1\twin/fossil.rc\tinvalid UTF-8
+  1\twww/CollRev1.gif\tbinary data
+  1\twww/CollRev2.gif\tbinary data
+  1\twww/CollRev3.gif\tbinary data
+  1\twww/CollRev4.gif\tbinary data
+  1\twww/apple-touch-icon.png\tbinary data
+  1\twww/background.jpg\tbinary data
+  1\twww/branch01.gif\tbinary data
+  1\twww/branch02.gif\tbinary data
+  1\twww/branch03.gif\tbinary data
+  1\twww/branch04.gif\tbinary data
+  1\twww/branch05.gif\tbinary data
+  1\twww/build-icons/linux.gif\tbinary data
+  1\twww/build-icons/linux64.gif\tbinary data
+  1\twww/build-icons/mac.gif\tbinary data
+  1\twww/build-icons/openbsd.gif\tbinary data
+  1\twww/build-icons/src.gif\tbinary data
+  1\twww/build-icons/win32.gif\tbinary data
+  1\twww/concept1.gif\tbinary data
+  1\twww/concept2.gif\tbinary data
+  1\twww/copyright-release.pdf\tbinary data
+  1\twww/delta1.gif\tbinary data
+  1\twww/delta2.gif\tbinary data
+  1\twww/delta3.gif\tbinary data
+  1\twww/delta4.gif\tbinary data
+  1\twww/delta5.gif\tbinary data
+  1\twww/delta6.gif\tbinary data
+  1\twww/encode1.gif\tbinary data
+  1\twww/encode10.gif\tbinary data
+  1\twww/encode2.gif\tbinary data
+  1\twww/encode3.gif\tbinary data
+  1\twww/encode4.gif\tbinary data
+  1\twww/encode5.gif\tbinary data
+  1\twww/encode6.gif\tbinary data
+  1\twww/encode7.gif\tbinary data
+  1\twww/encode8.gif\tbinary data
+  1\twww/encode9.gif\tbinary data
+  1\twww/fossil.gif\tbinary data
+  1\twww/fossil2.gif\tbinary data
+  1\twww/fossil3.gif\tbinary data
+  1\twww/fossil_logo_small.gif\tbinary data
+  1\twww/fossil_logo_small2.gif\tbinary data
+  1\twww/fossil_logo_small3.gif\tbinary data
+  1\twww/xkcd-git.gif\tbinary data
+  1}]]}
 }
-
-test pre-commit-warnings-fossil-1 {[normalize_result] eq \
-    [subst -nocommands -novariables [string trim {
-1\tart/branching.odp\tbinary data
-1\tart/concept1.dia\tbinary data
-1\tart/concept2.dia\tbinary data
-1\tcompat/zlib/contrib/blast/test.pk\tbinary data
-1\tcompat/zlib/contrib/dotzlib/DotZLib.build\tCR/LF line endings
-1\tcompat/zlib/contrib/dotzlib/DotZLib.chm\tbinary data
-1\tcompat/zlib/contrib/dotzlib/DotZLib.sln\tCR/LF line endings
-1\tcompat/zlib/contrib/dotzlib/DotZLib/AssemblyInfo.cs\tCR/LF line endings
-1\tcompat/zlib/contrib/dotzlib/DotZLib/ChecksumImpl.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/CircularBuffer.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/CodecBase.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/Deflater.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/DotZLib.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/DotZLib.csproj\tCR/LF line endings
-1\tcompat/zlib/contrib/dotzlib/DotZLib/GZipStream.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/Inflater.cs\tinvalid UTF-8
-1\tcompat/zlib/contrib/dotzlib/DotZLib/UnitTests.cs\tCR/LF line endings
-1\tcompat/zlib/contrib/dotzlib/LICENSE_1_0.txt\tCR/LF line endings
-1\tcompat/zlib/contrib/dotzlib/readme.txt\tCR/LF line endings
-1\tcompat/zlib/contrib/gcc_gvmat64/gvmat64.S\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx64/bld_ml64.bat\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx64/gvmat64.asm\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx64/inffas8664.c\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx64/inffasx64.asm\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx64/readme.txt\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx86/bld_ml32.bat\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx86/inffas32.asm\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx86/match686.asm\tCR/LF line endings
-1\tcompat/zlib/contrib/masmx86/readme.txt\tCR/LF line endings
-1\tcompat/zlib/contrib/puff/zeros.raw\tbinary data
-1\tcompat/zlib/contrib/testzlib/testzlib.c\tCR/LF line endings
-1\tcompat/zlib/contrib/testzlib/testzlib.txt\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/readme.txt\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/miniunz.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/miniunz.vcxproj.filters\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/minizip.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/minizip.vcxproj.filters\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/testzlib.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/testzlib.vcxproj.filters\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/testzlibdll.vcxproj.filters\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlib.rc\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlibstat.vcxproj.filters\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.def\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.sln\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc10/zlibvc.vcxproj.filters\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/miniunz.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/minizip.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/testzlib.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/testzlibdll.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/zlib.rc\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/zlibstat.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.def\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.sln\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc11/zlibvc.vcxproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc12/zlibvc.def\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc14/zlibvc.def\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/miniunz.vcproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/minizip.vcproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/testzlib.vcproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/testzlibdll.vcproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/zlib.rc\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/zlibstat.vcproj\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.def\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.sln\tCR/LF line endings
-1\tcompat/zlib/contrib/vstudio/vc9/zlibvc.vcproj\tCR/LF line endings
-1\tcompat/zlib/win32/zlib.def\tCR/LF line endings
-1\tcompat/zlib/zlib.3.pdf\tbinary data
-1\tcompat/zlib/zlib.map\tCR/LF line endings
-1\tsetup/fossil.iss\tCR/LF line endings
-1\tskins/blitz/arrow_project.png\tbinary data
-1\tskins/blitz/dir.png\tbinary data
-1\tskins/blitz/file.png\tbinary data
-1\tskins/blitz/fossil_100.png\tbinary data
-1\tskins/blitz/fossil_80_reversed_darkcyan.png\tbinary data
-1\tskins/blitz/fossil_80_reversed_darkcyan_text.png\tbinary data
-1\tskins/blitz/rss_20.png\tbinary data
-1\tskins/bootstrap/css.txt\tlong lines
-1\ttest/th1-docs-input.txt\tCR/LF line endings
-1\ttest/th1-hooks-input.txt\tCR/LF line endings
-1\ttest/utf16be.txt\tUnicode
-1\ttest/utf16le.txt\tUnicode
-1\twin/buildmsvc.bat\tCR/LF line endings
-1\twin/fossil.ico\tbinary data
-1\twin/fossil.rc\tinvalid UTF-8
-1\twww/CollRev1.gif\tbinary data
-1\twww/CollRev2.gif\tbinary data
-1\twww/CollRev3.gif\tbinary data
-1\twww/CollRev4.gif\tbinary data
-1\twww/apple-touch-icon.png\tbinary data
-1\twww/background.jpg\tbinary data
-1\twww/branch01.gif\tbinary data
-1\twww/branch02.gif\tbinary data
-1\twww/branch03.gif\tbinary data
-1\twww/branch04.gif\tbinary data
-1\twww/branch05.gif\tbinary data
-1\twww/build-icons/linux.gif\tbinary data
-1\twww/build-icons/linux64.gif\tbinary data
-1\twww/build-icons/mac.gif\tbinary data
-1\twww/build-icons/openbsd.gif\tbinary data
-1\twww/build-icons/src.gif\tbinary data
-1\twww/build-icons/win32.gif\tbinary data
-1\twww/concept1.gif\tbinary data
-1\twww/concept2.gif\tbinary data
-1\twww/copyright-release.pdf\tbinary data
-1\twww/delta1.gif\tbinary data
-1\twww/delta2.gif\tbinary data
-1\twww/delta3.gif\tbinary data
-1\twww/delta4.gif\tbinary data
-1\twww/delta5.gif\tbinary data
-1\twww/delta6.gif\tbinary data
-1\twww/encode1.gif\tbinary data
-1\twww/encode10.gif\tbinary data
-1\twww/encode2.gif\tbinary data
-1\twww/encode3.gif\tbinary data
-1\twww/encode4.gif\tbinary data
-1\twww/encode5.gif\tbinary data
-1\twww/encode6.gif\tbinary data
-1\twww/encode7.gif\tbinary data
-1\twww/encode8.gif\tbinary data
-1\twww/encode9.gif\tbinary data
-1\twww/fossil.gif\tbinary data
-1\twww/fossil2.gif\tbinary data
-1\twww/fossil3.gif\tbinary data
-1\twww/fossil_logo_small.gif\tbinary data
-1\twww/fossil_logo_small2.gif\tbinary data
-1\twww/fossil_logo_small3.gif\tbinary data
-1\twww/xkcd-git.gif\tbinary data
-1}]]}
 
 ###############################################################################
 
