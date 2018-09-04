@@ -77,6 +77,38 @@ the fourth argument is evaluated as a TH1 expression.
 So, you see, even though the example above spans five lines, it is really
 just a single command.
 
+All of this also explains the emphasis on *unescaped* characters above:
+the curly braces `{ }` are string quoting characters in Tcl/TH1, not
+block delimiters as in C. This is how we can have a command that extends
+over multiple lines. It is also why the `else` keyword must be cuddled
+up with the closing brace for the `if` clause's scriptlet. The following
+is invalid Tcl/TH1:
+
+        if {$current eq "dev"} {
+          puts "hello"
+        }
+        else {
+          puts "world"
+        }
+
+If you try to run this under either Tcl or TH1, the interpreter will
+tell you that there is no `else` command, because with the newline on
+the third line, you terminated the `if` command.
+
+Occasionally in Tcl/TH1 scripts, you may need to use a backslash at the
+end of a line to allow a command to extend over multiple lines without
+being considered two separate commands. Here's an example from one of
+Fossil's test scripts:
+
+        return [lindex [regexp -line -inline -nocase -- \
+            {^uuid:\s+([0-9A-F]{40}) } [eval [getFossilCommand \
+            $repository "" info trunk]]] end]
+
+Those backslashes allow the command to wrap nicely within a standard
+terminal width while telling the interpreter to consider those three
+lines as a single command.
+
+
 Summary of Core TH1 Commands
 ----------------------------
 
