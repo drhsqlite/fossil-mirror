@@ -1,5 +1,5 @@
-C Do\saway\swith\scompiler\swarning\sabout\suninitialized\svariable.
-D 2018-09-03T16:12:38.728
+C Fixed\ssome\sgrammar\sand\sspelling\sin\sthe\sth1.md\sdoc.
+D 2018-09-04T11:59:24.212
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -852,7 +852,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md 1408ca3a0fbdd03e470e1098ddc586e9fe778476893585459c06d8c97e9f6fa8
+F www/th1.md beb8af8cc69f6ac9e97e6c1492247a7027811f9c2f9be3492439a498e6f276ae
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c0b78b4510882a71eb1689a89e642b1c3a1c8eb7b6f85f206e2ac93e4d71cb4
-R 1451b98eb27cbac27b6fe63afae26edc
-U andybradford
-Z 13904916430cadfcb5cfee261ded252a
+P af39da6d5583f8011c494ea8d1113aaa6212a9c723baa4b1d513094daf32c60a
+R 1520b595ae0a20a062eff3d438ae851a
+U wyoung
+Z c678bcbb5a4ef073f75e63e6dd44d0e0

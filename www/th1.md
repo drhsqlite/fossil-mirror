@@ -35,10 +35,10 @@ computations do not come up very often for the kinds of work that TH1 does,
 so it has never been a factor.)
 
 A TH1 script consist of a sequence of commands.
-Each command is terminated by the first (unescaped) newline or ";" character.
+Each command is terminated by the first *unescaped* newline or ";" character.
 The text of the command (excluding the newline or semicolon terminator)
 is broken into space-separated tokens.  The first token is the command
-name and subsequent tokens are the arguments.  In this since, TH1 syntax
+name and subsequent tokens are the arguments.  In this sense, TH1 syntax
 is similar to the familiar command-line shell syntax.
 
 A token is any sequence of characters other than whitespace and semicolons.
@@ -50,10 +50,10 @@ The nested {...} form of tokens is important because it allows TH1 commands
 to have an appearance similar to C/C++.  It is important to remember, though,
 that a TH1 script is really just a list of text commands, not a context-free
 language with a grammar like C/C++.  This can be confusing to long-time
-C/C++ programmers because TH1 does look a lot like C/C++.  But the semantics
+C/C++ programmers because TH1 does look a lot like C/C++, but the semantics
 of TH1 are closer to FORTH or Lisp than they are to C.
 
-Consider the "if" command in TH1.
+Consider the `if` command in TH1.
 
         if {$current eq "dev"} {
           puts "hello"
@@ -62,16 +62,16 @@ Consider the "if" command in TH1.
         }
 
 The example above is a single command.  The first token, and the name
-of the command, is "if".
-The second token is '$current eq "dev"' - an expression.  (The outer {...}
+of the command, is `if`.
+The second token is `$current eq "dev"` - an expression.  (The outer {...}
 are removed from each token by the command parser.)  The third token
-is the 'puts "hello"', with its whitespace and newlines.  The fourth token
-is "else".  And the fifth and last token is 'puts "world"'.
+is the `puts "hello"`, with its whitespace and newlines.  The fourth token
+is `else"`  And the fifth and last token is `puts "world"`.
 
-The "if" command word by evaluating its first argument (the second token)
-as an expression, and if that expression is true, evaluating its
+The `if` command evaluates its first argument (the second token)
+as an expression, and if that expression is true, evaluates its
 second argument (the third token) as a TH1 script.
-If the expression is false and the third argument is "else" then
+If the expression is false and the third argument is `else`, then
 the fourth argument is evaluated as a TH1 expression.
 
 So, you see, even though the example above spans five lines, it is really
