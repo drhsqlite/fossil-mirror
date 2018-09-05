@@ -34,6 +34,7 @@ Fossil $release_version $manifest_version $manifest_date
       else {
         showPanel();   // just show what we built above
       }
+      return false;  // prevent browser from acting on <a> click
     });
   })();
 </script>

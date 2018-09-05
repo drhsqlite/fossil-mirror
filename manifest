@@ -1,5 +1,5 @@
-C Ajaxy\sanimated\shamburger\sbutton\sas\srequested\sby\sdrh\son\sthe\sforum:\nhttps://fossil-scm.org/forum/forumpost/40a18bd742
-D 2018-09-05T23:08:48.183
+C Fixed\sa\sbug\sin\sthe\sonclick\shandler\sfor\sthe\snew\shamburger\sbutton\swhich\nallowed\sthe\sbrowser\sto\sfollow\sour\sempty\s<a\shref="#">\slink.\s\sFor\ssome\nreason,\sChrome\sonly\sdid\sthis\ssometimes,\snot\salways,\swhich\slead\sto\sme\nthinking\sit\swas\ssome\skind\sof\srace\scondition.
+D 2018-09-05T23:45:11.385
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -393,7 +393,7 @@ F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7eb
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt bb3250f4b2cc6b2108fec4012b7e6cfd45b7b8d0c479caaeb09068fb19ef5f91
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/default/footer.txt 642e528d656fd56285f6413f4e85298e5209a401d0e147df99f8a1c80f2cd5a9
+F skins/default/footer.txt 9b1136cd37472084b757b8708d7fe7c578d6b9baae751a070fb4f4b3f9896acf
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
@@ -862,10 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dc5e06ff71b2a3a6e441a50870e2bac0e834be7ff20939b252293a794687d44f
-R e3d8ed36d757790035741676ed69bd0d
-T *branch * jquery-hamburger-button
-T *sym-jquery-hamburger-button *
-T -sym-trunk *
+P d7c43c5aa7761cbc1ab4ce04fed48e48951ad465450ad4d448a375e0a13b77e2
+R 3db8a100b7341338bed7d709a17e04e2
 U wyoung
-Z efeaca0182b52110985e1107360ad448
+Z fe8558e25c9fb313983ccea3bc8aa507
