@@ -19,6 +19,7 @@ proc menulink {url name cls} {
     html "<a href='$home$url' class='$cls'>$name</a>\n"
   }
 }
+html "<a href='#'>&#9776;</a>"
 menulink $index_page Home {}
 if {[anycap jor]} {
   menulink /timeline Timeline {}
@@ -41,11 +42,8 @@ if {[hascap j]} {
 }
 if {[hascap s]} {
   menulink /setup Admin {}
-  menulink /sitemap More... wideonly
 } elseif {[hascap a]} {
   menulink /setup_ulist Users {}
-  menulink /sitemap More... {}
-} else {
-  menulink /sitemap More... {}
 }
 </th1></div>
+<div id='hbdrop'></div>

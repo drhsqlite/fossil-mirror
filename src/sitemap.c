@@ -48,7 +48,7 @@ void sitemap_page(void){
   style_header("Site Map");
   style_adunit_config(ADUNIT_RIGHT_OK);
   @ <div class="columns" style="column-width:20em">
-  @ <ul>
+  @ <ul id="sitemap">
   @ <li>%z(href("%R/home"))Home Page</a>
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
     char *z = db_get(aExtra[i].zProperty,0);

@@ -3,3 +3,37 @@ This page was generated in about
 <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
 Fossil $release_version $manifest_version $manifest_date
 </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<th1>
+  html "<script nonce='$nonce'>"
+  html "  (function() { var home='$home'; "
+</th1>
+    var panel = $("div#hbdrop");
+
+    function hidePanel() { panel.slideUp() }
+    function showPanel() { panel.slideDown() }
+
+    panel.on('click', hidePanel);
+
+    var needSitemapHTML = true;
+    $("div.mainmenu > a").first().on('click', function() {
+      if (panel.is(":visible")) {
+        // Hamburger button clicked a second time.
+        hidePanel();
+      }
+      else if (needSitemapHTML) {
+        // Only get it once per page load: it isn't likely to
+        // change on us.
+        $.get(home + '/sitemap', function(reply) {
+          panel.html($("ul#sitemap", reply));
+          needSitemapHTML = false;
+          showPanel();
+        });
+      }
+      else {
+        showPanel();   // just show what we built above
+      }
+    });
+  })();
+</script>

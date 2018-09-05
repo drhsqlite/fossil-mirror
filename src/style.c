@@ -393,7 +393,7 @@ static char zDfltHeader[] =
 @ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" \
 @  content="default-src 'self' data: ; \
-@  script-src 'self' 'nonce-$<nonce>' ;\
+@  script-src 'self' 'nonce-$<nonce>' ajax.googleapis.com ;\
 @  style-src 'self' 'unsafe-inline'" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
