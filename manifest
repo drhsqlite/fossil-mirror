@@ -1,5 +1,5 @@
-C Added\smore\sinfo\son\squoting\srules\sin\sTcl/TH1\sto\sthe\sth1.md\sdoc
-D 2018-09-04T12:10:18.151
+C Avoid\scolumn\sbreaks\sinside\sa\stop-level\sbullet\sin\sthe\s/sitemap.
+D 2018-09-05T15:16:17.825
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -457,7 +457,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c c70f24596836ad73badbf0db6e4912a7948775f3b4bf220ce4ade07a34ff3bf9
-F src/default_css.txt af97f1e7fe593c5273fb91292e7b5f1754fd3ae3fb04e2784d54e8ccfdd64693
+F src/default_css.txt c07aa2aa17ca569c27725a1a0dc2bfbb14c5dd31925d4afa46d82b91e1b2a3e9
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -556,7 +556,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 665da53202d92b6926048b939dfee91fb710920e6634b9530c6f7959ea0d2062
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
-F src/sitemap.c 06409d8b7e738b43d7b29bc4d87b167d1842eada4695c7f8be63da4802bf4d0e
+F src/sitemap.c cb0a54d96a637d59ed558c824fceefff87fe541a8b815fcbcfa41ba3e12a6445
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 78aa651cafd33e7e5eb61c50aa85e306ef8c1f649990a28e79324a215cef01ce
 F src/smtp.c ac922e9cb1466715aac93408220e75721032a1f5c6d9f87b9874d929953e5581
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40787f50119aced6d5be4678edbc30cd9d4d1b0652cd488ae3c5e99c7bd7b48b
-R 872785405574a6b7fc6540f414de2edf
-U wyoung
-Z a51f19edf8ef67b9d6c9840a1eca0f5f
+P 30e9ccd59dda6c2f332ef254f2c908fdd9e4b727facf5d4340a45378a8dc9334
+R f16895ad9f18e6e74f52467b06c43332
+U drh
+Z b687cf2267a76d40d88036464c1785f3

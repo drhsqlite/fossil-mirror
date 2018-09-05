@@ -58,9 +58,9 @@ void sitemap_page(void){
       inSublist = 1;
     }
     if( z[0]=='/' ){
-      @ <li>%z(href("%R%s",z))%s(aExtra[i].zTitle)</li>
+      @ <li>%z(href("%R%s",z))%s(aExtra[i].zTitle)</a></li>
     }else{
-      @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</li>
+      @ <li>%z(href("%s",z))%s(aExtra[i].zTitle)</a></li>
     }
   }
   if( srchFlags & SRCH_DOC ){
@@ -76,7 +76,7 @@ void sitemap_page(void){
   }
   @ </li>
   if( g.perm.Read ){
-    @ <li>%z(href("%R/tree"))File Browser</a></li>
+    @ <li>%z(href("%R/tree"))File Browser</a>
     @   <ul>
     @   <li>%z(href("%R/tree?type=tree&ci=trunk"))Tree-view,
     @        Trunk Check-in</a></li>
@@ -86,7 +86,7 @@ void sitemap_page(void){
     @ </ul>
   }
   if( g.perm.Read ){
-    @ <li>%z(href("%R/timeline"))Project Timeline</a></li>
+    @ <li>%z(href("%R/timeline"))Project Timeline</a>
     @ <ul>
     @   <li>%z(href("%R/reports"))Activity Reports</a></li>
     @   <li>%z(href("%R/timeline?n=all&namechng"))File name changes</a></li>
@@ -94,9 +94,10 @@ void sitemap_page(void){
     @   <li>%z(href("%R/timeline?a=1970-01-01&y=ci&n=10"))First 10
     @       check-ins</a></li>
     @ </ul>
+    @ </li>
   }
   if( g.perm.Read ){
-    @ <li>%z(href("%R/brlist"))Branches</a></li>
+    @ <li>%z(href("%R/brlist"))Branches</a>
     @ <ul>
     @   <li>%z(href("%R/taglist"))Tags</a></li>
     @   <li>%z(href("%R/leaves"))Leaf Check-ins</a></li>
@@ -111,6 +112,7 @@ void sitemap_page(void){
     @ <ul>
     @   <li>%z(href("%R/timeline?y=f"))Recent activity</a></li>
     @ </ul>
+    @ </li>
   }
   if( g.perm.RdTkt ){
     @ <li>%z(href("%R/reportlist"))Tickets</a>
