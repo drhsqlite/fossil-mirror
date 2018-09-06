@@ -18,29 +18,18 @@
 ** mouse motion event occurs over top of the document.
 */
 function setAllHrefs(){
-  var anchors = document.getElementsByTagName("a");
-  for(var i=0; i<anchors.length; i++){
-    var j = anchors[i];
-    if(j.hasAttribute("data-href")) j.href=j.getAttribute("data-href");
-  }
-  var forms = document.getElementsByTagName("form");
-  for(var i=0; i<forms.length; i++){
-    var j = forms[i];
-    if(j.hasAttribute("data-action")) j.action=j.getAttribute("data-action");
-  }
+  $('a[data-href]').attr('href', function() {
+    return this.attr("data-href");
+  });
+  $('form[data-action]').attr('action'), function() {
+    return this.attr("data-action");
+  });
 }
-function antiRobotDefense(){
-  var x = document.getElementById("href-data");
-  var jx = x.textContent || x.innerText;
-  var g = JSON.parse(jx);
-  var isOperaMini =
-       Object.prototype.toString.call(window.operamini)==="[object OperaMini]";
-  if(g.mouseover && !isOperaMini){
-    document.getElementByTagName("body")[0].onmousemove=function(){
-      setTimeout(setAllHrefs, g.delay);
-    }
-  }else{
+(function antiRobotDefense(){
+  var g = JSON.parse($('#href-data').text());
+  var hasMouseMove = 'onmousemove' in createElement('body');
+  var initEvent = g.mouseover && hasMouseMove ? 'mousemove' : 'load';
+  $('body').on(initEvent, function() {
     setTimeout(setAllHrefs, g.delay);
-  }
-}
-antiRobotDefense()
+  });
+})();
