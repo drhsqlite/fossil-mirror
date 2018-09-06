@@ -866,7 +866,7 @@ void forumedit_page(void){
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit");
     if( P("preview") ){
-      @ <h1>Preview Of Editted Post:</h1>
+      @ <h1>Preview of Edited Post:</h1>
       forum_render(zTitle, zMimetype, zContent,"forumEdit");
     }
     @ <h1>Revised Message:</h1>
