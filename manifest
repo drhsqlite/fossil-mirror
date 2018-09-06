@@ -1,5 +1,5 @@
-C Converted\ssrc/href.js\sto\sjQuery\sas\sa\sdemonstration:\sthe\scode's\snearly\nhalf\sthe\ssize,\sand\sit's\sclearer\sas\sa\sresult.
-D 2018-09-06T03:56:00.115
+C The\shyperlinks\sin\sthe\shamburger\smenu\sdrop-down\sstill\shad\sthe\santi-robot\ndefense\sactivated.\s\sDefeated\sit.
+D 2018-09-06T03:56:20.805
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -393,7 +393,7 @@ F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7eb
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt bb3250f4b2cc6b2108fec4012b7e6cfd45b7b8d0c479caaeb09068fb19ef5f91
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/default/footer.txt 9b1136cd37472084b757b8708d7fe7c578d6b9baae751a070fb4f4b3f9896acf
+F skins/default/footer.txt df1dea739fb685e9f3752efdb65b6351e97870532b9429a74ae8481b25103a82
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e806e5c4df71f2e998e9524ba4237d39e95a6b1befa9ba8e5ae78efd33048c26
-R bb8ba1d77ca6cd870ad6f490a86f2451
+P 59c7ca0509e49872a09f3a89bb6cc55a72ca483c24e4bc720205bac3af6f3f7f
+R b7d91c69afa9c6a71f3a4886c7cea050
 U wyoung
-Z 3fa7cf37d02a7414f83ddd8c919208e1
+Z ef75f7629f5d8218483cea403d5a88ab

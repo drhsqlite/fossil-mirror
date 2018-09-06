@@ -28,6 +28,9 @@ Fossil $release_version $manifest_version $manifest_date
         $.get(home + '/sitemap', function(reply) {
           panel.html($("ul#sitemap", reply));
           needSitemapHTML = false;
+          if (window.setAllHrefs) {
+            setAllHrefs();   // don't need anti-robot defense here
+          }
           showPanel();
         });
       }
