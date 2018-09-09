@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.25.0"
 #define SQLITE_VERSION_NUMBER 3025000
-#define SQLITE_SOURCE_ID      "2018-08-30 01:52:10 58078c0d2647a194279fa80e032670441b296ffc3acee692901faa5beca460b7"
+#define SQLITE_SOURCE_ID      "2018-09-06 18:56:36 91aab32e71fcb924e24c02d5f0901f7a474760fc993a7e7436e667512cf5d3c3"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -472,6 +472,7 @@ SQLITE_API int sqlite3_exec(
 */
 #define SQLITE_ERROR_MISSING_COLLSEQ   (SQLITE_ERROR | (1<<8))
 #define SQLITE_ERROR_RETRY             (SQLITE_ERROR | (2<<8))
+#define SQLITE_ERROR_SNAPSHOT          (SQLITE_ERROR | (3<<8))
 #define SQLITE_IOERR_READ              (SQLITE_IOERR | (1<<8))
 #define SQLITE_IOERR_SHORT_READ        (SQLITE_IOERR | (2<<8))
 #define SQLITE_IOERR_WRITE             (SQLITE_IOERR | (3<<8))
@@ -9053,11 +9054,11 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_get(
 **
 ** ^A call to sqlite3_snapshot_open() will fail to open if the specified
 ** snapshot has been overwritten by a [checkpoint]. In this case 
-** SQLITE_BUSY_SNAPSHOT is returned.
+** SQLITE_ERROR_SNAPSHOT is returned.
 **
 ** If there is already a read transaction open when this function is 
 ** invoked, then the same read transaction remains open (on the same
-** database snapshot) if SQLITE_ERROR, SQLITE_BUSY or SQLITE_BUSY_SNAPSHOT
+** database snapshot) if SQLITE_ERROR, SQLITE_BUSY or SQLITE_ERROR_SNAPSHOT
 ** is returned. If another error code - for example SQLITE_PROTOCOL or an
 ** SQLITE_IOERR error code - is returned, then the final state of the
 ** read transaction is undefined. If SQLITE_OK is returned, then the 
