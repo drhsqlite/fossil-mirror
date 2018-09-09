@@ -1,5 +1,5 @@
-C The\shyperlinks\sin\sthe\shamburger\smenu\sdrop-down\sstill\shad\sthe\santi-robot\ndefense\sactivated.\s\sDefeated\sit.
-D 2018-09-06T03:56:20.805
+C Reverted\s[59c7ca0509]:\sdrh\ssays\swe\scan't\suse\sjQuery.\s\sAlso,\sthere\swas\sa\nsyntax\serror\sthat\ssent\sall\shyperlinks\sto\sthe\shoneypot\sin\ssome\nconditions.
+D 2018-09-09T17:41:35.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/graph.c e2fec9fb72dc6528740c2c0dc1be9c75107039f709910299ccbc29a1d43218a3
 F src/graph.js c7b52bc25596ee5fff7029f1732efc1f1601a200fc16b4bfb05d83301f9c32dd
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
-F src/href.js e435ed4413f813c832f6541a63bd05e7ddf85afd170fc15a1d790a282e00059f
+F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 9f816484df804890e132782d1f33541570cc3d3c5512f37b9e506aa05c90cd16
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
@@ -862,7 +862,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 59c7ca0509e49872a09f3a89bb6cc55a72ca483c24e4bc720205bac3af6f3f7f
-R b7d91c69afa9c6a71f3a4886c7cea050
+P 571df2e8b4129e5f4af8a746863c6431e2cf2e2d01d784ae9a293bcedee34f27
+Q -59c7ca0509e49872a09f3a89bb6cc55a72ca483c24e4bc720205bac3af6f3f7f
+R df0639c32318b61997b948cec47588aa
 U wyoung
-Z ef75f7629f5d8218483cea403d5a88ab
+Z b0e6cbfe8c71ec8b856d50522988c87e
