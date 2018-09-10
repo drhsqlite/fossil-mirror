@@ -107,7 +107,8 @@ div#hbdrop {
     display: none;
     font-size: 80%;
     left: 2em;
-    max-width: 33%;
+    width: 90%;
+    padding-right: 1em;
     position: absolute;
     z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }
