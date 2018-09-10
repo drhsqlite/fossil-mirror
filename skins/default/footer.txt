@@ -47,7 +47,7 @@ Fossil $release_version $manifest_version $manifest_date
       setTimeout(function() {
         panel.style.maxHeight = panelHeight;
         panel.style.border    = panelBorder;
-      }, 25);   // 10 is insufficient with Firefox 62
+      }, 40);   // 10ms is insufficient with Firefox 62
     }
 
     // Click handler for the hamburger button.
@@ -58,10 +58,10 @@ Fossil $release_version $manifest_version $manifest_date
         // transition back to hidden state.
         panel.style.maxHeight = '0';
         setTimeout(function() {
-          // Browsers show a 1px high line when maxHeight == 0, so
-          // temporarily hide the borders while hidden.
+          // Browsers show a 1px high border line when maxHeight == 0,
+          // our "hidden" state, so hide the borders in that state, too.
           panel.style.border = 'none';
-        }, 300);
+        }, 500);    // same as transition time below
       }
       else if (needSitemapHTML) {
         // Only get it once per page load: it isn't likely to
