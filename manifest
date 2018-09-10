@@ -1,5 +1,5 @@
-C Add\sthe\snew\s"script"\selement\sto\sskins,\saccessible\sas\s/script.js.\s\sThe\sidea\nis\sto\sput\sthe\shamburger\smenu\sjavascript\sfrom\sthe\sjs-hamburger-menu\sbranch\nin\sthis\sscript\selement,\srather\sthan\sinlining\sit\sin\sthe\sfooter.\s\sBut\sI\sam\snot\ncertain\sthat\sis\sthe\sbest\sway\sto\sgo\sso\sthis\schange\sis\sparked\son\sa\sbranch\nfor\snow.
-D 2018-09-10T23:34:40.621
+C Add\sthe\sstyleScript\sTH1\scommand\sto\senabling\sincluding\sthe\sscript\selement\sof\nthe\sskin\sin-line\sin\sthe\sheader\sor\sfooter.
+D 2018-09-10T23:47:33.780
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -574,7 +574,7 @@ F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c b76ad3e58e3800b48b11434c5a4bbee5d1ccd93bc8d609adeb6ad4a6aa7f6326
+F src/th_main.c 217110c33974b097b39b38afc7019f230cc373c3700a1ce655285b90c64ac8e2
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
 F src/timeline.c a587128406291ffdac29e8ab1ed65c678dc49bf44d78711e6412ce52178d7dbd
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
@@ -862,10 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed84acb6d28398fced4e09ad419f5dbd23cb954373b360fbeee8b1adc66c762f
-R cb94c5344d5eb18b6ec1d9778c3b8c25
-T *branch * skin-script
-T *sym-skin-script *
-T -sym-trunk *
+P e5dbc6122d7b1c3aaa5c3fbf801bed6a00374fad266c138eb04b2c0419a1555b
+R ee466c7d9d373cc0cf5b084fe6c2c880
 U drh
-Z d777697dea89937476aad7b9c14b9ec1
+Z a73fb91f5048ece784b7d41098c39e51
