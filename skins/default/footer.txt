@@ -47,7 +47,7 @@ Fossil $release_version $manifest_version $manifest_date
       setTimeout(function() {
         panel.style.maxHeight = panelHeight;
         panel.style.border    = panelBorder;
-      }, 10);
+      }, 25);   // 10 is insufficient with Firefox 62
     }
 
     // Click handler for the hamburger button.

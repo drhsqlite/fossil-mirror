@@ -1,5 +1,5 @@
-C Using\sCSS\stransitions\sto\smimic\sjQuery's\sslideUp/Down()\stransitions.\nThis\sprobably\srestricts\sbrowser\scompatibility\sstill\sfurther\sabove\sthe\nXHR\sissue\snoted\sin\sthe\searlier\scheckin\son\sthis\sbranch.\s\sAccording\sto\nMDN,\swe're\sprobably\srestricted\sto\sIE\s10+\swith\sthis,\sand\smaybe\snot\neven\sthat\sdue\sto\snot\susing\svendor-specific\sextensions\sfor\sthe\ntransitional\sbrowser\sversions.
-D 2018-09-10T08:48:34.007
+C Increased\sthe\stransition\sdelay\sto\smake\sthe\sinitial\sdrop-down\sanimation\nhappen\sin\sFirefox\s62.
+D 2018-09-10T09:02:29.365
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -393,7 +393,7 @@ F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7eb
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt bb3250f4b2cc6b2108fec4012b7e6cfd45b7b8d0c479caaeb09068fb19ef5f91
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/default/footer.txt 1f34642be95a2f651e4481b4b9877e64dd884f750712cd0b7dcc62ea7dbaadb4
+F skins/default/footer.txt 7140330310c30e35a495abf7a589d84961baf47ed8852bd5d46f8cf8783ae426
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 113ba3d9deb2e77d200a00c341869c5f70beb8d7247395f23fd88d9c2f350baf
-R 35880357fdcf820b4bbfee280dd48a57
+P 90bd66750d539aebc817f906fe8b75dfcf72c4603ec14fbf8b80acf6095773e2
+R f2a7d852f6b8ea4891aaf93ddcc576b1
 U wyoung
-Z da77d5a92be05e686d80599b2212850a
+Z 180d4138edff2ced0910f65697e465c0
