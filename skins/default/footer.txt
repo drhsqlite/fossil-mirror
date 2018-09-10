@@ -4,40 +4,52 @@ This page was generated in about
 Fossil $release_version $manifest_version $manifest_date
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <th1>
   html "<script nonce='$nonce'>"
   html "  (function() { var home='$home'; "
 </th1>
-    var panel = $("div#hbdrop");
+    var panel = document.getElementById("hbdrop");
 
-    function hidePanel() { panel.slideUp() }
-    function showPanel() { panel.slideDown() }
-
-    panel.on('click', hidePanel);
+    panel.onclick = panel.hide = function() {
+      panel.style.display = 'none';
+    }
+    panel.show = function() {
+      panel.style.display = 'block';
+    }
 
     var needSitemapHTML = true;
-    $("div.mainmenu > a").first().on('click', function() {
-      if (panel.is(":visible")) {
+    document.querySelector("div.mainmenu > a").onclick = function() {
+      if (panel.style.display == 'block') {
         // Hamburger button clicked a second time.
-        hidePanel();
+        panel.hide();
       }
       else if (needSitemapHTML) {
         // Only get it once per page load: it isn't likely to
         // change on us.
-        $.get(home + '/sitemap', function(reply) {
-          panel.html($("ul#sitemap", reply));
-          needSitemapHTML = false;
-          if (window.setAllHrefs) {
-            setAllHrefs();   // don't need anti-robot defense here
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          var doc = xhr.responseXML;
+          if (doc) {
+            var sm = doc.querySelector("ul#sitemap");
+            if (sm && xhr.status == 200) {
+              needSitemapHTML = false;
+              panel.innerHTML = sm.outerHTML;
+              if (window.setAllHrefs) {
+                setAllHrefs();   // don't need anti-robot defense here
+              }
+              panel.show();
+            }
           }
-          showPanel();
-        });
+          // else, can't parse response as HTML or XML
+        }
+        xhr.open("GET", home + "/sitemap");
+        xhr.responseType = "document";
+        xhr.send();
       }
       else {
-        showPanel();   // just show what we built above
+        panel.show();   // just show what we built above
       }
       return false;  // prevent browser from acting on <a> click
-    });
+    }
   })();
 </script>
