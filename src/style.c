@@ -406,6 +406,33 @@ static char zDfltHeader[] =
 ;
 
 /*
+** Initialize all the default TH1 variables
+*/
+static void style_init_th1_vars(const char *zTitle){
+  Th_Store("nonce", style_nonce());
+  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("project_description", db_get("project-description",""));
+  if( zTitle ) Th_Store("title", zTitle);
+  Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
+  Th_Store("home", g.zTop);
+  Th_Store("index_page", db_get("index-page","/home"));
+  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
+  Th_Store("current_page", local_zCurrentPage);
+  Th_Store("csrf_token", g.zCsrfToken);
+  Th_Store("release_version", RELEASE_VERSION);
+  Th_Store("manifest_version", MANIFEST_VERSION);
+  Th_Store("manifest_date", MANIFEST_DATE);
+  Th_Store("compiler_name", COMPILER_NAME);
+  url_var("stylesheet", "css", "style.css");
+  image_url_var("logo");
+  image_url_var("background");
+  if( !login_is_nobody() ){
+    Th_Store("login", g.zLogin);
+  }
+}
+
+/*
 ** Draw the header.
 */
 void style_header(const char *zTitleFormat, ...){
@@ -425,27 +452,7 @@ void style_header(const char *zTitleFormat, ...){
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
-  Th_Store("nonce", style_nonce());
-  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
-  Th_Store("project_description", db_get("project-description",""));
-  Th_Store("title", zTitle);
-  Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
-  Th_Store("home", g.zTop);
-  Th_Store("index_page", db_get("index-page","/home"));
-  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
-  Th_Store("current_page", local_zCurrentPage);
-  Th_Store("csrf_token", g.zCsrfToken);
-  Th_Store("release_version", RELEASE_VERSION);
-  Th_Store("manifest_version", MANIFEST_VERSION);
-  Th_Store("manifest_date", MANIFEST_DATE);
-  Th_Store("compiler_name", COMPILER_NAME);
-  url_var("stylesheet", "css", "style.css");
-  image_url_var("logo");
-  image_url_var("background");
-  if( !login_is_nobody() ){
-    Th_Store("login", g.zLogin);
-  }
+  style_init_th1_vars(zTitle);
   if( sqlite3_strlike("%<body%", zHeader, 0)!=0 ){
     Th_Render(zDfltHeader);
   }
@@ -849,6 +856,25 @@ void contains_selector_cmd(void){
   found = containsSelector(blob_str(&css), zSelector);
   fossil_print("%s %s\n", zSelector, found ? "found" : "not found");
   blob_reset(&css);
+}
+
+/*
+** WEBPAGE: script.js
+**
+** Return the "Javascript" content for the current skin (if there is any)
+*/
+void page_script_js(void){
+  const char *zScript = skin_get("js");
+  if( P("test") ){
+    /* Render the script as plain-text for testing purposes, if the "test"
+    ** query parameter is present */
+    cgi_set_content_type("text/plain");
+  }else{
+    /* Default behavior is to return javascript */
+    cgi_set_content_type("application/javascript");
+  }
+  style_init_th1_vars(0);
+  Th_Render(zScript?zScript:"");
 }
 
 
