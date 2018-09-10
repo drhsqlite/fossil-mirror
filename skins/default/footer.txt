@@ -9,7 +9,10 @@ Fossil $release_version $manifest_version $manifest_date
   html "  (function() { var home='$home'; "
 </th1>
     var panel = document.getElementById("hbdrop");
+    if (!panel) return;   // site admin might've nuked it
     var panelBorder = panel.style.border;
+    var animate = panel.style.hasOwnProperty('transition');
+    var animMS = 400;
 
     // Calculate panel height despite its being hidden at call time.
     // Based on https://stackoverflow.com/a/29047447/142454
@@ -44,24 +47,43 @@ Fossil $release_version $manifest_version $manifest_date
     //
     // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions#JavaScript_examples
     function showPanel() {
-      setTimeout(function() {
-        panel.style.maxHeight = panelHeight;
-        panel.style.border    = panelBorder;
-      }, 40);   // 10ms is insufficient with Firefox 62
+      if (animate) {
+        setTimeout(function() {
+          panel.style.maxHeight = panelHeight;
+          panel.style.border    = panelBorder;
+        }, 40);   // 25ms is insufficient with Firefox 62
+      }
+      else {
+        panel.style.display = 'block';
+      }
+    }
+
+    // Return true if the panel is showing.
+    function panelShowing() {
+      if (animate) {
+        return panel.style.maxHeight == panelHeight;
+      }
+      else {
+        return panel.style.display == 'block';
+      }
     }
 
     // Click handler for the hamburger button.
     var needSitemapHTML = true;
     document.querySelector("div.mainmenu > a").onclick = function() {
-      if (panel.style.maxHeight == panelHeight) {
-        // Hamburger button clicked while panel visible.  Trigger the
-        // transition back to hidden state.
-        panel.style.maxHeight = '0';
-        setTimeout(function() {
-          // Browsers show a 1px high border line when maxHeight == 0,
-          // our "hidden" state, so hide the borders in that state, too.
-          panel.style.border = 'none';
-        }, 500);    // same as transition time below
+      if (panelShowing()) {
+        // Transition back to hidden state.
+        if (animate) {
+          panel.style.maxHeight = '0';
+          setTimeout(function() {
+            // Browsers show a 1px high border line when maxHeight == 0,
+            // our "hidden" state, so hide the borders in that state, too.
+            panel.style.border = 'none';
+          }, animMS);
+        }
+        else {
+          panel.style.display = 'none';
+        }
       }
       else if (needSitemapHTML) {
         // Only get it once per page load: it isn't likely to
@@ -79,17 +101,19 @@ Fossil $release_version $manifest_version $manifest_date
                 setAllHrefs();   // don't need anti-robot defense here
               }
 
-              // Set up the CSS transition to animate the panel open and
-              // closed.  Only needs to be done once per page load.
-              // Based on https://stackoverflow.com/a/29047447/142454
-              calculatePanelHeight();
-              panel.style.transition = 'max-height 0.5s ease-in-out';
-              panel.style.overflowY  = 'hidden';
-              panel.style.maxHeight  = '0';
-              panel.style.display    = 'block';
-
-              // Kick off the transition
-              showPanel();
+              // Display the panel
+              if (animate) {
+                // Set up a CSS transition to animate the panel open and
+                // closed.  Only needs to be done once per page load.
+                // Based on https://stackoverflow.com/a/29047447/142454
+                calculatePanelHeight();
+                panel.style.transition = 'max-height ' +
+                    (animMS / 1000) + 's ease-in-out';
+                panel.style.overflowY  = 'hidden';
+                panel.style.maxHeight  = '0';
+                showPanel();
+              }
+              panel.style.display = 'block';
             }
           }
           // else, can't parse response as HTML or XML

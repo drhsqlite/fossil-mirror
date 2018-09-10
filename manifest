@@ -1,5 +1,5 @@
-C Timing\stweaks:\smade\s"hide\sborders"\shack\soccur\sabout\sthe\ssame\stime\sas\sthe\nCSS\stransition\sfinishes,\sand\sincreased\sthe\smenu\sshow\sdelay\sstill\sfurther\nto\smake\sit\swork\sfor\sFirefox.
-D 2018-09-10T10:01:37.412
+C Added\sa\sguard\son\sthe\suse\sof\sCSS\stransitions\sso\sit\sfalls\sback\sto\sa\nnon-animated\smenu\spull\sdown\sif\sthey\sappear\snot\sto\sbe\savailable\son\sthe\ncurrent\sbrowser.\s\sAlso\sadded\sa\scheck\sfor\sthe\sexistence\sof\sthe\shamburger\nmenu\sitem\sin\scase\sthe\sskin\sadmin\sdiked\sit\sout,\sand\sdid\sa\sfew\sother\sminor\ntweaks\sto\sthe\sfooter\sJS\scode.
+D 2018-09-10T13:41:53.409
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -393,7 +393,7 @@ F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7eb
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 2a824a16c4bb0364e3e126c4f742c59b906b75f9848ddc5a2a22ea4a6bd19d23
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/default/footer.txt c898c25a15bdfab86f3c6ad196bab48a57bbdab211e7c793fec6a953b12833e5
+F skins/default/footer.txt 3469aa4306967fd030040144478a1dea5ea37ee6cae9a9f71fadcb790fe5da92
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e76a243da982e8330b618fdb538f24939e876e549f97b4b19cf811ebc18399e8
-R 7cab676fe8096b3c4eaeeca5168a5bba
+P 7bb68023bdde3fe63f0f7360f215439a0c096897f65edeaccc6fbc451774c1f5
+R 57a4560f34178bdcbdd2cd6ada145aaf
 U wyoung
-Z cb4b3c13d07216f6c7d89e848ea7665a
+Z 60e111d0a049058f7348ddaef39bdaa4
