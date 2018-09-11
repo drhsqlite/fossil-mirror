@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\snew\sscript\selement\sof\sskins.
-D 2018-09-11T00:52:59.435
+C The\sdefault\sskin\srequires\s1200px\sor\smore\sbefore\sthe\s"wideonly"\sclass\sis\ndisplayed.
+D 2018-09-11T00:56:09.388
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,11 +391,11 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 2a824a16c4bb0364e3e126c4f742c59b906b75f9848ddc5a2a22ea4a6bd19d23
+F skins/default/css.txt 6659cea12d5b1291cf9ee082a24ac5c11c1b4cef4d0ec2f191b9a0b942183801
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
-F skins/default/js.txt ebf560cfbd40571929cfde87b21b757aac10d07536d764f01f6648e12532fb97 w skins/default/script.txt
+F skins/default/js.txt ebf560cfbd40571929cfde87b21b757aac10d07536d764f01f6648e12532fb97
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -863,7 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c887998ca54c0ca8f4c4331ac600e27dfd1eeb14180c434a62486a4a38e401c
-R 12f2de1d8398b6458190a3a33370164d
+P c22b71dfc823860c4297d4219e341cd05d9bb645783b3d50fc6b252de970e57e
+R dc11cf14947ff73c4ff9e326e0727577
 U drh
-Z 858cb32c6a7280f1bd181e42548771b2
+Z ec426843cd24a7ae4b97e76e85841b7b

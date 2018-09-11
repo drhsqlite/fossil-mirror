@@ -261,7 +261,7 @@ div.submenu label {
     padding: 10px;
   }
 }
-@media screen and (max-width: 950px) {
+@media screen and (max-width: 1200px) {
   /* Special declarations for narrow desktop or wide mobile */
   .wideonly {
     display: none;
