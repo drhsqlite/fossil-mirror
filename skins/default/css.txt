@@ -1,6 +1,5 @@
 body {
     margin: 0 auto;
-    padding: 0px 20px;
     background-color: white;
     font-family: sans-serif;
     font-size:14pt;
@@ -17,6 +16,9 @@ a:hover {
     color: #4183C4;
     text-decoration: underline;
 }
+div.forumPosts a:visited {
+    color: #6A7F94;
+}
 
 hr {
     color: #eee;
@@ -25,8 +27,6 @@ hr {
 .title {
     color: #4183C4;
     float:left;
-    padding-top: 30px;
-    padding-bottom: 10px;
 }
 .title h1 {
     display:inline;
@@ -74,22 +74,21 @@ hr {
 .status {
     float:right;
     font-size:.7em;
-    padding-top:50px;
 }
 
 .mainmenu {
     font-size:.8em;
     clear:both;
-    padding:10px;
     background:#eaeaea linear-gradient(#fafafa, #eaeaea) repeat-x;
     border:1px solid #eaeaea;
     border-radius:5px;
     overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
+    z-index: 21;  /* just above hbdrop */
 }
 
 .mainmenu a {
-    padding: 10px 20px;
     text-decoration:none;
     color: #777;
     border-right:1px solid #eaeaea;
@@ -100,9 +99,22 @@ hr {
     border-bottom:2px solid #D26911;
 }
 
+div#hbdrop {
+    background-color: white;
+    border: 1px solid black;
+    border-top: white;
+    border-radius: 0 0 0.5em 0.5em;
+    display: none;
+    font-size: 80%;
+    left: 2em;
+    width: 90%;
+    padding-right: 1em;
+    position: absolute;
+    z-index: 20;  /* just below mainmenu, but above timeline bubbles */
+}
+
 .submenu {
     font-size: .7em;
-    margin-top: 10px;
     padding: 10px;
     border-bottom: 1px solid #ccc;
 }
@@ -208,4 +220,50 @@ span.submenuctrl {
 }
 div.submenu label {
   white-space: nowrap;
+}
+
+@media screen and (max-width: 600px) {
+  /* Spacing for mobile */
+  body {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .title {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  .status {padding-top: 0px;}
+  .mainmenu a {
+    padding: 10px 10px;
+  }
+  .mainmenu {
+    padding: 10px;
+  }
+  .desktoponly {
+    display: none;
+  }
+}
+@media screen and (min-width: 600px) {
+  /* Spacing for desktop */
+  body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .status {padding-top: 30px;}
+  .mainmenu a {
+    padding: 10px 20px;
+  }
+  .mainmenu {
+    padding: 10px;
+  }
+}
+@media screen and (max-width: 1200px) {
+  /* Special declarations for narrow desktop or wide mobile */
+  .wideonly {
+    display: none;
+  }
 }

@@ -13,9 +13,11 @@
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
+TESTFLAGS := -quiet
 
 SRC = \
   $(SRCDIR)/add.c \
+  $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
   $(SRCDIR)/backoffice.c \
@@ -46,7 +48,6 @@ SRC = \
   $(SRCDIR)/diffcmd.c \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
-  $(SRCDIR)/email.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
@@ -179,6 +180,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
+  $(SRCDIR)/../skins/default/js.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
@@ -225,6 +227,7 @@ EXTRA_FILES = \
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
+  $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
   $(OBJDIR)/backoffice_.c \
@@ -255,7 +258,6 @@ TRANS_SRC = \
   $(OBJDIR)/diffcmd_.c \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
-  $(OBJDIR)/email_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
@@ -362,6 +364,7 @@ TRANS_SRC = \
 
 OBJ = \
  $(OBJDIR)/add.o \
+ $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
  $(OBJDIR)/backoffice.o \
@@ -392,7 +395,6 @@ OBJ = \
  $(OBJDIR)/diffcmd.o \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
- $(OBJDIR)/email.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
@@ -548,7 +550,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 # the run to just those test cases.
 #
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
@@ -697,6 +699,7 @@ $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
+	$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
 	$(OBJDIR)/backoffice_.c:$(OBJDIR)/backoffice.h \
@@ -727,7 +730,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
-	$(OBJDIR)/email_.c:$(OBJDIR)/email.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -845,6 +847,14 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/add.o -c $(OBJDIR)/add_.c
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/alerts_.c:	$(SRCDIR)/alerts.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/alerts.c >$@
+
+$(OBJDIR)/alerts.o:	$(OBJDIR)/alerts_.c $(OBJDIR)/alerts.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/alerts.o -c $(OBJDIR)/alerts_.c
+
+$(OBJDIR)/alerts.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/allrepo_.c:	$(SRCDIR)/allrepo.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/allrepo.c >$@
@@ -1085,14 +1095,6 @@ $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/doc.o -c $(OBJDIR)/doc_.c
 
 $(OBJDIR)/doc.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/email_.c:	$(SRCDIR)/email.c $(OBJDIR)/translate
-	$(OBJDIR)/translate $(SRCDIR)/email.c >$@
-
-$(OBJDIR)/email.o:	$(OBJDIR)/email_.c $(OBJDIR)/email.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/email.o -c $(OBJDIR)/email_.c
-
-$(OBJDIR)/email.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/encode.c >$@

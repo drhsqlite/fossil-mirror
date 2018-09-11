@@ -776,7 +776,7 @@ void forumnew_page(void){
 */
 void forumedit_page(void){
   int fpid;
-  Manifest *pPost;
+  Manifest *pPost = 0;
   const char *zMimetype = 0;
   const char *zContent = 0;
   const char *zTitle = 0;
@@ -866,7 +866,7 @@ void forumedit_page(void){
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit");
     if( P("preview") ){
-      @ <h1>Preview Of Editted Post:</h1>
+      @ <h1>Preview of Edited Post:</h1>
       forum_render(zTitle, zMimetype, zContent,"forumEdit");
     }
     @ <h1>Revised Message:</h1>
@@ -930,7 +930,9 @@ void forumedit_page(void){
 void forum_main_page(void){
   Stmt q;
   int iLimit, iOfst, iCnt;
+  int srchFlags;
   login_check_credentials();
+  srchFlags = search_restrict(SRCH_FORUM);
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
     return;
@@ -942,10 +944,12 @@ void forum_main_page(void){
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");
   }
-  if( search_screen(SRCH_FORUM, 0) ){
-    style_submenu_element("Recent Threads","%R/forum");
-    style_footer();
-    return;
+  if( (srchFlags & SRCH_FORUM)!=0 ){
+    if( search_screen(SRCH_FORUM, 0) ){
+      style_submenu_element("Recent Threads","%R/forum");
+      style_footer();
+      return;
+    }
   }
   iLimit = atoi(PD("n","25"));
   iOfst = atoi(PD("x","0"));
@@ -992,7 +996,7 @@ void forum_main_page(void){
         }else{
           @ <h1>Most recent threads</h1>
         }
-        @ <div class='fileage'><table width="100%%">
+        @ <div class='forumPosts fileage'><table width="100%%">
         if( iOfst>0 ){
           if( iOfst>iLimit ){
             @ <tr><td colspan="3">\

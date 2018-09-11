@@ -1304,6 +1304,34 @@ static int styleFooterCmd(
 }
 
 /*
+** TH1 command: styleScript
+**
+** Render the configured javascript for the selected skin
+*/
+static int styleScriptCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "styleScript");
+  }
+  if( Th_IsRepositoryOpen() ){
+    const char *zScript = skin_get("js");
+    if( zScript==0 ) zScript = "";
+    Th_Render(zScript);
+    Th_SetResult(interp, 0, 0);
+    return TH_OK;
+  }else{
+    Th_SetResult(interp, "repository unavailable", -1);
+    return TH_ERROR;
+  }
+}
+
+
+/*
 ** TH1 command: artifact ID ?FILENAME?
 **
 ** Attempts to locate the specified artifact and return its contents.  An
@@ -1986,8 +2014,9 @@ void Th_FossilInit(u32 flags){
     {"searchable",    searchableCmd,        0},
     {"setParameter",  setParameterCmd,      0},
     {"setting",       settingCmd,           0},
-    {"styleHeader",   styleHeaderCmd,       0},
     {"styleFooter",   styleFooterCmd,       0},
+    {"styleHeader",   styleHeaderCmd,       0},
+    {"styleScript",   styleScriptCmd,       0},
     {"tclReady",      tclReadyCmd,          0},
     {"trace",         traceCmd,             0},
     {"stime",         stimeCmd,             0},

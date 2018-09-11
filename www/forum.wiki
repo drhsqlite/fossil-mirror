@@ -175,17 +175,18 @@ category. If you did not give the Read Forum capability (2) to
 <tt>anonymous</tt> above, you should give <tt>developer</tt> that
 capability here if you choose to give it capability 3 or 4.
 
-You must give at least one user or user category the Email Alerts
-capability (7), else the only people able to sign themselves up for
-email notifications are those with the Setup or Admin capability. Those
-users could sign others up via Admin &rarr; Notification, but you
-probably want to give this capability to one of the user categories.
-Give it to <tt>nobody</tt> if you want anyone to sign up without any
-restrictions.  Give it to <tt>anonymous</tt> if you want the user to
-solve a simple CAPTCHA before signing up. Give it to <tt>reader</tt> or
-<tt>developer</tt> if you want only users with Fossil logins to have
-this ability. (That's assuming you give one or both of these
-capabilities to every user on your Fossil repository.)
+If you want to use the email notification feature, by default only those
+users in the Setup and Admin user categories can make use of it. Grant
+the Email Alerts capability (7) to give others access to this feature.
+Alternately, you can handle notification signups outside of Fossil, with
+a Setup or Admin users manually signing users up via Admin &rarr;
+Notification. You'll want to grant this capability to the
+<tt>nobody</tt> user category if you want anyone to sign up without any
+restrictions.  Give it to <tt>anonymous</tt> instead if you want the
+user to solve a simple CAPTCHA before signing up. Or, give it to
+<tt>reader</tt> or <tt>developer</tt> if you want only users with Fossil
+logins to have this ability. (That's assuming you give one or both of
+these capabilities to every user on your Fossil repository.)
 
 By following this advice, you should not need to tediously add
 capabilities to individual accounts except in atypical cases, such as
@@ -199,18 +200,34 @@ If you create a new Fossil repository with version 2.7 or newer, its
 default skin is already set up correctly for typical forum
 configurations.
 
-Those upgrading existing repositories will need to edit the Header part
-of their existing Fossil skin in Admin &rarr; Skins, adding something
-like this to create the navbar link:
+If you have an existing repository, you have two choices if you want its
+skin to be upgraded to support forums:
+
+<ol>
+  <li>Go into Admin &rarr; Skins and switch from your current skin to
+  one of the stock skins.  If you were on a stock skin, just switch away
+  from your current one to the actual stock skin, since they will be
+  different after the upgrade.</li>
+
+  <li>If you have local customization that you do not want to throw
+  away, you can use the diff feature of Fossil's skin editor to show how
+  the skins differ.</li>
+</ol>
+
+The remainder of this section summarizes the differences you're expected
+to see when taking option #2.
+
+The first thing is that you'll need to add something like the following
+to the Header part of the skin to create the navbar link:
 
 <verbatim>
-  if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+  if {[anycap 234567] || [anoncap 2] || [anoncap 3]} {
     menulink /forum Forum
   }
 </verbatim>
 
 These rules say that any logged-in user with any forum-related
-capability (2-6 inclusive, as of this writing) or an anonymous user with
+capability (2-7 inclusive, as of this writing) or an anonymous user with
 read or write capability on the forum (2, 3) will see the "Forum" navbar
 link, which just takes you to <tt>/forum</tt>.
 
@@ -242,6 +259,31 @@ For dark skins, an inverse of the above trick will work better:
 </verbatim>
 
 That overlays the background with 5% white to lighten it slightly.
+
+Another new forum-related CSS style you might want to reflect into your
+existing skin is:
+
+<verbatim>
+  div.forumPosts a:visited {
+    color: #6A7F94;
+  }
+</verbatim>
+
+This changes the clicked-hyperlink color for the forum post links on the
+main <tt>/forum</tt> page only, which allows your browser's history
+mechanism to show which threads a user has read and which not. The link
+color will change back to the normal link color — indicating "unread" —
+when a reply is added to an existing thread because that changes where
+the link from the <tt>/forum</tt> page points, taking you to the newest
+post in the thread.
+
+The color given above is suitable for the stock skin.
+
+Beware that when changing this example, there are some
+[https://hacks.mozilla.org/2010/03/privacy-related-changes-coming-to-css-vistited/
+| stringent restrictions] in modern browsers to prevent snoopy web sites
+from brute-forcing your browsing history. (See the link for the method,
+which explains the restrictions.)
 
 
 <h3 id="search">Enable Forum Search</h3>

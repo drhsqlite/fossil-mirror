@@ -57,9 +57,11 @@ static struct BuiltinSkin {
 };
 
 /*
-** A skin consists of four "files" named here:
+** A skin consists of five "files" named here:
 */
-static const char *azSkinFile[] = { "css", "header", "footer", "details" };
+static const char *azSkinFile[] = { 
+  "css", "header", "footer", "details", "js"
+};
 
 /*
 ** Alternative skins can be specified in the CGI script or by options
@@ -151,7 +153,7 @@ void skin_use_draft(int i){
 ** The following routines return the various components of the skin
 ** that should be used for the current run.
 **
-** zWhat is one of:  "css", "header", "footer", "details".
+** zWhat is one of:  "css", "header", "footer", "details", "js"
 */
 const char *skin_get(const char *zWhat){
   const char *zOut;
@@ -482,6 +484,7 @@ void setup_skin_admin(void){
       login_insert_csrf_secret();
       @ </div></form>
       style_footer();
+      db_end_transaction(1);
       return;
     }
     if( P("del2")!=0 && (zName = skinVarName(P("sn"), 1))!=0 ){
@@ -493,8 +496,10 @@ void setup_skin_admin(void){
         db_multi_exec("DELETE FROM config WHERE name GLOB '%q-*'", zDraft);
       }
     }
-    if( skinRename() ) return;
-    if( skinSave(zCurrent) ) return;
+    if( skinRename() || skinSave(zCurrent) ){
+      db_end_transaction(0);
+      return;
+    }
   
     /* The user pressed one of the "Install" buttons. */
     if( P("load") && (z = P("sn"))!=0 && z[0] ){
@@ -690,7 +695,7 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
 ** Edit aspects of a skin determined by the w= query parameter.
 ** Requires Setup privileges.
 **
-**    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details
+**    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details, 4=js
 **    sk=NUM    -- the draft skin number
 */
 void setup_skinedit(void){
@@ -703,9 +708,12 @@ void setup_skinedit(void){
     /* 1 */ { "footer",  "Page Footer",     "Footer",  },
     /* 2 */ { "header",  "Page Header",     "Header",  },
     /* 3 */ { "details", "Display Details", "Details", },
+    /* 4 */ { "js",      "JavaScript",      "Script",  },
   };
   const char *zBasis;         /* The baseline file */
+  const char *zOrig;          /* Original content prior to editing */
   const char *zContent;       /* Content after editing */
+  const char *zDflt;          /* Default content */
   char *zDraft;               /* Which draft:  "draft%d" */
   char *zKey;                 /* CONFIG table key name: "draft%d-%s" */
   char *zTitle;               /* Title of this page */
@@ -713,6 +721,7 @@ void setup_skinedit(void){
   int iSkin;                  /* draft number.  1..9 */
   int ii;                     /* Index in aSkinAttr[] of this file */
   int j;                      /* Loop counter */
+  int isRevert = 0;           /* True if Revert-to-Baseline was pressed */
 
   login_check_credentials();
 
@@ -747,11 +756,17 @@ void setup_skinedit(void){
   zKey = mprintf("draft%d-%s", iSkin, zFile);
   zTitle = mprintf("%s for Draft%d", aSkinAttr[ii].zTitle, iSkin);
   zBasis = PD("basis","current");
+  zDflt = skin_file_content(zBasis, zFile);
+  zOrig = db_get(zKey, zDflt);
+  zContent = PD(zFile,zOrig);
+  if( P("revert")!=0 && cgi_csrf_safe(0) ){
+    zContent = zDflt;
+    isRevert = 1;
+  }
 
   db_begin_transaction();
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
-    if( j==ii ) continue;
     style_submenu_element(aSkinAttr[j].zSubmenu,
           "%R/setup_skinedit?w=%d&basis=%h&sk=%d",j,zBasis,iSkin);
   }
@@ -760,16 +775,18 @@ void setup_skinedit(void){
   @ <input type='hidden' name='w' value='%d(ii)'>
   @ <input type='hidden' name='sk' value='%d(iSkin)'>
   @ <h2>Edit %s(zTitle):</h2>
-  zContent = textarea_attribute(
-        "",                      /* Text label */
-        10, 80,                  /* Height and width of the edit area */
-        zKey,                    /* Name of CONFIG table entry */
-        zFile,                              /* CGI query parameter name */
-        skin_file_content(zBasis, zFile),   /* Default value of the text */
-        0                                   /* Disabled flag */
-  );
+  if( P("submit") && cgi_csrf_safe(0) && strcmp(zOrig,zContent)!=0 ){
+    db_set(zKey, zContent, 0);
+  }
+  @ <textarea name="%s(zFile)" rows="10" cols="80">\
+  @ %h(zContent)</textarea>
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
+  if( isRevert ){
+    @ &larr; Press to complete reversion to "%s(zBasis)"
+  }else if( fossil_strcmp(zContent,zDflt)!=0 ){
+    @ <input type="submit" name="revert" value='Revert To "%s(zBasis)"' />
+  }
   @ <hr />
   @ Baseline: \
   skin_emit_skin_selector("basis", zBasis, zDraft);
@@ -1004,6 +1021,8 @@ void setup_skin(void){
     @ Footer</a>
     @ <li><a href='%R/setup_skinedit?w=3&sk=%d(iSkin)' target='_blank'>\
     @ Details</a>
+    @ <li><a href='%R/setup_skinedit?w=4&sk=%d(iSkin)' target='_blank'>\
+    @ Javascript</a> (optional)
     @ </ul>
   }
   @

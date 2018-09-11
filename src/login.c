@@ -731,10 +731,15 @@ void login_page(void){
     }else{
       @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
     }
+    @ </tr>
+    @ <tr>
+    @  <td class="form_label">Password:</td>
+    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @ </tr>
     if( P("HTTPS")==0 ){
-      @ <td width="15"><td rowspan="2">
-      @ <p class='securityWarning'>
-      @ Warning: Your password will be sent in the clear over an
+      @ <tr><td class="form_label">Warning:</td>
+      @ <td><span class='securityWarning'>
+      @ Your password will be sent in the clear over an
       @ unencrypted connection.
       if( g.sslNotAvailable ){
         @ No encrypted connection is available on this server.
@@ -742,13 +747,8 @@ void login_page(void){
         @ Consider logging in at
         @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
       }
-      @ </p>
+      @ </span></td></tr>
     }
-    @ </tr>
-    @ <tr>
-    @  <td class="form_label">Password:</td>
-    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
-    @ </tr>
     if( g.zLogin==0 && (anonFlag || zGoto==0) ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
                            " WHERE login='anonymous'"
@@ -757,15 +757,11 @@ void login_page(void){
     @ <tr>
     @   <td></td>
     @   <td><input type="submit" name="in" value="Login"></td>
-    @   <td colspan="2">&larr; Pressing this button grants\
-    @   permission to store a cookie
     @ </tr>
     if( !noAnon && login_self_register_available(0) ){
       @ <tr>
       @   <td></td>
       @   <td><input type="submit" name="self" value="Create A New Account">
-      @   <td colspan="2"> \
-      @   &larr; Don't have a login?  Click this button to create one.
       @ </tr>
     }
     @ </table>
@@ -778,7 +774,8 @@ void login_page(void){
       @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
       @ Visitors may enter <b>anonymous</b> as the user-ID with
       @ the 8-character hexadecimal password shown below:</p>
-      @ <div class="captcha"><table class="captcha"><tr><td><pre>
+      @ <div class="captcha"><table class="captcha"><tr><td>\
+      @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
       if( bAutoCaptcha ) {
@@ -791,26 +788,28 @@ void login_page(void){
     }
     @ </form>
   }
-  if( login_is_individual() && g.perm.Password ){
-    if( email_enabled() ){
+  if( login_is_individual() ){
+    if( g.perm.EmailAlert && alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
       @ for user <b>%h(g.zLogin)</b></p>
     }
-    @ <hr />
-    @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
-    form_begin(0, "%R/login");
-    @ <table>
-    @ <tr><td class="form_label">Old Password:</td>
-    @ <td><input type="password" name="p" size="30" /></td></tr>
-    @ <tr><td class="form_label">New Password:</td>
-    @ <td><input type="password" name="n1" size="30" /></td></tr>
-    @ <tr><td class="form_label">Repeat New Password:</td>
-    @ <td><input type="password" name="n2" size="30" /></td></tr>
-    @ <tr><td></td>
-    @ <td><input type="submit" value="Change Password" /></td></tr>
-    @ </table>
-    @ </form>
+    if( g.perm.Password ){
+      @ <hr>
+      @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
+      form_begin(0, "%R/login");
+      @ <table>
+      @ <tr><td class="form_label">Old Password:</td>
+      @ <td><input type="password" name="p" size="30" /></td></tr>
+      @ <tr><td class="form_label">New Password:</td>
+      @ <td><input type="password" name="n1" size="30" /></td></tr>
+      @ <tr><td class="form_label">Repeat New Password:</td>
+      @ <td><input type="password" name="n2" size="30" /></td></tr>
+      @ <tr><td></td>
+      @ <td><input type="submit" value="Change Password" /></td></tr>
+      @ </table>
+      @ </form>
+    }
   }
   style_footer();
 }
@@ -1196,7 +1195,9 @@ void login_check_credentials(void){
   zPublicPages = db_get("public-pages",0);
   if( zPublicPages!=0 ){
     Glob *pGlob = glob_create(zPublicPages);
-    if( glob_match(pGlob, PD("REQUEST_URI","no-match")) ){
+    const char *zUri = PD("REQUEST_URI","");
+    zUri += (int)strlen(g.zTop);
+    if( glob_match(pGlob, zUri) ){
       login_set_capabilities(db_get("default-perms","u"), 0);
     }
     glob_free(pGlob);
@@ -1264,7 +1265,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt = p->Delete =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum =
-                             p->EmailAlert = p->Announce =
+                             p->EmailAlert = p->Announce = p->Debug =
                              p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1544,7 +1545,7 @@ void register_page(void){
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
-  canDoAlerts = email_tables_exist() && db_int(0,
+  canDoAlerts = alert_tables_exist() && db_int(0,
     "SELECT fullcap(%Q) GLOB '*7*'", zPerms
   );
   doAlerts = canDoAlerts && atoi(PD("alerts","1"))!=0;
@@ -1617,7 +1618,7 @@ void register_page(void){
     if( doAlerts ){
       /* Also make the new user a subscriber. */
       Blob hdr, body;
-      EmailSender *pSender;
+      AlertSender *pSender;
       sqlite3_int64 id;   /* New subscriber Id */
       const char *zCode;  /* New subscriber code (in hex) */
       const char *zGoto = P("g");
@@ -1655,13 +1656,13 @@ void register_page(void){
            "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
            id);
       /* A verification email */
-      pSender = email_sender_new(0,0);
+      pSender = alert_sender_new(0,0);
       blob_init(&hdr,0,0);
       blob_init(&body,0,0);
       blob_appendf(&hdr, "To: <%s>\n", zEAddr);
       blob_appendf(&hdr, "Subject: Subscription verification\n");
-      email_append_confirmation_message(&body, zCode);
-      email_send(pSender, &hdr, &body, 0);
+      alert_append_confirmation_message(&body, zCode);
+      alert_send(pSender, &hdr, &body, 0);
       style_header("Email Verification");
       if( pSender->zErr ){
         @ <h1>Internal Error</h1>
@@ -1675,7 +1676,7 @@ void register_page(void){
         @ hyperlink that you must click on in order to activate your
         @ subscription.</p>
       }
-      email_sender_free(pSender);
+      alert_sender_free(pSender);
       if( zGoto ){
         @ <p><a href='%h(zGoto)'>Continue</a>
       }
@@ -1701,28 +1702,29 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right">User ID:</td>
   @   <td><input type="text" name="u" value="%h(zUserID)" size="30"></td>
+  @
   if( iErrLine==1 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
-  @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Display Name:</td>
   @   <td><input type="text" name="dn" value="%h(zDName)" size="30"></td>
+  @ </tr>
   if( iErrLine==2 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
   @ </tr>
   @ <tr>
   @   <td class="form_label" align="right">Email Address:</td>
   @   <td><input type="text" name="ea" value="%h(zEAddr)" size="30"></td>
-  if( iErrLine==3 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
-  }
   @ </tr>
+  if( iErrLine==3 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   if( canDoAlerts ){
     int a = atoi(PD("alerts","1"));
     @ <tr>
-    @   <td class="form_label" align="right">Receive Email Alerts?</td>
+    @   <td class="form_label" align="right">Email&nbsp;Alerts?</td>
     @   <td><select size='1' name='alerts'>
     @       <option value="1" %s(a?"selected":"")>Yes</option>
     @       <option value="0" %s(!a?"selected":"")>No</option>
@@ -1731,32 +1733,32 @@ void register_page(void){
   @ <tr>
   @   <td class="form_label" align="right">Password:</td>
   @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
+  @ <tr>
   if( iErrLine==4 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
-  }else{
-    @   <td>&larr; Must be at least 6 characters</td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
-  @ </tr>
   @ <tr>
-  @   <td class="form_label" align="right">Confirm password:</td>
+  @   <td class="form_label" align="right">Confirm:</td>
   @   <td><input type="password" name="cp" value="%h(zConfirm)" size="30"></td>
+  @ </tr>
   if( iErrLine==5 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
   }
-  @ </tr>
   @ <tr>
-  @   <td class="form_label" align="right">Captcha text (below):</td>
+  @   <td class="form_label" align="right">Captcha:</td>
   @   <td><input type="text" name="captcha" value="" size="30"></td>
-  if( iErrLine==6 ){
-    @   <td><span class='loginError'>&larr; %h(zErr)</span></td>
-  }
   @ </tr>
+  if( iErrLine==6 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   @ <tr><td></td>
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
-  @ </pre></td></tr></table></div>
+  @ </pre>
+  @ Enter this 8-letter code in the "Captcha" box above.
+  @ </td></tr></table></div>
   @ </form>
   style_footer();
 

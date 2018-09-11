@@ -25,6 +25,9 @@ if {[anoncap o]} {
   html "<a href='$home/brlist'>Branches</a>\n"
   html "<a href='$home/taglist'>Tags</a>\n"
 }
+if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+  html "<a href='$home/forum'>Forum</a>\n"
+}
 if {[anoncap r]} {
   html "<a href='$home/ticket'>Tickets</a>\n"
 }

@@ -469,6 +469,10 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
 int doc_load_content(int vid, const char *zName, Blob *pContent){
   int writable = db_is_writeable("repository");
   int rid;   /* The RID of the file being loaded */
+  if( writable ){
+    db_end_transaction(0);
+    db_begin_write();
+  }
   if( !db_table_exists("repository", "vcache") || !writable ){
     db_multi_exec(
       "CREATE %s TABLE IF NOT EXISTS vcache(\n"

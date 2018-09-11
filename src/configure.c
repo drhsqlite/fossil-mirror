@@ -101,6 +101,10 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "sitemap-docidx",         CONFIGSET_SKIN },
+  { "sitemap-download",       CONFIGSET_SKIN },
+  { "sitemap-license",        CONFIGSET_SKIN },
+  { "sitemap-contact",        CONFIGSET_SKIN },
 
 #ifdef FOSSIL_ENABLE_TH1_DOCS
   { "th1-docs",               CONFIGSET_TH1 },
@@ -400,7 +404,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     if( (thisMask & groupMask)==0 ) return;
     if( (thisMask & checkMask)!=0 ){
       if( (thisMask & CONFIGSET_SCRIBER)!=0 ){
-        email_schema(1);
+        alert_schema(1);
       }
       checkMask &= ~thisMask;
     }
@@ -417,7 +421,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
          &zName[1], aType[ii].zPrimKey);
-    if( fossil_stricmp(zName,"/subscriber") ) email_schema(0);
+    if( fossil_stricmp(zName,"/subscriber") ) alert_schema(0);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }

@@ -35,8 +35,43 @@ cc-with {-includes {stdint.h inttypes.h}} {
 # Use pread/pwrite system calls in place of seek + read/write if possible
 define USE_PREAD [cc-check-functions pread]
 
-# Find tclsh for the test suite. Can't yet use jimsh for this.
+# Find tclsh for the test suite.
+#
+# We can't use jimsh for this: the test suite uses features of Tcl that
+# Jim doesn't support, either statically or due to the way it's built by
+# autosetup.  For example, Jim supports `file normalize`, but only if
+# you build it with HAVE_REALPATH, which won't ever be defined in this
+# context because autosetup doesn't try to discover platform-specific
+# details like that before it decides to build jimsh0.  Besides which,
+# autosetup won't build jimsh0 at all if it can find tclsh itself.
+# Ironically, this means we may right now be running under either jimsh0
+# or a version of tclsh that we find unsuitable below!
 cc-check-progs tclsh
+set hbtd /usr/local/Cellar/tcl-tk
+if {[string equal false [get-define TCLSH]]} {
+    msg-result "WARNING: 'make test' will not run here."
+} else {
+    set v [exec /bin/sh -c "echo 'puts \$tcl_version' | tclsh"]
+    if {[expr $v >= 8.6]} {
+        msg-result "Found Tclsh version $v in the PATH."
+        define TCLSH tclsh
+    } elseif {[file isdirectory $hbtd]} {
+        # This is a macOS system with the Homebrew version of Tcl/Tk
+        # installed.  Select the newest version.  It won't normally be
+        # in the PATH to avoid shadowing /usr/bin/tclsh, and even if it
+        # were in the PATH, it's bad practice to put /usr/local/bin (the
+        # Homebrew default) ahead of /usr/bin, especially given that
+        # it's user-writeable by default with Homebrew.  Thus, we can be
+        # pretty sure the only way to call it is with an absolute path.
+        set v [exec ls -tr $hbtd | tail -1]
+        set path "$hbtd/$v/bin/tclsh"
+        define TCLSH $path
+        msg-result "Using Homebrew Tcl/Tk version $path."
+    } else {
+        msg-result "WARNING: tclsh $v found; need >= 8.6 for 'make test'."
+        define TCLSH false     ;# force "make test" failure via /usr/bin/false
+    }
+}
 
 define EXTRA_CFLAGS "-Wall"
 define EXTRA_LDFLAGS ""

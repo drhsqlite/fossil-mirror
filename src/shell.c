@@ -2226,7 +2226,7 @@ static void statTimesToUtc(
   extern LPWSTR sqlite3_win32_utf8_to_unicode(const char*);
   zUnicodeName = sqlite3_win32_utf8_to_unicode(zPath);
   if( zUnicodeName ){
-    memset(&fd, 0, sizeof(WIN32_FIND_DATA));
+    memset(&fd, 0, sizeof(WIN32_FIND_DATAW));
     hFindFile = FindFirstFileW(zUnicodeName, &fd);
     if( hFindFile!=NULL ){
       pStatBuf->st_ctime = (time_t)fileTimeToUnixTime(&fd.ftCreationTime);
@@ -3315,7 +3315,7 @@ static int completionFilter(
       pCur->zPrefix = sqlite3_mprintf("%s", sqlite3_value_text(argv[iArg]));
       if( pCur->zPrefix==0 ) return SQLITE_NOMEM;
     }
-    iArg++;
+    iArg = 1;
   }
   if( idxNum & 2 ){
     pCur->nLine = sqlite3_value_bytes(argv[iArg]);
@@ -3323,7 +3323,6 @@ static int completionFilter(
       pCur->zLine = sqlite3_mprintf("%s", sqlite3_value_text(argv[iArg]));
       if( pCur->zLine==0 ) return SQLITE_NOMEM;
     }
-    iArg++;
   }
   if( pCur->zLine!=0 && pCur->zPrefix==0 ){
     int i = pCur->nLine;

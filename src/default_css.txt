@@ -190,12 +190,15 @@ div.columns {
   padding: 0 2em 0 2em;
   max-width: 1000px;
 }
-div.columns ul {
+div.columns > ul {
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 1em;
 }
-div.columns ul li:first-child {
+div.columns > ul li:first-child {
   margin-top:0px;
+}
+div.columns li {
+  break-inside: avoid;
 }
 .filetree {
   margin: 1em 0;
@@ -304,6 +307,9 @@ table.captcha {
   border-width: 4px;
   border-style: double;
   border-color: black;
+}
+pre.captcha {
+  font-size: 50%;
 }
 td.login_out_label {
   text-align: center;

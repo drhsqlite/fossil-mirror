@@ -888,6 +888,26 @@ void setup_config(void){
   @ "<b>/home</b>" will work but "<b>home</b>" will not, since it omits the
   @ leading "/".</p>
   @ <p>(Property: "index-page")
+  @ <hr>
+  @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
+  @ Often these are filled in with links like 
+  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to 
+  @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
+  @ to wiki pages.
+  @ Leave blank to omit.
+  @ <p>
+  entry_attribute("Documentation Index", 40, "sitemap-docidx", "smdocidx",
+                  "", 0);
+  @ (Property: sitemap-docidx)<br>
+  entry_attribute("Download", 40, "sitemap-download", "smdownload",
+                  "", 0);
+  @ (Property: sitemap-download)<br>
+  entry_attribute("License", 40, "sitemap-license", "smlicense",
+                  "", 0);
+  @ (Property: sitemap-license)<br>
+  entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
+                  "", 0);
+  @ (Property: sitemap-contact)
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
@@ -1345,7 +1365,6 @@ void th1_page(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
   style_header("Raw TH1 Commands");
   @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
   @ run by this page.  If Tcl integration was enabled at compile-time and

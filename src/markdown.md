@@ -95,8 +95,8 @@
 > centered, or right-aligned text, respectively.  By default, header cells are
 > centered, and body cells are left-aligned.
 
-> The leftmost **\|** is required if the first column contains at least one
-> blank cell.  The rightmost **\|** is optional.
+> The leftmost or rightmost **\|** is required only if the first or last column,
+> respectively, contains at least one blank cell.
 
 ## Miscellaneous ##
 

@@ -28,6 +28,7 @@
 #
 set src {
   add
+  alerts
   allrepo
   attach
   backoffice
@@ -58,7 +59,6 @@ set src {
   diffcmd
   dispatch
   doc
-  email
   encode
   etag
   event
@@ -288,6 +288,7 @@ writeln {#
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
+TESTFLAGS := -quiet
 }
 writeln -nonewline "SRC ="
 foreach s [lsort $src] {
@@ -363,7 +364,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 # the run to just those test cases.
 #
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
@@ -697,7 +698,7 @@ endif
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
 #    for SSLv3 (i.e. thereby forcing the use of TLS).
 #
-SSLCONFIG += no-ssl3 enable-capieng no-weak-ssl-ciphers no-shared
+SSLCONFIG += no-ssl3 no-weak-ssl-ciphers no-shared
 
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
@@ -1579,7 +1580,7 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
+# SSLCONFIG = VC-WIN64A no-asm no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64A no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1594,12 +1595,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
+# SSLCONFIG = VC-WIN64I no-asm no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64I no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1614,12 +1615,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
+# SSLCONFIG = VC-WIN32 no-asm no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN32 no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1634,7 +1635,7 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif

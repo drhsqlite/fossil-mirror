@@ -208,85 +208,114 @@ void capability_fullcap(
   capability_free(p);
 }
 
+#if INTERFACE
+/*
+** Capabilities are grouped into "classes" as follows:
+*/
+#define CAPCLASS_CODE  0x0001
+#define CAPCLASS_WIKI  0x0002
+#define CAPCLASS_TKT   0x0004
+#define CAPCLASS_FORUM 0x0008
+#define CAPCLASS_DATA  0x0010
+#define CAPCLASS_ALERT 0x0020
+#define CAPCLASS_OTHER 0x0040
+#define CAPCLASS_SUPER 0x0080
+#define CAPCLASS_ALL   0xffff
+#endif /* INTERFACE */
+
+
+/*
+** The following structure holds descriptions of the various capabilities.
+*/
+static struct Caps {
+  char cCap;              /* The capability letter */
+  unsigned short eClass;  /* The "class" for this capability */
+  char *zAbbrev;          /* Abbreviated mnemonic name */
+  char *zOneLiner;        /* One-line summary */
+} aCap[] = {
+  { 'a', CAPCLASS_SUPER,
+    "Admin", "Create and delete users" },
+  { 'b', CAPCLASS_WIKI|CAPCLASS_TKT,
+    "Attach", "Add attchments to wiki or tickets" },
+  { 'c', CAPCLASS_TKT,
+    "Append-Tkt", "Append to existing tickets" },
+  { 'd', CAPCLASS_WIKI|CAPCLASS_TKT,
+    "Delete", "Delete wiki or tickets" },
+  { 'e', CAPCLASS_DATA,
+    "View-PII", "View sensitive info such as email addresses" },
+  { 'f', CAPCLASS_WIKI,
+    "New-Wiki", "Create new wiki pages" },
+  { 'g', CAPCLASS_DATA,
+    "Clone", "Clone the repository" },
+  { 'h', CAPCLASS_OTHER,
+    "Hyperlinks", "Show hyperlinks to detailed repository history" },
+  { 'i', CAPCLASS_CODE,
+    "Check-In", "Check-in code changes" },
+  { 'j', CAPCLASS_WIKI,
+    "Read-Wiki", "View wiki pages" },
+  { 'k', CAPCLASS_WIKI,
+    "Write-Wiki", "Edit wiki pages" },
+  { 'l', CAPCLASS_WIKI|CAPCLASS_SUPER,
+    "Mod-Wiki", "Moderator for wiki pages" },
+  { 'm', CAPCLASS_WIKI,
+    "Append-Wiki", "Append to wiki pages" },
+  { 'n', CAPCLASS_TKT,
+    "New-Tkt", "Create new tickets" },
+  { 'o', CAPCLASS_CODE,
+    "Check-Out", "Check out code" },
+  { 'p', CAPCLASS_OTHER,
+    "Password", "Change your own password" },
+  { 'q', CAPCLASS_TKT|CAPCLASS_SUPER,
+    "Mod-Tkt", "Moderate tickets" },
+  { 'r', CAPCLASS_TKT,
+    "Read-Tkt", "View tickets" },
+  { 's', CAPCLASS_SUPER,
+    "Superuser", "Setup and configure the respository" },
+  { 't', CAPCLASS_TKT,
+    "Reports", "Create new ticket report formats" },
+  { 'u', CAPCLASS_OTHER,
+    "Reader", "Inherit all the capabilities of the \"reader\" user" },
+  { 'v', CAPCLASS_OTHER,
+    "Developer", "Inherit all capabilities of the \"developer\" user" },
+  { 'w', CAPCLASS_TKT,
+    "Write-Tkt", "Edit tickets" },
+  { 'x', CAPCLASS_DATA,
+    "Private", "Push and/or pull private branches" },
+  { 'y', CAPCLASS_SUPER,
+    "Write-UV", "Push unversioned content" },
+  { 'z', CAPCLASS_CODE,
+    "Zip-Download", "Download a ZIP archive, tarball, or SQL archive" },
+  { '2', CAPCLASS_FORUM,
+    "Forum-Read", "Read forum posts by others" },
+  { '3', CAPCLASS_FORUM,
+    "Forum-Write", "Create new forum messages" },
+  { '4', CAPCLASS_FORUM,
+    "Forum-Trusted", "Create forum messages that bypass moderation" },
+  { '5', CAPCLASS_FORUM|CAPCLASS_SUPER,
+    "Forum-Mod", "Moderator for forum messages" },
+  { '6', CAPCLASS_FORUM|CAPCLASS_SUPER,
+    "Forum-Admin", "Set or remove capability '4' from other users" },
+  { '7', CAPCLASS_ALERT,
+    "Alerts", "Sign up for email alerts" },
+  { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER,
+    "Announce", "Send announcements to all subscribers" },
+  { 'D', CAPCLASS_OTHER,
+    "Debug", "Enable debugging features" },
+};
+
+
 /*
 ** Generate HTML that lists all of the capability letters together with
 ** a brief summary of what each letter means.
 */
-void capabilities_table(void){
+void capabilities_table(unsigned mClass){
+  int i;
   @ <table>
-     @ <tr><th valign="top">a</th>
-     @   <td><i>Admin:</i> Create and delete users</td></tr>
-     @ <tr><th valign="top">b</th>
-     @   <td><i>Attach:</i> Add attachments to wiki or tickets</td></tr>
-     @ <tr><th valign="top">c</th>
-     @   <td><i>Append-Tkt:</i> Append to tickets</td></tr>
-     @ <tr><th valign="top">d</th>
-     @   <td><i>Delete:</i> Delete wiki and tickets</td></tr>
-     @ <tr><th valign="top">e</th>
-     @   <td><i>View-PII:</i> \
-     @ View sensitive data such as email addresses</td></tr>
-     @ <tr><th valign="top">f</th>
-     @   <td><i>New-Wiki:</i> Create new wiki pages</td></tr>
-     @ <tr><th valign="top">g</th>
-     @   <td><i>Clone:</i> Clone the repository</td></tr>
-     @ <tr><th valign="top">h</th>
-     @   <td><i>Hyperlinks:</i> Show hyperlinks to detailed
-     @   repository history</td></tr>
-     @ <tr><th valign="top">i</th>
-     @   <td><i>Check-In:</i> Commit new versions in the repository</td></tr>
-     @ <tr><th valign="top">j</th>
-     @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
-     @ <tr><th valign="top">k</th>
-     @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
-     @ <tr><th valign="top">l</th>
-     @   <td><i>Mod-Wiki:</i> Moderator for wiki pages</td></tr>
-     @ <tr><th valign="top">m</th>
-     @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
-     @ <tr><th valign="top">n</th>
-     @   <td><i>New-Tkt:</i> Create new tickets</td></tr>
-     @ <tr><th valign="top">o</th>
-     @   <td><i>Check-Out:</i> Check out versions</td></tr>
-     @ <tr><th valign="top">p</th>
-     @   <td><i>Password:</i> Change your own password</td></tr>
-     @ <tr><th valign="top">q</th>
-     @   <td><i>Mod-Tkt:</i> Moderator for tickets</td></tr>
-     @ <tr><th valign="top">r</th>
-     @   <td><i>Read-Tkt:</i> View tickets</td></tr>
-     @ <tr><th valign="top">s</th>
-     @   <td><i>Setup/Super-user:</i> Setup and configure this website</td></tr>
-     @ <tr><th valign="top">t</th>
-     @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
-     @ <tr><th valign="top">u</th>
-     @   <td><i>Reader:</i> Inherit privileges of
-     @   user <tt>reader</tt></td></tr>
-     @ <tr><th valign="top">v</th>
-     @   <td><i>Developer:</i> Inherit privileges of
-     @   user <tt>developer</tt></td></tr>
-     @ <tr><th valign="top">w</th>
-     @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
-     @ <tr><th valign="top">x</th>
-     @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
-     @ <tr><th valign="top">y</th>
-     @   <td><i>Write-Unver:</i> Push unversioned files</td></tr>
-     @ <tr><th valign="top">z</th>
-     @   <td><i>Zip download:</i> Download a ZIP archive or tarball</td></tr>
-     @ <tr><th valign="top">2</th>
-     @   <td><i>Forum-Read:</i> Read forum posts by others </td></tr>
-     @ <tr><th valign="top">3</th>
-     @   <td><i>Forum-Append:</i> Add new forum posts</td></tr>
-     @ <tr><th valign="top">4</th>
-     @   <td><i>Forum-Trusted:</i> Add pre-approved forum posts </td></tr>
-     @ <tr><th valign="top">5</th>
-     @   <td><i>Forum-Moderator:</i> Approve or disapprove forum posts</td></tr>
-     @ <tr><th valign="top">6</th>
-     @   <td><i>Forum-Supervisor:</i> \
-     @ Forum administrator: Set or remove capability "4" for other users
-     @ <tr><th valign="top">7</th>
-     @   <td><i>Email-Alerts:</i> Sign up for email nofications</td></tr>
-     @ <tr><th valign="top">A</th>
-     @   <td><i>Announce:</i> Send announcements</td></tr>
-     @ <tr><th valign="top">D</th>
-     @   <td><i>Debug:</i> Enable debugging features</td></tr>
+  for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+    if( (aCap[i].eClass & mClass)==0 ) continue;
+    @ <tr><th valign="top">%c(aCap[i].cCap)</th>
+    @  <td><i>%h(aCap[i].zAbbrev):</i> %h(aCap[i].zOneLiner)</td></tr>
+  }
   @ </table>
 }
 

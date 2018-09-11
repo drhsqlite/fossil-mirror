@@ -23,15 +23,27 @@
 # is the name of the executable to be tested.
 #
 
+# We use some things introduced in 8.6 such as lmap.  auto.def should
+# have found us a suitable Tcl installation.
+package require Tcl 8.6
+
 set testfiledir [file normalize [file dirname [info script]]]
 set testrundir [pwd]
 set testdir [file normalize [file dirname $argv0]]
 set fossilexe [file normalize [lindex $argv 0]]
+set is_windows [expr {$::tcl_platform(platform) eq "windows"}]
 
-if {$tcl_platform(platform) eq "windows" && \
-    [string length [file extension $fossilexe]] == 0} {
-  append fossilexe .exe
+if {$::is_windows} {
+  if {[string length [file extension $fossilexe]] == 0} {
+    append fossilexe .exe
+  }
+  set outside_fossil_repo [expr ![file exists "$::testfiledir\\..\\_FOSSIL_"]]
+} else {
+  set outside_fossil_repo [expr ![file exists "$::testfiledir/../.fslckout"]]
 }
+
+catch {exec $::fossilexe changes --changed} res
+set dirty_ckout [string length $res]
 
 set argv [lrange $argv 1 end]
 
@@ -441,7 +453,7 @@ proc test_cleanup {} {
 
 proc delete_temporary_home {} {
   if {$::KEEP} {return}; # All cleanup disabled?
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     robust_delete [file join $::tempHomePath _fossil]
   } else {
     robust_delete [file join $::tempHomePath .fossil]
@@ -514,13 +526,24 @@ proc are_th1_hooks_usable_by_fossil {} {
   return [info exists ::env(TH1_ENABLE_HOOKS)]
 }
 
-# This (rarely used) procedure is designed to run a test within the Fossil
-# source checkout (e.g. one that does NOT modify any state), while saving
-# and restoring the current directory (e.g. one used when running a test
-# file outside of the Fossil source checkout).  Please do NOT use this
-# procedure unless you are absolutely sure it does not modify the state of
-# the repository or source checkout in any way.
+# Run the given command script inside the Fossil source repo checkout.
 #
+# Callers of this function must ensure two things:
+#
+# 1. This test run is in fact being done from within a Fossil repo
+#    checkout directory.  If you are unsure, test $::outside_fossil_repo
+#    or call one of the test_* wrappers below which do that for you.
+#
+#    As a rule, you should not be calling this function directly!
+#
+# 2. This test run is being done from a repo checkout directory that
+#    doesn't have any uncommitted changes.  If it does, that affects the
+#    output of any test based on the output of "fossil status",
+#    "... diff", etc., which is likely to make the test appear to fail.
+#    If you must call this function directly, test $::dirty_ckout and
+#    skip the call if it's true.  The test_* wrappers do this for you.
+#
+# 3. The test does NOT modify the Fossil checkout tree in any way.
 proc run_in_checkout { script {dir ""} } {
   if {[string length $dir] == 0} {set dir $::testfiledir}
   set savedPwd [pwd]; cd $dir
@@ -529,6 +552,35 @@ proc run_in_checkout { script {dir ""} } {
   } result]
   cd $savedPwd; unset savedPwd
   return -code $code $result
+}
+
+# Wrapper for the above function pair.  The tscript parameter is an
+# optional post-run test script.  Some callers choose instead to put
+# the tests inline with the rscript commands.
+#
+# Be sure to adhere to the requirements of run_in_checkout!
+proc test_block_in_checkout { name rscript {tscript ""} } {
+  if {$::outside_fossil_repo || $::dirty_ckout} {
+    set $::CODE 0
+    set $::RESULT ""
+  } else {
+    run_in_checkout $rscript
+    if {[string length $tscript] == 0} {
+      return ""
+    } else {
+      set code [catch {
+        uplevel 1 $tscript
+      } result]
+      return -code $code $result
+    }
+  }
+}
+
+# Single-test wrapper for the above.
+proc test_in_checkout { name rscript tscript } {
+  return test_block_in_checkout name rscript {
+    test $name $tscript
+  }
 }
 
 # Normalize file status lists (like those returned by 'fossil changes')
@@ -626,7 +678,7 @@ proc getTemporaryPath {} {
   #
   # NOTE: On non-Windows systems, fallback to /tmp if it is usable.
   #
-  if {$::tcl_platform(platform) ne "windows"} {
+  if {!$::is_windows} {
     set value /tmp
 
     if {[file exists $value] && [file isdirectory $value]} {
@@ -798,7 +850,7 @@ proc test_start_server { repository {varName ""} } {
   if {[string length $varName] > 0} {
     upvar 1 $varName stopArg
   }
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     set stopArg [file join [getTemporaryPath] [appendArgs \
         [string trim [clock seconds] -] _ [getSeqNo] .stopper]]
     lappend command --stopper $stopArg
@@ -808,7 +860,7 @@ proc test_start_server { repository {varName ""} } {
       [getSeqNo]]].out
   lappend command $repository >&$outFileName &
   set pid [eval $command]
-  if {$::tcl_platform(platform) ne "windows"} {
+  if {!$::is_windows} {
     set stopArg $pid
   }
   after 1000; # output might not be there yet
@@ -825,7 +877,7 @@ proc test_start_server { repository {varName ""} } {
 # will vary by platform as will the exact method used to stop the server.
 # The fileName argument is the name of a temporary output file to delete.
 proc test_stop_server { stopArg pid fileName } {
-  if {$::tcl_platform(platform) eq "windows"} {
+  if {$::is_windows} {
     #
     # NOTE: On Windows, the "stop argument" must be the name of a file
     #       that does NOT already exist.
@@ -952,7 +1004,7 @@ proc third_to_last_data_line {} {
 
 set tempPath [getTemporaryPath]
 
-if {$tcl_platform(platform) eq "windows"} {
+if {$is_windows} {
   set tempPath [string map [list \\ /] $tempPath]
 }
 

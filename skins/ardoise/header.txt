@@ -44,6 +44,9 @@ if {[hascap o]} {
   menulink  /brlist Branches
   menulink  /taglist Tags
 }
+if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+  menulink /forum Forum
+}
 if {[hascap r]} {
   menulink /ticket Tickets
 }

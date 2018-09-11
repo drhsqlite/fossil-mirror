@@ -32,6 +32,14 @@ if {[normalize_result] ne "1"} {
   test_cleanup_then_return
 }
 
+if {$::outside_fossil_repo} {
+  puts "Skipping th1-docs-* tests: not in Fossil repo checkout."
+  test_cleanup_then_return
+} elseif ($::dirty_ckout) {
+  puts "Skipping th1-docs-* tests: uncommitted changes in Fossil checkout."
+  test_cleanup_then_return
+}
+
 ###############################################################################
 
 test_setup ""

@@ -112,7 +112,7 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
+# SSLCONFIG = VC-WIN64A no-asm no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64A no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -127,12 +127,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
+# SSLCONFIG = VC-WIN64I no-asm no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64I no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -147,12 +147,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl3 enable-capieng no-weak-ssl-ciphers
+# SSLCONFIG = VC-WIN32 no-asm no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN32 no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -167,7 +167,7 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif
@@ -381,6 +381,7 @@ MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
                 /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = add_.c \
+        alerts_.c \
         allrepo_.c \
         attach_.c \
         backoffice_.c \
@@ -411,7 +412,6 @@ SRC   = add_.c \
         diffcmd_.c \
         dispatch_.c \
         doc_.c \
-        email_.c \
         encode_.c \
         etag_.c \
         event_.c \
@@ -543,6 +543,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\..\skins\default\details.txt \
         $(SRCDIR)\..\skins\default\footer.txt \
         $(SRCDIR)\..\skins\default\header.txt \
+        $(SRCDIR)\..\skins\default\js.txt \
         $(SRCDIR)\..\skins\eagle\css.txt \
         $(SRCDIR)\..\skins\eagle\details.txt \
         $(SRCDIR)\..\skins\eagle\footer.txt \
@@ -588,6 +589,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\wiki.wiki
 
 OBJ   = $(OX)\add$O \
+        $(OX)\alerts$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \
         $(OX)\backoffice$O \
@@ -619,7 +621,6 @@ OBJ   = $(OX)\add$O \
         $(OX)\diffcmd$O \
         $(OX)\dispatch$O \
         $(OX)\doc$O \
-        $(OX)\email$O \
         $(OX)\encode$O \
         $(OX)\etag$O \
         $(OX)\event$O \
@@ -784,6 +785,7 @@ $(APPNAME) : $(APPTARGETS) translate$E mkindex$E codecheck1$E headers $(OBJ) $(O
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
+	echo $(OX)\alerts.obj >> $@
 	echo $(OX)\allrepo.obj >> $@
 	echo $(OX)\attach.obj >> $@
 	echo $(OX)\backoffice.obj >> $@
@@ -815,7 +817,6 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\diffcmd.obj >> $@
 	echo $(OX)\dispatch.obj >> $@
 	echo $(OX)\doc.obj >> $@
-	echo $(OX)\email.obj >> $@
 	echo $(OX)\encode.obj >> $@
 	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
@@ -1048,6 +1049,12 @@ $(OX)\add$O : add_.c add.h
 add_.c : $(SRCDIR)\add.c
 	translate$E $** > $@
 
+$(OX)\alerts$O : alerts_.c alerts.h
+	$(TCC) /Fo$@ -c alerts_.c
+
+alerts_.c : $(SRCDIR)\alerts.c
+	translate$E $** > $@
+
 $(OX)\allrepo$O : allrepo_.c allrepo.h
 	$(TCC) /Fo$@ -c allrepo_.c
 
@@ -1226,12 +1233,6 @@ $(OX)\doc$O : doc_.c doc.h
 	$(TCC) /Fo$@ -c doc_.c
 
 doc_.c : $(SRCDIR)\doc.c
-	translate$E $** > $@
-
-$(OX)\email$O : email_.c email.h
-	$(TCC) /Fo$@ -c email_.c
-
-email_.c : $(SRCDIR)\email.c
 	translate$E $** > $@
 
 $(OX)\encode$O : encode_.c encode.h
@@ -1857,6 +1858,7 @@ fossil.res : $B\win\fossil.rc
 
 headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 	makeheaders$E add_.c:add.h \
+			alerts_.c:alerts.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
 			backoffice_.c:backoffice.h \
@@ -1887,7 +1889,6 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			diffcmd_.c:diffcmd.h \
 			dispatch_.c:dispatch.h \
 			doc_.c:doc.h \
-			email_.c:email.h \
 			encode_.c:encode.h \
 			etag_.c:etag.h \
 			event_.c:event.h \
