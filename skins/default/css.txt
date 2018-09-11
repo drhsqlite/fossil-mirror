@@ -85,6 +85,7 @@ hr {
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
+    z-index: 21;  /* just above hbdrop */
 }
 
 .mainmenu a {
@@ -96,6 +97,20 @@ hr {
 .mainmenu a:hover {
     color: #000;
     border-bottom:2px solid #D26911;
+}
+
+div#hbdrop {
+    background-color: white;
+    border: 1px solid black;
+    border-top: white;
+    border-radius: 0 0 0.5em 0.5em;
+    display: none;
+    font-size: 80%;
+    left: 2em;
+    width: 90%;
+    padding-right: 1em;
+    position: absolute;
+    z-index: 20;  /* just below mainmenu, but above timeline bubbles */
 }
 
 .submenu {

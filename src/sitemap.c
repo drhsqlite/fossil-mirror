@@ -47,8 +47,7 @@ void sitemap_page(void){
   srchFlags = search_restrict(SRCH_ALL);
   style_header("Site Map");
   style_adunit_config(ADUNIT_RIGHT_OK);
-  @ <div class="columns" style="column-width:20em">
-  @ <ul>
+  @ <ul id="sitemap" class="columns" style="column-width:20em">
   @ <li>%z(href("%R/home"))Home Page</a>
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
     char *z = db_get(aExtra[i].zProperty,0);
@@ -212,6 +211,6 @@ void sitemap_page(void){
   @       colors assigned to branch names</a>
   @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
   @   </ul></li>
-  @ </ul></div>
+  @ </ul>
   style_footer();
 }

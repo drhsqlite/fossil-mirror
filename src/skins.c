@@ -57,9 +57,11 @@ static struct BuiltinSkin {
 };
 
 /*
-** A skin consists of four "files" named here:
+** A skin consists of five "files" named here:
 */
-static const char *azSkinFile[] = { "css", "header", "footer", "details" };
+static const char *azSkinFile[] = { 
+  "css", "header", "footer", "details", "js"
+};
 
 /*
 ** Alternative skins can be specified in the CGI script or by options
@@ -151,7 +153,7 @@ void skin_use_draft(int i){
 ** The following routines return the various components of the skin
 ** that should be used for the current run.
 **
-** zWhat is one of:  "css", "header", "footer", "details".
+** zWhat is one of:  "css", "header", "footer", "details", "js"
 */
 const char *skin_get(const char *zWhat){
   const char *zOut;
@@ -693,7 +695,7 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
 ** Edit aspects of a skin determined by the w= query parameter.
 ** Requires Setup privileges.
 **
-**    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details
+**    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details, 4=js
 **    sk=NUM    -- the draft skin number
 */
 void setup_skinedit(void){
@@ -706,6 +708,7 @@ void setup_skinedit(void){
     /* 1 */ { "footer",  "Page Footer",     "Footer",  },
     /* 2 */ { "header",  "Page Header",     "Header",  },
     /* 3 */ { "details", "Display Details", "Details", },
+    /* 4 */ { "js",      "JavaScript",      "Script",  },
   };
   const char *zBasis;         /* The baseline file */
   const char *zOrig;          /* Original content prior to editing */
@@ -1018,6 +1021,8 @@ void setup_skin(void){
     @ Footer</a>
     @ <li><a href='%R/setup_skinedit?w=3&sk=%d(iSkin)' target='_blank'>\
     @ Details</a>
+    @ <li><a href='%R/setup_skinedit?w=4&sk=%d(iSkin)' target='_blank'>\
+    @ Javascript</a> (optional)
     @ </ul>
   }
   @
