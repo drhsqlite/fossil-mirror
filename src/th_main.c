@@ -1256,7 +1256,7 @@ static int renderCmd(
 /*
 ** TH1 command: styleHeader TITLE
 **
-** Render the configured style header.
+** Render the configured style header for the selected skin.
 */
 static int styleHeaderCmd(
   Th_Interp *interp,
@@ -1281,7 +1281,7 @@ static int styleHeaderCmd(
 /*
 ** TH1 command: styleFooter
 **
-** Render the configured style footer.
+** Render the configured style footer for the selected skin.
 */
 static int styleFooterCmd(
   Th_Interp *interp,
@@ -1306,7 +1306,7 @@ static int styleFooterCmd(
 /*
 ** TH1 command: styleScript
 **
-** Render the configured javascript for the selected skin
+** Render the configured JavaScript for the selected skin.
 */
 static int styleScriptCmd(
   Th_Interp *interp,

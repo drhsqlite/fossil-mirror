@@ -202,6 +202,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  stime
   *  styleHeader
   *  styleFooter
+  *  styleScript
   *  tclEval
   *  tclExpr
   *  tclInvoke
@@ -573,14 +574,21 @@ process in system space.
 
   *  styleHeader TITLE
 
-Render the configured style header.
+Render the configured style header for the selected skin.
 
 <a name="styleFooter"></a>TH1 styleFooter Command
 -------------------------------------------------
 
   *  styleFooter
 
-Render the configured style footer.
+Render the configured style footer for the selected skin.
+
+<a name="styleScript"></a>TH1 styleScript Command
+-------------------------------------------------
+
+  *  styleScript
+
+Render the configured JavaScript for the selected skin.
 
 <a name="tclEval"></a>TH1 tclEval Command
 -----------------------------------------
