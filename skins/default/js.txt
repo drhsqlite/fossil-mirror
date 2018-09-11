@@ -1,5 +1,5 @@
 (function() {
-  var home='$home'; "
+  var home='$home';
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
   var panelBorder = panel.style.border;
@@ -110,9 +110,9 @@
         }
         // else, can't parse response as HTML or XML
       }
-      xhr.open("GET", home + "/sitemap");
+      xhr.open("POST", home + "/sitemap");
       xhr.responseType = "document";
-      xhr.send();
+      xhr.send("popup=1");
     }
     else {
       showPanel();   // just show what we built above

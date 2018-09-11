@@ -33,6 +33,7 @@ void sitemap_page(void){
   int srchFlags;
   int inSublist = 0;
   int i;
+  int isPopup = 0;         /* This is an XMLHttpRequest() for /sitemap */
   const struct {
     const char *zTitle;
     const char *zProperty;
@@ -44,9 +45,18 @@ void sitemap_page(void){
   };
 
   login_check_credentials();
+  if( P("popup")!=0 && cgi_csrf_safe(1) ){
+    /* If this is a POST from the same origin with the popup=1 parameter,
+    ** then disable anti-robot defenses */
+    isPopup = 1;
+    g.perm.Hyperlink = 1;
+    g.javascriptHyperlink = 0;
+  }
   srchFlags = search_restrict(SRCH_ALL);
-  style_header("Site Map");
-  style_adunit_config(ADUNIT_RIGHT_OK);
+  if( !isPopup ){
+    style_header("Site Map");
+    style_adunit_config(ADUNIT_RIGHT_OK);
+  }
   @ <ul id="sitemap" class="columns" style="column-width:20em">
   @ <li>%z(href("%R/home"))Home Page</a>
   for(i=0; i<sizeof(aExtra)/sizeof(aExtra[0]); i++){
@@ -212,5 +222,7 @@ void sitemap_page(void){
   @   <li>%z(href("%R/test-captcha"))Random ASCII-art Captcha image</a></li>
   @   </ul></li>
   @ </ul>
-  style_footer();
+  if( !isPopup ){
+    style_footer();
+  }
 }
