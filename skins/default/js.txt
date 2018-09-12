@@ -1,3 +1,22 @@
+/*
+** Copyright © 2018 Warren Young
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+**
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Contact: wyoung on the Fossil forum, https://fossil-scm.org/forum/
+**
+*******************************************************************************
+**
+** This file contains the JS code specific to the Fossil default skin.
+** Currently, the only thing this does is handle clicks on its hamburger
+** menu button.
+*/
 (function() {
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
