@@ -107,9 +107,6 @@
             // Got sitemap.  Insert it into the drop-down panel.
             needSitemapHTML = false;
             panel.innerHTML = sm.outerHTML;
-            if (window.setAllHrefs) {
-              setAllHrefs();   // don't need anti-robot defense here
-            }
 
             // Display the panel
             if (animate) {
