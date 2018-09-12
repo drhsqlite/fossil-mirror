@@ -98,8 +98,8 @@
               // closed.  Only needs to be done once per page load.
               // Based on https://stackoverflow.com/a/29047447/142454
               calculatePanelHeight();
-              panel.style.transition = 'max-height ' +
-                  (animMS / 1000) + 's ease-in-out';
+              panel.style.transition = 'max-height ' + animMS +
+                  'ms ease-in-out';
               panel.style.overflowY  = 'hidden';
               panel.style.maxHeight  = '0';
               showPanel();
