@@ -1,5 +1,5 @@
-C Documentation\supdates\sfor\scustom\sTH1\scommands.
-D 2018-09-11T17:47:59.464
+C Moved\sa\ssingle-use\svariable\sinterpolation\sinline\swith\sits\suse\spoint.\nAlso\simproved\ssome\scomments.
+D 2018-09-12T12:32:11.670
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/css.txt 6659cea12d5b1291cf9ee082a24ac5c11c1b4cef4d0ec2f191b9a0b9
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
-F skins/default/js.txt ebf560cfbd40571929cfde87b21b757aac10d07536d764f01f6648e12532fb97
+F skins/default/js.txt 1a478642912b53db2f83f9606b328cfccb64f39712a35c2b7ee446e65d058e55
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -863,7 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58b7b4e51c4ee49c2b43da70f8a19b4722170a440bb2f1ebf675fe3e6ec6ecf8
-R aee80967a7d740370011840c3c436229
-U mistachkin
-Z 6b7eb7e27df3f34b1010ce433e89706b
+P 874a4dac8cca5ac1e105d2a4e4c9232c30c6abdf5089b3e66e2f7501818da73e
+R 9c4f41b37d4289b98aa8dadf03d1ca17
+U wyoung
+Z 2ec72974fa0526b03c1843de898f0206

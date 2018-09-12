@@ -1,5 +1,4 @@
 (function() {
-  var home='$home';
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
   var panelBorder = panel.style.border;
@@ -32,10 +31,10 @@
   // slide-open/closed transition set up in the XHR onload handler.
   //
   // Schedule the change for a near-future time in case this is the
-  // first call, where the div was initially invisible.  That causes
-  // the browser to consider the height change as part of the same
-  // state change as the visibility change, so it doesn't see a state
-  // *transition*, hence never kicks off the *CSS* transition:
+  // first call, where the div was initially invisible.  If we were
+  // to change the panel's visibility and height at the same time
+  // instead, that would prevent the browser from seeing the height
+  // change as a state transition, so it'd skip the CSS transition:
   //
   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions#JavaScript_examples
   function showPanel() {
@@ -110,7 +109,7 @@
         }
         // else, can't parse response as HTML or XML
       }
-      xhr.open("POST", home + "/sitemap");
+      xhr.open("POST", "$home/sitemap");   // note the TH1 substitution!
       xhr.responseType = "document";
       xhr.send("popup=1");
     }
