@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2018-09-14T19:13:10.671
+C Describe\sthe\sdebugging\soptions.
+D 2018-09-14T21:15:20.192
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c bbef3993c612636cd9b818386386a250b67ddde510fea5db0de0a7ba8e321888 w src/email.c
+F src/alerts.c bbef3993c612636cd9b818386386a250b67ddde510fea5db0de0a7ba8e321888
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 9484eff46bdf7deae8f7fcc519cd213274c90b7bfacff1dabc8df28fe0770f2d
@@ -831,7 +831,7 @@ F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki a3f18b1cf91528dec6f2ef672f332b5a34bb988988e95a6ec11041af5e27397b
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
-F www/makefile.wiki 840768ac36c6075cffaab1a60d8d8b8a4a4096391bdce5e3e0ea75564750fcbf
+F www/makefile.wiki e6d3c6125cd77f7fe7e73a46b451d19474e15ff879e6b45e84d6b66d1842c930
 F www/mkindex.tcl b2b90c7561ffa43f334247e06bf89f316bc82d59d80d3b944d271a41441b397d x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27c4e7b02d6d90a232aa98b10ef91719bd6883119142acdf0c156f3d9469e543 d78f1f3c59f5f54f9b6f19d329d87775913eee20d4eb438e0da6860704065eb7
-R 27aff13579b1113840ad02a917a936f5
+P f59c9ecb5eb25a149dbf07fc872f4c1b974425e2b835ea29f4c3d0e9fdf3a5a6
+R 99d7333b294264ad1535e69ede73d402
 U ashepilko
-Z de8c7a617a6e2ad5881f71aee2527774
+Z 2c152e5652f26a16b8c970da967da8a8

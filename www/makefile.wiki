@@ -299,7 +299,33 @@ dependences are used.
 Fossil includes a copy of [https://github.com/richgel999/miniz | miniz]
 which can be used as an alternative to zlib.
 
-<h1>7.0 See Also</h1>
+<h1>7.0 Debugging</h1>
+
+Debug mode is controlled via FOSSIL_DEBUG preprocessor macro which could be
+set explicitly at the make command for the target platform.
+
+However, in practice it is instead recommended to add a respective configure
+option for the target platform and then perform a clean build. This way the
+Debug flags are consistently applied across the whole build process. For
+example, use these Debug flags in addition to other flags passed to the
+configure scripts:
+
+On Linux, *NIX and similar platforms:
+<blockquote><pre>
+./configure --fossil-debug
+</pre></blockquote>
+
+On Windows:
+<blockquote><pre>
+win\buildmsvc.bat FOSSIL_DEBUG=1
+</pre></blockquote>
+
+The resulting fossil binary could then be loaded into a platform-specific
+debugger. Source files displayed in the debugger correspond to the ones
+generated from the translation stage of the build process, that is what was
+actually compiled into the object files.
+
+<h1>8.0 See Also</h1>
 
   *  [./tech_overview.wiki | A Technical Overview Of Fossil]
   *  [./adding_code.wiki | How To Add Features To Fossil]
