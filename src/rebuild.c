@@ -360,7 +360,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
-  email_triggers_disable();
+  alert_triggers_disable();
   rebuild_update_schema();
   blob_init(&sql, 0, 0);
   db_prepare(&q,
@@ -370,7 +370,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
                        "'config','shun','private','reportfmt',"
                        "'concealed','accesslog','modreq',"
                        "'purgeevent','purgeitem','unversioned',"
-                       "'subscriber','pending_alert','email_bounce')"
+                       "'subscriber','pending_alert','alert_bounce')"
      " AND name NOT GLOB 'sqlite_*'"
      " AND name NOT GLOB 'fx_*'"
   );
@@ -451,7 +451,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
-  email_triggers_enable();
+  alert_triggers_enable();
   if(!g.fQuiet && ttyOutput ){
     percent_complete(1000);
     fossil_print("\n");

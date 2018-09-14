@@ -541,7 +541,7 @@ void captcha_generate(int showButton){
   uSeed = captcha_seed();
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre>
   @ Enter security code shown above:

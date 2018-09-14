@@ -2127,7 +2127,11 @@ void commit_cmd(void){
 
   /* Do not allow the creation of a new branch using an existing open
   ** branch name unless the --force flag is used */
-  if( sCiInfo.zBranch!=0 && !forceFlag && branch_is_open(sCiInfo.zBranch) ){
+  if( sCiInfo.zBranch!=0
+   && !forceFlag
+   && fossil_strcmp(sCiInfo.zBranch,"private")!=0
+   && branch_is_open(sCiInfo.zBranch)
+  ){
     fossil_fatal("an open branch named \"%s\" already exists - use --force"
                  " to override", sCiInfo.zBranch);
   }

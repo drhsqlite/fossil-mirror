@@ -37,6 +37,7 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 */
 {"branch", json_timeline_branch, 0},
 {"checkin", json_timeline_ci, 0},
+{"event", json_timeline_event, 0},
 {"ticket", json_timeline_ticket, 0},
 {"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
@@ -519,6 +520,62 @@ static cson_value * json_timeline_ci(){
   payV = NULL;
   ok:
   db_finalize(&q);
+  return payV;
+}
+
+/*
+** Implementation of /json/timeline/event.
+**
+*/
+cson_value * json_timeline_event(){
+  /* This code is 95% the same as json_timeline_ci(), by the way. */
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  cson_array * list = NULL;
+  int check = 0;
+  Stmt q = empty_Stmt;
+  Blob sql = empty_blob;
+  if( !g.perm.RdWiki ){
+    json_set_err( FSL_JSON_E_DENIED, "Event timeline requires 'j' access.");
+    return NULL;
+  }
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  check = json_timeline_setup_sql( "e", &sql, pay );
+  if(check){
+    json_set_err(check, "Query initialization failed.");
+    goto error;
+  }
+
+#if 0
+  /* only for testing! */
+  cson_object_set(pay, "timelineSql", cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql))));
+#endif
+  db_multi_exec("%s", blob_buffer(&sql) /*safe-for-%s*/);
+  blob_reset(&sql);
+  db_prepare(&q, "SELECT"
+             /* For events, the name is generally more useful than
+                the uuid, but the uuid is unambiguous and can be used
+                with commands like 'artifact'. */
+             " substr((SELECT tagname FROM tag AS tn WHERE tn.tagid=json_timeline.tagId AND tagname LIKE 'event-%%'),7) AS name,"
+             " uuid as uuid,"
+             " mtime AS timestamp,"
+             " comment AS comment, "
+             " user AS user,"
+             " eventType AS eventType"
+             " FROM json_timeline"
+             " ORDER BY rowid");
+  list = cson_new_array();
+  json_stmt_to_array_of_obj(&q, list);
+  cson_object_set(pay, "timeline", cson_array_value(list));
+  goto ok;
+  error:
+  assert( 0 != g.json.resultCode );
+  cson_value_free(payV);
+  payV = NULL;
+  ok:
+  db_finalize(&q);
+  blob_reset(&sql);
   return payV;
 }
 

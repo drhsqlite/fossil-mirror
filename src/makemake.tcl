@@ -28,6 +28,7 @@
 #
 set src {
   add
+  alerts
   allrepo
   attach
   backoffice
@@ -39,6 +40,7 @@ set src {
   builtin
   bundle
   cache
+  capabilities
   captcha
   cgi
   checkin
@@ -57,7 +59,6 @@ set src {
   diffcmd
   dispatch
   doc
-  email
   encode
   etag
   event
@@ -121,6 +122,7 @@ set src {
   search
   security_audit
   setup
+  setupuser
   sha1
   sha1hard
   sha3
@@ -286,6 +288,7 @@ writeln {#
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
+TESTFLAGS := -quiet
 }
 writeln -nonewline "SRC ="
 foreach s [lsort $src] {
@@ -361,7 +364,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 # the run to just those test cases.
 #
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
@@ -695,7 +698,7 @@ endif
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
 #    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
 #
-SSLCONFIG += no-ssl2 no-ssl3 no-shared
+SSLCONFIG += no-ssl2 no-ssl3 no-weak-ssl-ciphers no-shared
 
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
@@ -709,7 +712,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2o
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2p
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1577,7 +1580,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2o
+SSLDIR    = $(B)\compat\openssl-1.0.2p
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1589,7 +1592,7 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64A no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1604,12 +1607,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64I no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1624,12 +1627,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN32 no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -1644,7 +1647,7 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif
@@ -1819,7 +1822,7 @@ foreach s [lsort $extra_files] {
     writeln " \\"
     writeln -nonewline "        "
   }
-  set s [file nativename $s]
+  set s [regsub -all / $s \\]
   writeln -nonewline "\"\$(SRCDIR)\\${s}\""; incr i
 }
 writeln "\n"

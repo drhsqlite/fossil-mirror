@@ -208,22 +208,52 @@ static void record_login_attempt(
 ** On success it returns a positive value. On error it returns 0.
 ** On serious (DB-level) error it will probably exit.
 **
+** zUsername uses double indirection because we may re-point *zUsername
+** at a C string allocated with fossil_strdup() if you pass an email
+** address instead and we find that address in the user table's info
+** field, which is expected to contain a string of the form "Human Name
+** <human@example.com>".  In that case, *zUsername will point to that
+** user's actual login name on return, causing a leak unless the caller
+** is diligent enough to check whether its pointer was re-pointed.
+**
 ** zPassword may be either the plain-text form or the encrypted
 ** form of the user's password.
 */
-int login_search_uid(const char *zUsername, const char *zPasswd){
-  char *zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
-  int const uid =
-      db_int(0,
-             "SELECT uid FROM user"
-             " WHERE login=%Q"
-             "   AND length(cap)>0 AND length(pw)>0"
-             "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
-             "   AND (info NOT LIKE '%%expires 20%%'"
-             "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
-             zUsername, zSha1Pw, zPasswd
-             );
+int login_search_uid(const char **pzUsername, const char *zPasswd){
+  char *zSha1Pw = sha1_shared_secret(zPasswd, *pzUsername, 0);
+  int uid = db_int(0,
+    "SELECT uid FROM user"
+    " WHERE login=%Q"
+    "   AND length(cap)>0 AND length(pw)>0"
+    "   AND login NOT IN ('anonymous','nobody','developer','reader')"
+    "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))"
+    "   AND (info NOT LIKE '%%expires 20%%'"
+    "      OR substr(info,instr(lower(info),'expires')+8,10)>datetime('now'))",
+    *pzUsername, zSha1Pw, zPasswd
+  );
+
+  /* If we did not find a login on the first attempt, and the username
+  ** looks like an email address, then perhaps the user entered their
+  ** email address instead of their login.  Try again to match the user
+  ** against email addresses contained in the "info" field.
+  */
+  if( uid==0 && strchr(*pzUsername,'@')!=0 ){
+    Stmt q;
+    db_prepare(&q,
+      "SELECT login FROM user"
+      " WHERE find_emailaddr(info)=%Q"
+      "   AND instr(login,'@')==0",
+      *pzUsername
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zLogin = db_column_text(&q,0);
+      if( (uid = login_search_uid(&zLogin, zPasswd) ) != 0 ){
+        *pzUsername = fossil_strdup(zLogin);
+        break;
+      }
+    }
+    db_finalize(&q);
+  }    
   free(zSha1Pw);
   return uid;
 }
@@ -474,6 +504,24 @@ int referred_from_login(void){
 }
 
 /*
+** Return TRUE if self-registration is available.  If the zNeeded
+** argument is not NULL, then only return true if self-registration is
+** available and any of the capabilities named in zNeeded are available
+** to self-registered users.
+*/
+int login_self_register_available(const char *zNeeded){
+  CapabilityString *pCap;
+  int rc;
+  if( !db_get_boolean("self-register",0) ) return 0;
+  if( zNeeded==0 ) return 1;
+  pCap = capability_add(0, db_get("default-perms",""));
+  capability_expand(pCap);
+  rc = capability_has_any(pCap, zNeeded);
+  capability_free(pCap);
+  return rc;
+}
+
+/*
 ** There used to be a page named "my" that was designed to show information
 ** about a specific user.  The "my" page was linked from the "Logged in as USER"
 ** line on the title bar.  The "my" page was never completed so it is now
@@ -500,6 +548,7 @@ void login_page(void){
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
   const char *zReferer;
+  int noAnon = P("noanon")!=0;
 
   login_check_credentials();
   if( login_wants_https_redirect() ){
@@ -536,6 +585,12 @@ void login_page(void){
   if( P("out") ){
     login_clear_login_data();
     redirect_to_g();
+    return;
+  }
+
+  /* Redirect for create-new-account requests */
+  if( P("self") ){
+    cgi_redirectf("%R/register");
     return;
   }
 
@@ -609,7 +664,7 @@ void login_page(void){
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     /* Attempting to log in as a user other than anonymous.
     */
-    uid = login_search_uid(zUsername, zPasswd);
+    uid = login_search_uid(&zUsername, zPasswd);
     if( uid<=0 ){
       sleep(1);
       zErrMsg =
@@ -633,7 +688,7 @@ void login_page(void){
   style_header("Login/Logout");
   style_adunit_config(ADUNIT_OFF);
   @ %s(zErrMsg)
-  if( zGoto ){
+  if( zGoto && !noAnon ){
     char *zAbbrev = fossil_strdup(zGoto);
     int i;
     for(i=0; zAbbrev[i] && zAbbrev[i]!='?'; i++){}
@@ -676,10 +731,15 @@ void login_page(void){
     }else{
       @ <td><input type="text" id="u" name="u" value="" size="30" /></td>
     }
+    @ </tr>
+    @ <tr>
+    @  <td class="form_label">Password:</td>
+    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @ </tr>
     if( P("HTTPS")==0 ){
-      @ <td width="15"><td rowspan="3">
-      @ <p class='securityWarning'>
-      @ Warning: Your password will be sent in the clear over an
+      @ <tr><td class="form_label">Warning:</td>
+      @ <td><span class='securityWarning'>
+      @ Your password will be sent in the clear over an
       @ unencrypted connection.
       if( g.sslNotAvailable ){
         @ No encrypted connection is available on this server.
@@ -687,13 +747,8 @@ void login_page(void){
         @ Consider logging in at
         @ <a href='%s(g.zHttpsURL)'>%h(g.zHttpsURL)</a> instead.
       }
-      @ </p>
+      @ </span></td></tr>
     }
-    @ </tr>
-    @ <tr>
-    @  <td class="form_label">Password:</td>
-    @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
-    @ </tr>
     if( g.zLogin==0 && (anonFlag || zGoto==0) ){
       zAnonPw = db_text(0, "SELECT pw FROM user"
                            " WHERE login='anonymous'"
@@ -701,15 +756,16 @@ void login_page(void){
     }
     @ <tr>
     @   <td></td>
-    @   <td><input type="submit" name="in" value="Login">
+    @   <td><input type="submit" name="in" value="Login"></td>
     @ </tr>
-    @ </table>
-    @ <p>Pressing the Login button grants permission to store a cookie.</p>
-    if( db_get_boolean("self-register", 0) ){
-      @ <p>If you do not have an account, you can
-      @ <a href="%R/register?g=%T(P("G"))">create one</a>.
+    if( !noAnon && login_self_register_available(0) ){
+      @ <tr>
+      @   <td></td>
+      @   <td><input type="submit" name="self" value="Create A New Account">
+      @ </tr>
     }
-    if( zAnonPw ){
+    @ </table>
+    if( zAnonPw && !noAnon ){
       unsigned int uSeed = captcha_seed();
       const char *zDecoded = captcha_decode(uSeed);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
@@ -718,7 +774,8 @@ void login_page(void){
       @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
       @ Visitors may enter <b>anonymous</b> as the user-ID with
       @ the 8-character hexadecimal password shown below:</p>
-      @ <div class="captcha"><table class="captcha"><tr><td><pre>
+      @ <div class="captcha"><table class="captcha"><tr><td>\
+      @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
       if( bAutoCaptcha ) {
@@ -731,26 +788,28 @@ void login_page(void){
     }
     @ </form>
   }
-  if( login_is_individual() && g.perm.Password ){
-    if( email_enabled() ){
+  if( login_is_individual() ){
+    if( g.perm.EmailAlert && alert_enabled() ){
       @ <hr>
       @ <p>Configure <a href="%R/alerts">Email Alerts</a>
       @ for user <b>%h(g.zLogin)</b></p>
     }
-    @ <hr />
-    @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
-    form_begin(0, "%R/login");
-    @ <table>
-    @ <tr><td class="form_label">Old Password:</td>
-    @ <td><input type="password" name="p" size="30" /></td></tr>
-    @ <tr><td class="form_label">New Password:</td>
-    @ <td><input type="password" name="n1" size="30" /></td></tr>
-    @ <tr><td class="form_label">Repeat New Password:</td>
-    @ <td><input type="password" name="n2" size="30" /></td></tr>
-    @ <tr><td></td>
-    @ <td><input type="submit" value="Change Password" /></td></tr>
-    @ </table>
-    @ </form>
+    if( g.perm.Password ){
+      @ <hr>
+      @ <p>Change Password for user <b>%h(g.zLogin)</b>:</p>
+      form_begin(0, "%R/login");
+      @ <table>
+      @ <tr><td class="form_label">Old Password:</td>
+      @ <td><input type="password" name="p" size="30" /></td></tr>
+      @ <tr><td class="form_label">New Password:</td>
+      @ <td><input type="password" name="n1" size="30" /></td></tr>
+      @ <tr><td class="form_label">Repeat New Password:</td>
+      @ <td><input type="password" name="n2" size="30" /></td></tr>
+      @ <tr><td></td>
+      @ <td><input type="submit" value="Change Password" /></td></tr>
+      @ </table>
+      @ </form>
+    }
   }
   style_footer();
 }
@@ -905,7 +964,7 @@ static int logic_basic_authentication(const char *zIpAddr){
     /* Attempting to log in as the user provided by HTTP
     ** basic auth
     */
-    uid = login_search_uid(zUsername, zPasswd);
+    uid = login_search_uid(&zUsername, zPasswd);
     if( uid>0 ){
       record_login_attempt(zUsername, zIpAddr, 1);
     }else{
@@ -1136,7 +1195,9 @@ void login_check_credentials(void){
   zPublicPages = db_get("public-pages",0);
   if( zPublicPages!=0 ){
     Glob *pGlob = glob_create(zPublicPages);
-    if( glob_match(pGlob, PD("REQUEST_URI","no-match")) ){
+    const char *zUri = PD("REQUEST_URI","");
+    zUri += (int)strlen(g.zTop);
+    if( glob_match(pGlob, zUri) ){
       login_set_capabilities(db_get("default-perms","u"), 0);
     }
     glob_free(pGlob);
@@ -1204,7 +1265,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt = p->Delete =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum =
-                             p->EmailAlert = p->Announce =
+                             p->EmailAlert = p->Announce = p->Debug =
                              p->WrUnver = p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
@@ -1244,24 +1305,26 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'A':   p->Announce = 1;                             break;
       case 'D':   p->Debug = 1;                                break;
 
-      /* The "u" privileges is a little different.  It recursively
+      /* The "u" privilege recursively
       ** inherits all privileges of the user named "reader" */
       case 'u': {
-        if( (flags & LOGIN_IGNORE_UV)==0 ){
+        if( p->XReader==0 ){
           const char *zUser;
+          p->XReader = 1;
           zUser = db_text("", "SELECT cap FROM user WHERE login='reader'");
-          login_set_capabilities(zUser, flags | LOGIN_IGNORE_UV);
+          login_set_capabilities(zUser, flags);
         }
         break;
       }
 
-      /* The "v" privileges is a little different.  It recursively
+      /* The "v" privilege recursively
       ** inherits all privileges of the user named "developer" */
       case 'v': {
-        if( (flags & LOGIN_IGNORE_UV)==0 ){
+        if( p->XDeveloper==0 ){
           const char *zDev;
+          p->XDeveloper = 1;
           zDev = db_text("", "SELECT cap FROM user WHERE login='developer'");
-          login_set_capabilities(zDev, flags | LOGIN_IGNORE_UV);
+          login_set_capabilities(zDev, flags);
         }
         break;
       }
@@ -1461,10 +1524,16 @@ void login_verify_csrf_secret(void){
 ** must be enabled for this page to operate.
 */
 void register_page(void){
-  const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
+  const char *zUserID, *zPasswd, *zConfirm, *zEAddr;
+  const char *zDName;
   unsigned int uSeed;
   const char *zDecoded;
   char *zCaptcha;
+  int iErrLine = -1;
+  const char *zErr = 0;
+  char *zPerms;             /* Permissions for the default user */
+  int canDoAlerts = 0;      /* True if receiving email alerts is possible */
+  int doAlerts = 0;         /* True if subscription is wanted too */
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
@@ -1472,67 +1541,149 @@ void register_page(void){
     style_footer();
     return;
   }
+  zPerms = db_get("default-perms","u");
 
-  style_header("Register");
-  zUsername = P("u");
-  zPasswd = P("p");
-  zConfirm = P("cp");
-  zContact = P("c");
-  zCap = P("cap");
-  zCS = P("cs"); /* Captcha Secret */
+  /* Prompt the user for email alerts if this repository is configured for
+  ** email alerts and if the default permissions include "7" */
+  canDoAlerts = alert_tables_exist() && db_int(0,
+    "SELECT fullcap(%Q) GLOB '*7*'", zPerms
+  );
+  doAlerts = canDoAlerts && atoi(PD("alerts","1"))!=0;
 
-  /* Try to make any sense from user input. */
-  if( P("new") ){
-    if( zCS==0 ) fossil_redirect_home();  /* Forged request */
-    zPw = captcha_decode((unsigned int)atoi(zCS));
-    if( !(zUsername && zPasswd && zConfirm && zContact) ){
-      @ <p><span class="loginError">
-      @ All fields are obligatory.
-      @ </span></p>
-    }else if( strlen(zPasswd) < 6){
-      @ <p><span class="loginError">
-      @ Password too weak.
-      @ </span></p>
-    }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
-      @ <p><span class="loginError">
-      @ The two copies of your new passwords do not match.
-      @ </span></p>
-    }else if( fossil_stricmp(zPw, zCap)!=0 ){
-      @ <p><span class="loginError">
-      @ Captcha text invalid.
-      @ </span></p>
-    }else{
-      /* This almost is stupid copy-paste of code from user.c:user_cmd(). */
-      Blob passwd, login, caps, contact;
+  zUserID = PDT("u","");
+  zPasswd = PDT("p","");
+  zConfirm = PDT("cp","");
+  zEAddr = PDT("ea","");
+  zDName = PDT("dn","");
 
-      blob_init(&login, zUsername, -1);
-      blob_init(&contact, zContact, -1);
-      blob_init(&caps, db_get("default-perms", "u"), -1);
-      blob_init(&passwd, zPasswd, -1);
-
-      if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
-        /* Here lies the reason I don't use zErrMsg - it would not substitute
-         * this %s(zUsername), or at least I don't know how to force it to.*/
-        @ <p><span class="loginError">
-        @ %h(zUsername) already exists.
-        @ </span></p>
-      }else{
-        char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
-        int uid;
-        db_multi_exec(
-            "INSERT INTO user(login,pw,cap,info,mtime)"
-            "VALUES(%B,%Q,%B,%B,strftime('%%s','now'))",
-            &login, zPw, &caps, &contact
-            );
-        free(zPw);
-
-        /* The user is registered, now just log him in. */
-        uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
-        login_set_user_cookie( zUsername, uid, NULL );
+  /* Verify user imputs */
+  if( P("new")==0 || !cgi_csrf_safe(1) ){
+    /* This is not a valid form submission.  Fall through into
+    ** the form display */
+  }else if( !captcha_is_correct(1) ){
+    iErrLine = 6;
+    zErr = "Incorrect CAPTCHA";
+  }else if( strlen(zUserID)<3 ){
+    iErrLine = 1;
+    zErr = "User ID too short. Must be at least 3 characters.";
+  }else if( sqlite3_strglob("*[^-a-zA-Z0-9_.]*",zUserID)==0 ){
+    iErrLine = 1;
+    zErr = "User ID may not contain spaces or special characters.";
+  }else if( zDName[0]==0 ){
+    iErrLine = 2;
+    zErr = "Required";
+  }else if( zEAddr[0]==0 ){
+    iErrLine = 3;
+    zErr = "Required";
+  }else if( email_copy_addr(zEAddr,0)==0 ){
+    iErrLine = 3;
+    zErr = "Not a valid email address";
+  }else if( strlen(zPasswd)<6 ){
+    iErrLine = 4;
+    zErr = "Password must be at least 6 characters long";
+  }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
+    iErrLine = 5;
+    zErr = "Passwords do not match";
+  }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zUserID) ){
+    iErrLine = 1;
+    zErr = "This User ID is already taken. Choose something different.";
+  }else if(
+      /* If the email is found anywhere in USER.INFO... */
+      db_exists("SELECT 1 FROM user WHERE info LIKE '%%%q%%'", zEAddr)
+    ||
+      /* Or if the email is a verify subscriber email with an associated
+      ** user... */
+      db_exists(
+        "SELECT 1 FROM subscriber WHERE semail=%Q AND suname IS NOT NULL"
+        " AND sverified",zEAddr)
+   ){
+    iErrLine = 3;
+    zErr = "This email address is already claimed by another user";
+  }else{
+    /* If all of the tests above have passed, that means that the submitted
+    ** form contains valid data and we can proceed to create the new login */
+    Blob sql;
+    int uid;
+    char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
+    blob_init(&sql, 0, 0);
+    blob_append_sql(&sql,
+       "INSERT INTO user(login,pw,cap,info,mtime)\n"
+       "VALUES(%Q,%Q,%Q,"
+       "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
+       zUserID, zPass, zPerms, zDName, zEAddr, g.zIpAddr);
+    fossil_free(zPass);
+    db_multi_exec("%s", blob_sql_text(&sql));
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
+    login_set_user_cookie(zUserID, uid, NULL);
+    if( doAlerts ){
+      /* Also make the new user a subscriber. */
+      Blob hdr, body;
+      AlertSender *pSender;
+      sqlite3_int64 id;   /* New subscriber Id */
+      const char *zCode;  /* New subscriber code (in hex) */
+      const char *zGoto = P("g");
+      int nsub = 0;
+      char ssub[20];
+      ssub[nsub++] = 'a';
+      if( g.perm.Read )    ssub[nsub++] = 'c';
+      if( g.perm.RdForum ) ssub[nsub++] = 'f';
+      if( g.perm.RdTkt )   ssub[nsub++] = 't';
+      if( g.perm.RdWiki )  ssub[nsub++] = 'w';
+      ssub[nsub] = 0;
+      /* Also add the user to the subscriber table. */
+      db_multi_exec(
+        "INSERT INTO subscriber(semail,suname,"
+        "  sverified,sdonotcall,sdigest,ssub,sctime,mtime,smip)"
+        " VALUES(%Q,%Q,%d,0,%d,%Q,now(),now(),%Q)"
+        " ON CONFLICT(semail) DO UPDATE"
+        "   SET suname=excluded.suname",
+        /* semail */    zEAddr,
+        /* suname */    zUserID,
+        /* sverified */ 0,
+        /* sdigest */   0,
+        /* ssub */      ssub,
+        /* smip */      g.zIpAddr
+      );
+      id = db_last_insert_rowid();
+      if( db_exists("SELECT 1 FROM subscriber WHERE semail=%Q"
+                    "  AND sverified", zEAddr) ){
+        /* This the case where the user was formerly a verified subscriber
+        ** and here they have also registered as a user as well.  It is
+        ** not necessary to repeat the verfication step */
         redirect_to_g();
-
       }
+      zCode = db_text(0,
+           "SELECT hex(subscriberCode) FROM subscriber WHERE subscriberId=%lld",
+           id);
+      /* A verification email */
+      pSender = alert_sender_new(0,0);
+      blob_init(&hdr,0,0);
+      blob_init(&body,0,0);
+      blob_appendf(&hdr, "To: <%s>\n", zEAddr);
+      blob_appendf(&hdr, "Subject: Subscription verification\n");
+      alert_append_confirmation_message(&body, zCode);
+      alert_send(pSender, &hdr, &body, 0);
+      style_header("Email Verification");
+      if( pSender->zErr ){
+        @ <h1>Internal Error</h1>
+        @ <p>The following internal error was encountered while trying
+        @ to send the confirmation email:
+        @ <blockquote><pre>
+        @ %h(pSender->zErr)
+        @ </pre></blockquote>
+      }else{
+        @ <p>An email has been sent to "%h(zEAddr)". That email contains a
+        @ hyperlink that you must click on in order to activate your
+        @ subscription.</p>
+      }
+      alert_sender_free(pSender);
+      if( zGoto ){
+        @ <p><a href='%h(zGoto)'>Continue</a>
+      }
+      style_footer();
+      return;
     }
+    redirect_to_g();
   }
 
   /* Prepare the captcha. */
@@ -1540,39 +1691,74 @@ void register_page(void){
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
 
+  style_header("Register");
   /* Print out the registration form. */
   form_begin(0, "%R/register");
   if( P("g") ){
     @ <input type="hidden" name="g" value="%h(P("g"))" />
   }
-  @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
+  @ <p><input type="hidden" name="captchaseed" value="%u(uSeed)" />
   @ <table class="login_out">
   @ <tr>
   @   <td class="form_label" align="right">User ID:</td>
-  @   <td><input type="text" id="u" name="u" value="" size="30" /></td>
+  @   <td><input type="text" name="u" value="%h(zUserID)" size="30"></td>
+  @
+  if( iErrLine==1 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
+  @ <tr>
+  @   <td class="form_label" align="right">Display Name:</td>
+  @   <td><input type="text" name="dn" value="%h(zDName)" size="30"></td>
   @ </tr>
+  if( iErrLine==2 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
+  @ </tr>
+  @ <tr>
+  @   <td class="form_label" align="right">Email Address:</td>
+  @   <td><input type="text" name="ea" value="%h(zEAddr)" size="30"></td>
+  @ </tr>
+  if( iErrLine==3 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
+  if( canDoAlerts ){
+    int a = atoi(PD("alerts","1"));
+    @ <tr>
+    @   <td class="form_label" align="right">Email&nbsp;Alerts?</td>
+    @   <td><select size='1' name='alerts'>
+    @       <option value="1" %s(a?"selected":"")>Yes</option>
+    @       <option value="0" %s(!a?"selected":"")>No</option>
+    @   </select></td></tr>
+  }
   @ <tr>
   @   <td class="form_label" align="right">Password:</td>
-  @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
-  @ </tr>
+  @   <td><input type="password" name="p" value="%h(zPasswd)" size="30"></td>
   @ <tr>
-  @   <td class="form_label" align="right">Confirm password:</td>
-  @   <td><input type="password" id="cp" name="cp" value="" size="30" /></td>
-  @ </tr>
+  if( iErrLine==4 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   @ <tr>
-  @   <td class="form_label" align="right">Contact info:</td>
-  @   <td><input type="text" id="c" name="c" value="" size="30" /></td>
+  @   <td class="form_label" align="right">Confirm:</td>
+  @   <td><input type="password" name="cp" value="%h(zConfirm)" size="30"></td>
   @ </tr>
+  if( iErrLine==5 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   @ <tr>
-  @   <td class="form_label" align="right">Captcha text (below):</td>
-  @   <td><input type="text" id="cap" name="cap" value="" size="30" /></td>
+  @   <td class="form_label" align="right">Captcha:</td>
+  @   <td><input type="text" name="captcha" value="" size="30"></td>
   @ </tr>
+  if( iErrLine==6 ){
+    @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
+  }
   @ <tr><td></td>
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
-  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
-  @ </pre></td></tr></table></div>
+  @ </pre>
+  @ Enter this 8-letter code in the "Captcha" box above.
+  @ </td></tr></table></div>
   @ </form>
   style_footer();
 

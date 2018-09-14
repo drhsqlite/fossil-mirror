@@ -1083,12 +1083,16 @@ NORETURN void fossil_panic(const char *zFormat, ...){
   if( once ) exit(1);
   once = 1;
   mainInFatalError = 1;
-  db_force_rollback();
+  /* db_force_rollback(); */
   va_start(ap, zFormat);
   sqlite3_vsnprintf(sizeof(z),z,zFormat, ap);
   va_end(ap);
+  if( g.fAnyTrace ){
+    fprintf(stderr, "/***** panic on %d *****/\n", getpid());
+  }
   fossil_errorlog("panic: %s", z);
   rc = fossil_print_error(rc, z);
+  abort();
   exit(rc);
 }
 NORETURN void fossil_fatal(const char *zFormat, ...){

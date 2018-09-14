@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.25.0"
 #define SQLITE_VERSION_NUMBER 3025000
-#define SQLITE_SOURCE_ID      "2018-07-18 19:09:07 a5087c5c87ad65f92e3bc96bbc84afb43faf10ab6b9ed3ba16304b5c60ad069f"
+#define SQLITE_SOURCE_ID      "2018-09-10 19:34:06 74c381b573817d0212153278b5ee5d2238a27a727dcf7ee769365c47bb9fc40d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -472,6 +472,7 @@ SQLITE_API int sqlite3_exec(
 */
 #define SQLITE_ERROR_MISSING_COLLSEQ   (SQLITE_ERROR | (1<<8))
 #define SQLITE_ERROR_RETRY             (SQLITE_ERROR | (2<<8))
+#define SQLITE_ERROR_SNAPSHOT          (SQLITE_ERROR | (3<<8))
 #define SQLITE_IOERR_READ              (SQLITE_IOERR | (1<<8))
 #define SQLITE_IOERR_SHORT_READ        (SQLITE_IOERR | (2<<8))
 #define SQLITE_IOERR_WRITE             (SQLITE_IOERR | (3<<8))
@@ -887,7 +888,8 @@ struct sqlite3_io_methods {
 ** <li>[[SQLITE_FCNTL_PERSIST_WAL]]
 ** ^The [SQLITE_FCNTL_PERSIST_WAL] opcode is used to set or query the
 ** persistent [WAL | Write Ahead Log] setting.  By default, the auxiliary
-** write ahead log and shared memory files used for transaction control
+** write ahead log ([WAL file]) and shared memory
+** files used for transaction control
 ** are automatically deleted when the latest connection to the database
 ** closes.  Setting persistent WAL mode causes those files to persist after
 ** close.  Persisting the files is useful when other processes that do not
@@ -6439,6 +6441,7 @@ struct sqlite3_index_info {
 #define SQLITE_INDEX_CONSTRAINT_ISNOTNULL 70
 #define SQLITE_INDEX_CONSTRAINT_ISNULL    71
 #define SQLITE_INDEX_CONSTRAINT_IS        72
+#define SQLITE_INDEX_CONSTRAINT_FUNCTION 150
 
 /*
 ** CAPI3REF: Register A Virtual Table Implementation
@@ -8960,7 +8963,6 @@ SQLITE_API int sqlite3_system_errno(sqlite3*);
 /*
 ** CAPI3REF: Database Snapshot
 ** KEYWORDS: {snapshot} {sqlite3_snapshot}
-** EXPERIMENTAL
 **
 ** An instance of the snapshot object records the state of a [WAL mode]
 ** database for some specific point in history.
@@ -8977,11 +8979,6 @@ SQLITE_API int sqlite3_system_errno(sqlite3*);
 ** version of the database file so that it is possible to later open a new read
 ** transaction that sees that historical version of the database rather than
 ** the most recent version.
-**
-** The constructor for this object is [sqlite3_snapshot_get()].  The
-** [sqlite3_snapshot_open()] method causes a fresh read transaction to refer
-** to an historical snapshot (if possible).  The destructor for 
-** sqlite3_snapshot objects is [sqlite3_snapshot_free()].
 */
 typedef struct sqlite3_snapshot {
   unsigned char hidden[48];
@@ -8989,7 +8986,7 @@ typedef struct sqlite3_snapshot {
 
 /*
 ** CAPI3REF: Record A Database Snapshot
-** EXPERIMENTAL
+** CONSTRUCTOR: sqlite3_snapshot
 **
 ** ^The [sqlite3_snapshot_get(D,S,P)] interface attempts to make a
 ** new [sqlite3_snapshot] object that records the current state of
@@ -9005,7 +9002,7 @@ typedef struct sqlite3_snapshot {
 ** in this case. 
 **
 ** <ul>
-**   <li> The database handle must be in [autocommit mode].
+**   <li> The database handle must not be in [autocommit mode].
 **
 **   <li> Schema S of [database connection] D must be a [WAL mode] database.
 **
@@ -9028,7 +9025,7 @@ typedef struct sqlite3_snapshot {
 ** to avoid a memory leak.
 **
 ** The [sqlite3_snapshot_get()] interface is only available when the
-** SQLITE_ENABLE_SNAPSHOT compile-time option is used.
+** [SQLITE_ENABLE_SNAPSHOT] compile-time option is used.
 */
 SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_get(
   sqlite3 *db,
@@ -9038,24 +9035,35 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_get(
 
 /*
 ** CAPI3REF: Start a read transaction on an historical snapshot
-** EXPERIMENTAL
+** METHOD: sqlite3_snapshot
 **
-** ^The [sqlite3_snapshot_open(D,S,P)] interface starts a
-** read transaction for schema S of
-** [database connection] D such that the read transaction
-** refers to historical [snapshot] P, rather than the most
-** recent change to the database.
-** ^The [sqlite3_snapshot_open()] interface returns SQLITE_OK on success
-** or an appropriate [error code] if it fails.
+** ^The [sqlite3_snapshot_open(D,S,P)] interface either starts a new read 
+** transaction or upgrades an existing one for schema S of 
+** [database connection] D such that the read transaction refers to 
+** historical [snapshot] P, rather than the most recent change to the 
+** database. ^The [sqlite3_snapshot_open()] interface returns SQLITE_OK 
+** on success or an appropriate [error code] if it fails.
 **
-** ^In order to succeed, a call to [sqlite3_snapshot_open(D,S,P)] must be
-** the first operation following the [BEGIN] that takes the schema S
-** out of [autocommit mode].
-** ^In other words, schema S must not currently be in
-** a transaction for [sqlite3_snapshot_open(D,S,P)] to work, but the
-** database connection D must be out of [autocommit mode].
-** ^A [snapshot] will fail to open if it has been overwritten by a
-** [checkpoint].
+** ^In order to succeed, the database connection must not be in 
+** [autocommit mode] when [sqlite3_snapshot_open(D,S,P)] is called. If there
+** is already a read transaction open on schema S, then the database handle
+** must have no active statements (SELECT statements that have been passed
+** to sqlite3_step() but not sqlite3_reset() or sqlite3_finalize()). 
+** SQLITE_ERROR is returned if either of these conditions is violated, or
+** if schema S does not exist, or if the snapshot object is invalid.
+**
+** ^A call to sqlite3_snapshot_open() will fail to open if the specified
+** snapshot has been overwritten by a [checkpoint]. In this case 
+** SQLITE_ERROR_SNAPSHOT is returned.
+**
+** If there is already a read transaction open when this function is 
+** invoked, then the same read transaction remains open (on the same
+** database snapshot) if SQLITE_ERROR, SQLITE_BUSY or SQLITE_ERROR_SNAPSHOT
+** is returned. If another error code - for example SQLITE_PROTOCOL or an
+** SQLITE_IOERR error code - is returned, then the final state of the
+** read transaction is undefined. If SQLITE_OK is returned, then the 
+** read transaction is now open on database snapshot P.
+**
 ** ^(A call to [sqlite3_snapshot_open(D,S,P)] will fail if the
 ** database connection D does not know that the database file for
 ** schema S is in [WAL mode].  A database connection might not know
@@ -9066,7 +9074,7 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_get(
 ** database connection in order to make it ready to use snapshots.)
 **
 ** The [sqlite3_snapshot_open()] interface is only available when the
-** SQLITE_ENABLE_SNAPSHOT compile-time option is used.
+** [SQLITE_ENABLE_SNAPSHOT] compile-time option is used.
 */
 SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_open(
   sqlite3 *db,
@@ -9076,20 +9084,20 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_open(
 
 /*
 ** CAPI3REF: Destroy a snapshot
-** EXPERIMENTAL
+** DESTRUCTOR: sqlite3_snapshot
 **
 ** ^The [sqlite3_snapshot_free(P)] interface destroys [sqlite3_snapshot] P.
 ** The application must eventually free every [sqlite3_snapshot] object
 ** using this routine to avoid a memory leak.
 **
 ** The [sqlite3_snapshot_free()] interface is only available when the
-** SQLITE_ENABLE_SNAPSHOT compile-time option is used.
+** [SQLITE_ENABLE_SNAPSHOT] compile-time option is used.
 */
 SQLITE_API SQLITE_EXPERIMENTAL void sqlite3_snapshot_free(sqlite3_snapshot*);
 
 /*
 ** CAPI3REF: Compare the ages of two snapshot handles.
-** EXPERIMENTAL
+** METHOD: sqlite3_snapshot
 **
 ** The sqlite3_snapshot_cmp(P1, P2) interface is used to compare the ages
 ** of two valid snapshot handles. 
@@ -9108,6 +9116,9 @@ SQLITE_API SQLITE_EXPERIMENTAL void sqlite3_snapshot_free(sqlite3_snapshot*);
 ** Otherwise, this API returns a negative value if P1 refers to an older
 ** snapshot than P2, zero if the two handles refer to the same database
 ** snapshot, and a positive value if P1 is a newer snapshot than P2.
+**
+** This interface is only available if SQLite is compiled with the
+** [SQLITE_ENABLE_SNAPSHOT] option.
 */
 SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_cmp(
   sqlite3_snapshot *p1,
@@ -9116,23 +9127,26 @@ SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_cmp(
 
 /*
 ** CAPI3REF: Recover snapshots from a wal file
-** EXPERIMENTAL
+** METHOD: sqlite3_snapshot
 **
-** If all connections disconnect from a database file but do not perform
-** a checkpoint, the existing wal file is opened along with the database
-** file the next time the database is opened. At this point it is only
-** possible to successfully call sqlite3_snapshot_open() to open the most
-** recent snapshot of the database (the one at the head of the wal file),
-** even though the wal file may contain other valid snapshots for which
-** clients have sqlite3_snapshot handles.
+** If a [WAL file] remains on disk after all database connections close
+** (either through the use of the [SQLITE_FCNTL_PERSIST_WAL] [file control]
+** or because the last process to have the database opened exited without
+** calling [sqlite3_close()]) and a new connection is subsequently opened
+** on that database and [WAL file], the [sqlite3_snapshot_open()] interface
+** will only be able to open the last transaction added to the WAL file
+** even though the WAL file contains other valid transactions.
 **
-** This function attempts to scan the wal file associated with database zDb
+** This function attempts to scan the WAL file associated with database zDb
 ** of database handle db and make all valid snapshots available to
 ** sqlite3_snapshot_open(). It is an error if there is already a read
-** transaction open on the database, or if the database is not a wal mode
+** transaction open on the database, or if the database is not a WAL mode
 ** database.
 **
 ** SQLITE_OK is returned if successful, or an SQLite error code otherwise.
+**
+** This interface is only available if SQLite is compiled with the
+** [SQLITE_ENABLE_SNAPSHOT] option.
 */
 SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_snapshot_recover(sqlite3 *db, const char *zDb);
 

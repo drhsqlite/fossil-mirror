@@ -80,6 +80,13 @@
                     html "<li><a href='$home/taglist'>Tags</a></li>\n"
                   }
                 }
+                if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
+                  if {[string compare $current_page "forum"] == 0} {
+                    html "<li class='active'><a href='$home/forum'>Forum</a></li>\n"
+                  } else {
+                    html "<li><a href='$home/forum'>Forum</a></li>\n"
+                  }
+                }
                 if {[hascap r]} {
                   if {[string compare $current_page "reportlist"] == 0} {
                     html "<li class='active'><a href='$home/reportlist'>Tickets</a></li>\n"

@@ -22,7 +22,6 @@
 #include "config.h"
 #include "style.h"
 
-
 /*
 ** Elements of the submenu are collected into the following
 ** structure and displayed below the main menu.
@@ -88,6 +87,11 @@ static unsigned adUnitFlags = 0;
 static int needHrefJs = 0;   /* href.js */
 static int needSortJs = 0;   /* sorttable.js */
 static int needGraphJs = 0;  /* graph.js */
+
+/*
+** Extra JS added to the end of the file.
+*/
+static Blob blobOnLoad = BLOB_INITIALIZER;
 
 /*
 ** Generate and return a anchor tag like this:
@@ -365,6 +369,20 @@ static void image_url_var(const char *zImageName){
 }
 
 /*
+** Return a random nonce that is stored in static space.  For a particular
+** run, the same nonce is always returned.
+*/
+char *style_nonce(void){
+  static char zNonce[52];
+  if( zNonce[0]==0 ){
+    unsigned char zSeed[24];
+    sqlite3_randomness(24, zSeed);
+    encode16(zSeed,(unsigned char*)zNonce,24);
+  }
+  return zNonce;
+}
+
+/*
 ** Default HTML page header text through <body>.  If the repository-specific
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
@@ -374,7 +392,10 @@ static char zDfltHeader[] =
 @ <head>
 @ <base href="$baseurl/$current_page" />
 @ <meta http-equiv="Content-Security-Policy" \
-@  content="default-src 'self' data: 'unsafe-inline'" />
+@  content="default-src 'self' data: ; \
+@  script-src 'self' 'nonce-$<nonce>' ;\
+@  style-src 'self' 'unsafe-inline'" />
+@ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
 @  href="$home/timeline.rss" />
@@ -383,6 +404,33 @@ static char zDfltHeader[] =
 @ </head>
 @ <body>
 ;
+
+/*
+** Initialize all the default TH1 variables
+*/
+static void style_init_th1_vars(const char *zTitle){
+  Th_Store("nonce", style_nonce());
+  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("project_description", db_get("project-description",""));
+  if( zTitle ) Th_Store("title", zTitle);
+  Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
+  Th_Store("home", g.zTop);
+  Th_Store("index_page", db_get("index-page","/home"));
+  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
+  Th_Store("current_page", local_zCurrentPage);
+  Th_Store("csrf_token", g.zCsrfToken);
+  Th_Store("release_version", RELEASE_VERSION);
+  Th_Store("manifest_version", MANIFEST_VERSION);
+  Th_Store("manifest_date", MANIFEST_DATE);
+  Th_Store("compiler_name", COMPILER_NAME);
+  url_var("stylesheet", "css", "style.css");
+  image_url_var("logo");
+  image_url_var("background");
+  if( !login_is_nobody() ){
+    Th_Store("login", g.zLogin);
+  }
+}
 
 /*
 ** Draw the header.
@@ -404,26 +452,7 @@ void style_header(const char *zTitleFormat, ...){
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
-  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
-  Th_Store("project_description", db_get("project-description",""));
-  Th_Store("title", zTitle);
-  Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
-  Th_Store("home", g.zTop);
-  Th_Store("index_page", db_get("index-page","/home"));
-  if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
-  Th_Store("current_page", local_zCurrentPage);
-  Th_Store("csrf_token", g.zCsrfToken);
-  Th_Store("release_version", RELEASE_VERSION);
-  Th_Store("manifest_version", MANIFEST_VERSION);
-  Th_Store("manifest_date", MANIFEST_DATE);
-  Th_Store("compiler_name", COMPILER_NAME);
-  url_var("stylesheet", "css", "style.css");
-  image_url_var("logo");
-  image_url_var("background");
-  if( !login_is_nobody() ){
-    Th_Store("login", g.zLogin);
-  }
+  style_init_th1_vars(zTitle);
   if( sqlite3_strlike("%<body%", zHeader, 0)!=0 ){
     Th_Render(zDfltHeader);
   }
@@ -435,6 +464,11 @@ void style_header(const char *zTitleFormat, ...){
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
   sideboxUsed = 0;
+  if( g.perm.Debug && P("showqp") ){
+    @ <div class="debug">
+    cgi_print_all(0, 0);
+    @ </div>
+  }
 }
 
 #if INTERFACE
@@ -506,9 +540,30 @@ void style_load_one_js_file(const char *zFile){
 }
 
 /*
+** All extra JS files to load.
+*/
+static const char *azJsToLoad[4];
+static int nJsToLoad = 0;
+
+/*
+** Register a new JS file to load at the end of the document.
+*/
+void style_load_js(const char *zName){
+  int i;
+  for(i=0; i<nJsToLoad; i++){
+    if( fossil_strcmp(zName, azJsToLoad[i])==0 ) return;
+  }
+  if( nJsToLoad>=sizeof(azJsToLoad)/sizeof(azJsToLoad[0]) ){
+    fossil_panic("too many JS files");
+  }
+  azJsToLoad[nJsToLoad++] = zName;
+}
+
+/*
 ** Generate code to load all required javascript files.
 */
 static void style_load_all_js_files(void){
+  int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
     int bMouseover;
@@ -517,14 +572,36 @@ static void style_load_all_js_files(void){
                  && db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
-    style_load_one_js_file("href.js");
+  }
+  @ <script nonce="%h(style_nonce())">
+  if( needHrefJs ){
+    cgi_append_content(builtin_text("href.js"),-1);
   }
   if( needSortJs ){
-    style_load_one_js_file("sorttable.js");
+    cgi_append_content(builtin_text("sorttable.js"),-1);
   }
   if( needGraphJs ){
-    style_load_one_js_file("graph.js");
+    cgi_append_content(builtin_text("graph.js"),-1);
   }
+  for(i=0; i<nJsToLoad; i++){
+    cgi_append_content(builtin_text(azJsToLoad[i]),-1);
+  }
+  if( blob_size(&blobOnLoad)>0 ){
+    @ window.onload = function(){
+    cgi_append_content(blob_buffer(&blobOnLoad), blob_size(&blobOnLoad));
+    cgi_append_content("\n}\n", -1);
+  }
+  @ </script>
+}
+
+/*
+** Extra JS to run after all content is loaded.
+*/
+void style_js_onload(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  blob_vappendf(&blobOnLoad, zFormat, ap);
+  va_end(ap);
 }
 
 /*
@@ -781,6 +858,25 @@ void contains_selector_cmd(void){
   blob_reset(&css);
 }
 
+/*
+** WEBPAGE: script.js
+**
+** Return the "Javascript" content for the current skin (if there is any)
+*/
+void page_script_js(void){
+  const char *zScript = skin_get("js");
+  if( P("test") ){
+    /* Render the script as plain-text for testing purposes, if the "test"
+    ** query parameter is present */
+    cgi_set_content_type("text/plain");
+  }else{
+    /* Default behavior is to return javascript */
+    cgi_set_content_type("application/javascript");
+  }
+  style_init_th1_vars(0);
+  Th_Render(zScript?zScript:"");
+}
+
 
 /*
 ** WEBPAGE: style.css
@@ -866,6 +962,39 @@ void page_builtin_text(void){
   cgi_set_content(&out);
 }
 
+/*
+** All possible capabilities
+*/
+static const char allCap[] = 
+  "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKL";
+
+/*
+** Compute the current login capabilities
+*/
+static char *find_capabilities(char *zCap){
+  int i, j;
+  char c;
+  for(i=j=0; (c = allCap[j])!=0; j++){
+    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  return zCap;
+}
+
+/*
+** Compute the current login capabilities that were
+** contributed by Anonymous
+*/
+static char *find_anon_capabilities(char *zCap){
+  int i, j;
+  char c;
+  for(i=j=0; (c = allCap[j])!=0; j++){
+    if( login_has_capability(&c, 1, LOGIN_ANON)
+      && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  return zCap;
+}
 
 /*
 ** WEBPAGE: test_env
@@ -874,10 +1003,35 @@ void page_builtin_text(void){
 ** environment, for debugging and trouble-shooting purposes.
 */
 void page_test_env(void){
-  char c;
+  webpage_error("");
+}
+
+/*
+** WEBPAGE: honeypot
+** This page is a honeypot for spiders and bots.
+*/
+void honeypot_page(void){
+  cgi_set_status(403, "Forbidden");
+  @ <p>Please enable javascript or log in to see this content</p>
+}
+
+/*
+** Webpages that encounter an error due to missing or incorrect
+** query parameters can jump to this routine to render an error
+** message screen.
+**
+** For administators, or if the test_env_enable setting is true, then
+** details of the request environment are displayed.  Otherwise, just
+** the error message is shown.
+**
+** If zFormat is an empty string, then this is the /test_env page.
+*/
+void webpage_error(const char *zFormat, ...){
   int i;
   int showAll;
-  char zCap[30];
+  char *zErr = 0;
+  int isAuth = 0;
+  char zCap[100];
   static const char *const azCgiVars[] = {
     "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
@@ -897,70 +1051,86 @@ void page_test_env(void){
   };
 
   login_check_credentials();
-  if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
-    login_needed(0);
-    return;
+  if( g.perm.Admin || g.perm.Setup  || db_get_boolean("test_env_enable",0) ){
+    isAuth = 1;
   }
   for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
-  style_header("Environment Test");
-  showAll = PB("showall");
-  style_submenu_checkbox("showall", "Cookies", 0, 0);
-  style_submenu_element("Stats", "%R/stat");
+  if( zFormat[0] ){
+    va_list ap;
+    va_start(ap, zFormat);
+    zErr = vmprintf(zFormat, ap);
+    va_end(ap);
+    style_header("Bad Request");
+    @ <h1>/%h(g.zPath): %h(zErr)</h1>
+    showAll = 0;
+    cgi_set_status(500, "Bad Request");
+  }else if( !isAuth ){
+    login_needed(0);
+    return;
+  }else{
+    style_header("Environment Test");
+    showAll = PB("showall");
+    style_submenu_checkbox("showall", "Cookies", 0, 0);
+    style_submenu_element("Stats", "%R/stat");
+  }
 
-#if !defined(_WIN32)
-  @ uid=%d(getuid()), gid=%d(getgid())<br />
-#endif
-  @ g.zBaseURL = %h(g.zBaseURL)<br />
-  @ g.zHttpsURL = %h(g.zHttpsURL)<br />
-  @ g.zTop = %h(g.zTop)<br />
-  @ g.zPath = %h(g.zPath)<br />
-  for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1, 0) ) zCap[i++] = c;
-  }
-  zCap[i] = 0;
-  @ g.userUid = %d(g.userUid)<br />
-  @ g.zLogin = %h(g.zLogin)<br />
-  @ g.isHuman = %d(g.isHuman)<br />
-  if( g.nRequest ){
-    @ g.nRequest = %d(g.nRequest)<br />
-  }
-  if( g.nPendingRequest>1 ){
-    @ g.nPendingRequest = %d(g.nPendingRequest)<br />
-  }
-  @ capabilities = %s(zCap)<br />
-  for(i=0, c='a'; c<='z'; c++){
-    if( login_has_capability(&c, 1, LOGIN_ANON)
-         && !login_has_capability(&c, 1, 0) ) zCap[i++] = c;
-  }
-  zCap[i] = 0;
-  if( i>0 ){
-    @ anonymous-adds = %s(zCap)<br />
-  }
-  @ g.zRepositoryName = %h(g.zRepositoryName)<br />
-  @ load_average() = %f(load_average())<br />
-  @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
-  @ <hr />
-  P("HTTP_USER_AGENT");
-  cgi_print_all(showAll, 0);
-  if( showAll && blob_size(&g.httpHeader)>0 ){
+  if( isAuth ){
+  #if !defined(_WIN32)
+    @ uid=%d(getuid()), gid=%d(getgid())<br />
+  #endif
+    @ g.zBaseURL = %h(g.zBaseURL)<br />
+    @ g.zHttpsURL = %h(g.zHttpsURL)<br />
+    @ g.zTop = %h(g.zTop)<br />
+    @ g.zPath = %h(g.zPath)<br />
+    @ g.userUid = %d(g.userUid)<br />
+    @ g.zLogin = %h(g.zLogin)<br />
+    @ g.isHuman = %d(g.isHuman)<br />
+    if( g.nRequest ){
+      @ g.nRequest = %d(g.nRequest)<br />
+    }
+    if( g.nPendingRequest>1 ){
+      @ g.nPendingRequest = %d(g.nPendingRequest)<br />
+    }
+    @ capabilities = %s(find_capabilities(zCap))<br />
+    if( zCap[0] ){
+      @ anonymous-adds = %s(find_anon_capabilities(zCap))<br />
+    }
+    @ g.zRepositoryName = %h(g.zRepositoryName)<br />
+    @ load_average() = %f(load_average())<br />
+    @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
     @ <hr />
-    @ <pre>
-    @ %h(blob_str(&g.httpHeader))
-    @ </pre>
-  }
-  if( g.perm.Setup ){
-    const char *zRedir = P("redirect");
-    if( zRedir ) cgi_redirect(zRedir);
+    P("HTTP_USER_AGENT");
+    cgi_print_all(showAll, 0);
+    if( showAll && blob_size(&g.httpHeader)>0 ){
+      @ <hr />
+      @ <pre>
+      @ %h(blob_str(&g.httpHeader))
+      @ </pre>
+    }
   }
   style_footer();
-  if( g.perm.Admin && P("err") ) fossil_fatal("%s", P("err"));
+  if( zErr ){
+    cgi_reply();
+    fossil_exit(1);
+  }
 }
 
 /*
-** WEBPAGE: honeypot
-** This page is a honeypot for spiders and bots.
+** Generate a Not Yet Implemented error page.
 */
-void honeypot_page(void){
-  cgi_set_status(403, "Forbidden");
-  @ <p>Please enable javascript or log in to see this content</p>
+void webpage_not_yet_implemented(void){
+  webpage_error("Not yet implemented");
 }
+
+/*
+** Generate a webpage for a webpage_assert().
+*/
+void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
+  fossil_warning("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
+  cgi_reset_content();
+  webpage_error("assertion fault at %s:%d - %s", zFile, iLine, zExpr);
+}
+
+#if INTERFACE
+# define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
+#endif

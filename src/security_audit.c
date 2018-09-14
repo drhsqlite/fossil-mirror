@@ -60,8 +60,7 @@ void secaudit0_page(void){
   ** "Private" repos require (non-anonymous) login to access all content,
   ** though some content may be accessible anonymously.
   */
-  zAnonCap = db_text("", "SELECT group_concat(coalesce(cap,'')) FROM user"
-                         " WHERE login IN ('anonymous','nobody')");
+  zAnonCap = db_text("", "SELECT fullcap(NULL)");
   zPubPages = db_get("public-pages",0);
   if( hasAnyCap(zAnonCap,"as") ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
@@ -80,7 +79,8 @@ void secaudit0_page(void){
     @ <li><p>This repository is <big><b>PUBLIC</b></big>. All
     @ checked-in content can be accessed by anonymous users.
     @ <a href="takeitprivate">Take it private</a>.<p>
-  }else if( !hasAnyCap(zAnonCap, "jry") && (zPubPages==0 || zPubPages[0]==0) ){
+  }else if( !hasAnyCap(zAnonCap, "jrwy234567")
+         && (zPubPages==0 || zPubPages[0]==0) ){
     @ <li><p>This repository is <big><b>Completely PRIVATE</b></big>.
     @ A valid login and password is required to access any content.
   }else{
@@ -93,6 +93,9 @@ void secaudit0_page(void){
     }
     if( hasAnyCap(zAnonCap,"r") ){
       @ <li> Tickets
+    }
+    if( hasAnyCap(zAnonCap,"234567") ){
+      @ <li> Forum posts
     }
     if( zPubPages && zPubPages[0] ){
       Glob *pGlob = glob_create(zPubPages);
@@ -128,7 +131,8 @@ void secaudit0_page(void){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can view email addresses and other personally
     @ identifiable information on tickets.
-    @ <p>Fix this by removing the "Email" privilege from users
+    @ <p>Fix this by removing the "Email" privilege
+    @ (<a href="setup_ucap_list">capability "e"</a>) from users
     @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
@@ -139,7 +143,8 @@ void secaudit0_page(void){
   if( hasAnyCap(zAnonCap, "i") ){
     @ <li><p><b>WARNING:</b>
     @ Anonymous users can push new check-ins into the repository.
-    @ <p>Fix this by removing the "Check-in" privilege from users
+    @ <p>Fix this by removing the "Check-in" privilege
+    @ (<a href="setup_ucap_list">capability</a> "i") from users
     @ "anonymous" and "nobody" on the
     @ <a href="setup_ulist">User Configuration</a> page.
   }
@@ -147,13 +152,14 @@ void secaudit0_page(void){
   /* Anonymous users probably should not be allowed act as moderators
   ** for wiki or tickets.
   */
-  if( hasAnyCap(zAnonCap, "lq") ){
+  if( hasAnyCap(zAnonCap, "lq5") ){
     @ <li><p><b>WARNING:</b>
-    @ Anonymous users can act as moderators for wiki and/or tickets.
-    @ This defeats the whole purpose of moderation.
-    @ <p>Fix this by removing the "Mod-Wiki" and "Mod-Tkt"
-    @ privilege from users "anonymous" and "nobody" on the
-    @ <a href="setup_ulist">User Configuration</a> page.
+    @ Anonymous users can act as moderators for wiki, tickets, or 
+    @ forum posts. This defeats the whole purpose of moderation.
+    @ <p>Fix this by removing the "Mod-Wiki", "Mod-Tkt", and "Mod-Forum"
+    @ privileges (<a href="%R/setup_ucap_list">capabilities</a> "fq5")
+    @ from users "anonymous" and "nobody"
+    @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
   /* Anonymous users probably should not be allowed to delete
@@ -176,7 +182,7 @@ void secaudit0_page(void){
       @ Anonymous users can create or edit wiki without moderation.
       @ This can result in robots inserting lots of wiki spam into
       @ repository.
-      @ <p>Fix this by removing the "New-Wiki" and "Write-Wiki"
+      @ Fix this by removing the "New-Wiki" and "Write-Wiki"
       @ privileges from users "anonymous" and "nobody" on the
       @ <a href="setup_ulist">User Configuration</a> page or
       @ by enabling wiki moderation on the
@@ -188,20 +194,52 @@ void secaudit0_page(void){
     }
   }
 
+  /* Anonymous users should not be able to create trusted forum
+  ** posts.
+  */
+  if( hasAnyCap(zAnonCap, "456") ){
+    @ <li><p><b>WARNING:</b>
+    @ Anonymous users can create forum posts that are
+    @ accepted into the permanent record without moderation.
+    @ This can result in robots generating spam on forum posts.
+    @ Fix this by removing the "WriteTrusted-Forum" privilege
+    @ (<a href="setup_ucap_list">capabilities</a> "456") from
+    @ users "anonymous" and "nobody" on the
+    @ <a href="setup_ulist">User Configuration</a> page or
+  }
+
+  /* Anonymous users should not be able to send announcements.
+  */
+  if( hasAnyCap(zAnonCap, "A") ){
+    @ <li><p><b>WARNING:</b>
+    @ Anonymous users can send announcements to anybody who is signed
+    @ up to receive announcements.  This can result in spam.
+    @ Fix this by removing the "Announce" privilege
+    @ (<a href="setup_ucap_list">capability</a> "A") from
+    @ users "anonymous" and "nobody" on the
+    @ <a href="setup_ulist">User Configuration</a> page or
+  }
+
   /* Administrative privilege should only be provided to
   ** specific individuals, not to entire classes of people.
   ** And not too many people should have administrator privilege.
   */
-  z = db_text(0, "SELECT group_concat(login,' AND ') FROM user"
-                 " WHERE cap GLOB '*[as]*'"
-                 "   AND login in ('anonymous','nobody','reader','developer')");
+  z = db_text(0,
+    "SELECT group_concat("
+                 "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
+             "' and ')"
+    " FROM user"
+    " WHERE cap GLOB '*[as]*'"
+    "   AND login in ('anonymous','nobody','reader','developer')"
+  );
   if( z && z[0] ){
-    @ <li><p>
-    @ Administrative privilege is granted to an entire class of users
-    @ (%h(z)).  Ideally, the Write-Unver privilege should only be
+    @ <li><p><b>WARNING:</b>
+    @ Administrative privilege ('a' or 's')
+    @ is granted to an entire class of users: %s(z).
+    @ Administrative privilege should only be
     @ granted to specific individuals.
   }
-  n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*[as]*'");
+  n = db_int(0,"SELECT count(*) FROM user WHERE fullcap(cap) GLOB '*[as]*'");
   if( n==0 ){
     @ <li><p>
     @ No users have administrator privilege.
@@ -211,13 +249,13 @@ void secaudit0_page(void){
                  "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),"
              "', ')"
       " FROM user"
-      " WHERE cap GLOB '*[as]*'"
+      " WHERE fullcap(cap) GLOB '*[as]*'"
     );
     @ <li><p>
     @ Users with administrator privilege are: %s(z)
     fossil_free(z);
     if( n>3 ){
-      @ <p><b>Caution</b>:
+      @ <li><p><b>WARNING:</b>
       @ Administrator privilege is granted to
       @ <a href='setup_ulist?with=as'>%d(n) users</a>.
       @ Ideally, administator privilege ('s' or 'a') should only
@@ -238,10 +276,9 @@ void secaudit0_page(void){
     "   AND login in ('anonymous','nobody','reader','developer')"
   );
   if( z && z[0] ){
-    @ <li><p>
-    @ The "Write-Unver" privilege is granted to an entire class of users
-    @ (%s(z)).  Ideally, the Write-Unver privilege should only be
-    @ granted to specific individuals.
+    @ <li><p><b>WARNING:</b>
+    @ The "Write-Unver" privilege is granted to an entire class of users: %s(z).
+    @ The Write-Unver privilege should only be granted to specific individuals.
     fossil_free(z);
   }
   n = db_int(0,"SELECT count(*) FROM user WHERE cap GLOB '*y*'");
@@ -249,7 +286,7 @@ void secaudit0_page(void){
     z = db_text(0,
        "SELECT group_concat("
           "printf('<a href=''setup_uedit?id=%%d''>%%s</a>',uid,login),', ')"
-       " FROM user WHERE cap GLOB '*y*'"
+       " FROM user WHERE fullcap(cap) GLOB '*y*'"
     );
     @ <li><p>
     @ Users with "Write-Unver" privilege: %s(z)
@@ -350,6 +387,18 @@ void secaudit0_page(void){
       @ The error log at "<a href='%R/errorlog'>%h(g.zErrlog)</a>" that is
       @ %,lld(file_size(g.zErrlog, ExtFILE)) bytes in size.
     }
+  }
+
+  @ <li><p> User capability summary:
+  capability_summary();
+
+  if( alert_enabled() ){
+    @ <li><p> Email alert configuration summary:
+    @ <table class="label-value">
+    stats_for_email();
+    @ </table>
+  }else{
+    @ <li><p> Email alerts are disabled
   }
 
   @ </ol>

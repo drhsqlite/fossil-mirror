@@ -937,10 +937,7 @@ void winfo_page(void){
   if( g.perm.Setup ){
     @ (%d(rid))
   }
-  modPending = moderation_pending(rid);
-  if( modPending ){
-    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-  }
+  modPending = moderation_pending_www(rid);
   @ </td></tr>
   @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
   @ <tr><th>Date:</th><td>
@@ -980,21 +977,6 @@ void winfo_page(void){
   wiki_render_by_mimetype(&wiki, pWiki->zMimetype);
   blob_reset(&wiki);
   manifest_destroy(pWiki);
-  style_footer();
-}
-
-/*
-** Show a webpage error message
-*/
-void webpage_error(const char *zFormat, ...){
-  va_list ap;
-  const char *z;
-  va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
-  va_end(ap);
-  style_header("URL Error");
-  @ <h1>Error</h1>
-  @ <p>%h(z)</p>
   style_footer();
 }
 
@@ -1248,6 +1230,7 @@ void vdiff_page(void){
 #define OBJTYPE_TAG        0x0040
 #define OBJTYPE_SYMLINK    0x0080
 #define OBJTYPE_EXE        0x0100
+#define OBJTYPE_FORUM      0x0200
 
 /*
 ** Possible flags for the second parameter to
@@ -1440,6 +1423,9 @@ int object_description(
         }else{
           @ Attachment to technote
         }
+      }else if( zType[0]=='f' ){
+        objType |= OBJTYPE_FORUM;
+        @ Forum post
       }else{
         @ Tag referencing
       }
@@ -2250,10 +2236,7 @@ void tinfo_page(void){
   if( g.perm.Setup ){
     @ (%d(rid))
   }
-  modPending = moderation_pending(rid);
-  if( modPending ){
-    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
-  }
+  modPending = moderation_pending_www(rid);
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
   if( zTktTitle ){
@@ -2366,6 +2349,11 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
     ainfo_page();
+  }else
+  if( db_table_exists("repository","forumpost")
+   && db_exists("SELECT 1 FROM forumpost WHERE fpid=%d", rid)
+  ){
+    forumthread_page();
   }else
   {
     artifact_page();

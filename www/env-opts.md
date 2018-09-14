@@ -122,6 +122,10 @@ used as the location of the `~/.fossil` file.
 Overridden by the local or global `editor` setting or the `VISUAL`
 environment variable.
 
+`FOSSIL_BREAK`: If set, an opportunity will be created to attach a
+debugger to the Fossil process prior to any significant work being
+performed.
+
 `FOSSIL_FORCE_TICKET_MODERATION`: If set, *ALL* changes for tickets
 will be required to go through moderation (even those performed by the
 local interactive user via the command line).  This can be useful for

@@ -126,7 +126,7 @@ cson_value * json_page_login(){
   {
     /* only for debugging the PD()-incorrect-result problem */
     cson_object * o = NULL;
-    uid = login_search_uid( name, pw );
+    uid = login_search_uid( &name, pw );
     payload = cson_value_new_object();
     o = cson_value_get_object(payload);
     cson_object_set( o, "n", cson_value_new_string(name,strlen(name)));
@@ -136,7 +136,7 @@ cson_value * json_page_login(){
 #endif
   uid = anonSeed
     ? login_is_valid_anonymous(name, pw, anonSeed)
-    : login_search_uid(name, pw)
+    : login_search_uid(&name, pw)
     ;
   if( !uid ){
     g.json.resultCode = preciseErrors

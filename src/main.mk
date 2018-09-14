@@ -13,9 +13,11 @@
 XBCC = $(BCC) $(BCCFLAGS)
 XTCC = $(TCC) -I. -I$(SRCDIR) -I$(OBJDIR) $(TCCFLAGS)
 
+TESTFLAGS := -quiet
 
 SRC = \
   $(SRCDIR)/add.c \
+  $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
   $(SRCDIR)/backoffice.c \
@@ -27,6 +29,7 @@ SRC = \
   $(SRCDIR)/builtin.c \
   $(SRCDIR)/bundle.c \
   $(SRCDIR)/cache.c \
+  $(SRCDIR)/capabilities.c \
   $(SRCDIR)/captcha.c \
   $(SRCDIR)/cgi.c \
   $(SRCDIR)/checkin.c \
@@ -45,7 +48,6 @@ SRC = \
   $(SRCDIR)/diffcmd.c \
   $(SRCDIR)/dispatch.c \
   $(SRCDIR)/doc.c \
-  $(SRCDIR)/email.c \
   $(SRCDIR)/encode.c \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
@@ -110,6 +112,7 @@ SRC = \
   $(SRCDIR)/search.c \
   $(SRCDIR)/security_audit.c \
   $(SRCDIR)/setup.c \
+  $(SRCDIR)/setupuser.c \
   $(SRCDIR)/sha1.c \
   $(SRCDIR)/sha1hard.c \
   $(SRCDIR)/sha3.c \
@@ -177,6 +180,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/default/details.txt \
   $(SRCDIR)/../skins/default/footer.txt \
   $(SRCDIR)/../skins/default/header.txt \
+  $(SRCDIR)/../skins/default/js.txt \
   $(SRCDIR)/../skins/eagle/css.txt \
   $(SRCDIR)/../skins/eagle/details.txt \
   $(SRCDIR)/../skins/eagle/footer.txt \
@@ -207,6 +211,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/diff.tcl \
+  $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
@@ -222,6 +227,7 @@ EXTRA_FILES = \
 
 TRANS_SRC = \
   $(OBJDIR)/add_.c \
+  $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
   $(OBJDIR)/backoffice_.c \
@@ -233,6 +239,7 @@ TRANS_SRC = \
   $(OBJDIR)/builtin_.c \
   $(OBJDIR)/bundle_.c \
   $(OBJDIR)/cache_.c \
+  $(OBJDIR)/capabilities_.c \
   $(OBJDIR)/captcha_.c \
   $(OBJDIR)/cgi_.c \
   $(OBJDIR)/checkin_.c \
@@ -251,7 +258,6 @@ TRANS_SRC = \
   $(OBJDIR)/diffcmd_.c \
   $(OBJDIR)/dispatch_.c \
   $(OBJDIR)/doc_.c \
-  $(OBJDIR)/email_.c \
   $(OBJDIR)/encode_.c \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
@@ -316,6 +322,7 @@ TRANS_SRC = \
   $(OBJDIR)/search_.c \
   $(OBJDIR)/security_audit_.c \
   $(OBJDIR)/setup_.c \
+  $(OBJDIR)/setupuser_.c \
   $(OBJDIR)/sha1_.c \
   $(OBJDIR)/sha1hard_.c \
   $(OBJDIR)/sha3_.c \
@@ -357,6 +364,7 @@ TRANS_SRC = \
 
 OBJ = \
  $(OBJDIR)/add.o \
+ $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
  $(OBJDIR)/backoffice.o \
@@ -368,6 +376,7 @@ OBJ = \
  $(OBJDIR)/builtin.o \
  $(OBJDIR)/bundle.o \
  $(OBJDIR)/cache.o \
+ $(OBJDIR)/capabilities.o \
  $(OBJDIR)/captcha.o \
  $(OBJDIR)/cgi.o \
  $(OBJDIR)/checkin.o \
@@ -386,7 +395,6 @@ OBJ = \
  $(OBJDIR)/diffcmd.o \
  $(OBJDIR)/dispatch.o \
  $(OBJDIR)/doc.o \
- $(OBJDIR)/email.o \
  $(OBJDIR)/encode.o \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
@@ -451,6 +459,7 @@ OBJ = \
  $(OBJDIR)/search.o \
  $(OBJDIR)/security_audit.o \
  $(OBJDIR)/setup.o \
+ $(OBJDIR)/setupuser.o \
  $(OBJDIR)/sha1.o \
  $(OBJDIR)/sha1hard.o \
  $(OBJDIR)/sha3.o \
@@ -541,7 +550,7 @@ $(OBJDIR)/codecheck1:	$(SRCDIR)/codecheck1.c
 # the run to just those test cases.
 #
 test:	$(OBJDIR) $(APPNAME)
-	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) -quiet $(TESTFLAGS)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME) $(TESTFLAGS)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
@@ -690,6 +699,7 @@ $(OBJDIR)/builtin_data.h: $(OBJDIR)/mkbuiltin $(EXTRA_FILES)
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/default_css.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
 	$(OBJDIR)/makeheaders $(OBJDIR)/add_.c:$(OBJDIR)/add.h \
+	$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
 	$(OBJDIR)/backoffice_.c:$(OBJDIR)/backoffice.h \
@@ -701,6 +711,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/builtin_.c:$(OBJDIR)/builtin.h \
 	$(OBJDIR)/bundle_.c:$(OBJDIR)/bundle.h \
 	$(OBJDIR)/cache_.c:$(OBJDIR)/cache.h \
+	$(OBJDIR)/capabilities_.c:$(OBJDIR)/capabilities.h \
 	$(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h \
 	$(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h \
 	$(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h \
@@ -719,7 +730,6 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
 	$(OBJDIR)/dispatch_.c:$(OBJDIR)/dispatch.h \
 	$(OBJDIR)/doc_.c:$(OBJDIR)/doc.h \
-	$(OBJDIR)/email_.c:$(OBJDIR)/email.h \
 	$(OBJDIR)/encode_.c:$(OBJDIR)/encode.h \
 	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
@@ -784,6 +794,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/search_.c:$(OBJDIR)/search.h \
 	$(OBJDIR)/security_audit_.c:$(OBJDIR)/security_audit.h \
 	$(OBJDIR)/setup_.c:$(OBJDIR)/setup.h \
+	$(OBJDIR)/setupuser_.c:$(OBJDIR)/setupuser.h \
 	$(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h \
 	$(OBJDIR)/sha1hard_.c:$(OBJDIR)/sha1hard.h \
 	$(OBJDIR)/sha3_.c:$(OBJDIR)/sha3.h \
@@ -836,6 +847,14 @@ $(OBJDIR)/add.o:	$(OBJDIR)/add_.c $(OBJDIR)/add.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/add.o -c $(OBJDIR)/add_.c
 
 $(OBJDIR)/add.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/alerts_.c:	$(SRCDIR)/alerts.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/alerts.c >$@
+
+$(OBJDIR)/alerts.o:	$(OBJDIR)/alerts_.c $(OBJDIR)/alerts.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/alerts.o -c $(OBJDIR)/alerts_.c
+
+$(OBJDIR)/alerts.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/allrepo_.c:	$(SRCDIR)/allrepo.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/allrepo.c >$@
@@ -924,6 +943,14 @@ $(OBJDIR)/cache.o:	$(OBJDIR)/cache_.c $(OBJDIR)/cache.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/cache.o -c $(OBJDIR)/cache_.c
 
 $(OBJDIR)/cache.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/capabilities_.c:	$(SRCDIR)/capabilities.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/capabilities.c >$@
+
+$(OBJDIR)/capabilities.o:	$(OBJDIR)/capabilities_.c $(OBJDIR)/capabilities.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/capabilities.o -c $(OBJDIR)/capabilities_.c
+
+$(OBJDIR)/capabilities.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/captcha_.c:	$(SRCDIR)/captcha.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/captcha.c >$@
@@ -1068,14 +1095,6 @@ $(OBJDIR)/doc.o:	$(OBJDIR)/doc_.c $(OBJDIR)/doc.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/doc.o -c $(OBJDIR)/doc_.c
 
 $(OBJDIR)/doc.h:	$(OBJDIR)/headers
-
-$(OBJDIR)/email_.c:	$(SRCDIR)/email.c $(OBJDIR)/translate
-	$(OBJDIR)/translate $(SRCDIR)/email.c >$@
-
-$(OBJDIR)/email.o:	$(OBJDIR)/email_.c $(OBJDIR)/email.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/email.o -c $(OBJDIR)/email_.c
-
-$(OBJDIR)/email.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/encode_.c:	$(SRCDIR)/encode.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/encode.c >$@
@@ -1588,6 +1607,14 @@ $(OBJDIR)/setup.o:	$(OBJDIR)/setup_.c $(OBJDIR)/setup.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/setup.o -c $(OBJDIR)/setup_.c
 
 $(OBJDIR)/setup.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/setupuser_.c:	$(SRCDIR)/setupuser.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/setupuser.c >$@
+
+$(OBJDIR)/setupuser.o:	$(OBJDIR)/setupuser_.c $(OBJDIR)/setupuser.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/setupuser.o -c $(OBJDIR)/setupuser_.c
+
+$(OBJDIR)/setupuser.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/sha1_.c:	$(SRCDIR)/sha1.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/sha1.c >$@

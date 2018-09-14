@@ -292,10 +292,16 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE leaf(rid INTEGER PRIMARY KEY);
 @
-@ -- Events used to generate a timeline
+@ -- Events used to generate a timeline.  Type meanings:
+@ --     ci    Check-ins
+@ --     e     Technotes
+@ --     f     Forum posts
+@ --     g     Tags
+@ --     t     Ticket changes
+@ --     w     Wiki page edit
 @ --
 @ CREATE TABLE event(
-@   type TEXT,                      -- Type of event: 'ci', 'w', 'e', 't', 'g'
+@   type TEXT,                      -- Type of event: ci, e, f, g, t, w
 @   mtime DATETIME,                 -- Time of occurrence. Julian day.
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
 @   tagid INTEGER,                  -- Associated ticket or wiki name tag
@@ -544,3 +550,26 @@ const char zLocalSchema[] =
 @ -- The integer is the same as 'FSLC'.
 @ PRAGMA application_id=252006674;
 ;
+
+/*
+** The following table holds information about forum posts.  It
+** is created on-demand whenever the manifest parser encounters
+** a forum-post artifact.
+*/
+static const char zForumSchema[] =
+@ CREATE TABLE repository.forumpost(
+@   fpid INTEGER PRIMARY KEY,  -- BLOB.rid for the artifact
+@   froot INT,                 -- fpid of the thread root
+@   fprev INT,                 -- Previous version of this same post
+@   firt INT,                  -- This post is in-reply-to
+@   fmtime REAL                -- When posted.  Julian day
+@ );
+@ CREATE INDEX repository.forumthread ON forumpost(froot,fmtime);
+;
+
+/* Create the forum-post schema if it does not already exist */
+void schema_forum(void){
+  if( !db_table_exists("repository","forumpost") ){
+    db_multi_exec("%s",zForumSchema/*safe-for-%s*/);
+  }
+}

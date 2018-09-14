@@ -26,6 +26,9 @@
 ** are handled different on Unix and windows.
 */
 #if defined(_WIN32)
+# if defined(_WIN32_WINNT)
+#  undef _WIN32_WINNT
+# endif
 # define _WIN32_WINNT 0x501
 #endif
 #ifndef __EXTENSIONS__

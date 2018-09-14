@@ -358,7 +358,7 @@ void www_print_timeline(
     if( dateFormat<2 ){
       if( fossil_strnicmp(zDate, zPrevDate, 10) ){
         sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
-        @ <tr><td>
+        @ <tr class="timelineDateRow"><td>
         @   <div class="divider timelineDate">%s(zPrevDate)</div>
         @ </td><td></td><td></td></tr>
       }
@@ -462,7 +462,8 @@ void www_print_timeline(
     }
     if( (tmFlags & TIMELINE_BISECT)!=0 && zType[0]=='c' ){
       static Stmt bisectQuery;
-      db_prepare(&bisectQuery, "SELECT seq, stat FROM bilog WHERE rid=:rid");
+      db_static_prepare(&bisectQuery,
+          "SELECT seq, stat FROM bilog WHERE rid=:rid");
       db_bind_int(&bisectQuery, ":rid", rid);
       if( db_step(&bisectQuery)==SQLITE_ROW ){
         @ <b>%s(db_column_text(&bisectQuery,1))</b>
@@ -576,7 +577,7 @@ void www_print_timeline(
       }else{
         cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
       }
-    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' ){
+    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' || zType[0]=='f'){
       cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
     }
 
@@ -1033,7 +1034,7 @@ char *names_of_file(const char *zUuid){
 */
 static void timeline_y_submenu(int isDisabled){
   static int i = 0;
-  static const char *az[12];
+  static const char *az[14];
   if( i==0 ){
     az[0] = "all";
     az[1] = "Any Type";
@@ -1055,6 +1056,10 @@ static void timeline_y_submenu(int isDisabled){
     if( g.perm.RdWiki ){
       az[i++] = "w";
       az[i++] = "Wiki";
+    }
+    if( g.perm.RdForum ){
+      az[i++] = "f";
+      az[i++] = "Forum";
     }
     assert( i<=count(az) );
   }
@@ -1359,7 +1364,7 @@ static const char *tagMatchExpression(
 **    mionly          Limit rel to show ancestors but not descendants
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
-**    y=TYPE          'ci', 'w', 't', 'e', or 'all'.
+**    y=TYPE          'ci', 'w', 't', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
@@ -1479,7 +1484,7 @@ void page_timeline(void){
     p_rid = d_rid = pd_rid;
   }
   login_check_credentials();
-  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki)
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
    || (bisectOnly && !g.perm.Setup)
   ){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
@@ -1856,6 +1861,7 @@ void page_timeline(void){
      || (zType[0]=='e' && !g.perm.RdWiki)
      || (zType[0]=='c' && !g.perm.Read)
      || (zType[0]=='g' && !g.perm.Read)
+     || (zType[0]=='f' && !g.perm.RdForum)
     ){
       zType = "all";
     }
@@ -1875,6 +1881,10 @@ void page_timeline(void){
           blob_append_sql(&cond, "%c't'", cSep);
           cSep = ',';
         }
+        if( g.perm.RdForum ){
+          blob_append_sql(&cond, "%c'f'", cSep);
+          cSep = ',';
+        }
         blob_append_sql(&cond, ")");
       }
     }else{ /* zType!="all" */
@@ -1889,6 +1899,8 @@ void page_timeline(void){
         zEType = "technical note";
       }else if( zType[0]=='g' ){
         zEType = "tag";
+      }else if( zType[0]=='f' ){
+        zEType = "forum post";
       }
     }
     if( zUser ){

@@ -112,7 +112,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2o
+SSLDIR    = $(B)\compat\openssl-1.0.2p
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -124,7 +124,7 @@ SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64A no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -139,12 +139,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN64I no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -159,12 +159,12 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
 # BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3
+# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
 SSLCONFIG = VC-WIN32 no-asm
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
@@ -179,7 +179,7 @@ SSLNMAKE  = ms\nt.mak all
 !endif
 # BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
 !if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3
+SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif
@@ -393,6 +393,7 @@ MINIZ_OPTIONS = /DMINIZ_NO_STDIO \
                 /DMINIZ_NO_ARCHIVE_APIS
 
 SRC   = "$(OX)\add_.c" \
+        "$(OX)\alerts_.c" \
         "$(OX)\allrepo_.c" \
         "$(OX)\attach_.c" \
         "$(OX)\backoffice_.c" \
@@ -404,6 +405,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\builtin_.c" \
         "$(OX)\bundle_.c" \
         "$(OX)\cache_.c" \
+        "$(OX)\capabilities_.c" \
         "$(OX)\captcha_.c" \
         "$(OX)\cgi_.c" \
         "$(OX)\checkin_.c" \
@@ -422,7 +424,6 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\diffcmd_.c" \
         "$(OX)\dispatch_.c" \
         "$(OX)\doc_.c" \
-        "$(OX)\email_.c" \
         "$(OX)\encode_.c" \
         "$(OX)\etag_.c" \
         "$(OX)\event_.c" \
@@ -487,6 +488,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\search_.c" \
         "$(OX)\security_audit_.c" \
         "$(OX)\setup_.c" \
+        "$(OX)\setupuser_.c" \
         "$(OX)\sha1_.c" \
         "$(OX)\sha1hard_.c" \
         "$(OX)\sha3_.c" \
@@ -553,6 +555,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\default\details.txt" \
         "$(SRCDIR)\..\skins\default\footer.txt" \
         "$(SRCDIR)\..\skins\default\header.txt" \
+        "$(SRCDIR)\..\skins\default\js.txt" \
         "$(SRCDIR)\..\skins\eagle\css.txt" \
         "$(SRCDIR)\..\skins\eagle\details.txt" \
         "$(SRCDIR)\..\skins\eagle\footer.txt" \
@@ -583,6 +586,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\xekri\header.txt" \
         "$(SRCDIR)\ci_edit.js" \
         "$(SRCDIR)\diff.tcl" \
+        "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\graph.js" \
         "$(SRCDIR)\href.js" \
         "$(SRCDIR)\login.js" \
@@ -597,6 +601,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\wiki.wiki"
 
 OBJ   = "$(OX)\add$O" \
+        "$(OX)\alerts$O" \
         "$(OX)\allrepo$O" \
         "$(OX)\attach$O" \
         "$(OX)\backoffice$O" \
@@ -608,6 +613,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\builtin$O" \
         "$(OX)\bundle$O" \
         "$(OX)\cache$O" \
+        "$(OX)\capabilities$O" \
         "$(OX)\captcha$O" \
         "$(OX)\cgi$O" \
         "$(OX)\checkin$O" \
@@ -627,7 +633,6 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\diffcmd$O" \
         "$(OX)\dispatch$O" \
         "$(OX)\doc$O" \
-        "$(OX)\email$O" \
         "$(OX)\encode$O" \
         "$(OX)\etag$O" \
         "$(OX)\event$O" \
@@ -692,6 +697,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\search$O" \
         "$(OX)\security_audit$O" \
         "$(OX)\setup$O" \
+        "$(OX)\setupuser$O" \
         "$(OX)\sha1$O" \
         "$(OX)\sha1hard$O" \
         "$(OX)\sha3$O" \
@@ -808,6 +814,7 @@ APPTARGETS = $(APPTARGETS) openssl
 
 "$(OX)\linkopts": "$(B)\win\Makefile.msc"
 	echo "$(OX)\add.obj" > $@
+	echo "$(OX)\alerts.obj" >> $@
 	echo "$(OX)\allrepo.obj" >> $@
 	echo "$(OX)\attach.obj" >> $@
 	echo "$(OX)\backoffice.obj" >> $@
@@ -819,6 +826,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\builtin.obj" >> $@
 	echo "$(OX)\bundle.obj" >> $@
 	echo "$(OX)\cache.obj" >> $@
+	echo "$(OX)\capabilities.obj" >> $@
 	echo "$(OX)\captcha.obj" >> $@
 	echo "$(OX)\cgi.obj" >> $@
 	echo "$(OX)\checkin.obj" >> $@
@@ -838,7 +846,6 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\diffcmd.obj" >> $@
 	echo "$(OX)\dispatch.obj" >> $@
 	echo "$(OX)\doc.obj" >> $@
-	echo "$(OX)\email.obj" >> $@
 	echo "$(OX)\encode.obj" >> $@
 	echo "$(OX)\etag.obj" >> $@
 	echo "$(OX)\event.obj" >> $@
@@ -903,6 +910,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\search.obj" >> $@
 	echo "$(OX)\security_audit.obj" >> $@
 	echo "$(OX)\setup.obj" >> $@
+	echo "$(OX)\setupuser.obj" >> $@
 	echo "$(OX)\sha1.obj" >> $@
 	echo "$(OX)\sha1hard.obj" >> $@
 	echo "$(OX)\sha3.obj" >> $@
@@ -1093,6 +1101,7 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/default/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/default/header.txt" >> $@
+	echo "$(SRCDIR)\../skins/default/js.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/css.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/details.txt" >> $@
 	echo "$(SRCDIR)\../skins/eagle/footer.txt" >> $@
@@ -1123,6 +1132,7 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/xekri/header.txt" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
+	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
 	echo "$(SRCDIR)\href.js" >> $@
 	echo "$(SRCDIR)\login.js" >> $@
@@ -1140,6 +1150,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\add_.c"
 
 "$(OX)\add_.c" : "$(SRCDIR)\add.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\alerts$O" : "$(OX)\alerts_.c" "$(OX)\alerts.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\alerts_.c"
+
+"$(OX)\alerts_.c" : "$(SRCDIR)\alerts.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\allrepo$O" : "$(OX)\allrepo_.c" "$(OX)\allrepo.h"
@@ -1206,6 +1222,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\cache_.c"
 
 "$(OX)\cache_.c" : "$(SRCDIR)\cache.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\capabilities$O" : "$(OX)\capabilities_.c" "$(OX)\capabilities.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\capabilities_.c"
+
+"$(OX)\capabilities_.c" : "$(SRCDIR)\capabilities.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\captcha$O" : "$(OX)\captcha_.c" "$(OX)\captcha.h"
@@ -1314,12 +1336,6 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\doc_.c"
 
 "$(OX)\doc_.c" : "$(SRCDIR)\doc.c"
-	"$(OBJDIR)\translate$E" $** > $@
-
-"$(OX)\email$O" : "$(OX)\email_.c" "$(OX)\email.h"
-	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\email_.c"
-
-"$(OX)\email_.c" : "$(SRCDIR)\email.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\encode$O" : "$(OX)\encode_.c" "$(OX)\encode.h"
@@ -1706,6 +1722,12 @@ realclean: clean
 "$(OX)\setup_.c" : "$(SRCDIR)\setup.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\setupuser$O" : "$(OX)\setupuser_.c" "$(OX)\setupuser.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\setupuser_.c"
+
+"$(OX)\setupuser_.c" : "$(SRCDIR)\setupuser.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\sha1$O" : "$(OX)\sha1_.c" "$(OX)\sha1.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\sha1_.c"
 
@@ -1942,6 +1964,7 @@ realclean: clean
 
 "$(OX)\headers": "$(OBJDIR)\makeheaders$E" "$(OX)\page_index.h" "$(OX)\builtin_data.h" "$(OX)\default_css.h" "$(OX)\VERSION.h"
 	"$(OBJDIR)\makeheaders$E" "$(OX)\add_.c":"$(OX)\add.h" \
+			"$(OX)\alerts_.c":"$(OX)\alerts.h" \
 			"$(OX)\allrepo_.c":"$(OX)\allrepo.h" \
 			"$(OX)\attach_.c":"$(OX)\attach.h" \
 			"$(OX)\backoffice_.c":"$(OX)\backoffice.h" \
@@ -1953,6 +1976,7 @@ realclean: clean
 			"$(OX)\builtin_.c":"$(OX)\builtin.h" \
 			"$(OX)\bundle_.c":"$(OX)\bundle.h" \
 			"$(OX)\cache_.c":"$(OX)\cache.h" \
+			"$(OX)\capabilities_.c":"$(OX)\capabilities.h" \
 			"$(OX)\captcha_.c":"$(OX)\captcha.h" \
 			"$(OX)\cgi_.c":"$(OX)\cgi.h" \
 			"$(OX)\checkin_.c":"$(OX)\checkin.h" \
@@ -1971,7 +1995,6 @@ realclean: clean
 			"$(OX)\diffcmd_.c":"$(OX)\diffcmd.h" \
 			"$(OX)\dispatch_.c":"$(OX)\dispatch.h" \
 			"$(OX)\doc_.c":"$(OX)\doc.h" \
-			"$(OX)\email_.c":"$(OX)\email.h" \
 			"$(OX)\encode_.c":"$(OX)\encode.h" \
 			"$(OX)\etag_.c":"$(OX)\etag.h" \
 			"$(OX)\event_.c":"$(OX)\event.h" \
@@ -2036,6 +2059,7 @@ realclean: clean
 			"$(OX)\search_.c":"$(OX)\search.h" \
 			"$(OX)\security_audit_.c":"$(OX)\security_audit.h" \
 			"$(OX)\setup_.c":"$(OX)\setup.h" \
+			"$(OX)\setupuser_.c":"$(OX)\setupuser.h" \
 			"$(OX)\sha1_.c":"$(OX)\sha1.h" \
 			"$(OX)\sha1hard_.c":"$(OX)\sha1hard.h" \
 			"$(OX)\sha3_.c":"$(OX)\sha3.h" \

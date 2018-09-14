@@ -109,13 +109,17 @@ function TimelineGraph(tx){
     wLine = elems.line_warp;
   
     var minRailPitch = Math.ceil((node.w+line.w)/2 + mArrow.w + 1);
-    if( tx.iRailPitch>0 ){
-      railPitch = tx.iRailPitch;
+    if( window.innerWidth<400 ){
+      railPitch = minRailPitch;
     }else{
-      railPitch = elems.rail.w;
-      railPitch -= Math.floor((tx.nrail-1)*(railPitch-minRailPitch)/21);
+      if( tx.iRailPitch>0 ){
+        railPitch = tx.iRailPitch;
+      }else{
+        railPitch = elems.rail.w;
+        railPitch -= Math.floor((tx.nrail-1)*(railPitch-minRailPitch)/21);
+      }
+      railPitch = Math.max(railPitch, minRailPitch);
     }
-    railPitch = Math.max(railPitch, minRailPitch);
   
     if( tx.nomo ){
       mergeOffset = 0;
@@ -377,6 +381,18 @@ function TimelineGraph(tx){
   lx = topObj.getElementsByClassName('timelineCompactComment');
   for(i=0; i<lx.length; i++){
     if( lx[i].hasAttribute('data-id') ) lx[i].onclick = toggleDetail;
+  }
+  if( window.innerWidth<400 ){
+    /* On narrow displays, shift the date from the first column to the
+    ** third column, to make the first column narrower */
+    lx = topObj.getElementsByClassName('timelineDateRow');
+    for(i=0; i<lx.length; i++){
+      var rx = lx[i];
+      if( rx.getAttribute('data-reordered') ) break;
+      rx.setAttribute('data-reordered',1);
+      rx.appendChild(rx.firstChild);
+      rx.insertBefore(rx.childNodes[1],rx.firstChild);
+    }
   }
 }
   

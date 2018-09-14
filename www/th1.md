@@ -35,10 +35,10 @@ computations do not come up very often for the kinds of work that TH1 does,
 so it has never been a factor.)
 
 A TH1 script consist of a sequence of commands.
-Each command is terminated by the first (unescaped) newline or ";" character.
+Each command is terminated by the first *unescaped* newline or ";" character.
 The text of the command (excluding the newline or semicolon terminator)
 is broken into space-separated tokens.  The first token is the command
-name and subsequent tokens are the arguments.  In this since, TH1 syntax
+name and subsequent tokens are the arguments.  In this sense, TH1 syntax
 is similar to the familiar command-line shell syntax.
 
 A token is any sequence of characters other than whitespace and semicolons.
@@ -50,10 +50,10 @@ The nested {...} form of tokens is important because it allows TH1 commands
 to have an appearance similar to C/C++.  It is important to remember, though,
 that a TH1 script is really just a list of text commands, not a context-free
 language with a grammar like C/C++.  This can be confusing to long-time
-C/C++ programmers because TH1 does look a lot like C/C++.  But the semantics
+C/C++ programmers because TH1 does look a lot like C/C++, but the semantics
 of TH1 are closer to FORTH or Lisp than they are to C.
 
-Consider the "if" command in TH1.
+Consider the `if` command in TH1.
 
         if {$current eq "dev"} {
           puts "hello"
@@ -62,20 +62,52 @@ Consider the "if" command in TH1.
         }
 
 The example above is a single command.  The first token, and the name
-of the command, is "if".
-The second token is '$current eq "dev"' - an expression.  (The outer {...}
+of the command, is `if`.
+The second token is `$current eq "dev"` - an expression.  (The outer {...}
 are removed from each token by the command parser.)  The third token
-is the 'puts "hello"', with its whitespace and newlines.  The fourth token
-is "else".  And the fifth and last token is 'puts "world"'.
+is the `puts "hello"`, with its whitespace and newlines.  The fourth token
+is `else"`  And the fifth and last token is `puts "world"`.
 
-The "if" command word by evaluating its first argument (the second token)
-as an expression, and if that expression is true, evaluating its
+The `if` command evaluates its first argument (the second token)
+as an expression, and if that expression is true, evaluates its
 second argument (the third token) as a TH1 script.
-If the expression is false and the third argument is "else" then
+If the expression is false and the third argument is `else`, then
 the fourth argument is evaluated as a TH1 expression.
 
 So, you see, even though the example above spans five lines, it is really
 just a single command.
+
+All of this also explains the emphasis on *unescaped* characters above:
+the curly braces `{ }` are string quoting characters in Tcl/TH1, not
+block delimiters as in C. This is how we can have a command that extends
+over multiple lines. It is also why the `else` keyword must be cuddled
+up with the closing brace for the `if` clause's scriptlet. The following
+is invalid Tcl/TH1:
+
+        if {$current eq "dev"} {
+          puts "hello"
+        }
+        else {
+          puts "world"
+        }
+
+If you try to run this under either Tcl or TH1, the interpreter will
+tell you that there is no `else` command, because with the newline on
+the third line, you terminated the `if` command.
+
+Occasionally in Tcl/TH1 scripts, you may need to use a backslash at the
+end of a line to allow a command to extend over multiple lines without
+being considered two separate commands. Here's an example from one of
+Fossil's test scripts:
+
+        return [lindex [regexp -line -inline -nocase -- \
+            {^uuid:\s+([0-9A-F]{40}) } [eval [getFossilCommand \
+            $repository "" info trunk]]] end]
+
+Those backslashes allow the command to wrap nicely within a standard
+terminal width while telling the interpreter to consider those three
+lines as a single command.
+
 
 Summary of Core TH1 Commands
 ----------------------------
@@ -170,6 +202,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  stime
   *  styleHeader
   *  styleFooter
+  *  styleScript
   *  tclEval
   *  tclExpr
   *  tclInvoke
@@ -541,14 +574,21 @@ process in system space.
 
   *  styleHeader TITLE
 
-Render the configured style header.
+Render the configured style header for the selected skin.
 
 <a name="styleFooter"></a>TH1 styleFooter Command
 -------------------------------------------------
 
   *  styleFooter
 
-Render the configured style footer.
+Render the configured style footer for the selected skin.
+
+<a name="styleScript"></a>TH1 styleScript Command
+-------------------------------------------------
+
+  *  styleScript
+
+Render the configured JavaScript for the selected skin.
 
 <a name="tclEval"></a>TH1 tclEval Command
 -----------------------------------------

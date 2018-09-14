@@ -58,6 +58,30 @@ int moderation_pending(int rid){
 }
 
 /*
+** If the rid object is being held for moderation, write out
+** an "awaiting moderation" message and return true.
+**
+** If the object is not being held for moderation, simply return
+** false without generating any output.
+*/
+int moderation_pending_www(int rid){
+  int pending = moderation_pending(rid);
+  if( pending ){
+    @ <span class="modpending">(Awaiting Moderator Approval)</span>
+  }
+  return pending;
+}
+
+
+/*
+** Return TRUE if there any pending moderation requests.
+*/
+int moderation_needed(void){
+  if( !moderation_table_exists() ) return 0;
+  return db_exists("SELECT 1 FROM modreq");
+}
+
+/*
 ** Check to see if the object identified by RID is used for anything.
 */
 static int object_used(int rid){
@@ -103,6 +127,9 @@ void moderation_disapprove(int objid){
       "DELETE FROM attachment WHERE attachid=%d;",
       rid, rid, rid, rid, rid, rid
     );
+    if( db_table_exists("repository","forumpost") ){
+      db_multi_exec("DELETE FROM forumpost WHERE fpid=%d", rid);
+    }
     zTktid = db_text(0, "SELECT tktid FROM modreq WHERE objid=%d", rid);
     if( zTktid && zTktid[0] ){
       ticket_rebuild_entry(zTktid);
@@ -146,8 +173,8 @@ void modreq_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.ModWiki && !g.perm.ModTkt ){
-    login_needed(g.anon.ModWiki && g.anon.ModTkt);
+  if( !g.perm.ModWiki && !g.perm.ModTkt && !g.perm.ModForum ){
+    login_needed(g.anon.ModWiki && g.anon.ModTkt && g.anon.ModForum);
     return;
   }
   style_header("Pending Moderation Requests");
