@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.25.0\srelease.
-D 2018-09-15T12:39:37.731
+C Increase\sthe\sversion\snumber\sto\s2.7.
+D 2018-09-15T12:42:17.764
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -15,7 +15,7 @@ F Dockerfile de98550db1d43a29a17bbd9284308733fb72615f
 F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
 F Makefile.in 29d05ac027bee27d542f975eff094120f277777e65496e329ca2ee57dcb470cd
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
-F VERSION 823b416463d02932b3f5fed25158b3fccc402aad76a3c53363a0a49dad0ae6f4
+F VERSION 57ddf2d8004c548ca211637c5a227891378ea12871dcebd80444a19ff8cfec9b
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -863,7 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4b562158f6e8fe04dd4c96c1ddf2e6f491c7524579ce86d2d1eab5e2592ad9f8
-R ba3a26a53bbb6030c4a7de1ec812871a
+P 048a6f80d33fd5a4aa9a218be233bf3f252cbaac4b351c30633dbda01d283d73
+R 911cfc0c2da0bc208b8fef990aa4ba35
 U drh
-Z ffd9a3caa7cef3d005366ff7bc051908
+Z 14f9190e5a570e8e7391c8ff3cd7042e
