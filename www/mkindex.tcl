@@ -37,6 +37,7 @@ set doclist {
   faq.wiki {Frequently Asked Questions}
   fileformat.wiki {Fossil File Format}
   fiveminutes.wiki {Up and Running in 5 Minutes as a Single User}
+  forum.wiki {Fossil Forums}
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}

@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s2.7.
-D 2018-09-15T12:42:17.764
+C Added\swww/forum.wiki\sto\sthe\sdocumentation\sindex.
+D 2018-09-15T17:37:51.570
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -831,7 +831,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki a3f18b1cf91528dec6f2ef672f332b5a34bb988988e95a6ec11041af5e27397b
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4a07d
-F www/mkindex.tcl b2b90c7561ffa43f334247e06bf89f316bc82d59d80d3b944d271a41441b397d x
+F www/mkindex.tcl 27ee1a09772efff919fdcfd62807e061238576179b5d472217e47d9007a3fac4 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html 75a49c51b77f2d3e758dccccd2d8f43e15f7852c40d5df17b10a597b40802703
@@ -863,7 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 048a6f80d33fd5a4aa9a218be233bf3f252cbaac4b351c30633dbda01d283d73
-R 911cfc0c2da0bc208b8fef990aa4ba35
-U drh
-Z 14f9190e5a570e8e7391c8ff3cd7042e
+P 4559373c1003a087d1266b12f76c9e7199058f7984543e01acf362e504f96e33
+R ecfeebc489bdd7870848b641037fadfb
+U wyoung
+Z e72f2a5dd540c792a4b04635161bfa76
