@@ -1,5 +1,5 @@
-C Added\swww/forum.wiki\sto\sthe\sdocumentation\sindex.
-D 2018-09-15T17:37:51.570
+C Rerun\smkindex.tcl\sto\sget\san\supdated\spermutedindex.html\sfile.
+D 2018-09-15T18:33:06.922
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -834,7 +834,7 @@ F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4
 F www/mkindex.tcl 27ee1a09772efff919fdcfd62807e061238576179b5d472217e47d9007a3fac4 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 75a49c51b77f2d3e758dccccd2d8f43e15f7852c40d5df17b10a597b40802703
+F www/permutedindex.html 44fc1b1d1623169ef52b22cbd7e155ab45a54f6416b3609eeb5e00c4f49ba6bb
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -863,7 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4559373c1003a087d1266b12f76c9e7199058f7984543e01acf362e504f96e33
-R ecfeebc489bdd7870848b641037fadfb
-U wyoung
-Z e72f2a5dd540c792a4b04635161bfa76
+P 7bd7b2c6c7f192a94867fa39e150fa2e9b0fa20bcf6ca9600019b07b8db67a4b
+R f3c13d14b0208cfe89b4b519bceb1fff
+U drh
+Z 9cae41adcd9b6418cc8c67aea12218d2
