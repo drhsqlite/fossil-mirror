@@ -128,13 +128,13 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_keyword_check() can be found as well. If we can find open() but
-      # not keyword_check(), then the system SQLite is too old to link against
+      # if sqlite3_create_window_function can be found as well. If we can find open() but
+      # not create_window_function(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_keyword_check sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.24.0)"
+        if {![check-function-in-lib sqlite3_create_window_function sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.25.0)"
         }
 
         # Success. Update symbols and return.

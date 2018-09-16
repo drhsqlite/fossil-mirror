@@ -5,7 +5,7 @@
 
   *  Add the [./alerts.md|email alerts] feature for commits, ticket
      changes, wiki changes, forum posts, and announcements.  This is
-     still a work in progress.  It works, but it is not as easy to 
+     still a work in progress.  It works, but it is not as easy to
      setup and use as it ought to be.
   *  Add the [./forum.wiki|discussion forum] feature.
   *  Add new user capabilities letters needed to support alerts and forum.
@@ -26,6 +26,7 @@
      handling, from version 10.0 to 11.0.
   *  Improvements to the "Security Audit" administration page
   *  Update the built-in SQLite to version 3.25.0.
+  *  Add support for TLS 1.3, when compiled with OpenSSL 1.1.1.
   *  Some code and interfaces are in place to support sending and
      receiving email directly via SMTP, but this feature is not yet
      complete or ready for production use.
@@ -41,8 +42,8 @@
      default.
   *  Add support for ETags:, Last-Modified:, and If-Modified-Since:
      cache control mechanisms.
-  *  Enhance the [/help?cmd=/tarball|/tarball], 
-     [/help?cmd=/zip|/zip], and 
+  *  Enhance the [/help?cmd=/tarball|/tarball],
+     [/help?cmd=/zip|/zip], and
      [/help?cmd=/sqlar|/sqlar] pages so that the checkin
      name to be downloaded can be expressed as part of the URI,
      and without the need for query parameters.
@@ -63,7 +64,7 @@
 <h2>Changes for Version 2.5 (2018-02-07)</h2>
 
   *  Numerous enhancements to the look and feel of the web interface.
-     Especially:  Added separate "Modern", "Compact", "Verbose", and 
+     Especially:  Added separate "Modern", "Compact", "Verbose", and
      "Columnar" view options on timelines.
   *  Common display settings (such as the "view" option and the number
      of rows in a timeline) are held in a cookie and thus persist

@@ -1,5 +1,5 @@
-C add\ssupport\sfor\sTLS\s1.3,\swhen\scompiled\swith\sOpenSSL\s1.1.1\s(LTS).\sWindows\sbuild\sadapted\sto\suse\sOpenSSL\s1.1.1\sby\sdefault.\sStill\scompiles\sand\sruns\swith\solder\sOpenSSL\sas\swell
-D 2018-09-15T20:27:33.622
+C Make\ssure\sthat\sFossil\sis\salways\scompiled\swith\sSQLite\s>=\s3.25.0.\s\nAdd\smention\sof\sTLS\s1.3\sto\schangelog.
+D 2018-09-16T15:43:00.472
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def ee4f4577e1fb0b2dee1f029d6ea880b054276bdcdb091aa78d0e4c47e697dffa
+F auto.def 5bc70ced147c61f81128f27324634185642ea05380285c024a0a701fa5fd1d26
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -770,7 +770,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d7970623291d6f329a27c987d5967627b5baef68177b0d687d8d68d1aa8f114a
-F www/changes.wiki cdc9afe0a709940c82c06fc55c589b9413390e5966b8fc544da4eaba5b6b47a3
+F www/changes.wiki bb75785eda7daf71723dadcd801f1fac740e7523bbbdfe5746663adafadb5f64
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -863,8 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce1d61acd70f642a6b267739e593b1ba53f4b786bf4ac25835120cdac59d81bc 368c78a855cf65e9cacee8c898a6f1bbae91461c8eadf6be5fd58b277b3d956a
-R 0e1f9303469dfed5199800e3378ffba6
-T +closed 368c78a855cf65e9cacee8c898a6f1bbae91461c8eadf6be5fd58b277b3d956a
+P 115544e97517f447c7e668ce47f9714255abdd128c80f485f55baa4b618fcf3c
+R d7e7f5d7fb650ab09ad4c300a5b673e8
 U jan.nijtmans
-Z b8e752a75fbe7c4c80a2dc9022848088
+Z 2ad7bb1c2f4bd2f4bd5d75b605fbbec6
