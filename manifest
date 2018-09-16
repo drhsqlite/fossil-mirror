@@ -1,5 +1,5 @@
-C Docker:\supgrade\sto\sfedora\s28,\sand\suse\shttps\sin\sstead\sof\shttp\sto\sretrieve\sfossil\ssource\scode.\s\nUse\sfedora\sversions\sof\sTcl\sin\sstead\sof\sbuilding\sour\sown.
-D 2018-09-16T18:45:20.288
+C Replaced\sthe\sWIP\sand\sindefinite\sfuture\sparagraphs\sin\swww/alerts.md\swith\ndefinite\sstatements\snow\sthat\swe're\sapproaching\srelease.
+D 2018-09-16T21:14:17.636
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -750,7 +750,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/alerts.md ad73f33922131ef40d21ced0e7f1e682639b7c623cfca0fb335d9ba4d2652cb6
+F www/alerts.md 7351cc4cd57d675dc33701fd94ebda7af8e23e33a97e405b628729bfec602f61
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -863,7 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0dcf908a80d226ce34c700384fbc933516f85dd516097bc31c31fe3417ca387
-R a7d5eddcfdc879d80d993f0f327e5d76
-U jan.nijtmans
-Z e8f047b566e3079bc0f5fe69c494f545
+P edc31f4691c5e12bb40792229bf3a071669bcf4c783d41e64370d6a1f8886e0a
+R 054b49b91bd1c7632fc402bf36990a8d
+U wyoung
+Z e3ebb666d5f5c34b6b9ff61d99319628

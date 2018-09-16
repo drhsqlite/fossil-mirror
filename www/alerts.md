@@ -1,10 +1,6 @@
 Email Alerts
 ============
 
-The email alert system is a work-in-progress.
-This documentation was last updated on 2018-08-12.
-Check back later for updates.
-
 Email Alerts And Notifications
 ------------------------------
 
@@ -71,8 +67,8 @@ Fossil supports multiple methods for sending email alerts:
   4.  Send emails to an SMTP Relay.
   5.  Send emails directly to the recipients via SMTP.
 
-As of 2018-08-08, method (5) is not yet supported, but there are plans
-to add support soon.
+Fossil 2.7 does not support method (5). Work on supporting that method
+is still in progress.
 
 The self-hosting Fossil repository at <https://www.fossil-scm.org/> currently
 uses method (3).  Outgoing email messages are added to an SQLite database
