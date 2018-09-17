@@ -11,7 +11,7 @@ set doclist {
   aboutdownload.wiki {How The Download Page Works}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
-  alerts.md {Email Alerts And Notification}
+  alerts.md {Email Alerts And Notifications}
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}

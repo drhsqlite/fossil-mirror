@@ -1,5 +1,5 @@
-C Replaced\sthe\sWIP\sand\sindefinite\sfuture\sparagraphs\sin\swww/alerts.md\swith\ndefinite\sstatements\snow\sthat\swe're\sapproaching\srelease.
-D 2018-09-16T21:14:17.636
+C Reworked\sthe\sdocumentation\sfor\semail\salerts\sto\sput\sall\sthe\sinformation\nin\sa\ssingle\sdocument:\sa)\sMoved\sthe\s"quick\semail\ssetup"\smaterial\sfrom\sthe\nforums.wiki\sdocument\sinto\s`alerts.md`;\sb)\slinked\sto\sthat\smoved\smaterial\nfrom\sits\soriginal\slocation;\sc)\sgreatly\sexpanded\sthe\smaterial\spreviously\npresent\sin\sthe\s`alerts.md`\sdocument;\sc)\smerged\sthe\s`emaildesign.md`\ndocument\sinto\s`alerts.md`,\sso\swe\sdon't\shave\sto\slink\sout\sto\stwo\sseparate\ndocuments\swhich\spreviously\spartially\srepeated\seach\sother.\s\sThis\spass\nalso\sfixed\sa\snumber\sof\sgrammar\serrors\sand\sbroken\slinks.
+D 2018-09-17T02:57:14.735
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -750,7 +750,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/alerts.md 7351cc4cd57d675dc33701fd94ebda7af8e23e33a97e405b628729bfec602f61
+F www/alerts.md cf3ea4aa4fca77f072f7f450f95b10ba801a546082bc3242e6f849ddeace99df
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -791,7 +791,6 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki 7ca5bd7bfd6bc8e3df067badc393129d30363562
-F www/emaildesign.md feb687dec6ec44d27c00300d573fcb011ca61eb8c64c826c60049fcc87dffa0c
 F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -810,7 +809,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 9d076ca116458b07ec03fa458ccbbe64e8d420480e4b3e0bc26a0edec2d244aa
+F www/forum.wiki 62abd68625a44f164d6c6f8375e766bfb566157461f3ebd8bdec8d3453387d37
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -831,7 +830,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki a3f18b1cf91528dec6f2ef672f332b5a34bb988988e95a6ec11041af5e27397b
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4a07d
-F www/mkindex.tcl 27ee1a09772efff919fdcfd62807e061238576179b5d472217e47d9007a3fac4 x
+F www/mkindex.tcl 5fd64f0497c1af923bb12e3781e2fe8221ada8c852b332a6821ec38a8c4aeb8f x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
 F www/permutedindex.html 44fc1b1d1623169ef52b22cbd7e155ab45a54f6416b3609eeb5e00c4f49ba6bb
@@ -863,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P edc31f4691c5e12bb40792229bf3a071669bcf4c783d41e64370d6a1f8886e0a
-R 054b49b91bd1c7632fc402bf36990a8d
+P 05b40829151aa8a56a6b6ab98b3f89b0c1c8e9b6037a0c346b36abcd4c745a19
+R 5bacc05c18eff604816b77f256d82941
 U wyoung
-Z e3ebb666d5f5c34b6b9ff61d99319628
+Z 4653881e2d243862ead2c28436babf74
