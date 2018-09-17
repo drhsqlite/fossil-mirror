@@ -335,7 +335,6 @@ There are many paths to a repository's Fossil forum:
     the forum-related user capabilities: 2 through 6 inclusive for those
     with repository logins, or caps 2 and 3 for users without a user
     account but who have solved the Anonymous user CAPTCHA.</p>
-
     <p>This button will not appear in the default skin for such users if
     their browser window is not greater than 1200 pixels wide.  The
     Fossil admin can adjust this limit in the skin's CSS section, down
@@ -353,11 +352,12 @@ There are many paths to a repository's Fossil forum:
   with can easily [#skin | edit their skin] to include these links.</li>
 
   <li>A "Forum" link appears in the drop-down panel when you click the
-  default skin's hamburger menu (&#9776;) for any user with one or more
-  of the capabilities listed above.</li>
+  default skin's hamburger menu (&#9776;) while logged in as any user
+  with one or more of the [#caps | user capabilities listed above].</li>
 
-  <li>That same link also appears on the repository's `/sitemap` page,
-  since it provides the content for the hamburger menu's panel.</li>
+  <li>That same link also appears on the repository's <tt>/sitemap</tt>
+  page, since it provides the content for the hamburger menu's
+  panel.</li>
 </ul>
 
 
