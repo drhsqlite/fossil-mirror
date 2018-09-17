@@ -1,5 +1,5 @@
-C Reworked\sthe\sdocumentation\sfor\semail\salerts\sto\sput\sall\sthe\sinformation\nin\sa\ssingle\sdocument:\sa)\sMoved\sthe\s"quick\semail\ssetup"\smaterial\sfrom\sthe\nforums.wiki\sdocument\sinto\s`alerts.md`;\sb)\slinked\sto\sthat\smoved\smaterial\nfrom\sits\soriginal\slocation;\sc)\sgreatly\sexpanded\sthe\smaterial\spreviously\npresent\sin\sthe\s`alerts.md`\sdocument;\sc)\smerged\sthe\s`emaildesign.md`\ndocument\sinto\s`alerts.md`,\sso\swe\sdon't\shave\sto\slink\sout\sto\stwo\sseparate\ndocuments\swhich\spreviously\spartially\srepeated\seach\sother.\s\sThis\spass\nalso\sfixed\sa\snumber\sof\sgrammar\serrors\sand\sbroken\slinks.
-D 2018-09-17T02:57:14.735
+C Updated\sthe\sdocumentation\spermuted\sindex\sto\sinclude\sa\sgrammar\sfix\nchecked\sin\swith\sthe\sprevious\scheckin.
+D 2018-09-17T02:58:54.705
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -833,7 +833,7 @@ F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4
 F www/mkindex.tcl 5fd64f0497c1af923bb12e3781e2fe8221ada8c852b332a6821ec38a8c4aeb8f x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 44fc1b1d1623169ef52b22cbd7e155ab45a54f6416b3609eeb5e00c4f49ba6bb
+F www/permutedindex.html fdd3f2cf0b7ebd359e7a26a1280224573b31c7ca4818ccf3692b9178988f92d8
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05b40829151aa8a56a6b6ab98b3f89b0c1c8e9b6037a0c346b36abcd4c745a19
-R 5bacc05c18eff604816b77f256d82941
+P 2ef70be2f754941baba5d5dd849528079cd810ebac92817c9a7334f52995c653
+R c994221970c462393e9f8386c4650c12
 U wyoung
-Z 4653881e2d243862ead2c28436babf74
+Z 4fd462736c390190fe442182066c677a
