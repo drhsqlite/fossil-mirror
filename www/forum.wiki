@@ -317,12 +317,10 @@ Internet email service has become rather complicated since its initial
 simple and insecure implementation decades ago. Fossil's role in all of
 this is rather small at the moment, but the details of the integration
 are complex enough to justify [./alerts.md | a separate document].
-(Fossil's email alerts system also gets used by subsystems other than
-the Fossil forum feature.)
 
-You may want to study those in detail, since email is complicated. Some
-of that complexity necessarily leaks out to the configuration of email
-alerts in Fossil.
+(The other reason that document is separate is that Fossil's email
+alerts system also gets used by features of Fossil other than the
+forum.)
 
 
 <h2 id="access">Accessing the Forum</h2>

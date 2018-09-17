@@ -1,5 +1,5 @@
-C Fixed\sa\stypo
-D 2018-09-17T09:33:12.149
+C Removed\sa\sparagraph\sstranded\sby\sthe\semail\sdocs\sreorg\sseveral\scheckins\nago.
+D 2018-09-17T09:40:17.896
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -809,7 +809,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 38cd87c80a425dbf79f1710f6486a5d5502368bcc09c2788205d8973bda68bfc
+F www/forum.wiki 2139762254e846953ed9e7c3b9f263e2a9d3f8b04624922e1c6f4b395c848b86
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2190f86c324d0f57fa4f8a1ceb6bd5eca4c10c275a6961345a3d231a45bba986
-R 2eb556358dff0d93e18a24d0426e1752
+P 692aceed4bc728949db085dbb770be0e3fa1d2af4c584e4c81c878c316fe26af
+R cf43a4bd5a7e5cb81dc7d1dd793b06a0
 U wyoung
-Z 579b4935c0b79ec8de851e4e76f8d335
+Z fd1eb0884808b4f5273030d7e65502a3
