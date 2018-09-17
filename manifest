@@ -1,5 +1,5 @@
-C Updated\sthe\sdocumentation\spermuted\sindex\sto\sinclude\sa\sgrammar\sfix\nchecked\sin\swith\sthe\sprevious\scheckin.
-D 2018-09-17T02:58:54.705
+C Added\scolored\sshading,\smore\spadding,\sand\sa\sthick\sleft\sborder\sto\n<blockquote>\selements\sin\sthe\sdefault\sskin.\s\sThis\sis\sbased\son\ssome\scustom\nstyling\sthat\sFlorian\sBalmer\shas\sbeen\sdoing\sfor\squoted\stext\son\sthe\sforum\nlately,\sbut\sthe\sstyling\sis\srather\sdifferent.\s\sIt\saffects\sall\ssuch\nelements,\snot\sjust\sthose\sin\sforum\sposts,\ssince\sI\scouldn't\ssee\sa\sgood\nreason\sto\srestrict\sit:\sit\sshould\sbe\sequally\svaluable\sin\swiki\sand\nembedded\sdoc\sarticles\sas\swell.
+D 2018-09-17T08:20:17.158
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 6659cea12d5b1291cf9ee082a24ac5c11c1b4cef4d0ec2f191b9a0b942183801
+F skins/default/css.txt f69f33cc7d1ab6118bf02f52455ef08f283ab395d2de14da4140ec9eb42fa0f7
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2ef70be2f754941baba5d5dd849528079cd810ebac92817c9a7334f52995c653
-R c994221970c462393e9f8386c4650c12
+P d8d979fee5ac68ef5ac7c00f37b34ef4c1180cfe31e5f998db3bf1d7ca985dd9
+R 708575f8d9081f7910a7d44ed5061406
 U wyoung
-Z 4fd462736c390190fe442182066c677a
+Z fd0d7bb267a9337697862d991d37edaa
