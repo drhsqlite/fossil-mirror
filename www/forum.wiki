@@ -207,7 +207,7 @@ The first thing is that you'll need to add something like the following
 to the Header part of the skin to create the navbar link:
 
 <verbatim>
-  if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {, 
+  if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
     menulink /forum Forum
   }
 </verbatim>

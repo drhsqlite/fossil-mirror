@@ -1,5 +1,5 @@
-C Added\scolored\sshading,\smore\spadding,\sand\sa\sthick\sleft\sborder\sto\n<blockquote>\selements\sin\sthe\sdefault\sskin.\s\sThis\sis\sbased\son\ssome\scustom\nstyling\sthat\sFlorian\sBalmer\shas\sbeen\sdoing\sfor\squoted\stext\son\sthe\sforum\nlately,\sbut\sthe\sstyling\sis\srather\sdifferent.\s\sIt\saffects\sall\ssuch\nelements,\snot\sjust\sthose\sin\sforum\sposts,\ssince\sI\scouldn't\ssee\sa\sgood\nreason\sto\srestrict\sit:\sit\sshould\sbe\sequally\svaluable\sin\swiki\sand\nembedded\sdoc\sarticles\sas\swell.
-D 2018-09-17T08:20:17.158
+C Fixed\sa\stypo
+D 2018-09-17T09:33:12.149
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -809,7 +809,7 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 62abd68625a44f164d6c6f8375e766bfb566157461f3ebd8bdec8d3453387d37
+F www/forum.wiki 38cd87c80a425dbf79f1710f6486a5d5502368bcc09c2788205d8973bda68bfc
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8d979fee5ac68ef5ac7c00f37b34ef4c1180cfe31e5f998db3bf1d7ca985dd9
-R 708575f8d9081f7910a7d44ed5061406
+P 2190f86c324d0f57fa4f8a1ceb6bd5eca4c10c275a6961345a3d231a45bba986
+R 2eb556358dff0d93e18a24d0426e1752
 U wyoung
-Z fd0d7bb267a9337697862d991d37edaa
+Z 579b4935c0b79ec8de851e4e76f8d335
