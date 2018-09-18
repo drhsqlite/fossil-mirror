@@ -160,9 +160,9 @@ ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
-#    for SSLv3 (i.e. thereby forcing the use of TLS).
+#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
 #
-SSLCONFIG += no-ssl3 no-weak-ssl-ciphers no-shared
+SSLCONFIG += no-ssl2 no-ssl3 no-weak-ssl-ciphers no-shared
 
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
@@ -176,7 +176,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2p
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
