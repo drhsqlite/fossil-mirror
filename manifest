@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sbranch\scurrent"\scommand.\s\sAlso\srearrange\sthe\scode\sand\sthe\nhelp\stext\sfor\sthe\s"fossil\sbranch"\scommand\sso\sthat\sthe\svarious\ssubcommands\nare\sin\salphabetical\sorder.
-D 2018-09-18T15:50:30.553
+C Add\sthe\s"fossil\sbranch\scurrent"\scommand\sto\sthe\s2.7\schange\slog.
+D 2018-09-18T15:53:00.954
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -770,7 +770,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki d7970623291d6f329a27c987d5967627b5baef68177b0d687d8d68d1aa8f114a
-F www/changes.wiki bb75785eda7daf71723dadcd801f1fac740e7523bbbdfe5746663adafadb5f64
+F www/changes.wiki f8cbe06edf1506e491c40174ea58b3c8f41f1d51438390fbe104812bc69f831a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 079431525d13a14172cd7fe0f86641265404b593e482ee59ba2921a153c75040
-R 9141c52c9e647ffaf6ff23c61487a40a
+P 3b0a1f4e1e4e9a4eaa41ae132e2ef66ebae9489a1676f7a22aacc727608574ed
+R 4c0893eafd092e562e36fb26ea9e4515
 U drh
-Z a08e5beaba4794e5a182b38027a873aa
+Z ce4413e526bb40d14f9b6cedfd68e849

@@ -25,6 +25,7 @@
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 10.0 to 11.0.
   *  Improvements to the "Security Audit" administration page
+  *  Added the [/help?cmd=branch|fossil branch current] command.
   *  Update the built-in SQLite to version 3.25.0.
   *  Add support for TLS 1.3, when compiled with OpenSSL 1.1.1.
   *  Some code and interfaces are in place to support sending and
