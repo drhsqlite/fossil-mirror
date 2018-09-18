@@ -1,5 +1,5 @@
-C Wiki\smarkup\sfixes\sin\sthe\srecent\sedits\sto\sthe\swww/forum.wiki\sdoc
-D 2018-09-17T09:47:37.046
+C Add\sthe\s"fossil\sbranch\scurrent"\scommand.\s\sAlso\srearrange\sthe\scode\sand\sthe\nhelp\stext\sfor\sthe\s"fossil\sbranch"\scommand\sso\sthat\sthe\svarious\ssubcommands\nare\sin\salphabetical\sorder.
+D 2018-09-18T15:50:30.553
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 9484eff46bdf7deae8f7fcc519cd213274c90b7bfacff1dabc8df28fe0770
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c 6a4121e390e6dd397f0b32700d8fa9900648235ac0bbf98ae5fef2dd9194fdb2
+F src/branch.c eda96651a82e703ae065309bd6f8e0ccaa04f701b45b7a9f0aaf6322a3c633dd
 F src/browse.c 792a70361970a7c875945bbcd53e30beead55d11966757f85acb6588568a2fcd
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba35b5ff3176c83bacae01fc6933fb5bc3fa803e6a7034e2ab98084c6c879f1d
-R 82caab7408b9cbfd9396838e33161aaf
-U wyoung
-Z a4b50db55b048df0250fe0358d7d9eab
+P 079431525d13a14172cd7fe0f86641265404b593e482ee59ba2921a153c75040
+R 9141c52c9e647ffaf6ff23c61487a40a
+U drh
+Z a08e5beaba4794e5a182b38027a873aa
