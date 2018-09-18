@@ -70,7 +70,7 @@ static cson_value * json_branch_list(){
   char const * range = NULL;
   int branchListFlags = BRL_OPEN_ONLY;
   char * sawConversionError = NULL;
-  Stmt q;
+  Stmt q = empty_Stmt;
   if( !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -145,6 +145,7 @@ static cson_value * json_branch_list(){
     json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,"%s",sawConversionError);
     free(sawConversionError);
   }
+  db_finalize(&q);
   return payV;
 }
 

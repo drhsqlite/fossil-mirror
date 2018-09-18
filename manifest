@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\sbranch\scurrent"\scommand\sto\sthe\s2.7\schange\slog.
-D 2018-09-18T15:53:00.954
+C Added\sa\smissing\sdb_finalize()\scall\sin\s/json/branch/list\swhich\sled\sto\sa\sdownstream\ssegfault\svia\san\sinvalid/destructed\sStmt\shandle.
+D 2018-09-18T17:50:07.256
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 7f1829c005cabfa6cd7d5ab5fddf89dcd71427b70b8058032d2c452151ae1bc3
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
-F src/json_branch.c dae5996cca66f4e6a4081d7882bf10c9439341d2d1d06801c0b320e84e1966cb
+F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b0a1f4e1e4e9a4eaa41ae132e2ef66ebae9489a1676f7a22aacc727608574ed
-R 4c0893eafd092e562e36fb26ea9e4515
-U drh
-Z ce4413e526bb40d14f9b6cedfd68e849
+P fc977f14b123e76ee6dab50d9efb9c426a745ca5ffda537372ae2584ac6c4259
+R 1219cf5a5afe21ca234c46c67712095b
+U stephan
+Z 601a0fb553db7e0bb39dbf438e88d582
