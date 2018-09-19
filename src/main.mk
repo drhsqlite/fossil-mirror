@@ -688,7 +688,7 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:
-	rm -rf $(OBJDIR)/* $(APPNAME)
+	-rm -rf $(OBJDIR)/* $(APPNAME)
 
 
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex

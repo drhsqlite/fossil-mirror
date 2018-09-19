@@ -72,7 +72,7 @@ byte-array constants that contain various resources such as scripts and
 images.  The builtin_data.h header file is generate from the original
 resource files using a small program called:
 
-  12   [/file/src/mkbuiltin.c | mkbuildin.c]
+  12   [/file/src/mkbuiltin.c | mkbuiltin.c]
 
 Examples of built-in resources include the [/file/src/diff.tcl | diff.tcl]
 script used to implement the --tk option to [/help?cmd=diff| fossil diff],

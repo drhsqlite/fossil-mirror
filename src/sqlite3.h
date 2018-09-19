@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.25.0"
 #define SQLITE_VERSION_NUMBER 3025000
-#define SQLITE_SOURCE_ID      "2018-09-10 19:34:06 74c381b573817d0212153278b5ee5d2238a27a727dcf7ee769365c47bb9fc40d"
+#define SQLITE_SOURCE_ID      "2018-09-15 04:01:47 b63af6c3bd33152742648d5d2e8dc5d5fcbcdd27df409272b6aea00a6f761760"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1082,18 +1082,19 @@ struct sqlite3_io_methods {
 ** The "data version" for the pager is written into the pointer.  The
 ** "data version" changes whenever any change occurs to the corresponding
 ** database file, either through SQL statements on the same database
-** connection, or through transactions committed by separate database
+** connection or through transactions committed by separate database
 ** connections possibly in other processes. The [sqlite3_total_changes()]
 ** interface can be used to find if any database on the connection has changed,
-** but that interface response to changes on TEMP as well as MAIN and does
+** but that interface responds to changes on TEMP as well as MAIN and does
 ** not provide a mechanism to detect changes to MAIN only.  Also, the
-** [sqlite3_total_changes()] interface response to internal changes only and
+** [sqlite3_total_changes()] interface responds to internal changes only and
 ** omits changes made by other database connections.  The
 ** [PRAGMA data_version] command provide a mechanism to detect changes to
 ** a single attached database that occur due to other database connections,
-** but omits changes implemented by the database connection for which it is
+** but omits changes implemented by the database connection on which it is
 ** called.  This file control is the only mechanism to detect changes that
-** happen either internally or externally on a single database.
+** happen either internally or externally and that are associated with
+** a particular attached database.
 ** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
@@ -4731,7 +4732,7 @@ SQLITE_API int sqlite3_reset(sqlite3_stmt *pStmt);
 **
 ** ^The sixth, seventh, eighth and ninth parameters (xStep, xFinal, xValue 
 ** and xInverse) passed to sqlite3_create_window_function are pointers to
-** C-lanugage callbacks that implement the new function. xStep and xFinal
+** C-language callbacks that implement the new function. xStep and xFinal
 ** must both be non-NULL. xValue and xInverse may either both be NULL, in
 ** which case a regular aggregate function is created, or must both be 
 ** non-NULL, in which case the new function may be used as either an aggregate
@@ -9257,7 +9258,7 @@ SQLITE_API int sqlite3_deserialize(
 ** in the P argument is held in memory obtained from [sqlite3_malloc64()]
 ** and that SQLite should take ownership of this memory and automatically
 ** free it when it has finished using it.  Without this flag, the caller
-** is resposible for freeing any dynamically allocated memory.
+** is responsible for freeing any dynamically allocated memory.
 **
 ** The SQLITE_DESERIALIZE_RESIZEABLE flag means that SQLite is allowed to
 ** grow the size of the database using calls to [sqlite3_realloc64()].  This
@@ -11435,7 +11436,7 @@ struct Fts5ExtensionApi {
 **            This way, even if the tokenizer does not provide synonyms
 **            when tokenizing query text (it should not - to do would be
 **            inefficient), it doesn't matter if the user queries for 
-**            'first + place' or '1st + place', as there are entires in the
+**            'first + place' or '1st + place', as there are entries in the
 **            FTS index corresponding to both forms of the first token.
 **   </ol>
 **
@@ -11463,7 +11464,7 @@ struct Fts5ExtensionApi {
 **   extra data to the FTS index or require FTS5 to query for multiple terms,
 **   so it is efficient in terms of disk space and query speed. However, it
 **   does not support prefix queries very well. If, as suggested above, the
-**   token "first" is subsituted for "1st" by the tokenizer, then the query:
+**   token "first" is substituted for "1st" by the tokenizer, then the query:
 **
 **   <codeblock>
 **     ... MATCH '1s*'</codeblock>

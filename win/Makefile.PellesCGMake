@@ -186,12 +186,12 @@ $(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBO
 
 .PHONY: clean
 clean:
-	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
-	del /F $(TRANSLATEDSRC)
-	del /F *.h headers
-	del /F $(RESOURCE)
+	-del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
+	-del /F $(TRANSLATEDSRC)
+	-del /F *.h headers
+	-del /F $(RESOURCE)
 
 .PHONY: clobber
 clobber: clean
-	del /F *.exe
+	-del /F *.exe
 

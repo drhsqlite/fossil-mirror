@@ -1024,36 +1024,36 @@ SQLITE3_SRC = $(SRCDIR)\sqlite3.c
 	"$(OBJDIR)\mkbuiltin$E" --prefix "$(SRCDIR)/" --reslist "$(OX)\builtin_data.reslist" > $@
 
 cleanx:
-	del "$(OX)\*.obj" 2>NUL
-	del "$(OBJDIR)\*.obj" 2>NUL
-	del "$(OX)\*_.c" 2>NUL
-	del "$(OX)\*.h" 2>NUL
-	del "$(OX)\*.ilk" 2>NUL
-	del "$(OX)\*.map" 2>NUL
-	del "$(OX)\*.res" 2>NUL
-	del "$(OX)\*.reslist" 2>NUL
-	del "$(OX)\headers" 2>NUL
-	del "$(OX)\linkopts" 2>NUL
-	del "$(OX)\vc*.pdb" 2>NUL
+	-del "$(OX)\*.obj" 2>NUL
+	-del "$(OBJDIR)\*.obj" 2>NUL
+	-del "$(OX)\*_.c" 2>NUL
+	-del "$(OX)\*.h" 2>NUL
+	-del "$(OX)\*.ilk" 2>NUL
+	-del "$(OX)\*.map" 2>NUL
+	-del "$(OX)\*.res" 2>NUL
+	-del "$(OX)\*.reslist" 2>NUL
+	-del "$(OX)\headers" 2>NUL
+	-del "$(OX)\linkopts" 2>NUL
+	-del "$(OX)\vc*.pdb" 2>NUL
 
 clean: cleanx
-	del "$(APPNAME)" 2>NUL
-	del "$(PDBNAME)" 2>NUL
-	del "$(APPMANIFEST)" 2>NUL
-	del "$(OBJDIR)\translate$E" 2>NUL
-	del "$(OBJDIR)\translate$P" 2>NUL
-	del "$(OBJDIR)\mkindex$E" 2>NUL
-	del "$(OBJDIR)\mkindex$P" 2>NUL
-	del "$(OBJDIR)\makeheaders$E" 2>NUL
-	del "$(OBJDIR)\makeheaders$P" 2>NUL
-	del "$(OBJDIR)\mkversion$E" 2>NUL
-	del "$(OBJDIR)\mkversion$P" 2>NUL
-	del "$(OBJDIR)\mkcss$E" 2>NUL
-	del "$(OBJDIR)\mkcss$P" 2>NUL
-	del "$(OBJDIR)\codecheck1$E" 2>NUL
-	del "$(OBJDIR)\codecheck1$P" 2>NUL
-	del "$(OBJDIR)\mkbuiltin$E" 2>NUL
-	del "$(OBJDIR)\mkbuiltin$P" 2>NUL
+	-del "$(APPNAME)" 2>NUL
+	-del "$(PDBNAME)" 2>NUL
+	-del "$(APPMANIFEST)" 2>NUL
+	-del "$(OBJDIR)\translate$E" 2>NUL
+	-del "$(OBJDIR)\translate$P" 2>NUL
+	-del "$(OBJDIR)\mkindex$E" 2>NUL
+	-del "$(OBJDIR)\mkindex$P" 2>NUL
+	-del "$(OBJDIR)\makeheaders$E" 2>NUL
+	-del "$(OBJDIR)\makeheaders$P" 2>NUL
+	-del "$(OBJDIR)\mkversion$E" 2>NUL
+	-del "$(OBJDIR)\mkversion$P" 2>NUL
+	-del "$(OBJDIR)\mkcss$E" 2>NUL
+	-del "$(OBJDIR)\mkcss$P" 2>NUL
+	-del "$(OBJDIR)\codecheck1$E" 2>NUL
+	-del "$(OBJDIR)\codecheck1$P" 2>NUL
+	-del "$(OBJDIR)\mkbuiltin$E" 2>NUL
+	-del "$(OBJDIR)\mkbuiltin$P" 2>NUL
 
 realclean: clean
 

@@ -270,6 +270,20 @@ int branch_is_open(const char *zBrName){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
+**    fossil branch current
+**
+**        Print the name of the branch for the current check-out
+**
+**    fossil branch info BRANCH-NAME
+**
+**        Print information about a branch
+**
+**    fossil branch list|ls ?-a|--all|-c|--closed?
+**
+**        List all branches.  Use -a or --all to list all branches and
+**        -c or --closed to list all closed branches.  The default is to
+**        show only open branches.
+**
 **    fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
@@ -286,18 +300,14 @@ int branch_is_open(const char *zBrName){
 **        from UTC as "-HH:MM" (westward) or "+HH:MM" (eastward).
 **        Either no timezone suffix or "Z" means UTC.
 **
-**    fossil branch list|ls ?-a|--all|-c|--closed?
-**
-**        List all branches.  Use -a or --all to list all branches and
-**        -c or --closed to list all closed branches.  The default is to
-**        show only open branches.
-**
-**    fossil branch info BRANCH-NAME
-**
-**        Print information about a branch
-**
 ** Options:
 **    -R|--repository FILE       Run commands on repository FILE
+**
+** Summary:
+**    fossil branch current
+**    fossil branch info BRANCHNAME
+**    fossil branch [list|ls]
+**    fossil branch new
 */
 void branch_cmd(void){
   int n;
@@ -305,8 +315,31 @@ void branch_cmd(void){
   db_find_and_open_repository(0, 0);
   if( g.argc>=3 ) zCmd = g.argv[2];
   n = strlen(zCmd);
-  if( strncmp(zCmd,"new",n)==0 ){
-    branch_new();
+  if( strncmp(zCmd,"current",n)==0 ){
+    if( !g.localOpen ){
+      fossil_fatal("not within an open checkout");
+    }else{
+      int vid = db_lget_int("checkout", 0);
+      char *zCurrent = db_text(0, "SELECT value FROM tagxref"
+                            " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
+      fossil_print("%s\n", zCurrent);
+      fossil_free(zCurrent);
+    }
+  }else if( strncmp(zCmd,"info",n)==0 ){
+    int i;
+    for(i=3; i<g.argc; i++){
+      const char *zBrName = g.argv[i];
+      int rid = branch_is_open(zBrName);
+      if( rid==0 ){
+        fossil_print("%s: not an open branch\n", zBrName);
+      }else{
+        const char *zUuid = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+        const char *zDate = db_text(0,
+          "SELECT datetime(mtime,toLocal()) FROM event"
+          " WHERE objid=%d", rid);
+        fossil_print("%s: open as of %s on %.16s\n", zBrName, zDate, zUuid);
+      }
+    }
   }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
     Stmt q;
     int vid;
@@ -327,24 +360,11 @@ void branch_cmd(void){
       fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);
-  }else if( strncmp(zCmd,"info",n)==0 ){
-    int i;
-    for(i=3; i<g.argc; i++){
-      const char *zBrName = g.argv[i];
-      int rid = branch_is_open(zBrName);
-      if( rid==0 ){
-        fossil_print("%s: not an open branch\n", zBrName);
-      }else{
-        const char *zUuid = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
-        const char *zDate = db_text(0,
-          "SELECT datetime(mtime,toLocal()) FROM event"
-          " WHERE objid=%d", rid);
-        fossil_print("%s: open as of %s on %.16s\n", zBrName, zDate, zUuid);
-      }
-    }
+  }else if( strncmp(zCmd,"new",n)==0 ){
+    branch_new();
   }else{
     fossil_fatal("branch subcommand should be one of: "
-                 "info list ls new");
+                 "current info list ls new");
   }
 }
 
