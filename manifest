@@ -1,5 +1,5 @@
-C Backout\sof\s[115544e97517f447].\s\sUnbreaks\sthe\sSSL\senabled\sbuild\son\sWindows,\sdue\sto\sOpenSSL\sbuild\ssystem\schanges\sthat\sare\snot\saccounted\sfor\sby\sthe\scheck-in.\s\sAlso,\sthere\swere\scrashes\swith\sMinGW\sproduced\sbinaries\susing\sOpenSSL\s1.1.1.
-D 2018-09-18T19:37:23.427
+C Ignore\serrors\sin\sthe\sclean\starget\scommands.
+D 2018-09-19T19:55:38.028
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -13,7 +13,7 @@ F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 69aecd36e7412b1cde09407c0f011f60f229a844c1c7135826e86df047b23ce6
 F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
-F Makefile.in 29d05ac027bee27d542f975eff094120f277777e65496e329ca2ee57dcb470cd
+F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
 F VERSION 57ddf2d8004c548ca211637c5a227891378ea12871dcebd80444a19ff8cfec9b
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -514,10 +514,10 @@ F src/login.c 0fda31b6683c206ac2cc527270d3228d8d9995b4cf18c438751b1bf3f6865ad8
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d190d2e9554093defc97072f1e92d8fd52ae7d9da069384763ddcaeeaf8826f
-F src/main.mk bd4002bb9915c981df70fe196427589cbcb1ad29a994bc6414825704d2faa998
+F src/main.mk 4ed6954c7386e2cfe804d6d8ce39062e3c90e1e97541012fc5e3a3b856f4a255
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl c83b771cceb9773ded029b08a43b4f56e0677cff6333dbde40c28168d75a5731 x
+F src/makemake.tcl c284d4ca7d3c40e6256fec1ee9b83b73d6fc3ccc1e9aaf654184b198d3cbb50b x
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md ce356441f737497965852284e0d1968dfaeb48c5789f07d020feafb148db8de6
@@ -732,11 +732,11 @@ F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
-F win/Makefile.PellesCGMake 1a650a38683d2fa451f69206fb27e818cc19799cf6ba287d197b88f14f94af2f
+F win/Makefile.PellesCGMake 1228ffff153aa54d133836671cf0e389e5e7472a5e9120ea64e3c9a394b092ad
 F win/Makefile.dmc 92c99cecb42ff23b746dc660840b8b1fa9e75a1cc10f23921f606a7f360f5b98
 F win/Makefile.mingw 037ec11ce224ce963e505272bf0ad49bed3b3c47b69cf85b0bc4bc2e1b7ef3b8
 F win/Makefile.mingw.mistachkin f9e9bda02b0b21c203d35cb67c37e46ac646cee1c09170d009f63d836b8a1483
-F win/Makefile.msc c37d452f4f43a9399cb2559f4be628a6bc8a82f5c9670f1112889bad5eae5656
+F win/Makefile.msc fc21fbd6d64f372d4c12a76f4bb5e6d9c1190d839ade28bc3e698a8de4f37c69
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -862,8 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e45789ee8319f9d30dac4a10d4fee5dbaee9bcb0c0ee6e5b0c107dbd2c126416
-Q -115544e97517f447c7e668ce47f9714255abdd128c80f485f55baa4b618fcf3c
-R 036a7f0d69a3b55217f8e0f2eb794060
-U mistachkin
-Z a57baa0828c17930992649aee9fb5aaa
+P e0cc10f03e5188318c5952a0bdc1264264e599d8840a2ec8948bc9958a986c75
+R 142b48836636648626236a19ea54779f
+U ashepilko
+Z a9e54b9fd7676e476f39a2ad4da7fe34

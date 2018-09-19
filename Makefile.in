@@ -52,7 +52,7 @@ FOSSIL_ENABLE_MINIZ = @FOSSIL_ENABLE_MINIZ@
 include $(SRCDIR)/main.mk
 
 distclean: clean
-	rm -f autoconfig.h config.log Makefile
+	-rm -f autoconfig.h config.log Makefile
 
 reconfig:
 	@AUTOREMAKE@

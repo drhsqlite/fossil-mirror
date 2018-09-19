@@ -450,7 +450,7 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:
-	rm -rf $(OBJDIR)/* $(APPNAME)
+	-rm -rf $(OBJDIR)/* $(APPNAME)
 
 }
 
@@ -1961,34 +1961,34 @@ builtin_data.h:	mkbuiltin$E $(EXTRA_FILES)
 	mkbuiltin$E --prefix $(SRCDIR)/ $(EXTRA_FILES) > $@
 
 clean:
-	del $(OX)\*.obj 2>NUL
-	del *.obj 2>NUL
-	del *_.c 2>NUL
-	del *.h 2>NUL
-	del *.ilk 2>NUL
-	del *.map 2>NUL
-	del *.res 2>NUL
-	del headers 2>NUL
-	del linkopts 2>NUL
-	del vc*.pdb 2>NUL
+	-del $(OX)\*.obj 2>NUL
+	-del *.obj 2>NUL
+	-del *_.c 2>NUL
+	-del *.h 2>NUL
+	-del *.ilk 2>NUL
+	-del *.map 2>NUL
+	-del *.res 2>NUL
+	-del headers 2>NUL
+	-del linkopts 2>NUL
+	-del vc*.pdb 2>NUL
 
 realclean: clean
-	del $(APPNAME) 2>NUL
-	del $(PDBNAME) 2>NUL
-	del translate$E 2>NUL
-	del translate$P 2>NUL
-	del mkindex$E 2>NUL
-	del mkindex$P 2>NUL
-	del makeheaders$E 2>NUL
-	del makeheaders$P 2>NUL
-	del mkversion$E 2>NUL
-	del mkversion$P 2>NUL
-	del mkcss$E 2>NUL
-	del mkcss$P 2>NUL
-	del codecheck1$E 2>NUL
-	del codecheck1$P 2>NUL
-	del mkbuiltin$E 2>NUL
-	del mkbuiltin$P 2>NUL
+	-del $(APPNAME) 2>NUL
+	-del $(PDBNAME) 2>NUL
+	-del translate$E 2>NUL
+	-del translate$P 2>NUL
+	-del mkindex$E 2>NUL
+	-del mkindex$P 2>NUL
+	-del makeheaders$E 2>NUL
+	-del makeheaders$P 2>NUL
+	-del mkversion$E 2>NUL
+	-del mkversion$P 2>NUL
+	-del mkcss$E 2>NUL
+	-del mkcss$P 2>NUL
+	-del codecheck1$E 2>NUL
+	-del codecheck1$P 2>NUL
+	-del mkbuiltin$E 2>NUL
+	-del mkbuiltin$P 2>NUL
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -2235,12 +2235,12 @@ $(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(SQLITESHELLOBJ) $(THOBJ) $(ZLIBO
 
 .PHONY: clean
 clean:
-	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
-	del /F $(TRANSLATEDSRC)
-	del /F *.h headers
-	del /F $(RESOURCE)
+	-del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
+	-del /F $(TRANSLATEDSRC)
+	-del /F *.h headers
+	-del /F $(RESOURCE)
 
 .PHONY: clobber
 clobber: clean
-	del /F *.exe
+	-del /F *.exe
 }]
