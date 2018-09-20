@@ -1,5 +1,5 @@
-C The\sPOST\srequest\sby\sthe\shamburger\smenu\smust\sset\sthe\sright\scontent\stype\sof\napplication/x-www-form-urlencoded\sin\sorder\sto\spass\sthe\spopup=1\squery\sparameter.
-D 2018-09-20T10:27:06.417
+C Allow\s/sitemap\sto\saccept\sthe\spopup\squery\sparameter\sas\sGET\sas\slong\sas\sthe\nincoming\srequest\sis\sfrom\sthe\ssame\sorigin.\s\sThis\sis\sprobably\ssufficient\sto\nprevent\srevealing\sURLs\sto\srobots.\s\sAnd\sthe\suse\sof\sGET\sseems\sto\sbe\smore\sin\nkeeping\swith\sthe\sREST\sidea.
+D 2018-09-20T10:31:43.615
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/css.txt f69f33cc7d1ab6118bf02f52455ef08f283ab395d2de14da4140ec9e
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
-F skins/default/js.txt 8ecdf68099c5ef41340b1d78e6f072112219292ff05f81c0f4353a606986e497
+F skins/default/js.txt 8344ee43a4cd207f136682cf745bf44e598d15fd3c66382e8233633e1e61ca6b
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -557,7 +557,7 @@ F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 0bbaecacd0a0f58b5356cc2205e76d7a343c5c6f9eae654f5dc7dda2269c4085
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
-F src/sitemap.c 526ce932b7bcc2989ba89446fe8ab0b3bc3e0c637aede4e5c0694d849b61f21c
+F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
 F src/smtp.c ac922e9cb1466715aac93408220e75721032a1f5c6d9f87b9874d929953e5581
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 27c7a49191e3ee9b0154e722e5d25ebe9262c6b2bff5b55bac68cedf51539083
-R c671e2933e31b1caa67ef544c1f6a2a2
+P ee0f77dffac49cbcddafc1c14c973e4f6917859e31312ba9eb21c8d434edc2ed
+R 597ae53f821a9136055378f642b1a702
 U drh
-Z 1194e796493ee72e317fc5f3f3ff76b7
+Z bae8a5d6cd0f011b65e5024eb5fdcce5

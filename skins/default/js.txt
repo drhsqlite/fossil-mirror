@@ -125,10 +125,9 @@
         }
         // else, can't parse response as HTML or XML
       }
-      xhr.open("POST", "$home/sitemap");   // note the TH1 substitution!
-      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.open("GET", "$home/sitemap?popup");   // note the TH1 substitution!
       xhr.responseType = "document";
-      xhr.send("popup=1");
+      xhr.send();
     }
     else {
       showPanel();   // just show what we built above
