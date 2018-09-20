@@ -5,17 +5,22 @@
 
   *  Add the [./alerts.md|email alerts] feature for commits, ticket
      changes, wiki changes, forum posts, and announcements.  This is
-     still a work in progress.  It works, but it is not as easy to
+     still a work in progress.  It is functional, but it is not as easy to
      setup and use as it ought to be.
   *  Add the [./forum.wiki|discussion forum] feature.
   *  Add new user capabilities letters needed to support alerts and forum.
      Formerly, user capabilities were letters from &#91;a-z&#93;, but with the
      enhancements, the supply of lower case letters was exhausted.
      User capabilities are now letters in &#91;a-zA-Z0-9&#93;.
-  *  The default skin is now responsive, providing better layout on
+  *  The built-in skins are now responsive, providing better layout on
      small screens, including mobile devices.
   *  The default skin now includes a hamburger menu that is generated
      by the [/sitemap] page.
+  *  All of the built-in skins now use a 
+     [https://en.wikipedia.org/wiki/Content_Security_Policy|Content Security Policy (CSP)]
+     to help prevent cross-site injection and forgery attacks.  There are no known
+     vulnerabilities in Fossil.  The added CSP does not fix anything; it merely adds
+     another layer of defense.
   *  The [/sitemap] and other list pages show as multiple columns if
      the viewing window is wide enough.
   *  There is an optional "js" file for each skin that can be used to
@@ -26,8 +31,7 @@
      handling, from version 10.0 to 11.0.
   *  Improvements to the "Security Audit" administration page
   *  Added the [/help?cmd=branch|fossil branch current] command.
-  *  Update the built-in SQLite to version 3.25.0.
-  *  Add support for TLS 1.3, when compiled with OpenSSL 1.1.1.
+  *  Update the built-in SQLite to version 3.25.1.
   *  Some code and interfaces are in place to support sending and
      receiving email directly via SMTP, but this feature is not yet
      complete or ready for production use.
