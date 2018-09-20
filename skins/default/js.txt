@@ -126,6 +126,7 @@
         // else, can't parse response as HTML or XML
       }
       xhr.open("POST", "$home/sitemap");   // note the TH1 substitution!
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhr.responseType = "document";
       xhr.send("popup=1");
     }
