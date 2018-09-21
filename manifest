@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog\sfor\sthe\supcoming\s2.7\srelease.
-D 2018-09-20T15:55:50.001
+C Replaced\sthe\s"hasOwnProperty"\stest\sfor\sCSS\stransition\ssupport\sin\sthe\nanimated\shamburger\smenu\sJS\scode\swith\sa\sbetter\stest\sthat\snot\sonly\sworks\non\sold\sIE\sbut\salso\son\ssome\struly\sancient\sversions\sof\sSeaMonkey,\sFirefox,\nChrome,\setc.
+D 2018-09-21T01:52:12.313
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/css.txt f69f33cc7d1ab6118bf02f52455ef08f283ab395d2de14da4140ec9e
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
-F skins/default/js.txt cccd8d89ea939615eda1a99872a58aa42b114a22b3055eaf3ee97d1c77d58c89
+F skins/default/js.txt 0f565550c5dbc6fbee0a83fc3e5b5ffbbe9fef5343fb10aa885a66eabc191bba
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5abb962aa356288dfd169c826552949e7cb331cdd3c82b2c69a49af22f5c800
-R dfc0c4b3accedda3e14a239cb0dee5ba
-U drh
-Z 25930353c7fc5857720fa3b24ac9591f
+P 450e87235473c97c6c6dc0edbc014b0fbc01a0cd1d89628afce71c242b12eff1
+R 8dc0a1ae2b41d67e176a2172fe94ca71
+U wyoung
+Z e099b5f56b221bb16ef27900806ac340

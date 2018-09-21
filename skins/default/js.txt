@@ -20,16 +20,15 @@
 (function() {
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
+  if (!panel.style) return;  // shouldn't happen, but be sure
   var panelBorder = panel.style.border;
 
   // Disable animation if this browser doesn't support CSS transitions.
   //
-  // We need this ugly calling form for IE < 9 since it doesn't give you
-  // a true Object for host-provided values such as 'panel'.  That is,
-  // panel.style.hasOwnProperty() doesn't exist on IE8!  Since the whole
-  // point of this test is to allow the code below to run without a JS
-  // error on deficient browsers, we can't just ignore this problem.
-  var animate = Object.prototype.hasOwnProperty.call(panel.style, 'transition');
+  // We need this ugly calling form for old browsers that don't allow
+  // panel.style.hasOwnProperty('transition'); catering to old browsers
+  // is the whole point here.
+  var animate = panel.style.transition !== null && (typeof(panel.style.transition) == "string");
   var animMS = 400;
 
   // Calculate panel height despite its being hidden at call time.
