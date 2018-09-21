@@ -1,5 +1,5 @@
-C Back\sout\sthe\sblock-indentation\sCSS\schange\sfrom\scheck-in\s[2190f86c324d0f57fa4f8].
-D 2018-09-21T12:34:16.384
+C Avoid\sunnecessary\squoting\sof\sASCII\scharacters\s34\sand\s39\sin\sthe\smarkdown\nformatter.
+D 2018-09-21T13:57:13.539
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -521,7 +521,7 @@ F src/makemake.tcl c284d4ca7d3c40e6256fec1ee9b83b73d6fc3ccc1e9aaf654184b198d3cbb
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md ce356441f737497965852284e0d1968dfaeb48c5789f07d020feafb148db8de6
-F src/markdown_html.c 9bf56751d43414003cbf08b5a162d50a53df2c4f48951ccf9152119f39629789
+F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 6283c41b3924b4d9499024deeb523fb242306df46acbdd333fbb88c43ecf92e5
@@ -862,8 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee074372e834aa71dc9b4f3ade369d45b908269d98c88b7da079ea3c04964947
-Q -2190f86c324d0f57fa4f8a1ceb6bd5eca4c10c275a6961345a3d231a45bba986
-R 8bb4c0fed74bee81d67ae15e993d264a
+P eae0a9821dc8f0c24bb945027e75bec16af1edfff6ccd9c6668f1d18a39d1209
+R 3d1af5b2de1e552759482ae5ab8d4d7b
 U drh
-Z 51cf126d421949b2f8bbaeb0d1d3b670
+Z 99da4a149b18ab6b9866a34857f3c697
