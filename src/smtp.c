@@ -33,6 +33,9 @@
 #  include <windns.h>
 #  define FOSSIL_WINDOWS_STYLE_DNS 1
 #endif
+#ifdef HAVE___NS_NAME_UNCOMPRESS
+#  define ns_name_uncompress __ns_name_uncompress
+#endif
 
 
 /*
