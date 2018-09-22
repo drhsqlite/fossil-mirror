@@ -1,5 +1,5 @@
-C Avoid\sunnecessary\squoting\sof\sASCII\scharacters\s34\sand\s39\sin\sthe\smarkdown\nformatter.
-D 2018-09-21T13:57:13.539
+C Fix\sthe\sindented\sparagraph\son\sthe\shomepage.
+D 2018-09-22T00:22:51.019
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/index.wiki a3f18b1cf91528dec6f2ef672f332b5a34bb988988e95a6ec11041af5e27397b
+F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4a07d
 F www/mkindex.tcl 5fd64f0497c1af923bb12e3781e2fe8221ada8c852b332a6821ec38a8c4aeb8f x
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eae0a9821dc8f0c24bb945027e75bec16af1edfff6ccd9c6668f1d18a39d1209
-R 3d1af5b2de1e552759482ae5ab8d4d7b
+P 7950dc2297431d373d157a9bcadba1ddecde033f8083ac5970a17b239eca2eac
+R 55e578849df5b474c12225c0838db0a7
 U drh
-Z 99da4a149b18ab6b9866a34857f3c697
+Z 746b39950a187e87615030f64992760c
