@@ -21,8 +21,8 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-#if HAVE_DN_EXPAND || HAVE___NS_NAME_UNCOMPRESS || HAVE_NS_NAME_UNCOMPRES || \
-    (defined(__linux__) && !defined(FOSSIL_OMIT_DNS))
+#if (HAVE_DN_EXPAND || HAVE___NS_NAME_UNCOMPRESS || HAVE_NS_NAME_UNCOMPRES) && \
+    !defined(FOSSIL_OMIT_DNS)
 #  include <sys/types.h>
 #  include <netinet/in.h>
 #  if defined(HAVE_BIND_RESOLV_H)

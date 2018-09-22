@@ -1,5 +1,5 @@
-C Replaced\sthe\scall\sto\sthe\sundocumented\sns_name_uncompress()\sfunction\swith\ndn_expand(),\swhich\sis\sdocumented,\sat\sleast\son\sOpenBSD,\sand\sit's\sshorter.\nThen\smade\sns_name_uncompress()\sand\s__ns_name_uncompress()\sfallbacks\sfor\nthis,\swith\ssuitable\sautosetup\stests\sfor\sall\sof\sit.
-D 2018-09-22T16:38:50.883
+C Removed\sthe\s"Linux"\splatform\stest\sfrom\sthe\sDNS\sMX\sstuff\sin\ssrc/smtp.c.\nYou\sshould\salways\stest\sfor\sfeatures,\snot\splatforms,\sand\swe've\snow\sgot\nthe\sfeature\stests\swe\sneed\sto\sreplace\sthis\stoo-broad\splatform\stest.
+D 2018-09-22T16:55:39.365
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -560,7 +560,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
-F src/smtp.c 4dc7c32ab4807f1e640bcb4f40a7dd3045baf91d3073de7bb19f43e75d4544eb
+F src/smtp.c 412efe0358f6e3cea0597e2004a80f61ee04cd5cf51984e2e3e8f28c03ced4e4
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 1b2302e7a54cc99c84ff699a299f61f069a28e1ed090b89e4430ca80ae2aab06
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7640b38956595bac81141a1608c00823f04a2f7023e77aeac8be723c742dfa3
-R 02aa3560ca70960fd14c162b00ff5e4a
+P d0fb5ac7cae085d60804115d7abfbfbbd9596a98da620e2e530b151c21b3aa46
+R be1afe5cac718b3945407f53c334e6e5
 U wyoung
-Z b626bfa44b3b7d584d7eeae8ab46d1bc
+Z 6a7b48325d062bf6fbdb84a2674c882c
