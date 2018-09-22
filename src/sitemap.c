@@ -45,7 +45,7 @@ void sitemap_page(void){
   };
 
   login_check_credentials();
-  if( P("popup")!=0 && cgi_csrf_safe(1) ){
+  if( P("popup")!=0 && cgi_csrf_safe(0) ){
     /* If this is a POST from the same origin with the popup=1 parameter,
     ** then disable anti-robot defenses */
     isPopup = 1;

@@ -50,9 +50,12 @@ void markdown_to_html(
   blob_append((dest), blob_buffer(src), blob_size(src))
 
 
-/* HTML escape */
-
-static void html_escape(struct Blob *ob, const char *data, size_t size){
+/* HTML escapes
+**
+** html_escape() converts < to &lt;, > to &gt;, and & to &amp;.
+** html_quote() goes further and converts " into &quot; and ' in &#39;.
+*/
+static void html_quote(struct Blob *ob, const char *data, size_t size){
   size_t beg = 0, i = 0;
   while( i<size ){
     beg = i;
@@ -61,6 +64,7 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
      && data[i]!='>'
      && data[i]!='"'
      && data[i]!='&'
+     && data[i]!='\''
     ){
       i++;
     }
@@ -76,6 +80,32 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
         BLOB_APPEND_LITERAL(ob, "&quot;");
       }else if( data[i]=='\'' ){
         BLOB_APPEND_LITERAL(ob, "&#39;");
+      }else{
+        break;
+      }
+      i++;
+    }
+  }
+}
+static void html_escape(struct Blob *ob, const char *data, size_t size){
+  size_t beg = 0, i = 0;
+  while( i<size ){
+    beg = i;
+    while( i<size
+     && data[i]!='<'
+     && data[i]!='>'
+     && data[i]!='&'
+    ){
+      i++;
+    }
+    blob_append(ob, data+beg, i-beg);
+    while( i<size ){
+      if( data[i]=='<' ){
+        BLOB_APPEND_LITERAL(ob, "&lt;");
+      }else if( data[i]=='>' ){
+        BLOB_APPEND_LITERAL(ob, "&gt;");
+      }else if( data[i]=='&' ){
+        BLOB_APPEND_LITERAL(ob, "&amp;");
       }else{
         break;
       }
@@ -285,7 +315,7 @@ static int html_autolink(
   if( !link || blob_size(link)<=0 ) return 0;
   BLOB_APPEND_LITERAL(ob, "<a href=\"");
   if( type==MKDA_IMPLICIT_EMAIL ) BLOB_APPEND_LITERAL(ob, "mailto:");
-  html_escape(ob, blob_buffer(link), blob_size(link));
+  html_quote(ob, blob_buffer(link), blob_size(link));
   BLOB_APPEND_LITERAL(ob, "\">");
   if( type==MKDA_EXPLICIT_EMAIL && blob_size(link)>7 ){
     /* remove "mailto:" from displayed text */
@@ -338,12 +368,12 @@ static int html_image(
   void *opaque
 ){
   BLOB_APPEND_LITERAL(ob, "<img src=\"");
-  html_escape(ob, blob_buffer(link), blob_size(link));
+  html_quote(ob, blob_buffer(link), blob_size(link));
   BLOB_APPEND_LITERAL(ob, "\" alt=\"");
-  html_escape(ob, blob_buffer(alt), blob_size(alt));
+  html_quote(ob, blob_buffer(alt), blob_size(alt));
   if( title && blob_size(title)>0 ){
     BLOB_APPEND_LITERAL(ob, "\" title=\"");
-    html_escape(ob, blob_buffer(title), blob_size(title));
+    html_quote(ob, blob_buffer(title), blob_size(title));
   }
   BLOB_APPEND_LITERAL(ob, "\" />");
   return 1;
@@ -368,10 +398,10 @@ static int html_link(
     ** of the Fossil repository */
     blob_append(ob, g.zTop, -1);
   }
-  html_escape(ob, blob_buffer(link), blob_size(link));
+  html_quote(ob, blob_buffer(link), blob_size(link));
   if( title && blob_size(title)>0 ){
     BLOB_APPEND_LITERAL(ob, "\" title=\"");
-    html_escape(ob, blob_buffer(title), blob_size(title));
+    html_quote(ob, blob_buffer(title), blob_size(title));
   }
   BLOB_APPEND_LITERAL(ob, "\">");
   BLOB_APPEND_BLOB(ob, content);

@@ -36,7 +36,7 @@ management system with these advanced features:
       and intuitive [./webui.wiki | web interface]
       with a rich variety of information pages
       ([./webpage-ex.md|examples]) promoting situational awareness.
-
+      <p>
       This entire website is just a running instance of Fossil.
       The pages you see here are all [./wikitheory.wiki | wiki] or
       [./embeddeddoc.wiki | embedded documentation] or (in the case of

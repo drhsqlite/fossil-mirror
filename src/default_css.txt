@@ -197,7 +197,7 @@ div.columns > ul {
 div.columns > ul li:first-child {
   margin-top:0px;
 }
-div.columns li {
+.columns li {
   break-inside: avoid;
 }
 .filetree {

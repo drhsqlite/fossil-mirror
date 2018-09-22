@@ -145,10 +145,12 @@ div#hbdrop {
     border-radius: 5px;
 }
 .content blockquote {
+    padding: 0 15px;
+}
+div.forumHierRoot blockquote, div.forumHier blockquote {
     background-color: rgba(65, 131, 196, 0.1);
     border-left: 3px solid #254769;
-    padding: 0.1em;
-    padding-left: 1em;
+    padding: .1em 1em;
 }
 
 table.report {

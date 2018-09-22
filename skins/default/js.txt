@@ -20,8 +20,15 @@
 (function() {
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
+  if (!panel.style) return;  // shouldn't happen, but be sure
   var panelBorder = panel.style.border;
-  var animate = panel.style.hasOwnProperty('transition');
+
+  // Disable animation if this browser doesn't support CSS transitions.
+  //
+  // We need this ugly calling form for old browsers that don't allow
+  // panel.style.hasOwnProperty('transition'); catering to old browsers
+  // is the whole point here.
+  var animate = panel.style.transition !== null && (typeof(panel.style.transition) == "string");
   var animMS = 400;
 
   // Calculate panel height despite its being hidden at call time.
@@ -125,9 +132,9 @@
         }
         // else, can't parse response as HTML or XML
       }
-      xhr.open("POST", "$home/sitemap");   // note the TH1 substitution!
+      xhr.open("GET", "$home/sitemap?popup");   // note the TH1 substitution!
       xhr.responseType = "document";
-      xhr.send("popup=1");
+      xhr.send();
     }
     else {
       showPanel();   // just show what we built above
