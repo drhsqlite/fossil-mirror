@@ -1,5 +1,5 @@
-C Added\sa\scheck\sfor\sns_parserr(),\swhich\swe\scurrently\sdon't\sknow\show\sto\nfind\son\sOpenBSD.\s\sThis\salso\sfixes\sa\slogic\serror\sin\sauto.def\swhich\swould\ncause\sthe\swarning\sthat\sthis\sfeature\swon't\sbe\scompiled\sto\snot\sbe\sgiven.
-D 2018-09-22T17:02:56.726
+C Typo\sfix
+D 2018-09-22T17:09:48.462
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -560,7 +560,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
-F src/smtp.c 9ba4b37cdf5dcd266fcb4a4ca8ed5ea6e8c6d2455c8e41ee8eb79b4da698ee92
+F src/smtp.c 78f0e36ace8d01df88013a915380a31d789fd0bb45942e59f49286f113086888
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 1b2302e7a54cc99c84ff699a299f61f069a28e1ed090b89e4430ca80ae2aab06
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5358fe9563bf2aa6815b46c8aa597b61274c615657b52e2cb0cb276be061f8a0
-R de4f423a359ae64bf242dcd90f3e49b0
-U wyoung
-Z dc3fa9b5902dacaabb04eeb51258d112
+P f99e76324c87363626fb94e0eea4ffa40f055176e33898a9c0c32f9490c885e5
+R 2f0807334b087bf9a9b3624ddd16e767
+U tangent
+Z b2b9ecf4eeb22d8b38dc968bb139fe0a
