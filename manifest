@@ -1,5 +1,5 @@
-C The\sprevious\scheckin\son\sthis\sbranch\sprevented\ssrc/smtp.c\sfrom\sboth\nbuilding\sand\slinking\sbecause\sthe\scode\spreviously\sassumed\sthat\sit\scould\nonly\sbuild\sagainst\slibresolv\sfor\sMX\slookups\sand\ssuch\son\sLinux,\sbut\sthe\ncheckin\sgave\sit\senough\sslack\sto\s*attempt*\sto\sbuild\son\smacOS.\s\sThis\ncheckin\sprevents\sthat\sfrom\shappening\sif\srun\son\sstock\smacOS,\sbut\sif\syou\ninstall\slibbind\svia\sHomebrew,\sit\salso\sopens\sup\sthe\spossibilty\sto\sbiuld\nagainst\sit\sfor\sthe\sfirst\stime.\s\sIt's\sa\scomplicated\ssequence\sof\schecks\ndue\sto\sthe\sway\slibbind\sinteracts\swith\sthe\sstock\slibresolv.\s\sThis\smeans\nwe\shave\syet\smore\sreason\sto\swant\sto\stest\sthis\swidely\sbefore\smerging\sit\nto\strunk.
-D 2018-09-22T06:46:45.885
+C Fix\sto\sprevious\sfor\sCentOS\s7.
+D 2018-09-22T06:57:06.624
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -560,7 +560,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
-F src/smtp.c 6d6f0bafcb626c494433a8fff12304f32e8153fb9e0a9efe452126aacf71cdae
+F src/smtp.c 01dabdbbf349d1b4ce670c1e344b3d70b23464d31f91ba0723ea4386f02e0aa7
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 1b2302e7a54cc99c84ff699a299f61f069a28e1ed090b89e4430ca80ae2aab06
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed3b1e4d89b963f040c032feec4d3c5eb2d10161846cb5159336f34a2f08b235
-R 0f28defa591aad3b5574a0a2bc6f1776
-U wyoung
-Z 13c8df0c4d13a2dcbbc8d6e04b281859
+P 4d9970f618cd1598d7439aff08f9ad592bd69436c3b6ed77f220e711cd27dc59
+R bc7a6a2d72ffb9ebc70e5c3d7442031d
+U tangent
+Z 92fda1bb868580932e9caf0be3a1275b

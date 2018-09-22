@@ -32,7 +32,7 @@
 #    include <arpa/nameser.h>
 #    include <resolv.h>
 #  endif
-#  if !defined(ns_name_uncompress)
+#  if defined(HAVE__NS_NAME_UNCOMPRESS) && !defined(ns_name_uncompress)
 #    define ns_name_uncompress __ns_name_uncompress
 #  endif
 #  define FOSSIL_UNIX_STYLE_DNS 1
