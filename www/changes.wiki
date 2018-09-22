@@ -1,7 +1,7 @@
 ﻿<title>Change Log</title>
 
 <a name='v2_7'></a>
-<h2>Changes for Version 2.7 (2018-09-??)</h2>
+<h2>Changes for Version 2.7 (2018-09-22)</h2>
 
   *  Add the [./alerts.md|email alerts] feature for commits, ticket
      changes, wiki changes, forum posts, and announcements.  This is

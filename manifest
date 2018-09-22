@@ -1,5 +1,5 @@
-C Second\sattempt\sat\sblockquote\sstyling,\sthis\stime\srestricting\sit\sto\sforum\nposts\sonly.\s\s(Previous:\s[2190f86c324d0])
-D 2018-09-22T00:54:37.440
+C Version\s2.7
+D 2018-09-22T17:40:11.397
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -770,7 +770,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki bd786dff5cc78c482f07a011a99163bd4e9362f35b9222be6da54baef755ae47
-F www/changes.wiki 050f1cc0c52c4f91f71558ad76486e5aadc8e560dfc027617010fbb946d485f3
+F www/changes.wiki ce0b3714c152c9d30352ef343456d7a1707b4f28f06a9a023633b9d7b3e8ae6a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -862,7 +862,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d7ac90d575004c24157fdf846d1a6a933e68b405384a3c910dd6adf173e1310
-R 3cd58e8fc1bd9e5f4e994e87f542e7f1
-U wyoung
-Z f81f47f05b5515f355a64220a14fba39
+P c285cd0812959044a7d8b0e0523bf0bf377f35064f6c546aecfcb5bbb4b60595
+R b5264ada2bf947fc7a4153229b86149c
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.7 *
+U drh
+Z 4005bde647e2e204a35f97657b7c6e48
