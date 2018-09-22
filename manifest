@@ -1,11 +1,11 @@
-C Second\sattempt\sat\sblockquote\sstyling,\sthis\stime\srestricting\sit\sto\sforum\nposts\sonly.\s\s(Previous:\s[2190f86c324d0])
-D 2018-09-22T00:54:37.440
+C Add\sbuild\sdirectories\sto\signore-glob.
+D 2018-09-22T04:21:42.199
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
 F .fossil-settings/encoding-glob fe9e7e2a183ce22d107976173b58d2a1255aeb0a
-F .fossil-settings/ignore-glob b7b945d48cfceef7fd1000d6a6c6232b7163d5e8
+F .fossil-settings/ignore-glob 1d93d630900772ae75c4e82b1e35c047d02a591b5e188a8a90d43b4954b78d1c
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0d7ac90d575004c24157fdf846d1a6a933e68b405384a3c910dd6adf173e1310
-R 3cd58e8fc1bd9e5f4e994e87f542e7f1
-U wyoung
-Z f81f47f05b5515f355a64220a14fba39
+P c285cd0812959044a7d8b0e0523bf0bf377f35064f6c546aecfcb5bbb4b60595
+R b1aa95f9625c25f2933c4cbf1003c318
+U ashepilko
+Z 422b8801629d697366637d51618b6d94
