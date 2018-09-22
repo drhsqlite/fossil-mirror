@@ -522,11 +522,13 @@ cc-check-includes arpa/nameser.h
 cc-include-needs bind/resolv.h netinet/in.h
 cc-check-includes bind/resolv.h
 cc-check-includes resolv.h
-if {    (![cc-check-function-in-lib dn_expand resolv] ||
-         ![cc-check-function-in-lib   ns_name_uncompress {bind resolv}] ||
-         ![cc-check-function-in-lib __ns_name_uncompress {bind resolv}]) &&
-        (![cc-check-function-in-lib   res_query {bind resolv}] ||
-         ![cc-check-function-in-lib __res_query {bind resolv}])} {
+if {    !(([cc-check-function-in-lib dn_expand resolv] ||
+           [cc-check-function-in-lib   ns_name_uncompress {bind resolv}] ||
+           [cc-check-function-in-lib __ns_name_uncompress {bind resolv}]) &&
+          ([cc-check-function-in-lib   ns_parserr {bind resolv}] ||
+           [cc-check-function-in-lib __ns_parserr {bind resolv}]) &&
+          ([cc-check-function-in-lib   res_query {bind resolv}] ||
+           [cc-check-function-in-lib __res_query {bind resolv}]))} {
     msg-result "WARNING: SMTP feature will not be able to look up local MX."
 }
 cc-check-function-in-lib res_9_ns_initparse resolv

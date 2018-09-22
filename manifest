@@ -1,5 +1,5 @@
-C Removed\sthe\s"Linux"\splatform\stest\sfrom\sthe\sDNS\sMX\sstuff\sin\ssrc/smtp.c.\nYou\sshould\salways\stest\sfor\sfeatures,\snot\splatforms,\sand\swe've\snow\sgot\nthe\sfeature\stests\swe\sneed\sto\sreplace\sthis\stoo-broad\splatform\stest.
-D 2018-09-22T16:55:39.365
+C Added\sa\scheck\sfor\sns_parserr(),\swhich\swe\scurrently\sdon't\sknow\show\sto\nfind\son\sOpenBSD.\s\sThis\salso\sfixes\sa\slogic\serror\sin\sauto.def\swhich\swould\ncause\sthe\swarning\sthat\sthis\sfeature\swon't\sbe\scompiled\sto\snot\sbe\sgiven.
+D 2018-09-22T17:02:56.726
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 799ce6d51c510758c3b36ee38fa35c2a68bb77fd07a549ae308ee391131b7312
+F auto.def fd3128fb16edb9d09c6337cba893524e2c4905fd3d9ca8f48bae7146ab86619b
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -560,7 +560,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
-F src/smtp.c 412efe0358f6e3cea0597e2004a80f61ee04cd5cf51984e2e3e8f28c03ced4e4
+F src/smtp.c 9ba4b37cdf5dcd266fcb4a4ca8ed5ea6e8c6d2455c8e41ee8eb79b4da698ee92
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 1b2302e7a54cc99c84ff699a299f61f069a28e1ed090b89e4430ca80ae2aab06
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0fb5ac7cae085d60804115d7abfbfbbd9596a98da620e2e530b151c21b3aa46
-R be1afe5cac718b3945407f53c334e6e5
+P 5358fe9563bf2aa6815b46c8aa597b61274c615657b52e2cb0cb276be061f8a0
+R de4f423a359ae64bf242dcd90f3e49b0
 U wyoung
-Z 6a7b48325d062bf6fbdb84a2674c882c
+Z dc3fa9b5902dacaabb04eeb51258d112

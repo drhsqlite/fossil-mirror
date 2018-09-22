@@ -22,7 +22,7 @@
 #include "smtp.h"
 #include <assert.h>
 #if (HAVE_DN_EXPAND || HAVE___NS_NAME_UNCOMPRESS || HAVE_NS_NAME_UNCOMPRES) && \
-    !defined(FOSSIL_OMIT_DNS)
+    (HAVE_NS_PARSERR || HAVE___NS_PARSERR) && !defined(FOSSIL_OMIT_DNS)
 #  include <sys/types.h>
 #  include <netinet/in.h>
 #  if defined(HAVE_BIND_RESOLV_H)
