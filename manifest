@@ -1,5 +1,5 @@
-C Fix\sthe\sindented\sparagraph\son\sthe\shomepage.
-D 2018-09-22T00:22:51.019
+C Second\sattempt\sat\sblockquote\sstyling,\sthis\stime\srestricting\sit\sto\sforum\nposts\sonly.\s\s(Previous:\s[2190f86c324d0])
+D 2018-09-22T00:54:37.440
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -391,7 +391,7 @@ F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
 F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
-F skins/default/css.txt 6659cea12d5b1291cf9ee082a24ac5c11c1b4cef4d0ec2f191b9a0b942183801
+F skins/default/css.txt e0bef6152beb39b059854007338e537d39c9777833dc17f0d05ce0e5427a1487
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7950dc2297431d373d157a9bcadba1ddecde033f8083ac5970a17b239eca2eac
-R 55e578849df5b474c12225c0838db0a7
-U drh
-Z 746b39950a187e87615030f64992760c
+P 0d7ac90d575004c24157fdf846d1a6a933e68b405384a3c910dd6adf173e1310
+R 3cd58e8fc1bd9e5f4e994e87f542e7f1
+U wyoung
+Z f81f47f05b5515f355a64220a14fba39
