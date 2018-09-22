@@ -21,20 +21,26 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-#if defined(__linux__) && !defined(FOSSIL_OMIT_DNS)
+#if HAVE___NS_NAME_UNCOMPRESS || HAVE_NS_NAME_UNCOMPRES || \
+    (defined(__linux__) && !defined(FOSSIL_OMIT_DNS))
 #  include <sys/types.h>
 #  include <netinet/in.h>
-#  include <arpa/nameser.h>
-#  include <resolv.h>
+#  if defined(HAVE_BIND_RESOLV_H)
+#    include <bind/resolv.h>
+#    include <bind/arpa/nameser_compat.h>
+#  else
+#    include <arpa/nameser.h>
+#    include <resolv.h>
+#  endif
+#  if !defined(ns_name_uncompress)
+#    define ns_name_uncompress __ns_name_uncompress
+#  endif
 #  define FOSSIL_UNIX_STYLE_DNS 1
 #endif
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
 #  include <windows.h>
 #  include <windns.h>
 #  define FOSSIL_WINDOWS_STYLE_DNS 1
-#endif
-#ifdef HAVE___NS_NAME_UNCOMPRESS
-#  define ns_name_uncompress __ns_name_uncompress
 #endif
 
 

@@ -515,11 +515,21 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
+
+# The SMTP module requires special libraries and headers for MX DNS
+# record lookups and such.
+cc-check-includes arpa/nameser.h
+cc-include-needs bind/resolv.h netinet/in.h
+cc-check-includes bind/resolv.h
+cc-check-includes resolv.h
 if {    ![cc-check-function-in-lib   ns_name_uncompress {resolv bind}] &&
         ![cc-check-function-in-lib __ns_name_uncompress {resolv bind}]} {
-	user-error "We need either libresolv or libbind for res_query() and ns_*()."
+    msg-result "WARNING: SMTP feature will not be able to look up local MX."
 }
 cc-check-function-in-lib res_query resolv
+cc-check-function-in-lib res_9_ns_initparse resolv
+
+# Other nonstandard function checks
 cc-check-functions utime
 cc-check-functions usleep
 cc-check-functions strchrnul
