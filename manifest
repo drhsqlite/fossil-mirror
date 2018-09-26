@@ -1,5 +1,5 @@
-C When\sclicking\son\sa\susername\sin\sthe\stimeline,\slink\sto\sa\stimeline\sthat\sshows\n*all*\sevents\sfor\sthat\suser.\s\sIn\sother\swords,\soverride\sthe\sdisplay-cookie\ny=\squery\sparameter\sby\sproviding\san\sexplicit\sy=a\squery\sterm.
-D 2018-09-26T13:33:33.472
+C Enable\sthe\schronological\sforum\sdisplay\sfor\sall\susers\sable\sto\sread\sthe\nforum.\s\sMake\schronological\sthe\sdefault\sdisplay\smode\sfor\smobile\sdevices,\nas\sdetermined\sby\sthe\suser-agent\sstring.
+D 2018-09-26T14:04:10.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -442,7 +442,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/capabilities.c 284becd46517998e2f3004b730dab92002288f684bb8f10f93bdebd608a49f00
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c 12eb17258e769ae463d396662b60db8a66932cab823f17a6004813b7de1e5762
+F src/cgi.c 2a2ce5bc9f5a3df2bf421f70c08c03922b6e0d84e1664b1b8ae03bdc30a96a64
 F src/checkin.c 19b0e7b7d06e5bd21b10e33f5bbe3984d76e7b3f9b365ce1c223e3c3d7102435
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -474,7 +474,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c ba0d0f2190fe6423b7b189e737b1202a9700332fddf627790b6ab2c27f36f8fe
+F src/forum.c 965317ddbcdc442cd473d3a657e9f05499a8362d855bea60e8d745e8bf7b4112
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5fdd53120e12a9f95ccc5e637803543745acc6b7874f248e34505a578415d172
-R 061905e4b5ac1faf2a2eb53fea61d738
+P 6313d0a828d2b7a445e49ab1d3647dc816e25df9108308b0e565bbcc11484b93
+R 98ee8177a60d0c782757d32badee0b6e
 U drh
-Z cec98140a3d47354ef48202bcb0d2d57
+Z 79e212d90d32ccdb2cb0bae84c08ee36

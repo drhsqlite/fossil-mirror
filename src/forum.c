@@ -297,17 +297,17 @@ static void forum_display_chronological(int froot, int target){
     @ <p>By %h(pPost->zUser) on %h(zDate) (%d(p->fpid))
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t",p->pEdit->zUuid))%d(p->fprev)</a>
+      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))%d(p->fprev)</a>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ reply to %z(href("%R/forumpost/%S?t",pIrt->zUuid))%d(p->firt)</a>
+        @ reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
       }
     }
     if( p->pLeaf ){
-      @ updated by %z(href("%R/forumpost/%S?t",p->pLeaf->zUuid))\
+      @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
       @ %d(p->pLeaf->fpid)</a>
     }
     if( g.perm.Debug ){
@@ -315,7 +315,7 @@ static void forum_display_chronological(int froot, int target){
       @ <a href="%R/artifact/%h(p->zUuid)">artifact</a></span>
     }
     if( p->fpid!=target ){
-      @ %z(href("%R/forumpost/%S?t",p->zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
     }
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -473,7 +473,8 @@ static int forum_display_hierarchical(int froot, int target){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of the post to display
-**   t             Show a chronologic listing instead of hierarchical
+**   t=MODE        Display mode. MODE is 'c' for chronological or
+**                   'h' for hierarchical, or 'a' for automatic.
 */
 void forumpost_page(void){
   forumthread_page();
@@ -489,12 +490,14 @@ void forumpost_page(void){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of any post of the thread.
-**   t             Show a chronologic listing instead of hierarchical
+**   t=MODE        Display mode. MODE is 'c' for chronological or
+**                   'h' for hierarchical, or 'a' for automatic.
 */
 void forumthread_page(void){
   int fpid;
   int froot;
   const char *zName = P("name");
+  const char *zMode = PD("t","a");
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -513,15 +516,18 @@ void forumthread_page(void){
     webpage_error("Not a forum post: \"%s\"", zName);
   }
   if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
-  if( P("t") ){
-    if( g.perm.Debug ){
-      style_submenu_element("Hierarchical", "%R/%s/%s", g.zPath, zName);
-    }                          
+  if( zMode[0]=='a' ){
+    if( cgi_from_mobile() ){
+      zMode = "c";  /* Default to chronological on mobile */
+    }else{
+      zMode = "h";
+    }
+  }
+  if( zMode[0]=='c' ){
+    style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
     forum_display_chronological(froot, fpid);
   }else{
-    if( g.perm.Debug ){
-      style_submenu_element("Chronological", "%R/%s/%s?t", g.zPath, zName);
-    }                          
+    style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
   style_load_js("forum.js");

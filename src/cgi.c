@@ -2069,3 +2069,15 @@ int cgi_is_loopback(const char *zIpAddr){
          fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0 ||
          fossil_strcmp(zIpAddr, "::1")==0;
 }
+
+/*
+** Return true if the HTTP request is likely to be from a small-screen
+** mobile device.
+**
+** The returned value is a guess.  Use it only for setting up defaults.
+*/
+int cgi_from_mobile(void){
+  const char *zAgent = P("HTTP_USER_AGENT");
+  if( zAgent==0 ) return 0;
+  return sqlite3_strlike("%mobile%", zAgent, 0)==0;
+}
