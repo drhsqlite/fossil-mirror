@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.25.2\srelease\scandidate,\sfor\stesting.
-D 2018-09-25T17:26:12.586
+C When\sclicking\son\sa\susername\sin\sthe\stimeline,\slink\sto\sa\stimeline\sthat\sshows\n*all*\sevents\sfor\sthat\suser.\s\sIn\sother\swords,\soverride\sthe\sdisplay-cookie\ny=\squery\sparameter\sby\sproviding\san\sexplicit\sy=a\squery\sterm.
+D 2018-09-26T13:33:33.472
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -577,7 +577,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c c65ed6382505b2f703f9ce15541bd9903e2b27fe330680cf35f4c8cf28272f0d
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c a587128406291ffdac29e8ab1ed65c678dc49bf44d78711e6412ce52178d7dbd
+F src/timeline.c ff8fa57f5c210c2b99380edec719ce89d758df07f38dcebbbd7cf9e49db7aa96
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9aa9ba8bd22a6cb5d77386e79e00db74d420b411718ab07a3a3775a673989f73
-R a6d0c5efa037a137e432c3e50fbbee12
+P 5fdd53120e12a9f95ccc5e637803543745acc6b7874f248e34505a578415d172
+R 061905e4b5ac1faf2a2eb53fea61d738
 U drh
-Z 46dd164d9a15a69ca383fa0b9f1d647d
+Z cec98140a3d47354ef48202bcb0d2d57
