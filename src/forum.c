@@ -748,7 +748,7 @@ void forumnew_page(void){
   }
   style_header("New Forum Thread");
   @ <form action="%R/forume1" method="POST">
-  @ <h1>New Message:</h1>
+  @ <h1>New Thread:</h1>
   forum_from_line();
   forum_entry_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
@@ -945,7 +945,7 @@ void forum_main_page(void){
   }
   style_header("Forum");
   if( g.perm.WrForum ){
-    style_submenu_element("New Message","%R/forumnew");
+    style_submenu_element("New Thread","%R/forumnew");
   }
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");

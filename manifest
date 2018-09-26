@@ -1,5 +1,5 @@
-C Setup\sand\sAdmin\susers\sthat\sare\sin\sthe\ssubscriber\stable\swere\sgetting\nemail\salerts\sonly\sif\sthey\shad\sexplicit\smoderator\scapabilities\sset.\nThose\swith\sbare\s"s"\sor\s"a"\sweren't\sgetting\snotified.
-D 2018-09-26T18:39:20.234
+C "New\sMessage"\s->\s"New\sThread"\sin\sforum.
+D 2018-09-26T18:45:09.696
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
 F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
-F src/forum.c 965317ddbcdc442cd473d3a657e9f05499a8362d855bea60e8d745e8bf7b4112
+F src/forum.c 8dc044e7365ce848f324a5e8c8faac61e9aea64fac719ecf75aafc18014a2a0d
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c720327afe191528e0e62aa171fda8a19cf4154d87f16497d609dbe69277e0ba
-R 19f803a9f02b9b6510be735c5a2e1875
+P 1d3dd1d917acdae7f6e210fdce7176b614167637cd99a6fd551650768122b571
+R d881fda26948512c7e8cd0979103a1a0
 U wyoung
-Z 50510beae733f1574b4c13aed30de7bb
+Z 247e605f700a9f464f377a1eaa8aeb12
