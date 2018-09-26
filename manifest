@@ -1,5 +1,5 @@
-C Enable\sthe\schronological\sforum\sdisplay\sfor\sall\susers\sable\sto\sread\sthe\nforum.\s\sMake\schronological\sthe\sdefault\sdisplay\smode\sfor\smobile\sdevices,\nas\sdetermined\sby\sthe\suser-agent\sstring.
-D 2018-09-26T14:04:10.928
+C Setup\sand\sAdmin\susers\sthat\sare\sin\sthe\ssubscriber\stable\swere\sgetting\nemail\salerts\sonly\sif\sthey\shad\sexplicit\smoderator\scapabilities\sset.\nThose\swith\sbare\s"s"\sor\s"a"\sweren't\sgetting\snotified.
+D 2018-09-26T18:39:20.234
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,7 +428,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c bbef3993c612636cd9b818386386a250b67ddde510fea5db0de0a7ba8e321888
+F src/alerts.c 3b0746077ad9ec46d470eb8e707afab593fdc4023b5a425d82290a989bc51c07
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 9484eff46bdf7deae8f7fcc519cd213274c90b7bfacff1dabc8df28fe0770f2d
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6313d0a828d2b7a445e49ab1d3647dc816e25df9108308b0e565bbcc11484b93
-R 98ee8177a60d0c782757d32badee0b6e
-U drh
-Z 79e212d90d32ccdb2cb0bae84c08ee36
+P c720327afe191528e0e62aa171fda8a19cf4154d87f16497d609dbe69277e0ba
+R 19f803a9f02b9b6510be735c5a2e1875
+U wyoung
+Z 50510beae733f1574b4c13aed30de7bb

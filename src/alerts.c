@@ -2428,14 +2428,17 @@ void alert_send_alerts(u32 flags){
       if( strchr(zSub,p->type)==0 ) continue;
       if( p->needMod ){
         /* For events that require moderator approval, only send an alert
-        ** if the recipient is a moderator for that type of event */
+        ** if the recipient is a moderator for that type of event.  Setup
+        ** and Admin users always get notified. */
         char xType = '*';
-        switch( p->type ){
-          case 'f':  xType = '5';  break;
-          case 't':  xType = 'q';  break;
-          case 'w':  xType = 'l';  break;
+        if( strpbrk(zCap,"as")==0 ){
+          switch( p->type ){
+            case 'f':  xType = '5';  break;
+            case 't':  xType = 'q';  break;
+            case 'w':  xType = 'l';  break;
+          }
+          if( strchr(zCap,xType)==0 ) continue;
         }
-        if( strchr(zCap,xType)==0 ) continue;
       }else if( strchr(zCap,'s')!=0 || strchr(zCap,'a')!=0 ){
         /* Setup and admin users can get any notification that does not
         ** require moderation */
