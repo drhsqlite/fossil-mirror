@@ -1,5 +1,5 @@
-C "New\sMessage"\s->\s"New\sThread"\sin\sforum.
-D 2018-09-26T18:45:09.696
+C Guess\sthat\sagents\swith\s"iPad"\sin\stheir\sname\sdo\snot\swant\sthe\snarrow\sscreen\nversions\sof\sthe\spage.
+D 2018-09-27T02:17:25.015
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -442,7 +442,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
 F src/capabilities.c 284becd46517998e2f3004b730dab92002288f684bb8f10f93bdebd608a49f00
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c 2a2ce5bc9f5a3df2bf421f70c08c03922b6e0d84e1664b1b8ae03bdc30a96a64
+F src/cgi.c b1b3215c666c63fd5a5311dcbb19819afda5db6b62a4b1d6405390a8b90b63bf
 F src/checkin.c 19b0e7b7d06e5bd21b10e33f5bbe3984d76e7b3f9b365ce1c223e3c3d7102435
 F src/checkout.c 30d687f7642ce38974325c7d60b9a76479568ce6ba026226a0c760b544f4803b
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d3dd1d917acdae7f6e210fdce7176b614167637cd99a6fd551650768122b571
-R d881fda26948512c7e8cd0979103a1a0
-U wyoung
-Z 247e605f700a9f464f377a1eaa8aeb12
+P e11d3917111883810d3c4faac19b54296b4fdca30b1f88135809a2008d9a2214
+R 9de6f0df3bf42296da87fca5a48450b3
+U drh
+Z 11352fa8d74dc401b2be70471fab7717

@@ -2079,5 +2079,6 @@ int cgi_is_loopback(const char *zIpAddr){
 int cgi_from_mobile(void){
   const char *zAgent = P("HTTP_USER_AGENT");
   if( zAgent==0 ) return 0;
+  if( sqlite3_strglob("*iPad*", zAgent)==0 ) return 0;
   return sqlite3_strlike("%mobile%", zAgent, 0)==0;
 }
