@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\sevent.wiki\spage.
-D 2018-09-28T14:59:29.836
+C Document\sreference\slinks\shaving\sno\ssecond\sset\sof\ssquare\sbrackets
+D 2018-09-28T20:54:44.788
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -520,7 +520,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl c284d4ca7d3c40e6256fec1ee9b83b73d6fc3ccc1e9aaf654184b198d3cbb50b x
 F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
-F src/markdown.md ce356441f737497965852284e0d1968dfaeb48c5789f07d020feafb148db8de6
+F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7cf6
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -862,7 +862,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b76eebea8793b3b2fd9f507485674122c3ff5a49f7d0915f367f47932af23764
-R 6fc0a26aa990e5a8e5871f69a505e35d
-U drh
-Z 25c4a9b8b1a1d03e82061979ba031c15
+P 335d5295978a0714bcaff78f89d8c71103d2186dfff03a17f5924e03fac84f5c
+U andygoth
+Z f2f821f5b45a0c14839ff6e2b892d287
