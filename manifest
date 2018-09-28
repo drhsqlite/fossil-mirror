@@ -1,5 +1,5 @@
-C Guess\sthat\sagents\swith\s"iPad"\sin\stheir\sname\sdo\snot\swant\sthe\snarrow\sscreen\nversions\sof\sthe\spage.
-D 2018-09-27T02:17:25.015
+C Fix\stypo\sin\sthe\sevent.wiki\spage.
+D 2018-09-28T14:59:29.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -804,7 +804,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
 F www/env-opts.md 225d146ce028010f6983e4086ba3273c4ab6d48e5d01fc5a4b0ec8003fed0898
-F www/event.wiki f5a9cc34b11e8224e503e16137ba0f966f151551
+F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e11d3917111883810d3c4faac19b54296b4fdca30b1f88135809a2008d9a2214
-R 9de6f0df3bf42296da87fca5a48450b3
+P b76eebea8793b3b2fd9f507485674122c3ff5a49f7d0915f367f47932af23764
+R 6fc0a26aa990e5a8e5871f69a505e35d
 U drh
-Z 11352fa8d74dc401b2be70471fab7717
+Z 25c4a9b8b1a1d03e82061979ba031c15

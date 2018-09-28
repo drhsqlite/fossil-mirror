@@ -25,7 +25,7 @@ Possible uses for technotes include:
       can contain release notes, for example.
 
   *  <b>Blog Entries</b>.  Blog entries from developers describing the current
-     state of a project, or rational for various design decisions, or
+     state of a project, or rationale for various design decisions, or
      roadmaps for future development, can be entered as technotes.
 
   *  <b>Process Checkpoints</b>.  For projects that have a formal process,
