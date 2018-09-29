@@ -1,5 +1,5 @@
-C Update\sFossil\sman\spage\sto\sinclude\snew\s"common"\scommands,\saccording\sto\sthe\soutput\sof\s"fossil\shelp"
-D 2018-09-29T02:18:28.767
+C Update\sman\spage\sto\ssync\swith\swww/index.wiki
+D 2018-09-29T02:23:29.140
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -320,7 +320,7 @@ F compat/zlib/zutil.c 2f1fcc93488ac84acf984415b6ea0bd63c72aa49
 F compat/zlib/zutil.h f32dab3880d47eca1b71c308cf6542b32941b23c
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh a178ffe4795ef9cc3ef3550572c20fe4110c8f87d9368f06526714ff12e33823
-F fossil.1 cfbe6972c389924782e34aac1a8ca742ff98d81a41c800afe1923c01aa291e54
+F fossil.1 c6f6efc5ab87ddd770edeb243a97a920a870389f0aa535f673268a39bf7eeed9
 F setup/fossil.iss 57e01e1feb0198de025417c0a98f1d4b1c444f53
 F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
@@ -862,7 +862,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2856830e1765b0aec32e4db0f8458ecd97092201dd5bdb805f5029686fc14898
-R b1507b07a5919bf236ad7e0f6beef5f2
+P 7f890aa458b282e4a1310ed4e1788e74d77fc341816a7fd717e65f3d83dc87b2
+R 69cac9673d35dbe6eaa04553c7ae4d73
 U andygoth
-Z 39dda18222e21494b694d957d0e8e33e
+Z d0f3b1a14ba8b012f33a42011ac415f5
