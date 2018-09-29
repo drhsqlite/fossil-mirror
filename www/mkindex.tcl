@@ -15,6 +15,7 @@ set doclist {
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}
+  blockchain.md {Fossil As Blockchain}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
