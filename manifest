@@ -1,5 +1,5 @@
-C Added\sa\sspec\sreference\sto\sPOSIX\sgrep,\sand\sfixed\sa\stypo.
-D 2018-10-03T21:11:58.931
+C Listed\sthe\sactual\sdifferences\sbetween\sfossil\sgrep\soptions\sand\sthose\ndefined\sby\sPOSIX\sin\swww/grep.md.
+D 2018-10-03T21:25:19.876
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -825,7 +825,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
-F www/grep.md 6dd0fa98a8e5cbf2bdd2cb5faaaecdb88cdabc8023a0a90892f68d1a08276134
+F www/grep.md 6313f2339d0d342253cbc32ffb35de6c8e1e1a035be0ecdf5e5a06b1c2be248f
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f984d331aee7f63c99dc4e5b7b66d253f7daac9ced28f62f8401529eeed4a3f0
-R 48d3f15558f5f07fe7fbc7a1cf10c40f
+P 9fc411ab58e4dac411315c5d5828599efafcee6a861907efa6b81c5a48dc941c
+R d7ac88ebd94136c8b07e5700343e7e1c
 U wyoung
-Z b347031872d41f3d8fcd18bbb4e098ec
+Z b24fca62d1a8a50940780b3cf45f2511

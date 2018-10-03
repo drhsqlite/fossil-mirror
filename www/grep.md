@@ -18,13 +18,38 @@ POSIX `grep`:
 | `-l`   | list a checkin ID prefix for matching historical versions of the file
 | `-v`   | print each checkin ID considered, regardless of whether it matches
 
-No equivalent of other POSIX `grep` options currently exist.
+That leaves many divergences at the option level from POSIX `grep`:
 
-Note in partcicular that there is no equivalent of `grep -R`, either
-implicitly or explicitly. Fossil `grep` currently accepts only a single
-input file name. You cannot give it a list of file names, and you cannot
-give it a directory name for Fossil to expand to the set of all files
-under that directory.
+*   There is no built-in way to get a count of matches, as with `grep
+    -c`.
+
+*    You cannot give more than one pattern, as with `grep -e` or `grep
+     -f`.
+
+*   There is no equivalent of `grep -F` to do literal fixed-string
+    matches only.
+
+*   `fossil grep -l` does not do precisely the same thing as POSIX
+    `grep -l`: it lists checkin ID prefixes, not file names.
+
+*   Fossil always gives the line number in its output, which is to say
+    that it acts like `grep -n`.  There is no way to disable the line
+    number in `fossil grep` output.
+
+*   There is no way to suppress all output, returning only a status code
+    to indicate whether the pattern matched, as with `grep -q`.
+
+*   There is no way to suppress error output, as with `grep -s`.
+
+*   Fossil `grep` accepts only a single input file name. You cannot give
+    it a list of file names, and you cannot give it a directory name for
+    Fossil to expand to the set of all files under that directory. This
+    means Fossil `grep` has no equivalent of the common POSIX `grep -R`
+    extension. (And if it did, it would probably have a different option
+    letter, since `-R` in Fossil has a different meaning, by
+    convention.)
+
+*   You cannot invert the match, as with `grep -v`.
 
 Patches to remove those limitations will be thoughtfully considered.
 
