@@ -1,5 +1,5 @@
-C Merged\sbranch\slibbind-ns-alternative:\sI\shaven't\sfound\sany\splatform\swhere\nthis\swon't\sbuild.\sIt\sdoesn't\senable\slibbind\sor\suse\slibresolv\sbetter\son\nevery\splatform\swhere\sit\smight\spossibly\swork,\sbut\sat\sthe\svery\sleast\sit\navoids\sbuild\serrors\severywhere\sI've\stried\sit.
-D 2018-10-01T06:21:56.529
+C Remove\suncommonly\sused\scommands\sfrom\sthe\sset\sof\s"common"\scommands\sin\sthe\n"fossil\shelp"\slisting.
+D 2018-10-03T16:52:14.243
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,10 +428,10 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c 3b0746077ad9ec46d470eb8e707afab593fdc4023b5a425d82290a989bc51c07
+F src/alerts.c 6ef3d73e68f157069f6d521a0744ac6bc9a93e573818d0c6a624f450a2ffd4cc
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 9484eff46bdf7deae8f7fcc519cd213274c90b7bfacff1dabc8df28fe0770f2d
+F src/backoffice.c 15b0eb0da4ef52fd3706429ec42922e6c89bfe5bce3b74a9c46ca2c3afd9c2aa
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -560,7 +560,7 @@ F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
-F src/smtp.c 78f0e36ace8d01df88013a915380a31d789fd0bb45942e59f49286f113086888
+F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 4c86d63915f9f55e58b516b9ed648c82315ffc73f552d748d436071b3e71d976
@@ -756,7 +756,7 @@ F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md b572f4f86787dd1b8d08b5862ca015805b90045bc62a79d3fd5e6373f88f8ebd
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
-F www/blockchain.md e5f7d305ab0fba27d94256974a7df9a05139616ed2aa6fdef445789af3449fbd
+F www/blockchain.md 091622a11f872bb9e0440beeedb7304c8bb4b1ab535c90a3eba66d404fd9b43b
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
 F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
@@ -863,8 +863,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a937c69e1d46e3810c2cc4599aa0a3f6423a99258be31e0aa4f580af98387893 b6c490cedb309f089ef1679b0c41e69205675058016ed5725ec18f5b8200a6ae
-R 9be45d5b28c02a6ac6635c4bfa1b7961
-T +closed b6c490cedb309f089ef1679b0c41e69205675058016ed5725ec18f5b8200a6ae
-U wyoung
-Z 0b113bd124f4d9dc25d240cc61ade3b9
+P 71c298f3ea42391638a6c96b9ab1c62bf9754881fefebed79f96fd71efa0e448
+R 0cdedfe31222cebbf4cfdf4c95b26160
+U drh
+Z 8bd754150c7dd0e14bb4bf79c17322c1

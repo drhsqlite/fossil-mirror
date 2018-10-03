@@ -526,7 +526,7 @@ void backoffice_work(void){
 }
 
 /*
-** COMMAND: backoffice
+** COMMAND: backoffice*
 **
 ** Usage: backoffice [-R repository]
 **

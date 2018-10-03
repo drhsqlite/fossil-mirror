@@ -924,7 +924,7 @@ void alert_send(
 
 
 /*
-** COMMAND: alerts
+** COMMAND: alerts*
 ** 
 ** Usage: %fossil alerts SUBCOMMAND ARGS...
 **

@@ -1312,7 +1312,7 @@ void test_refcheck_emailblob(void){
 
 
 /*
-** COMMAND: smtpd
+** COMMAND: smtpd*
 **
 ** Usage: %fossil smtpd [OPTIONS] REPOSITORY
 **
@@ -1459,7 +1459,7 @@ static int pop3_login(const char *zUser, char *zPass){
 }
 
 /*
-** COMMAND: pop3d
+** COMMAND: pop3d*
 **
 ** Usage: %fossil pop3d [OPTIONS] REPOSITORY
 **
