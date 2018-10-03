@@ -1,5 +1,5 @@
-C Noted\sthe\saddition\sof\s"fossil\sgrep"\sin\sFossil\s2.7.\s\s(Somehow\sthis\smissed\nthe\srelease.)
-D 2018-10-03T20:09:46.681
+C Moved\sthe\sdocumentation\sfor\sFossil's\sgrep\simplementation\sout\sof\s\nsrc/regexp.c\sinto\sa\snew\sdocument\swith\sgreatly-expanded\scontent,\s\nwww/grep.md,\swhich\sis\snow\sreferenced\sboth\sfrom\sthe\ssource\scode\sand\sin\nthe\soutput\sfor\s"fossil\shelp\sgrep".
+D 2018-10-03T20:09:59.591
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -542,7 +542,7 @@ F src/printf.c d6f54c13c37a2497e6b2db0e1724d93243a664b09f81a65e86e94e3f830f2f3d
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 78956982170d681a1fc8774916f53920e94fe0f7570072eb9906fb9b497c064c
-F src/regexp.c 89c45caf71ab5375a232f6b6064c3075419aa42e1275dcf648a82d28ccb03e3c
+F src/regexp.c f44c9481b9c819b5136498b6746be387b7151c2620186414128e20079b7ea94f
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -825,6 +825,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
+F www/grep.md 9b14063b925bf50d7a91d80aeebc411d6aa1a4d7bb17040259fc2e7fd41ac96d
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
 F www/hashpolicy.wiki 901e234166e31d8cb6634577b3fe266f41453ca1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -863,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29313518937ca912e0fa115a65d32fdd36cc3cfc83712f660b8fd51b4818ece3
-R e6a3c5bce7b54960f035934f3e883f4a
+P 9e1faa0260a0262286f05254bff4990171e444d122299c54a8c5e62afed544c1
+R 054457b116aa977de82335a8df163d5e
 U wyoung
-Z e3d4d1514f4bff5e49a60cadeb786bad
+Z ded59c0880882d95ec3ad17765b15944
