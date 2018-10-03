@@ -2,8 +2,9 @@
 
 As of Fossil 2.7, there is a `grep` command which acts roughly like
 POSIX's `grep -E` over all historical versions of a single file name.
-This document explains the commonalities and divergences between POSIX
-`grep` and Fossil `grep`.
+This document explains the commonalities and divergences between [POSIX
+`grep`](http://pubs.opengroup.org/onlinepubs/9699919799/utilities/grep.html)
+and Fossil `grep`.
 
 
 ## Options
@@ -22,7 +23,7 @@ No equivalent of other POSIX `grep` options currently exist.
 Note in partcicular that there is no equivalent of `grep -R`, either
 implicitly or explicitly. Fossil `grep` currently accepts only a single
 input file name. You cannot give it a list of file names, and you cannot
-give it a a directory name for Fossil to expand to the set of all files
+give it a directory name for Fossil to expand to the set of all files
 under that directory.
 
 Patches to remove those limitations will be thoughtfully considered.
