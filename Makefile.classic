@@ -48,6 +48,12 @@ TCC += -DFOSSIL_ENABLE_SSL
 # To enable legacy mv/rm support
 TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 
+# We don't attempt to use libedit or libreadline in this simplified
+# build system (contrast auto.def and Makefile.in) so use the included
+# copy of linenoise.  MinGW can't make use of this, but linenoise is
+# ifdef'd out elsewhere for that platform.
+TCC += -DUSE_LINENOISE=1
+
 #### We sometimes add the -static option here so that we can build a
 #    static executable that will run in a chroot jail.
 #LIB = -static

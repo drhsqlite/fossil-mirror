@@ -1,5 +1,5 @@
-C Listed\sthe\sactual\sdifferences\sbetween\sfossil\sgrep\soptions\sand\sthose\ndefined\sby\sPOSIX\sin\swww/grep.md.
-D 2018-10-03T21:25:19.876
+C Added\s-DUSE_LINENOISE\sto\sMakefile.classic,\ssince\sit's\sbuilt\sinto\sFossil,\nand\sthat\sbuild\ssystem\shas\sno\sway\sto\sfind\sor\suse\slibedit\sor\slibreadline\nintead.
+D 2018-10-03T21:51:52.681
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -12,7 +12,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 69aecd36e7412b1cde09407c0f011f60f229a844c1c7135826e86df047b23ce6
-F Makefile.classic 1eb97a2c5f152ce639433723aa58b7cf8139eabdad3922ee5d408e5188fe91cc
+F Makefile.classic 2e278dcd7b51093b4f853a5dcc6db35d638b64dbfc50926c96469cdd749ed23d
 F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
 F VERSION 57ddf2d8004c548ca211637c5a227891378ea12871dcebd80444a19ff8cfec9b
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9fc411ab58e4dac411315c5d5828599efafcee6a861907efa6b81c5a48dc941c
-R d7ac88ebd94136c8b07e5700343e7e1c
+P d5499091eed2757ccf8e93e502236517ba9605fbca5625e14d5231be3add77ed
+R 4207593a9ba6fd3d07fe77b40ebc463a
 U wyoung
-Z b24fca62d1a8a50940780b3cf45f2511
+Z 844cb5928c96967be0fb9058c128b0fb
