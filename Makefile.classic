@@ -48,18 +48,19 @@ TCC += -DFOSSIL_ENABLE_SSL
 # To enable legacy mv/rm support
 TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 
-# We don't attempt to use libedit or libreadline in this simplified
-# build system (contrast auto.def and Makefile.in) so use the included
-# copy of linenoise.  MinGW can't make use of this, but linenoise is
-# ifdef'd out elsewhere for that platform.
-TCC += -DUSE_LINENOISE=1
-
 #### We sometimes add the -static option here so that we can build a
 #    static executable that will run in a chroot jail.
 #LIB = -static
 TCC += -DFOSSIL_DYNAMIC_BUILD=1
 
 TCCFLAGS = $(CFLAGS)
+
+# We don't attempt to use libedit or libreadline in this simplified
+# build system (contrast auto.def and Makefile.in) so use the included
+# copy of linenoise.  MinGW can't make use of this, but linenoise is
+# ifdef'd out elsewhere for that platform.  Note that this is a make
+# flag handled in src/main.mk, not a C preprocessor flag.
+USE_LINENOISE := 1
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library unless the miniz
