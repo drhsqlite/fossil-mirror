@@ -30,7 +30,8 @@
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 10.0 to 11.0.
   *  Improvements to the "Security Audit" administration page
-  *  Added the [/help?cmd=branch|fossil branch current] command.
+  *  Add the [/help?cmd=branch|fossil branch current] command.
+  *  Add the [./grep.md|grep] command.
   *  Update the built-in SQLite to version 3.25.1.
   *  Some code and interfaces are in place to support sending and
      receiving email directly via SMTP, but this feature is not yet
