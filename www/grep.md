@@ -1,6 +1,6 @@
-# Fossil's Internal 'grep' Command
+# Fossil grep vs POSIX grep
 
-As of Fossil 2.7, there is a `grep` command which acts something like
+As of Fossil 2.7, there is a `grep` command which acts roughly like
 POSIX's `grep -E` over all historical versions of a single file name.
 This document explains the commonalities and divergences between POSIX
 `grep` and Fossil `grep`.
@@ -17,8 +17,15 @@ POSIX `grep`:
 | `-l`   | list a checkin ID prefix for matching historical versions of the file
 | `-v`   | print each checkin ID considered, regardless of whether it matches
 
-No equivalent of other POSIX `grep` options currently exist. Patches to
-remove those limitations will be thoughtfully considered.
+No equivalent of other POSIX `grep` options currently exist.
+
+Note in partcicular that there is no equivalent of `grep -R`, either
+implicitly or explicitly. Fossil `grep` currently accepts only a single
+input file name. You cannot give it a list of file names, and you cannot
+give it a a directory name for Fossil to expand to the set of all files
+under that directory.
+
+Patches to remove those limitations will be thoughtfully considered.
 
 
 ## Regular Expression Dialect
@@ -61,17 +68,16 @@ POSIX compatible regular expression engine. Among them are:
 *   There is currently no support for POSIX character classes such as
     `[:lower:]`.
 
-*   Fossil does not currently attempt to take your operating system's
-    locale settings into account when doing this match.  Fossil also
-    currently has no way to mark a given file as having a particular
-    encoding.
+*   Fossil `grep` does not currently attempt to take your operating
+    system's locale settings into account when doing this match.  Since
+    Fossil has no way to mark a given file as having a particular
+    encoding, Fossil `grep` assumes the input files are in UTF-8 format.
 
-    Instead, Fossil `grep` assumes the input files are in UTF-8 format,
-    so it will not work correctly if the files in your repository are in
-    an encoding that is not backwards-compatible with ASCII, such as
-    UTF-16.  Partially compatible encodings such as ISO 8859 should work
-    with Fossil `grep` as long as you stick to their ASCII-compatible
-    subset.
+    This means Fossil `grep` will not work correctly if the files in
+    your repository are in an encoding that is not backwards-compatible
+    with ASCII, such as UTF-16.  Partially compatible encodings such as
+    ISO 8859 should work with Fossil `grep` as long as you stick to
+    their ASCII-compatible subset.
 
 The Fossil `grep` language is not a strict subset of POSIX extended
 regular expressions.  Some of the features documented above are
