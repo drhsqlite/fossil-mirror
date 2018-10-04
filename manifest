@@ -1,5 +1,5 @@
-C On\sthe\s/setup_ucap_list\spage,\sshow\sthe\snumber\sof\susers\shaving\seach\ncapability,\swith\sa\slink\sto\sa\slist\sof\susers.\s\sThis\sonly\sworks\sfor\s\nadministrators.
-D 2018-10-04T14:56:03.946
+C Activate\sCSP\sfor\sthe\sbootstrap\sskin.
+D 2018-10-04T18:35:21.416
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -389,7 +389,7 @@ F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2ac0ae3b2c31
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
-F skins/bootstrap/header.txt df8ccefcfa3437b304214aea6aec18b51a2c4bb39834c81e7ebc42d48e674ef0
+F skins/bootstrap/header.txt 56208f70c11244fbef5e8a2ce65d38bce755f6a8e08e9d4427455854e422f3b3
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt e0bef6152beb39b059854007338e537d39c9777833dc17f0d05ce0e5427a1487
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc6f7a9257c5c9d49dd99afb99acf3d48923fcf3edc84808062322338aee034f
-R 31f24f5af2b398aad67724ff16f69944
+P 594421796a9ab8f2ab59250e3f09b704b76e2d9a6efc2f038bcc4a872de1f250
+R 74ab7bcd1547597494d5607bb4831bb2
 U drh
-Z 1404749a74717383a11e0b53060633f8
+Z 93f4bbbe4c6ea95db58fc6c5ebbf79d3

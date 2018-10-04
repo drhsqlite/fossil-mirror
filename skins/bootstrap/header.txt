@@ -4,6 +4,7 @@
   <base href="$baseurl/$current_page" />
   <title>$<project_name>: $<title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src 'self' 'nonce-$<nonce>'; style-src 'self' 'unsafe-inline'"/>
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="$home/timeline.rss" />
     <link rel="stylesheet" href="$home/style.css?default" type="text/css" media="screen" />
     <script>
@@ -117,6 +118,6 @@
           html "<div class='container'>"
             html "<ul class='breadcrumb'>"
               html "<li><a href='$index_page'>Home</a></li>"
-              html "<li><a href='$home/$current_page'>$title</a></li>"
+              html "<li><a href='$home/$current_page'>[htmlize $title]</a></li>"
               html "</ul>"
             </th1>
