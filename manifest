@@ -1,5 +1,5 @@
-C Checkin\s[15e1dcd058b5b3e1]\shad\sno\suseful\seffect:\swe\sneed\sto\sset\sthis\nflag\sat\sthe\s"make"\slevel,\snot\sas\sa\sC\spreprocessor\sflag.\s\sNot\sbacking\sit\nout\sbecause\sthe\schange\sis\sharmless\sas\swell\sas\suseless.
-D 2018-10-03T22:23:44.445
+C Commented\sout\sthe\s-lm\soption\sadded\sto\sMakefile.classic\srecently:\slibm\ndoesn't\sexist\son\sall\splatforms.
+D 2018-10-04T06:20:39.863
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -12,7 +12,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 69aecd36e7412b1cde09407c0f011f60f229a844c1c7135826e86df047b23ce6
-F Makefile.classic 11473d668e9aee02684b400888f28eccce7346acac366dca29175c8ca623e6de x
+F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2673 x
 F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
 F VERSION 57ddf2d8004c548ca211637c5a227891378ea12871dcebd80444a19ff8cfec9b
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba71b359577721ff7e9bb8a7e5c26b5fa851a58189f8f5eb780e8538baeff758
-R a6a15e3c3951b96bec34e1e1c650e916
+P f08a09ca0dcd7ce27002caa25b4db7261613862f6a350268bbf582f4c99bf48e
+R acc23822894994fa61dea4c36eb102f1
 U wyoung
-Z 6da4830ef543b4fdcf6d5dafb55ac7a4
+Z 54db4ed638a97c6ba0b18fdc81a7a3b2
