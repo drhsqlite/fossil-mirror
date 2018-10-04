@@ -269,6 +269,24 @@ void forum_render(
 }
 
 /*
+** Generate the buttons in the display that allow a forum supervisor to
+** mark a user as trusted.  Only do this if:
+**
+**   (1)  The poster is an individual, not a special user like "anonymous"
+**   (2)  The current user has Forum Supervisor privilege
+*/
+static void generateTrustControls(Manifest *pPost){
+  if( !g.perm.AdminForum ) return;
+  if( login_is_special(pPost->zUser) ) return;
+  @ <br>
+  @ <label><input type="checkbox" name="trust">
+  @ Trust user "%h(pPost->zUser)"
+  @ so that future posts by "%h(pPost->zUser)" do not require moderation.
+  @ </label>
+  @ <input type="hidden" name="trustuser" value="%h(pPost->zUser)">
+}
+
+/*
 ** Display all posts in a forum thread in chronological order
 */
 static void forum_display_chronological(int froot, int target){
@@ -342,6 +360,7 @@ static void forum_display_chronological(int froot, int target){
         ** are pending moderation */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
+        generateTrustControls(pPost);
       }else if( sameUser ){
         /* A post that is pending moderation can be deleted by the
         ** person who originally submitted the post */
@@ -448,6 +467,7 @@ static int forum_display_hierarchical(int froot, int target){
         ** are pending moderation */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
+        generateTrustControls(pPost);
       }else if( sameUser ){
         /* A post that is pending moderation can be deleted by the
         ** person who originally submitted the post */
@@ -805,7 +825,16 @@ void forumedit_page(void){
   isCsrfSafe = cgi_csrf_safe(1);
   if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
+      const char *zUserToTrust;
       moderation_approve(fpid);
+      if( g.perm.AdminForum
+       && PB("trust")
+       && (zUserToTrust = P("trustuser"))!=0
+      ){
+        db_multi_exec("UPDATE user SET cap=cap||'4' "
+                      "WHERE login=%Q AND cap NOT GLOB '*4*'",
+                      zUserToTrust);
+      }
       cgi_redirectf("%R/forumpost/%S",P("fpid"));
       return;
     }
