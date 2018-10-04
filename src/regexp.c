@@ -817,7 +817,7 @@ void re_grep_cmd(void){
   if( find_option("verbose","v",0)!=0 ) bVerbose = 1;
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  if( g.argc<3 ){
+  if( g.argc<4 ){
     usage("REGEXP FILENAME");
   }
   zErr = re_compile(&pRe, g.argv[2], ignoreCase);
