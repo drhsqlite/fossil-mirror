@@ -230,78 +230,100 @@ void capability_fullcap(
 static struct Caps {
   char cCap;              /* The capability letter */
   unsigned short eClass;  /* The "class" for this capability */
+  unsigned nUser;         /* Number of users with this capability */
   char *zAbbrev;          /* Abbreviated mnemonic name */
   char *zOneLiner;        /* One-line summary */
 } aCap[] = {
-  { 'a', CAPCLASS_SUPER,
+  { 'a', CAPCLASS_SUPER, 0,
     "Admin", "Create and delete users" },
-  { 'b', CAPCLASS_WIKI|CAPCLASS_TKT,
+  { 'b', CAPCLASS_WIKI|CAPCLASS_TKT, 0,
     "Attach", "Add attchments to wiki or tickets" },
-  { 'c', CAPCLASS_TKT,
+  { 'c', CAPCLASS_TKT, 0,
     "Append-Tkt", "Append to existing tickets" },
-  { 'd', CAPCLASS_WIKI|CAPCLASS_TKT,
+  { 'd', CAPCLASS_WIKI|CAPCLASS_TKT, 0,
     "Delete", "Delete wiki or tickets" },
-  { 'e', CAPCLASS_DATA,
+  { 'e', CAPCLASS_DATA, 0,
     "View-PII", "View sensitive info such as email addresses" },
-  { 'f', CAPCLASS_WIKI,
+  { 'f', CAPCLASS_WIKI, 0,
     "New-Wiki", "Create new wiki pages" },
-  { 'g', CAPCLASS_DATA,
+  { 'g', CAPCLASS_DATA, 0,
     "Clone", "Clone the repository" },
-  { 'h', CAPCLASS_OTHER,
+  { 'h', CAPCLASS_OTHER, 0,
     "Hyperlinks", "Show hyperlinks to detailed repository history" },
-  { 'i', CAPCLASS_CODE,
+  { 'i', CAPCLASS_CODE, 0,
     "Check-In", "Check-in code changes" },
-  { 'j', CAPCLASS_WIKI,
+  { 'j', CAPCLASS_WIKI, 0,
     "Read-Wiki", "View wiki pages" },
-  { 'k', CAPCLASS_WIKI,
+  { 'k', CAPCLASS_WIKI, 0,
     "Write-Wiki", "Edit wiki pages" },
-  { 'l', CAPCLASS_WIKI|CAPCLASS_SUPER,
+  { 'l', CAPCLASS_WIKI|CAPCLASS_SUPER, 0,
     "Mod-Wiki", "Moderator for wiki pages" },
-  { 'm', CAPCLASS_WIKI,
+  { 'm', CAPCLASS_WIKI, 0,
     "Append-Wiki", "Append to wiki pages" },
-  { 'n', CAPCLASS_TKT,
+  { 'n', CAPCLASS_TKT, 0,
     "New-Tkt", "Create new tickets" },
-  { 'o', CAPCLASS_CODE,
+  { 'o', CAPCLASS_CODE, 0,
     "Check-Out", "Check out code" },
-  { 'p', CAPCLASS_OTHER,
+  { 'p', CAPCLASS_OTHER, 0,
     "Password", "Change your own password" },
-  { 'q', CAPCLASS_TKT|CAPCLASS_SUPER,
+  { 'q', CAPCLASS_TKT|CAPCLASS_SUPER, 0,
     "Mod-Tkt", "Moderate tickets" },
-  { 'r', CAPCLASS_TKT,
+  { 'r', CAPCLASS_TKT, 0,
     "Read-Tkt", "View tickets" },
-  { 's', CAPCLASS_SUPER,
+  { 's', CAPCLASS_SUPER, 0,
     "Superuser", "Setup and configure the respository" },
-  { 't', CAPCLASS_TKT,
+  { 't', CAPCLASS_TKT, 0,
     "Reports", "Create new ticket report formats" },
-  { 'u', CAPCLASS_OTHER,
+  { 'u', CAPCLASS_OTHER, 0,
     "Reader", "Inherit all the capabilities of the \"reader\" user" },
-  { 'v', CAPCLASS_OTHER,
+  { 'v', CAPCLASS_OTHER, 0,
     "Developer", "Inherit all capabilities of the \"developer\" user" },
-  { 'w', CAPCLASS_TKT,
+  { 'w', CAPCLASS_TKT, 0,
     "Write-Tkt", "Edit tickets" },
-  { 'x', CAPCLASS_DATA,
+  { 'x', CAPCLASS_DATA, 0,
     "Private", "Push and/or pull private branches" },
-  { 'y', CAPCLASS_SUPER,
+  { 'y', CAPCLASS_SUPER, 0,
     "Write-UV", "Push unversioned content" },
-  { 'z', CAPCLASS_CODE,
+  { 'z', CAPCLASS_CODE, 0,
     "Zip-Download", "Download a ZIP archive, tarball, or SQL archive" },
-  { '2', CAPCLASS_FORUM,
+  { '2', CAPCLASS_FORUM, 0,
     "Forum-Read", "Read forum posts by others" },
-  { '3', CAPCLASS_FORUM,
+  { '3', CAPCLASS_FORUM, 0,
     "Forum-Write", "Create new forum messages" },
-  { '4', CAPCLASS_FORUM,
+  { '4', CAPCLASS_FORUM, 0,
     "Forum-Trusted", "Create forum messages that bypass moderation" },
-  { '5', CAPCLASS_FORUM|CAPCLASS_SUPER,
+  { '5', CAPCLASS_FORUM|CAPCLASS_SUPER, 0,
     "Forum-Mod", "Moderator for forum messages" },
-  { '6', CAPCLASS_FORUM|CAPCLASS_SUPER,
+  { '6', CAPCLASS_FORUM|CAPCLASS_SUPER, 0,
     "Forum-Admin", "Set or remove capability '4' from other users" },
-  { '7', CAPCLASS_ALERT,
+  { '7', CAPCLASS_ALERT, 0,
     "Alerts", "Sign up for email alerts" },
-  { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER,
+  { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER, 0,
     "Announce", "Send announcements to all subscribers" },
-  { 'D', CAPCLASS_OTHER,
+  { 'D', CAPCLASS_OTHER, 0,
     "Debug", "Enable debugging features" },
 };
+
+/*
+** Populate the aCap[].nUser values based on the current content
+** of the USER table.
+*/
+void capabilities_count(void){
+  int i;
+  static int done = 0;
+  Stmt q;
+  if( done ) return;
+  db_prepare(&q, "SELECT fullcap(cap) FROM user");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zCap = db_column_text(&q, 0);
+    if( zCap==0 || zCap[0]==0 ) continue;
+    for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+      if( strchr(zCap, aCap[i].cCap) ) aCap[i].nUser++;
+    }
+  }
+  db_finalize(&q);
+  done = 1;
+}
 
 
 /*
@@ -310,12 +332,22 @@ static struct Caps {
 */
 void capabilities_table(unsigned mClass){
   int i;
+  if( g.perm.Admin ) capabilities_count();
   @ <table>
+  @ <tbody>
   for(i=0; i<sizeof(aCap)/sizeof(aCap[0]); i++){
+    int n;
     if( (aCap[i].eClass & mClass)==0 ) continue;
     @ <tr><th valign="top">%c(aCap[i].cCap)</th>
-    @  <td><i>%h(aCap[i].zAbbrev):</i> %h(aCap[i].zOneLiner)</td></tr>
+    @  <td>%h(aCap[i].zAbbrev)</td><td>%h(aCap[i].zOneLiner)</td>\
+    n = aCap[i].nUser;
+    if( n && g.perm.Admin ){
+      @ <td><a href="%R/setup_ulist?with=%c(aCap[i].cCap)">\
+      @ %d(n) user%s(n>1?"s":"")</a></td>\
+    }
+    @ </tr>
   }
+  @ </tbody>
   @ </table>
 }
 

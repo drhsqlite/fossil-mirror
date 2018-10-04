@@ -44,11 +44,11 @@ void setup_ulist(void){
     return;
   }
 
+  style_submenu_element("Add", "setup_uedit");
+  style_submenu_element("Log", "access_log");
+  style_submenu_element("Help", "setup_ulist_notes");
+  style_header("User List");
   if( zWith==0 || zWith[0]==0 ){
-    style_submenu_element("Add", "setup_uedit");
-    style_submenu_element("Log", "access_log");
-    style_submenu_element("Help", "setup_ulist_notes");
-    style_header("User List");
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
     @ <thead><tr>
     @   <th>Category
@@ -89,11 +89,16 @@ void setup_ulist(void){
       @ </tr>
     }
     db_finalize(&s);
+    @ </tbody></table>
+    @ <div class='section'>Users</div>
   }else{
-    style_header("Users With Capabilities \"%h\"", zWith);
+    style_submenu_element("All Users", "setup_ulist");
+    if( zWith[1]==0 ){
+      @ <div class='section'>Users with capability "%h(zWith)"</div>
+    }else{
+      @ <div class='section'>Users with any capability in "%h(zWith)"</div>
+    }
   }
-  @ </tbody></table>
-  @ <div class='section'>Users</div>
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
   @  data-column-types='ktxTTK' data-init-sort='2'>
   @ <thead><tr>
