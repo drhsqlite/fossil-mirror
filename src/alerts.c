@@ -2703,8 +2703,7 @@ void announce_page(void){
     @ <p style='border: 1px solid black; padding: 1ex;'>
     cgi_print_all(0, 0);
     @ </p>
-  }else
-  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  }else if( P("submit")!=0 && cgi_csrf_safe(1) ){
     char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
@@ -2718,7 +2717,14 @@ void announce_page(void){
     }
     style_footer();    
     return;
+  } else if( !alert_enabled() ){
+    style_header("Cannot Send Announcement");
+    @ <p>Either you have no subscribers yet, or email alerts are not yet
+    @ <a href="https://fossil-scm.org/fossil/doc/trunk/www/alerts.md">set up</a>
+    @ for this repository.</p>
+    return;
   }
+
   style_header("Send Announcement");
   @ <form method="POST">
   @ <table class="subscribe">
