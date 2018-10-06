@@ -36,6 +36,12 @@
   *  Some code and interfaces are in place to support sending and
      receiving email directly via SMTP, but this feature is not yet
      complete or ready for production use.
+  *  The `mv-rm-files` setting is now compiled into Fossil in the
+     default Fossil configuration; no longer must you say
+     <tt>./configure --with-legacy-mv-rm</tt> to make it available.  The
+     setting remains disabled by default, however, so you must still say
+     <tt>fossil set mv-rm-files 1</tt> to enable it on each repository
+     where you want hard <tt>mv/rm</tt> behavior.
 
 <a name='v2_6'></a>
 <h2>Changes for Version 2.6 (2018-05-04)</h2>
