@@ -367,7 +367,7 @@ void help_page(void){
       if( (aCommand[i].eCmdFlags & CMDFLAG_SETTING)!=0 ) continue;
       @ <li><a href="%R/help?cmd=%s(z)">%s(zBoldOn)%s(z)%s(zBoldOff)</a></li>
     }
-    @ </ui></div>
+    @ </ul></div>
 
     @ <a name='webpages'></a>
     @ <h1>Available web UI pages:</h1>
