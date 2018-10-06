@@ -974,10 +974,6 @@ void verify_all_options(void){
   }
 }
 
-/*
-** Print a list of words in multiple columns.
-*/
-
 
 /*
 ** This function returns a human readable version string.
