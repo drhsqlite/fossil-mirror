@@ -1,5 +1,5 @@
-C Fix\sa\sminor\shyperlink\sproblem\sin\sthe\sbootstrap\sskin.
-D 2018-10-09T12:22:51.283
+C Fix\sa\sconflict\swhen\ssyncing\sforum\sposts.
+D 2018-10-09T12:28:42.201
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/main.mk 2e4db28b70779d1971020c1c0abe99a63b4df90348a133e82315efb89cf5b1d4
 F src/makeheaders.c 078d156423571a987b284ec9853a2933fb587adf1a145d2998a91b3827e1f4cf
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 7dc5b5707b9e72ad0b424c4de018baa01fe5972850fda80bd37a844e471cd5b3 x
-F src/manifest.c ca5eb095636a236b276f44b4b48efbfd4a2b9d32acc28d571fd1ce59e08a7e0c
+F src/manifest.c 81126916e4b11230425936a343902c131b177ad568c2f11951e926e559dcf34e
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7cf6
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be1bc912fe67d075225c7fe89fb3723d9be5590de233152bae1e282a19e26989
-R 1fa5fd99c428431dfe3403b239d4f2eb
+P 7ca68af0b861cff3362db9f9aa3d11360fee0689e7ef7ed9a5b34caefe4933af
+R cac2162a257e8e602efbc7a1234db4bb
 U drh
-Z 5343cab838b40ea0ed374413532fb12f
+Z 9bfa8f60f249d3474ff159c1fef0d7dd
