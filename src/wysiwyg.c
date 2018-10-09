@@ -228,7 +228,7 @@ void wysiwygEditor(
   @ <div id="wysiwygBox"
   @  style="resize:both; overflow:auto; width: %d(w)em; height: %d(h)em;"
   @  contenteditable="true">%s(zContent)</div>
-  @ <script>
+  @ <script nonce="%h(style_nonce())">
   @ var oDoc;
   @
   @ /* Initialize the document editor */
