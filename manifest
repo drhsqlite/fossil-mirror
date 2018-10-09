@@ -1,5 +1,5 @@
-C Update\sto\s3.25.2\sfinal
-D 2018-10-09T13:57:49.219
+C Bolded\sthe\scard\sletters\sin\sfileformat.wiki\sand\snormalized\s'X\scard'\svs\n'X-card'\svs\s'"X"\scard'\sto\smake\sit\seasier\sto\ssearch\sfor\sa\sgiven\scard\stype\nin\sthe\sdocument.
+D 2018-10-09T15:21:42.613
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -808,7 +808,7 @@ F www/env-opts.md 225d146ce028010f6983e4086ba3273c4ab6d48e5d01fc5a4b0ec8003fed08
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 8b2330f9a8e48da597d53b8f46800ca90608b65d249db401b62b107f73913195
+F www/fileformat.wiki a058b1190d1d683714ce5ffe8c5e3f23751d97be7721e6daa31e929cd60539ac
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki b2fce6c2f88024553b61553d5eb27bdaf8c571c6abce555adfc1927824b1b713
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a980fde215683c7abc39d2f57a3aa308c35b6154428cb83fe96219a2f4de016
-R 8027df5597dc9c25cf00eee604c9cf15
-U jan.nijtmans
-Z ac3dbb94e4b73e0e84fac1dcebf34650
+P 04a2142883e4787e8999bd40350c75e6c30a4706a7b7cb98d44e7fc9764aa879
+R 1426d4d1293d8dac36dd3f50872cc84d
+U wyoung
+Z 470e5d2df87275bed3d27eaebb4fc4bb

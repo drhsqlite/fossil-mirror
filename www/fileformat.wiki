@@ -127,16 +127,16 @@ Allowed cards in the manifest are as follows:
 <b>Z</b> <i>manifest-checksum</i>
 </blockquote>
 
-A manifest may optionally have a single B-card.  The B-card specifies
+A manifest may optionally have a single <b>B</b> card.  The <b>B</b> card specifies
 another manifest that serves as the "baseline" for this manifest.  A
-manifest that has a B-card is called a delta-manifest and a manifest
-that omits the B-card is a baseline-manifest.  The other manifest
-identified by the argument of the B-card must be a baseline-manifest.
+manifest that has a <b>B</b> card is called a delta-manifest and a manifest
+that omits the <b>B</b> card is a baseline-manifest.  The other manifest
+identified by the argument of the <b>B</b> card must be a baseline-manifest.
 A baseline-manifest records the complete contents of a check-in.
 A delta-manifest records only changes from its baseline.
 
-A manifest must have exactly one C-card.  The sole argument to
-the C-card is a check-in comment that describes the check-in that
+A manifest must have exactly one <b>C</b> card.  The sole argument to
+the <b>C</b> card is a check-in comment that describes the check-in that
 the manifest defines.  The check-in comment is text.  The following
 escape sequences are applied to the text:
 A space (ASCII 0x20) is represented as "\s" (ASCII 0x5C, 0x73).  A
@@ -146,8 +146,8 @@ space and newline, no other whitespace characters are allowed in
 the check-in comment.  Nor are any unprintable characters allowed
 in the comment.
 
-A manifest must have exactly one D-card.  The sole argument to
-the D-card is a date-time stamp in the ISO8601 format.  The
+A manifest must have exactly one <b>D</b> card.  The sole argument to
+the <b>D</b> card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
 The format one of:
 
@@ -156,20 +156,20 @@ The format one of:
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
 </blockquote>
 
-A manifest has zero or more F-cards.  Each F-card identifies a file
+A manifest has zero or more <b>F</b> cards.  Each <b>F</b> card identifies a file
 that is part of the check-in.  There are one, two, three, or four
 arguments.  The first argument is the pathname of the file in the
 check-in relative to the root of the project file hierarchy.  No ".."
 or "." directories are allowed within the filename.  Space characters
-are escaped as in C-card comment text.  Backslash characters and
+are escaped as in <b>C</b> card comment text.  Backslash characters and
 newlines are not allowed within filenames.  The directory separator
 character is a forward slash (ASCII 0x2F).  The second argument to the
-F-card is the lower-case hexadecimal artifact hash of
+<b>F</b> card is the lower-case hexadecimal artifact hash of
 the content artifact.  The second argument is required for baseline
 manifests but is optional for delta manifests.  When the second
-argument to the F-card is omitted, it means that the file has been
+argument to the <b>F</b> card is omitted, it means that the file has been
 deleted relative to the baseline (files removed in baseline manifests
-versions are <em>not</em> added as F-cards). The optional 3rd argument
+versions are <em>not</em> added as <b>F</b> cards). The optional 3rd argument
 defines any special access permissions associated with the file.  This
 can be defined as "x" to mean that the file is executable or "l"
 (small letter ell) to mean a symlink.  All files are always readable
@@ -179,43 +179,43 @@ letters in the future.  The optional 4th argument is the name of the
 same file as it existed in the parent check-in.  If the name of the
 file is unchanged from its parent, then the 4th argument is omitted.
 
-A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
-text in the comment of the C-card.  If the N-card is omitted, a default mimetype
+A manifest has zero or one <b>N</b> cards.  The <b>N</b> card specifies the mimetype for the
+text in the comment of the <b>C</b> card.  If the <b>N</b> card is omitted, a default mimetype
 is used.
 
-A manifest has zero or one P-cards.  Most manifests have one P-card.
-The P-card has a varying number of arguments that
+A manifest has zero or one <b>P</b> cards.  Most manifests have one <b>P</b> card.
+The <b>P</b> card has a varying number of arguments that
 define other manifests from which the current manifest
 is derived.  Each argument is a lowercase
 hexadecimal artifact hash of a predecessor manifest.  All arguments
-to the P-card must be unique within that card.
+to the <b>P</b> card must be unique within that card.
 The first argument is the artifact hash of the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
-a P-card with a single argument.  The first manifest in the
-project has no ancestors and thus has no P-card or (depending
-on the Fossil version) an empty P-card (no arguments).
+a <b>P</b> card with a single argument.  The first manifest in the
+project has no ancestors and thus has no <b>P</b> card or (depending
+on the Fossil version) an empty <b>P</b> card (no arguments).
 
-A manifest has zero or more Q-cards.  A Q-card is similar to a P-card
+A manifest has zero or more <b>Q</b> cards.  A <b>Q</b> card is similar to a <b>P</b> card
 in that it defines a predecessor to the current check-in.  But
-whereas a P-card defines the immediate ancestor or a merge
-ancestor, the Q-card is used to identify a single check-in or a small
+whereas a <b>P</b> card defines the immediate ancestor or a merge
+ancestor, the <b>Q</b> card is used to identify a single check-in or a small
 range of check-ins which were cherry-picked for inclusion in or
 exclusion from the current manifest.  The first argument of
-the Q-card is the artifact ID of another manifest (the "target")
+the <b>Q</b> card is the artifact ID of another manifest (the "target")
 which has had its changes included or excluded in the current manifest.
 The target is preceded by "+" or "-" to show inclusion or
 exclusion, respectively.  The optional second argument to the
-Q-card is another manifest artifact ID which is the "baseline"
+<b>Q</b> card is another manifest artifact ID which is the "baseline"
 for the cherry-pick.  If omitted, the baseline is the primary
 parent of the target.  The
 changes included or excluded consist of all changes moving from
 the baseline to the target.
 
-The Q-card was added to the interface specification on 2011-02-26.
-Older versions of Fossil will reject manifests that contain Q-cards.
+The <b>Q</b> card was added to the interface specification on 2011-02-26.
+Older versions of Fossil will reject manifests that contain <b>Q</b> cards.
 
-A manifest may optionally have a single R-card.  The R-card has
+A manifest may optionally have a single <b>R</b> card.  The <b>R</b> card has
 a single argument which is the MD5 checksum of all files in
 the check-in except the manifest itself.  The checksum is expressed
 as 32 characters of lowercase hexadecimal.   The checksum is
@@ -227,29 +227,29 @@ size of the file in ASCII decimal, a single newline
 character (ASCII 0x0A), and the complete text of the file.
 Compute the MD5 checksum of the result.
 
-A manifest might contain one or more T-cards used to set
+A manifest might contain one or more <b>T</b> cards used to set
 [./branching.wiki#tags | tags or properties]
-on the check-in.  The format of the T-card is the same as
+on the check-in.  The format of the <b>T</b> card is the same as
 described in <i>Control Artifacts</i> section below, except that the
 second argument is the single character "<b>*</b>" instead of an
 artifact ID.  The <b>*</b> in place of the artifact ID indicates that
 the tag or property applies to the current artifact.  It is not
 possible to encode the current artifact ID as part of an artifact,
 since the act of inserting the artifact ID would change the artifact ID,
-hence a <b>*</b> is used to represent "self".  T-cards are typically
+hence a <b>*</b> is used to represent "self".  <b>T</b> cards are typically
 added to manifests in order to set the <b>branch</b> property and a
 symbolic name when the check-in is intended to start a new branch.
 
-Each manifest has a single U-card.  The argument to the U-card is
+Each manifest has a single <b>U</b> card.  The argument to the <b>U</b> card is
 the login of the user who created the manifest.  The login name
 is encoded using the same character escapes as is used for the
-check-in comment argument to the C-card.
+check-in comment argument to the <b>C</b> card.
 
-A manifest must have a single Z-card as its last line.  The argument
-to the Z-card is a 32-character lowercase hexadecimal MD5 hash
+A manifest must have a single <b>Z</b> card as its last line.  The argument
+to the <b>Z</b> card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline
 character that immediately precedes the "Z", excluding any PGP
-clear-signing prefix.  The Z-card is
+clear-signing prefix.  The <b>Z</b> card is
 a sanity check to prove that the manifest is well-formed and
 consistent.
 
@@ -272,12 +272,12 @@ Allowed cards in the cluster are as follows:
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
-A cluster contains one or more "M" cards followed by a single "Z"
-card.  Each M card has a single argument which is the artifact ID of
-another artifact in the repository.  The Z card works exactly like
-the Z card of a manifest.  The argument to the Z card is the
+A cluster contains one or more <b>M</b> cards followed by a single <b>Z</b> card.
+Each <b>M</b> card has a single argument which is the artifact ID of
+another artifact in the repository.  The <b>Z</b> card works exactly like
+the <b>Z</b> card of a manifest.  The argument to the <b>Z</b> card is the
 lower-case hexadecimal representation of the MD5 checksum of all
-prior cards in the cluster.  The Z-card is required.
+prior cards in the cluster.  The <b>Z</b> card is required.
 
 An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
@@ -296,17 +296,17 @@ Allowed cards in a control artifact are as follows:
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
 
-A control artifact must have one D card, one U card, one Z card and
-one or more T cards.  No other cards or other text is
+A control artifact must have one <b>D</b> card, one <b>U</b> card, one <b>Z</b> card and
+one or more <b>T</b> cards.  No other cards or other text is
 allowed in a control artifact.  Control artifacts might be PGP
 clearsigned.
 
-The D card and the Z card of a control artifact are the same
+The <b>D</b> card and the <b>Z</b> card of a control artifact are the same
 as in a manifest.
 
-The T card represents a [./branching.wiki#tags | tag or property]
+The <b>T</b> card represents a [./branching.wiki#tags | tag or property]
 that is applied to
-some other artifact.  The T card has two or three values.  The
+some other artifact.  The <b>T</b> card has two or three values.  The
 second argument is the 40 character lowercase artifact ID of the artifact
 to which the tag is to be applied. The
 first value is the tag name.  The first character of the tag
@@ -330,8 +330,8 @@ check-in user.  The "date" tag overrides the check-in date.
 The "branch" tag sets the name of the branch that at check-in
 belongs to.  Symbolic tags begin with the "sym-" prefix.
 
-The U card is the name of the user that created the control
-artifact.  The Z card is the usual required artifact checksum.
+The <b>U</b> card is the name of the user that created the control
+artifact.  The <b>Z</b> card is the usual required artifact checksum.
 
 An example control artifacts can be seen [/info/9d302ccda8 | here].
 
@@ -354,19 +354,19 @@ the following card types:
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
-The D card is the date and time when the wiki page was edited.
-The P card specifies the parent wiki pages, if any.  The L card
-gives the name of the wiki page.  The optional N card specifies
-the mimetype of the wiki text.  If the N card is omitted, the
+The <b>D</b> card is the date and time when the wiki page was edited.
+The <b>P</b> card specifies the parent wiki pages, if any.  The <b>L</b> card
+gives the name of the wiki page.  The optional <b>N</b> card specifies
+the mimetype of the wiki text.  If the <b>N</b> card is omitted, the
 mimetype is assumed to be text/x-fossil-wiki.
-The U card specifies the login
-of the user who made this edit to the wiki page.  The Z card is
+The <b>U</b> card specifies the login
+of the user who made this edit to the wiki page.  The <b>Z</b> card is
 the usual checksum over the entire artifact and is required.
 
-The W card is used to specify the text of the wiki page.  The
-argument to the W card is an integer which is the number of bytes
+The <b>W</b> card is used to specify the text of the wiki page.  The
+argument to the <b>W</b> card is an integer which is the number of bytes
 of text in the wiki page.  That text follows the newline character
-that terminates the W card.  The wiki text is always followed by one
+that terminates the <b>W</b> card.  The wiki text is always followed by one
 extra newline.
 
 An example wiki artifact can be seen
@@ -386,34 +386,34 @@ The following cards are allowed on a ticket change artifact:
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
-The D card is the usual date and time stamp and represents the point
-in time when the change was entered.  The U card is the login of the
-programmer who entered this change.  The Z card is the required checksum over
+The <b>D</b> card is the usual date and time stamp and represents the point
+in time when the change was entered.  The <b>U</b> card is the login of the
+programmer who entered this change.  The <b>Z</b> card is the required checksum over
 the entire artifact.
 
 Every ticket has a distinct ticket-id:
 40-character lower-case hexadecimal number.
-The ticket-id is given in the K-card.  A ticket exists if it contains one or
+The ticket-id is given in the <b>K</b> card.  A ticket exists if it contains one or
 more changes.  The first "change" to a ticket is what brings the
 ticket into existence.
 
-J cards specify changes to the "value" of "fields" in the ticket.
-If the <i>value</i> parameter of the J card is omitted, then the
+<b>J</b> cards specify changes to the "value" of "fields" in the ticket.
+If the <i>value</i> parameter of the <b>J</b> card is omitted, then the
 field is set to an empty string.
 Each fossil server has a ticket configuration which specifies the fields its
 understands.  The ticket configuration is part of the local state for
 the repository and thus can vary from one repository to another.
-Hence a J card might specify a <i>field</i> that do not exist in the
-local ticket configuration.  If a J card specifies a <i>field</i> that
-is not in the local configuration, then that J card
+Hence a <b>J</b> card might specify a <i>field</i> that do not exist in the
+local ticket configuration.  If a <b>J</b> card specifies a <i>field</i> that
+is not in the local configuration, then that <b>J</b> card
 is simply ignored.
 
-The first argument of the J card is the field name.  The second
+The first argument of the <b>J</b> card is the field name.  The second
 value is the field value.  If the field name begins with "+" then
 the value is appended to the prior value.  Otherwise, the value
-on the J card replaces any previous value of the field.
+on the <b>J</b> card replaces any previous value of the field.
 The field name and value are both encoded using the character
-escapes defined for the C card of a manifest.
+escapes defined for the <b>C</b> card of a manifest.
 
 An example ticket-change artifact can be seen
 [/artifact/91f1ec6af053 | here].
@@ -436,28 +436,28 @@ The following cards are allowed on an attachment artifact:
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
-The A card specifies a filename for the attachment in its first argument.
-The second argument to the A card is the name of the wiki page or
+The <b>A</b> card specifies a filename for the attachment in its first argument.
+The second argument to the <b>A</b> card is the name of the wiki page or
 ticket or technical note to which the attachment is connected.  The
 third argument is either missing or else it is the 40-character artifact
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
 
-The C card is an optional comment describing what the attachment is about.
-The C card is optional, but there can only be one.
+The <b>C</b> card is an optional comment describing what the attachment is about.
+The <b>C</b> card is optional, but there can only be one.
 
-A single D card is required to give the date and time when the attachment
+A single <b>D</b> card is required to give the date and time when the attachment
 was applied.
 
-There may be zero or one N cards.  The N card specifies the mimetype of the
-comment text provided in the C card.  If the N card is omitted, the C card
+There may be zero or one <b>N</b> cards.  The <b>N</b> card specifies the mimetype of the
+comment text provided in the <b>C</b> card.  If the <b>N</b> card is omitted, the <b>C</b> card
 mimetype is taken to be text/plain.
 
-A single U card gives the name of the user who added the attachment.
-If an attachment is added anonymously, then the U card may be omitted.
+A single <b>U</b> card gives the name of the user who added the attachment.
+If an attachment is added anonymously, then the <b>U</b> card may be omitted.
 
-The Z card is the usual checksum over the rest of the attachment artifact.
-The Z card is required.
+The <b>Z</b> card is the usual checksum over the rest of the attachment artifact.
+The <b>Z</b> card is required.
 
 
 <a name="event"></a>
@@ -482,32 +482,32 @@ The following cards are allowed on an technote artifact:
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
-The C card contains text that is displayed on the timeline for the
-technote.  The C card is optional, but there can only be one.
+The <b>C</b> card contains text that is displayed on the timeline for the
+technote.  The <b>C</b> card is optional, but there can only be one.
 
-A single D card is required to give the date and time when the
+A single <b>D</b> card is required to give the date and time when the
 technote artifact was created.  This is different from the time at which
 the technote appears on the timeline.
 
-A single E card gives the time of the technote (the point on the timeline
+A single <b>E</b> card gives the time of the technote (the point on the timeline
 where the technote is displayed) and a unique identifier for the technote.
 When there are multiple artifacts with the same technote-id, the one with
-the most recent D card is the only one used.  The technote-id must be a
+the most recent <b>D</b> card is the only one used.  The technote-id must be a
 40-character lower-case hexadecimal string.
 
-The optional N card specifies the mimetype of the text of the technote
-that is contained in the W card.  If the N card is omitted, then the
-W card text mimetype is assumed to be text/x-fossil-wiki, which is the
+The optional <b>N</b> card specifies the mimetype of the text of the technote
+that is contained in the <b>W</b> card.  If the <b>N</b> card is omitted, then the
+<b>W</b> card text mimetype is assumed to be text/x-fossil-wiki, which is the
 Fossil wiki format.
 
-The optional P card specifies a prior technote with the same technote-id
-from which the current technote is an edit.  The P card is a hint to the
+The optional <b>P</b> card specifies a prior technote with the same technote-id
+from which the current technote is an edit.  The <b>P</b> card is a hint to the
 system that it might be space efficient to store one technote as a delta of
 the other.
 
-A technote might contain one or more T-cards used to set
+A technote might contain one or more <b>T</b> cards used to set
 [./branching.wiki#tags | tags or properties]
-on the technote.  The format of the T-card is the same as
+on the technote.  The format of the <b>T</b> card is the same as
 described in [#ctrl | Control Artifacts] section above, except that the
 second argument is the single character "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
@@ -517,16 +517,16 @@ possible to encode the current artifact ID as part of an artifact,
 since the act of inserting the artifact ID would change the artifact ID,
 hence a <b>*</b> is used to represent "self".  The "<b>+</b>" on the
 name means that tags can only be add and they can only be non-propagating
-tags.  In a technote, T cards are normally used to set the background
+tags.  In a technote, <b>T</b> cards are normally used to set the background
 display color for timelines.
 
-The optional U card gives name of the user who entered the technote.
+The optional <b>U</b> card gives name of the user who entered the technote.
 
-A single W card provides wiki text for the document associated with the
-technote.  The format of the W card is exactly the same as for a
+A single <b>W</b> card provides wiki text for the document associated with the
+technote.  The format of the <b>W</b> card is exactly the same as for a
 [#wikichng | wiki artifact].
 
-The Z card is the required checksum over the rest of the artifact.
+The <b>Z</b> card is the required checksum over the rest of the artifact.
 
 <a name="forum"></a>
 <h3>2.8 Forum Posts</h3>
@@ -548,59 +548,59 @@ The following cards are allowed on an forum post artifact:
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
-Every forum post must have either one I card and one G card
-or one H card.  
+Every forum post must have either one <b>I</b> card and one <b>G</b> card
+or one <b>H</b> card.  
 Forum posts are organized into topic threads.  The initial
-post for a thread (the root post) has an H card giving the title or
-subject for that thread.  The argument to the H card is a string
-in the same format as a comment string in a C card.
-All follow-up posts have an I card that
+post for a thread (the root post) has an <b>H</b> card giving the title or
+subject for that thread.  The argument to the <b>H</b> card is a string
+in the same format as a comment string in a <b>C</b> card.
+All follow-up posts have an <b>I</b> card that
 indicates which prior post in the same thread the current forum
-post is replying to, and a G card specifying the root post for
-the entire thread.  The argument to G and I cards is the
+post is replying to, and a <b>G</b> card specifying the root post for
+the entire thread.  The argument to G and <b>I</b> cards is the
 artifact hash for the prior forum post to which the card refers.
 
 In theory, it is sufficient for follow-up posts to have only an
-I card, since the G card value could be computed by following a
-chain of I cards.  However, the G card is required in order to
+<b>I</b> card, since the <b>G</b> card value could be computed by following a
+chain of <b>I</b> cards.  However, the <b>G</b> card is required in order to
 associate the artifact with a forum thread in the case where an
-intermediate artifact in the I card chain is shunned or otherwise
+intermediate artifact in the <b>I</b> card chain is shunned or otherwise
 becomes unreadable.
 
-A single D card is required to give the date and time when the
+A single <b>D</b> card is required to give the date and time when the
 forum post was created.
 
-The optional N card specifies the mimetype of the text of the technote
-that is contained in the W card.  If the N card is omitted, then the
-W card text mimetype is assumed to be text/x-fossil-wiki, which is the
+The optional <b>N</b> card specifies the mimetype of the text of the technote
+that is contained in the <b>W</b> card.  If the <b>N</b> card is omitted, then the
+<b>W</b> card text mimetype is assumed to be text/x-fossil-wiki, which is the
 Fossil wiki format.
 
-The optional P card specifies a prior forum post for which this
+The optional <b>P</b> card specifies a prior forum post for which this
 forum post is an edit.  For display purposes, only the child post
 is shown, though the historical post is retained as a record.
-If P cards are used and there exist multiple versions of the same
-forum post, then I cards for other artifacts refer to whichever
+If <b>P</b> cards are used and there exist multiple versions of the same
+forum post, then <b>I</b> cards for other artifacts refer to whichever
 version of the post was current at the time the reply was made,
-but G cards refer to the initial, unedited root post for the thread.
-Thus, following the chain of I cards back to the root of the thread
-may land on a different post than the one given in the G card.
-However, following the chain of I cards back to the thread root,
-then following P cards back to the initial version of the thread
-root must give the same artifact as is provided by the G card,
-otherwise the artifact containing the G card is considered invalid
+but <b>G</b> cards refer to the initial, unedited root post for the thread.
+Thus, following the chain of <b>I</b> cards back to the root of the thread
+may land on a different post than the one given in the <b>G</b> card.
+However, following the chain of <b>I</b> cards back to the thread root,
+then following <b>P</b> cards back to the initial version of the thread
+root must give the same artifact as is provided by the <b>G</b> card,
+otherwise the artifact containing the <b>G</b> card is considered invalid
 and should be ignored.
 
-In general, P cards may contain multiple arguments, indicating a
+In general, <b>P</b> cards may contain multiple arguments, indicating a
 merge.  But since forum posts cannot be merged, the
-P card of a forum post may only contain a single argument.
+<b>P</b> card of a forum post may only contain a single argument.
 
-The U card gives name of the user who entered the forum post.
+The <b>U</b> card gives name of the user who entered the forum post.
 
-A single W card provides wiki text for the forum post.
-The format of the W card is exactly the same as for a
+A single <b>W</b> card provides wiki text for the forum post.
+The format of the <b>W</b> card is exactly the same as for a
 [#wikichng | wiki artifact].
 
-The Z card is the required checksum over the rest of the artifact.
+The <b>Z</b> card is the required checksum over the rest of the artifact.
 
 
 <a name="summary"></a>
@@ -870,7 +870,7 @@ implementing algorithms described above.
 <h3>4.1 R-Card Hash Calculation</h3>
 
 Given a manifest file named <tt>MF</tt>, the following Bash shell code
-demonstrates how to compute the value of the R card in that manifest.
+demonstrates how to compute the value of the <b>R</b> card in that manifest.
 This example uses manifest [28987096ac]. Lines starting with <tt>#</tt> are
 shell input and other lines are output. This demonstration assumes that the
 file versions represented by the input manifest are checked out
@@ -902,6 +902,6 @@ filenames in the manifest are "fossilized" (encoded) because they contain
 spaces. In that case the shell-generated hash would differ because the
 <tt>stat</tt> calls will fail to find such files (which are output in encoded
 form here). That approach also won't work for delta manifests. Calculating
-the R-card for delta manifests requires traversing both the delta and its baseline in
+the <b>R</b> card for delta manifests requires traversing both the delta and its baseline in
 lexical order of the files, preferring the delta's copy if both contain
 a given file.
