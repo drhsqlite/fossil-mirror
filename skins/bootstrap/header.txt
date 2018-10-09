@@ -117,7 +117,7 @@
         <th1>
           html "<div class='container'>"
             html "<ul class='breadcrumb'>"
-              html "<li><a href='$index_page'>Home</a></li>"
+              html "<li><a href='$home$index_page'>Home</a></li>"
               html "<li><a href='$home/$current_page'>[htmlize $title]</a></li>"
               html "</ul>"
             </th1>

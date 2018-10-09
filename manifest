@@ -1,5 +1,5 @@
-C Added\sthe\smv/rm\sfiles\schange\sto\sthe\s2.7\schangelog
-D 2018-10-06T23:02:50.705
+C Fix\sa\sminor\shyperlink\sproblem\sin\sthe\sbootstrap\sskin.
+D 2018-10-09T12:22:51.283
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -389,7 +389,7 @@ F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2ac0ae3b2c31
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
-F skins/bootstrap/header.txt 56208f70c11244fbef5e8a2ce65d38bce755f6a8e08e9d4427455854e422f3b3
+F skins/bootstrap/header.txt 8327bc40bcb2e3267ac13d197b5330cf5ac0cd4330371bdb15988aa2264bb80b
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt e0bef6152beb39b059854007338e537d39c9777833dc17f0d05ce0e5427a1487
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f4a9eb90c15037009ca9d90c32ec1111e7583facf9abcc4f185fe71b498292e
-R 943584cd4717ff5b82330a0fd9daf573
-U wyoung
-Z ea6ea7451364a2539595368ed8a5bba8
+P be1bc912fe67d075225c7fe89fb3723d9be5590de233152bae1e282a19e26989
+R 1fa5fd99c428431dfe3403b239d4f2eb
+U drh
+Z 5343cab838b40ea0ed374413532fb12f
