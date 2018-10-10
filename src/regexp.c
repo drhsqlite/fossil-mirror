@@ -796,7 +796,7 @@ void re_test_grep(void){
 **
 ** Attempt to match the given POSIX extended regular expression PATTERN
 ** over all historic versions of FILENAME.  For details of the supported
-** RE dialect, see https://fossil-scm.org/fossil/doc/trunk/www/grep.md.
+** RE dialect, see https://fossil-scm.org/fossil/doc/trunk/www/grep.md
 **
 ** Options:
 **

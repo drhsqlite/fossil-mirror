@@ -1,5 +1,5 @@
-C Added\sa\snonce\sattribute\sto\sthe\s<script>\stag\sfor\sthe\sinline\sJavaScript\nbacking\sthe\sWYSIWYG\swiki\seditor\sfeature.\s\sWithout\sthis,\smodern\sbrowsers\nthrow\sa\sCSP\sviolation.
-D 2018-10-09T16:06:23.351
+C Removed\sa\speriod\sat\sthe\send\sof\sa\ssentence\sending\sin\sa\sURL\sto\savoid\sthe\nneed\sfor\scleverness\sin\sURL\shandling\sto\sget\sthe\scorrect\sdocument\sto\sopen.\n(Affects\s"fossil\shelp\sgrep"\soutput.)\s\sProblem\snoticed\sby\sjungleboogie\son\nthe\sforum,\s/forumpost/13332107cc.)
+D 2018-10-10T16:42:08.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -542,7 +542,7 @@ F src/printf.c d6f54c13c37a2497e6b2db0e1724d93243a664b09f81a65e86e94e3f830f2f3d
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 78956982170d681a1fc8774916f53920e94fe0f7570072eb9906fb9b497c064c
-F src/regexp.c 1a473ddc077cd0cbf4d512de09bdbdf3bf5d4110b68d7d5ba660312267655229
+F src/regexp.c 3509e175b8fdaef0e23e1a86232bb506bda155c6ef2521d4ae754ea15bc26e98
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a1437b2447512c2ad6495b463e39ee3223575ab56ad690a6e3d433d550af51cb
-R a6da76e0e502c44cfc881e22e95637a6
+P 12a90ff44477f056fe30494ba081979eb757f82f8a2c8a63771217cb128837ab
+R 469de2deda20e8d9180de6fa46d1fac8
 U wyoung
-Z 1bed8ea6f7e09fbbce9935fe7fb57b94
+Z afdabffe2ead1c3ea8a8ff82bd107c3c
