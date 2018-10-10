@@ -613,7 +613,7 @@ void wikiedit_page(void){
   }else{
     /* Wysiwyg editing */
     Blob html, temp;
-    form_begin("onsubmit='wysiwygSubmit()'", "%R/wikiedit");
+    form_begin("", "%R/wikiedit");
     @ <div>
     @ <input type="hidden" name="wysiwyg" value="1" />
     blob_zero(&temp);
