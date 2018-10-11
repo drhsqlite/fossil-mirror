@@ -1,5 +1,5 @@
-C Recalculate\sthe\sdimensions\sof\sthe\shamburger\smenu\sif\sthe\sbrowser\swindow\sis\sresized.
-D 2018-10-11T16:36:05.000
+C Cancel\sthe\stimer\sto\sremove\sthe\sborder\sof\sthe\shamburger\smenu\spanel\safter\sthe\sclosing\sanimation,\sif\sthe\smenu\sis\sclosed\sand\simmediately\sreopened\sby\sdouble-clicking\sthe\shamburger\sbutton.
+D 2018-10-11T16:36:06.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/css.txt e0bef6152beb39b059854007338e537d39c9777833dc17f0d05ce0e5
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt a9b4a351ed7bfa0b4eeee934bb3ec4c6a6848f96
-F skins/default/js.txt 7bb8a1fcfbabddd959c725a10f5c72db6c8a2c96
+F skins/default/js.txt d979614e4b43186c8bafc8bed47286d3ea22abd0
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d384ed8754c5c22598842698aa17366cf6be346
-R 7e9751aa93f09688973f7f54387ea7c6
+P 7c724cf7b2fd6325ce67191141ccc15e870583fc
+R f052a3b462e9be47db809c1225fce272
 U florian
-Z df33f1f8bbecd14028b11b3f0c4ae6f3
+Z ee6ae400cb9af810eb9c939b2c2379fc

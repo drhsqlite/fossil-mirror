@@ -24,6 +24,7 @@
   if (!panel.style) return;  // shouldn't happen, but be sure
   var panelBorder = panel.style.border;
   var panelInitialized = false;   // reset if browser window is resized
+  var panelResetBorderTimerID = 0;   // used to cancel post-animation tasks
 
   // Disable animation if this browser doesn't support CSS transitions.
   //
@@ -80,6 +81,13 @@
   //
   // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Transitions/Using_CSS_transitions#JavaScript_examples
   function showPanel() {
+    // Cancel the timer to remove the panel border after the closing animation,
+    // otherwise double-clicking the hamburger button with the panel opened will
+    // remove the borders from the (closed and immediately reopened) panel.
+    if (panelResetBorderTimerID) {
+      clearTimeout(panelResetBorderTimerID);
+      panelResetBorderTimerID = 0;
+    }
     if (animate) {
       if (!panelInitialized) {
         panelInitialized = true;
@@ -178,10 +186,11 @@
         }
         else {
           panel.style.maxHeight = '0';
-          setTimeout(function() {
+          panelResetBorderTimerID = setTimeout(function() {
             // Browsers show a 1px high border line when maxHeight == 0,
             // our "hidden" state, so hide the borders in that state, too.
             panel.style.border = 'none';
+            panelResetBorderTimerID = 0;   // clear ID of completed timer
           }, animMS);
         }
       }
