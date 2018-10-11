@@ -30,6 +30,7 @@
   // is the whole point here.
   var animate = panel.style.transition !== null && (typeof(panel.style.transition) == "string");
   var animMS = 400;
+  var originalEventHandlers = { };   // original event handlers to be restored
 
   // Calculate panel height despite its being hidden at call time.
   // Based on https://stackoverflow.com/a/29047447/142454
@@ -73,6 +74,22 @@
     else {
       panel.style.display = 'block';
     }
+    originalEventHandlers.onkeydown = document.onkeydown;
+    document.onkeydown = function(event) {
+      event = event || window.event;
+      var key = event.which || event.keyCode;
+      if (key == 27) {
+        panelToggle(true);
+      }
+    };
+    originalEventHandlers.onclick = document.onclick;
+    document.onclick = function(event) {
+      event = event || window.event;
+      if (!panel.contains(event.target)) {
+        panelToggle(true);
+        //return false;   // prevent default action (i.e. open clicked links)
+      }
+    };
   }
 
   // Return true if the panel is showing.
@@ -87,16 +104,41 @@
 
   // Click handler for the hamburger button.
   var needSitemapHTML = true;
-  document.querySelector("div.mainmenu > a").onclick = function() {
+  document.querySelector("div.mainmenu > a").onclick = function(event) {
+    // Break the event handler chain, or the handler for document.onclick
+    // (about to be installed) may already be triggered by the current event.
+    if (event.stopPropagation)
+      event.stopPropagation();
+    else
+      event.cancelBubble = true;
+    panelToggle(false);
+    return false;  // prevent browser from acting on <a> click
+  };
+  function panelToggle(suppressAnimation) {
     if (panelShowing()) {
+      document.onkeydown = originalEventHandlers.onkeydown;
+      document.onclick = originalEventHandlers.onclick;
       // Transition back to hidden state.
       if (animate) {
-        panel.style.maxHeight = '0';
-        setTimeout(function() {
-          // Browsers show a 1px high border line when maxHeight == 0,
-          // our "hidden" state, so hide the borders in that state, too.
+        if (suppressAnimation) {
+          var transition = window.getComputedStyle(panel).transition;
+          panel.style.transition = '';
+          panel.style.maxHeight = '0';
           panel.style.border = 'none';
-        }, animMS);
+          setTimeout(function() {
+            // Make sure CSS transition won't take effect now, so restore it
+            // asynchronously. Outer variable 'transition' still valid here.
+            panel.style.transition = transition;
+          }, 40);   // 25ms is insufficient with Firefox 62
+        }
+        else {
+          panel.style.maxHeight = '0';
+          setTimeout(function() {
+            // Browsers show a 1px high border line when maxHeight == 0,
+            // our "hidden" state, so hide the borders in that state, too.
+            panel.style.border = 'none';
+          }, animMS);
+        }
       }
       else {
         panel.style.display = 'none';
@@ -139,6 +181,5 @@
     else {
       showPanel();   // just show what we built above
     }
-    return false;  // prevent browser from acting on <a> click
   }
 })();
