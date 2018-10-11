@@ -1,5 +1,5 @@
-C Allow\sthe\shamburger\smenu\sto\sbe\sclosed\sinstantly\sby\spressing\sESC\sor\sby\sclicking\soutside.\sThis\sis\sthe\spatch\sinitially\ssubmitted\sto\s[https://fossil-scm.org/forum/forumpost/2abe305c2d],\swith\sthe\sinterim\schanges\sincorporated.
-D 2018-10-11T16:36:00.000
+C Read\sthe\sCSS\stransition\sstyle\sto\sbe\srestored\slater\sdirectly\sfrom\sthe\s(previously\sinitialized)\sstyle\sproperty,\sas\swindow.getComputedStyle()\sseems\sto\sreturn\snull\swith\sFirefox,\sin\sthis\sspecific\scase.\sThis\sfixes\sa\sproblem\sintroduced\swith\sthe\sprevious\scheck-in.
+D 2018-10-11T16:36:01.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/css.txt e0bef6152beb39b059854007338e537d39c9777833dc17f0d05ce0e5
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt 3b37d0a6ea0d0c495f44e8ed5b1dca5ebfc9d5df8a212c3b134c57e72ca5e731
-F skins/default/js.txt c8330bfef8a5250b41bfda98b1a721b9c1bae547
+F skins/default/js.txt f368e4b8c70de7e65978dc76896d09d449f25ba7
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -864,10 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e93ae526ef55b3cfda3f76dbe47aae5e08d49115e7b0785ec2a5bc33ea6d4aaa
-R 61bffc90ccfe672cb0528d8c32f02abd
-T *branch * js-hamburger-menu
-T *sym-js-hamburger-menu *
-T -sym-trunk *
+P a44fdd17de89debf29f3a940df02b18d40f4b746
+R dbbd790f4d68a8de65cd3563176dcc8e
 U florian
-Z 4bc587a17033b3d396f7645b86454e59
+Z 10b81408b05163b7ebcfecf323d9db1c

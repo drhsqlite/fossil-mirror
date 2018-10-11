@@ -121,7 +121,7 @@
       // Transition back to hidden state.
       if (animate) {
         if (suppressAnimation) {
-          var transition = window.getComputedStyle(panel).transition;
+          var transition = panel.style.transition;
           panel.style.transition = '';
           panel.style.maxHeight = '0';
           panel.style.border = 'none';
