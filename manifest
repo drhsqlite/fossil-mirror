@@ -1,5 +1,5 @@
-C Enable\scustomization\sof\sthe\shamburger\smenu\sthrough\sthe\sdefault\sskin\sheader.txt.
-D 2018-10-11T16:36:03.000
+C Fix\sthe\shamburger\smenu\stemplate\sfrom\sthe\sdocumentation\sto\sensure\sTH1\svariables\sare\sproperly\sHTMLized.
+D 2018-10-11T16:36:04.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -783,7 +783,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 7d7e56da453961b4790440460aff1018d20997fa
+F www/customskin.md 9a7e68ecea29ed864a420072505993326d335d3b
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5bd8d6fe868980c7aa610d625ec4ee766f24e859
-R d28cd30b7be85de07f66876a8bb477a3
+P 497dbb356fcc0363457e25c077ea3893aae328fd
+R 7a625a8652935ab0f5d7f1b8e2c7361e
 U florian
-Z aab82b71f23ac51ea57f49205c697c0d
+Z 346e324ce85fd654375fd09beded5013
