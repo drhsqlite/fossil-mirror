@@ -23,7 +23,7 @@
   if (!panel) return;   // site admin might've nuked it
   if (!panel.style) return;  // shouldn't happen, but be sure
   var panelBorder = panel.style.border;
-  var panelInitialized = false;   // track first panel display
+  var panelInitialized = false;   // reset if browser window is resized
 
   // Disable animation if this browser doesn't support CSS transitions.
   //
@@ -46,6 +46,11 @@
   // Based on https://stackoverflow.com/a/29047447/142454
   var panelHeight;  // computed on first panel display
   function calculatePanelHeight() {
+
+    // Clear the max-height CSS property in case the panel size is recalculated
+    // after the browser window was resized.
+    panel.style.maxHeight = '';
+
     // Get initial panel styles so we can restore them below.
     var es   = window.getComputedStyle(panel),
         edis = es.display,
@@ -132,6 +137,16 @@
     }
     return false;
   }
+
+  // Reset the state of the panel to uninitialized if the browser window is
+  // resized, so the dimensions are recalculated the next time it's opened.
+  originalEventHandlers.onresize = window.onresize;
+  window.onresize = function(event) {
+    panelInitialized = false;
+    if (originalEventHandlers.onresize) {
+      originalEventHandlers.onresize.call(window,event);
+    }
+  };
 
   // Click handler for the hamburger button.
   document.getElementById("hbbtn").onclick = function(event) {
