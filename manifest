@@ -1,5 +1,5 @@
-C Fix\sminor\sinaccuracy\sin\sthe\snumber\sof\syears\sin\sthe\shuman_readable_age()\nfunction.
-D 2018-10-11T09:39:56.120
+C Alternative\sname\sfor\sthe\s"customskin"\sdocument\sin\sthe\sdocument\sindex.
+D 2018-10-12T16:08:18.713
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -832,10 +832,10 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4a07d
-F www/mkindex.tcl ae997d735fecb0e9436c9208cdcac8893f272c6c43175b05d46e91979898451f x
+F www/mkindex.tcl b9ea559410c7dd6c5bf22273ad04f650dd03856dc01f11ef38aced00d60a2fee x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html 6f38616e1b07b97f03a18e047a2c37c0932b64670dc93dc6ca7f6533d4a15eb3
+F www/permutedindex.html daa2d911220e87f0b8d0294548cec88ff77640d674cc18e370567c186489c6ef
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 543cdd4770efd184a81e6aa29280f42a5cba2977190dca3adcf436cd3c139cda
-R c4ddb2b2cf651387acd9ac008358234e
+P e93ae526ef55b3cfda3f76dbe47aae5e08d49115e7b0785ec2a5bc33ea6d4aaa
+R b328f1f3c6be72acffbd8e1acee1aa22
 U drh
-Z f43c6ba75d39775a3a06228cdd98ffa9
+Z 0de556556a186fa8c02daefe5c998cb8
