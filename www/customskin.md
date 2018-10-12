@@ -172,7 +172,9 @@ following template:
          <ul class="columns" style="column-width: 20em; column-count: auto">
           <!-- NEW GROUP WITH HEADING LINK -->
           <li>
-           <a href="$home$index_page">Link: Home</a>
+           <th1>
+            html "<a href='$home$index_page'>Link: Home</a>"
+           </th1>
            <ul>
             <th1>
              html "<li><a href='$home/timeline'>Link: Timeline</a></li>"

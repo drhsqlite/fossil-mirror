@@ -1,5 +1,5 @@
-C Switch\saway\sfrom\sclassic\s(bubbling-only)\sevent\shandling\sto\ssimplify\smanagement\sof\stemporary\shandlers,\sand\sto\shave\sthe\sESC\skey\slistener\suse\sa\spriority\s(capturing)\shandler,\sto\sprevent\sany\sother\skeydown\shandlers\sor\sdefault\sactions\sfor\sthe\sESC\skey\swhile\sthe\spanel\sis\sopen.\sThis\sdoes\snot\schange\sthe\scompatibility\stest\sresults\ssummarized\shere:\s[https://fossil-scm.org/forum/forumpost/f425a1756c].\s(IE8\shalts\sJS\sprocessing\sat\sJSON.parse\sin\santiRobotDefense,\sanyway.)\sAlso,\sfor\snon-compatible\sbrowsers,\sthere's\sa\snew\sfallback\sto\stransform\sthe\shamburger\sbutton\sinto\sa\ssimple\s(non-scripted)\slink\sto\sthe\ssitemap.
-D 2018-10-12T16:16:55.000
+C For\sconsistency,\sHTMLize\sanother\sTH1\svariable,\sthough\snot\ssure\sif\sthis\sis\srequired,\ssee\s[https://fossil-scm.org/forum/forumpost/bc0b6ce4a1].
+D 2018-10-12T16:18:07.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -783,7 +783,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 9a7e68ecea29ed864a420072505993326d335d3b
+F www/customskin.md a184aa742721144e508934fa1afafa13cd294d51
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c73deeb69abaa0510eee20d374470e6ce7ca001f
-R 7356ab04d4fc24c6d066f72ebb90e8f3
+P e3376829e211a3f2d4fc566619423a307b6d23b0
+R 765362dd493ccc384deed24373680ab5
 U florian
-Z b902482b2534ecf4a64d493beea12f35
+Z b651d7211b7f09a2f2c90290f5f52b30
