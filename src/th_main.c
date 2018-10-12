@@ -418,7 +418,7 @@ int th1_artifact_from_ci_and_filename(
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
-** Output STRING escaped for HTML (html) or unchanged (puts).
+** Output STRING escaped for HTML (puts) or unchanged (html).
 */
 static int putsCmd(
   Th_Interp *interp,
