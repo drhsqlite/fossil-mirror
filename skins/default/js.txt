@@ -18,7 +18,13 @@
 ** menu button.
 */
 (function() {
-  if (!document.getElementById("hbbtn")) return;   // no hamburger button
+  var hbButton = document.getElementById("hbbtn");
+  if (!hbButton) return;   // no hamburger button
+  if (!document.addEventListener) {
+    // Turn the button into a link to the sitemap for incompatible browsers.
+    hbButton.href = "$home/sitemap";
+    return;
+  }
   var panel = document.getElementById("hbdrop");
   if (!panel) return;   // site admin might've nuked it
   if (!panel.style) return;  // shouldn't happen, but be sure
@@ -40,8 +46,6 @@
     animate = false;   // disable animation if "data-anim-ms" === "0"
   else if (!animMS || animMS>>0 !== Number(animMS) || animMS < 0)
     animMS = 400;   // set default if missing, empty, non-integer, or negative
-
-  var originalEventHandlers = { };   // original event handlers to be restored
 
   // Calculate panel height despite its being hidden at call time.
   // Based on https://stackoverflow.com/a/29047447/142454
@@ -106,23 +110,28 @@
       }, 40);   // 25ms is insufficient with Firefox 62
     }
     panel.style.display = 'block';
-    originalEventHandlers.onkeydown = document.onkeydown;
-    document.onkeydown = function(event) {
-      event = event || window.event;
-      var key = event.which || event.keyCode;
-      if (key == 27) {
-        panelToggle(true);
-      }
-    };
-    originalEventHandlers.onclick = document.onclick;
-    document.onclick = function(event) {
-      event = event || window.event;
-      if (!panel.contains(event.target)) {
-        panelToggle(true);
-        //return false;   // prevent default action (i.e. open clicked links)
-      }
-    };
+    document.addEventListener('keydown',panelKeydown,/* useCapture == */true);
+    document.addEventListener('click',panelClick,false);
   }
+
+  var panelKeydown = function(event) {
+    event = event || window.event;
+    var key = event.which || event.keyCode;
+    if (key == 27) {
+      event.stopPropagation();   // ignore other keydown handlers
+      panelToggle(true);
+    }
+  };
+
+  var panelClick = function(event) {
+    event = event || window.event;
+    if (!panel.contains(event.target)) {
+      // Call event.preventDefault() to have clicks outside the opened panel
+      // just close the panel, and swallow clicks on links or form elements.
+      //event.preventDefault();
+      panelToggle(true);
+    }
+  };
 
   // Return true if the panel is showing.
   function panelShowing() {
@@ -148,29 +157,23 @@
 
   // Reset the state of the panel to uninitialized if the browser window is
   // resized, so the dimensions are recalculated the next time it's opened.
-  originalEventHandlers.onresize = window.onresize;
-  window.onresize = function(event) {
+  window.addEventListener('resize',function(event) {
     panelInitialized = false;
-    if (originalEventHandlers.onresize) {
-      originalEventHandlers.onresize.call(window,event);
-    }
-  };
+  },false);
 
   // Click handler for the hamburger button.
-  document.getElementById("hbbtn").onclick = function(event) {
-    // Break the event handler chain, or the handler for document.onclick
+  hbButton.addEventListener('click',function(event) {
+    // Break the event handler chain, or the handler for document → click
     // (about to be installed) may already be triggered by the current event.
-    if (event.stopPropagation)
-      event.stopPropagation();
-    else
-      event.cancelBubble = true;
+    event.stopPropagation();
+    event.preventDefault();  // prevent browser from acting on <a> click
     panelToggle(false);
-    return false;  // prevent browser from acting on <a> click
-  };
+  },false);
+
   function panelToggle(suppressAnimation) {
     if (panelShowing()) {
-      document.onkeydown = originalEventHandlers.onkeydown;
-      document.onclick = originalEventHandlers.onclick;
+      document.removeEventListener('keydown',panelKeydown,/* useCapture == */true);
+      document.removeEventListener('click',panelClick,false);
       // Transition back to hidden state.
       if (animate) {
         if (suppressAnimation) {
