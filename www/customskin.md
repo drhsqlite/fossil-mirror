@@ -172,24 +172,18 @@ following template:
          <ul class="columns" style="column-width: 20em; column-count: auto">
           <!-- NEW GROUP WITH HEADING LINK -->
           <li>
-           <th1>
-            html "<a href='$home$index_page'>Link: Home</a>"
-           </th1>
+           <a href="$home$index_page">Link: Home</a>
            <ul>
-            <th1>
-             html "<li><a href='$home/timeline'>Link: Timeline</a></li>"
-             html "<li><a href='$home/dir?ci=tip'>Link: File List</a></li>"
-            </th1>
+            <li><a href="$home/timeline">Link: Timeline</a></li>
+            <li><a href="$home/dir?ci=tip">Link: File List</a></li>
            </ul>
           </li>
           <!-- NEW GROUP WITH HEADING TEXT -->
           <li>
            Heading Text
            <ul>
-            <th1>
-             html "<li><a href='$home/doc/trunk/www/customskin.md'>Link: Theming</a></li>"
-             html "<li><a href='$home/doc/trunk/www/th1.md'>Link: TH1 Scripts</a></li>"
-            </th1>
+            <li><a href="$home/doc/trunk/www/customskin.md">Link: Theming</a></li>
+            <li><a href="$home/doc/trunk/www/th1.md">Link: TH1 Scripts</a></li>
            </ul>
           </li>
           <!-- NEXT GROUP GOES HERE -->

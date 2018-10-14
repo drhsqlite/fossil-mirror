@@ -1,5 +1,5 @@
-C Remove\sleftover\sIE8\scompatibility\scode,\sas\sthe\shamburger\smenu\snever\sworked\swith\sthis\sbrowser.\s(The\shamburger\sbutton\swould\sbe\sreplaced\swith\sa\snon-scripted\slink\sto\sthe\ssitemap,\sif\sJS\sprocessing\sgot\sthis\sfar.)
-D 2018-10-14T06:44:01.000
+C Backout\s[4d384ed875]\sand\s[5677271a1c]\sto\ssimplify\sthe\shamburger\smenu\scustomization\stemplate.
+D 2018-10-14T06:46:01.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -783,7 +783,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md a184aa742721144e508934fa1afafa13cd294d51
+F www/customskin.md 7d7e56da453961b4790440460aff1018d20997fa
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -864,7 +864,9 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5677271a1c48bbec885af51f72db27a6c223781a
-R 93de7bd9132e0493e921e32989128e75
+P b0043203cb2deb79f18693bab5cd9d339a1c2180
+Q -4d384ed8754c5c22598842698aa17366cf6be346
+Q -5677271a1c48bbec885af51f72db27a6c223781a
+R 98cfd0a267d730957331cba826105ed0
 U florian
-Z 8bc57f63489b8ba4cdcfd26069b7dd1f
+Z 38b74da89cda1e7df3743e99d22836c3
