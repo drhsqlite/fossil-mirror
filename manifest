@@ -1,5 +1,5 @@
-C For\sconsistency,\sHTMLize\sanother\sTH1\svariable,\sthough\snot\ssure\sif\sthis\sis\srequired,\ssee\s[https://fossil-scm.org/forum/forumpost/bc0b6ce4a1].
-D 2018-10-12T16:18:07.000
+C Remove\sleftover\sIE8\scompatibility\scode,\sas\sthe\shamburger\smenu\snever\sworked\swith\sthis\sbrowser.\s(The\shamburger\sbutton\swould\sbe\sreplaced\swith\sa\snon-scripted\slink\sto\sthe\ssitemap,\sif\sJS\sprocessing\sgot\sthis\sfar.)
+D 2018-10-14T06:44:01.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/css.txt e0bef6152beb39b059854007338e537d39c9777833dc17f0d05ce0e5
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
 F skins/default/header.txt a9b4a351ed7bfa0b4eeee934bb3ec4c6a6848f96
-F skins/default/js.txt 8ab7e5cdfb39831729726c6797262e82f5aa2c9b
+F skins/default/js.txt fb287ad5b4e7c70fad55ab70fa1c5b011f68b2ae
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3376829e211a3f2d4fc566619423a307b6d23b0
-R 765362dd493ccc384deed24373680ab5
+P 5677271a1c48bbec885af51f72db27a6c223781a
+R 93de7bd9132e0493e921e32989128e75
 U florian
-Z b651d7211b7f09a2f2c90290f5f52b30
+Z 8bc57f63489b8ba4cdcfd26069b7dd1f
