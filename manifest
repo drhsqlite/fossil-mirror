@@ -1,5 +1,5 @@
-C Fix\sa\scomment\son\sthe\s"html"\sand\s"puts"\sTH1\scommands.\s\sBefore\sthis\sfix,\sthe\nmeanings\sof\sthe\stwo\scommands\swere\sreversed.
-D 2018-10-12T16:14:34.158
+C Modify\sthe\scomment\sformatter\sto\savoid\soutput\sof\sincomplete\sUTF-8\ssequences,\sand\sto\savoid\sline\sbreaks\sinside\sUTF-8\ssequences.\sSee\s[https://fossil-scm.org/forum/forumpost/1247e4a3c4]\sfor\sdetailed\sinformation\sand\stests.
+D 2018-10-17T14:16:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -449,7 +449,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
-F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
+F src/comformat.c d6da53c0cb7c9d9ede8fb76457baf19a936a42b306879ca57c96c56025c0f2f4
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c f80fe4fa9552268446a9a0a043220dfa722e5ca1fd02726a6e630b41c6f863d4
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
@@ -864,7 +864,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2aa4ef940d287bb9a8f0b455b2c35101d43e548306244cf6af5f3f1e13a4c9ae
-R 8a39a4662d1f492822594fc608c6afcb
-U drh
-Z fa1b32f1ad988d6df387e3a52c26a955
+P 35563f3db308ca3381623642af7e97e2bf3b87788ef21f68e13c8bae62be27d8
+R 9d8551feaedbb765cfd7a716516bd483
+T *branch * comment-formatter-utf8
+T *sym-comment-formatter-utf8 *
+T -sym-trunk *
+U florian
+Z 31559ca300a99c315aaa07371cc58695

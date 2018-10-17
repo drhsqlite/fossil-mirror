@@ -227,7 +227,31 @@ static void comment_print_line(
       charCnt++;
     }
     assert( c!='\n' || charCnt==0 );
-    fossil_print("%c", c);
+    /*
+    ** Avoid output of incomplete UTF-8 sequences, and also avoid line breaks
+    ** inside UTF-8 sequences. Incomplete, ill-formed and overlong sequences are
+    ** kept together. The invalid lead bytes 0xC0 to 0xC1 and 0xF5 to 0xF7 are
+    ** allowed to initiate (ill-formed) 2- and 4-byte sequences, respectively,
+    ** the other invalid lead bytes 0xF8 to 0xFF are treated as invalid 1-byte
+    ** sequences (as lone trail bytes).
+    */
+    if( (c&0xc0)==0xc0 && zLine[index]!=0 ){  /* Any UTF-8 lead byte 11xxxxxx */
+      char zUTF8[5]; /* Buffer to hold a UTF-8 sequence. */
+      int cchUTF8=1; /* Code units consumed. */
+      int maxUTF8=1; /* Expected sequence length. */
+      zUTF8[0]=c;
+      if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
+      else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
+      else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
+      while( cchUTF8<maxUTF8 &&
+              (zLine[index]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+        zUTF8[cchUTF8++] = zLine[index++];
+      }
+      zUTF8[cchUTF8]=0;
+      fossil_print("%s", zUTF8);
+    }
+    else
+      fossil_print("%c", c);
     if( (c&0x80)==0 || (zLine[index+1]&0xc0)!=0xc0 ) maxChars -= useChars;
     if( maxChars<=0 ) break;
     if( c=='\n' ) break;
@@ -261,7 +285,7 @@ static int comment_print_legacy(
   int width          /* Maximum number of characters per line. */
 ){
   int maxChars = width - indent;
-  int si, sk, i, k;
+  int si, sk, i, k, kc;
   int doIndent = 0;
   char *zBuf;
   char zBuffer[400];
@@ -289,9 +313,29 @@ static int comment_print_legacy(
       if( zBuf!=zBuffer) fossil_free(zBuf);
       return lineCnt;
     }
-    for(sk=si=i=k=0; zText[i] && k<maxChars; i++){
+    for(sk=si=i=k=kc=0; zText[i] && kc<maxChars; i++){
       char c = zText[i];
-      if( fossil_isspace(c) ){
+      kc++; /* Count complete UTF-8 sequences. */
+      /*
+      ** Avoid line breaks inside UTF-8 sequences. Incomplete, ill-formed and
+      ** overlong sequences are kept together. The invalid lead bytes 0xC0 to
+      ** 0xC1 and 0xF5 to 0xF7 are allowed to initiate (ill-formed) 2- and
+      ** 4-byte sequences, respectively, the other invalid lead bytes 0xF8 to
+      ** 0xFF are treated as invalid 1-byte sequences (as lone trail bytes).
+      */
+      if( (c&0xc0)==0xc0 && zText[i+1]!=0 ){  /* Any UTF-8 lead byte 11xxxxxx */
+        int cchUTF8=1; /* Code units consumed. */
+        int maxUTF8=1; /* Expected sequence length. */
+        if( (c&0xe0)==0xc0 )maxUTF8=2;        /* UTF-8 lead byte 110vvvvv */
+        else if( (c&0xf0)==0xe0 )maxUTF8=3;   /* UTF-8 lead byte 1110vvvv */
+        else if( (c&0xf8)==0xf0 )maxUTF8=4;   /* UTF-8 lead byte 11110vvv */
+        zBuf[k++] = c;
+        while( cchUTF8<maxUTF8 &&
+                (zText[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+          zBuf[k++] = zText[++i];
+        }
+      }
+      else if( fossil_isspace(c) ){
         si = i;
         sk = k;
         if( k==0 || zBuf[k-1]!=' ' ){
