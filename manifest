@@ -1,5 +1,5 @@
-C Fix\sa\scomment\son\sthe\s"html"\sand\s"puts"\sTH1\scommands.\s\sBefore\sthis\sfix,\sthe\nmeanings\sof\sthe\stwo\scommands\swere\sreversed.
-D 2018-10-12T16:14:34.158
+C Enhance\sthe\ssecurity-audit\spage\sto\sdetect\sinsecurities\sresulting\sfrom\shaving\nself-registration\senabled.\s\sThis\sis\sa\swork\sin\sprogress.\s\sMore\stesting\sand\nmore\schecks\sare\sneeded\sin\sthis\sarea.
+D 2018-10-17T23:53:54.851
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -549,7 +549,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
-F src/security_audit.c e84908c0469da94360440f93de17acb42ca683a35168c81fb11e82df4c8a3087
+F src/security_audit.c d3a6b6a070faa0eff7b7a657a05236f2139553e0c6f47e847c066df43d7f54b7
 F src/setup.c 4953798b9745c186c056900d4fe63b7b188bebb0ac52232e6a3bd5e6f6035a92
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2aa4ef940d287bb9a8f0b455b2c35101d43e548306244cf6af5f3f1e13a4c9ae
-R 8a39a4662d1f492822594fc608c6afcb
+P 35563f3db308ca3381623642af7e97e2bf3b87788ef21f68e13c8bae62be27d8
+R ac334c9daa422670c24c2020fb781d99
 U drh
-Z fa1b32f1ad988d6df387e3a52c26a955
+Z d33964bb1a2be5b0b7591a7e92afdb96
