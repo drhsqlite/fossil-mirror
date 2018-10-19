@@ -1,5 +1,5 @@
-C Use\sa\ssigned\stype\sto\savoid\san\sinfinite\sloop\sin\ssocket_send();\ssocket_receive()\nis\salready\sfine.
-D 2018-10-19T22:12:41.044
+C Now\sthat\stype\shas\schanged\sdue\sto\s[d0fa9eee56],\scast\sback\sto\smatch\stotal\svariable.
+D 2018-10-19T22:37:13.257
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -485,7 +485,7 @@ F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
-F src/http_socket.c 0b540bebf5ef779372a654b77b163b7924055b124070f4514e3dae61e6a73095
+F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 724ccc46f2cba9ae5196a89a01c950bb33a0ee446c3fa70b9ad4348d081eb13b
-R 236a945bcf8d42f4e3796f3036aabd2d
+P d0fa9eee56daa1476e7ae8a977b3e9d1cdc666469ed2de88c30cd0b9ab17ecd5
+R 3ce2988493496d455029f13b36d09d84
 U andybradford
-Z d1d92f7769696d63ab478b2df76161e2
+Z 9067acdb5e8b3e5c0509194fd96ed19e

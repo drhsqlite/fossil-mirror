@@ -203,8 +203,8 @@ size_t socket_send(void *NotUsed, const void *pContent, size_t N){
   while( N>0 ){
     sent = send(iSocket, pContent, N, 0);
     if( sent<=0 ) break;
-    total += sent;
-    N -= sent;
+    total += (size_t)sent;
+    N -= (size_t)sent;
     pContent = (void*)&((char*)pContent)[sent];
   }
   return total;
