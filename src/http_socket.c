@@ -198,7 +198,7 @@ end_socket_open:
 ** Send content out over the open socket connection.
 */
 size_t socket_send(void *NotUsed, const void *pContent, size_t N){
-  size_t sent;
+  ssize_t sent;
   size_t total = 0;
   while( N>0 ){
     sent = send(iSocket, pContent, N, 0);
