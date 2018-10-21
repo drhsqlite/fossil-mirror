@@ -1,5 +1,5 @@
-C Fixed\san\soff-by-one\serror\sin\sthe\serror\slog\sheader\sprinter,\sresulting\sin\nthe\sday\snumber\sbeing\sfor\sthe\snext\sday\spast\sthe\scall\stime.\s\sBug\sdiagnosis\nand\sfix\sfrom\shttps://fossil-scm.org/forum/forumpost/0d5933da4c
-D 2018-10-20T15:00:16.318
+C Update\scustom\sMinGW\smakefile.
+D 2018-10-21T18:38:39.732
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -735,7 +735,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake e730fe39345b6e54621a1b541417ab3f3c75d7750c2fe43fcb3ef2d399cd9690
 F win/Makefile.dmc 8d3ce88ac893eda72d7b39feea26df7a48553e9694a4579440fbf4a7bfb0083f
 F win/Makefile.mingw 5982283cf7a95a6ef9b91b130ad643fdfa7c4e5283c99ef20ff44ec4b2f221f8
-F win/Makefile.mingw.mistachkin f9e9bda02b0b21c203d35cb67c37e46ac646cee1c09170d009f63d836b8a1483
+F win/Makefile.mingw.mistachkin 9de8a948811db0b3ca4e04f024adb308178730a21137e3d1af9d914edacedf6d
 F win/Makefile.msc 0b5bf99431357edaa5626514c50d1344072d312efa113bed034bceca3ccb0321
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77371043a47ed234f78802c8e0a156d24a0f92cf495116f63ede0e71f453e2e1
-R 10a5e7250fed85a810c6f14bca4aa660
-U wyoung
-Z c8ba1c9890a80a1b4cd75ceaf81ff354
+P cf9b44a966d9f280596551ea371bad7009160673a1f184624d7892903c27f11d
+R 43dd3cc22522a372292e86fecd4c7860
+U mistachkin
+Z 624babc02472319c30bb0627bbaba4da
