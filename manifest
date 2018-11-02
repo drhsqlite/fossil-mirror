@@ -1,5 +1,5 @@
-C Split\sout\sthe\srepo_list_page()\sroutine,\sused\sto\sgenerate\sthe\srepository\slist\nfor\s"fossil\sall\sui"\sand\ssimilar,\sinto\sa\sseparate\ssource\sfile\s"repolist.c"\sto\nmake\sit\seasier\sto\senhance\sand\smaintain.
-D 2018-11-02T13:08:44.682
+C Enhance\sthe\srepository\slist\spage\sso\sthat\sit\sshows\sthe\sname\sof\sproject\sfor\neach\srepository,\sand\sso\sthat\sthe\s"Last\sModified"\stime\sis\sbased\son\sthe\smost\nrecent\sevent\sin\sthe\srepository,\snot\sthe\srepository\sfile\smtime.
+D 2018-11-02T13:48:52.874
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -543,7 +543,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 78956982170d681a1fc8774916f53920e94fe0f7570072eb9906fb9b497c064c
 F src/regexp.c 3509e175b8fdaef0e23e1a86232bb506bda155c6ef2521d4ae754ea15bc26e98
-F src/repolist.c c00052c532b6f81a7c7bcfe2e5ce67161b61bfefb5005fb4ec7b47671991208c
+F src/repolist.c 455d2c1c18d8c30c9c4ad26829ff5de5641c89340b57883729dd068b11e1e060
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c32c5b83271f2033c1dbbeec754b1da8980b2304e18b4c6c065c847e525adcf
-R fa8882422210b4af8b13deec31c2df75
+P 45a713495689ca2c893fb6662b6798c3e7dd51a073e10a3bbdb61784a7868bbb
+R 679191042a269c35778b3190457af758
 U drh
-Z 515dffe935644e4662695fd7045fff0b
+Z 67108352ee83a579bb56e84d3cc29966

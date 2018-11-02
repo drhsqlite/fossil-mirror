@@ -21,11 +21,56 @@
 #include "config.h"
 #include "repolist.h"
 
+#if INTERFACE
+/*
+** Return value from the remote_repo_info() command.  zRepoName is the
+** input.  All other fields are outputs.
+*/
+struct RepoInfo {
+  char *zRepoName;      /* Name of the repository file */
+  int isValid;          /* True if zRepoName is a valid Fossil repository */
+  char *zProjName;      /* Project Name.  Memory from fossil_malloc() */
+  double rMTime;        /* Last update.  Julian day number */
+};
+#endif
+
+/*
+** Discover information about the repository given by
+** pRepo->zRepoName.
+*/
+void remote_repo_info(RepoInfo *pRepo){
+  sqlite3 *db;
+  sqlite3_stmt *pStmt;
+  int rc;
+
+  pRepo->isValid = 0;
+  pRepo->zProjName = 0;
+  pRepo->rMTime = 0.0;
+
+  rc = sqlite3_open(pRepo->zRepoName, &db);
+  if( rc ) return;
+  rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
+                              " WHERE name='project-name'",
+                          -1, &pStmt, 0);
+  if( rc ) return;
+  if( sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->zProjName = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
+  }
+  sqlite3_finalize(pStmt);
+  rc = sqlite3_prepare_v2(db, "SELECT max(mtime) FROM event", -1, &pStmt, 0);
+  if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->rMTime = sqlite3_column_double(pStmt,0);
+  }
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  pRepo->isValid = 1;
+}
+
 /*
 ** Generate a web-page that lists all repositories located under the
 ** g.zRepositoryName directory and return non-zero.
 **
-** For the special case when g.zRepositoryName a non-chroot-jail "/",
+** For the special case when g.zRepositoryName is a non-chroot-jail "/",
 ** compose the list using the "repo:" entries in the global_config
 ** table of the configuration database.  These entries comprise all
 ** of the repositories known to the "all" command.  The special case
@@ -82,21 +127,25 @@ int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n>0 ){
     Stmt q;
-    sqlite3_int64 iNow, iMTime;
+    double rNow;
     @ <h1 align="center">Fossil Repositories</h1>
     @ <table border="0" class="sortable" data-init-sort="1" \
-    @ data-column-types="tnk"><thead>
-    @ <tr><th>Filename<th width="20"><th>Last Modified</tr>
+    @ data-column-types="tntnk"><thead>
+    @ <tr><th>Filename<th width="20">\
+    @ <th>Project Name<th width="20">\
+    @ <th>Last Modified</tr>
     @ </thead><tbody>
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
-    iNow = db_int64(0, "SELECT strftime('%%s','now')");
+    rNow = db_double(0, "SELECT julianday('now')");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       int nName = (int)strlen(zName);
       char *zUrl;
       char *zAge;
       char *zFull;
+      RepoInfo x;
+      int iAge;
       if( nName<7 ) continue;
       zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
       if( zName[0]=='/'
@@ -110,27 +159,38 @@ int repo_list_page(void){
       }else{
         zFull = mprintf("%s/%s", g.zRepositoryName, zName);
       }
-      iMTime = file_mtime(zFull, ExtFILE);
+      x.zRepoName = zFull;
+      remote_repo_info(&x);
       fossil_free(zFull);
-      if( iMTime<=0 ){
+      if( !x.isValid ){
         zAge = mprintf("...");
+        iAge = 0;
       }else{
-        zAge = human_readable_age((iNow - iMTime)/86400.0);
+        iAge = (rNow - x.rMTime)*86400;
+        if( iAge<0 ) x.rMTime = rNow;
+        zAge = human_readable_age(rNow - x.rMTime);
       }
+      @ <tr><td valign="top">\
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
-        @ <tr><td>%h(zName)
+        @ %h(zName)
       } else if( sqlite3_strglob("*/.*", zName)==0 ){
         /* Do not show hidden repos */
-        @ <tr><td>%h(zName) (hidden)
+        @ %h(zName) (hidden)
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a>
+        @ <a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a>
       }else{
-        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a>
+        @ <a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a>
       }
-      @ <td></td><td data-sortkey='%010llx(iNow - iMTime)'>%h(zAge)</tr>
+      if( x.zProjName ){
+        @ <td></td><td>%h(x.zProjName)</td>
+        fossil_free(x.zProjName);
+      }else{
+        @ <td></td><td></td>
+      }
+      @ <td></td><td data-sortkey='%08x(iAge)'>%h(zAge)</tr>
       fossil_free(zAge);
       sqlite3_free(zUrl);
     }
