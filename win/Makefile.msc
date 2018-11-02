@@ -468,6 +468,7 @@ SRC   = add_.c \
         purge_.c \
         rebuild_.c \
         regexp_.c \
+        repolist_.c \
         report_.c \
         rss_.c \
         schema_.c \
@@ -677,6 +678,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\purge$O \
         $(OX)\rebuild$O \
         $(OX)\regexp$O \
+        $(OX)\repolist$O \
         $(OX)\report$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
@@ -873,6 +875,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\purge.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
 	echo $(OX)\regexp.obj >> $@
+	echo $(OX)\repolist.obj >> $@
 	echo $(OX)\report.obj >> $@
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
@@ -1581,6 +1584,12 @@ $(OX)\regexp$O : regexp_.c regexp.h
 regexp_.c : $(SRCDIR)\regexp.c
 	translate$E $** > $@
 
+$(OX)\repolist$O : repolist_.c repolist.h
+	$(TCC) /Fo$@ -c repolist_.c
+
+repolist_.c : $(SRCDIR)\repolist.c
+	translate$E $** > $@
+
 $(OX)\report$O : report_.c report.h
 	$(TCC) /Fo$@ -c report_.c
 
@@ -1945,6 +1954,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			purge_.c:purge.h \
 			rebuild_.c:rebuild.h \
 			regexp_.c:regexp.h \
+			repolist_.c:repolist.h \
 			report_.c:report.h \
 			rss_.c:rss.h \
 			schema_.c:schema.h \

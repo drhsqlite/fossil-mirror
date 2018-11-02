@@ -116,6 +116,7 @@ set src {
   purge
   rebuild
   regexp
+  repolist
   report
   rss
   schema
