@@ -1,5 +1,5 @@
-C Enhance\smakeheaders\sso\sthat\sit\sis\sable\sto\sdeal\swith\sstatic_assert()\sstatements.\n(These\sdo\snot\scome\sup\sin\sFossil\sitself.\s\sThis\scheck-in\sis\sin\sresponse\sto\suse\nof\sMakeheaders\sby\sexternal\sprojects.)
-D 2018-11-02T15:21:54.597
+C Enhance\sthe\s"fossil\sbranch\sls"\scommand\swith\stwo\snew\soptions.\s\sThe\s-t\soption\nsorts\sthe\sbranch\slist\swith\sthe\smost\srecent\sbranch\sfirst.\s\sThe\s-r\soption\nreverses\sthe\ssort\sorder.
+D 2018-11-02T16:10:49.774
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 15b0eb0da4ef52fd3706429ec42922e6c89bfe5bce3b74a9c46ca2c3afd9c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c eda96651a82e703ae065309bd6f8e0ccaa04f701b45b7a9f0aaf6322a3c633dd
+F src/branch.c d1d75caa9170e1749acf3b9bdcb83e086e15d51622f6c301d65f041b7dd5bbed
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cdea59dc5c832837e9012c6a29aef8b36f0b2dff4f4bc44701f448e4f2ec4515
-R 81fd55e67e3d572fe4d2850fafab377d
+P 8cecc544ce1dd191e1dc43efe04ba19c0402aba872ec8aff94061cc3ea332c4e
+R 2f84e700580d9d1663a20e1cf31465eb
 U drh
-Z 2df3534e57f50803d6adcc842faf6bdd
+Z 24a0c6124ae55395160d456d59975d88
