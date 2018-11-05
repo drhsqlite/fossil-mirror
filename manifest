@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\sbranch\sls"\scommand\swith\stwo\snew\soptions.\s\sThe\s-t\soption\nsorts\sthe\sbranch\slist\swith\sthe\smost\srecent\sbranch\sfirst.\s\sThe\s-r\soption\nreverses\sthe\ssort\sorder.
-D 2018-11-02T16:10:49.774
+C Fix\sthe\s/brlist\spage\sso\sthat\sbranches\sare\s(once\sagain)\sshown\sin\stime\sorder.
+D 2018-11-05T14:35:07.927
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 15b0eb0da4ef52fd3706429ec42922e6c89bfe5bce3b74a9c46ca2c3afd9c
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c d1d75caa9170e1749acf3b9bdcb83e086e15d51622f6c301d65f041b7dd5bbed
+F src/branch.c fc48a00d3f75aa006fb62c8190dd887f38aa86afeac6b9f47a845dbd893eee3f
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8cecc544ce1dd191e1dc43efe04ba19c0402aba872ec8aff94061cc3ea332c4e
-R 2f84e700580d9d1663a20e1cf31465eb
+P db2682dc1af582013db841b1d79f4a3cb69157780ffe969dc3139fafd7db3e8f
+R 66cc237bf457499a5ff9bf18f9a2ff5f
 U drh
-Z 24a0c6124ae55395160d456d59975d88
+Z a5ce6d6f405ae5d0682bceaa26463940

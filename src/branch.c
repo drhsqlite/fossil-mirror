@@ -431,7 +431,7 @@ static void new_brlist_page(void){
   login_anonymous_available();
 
   brlist_create_temp_table();
-  db_prepare(&q, "SELECT * FROM tmp_brlist");
+  db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
   rNow = db_double(0.0, "SELECT julianday('now')");
   @ <div class="brlist">
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
@@ -466,7 +466,7 @@ static void new_brlist_page(void){
       @ <tr>
     }
     @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
-    @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
+    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
     @ <td>%s(isClosed?"closed":"")</td>
