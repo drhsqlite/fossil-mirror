@@ -1,5 +1,5 @@
-C Fix\sthe\s/brlist\spage\sso\sthat\sbranches\sare\s(once\sagain)\sshown\sin\stime\sorder.
-D 2018-11-05T14:35:07.927
+C When\srunning\sa\sbisect,\sshow\sthe\sspan\sbetween\sthe\stwo\sextremes\sand\sthe\nnumber\sof\ssteps\sremaining\safter\seach\sstep.
+D 2018-11-07T12:04:40.107
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -433,7 +433,7 @@ F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 15b0eb0da4ef52fd3706429ec42922e6c89bfe5bce3b74a9c46ca2c3afd9c2aa
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
-F src/bisect.c 0dcb4df51ea7e86523b1a4f2d62b1f05a89ae380
+F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
 F src/branch.c fc48a00d3f75aa006fb62c8190dd887f38aa86afeac6b9f47a845dbd893eee3f
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
@@ -533,7 +533,7 @@ F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c e0a2586665e8a583711db2516656f239c045c3b7b34812d91744a313d5cdaf6c
 F src/name.c 44fedd65aa9dc0786b81b777478a170a0b0c18d359e53abf934c64fbf6f73582
-F src/path.c dffb8989ade9da2cc8a91d94cae09d1e1bf4221b13a22b7c9e3b26a928da65f2
+F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P db2682dc1af582013db841b1d79f4a3cb69157780ffe969dc3139fafd7db3e8f
-R 66cc237bf457499a5ff9bf18f9a2ff5f
+P c21c77426c0bae17efac7fdbb271cf18319dc4fe8fe0d6485079b1edde636ea1
+R 5a4bd64b1e9b10da141fd3fe27ee5d61
 U drh
-Z a5ce6d6f405ae5d0682bceaa26463940
+Z 337aa4be536591ed857c32ebf4b3eef1

@@ -196,6 +196,16 @@ PathNode *path_midpoint(void){
 }
 
 /*
+** Return an estimate of the number of comparisons remaining in order
+** to bisect path.  This is based on the log2() of path.nStep.
+*/
+int path_search_depth(void){
+  int i, j;
+  for(i=0, j=1; j<path.nStep; i++, j+=j){}
+  return i;
+}
+
+/*
 ** Compute the shortest path between two check-ins and then transfer
 ** that path into the "ancestor" table.  This is a utility used by
 ** both /annotate and /finfo.  See also: compute_direct_ancestors().
