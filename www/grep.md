@@ -72,7 +72,7 @@ subset of the [POSIX extended regular expression][ere] dialect:
 | `^X`    | X occurring at the beginning of a line
 | `X$`    | X occurring at the end of a line
 | `.`     | Match any single character
-| `\c`    | Character `c` where `c` is one of <tt>{}()[]\|\*+?.</tt>
+| `\c`    | Character `c` where `c` is one of <tt>{}()[]\|\*+?.\\</tt>
 | `\c`    | C-language escapes for `c` in `afnrtv`.  ex: `\t` or `\n`
 | `\uXXXX`| Where XXXX is exactly 4 hex digits, Unicode value XXXX
 | `\xXX`  | Where XX is exactly 2 hex digits, Unicode value XX
@@ -82,11 +82,11 @@ subset of the [POSIX extended regular expression][ere] dialect:
 | `[^a-z]`| Any single character not in the range `a-z`
 | `\b`    | Word boundary
 | `\w`    | Word character: `[A-Za-z0-9_]`
-| `\W`    | Non-word character
-| `\d`    | Digit
-| `\D`    | Non-digit
-| `\s`    | Whitespace character
-| `\S`    | Non-whitespace character
+| `\W`    | Non-word character: `[^A-Za-z0-9_]`
+| `\d`    | Digit: `[0-9]`
+| `\D`    | Non-digit: `[^0-9]`
+| `\s`    | Whitespace character: `[ \t\r\n\v\f]`
+| `\S`    | Non-whitespace character: `[^ \t\r\n\v\f]`
 
 There are several restrictions in Fossil `grep` relative to a fully
 POSIX compatible regular expression engine. Among them are:

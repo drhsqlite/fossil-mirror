@@ -44,6 +44,7 @@ set doclist {
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
+  grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
