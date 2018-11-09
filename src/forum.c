@@ -975,6 +975,12 @@ void forum_main_page(void){
   style_header("Forum");
   if( g.perm.WrForum ){
     style_submenu_element("New Thread","%R/forumnew");
+  }else{
+    /* Can't combine this with previous case using the ternary operator
+     * because that causes an error yelling about "non-constant format"
+     * with some compilers.  I can't see it, since both expressions have
+     * the same format, but I'm no C spec lawyer. */
+    style_submenu_element("New Thread","%R/login");
   }
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");
