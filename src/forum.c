@@ -973,9 +973,13 @@ void forum_main_page(void){
     return;
   }
   style_header("Forum");
-  style_submenu_element("New Thread", g.perm.WrForum ?
-      "%R/forumnew" :
-      "%R/login");
+  {
+    /* 2-step split required by some GCCs, which think this first
+     * expression "has non-constant format".  Whatever GCC...
+     */
+    const char* target = g.perm.WrForum ? "%R/forumnew" : "%R/login";
+    style_submenu_element("New Thread", target);
+  }
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");
   }
