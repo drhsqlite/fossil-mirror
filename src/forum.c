@@ -973,9 +973,9 @@ void forum_main_page(void){
     return;
   }
   style_header("Forum");
-  if( g.perm.WrForum ){
-    style_submenu_element("New Thread","%R/forumnew");
-  }
+  style_submenu_element("New Thread", g.perm.WrForum ?
+      "%R/forumnew" :
+      "%R/login");
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");
   }
