@@ -1,5 +1,5 @@
-C Merged\slogin-on-post\sbranch\sto\strunk
-D 2018-11-09T19:18:54.587
+C Do\snot\sattempt\sto\srun\sbackoffice\sif\sthe\srepository\sis\sread-only.
+D 2018-11-10T13:49:25.839
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -431,7 +431,7 @@ F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/alerts.c e66cf827047a9b390d19ea78805c63ce472afe28a3a29ed8dffeb85c2e0648c8
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 15b0eb0da4ef52fd3706429ec42922e6c89bfe5bce3b74a9c46ca2c3afd9c2aa
+F src/backoffice.c 9772a0c0e4dcef27df03e0f44c73351323e080e33e22852f20161eacd0b2b838
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -865,8 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4af31f11bb6473f4508b75097aa868d2b3964aafc8531101afcdda7a576c4f8f 725630f3f854e3e224836ce4178e6208af3fad33feb9a0b2461b94b647aefc4d
-R f8e8462a6d7f19d16dff5e09bc939220
-T +closed 725630f3f854e3e224836ce4178e6208af3fad33feb9a0b2461b94b647aefc4d
-U wyoung
-Z 69f81f402c0a82caa58e5367c07cba5d
+P c0e384cf60b72911961dcfb2c1d2c0bb44de88f7a3d99dd8b5bfba357c322cb7
+R 0db6baaf57afb7a84123289b750d3192
+U drh
+Z ef9972d868dd750f15e8c2341bc77bcf

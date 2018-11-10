@@ -433,6 +433,7 @@ static void backoffice_thread(void){
   int warningDelay = 30;
   static int once = 0;
 
+  if( sqlite3_db_readonly(g.db, 0) ) return;
   backoffice_error_check_one(&once);
   idSelf = backofficeProcessId();
   while(1){
