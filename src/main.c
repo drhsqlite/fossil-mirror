@@ -2235,6 +2235,7 @@ void cmd_http(void){
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
   zInFile = find_option("in",0,1);
   if( zInFile ){
+    backoffice_disable();
     g.httpIn = fossil_fopen(zInFile, "rb");
     if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
   }else{

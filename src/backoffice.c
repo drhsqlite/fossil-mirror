@@ -397,6 +397,13 @@ void backoffice_check_if_needed(void){
 }
 
 /*
+** Call this routine to disable backoffice
+*/
+void backoffice_disable(void){
+  backofficeDb = "x";
+}
+
+/*
 ** Check for errors prior to running backoffice_thread() or backoffice_run().
 */
 static void backoffice_error_check_one(int *pOnce){
