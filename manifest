@@ -1,5 +1,5 @@
-C Do\snot\srun\sbackoffice\sif\sthe\s"--in"\soption\sis\sused\son\sthe\s"fossil\shttp"\ncommand.
-D 2018-11-10T14:17:59.197
+C Fix\sa\sbug\sin\sthe\sskin\sedit\spages\sthat\scan\sresult\sin\san\sinfinite\sloop.
+D 2018-11-13T16:14:40.559
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -560,7 +560,7 @@ F src/shell.c 0bbaecacd0a0f58b5356cc2205e76d7a343c5c6f9eae654f5dc7dda2269c4085
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c f7f512261edf3349f4cdbd5fa58f5265170a4c7a8927050849df135771db8763
+F src/skins.c 396ebb12d4b36c1f34005bb061a8324fc66604e6b5c00d43a2c44a908a78fdf5
 F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4f15d34f4b05f76db1db3a72da0500b3f01bbb63570e16030e9aefb4287a352d
-R 8f44c287b756cbd7db079e47df47473f
+P afb1e5f6cfecc8b7ed10f62228656fbd1ce7651e9e46880f74222e9175aae33c
+R ee135ab931c430ca1461d1be9ef06211
 U drh
-Z 4620246bc4b1406777c46d77e2bc6c63
+Z 7419de1d76bb70a6e738bbdb61d8b346
