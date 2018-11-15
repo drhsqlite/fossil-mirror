@@ -97,8 +97,8 @@ static int comment_set_maxchars(
 
 /*
 ** This function checks the current line being printed against the original
-** comment text.  Upon matching, it emits a new line and updates the provided
-** character and line counts, if applicable.
+** comment text.  Upon matching, it updates the provided character and line
+** counts, if applicable.  The caller needs to emit a new line, if desired.
 */
 static int comment_check_orig(
   const char *zOrigText, /* [in] Original comment text ONLY, may be NULL. */
@@ -107,7 +107,6 @@ static int comment_check_orig(
   int *pLineCnt          /* [in/out] Pointer to the total line count. */
 ){
   if( zOrigText && fossil_strcmp(zLine, zOrigText)==0 ){
-    fossil_print("\n");
     if( pCharCnt ) *pCharCnt = 0;
     if( pLineCnt ) (*pLineCnt)++;
     return 1;
@@ -137,19 +136,16 @@ static int comment_next_space(
 }
 
 /*
-** This function is called when printing a logical comment line to perform
-** the necessary indenting.
+** This function is called when printing a logical comment line to calculate
+** the necessary indenting.  The caller needs to emit the indenting spaces.
 */
-static void comment_print_indent(
+static void comment_calc_indent(
   const char *zLine, /* [in] The comment line being printed. */
   int indent,        /* [in] Number of spaces to indent, zero for none. */
   int trimCrLf,      /* [in] Non-zero to trim leading/trailing CR/LF. */
   int trimSpace,     /* [in] Non-zero to trim leading/trailing spaces. */
   int *piIndex       /* [in/out] Pointer to first non-space character. */
 ){
-  if( indent>0 ){
-    fossil_print("%*s", indent, "");
-  }
   if( zLine && piIndex ){
     int index = *piIndex;
     if( trimCrLf ){
@@ -181,18 +177,32 @@ static void comment_print_line(
   int *pLineCnt,         /* [in/out] Pointer to the total line count. */
   const char **pzLine    /* [out] Pointer to the end of the logical line. */
 ){
-  int index = 0, charCnt = 0, lineCnt = 0, maxChars;
+  int index = 0, charCnt = 0, lineCnt = 0, maxChars, i;
   char zBuf[400]; int iBuf=0; /* Output buffer and counter. */
   if( !zLine ) return;
   if( lineChars<=0 ) return;
-  comment_print_indent(zLine, indent, trimCrLf, trimSpace, &index);
+#if 0
+  assert( indent<sizeof(zBuf)-5 );       /* See following comments to explain */
+  assert( origIndent<sizeof(zBuf)-5 );   /* these limits. */
+#endif
+  if ( indent>sizeof(zBuf)-6 )  /* Limit initial indent to fit output buffer. */
+    indent = sizeof(zBuf)-6;
+  comment_calc_indent(zLine, indent, trimCrLf, trimSpace, &index);
+  if ( indent>0 ){
+    for ( i=0; i<indent; i++ ){
+      zBuf[iBuf++] = ' ';
+    }
+  }
+  if ( origIndent>sizeof(zBuf)-6 ) /* Limit line indent to fit output buffer. */
+    origIndent = sizeof(zBuf)-6;
   maxChars = lineChars;
   for(;;){
     int useChars = 1;
     char c = zLine[index];
     /* Flush the output buffer if there's no space left for at least one more
-    ** (potentially 4-byte) UTF-8 sequence and a terminating NULL. */
-    if ( iBuf>sizeof(zBuf)-5 ){
+    ** (potentially 4-byte) UTF-8 sequence, one level of indentation spaces,
+    ** a new line, and a terminating NULL. */
+    if ( iBuf>sizeof(zBuf)-origIndent-6 ){
       zBuf[iBuf]=0;
       iBuf=0;
       fossil_print("%s", zBuf);
@@ -203,14 +213,12 @@ static void comment_print_line(
       if( origBreak && index>0 ){
         const char *zCurrent = &zLine[index];
         if( comment_check_orig(zOrigText, zCurrent, &charCnt, &lineCnt) ){
-          /* Flush the output buffer before printing the indentation. */
-          if ( iBuf>0 ){
-            zBuf[iBuf]=0;
-            iBuf=0;
-            fossil_print("%s", zBuf);
+          zBuf[iBuf++] = '\n';
+          comment_calc_indent(zCurrent, origIndent, trimCrLf, trimSpace,
+                              &index);
+          for ( i=0; i<origIndent; i++ ){
+            zBuf[iBuf++] = ' ';
           }
-          comment_print_indent(zCurrent, origIndent, trimCrLf, trimSpace,
-                               &index);
           maxChars = lineChars;
         }
       }

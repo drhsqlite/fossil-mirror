@@ -1,5 +1,5 @@
-C Add\soutput\sbuffering\sto\sthe\s(non-legacy)\scomment\sprinting\salgorithm,\sto\sreduce\scalls\sto\sfossil_print().\sThe\sresulting\sperformance\simprovement\scan\sbe\sup\sto\sfactor\s10,\swith\sa\sperceptible\sdifference\seven\sfor\sshort\scomments\s(measured\sand\stested\son\sWindows\swith\sMSVC\sbuilds,\sand\son\sUbuntu\swith\sGCC\sbuilds).\s(For\scomparison:\sfor\sthe\slegacy\scomment\sprinting\salgorithm,\sthe\sextra\sUTF-8\schecks\sadded\sby\sthis\sbranch\simpair\sperformance\sby\s0.12-1.8%,\sdepending\son\swhether\sthe\sinput\scontains\spredominantly\smulti-byte\svs.\sASCII-only\ssequences.)
-D 2018-11-15T12:43:00.000
+C Fix\sa\sproblem\swith\sinitial\sindent\sintroduced\sby\sthe\sprevious\scheck-in,\sso\sthat\sall\sregression\stests\sfrom\stest/comment.test\snow\ssucceed.\sAlso\seliminate\sthree\smore\scalls\sto\sfossil_print().\sRegarding\sperformance,\sthe\slegacy\scomment\sprinting\salgorithm\sis\soutnumbered\sby\sfactor\s2-3,\swith\sthese\schanges.
+D 2018-11-15T15:16:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -449,7 +449,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
-F src/comformat.c d0f31fe1ebd87a443d5db28ce296e9ffcc20c02a
+F src/comformat.c d99410c0c4adaa55295f78e839b9bfd0a17d9b4a
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c f80fe4fa9552268446a9a0a043220dfa722e5ca1fd02726a6e630b41c6f863d4
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bbca2c3f89b826d3350ca34a0e1a69a31180b72dcbece58f2714c87f7a8267e
-R 5f505a5e7206d71dac5c10db1ff4b6fa
+P 16fde3ff666cf0733102f7a061756c718597a299
+R 6a0a474a5cfd55d7585cacfe957b3b22
 U florian
-Z 59d8928771acd3d5e0cf683077f3240f
+Z d57814957eb72859b16b37079b0ce8ff
