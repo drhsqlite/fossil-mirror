@@ -182,6 +182,7 @@ static void comment_print_line(
   const char **pzLine    /* [out] Pointer to the end of the logical line. */
 ){
   int index = 0, charCnt = 0, lineCnt = 0, maxChars;
+  char zBuf[400]; int iBuf=0; /* Output buffer and counter. */
   if( !zLine ) return;
   if( lineChars<=0 ) return;
   comment_print_indent(zLine, indent, trimCrLf, trimSpace, &index);
@@ -189,12 +190,25 @@ static void comment_print_line(
   for(;;){
     int useChars = 1;
     char c = zLine[index];
+    /* Flush the output buffer if there's no space left for at least one more
+    ** (potentially 4-byte) UTF-8 sequence and a terminating NULL. */
+    if ( iBuf>sizeof(zBuf)-5 ){
+      zBuf[iBuf]=0;
+      iBuf=0;
+      fossil_print("%s", zBuf);
+    }
     if( c==0 ){
       break;
     }else{
       if( origBreak && index>0 ){
         const char *zCurrent = &zLine[index];
         if( comment_check_orig(zOrigText, zCurrent, &charCnt, &lineCnt) ){
+          /* Flush the output buffer before printing the indentation. */
+          if ( iBuf>0 ){
+            zBuf[iBuf]=0;
+            iBuf=0;
+            fossil_print("%s", zBuf);
+          }
           comment_print_indent(zCurrent, origIndent, trimCrLf, trimSpace,
                                &index);
           maxChars = lineChars;
@@ -214,7 +228,7 @@ static void comment_print_line(
       charCnt++;
       useChars = COMMENT_TAB_WIDTH;
       if( maxChars<useChars ){
-        fossil_print(" ");
+        zBuf[iBuf++] = ' ';
         break;
       }
     }else if( wordBreak && fossil_isspace(c) ){
@@ -236,29 +250,33 @@ static void comment_print_line(
     ** sequences (as lone trail bytes).
     */
     if( (c&0xc0)==0xc0 && zLine[index]!=0 ){  /* Any UTF-8 lead byte 11xxxxxx */
-      char zUTF8[5]; /* Buffer to hold a UTF-8 sequence. */
       int cchUTF8=1; /* Code units consumed. */
       int maxUTF8=1; /* Expected sequence length. */
-      zUTF8[0]=c;
+      zBuf[iBuf++]=c;
       if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
       else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
       else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
       while( cchUTF8<maxUTF8 &&
               (zLine[index]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
-        zUTF8[cchUTF8++] = zLine[index++];
+        cchUTF8++;
+        zBuf[iBuf++] = zLine[index++];
       }
-      zUTF8[cchUTF8]=0;
-      fossil_print("%s", zUTF8);
     }
     else
-      fossil_print("%c", c);
+      zBuf[iBuf++] = c;
     if( (c&0x80)==0 || (zLine[index+1]&0xc0)!=0xc0 ) maxChars -= useChars;
     if( maxChars<=0 ) break;
     if( c=='\n' ) break;
   }
   if( charCnt>0 ){
-    fossil_print("\n");
+    zBuf[iBuf++] = '\n';
     lineCnt++;
+  }
+  /* Flush the remaining output buffer. */
+  if ( iBuf>0 ) {
+    zBuf[iBuf]=0;
+    iBuf=0;
+    fossil_print("%s", zBuf);
   }
   if( pLineCnt ){
     *pLineCnt += lineCnt;
