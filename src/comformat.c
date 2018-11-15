@@ -324,8 +324,9 @@ static int comment_print_legacy(
   if( maxChars<=0 ){
     maxChars = strlen(zText);
   }
-  if( maxChars >= (sizeof(zBuffer)) ){
-    zBuf = fossil_malloc(maxChars+1);
+  /* Ensure the buffer can hold the longest-possible UTF-8 sequences. */
+  if( maxChars >= (sizeof(zBuffer)/4-1) ){
+    zBuf = fossil_malloc(maxChars*4+1);
   }else{
     zBuf = zBuffer;
   }
