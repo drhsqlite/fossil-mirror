@@ -234,7 +234,7 @@ static void comment_print_line(
     indent = sizeof(zBuf)-6;
   comment_calc_indent(zLine, indent, trimCrLf, trimSpace, &index);
   if( indent>0 ){
-    for ( i=0; i<indent; i++ ){
+    for( i=0; i<indent; i++ ){
       zBuf[iBuf++] = ' ';
     }
   }
@@ -261,7 +261,7 @@ static void comment_print_line(
           zBuf[iBuf++] = '\n';
           comment_calc_indent(zCurrent, origIndent, trimCrLf, trimSpace,
                               &index);
-          for ( i=0; i<origIndent; i++ ){
+          for( i=0; i<origIndent; i++ ){
             zBuf[iBuf++] = ' ';
           }
           maxChars = lineChars;
@@ -317,8 +317,7 @@ static void comment_print_line(
         zBuf[iBuf++] = zLine[index++];
       }
       maxChars--;
-    }
-    else {
+    }else{
       zBuf[iBuf++] = c;
       maxChars -= useChars;
     }
@@ -330,7 +329,7 @@ static void comment_print_line(
     lineCnt++;
   }
   /* Flush the remaining output buffer. */
-  if( iBuf>0 ) {
+  if( iBuf>0 ){
     zBuf[iBuf]=0;
     iBuf=0;
     fossil_print("%s", zBuf);
