@@ -129,10 +129,10 @@ static int comment_next_space(
   int fNonASCII=0;
   for(;;){
     char c = zLine[nextIndex];
-    if ( (c&0x80)==0x80 ) fNonASCII=1;
+    if( (c&0x80)==0x80 ) fNonASCII=1;
     if( c==0 || fossil_isspace(c) ){
-      if ( distUTF8 ){
-        if ( fNonASCII!=0 ){
+      if( distUTF8 ){
+        if( fNonASCII!=0 ){
           *distUTF8 = strlen_utf8(&zLine[index], nextIndex-index);
         }else{
           *distUTF8 = nextIndex-index;
@@ -164,7 +164,7 @@ int strlen_utf8(const char *zString, int lengthBytes)
   for( i=0; i<lengthBytes; i++ ){
     char c = zString[i];
     lengthUTF8++;
-    if ( (c&0xc0)==0xc0 ){                    /* Any UTF-8 lead byte 11xxxxxx */
+    if( (c&0xc0)==0xc0 ){                     /* Any UTF-8 lead byte 11xxxxxx */
       int cchUTF8=1; /* Code units consumed. */
       int maxUTF8=1; /* Expected sequence length. */
       if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
@@ -230,15 +230,15 @@ static void comment_print_line(
   assert( indent<sizeof(zBuf)-5 );       /* See following comments to explain */
   assert( origIndent<sizeof(zBuf)-5 );   /* these limits. */
 #endif
-  if ( indent>sizeof(zBuf)-6 )  /* Limit initial indent to fit output buffer. */
+  if( indent>sizeof(zBuf)-6 )   /* Limit initial indent to fit output buffer. */
     indent = sizeof(zBuf)-6;
   comment_calc_indent(zLine, indent, trimCrLf, trimSpace, &index);
-  if ( indent>0 ){
+  if( indent>0 ){
     for ( i=0; i<indent; i++ ){
       zBuf[iBuf++] = ' ';
     }
   }
-  if ( origIndent>sizeof(zBuf)-6 ) /* Limit line indent to fit output buffer. */
+  if( origIndent>sizeof(zBuf)-6 )  /* Limit line indent to fit output buffer. */
     origIndent = sizeof(zBuf)-6;
   maxChars = lineChars;
   for(;;){
@@ -247,7 +247,7 @@ static void comment_print_line(
     /* Flush the output buffer if there's no space left for at least one more
     ** (potentially 4-byte) UTF-8 sequence, one level of indentation spaces,
     ** a new line, and a terminating NULL. */
-    if ( iBuf>sizeof(zBuf)-origIndent-6 ){
+    if( iBuf>sizeof(zBuf)-origIndent-6 ){
       zBuf[iBuf]=0;
       iBuf=0;
       fossil_print("%s", zBuf);
@@ -330,7 +330,7 @@ static void comment_print_line(
     lineCnt++;
   }
   /* Flush the remaining output buffer. */
-  if ( iBuf>0 ) {
+  if( iBuf>0 ) {
     zBuf[iBuf]=0;
     iBuf=0;
     fossil_print("%s", zBuf);
