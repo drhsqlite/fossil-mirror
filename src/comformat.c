@@ -259,8 +259,7 @@ static void comment_print_line(
         const char *zCurrent = &zLine[index];
         if( comment_check_orig(zOrigText, zCurrent, &charCnt, &lineCnt) ){
           zBuf[iBuf++] = '\n';
-          comment_calc_indent(zCurrent, origIndent, trimCrLf, trimSpace,
-                              &index);
+          comment_calc_indent(zLine, origIndent, trimCrLf, trimSpace, &index);
           for( i=0; i<origIndent; i++ ){
             zBuf[iBuf++] = ' ';
           }
