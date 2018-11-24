@@ -159,23 +159,20 @@ int strlen_utf8(const char *zString, int lengthBytes)
 #if 0
   assert( lengthBytes>=0 );
 #endif
-  int lengthUTF8=0; /* Counted UTF-8 sequences. */
-  int i;
-  for( i=0; i<lengthBytes; i++ ){
+  int i;          /* Counted bytes. */
+  int lengthUTF8; /* Counted UTF-8 sequences. */
+  for( i=0, lengthUTF8=0; i<lengthBytes; i++, lengthUTF8++ ){
     char c = zString[i];
-    lengthUTF8++;
-    if( (c&0xc0)==0xc0 ){                     /* Any UTF-8 lead byte 11xxxxxx */
-      int cchUTF8=1; /* Code units consumed. */
-      int maxUTF8=1; /* Expected sequence length. */
-      if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
-      else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
-      else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
-      while( i<lengthBytes-1 &&
-              cchUTF8<maxUTF8 &&
-              (zString[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
-        cchUTF8++;
-        i++;
-      }
+    int cchUTF8=1; /* Code units consumed. */
+    int maxUTF8=1; /* Expected sequence length. */
+    if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
+    else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
+    else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
+    while( cchUTF8<maxUTF8 &&
+            i<lengthBytes-1 &&
+            (zString[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+      cchUTF8++;
+      i++;
     }
   }
   return lengthUTF8;
@@ -225,6 +222,7 @@ static void comment_print_line(
 ){
   int index = 0, charCnt = 0, lineCnt = 0, maxChars, i;
   char zBuf[400]; int iBuf=0; /* Output buffer and counter. */
+  int cchUTF8, maxUTF8;       /* Helper variables to count UTF-8 sequences. */
   if( !zLine ) return;
   if( lineChars<=0 ) return;
 #if 0
@@ -296,31 +294,19 @@ static void comment_print_line(
       charCnt++;
     }
     assert( c!='\n' || charCnt==0 );
-    /*
-    ** Avoid output of incomplete UTF-8 sequences, and also avoid line breaks
-    ** inside UTF-8 sequences. Incomplete, ill-formed and overlong sequences are
-    ** kept together. The invalid lead bytes 0xC0 to 0xC1 and 0xF5 to 0xF7 are
-    ** allowed to initiate (ill-formed) 2- and 4-byte sequences, respectively,
-    ** the other invalid lead bytes 0xF8 to 0xFF are treated as invalid 1-byte
-    ** sequences (as lone trail bytes).
-    */
-    if( (c&0xc0)==0xc0 && zLine[index]!=0 ){  /* Any UTF-8 lead byte 11xxxxxx */
-      int cchUTF8=1; /* Code units consumed. */
-      int maxUTF8=1; /* Expected sequence length. */
-      zBuf[iBuf++]=c;
-      if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
-      else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
-      else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
-      while( cchUTF8<maxUTF8 &&
-              (zLine[index]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
-        cchUTF8++;
-        zBuf[iBuf++] = zLine[index++];
-      }
-      maxChars--;
-    }else{
-      zBuf[iBuf++] = c;
-      maxChars -= useChars;
+    zBuf[iBuf++] = c;
+    /* Skip over UTF-8 sequences, see comment on strlen_utf8() for details. */
+    cchUTF8=1; /* Code units consumed. */
+    maxUTF8=1; /* Expected sequence length. */
+    if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
+    else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
+    else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
+    while( cchUTF8<maxUTF8 &&
+            (zLine[index]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+      cchUTF8++;
+      zBuf[iBuf++] = zLine[index++];
     }
+    maxChars -= useChars;
     if( maxChars<=0 ) break;
     if( c=='\n' ) break;
   }
@@ -364,6 +350,7 @@ static int comment_print_legacy(
   char *zBuf;
   char zBuffer[400];
   int lineCnt = 0;
+  int cchUTF8, maxUTF8; /* Helper variables to count UTF-8 sequences. */
 
   if( width<0 ){
     comment_set_maxchars(indent, &maxChars);
@@ -391,22 +378,16 @@ static int comment_print_legacy(
     for(sk=si=i=k=kc=0; zText[i] && kc<maxChars; i++){
       char c = zText[i];
       kc++; /* Count complete UTF-8 sequences. */
-      /*
-      ** Avoid line breaks inside UTF-8 sequences. Incomplete, ill-formed and
-      ** overlong sequences are kept together. The invalid lead bytes 0xC0 to
-      ** 0xC1 and 0xF5 to 0xF7 are allowed to initiate (ill-formed) 2- and
-      ** 4-byte sequences, respectively, the other invalid lead bytes 0xF8 to
-      ** 0xFF are treated as invalid 1-byte sequences (as lone trail bytes).
-      */
-      if( (c&0xc0)==0xc0 && zText[i+1]!=0 ){  /* Any UTF-8 lead byte 11xxxxxx */
-        int cchUTF8=1; /* Code units consumed. */
-        int maxUTF8=1; /* Expected sequence length. */
-        if( (c&0xe0)==0xc0 )maxUTF8=2;        /* UTF-8 lead byte 110vvvvv */
-        else if( (c&0xf0)==0xe0 )maxUTF8=3;   /* UTF-8 lead byte 1110vvvv */
-        else if( (c&0xf8)==0xf0 )maxUTF8=4;   /* UTF-8 lead byte 11110vvv */
+      /* Skip over UTF-8 sequences, see comment on strlen_utf8() for details. */
+      cchUTF8=1; /* Code units consumed. */
+      maxUTF8=1; /* Expected sequence length. */
+      if( (c&0xe0)==0xc0 )maxUTF8=2;        /* UTF-8 lead byte 110vvvvv */
+      else if( (c&0xf0)==0xe0 )maxUTF8=3;   /* UTF-8 lead byte 1110vvvv */
+      else if( (c&0xf8)==0xf0 )maxUTF8=4;   /* UTF-8 lead byte 11110vvv */
+      if( maxUTF8>1 ){
         zBuf[k++] = c;
         while( cchUTF8<maxUTF8 &&
-                (zText[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+                (zText[i+1]&0xc0)==0x80 ){  /* UTF-8 trail byte 10vvvvvv */
           cchUTF8++;
           zBuf[k++] = zText[++i];
         }

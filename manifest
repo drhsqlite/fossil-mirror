@@ -1,5 +1,5 @@
-C Fix\stwo\sbugs\s(introduced\swith\sthis\sbranch)\sthat\sbecome\smanifest\swith\sinvalid\sUTF-8\ssequences.
-D 2018-11-24T07:16:00.000
+C Minor\soptimizations:\sdrop\sa\sfew\sredundant\scomparisons\sand\scalculations,\sand\stake\sadvantage\sof\sthe\slogical\sAND\sshort-circuit\sby\stesting\sthe\sleast\sexpensive\sand\smost\sunlikely\scondition\sfirst.\sAlso\sfold\saway\sthe\siterative\scomments\sinto\scross\sreferences.
+D 2018-11-24T07:49:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -449,7 +449,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
-F src/comformat.c cf4a82f3531d2db20a3018e59eac835e6304355d
+F src/comformat.c 5d847583fb98c2541c0b3a040e3e1d1d7dfebf98
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c f80fe4fa9552268446a9a0a043220dfa722e5ca1fd02726a6e630b41c6f863d4
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
@@ -864,7 +864,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70dd8f744f22c897a4b090321a958c811ff269ae
-R 5f824ba0a82af828810171a8fd01cf16
+P b86a2fc7eb209681531ce6df583cdab254a7140b
+R 7653300caea041d4affc3ee75522139a
 U florian
-Z 6ce1646e4f08a7e68caaec1d267967e5
+Z b6fd1acf45195b9b8dc518dfb66de6b9
