@@ -173,6 +173,7 @@ int strlen_utf8(const char *zString, int lengthBytes)
       while( i<lengthBytes-1 &&
               cchUTF8<maxUTF8 &&
               (zString[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+        cchUTF8++;
         i++;
       }
     }
@@ -406,6 +407,7 @@ static int comment_print_legacy(
         zBuf[k++] = c;
         while( cchUTF8<maxUTF8 &&
                 (zText[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+          cchUTF8++;
           zBuf[k++] = zText[++i];
         }
       }
