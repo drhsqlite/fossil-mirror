@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.26.0\sbeta\sfor\stesting.
-D 2018-11-28T13:19:59.883
+C The\s/secaudit0\spage\swas\schecking\sfor\sboth\sAdmin\sand\sSetup\scapabilities,\nwhich\smeans\sit\swas\sonly\saccessible\sto\susers\swith\sSetup\susers,\ssince\sthat\nis\sthe\sonly\sclass\sthat\scan\shave\sboth\scapabilities.\s\sSince\sit's\ndocumented\sas\sbeing\savailable\sto\sAdmin\susers,\schanged\sthe\slogic\sto\sallow\naccess\sto\sAdmin\s*OR*\sSetup\susers.
+D 2018-11-28T18:34:37.672
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -550,7 +550,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
-F src/security_audit.c d3a6b6a070faa0eff7b7a657a05236f2139553e0c6f47e847c066df43d7f54b7
+F src/security_audit.c 3df788aa02552f4b2351038d810a50aa36a29c2217ae18590f210cbe4a4196b2
 F src/setup.c 4953798b9745c186c056900d4fe63b7b188bebb0ac52232e6a3bd5e6f6035a92
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3f454fa33dcbe09356d5f7937b63846b01442b8403515bd5d89f76ff6f044c1
-R dc4489c64b5637636605d09333bf5af2
-U drh
-Z 9cd6bc076bbd44e01de146f88642b0ff
+P c523d0a9b5dc738f506f78df860d081f816745f3f275f5e4743ebb1bae38a045
+R 1ab53edceef8fef42258fed8f34992c6
+U wyoung
+Z 2b488e43e591c4b33a25f574cfe35576

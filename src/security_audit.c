@@ -49,7 +49,7 @@ void secaudit0_page(void){
   int n;
 
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Setup || !g.perm.Admin ){
     login_needed(0);
     return;
   }
