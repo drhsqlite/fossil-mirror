@@ -1,5 +1,5 @@
-C Found\sseveral\smore\spages\sprotected\swith\s"!g.perm.Setup\s&&\s!g.perm.Admin"\nguards:\schanged\sthem\sall\sto\s"!g.perm.Admin"\sonly\sfor\sthe\ssame\sreason\sas\n[558952c8].
-D 2018-11-28T18:42:53.618
+C The\s/setup_modreq\spage\swas\slimited\sto\sSetup\susers,\sbut\ssince\sit\scontrols\nwhat\susers\swith\sModerator\scapability\scan\sdo,\smade\sit\savailable\sto\sAdmin\nusers\sas\swell.
+D 2018-11-28T18:48:09.956
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -551,7 +551,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c 9b539ba86112c51d7a50b03dbebf4e30184d229a0c8b2917cf5a6f8ce9ef5421
+F src/setup.c a8e28106b63b7de62f3003cc9d9ec982177875089f659be05060f9cc950a271f
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 558952c8d36a20fb712dcdc6ddc89782445ee4e1daf53d2786ce4bc2736a4ed4
-R 156ff69997e4d334cbf89887811db16a
+P 42c3364f037fb0a0e617aad19fd1387c0f6f8da7b5d7bfd22c6718a089f732b5
+R 49b0ad7c892b21b01e4d4733ee7dcd20
 U wyoung
-Z 666a0bdae34c6d72929660d0ed138435
+Z 883f00a665ee6731e27a8f1d053092c5

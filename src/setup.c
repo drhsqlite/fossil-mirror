@@ -937,7 +937,7 @@ void setup_config(void){
 */
 void setup_modreq(void){
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
