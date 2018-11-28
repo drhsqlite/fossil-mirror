@@ -1,5 +1,5 @@
-C The\s/setup_modreq\spage\swas\slimited\sto\sSetup\susers,\sbut\ssince\sit\scontrols\nwhat\susers\swith\sModerator\scapability\scan\sdo,\smade\sit\savailable\sto\sAdmin\nusers\sas\swell.
-D 2018-11-28T18:48:09.956
+C The\s/setup\spage\scan\snow\sbe\sseen\sby\sboth\sAdmin\sand\sSetup\susers,\sas\nrequested\sby\sdrh\svia\sprivate\semail.\s\sThe\sset\sof\slinks\sshown\sis\sculled\nfor\sAdmin-only\susers.\s\sAlso\schanged\ssome\scomments\sto\smatch\sthe\scode\swith\nrespect\sto\sAdmin\svs\sSetup\scapability.\s\sThe\sonly\schange\sto\suser\ncapability\sinterpretation\sin\sthis\scheckin\sis\sto\sthe\s/setup\spage.
+D 2018-11-28T18:57:26.352
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -439,7 +439,7 @@ F src/branch.c fc48a00d3f75aa006fb62c8190dd887f38aa86afeac6b9f47a845dbd893eee3f
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
-F src/cache.c f3f895a45f8cb4bf0ca867d2048dea9663f6fc9b80336d0087bb87b240369def
+F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 387c89d7869afbc3914b18c045cb9ba24bea43ec9ddb6e7157ac922fc35a1d6e
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c b1b3215c666c63fd5a5311dcbb19819afda5db6b62a4b1d6405390a8b90b63bf
@@ -551,7 +551,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c a8e28106b63b7de62f3003cc9d9ec982177875089f659be05060f9cc950a271f
+F src/setup.c adadfa11986b087c53dfd134b93b66e1eb29eab3f69cddbdbb63b3eade23045f
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42c3364f037fb0a0e617aad19fd1387c0f6f8da7b5d7bfd22c6718a089f732b5
-R 49b0ad7c892b21b01e4d4733ee7dcd20
+P 6242e24d2f082cc8df004801cc65d73c8b7bd2348d55470b1b7855e491fd42c2
+R bb96e7cab0a2a21995af80badb70f5d4
 U wyoung
-Z 883f00a665ee6731e27a8f1d053092c5
+Z 2c9f933addb17f7a8643969d9a0aa987

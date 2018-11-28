@@ -346,7 +346,7 @@ void cache_cmd(void){
 /*
 ** WEBPAGE: cachestat
 **
-** Show information about the webpage cache.  Requires Admin privilege.
+** Show information about the webpage cache.  Requires Setup privilege.
 */
 void cache_page(void){
   sqlite3 *db;
