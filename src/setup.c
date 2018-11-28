@@ -1407,7 +1407,7 @@ void page_admin_log(){
   int fLogEnabled;
   int counter = 0;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1467,7 +1467,7 @@ void page_admin_log(){
 */
 void page_srchsetup(){
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1591,7 +1591,7 @@ void page_waliassetup(){
   int cnt = 0;
   Blob namelist;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }

@@ -2700,7 +2700,7 @@ void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
   int i;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }

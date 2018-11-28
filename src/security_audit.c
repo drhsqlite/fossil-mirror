@@ -49,7 +49,7 @@ void secaudit0_page(void){
   int n;
 
   login_check_credentials();
-  if( !g.perm.Setup || !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -441,7 +441,7 @@ void secaudit0_page(void){
 */
 void takeitprivate_page(void){
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -490,7 +490,7 @@ void errorlog_page(void){
   FILE *in;
   char z[10000];
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
