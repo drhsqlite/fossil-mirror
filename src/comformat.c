@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -154,14 +154,13 @@ static int comment_next_space(
 ** Combining characters and East Asian Wide and Fullwidth characters are counted
 ** as one, so this function does not calculate the effective "display width".
 */
-int strlen_utf8(const char *zString, int lengthBytes)
-{
+int strlen_utf8(const char *zString, int lengthBytes){
+  int i;          /* Counted bytes. */
+  int lengthUTF8; /* Counted UTF-8 sequences. */
 #if 0
   assert( lengthBytes>=0 );
 #endif
-  int i;          /* Counted bytes. */
-  int lengthUTF8; /* Counted UTF-8 sequences. */
-  for( i=0, lengthUTF8=0; i<lengthBytes; i++, lengthUTF8++ ){
+  for(i=0, lengthUTF8=0; i<lengthBytes; i++, lengthUTF8++){
     char c = zString[i];
     int cchUTF8=1; /* Code units consumed. */
     int maxUTF8=1; /* Expected sequence length. */
@@ -229,16 +228,20 @@ static void comment_print_line(
   assert( indent<sizeof(zBuf)-5 );       /* See following comments to explain */
   assert( origIndent<sizeof(zBuf)-5 );   /* these limits. */
 #endif
-  if( indent>sizeof(zBuf)-6 )   /* Limit initial indent to fit output buffer. */
+  if( indent>sizeof(zBuf)-6 ){
+    /* Limit initial indent to fit output buffer. */
     indent = sizeof(zBuf)-6;
+  }
   comment_calc_indent(zLine, indent, trimCrLf, trimSpace, &index);
   if( indent>0 ){
-    for( i=0; i<indent; i++ ){
+    for(i=0; i<indent; i++){
       zBuf[iBuf++] = ' ';
     }
   }
-  if( origIndent>sizeof(zBuf)-6 )  /* Limit line indent to fit output buffer. */
+  if( origIndent>sizeof(zBuf)-6 ){
+    /* Limit line indent to fit output buffer. */
     origIndent = sizeof(zBuf)-6;
+  }
   maxChars = lineChars;
   for(;;){
     int useChars = 1;
