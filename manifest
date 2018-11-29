@@ -1,5 +1,5 @@
-C The\s/setup\spage\scan\snow\sbe\sseen\sby\sboth\sAdmin\sand\sSetup\susers,\sas\nrequested\sby\sdrh\svia\sprivate\semail.\s\sThe\sset\sof\slinks\sshown\sis\sculled\nfor\sAdmin-only\susers.\s\sAlso\schanged\ssome\scomments\sto\smatch\sthe\scode\swith\nrespect\sto\sAdmin\svs\sSetup\scapability.\s\sThe\sonly\schange\sto\suser\ncapability\sinterpretation\sin\sthis\scheckin\sis\sto\sthe\s/setup\spage.
-D 2018-11-28T18:57:26.352
+C Improvements\sto\sthe\scommand-line\scomment\sformatter\sso\sthat\sit\sworks\sbetter\nwith\snon-ASCII\scharacters.
+D 2018-11-29T11:09:44.604
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -449,7 +449,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
-F src/comformat.c 4d18073b1a8e98bd1b6ae6794df703744be590c69d4a507e04c8d86ed435c42c
+F src/comformat.c e97f8902b57cbce6aaf9bc69ed1cc46ab2fc33b4e13711967a3498a4badc4dc6
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c f80fe4fa9552268446a9a0a043220dfa722e5ca1fd02726a6e630b41c6f863d4
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
@@ -865,7 +865,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6242e24d2f082cc8df004801cc65d73c8b7bd2348d55470b1b7855e491fd42c2
-R bb96e7cab0a2a21995af80badb70f5d4
-U wyoung
-Z 2c9f933addb17f7a8643969d9a0aa987
+P 7d034d34bac75213c7d517065ff6c1b8e87fdbbfce065ef469aea0dcaaf9d4e9 cc9c422d8325bb0af5c3cf533f7a4cc1137094c444441757bf9ed59229e043f9
+R b5d3bc59cbfed1c0fadd5a6917f4e608
+T +closed cc9c422d8325bb0af5c3cf533f7a4cc1137094c444441757bf9ed59229e043f9
+U drh
+Z d5da6e4e326d65f3b2503ad893a70b0e
