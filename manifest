@@ -1,5 +1,5 @@
-C Update\scustom\smingw\smakefile.\sUpdate\sopenssl\sversion
-D 2018-11-29T21:38:43.715
+C The\s/setup_adunit,\s/setup_logo,\sand\s/setup_skin\spages\snow\sgive\sfull\nrights\sto\sAdmin-only\susers,\snot\sjust\sto\sSetup\susers,\ssince\sit\sseems\nsensible\sfor\sa\sSetup\suser\sto\sdelegate\scosmetic\smatters\sto\s"mere"\sAdmins.
+D 2018-11-29T22:55:52.468
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -551,7 +551,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c adadfa11986b087c53dfd134b93b66e1eb29eab3f69cddbdbb63b3eade23045f
+F src/setup.c 770659247bfed8f53009416459cd3da2cdcdc622f5e000403a3228d9bae9a6c3
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -560,7 +560,7 @@ F src/shell.c 11921ce021d0d4280dea48dc0056103cd6285e0fe489321f3df3538b47857505
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 5a31dd7a8b32151c024159a884a7873851ead4b2f8f5682195246f493d0911d9
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
-F src/skins.c 396ebb12d4b36c1f34005bb061a8324fc66604e6b5c00d43a2c44a908a78fdf5
+F src/skins.c 61c504073315d3a8d2e24d6da17cd65e49dc6055b7dd8a7e1739f02318acb367
 F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
@@ -865,7 +865,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c84a0c14ac3e00e830309881ebf89077a39de942b3f770a4a9fc3afc3bfc31e
-R 97558d4b54cbd2f389b77ea7e5a43731
-U jan.nijtmans
-Z 8bc9fd96d2a149c1758c30bc46fb4815
+P 71399243349a58086114103e56d573cfe0020346891cceec58b9dde57b2bc31b
+R daeb95f0340c9f1d090af4f233fa9c34
+T *branch * setup-delegates-cosmetics-to-admin
+T *sym-setup-delegates-cosmetics-to-admin *
+T -sym-trunk *
+U wyoung
+Z ddebd38e0ff52506d6b49ff7a51bcd06

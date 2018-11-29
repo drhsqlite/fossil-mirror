@@ -905,7 +905,7 @@ void setup_skin(void){
     return;
   }
   zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
-  if( g.perm.Setup ){
+  if( g.perm.Admin ){
     isSetup = isEditor = 1;
   }else{
     Glob *pAllowedEditors;
