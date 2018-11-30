@@ -1,5 +1,5 @@
-C Typo\sfix
-D 2018-11-30T21:24:20.126
+C Granted\saccess\sto\s/setup_timeline\sto\sAdmin\susers\sas\swell\sas\sSetup\susers.
+D 2018-11-30T23:18:45.482
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -551,7 +551,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c 770659247bfed8f53009416459cd3da2cdcdc622f5e000403a3228d9bae9a6c3
+F src/setup.c cffaff9f820f5581067788755147a26ff7e47875af0c41c43b2a59d2b9d61850
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8856c6beba085f9bc2ea0690be6e66431444d42f0922f51c6a5da13a7ca36ce
-R 7b8623cbe01da53d235045b16e476fac
+P 91e8c1213607cebc00bc7e885e371bfba6b85f3d736b42c607d4f6e4e1a0c93b
+R 6c7fc497e825eb221b36d055dde8f068
 U wyoung
-Z 9a18e87eba5fbd3e6f338202a0b42670
+Z 2e1a5bca27598979185d2ec4c07ba933

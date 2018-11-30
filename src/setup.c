@@ -112,8 +112,10 @@ void setup_page(void){
   if( setup_user ){
     setup_menu_entry("Settings", "setup_settings",
       "Web interface to the \"fossil settings\" command");
-    setup_menu_entry("Timeline", "setup_timeline",
-      "Timeline display preferences");
+  }
+  setup_menu_entry("Timeline", "setup_timeline",
+    "Timeline display preferences");
+  if( setup_user ){
     setup_menu_entry("Login-Group", "setup_login_group",
       "Manage single sign-on between this repository and others"
       " on the same server");
@@ -663,7 +665,7 @@ void setup_timeline(void){
       "4", "(off)"
   };
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
