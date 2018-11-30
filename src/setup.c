@@ -137,18 +137,16 @@ void setup_page(void){
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
     " changes and attachments.");
-  if( setup_user ){
-    setup_menu_entry("Ad-Unit", "setup_adunit",
-      "Edit HTML text for an ad unit inserted after the menu bar");
-  }
+  setup_menu_entry("Ad-Unit", "setup_adunit",
+    "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("URLs & Checkouts", "urllist",
     "Show URLs used to access this repo and known check-outs");
   if( setup_user ){
     setup_menu_entry("Web-Cache", "cachestat",
       "View the status of the expensive-page cache");
-    setup_menu_entry("Logo", "setup_logo",
-      "Change the logo and background images for the server");
   }
+  setup_menu_entry("Logo", "setup_logo",
+    "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
   setup_menu_entry("Artifact Receipts Log", "rcvfromlist",
@@ -1001,7 +999,7 @@ void setup_modreq(void){
 */
 void setup_adunit(void){
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1091,7 +1089,7 @@ void setup_logo(void){
     zBgMime = PD("bgim:mimetype","image/gif");
   }
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
