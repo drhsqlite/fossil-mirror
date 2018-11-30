@@ -1,5 +1,5 @@
-C Update\scustom\smingw\smakefile.\sUpdate\sopenssl\sversion
-D 2018-11-29T21:38:43.715
+C Add\sthe\sbackoffice-disable\ssetting\sto\scompletely\sdisable\sall\sbackoffice\nprocessing.
+D 2018-11-30T01:11:30.892
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -431,7 +431,7 @@ F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
 F src/alerts.c e66cf827047a9b390d19ea78805c63ce472afe28a3a29ed8dffeb85c2e0648c8
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 3d497d10a9971e511b204ede73e7fcd3783d495745a6de0dab4696016f1ac868
+F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -457,7 +457,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c c70f24596836ad73badbf0db6e4912a7948775f3b4bf220ce4ade07a34ff3bf9
+F src/db.c 3426658a96e03e1fe5e4ec93d7ea417e1eefa051ddcd732ebb87bd3f2689dff7
 F src/default_css.txt 163b89e340e6637e62c35008af3d74a5ea29979e5207c1d0481946c778e15514
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -755,7 +755,7 @@ F www/alerts.md cf3ea4aa4fca77f072f7f450f95b10ba801a546082bc3242e6f849ddeace99df
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
-F www/backoffice.md b572f4f86787dd1b8d08b5862ca015805b90045bc62a79d3fd5e6373f88f8ebd
+F www/backoffice.md 0b0b21f090b9aaf18401e35045f4fd945abf11c9e83f26488bc34b4559ca9dd1
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
 F www/blockchain.md 091622a11f872bb9e0440beeedb7304c8bb4b1ab535c90a3eba66d404fd9b43b
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
@@ -865,7 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c84a0c14ac3e00e830309881ebf89077a39de942b3f770a4a9fc3afc3bfc31e
-R 97558d4b54cbd2f389b77ea7e5a43731
-U jan.nijtmans
-Z 8bc9fd96d2a149c1758c30bc46fb4815
+P 71399243349a58086114103e56d573cfe0020346891cceec58b9dde57b2bc31b
+R 6063e26e97924369122526e981f198dc
+U drh
+Z 63871392d87a9890520c74c9c92f738b

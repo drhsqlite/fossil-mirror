@@ -3033,6 +3033,20 @@ struct Setting {
 ** it simply exits.
 */
 /*
+** SETTING: backoffice-disable boolean default=off
+** If backoffice-disable is true, then the automatic backoffice
+** processing is disabled.  Automatic backoffice processing is the
+** backoffice work that normally runs after each web page is
+** rendered.  Backoffice processing that is triggered by the
+** "fossil backoffice" command is unaffected by this setting.
+**
+** Backoffice processing does things such as delivering
+** email notifications.  So if this setting is true, and if
+** there is no cron job periodically running "fossil backoffice",
+** email notifications and other work normally done by the
+** backoffice will not occur.
+*/
+/*
 ** SETTING: backoffice-logfile width=40
 ** If backoffice-logfile is not an empty string and is a valid
 ** filename, then a one-line message is appended to that file
