@@ -1,5 +1,5 @@
-C Allow\sthe\sAdmin\suser\sto\smodify\sthe\sskin.
-D 2018-11-30T13:07:23.501
+C Fix\sthe\slabels\son\semail\salerts\sfor\swiki\sedits\sand\sticket\schanges,\swhich\nwere\sreversed.
+D 2018-11-30T21:08:26.463
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,7 +428,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c e66cf827047a9b390d19ea78805c63ce472afe28a3a29ed8dffeb85c2e0648c8
+F src/alerts.c e31f86ca2b55586af07d0307b803caada977ec7744ac780e1a2e86be46039e6b
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
@@ -865,8 +865,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4675fc70ba3b9750c000c7a2a442cf457e47369f94684fe326a56177e4879d33 a4265ae8d9ead6bff7fa57f34f31634b71863be1644a526dfa871e1c5cceae86
-R 3d35944f5d6c0be487b43f4d186bd874
-T +closed a4265ae8d9ead6bff7fa57f34f31634b71863be1644a526dfa871e1c5cceae86
+P 257318c1ca85c19131543e0d334ab56d4b8b76456d860a65efc63f11cabb6a7a
+R 6cc13b25f6767aaad9044c616821d9a0
 U drh
-Z efaaea05631cde48a796821ffbec06e1
+Z bb95437577a4363c9713fd7b03258e6c

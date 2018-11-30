@@ -2037,8 +2037,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
       case 'f':  zType = "Forum post";      break;
-      case 't':  zType = "Wiki Edit";       break;
-      case 'w':  zType = "Ticket Change";   break;
+      case 't':  zType = "Ticket Change";   break;
+      case 'w':  zType = "Wiki Edit";       break;
     }
     blob_init(&p->hdr, 0, 0);
     blob_init(&p->txt, 0, 0);
