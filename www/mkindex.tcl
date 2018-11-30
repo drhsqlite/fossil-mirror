@@ -11,6 +11,7 @@ set doclist {
   aboutdownload.wiki {How The Download Page Works}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
+  admin-v-setup.md {The Differences Between the Setup and Admin User Capabilities}
   alerts.md {Email Alerts And Notifications}
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
