@@ -1,5 +1,5 @@
-C Granted\saccess\sto\s/setup_timeline\sto\sAdmin\susers\sas\swell\sas\sSetup\susers.
-D 2018-11-30T23:18:45.482
+C Added\sthe\sadmin-v-setup.md\sdocument\sexplaining\sthe\sdifferences\sbetween\nthe\sSetup\sand\sAdmin\suser\scapabilities,\sand\soffering\sa\sphilosophical\nargument\sfor\swhy\sthese\sdistinctions\sare\sdrawn\sas\sthey\scurrently\sare.
+D 2018-11-30T23:34:46.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -751,6 +751,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
+F www/admin-v-setup.md c2021275d99076e641e8b7e124175d41475e4d83a86165bfd30ae52cbb2a494b
 F www/alerts.md a52a27a59aaf2d348ea4446e01be9cd5da66d8fbf134d40c84fd4862c56de701
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -865,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 91e8c1213607cebc00bc7e885e371bfba6b85f3d736b42c607d4f6e4e1a0c93b
-R 6c7fc497e825eb221b36d055dde8f068
+P cd8c5df51301e2bdc3856a273c6a224867e648a46c937efc083fb0b84f405301
+R d1a9656e6ecce816bb1a671b72655c2b
 U wyoung
-Z 2e1a5bca27598979185d2ec4c07ba933
+Z 645263c96b023bc26677cbaffb772169
