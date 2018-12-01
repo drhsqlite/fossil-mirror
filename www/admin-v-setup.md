@@ -107,8 +107,11 @@ capability:
     tests on the Fossil repository's configuration, then reports
     potential problems it found and offers canned solutions. Those
     canned solutions do not do anything that an Admin-user could not do
-    via other means. For example, this page's "Take it Private" feature
-    can also be done manually via Admin → Users.
+    via other means, so this page offers the Admin-only user no more
+    power than they otherwise had. For example, this page's "Take it
+    Private" feature can also be done manually via Admin → Users. This
+    page is a convenience, not a grant of new power to the Admin-only
+    user.
 
 *   **Logging**:<a id="log"></a> Admin-only users get to see the various
     Fossil logs in case they need to use them to understand a problem
@@ -172,9 +175,9 @@ Setup user:
         current status.</p>
 
     *   <p>The `/urllist` page, which is a read-only page showing the
-        ways the repository can be accessed and how it has been accessed in
-        the past. Logically, this is an extension to logging, [covered
-        below](#log).</p>
+        ways the repository can be accessed and how it has been accessed
+        in the past. Logically, this is an extension to logging,
+        [covered above](#log).</p>
 
     *   <p>The Fossil repository SQL schema. This is not particularly
         sensitive information, since you get more or less the same
@@ -304,12 +307,14 @@ Some features are now and must always be restricted to Setup users only.
     and its backing data tables, it can probably also be used to damage
     the host such as via `PRAGMA temp_store = FILE`.
 
-*   **TH1**: The [TH1 language][TH1] is quite restricted relative to
-    Tcl, so this author does not believe there is a way to damage the
-    Fossil repository or its host via this feature. Nevertheless,
-    interpreters are a well-known source of security problems, so it
-    seems best to restrict this to Setup users only until we have a good
-    reason why Admin-only users should also have access to it.
+*   **TH1**: The [TH1 language][TH1] is quite restricted relative to the
+    Tcl language it descends from, so this author does not believe there
+    is a way to damage the Fossil repository or its host via the Admin →
+    TH1 feature, which allows exeuction of arbitrary TH1 code within the
+    repository's execution context. Nevertheless, interpreters are a
+    well-known source of security problems, so it seems best to restrict
+    this feature to Setup-only users as long as we lack a good reason
+    for Admin-only users to have access to it.
 
 
 [fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
