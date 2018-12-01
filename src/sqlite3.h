@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.26.0"
 #define SQLITE_VERSION_NUMBER 3026000
-#define SQLITE_SOURCE_ID      "2018-11-28 11:49:46 b53a9a3dc6b0422a102b245451769b0cd8c0d67090fefabf7cb3a65137a73771"
+#define SQLITE_SOURCE_ID      "2018-12-01 12:34:55 bf8c1b2b7a5960c282e543b9c293686dccff272512d08865f4600fb58238b4f9"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3633,7 +3633,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** <dd>The SQLITE_PREPARE_NORMALIZE flag indicates that a normalized
 ** representation of the SQL statement should be calculated and then
 ** associated with the prepared statement, which can be obtained via
-** the [sqlite3_normalized_sql()] interface.  The semantics used to
+** the [sqlite3_normalized_sql()] interface.)^  The semantics used to
 ** normalize a SQL statement are unspecified and subject to change.
 ** At a minimum, literal values will be replaced with suitable
 ** placeholders.
@@ -9425,7 +9425,7 @@ struct sqlite3_rtree_query_info {
   sqlite3_int64 iRowid;             /* Rowid for current entry */
   sqlite3_rtree_dbl rParentScore;   /* Score of parent node */
   int eParentWithin;                /* Visibility of parent node */
-  int eWithin;                      /* OUT: Visiblity */
+  int eWithin;                      /* OUT: Visibility */
   sqlite3_rtree_dbl rScore;         /* OUT: Write the score here */
   /* The following fields are only available in 3.8.11 and later */
   sqlite3_value **apSqlParam;       /* Original SQL values of parameters */
