@@ -1,5 +1,5 @@
-C Added\swww/admin-v-setup.md\sto\sthe\spermuted\sindex
-D 2018-11-30T23:37:15.003
+C Added\sthe\s"Setup-Only\sFeatures"\ssection\sto\sadmin-v-setup.md.
+D 2018-12-01T00:27:08.226
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -751,7 +751,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/admin-v-setup.md c2021275d99076e641e8b7e124175d41475e4d83a86165bfd30ae52cbb2a494b
+F www/admin-v-setup.md 52eb3ae65ba41c9933ebfa8fc3b23dcc7d6f48d468d7796957bf63e148ccb16a
 F www/alerts.md a52a27a59aaf2d348ea4446e01be9cd5da66d8fbf134d40c84fd4862c56de701
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2056e9f7a8b37c820f152236094804ed8d0fa252ca13bb5c592272cd5b715eb3
-R 1b5b14a1d37792a833018340846a20bf
+P 969380a56205346d8c10482e918634b81032d81b3d67fe64e29451a36f73b669
+R 3ca2dbc8cc049e4f95f2372b5dfdde3f
 U wyoung
-Z b9fedb25013c8007c0c9fbdbc7afc7be
+Z 0d3e9d666c390e8a33cafaee6a3af01e

@@ -234,8 +234,88 @@ Admin-only users, it is a useful element of a load balancing and
 failover system.
 
 
+## Setup-Only Features
+
+Some features are now and must always be restricted to Setup users only.
+
+*   **Configuration**: The Admin → Configuration page nominally falls
+    under Cosmetics above, but it's such a core part of the Fossil
+    configuration — something every Setup user is expected to fully
+    specify on initial repository setup — that we have trouble
+    justifying any case where an Admin-only user would have good cause
+    to modify any of it. This page is generally set up once and then
+    never touched again.
+
+*   **Access**: The Admin → Access page falls under the Security
+    category above, but like Configuration, it's generally something set
+    up once and never touched, so only Setup users should change it.
+
+*   **Login-Group**: Login groups allow one Fossil repository to
+    delegate user access to another. Since an Admin-only user on one
+    repo might not have such access to another repo on the same host
+    system, this must be a Setup-only task.
+
+*   **Settings**: The [repository settings][rs] available via Admin →
+    Settings have too wide a range of power to allow modification by
+    Admin-only users:
+
+    *   <p><b>Harmless</b>: Admin-only users on a repository may well
+        have checkin rights on the repository, so the fact that
+        versionable settings like `crlf-glob` can also be set at the
+        repository level seems like a thing we might want to allow
+        Admin-only users the ability to change. Since Fossil currently
+        has no way to allow only some settings to be changed by
+        Admin-only users and some not, we can't just show these harmless
+        settings to Admin-only users.</p>
+
+    *   <p><b>Low-Risk</b>: The <tt>admin-log</tt> setting controls
+        whether the Fossil admin log is generated. Since we've <a
+        href="#log">already decided</a> that Admin-only users can see
+        this log, it seems fine that the Admin users can choose whether
+        this log gets generated in the first place.</p>
+
+        <p>There's a small risk that a rogue Admin user could disable
+        the log before doing something evil that the log would capture,
+        so ideally, we'd want to restrict changing this setting from 1
+        to 0 to Setup only while allowing Admin-only users to change it
+        from 0 to 1. Fossil doesn't currently allow that.</p>
+
+    *   <p><b>Risky</b>: The <tt>https-login</tt> setting falls under
+        the "Security" section above, but it should probably never be
+        adjusted by Admin-only users. Sites that want it on will never
+        want it to be disabled without a very good reason.</p>
+        
+        <p>There is also an inverse risk: if the site has a front-end
+        HTTPS proxy that uses HTTP to communicate over localhost to
+        Fossil, enabling this setting will create an infinite redirect
+        loop! (Ask me how I know.)</p>
+
+    *   <p><b>Dangerous</b>: The <tt>email-send-command</tt> setting
+        could allow a rogue Admin to run arbitrary commands on the host
+        system, unless it's prevented via some kind of host-specific
+        restriction.  (chroot, jails, SELinux, VMs, etc.) Since it makes
+        no sense to trust Admin-only users with <tt>root</tt> level
+        access on the host system, we almost certainly don't want to
+        allow them to change such settings.</p>
+
+*   **SQL**: The Admin → SQL feature allows the Setup user to enter raw
+    SQL queries against the Fossil repository via Fossil UI. This not
+    only allows arbitrary ability to modify the repository blockchain
+    and its backing data tables, it can probably also be used to damage
+    the host such as via `PRAGMA temp_store = FILE`.
+
+*   **TH1**: The [TH1 language][TH1] is quite restricted relative to
+    Tcl, so this author does not believe there is a way to damage the
+    Fossil repository or its host via this feature. Nevertheless,
+    interpreters are a well-known source of security problems, so it
+    seems best to restrict this to Setup users only until we have a good
+    reason why Admin-only users should also have access to it.
+
+
 [fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
 [forum]: https://fossil-scm.org/forum/
+[rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
 [sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
+[th1]:   https://www.fossil-scm.org/index.html/doc/trunk/www/th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
 [ucap]:  https://fossil-scm.org/fossil/setup_ucap_list
