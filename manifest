@@ -1,5 +1,5 @@
-C Assorted\ssmall\simprovements\sto\sadmin-v-setup.md.
-D 2018-12-01T06:17:28.343
+C Typo\sfix
+D 2018-12-01T06:19:48.033
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -751,7 +751,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/admin-v-setup.md c71ee127a03ce4d9d3e611d320dba917ca48dd0f26a82b96e3afdbd420cf361b
+F www/admin-v-setup.md 40877bdc16333623d6476dfd8c43720fe521bab54a0d9dca11322f443b6058a0
 F www/alerts.md a52a27a59aaf2d348ea4446e01be9cd5da66d8fbf134d40c84fd4862c56de701
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b58c6fddee37082ed7ed46a6992fd01b5829df9257311093420e0923fb41452
-R bab1b946b7200de9219e410f7991112b
+P eadf2644e4b469805b4e274257459af01b14dd3a601c62dcf4533b17d65f57c4
+R fd0e4f7405d3c2f324e654dd60f37c8c
 U wyoung
-Z f4bcdb472220610ea2a60dbf02f711e3
+Z 8d7c7073e87482883bf75ca26c1006ae

@@ -146,7 +146,7 @@ Setup user:
     Shunned page to Admin users rather than reserve it to Setup users
     because one of the primary purposes of [the Fossil shunning
     system](./shunning.wiki) is to clean up after a spammer, and that's
-    exactly the sort of adminstrivia we wish to delegate to Admin users.
+    exactly the sort of administrivia we wish to delegate to Admin users.
 
     Coupled with the Rebuild button on the same page, an Admin user has
     the power to delete the repository's entire
