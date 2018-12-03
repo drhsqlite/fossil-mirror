@@ -384,6 +384,7 @@ void backoffice_check_if_needed(void){
   if( g.zRepositoryName==0 ) return;
   if( g.db==0 ) return;
   if( !db_table_exists("repository","config") ) return;
+  if( db_get_boolean("backoffice-disable",0) ) return;
   tmNow = time(0);
   backofficeReadLease(&x);
   if( x.tmNext>=tmNow && backofficeProcessExists(x.idNext) ){
@@ -394,6 +395,13 @@ void backoffice_check_if_needed(void){
     /* We need to run backup to be (at a minimum) on-deck */
     backofficeDb = fossil_strdup(g.zRepositoryName);
   }
+}
+
+/*
+** Call this routine to disable backoffice
+*/
+void backoffice_disable(void){
+  backofficeDb = "x";
 }
 
 /*
@@ -433,6 +441,7 @@ static void backoffice_thread(void){
   int warningDelay = 30;
   static int once = 0;
 
+  if( sqlite3_db_readonly(g.db, 0) ) return;
   backoffice_error_check_one(&once);
   idSelf = backofficeProcessId();
   while(1){
@@ -526,7 +535,7 @@ void backoffice_work(void){
 }
 
 /*
-** COMMAND: backoffice
+** COMMAND: backoffice*
 **
 ** Usage: backoffice [-R repository]
 **

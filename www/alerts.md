@@ -476,7 +476,7 @@ cannot currently select it as an option in Admin → Notification.
 
 Fossil makes a distinction between "users" and "subscribers".  A user is
 someone with a username and password: that is, someone who can log into
-the Fossi repository.  A subscriber is someone who receives email
+the Fossil repository.  A subscriber is someone who receives email
 alerts.  Users can also be subscribers and subscribers can be users, but
 that does not have to be the case.  It is possible to be a user without
 being a subscriber and to be a subscriber without being a user.

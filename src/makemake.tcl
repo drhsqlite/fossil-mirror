@@ -116,6 +116,7 @@ set src {
   purge
   rebuild
   regexp
+  repolist
   report
   rss
   schema
@@ -194,7 +195,6 @@ set SQLITE_OPTIONS {
   -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
-  -DSQLITE_ENABLE_FTS3_PARENTHESIS
   -DSQLITE_ENABLE_DBSTAT_VTAB
   -DSQLITE_ENABLE_JSON1
   -DSQLITE_ENABLE_FTS5
@@ -712,7 +712,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1a
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1568,7 +1568,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1
+SSLDIR    = $(B)\compat\openssl-1.1.1a
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -1818,7 +1818,11 @@ openssl:
 	@set PATH=$(PERLDIR);$(PATH)
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
+!if $(FOSSIL_ENABLE_WINXP)!=0
+	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
+!else
 	@pushd "$(SSLDIR)" && $(MAKE) && popd
+!endif
 !endif
 
 !if $(FOSSIL_ENABLE_MINIZ)==0

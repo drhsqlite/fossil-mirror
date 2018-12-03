@@ -44,11 +44,12 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
   const char *zPubPages;     /* GLOB pattern for public pages */
+  const char *zSelfCap;      /* Capabilities of self-registered users */
   char *z;
   int n;
 
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -62,6 +63,15 @@ void secaudit0_page(void){
   */
   zAnonCap = db_text("", "SELECT fullcap(NULL)");
   zPubPages = db_get("public-pages",0);
+  if( db_get_boolean("self-register",0) ){
+    CapabilityString *pCap;
+    pCap = capability_add(0, db_get("default-perms",""));
+    capability_expand(pCap);
+    zSelfCap = capability_string(pCap);
+    capability_free(pCap);
+  }else{
+    zSelfCap = fossil_strdup("");
+  }
   if( hasAnyCap(zAnonCap,"as") ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
     @ it grants administrator privileges to anonymous users.  You
@@ -69,32 +79,51 @@ void secaudit0_page(void){
     @ immediately!  Or, at least remove the Setup and Admin privileges
     @ for users "anonymous" and "login" on the
     @ <a href="setup_ulist">User Configuration</a> page.
+  }else if( hasAnyCap(zSelfCap,"as") ){
+    @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
+    @ it grants administrator privileges to self-registered users.  You
+    @ should <a href="takeitprivate">take this repository private</a>
+    @ and/or disable self-registration
+    @ immediately!  Or, at least remove the Setup and Admin privileges
+    @ from the default permissions for new users.
   }else if( hasAnyCap(zAnonCap,"y") ){
     @ <li><p>This repository is <big><b>INSECURE</b></big> because
     @ it allows anonymous users to push unversioned files.
     @ <p>Fix this by <a href="takeitprivate">taking the repository private</a>
     @ or by removing the "y" permission from users "anonymous" and
     @ "nobody" on the <a href="setup_ulist">User Configuration</a> page.
+  }else if( hasAnyCap(zSelfCap,"y") ){
+    @ <li><p>This repository is <big><b>INSECURE</b></big> because
+    @ it allows self-registered users to push unversioned files.
+    @ <p>Fix this by <a href="takeitprivate">taking the repository private</a>
+    @ or by removing the "y" permission from the default permissions or
+    @ by disabling self-registration.
   }else if( hasAnyCap(zAnonCap,"goz") ){
     @ <li><p>This repository is <big><b>PUBLIC</b></big>. All
     @ checked-in content can be accessed by anonymous users.
     @ <a href="takeitprivate">Take it private</a>.<p>
+  }else if( hasAnyCap(zSelfCap,"goz") ){
+    @ <li><p>This repository is <big><b>PUBLIC</b></big> because all
+    @ checked-in content can be accessed by self-registered users.
+    @ This repostory would be private if you disabled self-registration.</p>
   }else if( !hasAnyCap(zAnonCap, "jrwy234567")
+         && !hasAnyCap(zSelfCap, "jrwy234567")
          && (zPubPages==0 || zPubPages[0]==0) ){
     @ <li><p>This repository is <big><b>Completely PRIVATE</b></big>.
     @ A valid login and password is required to access any content.
   }else{
     @ <li><p>This repository is <big><b>Mostly PRIVATE</b></big>.
     @ A valid login and password is usually required, however some
-    @ content can be accessed anonymously:
+    @ content can be accessed either anonymously or by self-registered
+    @ users:
     @ <ul>
-    if( hasAnyCap(zAnonCap,"j") ){
+    if( hasAnyCap(zAnonCap,"j") || hasAnyCap(zSelfCap,"j") ){
       @ <li> Wiki pages
     }
-    if( hasAnyCap(zAnonCap,"r") ){
+    if( hasAnyCap(zAnonCap,"r") || hasAnyCap(zSelfCap,"r") ){
       @ <li> Tickets
     }
-    if( hasAnyCap(zAnonCap,"234567") ){
+    if( hasAnyCap(zAnonCap,"234567") || hasAnyCap(zSelfCap,"234567") ){
       @ <li> Forum posts
     }
     if( zPubPages && zPubPages[0] ){
@@ -412,7 +441,7 @@ void secaudit0_page(void){
 */
 void takeitprivate_page(void){
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -426,6 +455,7 @@ void takeitprivate_page(void){
       " WHERE login IN ('nobody','anonymous');"
       "DELETE FROM config WHERE name='public-pages';"
     );
+    db_set("self-register","0",0);
     cgi_redirect("secaudit0");
   }
   style_header("Make This Website Private");
@@ -460,7 +490,7 @@ void errorlog_page(void){
   FILE *in;
   char z[10000];
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }

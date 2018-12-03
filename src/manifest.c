@@ -2531,7 +2531,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
     firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;
     db_multi_exec(
-      "INSERT INTO forumpost(fpid,froot,fprev,firt,fmtime)"
+      "REPLACE INTO forumpost(fpid,froot,fprev,firt,fmtime)"
       "VALUES(%d,%d,nullif(%d,0),nullif(%d,0),%.17g)",
       p->rid, froot, fprev, firt, p->rDate
     );

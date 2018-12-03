@@ -2131,9 +2131,15 @@ void artifact_page(void){
     }else if( renderAsHtml ){
       @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
-      @ sandbox="allow-same-origin"
-      @ onload="this.height=this.contentDocument.documentElement.scrollHeight;">
+      @ sandbox="allow-same-origin" id="ifm1">
       @ </iframe>
+      @ <script nonce="%h(style_nonce())">
+      @ document.getElementById("ifm1").addEventListener("load",
+      @   function(){
+      @     this.height=this.contentDocument.documentElement.scrollHeight + 75;
+      @   }
+      @ );
+      @ </script>
     }else{
       style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
       blob_to_utf8_no_bom(&content, 0);

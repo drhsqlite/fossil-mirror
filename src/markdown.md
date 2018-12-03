@@ -27,10 +27,11 @@
 > 4.  **\<URL\>**
 > 5.  **\[display text\]\[label\]**
 > 6.  **\[display text\]\[\]**
+> 7.  **\[display text\]**
 
-> **URL** may optionally be written **\<URL\>**.  With link formats 5 and 6
+> **URL** may optionally be written **\<URL\>**.  With link formats 5, 6, and 7
 > ("reference links"), the URL is supplied elsewhere in the document, as shown
-> below.  Link format 6 reuses the display text as the label.  Labels are
+> below.  Link formats 6 and 7 reuse the display text as the label.  Labels are
 > case-insensitive.  The title may be split onto the next line with optional
 > indenting.
 

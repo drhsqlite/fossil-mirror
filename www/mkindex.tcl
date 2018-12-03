@@ -11,10 +11,12 @@ set doclist {
   aboutdownload.wiki {How The Download Page Works}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
+  admin-v-setup.md {The Differences Between the Setup and Admin User Capabilities}
   alerts.md {Email Alerts And Notifications}
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
   blame.wiki {The Annotate/Blame Algorithm Of Fossil}
+  blockchain.md {Fossil As Blockchain}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
@@ -27,6 +29,7 @@ set doclist {
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   customgraph.md {Theming: Customizing the Timeline Graph}
   customskin.md {Theming: Customizing The Appearance of Web Pages}
+  customskin.md {Custom Skins}
   custom_ticket.wiki {Customizing The Ticket System}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
@@ -42,6 +45,7 @@ set doclist {
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
+  grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}

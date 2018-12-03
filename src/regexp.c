@@ -18,42 +18,7 @@
 ** This file was adapted from the test_regexp.c file in SQLite3.  That
 ** file is in the public domain.
 **
-** The code in this file implements a compact but reasonably
-** efficient regular-expression matcher for posix extended regular
-** expressions against UTF8 text.  The following syntax is supported:
-**
-**     X*      zero or more occurrences of X
-**     X+      one or more occurrences of X
-**     X?      zero or one occurrences of X
-**     X{p,q}  between p and q occurrences of X
-**     (X)     match X
-**     X|Y     X or Y
-**     ^X      X occurring at the beginning of the string
-**     X$      X occurring at the end of the string
-**     .       Match any single character
-**     \c      Character c where c is one of \{}()[]|*+?.
-**     \c      C-language escapes for c in afnrtv.  ex: \t or \n
-**     \uXXXX  Where XXXX is exactly 4 hex digits, unicode value XXXX
-**     \xXX    Where XX is exactly 2 hex digits, unicode value XX
-**     [abc]   Any single character from the set abc
-**     [^abc]  Any single character not in the set abc
-**     [a-z]   Any single character in the range a-z
-**     [^a-z]  Any single character not in the range a-z
-**     \b      Word boundary
-**     \w      Word character.  [A-Za-z0-9_]
-**     \W      Non-word character
-**     \d      Digit
-**     \D      Non-digit
-**     \s      Whitespace character
-**     \S      Non-whitespace character
-**
-** A nondeterministic finite automaton (NFA) is used for matching, so the
-** performance is bounded by O(N*M) where N is the size of the regular
-** expression and M is the size of the input string.  The matcher never
-** exhibits exponential behavior.  Note that the X{p,q} operator expands
-** to p copies of X following by q-p copies of X? and that the size of the
-** regular expression in the O(N*M) performance bound is computed after
-** this expansion.
+** See ../www/grep.md for details of the algorithm and RE dialect.
 */
 #include "config.h"
 #include "regexp.h"
@@ -829,12 +794,14 @@ void re_test_grep(void){
 **
 ** Usage: %fossil grep [OPTIONS] PATTERN FILENAME
 **
-** Run grep over all historic version of FILENAME
+** Attempt to match the given POSIX extended regular expression PATTERN
+** over all historic versions of FILENAME.  For details of the supported
+** RE dialect, see https://fossil-scm.org/fossil/doc/trunk/www/grep.md
 **
 ** Options:
 **
 **     -i|--ignore-case         Ignore case
-**     -l|--files-with-matches  Print only filenames that match
+**     -l|--files-with-matches  List only checkin ID for versions that match
 **     -v|--verbose             Show each file as it is analyzed
 */
 void re_grep_cmd(void){
@@ -850,7 +817,7 @@ void re_grep_cmd(void){
   if( find_option("verbose","v",0)!=0 ) bVerbose = 1;
   db_find_and_open_repository(0, 0);
   verify_all_options();
-  if( g.argc<3 ){
+  if( g.argc<4 ){
     usage("REGEXP FILENAME");
   }
   zErr = re_compile(&pRe, g.argv[2], ignoreCase);

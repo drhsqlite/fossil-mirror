@@ -168,7 +168,7 @@ for a repository:
 Running that command every few seconds should show what is going on with
 backoffice processing in a particular repository.
 
-There are also two settings that control backoffice behavior.  The
+There are also settings that control backoffice behavior.  The
 "backoffice-nodelay" setting prevents the "next" process from taking a
 lease and sleeping.  If "backoffice-nodelay" is set, that causes all
 backoffice processes to exit either immediately or after doing whatever
@@ -179,5 +179,11 @@ can be fixed.  The "backoffice-logfile" setting is the name of a log
 file onto which is appended a short message everything a backoffice
 process actually starts to do the backoffice work.  This log file can
 be used to verify that backoffice really is running, if there is any
-doubt.  Most installations should leave "backoffice-nodelay" off and
+doubt.  The "backoffice-disable" setting prevents automatic backoffice
+processing, if true.  Use this to completely disable backoffice processing
+that occurs automatically after each HTTP request.  The "backoffice-disable"
+setting does not affect the operation of the manual 
+"fossil backoffice" command.
+Most installations should leave "backoffice-nodelay" and "backoffice-disable"
+set to their default values of off and
 leave "backoffice-logfile" unset or set to an empty string.

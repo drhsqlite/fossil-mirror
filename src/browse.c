@@ -944,7 +944,7 @@ char *human_readable_age(double rAge){
   }else if( rAge<365.0 ){
     return mprintf("%.1f days", rAge);
   }else{
-    return mprintf("%.2f years", rAge/365.0);
+    return mprintf("%.2f years", rAge/365.2425);
   }
 }
 

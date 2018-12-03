@@ -106,6 +106,7 @@ SRC = \
   $(SRCDIR)/purge.c \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/regexp.c \
+  $(SRCDIR)/repolist.c \
   $(SRCDIR)/report.c \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
@@ -316,6 +317,7 @@ TRANS_SRC = \
   $(OBJDIR)/purge_.c \
   $(OBJDIR)/rebuild_.c \
   $(OBJDIR)/regexp_.c \
+  $(OBJDIR)/repolist_.c \
   $(OBJDIR)/report_.c \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
@@ -453,6 +455,7 @@ OBJ = \
  $(OBJDIR)/purge.o \
  $(OBJDIR)/rebuild.o \
  $(OBJDIR)/regexp.o \
+ $(OBJDIR)/repolist.o \
  $(OBJDIR)/report.o \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
@@ -576,7 +579,6 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
-                 -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
@@ -603,7 +605,6 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 -DSQLITE_ENABLE_FTS4 \
-                -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_JSON1 \
                 -DSQLITE_ENABLE_FTS5 \
@@ -788,6 +789,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/purge_.c:$(OBJDIR)/purge.h \
 	$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
+	$(OBJDIR)/repolist_.c:$(OBJDIR)/repolist.h \
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
@@ -1559,6 +1561,14 @@ $(OBJDIR)/regexp.o:	$(OBJDIR)/regexp_.c $(OBJDIR)/regexp.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/regexp.o -c $(OBJDIR)/regexp_.c
 
 $(OBJDIR)/regexp.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/repolist_.c:	$(SRCDIR)/repolist.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/repolist.c >$@
+
+$(OBJDIR)/repolist.o:	$(OBJDIR)/repolist_.c $(OBJDIR)/repolist.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/repolist.o -c $(OBJDIR)/repolist_.c
+
+$(OBJDIR)/repolist.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/report_.c:	$(SRCDIR)/report.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/report.c >$@

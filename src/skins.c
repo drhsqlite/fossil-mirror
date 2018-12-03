@@ -461,7 +461,7 @@ void setup_skin_admin(void){
   int once;
 
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -678,11 +678,13 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
   }else if( sqlite3_strglob("draft[1-9]", zLabel)==0 ){
     zResult = db_get_mprintf("", "%s-%s", zLabel, zFile);
   }else{
-    while( 1 ){
+    int i;
+    for(i=0; i<2; i++){
       char *zKey = mprintf("skins/%s/%s.txt", zLabel, zFile);
       zResult = builtin_text(zKey);
       fossil_free(zKey);
-      if( zResult!=0 || fossil_strcmp(zLabel,"default")==0 ) break;
+      if( zResult!=0 ) break;
+      zLabel = "default";
     }
   }
   return zResult;
@@ -693,7 +695,7 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
 ** WEBPAGE: setup_skinedit
 **
 ** Edit aspects of a skin determined by the w= query parameter.
-** Requires Setup privileges.
+** Requires Admin or Setup privileges.
 **
 **    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details, 4=js
 **    sk=NUM    -- the draft skin number
@@ -730,7 +732,7 @@ void setup_skinedit(void){
   if( iSkin<1 || iSkin>9 ) iSkin = 1;
 
   /* Check that the user is authorized to edit this skin. */
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     char *zAllowedEditors = "";
     Glob *pAllowedEditors;
     int isMatch = 0;
@@ -903,7 +905,7 @@ void setup_skin(void){
     return;
   }
   zAllowedEditors = db_get_mprintf("", "draft%d-users", iSkin);
-  if( g.perm.Setup ){
+  if( g.perm.Admin ){
     isSetup = isEditor = 1;
   }else{
     Glob *pAllowedEditors;
@@ -1057,7 +1059,7 @@ void setup_skin(void){
   @ <a name='step7'></a>
   @ <h1>Step 7: Publish</h1>
   @
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     @ <p>Only administrators are allowed to publish draft skins.  Contact
     @ an administrator to get this "draft%d(iSkin)" skin published.</p>
   }else{
@@ -1082,7 +1084,7 @@ void setup_skin(void){
   @ <a name='step8'></a>
   @ <h1>Step 8: Cleanup and Undo Actions</h1>
   @
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     @ <p>Administrators can optionally save or restore legacy skins, and/or
     @ undo a prior publish.
   }else{

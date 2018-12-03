@@ -1905,6 +1905,18 @@ static int isVariableDef(Token *pFirst, Token *pEnd){
   return 1;
 }
 
+/*
+** Return TRUE if pFirst is the first token of a static assert.
+*/
+static int isStaticAssert(Token *pFirst){
+  if( (pFirst->nText==13 && strncmp(pFirst->zText, "static_assert", 13)==0)
+   || (pFirst->nText==14 && strncmp(pFirst->zText, "_Static_assert", 14)==0)
+  ){
+    return 1;
+  }else{
+    return 0;
+  }
+}
 
 /*
 ** This routine is called whenever we encounter a ";" or "=".  The stuff
@@ -1963,6 +1975,8 @@ static int ProcessDecl(Token *pFirst, Token *pEnd, int flags){
   }else if( flags & PS_Method ){
     /* Methods are declared by their class.  Don't declare separately. */
     return nErr;
+  }else if( isStaticAssert(pFirst) ){
+    return 0;
   }
   isVar =  (flags & (PS_Typedef|PS_Method))==0 && isVariableDef(pFirst,pEnd);
   if( isVar && (flags & (PS_Interface|PS_Export|PS_Local))!=0

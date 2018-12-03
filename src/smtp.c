@@ -21,11 +21,23 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-#if defined(__linux__) && !defined(FOSSIL_OMIT_DNS)
+#if (HAVE_DN_EXPAND || HAVE___NS_NAME_UNCOMPRESS || HAVE_NS_NAME_UNCOMPRESS) && \
+    (HAVE_NS_PARSERR || HAVE___NS_PARSERR) && !defined(FOSSIL_OMIT_DNS)
 #  include <sys/types.h>
 #  include <netinet/in.h>
-#  include <arpa/nameser.h>
-#  include <resolv.h>
+#  if defined(HAVE_BIND_RESOLV_H)
+#    include <bind/resolv.h>
+#    include <bind/arpa/nameser_compat.h>
+#  else
+#    include <arpa/nameser.h>
+#    include <resolv.h>
+#  endif
+#  if defined(HAVENS_NAME_UNCOMPRESS) && !defined(dn_expand)
+#    define dn_expand ns_name_uncompress
+#  endif
+#  if defined(HAVE__NS_NAME_UNCOMPRESS) && !defined(dn_expand)
+#    define dn_expand __ns_name_uncompress
+#  endif
 #  define FOSSIL_UNIX_STYLE_DNS 1
 #endif
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
@@ -79,8 +91,7 @@ char *smtp_mx_host(const char *zDomain){
     }
   }
   if( pBest ){
-    ns_name_uncompress(aDns, aDns+nDns, pBest+2,
-                       zHostname, sizeof(zHostname));
+    dn_expand(aDns, aDns+nDns, pBest+2, zHostname, sizeof(zHostname));
     return fossil_strdup(zHostname);
   }
   return 0;
@@ -1301,7 +1312,7 @@ void test_refcheck_emailblob(void){
 
 
 /*
-** COMMAND: smtpd
+** COMMAND: smtpd*
 **
 ** Usage: %fossil smtpd [OPTIONS] REPOSITORY
 **
@@ -1448,7 +1459,7 @@ static int pop3_login(const char *zUser, char *zPass){
 }
 
 /*
-** COMMAND: pop3d
+** COMMAND: pop3d*
 **
 ** Usage: %fossil pop3d [OPTIONS] REPOSITORY
 **

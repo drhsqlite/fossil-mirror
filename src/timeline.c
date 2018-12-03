@@ -80,9 +80,9 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
   if( zSuf==0 ) zSuf = "";
   if( g.perm.Hyperlink ){
     if( zD && zD[0] ){
-      @ %z(href("%R/timeline?c=%T&u=%T",zD,zU))%h(zU)</a>%s(zSuf)
+      @ %z(href("%R/timeline?c=%T&u=%T&y=a",zD,zU))%h(zU)</a>%s(zSuf)
     }else{
-      @ %z(href("%R/timeline?u=%T",zU))%h(zU)</a>%s(zSuf)
+      @ %z(href("%R/timeline?u=%T&y=a",zU))%h(zU)</a>%s(zSuf)
     }
   }else{
     @ %s(zU)
@@ -582,7 +582,7 @@ void www_print_timeline(
     }
 
     if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd&n=200", zDispUser, zDate);
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
       cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
     }else{
       cgi_printf("user:&nbsp;%h", zDispUser);
@@ -603,7 +603,7 @@ void www_print_timeline(
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
                   "%z%#h</a>%.2s",
-                  href("%R/timeline?r=%#t&nd&c=%t&n=200",i,z,zDate), i,z, &z[i]
+                  href("%R/timeline?r=%#t&c=%t",i,z,zDate), i,z, &z[i]
             );
           }else{
             blob_appendf(&links, "%#h", i+2, z);

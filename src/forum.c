@@ -269,6 +269,24 @@ void forum_render(
 }
 
 /*
+** Generate the buttons in the display that allow a forum supervisor to
+** mark a user as trusted.  Only do this if:
+**
+**   (1)  The poster is an individual, not a special user like "anonymous"
+**   (2)  The current user has Forum Supervisor privilege
+*/
+static void generateTrustControls(Manifest *pPost){
+  if( !g.perm.AdminForum ) return;
+  if( login_is_special(pPost->zUser) ) return;
+  @ <br>
+  @ <label><input type="checkbox" name="trust">
+  @ Trust user "%h(pPost->zUser)"
+  @ so that future posts by "%h(pPost->zUser)" do not require moderation.
+  @ </label>
+  @ <input type="hidden" name="trustuser" value="%h(pPost->zUser)">
+}
+
+/*
 ** Display all posts in a forum thread in chronological order
 */
 static void forum_display_chronological(int froot, int target){
@@ -297,17 +315,17 @@ static void forum_display_chronological(int froot, int target){
     @ <p>By %h(pPost->zUser) on %h(zDate) (%d(p->fpid))
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t",p->pEdit->zUuid))%d(p->fprev)</a>
+      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))%d(p->fprev)</a>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ reply to %z(href("%R/forumpost/%S?t",pIrt->zUuid))%d(p->firt)</a>
+        @ reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
       }
     }
     if( p->pLeaf ){
-      @ updated by %z(href("%R/forumpost/%S?t",p->pLeaf->zUuid))\
+      @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
       @ %d(p->pLeaf->fpid)</a>
     }
     if( g.perm.Debug ){
@@ -315,7 +333,7 @@ static void forum_display_chronological(int froot, int target){
       @ <a href="%R/artifact/%h(p->zUuid)">artifact</a></span>
     }
     if( p->fpid!=target ){
-      @ %z(href("%R/forumpost/%S?t",p->zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
     }
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -342,6 +360,7 @@ static void forum_display_chronological(int froot, int target){
         ** are pending moderation */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
+        generateTrustControls(pPost);
       }else if( sameUser ){
         /* A post that is pending moderation can be deleted by the
         ** person who originally submitted the post */
@@ -448,6 +467,7 @@ static int forum_display_hierarchical(int froot, int target){
         ** are pending moderation */
         @ <input type="submit" name="approve" value="Approve">
         @ <input type="submit" name="reject" value="Reject">
+        generateTrustControls(pPost);
       }else if( sameUser ){
         /* A post that is pending moderation can be deleted by the
         ** person who originally submitted the post */
@@ -473,7 +493,8 @@ static int forum_display_hierarchical(int froot, int target){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of the post to display
-**   t             Show a chronologic listing instead of hierarchical
+**   t=MODE        Display mode. MODE is 'c' for chronological or
+**                   'h' for hierarchical, or 'a' for automatic.
 */
 void forumpost_page(void){
   forumthread_page();
@@ -489,12 +510,14 @@ void forumpost_page(void){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of any post of the thread.
-**   t             Show a chronologic listing instead of hierarchical
+**   t=MODE        Display mode. MODE is 'c' for chronological or
+**                   'h' for hierarchical, or 'a' for automatic.
 */
 void forumthread_page(void){
   int fpid;
   int froot;
   const char *zName = P("name");
+  const char *zMode = PD("t","a");
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -513,15 +536,18 @@ void forumthread_page(void){
     webpage_error("Not a forum post: \"%s\"", zName);
   }
   if( fossil_strcmp(g.zPath,"forumthread")==0 ) fpid = 0;
-  if( P("t") ){
-    if( g.perm.Debug ){
-      style_submenu_element("Hierarchical", "%R/%s/%s", g.zPath, zName);
-    }                          
+  if( zMode[0]=='a' ){
+    if( cgi_from_mobile() ){
+      zMode = "c";  /* Default to chronological on mobile */
+    }else{
+      zMode = "h";
+    }
+  }
+  if( zMode[0]=='c' ){
+    style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
     forum_display_chronological(froot, fpid);
   }else{
-    if( g.perm.Debug ){
-      style_submenu_element("Chronological", "%R/%s/%s?t", g.zPath, zName);
-    }                          
+    style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
   style_load_js("forum.js");
@@ -742,7 +768,7 @@ void forumnew_page(void){
   }
   style_header("New Forum Thread");
   @ <form action="%R/forume1" method="POST">
-  @ <h1>New Message:</h1>
+  @ <h1>New Thread:</h1>
   forum_from_line();
   forum_entry_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
@@ -799,7 +825,16 @@ void forumedit_page(void){
   isCsrfSafe = cgi_csrf_safe(1);
   if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
+      const char *zUserToTrust;
       moderation_approve(fpid);
+      if( g.perm.AdminForum
+       && PB("trust")
+       && (zUserToTrust = P("trustuser"))!=0
+      ){
+        db_multi_exec("UPDATE user SET cap=cap||'4' "
+                      "WHERE login=%Q AND cap NOT GLOB '*4*'",
+                      zUserToTrust);
+      }
       cgi_redirectf("%R/forumpost/%S",P("fpid"));
       return;
     }
@@ -939,7 +974,13 @@ void forum_main_page(void){
   }
   style_header("Forum");
   if( g.perm.WrForum ){
-    style_submenu_element("New Message","%R/forumnew");
+    style_submenu_element("New Thread","%R/forumnew");
+  }else{
+    /* Can't combine this with previous case using the ternary operator
+     * because that causes an error yelling about "non-constant format"
+     * with some compilers.  I can't see it, since both expressions have
+     * the same format, but I'm no C spec lawyer. */
+    style_submenu_element("New Thread","%R/login");
   }
   if( g.perm.ModForum && moderation_needed() ){
     style_submenu_element("Moderation Requests", "%R/modreq");

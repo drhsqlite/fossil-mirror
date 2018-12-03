@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1
+SSLDIR    = $(B)\compat\openssl-1.1.1a
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -294,7 +294,6 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
-                 /DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
@@ -321,7 +320,6 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 /DSQLITE_ENABLE_FTS4 \
-                /DSQLITE_ENABLE_FTS3_PARENTHESIS \
                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                 /DSQLITE_ENABLE_JSON1 \
                 /DSQLITE_ENABLE_FTS5 \
@@ -434,6 +432,7 @@ SRC   = add_.c \
         purge_.c \
         rebuild_.c \
         regexp_.c \
+        repolist_.c \
         report_.c \
         rss_.c \
         schema_.c \
@@ -643,6 +642,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\purge$O \
         $(OX)\rebuild$O \
         $(OX)\regexp$O \
+        $(OX)\repolist$O \
         $(OX)\report$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
@@ -720,7 +720,11 @@ openssl:
 	@set PATH=$(PERLDIR);$(PATH)
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
+!if $(FOSSIL_ENABLE_WINXP)!=0
+	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
+!else
 	@pushd "$(SSLDIR)" && $(MAKE) && popd
+!endif
 !endif
 
 !if $(FOSSIL_ENABLE_MINIZ)==0
@@ -834,6 +838,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\purge.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
 	echo $(OX)\regexp.obj >> $@
+	echo $(OX)\repolist.obj >> $@
 	echo $(OX)\report.obj >> $@
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
@@ -1542,6 +1547,12 @@ $(OX)\regexp$O : regexp_.c regexp.h
 regexp_.c : $(SRCDIR)\regexp.c
 	translate$E $** > $@
 
+$(OX)\repolist$O : repolist_.c repolist.h
+	$(TCC) /Fo$@ -c repolist_.c
+
+repolist_.c : $(SRCDIR)\repolist.c
+	translate$E $** > $@
+
 $(OX)\report$O : report_.c report.h
 	$(TCC) /Fo$@ -c report_.c
 
@@ -1906,6 +1917,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			purge_.c:purge.h \
 			rebuild_.c:rebuild.h \
 			regexp_.c:regexp.h \
+			repolist_.c:repolist.h \
 			report_.c:report.h \
 			rss_.c:rss.h \
 			schema_.c:schema.h \

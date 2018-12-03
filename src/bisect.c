@@ -387,11 +387,14 @@ void bisect_cmd(void){
     if( pMid==0 ){
       fossil_print("bisect complete\n");
     }else{
+      int nSpan = path_length();
+      int nStep = path_search_depth();
       g.argv[1] = "update";
       g.argv[2] = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pMid->rid);
       g.argc = 3;
       g.fNoSync = 1;
       update_cmd();
+      fossil_print("span: %d  steps-remaining: %d\n", nSpan, nStep);
     }
 
     if( strncmp(zDisplay,"chart",m)==0 ){
