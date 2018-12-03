@@ -1,5 +1,5 @@
-C Incorporate\sthe\sofficial\srelease\sof\sSQLite\sversion\s3.26.0
-D 2018-12-01T13:00:52.179
+C Improved\sdocumentation\sfor\sthe\s"localauth"\ssetting.
+D 2018-12-03T02:44:31.684
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -457,7 +457,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3426658a96e03e1fe5e4ec93d7ea417e1eefa051ddcd732ebb87bd3f2689dff7
+F src/db.c 67d8f2ea8ecea6d4c029a72e7a13eb709ea419b7bd8c9e3b678df4372c7b6522
 F src/default_css.txt 163b89e340e6637e62c35008af3d74a5ea29979e5207c1d0481946c778e15514
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 572574d1a70a22439ec6f6dc89bc9dc19d90d1074857178b552012569a8e8d48
-R 4ed3983dd76bed1df49f1640a4f284e4
+P e0a6ff0adb3da82864dc84db32933fff4b877b27932b7a964c5d3f980b9b20f3
+R 7e86004af111c8e3de07656b0f94043c
 U drh
-Z 0f2ba414cc563a3ef1a0f62934168f3a
+Z 9fe4e3f1dc1c2ed926b0305951d57242

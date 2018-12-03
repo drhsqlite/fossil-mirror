@@ -3204,10 +3204,37 @@ struct Setting {
 */
 /*
 ** SETTING: localauth        boolean default=off
-** If enabled, require that HTTP connections from
-** 127.0.0.1 be authenticated by password.  If
-** false, all HTTP requests from localhost have
-** unrestricted access to the repository.
+** If enabled, require that HTTP connections from the loopback
+** address (127.0.0.1) be authenticated by password.  If false,
+** some HTTP requests might be granted full "Setup" user
+** privileges without having to present login credentials.
+** This mechanism allows the "fossil ui" command to provide
+** full access to the repository without requiring the user to
+** log in first.
+**
+** In order for full "Setup" privilege to be granted without a
+** login, the following conditions must be met:
+**
+**   (1)  This setting ("localauth") must be off
+**   (2)  The HTTP request arrive over the loopback TCP/IP
+**        address (127.0.01) or else via SSH.
+**   (3)  The request must be HTTP, not HTTPS. (This
+**        restriction is designed to help prevent accidentally
+**        providing "Setup" privileges to requests arriving
+**        over a reverse proxy.)
+**   (4)  The command that launched the fossil server must be
+**        one of the following:
+**        (a) "fossil ui"
+**        (b) "fossil server" with the --localauth option
+**        (c) "fossil http" with the --localauth option
+**        (d) CGI with the "localauth" setting in the cgi script.
+**
+** For maximum security, set "localauth" to 1.  However, because
+** of the other restrictions (2) through (4), it should be safe
+** to leave "localauth" set to 0 in most installations, and 
+** especially on cloned repositories on workstations. Leaving
+** "localauth" at 0 makes the "fossil ui" command more convenient
+** to use.
 */
 /*
 ** SETTING: main-branch      width=40 default=trunk
