@@ -1,5 +1,5 @@
-C Merge\strunk
-D 2018-12-03T12:08:37.436
+C Undo\schanges\sto\sfossil.exe.manifest\s(don't\sknow\swhere\sthey\scame\sfrom)
+D 2018-12-03T12:24:32.534
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -739,7 +739,7 @@ F win/Makefile.mingw d7f58579096514f5286d2bfd14ef1d4da7bdd92f94def135d7343037e13
 F win/Makefile.mingw.mistachkin 57448c2ca7bd31be99c94e39ba5d5727f959ecc93f86839b958217a4e1f280c4
 F win/Makefile.msc 3e6263fb926f3710edeae5e4242401e41d47e2f301c48047c210ef3f0faaea8c
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
-F win/fossil.exe.manifest 4bb9e8b5a714cae82782f3831cc2d45f4bf4a50a755fe584d2d1893129d68353
+F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 685e884752132aa4ed9b705d6f77624dc687826729109f1675590d13aa0020d6
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7db0ee51d86843527cac12a9c2ef6440b0bb08bcd622b2c9f1e5909ca48ece3 883c2ea218b590735895c77657929e2af8f3b749360c221f097b456c296d0dac
-R f8846dc61a0d02a980d1f494b3ea4b64
+P e88c1ff4cc4ce1888d19fc48d99dc8ab5b9d69fdbcc0a0f2acf0632116b501c8
+R 38c3cd6fcc1ab755762b2a9a14eabba5
 U jan.nijtmans
-Z ce7b7a9d2491398dfa60a664fabce7c6
+Z 5783203aae642790c98928ec4a1f9aea
