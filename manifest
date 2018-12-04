@@ -1,5 +1,5 @@
-C The\snew\sblockquote\stinting\sfeature\sof\sthe\sdefault\sskin\snow\sworks\sin\sthe\sforum\npost\seditor\sscreen\sas\swell,\snot\sjust\sin\sthe\sforum\spost\sdisplay\sscreen.
-D 2018-12-04T23:00:17.888
+C Fixed\sa\suse\sof\sfclose()\son\sa\shandle\sopened\swith\spopen(),\snoticed\sby\nStephan\sBeal.
+D 2018-12-04T23:08:20.576
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,7 +428,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c e31f86ca2b55586af07d0307b803caada977ec7744ac780e1a2e86be46039e6b
+F src/alerts.c 9af05613dcfef2fb8195009c271d4567ecb4e5079f1787f7bf29515c217467e0
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 883c2ea218b590735895c77657929e2af8f3b749360c221f097b456c296d0dac
-R 90296e04b4471837b9594ac08371889a
+P 19bb3b88fa01e9eadd8610d7c64fe0fc9d9733c625985faa95de370d4a44a7b5
+R e9cd2a17ac2bf0d2f676b78d75da8de8
 U wyoung
-Z cea653b742e9732e8ff4584cc4c6602e
+Z 4c4292a0518e2c8a7c48080af54cb222
