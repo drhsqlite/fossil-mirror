@@ -307,7 +307,7 @@ as in a manifest.
 The <b>T</b> card represents a [./branching.wiki#tags | tag or property]
 that is applied to
 some other artifact.  The <b>T</b> card has two or three values.  The
-second argument is the 40 character lowercase artifact ID of the artifact
+second argument is the lowercase artifact ID of the artifact
 to which the tag is to be applied. The
 first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  The "+" means the tag should be added
@@ -439,7 +439,7 @@ The following cards are allowed on an attachment artifact:
 The <b>A</b> card specifies a filename for the attachment in its first argument.
 The second argument to the <b>A</b> card is the name of the wiki page or
 ticket or technical note to which the attachment is connected.  The
-third argument is either missing or else it is the 40-character artifact
+third argument is either missing or else it is the lower-case artifact
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
 

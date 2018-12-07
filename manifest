@@ -1,5 +1,5 @@
-C Fixed\sa\suse\sof\sfclose()\son\sa\shandle\sopened\swith\spopen(),\snoticed\sby\nStephan\sBeal.
-D 2018-12-04T23:08:20.576
+C Reworded\s2\sreferences\sto\s40-character\sartifact\sIDs,\ssince\sthose\sparticular\sIDs\smay\snow\sbe\slonger\sthan\s40\scharacters.
+D 2018-12-07T19:36:09.175
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -810,7 +810,7 @@ F www/env-opts.md 225d146ce028010f6983e4086ba3273c4ab6d48e5d01fc5a4b0ec8003fed08
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki a058b1190d1d683714ce5ffe8c5e3f23751d97be7721e6daa31e929cd60539ac
+F www/fileformat.wiki 339f6a90527d382af7fb8cacca2dc36e097c190fe87ecb370bcdc554eb0cef36
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki b2fce6c2f88024553b61553d5eb27bdaf8c571c6abce555adfc1927824b1b713
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19bb3b88fa01e9eadd8610d7c64fe0fc9d9733c625985faa95de370d4a44a7b5
-R e9cd2a17ac2bf0d2f676b78d75da8de8
-U wyoung
-Z 4c4292a0518e2c8a7c48080af54cb222
+P 1f4b4fcb62a9c3297cd865adbca655edb9ab71648d1648b6ffdaedcfd6615eee
+R e55b81e0295e1560454a8902de1d5ab4
+U stephan
+Z 15f35510e3cd3e776e5957936d799e3c
