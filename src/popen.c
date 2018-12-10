@@ -95,7 +95,7 @@ static int win32_create_child_process(
      NULL,  /* Process attributes */
      NULL,  /* Thread attributes */
      TRUE,  /* Inherit Handles */
-     0,     /* Create flags  */
+     CREATE_NO_WINDOW, /* Create flags  */
      NULL,  /* Environment */
      NULL,  /* Current directory */
      &si,   /* Startup Info */

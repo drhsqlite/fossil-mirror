@@ -285,7 +285,7 @@ static int backofficeProcessExists(sqlite3_uint64 pid){
   return pid>0 && backofficeWin32ProcessExists((DWORD)pid)!=0;
 #else
   return pid>0 && kill((pid_t)pid, 0)==0;
-#endif 
+#endif
 }
 
 /*
@@ -297,7 +297,7 @@ static int backofficeProcessDone(sqlite3_uint64 pid){
   return pid<=0 || backofficeWin32ProcessExists((DWORD)pid)==0;
 #else
   return pid<=0 || kill((pid_t)pid, 0)!=0;
-#endif 
+#endif
 }
 
 /*
@@ -469,6 +469,8 @@ static void backoffice_thread(void){
       backofficeTrace("/***** Begin Backoffice Processing %d *****/\n",
                       GETPID());
       backoffice_work();
+      backofficeTrace("/***** End Backoffice Processing %d *****/\n",
+                      GETPID());
       break;
     }
     if( backofficeNoDelay || db_get_boolean("backoffice-nodelay",0) ){
@@ -561,22 +563,43 @@ void backoffice_run_if_needed(void){
   if( g.repositoryOpen ) return;
 #if defined(_WIN32)
   {
-    int i;
-    intptr_t x;
-    char *argv[4];
-    wchar_t *ax[5];
-    argv[0] = g.nameOfExe;
-    argv[1] = "backoffice";
-    argv[2] = "-R";
-    argv[3] = backofficeDb;
-    ax[4] = 0;
-    for(i=0; i<=3; i++) ax[i] = fossil_utf8_to_unicode(argv[i]);
-    x = _wspawnv(_P_NOWAIT, ax[0], (const wchar_t * const *)ax);
-    for(i=0; i<=3; i++) fossil_unicode_free(ax[i]);
-    backofficeTrace(
-      "/***** Subprocess %d creates backoffice child %lu *****/\n",
-      GETPID(), GetProcessId((HANDLE)x));
-    if( x>=0 ) return;
+    STARTUPINFOW si;
+    PROCESS_INFORMATION pi;
+    BOOL rc;
+    Blob binCmd;
+    wchar_t *wcsCmd;
+    /* Build the command string and make sure the process does not get
+    ** handled as CGI. */
+    blob_zero(&binCmd);
+    blob_appendf(&binCmd, "\"%s\" backoffice --nocgi -R \"%s\"",
+                 g.nameOfExe, backofficeDb);
+    wcsCmd = fossil_utf8_to_unicode(blob_str(&binCmd));
+    blob_reset(&binCmd);
+    /* Start a detached process. */
+    ZeroMemory(&pi, sizeof(pi));
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    rc = CreateProcessW(
+       NULL,             /* Application Name */
+       wcsCmd,           /* Command-line */
+       NULL,             /* Process attributes */
+       NULL,             /* Thread attributes */
+       FALSE,            /* Inherit Handles */
+       DETACHED_PROCESS, /* Create flags  */
+       NULL,             /* Environment */
+       NULL,             /* Current directory */
+       &si,              /* Startup Info */
+       &pi               /* Process Info */
+    );
+    fossil_unicode_free(wcsCmd);
+    if( rc ){
+      CloseHandle(pi.hProcess);
+      CloseHandle(pi.hThread);
+      backofficeTrace(
+        "/***** Subprocess %d creates backoffice child %d *****/\n",
+        GETPID(), pi.dwProcessId);
+      return;
+    }
   }
 #else /* unix */
   {

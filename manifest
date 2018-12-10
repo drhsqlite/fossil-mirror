@@ -1,5 +1,5 @@
-C Reworded\s2\sreferences\sto\s40-character\sartifact\sIDs,\ssince\sthose\sparticular\sIDs\smay\snow\sbe\slonger\sthan\s40\scharacters.
-D 2018-12-07T19:36:09.175
+C Attempt\sto\sget\sthe\sbackoffice\srunning\son\sWindows.
+D 2018-12-10T08:07:02.880
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,10 +428,10 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e9ab1e9d7b645133f2ca62f6392e447c512888506890383f9021688aadffff18
-F src/alerts.c 9af05613dcfef2fb8195009c271d4567ecb4e5079f1787f7bf29515c217467e0
+F src/alerts.c bcde67007c7a0cf079d90580f5c5b6f83c75b2e993a59fbe1f8213cdd0f24d37
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
+F src/backoffice.c b48232992459ff2c7832f2db7ed36962e74a27963baeb54b13965e908fce2357
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
@@ -513,7 +513,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 0fda31b6683c206ac2cc527270d3228d8d9995b4cf18c438751b1bf3f6865ad8
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c e3e2cbe948461da08d89fe81e058ef7f7226d809bb189eee0b5b79c30a82a1de
+F src/main.c a7f591e782a9f8a54a89456b68ef977d44331a8c17d00f174cb4dab8ba6daa5f
 F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -536,7 +536,7 @@ F src/name.c 44fedd65aa9dc0786b81b777478a170a0b0c18d359e53abf934c64fbf6f73582
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
-F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
+F src/popen.c 545f90676d852eed0fa39499c6478a88417d3a07ea05db14e2d25960a9b3dac9
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c ba282fa51ba230e59049e1c1080ccafc47177583c30e51036951c378fe63bb50
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
@@ -866,7 +866,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f4b4fcb62a9c3297cd865adbca655edb9ab71648d1648b6ffdaedcfd6615eee
-R e55b81e0295e1560454a8902de1d5ab4
-U stephan
-Z 15f35510e3cd3e776e5957936d799e3c
+P 565c21739c5681118e24dc5e1df03a4cb738d5df9c61fed2363fdffc8bbd89ae
+R 788e049d7a82363417c7e6974e1da825
+T *branch * backoffice-win
+T *sym-backoffice-win *
+T -sym-trunk *
+U tsbg
+Z ce1f09e7c23b0662e71505f7e0f6ba37

@@ -845,10 +845,20 @@ void alert_send(
                       "%s", sqlite3_errmsg(p->db));
     }
   }else if( p->zCmd ){
+#if !defined(_WIN32)
     FILE *out = popen(p->zCmd, "w");
+#else
+    int in, pid;
+    FILE *out;
+    popen2(p->zCmd, &in, &out, &pid);
+#endif
     if( out ){
       fwrite(blob_buffer(&all), 1, blob_size(&all), out);
+#if !defined(_WIN32)
       pclose(out);
+#else
+      pclose2(in ,out, pid);
+#endif
     }else{
       emailerError(p, "Could not open output pipe \"%s\"", p->zCmd);
     }
