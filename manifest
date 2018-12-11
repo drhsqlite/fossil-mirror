@@ -1,5 +1,5 @@
-C On\sthe\s/wiki\spage,\sput\stext\sto\sshow\sthat\sthe\spage\shas\sbeen\sdeleted.
-D 2018-12-11T18:55:28.672
+C Change\stimeline\shyperlinks\sto\swiki\spages\sto\spoint\sto\sthe\sspecific\sversion\nof\sthe\swiki\spage\sthat\sthe\stimeline\sentry\srefers\sto,\snot\sto\sthe\slatest\sversion\nof\sthat\spage.
+D 2018-12-11T21:31:31.990
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -578,7 +578,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 09c689cf80be1a9877303142a1fd44f6e40c46f67e2adeb97360400ad413a4e8
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c ff8fa57f5c210c2b99380edec719ce89d758df07f38dcebbbd7cf9e49db7aa96
+F src/timeline.c 8515a15699c20d95261f1a36c4b21a6f6faba64b37e9a5a1e05466dc9c7b8c71
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -595,9 +595,9 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 9e7c94d5ad35dfda8e36eaff32a6bbcde8c6e89a77a631bc33984382d69b0f66
+F src/wiki.c 22514eccbb6935b97a62182b9fa01791ae574f11fe7bc106483e1aa97494396e
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
+F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81c22bc6b8605da5cb8aa113c6f9605e2fd9b2cbe174576bbbac8b8b7642c420
-R 392839b57b70e96384caedb843f74de5
+P c7a7a5611762df9a0b6529994c9d521bd2593a812ef7f181b86e1b36368b6a4d
+R fd9916ffcbe6fe593860b0b6fb04093b
 U drh
-Z d196d1d42084a27755db5b2624dffc48
+Z 0972abcf160ed923865e53693e41a286

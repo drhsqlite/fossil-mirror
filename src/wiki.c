@@ -883,6 +883,7 @@ void whistory_page(void){
   zPageName = PD("name","");
   style_header("History Of %s", zPageName);
   if( P("showid")!=0 ) tmFlags |= TIMELINE_SHOWRID;
+  tmFlags |= timeline_ss_submenu();
 
   db_prepare(&q, "%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
