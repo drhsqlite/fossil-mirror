@@ -417,9 +417,13 @@ void wiki_page(void){
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header("%s", zPageName);
   wiki_standard_submenu(submenuFlags);
-  blob_init(&wiki, zBody, -1);
-  wiki_render_by_mimetype(&wiki, zMimetype);
-  blob_reset(&wiki);
+  if( zBody[0]==0 ){
+    @ <i>This page has been deleted</i>
+  }else{
+    blob_init(&wiki, zBody, -1);
+    wiki_render_by_mimetype(&wiki, zMimetype);
+    blob_reset(&wiki);
+  }
   attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
   style_footer();
@@ -856,7 +860,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))[diff]</a>
+    @ &nbsp;op: %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))diff</a>\
   }
 }
 
@@ -864,15 +868,21 @@ static void wiki_history_extra(int rid){
 ** WEBPAGE: whistory
 ** URL: /whistory?name=PAGENAME
 **
+** Additional parameters:
+**
+**     showid          Show RID values
+**
 ** Show the complete change history for a single wiki page.
 */
 void whistory_page(void){
   Stmt q;
   const char *zPageName;
+  int tmFlags = TIMELINE_ARTID;
   login_check_credentials();
   if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
   zPageName = PD("name","");
   style_header("History Of %s", zPageName);
+  if( P("showid")!=0 ) tmFlags |= TIMELINE_SHOWRID;
 
   db_prepare(&q, "%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
@@ -882,7 +892,7 @@ void whistory_page(void){
                  "ORDER BY mtime DESC",
                  timeline_query_for_www(), zPageName, zPageName);
   zWikiPageName = zPageName;
-  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, 0, wiki_history_extra);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, wiki_history_extra);
   db_finalize(&q);
   style_footer();
 }
@@ -967,6 +977,7 @@ static const char listAllWikiPages[] =
 ** WEBPAGE: wcontent
 **
 **     all=1         Show deleted pages
+**     showid        Show rid values for each page.
 **
 ** List all available wiki pages with date created and last modified.
 */
@@ -974,6 +985,7 @@ void wcontent_page(void){
   Stmt q;
   double rNow;
   int showAll = P("all")!=0;
+  int showRid = P("showid")!=0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -991,6 +1003,9 @@ void wcontent_page(void){
   @ <th>Name</th>
   @ <th>Last Change</th>
   @ <th>Versions</th>
+  if( showRid ){
+    @ <th>RID</th>
+  }
   @ </tr></thead><tbody>
   rNow = db_double(0.0, "SELECT julianday('now')");
   while( db_step(&q)==SQLITE_ROW ){
@@ -1013,6 +1028,9 @@ void wcontent_page(void){
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     fossil_free(zAge);
     @ <td>%z(href("%R/whistory?name=%T",zWName))%d(wcnt)</a></td>
+    if( showRid ){
+      @ <td>%d(wrid)</td>
+    }
     @ </tr>
   }
   @ </tbody></table></div>
