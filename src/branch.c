@@ -22,7 +22,7 @@
 #include <assert.h>
 
 /*
-**  fossil branch new    NAME BASIS ?OPTIONS?
+**  fossil branch new    NAME  BASIS ?OPTIONS?
 **  argv0  argv1  argv2  argv3 argv4
 */
 void branch_new(void){
@@ -437,7 +437,7 @@ static void new_brlist_page(void){
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
   @ <th>Branch Name</th>
-  @ <th>Age</th>
+  @ <th>Last Change</th>
   @ <th>Check-ins</th>
   @ <th>Status</th>
   @ <th>Resolution</th>

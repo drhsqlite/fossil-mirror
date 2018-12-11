@@ -1,5 +1,5 @@
-C Reworded\s2\sreferences\sto\s40-character\sartifact\sIDs,\ssince\sthose\sparticular\sIDs\smay\snow\sbe\slonger\sthan\s40\scharacters.
-D 2018-12-07T19:36:09.175
+C Enhance\sthe\s/wcontent\spage\sto\sshow\sa\ssortable\slist\sof\swiki\spages\ntogether\swith\sthe\snumber\sof\sversions\sand\sthe\stime\sof\slast\schange.
+D 2018-12-11T16:28:58.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c fc48a00d3f75aa006fb62c8190dd887f38aa86afeac6b9f47a845dbd893eee3f
+F src/branch.c 4adb15d9dc311220f815fdfbdb4176cc0475ae9a3d838dcc5cd6e1c20e071fbb
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 74acfc9936f9f739f7a38eff50f1fa319dc5671ff736a48a9804ba6acde1d875
+F src/wiki.c 898fa55ca9760c774ab416d5b9b7fef8aa72170f9b41df3bd2d52925de523e73
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 8b3271e180fff3a34f5580b5c419bdc1bc84a552e30543e8403dee77e6ba27b8
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1f4b4fcb62a9c3297cd865adbca655edb9ab71648d1648b6ffdaedcfd6615eee
-R e55b81e0295e1560454a8902de1d5ab4
-U stephan
-Z 15f35510e3cd3e776e5957936d799e3c
+P 565c21739c5681118e24dc5e1df03a4cb738d5df9c61fed2363fdffc8bbd89ae
+R 58b399664c33bba9de3dc985ac7d3101
+U drh
+Z 4cb0aa965fe1b9d3b84aa02ec7857d89

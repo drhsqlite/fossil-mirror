@@ -936,23 +936,33 @@ void wdiff_page(void){
 }
 
 /*
-** prepare()s pStmt with a query requesting:
+** A query that returns information about all wiki pages.
 **
-** - wiki page name
-** - tagxref (whatever that really is!)
+**    wname         Name of the wiki page
+**    wsort         Sort names by this label
+**    wrid          rid of the most recent version of the page
+**    wmtime        time most recent version was created
+**    wcnt          Number of versions of this wiki page
 **
-** Used by wcontent_page() and the JSON wiki code.
+** The wrid value is zero for deleted wiki pages.
 */
-void wiki_prepare_page_list( Stmt * pStmt ){
-  db_prepare(pStmt,
-    "SELECT"
-    "  substr(tagname, 6) as name,"
-    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid"
-    "    ORDER BY mtime DESC) as tagXref"
-    "  FROM tag WHERE tagname GLOB 'wiki-*'"
-    " ORDER BY lower(tagname) /*sort*/"
-  );
-}
+static const char listAllWikiPages[] = 
+@ SELECT
+@   substr(tag.tagname, 6) AS wname,
+@   lower(substr(tag.tagname, 6)) AS sortname,
+@   tagxref.value+0 AS wrid,
+@   max(tagxref.mtime) AS wmtime,
+@   count(*) AS wcnt
+@ FROM
+@   tag,
+@   tagxref
+@ WHERE
+@   tag.tagname GLOB 'wiki-*'
+@   AND tagxref.tagid=tag.tagid
+@ GROUP BY 1
+@ ORDER BY 2;
+;
+
 /*
 ** WEBPAGE: wcontent
 **
@@ -962,6 +972,7 @@ void wiki_prepare_page_list( Stmt * pStmt ){
 */
 void wcontent_page(void){
   Stmt q;
+  double rNow;
   int showAll = P("all")!=0;
 
   login_check_credentials();
@@ -973,19 +984,40 @@ void wcontent_page(void){
     style_submenu_element("All", "%s/wcontent?all=1", g.zTop);
   }
   wiki_standard_submenu(W_ALL_BUT(W_LIST));
-  @ <ul>
-  wiki_prepare_page_list(&q);
+  db_prepare(&q, listAllWikiPages/*works-like:""*/);
+  @ <div class="brlist">
+  @ <table class='sortable' data-column-types='tKN' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Name</th>
+  @ <th>Last Change</th>
+  @ <th>Versions</th>
+  @ </tr></thead><tbody>
+  rNow = db_double(0.0, "SELECT julianday('now')");
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    int size = db_column_int(&q, 1);
-    if( size>0 ){
-      @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
-    }else if( showAll ){
-      @ <li>%z(href("%R/wiki?name=%T",zName))<s>%h(zName)</s></a></li>
+    const char *zWName = db_column_text(&q, 0);
+    const char *zSort = db_column_text(&q, 1);
+    int wrid = db_column_int(&q, 2);
+    double rWmtime = db_column_double(&q, 3);
+    sqlite3_int64 iMtime = (sqlite3_int64)(rWmtime*86400.0);
+    char *zAge;
+    int wcnt = db_column_int(&q, 4);
+    if( wrid==0 ){
+      if( !showAll ) continue;
+      @ <tr><td data-sortkey="%h(zSort)">\
+      @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWName)</s></a></td>
+    }else{
+      @ <tr><td data=sortkey='%h(zSort)">\
+      @ %z(href("%R/wiki?name=%T",zWName))%h(zWName)</a></td>
     }
+    zAge = human_readable_age(rNow - rWmtime);
+    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
+    fossil_free(zAge);
+    @ <td>%z(href("%R/whistory?name=%T",zWName))%d(wcnt)</a></td>
+    @ </tr>
   }
+  @ </tbody></table></div>
   db_finalize(&q);
-  @ </ul>
+  style_table_sorter();
   style_footer();
 }
 
