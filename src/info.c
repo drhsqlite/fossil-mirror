@@ -957,6 +957,7 @@ void winfo_page(void){
     for(i=0; i<pWiki->nParent; i++){
       char *zParent = pWiki->azParent[i];
       @ %z(href("info/%!S",zParent))%s(zParent)</a>
+      @ %z(href("%R/wdiff?id=%!S&pid=%!S",zUuid,zParent))(diff)</a>
     }
     @ </td></tr>
   }

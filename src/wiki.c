@@ -944,7 +944,7 @@ void wdiff_page(void){
   const char *zId;
   const char *zPid;
   Manifest *pW1, *pW2 = 0;
-  int rid1, rid2;
+  int rid1, rid2, nextRid;
   Blob w1, w2, d;
   u64 diffFlags;
 
@@ -975,11 +975,16 @@ void wdiff_page(void){
     @ between %z(href("%R/info/%s",zPid))%z(zDate)</a> \
     zDate = db_text(0, "SELECT datetime(%.16g)",pW1->rDate);
     @ and %z(href("%R/info/%s",zId))%z(zDate)</a></h2>
+    style_submenu_element("Previous", "%R/wdiff?id=%S", zPid);
   }else{
     blob_zero(&w2);
     @ <h2>Initial version of \
     @ "%z(href("%R/whistory?name=%s",pW1->zWikiTitle))%h(pW1->zWikiTitle)</a>"\
     @ </h2>
+  }
+  nextRid = wiki_next(wiki_tagid(pW1->zWikiTitle),pW1->rDate);
+  if( nextRid ){
+    style_submenu_element("Next", "%R/wdiff?rid=%d", nextRid);
   }
   style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
