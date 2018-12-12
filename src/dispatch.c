@@ -267,7 +267,8 @@ void test_all_help_cmd(void){
     mask = CMDFLAG_WEBPAGE;
   }
   if( find_option("everything","e",0) ){
-    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE;
+    mask = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER | CMDFLAG_WEBPAGE |
+              CMDFLAG_SETTING | CMDFLAG_TEST;
   }
   if( find_option("settings","s",0) ){
     mask = CMDFLAG_SETTING;
