@@ -1,5 +1,5 @@
-C Change\stimeline\shyperlinks\sto\swiki\spages\sto\spoint\sto\sthe\sspecific\sversion\nof\sthe\swiki\spage\sthat\sthe\stimeline\sentry\srefers\sto,\snot\sto\sthe\slatest\sversion\nof\sthat\spage.
-D 2018-12-11T21:31:31.990
+C Improvements\sto\sthe\s/wdiff\spage.
+D 2018-12-12T01:23:43.560
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 22514eccbb6935b97a62182b9fa01791ae574f11fe7bc106483e1aa97494396e
+F src/wiki.c 571ff544af29215e8af8b9d26fbde2c3f153df0caab465d4113913dc99436045
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7a7a5611762df9a0b6529994c9d521bd2593a812ef7f181b86e1b36368b6a4d
-R fd9916ffcbe6fe593860b0b6fb04093b
+P 606421edc5892a4c353d72110271ea5be6ee864f2e79e90bc0552ab5f2552688
+R 67ca9b4adba62df405e78a935c615905
 U drh
-Z 0972abcf160ed923865e53693e41a286
+Z c385f56c996408ca3adf83fdda2e0aa7

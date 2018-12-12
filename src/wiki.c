@@ -388,8 +388,10 @@ void wiki_page(void){
   zMimetype = wiki_filter_mimetypes(zMimetype);
   if( !g.isHome ){
     if( rid ){
-      style_submenu_element("Diff", "%R/wdiff?name=%T&a=%d", zPageName, rid);
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      if( pWiki && pWiki->nParent ){
+        style_submenu_element("Diff", "%R/wdiff?id=%s", zUuid);
+      }
       style_submenu_element("Details", "%R/info/%s", zUuid);
     }
     if( (rid && g.anon.WrWiki) || (!rid && g.anon.NewWiki) ){
@@ -860,7 +862,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ &nbsp;op: %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))diff</a>\
+    @ &nbsp;op: %z(href("%R/wdiff?rid=%d",rid))diff</a>\
   }
 }
 
@@ -900,41 +902,60 @@ void whistory_page(void){
 
 /*
 ** WEBPAGE: wdiff
-** URL: /whistory?name=PAGENAME&a=RID1&b=RID2
 **
-** Show the difference between two wiki pages.
+** Show the changes to a wiki page.
+**
+** Query parameters:
+**
+**      id=HASH           Hash prefix for the child version to be diffed.
+**      rid=INTEGER       RecordID for the child version
+**      pid=HASH          Hash prefix for the parent.
+**
+** The "id" query parameter is required.  "pid" is optional.  If "pid"
+** is omitted, then the diff is against the first parent of the child.
 */
 void wdiff_page(void){
-  int rid1, rid2;
-  const char *zPageName;
+  const char *zId;
+  const char *zPid;
   Manifest *pW1, *pW2 = 0;
+  int rid1, rid2;
   Blob w1, w2, d;
   u64 diffFlags;
 
   login_check_credentials();
-  rid1 = atoi(PD("a","0"));
-  if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
-  if( rid1==0 ) fossil_redirect_home();
-  rid2 = atoi(PD("b","0"));
-  zPageName = PD("name","");
-  style_header("Changes To %s", zPageName);
-
-  if( rid2==0 ){
-    rid2 = db_int(0,
-      "SELECT objid FROM event JOIN tagxref ON objid=rid AND tagxref.tagid="
-                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
-      " WHERE event.mtime<(SELECT mtime FROM event WHERE objid=%d)"
-      " ORDER BY event.mtime DESC LIMIT 1",
-      zPageName, rid1
-    );
+  if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
+  zId = P("id");
+  if( zId==0 ){
+    rid1 = atoi(PD("rid","0"));
+  }else{
+    rid1 = name_to_typed_rid(zId, "w");
   }
+  zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid1);
   pW1 = manifest_get(rid1, CFTYPE_WIKI, 0);
   if( pW1==0 ) fossil_redirect_home();
   blob_init(&w1, pW1->zWiki, -1);
-  blob_zero(&w2);
-  if( rid2 && (pW2 = manifest_get(rid2, CFTYPE_WIKI, 0))!=0 ){
-    blob_init(&w2, pW2->zWiki, -1);
+  zPid = P("pid");
+  if( zPid==0 && pW1->nParent ){
+    zPid = pW1->azParent[0];
   }
+  if( zPid ){
+    rid2 = name_to_typed_rid(zPid, "w");
+    pW2 = manifest_get(rid2, CFTYPE_WIKI, 0);
+    blob_init(&w2, pW2->zWiki, -1);
+    char *zDate;
+    @ <h2>Changes to \
+    @ "%z(href("%R/whistory?name=%s",pW1->zWikiTitle))%h(pW1->zWikiTitle)</a>" \
+    zDate = db_text(0, "SELECT datetime(%.16g)",pW2->rDate);
+    @ between %z(href("%R/info/%s",zPid))%z(zDate)</a> \
+    zDate = db_text(0, "SELECT datetime(%.16g)",pW1->rDate);
+    @ and %z(href("%R/info/%s",zId))%z(zDate)</a></h2>
+  }else{
+    blob_zero(&w2);
+    @ <h2>Initial version of \
+    @ "%z(href("%R/whistory?name=%s",pW1->zWikiTitle))%h(pW1->zWikiTitle)</a>"\
+    @ </h2>
+  }
+  style_header("Changes To %s", pW1->zWikiTitle);
   blob_zero(&d);
   diffFlags = construct_diff_flags(1);
   text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
