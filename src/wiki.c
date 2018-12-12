@@ -856,21 +856,6 @@ void wikiappend_page(void){
 }
 
 /*
-** Name of the wiki history page being generated
-*/
-static const char *zWikiPageName;
-
-/*
-** Function called to output extra text at the end of each line in
-** a wiki history listing.
-*/
-static void wiki_history_extra(int rid){
-  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ &nbsp;op: %z(href("%R/wdiff?rid=%d",rid))diff</a>\
-  }
-}
-
-/*
 ** WEBPAGE: whistory
 ** URL: /whistory?name=PAGENAME
 **
@@ -883,24 +868,60 @@ static void wiki_history_extra(int rid){
 void whistory_page(void){
   Stmt q;
   const char *zPageName;
-  int tmFlags = TIMELINE_ARTID;
+  double rNow;
+  int showRid;
   login_check_credentials();
   if( !g.perm.Hyperlink ){ login_needed(g.anon.Hyperlink); return; }
   zPageName = PD("name","");
   style_header("History Of %s", zPageName);
-  if( P("showid")!=0 ) tmFlags |= TIMELINE_SHOWRID;
-  tmFlags |= timeline_ss_submenu();
-
-  db_prepare(&q, "%s AND event.objid IN "
-                 "  (SELECT rid FROM tagxref WHERE tagid="
-                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
-                 "   UNION SELECT attachid FROM attachment"
-                          " WHERE target=%Q)"
-                 "ORDER BY mtime DESC",
-                 timeline_query_for_www(), zPageName, zPageName);
-  zWikiPageName = zPageName;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, wiki_history_extra);
+  showRid = P("showid")!=0;
+  db_prepare(&q,
+    "SELECT"
+    "  event.mtime,"
+    "  blob.uuid,"
+    "  coalesce(event.euser,event.user),"
+    "  event.objid"
+    " FROM event, blob, tag, tagxref"
+    " WHERE event.type='w' AND blob.rid=event.objid"
+    "   AND tag.tagname='wiki-%q'"
+    "   AND tagxref.tagid=tag.tagid AND tagxref.srcid=event.objid"
+    " ORDER BY event.mtime DESC",
+    zPageName
+  );
+  @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
+  @ <div class="brlist">
+  @ <table class='xsortable' data-column-types='Kttn' data-init-sort='1'>
+  @ <thead><tr>
+  @ <th>Age</th>
+  @ <th>Hash</th>
+  @ <th>User</th>
+  if( showRid ){
+    @ <th>RID</th>
+  }
+  @ <th>&nbsp;</th>
+  @ </tr></thead><tbody>
+  rNow = db_double(0.0, "SELECT julianday('now')");
+  while( db_step(&q)==SQLITE_ROW ){
+    double rMtime = db_column_double(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    int wrid = db_column_int(&q, 3);
+    sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
+    char *zAge = human_readable_age(rNow - rMtime);
+    @ <tr>
+    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
+    fossil_free(zAge);
+    @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
+    @ <td>%h(zUser)</td>
+    if( showRid ){
+      @ <td>%z(href("%R/artifact/%S",zUuid))%d(wrid)</a></td>
+    }
+    @ <td>%z(href("%R/wdiff?id=%S",zUuid))diff</a></td>
+    @ </tr>
+  }
+  @ </tbody></table></div>
   db_finalize(&q);
+  style_table_sorter();
   style_footer();
 }
 
