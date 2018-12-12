@@ -75,6 +75,33 @@ static int check_name(const char *z){
 }
 
 /*
+** Return the tagid associated with a particular wiki page.
+*/
+int wiki_tagid(const char *zPageName){
+  return db_int(0, "SELECT tagid FROM tag WHERE tagname='wiki-%q'",zPageName);
+}
+
+/*
+** Return the RID of the next or previous version of a wiki page.  
+** Return 0 if rid is the last/first version.
+*/
+int wiki_next(int tagid, double mtime){
+  return db_int(0,
+     "SELECT srcid FROM tagxref"
+     " WHERE tagid=%d AND mtime>%.16g"
+     " ORDER BY mtime ASC LIMIT 1",
+     tagid, mtime);
+}
+int wiki_prev(int tagid, double mtime){
+  return db_int(0,
+     "SELECT srcid FROM tagxref"
+     " WHERE tagid=%d AND mtime<%.16g"
+     " ORDER BY mtime DESC LIMIT 1",
+     tagid, mtime);
+}
+
+
+/*
 ** WEBPAGE: home
 ** WEBPAGE: index
 ** WEBPAGE: not_found

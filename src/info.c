@@ -893,6 +893,8 @@ void winfo_page(void){
   Blob wiki;
   int modPending;
   const char *zModAction;
+  int tagid;
+  int ridNext;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -939,7 +941,9 @@ void winfo_page(void){
   }
   modPending = moderation_pending_www(rid);
   @ </td></tr>
-  @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
+  @ <tr><th>Page&nbsp;Name:</th>\
+  @ <td>%z(href("%R/whistory?name=%h",pWiki->zWikiTitle))\
+  @ %h(pWiki->zWikiTitle)</a></td></tr>
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
   @ <tr><th>Original&nbsp;User:</th><td>
@@ -955,6 +959,12 @@ void winfo_page(void){
       @ %z(href("info/%!S",zParent))%s(zParent)</a>
     }
     @ </td></tr>
+  }
+  tagid = wiki_tagid(pWiki->zWikiTitle);
+  if( tagid>0 && (ridNext = wiki_next(tagid, pWiki->rDate))>0 ){
+    char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ridNext);
+    @ <tr><th>Next</th>
+    @ <td>%z(href("%R/info/%!S",zId))%s(zId)</a></td>
   }
   @ </table>
 

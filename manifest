@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/wdiff\spage.
-D 2018-12-12T01:23:43.560
+C On\sthe\s/info\spage\sfor\swiki,\sgive\sa\slink\sto\sthe\snext\sversion\sof\sthat\nwiki\spage\sin\schronological\sorder.
+D 2018-12-12T01:42:45.760
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c ddbf540e4ea798594ae054ecdd1d23808a9bfc7732d6db8ff67be9525a2acb6a
+F src/info.c b37072026aa74b199c0976b5710326b66aefeba6887aed72a9954b72aefa4540
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 571ff544af29215e8af8b9d26fbde2c3f153df0caab465d4113913dc99436045
+F src/wiki.c 7c76466ed8e49c4f7ca34415ab94988092f2d0d72a1437a65af67874186c0344
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 606421edc5892a4c353d72110271ea5be6ee864f2e79e90bc0552ab5f2552688
-R 67ca9b4adba62df405e78a935c615905
+P b695e97d7abf9f40a63580f04759b9ab9393fd50f484e3a57f5503dc5266d6d2
+R 5217eb7b453a658de93f086852c92125
 U drh
-Z c385f56c996408ca3adf83fdda2e0aa7
+Z aa288ddf54779e267abee7f7a9cc8682
