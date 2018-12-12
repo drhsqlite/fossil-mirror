@@ -1,5 +1,5 @@
-C Use\san\sordinary\stable\sto\sdisplay\s/whistory\srather\sthan\sa\stimeline,\sas\sthe\ntimeline\scomments\sare\snot\shelpful.
-D 2018-12-12T20:01:47.620
+C The\stable\sin\sthe\snew\s/whistory\spage\sis\snot\ssortable.
+D 2018-12-12T20:03:50.842
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 50cfdb03b2d20056af482bf3390c403ce7c20c91fd26d73553afcbc8a3f38cb7
+F src/wiki.c 7ef120d59a5ea9f9ff3a6f6c576c310713025440e52c247b86a9f92abb477453
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 98f5b402337af52bd5acf8aeaf096b90d9732f362ac8b80f0e32262f8f8260a0
-R 88b81f6995b5ed12a0d56e49e22e3436
+P 734e1ea7471933eed54699b2ded4239bf88c18378c4b5ad29a24a379fa4284c6
+R bb39781ce2ee88c09123838d81123514
 U drh
-Z 6bea1bb8697cd52a5261a890ab229cf8
+Z 849f1ad4466b36693b965bc8d1ea7d93

@@ -890,7 +890,7 @@ void whistory_page(void){
   );
   @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
   @ <div class="brlist">
-  @ <table class='xsortable' data-column-types='Kttn' data-init-sort='1'>
+  @ <table>
   @ <thead><tr>
   @ <th>Age</th>
   @ <th>Hash</th>
@@ -906,10 +906,11 @@ void whistory_page(void){
     const char *zUuid = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     int wrid = db_column_int(&q, 3);
-    sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0);
+    /* sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0); */
     char *zAge = human_readable_age(rNow - rMtime);
     @ <tr>
-    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
+    /* @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td> */
+    @ <td>%s(zAge)</td>
     fossil_free(zAge);
     @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
     @ <td>%h(zUser)</td>
@@ -921,7 +922,7 @@ void whistory_page(void){
   }
   @ </tbody></table></div>
   db_finalize(&q);
-  style_table_sorter();
+  /* style_table_sorter(); */
   style_footer();
 }
 
