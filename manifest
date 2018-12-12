@@ -1,5 +1,5 @@
-C On\sthe\s/info\spage\sfor\swiki,\sgive\sa\slink\sto\sthe\snext\sversion\sof\sthat\nwiki\spage\sin\schronological\sorder.
-D 2018-12-12T01:42:45.760
+C Break\sout\sthe\sWiki\ssetup\sitems\sinto\sa\sseparate\ssubmenu\sof\sthe\sAdmin\nsection.
+D 2018-12-12T12:42:04.949
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -551,7 +551,7 @@ F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c cffaff9f820f5581067788755147a26ff7e47875af0c41c43b2a59d2b9d61850
+F src/setup.c ff684603d0c4cd60ff95e5072dbb329ac031c82e54fadd91f42cb338d9ca0bf8
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b695e97d7abf9f40a63580f04759b9ab9393fd50f484e3a57f5503dc5266d6d2
-R 5217eb7b453a658de93f086852c92125
+P 423c6a938e456b61a4326dc3193ca0b34d946150112237a1a24d20aec99bd5c8
+R abbe31aead0f44535d40a2a96e2b2f1a
 U drh
-Z aa288ddf54779e267abee7f7a9cc8682
+Z f778ce2088ef2065d0d90dd7679680b2

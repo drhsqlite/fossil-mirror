@@ -121,6 +121,8 @@ void setup_page(void){
       " on the same server");
     setup_menu_entry("Tickets", "tktsetup",
       "Configure the trouble-ticketing system for this repository");
+    setup_menu_entry("Wiki", "setup_wiki",
+      "Configure the wiki for this repository");
   }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
@@ -876,13 +878,6 @@ void setup_config(void){
   @ (Property: "download-tag")
   @ </p>
   @ <hr />
-  onoff_attribute("Enable WYSIWYG Wiki Editing",
-                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
-  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
-  @ The WYSIWYG editor generates HTML instead of markup, which makes
-  @ subsequent manual editing more difficult.
-  @ (Property: "wysiwyg-wiki")</p>
-  @ <hr />
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
   @ option is selected and when no pathname is
@@ -924,6 +919,37 @@ void setup_config(void){
   entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
                   "", 0);
   @ (Property: sitemap-contact)
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_wiki
+**
+** The "Admin/Wiki" page.  Requires Setup privilege.
+*/
+void setup_wiki(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_header("Wiki Configuration");
+  db_begin_transaction();
+  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  onoff_attribute("Enable WYSIWYG Wiki Editing",
+                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
+  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
+  @ The WYSIWYG editor generates HTML instead of markup, which makes
+  @ subsequent manual editing more difficult.
+  @ (Property: "wysiwyg-wiki")</p>
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
