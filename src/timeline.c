@@ -2097,9 +2097,11 @@ void page_timeline(void){
     style_submenu_element("Search", "%R/search?y=c");
   }
   if( advancedMenu ){
-    style_submenu_element("Basic", "%s", url_render(&url, "advm", "0", 0, 0));
+    style_submenu_element("Basic", "%s", 
+        url_render(&url, "advm", "0", "udc", "1"));
   }else{
-    style_submenu_element("Advanced", "%s", url_render(&url, "advm", "1", 0, 0));
+    style_submenu_element("Advanced", "%s",
+        url_render(&url, "advm", "1", "udc", "1"));
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
