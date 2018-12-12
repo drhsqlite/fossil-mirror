@@ -291,9 +291,6 @@ static void wiki_standard_submenu(unsigned int ok){
   if( (ok & W_NEW)!=0 && g.anon.NewWiki ){
     style_submenu_element("New", "%R/wikinew");
   }
-#if 0
-  if( (ok & W_BLOG)!=0
-#endif
   if( (ok & W_SANDBOX)!=0 ){
     style_submenu_element("Sandbox", "%R/wiki?name=Sandbox");
   }
@@ -310,32 +307,20 @@ void wiki_helppage(void){
   wiki_standard_submenu(W_ALL_BUT(W_HELP));
   @ <h2>Wiki Links</h2>
   @ <ul>
-  { char *zWikiHomePageName = db_get("index-page",0);
-    if( zWikiHomePageName ){
-      @ <li> %z(href("%R%s",zWikiHomePageName))
-      @      %h(zWikiHomePageName)</a> wiki home page.</li>
-    }
-  }
-  { char *zHomePageName = db_get("project-name",0);
-    if( zHomePageName ){
-      @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
-      @      %h(zHomePageName)</a> project home page.</li>
-    }
-  }
   @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
   @ <li> Formatting rules for %z(href("%R/wiki_rules"))Fossil Wiki</a> and for
   @ %z(href("%R/md_rules"))Markdown Wiki</a>.</li>
   @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
   @      to experiment.</li>
-  if( g.anon.NewWiki ){
+  if( g.perm.NewWiki ){
     @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
-    if( g.anon.Write ){
+    if( g.perm.Write ){
       @ <li>   Create a %z(href("%R/technoteedit"))new tech-note</a>.</li>
     }
   }
   @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
   @      available on this server.</li>
-  if( g.anon.ModWiki ){
+  if( g.perm.ModWiki ){
     @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
   }
   if( search_restrict(SRCH_WIKI)!=0 ){
@@ -369,8 +354,7 @@ void wiki_page(void){
   char *zTag;
   int rid = 0;
   int isSandbox;
-  char *zUuid;
-  unsigned submenuFlags = W_ALL;
+  unsigned submenuFlags = W_HELP;
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
@@ -414,29 +398,13 @@ void wiki_page(void){
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
   if( !g.isHome ){
-    if( rid ){
-      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      if( pWiki && pWiki->nParent ){
-        style_submenu_element("Diff", "%R/wdiff?id=%s", zUuid);
-      }
-      style_submenu_element("Details", "%R/info/%s", zUuid);
-    }
-    if( (rid && g.anon.WrWiki) || (!rid && g.anon.NewWiki) ){
+    if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "%s/wikiedit?name=%T&wysiwyg=1",
              g.zTop, zPageName);
       }else{
         style_submenu_element("Edit", "%s/wikiedit?name=%T", g.zTop, zPageName);
       }
-    }
-    if( rid && g.anon.ApndWiki && g.anon.Attach ){
-      style_submenu_element("Attach",
-           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
-           g.zTop, zPageName, g.zTop, zPageName);
-    }
-    if( rid && g.anon.ApndWiki ){
-      style_submenu_element("Append", "%s/wikiappend?name=%T&mimetype=%s",
-           g.zTop, zPageName, zMimetype);
     }
     if( g.perm.Hyperlink ){
       style_submenu_element("History", "%s/whistory?name=%T",
@@ -614,6 +582,15 @@ void wikiedit_page(void){
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
   style_header("Edit: %s", zPageName);
+  if( rid && !isSandbox && g.perm.ApndWiki ){
+    if( g.perm.Attach ){
+      style_submenu_element("Attach",
+           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
+           g.zTop, zPageName, g.zTop, zPageName);
+    }
+    style_submenu_element("Append", "%s/wikiappend?name=%T&mimetype=%s",
+         g.zTop, zPageName, zMimetype);
+  }
   if( !goodCaptcha ){
     @ <p class="generalError">Error:  Incorrect security code.</p>
   }
