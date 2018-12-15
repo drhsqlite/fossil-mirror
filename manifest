@@ -1,5 +1,5 @@
-C Next\sand\sPrevious\ssubmenu\sbuttons\son\sthe\s/wdiff\spage\sin\sorder\sto\sstep\sthrough\nall\sversions\sof\sa\swiki\spage.
-D 2018-12-12T20:43:14.439
+C Move\sa\svariable\sdeclaration\sintroduced\sby\s[b695e97d7a]\sto\sthe\sbeginning\sof\sthe\sscope,\sfor\sstrict\sANSI\sC-89\sconformance,\sas\sspecified\sin\sthe\sCoding\sStyle\sdocument\s[/doc/trunk/www/style.wiki].\s(Required\sby\ssome\sold\sMSVC\scompilers,\sto\sbuild\sexecutables\swith\sdynamic\slinking\sto\smsvcrt.dll.)
+D 2018-12-15T08:34:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 1b7c19ca3457929a78bcf5cd3c2b1f17d6b5aef8545a5d30543fe7a1e3f09122
+F src/wiki.c 649f6c9a6d71c26bbc36a287e9976a23fda4d5f3bb3c7cf7297ffebd84678d01
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 869841cb04a207d98906b60ef81a189b0287c60ae09c7bd233f32e2abf81635f
-R e3ce84e9dba9d8e8d4594a062a70d657
-U drh
-Z 70af8a738721eeb265a549905f235be4
+P 19eaa3cae4d5b30760453eb3ca6d3497d32b9c8a2e1f7169f4b3ca0b118d48fd
+R c83c5df3c2fa44d84538e7ea8ba65609
+T *branch * ansi-c89-compatibility
+T *sym-ansi-c89-compatibility *
+T -sym-trunk *
+U florian
+Z 961713883298594cf4a1fed7d63da2e7
