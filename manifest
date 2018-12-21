@@ -1,5 +1,5 @@
-C Next\sand\sPrevious\ssubmenu\sbuttons\son\sthe\s/wdiff\spage\sin\sorder\sto\sstep\sthrough\nall\sversions\sof\sa\swiki\spage.
-D 2018-12-12T20:43:14.439
+C Fix\sa\sproblem\sintroduced\sby\s[06586ef70f]:\son\scloning,\sonly\screate\sthe\stables\sfor\sthe\semail\snotification\ssystem\sif\sany\sconfiguration\sdata\sfrom\sthe\s'Email\ssubscribers'\sgroup\sis\sreceived.
+D 2018-12-21T08:01:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -451,7 +451,7 @@ F src/clone.c 6bb6ebd10284ab2fb17b522e4415c88a873a1fb300490fee795c16edb7d64a58
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e97f8902b57cbce6aaf9bc69ed1cc46ab2fc33b4e13711967a3498a4badc4dc6
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
-F src/configure.c f80fe4fa9552268446a9a0a043220dfa722e5ca1fd02726a6e630b41c6f863d4
+F src/configure.c 10cb992c1cfb2763fe7df77e9e812b7e3c5b43b5b42600b130d18c80f298da6c
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -866,7 +866,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 869841cb04a207d98906b60ef81a189b0287c60ae09c7bd233f32e2abf81635f
-R e3ce84e9dba9d8e8d4594a062a70d657
-U drh
-Z 70af8a738721eeb265a549905f235be4
+P 19eaa3cae4d5b30760453eb3ca6d3497d32b9c8a2e1f7169f4b3ca0b118d48fd
+R 1c719cc6d85ef91785a099e093c2177e
+T *branch * fix-clone-subscribers
+T *sym-fix-clone-subscribers *
+T -sym-trunk *
+U florian
+Z e0c3ed76d48c062b16ab194976c729e0
