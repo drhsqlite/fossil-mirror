@@ -615,9 +615,16 @@ static void brtimeline_extra(int rid){
 ** WEBPAGE: brtimeline
 **
 ** Show a timeline of all branches
+**
+** Query parameters:
+**
+**     ng            No graph
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void brtimeline_page(void){
   Stmt q;
+  int tmFlags; /* Timeline display flags */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -625,6 +632,8 @@ void brtimeline_page(void){
   style_header("Branches");
   style_submenu_element("List", "brlist");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
   @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,
     "%s AND blob.rid IN (SELECT rid FROM tagxref"
@@ -632,7 +641,14 @@ void brtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  www_print_timeline(&q, 0, 0, 0, 0, brtimeline_extra);
+  /* With TIMELINE_LEAFONLY (which also implies TIMELINE_DISJOINT), the branch
+  ** background colors are shown, and the timeline nodes are drawn, but the
+  ** connecting rails are omitted. */
+  tmFlags = TIMELINE_LEAFONLY | TIMELINE_NOSCROLL;
+  if( P("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }

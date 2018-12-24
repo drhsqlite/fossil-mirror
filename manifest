@@ -1,5 +1,5 @@
-C Add\stimeline\squery\sparameters\s'ng',\s'brbg'\sand\s'ubg'\sfor\sthe\sLeaves\sweb\spage.
-D 2018-12-24T12:11:00.000
+C Also\sadd\sbackground\scolors,\sclickable\snodes,\sthe\soption\sbox\sto\sselect\sthe\sviewing\smode,\sand\stimeline\squery\sparameters\s'ng',\s'brbg'\sand\s'ubg'\sfor\sthe\s/brtimeline\sand\s/tagtimeline\sweb\spages.
+D 2018-12-24T12:44:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c 4adb15d9dc311220f815fdfbdb4176cc0475ae9a3d838dcc5cd6e1c20e071fbb
+F src/branch.c 66a10b0863035ca6cac66e224dc8c78dfb719ca5f8065252da6d4205452d58fe
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -571,7 +571,7 @@ F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 2243b0574cd491079024a5d946f13124cb263d307b4a498dd9dfde84ffd0aa11
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
-F src/tag.c 352425e886212a4e841f092992c1248d4f62c40b1dc47b4ba36a1144afeb5630
+F src/tag.c d2a06060906bb8db446cd14f82547ef2a6d396c9581aee63f205f8bb5a34af23
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e03610b1d2cfdcf81d78a6ca6d4bc16a557a6dcfcce3c39a96c7d23acdbc772a
-R 9964cdf0ebb75b7df7e03d749e676da5
+P 2ac6b5077656c35ffbaaf98f86064d720a78c3184957630688357d89395b519c
+R cc3b90df234df74fe3dcb4ba673d206d
 U florian
-Z e974051a623f4594bdbbc45b3050f569
+Z b6d34750bdc3f5cdae9f40e466f3a391
