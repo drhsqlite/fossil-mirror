@@ -691,10 +691,12 @@ void taglist_page(void){
 ** Query parameters:
 **
 **     ng            No graph
+**     hide          Hide check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
 */
 void tagtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
   int tmFlags; /* Timeline display flags */
 
@@ -707,14 +709,19 @@ void tagtimeline_page(void){
   timeline_ss_submenu();
   cookie_render();
   @ <h2>Check-ins with non-propagating tags:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype=1 AND srcid>0"
-    "                       AND tagid IN (SELECT tagid FROM tag "
-    "                                      WHERE tagname GLOB 'sym-*'))"
-    " ORDER BY event.mtime DESC /*sort*/",
-    timeline_query_for_www()
-  );
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype=1 AND srcid>0"
+    "                    AND tagid IN (SELECT tagid FROM tag "
+    "                                   WHERE tagname GLOB 'sym-*'))");
+  if( P("hide") ){
+    blob_append_sql(&sql,
+      " AND NOT EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC /*sort*/", blob_sql_text(&sql));
+  blob_reset(&sql);
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;

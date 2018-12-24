@@ -1,5 +1,5 @@
-C Revise\sand\spartially\srevert\s[d28f9e99a0]\sand\s[f174bfa157]:\sno\sneed\sto\sremove\sthe\sparents,\sTIMELINE_DISJOINT\salready\sdoes\sthe\smagic.\sRelated\snodes\snow\sagain\shave\sconnecting\srails\sfor\sthe\s/leaves,\s/brtimeline,\sand\s/tagtimeline\sweb\spages.
-D 2018-12-24T20:54:00.000
+C Add\sthe\s'hide'\squery\sparameter\sto\sremove\scheck-ins\stagged\sas\s"hidden"\s(which\sare\sshown\sby\sdefault)\sfor\sthe\s/leaves,\s/brtimeline,\sand\s/tagtimeline\sweb\spages.\s(Rationale:\slistings\sof\sopen\sleaves\snot\stagged\sas\s"hidden"\scan\smake\shandy\sTODO\slists.)
+D 2018-12-24T21:33:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c f3cd6ecbb79cbdaa51ff5885e39fb30821a6fdef23097b0b91664f03af7095d2
+F src/branch.c 227f30777e3a1fd868babdce3c086283a899dde3a57f5fe831c18aba715a298b
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -461,7 +461,7 @@ F src/db.c 67d8f2ea8ecea6d4c029a72e7a13eb709ea419b7bd8c9e3b678df4372c7b6522
 F src/default_css.txt 163b89e340e6637e62c35008af3d74a5ea29979e5207c1d0481946c778e15514
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
-F src/descendants.c fe6d601058d024d4cfb197b13046141b1ec9f8e9578b9687febbc55332efb1ff
+F src/descendants.c 87b59c01252fdc60e6d49d76d0adf7c262956ac49a2e4e0cc0f381f0fa3ce470
 F src/diff.c 5610fd7ea0e5ef01c982841bbe8d9f8a5651aa41613d63968f8c301066d7198b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
@@ -571,7 +571,7 @@ F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 2243b0574cd491079024a5d946f13124cb263d307b4a498dd9dfde84ffd0aa11
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
-F src/tag.c 713458bd4fd5aed4f2faf7f13903b2a039927b6f801643cfcb2e338a2858b91e
+F src/tag.c a8bdc72c8009b52a4ace4e864cf7e4ced979a0f55ec47ee1f9fe9c67466fd4ed
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f174bfa157d99f91f75427371520a83e7fb6699b96a53e1c5d22ff9ac2cb4f39
-R f861f0dfc591f3c87a38767e7daad5e7
+P 8f4b7e1f37060f259c1f5c61ddd737fcd60faee6706d3b9cbf734eb64cb159fb
+R e1f2dbb5f2fff041fdd6a0f354547c58
 U florian
-Z 174fd5f21312d537bcc052bc504de00a
+Z d5a14c6400b8cf50d4f24d0f8b84a096

@@ -457,6 +457,7 @@ void leaves_cmd(void){
 **     all           Show all leaves
 **     closed        Show only closed leaves
 **     ng            No graph
+**     hide          Hide check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
 */
@@ -466,6 +467,7 @@ void leaves_page(void){
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
   int fNg = P("ng")!=0;           /* Flag for the "ng" query parameter */
+  int fHide = P("hide")!=0;       /* Flag for the "hide" query parameter */
   int fBrBg = P("brbg")!=0;       /* Flag for the "brbg" query parameter */
   int fUBg = P("ubg")!=0;         /* Flag for the "ubg" query parameter */
   Blob QueryParams = empty_blob;  /* Concatenated query parameters */
@@ -476,6 +478,10 @@ void leaves_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( fNg ){
     blob_appendf(&QueryParams, "%s%s", zParamSep, "ng");
+    zParamSep = "&";
+  }
+  if( fHide ){
+    blob_appendf(&QueryParams, "%s%s", zParamSep, "hide");
     zParamSep = "&";
   }
   if( fBrBg ){
@@ -533,6 +539,11 @@ void leaves_page(void){
     blob_append_sql(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
   }else if( !showAll ){
     blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+  }
+  if( fHide ){
+    blob_append_sql(&sql,
+      " AND NOT EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", TAG_HIDDEN);
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);

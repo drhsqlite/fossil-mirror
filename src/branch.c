@@ -619,10 +619,12 @@ static void brtimeline_extra(int rid){
 ** Query parameters:
 **
 **     ng            No graph
+**     hide          Hide check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
 */
 void brtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
   int tmFlags; /* Timeline display flags */
 
@@ -635,12 +637,17 @@ void brtimeline_page(void){
   timeline_ss_submenu();
   cookie_render();
   @ <h2>The initial check-in for each branch:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_BRANCH
-  );
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype>0 AND tagid=%d AND srcid!=0)", TAG_BRANCH);
+  if( P("hide") ){
+    blob_append_sql(&sql,
+      " AND NOT EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
+  blob_reset(&sql);
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
