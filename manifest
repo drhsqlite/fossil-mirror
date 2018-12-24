@@ -1,5 +1,5 @@
-C Add\sthe\s'hide'\squery\sparameter\sto\sremove\scheck-ins\stagged\sas\s"hidden"\s(which\sare\sshown\sby\sdefault)\sfor\sthe\s/leaves,\s/brtimeline,\sand\s/tagtimeline\sweb\spages.\s(Rationale:\slistings\sof\sopen\sleaves\snot\stagged\sas\s"hidden"\scan\smake\shandy\sTODO\slists.)
-D 2018-12-24T21:33:00.000
+C Cosmetic\schange\sto\sinsert\sa\sspace\sbetween\stwo\shyperlinks.
+D 2018-12-24T21:48:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 3ac7a740757f292ea2aeff607ffb2e6ead896be84d5cb577f8ab453e9f04cfa2
 F src/blob.c b3ef46413b7313ca4c4238cc69cf7e37166f1209ddc895c20db5b1d98b129edf
-F src/branch.c 227f30777e3a1fd868babdce3c086283a899dde3a57f5fe831c18aba715a298b
+F src/branch.c edfe171944a7cfc3f004c5383d17b93f4580a8c19f2a969d4e65ec67a681b515
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f4b7e1f37060f259c1f5c61ddd737fcd60faee6706d3b9cbf734eb64cb159fb
-R e1f2dbb5f2fff041fdd6a0f354547c58
+P 92fa3664621423e994df7eb13b99c749cb1e2806ce28cba8163d66eeb94678f4
+R 1c99ddca0b927f1f2aa43677c5f9429e
 U florian
-Z d5a14c6400b8cf50d4f24d0f8b84a096
+Z afc1fcfe0c1e69ad8e72c49ead6d150b
