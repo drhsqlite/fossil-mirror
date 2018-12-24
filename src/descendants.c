@@ -477,6 +477,8 @@ void leaves_page(void){
   }
   style_header("Leaves");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
 #if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
