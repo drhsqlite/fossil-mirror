@@ -288,6 +288,11 @@ void www_print_timeline(
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
   }
+  /* Always combine TIMELINE_LEAFONLY with TIMELINE_DISJOINT, or graph_finish()
+  ** may fail because of too many descenders to (off-screen) parents. */
+  if( tmFlags & TIMELINE_LEAFONLY ){
+    tmFlags |= TIMELINE_DISJOINT;
+  }
   db_static_prepare(&qbranch,
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
     TAG_BRANCH
@@ -424,22 +429,28 @@ void www_print_timeline(
       }
     }
     if( zType[0]=='c' && pGraph ){
-      int nParent = 0;
-      int aParent[GR_MAX_RAIL];
-      static Stmt qparent;
-      db_static_prepare(&qparent,
-        "SELECT pid FROM plink"
-        " WHERE cid=:rid AND pid NOT IN phantom"
-        " ORDER BY isprim DESC /*sort*/"
-      );
-      db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
-        aParent[nParent++] = db_column_int(&qparent, 0);
+      if( (tmFlags & TIMELINE_LEAFONLY)==0 ){
+        int nParent = 0;
+        int aParent[GR_MAX_RAIL];
+        static Stmt qparent;
+        db_static_prepare(&qparent,
+          "SELECT pid FROM plink"
+          " WHERE cid=:rid AND pid NOT IN phantom"
+          " ORDER BY isprim DESC /*sort*/"
+        );
+        db_bind_int(&qparent, ":rid", rid);
+        while( db_step(&qparent)==SQLITE_ROW && nParent<count(aParent) ){
+          aParent[nParent++] = db_column_int(&qparent, 0);
+        }
+        db_reset(&qparent);
+        gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
+                             zUuid, isLeaf);
+        db_reset(&qbranch);
+      }else{
+        /* Omit parents if TIMELINE_LEAFONLY is set. */
+        gidx = graph_add_row(pGraph, rid, 0, 0, zBr, zBgClr,
+                             zUuid, isLeaf);
       }
-      db_reset(&qparent);
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
-                           zUuid, isLeaf);
-      db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
       /* For technotes, make a graph node with nParent==(-1).  This will

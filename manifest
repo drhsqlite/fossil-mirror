@@ -1,5 +1,5 @@
-C Restore\sthe\sClassic\sView\smode\sfor\sthe\sFile\sHistory\sweb\spage.
-D 2018-12-24T06:32:00.000
+C Restore\sbackground\scolors\sand\sclickable\snodes\sfor\sthe\sLeaves\sweb\spage.
+D 2018-12-24T06:40:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -461,7 +461,7 @@ F src/db.c 67d8f2ea8ecea6d4c029a72e7a13eb709ea419b7bd8c9e3b678df4372c7b6522
 F src/default_css.txt 163b89e340e6637e62c35008af3d74a5ea29979e5207c1d0481946c778e15514
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
-F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
+F src/descendants.c cab3dbb2d59af202c8085430645125acfeae66d9c95536065b6a2c54dda47e6e
 F src/diff.c 5610fd7ea0e5ef01c982841bbe8d9f8a5651aa41613d63968f8c301066d7198b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
@@ -578,7 +578,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 09c689cf80be1a9877303142a1fd44f6e40c46f67e2adeb97360400ad413a4e8
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c fb66f854c75c03a3eebaa67029ca913231c67667f531083de902fca5ba076648
+F src/timeline.c d449243c3dde411cc1909acf27e4bc0d2e94e4e5644e30770949ec18acffd155
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -866,10 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19eaa3cae4d5b30760453eb3ca6d3497d32b9c8a2e1f7169f4b3ca0b118d48fd
-R d8bedb821cb0fb0d7d5ccc3e66501bc4
-T *branch * fix-timeline-view
-T *sym-fix-timeline-view *
-T -sym-trunk *
+P 33882ef8219bcfe82af1295072650ef376dfc61829a3f61784239b4517140dfc
+R de92f6d181efd883ffeeaf1555b2b897
 U florian
-Z 04ff81f9bbde371c56d88505e8a87bb7
+Z 395a0bdecb768d41aaa32e23dfbd18c2
