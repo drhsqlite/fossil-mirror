@@ -456,25 +456,50 @@ void leaves_cmd(void){
 **
 **     all           Show all leaves
 **     closed        Show only closed leaves
+**     ng            No graph
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void leaves_page(void){
   Blob sql;
   Stmt q;
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
+  int fNg = P("ng")!=0;           /* Flag for the "ng" query parameter */
+  int fBrBg = P("brbg")!=0;       /* Flag for the "brbg" query parameter */
+  int fUBg = P("ubg")!=0;         /* Flag for the "ubg" query parameter */
+  Blob QueryParams = empty_blob;  /* Concatenated query parameters */
+  char *zParamSep = 0;            /* Query parameter separator */
+  int tmFlags;                    /* Timeline display flags */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-
+  if( fNg ){
+    blob_appendf(&QueryParams, "%s%s", zParamSep, "ng");
+    zParamSep = "&";
+  }
+  if( fBrBg ){
+    blob_appendf(&QueryParams, "%s%s", zParamSep, "brbg");
+    zParamSep = "&";
+  }
+  if( fUBg ){
+    blob_appendf(&QueryParams, "%s%s", zParamSep, "ubg");
+    zParamSep = "&";
+  }
   if( !showAll ){
-    style_submenu_element("All", "leaves?all");
+    style_submenu_element("All", "leaves?all%s%s",
+                          zParamSep, blob_str(&QueryParams));
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "leaves?closed");
+    style_submenu_element("Closed", "leaves?closed%s%s",
+                          zParamSep, blob_str(&QueryParams));
   }
   if( showClosed || showAll ){
-    style_submenu_element("Open", "leaves");
+    if( zParamSep ) zParamSep = "?";
+    style_submenu_element("Open", "leaves%s%s",
+                          zParamSep, blob_str(&QueryParams));
   }
+  blob_reset(&QueryParams);
   style_header("Leaves");
   login_anonymous_available();
   timeline_ss_submenu();
@@ -511,8 +536,11 @@ void leaves_page(void){
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
-  www_print_timeline(
-    &q, TIMELINE_LEAFONLY|TIMELINE_GRAPH|TIMELINE_NOSCROLL, 0, 0, 0, 0);
+  tmFlags = TIMELINE_LEAFONLY | TIMELINE_NOSCROLL;
+  if( fNg==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( fBrBg ) tmFlags |= TIMELINE_BRCOLOR;
+  if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();
