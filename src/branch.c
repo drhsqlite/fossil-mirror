@@ -641,10 +641,9 @@ void brtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  /* With TIMELINE_LEAFONLY (which also implies TIMELINE_DISJOINT), the branch
-  ** background colors are shown, and the timeline nodes are drawn, but the
-  ** connecting rails are omitted. */
-  tmFlags = TIMELINE_LEAFONLY | TIMELINE_NOSCROLL;
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
   if( P("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;

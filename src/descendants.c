@@ -536,7 +536,9 @@ void leaves_page(void){
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
-  tmFlags = TIMELINE_LEAFONLY | TIMELINE_NOSCROLL;
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_LEAFONLY | TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
   if( fNg==0 ) tmFlags |= TIMELINE_GRAPH;
   if( fBrBg ) tmFlags |= TIMELINE_BRCOLOR;
   if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
