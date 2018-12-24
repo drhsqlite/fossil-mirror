@@ -466,13 +466,13 @@ void leaves_page(void){
   Stmt q;
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
-  int fNg = P("ng")!=0;           /* Flag for the "ng" query parameter */
-  int fHide = P("hide")!=0;       /* Flag for the "hide" query parameter */
-  int fBrBg = P("brbg")!=0;       /* Flag for the "brbg" query parameter */
-  int fUBg = P("ubg")!=0;         /* Flag for the "ubg" query parameter */
-  Blob QueryParams = empty_blob;  /* Concatenated query parameters */
-  char *zParamSep = 0;            /* Query parameter separator */
-  int tmFlags;                    /* Timeline display flags */
+  int fNg = PB("ng")!=0;           /* Flag for the "ng" query parameter */
+  int fHide = PB("hide")!=0;       /* Flag for the "hide" query parameter */
+  int fBrBg = PB("brbg")!=0;       /* Flag for the "brbg" query parameter */
+  int fUBg = PB("ubg")!=0;         /* Flag for the "ubg" query parameter */
+  Blob QueryParams = empty_blob;   /* Concatenated query parameters */
+  char *zParamSep = 0;             /* Query parameter separator */
+  int tmFlags;                     /* Timeline display flags */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }

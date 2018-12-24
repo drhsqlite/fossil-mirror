@@ -715,7 +715,7 @@ void tagtimeline_page(void){
     "                  WHERE tagtype=1 AND srcid>0"
     "                    AND tagid IN (SELECT tagid FROM tag "
     "                                   WHERE tagname GLOB 'sym-*'))");
-  if( P("hide") ){
+  if( PB("hide") ){
     blob_append_sql(&sql,
       " AND NOT EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", TAG_HIDDEN);
@@ -725,9 +725,9 @@ void tagtimeline_page(void){
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
   tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
-  if( P("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
-  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
   www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
