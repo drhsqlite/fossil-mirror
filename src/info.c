@@ -2491,7 +2491,14 @@ static void change_branch(int rid, const char *zNewBranch){
 ** The apply_newtags method is called after all newtags have been added
 ** and the control artifact is completed and then written to the DB.
 */
-static void apply_newtags(Blob *ctrl, int rid, const char *zUuid){
+static void apply_newtags(
+  Blob *ctrl,
+  int rid,
+  const char *zUuid,
+  const char *zUserOvrd,  /* The user name on the control artifact */
+  int fVerbose,           /* Print the generated control artifact */
+  int fDryRun             /* Make no changes, just print what would happen */
+){
   Stmt q;
   int nChng = 0;
 
@@ -2512,15 +2519,32 @@ static void apply_newtags(Blob *ctrl, int rid, const char *zUuid){
   if( nChng>0 ){
     int nrid;
     Blob cksum;
-    blob_appendf(ctrl, "U %F\n", login_name());
+    if( zUserOvrd && zUserOvrd[0] ){
+      blob_appendf(ctrl, "U %F\n", zUserOvrd);
+    }else{
+      blob_appendf(ctrl, "U %F\n", login_name());
+    }
     md5sum_blob(ctrl, &cksum);
     blob_appendf(ctrl, "Z %b\n", &cksum);
-    db_begin_transaction();
-    g.markPrivate = content_is_private(rid);
-    nrid = content_put(ctrl);
-    manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
-    assert( blob_is_reset(ctrl) );
-    db_end_transaction(0);
+    if( fVerbose!=0 ){
+      assert( g.isHTTP==0 ); /* Only print control artifact in console mode. */
+      fossil_print("%s\n", blob_str(ctrl));
+    }
+    if( fDryRun==0 ){
+      db_begin_transaction();
+      g.markPrivate = content_is_private(rid);
+      nrid = content_put(ctrl);
+      manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
+      assert( blob_is_reset(ctrl) );
+      db_end_transaction(0);
+    }else{
+      blob_reset(ctrl);
+    }
+  }else{
+    if( fVerbose!=0 ){
+      assert( g.isHTTP==0 ); /* Only print control artifact in console mode. */
+      fossil_print("No changes (empty control artifact)\n\n");
+    }
   }
 }
 
@@ -2660,7 +2684,7 @@ void ci_edit_page(void){
     if( zCloseFlag[0] ) close_leaf(rid);
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
-    apply_newtags(&ctrl, rid, zUuid);
+    apply_newtags(&ctrl, rid, zUuid, 0, 0, 0);
     cgi_redirectf("%R/ci/%S", zUuid);
   }
   blob_zero(&comment);
@@ -2914,6 +2938,10 @@ static void prepare_amend_comment(
 **    --branch NAME           Make this check-in the start of branch NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
+**    -v|--verbose            Print the generated control artifact
+**    -n|--dry-run            Make no changes, just print what would happen
+**    --date-override DATETIME  Set the change time on the control artifact
+**    --user-override USER      Set the user name on the control artifact
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -2943,7 +2971,10 @@ void ci_amend_cmd(void){
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
+  int fVerbose;                 /* Print the generated control artifact */
+  int fDryRun;                  /* No changes, just print what would happen */
   const char *zChngTime;        /* The change time on the control artifact */
+  const char *zUserOvrd;        /* The user name on the control artifact */
   const char *zUuid;
   Blob ctrl;
   Blob comment;
@@ -2969,7 +3000,12 @@ void ci_amend_cmd(void){
   pzCancelTags = find_repeatable_option("cancel",0,&nCancels);
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
-  zChngTime = find_option("chngtime",0,1);
+  fVerbose = find_option("verbose","v",0)!=0;
+  fDryRun = find_option("dry-run","n",0)!=0;
+  if( fDryRun==0 ) fDryRun = find_option("dryrun","n",0)!=0;
+  zChngTime = find_option("date-override",0,1);
+  if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
@@ -3065,6 +3101,6 @@ void ci_amend_cmd(void){
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
-  apply_newtags(&ctrl, rid, zUuid);
+  apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fVerbose, fDryRun);
   show_common_info(rid, "uuid:", 1, 0);
 }
