@@ -2496,8 +2496,7 @@ static void apply_newtags(
   int rid,
   const char *zUuid,
   const char *zUserOvrd,  /* The user name on the control artifact */
-  int fVerbose,           /* Print the generated control artifact */
-  int fDryRun             /* Make no changes, just print what would happen */
+  int fDryRun             /* Print control artifact, but make no changes */
 ){
   Stmt q;
   int nChng = 0;
@@ -2526,25 +2525,18 @@ static void apply_newtags(
     }
     md5sum_blob(ctrl, &cksum);
     blob_appendf(ctrl, "Z %b\n", &cksum);
-    if( fVerbose!=0 ){
+    if( fDryRun ){
       assert( g.isHTTP==0 ); /* Only print control artifact in console mode. */
-      fossil_print("%s\n", blob_str(ctrl));
-    }
-    if( fDryRun==0 ){
+      fossil_print("%s", blob_str(ctrl));
+      blob_reset(ctrl);
+    }else{
       db_begin_transaction();
       g.markPrivate = content_is_private(rid);
       nrid = content_put(ctrl);
       manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
-      assert( blob_is_reset(ctrl) );
       db_end_transaction(0);
-    }else{
-      blob_reset(ctrl);
     }
-  }else{
-    if( fVerbose!=0 ){
-      assert( g.isHTTP==0 ); /* Only print control artifact in console mode. */
-      fossil_print("No changes (empty control artifact)\n\n");
-    }
+    assert( blob_is_reset(ctrl) );
   }
 }
 
@@ -2684,7 +2676,7 @@ void ci_edit_page(void){
     if( zCloseFlag[0] ) close_leaf(rid);
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
-    apply_newtags(&ctrl, rid, zUuid, 0, 0, 0);
+    apply_newtags(&ctrl, rid, zUuid, 0, 0);
     cgi_redirectf("%R/ci/%S", zUuid);
   }
   blob_zero(&comment);
@@ -2938,8 +2930,7 @@ static void prepare_amend_comment(
 **    --branch NAME           Make this check-in the start of branch NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
-**    -v|--verbose            Print the generated control artifact
-**    -n|--dry-run            Make no changes, just print what would happen
+**    -n|--dry-run            Print control artifact, but make no changes
 **    --date-override DATETIME  Set the change time on the control artifact
 **    --user-override USER      Set the user name on the control artifact
 **
@@ -2971,8 +2962,7 @@ void ci_amend_cmd(void){
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
-  int fVerbose;                 /* Print the generated control artifact */
-  int fDryRun;                  /* No changes, just print what would happen */
+  int fDryRun;                  /* Print control artifact, make no changes */
   const char *zChngTime;        /* The change time on the control artifact */
   const char *zUserOvrd;        /* The user name on the control artifact */
   const char *zUuid;
@@ -3000,7 +2990,6 @@ void ci_amend_cmd(void){
   pzCancelTags = find_repeatable_option("cancel",0,&nCancels);
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
-  fVerbose = find_option("verbose","v",0)!=0;
   fDryRun = find_option("dry-run","n",0)!=0;
   if( fDryRun==0 ) fDryRun = find_option("dryrun","n",0)!=0;
   zChngTime = find_option("date-override",0,1);
@@ -3101,6 +3090,8 @@ void ci_amend_cmd(void){
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
-  apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fVerbose, fDryRun);
-  show_common_info(rid, "uuid:", 1, 0);
+  apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fDryRun);
+  if( fDryRun==0 ){
+    show_common_info(rid, "uuid:", 1, 0);
+  }
 }
