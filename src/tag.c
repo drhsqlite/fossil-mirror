@@ -434,9 +434,6 @@ void tag_add_artifact(
 */
 void tag_cmd(void){
   int n;
-  int fRaw = find_option("raw","",0)!=0;
-  int fPropagate = find_option("propagate","",0)!=0;
-  const char *zPrefix = fRaw ? "" : "sym-";
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -450,6 +447,9 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     int dryRun = 0;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = fRaw ? "" : "sym-";
+    int fPropagate = find_option("propagate","",0)!=0;
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
@@ -470,6 +470,8 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     int dryRun = 0;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = fRaw ? "" : "sym-";
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
       usage("cancel ?options? TAGNAME CHECK-IN");
@@ -481,6 +483,8 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = fRaw ? "" : "sym-";
     const char *zFindLimit = find_option("limit","n",1);
     const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
     const char *zType = find_option("type","t",1);
@@ -530,6 +534,8 @@ void tag_cmd(void){
 
   if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = fRaw ? "" : "sym-";
     if( g.argc==3 ){
       db_prepare(&q,
         "SELECT tagname FROM tag"
