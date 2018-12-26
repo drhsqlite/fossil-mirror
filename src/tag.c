@@ -437,8 +437,6 @@ void tag_cmd(void){
   int fRaw = find_option("raw","",0)!=0;
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
-  const char *zFindLimit = find_option("limit","n",1);
-  const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -483,6 +481,8 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    const char *zFindLimit = find_option("limit","n",1);
+    const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
     const char *zType = find_option("type","t",1);
     Blob sql = empty_blob;
     if( zType==0 || zType[0]==0 ) zType = "*";
