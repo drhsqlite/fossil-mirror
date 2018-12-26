@@ -608,6 +608,8 @@ tag_cmd_usage:
 **                     "fossil rebuild" command.
 **    --dryrun | -n    Print the tag that would have been created but do not
 **                     actually change the database in any way.
+**    --date-override DATETIME  Set the change time on the control artifact
+**    --user-override USER      Set the user name on the control artifact
 */
 void reparent_cmd(void){
   int bTest = find_option("test","",0)!=0;
@@ -616,8 +618,12 @@ void reparent_cmd(void){
   Blob value;
   char *zUuid;
   int dryRun = 0;
+  const char *zDateOvrd;  /* The change time on the control artifact */
+  const char *zUserOvrd;  /* The user name on the control artifact */
 
   if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+  zDateOvrd = find_option("date-override",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
@@ -636,7 +642,8 @@ void reparent_cmd(void){
     tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
   }else{
     zUuid = rid_to_uuid(rid);
-    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0);
+    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,
+                     zDateOvrd,zUserOvrd);
   }
 }
 
