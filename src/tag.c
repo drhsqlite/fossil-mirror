@@ -396,6 +396,13 @@ void tag_add_artifact(
 **         the propagation of the tag to any descendants.  Use the
 **         the --dryrun or -n options to see what would have happened.
 **
+**         Options:
+**           --raw                       Raw tag name.
+**           --date-override DATETIME    Set date and time deleted.
+**           --user-override USER        Name USER when deleting the tag.
+**           --dryrun|-n                 Display the control artifact, but do
+**                                       not insert it into the database.
+**
 **     %fossil tag find ?OPTIONS? TAGNAME
 **
 **         List all objects that use TAGNAME.  TYPE can be "ci" for
@@ -472,12 +479,15 @@ void tag_cmd(void){
     int dryRun = 0;
     int fRaw = find_option("raw","",0)!=0;
     const char *zPrefix = fRaw ? "" : "sym-";
+    const char *zDateOvrd = find_option("date-override",0,1);
+    const char *zUserOvrd = find_option("user-override",0,1);
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
       usage("cancel ?options? TAGNAME CHECK-IN");
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun, 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun,
+                     zDateOvrd, zUserOvrd);
     db_end_transaction(0);
   }else
 
