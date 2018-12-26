@@ -620,13 +620,16 @@ static void brtimeline_extra(int rid){
 **
 **     ng            No graph
 **     hide          Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
 */
 void brtimeline_page(void){
   Blob sql = empty_blob;
   Stmt q;
-  int tmFlags; /* Timeline display flags */
+  int tmFlags;                            /* Timeline display flags */
+  int fHide = PB("hide")!=0;              /* The "hide" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -641,10 +644,12 @@ void brtimeline_page(void){
   blob_append_sql(&sql,
     "AND blob.rid IN (SELECT rid FROM tagxref"
     "                  WHERE tagtype>0 AND tagid=%d AND srcid!=0)", TAG_BRANCH);
-  if( PB("hide") ){
+  if( fHide || fOnlyHidden ){
+    const char* zUnaryOp = fHide ? "NOT" : "";
     blob_append_sql(&sql,
-      " AND NOT EXISTS(SELECT 1 FROM tagxref"
-      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n", TAG_HIDDEN);
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
