@@ -472,46 +472,27 @@ void leaves_page(void){
   int fOnlyHidden = PB("onlyhidden")!=0;  /* "onlyhidden" query parameter */
   int fBrBg = PB("brbg")!=0;       /* Flag for the "brbg" query parameter */
   int fUBg = PB("ubg")!=0;         /* Flag for the "ubg" query parameter */
-  Blob QueryParams = empty_blob;   /* Concatenated query parameters */
-  char *zParamSep = 0;             /* Query parameter separator */
+  HQuery url;                      /* URL to /leaves plus query parameters */
   int tmFlags;                     /* Timeline display flags */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  if( fNg ){
-    blob_appendf(&QueryParams, "%s%s", zParamSep, "ng");
-    zParamSep = "&";
-  }
-  if( fHide ){
-    blob_appendf(&QueryParams, "%s%s", zParamSep, "hide");
-    zParamSep = "&";
-  }
-  if( fOnlyHidden ){
-    blob_appendf(&QueryParams, "%s%s", zParamSep, "onlyhidden");
-    zParamSep = "&";
-  }
-  if( fBrBg ){
-    blob_appendf(&QueryParams, "%s%s", zParamSep, "brbg");
-    zParamSep = "&";
-  }
-  if( fUBg ){
-    blob_appendf(&QueryParams, "%s%s", zParamSep, "ubg");
-    zParamSep = "&";
-  }
+  url_initialize(&url, "leaves");
+  if( fNg ) url_add_parameter(&url, "ng", "");
+  if( fHide ) url_add_parameter(&url, "hide", "");
+  if( fOnlyHidden ) url_add_parameter(&url, "onlyhidden", "");
+  if( fBrBg ) url_add_parameter(&url, "brbg", "");
+  if( fUBg ) url_add_parameter(&url, "ubg", "");
   if( !showAll ){
-    style_submenu_element("All", "leaves?all%s%s",
-                          zParamSep, blob_str(&QueryParams));
+    style_submenu_element("All", "%s", url_render(&url, "all", "", 0, 0));
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "leaves?closed%s%s",
-                          zParamSep, blob_str(&QueryParams));
+    style_submenu_element("Closed", "%s", url_render(&url, "closed", "", 0, 0));
   }
   if( showClosed || showAll ){
-    if( zParamSep ) zParamSep = "?";
-    style_submenu_element("Open", "leaves%s%s",
-                          zParamSep, blob_str(&QueryParams));
+    style_submenu_element("Open", "%s", url_render(&url, 0, 0, 0, 0));
   }
-  blob_reset(&QueryParams);
+  url_reset(&url);
   style_header("Leaves");
   login_anonymous_available();
   timeline_ss_submenu();
