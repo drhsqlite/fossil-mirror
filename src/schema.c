@@ -461,6 +461,15 @@ const char zRepositorySchema2[] =
 @   icomment TEXT
 @ );
 @ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
+@
+@ -- For tracking cherrypick merges
+@ CREATE TABLE cherrypick(
+@   parentid INT,
+@   childid INT,
+@   isExclude BOOLEAN DEFAULT false,
+@   PRIMARY KEY(parentid, childid)
+@ ) WITHOUT ROWID;
+@ CREATE INDEX cherrypick_cid ON cherrypick(childid);
 ;
 
 /*

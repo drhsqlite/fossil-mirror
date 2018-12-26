@@ -1,5 +1,5 @@
-C Next\sand\sPrevious\ssubmenu\sbuttons\son\sthe\s/wdiff\spage\sin\sorder\sto\sstep\sthrough\nall\sversions\sof\sa\swiki\spage.
-D 2018-12-12T20:43:14.439
+C For\scheckins\sthat\sare\sa\scherrypick\sor\sthat\sare\scherrypicked,\sso\sthe\sother\nside\sof\sthe\scherrypick\smerge\sin\sthe\s"Context"\ssection\sof\sthe\s/info\spage.\nThis\senhancement\srequires\sa\s"fossil\srebuild"\sin\sorder\sto\sfunction.
+D 2018-12-26T23:38:01.561
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 63466529fc3073769d16f31c589eb916d35afae84b8f1638e805d2217d7bcfeb
+F src/info.c b5231e86d6742e1bed81bdb97ad8f5458acf4ed98a2bdbe96c4b1f0a7c7da815
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -518,7 +518,7 @@ F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 889d043b7ed62f14d09993e8a47a885c38a2d7a6c645005660351eaf0c80d7b9 x
-F src/manifest.c 81126916e4b11230425936a343902c131b177ad568c2f11951e926e559dcf34e
+F src/manifest.c 08b0234fb9b3bc08d5eed6f067ee329ac12ad0effade31fb51d14a557d681b9c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7cf6
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
@@ -547,7 +547,7 @@ F src/repolist.c 455d2c1c18d8c30c9c4ad26829ff5de5641c89340b57883729dd068b11e1e06
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c 62e3cae72bdc14e61306f31af4fd366dd6bada2a06f100cb0395d1993e90b8c6
+F src/schema.c 7a9d52747383dea08585b9435d1e92b3b957839a7449f5b98305425386264e60
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 869841cb04a207d98906b60ef81a189b0287c60ae09c7bd233f32e2abf81635f
-R e3ce84e9dba9d8e8d4594a062a70d657
+P 19eaa3cae4d5b30760453eb3ca6d3497d32b9c8a2e1f7169f4b3ca0b118d48fd
+R e8e555f60f743193b221a86405acfdc6
 U drh
-Z 70af8a738721eeb265a549905f235be4
+Z d92bcd489904c1325a50232c619a80c6
