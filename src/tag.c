@@ -691,7 +691,7 @@ void taglist_page(void){
 ** Query parameters:
 **
 **     ng            No graph
-**     hide          Hide check-ins with "hidden" tag
+**     nohidden      Hide check-ins with "hidden" tag
 **     onlyhidden    Show only check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
@@ -700,7 +700,7 @@ void tagtimeline_page(void){
   Blob sql = empty_blob;
   Stmt q;
   int tmFlags;                            /* Timeline display flags */
-  int fHide = PB("hide")!=0;              /* The "hide" query parameter */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
   int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
@@ -718,8 +718,8 @@ void tagtimeline_page(void){
     "                  WHERE tagtype=1 AND srcid>0"
     "                    AND tagid IN (SELECT tagid FROM tag "
     "                                   WHERE tagname GLOB 'sym-*'))");
-  if( fHide || fOnlyHidden ){
-    const char* zUnaryOp = fHide ? "NOT" : "";
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
     blob_append_sql(&sql,
       " AND %s EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",

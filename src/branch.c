@@ -619,7 +619,7 @@ static void brtimeline_extra(int rid){
 ** Query parameters:
 **
 **     ng            No graph
-**     hide          Hide check-ins with "hidden" tag
+**     nohidden      Hide check-ins with "hidden" tag
 **     onlyhidden    Show only check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
@@ -628,7 +628,7 @@ void brtimeline_page(void){
   Blob sql = empty_blob;
   Stmt q;
   int tmFlags;                            /* Timeline display flags */
-  int fHide = PB("hide")!=0;              /* The "hide" query parameter */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
   int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
@@ -644,8 +644,8 @@ void brtimeline_page(void){
   blob_append_sql(&sql,
     "AND blob.rid IN (SELECT rid FROM tagxref"
     "                  WHERE tagtype>0 AND tagid=%d AND srcid!=0)", TAG_BRANCH);
-  if( fHide || fOnlyHidden ){
-    const char* zUnaryOp = fHide ? "NOT" : "";
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
     blob_append_sql(&sql,
       " AND %s EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",

@@ -457,7 +457,7 @@ void leaves_cmd(void){
 **     all           Show all leaves
 **     closed        Show only closed leaves
 **     ng            No graph
-**     hide          Hide check-ins with "hidden" tag
+**     nohidden      Hide check-ins with "hidden" tag
 **     onlyhidden    Show only check-ins with "hidden" tag
 **     brbg          Background color by branch name
 **     ubg           Background color by user name
@@ -468,7 +468,7 @@ void leaves_page(void){
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
   int fNg = PB("ng")!=0;           /* Flag for the "ng" query parameter */
-  int fHide = PB("hide")!=0;       /* Flag for the "hide" query parameter */
+  int fNoHidden = PB("nohidden")!=0;      /* "nohidden" query parameter */
   int fOnlyHidden = PB("onlyhidden")!=0;  /* "onlyhidden" query parameter */
   int fBrBg = PB("brbg")!=0;       /* Flag for the "brbg" query parameter */
   int fUBg = PB("ubg")!=0;         /* Flag for the "ubg" query parameter */
@@ -479,7 +479,7 @@ void leaves_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   url_initialize(&url, "leaves");
   if( fNg ) url_add_parameter(&url, "ng", "");
-  if( fHide ) url_add_parameter(&url, "hide", "");
+  if( fNoHidden ) url_add_parameter(&url, "nohidden", "");
   if( fOnlyHidden ) url_add_parameter(&url, "onlyhidden", "");
   if( fBrBg ) url_add_parameter(&url, "brbg", "");
   if( fUBg ) url_add_parameter(&url, "ubg", "");
@@ -527,8 +527,8 @@ void leaves_page(void){
   }else if( !showAll ){
     blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
-  if( fHide || fOnlyHidden ){
-    const char* zUnaryOp = fHide ? "NOT" : "";
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
     blob_append_sql(&sql,
       " AND %s EXISTS(SELECT 1 FROM tagxref"
       " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
