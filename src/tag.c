@@ -687,9 +687,21 @@ void taglist_page(void){
 **
 ** Render a timeline with all check-ins that contain non-propagating
 ** symbolic tags.
+**
+** Query parameters:
+**
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void tagtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
+  int tmFlags;                            /* Timeline display flags */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -697,16 +709,31 @@ void tagtimeline_page(void){
   style_header("Tagged Check-ins");
   style_submenu_element("List", "taglist");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
   @ <h2>Check-ins with non-propagating tags:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype=1 AND srcid>0"
-    "                       AND tagid IN (SELECT tagid FROM tag "
-    "                                      WHERE tagname GLOB 'sym-*'))"
-    " ORDER BY event.mtime DESC /*sort*/",
-    timeline_query_for_www()
-  );
-  www_print_timeline(&q, 0, 0, 0, 0, 0);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype=1 AND srcid>0"
+    "                    AND tagid IN (SELECT tagid FROM tag "
+    "                                   WHERE tagname GLOB 'sym-*'))");
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC /*sort*/", blob_sql_text(&sql));
+  blob_reset(&sql);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

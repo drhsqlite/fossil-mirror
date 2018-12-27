@@ -332,6 +332,8 @@ void finfo_page(void){
     zStyle = "Compact";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
+  }else if( tmFlags & TIMELINE_CLASSIC ){
+    zStyle = "Classic";
   }else{
     zStyle = "Modern";
   }
