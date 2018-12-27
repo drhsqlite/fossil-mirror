@@ -863,13 +863,14 @@ void timeline_output_graph_javascript(
     **   bg:  The background color for this row
     **    r:  The "rail" that the node for this row sits on.  The left-most
     **        rail is 0 and the number increases to the right.
-    **    d:  True if there is a "descender" - an arrow coming from the bottom
-    **        of the page straight up to this node.
-    **   mo:  "merge-out".  If non-negative, this is the rail position
+    **    d:  If exists and true then there is a "descender" - an arrow
+    **        coming from the bottom of the page straight up to this node.
+    **   mo:  "merge-out".  If it exists, this is the rail position
     **        for the upward portion of a merge arrow.  The merge arrow goes up
-    **        to the row identified by mu:.  If this value is negative then
+    **        to the row identified by mu:.  If this value is omitted then
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
+    **        Only exists if "mo" exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
     **        the top of the page, -1 if there is no thick-line riser.
@@ -877,50 +878,64 @@ void timeline_output_graph_javascript(
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
-    **        is the id of the node upto which the riser should run.
+    **        is the id of the node upto which the riser should run. If there
+    **        are no risers, this array does not exist.
     **   mi:  "merge-in".  An array of integer rail positions from which
     **        merge arrows should be drawn into this node.  If the value is
     **        negative, then the rail position is the absolute value of mi[]
     **        and a thin merge-arrow descender is drawn to the bottom of
-    **        the screen.
+    **        the screen. This array is omitted if there are no inbound
+    **        merges.
     **    h:  The artifact hash of the object being graphed
     */
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
+      int k = 0;
       cgi_printf("{\"id\":%d,",     pRow->idx);
       cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
       cgi_printf("\"r\":%d,",       pRow->iRail);
-      cgi_printf("\"d\":%d,",       pRow->bDescender);
-      cgi_printf("\"mo\":%d,",      pRow->mergeOut);
-      cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
+      if( pRow->bDescender ){
+        cgi_printf("\"d\":%d,",       pRow->bDescender);
+      }
+      if( pRow->mergeOut>=0 ){
+        cgi_printf("\"mo\":%d,",      pRow->mergeOut);
+        cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
+      }
       cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
       cgi_printf("\"f\":%d,",       pRow->isLeaf ? 1 : 0);
-      cgi_printf("\"au\":");
-      cSep = '[';
-      for(i=0; i<GR_MAX_RAIL; i++){
+      for(i=k=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
         if( pRow->aiRiser[i]>0 ){
+          if( k==0 ){
+            cgi_printf("\"au\":");
+            cSep = '[';
+          }
+          k++;
           cgi_printf("%c%d,%d", cSep, i, pRow->aiRiser[i]);
           cSep = ',';
         }
       }
-      if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],");
+      if( k ){
+        cgi_printf("],");
+      }
       if( colorGraph && pRow->zBgClr[0]=='#' ){
         cgi_printf("\"fg\":\"%s\",", bg_to_fg(pRow->zBgClr));
       }
       /* mi */
-      cgi_printf("\"mi\":");
-      cSep = '[';
-      for(i=0; i<GR_MAX_RAIL; i++){
+      for(i=k=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
           int mi = i;
           if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
+          if( k==0 ){
+            cgi_printf("\"mi\":");
+            cSep = '[';
+          }
+          k++;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
       }
-      if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("],\"h\":\"%!S\"}%s",
+      if( k ) cgi_printf("],");
+      cgi_printf("\"h\":\"%!S\"}%s",
                  pRow->zUuid, pRow->pNext ? ",\n" : "]\n");
     }
     @ }</script>

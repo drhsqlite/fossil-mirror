@@ -23,7 +23,7 @@
 **
 **   id:  The id of the <div> element for the row. This is an integer.
 **        to get an actual id, prepend "m" to the integer.  The top node
-**        is iTopRow and numbers increase moving down the tx.
+**        is iTopRow and numbers increase moving down the graph.
 **   bg:  The background color for this row
 **    r:  The "rail" that the node for this row sits on.  The left-most
 **        rail is 0 and the number increases to the right.
@@ -217,7 +217,7 @@ function TimelineGraph(tx){
     if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
     var cls = node.cls;
-    if( p.mi.length ) cls += " merge";
+    if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";
     var n = drawBox(cls,p.bg,p.x,p.y);
     n.id = "tln"+p.id;
@@ -225,7 +225,7 @@ function TimelineGraph(tx){
     n.style.zIndex = 10;
     if( !tx.omitDescenders ){
       if( p.u==0 ) drawUpArrow(p,{x: p.x, y: -node.h},p.fg);
-      if( p.d ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
+      if( p.hasOwnProperty('d') ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
     }
     if( p.mo>=0 ){
       var x0 = p.x + node.w/2;
@@ -245,39 +245,43 @@ function TimelineGraph(tx){
         delete mergeLines[p.mo];
       }
     }
-    for( var i=0; i<p.au.length; i+=2 ){
-      var rail = p.au[i];
-      var x0 = p.x + node.w/2;
-      var x1 = rail*railPitch + (node.w-line.w)/2;
-      if( x0<x1 ){
-        x0 = Math.ceil(x0);
-        x1 += line.w;
-      }
-      var y0 = p.y + (node.h-line.w)/2;
-      var u = tx.rowinfo[p.au[i+1]-tx.iTopRow];
-      if( u.id<p.id ){
-        drawLine(line,u.fg,x0,y0,x1,null);
-        drawUpArrow(p,u,u.fg);
-      }else{
-        var y1 = u.y + (node.h-line.w)/2;
-        drawLine(wLine,u.fg,x0,y0,x1,null);
-        drawLine(wLine,u.fg,x1-line.w,y0,null,y1+line.w);
-        drawLine(wLine,u.fg,x1,y1,u.x-wArrow.w/2,null);
-        var x = u.x-wArrow.w;
-        var y = u.y+(node.h-wArrow.h)/2;
-        var n = drawBox(wArrow.cls,null,x,y);
-        if( u.fg ) n.style.borderLeftColor = u.fg;
+    if( p.hasOwnProperty('au') ){
+      for( var i=0; i<p.au.length; i+=2 ){
+        var rail = p.au[i];
+        var x0 = p.x + node.w/2;
+        var x1 = rail*railPitch + (node.w-line.w)/2;
+        if( x0<x1 ){
+          x0 = Math.ceil(x0);
+          x1 += line.w;
+        }
+        var y0 = p.y + (node.h-line.w)/2;
+        var u = tx.rowinfo[p.au[i+1]-tx.iTopRow];
+        if( u.id<p.id ){
+          drawLine(line,u.fg,x0,y0,x1,null);
+          drawUpArrow(p,u,u.fg);
+        }else{
+          var y1 = u.y + (node.h-line.w)/2;
+          drawLine(wLine,u.fg,x0,y0,x1,null);
+          drawLine(wLine,u.fg,x1-line.w,y0,null,y1+line.w);
+          drawLine(wLine,u.fg,x1,y1,u.x-wArrow.w/2,null);
+          var x = u.x-wArrow.w;
+          var y = u.y+(node.h-wArrow.h)/2;
+          var n = drawBox(wArrow.cls,null,x,y);
+          if( u.fg ) n.style.borderLeftColor = u.fg;
+        }
       }
     }
-    for( var i=0; i<p.mi.length; i++ ){
-      var rail = p.mi[i];
-      if( rail<0 ){
-        rail = -rail;
-        mergeLines[rail] = -mLine.w/2;
-        var x = rail*railPitch + (node.w-mLine.w)/2;
-        drawMergeLine(x,miLineY(p),null,btm);
+    if( p.hasOwnProperty('mi') ){
+      for( var i=0; i<p.mi.length; i++ ){
+        var rail = p.mi[i];
+        if( rail<0 ){
+          rail = -rail;
+          mergeLines[rail] = -mLine.w/2;
+          var x = rail*railPitch + (node.w-mLine.w)/2;
+          drawMergeLine(x,miLineY(p),null,btm);
+        }
+        drawMergeArrow(p,rail);
       }
-      drawMergeArrow(p,rail);
     }
   }
   var mergeLines;
