@@ -505,7 +505,7 @@ void finfo_page(void){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
     gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
-                         nParent, aParent, zBr, zBgClr,
+                         nParent, 0, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);

@@ -1,5 +1,5 @@
-C Omit\sunused\selements\sof\sthe\s"rowinfo"\sJSON\selement\sused\sto\sgenerate\sa\ntimeline\sgraph.
-D 2018-12-27T16:22:17.786
+C Show\scherrypick\smerges\son\sthe\sdefault\stimeline.\s\sDisable\sthe\sdisplay\sof\ncherrypicks\susing\sthe\s"ncp"\squery\sparameter.\s\sCurrently,\sthe\sonly\sdisplay\ndifference\sbetween\sa\snormal\smerge\sand\sa\scherrypick\smerges\sis\sin\sthe\sfinal\nhorizontal\ssegment\sof\sthe\smerge\sline\sas\sit\smoves\sinto\sthe\schild\snode.\s\sMore\nwork\sis\sneeded\son\sthe\sdisplay\slogic.
+D 2018-12-27T19:39:21.196
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -458,7 +458,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 67d8f2ea8ecea6d4c029a72e7a13eb709ea419b7bd8c9e3b678df4372c7b6522
-F src/default_css.txt 163b89e340e6637e62c35008af3d74a5ea29979e5207c1d0481946c778e15514
+F src/default_css.txt 76734fd57143b996b77d19f40b04e4a3223ba29c4075360ec9460ba812cc0f77
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c f9c804bad784f73ee6179ba46fb92af360461f3e
@@ -472,15 +472,15 @@ F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c 70e26ab1b5f8f57ff2f75ffd48eda9d4e71b6f2ad4000b700065ec0f1ec09be2
 F src/file.c a82aebc9ca8764256f49a4557a06c68a599bbd38ac1ef83aee4e05dabda45afa
-F src/finfo.c 49e66558585988b2602a528a67fef4decd256ccc17f0d9db4194ce355c8989b4
+F src/finfo.c 8efdda80beb61ae855ce2e7289650b154940d5c88728f40eb1483e7ff8914017
 F src/foci.c a8a068559ec5ccc173aa669c8d0d28fe4fdb51abfdb3d42a893615ed174faa98
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c e2fec9fb72dc6528740c2c0dc1be9c75107039f709910299ccbc29a1d43218a3
-F src/graph.js 17e4e0ffbe56b413d2da042f04725ddf42e050f8f81ac05e6e88e932d807af35
+F src/graph.c d095241cc834e6f044ea77a7f30e70562c35bce5dfc4371dc44927e4f017875a
+F src/graph.js 65fbeb1a16aa53ea800fdc5888fb6afa7620b3357ac7e1905f8ed0edc60055ff
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
@@ -578,7 +578,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 09c689cf80be1a9877303142a1fd44f6e40c46f67e2adeb97360400ad413a4e8
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c c5bb05525419c4dc9636f271b5a899b9ddfda4a773ebc6065db0b124f5b0c8a1
+F src/timeline.c f81c18529df220a24374437e9d8f9300d442cf718cf082b5235597dc5fb464b6
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a07f1688818331268964036d6c128f79f010ab96dd6c42577ecb44aeac876562
-R 7c4b8dca8de573b9458d152e64ed1098
+P c0a5083edaa3bc6bd8d132ef6dc2c8c27ad2a6cc03c1eca0c0f2f5c76d8852c4
+R 7428aabaa6fa55faffa58ade58c9419a
 U drh
-Z ae21184e22b76ec96e2ec95ddcdbe2bf
+Z b36a36e036f1a52235921f3373b9dfb9

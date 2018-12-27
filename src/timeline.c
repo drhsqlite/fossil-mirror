@@ -431,6 +431,7 @@ void www_print_timeline(
     }
     if( zType[0]=='c' && pGraph ){
       int nParent = 0;
+      int nCherrypick = 0;
       int aParent[GR_MAX_RAIL];
       static Stmt qparent;
       db_static_prepare(&qparent,
@@ -452,18 +453,19 @@ void www_print_timeline(
         db_bind_int(&qcherrypick, ":rid", rid);
         while( db_step(&qcherrypick)==SQLITE_ROW && nParent<count(aParent) ){
           aParent[nParent++] = db_column_int(&qcherrypick, 0);
+          nCherrypick++;
         }
         db_reset(&qcherrypick);
       }
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
-                           zUuid, isLeaf);
+      gidx = graph_add_row(pGraph, rid, nParent, nCherrypick, aParent,
+                           zBr, zBgClr, zUuid, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }else if( zType[0]=='e' && pGraph && zBgClr && zBgClr[0] ){
       /* For technotes, make a graph node with nParent==(-1).  This will
       ** not actually draw anything on the graph, but it will set the
       ** background color of the timeline entry */
-      gidx = graph_add_row(pGraph, rid, -1, 0, zBr, zBgClr, zUuid, 0);
+      gidx = graph_add_row(pGraph, rid, -1, 0, 0, zBr, zBgClr, zUuid, 0);
       @ <div id="m%d(gidx)" class="tl-nodemark"></div>
     }
     @</td>
@@ -886,6 +888,8 @@ void timeline_output_graph_javascript(
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen. This array is omitted if there are no inbound
     **        merges.
+    **  cpi:  "cherrypick-in". Like "mi" except for cherrypick merges.
+    **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
     */
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
@@ -922,11 +926,26 @@ void timeline_output_graph_javascript(
       }
       /* mi */
       for(i=k=0; i<GR_MAX_RAIL; i++){
-        if( pRow->mergeIn[i] ){
+        if( pRow->mergeIn[i]==1 ){
           int mi = i;
           if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
           if( k==0 ){
             cgi_printf("\"mi\":");
+            cSep = '[';
+          }
+          k++;
+          cgi_printf("%c%d", cSep, mi);
+          cSep = ',';
+        }
+      }
+      if( k ) cgi_printf("],");
+      /* cpi */
+      for(i=k=0; i<GR_MAX_RAIL; i++){
+        if( pRow->mergeIn[i]==2 ){
+          int mi = i;
+          if( (pRow->cherrypickDown >> i) & 1 ) mi = -mi;
+          if( k==0 ){
+            cgi_printf("\"cpi\":");
             cSep = '[';
           }
           k++;
@@ -1403,6 +1422,7 @@ static const char *tagMatchExpression(
 **    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
+**    ncp             Omit cherrypick merges
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
@@ -1587,12 +1607,15 @@ void page_timeline(void){
     zCirca = 0;
   }
   if( zType[0]=='a' ){
-    tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH;
+    tmFlags |= TIMELINE_BRIEF | TIMELINE_GRAPH | TIMELINE_CHPICK;
   }else{
-    tmFlags |= TIMELINE_GRAPH;
+    tmFlags |= TIMELINE_GRAPH | TIMELINE_CHPICK;
+  }
+  if( PB("ncp") ){
+    tmFlags &= ~TIMELINE_CHPICK;
   }
   if( PB("ng") || zSearch!=0 ){
-    tmFlags &= ~TIMELINE_GRAPH;
+    tmFlags &= ~(TIMELINE_GRAPH|TIMELINE_CHPICK);
   }
   if( PB("brbg") ){
     tmFlags |= TIMELINE_BRCOLOR;
@@ -1858,7 +1881,7 @@ void page_timeline(void){
       if( related ){
         /* The next two blob_appendf() calls add SQL that causes check-ins that
         ** are not part of the branch which are parents or children of the
-        ** branch to be included in the report.  This related check-ins are
+        ** branch to be included in the report.  These related check-ins are
         ** useful in helping to visualize what has happened on a quiescent
         ** branch that is infrequently merged with a much more activate branch.
         */
@@ -1887,6 +1910,19 @@ void page_timeline(void){
               TAG_HIDDEN
             );
           }
+        }
+        if( !PB("ncp") && db_table_exists("repository","cherrypick") ){
+          tmFlags |= TIMELINE_CHPICK;
+          blob_append_sql(&cond,
+            " OR EXISTS(SELECT 1 FROM cherrypick CROSS JOIN tagxref"
+            " ON rid=childid NATURAL JOIN tag WHERE %s AND tagtype>0"
+            " AND parentid=blob.rid)\n", zTagSql/*safe-for-%s*/
+          );
+          blob_append_sql(&cond,
+            " OR EXISTS(SELECT 1 FROM cherrypick CROSS JOIN tagxref"
+            " ON rid=parentid NATURAL JOIN tag WHERE %s AND tagtype>0"
+            " AND childid=blob.rid)\n", zTagSql/*safe-for-%s*/
+          );
         }
       }
       blob_append_sql(&cond, ")");

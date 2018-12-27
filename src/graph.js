@@ -85,7 +85,8 @@ function TimelineGraph(tx){
     var elems = {};
     var elemClasses = [
       "rail", "mergeoffset", "node", "arrow u", "arrow u sm", "line",
-      "arrow merge r", "line merge", "arrow warp", "line warp"
+      "arrow merge r", "line merge", "arrow warp", "line warp",
+      "line cherrypick"
     ];
     for( var i=0; i<elemClasses.length; i++ ){
       var cls = elemClasses[i];
@@ -105,6 +106,7 @@ function TimelineGraph(tx){
     line = elems.line;
     mArrow = elems.arrow_merge_r;
     mLine = elems.line_merge;
+    cpLine = elems.line_cherrypick;
     wArrow = elems.arrow_warp;
     wLine = elems.line_warp;
   
@@ -188,10 +190,16 @@ function TimelineGraph(tx){
     var n = drawBox(arw.cls,null,x,y);
     if(color) n.style.borderBottomColor = color;
   }
+  /* Draw thin horizontal or vertical lines representing merges */
   function drawMergeLine(x0,y0,x1,y1){
     drawLine(mLine,null,x0,y0,x1,y1);
   }
-  function drawMergeArrow(p,rail){
+  function drawCherrypickLine(x0,y0,x1,y1){
+    drawLine(cpLine,null,x0,y0,x1,y1);
+  }
+  /* Draw an arrow representing an in-bound merge from the "rail"-th rail
+  ** over to the node of "p".  Make is a checkpoint merge is "isCP" is true */
+  function drawMergeArrow(p,rail,isCP){
     var x0 = rail*railPitch + node.w/2;
     if( rail in mergeLines ){
       x0 += mergeLines[rail];
@@ -202,9 +210,15 @@ function TimelineGraph(tx){
     var x1 = mArrow.w ? mArrow.w/2 : -node.w/2;
     x1 = p.x + (p.r<rail ? node.w + Math.ceil(x1) : -x1);
     var y = miLineY(p);
-    drawMergeLine(x0,y,x1,null);
     var x = p.x + (p.r<rail ? node.w : -mArrow.w);
-    var cls = "arrow merge " + (p.r<rail ? "l" : "r");
+    var cls;
+    if( isCP ){
+      drawCherrypickLine(x0,y,x1,null);
+      cls = "arrow cherrypick " + (p.r<rail ? "l" : "r");
+    }else{
+      drawMergeLine(x0,y,x1,null);
+      cls = "arrow merge " + (p.r<rail ? "l" : "r");
+    }
     drawBox(cls,null,x,y+(mLine.w-mArrow.h)/2);
   }
   function drawNode(p, btm){
@@ -227,7 +241,7 @@ function TimelineGraph(tx){
       if( p.u==0 ) drawUpArrow(p,{x: p.x, y: -node.h},p.fg);
       if( p.hasOwnProperty('d') ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
     }
-    if( p.mo>=0 ){
+    if( p.hasOwnProperty('mo') ){
       var x0 = p.x + node.w/2;
       var x1 = p.mo*railPitch + node.w/2;
       var u = tx.rowinfo[p.mu-tx.iTopRow];
@@ -280,7 +294,19 @@ function TimelineGraph(tx){
           var x = rail*railPitch + (node.w-mLine.w)/2;
           drawMergeLine(x,miLineY(p),null,btm);
         }
-        drawMergeArrow(p,rail);
+        drawMergeArrow(p,rail,0);
+      }
+    }
+    if( p.hasOwnProperty('cpi') ){
+      for( var i=0; i<p.cpi.length; i++ ){
+        var rail = p.cpi[i];
+        if( rail<0 ){
+          rail = -rail;
+          mergeLines[rail] = -mLine.w/2;
+          var x = rail*railPitch + (node.w-mLine.w)/2;
+          drawMergeLine(x,miLineY(p),null,btm);
+        }
+        drawMergeArrow(p,rail,1);
       }
     }
   }
