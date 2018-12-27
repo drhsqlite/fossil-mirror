@@ -93,8 +93,8 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines */
-#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc */
+#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines*/
+#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc*/
 #define TIMELINE_BRIEF    0x000004  /* Combine adjacent elements of same obj */
 #define TIMELINE_GRAPH    0x000008  /* Compute a graph */
 #define TIMELINE_DISJOINT 0x000010  /* Elements are not contiguous */
@@ -113,6 +113,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_VIEWS    0x01f000  /* Mask for all of the view styles */
 #define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
 #define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
+#define TIMELINE_CHPICK   0x400000  /* Show cherrypick merges */
 #endif
 
 /*
@@ -292,6 +293,11 @@ void www_print_timeline(
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
     TAG_BRANCH
   );
+  if( (tmFlags & TIMELINE_CHPICK)!=0
+   && !db_table_exists("repository","cherrypick")
+  ){
+    tmFlags &= ~TIMELINE_CHPICK;
+  }
 
   @ <table id="timelineTable%d(iTableId)" class="timelineTable">
   blob_zero(&comment);
@@ -437,6 +443,18 @@ void www_print_timeline(
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
+      if( (tmFlags & TIMELINE_CHPICK)!=0 && nParent>0 ){
+        static Stmt qcherrypick;
+        db_static_prepare(&qcherrypick,
+          "SELECT parentid FROM cherrypick"
+          " WHERE childid=:rid AND parentid NOT IN phantom"
+        );
+        db_bind_int(&qcherrypick, ":rid", rid);
+        while( db_step(&qcherrypick)==SQLITE_ROW && nParent<count(aParent) ){
+          aParent[nParent++] = db_column_int(&qcherrypick, 0);
+        }
+        db_reset(&qcherrypick);
+      }
       gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
                            zUuid, isLeaf);
       db_reset(&qbranch);

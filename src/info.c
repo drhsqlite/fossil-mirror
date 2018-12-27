@@ -281,8 +281,12 @@ void render_checkin_context(int rid, int parentsOnly){
   }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, rid, 0);
+  www_print_timeline(&q,
+       TIMELINE_DISJOINT
+         |TIMELINE_GRAPH
+         |TIMELINE_NOSCROLL
+         |TIMELINE_CHPICK,
+       0, 0, rid, 0);
   db_finalize(&q);
 }
 
