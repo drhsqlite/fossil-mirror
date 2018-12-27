@@ -965,10 +965,10 @@ void wdiff_page(void){
     zPid = pW1->azParent[0];
   }
   if( zPid ){
+    char *zDate;
     rid2 = name_to_typed_rid(zPid, "w");
     pW2 = manifest_get(rid2, CFTYPE_WIKI, 0);
     blob_init(&w2, pW2->zWiki, -1);
-    char *zDate;
     @ <h2>Changes to \
     @ "%z(href("%R/whistory?name=%s",pW1->zWikiTitle))%h(pW1->zWikiTitle)</a>" \
     zDate = db_text(0, "SELECT datetime(%.16g)",pW2->rDate);

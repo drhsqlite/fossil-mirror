@@ -1,5 +1,5 @@
-C Fix\sa\sproblem\sin\swhich\snormal\smerge\sarrows\swere\soften\sdrawn\sas\snormal\nmerge\sarrows.
-D 2018-12-27T20:13:30.367
+C Fix\snon-C89\svariable\sdeclarations.
+D 2018-12-27T20:34:23.186
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 1b7c19ca3457929a78bcf5cd3c2b1f17d6b5aef8545a5d30543fe7a1e3f09122
+F src/wiki.c 649f6c9a6d71c26bbc36a287e9976a23fda4d5f3bb3c7cf7297ffebd84678d01
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 236586d6f20e7c40579ea6c3535ace63d445e4adef06fabba861a7a7ba5f5cd5
-R 051e43a24c8c0debf512b4b7752195c5
+P 8b3e3e007e5f359e02e57cfc6e71c9545f4145a964953ba043024724eedab608 550b95e5eedbe0391b6540fb397953ed754f02188a7b5a769f12f86820cc34b9
+R 4e05bd9d9aae5e1aff4861204e1fcfcf
+T +closed 550b95e5eedbe0391b6540fb397953ed754f02188a7b5a769f12f86820cc34b9
 U drh
-Z 1ec7dbbdb15b0c52de786a27c339918a
+Z 50297274c007eed9c4e94b703bee759f
