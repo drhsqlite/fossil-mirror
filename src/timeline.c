@@ -1878,58 +1878,59 @@ void page_timeline(void){
       nEntry = -1;
     }
     if( zTagSql ){
-      blob_append_sql(&cond,
-        " AND (EXISTS(SELECT 1 FROM tagxref NATURAL JOIN tag"
-        " WHERE %s AND tagtype>0 AND rid=blob.rid)\n", zTagSql/*safe-for-%s*/);
-
-      if( related ){
+      db_multi_exec(
+        "CREATE TEMP TABLE selected_nodes(rid INTEGER PRIMARY KEY);"
+        "INSERT OR IGNORE INTO selected_nodes"
+        " SELECT tagxref.rid FROM tagxref NATURAL JOIN tag"
+        " WHERE %s AND tagtype>0", zTagSql/*safe-for-%s*/
+      );
+      if( !related ){
+        blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
+      }else{
+        db_multi_exec(
+          "CREATE TEMP TABLE related_nodes(rid INTEGER PRIMARY KEY);"
+          "INSERT INTO related_nodes SELECT rid FROM selected_nodes;"
+        );
+        blob_append_sql(&cond, " AND blob.rid IN related_nodes");
         /* The next two blob_appendf() calls add SQL that causes check-ins that
         ** are not part of the branch which are parents or children of the
         ** branch to be included in the report.  These related check-ins are
         ** useful in helping to visualize what has happened on a quiescent
         ** branch that is infrequently merged with a much more activate branch.
         */
-        blob_append_sql(&cond,
-          " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=cid"
-          " NATURAL JOIN tag WHERE %s AND tagtype>0 AND pid=blob.rid)\n",
-           zTagSql/*safe-for-%s*/
+        db_multi_exec(
+          "INSERT OR IGNORE INTO related_nodes"
+          " SELECT pid FROM selected_nodes CROSS JOIN plink"
+          " WHERE selected_nodes.rid=plink.cid;"
         );
+        if( P("mionly")==0 ){
+          db_multi_exec(
+            "INSERT OR IGNORE INTO related_nodes"
+            " SELECT cid FROM selected_nodes CROSS JOIN plink"
+            " WHERE selected_nodes.rid=plink.pid;"
+          );
+        }
+        if( !PB("ncp") && db_table_exists("repository","cherrypick") ){
+          db_multi_exec(
+            "INSERT OR IGNORE INTO related_nodes"
+            " SELECT parentid FROM selected_nodes CROSS JOIN cherrypick"
+            " WHERE selected_nodes.rid=cherrypick.childid;"
+          );
+          db_multi_exec(
+            "INSERT OR IGNORE INTO related_nodes"
+            " SELECT childid FROM selected_nodes CROSS JOIN cherrypick"
+            " WHERE selected_nodes.rid=cherrypick.parentid;"
+          );
+        }
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-          blob_append_sql(&cond,
-            " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
-                       " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)\n",
+          db_multi_exec(
+            "DELETE FROM related_nodes WHERE rid IN "
+            " (SELECT related_nodes.rid FROM related_nodes, tagxref"
+            " WHERE tagid=%d AND tagtype>0 AND tagxref.rid=related_nodes.rid)",
             TAG_HIDDEN
           );
         }
-        if( P("mionly")==0 ){
-          blob_append_sql(&cond,
-            " OR EXISTS(SELECT 1 FROM plink CROSS JOIN tagxref ON rid=pid"
-            " NATURAL JOIN tag WHERE %s AND tagtype>0 AND cid=blob.rid)\n",
-            zTagSql/*safe-for-%s*/
-          );
-          if( (tmFlags & TIMELINE_UNHIDE)==0 ){
-            blob_append_sql(&cond,
-              " AND NOT EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
-              " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)\n",
-              TAG_HIDDEN
-            );
-          }
-        }
-        if( !PB("ncp") && db_table_exists("repository","cherrypick") ){
-          tmFlags |= TIMELINE_CHPICK;
-          blob_append_sql(&cond,
-            " OR EXISTS(SELECT 1 FROM cherrypick CROSS JOIN tagxref"
-            " ON rid=childid NATURAL JOIN tag WHERE %s AND tagtype>0"
-            " AND parentid=blob.rid)\n", zTagSql/*safe-for-%s*/
-          );
-          blob_append_sql(&cond,
-            " OR EXISTS(SELECT 1 FROM cherrypick CROSS JOIN tagxref"
-            " ON rid=parentid NATURAL JOIN tag WHERE %s AND tagtype>0"
-            " AND childid=blob.rid)\n", zTagSql/*safe-for-%s*/
-          );
-        }
       }
-      blob_append_sql(&cond, ")");
     }
     if( (zType[0]=='w' && !g.perm.RdWiki)
      || (zType[0]=='t' && !g.perm.RdTkt)

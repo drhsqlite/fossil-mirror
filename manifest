@@ -1,5 +1,5 @@
-C General\senhancements\sto\sthe\s"amend",\s"tag",\sand\s"reparent"\scommand,\sincluding\nadding\sflags\slike\s--override-date,\s--override-user,\sand\s--dry-run.
-D 2018-12-27T20:41:17.267
+C Much\sfaster\srendering\sof\sbranch\stimelines.
+D 2018-12-27T21:56:02.036
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -578,7 +578,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 09c689cf80be1a9877303142a1fd44f6e40c46f67e2adeb97360400ad413a4e8
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c 56e23a479f3712fb5c91ee3c78680194ab59481da5a6126dd42db11f08a88f25
+F src/timeline.c 495ed47ae57b85fd72a1cfdd3e7aa198d1b7aa4109c7c9130e4976a8e83a05d5
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -866,8 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efb903f939df4b9486f919ce38486d7c1e980a62804b4bdc4533f0f0d99120f6 cf0f6fc80b467f641f0c376a5fdfddb3ea49f2450a685513ebb0110c291e3cfa
-R 1cb547c04655d499a03dd87c6ed3bcce
-T +closed cf0f6fc80b467f641f0c376a5fdfddb3ea49f2450a685513ebb0110c291e3cfa
+P 5c9955710fc68466e3818f768fc8bebb18ccc4706a5a0395f84052df7fa0208d
+R ff5501ceb35b500890264d1ced41d2f1
 U drh
-Z d9dcff17f891e999d3170023ea4d9469
+Z cdda6a36c81b5c983b2b75ab077b3da0
