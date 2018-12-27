@@ -246,15 +246,16 @@ function TimelineGraph(tx){
       var x1 = p.mo*railPitch + node.w/2;
       var u = tx.rowinfo[p.mu-tx.iTopRow];
       var y1 = miLineY(u);
+      var drawMethod = (p.f&2) ? drawCherrypickLine : drawMergeLine;
       if( p.u<0 || p.mo!=p.r ){
         x1 += mergeLines[p.mo] = -mLine.w/2;
         var y0 = p.y+2;
-        if( p.r!=p.mo ) drawMergeLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
-        drawMergeLine(x1,y0+mLine.w,null,y1);
+        if( p.r!=p.mo ) drawMethod(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
+        drawMethod(x1,y0+mLine.w,null,y1);
       }else if( mergeOffset ){
         mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         x1 += mergeLines[p.mo];
-        drawMergeLine(x1,p.y+node.h/2,null,y1);
+        drawMethod(x1,p.y+node.h/2,null,y1);
       }else{
         delete mergeLines[p.mo];
       }
@@ -304,7 +305,7 @@ function TimelineGraph(tx){
           rail = -rail;
           mergeLines[rail] = -mLine.w/2;
           var x = rail*railPitch + (node.w-mLine.w)/2;
-          drawMergeLine(x,miLineY(p),null,btm);
+          drawCherrypickLine(x,miLineY(p),null,btm);
         }
         drawMergeArrow(p,rail,1);
       }

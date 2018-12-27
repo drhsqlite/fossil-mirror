@@ -877,6 +877,7 @@ void timeline_output_graph_javascript(
     **        the node with an id equal to this value.  0 if it is straight to
     **        the top of the page, -1 if there is no thick-line riser.
     **    f:  0x01: a leaf node.
+    **        0x02: all output merges are cherrypicks
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
@@ -905,7 +906,10 @@ void timeline_output_graph_javascript(
         cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
       }
       cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
-      cgi_printf("\"f\":%d,",       pRow->isLeaf ? 1 : 0);
+      k = 0;
+      if( pRow->isLeaf ) k |= 1;
+      if( pRow->nCherrypick>=pRow->nParent-1 ) k |= 2;
+      cgi_printf("\"f\":%d,",k);
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
         if( pRow->aiRiser[i]>0 ){
