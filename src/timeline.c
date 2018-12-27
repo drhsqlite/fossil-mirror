@@ -908,7 +908,7 @@ void timeline_output_graph_javascript(
       cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
       k = 0;
       if( pRow->isLeaf ) k |= 1;
-      if( pRow->nCherrypick>=pRow->nParent-1 ) k |= 2;
+      if( !pRow->hasNormalOutMerge ) k |= 2;
       cgi_printf("\"f\":%d,",k);
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;

@@ -51,6 +51,7 @@ struct GraphRow {
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
+  u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
@@ -322,6 +323,9 @@ static void createMergeRiser(
         pLoop->railInUse |= mask;
       }
     }
+  }
+  if( !isCherrypick ){
+    pParent->hasNormalOutMerge = 1;
   }
   pChild->mergeIn[pParent->mergeOut] = isCherrypick ? 2 : 1;
 }
