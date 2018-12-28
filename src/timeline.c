@@ -2108,7 +2108,7 @@ void page_timeline(void){
     }
     if( cpOnly && showCherrypicks ){
       blob_appendf(&desc, " that participate in a cherrypick merge");
-      tmFlags |= TIMELINE_CHPICK;
+      tmFlags |= TIMELINE_CHPICK|TIMELINE_DISJOINT;
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
