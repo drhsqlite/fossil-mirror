@@ -86,6 +86,10 @@ the correct operation of the graph drawing logic.
      1.37 with cherry-pick merges from trunk.</a>
   *  <a href="../../../timeline?f=68bd2e7bedb8d05a" target="testwindow">
      Single check-in takes both a full merge and a cherrypick merge</a>
+  *  <a href="../../../timeline?b=?b=dc81ac70&n=14" target="testwindow">
+     Mixed merge arrow, partly fully and partly cherrypick</a>
+  *  <a href="../../../timeline?b=?b=dc81ac70&n=13" target="testwindow">
+     Mixed merge arrow to bottom of screen.</a>
 
 External:
 

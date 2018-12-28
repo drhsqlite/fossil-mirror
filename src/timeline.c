@@ -868,16 +868,18 @@ void timeline_output_graph_javascript(
     **    d:  If exists and true then there is a "descender" - an arrow
     **        coming from the bottom of the page straight up to this node.
     **   mo:  "merge-out".  If it exists, this is the rail position
-    **        for the upward portion of a merge arrow.  The merge arrow goes up
-    **        to the row identified by mu:.  If this value is omitted then
-    **        node has no merge children and no merge-out line is drawn.
+    **        for the upward portion of a merge arrow.  The merge arrow goes as
+    **        a solid normal merge line up to the row identified by "mu" and
+    **        then as a dashed cherrypick merge line up further to "cu".
+    **        If this value is omitted if there are no merge children.
     **   mu:  The id of the row which is the top of the merge-out arrow.
     **        Only exists if "mo" exists.
+    **   cu:  Extend the mu merge error on up to this row as a cherrypick
+    **        merge line, if this value exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
     **        the top of the page, -1 if there is no thick-line riser.
     **    f:  0x01: a leaf node.
-    **        0x02: all output merges are cherrypicks
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
@@ -889,7 +891,7 @@ void timeline_output_graph_javascript(
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen. This array is omitted if there are no inbound
     **        merges.
-    **  cpi:  "cherrypick-in". Like "mi" except for cherrypick merges.
+    **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
     **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
     */
@@ -903,12 +905,15 @@ void timeline_output_graph_javascript(
       }
       if( pRow->mergeOut>=0 ){
         cgi_printf("\"mo\":%d,",      pRow->mergeOut);
+        if( pRow->mergeUpto==0 ) pRow->mergeUpto = pRow->idx;
         cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
+        if( pRow->cherrypickUpto>0 && pRow->cherrypickUpto<pRow->mergeUpto ){
+          cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
+        }
       }
       cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
       k = 0;
       if( pRow->isLeaf ) k |= 1;
-      if( !pRow->hasNormalOutMerge ) k |= 2;
       cgi_printf("\"f\":%d,",k);
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -943,13 +948,13 @@ void timeline_output_graph_javascript(
         }
       }
       if( k ) cgi_printf("],");
-      /* cpi */
+      /* ci */
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i]==2 ){
           int mi = i;
           if( (pRow->cherrypickDown >> i) & 1 ) mi = -mi;
           if( k==0 ){
-            cgi_printf("\"cpi\":");
+            cgi_printf("\"ci\":");
             cSep = '[';
           }
           k++;

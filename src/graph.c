@@ -59,6 +59,7 @@ struct GraphRow {
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
   int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
   int mergeUpto;              /* Draw the mergeOut rail up to this level */
+  int cherrypickUpto;         /* Continue the mergeOut rail up to here */
   u64 mergeDown;              /* Draw merge lines up from bottom of graph */
   u64 cherrypickDown;         /* Draw cherrypick lines up from bottom */
 
@@ -310,13 +311,11 @@ static void createMergeRiser(
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
       pParent->mergeOut = pParent->iRail;
-      pParent->mergeUpto = pChild->idx;
-    }else{
+     }else{
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
       pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1, iTarget);
-      pParent->mergeUpto = pChild->idx;
       mask = BIT(pParent->mergeOut);
       for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
            pLoop=pLoop->pNext){
@@ -324,8 +323,15 @@ static void createMergeRiser(
       }
     }
   }
-  if( !isCherrypick ){
+  if( isCherrypick ){
+    if( pParent->cherrypickUpto==0 || pParent->cherrypickUpto > pChild->idx ){
+      pParent->cherrypickUpto = pChild->idx;
+    }
+  }else{
     pParent->hasNormalOutMerge = 1;
+    if( pParent->mergeUpto==0 || pParent->mergeUpto > pChild->idx ){
+      pParent->mergeUpto = pChild->idx;
+    }
   }
   pChild->mergeIn[pParent->mergeOut] = isCherrypick ? 2 : 1;
 }

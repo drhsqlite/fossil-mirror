@@ -23,30 +23,40 @@
 **
 **   id:  The id of the <div> element for the row. This is an integer.
 **        to get an actual id, prepend "m" to the integer.  The top node
-**        is iTopRow and numbers increase moving down the graph.
+**        is iTopRow and numbers increase moving down the timeline.
 **   bg:  The background color for this row
 **    r:  The "rail" that the node for this row sits on.  The left-most
 **        rail is 0 and the number increases to the right.
-**    d:  True if there is a "descender" - an arrow coming from the bottom
-**        of the page straight up to this node.
-**   mo:  "merge-out".  If non-negative, this is the rail position
+**    d:  If exists and true then there is a "descender" - an arrow
+**        coming from the bottom of the page straight up to this node.
+**   mo:  "merge-out".  If it exists, this is the rail position
 **        for the upward portion of a merge arrow.  The merge arrow goes up
-**        to the row identified by mu:.  If this value is negative then
+**        to the row identified by mu:.  If this value is omitted then
 **        node has no merge children and no merge-out line is drawn.
 **   mu:  The id of the row which is the top of the merge-out arrow.
+**        Only exists if "mo" exists.
+**   cu:  The id of the top row of the merge-out arrow for a cherrypick
+**        merge arrow that extends beyond the main merge arrow. Only
+**        exists if "mo" exists and if there is a cherrpick merge that is
+**        higher than "mu".
 **    u:  Draw a thick child-line out of the top of this node and up to
 **        the node with an id equal to this value.  0 if it is straight to
 **        the top of the page, -1 if there is no thick-line riser.
 **    f:  0x01: a leaf node.
+**        0x02: all output merges are cherrypicks
 **   au:  An array of integers that define thick-line risers for branches.
 **        The integers are in pairs.  For each pair, the first integer is
 **        is the rail on which the riser should run and the second integer
-**        is the id of the node upto which the riser should run.
+**        is the id of the node upto which the riser should run. If there
+**        are no risers, this array does not exist.
 **   mi:  "merge-in".  An array of integer rail positions from which
 **        merge arrows should be drawn into this node.  If the value is
 **        negative, then the rail position is the absolute value of mi[]
 **        and a thin merge-arrow descender is drawn to the bottom of
-**        the screen.
+**        the screen. This array is omitted if there are no inbound
+**        merges.
+**   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
+**        omitted if there are no cherrypick merges.
 **    h:  The artifact hash of the object being graphed
 */
 var amendCssOnce = 1; // Only change the CSS one time
@@ -246,16 +256,32 @@ function TimelineGraph(tx){
       var x1 = p.mo*railPitch + node.w/2;
       var u = tx.rowinfo[p.mu-tx.iTopRow];
       var y1 = miLineY(u);
-      var drawMethod = (p.f&2) ? drawCherrypickLine : drawMergeLine;
       if( p.u<0 || p.mo!=p.r ){
         x1 += mergeLines[p.mo] = -mLine.w/2;
         var y0 = p.y+2;
-        if( p.r!=p.mo ) drawMethod(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
-        drawMethod(x1,y0+mLine.w,null,y1);
+        if( p.mu==p.id ){
+          drawCherrypickLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
+          y1 = y0;
+        }else{
+          drawMergeLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
+          drawMergeLine(x1,y0+mLine.w,null,y1);
+        }
+        if( p.hasOwnProperty('cu') ){
+          var u2 = tx.rowinfo[p.cu-tx.iTopRow];
+          var y2 = miLineY(u2);
+          drawCherrypickLine(x1,y1,null,y2);
+        }
       }else if( mergeOffset ){
         mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         x1 += mergeLines[p.mo];
-        drawMethod(x1,p.y+node.h/2,null,y1);
+        if( p.mo<p.id ){
+          drawMergeLine(x1,p.y+node.h/2,null,y1);
+        }
+        if( p.hasOwnProperty('cu') ){
+          var u2 = tx.rowinfo[p.cu-tx.iTopRow];
+          var y2 = miLineY(u2);
+          drawCherrypickLine(x1,y1,null,y2);
+        }
       }else{
         delete mergeLines[p.mo];
       }
@@ -293,25 +319,30 @@ function TimelineGraph(tx){
           rail = -rail;
           mergeLines[rail] = -mLine.w/2;
           var x = rail*railPitch + (node.w-mLine.w)/2;
-          drawMergeLine(x,miLineY(p),null,btm);
+          var y = miLineY(p);
+          drawMergeLine(x,y,null,mergeBtm[rail]);
+          mergeBtm[rail] = y;
         }
         drawMergeArrow(p,rail,0);
       }
     }
-    if( p.hasOwnProperty('cpi') ){
-      for( var i=0; i<p.cpi.length; i++ ){
-        var rail = p.cpi[i];
+    if( p.hasOwnProperty('ci') ){
+      for( var i=0; i<p.ci.length; i++ ){
+        var rail = p.ci[i];
         if( rail<0 ){
           rail = -rail;
           mergeLines[rail] = -mLine.w/2;
           var x = rail*railPitch + (node.w-mLine.w)/2;
-          drawCherrypickLine(x,miLineY(p),null,btm);
+          var y = miLineY(p);
+          drawCherrypickLine(x,y,null,mergeBtm[rail]);
+          mergeBtm[rail] = y;
         }
         drawMergeArrow(p,rail,1);
       }
     }
   }
   var mergeLines;
+  var mergeBtm = new Array;
   function renderGraph(){
     mergeLines = {};
     canvasDiv.innerHTML = "";
@@ -326,6 +357,7 @@ function TimelineGraph(tx){
       tlBtm.style.height = node.h + "px";
     }
     var btm = absoluteY(tlBtm) - canvasY + tlBtm.offsetHeight;
+    for( var i=0; i<tx.nrail; i++) mergeBtm[i] = btm;
     for( var i=tx.rowinfo.length-1; i>=0; i-- ){
       drawNode(tx.rowinfo[i], btm);
     }
