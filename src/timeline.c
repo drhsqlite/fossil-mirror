@@ -1760,17 +1760,25 @@ void page_timeline(void){
       db_multi_exec(
         "CREATE TABLE IF NOT EXISTS temp.related(x INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO related(x)"
-        "  SELECT cid FROM plink WHERE pid IN pathnode AND NOT isprim;"
-        "INSERT OR IGNORE INTO related(x)"
         "  SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
       );
+      if( P("mionly")==0 ){
+        db_multi_exec(
+          "INSERT OR IGNORE INTO related(x)"
+          "  SELECT cid FROM plink WHERE pid IN pathnode;"
+        );
+      }
       if( showCherrypicks ){
         db_multi_exec(
-            "INSERT OR IGNORE INTO related(x)"
-          "  SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
           "INSERT OR IGNORE INTO related(x)"
           "  SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
         );
+        if( P("mionly")==0 ){
+          db_multi_exec(
+            "INSERT OR IGNORE INTO related(x)"
+            "  SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
+          );
+        }
       }
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
