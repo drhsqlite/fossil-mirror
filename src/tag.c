@@ -483,6 +483,9 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zFindLimit = find_option("limit","n",1);
+    const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
     const char *zType = find_option("type","t",1);
     Blob sql = empty_blob;
     if( zType==0 || zType[0]==0 ) zType = "*";
@@ -530,6 +533,7 @@ void tag_cmd(void){
 
   if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
     if( g.argc==3 ){
       db_prepare(&q,
         "SELECT tagname FROM tag"
