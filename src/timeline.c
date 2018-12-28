@@ -1436,8 +1436,9 @@ static const char *tagMatchExpression(
 **    v               Show details of files changed
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
-**    to=CHECKIN        ... to this
-**    shortest          ... show only the shortest path
+**      to=CHECKIN      ... to this
+**      shorest         ... show only the shortest path
+**      rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
 **                      name matches one of the comma-separate GLOBLIST
@@ -1723,6 +1724,7 @@ void page_timeline(void){
     PathNode *p = 0;
     const char *zFrom = 0;
     const char *zTo = 0;
+    Blob ins;
 
     if( from_rid && to_rid ){
       p = path_shortest(from_rid, to_rid, noMerge, 0);
@@ -1735,13 +1737,41 @@ void page_timeline(void){
       zFrom = P("me");
       zTo = P("you");
     }
-    blob_append(&sql, " AND event.objid IN (0", -1);
-    while( p ){
-      blob_append_sql(&sql, ",%d", p->rid);
+    blob_init(&ins, 0, 0);
+    db_multi_exec(
+      "CREATE TABLE IF NOT EXISTS temp.pathnode(x INTEGER PRIMARY KEY);"
+    );
+    if( p ){
+      blob_init(&ins, 0, 0);
+      blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
       p = p->u.pTo;
+      while( p ){
+        blob_append_sql(&ins, ",(%d)", p->rid);
+        p = p->u.pTo;
+      }
     }
-    blob_append(&sql, ")", -1);
     path_reset();
+    db_multi_exec("%s", blob_str(&ins)/*safe-for-%s*/);
+    blob_reset(&ins);
+    if( related ){
+      db_multi_exec(
+        "CREATE TABLE IF NOT EXISTS temp.related(x INTEGER PRIMARY KEY);"
+        "INSERT OR IGNORE INTO related(x)"
+        "  SELECT cid FROM plink WHERE pid IN pathnode;"
+        "INSERT OR IGNORE INTO related(x)"
+        "  SELECT pid FROM plink WHERE cid IN pathnode;"
+      );
+      if( showCherrypicks ){
+        db_multi_exec(
+            "INSERT OR IGNORE INTO related(x)"
+          "  SELECT childid FROM cherrypick WHERE parentid IN pathnode;"
+          "INSERT OR IGNORE INTO related(x)"
+          "  SELECT parentid FROM cherrypick WHERE childid IN pathnode;"
+        );
+      }
+      db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
+    }
+    blob_append_sql(&sql, " AND event.objid IN pathnode");
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_sql_text(&sql));
