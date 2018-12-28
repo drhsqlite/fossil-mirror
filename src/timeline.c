@@ -1449,6 +1449,7 @@ static const char *tagMatchExpression(
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
 **    showsql         Show the SQL text
+**    cherrypicks     Show all cherrypicks
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -1493,6 +1494,7 @@ void page_timeline(void){
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
   int bisectOnly = PB("bisect");     /* Show the check-ins of the bisect */
+  int cpOnly = PB("cherrypicks");    /* Show all cherrypick checkins */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
@@ -1511,6 +1513,7 @@ void page_timeline(void){
   int disableY = 0;                   /* Disable type selector on submenu */
   int advancedMenu = 0;               /* Use the advanced menu design */
   char *zPlural;                      /* Ending for plural forms */
+  int showCherrypicks = 1;            /* True to show cherrypick merges */
 
   /* Set number of rows to display */
   cookie_read_parameter("n","n");
@@ -1535,6 +1538,12 @@ void page_timeline(void){
   tmFlags |= timeline_ss_submenu();  
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
+
+  /* Omit all cherry-pick merge lines if the "ncp" query parameter is
+  ** present or if this repository lacks a "cherrypick" table. */
+  if( PB("ncp") || !db_table_exists("repository","cherrypick") ){
+    showCherrypicks = 0;
+  }
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1798,6 +1807,15 @@ void page_timeline(void){
        "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;",
        f_rid, f_rid, f_rid
     );
+    if( showCherrypicks ){
+      db_multi_exec(
+         "INSERT OR IGNORE INTO ok SELECT parentid FROM cherrypick"
+         " WHERE childid=%d;"
+         "INSERT OR IGNORE INTO ok SELECT childid FROM cherrypick"
+         " WHERE parentid=%d;",
+         f_rid, f_rid
+      );
+    }
     blob_append_sql(&sql, " AND event.objid IN ok");
     db_multi_exec("%s", blob_sql_text(&sql));
     if( useDividers ) selectedRid = f_rid;
@@ -1828,6 +1846,14 @@ void page_timeline(void){
     }
     if( forkOnly ){
       blob_append_sql(&cond, " AND event.objid IN rnfork ");
+    }
+    if( cpOnly && showCherrypicks ){
+      db_multi_exec(
+        "CREATE TABLE IF NOT EXISTS cpnodes(rid INTEGER PRIMARY KEY);"
+        "INSERT OR IGNORE INTO cpnodes SELECT childid FROM cherrypick;"
+        "INSERT OR IGNORE INTO cpnodes SELECT parentid FROM cherrypick;"
+      );
+      blob_append_sql(&cond, " AND event.objid IN cpnodes ");
     }
     if( bisectOnly ){
       blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
@@ -1909,17 +1935,19 @@ void page_timeline(void){
             " SELECT cid FROM selected_nodes CROSS JOIN plink"
             " WHERE selected_nodes.rid=plink.pid;"
           );
+          if( showCherrypicks ){
+            db_multi_exec(
+              "INSERT OR IGNORE INTO related_nodes"
+              " SELECT childid FROM selected_nodes CROSS JOIN cherrypick"
+              " WHERE selected_nodes.rid=cherrypick.parentid;"
+            );
+          }
         }
-        if( !PB("ncp") && db_table_exists("repository","cherrypick") ){
+        if( showCherrypicks ){
           db_multi_exec(
             "INSERT OR IGNORE INTO related_nodes"
             " SELECT parentid FROM selected_nodes CROSS JOIN cherrypick"
             " WHERE selected_nodes.rid=cherrypick.childid;"
-          );
-          db_multi_exec(
-            "INSERT OR IGNORE INTO related_nodes"
-            " SELECT childid FROM selected_nodes CROSS JOIN cherrypick"
-            " WHERE selected_nodes.rid=cherrypick.parentid;"
           );
         }
         if( (tmFlags & TIMELINE_UNHIDE)==0 ){
@@ -2077,6 +2105,10 @@ void page_timeline(void){
     if( bisectOnly ){
       blob_appendf(&desc, " in the most recent bisect");
       tmFlags |= TIMELINE_DISJOINT;
+    }
+    if( cpOnly && showCherrypicks ){
+      blob_appendf(&desc, " that participate in a cherrypick merge");
+      tmFlags |= TIMELINE_CHPICK;
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
