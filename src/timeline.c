@@ -1725,6 +1725,7 @@ void page_timeline(void){
     const char *zFrom = 0;
     const char *zTo = 0;
     Blob ins;
+    int nNodeOnPath = 0;
 
     if( from_rid && to_rid ){
       p = path_shortest(from_rid, to_rid, noMerge, 0);
@@ -1745,9 +1746,11 @@ void page_timeline(void){
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
       p = p->u.pTo;
+      nNodeOnPath = 1;
       while( p ){
         blob_append_sql(&ins, ",(%d)", p->rid);
         p = p->u.pTo;
+        nNodeOnPath++;
       }
     }
     path_reset();
@@ -1757,9 +1760,9 @@ void page_timeline(void){
       db_multi_exec(
         "CREATE TABLE IF NOT EXISTS temp.related(x INTEGER PRIMARY KEY);"
         "INSERT OR IGNORE INTO related(x)"
-        "  SELECT cid FROM plink WHERE pid IN pathnode;"
+        "  SELECT cid FROM plink WHERE pid IN pathnode AND NOT isprim;"
         "INSERT OR IGNORE INTO related(x)"
-        "  SELECT pid FROM plink WHERE cid IN pathnode;"
+        "  SELECT pid FROM plink WHERE cid IN pathnode AND NOT isprim;"
       );
       if( showCherrypicks ){
         db_multi_exec(
@@ -1778,11 +1781,17 @@ void page_timeline(void){
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
     }
-    blob_appendf(&desc, "%d check-ins going from ",
-                 db_int(0, "SELECT count(*) FROM timeline"));
+    blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
+    if( related ){
+      int nRelated = db_int(0, "SELECT count(*) FROM timeline") - nNodeOnPath;
+      if( nRelated>0 ){
+        blob_appendf(&desc, " and %d related check-in%s", nRelated,
+                     nRelated>1 ? "s" : "");
+      }
+    }
     addFileGlobDescription(zChng, &desc);
   }else if( (p_rid || d_rid) && g.perm.Read && zTagSql==0 ){
     /* If p= or d= is present, ignore all other parameters other than n= */
