@@ -30,20 +30,18 @@
 **    d:  If exists and true then there is a "descender" - an arrow
 **        coming from the bottom of the page straight up to this node.
 **   mo:  "merge-out".  If it exists, this is the rail position
-**        for the upward portion of a merge arrow.  The merge arrow goes up
-**        to the row identified by mu:.  If this value is omitted then
-**        node has no merge children and no merge-out line is drawn.
+**        for the upward portion of a merge arrow.  The merge arrow goes as
+**        a solid normal merge line up to the row identified by "mu" and
+**        then as a dashed cherrypick merge line up further to "cu".
+**        If this value is omitted if there are no merge children.
 **   mu:  The id of the row which is the top of the merge-out arrow.
 **        Only exists if "mo" exists.
-**   cu:  The id of the top row of the merge-out arrow for a cherrypick
-**        merge arrow that extends beyond the main merge arrow. Only
-**        exists if "mo" exists and if there is a cherrpick merge that is
-**        higher than "mu".
+**   cu:  Extend the mu merge arrow up to this row as a cherrypick
+**        merge line, if this value exists.
 **    u:  Draw a thick child-line out of the top of this node and up to
 **        the node with an id equal to this value.  0 if it is straight to
 **        the top of the page, -1 if there is no thick-line riser.
 **    f:  0x01: a leaf node.
-**        0x02: all output merges are cherrypicks
 **   au:  An array of integers that define thick-line risers for branches.
 **        The integers are in pairs.  For each pair, the first integer is
 **        is the rail on which the riser should run and the second integer

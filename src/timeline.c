@@ -874,7 +874,7 @@ void timeline_output_graph_javascript(
     **        If this value is omitted if there are no merge children.
     **   mu:  The id of the row which is the top of the merge-out arrow.
     **        Only exists if "mo" exists.
-    **   cu:  Extend the mu merge error on up to this row as a cherrypick
+    **   cu:  Extend the mu merge arrow up to this row as a cherrypick
     **        merge line, if this value exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
