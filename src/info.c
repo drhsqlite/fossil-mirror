@@ -614,15 +614,6 @@ void ci_tags_page(void){
     " WHERE tagxref.rid=%d"
     " ORDER BY tagname /*sort*/", rid, rid, rid
   );
-  if( db_table_exists("repository","cherrypick") ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO ok "
-      "  SELECT parentid FROM cherrypick WHERE childid=%d;"
-      "INSERT OR IGNORE INTO ok "
-      "  SELECT childid FROM cherrypick WHERE parentid=%d;",
-      rid, rid
-    );
-  }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
