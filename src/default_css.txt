@@ -171,9 +171,15 @@ span.timelineEllipsis {
 .tl-arrow.cherrypick.r {
   border-left: 3px solid #000;
 }
-.tl-line.cherrypick {
+.tl-line.cherrypick.h {
   width: 0px;
   border-top: 1px dashed #000;
+  border-left: 0px dashed #000;
+  background: #fff;
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #000;
   border-left: 1px dashed #000;
   background: #fff;
 }

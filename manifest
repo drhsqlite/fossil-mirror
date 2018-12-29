@@ -1,5 +1,5 @@
-C Fix\sthe\shyperlink\sto\sthe\slogin\spage\son\s/download\spage.
-D 2018-12-29T12:34:47.972
+C Improved\sdefault\sCSS\sfor\sdrawing\sdashed\slines\sfor\scherrypick\smerges.
+D 2018-12-29T13:04:34.821
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -458,7 +458,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 67d8f2ea8ecea6d4c029a72e7a13eb709ea419b7bd8c9e3b678df4372c7b6522
-F src/default_css.txt 45fbb8c7a813b788fbb5f0c8c1494f11657eec1277ec2648fd661e14404f79b5
+F src/default_css.txt 00d7a7f475884b1a0e215922e097f4c83888ce25d153efb58f8538985c4ac6d1
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c 98e1700eb7fbd67722502f3dd5d4b7a464e2e38bcea10a9e1d9c0a73cd4c6139
@@ -866,8 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9fae21515191cc6f4564089442f17551e9d4ea9ba5d898432d4288be2e0286c2 4a30475bdb7fcb59118f5b8762a92d9716bb19133f04ed2fa689392a1c978111
-R aeb9b1b954dbed8f4779d4d44e8712eb
-T +closed 4a30475bdb7fcb59118f5b8762a92d9716bb19133f04ed2fa689392a1c978111
+P ad5999aa6a594ec5ff9034ca422b05417712d8d33af24b75a4aa515fcbe0ce38
+R 2eaae3e41bef2416298b21fdad85c07b
 U drh
-Z 50a19f9bc33b644a435f2ce986fc2ccd
+Z 03cdf34cb8cd54377added6cd43e51b4
