@@ -316,7 +316,7 @@ void download_page(void){
     @ <p>Bummer.  You do not have permission to download.
     if( g.zLogin==0 || g.zLogin[0]==0 ){
       @ Maybe it would work better if you
-      @ <a href="../login">logged in</a>.
+      @ %z(href("%R/login"))logged in</a>.
     }else{
       @ Contact the site administrator and ask them to give
       @ you "Download Zip" privileges.
@@ -335,7 +335,7 @@ void download_page(void){
     @ <p>You are not authorized to clone this repository.
     if( g.zLogin==0 || g.zLogin[0]==0 ){
       @ Maybe you would be able to clone if you
-      @ <a href="../login">logged in</a>.
+      @ %z(href("%R/login"))logged in</a>.
     }else{
       @ Contact the site administrator and ask them to give
       @ you "Clone" privileges in order to clone.
