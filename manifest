@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C NetBSD\swants\sa\sheader\sfor\sisspace()
-D 2018-12-30T00:29:30.842
+C Fix\sthe\saction=\son\sthe\sAdmin/Wiki\ssetup\spage.
+D 2018-12-30T23:28:36.300
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -554,7 +551,7 @@ F src/schema.c 7a9d52747383dea08585b9435d1e92b3b957839a7449f5b98305425386264e60
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c ff684603d0c4cd60ff95e5072dbb329ac031c82e54fadd91f42cb338d9ca0bf8
+F src/setup.c d205b4e7a1bfe3ba51664eecc87e18ed35a42a97638b4ac2abb7e781195fe824
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -869,13 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 758029a81226d4682f8f26539899f66225ca5041a716ecd2e8da09cfc8da0783
-R 38f58e6919dfc0092e76555eb4ee8ef9
-U bch
-Z 645912ec08ffd3d26bd8fe9477a14f9a
------BEGIN PGP SIGNATURE-----
-
-iEYEARECAAYFAlwoEWoACgkQad0Kwpwugm9imwCgh8Cfh4U+/IK4QRC8YZvSjES0
-fsQAoOXAyeSbg8Guc4yi/z+vC2ry4GKg
-=ciPt
------END PGP SIGNATURE-----
+P ae62c08cbe59770215685a30af960c68512310043a2e8bbdd3b3b92e60024bfb
+R 1ff844556503f95fe071f77738d0e7fd
+U drh
+Z b288cbaed53f944a4d11df6ed60a18d9
