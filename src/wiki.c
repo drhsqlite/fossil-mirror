@@ -1485,3 +1485,71 @@ void test_markdown_render(void){
   markdown_to_html(&in, 0, &out);
   blob_write_to_file(&out, "-");
 }
+
+/*
+** Check to see if there exists a wiki page with a name zPrefix/zName.
+** If there is, then render a <div class='section'>..</div> and
+** return true.
+**
+** If there is no such wiki page, return false.
+*/
+int wiki_render_associated(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName      /* Name of the object */
+){
+  int rid;
+  Manifest *pWiki;
+  rid = db_int(0,
+    "SELECT rid FROM tagxref"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='wiki-%q/%q')"
+    " ORDER BY mtime DESC LIMIT 1",
+    zPrefix, zName
+  );
+  if( rid==0 ) return 0;
+  pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+  if( pWiki==0 ) return 0;
+  if( fossil_strcmp(pWiki->zMimetype, "text/x-markdown")==0 ){
+    Blob tail = BLOB_INITIALIZER;
+    Blob title = BLOB_INITIALIZER;
+    Blob markdown;
+    blob_init(&markdown, pWiki->zWiki, -1);
+    markdown_to_html(&markdown, &title, &tail);
+    if( blob_size(&title) ){
+      @ <div class="section">%h(blob_str(&title))</div>
+    }else{
+      @ <div class="section">About %s(zPrefix) %h(zName)<div>
+    }
+    @ <div class="wiki">
+    convert_href_and_output(&tail);
+    @ </div>
+    blob_reset(&tail);
+    blob_reset(&title);
+    blob_reset(&markdown);
+  }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
+    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+    @ <pre>
+    @ %h(pWiki->zWiki)
+    @ </pre>
+  }else{
+    Blob tail = BLOB_INITIALIZER;
+    Blob title = BLOB_INITIALIZER;
+    Blob wiki;
+    blob_init(&wiki, pWiki->zWiki, -1);
+    if( wiki_find_title(&wiki, &title, &tail) ){
+      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="wiki">
+      wiki_convert(&tail, 0, WIKI_BUTTONS);
+      @ </div>
+    }else{
+      @ <div class="section">About %s(zPrefix) %h(zName)</div>
+      @ <div class="wiki">
+      wiki_convert(&wiki, 0, WIKI_BUTTONS);
+      @ </div>
+    }
+    blob_reset(&tail);
+    blob_reset(&title);
+    blob_reset(&wiki);
+  }
+  manifest_destroy(pWiki);
+  return 1;
+}

@@ -1446,6 +1446,7 @@ static const char *tagMatchExpression(
 **    ubg             Background color from user
 **    namechng        Show only check-ins that have filename changes
 **    forks           Show only forks and their children
+**    cherrypicks     Show all cherrypicks
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
 **    yw=YYYY-MM-DD   Show events for the week that includes the given day
@@ -1455,7 +1456,6 @@ static const char *tagMatchExpression(
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
 **    showsql         Show the SQL text
-**    cherrypicks     Show all cherrypicks
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -2271,7 +2271,11 @@ void page_timeline(void){
   if( fossil_islower(desc.aData[0]) ){
     desc.aData[0] = fossil_toupper(desc.aData[0]);
   }
-  @ <h2>%b(&desc)</h2>
+  if( zBrName && wiki_render_associated("branch", zBrName) ){
+    @ <div class="section">%b(&desc)</div>
+  } else{
+    @ <h2>%b(&desc)</h2>
+  }
   blob_reset(&desc);
 
   /* Report any errors. */
