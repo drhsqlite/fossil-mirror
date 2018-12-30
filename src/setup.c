@@ -940,7 +940,7 @@ void setup_wiki(void){
 
   style_header("Wiki Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_wiki" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />

@@ -1,5 +1,5 @@
-C Add\smore\slinkage\sbetween\sthe\sspeicially\snamed\swiki\spages\sand\svarious\nobjects.
-D 2018-12-30T21:37:38.125
+C Improved\spage\stitles\swhen\sediting\swiki\sabout\sbranches,\scheckins,\sand\stags.\nHonor\sthe\swiki-about\sflag.
+D 2018-12-30T23:27:26.950
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 49334daaebb71ef882b207cfd862119975a2b9ea5c26343d85fe18f5477be0e1
+F src/info.c b4c6568822fb2450bcad50e07d0d845123d6acc1fbcd98eaec4ad00e5296f8fe
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -551,7 +551,7 @@ F src/schema.c 7a9d52747383dea08585b9435d1e92b3b957839a7449f5b98305425386264e60
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c 6d4bf11dfca00fb09d21197f804e64d58962ebb3f160187a49701635535ce169
+F src/setup.c d61d1d912dd614e46e5f6e4bcce81c571014dbc2339698d1347c06173baef706
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c dc30d1d1dafd4cc508a3ac45bbe5319301aed2cb6c69cc0f409ebdaa37519f1d
+F src/wiki.c ca7d0aa26137f3b2182f18bb1087a83cc106da2feba8c61d8c55f7245015b425
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dcf93d034143f49ef848cbae3abb5e2595c761f9f6a648c44df8444c15810835
-R 0ee6d6d3c83adae9270967e3c7aebef2
+P 42327c67cc6983a301217c8b07ce88310b73923307d1f8be61f0c59beeffc719
+R 341439e841170aa9c73276b4a6f33116
 U drh
-Z 528e05a615e48a3bf540e50bc6f46885
+Z f52cab7994e87eb636e0bd598f159cb0

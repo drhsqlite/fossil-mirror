@@ -818,7 +818,7 @@ void ci_page(void){
       }
       db_finalize(&q2);
     }
-    if( g.perm.WrWiki ){
+    if( g.perm.WrWiki && db_get_boolean("wiki-about",1) ){
       @ <tr><th>Edit&nbsp;Wiki:</th>
       @ <td>%z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>
       @ %b(&wiki_edit_links)</td>

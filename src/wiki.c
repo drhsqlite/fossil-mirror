@@ -581,7 +581,29 @@ void wikiedit_page(void){
     zBody = mprintf("<i>Empty Page</i>");
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  style_header("Edit: %s", zPageName);
+
+  if( db_get_boolean("wiki-about",1)==0 ){
+    style_header("Edit: %s", zPageName);
+  }else
+  if( sqlite3_strglob("checkin/*", zPageName)==0 
+   && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
+  ){
+    style_header("Notes About Checkin %S", zPageName + 8);
+    style_submenu_element("Checkin Timeline","%R/timeline?f=%s",zPageName + 8);
+    style_submenu_element("Checkin Info","%R/info/%s",zPageName + 8);
+  }else
+  if( sqlite3_strglob("branch/*", zPageName)==0 ){
+    style_header("Notes About Branch %h", zPageName + 7);
+    style_submenu_element("Branch Timeline","%R/timeline?r=%t",zPageName + 7);
+  }else
+  if( sqlite3_strglob("tag/*", zPageName)==0 ){
+    style_header("Notes About Tag %h", zPageName + 4);
+    style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName + 4);
+  }
+  else{
+    style_header("Edit: %s", zPageName);
+  }
+
   if( rid && !isSandbox && g.perm.ApndWiki ){
     if( g.perm.Attach ){
       style_submenu_element("Attach",
@@ -1532,6 +1554,7 @@ int wiki_render_associated(
 ){
   int rid;
   Manifest *pWiki;
+  if( !db_get_boolean("wiki-about",1) ) return 0;
   rid = db_int(0,
     "SELECT rid FROM tagxref"
     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='wiki-%q/%q')"
