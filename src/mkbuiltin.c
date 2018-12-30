@@ -27,6 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __NetBSD__
+#include <ctype.h> /* isspace() */
+#endif
 
 
 /*
