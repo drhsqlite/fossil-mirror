@@ -1425,6 +1425,7 @@ static const char *tagMatchExpression(
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
+**    nowiki          Do not show wiki associated with branch or tag
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'e', 'f', or 'all'.
@@ -2271,7 +2272,17 @@ void page_timeline(void){
   if( fossil_islower(desc.aData[0]) ){
     desc.aData[0] = fossil_toupper(desc.aData[0]);
   }
-  if( zBrName && wiki_render_associated("branch", zBrName) ){
+  if( zBrName
+   && !PB("nowiki")
+   && wiki_render_associated("branch", zBrName, WIKIASSOC_FULL_TITLE)
+  ){
+    @ <div class="section">%b(&desc)</div>
+  }else
+  if( zTagName
+   && matchStyle==MS_EXACT
+   && !PB("nowiki")
+   && wiki_render_associated("tag", zTagName, WIKIASSOC_FULL_TITLE)
+  ){
     @ <div class="section">%b(&desc)</div>
   } else{
     @ <h2>%b(&desc)</h2>

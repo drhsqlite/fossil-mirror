@@ -1069,13 +1069,20 @@ void wcontent_page(void){
     sqlite3_int64 iMtime = (sqlite3_int64)(rWmtime*86400.0);
     char *zAge;
     int wcnt = db_column_int(&q, 4);
+    char *zWDisplayName;
+
+    if( sqlite3_strglob("checkin/*", zWName)==0 ){
+      zWDisplayName = mprintf("%.25s...", zWName);
+    }else{
+      zWDisplayName = mprintf("%s", zWName);
+    }
     if( wrid==0 ){
       if( !showAll ) continue;
       @ <tr><td data-sortkey="%h(zSort)">\
-      @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWName)</s></a></td>
+      @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWDisplayName)</s></a></td>
     }else{
       @ <tr><td data=sortkey='%h(zSort)">\
-      @ %z(href("%R/wiki?name=%T",zWName))%h(zWName)</a></td>
+      @ %z(href("%R/wiki?name=%T",zWName))%h(zWDisplayName)</a></td>
     }
     zAge = human_readable_age(rNow - rWmtime);
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
@@ -1085,6 +1092,7 @@ void wcontent_page(void){
       @ <td>%d(wrid)</td>
     }
     @ </tr>
+    fossil_free(zWDisplayName);
   }
   @ </tbody></table></div>
   db_finalize(&q);
@@ -1487,6 +1495,30 @@ void test_markdown_render(void){
 }
 
 /*
+** Allowed flags for wiki_render_associated
+*/
+#if INTERFACE
+#define WIKIASSOC_FULL_TITLE  0x00001   /* Full title */
+#endif
+
+/*
+** Show the default Section label for an associated wiki page.
+*/
+static void wiki_section_label(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
+){
+  if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
+    @ <div class="section">About</div>
+  }else if( zPrefix[0]=='c' ){  /* checkin/... */
+    @ <div class="section">About checkin %.20h(zName)</div>
+  }else{
+    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+  }
+}
+
+/*
 ** Check to see if there exists a wiki page with a name zPrefix/zName.
 ** If there is, then render a <div class='section'>..</div> and
 ** return true.
@@ -1495,7 +1527,8 @@ void test_markdown_render(void){
 */
 int wiki_render_associated(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
-  const char *zName      /* Name of the object */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   int rid;
   Manifest *pWiki;
@@ -1517,16 +1550,14 @@ int wiki_render_associated(
     if( blob_size(&title) ){
       @ <div class="section">%h(blob_str(&title))</div>
     }else{
-      @ <div class="section">About %s(zPrefix) %h(zName)<div>
+      wiki_section_label(zPrefix, zName, mFlags);
     }
-    @ <div class="wiki">
     convert_href_and_output(&tail);
-    @ </div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&markdown);
   }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
-    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+    wiki_section_label(zPrefix, zName, mFlags);
     @ <pre>
     @ %h(pWiki->zWiki)
     @ </pre>
@@ -1541,7 +1572,7 @@ int wiki_render_associated(
       wiki_convert(&tail, 0, WIKI_BUTTONS);
       @ </div>
     }else{
-      @ <div class="section">About %s(zPrefix) %h(zName)</div>
+      wiki_section_label(zPrefix, zName, mFlags);
       @ <div class="wiki">
       wiki_convert(&wiki, 0, WIKI_BUTTONS);
       @ </div>
