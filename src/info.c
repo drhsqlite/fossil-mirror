@@ -693,7 +693,7 @@ void ci_page(void){
     const char *zDate;
     const char *zOrigDate;
     const char *zBrName;
-    Blob wiki_edit_links = BLOB_INITIALIZER;
+    Blob wiki_links = BLOB_INITIALIZER;
 
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
@@ -763,12 +763,12 @@ void ci_page(void){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
         @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
-        blob_appendf(&wiki_edit_links, " | %z%h</a>",
-            href("%R/wikiedit?name=branch/%h",zTagName), zTagName);
+        blob_appendf(&wiki_links, " | %z%h</a>",
+            href("%R/wiki?name=branch/%h",zTagName), zTagName);
       }else{
         @  | %z(href("%R/timeline?t=%T&unhide",zTagName))%h(zTagName)</a>
-        blob_appendf(&wiki_edit_links, " | %z%h</a>",
-            href("%R/wikiedit?name=tag/%h",zTagName), zTagName);
+        blob_appendf(&wiki_links, " | %z%h</a>",
+            href("%R/wiki?name=tag/%h",zTagName), zTagName);
       }
     }
     db_finalize(&q2);
@@ -818,10 +818,10 @@ void ci_page(void){
       }
       db_finalize(&q2);
     }
-    if( g.perm.WrWiki && db_get_boolean("wiki-about",1) ){
-      @ <tr><th>Edit&nbsp;Wiki:</th>
-      @ <td>%z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>
-      @ %b(&wiki_edit_links)</td>
+    if( g.perm.RdWiki && db_get_boolean("wiki-about",1) ){
+      @ <tr><th>Wiki:</th>
+      @ <td>%z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a>
+      @ %b(&wiki_links)</td>
     }
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
@@ -838,13 +838,15 @@ void ci_page(void){
       @ </tr>
     }
     @ </table>
-    blob_reset(&wiki_edit_links);
+    blob_reset(&wiki_links);
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
   }
   db_finalize(&q1);
-  wiki_render_associated("checkin", zUuid, 0);
+  if( !PB("nowiki") ){
+    wiki_render_associated("checkin", zUuid, 0);
+  }
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
   render_checkin_context(rid, 0);
