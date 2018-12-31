@@ -347,6 +347,34 @@ void wiki_srchpage(void){
 }
 
 /*
+** Add an appropriate style_header() for either the /wiki or /wikiedit page
+** for zPageName.
+*/
+static void wiki_page_header(const char *zPageName, const char *zExtra){
+  if( db_get_boolean("wiki-about",1)==0 ){
+    style_header("%s%s", zExtra, zPageName);
+  }else
+  if( sqlite3_strglob("checkin/*", zPageName)==0 
+   && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
+  ){
+    style_header("Notes About Checkin %S", zPageName + 8);
+    style_submenu_element("Checkin Timeline","%R/timeline?f=%s",zPageName + 8);
+    style_submenu_element("Checkin Info","%R/info/%s",zPageName + 8);
+  }else
+  if( sqlite3_strglob("branch/*", zPageName)==0 ){
+    style_header("Notes About Branch %h", zPageName + 7);
+    style_submenu_element("Branch Timeline","%R/timeline?r=%t",zPageName + 7);
+  }else
+  if( sqlite3_strglob("tag/*", zPageName)==0 ){
+    style_header("Notes About Tag %h", zPageName + 4);
+    style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName + 4);
+  }
+  else{
+    style_header("%s%s", zExtra, zPageName);
+  }
+}
+
+/*
 ** WEBPAGE: wiki
 ** URL: /wiki?name=PAGENAME
 */
@@ -412,7 +440,7 @@ void wiki_page(void){
     }
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  style_header("%s", zPageName);
+  wiki_page_header(zPageName, "");
   wiki_standard_submenu(submenuFlags);
   if( zBody[0]==0 ){
     @ <i>This page has been deleted</i>
@@ -581,29 +609,7 @@ void wikiedit_page(void){
     zBody = mprintf("<i>Empty Page</i>");
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-
-  if( db_get_boolean("wiki-about",1)==0 ){
-    style_header("Edit: %s", zPageName);
-  }else
-  if( sqlite3_strglob("checkin/*", zPageName)==0 
-   && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
-  ){
-    style_header("Notes About Checkin %S", zPageName + 8);
-    style_submenu_element("Checkin Timeline","%R/timeline?f=%s",zPageName + 8);
-    style_submenu_element("Checkin Info","%R/info/%s",zPageName + 8);
-  }else
-  if( sqlite3_strglob("branch/*", zPageName)==0 ){
-    style_header("Notes About Branch %h", zPageName + 7);
-    style_submenu_element("Branch Timeline","%R/timeline?r=%t",zPageName + 7);
-  }else
-  if( sqlite3_strglob("tag/*", zPageName)==0 ){
-    style_header("Notes About Tag %h", zPageName + 4);
-    style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName + 4);
-  }
-  else{
-    style_header("Edit: %s", zPageName);
-  }
-
+  wiki_page_header(zPageName, "Edit: ");
   if( rid && !isSandbox && g.perm.ApndWiki ){
     if( g.perm.Attach ){
       style_submenu_element("Attach",
@@ -1521,6 +1527,7 @@ void test_markdown_render(void){
 */
 #if INTERFACE
 #define WIKIASSOC_FULL_TITLE  0x00001   /* Full title */
+#define WIKIASSOC_MENU        0x00002   /* Add a submenu to the About section */
 #endif
 
 /*
@@ -1537,6 +1544,19 @@ static void wiki_section_label(
     @ <div class="section">About checkin %.20h(zName)</div>
   }else{
     @ <div class="section">About %s(zPrefix) %h(zName)</div>
+  }
+}
+
+/*
+** Add an "Wiki" button in a submenu for a Wiki page.
+*/
+static void wiki_section_menu(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
+){
+  if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU)!=0 ){
+    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
   }
 }
 
@@ -1575,12 +1595,14 @@ int wiki_render_associated(
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
+    wiki_section_menu(zPrefix, zName, mFlags);
     convert_href_and_output(&tail);
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&markdown);
   }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
     wiki_section_label(zPrefix, zName, mFlags);
+    wiki_section_menu(zPrefix, zName, mFlags);
     @ <pre>
     @ %h(pWiki->zWiki)
     @ </pre>
@@ -1588,18 +1610,19 @@ int wiki_render_associated(
     Blob tail = BLOB_INITIALIZER;
     Blob title = BLOB_INITIALIZER;
     Blob wiki;
+    Blob *pBody;
     blob_init(&wiki, pWiki->zWiki, -1);
     if( wiki_find_title(&wiki, &title, &tail) ){
       @ <div class="section">%h(blob_str(&title))</div>
-      @ <div class="wiki">
-      wiki_convert(&tail, 0, WIKI_BUTTONS);
-      @ </div>
+      pBody = &tail;
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
-      @ <div class="wiki">
-      wiki_convert(&wiki, 0, WIKI_BUTTONS);
-      @ </div>
+      pBody = &wiki;
     }
+    wiki_section_menu(zPrefix, zName, mFlags);
+    @ <div class="wiki">
+    wiki_convert(pBody, 0, WIKI_BUTTONS);
+    @ </div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&wiki);
