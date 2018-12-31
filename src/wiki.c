@@ -80,6 +80,10 @@ static int check_name(const char *z){
 int wiki_tagid(const char *zPageName){
   return db_int(0, "SELECT tagid FROM tag WHERE tagname='wiki-%q'",zPageName);
 }
+int wiki_tagid2(const char *zPrefix, const char *zPageName){
+  return db_int(0, "SELECT tagid FROM tag WHERE tagname='wiki-%q/%q'",
+                zPrefix, zPageName);
+}
 
 /*
 ** Return the RID of the next or previous version of a wiki page.  
@@ -347,6 +351,54 @@ void wiki_srchpage(void){
 }
 
 /*
+** Add an appropriate style_header() for either the /wiki or /wikiedit page
+** for zPageName.
+*/
+static void wiki_page_header(const char *zPageName, const char *zExtra){
+  if( db_get_boolean("wiki-about",1)==0 ){
+    style_header("%s%s", zExtra, zPageName);
+  }else
+  if( sqlite3_strglob("checkin/*", zPageName)==0 
+   && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
+  ){
+    style_header("Notes About Checkin %S", zPageName + 8);
+    style_submenu_element("Checkin Timeline","%R/timeline?f=%s",zPageName + 8);
+    style_submenu_element("Checkin Info","%R/info/%s",zPageName + 8);
+  }else
+  if( sqlite3_strglob("branch/*", zPageName)==0 ){
+    style_header("Notes About Branch %h", zPageName + 7);
+    style_submenu_element("Branch Timeline","%R/timeline?r=%t",zPageName + 7);
+  }else
+  if( sqlite3_strglob("tag/*", zPageName)==0 ){
+    style_header("Notes About Tag %h", zPageName + 4);
+    style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName + 4);
+  }
+  else{
+    style_header("%s%s", zExtra, zPageName);
+  }
+}
+
+/*
+** Wiki pages with special names "branch/...", "checkin/...", and "tag/..."
+** requires perm.Write privilege in addition to perm.WrWiki in order
+** to write.  This function determines whether the extra perm.Write
+** is required and available.  Return true if writing to the wiki page
+** may proceed, and return false if permission is lacking.
+*/
+static int wiki_special_permission(const char *zPageName){
+  if( strncmp(zPageName,"branch/",7)!=0
+   && strncmp(zPageName,"checkin/",8)!=0
+   && strncmp(zPageName,"tag/",4)!=0
+  ){
+    return 1;
+  }
+  if( db_get_boolean("wiki-about",1)==0 ){
+    return 1;
+  }
+  return g.perm.Write;
+}
+
+/*
 ** WEBPAGE: wiki
 ** URL: /wiki?name=PAGENAME
 */
@@ -398,7 +450,9 @@ void wiki_page(void){
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
   if( !g.isHome ){
-    if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+    if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
+     && wiki_special_permission(zPageName)
+    ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "%s/wikiedit?name=%T&wysiwyg=1",
              g.zTop, zPageName);
@@ -412,7 +466,7 @@ void wiki_page(void){
     }
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  style_header("%s", zPageName);
+  wiki_page_header(zPageName, "");
   wiki_standard_submenu(submenuFlags);
   if( zBody[0]==0 ){
     @ <i>This page has been deleted</i>
@@ -528,6 +582,10 @@ void wikiedit_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
+    if( !wiki_special_permission(zPageName) ){
+      login_needed(0);
+      return;
+    }
     if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
       login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
       return;
@@ -581,7 +639,7 @@ void wikiedit_page(void){
     zBody = mprintf("<i>Empty Page</i>");
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  style_header("Edit: %s", zPageName);
+  wiki_page_header(zPageName, "Edit: ");
   if( rid && !isSandbox && g.perm.ApndWiki ){
     if( g.perm.Attach ){
       style_submenu_element("Attach",
@@ -1069,13 +1127,20 @@ void wcontent_page(void){
     sqlite3_int64 iMtime = (sqlite3_int64)(rWmtime*86400.0);
     char *zAge;
     int wcnt = db_column_int(&q, 4);
+    char *zWDisplayName;
+
+    if( sqlite3_strglob("checkin/*", zWName)==0 ){
+      zWDisplayName = mprintf("%.25s...", zWName);
+    }else{
+      zWDisplayName = mprintf("%s", zWName);
+    }
     if( wrid==0 ){
       if( !showAll ) continue;
       @ <tr><td data-sortkey="%h(zSort)">\
-      @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWName)</s></a></td>
+      @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWDisplayName)</s></a></td>
     }else{
       @ <tr><td data=sortkey='%h(zSort)">\
-      @ %z(href("%R/wiki?name=%T",zWName))%h(zWName)</a></td>
+      @ %z(href("%R/wiki?name=%T",zWName))%h(zWDisplayName)</a></td>
     }
     zAge = human_readable_age(rNow - rWmtime);
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
@@ -1085,6 +1150,7 @@ void wcontent_page(void){
       @ <td>%d(wrid)</td>
     }
     @ </tr>
+    fossil_free(zWDisplayName);
   }
   @ </tbody></table></div>
   db_finalize(&q);
@@ -1484,4 +1550,113 @@ void test_markdown_render(void){
   blob_read_from_file(&in, g.argv[2], ExtFILE);
   markdown_to_html(&in, 0, &out);
   blob_write_to_file(&out, "-");
+}
+
+/*
+** Allowed flags for wiki_render_associated
+*/
+#if INTERFACE
+#define WIKIASSOC_FULL_TITLE  0x00001   /* Full title */
+#define WIKIASSOC_MENU        0x00002   /* Add a submenu to the About section */
+#endif
+
+/*
+** Show the default Section label for an associated wiki page.
+*/
+static void wiki_section_label(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
+){
+  if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
+    @ <div class="section">About</div>
+  }else if( zPrefix[0]=='c' ){  /* checkin/... */
+    @ <div class="section">About checkin %.20h(zName)</div>
+  }else{
+    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+  }
+}
+
+/*
+** Add an "Wiki" button in a submenu for a Wiki page.
+*/
+static void wiki_section_menu(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
+){
+  if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU)!=0 ){
+    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
+  }
+}
+
+/*
+** Check to see if there exists a wiki page with a name zPrefix/zName.
+** If there is, then render a <div class='section'>..</div> and
+** return true.
+**
+** If there is no such wiki page, return false.
+*/
+int wiki_render_associated(
+  const char *zPrefix,   /* "branch", "tag", or "checkin" */
+  const char *zName,     /* Name of the object */
+  unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
+){
+  int rid;
+  Manifest *pWiki;
+  if( !db_get_boolean("wiki-about",1) ) return 0;
+  rid = db_int(0,
+    "SELECT rid FROM tagxref"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='wiki-%q/%q')"
+    " ORDER BY mtime DESC LIMIT 1",
+    zPrefix, zName
+  );
+  if( rid==0 ) return 0;
+  pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+  if( pWiki==0 ) return 0;
+  if( fossil_strcmp(pWiki->zMimetype, "text/x-markdown")==0 ){
+    Blob tail = BLOB_INITIALIZER;
+    Blob title = BLOB_INITIALIZER;
+    Blob markdown;
+    blob_init(&markdown, pWiki->zWiki, -1);
+    markdown_to_html(&markdown, &title, &tail);
+    if( blob_size(&title) ){
+      @ <div class="section">%h(blob_str(&title))</div>
+    }else{
+      wiki_section_label(zPrefix, zName, mFlags);
+    }
+    wiki_section_menu(zPrefix, zName, mFlags);
+    convert_href_and_output(&tail);
+    blob_reset(&tail);
+    blob_reset(&title);
+    blob_reset(&markdown);
+  }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
+    wiki_section_label(zPrefix, zName, mFlags);
+    wiki_section_menu(zPrefix, zName, mFlags);
+    @ <pre>
+    @ %h(pWiki->zWiki)
+    @ </pre>
+  }else{
+    Blob tail = BLOB_INITIALIZER;
+    Blob title = BLOB_INITIALIZER;
+    Blob wiki;
+    Blob *pBody;
+    blob_init(&wiki, pWiki->zWiki, -1);
+    if( wiki_find_title(&wiki, &title, &tail) ){
+      @ <div class="section">%h(blob_str(&title))</div>
+      pBody = &tail;
+    }else{
+      wiki_section_label(zPrefix, zName, mFlags);
+      pBody = &wiki;
+    }
+    wiki_section_menu(zPrefix, zName, mFlags);
+    @ <div class="wiki">
+    wiki_convert(pBody, 0, WIKI_BUTTONS);
+    @ </div>
+    blob_reset(&tail);
+    blob_reset(&title);
+    blob_reset(&wiki);
+  }
+  manifest_destroy(pWiki);
+  return 1;
 }

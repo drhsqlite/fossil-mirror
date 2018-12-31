@@ -944,6 +944,20 @@ void setup_wiki(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+                  "wiki-about", "wiki-about", 1, 0);
+  @ <p>
+  @ Associate wiki pages with branches, tags, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
+  @ or "tag/" and which continue with the name of an existing branch, checkin
+  @ or tag are treated specially when this feature is enabled.
+  @ <ul>
+  @ <li> <b>branch/</b><i>branch-name</i>
+  @ <li> <b>checkin/</b><i>full-checkin-hash</i>
+  @ <li> <b>tag/</b><i>tag-name</i>
+  @ </ul>
+  @ (Property: "wiki-about")</p>
+  @ <hr />
   onoff_attribute("Enable WYSIWYG Wiki Editing",
                   "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
   @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.

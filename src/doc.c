@@ -512,7 +512,7 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 ** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
 ** and any case for href or action.
 */
-static void convert_href_and_output(Blob *pIn){
+void convert_href_and_output(Blob *pIn){
   int i, base;
   int n = blob_size(pIn);
   char *z = blob_buffer(pIn);

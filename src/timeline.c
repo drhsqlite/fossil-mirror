@@ -1425,6 +1425,7 @@ static const char *tagMatchExpression(
 **    r=TAG           Show check-ins related to TAG, equivalent to t=TAG&rel
 **    rel             Show related check-ins as well as those matching t=TAG
 **    mionly          Limit rel to show ancestors but not descendants
+**    nowiki          Do not show wiki associated with branch or tag
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
 **    y=TYPE          'ci', 'w', 't', 'e', 'f', or 'all'.
@@ -1446,6 +1447,7 @@ static const char *tagMatchExpression(
 **    ubg             Background color from user
 **    namechng        Show only check-ins that have filename changes
 **    forks           Show only forks and their children
+**    cherrypicks     Show all cherrypicks
 **    ym=YYYY-MM      Show only events for the given year/month
 **    yw=YYYY-WW      Show only events for the given week of the given year
 **    yw=YYYY-MM-DD   Show events for the week that includes the given day
@@ -1455,7 +1457,6 @@ static const char *tagMatchExpression(
 **    bisect          Show the check-ins that are in the current bisect
 **    showid          Show RIDs
 **    showsql         Show the SQL text
-**    cherrypicks     Show all cherrypicks
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -2271,7 +2272,23 @@ void page_timeline(void){
   if( fossil_islower(desc.aData[0]) ){
     desc.aData[0] = fossil_toupper(desc.aData[0]);
   }
-  @ <h2>%b(&desc)</h2>
+  if( zBrName
+   && !PB("nowiki")
+   && wiki_render_associated("branch", zBrName, 
+                             WIKIASSOC_FULL_TITLE|WIKIASSOC_MENU)
+  ){
+    @ <div class="section">%b(&desc)</div>
+  }else
+  if( zTagName
+   && matchStyle==MS_EXACT
+   && !PB("nowiki")
+   && wiki_render_associated("tag", zTagName,
+                             WIKIASSOC_FULL_TITLE|WIKIASSOC_MENU)
+  ){
+    @ <div class="section">%b(&desc)</div>
+  } else{
+    @ <h2>%b(&desc)</h2>
+  }
   blob_reset(&desc);
 
   /* Report any errors. */

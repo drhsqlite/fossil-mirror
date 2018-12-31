@@ -692,6 +692,9 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+    const char *zBrName;
+    int okWiki = 0;
+    Blob wiki_links = BLOB_INITIALIZER;
 
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
@@ -702,6 +705,9 @@ void ci_page(void){
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
+    zBrName = db_text(0,
+                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                   TAG_BRANCH, rid);
     zOrigUser = db_column_text(&q1, 2);
     zUser = zEUser ? zEUser : zOrigUser;
     zComment = db_column_text(&q1, 3);
@@ -756,7 +762,19 @@ void ci_page(void){
                    "   AND +tag.tagname GLOB 'sym-*'", rid);
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zTagName = db_column_text(&q2, 0);
-      @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+      if( fossil_strcmp(zTagName,zBrName)==0 ){
+        @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+        if( g.perm.Write || wiki_tagid2("branch",zTagName)!=0 ){
+          blob_appendf(&wiki_links, " | %z%h</a>",
+              href("%R/wiki?name=branch/%h",zTagName), zTagName);
+        }
+      }else{
+        @  | %z(href("%R/timeline?t=%T&unhide",zTagName))%h(zTagName)</a>
+        if( g.perm.Write || wiki_tagid2("tag",zTagName)!=0 ){
+          blob_appendf(&wiki_links, " | %z%h</a>",
+              href("%R/wiki?name=tag/%h",zTagName), zTagName);
+        }
+      }
     }
     db_finalize(&q2);
     @ </td></tr>
@@ -805,6 +823,24 @@ void ci_page(void){
       }
       db_finalize(&q2);
     }
+
+    /* Only show links to wiki pages if the users can read wiki,
+    ** and only if the wiki pages already exist or the user has the
+    ** ability to create new ones. */
+    if( g.perm.RdWiki
+     && (g.perm.Write || blob_size(&wiki_links)>0
+           || (okWiki = wiki_tagid2("checkin",zUuid))!=0)
+     && db_get_boolean("wiki-about",1)
+    ){
+      const char *zLinks = blob_str(&wiki_links);
+      if( zLinks[0] ) zLinks += 3;
+      @ <tr><th>Wiki:</th><td>\
+      if( g.perm.Write || okWiki ){
+        @ %z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a> | \
+      }
+      @ %s(zLinks)</td></tr>
+    }
+
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
@@ -820,11 +856,15 @@ void ci_page(void){
       @ </tr>
     }
     @ </table>
+    blob_reset(&wiki_links);
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
   }
   db_finalize(&q1);
+  if( !PB("nowiki") ){
+    wiki_render_associated("checkin", zUuid, 0);
+  }
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
   render_checkin_context(rid, 0);
