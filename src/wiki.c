@@ -80,6 +80,10 @@ static int check_name(const char *z){
 int wiki_tagid(const char *zPageName){
   return db_int(0, "SELECT tagid FROM tag WHERE tagname='wiki-%q'",zPageName);
 }
+int wiki_tagid2(const char *zPrefix, const char *zPageName){
+  return db_int(0, "SELECT tagid FROM tag WHERE tagname='wiki-%q/%q'",
+                zPrefix, zPageName);
+}
 
 /*
 ** Return the RID of the next or previous version of a wiki page.  
@@ -375,6 +379,26 @@ static void wiki_page_header(const char *zPageName, const char *zExtra){
 }
 
 /*
+** Wiki pages with special names "branch/...", "checkin/...", and "tag/..."
+** requires perm.Write privilege in addition to perm.WrWiki in order
+** to write.  This function determines whether the extra perm.Write
+** is required and available.  Return true if writing to the wiki page
+** may proceed, and return false if permission is lacking.
+*/
+static int wiki_special_permission(const char *zPageName){
+  if( strncmp(zPageName,"branch/",7)!=0
+   && strncmp(zPageName,"checkin/",8)!=0
+   && strncmp(zPageName,"tag/",4)!=0
+  ){
+    return 1;
+  }
+  if( db_get_boolean("wiki-about",1)==0 ){
+    return 1;
+  }
+  return g.perm.Write;
+}
+
+/*
 ** WEBPAGE: wiki
 ** URL: /wiki?name=PAGENAME
 */
@@ -426,7 +450,9 @@ void wiki_page(void){
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
   if( !g.isHome ){
-    if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
+    if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
+     && wiki_special_permission(zPageName)
+    ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "%s/wikiedit?name=%T&wysiwyg=1",
              g.zTop, zPageName);
@@ -556,6 +582,10 @@ void wikiedit_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
+    if( !wiki_special_permission(zPageName) ){
+      login_needed(0);
+      return;
+    }
     if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
       login_needed(rid ? g.anon.WrWiki : g.anon.NewWiki);
       return;
