@@ -627,16 +627,15 @@ void ci_tags_page(void){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci?name=ARTIFACTID
-** URL:  /vinfo?name=ARTIFACTID
+** URL:  /ci/ARTIFACTID
+**  OR:  /ci?name=ARTIFACTID
 **
-** Display information about a particular check-in.
+** Display information about a particular check-in.  The exact
+** same information is shown on the /info page if the name query
+** parameter to /info describes a check-in.
 **
-** We also jump here from /info if the name is a check-in
-**
-** If the /ci and /vinfo pages used to differ in their default
-** diff settings, but now diff settings persist with a cookie and
-** so /ci and /vinfo behave the same.
+** The ARTIFACTID can be a unique prefix for the HASH of the check-in,
+** or a tag or branch name that identifies the check-in.
 */
 void ci_page(void){
   Stmt q1, q2, q3;

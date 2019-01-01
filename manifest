@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C FreeBSD\swants\sthe\ssame\sisspace()\streatment\sfrom\s[ae62c08cbe]
-D 2019-01-01T03:03:39.773
+C Tweaks\sto\sthe\sdocumentation\son\sthe\s/ci\spage.
+D 2019-01-01T19:39:41.239
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 9d0a7e5cf8616eb5e5d300cc2d7404a432a6781a5f00053801f007d4ba4ee3c9
+F src/info.c 1f69f42732657e938d2c2bbe9a6ad217c3faf75a11334b83d475b482bb41e285
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -869,13 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5602385493252ed8eb3358e19a8a6580c2ffdc9a4c0cfe318e7b798df63ba62f
-R 696c4e63ac281257f6b34a11dd488d95
-U bch
-Z dd24257fab9ea9161f3af0d70f6c924c
------BEGIN PGP SIGNATURE-----
-
-iEYEARECAAYFAlwq2IsACgkQad0Kwpwugm9w0wCfdtjlqTkjB2hJ7jkmH+16X17c
-gZcAn3MGlj/QB8zYSsPp/JEFKUhrJsWp
-=YG3k
------END PGP SIGNATURE-----
+P d3833209db06234c68a7d691b3df2c9c47c5fe542cf88a69980d1335c4f5c08a
+R 851a6839ff661a305f87d1eaa7fc2c9a
+U drh
+Z 8a550fab391c5d5f09a9cd152e892147
