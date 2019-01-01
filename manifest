@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\sdocumentation\son\sthe\s/ci\spage.
-D 2019-01-01T19:39:41.239
+C On\sthe\s/timeline\spage\swith\sthe\sr=\sor\st=\squery\sparameters,\schange\sthe\sheader\nto\sreport\sthat\sit\sis\sshowing\sonly\scheck-ins,\ssince\sthat\sis\sall\sit\swill\sshow\nregardless.
+D 2019-01-01T19:45:51.655
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -578,7 +578,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 09c689cf80be1a9877303142a1fd44f6e40c46f67e2adeb97360400ad413a4e8
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c 192565594fad1c7b3066626810d412c0237a31fb162570c8d7d54450368121db
+F src/timeline.c 1d157b3ee1df843519f5819c2ec7ccb2204142ac9dd5598dd412e8aa8b4e2dae
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d3833209db06234c68a7d691b3df2c9c47c5fe542cf88a69980d1335c4f5c08a
-R 851a6839ff661a305f87d1eaa7fc2c9a
+P 1a857fe1fff49a828ee2424d47d4f567dff1b9d1dfab4117963b41143ed019f5
+R ba89a8595efe1eeaf224025e07052bff
 U drh
-Z 8a550fab391c5d5f09a9cd152e892147
+Z caef9aecc28f4a831e42b1cdb8e09393

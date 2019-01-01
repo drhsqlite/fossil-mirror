@@ -1585,6 +1585,7 @@ void page_timeline(void){
     cgi_set_query_parameter("rel", "1");
     zTagName = zBrName;
     related = 1;
+    zType = "ci";
   }
 
   /* Ignore empty tag query strings. */
@@ -1594,6 +1595,7 @@ void page_timeline(void){
 
   /* Finish preliminary processing of tag match queries. */
   if( zTagName ){
+    zType = "ci";
     /* Interpet the tag style string. */
     if( fossil_stricmp(zMatchStyle, "glob")==0 ){
       matchStyle = MS_GLOB;
