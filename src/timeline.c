@@ -2276,16 +2276,15 @@ void page_timeline(void){
   }
   if( zBrName
    && !PB("nowiki")
-   && wiki_render_associated("branch", zBrName, 
-                             WIKIASSOC_FULL_TITLE|WIKIASSOC_MENU)
+   && wiki_render_associated("branch", zBrName, WIKIASSOC_ALL)
   ){
     @ <div class="section">%b(&desc)</div>
   }else
   if( zTagName
    && matchStyle==MS_EXACT
+   && zBrName==0
    && !PB("nowiki")
-   && wiki_render_associated("tag", zTagName,
-                             WIKIASSOC_FULL_TITLE|WIKIASSOC_MENU)
+   && wiki_render_associated("tag", zTagName, WIKIASSOC_ALL)
   ){
     @ <div class="section">%b(&desc)</div>
   } else{

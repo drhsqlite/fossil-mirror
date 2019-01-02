@@ -1,5 +1,5 @@
-C On\sthe\s/timeline\spage\swith\sthe\sr=\sor\st=\squery\sparameters,\schange\sthe\sheader\nto\sreport\sthat\sit\sis\sshowing\sonly\scheck-ins,\ssince\sthat\sis\sall\sit\swill\sshow\nregardless.
-D 2019-01-01T19:45:51.655
+C Put\san\s"Add\sWiki"\sbutton\sin\sthe\ssubmenu\sfor\s/timeline\sdisplays\sof\sbranches\nand\stags.\s\sAdd\sthe\s"Add\sWiki:"\sline\sto\sthe\soverview\ssection\sof\scheck-in\s/info\npages.
+D 2019-01-02T03:08:13.816
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 1f69f42732657e938d2c2bbe9a6ad217c3faf75a11334b83d475b482bb41e285
+F src/info.c 1269e83a8fde27c113427a930b5a6b4e391484d6b51390f136c37b6106478419
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -578,7 +578,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 09c689cf80be1a9877303142a1fd44f6e40c46f67e2adeb97360400ad413a4e8
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
-F src/timeline.c 1d157b3ee1df843519f5819c2ec7ccb2204142ac9dd5598dd412e8aa8b4e2dae
+F src/timeline.c 385a7cd8bb97dce790c74ac3ea321e6fe3c1d6ad248ee822d112df340aea011b
 F src/tkt.c e99464befd9a184dd67a8ccbd8074aa0a851e7815b20f7911eec662033c1567f
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 8c891c745e280c0235bf0f57d3aeff2f34e823498601aeb4c9e0766dd964f960
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c cb48e731a02200e362abc0a40776f7d7cd38f0b18d0bb0b00f657148bf735837
+F src/wiki.c ea42b734571ee3605d76612ef1cec180e13d284cb0c305afe9b4fb20888bc066
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c ebde55770bdf33199d0342434de7477ebd9526596e39963e0f1ca0917b2cc0c7
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a857fe1fff49a828ee2424d47d4f567dff1b9d1dfab4117963b41143ed019f5
-R ba89a8595efe1eeaf224025e07052bff
+P 31edaabf2b358ad74548804ce86343ec1d6554654e3081af8437bf83c2e090a9
+R 647c4b2f8ae79b883b7b566dba735d77
 U drh
-Z caef9aecc28f4a831e42b1cdb8e09393
+Z 029a7da1821f62e56bededeb5a238814

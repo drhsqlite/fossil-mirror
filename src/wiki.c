@@ -350,32 +350,70 @@ void wiki_srchpage(void){
   style_footer();
 }
 
+/* Return values from wiki_page_type() */
+#define WIKITYPE_UNKNOWN    (-1)
+#define WIKITYPE_NORMAL     0
+#define WIKITYPE_BRANCH     1
+#define WIKITYPE_CHECKIN    2
+#define WIKITYPE_TAG        3
+
 /*
-** Add an appropriate style_header() for either the /wiki or /wikiedit page
-** for zPageName.
+** Figure out what type of wiki page we are dealing with.
 */
-static void wiki_page_header(const char *zPageName, const char *zExtra){
+static int wiki_page_type(const char *zPageName){
   if( db_get_boolean("wiki-about",1)==0 ){
-    style_header("%s%s", zExtra, zPageName);
+    return WIKITYPE_NORMAL;
   }else
   if( sqlite3_strglob("checkin/*", zPageName)==0 
    && db_exists("SELECT 1 FROM blob WHERE uuid=%Q",zPageName+8)
   ){
-    style_header("Notes About Checkin %S", zPageName + 8);
-    style_submenu_element("Checkin Timeline","%R/timeline?f=%s",zPageName + 8);
-    style_submenu_element("Checkin Info","%R/info/%s",zPageName + 8);
+    return WIKITYPE_CHECKIN;
   }else
   if( sqlite3_strglob("branch/*", zPageName)==0 ){
-    style_header("Notes About Branch %h", zPageName + 7);
-    style_submenu_element("Branch Timeline","%R/timeline?r=%t",zPageName + 7);
+    return WIKITYPE_BRANCH;
   }else
   if( sqlite3_strglob("tag/*", zPageName)==0 ){
-    style_header("Notes About Tag %h", zPageName + 4);
-    style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName + 4);
+    return WIKITYPE_TAG;
   }
-  else{
-    style_header("%s%s", zExtra, zPageName);
+  return WIKITYPE_NORMAL;
+}
+
+/*
+** Add an appropriate style_header() for either the /wiki or /wikiedit page
+** for zPageName.
+*/
+static int wiki_page_header(
+  int eType,                /* Page type.  -1 for unknown */
+  const char *zPageName,    /* Name of the page */
+  const char *zExtra        /* Extra prefix text on the page header */
+){
+  if( eType<0 ) eType = wiki_page_type(zPageName);
+  switch( eType ){
+    case WIKITYPE_NORMAL: {
+      style_header("%s%s", zExtra, zPageName);
+      break;
+    }
+    case WIKITYPE_CHECKIN: {
+      zPageName += 8;
+      style_header("Notes About Checkin %S", zPageName);
+      style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
+      style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+      break;
+    }
+    case WIKITYPE_BRANCH: {
+      zPageName += 7;
+      style_header("Notes About Branch %h", zPageName);
+      style_submenu_element("Branch Timeline","%R/timeline?r=%t", zPageName);
+      break;
+    }
+    case WIKITYPE_TAG: {
+      zPageName += 4;
+      style_header("Notes About Tag %h", zPageName);
+      style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName);
+      break;
+    }
   }
+  return eType;
 }
 
 /*
@@ -466,7 +504,7 @@ void wiki_page(void){
     }
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  wiki_page_header(zPageName, "");
+  wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
   wiki_standard_submenu(submenuFlags);
   if( zBody[0]==0 ){
     @ <i>This page has been deleted</i>
@@ -548,6 +586,7 @@ void wikiedit_page(void){
   const char *zMimetype = wiki_filter_mimetypes(P("mimetype"));
   int isWysiwyg = P("wysiwyg")!=0;
   int goodCaptcha = 1;
+  int eType = WIKITYPE_UNKNOWN;
 
   if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
   if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
@@ -636,10 +675,10 @@ void wikiedit_page(void){
     return;
   }
   if( zBody==0 ){
-    zBody = mprintf("<i>Empty Page</i>");
+    zBody = mprintf("");
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
-  wiki_page_header(zPageName, "Edit: ");
+  eType = wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "Edit: ");
   if( rid && !isSandbox && g.perm.ApndWiki ){
     if( g.perm.Attach ){
       style_submenu_element("Attach",
@@ -654,7 +693,7 @@ void wikiedit_page(void){
   }
   blob_zero(&wiki);
   blob_append(&wiki, zBody, -1);
-  if( P("preview")!=0 ){
+  if( P("preview")!=0 && zBody[0] ){
     @ Preview:<hr />
     wiki_render_by_mimetype(&wiki, zMimetype);
     @ <hr />
@@ -667,12 +706,33 @@ void wikiedit_page(void){
   if( n>30 ) n = 30;
   if( !isWysiwyg ){
     /* Traditional markup-only editing */
+    char *zPlaceholder = 0;
+    switch( eType ){
+      case WIKITYPE_NORMAL: {
+        zPlaceholder = mprintf("Enter text for wiki page %s", zPageName);
+        break;
+      }
+      case WIKITYPE_BRANCH: {
+        zPlaceholder = mprintf("Enter notes about branch %s", zPageName+7);
+        break;
+      }
+      case WIKITYPE_CHECKIN: {
+        zPlaceholder = mprintf("Enter notes about check-in %.20s", zPageName+8);
+        break;
+      }
+      case WIKITYPE_TAG: {
+        zPlaceholder = mprintf("Enter notes about tag %s", zPageName+4);
+        break;
+      }
+    }
     form_begin(0, "%R/wikiedit");
     @ <div>Markup style:
     mimetype_option_menu(zMimetype);
-    @ <br /><textarea name="w" class="wikiedit" cols="80"
-    @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+    @ <br /><textarea name="w" class="wikiedit" cols="80" \
+    @  rows="%d(n)" wrap="virtual" placeholder="%h(zPlaceholder)">\
+    @ %h(zBody)</textarea>
     @ <br />
+    fossil_free(zPlaceholder);
     if( db_get_boolean("wysiwyg-wiki", 0) ){
       @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
       @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
@@ -1557,7 +1617,9 @@ void test_markdown_render(void){
 */
 #if INTERFACE
 #define WIKIASSOC_FULL_TITLE  0x00001   /* Full title */
-#define WIKIASSOC_MENU        0x00002   /* Add a submenu to the About section */
+#define WIKIASSOC_MENU_READ   0x00002   /* Add submenu link to read wiki */
+#define WIKIASSOC_MENU_WRITE  0x00004   /* Add submenu link to add wiki */
+#define WIKIASSOC_ALL         0x00007   /* All of the above */
 #endif
 
 /*
@@ -1578,14 +1640,14 @@ static void wiki_section_label(
 }
 
 /*
-** Add an "Wiki" button in a submenu for a Wiki page.
+** Add an "Wiki" button in a submenu that links to the read-wiki page.
 */
-static void wiki_section_menu(
+static void wiki_submenu_to_read_wiki(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
-  if( g.perm.WrWiki && (mFlags & WIKIASSOC_MENU)!=0 ){
+  if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
     style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
   }
 }
@@ -1611,7 +1673,12 @@ int wiki_render_associated(
     " ORDER BY mtime DESC LIMIT 1",
     zPrefix, zName
   );
-  if( rid==0 ) return 0;
+  if( rid==0 ){
+    if( g.perm.WrWiki && g.perm.Write && (mFlags & WIKIASSOC_MENU_WRITE)!=0 ){
+      style_submenu_element("Add Wiki", "%R/wikiedit?name=%s/%t",
+                            zPrefix, zName);
+    }
+  }
   pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
   if( pWiki==0 ) return 0;
   if( fossil_strcmp(pWiki->zMimetype, "text/x-markdown")==0 ){
@@ -1625,14 +1692,14 @@ int wiki_render_associated(
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
-    wiki_section_menu(zPrefix, zName, mFlags);
+    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     convert_href_and_output(&tail);
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&markdown);
   }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
     wiki_section_label(zPrefix, zName, mFlags);
-    wiki_section_menu(zPrefix, zName, mFlags);
+    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     @ <pre>
     @ %h(pWiki->zWiki)
     @ </pre>
@@ -1649,7 +1716,7 @@ int wiki_render_associated(
       wiki_section_label(zPrefix, zName, mFlags);
       pBody = &wiki;
     }
-    wiki_section_menu(zPrefix, zName, mFlags);
+    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
     @ <div class="wiki">
     wiki_convert(pBody, 0, WIKI_BUTTONS);
     @ </div>

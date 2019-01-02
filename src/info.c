@@ -693,7 +693,8 @@ void ci_page(void){
     const char *zOrigDate;
     const char *zBrName;
     int okWiki = 0;
-    Blob wiki_links = BLOB_INITIALIZER;
+    Blob wiki_read_links = BLOB_INITIALIZER;
+    Blob wiki_add_links = BLOB_INITIALIZER;
 
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
@@ -763,15 +764,21 @@ void ci_page(void){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
         @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
-        if( g.perm.Write || wiki_tagid2("branch",zTagName)!=0 ){
-          blob_appendf(&wiki_links, " | %z%h</a>",
+        if( wiki_tagid2("branch",zTagName)!=0 ){
+          blob_appendf(&wiki_read_links, " | %z%h</a>",
               href("%R/wiki?name=branch/%h",zTagName), zTagName);
+        }else if( g.perm.Write && g.perm.WrWiki ){
+          blob_appendf(&wiki_add_links, " | %z%h</a>",
+              href("%R/wikiedit?name=branch/%h",zTagName), zTagName);
         }
       }else{
         @  | %z(href("%R/timeline?t=%T&unhide",zTagName))%h(zTagName)</a>
-        if( g.perm.Write || wiki_tagid2("tag",zTagName)!=0 ){
-          blob_appendf(&wiki_links, " | %z%h</a>",
+        if( wiki_tagid2("tag",zTagName)!=0 ){
+          blob_appendf(&wiki_read_links, " | %z%h</a>",
               href("%R/wiki?name=tag/%h",zTagName), zTagName);
+        }else if( g.perm.Write && g.perm.WrWiki ){
+          blob_appendf(&wiki_add_links, " | %z%h</a>",
+              href("%R/wikiedit?name=tag/%h",zTagName), zTagName);
         }
       }
     }
@@ -823,19 +830,37 @@ void ci_page(void){
       db_finalize(&q2);
     }
 
-    /* Only show links to wiki pages if the users can read wiki,
-    ** and only if the wiki pages already exist or the user has the
-    ** ability to create new ones. */
+    /* Only show links to read wiki pages if the users can read wiki
+    ** and if the wiki pages already exist */
     if( g.perm.RdWiki
-     && (g.perm.Write || blob_size(&wiki_links)>0
-           || (okWiki = wiki_tagid2("checkin",zUuid))!=0)
+     && ((okWiki = wiki_tagid2("checkin",zUuid))!=0 ||
+                 blob_size(&wiki_read_links)>0)
      && db_get_boolean("wiki-about",1)
     ){
-      const char *zLinks = blob_str(&wiki_links);
-      if( zLinks[0] ) zLinks += 3;
+      const char *zLinks = blob_str(&wiki_read_links);
       @ <tr><th>Wiki:</th><td>\
-      if( g.perm.Write || okWiki ){
-        @ %z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a> | \
+      if( okWiki ){
+        @ %z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a>\
+      }else if( zLinks[0] ){
+        zLinks += 3;
+      }
+      @ %s(zLinks)</td></tr>
+    }
+
+    /* Only show links to create new wiki pages if the users can write wiki
+    ** and if the wiki pages do not already exist */
+    if( g.perm.WrWiki
+     && g.perm.RdWiki
+     && g.perm.Write
+     && (blob_size(&wiki_add_links)>0 || !okWiki)
+     && db_get_boolean("wiki-about",1)
+    ){
+      const char *zLinks = blob_str(&wiki_add_links);
+      @ <tr><th>Add&nbsp;Wiki:</th><td>\
+      if( !okWiki ){
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
+      }else if( zLinks[0] ){
+        zLinks += 3;
       }
       @ %s(zLinks)</td></tr>
     }
@@ -855,7 +880,8 @@ void ci_page(void){
       @ </tr>
     }
     @ </table>
-    blob_reset(&wiki_links);
+    blob_reset(&wiki_read_links);
+    blob_reset(&wiki_add_links);
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
