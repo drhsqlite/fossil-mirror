@@ -587,6 +587,7 @@ void wikiedit_page(void){
   int isWysiwyg = P("wysiwyg")!=0;
   int goodCaptcha = 1;
   int eType = WIKITYPE_UNKNOWN;
+  int havePreview = 0;
 
   if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
   if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
@@ -694,6 +695,7 @@ void wikiedit_page(void){
   blob_zero(&wiki);
   blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 && zBody[0] ){
+    havePreview = 1;
     @ Preview:<hr />
     wiki_render_by_mimetype(&wiki, zMimetype);
     @ <hr />
@@ -741,6 +743,7 @@ void wikiedit_page(void){
   }else{
     /* Wysiwyg editing */
     Blob html, temp;
+    havePreview = 1;
     form_begin("", "%R/wikiedit");
     @ <div>
     @ <input type="hidden" name="wysiwyg" value="1" />
@@ -756,7 +759,9 @@ void wikiedit_page(void){
     @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
   }
   login_insert_csrf_secret();
-  @ <input type="submit" name="submit" value="Apply These Changes" />
+  if( havePreview ){
+    @ <input type="submit" name="submit" value="Apply These Changes" />
+  }
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <input type="submit" name="cancel" value="Cancel"
   @  onclick='confirm("Abandon your changes?")' />
