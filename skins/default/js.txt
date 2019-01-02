@@ -41,11 +41,11 @@
 
   // The duration of the animation can be overridden from the default skin
   // header.txt by setting the "data-anim-ms" attribute of the panel.
-  var animMS = panel.getAttribute("data-anim-ms");
-  if (animMS === "0")
-    animate = false;   // disable animation if "data-anim-ms" === "0"
-  else if (!animMS || animMS>>0 !== Number(animMS) || animMS < 0)
-    animMS = 400;   // set default if missing, empty, non-integer, or negative
+  var animMS = parseInt(panel.getAttribute("data-anim-ms"));
+  if (isNaN(animMS) || animMs == 0)
+    animate = false;   // disable animation if non-numeric or zero
+  else if (animMS < 0)
+    animMS = 400;   // set default animation duration if negative
 
   // Calculate panel height despite its being hidden at call time.
   // Based on https://stackoverflow.com/a/29047447/142454
