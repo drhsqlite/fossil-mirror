@@ -19,7 +19,7 @@ proc menulink {url name cls} {
     html "<a href='$home$url' class='$cls'>$name</a>\n"
   }
 }
-html "<a href='#'>&#9776;</a>"
+html "<a id='hbbtn' href='#'>&#9776;</a>"
 menulink $index_page Home {}
 if {[anycap jor]} {
   menulink /timeline Timeline {}

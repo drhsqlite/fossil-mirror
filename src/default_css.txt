@@ -221,6 +221,7 @@ div.columns > ul li:first-child {
 }
 .columns li {
   break-inside: avoid;
+  page-break-inside: avoid;
 }
 .filetree {
   margin: 1em 0;
