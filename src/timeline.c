@@ -1822,7 +1822,7 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      compute_descendants(d_rid, nEntry+1);
+      compute_descendants(d_rid, nEntry==0 ? 0 : nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>=0 ) db_multi_exec("%s", blob_sql_text(&sql));
       if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
@@ -1830,7 +1830,7 @@ void page_timeline(void){
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      compute_ancestors(p_rid, nEntry+1, 0);
+      compute_ancestors(p_rid, nEntry==0 ? 0 : nEntry+1, 0);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
