@@ -27,10 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__NetBSD__) || defined(__FreeBSD__)
-#include <ctype.h> /* isspace() */
-#endif
-
+#include <ctype.h>
 
 /*
 ** Read the entire content of the file named zFilename into memory obtained
