@@ -1220,7 +1220,7 @@ void test_missing(void){
 ** the metadata.
 **
 ** Note that the arguments are the integer raw RID values from the BLOB table,
-** not artifact hashs or labels.
+** not artifact hashes or labels.
 */
 void test_content_erase(void){
   int i;

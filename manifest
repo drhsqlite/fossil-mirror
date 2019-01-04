@@ -1,5 +1,5 @@
-C For\sthe\s'reparent'\scommand,\smake\ssure\sthere's\san\sopen\scheck-out\s(otherwise\sit\swill\sfail).
-D 2019-01-04T07:54:00.000
+C Minor\stypo.
+D 2019-01-04T07:56:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -452,7 +452,7 @@ F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e69
 F src/comformat.c e97f8902b57cbce6aaf9bc69ed1cc46ab2fc33b4e13711967a3498a4badc4dc6
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 10cb992c1cfb2763fe7df77e9e812b7e3c5b43b5b42600b130d18c80f298da6c
-F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
+F src/content.c 4f31f359dd7c365e3936cc01250b5f82cc33a42ede54d473f30eb59e0f0595e3
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
@@ -866,10 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 724a9b8f3c8d82d015f2073e9879fa70b4ec753eab1e846a9c8ab0aa380cf6dd
-R 802c639e2971499ab5f9411475ea6e94
-T *branch * misc-little-things
-T *sym-misc-little-things *
-T -sym-trunk *
+P 6e80af7e527cbc2b54d06db8ba8d838a7df6d9ea4de4d487e3027a945b52bc84
+R 70edc7ee1ce8a8c12c828a7c933c79f4
 U florian
-Z c95511acc38fee64e2a5d95b7ed6e75f
+Z be702ecfe389ed621d34f0cc7af5eca2
