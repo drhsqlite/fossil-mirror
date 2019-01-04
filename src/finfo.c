@@ -577,7 +577,7 @@ void finfo_page(void){
     }
     @ user:&nbsp;\
     hyperlink_to_user(zUser, zDate, ",");
-    @ branch:&nbsp;%z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+    @ branch:&nbsp;%z(href("%R/timeline?t=%T",zBr))%h(zBr)</a>,
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ){
       @ size:&nbsp;%d(szFile))
     }else{
