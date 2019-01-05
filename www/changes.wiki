@@ -1,5 +1,56 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_8'></a>
+<h2>Changes for Version 2.8 (pending)</h2>
+
+  *  Show cherry-pick merges as dotted lines on the timeline graph.
+     &rarr; The "fossil rebuild" command must be run to create and
+     populate the new "cherrypick" table in the repository in order 
+     for this feature to operate.
+  *  Add the ability to associate branches, check-ins, and tags with
+     specially-named Wiki pages. This gives the ability to better
+     document branches and tags, and provide more documentation on
+     check-ins beyond the check-in comment.  The associated Wiki is
+     automatically displayed on /info pages for check-ins, and on
+     /timeline?r=BRANCH and /timeline?t=TAG pages for branches and 
+     tags. This feature is on by default, but can be disabled in on
+     the Admin/Wiki page.
+  *  Enhance the repository list page (shown for example by
+     "fossil all ui") so that it shows the name and last check-in
+     time for each project.  The implementation of the repository
+     list page is now broken out into a separate source file (repolist.c).
+  *  Allow users with Forum Supervisor permission ('6') to add Forum
+     Write Trusted permission ('4') to users as they are approving a
+     forum post by that user.
+  *  When running a bisect, report the number of check-ins still in
+     the search range and the estimated number of bisect steps remaining.
+     Do this at each step of the bisect.
+  *  Make the chronological forum display feature available to all users,
+     and make it the default format on mobile devices.
+  *  Break out Wiki setup into a separate /setup_wiki page, accessible
+     on the standard menus through Admin/Wiki.
+  *  Add "Next" and "Previous" buttons on the /wdiff page, allowing
+     the user to step through the versions of a wiki page.
+  *  Improve the display of the /whistory page.
+  *  Enhance /wcontent to show a sortable list of Wiki pages together
+     with the number of revisions and the most recent change time for
+     each page.
+  *  Hyperlinks to Wiki pages on the /timeline go to the specific
+     version of the Wiki page named in the timeline, not to the latest
+     version.
+  *  Enhancements to the "amend", "tag", and "reparent" commands, including
+     adding options --override-date, --override-user, and --dry-run.
+  *  On the /setup_ucap_list, show administrators how many users have
+     each capability.  The counts are a hyperlink to the /setup_ulist
+     page showing the subset of users that have that capability.
+  *  "Compress" the built-in javascript by omitting comments and
+     leading and trailing whitespace.
+  *  Add the backoffice-disable setting to completely disable the
+     backoffice feature.
+  *  Update the built-in SQLite to version 3.26.0.
+  *  Various other small enhancements to webpages and documentation.
+
+
 <a name='v2_7'></a>
 <h2>Changes for Version 2.7 (2018-09-22)</h2>
 
