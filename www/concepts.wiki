@@ -84,16 +84,19 @@ information about the project.
 
 <h3>2.1 Identification Of Artifacts</h3>
 
-A particular version of a particular file is called an "artifact".
-Each artifact has a universally unique name which is the
-<a href="http://en.wikipedia.org/wiki/SHA1">SHA1</a> hash of the content
-of that file expressed as 40 characters of lower-case hexadecimal.  Such
-a hash is referred to as the Artifact Identifier or Artifact ID
-for the artifact.  The SHA1 algorithm is created with the purpose of
-providing a highly forgery-resistant identifier for a file.  Given any
-file it is simple to find the artifact ID for that file.  But given a
-artifact ID it is computationally intractable to generate a file that will
-have that Artifact ID.
+A particular version of a particular file is called an "artifact".  Each
+artifact has a universally unique name which is the <a
+href="http://en.wikipedia.org/wiki/SHA1">SHA1</a> or <a
+href="http://en.wikipedia.org/wiki/SHA3">SHA3-256</a> hash of the
+content of that file expressed as either 40 or 64 characters of
+lower-case hexadecimal. (See the [./hashpolicy.wiki|hash policy
+document] for information on which algorithm is used, when.) Such a hash
+is referred to as the Artifact ID. These hash algorithms were created
+with Fossil's purpose in mind: to provide a highly forgery-resistant
+identifier for a blob of data, such as a file. Given any file, it is
+simple to find the artifact ID for that file. But given an artifact ID,
+it is computationally intractable to generate a file that will have that
+same artifact ID.
 
 Artifact IDs look something like this:
 

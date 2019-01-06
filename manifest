@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s2.8\sand\supdate\sthe\schange\slog,\sin\scase\swe\sdecide\nto\sdo\sa\snew\srelease\ssoon.
-D 2019-01-05T01:29:26.332
+C Updated\sthe\sparagraph\son\sSHA1\shashes\sin\swww/concepts.wiki\sto\salso\stalk\nabout\sSHA3-256.
+D 2019-01-06T04:10:04.878
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -779,7 +779,7 @@ F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 9da3052a9631db957ece0a1dee2b7228c294ea64
+F www/concepts.wiki 583b9742549a33100aef0b7c3909d8803528c07d71367509afc3ad4aefe8c53e
 F www/contribute.wiki 51d8338889e42b57668b1116bb3fc6ab9df52864
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19682676aabbd3bfe9a948191666c61ecabc693f9a5ea6ce1ad6931bc31b0ec3
-R b4653365fec2c8baf960045c737bfc21
-U drh
-Z db2906212e440b76f1da69a1d2338ea7
+P f143b606a0da672f6c0556e2b8ecc78dfdcae252418f1b79a34bde3b4772d2e7
+R ee8203960b501fbffbbd5481cd92c7e2
+U wyoung
+Z eeebba982442b0558a707607037f7f97
