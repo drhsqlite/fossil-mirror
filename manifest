@@ -1,5 +1,5 @@
-C Updated\sthe\shash\spolicy\sdocument,\smainly\sto\sput\sit\sin\spast\stense\sand\sto\ncover\sthe\scurrent\ssituation.
-D 2019-01-06T04:27:57.948
+C Fix\sa\stypo\sin\sthe\shashpolicy.wiki\sdocument.
+D 2019-01-07T01:32:14.167
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
-F www/hashpolicy.wiki ee9ed6bd845a5e66e34de50177d14c2af8f8a71468cc9fdec0155d304f972526
+F www/hashpolicy.wiki 0af20099027b0e966d603c5911dd1b82343e3c31998e7c7bb0764f9d588e0646
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac2c2c77ff10f9cb1d0a43ebd5a8dccbcd898d1fb87401f9a020c62c443d81ee
-R a34adc02c1f8a972320cae23955d5a2b
-U wyoung
-Z 2b18c7b82a3b3b5f814406ed546c6958
+P df8baf94069f88823c54b2edb2239b398e814e686db6fb3fdbad2b7c48189cd5
+R 036aaf76c719e23271b0672a73121c78
+U drh
+Z 3a4d89ade1e7c0b390778137885ba1d9
