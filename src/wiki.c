@@ -693,13 +693,16 @@ void wikiedit_page(void){
     @ <p class="generalError">Error:  Incorrect security code.</p>
   }
   blob_zero(&wiki);
+  while( fossil_isspace(zBody[0]) ) zBody++;
   blob_append(&wiki, zBody, -1);
-  if( P("preview")!=0 && zBody[0] ){
+  if( P("preview")!=0 ){
     havePreview = 1;
-    @ Preview:<hr />
-    wiki_render_by_mimetype(&wiki, zMimetype);
-    @ <hr />
-    blob_reset(&wiki);
+    if( zBody[0] ){
+      @ Preview:<hr />
+      wiki_render_by_mimetype(&wiki, zMimetype);
+      @ <hr />
+      blob_reset(&wiki);
+    }
   }
   for(n=2, z=zBody; z[0]; z++){
     if( z[0]=='\n' ) n++;
@@ -760,7 +763,11 @@ void wikiedit_page(void){
   }
   login_insert_csrf_secret();
   if( havePreview ){
-    @ <input type="submit" name="submit" value="Apply These Changes" />
+    if( zBody[0] ){
+      @ <input type="submit" name="submit" value="Apply These Changes" />
+    }else{
+      @ <input type="submit" name="submit" value="Delete This Wiki Page" />
+    }
   }
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <input type="submit" name="cancel" value="Cancel"
