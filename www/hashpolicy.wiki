@@ -6,11 +6,12 @@
 
 There was much angst over the [http://www.shattered.io|SHAttered attack]
 against SHA1 when it was announced in early 2017.  If you are concerned
-about this and its implications for Fossil, simply upgrade to Fossil 2.1
-or later, and the problem will go away.  Everything will continue to work
-as before.  All of your legacy repositories will continue to work, and
-all of your old check-ins will still have the same name.  Your workflow
-will be unchanged.
+about this and its implications for Fossil, simply
+[./quickstart.wiki#install|upgrade to Fossil 2.1 or later], and the
+problem will go away.  Everything will continue to work as before.  All
+of your legacy repositories will continue to work, and all of your old
+check-ins will still have the same name.  Your workflow will be
+unchanged.
 
 But if you are curious and want a deeper understanding of what is
 going on, read on...
