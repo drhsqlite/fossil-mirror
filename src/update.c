@@ -575,7 +575,7 @@ void update_cmd(void){
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
       checkout_set_all_exe(tid);
       manifest_to_disk(tid);
-      db_lset_int("checkout", tid);
+      db_set_checkout(tid);
     }else{
       /* A subset of files have been checked out.  Keep the current
       ** checkout unchanged. */

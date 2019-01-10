@@ -2874,7 +2874,7 @@ void cmd_open(void){
   }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  db_lset_int("checkout", 0);
+  db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
@@ -3725,7 +3725,10 @@ void test_database_name_cmd(void){
 ** RCVFROM entry that generated the fingerprint in the first place.
 **
 ** The fingerprint consists of the rcvid, a "/", and the MD5 checksum of
-** the remaining fields of the RCVFROM table entry.
+** the remaining fields of the RCVFROM table entry.  MD5 is used for this
+** because it is 4x faster than SHA3 and 5x faster than SHA1, and there
+** are no security concerns - this is just a checksum, not a security
+** token.
 */
 char *db_fingerprint(int rcvid){
   char *z = 0;
@@ -3770,4 +3773,20 @@ void test_fingerprint(void){
     fossil_fatal("wrong number of arguments");
   } 
   fossil_print("%z\n", db_fingerprint(rcvid));
+}
+
+/*
+** Set the value of the "checkout" entry in the VVAR table.
+**
+** Also set "fingerprint" and "checkout-hash".
+*/
+void db_set_checkout(int rid){
+  char *z;
+  db_lset_int("checkout", rid);
+  z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+  db_lset("checkout-hash", z);
+  fossil_free(z);
+  z = db_fingerprint(0);
+  db_lset("fingerprint", z);
+  fossil_free(z);
 }
