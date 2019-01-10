@@ -47,12 +47,13 @@ void remote_repo_info(RepoInfo *pRepo){
   pRepo->zProjName = 0;
   pRepo->rMTime = 0.0;
 
+  g.dbIgnoreErrors++;
   rc = sqlite3_open(pRepo->zRepoName, &db);
-  if( rc ) return;
+  if( rc ) goto finish_repo_list;
   rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
                               " WHERE name='project-name'",
                           -1, &pStmt, 0);
-  if( rc ) return;
+  if( rc ) goto finish_repo_list;
   if( sqlite3_step(pStmt)==SQLITE_ROW ){
     pRepo->zProjName = fossil_strdup((char*)sqlite3_column_text(pStmt,0));
   }
@@ -61,9 +62,11 @@ void remote_repo_info(RepoInfo *pRepo){
   if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
     pRepo->rMTime = sqlite3_column_double(pStmt,0);
   }
-  sqlite3_finalize(pStmt);
-  sqlite3_close(db);
   pRepo->isValid = 1;
+  sqlite3_finalize(pStmt);
+finish_repo_list:
+  g.dbIgnoreErrors--;
+  sqlite3_close(db);
 }
 
 /*

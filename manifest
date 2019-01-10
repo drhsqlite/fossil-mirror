@@ -1,5 +1,5 @@
-C Added\sa\shyperlink\sfrom\sthe\s"upgrade\sto\sFossil\s2.1\sor\slater"\nrecommendation\sat\sthe\stop\sof\sthe\shash\spolicy\sdocument\sto\sthe\n"Installing"\ssection\sof\sthe\sQuick\sStart\sdocument.
-D 2019-01-10T17:29:39.403
+C Fix\sthe\sremote_repo_info()\sfunction\sto\savoid\sresource\sleaks\sand\sto\nsuppress\sunhelpful\serror\sand\swarning\smessages.
+D 2019-01-10T18:25:39.180
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -543,7 +543,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 78956982170d681a1fc8774916f53920e94fe0f7570072eb9906fb9b497c064c
 F src/regexp.c 3509e175b8fdaef0e23e1a86232bb506bda155c6ef2521d4ae754ea15bc26e98
-F src/repolist.c 455d2c1c18d8c30c9c4ad26829ff5de5641c89340b57883729dd068b11e1e060
+F src/repolist.c fcec37e43c2c617ba336008db7e2fb47aa0d1d9ed66b3e49b04842ae3cb58502
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15cbb09da3740932f7618ef1daf32653d207989dbb14530311d79e013f5ff43e
-R 17766d3af553c356e683390411cdfd43
-U wyoung
-Z eb5f6e51b34db71153cb9d707e966ff9
+P f392fac705e3ec87166e1c10a3b53a9f3c77558557b351914c3af7314a3a7eea
+R 2ff023626a3d179cfdd19af178049b0f
+U drh
+Z b395f1a66c94c14f4566a093e743bedf
