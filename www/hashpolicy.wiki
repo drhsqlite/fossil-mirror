@@ -179,11 +179,9 @@ This probably won't happen until after all of the operating systems
 shipping binary versions of Fossil switch to Fossil 2.1 or later. The
 big standout is Debian Stretch (v9), since it still ships Fossil 1.37
 due to its stable packages policy. Stretch will be the current release
-version of Debian until "some time mid 2019" according to [the latest
-published release plan][deb10]. Debian Stretch will then remain in
+version of Debian until "some time mid 2019" according to
+[https://lists.debian.org/debian-devel-announce/2018/04/msg00006.html|the latest
+published release plan]. Debian Stretch will then remain in
 support until June 2022. We do not yet know if we will switch the
 default hash policy during that window or not until after Stretch is
 fully out of support.
-
-
-[deb10]: https://lists.debian.org/debian-devel-announce/2018/04/msg00006.html

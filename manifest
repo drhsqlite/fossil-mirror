@@ -1,5 +1,5 @@
-C Updated\sthe\sDebian\sStretch\sspeculation\sbit\sat\sthe\send\sof\sthe\shashpolicy\ndocument\swith\slatest\sresults\sfrom\sthe\sforum\sthread.
-D 2019-01-09T12:31:05.033
+C Fixed\san\serrant\suse\sof\sa\sMarkdown\shyperlink\sin\sa\sFossil\swiki\sdocument.
+D 2019-01-10T06:03:59.288
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
-F www/hashpolicy.wiki 19bbf8239197f04290f8642cec8a97ea7252ac217763064b07b33377a38b79e4
+F www/hashpolicy.wiki d9fa64a0659d54dc884166d447450aeb562c8c5f9f699aebde1ba86210203dd1
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e947378e843cfdcdc1e406e5836c86de9e47bb8dc06ac41a52c467670828a864
-R d99942860acc704e6fce1fd9569ae42d
+P 9d673f04f5a9ce41b563b3fa365e937c1dde61b327175b2acf5c69f8beec4fc5
+R 8f51253616cbb52d6e2c9a7b9b9be957
 U wyoung
-Z a441a3799203b61cf00117a9395b8aba
+Z 676c52cfc93043f7ab0017bf50a2c722
