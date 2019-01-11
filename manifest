@@ -1,5 +1,5 @@
-C Add\sthe\s'cgiHeaderLine'\scommand\sto\sTH1.
-D 2019-01-11T05:32:43.292
+C Merge\strunk.
+D 2019-01-11T05:34:36.601
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -866,10 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e3cfc1e9eaa2bcb21720e447619906227cf960aef9bc045e6984e187e9c3589
+P 58e2f487e55181a1785d137f806ca828f729416f3bc1763eebaf9245a0496adf 103997d96e3959e08950363c2938107b11de99c6879850742a57e1127e8a7f06
 R 6ffb256fe4bf13b1cc39ad7843111c7f
-T *branch * th1CgiHeader
-T *sym-th1CgiHeader *
-T -sym-trunk *
 U mistachkin
-Z cda7c2cbc150bf4f6cb0f4d751fd97fa
+Z 80405a2cea22dd1127e7efc12846de72
