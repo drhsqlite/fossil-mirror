@@ -1031,13 +1031,13 @@ fossil test-th-eval "info commands"
 set sorted_result [lsort $RESULT]
 protOut "Sorted: $sorted_result"
 set base_commands {anoncap anycap array artifact break breakpoint catch\
-      checkout combobox continue date decorate dir enable_output encode64\
-      error expr for getParameter glob_match globalState hascap hasfeature\
-      html htmlize http httpize if info insertCsrf lindex linecount list\
-      llength lsearch markdown proc puts query randhex redirect regexp\
+      cgiHeaderLine checkout combobox continue date decorate dir enable_output \
+      encode64 error expr for getParameter glob_match globalState hascap \
+      hasfeature html htmlize http httpize if info insertCsrf lindex linecount \
+      list llength lsearch markdown proc puts query randhex redirect regexp\
       reinitialize rename render repository return searchable set\
-      setParameter setting stime string styleFooter styleHeader tclReady\
-      trace unset unversioned uplevel upvar utime verifyCsrf wiki}
+      setParameter setting stime string styleFooter styleHeader styleScript\
+      tclReady trace unset unversioned uplevel upvar utime verifyCsrf wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
