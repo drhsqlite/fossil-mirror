@@ -1657,6 +1657,25 @@ void db_open_repository(const char *zDbName){
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+
+  /* If the checkout database was opened first, then check to make
+  ** sure that the repository database that was just opened has not
+  ** be replaced by a clone of the same project, with different RID
+  ** values.
+  */
+  if( g.localOpen && !db_fingerprint_ok() ){
+    fossil_print(
+      "Oops. It looks like the repository database file located at\n"
+      "    \"%s\"\n", zDbName
+    );
+    fossil_print(
+      "has been swapped with a clone that may have different\n"
+      "integer keys for the various artifacts. As of 2019-01-11,\n"
+      "we are working on enhancing Fossil to be able to deal with\n"
+      "that automatically, but we are not there yet. Sorry.\n\n"
+    );
+    fossil_fatal("bad fingerprint");
+  }
 }
 
 /*
@@ -3760,12 +3779,19 @@ char *db_fingerprint(int rcvid){
 /*
 ** COMMAND: test-fingerprint
 **
-** Usage: %fossil test-fingerprint ?RCVID?
+** Usage: %fossil test-fingerprint ?RCVID? ?--check?
 **
-** Display the repository fingerprint.
+** Display the repository fingerprint.  Or if the --check option
+** is provided and this command is run from a checkout, invoke the
+** db_fingerprint_ok() method and print its result.
 */
 void test_fingerprint(void){
   int rcvid = 0;
+  if( find_option("check",0,0)!=0 ){
+    db_must_be_within_tree();
+    fossil_print("db_fingerprint_ok() => %d\n", db_fingerprint_ok());
+    return;
+  }
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   if( g.argc==3 ){
     rcvid = atoi(g.argv[2]);
@@ -3789,4 +3815,28 @@ void db_set_checkout(int rid){
   z = db_fingerprint(0);
   db_lset("fingerprint", z);
   fossil_free(z);
+}
+
+/*
+** Verify that the fingerprint recorded in the "fingerprint" entry
+** of the VVAR table matches the fingerprint on the currently
+** connected repository.  Return true if the fingerprint is ok, and
+** return false if the fingerprint does not match.
+*/
+int db_fingerprint_ok(void){
+  char *zCkout;   /* The fingerprint recorded in the checkout database */
+  char *zRepo;    /* The fingerprint of the repository */
+  int rc;         /* Result */
+
+  zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
+  if( zCkout==0 ){
+    /* This is an older checkout that does not record a fingerprint.
+    ** We have to assume everything is ok */
+    return 2;
+  }
+  zRepo = db_fingerprint(atoi(zCkout));
+  rc = fossil_strcmp(zCkout,zRepo)==0;
+  fossil_free(zCkout);
+  fossil_free(zRepo);
+  return rc;
 }
