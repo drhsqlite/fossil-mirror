@@ -1,5 +1,5 @@
-C Fix\sthe\sremote_repo_info()\sfunction\sto\savoid\sresource\sleaks\sand\sto\nsuppress\sunhelpful\serror\sand\swarning\smessages.
-D 2019-01-10T18:25:39.180
+C Fix\sthe\sexpected\sresult\sfor\sthe\sTH1\s'info\scommands'\stest.
+D 2019-01-11T05:34:07.325
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -663,7 +663,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test f46881dae015bf5d5736df89d6c3584256b35a9aa1ef23da625c8ae44b58b53f
+F test/th1.test 91469049dfb5a93048c43f5058bb0fbdf3290e87d297535e8ec92133084fd1a6
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f392fac705e3ec87166e1c10a3b53a9f3c77558557b351914c3af7314a3a7eea
-R 2ff023626a3d179cfdd19af178049b0f
-U drh
-Z b395f1a66c94c14f4566a093e743bedf
+P 1e3cfc1e9eaa2bcb21720e447619906227cf960aef9bc045e6984e187e9c3589
+R 2d04017dc6fdc15102d037c1726276c7
+U mistachkin
+Z 7f00f28d4d709a970e722472fc060cba

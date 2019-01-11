@@ -1036,8 +1036,8 @@ set base_commands {anoncap anycap array artifact break breakpoint catch\
       html htmlize http httpize if info insertCsrf lindex linecount list\
       llength lsearch markdown proc puts query randhex redirect regexp\
       reinitialize rename render repository return searchable set\
-      setParameter setting stime string styleFooter styleHeader tclReady\
-      trace unset unversioned uplevel upvar utime verifyCsrf wiki}
+      setParameter setting stime string styleFooter styleHeader styleScript\
+      tclReady trace unset unversioned uplevel upvar utime verifyCsrf wiki}
 set tcl_commands {tclEval tclExpr tclInvoke tclIsSafe tclMakeSafe}
 if {$th1Tcl} {
   test th1-info-commands-1 {$sorted_result eq [lsort "$base_commands $tcl_commands"]}
