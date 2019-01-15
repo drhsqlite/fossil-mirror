@@ -250,8 +250,8 @@ Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
 
-<a name="cgiHeaderLine"></a>TH1 cgiHeader Command
--------------------------------------------------
+<a name="cgiHeaderLine"></a>TH1 cgiHeaderLine Command
+-----------------------------------------------------
 
   *  cgiHeaderLine line
 
