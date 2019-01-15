@@ -88,7 +88,7 @@ static void db_err(const char *zFormat, ...){
     @ error Database\serror:\s%F(z)
     cgi_reply();
   }
-  fossil_panic("Database error: %s", z);
+  fossil_fatal("Database error: %s", z);
 }
 
 /*
