@@ -204,6 +204,7 @@ void info_cmd(void){
   }
 
   if( g.argc==3
+   && file_isfile(g.argv[2], ExtFILE)
    && (fsize = file_size(g.argv[2], ExtFILE))>0
    && (fsize&0x1ff)==0
   ){
