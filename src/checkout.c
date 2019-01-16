@@ -306,7 +306,7 @@ void checkout_cmd(void){
   checkout_set_all_exe(vid);
   manifest_to_disk(vid);
   ensure_empty_dirs_created();
-  db_lset_int("checkout", vid);
+  db_set_checkout(vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
   if( !keepFlag && db_get_boolean("repo-cksum",1) ){

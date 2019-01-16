@@ -2541,7 +2541,7 @@ void commit_cmd(void){
     " WHERE is_selected(id);"
     , vid, nvid
   );
-  db_lset_int("checkout", nvid);
+  db_set_checkout(nvid);
 
   /* Update the isexe and islink columns of the vfile table */
   db_prepare(&q,

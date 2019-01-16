@@ -1657,6 +1657,25 @@ void db_open_repository(const char *zDbName){
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+
+  /* If the checkout database was opened first, then check to make
+  ** sure that the repository database that was just opened has not
+  ** be replaced by a clone of the same project, with different RID
+  ** values.
+  */
+  if( g.localOpen && !db_fingerprint_ok() ){
+    fossil_print(
+      "Oops. It looks like the repository database file located at\n"
+      "    \"%s\"\n", zDbName
+    );
+    fossil_print(
+      "has been swapped with a clone that may have different\n"
+      "integer keys for the various artifacts. As of 2019-01-11,\n"
+      "we are working on enhancing Fossil to be able to deal with\n"
+      "that automatically, but we are not there yet. Sorry.\n\n"
+    );
+    fossil_fatal("bad fingerprint");
+  }
 }
 
 /*
@@ -2874,7 +2893,7 @@ void cmd_open(void){
   }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  db_lset_int("checkout", 0);
+  db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
@@ -3705,4 +3724,119 @@ void test_database_name_cmd(void){
   fossil_print("Repository database: %s\n", g.zRepositoryName);
   fossil_print("Local database:      %s\n", g.zLocalDbName);
   fossil_print("Config database:     %s\n", g.zConfigDbName);
+}
+
+/*
+** Compute a "fingerprint" on the repository.  A fingerprint is used
+** to verify that that the repository has not been replaced by a clone
+** of the same repository.  More precisely, a fingerprint are used to
+** verify that the mapping between SHA3 hashes and RID values is unchanged.
+**
+** The checkout database ("localdb") stores RID values.  When associating
+** a checkout database against a repository database, it is useful to verify
+** the fingerprint so that we know tha the RID values in the checkout
+** database still correspond to the correct entries in the BLOB table of
+** the repository.
+**
+** The fingerprint is based on the RCVFROM table.  When constructing a
+** new fingerprint, use the most recent RCVFROM entry.  (Set rcvid==0 to
+** accomplish this.)  When verifying an old fingerprint, use the same
+** RCVFROM entry that generated the fingerprint in the first place.
+**
+** The fingerprint consists of the rcvid, a "/", and the MD5 checksum of
+** the remaining fields of the RCVFROM table entry.  MD5 is used for this
+** because it is 4x faster than SHA3 and 5x faster than SHA1, and there
+** are no security concerns - this is just a checksum, not a security
+** token.
+*/
+char *db_fingerprint(int rcvid){
+  char *z = 0;
+  Blob sql = BLOB_INITIALIZER;
+  Stmt q;
+  blob_append_sql(&sql,
+    "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
+    "  FROM rcvfrom"
+  );
+  if( rcvid<=0 ){
+    blob_append_sql(&sql, " ORDER BY rcvid DESC LIMIT 1");
+  }else{
+    blob_append_sql(&sql, " WHERE rcvid=%d", rcvid);
+  }
+  db_prepare_blob(&q, &sql);
+  blob_reset(&sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    int i;
+    md5sum_init();
+    for(i=1; i<=4; i++){
+      md5sum_step_text(db_column_text(&q,i),-1);
+    }
+    z = mprintf("%d/%s",db_column_int(&q,0),md5sum_finish(0));
+  }
+  db_finalize(&q);
+  return z;
+}
+
+/*
+** COMMAND: test-fingerprint
+**
+** Usage: %fossil test-fingerprint ?RCVID? ?--check?
+**
+** Display the repository fingerprint.  Or if the --check option
+** is provided and this command is run from a checkout, invoke the
+** db_fingerprint_ok() method and print its result.
+*/
+void test_fingerprint(void){
+  int rcvid = 0;
+  if( find_option("check",0,0)!=0 ){
+    db_must_be_within_tree();
+    fossil_print("db_fingerprint_ok() => %d\n", db_fingerprint_ok());
+    return;
+  }
+  db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
+  if( g.argc==3 ){
+    rcvid = atoi(g.argv[2]);
+  }else if( g.argc!=2 ){
+    fossil_fatal("wrong number of arguments");
+  } 
+  fossil_print("%z\n", db_fingerprint(rcvid));
+}
+
+/*
+** Set the value of the "checkout" entry in the VVAR table.
+**
+** Also set "fingerprint" and "checkout-hash".
+*/
+void db_set_checkout(int rid){
+  char *z;
+  db_lset_int("checkout", rid);
+  z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+  db_lset("checkout-hash", z);
+  fossil_free(z);
+  z = db_fingerprint(0);
+  db_lset("fingerprint", z);
+  fossil_free(z);
+}
+
+/*
+** Verify that the fingerprint recorded in the "fingerprint" entry
+** of the VVAR table matches the fingerprint on the currently
+** connected repository.  Return true if the fingerprint is ok, and
+** return false if the fingerprint does not match.
+*/
+int db_fingerprint_ok(void){
+  char *zCkout;   /* The fingerprint recorded in the checkout database */
+  char *zRepo;    /* The fingerprint of the repository */
+  int rc;         /* Result */
+
+  zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
+  if( zCkout==0 ){
+    /* This is an older checkout that does not record a fingerprint.
+    ** We have to assume everything is ok */
+    return 2;
+  }
+  zRepo = db_fingerprint(atoi(zCkout));
+  rc = fossil_strcmp(zCkout,zRepo)==0;
+  fossil_free(zCkout);
+  fossil_free(zRepo);
+  return rc;
 }
