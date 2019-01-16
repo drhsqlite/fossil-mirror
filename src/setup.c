@@ -694,10 +694,18 @@ void setup_timeline(void){
   @ (Property: "timeline-plaintext")</p>
 
   @ <hr />
-  onoff_attribute("Truncate comment at first blank line",
+  onoff_attribute("Truncate comment at first blank line (Git-style)",
                   "timeline-truncate-at-blank", "ttb", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed only through
-  @ the first blank line. (Property: "timeline-truncate-at-blank")</p>
+  @ the first blank line.  This is the traditional way to display comments
+  @ in Git repositories (Property: "timeline-truncate-at-blank")</p>
+
+  @ <hr />
+  onoff_attribute("Break comments at newline characters",
+                  "timeline-hard-newlines", "thnl", 0, 0);
+  @ <p>In timeline displays, newline characters in check-in comments force
+  @ a line break on the display.
+  @ (Property: "timeline-hard-newlines")</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",

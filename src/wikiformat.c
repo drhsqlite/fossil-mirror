@@ -31,6 +31,7 @@
 #define WIKI_BUTTONS        0x008  /* Allow sub-menu buttons */
 #define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
+#define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
 #endif
 
 
@@ -683,7 +684,7 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       if( n>0 ){
         *pTokenType = TOKEN_PARAGRAPH;
         return n;
-      }else if( fossil_isspace(z[1]) ){
+      }else{
         *pTokenType = TOKEN_NEWLINE;
         return 1;
       }
@@ -1381,7 +1382,11 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_NEWLINE: {
-        blob_append(p->pOut, "\n", 1);
+        if( p->renderFlags & WIKI_NEWLINE ){
+          blob_append(p->pOut, "<br>\n", 5);
+        }else{
+          blob_append(p->pOut, "\n", 1);
+        }
         p->state |= AT_NEWLINE;
         break;
       }
