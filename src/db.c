@@ -1674,6 +1674,13 @@ void db_open_repository(const char *zDbName){
       "we are working on enhancing Fossil to be able to deal with\n"
       "that automatically, but we are not there yet. Sorry.\n\n"
     );
+    fossil_print(
+      "As an interim workaround, try:\n"
+      "  %s close --force\n"
+      "  %s open \"%s\" --keep\n\n",
+      g.argv[0],
+      g.argv[0], zDbName
+    );
     fossil_fatal("bad fingerprint");
   }
 }
