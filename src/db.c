@@ -1677,7 +1677,9 @@ void db_open_repository(const char *zDbName){
     fossil_print(
       "As an interim workaround, try:\n"
       "  %s close --force\n"
-      "  %s open \"%s\" --keep\n\n",
+      "  %s open \"%s\" --keep\n"
+      "Noting that any STASH and UNDO information "
+      "WILL BE IRREVOCABLY LOST.\n\n",
       g.argv[0],
       g.argv[0], zDbName
     );

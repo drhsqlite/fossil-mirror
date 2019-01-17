@@ -1,5 +1,5 @@
-C Extended\sthe\srepo/checkout\sfingerprint\smismatch\swarning\sto\soffer\san\sinterim\sworkaround,\sper\sforumpost/5f9d4cef56.
-D 2019-01-17T19:58:35.223
+C Added\sa\swarning\sabout\sloss\sof\sstash\sand\sundo\swhen\sperforming\sthe\s'interim\sworkaround'\sfor\san\sRID\smismatch.
+D 2019-01-17T22:43:38.026
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -457,7 +457,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 8c20e54816e01ef1a66d2ddaa6ab6058f2552fbaf8778778ff623d949ecb2310
+F src/db.c ed0b5c36106b1316e459397e5366b0df8b211e49065ef340676d34ff44e16f2e
 F src/default_css.txt 5f3cb3586a37521423f8f1d17440090bb5816713744c351da91b6325f3990cf3
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8cb1b231dc1cfe6c5ecb914fa1338331c8dad09bee47733171039ce547eef770
-R a284f8b3de25e09280664a6d4e8f5067
+P bf7c2e94f164feb753f0eb686b1415cf7f8edd07a557ff4ebdc9d219a9d6494b
+R f3e14ee61aeafc1e93dbffc289b8533d
 U stephan
-Z 1c7e8f4349950f5a5e7fe8e0bb5e0d57
+Z 2379b58dddb9fa27d68a6b85c71fc0c3
