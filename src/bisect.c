@@ -174,12 +174,36 @@ static void bisect_append_log(int rid){
 ** Create a TEMP table named "bilog" that contains the complete history
 ** of the current bisect.
 */
-void bisect_create_bilog_table(int iCurrent){
-  char *zLog = db_lget("bisect-log","");
+int bisect_create_bilog_table(int iCurrent, const char *zDesc){
+  char *zLog;
   Blob log, id;
   Stmt q;
   int cnt = 0;
-  blob_init(&log, zLog, -1);
+
+  if( zDesc!=0 ){
+    blob_init(&log, 0, 0);
+    while( zDesc[0]=='y' || zDesc[0]=='n' ){
+      int i;
+      char c;
+      int rid;
+      if( blob_size(&log) ) blob_append(&log, " ", 1);
+      if( zDesc[0]=='n' ) blob_append(&log, "-", 1);
+      for(i=1; ((c = zDesc[i])>='0' && c<='9') || (c>='a' && c<='f'); i++){}
+      if( i==1 ) break;
+      rid = db_int(0, 
+        "SELECT rid FROM blob"
+        " WHERE uuid LIKE '%.*q%%'"
+        "   AND EXISTS(SELECT 1 FROM plink WHERE cid=rid)",
+        i-1, zDesc+1
+      );
+      if( rid==0 ) break;
+      blob_appendf(&log, "%d", rid);
+      zDesc += i;
+    }
+  }else{
+    zLog = db_lget("bisect-log","");
+    blob_init(&log, zLog, -1);
+  }
   db_multi_exec(
      "CREATE TEMP TABLE bilog("
      "  seq INTEGER PRIMARY KEY,"  /* Sequence of events */
@@ -204,6 +228,34 @@ void bisect_create_bilog_table(int iCurrent){
     db_step(&q);
   }
   db_finalize(&q);
+  return 1;
+}
+
+/* Return a permalink description of a bisect.  Space is obtained from
+** fossil_malloc() and should be freed by the caller.
+**
+** A bisect description consists of characters 'y' and 'n' and lowercase
+** hex digits.  Each term begins with 'y' or 'n' (success or failure) and
+** is followed by a hash prefix in lowercase hex.
+*/
+char *bisect_permalink(void){
+  char *zLog = db_lget("bisect-log","");
+  char *zResult;
+  Blob log;
+  Blob link = BLOB_INITIALIZER;
+  Blob id;
+  blob_init(&log, zLog, -1);
+  while( blob_token(&log, &id) ){
+    int rid = atoi(blob_str(&id));
+    char *zUuid = db_text(0,"SELECT lower(uuid) FROM blob WHERE rid=%d",
+                       rid<0 ? -rid : rid);
+    blob_appendf(&link, "%c%.10s", rid<0 ? 'n' : 'y', zUuid);
+  }
+  zResult = mprintf("%s", blob_str(&link));
+  blob_reset(&link);
+  blob_reset(&log);
+  blob_reset(&id);
+  return zResult;
 }
 
 /*
@@ -213,7 +265,7 @@ void bisect_create_bilog_table(int iCurrent){
 static void bisect_chart(int sortByCkinTime){
   Stmt q;
   int iCurrent = db_lget_int("checkout",0);
-  bisect_create_bilog_table(iCurrent);
+  bisect_create_bilog_table(iCurrent, 0);
   db_prepare(&q,
     "SELECT bilog.seq, bilog.stat,"
     "       substr(blob.uuid,1,16), datetime(event.mtime),"

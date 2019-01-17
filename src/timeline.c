@@ -1500,7 +1500,8 @@ void page_timeline(void){
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int renameOnly = P("namechng")!=0; /* Show only check-ins that rename files */
   int forkOnly = PB("forks");        /* Show only forks and their children */
-  int bisectOnly = PB("bisect");     /* Show the check-ins of the bisect */
+  int bisectLocal = PB("bisect");    /* Show the check-ins of the bisect */
+  const char *zBisect = P("bid");    /* Bisect description */
   int cpOnly = PB("cherrypicks");    /* Show all cherrypick checkins */
   int tmFlags = 0;                   /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1560,7 +1561,7 @@ void page_timeline(void){
   }
   login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum)
-   || (bisectOnly && !g.perm.Setup)
+   || (bisectLocal && !g.perm.Setup)
   ){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
@@ -1688,17 +1689,26 @@ void page_timeline(void){
     zType = "ci";
     disableY = 1;
   }
-  if( bisectOnly
+  if( bisectLocal
    && fossil_strcmp(g.zIpAddr,"127.0.0.1")==0
    && db_open_local(0)
   ){
     int iCurrent = db_lget_int("checkout",0);
-    bisect_create_bilog_table(iCurrent);
+    char *zPerm = bisect_permalink();
+    bisect_create_bilog_table(iCurrent, 0);
+    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
+    zType = "ci";
+    disableY = 1;
+    style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
+  }else{
+    bisectLocal = 0;
+  }
+  if( zBisect!=0 && bisect_create_bilog_table(0, zBisect) ){
     tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
     zType = "ci";
     disableY = 1;
   }else{
-    bisectOnly = 0;
+    zBisect = 0;
   }
 
   style_header("Timeline");
@@ -1910,7 +1920,7 @@ void page_timeline(void){
       );
       blob_append_sql(&cond, " AND event.objid IN cpnodes ");
     }
-    if( bisectOnly ){
+    if( bisectLocal || zBisect!=0 ){
       blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
     }
     if( zYearMonth ){
@@ -2157,8 +2167,8 @@ void page_timeline(void){
       blob_appendf(&desc, " associated with forks");
       tmFlags |= TIMELINE_DISJOINT;
     }
-    if( bisectOnly ){
-      blob_appendf(&desc, " in the most recent bisect");
+    if( bisectLocal || zBisect!=0 ){
+      blob_appendf(&desc, " in a bisect");
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( cpOnly && showCherrypicks ){
