@@ -23,28 +23,141 @@
 
 /*
 ** SQL code to implement the tables needed by the stash.
+**
+** Historical schema changes:
+**
+**   2019-01-19:   stash.hash and stashfile.hash columns added.  The
+**                 corresponding stash.vid and stashfile.rid columns are
+**                 retained for compatibility with older versions of
+**                 fossil but are no longer used.
+**
+**   2016-10-16:   Change the PRIMARY KEY on stashfile from (origname,stashid)
+**                 to (newname,stashid).
+**
+**   2011-09-01:   stashfile.isLink column added
+**
 */
 static const char zStashInit[] =
 @ CREATE TABLE IF NOT EXISTS localdb.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
-@   vid INTEGER,                     -- The baseline checkout for this stash
+@   vid INTEGER,                     -- Legacy baseline RID value. Do not use.
+@   hash TEXT,                       -- The SHA hash for the baseline
 @   comment TEXT,                    -- Comment for this stash.  Or NULL
 @   ctime TIMESTAMP                  -- When the stash was created
 @ );
 @ CREATE TABLE IF NOT EXISTS localdb.stashfile(
 @   stashid INTEGER REFERENCES stash,  -- Stash that contains this file
-@   rid INTEGER,                       -- Baseline content in BLOB table or 0.
 @   isAdded BOOLEAN,                   -- True if this is an added file
 @   isRemoved BOOLEAN,                 -- True if this file is deleted
 @   isExec BOOLEAN,                    -- True if file is executable
 @   isLink BOOLEAN,                    -- True if file is a symlink
+@   rid INTEGER,                       -- Legacy baseline RID value. Do not use
+@   hash TEXT,                         -- Hash for baseline or NULL
 @   origname TEXT,                     -- Original filename
 @   newname TEXT,                      -- New name for file at next check-in
-@   delta BLOB,                        -- Delta from baseline. Content if rid=0
+@   delta BLOB,                        -- Delta from baseline or raw content
 @   PRIMARY KEY(newname, stashid)
 @ );
 @ INSERT OR IGNORE INTO vvar(name, value) VALUES('stash-next', 1);
 ;
+
+/*
+** Make sure the stash and stashfile tables exist and have been
+** upgraded to their latest format.  Create and upgrade the tables
+** as necessary.
+*/
+static void stash_tables_exist_and_current(void){
+  if( db_table_has_column("localdb","stashfile","hash") ){
+    /* The schema is up-to-date.  But it could be that an older version
+    ** of Fossil that does no know about the stash.hash and stashfile.hash
+    ** columns has run since the schema was updated, and added entries that
+    ** have NULL hash columns.  Check for this case, and fill in any missing
+    ** hash values.
+    */
+    if( db_int(0, "SELECT hash IS NULL FROM stash"
+                  " ORDER BY stashid DESC LIMIT 1")
+    ){
+      db_multi_exec(
+        "UPDATE stash"
+        "   SET hash=(SELECT uuid FROM blob WHERE blob.rid=stash.vid)"
+        " WHERE hash IS NULL;"
+        "UPDATE stashfile"
+        "   SET hash=(SELECT uuid FROM blob WHERE blob.rid=stashfile.rid)"
+        " WHERE hash IS NULL AND rid>0;"
+      );
+    }
+    return;
+  }
+
+  if( !db_table_exists("localdb","stashfile")
+   || !db_table_exists("localdb","stash")
+  ){
+    /* Tables do not exist.  Create them from scratch. */
+    db_multi_exec("DROP TABLE IF EXISTS localdb.stash;");
+    db_multi_exec("DROP TABLE IF EXISTS localdb.stashfile;");
+    db_multi_exec(zStashInit /*works-like:""*/);
+    return;
+  }
+
+  /* The tables exists but are not necessarily current.  Upgrade them
+  ** to the latest format.
+  **
+  ** We can assume the 2011-09-01 format that includes the stashfile.isLink
+  ** column.  The only upgrades we need to worry about the PRIMARY KEY
+  ** change on 2016-10-16 and the addition of the "hash" columns on
+  ** 2019-01-19.
+  */
+  db_multi_exec(
+    "ALTER TABLE localdb.stash RENAME TO old_stash;"
+    "ALTER TABLE localdb.stashfile RENAME TO old_stashfile;"
+  );
+  db_multi_exec(zStashInit /*works-like:""*/);
+  db_multi_exec(
+    "INSERT INTO localdb.stash(stashid,vid,hash,comment,ctime)"
+    " SELECT stashid, vid,"
+    "   (SELECT uuid FROM blob WHERE blob.rid=old_stash.vid),"
+    "   comment, ctime FROM old_stash;"
+    "DROP TABLE old_stash;"
+  );
+  db_multi_exec(
+    "INSERT INTO localdb.stashfile(stashid,isAdded,isRemoved,isExec,"
+                                  "isLink,rid,hash,origname,newname,delta)"
+    " SELECT stashid, isAdded, isRemoved, isExec, isLink, rid,"
+    "   (SELECT uuid FROM blob WHERE blob.rid=old_stashfile.rid),"
+    "   origname, newname, delta FROM old_stashfile;"
+    "DROP TABLE old_stashfile;"
+  );
+}
+
+/*
+** Update the stash.vid and stashfile.rid values after a RID renumbering
+** event.
+*/
+void stash_rid_renumbering_event(void){
+  if( !db_table_has_column("localdb","stash","hash") ){
+    /* If the stash schema was the older style that lacked hash value, then
+    ** recovery is not possible.  Save off the old data, then reset the stash
+    ** to empty. */
+    if( db_table_exists("localdb","stash") ){
+      db_multi_exec("ALTER TABLE stash RENAME TO broken_stash;");
+      fossil_print("Unrecoverable stash content stored in \"broken_stash\"\n");
+    }
+    if( db_table_exists("localdb","stashfile") ){
+      db_multi_exec("ALTER TABLE stashfile RENAME TO broken_stashfile;");
+      fossil_print("Unrecoverable stashfile content stored"
+                   " in \"broken_stashfile\"\n");
+    }
+  }else{
+    /* Reset stash.vid and stash.rid values based on hashes */
+    db_multi_exec(
+      "UPDATE stash"
+      "   SET vid=(SELECT rid FROM blob WHERE blob.uuid=stash.hash);"
+      "UPDATE stashfile"
+      "   SET rid=(SELECT rid FROM blob WHERE blob.uuid=stashfile.hash)"
+      " WHERE hash IS NOT NULL;"
+    );
+  }
+}
 
 /*
 ** Add zFName to the stash given by stashid.  zFName might be the name of a
@@ -79,9 +192,10 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   blob_reset(&sql);
   db_prepare(&ins,
-     "INSERT INTO stashfile(stashid, rid, isAdded, isRemoved, isExec, isLink,"
-                           "origname, newname, delta)"
-     "VALUES(%d,:rid,:isadd,:isrm,:isexe,:islink,:orig,:new,:content)",
+     "INSERT INTO stashfile(stashid, isAdded, isRemoved, isExec, isLink, rid, "
+                           "hash, origname, newname, delta)"
+     "VALUES(%d,:isadd,:isrm,:isexe,:islink,:rid,"
+     "(SELECT uuid FROM blob WHERE rid=:rid),:orig,:new,:content)",
      stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -173,9 +287,9 @@ static int stash_create(void){
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0);
   db_multi_exec(
-    "INSERT INTO stash(stashid,vid,comment,ctime)"
-    "VALUES(%d,%d,%Q,julianday('now'))",
-    stashid, vid, zComment
+    "INSERT INTO stash(stashid,vid,hash,comment,ctime)"
+    "VALUES(%d,%d,(SELECT uuid FROM blob WHERE rid=%d),%Q,julianday('now'))",
+    stashid, vid, vid, zComment
   );
   if( g.argc>3 ){
     int i;
@@ -195,8 +309,8 @@ static void stash_apply(int stashid, int nConflict){
   int vid;
   Stmt q;
   db_prepare(&q,
-     "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
-     "  FROM stashfile WHERE stashid=%d",
+     "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash",
      stashid
   );
   vid = db_lget_int("checkout",0);
@@ -298,8 +412,8 @@ static void stash_diff(
   Blob empty;
   blob_zero(&empty);
   db_prepare(&q,
-     "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
-     "  FROM stashfile WHERE stashid=%d",
+     "SELECT blob.rid, isRemoved, isExec, isLink, origname, newname, delta"
+     "  FROM stashfile, blob WHERE stashid=%d AND blob.uuid=stashfile.hash",
      stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -470,21 +584,7 @@ void stash_cmd(void){
   db_must_be_within_tree();
   db_open_config(0, 0);
   db_begin_transaction();
-  db_multi_exec(zStashInit /*works-like:""*/);
-  rc = db_exists("SELECT 1 FROM sqlite_master"
-                 " WHERE name='stashfile'"
-                 "   AND sql GLOB '* PRIMARY KEY(origname, stashid)*'");
-  if( rc!=0 ){
-    db_multi_exec(
-      "CREATE TABLE localdb.stashfile_tmp AS SELECT * FROM stashfile;"
-      "DROP TABLE stashfile;"
-    );
-    db_multi_exec(zStashInit /*works-like:""*/);
-    db_multi_exec(
-      "INSERT INTO stashfile SELECT * FROM stashfile_tmp;"
-      "DROP TABLE stashfile_tmp;"
-    );
-  }
+  stash_tables_exist_and_current();
   if( g.argc<=2 ){
     zCmd = "save";
   }else{
@@ -536,8 +636,7 @@ void stash_cmd(void){
     }
     verify_all_options();
     db_prepare(&q,
-       "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
-       "       comment, datetime(ctime) FROM stash"
+       "SELECT stashid, hash, comment, datetime(ctime) FROM stash"
        " ORDER BY ctime"
     );
     if( verboseFlag ){
@@ -630,7 +729,8 @@ void stash_cmd(void){
     if( g.argc>4 ) usage("apply STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
-    vid = db_int(0, "SELECT vid FROM stash WHERE stashid=%d", stashid);
+    vid = db_int(0, "SELECT blob.rid FROM stash,blob"
+                    " WHERE stashid=%d AND blob.uuid=stash.hash", stashid);
     nConflict = update_to(vid);
     stash_apply(stashid, nConflict);
     db_multi_exec("UPDATE vfile SET mtime=0 WHERE pathname IN "

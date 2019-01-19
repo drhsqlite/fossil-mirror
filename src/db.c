@@ -1664,6 +1664,10 @@ void db_open_repository(const char *zDbName){
   ** values.
   */
   if( g.localOpen && !db_fingerprint_ok() ){
+    /* Uncomment the following when we are ready for automatic recovery: */
+#if 0
+    stash_rid_renumbering_event();
+#else
     fossil_print(
       "Oops. It looks like the repository database file located at\n"
       "    \"%s\"\n", zDbName
@@ -1684,6 +1688,7 @@ void db_open_repository(const char *zDbName){
       g.argv[0], zDbName
     );
     fossil_fatal("bad fingerprint");
+#endif
   }
 }
 
