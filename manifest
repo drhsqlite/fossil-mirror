@@ -1,5 +1,5 @@
-C Enhance\sthe\sstash\sso\sthat\sit\sstores\shashes\sand\sno\slong\sdepends\son\sRID\svalue.\nDo\sthis\sis\sa\sway\sthat\sis\sbackwards\scompatible\sand\stransparent\sto\sthe\suser.\nAfter\srunning\sany\s"stash"\scommand\susing\sthis\sversion\sof\sFossil\sor\slater,\sthe\nschema\swill\sautomatically\supdate\sand\sthe\sstash\sshould\ssurvive\sa\ssubsequent\nRID\srenumbering\sevent\sin\sthe\srepository\swithout\sdamage.
-D 2019-01-19T18:29:47.016
+C Change\sthe\sschema\sof\sthe\svmerge\stable\sso\sthat\sit\sremembers\sthe\shash\sof\nmerged\sartifacts,\snot\sthe\sRID.\s\sSchema\supdates\sare\sautomatic,\sbut\sonce\nthe\supdate\soccurs,\syou\sare\scommitted\sto\susing\sthe\snewer\sversion\sof\nFossil\smoving\sforward.
+D 2019-01-19T21:31:01.333
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 387c89d7869afbc3914b18c045cb9ba24bea43ec9ddb6e7157ac922fc35a1d6e
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c b1b3215c666c63fd5a5311dcbb19819afda5db6b62a4b1d6405390a8b90b63bf
-F src/checkin.c e14f09d206e77244fd199a58f28f73ea3ce4967c8a4e201ff1fb8ae1861c6a72
+F src/checkin.c 9ac52f64851445fa52a76189d4bb8bfc8ae4af3a0e0521fffe8e5884dc8439dc
 F src/checkout.c 7d8e0e2470df6a1d9bbaf0adfbc90bc32a2de8d0ee2d8163477700eddc383c25
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -457,7 +457,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c cdcd62a17d117cb3af58884cf97701e57fd01472f587c2899aa8f225f2bcf32f
+F src/db.c fc9d663fb9c559c6d7ae3398aea20021d7b4495984444c51a5c9d9689bf29702
 F src/default_css.txt 5f3cb3586a37521423f8f1d17440090bb5816713744c351da91b6325f3990cf3
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -501,7 +501,7 @@ F src/json_finfo.c 1061327153acf9d8f29228ae27c98e8f0c089955
 F src/json_login.c 3531595edce8ff47682bf8f2ddd9456d0d39f0a6b71c92179f79e5f83f44c7e0
 F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
-F src/json_status.c 04ab48bbf4ed654e9963c771d2afaeff849c14717d82618b78e5004270fc56db
+F src/json_status.c 9aa7c3f2c0a450b9a567316261197f85e61e743637844776ad61f8a952d9a08c
 F src/json_tag.c e2b68b9735e706e9e47fb07f063abf7c94da2d76
 F src/json_timeline.c 35b8327ab00667684e295740bdd00744453634bb761fcb9a6998b7279a6b7ef6
 F src/json_user.c 779af89a12af7c0c228d0194fa564379ec77ac76
@@ -524,7 +524,7 @@ F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7c
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 6283c41b3924b4d9499024deeb523fb242306df46acbdd333fbb88c43ecf92e5
+F src/merge.c bf78aa5fa7be3f3caea8494262d6e05276faf8bb3f5efd16955358e9fc0d74bd
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 216133ae5771fc8fd956d604d98bf1fdd9f329510a222f59cceaf98ff13442e3
@@ -547,7 +547,7 @@ F src/repolist.c fcec37e43c2c617ba336008db7e2fb47aa0d1d9ed66b3e49b04842ae3cb5850
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c 7a9d52747383dea08585b9435d1e92b3b957839a7449f5b98305425386264e60
+F src/schema.c 113f74e7fb3d6ec18212772fa39ee78561c4cbe8fa214f276f2f1d655de1d53c
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
@@ -586,7 +586,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
 F src/unicode.c 2abc10093fe4a6c7a5bb4b10ff19912d95fae66b32f63bc02ca553e7bb2f3749
 F src/unversioned.c c3e497239a311d7f38671a250b4e1c800803a371c56b29a7634b51ff9bb72267
-F src/update.c 8432046d48c80db43c02715d8bdc7311fbe6cf7c8a89757d13a332639e6e1b5b
+F src/update.c 0c640d7d75f7700cbaa2ff8d78e948e0cf3ce601dcc5f1dde30a4de4e5ce6d37
 F src/url.c d12b5af2810f06b6d4840a10217bc8450df4533cd7695cdce9d41f7b7fb7daed
 F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -866,7 +866,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc44fa8425e9ba8554263ca6b2d993a414665469e6b50c07605e3e1e536bfff1
-R affd236faffb4d0fe3f2982163b50d56
+P ed06585f41ee2acef54b03da90445278b7a88f2241f29932855d071718d3b5cd
+R abafcf35403b55924c68a1784d8215ea
+T *branch * rid-renumbering
+T *sym-rid-renumbering *
+T -sym-trunk *
 U drh
-Z b107da763c8f94afc402844430d17c7f
+Z 0dfb2a2c1051ee2f5609700e27d04e27

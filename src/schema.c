@@ -492,7 +492,7 @@ const char zRepositorySchema2[] =
 /*
 ** The schema for the local FOSSIL database file found at the root
 ** of every check-out.  This database contains the complete state of
-** the checkout.
+** the checkout.  See also the addendum in zLocalSchemaVmerge[].
 */
 const char zLocalSchema[] =
 @ -- The VVAR table holds miscellanous information about the local database
@@ -541,6 +541,16 @@ const char zLocalSchema[] =
 @   UNIQUE(pathname,vid)
 @ );
 @
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLC'.
+@ PRAGMA application_id=252006674;
+;
+
+/* Additional local database initialization following the schema
+** enhancement of 2019-01-19, in which the mhash column was added
+** to vmerge.
+*/
+const char zLocalSchemaVmerge[] =
 @ -- This table holds a record of uncommitted merges in the local
 @ -- file tree.  If a VFILE entry with id has merged with another
 @ -- record, there is an entry in this table with (id,merge) where
@@ -548,16 +558,27 @@ const char zLocalSchema[] =
 @ -- An id of 0 or <-3 here means the version record itself.  When
 @ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
 @ -- backout merge and id==(-4) is a integrate merge.
+@ --
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
 @   merge INTEGER,                    -- Merged with this record
-@   UNIQUE(id, merge)
+@   mhash TEXT                        -- SHA1/SHA3 hash for merge object
 @ );
+@ CREATE UNIQUE INDEX vmergex1 ON vmerge(id,mhash);
 @
-@ -- Identifier for this file type.
-@ -- The integer is the same as 'FSLC'.
-@ PRAGMA application_id=252006674;
+@ -- The following trigger will prevent older versions of Fossil that
+@ -- do not know about the new vmerge.mhash column from updating the
+@ -- vmerge table.  This must be done with a trigger, since legacy Fossil
+@ -- uses INSERT OR IGNORE to update vmerge, and the OR IGNORE will cause
+@ -- a NOT NULL constraint to be silently ignored.
+@
+@ CREATE TRIGGER vmerge_ck1 AFTER INSERT ON vmerge
+@ WHEN new.mhash IS NULL BEGIN
+@   SELECT raise(FAIL,
+@   'trying to update a newer checkout with an older version of Fossil');
+@ END;
+@
 ;
 
 /*

@@ -309,8 +309,7 @@ static void status_report(
   /* If C_MERGE, put merge contributors at the end of the report. */
 skipFiles:
   if( flags & C_MERGE ){
-    db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                   " WHERE id<=0");
+    db_prepare(&q, "SELECT mhash, id FROM vmerge WHERE id<=0" );
     while( db_step(&q)==SQLITE_ROW ){
       if( flags & C_COMMENT ){
         blob_append(report, "# ", 2);
@@ -1637,10 +1636,9 @@ static void create_manifest(
   free(zDate);
 
   db_prepare(&q,
-    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid, merge"
-    "  FROM vmerge, blob"
+    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || mhash, merge"
+    "  FROM vmerge"
     " WHERE (vmerge.id=-1 OR vmerge.id=-2)"
-    "   AND blob.rid=vmerge.merge"
     " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zCherrypickUuid = db_column_text(&q, 0);
@@ -1669,7 +1667,7 @@ static void create_manifest(
   if( p->closeFlag ){
     blob_appendf(pOut, "T +closed *\n");
   }
-  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
+  db_prepare(&q, "SELECT mhash,merge FROM vmerge"
                  " WHERE id %s ORDER BY 1",
                  p->integrateFlag ? "IN(0,-4)" : "=(-4)");
   while( db_step(&q)==SQLITE_ROW ){
@@ -2510,8 +2508,7 @@ void commit_cmd(void){
   content_deltify(vid, &nvid, 1, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
 
-  db_prepare(&q, "SELECT uuid,merge FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id=-4");
+  db_prepare(&q, "SELECT mhash,merge FROM vmerge WHERE id=-4");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
     if( is_a_leaf(db_column_int(&q, 1)) ){

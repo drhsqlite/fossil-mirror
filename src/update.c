@@ -531,8 +531,7 @@ void update_cmd(void){
   if( !dryRunFlag ){
     Stmt q;
     int nMerge = 0;
-    db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                   " WHERE id<=0");
+    db_prepare(&q, "SELECT mhash, id FROM vmerge WHERE id<=0");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zLabel = "merge";
       switch( db_column_int(&q, 1) ){

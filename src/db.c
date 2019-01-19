@@ -1475,21 +1475,32 @@ static int db_local_table_exists_but_lacks_column(
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
-  char *zVFileDef;
 
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName, ExtFILE);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
-  zVFileDef = db_text(0, "SELECT sql FROM localdb.sqlite_master"
-                         " WHERE name=='vfile'");
-  if( zVFileDef==0 ) return 0;
+
+  /* Check to see if the checkout database has the lastest schema changes.
+  ** The most recent schema change (2019-01-19) is the addition of the
+  ** vmerge.mhash field.  If the schema has that one column, assume
+  ** everything else is up-to-date. 
+  */
+  if( db_table_has_column("localdb","vmerge","mhash") ){
+    return 1;   /* This is a checkout database with the latest schema */
+  }
+
+  /* If there is no vfile table, then assume we have picked up something
+  ** that is not even close to being a valid checkout database */
+  if( !db_table_exists("localdb","vfile") ){
+    return 0;  /* Not a  DB */
+  }
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
+  if( !db_table_has_column("localdb","vfile","isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -1497,7 +1508,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
+  if( !db_table_has_column("localdb","vfile","isLink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -1509,7 +1520,11 @@ static int isValidLocalDb(const char *zDbName){
       db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
     }
   }
-  fossil_free(zVFileDef);
+
+  /* The design of the vmerge table changed on 2019-01-19, adding the mhash
+  ** column and changing the UNIQUE index.  However, we must ahve the
+  ** repository database at hand in order to do the migration, so that
+  ** step is deferred. */
   return 1;
 }
 
@@ -1658,37 +1673,55 @@ void db_open_repository(const char *zDbName){
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
 
-  /* If the checkout database was opened first, then check to make
-  ** sure that the repository database that was just opened has not
-  ** be replaced by a clone of the same project, with different RID
-  ** values.
-  */
-  if( g.localOpen && !db_fingerprint_ok() ){
-    /* Uncomment the following when we are ready for automatic recovery: */
+  /* Additional checks that occur when opening the checkout database */
+  if( g.localOpen ){
+
+    /* Ensure that the repository database that was just opened has not
+    ** be replaced by a clone of the same project, with different RID
+    ** values.
+    */
+    if( !db_fingerprint_ok() ){
+      /* Uncomment the following when we are ready for automatic recovery: */
 #if 0
-    stash_rid_renumbering_event();
+      stash_rid_renumbering_event();
 #else
-    fossil_print(
-      "Oops. It looks like the repository database file located at\n"
-      "    \"%s\"\n", zDbName
-    );
-    fossil_print(
-      "has been swapped with a clone that may have different\n"
-      "integer keys for the various artifacts. As of 2019-01-11,\n"
-      "we are working on enhancing Fossil to be able to deal with\n"
-      "that automatically, but we are not there yet. Sorry.\n\n"
-    );
-    fossil_print(
-      "As an interim workaround, try:\n"
-      "  %s close --force\n"
-      "  %s open \"%s\" --keep\n"
-      "Noting that any STASH and UNDO information "
-      "WILL BE IRREVOCABLY LOST.\n\n",
-      g.argv[0],
-      g.argv[0], zDbName
-    );
-    fossil_fatal("bad fingerprint");
+      fossil_print(
+        "Oops. It looks like the repository database file located at\n"
+        "    \"%s\"\n", zDbName
+      );
+      fossil_print(
+        "has been swapped with a clone that may have different\n"
+        "integer keys for the various artifacts. As of 2019-01-11,\n"
+        "we are working on enhancing Fossil to be able to deal with\n"
+        "that automatically, but we are not there yet. Sorry.\n\n"
+      );
+      fossil_print(
+        "As an interim workaround, try:\n"
+        "  %s close --force\n"
+        "  %s open \"%s\" --keep\n"
+        "Noting that any STASH and UNDO information "
+        "WILL BE IRREVOCABLY LOST.\n\n",
+        g.argv[0],
+        g.argv[0], zDbName
+      );
+      fossil_fatal("bad fingerprint");
 #endif
+    }else
+
+    /* Make sure the checkout database schema migration of 2019-01-19 
+    ** (the addition of the vmerge.mhash column and making that columns
+    ** part of the PRIMARY KEY) has occurred.
+    */
+    if( !db_table_has_column("localdb", "vmerge", "mhash") ){
+      db_multi_exec("ALTER TABLE vmerge RENAME TO old_vmerge;");
+      db_multi_exec(zLocalSchemaVmerge /*works-like:""*/);
+      db_multi_exec(  
+         "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
+         "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
+         "   WHERE old_vmerge.merge=blob.rid;"
+         "DROP TABLE old_vmerge;"
+      );
+    }
   }
 }
 
@@ -2882,7 +2915,7 @@ void cmd_open(void){
 #else
 # define LOCALDB_NAME "./.fslckout"
 #endif
-  db_init_database(LOCALDB_NAME, zLocalSchema,
+  db_init_database(LOCALDB_NAME, zLocalSchema, zLocalSchemaVmerge,
 #ifdef FOSSIL_LOCAL_WAL
                    "COMMIT; PRAGMA journal_mode=WAL; BEGIN;",
 #endif

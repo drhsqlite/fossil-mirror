@@ -156,8 +156,7 @@ cson_value * json_page_status(){
   /* TODO: add "merged with" status.  First need (A) to decide on a
      structure and (B) to set up some tests for the multi-merge
      case.*/
-  db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id<=0");
+  db_prepare(&q, "SELECT mhash, id FROM vmerge WHERE id<=0");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){
