@@ -1,5 +1,5 @@
-C Enhance\sthe\sstash\sso\sthat\sit\sstores\shashes\sand\sno\slong\sdepends\son\sRID\svalue.\nDo\sthis\sis\sa\sway\sthat\sis\sbackwards\scompatible\sand\stransparent\sto\sthe\suser.\nAfter\srunning\sany\s"stash"\scommand\susing\sthis\sversion\sof\sFossil\sor\slater,\sthe\nschema\swill\sautomatically\supdate\sand\sthe\sstash\sshould\ssurvive\sa\ssubsequent\nRID\srenumbering\sevent\sin\sthe\srepository\swithout\sdamage.
-D 2019-01-19T18:29:47.016
+C Remove\sunused\svariable
+D 2019-01-19T21:03:02.317
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -566,7 +566,7 @@ F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
 F src/sqlite3.c 72c08830da9b5d1cb397c612c0e870d7f5eb41a323b41aa3d8aa5ae9ccedb2c4
 F src/sqlite3.h dd08dbe5bb40b4a824e10b45877a7dc10932d6ed91a10eea70c2ab803dbce41f
-F src/stash.c 34be0ec40c0dfa9da587ab76dd3b57aa5ef1229208fde2bc3ca55a0d1673b6a5
+F src/stash.c 97f9f93b1d99d2264eda846d5b20e0e8a0f238afee5f8dc9209c96160c3fa513
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 2243b0574cd491079024a5d946f13124cb263d307b4a498dd9dfde84ffd0aa11
@@ -866,7 +866,6 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc44fa8425e9ba8554263ca6b2d993a414665469e6b50c07605e3e1e536bfff1
-R affd236faffb4d0fe3f2982163b50d56
-U drh
-Z b107da763c8f94afc402844430d17c7f
+P ed06585f41ee2acef54b03da90445278b7a88f2241f29932855d071718d3b5cd
+U andygoth
+Z 73a6a62f40bdee979765a1e147bdc654
