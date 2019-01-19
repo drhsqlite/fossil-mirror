@@ -1,5 +1,5 @@
-C Change\sthe\sschema\sof\sthe\svmerge\stable\sso\sthat\sit\sremembers\sthe\shash\sof\nmerged\sartifacts,\snot\sthe\sRID.\s\sSchema\supdates\sare\sautomatic,\sbut\sonce\nthe\supdate\soccurs,\syou\sare\scommitted\sto\susing\sthe\snewer\sversion\sof\nFossil\smoving\sforward.
-D 2019-01-19T21:31:01.333
+C Clean\sup\ssome\sold\scomments\son\sthe\sschema.\s\sNo\scode\schanges.
+D 2019-01-19T23:47:14.911
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -547,7 +547,7 @@ F src/repolist.c fcec37e43c2c617ba336008db7e2fb47aa0d1d9ed66b3e49b04842ae3cb5850
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c 113f74e7fb3d6ec18212772fa39ee78561c4cbe8fa214f276f2f1d655de1d53c
+F src/schema.c de4cbdeaff21bb6b8abff9af5e3f403c91923a92b3611a21d5b947902d5ff40f
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
@@ -866,10 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed06585f41ee2acef54b03da90445278b7a88f2241f29932855d071718d3b5cd
-R abafcf35403b55924c68a1784d8215ea
-T *branch * rid-renumbering
-T *sym-rid-renumbering *
-T -sym-trunk *
+P 8977dfb03295226c720683a6756db00038ed4a2991535dc5910bbadc091cdf22
+R 1d8d9a37b1e1e5b5226a9c665d608130
 U drh
-Z 0dfb2a2c1051ee2f5609700e27d04e27
+Z 4e2185b31b0e7f3187cc9981aa289338
