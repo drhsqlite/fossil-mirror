@@ -1483,8 +1483,8 @@ static int isValidLocalDb(const char *zDbName){
 
   /* Check to see if the checkout database has the lastest schema changes.
   ** The most recent schema change (2019-01-19) is the addition of the
-  ** vmerge.mhash field.  If the schema has that one column, assume
-  ** everything else is up-to-date. 
+  ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
+  ** column, assume everything else is up-to-date. 
   */
   if( db_table_has_column("localdb","vmerge","mhash") ){
     return 1;   /* This is a checkout database with the latest schema */
@@ -1521,9 +1521,10 @@ static int isValidLocalDb(const char *zDbName){
     }
   }
 
-  /* The design of the vmerge table changed on 2019-01-19, adding the mhash
-  ** column and changing the UNIQUE index.  However, we must ahve the
-  ** repository database at hand in order to do the migration, so that
+  /* The design of the checkout database changed on 2019-01-19, adding the mhash
+  ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
+  ** a PRIMARY KEY that includes the new mhash column.  However, we must have
+  ** the repository database at hand in order to do the migration, so that
   ** step is deferred. */
   return 1;
 }
