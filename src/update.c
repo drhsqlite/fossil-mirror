@@ -866,7 +866,8 @@ void revert_cmd(void){
       mtime = file_mtime(zFull, RepoFILE);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,mrid=rid"
+         "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,"
+         "       mrid=rid, mhash=NULL"
          " WHERE pathname=%Q OR origname=%Q",
          mtime, rvChnged, rvPerm==PERM_EXE, rvPerm==PERM_LNK, zFile, zFile
       );

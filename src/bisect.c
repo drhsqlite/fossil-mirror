@@ -288,6 +288,17 @@ static void bisect_chart(int sortByCkinTime){
   db_finalize(&q);
 }
 
+
+/*
+** Reset the bisect subsystem.
+*/
+void bisect_reset(void){
+  db_multi_exec(
+    "DELETE FROM vvar WHERE name IN "
+    " ('bisect-good', 'bisect-bad', 'bisect-log')"
+  );
+}
+
 /*
 ** COMMAND: bisect
 **
@@ -491,10 +502,7 @@ void bisect_cmd(void){
       usage("options ?NAME? ?VALUE?");
     }
   }else if( strncmp(zCmd, "reset", n)==0 ){
-    db_multi_exec(
-      "DELETE FROM vvar WHERE name IN "
-      " ('bisect-good', 'bisect-bad', 'bisect-log')"
-    );
+    bisect_reset();
   }else if( strcmp(zCmd, "ui")==0 ){
     char *newArgv[8];
     newArgv[0] = g.argv[0];

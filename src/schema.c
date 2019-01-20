@@ -536,6 +536,7 @@ const char zLocalSchema[] =
 @   mtime INTEGER,                    -- Mtime of file on disk. sec since 1970
 @   pathname TEXT,                    -- Full pathname relative to root
 @   origname TEXT,                    -- Original pathname. NULL if unchanged
+@   mhash TEXT,                       -- Hash of mrid iff mrid!=rid
 @   UNIQUE(pathname,vid)
 @ );
 @
@@ -546,7 +547,7 @@ const char zLocalSchema[] =
 
 /* Additional local database initialization following the schema
 ** enhancement of 2019-01-19, in which the mhash column was added
-** to vmerge.
+** to vmerge and vfile.
 */
 const char zLocalSchemaVmerge[] =
 @ -- This table holds a record of uncommitted merges in the local

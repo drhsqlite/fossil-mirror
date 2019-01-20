@@ -606,8 +606,10 @@ void merge_cmd(void){
     if( !dryRunFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d "
-        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d,"
+        " mhash=CASE WHEN rid<>%d"
+                   " THEN (SELECT uuid FROM blob WHERE blob.rid=%d) END"
+        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, ridm, ridm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
@@ -797,8 +799,12 @@ void merge_cmd(void){
     const char *zName;
     char *zFullName;
     db_multi_exec(
-      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
-      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
+      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,"
+                         "isexe,islink,pathname,mhash)"
+      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname,"
+              "CASE WHEN rid<>mrid"
+              "     THEN (SELECT uuid FROM blob WHERE blob.rid=vfile.mrid) END "
+              "FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );
     zName = db_column_text(&q, 1);

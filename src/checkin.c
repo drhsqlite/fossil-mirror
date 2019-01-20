@@ -2400,7 +2400,8 @@ void commit_cmd(void){
     if( rid>0 ){
       content_deltify(rid, &nrid, 1, 0);
     }
-    db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d WHERE id=%d", nrid,nrid,id);
+    db_multi_exec("UPDATE vfile SET mrid=%d, rid=%d, mhash=NULL WHERE id=%d",
+                  nrid,nrid,id);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
@@ -2534,7 +2535,7 @@ void commit_cmd(void){
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND is_selected(id);"
     "DELETE FROM vmerge;"
     "UPDATE vfile SET vid=%d;"
-    "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
+    "UPDATE vfile SET rid=mrid, mhash=NULL, chnged=0, deleted=0, origname=NULL"
     " WHERE is_selected(id);"
     , vid, nvid
   );

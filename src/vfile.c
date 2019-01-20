@@ -90,8 +90,8 @@ int load_vfile_from_rid(int vid){
     return 0;
   }
   db_prepare(&ins,
-    "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
-    " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
+    "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname,mhash) "
+    " VALUES(:vid,:isexe,:islink,:id,:id,:name,NULL)");
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
@@ -244,7 +244,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       assert( origSize==currentSize );
       if( !hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 1;
     }
-    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4) ){
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4)){
       i64 desiredMtime;
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){
@@ -967,4 +967,131 @@ void test_agg_cksum_cmd(void){
   vfile_aggregate_checksum_manifest(vid, &hash, &hash2);
   printf("manifest: %s\n", blob_str(&hash));
   printf("recorded: %s\n", blob_str(&hash2));
+}
+
+/*
+** This routine recomputes certain columns of the vfile and vmerge tables
+** when the associated repository is swapped out for a clone of the same
+** project, and the blob.rid value change.  The following columns are
+** updated:
+**
+**      vmerge.merge
+**      vfile.vid
+**      vfile.rid
+**      vfile.mrid
+**
+** Also:
+**
+**      vvar.value WHERE name='checkout'
+*/
+void vfile_rid_renumbering_event(int dryRun){
+  int oldVid;
+  int newVid;
+  char *zUnresolved;
+
+  oldVid = db_lget_int("checkout", 0);
+  newVid = db_int(0, "SELECT blob.rid FROM blob, vvar"
+                     " WHERE blob.uuid=vvar.value"
+                     "   AND vvar.name='checkout-hash'");
+
+  /* The idMap table will make old RID values into new ones */
+  db_multi_exec(
+    "CREATE TEMP TABLE idMap(oldrid INTEGER PRIMARY KEY, newrid INT);\n"
+  );
+
+  /* Add the RID value for the current check-out */
+  db_multi_exec(
+    "INSERT INTO idMap(oldrid, newrid) VALUES(%d,%d)",
+    oldVid, newVid
+  );
+
+  /* Add the RID values for any other check-ins that have been merged into
+  ** the current check-out. */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO idMap(oldrid, newrid)"
+    "  SELECT vmerge.merge, blob.rid FROM vmerge, blob"
+    "   WHERE blob.uuid=vmerge.mhash;"
+  );
+
+  /* Add RID values for files in the current check-out */
+  db_multi_exec(
+    "CREATE TEMP TABLE hashoffile(name TEXT PRIMARY KEY, hash TEXT)"
+    "WITHOUT ROWID;"
+
+    "INSERT INTO hashoffile(name,hash)"
+    "  SELECT filename, uuid FROM vvar, files_of_checkin(vvar.value)"
+    "   WHERE vvar.name='checkout-hash';"
+
+    "INSERT OR IGNORE INTO idMap(oldrid, newrid)"
+    "  SELECT vfile.rid, blob.rid FROM vfile, hashoffile, blob"
+    "   WHERE hashoffile.name=coalesce(vfile.origname,vfile.pathname)"
+    "     AND blob.uuid=hashoffile.hash;"
+  );
+
+  /* Add RID values for merged-in files */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO idMap(oldrid, newrid)"
+    " SELECT vfile.mrid, blob.rid FROM vfile, blob"
+    "  WHERE blob.uuid=vfile.mhash;"
+  );
+  
+  if( dryRun ){
+    Stmt q;
+    db_prepare(&q, "SELECT oldrid, newrid, blob.uuid"
+                   "  FROM idMap, blob WHERE blob.rid=idMap.newrid");
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%8d -> %8d  %.25s\n", 
+         db_column_int(&q,0),
+         db_column_int(&q,1),
+         db_column_text(&q,2));
+    }
+    db_finalize(&q);
+  }
+
+  /* Verify that all RID values in the VFILE table and VMERGE table have
+  ** been resolved. */
+  zUnresolved = db_text("",
+     "WITH allrid(x) AS ("
+     "  SELECT rid FROM vfile"
+     "  UNION SELECT mrid FROM vfile"
+     "  UNION SELECT merge FROM vmerge"
+     "  UNION SELECT %d"
+     ")"
+     "SELECT group_concat(x,' ') FROM allrid"
+     " WHERE x NOT IN (SELECT oldrid FROM idMap);",
+     oldVid
+  );
+  if( zUnresolved[0] ){
+    fossil_fatal("Unresolved RID values: %s\n", zUnresolved);
+  }
+
+  /* Make the changes to the VFILE and VMERGE tables */
+  if( !dryRun ){
+    db_multi_exec(
+      "UPDATE vfile"
+      "   SET rid=(SELECT newrid FROM idMap WHERE oldrid=vfile.rid)"
+      " WHERE vid=%d AND rid>0;", oldVid);
+
+    db_multi_exec(
+      "UPDATE vfile"
+      "   SET mrid=(SELECT newrid FROM idMap WHERE oldrid=vfile.mrid)"
+      " WHERE vid=%d AND mrid>0;", oldVid);
+
+    db_multi_exec(
+      "UPDATE vfile"
+      "   SET vid=%d"
+      " WHERE vid=%d", newVid, oldVid);
+
+    db_multi_exec(
+      "UPDATE vmerge"
+      "   SET merge=(SELECT newrid FROM idMap WHERE oldrid=vmerge.merge);");
+
+    db_lset_int("checkout",newVid);
+  }
+
+  /* Clear out the TEMP tables we constructed */
+  db_multi_exec(
+    "DROP TABLE idMap;"
+    "DROP TABLE hashoffile;"
+  );
 }
