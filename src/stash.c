@@ -579,7 +579,6 @@ void stash_cmd(void){
   const char *zCmd;
   int nCmd;
   int stashid = 0;
-  int rc;
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0, 0);
