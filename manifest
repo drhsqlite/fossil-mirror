@@ -1,5 +1,5 @@
-C Fix\sa\shyperlink\serror\son\sthe\sgraph-test\spage.\s\s(This\sshould\shave\sbeen\s\ncommitted\sto\strunk\sto\sbegin\swith.)
-D 2019-01-20T16:47:26.852
+C Improved\srendering\sof\scherrypick\smerge\sarrows,\sespecially\son\sthe\n"ardoise"\sand\s"eagle"\sskins.
+D 2019-01-20T23:57:07.576
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -326,7 +326,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt b2a400d5de4746ff72b78e0164257f00118fdd85a77a1b554c12d2a3339be240
+F skins/ardoise/css.txt 966661ca5253ccf1309be8f64573f2bfff4a6080281d6bf2807aee72ad216531
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
@@ -397,7 +397,7 @@ F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d
 F skins/default/header.txt a9b4a351ed7bfa0b4eeee934bb3ec4c6a6848f96
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
-F skins/eagle/css.txt 60f4ee7478d4bda978f3547d58cdbe69aa54e4e1c50d892e3cf7a07f30a15cfa
+F skins/eagle/css.txt cc86aa8408f877c0423189f089a2af81e4f1cd753593ef3c3cda40d1bb82cb6e
 F skins/eagle/details.txt 9515535a2768af2990a6a3aa0fbbcb628a36670b
 F skins/eagle/footer.txt 24b5c3e7fc83baa7360455f251de275a4bf98a73a0d0d0bd8ebc93eff0e40814
 F skins/eagle/header.txt 69e5d8e521eece71dfaaa5dba0be9b02f56e1389f27c3802b22380a10abecd0f
@@ -458,7 +458,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c cdcd62a17d117cb3af58884cf97701e57fd01472f587c2899aa8f225f2bcf32f
-F src/default_css.txt 5f3cb3586a37521423f8f1d17440090bb5816713744c351da91b6325f3990cf3
+F src/default_css.txt 9e5b44ac018d12ad6487106d1398f1aea635e5bab93d923ca4576fa958898966
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c 98e1700eb7fbd67722502f3dd5d4b7a464e2e38bcea10a9e1d9c0a73cd4c6139
@@ -868,8 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 872d3957127a8033b75de26fa703b2437a7cb35e3e61f7d015a9f60faba49c2a
-Q +6c388affb4b03a93c1ad313959aa98618e4e9a1ac116c7159ea420d6bca61113
-R c5aa58e9700ceedf0a6c6b2c4dd5a0a9
+P 20431a7cfb2ed4680a00f1294bb95bc664a62c30494c62081a17907b3603901b
+R ce32fdcee069e06c0d7285bc0c987576
 U drh
-Z a12067aa3344cc9020db7f45c2e9455c
+Z 15286a000f703970b47fde4234eb9b2a

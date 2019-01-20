@@ -175,13 +175,13 @@ span.timelineEllipsis {
   width: 0px;
   border-top: 1px dashed #000;
   border-left: 0px dashed #000;
-  background: #fff;
+  background: rgba(255,255,255,0);
 }
 .tl-line.cherrypick.v {
   width: 0px;
   border-top: 0px dashed #000;
   border-left: 1px dashed #000;
-  background: #fff;
+  background: rgba(255,255,255,0);
 }
 .tl-arrow.warp {
   margin-left: 1px;

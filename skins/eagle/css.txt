@@ -222,6 +222,30 @@ tr.timelineSelected {
   border-left: 3px solid #fff;
 }
 
+.tl-arrow.cherrypick {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.cherrypick.l {
+  border-right: 3px solid #fff;
+}
+.tl-arrow.cherrypick.r {
+  border-left: 3px solid #fff;
+}
+.tl-line.cherrypick.h {
+  width: 0px;
+  border-top: 1px dashed #fff;
+  border-left: 0px dashed #fff;
+  background: rgba(255,255,255,0);
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #fff;
+  border-left: 1px dashed #fff;
+  background: rgba(255,255,255,0);
+}
+
+
 /* Side-by-side diff */
 table.sbsdiff {
   background-color: #485D7B;
