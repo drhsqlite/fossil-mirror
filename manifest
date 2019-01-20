@@ -1,5 +1,5 @@
-C Remove\sunused\svariable
-D 2019-01-19T21:03:02.317
+C Largely\srewrote\swww/ssl.wiki,\sit\sbeing\s7\syears\ssince\sthe\slast\supdate,\nduring\swhich\stime\smuch\shas\schanged\sin\sTLS\sland.\s\sAdded\sthe\sinitial\nversion\sof\swww/tls-nginx.md\sas\sa\scompanion\sarticle\sto\sit,\ssince\sthe\ntopic\sis\stoo\sdeep\sto\sget\sinto\swithin\sssl.wiki.\s\sFinally,\sadded\sa\snew\nscript,\stools/fslsrv,\sreferred\sto\sby\stls-nginx.md,\ssince\sit's\stoo\sbig\sto\nput\sinline\swithin\sthe\sarticle.
+D 2019-01-20T01:52:36.928
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -732,6 +732,7 @@ F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
+F tools/fslsrv ba0ce666694abf427d03189e1388d0238330c029bc5fa399939a9c056e03997c x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake e730fe39345b6e54621a1b541417ab3f3c75d7750c2fe43fcb3ef2d399cd9690
 F win/Makefile.dmc 222d68d0155792b99ef3e100b24b9c56ffa2e583b471784ed5179cf1981bd753
@@ -850,7 +851,7 @@ F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7
 F www/server.wiki bbd97b79fff06214bf14a5855d4b380090b582f21ea957c72ffa84fc321deecc
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
+F www/ssl.wiki 29d8d4fc04213affda21d526b6afd2a91d69f28109284b532542b8a47c9d5d48
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
@@ -859,6 +860,7 @@ F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f
 F www/th1.md 3cb735832c68a1d699929b2b46bc67811124f10ced5e36aa31e851c982d2112c
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
+F www/tls-nginx.md 8dc63ecc6bd1ccf6295a0618aa9aa81c140477fa0515a0d656e2d923f2143f36
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
@@ -866,6 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ed06585f41ee2acef54b03da90445278b7a88f2241f29932855d071718d3b5cd
-U andygoth
-Z 73a6a62f40bdee979765a1e147bdc654
+P 302ce43947d99c4c4e11965a379cee28b49497573030a82941a2e558c40be7b9
+R b7269e33282d0c3f45250b4bf7e12f1f
+U wyoung
+Z c9898a776e37334d99d1418c8e088736
