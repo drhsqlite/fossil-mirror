@@ -527,7 +527,7 @@ ideas that appear in that thread.
 [2016]: https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg22907.html
 [cb]:   https://certbot.eff.org/
 [cbnu]: https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx
-[fd]:   https://fossil-scm.org/forum/forumpost/XXXXXXXX
+[fd]:   https://fossil-scm.org/forum/forumpost/ae6a4ee157
 [qslt]: https://www.ssllabs.com/ssltest/
 [scgi]: https://en.wikipedia.org/wiki/Simple_Common_Gateway_Interface
 [vps]:  https://en.wikipedia.org/wiki/Virtual_private_server

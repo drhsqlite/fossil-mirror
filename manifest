@@ -1,5 +1,5 @@
-C Largely\srewrote\swww/ssl.wiki,\sit\sbeing\s7\syears\ssince\sthe\slast\supdate,\nduring\swhich\stime\smuch\shas\schanged\sin\sTLS\sland.\s\sAdded\sthe\sinitial\nversion\sof\swww/tls-nginx.md\sas\sa\scompanion\sarticle\sto\sit,\ssince\sthe\ntopic\sis\stoo\sdeep\sto\sget\sinto\swithin\sssl.wiki.\s\sFinally,\sadded\sa\snew\nscript,\stools/fslsrv,\sreferred\sto\sby\stls-nginx.md,\ssince\sit's\stoo\sbig\sto\nput\sinline\swithin\sthe\sarticle.
-D 2019-01-20T01:52:36.928
+C Pointing\sto\severgreen\s"TLS/HTTPS/SSL\sDocumentation\sMaintenance"\sthread\nfrom\swww/tls-nginx.md.
+D 2019-01-20T02:03:53.763
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -860,7 +860,7 @@ F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f
 F www/th1.md 3cb735832c68a1d699929b2b46bc67811124f10ced5e36aa31e851c982d2112c
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
-F www/tls-nginx.md 8dc63ecc6bd1ccf6295a0618aa9aa81c140477fa0515a0d656e2d923f2143f36
+F www/tls-nginx.md ecd108041e5c6a01b61f1199769337ac48ee7bf073d315b7cf01982d100fb7a9
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 302ce43947d99c4c4e11965a379cee28b49497573030a82941a2e558c40be7b9
-R b7269e33282d0c3f45250b4bf7e12f1f
+P 062d2bf61bdafe9d9b62e31a48bf19ac324162f75e130a43cfca9f12903359c5
+R a2ceea84fbe0b0f53dbf0f65e544851a
 U wyoung
-Z c9898a776e37334d99d1418c8e088736
+Z 77f893a597abafaa0c7bf1f0c9f17db9
