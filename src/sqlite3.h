@@ -123,9 +123,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.26.0"
-#define SQLITE_VERSION_NUMBER 3026000
-#define SQLITE_SOURCE_ID      "2018-12-01 12:34:55 bf8c1b2b7a5960c282e543b9c293686dccff272512d08865f4600fb58238b4f9"
+#define SQLITE_VERSION        "3.27.0"
+#define SQLITE_VERSION_NUMBER 3027000
+#define SQLITE_SOURCE_ID      "2019-01-21 17:57:31 505ed9a47825240979338a24044559613fbbd2a7850bdff70c7164da054ec63d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2991,9 +2991,9 @@ SQLITE_API int sqlite3_set_authorizer(
 ** time is in units of nanoseconds, however the current implementation
 ** is only capable of millisecond resolution so the six least significant
 ** digits in the time are meaningless.  Future versions of SQLite
-** might provide greater resolution on the profiler callback.  The
-** sqlite3_profile() function is considered experimental and is
-** subject to change in future versions of SQLite.
+** might provide greater resolution on the profiler callback.  Invoking
+** either [sqlite3_trace()] or [sqlite3_trace_v2()] will cancel the
+** profile callback.
 */
 SQLITE_API SQLITE_DEPRECATED void *sqlite3_trace(sqlite3*,
    void(*xTrace)(void*,const char*), void*);
@@ -3629,18 +3629,23 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** deplete the limited store of lookaside memory. Future versions of
 ** SQLite may act on this hint differently.
 **
-** [[SQLITE_PREPARE_NORMALIZE]] ^(<dt>SQLITE_PREPARE_NORMALIZE</dt>
-** <dd>The SQLITE_PREPARE_NORMALIZE flag indicates that a normalized
-** representation of the SQL statement should be calculated and then
-** associated with the prepared statement, which can be obtained via
-** the [sqlite3_normalized_sql()] interface.)^  The semantics used to
-** normalize a SQL statement are unspecified and subject to change.
-** At a minimum, literal values will be replaced with suitable
-** placeholders.
+** [[SQLITE_PREPARE_NORMALIZE]] <dt>SQLITE_PREPARE_NORMALIZE</dt>
+** <dd>The SQLITE_PREPARE_NORMALIZE flag is a no-op. This flag used
+** to be required for any prepared statement that wanted to use the
+** [sqlite3_normalized_sql()] interface.  However, the
+** [sqlite3_normalized_sql()] interface is now available to all
+** prepared statements, regardless of whether or not they use this
+** flag.
+**
+** [[SQLITE_PREPARE_NO_VTAB]] <dt>SQLITE_PREPARE_NO_VTAB</dt>
+** <dd>The SQLITE_PREPARE_NO_VTAB flag causes the SQL compiler
+** to return an error (error code SQLITE_ERROR) if the statement uses
+** any virtual tables.
 ** </dl>
 */
 #define SQLITE_PREPARE_PERSISTENT              0x01
 #define SQLITE_PREPARE_NORMALIZE               0x02
+#define SQLITE_PREPARE_NO_VTAB                 0x04
 
 /*
 ** CAPI3REF: Compiling An SQL Statement
@@ -9996,7 +10001,7 @@ SQLITE_API int sqlite3changeset_next(sqlite3_changeset_iter *pIter);
 ** sqlite3changeset_next() is called on the iterator or until the 
 ** conflict-handler function returns. If pnCol is not NULL, then *pnCol is 
 ** set to the number of columns in the table affected by the change. If
-** pbIncorrect is not NULL, then *pbIndirect is set to true (1) if the change
+** pbIndirect is not NULL, then *pbIndirect is set to true (1) if the change
 ** is an indirect change, or false (0) otherwise. See the documentation for
 ** [sqlite3session_indirect()] for a description of direct and indirect
 ** changes. Finally, if pOp is not NULL, then *pOp is set to one of 
@@ -11524,11 +11529,11 @@ struct Fts5ExtensionApi {
 **            the tokenizer substitutes "first" for "1st" and the query works
 **            as expected.
 **
-**       <li> By adding multiple synonyms for a single term to the FTS index.
-**            In this case, when tokenizing query text, the tokenizer may 
-**            provide multiple synonyms for a single term within the document.
-**            FTS5 then queries the index for each synonym individually. For
-**            example, faced with the query:
+**       <li> By querying the index for all synonyms of each query term
+**            separately. In this case, when tokenizing query text, the
+**            tokenizer may provide multiple synonyms for a single term 
+**            within the document. FTS5 then queries the index for each 
+**            synonym individually. For example, faced with the query:
 **
 **   <codeblock>
 **     ... MATCH 'first place'</codeblock>
@@ -11552,7 +11557,7 @@ struct Fts5ExtensionApi {
 **            "place".
 **
 **            This way, even if the tokenizer does not provide synonyms
-**            when tokenizing query text (it should not - to do would be
+**            when tokenizing query text (it should not - to do so would be
 **            inefficient), it doesn't matter if the user queries for 
 **            'first + place' or '1st + place', as there are entries in the
 **            FTS index corresponding to both forms of the first token.
