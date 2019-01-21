@@ -338,7 +338,8 @@ automatic upgrade of the connection to a secure TLS-encrypted one.  I
 didn’t enable that in the configuration above, because it is something a
 site administrator should enable only after the configuration is tested
 and stable, and then only after due consideration. There are ways to
-lock your users out of your site by jumping to HSTS hastily.
+lock your users out of your site by jumping to HSTS hastily. When you’re
+ready, there are [guides you can follow][nest] elsewhere online.
 
 
 ### HTTP-Only Service
@@ -584,6 +585,7 @@ ideas that appear in that thread.
 [hsts]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
 [lja]:  https://en.wikipedia.org/wiki/Logjam_(computer_security)
 [mitm]: https://en.wikipedia.org/wiki/Man-in-the-middle_attack
+[nest]: https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/
 [ocsp]: https://en.wikipedia.org/wiki/OCSP_stapling
 [qslt]: https://www.ssllabs.com/ssltest/
 [scgi]: https://en.wikipedia.org/wiki/Simple_Common_Gateway_Interface

@@ -1,5 +1,5 @@
-C Assorted\simprovements\sto\sthe\sTLS/SSL\sdocs.
-D 2019-01-21T09:38:09.592
+C Linked\sthe\snew\sTLS\s+\snginx\sguide\sto\san\snginx\sblog\son\senabling\sHSTS.
+D 2019-01-21T09:45:23.818
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -860,7 +860,7 @@ F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f
 F www/th1.md 3cb735832c68a1d699929b2b46bc67811124f10ced5e36aa31e851c982d2112c
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
-F www/tls-nginx.md 9862618317fb97ba8807cff326cf413c67278d53a43ff36cce8f12985ce017bf
+F www/tls-nginx.md 981c542ddb96cd7f5957116b565690e0eb8de60a0c6101247849c0313ec77f08
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c7fdea89b50654ed8a36e82f2c47c523ad7dfcac48437d53cb97af742b89342
-R ee09145a670bcdc336c51ca26e9a49b9
+P 43166dcda39e8f5d39a74924a07ff0f700a3b442ba033bbee16858ad92f7f28a
+R 5a4be74ff1be8b82706d9cabf3c76e14
 U wyoung
-Z 29d5383f8359cdc54760a1fc98b15e5b
+Z a3a57646e20a327322555389cee7d727
