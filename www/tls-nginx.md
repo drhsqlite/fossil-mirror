@@ -378,7 +378,7 @@ We’ll uncomment the `rewrite` and `return` directives below, when we’re
 ready to begin testing.
 
 
-#### Why the Repitition?
+#### Why the Repetition?
 
 You need to do much the same sort of thing as above for each domain name
 hosted by your nginx server.
