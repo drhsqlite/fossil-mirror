@@ -380,6 +380,7 @@ static void expand_args_option(int argc, void *argv){
   unsigned int nLine;       /* Number of lines in the file*/
   unsigned int i, j, k;     /* Loop counters */
   int n;                    /* Number of bytes in one line */
+  unsigned int nArg;        /* Number of new arguments */
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   const char *zFileName;    /* input file name */
@@ -413,30 +414,35 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  inFile = (0==strcmp("-",zFileName))
-    ? stdin
-    : fossil_fopen(zFileName,"rb");
-  if(!inFile){
-    fossil_fatal("Cannot open -args file [%s]", zFileName);
+  if( strcmp(zFileName,"-")==0 ){
+    inFile = stdin;
+  }else if( !file_isfile(zFileName, ExtFILE) ){
+    fossil_fatal("Not an ordinary file: \"%s\"", zFileName);
   }else{
-    blob_read_from_channel(&file, inFile, -1);
-    if(stdin != inFile){
-      fclose(inFile);
+    inFile = fossil_fopen(zFileName,"rb");
+    if( inFile==0 ){
+      fossil_fatal("Cannot open -args file [%s]", zFileName);
     }
-    inFile = NULL;
   }
+  blob_read_from_channel(&file, inFile, -1);
+  if(stdin != inFile){
+    fclose(inFile);
+  }
+  inFile = NULL;
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
-  newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
+  if( nLine>100000000 ) fossil_fatal("too many command-line arguments");
+  nArg = g.argc + nLine*2;
+  newArgv = fossil_malloc( sizeof(char*)*nArg );
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
-    if( n<1 ) continue
-      /**
-       ** Reminder: corner-case: a line with 1 byte and no newline.
-       */;
+    if( n<1 ){
+      /* Reminder: corner-case: a line with 1 byte and no newline. */
+      continue;
+    }
     z = blob_buffer(&line);
     if('\n'==z[n-1]){
       z[n-1] = 0;
@@ -447,6 +453,9 @@ static void expand_args_option(int argc, void *argv){
       z[n-2] = 0;
     }
     if(!z[0]) continue;
+    if( j>=nArg ){
+      fossil_fatal("malformed command-line arguments");
+    }
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
