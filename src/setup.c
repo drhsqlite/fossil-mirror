@@ -333,7 +333,7 @@ void setup_access(void){
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
   @ $secureurl is just an alias for $baseurl.  Also when enabled, the
   @ Login page redirects to https if accessed via http.
-  @ (Property: "redirhttps")
+  @ (Property: "redirect-to-https")
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);

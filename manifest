@@ -1,5 +1,5 @@
-C When\sSQLite\sdetects\sthat\sthe\srepository\sassociated\swith\sa\scheckout\shas\nbeen\sreplaced\sby\sa\sclone\s(such\sthat\sthe\sRID\svalues\spotentially\schange)\sthen\nautomatically\sadjust\sthe\scontent\sof\sthe\scheckout\sdatabase.
-D 2019-01-21T16:54:04.515
+C Fix\sa\sdocumentation\serror\son\sthe\ssetup_access\spage.
+D 2019-01-21T16:57:09.378
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -551,7 +551,7 @@ F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c caa8733404cd4765b20165aa18b4f6bee6185b95acfd8d24bcf13109eddf6f60
+F src/setup.c 06af36b76fa7894793401f21af83616489afa969ab85d4afeac883fed4c7b0db
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -868,8 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f2ec29248de7a7c90abd2a36100ae07453375a6ea857aae44ebd9cc02a18249 12a022b14ae54fa9d7f40555362b55f1de42586a711d4339b0c2dea8e02b4c26
-R f9fb605b9d081d0a87aca745a5ed182c
-T +closed 12a022b14ae54fa9d7f40555362b55f1de42586a711d4339b0c2dea8e02b4c26
+P fff37e624e2b634bfdd61c3eb2f6cd10ce4b2ebccf391753f1cc2567b332648d
+R 3434ff7c243c61b17b477c750e5f25d6
 U drh
-Z 84e22f71f9406e0fa12146436447baeb
+Z 49a0ff9da11ae56ced23d3c9634e02ac
