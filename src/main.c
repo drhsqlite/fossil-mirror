@@ -1361,25 +1361,10 @@ int fossil_redirect_to_https_if_needed(int iLevel){
   if( fossil_wants_https(iLevel) ){
     const char *zQS = P("QUERY_STRING");
     char *zURL;
-    if( P("redir")!=0 ){
-      style_header("Insecure Connection");
-      @ <h1>Unable To Establish An Encrypted Connection</h1>
-      @ <p>This website requires an encrypted connection.
-      @ The current connection is not encrypted
-      @ across the entire route between your browser and the server.
-      @ An attempt was made to redirect to %h(g.zHttpsURL) but
-      @ the connection is still insecure even after the redirect.</p>
-      @ <p>This is probably some kind of configuration problem.  Please
-      @ contact your sysadmin.</p>
-      @ <p>Sorry it did not work out.</p>
-      style_footer();
-      cgi_reply();
-      return 1;
-    }
     if( zQS==0 || zQS[0]==0 ){
-      zURL = mprintf("%s%T?redir=1", g.zHttpsURL, P("PATH_INFO"));
+      zURL = mprintf("%s%T", g.zHttpsURL, P("PATH_INFO"));
     }else if( zQS[0]!=0 ){
-      zURL = mprintf("%s%T?%s&redir=1", g.zHttpsURL, P("PATH_INFO"), zQS);
+      zURL = mprintf("%s%T?%s", g.zHttpsURL, P("PATH_INFO"), zQS);
     }
     cgi_redirect_with_status(zURL, 301, "Moved Permanently");
     return 1;
