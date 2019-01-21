@@ -1,5 +1,5 @@
-C Provide\sthe\soption\sto\sforce\sall\sweb\spage\srequests\sto\sgo\sover\sHTTPS.
-D 2019-01-21T17:33:02.999
+C Fixes\sto\sthe\sautomatic\sHTTPS\sredirector.
+D 2019-01-21T18:05:34.469
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -442,7 +442,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 387c89d7869afbc3914b18c045cb9ba24bea43ec9ddb6e7157ac922fc35a1d6e
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c b1b3215c666c63fd5a5311dcbb19819afda5db6b62a4b1d6405390a8b90b63bf
+F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
 F src/checkin.c 2199fbfb096b09b940b96e9b74658758ece27454d86230274cf0e21f2dbf3b85
 F src/checkout.c 7d8e0e2470df6a1d9bbaf0adfbc90bc32a2de8d0ee2d8163477700eddc383c25
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -513,7 +513,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 98cad4d42c11b6d96ce0e68da29f4bf0d52f36d49b067da26159ded4e3e1097b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 6e5adbd091b65f20a4d1343dbd7082cec8b702a696724743b599ff7ed5decc3f
+F src/main.c 55ca71ac3611f477757326053f49c267c72be254528ad91c19a28a824e67ac26
 F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -868,10 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 742d64d916facd8c49807fd34a0eab26d5dd742437b0367cb26bf2af1f3c66a3
-R bebf28184a44982846c1ad4e3939038f
-T *branch * https-all-pages-option
-T *sym-https-all-pages-option *
-T -sym-trunk *
+P f372e18979177614b552a5ddca34daa96a0a199c811e367442b33f66b3619e3f
+R 6e4314adfcf7afce16699089171f4e5c
 U drh
-Z 08f16913a45867ad1472e475ab68c128
+Z e313a41b041e6478df6c773f80fddd4e

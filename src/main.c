@@ -1357,9 +1357,10 @@ int fossil_wants_https(int iLevel){
 ** insecure and if the redirect-to-https flag greater than or equal to 
 ** iLevel.  iLevel is 1 for /login pages and 2 for every other page.
 */
-void fossil_redirect_to_https_if_needed(int iLevel){
+int fossil_redirect_to_https_if_needed(int iLevel){
   if( fossil_wants_https(iLevel) ){
     const char *zQS = P("QUERY_STRING");
+    char *zURL;
     if( P("redir")!=0 ){
       style_header("Insecure Connection");
       @ <h1>Unable To Establish An Encrypted Connection</h1>
@@ -1372,15 +1373,18 @@ void fossil_redirect_to_https_if_needed(int iLevel){
       @ contact your sysadmin.</p>
       @ <p>Sorry it did not work out.</p>
       style_footer();
-      return;
+      cgi_reply();
+      return 1;
     }
-    if( zQS==0 ){
-      zQS = "?redir=1";
+    if( zQS==0 || zQS[0]==0 ){
+      zURL = mprintf("%s%T?redir=1", g.zHttpsURL, P("PATH_INFO"));
     }else if( zQS[0]!=0 ){
-      zQS = mprintf("?%s&redir=1", zQS);
+      zURL = mprintf("%s%T?%s&redir=1", g.zHttpsURL, P("PATH_INFO"), zQS);
     }
-    cgi_redirectf("%s%T%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    cgi_redirect_with_status(zURL, 301, "Moved Permanently");
+    return 1;
   }
+  return 0;
 }
 
 /*
@@ -1653,16 +1657,11 @@ static void process_one_web_page(
     zPathInfo = "/xfer";
   }
 
-  /* If the inbound request is unencrypted and if the redirect-to-https
-  ** setting is 2 or more, then immediately redirect the equivalent HTTPS
-  ** URI.
-  */
-  fossil_redirect_to_https_if_needed(2);
-
   /* Use the first element of PATH_INFO as the page name
   ** and deliver the appropriate page back to the user.
   */
   set_base_url(0);
+  if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
     /* Second special case: If the PATH_INFO is blank, issue a redirect to
