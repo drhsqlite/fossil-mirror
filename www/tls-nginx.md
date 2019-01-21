@@ -282,7 +282,7 @@ The first `server { }` block includes this file, `local/tls-common`:
       ssl_stapling_verify on;
 
       ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-      ssl_ciphers "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SH
+      ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256”;
       ssl_session_cache shared:le_nginx_SSL:1m;
       ssl_prefer_server_ciphers on;
       ssl_session_timeout 1440m;
@@ -328,7 +328,13 @@ around it.
 Running a TLS certificate checker against your site occasionally is a
 good idea. The most thorough service I’m aware of is the [Qualys SSL
 Labs Test][qslt], which gives the site I’m basing this guide on an “A”
-rating at the time of this writing.
+rating at the time of this writing. The long `ssl_ciphers` line above is
+based on [their advice][qslc]: the default nginx configuration tells
+OpenSSL to use whatever ciphersuites it considers “high security,” but
+some of those have come to be considered “weak” in the time between that
+judgement and the time of this writing. By explicitly giving the list of
+ciphersuites we want OpenSSL to use within nginx, we can remove those
+that become considered weak in the future.
 
 <a id=”hsts”></a>There are a few things you can do to get an even better
 grade, such as to enable [HSTS][hsts], which prevents a particular
@@ -587,6 +593,7 @@ ideas that appear in that thread.
 [mitm]: https://en.wikipedia.org/wiki/Man-in-the-middle_attack
 [nest]: https://www.nginx.com/blog/http-strict-transport-security-hsts-and-nginx/
 [ocsp]: https://en.wikipedia.org/wiki/OCSP_stapling
+[qslc]: https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices
 [qslt]: https://www.ssllabs.com/ssltest/
 [scgi]: https://en.wikipedia.org/wiki/Simple_Common_Gateway_Interface
 [vps]:  https://en.wikipedia.org/wiki/Virtual_private_server
