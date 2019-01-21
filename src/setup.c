@@ -286,7 +286,7 @@ void multiple_choice_attribute(
   const char *zQP,      /* The query parameter */
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int nChoice,          /* Number of choices */
-  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
+  const char *const *azChoice /* Choices in pairs (VAR value, Display) */
 ){
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
@@ -314,6 +314,11 @@ void multiple_choice_attribute(
 ** The access-control settings page.  Requires Setup privileges.
 */
 void setup_access(void){
+  static const char * const azRedirectOpts[] = {
+    "0", "Off",
+    "1", "Login Page Only",
+    "2", "All Pages"
+  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -326,14 +331,17 @@ void setup_access(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
-  onoff_attribute("Redirect to HTTPS on the Login page",
-     "redirect-to-https", "redirhttps", 0, 0);
-  @ <p>When selected, force the use of HTTPS for the Login page.
-  @ <p>Details:  When enabled, this option causes the $secureurl TH1
+  multiple_choice_attribute("Redirect to HTTPS",
+     "redirect-to-https", "redirhttps", "0",
+     count(azRedirectOpts)/2, azRedirectOpts);
+  @ <p>Force the use of HTTPS by redirecting to HTTPS when an 
+  @ unencrypted request is received.  This feature can be enabled
+  @ for the Login page only, or for all pages.
+  @ <p>Further details:  When enabled, this option causes the $secureurl TH1
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
-  @ $secureurl is just an alias for $baseurl.  Also when enabled, the
-  @ Login page redirects to https if accessed via http.
-  @ (Property: "redirect-to-https")
+  @ $secureurl is just an alias for $baseurl.
+  @ (Property: "redirect-to-https".  "0" for off, "1" for Login page only,
+  @ "2" otherwise.)
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);

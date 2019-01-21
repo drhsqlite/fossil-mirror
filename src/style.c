@@ -414,7 +414,7 @@ static void style_init_th1_vars(const char *zTitle){
   Th_Store("project_description", db_get("project-description",""));
   if( zTitle ) Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
+  Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
@@ -916,7 +916,7 @@ void page_style_css(void){
   ** variables such as $baseurl.
   */
   Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
+  Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   image_url_var("logo");
   image_url_var("background");

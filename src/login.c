@@ -551,30 +551,7 @@ void login_page(void){
   int noAnon = P("noanon")!=0;
 
   login_check_credentials();
-  if( login_wants_https_redirect() ){
-    const char *zQS = P("QUERY_STRING");
-    if( P("redir")!=0 ){
-      style_header("Insecure Connection");
-      @ <h1>Unable To Establish An Encrypted Connection</h1>
-      @ <p>This website requires that login credentials be sent over
-      @ an encrypted connection.  The current connection is not encrypted
-      @ across the entire route between your browser and the server.
-      @ An attempt was made to redirect to %h(g.zHttpsURL) but
-      @ the connection is still insecure even after the redirect.</p>
-      @ <p>This is probably some kind of configuration problem.  Please
-      @ contact your sysadmin.</p>
-      @ <p>Sorry it did not work out.</p>
-      style_footer();
-      return;
-    }
-    if( zQS==0 ){
-      zQS = "?redir=1";
-    }else if( zQS[0]!=0 ){
-      zQS = mprintf("?%s&redir=1", zQS);
-    }
-    cgi_redirectf("%s%T%s", g.zHttpsURL, P("PATH_INFO"), zQS);
-    return;
-  }
+  fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
@@ -916,22 +893,6 @@ static int login_find_user(
   );
   return uid;
 }
-
-/*
-** Return true if it is appropriate to redirect login requests to HTTPS.
-**
-** Redirect to https is appropriate if all of the above are true:
-**    (1) The redirect-to-https flag is set
-**    (2) The current connection is http, not https or ssh
-**    (3) The sslNotAvailable flag is clear
-*/
-int login_wants_https_redirect(void){
-  if( g.sslNotAvailable ) return 0;
-  if( db_get_boolean("redirect-to-https",0)==0 ) return 0;
-  if( P("HTTPS")!=0 ) return 0;
-  return 1;
-}
-
 
 /*
 ** Attempt to use Basic Authentication to establish the user.  Return the
@@ -1463,7 +1424,7 @@ void login_needed(int anonOk){
     const char *zQS = P("QUERY_STRING");
     Blob redir;
     blob_init(&redir, 0, 0);
-    if( login_wants_https_redirect() && !g.sslNotAvailable ){
+    if( fossil_wants_https(1) ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
