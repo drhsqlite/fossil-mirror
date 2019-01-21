@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\sautomatic\sHTTPS\sredirector.
-D 2019-01-21T18:05:34.469
+C The\s--nossl\soption\sis\son\sby\sdefault\sfor\sthe\s"fossil\sui"\scommand.
+D 2019-01-21T18:27:18.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -513,7 +513,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 98cad4d42c11b6d96ce0e68da29f4bf0d52f36d49b067da26159ded4e3e1097b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 55ca71ac3611f477757326053f49c267c72be254528ad91c19a28a824e67ac26
+F src/main.c f559c3959aab1315a20209d38241d321f951cec93dab951e592e486557d3f39e
 F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f372e18979177614b552a5ddca34daa96a0a199c811e367442b33f66b3619e3f
-R 6e4314adfcf7afce16699089171f4e5c
+P 14ff7af42ece5597d604c381e27bb4585525860c6b74feb49a3ffedbb96825e9
+R 77e3137a998fce6db7fdd81a7736fe5b
 U drh
-Z e313a41b041e6478df6c773f80fddd4e
+Z adaac64d90c4e2c6599e65fdb4014152

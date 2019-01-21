@@ -2480,7 +2480,8 @@ void sigalrm_handler(int x){
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available
+**   --nossl             signal that no SSL connections are available (Always
+**                       set by default for the "ui" command)
 **   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
@@ -2551,7 +2552,7 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
-  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
   }
