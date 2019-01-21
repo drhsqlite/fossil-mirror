@@ -278,6 +278,9 @@ The first `server { }` block includes this file, `local/tls-common`:
 
       ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
+      ssl_stapling on;
+      ssl_stapling_verify on;
+
       ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
       ssl_ciphers "ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SH
       ssl_session_cache shared:le_nginx_SSL:1m;
@@ -285,28 +288,57 @@ The first `server { }` block includes this file, `local/tls-common`:
       ssl_session_timeout 1440m;
 
 These are the common TLS configuration parameters used by all domains
-hosted by this server. Since all of those domains share a single TLS
-certificate, we reference the same `example.com/*.pem` files written out
-by Certbot here. We also reference the common server-specific
-Diffie-Hellman parameter file written by the Let’s Encrypt package when
-it’s initially installed.
+hosted by this server.
 
-The `ssl_protocols` and `ssl_ciphers` lines are prone to bit-rot: as new
-attacks on TLS and its associated technologies are discovered, this
-configuration is likely to need to change. Even if we fully succeed in
-[keeping this document up-to-date](#evolution), the nature of this guide
-is to recommend static configurations for your server. You will have to
-keep an eye on this sort of thing and evolve your local configuration as
-the world changes around it.
+The first line tells nginx to accept TLS-encrypted HTTP connections on
+the standard HTTPS port. It is the same as `listen 443; ssl on;` in
+older versions of nginx.
+
+Since all of those domains share a single TLS certificate, we reference
+the same `example.com/*.pem` files written out by Certbot with the
+`ssl_certificate*` lines. 
+
+The `ssl_dhparam` directive isn’t strictly required, but without it, the
+server becomes vulnerable to the [Logjam attack][lja] because some of
+the cryptography steps are precomputed, making the attacker’s job much
+easier. The parameter file this directive references should be
+generated automatically by the Let’s Encrypt package upon installation,
+making those parameters unique to your server and thus unguessable. If
+the file doesn’t exist on your system, you can create it manually, so:
+
+      $ sudo openssl dhparam -out /etc/letsencrypt/dhparams.pem 2048
+
+Beware, this will take a few minutes of CPU time.
+
+The next section is also optional. It enables [OCSP stapling][ocsp], a
+protocol that improves the speed and security of the TLS connection
+negotiation.
+
+The next section containing the `ssl_protocols` and `ssl_ciphers` lines
+restricts the TLS implementation to only those protocols and ciphers
+that are currently believed to be safe and secure.  This section is the
+one most prone to bit-rot: as new attacks on TLS and its associated
+technologies are discovered, this configuration is likely to need to
+change. Even if we fully succeed in [keeping this document
+up-to-date](#evolution), the nature of this guide is to recommend static
+configurations for your server. You will have to keep an eye on this
+sort of thing and evolve your local configuration as the world changes
+around it.
 
 Running a TLS certificate checker against your site occasionally is a
 good idea. The most thorough service I’m aware of is the [Qualys SSL
 Labs Test][qslt], which gives the site I’m basing this guide on an “A”
 rating at the time of this writing.
 
-I assume you’re taking my advice to serve only the least amount of stuff
-over HTTP that you can get away with. Certbot’s ACME HTTP-01
-authentication scheme is one of those few things.
+<a id=”hsts”></a>There are a few things you can do to get an even better
+grade, such as to enable [HSTS][hsts], which prevents a particular
+variety of [man in the middle attack][mitm] where our HTTP-to-HTTPS
+permanent redirect is intercepted, allowing the attacker to prevent the
+automatic upgrade of the connection to a secure TLS-encrypted one.  I
+didn’t enable that in the configuration above, because it is something a
+site administrator should enable only after the configuration is tested
+and stable, and then only after due consideration. There are ways to
+lock your users out of your site by jumping to HSTS hastily.
 
 
 ### HTTP-Only Service
@@ -487,7 +519,28 @@ it would actually [cause an infinite redirect loop if
 enabled](./ssl.wiki#rloop).
 
 
-## Step 6: Renewing Automatically
+
+## Step 6: Re-Sync Your Repositories
+
+Now that the repositories hosted by this server are available via HTTPS,
+you need to tell Fossil about it:
+
+      $ cd ~/path/to/checkout
+      $ fossil sync https://example.com/code
+
+Once that’s done per repository file, all checkouts of that repo will
+from that point on use the HTTPS URI to sync.
+
+You might wonder if that’s necessary, since we have the automatic
+HTTP-to-HTTPS redirect on this site now.  If you clone or sync one of
+these nginx-hosted Fossil repositories over an untrustworthy network
+that allows [MITM attacks][mitm], that redirect won’t protect you from a
+sufficiently capable and motivated attacker unless you’ve also gone
+ahead and [enabled HSTS](#hsts).  You can put off the need to enable
+HSTS by explicitly using HTTPS URIs.
+
+
+## Step 7: Renewing Automatically
 
 Now that the configuration is solid, you can renew the LE cert and
 restart nginx with two short commands, which are easily automated:
@@ -528,6 +581,10 @@ ideas that appear in that thread.
 [cb]:   https://certbot.eff.org/
 [cbnu]: https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx
 [fd]:   https://fossil-scm.org/forum/forumpost/ae6a4ee157
+[hsts]: https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+[lja]:  https://en.wikipedia.org/wiki/Logjam_(computer_security)
+[mitm]: https://en.wikipedia.org/wiki/Man-in-the-middle_attack
+[ocsp]: https://en.wikipedia.org/wiki/OCSP_stapling
 [qslt]: https://www.ssllabs.com/ssltest/
 [scgi]: https://en.wikipedia.org/wiki/Simple_Common_Gateway_Interface
 [vps]:  https://en.wikipedia.org/wiki/Virtual_private_server

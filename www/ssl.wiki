@@ -239,7 +239,7 @@ Some people still use the term "SSL" when they actually mean "TLS," but
 in the Fossil project, we always use "TLS" except when we must preserve
 some sort of historical compatibility, as with this document's name in
 order to avoid broken external URLs.  The Fossil TLS-related settings
-also often use "`ssl`" in their names, for the same reason.
+also often use "<tt>ssl</tt>" in their names, for the same reason.
 
 This series of protocols is also called "HTTPS" after the URI scheme
 used to specify "HTTP over TLS."
