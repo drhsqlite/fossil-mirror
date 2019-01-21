@@ -167,6 +167,16 @@ static void add_renames(
   free(aChng);
 }
 
+/* Make an entry in the vmerge table for the given id, and rid.
+*/
+static void vmerge_insert(int id, int rid){
+  db_multi_exec(
+    "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
+    "VALUES(%d,%d,(SELECT uuid FROM blob WHERE rid=%d))",
+    id, rid, rid
+  );
+}
+
 /*
 ** COMMAND: merge
 **
@@ -596,8 +606,10 @@ void merge_cmd(void){
     if( !dryRunFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d "
-        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d,"
+        " mhash=CASE WHEN rid<>%d"
+                   " THEN (SELECT uuid FROM blob WHERE blob.rid=%d) END"
+        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, ridm, ridm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
@@ -666,8 +678,7 @@ void merge_cmd(void){
       blob_reset(&m);
       blob_reset(&r);
     }
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
-                  idv,ridm);
+    vmerge_insert(idv, ridm);
   }
   db_finalize(&q);
 
@@ -788,8 +799,12 @@ void merge_cmd(void){
     const char *zName;
     char *zFullName;
     db_multi_exec(
-      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
-      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
+      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,"
+                         "isexe,islink,pathname,mhash)"
+      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname,"
+              "CASE WHEN rid<>mrid"
+              "     THEN (SELECT uuid FROM blob WHERE blob.rid=vfile.mrid) END "
+              "FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );
     zName = db_column_text(&q, 1);
@@ -828,7 +843,7 @@ void merge_cmd(void){
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( pickFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-1,%d)",mid);
+    vmerge_insert(-1, mid);
     /* For a cherry-pick merge, make the default check-in comment the same
     ** as the check-in comment on the check-in that is being merged in. */
     db_multi_exec(
@@ -838,11 +853,11 @@ void merge_cmd(void){
        mid
     );
   }else if( backoutFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-2,%d)",pid);
+    vmerge_insert(-2, pid);
   }else if( integrateFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-4,%d)",mid);
+    vmerge_insert(-4, mid);
   }else{
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+    vmerge_insert(0, mid);
   }
   if( !dryRunFlag ) undo_finish();
   db_end_transaction(dryRunFlag);
