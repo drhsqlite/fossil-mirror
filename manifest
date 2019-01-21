@@ -1,5 +1,5 @@
-C Fix\sa\sdocumentation\serror\son\sthe\ssetup_access\spage.
-D 2019-01-21T16:57:09.378
+C Provide\sthe\soption\sto\sforce\sall\sweb\spage\srequests\sto\sgo\sover\sHTTPS.
+D 2019-01-21T17:33:02.999
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -510,10 +510,10 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 0fda31b6683c206ac2cc527270d3228d8d9995b4cf18c438751b1bf3f6865ad8
+F src/login.c 98cad4d42c11b6d96ce0e68da29f4bf0d52f36d49b067da26159ded4e3e1097b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c e3e2cbe948461da08d89fe81e058ef7f7226d809bb189eee0b5b79c30a82a1de
+F src/main.c 6e5adbd091b65f20a4d1343dbd7082cec8b702a696724743b599ff7ed5decc3f
 F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -551,7 +551,7 @@ F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 4950cbf33eb24bcebaee7ec7d10b3dee0558448a12b06e94e2096cfb336cb8f1
-F src/setup.c 06af36b76fa7894793401f21af83616489afa969ab85d4afeac883fed4c7b0db
+F src/setup.c bedcb23e2cf8fce3095d2a35e7ca7fb5aa11d494906249ea87c13df6bbcaa455
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -569,7 +569,7 @@ F src/sqlite3.h dd08dbe5bb40b4a824e10b45877a7dc10932d6ed91a10eea70c2ab803dbce41f
 F src/stash.c 97f9f93b1d99d2264eda846d5b20e0e8a0f238afee5f8dc9209c96160c3fa513
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 2243b0574cd491079024a5d946f13124cb263d307b4a498dd9dfde84ffd0aa11
+F src/style.c 2f3f2d09b788a6435ac14b6da2a835d809972dbf27af64745c3eab288cb8f02f
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c e529402727b7ed3db52f2c98716edf8274352737c3d1eb01501f7af3181d3eb2
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -868,7 +868,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fff37e624e2b634bfdd61c3eb2f6cd10ce4b2ebccf391753f1cc2567b332648d
-R 3434ff7c243c61b17b477c750e5f25d6
+P 742d64d916facd8c49807fd34a0eab26d5dd742437b0367cb26bf2af1f3c66a3
+R bebf28184a44982846c1ad4e3939038f
+T *branch * https-all-pages-option
+T *sym-https-all-pages-option *
+T -sym-trunk *
 U drh
-Z 49a0ff9da11ae56ced23d3c9634e02ac
+Z 08f16913a45867ad1472e475ab68c128

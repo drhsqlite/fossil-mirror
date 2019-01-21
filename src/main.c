@@ -1338,6 +1338,52 @@ void sigpipe_handler(int x){
 }
 
 /*
+** Return true if it is appropriate to redirect requests to HTTPS.
+**
+** Redirect to https is appropriate if all of the above are true:
+**    (1) The redirect-to-https flag has a valud of iLevel or greater.
+**    (2) The current connection is http, not https or ssh
+**    (3) The sslNotAvailable flag is clear
+*/
+int fossil_wants_https(int iLevel){
+  if( g.sslNotAvailable ) return 0;
+  if( db_get_int("redirect-to-https",0)<iLevel ) return 0;
+  if( P("HTTPS")!=0 ) return 0;
+  return 1;
+}
+
+/*
+** Redirect to the equivalent HTTPS request if the current connection is
+** insecure and if the redirect-to-https flag greater than or equal to 
+** iLevel.  iLevel is 1 for /login pages and 2 for every other page.
+*/
+void fossil_redirect_to_https_if_needed(int iLevel){
+  if( fossil_wants_https(iLevel) ){
+    const char *zQS = P("QUERY_STRING");
+    if( P("redir")!=0 ){
+      style_header("Insecure Connection");
+      @ <h1>Unable To Establish An Encrypted Connection</h1>
+      @ <p>This website requires an encrypted connection.
+      @ The current connection is not encrypted
+      @ across the entire route between your browser and the server.
+      @ An attempt was made to redirect to %h(g.zHttpsURL) but
+      @ the connection is still insecure even after the redirect.</p>
+      @ <p>This is probably some kind of configuration problem.  Please
+      @ contact your sysadmin.</p>
+      @ <p>Sorry it did not work out.</p>
+      style_footer();
+      return;
+    }
+    if( zQS==0 ){
+      zQS = "?redir=1";
+    }else if( zQS[0]!=0 ){
+      zQS = mprintf("?%s&redir=1", zQS);
+    }
+    cgi_redirectf("%s%T%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+  }
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1606,6 +1652,12 @@ static void process_one_web_page(
     ** invoke the sync page. */
     zPathInfo = "/xfer";
   }
+
+  /* If the inbound request is unencrypted and if the redirect-to-https
+  ** setting is 2 or more, then immediately redirect the equivalent HTTPS
+  ** URI.
+  */
+  fossil_redirect_to_https_if_needed(2);
 
   /* Use the first element of PATH_INFO as the page name
   ** and deliver the appropriate page back to the user.
