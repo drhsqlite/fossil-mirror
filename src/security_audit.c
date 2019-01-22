@@ -143,14 +143,17 @@ void secaudit0_page(void){
     }
   }
 
-  /* Make sure the HTTPS is required for login, so that the password
-  ** does not go across the internet in the clear.
+  /* Make sure the HTTPS is required for login, at least, so that the
+  ** password does not go across the Internet in the clear.
   */
-  if( db_get_boolean("redirect-to-https",0)==0 ){
+  if( db_get_int("redirect-to-https",0)==0 ){
     @ <li><p><b>WARNING:</b>
-    @ Login passwords can be sent over an unencrypted connection.
-    @ <p>Fix this by activating the "Redirect to HTTPS on the Login page"
-    @ setting on the <a href="setup_access">Access Control</a> page.
+    @ Sensitive material such as login passwords can be sent over an
+    @ unencrypted connection.
+    @ <p>Fix this by changing the "Redirect to HTTPS" setting on the
+    @ <a href="setup_access">Access Control</a> page. If you were using
+    @ the old "Redirect to HTTPS on Login Page" setting, switch to the
+    @ new setting: it has a more secure implementation.
   }
 
   /* Anonymous users should not be able to harvest email addresses
