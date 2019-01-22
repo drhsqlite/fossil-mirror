@@ -218,8 +218,8 @@ old setting allows multiple ways of defeating it.
 <b id="rloop">WARNING:</b> Enabling HTTPS redirects at the Fossil repo
 level while running Fossil behind an HTTPS proxy can result in an
 infinite redirect loop.  It happens when the proxy mechanism presents
-"`http`" URIs to Fossil, so Fossil issues a redirect, so the browser
-fetches the page again, causing Fossil to see an "`http`" URI again, so
+"<tt>http</tt>" URIs to Fossil, so Fossil issues a redirect, so the browser
+fetches the page again, causing Fossil to see an "<tt>http</tt>" URI again, so
 it issues a redirect...'round and 'round it goes until the web browser
 detects it's in a redirect loop and gives up. This problem prevents you
 from getting back into the Admin UI to fix it, but there are several
