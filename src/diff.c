@@ -44,6 +44,7 @@
 #define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 #define DIFF_STRIP_EOLCR  (((u64)0x10)<<32) /* Strip trailing CR */
 #define DIFF_SLOW_SBS     (((u64)0x20)<<32) /* Better but slower side-by-side */
+#define DIFF_IGNORE_PADDS (((u64)0x40)<<32) /* Ignore sections of purely adds */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -353,11 +354,13 @@ static void contextDiff(
   int nContext;    /* Number of lines of context */
   int showLn;      /* Show line numbers */
   int html;        /* Render as HTML */
+  int noPureAdds;  /* Ignore sections that are purely additions */
   int showDivider = 0;  /* True to show the divider between diff blocks */
 
   nContext = diff_context_lines(diffFlags);
   showLn = (diffFlags & DIFF_LINENO)!=0;
   html = (diffFlags & DIFF_HTML)!=0;
+  noPureAdds = (diffFlags & DIFF_IGNORE_PADDS)!=0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -461,16 +464,20 @@ static void contextDiff(
 
     /* Show the differences */
     for(i=0; i<nr; i++){
+      int nDels = 0;
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
         if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
         appendDiffLine(pOut, '-', &A[a+j], html, pRe);
+        nDels++;
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
+        char cPrefix = '+';
+        if( noPureAdds && nDels==0 ) cPrefix = ' ';
         if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
-        appendDiffLine(pOut, '+', &B[b+j], html, pRe);
+        appendDiffLine(pOut, cPrefix, &B[b+j], html, pRe);
       }
       b += m;
       if( i<nr-1 ){

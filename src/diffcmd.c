@@ -837,6 +837,7 @@ const char *diff_get_binary_glob(void){
 **   --exec-abs-paths           Force absolute path names with external commands.
 **   --exec-rel-paths           Force relative path names with external commands.
 **   --from|-r VERSION          Select VERSION as source for the diff
+**   --ignore-pure-adds         Ignore all sections containing only additions.
 **   --internal|-i              Use internal diff logic
 **   --new-file|-N              Show complete text of added and deleted files
 **   --numstat                  Show only the number of lines delete and added
@@ -883,6 +884,7 @@ void diff_cmd(void){
     verboseFlag = find_option("new-file","N",0)!=0; /* deprecated */
   }
   if( verboseFlag ) diffFlags |= DIFF_VERBOSE;
+  if( find_option("ignore-pure-adds",0,0)!=0 ) diffFlags |= DIFF_IGNORE_PADDS;
   if( againstUndo && ( zFrom!=0 || zTo!=0 || zCheckin!=0 || zBranch!=0) ){
     fossil_fatal("cannot use --undo together with --from, --to, --checkin,"
                  " or --branch");

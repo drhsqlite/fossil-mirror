@@ -1171,6 +1171,7 @@ static void checkin_description(int rid){
 **   dc=N            show N lines of context around each diff
 **   w=BOOLEAN       ignore whitespace when computing diffs
 **   nohdr           omit the description at the top of the page
+**   nopureadds      Ignore all sections containing only additions
 **
 **
 ** Show all differences between two check-ins.
@@ -1212,6 +1213,7 @@ void vdiff_page(void){
     zGlob = NULL;
   }
   diffFlags = construct_diff_flags(diffType);
+  if( P("nopureadds") ) diffFlags |= DIFF_IGNORE_PADDS;
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
   style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
   if( diffType!=0 ){
