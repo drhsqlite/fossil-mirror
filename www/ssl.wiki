@@ -205,26 +205,42 @@ repository, be sure to use the <tt>https:</tt> URI scheme in
 to serve the repository via both HTTP and HTTPS, it's easy to
 accidentally use unencrypted HTTP if you forget the all-important 's'.
 
-There is a setting in the Fossil UI under Admin &rarr; Access called
-"Redirect to HTTPS on the Login page."  This setting is not enabled by
-default.  This setting does not automatically upgrade clones and syncs
-done via the <tt>http</tt> URI scheme.  It only affects web UI access to
-the Fossil repository.
+As of Fossil 2.8, there is a setting in the Fossil UI under Admin &rarr;
+Access called "Redirect to HTTPS," which is set to "Off" by default.
+Changing this only affects web UI access to the Fossil repository. It
+doesn't affect clones and syncs done via the <tt>http</tt> URI scheme.
 
-<b id="rloop">WARNING:</b> Never enable this setting when running Fossil
-behind an HTTPS proxy with Fossil running underneath it via HTTP or
-SCGI.  This will cause an infinite redirect loop any time someone tries
-to log into the web UI.  Fossil sees that it's being accessed via HTTP,
-so it redirects the browser to an HTTPS equivalent URL, which causes the
-client to hit the HTTPS front end proxy up again for access, which
-causes Fossil to see that it's being accessed via HTTP, so it redirects
-the client to...'round and 'round it goes until the web browser detects
-it's in a redirect loop and gives up.
+In Fossil 2.7 and earlier, there was a much weaker form of this setting
+affecting the <tt>/login</tt> page only. If you're using this setting,
+you should migrate to the new setting as soon as possible, because the
+old setting allows multiple ways of defeating it.
 
-If you wish to enforce TLS-only access to a Fossil web server, it is
-best done at the HTTPS front-end proxy layer, not by use of Fossil-level
-settings like this one.  The [./tls-nginx.md|nginx TLS proxy guide]
-shows one way to achieve this, for example.
+<b id="rloop">WARNING:</b> Enabling HTTPS redirects at the Fossil repo
+level while running Fossil behind an HTTPS proxy can result in an
+infinite redirect loop.  It happens when the proxy mechanism presents
+"`http`" URIs to Fossil, so Fossil issues a redirect, so the browser
+fetches the page again, causing Fossil to see an "`http`" URI again, so
+it issues a redirect...'round and 'round it goes until the web browser
+detects it's in a redirect loop and gives up. This problem prevents you
+from getting back into the Admin UI to fix it, but there are several
+ways to fix it:
+
+  #  <p><b>Reset via CLI.</b> You can turn the setting back off from the
+     CLI with the command "<tt>fossil -R /path/to/repo.fossil set
+     redirect-to-https 0</tt>". (Currently doesn't work.)</p>
+  #  <p><b>Backup first.</b> This setting is stored in the Fossil
+     repository, so if you make a backup first <i>on the server</i>, you
+     can restore the repo file if enabling this feature creates a
+     redirect loop.</p>
+  #  <p><b>Download, fix, and restore.</b> You can copy the remote
+     repository file down to a local machine, use <tt>fossil ui</tt> to
+     fix the setting, and then upload it to the repository server
+     again.</p>
+
+It's best to enforce TLS-only access at the front-end proxy level
+anyway. It not only avoids the problem entirely, it can be significantly
+more secure.  The [./tls-nginx.md|nginx TLS proxy guide] shows one way
+to achieve this.</p>
 
 
 <h2>Terminology Note</h2>
