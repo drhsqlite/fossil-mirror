@@ -185,11 +185,18 @@ REM
 REM
 REM NOTE: Attempt to create the build output directory, if necessary.
 REM
-IF NOT EXIST "%ROOT%\msvcbld" (
-  %__ECHO% MKDIR "%ROOT%\msvcbld"
+IF NOT DEFINED BUILDDIR (
+  SET BUILDDIR=%ROOT%\msvcbld%BUILDSUFFIX%
+)
+
+%_VECHO% BuildSuffix = '%BUILDSUFFIX%'
+%_VECHO% BuildDir = '%BUILDDIR%'
+
+IF NOT EXIST "%BUILDDIR%" (
+  %__ECHO% MKDIR "%BUILDDIR%"
 
   IF ERRORLEVEL 1 (
-    ECHO Could not make directory "%ROOT%\msvcbld".
+    ECHO Could not make directory "%BUILDDIR%".
     GOTO errors
   )
 )
@@ -198,10 +205,10 @@ REM
 REM NOTE: Attempt to change to the created build output directory so that
 REM       the generated files will be placed there.
 REM
-%__ECHO2% PUSHD "%ROOT%\msvcbld"
+%__ECHO2% PUSHD "%BUILDDIR%"
 
 IF ERRORLEVEL 1 (
-  ECHO Could not change to directory "%ROOT%\msvcbld".
+  ECHO Could not change to directory "%BUILDDIR%".
   GOTO errors
 )
 
