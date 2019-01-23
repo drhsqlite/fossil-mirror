@@ -735,9 +735,13 @@ OBJ   = $(OX)\add$O \
         $(OX)\fossil.res
 
 
-APPNAME    = $(OX)\fossil$(E)
-PDBNAME    = $(OX)\fossil$(P)
-APPTARGETS =
+!ifndef BASEAPPNAME
+BASEAPPNAME = fossil
+!endif
+
+APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
+PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
+APPTARGETS  =
 
 all: $(OX) $(APPNAME)
 

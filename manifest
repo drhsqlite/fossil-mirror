@@ -1,5 +1,5 @@
-C Fixed\sa\sMarkdown-ism\sin\sprevious
-D 2019-01-22T03:02:25.329
+C Make\sit\seasier\sto\soverride\sthe\sfinal\sbuilt\sexecutable\sname\swhen\susing\sMSVC.
+D 2019-01-23T02:43:51.403
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/main.c b9587ea3ee28d006f9a88b221128e5e6eabc8b4b9bc7ab310cb18c1043df406a
 F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 889d043b7ed62f14d09993e8a47a885c38a2d7a6c645005660351eaf0c80d7b9 x
+F src/makemake.tcl 63dd499ea0bbdba1dfaa9467428d432946a2e47d28b214599ec71ba299309ec8 x
 F src/manifest.c 08b0234fb9b3bc08d5eed6f067ee329ac12ad0effade31fb51d14a557d681b9c
 F src/markdown.c a26e6a0b9e1b63b411018af510f7931b590779945b0f9d2ea2d70ff8295c8ea5
 F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7cf6
@@ -738,7 +738,7 @@ F win/Makefile.PellesCGMake e730fe39345b6e54621a1b541417ab3f3c75d7750c2fe43fcb3e
 F win/Makefile.dmc 222d68d0155792b99ef3e100b24b9c56ffa2e583b471784ed5179cf1981bd753
 F win/Makefile.mingw 376dabae5585a13d8266f146151285f1df17611e2665f43326fb246bf62ad907
 F win/Makefile.mingw.mistachkin 83de040edd3b860d76f945643abae63f7be8279da9428cae4bcce34a68019712
-F win/Makefile.msc 18a8d7b9c0ecd23665e6dd4e95e945428d2b202ceec62e2ace3b12d58f8db056
+F win/Makefile.msc d10668fcf234e530cb2b7724a873f3000f521c19e7414906f1a015757ee7a105
 F win/buildmsvc.bat 890e5795707de561a6d19e98448c1bef268ac42b
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 226b14fc72e65bf783e1ac3ccd23be683ab8b33a783fac04765c6b9a4ff150d8
-R 6424258f7935bcda6c23e2d3b272ab0c
-U wyoung
-Z 6d92635b37c80e09b1f12a1d9a7ce116
+P 485eda766431c97e5697684306184da7ad03ef1e77dec7cee5530e1e5e5788de
+R 095d5d3f810dc6ff2b92bc97826d7dab
+U mistachkin
+Z 5375d701c324d4ca16542ee49c36243a
