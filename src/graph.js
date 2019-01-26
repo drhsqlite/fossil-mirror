@@ -454,6 +454,13 @@ function TimelineGraph(tx){
       rx.appendChild(rx.firstChild);
       rx.insertBefore(rx.childNodes[1],rx.firstChild);
     }
+    /* Do not show the HH:MM timestamps on very narrow displays
+    ** as they take up too much horizontal space. */
+    lx = topObj.getElementsByClassName('timelineHistLink');
+    for(i=0; i<lx.length; i++){
+      var rx = lx[i];
+      rx.style.display="none";
+    }
   }
 }
   
