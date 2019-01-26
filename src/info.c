@@ -794,7 +794,7 @@ void ci_page(void){
     @   </td>
     @ </tr>
 
-    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%s(zUuid)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%.32s(zUuid)<wbr>%s(zUuid+32)
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }

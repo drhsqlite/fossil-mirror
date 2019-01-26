@@ -1,5 +1,5 @@
-C Disable\sthe\sHH:MM\stimestamps\son\snarrow\sdisplay\susing\sjavascript.
-D 2019-01-26T02:50:59.266
+C Provide\sa\sword-break\sin\sthe\smiddle\sof\sthe\slong\sSHA3-256\sstrings\sshown\non\sthe\s/info\spage.
+D 2019-01-26T02:59:07.248
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c b9dd69d2763b9808b4b67c9dc0a03f823a4fdf7f98dbba7fbd1c7c537ff2be4e
+F src/info.c 211587ff2cd458b1b58270cc4c464781e8fca851f5ac9cf03c921433d26395bc
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f54b4bf1bd764ef7dce791feb3956a5037b9fa4ac8e5ee18c5bdcb673c132c66
-R 54836eda0830f485494f4c5d7410d009
+P 4a1a474f2ca0726893966e2691fef870074b6334e19832b15fa7d5490154a74c
+R 0bac3b8890101cbbaf06d36fa27ba499
 U drh
-Z 919124d89238287016da55c9c8ef1200
+Z 2dd1c47d5394f49257c13102933fe379
