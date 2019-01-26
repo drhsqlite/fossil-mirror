@@ -1,5 +1,5 @@
-C Make\sit\seasier\sto\sbuild\smultiple\sconfigurations\sof\sFossil\swith\sMSVC.
-D 2019-01-23T03:09:08.076
+C Fix\sthe\schref()\shelper\sfunction\sso\sthat\sit\scorrectly\srenders\sthe\sclass\nattribute\son\sthe\sgenerated\shyperlink\swith\shyperlink\sdisplay\sis\sdelayed\sas\nan\santi-robot\sdefense.
+D 2019-01-26T02:26:56.464
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -569,7 +569,7 @@ F src/sqlite3.h 205c768163785078b295e2fdcc1a6a9393d1db5c5952ad54ede75c9226a0131f
 F src/stash.c 97f9f93b1d99d2264eda846d5b20e0e8a0f238afee5f8dc9209c96160c3fa513
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 2f3f2d09b788a6435ac14b6da2a835d809972dbf27af64745c3eab288cb8f02f
+F src/style.c 18b799d4aab35428fe2f5f64c12debed4fd96e209259ab97160e7d2a471d3493
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c e529402727b7ed3db52f2c98716edf8274352737c3d1eb01501f7af3181d3eb2
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2993e5a66d88cd533ebc432125a9d95a0a333988c744c0bb3ad5100468383a8
-R 9b82c563290c0f9531cbd9e5f4a4f21c
-U mistachkin
-Z cc90bbde5e9afba195ae39facc906434
+P 8db943facce6fba7df3ce35ddf48fa05fe29434711a6ffc45aa17ce07b90667e
+R 5789e8bc00fec573c383042068b1f6c0
+U drh
+Z d63df259302d8dc22bf2342dcc64a8b2

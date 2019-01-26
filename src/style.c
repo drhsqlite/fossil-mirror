@@ -158,7 +158,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    char *zHUrl = mprintf("<a class=\"%s\" href=\"%h\">", zExtra, zUrl);
     fossil_free(zUrl);
     return zHUrl;
   }
