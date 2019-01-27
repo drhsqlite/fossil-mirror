@@ -119,7 +119,7 @@ void show_common_info(
   free(zTags);
   if( zComment ){
     fossil_print("comment:      ");
-    comment_print(zComment, 0, 14, -1, g.comFmtFlags);
+    comment_print(zComment, 0, 14, -1, get_comment_format());
     free(zComment);
   }
 }

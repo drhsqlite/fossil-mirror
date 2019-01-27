@@ -205,7 +205,8 @@ struct Global {
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
   int isHuman;            /* True if access by a human, not a spider or bot */
-  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags */
+  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
+                          ** accessed through get_comment_format(). */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -577,10 +578,13 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 */
 static void fossil_init_flags_from_options(void){
   const char *zValue = find_option("comfmtflags", 0, 1);
+  if( zValue==0 ){
+    zValue = find_option("comment-format", 0, 1);
+  }
   if( zValue ){
     g.comFmtFlags = atoi(zValue);
   }else{
-    g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+    g.comFmtFlags = COMMENT_PRINT_UNSET;   /* Command-line option not found. */
   }
 }
 

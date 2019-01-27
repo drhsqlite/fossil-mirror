@@ -503,6 +503,7 @@ static const char zOptions[] =
 @   --args FILENAME         Read additional arguments and options from FILENAME
 @   --cgitrace              Active CGI tracing
 @   --comfmtflags VALUE     Set comment formatting flags to VALUE
+@   --comment-format VALUE  Alias for --comfmtflags
 @   --errorlog FILENAME     Log errors to FILENAME 
 @   --help                  Show help on the command rather than running it
 @   --httptrace             Trace outbound HTTP requests

@@ -217,7 +217,7 @@ void finfo_cmd(void){
         zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
-        comment_print(zOut, zCom, 11, iWidth, g.comFmtFlags);
+        comment_print(zOut, zCom, 11, iWidth, get_comment_format());
         fossil_free(zOut);
       }else{
         blob_reset(&line);
@@ -226,7 +226,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-39.39s", zCom );
-        comment_print(blob_str(&line), zCom, 0, iWidth, g.comFmtFlags);
+        comment_print(blob_str(&line), zCom, 0, iWidth, get_comment_format());
       }
     }
     db_finalize(&q);
