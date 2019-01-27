@@ -33,7 +33,8 @@ most sensible condition.
 any commands.
 
 
-`--comfmtflags NUMBER`: Specify flags that control how check-in comments
+`--comfmtflags NUMBER`  
+`--comment-format NUMBER`: Specify flags that control how check-in comments
 and certain other text outputs are formatted for display. The flags are
 individual bits in `NUMBER`, which must be specified in base 10:
 

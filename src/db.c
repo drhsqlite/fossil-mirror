@@ -3174,7 +3174,9 @@ struct Setting {
 /*
 ** SETTING: comment-format  width=16 default=1
 ** Set the default options for printing timeline comments to the console.
-** The global --comfmtflags command-line option overrides this setting.
+**
+** The global --comfmtflags command-line option (or alias --comment-format)
+** overrides this setting.
 **
 ** Possible values are:
 **    1     Activate the legacy comment printing format (default).

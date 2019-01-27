@@ -578,6 +578,9 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 */
 static void fossil_init_flags_from_options(void){
   const char *zValue = find_option("comfmtflags", 0, 1);
+  if( zValue==0 ){
+    zValue = find_option("comment-format", 0, 1);
+  }
   if( zValue ){
     g.comFmtFlags = atoi(zValue);
   }else{

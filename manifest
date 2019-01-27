@@ -1,5 +1,5 @@
-C Add\sthe\s"comment-format"\ssetting\sto\sset\sthe\sdefault\soptions\sfor\sprinting\stimeline\scomments\sto\sthe\sconsole,\sas\sdiscussed\shere:\s[https://fossil-scm.org/forum/forumpost/d9954370c7].
-D 2019-01-27T15:35:00.000
+C Add\sthe\sglobal\s--comment-format\scommand-line\soption\sas\san\salias\sfor\s--comfmtflags.
+D 2019-01-27T15:38:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -449,7 +449,7 @@ F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
 F src/clone.c 281cbed355be5d1eb030a7ed05da84c1a730a5fefadc15b6a12e34293b8903ac
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
-F src/comformat.c 9cf5cabd2fb0fa467d9a41cde8f514c6232bba0176c2a282a946e536d1ec0e19
+F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c a3292eb98393a1dbfdeaea3fdca09c7dd3b97ae185003fbbb28ccb7f0ea0b33f
 F src/content.c 3e0cc7864e829d35e0f97f489c833a292308e6e3952e991a95beac661f4036f5
@@ -457,7 +457,7 @@ F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c de8e260623b422f4de9e7ab49cbe1711b633f5740fb57ff49d093992774b7373
+F src/db.c 7f429f882b96e6bd57cbf3007fe3407fa02addf7349d384f1dab8017108a0ec9
 F src/default_css.txt 9e5b44ac018d12ad6487106d1398f1aea635e5bab93d923ca4576fa958898966
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -465,7 +465,7 @@ F src/descendants.c 6e7f6995ac4651cb26441934d76dba483894c8cb5b62fc8309c72c3bfae6
 F src/diff.c 5610fd7ea0e5ef01c982841bbe8d9f8a5651aa41613d63968f8c301066d7198b
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
-F src/dispatch.c 45ef2434e92ad8fe350705adbc34ca38e8fa1b7f7b703e1bfa17f3ac0ae23d09
+F src/dispatch.c e56f57d2fc0cb48cd097314a181d5e8280e4ad58fa061f687c6e01a7eff80f3f
 F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
@@ -513,7 +513,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 98cad4d42c11b6d96ce0e68da29f4bf0d52f36d49b067da26159ded4e3e1097b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 9e32f0048069e6190bada75c5aa8a836ca787b75048dd2b88dccf2e3d593cb61
+F src/main.c 78dbe31f806779cb1a3c971230a50f82d78b129b2ac9b4eed87d0f371d97ed31
 F src/main.mk 5422378b815299b1f09909928e58a3dc1f6a34eea85d33f959ee16bb0e4195a9
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -807,7 +807,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
-F www/env-opts.md 225d146ce028010f6983e4086ba3273c4ab6d48e5d01fc5a4b0ec8003fed0898
+F www/env-opts.md be199cfe36e4895832179e4b0155593b965d312b2c3fcc42383fe8ab226c9ca0
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
@@ -868,10 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 357d5e82ad4bc2adc266a1fa0f4406d49e25dd56b90b4a86dd7eeb56afd18f5f
-R 00f49403d68b65688e312ff2c97b3627
-T *branch * comment-format-setting
-T *sym-comment-format-setting *
-T -sym-trunk *
+P bc62fa1710a9d1d53e191b54901bf88b3ffd62bfb28145da82202b09715649e4
+R b10bb95b6fbc758e31dadb43071e5c96
 U florian
-Z e5a8fb4d746efa750bfcdd8af10b7629
+Z 6632ca4788a29b1da28404c12ca94a22

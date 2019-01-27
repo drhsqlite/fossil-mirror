@@ -522,7 +522,7 @@ int comment_print(
 ** Return the "COMMENT_PRINT_*" flags specified by the following sources,
 ** evaluated in the following cascading order:
 **
-**    1. The global --comfmtflags command-line option.
+**    1. The global --comfmtflags (alias --comment-format) command-line option.
 **    2. The local (per-repository) "comment-format" setting.
 **    3. The global (all-repositories) "comment-format" setting.
 **    4. The default value COMMENT_PRINT_DEFAULT.
