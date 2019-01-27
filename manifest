@@ -1,5 +1,5 @@
-C Minor\stypo.
-D 2019-01-04T07:56:00.000
+C List\sthe\sFOSSIL_SECURITY_LEVEL\senvironment\svariable\sin\sthe\sEnvironment\sVariables\sand\sGlobal\sOptions\sdocument.
+D 2019-01-27T15:42:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -806,7 +806,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
-F www/env-opts.md 225d146ce028010f6983e4086ba3273c4ab6d48e5d01fc5a4b0ec8003fed0898
+F www/env-opts.md 372b5bbb8d5029ece93d2c2c3b185fb97be474f688d85bd8a05d76049f5a2c5b
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
@@ -866,7 +866,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e80af7e527cbc2b54d06db8ba8d838a7df6d9ea4de4d487e3027a945b52bc84
-R 70edc7ee1ce8a8c12c828a7c933c79f4
+P aedfd94d003da1bb2f58c4aa9f60ee653ebe139ca6b169f02146465c03a2c20d
+R 032b0349029fca6568f6ffdf90c094d0
 U florian
-Z be702ecfe389ed621d34f0cc7af5eca2
+Z 175b938dda4a4452f123a2bfaeb6e7cd

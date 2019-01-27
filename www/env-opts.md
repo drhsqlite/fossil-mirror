@@ -158,6 +158,18 @@ variable found in the environment from the list `FOSSIL_USER`, `USER`,
 then the default user name is "root". See the discussion of Fossil
 Username below for a lot more detail.
 
+
+`FOSSIL_SECURITY_LEVEL`: If set to any of the values listed below,
+additional measures for password security will be enabled (also see
+[How To Use Encrypted Repositories][encryptedrepos.wiki]):
+
+[encryptedrepos.wiki]: /doc/trunk/www/encryptedrepos.wiki
+
+  * _≥1_ &mdash; Do not remember passwords.
+
+  * _≥2_ &mdash; Use a scrambled matrix for password input.
+
+
 `FOSSIL_TCL_PATH`: When Tcl stubs support is configured, point to a
 specific file or folder containing the version of Tcl to load at run
 time.
