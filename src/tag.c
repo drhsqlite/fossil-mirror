@@ -635,10 +635,10 @@ void reparent_cmd(void){
   const char *zDateOvrd;  /* The change time on the control artifact */
   const char *zUserOvrd;  /* The user name on the control artifact */
 
+  db_must_be_within_tree();
   if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
-  db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
     usage("[OPTIONS] CHECK-IN PARENT ...");
