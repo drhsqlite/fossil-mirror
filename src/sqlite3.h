@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.27.0"
 #define SQLITE_VERSION_NUMBER 3027000
-#define SQLITE_SOURCE_ID      "2019-01-21 17:57:31 505ed9a47825240979338a24044559613fbbd2a7850bdff70c7164da054ec63d"
+#define SQLITE_SOURCE_ID      "2019-01-27 02:45:32 9cf8ebd141aa2eb661d457624c76433bd9e4abfdef04aa52e28bc169172calt1"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -823,6 +823,15 @@ struct sqlite3_io_methods {
 ** file space based on this hint in order to help writes to the database
 ** file run faster.
 **
+** <li>[[SQLITE_FCNTL_SIZE_LIMIT]]
+** The [SQLITE_FCNTL_SIZE_LIMIT] opcode is used by in-memory VFS that
+** implements [sqlite3_deserialize()] to set an upper bound on the size
+** of the in-memory database.  The argument is a pointer to a [sqlite3_int64].
+** If the integer pointed to is negative, then it is filled in with the
+** current limit.  Otherwise the limit is set to the larger of the value
+** of the integer pointed to and the current database size.  The integer
+** pointed to is set to the new limit.
+**
 ** <li>[[SQLITE_FCNTL_CHUNK_SIZE]]
 ** The [SQLITE_FCNTL_CHUNK_SIZE] opcode is used to request that the VFS
 ** extends and truncates the database file in chunks of a size specified
@@ -1131,6 +1140,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE  33
 #define SQLITE_FCNTL_LOCK_TIMEOUT           34
 #define SQLITE_FCNTL_DATA_VERSION           35
+#define SQLITE_FCNTL_SIZE_LIMIT             36
 
 /* deprecated names */
 #define SQLITE_GET_LOCKPROXYFILE      SQLITE_FCNTL_GET_LOCKPROXYFILE
@@ -11235,12 +11245,8 @@ struct Fts5PhraseIter {
 **
 **   Usually, output parameter *piPhrase is set to the phrase number, *piCol
 **   to the column in which it occurs and *piOff the token offset of the
-**   first token of the phrase. The exception is if the table was created
-**   with the offsets=0 option specified. In this case *piOff is always
-**   set to -1.
-**
-**   Returns SQLITE_OK if successful, or an error code (i.e. SQLITE_NOMEM) 
-**   if an error occurs.
+**   first token of the phrase. Returns SQLITE_OK if successful, or an error
+**   code (i.e. SQLITE_NOMEM) if an error occurs.
 **
 **   This API can be quite slow if used with an FTS5 table created with the
 **   "detail=none" or "detail=column" option. 

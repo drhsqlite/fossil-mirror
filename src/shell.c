@@ -156,6 +156,9 @@ typedef unsigned char u8;
 # ifndef unlink
 #  define unlink _unlink
 # endif
+# ifndef strdup
+#  define strdup _strdup
+# endif
 # undef popen
 # define popen _popen
 # undef pclose
@@ -8685,6 +8688,7 @@ struct ShellState {
   u8 autoExplain;        /* Automatically turn on .explain mode */
   u8 autoEQP;            /* Run EXPLAIN QUERY PLAN prior to seach SQL stmt */
   u8 autoEQPtest;        /* autoEQP is in test mode */
+  u8 autoEQPtrace;       /* autoEQP is in trace mode */
   u8 statsOn;            /* True to display memory stats before each finalize */
   u8 scanstatsOn;        /* True to display scan stats before each finalize */
   u8 openMode;           /* SHELL_OPEN_NORMAL, _APPENDVFS, or _ZIPFILE */
@@ -8707,6 +8711,7 @@ struct ShellState {
   int showHeader;        /* True to show column names in List or Column mode */
   int nCheck;            /* Number of ".check" commands run */
   unsigned shellFlgs;    /* Various flags */
+  sqlite3_int64 szMax;   /* --maxsize argument to .open */
   char *zDestTable;      /* Name of destination table when MODE_Insert */
   char *zTempFile;       /* Temporary file that might need deleting */
   char zTestcase[30];    /* Name of current test case */
@@ -11079,7 +11084,13 @@ static const char *(azHelp[]) = {
   "     --newlines             Allow unescaped newline characters in output",
   "   TABLE is LIKE pattern for the tables to dump",
   ".echo on|off             Turn command echo on or off",
-  ".eqp on|off|full         Enable or disable automatic EXPLAIN QUERY PLAN",
+  ".eqp on|off|full|...     Enable or disable automatic EXPLAIN QUERY PLAN",
+  "   Other Modes:",
+#ifdef SQLITE_DEBUG
+  "      test                  Show raw EXPLAIN QUERY PLAN output",
+  "      trace                 Like \"full\" but also enable \"PRAGMA vdbe_trace\"",
+#endif
+  "      trigger               Like \"full\" but also show trigger bytecode",
   ".excel                   Display the output of next command in a spreadsheet",
   ".exit ?CODE?             Exit this program with return-code CODE",
   ".expert                  EXPERIMENTAL. Suggest indexes for specified queries",
@@ -11131,6 +11142,7 @@ static const char *(azHelp[]) = {
 #ifdef SQLITE_ENABLE_DESERIALIZE
   "        --deserialize   Load into memory useing sqlite3_deserialize()",
   "        --hexdb         Load the output of \"dbtotxt\" as an in-memory database",
+  "        --maxsize N     Maximum size for --hexdb or --deserialized database",
 #endif
   "        --new           Initialize FILE to an empty database",
   "        --readonly      Open FILE readonly",
@@ -11608,6 +11620,9 @@ static void open_db(ShellState *p, int openFlags){
                    SQLITE_DESERIALIZE_FREEONCLOSE);
       if( rc ){
         utf8_printf(stderr, "Error: sqlite3_deserialize() returns %d\n", rc);
+      }
+      if( p->szMax>0 ){
+        sqlite3_file_control(p->db, "main", SQLITE_FCNTL_SIZE_LIMIT, &p->szMax);
       }
     }
 #endif
@@ -13938,18 +13953,30 @@ static int do_meta_command(char *zLine, ShellState *p){
   if( c=='e' && strncmp(azArg[0], "eqp", n)==0 ){
     if( nArg==2 ){
       p->autoEQPtest = 0;
+      if( p->autoEQPtrace ){
+        if( p->db ) sqlite3_exec(p->db, "PRAGMA vdbe_trace=OFF;", 0, 0, 0);
+        p->autoEQPtrace = 0;
+      }
       if( strcmp(azArg[1],"full")==0 ){
         p->autoEQP = AUTOEQP_full;
       }else if( strcmp(azArg[1],"trigger")==0 ){
         p->autoEQP = AUTOEQP_trigger;
+#ifdef SQLITE_DEBUG
       }else if( strcmp(azArg[1],"test")==0 ){
         p->autoEQP = AUTOEQP_on;
         p->autoEQPtest = 1;
+      }else if( strcmp(azArg[1],"trace")==0 ){
+        p->autoEQP = AUTOEQP_full;
+        p->autoEQPtrace = 1;
+        open_db(p, 0);
+        sqlite3_exec(p->db, "SELECT name FROM sqlite_master LIMIT 1", 0, 0, 0);
+        sqlite3_exec(p->db, "PRAGMA vdbe_trace=ON;", 0, 0, 0);
+#endif
       }else{
         p->autoEQP = (u8)booleanValue(azArg[1]);
       }
     }else{
-      raw_printf(stderr, "Usage: .eqp off|on|trigger|full\n");
+      raw_printf(stderr, "Usage: .eqp off|on|trace|trigger|full\n");
       rc = 1;
     }
   }else
@@ -14523,6 +14550,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_free(p->zFreeOnClose);
     p->zFreeOnClose = 0;
     p->openMode = SHELL_OPEN_UNSPEC;
+    p->szMax = 0;
     /* Check for command-line arguments */
     for(iName=1; iName<nArg && azArg[iName][0]=='-'; iName++){
       const char *z = azArg[iName];
@@ -14541,6 +14569,8 @@ static int do_meta_command(char *zLine, ShellState *p){
         p->openMode = SHELL_OPEN_DESERIALIZE;
       }else if( optionMatch(z, "hexdb") ){
         p->openMode = SHELL_OPEN_HEXDB;
+      }else if( optionMatch(z, "maxsize") && iName+1<nArg ){
+        p->szMax = integerValue(azArg[++iName]);
 #endif /* SQLITE_ENABLE_DESERIALIZE */
       }else if( z[0]=='-' ){
         utf8_printf(stderr, "unknown option: %s\n", z);
@@ -16231,6 +16261,9 @@ static const char zOptions[] =
   "   -column              set output mode to 'column'\n"
   "   -cmd COMMAND         run \"COMMAND\" before reading stdin\n"
   "   -csv                 set output mode to 'csv'\n"
+#if defined(SQLITE_ENABLE_DESERIALIZE)
+  "   -deserialize         open the database using sqlite3_deserialize()\n"
+#endif
   "   -echo                print commands before execution\n"
   "   -init FILENAME       read/process named file\n"
   "   -[no]header          turn headers on or off\n"
@@ -16243,6 +16276,9 @@ static const char zOptions[] =
   "   -line                set output mode to 'line'\n"
   "   -list                set output mode to 'list'\n"
   "   -lookaside SIZE N    use N entries of SZ bytes for lookaside memory\n"
+#if defined(SQLITE_ENABLE_DESERIALIZE)
+  "   -maxsize N           maximum size for a --deserialize database\n"
+#endif
   "   -mmap N              default mmap size set to N\n"
 #ifdef SQLITE_ENABLE_MULTIPLEX
   "   -multiplex           enable the multiplexor VFS\n"
@@ -16553,6 +16589,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #ifdef SQLITE_ENABLE_DESERIALIZE
     }else if( strcmp(z,"-deserialize")==0 ){
       data.openMode = SHELL_OPEN_DESERIALIZE;
+    }else if( strcmp(z,"-maxsize")==0 && i+1<argc ){
+      data.szMax = integerValue(argv[++i]);
 #endif
     }else if( strcmp(z,"-readonly")==0 ){
       data.openMode = SHELL_OPEN_READONLY;
@@ -16654,6 +16692,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
 #ifdef SQLITE_ENABLE_DESERIALIZE
     }else if( strcmp(z,"-deserialize")==0 ){
       data.openMode = SHELL_OPEN_DESERIALIZE;
+    }else if( strcmp(z,"-maxsize")==0 && i+1<argc ){
+      data.szMax = integerValue(argv[++i]);
 #endif
     }else if( strcmp(z,"-readonly")==0 ){
       data.openMode = SHELL_OPEN_READONLY;

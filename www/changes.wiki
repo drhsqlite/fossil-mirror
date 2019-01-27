@@ -32,6 +32,9 @@
   *  Add "Next" and "Previous" buttons on the /wdiff page, allowing
      the user to step through the versions of a wiki page.
   *  Improve the display of the /whistory page.
+  *  Omit the "HH:MM" timestamps on timeline graphs on narrow-screen
+     devices, to improve horizontal space uses.  This helps make Fossil
+     more mobile-friendly.
   *  Enhance /wcontent to show a sortable list of Wiki pages together
      with the number of revisions and the most recent change time for
      each page.
@@ -40,14 +43,25 @@
      version.
   *  Enhancements to the "amend", "tag", and "reparent" commands, including
      adding options --override-date, --override-user, and --dry-run.
+  *  Add the global --comment-format command-line option and the
+     comment-format setting to control the display of the command-line
+     timeline.
+  *  Change the "fossil reparent" command so that it only works from 
+     within an active checkout.
   *  On the /setup_ucap_list, show administrators how many users have
      each capability.  The counts are a hyperlink to the /setup_ulist
      page showing the subset of users that have that capability.
+  *  Provide the ability to redirect all HTTP pages to HTTPS.  Formerly
+     one could cause this to occur for the /login page only.  That option
+     still exists, but the redirect can now also be done for all pages.
   *  "Compress" the built-in javascript by omitting comments and
      leading and trailing whitespace.
+  *  Detect when the repository used by a checkout is swapped out for
+     a clone that uses different RID values, and make appropriate adjustments
+     to the checkout database to avoid any problems.
   *  Add the backoffice-disable setting to completely disable the
      backoffice feature.
-  *  Update the built-in SQLite to version 3.26.0.
+  *  Update the built-in SQLite to version 3.27.0 alpha.
   *  Various other small enhancements to webpages and documentation.
 
 
