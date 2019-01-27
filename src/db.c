@@ -3172,6 +3172,27 @@ struct Setting {
 ** with gpg.  When disabled, commits will be unsigned.
 */
 /*
+** SETTING: comment-format  width=16 default=1
+** Set the default options for printing timeline comments to the console.
+** The global --comfmtflags command-line option overrides this setting.
+**
+** Possible values are:
+**    1     Activate the legacy comment printing format (default).
+**
+** Or a bitwise combination of the following flags:
+**    0     Activate the newer (non-legacy) comment printing format.
+**    2     Trim leading and trailing CR and LF characters.
+**    4     Trim leading and trailing white space characters.
+**    8     Attempt to break lines on word boundaries.
+**   16     Break lines before the original comment embedded in other text.
+**
+** Note: To preserve line breaks, activate the newer (non-legacy) comment
+** printing format (i.e. set to "0", or a combination not including "1").
+**
+** Note: The options for timeline comments displayed on the web UI can be
+** configured through the /setup_timeline web page.
+*/
+/*
 ** SETTING: crlf-glob       width=40 versionable block-text
 ** The value is a comma or newline-separated list of GLOB patterns for
 ** text files in which it is ok to have CR, CR+LF or mixed

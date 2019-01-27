@@ -614,7 +614,7 @@ void whatis_rid(int rid, int verboseFlag){
     fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
     fossil_print("comment:    ");
-    comment_print(db_column_text(&q,3), 0, 12, -1, g.comFmtFlags);
+    comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
   }
   db_finalize(&q);
 
@@ -636,7 +636,7 @@ void whatis_rid(int rid, int verboseFlag){
       db_column_text(&q, 3),
       db_column_text(&q, 2));
     fossil_print("            ");
-    comment_print(db_column_text(&q,4), 0, 12, -1, g.comFmtFlags);
+    comment_print(db_column_text(&q,4), 0, 12, -1, get_comment_format());
   }
   db_finalize(&q);
 
@@ -671,7 +671,7 @@ void whatis_rid(int rid, int verboseFlag){
     fossil_print("            by user %s on %s\n",
                  db_column_text(&q,2), db_column_text(&q,3));
     fossil_print("            ");
-    comment_print(db_column_text(&q,1), 0, 12, -1, g.comFmtFlags);
+    comment_print(db_column_text(&q,1), 0, 12, -1, get_comment_format());
   }
   db_finalize(&q);
 }

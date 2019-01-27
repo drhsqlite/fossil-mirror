@@ -29,13 +29,14 @@
 #endif
 
 #if INTERFACE
-#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags. */
+#define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags = non-legacy. */
 #define COMMENT_PRINT_LEGACY     ((u32)0x00000001) /* Use legacy algorithm. */
 #define COMMENT_PRINT_TRIM_CRLF  ((u32)0x00000002) /* Trim leading CR/LF. */
 #define COMMENT_PRINT_TRIM_SPACE ((u32)0x00000004) /* Trim leading/trailing. */
 #define COMMENT_PRINT_WORD_BREAK ((u32)0x00000008) /* Break lines on words. */
 #define COMMENT_PRINT_ORIG_BREAK ((u32)0x00000010) /* Break before original. */
 #define COMMENT_PRINT_DEFAULT    (COMMENT_PRINT_LEGACY) /* Defaults. */
+#define COMMENT_PRINT_UNSET      (-1)              /* Not initialized. */
 #endif
 
 /*
@@ -515,6 +516,34 @@ int comment_print(
     if( !zLine || !zLine[0] ) break;
   }
   return lineCnt;
+}
+
+/*
+** Return the "COMMENT_PRINT_*" flags specified by the following sources,
+** evaluated in the following cascading order:
+**
+**    1. The global --comfmtflags command-line option.
+**    2. The local (per-repository) "comment-format" setting.
+**    3. The global (all-repositories) "comment-format" setting.
+**    4. The default value COMMENT_PRINT_DEFAULT.
+*/
+int get_comment_format(){
+  int comFmtFlags;
+  /* The global command-line option is present, or the value has been cached. */
+  if( g.comFmtFlags!=COMMENT_PRINT_UNSET ){
+    comFmtFlags = g.comFmtFlags;
+    return comFmtFlags;
+  }
+  /* Load the local (per-repository) or global (all-repositories) value, and use
+  ** g.comFmtFlags as a cache. */
+  comFmtFlags = db_get_int("comment-format", COMMENT_PRINT_UNSET);
+  if( comFmtFlags!=COMMENT_PRINT_UNSET ){
+    g.comFmtFlags = comFmtFlags;
+    return comFmtFlags;
+  }
+  /* Fallback to the default value. */
+  comFmtFlags = COMMENT_PRINT_DEFAULT;
+  return comFmtFlags;
 }
 
 /*
