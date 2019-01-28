@@ -50,7 +50,7 @@ package repositories, so you don’t need to go out of your way to get it.
 ## Fossil Remote Access Methods
 
 Fossil provides four major ways to access a repository it’s serving
-remotely, three of which you can use with nginx:
+remotely, three of which are straightforward to use with nginx:
 
 *   **HTTP** — Fossil has a built-in HTTP server: `fossil server`.
     While this method is efficient and it’s possible to use nginx to
@@ -136,32 +136,33 @@ the top level of its domain.  You’ll want to do something like the
 former for a Fossil repo that’s just one piece of a larger site, but the
 latter for a repo that is basically the whole point of the site.
 
-This script’s automatic restart feature makes Fossil upgrades easy:
+You might also want another script to automate the update, build, and
+deployment steps for new Fossil versions:
 
-       $ cd ~/src/fossil/trunk ; fossil up ; make ; killall fossil ;
-         sudo make install ; fslsrv
-
-I’ve written that as a single long command because I keep it in the
-history for my Fossil servers, so I can just run it again from history.
-You could put it in a shell script instead.
+       #!/bin/sh
+       cd $HOME/src/fossil/trunk
+       fossil up
+       make -j11
+       killall fossil
+       sudo make install
+       fslsrv
 
 The `killall fossil` step is needed only on OSes that refuse to let you
 replace a running binary on disk.
 
 As written, the `fslsrv` script assumes a Linux environment.  It expects
 `/bin/bash` to exist, and it depends on non-POSIX tools like `pgrep`.
-It shouldn’t be difficult to port to very different systems, like macOS
-or the BSDs.
+It should not be difficult to port to systems like macOS or the BSDs.
 
 
 # Configuring Let’s Encrypt, the Easy Way
 
 If your web serving needs are simple, [Certbot][cb] can configure nginx
-for you and keep its certificates up to date.  The details are pretty
-much as in the Certbot documentation for [nginx on Ubuntu 18.04 LTS
-guide][cbnu], except that where they recommend that you use the
-first-party Certbot packages, we’ve found that the ones that come with
-Ubuntu work just fine.
+for you and keep its certificates up to date. You can follow the Certbot
+documentation for [nginx on Ubuntu 18.04 LTS guide][cbnu] as-is, though
+we’d recommend one small change: to use the version of Certbot in the
+Ubuntu package repository rather than the first-party Certbot package
+that the guide recommends.
 
 The primary local configuration you need is to tell nginx how to proxy
 certain URLs down to the Fossil instance you started above with the
@@ -186,7 +187,13 @@ renewed using the Easy Way instructions, the problem is usually that
 your nginx configuration is too complicated for Certbot’s `--nginx`
 plugin to understand. It attempts to rewrite your nginx configuration
 files on the fly to achieve the renewal, and if it doesn’t put its
-directives in the right locations, the ACME verification steps can fail.
+directives in the right locations, the domain verification can fail.
+
+Let’s Encrypt uses the [Automated Certificate Management
+Environment][acme] protocol (ACME) to determine whether a given client
+actually has control over the domain(s) for which it wants a certificate
+minted.  Let’s Encrypt will not blithely let you mint certificates for
+`google.com` and `paypal.com` just because you ask for it!
 
 Your author’s configuration, glossed above, is complicated enough that
 the current version of Certbot (0.28 at the time of this writing) can’t
@@ -308,7 +315,9 @@ the file doesn’t exist on your system, you can create it manually, so:
 
       $ sudo openssl dhparam -out /etc/letsencrypt/dhparams.pem 2048
 
-Beware, this will take a few minutes of CPU time.
+Beware, this can take a long time. On a shared Linux host I tried it on
+running OpenSSL 1.1.0g, it took about 21 seconds, but on a fast, idle
+iMac running LibreSSL 2.6.5, it took 8 minutes and 4 seconds!
 
 The next section is also optional. It enables [OCSP stapling][ocsp], a
 protocol that improves the speed and security of the TLS connection
@@ -351,18 +360,17 @@ ready, there are [guides you can follow][nest] elsewhere online.
 ### HTTP-Only Service
 
 While we’d prefer not to offer HTTP service at all, we need to do so for
-two reasons, one temporary and the other going forward indefinitely.
+two reasons:
 
-First, until we get Let’s Encrypt certificates minted and configured
-properly, we can’t use HTTPS yet at all.
+*   The temporary reason is that until we get Let’s Encrypt certificates
+    minted and configured properly, we can’t use HTTPS yet at all.
 
-Second, the Certbot ACME HTTP-01 challenge used by the Let’s Encrypt
-service only runs over HTTP, because it has to work before HTTPS is
-working, or after a certificate is accidentally allowed to lapse.  This
-is the protocol Let’s Encrypt uses to determine whether we actually have
-control over the domains we want our certificate to be minted for.
-Let’s Encrypt will not just let you mint certificates for `google.com`
-and `paypal.com`!
+*   The ongoing reason is that the Certbot [ACME][acme] HTTP-01
+    challenge used by the Let’s Encrypt service only runs over HTTP. This is
+    not only because it has to work before HTTPS is first configured,
+    but also because it might need to work after a certificate is
+    accidentally allowed to lapse, to get that server back into a state
+    where it can speak HTTPS safely again.
 
 So, from the second `service { }` block, we include this file to set up
 the minimal HTTP service we reqiure, `local/http-certbot-only`:
@@ -386,24 +394,25 @@ ready to begin testing.
 
 #### Why the Repetition?
 
-You need to do much the same sort of thing as above for each domain name
-hosted by your nginx server.
+These `server { }` blocks contain several directives that have to be
+either completely repeated or copied with only trivial changes when
+you’re hosting multiple domains from a single server.
 
-You might being to wonder, then, why I haven’t factored some of those
-directives into the included files `local/tls-common` and
-`local/http-certbot-only`. For example, why can’t the second HTTP-only
-`server { }` block above just be these two lines:
+You might then wonder, why haven’t I factored some of those directives
+into the included files `local/tls-common` and
+`local/http-certbot-only`? Why can’t the HTTP-only `server { }` block
+above be just two lines? That is, why can I not say:
 
       server_name .foo.net;
       include local/http-certbot-only;
 
-Then in `local/http-certbot-only`, we’d like to say:
+Then in `local/http-certbot-only` say:
 
       root /var/www/$host;
       access_log /var/log/nginx/$host-http-access.log;
        error_log /var/log/nginx/$host-http-error.log;
 
-Sadly, nginx doesn’t allow variable subtitution into any of these
+Sadly, nginx doesn’t allow variable subtitution into these particular
 directives. As I understand it, allowing that would make nginx slower,
 so we must largely repeat these directives in each HTTP `server { }`
 block.
@@ -431,16 +440,16 @@ There are two key options here.
 
 First, we’re telling Certbot to use its `--webroot` plugin instead of
 the automated `--nginx` plugin. With this plugin, Certbot writes the
-ACME HTTP-01 challenge files to the static web document root directory
-behind each domain.  For this example, we’ve got two web roots, one of
-which holds documents for two different second-level domains
-(`example.com` and `example.net`) with `www` at the third level being
-optional.  This is a common sort of configuration these days, but you
-needn’t feel that you must slavishly imitate it; the other web root is
-for an entirely different domain, also with `www` being optional.  Since
-all of these domains are served by a single nginx instance, we need to
-give all of this in a single command, because we want to mint a single
-certificate that authenticates all of these domains.
+[ACME][acme] HTTP-01 challenge files to the static web document root
+directory behind each domain.  For this example, we’ve got two web
+roots, one of which holds documents for two different second-level
+domains (`example.com` and `example.net`) with `www` at the third level
+being optional.  This is a common sort of configuration these days, but
+you needn’t feel that you must slavishly imitate it; the other web root
+is for an entirely different domain, also with `www` being optional.
+Since all of these domains are served by a single nginx instance, we
+need to give all of this in a single command, because we want to mint a
+single certificate that authenticates all of these domains.
 
 The second key option is `--dry-run`, which tells Certbot not to do
 anything permanent.  We’re just seeing if everything works as expected,
@@ -456,7 +465,7 @@ If that didn’t work, try creating a manual test:
 
 Then try to pull that file over HTTP — not HTTPS! — as
 `http://example.com/.well-known/acme-challenge/test`. I’ve found that
-using Firefox and Safari is better for this sort of thing than Chrome,
+using Firefox or Safari is better for this sort of thing than Chrome,
 because Chrome is more aggressive about automatically forwarding URLs to
 HTTPS even if you requested “`http`”.
 
@@ -478,13 +487,20 @@ In extremis, you can do the test manually:
 
       hi
 
-You’re looking for that “hi” line at the end and the “200 OK” response
-here. If you get a 404 or other error response, you need to look into
-your web server logs to find out what’s going wrong.
+You type the first two lines at the remote system, plus the doubled
+“Enter” to create the blank line, and you get something back that
+hopefully looks like the rest of the text above.
+
+The key bits you’re looking for here are the “hi” line at the end — the
+document content you created above — and the “200 OK” response code. If
+you get a 404 or other error response, you need to look into your web
+server logs to find out what’s going wrong.
 
 Note that it’s important to do this test with HTTP/1.1 when debugging a
-name-based virtual hosting configuration like this, if the test domain
-is one of the secondary names, as in the example above, `foo.net`.
+name-based virtual hosting configuration like this. Unless you test only
+with the primary domain name alias for the server, this test will fail.
+Using the example configuration above, you can only use the
+easier-to-type HTTP/1.0 protocol to test the `foo.net` alias.
 
 If you’re still running into trouble, the log file written by Certbot
 can be helpful.  It tells you where it’s writing it early in each run.
@@ -585,6 +601,7 @@ keeps an eye on the forum and expects to keep this document updated with
 ideas that appear in that thread.
 
 [2016]: https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg22907.html
+[acme]: https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment
 [cb]:   https://certbot.eff.org/
 [cbnu]: https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx
 [fd]:   https://fossil-scm.org/forum/forumpost/ae6a4ee157
