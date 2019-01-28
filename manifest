@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.27.0\salpha.\s\sUpdates\sto\sthe\nchange\slog.
-D 2019-01-27T19:32:37.581
+C Expanded\sthe\ssection\son\s--with-openssl=none\sin\swww/build.wiki\sto\sexplain\nwhy\sadding\sthat\soption\sis\sa\sbad\sidea,\swhat\sto\sdo\sinstead,\sand\sto\spoint\nto\sthe\snewly\sexpanded\sOpenSSL\sdiscussion\sin\swww/ssl.wiki\sfor\smore\ninformation.
+D 2019-01-28T17:54:10.742
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki f3837447866d26e87b8c146a6165e159c28b9ff04b912307d65a65ff33df0380
+F www/build.wiki c6c0db4d4a77e6071f0de0d1e31bac6e6882014919dd35a279caa28c1374b211
 F www/changes.wiki c3ee575a8eb5f7cb694afd036b2f4d6c7de9e60a3e546c2c923865fcd6c6588a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d168be0cacd3169bf1cde0158fa9ec644a35cb1a19d4fe5a8c525ca21b3a5793
-R e007dc5da7292e5eedb29decb3649d4e
-U drh
-Z 1a2a70b6f6b66c692593e3df80acdd23
+P 5280c1ab9a054182fd3c906430bc57228cb98517ad58ee7cc348308ef2f8c745
+R 133c5908723bf3c8dbe2c9f8aef700b1
+U wyoung
+Z dc031de94a4b329445977ad21b54b342
