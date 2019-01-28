@@ -56,29 +56,29 @@ Fossil's build system will seek it out and use it automatically.
 <h3 id="openssl-src">Building Against a Non-Platform Version of
 OpenSSL</h3>
 
-The Fossil build system can also find and use OpenSSL in nonstandard
-locations.
+The Fossil build system can also use OpenSSL when installed in
+nonstandard locations.
 
 If you've installed OpenSSL via a method that Fossil's build system
 cannot find on its own, you can clue it in by passing the
 <tt>--with-openssl</tt> option to the <tt>configure</tt> script. Type
 <tt>./configure --help</tt> for details.
 
-Even if the Fossil build system does manage to find a workable version
-of OpenSSL, it is possible that the platform version is outdated in some
-key way, enough so that you do not want to use it with Fossil. (The
-chance of this happening increases as your OS ages.) For example, the
-platform version of OpenSSL might not support any of the
-[https://en.wikipedia.org/wiki/Cipher_suite|cipher suites] the remote
-Fossil repository's HTTPS proxy is willing to offer, so that even though
-both sides are speaking a variant of TLS/SSL, they can't come to an
-agreement on the cryptography.  In such cases, you may want to link
-Fossil to a newer version of OpenSSL than the one available in your OS's
-package repository. You can do this like so, from the root of the Fossil
-source tree:
+It is possible for the Fossil build system to find a functioning version
+of OpenSSL which is nevertheless unsuitable. One common case is that
+your OS is sufficiently outdated that the platform version of OpenSSL
+can no longer communicate with remote systems adhering to the latest
+advice on secure communications. Your local OpenSSL might not support
+any of the [https://en.wikipedia.org/wiki/Cipher_suite|cipher suites]
+the remote Fossil repository's HTTPS proxy is willing to offer, for
+example, so that even though both sides are speaking a variant of
+TLS/SSL, they can't come to an agreement on the cryptography.
+
+In such cases, you may want to link Fossil to a version of OpenSSL built
+from source. The easiest way to do that is:
 
 <pre>
-    cd compat
+    cd compat             # relative to the Fossil source tree root
     tar xf /path/to/openssl-*.tar.gz
     ln -fs openssl-x.y.z openssl
     ./config              # or, e.g. ./Configure darwin64-x86_64-cc
