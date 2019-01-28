@@ -1075,17 +1075,22 @@ void recon_restore_hash_policy(){
 /*
 ** COMMAND: reconstruct*
 **
-** Usage: %fossil reconstruct FILENAME DIRECTORY
+** Usage: %fossil reconstruct ?OPTIONS? FILENAME DIRECTORY
 **
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
 ** fossil repository in FILENAME. Subdirectories are read, files
 ** with leading '.' in the filename are ignored.
 **
+** Options:
+**    -K|--keep-rid1    Read the filename of the artifact with
+**                      RID=1 from the file .rid in DIRECTORY.
+**
 ** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
+  fKeepRid1 = find_option("keep-rid1",0,0)!=0;
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -1137,9 +1142,11 @@ void reconstruct_cmd(void) {
 ** prefix can be set to 0,1,..,9 characters.
 **
 ** Options:
-**   -R|--repository REPOSITORY  deconstruct given REPOSITORY
-**   -L|--prefixlength N         set the length of the names of the DESTINATION
-**                               subdirectories to N
+**   -R|--repository REPOSITORY  Deconstruct given REPOSITORY.
+**   -K|--keep-rid1              Save the filename of the artifact with RID=1 to
+**                               the file .rid1 in the DESTINATION directory.
+**   -L|--prefixlength N         Set the length of the names of the DESTINATION
+**                               subdirectories to N.
 **   --private                   Include private artifacts.
 **
 ** See also: rebuild, reconstruct
@@ -1149,6 +1156,7 @@ void deconstruct_cmd(void){
   Stmt        s;
   int privateFlag;
 
+  fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   /* get and check prefix length argument and build format string */
   zPrefixOpt=find_option("prefixlength","L",1);
   if( !zPrefixOpt ){
