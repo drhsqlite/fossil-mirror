@@ -184,7 +184,10 @@ static int ttyOutput;       /* Do progress output */
 static Bag bagDone;         /* Bag of records rebuilt */
 
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
+static int cchFNamePrefix;  /* Length of directory prefix in zFNameFormat */
+static char *zDestDir;      /* Destination directory on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
+static int fKeepRid1;       /* Flag to preserve RID=1 on de- and reconstruct */
 
 
 /*
@@ -276,6 +279,17 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       char *zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
                             zUuid, zUuid+prefixLength);
       blob_write_to_file(pUse,zFile);
+      if( rid==1 && fKeepRid1!=0 ){
+        char *zFnDotRid1 = mprintf("%s/.rid1", zDestDir);
+        char *zFnRid1 = zFile + cchFNamePrefix + 1; /* Skip directory slash */
+        Blob bFileContents = empty_blob;
+        blob_appendf(&bFileContents,
+          "# The file holding the artifact with RID=1\n"
+          "%s\n", zFnRid1);
+        blob_write_to_file(&bFileContents, zFnDotRid1);
+        blob_reset(&bFileContents);
+        free(zFnDotRid1);
+      }
       free(zFile);
       free(zUuid);
       blob_reset(pUse);
@@ -933,7 +947,46 @@ void recon_read_dir(char *zPath){
   static int nFileRead = 0;
   void *zUnicodePath;
   char *zUtf8Name;
+  static int recursionLevel = 0;  /* Bookkeeping about the recursion level */
+  static char *zFnRid1 = 0;       /* The file holding the artifact with RID=1 */
+  static int cchPathInitial = 0;  /* The length of zPath on first recursion */
 
+  recursionLevel++;
+  if( recursionLevel==1 ){
+    cchPathInitial = strlen(zPath);
+    if( fKeepRid1!=0 ){
+      char *zFnDotRid1 = mprintf("%s/.rid1", zPath);
+      Blob bFileContents;
+      if( blob_read_from_file(&bFileContents, zFnDotRid1, ExtFILE)!=-1 ){
+        Blob line, value;
+        while( blob_line(&bFileContents, &line)>0 ){
+          if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+          if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+          blob_trim(&value);
+          zFnRid1 = mprintf("%s/%s", zPath, blob_str(&value));
+          break;
+        }
+        blob_reset(&bFileContents);
+        if( zFnRid1 ){
+          if( blob_read_from_file(&aContent, zFnRid1, ExtFILE)==-1 ){
+            fossil_fatal("some unknown error occurred while reading \"%s\"",
+                         zFnRid1);
+          }else{
+            recon_set_hash_policy(0, zFnRid1);
+            content_put(&aContent);
+            recon_restore_hash_policy();
+            blob_reset(&aContent);
+            fossil_print("\r%d", ++nFileRead);
+            fflush(stdout);
+          }
+        }else{
+          fossil_fatal("an error occurred while reading or parsing \"%s\"",
+                       zFnDotRid1);
+        }
+      }
+      free(zFnDotRid1);
+    }
+  }
   zUnicodePath = fossil_utf8_to_path(zPath, 1);
   d = opendir(zUnicodePath);
   if( d ){
@@ -955,14 +1008,16 @@ void recon_read_dir(char *zPath){
 #endif
       {
         recon_read_dir(zSubpath);
-      }else{
+      }else if( fossil_strcmp(zSubpath, zFnRid1)!=0 ){
         blob_init(&path, 0, 0);
         blob_appendf(&path, "%s", zSubpath);
         if( blob_read_from_file(&aContent, blob_str(&path), ExtFILE)==-1 ){
           fossil_fatal("some unknown error occurred while reading \"%s\"",
                        blob_str(&path));
         }
+        recon_set_hash_policy(cchPathInitial, blob_str(&path));
         content_put(&aContent);
+        recon_restore_hash_policy();
         blob_reset(&path);
         blob_reset(&aContent);
         fossil_print("\r%d", ++nFileRead);
@@ -976,6 +1031,45 @@ void recon_read_dir(char *zPath){
                   errno, g.argv[3]);
   }
   fossil_path_free(zUnicodePath);
+  if( recursionLevel==1 && zFnRid1!=0 ) free(zFnRid1);
+  recursionLevel--;
+}
+
+/*
+** Helper functions called from recon_read_dir() to set and restore the correct
+** hash policy for an artifact read from disk, inferred from the length of the
+** path name.
+*/
+#define HPOLICY_NOTDEFINED -1
+static int saved_eHashPolicy = HPOLICY_NOTDEFINED;
+
+void recon_set_hash_policy(
+  const int cchPathPrefix,    /* Directory prefix length for zUuidAsFilePath */
+  const char *zUuidAsFilePath /* Relative, well-formed, from recon_read_dir() */
+){
+  int cchTotal, cchHashPart;
+  int new_eHashPolicy = HPOLICY_NOTDEFINED;
+  assert( HNAME_COUNT==2 ); /* Review function if new hashes are implemented. */
+  if( zUuidAsFilePath==0 ) return;
+  cchTotal = strlen(zUuidAsFilePath);
+  if( cchTotal==0 ) return;
+  if( cchPathPrefix>=cchTotal) return;
+  cchHashPart = cchTotal - cchPathPrefix;
+  if( cchHashPart>=HNAME_LEN_K256 ){
+    new_eHashPolicy = HPOLICY_SHA3;
+  }else if( cchHashPart>=HNAME_LEN_SHA1 ){
+    new_eHashPolicy = HPOLICY_SHA1;
+  }
+  if( new_eHashPolicy!=HPOLICY_NOTDEFINED ){
+    saved_eHashPolicy = g.eHashPolicy;
+    g.eHashPolicy = new_eHashPolicy;
+  }
+}
+
+void recon_restore_hash_policy(){
+  if( saved_eHashPolicy!=HPOLICY_NOTDEFINED ){
+    g.eHashPolicy = saved_eHashPolicy;
+  }
 }
 
 /*
@@ -1051,7 +1145,6 @@ void reconstruct_cmd(void) {
 ** See also: rebuild, reconstruct
 */
 void deconstruct_cmd(void){
-  const char *zDestDir;
   const char *zPrefixOpt;
   Stmt        s;
   int privateFlag;
@@ -1094,6 +1187,7 @@ void deconstruct_cmd(void){
   }else{
     zFNameFormat = mprintf("%s/%%s",zDestDir);
   }
+  cchFNamePrefix = strlen(zDestDir);
 
   bag_init(&bagDone);
   ttyOutput = 1;
