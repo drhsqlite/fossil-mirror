@@ -1090,7 +1090,7 @@ void recon_restore_hash_policy(){
 */
 void reconstruct_cmd(void) {
   char *zPassword;
-  fKeepRid1 = find_option("keep-rid1",0,0)!=0;
+  fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
