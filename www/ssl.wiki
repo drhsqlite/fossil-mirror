@@ -157,8 +157,8 @@ point Fossil at it like so:
 </pre>
 
 This can also happen if you've linked Fossil to a version of OpenSSL
-[built from source](#openssl-src). That same `cacert.pem` fix can work
-in that case, too.
+[#openssl-src|built from source]. That same <tt>cacert.pem</tt> fix can
+work in that case, too.
 
 When you build Fossil on Linux platforms against the binary OpenSSL
 package provided with the OS, you typically get a root cert store along
