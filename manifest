@@ -1,5 +1,5 @@
-C Markdownism\sfixes\sin\sprevious
-D 2019-01-28T19:59:27.279
+C Mention\sthe\s"worktree"\sgit\scommand\sin\sthe\sFossil-versus-Git\sdocument.
+D 2019-01-28T20:59:45.793
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -816,7 +816,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki b2fce6c2f88024553b61553d5eb27bdaf8c571c6abce555adfc1927824b1b713
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 8be6176798677a47eccfd7aa6a6fd765af22fe3a39ee495a96af7a6c76dd68d6
+F www/fossil-v-git.wiki 7d11669133d8dac04caffb6939bbb9e5d0693e1bbbac6d7d72aca567fde9e08e
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c563be15526be6f215521fd3fc084b95907fd93b9f613e275ec8741698d9fdda
-R 8472df09ef06c1e2f2223f96677a9814
-U wyoung
-Z a56af4fcb74db602e7201a0c4fcb1768
+P 3982569195e051838aa78020766aef8e157744c90760aecf2253c9a6916cd1f2
+R 33be531bac52d5007e4d76cccc4624d6
+U drh
+Z 2998087fd7a103e12bf5b70ddbba3b41

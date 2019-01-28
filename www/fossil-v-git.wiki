@@ -182,7 +182,8 @@ of the "unix philosophy".
 <h3>2.6 One vs. Many Check-outs per Repository</h3>
 
 A "repository" in Git is a pile-of-files in the ".git" subdirectory
-of a single check-out.  The check-out and the repository are inseperable.
+of a single check-out.  The check-out and the repository are located
+together in the filesystem.
 
 With Fossil, a "repository" is a single SQLite database file
 that can be stored anywhere.  There
@@ -190,6 +191,14 @@ can be multiple active check-outs from the same repository, perhaps
 open on different branches or on different snapshots of the same branch.
 Long-running tests or builds can be running in one check-out while
 changes are being committed in another.
+
+(Update 2019-01-29:)
+The check-out and the repository in Git used to be inseparable.
+More recently, Git has been enhanced with the
+"[https://git-scm.com/docs/git-worktree|worktree]" command that
+allows a single repository to host multiple check-outs.  However,
+the interface is sufficiently difficult to use that most people
+find it easier to create a separate clone for each check-out.
 
 <h3>2.7 What you should have done vs. What you actually did</h3>
 
