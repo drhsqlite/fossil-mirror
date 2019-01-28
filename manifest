@@ -1,5 +1,5 @@
-C Expanded\sthe\ssection\son\s--with-openssl=none\sin\swww/build.wiki\sto\sexplain\nwhy\sadding\sthat\soption\sis\sa\sbad\sidea,\swhat\sto\sdo\sinstead,\sand\sto\spoint\nto\sthe\snewly\sexpanded\sOpenSSL\sdiscussion\sin\swww/ssl.wiki\sfor\smore\ninformation.
-D 2019-01-28T17:54:10.742
+C Expanded\sthe\sdiscussion\sof\sOpenSSL\soptions\sin\swww/ssl.wiki,\smainly\nadding\sadvice\son\sinstalling\sit\svia\spackage\smanagers.\s\sThe\snew\sOpenSSL\ndiscussion\sin\sbuild.wiki\snow\spoints\sto\sthis,\srather\sthan\sto\sthe\snext\nsection\slevel\sup,\sas\sin\sthe\sprior\scheckin.
+D 2019-01-28T18:29:52.103
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki c6c0db4d4a77e6071f0de0d1e31bac6e6882014919dd35a279caa28c1374b211
+F www/build.wiki 6b56362c1275c506e3161e28ee73f7cf8515ce316e18cef7a897006d064707dd
 F www/changes.wiki c3ee575a8eb5f7cb694afd036b2f4d6c7de9e60a3e546c2c923865fcd6c6588a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
@@ -851,7 +851,7 @@ F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7
 F www/server.wiki bbd97b79fff06214bf14a5855d4b380090b582f21ea957c72ffa84fc321deecc
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki e25fb1dca8a9160e5623917051933d59e31e56ea6466a1ed38dab43ee6faeaca
+F www/ssl.wiki 802a6b73b7b9b1c35e56e54842a41ea5d372ca9e50b6a6727de10dee8aec4dd0
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5280c1ab9a054182fd3c906430bc57228cb98517ad58ee7cc348308ef2f8c745
-R 133c5908723bf3c8dbe2c9f8aef700b1
+P 4f810279ceee61764a3318d20c42aeab1866d6dbd8e1724a2ab86139f7a469f6
+R 56db5276eb44d4c4e14d9ef406cf8cbb
 U wyoung
-Z dc031de94a4b329445977ad21b54b342
+Z 61b2ca7a60e3542a8fe383eb8d7fc4f6

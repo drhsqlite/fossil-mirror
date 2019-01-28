@@ -101,7 +101,7 @@ manager. The Fossil build system goes to a lot of effort to seek these
 out wherever they may be found, so that is typically all you need to
 do.</p>
 
-<p>For more advanced use cases, see the [./ssl.wiki#client|OpenSSL
+<p>For more advanced use cases, see the [./ssl.wiki#openssl-bin|OpenSSL
 discussion in the "TLS and Fossil" document].</p>
 
 <li><p>

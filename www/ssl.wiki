@@ -19,29 +19,63 @@ in different ways. Those are the subjects of the next two major
 sections.
 
 
-<h2 id="client">Client-Side TLS Configuration</h2>
+<h2 id="client">Fossil TLS Configuration: Client Side</h2>
 
 Fossil itself has built-in support for TLS on the client side only. That
 is to say, you can build it against [https://www.openssl.org/|the
 OpenSSL library], which will allow it to clone and sync with a remote
 Fossil repository via <tt>https</tt> URIs.
 
+
+<h3 id="openssl-bin">Building Against a Binary Version of OpenSSL</h3>
+
 The <tt>configure</tt> script will attempt to find OpenSSL on your
-system automatically, but if necessary, you can specify the location
-with the <tt>--with-openssl</tt> option. Type <tt>./configure
---help</tt> for details.
+system automatically. If it can't find the files it needs, the most
+common solution is to install the OpenSSL development package on your
+system via your OS's package manager. Examples:
+
+  *  <b>RHEL & Fedora</b>: <tt>sudo yum install openssl-devel</tt>
+  *  <b>Debian & Ubuntu</b>: <tt>sudo apt install libssl-dev</tt>
+  *  <b>FreeBSD</b>: <tt>su -c 'pkg install openssl'</tt>
+  *  <b>macOS</b>: <tt>sudo brew install openssl</tt>
+  *  <b>Cygwin</b>: Install <tt>openssl-devel</tt> via Cygwin's
+     <tt>setup-*.exe</tt> program
+
+The macOS case requires explanation. Apple last shipped OpenSSL
+develpoment files in OS X 10.6 (Snow Leopard), choosing to deprecate it
+from that point forward. (Apple wants you to use their proprietary
+platform-specific encryption methods instead.) Since macOS has no
+built-in package manager, a number have sprung up out of the FOSS world.
+It is not known to this author whether Fossil's current build system can
+find OpenSSL as installed with any of these other package managers, so
+unless you have a particular reason to avoid it, we recomend that you
+use [https://brew.sh|Homebrew] on macOS to install OpenSSL as above.
+Fossil's build system will seek it out and use it automatically.
+
+
+<h3 id="openssl-src">Building Against a Non-Platform Version of
+OpenSSL</h3>
+
+The Fossil build system can also find and use OpenSSL in nonstandard
+locations.
+
+If you've installed OpenSSL via a method that Fossil's build system
+cannot find on its own, you can clue it in by passing the
+<tt>--with-openssl</tt> option to the <tt>configure</tt> script. Type
+<tt>./configure --help</tt> for details.
 
 Even if the Fossil build system does manage to find a workable version
-of OpenSSL, a common situation is that the platform version is outdated
-in some key way, enough so that you do not want to use it with Fossil.
-For example, the platform version of OpenSSL might not support any of
-the [https://en.wikipedia.org/wiki/Cipher_suite|cipher suites] the
-remote Fossil repository's HTTPS proxy is willing to offer, so that even
-though both sides are speaking TLS/SSL, they can't come to an agreement
-on the cryptography.
-In such cases, you may want to link Fossil to a newer version of OpenSSL
-than the one provided with your client operating system. You can do this
-like so:
+of OpenSSL, it is possible that the platform version is outdated in some
+key way, enough so that you do not want to use it with Fossil. (The
+chance of this happening increases as your OS ages.) For example, the
+platform version of OpenSSL might not support any of the
+[https://en.wikipedia.org/wiki/Cipher_suite|cipher suites] the remote
+Fossil repository's HTTPS proxy is willing to offer, so that even though
+both sides are speaking a variant of TLS/SSL, they can't come to an
+agreement on the cryptography.  In such cases, you may want to link
+Fossil to a newer version of OpenSSL than the one available in your OS's
+package repository. You can do this like so, from the root of the Fossil
+source tree:
 
 <pre>
     cd compat
@@ -56,6 +90,9 @@ like so:
 
 That will get you a Fossil binary statically linked to this in-tree
 version of OpenSSL.
+
+Beware, taking this path typically opens you up to new problems, which
+are conveniently covered in the next section!
 
 
 <h3 id="certs">Certificates</h3>
@@ -152,7 +189,7 @@ certificate, but don't provide one, fossil will show an error message
 which explains what to do to authenticate with the server.
 
 
-<h2 id="server">Server-Side TLS Configuration</h2>
+<h2 id="server">Fossil TLS Configuration: Server Side</h2>
 
 Fossil's built-in HTTP server feature does not currently have a built-in
 way to serve via HTTP over TLS, a.k.a. HTTPS, even when you've linked
