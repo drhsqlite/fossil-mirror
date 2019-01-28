@@ -156,8 +156,14 @@ point Fossil at it like so:
      fossil set --global ssl-ca-location /path/to/cacert.pem
 </pre>
 
-Linux platforms tend to provide such a root cert store along with the
-platform OpenSSL package, either built-in or as a hard dependency.
+This can also happen if you've linked Fossil to a version of OpenSSL
+[built from source](#openssl-src). That same `cacert.pem` fix can work
+in that case, too.
+
+When you build Fossil on Linux platforms against the binary OpenSSL
+package provided with the OS, you typically get a root cert store along
+with the platform OpenSSL package, either built-in or as a hard
+dependency.
 
 
 <h4>Client-Side Certificates</h4>
