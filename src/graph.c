@@ -36,6 +36,8 @@
 struct GraphRow {
   int rid;                    /* The rid for the check-in */
   i8 nParent;                 /* Number of parents.  -1 for technote lines */
+  i8 nCherrypick;             /* Subset of aParent that are cherrypicks */
+  i8 nNonCherrypick;          /* Number of non-cherrypick parents */
   int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
@@ -49,6 +51,7 @@ struct GraphRow {
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
+  u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
@@ -56,7 +59,9 @@ struct GraphRow {
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
   int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
   int mergeUpto;              /* Draw the mergeOut rail up to this level */
+  int cherrypickUpto;         /* Continue the mergeOut rail up to here */
   u64 mergeDown;              /* Draw merge lines up from bottom of graph */
+  u64 cherrypickDown;         /* Draw cherrypick lines up from bottom */
 
   u64 railInUse;              /* Mask of occupied rails at this row */
 };
@@ -181,6 +186,7 @@ int graph_add_row(
   GraphContext *p,     /* The context to which the row is added */
   int rid,             /* RID for the check-in */
   int nParent,         /* Number of parents */
+  int nCherrypick,     /* How many of aParent[] are actually cherrypicks */
   int *aParent,        /* Array of parents */
   const char *zBranch, /* Branch for this check-in */
   const char *zBgClr,  /* Background color. NULL or "" for white. */
@@ -197,7 +203,12 @@ int graph_add_row(
   pRow = (GraphRow*)safeMalloc( nByte );
   pRow->aParent = nParent>0 ? (int*)&pRow[1] : 0;
   pRow->rid = rid;
+  if( nCherrypick>=nParent ){
+    nCherrypick = nParent-1; /* Safety. Should never happen. */
+  }
   pRow->nParent = nParent;
+  pRow->nCherrypick = nCherrypick;
+  pRow->nNonCherrypick = nParent - nCherrypick;
   pRow->zBranch = persistBranchName(p, zBranch);
   if( zUuid==0 ) zUuid = "";
   sqlite3_snprintf(sizeof(pRow->zUuid), pRow->zUuid, "%s", zUuid);
@@ -286,7 +297,8 @@ static void assignChildrenToRail(GraphRow *pBottom){
 static void createMergeRiser(
   GraphContext *p,
   GraphRow *pParent,
-  GraphRow *pChild
+  GraphRow *pChild,
+  int isCherrypick
 ){
   int u;
   u64 mask;
@@ -299,13 +311,11 @@ static void createMergeRiser(
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
       pParent->mergeOut = pParent->iRail;
-      pParent->mergeUpto = pChild->idx;
-    }else{
+     }else{
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
       pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1, iTarget);
-      pParent->mergeUpto = pChild->idx;
       mask = BIT(pParent->mergeOut);
       for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
            pLoop=pLoop->pNext){
@@ -313,7 +323,17 @@ static void createMergeRiser(
       }
     }
   }
-  pChild->mergeIn[pParent->mergeOut] = 1;
+  if( isCherrypick ){
+    if( pParent->cherrypickUpto==0 || pParent->cherrypickUpto > pChild->idx ){
+      pParent->cherrypickUpto = pChild->idx;
+    }
+  }else{
+    pParent->hasNormalOutMerge = 1;
+    if( pParent->mergeUpto==0 || pParent->mergeUpto > pChild->idx ){
+      pParent->mergeUpto = pChild->idx;
+    }
+  }
+  pChild->mergeIn[pParent->mergeOut] = isCherrypick ? 2 : 1;
 }
 
 /*
@@ -325,7 +345,9 @@ static void find_max_rail(GraphContext *p){
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
     if( pRow->mergeOut>p->mxRail ) p->mxRail = pRow->mergeOut;
-    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>(BIT(p->mxRail+1)-1) ){
+    while( p->mxRail<GR_MAX_RAIL
+        && (pRow->mergeDown|pRow->cherrypickDown)>(BIT(p->mxRail+1)-1)
+    ){
       p->mxRail++;
     }
   }
@@ -397,7 +419,14 @@ void graph_finish(GraphContext *p, int omitDescenders){
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       for(i=1; i<pRow->nParent; i++){
         if( hashFind(p, pRow->aParent[i])==0 ){
-          pRow->aParent[i] = pRow->aParent[--pRow->nParent];
+          memmove(pRow->aParent+i, pRow->aParent+i+1, 
+                  sizeof(pRow->aParent[0])*(pRow->nParent-i-1));
+          pRow->nParent--;
+          if( i<pRow->nNonCherrypick ){
+            pRow->nNonCherrypick--;
+          }else{
+            pRow->nCherrypick--;
+          }
           i--;
         }
       }
@@ -410,11 +439,11 @@ void graph_finish(GraphContext *p, int omitDescenders){
   */
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->isDup ) continue;
-    if( pRow->nParent<2 ) continue;                    /* Not a fork */
+    if( pRow->nNonCherrypick<2 ) continue;      /* Not a fork */
     pParent = hashFind(p, pRow->aParent[0]);
     if( pParent==0 ) continue;                         /* Parent off-screen */
     if( pParent->zBranch==pRow->zBranch ) continue;    /* Same branch */
-    for(i=1; i<pRow->nParent; i++){
+    for(i=1; i<pRow->nNonCherrypick; i++){
       pParent = hashFind(p, pRow->aParent[i]);
       if( pParent && pParent->zBranch==pRow->zBranch ){
         int t = pRow->aParent[0];
@@ -567,14 +596,19 @@ void graph_finish(GraphContext *p, int omitDescenders){
           mergeRiserFrom[iMrail] = parentRid;
         }
         mask = BIT(iMrail);
-        pRow->mergeIn[iMrail] = 1;
-        pRow->mergeDown |= mask;
+        if( i>=pRow->nNonCherrypick ){
+          pRow->mergeIn[iMrail] = 2;
+          pRow->cherrypickDown |= mask;
+        }else{
+          pRow->mergeIn[iMrail] = 1;
+          pRow->mergeDown |= mask;
+        }
         for(pLoop=pRow->pNext; pLoop; pLoop=pLoop->pNext){
           pLoop->railInUse |= mask;
         }
       }else{
         /* Merge from an on-screen node */
-        createMergeRiser(p, pDesc, pRow);
+        createMergeRiser(p, pDesc, pRow, i>=pRow->nNonCherrypick);
         if( p->mxRail>=GR_MAX_RAIL ) return;
       }
     }
@@ -595,7 +629,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pRow->iRail = dupRail;
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
-      createMergeRiser(p, pDesc, pRow);
+      createMergeRiser(p, pDesc, pRow, 0);
       if( pDesc->mergeOut>mxRail ) mxRail = pDesc->mergeOut;
     }
     if( dupRail<=mxRail ){

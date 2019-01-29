@@ -31,6 +31,7 @@
 #define WIKI_BUTTONS        0x008  /* Allow sub-menu buttons */
 #define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
+#define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
 #endif
 
 
@@ -683,7 +684,7 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       if( n>0 ){
         *pTokenType = TOKEN_PARAGRAPH;
         return n;
-      }else if( fossil_isspace(z[1]) ){
+      }else{
         *pTokenType = TOKEN_NEWLINE;
         return 1;
       }
@@ -1162,6 +1163,40 @@ static const char *validWikiPageName(Renderer *p, const char *zTarget){
   return 0;
 }
 
+static const char *wikiOverrideHash = 0;
+
+/*
+** Fossil-wiki hyperlinks to wiki pages should be overridden to the
+** hash value supplied.  If the value is NULL, then override is cancelled
+** and all overwrites operate normally.
+*/
+void wiki_hyperlink_override(const char *zUuid){
+  wikiOverrideHash = zUuid;
+}
+
+
+/*
+** If links to wiki page zTarget should be redirected to some historical
+** version of that page, then return the hash of the historical version.
+** If no override is required, return NULL.
+*/
+static const char *wiki_is_overridden(const char *zTarget){
+  if( wikiOverrideHash==0 ) return 0;
+  /* The override should only happen if the override version is not the
+  ** latest version of the wiki page. */
+  if( !db_exists(
+    "SELECT 1 FROM tag, blob, tagxref AS xA, tagxref AS xB "
+    " WHERE tag.tagname GLOB 'wiki-%q*'"
+    "   AND blob.uuid GLOB '%q'"
+    "   AND xA.tagid=tag.tagid AND xA.rid=blob.rid"
+    "   AND xB.tagid=tag.tagid AND xB.mtime>xA.mtime",
+    zTarget, wikiOverrideHash
+  ) ){
+    return 0;
+  }
+  return wikiOverrideHash;
+}
+
 /*
 ** Resolve a hyperlink.  The zTarget argument is the content of the [...]
 ** in the wiki.  Append to the output string whatever text is appropriate
@@ -1261,7 +1296,12 @@ static void openHyperlink(
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
   }else if( (z = validWikiPageName(p, zTarget))!=0 ){
-    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
+    const char *zOverride = wiki_is_overridden(zTarget);
+    if( zOverride ){
+      blob_appendf(p->pOut, "<a href=\"%R/info/%S\">", zOverride);
+    }else{
+      blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
+    }
   }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
     /* Probably an array subscript in code */
     zTerm = "";
@@ -1342,7 +1382,11 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_NEWLINE: {
-        blob_append(p->pOut, "\n", 1);
+        if( p->renderFlags & WIKI_NEWLINE ){
+          blob_append(p->pOut, "<br>\n", 5);
+        }else{
+          blob_append(p->pOut, "\n", 1);
+        }
         p->state |= AT_NEWLINE;
         break;
       }

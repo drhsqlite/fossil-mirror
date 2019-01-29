@@ -848,7 +848,7 @@ void alert_send(
     FILE *out = popen(p->zCmd, "w");
     if( out ){
       fwrite(blob_buffer(&all), 1, blob_size(&all), out);
-      fclose(out);
+      pclose(out);
     }else{
       emailerError(p, "Could not open output pipe \"%s\"", p->zCmd);
     }

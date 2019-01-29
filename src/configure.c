@@ -138,6 +138,7 @@ static struct {
   { "parent-project-code",    CONFIGSET_PROJ },
   { "parent-project-name",    CONFIGSET_PROJ },
   { "hash-policy",            CONFIGSET_PROJ },
+  { "comment-format",         CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },
@@ -421,7 +422,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
          &zName[1], aType[ii].zPrimKey);
-    if( fossil_stricmp(zName,"/subscriber") ) alert_schema(0);
+    if( fossil_stricmp(zName,"/subscriber")==0 ) alert_schema(0);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }

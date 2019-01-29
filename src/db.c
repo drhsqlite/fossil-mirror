@@ -88,7 +88,7 @@ static void db_err(const char *zFormat, ...){
     @ error Database\serror:\s%F(z)
     cgi_reply();
   }
-  fossil_panic("Database error: %s", z);
+  fossil_fatal("Database error: %s", z);
 }
 
 /*
@@ -1475,21 +1475,32 @@ static int db_local_table_exists_but_lacks_column(
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
-  char *zVFileDef;
 
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName, ExtFILE);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
-  zVFileDef = db_text(0, "SELECT sql FROM localdb.sqlite_master"
-                         " WHERE name=='vfile'");
-  if( zVFileDef==0 ) return 0;
+
+  /* Check to see if the checkout database has the lastest schema changes.
+  ** The most recent schema change (2019-01-19) is the addition of the
+  ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
+  ** column, assume everything else is up-to-date. 
+  */
+  if( db_table_has_column("localdb","vmerge","mhash") ){
+    return 1;   /* This is a checkout database with the latest schema */
+  }
+
+  /* If there is no vfile table, then assume we have picked up something
+  ** that is not even close to being a valid checkout database */
+  if( !db_table_exists("localdb","vfile") ){
+    return 0;  /* Not a  DB */
+  }
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
+  if( !db_table_has_column("localdb","vfile","isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -1497,7 +1508,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
+  if( !db_table_has_column("localdb","vfile","isLink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -1509,7 +1520,12 @@ static int isValidLocalDb(const char *zDbName){
       db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
     }
   }
-  fossil_free(zVFileDef);
+
+  /* The design of the checkout database changed on 2019-01-19, adding the mhash
+  ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
+  ** a PRIMARY KEY that includes the new mhash column.  However, we must have
+  ** the repository database at hand in order to do the migration, so that
+  ** step is deferred. */
   return 1;
 }
 
@@ -1657,6 +1673,72 @@ void db_open_repository(const char *zDbName){
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+
+  /* Additional checks that occur when opening the checkout database */
+  if( g.localOpen ){
+
+    /* If the repository database that was just opened has been
+    ** eplaced by a clone of the same project, with different RID
+    ** values, then renumber the RID values stored in various tables
+    ** of the checkout database, so that the repository and checkout
+    ** databases align.
+    */
+    if( !db_fingerprint_ok() ){
+      if( find_option("no-rid-adjust",0,0)!=0 ){
+        /* The --no-rid-adjust command-line option bypasses the RID value
+        ** updates. Intended for use during debugging, especially to be
+        ** able to run "fossil sql" after a database swap. */
+        fossil_print(
+          "WARNING: repository change detected, but no adjust made.\n"
+        );
+      }else if( find_option("rid-renumber-dryrun",0,0)!=0 ){
+        /* the --rid-renumber-dryrun option shows how RID values would be
+        ** renumbered, but does not actually perform the renumbering.
+        ** This is a debugging-only option. */
+        vfile_rid_renumbering_event(1);
+        exit(0);
+      }else{
+        char *z;
+        stash_rid_renumbering_event();
+        vfile_rid_renumbering_event(0);
+        undo_reset();
+        bisect_reset();
+        z = db_fingerprint(0);
+        db_lset("fingerprint", z);
+        fossil_free(z);
+        fossil_print(
+          "WARNING: The repository database has been replaced by a clone.\n"
+          "Bisect history and undo have been lost.\n"
+        );
+      }
+    }
+
+    /* Make sure the checkout database schema migration of 2019-01-20 
+    ** has occurred.
+    **
+    ** The 2019-01-19 migration is the addition of the vmerge.mhash and
+    ** vfile.mhash columns and making the vmerge.mhash column part of the
+    ** PRIMARY KEY for vmerge.
+    */
+    if( !db_table_has_column("localdb", "vfile", "mhash") ){
+      db_multi_exec("ALTER TABLE vfile ADD COLUMN mhash;");
+      db_multi_exec(
+        "UPDATE vfile"
+        "   SET mhash=(SELECT uuid FROM blob WHERE blob.rid=vfile.mrid)"
+        " WHERE mrid!=rid;"
+      );
+      if( !db_table_has_column("localdb", "vmerge", "mhash") ){
+        db_multi_exec("ALTER TABLE vmerge RENAME TO old_vmerge;");
+        db_multi_exec(zLocalSchemaVmerge /*works-like:""*/);
+        db_multi_exec(  
+           "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
+           "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
+           "   WHERE old_vmerge.merge=blob.rid;"
+           "DROP TABLE old_vmerge;"
+        );
+      }
+    }
+  }
 }
 
 /*
@@ -2849,7 +2931,7 @@ void cmd_open(void){
 #else
 # define LOCALDB_NAME "./.fslckout"
 #endif
-  db_init_database(LOCALDB_NAME, zLocalSchema,
+  db_init_database(LOCALDB_NAME, zLocalSchema, zLocalSchemaVmerge,
 #ifdef FOSSIL_LOCAL_WAL
                    "COMMIT; PRAGMA journal_mode=WAL; BEGIN;",
 #endif
@@ -2874,7 +2956,7 @@ void cmd_open(void){
   }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  db_lset_int("checkout", 0);
+  db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
@@ -3088,6 +3170,29 @@ struct Setting {
 ** SETTING: clearsign       boolean default=off
 ** When enabled, fossil will attempt to sign all commits
 ** with gpg.  When disabled, commits will be unsigned.
+*/
+/*
+** SETTING: comment-format  width=16 default=1
+** Set the default options for printing timeline comments to the console.
+**
+** The global --comfmtflags command-line option (or alias --comment-format)
+** overrides this setting.
+**
+** Possible values are:
+**    1     Activate the legacy comment printing format (default).
+**
+** Or a bitwise combination of the following flags:
+**    0     Activate the newer (non-legacy) comment printing format.
+**    2     Trim leading and trailing CR and LF characters.
+**    4     Trim leading and trailing white space characters.
+**    8     Attempt to break lines on word boundaries.
+**   16     Break lines before the original comment embedded in other text.
+**
+** Note: To preserve line breaks, activate the newer (non-legacy) comment
+** printing format (i.e. set to "0", or a combination not including "1").
+**
+** Note: The options for timeline comments displayed on the web UI can be
+** configured through the /setup_timeline web page.
 */
 /*
 ** SETTING: crlf-glob       width=40 versionable block-text
@@ -3705,4 +3810,119 @@ void test_database_name_cmd(void){
   fossil_print("Repository database: %s\n", g.zRepositoryName);
   fossil_print("Local database:      %s\n", g.zLocalDbName);
   fossil_print("Config database:     %s\n", g.zConfigDbName);
+}
+
+/*
+** Compute a "fingerprint" on the repository.  A fingerprint is used
+** to verify that that the repository has not been replaced by a clone
+** of the same repository.  More precisely, a fingerprint are used to
+** verify that the mapping between SHA3 hashes and RID values is unchanged.
+**
+** The checkout database ("localdb") stores RID values.  When associating
+** a checkout database against a repository database, it is useful to verify
+** the fingerprint so that we know tha the RID values in the checkout
+** database still correspond to the correct entries in the BLOB table of
+** the repository.
+**
+** The fingerprint is based on the RCVFROM table.  When constructing a
+** new fingerprint, use the most recent RCVFROM entry.  (Set rcvid==0 to
+** accomplish this.)  When verifying an old fingerprint, use the same
+** RCVFROM entry that generated the fingerprint in the first place.
+**
+** The fingerprint consists of the rcvid, a "/", and the MD5 checksum of
+** the remaining fields of the RCVFROM table entry.  MD5 is used for this
+** because it is 4x faster than SHA3 and 5x faster than SHA1, and there
+** are no security concerns - this is just a checksum, not a security
+** token.
+*/
+char *db_fingerprint(int rcvid){
+  char *z = 0;
+  Blob sql = BLOB_INITIALIZER;
+  Stmt q;
+  blob_append_sql(&sql,
+    "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
+    "  FROM rcvfrom"
+  );
+  if( rcvid<=0 ){
+    blob_append_sql(&sql, " ORDER BY rcvid DESC LIMIT 1");
+  }else{
+    blob_append_sql(&sql, " WHERE rcvid=%d", rcvid);
+  }
+  db_prepare_blob(&q, &sql);
+  blob_reset(&sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    int i;
+    md5sum_init();
+    for(i=1; i<=4; i++){
+      md5sum_step_text(db_column_text(&q,i),-1);
+    }
+    z = mprintf("%d/%s",db_column_int(&q,0),md5sum_finish(0));
+  }
+  db_finalize(&q);
+  return z;
+}
+
+/*
+** COMMAND: test-fingerprint
+**
+** Usage: %fossil test-fingerprint ?RCVID? ?--check?
+**
+** Display the repository fingerprint.  Or if the --check option
+** is provided and this command is run from a checkout, invoke the
+** db_fingerprint_ok() method and print its result.
+*/
+void test_fingerprint(void){
+  int rcvid = 0;
+  if( find_option("check",0,0)!=0 ){
+    db_must_be_within_tree();
+    fossil_print("db_fingerprint_ok() => %d\n", db_fingerprint_ok());
+    return;
+  }
+  db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
+  if( g.argc==3 ){
+    rcvid = atoi(g.argv[2]);
+  }else if( g.argc!=2 ){
+    fossil_fatal("wrong number of arguments");
+  } 
+  fossil_print("%z\n", db_fingerprint(rcvid));
+}
+
+/*
+** Set the value of the "checkout" entry in the VVAR table.
+**
+** Also set "fingerprint" and "checkout-hash".
+*/
+void db_set_checkout(int rid){
+  char *z;
+  db_lset_int("checkout", rid);
+  z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+  db_lset("checkout-hash", z);
+  fossil_free(z);
+  z = db_fingerprint(0);
+  db_lset("fingerprint", z);
+  fossil_free(z);
+}
+
+/*
+** Verify that the fingerprint recorded in the "fingerprint" entry
+** of the VVAR table matches the fingerprint on the currently
+** connected repository.  Return true if the fingerprint is ok, and
+** return false if the fingerprint does not match.
+*/
+int db_fingerprint_ok(void){
+  char *zCkout;   /* The fingerprint recorded in the checkout database */
+  char *zRepo;    /* The fingerprint of the repository */
+  int rc;         /* Result */
+
+  zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
+  if( zCkout==0 ){
+    /* This is an older checkout that does not record a fingerprint.
+    ** We have to assume everything is ok */
+    return 2;
+  }
+  zRepo = db_fingerprint(atoi(zCkout));
+  rc = fossil_strcmp(zCkout,zRepo)==0;
+  fossil_free(zCkout);
+  fossil_free(zRepo);
+  return rc;
 }

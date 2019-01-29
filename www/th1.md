@@ -169,6 +169,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  anoncap
   *  anycap
   *  artifact
+  *  cgiHeaderLine
   *  checkout
   *  combobox
   *  date
@@ -248,6 +249,13 @@ listed in STRING.
 Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
+
+<a name="cgiHeaderLine"></a>TH1 cgiHeaderLine Command
+-----------------------------------------------------
+
+  *  cgiHeaderLine line
+
+Adds the specified line to the CGI header.
 
 <a name="checkout"></a>TH1 checkout Command
 -------------------------------------------

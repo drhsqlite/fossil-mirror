@@ -356,7 +356,7 @@ void cgi_reply(void){
 **
 ** The URL must be relative to the base of the fossil server.
 */
-NORETURN static void cgi_redirect_with_status(
+NORETURN void cgi_redirect_with_status(
   const char *zURL,
   int iStat,
   const char *zStat

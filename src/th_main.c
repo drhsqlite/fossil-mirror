@@ -1370,6 +1370,25 @@ static int artifactCmd(
 }
 
 /*
+** TH1 command: cgiHeaderLine line
+**
+** Adds the specified line to the CGI header.
+*/
+static int cgiHeaderLineCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "cgiHeaderLine line");
+  }
+  cgi_append_header(argv[1]);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: unversioned content FILENAME
 **
 ** Attempts to locate the specified unversioned file and return its contents.
@@ -1984,6 +2003,7 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},

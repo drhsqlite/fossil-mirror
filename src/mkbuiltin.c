@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <ctype.h>
 
 /*
 ** Read the entire content of the file named zFilename into memory obtained
@@ -55,6 +55,45 @@ static unsigned char *read_file(const char *zFilename, int *pnByte){
   fclose(in);
   z[got] = 0;
   return z;
+}
+
+/*
+** Try to compress a javascript file by removing unnecessary whitespace.
+**
+** Warning:  This compression routine does not necessarily work for any
+** arbitrary Javascript source file.  But it should work ok for the
+** well-behaved source files in this project.
+*/
+static void compressJavascript(unsigned char *z, int *pn){
+  int n = *pn;
+  int i, j, k;
+  for(i=j=0; i<n; i++){
+    unsigned char c = z[i];
+    if( c=='/' ){
+      if( z[i+1]=='*' ){
+        for(k=i+3; k<n && (z[k]!='/' || z[k-1]!='*'); k++){}
+        if( k<n ){
+          i = k;
+          while( i+1<n && isspace(z[i+1]) ) i++;
+          continue;
+        }
+      }else if( z[i+1]=='/' ){
+        for(k=i+2; k<n && z[k]!='\n'; k++){}
+        i = k;
+        while( i+1<n && isspace(z[i+1]) ) i++;
+        continue;
+      }
+    }
+    if( c=='\n' ){
+      while( j>0 && isspace(z[j-1]) ) j--;
+      z[j++] = '\n';
+      while( i+1<n && isspace(z[i+1]) ) i++;
+      continue;
+    }
+    z[j++] = c;
+  }
+  z[j] = 0;
+  *pn = j;
 }
 
 /*
@@ -87,6 +126,7 @@ int main(int argc, char **argv){
   int nErr = 0;
   int nSkip;
   int nPrefix = 0;
+  int nName;
 
   if( argc>3 && strcmp(argv[1],"--prefix")==0 ){
     nPrefix = (int)strlen(argv[2]);
@@ -120,6 +160,14 @@ int main(int argc, char **argv){
     while( pData[nSkip]=='#' ){
       while( pData[nSkip]!=0 && pData[nSkip]!='\n' ){ nSkip++; }
       if( pData[nSkip]=='\n' ) nSkip++;
+    }
+
+    /* Compress javascript source files */
+    nName = (int)strlen(aRes[i].zName);
+    if( nName>3 && strcmp(&aRes[i].zName[nName-3],".js")==0 ){
+      int x = sz-nSkip;
+      compressJavascript(pData+nSkip, &x);
+      sz = x + nSkip;
     }
 
     aRes[i].nByte = sz - nSkip;

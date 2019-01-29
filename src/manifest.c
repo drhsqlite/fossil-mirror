@@ -2107,6 +2107,17 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zScript = xfer_commit_code();
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
+    if( p->nCherrypick && db_table_exists("repository","cherrypick") ){
+      int i;
+      for(i=0; i<p->nCherrypick; i++){
+        db_multi_exec(
+          "REPLACE INTO cherrypick(parentid,childid,isExclude)"
+          " SELECT rid, %d, %d FROM blob WHERE uuid=%Q",
+          rid, p->aCherrypick[i].zCPTarget[0]=='-',
+          p->aCherrypick[i].zCPTarget+1
+        );
+      }
+    }
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
       parentid = manifest_add_checkin_linkages(rid,p,p->nParent,p->azParent);

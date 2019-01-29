@@ -80,8 +80,29 @@ Run <b>./configure</b> to construct a makefile.
 
 <ol type="a">
 <li><p>
-If you do not have the OpenSSL library installed on your system, then
-add <b>--with-openssl=none</b> to omit the https functionality.
+The build system for Fossil on Unix-like systems assumes that the
+OpenSSL development and runtime files are available on your system,
+because unprotected repositories are trivial to attack otherwise.
+Indeed, some public Fossil repositories — including Fossil's own — today
+run in an HTTPS-only mode, so that you can't even do an anonymous clone
+from them without using the TLS features added to Fossil by OpenSSL. To
+weaken that stance could allow a
+[https://en.wikipedia.org/wiki/Man-in-the-middle_attack|man in the
+middle attack], such as one that substitutes malicious code into your
+Fossil repository clone.</p>
+
+<p>You can force the Fossil build system to avoid searching for, building
+against, and linking to the OpenSSL library by passing
+<b>--with-openssl=none</b> to the <tt>configure</tt> script.</p>
+
+<p>If you do not have the OpenSSL development libraries on your system,
+we recommend that you install them, typically via your OS's package
+manager. The Fossil build system goes to a lot of effort to seek these
+out wherever they may be found, so that is typically all you need to
+do.</p>
+
+<p>For more advanced use cases, see the [./ssl.wiki#openssl-bin|OpenSSL
+discussion in the "TLS and Fossil" document].</p>
 
 <li><p>
 To build a statically linked binary (suitable for use inside a chroot

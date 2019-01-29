@@ -4,7 +4,7 @@
 <p>This is a guide to get you started using fossil quickly
 and painlessly.</p>
 
-<h2>Installing</h2>
+<h2 id="install">Installing</h2>
 
     <p>Fossil is a single self-contained C program.  You need to
     either download a

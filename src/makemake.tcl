@@ -1797,9 +1797,13 @@ writeln "\$(OX)\\miniz\$O \\"; incr i
 writeln "!endif"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln [string map [list <<<NEXT_LINE>>> \\] {
-APPNAME    = $(OX)\fossil$(E)
-PDBNAME    = $(OX)\fossil$(P)
-APPTARGETS =
+!ifndef BASEAPPNAME
+BASEAPPNAME = fossil
+!endif
+
+APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
+PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
+APPTARGETS  =
 
 all: $(OX) $(APPNAME)
 

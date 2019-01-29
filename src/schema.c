@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -354,7 +354,7 @@ const char zRepositorySchema2[] =
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
 @ );
 @
-@ -- Each baseline or manifest can have one or more tags.  A tag
+@ -- Each artifact can have one or more tags.  A tag
 @ -- is defined by a row in the next table.
 @ --
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
@@ -379,7 +379,7 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(10,'parent');          -- TAG_PARENT
 @ INSERT INTO tag VALUES(11,'note');            -- TAG_NOTE
 @
-@ -- Assignments of tags to baselines.  Note that we allow tags to
+@ -- Assignments of tags to artifacts.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
 @ -- tags here.  These are really properties.  But we are going to
 @ -- keep calling them tags because in many cases the value is ignored.
@@ -461,6 +461,15 @@ const char zRepositorySchema2[] =
 @   icomment TEXT
 @ );
 @ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
+@
+@ -- For tracking cherrypick merges
+@ CREATE TABLE cherrypick(
+@   parentid INT,
+@   childid INT,
+@   isExclude BOOLEAN DEFAULT false,
+@   PRIMARY KEY(parentid, childid)
+@ ) WITHOUT ROWID;
+@ CREATE INDEX cherrypick_cid ON cherrypick(childid);
 ;
 
 /*
@@ -483,7 +492,7 @@ const char zRepositorySchema2[] =
 /*
 ** The schema for the local FOSSIL database file found at the root
 ** of every check-out.  This database contains the complete state of
-** the checkout.
+** the checkout.  See also the addendum in zLocalSchemaVmerge[].
 */
 const char zLocalSchema[] =
 @ -- The VVAR table holds miscellanous information about the local database
@@ -508,18 +517,16 @@ const char zLocalSchema[] =
 @ -- The file.rid field is 0 for files or folders that have been
 @ -- added but not yet committed.
 @ --
-@ -- Vfile.chnged is 0 for unmodified files, 1 for files that have
-@ -- been edited or which have been subjected to a 3-way merge.
-@ -- Vfile.chnged is 2 if the file has been replaced from a different
-@ -- version by the merge and 3 if the file has been added by a merge.
-@ -- Vfile.chnged is 4|5 is the same as 2|3, but the operation has been
-@ -- done by an --integrate merge.  The difference between vfile.chnged==3|5
-@ -- and a regular add is that with vfile.chnged==3|5 we know that the
-@ -- current version of the file is already in the repository.
+@ -- Vfile.chnged meaning:
+@ --    0       File is unmodified
+@ --    1       Manually edited and/or modified as part of a merge command
+@ --    2       Replaced by a merge command
+@ --    3       Added by a merge command
+@ --    4,5     Same as 2,3 except merge using --integrate
 @ --
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
-@   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
+@   vid INTEGER REFERENCES blob,      -- The checkin this file is part of.
 @   chnged INT DEFAULT 0,  -- 0:unchng 1:edit 2:m-chng 3:m-add 4:i-chng 5:i-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted
 @   isexe BOOLEAN,                    -- True if file should be executable
@@ -529,9 +536,20 @@ const char zLocalSchema[] =
 @   mtime INTEGER,                    -- Mtime of file on disk. sec since 1970
 @   pathname TEXT,                    -- Full pathname relative to root
 @   origname TEXT,                    -- Original pathname. NULL if unchanged
+@   mhash TEXT,                       -- Hash of mrid iff mrid!=rid
 @   UNIQUE(pathname,vid)
 @ );
 @
+@ -- Identifier for this file type.
+@ -- The integer is the same as 'FSLC'.
+@ PRAGMA application_id=252006674;
+;
+
+/* Additional local database initialization following the schema
+** enhancement of 2019-01-19, in which the mhash column was added
+** to vmerge and vfile.
+*/
+const char zLocalSchemaVmerge[] =
 @ -- This table holds a record of uncommitted merges in the local
 @ -- file tree.  If a VFILE entry with id has merged with another
 @ -- record, there is an entry in this table with (id,merge) where
@@ -539,16 +557,27 @@ const char zLocalSchema[] =
 @ -- An id of 0 or <-3 here means the version record itself.  When
 @ -- id==(-1) that is a cherrypick merge, id==(-2) that is a
 @ -- backout merge and id==(-4) is a integrate merge.
+@ --
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
 @   merge INTEGER,                    -- Merged with this record
-@   UNIQUE(id, merge)
+@   mhash TEXT                        -- SHA1/SHA3 hash for merge object
 @ );
+@ CREATE UNIQUE INDEX vmergex1 ON vmerge(id,mhash);
 @
-@ -- Identifier for this file type.
-@ -- The integer is the same as 'FSLC'.
-@ PRAGMA application_id=252006674;
+@ -- The following trigger will prevent older versions of Fossil that
+@ -- do not know about the new vmerge.mhash column from updating the
+@ -- vmerge table.  This must be done with a trigger, since legacy Fossil
+@ -- uses INSERT OR IGNORE to update vmerge, and the OR IGNORE will cause
+@ -- a NOT NULL constraint to be silently ignored.
+@
+@ CREATE TRIGGER vmerge_ck1 AFTER INSERT ON vmerge
+@ WHEN new.mhash IS NULL BEGIN
+@   SELECT raise(FAIL,
+@   'trying to update a newer checkout with an older version of Fossil');
+@ END;
+@
 ;
 
 /*

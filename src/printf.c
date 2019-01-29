@@ -231,6 +231,9 @@ static int wiki_convert_flags(int altForm2){
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
     }
+    if( db_get_boolean("timeline-hard-newlines", 0) ){
+      wikiFlags |= WIKI_NEWLINE;
+    }
   }
   return wikiFlags;
 }

@@ -205,7 +205,8 @@ struct Global {
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
   int isHuman;            /* True if access by a human, not a spider or bot */
-  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags */
+  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
+                          ** accessed through get_comment_format(). */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -380,6 +381,7 @@ static void expand_args_option(int argc, void *argv){
   unsigned int nLine;       /* Number of lines in the file*/
   unsigned int i, j, k;     /* Loop counters */
   int n;                    /* Number of bytes in one line */
+  unsigned int nArg;        /* Number of new arguments */
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   const char *zFileName;    /* input file name */
@@ -413,30 +415,35 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  inFile = (0==strcmp("-",zFileName))
-    ? stdin
-    : fossil_fopen(zFileName,"rb");
-  if(!inFile){
-    fossil_fatal("Cannot open -args file [%s]", zFileName);
+  if( strcmp(zFileName,"-")==0 ){
+    inFile = stdin;
+  }else if( !file_isfile(zFileName, ExtFILE) ){
+    fossil_fatal("Not an ordinary file: \"%s\"", zFileName);
   }else{
-    blob_read_from_channel(&file, inFile, -1);
-    if(stdin != inFile){
-      fclose(inFile);
+    inFile = fossil_fopen(zFileName,"rb");
+    if( inFile==0 ){
+      fossil_fatal("Cannot open -args file [%s]", zFileName);
     }
-    inFile = NULL;
   }
+  blob_read_from_channel(&file, inFile, -1);
+  if(stdin != inFile){
+    fclose(inFile);
+  }
+  inFile = NULL;
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
-  newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
+  if( nLine>100000000 ) fossil_fatal("too many command-line arguments");
+  nArg = g.argc + nLine*2;
+  newArgv = fossil_malloc( sizeof(char*)*nArg );
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
-    if( n<1 ) continue
-      /**
-       ** Reminder: corner-case: a line with 1 byte and no newline.
-       */;
+    if( n<1 ){
+      /* Reminder: corner-case: a line with 1 byte and no newline. */
+      continue;
+    }
     z = blob_buffer(&line);
     if('\n'==z[n-1]){
       z[n-1] = 0;
@@ -447,6 +454,9 @@ static void expand_args_option(int argc, void *argv){
       z[n-2] = 0;
     }
     if(!z[0]) continue;
+    if( j>=nArg ){
+      fossil_fatal("malformed command-line arguments");
+    }
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
@@ -568,10 +578,13 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 */
 static void fossil_init_flags_from_options(void){
   const char *zValue = find_option("comfmtflags", 0, 1);
+  if( zValue==0 ){
+    zValue = find_option("comment-format", 0, 1);
+  }
   if( zValue ){
     g.comFmtFlags = atoi(zValue);
   }else{
-    g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+    g.comFmtFlags = COMMENT_PRINT_UNSET;   /* Command-line option not found. */
   }
 }
 
@@ -1338,6 +1351,41 @@ void sigpipe_handler(int x){
 }
 
 /*
+** Return true if it is appropriate to redirect requests to HTTPS.
+**
+** Redirect to https is appropriate if all of the above are true:
+**    (1) The redirect-to-https flag has a valud of iLevel or greater.
+**    (2) The current connection is http, not https or ssh
+**    (3) The sslNotAvailable flag is clear
+*/
+int fossil_wants_https(int iLevel){
+  if( g.sslNotAvailable ) return 0;
+  if( db_get_int("redirect-to-https",0)<iLevel ) return 0;
+  if( P("HTTPS")!=0 ) return 0;
+  return 1;
+}
+
+/*
+** Redirect to the equivalent HTTPS request if the current connection is
+** insecure and if the redirect-to-https flag greater than or equal to 
+** iLevel.  iLevel is 1 for /login pages and 2 for every other page.
+*/
+int fossil_redirect_to_https_if_needed(int iLevel){
+  if( fossil_wants_https(iLevel) ){
+    const char *zQS = P("QUERY_STRING");
+    char *zURL;
+    if( zQS==0 || zQS[0]==0 ){
+      zURL = mprintf("%s%T", g.zHttpsURL, P("PATH_INFO"));
+    }else if( zQS[0]!=0 ){
+      zURL = mprintf("%s%T?%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    }
+    cgi_redirect_with_status(zURL, 301, "Moved Permanently");
+    return 1;
+  }
+  return 0;
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -1611,6 +1659,7 @@ static void process_one_web_page(
   ** and deliver the appropriate page back to the user.
   */
   set_base_url(0);
+  if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
     /* Second special case: If the PATH_INFO is blank, issue a redirect to
@@ -2429,7 +2478,8 @@ void sigalrm_handler(int x){
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available
+**   --nossl             signal that no SSL connections are available (Always
+**                       set by default for the "ui" command)
 **   --notfound URL      Redirect
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
@@ -2500,7 +2550,7 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
-  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
   }

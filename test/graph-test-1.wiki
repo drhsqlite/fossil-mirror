@@ -80,6 +80,16 @@ the correct operation of the graph drawing logic.
      target="testwindow">Check-in 2de15c8e has merge arrows from two
      different trunk check-ins.  One of the merge risers also branches
      to check-in ea7f3297</a>
+  *  <a href="../../../timeline?b=ae8709e2&n=25" target="testwindow">
+     Cherrypick merge arrows</a>
+  *  <a href="../../../timeline?r=branch-1.37" target="testwindow">Branch
+     1.37 with cherry-pick merges from trunk.</a>
+  *  <a href="../../../timeline?f=68bd2e7bedb8d05a" target="testwindow">
+     Single check-in takes both a full merge and a cherrypick merge</a>
+  *  <a href="../../../timeline?b=dc81ac70&n=14" target="testwindow">
+     Mixed merge arrow, partly fully and partly cherrypick</a>
+  *  <a href="../../../timeline?b=dc81ac70&n=13" target="testwindow">
+     Mixed merge arrow to bottom of screen.</a>
 
 External:
 

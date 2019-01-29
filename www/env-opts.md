@@ -33,7 +33,8 @@ most sensible condition.
 any commands.
 
 
-`--comfmtflags NUMBER`: Specify flags that control how check-in comments
+`--comfmtflags NUMBER`  
+`--comment-format NUMBER`: Specify flags that control how check-in comments
 and certain other text outputs are formatted for display. The flags are
 individual bits in `NUMBER`, which must be specified in base 10:
 
@@ -157,6 +158,18 @@ variable found in the environment from the list `FOSSIL_USER`, `USER`,
 `LOGNAME`, and `USERNAME` is the user name. If none of those are set,
 then the default user name is "root". See the discussion of Fossil
 Username below for a lot more detail.
+
+
+`FOSSIL_SECURITY_LEVEL`: If set to any of the values listed below,
+additional measures for password security will be enabled (also see
+[How To Use Encrypted Repositories][encryptedrepos.wiki]):
+
+[encryptedrepos.wiki]: /doc/trunk/www/encryptedrepos.wiki
+
+  * _≥1_ &mdash; Do not remember passwords.
+
+  * _≥2_ &mdash; Use a scrambled matrix for password input.
+
 
 `FOSSIL_TCL_PATH`: When Tcl stubs support is configured, point to a
 specific file or folder containing the version of Tcl to load at run
