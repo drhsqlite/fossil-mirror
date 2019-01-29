@@ -1,5 +1,5 @@
-C Calculate\shash\slengths\swith\sskipped\sdirectory\sslashes.
-D 2019-01-29T14:09:00.000
+C Add\sa\stest\scommand\sto\sinfer\sthe\shash\spolicy\sfrom\sthe\slength\sof\spath\snames\son\sreconstruct\s(disabled\sby\spreprocessor\sdirective).
+D 2019-01-29T14:29:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -541,7 +541,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c c79a94be03aa5fb26e11acbc8b41502ac5ce061927b3650793187f5fbd5db094
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
-F src/rebuild.c b91aecef2cdd8841be97ca02e99e2394d0e842b4287510aa9efc7f761f7015d5
+F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
 F src/regexp.c 3509e175b8fdaef0e23e1a86232bb506bda155c6ef2521d4ae754ea15bc26e98
 F src/repolist.c fcec37e43c2c617ba336008db7e2fb47aa0d1d9ed66b3e49b04842ae3cb58502
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d49b5ad9118d0ab0c7ea9359fef0f68fa4d5e899a9cfa26dedb8a3be1abfbcc
-R 518f4fb5fd166edb55d3cdf0f0c60168
+P c47adb9148576228c297b2c134cd0b5408eb2e1be1dce565a9a5c0be4975dd70
+R b4c490f0a0be0f61a06c722e6b92c942
 U florian
-Z 157bc83ed97cb23ce4553a6acacd024d
+Z 9cae9cab101e49f0f386ba5c3289efa0

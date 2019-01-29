@@ -1076,6 +1076,66 @@ void recon_restore_hash_policy(){
   }
 }
 
+#if 0
+/*
+** COMMAND: test-hash-from-path*
+**
+** Usage: %fossil test-hash-from-path ?OPTIONS? DESTINATION UUID
+**
+** Generate a sample path name from DESTINATION and UUID, as the `deconstruct'
+** command would do.  Then try to guess the hash policy from the path name, as
+** the `reconstruct' command would do.
+**
+** No files or directories will be created.
+**
+** Options:
+**   -L|--prefixlength N     Set the length of the names of the DESTINATION
+**                           subdirectories to N.
+*/
+void test_hash_from_path_cmd(void) {
+  char *zDest;
+  char *zUuid;
+  char *zFile;
+  const char *zHashPolicy = "unknown";
+  const char *zPrefixOpt = find_option("prefixlength","L",1);
+  int iPrefixLength;
+  if( !zPrefixOpt ){
+    iPrefixLength = 2;
+  }else{
+    iPrefixLength = atoi(zPrefixOpt);
+    if( iPrefixLength<0 || iPrefixLength>9 ){
+      fossil_fatal("N(%s) is not a valid prefix length!",zPrefixOpt);
+    }
+  }
+  if( g.argc!=4 ){
+    usage ("?OPTIONS? DESTINATION UUID");
+  }
+  zDest = g.argv[2];
+  zUuid = g.argv[3];
+  if( iPrefixLength ){
+    zFNameFormat = mprintf("%s/%%.%ds/%%s",zDest,iPrefixLength);
+  }else{
+    zFNameFormat = mprintf("%s/%%s",zDest);
+  }
+  cchFNamePrefix = strlen(zDest);
+  zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
+                  zUuid, zUuid+iPrefixLength);
+  recon_set_hash_policy(cchFNamePrefix,zFile);
+  if( saved_eHashPolicy!=-1 ){
+    zHashPolicy = hpolicy_name();
+  }
+  recon_restore_hash_policy();
+  fossil_print(
+    "\nPath Name:   %s"
+    "\nHash Policy: %s\n",
+    zFile,zHashPolicy);
+  free(zFile);
+  free(zFNameFormat);
+  zFNameFormat = 0;
+  cchFNamePrefix = 0;
+}
+#endif
+
 /*
 ** COMMAND: reconstruct*
 **
