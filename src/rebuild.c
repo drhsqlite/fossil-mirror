@@ -1046,14 +1046,18 @@ void recon_set_hash_policy(
   const int cchPathPrefix,    /* Directory prefix length for zUuidAsFilePath */
   const char *zUuidAsFilePath /* Relative, well-formed, from recon_read_dir() */
 ){
-  int cchTotal, cchHashPart;
+  int cchUuidAsFilePath;
+  const char *zHashPart;
+  int cchHashPart = 0;
   int new_eHashPolicy = -1;
   assert( HNAME_COUNT==2 ); /* Review function if new hashes are implemented. */
   if( zUuidAsFilePath==0 ) return;
-  cchTotal = strlen(zUuidAsFilePath);
-  if( cchTotal==0 ) return;
-  if( cchPathPrefix>=cchTotal ) return;
-  cchHashPart = cchTotal - cchPathPrefix;
+  cchUuidAsFilePath = strlen(zUuidAsFilePath);
+  if( cchUuidAsFilePath==0 ) return;
+  if( cchPathPrefix>=cchUuidAsFilePath ) return;
+  for( zHashPart = zUuidAsFilePath + cchPathPrefix; *zHashPart; zHashPart++ ){
+    if( *zHashPart!='/' ) cchHashPart++;
+  }
   if( cchHashPart>=HNAME_LEN_K256 ){
     new_eHashPolicy = HPOLICY_SHA3;
   }else if( cchHashPart>=HNAME_LEN_SHA1 ){
