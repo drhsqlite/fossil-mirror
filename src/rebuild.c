@@ -1040,35 +1040,35 @@ void recon_read_dir(char *zPath){
 ** hash policy for an artifact read from disk, inferred from the length of the
 ** path name.
 */
-#define HPOLICY_NOTDEFINED -1
-static int saved_eHashPolicy = HPOLICY_NOTDEFINED;
+static int saved_eHashPolicy = -1;
 
 void recon_set_hash_policy(
   const int cchPathPrefix,    /* Directory prefix length for zUuidAsFilePath */
   const char *zUuidAsFilePath /* Relative, well-formed, from recon_read_dir() */
 ){
   int cchTotal, cchHashPart;
-  int new_eHashPolicy = HPOLICY_NOTDEFINED;
+  int new_eHashPolicy = -1;
   assert( HNAME_COUNT==2 ); /* Review function if new hashes are implemented. */
   if( zUuidAsFilePath==0 ) return;
   cchTotal = strlen(zUuidAsFilePath);
   if( cchTotal==0 ) return;
-  if( cchPathPrefix>=cchTotal) return;
+  if( cchPathPrefix>=cchTotal ) return;
   cchHashPart = cchTotal - cchPathPrefix;
   if( cchHashPart>=HNAME_LEN_K256 ){
     new_eHashPolicy = HPOLICY_SHA3;
   }else if( cchHashPart>=HNAME_LEN_SHA1 ){
     new_eHashPolicy = HPOLICY_SHA1;
   }
-  if( new_eHashPolicy!=HPOLICY_NOTDEFINED ){
+  if( new_eHashPolicy!=-1 ){
     saved_eHashPolicy = g.eHashPolicy;
     g.eHashPolicy = new_eHashPolicy;
   }
 }
 
 void recon_restore_hash_policy(){
-  if( saved_eHashPolicy!=HPOLICY_NOTDEFINED ){
+  if( saved_eHashPolicy!=-1 ){
     g.eHashPolicy = saved_eHashPolicy;
+    saved_eHashPolicy = -1;
   }
 }
 
