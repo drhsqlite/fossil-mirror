@@ -184,7 +184,10 @@ static int ttyOutput;       /* Do progress output */
 static Bag bagDone;         /* Bag of records rebuilt */
 
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
+static int cchFNamePrefix;  /* Length of directory prefix in zFNameFormat */
+static char *zDestDir;      /* Destination directory on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
+static int fKeepRid1;       /* Flag to preserve RID=1 on de- and reconstruct */
 
 
 /*
@@ -276,6 +279,17 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       char *zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
                             zUuid, zUuid+prefixLength);
       blob_write_to_file(pUse,zFile);
+      if( rid==1 && fKeepRid1!=0 ){
+        char *zFnDotRid1 = mprintf("%s/.rid1", zDestDir);
+        char *zFnRid1 = zFile + cchFNamePrefix + 1; /* Skip directory slash */
+        Blob bFileContents = empty_blob;
+        blob_appendf(&bFileContents,
+          "# The file holding the artifact with RID=1\n"
+          "%s\n", zFnRid1);
+        blob_write_to_file(&bFileContents, zFnDotRid1);
+        blob_reset(&bFileContents);
+        free(zFnDotRid1);
+      }
       free(zFile);
       free(zUuid);
       blob_reset(pUse);
@@ -933,7 +947,46 @@ void recon_read_dir(char *zPath){
   static int nFileRead = 0;
   void *zUnicodePath;
   char *zUtf8Name;
+  static int recursionLevel = 0;  /* Bookkeeping about the recursion level */
+  static char *zFnRid1 = 0;       /* The file holding the artifact with RID=1 */
+  static int cchPathInitial = 0;  /* The length of zPath on first recursion */
 
+  recursionLevel++;
+  if( recursionLevel==1 ){
+    cchPathInitial = strlen(zPath);
+    if( fKeepRid1!=0 ){
+      char *zFnDotRid1 = mprintf("%s/.rid1", zPath);
+      Blob bFileContents;
+      if( blob_read_from_file(&bFileContents, zFnDotRid1, ExtFILE)!=-1 ){
+        Blob line, value;
+        while( blob_line(&bFileContents, &line)>0 ){
+          if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+          if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+          blob_trim(&value);
+          zFnRid1 = mprintf("%s/%s", zPath, blob_str(&value));
+          break;
+        }
+        blob_reset(&bFileContents);
+        if( zFnRid1 ){
+          if( blob_read_from_file(&aContent, zFnRid1, ExtFILE)==-1 ){
+            fossil_fatal("some unknown error occurred while reading \"%s\"",
+                         zFnRid1);
+          }else{
+            recon_set_hash_policy(0, zFnRid1);
+            content_put(&aContent);
+            recon_restore_hash_policy();
+            blob_reset(&aContent);
+            fossil_print("\r%d", ++nFileRead);
+            fflush(stdout);
+          }
+        }else{
+          fossil_fatal("an error occurred while reading or parsing \"%s\"",
+                       zFnDotRid1);
+        }
+      }
+      free(zFnDotRid1);
+    }
+  }
   zUnicodePath = fossil_utf8_to_path(zPath, 1);
   d = opendir(zUnicodePath);
   if( d ){
@@ -955,14 +1008,16 @@ void recon_read_dir(char *zPath){
 #endif
       {
         recon_read_dir(zSubpath);
-      }else{
+      }else if( fossil_strcmp(zSubpath, zFnRid1)!=0 ){
         blob_init(&path, 0, 0);
         blob_appendf(&path, "%s", zSubpath);
         if( blob_read_from_file(&aContent, blob_str(&path), ExtFILE)==-1 ){
           fossil_fatal("some unknown error occurred while reading \"%s\"",
                        blob_str(&path));
         }
+        recon_set_hash_policy(cchPathInitial, blob_str(&path));
         content_put(&aContent);
+        recon_restore_hash_policy();
         blob_reset(&path);
         blob_reset(&aContent);
         fossil_print("\r%d", ++nFileRead);
@@ -976,22 +1031,130 @@ void recon_read_dir(char *zPath){
                   errno, g.argv[3]);
   }
   fossil_path_free(zUnicodePath);
+  if( recursionLevel==1 && zFnRid1!=0 ) free(zFnRid1);
+  recursionLevel--;
 }
+
+/*
+** Helper functions called from recon_read_dir() to set and restore the correct
+** hash policy for an artifact read from disk, inferred from the length of the
+** path name.
+*/
+static int saved_eHashPolicy = -1;
+
+void recon_set_hash_policy(
+  const int cchPathPrefix,    /* Directory prefix length for zUuidAsFilePath */
+  const char *zUuidAsFilePath /* Relative, well-formed, from recon_read_dir() */
+){
+  int cchUuidAsFilePath;
+  const char *zHashPart;
+  int cchHashPart = 0;
+  int new_eHashPolicy = -1;
+  assert( HNAME_COUNT==2 ); /* Review function if new hashes are implemented. */
+  if( zUuidAsFilePath==0 ) return;
+  cchUuidAsFilePath = strlen(zUuidAsFilePath);
+  if( cchUuidAsFilePath==0 ) return;
+  if( cchPathPrefix>=cchUuidAsFilePath ) return;
+  for( zHashPart = zUuidAsFilePath + cchPathPrefix; *zHashPart; zHashPart++ ){
+    if( *zHashPart!='/' ) cchHashPart++;
+  }
+  if( cchHashPart>=HNAME_LEN_K256 ){
+    new_eHashPolicy = HPOLICY_SHA3;
+  }else if( cchHashPart>=HNAME_LEN_SHA1 ){
+    new_eHashPolicy = HPOLICY_SHA1;
+  }
+  if( new_eHashPolicy!=-1 ){
+    saved_eHashPolicy = g.eHashPolicy;
+    g.eHashPolicy = new_eHashPolicy;
+  }
+}
+
+void recon_restore_hash_policy(){
+  if( saved_eHashPolicy!=-1 ){
+    g.eHashPolicy = saved_eHashPolicy;
+    saved_eHashPolicy = -1;
+  }
+}
+
+#if 0
+/*
+** COMMAND: test-hash-from-path*
+**
+** Usage: %fossil test-hash-from-path ?OPTIONS? DESTINATION UUID
+**
+** Generate a sample path name from DESTINATION and UUID, as the `deconstruct'
+** command would do.  Then try to guess the hash policy from the path name, as
+** the `reconstruct' command would do.
+**
+** No files or directories will be created.
+**
+** Options:
+**   -L|--prefixlength N     Set the length of the names of the DESTINATION
+**                           subdirectories to N.
+*/
+void test_hash_from_path_cmd(void) {
+  char *zDest;
+  char *zUuid;
+  char *zFile;
+  const char *zHashPolicy = "unknown";
+  const char *zPrefixOpt = find_option("prefixlength","L",1);
+  int iPrefixLength;
+  if( !zPrefixOpt ){
+    iPrefixLength = 2;
+  }else{
+    iPrefixLength = atoi(zPrefixOpt);
+    if( iPrefixLength<0 || iPrefixLength>9 ){
+      fossil_fatal("N(%s) is not a valid prefix length!",zPrefixOpt);
+    }
+  }
+  if( g.argc!=4 ){
+    usage ("?OPTIONS? DESTINATION UUID");
+  }
+  zDest = g.argv[2];
+  zUuid = g.argv[3];
+  if( iPrefixLength ){
+    zFNameFormat = mprintf("%s/%%.%ds/%%s",zDest,iPrefixLength);
+  }else{
+    zFNameFormat = mprintf("%s/%%s",zDest);
+  }
+  cchFNamePrefix = strlen(zDest);
+  zFile = mprintf(zFNameFormat /*works-like:"%s:%s"*/,
+                  zUuid, zUuid+iPrefixLength);
+  recon_set_hash_policy(cchFNamePrefix,zFile);
+  if( saved_eHashPolicy!=-1 ){
+    zHashPolicy = hpolicy_name();
+  }
+  recon_restore_hash_policy();
+  fossil_print(
+    "\nPath Name:   %s"
+    "\nHash Policy: %s\n",
+    zFile,zHashPolicy);
+  free(zFile);
+  free(zFNameFormat);
+  zFNameFormat = 0;
+  cchFNamePrefix = 0;
+}
+#endif
 
 /*
 ** COMMAND: reconstruct*
 **
-** Usage: %fossil reconstruct FILENAME DIRECTORY
+** Usage: %fossil reconstruct ?OPTIONS? FILENAME DIRECTORY
 **
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
 ** fossil repository in FILENAME. Subdirectories are read, files
 ** with leading '.' in the filename are ignored.
 **
+** Options:
+**    -K|--keep-rid1    Read the filename of the artifact with
+**                      RID=1 from the file .rid in DIRECTORY.
+**
 ** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
+  fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -1043,19 +1206,21 @@ void reconstruct_cmd(void) {
 ** prefix can be set to 0,1,..,9 characters.
 **
 ** Options:
-**   -R|--repository REPOSITORY  deconstruct given REPOSITORY
-**   -L|--prefixlength N         set the length of the names of the DESTINATION
-**                               subdirectories to N
+**   -R|--repository REPOSITORY  Deconstruct given REPOSITORY.
+**   -K|--keep-rid1              Save the filename of the artifact with RID=1 to
+**                               the file .rid1 in the DESTINATION directory.
+**   -L|--prefixlength N         Set the length of the names of the DESTINATION
+**                               subdirectories to N.
 **   --private                   Include private artifacts.
 **
 ** See also: rebuild, reconstruct
 */
 void deconstruct_cmd(void){
-  const char *zDestDir;
   const char *zPrefixOpt;
   Stmt        s;
   int privateFlag;
 
+  fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   /* get and check prefix length argument and build format string */
   zPrefixOpt=find_option("prefixlength","L",1);
   if( !zPrefixOpt ){
@@ -1094,6 +1259,7 @@ void deconstruct_cmd(void){
   }else{
     zFNameFormat = mprintf("%s/%%s",zDestDir);
   }
+  cchFNamePrefix = strlen(zDestDir);
 
   bag_init(&bagDone);
   ttyOutput = 1;
