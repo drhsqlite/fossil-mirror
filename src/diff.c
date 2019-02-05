@@ -442,8 +442,8 @@ static void contextDiff(
        * Otherwise, patch would be confused and may reject the diff.
        */
       blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
-        na ? a+skip+1 : 0, na,
-        nb ? b+skip+1 : 0, nb);
+        na ? a+skip+1 : a+skip, na,
+        nb ? b+skip+1 : b+skip, nb);
       if( html ) blob_appendf(pOut, "</span>");
       blob_append(pOut, "\n", 1);
     }

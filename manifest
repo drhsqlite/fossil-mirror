@@ -1,5 +1,5 @@
-C Enhance\sthe\s"reconstruct"\scommand\sso\sthat\ssets\sthe\scorrect\shash\spolicy\nfor\sartifacts\sread\sfrom\sdisk.
-D 2019-02-05T15:43:01.573
+C Fix\sthe\sunified\sdiff\soutput\sso\sthat\sit\sconforms\swith\sestablished\sconventions.
+D 2019-02-05T15:49:11.008
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,7 +462,7 @@ F src/default_css.txt 9e5b44ac018d12ad6487106d1398f1aea635e5bab93d923ca4576fa958
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/descendants.c 6e7f6995ac4651cb26441934d76dba483894c8cb5b62fc8309c72c3bfae60d41
-F src/diff.c 5610fd7ea0e5ef01c982841bbe8d9f8a5651aa41613d63968f8c301066d7198b
+F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
 F src/dispatch.c e56f57d2fc0cb48cd097314a181d5e8280e4ad58fa061f687c6e01a7eff80f3f
@@ -868,8 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ba52d791f57ae7f448e7a6bcef7d2f99612f82c1a32a93f6c9b4304bff97413 8d1ed47cc6893493473b747a0f5743498b58c7c81294d7ad96ea7b354b4ee47b
-R 91ef058cc2e6d73349979e104bae1d94
-T +closed 8d1ed47cc6893493473b747a0f5743498b58c7c81294d7ad96ea7b354b4ee47b
+P 93bb323192ab7db60478f85777e205e0f3a496fb263b1b863868cd0f343112bb
+R a4961d4096252165505e3fe59124af9f
 U drh
-Z 7a2db4d379cc02efcb4526c138804932
+Z f23f49e7519b2cbe599d86de524ae767
