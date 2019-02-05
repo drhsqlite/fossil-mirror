@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.27.0"
 #define SQLITE_VERSION_NUMBER 3027000
-#define SQLITE_SOURCE_ID      "2019-02-01 15:06:27 4ca9d5d53d41d08fbce29f9da8cc0948df9c4c3136210af88b499cf889b5ccb8"
+#define SQLITE_SOURCE_ID      "2019-02-05 20:51:41 4d0a949fd92e19fbf243a2e3a1a7c2cdb111f9a6943949d2420dd846bc7d9285"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3429,6 +3429,8 @@ SQLITE_API int sqlite3_open_v2(
 ** is not a database file pathname pointer that SQLite passed into the xOpen
 ** VFS method, then the behavior of this routine is undefined and probably
 ** undesirable.
+**
+** See the [URI filename] documentation for additional information.
 */
 SQLITE_API const char *sqlite3_uri_parameter(const char *zFilename, const char *zParam);
 SQLITE_API int sqlite3_uri_boolean(const char *zFile, const char *zParam, int bDefault);
