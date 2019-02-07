@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sofficial\s3.27.0\srelease\sversion.
-D 2019-02-07T17:18:26.511
+C Allow\sarguments\swith\snon-ASCII\scharacters\sfor\sconstructed\sshell\scommands,\sas\sreported\shere:\s[https://fossil-scm.org/forum/forumpost/81e6854386].
+D 2019-02-07T17:42:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 03104c701ed9ff5faab31e902b7c182858145cd758317f2039027594ec4b2c1b
+F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
 F src/branch.c 604d71e8211c98ae290cd44236b2208ab56ea8075f2b9f1ed0331240ce29fe47
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -868,7 +868,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48b74fce3c504401c6ceb638e167b2b973c3504bb759e385663c6e61e2f6d808
-R b14f9c8caad91ddd62bb5c6a2331c406
-U drh
-Z a7c23486a077f8f64fa4c646a9059c2e
+P c56fce69f191dc6624ac701559a58d3ef1cb1a2baabd6c7416d0ace3ee03a701
+R df9f5a220073eb273441f651a8dd0976
+T *branch * non-ascii-cmd-args
+T *sym-non-ascii-cmd-args *
+T -sym-trunk *
+U florian
+Z d3bfe174118225134a318038d3a823fb
