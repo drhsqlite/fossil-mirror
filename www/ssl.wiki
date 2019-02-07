@@ -27,12 +27,16 @@ OpenSSL library], which will allow it to clone and sync with a remote
 Fossil repository via <tt>https</tt> URIs.
 
 
-<h3 id="openssl-bin">Building Against a Binary Version of OpenSSL</h3>
+<h3 id="openssl-bin">Building Against OpenSSL Automatically</h3>
 
 The <tt>configure</tt> script will attempt to find OpenSSL on your
-system automatically. If it can't find the files it needs, the most
-common solution is to install the OpenSSL development package on your
-system via your OS's package manager. Examples:
+system automatically. It first tries asking the <tt>pkg-config</tt>
+system where the OpenSSL development files are, and if that fails, it
+falls back to looking through a list of likely directories.
+
+If it can't find the files it needs, the most common solution is to
+install the OpenSSL development package on your system via your OS's
+package manager. Examples:
 
   *  <b>RHEL & Fedora</b>: <tt>sudo yum install openssl-devel</tt>
   *  <b>Debian & Ubuntu</b>: <tt>sudo apt install libssl-dev</tt>
@@ -56,31 +60,35 @@ Fossil's build system will seek it out and use it automatically.
 <h3 id="openssl-src">Building Against a Non-Platform Version of
 OpenSSL</h3>
 
-The Fossil build system can also use OpenSSL when installed in
-nonstandard locations.
+The Fossil build system has a few other methods for finding OpenSSL when
+the automatic methods fail or when you'd prefer that Fossil use a
+different version of OpenSSL than the one Fossil's build system picks on
+its own.
 
-If you've installed OpenSSL via a method that Fossil's build system
-cannot find on its own, you can clue it in by passing the
-<tt>--with-openssl</tt> option to the <tt>configure</tt> script. Type
-<tt>./configure --help</tt> for details.
+A good reason to do this is when the Fossil build system finds a
+functioning version of OpenSSL which is nevertheless unsuitable. One
+common case is that your OS is sufficiently outdated that the platform
+version of OpenSSL can no longer communicate with remote systems
+adhering to the latest advice on secure communications. An old OpenSSL
+might not support any of the
+[https://en.wikipedia.org/wiki/Cipher_suite|cipher suites] the remote
+Fossil repository's HTTPS proxy is willing to offer, for example, so
+that even though both sides are speaking a variant of TLS/SSL, the peers
+cannot come to an agreement on the cryptography.
 
-It is possible for the Fossil build system to find a functioning version
-of OpenSSL which is nevertheless unsuitable. One common case is that
-your OS is sufficiently outdated that the platform version of OpenSSL
-can no longer communicate with remote systems adhering to the latest
-advice on secure communications. Your local OpenSSL might not support
-any of the [https://en.wikipedia.org/wiki/Cipher_suite|cipher suites]
-the remote Fossil repository's HTTPS proxy is willing to offer, for
-example, so that even though both sides are speaking a variant of
-TLS/SSL, they can't come to an agreement on the cryptography.
+If you've installed the OpenSSL development files somewhere that
+Fossil's build system cannot find on its own, you can clue it in by
+passing the <tt>--with-openssl</tt> option to the <tt>configure</tt>
+script. Type <tt>./configure --help</tt> for details.
 
-In such cases, you may want to link Fossil to a version of OpenSSL built
-from source. The easiest way to do that is:
+Another option is to download the source code to OpenSSL and build
+Fossil against that private version of OpenSSL:
 
 <pre>
     cd compat             # relative to the Fossil source tree root
     tar xf /path/to/openssl-*.tar.gz
     ln -fs openssl-x.y.z openssl
+    cd openssl
     ./config              # or, e.g. ./Configure darwin64-x86_64-cc
     make -j11
     cd ../..
