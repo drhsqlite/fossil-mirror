@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sofficial\s3.27.0\srelease\sversion.
-D 2019-02-07T17:18:26.511
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.27.1.
+D 2019-02-08T13:28:06.927
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -564,8 +564,8 @@ F src/skins.c e671205f17b61e05d4f1323d758ffdf77fb27eed2baba0188714fddd275c0486
 F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c ba21c960817d507e271883110dfe5a090319d3140bd66055fdfdec9b719e74d6
-F src/sqlite3.c ca011a10ee8515b33e5643444b98ee3d74dc45d3ac766c3700320def52bc6aba
-F src/sqlite3.h 928ae1612d5f27d3f086ba5d9badd76bee75ab5d15ca386ac35f31433b124a67
+F src/sqlite3.c 11c14992660d5ac713ea8bea48dc5e6123f26bc8d3075fe5585d1a217d090233
+F src/sqlite3.h 81d353fc0f7b155a47dc7521ed8470d26f4ed4aea3b40281e4df2c1dd2f356dd
 F src/stash.c 69ff714f4085c488fee076f0aa402bfeb33806f248f7773e77ac0ffd56fda30d
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48b74fce3c504401c6ceb638e167b2b973c3504bb759e385663c6e61e2f6d808
-R b14f9c8caad91ddd62bb5c6a2331c406
+P c56fce69f191dc6624ac701559a58d3ef1cb1a2baabd6c7416d0ace3ee03a701
+R 10e06f94b07ffa153b9508a242310907
 U drh
-Z a7c23486a077f8f64fa4c646a9059c2e
+Z b7d7c17c64dd9aae90816eff70ad9bdd
