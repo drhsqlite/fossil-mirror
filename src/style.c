@@ -391,10 +391,7 @@ static char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
-@ <meta http-equiv="Content-Security-Policy" \
-@  content="default-src 'self' data: ; \
-@  script-src 'self' 'nonce-$<nonce>' ;\
-@  style-src 'self' 'unsafe-inline'" />
+@ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
@@ -409,12 +406,19 @@ static char zDfltHeader[] =
 ** Initialize all the default TH1 variables
 */
 static void style_init_th1_vars(const char *zTitle){
-  Th_Store("nonce", style_nonce());
+  const char *zNonce = style_nonce();
+  char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
+                                   "script-src 'self' 'nonce-%s' ; "
+                                   "style-src 'self' 'unsafe-inline'",
+                                   zNonce);
+  Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
   if( zTitle ) Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
+  Th_Store("default_csp", zDfltCsp);
+  sqlite3_free(zDfltCsp);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
