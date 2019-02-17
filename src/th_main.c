@@ -2129,6 +2129,20 @@ void Th_FossilInit(u32 flags){
 }
 
 /*
+** Store a string value in a variable in the interpreter if the variable
+** does not already exist.
+*/
+void Th_MaybeStore(const char *zName, const char *zValue){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zValue && !Th_ExistsVar(g.interp, zName, -1) ){
+    if( g.thTrace ){
+      Th_Trace("maybe_set %h {%h}<br />\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  }
+}
+
+/*
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){

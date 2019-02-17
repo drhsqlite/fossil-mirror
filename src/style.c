@@ -412,14 +412,12 @@ static void style_init_th1_vars(const char *zTitle){
   ** allows it to be properly overridden via the TH1 setup script (i.e. it
   ** is evaluated before the header is rendered).
   */
-  if( !Th_ExistsVar(g.interp, "default_csp", -1) ){
-    char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
-                                     "script-src 'self' 'nonce-%s' ; "
-                                     "style-src 'self' 'unsafe-inline'",
-                                     zNonce);
-    Th_Store("default_csp", zDfltCsp);
-    sqlite3_free(zDfltCsp);
-  }
+  char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
+                                   "script-src 'self' 'nonce-%s' ; "
+                                   "style-src 'self' 'unsafe-inline'",
+                                   zNonce);
+  Th_MaybeStore("default_csp", zDfltCsp);
+  sqlite3_free(zDfltCsp);
   Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
