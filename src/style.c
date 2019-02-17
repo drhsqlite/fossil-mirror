@@ -407,12 +407,11 @@ static char zDfltHeader[] =
 */
 static void style_init_th1_vars(const char *zTitle){
   const char *zNonce = style_nonce();
-  Th_Store("nonce", zNonce);
-  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
-  Th_Store("project_description", db_get("project-description",""));
-  if( zTitle ) Th_Store("title", zTitle);
-  Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
+  /*
+  ** Do not overwrite the TH1 variable "default_csp" if it exists, as this
+  ** allows it to be properly overridden via the TH1 setup script (i.e. it
+  ** is evaluated before the header is rendered).
+  */
   if( !Th_ExistsVar(g.interp, "default_csp", -1) ){
     char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
                                      "script-src 'self' 'nonce-%s' ; "
@@ -421,6 +420,12 @@ static void style_init_th1_vars(const char *zTitle){
     Th_Store("default_csp", zDfltCsp);
     sqlite3_free(zDfltCsp);
   }
+  Th_Store("nonce", zNonce);
+  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("project_description", db_get("project-description",""));
+  if( zTitle ) Th_Store("title", zTitle);
+  Th_Store("baseurl", g.zBaseURL);
+  Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);

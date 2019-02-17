@@ -415,6 +415,26 @@ int th1_artifact_from_ci_and_filename(
 }
 
 /*
+** TH1 command: nonce
+**
+** Returns the value of the cryptographic nonce for the request being
+** processed.
+*/
+static int nonceCmd(
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "nonce");
+  }
+  Th_SetResult(interp, style_nonce(), -1);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
@@ -2023,6 +2043,7 @@ void Th_FossilInit(u32 flags){
     {"insertCsrf",    insertCsrfCmd,        0},
     {"linecount",     linecntCmd,           0},
     {"markdown",      markdownCmd,          0},
+    {"nonce",         nonceCmd,             0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
