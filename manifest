@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2019-02-17T05:32:28.227
+C Skip\ssetting\sthe\s'default_csp'\sTH1\svariable\sif\sit\salready\sexists\s(i.e.\sit\swas\smanually\soverridden).
+D 2019-02-17T06:18:43.573
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -569,7 +569,7 @@ F src/sqlite3.h 81d353fc0f7b155a47dc7521ed8470d26f4ed4aea3b40281e4df2c1dd2f356dd
 F src/stash.c 69ff714f4085c488fee076f0aa402bfeb33806f248f7773e77ac0ffd56fda30d
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 004a5a5355b88119adeebd3d0a8c7331d01250669bdc1734d67396de6f31d587
+F src/style.c 43dc6293eec568c9e01cdb7fc8ef137b9b783d5c6ec97dd055fd4ad499de223f
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 9a9bebab67df1d4cc45a8b6e0c5841b8885c8c0c1bb732c48d752a56a631dd79
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fe4c7d97377e56a8665d678a869bde98a2386dec6dfd6c82ff9884d03eb9caf f59faedb71d84b8614dafdf66792100080aed77df9a0550885f8bc71170d095d
-R e8ab0d5da85685faee950af62c969f53
+P cb881aab33c0a88520f27d760d896d696a4f185ea9e6330db167d14b3f7496b8
+R 7574fa2fb1d51449bb13d22a2d6c00d4
 U mistachkin
-Z fe057ed89a00139c126ebba993aa6fa4
+Z ea18a532454758d7cc8a252eb5ba0115
