@@ -1,5 +1,5 @@
-C When\srendering\sthe\sdefault\sheader\svia\sTH1,\sallow\sthe\sdefault\sContent-Security-Policy\scontent\sto\sbe\soverridden\svia\sthe\s'default_csp'\svariable.\s\sAlso,\sadd\sthe\s'nonce'\scommand\sto\sTH1.
-D 2019-02-18T19:09:48.596
+C Include\s'nonce'\sTH1\svariable\sin\sthe\scustom\sskin\sdocumentation.
+D 2019-02-18T19:17:40.187
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -786,7 +786,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 3f1f880a8f524976fcb61a5d3f22b638c612c1823cd3bf817401fa966e8519df
+F www/customskin.md 8b8797cb1b4af392f3296400d43de2a69587975d20fd4f1b64bece29b9227c33
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -868,8 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f59faedb71d84b8614dafdf66792100080aed77df9a0550885f8bc71170d095d 600accbec3aeff10fee269a0957cf68c8f81e19f6fb0badd088f87b54b8a2d20
-R 59be96ee2b7fdbe6c15f64c2a29e0069
-T +closed 600accbec3aeff10fee269a0957cf68c8f81e19f6fb0badd088f87b54b8a2d20
+P 8a65cd1831a5c2229aa77bdbd37e0b734d863840f8d3e8626e6d9820ca23d9bc
+R 18021f2d1b7386f7495c3346ec0c078e
 U mistachkin
-Z c8bcd26f3af3758b2ffccdaa749d1c20
+Z 8469be0fb6c96f4de968164ce2d51be1
