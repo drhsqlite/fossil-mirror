@@ -25,6 +25,8 @@
   *  When running a bisect, report the number of check-ins still in
      the search range and the estimated number of bisect steps remaining.
      Do this at each step of the bisect.
+  *  Provide a permanent link to a bisect timeline using the bid= query
+     parameter.
   *  Make the chronological forum display feature available to all users,
      and make it the default format on mobile devices.
   *  Break out Wiki setup into a separate /setup_wiki page, accessible
@@ -61,7 +63,7 @@
      to the checkout database to avoid any problems.
   *  Add the backoffice-disable setting to completely disable the
      backoffice feature.
-  *  Update the built-in SQLite to version 3.27.0 alpha.
+  *  Update the built-in SQLite to version 3.27.1.
   *  Various other small enhancements to webpages and documentation.
 
 
