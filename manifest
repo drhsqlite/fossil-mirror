@@ -1,5 +1,5 @@
-C Include\s'nonce'\sTH1\svariable\sin\sthe\scustom\sskin\sdocumentation.
-D 2019-02-18T19:17:40.187
+C Allow\sarguments\swith\snon-ASCII\scharacters\sfor\sconstructed\sshell\scommands.
+D 2019-02-18T20:44:51.953
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -434,7 +434,7 @@ F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 03104c701ed9ff5faab31e902b7c182858145cd758317f2039027594ec4b2c1b
+F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
 F src/branch.c 604d71e8211c98ae290cd44236b2208ab56ea8075f2b9f1ed0331240ce29fe47
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -868,7 +868,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8a65cd1831a5c2229aa77bdbd37e0b734d863840f8d3e8626e6d9820ca23d9bc
-R 18021f2d1b7386f7495c3346ec0c078e
-U mistachkin
-Z 8469be0fb6c96f4de968164ce2d51be1
+P 02367341b6944d1b0642b2222525ff8336da207e9449439150ba9c454a40dabe a5ff00506bccef939027b8950778125e87dc66a12ab356e5a8ed9d87e6f7a528
+R 4b4df2487a8f2304c338d078a6c843bb
+T +closed a5ff00506bccef939027b8950778125e87dc66a12ab356e5a8ed9d87e6f7a528
+U drh
+Z b495a99f92ba96bea28bb66ba665309a
