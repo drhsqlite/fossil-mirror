@@ -1,5 +1,5 @@
-C Show\sthe\sSCGI\senvironment\svariable\svalue\son\sthe\s/test_env\spage\sif\sthat\nvariable\sexists.
-D 2019-02-15T21:20:28.077
+C When\srendering\sthe\sdefault\sheader\svia\sTH1,\sallow\sthe\sdefault\sContent-Security-Policy\scontent\sto\sbe\soverridden\svia\sthe\s'default_csp'\svariable.\s\sAlso,\sadd\sthe\s'nonce'\scommand\sto\sTH1.
+D 2019-02-18T19:09:48.596
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -569,14 +569,14 @@ F src/sqlite3.h 81d353fc0f7b155a47dc7521ed8470d26f4ed4aea3b40281e4df2c1dd2f356dd
 F src/stash.c 69ff714f4085c488fee076f0aa402bfeb33806f248f7773e77ac0ffd56fda30d
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 00723952ee1e541665f234de4e00ad12c7d40a40cbf054ec507891cdb93f4dc2
+F src/style.c 0216ce1cce5d0cf777bf58e2f10072f4f8cb25502c3c2c9ce43f97dd722c9039
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
 F src/tag.c 9a9bebab67df1d4cc45a8b6e0c5841b8885c8c0c1bb732c48d752a56a631dd79
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c bd29cbb6e7010de3b6721f9abaff44d9aba656794169d26b4636b32c7eba0fc6
+F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
 F src/timeline.c 2b4aaceb79d8c70cd6383cc6692044903566434416c917889c739e0e13b0b4dd
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
@@ -663,7 +663,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 7b4a146b143947e362bb6dc245e6796d3ceb44a8a6c13a54f1a55b0009766ffb
+F test/th1.test 0e24866a8e46049db62485c4e63133af3609b3b7a2851b3c86180842ab223d2c
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -786,7 +786,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 7d7e56da453961b4790440460aff1018d20997fa
+F www/customskin.md 3f1f880a8f524976fcb61a5d3f22b638c612c1823cd3bf817401fa966e8519df
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -857,7 +857,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md 3cb735832c68a1d699929b2b46bc67811124f10ced5e36aa31e851c982d2112c
+F www/th1.md d03aa9f40d00d5c12508bb0435df205993a568c3e9d724555e68985c24666201
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/tls-nginx.md ba306025fc5599c4981698a8e4cd9817617b95b1ebfbc2b6e1d52fa3e30748ee
@@ -868,7 +868,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf6682b1e15c63899d4a65f9aad1e7d2c5f6b80709ef4004be95f73ba4ae52c7
-R dc509f0061b5cb9d49537d266e0e482a
-U drh
-Z efd113732ce1728b42d78c4c36e78782
+P f59faedb71d84b8614dafdf66792100080aed77df9a0550885f8bc71170d095d 600accbec3aeff10fee269a0957cf68c8f81e19f6fb0badd088f87b54b8a2d20
+R 59be96ee2b7fdbe6c15f64c2a29e0069
+T +closed 600accbec3aeff10fee269a0957cf68c8f81e19f6fb0badd088f87b54b8a2d20
+U mistachkin
+Z c8bcd26f3af3758b2ffccdaa749d1c20
