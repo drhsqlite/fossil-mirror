@@ -3173,4 +3173,7 @@ void ci_amend_cmd(void){
   if( fDryRun==0 ){
     show_common_info(rid, "uuid:", 1, 0);
   }
+  if( g.localOpen ){
+    manifest_to_disk(rid);
+  }
 }

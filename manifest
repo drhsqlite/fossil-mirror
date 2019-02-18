@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\schange\slog\sin\spreparation\sfor\s2.8.
-D 2019-02-18T21:04:38.382
+C Fix\sthe\shandling\sof\smanifest\sfiles\sfor\sthe\s"tag"\sand\s"amend"\scommands.
+D 2019-02-18T22:37:31.428
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 5d3cbe24a043eaffc72253f2f0e612699a418314942ee51be7132dc1fcc4f9e0
+F src/info.c 4046b7edabdd4e32bccd80f71d92dfb7f0ddc8dbab00bc85aa3b1712587dd081
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -571,7 +571,7 @@ F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 0216ce1cce5d0cf777bf58e2f10072f4f8cb25502c3c2c9ce43f97dd722c9039
 F src/sync.c 8b50b5df163adae3fc79281fd1f7a2ecbd3a4381
-F src/tag.c 9a9bebab67df1d4cc45a8b6e0c5841b8885c8c0c1bb732c48d752a56a631dd79
+F src/tag.c 7dac0cf3a33edadf7f65d2d0835b3d31f2cafc33a7aa77f4fe365379875a2091
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -868,7 +868,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72e4b915fd9e8aa8f992679a47c786e589046afc46700c6037dbecb3862d7b5a
-R 958df12ce2cf877a17fef97dc4292919
+P dbf342e76373cbccec6fdb89329b1691e36b7c5bd64a8d102205ad7dcf3de8d6 3580fce8fb402b24625c0314e5d75bc5f7bddf9b16be6d56f3620640cacf8f64
+R 521e34454e6a426d136b1b07dc13ddae
+T +closed 3580fce8fb402b24625c0314e5d75bc5f7bddf9b16be6d56f3620640cacf8f64
 U drh
-Z 0bdadff3c12e7b257a7be1acd23be852
+Z 0614f045692109483a04443b3de9c2e7
