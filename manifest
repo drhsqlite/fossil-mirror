@@ -1,5 +1,5 @@
-C Fix\sthe\shandling\sof\smanifest\sfiles\sfor\sthe\s"tag"\sand\s"amend"\scommands.
-D 2019-02-18T22:37:31.428
+C Version\s2.8
+D 2019-02-20T15:01:32.530
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -774,7 +774,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6b56362c1275c506e3161e28ee73f7cf8515ce316e18cef7a897006d064707dd
-F www/changes.wiki 0bd36487793151040cf2f9d8e2edf558da07a2a27c5d7a7064b67cd8e2094a5d
+F www/changes.wiki 01eeac45728a4554936904906f9587f1210ae1e87bdef1bfaa0df30af12fd138
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -868,8 +868,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dbf342e76373cbccec6fdb89329b1691e36b7c5bd64a8d102205ad7dcf3de8d6 3580fce8fb402b24625c0314e5d75bc5f7bddf9b16be6d56f3620640cacf8f64
-R 521e34454e6a426d136b1b07dc13ddae
-T +closed 3580fce8fb402b24625c0314e5d75bc5f7bddf9b16be6d56f3620640cacf8f64
+P 5e20a4f7a8ca21cf0135a2161c0d28ddee20fb8787749714a6b12598d8ad41c4
+R 6c3e8aa946fa60b9b7db31211ea5e21a
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.8 *
 U drh
-Z 0614f045692109483a04443b3de9c2e7
+Z 3a7e148dfea39f7f9f06696fa3de183b

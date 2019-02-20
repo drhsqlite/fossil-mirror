@@ -1,7 +1,7 @@
 ﻿<title>Change Log</title>
 
 <a name='v2_8'></a>
-<h2>Changes for Version 2.8 (pending)</h2>
+<h2>Changes for Version 2.8 (2019-02-20)</h2>
 
   *  Show cherry-pick merges as dotted lines on the timeline graph.
      &rarr; The "fossil rebuild" command must be run to create and
