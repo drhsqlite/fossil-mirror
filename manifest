@@ -1,5 +1,5 @@
-C Always\sshow\sthe\s"Apply\sThese\sChanges"\sbutton\sin\sthe\sWysiwyg\seditor.
-D 2019-02-20T21:50:03.491
+C Formatting\simprovement\sfor\simages\sshown\sby\s/artifact.
+D 2019-02-20T22:28:24.227
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c b98d41764abbb6ff8008f50e935aba4fbad0860a0675acce8c01df1eb7487ab5
+F src/info.c f77161f5bc29c2acf4536b7fa4cd8371f930a3ca0c27fb33ccf97eb1b7f66bf1
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29d5571898a4884bed452e7c89289ad503b59c29341625984db1b928b86226eb
-R d6eba1d142d716d66c19f71c977e6eca
+P 5efd69e2ca688a5555ddf6bae189f2548b872316e80b1157cf90a6825375f9c7
+R 501feaf540d015b6db31475e4772a79c
 U drh
-Z 391ac7f6c2467dcc4dfa9972d251e43d
+Z 7b7f6686ae30a5584030574f76430fbf
