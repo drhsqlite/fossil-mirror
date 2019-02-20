@@ -1,5 +1,5 @@
-C Version\s2.8
-D 2019-02-20T15:01:32.530
+C Fix\sthe\sdisplay\sof\swiki\sand\smarkdown\son\s/artifact\spages\sso\sthat\shyperlinks\nare\sshown\sas\sif\srelative\sto\s/doc/VERSION.
+D 2019-02-20T20:32:26.055
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -489,7 +489,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 4046b7edabdd4e32bccd80f71d92dfb7f0ddc8dbab00bc85aa3b1712587dd081
+F src/info.c b98d41764abbb6ff8008f50e935aba4fbad0860a0675acce8c01df1eb7487ab5
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -868,10 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e20a4f7a8ca21cf0135a2161c0d28ddee20fb8787749714a6b12598d8ad41c4
-R 6c3e8aa946fa60b9b7db31211ea5e21a
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.8 *
+P f8d7f76bfdfe26ae6867187777959edd1de2ea37601bd7de3ae11bb1e15ac6ae
+R 29145462637bad822c851269c783975e
 U drh
-Z 3a7e148dfea39f7f9f06696fa3de183b
+Z be3615afc8e4265a858d566f75795e18
