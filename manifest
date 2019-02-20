@@ -1,5 +1,5 @@
-C Start\sthe\sversion\s2.9\schange\slog.
-D 2019-02-20T20:42:30.795
+C Always\sshow\sthe\s"Apply\sThese\sChanges"\sbutton\sin\sthe\sWysiwyg\seditor.
+D 2019-02-20T21:50:03.491
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -595,7 +595,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c e3374e0659063500a0d0944d48ea26768b29e8602fc2a3077b7bab3cc21848e9
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c 8b5bc84a7f21ebf8e31a3a84f4f65444f8e771569a1ac5ff0bd531cc9c5022cd
+F src/wiki.c 3a804fe1f980473a4babeb5d32e6280ddf6aadba8d9924341c403fa8769aa738
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 034e7935a1e40041d1af07be5bea7f9b5634436591b9ad7dda5f06939da13bbb
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8af35d30a6b69c3878f478bb254efcf3527a2a443322a4edb58af426ea49ee68
-R edab21faf8593640da820a4f1bd76523
+P 29d5571898a4884bed452e7c89289ad503b59c29341625984db1b928b86226eb
+R d6eba1d142d716d66c19f71c977e6eca
 U drh
-Z 2a45c0fdad9a23d2529818ab5cfcc587
+Z 391ac7f6c2467dcc4dfa9972d251e43d
