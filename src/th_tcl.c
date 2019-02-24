@@ -974,7 +974,7 @@ static int loadTcl(
   } while( --aFileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
   aFileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
-      "could not load any supported Tcl 8.6, 8.5, or 8.4 shared library \"",
+      "could not load any supported Tcl 8.x shared library \"",
       aFileName, -1);
   return TH_ERROR;
 #else
