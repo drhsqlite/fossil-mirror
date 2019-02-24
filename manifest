@@ -1,5 +1,5 @@
-C Formatting\simprovement\sfor\simages\sshown\sby\s/artifact.
-D 2019-02-20T22:28:24.227
+C Make\sfossil\swork\swith\sTcl\s8.7\s(still\sin\salpha),\seven\swhen\sTcl\sis\scompiled\swith\s-DTCL_NO_DEPRECATED
+D 2019-02-24T14:33:33.643
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -577,7 +577,7 @@ F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
-F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
+F src/th_tcl.c fd143f197ca581a17f6b7d9c936ff27ac52cec2729e6559ee14a48aed8a5cdc5
 F src/timeline.c 2b4aaceb79d8c70cd6383cc6692044903566434416c917889c739e0e13b0b4dd
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
@@ -868,7 +868,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5efd69e2ca688a5555ddf6bae189f2548b872316e80b1157cf90a6825375f9c7
-R 501feaf540d015b6db31475e4772a79c
-U drh
-Z 7b7f6686ae30a5584030574f76430fbf
+P 7b0dbe8079aa5b1271c80ec6bf71dc18537e78f1fa3201c84aaa9ca5be43f4b2
+R 3659ec1eaac560e2991f1c2b5ade3869
+U jan.nijtmans
+Z 098e93ac4a14d90e5b6994a8b93411a8
