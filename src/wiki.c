@@ -763,7 +763,7 @@ void wikiedit_page(void){
   }
   login_insert_csrf_secret();
   if( havePreview ){
-    if( zBody[0] ){
+    if( isWysiwyg || zBody[0] ){
       @ <input type="submit" name="submit" value="Apply These Changes" />
     }else{
       @ <input type="submit" name="submit" value="Delete This Wiki Page" />

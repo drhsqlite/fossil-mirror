@@ -236,6 +236,12 @@ respository settings and the specific page being generated.
 
    *   **csrf_token** - A token used to prevent cross-site request forgery.
 
+   *   **default_csp** - The content to be used within the default header
+       for the "Content-Security-Policy" meta tag.
+
+   *   **nonce** - The value of the cryptographic nonce for the request
+       being processed.
+
    *   **release_version** - The release version of Fossil.  Ex: "1.31"
 
    *   **manifest_version** - A prefix on the check-in hash of the

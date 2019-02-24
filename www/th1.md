@@ -189,6 +189,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  insertCsrf
   *  linecount
   *  markdown
+  *  nonce
   *  puts
   *  query
   *  randhex
@@ -454,6 +455,13 @@ never returns less than MIN or more than MAX.
 Renders the input string as markdown.  The result is a two-element list.
 The first element contains the body, rendered as HTML.  The second element
 is the text-only title string.
+
+<a name="nonce"></a>TH1 nonce Command
+-------------------------------------
+
+  *  nonce
+
+Returns the value of the cryptographic nonce for the request being processed.
 
 <a name="puts"></a>TH1 puts Command
 -----------------------------------

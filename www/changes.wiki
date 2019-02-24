@@ -1,7 +1,12 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_9'></a>
+<h2>Changes for Version 2.9 (pending)</h2>
+
+  *  Improved handling of relative hyperlinks on the /artifact page
+
 <a name='v2_8'></a>
-<h2>Changes for Version 2.8 (pending)</h2>
+<h2>Changes for Version 2.8 (2019-02-20)</h2>
 
   *  Show cherry-pick merges as dotted lines on the timeline graph.
      &rarr; The "fossil rebuild" command must be run to create and
@@ -25,6 +30,8 @@
   *  When running a bisect, report the number of check-ins still in
      the search range and the estimated number of bisect steps remaining.
      Do this at each step of the bisect.
+  *  Provide a permanent link to a bisect timeline using the bid= query
+     parameter.
   *  Make the chronological forum display feature available to all users,
      and make it the default format on mobile devices.
   *  Break out Wiki setup into a separate /setup_wiki page, accessible
@@ -61,7 +68,7 @@
      to the checkout database to avoid any problems.
   *  Add the backoffice-disable setting to completely disable the
      backoffice feature.
-  *  Update the built-in SQLite to version 3.27.0 alpha.
+  *  Update the built-in SQLite to version 3.27.1.
   *  Various other small enhancements to webpages and documentation.
 
 

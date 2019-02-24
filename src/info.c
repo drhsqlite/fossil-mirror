@@ -1327,6 +1327,7 @@ void vdiff_page(void){
 ** object_description()
 */
 #define OBJDESC_DETAIL      0x0001   /* more detail */
+#define OBJDESC_BASE        0x0002   /* Set <base> using this object */
 #endif
 
 /*
@@ -1356,6 +1357,7 @@ int object_description(
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   int showDetail = (objdescFlags & OBJDESC_DETAIL)!=0;
   char *prevName = 0;
+  int bNeedBase = (objdescFlags & OBJDESC_BASE)!=0;
 
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime,toLocal()),"
@@ -1404,6 +1406,10 @@ int object_description(
         objType |= OBJTYPE_EXE;
       }else{
         @ <li>File
+        if( bNeedBase ){
+          bNeedBase = 0;
+          style_set_current_page("doc/%S/%s",zVers,zName);
+        }
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T&m=%!S",zName,zUuid))%h(zName)</a>
@@ -2070,7 +2076,7 @@ void artifact_page(void){
   int objType;
   int asText;
   const char *zUuid;
-  u32 objdescFlags = 0;
+  u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
@@ -2147,6 +2153,8 @@ void artifact_page(void){
     @ <h2>Artifact %s(zUuid):</h2>
   }
   blob_zero(&downloadName);
+  asText = P("txt")!=0;
+  if( asText ) objdescFlags &= ~OBJDESC_BASE;
   objType = object_description(rid, objdescFlags, &downloadName);
   if( !descOnly && P("download")!=0 ){
     cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
@@ -2185,7 +2193,6 @@ void artifact_page(void){
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }
-  asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
@@ -2246,8 +2253,8 @@ void artifact_page(void){
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
-        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br />
-        @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
+        @ <p>(file is %d(blob_size(&content)) bytes of image data)</i></p>
+        @ <p><img src="%R/raw/%s(zUuid)?m=%s(zMime)"></p>
         style_submenu_element("Image", "%R/raw/%s?m=%s", zUuid, zMime);
       }else{
         @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
@@ -3172,5 +3179,8 @@ void ci_amend_cmd(void){
   apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fDryRun);
   if( fDryRun==0 ){
     show_common_info(rid, "uuid:", 1, 0);
+  }
+  if( g.localOpen ){
+    manifest_to_disk(rid);
   }
 }
