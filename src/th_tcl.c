@@ -100,7 +100,7 @@
 #      define TCL_DIRECTORY_SEP '\\'
 #    endif
 #    ifndef TCL_LIBRARY_NAME
-#      define TCL_LIBRARY_NAME "tcl86.dll\0"
+#      define TCL_LIBRARY_NAME "tcl87.dll\0"
 #    endif
 #    ifndef TCL_MINOR_OFFSET
 #      define TCL_MINOR_OFFSET (4)
@@ -121,28 +121,28 @@
 #    endif
 #    if defined(__CYGWIN__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.6.dll\0"
+#        define TCL_LIBRARY_NAME "libtcl8.7.dll\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__APPLE__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.6.dylib\0"
+#        define TCL_LIBRARY_NAME "libtcl8.7.dylib\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
 #      endif
 #    elif defined(__FreeBSD__)
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl86.so\0"
+#        define TCL_LIBRARY_NAME "libtcl87.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (7)
 #      endif
 #    else
 #      ifndef TCL_LIBRARY_NAME
-#        define TCL_LIBRARY_NAME "libtcl8.6.so\0"
+#        define TCL_LIBRARY_NAME "libtcl8.7.so\0"
 #      endif
 #      ifndef TCL_MINOR_OFFSET
 #        define TCL_MINOR_OFFSET (8)
@@ -974,7 +974,7 @@ static int loadTcl(
   } while( --aFileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
   aFileName[TCL_MINOR_OFFSET] = 'x';
   Th_ErrorMessage(interp,
-      "could not load any supported Tcl 8.6, 8.5, or 8.4 shared library \"",
+      "could not load any supported Tcl 8.x shared library \"",
       aFileName, -1);
   return TH_ERROR;
 #else
@@ -1012,7 +1012,7 @@ static int setTclArguments(
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
-  objPtr = Tcl_NewIntObj(argc - 1);
+  objPtr = Tcl_NewWideIntObj(argc - 1);
   Tcl_IncrRefCount(objPtr);
   resultObjPtr = Tcl_SetVar2Ex(pInterp, "argc", NULL, objPtr,
       TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
@@ -1194,7 +1194,7 @@ static int createTclInterp(
   Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
   /* If necessary, evaluate the custom Tcl setup script. */
   setup = tclContext->setup;
-  if( setup && Tcl_Eval(tclInterp, setup)!=TCL_OK ){
+  if( setup && Tcl_EvalEx(tclInterp, setup, -1, 0)!=TCL_OK ){
     Th_ErrorMessage(interp,
         "Tcl setup script error:", Tcl_GetStringResult(tclInterp), -1);
     Tcl_DeleteInterp(tclInterp);

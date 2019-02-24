@@ -1,5 +1,5 @@
-C Version\s2.8
-D 2019-02-20T15:01:32.530
+C (cherry-pick):\sMake\sfossil\swork\swith\sTcl\s8.7\s(still\sin\salpha),\seven\swhen\sTcl\sis\scompiled\swith\s-DTCL_NO_DEPRECATED
+D 2019-02-24T22:55:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -577,7 +577,7 @@ F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
-F src/th_tcl.c aedefabedee54f8f448f36c31beafe82b4487e222f34c5cb32ba27386f588e1c
+F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
 F src/timeline.c 2b4aaceb79d8c70cd6383cc6692044903566434416c917889c739e0e13b0b4dd
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
@@ -868,10 +868,11 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e20a4f7a8ca21cf0135a2161c0d28ddee20fb8787749714a6b12598d8ad41c4
-R 6c3e8aa946fa60b9b7db31211ea5e21a
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.8 *
-U drh
-Z 3a7e148dfea39f7f9f06696fa3de183b
+P f8d7f76bfdfe26ae6867187777959edd1de2ea37601bd7de3ae11bb1e15ac6ae
+Q +08e63e1755ee202c9c9737099380b70e8662e98f8bcd68402a4e7af0ad6bdf2c
+R 7813e32fd6e5d3175a431227b7c35165
+T *branch * branch-2.8
+T *sym-branch-2.8 *
+T -sym-trunk *
+U jan.nijtmans
+Z d5b19532c2657c716937d65b9452ee78
