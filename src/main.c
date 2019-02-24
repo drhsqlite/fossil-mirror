@@ -1907,6 +1907,10 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    localauth                Grant administrator privileges to connections
 **                             from 127.0.0.1 or ::1.
 **
+**    nossl                    Signal that no SSL connections are available.
+**
+**    nocompress               Do not compress HTTP replies.
+**
 **    skin: LABEL              Use the built-in skin called LABEL rather than
 **                             the default.  If there are no skins called LABEL
 **                             then this line is a no-op.
@@ -2002,6 +2006,22 @@ void cmd_cgi(void){
       ** from IP address 127.0.0.1.  Do not bother checking credentials.
       */
       g.useLocalauth = 1;
+      continue;
+    }
+    if( blob_eq(&key, "nossl") ){
+      /* nossl
+      **
+      ** Signal that no SSL connections are available.
+      */
+      g.sslNotAvailable = 1;
+      continue;
+    }
+    if( blob_eq(&key, "nocompress") ){
+      /* nocompress
+      **
+      ** Do not compress HTTP replies.
+      */
+      g.fNoHttpCompress = 1;
       continue;
     }
     if( blob_eq(&key, "repolist") ){
