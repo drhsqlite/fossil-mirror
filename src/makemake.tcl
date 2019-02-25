@@ -54,6 +54,7 @@ set src {
   db
   delta
   deltacmd
+  deltafunc
   descendants
   diff
   diffcmd

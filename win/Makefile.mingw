@@ -465,6 +465,7 @@ SRC = \
   $(SRCDIR)/db.c \
   $(SRCDIR)/delta.c \
   $(SRCDIR)/deltacmd.c \
+  $(SRCDIR)/deltafunc.c \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
@@ -676,6 +677,7 @@ TRANS_SRC = \
   $(OBJDIR)/db_.c \
   $(OBJDIR)/delta_.c \
   $(OBJDIR)/deltacmd_.c \
+  $(OBJDIR)/deltafunc_.c \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
@@ -814,6 +816,7 @@ OBJ = \
  $(OBJDIR)/db.o \
  $(OBJDIR)/delta.o \
  $(OBJDIR)/deltacmd.o \
+ $(OBJDIR)/deltafunc.o \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
@@ -1171,6 +1174,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 		$(OBJDIR)/db_.c:$(OBJDIR)/db.h \
 		$(OBJDIR)/delta_.c:$(OBJDIR)/delta.h \
 		$(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h \
+		$(OBJDIR)/deltafunc_.c:$(OBJDIR)/deltafunc.h \
 		$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 		$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 		$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
@@ -1504,6 +1508,14 @@ $(OBJDIR)/deltacmd.o:	$(OBJDIR)/deltacmd_.c $(OBJDIR)/deltacmd.h $(SRCDIR)/confi
 	$(XTCC) -o $(OBJDIR)/deltacmd.o -c $(OBJDIR)/deltacmd_.c
 
 $(OBJDIR)/deltacmd.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/deltafunc_.c:	$(SRCDIR)/deltafunc.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/deltafunc.c >$@
+
+$(OBJDIR)/deltafunc.o:	$(OBJDIR)/deltafunc_.c $(OBJDIR)/deltafunc.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/deltafunc.o -c $(OBJDIR)/deltafunc_.c
+
+$(OBJDIR)/deltafunc.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/descendants_.c:	$(SRCDIR)/descendants.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/descendants.c >$@
