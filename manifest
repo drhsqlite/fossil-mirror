@@ -1,5 +1,5 @@
-C Add\sextension\sfunctions\sdelta_apply(),\sdelta_create(),\sdelta_output_size(),\nand\sdelta_parse()\sto\sthe\sSQL\sconnection\sfor\sthe\s"fossil\ssql"\scommand.
-D 2019-02-25T15:10:23.410
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\strunk\sversion\sthat\sincludes\nall\sof\sthe\sfixes\sthat\swere\sin\sthe\s3.27.2\srelease.
+D 2019-02-25T17:01:02.942
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -565,8 +565,8 @@ F src/skins.c e671205f17b61e05d4f1323d758ffdf77fb27eed2baba0188714fddd275c0486
 F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c da3cbdc500bb5ad8cb3bbc3ce3ab3cdc56c1c2ce2cd5d483a5155cc6c10086a4
-F src/sqlite3.c 11c14992660d5ac713ea8bea48dc5e6123f26bc8d3075fe5585d1a217d090233
-F src/sqlite3.h 81d353fc0f7b155a47dc7521ed8470d26f4ed4aea3b40281e4df2c1dd2f356dd
+F src/sqlite3.c 52e67778f74d5b9d7d79c1dd8d021ee59a83e7a4b81d2dcf36f39d552441b163
+F src/sqlite3.h 02a59461f828e47e6308d73772ba9fd53a9e0e8a16979883319d1ce06d545c1a
 F src/stash.c 69ff714f4085c488fee076f0aa402bfeb33806f248f7773e77ac0ffd56fda30d
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2f01669d01bd99642ee1843037345157c64f79c383fc6f1c00240644a278b6b
-R 055d9cd4d7b3f7cdd907f7d25d9a435a
+P effa89302a7143d2dc6019413e4f3d320dba068520f7aea9ad4f4d1334e2da4c
+R 10e1a3784b2f0fcb487c72fc5adcf82d
 U drh
-Z 8bd915097bbbdcaaae7cf1dec2bb1f5c
+Z d0bf99b7587a4b696c77c89e6c93c0eb
