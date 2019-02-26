@@ -361,24 +361,6 @@ void vfile_to_disk(
   db_finalize(&q);
 }
 
-
-/*
-** Delete from the disk every file in VFILE vid.
-*/
-void vfile_unlink(int vid){
-  Stmt q;
-  db_prepare(&q, "SELECT %Q || pathname FROM vfile"
-                 " WHERE vid=%d AND mrid>0", g.zLocalRoot, vid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName;
-
-    zName = db_column_text(&q, 0);
-    file_delete(zName);
-  }
-  db_finalize(&q);
-  db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
-}
-
 /*
 ** Check to see if the directory named in zPath is the top of a checkout.
 ** In other words, check to see if directory pPath contains a file named

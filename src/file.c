@@ -440,6 +440,25 @@ char *file_dirname(const char *z){
   }
 }
 
+/* SQL Function:  file_dirname(NAME)
+**
+** Return the directory for NAME
+*/
+void file_dirname_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  char *zDir;
+  if( zName==0 ) return;
+  zDir = file_dirname(zName);
+  if( zDir ){
+    sqlite3_result_text(context,zDir,-1,fossil_free);
+  }
+}
+
+
 /*
 ** Rename a file or directory.
 ** Returns zero upon success.
@@ -595,6 +614,26 @@ int file_delete(const char *zFilename){
 #endif
   fossil_path_free(z);
   return rc;
+}
+
+/* SQL Function:  file_delete(NAME)
+**
+** Remove file NAME.  Return zero on success and non-zero if anything goes
+** wrong.
+*/
+void file_delete_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  int rc;
+  if( zName==0 ){
+    rc = 1;
+  }else{
+    rc = file_delete(zName);
+  }
+  sqlite3_result_int(context, rc);
 }
 
 /*
@@ -912,8 +951,16 @@ void cmd_test_simplify_name(void){
 ** On windows, the name is converted from unicode to UTF8 and all '\\'
 ** characters are converted to '/'.  No conversions are needed on
 ** unix.
+**
+** Store the value of the CWD in zBuf which is nBuf bytes in size.
+** or if zBuf==0, allocate space to hold the result using fossil_malloc().
 */
-void file_getcwd(char *zBuf, int nBuf){
+char *file_getcwd(char *zBuf, int nBuf){
+  char zTemp[2000];
+  if( zBuf==0 ){
+    zBuf = zTemp;
+    nBuf = sizeof(zTemp);
+  }
 #ifdef _WIN32
   win32_getcwd(zBuf, nBuf);
 #else
@@ -926,6 +973,7 @@ void file_getcwd(char *zBuf, int nBuf){
     }
   }
 #endif
+  return zBuf==zTemp ? fossil_strdup(zBuf) : zBuf;
 }
 
 /*

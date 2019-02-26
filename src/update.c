@@ -584,17 +584,17 @@ void update_cmd(void){
   if( dryRunFlag ){
     db_end_transaction(1);  /* With --dry-run, rollback changes */
   }else{
-    char zPwd[2000];
+    char *zPwd;
     ensure_empty_dirs_created(1);
     sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
                             file_rmdir_sql_function, 0, 0);
-    zPwd[0] = 0;
-    file_getcwd(zPwd, sizeof(zPwd));
+    zPwd = file_getcwd(0,0);
     db_multi_exec(
       "SELECT rmdir(%Q||name) FROM dir_to_delete"
       " WHERE (%Q||name)<>%Q ORDER BY name DESC",
       g.zLocalRoot, g.zLocalRoot, zPwd
     );
+    fossil_free(zPwd);
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
