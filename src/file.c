@@ -687,6 +687,26 @@ int file_rmdir(const char *zName){
   return 0;
 }
 
+/* SQL Function: rmdir(NAME)
+**
+** Try to remove the directory NAME.  Return zero on success and non-zero
+** for failure.
+*/
+void file_rmdir_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  int rc;
+  if( zName==0 ){
+    rc = 1;
+  }else{
+    rc = file_rmdir(zName);
+  }
+  sqlite3_result_int(context, rc);
+}
+
 /*
 ** Return true if the filename given is a valid filename for
 ** a file in a repository.  Valid filenames follow all of the
