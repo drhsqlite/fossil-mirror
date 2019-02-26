@@ -584,11 +584,16 @@ void update_cmd(void){
   if( dryRunFlag ){
     db_end_transaction(1);  /* With --dry-run, rollback changes */
   }else{
+    char zPwd[2000];
     ensure_empty_dirs_created(1);
     sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
                             file_rmdir_sql_function, 0, 0);
+    zPwd[0] = 0;
+    file_getcwd(zPwd, sizeof(zPwd));
     db_multi_exec(
-      "SELECT rmdir(name) FROM dir_to_delete ORDER BY name DESC"
+      "SELECT rmdir(%Q||name) FROM dir_to_delete"
+      " WHERE (%Q||name)<>%Q ORDER BY name DESC",
+      g.zLocalRoot, g.zLocalRoot, zPwd
     );
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
