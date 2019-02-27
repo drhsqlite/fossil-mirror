@@ -364,6 +364,12 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
   return rc;
 }
 
+/* Return TRUE if static Stmt object pStmt has been initialized.
+*/
+int db_static_stmt_is_init(Stmt *pStmt){
+  return blob_size(&pStmt->sql)>0;
+}
+
 /* Prepare a statement using text placed inside a Blob
 ** using blob_append_sql().
 */
