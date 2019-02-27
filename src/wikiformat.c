@@ -1110,7 +1110,6 @@ static int is_ticket(
   int *pClosed            /* True if the ticket is closed */
 ){
   static Stmt q;
-  static int once = 1;
   int n;
   int rc;
   char zLower[HNAME_MAX+1];
@@ -1120,14 +1119,13 @@ static int is_ticket(
   canonical16(zLower, n+1);
   memcpy(zUpper, zLower, n+1);
   zUpper[n-1]++;
-  if( once ){
+  if( !db_static_stmt_is_init(&q) ){
     const char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
     db_static_prepare(&q,
       "SELECT %s FROM ticket "
       " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
       zClosedExpr /*safe-for-%s*/
     );
-    once = 0;
   }
   db_bind_text(&q, ":lwr", zLower);
   db_bind_text(&q, ":upr", zUpper);
