@@ -1,5 +1,5 @@
-C For\sthe\s"fossil\supdate"\sand\s"fossil\scheckout"\scommands,\sif\sa\smanaged\sfile\sis\nremoved\sbecause\sit\sis\sno\slonger\spart\sof\sthe\starget\scheck-in\sand\sthe\sdirectory\ncontaining\sthe\sfile\sis\sempty\safter\sthe\sfile\sis\sremoved\sand\sthe\sdirectory\sis\s\nnot\sthe\scurrent\sworking\sdirectory\sand\sis\snot\son\sthe\sempty-dirs\slist,\sthen\nalso\sremove\sthe\sdirectory.
-D 2019-02-27T14:23:24.777
+C Update\sthe\sversion\snumber\sto\s2.9\sfor\sthe\snext\srelease\scycle.\s\sUpdates\sto\nthe\schange\slog\sfor\s2.9.
+D 2019-02-27T14:34:30.058
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -15,7 +15,7 @@ F Dockerfile 69aecd36e7412b1cde09407c0f011f60f229a844c1c7135826e86df047b23ce6
 F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2673 x
 F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
 F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
-F VERSION 691802abb698aa389544cd111d5a84c7a4958217c333b00a61d3fb59aa70c846
+F VERSION 5e961720697d2a3e59b2bf0bf2e370310b3088528816ee392e26b916ad1d6bfc
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -775,7 +775,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6b56362c1275c506e3161e28ee73f7cf8515ce316e18cef7a897006d064707dd
-F www/changes.wiki 3115b2ab3c02fd0485403ea7e073d79df40f32ee1af77b22f1ce0207ff4cba5c
+F www/changes.wiki 1c3521f660d1aee940212e7fcdf0bd9bffda7ecada273c50fb663613cb297829
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -869,8 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70f3092207dc21acae4fd083883f680339b8cd92b7fea6cc5219716fdf7f9cdc 50995ed1ee11bcd464819e94f8929cf0329ae6f840f3e57bea150b8434e69215
-R 411e9ddd2bd961d5bab640e293fa3da1
-T +closed 50995ed1ee11bcd464819e94f8929cf0329ae6f840f3e57bea150b8434e69215
+P f132f86bbe1d1c84f7dc9cd890bca1a939d450e4e20313b005a8c916823e907a
+R 0e8a583bea25a70af992d0a70acddd0e
 U drh
-Z ee00dbb2d6589fc284181cad654b90c0
+Z da5943bfe25dae5fb13a866315db0d0f

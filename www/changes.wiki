@@ -3,7 +3,18 @@
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (pending)</h2>
 
-  *  Improved handling of relative hyperlinks on the /artifact page
+  *  Improved handling of relative hyperlinks on the 
+     [/help?cmd=/artifact|/artifact] pages for wiki. For example,
+     hyperlinks and the lizard &lt;img&gt; now work correctly
+     for both [/artifact/2ff24ab0887cf522] and 
+     [/doc/0d7ac90d575004c2415/www/index.wiki].
+  *  For the "[/help?cmd=update|fossil update]" and 
+     "[/help?cmd=checkout|fossil checkout]" commands, if a
+     managed file is removed because it is no longer part of the target
+     check-in and the directory containing the file is empty after the
+     file is removed and the directory is not the current working
+     directory and is not on the [/help?cmd=empty-dirs|empty-dirs]
+     list, then also remove the directory.
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>
