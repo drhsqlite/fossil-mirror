@@ -41,11 +41,49 @@ int unsaved_changes(unsigned int cksigFlags){
 /*
 ** Undo the current check-out.  Unlink all files from the disk.
 ** Clear the VFILE table.
+**
+** Also delete any directory that becomes empty as a result of deleting
+** files due to this operation, as long as that directory is not the
+** current working directory and is not on the empty-dirs list.
 */
 void uncheckout(int vid){
-  if( vid>0 ){
-    vfile_unlink(vid);
-  }
+  char *zPwd;
+  if( vid<=0 ) return;
+  sqlite3_create_function(g.db, "dirname",1,SQLITE_UTF8,0,
+                          file_dirname_sql_function, 0, 0);
+  sqlite3_create_function(g.db, "unlink",1,SQLITE_UTF8,0,
+                          file_delete_sql_function, 0, 0);
+  sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
+                          file_rmdir_sql_function, 0, 0);
+  db_multi_exec(
+    "CREATE TEMP TABLE dir_to_delete(name TEXT %s PRIMARY KEY)WITHOUT ROWID",
+    filename_collation()
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO dir_to_delete(name)"
+    "  SELECT dirname(pathname) FROM vfile"
+    "   WHERE vid=%d AND mrid>0",
+    vid
+  );
+  do{
+    db_multi_exec(
+      "INSERT OR IGNORE INTO dir_to_delete(name)"
+      " SELECT dirname(name) FROM dir_to_delete;"
+    );
+  }while( db_changes() );
+  db_multi_exec(
+    "SELECT unlink(%Q||pathname) FROM vfile"
+    " WHERE vid=%d AND mrid>0;",
+    g.zLocalRoot, vid
+  );
+  ensure_empty_dirs_created(1);
+  zPwd = file_getcwd(0,0);
+  db_multi_exec(
+    "SELECT rmdir(%Q||name) FROM dir_to_delete"
+    " WHERE (%Q||name)<>%Q ORDER BY name DESC",
+    g.zLocalRoot, g.zLocalRoot, zPwd
+  );
+  fossil_free(zPwd);
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
 }
 
@@ -305,7 +343,7 @@ void checkout_cmd(void){
   }
   checkout_set_all_exe(vid);
   manifest_to_disk(vid);
-  ensure_empty_dirs_created();
+  ensure_empty_dirs_created(0);
   db_set_checkout(vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
