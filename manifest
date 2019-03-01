@@ -1,5 +1,5 @@
-C Update\sthe\sversion\snumber\sto\s2.9\sfor\sthe\snext\srelease\scycle.\s\sUpdates\sto\nthe\schange\slog\sfor\s2.9.
-D 2019-02-27T14:34:30.058
+C Update\sinternal\sUnicode\scharacter\stables,\sused\sin\sregular\sexpression\shandling,\sfrom\sversion\s11.0\sto\s12.0.\s\nIn\s"[/help?cmd=regexp|fossil\sregexp]",\s"[/help?cmd=grep|fossil\sgrep]"\sand\sthe\sTH1\s"regexp"\scommand,\sthe\s-nocase\soption\snow\sremoves\smultiple\sdiacritics\sfrom\sthe\ssame\scharacter\s(derived\sfrom\sSQLite's\sremove_diacritics=2)
+D 2019-03-01T09:38:42.521
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -543,7 +543,7 @@ F src/printf.c c79a94be03aa5fb26e11acbc8b41502ac5ce061927b3650793187f5fbd5db094
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
-F src/regexp.c 3509e175b8fdaef0e23e1a86232bb506bda155c6ef2521d4ae754ea15bc26e98
+F src/regexp.c 21359f8b49b95337e4959f098a382e06409e10bc62a3b1387afd230157f0c55c
 F src/repolist.c fcec37e43c2c617ba336008db7e2fb47aa0d1d9ed66b3e49b04842ae3cb58502
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -585,7 +585,7 @@ F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
-F src/unicode.c 2abc10093fe4a6c7a5bb4b10ff19912d95fae66b32f63bc02ca553e7bb2f3749
+F src/unicode.c 174407c691cbacf640c81ff6c0807bd2e72827fc9c8c45610c2128c0f5fcb16e
 F src/unversioned.c c3e497239a311d7f38671a250b4e1c800803a371c56b29a7634b51ff9bb72267
 F src/update.c 78f496b5c4e4cfb6cf28a41a035ed4d474edad0130355ea48dd8f9314c5c44b4
 F src/url.c d12b5af2810f06b6d4840a10217bc8450df4533cd7695cdce9d41f7b7fb7daed
@@ -775,7 +775,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6b56362c1275c506e3161e28ee73f7cf8515ce316e18cef7a897006d064707dd
-F www/changes.wiki 1c3521f660d1aee940212e7fcdf0bd9bffda7ecada273c50fb663613cb297829
+F www/changes.wiki dd30b803b3ad630220cca2e6f69ffd42b79d32a05de526cf423e8008b535be20
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f132f86bbe1d1c84f7dc9cd890bca1a939d450e4e20313b005a8c916823e907a
-R 0e8a583bea25a70af992d0a70acddd0e
-U drh
-Z da5943bfe25dae5fb13a866315db0d0f
+P 6f60cb388135aa8e145565987c79b0655c62e5d869996b7c1ee033582cf142a2
+R b3db1be67f177c9de6b7330529cee57a
+U jan.nijtmans
+Z 6658e8af52c0c9dffff53204e5bc4da0

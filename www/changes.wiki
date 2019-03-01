@@ -15,6 +15,12 @@
      file is removed and the directory is not the current working
      directory and is not on the [/help?cmd=empty-dirs|empty-dirs]
      list, then also remove the directory.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 11.0 to 12.0.
+  *  In "[/help?cmd=regexp|fossil regexp]", "[/help?cmd=grep|fossil grep]"
+     and the TH1 "regexp" command, the -nocase option now removes multiple
+     diacritics from the same character (derived from SQLite's
+     remove_diacritics=2)
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>
