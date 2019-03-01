@@ -1,5 +1,5 @@
-C Update\sinternal\sUnicode\scharacter\stables,\sused\sin\sregular\sexpression\shandling,\sfrom\sversion\s11.0\sto\s12.0.\s\nIn\s"[/help?cmd=regexp|fossil\sregexp]",\s"[/help?cmd=grep|fossil\sgrep]"\sand\sthe\sTH1\s"regexp"\scommand,\sthe\s-nocase\soption\snow\sremoves\smultiple\sdiacritics\sfrom\sthe\ssame\scharacter\s(derived\sfrom\sSQLite's\sremove_diacritics=2)
-D 2019-03-01T09:38:42.521
+C Update\scustom\smakefile.\sRemove\ssome\sunnecessary\sspacing\sin\sdocumentation
+D 2019-03-01T21:37:18.622
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -14,7 +14,7 @@ F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile 69aecd36e7412b1cde09407c0f011f60f229a844c1c7135826e86df047b23ce6
 F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2673 x
 F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
-F Makefile.osx-jaguar fc676cb9a6db5ef5179c3e39d29c13d3eae26c3c0fb29f0bc7172390fdaee1eb
+F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F VERSION 5e961720697d2a3e59b2bf0bf2e370310b3088528816ee392e26b916ad1d6bfc
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
@@ -738,7 +738,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake e730fe39345b6e54621a1b541417ab3f3c75d7750c2fe43fcb3ef2d399cd9690
 F win/Makefile.dmc 2b3831624614c3b340018bb63f6c23e73e74d179470ef4910297bbffc17245e3
 F win/Makefile.mingw ace8ec44b31b8fee19134f52c1769cc547914343ac30de331f7783e9af22741c
-F win/Makefile.mingw.mistachkin 83de040edd3b860d76f945643abae63f7be8279da9428cae4bcce34a68019712
+F win/Makefile.mingw.mistachkin 707fb119f61754a405f54de046d826d227478983b579017bd25f90dd485ad60f
 F win/Makefile.msc b3197269e700a2fb07d7d3110281c603ab882064c2139fe53544eba9209b81d2
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -753,14 +753,14 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
 F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/admin-v-setup.md 40877bdc16333623d6476dfd8c43720fe521bab54a0d9dca11322f443b6058a0
+F www/admin-v-setup.md 7265c5b11712eb550ef97ce3d73432fb8049b3e18d90e5517b24d1376a5fc03c
 F www/alerts.md a52a27a59aaf2d348ea4446e01be9cd5da66d8fbf134d40c84fd4862c56de701
 F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
-F www/backoffice.md 0b0b21f090b9aaf18401e35045f4fd945abf11c9e83f26488bc34b4559ca9dd1
+F www/backoffice.md 4f46c80d4e8f901cf68387ed9338ed2d1d333b47354da4caad4e6561a9b755b2
 F www/blame.wiki 59ddc91b415597b76217177835ecd2f46bad1e39
-F www/blockchain.md 091622a11f872bb9e0440beeedb7304c8bb4b1ab535c90a3eba66d404fd9b43b
+F www/blockchain.md 98a737c5fb74d1570db668719de7ccbbdc9baf561b167818c97f70ddcc6ff314
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
 F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
@@ -775,7 +775,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6b56362c1275c506e3161e28ee73f7cf8515ce316e18cef7a897006d064707dd
-F www/changes.wiki dd30b803b3ad630220cca2e6f69ffd42b79d32a05de526cf423e8008b535be20
+F www/changes.wiki aa8f1362595cf443db1ba62a45e450de37908af2c381a5e7a56ae379b683aa1f
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -808,13 +808,13 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
-F www/env-opts.md 7ed3fb059f988e7280f399e468295ec29ede8daa34758acb8f857c1c5727bfe8
+F www/env-opts.md af78288bc2c48de005e9fc99ab8a64ecbd569865ded19adedb48d8dc32d40da7
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 339f6a90527d382af7fb8cacca2dc36e097c190fe87ecb370bcdc554eb0cef36
+F www/fileformat.wiki 8fbc9c965cd66444b730513727342b64b9924f6e8ddfbe6bcdd5a1fdfabee2cf
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki b2fce6c2f88024553b61553d5eb27bdaf8c571c6abce555adfc1927824b1b713
+F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
 F www/fossil-v-git.wiki 7d11669133d8dac04caffb6939bbb9e5d0693e1bbbac6d7d72aca567fde9e08e
@@ -835,7 +835,7 @@ F www/hashpolicy.wiki 67069cee03a4759783ca175396a2ac28b9439635b3067d5de3ede3fda9
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
-F www/makefile.wiki f6c7c72fb6d8af50b95b2c178d70b07ea07205db1204344335af99986fe4a07d
+F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mkindex.tcl eaf4b1361896d7701429a51a7462ba9aace4fd7be612be87fe2e1e26ba3c01ec x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -861,7 +861,7 @@ F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f
 F www/th1.md d03aa9f40d00d5c12508bb0435df205993a568c3e9d724555e68985c24666201
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
-F www/tls-nginx.md ba306025fc5599c4981698a8e4cd9817617b95b1ebfbc2b6e1d52fa3e30748ee
+F www/tls-nginx.md e80044bd8e74adaa9b1527d2e113d443f5c090a12f030d413f6a79909d35ea02
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6f60cb388135aa8e145565987c79b0655c62e5d869996b7c1ee033582cf142a2
-R b3db1be67f177c9de6b7330529cee57a
+P b2c424ada85ed83a0445e9ce86a731446ed7049209dd512d2d67d65a3f594d61
+R 8a7376de3a917eddb15d70268e7c8964
 U jan.nijtmans
-Z 6658e8af52c0c9dffff53204e5bc4da0
+Z de5adfcc366cc250b64ae438ae169984

@@ -4,7 +4,7 @@ Several of the Fossil user capabilities form a clear power hierarchy.
 Mathematically speaking:
 
 > *Setup > Admin > Moderator > User > Subscriber > Anonymous > Nobody*
-    
+
 This document explains the distinction between the first two. For the
 others, see:
 
@@ -287,7 +287,7 @@ Some features are now and must always be restricted to Setup users only.
         the "Security" section above, but it should probably never be
         adjusted by Admin-only users. Sites that want it on will never
         want it to be disabled without a very good reason.</p>
-        
+
         <p>There is also an inverse risk: if the site has a front-end
         HTTPS proxy that uses HTTP to communicate over localhost to
         Fossil, enabling this setting will create an infinite redirect
