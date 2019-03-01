@@ -61,7 +61,7 @@ remotely, three of which are straightforward to use with nginx:
 
 *   **CGI** — This method is simple but inefficient, because it launches
     a separate Fossil instance on every HTTP hit.
-    
+
     Since Fossil is a relatively small self-contained program, and it’s
     designed to start up quickly, this method can work well in a
     surprisingly large number of cases.
@@ -235,25 +235,25 @@ Here’s an example configuration:
 
       server {
           server_name .foo.net;
-      
+
           include local/tls-common;
-      
+
           charset utf-8;
-      
+
           access_log /var/log/nginx/foo.net-https-access.log;
            error_log /var/log/nginx/foo.net-https-error.log;
-      
+
           # Bypass Fossil for the static Doxygen docs
           location /doc/html {
               root /var/www/foo.net;
-      
+
               location ~* \.(html|ico|css|js|gif|jpg|png)$ {
                   expires 7d;
                   add_header Vary Accept-Encoding;
                   access_log off;
               }
           }
-      
+
           # Redirect everything else to the Fossil instance
           location / {
               include scgi_params;
@@ -303,7 +303,7 @@ older versions of nginx.
 
 Since all of those domains share a single TLS certificate, we reference
 the same `example.com/*.pem` files written out by Certbot with the
-`ssl_certificate*` lines. 
+`ssl_certificate*` lines.
 
 The `ssl_dhparam` directive isn’t strictly required, but without it, the
 server becomes vulnerable to the [Logjam attack][lja] because some of
@@ -377,11 +377,11 @@ the minimal HTTP service we reqiure, `local/http-certbot-only`:
 
       listen 80;
       listen [::]:80;
-  
+
       # This is expressed as a rewrite rule instead of an "if" because
       # http://wiki.nginx.org/IfIsEvil
       #rewrite ^(/.well-known/acme-challenge/.*) $1 break;
-  
+
       # Force everything else to HTTPS with a permanent redirect.
       #return 301 https://$host$request_uri;
 

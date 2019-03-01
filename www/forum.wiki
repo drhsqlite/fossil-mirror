@@ -68,7 +68,7 @@ of which you cannot get by using third-party alternatives:
      other Fossil artifacts using short internal links: link to forum
      threads from a [./tickets.wiki | ticket], link to a wiki document
      from a forum post, etc.
-     
+
   *  <b>Durable Links:</b> Once you create a valid internal artifact
      link in Fossil, it <em>remains</em> valid, durably. With
      third-party forum software and mailing list search engines, your

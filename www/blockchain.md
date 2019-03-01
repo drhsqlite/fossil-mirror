@@ -22,7 +22,7 @@ Fossil is build around blockchain is met with skepticism.  The key thing
 to note here is that cryptocurrency implementations like BitCoin are
 built around blockchain, but they are not synonymous with blockchain.
 Blockchain is a much broader concept.  Blockchain is a mechanism for
-constructed a distributed ledger of transactions.  
+constructed a distributed ledger of transactions.
 Yes, you can use a distributed
 ledger to implement a cryptocurrency, but you can also use a distributed
 ledger to implement a version control system, and probably many other kinds

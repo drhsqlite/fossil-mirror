@@ -4,13 +4,13 @@ Backoffice
 This is technical documentation about the internal workings of Fossil.
 Ordinary Fossil users do not need to know about anything covered by this
 document.  The information here is intended for people who want to enhance
-or extend the Fossil code, or who just want a deeper understanding of 
+or extend the Fossil code, or who just want a deeper understanding of
 the internal workings of Fossil.
 
 What Is The Backoffice
 ----------------------
 
-The backoffice is a mechanism used by a 
+The backoffice is a mechanism used by a
 [Fossil server](/doc/trunk/www/server.wiki) to do low-priority
 background work that is not directly related to the user interface.  Here
 are some examples of the kinds of work that backoffice performs:
@@ -51,8 +51,8 @@ while and then exits.  This helps keep Fossil easy to manage, since there
 are no daemons to start and stop.  To upgrade Fossil to a new version,
 you simply replace the older "fossil" executable with the newer one, and
 the backoffice processes will (within a minute or so) start using the new
-one.  (Upgrading the executable on Windows is more complicated, since on 
-Windows it is not possible to replace an executable file that is in active 
+one.  (Upgrading the executable on Windows is more complicated, since on
+Windows it is not possible to replace an executable file that is in active
 use.  But Windows users probably already know this.)
 
 The backoffice is serialized and rate limited.  No more than a single
@@ -60,7 +60,7 @@ backoffice process will be running at once, and backoffice runs will not
 occur more frequently than once every 60 seconds.
 
 If a Fossil server is idle, then no backoffice processes will be running.
-That means there are no extra processes sitting around taking up memory 
+That means there are no extra processes sitting around taking up memory
 and process table slots for seldom accessed repositories.
 The backoffice is an on-demand system.
 A busy repository will usually have a backoffice
@@ -120,9 +120,9 @@ backoffice processes.  (Either the process id entries in the lease
 will be zero, or there will exist no process associated with the
 process id.) When a new web request comes in, the system
 sees that no backoffice process is active and so it kicks off a separate
-process to run backoffice.  
+process to run backoffice.
 
-The new backoffice process becomes the "current" process.  It sets a 
+The new backoffice process becomes the "current" process.  It sets a
 lease expiration time for itself to be 60 seconds in the future.
 Then it does the backoffice processing and exits.  Note that usually
 the backoffice process will exit long before its lease expires.  That
@@ -182,7 +182,7 @@ be used to verify that backoffice really is running, if there is any
 doubt.  The "backoffice-disable" setting prevents automatic backoffice
 processing, if true.  Use this to completely disable backoffice processing
 that occurs automatically after each HTTP request.  The "backoffice-disable"
-setting does not affect the operation of the manual 
+setting does not affect the operation of the manual
 "fossil backoffice" command.
 Most installations should leave "backoffice-nodelay" and "backoffice-disable"
 set to their default values of off and

@@ -123,9 +123,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.27.1"
-#define SQLITE_VERSION_NUMBER 3027001
-#define SQLITE_SOURCE_ID      "2019-02-08 13:17:39 0eca3dd3d38b31c92b49ca2d311128b74584714d9e7de895b1a6286ef959a1dd"
+#define SQLITE_VERSION        "3.28.0"
+#define SQLITE_VERSION_NUMBER 3028000
+#define SQLITE_SOURCE_ID      "2019-02-25 14:52:43 9da4fb59b28686630d63a79988b458726332cf06cc0e6e84d7c0a7600f5fcab0"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2369,7 +2369,7 @@ SQLITE_API int sqlite3_changes(sqlite3*);
 ** not. ^Changes to a view that are intercepted by INSTEAD OF triggers 
 ** are not counted.
 **
-** This the [sqlite3_total_changes(D)] interface only reports the number
+** The [sqlite3_total_changes(D)] interface only reports the number
 ** of rows that changed due to SQL statement run against database
 ** connection D.  Any changes by other database connections are ignored.
 ** To detect changes against a database file from other database
@@ -11301,7 +11301,7 @@ struct Fts5PhraseIter {
 **   Save the pointer passed as the second argument as the extension functions 
 **   "auxiliary data". The pointer may then be retrieved by the current or any
 **   future invocation of the same fts5 extension function made as part of
-**   of the same MATCH query using the xGetAuxdata() API.
+**   the same MATCH query using the xGetAuxdata() API.
 **
 **   Each extension function is allocated a single auxiliary data slot for
 **   each FTS query (MATCH expression). If the extension function is invoked 
@@ -11316,7 +11316,7 @@ struct Fts5PhraseIter {
 **   The xDelete callback, if one is specified, is also invoked on the
 **   auxiliary data pointer after the FTS5 query has finished.
 **
-**   If an error (e.g. an OOM condition) occurs within this function, an
+**   If an error (e.g. an OOM condition) occurs within this function,
 **   the auxiliary data is set to NULL and an error code returned. If the
 **   xDelete parameter was not NULL, it is invoked on the auxiliary data
 **   pointer before returning.

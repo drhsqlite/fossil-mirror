@@ -3,21 +3,38 @@
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (pending)</h2>
 
-  *  Improved handling of relative hyperlinks on the /artifact page
+  *  Improved handling of relative hyperlinks on the
+     [/help?cmd=/artifact|/artifact] pages for wiki. For example,
+     hyperlinks and the lizard &lt;img&gt; now work correctly
+     for both [/artifact/2ff24ab0887cf522] and
+     [/doc/0d7ac90d575004c2415/www/index.wiki].
+  *  For the "[/help?cmd=update|fossil update]" and
+     "[/help?cmd=checkout|fossil checkout]" commands, if a
+     managed file is removed because it is no longer part of the target
+     check-in and the directory containing the file is empty after the
+     file is removed and the directory is not the current working
+     directory and is not on the [/help?cmd=empty-dirs|empty-dirs]
+     list, then also remove the directory.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 11.0 to 12.0.
+  *  In "[/help?cmd=regexp|fossil regexp]", "[/help?cmd=grep|fossil grep]"
+     and the TH1 "regexp" command, the -nocase option now removes multiple
+     diacritics from the same character (derived from SQLite's
+     remove_diacritics=2)
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>
 
   *  Show cherry-pick merges as dotted lines on the timeline graph.
      &rarr; The "fossil rebuild" command must be run to create and
-     populate the new "cherrypick" table in the repository in order 
+     populate the new "cherrypick" table in the repository in order
      for this feature to operate.
   *  Add the ability to associate branches, check-ins, and tags with
      specially-named Wiki pages. This gives the ability to better
      document branches and tags, and provide more documentation on
      check-ins beyond the check-in comment.  The associated Wiki is
      automatically displayed on /info pages for check-ins, and on
-     /timeline?r=BRANCH and /timeline?t=TAG pages for branches and 
+     /timeline?r=BRANCH and /timeline?t=TAG pages for branches and
      tags. This feature is on by default, but can be disabled in on
      the Admin/Wiki page.
   *  Enhance the repository list page (shown for example by
@@ -53,7 +70,7 @@
   *  Add the global --comment-format command-line option and the
      comment-format setting to control the display of the command-line
      timeline.
-  *  Change the "fossil reparent" command so that it only works from 
+  *  Change the "fossil reparent" command so that it only works from
      within an active checkout.
   *  On the /setup_ucap_list, show administrators how many users have
      each capability.  The counts are a hyperlink to the /setup_ulist
@@ -88,7 +105,7 @@
      small screens, including mobile devices.
   *  The default skin now includes a hamburger menu that is generated
      by the [/sitemap] page.
-  *  All of the built-in skins now use a 
+  *  All of the built-in skins now use a
      [https://en.wikipedia.org/wiki/Content_Security_Policy|Content Security Policy (CSP)]
      to help prevent cross-site injection and forgery attacks.  There are no known
      vulnerabilities in Fossil.  The added CSP does not fix anything; it merely adds

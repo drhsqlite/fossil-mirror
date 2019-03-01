@@ -40,7 +40,7 @@ BCCFLAGS = $(CFLAGS)
 #### The suffix to add to final executable file.  When cross-compiling
 #    to windows, make this ".exe".  Otherwise leave it blank.
 #
-E = 
+E =
 
 TCC = cc
 TCCFLAGS = $(CFLAGS)
@@ -61,7 +61,7 @@ TCC += -Dsocklen_t=int
 TCC += -DSQLITE_MAX_MMAP_SIZE=0
 TCC += -DFOSSIL_ENABLE_LEGACY_MV_RM=1
 INSTALLDIR = $(DESTDIR)/usr/local/bin
-USE_SYSTEM_SQLITE = 
+USE_SYSTEM_SQLITE =
 USE_LINENOISE = 1
 # FOSSIL_ENABLE_TCL = @FOSSIL_ENABLE_TCL@
 FOSSIL_ENABLE_TCL = 0
