@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file was adapted from the test_regexp.c file in SQLite3.  That
+** This file was adapted from the ext/misc/regexp.c file in SQLite3.  That
 ** file is in the public domain.
 **
 ** See ../www/grep.md for details of the algorithm and RE dialect.
@@ -89,7 +89,7 @@ struct ReCompiled {
 static void re_add_state(ReStateSet *pSet, int newState){
   unsigned i;
   for(i=0; i<pSet->nState; i++) if( pSet->aState[i]==newState ) return;
-  pSet->aState[pSet->nState++] = newState;
+  pSet->aState[pSet->nState++] = (ReStateNumber)newState;
 }
 
 /* Extract the next unicode character from *pzIn and return it.  Advance
@@ -124,7 +124,7 @@ static unsigned re_next_char(ReInput *p){
 }
 static unsigned re_next_char_nocase(ReInput *p){
   unsigned c = re_next_char(p);
-  return unicode_fold(c,1);
+  return unicode_fold(c,2);
 }
 
 /* Return true if c is a perl "word" character:  [A-Za-z0-9_] */
@@ -158,7 +158,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
 
   in.z = zIn;
   in.i = 0;
-  in.mx = nIn>=0 ? nIn : strlen((const char*)zIn);
+  in.mx = nIn>=0 ? nIn : (int)strlen((char const*)zIn);
 
   /* Look for the initial prefix match, if there is one. */
   if( pRe->nInit ){
@@ -172,7 +172,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
     if( in.i+pRe->nInit>in.mx ) return 0;
   }
 
-  if( pRe->nState<=count(aSpace)*2 ){
+  if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
     pToFree = 0;
     aStateSet[0].aState = aSpace;
   }else{
@@ -309,7 +309,7 @@ static int re_insert(ReCompiled *p, int iBefore, int op, int arg){
     p->aArg[i] = p->aArg[i-1];
   }
   p->nState++;
-  p->aOp[iBefore] = op;
+  p->aOp[iBefore] = (char)op;
   p->aArg[iBefore] = arg;
   return iBefore;
 }
@@ -598,7 +598,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   pRe->sIn.z = (unsigned char*)zIn;
   pRe->sIn.i = 0;
-  pRe->sIn.mx = strlen(zIn);
+  pRe->sIn.mx = (int)strlen(zIn);
   zErr = re_subcompile_re(pRe);
   if( zErr ){
     re_free(pRe);
@@ -628,12 +628,12 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     for(j=0, i=1; j<sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
       if( x<=127 ){
-        pRe->zInit[j++] = x;
+        pRe->zInit[j++] = (unsigned char)x;
       }else if( x<=0xfff ){
-        pRe->zInit[j++] = 0xc0 | (x>>6);
+        pRe->zInit[j++] = (unsigned char)(0xc0 | (x>>6));
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else if( x<=0xffff ){
-        pRe->zInit[j++] = 0xd0 | (x>>12);
+        pRe->zInit[j++] = (unsigned char)(0xd0 | (x>>12));
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
@@ -664,6 +664,7 @@ static void re_sql_func(
   const char *zPattern;     /* The regular expression */
   const unsigned char *zStr;/* String being searched */
   const char *zErr;         /* Compile error message */
+  int setAux = 0;           /* True to invoke sqlite3_set_auxdata() */
 
   pRe = sqlite3_get_auxdata(context, 0);
   if( pRe==0 ){
@@ -671,6 +672,7 @@ static void re_sql_func(
     if( zPattern==0 ) return;
     zErr = re_compile(&pRe, zPattern, 0);
     if( zErr ){
+      re_free(pRe);
       sqlite3_result_error(context, zErr, -1);
       return;
     }
@@ -678,24 +680,20 @@ static void re_sql_func(
       sqlite3_result_error_nomem(context);
       return;
     }
-    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
+    setAux = 1;
   }
   zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
   if( zStr!=0 ){
     sqlite3_result_int(context, re_match(pRe, zStr, -1));
   }
+  if( setAux ){
+    sqlite3_set_auxdata(context, 0, pRe, (void(*)(void*))re_free);
+  }
 }
 
 /*
-** Invoke this routine in order to install the REGEXP function in an
+** Invoke this routine to register the regexp() function with the
 ** SQLite database connection.
-**
-** Use:
-**
-**      sqlite3_auto_extension(sqlite3_add_regexp_func);
-**
-** to cause this extension to be automatically loaded into each new
-** database connection.
 */
 int re_add_sql_func(sqlite3 *db){
   return sqlite3_create_function(db, "regexp", 2, SQLITE_UTF8, 0,
