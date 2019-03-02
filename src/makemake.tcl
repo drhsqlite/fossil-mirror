@@ -320,7 +320,7 @@ writeln [string map [list \
     <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
-install:	$(APPNAME)
+install:	all
 	mkdir -p $(INSTALLDIR)
 	cp $(APPNAME) $(INSTALLDIR)
 
