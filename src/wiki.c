@@ -492,15 +492,16 @@ void wiki_page(void){
      && wiki_special_permission(zPageName)
     ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
-        style_submenu_element("Edit", "%s/wikiedit?name=%T&wysiwyg=1",
-             g.zTop, zPageName);
+        style_submenu_element("Edit", "%R/wikiedit?name=%T&wysiwyg=1",
+                              zPageName);
       }else{
-        style_submenu_element("Edit", "%s/wikiedit?name=%T", g.zTop, zPageName);
+        style_submenu_element("Edit", "%R/wikiedit?name=%T", zPageName);
       }
+    }else if( rid && g.perm.ApndWiki ){
+      style_submenu_element("Edit", "%R/wikiappend?name=%T", zPageName);
     }
     if( g.perm.Hyperlink ){
-      style_submenu_element("History", "%s/whistory?name=%T",
-           g.zTop, zPageName);
+      style_submenu_element("History", "%R/whistory?name=%T", zPageName);
     }
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
@@ -686,8 +687,6 @@ void wikiedit_page(void){
            "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
-    style_submenu_element("Append", "%s/wikiappend?name=%T&mimetype=%s",
-         g.zTop, zPageName, zMimetype);
   }
   if( !goodCaptcha ){
     @ <p class="generalError">Error:  Incorrect security code.</p>
