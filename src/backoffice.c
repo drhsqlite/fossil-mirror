@@ -456,6 +456,8 @@ static void backoffice_thread(void){
       ** process does not need to do any backoffice work and can stop
       ** immediately. */
       db_end_transaction(0);
+      backofficeTrace("/***** Backoffice Processing Not Needed In %d *****/\n",
+                      GETPID());
       break;
     }
     if( x.tmCurrent<tmNow && backofficeProcessDone(x.idCurrent) ){
@@ -476,6 +478,9 @@ static void backoffice_thread(void){
       ** up.  Assume that some future request will come along and handle any
       ** necessary backoffice work. */
       db_end_transaction(0);
+      backofficeTrace(
+           "/***** Backoffice No-Delay Exit For %d *****/\n",
+           GETPID());
       break;
     }
     /* This process needs to queue up and wait for the current lease
@@ -537,16 +542,62 @@ void backoffice_work(void){
 /*
 ** COMMAND: backoffice*
 **
-** Usage: backoffice [-R repository]
+** Usage: backoffice [OPTIONS...] [REPOSITORIES...]
 **
-** Run backoffice processing.  This might be done by a cron job or
-** similar to make sure backoffice processing happens periodically.
+** Run backoffice processing on the repositories listed.  If no
+** repository is specified, run it on the repository of the local checkout.
+**
+** This might be done by a cron job or similar to make sure backoffice
+** processing happens periodically.
+**
+** Options:
+**
+**    --nodelay               Do not queue up or wait for a backoffice job
+**                            to complete. If no work is available or if
+**                            backoffice has run recently, return immediately.
+**                            The --nodelay option is implied if more than
+**                            one repository is listed on the command-line.
+**
+**    --trace                 Enable debugging output on stderr
 */
 void backoffice_command(void){
   if( find_option("trace",0,0)!=0 ) g.fAnyTrace = 1;
-  db_find_and_open_repository(0,0);
+  if( find_option("nodelay",0,0)!=0 ) backofficeNoDelay = 1;
+
+  /* Silently consume the -R or --repository flag, leaving behind its
+  ** argument. This is for legacy compatibility. Older versions of the
+  ** backoffice command only ran on a single repository that was specified
+  ** using the -R option. */
+  (void)find_option("repository","R",0);
+
   verify_all_options();
-  backoffice_thread();
+  if( g.argc>3 ){
+    /* Multiple repositories named on the command-line.  Run each in a
+    ** separate sub-process */
+    int i;
+    for(i=2; i<g.argc; i++){
+      Blob cmd;
+      blob_init(&cmd, 0, 0);
+      blob_append_escaped_arg(&cmd, g.nameOfExe);
+      blob_append(&cmd, " backoffice --nodelay", -1);
+      if( g.fAnyTrace ){
+        blob_append(&cmd, " --trace", -1);
+      }
+      blob_append_escaped_arg(&cmd, g.argv[i]);
+      if( g.fAnyTrace ){
+        fossil_print("-- %s\n", blob_str(&cmd));
+      }
+      fossil_system(blob_str(&cmd));
+      blob_reset(&cmd);
+    }
+  }else{
+    if( g.argc==3 ){
+      g.zRepositoryOption = g.argv[2];
+      g.argc--;
+    }
+    db_find_and_open_repository(0,0);
+    backoffice_thread();
+  }
 }
 
 /*

@@ -1,5 +1,5 @@
-C Improvements\sto\sAppend\sWiki\sprivilege\ssuggested\sby\sjakesfr.
-D 2019-03-04T13:58:08.851
+C Enhancements\sto\sthe\s"backoffice"\scommand:\s\sAdded\sthe\s--nodelay\soption\sand\nadded\sthe\sability\sto\sspecify\smultiple\srepositories.
+D 2019-03-07T16:43:55.819
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -431,7 +431,7 @@ F src/add.c f0f7b8fcf4a8ec597a1dbf97fe1af7ead32cd0c261fae15ada25cefc85502811
 F src/alerts.c 9af05613dcfef2fb8195009c271d4567ecb4e5079f1787f7bf29515c217467e0
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 761f572b89a4d9c3420af9368c990b7fb0474eec6d4464c4b4d040a43ca2af9d
+F src/backoffice.c 1c237ba131666154163d0ee2cb4fcc96aab7aebc5136f6c739bd9fae6439eafe
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81e61d78fdfdd2ee471217054b6de89e26d244ebf9671e6a842c47d252ba187d
-R d3a202dd615599357e54d0b51ddd02da
+P 3790dbbd36ce6c4c1e83536b570af5cc76e6fc0a28beed1781ad407d1b5facd6
+R 4866c393577a51113d76a68ce0e6532b
 U drh
-Z af35442a450151d01800f9fe6c9f7f13
+Z c4e9ec6d21220ab6cb09fc028bad2f6d
