@@ -360,6 +360,19 @@ names should be sent as text.  If the names for a particular system
 are binary hashes, then the NAME table should store them as
 the hexadecimal representation.
 
+The NAME table can also be used for error messages in a VCCP
+reply message.  If the request contains an error associated with
+a particular row in the DATA table, or with a particular NAMEID,
+then an error message is added to the NAME table with NAMEID
+set to the offending DATA.ID or NAMEID and NAMETYPE set to 2
+and with English the error message text in NAME.NAME.  Hence,
+the allowed values for NAME.NAMETYPE are:
+
+>
+| 0: | Name of the object as known to the client |
+| 1: | Name of the object as known to the server |
+| 2: | Error message text for the object         |
+
 #### 3.4.1 NAME Table Example 1
 
 Suppose a client is pushing a new check-in to the server and the
@@ -486,7 +499,8 @@ to show the previous name of the file, if that information is
 available.
 
 Some version control systems allow tags and properties to be
-associated with a check-in.  The $.tag element supports this
+part of the check-in itself rather than a separate entity.  
+The $.tag element supports this
 feature.  Each element of the $.tag array is a separate tag
 or property.  If the $.tag[].propagate field exists and has
 a value of "1", then the tag/property propagates to all
@@ -497,3 +511,47 @@ stopped and omitted from this check-in.  Version control
 systems that do not support tags and/or properties on check-ins
 or that do not support tag propagation can ignore all of these
 attributes.
+
+### 3.6 Tag JSON Format
+
+A new tag is created using the following JSON syntax:
+
+>
+    {
+      "time": DATETIME,    -- Time when the tag was created
+      "name": TEXT,        -- Name of the tag
+      "from": INT,         -- Check-in being tagged
+      "comment": TEXT,     -- Message associated with the tag
+      "mimetype": TEXT,    -- Mimetype of the message
+      "value": TEXT,       -- Value of the tag if it is really a property
+      "delete": 1,         -- Stop propagaging this tag
+      "propagate": 1,      -- Propagate this tag to direct children
+      "tagger": {          -- Person who created this tag
+        "name": TEXT,           -- Name or handle
+        "email": TEXT,          -- Email address
+        "time": DATETIME        -- Override for $.time
+      }
+    }
+
+### 3.7 Message Description JSON Format
+
+>
+    {
+      "version": INT,               -- protocol version number
+      "features": [TEXT],            -- supported optional features
+      "client_vcs": TEXT,
+      "server_vcs": TEXT,
+      "credentials": {
+         "username": TEXT,
+         "password": TEXT,
+      }
+      "pull": [{
+         "branch": TEXT,
+         "decendents_of": TEXT,
+         "after": DATETIME
+      }],
+      "max_size_hint": INT,
+      "done": 1,
+      "more_available": 1,
+      "continue_with": JSON,
+    }

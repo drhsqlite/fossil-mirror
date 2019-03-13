@@ -1,5 +1,5 @@
-C Continuing\swork\son\sthe\sVCCP\sspec.\s\sThis\sis\san\sincremental\scheck-in.
-D 2019-03-13T15:34:39.640
+C Continuing\swork\son\sthe\sVCCP\sdesign.
+D 2019-03-13T18:46:08.025
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -868,13 +868,13 @@ F www/vccp/diagram-1.jpg 15a2d967a4193a7eb405ebcc67233f3f073588a68022ec9164c8e36
 F www/vccp/diagram-1.odg b6b88ee62ff91e1db82337271728444a7413a98bec6cfb5c7d12509f09d38a4e
 F www/vccp/diagram-2.jpg 55568249069109d066f5b5fd4c900b19d0e15366cdc44a595acd17724088d890
 F www/vccp/diagram-2.odg ed8f1689efcc8cd2c3c6d1376cd8d87cfd128177b9c18e8a4091e3734edd087b
-F www/vccp/intro.md 4f0f6308595d669729a00e39d71bd5245c59e076ac116b95a4717e3b2a6784a6
+F www/vccp/intro.md 769cf0ed4dbf55885c08a55c44e4830ee966ea6d9e7c3aa3c5d957924f8deb5b
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
 F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b37bb7dc79aacde3e0b3ae0b021445c266e1d9845cd52c052dee602aeee21819
-R 854c867cf6fdff35f59a8f3b282e051d
+P 60794e993c9e3dad82a475203c63a1dda5c4b134f35292f712c43b82f300a9d8
+R d62219b2f22af3e7e210416120398bfe
 U drh
-Z 448d7f0c7aa9f27ac11c01b7739f4289
+Z 5154b313513f65a320cec7d7045a0d8e
