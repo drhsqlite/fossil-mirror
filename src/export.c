@@ -871,6 +871,45 @@ static void mirror_sanitize_git_name(char *z){
 }
 
 /*
+** Quote a filename as a C-style string using \\ and \" if necessary.
+** If quoting is not necessary, just return a copy of the input string.
+**
+** The return value is a held in memory obtained from fossil_malloc()
+** and must be freed by the caller.
+*/
+static char *mirror_quote_filename_if_needed(const char *zIn){
+  int i, j;
+  char c;
+  int nSpecial = 0;
+  char *zOut;
+  for(i=0; (c = zIn[i])!=0; i++){
+    if( c=='\\' || c=='"' || c=='\n' ){
+      nSpecial++;
+    }
+  }
+  if( nSpecial==0 ){
+    return fossil_strdup(zIn);
+  }
+  zOut = fossil_malloc( i+nSpecial+3 );
+  zOut[0] = '"';
+  for(i=0, j=1; (c = zIn[i])!=0; i++){
+    if( c=='\\' || c=='"' || c=='\n' ){
+      zOut[j++] = '\\';
+      if( c=='\n' ){
+        zOut[j++] = 'n';
+      }else{
+        zOut[j++] = c;
+      }
+    }else{
+      zOut[j++] = c;
+    }
+  }
+  zOut[j++] = '"';
+  zOut[j] = 0;
+  return zOut;
+}
+
+/*
 ** Transfer a tag over to the mirror.  "rid" is the BLOB.RID value for
 ** the record that describes the tag.
 **
@@ -950,12 +989,14 @@ static void mirror_send_checkin(
   const char *zUuid,    /* BLOB.UUID for the check-in to export */
   int *pnLimit          /* Stop when the counter reaches zero */
 ){
-  Manifest *pMan;
-  int i, iParent;
-  Stmt q;
-  char *zBranch;
-  int iMark;
-  Blob sql;
+  Manifest *pMan;       /* The check-in to be output */
+  int i;                /* Loop counter */
+  int iParent;          /* Which immediate ancestor is primary.  -1 for none */
+  Stmt q;               /* An SQL query */
+  char *zBranch;        /* The branch of the check-in */
+  int iMark;            /* The mark for the check-in */
+  Blob sql;             /* String of SQL for part of the query */
+  char *zCom;           /* The check-in comment */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1014,8 +1055,9 @@ static void mirror_send_checkin(
      pMan->zUser, pMan->zUser, 
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
   );
-  fprintf(xCmd, "data %d\n", (int)strlen(pMan->zComment));
-  fprintf(xCmd, "%s\n", pMan->zComment);
+  zCom = pMan->zComment;
+  if( zCom==0 ) zCom = "(no comment)";
+  fprintf(xCmd, "data %d\n%s\n", (int)strlen(zCom), zCom);
   iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
     int iOther = mirror_find_mark(pMan->azParent[i], 0);
@@ -1059,11 +1101,14 @@ static void mirror_send_checkin(
     const char *zMode = db_column_text(&q,1);
     int iMark = db_column_int(&q,2);
     const char *zGitMode = "100644";
+    char *zFNQuoted = 0;
     if( zMode ){
       if( strchr(zMode,'x') ) zGitMode = "100755";
       if( strchr(zMode,'l') ) zGitMode = "120000";
     }
-    fprintf(xCmd,"M %s :%d %s\n", zGitMode, iMark, zFilename);
+    zFNQuoted = mirror_quote_filename_if_needed(zFilename);
+    fprintf(xCmd,"M %s :%d %s\n", zGitMode, iMark, zFNQuoted);
+    fossil_free(zFNQuoted);
   }
   db_finalize(&q);
 
