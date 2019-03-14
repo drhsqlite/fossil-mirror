@@ -1,5 +1,5 @@
-C Update\sthe\sdocumentation\son\sthe\s"fossil\sbackoffice"\scommand.
-D 2019-03-08T00:42:43.043
+C When\sdoing\sa\s"fossil\sstash"\smake\ssure\sthat\sthe\sstash\shas\scommitted\sbefore\ndeleting\schanges\sfrom\sdisk,\sso\sthat\sthe\schanges\scan\sbe\srecovered\sif\ssomething\ngoes\swrong.
+D 2019-03-14T13:52:40.786
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -567,7 +567,7 @@ F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125
 F src/sqlcmd.c da3cbdc500bb5ad8cb3bbc3ce3ab3cdc56c1c2ce2cd5d483a5155cc6c10086a4
 F src/sqlite3.c 52e67778f74d5b9d7d79c1dd8d021ee59a83e7a4b81d2dcf36f39d552441b163
 F src/sqlite3.h 02a59461f828e47e6308d73772ba9fd53a9e0e8a16979883319d1ce06d545c1a
-F src/stash.c 69ff714f4085c488fee076f0aa402bfeb33806f248f7773e77ac0ffd56fda30d
+F src/stash.c d0ac4642b6822cfe402fdf344f2163bc9ae868815af5bb428319d1a6c0de613e
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 0216ce1cce5d0cf777bf58e2f10072f4f8cb25502c3c2c9ce43f97dd722c9039
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1021afc6aa3ea77c9d242b948f306e02c47f5769e76f22cc2b4348ee5e5404b4
-R 251be4cc78cb1a8ffac0bc150b781ce3
+P 35c8103e6d90413072d1e2720888dce179a26c803b952474fc158f93b19c294b
+R b630ed945c5c93ae41d3c6629a3a9113
 U drh
-Z 30655f707971c626074d1dd8be01efe5
+Z e92be4e2b6f1bc6c7bf4f3523c044519
