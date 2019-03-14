@@ -973,7 +973,7 @@ static void mirror_send_checkin(
   fprintf(xCmd, "mark :%d\n", iMark);
   fprintf(xCmd, "committer %s <%s@noemail.net> %lld +0000\n",
      pMan->zUser, pMan->zUser, 
-     (sqlite3_int64)(pMan->rDate-2440587.5)*86400
+     (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
   );
   fprintf(xCmd, "data %d\n", (int)strlen(pMan->zComment));
   fprintf(xCmd, "%s\n", pMan->zComment);
@@ -1076,8 +1076,6 @@ void mirror_command(void){
   int nTotal = 0;
   char *zMirror;
   char *z;
-  char *zInFile;
-  char *zOutFile;
   char *zCmd;
   const char *zDebug = 0;
   double rEnd;
@@ -1221,23 +1219,21 @@ void mirror_command(void){
   /* Read the export-marks file.  Transfer the new marks over into
   ** the import-marks file.
   */
-  zInFile = mprintf("%s/.mirror_state/in", zMirror);
-  zOutFile = mprintf("%s/.mirror_state/out", zMirror);
-  pOut = fopen(zOutFile, "rb");
+  pOut = fopen(".mirror_state/out", "rb");
   if( pOut ){
-    pIn = fopen(zInFile, "ab");
+    pIn = fopen(".mirror_state/in", "ab");
     if( pIn==0 ){
-      fossil_fatal("cannot open %s for appending", zInFile);
+      fossil_fatal("cannot open %s/.mirror_state/in for appending", zMirror);
     }
-    while( fgets(zLine, sizeof(zLine), pIn) ){
-      fputs(zLine, pOut);
+    while( fgets(zLine, sizeof(zLine), pOut) ){
+      fputs(zLine, pIn);
     }
     fclose(pOut);
     fclose(pIn);
-    file_delete(zOutFile);
+    file_delete(".mirror_state/out");
+  }else{
+    fossil_fatal("git fast-import didn't generate a marks file!");
   }
-  fossil_free(zInFile);
-  fossil_free(zOutFile);
 
   /* Optionally do a "git push" */
 }

@@ -1,5 +1,5 @@
-C Begin\swork\son\sthe\s"fossil\smirror"\scommand.
-D 2019-03-14T17:16:37.159
+C Progress\son\sthe\s"fossil\smirror"\scommand.
+D 2019-03-14T18:20:47.805
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -471,7 +471,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c 6b85a87c5aa9fcfdaa14fb4a8e896d3f71d3f80aca4a483d851dbaf8d6a859c1
+F src/export.c 1ee59943c216ccee741b61ed49a04844d1fbc53ecadce8a5b3269b628b64a2e9
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -869,10 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 60af514d13969c79e4e82c4c116cee1b56424c1d73994148ea070654c6cd2a7c
-R b934cff551a0c3f8a22d9b9158244831
-T *branch * mirror-cmd
-T *sym-mirror-cmd *
-T -sym-trunk *
+P dbc1c62a995ae7616015ca2e40252bfed1df914443ec357f732a530fde204287
+R fe706b29552e18bdd67765e8a32e45c8
 U drh
-Z 2f646d3e3c4fbd2ab3764d2e111ed9b0
+Z b63925c7d442bd5164f0083125841594
