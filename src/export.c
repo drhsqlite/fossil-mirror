@@ -951,18 +951,17 @@ static void mirror_send_checkin(
   int *pnLimit          /* Stop when the counter reaches zero */
 ){
   Manifest *pMan;
-  int i;
-  Blob err;
+  int i, iParent;
   Stmt q;
   char *zBranch;
   int iMark;
   Blob sql;
 
-  blob_init(&err, 0, 0);
-  pMan = manifest_get(rid, CFTYPE_MANIFEST, &err);
+  pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
-    fossil_fatal("cannot fetch manifest for check-in %d: %s", rid, 
-                 blob_str(&err));
+    /* Must be a phantom.  Return without doing anything, and in particular
+    ** without creating a mark for this check-in. */
+    return;
   }
 
   /* Check to see if any parent logins have not yet been processed, and
@@ -1000,6 +999,8 @@ static void mirror_send_checkin(
   if( fossil_strcmp(zBranch,"trunk")==0 ){
     fossil_free(zBranch);
     zBranch = mprintf("master");
+  }else if( zBranch==0 ){
+    zBranch = mprintf("unknown");
   }else{
     mirror_sanitize_git_name(zBranch);
   }
@@ -1015,19 +1016,22 @@ static void mirror_send_checkin(
   );
   fprintf(xCmd, "data %d\n", (int)strlen(pMan->zComment));
   fprintf(xCmd, "%s\n", pMan->zComment);
+  iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
     int iOther = mirror_find_mark(pMan->azParent[i], 0);
-    if( i==0 ){
+    if( iOther==0 ) continue;
+    if( iParent<0 ){
+      iParent = i;
       fprintf(xCmd, "from :%d\n", iOther);
     }else{
       fprintf(xCmd, "merge :%d\n", iOther);
     }
   }
-  if( pMan->nParent ){
+  if( iParent>=0 ){
     db_prepare(&q,
       "SELECT filename FROM files_of_checkin(%Q)"
       " EXCEPT SELECT filename FROM files_of_checkin(%Q)",
-      pMan->azParent[0], zUuid
+      pMan->azParent[iParent], zUuid
     );
     while( db_step(&q)==SQLITE_ROW ){
       fprintf(xCmd, "D %s\n", db_column_text(&q,0));
@@ -1125,7 +1129,7 @@ void mirror_command(void){
 
   find_option("git", 0, 0);   /* Ignore the --git option for now */
   zDebug = find_option("debug",0,1);
-  db_find_and_open_repository(0, 2);
+  db_find_and_open_repository(0, 0);
   zLimit = find_option("limit", 0, 1);
   if( zLimit ){
     nLimit = (unsigned int)atoi(zLimit);
