@@ -834,6 +834,42 @@ void test_topological_sort(void){
   fossil_print("%d reorderings required\n", n);
 }
 
+/***************************************************************************
+** Implementation of the "fossil mirror" command follows.  We hope that the
+** new code that follows will largely replace the legacy "fossil export" code
+** above.
+*/
+
+/*
+** Convert characters of z[] that are not allowed to be in branch or
+** tag names into "_".
+*/
+static void mirror_sanitize_git_name(char *z){
+  static unsigned char aSafe[] = {
+     /* x0 x1 x2 x3 x4 x5 x6 x7 x8  x9 xA xB xC xD xE xF */
+         0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 0x */
+         0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 1x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 2x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 1, 1, 1, 1, 0,  /* 3x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 4x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 0, 1, 0, 1,  /* 5x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 0, 0,  /* 7x */
+  };
+  unsigned char *zu = (unsigned char*)z;
+  int i;
+  for(i=0; zu[i]; i++){
+    if( zu[i]>0x7f || !aSafe[zu[i]] ){
+      zu[i] = '_';
+    }else if( zu[i]=='/' && (i==0 || zu[i+1]==0 || zu[i+1]=='/') ){
+      zu[i] = '_';
+    }else if( zu[i]=='.' && (zu[i+1]==0 || zu[i+1]=='.'
+                             || (i>0 && zu[i-1]=='.')) ){
+      zu[i] = '_';
+    }
+  }
+}
+
 /*
 ** Transfer a tag over to the mirror.  "rid" is the BLOB.RID value for
 ** the record that describes the tag.
@@ -964,6 +1000,8 @@ static void mirror_send_checkin(
   if( fossil_strcmp(zBranch,"trunk")==0 ){
     fossil_free(zBranch);
     zBranch = mprintf("master");
+  }else{
+    mirror_sanitize_git_name(zBranch);
   }
 
   /* Export the check-in */
@@ -1185,7 +1223,11 @@ void mirror_command(void){
     "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark);"
   );
   nTotal = db_int(0, "SELECT count(*) FROM tomirror");
-  if( nLimit<nTotal ) nTotal = nLimit;
+  if( nLimit<nTotal ){
+    nTotal = nLimit;
+  }else if( nLimit>nTotal ){
+    nLimit = nTotal;
+  }
   db_prepare(&q,
     "SELECT objid, type, mtime, uuid FROM tomirror ORDER BY mtime"
   );
