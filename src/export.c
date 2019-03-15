@@ -449,9 +449,9 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
   }
 }
 
-/*
-** COMMAND: export
-**
+/* This is the original header command (and hence documentation) for
+** the "fossil export" command:
+** 
 ** Usage: %fossil export --git ?OPTIONS? ?REPOSITORY?
 **
 ** Write an export of all check-ins to standard output.  The export is
@@ -479,6 +479,11 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 **   --repository|-R REPOSITORY   export the given REPOSITORY
 **
 ** See also: import
+*/
+/*
+** COMMAND: export*
+**
+** This command is deprecated.  Use "fossil git export" instead.
 */
 void export_cmd(void){
   Stmt q, q2, q3;
@@ -835,16 +840,16 @@ void test_topological_sort(void){
 }
 
 /***************************************************************************
-** Implementation of the "fossil mirror" command follows.  We hope that the
-** new code that follows will largely replace the legacy "fossil export" code
-** above.
+** Implementation of the "fossil git" command follows.  We hope that the
+** new code that follows will largely replace the legacy "fossil export"
+** and "fossil import" code above.
 */
 
 /*
 ** Convert characters of z[] that are not allowed to be in branch or
 ** tag names into "_".
 */
-static void mirror_sanitize_git_name(char *z){
+static void gitmirror_sanitize_name(char *z){
   static unsigned char aSafe[] = {
      /* x0 x1 x2 x3 x4 x5 x6 x7 x8  x9 xA xB xC xD xE xF */
          0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 0x */
@@ -877,7 +882,7 @@ static void mirror_sanitize_git_name(char *z){
 ** The return value is a held in memory obtained from fossil_malloc()
 ** and must be freed by the caller.
 */
-static char *mirror_quote_filename_if_needed(const char *zIn){
+static char *gitmirror_quote_filename_if_needed(const char *zIn){
   int i, j;
   char c;
   int nSpecial = 0;
@@ -917,7 +922,7 @@ static char *mirror_quote_filename_if_needed(const char *zIn){
 ** tags cannot be exported to Git.  If this tag cannot be exported, then
 ** silently ignore it.
 */
-static void mirror_send_tag(FILE *xCmd, int rid){
+static void gitmirror_send_tag(FILE *xCmd, int rid){
   return;
 }
 
@@ -928,7 +933,7 @@ static void mirror_send_tag(FILE *xCmd, int rid){
 ** return 0.  If the mark does not exist and the bCreate flag is true,
 ** then create the mark.
 */
-static int mirror_find_mark(const char *zUuid, int bCreate){
+static int gitmirror_find_mark(const char *zUuid, int bCreate){
   int iMark;
   static Stmt sFind, sIns;
   db_static_prepare(&sFind,
@@ -958,7 +963,7 @@ static const char zEmptySha3[] =
 /*
 ** Export a single file named by zUuid.
 */
-static void mirror_send_file(FILE *xCmd, const char *zUuid){
+static void gitmirror_send_file(FILE *xCmd, const char *zUuid){
   int iMark;
   int rid;
   int rc;
@@ -973,7 +978,7 @@ static void mirror_send_file(FILE *xCmd, const char *zUuid){
       zUuid = zEmptySha3;
     }
   }
-  iMark = mirror_find_mark(zUuid, 1);
+  iMark = gitmirror_find_mark(zUuid, 1);
   fprintf(xCmd, "blob\nmark :%d\ndata %d\n", iMark, blob_size(&data));
   fwrite(blob_buffer(&data), 1, blob_size(&data), xCmd);
   fprintf(xCmd, "\n");
@@ -993,7 +998,7 @@ static void mirror_send_file(FILE *xCmd, const char *zUuid){
 ** have not been.  Update the MIRROR.MMARK table so that it holds the
 ** marks for the exported files. 
 */
-static void mirror_send_checkin(
+static void gitmirror_send_checkin(
   FILE *xCmd,           /* Write fast-import text on this pipe */
   int rid,              /* BLOB.RID for the check-in to export */
   const char *zUuid,    /* BLOB.UUID for the check-in to export */
@@ -1019,11 +1024,11 @@ static void mirror_send_checkin(
   /* Check to see if any parent logins have not yet been processed, and
   ** if so, create them */
   for(i=0; i<pMan->nParent; i++){
-    int iMark = mirror_find_mark(pMan->azParent[i], 0);
+    int iMark = gitmirror_find_mark(pMan->azParent[i], 0);
     if( iMark<=0 ){
       int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
                         pMan->azParent[i]);
-      mirror_send_checkin(xCmd, prid, pMan->azParent[i], pnLimit, fManifest);
+      gitmirror_send_checkin(xCmd, prid, pMan->azParent[i], pnLimit, fManifest);
       if( *pnLimit<=0 ){
         manifest_destroy(pMan);
         return;
@@ -1039,7 +1044,7 @@ static void mirror_send_checkin(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFUuid = db_column_text(&q, 0);
-    mirror_send_file(xCmd, zFUuid);
+    gitmirror_send_file(xCmd, zFUuid);
   }
   db_finalize(&q);
 
@@ -1054,13 +1059,13 @@ static void mirror_send_checkin(
   }else if( zBranch==0 ){
     zBranch = mprintf("unknown");
   }else{
-    mirror_sanitize_git_name(zBranch);
+    gitmirror_sanitize_name(zBranch);
   }
 
   /* Export the check-in */
   fprintf(xCmd, "commit refs/heads/%s\n", zBranch);
   fossil_free(zBranch);
-  iMark = mirror_find_mark(zUuid, 1);
+  iMark = gitmirror_find_mark(zUuid, 1);
   fprintf(xCmd, "mark :%d\n", iMark);
   fprintf(xCmd, "committer %s <%s@noemail.net> %lld +0000\n",
      pMan->zUser, pMan->zUser, 
@@ -1071,7 +1076,7 @@ static void mirror_send_checkin(
   fprintf(xCmd, "data %d\n%s\n", (int)strlen(zCom), zCom);
   iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
-    int iOther = mirror_find_mark(pMan->azParent[i], 0);
+    int iOther = gitmirror_find_mark(pMan->azParent[i], 0);
     if( iOther==0 ) continue;
     if( iParent<0 ){
       iParent = i;
@@ -1117,7 +1122,7 @@ static void mirror_send_checkin(
       if( strchr(zMode,'x') ) zGitMode = "100755";
       if( strchr(zMode,'l') ) zGitMode = "120000";
     }
-    zFNQuoted = mirror_quote_filename_if_needed(zFilename);
+    zFNQuoted = gitmirror_quote_filename_if_needed(zFilename);
     fprintf(xCmd,"M %s :%d %s\n", zGitMode, iMark, zFNQuoted);
     fossil_free(zFNQuoted);
   }
@@ -1149,47 +1154,9 @@ static void mirror_send_checkin(
 }
 
 /*
-** COMMAND: mirror
-**
-** Usage: %fossil mirror [--git] MIRROR [-R FOSSIL-REPO]
-**
-** Create or update another type of repository that is is mirror of
-** a Fossil repository.
-**
-** The current implementation only supports mirrors to Git, and so
-** the --git option is optional.  The ability to mirror to other version
-** control systems may be added in the future, in which case an argument
-** to specify the target version control system will become required.
-**
-** The MIRROR argument is the name of the secondary repository.  In the
-** case of Git, it is the directory that houses the Git repository.
-** If MIRROR does not previously exist, it is created and initialized to
-** a copy of the Fossil repository.  If MIRROR does already exist, it is
-** updated with new check-ins that have been added to the Fossil repository
-** since the last "fossil mirror" command to that particular repository.
-**
-** Implementation notes:
-**
-**    *  The git version control system must be installed in order for
-**       this command to work.  Fossil will invoke various git commands
-**       to run as subprocesses.
-**
-**    *  Fossil creates a directory named ".mirror_state" in the top level of
-**       the created git repository and stores state information in that
-**       directory.  Do not attempt to manage any files in that directory.
-**       Do not change or delete any files in that directory.  Doing so
-**       may disrupt future calls to the "fossil mirror" command for the
-**       mirror repository.
-**
-** Options:
-**
-**    --debug FILE             Write fast-export text to FILE rather than
-**                             piping it into "git fast-import".
-**
-**    --limit N                Add no more than N new check-ins to MIRROR.
-**                             Useful for debugging
+** Implementation of the "fossil git export" command.
 */
-void mirror_command(void){
+void gitmirror_export_command(void){
   const char *zLimit;             /* Text of the --limit flag */
   int nLimit = 0x7fffffff;        /* Numeric value of the --limit flag */
   int nTotal = 0;                 /* Total number of check-ins to export */
@@ -1205,7 +1172,6 @@ void mirror_command(void){
   Stmt q;                         /* Queries */
   char zLine[200];                /* One line of a mark file */
 
-  find_option("git", 0, 0);   /* Ignore the --git option for now */
   zDebug = find_option("debug",0,1);
   db_find_and_open_repository(0, 0);
   zLimit = find_option("limit", 0, 1);
@@ -1214,8 +1180,8 @@ void mirror_command(void){
     if( nLimit<=0 ) fossil_fatal("--limit must be positive");
   }
   verify_all_options();
-  if( g.argc!=3 ){ usage("--git MIRROR"); }
-  zMirror = g.argv[2];
+  if( g.argc!=4 ){ usage("export MIRROR"); }
+  zMirror = g.argv[3];
 
   /* Make sure the GIT repository directory exists */
   rc = file_mkdir(zMirror, ExtFILE, 0);
@@ -1323,9 +1289,9 @@ void mirror_command(void){
     const char *zUuid = db_column_text(&q, 3);
     if( rMTime>rEnd ) rEnd = rMTime;
     if( zType[0]=='t' ){
-      mirror_send_tag(xCmd, rid);
+      gitmirror_send_tag(xCmd, rid);
     }else{
-      mirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
+      gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
       printf("\r%d/%d  ", nTotal-nLimit, nTotal);
       fflush(stdout);
     }
@@ -1363,4 +1329,59 @@ void mirror_command(void){
   }
 
   /* Optionally do a "git push" */
+}
+
+/*
+** COMMAND: git
+**
+** Usage: %fossil git SUBCOMMAND
+**
+** Do incremental import or export operations between Fossil and Git.
+** Subcommands:
+**
+**   fossil git export MIRROR [OPTIONS]
+**
+**       Write content from the Fossil repository into the Git repository
+**       in directory MIRROR.  The Git repository is created if it does not
+**       already exist.  If the Git repository does already exist, then
+**       new content added to fossil since the previous export is appended.
+**
+**       Repeat this command whenever new checkins are added to the Fossil
+**       repository in order to reflect those changes into the mirror.
+**
+**       The MIRROR directory will contain a subdirectory named
+**       ".mirror_state" that contains information that Fossil needs to
+**       do incremental exports.  Do not attempt to manage or edit the files
+**       in that directory since doing so can disrupt future incremental
+**       exports.
+**
+**       Options:
+**         --debug FILE        Write fast-export text to FILE rather than
+**                             piping it into "git fast-import".
+**         --limit N           Add no more than N new check-ins to MIRROR.
+**                             Useful for debugging
+**
+**   fossil git import MIRROR
+**
+**       TBD...   
+*/
+void gitmirror_command(void){
+  char *zCmd;
+  int nCmd;
+  if( g.argc<3 ){
+    usage("export ARGS...");
+  }
+  zCmd =  g.argv[2];
+  nCmd = (int)strlen(zCmd);
+  if( nCmd>2 && strncmp(zCmd,"export",nCmd)==0 ){
+    gitmirror_export_command();
+  }else
+  if( nCmd>2 && strncmp(zCmd,"import",nCmd)==0 ){
+    fossil_fatal("not yet implemented - check back later");
+  }else
+  {
+    fossil_fatal("unknown subcommand \"%s\": should be one of "
+                 "\"export\", \"import\"",
+                 zCmd);
+  }
 }

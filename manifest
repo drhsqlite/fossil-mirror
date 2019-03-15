@@ -1,5 +1,5 @@
-C Export\s"manifest",\s"manifest.uuid",\sand\s"manifest.tags"\sfiles\sif\sthat\sis\nwhat\sthe\srepository\sneeds.
-D 2019-03-15T16:11:05.326
+C Rename\s"fossil\smirror"\sto\s"fossil\sgit\sexport".\s\sDeprecate\sthe\s"fossil\sexport"\ncommand.
+D 2019-03-15T16:38:05.120
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -471,7 +471,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c 0e313599f875e7f428de413c8683953012a80caf4402e6b3186a1a77b8118c3a
+F src/export.c d176e497f3bed7991df75ce4045666691bbee3e394e2f4a6edeceeba29dee606
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d74371680d0b38f63d30e7a074dd9b4c7afa70e7483608c6179b1bb4ac180cb8
-R b92497ffbe48601cab1844341a3f523f
+P eafe5ce624349d9643541069f5696eec0547c585a889497891fbbb42a650c9b8
+R 27a55bd307518b6491b36aff1fc8af69
 U drh
-Z f4d76676b06cb625b568335677c73dc4
+Z 574986436ff51e21637b3e40f9f4e926
