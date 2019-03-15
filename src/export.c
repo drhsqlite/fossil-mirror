@@ -1057,7 +1057,7 @@ static void mirror_send_checkin(
   }
 
   /* Export the check-in */
-  fprintf(xCmd, "commit refs/head/%s\n", zBranch);
+  fprintf(xCmd, "commit refs/heads/%s\n", zBranch);
   fossil_free(zBranch);
   iMark = mirror_find_mark(zUuid, 1);
   fprintf(xCmd, "mark :%d\n", iMark);
