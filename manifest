@@ -1,5 +1,5 @@
-C The\smirror\scommand\sis\snow\sable\sto\sexport\sall\sof\sFossil\sitself,\sthough\stags\nare\sstill\snot\sexported.
-D 2019-03-14T20:16:09.057
+C Render\sany\sphantom\sor\sshunned\sartifacts\sas\san\sempty\sfile.
+D 2019-03-15T11:48:41.320
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -471,7 +471,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c ec43bad9274d3ac41746300b0a06d5b9299df5f31b2363b6c2e5a3634d487a0b
+F src/export.c 5671855a1d520212667616c4a14f74e3195c98e00c84379bc469c5dc96d2effc
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -869,7 +869,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4a480954e7335eeab0e8dfa7c3b481d92cba718f987dfdcf555d1f0f5fc9dec4
-R 41d4f8c07eaa3f3e685284e8550f7810
+P a3471a5eef0b4764e316f15d478d990d0b176956e68857db03a94d999b398413
+R 32bf4b4ee92e33edaf51a5bacb6b2d3a
 U drh
-Z f1625d48874705daa166cef32dfa1729
+Z faa68f8366ff502cba340cc0a5daa09e

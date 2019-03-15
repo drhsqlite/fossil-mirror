@@ -951,6 +951,10 @@ static int mirror_find_mark(const char *zUuid, int bCreate){
   return db_last_insert_rowid();
 }
 
+/* This is the SHA3-256 hash of an empty file */
+static const char zEmptySha3[] = 
+  "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a";
+
 /*
 ** Export a single file named by zUuid.
 */
@@ -960,9 +964,15 @@ static void mirror_send_file(FILE *xCmd, const char *zUuid){
   int rc;
   Blob data;
   rid = fast_uuid_to_rid(zUuid);
-  if( rid<0 ) fossil_fatal("no rid for %s", zUuid);
-  rc = content_get(rid, &data);
-  if( rc==0 ) fossil_fatal("%s is a phantom", zUuid);
+  if( rid<0 ){
+    zUuid = zEmptySha3;
+  }else{
+    rc = content_get(rid, &data);
+    if( rc==0 ){
+      blob_init(&data, 0, 0);
+      zUuid = zEmptySha3;
+    }
+  }
   iMark = mirror_find_mark(zUuid, 1);
   fprintf(xCmd, "blob\nmark :%d\ndata %d\n", iMark, blob_size(&data));
   fwrite(blob_buffer(&data), 1, blob_size(&data), xCmd);
@@ -1271,7 +1281,7 @@ void mirror_command(void){
     "   AND blob.rid=event.objid"
     "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark);"
   );
-  nTotal = db_int(0, "SELECT count(*) FROM tomirror");
+  nTotal = db_int(0, "SELECT count(*) FROM tomirror WHERE type='ci'");
   if( nLimit<nTotal ){
     nTotal = nLimit;
   }else if( nLimit>nTotal ){
