@@ -997,7 +997,8 @@ static void mirror_send_checkin(
   FILE *xCmd,           /* Write fast-import text on this pipe */
   int rid,              /* BLOB.RID for the check-in to export */
   const char *zUuid,    /* BLOB.UUID for the check-in to export */
-  int *pnLimit          /* Stop when the counter reaches zero */
+  int *pnLimit,         /* Stop when the counter reaches zero */
+  int fManifest         /* MFESTFLG_* values */
 ){
   Manifest *pMan;       /* The check-in to be output */
   int i;                /* Loop counter */
@@ -1022,7 +1023,7 @@ static void mirror_send_checkin(
     if( iMark<=0 ){
       int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
                         pMan->azParent[i]);
-      mirror_send_checkin(xCmd, prid, pMan->azParent[i], pnLimit);
+      mirror_send_checkin(xCmd, prid, pMan->azParent[i], pnLimit, fManifest);
       if( *pnLimit<=0 ){
         manifest_destroy(pMan);
         return;
@@ -1122,6 +1123,27 @@ static void mirror_send_checkin(
   }
   db_finalize(&q);
 
+  /* Include Fossil-generated auxiliary files in the check-in */
+  if( fManifest & MFESTFLG_RAW ){
+    Blob manifest;
+    content_get(rid, &manifest);
+    fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
+      blob_size(&manifest), blob_str(&manifest));
+    blob_reset(&manifest);
+  }
+  if( fManifest & MFESTFLG_UUID ){
+    int n = (int)strlen(zUuid);
+    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n", n, zUuid);
+  }
+  if( fManifest & MFESTFLG_TAGS ){
+    Blob tagslist;
+    blob_init(&tagslist, 0, 0);
+    get_checkin_taglist(rid, &tagslist);
+    fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
+      blob_size(&tagslist), blob_str(&tagslist));
+    blob_reset(&tagslist);
+  }
+
   /* The check-in is finished, so decrement the counter */
   (*pnLimit)--;
 }
@@ -1168,19 +1190,20 @@ static void mirror_send_checkin(
 **                             Useful for debugging
 */
 void mirror_command(void){
-  const char *zLimit;
-  int nLimit = 0x7fffffff;
-  int nTotal = 0;
-  char *zMirror;
-  char *z;
-  char *zCmd;
-  const char *zDebug = 0;
-  double rEnd;
-  int rc;
-  FILE *xCmd;
-  FILE *pIn, *pOut;
-  Stmt q;
-  char zLine[200];
+  const char *zLimit;             /* Text of the --limit flag */
+  int nLimit = 0x7fffffff;        /* Numeric value of the --limit flag */
+  int nTotal = 0;                 /* Total number of check-ins to export */
+  char *zMirror;                  /* Name of the mirror */
+  char *z;                        /* Generic string */
+  char *zCmd;                     /* git command to run as a subprocess */
+  const char *zDebug = 0;         /* Value of the --debug flag */
+  double rEnd;                    /* time of most recent export */
+  int rc;                         /* Result code */
+  int fManifest;                  /* Current "manifest" setting */
+  FILE *xCmd;                     /* Pipe to the "git fast-import" command */
+  FILE *pIn, *pOut;               /* Git mark files */
+  Stmt q;                         /* Queries */
+  char zLine[200];                /* One line of a mark file */
 
   find_option("git", 0, 0);   /* Ignore the --git option for now */
   zDebug = find_option("debug",0,1);
@@ -1244,6 +1267,9 @@ void mirror_command(void){
     return;
   }
 
+  /* Do we need to include manifest files in the clone? */
+  fManifest = db_get_manifest_setting();
+
   /* Change to the MIRROR directory so that the Git commands will work */
   rc = file_chdir(zMirror, 0);
   if( rc ) fossil_fatal("cannot change the working directory to \"%s\"",
@@ -1299,7 +1325,7 @@ void mirror_command(void){
     if( zType[0]=='t' ){
       mirror_send_tag(xCmd, rid);
     }else{
-      mirror_send_checkin(xCmd, rid, zUuid, &nLimit);
+      mirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
       printf("\r%d/%d  ", nTotal-nLimit, nTotal);
       fflush(stdout);
     }
