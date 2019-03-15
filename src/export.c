@@ -1012,7 +1012,7 @@ static void gitmirror_send_checkin(
   char *zBranch;        /* The branch of the check-in */
   int iMark;            /* The mark for the check-in */
   Blob sql;             /* String of SQL for part of the query */
-  char *zCom;           /* The check-in comment */
+  Blob comment;         /* The comment text for the check-in */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1071,9 +1071,13 @@ static void gitmirror_send_checkin(
      pMan->zUser, pMan->zUser, 
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
   );
-  zCom = pMan->zComment;
-  if( zCom==0 ) zCom = "(no comment)";
-  fprintf(xCmd, "data %d\n%s\n", (int)strlen(zCom), zCom);
+  blob_init(&comment, pMan->zComment, -1);
+  if( blob_size(&comment)==0 ){
+    blob_append(&comment, "(no comment)", -1);
+  }
+  blob_appendf(&comment, "\n\nFossilOrigin-Name: %s", zUuid);
+  fprintf(xCmd, "data %d\n%s\n", blob_size(&comment), blob_str(&comment));
+  blob_reset(&comment);
   iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
     int iOther = gitmirror_find_mark(pMan->azParent[i], 0);
