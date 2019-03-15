@@ -915,18 +915,6 @@ static char *gitmirror_quote_filename_if_needed(const char *zIn){
 }
 
 /*
-** Transfer a tag over to the mirror.  "rid" is the BLOB.RID value for
-** the record that describes the tag.
-**
-** The Git tag mechanism is very limited compared to Fossil.  Many Fossil
-** tags cannot be exported to Git.  If this tag cannot be exported, then
-** silently ignore it.
-*/
-static void gitmirror_send_tag(FILE *xCmd, int rid){
-  return;
-}
-
-/*
 ** Locate the mark for a UUID.
 **
 ** If the mark does not exist and if the bCreate flag is false, then
@@ -1212,6 +1200,7 @@ void gitmirror_export_command(void){
 
   /* Attach the .mirror_state/db database */
   db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
+  db_begin_write();
   db_multi_exec(
     "CREATE TABLE IF NOT EXISTS mirror.mconfig(\n"
     "  key TEXT PRIMARY KEY,\n"
@@ -1219,17 +1208,14 @@ void gitmirror_export_command(void){
     ") WITHOUT ROWID;\n"
     "CREATE TABLE IF NOT EXISTS mirror.mmark(\n"
     "  id INTEGER PRIMARY KEY,\n"
-    "  uuid TEXT UNIQUE\n"
+    "  uuid TEXT UNIQUE,\n"
+    "  githash TEXT UNIQUE\n"
     ");"
-    "CREATE TABLE IF NOT EXISTS mirror.mtag(\n"
-    "  tagname TEXT PRIMARY KEY,\n"
-    "  cnt INTEGER DEFAULT 1\n"
-    ") WITHOUT ROWID;"
   );
 
   /* See if there is any work to be done.  Exit early if not, before starting
   ** the "git fast-import" command. */
-  if( !db_exists("SELECT 1 FROM event WHERE type IN ('t','ci')"
+  if( !db_exists("SELECT 1 FROM event WHERE type='ci'"
                  " AND mtime>coalesce((SELECT value FROM mconfig"
                                         " WHERE key='start'),0.0)")
   ){
@@ -1269,36 +1255,31 @@ void gitmirror_export_command(void){
   /* Run the export */
   rEnd = 0.0;
   db_multi_exec(
-    "CREATE TEMP TABLE tomirror(objid INTEGER PRIMARY KEY,type,mtime,uuid);\n"
+    "CREATE TEMP TABLE tomirror(objid,mtime,uuid);\n"
     "INSERT INTO tomirror "
-    "SELECT objid, type, mtime, blob.uuid FROM event, blob\n"
-    " WHERE type IN ('ci','t')"
+    "SELECT objid, mtime, blob.uuid FROM event, blob\n"
+    " WHERE type='ci'"
     "   AND mtime>coalesce((SELECT value FROM mconfig WHERE key='start'),0.0)"
     "   AND blob.rid=event.objid"
     "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark);"
   );
-  nTotal = db_int(0, "SELECT count(*) FROM tomirror WHERE type='ci'");
+  nTotal = db_int(0, "SELECT count(*) FROM tomirror");
   if( nLimit<nTotal ){
     nTotal = nLimit;
   }else if( nLimit>nTotal ){
     nLimit = nTotal;
   }
   db_prepare(&q,
-    "SELECT objid, type, mtime, uuid FROM tomirror ORDER BY mtime"
+    "SELECT objid, mtime, uuid FROM tomirror ORDER BY mtime"
   );
   while( nLimit && db_step(&q)==SQLITE_ROW ){
-    double rMTime = db_column_double(&q, 2);
-    const char *zType = db_column_text(&q, 1);
     int rid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 3);
+    double rMTime = db_column_double(&q, 1);
+    const char *zUuid = db_column_text(&q, 2);
     if( rMTime>rEnd ) rEnd = rMTime;
-    if( zType[0]=='t' ){
-      gitmirror_send_tag(xCmd, rid);
-    }else{
-      gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
-      printf("\r%d/%d  ", nTotal-nLimit, nTotal);
-      fflush(stdout);
-    }
+    gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
+    printf("\r%d/%d  ", nTotal-nLimit, nTotal);
+    fflush(stdout);
   }
   db_finalize(&q);
   db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
@@ -1322,15 +1303,30 @@ void gitmirror_export_command(void){
     if( pIn==0 ){
       fossil_fatal("cannot open %s/.mirror_state/in for appending", zMirror);
     }
+    db_prepare(&q, "UPDATE mirror.mmark SET githash=:githash WHERE id=:id");
     while( fgets(zLine, sizeof(zLine), pOut) ){
+      int j, k;
+      if( zLine[0]!=':' ) continue;
+      db_bind_int(&q, ":id", atoi(zLine+1));
+      for(j=1; zLine[j] && zLine[j]!=' '; j++){}
+      if( zLine[j]!=' ' ) continue;
+      j++;
+      if( zLine[j]==0 ) continue;
+      for(k=j; fossil_isalnum(zLine[k]); k++){}
+      zLine[k] = 0;
+      db_bind_text(&q, ":githash", &zLine[j]);
+      db_step(&q);
+      db_reset(&q);
       fputs(zLine, pIn);
     }
+    db_finalize(&q);
     fclose(pOut);
     fclose(pIn);
     file_delete(".mirror_state/out");
   }else{
     fossil_fatal("git fast-import didn't generate a marks file!");
   }
+  db_commit_transaction();
 
   /* Optionally do a "git push" */
 }
