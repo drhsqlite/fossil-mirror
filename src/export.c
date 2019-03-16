@@ -1160,6 +1160,7 @@ void gitmirror_export_command(void){
   char *zPushUrl;                 /* URL to sync the mirror to */
   double rEnd;                    /* time of most recent export */
   int rc;                         /* Result code */
+  int bForce;                     /* Do the export and sync even if no changes*/
   int fManifest;                  /* Current "manifest" setting */
   FILE *xCmd;                     /* Pipe to the "git fast-import" command */
   FILE *pIn, *pOut;               /* Git mark files */
@@ -1174,9 +1175,19 @@ void gitmirror_export_command(void){
     if( nLimit<=0 ) fossil_fatal("--limit must be positive");
   }
   zAutoPush = find_option("autopush",0,1);
+  bForce = find_option("force","f",0)!=0;
   verify_all_options();
-  if( g.argc!=4 ){ usage("export MIRROR"); }
-  zMirror = g.argv[3];
+  if( g.argc!=4 && g.argc!=3 ){ usage("export ?MIRROR?"); }
+  if( g.argc==4 ){
+    Blob mirror;
+    file_canonical_name(g.argv[3], &mirror, 0);
+    db_set("last-git-export-repo", blob_str(&mirror), 0);
+    blob_reset(&mirror);
+  }
+  zMirror = db_get("last-git-export-repo", 0);
+  if( zMirror==0 ){
+    fossil_fatal("no Git repository specified");
+  }
 
   /* Make sure the GIT repository directory exists */
   rc = file_mkdir(zMirror, ExtFILE, 0);
@@ -1231,7 +1242,8 @@ void gitmirror_export_command(void){
 
   /* See if there is any work to be done.  Exit early if not, before starting
   ** the "git fast-import" command. */
-  if( !db_exists("SELECT 1 FROM event WHERE type IN ('ci','t')"
+  if( !bForce
+   && !db_exists("SELECT 1 FROM event WHERE type IN ('ci','t')"
                  " AND mtime>coalesce((SELECT value FROM mconfig"
                                         " WHERE key='start'),0.0)")
   ){
@@ -1371,17 +1383,19 @@ void gitmirror_export_command(void){
   db_finalize(&q);
 
   /* Update the start time */
-  db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
-  db_bind_double(&q, ":x", rEnd);
-  db_step(&q);
-  db_finalize(&q);
+  if( rEnd>0.0 ){
+    db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
+    db_bind_double(&q, ":x", rEnd);
+    db_step(&q);
+    db_finalize(&q);
+  }
   db_commit_transaction();
 
   /* Optionally do a "git push" */
   zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
   if( zPushUrl ){
     char *zPushCmd = mprintf("git push --mirror %s", zPushUrl);
-    fossil_print("git push\n");
+    fossil_print("%s", zPushCmd);
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }
@@ -1395,7 +1409,7 @@ void gitmirror_export_command(void){
 ** Do incremental import or export operations between Fossil and Git.
 ** Subcommands:
 **
-**   fossil git export MIRROR [OPTIONS]
+**   fossil git export [MIRROR] [OPTIONS]
 **
 **       Write content from the Fossil repository into the Git repository
 **       in directory MIRROR.  The Git repository is created if it does not
@@ -1403,7 +1417,9 @@ void gitmirror_export_command(void){
 **       new content added to fossil since the previous export is appended.
 **
 **       Repeat this command whenever new checkins are added to the Fossil
-**       repository in order to reflect those changes into the mirror.
+**       repository in order to reflect those changes into the mirror.  If
+**       the MIRROR option is omitted, the repository from the previous
+**       invocation is used.
 **
 **       The MIRROR directory will contain a subdirectory named
 **       ".mirror_state" that contains information that Fossil needs to
@@ -1418,6 +1434,7 @@ void gitmirror_export_command(void){
 **                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
 **                             piping it into "git fast-import".
+**         --force|-f          Do the export even if nothing has changed
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
 **
