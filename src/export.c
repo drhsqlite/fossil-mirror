@@ -1395,7 +1395,7 @@ void gitmirror_export_command(void){
   zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
   if( zPushUrl ){
     char *zPushCmd = mprintf("git push --mirror %s", zPushUrl);
-    fossil_print("%s", zPushCmd);
+    fossil_print("%s\n", zPushCmd);
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }

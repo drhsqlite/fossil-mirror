@@ -1,5 +1,5 @@
-C Update\sthe\s"fossil\sgit\sexport"\scommand\sso\sthat\sit\sremembers\sthe\slast\srepository\nname\sand\sreuses\sit\sif\sno\srepository\sis\sspecified.\s\sAdd\sthe\s--force\soption.
-D 2019-03-16T13:23:35.997
+C Fix\sa\smissing\snewline\swhen\sprinting\sthe\sgit\spush\scommand\son\s--autopush.
+D 2019-03-16T13:31:32.399
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c bbc232932eeb2abcd33409b76841631d0f12a9777442a0d8d428ab3263e722db
+F src/export.c 771a771e77e926bb2fb041ef57fc933053dc76c33968d7477e617db9fecbc860
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -870,7 +870,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac5ae7b733e9892e895c4781b75cf59ebad182acf0060812f13fa6326c910603
-R d6fe02d6c1fa115382e93a630f47492f
+P fe98905e9ae39e33c86f4e2c4174aacce1fa155efa7a7bd87897f0a1de2aef16
+R fa85b22ff2dddc927b0f56873599c751
 U drh
-Z 4100c2de679a9e6411c2e62fa7218098
+Z edeb8e5ac37ec8d79766cde5e9f19d6b
