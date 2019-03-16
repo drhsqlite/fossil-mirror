@@ -1,5 +1,5 @@
-C When\sthe\s"fossil\sgit\sexport"\scommand\sdisplays\sthe\s"git\spush"\scommand\sit\sis\nabout\sto\srun,\somit\sthe\sdisplay\sof\sany\spassword\sthat\shappens\sto\sbe\sembedded\nin\sthe\sURL.
-D 2019-03-16T13:58:27.146
+C Abandon\san\sexport\sto\sGit\sif\sa\sphantom\sartifact\sis\sencountered\son\sany\ncheck-in\sthat\sis\sless\sthan\sone\syear\sold.\s\sThis\sis\sa\sdefense\sagainst\sgenerating\nan\sincorrect\sexport\sfrom\sa\srepository\sthat\shas\san\sincomplete\ssync.\s\sShunned\nartifacts\sare\salways\signored,\sregardless\sof\sage.
+D 2019-03-16T17:04:55.454
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c 9796dc1bc5ec5505ee4d24ab5721ba567b83ed43852cea0a364adb4bf3ea41e9
+F src/export.c c01940ecb4519920e0cf13df77f665c2249001e9a753df04ca99ff467c07ec93
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -540,7 +540,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c c79a94be03aa5fb26e11acbc8b41502ac5ce061927b3650793187f5fbd5db094
+F src/printf.c cb1d44d9e623e1d54d5826b56fc5529807a298db9b76990a04261377bf364872
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
@@ -870,7 +870,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df619db6e42f82b2c54624db2a8b2631fedc078d22bb8fb92d8f3e464eadc0b6
-R 6aa900dfb554008b7a8b7254ee3ca8e4
+P aaa937a8e14ec049e7b172aa32eff4dfcd9d31b6999e0988537488a07cc3f15f
+R a8ab649b1088b8e06f42013d9022a6e8
 U drh
-Z da7806e6483a9b129cf2d4eb3bb612b8
+Z d16c9797c159978bcdcb15e9b9d5ca04

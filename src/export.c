@@ -845,6 +845,29 @@ void test_topological_sort(void){
 ** and "fossil import" code above.
 */
 
+/* Verbosity level.  Higher means more output.
+**
+**    0     print nothing at all
+**    1     Errors only
+**    2     Progress information (This is the default)
+**    3     Extra details
+*/
+#define VERB_ERROR  1
+#define VERB_NORMAL 2
+#define VERB_EXTRA  3
+static int gitmirror_verbosity = VERB_NORMAL;
+
+/*
+** Output routine that depends on verbosity
+*/
+static void gitmirror_message(int iLevel, const char *zFormat, ...){
+  va_list ap;
+  if( iLevel>gitmirror_verbosity ) return;
+  va_start(ap, zFormat);
+  fossil_vprint(zFormat, ap);
+  va_end(ap);
+}
+
 /*
 ** Convert characters of z[] that are not allowed to be in branch or
 ** tag names into "_".
@@ -950,20 +973,37 @@ static const char zEmptySha3[] =
 
 /*
 ** Export a single file named by zUuid.
+**
+** Return 0 on success and non-zero on any failure.
+**
+** If zUuid is a shunned file, then treat it as if it were any empty file.
+** But files that are missing from the repository but have not been officially
+** shunned cause an error return.  Except, if bPhantomOk is true, then missing
+** files are replaced by an empty file.
 */
-static void gitmirror_send_file(FILE *xCmd, const char *zUuid){
+static int gitmirror_send_file(FILE *xCmd, const char *zUuid, int bPhantomOk){
   int iMark;
   int rid;
   int rc;
   Blob data;
   rid = fast_uuid_to_rid(zUuid);
   if( rid<0 ){
-    zUuid = zEmptySha3;
+    if( bPhantomOk || uuid_is_shunned(zUuid) ){
+      gitmirror_message(VERB_EXTRA, "missing file: %s\n", zUuid);
+      zUuid = zEmptySha3;
+    }else{
+      return 1;
+    }
   }else{
     rc = content_get(rid, &data);
     if( rc==0 ){
-      blob_init(&data, 0, 0);
-      zUuid = zEmptySha3;
+      if( bPhantomOk ){
+        blob_init(&data, 0, 0);
+        gitmirror_message(VERB_EXTRA, "missing file: %s\n", zUuid);
+        zUuid = zEmptySha3;
+      }else{      
+        return 1;
+      }
     }
   }
   iMark = gitmirror_find_mark(zUuid, 1);
@@ -971,6 +1011,7 @@ static void gitmirror_send_file(FILE *xCmd, const char *zUuid){
   fwrite(blob_buffer(&data), 1, blob_size(&data), xCmd);
   fprintf(xCmd, "\n");
   blob_reset(&data);
+  return 0;
 }
 
 /*
@@ -984,9 +1025,11 @@ static void gitmirror_send_file(FILE *xCmd, const char *zUuid){
 ** Before sending the check-in, first make sure all associated files
 ** have already been exported, and send "blob" records for any that
 ** have not been.  Update the MIRROR.MMARK table so that it holds the
-** marks for the exported files. 
+** marks for the exported files.
+**
+** Return zero on success and non-zero if the export should be stopped.
 */
-static void gitmirror_send_checkin(
+static int gitmirror_send_checkin(
   FILE *xCmd,           /* Write fast-import text on this pipe */
   int rid,              /* BLOB.RID for the check-in to export */
   const char *zUuid,    /* BLOB.UUID for the check-in to export */
@@ -1001,12 +1044,15 @@ static void gitmirror_send_checkin(
   int iMark;            /* The mark for the check-in */
   Blob sql;             /* String of SQL for part of the query */
   Blob comment;         /* The comment text for the check-in */
+  int nErr = 0;         /* Number of errors */
+  int bPhantomOk;       /* True if phantom files should be ignored */
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
     /* Must be a phantom.  Return without doing anything, and in particular
     ** without creating a mark for this check-in. */
-    return;
+    gitmirror_message(VERB_NORMAL, "missing check-in: %s\n", zUuid);
+    return 0;
   }
 
   /* Check to see if any parent logins have not yet been processed, and
@@ -1016,13 +1062,18 @@ static void gitmirror_send_checkin(
     if( iMark<=0 ){
       int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
                         pMan->azParent[i]);
-      gitmirror_send_checkin(xCmd, prid, pMan->azParent[i], pnLimit, fManifest);
-      if( *pnLimit<=0 ){
+      int rc = gitmirror_send_checkin(xCmd, prid, pMan->azParent[i],
+                                      pnLimit, fManifest);
+      if( rc || *pnLimit<=0 ){
         manifest_destroy(pMan);
-        return;
+        return 1;
       }
     }
   }
+
+  /* Ignore phantom files on check-ins that are over one year old */
+  bPhantomOk = db_int(0, "SELECT %.6f<julianday('now','-1 year')",
+                      pMan->rDate);
 
   /* Make sure all necessary files have been exported */
   db_prepare(&q,
@@ -1032,9 +1083,20 @@ static void gitmirror_send_checkin(
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFUuid = db_column_text(&q, 0);
-    gitmirror_send_file(xCmd, zFUuid);
+    int n = gitmirror_send_file(xCmd, zFUuid, bPhantomOk);
+    nErr += n;
+    if( n ) gitmirror_message(VERB_ERROR, "missing file: %s\n", zFUuid);
   }
   db_finalize(&q);
+
+  /* If some required files could not be exported, abandon the check-in
+  ** export */
+  if( nErr ){
+    gitmirror_message(VERB_ERROR,
+             "export of %s abandoned due to missing files\n", zUuid);
+    *pnLimit = 0;
+    return 1;
+  }
 
   /* Figure out which branch this check-in is a member of */
   zBranch = db_text(0,
@@ -1143,6 +1205,7 @@ static void gitmirror_send_checkin(
 
   /* The check-in is finished, so decrement the counter */
   (*pnLimit)--;
+  return 0;
 }
 
 /*
@@ -1176,6 +1239,9 @@ void gitmirror_export_command(void){
   }
   zAutoPush = find_option("autopush",0,1);
   bForce = find_option("force","f",0)!=0;
+  gitmirror_verbosity = VERB_NORMAL;
+  while( find_option("quiet","q",0)!=0 ){ gitmirror_verbosity--; }
+  while( find_option("verbose","v",0)!=0 ){ gitmirror_verbosity++; }
   verify_all_options();
   if( g.argc!=4 && g.argc!=3 ){ usage("export ?MIRROR?"); }
   if( g.argc==4 ){
@@ -1197,10 +1263,10 @@ void gitmirror_export_command(void){
   z = mprintf("%s/.git", zMirror);
   if( !file_isdir(z, ExtFILE) ){
     zCmd = mprintf("git init '%s'",zMirror);
-    fossil_print("%s\n", zCmd);
+    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
     rc = fossil_system(zCmd);
     if( rc ){
-      fossil_fatal("command failed: \"%s\"", zCmd);
+      fossil_fatal("cannot initialize the git repository using: \"%s\"", zCmd);
     }
     fossil_free(zCmd);
   }
@@ -1247,7 +1313,7 @@ void gitmirror_export_command(void){
                  " AND mtime>coalesce((SELECT value FROM mconfig"
                                         " WHERE key='start'),0.0)")
   ){
-    fossil_print("no changes\n");
+    gitmirror_message(VERB_NORMAL, "no changes\n");
     db_commit_transaction();
     return;
   }
@@ -1273,7 +1339,7 @@ void gitmirror_export_command(void){
               " --import-marks-if-exists=.mirror_state/in"
               " --export-marks=.mirror_state/out"
               " --quiet --done");
-    fossil_print("%s\n", zCmd);
+    gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
     xCmd = popen(zCmd, "w");
     if( zCmd==0 ){
       fossil_fatal("cannot start the \"git fast-import\" command");
@@ -1306,8 +1372,9 @@ void gitmirror_export_command(void){
     double rMTime = db_column_double(&q, 1);
     const char *zUuid = db_column_text(&q, 2);
     if( rMTime>rEnd ) rEnd = rMTime;
-    gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
-    printf("\r%d/%d  ", nTotal-nLimit, nTotal);
+    rc = gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
+    if( rc ) break;
+    gitmirror_message(VERB_NORMAL,"%d/%d      \r", nTotal-nLimit, nTotal);
     fflush(stdout);
   }
   db_finalize(&q);
@@ -1317,7 +1384,8 @@ void gitmirror_export_command(void){
   }else{
     pclose(xCmd);
   }
-  fossil_print("%d check-ins added to the mirror\n", nTotal-nLimit);
+  gitmirror_message(VERB_NORMAL, "%d check-ins added to the %s\n",
+                    nTotal-nLimit, zMirror);
 
   /* Read the export-marks file.  Transfer the new marks over into
   ** the import-marks file.
@@ -1376,7 +1444,7 @@ void gitmirror_export_command(void){
     gitmirror_sanitize_name(zTagname);
     zTagCmd = mprintf("git tag -f \"%s\" %s", zTagname, zObj);
     fossil_free(zTagname);
-    fossil_print("%s\n", zTagCmd);
+    gitmirror_message(VERB_NORMAL, "%s\n", zTagCmd);
     fossil_system(zTagCmd);
     fossil_free(zTagCmd);
   }
@@ -1398,7 +1466,7 @@ void gitmirror_export_command(void){
     UrlData url;
     url_parse_local(zPushUrl, 0, &url);
     zPushCmd = mprintf("git push --mirror %s", url.canonical);
-    fossil_print("%s\n", zPushCmd);
+    gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
     zPushCmd = mprintf("git push --mirror %s", zPushUrl);
     fossil_system(zPushCmd);
@@ -1442,6 +1510,8 @@ void gitmirror_export_command(void){
 **         --force|-f          Do the export even if nothing has changed
 **         --limit N           Add no more than N new check-ins to MIRROR.
 **                             Useful for debugging
+**         --quiet|-q          Reduce output. Repeat for even less output.
+**         --verbose|-v        More output.
 **
 **   fossil git import MIRROR
 **
