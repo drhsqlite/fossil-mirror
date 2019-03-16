@@ -1394,8 +1394,13 @@ void gitmirror_export_command(void){
   /* Optionally do a "git push" */
   zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
   if( zPushUrl ){
-    char *zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+    char *zPushCmd;
+    UrlData url;
+    url_parse_local(zPushUrl, 0, &url);
+    zPushCmd = mprintf("git push --mirror %s", url.canonical);
     fossil_print("%s\n", zPushCmd);
+    fossil_free(zPushCmd);
+    zPushCmd = mprintf("git push --mirror %s", zPushUrl);
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }
