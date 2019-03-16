@@ -30,19 +30,13 @@ static struct {
 
 #if INTERFACE
 /*
-** struct mark_t
-**   holds information for translating between git commits
-**   and fossil commits.
-**   -git_name: This is the mark name that identifies the commit to git.
-**              It will always begin with a ':'.
-**   -rid: The unique object ID that identifies this commit within the
-**         repository database.
-**   -uuid: The SHA-1/SHA-3 of artifact corresponding to rid.
+** Each line in a git-fast-export "marK" file is an instance of
+** this object.
 */
-struct mark_t{
-  char *name;
-  int rid;
-  char uuid[65];
+struct mark_t {
+  char *name;       /* Name of the mark.  Also starts with ":" */
+  int rid;          /* Corresponding object in the BLOB table */
+  char uuid[65];    /* The GIT hash name for this object */
 };
 #endif
 
@@ -299,14 +293,14 @@ char * mark_name_from_rid(int rid, unsigned int *unused_mark){
 }
 
 /*
-** parse_mark()
-**   Create a new (mark,rid,uuid) entry in the 'xmark' table given a line
-**   from a marks file.  Return the cross-ref information as a struct mark_t
-**   in *mark.
-**   This function returns -1 in the case that the line is blank, malformed, or
-**   the rid/uuid named in 'line' does not match what is in the repository
-**   database.  Otherwise, 0 is returned.
-**   mark->name is dynamically allocated, and owned by the caller.
+** Parse a single line of the mark file.  Store the result in the mark object.
+**
+** "line" is a single line of input.
+** This function returns -1 in the case that the line is blank, malformed, or
+** the rid/uuid named in 'line' does not match what is in the repository
+** database.  Otherwise, 0 is returned.
+**
+** mark->name is dynamically allocated, and owned by the caller.
 */
 int parse_mark(char *line, struct mark_t *mark){
   char *cur_tok;
@@ -363,19 +357,20 @@ int parse_mark(char *line, struct mark_t *mark){
 }
 
 /*
-** import_marks()
-**   Import the marks specified in file 'f' into the 'xmark' table.
-**   If 'blobs' is non-null, insert all blob marks into it.
-**   If 'vers' is non-null, insert all commit marks into it.
-**   If 'unused_marks' is non-null, upon return of this function, all values
-**   x >= *unused_marks are free to use as marks, i.e. they do not clash with
-**   any marks appearing in the marks file.
-**   Each line in the file must be at most 100 characters in length.  This
-**   seems like a reasonable maximum for a 40-character uuid, and 1-13
-**   character rid.
-**   The function returns -1 if any of the lines in file 'f' are malformed,
-**   or the rid/uuid information doesn't match what is in the repository
-**   database.  Otherwise, 0 is returned.
+** Import the marks specified in file 'f';
+** If 'blobs' is non-null, insert all blob marks into it.
+** If 'vers' is non-null, insert all commit marks into it.
+** If 'unused_marks' is non-null, upon return of this function, all values
+** x >= *unused_marks are free to use as marks, i.e. they do not clash with
+** any marks appearing in the marks file.
+**
+** Each line in the file must be at most 100 characters in length.  This
+** seems like a reasonable maximum for a 40-character uuid, and 1-13
+** character rid.
+**
+** The function returns -1 if any of the lines in file 'f' are malformed,
+** or the rid/uuid information doesn't match what is in the repository
+** database.  Otherwise, 0 is returned.
 */
 int import_marks(FILE* f, Bag *blobs, Bag *vers, unsigned int *unused_mark){
   char line[101];
@@ -454,9 +449,9 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
   }
 }
 
-/*
-** COMMAND: export
-**
+/* This is the original header command (and hence documentation) for
+** the "fossil export" command:
+** 
 ** Usage: %fossil export --git ?OPTIONS? ?REPOSITORY?
 **
 ** Write an export of all check-ins to standard output.  The export is
@@ -485,6 +480,11 @@ void export_marks(FILE* f, Bag *blobs, Bag *vers){
 **
 ** See also: import
 */
+/*
+** COMMAND: export*
+**
+** This command is deprecated.  Use "fossil git export" instead.
+*/
 void export_cmd(void){
   Stmt q, q2, q3;
   Bag blobs, vers;
@@ -509,7 +509,8 @@ void export_cmd(void){
 
   db_multi_exec("CREATE TEMPORARY TABLE oldblob(rid INTEGER PRIMARY KEY)");
   db_multi_exec("CREATE TEMPORARY TABLE oldcommit(rid INTEGER PRIMARY KEY)");
-  db_multi_exec("CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT)");
+  db_multi_exec("CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT,"
+                " tuuid TEXT)");
   db_multi_exec("CREATE INDEX xmark_trid ON xmark(trid)");
   if( markfile_in!=0 ){
     Stmt qb,qc;
@@ -756,7 +757,7 @@ void export_cmd(void){
 ** This table contains all check-ins of the repository in topological
 ** order.  "Topological order" means that every parent check-in comes
 ** before all of its children.  Topological order is *almost* the same
-** thing as "ORDER BY event.mtime".  Differences only arrise when there
+** thing as "ORDER BY event.mtime".  Differences only arise when there
 ** are timewarps.  In as much as Git hates timewarps, we have to compute
 ** a correct topological order when doing an export.
 **
@@ -836,4 +837,583 @@ void test_topological_sort(void){
   db_find_and_open_repository(0, 0);
   n = topological_sort_checkins(1);
   fossil_print("%d reorderings required\n", n);
+}
+
+/***************************************************************************
+** Implementation of the "fossil git" command follows.  We hope that the
+** new code that follows will largely replace the legacy "fossil export"
+** and "fossil import" code above.
+*/
+
+/*
+** Convert characters of z[] that are not allowed to be in branch or
+** tag names into "_".
+*/
+static void gitmirror_sanitize_name(char *z){
+  static unsigned char aSafe[] = {
+     /* x0 x1 x2 x3 x4 x5 x6 x7 x8  x9 xA xB xC xD xE xF */
+         0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 0x */
+         0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0,  /* 1x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 2x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 0, 1, 1, 1, 1, 0,  /* 3x */
+         0, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 4x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 0, 1, 0, 1,  /* 5x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1,  /* 6x */
+         1, 1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 0, 0,  /* 7x */
+  };
+  unsigned char *zu = (unsigned char*)z;
+  int i;
+  for(i=0; zu[i]; i++){
+    if( zu[i]>0x7f || !aSafe[zu[i]] ){
+      zu[i] = '_';
+    }else if( zu[i]=='/' && (i==0 || zu[i+1]==0 || zu[i+1]=='/') ){
+      zu[i] = '_';
+    }else if( zu[i]=='.' && (zu[i+1]==0 || zu[i+1]=='.'
+                             || (i>0 && zu[i-1]=='.')) ){
+      zu[i] = '_';
+    }
+  }
+}
+
+/*
+** Quote a filename as a C-style string using \\ and \" if necessary.
+** If quoting is not necessary, just return a copy of the input string.
+**
+** The return value is a held in memory obtained from fossil_malloc()
+** and must be freed by the caller.
+*/
+static char *gitmirror_quote_filename_if_needed(const char *zIn){
+  int i, j;
+  char c;
+  int nSpecial = 0;
+  char *zOut;
+  for(i=0; (c = zIn[i])!=0; i++){
+    if( c=='\\' || c=='"' || c=='\n' ){
+      nSpecial++;
+    }
+  }
+  if( nSpecial==0 ){
+    return fossil_strdup(zIn);
+  }
+  zOut = fossil_malloc( i+nSpecial+3 );
+  zOut[0] = '"';
+  for(i=0, j=1; (c = zIn[i])!=0; i++){
+    if( c=='\\' || c=='"' || c=='\n' ){
+      zOut[j++] = '\\';
+      if( c=='\n' ){
+        zOut[j++] = 'n';
+      }else{
+        zOut[j++] = c;
+      }
+    }else{
+      zOut[j++] = c;
+    }
+  }
+  zOut[j++] = '"';
+  zOut[j] = 0;
+  return zOut;
+}
+
+/*
+** Locate the mark for a UUID.
+**
+** If the mark does not exist and if the bCreate flag is false, then
+** return 0.  If the mark does not exist and the bCreate flag is true,
+** then create the mark.
+*/
+static int gitmirror_find_mark(const char *zUuid, int bCreate){
+  int iMark;
+  static Stmt sFind, sIns;
+  db_static_prepare(&sFind,
+    "SELECT id FROM mirror.mmark WHERE uuid=:uuid"
+  );
+  db_bind_text(&sFind, ":uuid", zUuid);
+  if( db_step(&sFind)==SQLITE_ROW ){
+    iMark = db_column_int(&sFind, 0);
+    db_reset(&sFind);
+    return iMark;
+  }
+  db_reset(&sFind);
+  if( !bCreate ) return 0;
+  db_static_prepare(&sIns,
+    "INSERT INTO mirror.mmark(uuid) VALUES(:uuid)"
+  );
+  db_bind_text(&sIns, ":uuid", zUuid);
+  db_step(&sIns);
+  db_reset(&sIns);
+  return db_last_insert_rowid();
+}
+
+/* This is the SHA3-256 hash of an empty file */
+static const char zEmptySha3[] = 
+  "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a";
+
+/*
+** Export a single file named by zUuid.
+*/
+static void gitmirror_send_file(FILE *xCmd, const char *zUuid){
+  int iMark;
+  int rid;
+  int rc;
+  Blob data;
+  rid = fast_uuid_to_rid(zUuid);
+  if( rid<0 ){
+    zUuid = zEmptySha3;
+  }else{
+    rc = content_get(rid, &data);
+    if( rc==0 ){
+      blob_init(&data, 0, 0);
+      zUuid = zEmptySha3;
+    }
+  }
+  iMark = gitmirror_find_mark(zUuid, 1);
+  fprintf(xCmd, "blob\nmark :%d\ndata %d\n", iMark, blob_size(&data));
+  fwrite(blob_buffer(&data), 1, blob_size(&data), xCmd);
+  fprintf(xCmd, "\n");
+  blob_reset(&data);
+}
+
+/*
+** Transfer a check-in over to the mirror.  "rid" is the BLOB.RID for
+** the check-in to export.
+**
+** If any ancestor of the check-in has not yet been exported, then
+** invoke this routine recursively to export the ancestor first.
+** This can only happen on a timewarp, so deep nesting is unlikely.
+**
+** Before sending the check-in, first make sure all associated files
+** have already been exported, and send "blob" records for any that
+** have not been.  Update the MIRROR.MMARK table so that it holds the
+** marks for the exported files. 
+*/
+static void gitmirror_send_checkin(
+  FILE *xCmd,           /* Write fast-import text on this pipe */
+  int rid,              /* BLOB.RID for the check-in to export */
+  const char *zUuid,    /* BLOB.UUID for the check-in to export */
+  int *pnLimit,         /* Stop when the counter reaches zero */
+  int fManifest         /* MFESTFLG_* values */
+){
+  Manifest *pMan;       /* The check-in to be output */
+  int i;                /* Loop counter */
+  int iParent;          /* Which immediate ancestor is primary.  -1 for none */
+  Stmt q;               /* An SQL query */
+  char *zBranch;        /* The branch of the check-in */
+  int iMark;            /* The mark for the check-in */
+  Blob sql;             /* String of SQL for part of the query */
+  Blob comment;         /* The comment text for the check-in */
+
+  pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
+  if( pMan==0 ){
+    /* Must be a phantom.  Return without doing anything, and in particular
+    ** without creating a mark for this check-in. */
+    return;
+  }
+
+  /* Check to see if any parent logins have not yet been processed, and
+  ** if so, create them */
+  for(i=0; i<pMan->nParent; i++){
+    int iMark = gitmirror_find_mark(pMan->azParent[i], 0);
+    if( iMark<=0 ){
+      int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
+                        pMan->azParent[i]);
+      gitmirror_send_checkin(xCmd, prid, pMan->azParent[i], pnLimit, fManifest);
+      if( *pnLimit<=0 ){
+        manifest_destroy(pMan);
+        return;
+      }
+    }
+  }
+
+  /* Make sure all necessary files have been exported */
+  db_prepare(&q,
+    "SELECT uuid FROM files_of_checkin(%Q)"
+    " WHERE uuid NOT IN (SELECT uuid FROM mirror.mmark)",
+    zUuid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFUuid = db_column_text(&q, 0);
+    gitmirror_send_file(xCmd, zFUuid);
+  }
+  db_finalize(&q);
+
+  /* Figure out which branch this check-in is a member of */
+  zBranch = db_text(0,
+    "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=%d",
+    TAG_BRANCH, rid
+  );
+  if( fossil_strcmp(zBranch,"trunk")==0 ){
+    fossil_free(zBranch);
+    zBranch = mprintf("master");
+  }else if( zBranch==0 ){
+    zBranch = mprintf("unknown");
+  }else{
+    gitmirror_sanitize_name(zBranch);
+  }
+
+  /* Export the check-in */
+  fprintf(xCmd, "commit refs/heads/%s\n", zBranch);
+  fossil_free(zBranch);
+  iMark = gitmirror_find_mark(zUuid, 1);
+  fprintf(xCmd, "mark :%d\n", iMark);
+  fprintf(xCmd, "committer %s <%s@noemail.net> %lld +0000\n",
+     pMan->zUser, pMan->zUser, 
+     (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
+  );
+  blob_init(&comment, pMan->zComment, -1);
+  if( blob_size(&comment)==0 ){
+    blob_append(&comment, "(no comment)", -1);
+  }
+  blob_appendf(&comment, "\n\nFossilOrigin-Name: %s", zUuid);
+  fprintf(xCmd, "data %d\n%s\n", blob_size(&comment), blob_str(&comment));
+  blob_reset(&comment);
+  iParent = -1;  /* Which ancestor is the primary parent */
+  for(i=0; i<pMan->nParent; i++){
+    int iOther = gitmirror_find_mark(pMan->azParent[i], 0);
+    if( iOther==0 ) continue;
+    if( iParent<0 ){
+      iParent = i;
+      fprintf(xCmd, "from :%d\n", iOther);
+    }else{
+      fprintf(xCmd, "merge :%d\n", iOther);
+    }
+  }
+  if( iParent>=0 ){
+    db_prepare(&q,
+      "SELECT filename FROM files_of_checkin(%Q)"
+      " EXCEPT SELECT filename FROM files_of_checkin(%Q)",
+      pMan->azParent[iParent], zUuid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fprintf(xCmd, "D %s\n", db_column_text(&q,0));
+    }
+    db_finalize(&q);
+  }
+  blob_init(&sql, 0, 0);
+  blob_append_sql(&sql,
+    "SELECT filename, uuid, perm FROM files_of_checkin(%Q)",
+    zUuid
+  );
+  if( pMan->nParent ){
+    blob_append_sql(&sql,
+      " EXCEPT SELECT filename, uuid, perm FROM files_of_checkin(%Q)",
+      pMan->azParent[0]);
+  }
+  db_prepare(&q,
+     "SELECT x.filename, x.perm, mmark.id FROM (%s) AS x, mirror.mmark"
+     " WHERE mmark.uuid=x.uuid",
+     blob_sql_text(&sql)
+  );
+  blob_reset(&sql);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFilename = db_column_text(&q,0);
+    const char *zMode = db_column_text(&q,1);
+    int iMark = db_column_int(&q,2);
+    const char *zGitMode = "100644";
+    char *zFNQuoted = 0;
+    if( zMode ){
+      if( strchr(zMode,'x') ) zGitMode = "100755";
+      if( strchr(zMode,'l') ) zGitMode = "120000";
+    }
+    zFNQuoted = gitmirror_quote_filename_if_needed(zFilename);
+    fprintf(xCmd,"M %s :%d %s\n", zGitMode, iMark, zFNQuoted);
+    fossil_free(zFNQuoted);
+  }
+  db_finalize(&q);
+
+  /* Include Fossil-generated auxiliary files in the check-in */
+  if( fManifest & MFESTFLG_RAW ){
+    Blob manifest;
+    content_get(rid, &manifest);
+    fprintf(xCmd,"M 100644 inline manifest\ndata %d\n%s\n",
+      blob_size(&manifest), blob_str(&manifest));
+    blob_reset(&manifest);
+  }
+  if( fManifest & MFESTFLG_UUID ){
+    int n = (int)strlen(zUuid);
+    fprintf(xCmd,"M 100644 inline manifest.uuid\ndata %d\n%s\n", n, zUuid);
+  }
+  if( fManifest & MFESTFLG_TAGS ){
+    Blob tagslist;
+    blob_init(&tagslist, 0, 0);
+    get_checkin_taglist(rid, &tagslist);
+    fprintf(xCmd,"M 100644 inline manifest.tags\ndata %d\n%s\n",
+      blob_size(&tagslist), blob_str(&tagslist));
+    blob_reset(&tagslist);
+  }
+
+  /* The check-in is finished, so decrement the counter */
+  (*pnLimit)--;
+}
+
+/*
+** Implementation of the "fossil git export" command.
+*/
+void gitmirror_export_command(void){
+  const char *zLimit;             /* Text of the --limit flag */
+  int nLimit = 0x7fffffff;        /* Numeric value of the --limit flag */
+  int nTotal = 0;                 /* Total number of check-ins to export */
+  char *zMirror;                  /* Name of the mirror */
+  char *z;                        /* Generic string */
+  char *zCmd;                     /* git command to run as a subprocess */
+  const char *zDebug = 0;         /* Value of the --debug flag */
+  double rEnd;                    /* time of most recent export */
+  int rc;                         /* Result code */
+  int fManifest;                  /* Current "manifest" setting */
+  FILE *xCmd;                     /* Pipe to the "git fast-import" command */
+  FILE *pIn, *pOut;               /* Git mark files */
+  Stmt q;                         /* Queries */
+  char zLine[200];                /* One line of a mark file */
+
+  zDebug = find_option("debug",0,1);
+  db_find_and_open_repository(0, 0);
+  zLimit = find_option("limit", 0, 1);
+  if( zLimit ){
+    nLimit = (unsigned int)atoi(zLimit);
+    if( nLimit<=0 ) fossil_fatal("--limit must be positive");
+  }
+  verify_all_options();
+  if( g.argc!=4 ){ usage("export MIRROR"); }
+  zMirror = g.argv[3];
+
+  /* Make sure the GIT repository directory exists */
+  rc = file_mkdir(zMirror, ExtFILE, 0);
+  if( rc ) fossil_fatal("cannot create directory \"%s\"", zMirror);
+
+  /* Make sure GIT has been initialized */
+  z = mprintf("%s/.git", zMirror);
+  if( !file_isdir(z, ExtFILE) ){
+    zCmd = mprintf("git init '%s'",zMirror);
+    fossil_print("%s\n", zCmd);
+    rc = fossil_system(zCmd);
+    if( rc ){
+      fossil_fatal("command failed: \"%s\"", zCmd);
+    }
+    fossil_free(zCmd);
+  }
+  fossil_free(z);
+  
+  /* Make sure the .mirror_state subdirectory exists */
+  z = mprintf("%s/.mirror_state", zMirror);
+  rc = file_mkdir(z, ExtFILE, 0);
+  if( rc ) fossil_fatal("cannot create directory \"%s\"", z);
+  fossil_free(z);
+
+  /* Attach the .mirror_state/db database */
+  db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
+  db_begin_write();
+  db_multi_exec(
+    "CREATE TABLE IF NOT EXISTS mirror.mconfig(\n"
+    "  key TEXT PRIMARY KEY,\n"
+    "  Value ANY\n"
+    ") WITHOUT ROWID;\n"
+    "CREATE TABLE IF NOT EXISTS mirror.mmark(\n"
+    "  id INTEGER PRIMARY KEY,\n"
+    "  uuid TEXT UNIQUE,\n"
+    "  githash TEXT\n"
+    ");"
+  );
+
+  /* See if there is any work to be done.  Exit early if not, before starting
+  ** the "git fast-import" command. */
+  if( !db_exists("SELECT 1 FROM event WHERE type IN ('ci','t')"
+                 " AND mtime>coalesce((SELECT value FROM mconfig"
+                                        " WHERE key='start'),0.0)")
+  ){
+    fossil_print("no changes\n");
+    return;
+  }
+
+  /* Do we need to include manifest files in the clone? */
+  fManifest = db_get_manifest_setting();
+
+  /* Change to the MIRROR directory so that the Git commands will work */
+  rc = file_chdir(zMirror, 0);
+  if( rc ) fossil_fatal("cannot change the working directory to \"%s\"",
+                        zMirror);
+
+  /* Start up the git fast-import command */
+  if( zDebug ){
+    if( fossil_strcmp(zDebug,"stdout")==0 ){
+      xCmd = stdout;
+    }else{
+      xCmd = fopen(zDebug, "wb");
+      if( xCmd==0 ) fossil_fatal("cannot open file \"%s\" for writing", zDebug);
+    }
+  }else{
+    zCmd = mprintf("git fast-import"
+              " --import-marks-if-exists=.mirror_state/in"
+              " --export-marks=.mirror_state/out"
+              " --quiet --done");
+    fossil_print("%s\n", zCmd);
+    xCmd = popen(zCmd, "w");
+    if( zCmd==0 ){
+      fossil_fatal("cannot start the \"git fast-import\" command");
+    }
+    fossil_free(zCmd);
+  }
+
+  /* Run the export */
+  rEnd = 0.0;
+  db_multi_exec(
+    "CREATE TEMP TABLE tomirror(objid,mtime,uuid);\n"
+    "INSERT INTO tomirror "
+    "SELECT objid, mtime, blob.uuid FROM event, blob\n"
+    " WHERE type='ci'"
+    "   AND mtime>coalesce((SELECT value FROM mconfig WHERE key='start'),0.0)"
+    "   AND blob.rid=event.objid"
+    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark);"
+  );
+  nTotal = db_int(0, "SELECT count(*) FROM tomirror");
+  if( nLimit<nTotal ){
+    nTotal = nLimit;
+  }else if( nLimit>nTotal ){
+    nLimit = nTotal;
+  }
+  db_prepare(&q,
+    "SELECT objid, mtime, uuid FROM tomirror ORDER BY mtime"
+  );
+  while( nLimit && db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    double rMTime = db_column_double(&q, 1);
+    const char *zUuid = db_column_text(&q, 2);
+    if( rMTime>rEnd ) rEnd = rMTime;
+    gitmirror_send_checkin(xCmd, rid, zUuid, &nLimit, fManifest);
+    printf("\r%d/%d  ", nTotal-nLimit, nTotal);
+    fflush(stdout);
+  }
+  db_finalize(&q);
+  fprintf(xCmd, "done\n");
+  if( zDebug ){
+    if( xCmd!=stdout ) fclose(xCmd);
+  }else{
+    pclose(xCmd);
+  }
+  fossil_print("%d check-ins added to the mirror\n", nTotal-nLimit);
+
+  /* Read the export-marks file.  Transfer the new marks over into
+  ** the import-marks file.
+  */
+  pOut = fopen(".mirror_state/out", "rb");
+  if( pOut ){
+    pIn = fopen(".mirror_state/in", "ab");
+    if( pIn==0 ){
+      fossil_fatal("cannot open %s/.mirror_state/in for appending", zMirror);
+    }
+    db_prepare(&q, "UPDATE mirror.mmark SET githash=:githash WHERE id=:id");
+    while( fgets(zLine, sizeof(zLine), pOut) ){
+      int j, k;
+      if( zLine[0]!=':' ) continue;
+      db_bind_int(&q, ":id", atoi(zLine+1));
+      for(j=1; zLine[j] && zLine[j]!=' '; j++){}
+      if( zLine[j]!=' ' ) continue;
+      j++;
+      if( zLine[j]==0 ) continue;
+      for(k=j; fossil_isalnum(zLine[k]); k++){}
+      zLine[k] = 0;
+      db_bind_text(&q, ":githash", &zLine[j]);
+      db_step(&q);
+      db_reset(&q);
+      zLine[k] = '\n';
+      fputs(zLine, pIn);
+    }
+    db_finalize(&q);
+    fclose(pOut);
+    fclose(pIn);
+    file_delete(".mirror_state/out");
+  }else{
+    fossil_fatal("git fast-import didn't generate a marks file!");
+  }
+  db_multi_exec(
+    "CREATE INDEX IF NOT EXISTS mirror.mmarkx1 ON mmark(githash);"
+  );
+
+  /* Do any tags that have been created since the start time */
+  db_prepare(&q,
+    "SELECT substr(tagname,5), githash"
+    "  FROM (SELECT tagxref.tagid AS xtagid, tagname, rid, max(mtime) AS mtime"
+    "          FROM tagxref JOIN tag ON tag.tagid=tagxref.tagid"
+    "         WHERE tag.tagname GLOB 'sym-*'"
+    "           AND tagxref.tagtype=1"
+    "           AND tagxref.mtime > coalesce((SELECT value FROM mconfig"
+                                        " WHERE key='start'),0.0)"
+    "         GROUP BY tagxref.tagid) AS tx"
+    "       JOIN blob ON tx.rid=blob.rid"
+    "       JOIN mmark ON mmark.uuid=blob.uuid;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zTagname = fossil_strdup(db_column_text(&q,0));
+    const char *zObj = db_column_text(&q,1);
+    char *zTagCmd;
+    gitmirror_sanitize_name(zTagname);
+    zTagCmd = mprintf("git tag -f \"%s\" %s", zTagname, zObj);
+    fossil_free(zTagname);
+    fossil_print("%s\n", zTagCmd);
+    fossil_system(zTagCmd);
+    fossil_free(zTagCmd);
+  }
+  db_finalize(&q);
+
+  /* Update the start time */
+  db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
+  db_bind_double(&q, ":x", rEnd);
+  db_step(&q);
+  db_finalize(&q);
+  db_commit_transaction();
+
+  /* Optionally do a "git push" */
+}
+
+/*
+** COMMAND: git
+**
+** Usage: %fossil git SUBCOMMAND
+**
+** Do incremental import or export operations between Fossil and Git.
+** Subcommands:
+**
+**   fossil git export MIRROR [OPTIONS]
+**
+**       Write content from the Fossil repository into the Git repository
+**       in directory MIRROR.  The Git repository is created if it does not
+**       already exist.  If the Git repository does already exist, then
+**       new content added to fossil since the previous export is appended.
+**
+**       Repeat this command whenever new checkins are added to the Fossil
+**       repository in order to reflect those changes into the mirror.
+**
+**       The MIRROR directory will contain a subdirectory named
+**       ".mirror_state" that contains information that Fossil needs to
+**       do incremental exports.  Do not attempt to manage or edit the files
+**       in that directory since doing so can disrupt future incremental
+**       exports.
+**
+**       Options:
+**         --debug FILE        Write fast-export text to FILE rather than
+**                             piping it into "git fast-import".
+**         --limit N           Add no more than N new check-ins to MIRROR.
+**                             Useful for debugging
+**
+**   fossil git import MIRROR
+**
+**       TBD...   
+*/
+void gitmirror_command(void){
+  char *zCmd;
+  int nCmd;
+  if( g.argc<3 ){
+    usage("export ARGS...");
+  }
+  zCmd =  g.argv[2];
+  nCmd = (int)strlen(zCmd);
+  if( nCmd>2 && strncmp(zCmd,"export",nCmd)==0 ){
+    gitmirror_export_command();
+  }else
+  if( nCmd>2 && strncmp(zCmd,"import",nCmd)==0 ){
+    fossil_fatal("not yet implemented - check back later");
+  }else
+  {
+    fossil_fatal("unknown subcommand \"%s\": should be one of "
+                 "\"export\", \"import\"",
+                 zCmd);
+  }
 }
