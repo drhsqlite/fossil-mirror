@@ -1209,13 +1209,13 @@ void gitmirror_export_command(void){
     "CREATE TABLE IF NOT EXISTS mirror.mmark(\n"
     "  id INTEGER PRIMARY KEY,\n"
     "  uuid TEXT UNIQUE,\n"
-    "  githash TEXT UNIQUE\n"
+    "  githash TEXT\n"
     ");"
   );
 
   /* See if there is any work to be done.  Exit early if not, before starting
   ** the "git fast-import" command. */
-  if( !db_exists("SELECT 1 FROM event WHERE type='ci'"
+  if( !db_exists("SELECT 1 FROM event WHERE type IN ('ci','t')"
                  " AND mtime>coalesce((SELECT value FROM mconfig"
                                         " WHERE key='start'),0.0)")
   ){
@@ -1282,10 +1282,6 @@ void gitmirror_export_command(void){
     fflush(stdout);
   }
   db_finalize(&q);
-  db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
-  db_bind_double(&q, ":x", rEnd);
-  db_step(&q);
-  db_finalize(&q);
   fprintf(xCmd, "done\n");
   if( zDebug ){
     if( xCmd!=stdout ) fclose(xCmd);
@@ -1317,6 +1313,7 @@ void gitmirror_export_command(void){
       db_bind_text(&q, ":githash", &zLine[j]);
       db_step(&q);
       db_reset(&q);
+      zLine[k] = '\n';
       fputs(zLine, pIn);
     }
     db_finalize(&q);
@@ -1326,6 +1323,41 @@ void gitmirror_export_command(void){
   }else{
     fossil_fatal("git fast-import didn't generate a marks file!");
   }
+  db_multi_exec(
+    "CREATE INDEX IF NOT EXISTS mirror.mmarkx1 ON mmark(githash);"
+  );
+
+  /* Do any tags that have been created since the start time */
+  db_prepare(&q,
+    "SELECT substr(tagname,5), githash"
+    "  FROM (SELECT tagxref.tagid AS xtagid, tagname, rid, max(mtime) AS mtime"
+    "          FROM tagxref JOIN tag ON tag.tagid=tagxref.tagid"
+    "         WHERE tag.tagname GLOB 'sym-*'"
+    "           AND tagxref.tagtype=1"
+    "           AND tagxref.mtime > coalesce((SELECT value FROM mconfig"
+                                        " WHERE key='start'),0.0)"
+    "         GROUP BY tagxref.tagid) AS tx"
+    "       JOIN blob ON tx.rid=blob.rid"
+    "       JOIN mmark ON mmark.uuid=blob.uuid;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zTagname = fossil_strdup(db_column_text(&q,0));
+    const char *zObj = db_column_text(&q,1);
+    char *zTagCmd;
+    gitmirror_sanitize_name(zTagname);
+    zTagCmd = mprintf("git tag -f \"%s\" %s", zTagname, zObj);
+    fossil_free(zTagname);
+    fossil_print("%s\n", zTagCmd);
+    fossil_system(zTagCmd);
+    fossil_free(zTagCmd);
+  }
+  db_finalize(&q);
+
+  /* Update the start time */
+  db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
+  db_bind_double(&q, ":x", rEnd);
+  db_step(&q);
+  db_finalize(&q);
   db_commit_transaction();
 
   /* Optionally do a "git push" */
