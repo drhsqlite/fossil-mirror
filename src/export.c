@@ -1156,6 +1156,8 @@ void gitmirror_export_command(void){
   char *z;                        /* Generic string */
   char *zCmd;                     /* git command to run as a subprocess */
   const char *zDebug = 0;         /* Value of the --debug flag */
+  const char *zAutoPush = 0;      /* Value of the --autopush flag */
+  char *zPushUrl;                 /* URL to sync the mirror to */
   double rEnd;                    /* time of most recent export */
   int rc;                         /* Result code */
   int fManifest;                  /* Current "manifest" setting */
@@ -1171,6 +1173,7 @@ void gitmirror_export_command(void){
     nLimit = (unsigned int)atoi(zLimit);
     if( nLimit<=0 ) fossil_fatal("--limit must be positive");
   }
+  zAutoPush = find_option("autopush",0,1);
   verify_all_options();
   if( g.argc!=4 ){ usage("export MIRROR"); }
   zMirror = g.argv[3];
@@ -1213,6 +1216,19 @@ void gitmirror_export_command(void){
     ");"
   );
 
+  /* Change the autopush setting if the --autopush flag is present */
+  if( zAutoPush ){
+    if( is_false(zAutoPush) ){
+      db_multi_exec("DELETE FROM mirror.mconfig WHERE key='autopush'");
+    }else{
+      db_multi_exec(
+         "REPLACE INTO mirror.mconfig(key,value)"
+         "VALUES('autopush',%Q)",
+         zAutoPush
+      );
+    }
+  }
+
   /* See if there is any work to be done.  Exit early if not, before starting
   ** the "git fast-import" command. */
   if( !db_exists("SELECT 1 FROM event WHERE type IN ('ci','t')"
@@ -1220,6 +1236,7 @@ void gitmirror_export_command(void){
                                         " WHERE key='start'),0.0)")
   ){
     fossil_print("no changes\n");
+    db_commit_transaction();
     return;
   }
 
@@ -1361,6 +1378,13 @@ void gitmirror_export_command(void){
   db_commit_transaction();
 
   /* Optionally do a "git push" */
+  zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
+  if( zPushUrl ){
+    char *zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+    fossil_print("git push\n");
+    fossil_system(zPushCmd);
+    fossil_free(zPushCmd);
+  }
 }
 
 /*
@@ -1388,6 +1412,10 @@ void gitmirror_export_command(void){
 **       exports.
 **
 **       Options:
+**         --autopush URL      Automatically do a 'git push' to URL.  The
+**                             URL is remembered and used on subsequent exports
+**                             to the same repository.  Or if URL is "off" the
+**                             auto-push mechanism is disabled
 **         --debug FILE        Write fast-export text to FILE rather than
 **                             piping it into "git fast-import".
 **         --limit N           Add no more than N new check-ins to MIRROR.
