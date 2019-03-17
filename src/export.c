@@ -40,6 +40,13 @@ struct mark_t {
 };
 #endif
 
+#if defined(_WIN32) || defined(WIN32)
+# undef popen
+# define popen _popen
+# undef pclose
+# define pclose _pclose
+#endif
+
 /*
 ** Output a "committer" record for the given user.
 ** NOTE: the given user name may be an email itself.

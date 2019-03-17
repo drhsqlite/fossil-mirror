@@ -1,5 +1,5 @@
-C Expanded\sthe\s"Standalone\sserver"\ssection\sof\swww/server.wiki\sto\sadd\smore\nexamples.\s\sAlso\sfixed\sa\sfew\sgrammar\sproblems\selsewhere\sin\sthe\sdoc.
-D 2019-03-17T07:01:18.906
+C Fix\sfor\s_popen\sand\s_pclose\swith\sVisual\sC++\sin\sthe\snew\sexport.c\smodule.
+D 2019-03-17T10:44:32.824
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c 8389250ea88b7723c2173ee1891b4d696c771c144193ff4792d8f7fe2755c618
+F src/export.c d51e7d94806796181ac761ed8cb1e4e6ab7d987ba49f234f26860252574fe4eb
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -871,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 355c16a528d03e799befc20378f461053ce09724c2f2692b8a559c682a36f895
-R e1fd2defefc0ebf26b544bdc99a4e0de
+P f153777f3efcf65c2595b104fbca109f203ba356e7aff591f4d2c60a0b9cc962
+R c487e9aec18e0f616d7f994413b01a22
 U wyoung
-Z 9a98b3515223943926ce883debce677f
+Z 07868d169f2d7a51ecd5f3dd07f359e1
