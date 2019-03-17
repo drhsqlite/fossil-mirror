@@ -204,7 +204,9 @@ void sitemap_page(void){
   }
   @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
   @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
-  @   <li>%z(href("%R/mimetype_list"))Filename suffix to mimetype map</a></li>
+  if( g.perm.Admin || g.perm.Write || g.perm.WrUnver ){
+    @   <li>%z(href("%R/mimetype_list"))Filename suffix to MIME type map</a></li>
+  }
   @   </ul></li>
   if( g.perm.Admin ){
     @ <li>%z(href("%R/setup"))Administration Pages</a>
