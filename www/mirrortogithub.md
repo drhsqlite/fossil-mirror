@@ -1,6 +1,6 @@
 # How To Mirror A Fossil Repository On GitHub
 
-Beginning with Fossil version 2.9, can mirror a Fossil-based
+Beginning with Fossil version 2.9, you can mirror a Fossil-based
 project on GitHub by following these steps:
 
 <ol>
@@ -21,22 +21,25 @@ https://github.com/username/project.git
     type:
 
 <blockquote>
-fossil git export GITREPO --autopush https://<font color="orange">username</font>:<font color="red">password</font>@github.com/username/project.git
+<pre>$ fossil git export /path/to/git/repo --autopush \
+  https://<font color="orange">username</font>:<font color="red">password</font>@github.com/username/project.git</pre>
 </blockquote>
 
-<p>   In place of GITREPO above, put in some directory name that is not
-      part of your source tree.  The directory need not exist - Fossil will
-      create it if necessary.  This GITREPO directory will become a Git
-      repository that holds a translation of your Fossil repository.
+<p>   In place of the <code>/path/to...</code> argument above, put in some
+      directory name that is <i>outside</i> of your Fossil checkout.  Fossil
+      will create this directory if necessary.  This directory will
+      become a Git repository that holds a translation of your Fossil
+      repository.
 
-<p>   The --autopush option tells Fossil that you want to push the Git
-      translation up to GitHub every time it is updated.
-      Note that you will need to augment the URL supplied by GitHub
-      to insert your account <font color="orange">username</font>
-      and <font color="red">password</font>.
+<p>   The <code>--autopush</code> option tells Fossil that you want to
+      push the Git translation up to GitHub every time it is updated.  Note
+      that you will need to augment the URL supplied by GitHub to insert
+      your account <font color="orange">username</font> and <font
+      color="red">password</font>.
 
-<p>   You can also run the command above outside of any open checkout
-      of your project by supplying the "-R repository" option.
+<p>   You can also run the command above outside of any open checkout of
+      your project by supplying the “<code>-R&nbsp;repository</code>”
+      option.
 
 <li><p>Get some coffee.  Depending on the size of your project, the
        command above can run for several minutes.
@@ -48,14 +51,13 @@ fossil git export GITREPO --autopush https://<font color="orange">username</font
     the mirror:
 
 <blockquote>
-fossil git export
+<pre>$ fossil git export</pre>
 </blockquote>
 
 
-<p>   When updating your project, you do not need to reenter the GITREPO
-      or the --autopush.  Fossil remembers those things.  The initial
-      mirroring operation probably took several minutes (or tens of minutes)
-      but a typical update will happen in a second or less.
+<p>   Unlike with the first time you ran that command, you don’t need
+      the remaining arguments, because Fossil remembers those things.
+      Subsequent mirror updates should happen in a second or less.
 </ol>
 
 ## Notes:
@@ -64,18 +66,20 @@ fossil git export
      changes will not be reabsorbed by Fossil.  There are technical problems
      that make a two-way mirror all but impossible.
 
-  *  The "fossil git export" command creates subprocesses that run "git"
-     commands.  So you must have Git installed on your machine for any
+     This also means that you cannot accept pull requests on GitHub.
+
+  *  The "`fossil git export`" command creates subprocesses that run "`git`"
+     commands, so you must have Git installed on your machine for any
      of this to work.
 
   *  The Git repository will have an extra unmanaged top-level directory named
      "`.mirror_state`" that contains one or more files.  Those files are
      used to store the intermediate state of the translation so that
-     subsequent invocations of "fossil git export" will know where you
-     left of last time and what new content needs to be moved over into
+     subsequent invocations of "`fossil git export`" will know where you
+     left off the last time and what new content needs to be moved over into
      Git.  Be careful not to mess with the `.mirror_state` directory or
-     any of its contents.  Do not manages those files.  Do not edit or
-     delete them.
+     any of its contents.  Do not put those files under Git management.  Do
+     not edit or delete them.
 
   *  Only check-ins and simple tags are translated to Git.  Git does not
      support wiki or tickets or unversioned content or any of the other
@@ -88,7 +92,7 @@ fossil git export
 
 ## Example GitHub Mirrors
 
-As of this writing (2019-03-16) the Fossil self-repository is mirrored
+As of this writing (2019-03-16) Fossil’s own repository is mirrored
 on GitHub at:
 
 >
