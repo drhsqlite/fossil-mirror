@@ -1237,6 +1237,7 @@ void gitmirror_export_command(void){
   double rEnd;                    /* time of most recent export */
   int rc;                         /* Result code */
   int bForce;                     /* Do the export and sync even if no changes*/
+  int bNeedRepack = 0;            /* True if we should run repack at the end */
   int fManifest;                  /* Current "manifest" setting */
   FILE *xCmd;                     /* Pipe to the "git fast-import" command */
   FILE *pMarks;                   /* Git mark files */
@@ -1282,6 +1283,7 @@ void gitmirror_export_command(void){
       fossil_fatal("cannot initialize the git repository using: \"%s\"", zCmd);
     }
     fossil_free(zCmd);
+    bNeedRepack = 1;
   }
   fossil_free(z);
   
@@ -1463,6 +1465,13 @@ void gitmirror_export_command(void){
     db_finalize(&q);
   }
   db_commit_transaction();
+
+  /* Maybe run a git repack */
+  if( bNeedRepack ){
+    const char *zRepack = "git repack -adf";
+    gitmirror_message(VERB_NORMAL, "%s\n", zRepack);
+    fossil_system(zRepack);
+  }
 
   /* Optionally do a "git push" */
   zPushUrl = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
