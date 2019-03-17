@@ -17,25 +17,34 @@ project on GitHub by following these steps:
 https://github.com/username/project.git
 </blockquote>
 
-<li><p>Back on your workstation, move to a checkout for your project and
-    type:
+<li><p>Back on your workstation, move to a checkout for your Fossil
+    project and type:
 
 <blockquote>
 <pre>$ fossil git export /path/to/git/repo --autopush \
   https://<font color="orange">username</font>:<font color="red">password</font>@github.com/username/project.git</pre>
 </blockquote>
 
-<p>   In place of the <code>/path/to...</code> argument above, put in some
-      directory name that is <i>outside</i> of your Fossil checkout.  Fossil
-      will create this directory if necessary.  This directory will
-      become a Git repository that holds a translation of your Fossil
-      repository.
+<p>   In place of the <code>/path/to...</code> argument above, put in
+      some directory name that is <i>outside</i> of your Fossil checkout. If
+      you keep multiple Fossil checkouts in a directory of their own,
+      consider using <code>../git-mirror</code> to place the Git export
+      mirror alongside them, for example.  Fossil will create this
+      directory if necessary.  This directory will become a Git
+      repository that holds a translation of your Fossil repository.
 
 <p>   The <code>--autopush</code> option tells Fossil that you want to
-      push the Git translation up to GitHub every time it is updated.  Note
-      that you will need to augment the URL supplied by GitHub to insert
-      your account <font color="orange">username</font> and <font
-      color="red">password</font>.
+      push the Git translation up to GitHub every time it is updated.
+      
+<p>   The URL parameter is the same as the one GitHub gave you, but with
+      your GitHub <font color="orange">username</font> and <font
+      color="red">password</font> added.
+      
+<p>   If your GitHub account uses two-factor authentication (2FA), you
+      will have to <a href="https://github.com/settings/tokens">generate
+      a personal access token</a> and use that in place of your actual
+      password in the URL. This token should have “repo” scope enabled,
+      only.
 
 <p>   You can also run the command above outside of any open checkout of
       your project by supplying the “<code>-R&nbsp;repository</code>”
