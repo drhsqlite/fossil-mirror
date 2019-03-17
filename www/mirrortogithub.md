@@ -60,6 +60,10 @@ fossil git export
 
 ## Notes:
 
+  *  The mirroring is one-way.  If you check in changes on GitHub, those
+     changes will not be reabsorbed by Fossil.  There are technical problems
+     that make a two-way mirror all but impossible.
+
   *  The "fossil git export" command creates subprocesses that run "git"
      commands.  So you must have Git installed on your machine for any
      of this to work.

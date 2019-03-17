@@ -3,6 +3,8 @@
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (pending)</h2>
 
+  *  Added the [/help?cmd=git|fossil git export] command and instructions
+     for [./mirrortogithub.md|creating a GitHub mirror of a Fossil project].
   *  Improved handling of relative hyperlinks on the
      [/help?cmd=/artifact|/artifact] pages for wiki. For example,
      hyperlinks and the lizard &lt;img&gt; now work correctly

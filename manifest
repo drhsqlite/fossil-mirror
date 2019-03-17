@@ -1,5 +1,5 @@
-C Add\sthe\s"How\sTo\sMirror\sA\sFossil\sRepository\sOn\sGitHub"\sdocument.
-D 2019-03-17T01:40:13.823
+C Add\sthe\s"fossil\sgit\sexport"\scommand\sto\sthe\s2.9\schange\slog.
+D 2019-03-17T01:42:57.298
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -776,7 +776,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki e6300b6ff2aa0080ace70d847d926670ef1d0ca3b7198c0151180a6b4c5ea745
-F www/changes.wiki aa8f1362595cf443db1ba62a45e450de37908af2c381a5e7a56ae379b683aa1f
+F www/changes.wiki c225aebfab558becb6e51a54571def4a84e42cd4c0c5c0be4a996dd8f9b3932b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -837,7 +837,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mirrortogithub.md 6f592ee4c4dc00cec1b50395ac3bf2df0fb9bdd39544ca4a22a42f9848462ef2
+F www/mirrortogithub.md cc5c9ccce5441dbb6fab61bdbc21c6457740771cf9b3cb1ca94a854bac50308a
 F www/mkindex.tcl f4a9eedcc8b9ece74614b7233537133cba9a66954967177304bb5a0772e87edc x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -871,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e4d87cd16bd4be9841ab608e0ef90d0662866e8dff642b3381043bac2116a84b
-R bd5fee23dd00d0a74e05261817d89903
+P 21b57fae404b958a4d05bac6b7fed892fffbe37356817f1224b8147383386704
+R 958dcf1600cdefab87dcaf47bc70466e
 U drh
-Z d1726d558eed1be2acbc2dd46313fa21
+Z 58b072b3a838175dfe0ae220c2e68050
