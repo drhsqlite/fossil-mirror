@@ -65,12 +65,33 @@ There are several key differences between "ui" and "server":
   <li>"ui" launches a local web browser pointed at this URL.
 </ul>
 
-If one of the commands above is run from within an open checkout,
-then the <i>REPOSITORY</i> argument can be omitted and the checkout is used as
-the repository.
+You can omit the <i>REPOSITORY</i> argument if you run one of the above
+commands from within a Fossil checkout directory to serve that
+repository:
 
-Both commands have additional command-line options that can be used to refine
-their behavior.  See the [/help/server|online documentation] for an overview.
+<blockquote><pre>
+$ fossil ui          # or...
+$ fossil serve
+</pre></blockquote>
+
+Note that you can abbreviate Fossil sub-commands, as long as they are
+unambiguous. "<tt>server</tt>" can currently be as short as
+"<tt>ser</tt>".
+
+As a more complicated example, you can serve a directory containing
+multiple <tt>*.fossil</tt> files like so:
+
+<blockquote><pre>
+$ fossil server --port 9000 --repolist /path/to/repo/dir
+</pre></blockquote>
+
+There is an [/file/tools/fslsrv | example script] in the Fossil
+distribution that wraps <tt>fossil server</tt> to produce more
+complicated effects. Feel free to take it, study it, and modify it to
+suit your local needs.
+
+See the [/help/server|online documentation] for more information on the
+options and arguments you can give to these commands.
 </blockquote>
 
 
@@ -243,8 +264,8 @@ location /demo_project/ {
 
 Note that Fossil requires the SCRIPT_NAME variable
 in order to function properly, but Nginx does not provide this
-variable by default.
-So it is necessary to provide the SCRIPT_NAME parameter in the configuration.
+variable by default,
+so it is necessary to provide the SCRIPT_NAME parameter in the configuration.
 Failure to do this will cause Fossil to return an error.
 
 All of the features of the stand-alone server mode described above,
@@ -253,7 +274,7 @@ rather than just a single repository, work the same way in SCGI mode.
 
 For security, it is probably a good idea to add the --localhost option
 to the [/help/server|fossil server] command to prevent Fossil from accepting
-off-site connections.  And one might want to specify the listening TCP port
+off-site connections.  One might also want to specify the listening TCP port
 number, rather than letting Fossil choose one for itself, just to avoid
 ambiguity.  A typical command to start a Fossil SCGI server
 would be something like this:
@@ -282,8 +303,8 @@ The Fossil [./selfhost.wiki | self-hosting server] is a 1/24th slice VM at
 addition to Fossil (and including some very high-traffic sites such
 as [http://www.sqlite.org] and [http://system.data.sqlite.org]) and
 it has a typical load of 0.05 to 0.1.  A single HTTP request to Fossil
-normally takes less than 10 milliseconds of CPU time to complete.  So
-requests can be arriving at a continuous rate of 20 or more per second
+normally takes less than 10 milliseconds of CPU time to complete, so
+requests can be arriving at a continuous rate of 20 or more per second,
 and the CPU can still be mostly idle.
 
 However, there are some Fossil web pages that can consume large
@@ -319,11 +340,11 @@ and with the same name as the repository but with the suffix changed to ".cache"
 to give it write permission for the userid of the webserver.
 
 To activate the server load control feature
-visit the /Admin/Access setup page in the administrative web
-interface and in the "<b>Server Load Average Limit</b>" box
+visit the Admin → Access setup page in the administrative web
+interface; in the "<b>Server Load Average Limit</b>" box
 enter the load average threshold above which "503 Server
 Overload" replies will be issued for expensive requests.  On the
-self-host Fossil server, that value is set to 1.5.  But you could easily
+self-hosting Fossil server, that value is set to 1.5, but you could easily
 set it higher on a multi-core server.
 
 The maximum load average can also be set on the command line using
