@@ -1,5 +1,5 @@
-C Wiki\sformatting\sfix\spass\son\swww/server.wiki\sin\spreparation\sfor\smore\nsubstantial\schanges:\sremoved\sall\sexplicit\s<p>\stags\swhere\sthey\sdon't\naffect\srendering;\schanged\sall\s<a\sname...><h2>\swith\s<h2\sid=...>;\sadded\nwhitespace;\smoved\s<blockquote>\stags\sdown\sto\stheir\sown\sline\ssince\sthey're\nkey\sto\sthe\spage\slayout.
-D 2019-03-17T06:13:44.126
+C Expanded\sthe\sdiscussion\sof\sthe\sdifference\sbetween\s"fossil\sui"\sand\n"fossil\sserver"\sin\swww/server.wiki.
+D 2019-03-17T06:18:19.109
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -851,7 +851,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7a6c0
-F www/server.wiki 85fb1ac23aaab70536ed4628ee325dd25a2e262fe26542f9042394df03be4f54
+F www/server.wiki f439465a547f0290cc9dcff42bee5d9006bbce500cefb4803759ed613f138154
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 9cf995b3ad5907ba5d9b05210d68ebf34a2f1bf1fe9e223b0524698e52f3a740
@@ -871,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a2ef43104ffee42635e5dc50a5c43a6d7426bd93aedd0ee7eaad8017fc6771a6
-R 26ccb86008ab3871afc36ca4d8938646
+P 3406f0eb2da2779743e63b95f75670306aea2a770bbc0a5176d9db5e308adf69
+R 76d59ccae91a94fc09680f3942c690c2
 U wyoung
-Z 8f37064c444344f058cee7f09d0aedc4
+Z cffc0c3131fad72c203bb4a0e5c410ab

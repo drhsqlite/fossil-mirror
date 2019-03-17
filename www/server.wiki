@@ -47,18 +47,23 @@ The easiest way to set up a Fossil server is to use either the
 </ul>
 
 The <i>REPOSITORY</i> argument is either the name of the repository file, or
-a directory containing many repositories.
+a directory containing many repositories named <tt>*.fossil</tt>.
 Both of these commands start a Fossil server, usually on TCP port 8080, though
 a higher numbered port might also be used if 8080 is already occupied.  You can
 access these using URLs of the form <b>http://localhost:8080/</b>, or if
 <i>REPOSITORY</i> is a directory, URLs of the form
 <b>http://localhost:8080/</b><i>repo</i><b>/</b> where <i>repo</i> is the base
 name of the repository file without the ".fossil" suffix.
-The difference between "ui" and "server" is that "ui" will
-also start a web browser and point it
-to the URL mentioned above, and the "ui" command binds to
-the loopback IP address (127.0.0.1) only so that the "ui" command cannot be
-used to serve content to a different machine.
+
+There are several key differences between "ui" and "server":
+
+<ul>
+  <li>"ui" always binds the server to the loopback IP address
+      (127.0.0.1) so that it cannot serve to other machines.
+  <li>anyone who visits this URL is treated as the all-powerful Setup
+      user, which is why the first difference exists.
+  <li>"ui" launches a local web browser pointed at this URL.
+</ul>
 
 If one of the commands above is run from within an open checkout,
 then the <i>REPOSITORY</i> argument can be omitted and the checkout is used as
