@@ -1,5 +1,5 @@
-C Expanded\sthe\sdiscussion\sof\sthe\sdifference\sbetween\s"fossil\sui"\sand\n"fossil\sserver"\sin\swww/server.wiki.
-D 2019-03-17T06:18:19.109
+C Moved\sthe\ssection\son\sstunnel\sconfiguration\sfrom\swww/server.wiki\sto\nwww/ssl.wiki,\sadding\slinks\sfrom\sone\sto\sthe\sother.\s\sAlso\schanged\sall\nremaining\sreferences\sto\s"SSL"\sin\sserver.wiki\sto\s"TLS".
+D 2019-03-17T06:42:04.527
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -851,10 +851,10 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7a6c0
-F www/server.wiki f439465a547f0290cc9dcff42bee5d9006bbce500cefb4803759ed613f138154
+F www/server.wiki 9c5a19149a205e653661ad32768f2f9016e25096149609f4a174fbf587fdbac6
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki 9cf995b3ad5907ba5d9b05210d68ebf34a2f1bf1fe9e223b0524698e52f3a740
+F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
@@ -871,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3406f0eb2da2779743e63b95f75670306aea2a770bbc0a5176d9db5e308adf69
-R 76d59ccae91a94fc09680f3942c690c2
+P 67e30333d14e0932170e4a2a344157de6033ac1670f1ca6764516ffafff6a4ce
+R 23fcfd7fc23a8b701ce5e06c2aed0265
 U wyoung
-Z cffc0c3131fad72c203bb4a0e5c410ab
+Z ba1d89454789b31cf9b0401977fdf822

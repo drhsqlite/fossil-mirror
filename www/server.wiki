@@ -25,7 +25,7 @@ There are basically four ways to set up a Fossil server:
 
 <ol>
   <li>A stand-alone server
-  <li>Using inetd or xinetd or stunnel
+  <li>Using inetd, xinetd, or stunnel
   <li>CGI
   <li>SCGI (a.k.a. SimpleCGI)
 </ol>
@@ -74,7 +74,7 @@ their behavior.  See the [/help/server|online documentation] for an overview.
 </blockquote>
 
 
-<h2 id="inetd">Fossil as an inetd/xinetd or stunnel service</h2>
+<h2 id="inetd">Fossil as an inetd/xinetd service</h2>
 
 <blockquote>
 
@@ -144,34 +144,16 @@ off of the wire.
 Inetd or xinetd must be enabled, and must be (re)started whenever their configuration
 changes - consult your system's documentation for details.
 
-[https://www.stunnel.org/ | Stunnel version 5] is an inetd-like process that
-accepts and decodes SSL-encrypted connections.  Fossil can be run directly from
-stunnel in a manner similar to inetd and xinetd.  This can be used to provide
-a secure link to a Fossil project.  The configuration needed to get stunnel5
-to invoke Fossil is very similar to the inetd and xinetd examples shown above.
-The relevant parts of an stunnel configuration might look something
-like the following:
-
-<blockquote><pre><nowiki>
-[https]
-accept       = www.ubercool-project.org:443
-TIMEOUTclose = 0
-exec         = /usr/bin/fossil
-execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
-</nowiki></pre></blockquote>
-
-See the stunnel5 documentation for further details about the /etc/stunnel/stunnel.conf
-configuration file.  Note that the [/help/http|fossil http] command should include
-the --https option to let Fossil know to use "https" instead of "http" as the scheme
-on generated hyperlinks.
-
-Using inetd or xinetd or stunnel is a more complex setup
+Using inetd or xinetd is a more complex setup
 than the "standalone" server, but it has the
 advantage of only using system resources when an actual connection is
 attempted.  If no-one ever connects to that port, a Fossil server will
 not (automatically) run. It has the disadvantage of requiring "root" access
 and therefore may not normally be available to lower-priced "shared" servers
-on the internet.
+on the Internet.
+
+The configuration for <tt>stunnel</tt> is similar, but it is covered in
+[./ssl.wiki#stunnel|a separate document].
 </blockquote>
 
 <h2 id="cgi">Fossil as CGI</h2>
@@ -281,24 +263,13 @@ fossil server $REPOSITORY --scgi --localhost --port 9000
 </pre></blockquote>
 </blockquote>
 
-<h2 id="tls">Securing a repository with SSL</h2>
+<h2 id="tls">Securing a repository with TLS</h2>
 
 <blockquote>
-Using either CGI or SCGI, it is trivial to use SSL to
-secure the server.  Simply set up the Fossil CGI scripts etc. as above,
-but modify the Apache (or IIS, etc.) server to require SSL (that is, a
-URL with "https://") in order to access the CGI script directory.  This
-may also be accomplished (on Apache, at least) using appropriate
-".htaccess" rules.
-
-If you are using "inetd" to serve your repository, then you simply need
-to add "/usr/bin/stunnel" (perhaps on a different path, depending on your
-setup) before the command line to launch Fossil.
-
-At this stage, the standalone server (e.g. "fossil server") does not
-support SSL.
-
-For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
+  Fossil's built-in HTTP server (e.g. "fossil server") does not support
+  TLS, but there are multiple ways to protect your Fossil server with
+  TLS. All of this is covered in a separate document, <a
+  href="./ssl.wiki">Using TLS-Encrypted Communications with Fossil</a>.
 </blockquote>
 
 <h2 id="loadmgmt">Managing Server Load</h2>
