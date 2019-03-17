@@ -1,5 +1,5 @@
-C Make\sthe\sconfiguration\sdatabase\s(~/.fossil)\soptional\sfor\sthe\ssync\scommand.
-D 2019-03-16T18:58:24.060
+C Do\snot\suse\sthe\s--input-marks\soption\swith\s"git\sfast-import".\s\sInstead,\sremember\nolder\sGit-names\sand\sinsert\sthem\sdirectly\sinto\sthe\sfast-import\sstream.
+D 2019-03-17T00:02:26.925
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c c01940ecb4519920e0cf13df77f665c2249001e9a753df04ca99ff467c07ec93
+F src/export.c 27e1273cf5b0367641388167d0f4aab2df42b431edcf31d54db4320a8d7d77c4
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -870,7 +870,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P de0bbcb53c5463cc7da8cdc16d38d2940ffc1eec322adf96d14488d4fd42dd2f
-R 5da4dac8a6eb7d870929a76fd1cdf851
+P d1b88ad570162e08124351e73dee91fed01be932c53d1abecfef4bc9c8c76143
+R 9a4289cf0dc0d0392c2feafd5ca6be87
 U drh
-Z 1a26e83b7ec3e2dd5a543df7604758a0
+Z 038f652a3ddb88a6f2c4a0d22bca92ff
