@@ -53,6 +53,7 @@ set doclist {
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   makefile.wiki {The Fossil Build Process}
+  mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
   /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
   password.wiki {Password Management And Authentication}

@@ -1,5 +1,5 @@
-C Automatically\srun\s"git\srepack\s-adf"\safter\san\sinitial\sexport\sto\sgit\susing\nthe\s"fossil\sgit\sexport"\scommand.\s\s(Recommended\sby\sLinus\sTorvalds\shimself.)
-D 2019-03-17T00:14:45.697
+C Add\sthe\s"How\sTo\sMirror\sA\sFossil\sRepository\sOn\sGitHub"\sdocument.
+D 2019-03-17T01:40:13.823
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -837,10 +837,11 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mkindex.tcl eaf4b1361896d7701429a51a7462ba9aace4fd7be612be87fe2e1e26ba3c01ec x
+F www/mirrortogithub.md 6f592ee4c4dc00cec1b50395ac3bf2df0fb9bdd39544ca4a22a42f9848462ef2
+F www/mkindex.tcl f4a9eedcc8b9ece74614b7233537133cba9a66954967177304bb5a0772e87edc x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
-F www/permutedindex.html f4c9782f3c76caa4724b2efb7e5d25457c19256f68efc502444529605e5178ae
+F www/permutedindex.html d03dadb34729c319836e3b9287c3bebfa9b0bc2d72ab519e8f5f01f08db2486a
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -870,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e6f3ced08278afbd646a74e91eaea3ff37695eb588c22b64dbe00662da9edcf
-R a9c84012ce8fad85e1aee3d0e97afa16
+P e4d87cd16bd4be9841ab608e0ef90d0662866e8dff642b3381043bac2116a84b
+R bd5fee23dd00d0a74e05261817d89903
 U drh
-Z c6279bbaeaf217f530f2b321a6475f17
+Z d1726d558eed1be2acbc2dd46313fa21
