@@ -538,7 +538,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **
-**     Apply STASHID or the most recently create stash to the current
+**     Apply STASHID or the most recently created stash to the current
 **     working checkout.  The "pop" command deletes that changeset from
 **     the stash after applying it but the "apply" command retains the
 **     changeset.
