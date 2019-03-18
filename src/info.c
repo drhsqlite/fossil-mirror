@@ -1758,8 +1758,6 @@ void diff_page(void){
 void rawartifact_page(void){
   int rid = 0;
   char *zUuid;
-  const char *zMime;
-  Blob content;
 
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename(0, 0);
@@ -1775,7 +1773,44 @@ void rawartifact_page(void){
     g.isConst = 1;
   }
   free(zUuid);
-  zMime = P("m");
+  deliver_artifact(rid, P("m"));
+}
+
+
+/*
+** WEBPAGE: secureraw
+** URL: /secureraw/HASH?m=TYPE
+**
+** Return the uninterpreted content of an artifact.  This is similar
+** to /raw except in this case the only way to specify the artifact
+** is by the full-length SHA1 or SHA3 hash.  Abbreviations are not
+** accepted.
+*/
+void secure_rawartifact_page(void){
+  int rid = 0;
+  const char *zUuid = PD("name", "");
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
+  if( rid==0 ){
+    cgi_set_status(404, "Not Found");
+    @ Unknown artifact: "%h(zUuid)"
+    return;
+  }
+  g.isConst = 1;
+  deliver_artifact(rid, P("m"));
+}
+
+
+/*
+** Generate a verbatim artifact as the result of an HTTP request.
+** If zMime is not NULL, use it as the MIME-type.  If zMime is
+** NULL, guess at the MIME-type based on the filename
+** associated with the artifact.
+*/
+void deliver_artifact(int rid, const char *zMime){
+  Blob content;
   if( zMime==0 ){
     char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
                               " WHERE mlink.fid=%d"
