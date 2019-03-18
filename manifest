@@ -1,5 +1,5 @@
-C Add\sthe\s/secureraw\spage\sthat\srequires\sthe\scomplete\sHASH\sbefore\sit\swill\ndeliver\san\sartifact.
-D 2019-03-18T12:04:02.349
+C Show\swhat\s"apt\sinstall"\scommands\sneed\sto\sbe\srun\son\sa\sfresh\sUbuntu\sinstall\nin\sorder\sto\sbuild\sFossil.
+D 2019-03-18T19:27:05.457
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -775,7 +775,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki e6300b6ff2aa0080ace70d847d926670ef1d0ca3b7198c0151180a6b4c5ea745
+F www/build.wiki 99f40cd9512c9392362f815baa4044508817c5947c9cba3315bc7054714c1a51
 F www/changes.wiki c225aebfab558becb6e51a54571def4a84e42cd4c0c5c0be4a996dd8f9b3932b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
@@ -871,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aaa726e191a0b39e612793fd9fa14f4a91f508604804ca0f36ceaa78703240e1
-R a9516f48f213703170e0e7dbda86fc87
+P 7abfca67529a44db3fd5ec8cf0de278295d8829072e797592ff0403e485fa013
+R b1be023a5e4f666c2fd616dbe166d2d9
 U drh
-Z 5a6cc5a140f85756e58b6165dbef2d63
+Z 97d5d8ffde9c45d4a6cff6a46ec4cabc
