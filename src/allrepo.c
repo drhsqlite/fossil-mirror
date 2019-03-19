@@ -303,7 +303,7 @@ void all_cmd(void){
     Blob sql = BLOB_INITIALIZER;
     useCheckouts = find_option("ckout","c",0)!=0;
     verify_all_options();
-    db_begin_transaction();
+    db_begin_write();
     for(j=3; j<g.argc; j++, blob_reset(&sql), blob_reset(&fn)){
       file_canonical_name(g.argv[j], &fn, useCheckouts?1:0);
       blob_append_sql(&sql,
@@ -326,7 +326,7 @@ void all_cmd(void){
     Blob fn = BLOB_INITIALIZER;
     Blob sql = BLOB_INITIALIZER;
     verify_all_options();
-    db_begin_transaction();
+    db_begin_write();
     for(j=3; j<g.argc; j++, blob_reset(&fn), blob_reset(&sql)){
       sqlite3 *db;
       int rc;

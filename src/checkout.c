@@ -291,7 +291,7 @@ void checkout_cmd(void){
   Blob cksum1, cksum1b, cksum2;
 
   db_must_be_within_tree();
-  db_begin_transaction();
+  db_begin_write();
   forceFlag = find_option("force","f",0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   keepFlag = find_option("keep",0,0)!=0;

@@ -228,7 +228,7 @@ void update_cmd(void){
     return;
   }
 
-  db_begin_transaction();
+  db_begin_write();
   db_multi_exec(
      "CREATE TEMP TABLE dir_to_delete(name TEXT %s PRIMARY KEY)WITHOUT ROWID",
      filename_collation()
@@ -802,7 +802,7 @@ void revert_cmd(void){
   pRvManifest = historical_manifest(zRevision);
   pCoManifest = zRevision ? historical_manifest(0) : 0;
 
-  db_begin_transaction();
+  db_begin_write();
   undo_begin();
   db_multi_exec("CREATE TEMP TABLE torevert(name UNIQUE);");
 

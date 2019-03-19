@@ -2242,7 +2242,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
-  db_begin_transaction();
+  db_begin_write();
   if( bUseSha1 ){
     g.eHashPolicy = HPOLICY_SHA1;
     db_set_int("hash-policy", HPOLICY_SHA1, 0);
@@ -2625,7 +2625,7 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
-  db_begin_transaction();
+  db_begin_write();
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%Q)",
@@ -2641,7 +2641,7 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   db_end_transaction(0);
 }
 void db_unset(const char *zName, int globalFlag){
-  db_begin_transaction();
+  db_begin_write();
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);

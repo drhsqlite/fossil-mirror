@@ -295,7 +295,7 @@ void unversioned_cmd(void){
     zAs = find_option("as",0,1);
     if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     verify_all_options();
-    db_begin_transaction();
+    db_begin_write();
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
       zIn = zAs ? zAs : g.argv[i];
@@ -320,7 +320,7 @@ void unversioned_cmd(void){
   }else if( memcmp(zCmd, "cat", nCmd)==0 ){
     int i;
     verify_all_options();
-    db_begin_transaction();
+    db_begin_write();
     for(i=3; i<g.argc; i++){
       Blob content;
       if( unversioned_content(g.argv[i], &content)==0 ){
@@ -343,7 +343,7 @@ void unversioned_cmd(void){
     if( zEditor==0 ) fossil_fatal("no text editor - set the VISUAL env variable");
     zTFile = fossil_temp_filename();
     if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
-    db_begin_transaction();
+    db_begin_write();
     content_rcvid_init("#!fossil unversioned edit");
     if( unversioned_content(zUVFile, &content) ){
       fossil_fatal("no such uv-file: %Q", zUVFile);
@@ -433,7 +433,7 @@ void unversioned_cmd(void){
          || memcmp(zCmd, "delete", nCmd)==0 ){
     int i;
     verify_all_options();
-    db_begin_transaction();
+    db_begin_write();
     for(i=3; i<g.argc; i++){
       db_multi_exec(
         "UPDATE unversioned"
@@ -451,7 +451,7 @@ void unversioned_cmd(void){
   }else if( memcmp(zCmd, "touch", nCmd)==0 ){
     int i;
     verify_all_options();
-    db_begin_transaction();
+    db_begin_write();
     for(i=3; i<g.argc; i++){
       db_multi_exec(
         "UPDATE unversioned SET mtime=%lld WHERE name=%Q",

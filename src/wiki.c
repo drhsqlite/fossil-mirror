@@ -642,7 +642,7 @@ void wikiedit_page(void){
     char *zDate;
     Blob cksum;
     blob_zero(&wiki);
-    db_begin_transaction();
+    db_begin_write();
     if( isSandbox ){
       db_set("sandbox",zBody,0);
       db_set("sandbox-mimetype",zMimetype,0);
@@ -921,7 +921,7 @@ void wikiappend_page(void){
         manifest_destroy(pWiki);
       }
       blob_zero(&wiki);
-      db_begin_transaction();
+      db_begin_write();
       zDate = date_in_standard_format("now");
       blob_appendf(&wiki, "D %s\n", zDate);
       blob_appendf(&wiki, "L %F\n", zPageName);
@@ -1297,7 +1297,7 @@ int wiki_cmd_commit(const char *zPageName, int rid, Blob *pContent,
   md5sum_blob(&wiki, &cksum);
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
-  db_begin_transaction();
+  db_begin_write();
   wiki_put(&wiki, 0, wiki_need_moderation(localUser));
   db_end_transaction(0);
   return 1;

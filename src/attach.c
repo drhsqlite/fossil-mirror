@@ -268,7 +268,7 @@ void attach_commit(
     int addCompress = 0;
     Manifest *pManifest;
 
-    db_begin_transaction();
+    db_begin_write();
     blob_init(&content, aContent, szContent);
     pManifest = manifest_parse(&content, 0, 0);
     manifest_destroy(pManifest);
@@ -503,7 +503,7 @@ void ainfo_page(void){
     Blob cksum;
     const char *zFile = zName;
 
-    db_begin_transaction();
+    db_begin_write();
     blob_zero(&manifest);
     for(i=n=0; zFile[i]; i++){
       if( zFile[i]=='/' || zFile[i]=='\\' ) n = i;

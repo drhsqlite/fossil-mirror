@@ -214,7 +214,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
     return FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
   }
 
-  db_begin_transaction();
+  db_begin_write();
   rootid = name_to_typed_rid(zBasis, "ci");
   if( rootid==0 ){
     zOpt->rcErrMsg = "Basis branch not found.";

@@ -100,7 +100,7 @@ static cson_value * json_tag_add(){
     zValue = json_command_arg(5);
   }
 
-  db_begin_transaction();
+  db_begin_write();
   tag_add_artifact(zPrefix, zName, zCheckin, zValue,
                    1+fPropagate,NULL/*DateOvrd*/,NULL/*UserOvrd*/);
   db_end_transaction(0);
@@ -180,7 +180,7 @@ static cson_value * json_tag_cancel(){
   /* FIXME?: verify that the tag is currently active. We have no real
      error case unless we do that.
   */
-  db_begin_transaction();
+  db_begin_write();
   tag_add_artifact(zPrefix, zName, zCheckin, NULL, 0, 0, 0);
   db_end_transaction(0);
   return NULL;

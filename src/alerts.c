@@ -213,7 +213,7 @@ void setup_notification(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
+  db_begin_write();
 
   alert_submenu_common();
   style_submenu_element("Send Announcement","%R/announce");

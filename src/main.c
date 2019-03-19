@@ -2140,7 +2140,7 @@ static void find_server_repository(int arg, int fCreate){
         const char *zPassword;
         db_create_repository(zRepo);
         db_open_repository(zRepo);
-        db_begin_transaction();
+        db_begin_write();
         g.eHashPolicy = HPOLICY_AUTO;
         db_set_int("hash-policy", HPOLICY_AUTO, 0);
         db_initial_setup(0, "now", g.zLogin);

@@ -2651,7 +2651,7 @@ static void apply_newtags(
       fossil_print("%s", blob_str(ctrl));
       blob_reset(ctrl);
     }else{
-      db_begin_transaction();
+      db_begin_write();
       g.markPrivate = content_is_private(rid);
       nrid = content_put(ctrl);
       manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);

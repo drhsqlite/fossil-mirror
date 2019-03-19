@@ -463,7 +463,7 @@ void undo_cmd(void){
   }
   db_must_be_within_tree();
   verify_all_options();
-  db_begin_transaction();
+  db_begin_write();
   undo_available = db_lget_int("undo_available", 0);
   if( dryRunFlag ){
     if( undo_available==0 ){

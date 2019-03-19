@@ -326,7 +326,7 @@ void setup_access(void){
   }
 
   style_header("Access Control Settings");
-  db_begin_transaction();
+  db_begin_write();
   @ <form action="%s(g.zTop)/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
@@ -681,7 +681,7 @@ void setup_timeline(void){
   }
 
   style_header("Timeline Display Preferences");
-  db_begin_transaction();
+  db_begin_write();
   @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
@@ -782,7 +782,7 @@ void setup_settings(void){
        but only if no repo file was explicitly provided. */
     db_open_local(0);
   }
-  db_begin_transaction();
+  db_begin_write();
   @ <p>Settings marked with (v) are "versionable" and will be overridden
   @ by the contents of managed files named
   @ "<tt>.fossil-settings/</tt><i>SETTING-NAME</i>".
@@ -859,7 +859,7 @@ void setup_config(void){
   }
 
   style_header("WWW Configuration");
-  db_begin_transaction();
+  db_begin_write();
   @ <form action="%s(g.zTop)/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
@@ -955,7 +955,7 @@ void setup_wiki(void){
   }
 
   style_header("Wiki Configuration");
-  db_begin_transaction();
+  db_begin_write();
   @ <form action="%s(g.zTop)/setup_wiki" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
@@ -1015,7 +1015,7 @@ void setup_modreq(void){
   }
 
   style_header("Moderator For Wiki And Tickets");
-  db_begin_transaction();
+  db_begin_write();
   @ <form action="%R/setup_modreq" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
@@ -1061,7 +1061,7 @@ void setup_adunit(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
+  db_begin_write();
   if( P("clear")!=0 && cgi_csrf_safe(1) ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     cgi_replace_parameter("adunit","");
@@ -1151,7 +1151,7 @@ void setup_logo(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
+  db_begin_write();
   if( !cgi_csrf_safe(1) ){
     /* Allow no state changes if not safe from CSRF */
   }else if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
