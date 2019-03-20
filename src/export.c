@@ -1485,8 +1485,12 @@ void gitmirror_export_command(void){
   if( zPushUrl ){
     char *zPushCmd;
     UrlData url;
-    url_parse_local(zPushUrl, 0, &url);
-    zPushCmd = mprintf("git push --mirror %s", url.canonical);
+    if( sqlite3_strglob("http*", zPushUrl)==0 ){
+      url_parse_local(zPushUrl, 0, &url);
+      zPushCmd = mprintf("git push --mirror %s", url.canonical);
+    }else{
+      zPushCmd = mprintf("git push --mirror %s", zPushUrl);
+    }
     gitmirror_message(VERB_NORMAL, "%s\n", zPushCmd);
     fossil_free(zPushCmd);
     zPushCmd = mprintf("git push --mirror %s", zPushUrl);
