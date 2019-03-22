@@ -1,5 +1,5 @@
-C Add\sthe\s"New\sEra"\sor\s"元号"\splaceholder\sto\sthe\s(regexp)\sUnicode\stables.\sSo\sfossil\sis\sready\sfor\sthe\sexpected\sjapanese\sMay\s1\sevent.\sSee:\s[http://blog.unicode.org/2018/09/new-japanese-era.html]
-D 2019-03-21T20:50:27.396
+C Fossil\sneeds\sSQLite\s3.28.0\snow,\sso\scheck\sfor\sthat.
+D 2019-03-22T11:56:35.474
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -49,7 +49,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def fd3128fb16edb9d09c6337cba893524e2c4905fd3d9ca8f48bae7146ab86619b
+F auto.def efd85d540b6933b868bc50b15d08d1a3282fbfcc77c05e0c5037821644ef9318
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -871,7 +871,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd212e80224a551031ac75d8d35744fe3657bfc0bcb483bd81dd0c87779423c4
-R df44a79ac5d27cb0d6ab05471ba370fc
+P 9b679012e0271b90ea28dcd2e8842ca505e7dd60e3a44739e5b05f46b0c80527
+R aacf42673d26e7e24f738e3b73d1b724
 U jan.nijtmans
-Z 5e7acc108bf16c8538785b5ca6e831ad
+Z 65b78b245de83d1973e27efef7fd1b6d
