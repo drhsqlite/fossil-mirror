@@ -161,7 +161,7 @@ often make it either difficult or impossible to work with the
 uncompressed form, we want an automated method for producing the
 uncompressed form to make Fossil happy while still having the compressed
 form to keep our content creation applications happy.  This `Makefile`
-will do that for several different compressed file types:
+should⁴ do that for BMP, PNG, SVG, and XLSX files:
 
         .SUFFIXES: .bmp .png .svg .svgz
 
@@ -183,8 +183,8 @@ will do that for several different compressed file types:
         all: $(SS_FILES) illus.svg image.bmp doc-big.pdf
 
         reconstitute: illus.svgz image.png
-            unzip spreadsheet.xlsx -d spreadsheet
-            qpdf doc-small.pdf doc-big.pdf
+            ( cd spreadsheet ; zip -9 ../spreadsheet.xlsx) * )
+            qpdf doc-big.pdf doc-small.pdf
 
 
         $(SS_FILES): spreadsheet.xlsx
@@ -259,6 +259,10 @@ reasons:
     the overall character of the results don’t change much from one run
     to the next.
 
+4.  The `Makefile` above is not battle-tested.  Please report bugs and
+    needed extensions [on the forum][for].
+
+[for]: https://fossil-scm.org/forum/forumpost/15e677f2c8
 [git]: https://git-scm.com/
 [lzw]: https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Welch
 [rs]:  https://rsync.samba.org/
