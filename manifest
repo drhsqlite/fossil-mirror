@@ -1,5 +1,5 @@
-C Check\sfor\sthe\spresence\sof\sBIO_ADDR_hostname_string\sbefore\susing\sit.
-D 2019-03-25T14:02:50.430
+C Capture\sboth\sSSL\slibrary\srequirements\sbefore\sattempting\sto\sbuild\sthe\scode.
+D 2019-03-25T18:43:20.903
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -49,7 +49,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def ccc4942ec77d8c9f0fbbf7559b6af1dd2646bd0e46ae57b2f471622b87fa4ab8
+F auto.def 32aa64e3f95453e8a722d07b89c745e63e2f4d45a0e5988b91f1566024419b82
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e4ca60cd4920133f00c7454b98150fef5ba76669cece9650d5c8998ad191a419
-R fbce0593abe5561f187fbe247d46f02b
+P 0ef9501cfa0edd49a00f949b665402d638b7ec5491d8bcd33fe70ff7703d9d9d
+R 7e2aa79bc84da948da10f86f4af38ef7
 U andybradford
-Z 301dbe49125fedb0a74596b035ceac5d
+Z aafaaf2538fd7b90d55b11f0bfb819ce
