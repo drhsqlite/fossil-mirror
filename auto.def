@@ -378,6 +378,10 @@ if {$ssldirs ne "none"} {
                 define-append EXTRA_CFLAGS -Wdeprecated-declarations
             }
         }
+        if {[cc-check-function-in-lib BIO_ADDR_hostname_string ssl]} {
+            define HAVE_BIO_ADDR_HS 1
+            msg-result "Using BIO_ADDR_hostname_string"
+        }
     } else {
         user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
     }
