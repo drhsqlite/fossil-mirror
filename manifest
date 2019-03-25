@@ -1,5 +1,5 @@
-C Use\sthe\sBIO_ADDR_hostname_string()\sfunction\sfrom\sOpenSSL\sto\sobtain\sthe\nIP\saddress\sof\sthe\sremote\sside,\sif\sthat\sfunction\sis\savailable.
-D 2019-03-25T11:31:08.457
+C If\sthe\slogin\sfails\sduring\sa\sclone\sor\ssync,\sfail\sthe\scommand\simmediately\srather\nthan\sreprompting\sfor\sa\snew\spassword,\sas\sthe\ssync\sis\sgoing\sto\seventually\sfail\nanyhow.
+D 2019-03-25T12:13:15.571
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -603,7 +603,7 @@ F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c d8bc971622ad842c7b5d79d93d343ab6cbd3374cee23dbe17b43b53b26eec817
+F src/xfer.c 42de5f226ee434ec7fac43ab9e685aad0aaa6d60af94593d55ff21886ebe1c63
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1614c9b5d06ee653e9b43b08d5c0d4c619eded0b004f3e9ff77e77c9888c9531
-R 6904ac4f6ab864ddc98e583b7e4eca21
+P 8a4ad5cb547518dc75118c510b6e5c50ec1ced5671626c5ef490cb3d9e4cbcf7
+R 88cee4137a8103e62ce1fbe059509efc
 U drh
-Z 91fad017c557ed7d3da305e1ff9d6ac3
+Z 40f99a6e65d9a49ce2164e4382884f7a

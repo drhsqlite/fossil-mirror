@@ -2290,23 +2290,8 @@ int client_sync(
           defossilize(zMsg);
           fossil_force_newline();
           fossil_print("Error: %s\n", zMsg);
-          if( fossil_strcmp(zMsg, "login failed")==0 ){
-            if( nCycle<2 ){
-              g.url.passwd = 0;
-              go = 1;
-              if( g.cgiOutput==0 ){
-                g.url.flags |= URL_PROMPT_PW;
-                g.url.flags &= ~URL_PROMPTED;
-                url_prompt_for_password();
-                url_remember();
-              }
-            }else{
-              nErr++;
-            }
-          }else{
-            blob_appendf(&xfer.err, "server says: %s\n", zMsg);
-            nErr++;
-          }
+          blob_appendf(&xfer.err, "server says: %s\n", zMsg);
+          nErr++;
           break;
         }
       }else
