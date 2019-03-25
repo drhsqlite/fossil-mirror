@@ -1,5 +1,5 @@
-C Fixed\sa\sfew\sbugs\sin\sthe\sMakefile\sin\sthe\swww/image-format-vs-repo-size.md\ndoc,\sand\sadded\sa\scaveat\sabout\spotential\sfurther\sbugs.
-D 2019-03-24T18:56:57.839
+C Typo\sfix,\sreported\sin\sthe\sforum:\sadministator.
+D 2019-03-25T06:18:32.895
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -441,7 +441,7 @@ F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 387c89d7869afbc3914b18c045cb9ba24bea43ec9ddb6e7157ac922fc35a1d6e
+F src/capabilities.c 250886f1132454b810e0841ae46055a097cfc623fe9c44f9a17697b04337f5dc
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
 F src/checkin.c 2199fbfb096b09b940b96e9b74658758ece27454d86230274cf0e21f2dbf3b85
@@ -552,7 +552,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
-F src/security_audit.c 229c0f40969d057702f0e9f6c538dfca34fe7df9282c16e00e89f9e7bc5a60a8
+F src/security_audit.c a0e28b03be42cf3651dee57a9c81d6e7655932d1b78b50ad587fa7274fd35f24
 F src/setup.c bedcb23e2cf8fce3095d2a35e7ca7fb5aa11d494906249ea87c13df6bbcaa455
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41579b4c841680255a3a9a5d594c757b455a008b38e4d97caa5268766a187df5
-R a971df529881e158cc16bbdb5345e9dd
-U wyoung
-Z 6267fe15d33c0bfc3bb4a9a23802b18b
+P 82ad5914f101d867cb991a84071d3154b2155495958356ccd81b1962a90d336b
+R 33e7aa2009688dd396036f7ea3c9bdb5
+U stephan
+Z 95c9ad521a86793cc366b18caf6b1f63

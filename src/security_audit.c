@@ -290,7 +290,7 @@ void secaudit0_page(void){
       @ <li><p><b>WARNING:</b>
       @ Administrator privilege is granted to
       @ <a href='setup_ulist?with=as'>%d(n) users</a>.
-      @ Ideally, administator privilege ('s' or 'a') should only
+      @ Ideally, administrator privilege ('s' or 'a') should only
       @ be granted to one or two users.
     }
   }
