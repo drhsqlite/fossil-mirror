@@ -1,5 +1,5 @@
-C Typo\sfix,\sreported\sin\sthe\sforum:\sadministator.
-D 2019-03-25T06:18:32.895
+C Use\sthe\sBIO_ADDR_hostname_string()\sfunction\sfrom\sOpenSSL\sto\sobtain\sthe\nIP\saddress\sof\sthe\sremote\sside,\sif\sthat\sfunction\sis\savailable.
+D 2019-03-25T11:31:08.457
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -488,7 +488,7 @@ F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
+F src/http_ssl.c 0c6d543a1a02d87e431cd72438e40b2813214f41702ef538acdb23d29d8a25a3
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c b83838c9ee13a9c6302e459e12c3093e04a3306ccf917da8c6686b94d2f7a605
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82ad5914f101d867cb991a84071d3154b2155495958356ccd81b1962a90d336b
-R 33e7aa2009688dd396036f7ea3c9bdb5
-U stephan
-Z 95c9ad521a86793cc366b18caf6b1f63
+P 1614c9b5d06ee653e9b43b08d5c0d4c619eded0b004f3e9ff77e77c9888c9531
+R 6904ac4f6ab864ddc98e583b7e4eca21
+U drh
+Z 91fad017c557ed7d3da305e1ff9d6ac3
