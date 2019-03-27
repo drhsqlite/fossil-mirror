@@ -1026,7 +1026,7 @@ const char *timeline_query_for_www(void){
 ** Convert a symbolic name used as an argument to the a=, b=, or c=
 ** query parameters of timeline into a julianday mtime value.
 */
-double symbolic_name_to_mtime(const char *z){
+double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
   double mtime;
   int rid;
   const char *zDate;
@@ -1039,6 +1039,7 @@ double symbolic_name_to_mtime(const char *z){
   if( zDate!=0
    && (mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", zDate))>0.0
   ){
+    if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
     return mtime;
   }
   rid = symbolic_name_to_rid(z, "*");
@@ -2095,9 +2096,9 @@ void page_timeline(void){
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
     }
-    rBefore = symbolic_name_to_mtime(zBefore);
-    rAfter = symbolic_name_to_mtime(zAfter);
-    rCirca = symbolic_name_to_mtime(zCirca);
+    rBefore = symbolic_name_to_mtime(zBefore, &zBefore);
+    rAfter = symbolic_name_to_mtime(zAfter, &zAfter);
+    rCirca = symbolic_name_to_mtime(zCirca, &zCirca);
     blob_append_sql(&sql, "%s", blob_sql_text(&cond));
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
@@ -2228,7 +2229,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate);
+        rDate = symbolic_name_to_mtime(zDate, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
@@ -2243,7 +2244,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate);
+        rDate = symbolic_name_to_mtime(zDate, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
@@ -2283,7 +2284,7 @@ void page_timeline(void){
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
-    double r = symbolic_name_to_mtime(zMark);
+    double r = symbolic_name_to_mtime(zMark, 0);
     if( r>0.0 ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
