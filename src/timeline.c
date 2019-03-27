@@ -1029,10 +1029,17 @@ const char *timeline_query_for_www(void){
 double symbolic_name_to_mtime(const char *z){
   double mtime;
   int rid;
+  const char *zDate;
   if( z==0 ) return -1.0;
   if( fossil_isdate(z) ){
     mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
     if( mtime>0.0 ) return mtime;
+  }
+  zDate = fossil_expand_datetime(z, 1);
+  if( zDate!=0
+   && (mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", zDate))>0.0
+  ){
+    return mtime;
   }
   rid = symbolic_name_to_rid(z, "*");
   if( rid ){

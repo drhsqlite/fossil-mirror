@@ -1,5 +1,5 @@
-C Remove\sextra\soutput\s\swhen\srequirements\sare\sfound\sand\sthere\s\sis\sreally\sno\nneed\sfor\sa\swarning\shere\seither.
-D 2019-03-26T01:45:06.762
+C Accept\spure\snumeric\sISO8601\sdate/time\sstrings\s(without\spunctuation)\sif\sthere\nare\snot\sconflicts\swith\sother\sidentifiers.
+D 2019-03-27T13:16:14.912
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -534,7 +534,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c e0a2586665e8a583711db2516656f239c045c3b7b34812d91744a313d5cdaf6c
-F src/name.c 931ddcd89f63d2845b5f93b2655d8fc04ae0ac0a99b167a14fe1d82c0ee7cfa5
+F src/name.c e962865417d65c3dba038afc8b9a3be8d2997e38dcadf55782dcebe485dc24db
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 2b4aaceb79d8c70cd6383cc6692044903566434416c917889c739e0e13b0b4dd
+F src/timeline.c b72c7539674881ea268200a7a599baf69a4829ec3c672f384c56a15b02bf8eec
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f517cb7f25c54ec431d3859cb4f83387bd919c41af3e3bd04b57393cc70aec02
-R dfeeb9f2729cf09f4ce74b715344d436
-U andybradford
-Z b2081cf0bc171eaebe361ffbf9f880bf
+P 1aab3f31781ddb2305ac4136af441122d03677f699a7acf5d031a100d92d7e36
+R bf0ffbec7321adf8ecfb01a40502b483
+U drh
+Z 89b039be2fcabd600c1980ba6a35b1e3
