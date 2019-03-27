@@ -1,5 +1,5 @@
-C Several\simprovements\sto\sthe\simage-format-vs-repo-size\sexperiment\sand\sthe\nreport\sdocumenting\sit:\sdropped\sthe\sfirst\s3\scolumns\sof\sdata\sto\smake\sthe\nbar\schart\sclearer;\sdrawing\sthe\sbar\schart\son\sa\stransparent\sBG\sin\scase\nit's\sused\son\sa\spage\swith\sa\snon-white\sBG,\sas\swith\sa\sselected\sFossil\sforum\npost;\sadded\saxis\slabels;\sadded\sa\srun\stime\scalculation\sto\sthe\sexpensive\nfirst\sstep;\sfixed\sa\sfew\ssyntax\sproblems\sthat\sprevent\sthe\sPython\scode\nfrom\scompiling\son\sPython\s3;\sdocumented\ssome\sproblems\swith\srunning\sit\sunder\nAnaconda\son\smacOS;\sbetter\sdocumented\sthe\snotebook's\sdependencies;\smany\nclarifications\sto\sthe\sexperimental\sreport\stext.
-D 2019-03-27T18:45:55.909
+C Added\sJupyter\snbviewer\slink\sfor\swww/image-format-vs-repo-size.ipynb,\sand\nmade\sa\sfew\ssmall\sedits\sto\sthe\snotebook\safter\sseeing\sit\sin\sthat\sviewer.
+D 2019-03-27T19:59:23.619
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -834,8 +834,8 @@ F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
 F www/hashpolicy.wiki 67069cee03a4759783ca175396a2ac28b9439635b3067d5de3ede3fda96f009b
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/image-format-vs-repo-size.ipynb 0edf58919f9d03436d0f7ded017b00a33aeb49c0d1c7cbbba1ff9d799d43c750
-F www/image-format-vs-repo-size.md 586091c20fcc2aa968b337ef627f265c8e501a4239e6bd4bf0990965a1393d50
+F www/image-format-vs-repo-size.ipynb 34a0b0637fd50d761de694c0c61afffddc3b898a5b151ac938c3a117dc30cb80
+F www/image-format-vs-repo-size.md 9e8b06d2511a672a7bed6b833d10ef8f8c82b2b75fe631682de159e8549b3bec
 F www/image-format-vs-repo-size.svg 4b815f4c3bbc9c73346b55f6a340ecd6e429697a49de1a27c28218a663c14793
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99abe50b1fffc1942a67cd43cd18930f443726c65a6695f1769ecbdb2c1e14c2
-R 5e6367f5f52dd592105cfcdc9bdc2011
+P 41e5237acd2eb2b160a81425e02e13247a98d10478bf66a81088e38aadeed788
+R b285635e72d6c7924dfdf5511dd5013f
 U wyoung
-Z 59ee2ed3aa5a9cd0f9cc53c912400e74
+Z 2fc24274139d0fe0f40f3714789dbd77

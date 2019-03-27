@@ -79,8 +79,9 @@ few examples out of what must be thousands:
 
 ## Demonstration
 
-The companion [`image-format-vs-repo-size.ipynb` file][nb] is a
-[Jupyter][jp] notebook implementing the following experiment:
+The companion `image-format-vs-repo-size.ipynb` file ([download][nbd],
+[preview][nbp]) is a [Jupyter][jp] notebook implementing the following
+experiment:
 
 1.  Create an empty Fossil repository; save its initial size.
 
@@ -109,10 +110,11 @@ formats?  You can put anything ImageMagick can recognize into the
 `formats` list. Want to find the break-even point for images like those
 in your own respository?  Easily done with a small amount of code.
 
-[im]: https://www.imagemagick.org/
-[jp]: https://jupyter.org/
-[nb]: ./image-format-vs-repo-size.ipynb
-[wp]: http://wand-py.org/
+[im]:  https://www.imagemagick.org/
+[jp]:  https://jupyter.org/
+[nbd]: ./image-format-vs-repo-size.ipynb
+[nbp]: https://nbviewer.jupyter.org/urls/fossil-scm.org/fossil/doc/trunk/www/image-format-vs-repo-size.ipynb
+[wp]:  http://wand-py.org/
 
 
 ## Results
