@@ -1,5 +1,5 @@
-C Support\sboth\s"1)"\sand\s"1."\sfor\snumbered\slists\sin\smarkdown,\sas\ncommonmark\sdoes.\s\sPatch\sfrom\sA.\sKupries.
-D 2019-03-30T00:46:02.180
+C Backout\s[f517cb7f]\sbecause\sthey\sboth\scome\stogether\sanyway.\s\sSee\shttps://fossil-scm.org/forum/forumpost/da64c38d6a\sfor\sdiscussion.
+D 2019-03-30T15:40:18.376
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -49,7 +49,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 2daf26a6e176b412561e6d8978aba5b2809eb7d76f7ffa181869aebddac8a6b3
+F auto.def d7f7caf5e55253f3d583a00fd4429ce3d3da6cef4690efdb934b7ee533f51ba5
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -874,7 +874,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f52d63e37bf8d2ec66fd36d5b62342193b2b42753e7535ef41e1681a040e361d
-R adbba4aa8d66a3bb3088c74ffa5ecf87
-U drh
-Z 3b0bc5d1e5fe2ae90674a8ff5bf57bda
+P 9d6a0aac4264be133fd668df2cc4421e78b7c754b73a27c72f7330bd8201f213
+Q -f517cb7f25c54ec431d3859cb4f83387bd919c41af3e3bd04b57393cc70aec02
+R 6aae3d908295e00cdccf1ed414539742
+U andybradford
+Z 9925c110bd20064e2793c8fbb0e8761e

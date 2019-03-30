@@ -378,8 +378,7 @@ if {$ssldirs ne "none"} {
                 define-append EXTRA_CFLAGS -Wdeprecated-declarations
             }
         }
-        if {[cc-check-function-in-lib BIO_ADDR_hostname_string ssl] && \
-             [cc-check-function-in-lib BIO_get_conn_address ssl]} {
+        if {[cc-check-function-in-lib BIO_ADDR_hostname_string ssl]} {
             define HAVE_BIO_ADDR_HS 1
         }
     } else {
