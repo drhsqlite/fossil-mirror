@@ -1,5 +1,5 @@
-C Clean\sup\sthe\sdetection\sof\sBIO_ADDR_hostname-string\sby\sremoving\sredundant\ndefinitions;\s\sapparently\sautosetup\s\shas\s\sa\s\sfeature\swhich\s\sautomatically\ncreates\sa\sdefine\swith\sHAVE_\s\sprepended\sfor\swhatever\sfunction\sis\sintended\nto\sbe\sdetected.
-D 2019-04-01T00:43:49.744
+C The\sabbreviated\scertbot\scommand\sdidn't\swork\shere\son\smy\sfirst\sLet's\nEncrypt\srenewal\safter\swriting\sthe\stls-nginx.md\sdocument,\sso\schanged\nthat\sadvice\sto\suse\sthe\sfull-strength\sform.
+D 2019-04-02T03:26:19.976
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -866,7 +866,7 @@ F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f
 F www/th1.md d03aa9f40d00d5c12508bb0435df205993a568c3e9d724555e68985c24666201
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
-F www/tls-nginx.md e80044bd8e74adaa9b1527d2e113d443f5c090a12f030d413f6a79909d35ea02
+F www/tls-nginx.md f3137bcfdf9d14a1271325e9f2f3e52e6884892520e10256ee278d34308f8a90
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b23b3289d1c7305671c0eadcf1727ed1f377313f5acd94600bfb0c997b950da
-R 9b73bc1a8b1a020e0c81ab022c5c0912
-U andybradford
-Z b5eddadf9ac949e8419d0e835b2c0055
+P 3d827943481e96aae83cbef2af5484e8d4b5153a9f97a6a6211f65354ccddb18
+R 7badda013bd4c0e70679e8beb20dc569
+U wyoung
+Z 156eb84b74c748ddd04399ea6a2d495e
