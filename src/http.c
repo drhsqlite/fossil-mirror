@@ -110,7 +110,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }else{
     zSep = "/";
   }
-  blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.url.path, zSep);
+  blob_appendf(pHdr, "POST %s%s HTTP/1.0\r\n", g.url.path, zSep);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
