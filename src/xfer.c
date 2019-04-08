@@ -974,7 +974,7 @@ static int send_unclustered(Xfer *pXfer){
     );
   }else{
     db_prepare(&q,
-      "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+      "SELECT uuid FROM unclustered JOIN blob USING(rid) /*scan*/"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
       "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
