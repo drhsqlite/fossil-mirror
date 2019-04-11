@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.28.0\sbeta.
-D 2019-04-11T01:17:26.692
+C Fix\sprivate\scontent\spush\sbug\smentioned\son\sForum.\sIt's\spossible\sthat\sthis\ncontent\shas\salready\sbeen\srecorded\sas\sprivate\sso\signore\sunique\sconstraint\nerror.
+D 2019-04-11T14:12:17.861
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -453,7 +453,7 @@ F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e69
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c a3292eb98393a1dbfdeaea3fdca09c7dd3b97ae185003fbbb28ccb7f0ea0b33f
-F src/content.c 4f31f359dd7c365e3936cc01250b5f82cc33a42ede54d473f30eb59e0f0595e3
+F src/content.c d49bd600d03d5de748c07e1ca0fdaf66b5c890410d61a541d397d4cb1b0ed13c
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 85dd55db660a4338f5c696e99df91da1d7b7d69567ddd9c211c7cab00b5b8766
-R 42b4a67344799a26fc133471e879951c
-U drh
-Z ee56054722ffb6f1ac813d954529b38b
+P cbc21e52904aac60495f2728c1964dd8504b0a467475d27ac720d17bc62e8702
+R 1f22e20182fdf1c4c11801d12a996959
+U andybradford
+Z de4f42921dd6b5c11fef4d7d754a77fd
