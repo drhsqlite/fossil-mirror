@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.28.0"
 #define SQLITE_VERSION_NUMBER 3028000
-#define SQLITE_SOURCE_ID      "2019-04-03 17:48:10 8d3af2010f4f652865f5c0d18e3bc793de05f8e75e75cc77786f61004b2ad28f"
+#define SQLITE_SOURCE_ID      "2019-04-10 18:29:40 f294cfc173c5653ef161dbff63b7838dbccdcad797f5163c49b3173f9f35ab0f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4980,7 +4980,7 @@ SQLITE_API SQLITE_DEPRECATED int sqlite3_memory_alarm(void(*)(void*,sqlite3_int6
 ** <td>&rarr;&nbsp;&nbsp;<td>True if the column is unchanged in an UPDATE
 ** against a virtual table.
 ** <tr><td><b>sqlite3_value_frombind&nbsp;&nbsp;</b>
-** <td>&rarr;&nbsp;&nbsp;<td>True if value originated a bound parameter
+** <td>&rarr;&nbsp;&nbsp;<td>True if value originated from a [bound parameter]
 ** </table></blockquote>
 **
 ** <b>Details:</b>
