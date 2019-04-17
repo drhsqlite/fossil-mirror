@@ -1,5 +1,5 @@
-C Fix\sprivate\scontent\spush\sbug\smentioned\son\sForum.\sIt's\spossible\sthat\sthis\ncontent\shas\salready\sbeen\srecorded\sas\sprivate\sso\signore\sunique\sconstraint\nerror.
-D 2019-04-11T14:12:17.861
+C Applied\sa\sfix\sto\sfossil-autocomplete.bash\sposted\son\sthe\sforum,\ssaid\sto\navoid\sadding\sa\sspace\sto\sthe\send\sof\san\sautocompleted\spath:\nhttps://fossil-scm.org/forum/forumpost/7ba4a4c495
+D 2019-04-17T14:50:30.019
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -730,7 +730,7 @@ F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03
 F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073
 F tools/email-sender.tcl abab880f7aa8d6a2f83337f1dbe1dbd65dca3224ebaaaab184e5de091591306f x
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/fossil-autocomplete.bash 1135105ee18b95823944e2fa425806d3bc0f4252
+F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbc21e52904aac60495f2728c1964dd8504b0a467475d27ac720d17bc62e8702
-R 1f22e20182fdf1c4c11801d12a996959
-U andybradford
-Z de4f42921dd6b5c11fef4d7d754a77fd
+P 82aded4cff95dd74078209baabbb68bde9d4a89488e66f41034e3d8c4102cc96
+R 812560f987cc1c13683eac521a01dd2d
+U wyoung
+Z 9425866d0102edf12558fd6d4c5b8d62
