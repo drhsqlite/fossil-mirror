@@ -2292,7 +2292,7 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"error") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        if( (syncFlags && SYNC_IFABLE)!=0
+        if( (syncFlags & SYNC_IFABLE)!=0
          && sqlite3_strlike("%not authorized to write%",zMsg,0)==0 ){
           autopushFailed = 1;
           nErr++;

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.28.0.
-D 2019-04-17T19:22:32.211
+C Fix\sto\sthe\snew\sautopush\sprivilege\swarning\slogic.
+D 2019-04-17T19:40:36.684
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -603,7 +603,7 @@ F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c b2d423d17034815749ab6f3c603c2b2514fba3ac5fb2a326dcf7f5cccfc46727
+F src/xfer.c 150bd6240464bbe50165aab2122e2f54fda2e88a71362ec26f3f5a53f0eb65cc
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3350be2c0744c89ab90a789a9bf383305aad2fdaf80696e82d7096e11ede77b6
-R e776eb21dee337500f014e352ec83a53
+P 14db745dfe74a7e812e45aec020dffff186ec58a2b7893f60196ced4563b60f9
+R 149416e348554332c2ff821d070f954e
 U drh
-Z b27a0a9478cd6f56dad706d1ce60d582
+Z 3176f6f6da8fb5ffbe644be3d2026266
