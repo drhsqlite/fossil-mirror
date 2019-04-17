@@ -1,5 +1,5 @@
-C If\sa\s"fossil\ssync"\sgets\sa\s301\sor\s302\sredirect,\sthen\schange\sthe\ssaved\sremote\nURL\sto\sthe\sredirected\sURL.
-D 2019-04-17T18:32:46.130
+C Issue\sa\sgentle\swarning,\srather\sthan\sa\sscary\serror\smessage,\sif\sthe\sautopush\nfollowing\sa\scommit\sfails\sdue\sto\sinsufficient\spermissions.
+D 2019-04-17T19:01:04.859
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 250886f1132454b810e0841ae46055a097cfc623fe9c44f9a17697b04337f5dc
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c 2199fbfb096b09b940b96e9b74658758ece27454d86230274cf0e21f2dbf3b85
+F src/checkin.c ab76b5369159b8ad7197b809edd6397a36603ec92840bc428e63bfd489457ad8
 F src/checkout.c d22ce9501d740e02728cd0fd3aee1004162cd729fb4883e7acf3c0f20a2b6e10
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -603,7 +603,7 @@ F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c de34dac25d48657a5f360b09fc4eec1949225ef712b3cbe21e8204a5ef3ffbbe
+F src/xfer.c b2d423d17034815749ab6f3c603c2b2514fba3ac5fb2a326dcf7f5cccfc46727
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 99ad7fc3f602830a38acdf9911a536a83d3b4ed122f815dcc78e74647425f81a
-R a6f9306ef04778303a0c824660517915
+P e0026b6e461331c45400e59debf19d3d43a09c6001ab6e77eef578a0368a339d
+R 5eb2f6943ac7ba9aed6a470f5b3c469f
 U drh
-Z e9580b915e7e3b20c84d8a4734f8af27
+Z a6b7862578823bca75ee676286a8fc99

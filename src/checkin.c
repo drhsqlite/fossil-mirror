@@ -2615,7 +2615,9 @@ void commit_cmd(void){
   }
 
   if( !g.markPrivate ){
-    autosync_loop(SYNC_PUSH|SYNC_PULL, db_get_int("autosync-tries", 1), 0);
+    int syncFlags = SYNC_PUSH | SYNC_PULL | SYNC_IFABLE;
+    int nTries = db_get_int("autosync-tries",1);
+    autosync_loop(syncFlags, nTries, 0);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

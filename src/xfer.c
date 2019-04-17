@@ -1656,6 +1656,7 @@ static const char zBriefFormat[] =
 #define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
 #define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
 #define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
+#define SYNC_IFABLE         0x0800    /* Inability to sync is not fatal */
 #endif
 
 /*
@@ -1708,6 +1709,7 @@ int client_sync(
   int nUvGimmeSent = 0;   /* Number of uvgimme cards sent on this cycle */
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
   sqlite3_int64 mtime;    /* Modification time on a UV file */
+  int autopushFailed = 0; /* Autopush following commit failed if true */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
@@ -2283,11 +2285,18 @@ int client_sync(
       ** is returned in the reply before the error card, so second and
       ** subsequent messages should be OK.  Nevertheless, we need to ignore
       ** the error card on the first message of a clone.
+      **
+      ** Also ignore "not authorized to write" errors if this is an
+      ** autopush following a commit.
       */
       if( blob_eq(&xfer.aToken[0],"error") && xfer.nToken==2 ){
-        if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
-          char *zMsg = blob_terminate(&xfer.aToken[1]);
-          defossilize(zMsg);
+        char *zMsg = blob_terminate(&xfer.aToken[1]);
+        defossilize(zMsg);
+        if( (syncFlags && SYNC_IFABLE)!=0
+         && sqlite3_strlike("%not authorized to write%",zMsg,0)==0 ){
+          autopushFailed = 1;
+          nErr++;
+        }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
           fossil_force_newline();
           fossil_print("Error: %s\n", zMsg);
           blob_appendf(&xfer.err, "server says: %s\n", zMsg);
@@ -2398,6 +2407,15 @@ int client_sync(
     manifest_crosslink_end(MC_PERMIT_HOOKS);
     content_enable_dephantomize(1);
     db_end_transaction(0);
+  }
+  if( nErr && autopushFailed ){
+    fossil_warning(
+      "Warning: The check-in was successful and is saved locally but you\n"
+      "         are not authorized to push the changes back to the server\n"
+      "         at %s",
+      g.url.canonical
+    );
+    nErr--;
   }
   if( (syncFlags & SYNC_CLONE)==0 && g.rcvid && fossil_any_has_fork(g.rcvid) ){
     fossil_warning("***** WARNING: a fork has occurred *****\n"
