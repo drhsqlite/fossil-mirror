@@ -2253,9 +2253,6 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    if( zLn==0 || atoi(zLn)==0 ){
-      style_submenu_checkbox("ln", "Line Numbers", 0, 0);
-    }
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){
@@ -2274,6 +2271,9 @@ void artifact_page(void){
       @ </script>
     }else{
       style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      if( zLn==0 || atoi(zLn)==0 ){
+        style_submenu_checkbox("ln", "Line Numbers", 0, 0);
+      }
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
       @ <blockquote>
