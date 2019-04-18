@@ -288,7 +288,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
           return http_exchange(pSend, pReply, useLogin, maxRedirect);
         }
       }
-      if( rc!=200 && rc!=301 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 && rc!=307 && rc!=308 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -302,7 +302,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }
     }else if( g.url.isSsh && fossil_strnicmp(zLine, "status:", 7)==0 ){
       if( sscanf(zLine, "Status: %d", &rc)!=1 ) goto write_err;
-      if( rc!=200 && rc!=301 && rc!=302 ){
+      if( rc!=200 && rc!=301 && rc!=302 && rc!=307 && rc!=308 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
@@ -322,7 +322,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( ( rc==301 || rc==302 ) &&
+    }else if( ( rc==301 || rc==302 || rc==307 || rc==308 ) &&
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
 
@@ -347,7 +347,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
-      url_remember();
+      if( rc==301 || rc==308 ) url_remember();
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
