@@ -1,5 +1,5 @@
-C (cherry-pick):\sUpdate\sthe\sbuilt-in\sSQLite\sto\sversion\s3.28.0.
-D 2019-04-17T22:23:00.000
+C (cherry-pick):\sClean\sup\sthe\sdetection\sof\sBIO_ADDR_hostname_string\sby\sremoving\sredundant\sdefinitions;\s\sapparently\sautosetup\s\shas\s\sa\s\sfeature\swhich\s\sautomatically\screates\sa\sdefine\swith\sHAVE_\s\sprepended\sfor\swhatever\sfunction\sis\sintended\sto\sbe\sdetected.
+D 2019-04-18T14:06:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -48,7 +48,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def efd85d540b6933b868bc50b15d08d1a3282fbfcc77c05e0c5037821644ef9318
+F auto.def 23a29af21cbfb6750cb5a133e16cbd403c7c052e2c923844032db16537a8aa92
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -486,7 +486,7 @@ F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
 F src/http.c 7de3f16908f0f49cbcfad625513c130c0aef8bb889a5902e0fe9cccfaf893a85
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c a2a8106994fec01aafdc8f53f4a4c75f5777feebc4e713174ac4341d6aa1c79d
+F src/http_ssl.c 1184472f4b2ac7b9902f5d8d61759e9d2706286ca4689c8232c193b7aec67e02
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 4046b7edabdd4e32bccd80f71d92dfb7f0ddc8dbab00bc85aa3b1712587dd081
@@ -868,8 +868,8 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31aefc3bc696ce0988ee0b636cd621db3ac363057b1195eba509cea3ea7156a0
-Q +14db745dfe74a7e812e45aec020dffff186ec58a2b7893f60196ced4563b60f9
-R 1cbfbc2f5509dc63dc3e7afad302f6d0
+P 96c35627331277f74f0ae62803eefdfcd96f69243a3e061cdb8c19753be50902
+Q +3d827943481e96aae83cbef2af5484e8d4b5153a9f97a6a6211f65354ccddb18
+R 3d5e5b18911934dd6105cec61822e82a
 U jan.nijtmans
-Z c69afea739d3cb01b5e6e4b03e5f796e
+Z b9536abd1c056a56f8e79c7e8c7489f6
