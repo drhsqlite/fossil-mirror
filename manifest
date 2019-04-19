@@ -1,5 +1,5 @@
-C On\sthe\s/artifact\spage,\sonly\sshow\sthe\s"Line\sNumbers"\scheckbox\sif\sthe\sartifact\nis\sdisplayed\sas\stext/plain.
-D 2019-04-18T12:06:01.770
+C Enhance\sthe\s/timeline\squery\sparameter\sparsing\sso\sthat\sthe\symd=,\sym=,\sand\nyw=\squery\sparameters\scan\soptionally\somit\sthe\sdate\spunctuation.
+D 2019-04-19T18:55:36.212
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c b35a48e0bd28028a702dabad64f62a4a2bae1e11836ceb10e91c1a6340d4b15a
+F src/timeline.c 0470e8fbeb6693af1c01882d7303aec6438d343dcf38b8307ee419e394ddba27
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92406fa4454ffed0e93b782c4efae812013d7485ade052b80630ba2580575bff
-R 3c8cec1d92e745ec2af91c058cb06012
+P 40c40f7fe6136d52ad09188f9391b19351d3926d26d5e9cebc0bfa89617ff666
+R ffc2dc85f92c831a5a987c428ec6d77a
 U drh
-Z e572f17b9623964fec9bed24fc863867
+Z 47e8a1fbaeb63ed2492c82f6bfaf17e4

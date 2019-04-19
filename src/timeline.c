@@ -1417,6 +1417,45 @@ static const char *tagMatchExpression(
 }
 
 /*
+** Similar to fossil_expand_datetime()
+**
+** Add missing "-" characters into a date/time.  Examples:
+**
+**       20190419  =>  2019-04-19
+**       201904    =>  2019-04
+*/
+const char *timeline_expand_datetime(const char *zIn){
+  static char zEDate[20];
+  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+  int n = (int)strlen(zIn);
+  int i, j;
+
+  /* Only three forms allowed:
+  **   (1)  YYYYMMDD
+  **   (2)  YYYYMM
+  **   (3)  YYYYWW
+  */
+  if( n!=8 && n!=6 ) return zIn;
+
+  /* Every character must be a digit */
+  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  if( i!=n ) return zIn;
+
+  /* Expand the date */
+  for(i=j=0; zIn[i]; i++){
+    if( i>=4 && (i%2)==0 ){
+      zEDate[j++] = aPunct[i/2];
+    }
+    zEDate[j++] = zIn[i];
+  }
+  zEDate[j] = 0;
+
+  /* It looks like this may be a date.  Return it with punctuation added. */
+  return zEDate;
+}
+
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -1932,10 +1971,12 @@ void page_timeline(void){
       blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
     }
     if( zYearMonth ){
+      zYearMonth = timeline_expand_datetime(zYearMonth);
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
-                   zYearMonth);
+                      zYearMonth);
     }
     else if( zYearWeek ){
+      zYearWeek = timeline_expand_datetime(zYearWeek);
       char *z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
         zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
@@ -1961,6 +2002,7 @@ void page_timeline(void){
       nEntry = -1;
     }
     else if( zDay ){
+      zDay = timeline_expand_datetime(zDay);
       zDay = db_text(0, "SELECT date(%Q)", zDay);
       if( zDay==0 || zDay[0]==0 ){
         zDay = db_text(0, "SELECT date('now')");
