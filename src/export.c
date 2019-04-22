@@ -1500,6 +1500,37 @@ void gitmirror_export_command(void){
 }
 
 /*
+** Implementation of the "fossil git status" command.
+**
+** Show the status of a "git export".
+*/
+void gitmirror_status_command(void){
+  char *zMirror;
+  char *z;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  zMirror = db_get("last-git-export-repo", 0);
+  if( zMirror==0 ){
+    fossil_print("Git mirror:  none\n");
+    return;
+  }
+  fossil_print("Git mirror:  %s\n", zMirror);
+  db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
+  z = db_text(0, "SELECT datetime(value) FROM mconfig WHERE key='start'");
+  if( z ){
+    fossil_print("Last export: %s\n", z);
+  }
+  z = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
+  if( z==0 ){
+    fossil_print("Autopush:    off\n");
+  }else{
+    UrlData url;
+    url_parse_local(z, 0, &url);
+    fossil_print("Autopush:    %s\n", url.canonical);
+  }
+}
+
+/*
 ** COMMAND: git
 **
 ** Usage: %fossil git SUBCOMMAND
@@ -1541,6 +1572,10 @@ void gitmirror_export_command(void){
 **   fossil git import MIRROR
 **
 **       TBD...   
+**
+**   fossil git status
+**
+**       Show the status of the current Git mirror, if there is one.
 */
 void gitmirror_command(void){
   char *zCmd;
@@ -1556,9 +1591,12 @@ void gitmirror_command(void){
   if( nCmd>2 && strncmp(zCmd,"import",nCmd)==0 ){
     fossil_fatal("not yet implemented - check back later");
   }else
+  if( nCmd>2 && strncmp(zCmd,"status",nCmd)==0 ){
+    gitmirror_status_command();
+  }else
   {
     fossil_fatal("unknown subcommand \"%s\": should be one of "
-                 "\"export\", \"import\"",
+                 "\"export\", \"import\", \"status\"",
                  zCmd);
   }
 }
