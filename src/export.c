@@ -1530,6 +1530,7 @@ void gitmirror_export_command(void){
 void gitmirror_status_command(void){
   char *zMirror;
   char *z;
+  int n, k;
   db_find_and_open_repository(0, 0);
   verify_all_options();
   zMirror = db_get("last-git-export-repo", 0);
@@ -1551,6 +1552,20 @@ void gitmirror_status_command(void){
     url_parse_local(z, 0, &url);
     fossil_print("Autopush:    %s\n", url.canonical);
   }
+  n = db_int(0,
+    "SELECT count(*) FROM event"
+    " WHERE type='ci'"
+    "   AND mtime>coalesce((SELECT value FROM mconfig"
+                          "  WHERE key='start'),0.0)"
+  );
+  if( n==0 ){
+    fossil_print("Status:      up-to-date\n");
+  }else{
+    fossil_print("Status:      %d check-ins awaiting export\n", n);
+  }
+  n = db_int(0, "SELECT count(*) FROM mmark WHERE isfile");
+  k = db_int(0, "SELECT count(*) FROm mmark WHERE NOT isfile");
+  fossil_print("Exported:    %d check-ins and %d file blobs\n", k, n);
 }
 
 /*
