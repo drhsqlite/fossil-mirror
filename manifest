@@ -1,5 +1,5 @@
-C Enhance\sthe\s"fossil\sgit\sexport"\sso\sthat\sit\sworks\sfor\srepositories\sthat\suse\na\ssingle\sartifact\sas\sboth\san\sordinary\sfile\sand\sas\sa\scheck-in\smanifest.
-D 2019-04-22T14:22:30.536
+C Fix\sa\sproblem\sin\sthe\sgit-export\sdatabase\sschema\supgrade\slogic.
+D 2019-04-22T15:09:41.010
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,7 +472,7 @@ F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
-F src/export.c 43466d5455fc0b1cb029f466425392b9dc9eaea2888929e387025a61ba1e4189
+F src/export.c 3e11002c8ef6a50b5342549c7d60563acb2b14d7201ef8167b5b8e901bbe350e
 F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f77ebeeaec04fd6a5418d5db1fcbd6457ea1fae432ee5f90e8df720217bb333f
-R 812161d9099d07486f61d4f1017d5d76
+P fdde65e7f1497f6512593adfd7b84b0735280714878fb7b6d7a161587bb856a3
+R ebb5f4d8c5307b8078f2a46fc943ddd1
 U drh
-Z 6db34e8476dc4bb4286a3461ecf8c527
+Z 19c1d82edcb6faedc406b9a8622a5c45
