@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\s"fossil\sgit\sstatus"\scommand.
-D 2019-04-23T12:46:29.320
+C Updates\sto\sthe\s"fossil\sgit\sexport"\sdocumentation.
+D 2019-04-23T13:16:02.410
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -840,7 +840,7 @@ F www/image-format-vs-repo-size.svg 4b815f4c3bbc9c73346b55f6a340ecd6e429697a49de
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mirrortogithub.md f9ef309c6d3f01152d8a4fc866e05ba487ffe5501123288f5e4015b33b556b96
+F www/mirrortogithub.md 858cdc6b91e7a82077b1c556b57e4394f85215af261236ea9b1b58fef379e354
 F www/mkindex.tcl c7e6876cf0189f08d6632dbfa632b8d372f6a2a99acf6b7664670db8d03ae214 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab68afe984d7e43ed32de195ed6e6b1d4097b1dbff0b56d74078c2b70cd71acf
-R c8457ec18f8dbcc443db517905ef9df5
+P 8b18d011a4a99f8bf41b475df8140c33c39c7dbc82af40eadb70d99ed596bc3c
+R bee63b9cbed6bce7bd32a75bb8c958ce
 U drh
-Z d18be9d9881dd8b9a3c92863c8207c14
+Z 0299af12e980dd646e2efa0d4b0461c4

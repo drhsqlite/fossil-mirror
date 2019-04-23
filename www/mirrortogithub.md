@@ -51,7 +51,8 @@ https://github.com/username/project.git
       option.
 
 <li><p>Get some coffee.  Depending on the size of your project, the
-       command above can run for several minutes.
+       initial "<code>fossil git export</code>" command in the previous
+       step might run for several minutes.
 
 <li><p>And you are done!  Assuming everything worked, your project is now
     mirrored on GitHub.
@@ -66,7 +67,14 @@ https://github.com/username/project.git
 
 <p>   Unlike with the first time you ran that command, you don’t need
       the remaining arguments, because Fossil remembers those things.
-      Subsequent mirror updates should happen in a second or less.
+      Subsequent mirror updates should usually happen in a fraction of
+      a second.
+
+<li><p>To see the status of your mirror, run:
+
+<blockquote>
+<pre>$ fossil git status</pre>
+</blockquote>
 </ol>
 
 ## Notes:
@@ -90,6 +98,9 @@ https://github.com/username/project.git
      any of its contents.  Do not put those files under Git management.  Do
      not edit or delete them.
 
+  *  The name of the "trunk" branch is automatically translated into "master"
+     in the Git mirror.
+
   *  Only check-ins and simple tags are translated to Git.  Git does not
      support wiki or tickets or unversioned content or any of the other
      features of Fossil that make it so convenient to use, so those other
@@ -99,6 +110,13 @@ https://github.com/username/project.git
      same tag on two or more check-ins, the tag will only be preserved on
      the chronologically newest check-in.
 
+  *  There is a 
+     [long list of restrictions](https://git-scm.com/docs/git-check-ref-format)
+     on tag and branch names in Git.  If any of your Fossil tag or branch names
+     violate these rules, then the names are translated prior to being exported
+     to Git.  The translation usually involves converting the offending characters
+     into underscores.
+
 ## Example GitHub Mirrors
 
 As of this writing (2019-03-16) Fossil’s own repository is mirrored
@@ -107,15 +125,17 @@ on GitHub at:
 >
 <https://github.com/drhsqlite/fossil-mirror>
 
-In addition, an experimental SQLite mirror is available:
+In addition, an official Git mirror of SQLite is available:
 
 >
-<https://github.com/drhsqlite/sqlite-mirror>
+<https://github.com/sqlite/sqlite>
 
-The Fossil source repositories for both of these mirrors are at
+The Fossil source repositories for these mirrors are at
 <https://www2.fossil-scm.org/fossil> and <https://www2.sqlite.org/src>,
-respectively.  On that machine, there is a cron job that runs at
-17 minutes after the hour, every hour that does:
+respectively.  Both repositories are hosted on the same VM at
+[Linode](https://www.linode.com).  On that machine, there is a 
+[cron job](https://linux.die.net/man/8/cron)
+that runs at 17 minutes after the hour, every hour that does:
 
 >
     /usr/bin/fossil sync -u -R /home/www/fossil/fossil.fossil
