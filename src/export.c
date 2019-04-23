@@ -1487,6 +1487,41 @@ void gitmirror_export_command(void){
   }
   db_finalize(&q);
 
+  /* Update all references that might have changed since the start time */
+  db_prepare(&q,
+    "SELECT"
+    " tagxref.value AS name,"
+    " max(event.mtime) AS mtime,"
+    " mmark.githash AS gitckin"
+    " FROM tagxref, tag, event, blob, mmark"
+    " WHERE tagxref.tagid=tag.tagid"
+    " AND tagxref.tagtype>0"
+    " AND tag.tagname='branch'"
+    " AND event.objid=tagxref.rid"
+    " AND event.mtime > coalesce((SELECT value FROM mconfig"
+                                  " WHERE key='start'),0.0)"
+    " AND blob.rid=tagxref.rid"
+    " AND mmark.uuid=blob.uuid"
+    " GROUP BY 1"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zBrname = fossil_strdup(db_column_text(&q,0));
+    const char *zObj = db_column_text(&q,2);
+    char *zRefCmd;
+    if( fossil_strcmp(zBrname,"trunk")==0 ){
+      fossil_free(zBrname);
+      zBrname = fossil_strdup("master");
+    }else{
+      gitmirror_sanitize_name(zBrname);
+    }
+    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %s", zBrname, zObj);
+    fossil_free(zBrname);
+    gitmirror_message(VERB_NORMAL, "%s\n", zRefCmd);
+    fossil_system(zRefCmd);
+    fossil_free(zRefCmd);
+  }
+  db_finalize(&q);
+
   /* Update the start time */
   if( rEnd>0.0 ){
     db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
