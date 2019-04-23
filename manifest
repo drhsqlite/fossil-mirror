@@ -1,5 +1,5 @@
-C Updates\sto\sthe\s"fossil\sgit\sexport"\sdocumentation.
-D 2019-04-23T13:16:02.410
+C Fix\sthe\scomputation\sof\scapabilities\sin\sthe\s"Capability\sSummary"\sreport\sso\sthat\nit\signores\sthe\sspecial\susers\s"nobody",\s"anonymous",\s"reader",\sand\s"developer".
+D 2019-04-23T13:50:30.141
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -441,7 +441,7 @@ F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 250886f1132454b810e0841ae46055a097cfc623fe9c44f9a17697b04337f5dc
+F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
 F src/checkin.c ab76b5369159b8ad7197b809edd6397a36603ec92840bc428e63bfd489457ad8
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b18d011a4a99f8bf41b475df8140c33c39c7dbc82af40eadb70d99ed596bc3c
-R bee63b9cbed6bce7bd32a75bb8c958ce
+P 1c15ebf8dd853aac43262e32921850ccb7737005f1e77f67ab5e1690dedc0106
+R 49682ad96fad10afa59d805678b38eca
 U drh
-Z 0299af12e980dd646e2efa0d4b0461c4
+Z 634d843fae2923f57249979b3289768d
