@@ -1577,7 +1577,13 @@ void gitmirror_status_command(void){
   db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
   z = db_text(0, "SELECT datetime(value) FROM mconfig WHERE key='start'");
   if( z ){
-    fossil_print("Last export: %s\n", z);
+    double rAge = db_double(0.0, "SELECT julianday('now') - value"
+                              " FROM mconfig WHERE key='start'");
+    if( rAge>1.0/86400.0 ){
+      fossil_print("Last export: %s (%z ago)\n", z, human_readable_age(rAge));
+    }else{
+      fossil_print("Last export: %s (moments ago)\n", z);
+    }
   }
   z = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
   if( z==0 ){
@@ -1596,7 +1602,8 @@ void gitmirror_status_command(void){
   if( n==0 ){
     fossil_print("Status:      up-to-date\n");
   }else{
-    fossil_print("Status:      %d check-ins awaiting export\n", n);
+    fossil_print("Status:      %d check-in%s awaiting export\n",
+                 n, n==1 ? "" : "s");
   }
   n = db_int(0, "SELECT count(*) FROM mmark WHERE isfile");
   k = db_int(0, "SELECT count(*) FROm mmark WHERE NOT isfile");
