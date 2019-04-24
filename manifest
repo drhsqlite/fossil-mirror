@@ -1,5 +1,5 @@
-C Fix\sthe\scomputation\sof\scapabilities\sin\sthe\s"Capability\sSummary"\sreport\sso\sthat\nit\signores\sthe\sspecial\susers\s"nobody",\s"anonymous",\s"reader",\sand\s"developer".
-D 2019-04-23T13:50:30.141
+C Preserve\sthe\sbasis-file\ssuffix\swhen\sgenerating\stemporary\sfile\snames.
+D 2019-04-24T12:59:30.646
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -466,14 +466,14 @@ F src/deltafunc.c 76168eb64023aec71d686179a0dca8f99c3d3d1dae61307d8e63e5ef7669f4
 F src/descendants.c 6e7f6995ac4651cb26441934d76dba483894c8cb5b62fc8309c72c3bfae60d41
 F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 8f8dafbd7b793e822781b1c72bf61162508a48e8f48d49d12c970d7c3b91d16f
+F src/diffcmd.c b6fefdda62fc9079a7983dda4a8344042130e969946966ba3792b76fef0ab199
 F src/dispatch.c e56f57d2fc0cb48cd097314a181d5e8280e4ad58fa061f687c6e01a7eff80f3f
 F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c 654231c0f7337894879b3441466f80547ee5654a7c9840e29f4ff61d5bf9b926
-F src/file.c b4759f3c2c5c0140320e1eb0f3753e92847f23b4f204145aea57134cc27f89f3
+F src/file.c 176a2b716653b51eabf02a73e45261c115e45ce6b8879376f7a6c09ab654fd4c
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c15ebf8dd853aac43262e32921850ccb7737005f1e77f67ab5e1690dedc0106
-R 49682ad96fad10afa59d805678b38eca
+P 63febeb7f4229aff7918a92ca9d374472d195e8952ce06b4373512bb01918327
+R 6f00bcde746a13d060621c29dcbde53c
 U drh
-Z 634d843fae2923f57249979b3289768d
+Z 20cb30357d42985d647db68fa999df9d

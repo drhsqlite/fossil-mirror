@@ -1461,9 +1461,12 @@ void file_parse_uri(
 }
 
 /*
-** Construct a random temporary filename into pBuf starting with zPrefix.
+** Construct a random temporary filename into pBuf where the name of
+** the temporary file is derived from zBasis.  The suffix on the temp
+** file is the same as the suffix on zBasis, and the temp file has
+** the root of zBasis in its name.
 */
-void file_tempname(Blob *pBuf, const char *zPrefix){
+void file_tempname(Blob *pBuf, const char *zBasis){
 #if defined(_WIN32)
   const char *azDirs[] = {
      0, /* GetTempPath */
@@ -1490,6 +1493,8 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
   const char *zDir = ".";
   int cnt = 0;
   char zRand[16];
+  int nBasis;
+  const char *zSuffix;
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1515,6 +1520,26 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
     break;
   }
 
+  assert( zBasis!=0 );
+  zSuffix = 0;
+  for(i=0; zBasis[i]; i++){
+    if( zBasis[i]=='/' || zBasis[i]=='\\' ){
+      zBasis += i+1;
+      i = -1;
+    }else if( zBasis[i]=='.' ){
+      zSuffix = zBasis + i;
+    }
+  }
+  if( zSuffix==0 || zSuffix<=zBasis ){
+    zSuffix = "";
+    nBasis = i;
+  }else{
+    nBasis = (int)(zSuffix - zBasis);
+  }
+  if( nBasis==0 ){
+    nBasis = 6;
+    zBasis = "fossil";
+  }
   do{
     blob_zero(pBuf);
     if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
@@ -1523,7 +1548,7 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
       zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
     }
     zRand[15] = 0;
-    blob_appendf(pBuf, "%s/%s-%s.txt", zDir, zPrefix ? zPrefix : "", zRand);
+    blob_appendf(pBuf, "%s/%.*s~%s%s", zDir, nBasis, zBasis, zRand, zSuffix);
   }while( file_size(blob_str(pBuf), ExtFILE)>=0 );
 
 #if defined(_WIN32)
