@@ -1,5 +1,5 @@
-C Preserve\sthe\sbasis-file\ssuffix\swhen\sgenerating\stemporary\sfile\snames.
-D 2019-04-24T12:59:30.646
+C Make\sfull\suse\sof\sthe\snew\sfile_tempname()\sin\s"fossil\sdiff"\swith\sboth\s--from\sand\n--to\soptions.\s\sImprove\sfile_tempname()\sto\sallow\sfor\sa\ssuggested\sdifferentiator\ntag.
+D 2019-04-25T14:28:41.980
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c ab76b5369159b8ad7197b809edd6397a36603ec92840bc428e63bfd489457ad8
+F src/checkin.c b3f56ec17d83658fbce3f140f52d7f125f8fd447d99d5b76dfbe5fa17288cea6
 F src/checkout.c d22ce9501d740e02728cd0fd3aee1004162cd729fb4883e7acf3c0f20a2b6e10
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -466,14 +466,14 @@ F src/deltafunc.c 76168eb64023aec71d686179a0dca8f99c3d3d1dae61307d8e63e5ef7669f4
 F src/descendants.c 6e7f6995ac4651cb26441934d76dba483894c8cb5b62fc8309c72c3bfae60d41
 F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c b6fefdda62fc9079a7983dda4a8344042130e969946966ba3792b76fef0ab199
+F src/diffcmd.c 0e59c8c48f7465e69b750a2ce202290d6e9ce809c99a28445583472cb9410d07
 F src/dispatch.c e56f57d2fc0cb48cd097314a181d5e8280e4ad58fa061f687c6e01a7eff80f3f
 F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 1e7a6c34c94751d506b675f4cba550523d4944ba7bff2d050d393abada553a8d
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c 654231c0f7337894879b3441466f80547ee5654a7c9840e29f4ff61d5bf9b926
-F src/file.c 176a2b716653b51eabf02a73e45261c115e45ce6b8879376f7a6c09ab654fd4c
+F src/file.c d77b770650b1e67ed4554d2e98a8ecbf9aa46f9bf6b94e9aa7d36108dd95f2df
 F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
@@ -526,7 +526,7 @@ F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7c
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 2b95bd59e98af718dc4b082df80f03c6ac734d332d53d92042ca50b12fbf0f73
+F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 63d5f0addc835c68e41b4321719fe5153a2a6c45
 F src/mkbuiltin.c 216133ae5771fc8fd956d604d98bf1fdd9f329510a222f59cceaf98ff13442e3
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63febeb7f4229aff7918a92ca9d374472d195e8952ce06b4373512bb01918327
-R 6f00bcde746a13d060621c29dcbde53c
+P a072be1eafe487c650d416b013752efd4be4d92a46be5244253a4980ceffccf1
+R 76e3eaae7ccd67cca9e2172e638ee276
 U drh
-Z 20cb30357d42985d647db68fa999df9d
+Z 8f22c68e500ec1971a6effd55900db15

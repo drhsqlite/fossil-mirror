@@ -247,7 +247,7 @@ void diff_file(
 
     /* Construct a temporary file to hold pFile1 based on the name of
     ** zFile2 */
-    file_tempname(&nameFile1, zFile2);
+    file_tempname(&nameFile1, zFile2, "orig");
     blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
@@ -314,8 +314,6 @@ void diff_file_mem(
     Blob cmd;
     Blob temp1;
     Blob temp2;
-    Blob prefix1;
-    Blob prefix2;
 
     if( !fIncludeBinary ){
       if( isBin1 || isBin2 ){
@@ -333,15 +331,9 @@ void diff_file_mem(
       }
     }
 
-    /* Construct a prefix for the temporary file names */
-    blob_zero(&prefix1);
-    blob_zero(&prefix2);
-    blob_appendf(&prefix1, "%s-v1", zName);
-    blob_appendf(&prefix2, "%s-v2", zName);
-
     /* Construct a temporary file names */
-    file_tempname(&temp1, blob_str(&prefix1));
-    file_tempname(&temp2, blob_str(&prefix2));
+    file_tempname(&temp1, zName, "before");
+    file_tempname(&temp2, zName, "after");
     blob_write_to_file(pFile1, blob_str(&temp1));
     blob_write_to_file(pFile2, blob_str(&temp2));
 
@@ -358,8 +350,6 @@ void diff_file_mem(
     file_delete(blob_str(&temp1));
     file_delete(blob_str(&temp2));
 
-    blob_reset(&prefix1);
-    blob_reset(&prefix2);
     blob_reset(&temp1);
     blob_reset(&temp2);
     blob_reset(&cmd);

@@ -1211,7 +1211,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
       zFile = db_text(0, "SELECT '%qci-comment-'||hex(randomblob(6))||'.txt'",
                       blob_str(&fname));
     }else{
-      file_tempname(&fname, "ci-comment");
+      file_tempname(&fname, "ci-comment",0);
       zFile = mprintf("%s", blob_str(&fname));
     }
     blob_reset(&fname);
