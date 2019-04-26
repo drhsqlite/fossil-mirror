@@ -52,7 +52,9 @@ set doclist {
   hints.wiki {Fossil Tips And Usage Hints}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
+  image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
   makefile.wiki {The Fossil Build Process}
+  mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
   /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
   password.wiki {Password Management And Authentication}
@@ -80,6 +82,7 @@ set doclist {
   th1.md {The TH1 Scripting Language}
   tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
+  tls-nginx.md {Proxying Fossil via HTTPS with nginx}
   unvers.wiki {Unversioned Files}
   webpage-ex.md {Webpage Examples}
   webui.wiki {The Fossil Web Interface}

@@ -361,7 +361,9 @@ void tag_add_artifact(
     manifest_crosslink(nrid, &ctrl, MC_PERMIT_HOOKS);
   }
   assert( blob_is_reset(&ctrl) );
-  manifest_to_disk(rid);
+  if( g.localOpen ){
+    manifest_to_disk(rid);
+  }
 }
 
 /*
@@ -395,6 +397,13 @@ void tag_add_artifact(
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.  Use the
 **         the --dryrun or -n options to see what would have happened.
+**
+**         Options:
+**           --raw                       Raw tag name.
+**           --date-override DATETIME    Set date and time deleted.
+**           --user-override USER        Name USER when deleting the tag.
+**           --dryrun|-n                 Display the control artifact, but do
+**                                       not insert it into the database.
 **
 **     %fossil tag find ?OPTIONS? TAGNAME
 **
@@ -434,11 +443,6 @@ void tag_add_artifact(
 */
 void tag_cmd(void){
   int n;
-  int fRaw = find_option("raw","",0)!=0;
-  int fPropagate = find_option("propagate","",0)!=0;
-  const char *zPrefix = fRaw ? "" : "sym-";
-  const char *zFindLimit = find_option("limit","n",1);
-  const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
 
   db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
@@ -452,6 +456,9 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     int dryRun = 0;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = fRaw ? "" : "sym-";
+    int fPropagate = find_option("propagate","",0)!=0;
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
@@ -472,17 +479,25 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     int dryRun = 0;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zPrefix = fRaw ? "" : "sym-";
+    const char *zDateOvrd = find_option("date-override",0,1);
+    const char *zUserOvrd = find_option("user-override",0,1);
     if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
     if( g.argc!=5 ){
       usage("cancel ?options? TAGNAME CHECK-IN");
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun, 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun,
+                     zDateOvrd, zUserOvrd);
     db_end_transaction(0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
+    const char *zFindLimit = find_option("limit","n",1);
+    const int nFindLimit = zFindLimit ? atoi(zFindLimit) : -2000;
     const char *zType = find_option("type","t",1);
     Blob sql = empty_blob;
     if( zType==0 || zType[0]==0 ) zType = "*";
@@ -530,6 +545,7 @@ void tag_cmd(void){
 
   if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
+    int fRaw = find_option("raw","",0)!=0;
     if( g.argc==3 ){
       db_prepare(&q,
         "SELECT tagname FROM tag"
@@ -608,6 +624,8 @@ tag_cmd_usage:
 **                     "fossil rebuild" command.
 **    --dryrun | -n    Print the tag that would have been created but do not
 **                     actually change the database in any way.
+**    --date-override DATETIME  Set the change time on the control artifact
+**    --user-override USER      Set the user name on the control artifact
 */
 void reparent_cmd(void){
   int bTest = find_option("test","",0)!=0;
@@ -616,8 +634,12 @@ void reparent_cmd(void){
   Blob value;
   char *zUuid;
   int dryRun = 0;
+  const char *zDateOvrd;  /* The change time on the control artifact */
+  const char *zUserOvrd;  /* The user name on the control artifact */
 
   if( find_option("dryrun","n",0)!=0 ) dryRun = TAG_ADD_DRYRUN;
+  zDateOvrd = find_option("date-override",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
@@ -636,7 +658,8 @@ void reparent_cmd(void){
     tag_insert("parent", 1, blob_str(&value), -1, 0.0, rid);
   }else{
     zUuid = rid_to_uuid(rid);
-    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,0,0);
+    tag_add_artifact("","parent",zUuid,blob_str(&value),1|dryRun,
+                     zDateOvrd,zUserOvrd);
   }
 }
 
@@ -671,7 +694,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(chref("taglink","%R/timeline?t=%T&n=200",zName))
+      @ <li>%z(chref("taglink","%R/timeline?t=%T",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>
@@ -687,9 +710,21 @@ void taglist_page(void){
 **
 ** Render a timeline with all check-ins that contain non-propagating
 ** symbolic tags.
+**
+** Query parameters:
+**
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void tagtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
+  int tmFlags;                            /* Timeline display flags */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -697,16 +732,31 @@ void tagtimeline_page(void){
   style_header("Tagged Check-ins");
   style_submenu_element("List", "taglist");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
   @ <h2>Check-ins with non-propagating tags:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype=1 AND srcid>0"
-    "                       AND tagid IN (SELECT tagid FROM tag "
-    "                                      WHERE tagname GLOB 'sym-*'))"
-    " ORDER BY event.mtime DESC /*sort*/",
-    timeline_query_for_www()
-  );
-  www_print_timeline(&q, 0, 0, 0, 0, 0);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype=1 AND srcid>0"
+    "                    AND tagid IN (SELECT tagid FROM tag "
+    "                                   WHERE tagname GLOB 'sym-*'))");
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC /*sort*/", blob_sql_text(&sql));
+  blob_reset(&sql);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

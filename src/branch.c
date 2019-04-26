@@ -22,7 +22,7 @@
 #include <assert.h>
 
 /*
-**  fossil branch new    NAME BASIS ?OPTIONS?
+**  fossil branch new    NAME  BASIS ?OPTIONS?
 **  argv0  argv1  argv2  argv3 argv4
 */
 void branch_new(void){
@@ -437,7 +437,7 @@ static void new_brlist_page(void){
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
   @ <th>Branch Name</th>
-  @ <th>Age</th>
+  @ <th>Last Change</th>
   @ <th>Check-ins</th>
   @ <th>Status</th>
   @ <th>Resolution</th>
@@ -465,7 +465,7 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a></td>
     @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
@@ -578,7 +578,7 @@ void brlist_page(void){
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
     }else{
-      @ <li>%z(href("%R/timeline?r=%T&n=200",zBr))%h(zBr)</a></li>
+      @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
     }
   }
   if( cnt ){
@@ -606,7 +606,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ %z(href("%R/timeline?r=%T&n=200",zTagName))[timeline]</a>
+    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
   }
   db_finalize(&q);
 }
@@ -615,9 +615,21 @@ static void brtimeline_extra(int rid){
 ** WEBPAGE: brtimeline
 **
 ** Show a timeline of all branches
+**
+** Query parameters:
+**
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void brtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
+  int tmFlags;                            /* Timeline display flags */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -625,14 +637,29 @@ void brtimeline_page(void){
   style_header("Branches");
   style_submenu_element("List", "brlist");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
   @ <h2>The initial check-in for each branch:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_BRANCH
-  );
-  www_print_timeline(&q, 0, 0, 0, 0, brtimeline_extra);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype>0 AND tagid=%d AND srcid!=0)", TAG_BRANCH);
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
+  blob_reset(&sql);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }

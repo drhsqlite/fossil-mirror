@@ -600,7 +600,7 @@ int content_put_ex(
     }
   }
   if( g.markPrivate || isPrivate ){
-    db_multi_exec("INSERT INTO private VALUES(%d)", rid);
+    db_multi_exec("INSERT OR IGNORE INTO private VALUES(%d)", rid);
     markAsUnclustered = 0;
   }
   if( nBlob==0 ) blob_reset(&cmpr);
@@ -1220,7 +1220,7 @@ void test_missing(void){
 ** the metadata.
 **
 ** Note that the arguments are the integer raw RID values from the BLOB table,
-** not artifact hashs or labels.
+** not artifact hashes or labels.
 */
 void test_content_erase(void){
   int i;

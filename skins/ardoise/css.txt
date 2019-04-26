@@ -1032,6 +1032,29 @@ table.timelineTable {
 .tl-line.merge {
   width: 1px
 }
+.tl-arrow.cherrypick {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.cherrypick.l {
+  border-right: 3px solid #bbb;
+}
+.tl-arrow.cherrypick.r {
+  border-left: 3px solid #bbb;
+}
+.tl-line.cherrypick.h {
+  width: 0px;
+  border-top: 1px dashed #bbb;
+  border-left: 0px dashed #bbb;
+  background: rgba(255,255,255,0);
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #bbb;
+  border-left: 1px dashed #bbb;
+  background: rgba(255,255,255,0);
+}
+
 .intLink[title="Add indentation"],
 .intLink[title="Center align"],
 .intLink[title="Dotted list"],

@@ -415,6 +415,26 @@ int th1_artifact_from_ci_and_filename(
 }
 
 /*
+** TH1 command: nonce
+**
+** Returns the value of the cryptographic nonce for the request being
+** processed.
+*/
+static int nonceCmd(
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "nonce");
+  }
+  Th_SetResult(interp, style_nonce(), -1);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
@@ -1370,6 +1390,25 @@ static int artifactCmd(
 }
 
 /*
+** TH1 command: cgiHeaderLine line
+**
+** Adds the specified line to the CGI header.
+*/
+static int cgiHeaderLineCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "cgiHeaderLine line");
+  }
+  cgi_append_header(argv[1]);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: unversioned content FILENAME
 **
 ** Attempts to locate the specified unversioned file and return its contents.
@@ -1984,6 +2023,7 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
     {"date",          dateCmd,              0},
@@ -2003,6 +2043,7 @@ void Th_FossilInit(u32 flags){
     {"insertCsrf",    insertCsrfCmd,        0},
     {"linecount",     linecntCmd,           0},
     {"markdown",      markdownCmd,          0},
+    {"nonce",         nonceCmd,             0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
@@ -2085,6 +2126,20 @@ void Th_FossilInit(u32 flags){
   }
   g.th1Flags &= ~TH_INIT_MASK;
   g.th1Flags |= (flags & TH_INIT_MASK);
+}
+
+/*
+** Store a string value in a variable in the interpreter if the variable
+** does not already exist.
+*/
+void Th_MaybeStore(const char *zName, const char *zValue){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zValue && !Th_ExistsVar(g.interp, zName, -1) ){
+    if( g.thTrace ){
+      Th_Trace("maybe_set %h {%h}<br />\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  }
 }
 
 /*

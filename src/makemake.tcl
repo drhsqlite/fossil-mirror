@@ -54,6 +54,7 @@ set src {
   db
   delta
   deltacmd
+  deltafunc
   descendants
   diff
   diffcmd
@@ -319,7 +320,7 @@ writeln [string map [list \
     <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
-install:	$(APPNAME)
+install:	all
 	mkdir -p $(INSTALLDIR)
 	cp $(APPNAME) $(INSTALLDIR)
 
@@ -712,7 +713,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2q
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2r
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1568,7 +1569,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2q
+SSLDIR    = $(B)\compat\openssl-1.0.2r
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -1833,9 +1834,13 @@ writeln "\$(OX)\\miniz\$O \\"; incr i
 writeln "!endif"
 writeln -nonewline "        \$(OX)\\fossil.res\n\n"
 writeln [string map [list <<<NEXT_LINE>>> \\] {
-APPNAME    = $(OX)\fossil$(E)
-PDBNAME    = $(OX)\fossil$(P)
-APPTARGETS =
+!ifndef BASEAPPNAME
+BASEAPPNAME = fossil
+!endif
+
+APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
+PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
+APPTARGETS  =
 
 all: $(OX) $(APPNAME)
 

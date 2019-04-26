@@ -435,7 +435,7 @@ void leaves_cmd(void){
     sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
     fossil_print("%6s ", zLineNo);
     z = mprintf("%s [%S] %s", zDate, zId, zCom);
-    comment_print(z, zCom, 7, width, g.comFmtFlags);
+    comment_print(z, zCom, 7, width, get_comment_format());
     fossil_free(z);
   }
   fossil_free(zLastBr);
@@ -456,27 +456,47 @@ void leaves_cmd(void){
 **
 **     all           Show all leaves
 **     closed        Show only closed leaves
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void leaves_page(void){
   Blob sql;
   Stmt q;
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
+  int fNg = PB("ng")!=0;           /* Flag for the "ng" query parameter */
+  int fNoHidden = PB("nohidden")!=0;      /* "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* "onlyhidden" query parameter */
+  int fBrBg = PB("brbg")!=0;       /* Flag for the "brbg" query parameter */
+  int fUBg = PB("ubg")!=0;         /* Flag for the "ubg" query parameter */
+  HQuery url;                      /* URL to /leaves plus query parameters */
+  int tmFlags;                     /* Timeline display flags */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-
+  url_initialize(&url, "leaves");
+  if( fNg ) url_add_parameter(&url, "ng", "");
+  if( fNoHidden ) url_add_parameter(&url, "nohidden", "");
+  if( fOnlyHidden ) url_add_parameter(&url, "onlyhidden", "");
+  if( fBrBg ) url_add_parameter(&url, "brbg", "");
+  if( fUBg ) url_add_parameter(&url, "ubg", "");
   if( !showAll ){
-    style_submenu_element("All", "leaves?all");
+    style_submenu_element("All", "%s", url_render(&url, "all", "", 0, 0));
   }
   if( !showClosed ){
-    style_submenu_element("Closed", "leaves?closed");
+    style_submenu_element("Closed", "%s", url_render(&url, "closed", "", 0, 0));
   }
   if( showClosed || showAll ){
-    style_submenu_element("Open", "leaves");
+    style_submenu_element("Open", "%s", url_render(&url, 0, 0, 0, 0));
   }
+  url_reset(&url);
   style_header("Leaves");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
 #if 0
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
@@ -507,9 +527,22 @@ void leaves_page(void){
   }else if( !showAll ){
     blob_append_sql(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
   blob_reset(&sql);
-  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0, 0);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_LEAFONLY | TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  if( fNg==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( fBrBg ) tmFlags |= TIMELINE_BRCOLOR;
+  if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

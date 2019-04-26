@@ -161,6 +161,28 @@ span.timelineEllipsis {
 .tl-line.merge {
   width: 1px;
 }
+.tl-arrow.cherrypick {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.cherrypick.l {
+  border-right: 3px solid #000;
+}
+.tl-arrow.cherrypick.r {
+  border-left: 3px solid #000;
+}
+.tl-line.cherrypick.h {
+  width: 0px;
+  border-top: 1px dashed #000;
+  border-left: 0px dashed #000;
+  background: rgba(255,255,255,0);
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #000;
+  border-left: 1px dashed #000;
+  background: rgba(255,255,255,0);
+}
 .tl-arrow.warp {
   margin-left: 1px;
   border-width: 3px 0;
@@ -199,6 +221,7 @@ div.columns > ul li:first-child {
 }
 .columns li {
   break-inside: avoid;
+  page-break-inside: avoid;
 }
 .filetree {
   margin: 1em 0;

@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2q
+SSLDIR    = $(B)\compat\openssl-1.0.2r
 SSLINCDIR = $(SSLDIR)\inc32
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)\out32dll
@@ -405,6 +405,7 @@ SRC   = add_.c \
         db_.c \
         delta_.c \
         deltacmd_.c \
+        deltafunc_.c \
         descendants_.c \
         diff_.c \
         diffcmd_.c \
@@ -615,6 +616,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\db$O \
         $(OX)\delta$O \
         $(OX)\deltacmd$O \
+        $(OX)\deltafunc$O \
         $(OX)\descendants$O \
         $(OX)\diff$O \
         $(OX)\diffcmd$O \
@@ -735,9 +737,13 @@ OBJ   = $(OX)\add$O \
         $(OX)\fossil.res
 
 
-APPNAME    = $(OX)\fossil$(E)
-PDBNAME    = $(OX)\fossil$(P)
-APPTARGETS =
+!ifndef BASEAPPNAME
+BASEAPPNAME = fossil
+!endif
+
+APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
+PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
+APPTARGETS  =
 
 all: $(OX) $(APPNAME)
 
@@ -812,6 +818,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\db.obj >> $@
 	echo $(OX)\delta.obj >> $@
 	echo $(OX)\deltacmd.obj >> $@
+	echo $(OX)\deltafunc.obj >> $@
 	echo $(OX)\descendants.obj >> $@
 	echo $(OX)\diff.obj >> $@
 	echo $(OX)\diffcmd.obj >> $@
@@ -1204,6 +1211,12 @@ $(OX)\deltacmd$O : deltacmd_.c deltacmd.h
 	$(TCC) /Fo$@ -c deltacmd_.c
 
 deltacmd_.c : $(SRCDIR)\deltacmd.c
+	translate$E $** > $@
+
+$(OX)\deltafunc$O : deltafunc_.c deltafunc.h
+	$(TCC) /Fo$@ -c deltafunc_.c
+
+deltafunc_.c : $(SRCDIR)\deltafunc.c
 	translate$E $** > $@
 
 $(OX)\descendants$O : descendants_.c descendants.h
@@ -1891,6 +1904,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			db_.c:db.h \
 			delta_.c:delta.h \
 			deltacmd_.c:deltacmd.h \
+			deltafunc_.c:deltafunc.h \
 			descendants_.c:descendants.h \
 			diff_.c:diff.h \
 			diffcmd_.c:diffcmd.h \

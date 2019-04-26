@@ -389,9 +389,16 @@ int ssl_open(UrlData *pUrlData){
   ** if any files are received from the server.
   */
   {
+#ifdef HAVE_BIO_ADDR_HOSTNAME_STRING
+    char *ip = BIO_ADDR_hostname_string(BIO_get_conn_address(iBio),1);
+    g.zIpAddr = mprintf("%s", ip);
+    OPENSSL_free(ip);
+#else
     /* IPv4 only code */
-    const unsigned char *ip = (const unsigned char *) BIO_ptr_ctrl(iBio,BIO_C_GET_CONNECT,2);
+    const unsigned char *ip;
+    ip = (const unsigned char*)BIO_ptr_ctrl(iBio,BIO_C_GET_CONNECT,2);
     g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+#endif
   }
 
   X509_free(cert);

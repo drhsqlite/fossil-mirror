@@ -1299,7 +1299,7 @@ void ticket_cmd(void){
           fossil_print("%h: ",z);
           if( blob_size(&val)>50 || contains_newline(&val)) {
                   fossil_print("\n    ");
-                  comment_print(blob_str(&val),0,4,-1,g.comFmtFlags);
+                  comment_print(blob_str(&val),0,4,-1,get_comment_format());
                 }else{
                   fossil_print("%s\n",blob_str(&val));
                 }

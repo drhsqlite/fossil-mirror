@@ -75,13 +75,38 @@ of the Fossil code you find running on the main Fossil website.
 <p>Unpack the ZIP or tarball you downloaded then
 <b>cd</b> into the directory created.</p></li>
 
+<li><i>(Optional, Debian-compatible Linux only)</i>
+Make sure you have all the necessary tools and libraries at hand by running:
+<b>sudo apt install tcl-dev tk libssl-dev</b>.
+
 <li><i>(Optional, Unix only)</i>
 Run <b>./configure</b> to construct a makefile.
 
 <ol type="a">
 <li><p>
-If you do not have the OpenSSL library installed on your system, then
-add <b>--with-openssl=none</b> to omit the https functionality.
+The build system for Fossil on Unix-like systems assumes that the
+OpenSSL development and runtime files are available on your system,
+because unprotected repositories are trivial to attack otherwise.
+Indeed, some public Fossil repositories — including Fossil's own — today
+run in an HTTPS-only mode, so that you can't even do an anonymous clone
+from them without using the TLS features added to Fossil by OpenSSL. To
+weaken that stance could allow a
+[https://en.wikipedia.org/wiki/Man-in-the-middle_attack|man in the
+middle attack], such as one that substitutes malicious code into your
+Fossil repository clone.</p>
+
+<p>You can force the Fossil build system to avoid searching for, building
+against, and linking to the OpenSSL library by passing
+<b>--with-openssl=none</b> to the <tt>configure</tt> script.</p>
+
+<p>If you do not have the OpenSSL development libraries on your system,
+we recommend that you install them, typically via your OS's package
+manager. The Fossil build system goes to a lot of effort to seek these
+out wherever they may be found, so that is typically all you need to
+do.</p>
+
+<p>For more advanced use cases, see the [./ssl.wiki#openssl-bin|OpenSSL
+discussion in the "TLS and Fossil" document].</p>
 
 <li><p>
 To build a statically linked binary (suitable for use inside a chroot
@@ -138,7 +163,7 @@ first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
 "<b>openssl-X.Y.ZA</b>" subdirectory within the local
 [/tree?ci=trunk&name=compat | compat] directory (e.g.
-"<b>compat/openssl-1.0.2q</b>"), then make sure that some recent
+"<b>compat/openssl-1.0.2r</b>"), then make sure that some recent
 <a href="http://www.perl.org/">Perl</a> binaries are installed locally,
 and finally run one of the following commands:
 <blockquote><pre>
@@ -167,7 +192,7 @@ making sure you have the "libsqlite3-devel" , "zlib-devel" and
 <h2>3.0 Installing</h2>
 
 <ol>
-<li value="8">
+<li value="9">
 <p>The finished binary is named "fossil" (or "fossil.exe" on Windows).
 Put this binary in a
 directory that is somewhere on your PATH environment variable.

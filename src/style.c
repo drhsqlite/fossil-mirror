@@ -158,7 +158,7 @@ char *chref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    char *zHUrl = mprintf("<a class=\"%s\" href=\"%h\">", zExtra, zUrl);
     fossil_free(zUrl);
     return zHUrl;
   }
@@ -391,10 +391,7 @@ static char zDfltHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
-@ <meta http-equiv="Content-Security-Policy" \
-@  content="default-src 'self' data: ; \
-@  script-src 'self' 'nonce-$<nonce>' ;\
-@  style-src 'self' 'unsafe-inline'" />
+@ <meta http-equiv="Content-Security-Policy" content="$default_csp" />
 @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
@@ -409,12 +406,24 @@ static char zDfltHeader[] =
 ** Initialize all the default TH1 variables
 */
 static void style_init_th1_vars(const char *zTitle){
-  Th_Store("nonce", style_nonce());
+  const char *zNonce = style_nonce();
+  /*
+  ** Do not overwrite the TH1 variable "default_csp" if it exists, as this
+  ** allows it to be properly overridden via the TH1 setup script (i.e. it
+  ** is evaluated before the header is rendered).
+  */
+  char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
+                                   "script-src 'self' 'nonce-%s' ; "
+                                   "style-src 'self' 'unsafe-inline'",
+                                   zNonce);
+  Th_MaybeStore("default_csp", zDfltCsp);
+  sqlite3_free(zDfltCsp);
+  Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
   if( zTitle ) Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
+  Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   if( local_zCurrentPage==0 ) style_set_current_page("%T", g.zPath);
@@ -916,7 +925,7 @@ void page_style_css(void){
   ** variables such as $baseurl.
   */
   Th_Store("baseurl", g.zBaseURL);
-  Th_Store("secureurl", login_wants_https_redirect()? g.zHttpsURL: g.zBaseURL);
+  Th_Store("secureurl", fossil_wants_https(1)? g.zHttpsURL: g.zBaseURL);
   Th_Store("home", g.zTop);
   image_url_var("logo");
   image_url_var("background");
@@ -1033,7 +1042,7 @@ void webpage_error(const char *zFormat, ...){
   int isAuth = 0;
   char zCap[100];
   static const char *const azCgiVars[] = {
-    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE",
+    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE", "SCGI",
     "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
     "HTTP_ACCEPT_LANGUAGE", "HTTP_AUTHENICATION",
     "HTTP_CONNECTION", "HTTP_HOST",
@@ -1047,7 +1056,7 @@ void webpage_error(const char *zFormat, ...){
     "TEMP", "TMP", "FOSSIL_VFS",
     "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
     "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
-    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST"
+    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
   };
 
   login_check_credentials();

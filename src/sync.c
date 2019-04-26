@@ -157,7 +157,7 @@ static void process_sync_args(
   url_proxy_options();
   clone_ssh_find_options();
   if( !uvOnly ) db_find_and_open_repository(0, 0);
-  db_open_config(0, 0);
+  db_open_config(0, 1);
   if( g.argc==2 ){
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){

@@ -281,12 +281,20 @@ void blob_zero(Blob *pBlob){
 ** Append text or data to the end of a blob.
 */
 void blob_append(Blob *pBlob, const char *aData, int nData){
+  sqlite3_int64 nNew;
   assert( aData!=0 || nData==0 );
   blob_is_init(pBlob);
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
-  if( pBlob->nUsed + nData >= pBlob->nAlloc ){
-    pBlob->xRealloc(pBlob, pBlob->nUsed + nData + pBlob->nAlloc + 100);
+  nNew = pBlob->nUsed;
+  nNew += nData;
+  if( nNew >= pBlob->nAlloc ){
+    nNew += pBlob->nAlloc;
+    nNew += 100;
+    if( nNew>=0x7fff0000 ){
+      blob_panic();
+    }
+    pBlob->xRealloc(pBlob, (int)nNew);
     if( pBlob->nUsed + nData >= pBlob->nAlloc ){
       blob_panic();
     }
@@ -1257,7 +1265,8 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 #endif
 
   for(i=0; (c = zIn[i])!=0; i++){
-    if( c==cQuote || c=='\\' || c<' ' || c==';' || c=='*' || c=='?' || c=='[') {
+    if( c==cQuote || (unsigned char)c<' ' ||
+        c=='\\' || c==';' || c=='*' || c=='?' || c=='[' ){
       Blob bad;
       blob_token(pBlob, &bad);
       fossil_fatal("the [%s] argument to the \"%s\" command contains "

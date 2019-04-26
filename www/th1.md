@@ -169,6 +169,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  anoncap
   *  anycap
   *  artifact
+  *  cgiHeaderLine
   *  checkout
   *  combobox
   *  date
@@ -188,6 +189,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  insertCsrf
   *  linecount
   *  markdown
+  *  nonce
   *  puts
   *  query
   *  randhex
@@ -248,6 +250,13 @@ listed in STRING.
 Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
+
+<a name="cgiHeaderLine"></a>TH1 cgiHeaderLine Command
+-----------------------------------------------------
+
+  *  cgiHeaderLine line
+
+Adds the specified line to the CGI header.
 
 <a name="checkout"></a>TH1 checkout Command
 -------------------------------------------
@@ -446,6 +455,13 @@ never returns less than MIN or more than MAX.
 Renders the input string as markdown.  The result is a two-element list.
 The first element contains the body, rendered as HTML.  The second element
 is the text-only title string.
+
+<a name="nonce"></a>TH1 nonce Command
+-------------------------------------
+
+  *  nonce
+
+Returns the value of the cryptographic nonce for the request being processed.
 
 <a name="puts"></a>TH1 puts Command
 -----------------------------------

@@ -231,6 +231,9 @@ static int wiki_convert_flags(int altForm2){
     if( db_get_boolean("timeline-plaintext", 0) ){
       wikiFlags |= WIKI_LINKSONLY;
     }
+    if( db_get_boolean("timeline-hard-newlines", 0) ){
+      wikiFlags |= WIKI_NEWLINE;
+    }
   }
   return wikiFlags;
 }
@@ -963,6 +966,16 @@ void fossil_print(const char *zFormat, ...){
     blob_reset(&b);
   }
   va_end(ap);
+}
+void fossil_vprint(const char *zFormat, va_list ap){
+  if( g.cgiOutput ){
+    cgi_vprintf(zFormat, ap);
+  }else{
+    Blob b = empty_blob;
+    vxprintf(&b, zFormat, ap);
+    fossil_puts(blob_str(&b), 0);
+    blob_reset(&b);
+  }
 }
 
 /*
