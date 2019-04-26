@@ -1,5 +1,5 @@
-C Make\ssure\sthat\sthe\s"--nocgi"\soption\sgets\sremoved\sfrom\sthe\scommand\sline\s(hint:\sshort\scircuit\sevaluation\sof\sthe\s&&\soperator).
-D 2019-04-26T16:45:25.606
+C Another\sinvocation\sof\sthe\sbackoffice\swas\sfound\swhere\sthe\soption\s"--nocgi"\smight\sbe\snecessary.
+D 2019-04-26T16:53:36.052
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -432,7 +432,7 @@ F src/add.c f0f7b8fcf4a8ec597a1dbf97fe1af7ead32cd0c261fae15ada25cefc85502811
 F src/alerts.c bcde67007c7a0cf079d90580f5c5b6f83c75b2e993a59fbe1f8213cdd0f24d37
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 12bade36ab5f1690b0a5170dfb5b61bc4e67fa778af99f822af595313f2ba9d8
+F src/backoffice.c b4823b8b74ae6b187335680a9c01518da9c53f5d96897f5ff1ea13f918da990a
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3a19db886f4a20e90386f97b981dc8b15ba750e4032de391732ee54ea45b0115
-R 290c0f12c27ecd590ce5f326e18fcc95
+P 417e2b4149e0d79f10343d07ee41693c99755c88fb06724cec0bfe0e564bbaa2
+R 48d3e017aabeb18d4a3f9650a60f5718
 U tsbg
-Z 29375b0359c6b1a3a2958a0238c4e795
+Z 241dbc2bcd98594c8aa14cfe7a5c7287

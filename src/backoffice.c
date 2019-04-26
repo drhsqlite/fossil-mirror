@@ -604,7 +604,7 @@ void backoffice_command(void){
         if( iNow && iNow>file_mtime(g.argv[i],ExtFILE) ) continue;
         blob_init(&cmd, 0, 0);
         blob_append_escaped_arg(&cmd, g.nameOfExe);
-        blob_append(&cmd, " backoffice --nodelay", -1);
+        blob_append(&cmd, " backoffice --nocgi --nodelay", -1);
         if( g.fAnyTrace ){
           blob_append(&cmd, " --trace", -1);
         }
