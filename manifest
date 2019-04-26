@@ -1,5 +1,5 @@
-C Merge\strunk.
-D 2019-04-26T16:39:30.322
+C Make\ssure\sthat\sthe\s"--nocgi"\soption\sgets\sremoved\sfrom\sthe\scommand\sline\s(hint:\sshort\scircuit\sevaluation\sof\sthe\s&&\soperator).
+D 2019-04-26T16:45:25.606
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -515,7 +515,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 73e026debf0868fc7c09d608ecaa23f5b80d46069349f89819915d21d7ba4c3b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 1872edfccf5e6d9ab211fc7d63e8d673c340362daf291523b69ea0e69ca1c816
+F src/main.c 03f523fbdf8ab0dcf8e56eb3baf294cd502c7ddf53569a62c206059dc7fd211f
 F src/main.mk 16fd7b81e3cfbf4cfb5d5d8559e11adbe6883a6d6b05330b6c155e6a02d9b298
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c52fb5eddb6099933607697e5144670d3103bd817cbeb09c0d3c093477e910f2 1dd2527f2ace937e2ad5857b4041430059c738b61231eafb1e4caef907f3cd05
-R c2d7dfa54f1438ba304b1c783f4c89f9
+P 3a19db886f4a20e90386f97b981dc8b15ba750e4032de391732ee54ea45b0115
+R 290c0f12c27ecd590ce5f326e18fcc95
 U tsbg
-Z b8eaa8fea0f42d76d01bc62234b8b90e
+Z 29375b0359c6b1a3a2958a0238c4e795
