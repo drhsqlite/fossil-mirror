@@ -1,5 +1,5 @@
-C Enhance\sthe\s/timeline\squery\sparameter\sparsing\sso\sthat\sthe\symd=,\sym=,\sand\nyw=\squery\sparameters\scan\soptionally\somit\sthe\sdate\spunctuation.
-D 2019-04-19T18:55:36.212
+C When\sattempting\sto\s\sdetermine\sthe\sFossil\suser\sinformation,\s\sdo\snot\ssmash\nthe\sglobal\sURL\s\sinformation\swhich\smay\scontain\san\salternate\s\sURL\sused\sfor\nsync\soperations\s(e.g.\s\swhen\susing\s"fossil\ssync\s--once").\s\sThis\sfixes\sthe\nability\s\sto\swork\s\soffline\s\sand\s\ssynchronize\swith\s\sa\s\sUSB\sthumbdrive\s\sala\nsneaker-net.
+D 2019-05-01T14:02:51.290
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -590,7 +590,7 @@ F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
 F src/unversioned.c c3e497239a311d7f38671a250b4e1c800803a371c56b29a7634b51ff9bb72267
 F src/update.c 78f496b5c4e4cfb6cf28a41a035ed4d474edad0130355ea48dd8f9314c5c44b4
 F src/url.c d12b5af2810f06b6d4840a10217bc8450df4533cd7695cdce9d41f7b7fb7daed
-F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
+F src/user.c 1807fc9d7c5482e05ed868ca7216757abc214bce627e4835200324ca12807f17
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
@@ -874,7 +874,10 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 40c40f7fe6136d52ad09188f9391b19351d3926d26d5e9cebc0bfa89617ff666
-R ffc2dc85f92c831a5a987c428ec6d77a
-U drh
-Z 47e8a1fbaeb63ed2492c82f6bfaf17e4
+P 9bdda2047fbde3d82c9ff612781d4a771e4c8fcf9cf7d26ee3088aae2b5ee124
+R f5d54c5be86ccdbe5958225528eae6c4
+T *branch * offline-sync
+T *sym-offline-sync *
+T -sym-trunk *
+U andybradford
+Z 14529ff9389f50c3090f266370bbecd1

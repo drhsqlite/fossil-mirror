@@ -500,6 +500,7 @@ static int attempt_user(const char *zLogin){
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
+  UrlData url;
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -509,6 +510,7 @@ void user_select(void){
     }
   }
 
+  memset(&url, 0, sizeof(url));
   if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return;
 
   if( attempt_user(db_get("default-user", 0)) ) return;
@@ -521,8 +523,8 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
-  url_parse(0, 0);
-  if( g.url.user && attempt_user(g.url.user) ) return;
+  url_parse_local(0, 0, &url);
+  if( url.user && attempt_user(url.user) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"
