@@ -1,5 +1,8 @@
-C Make\sfull\suse\sof\sthe\snew\sfile_tempname()\sin\s"fossil\sdiff"\swith\sboth\s--from\sand\n--to\soptions.\s\sImprove\sfile_tempname()\sto\sallow\sfor\sa\ssuggested\sdifferentiator\ntag.
-D 2019-04-25T14:28:41.980
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C tclsh8.7\sis\sout\sthere...
+D 2019-05-02T03:36:23.734
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -60,7 +63,7 @@ F autosetup/cc.tcl 1ea33bf7c02fd9ec1b3abe2754ccf94a8e2b8bdc9852f93a735f17cfd6764
 F autosetup/config.guess 947c8873202b420cdd698aa562cd05ee128197f6 x
 F autosetup/config.sub 1ed99f2fce4975f55e82b3833baf74fbcd8bdda0 x
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
-F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
+F autosetup/find-tclsh b0a669272c08652e78d4f228238f1bc5821f226b0c6bdb05ec7897150c37e6cf x
 F autosetup/jimsh0.c c31f25b294314ea582cb2acf8fe4aa04de1065060b72f58fa58c5dd5644863cd
 F autosetup/local.tcl 60b0633b484a89c87aed299e4c22ac5287803f921ba9b653a04b0c518f699cda
 F autosetup/pkg-config.tcl 1d3eb0476a271d7c506aa253a4a189a68344950d726381d2d0417bb31af21b4d
@@ -874,7 +877,13 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a072be1eafe487c650d416b013752efd4be4d92a46be5244253a4980ceffccf1
-R 76e3eaae7ccd67cca9e2172e638ee276
-U drh
-Z 8f22c68e500ec1971a6effd55900db15
+P 1dd2527f2ace937e2ad5857b4041430059c738b61231eafb1e4caef907f3cd05
+R da27b8086d3b7d9774e1eb124d4e8eee
+U bch
+Z 35637bda322d3188b07d26efb205956b
+-----BEGIN PGP SIGNATURE-----
+
+iEYEARECAAYFAlzKZbcACgkQad0Kwpwugm9M+wCgpUmOFkjkRGnVZjxWdEq38ifZ
+ckkAoKDQScyHN4JMgmW2Dw8OqD2R+Nag
+=HA03
+-----END PGP SIGNATURE-----
