@@ -2827,6 +2827,7 @@ void thisdayinhistory_page(void){
     int iAgo = aYearsAgo[i];
     char *zThis = db_text(0, "SELECT date(%Q,'-%d years')", zToday, iAgo);
     Blob sql;
+    char *zId;
     if( strcmp(zThis, zStartOfProject)<0 ) break;
     blob_init(&sql, 0, 0);
     blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
@@ -2842,8 +2843,10 @@ void thisdayinhistory_page(void){
     if( db_int(0, "SELECT count(*) FROM timeline")==0 ){
       continue;
     }
+    zId = db_text(0, "SELECT timestamp FROM timeline"
+                     " ORDER BY sortby DESC LIMIT 1");
     @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
-    @ <small>%z(href("%R/timeline?c=%s+23:59:59",zThis))(more context)</a>\
+    @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
     @ </small></h2>
     www_print_timeline(&q, TIMELINE_GRAPH|TIMELINE_DISJOINT, 0, 0, 0, 0);
   }
