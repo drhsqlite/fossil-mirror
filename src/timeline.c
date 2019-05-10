@@ -2843,7 +2843,8 @@ void thisdayinhistory_page(void){
       continue;
     }
     @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
-    @ <small>%z(href("%R/timeline?c=%s",zThis))(more context)</a></small></h2>
+    @ <small>%z(href("%R/timeline?c=%s+23:59:59",zThis))(more context)</a>\
+    @ </small></h2>
     www_print_timeline(&q, TIMELINE_GRAPH|TIMELINE_DISJOINT, 0, 0, 0, 0);
   }
   db_finalize(&q);
