@@ -2786,6 +2786,70 @@ void timeline_cmd(void){
   db_finalize(&q);
 }
 
+/*
+** WEBPAGE: thisdayinhistory
+**
+** Generate a vanity page that shows project activity for the current
+** day of the year for various years in the history of the project.
+**
+** Query parameters:
+**
+**    today=DATE             Use DATE as today's date
+*/
+void thisdayinhistory_page(void){
+  static int aYearsAgo[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 75, 100 };
+  const char *zToday;
+  char *zStartOfProject;
+  int i;
+  Stmt q;
+
+  login_check_credentials();
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
+    login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
+    return;
+  }
+  style_header("Today In History");
+  zToday = (char*)P("today");
+  if( zToday ){
+    zToday = timeline_expand_datetime(zToday);
+    if( !fossil_isdate(zToday) ) zToday = 0;
+  }
+  if( zToday==0 ){
+    zToday = db_text(0, "SELECT date('now',toLocal())");
+  }
+  @ <h1>This Day In History For %h(zToday)</h1>
+  zStartOfProject = db_text(0,
+      "SELECT datetime(min(mtime),toLocal()) FROM event;"
+  );
+  timeline_temp_table();
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  for(i=0; i<sizeof(aYearsAgo)/sizeof(aYearsAgo[0]); i++){
+    int iAgo = aYearsAgo[i];
+    char *zThis = db_text(0, "SELECT date(%Q,'-%d years')", zToday, iAgo);
+    Blob sql;
+    if( strcmp(zThis, zStartOfProject)<0 ) break;
+    blob_init(&sql, 0, 0);
+    blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
+    blob_append(&sql, timeline_query_for_www(), -1);
+    blob_append_sql(&sql,
+       " AND %Q=date(event.mtime,toLocal()) "
+       " AND event.mtime BETWEEN julianday(%Q,'-1 day')"
+             " AND julianday(%Q,'+2 days')",
+       zThis, zThis, zThis
+    );
+    db_multi_exec("DELETE FROM timeline; %s;", blob_sql_text(&sql));
+    blob_reset(&sql);
+    if( db_int(0, "SELECT count(*) FROM timeline")==0 ){
+      continue;
+    }
+    @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
+    @ <small>%z(href("%R/timeline?c=%s",zThis))(more context)</a></small></h2>
+    www_print_timeline(&q, TIMELINE_GRAPH|TIMELINE_DISJOINT, 0, 0, 0, 0);
+  }
+  db_finalize(&q);
+  style_footer();
+}
+
 
 /*
 ** COMMAND: test-timewarp-list

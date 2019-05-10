@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C tclsh8.7\sis\sout\sthere...
-D 2019-05-02T03:36:23.734
+C Add\sthe\s/thisdayinhistory\spage.
+D 2019-05-10T16:19:22.904
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -583,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 0470e8fbeb6693af1c01882d7303aec6438d343dcf38b8307ee419e394ddba27
+F src/timeline.c 9556302a15b4ae8f1443b84fb194521a6acab35786b99d78cff7a980e185b28c
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -877,13 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1dd2527f2ace937e2ad5857b4041430059c738b61231eafb1e4caef907f3cd05
-R da27b8086d3b7d9774e1eb124d4e8eee
-U bch
-Z 35637bda322d3188b07d26efb205956b
------BEGIN PGP SIGNATURE-----
-
-iEYEARECAAYFAlzKZbcACgkQad0Kwpwugm9M+wCgpUmOFkjkRGnVZjxWdEq38ifZ
-ckkAoKDQScyHN4JMgmW2Dw8OqD2R+Nag
-=HA03
------END PGP SIGNATURE-----
+P 8b276cf9f1cdf2e932e73b0828760cb22208c66d4e2610fc4d9a58bd45a4b3c2
+R dddb5c99e76d176e2c5766e653976779
+U drh
+Z 5f0e81df3c7263799e576528a531cbcd
