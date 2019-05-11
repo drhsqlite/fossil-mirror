@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog,\sas\swell\sas\sother\sminor\sdocumentation\simprovements.
-D 2019-05-11T00:17:26.210
+C More\sdocumentation\supdates\sto\shighlight\srecent\schanges.
+D 2019-05-11T01:42:52.058
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -522,7 +522,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 3c53c02ae90d6c274296db50e4b69d7c0b98ce737f27da4772dbe10d74cc0ae6 x
 F src/manifest.c 08b0234fb9b3bc08d5eed6f067ee329ac12ad0effade31fb51d14a557d681b9c
 F src/markdown.c fa512af1446b7773a0177668a1790d60925ae0e81f6ef1767f8b3aacbe4644be
-F src/markdown.md 5257055f1eb07a9cb7b77667a3eafe9a0e6a09465c5f177719d409ef2b3a7cf6
+F src/markdown.md 58d0f6ba76a4850d739a1f60c4c4cf04c8fa12fc0f5f269f0f09c23e11bde666
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -778,7 +778,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99f40cd9512c9392362f815baa4044508817c5947c9cba3315bc7054714c1a51
 F www/changes.wiki 3540c17bedaaead63b89f8960d4f396a7fbe76e724f17f013391290bdcb5f78a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
+F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -818,7 +818,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 7d11669133d8dac04caffb6939bbb9e5d0693e1bbbac6d7d72aca567fde9e08e
+F www/fossil-v-git.wiki 0de2811e4964a28d5f082dc967011e3e99b57b2abc37abeb5f4cf2b0d47fdc3d
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -837,8 +837,8 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 34a0b0637fd50d761de694c0c61afffddc3b898a5b151ac938c3a117dc30cb80
 F www/image-format-vs-repo-size.md 9e8b06d2511a672a7bed6b833d10ef8f8c82b2b75fe631682de159e8549b3bec
 F www/image-format-vs-repo-size.svg 4b815f4c3bbc9c73346b55f6a340ecd6e429697a49de1a27c28218a663c14793
-F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
-F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
+F www/index.wiki 89c5ad2569bcc9245e5fb4c6ed391ff9db8e4a7c0fecd00061c0a91f237a56aa
+F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mirrortogithub.md b787f8c4cab74d7d64a1b6ba55f45aac3ffec8cda9322d1668ed96a4666317e7
 F www/mkindex.tcl c7e6876cf0189f08d6632dbfa632b8d372f6a2a99acf6b7664670db8d03ae214 x
@@ -853,7 +853,7 @@ F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c7
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
-F www/selfhost.wiki aa4fe1f210e20474a4c5e0f0ab47be9860b060fcb0f1bd1a3a327e05f3a7a6c0
+F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
 F www/server.wiki c0198bbfaf878e9cd32fd3790b8f02763eda5606c6f00cf3d4cf0c079463d3de
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
@@ -870,11 +870,11 @@ F www/tls-nginx.md f3137bcfdf9d14a1271325e9f2f3e52e6884892520e10256ee278d34308f8
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki a75ea510c408c0bb83c396afbe72948b8b2202cd
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
-F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
+F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af068
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
-F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
+F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1bdebbe1eb812dea7f1efeab0a4a549675f4727b8045e3b4624b94d7d8d89bd3
-R b417598f30a940fa7ca34a927ebf9861
+P 530963e0d1ed3aadcc4e0bbfbf3205ba0a457697b805475bf6e5f9351ce9cdc1
+R b4b5550865c5d612d84af586ca69f893
 U drh
-Z 6b60e0bfe93d0f9ed21b082eb63b3339
+Z 5f7d57b19450924baf943860c9ab2f04

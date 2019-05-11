@@ -8,6 +8,7 @@ development project:
   *  [./wikitheory.wiki | Wiki]
   *  [./embeddeddoc.wiki | On-line documentation]
   *  [./event.wiki | Technical notes]
+  *  [./forum.wiki | Forum]
   *  Timelines
   *  Full text search over all of the above
   *  Status information

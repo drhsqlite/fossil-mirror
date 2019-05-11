@@ -12,6 +12,8 @@ The canonical repository is (1).  Repositories (2) and (3) automatically
 stay in synchronization with (1) via a
 <a href="http://en.wikipedia.org/wiki/Cron">cron job</a> that invokes
 "fossil sync" at regular intervals.
+Repository (2) also publishes a
+[./mirrortogithub.md|GitHub mirror of Fossil] as a demonstration.
 
 Note that the two secondary repositories are more than just read-only mirrors.
 All three servers support full read/write capabilities.
@@ -69,4 +71,6 @@ the following command via cron:
 Server (2) is a
 <a href="http://www.linode.com/">Linode 4096</a> located in Newark, NJ
 and set up just like the canonical server (1) with the addition of a
-cron job for synchronization as in server (3).
+cron job for synchronization.  The same cron job also runs the
+[/help?cmd=git|fossil git export] command after each sync in order to
+[./mirrortogithub.md|mirror all changes to GitHub].
