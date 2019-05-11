@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.29.0\salpha,\sfor\stesting\sof\sSQLite.
-D 2019-05-10T18:47:56.404
+C Updates\sto\sthe\schange\slog,\sas\swell\sas\sother\sminor\sdocumentation\simprovements.
+D 2019-05-11T00:17:26.210
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -552,7 +552,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
-F src/security_audit.c a0e28b03be42cf3651dee57a9c81d6e7655932d1b78b50ad587fa7274fd35f24
+F src/security_audit.c 30e55791c7921efafc94ac9febd963b151239764023fc668d55acc3c08f4b86b
 F src/setup.c bedcb23e2cf8fce3095d2a35e7ca7fb5aa11d494906249ea87c13df6bbcaa455
 F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -776,7 +776,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 99f40cd9512c9392362f815baa4044508817c5947c9cba3315bc7054714c1a51
-F www/changes.wiki c225aebfab558becb6e51a54571def4a84e42cd4c0c5c0be4a996dd8f9b3932b
+F www/changes.wiki 3540c17bedaaead63b89f8960d4f396a7fbe76e724f17f013391290bdcb5f78a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki a57ae91363c133141e58c7cf330ebfebc2b67058
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -840,7 +840,7 @@ F www/image-format-vs-repo-size.svg 4b815f4c3bbc9c73346b55f6a340ecd6e429697a49de
 F www/index.wiki 2ff24ab0887cf5222b4e38b3600f99ec153a10398efe03a3c6018157fb12d07f
 F www/inout.wiki 027298d991dec3a79886f7818f86cd190ba5e70b
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mirrortogithub.md 858cdc6b91e7a82077b1c556b57e4394f85215af261236ea9b1b58fef379e354
+F www/mirrortogithub.md b787f8c4cab74d7d64a1b6ba55f45aac3ffec8cda9322d1668ed96a4666317e7
 F www/mkindex.tcl c7e6876cf0189f08d6632dbfa632b8d372f6a2a99acf6b7664670db8d03ae214 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki 135405d9e2261e759d0d85fd2104848589c485e6
@@ -874,7 +874,7 @@ F www/webui.wiki 411350e0bfcabd3e3e8a750d5e69ba840ce50e45
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki bd20172d783835606043b15bba0c69c9f606a87b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 273974a2e63c497e11412a9b10b697dade6d9dfad84601a6b5b489ffc4f814ba
-R c225c2fd1abe8421e51777a38bd4de05
+P 1bdebbe1eb812dea7f1efeab0a4a549675f4727b8045e3b4624b94d7d8d89bd3
+R b417598f30a940fa7ca34a927ebf9861
 U drh
-Z 1b53587ce546ba89205e7b7f55e4524d
+Z 6b60e0bfe93d0f9ed21b082eb63b3339

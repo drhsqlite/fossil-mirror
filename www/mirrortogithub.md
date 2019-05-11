@@ -144,5 +144,5 @@ that runs at 17 minutes after the hour, every hour that does:
     /usr/bin/fossil git export -R /home/www/fossil/sqlite.fossil
 
 The initial two "sync" commands pull in changes from the primary
-Fossil repositores for Fossil and SQLite.  The last two lines
+Fossil repositories for Fossil and SQLite.  The last two lines
 export the changes to Git and push the results up to GitHub.
