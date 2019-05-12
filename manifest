@@ -1,5 +1,5 @@
-C More\sdocumentation\supdates\sto\shighlight\srecent\schanges.
-D 2019-05-11T01:42:52.058
+C Improved\srendering\sof\sthe\sgraphs\son\sthe\s/thisdayinhistory\spage.\s\sMore\ngenerally,\simproved\srendering\sof\smultiple\sgraphs\son\sthe\ssame\spage\sthat\nomit\sthe\sTIMELINE_DISJOINT\sflag.
+D 2019-05-12T23:48:09.083
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,8 +481,8 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c c4a7cf095e94ac34e2f18a1dd47a04baa76d4e58e617ae02bb7b473316a853d2
-F src/graph.js 8d2360ecca7b3f60c5f54119541ea91c4cd85ad9b844740c2a86af0d320e5368
+F src/graph.c 77aa4452fa94c7502e2f1df93f11bd6424e08d17a264a44a07b56329fbb4ca27
+F src/graph.js 0fdf205556691b9366acc0ad0adb4611854058cf7344036357c0c437f6aa3293
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c cdffd7d2bbd541409c6666abcf6d8443de996a40080dcf13d8d45fb38d8cdd21
+F src/timeline.c c1c886cda6bef858c17c7490c8128e9639dc970f06faf74b84d949b6b56de576
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 530963e0d1ed3aadcc4e0bbfbf3205ba0a457697b805475bf6e5f9351ce9cdc1
-R b4b5550865c5d612d84af586ca69f893
+P bcea5291cee5f9f4a70d52ec9e6314c16e85c54809baeaa8214e4485acb18b96
+R 15ce175dc6e7ad821a0453610b1c805a
 U drh
-Z 5f7d57b19450924baf943860c9ab2f04
+Z b619c479d3937166e24ad5b9861a1905

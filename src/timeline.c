@@ -764,7 +764,8 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
+      @ <tr class="timelineBottom" id="btm-%d(iTableId)">\
+      @ <td></td><td></td><td></td></tr>
     }
   }
   @ </table>
@@ -850,6 +851,7 @@ void timeline_output_graph_javascript(
     @   "scrollToSelect": %d(scrollToSelect),
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
+    @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null
     }else{
@@ -2848,7 +2850,7 @@ void thisdayinhistory_page(void){
     @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
     @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
     @ </small></h2>
-    www_print_timeline(&q, TIMELINE_GRAPH|TIMELINE_DISJOINT, 0, 0, 0, 0);
+    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0);
   }
   db_finalize(&q);
   style_footer();
