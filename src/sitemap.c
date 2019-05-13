@@ -195,11 +195,18 @@ void sitemap_page(void){
   }
   @ <li>Help
   @   <ul>
-  @   <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
-  @   <li>%z(href("%R/md_rules"))Markdown Formatting Rules</a></li>
+  if( g.perm.Admin || g.perm.Write ||
+      g.perm.WrForum || g.perm.WrTForum ||
+      g.perm.NewWiki || g.perm.ApndWiki || g.perm.WrWiki || g.perm.ModWiki ||
+      g.perm.NewTkt  || g.perm.ApndTkt  || g.perm.WrTkt  || g.perm.ModTkt ){
+    @   <li>%z(href("%R/wiki_rules"))Wiki Formatting Rules</a></li>
+    @   <li>%z(href("%R/md_rules"))Markdown Formatting Rules</a></li>
+  }
   @   <li>%z(href("%R/help"))List of All Commands and Web Pages</a></li>
   @   <li>%z(href("%R/test-all-help"))All "help" text on a single page</a></li>
-  @   <li>%z(href("%R/mimetype_list"))Filename suffix to mimetype map</a></li>
+  if( g.perm.Admin || g.perm.Write || g.perm.WrUnver ){
+    @   <li>%z(href("%R/mimetype_list"))Filename suffix to MIME type map</a></li>
+  }
   @   </ul></li>
   if( g.perm.Admin ){
     @ <li>%z(href("%R/setup"))Administration Pages</a>

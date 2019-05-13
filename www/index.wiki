@@ -64,8 +64,9 @@ management system with these advanced features:
       airliners.
 
   5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
-      set one up, Fossil supports four easy
-      [./server.wiki | server configurations].
+      set one up, Fossil supports four easy [./server.wiki | server configurations].
+      You can also easily set up your server to automatically
+      [./mirrortogithub.md | mirror content on GitHub].
 
   6.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]

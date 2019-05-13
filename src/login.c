@@ -699,6 +699,7 @@ void login_page(void){
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
     @ <input type="submit" name="out" value="Logout"></p>
+    @ </form>
   }else{
     @ <table class="login_out">
     @ <tr>

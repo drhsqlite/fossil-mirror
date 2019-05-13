@@ -1210,7 +1210,7 @@ static size_t prefix_oli(char *data, size_t size){
   while( i<size && data[i]>='0' && data[i]<='9' ){ i++; }
 
   if( i+1>=size
-   || data[i]!='.'
+   || (data[i]!='.' && data[i]!=')')
    || (data[i+1]!=' ' && data[i+1]!='\t')
   ){
    return 0;

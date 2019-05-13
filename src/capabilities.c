@@ -366,9 +366,9 @@ void capability_summary(void){
     " SELECT 'New User Default', fullcap(%Q), 10, 1"
     " UNION ALL"
     " SELECT 'Regular User', fullcap(capunion(cap)), 20, count(*) FROM user"
-    " WHERE cap NOT GLOB '*[as]*'"
+    " WHERE cap NOT GLOB '*[as]*' AND login NOT IN (SELECT id FROM t)"
     " UNION ALL"
-    " SELECT 'Adminstator', fullcap(capunion(cap)), 30, count(*) FROM user"
+    " SELECT 'Adminstrator', fullcap(capunion(cap)), 30, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
     " ORDER BY 3 ASC",
     db_get("default-perms","")

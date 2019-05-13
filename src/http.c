@@ -110,7 +110,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }else{
     zSep = "/";
   }
-  blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.url.path, zSep);
+  blob_appendf(pHdr, "POST %s%s HTTP/1.0\r\n", g.url.path, zSep);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -347,6 +347,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       fSeenHttpAuth = 0;
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
+      url_remember();
       return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){

@@ -1461,9 +1461,16 @@ void file_parse_uri(
 }
 
 /*
-** Construct a random temporary filename into pBuf starting with zPrefix.
+** Construct a random temporary filename into pBuf where the name of
+** the temporary file is derived from zBasis.  The suffix on the temp
+** file is the same as the suffix on zBasis, and the temp file has
+** the root of zBasis in its name.
+**
+** If zTag is not NULL, then try to create the temp-file using zTag
+** as a differentiator.  If that fails, or if zTag is NULL, then use
+** a bunch of random characters as the tag.
 */
-void file_tempname(Blob *pBuf, const char *zPrefix){
+void file_tempname(Blob *pBuf, const char *zBasis, const char *zTag){
 #if defined(_WIN32)
   const char *azDirs[] = {
      0, /* GetTempPath */
@@ -1490,6 +1497,8 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
   const char *zDir = ".";
   int cnt = 0;
   char zRand[16];
+  int nBasis;
+  const char *zSuffix;
 
 #if defined(_WIN32)
   wchar_t zTmpPath[MAX_PATH];
@@ -1515,15 +1524,39 @@ void file_tempname(Blob *pBuf, const char *zPrefix){
     break;
   }
 
+  assert( zBasis!=0 );
+  zSuffix = 0;
+  for(i=0; zBasis[i]; i++){
+    if( zBasis[i]=='/' || zBasis[i]=='\\' ){
+      zBasis += i+1;
+      i = -1;
+    }else if( zBasis[i]=='.' ){
+      zSuffix = zBasis + i;
+    }
+  }
+  if( zSuffix==0 || zSuffix<=zBasis ){
+    zSuffix = "";
+    nBasis = i;
+  }else{
+    nBasis = (int)(zSuffix - zBasis);
+  }
+  if( nBasis==0 ){
+    nBasis = 6;
+    zBasis = "fossil";
+  }
   do{
     blob_zero(pBuf);
     if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
-    sqlite3_randomness(15, zRand);
-    for(i=0; i<15; i++){
-      zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
+    if( zTag==0 ){
+      sqlite3_randomness(15, zRand);
+      for(i=0; i<15; i++){
+        zRand[i] = (char)zChars[ ((unsigned char)zRand[i])%(sizeof(zChars)-1) ];
+      }
+      zRand[15] = 0;
+      zTag = zRand;
     }
-    zRand[15] = 0;
-    blob_appendf(pBuf, "%s/%s-%s.txt", zDir, zPrefix ? zPrefix : "", zRand);
+    blob_appendf(pBuf, "%s/%.*s~%s%s", zDir, nBasis, zBasis, zTag, zSuffix);
+    zTag = 0;
   }while( file_size(blob_str(pBuf), ExtFILE)>=0 );
 
 #if defined(_WIN32)
@@ -1559,16 +1592,18 @@ char *file_time_tempname(const char *zDir, const char *zSuffix){
 
 /*
 ** COMMAND: test-tempname
-** Usage:  fossil test-name [--time SUFFIX] BASENAME ...
+** Usage:  fossil test-name [--time SUFFIX] [--tag NAME] BASENAME ...
 **
 ** Generate temporary filenames derived from BASENAME.  Use the --time
-** option to generate temp names based on the time of day.
+** option to generate temp names based on the time of day.  If --tag NAME
+** is specified, try to use NAME as the differentiator in the temp file.
 */
 void file_test_tempname(void){
   int i;
   const char *zSuffix = find_option("time",0,1);
   Blob x = BLOB_INITIALIZER;
   char *z;
+  const char *zTag = find_option("tag",0,1);
   verify_all_options();
   for(i=2; i<g.argc; i++){
     if( zSuffix ){
@@ -1576,7 +1611,7 @@ void file_test_tempname(void){
       fossil_print("%s\n", z);
       fossil_free(z);
     }else{
-      file_tempname(&x, g.argv[i]);
+      file_tempname(&x, g.argv[i], zTag);
       fossil_print("%s\n", blob_str(&x));
       blob_reset(&x);
     }

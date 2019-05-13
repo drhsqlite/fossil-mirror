@@ -3,11 +3,14 @@
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (pending)</h2>
 
+  *  Added the [/help?cmd=git|fossil git export] command and instructions
+     for [./mirrortogithub.md|creating a GitHub mirror of a Fossil project].
   *  Improved handling of relative hyperlinks on the
      [/help?cmd=/artifact|/artifact] pages for wiki. For example,
      hyperlinks and the lizard &lt;img&gt; now work correctly
      for both [/artifact/2ff24ab0887cf522] and
      [/doc/0d7ac90d575004c2415/www/index.wiki].
+  *  Many documentation enhancements.
   *  For the "[/help?cmd=update|fossil update]" and
      "[/help?cmd=checkout|fossil checkout]" commands, if a
      managed file is removed because it is no longer part of the target
@@ -21,6 +24,29 @@
      and the TH1 "regexp" command, the -nocase option now removes multiple
      diacritics from the same character (derived from SQLite's
      remove_diacritics=2)
+  *  Added the [/help?cmd=/secureraw|/secureraw] page that requires the
+     complete SHA1 or SHA3 hash, not just a prefix, before it will deliver
+     content.
+  *  Accept purely numeric ISO8601 date/time strings as long as they
+     do not conflict with a hash.  Example: "20190510134217" instead of
+     "2019-05-10 13:42:17".  This is very useful for query parameters.
+  *  Support both "1)" and "1." for numbered lists in markdown, as
+     commonmark does.
+  *  The sync and clone HTTP requests omit the extra /xfer path element
+     from the end of the request URI. All servers since 2010 know that
+     the HTTP request is for a sync or clone from the mimetype so the
+     extra path element is not needed.
+  *  If an automatic sync gets a 301 or 302 redirect request, then update
+     the saved remote URL to the new address.
+  *  Temporary filenames (for example used for external "diff" commands)
+     try to preserve the suffix of the original file.
+  *  Added the [/help?cmd=/thisdayinhistory|/thisdayinhistory] web page.
+  *  Enhanced parsing of [/help?cmd=/timeline|/timeline] query parameters
+     "ymd=", "ym=", and "yw=".  All arguments are option (in which case they
+     default to the current time) and all accept ISO8601 date/times without
+     punctuation.
+  *  Improvements to the "Capability Summary" section in the
+     [/help?cmd=/secaudit0|Security Audit] web-page.
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>

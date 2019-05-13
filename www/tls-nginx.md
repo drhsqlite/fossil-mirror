@@ -565,13 +565,19 @@ HSTS by explicitly using HTTPS URIs.
 
 ## Step 7: Renewing Automatically
 
-Now that the configuration is solid, you can renew the LE cert and
-restart nginx with two short commands, which are easily automated:
+Now that the configuration is solid, you can renew the LE cert with the
+`certbot` command from above without the `--dry-run` flag plus a restart
+of nginx:
 
-      sudo certbot certonly --webroot
+      sudo certbot certonly --webroot \
+         --webroot-path /var/www/example.com \
+             -d example.com -d www.example.com \
+             -d example.net -d www.example.net \
+         --webroot-path /var/www/foo.net \
+             -d foo.net -d www.foo.net
       sudo systemctl restart nginx
 
-I put those in a script in the `PATH`, then arrange to call that
+I put those commands in a script in the `PATH`, then arrange to call that
 periodically.  Let’s Encrypt doesn’t let you renew the certificate very
 often unless forced, and when forced there’s a maximum renewal counter.
 Nevertheless, some people recommend running this daily and just letting

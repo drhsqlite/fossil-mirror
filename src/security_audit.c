@@ -38,8 +38,13 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 /*
 ** WEBPAGE: secaudit0
 **
-** Run a security audit of the current Fossil setup.
-** This page requires administrator access
+** Run a security audit of the current Fossil setup, looking
+** for configuration problems that might allow unauthorized
+** access to the repository.
+**
+** This page requires administrator access.  It is usually
+** accessed using the Admin/Security-Audit menu option
+** from any of the default skins.
 */
 void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
@@ -290,7 +295,7 @@ void secaudit0_page(void){
       @ <li><p><b>WARNING:</b>
       @ Administrator privilege is granted to
       @ <a href='setup_ulist?with=as'>%d(n) users</a>.
-      @ Ideally, administator privilege ('s' or 'a') should only
+      @ Ideally, administrator privilege ('s' or 'a') should only
       @ be granted to one or two users.
     }
   }

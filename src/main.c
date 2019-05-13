@@ -2641,6 +2641,15 @@ void cmd_webserver(void){
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
+  /* For the parent process, the cgi_http_server() command above never
+  ** returns (except in the case of an error).  Instead, for each incoming
+  ** client connection, a child process is created, file descriptors 0
+  ** and 1 are bound to that connection, and the child returns.
+  **
+  ** So, when control reaches this point, we are running as a
+  ** child process, the HTTP or SCGI request is pending on file
+  ** descriptor 0 and the reply should be written to file descriptor 1.
+  */
   if( zMaxLatency ){
     signal(SIGALRM, sigalrm_handler);
     alarm(atoi(zMaxLatency));

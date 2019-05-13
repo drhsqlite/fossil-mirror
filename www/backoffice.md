@@ -79,7 +79,7 @@ daily digest might not go out until somebody does visit a webpage.
 If this is a problem, an adminstrator can set up a cron job to
 periodically run:
 
->   fossil backoffice -R _REPOSITORY_
+>   fossil backoffice _REPOSITORY_
 
 That command will cause backoffice processing to occur immediately.
 Note that this is almost never necessary for an internet-facing

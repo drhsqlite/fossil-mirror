@@ -591,7 +591,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
           }
         }
         if( iMrail==-1 ){
-          iMrail = findFreeRail(p, pRow->idx, p->nRow, 0);
+          iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0);
           if( p->mxRail>=GR_MAX_RAIL ) return;
           mergeRiserFrom[iMrail] = parentRid;
         }

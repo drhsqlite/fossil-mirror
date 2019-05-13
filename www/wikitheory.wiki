@@ -10,6 +10,8 @@ Fossil uses [/wiki_rules | Fossil wiki markup] and/or
    *  [./embeddeddoc.wiki | Embedded documentation] files whose
       name ends in ".wiki" or ".md" or ".markdown".
    *  [./event.wiki | Technical notes].
+   *  [./forum.wiki | Forum messages].
+   *  Auxiliary notes on check-ins and branches.
 
 The [/wiki_rules | formatting rules for fossil wiki]
 are designed to be simple and intuitive.  The idea is that wiki provides
@@ -58,9 +60,26 @@ use both forms of documentation at the same time.  Because the same
 format is used, it is trivial to move a file from wiki to embedded documentation
 or back again as the project evolves.
 
-<h2>Bug-reports and check-in comments</h2>
+<h2>Bug-reports and check-in comments and Forum messages</h2>
 
 The comments on check-ins and the text in the descriptions of bug reports
 both use wiki formatting.  Exactly the same set of formatting rules apply.
 There is never a need to learn one formatting language for documentation
 and a different markup for bugs or for check-in comments.
+
+<h2>Auxiliary notes attached to check-ins or branches</h2>
+
+Stand-alone wiki pages with special names "branch/<i>BRANCHNAME</i>"
+or "checkin/<i>HASH</i>" are associated with the corresponding
+branch or check-in.  The wiki text appears in an "About" section of
+timelines and info screens.  Examples:
+
+   *  [/timeline?r=graph-test-branch] shows the text of the
+      [/wiki?name=branch/graph-test-branch|branch/graph-test-branch]
+      wiki page at the top of the timeline
+   *  [/info/19c60b7fc9e2] shows the text of the
+      [/wiki?name=checkin/19c60b7fc9e2400e56a6f938bbad0e34ca746ca2eabdecac10945539f1f5e8c6|checkin/19c60b7fc9e2...]
+      wiki page in the "About" section.
+
+This special wiki pages are very useful for recording historical
+notes.

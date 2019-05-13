@@ -538,7 +538,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **
-**     Apply STASHID or the most recently create stash to the current
+**     Apply STASHID or the most recently created stash to the current
 **     working checkout.  The "pop" command deletes that changeset from
 **     the stash after applying it but the "apply" command retains the
 **     changeset.
@@ -610,6 +610,9 @@ void stash_cmd(void){
       g.argc = nFile+2;
       if( nFile==0 ) return;
     }
+    /* Make sure the stash has committed before running the revert, so that
+    ** we have a copy of the changes before deleting them. */
+    db_commit_transaction();
     g.argv[1] = "revert";
     revert_cmd();
   }else

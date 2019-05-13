@@ -764,7 +764,8 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
+      @ <tr class="timelineBottom" id="btm-%d(iTableId)">\
+      @ <td></td><td></td><td></td></tr>
     }
   }
   @ </table>
@@ -850,6 +851,7 @@ void timeline_output_graph_javascript(
     @   "scrollToSelect": %d(scrollToSelect),
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
+    @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null
     }else{
@@ -1026,13 +1028,21 @@ const char *timeline_query_for_www(void){
 ** Convert a symbolic name used as an argument to the a=, b=, or c=
 ** query parameters of timeline into a julianday mtime value.
 */
-double symbolic_name_to_mtime(const char *z){
+double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
   double mtime;
   int rid;
+  const char *zDate;
   if( z==0 ) return -1.0;
   if( fossil_isdate(z) ){
     mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", z);
     if( mtime>0.0 ) return mtime;
+  }
+  zDate = fossil_expand_datetime(z, 1);
+  if( zDate!=0
+   && (mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", zDate))>0.0
+  ){
+    if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
+    return mtime;
   }
   rid = symbolic_name_to_rid(z, "*");
   if( rid ){
@@ -1407,6 +1417,45 @@ static const char *tagMatchExpression(
   /* If execution reaches this point, the pattern was empty.  Return NULL. */
   return 0;
 }
+
+/*
+** Similar to fossil_expand_datetime()
+**
+** Add missing "-" characters into a date/time.  Examples:
+**
+**       20190419  =>  2019-04-19
+**       201904    =>  2019-04
+*/
+const char *timeline_expand_datetime(const char *zIn){
+  static char zEDate[20];
+  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+  int n = (int)strlen(zIn);
+  int i, j;
+
+  /* Only three forms allowed:
+  **   (1)  YYYYMMDD
+  **   (2)  YYYYMM
+  **   (3)  YYYYWW
+  */
+  if( n!=8 && n!=6 ) return zIn;
+
+  /* Every character must be a digit */
+  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  if( i!=n ) return zIn;
+
+  /* Expand the date */
+  for(i=j=0; zIn[i]; i++){
+    if( i>=4 && (i%2)==0 ){
+      zEDate[j++] = aPunct[i/2];
+    }
+    zEDate[j++] = zIn[i];
+  }
+  zEDate[j] = 0;
+
+  /* It looks like this may be a date.  Return it with punctuation added. */
+  return zEDate;
+}
+
 
 /*
 ** WEBPAGE: timeline
@@ -1924,10 +1973,12 @@ void page_timeline(void){
       blob_append_sql(&cond, " AND event.objid IN (SELECT rid FROM bilog) ");
     }
     if( zYearMonth ){
+      zYearMonth = timeline_expand_datetime(zYearMonth);
       blob_append_sql(&cond, " AND %Q=strftime('%%Y-%%m',event.mtime) ",
-                   zYearMonth);
+                      zYearMonth);
     }
     else if( zYearWeek ){
+      zYearWeek = timeline_expand_datetime(zYearWeek);
       char *z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
         zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
@@ -1953,6 +2004,7 @@ void page_timeline(void){
       nEntry = -1;
     }
     else if( zDay ){
+      zDay = timeline_expand_datetime(zDay);
       zDay = db_text(0, "SELECT date(%Q)", zDay);
       if( zDay==0 || zDay[0]==0 ){
         zDay = db_text(0, "SELECT date('now')");
@@ -2088,9 +2140,9 @@ void page_timeline(void){
         " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
         zSearch, zSearch);
     }
-    rBefore = symbolic_name_to_mtime(zBefore);
-    rAfter = symbolic_name_to_mtime(zAfter);
-    rCirca = symbolic_name_to_mtime(zCirca);
+    rBefore = symbolic_name_to_mtime(zBefore, &zBefore);
+    rAfter = symbolic_name_to_mtime(zAfter, &zAfter);
+    rCirca = symbolic_name_to_mtime(zCirca, &zCirca);
     blob_append_sql(&sql, "%s", blob_sql_text(&cond));
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
@@ -2221,7 +2273,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zAfter ? zAfter : zBefore));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate);
+        rDate = symbolic_name_to_mtime(zDate, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime<=%.17g%s)",
@@ -2236,7 +2288,7 @@ void page_timeline(void){
         zDate = mprintf("%s", (zBefore ? zBefore : zAfter));
       }
       if( zDate ){
-        rDate = symbolic_name_to_mtime(zDate);
+        rDate = symbolic_name_to_mtime(zDate, 0);
         if( db_int(0,
             "SELECT EXISTS (SELECT 1 FROM event CROSS JOIN blob"
             " WHERE blob.rid=event.objid AND mtime>=%.17g%s)",
@@ -2276,7 +2328,7 @@ void page_timeline(void){
   }
   if( PB("showid") ) tmFlags |= TIMELINE_SHOWRID;
   if( useDividers && zMark && zMark[0] ){
-    double r = symbolic_name_to_mtime(zMark);
+    double r = symbolic_name_to_mtime(zMark, 0);
     if( r>0.0 ) selectedRid = timeline_add_divider(r);
   }
   blob_zero(&sql);
@@ -2734,6 +2786,79 @@ void timeline_cmd(void){
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
+}
+
+/*
+** WEBPAGE: thisdayinhistory
+**
+** Generate a vanity page that shows project activity for the current
+** day of the year for various years in the history of the project.
+**
+** Query parameters:
+**
+**    today=DATE             Use DATE as today's date
+*/
+void thisdayinhistory_page(void){
+  static int aYearsAgo[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 75, 100 };
+  const char *zToday;
+  char *zStartOfProject;
+  int i;
+  Stmt q;
+  char *z;
+
+  login_check_credentials();
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
+    login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
+    return;
+  }
+  style_header("Today In History");
+  zToday = (char*)P("today");
+  if( zToday ){
+    zToday = timeline_expand_datetime(zToday);
+    if( !fossil_isdate(zToday) ) zToday = 0;
+  }
+  if( zToday==0 ){
+    zToday = db_text(0, "SELECT date('now',toLocal())");
+  }
+  @ <h1>This Day In History For %h(zToday)</h1>
+  z = db_text(0, "SELECT date(%Q,'-1 day')", zToday);
+  style_submenu_element("Yesterday", "%R/thisdayinhistory?today=%t", z);
+  z = db_text(0, "SELECT date(%Q,'+1 day')", zToday);
+  style_submenu_element("Tomorrow", "%R/thisdayinhistory?today=%t", z);
+  zStartOfProject = db_text(0,
+      "SELECT datetime(min(mtime),toLocal()) FROM event;"
+  );
+  timeline_temp_table();
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  for(i=0; i<sizeof(aYearsAgo)/sizeof(aYearsAgo[0]); i++){
+    int iAgo = aYearsAgo[i];
+    char *zThis = db_text(0, "SELECT date(%Q,'-%d years')", zToday, iAgo);
+    Blob sql;
+    char *zId;
+    if( strcmp(zThis, zStartOfProject)<0 ) break;
+    blob_init(&sql, 0, 0);
+    blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
+    blob_append(&sql, timeline_query_for_www(), -1);
+    blob_append_sql(&sql,
+       " AND %Q=date(event.mtime,toLocal()) "
+       " AND event.mtime BETWEEN julianday(%Q,'-1 day')"
+             " AND julianday(%Q,'+2 days')",
+       zThis, zThis, zThis
+    );
+    db_multi_exec("DELETE FROM timeline; %s;", blob_sql_text(&sql));
+    blob_reset(&sql);
+    if( db_int(0, "SELECT count(*) FROM timeline")==0 ){
+      continue;
+    }
+    zId = db_text(0, "SELECT timestamp FROM timeline"
+                     " ORDER BY sortby DESC LIMIT 1");
+    @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
+    @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
+    @ </small></h2>
+    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0);
+  }
+  db_finalize(&q);
+  style_footer();
 }
 
 

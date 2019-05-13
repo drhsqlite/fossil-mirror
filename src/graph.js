@@ -350,7 +350,7 @@ function TimelineGraph(tx){
       tx.rowinfo[i].y = absoluteY(e) - canvasY;
       tx.rowinfo[i].x = tx.rowinfo[i].r*railPitch;
     }
-    var tlBtm = document.querySelector(".timelineBottom");
+    var tlBtm = document.getElementById(tx.bottomRowId);
     if( tlBtm.offsetHeight<node.h ){
       tlBtm.style.height = node.h + "px";
     }
