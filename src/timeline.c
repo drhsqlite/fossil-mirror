@@ -2804,6 +2804,7 @@ void thisdayinhistory_page(void){
   char *zStartOfProject;
   int i;
   Stmt q;
+  char *z;
 
   login_check_credentials();
   if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
@@ -2820,6 +2821,10 @@ void thisdayinhistory_page(void){
     zToday = db_text(0, "SELECT date('now',toLocal())");
   }
   @ <h1>This Day In History For %h(zToday)</h1>
+  z = db_text(0, "SELECT date(%Q,'-1 day')", zToday);
+  style_submenu_element("Yesterday", "%R/thisdayinhistory?today=%t", z);
+  z = db_text(0, "SELECT date(%Q,'+1 day')", zToday);
+  style_submenu_element("Tomorrow", "%R/thisdayinhistory?today=%t", z);
   zStartOfProject = db_text(0,
       "SELECT datetime(min(mtime),toLocal()) FROM event;"
   );

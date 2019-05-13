@@ -1,5 +1,5 @@
-C Improved\srendering\sof\sthe\sgraphs\son\sthe\s/thisdayinhistory\spage.\s\sMore\ngenerally,\simproved\srendering\sof\smultiple\sgraphs\son\sthe\ssame\spage\sthat\nomit\sthe\sTIMELINE_DISJOINT\sflag.
-D 2019-05-12T23:48:09.083
+C Add\s"Yesterday"\sand\s"Tomorrow"\ssubmenu\slinks\son\sthe\s/thisdayinhistory\spage.
+D 2019-05-13T01:47:55.326
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c c1c886cda6bef858c17c7490c8128e9639dc970f06faf74b84d949b6b56de576
+F src/timeline.c 09cfb5eb1de7b70a24f72858e18969ae4acebfaca6fad187d3d9ca1edc85f41c
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcea5291cee5f9f4a70d52ec9e6314c16e85c54809baeaa8214e4485acb18b96
-R 15ce175dc6e7ad821a0453610b1c805a
+P 8e2b8b027bc2d62a1f1ac23841be74d3e36ba6d9d6cdfbb57d97226eded8f834
+R a60fe6ffffc36e5ca7919a65f03d9ac7
 U drh
-Z b619c479d3937166e24ad5b9861a1905
+Z 52b24326e2bae94c1743851d351511d1
