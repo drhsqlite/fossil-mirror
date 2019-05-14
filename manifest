@@ -1,5 +1,5 @@
-C Add\sthe\sTIMELINE_FILLGAPS\sflags\sto\sbranch\stimelines.
-D 2019-05-14T19:05:40.333
+C Need\sto\skeep\sthe\sTIMELINE_DISJOINT\sflag\son\sbranch\stimelines.
+D 2019-05-14T19:11:25.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 03c93675ba30ffff754934129f62e47a16666d727232dbf31ac7fcd79cba7a47
+F src/timeline.c 256317b63ed8ce048aab0d3d399b0888b714e1d806c7b50645fe45464e205f02
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fff033fe6f92fc98314a5736537d3cfa4b749df0ffbbe41b7c8c46a4e314497e
-R 9168bf6d2f78e879909704355137fb50
+P bb0faeb8893d0d783adce47ea5d28a2fb6ce4fef33b2381af04d67867d44a608
+R 245278cbf8283f3943d23df1d54d8cff
 U drh
-Z 42265e94338ede62183b8cb3410015ab
+Z 50409f6f70b6e8f812fafa0fb7877afc
