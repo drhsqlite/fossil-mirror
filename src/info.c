@@ -284,6 +284,7 @@ void render_checkin_context(int rid, int parentsOnly){
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q,
           TIMELINE_GRAPH
+         |TIMELINE_FILLGAPS
          |TIMELINE_NOSCROLL
          |TIMELINE_CHPICK,
        0, 0, rid, 0);

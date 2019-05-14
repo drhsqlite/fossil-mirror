@@ -114,6 +114,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
 #define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
 #define TIMELINE_CHPICK   0x400000  /* Show cherrypick merges */
+#define TIMELINE_FILLGAPS 0x800000  /* Dotted lines for missing nodes */
 #endif
 
 /*
@@ -759,7 +760,7 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( pGraph ){
-    graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
+    graph_finish(pGraph, tmFlags);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
@@ -1753,7 +1754,7 @@ void page_timeline(void){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
     bisect_create_bilog_table(iCurrent, 0);
-    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
+    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
     style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
@@ -1761,7 +1762,7 @@ void page_timeline(void){
     bisectLocal = 0;
   }
   if( zBisect!=0 && bisect_create_bilog_table(0, zBisect) ){
-    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
+    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
   }else{

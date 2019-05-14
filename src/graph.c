@@ -374,13 +374,20 @@ static void riser_to_top(GraphRow *pRow){
 ** from the node down to the bottom of the graph.  This line is called a
 ** "descender".  But if the omitDescenders flag is true, then lines down
 ** to the bottom of the screen are omitted.
+**
+** The tmFlags parameter is zero or more of the TIMELINE_* constants.
+** Only the following are honored:
+**
+**       TIMELINE_DISJOINT:    Omit descenders
+**       TIMELINE_FILLGAPS:    Use step-children
 */
-void graph_finish(GraphContext *p, int omitDescenders){
+void graph_finish(GraphContext *p, u32 tmFlags){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
   int i, j;
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
+  int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
   ** coming up from the bottom of the graph from off-screen check-in Y
@@ -481,22 +488,24 @@ void graph_finish(GraphContext *p, int omitDescenders){
     }
   }
 
-  /* If a node has no pChild, and there is a later node (a node higher
-  ** up on the graph) in the same branch that has no parent, then make
-  ** the lower node a step-child of the upper node.
-  */
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->pChild ) continue;
-    for(pLoop=pRow->pPrev; pLoop; pLoop=pLoop->pPrev){
-      if( pLoop->nParent>0
-       && pLoop->zBranch==pRow->zBranch
-       && hashFind(p,pLoop->aParent[0])==0
-      ){
-        pRow->pChild = pLoop;
-        pRow->idxTop = pLoop->idxTop;
-        pRow->isStepParent = 1;
-        pLoop->aParent[0] = pRow->rid;
-        break;
+  if( tmFlags & TIMELINE_FILLGAPS ){
+    /* If a node has no pChild, and there is a later node (a node higher
+    ** up on the graph) in the same branch that has no parent, then make
+    ** the lower node a step-child of the upper node.
+    */
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( pRow->pChild ) continue;
+      for(pLoop=pRow->pPrev; pLoop; pLoop=pLoop->pPrev){
+        if( pLoop->nParent>0
+         && pLoop->zBranch==pRow->zBranch
+         && hashFind(p,pLoop->aParent[0])==0
+        ){
+          pRow->pChild = pLoop;
+          pRow->idxTop = pLoop->idxTop;
+          pRow->isStepParent = 1;
+          pLoop->aParent[0] = pRow->rid;
+          break;
+        }
       }
     }
   }

@@ -647,7 +647,7 @@ void finfo_page(void){
   db_finalize(&q);
   db_finalize(&qparent);
   if( pGraph ){
-    graph_finish(pGraph, 1);
+    graph_finish(pGraph, TIMELINE_DISJOINT);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
