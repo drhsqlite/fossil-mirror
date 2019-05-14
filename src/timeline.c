@@ -1692,6 +1692,10 @@ void page_timeline(void){
   }else{
     tmFlags |= TIMELINE_GRAPH | TIMELINE_CHPICK;
   }
+  if( related ){
+    tmFlags |= TIMELINE_FILLGAPS;
+    tmFlags &= ~TIMELINE_DISJOINT;
+  }
   if( PB("ncp") ){
     tmFlags &= ~TIMELINE_CHPICK;
   }
