@@ -881,6 +881,10 @@ void timeline_output_graph_javascript(
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
     **        the top of the page, -1 if there is no thick-line riser.
+    **   sb:  Draw a dotted child-line out of the top of this node up to the
+    **        node with the id equal to the value.  This is like "u" except
+    **        that the line is dotted instead of solid and has no arrow.
+    **        Mnemonic: "Same Branch".
     **    f:  0x01: a leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
@@ -913,7 +917,11 @@ void timeline_output_graph_javascript(
           cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
         }
       }
-      cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
+      if( pRow->isStepParent ){
+        cgi_printf("\"sb\":%d,",      pRow->aiRiser[pRow->iRail]);
+      }else{
+        cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
+      }
       k = 0;
       if( pRow->isLeaf ) k |= 1;
       cgi_printf("\"f\":%d,",k);

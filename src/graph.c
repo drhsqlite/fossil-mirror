@@ -51,6 +51,7 @@ struct GraphRow {
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
+  u8 isStepParent;            /* pChild is actually a step-child */
   u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
@@ -71,8 +72,8 @@ struct GraphRow {
 struct GraphContext {
   int nErr;                  /* Number of errors encountered */
   int mxRail;                /* Number of rails required to render the graph */
-  GraphRow *pFirst;          /* First row in the list */
-  GraphRow *pLast;           /* Last row in the list */
+  GraphRow *pFirst;          /* First row in the list.  Top row of graph. */
+  GraphRow *pLast;           /* Last row in the list. Bottom row of graph. */
   int nBranch;               /* Number of distinct branches */
   char **azBranch;           /* Names of the branches */
   int nRow;                  /* Number of rows */
@@ -477,6 +478,26 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
+    }
+  }
+
+  /* If a node has no pChild, and there is a later node (a node higher
+  ** up on the graph) in the same branch that has no parent, then make
+  ** the lower node a step-child of the upper node.
+  */
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->pChild ) continue;
+    for(pLoop=pRow->pPrev; pLoop; pLoop=pLoop->pPrev){
+      if( pLoop->nParent>0
+       && pLoop->zBranch==pRow->zBranch
+       && hashFind(p,pLoop->aParent[0])==0
+      ){
+        pRow->pChild = pLoop;
+        pRow->idxTop = pLoop->idxTop;
+        pRow->isStepParent = 1;
+        pLoop->aParent[0] = pRow->rid;
+        break;
+      }
     }
   }
 

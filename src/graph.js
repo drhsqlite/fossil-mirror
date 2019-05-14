@@ -94,7 +94,7 @@ function TimelineGraph(tx){
     var elemClasses = [
       "rail", "mergeoffset", "node", "arrow u", "arrow u sm", "line",
       "arrow merge r", "line merge", "arrow warp", "line warp",
-      "line cherrypick"
+      "line cherrypick", "line dotted"
     ];
     for( var i=0; i<elemClasses.length; i++ ){
       var cls = elemClasses[i];
@@ -117,6 +117,7 @@ function TimelineGraph(tx){
     cpLine = elems.line_cherrypick;
     wArrow = elems.arrow_warp;
     wLine = elems.line_warp;
+    dotLine = elems.line_dotted;
   
     var minRailPitch = Math.ceil((node.w+line.w)/2 + mArrow.w + 1);
     if( window.innerWidth<400 ){
@@ -198,6 +199,12 @@ function TimelineGraph(tx){
     var n = drawBox(arw.cls,null,x,y);
     if(color) n.style.borderBottomColor = color;
   }
+  function drawUpDotted(from,to,color){
+    var x = to.x + (node.w-line.w)/2;
+    var y0 = from.y + node.h/2;
+    var y1 = Math.ceil(to.y + node.h);
+    drawLine(dotLine,color,x,y0,null,y1);
+  }
   /* Draw thin horizontal or vertical lines representing merges */
   function drawMergeLine(x0,y0,x1,y1){
     drawLine(mLine,null,x0,y0,x1,y1);
@@ -238,6 +245,7 @@ function TimelineGraph(tx){
     }
     if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
+    if( p.sb>0 ) drawUpDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg);
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";
