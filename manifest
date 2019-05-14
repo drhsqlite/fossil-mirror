@@ -1,5 +1,5 @@
-C Ensure\sthat\sthe\swiki\sand\smarkdown\srule\stext\shas\sbeen\smaterialized\sprior\nto\srendering\sit.
-D 2019-05-14T11:41:25.525
+C Fix\sthe\sgraph\son\sthe\s/finfo\spage\s-\sapparently\sbroken\sby\ncheck-in\s[8e2b8b027bc2d62a1].
+D 2019-05-14T13:46:28.331
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c 654231c0f7337894879b3441466f80547ee5654a7c9840e29f4ff61d5bf9b926
 F src/file.c d77b770650b1e67ed4554d2e98a8ecbf9aa46f9bf6b94e9aa7d36108dd95f2df
-F src/finfo.c 6b9daf2138c96681dabed7947f3981a3f881bb5602ec60160bf8e9117e891ec5
+F src/finfo.c 08f9825102beea971385905df4d93896fc0792f5d8aa77943db4e58f4d8d6f20
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
 F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b139de03f349cc49a7d517ae0a7f3291d81df639d2f88677079160a0f8515f2
-R 52c9f49e499ee8d3bf0f765e57d7496e
+P e95c5514fcabde637e4f7954f1f72b5642bd2f8e44d2cbeeaf7f4a3e8633717e
+R e4622dd62f0f2009e79907dcb4df85d0
 U drh
-Z 05beb17134e9e3e5a86d55460f05cb1d
+Z e68f3e9c13fd6d1f7ecf82102f067510
