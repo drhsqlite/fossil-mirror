@@ -1,5 +1,5 @@
-C Fix\sthe\santi-robot\slogic\sso\sthat\sauto-hyperlink-mouseover\sactually\sworks\nand\sso\sthat\sthe\s"mouseover"\ssetting\ssent\sdown\sto\sjavascript\sis\sdetermined\nonly\sby\sthe\ssetting\son\sthe\sAccess\spage.
-D 2019-05-14T11:17:21.658
+C Fix\sthe\sjavascript\sused\sto\sactivate\shyperlinks.
+D 2019-05-14T11:22:46.222
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -485,7 +485,7 @@ F src/graph.c 77aa4452fa94c7502e2f1df93f11bd6424e08d17a264a44a07b56329fbb4ca27
 F src/graph.js 0fdf205556691b9366acc0ad0adb4611854058cf7344036357c0c437f6aa3293
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
-F src/href.js 2b485ac67f5ba9917da5f1ea679eee581a8e08a79dfbfb811c4833586330163a
+F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
 F src/http.c bfaa5500d429b56b6d1753dff3b65fd535078615afbd8bafbc841cdde08e18ac
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c 1184472f4b2ac7b9902f5d8d61759e9d2706286ca4689c8232c193b7aec67e02
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0de24fe8679e3546793a2b72f33474f59fe57d6aa1d7545cd4c3d87453d54a3
-R f747df796606a80a8ed8886a310b8a2f
+P 37f23f3764976a362ecc483ba9b35e76dec5e8c0a0a0377acee08da1f0211cf0
+R 4fe8c7204932af54cc61935a3e7f8f58
 U drh
-Z 65bedccb5fab069d7afa8b326f2f3b88
+Z 43cda4b6d9e4a6f8beb28cb0fbb26bd4
