@@ -1,5 +1,5 @@
-C Fix\sthe\sjavascript\sused\sto\sactivate\shyperlinks.
-D 2019-05-14T11:22:46.222
+C Ensure\sthat\sthe\swiki\sand\smarkdown\srule\stext\shas\sbeen\smaterialized\sprior\nto\srendering\sit.
+D 2019-05-14T11:41:25.525
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -597,7 +597,7 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c c84e8e6bad6dc21a1f3c08607fd49d03c5415964583d9d42675655a448f252bf
 F src/webmail.c b6da8790e7a957144699df3984cec410134765d2304333302a41f50ddde816cd
-F src/wiki.c a7e7c1afc3b007196ef6edfa396d78802416a420d62de45c2fe54cfd8a3434d9
+F src/wiki.c 7ce8c2cc6a74a4cd54fdc5f72a50f89de80aca7e2f95c66c060af1f8944e6a7f
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d799ef
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 37f23f3764976a362ecc483ba9b35e76dec5e8c0a0a0377acee08da1f0211cf0
-R 4fe8c7204932af54cc61935a3e7f8f58
+P 6b139de03f349cc49a7d517ae0a7f3291d81df639d2f88677079160a0f8515f2
+R 52c9f49e499ee8d3bf0f765e57d7496e
 U drh
-Z 43cda4b6d9e4a6f8beb28cb0fbb26bd4
+Z 05beb17134e9e3e5a86d55460f05cb1d

@@ -221,6 +221,7 @@ void markdown_rules_page(void){
     style_submenu_element("Plain-Text", "%R/md_rules?txt=1");
   }
   blob_init(&x, builtin_text("markdown.md"), -1);
+  blob_materialize(&x);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
   blob_reset(&x);
   style_footer();
@@ -241,6 +242,7 @@ void wiki_rules_page(void){
     style_submenu_element("Plain-Text", "%R/wiki_rules?txt=1");
   }
   blob_init(&x, builtin_text("wiki.wiki"), -1);
+  blob_materialize(&x);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
   blob_reset(&x);
   style_footer();
