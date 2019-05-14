@@ -245,7 +245,7 @@ function TimelineGraph(tx){
     }
     if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
-    if( p.sb>0 ) drawUpDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg);
+    if( p.sb>0 ) drawUpDotted(p,tx.rowinfo[p.sb-tx.iTopRow],null);
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";

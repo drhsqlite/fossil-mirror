@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sdisplay\sof\sthe\s"Context"\sgraph\son\scheck-in\s/info\spages.
-D 2019-05-14T13:47:21.296
+C The\sdotted\svertical\slines\sin\sthe\sgraph\sshould\suse\sthe\sdefault\scolor,\snot\sthe\nforeground\scolor\sof\sthe\snode.
+D 2019-05-14T14:33:31.634
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c223b4cc2ecae31ad82c2c565a3d52a57a8c52202decc4dcd48e86acdb5ab674
-F src/graph.js 01cc1d19813a50be7df1813c0ebd5b6d857ec113d9c6fcced6557d1303452135
+F src/graph.js e69942dff7d66b5fec188c57c3fa1c4fa0fe20afda69974ae026634343d893d8
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa149371ed6ade8001f93c3e86e1f04e600441e565d786c114893642dd9645a5
-R 062886748db23fd0e9e7e02d925cc37e
+P 01d8bf97e206fc8eeae4c59e6046a9ae148d6ba8a3e56a17782904ab84199869
+R 24699c86793be50ce00d723c64c337fe
 U drh
-Z 70017432f6ac420be495dec43394d8e2
+Z 55163032d874930ad99734af038cb47b
