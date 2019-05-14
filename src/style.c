@@ -575,10 +575,7 @@ static void style_load_all_js_files(void){
   int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover;
-    /* Load up the page data */
-    bMouseover = (!g.isHuman || db_get_boolean("auto-hyperlink-ishuman",0))
-                 && db_get_boolean("auto-hyperlink-mouseover",0);
+    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
