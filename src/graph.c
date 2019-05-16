@@ -608,7 +608,8 @@ void graph_finish(GraphContext *p, u32 tmFlags){
       if( pParent->idx>pRow->idx ){
         /* Common case:  Child occurs after parent and is above the
         ** parent in the timeline */
-        pRow->iRail = findFreeRail(p, 0, pParent->idx, pParent->iRail);
+        pRow->iRail = findFreeRail(p, pRow->idxTop, pParent->idx,
+                                   pParent->iRail);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         pParent->aiRiser[pRow->iRail] = pRow->idx;
       }else{

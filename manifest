@@ -1,5 +1,5 @@
-C Do\snot\sdraw\srisers\sand\sdescenders\sall\sthe\sway\sto\sthe\stop\sand\sbottom\sof\sthe\ngraph\sif\sthat\sis\snot\snecessary.
-D 2019-05-16T19:00:45.793
+C Improvements\sto\srail\sselection\sin\sthe\sgraph\slayout.
+D 2019-05-16T21:42:29.373
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c e5f9e0b71eed2933955159e150308b4d21f24ec919cca5997238e3748301c2d3
+F src/graph.c 6b88935dafe05c59bd27f2d01dc90cddd72b7a061459e153c67f700f27833848
 F src/graph.js 89247d8ace855a87df1498688cb8efb16a10325ab09c2aa4f3131f81ed846712
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6d74f16777e57cd3a74bd1fe2c3aaf55d9d3f5a5fb684f83cb0387902674f4b
-R e4b08cb813fe904ff75d74b5d593281c
+P 9978f8120d422d0a7e4d6b7a24af271d4a15471eec1f954bce98ce4c26b1c533
+R cce26b4a8333201cfab69fafb6832592
 U drh
-Z e998b9779cd309864d373cffa5960c1e
+Z 441cc1be1eacadfbac74c1503e398760
