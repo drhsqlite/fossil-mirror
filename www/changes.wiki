@@ -19,7 +19,7 @@
      directory and is not on the [/help?cmd=empty-dirs|empty-dirs]
      list, then also remove the directory.
   *  Update internal Unicode character tables, used in regular expression
-     handling, from version 11.0 to 12.0.
+     handling, from version 11.0 to 12.1.
   *  In "[/help?cmd=regexp|fossil regexp]", "[/help?cmd=grep|fossil grep]"
      and the TH1 "regexp" command, the -nocase option now removes multiple
      diacritics from the same character (derived from SQLite's

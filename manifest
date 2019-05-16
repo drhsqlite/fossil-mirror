@@ -1,5 +1,5 @@
-C Merge\sthe\sMakefile\schanges\sfor\sOpenSSL-1.1.
-D 2019-05-15T13:37:53.544
+C Update\sdocker\sbuild\sto\suse\sfedora\s29\s(was:\s28).\schangelog\supdate.
+D 2019-05-16T08:49:00.481
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -11,7 +11,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile 69aecd36e7412b1cde09407c0f011f60f229a844c1c7135826e86df047b23ce6
+F Dockerfile f4d360e34758d3ca6b454a4258ffd5d1b7f81c97236ea796bd7a373f739258d5
 F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2673
 F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
@@ -776,7 +776,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 837f76dc0e6e6b984778fe1fd1d42a620f7bbfb3934522c042f37241b39928dd
-F www/changes.wiki 3540c17bedaaead63b89f8960d4f396a7fbe76e724f17f013391290bdcb5f78a
+F www/changes.wiki b086e7d25bbe14c278d398ffb7684eff3ad06cb773d83471ffce3aa6cb4cd5b2
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -874,8 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5cc74bff9d113aec9479db0aa9db7ce25b8c766bbbca88361b0f343cd3695954 91a0d5a55f3865a8c391cc86f47084bc0dd7529d74c837573ba21efaba9bcddd
-R 590e53a64c82f8e27c2fe02483196378
-T +closed 91a0d5a55f3865a8c391cc86f47084bc0dd7529d74c837573ba21efaba9bcddd
-U drh
-Z 6b70a44dada1922fa56b061fcba7120c
+P e02ccb70d2465256904ba4fc6a3a096ec3b823bfef02e4dee1ec1b9c9a112767
+R 5c8a9de47433864acb0504aa54c2cd2d
+U jan.nijtmans
+Z 5b59690d99d4634475142afbee48bbdc
