@@ -279,7 +279,7 @@ function TimelineGraph(tx){
       var x1 = p.mo*railPitch + node.w/2;
       var u = tx.rowinfo[p.mu-tx.iTopRow];
       var y1 = miLineY(u);
-      if( p.u<0 || p.mo!=p.r ){
+      if( p.u<=0 || p.mo!=p.r ){
         if( p.u==0 && p.mo==p.r ){
           mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         }else{
