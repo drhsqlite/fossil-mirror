@@ -1,5 +1,5 @@
-C Attempts\sat\simproving\stimeline\sgraphs\sto\sbe\smore\sintuitive\sand\sinformational.\nFor\sthis\scheck-in,\sadd\sthe\sTIMELINE_XMERGE\sproperty\sto\sdisable\smerge\slines\nto\snon-graph\snodes.\s\sThen\sdisable\sTIMELINE_DISJOINT\sfor\sbranch\sgraphs.
-D 2019-05-16T16:19:01.843
+C Do\snot\sdraw\srisers\sand\sdescenders\sall\sthe\sway\sto\sthe\stop\sand\sbottom\sof\sthe\ngraph\sif\sthat\sis\snot\snecessary.
+D 2019-05-16T19:00:45.793
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,8 +481,8 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 07fd2bd2e498a5f93388c6458d254f6fffc3b9bf0faece6ab427033171c01f0d
-F src/graph.js e69942dff7d66b5fec188c57c3fa1c4fa0fe20afda69974ae026634343d893d8
+F src/graph.c e5f9e0b71eed2933955159e150308b4d21f24ec919cca5997238e3748301c2d3
+F src/graph.js 89247d8ace855a87df1498688cb8efb16a10325ab09c2aa4f3131f81ed846712
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,10 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c2504dce194002dc0a8124b160c256fa98735751e8773666348abc5b1900ef0
-R 83a132aa4cbf995aa73b4c1f09c1e179
-T *branch * graph-improvements
-T *sym-graph-improvements *
-T -sym-trunk *
+P f6d74f16777e57cd3a74bd1fe2c3aaf55d9d3f5a5fb684f83cb0387902674f4b
+R e4b08cb813fe904ff75d74b5d593281c
 U drh
-Z 73e3fc7974b0cbcdb46823b5cd1fb8d6
+Z e998b9779cd309864d373cffa5960c1e
