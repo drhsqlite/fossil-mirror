@@ -293,7 +293,7 @@ function TimelineGraph(tx){
           var y2 = miLineY(u2);
           drawCherrypickLine(x1,y1,null,y2);
         }
-      }else if( mergeOffset ){
+      }else if( mergeOffset && p.u>0 ){
         mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         x1 += mergeLines[p.mo];
         if( p.mo<p.id ){
