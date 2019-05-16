@@ -1,5 +1,5 @@
-C The\s"fossil\sall\sui"\scommand\sno\slonger\sshows\srepositories\sthat\scannot\sbe\nopened.
-D 2019-05-16T14:34:35.934
+C Attempts\sat\simproving\stimeline\sgraphs\sto\sbe\smore\sintuitive\sand\sinformational.\nFor\sthis\scheck-in,\sadd\sthe\sTIMELINE_XMERGE\sproperty\sto\sdisable\smerge\slines\nto\snon-graph\snodes.\s\sThen\sdisable\sTIMELINE_DISJOINT\sfor\sbranch\sgraphs.
+D 2019-05-16T16:19:01.843
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 143b75a257568db9542415563d749b231f0172198a5b58fc45ac842c24c82377
+F src/graph.c 07fd2bd2e498a5f93388c6458d254f6fffc3b9bf0faece6ab427033171c01f0d
 F src/graph.js e69942dff7d66b5fec188c57c3fa1c4fa0fe20afda69974ae026634343d893d8
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -491,7 +491,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 1184472f4b2ac7b9902f5d8d61759e9d2706286ca4689c8232c193b7aec67e02
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c c7d33ada1066070200aac93bd110aa6a45e674ceb0c90f33e9e5d3543575220d
+F src/info.c 2d8037a6e3193e3858b7dbbdb89e4f648bec614970c4cebcada74e998622fef2
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 256317b63ed8ce048aab0d3d399b0888b714e1d806c7b50645fe45464e205f02
+F src/timeline.c 867413a2063926d74c14e30e0311ad74c160db2a08030ee6c997d9835f48ec6f
 F src/tkt.c 291a49ee206129cdf931ce3c684231dd82ba100eb7d30818e014481161b09f31
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d60669c5647622388826e2a46fa522d111cbf04f3c02bef76cfc7d9099983b24
-R 10ce9203bb609f69c7dc0ee7a1aa542d
+P 4c2504dce194002dc0a8124b160c256fa98735751e8773666348abc5b1900ef0
+R 83a132aa4cbf995aa73b4c1f09c1e179
+T *branch * graph-improvements
+T *sym-graph-improvements *
+T -sym-trunk *
 U drh
-Z 044967f111ed00ec5007fc091bd28023
+Z 73e3fc7974b0cbcdb46823b5cd1fb8d6

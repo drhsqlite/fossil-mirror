@@ -380,6 +380,7 @@ static void riser_to_top(GraphRow *pRow){
 **
 **       TIMELINE_DISJOINT:    Omit descenders
 **       TIMELINE_FILLGAPS:    Use step-children
+**       TIMELINE_XMERGE:      Omit off-graph merge lines
 */
 void graph_finish(GraphContext *p, u32 tmFlags){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
@@ -423,7 +424,7 @@ void graph_finish(GraphContext *p, u32 tmFlags){
   ** of this graph, then no arrows will be drawn for it, so remove it from
   ** the aParent[] array.
   */
-  if( omitDescenders ){
+  if( (tmFlags & (TIMELINE_DISJOINT|TIMELINE_XMERGE))!=0 ){
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       for(i=1; i<pRow->nParent; i++){
         if( hashFind(p, pRow->aParent[i])==0 ){

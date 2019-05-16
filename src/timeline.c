@@ -93,28 +93,29 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines*/
-#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc*/
-#define TIMELINE_BRIEF    0x000004  /* Combine adjacent elements of same obj */
-#define TIMELINE_GRAPH    0x000008  /* Compute a graph */
-#define TIMELINE_DISJOINT 0x000010  /* Elements are not contiguous */
-#define TIMELINE_FCHANGES 0x000020  /* Detail file changes */
-#define TIMELINE_BRCOLOR  0x000040  /* Background color by branch name */
-#define TIMELINE_UCOLOR   0x000080  /* Background color by user */
-#define TIMELINE_FRENAMES 0x000100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x000200  /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x000400  /* Show RID values in addition to UUIDs */
-#define TIMELINE_BISECT   0x000800  /* Show supplimental bisect information */
-#define TIMELINE_COMPACT  0x001000  /* Use the "compact" view style */
-#define TIMELINE_VERBOSE  0x002000  /* Use the "detailed" view style */
-#define TIMELINE_MODERN   0x004000  /* Use the "modern" view style */
-#define TIMELINE_COLUMNAR 0x008000  /* Use the "columns" view style */
-#define TIMELINE_CLASSIC  0x010000  /* Use the "classic" view style */
-#define TIMELINE_VIEWS    0x01f000  /* Mask for all of the view styles */
-#define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
-#define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
-#define TIMELINE_CHPICK   0x400000  /* Show cherrypick merges */
-#define TIMELINE_FILLGAPS 0x800000  /* Dotted lines for missing nodes */
+#define TIMELINE_ARTID    0x0000001 /* Show artifact IDs on non-check-in lines*/
+#define TIMELINE_LEAFONLY 0x0000002 /* Show "Leaf" but not "Merge", "Fork" etc*/
+#define TIMELINE_BRIEF    0x0000004 /* Combine adjacent elements of same obj */
+#define TIMELINE_GRAPH    0x0000008 /* Compute a graph */
+#define TIMELINE_DISJOINT 0x0000010 /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x0000020 /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x0000040 /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x0000080 /* Background color by user */
+#define TIMELINE_FRENAMES 0x0000100 /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x0000200 /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x0000800 /* Show supplimental bisect information */
+#define TIMELINE_COMPACT  0x0001000 /* Use the "compact" view style */
+#define TIMELINE_VERBOSE  0x0002000 /* Use the "detailed" view style */
+#define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
+#define TIMELINE_COLUMNAR 0x0008000 /* Use the "columns" view style */
+#define TIMELINE_CLASSIC  0x0010000 /* Use the "classic" view style */
+#define TIMELINE_VIEWS    0x001f000 /* Mask for all of the view styles */
+#define TIMELINE_NOSCROLL 0x0100000 /* Don't scroll to the selection */
+#define TIMELINE_FILEDIFF 0x0200000 /* Show File differences, not ckin diffs */
+#define TIMELINE_CHPICK   0x0400000 /* Show cherrypick merges */
+#define TIMELINE_FILLGAPS 0x0800000 /* Dotted lines for missing nodes */
+#define TIMELINE_XMERGE   0x1000000 /* Omit merges from off-graph nodes */
 #endif
 
 /*
@@ -299,8 +300,8 @@ void www_print_timeline(
   ){
     tmFlags &= ~TIMELINE_CHPICK;
   }
-
-  @ <table id="timelineTable%d(iTableId)" class="timelineTable">
+  @ <table id="timelineTable%d(iTableId)" class="timelineTable"> \
+  @ <!-- tmFlags: 0x%x(tmFlags) -->
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -1693,8 +1694,8 @@ void page_timeline(void){
     tmFlags |= TIMELINE_GRAPH | TIMELINE_CHPICK;
   }
   if( related ){
-    tmFlags |= TIMELINE_FILLGAPS;
-//    tmFlags &= ~TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_FILLGAPS | TIMELINE_XMERGE;
+    tmFlags &= ~TIMELINE_DISJOINT;
   }
   if( PB("ncp") ){
     tmFlags &= ~TIMELINE_CHPICK;
@@ -2258,7 +2259,7 @@ void page_timeline(void){
           blob_appendf(&desc, " with tags matching %h", zMatchDesc);
         }
       }
-      tmFlags |= TIMELINE_DISJOINT;
+      if( !related ) tmFlags |= TIMELINE_DISJOINT;
     }
     addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
