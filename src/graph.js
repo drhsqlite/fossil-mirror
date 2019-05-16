@@ -185,7 +185,7 @@ function TimelineGraph(tx){
       y1 = y0+elem.w;
       cls += "h";
     }
-    drawBox(cls,color,x0,y0,x1,y1);
+    return drawBox(cls,color,x0,y0,x1,y1);
   }
   function drawUpArrow(from,to,color){
     var y = to.y + node.h;
@@ -203,7 +203,8 @@ function TimelineGraph(tx){
     var x = to.x + (node.w-line.w)/2;
     var y0 = from.y + node.h/2;
     var y1 = Math.ceil(to.y + node.h);
-    drawLine(dotLine,color,x,y0,null,y1);
+    var n = drawLine(dotLine,null,x,y0,null,y1)
+    if( color ) n.style.borderColor = color
   }
   /* Draw thin horizontal or vertical lines representing merges */
   function drawMergeLine(x0,y0,x1,y1){
@@ -245,7 +246,7 @@ function TimelineGraph(tx){
     }
     if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
-    if( p.sb>0 ) drawDotted(p,tx.rowinfo[p.sb-tx.iTopRow],null);
+    if( p.sb>0 ) drawDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg);
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";
@@ -269,7 +270,7 @@ function TimelineGraph(tx){
           drawUpArrow({x: p.x, y: btm - node.h/2},p,p.fg);
         }else{
           drawUpArrow({x: p.x, y: p.y+50},p,p.fg);
-          drawDotted({x: p.x, y: p.y+63},{x: p.x, y: p.y+50-node.h/2},null);
+          drawDotted({x: p.x, y: p.y+63},{x: p.x, y: p.y+50-node.h/2},p.fg);
         }
       }
     }

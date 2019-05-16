@@ -1,5 +1,5 @@
-C Connect\sthe\shorizontal\smerge\sarrow\sall\sthe\sway\sover\sto\svertical\srises\stoward\nthe\stop\sfor\snodes\swith\su==0.
-D 2019-05-16T22:14:11.276
+C Fix\sthe\selipsis\sat\sthe\sbottom\sof\sdecenders\sso\sthat\sthey\sare\sthe\ssame\scolor\sas\nthe\srest\sof\sthe\sline.
+D 2019-05-16T22:35:47.286
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 1f9ee0e9055e1e9e9768165394744c4e3cbcab47cfa48534d051a2b467d32c9d
-F src/default_css.txt 231f1069dee7f393c458c6abca0b16b73495811d4170059528747a4044eddb42
+F src/default_css.txt 3f9dc58838759909d33f6029c42712f44f152ec22ef6261cf4270ebd60ee98ae
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 76168eb64023aec71d686179a0dca8f99c3d3d1dae61307d8e63e5ef7669f4a1
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 6b88935dafe05c59bd27f2d01dc90cddd72b7a061459e153c67f700f27833848
-F src/graph.js 6bc73b299d014b2b8cbd934b445684cee3301b01b7c00b2da45eeeea030a929a
+F src/graph.js 4f70e6f5dd5f3e358e1618c3d9a100efdfb15e47498bd182609c44ed2b47da59
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa43709aa9f8cb78c7902e4e69c645df15eab22167d3d5ef84f33dd10b26fd00
-R 1d984f66e7e164d84be615f3678a34f5
+P d76bc40569e78f39ba5524b1b84b9cfd30b34cab74b70bf9eee92cc9bbae5d8f
+R e8cb7198e9c52e49896785f1e02f55d9
 U drh
-Z 87ea9ace9af284f95ebafa843ff59c3f
+Z 589e03d831805dc91fcaf3a438987c95

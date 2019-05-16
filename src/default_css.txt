@@ -191,10 +191,10 @@ span.timelineEllipsis {
 .tl-line.warp {
   background: #600000;
 }
-.tl-line.dotted {
+.tl-line.dotted.v {
   width: 0px;
-  border-top: 0px dotted #888;
-  border-left: 2px dotted #888;
+  border-left-width: 2px;
+  border-left-style: dotted;
   background: rgba(255,255,255,0);
 }
 span.tagDsp {
