@@ -280,7 +280,12 @@ function TimelineGraph(tx){
       var u = tx.rowinfo[p.mu-tx.iTopRow];
       var y1 = miLineY(u);
       if( p.u<0 || p.mo!=p.r ){
-        x1 += mergeLines[p.mo] = -mLine.w/2;
+        if( p.u==0 && p.mo==p.r ){
+          mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
+        }else{
+          mergeLines[p.mo] = -mLine.w/2;
+        }
+        x1 += mergeLines[p.mo]
         var y0 = p.y+2;
         if( p.mu==p.id ){
           drawCherrypickLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);
@@ -294,7 +299,7 @@ function TimelineGraph(tx){
           var y2 = miLineY(u2);
           drawCherrypickLine(x1,y1,null,y2);
         }
-      }else if( mergeOffset && p.u>0 ){
+      }else if( mergeOffset ){
         mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         x1 += mergeLines[p.mo];
         if( p.mo<p.id ){

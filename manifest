@@ -1,5 +1,5 @@
-C Fix\sthe\selipsis\sat\sthe\sbottom\sof\sdecenders\sso\sthat\sthey\sare\sthe\ssame\scolor\sas\nthe\srest\sof\sthe\sline.
-D 2019-05-16T22:35:47.286
+C Improved\smerge\srisers\sfor\snodes\swith\srisers\spointing\sto\sthe\stop\sof\sscreen.
+D 2019-05-16T22:53:05.908
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 6b88935dafe05c59bd27f2d01dc90cddd72b7a061459e153c67f700f27833848
-F src/graph.js 4f70e6f5dd5f3e358e1618c3d9a100efdfb15e47498bd182609c44ed2b47da59
+F src/graph.js cf314fe3bf13899c4769e937c088aec5661718bf3559f4bd8174de14748b2ec6
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d76bc40569e78f39ba5524b1b84b9cfd30b34cab74b70bf9eee92cc9bbae5d8f
-R e8cb7198e9c52e49896785f1e02f55d9
+P 34fd632e165727f771e30adf1cb2bc47a856bfe70c791e14d32edd525cf07271
+R 69ad741cf64aebf6bc3c98ee0ebeda00
 U drh
-Z 589e03d831805dc91fcaf3a438987c95
+Z 5006e08731060ebd5d697b76f6ab623b
