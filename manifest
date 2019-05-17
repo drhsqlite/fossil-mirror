@@ -1,5 +1,5 @@
-C Fix\sa\swarning\s(a\sreal\sone)\son\swin32:\sWin32\sprintf\sdoesn't\sknow\sabout\s"%lld".
-D 2019-05-17T14:04:27.512
+C Fix\sthe\sredundant\s"udc"\squery\sparameter\sin\sthe\stimeline.
+D 2019-05-17T14:47:28.626
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -571,7 +571,7 @@ F src/sqlite3.h 222fa5b021dd9d4bd827538c4b69d4bb27fdf441f46123b28157a5c80e4f129e
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 405784caa11cc858106cfe5ce89f9dbebbab4ac6827bd2a3c04695a0031f35a8
+F src/style.c 509dbc77dc8ea426115ffede838b85bc092b9ce00042db090f7f2fd8ddf4f510
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 7dac0cf3a33edadf7f65d2d0835b3d31f2cafc33a7aa77f4fe365379875a2091
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5e9c1d5e049b09526ebb0519b5e6b1530a59e1d554ade8ebdbb564bb77a6a8e8
-R 14b7d989f7dedbccbe4c4afc4ac7a3fa
-U jan.nijtmans
-Z 7860c605a1e901de996a8633116f136b
+P f6524ae5cc3f6d8da94c10cec37031836c3ef73c77262bcc28335c0646c84e5d
+R ce22423470414113c6438895a0d27f65
+U drh
+Z 78bd9ba7cfee7a7666a59102a345dbba

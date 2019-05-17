@@ -630,6 +630,7 @@ void style_footer(void){
     if( nSubmenuCtrl ){
       @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
       @ <input type='hidden' name='udc' value='1'>
+      cgi_tag_query_parameter("udc");
     }
     @ <div class="submenu">
     if( nSubmenu>0 ){
