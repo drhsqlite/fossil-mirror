@@ -9,7 +9,7 @@
 <footer id="footer">
   <p>&#169; Copyright $<project_name>. All right reserved. Fossil $release_version &#183; <a href="$home/timeline.rss">RSS</a></p>
 </footer>
-<script>
+<script nonce="$<nonce>">
 var tables = document.querySelectorAll('table');
 for (var i = 0; i < tables.length; i++) {
   if (tables[i].id !== "timelineTable")

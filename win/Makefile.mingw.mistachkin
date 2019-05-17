@@ -1097,6 +1097,7 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
+	sed -i -e 's/^PERL=C:\\.*$$/PERL=perl.exe/i' $(OPENSSLLIBDIR)/Makefile
 	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
