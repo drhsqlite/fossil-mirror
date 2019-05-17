@@ -510,7 +510,6 @@ void user_select(void){
     }
   }
 
-  memset(&url, 0, sizeof(url));
   if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return;
 
   if( attempt_user(db_get("default-user", 0)) ) return;
@@ -523,6 +522,7 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
+  memset(&url, 0, sizeof(url));
   url_parse_local(0, 0, &url);
   if( url.user && attempt_user(url.user) ) return;
 
