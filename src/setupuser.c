@@ -299,6 +299,8 @@ void user_edit(void){
     if( P("verifydelete") ){
       /* Verified delete user request */
       db_multi_exec("DELETE FROM user WHERE uid=%d", uid);
+      admin_log("Deleted user [%s] (uid %d).",
+                PD("login","???")/*safe-for-%s*/, uid);
       cgi_redirect(cgi_referer("setup_ulist"));
       return;
     }

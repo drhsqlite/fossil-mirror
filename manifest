@@ -1,5 +1,5 @@
-C The\s"fossil\sall\sui"\scommand\sno\slonger\sshows\srepositories\sthat\scannot\sbe\nopened.
-D 2019-05-16T14:34:35.934
+C /setup_uedit\snow\srecords\sdeletion\sof\sa\suser\sin\sthe\sadministrative\slog.
+D 2019-05-17T05:58:16.416
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -554,7 +554,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 30e55791c7921efafc94ac9febd963b151239764023fc668d55acc3c08f4b86b
 F src/setup.c bedcb23e2cf8fce3095d2a35e7ca7fb5aa11d494906249ea87c13df6bbcaa455
-F src/setupuser.c a83137eb8ef5ada73885b06c69d64cae0280a974fd262dabeb7ca8373b2177b4
+F src/setupuser.c 28d88987cafbc3eec35f0578a109b59fb4b528b2c992e60879f0ca0eba6e37e2
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d60669c5647622388826e2a46fa522d111cbf04f3c02bef76cfc7d9099983b24
-R 10ce9203bb609f69c7dc0ee7a1aa542d
-U drh
-Z 044967f111ed00ec5007fc091bd28023
+P 4c2504dce194002dc0a8124b160c256fa98735751e8773666348abc5b1900ef0
+R 6726accf066c7e9d554766026ed51060
+U stephan
+Z 952d5915bfaf1b323cca8de498f2d6bc
