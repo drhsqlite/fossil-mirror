@@ -197,6 +197,17 @@ span.timelineEllipsis {
   border-left-style: dotted;
   background: rgba(255,255,255,0);
 }
+.tl-tooltip {
+  background-color: #fecd4b;
+  color: black;
+  text-align: center;
+  padding: 5px 1em;
+  border: 1px solid black;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 100;
+}
+
 span.tagDsp {
   font-weight: bold;
 }

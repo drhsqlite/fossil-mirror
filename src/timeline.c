@@ -904,6 +904,7 @@ void timeline_output_graph_javascript(
     **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
     **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
+    *    br:  The branch to which the artifact belongs
     */
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       int k = 0;
@@ -977,6 +978,7 @@ void timeline_output_graph_javascript(
         }
       }
       if( k ) cgi_printf("],");
+      cgi_printf("\"br\":\"%j\",", pRow->zBranch ? pRow->zBranch : "");
       cgi_printf("\"h\":\"%!S\"}%s",
                  pRow->zUuid, pRow->pNext ? ",\n" : "]\n");
     }

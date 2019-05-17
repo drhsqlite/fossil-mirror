@@ -74,6 +74,10 @@ function amendCss(circleNodes,showArrowheads){
   }
   amendCssOnce = 0;
 }
+var tooltipObj = document.createElement("span");
+tooltipObj.className = "tl-tooltip";
+tooltipObj.style.visibility = "hidden";
+document.getElementsByTagName("BODY")[0].appendChild(tooltipObj);
 
 function TimelineGraph(tx){
   var topObj = document.getElementById("timelineTable"+tx.iTableId);
@@ -187,16 +191,19 @@ function TimelineGraph(tx){
     }
     return drawBox(cls,color,x0,y0,x1,y1);
   }
-  function drawUpArrow(from,to,color){
+  function drawUpArrow(from,to,color,id){
     var y = to.y + node.h;
     var arrowSpace = from.y - y + (!from.id || from.r!=to.r ? node.h/2 : 0);
     var arw = arrowSpace < arrow.h*1.5 ? arrowSmall : arrow;
     var x = to.x + (node.w-line.w)/2;
     var y0 = from.y + node.h/2;
     var y1 = Math.ceil(to.y + node.h + arw.h/2);
-    drawLine(line,color,x,y0,null,y1);
+    var n = drawLine(line,color,x,y0,null,y1);
+    n.onmouseenter = tooltipEnter
+    n.onmouseleave = tooltipLeave
+    n.setAttribute("data-id",id)
     x = to.x + (node.w-arw.w)/2;
-    var n = drawBox(arw.cls,null,x,y);
+    n = drawBox(arw.cls,null,x,y);
     if(color) n.style.borderBottomColor = color;
   }
   function drawDotted(from,to,color){
@@ -245,8 +252,8 @@ function TimelineGraph(tx){
       if(e) e.style.backgroundColor = p.bg;
     }
     if( p.r<0 ) return;
-    if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
-    if( p.sb>0 ) drawDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg);
+    if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg,p.id);
+    if( p.sb>0 ) drawDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg,p.id);
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";
@@ -259,18 +266,18 @@ function TimelineGraph(tx){
         if( p.hasOwnProperty('mo') && p.r==p.mo ){
           var ix = p.hasOwnProperty('cu') ? p.cu : p.mu;
           var top = tx.rowinfo[ix-tx.iTopRow]
-          drawUpArrow(p,{x: p.x, y: top.y-node.h}, p.fg);
+          drawUpArrow(p,{x: p.x, y: top.y-node.h}, p.fg, p.id);
         }else if( p.y>100 ){
-          drawUpArrow(p,{x: p.x, y: p.y-50}, p.fg);
+          drawUpArrow(p,{x: p.x, y: p.y-50}, p.fg, p.id);
         }else{
-          drawUpArrow(p,{x: p.x, y: 0},p.fg);
+          drawUpArrow(p,{x: p.x, y: 0},p.fg, p.id);
         }
       }
       if( p.hasOwnProperty('d') ){
         if( p.y + 150 >= btm ){
-          drawUpArrow({x: p.x, y: btm - node.h/2},p,p.fg);
+          drawUpArrow({x: p.x, y: btm - node.h/2},p,p.fg,p.id);
         }else{
-          drawUpArrow({x: p.x, y: p.y+50},p,p.fg);
+          drawUpArrow({x: p.x, y: p.y+50},p,p.fg,p.id);
           drawDotted({x: p.x, y: p.y+63},{x: p.x, y: p.y+50-node.h/2},p.fg);
         }
       }
@@ -328,7 +335,7 @@ function TimelineGraph(tx){
         var u = tx.rowinfo[p.au[i+1]-tx.iTopRow];
         if( u.id<p.id ){
           drawLine(line,u.fg,x0,y0,x1,null);
-          drawUpArrow(p,u,u.fg);
+          drawUpArrow(p,u,u.fg,u.id);
         }else{
           var y1 = u.y + (node.h-line.w)/2;
           drawLine(wLine,u.fg,x0,y0,x1,null);
@@ -409,6 +416,20 @@ function TimelineGraph(tx){
         location.href=tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h
       }
     }
+  }
+  function tooltipEnter(e){
+    var id = this.getAttribute("data-id")
+    tooltipObj.textContent = tx.rowinfo[id-tx.iTopRow].br
+    tooltipObj.style.display = "inline"
+    tooltipObj.style.position = "absolute"
+    var x = e.x + 4 + window.pageXOffset
+    tooltipObj.style.left = x+"px"
+    var y = e.y + window.pageYOffset - tooltipObj.clientHeight - 4
+    tooltipObj.style.top = y+"px"
+    tooltipObj.style.visibility = "visible"
+  }
+  function tooltipLeave(e){
+    tooltipObj.style.display = "none"
   }
   function changeDisplay(selector,value){
     var x = document.getElementsByClassName(selector);
