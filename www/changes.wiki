@@ -10,6 +10,8 @@
      hyperlinks and the lizard &lt;img&gt; now work correctly
      for both [/artifact/2ff24ab0887cf522] and
      [/doc/0d7ac90d575004c2415/www/index.wiki].
+  *  Enhancements to the timeline graph layout, to show more information
+     with less clutter.
   *  Many documentation enhancements.
   *  For the "[/help?cmd=update|fossil update]" and
      "[/help?cmd=checkout|fossil checkout]" commands, if a
@@ -29,14 +31,15 @@
      content.
   *  Accept purely numeric ISO8601 date/time strings as long as they
      do not conflict with a hash.  Example: "20190510134217" instead of
-     "2019-05-10 13:42:17".  This is very useful for query parameters.
+     "2019-05-10 13:42:17".  This helps keep URLs shorter and less
+     complicated
   *  Support both "1)" and "1." for numbered lists in markdown, as
      commonmark does.
   *  The sync and clone HTTP requests omit the extra /xfer path element
      from the end of the request URI. All servers since 2010 know that
      the HTTP request is for a sync or clone from the mimetype so the
      extra path element is not needed.
-  *  If an automatic sync gets a 301 or 302 redirect request, then update
+  *  If an automatic sync gets a permanent redirect request, then update
      the saved remote URL to the new address.
   *  Temporary filenames (for example used for external "diff" commands)
      try to preserve the suffix of the original file.
@@ -45,6 +48,8 @@
      "ymd=", "ym=", and "yw=".  All arguments are option (in which case they
      default to the current time) and all accept ISO8601 date/times without
      punctuation.
+  *  Automatically disapprove pending moderation requests for a user when
+     that user is deleted.  This helps in dealing with spam-bots.
   *  Improvements to the "Capability Summary" section in the
      [/help?cmd=/secaudit0|Security Audit] web-page.
 
