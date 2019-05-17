@@ -1,5 +1,5 @@
-C /setup_uedit\snow\srecords\sdeletion\sof\sa\suser\sin\sthe\sadministrative\slog.
-D 2019-05-17T05:58:16.416
+C Added\smissing\snonce\sto\sscript\stags\sin\sthe\sbootstrap\sskin,\sone\sof\swhich\scaused\sthe\ssubmenus\sto\snot\sbe\sproperly\sdisplayed.
+D 2019-05-17T09:41:28.553
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -389,8 +389,8 @@ F skins/blitz_no_logo/header.txt 137f7a7c95cf57cef990c9f8dd0c5a0ca9648b3830e7eae
 F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2ac0ae3b2c31
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
-F skins/bootstrap/footer.txt 91521fa28ee8968f29126cf43746045934a17c234ca9961e4db03eed5a19bdbe
-F skins/bootstrap/header.txt 8327bc40bcb2e3267ac13d197b5330cf5ac0cd4330371bdb15988aa2264bb80b
+F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
+F skins/bootstrap/header.txt 6d483b485c011f4546adde0e69838f3ecc6ccd4b104b6d377f2f379de5a175bf
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt ea9118ba7297556a8306593c9ceb19cf80f553c45adfaa6f03c01b02422524d8
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c2504dce194002dc0a8124b160c256fa98735751e8773666348abc5b1900ef0
-R 6726accf066c7e9d554766026ed51060
+P 25eae5150c226d9421db50a404c27ed2ee111d3fcd9e2d79f22fd4c4236c91b6
+R 95433ffbb685ad9823012e74f2cabcc2
 U stephan
-Z 952d5915bfaf1b323cca8de498f2d6bc
+Z 9231fb1071ecb44adc9083cd3139e611
