@@ -790,6 +790,11 @@ int vxprintf(
       case etJSONSTR: {
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zMem = va_arg(ap,char*);
+        if( limit!=0 ){
+          /* Ignore the limit flag, if set, for JSON string
+          ** output. This block exists to squelch the associated
+          ** "unused variable" compiler warning. */
+        }
         if( zMem==0 ) zMem = "";
         zExtra = bufpt = encode_json_string_literal(zMem);
         length = strlen(bufpt);

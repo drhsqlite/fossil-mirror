@@ -1,5 +1,5 @@
-C Change\sredirect\shandling\sso\sthat\s(1)\sstatus\scodes\s307\sand\s308\sare\srecognized\nas\sredirects\sin\saddition\sto\s301\sand\s302\sand\s(2)\sthe\sremote\sURL\sis\sonly\schanged\nif\sit\sencounters\sa\spermanent\sredirect\s(301\sor\s308).
-D 2019-05-17T17:08:26.576
+C Squelch\san\s"unused\svariable"\scompiler\swarning\sin\sprintf.c.
+D 2019-05-17T17:20:15.586
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -540,7 +540,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c b2ca46105d929ed8329e45c2d526f68538ebf405
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 3d6128552e47a70eee6f0d7ec9cd93cf42ee6c0832ef2d16961455a10bf046d2
+F src/printf.c c0a57538f177f80a324b4f913adc9611b3a4e031084fc479cfb19e5f501c1d34
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
@@ -874,8 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f9b648f2b7dd0bb1c9596aae2c47ef2f28124476d59fe3fcd75fe62a4f98802 b36783e89b6ce65f5e34f4d332c00635be2115779558cadc4fd5929384285d6f
-R d65ad5b81adbd8b2a8b71531d1dea72c
-T +closed b36783e89b6ce65f5e34f4d332c00635be2115779558cadc4fd5929384285d6f
-U drh
-Z c3dc6a15c3ecae8db1339c4609536b75
+P f2ca44916cb474ff5e985d03b20ccd138f8e86707dac703974cc50c453589693
+R 9ba16a4d779047f1c778c280ede73d85
+U stephan
+Z 8d5bcc52ae38f6f25dfaaabcebf9553c
