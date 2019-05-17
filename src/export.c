@@ -1063,6 +1063,7 @@ static int gitmirror_send_checkin(
   Blob comment;         /* The comment text for the check-in */
   int nErr = 0;         /* Number of errors */
   int bPhantomOk;       /* True if phantom files should be ignored */
+  char buf[24];
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1136,9 +1137,11 @@ static int gitmirror_send_checkin(
   zMark = gitmirror_find_mark(zUuid,0,1);
   fprintf(xCmd, "mark %s\n", zMark);
   fossil_free(zMark);
-  fprintf(xCmd, "committer %s <%s@noemail.net> %lld +0000\n",
-     pMan->zUser, pMan->zUser, 
+  sqlite3_snprintf(sizeof(buf), buf, "%lld",
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
+  );
+  fprintf(xCmd, "committer %s <%s@noemail.net> %s +0000\n",
+     pMan->zUser, pMan->zUser, buf
   );
   blob_init(&comment, pMan->zComment, -1);
   if( blob_size(&comment)==0 ){
