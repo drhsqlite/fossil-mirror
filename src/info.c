@@ -286,6 +286,7 @@ void render_checkin_context(int rid, int parentsOnly){
           TIMELINE_GRAPH
          |TIMELINE_FILLGAPS
          |TIMELINE_NOSCROLL
+         |TIMELINE_XMERGE
          |TIMELINE_CHPICK,
        0, 0, rid, 0);
   db_finalize(&q);

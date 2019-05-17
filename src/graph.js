@@ -185,7 +185,7 @@ function TimelineGraph(tx){
       y1 = y0+elem.w;
       cls += "h";
     }
-    drawBox(cls,color,x0,y0,x1,y1);
+    return drawBox(cls,color,x0,y0,x1,y1);
   }
   function drawUpArrow(from,to,color){
     var y = to.y + node.h;
@@ -199,11 +199,12 @@ function TimelineGraph(tx){
     var n = drawBox(arw.cls,null,x,y);
     if(color) n.style.borderBottomColor = color;
   }
-  function drawUpDotted(from,to,color){
+  function drawDotted(from,to,color){
     var x = to.x + (node.w-line.w)/2;
     var y0 = from.y + node.h/2;
     var y1 = Math.ceil(to.y + node.h);
-    drawLine(dotLine,color,x,y0,null,y1);
+    var n = drawLine(dotLine,null,x,y0,null,y1)
+    if( color ) n.style.borderColor = color
   }
   /* Draw thin horizontal or vertical lines representing merges */
   function drawMergeLine(x0,y0,x1,y1){
@@ -245,7 +246,7 @@ function TimelineGraph(tx){
     }
     if( p.r<0 ) return;
     if( p.u>0 ) drawUpArrow(p,tx.rowinfo[p.u-tx.iTopRow],p.fg);
-    if( p.sb>0 ) drawUpDotted(p,tx.rowinfo[p.sb-tx.iTopRow],null);
+    if( p.sb>0 ) drawDotted(p,tx.rowinfo[p.sb-tx.iTopRow],p.fg);
     var cls = node.cls;
     if( p.hasOwnProperty('mi') && p.mi.length ) cls += " merge";
     if( p.f&1 ) cls += " leaf";
@@ -254,16 +255,38 @@ function TimelineGraph(tx){
     n.onclick = clickOnNode;
     n.style.zIndex = 10;
     if( !tx.omitDescenders ){
-      if( p.u==0 ) drawUpArrow(p,{x: p.x, y: -node.h},p.fg);
-      if( p.hasOwnProperty('d') ) drawUpArrow({x: p.x, y: btm-node.h/2},p,p.fg);
+      if( p.u==0 ){
+        if( p.hasOwnProperty('mo') && p.r==p.mo ){
+          var ix = p.hasOwnProperty('cu') ? p.cu : p.mu;
+          var top = tx.rowinfo[ix-tx.iTopRow]
+          drawUpArrow(p,{x: p.x, y: top.y-node.h}, p.fg);
+        }else if( p.y>100 ){
+          drawUpArrow(p,{x: p.x, y: p.y-50}, p.fg);
+        }else{
+          drawUpArrow(p,{x: p.x, y: 0},p.fg);
+        }
+      }
+      if( p.hasOwnProperty('d') ){
+        if( p.y + 150 >= btm ){
+          drawUpArrow({x: p.x, y: btm - node.h/2},p,p.fg);
+        }else{
+          drawUpArrow({x: p.x, y: p.y+50},p,p.fg);
+          drawDotted({x: p.x, y: p.y+63},{x: p.x, y: p.y+50-node.h/2},p.fg);
+        }
+      }
     }
     if( p.hasOwnProperty('mo') ){
       var x0 = p.x + node.w/2;
       var x1 = p.mo*railPitch + node.w/2;
       var u = tx.rowinfo[p.mu-tx.iTopRow];
       var y1 = miLineY(u);
-      if( p.u<0 || p.mo!=p.r ){
-        x1 += mergeLines[p.mo] = -mLine.w/2;
+      if( p.u<=0 || p.mo!=p.r ){
+        if( p.u==0 && p.mo==p.r ){
+          mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
+        }else{
+          mergeLines[p.mo] = -mLine.w/2;
+        }
+        x1 += mergeLines[p.mo]
         var y0 = p.y+2;
         if( p.mu==p.id ){
           drawCherrypickLine(x0,y0,x1+(x0<x1 ? mLine.w : 0),null);

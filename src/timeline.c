@@ -93,28 +93,29 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID    0x000001  /* Show artifact IDs on non-check-in lines*/
-#define TIMELINE_LEAFONLY 0x000002  /* Show "Leaf" but not "Merge", "Fork" etc*/
-#define TIMELINE_BRIEF    0x000004  /* Combine adjacent elements of same obj */
-#define TIMELINE_GRAPH    0x000008  /* Compute a graph */
-#define TIMELINE_DISJOINT 0x000010  /* Elements are not contiguous */
-#define TIMELINE_FCHANGES 0x000020  /* Detail file changes */
-#define TIMELINE_BRCOLOR  0x000040  /* Background color by branch name */
-#define TIMELINE_UCOLOR   0x000080  /* Background color by user */
-#define TIMELINE_FRENAMES 0x000100  /* Detail only file name changes */
-#define TIMELINE_UNHIDE   0x000200  /* Unhide check-ins with "hidden" tag */
-#define TIMELINE_SHOWRID  0x000400  /* Show RID values in addition to UUIDs */
-#define TIMELINE_BISECT   0x000800  /* Show supplimental bisect information */
-#define TIMELINE_COMPACT  0x001000  /* Use the "compact" view style */
-#define TIMELINE_VERBOSE  0x002000  /* Use the "detailed" view style */
-#define TIMELINE_MODERN   0x004000  /* Use the "modern" view style */
-#define TIMELINE_COLUMNAR 0x008000  /* Use the "columns" view style */
-#define TIMELINE_CLASSIC  0x010000  /* Use the "classic" view style */
-#define TIMELINE_VIEWS    0x01f000  /* Mask for all of the view styles */
-#define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
-#define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
-#define TIMELINE_CHPICK   0x400000  /* Show cherrypick merges */
-#define TIMELINE_FILLGAPS 0x800000  /* Dotted lines for missing nodes */
+#define TIMELINE_ARTID    0x0000001 /* Show artifact IDs on non-check-in lines*/
+#define TIMELINE_LEAFONLY 0x0000002 /* Show "Leaf" but not "Merge", "Fork" etc*/
+#define TIMELINE_BRIEF    0x0000004 /* Combine adjacent elements of same obj */
+#define TIMELINE_GRAPH    0x0000008 /* Compute a graph */
+#define TIMELINE_DISJOINT 0x0000010 /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x0000020 /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x0000040 /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x0000080 /* Background color by user */
+#define TIMELINE_FRENAMES 0x0000100 /* Detail only file name changes */
+#define TIMELINE_UNHIDE   0x0000200 /* Unhide check-ins with "hidden" tag */
+#define TIMELINE_SHOWRID  0x0000400 /* Show RID values in addition to UUIDs */
+#define TIMELINE_BISECT   0x0000800 /* Show supplimental bisect information */
+#define TIMELINE_COMPACT  0x0001000 /* Use the "compact" view style */
+#define TIMELINE_VERBOSE  0x0002000 /* Use the "detailed" view style */
+#define TIMELINE_MODERN   0x0004000 /* Use the "modern" view style */
+#define TIMELINE_COLUMNAR 0x0008000 /* Use the "columns" view style */
+#define TIMELINE_CLASSIC  0x0010000 /* Use the "classic" view style */
+#define TIMELINE_VIEWS    0x001f000 /* Mask for all of the view styles */
+#define TIMELINE_NOSCROLL 0x0100000 /* Don't scroll to the selection */
+#define TIMELINE_FILEDIFF 0x0200000 /* Show File differences, not ckin diffs */
+#define TIMELINE_CHPICK   0x0400000 /* Show cherrypick merges */
+#define TIMELINE_FILLGAPS 0x0800000 /* Dotted lines for missing nodes */
+#define TIMELINE_XMERGE   0x1000000 /* Omit merges from off-graph nodes */
 #endif
 
 /*
@@ -299,8 +300,8 @@ void www_print_timeline(
   ){
     tmFlags &= ~TIMELINE_CHPICK;
   }
-
-  @ <table id="timelineTable%d(iTableId)" class="timelineTable">
+  @ <table id="timelineTable%d(iTableId)" class="timelineTable"> \
+  @ <!-- tmFlags: 0x%x(tmFlags) -->
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -869,7 +870,8 @@ void timeline_output_graph_javascript(
     **    r:  The "rail" that the node for this row sits on.  The left-most
     **        rail is 0 and the number increases to the right.
     **    d:  If exists and true then there is a "descender" - an arrow
-    **        coming from the bottom of the page straight up to this node.
+    **        coming from the bottom of the page or further down on the page
+    **        straight up to this node.
     **   mo:  "merge-out".  If it exists, this is the rail position
     **        for the upward portion of a merge arrow.  The merge arrow goes as
     **        a solid normal merge line up to the row identified by "mu" and
@@ -881,7 +883,8 @@ void timeline_output_graph_javascript(
     **        merge line, if this value exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
-    **        the top of the page, -1 if there is no thick-line riser.
+    **        the top of the page or just up a little wasy, -1 if there is
+    **        no thick-line riser (if the node is a leaf).
     **   sb:  Draw a dotted child-line out of the top of this node up to the
     **        node with the id equal to the value.  This is like "u" except
     **        that the line is dotted instead of solid and has no arrow.
@@ -1496,7 +1499,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
 **      to=CHECKIN      ... to this
-**      shorest         ... show only the shortest path
+**      shortest        ... show only the shortest path
 **      rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
@@ -1693,8 +1696,8 @@ void page_timeline(void){
     tmFlags |= TIMELINE_GRAPH | TIMELINE_CHPICK;
   }
   if( related ){
-    tmFlags |= TIMELINE_FILLGAPS;
-//    tmFlags &= ~TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_FILLGAPS | TIMELINE_XMERGE;
+    tmFlags &= ~TIMELINE_DISJOINT;
   }
   if( PB("ncp") ){
     tmFlags &= ~TIMELINE_CHPICK;
@@ -1860,6 +1863,7 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
+    tmFlags &= ~TIMELINE_CHPICK;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
@@ -1881,7 +1885,7 @@ void page_timeline(void){
     char *zUuid;
     int np, nd;
 
-    tmFlags |= TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
       if( p_rid!=d_rid ) p_rid = d_rid;
       if( P("n")==0 ) nEntry = 10;
@@ -1949,7 +1953,7 @@ void page_timeline(void){
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
-    tmFlags |= TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_XMERGE;
     if( advancedMenu ){
       style_submenu_checkbox("unhide", "Unhide", 0, 0);
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
@@ -1961,9 +1965,10 @@ void page_timeline(void){
     char *zDate;
     Blob cond;
     blob_zero(&cond);
+    tmFlags |= TIMELINE_FILLGAPS;
     if( zChng && *zChng ){
       addFileGlobExclusion(zChng, &cond);
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE;
     }
     if( zUses ){
       blob_append_sql(&cond, " AND event.objid IN usesfile ");
@@ -2222,11 +2227,11 @@ void page_timeline(void){
       char *zFilenames = names_of_file(zUses);
       blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
                    href("%R/artifact/%!S",zUses), zUses);
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( renameOnly ){
       blob_appendf(&desc, " that contain filename changes");
-      tmFlags |= TIMELINE_DISJOINT|TIMELINE_FRENAMES;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( forkOnly ){
       blob_appendf(&desc, " associated with forks");
@@ -2242,7 +2247,7 @@ void page_timeline(void){
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( zTagSql ){
       if( matchStyle==MS_EXACT ){
@@ -2258,7 +2263,7 @@ void page_timeline(void){
           blob_appendf(&desc, " with tags matching %h", zMatchDesc);
         }
       }
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){
