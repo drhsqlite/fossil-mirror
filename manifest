@@ -1,5 +1,5 @@
-C Squelch\san\s"unused\svariable"\scompiler\swarning\sin\sprintf.c.
-D 2019-05-17T17:20:15.586
+C When\sattempting\sto\sdetermine\sthe\sFossil\suser\sinformation,\sdo\snot\ssmash\sthe\sglobal\sURL\sinformation\swhich\smay\scontain\san\salternate\sURL\sused\sfor\ssync\soperations\s(e.g.\swhen\susing\s'fossil\ssync\s--once').\sThis\sfixes\sthe\sability\sto\swork\soffline\sand\ssynchronize\swith\sa\sUSB\sthumbdrive\sala\ssneaker-net.
+D 2019-05-17T19:07:56.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -590,7 +590,7 @@ F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
 F src/unversioned.c 3a7cb905cf2780768438dd8dd3be54fc4f8ec53579fbc67fe44ad0d835258c39
 F src/update.c 78f496b5c4e4cfb6cf28a41a035ed4d474edad0130355ea48dd8f9314c5c44b4
 F src/url.c d12b5af2810f06b6d4840a10217bc8450df4533cd7695cdce9d41f7b7fb7daed
-F src/user.c 9374dffc58dc0ed3126f725db4f7037dbd80fc55b47c70ea2e5cb57e9007fda7
+F src/user.c 86d00e5048f1d1ca7240f08b183d16898db36e16b8757e4817898866ce406767
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
@@ -874,7 +874,8 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f2ca44916cb474ff5e985d03b20ccd138f8e86707dac703974cc50c453589693
-R 9ba16a4d779047f1c778c280ede73d85
-U stephan
-Z 8d5bcc52ae38f6f25dfaaabcebf9553c
+P ff9dbf369816e990d227c486e270e5d9f25256cac68c2269206433be5e7c9630 e5ac794f28c1577877d456a5bc6304a911754774b9d7f3f2be83e205b6d72c09
+R 1a0f21ee584a6333f597d0073ed383c2
+T +closed e5ac794f28c1577877d456a5bc6304a911754774b9d7f3f2be83e205b6d72c09
+U mistachkin
+Z cff0fc06ff37f32caad4c9a9b8994161
