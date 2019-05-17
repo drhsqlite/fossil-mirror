@@ -870,7 +870,8 @@ void timeline_output_graph_javascript(
     **    r:  The "rail" that the node for this row sits on.  The left-most
     **        rail is 0 and the number increases to the right.
     **    d:  If exists and true then there is a "descender" - an arrow
-    **        coming from the bottom of the page straight up to this node.
+    **        coming from the bottom of the page or further down on the page
+    **        straight up to this node.
     **   mo:  "merge-out".  If it exists, this is the rail position
     **        for the upward portion of a merge arrow.  The merge arrow goes as
     **        a solid normal merge line up to the row identified by "mu" and
@@ -882,7 +883,8 @@ void timeline_output_graph_javascript(
     **        merge line, if this value exists.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
-    **        the top of the page, -1 if there is no thick-line riser.
+    **        the top of the page or just up a little wasy, -1 if there is
+    **        no thick-line riser (if the node is a leaf).
     **   sb:  Draw a dotted child-line out of the top of this node up to the
     **        node with the id equal to the value.  This is like "u" except
     **        that the line is dotted instead of solid and has no arrow.
@@ -1497,7 +1499,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
 **      to=CHECKIN      ... to this
-**      shorest         ... show only the shortest path
+**      shortest        ... show only the shortest path
 **      rel             ... also show related checkins
 **    uf=FILE_HASH    Show only check-ins that contain the given file version
 **    chng=GLOBLIST   Show only check-ins that involve changes to a file whose
@@ -1861,6 +1863,7 @@ void page_timeline(void){
     blob_append_sql(&sql, " AND event.objid IN pathnode");
     addFileGlobExclusion(zChng, &sql);
     tmFlags |= TIMELINE_DISJOINT;
+    tmFlags &= ~TIMELINE_CHPICK;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
@@ -1882,7 +1885,7 @@ void page_timeline(void){
     char *zUuid;
     int np, nd;
 
-    tmFlags |= TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     if( p_rid && d_rid ){
       if( p_rid!=d_rid ) p_rid = d_rid;
       if( P("n")==0 ) nEntry = 10;
@@ -1950,7 +1953,7 @@ void page_timeline(void){
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%S]</a>", href("%R/info/%!S", zUuid), zUuid);
-    tmFlags |= TIMELINE_DISJOINT;
+    tmFlags |= TIMELINE_XMERGE;
     if( advancedMenu ){
       style_submenu_checkbox("unhide", "Unhide", 0, 0);
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
@@ -1962,9 +1965,10 @@ void page_timeline(void){
     char *zDate;
     Blob cond;
     blob_zero(&cond);
+    tmFlags |= TIMELINE_FILLGAPS;
     if( zChng && *zChng ){
       addFileGlobExclusion(zChng, &cond);
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE;
     }
     if( zUses ){
       blob_append_sql(&cond, " AND event.objid IN usesfile ");
@@ -2223,11 +2227,11 @@ void page_timeline(void){
       char *zFilenames = names_of_file(zUses);
       blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
                    href("%R/artifact/%!S",zUses), zUses);
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( renameOnly ){
       blob_appendf(&desc, " that contain filename changes");
-      tmFlags |= TIMELINE_DISJOINT|TIMELINE_FRENAMES;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( forkOnly ){
       blob_appendf(&desc, " associated with forks");
@@ -2243,7 +2247,7 @@ void page_timeline(void){
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
-      tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     if( zTagSql ){
       if( matchStyle==MS_EXACT ){
@@ -2259,7 +2263,7 @@ void page_timeline(void){
           blob_appendf(&desc, " with tags matching %h", zMatchDesc);
         }
       }
-      if( !related ) tmFlags |= TIMELINE_DISJOINT;
+      tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
     addFileGlobDescription(zChng, &desc);
     if( rAfter>0.0 ){

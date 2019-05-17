@@ -752,7 +752,7 @@ void tagtimeline_page(void){
   blob_reset(&sql);
   /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
   ** many descenders to (off-screen) parents. */
-  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  tmFlags = TIMELINE_XMERGE | TIMELINE_FILLGAPS | TIMELINE_NOSCROLL;
   if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;

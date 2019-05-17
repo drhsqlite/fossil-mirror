@@ -257,7 +257,8 @@ function TimelineGraph(tx){
     if( !tx.omitDescenders ){
       if( p.u==0 ){
         if( p.hasOwnProperty('mo') && p.r==p.mo ){
-          var top = tx.rowinfo[p.mu-tx.iTopRow]
+          var ix = p.hasOwnProperty('cu') ? p.cu : p.mu;
+          var top = tx.rowinfo[ix-tx.iTopRow]
           drawUpArrow(p,{x: p.x, y: top.y-node.h}, p.fg);
         }else if( p.y>100 ){
           drawUpArrow(p,{x: p.x, y: p.y-50}, p.fg);
