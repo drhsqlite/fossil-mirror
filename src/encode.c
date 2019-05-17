@@ -378,9 +378,11 @@ u32 fossil_utf8_read(
 }
 
 /*
-** Encode a UTF8 string for JSON.  All special characters are escaped.
+** Encode a UTF8 string as a JSON string literal (without the surrounding
+** "...") and return a pointer to the encoding.  Space to hold the encoding
+** is obtained from fossil_malloc() and must be freed by the caller.
 */
-void blob_append_json_string(Blob *pBlob, const char *zStr){
+char *encode_json_string_literal(const char *zStr){
   const unsigned char *z;
   char *zOut;
   u32 c;
@@ -400,10 +402,10 @@ void blob_append_json_string(Blob *pBlob, const char *zStr){
       n++;
     }
   }
-  i = blob_size(pBlob);
-  blob_resize(pBlob, i+n);
-  zOut = blob_buffer(pBlob);
+  zOut = fossil_malloc(n+1);
+  if( zOut==0 ) return 0;
   z = (const unsigned char*)zStr;
+  i = 0;
   while( (c = fossil_utf8_read(&z))!=0 ){
     if( c=='\\' ){
       zOut[i++] = '\\';
@@ -427,6 +429,7 @@ void blob_append_json_string(Blob *pBlob, const char *zStr){
     }
   }
   zOut[i] = 0;
+  return zOut;
 }
 
 /*
