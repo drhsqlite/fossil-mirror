@@ -517,12 +517,9 @@ void graph_finish(GraphContext *p, u32 tmFlags){
     if( pParent==0 ) continue;                         /* Parent off-screen */
     if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
     if( pParent->idx <= pRow->idx ){
-       pParent->timeWarp = 1;
-       continue;                                       /* Time-warp */
-    }
-    if( pRow->idxTop < pParent->idxTop ){
+      pParent->timeWarp = 1;
+    }else if( pRow->idx < pParent->idx ){
       pParent->pChild = pRow;
-      pParent->idxTop = pRow->idxTop;
     }
   }
 
@@ -540,12 +537,21 @@ void graph_finish(GraphContext *p, u32 tmFlags){
          && hashFind(p,pLoop->aParent[0])==0
         ){
           pRow->pChild = pLoop;
-          pRow->idxTop = pLoop->idxTop;
           pRow->isStepParent = 1;
           pLoop->aParent[0] = pRow->rid;
           break;
         }
       }
+    }
+  }
+
+  /* Set the idxTop values for all entries.  The idxTop value is the
+  ** "idx" value for the top entry in its stack of children.
+  */
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    GraphRow *pChild = pRow->pChild;
+    if( pChild && pRow->idxTop>pChild->idxTop ){
+      pRow->idxTop = pChild->idxTop;
     }
   }
 
@@ -557,13 +563,10 @@ void graph_finish(GraphContext *p, u32 tmFlags){
   zTrunk = persistBranchName(p, "trunk");
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
+      if( i==0 && pRow->zBranch!=zTrunk ) continue;
+      if( pRow->iRail>=0 ) continue;
       if( pRow->isDup ) continue;
       if( pRow->nParent<0 ) continue;
-      if( i==0 ){
-        if( pRow->zBranch!=zTrunk ) continue;
-      }else {
-        if( pRow->iRail>=0 ) continue;
-      }
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
         pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+RISER_MARGIN, 0);
         if( p->mxRail>=GR_MAX_RAIL ) return;

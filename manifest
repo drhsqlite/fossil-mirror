@@ -1,5 +1,5 @@
-C Merge\sthe\s%j\sstring\sformatter\senhancement\sfrom\strunk.
-D 2019-05-17T13:54:39.418
+C In\sthe\sgraph\slayout,\smake\ssure\sthat\sthe\sidxTop\svalue\sis\sproperly\srelayed\nacross\sgaps.
+D 2019-05-17T19:30:32.423
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 6b88935dafe05c59bd27f2d01dc90cddd72b7a061459e153c67f700f27833848
+F src/graph.c 2c54d5bc2b80a4ed624223b7fd037ec8c0db01a1b2c70542399b5f281d459326
 F src/graph.js d8dcd4f8a4ce244496b2b61d8bd79edfc99f19fab1adbdd0bb6abfd97d0ef348
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49f8f9e1fb3a5da0c1457a6dabe8f2f61b99355ed86ceeaa45b1e119d8aafbaf 5e9c1d5e049b09526ebb0519b5e6b1530a59e1d554ade8ebdbb564bb77a6a8e8
-R 534214014c57b37db5f3bb5b0765af2c
+P 78d812e24d983dbe021183c6d6b4cc48a216f7e497bb70a4927f004d3feb6a3c
+R 56af392dfeaa1be7ce03cb4d3b791960
 U drh
-Z b8f8a47ede4abafc92a1e5948b3bf845
+Z 96a449e2c61353c4ebe497c62b8091f7
