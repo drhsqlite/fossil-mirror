@@ -954,13 +954,14 @@ static char *gitmirror_quote_filename_if_needed(const char *zIn){
 ** The string returned is obtained from fossil_malloc() and should
 ** be freed by the caller.
 */
-static char *gitmirror_find_mark(const char *zUuid, int bCreate){
+static char *gitmirror_find_mark(const char *zUuid, int isFile, int bCreate){
   static Stmt sFind, sIns;
   db_static_prepare(&sFind,
     "SELECT coalesce(githash,printf(':%%d',id))"
-    " FROM mirror.mmark WHERE uuid=:uuid"
+    " FROM mirror.mmark WHERE uuid=:uuid AND isfile=:isfile"
   );
   db_bind_text(&sFind, ":uuid", zUuid);
+  db_bind_int(&sFind, ":isfile", isFile!=0);
   if( db_step(&sFind)==SQLITE_ROW ){
     char *zMark = fossil_strdup(db_column_text(&sFind, 0));
     db_reset(&sFind);
@@ -971,9 +972,10 @@ static char *gitmirror_find_mark(const char *zUuid, int bCreate){
     return 0;
   }
   db_static_prepare(&sIns,
-    "INSERT INTO mirror.mmark(uuid) VALUES(:uuid)"
+    "INSERT INTO mirror.mmark(uuid,isfile) VALUES(:uuid,:isfile)"
   );
   db_bind_text(&sIns, ":uuid", zUuid);
+  db_bind_int(&sIns, ":isfile", isFile!=0);
   db_step(&sIns);
   db_reset(&sIns);
   return mprintf(":%d", db_last_insert_rowid());
@@ -1018,7 +1020,7 @@ static int gitmirror_send_file(FILE *xCmd, const char *zUuid, int bPhantomOk){
       }
     }
   }
-  zMark = gitmirror_find_mark(zUuid, 1);
+  zMark = gitmirror_find_mark(zUuid, 1, 1);
   if( zMark[0]==':' ){
     fprintf(xCmd, "blob\nmark %s\ndata %d\n", zMark, blob_size(&data));
     fwrite(blob_buffer(&data), 1, blob_size(&data), xCmd);
@@ -1061,6 +1063,7 @@ static int gitmirror_send_checkin(
   Blob comment;         /* The comment text for the check-in */
   int nErr = 0;         /* Number of errors */
   int bPhantomOk;       /* True if phantom files should be ignored */
+  char buf[24];
 
   pMan = manifest_get(rid, CFTYPE_MANIFEST, 0);
   if( pMan==0 ){
@@ -1073,7 +1076,7 @@ static int gitmirror_send_checkin(
   /* Check to see if any parent logins have not yet been processed, and
   ** if so, create them */
   for(i=0; i<pMan->nParent; i++){
-    char *zPMark = gitmirror_find_mark(pMan->azParent[i], 0);
+    char *zPMark = gitmirror_find_mark(pMan->azParent[i], 0, 0);
     if( zPMark==0 ){
       int prid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q",
                         pMan->azParent[i]);
@@ -1131,12 +1134,14 @@ static int gitmirror_send_checkin(
   /* Export the check-in */
   fprintf(xCmd, "commit refs/heads/%s\n", zBranch);
   fossil_free(zBranch);
-  zMark = gitmirror_find_mark(zUuid,1);
+  zMark = gitmirror_find_mark(zUuid,0,1);
   fprintf(xCmd, "mark %s\n", zMark);
   fossil_free(zMark);
-  fprintf(xCmd, "committer %s <%s@noemail.net> %lld +0000\n",
-     pMan->zUser, pMan->zUser, 
+  sqlite3_snprintf(sizeof(buf), buf, "%lld",
      (sqlite3_int64)((pMan->rDate-2440587.5)*86400.0)
+  );
+  fprintf(xCmd, "committer %s <%s@noemail.net> %s +0000\n",
+     pMan->zUser, pMan->zUser, buf
   );
   blob_init(&comment, pMan->zComment, -1);
   if( blob_size(&comment)==0 ){
@@ -1147,7 +1152,7 @@ static int gitmirror_send_checkin(
   blob_reset(&comment);
   iParent = -1;  /* Which ancestor is the primary parent */
   for(i=0; i<pMan->nParent; i++){
-    char *zOther = gitmirror_find_mark(pMan->azParent[i], 0);
+    char *zOther = gitmirror_find_mark(pMan->azParent[i],0,0);
     if( zOther==0 ) continue;
     if( iParent<0 ){
       iParent = i;
@@ -1182,7 +1187,7 @@ static int gitmirror_send_checkin(
      "SELECT x.filename, x.perm,"
           "  coalesce(mmark.githash,printf(':%%d',mmark.id))"
      "  FROM (%s) AS x, mirror.mmark"
-     " WHERE mmark.uuid=x.uuid",
+     " WHERE mmark.uuid=x.uuid AND isfile",
      blob_sql_text(&sql)
   );
   blob_reset(&sql);
@@ -1310,10 +1315,31 @@ void gitmirror_export_command(void){
     ") WITHOUT ROWID;\n"
     "CREATE TABLE IF NOT EXISTS mirror.mmark(\n"
     "  id INTEGER PRIMARY KEY,\n"
-    "  uuid TEXT UNIQUE,\n"
-    "  githash TEXT\n"
+    "  uuid TEXT,\n"
+    "  isfile BOOLEAN,\n"
+    "  githash TEXT,\n"
+    "  UNIQUE(uuid,isfile)\n"
     ");"
   );
+  if( !db_table_has_column("mirror","mmark","isfile") ){
+    db_multi_exec(
+      "ALTER TABLE mirror.mmark RENAME TO mmark_old;"
+      "CREATE TABLE IF NOT EXISTS mirror.mmark(\n"
+      "  id INTEGER PRIMARY KEY,\n"
+      "  uuid TEXT,\n"
+      "  isfile BOOLEAN,\n"
+      "  githash TEXT,\n"
+      "  UNIQUE(uuid,isfile)\n"
+      ");"
+      "INSERT OR IGNORE INTO mirror.mmark(id,uuid,githash,isfile)"
+      "  SELECT id,uuid,githash,"
+      "    NOT EXISTS(SELECT 1 FROM repository.event, repository.blob"
+                 " WHERE event.objid=blob.rid"
+                 "   AND blob.uuid=mmark_old.uuid)"
+      "    FROM mirror.mmark_old;\n"
+      "DROP TABLE mirror.mmark_old;\n"
+    );
+  }
 
   /* Change the autopush setting if the --autopush flag is present */
   if( zAutoPush ){
@@ -1377,7 +1403,7 @@ void gitmirror_export_command(void){
     " WHERE type='ci'"
     "   AND mtime>coalesce((SELECT value FROM mconfig WHERE key='start'),0.0)"
     "   AND blob.rid=event.objid"
-    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark);"
+    "   AND blob.uuid NOT IN (SELECT uuid FROM mirror.mmark WHERE NOT isfile);"
   );
   nTotal = db_int(0, "SELECT count(*) FROM tomirror");
   if( nLimit<nTotal ){
@@ -1464,6 +1490,41 @@ void gitmirror_export_command(void){
   }
   db_finalize(&q);
 
+  /* Update all references that might have changed since the start time */
+  db_prepare(&q,
+    "SELECT"
+    " tagxref.value AS name,"
+    " max(event.mtime) AS mtime,"
+    " mmark.githash AS gitckin"
+    " FROM tagxref, tag, event, blob, mmark"
+    " WHERE tagxref.tagid=tag.tagid"
+    " AND tagxref.tagtype>0"
+    " AND tag.tagname='branch'"
+    " AND event.objid=tagxref.rid"
+    " AND event.mtime > coalesce((SELECT value FROM mconfig"
+                                  " WHERE key='start'),0.0)"
+    " AND blob.rid=tagxref.rid"
+    " AND mmark.uuid=blob.uuid"
+    " GROUP BY 1"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    char *zBrname = fossil_strdup(db_column_text(&q,0));
+    const char *zObj = db_column_text(&q,2);
+    char *zRefCmd;
+    if( fossil_strcmp(zBrname,"trunk")==0 ){
+      fossil_free(zBrname);
+      zBrname = fossil_strdup("master");
+    }else{
+      gitmirror_sanitize_name(zBrname);
+    }
+    zRefCmd = mprintf("git update-ref \"refs/heads/%s\" %s", zBrname, zObj);
+    fossil_free(zBrname);
+    gitmirror_message(VERB_NORMAL, "%s\n", zRefCmd);
+    fossil_system(zRefCmd);
+    fossil_free(zRefCmd);
+  }
+  db_finalize(&q);
+
   /* Update the start time */
   if( rEnd>0.0 ){
     db_prepare(&q, "REPLACE INTO mirror.mconfig(key,value) VALUES('start',:x)");
@@ -1497,6 +1558,59 @@ void gitmirror_export_command(void){
     fossil_system(zPushCmd);
     fossil_free(zPushCmd);
   }
+}
+
+/*
+** Implementation of the "fossil git status" command.
+**
+** Show the status of a "git export".
+*/
+void gitmirror_status_command(void){
+  char *zMirror;
+  char *z;
+  int n, k;
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  zMirror = db_get("last-git-export-repo", 0);
+  if( zMirror==0 ){
+    fossil_print("Git mirror:  none\n");
+    return;
+  }
+  fossil_print("Git mirror:  %s\n", zMirror);
+  db_multi_exec("ATTACH '%q/.mirror_state/db' AS mirror;", zMirror);
+  z = db_text(0, "SELECT datetime(value) FROM mconfig WHERE key='start'");
+  if( z ){
+    double rAge = db_double(0.0, "SELECT julianday('now') - value"
+                              " FROM mconfig WHERE key='start'");
+    if( rAge>1.0/86400.0 ){
+      fossil_print("Last export: %s (%z ago)\n", z, human_readable_age(rAge));
+    }else{
+      fossil_print("Last export: %s (moments ago)\n", z);
+    }
+  }
+  z = db_text(0, "SELECT value FROM mconfig WHERE key='autopush'");
+  if( z==0 ){
+    fossil_print("Autopush:    off\n");
+  }else{
+    UrlData url;
+    url_parse_local(z, 0, &url);
+    fossil_print("Autopush:    %s\n", url.canonical);
+  }
+  n = db_int(0,
+    "SELECT count(*) FROM event"
+    " WHERE type='ci'"
+    "   AND mtime>coalesce((SELECT value FROM mconfig"
+                          "  WHERE key='start'),0.0)"
+  );
+  if( n==0 ){
+    fossil_print("Status:      up-to-date\n");
+  }else{
+    fossil_print("Status:      %d check-in%s awaiting export\n",
+                 n, n==1 ? "" : "s");
+  }
+  n = db_int(0, "SELECT count(*) FROM mmark WHERE isfile");
+  k = db_int(0, "SELECT count(*) FROm mmark WHERE NOT isfile");
+  fossil_print("Exported:    %d check-ins and %d file blobs\n", k, n);
 }
 
 /*
@@ -1541,6 +1655,10 @@ void gitmirror_export_command(void){
 **   fossil git import MIRROR
 **
 **       TBD...   
+**
+**   fossil git status
+**
+**       Show the status of the current Git mirror, if there is one.
 */
 void gitmirror_command(void){
   char *zCmd;
@@ -1556,9 +1674,12 @@ void gitmirror_command(void){
   if( nCmd>2 && strncmp(zCmd,"import",nCmd)==0 ){
     fossil_fatal("not yet implemented - check back later");
   }else
+  if( nCmd>2 && strncmp(zCmd,"status",nCmd)==0 ){
+    gitmirror_status_command();
+  }else
   {
     fossil_fatal("unknown subcommand \"%s\": should be one of "
-                 "\"export\", \"import\"",
+                 "\"export\", \"import\", \"status\"",
                  zCmd);
   }
 }

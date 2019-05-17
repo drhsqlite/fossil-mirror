@@ -114,6 +114,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_NOSCROLL 0x100000  /* Don't scroll to the selection */
 #define TIMELINE_FILEDIFF 0x200000  /* Show File differences, not ckin diffs */
 #define TIMELINE_CHPICK   0x400000  /* Show cherrypick merges */
+#define TIMELINE_FILLGAPS 0x800000  /* Dotted lines for missing nodes */
 #endif
 
 /*
@@ -759,12 +760,13 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( pGraph ){
-    graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
+    graph_finish(pGraph, tmFlags);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
+      @ <tr class="timelineBottom" id="btm-%d(iTableId)">\
+      @ <td></td><td></td><td></td></tr>
     }
   }
   @ </table>
@@ -850,6 +852,7 @@ void timeline_output_graph_javascript(
     @   "scrollToSelect": %d(scrollToSelect),
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
+    @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null
     }else{
@@ -879,6 +882,10 @@ void timeline_output_graph_javascript(
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if it is straight to
     **        the top of the page, -1 if there is no thick-line riser.
+    **   sb:  Draw a dotted child-line out of the top of this node up to the
+    **        node with the id equal to the value.  This is like "u" except
+    **        that the line is dotted instead of solid and has no arrow.
+    **        Mnemonic: "Same Branch".
     **    f:  0x01: a leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
@@ -911,7 +918,11 @@ void timeline_output_graph_javascript(
           cgi_printf("\"cu\":%d,",    pRow->cherrypickUpto);
         }
       }
-      cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
+      if( pRow->isStepParent ){
+        cgi_printf("\"sb\":%d,",      pRow->aiRiser[pRow->iRail]);
+      }else{
+        cgi_printf("\"u\":%d,",       pRow->aiRiser[pRow->iRail]);
+      }
       k = 0;
       if( pRow->isLeaf ) k |= 1;
       cgi_printf("\"f\":%d,",k);
@@ -1681,6 +1692,10 @@ void page_timeline(void){
   }else{
     tmFlags |= TIMELINE_GRAPH | TIMELINE_CHPICK;
   }
+  if( related ){
+    tmFlags |= TIMELINE_FILLGAPS;
+//    tmFlags &= ~TIMELINE_DISJOINT;
+  }
   if( PB("ncp") ){
     tmFlags &= ~TIMELINE_CHPICK;
   }
@@ -1743,7 +1758,7 @@ void page_timeline(void){
     int iCurrent = db_lget_int("checkout",0);
     char *zPerm = bisect_permalink();
     bisect_create_bilog_table(iCurrent, 0);
-    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
+    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
     style_submenu_element("Permalink", "%R/timeline?bid=%z", zPerm);
@@ -1751,7 +1766,7 @@ void page_timeline(void){
     bisectLocal = 0;
   }
   if( zBisect!=0 && bisect_create_bilog_table(0, zBisect) ){
-    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT;
+    tmFlags |= TIMELINE_UNHIDE | TIMELINE_BISECT | TIMELINE_FILLGAPS;
     zType = "ci";
     disableY = 1;
   }else{
@@ -2784,6 +2799,79 @@ void timeline_cmd(void){
   blob_reset(&sql);
   print_timeline(&q, n, width, verboseFlag);
   db_finalize(&q);
+}
+
+/*
+** WEBPAGE: thisdayinhistory
+**
+** Generate a vanity page that shows project activity for the current
+** day of the year for various years in the history of the project.
+**
+** Query parameters:
+**
+**    today=DATE             Use DATE as today's date
+*/
+void thisdayinhistory_page(void){
+  static int aYearsAgo[] = { 1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50, 75, 100 };
+  const char *zToday;
+  char *zStartOfProject;
+  int i;
+  Stmt q;
+  char *z;
+
+  login_check_credentials();
+  if( (!g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki && !g.perm.RdForum) ){
+    login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
+    return;
+  }
+  style_header("Today In History");
+  zToday = (char*)P("today");
+  if( zToday ){
+    zToday = timeline_expand_datetime(zToday);
+    if( !fossil_isdate(zToday) ) zToday = 0;
+  }
+  if( zToday==0 ){
+    zToday = db_text(0, "SELECT date('now',toLocal())");
+  }
+  @ <h1>This Day In History For %h(zToday)</h1>
+  z = db_text(0, "SELECT date(%Q,'-1 day')", zToday);
+  style_submenu_element("Yesterday", "%R/thisdayinhistory?today=%t", z);
+  z = db_text(0, "SELECT date(%Q,'+1 day')", zToday);
+  style_submenu_element("Tomorrow", "%R/thisdayinhistory?today=%t", z);
+  zStartOfProject = db_text(0,
+      "SELECT datetime(min(mtime),toLocal()) FROM event;"
+  );
+  timeline_temp_table();
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
+  for(i=0; i<sizeof(aYearsAgo)/sizeof(aYearsAgo[0]); i++){
+    int iAgo = aYearsAgo[i];
+    char *zThis = db_text(0, "SELECT date(%Q,'-%d years')", zToday, iAgo);
+    Blob sql;
+    char *zId;
+    if( strcmp(zThis, zStartOfProject)<0 ) break;
+    blob_init(&sql, 0, 0);
+    blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
+    blob_append(&sql, timeline_query_for_www(), -1);
+    blob_append_sql(&sql,
+       " AND %Q=date(event.mtime,toLocal()) "
+       " AND event.mtime BETWEEN julianday(%Q,'-1 day')"
+             " AND julianday(%Q,'+2 days')",
+       zThis, zThis, zThis
+    );
+    db_multi_exec("DELETE FROM timeline; %s;", blob_sql_text(&sql));
+    blob_reset(&sql);
+    if( db_int(0, "SELECT count(*) FROM timeline")==0 ){
+      continue;
+    }
+    zId = db_text(0, "SELECT timestamp FROM timeline"
+                     " ORDER BY sortby DESC LIMIT 1");
+    @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
+    @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
+    @ </small></h2>
+    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0);
+  }
+  db_finalize(&q);
+  style_footer();
 }
 
 

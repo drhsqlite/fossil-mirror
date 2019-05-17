@@ -48,7 +48,7 @@ void remote_repo_info(RepoInfo *pRepo){
   pRepo->rMTime = 0.0;
 
   g.dbIgnoreErrors++;
-  rc = sqlite3_open(pRepo->zRepoName, &db);
+  rc = sqlite3_open_v2(pRepo->zRepoName, &db, SQLITE_OPEN_READWRITE, 0);
   if( rc ) goto finish_repo_list;
   rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
                               " WHERE name='project-name'",
@@ -166,13 +166,11 @@ int repo_list_page(void){
       remote_repo_info(&x);
       fossil_free(zFull);
       if( !x.isValid ){
-        zAge = mprintf("...");
-        iAge = 0;
-      }else{
-        iAge = (rNow - x.rMTime)*86400;
-        if( iAge<0 ) x.rMTime = rNow;
-        zAge = human_readable_age(rNow - x.rMTime);
+        continue;
       }
+      iAge = (rNow - x.rMTime)*86400;
+      if( iAge<0 ) x.rMTime = rNow;
+      zAge = human_readable_age(rNow - x.rMTime);
       @ <tr><td valign="top">\
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands

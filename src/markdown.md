@@ -60,6 +60,7 @@
      +   bullet item
      -   bullet item
      1.  numbered item
+     2)  numbered item
 
 > A two-level list is created by placing additional whitespace before the
 > **\***/**+**/**-**/**1.** of the secondary items.

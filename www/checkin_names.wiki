@@ -144,17 +144,23 @@ Again, this behavior only occurs on a few commands where it make sense.
 A timestamp in one of the formats shown below means the most recent
 check-in that occurs no later than the timestamp given:
 
-  *   <i>YYYY-MM-DD</i>
-  *   <i>YYYY-MM-DD HH:MM</i>
-  *   <i>YYYY-MM-DD HH:MM:SS</i>
-  *   <i>YYYY-MM-DD HH:MM:SS.SSS</i>
+  1.   <i>YYYY-MM-DD</i>
+  2.   <i>YYYY-MM-DD HH:MM</i>
+  3.   <i>YYYY-MM-DD HH:MM:SS</i>
+  4.   <i>YYYY-MM-DD HH:MM:SS.SSS</i>
+  5.   <i>YYYYMMDD</i>
+  6.   <i>YYYYMMDDHHMM</i>
+  7.   <i>YYYYMMDDHHMMSS</i>
 
-The space between the day and the year can optionally be
+In the second through the fourth forms,
+the space between the day and the year can optionally be
 replaced by an uppercase <b>T</b> and the entire timestamp can
 optionally be followed by "<b>z</b>" or "<b>Z</b>".  In the fourth
 form with fractional seconds, any number of digits may follow the
 decimal point, though due to precision limits only the first three
-digits will be significant.
+digits will be significant.  The final three pure-digit forms 
+without punctuation are only valid if the number they encode is
+not also the prefix of an artifact hash.
 
 In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for

@@ -647,12 +647,13 @@ void finfo_page(void){
   db_finalize(&q);
   db_finalize(&qparent);
   if( pGraph ){
-    graph_finish(pGraph, 1);
+    graph_finish(pGraph, TIMELINE_DISJOINT);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
+      @ <tr class="timelineBottom" id="btm-%d(iTableId)">\
+      @ <td></td><td></td><td></td></tr>
     }
   }
   @ </table>
