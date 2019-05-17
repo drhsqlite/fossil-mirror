@@ -1,5 +1,5 @@
-C Proof-of-concept\sfor\show\sto\spop\sup\sa\stooltip\swhen\smousing\sover\sone\sof\sthe\nbranch\sarrows\sin\sa\stimeline\sgraph.
-D 2019-05-17T16:45:29.063
+C Add\stooltips\sto\smore\selements.\s\sClick\sto\sjump\sto\sthe\sbranch\sdisplayed\sby\nthe\stooltip\s-\sexcept\sclicking\sno\sa\snode\stoggles\sthe\snode\sselection\son\sand\soff\nas\sit\salways\shas.
+D 2019-05-17T17:48:42.780
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 6b88935dafe05c59bd27f2d01dc90cddd72b7a061459e153c67f700f27833848
-F src/graph.js badbb16dfe20c04c3cc033c04789851b7824907062079c5e0d03b479d76746e4
+F src/graph.js 76f38f88475bbcb91aca4cc3b3095f490eb8524589a3f63562962c498b663643
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,10 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78d812e24d983dbe021183c6d6b4cc48a216f7e497bb70a4927f004d3feb6a3c
-R d12303cda8d1699f76076d208e83ed5d
-T *branch * tooltips
-T *sym-tooltips *
-T -sym-graph-improvements *
+P 8e922935feb9445af9eedc88f086ac6810f95d238e56870cda64ba0e111a1bfc
+R 8672305f8d803edbc78e6cadba1744e6
 U drh
-Z ff95511b847de6ca50c9a8618ad7c1a3
+Z e4c88bce59d6c44ee52ae15aa3ca1c42

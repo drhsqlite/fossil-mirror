@@ -77,7 +77,7 @@ function amendCss(circleNodes,showArrowheads){
 var tooltipObj = document.createElement("span");
 tooltipObj.className = "tl-tooltip";
 tooltipObj.style.visibility = "hidden";
-document.getElementsByTagName("BODY")[0].appendChild(tooltipObj);
+document.getElementsByClassName("content")[0].appendChild(tooltipObj);
 
 function TimelineGraph(tx){
   var topObj = document.getElementById("timelineTable"+tx.iTableId);
@@ -199,19 +199,27 @@ function TimelineGraph(tx){
     var y0 = from.y + node.h/2;
     var y1 = Math.ceil(to.y + node.h + arw.h/2);
     var n = drawLine(line,color,x,y0,null,y1);
-    n.onmouseenter = tooltipEnter
-    n.onmouseleave = tooltipLeave
-    n.setAttribute("data-id",id)
+    addToolTip(n,id)
     x = to.x + (node.w-arw.w)/2;
     n = drawBox(arw.cls,null,x,y);
     if(color) n.style.borderBottomColor = color;
+    addToolTip(n,id)
   }
-  function drawDotted(from,to,color){
+  function drawDotted(from,to,color,id){
     var x = to.x + (node.w-line.w)/2;
     var y0 = from.y + node.h/2;
     var y1 = Math.ceil(to.y + node.h);
     var n = drawLine(dotLine,null,x,y0,null,y1)
     if( color ) n.style.borderColor = color
+    addToolTip(n,id)
+  }
+  function addToolTip(n,id){
+    if( id ){
+      n.onmouseenter = tooltipEnter
+      n.onmouseleave = tooltipLeave
+      n.onclick = tooltipClick
+      n.setAttribute("data-ix",id-tx.iTopRow)
+    }
   }
   /* Draw thin horizontal or vertical lines representing merges */
   function drawMergeLine(x0,y0,x1,y1){
@@ -259,6 +267,7 @@ function TimelineGraph(tx){
     if( p.f&1 ) cls += " leaf";
     var n = drawBox(cls,p.bg,p.x,p.y);
     n.id = "tln"+p.id;
+    addToolTip(n,p.id)
     n.onclick = clickOnNode;
     n.style.zIndex = 10;
     if( !tx.omitDescenders ){
@@ -278,7 +287,7 @@ function TimelineGraph(tx){
           drawUpArrow({x: p.x, y: btm - node.h/2},p,p.fg,p.id);
         }else{
           drawUpArrow({x: p.x, y: p.y+50},p,p.fg,p.id);
-          drawDotted({x: p.x, y: p.y+63},{x: p.x, y: p.y+50-node.h/2},p.fg);
+          drawDotted({x: p.x, y: p.y+63},{x: p.x, y: p.y+50-node.h/2},p.fg,p.id);
         }
       }
     }
@@ -418,8 +427,8 @@ function TimelineGraph(tx){
     }
   }
   function tooltipEnter(e){
-    var id = this.getAttribute("data-id")
-    tooltipObj.textContent = tx.rowinfo[id-tx.iTopRow].br
+    var ix = this.getAttribute("data-ix")
+    tooltipObj.textContent = tx.rowinfo[ix].br
     tooltipObj.style.display = "inline"
     tooltipObj.style.position = "absolute"
     var x = e.x + 4 + window.pageXOffset
@@ -427,6 +436,13 @@ function TimelineGraph(tx){
     var y = e.y + window.pageYOffset - tooltipObj.clientHeight - 4
     tooltipObj.style.top = y+"px"
     tooltipObj.style.visibility = "visible"
+  }
+  function tooltipClick(e){
+    var ix = this.getAttribute("data-ix")
+    var br = tx.rowinfo[ix].br
+    var dest = "/timeline?r=" + encodeURIComponent(br)
+    tooltipObj.style.display = "none"
+    window.location.href = tx.baseUrl + dest
   }
   function tooltipLeave(e){
     tooltipObj.style.display = "none"
