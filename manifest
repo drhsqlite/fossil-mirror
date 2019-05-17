@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"moderate-disapprove-on-user-delete"
-D 2019-05-17T06:48:56.465
+C When\sdeleting\sa\suser\svia\s/setup_uedit,\salso\sdisapprove\sany\spending-moderation\sentries\sfor\susers\swhich\sare\sno\slonger\sin\sthe\suser\stable.\sThis\sis\sprogrammatically\ssimpler\sthan\sonly\sremoving\sentries\sfor\sthe\sremoved\suser\sbut\s(potential\scorner\scase)\swould\salso\sdisapprove\spending\smodreq\sentries\sif\sa\suser\saccount\sis\srenamed\swhile\smoderation\sof\stheir\scontent\sis\spending.
+D 2019-05-17T07:27:00.103
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -533,7 +533,7 @@ F src/mkbuiltin.c 216133ae5771fc8fd956d604d98bf1fdd9f329510a222f59cceaf98ff13442
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
-F src/moderate.c e0a2586665e8a583711db2516656f239c045c3b7b34812d91744a313d5cdaf6c
+F src/moderate.c 8bc923eb4c548fece04bae92c1f1ec10908fe17fe38a17f0e71e6e9319478b1c
 F src/name.c e962865417d65c3dba038afc8b9a3be8d2997e38dcadf55782dcebe485dc24db
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
@@ -554,7 +554,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 30e55791c7921efafc94ac9febd963b151239764023fc668d55acc3c08f4b86b
 F src/setup.c bedcb23e2cf8fce3095d2a35e7ca7fb5aa11d494906249ea87c13df6bbcaa455
-F src/setupuser.c 28d88987cafbc3eec35f0578a109b59fb4b528b2c992e60879f0ca0eba6e37e2
+F src/setupuser.c c99de47894081f5d97f34e9d0415655535b663b3d496431e3db8b91fc8dae7c1
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -874,10 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25eae5150c226d9421db50a404c27ed2ee111d3fcd9e2d79f22fd4c4236c91b6
-R 6726accf066c7e9d554766026ed51060
-T *branch * moderate-disapprove-on-user-delete
-T *sym-moderate-disapprove-on-user-delete *
-T -sym-trunk *
+P a0595089e5b8ea0e2f37afbfdb400135568a621c2125c0be1ea392b268ce0b22
+R 103651c5265bdfe57adf3cea052a105e
 U stephan
-Z 3434ef9f6b120a2ecdce33485ff08f08
+Z 5d5b9f9152ec9e05bcd4cdca446c6bfc
