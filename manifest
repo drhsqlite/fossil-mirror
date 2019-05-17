@@ -1,5 +1,5 @@
-C /setup_uedit\snow\srecords\sdeletion\sof\sa\suser\sin\sthe\sadministrative\slog.
-D 2019-05-17T05:58:16.416
+C Create\snew\sbranch\snamed\s"moderate-disapprove-on-user-delete"
+D 2019-05-17T06:48:56.465
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -874,7 +874,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c2504dce194002dc0a8124b160c256fa98735751e8773666348abc5b1900ef0
+P 25eae5150c226d9421db50a404c27ed2ee111d3fcd9e2d79f22fd4c4236c91b6
 R 6726accf066c7e9d554766026ed51060
+T *branch * moderate-disapprove-on-user-delete
+T *sym-moderate-disapprove-on-user-delete *
+T -sym-trunk *
 U stephan
-Z 952d5915bfaf1b323cca8de498f2d6bc
+Z 3434ef9f6b120a2ecdce33485ff08f08
