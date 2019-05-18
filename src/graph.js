@@ -414,6 +414,7 @@ function TimelineGraph(tx){
   }
   var selRow;
   function clickOnNode(e){
+    tooltipObj.style.display = "none"
     var p = tx.rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-tx.iTopRow];
     if( !selRow ){
       selRow = p;
@@ -462,7 +463,15 @@ function TimelineGraph(tx){
     if( ix<0 ){
       tooltipObj.style.display = "none"
     }else{  
-      tooltipObj.textContent = tx.rowinfo[ix].br
+      var br = tx.rowinfo[ix].br
+      var dest = tx.baseUrl + "/timeline?r=" + encodeURIComponent(br)
+      dest += "&c=" + encodeURIComponent(tx.rowinfo[ix].h)
+      var hbr = br.replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+      tooltipObj.innerHTML = "<a href=\""+dest+"\">"+hbr+"</a>"
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = e.x + 4 + window.pageXOffset

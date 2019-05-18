@@ -1,5 +1,5 @@
-C Single-click\sto\sget\sthe\stooltip.\s\sDouble-click\sto\shyperlink\sto\sthe\sbranch\ngraph.\sClick\sis\sapproximate\sand\sdoes\snot\srequire\sa\sdirect\shit\son\sthe\sgraph\nline.
-D 2019-05-18T02:07:20.818
+C The\stooltip\spop-up\scontains\sa\shyperlink\sto\sthe\sbranch
+D 2019-05-18T14:00:24.545
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 2c54d5bc2b80a4ed624223b7fd037ec8c0db01a1b2c70542399b5f281d459326
-F src/graph.js 58d4e7acfab60f8b95ac9f0ce72bc6e032a2e7e8c69c551033750af6e86866be
+F src/graph.js b1e983c8eda2366bf2811d9668cd525f7587ac5859b7a03d39e3c93bdda9d5f1
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1989a13acb4fbab35b38c8933c4ce45dca9232ad720c0fd6c54d737f99365295
-R e58f72232124e6a4a525cb8688b1a1d0
+P 9dc74546513b070a641d4c0ab26a745d7eaca7a7db32a55b81212d8f55526787
+R 8352b97d19b97a2f9ac64df4ff89d8b7
 U drh
-Z f11d75976a95451eabfe2a991b9dbe59
+Z 9d1dd9cc4919656a68ec721e6e6fe431
