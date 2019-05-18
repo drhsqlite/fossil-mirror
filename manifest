@@ -1,5 +1,5 @@
-C Merge\sall\senhancements\sfrom\strunk.
-D 2019-05-18T00:13:54.541
+C Single-click\sto\sget\sthe\stooltip.\s\sDouble-click\sto\shyperlink\sto\sthe\sbranch\ngraph.\sClick\sis\sapproximate\sand\sdoes\snot\srequire\sa\sdirect\shit\son\sthe\sgraph\nline.
+D 2019-05-18T02:07:20.818
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 2c54d5bc2b80a4ed624223b7fd037ec8c0db01a1b2c70542399b5f281d459326
-F src/graph.js 76f38f88475bbcb91aca4cc3b3095f490eb8524589a3f63562962c498b663643
+F src/graph.js 58d4e7acfab60f8b95ac9f0ce72bc6e032a2e7e8c69c551033750af6e86866be
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -571,7 +571,7 @@ F src/sqlite3.h 222fa5b021dd9d4bd827538c4b69d4bb27fdf441f46123b28157a5c80e4f129e
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 509dbc77dc8ea426115ffede838b85bc092b9ce00042db090f7f2fd8ddf4f510
+F src/style.c c05e0c557ccab2e9dbd058346eea95e80726c3f5192676c12d25a1278d41afad
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 600dba05c0fcaae31144f794b8dad2840f5e2d6b8b7891141b427a3aa3a0c422
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 804dbe0d5b35d1647d42c436befebbcc2049da6e7b03eee4ba1c522fb4830fd1 75867c972e120833828d9df71b20a9d5d71ca603ad0ff7cea761f31673994f2e
-R b7c2fe2fefa1321afb8f18dd56b88ebe
+P 1989a13acb4fbab35b38c8933c4ce45dca9232ad720c0fd6c54d737f99365295
+R e58f72232124e6a4a525cb8688b1a1d0
 U drh
-Z 1ea1f2a5742ff426baf1d5295a6ab657
+Z f11d75976a95451eabfe2a991b9dbe59

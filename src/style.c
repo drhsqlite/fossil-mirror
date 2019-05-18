@@ -580,6 +580,10 @@ static void style_load_all_js_files(void){
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
   @ <script nonce="%h(style_nonce())">
+  @ function debugMsg(msg){
+  @ var n = document.getElementById("debugMsg");
+  @ if(n){n.textContent=msg;}
+  @ }
   if( needHrefJs ){
     cgi_append_content(builtin_text("href.js"),-1);
   }
@@ -745,7 +749,7 @@ void style_footer(void){
       cgi_append_content(zAd, -1);
       @ </div>
     }
-    @ <div class="content">
+    @ <div class="content"><span id="debugMsg"></span>
   }
   cgi_destination(CGI_BODY);
 

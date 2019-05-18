@@ -79,13 +79,17 @@ tooltipObj.className = "tl-tooltip";
 tooltipObj.style.visibility = "hidden";
 document.getElementsByClassName("content")[0].appendChild(tooltipObj);
 
+/* Construct that graph corresponding to the timeline-data-N object */
 function TimelineGraph(tx){
   var topObj = document.getElementById("timelineTable"+tx.iTableId);
   amendCss(tx.circleNodes, tx.showArrowheads);
+  topObj.onclick = clickOnGraph
+  topObj.ondblclick = dblclickOnGraph
   var canvasDiv;
   var railPitch;
   var mergeOffset;
   var node, arrow, arrowSmall, line, mArrow, mLine, wArrow, wLine;
+
   function initGraph(){
     var parent = topObj.rows[0].cells[1];
     parent.style.verticalAlign = "top";
@@ -169,13 +173,18 @@ function TimelineGraph(tx){
     return n;
   }
   function absoluteY(obj){
-    var top = 0;
-    if( obj.offsetParent ){
-      do{
-        top += obj.offsetTop;
-      }while( obj = obj.offsetParent );
-    }
-    return top;
+    var y = 0;
+    do{
+      y += obj.offsetTop;
+    }while( obj = obj.offsetParent );
+    return y;
+  }
+  function absoluteX(obj){
+    var x = 0;
+    do{
+      x += obj.offsetLeft;
+    }while( obj = obj.offsetParent );
+    return x;
   }
   function miLineY(p){
     return p.y + node.h - mLine.w - 1;
@@ -214,12 +223,7 @@ function TimelineGraph(tx){
     addToolTip(n,id)
   }
   function addToolTip(n,id){
-    if( id ){
-      n.onmouseenter = tooltipEnter
-      n.onmouseleave = tooltipLeave
-      n.onclick = tooltipClick
-      n.setAttribute("data-ix",id-tx.iTopRow)
-    }
+    if( id ) n.setAttribute("data-ix",id-tx.iTopRow)
   }
   /* Draw thin horizontal or vertical lines representing merges */
   function drawMergeLine(x0,y0,x1,y1){
@@ -269,6 +273,7 @@ function TimelineGraph(tx){
     n.id = "tln"+p.id;
     addToolTip(n,p.id)
     n.onclick = clickOnNode;
+    n.ondblclick = dblclickOnNode;
     n.style.zIndex = 10;
     if( !tx.omitDescenders ){
       if( p.u==0 ){
@@ -408,7 +413,7 @@ function TimelineGraph(tx){
     }
   }
   var selRow;
-  function clickOnNode(){
+  function clickOnNode(e){
     var p = tx.rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-tx.iTopRow];
     if( !selRow ){
       selRow = p;
@@ -425,27 +430,56 @@ function TimelineGraph(tx){
         location.href=tx.baseUrl + "/vdiff?from="+selRow.h+"&to="+p.h
       }
     }
+    e.stopPropagation()
   }
-  function tooltipEnter(e){
-    var ix = this.getAttribute("data-ix")
-    tooltipObj.textContent = tx.rowinfo[ix].br
-    tooltipObj.style.display = "inline"
-    tooltipObj.style.position = "absolute"
-    var x = e.x + 4 + window.pageXOffset
-    tooltipObj.style.left = x+"px"
-    var y = e.y + window.pageYOffset - tooltipObj.clientHeight - 4
-    tooltipObj.style.top = y+"px"
-    tooltipObj.style.visibility = "visible"
+  function dblclickOnNode(e){
+    var p = tx.rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-tx.iTopRow];
+    window.location.href = tx.baseUrl+"/info/"+p.h
+    e.stopPropagation()
   }
-  function tooltipClick(e){
-    var ix = this.getAttribute("data-ix")
+  function findTxIndex(e){
+    /* Look at all the graph elements.  If any graph elements that is near
+    ** the click-point "e" and has a "data-ix" attribute, then return
+    ** the value of that attribute.  Otherwise return -1 */
+    var x = e.x + window.pageXOffset - absoluteX(canvasDiv);
+    var y = e.y + window.pageYOffset - absoluteY(canvasDiv);
+    var aNode = canvasDiv.childNodes
+    var nNode = aNode.length;
+    var i;
+    for(i=0;i<nNode;i++){
+      var n = aNode[i]
+      if( !n.hasAttribute("data-ix") ) continue;
+      if( x<n.offsetLeft-5 ) continue;
+      if( x>n.offsetLeft+n.offsetWidth+5 ) continue;
+      if( y<n.offsetTop-5 ) continue;
+      if( y>n.offsetTop+n.offsetHeight ) continue;
+      return n.getAttribute("data-ix")
+    }
+    return -1
+  }
+  function clickOnGraph(e){
+    var ix = findTxIndex(e);
+    if( ix<0 ){
+      tooltipObj.style.display = "none"
+    }else{  
+      tooltipObj.textContent = tx.rowinfo[ix].br
+      tooltipObj.style.display = "inline"
+      tooltipObj.style.position = "absolute"
+      var x = e.x + 4 + window.pageXOffset
+      tooltipObj.style.left = x+"px"
+      var y = e.y + window.pageYOffset - tooltipObj.clientHeight - 4
+      tooltipObj.style.top = y+"px"
+      tooltipObj.style.visibility = "visible"
+    }
+  }
+  function dblclickOnGraph(e){
+    if( tx.fileDiff ) return
+    var ix = findTxIndex(e);
     var br = tx.rowinfo[ix].br
     var dest = "/timeline?r=" + encodeURIComponent(br)
+    dest += "&c=" + encodeURIComponent(tx.rowinfo[ix].h)
     tooltipObj.style.display = "none"
     window.location.href = tx.baseUrl + dest
-  }
-  function tooltipLeave(e){
-    tooltipObj.style.display = "none"
   }
   function changeDisplay(selector,value){
     var x = document.getElementsByClassName(selector);
