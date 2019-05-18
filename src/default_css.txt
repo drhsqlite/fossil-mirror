@@ -207,6 +207,10 @@ span.timelineEllipsis {
   position: absolute;
   z-index: 100;
 }
+.tl-tooltip a {
+  background-color: #fecd4b;
+  color: black;
+}
 
 span.tagDsp {
   font-weight: bold;
