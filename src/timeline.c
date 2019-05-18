@@ -2011,8 +2011,9 @@ void page_timeline(void){
                       zYearMonth);
     }
     else if( zYearWeek ){
+      char *z;
       zYearWeek = timeline_expand_datetime(zYearWeek);
-      char *z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
+      z = db_text(0, "SELECT strftime('%%Y-%%W',%Q)", zYearWeek);
       if( z && z[0] ){
         zYearWeekStart = db_text(0, "SELECT date(%Q,'-6 days','weekday 1')",
                                  zYearWeek);
