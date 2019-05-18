@@ -458,14 +458,21 @@ function TimelineGraph(tx){
     }
     return -1
   }
+  /* Compute the hyperlink for the branch graph for tx.rowinfo[ix] */
+  function branchHyperlink(ix){
+    var br = tx.rowinfo[ix].br
+    var dest = tx.baseUrl + "/timeline?r=" + encodeURIComponent(br)
+    dest += tx.fileDiff ? "&m&cf=" : "&m&c="
+    dest += encodeURIComponent(tx.rowinfo[ix].h)
+    return dest
+  }
   function clickOnGraph(e){
     var ix = findTxIndex(e);
     if( ix<0 ){
       tooltipObj.style.display = "none"
     }else{  
       var br = tx.rowinfo[ix].br
-      var dest = tx.baseUrl + "/timeline?r=" + encodeURIComponent(br)
-      dest += "&c=" + encodeURIComponent(tx.rowinfo[ix].h)
+      var dest = branchHyperlink(ix)
       var hbr = br.replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
          .replace(/>/g, "&gt;")
@@ -482,13 +489,10 @@ function TimelineGraph(tx){
     }
   }
   function dblclickOnGraph(e){
-    if( tx.fileDiff ) return
     var ix = findTxIndex(e);
-    var br = tx.rowinfo[ix].br
-    var dest = "/timeline?r=" + encodeURIComponent(br)
-    dest += "&c=" + encodeURIComponent(tx.rowinfo[ix].h)
+    var dest = branchHyperlink(ix)
     tooltipObj.style.display = "none"
-    window.location.href = tx.baseUrl + dest
+    window.location.href = dest
   }
   function changeDisplay(selector,value){
     var x = document.getElementsByClassName(selector);

@@ -1479,6 +1479,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    a=TIMEORTAG     After this event
 **    b=TIMEORTAG     Before this event
 **    c=TIMEORTAG     "Circa" this event
+**    cf=FILEHASH     "Circa" the first use of the file with FILEHASH
 **    m=TIMEORTAG     Mark this event
 **    n=COUNT         Maximum number of events.  "all" for no limit
 **    p=CHECKIN       Parents and ancestors of CHECKIN
@@ -1641,6 +1642,18 @@ void page_timeline(void){
   cookie_render();
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
+
+  /* Convert the cf=FILEHASH query parameter into a c=CHECKINHASH value */
+  if( P("cf")!=0 ){
+    zCirca = db_text(0,
+      "SELECT (SELECT uuid FROM blob WHERE rid=mlink.mid)"
+      "  FROM mlink, event"
+      " WHERE mlink.fid=(SELECT rid FROM blob WHERE uuid LIKE '%q%%')"
+      "   AND event.objid=mlink.mid"
+      " ORDER BY event.mtime LIMIT 1",
+      P("cf")
+    );
+  }
 
   /* Convert r=TAG to t=TAG&rel. */
   if( zBrName && !related ){
