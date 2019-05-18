@@ -290,6 +290,8 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
+TCC += -DHAVE_BIO_ADDR_HOSTNAME_STRING=1
+RCC += -DHAVE_BIO_ADDR_HOSTNAME_STRING=1
 endif
 
 # With relative paths in external diff/gdiff
