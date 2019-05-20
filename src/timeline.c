@@ -240,12 +240,13 @@ int timeline_tableid(void){
 **   10.  Short comment to user for repeated tickets and wiki
 */
 void www_print_timeline(
-  Stmt *pQuery,          /* Query to implement the timeline */
-  int tmFlags,           /* Flags controlling display behavior */
-  const char *zThisUser, /* Suppress links to this user */
-  const char *zThisTag,  /* Suppress links to this tag */
-  int selectedRid,       /* Highlight the line with this RID value */
-  void (*xExtra)(int)    /* Routine to call on each line of display */
+  Stmt *pQuery,            /* Query to implement the timeline */
+  int tmFlags,             /* Flags controlling display behavior */
+  const char *zThisUser,   /* Suppress links to this user */
+  const char *zThisTag,    /* Suppress links to this tag */
+  const char *zLeftBranch, /* Strive to put this branch on the left margin */
+  int selectedRid,         /* Highlight the line with this RID value */
+  void (*xExtra)(int)      /* Routine to call on each line of display */
 ){
   int mxWikiLen;
   Blob comment;
@@ -761,7 +762,7 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( pGraph ){
-    graph_finish(pGraph, tmFlags);
+    graph_finish(pGraph, zLeftBranch, tmFlags);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
@@ -831,6 +832,7 @@ void timeline_output_graph_javascript(
     int fileDiff;        /* True for file diff.  False for check-in diff */
     int omitDescenders;  /* True to omit descenders */
     int scrollToSelect;  /* True to scroll to the selection */
+    u8 *aiMap;           /* The rail map */
 
     iRailPitch = atoi(PD("railpitch","0"));
     showArrowheads = skin_detail_boolean("timeline-arrowheads");
@@ -905,16 +907,17 @@ void timeline_output_graph_javascript(
     **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
     */
+    aiMap = pGraph->aiRailMap;
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       int k = 0;
       cgi_printf("{\"id\":%d,",     pRow->idx);
       cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
-      cgi_printf("\"r\":%d,",       pRow->iRail);
+      cgi_printf("\"r\":%d,",       aiMap[pRow->iRail]);
       if( pRow->bDescender ){
         cgi_printf("\"d\":%d,",       pRow->bDescender);
       }
       if( pRow->mergeOut>=0 ){
-        cgi_printf("\"mo\":%d,",      pRow->mergeOut);
+        cgi_printf("\"mo\":%d,",      aiMap[pRow->mergeOut]);
         if( pRow->mergeUpto==0 ) pRow->mergeUpto = pRow->idx;
         cgi_printf("\"mu\":%d,",      pRow->mergeUpto);
         if( pRow->cherrypickUpto>0 && pRow->cherrypickUpto<pRow->mergeUpto ){
@@ -937,7 +940,7 @@ void timeline_output_graph_javascript(
             cSep = '[';
           }
           k++;
-          cgi_printf("%c%d,%d", cSep, i, pRow->aiRiser[i]);
+          cgi_printf("%c%d,%d", cSep, aiMap[i], pRow->aiRiser[i]);
           cSep = ',';
         }
       }
@@ -950,7 +953,7 @@ void timeline_output_graph_javascript(
       /* mi */
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i]==1 ){
-          int mi = i;
+          int mi = aiMap[i];
           if( (pRow->mergeDown >> i) & 1 ) mi = -mi;
           if( k==0 ){
             cgi_printf("\"mi\":");
@@ -965,7 +968,7 @@ void timeline_output_graph_javascript(
       /* ci */
       for(i=k=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i]==2 ){
-          int mi = i;
+          int mi = aiMap[i];
           if( (pRow->cherrypickDown >> i) & 1 ) mi = -mi;
           if( k==0 ){
             cgi_printf("\"ci\":");
@@ -2381,7 +2384,8 @@ void page_timeline(void){
   if( zNewerButton ){
     @ %z(chref("button","%z",zNewerButton))More&nbsp;&uarr;</a>
   }
-  www_print_timeline(&q, tmFlags, zThisUser, zThisTag, selectedRid, 0);
+  www_print_timeline(&q, tmFlags, zThisUser, zThisTag, zBrName,
+                     selectedRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
     @ %z(chref("button","%z",zOlderButton))More&nbsp;&darr;</a>
@@ -2874,7 +2878,7 @@ void thisdayinhistory_page(void){
     @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
     @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
     @ </small></h2>
-    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0);
+    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0, 0);
   }
   db_finalize(&q);
   style_footer();
