@@ -518,15 +518,16 @@ void graph_finish(GraphContext *p, u32 tmFlags){
     if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
     if( pParent->idx <= pRow->idx ){
       pParent->timeWarp = 1;
-    }else if( pRow->idx < pParent->idx ){
+    }else if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
+      pParent->idxTop = pRow->idxTop;
     }
   }
 
   if( tmFlags & TIMELINE_FILLGAPS ){
-    /* If a node has no pChild but there is a node higher up in the graph
-    ** that is in the same branch and that other node has no parent in
-    ** the graph, the lower node a step-child of the upper node.  This will
+    /* If a node has no pChild and there is a node higher up in the graph
+    ** that is in the same branch and has no in-graph parent, then
+    ** make the lower node a step-child of the upper node.  This will
     ** be represented on the graph by a thick dotted line without an arrowhead.
     */
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
