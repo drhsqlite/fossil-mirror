@@ -90,6 +90,9 @@ the correct operation of the graph drawing logic.
      Mixed merge arrow, partly fully and partly cherrypick</a>
   *  <a href="../../../timeline?b=dc81ac70&n=13" target="testwindow">
      Mixed merge arrow to bottom of screen.</a>
+  *  <a href="../../../timeline?b=4471e93c&n=12" target="testwindow">
+     A fork on trunk keeps the longest chain of child nodes directly
+     above the fork and the shorter chain off to the side.
 
 External:
 
