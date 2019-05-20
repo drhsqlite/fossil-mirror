@@ -124,7 +124,7 @@ function TimelineGraph(tx){
       }.bind(window),tooltipInfo.dwellTimeout);
     }
     else
-      tooltipInfo.ix = -1;
+      tooltipInfo.ixElement = -1;
   };
   topObj.onmouseleave = function(e) {
     /* Hide the tooltip if the mouse is outside the "timelineTableN" element,
@@ -138,7 +138,7 @@ function TimelineGraph(tx){
         clearTimeout(tooltipInfo.idTimer);
         tooltipInfo.idTimer = 0;
       }
-      tooltipInfo.ix = -1;
+      tooltipInfo.ixElement = -1;
     }
   };
   var canvasDiv;
