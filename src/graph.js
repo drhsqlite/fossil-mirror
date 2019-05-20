@@ -90,6 +90,15 @@ function TimelineGraph(tx){
     var cursor = (ix<0) ? "" : "pointer"; /* Or: cursor = "help"? */
     document.getElementsByTagName('body')[0].style.cursor = cursor;
   };
+  topObj.onmouseleave = function(e) {
+    /* Hide the tooltip if the mouse is outside the "timelineTableN" element,
+    ** and outside the tooltip. */
+    if (tooltipObj.style.display != "none" &&
+          e.relatedTarget &&
+          e.relatedTarget != tooltipObj) {
+      tooltipObj.style.display = "none";
+    }
+  };
   var canvasDiv;
   var railPitch;
   var mergeOffset;

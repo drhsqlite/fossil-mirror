@@ -1,5 +1,5 @@
-C Make\sthe\s"click\sto\sshow\stooltip"\saction\smore\s"discoverable"\swith\sa\schanging\smouse\scursor,\ssimilar\sto\sthe\stimeline\snodes.\sThis\sexample\suses\sthe\s"pointer"\scursor,\sbut\sthe\s"help"\scursor\smay\salso\sbe\san\soption.
-D 2019-05-20T08:14:00.000
+C Hide\sthe\stooltip\sif\sthe\smouse\sis\soutside\sthe\scurrent\stimeline\stable,\sand\soutside\sthe\stooltip\sitself.
+D 2019-05-20T08:19:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 2c54d5bc2b80a4ed624223b7fd037ec8c0db01a1b2c70542399b5f281d459326
-F src/graph.js 11b8e8cb4e0bd1f94f130a398a8bf35b95e30f0970f05183d0e89e0515f9880c
+F src/graph.js db1ba2ddd34685ce3b7b815e419e6fa0906698412f1b909fd5b941448bda1ab3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,10 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b406b41453b00f9729fbd3de60d8c0c389336fea75a2f00a6ecf892cb46ab635
-R 2116bfba6cb78daa8fda7437cd1f8fb4
-T *branch * tooltip-experiments
-T *sym-tooltip-experiments *
-T -sym-tooltips *
+P 8b8eaad864c55212716d6627bd64f55d4678533c7b105e017f8300ce05b736e4
+R d24d087883ff39e4c731ae98af4189e6
 U florian
-Z 90dd2914a4263c8d5423c63837d2a4f6
+Z 4e0ae2e7743365f9ec4d270b626d1efe
