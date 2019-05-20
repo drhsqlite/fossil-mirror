@@ -542,7 +542,7 @@ void leaves_page(void){
   if( fNg==0 ) tmFlags |= TIMELINE_GRAPH;
   if( fBrBg ) tmFlags |= TIMELINE_BRCOLOR;
   if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

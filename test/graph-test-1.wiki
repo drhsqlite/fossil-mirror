@@ -90,6 +90,15 @@ the correct operation of the graph drawing logic.
      Mixed merge arrow, partly fully and partly cherrypick</a>
   *  <a href="../../../timeline?b=dc81ac70&n=13" target="testwindow">
      Mixed merge arrow to bottom of screen.</a>
+  *  <a href="../../../timeline?b=4471e93c&n=12" target="testwindow">
+     A fork on trunk keeps the longest chain of child nodes directly
+     above the fork and the shorter chain off to the side.</a>
+  *  <a href="../../../timeline?r=jan-manifest-tags&n=50" target="testwindow">
+     The "jan-manifest-tags" branch containing a non-trunk fork</a>
+  *  <a href="../../../timeline?r=diff-eolws&n=50" target="testwindow">
+     The "diff-eolws" branch containing a non-trunk fork</a>
+  *  <a href="../../../timeline?n=all&forks" target="testwindow">
+     All forks</a>
 
 External:
 
@@ -104,3 +113,6 @@ External:
      target='testwindow'>Previous, with a scrunched graph</a>
   *  <a href='http://core.tcl.tk/tk/timeline?y=ci&b=2015-03-07&railpitch=11'
      target='testwindow'>Previous, with a severely scrunched graph</a>
+  *  <a href="https://sqlite.org/src/timeline?r=wal&n=1000"
+     target='testwindow'>The "wal" branch SQLite repository, containing
+     multiple non-trunk forks.</a>

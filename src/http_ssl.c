@@ -389,7 +389,7 @@ int ssl_open(UrlData *pUrlData){
   ** if any files are received from the server.
   */
   {
-#ifdef HAVE_BIO_ADDR_HOSTNAME_STRING
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L
     char *ip = BIO_ADDR_hostname_string(BIO_get_conn_address(iBio),1);
     g.zIpAddr = mprintf("%s", ip);
     OPENSSL_free(ip);
