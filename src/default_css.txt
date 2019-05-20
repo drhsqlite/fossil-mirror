@@ -198,18 +198,25 @@ span.timelineEllipsis {
   background: rgba(255,255,255,0);
 }
 .tl-tooltip {
-  background-color: #fecd4b;
+  font-size: .9em;
+  background-color: #ffffe2;
   color: black;
   text-align: center;
-  padding: 5px 1em;
+  padding: 5px;
   border: 1px solid black;
-  border-radius: 6px;
+  box-shadow: 2px 2px 2px 0px rgba(128,128,128,0.67);
   position: absolute;
   z-index: 100;
 }
 .tl-tooltip a {
-  background-color: #fecd4b;
-  color: black;
+  background-color: #ffffe2;
+  color: #0000ee;
+}
+.tl-tooltip a:link, .tl-tooltip a:active, .tl-tooltip a:visited {
+  text-decoration: underline;
+}
+.tl-tooltip a:hover {
+  text-decoration: none;
 }
 
 span.tagDsp {
