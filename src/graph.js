@@ -78,6 +78,14 @@ var tooltipObj = document.createElement("span");
 tooltipObj.className = "tl-tooltip";
 tooltipObj.style.visibility = "hidden";
 document.getElementsByClassName("content")[0].appendChild(tooltipObj);
+/* This object must be in the global scope, so that (non-shadowed) access is
+** possible from within a setTimeout() closure. */
+window.tooltipInfo = {
+  dwellTimeout: 250,  /* The tooltip dwell timeout. */
+  idTimer: 0,         /* The tooltip dwell timer. */
+  ixElement: -1,      /* The id of the last hovered element. */
+  posX: 0, posY: 0    /* The last mouse position. */
+};
 
 /* Construct that graph corresponding to the timeline-data-N object */
 function TimelineGraph(tx){
@@ -89,6 +97,34 @@ function TimelineGraph(tx){
     var ix = findTxIndex(e);
     var cursor = (ix<0) ? "" : "pointer"; /* Or: cursor = "help"? */
     document.getElementsByTagName('body')[0].style.cursor = cursor;
+    /* Keep the already visible tooltip at a constant position, as long as the
+    ** mouse is over the same element. */
+    if (tooltipObj.style.display != "none" && ix == tooltipInfo.ixElement)
+      return;
+    /* The tooltip is either not visible, or the mouse is over a different
+    ** element, so clear the dwell timer, and record the new element id and
+    ** mouse position. */
+    if (tooltipInfo.idTimer != 0) {
+      clearTimeout(tooltipInfo.idTimer);
+      tooltipInfo.idTimer = 0;
+    }
+    if (ix >= 0) {
+      /* Close the tooltip only if the mouse is over another element, and init
+      ** the dwell timer again. */
+      tooltipObj.style.display = "none";
+      tooltipInfo.ixElement = ix;
+      tooltipInfo.posX = e.x;
+      tooltipInfo.posY = e.y;
+      tooltipInfo.idTimer = setTimeout(function() {
+        this.tooltipInfo.idTimer = 0;
+        showGraphTooltip(
+          this.tooltipInfo.ixElement,
+          this.tooltipInfo.posX,
+          this.tooltipInfo.posY);
+      }.bind(window),tooltipInfo.dwellTimeout);
+    }
+    else
+      tooltipInfo.ix = -1;
   };
   topObj.onmouseleave = function(e) {
     /* Hide the tooltip if the mouse is outside the "timelineTableN" element,
@@ -97,6 +133,12 @@ function TimelineGraph(tx){
           e.relatedTarget &&
           e.relatedTarget != tooltipObj) {
       tooltipObj.style.display = "none";
+      /* Clear the dwell timer. */
+      if (tooltipInfo.idTimer != 0) {
+        clearTimeout(tooltipInfo.idTimer);
+        tooltipInfo.idTimer = 0;
+      }
+      tooltipInfo.ix = -1;
     }
   };
   var canvasDiv;
@@ -482,6 +524,9 @@ function TimelineGraph(tx){
   }
   function clickOnGraph(e){
     var ix = findTxIndex(e);
+    showGraphTooltip(ix,e.x,e.y);
+  }
+  function showGraphTooltip(ix,posX,posY){
     if( ix<0 ){
       tooltipObj.style.display = "none"
     }else{  
@@ -495,9 +540,9 @@ function TimelineGraph(tx){
       tooltipObj.innerHTML = "<a href=\""+dest+"\">"+hbr+"</a>"
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
-      var x = e.x + 4 + window.pageXOffset
+      var x = posX + 4 + window.pageXOffset
       tooltipObj.style.left = x+"px"
-      var y = e.y + window.pageYOffset - tooltipObj.clientHeight - 4
+      var y = posY + window.pageYOffset - tooltipObj.clientHeight - 4
       tooltipObj.style.top = y+"px"
       tooltipObj.style.visibility = "visible"
     }

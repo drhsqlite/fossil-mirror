@@ -1,5 +1,5 @@
-C Classic\sstyling\sfor\sthe\stooltip\s(grey\sshadow,\salso\sworks\swith\sdark\sbackgrounds)\sand\sthe\shyperlink\s(blue\sand\sunderlined,\sto\sindicate\sit\scan\sbe\sclicked).
-D 2019-05-20T08:21:00.000
+C Experimental\schange\sto\shave\sthe\stooltip\sappear\sautomatically\safter\sa\s"dwell\stimeout",\sin\saddition\sto\smouse\sclicks.\sSee\sthe\swiki\spage\slinked\sto\sthis\sbranch\sfor\smore\sinformation.
+D 2019-05-20T08:32:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 2c54d5bc2b80a4ed624223b7fd037ec8c0db01a1b2c70542399b5f281d459326
-F src/graph.js db1ba2ddd34685ce3b7b815e419e6fa0906698412f1b909fd5b941448bda1ab3
+F src/graph.js 3891a4719185deaf394168a135ae1d9c0bad02e051e84066a55bce2f9bdfd95b
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bd803b06267b1a77dd4aa8d3597482319d122ec3e3033cbc58c6419d8df39d1c
-R fcb58526c2e34919414c9e3861dbbbcf
+P cdb85ba9c96ab6cbd1309b99110b1386daba91f820c1c90cafda00a317147f25
+R 75edf75b6c575b34fb610bd25533c50b
 U florian
-Z 39ae49ee132cd295b0984af24be87792
+Z 47a5e94d336966d8841ea5aea7450df7
