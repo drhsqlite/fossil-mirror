@@ -85,6 +85,11 @@ function TimelineGraph(tx){
   amendCss(tx.circleNodes, tx.showArrowheads);
   topObj.onclick = clickOnGraph
   topObj.ondblclick = dblclickOnGraph
+  topObj.onmousemove = function(e) {
+    var ix = findTxIndex(e);
+    var cursor = (ix<0) ? "" : "pointer"; /* Or: cursor = "help"? */
+    document.getElementsByTagName('body')[0].style.cursor = cursor;
+  };
   var canvasDiv;
   var railPitch;
   var mergeOffset;
