@@ -1,5 +1,5 @@
-C Back\sout\scheck-in\s[344a3331d34d896]\sbecause\sit\sdoes\snot\swork\swith\nopenssl-1.0.1.
-D 2019-05-18T21:05:29.866
+C Better\ssolution\sthan\s[344a3331d34d896],\swhich\sdoesn't\sinvolve\sruntime-detection.\sWorks\swith\sboth\sOpenssl\s1.0.1\sand\s1.1.0.
+D 2019-05-20T12:43:56.428
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -49,7 +49,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 23a29af21cbfb6750cb5a133e16cbd403c7c052e2c923844032db16537a8aa92
+F auto.def efd85d540b6933b868bc50b15d08d1a3282fbfcc77c05e0c5037821644ef9318
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup c235af4ce86af9a9b8b331b5a67c822d52ca2c6e
 F autosetup/autosetup 564c6ab11d5ab75d1aebc8d90ebc22df8babb01d2f9ada06d7964e5cfb7c38aa x
@@ -488,7 +488,7 @@ F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
 F src/http.c b92f1c1da44e75b1e385686b17a4597f14ab3db1979be4fed2f3ad7ca745a7b7
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c 1184472f4b2ac7b9902f5d8d61759e9d2706286ca4689c8232c193b7aec67e02
+F src/http_ssl.c 516d174698f7ef750358053cafab2fed1e7547c10f7c50a7706afea09869c93b
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c 2d8037a6e3193e3858b7dbbdb89e4f648bec614970c4cebcada74e998622fef2
@@ -874,8 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 420244cbd37be65dd3968c9e5b304fa38f7956f9a208426059578bf93b2983c6
-Q -344a3331d34d8967762a331652584fbcb6f4e643d9f05b6a571b8b4a1fea1587
-R b1e68f3247722273327bab9bb08b1588
-U drh
-Z b49ad9822e7371a910e62150d32c87ca
+P f08b93daa5260b57d290841aa6e71b23febc62b29347a96518de7c8378058eba
+R 2afc803832ea9cac8be81911384bb50c
+U jan.nijtmans
+Z e7988f9459388336710fbd8c16dbc9be
