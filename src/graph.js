@@ -80,19 +80,12 @@ tooltipObj.style.display = "none";
 document.getElementsByClassName("content")[0].appendChild(tooltipObj);
 /* Clear the close timer if the mouse is over the tooltip. */
 tooltipObj.onmouseenter = function(e) {
-  if (tooltipInfo.idTimerClose != 0) {
-    clearTimeout(tooltipInfo.idTimerClose);
-    tooltipInfo.idTimerClose = 0;
-  }
+  stopCloseTimer();
 };
 /* Init the close timer if the mouse is no longer over the tooltip. */
 tooltipObj.onmouseleave = function(e) {
-  if (tooltipInfo.ixActive != -1 && tooltipInfo.idTimerClose == 0) {
-    tooltipInfo.idTimerClose = setTimeout(function() {
-      tooltipInfo.idTimerClose = 0;
-      hideGraphTooltip();
-    }.bind(window),tooltipInfo.closeTimeout);
-  }
+  if (tooltipInfo.ixActive != -1)
+    resumeCloseTimer();
 };
 /* This object must be in the global scope, so that (non-shadowed) access is
 ** possible from within a setTimeout() closure. */
@@ -105,14 +98,34 @@ window.tooltipInfo = {
   ixActive: -1,       /* The id of the element with the tooltip. */
   posX: 0, posY: 0    /* The last mouse position. */
 };
-/* This function must be in the global scope, so that access is possible from
-** within non-local event handlers. */
-function hideGraphTooltip() {
+/* These functions must be in the global scope, so that access is possible from
+** within (non-local) event handlers. */
+var hideGraphTooltip = function() {
+  stopCloseTimer();
   tooltipObj.style.display = "none";
-  (function() {
-    this.tooltipInfo.ixActive = -1;
-  }).call(window);
-}
+  this.tooltipInfo.ixActive = -1;
+}.bind(window);
+var stopDwellTimer = function() {
+  if (this.tooltipInfo.idTimer != 0) {
+    clearTimeout(this.tooltipInfo.idTimer);
+    this.tooltipInfo.idTimer = 0;
+  }
+}.bind(window);
+var resumeCloseTimer = function() {
+  /* This timer must be stopped explicitly to reset the elapsed timeout. */
+  if (this.tooltipInfo.idTimerClose == 0) {
+    this.tooltipInfo.idTimerClose = setTimeout(function() {
+      this.tooltipInfo.idTimerClose = 0;
+      hideGraphTooltip();
+    }.bind(window),this.tooltipInfo.closeTimeout);
+  }
+}.bind(window);
+var stopCloseTimer = function() {
+  if (this.tooltipInfo.idTimerClose != 0) {
+    clearTimeout(this.tooltipInfo.idTimerClose);
+    this.tooltipInfo.idTimerClose = 0;
+  }
+}.bind(window);
 
 /* Construct that graph corresponding to the timeline-data-N object */
 function TimelineGraph(tx){
@@ -136,10 +149,7 @@ function TimelineGraph(tx){
     /* The tooltip is either not visible, or the mouse is over a different
     ** element, so clear the dwell timer, and record the new element id and
     ** mouse position. */
-    if (tooltipInfo.idTimer != 0) {
-      clearTimeout(tooltipInfo.idTimer);
-      tooltipInfo.idTimer = 0;
-    }
+    stopDwellTimer();
     if (ix >= 0) {
       /* Close the tooltip only if the mouse is over another element, and init
       ** the dwell timer again. */
@@ -148,19 +158,13 @@ function TimelineGraph(tx){
       tooltipInfo.ixHover = ix;
       tooltipInfo.posX = e.x;
       tooltipInfo.posY = e.y;
-      /* Clear the close timer. */
-      if (tooltipInfo.idTimerClose != 0) {
-        clearTimeout(tooltipInfo.idTimerClose);
-        tooltipInfo.idTimerClose = 0;
-      }
+      /* Clear the close timer, if not already cleared by hideGraphTooltip(). */
+      stopCloseTimer();
       if (!isReentry) {
         tooltipInfo.idTimer = setTimeout(function() {
           this.tooltipInfo.idTimer = 0;
           /* Clear the timer to hide the tooltip. */
-          if (this.tooltipInfo.idTimerClose != 0) {
-            clearTimeout(this.tooltipInfo.idTimerClose);
-            this.tooltipInfo.idTimerClose = 0;
-          }
+          stopCloseTimer();
           showGraphTooltip(
             this.tooltipInfo.ixHover,
             this.tooltipInfo.posX,
@@ -173,12 +177,7 @@ function TimelineGraph(tx){
       tooltipInfo.ixHover = -1;
       /* The mouse is not over an element with a tooltip, init the hide
       ** timer. */
-      if (tooltipInfo.idTimerClose == 0) {
-        tooltipInfo.idTimerClose = setTimeout(function() {
-          this.tooltipInfo.idTimerClose = 0;
-          hideGraphTooltip();
-        }.bind(window),tooltipInfo.closeTimeout);
-      }
+      resumeCloseTimer();
     }
   };
   topObj.onmouseleave = function(e) {
@@ -190,15 +189,9 @@ function TimelineGraph(tx){
       tooltipInfo.ixHover = -1;
       hideGraphTooltip();
       /* Clear the dwell timer. */
-      if (tooltipInfo.idTimer != 0) {
-        clearTimeout(tooltipInfo.idTimer);
-        tooltipInfo.idTimer = 0;
-      }
+      stopDwellTimer();
       /* Clear the close timer. */
-      if (tooltipInfo.idTimerClose != 0) {
-        clearTimeout(tooltipInfo.idTimerClose);
-        tooltipInfo.idTimerClose = 0;
-      }
+      stopCloseTimer();
     }
   };
   var canvasDiv;
