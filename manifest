@@ -1,5 +1,5 @@
-C Auto-close\sthe\stooltip\safter\sa\stimeout,\sif\sthe\smouse\spointer\sis\sno\slonger\sover\sthe\sassociated\selement.\sThe\sauto-close\stimeout\sis\selapsed\s(and\sthe\stooltip\sclosed\sinstantly)\sif\sthe\smouse\spointer\sis\sover\sanother\selement,\spaused\s(and\sreset)\sas\slong\sas\sthe\smouse\spointer\sis\sover\sthe\stooltip,\sand\scancelled\s(and\sthe\stooltip\skept\sopen)\sif\sthe\smouse\spointer\sis\smoved\sback\sover\sthe\ssame\selement.
-D 2019-05-21T07:09:00.000
+C Deduplicate\scode,\sand\sconsistently\suse\s"style.display"\sinstead\sof\s"style.visibility"\sto\sshow\sand\shide\sthe\stooltip.
+D 2019-05-21T07:26:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 2c54d5bc2b80a4ed624223b7fd037ec8c0db01a1b2c70542399b5f281d459326
-F src/graph.js ce769912445091b24a91e87f12acd6e07149e190cb2c99350bd44c1eb77311fc
+F src/graph.js 2c8262f91c2cc5147267c6808c4a33e4f916f0084a1ced8dec83d6e49dc464c5
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4f1eb9043692a287c491fe7b510c7389e40c0757ee78539b2d7027ad4566656
-R 0b71e44a8f39a676dde8e6d461ed1a57
+P 3d5903ce0c0e6f008118c9e2cc3dba52f67d4619181243341c07012cb6c87864
+R de21e1a955a1e393626950d2585443d7
 U florian
-Z 6dd859ca2b75e51d3569dcb2d1b34ede
+Z 7f07bd4b25d2ec2089082a4bceedf9c4

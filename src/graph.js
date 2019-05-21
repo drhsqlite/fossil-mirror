@@ -76,7 +76,7 @@ function amendCss(circleNodes,showArrowheads){
 }
 var tooltipObj = document.createElement("span");
 tooltipObj.className = "tl-tooltip";
-tooltipObj.style.visibility = "hidden";
+tooltipObj.style.display = "none";
 document.getElementsByClassName("content")[0].appendChild(tooltipObj);
 /* Clear the close timer if the mouse is over the tooltip. */
 tooltipObj.onmouseenter = function(e) {
@@ -90,8 +90,7 @@ tooltipObj.onmouseleave = function(e) {
   if (tooltipInfo.ixActive != -1 && tooltipInfo.idTimerClose == 0) {
     tooltipInfo.idTimerClose = setTimeout(function() {
       tooltipInfo.idTimerClose = 0;
-      tooltipInfo.ixActive = -1;
-      tooltipObj.style.display = "none";
+      hideGraphTooltip();
     }.bind(window),tooltipInfo.closeTimeout);
   }
 };
@@ -106,6 +105,14 @@ window.tooltipInfo = {
   ixActive: -1,       /* The id of the element with the tooltip. */
   posX: 0, posY: 0    /* The last mouse position. */
 };
+/* This function must be in the global scope, so that access is possible from
+** within non-local event handlers. */
+function hideGraphTooltip() {
+  tooltipObj.style.display = "none";
+  (function() {
+    this.tooltipInfo.ixActive = -1;
+  }).call(window);
+}
 
 /* Construct that graph corresponding to the timeline-data-N object */
 function TimelineGraph(tx){
@@ -136,10 +143,8 @@ function TimelineGraph(tx){
     if (ix >= 0) {
       /* Close the tooltip only if the mouse is over another element, and init
       ** the dwell timer again. */
-      if (!isReentry) {
-        tooltipInfo.ixActive = -1;
-        tooltipObj.style.display = "none";
-      }
+      if (!isReentry)
+        hideGraphTooltip();
       tooltipInfo.ixHover = ix;
       tooltipInfo.posX = e.x;
       tooltipInfo.posY = e.y;
@@ -171,8 +176,7 @@ function TimelineGraph(tx){
       if (tooltipInfo.idTimerClose == 0) {
         tooltipInfo.idTimerClose = setTimeout(function() {
           this.tooltipInfo.idTimerClose = 0;
-          this.tooltipInfo.ixActive = -1;
-          tooltipObj.style.display = "none";
+          hideGraphTooltip();
         }.bind(window),tooltipInfo.closeTimeout);
       }
     }
@@ -184,8 +188,7 @@ function TimelineGraph(tx){
           e.relatedTarget &&
           e.relatedTarget != tooltipObj) {
       tooltipInfo.ixHover = -1;
-      tooltipInfo.ixActive = -1;
-      tooltipObj.style.display = "none";
+      hideGraphTooltip();
       /* Clear the dwell timer. */
       if (tooltipInfo.idTimer != 0) {
         clearTimeout(tooltipInfo.idTimer);
@@ -527,7 +530,7 @@ function TimelineGraph(tx){
   }
   var selRow;
   function clickOnNode(e){
-    tooltipObj.style.display = "none"
+    hideGraphTooltip()
     var p = tx.rowinfo[parseInt(this.id.match(/\d+$/)[0], 10)-tx.iTopRow];
     if( !selRow ){
       selRow = p;
@@ -585,7 +588,7 @@ function TimelineGraph(tx){
   }
   function showGraphTooltip(ix,posX,posY){
     if( ix<0 ){
-      tooltipObj.style.display = "none"
+      hideGraphTooltip()
     }else{  
       var br = tx.rowinfo[ix].br
       var dest = branchHyperlink(ix)
@@ -595,19 +598,18 @@ function TimelineGraph(tx){
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
       tooltipObj.innerHTML = "<a href=\""+dest+"\">"+hbr+"</a>"
-      tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = posX + 4 + window.pageXOffset
       tooltipObj.style.left = x+"px"
       var y = posY + window.pageYOffset - tooltipObj.clientHeight - 4
       tooltipObj.style.top = y+"px"
-      tooltipObj.style.visibility = "visible"
+      tooltipObj.style.display = "inline"
     }
   }
   function dblclickOnGraph(e){
     var ix = findTxIndex(e);
     var dest = branchHyperlink(ix)
-    tooltipObj.style.display = "none"
+    hideGraphTooltip()
     window.location.href = dest
   }
   function changeDisplay(selector,value){
