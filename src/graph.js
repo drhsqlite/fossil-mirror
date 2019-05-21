@@ -595,13 +595,16 @@ function TimelineGraph(tx){
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
+      /* Setup while hidden, to ensure proper dimensions. */
+      tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = "<a href=\""+dest+"\">"+hbr+"</a>"
+      tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = posX + 4 + window.pageXOffset
       tooltipObj.style.left = x+"px"
       var y = posY + window.pageYOffset - tooltipObj.clientHeight - 4
       tooltipObj.style.top = y+"px"
-      tooltipObj.style.display = "inline"
+      tooltipObj.style.visibility = "visible"
     }
   }
   function dblclickOnGraph(e){
