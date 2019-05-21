@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sintroduced\swith\s[e0198213f3]:\susing\s"style.visibility"\sis\sessential\sto\scalculate\sthe\sdimensions\sin\sthe\shidden\sstate.
-D 2019-05-21T09:40:00.000
+C Merge\sgraph\slayout\senhancements\sfrom\strunk.
+D 2019-05-21T19:07:27.064
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 105a9ee6001f92d1dc091be25ad9f5958c847cd881a3287f46c5f22dc8656180
+F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
 F src/graph.js 98912f479e6dc5fcf47f9e8ca9556b371b21ee6e0edcf8379ff44bdeb6079029
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e45429d7f47d86ace5aca9f92f7dfc6dd60c17d576f874eb40170a52c5b5f060
-R d5772d066a52e096dd92ce9363c5e6ef
-U florian
-Z 50bd7137da408675fe800535da58960e
+P 3850b32ceae21d5fb4f36f6c3e1932daa4a98c21f3643c0cdba832b0b4055451 d19df6161f01cea674a035eef4c9428c9ebc26aa08d5cfc88458803c83d68a3f
+R f6636dbd5eb8d7d457a265ae68efed84
+U drh
+Z 7630e7c9848ccb89d3efb3f38ebc3a19

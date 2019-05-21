@@ -75,6 +75,7 @@ struct GraphRow {
   u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
+  u8 selfUp;                  /* Space above this node but belonging */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
   i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
@@ -321,7 +322,9 @@ static void assignChildrenToRail(GraphRow *pBottom, u32 tmFlags){
   if( !pPrior->isLeaf && (tmFlags & TIMELINE_DISJOINT)==0 ){
     int n = RISER_MARGIN;
     GraphRow *p;
+    pPrior->selfUp = 0;
     for(p=pPrior; p && (n--)>0; p=p->pPrev){
+      pPrior->selfUp++;
       p->railInUse |= mask;
     }
   }
@@ -347,12 +350,13 @@ static void createMergeRiser(
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
       pParent->mergeOut = pParent->iRail;
+    }else if( pParent->idx - pChild->idx < pParent->selfUp ){
+      pParent->mergeOut = pParent->iRail;
     }else{
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
-      int iBtm = pParent->idx - (u==0 ? RISER_MARGIN : 1);
-      pParent->mergeOut = findFreeRail(p, pChild->idx, iBtm, iTarget);
+      pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1, iTarget);
       mask = BIT(pParent->mergeOut);
       for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
            pLoop=pLoop->pNext){
@@ -426,6 +430,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
+  u8 *aMap;            /* Copy of p->aiRailMap */
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
@@ -721,21 +726,22 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   /*
   ** Compute the rail mapping.
   */
-  for(i=0; i<=p->mxRail; i++) p->aiRailMap[i] = i;
+  aMap = p->aiRailMap;
+  for(i=0; i<=p->mxRail; i++) aMap[i] = i;
   if( zLeftBranch ){
     char *zLeft = persistBranchName(p, zLeftBranch);
-    for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
-      if( pRow->zBranch==zLeft ){
-        int iLeftRail = pRow->iRail;
-        p->aiRailMap[iLeftRail] = 0;
-        for(i=0, j=1; i<=p->mxRail; i++){
-          if( i==iLeftRail ) continue;
-          p->aiRailMap[i] = j++;
+    j = 0;
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( pRow->zBranch==zLeft && aMap[pRow->iRail]>=j ){
+        for(i=0; i<=p->mxRail; i++){
+          if( aMap[i]>=j && aMap[i]<=pRow->iRail ) aMap[i]++;
         }
-        assert( j==p->mxRail+1 );
-        break;
+        aMap[pRow->iRail] = j++;
       }
     }
+    cgi_printf("<!-- aiRailMap =");
+    for(i=0; i<=p->mxRail; i++) cgi_printf(" %d", aMap[i]);
+    cgi_printf(" -->\n");
   }
 
   p->nErr = 0;
