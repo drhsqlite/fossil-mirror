@@ -1,5 +1,5 @@
-C Add\sa\sconfiguration\soption\sunder\sthe\sAdmin/Timeline\ssetup\smenu\sto\sset\sthe\ndwellTimeout\sfor\stooltips.
-D 2019-05-21T02:15:49.779
+C Resolve\sthe\sfork.
+D 2019-05-21T08:27:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 105a9ee6001f92d1dc091be25ad9f5958c847cd881a3287f46c5f22dc8656180
-F src/graph.js 6c026af8378bbf99cdf839574d6a9f4cc9877c59ed6d8d99cce2d0995ab91e2d
+F src/graph.js fc82803a3cfdbd49e705ae17c93d45ab78294649d91fe780252d45d727d862a8
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,8 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 274e95f547149fe52fd6b35d2a30e99e7509fb25361d520f9733ea6e1605f744
-R 03257fb742183ef08c06f2c86f4208d9
-U drh
-Z bec5eb923c86e5a205b6ede6cc92dd5a
+P 5fc142df073760f35f8f4ecb1a1c69170d8cd3c545fd28a27aa60395df0b62b9 7fbad143e67f0afe8cb873f5421168107bbec4a6f90e454fcd00ee3155ef9888
+R bbc2aae92ef506cba9c7e6007027aad7
+T +closed 7fbad143e67f0afe8cb873f5421168107bbec4a6f90e454fcd00ee3155ef9888
+U florian
+Z 47cdc5dd1b0b8f118275439ccf5fa23a
