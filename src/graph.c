@@ -430,6 +430,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
+  u8 *aMap;            /* Copy of p->aiRailMap */
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
@@ -725,21 +726,22 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   /*
   ** Compute the rail mapping.
   */
-  for(i=0; i<=p->mxRail; i++) p->aiRailMap[i] = i;
+  aMap = p->aiRailMap;
+  for(i=0; i<=p->mxRail; i++) aMap[i] = i;
   if( zLeftBranch ){
     char *zLeft = persistBranchName(p, zLeftBranch);
-    for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
-      if( pRow->zBranch==zLeft ){
-        int iLeftRail = pRow->iRail;
-        p->aiRailMap[iLeftRail] = 0;
-        for(i=0, j=1; i<=p->mxRail; i++){
-          if( i==iLeftRail ) continue;
-          p->aiRailMap[i] = j++;
+    j = 0;
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( pRow->zBranch==zLeft && aMap[pRow->iRail]>=j ){
+        for(i=0; i<=p->mxRail; i++){
+          if( aMap[i]>=j && aMap[i]<=pRow->iRail ) aMap[i]++;
         }
-        assert( j==p->mxRail+1 );
-        break;
+        aMap[pRow->iRail] = j++;
       }
     }
+    cgi_printf("<!-- aiRailMap =");
+    for(i=0; i<=p->mxRail; i++) cgi_printf(" %d", aMap[i]);
+    cgi_printf(" -->\n");
   }
 
   p->nErr = 0;

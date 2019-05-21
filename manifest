@@ -1,5 +1,5 @@
-C Improved\slayout\sfor\smerge\sarrows.
-D 2019-05-21T18:35:58.271
+C Improved\scomputation\sof\sthe\srail\smapper\sfor\stimelines\son\sa\sbranch.\nIf\sthe\sbranch\sis\sacross\stwo\sor\smore\srails,\sthen\sall\srails\sof\sthat\nbranch\sare\smoved\sto\sthe\sleft\sas\sfar\sas\spractical.
+D 2019-05-21T19:04:50.988
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 4500055e07deda7076376b32c5ebcff5629744eba579eb96eaebc144121089cb
+F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
 F src/graph.js d8dcd4f8a4ce244496b2b61d8bd79edfc99f19fab1adbdd0bb6abfd97d0ef348
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 51510bfcea809c5a063dfd979441701f574fed9b3f369a1fd8178cb90b3a5f63
-R 2a52dba3ea187ec6904646a9a2b7f172
+P e008e051cd5076f4c480da7a0c2985a6d7ee72019987f13703a412ed26c8f7ee
+R f12a926053d4030eec2d169d80bd298e
 U drh
-Z 58495acb1dfdb067f82af4693c9407d4
+Z 160f9af9dfbd5606c0d26bae55dd371f
