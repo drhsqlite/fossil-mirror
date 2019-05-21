@@ -98,6 +98,7 @@ struct GraphContext {
   int nRow;                  /* Number of rows */
   int nHash;                 /* Number of slots in apHash[] */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
+  u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
 };
 
 #endif
@@ -419,7 +420,7 @@ static void riser_to_top(GraphRow *pRow){
 **       TIMELINE_FILLGAPS:    Use step-children
 **       TIMELINE_XMERGE:      Omit off-graph merge lines
 */
-void graph_finish(GraphContext *p, u32 tmFlags){
+void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
   int i, j;
   u64 mask;
@@ -716,5 +717,26 @@ void graph_finish(GraphContext *p, u32 tmFlags){
   ** Find the maximum rail number.
   */
   find_max_rail(p);
+
+  /*
+  ** Compute the rail mapping.
+  */
+  for(i=0; i<=p->mxRail; i++) p->aiRailMap[i] = i;
+  if( zLeftBranch ){
+    char *zLeft = persistBranchName(p, zLeftBranch);
+    for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
+      if( pRow->zBranch==zLeft ){
+        int iLeftRail = pRow->iRail;
+        p->aiRailMap[iLeftRail] = 0;
+        for(i=0, j=1; i<=p->mxRail; i++){
+          if( i==iLeftRail ) continue;
+          p->aiRailMap[i] = j++;
+        }
+        assert( j==p->mxRail+1 );
+        break;
+      }
+    }
+  }
+
   p->nErr = 0;
 }

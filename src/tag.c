@@ -756,7 +756,7 @@ void tagtimeline_page(void){
   if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();
