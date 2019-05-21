@@ -16,6 +16,7 @@
 **     "scrollToSelect": BOOLEAN,   // Scroll to selection on first render
 **     "nrail": INTEGER,            // Number of vertical "rails"
 **     "baseUrl": TEXT,             // Top-level URL
+**     "dwellTimeout": INTEGER,     // Tooltip delay in milliseconds
 **     "rowinfo": ROWINFO-ARRAY }
 **
 ** The rowinfo field is an array of structures, one per entry in the timeline,
@@ -91,6 +92,7 @@ window.tooltipInfo = {
 function TimelineGraph(tx){
   var topObj = document.getElementById("timelineTable"+tx.iTableId);
   amendCss(tx.circleNodes, tx.showArrowheads);
+  tooltipInfo.dwellTimeout = tx.dwellTimeout
   topObj.onclick = clickOnGraph
   topObj.ondblclick = dblclickOnGraph
   topObj.onmousemove = function(e) {
@@ -115,13 +117,15 @@ function TimelineGraph(tx){
       tooltipInfo.ixElement = ix;
       tooltipInfo.posX = e.x;
       tooltipInfo.posY = e.y;
-      tooltipInfo.idTimer = setTimeout(function() {
-        this.tooltipInfo.idTimer = 0;
-        showGraphTooltip(
-          this.tooltipInfo.ixElement,
-          this.tooltipInfo.posX,
-          this.tooltipInfo.posY);
-      }.bind(window),tooltipInfo.dwellTimeout);
+      if( tooltipInfo.dwellTimeout>0 ){
+        tooltipInfo.idTimer = setTimeout(function() {
+          this.tooltipInfo.idTimer = 0;
+          showGraphTooltip(
+            this.tooltipInfo.ixElement,
+            this.tooltipInfo.posX,
+            this.tooltipInfo.posY);
+        }.bind(window),tooltipInfo.dwellTimeout);
+      }
     }
     else
       tooltipInfo.ixElement = -1;
