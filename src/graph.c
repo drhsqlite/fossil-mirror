@@ -75,6 +75,7 @@ struct GraphRow {
   u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
+  u8 selfUp;                  /* Space above this node but belonging */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
   i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
@@ -321,7 +322,9 @@ static void assignChildrenToRail(GraphRow *pBottom, u32 tmFlags){
   if( !pPrior->isLeaf && (tmFlags & TIMELINE_DISJOINT)==0 ){
     int n = RISER_MARGIN;
     GraphRow *p;
+    pPrior->selfUp = 0;
     for(p=pPrior; p && (n--)>0; p=p->pPrev){
+      pPrior->selfUp++;
       p->railInUse |= mask;
     }
   }
@@ -347,12 +350,13 @@ static void createMergeRiser(
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
       pParent->mergeOut = pParent->iRail;
+    }else if( pParent->idx - pChild->idx < pParent->selfUp ){
+      pParent->mergeOut = pParent->iRail;
     }else{
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
-      int iBtm = pParent->idx - (u==0 ? RISER_MARGIN : 1);
-      pParent->mergeOut = findFreeRail(p, pChild->idx, iBtm, iTarget);
+      pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1, iTarget);
       mask = BIT(pParent->mergeOut);
       for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
            pLoop=pLoop->pNext){

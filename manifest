@@ -1,5 +1,5 @@
-C For\stimelines\swith\sthe\sr=\squery\sparameter\sfor\sa\sparticular\sbranch,\stry\sto\ndraw\sthat\sbranch\son\sthe\sfar\sleft.
-D 2019-05-21T17:59:17.280
+C Improved\slayout\sfor\smerge\sarrows.
+D 2019-05-21T18:35:58.271
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -481,7 +481,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 105a9ee6001f92d1dc091be25ad9f5958c847cd881a3287f46c5f22dc8656180
+F src/graph.c 4500055e07deda7076376b32c5ebcff5629744eba579eb96eaebc144121089cb
 F src/graph.js d8dcd4f8a4ce244496b2b61d8bd79edfc99f19fab1adbdd0bb6abfd97d0ef348
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -874,8 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7193681a84017eaad1ab6138f8be3b5019663c43c28ea847b1a9e158b0563d67 b39d8d69dd6708c074d238fa08592277c13c8f6721a9fde8f5e2571d261fb3b5
-R 18422b264ffc48623ebd6e2451094a89
-T +closed b39d8d69dd6708c074d238fa08592277c13c8f6721a9fde8f5e2571d261fb3b5
+P 51510bfcea809c5a063dfd979441701f574fed9b3f369a1fd8178cb90b3a5f63
+R 2a52dba3ea187ec6904646a9a2b7f172
 U drh
-Z ef46efa8143e2861a171c2fc709d4f8f
+Z 58495acb1dfdb067f82af4693c9407d4
