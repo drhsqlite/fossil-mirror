@@ -752,12 +752,20 @@ void setup_timeline(void){
   @ (Property: "timeline-max-comment")</p>
 
   @ <hr />
-  entry_attribute("Tooltip dwell time", 6,
+  entry_attribute("Tooltip dwell time (milliseconds)", 6,
                   "timeline-dwelltime", "tdt", "250", 0);
-  @ <p>The time (in milliseconds) that the mouse pointer should be
-  @ stationary above a object of the graph before a tooltip appears.
-  @ Set this to "0" to disable tooltips.
-  @ (Property: "timeline-dwelltime")</p>
+  @ <br>
+  entry_attribute("Tooltip close time (milliseconds)", 6,
+                  "timeline-closetime", "tct", "3000", 0);
+  @ <p>The <strong>dwell time</strong> defines how long the mouse pointer
+  @ should be stationary above an object of the graph before a tooltip
+  @ appears.<br>
+  @ The <strong>close time</strong> defines how long the mouse pointer
+  @ can be away from an object before a tooltip is closed.</p>
+  @ <p>Set <strong>dwell time</strong> to "0" to disable tooltips.<br>
+  @ Set <strong>close time</strong> to "0" to keep tooltips visible until
+  @ the mouse is clicked elsewhere.<p>
+  @ <p>(Properties: "timeline-dwelltime", "timeline-closetime")</p>
 
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>

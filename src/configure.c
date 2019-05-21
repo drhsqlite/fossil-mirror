@@ -98,6 +98,7 @@ static struct {
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
   { "timeline-dwelltime",     CONFIGSET_SKIN },
+  { "timeline-closetime",     CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
   { "timeline-truncate-at-blank", CONFIGSET_SKIN },

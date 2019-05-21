@@ -832,7 +832,8 @@ void timeline_output_graph_javascript(
     int fileDiff;        /* True for file diff.  False for check-in diff */
     int omitDescenders;  /* True to omit descenders */
     int scrollToSelect;  /* True to scroll to the selection */
-    int dwellTimeout;    /* Milliseconds to wait for tooltips */
+    int dwellTimeout;    /* Milliseconds to wait for tooltips to show */
+    int closeTimeout;    /* Milliseconds to wait for tooltips to close */
     u8 *aiMap;           /* The rail map */
 
     iRailPitch = atoi(PD("railpitch","0"));
@@ -844,6 +845,7 @@ void timeline_output_graph_javascript(
     fileDiff = (tmFlags & TIMELINE_FILEDIFF)!=0;
     scrollToSelect = (tmFlags & TIMELINE_NOSCROLL)==0;
     dwellTimeout = atoi(db_get("timeline-dwelltime","250"));
+    closeTimeout = atoi(db_get("timeline-closetime","3000"));
     @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
     @   "iTableId": %d(iTableId),
     @   "circleNodes": %d(circleNodes),
@@ -858,6 +860,7 @@ void timeline_output_graph_javascript(
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
     @   "dwellTimeout": %d(dwellTimeout),
+    @   "closeTimeout": %d(closeTimeout),
     @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null
