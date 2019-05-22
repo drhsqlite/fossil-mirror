@@ -198,18 +198,12 @@ span.timelineEllipsis {
   background: rgba(255,255,255,0);
 }
 .tl-tooltip {
-  background-color: #fecd4b;
-  color: black;
   text-align: center;
   padding: 5px 1em;
   border: 1px solid black;
   border-radius: 6px;
   position: absolute;
   z-index: 100;
-}
-.tl-tooltip a {
-  background-color: #fecd4b;
-  color: #004080;
 }
 
 span.tagDsp {

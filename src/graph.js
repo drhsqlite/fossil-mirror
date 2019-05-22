@@ -590,8 +590,9 @@ function TimelineGraph(tx){
   }
   function showGraphTooltip(){
     var html = null
+    var ix = -1
     if( tooltipInfo.ixHover==-2 ){
-      var ix = parseInt(tooltipInfo.nodeHover.id.match(/\d+$/)[0],10)-tx.iTopRow
+      ix = parseInt(tooltipInfo.nodeHover.id.match(/\d+$/)[0],10)-tx.iTopRow
       var h = tx.rowinfo[ix].h
       var dest = tx.baseUrl + "/info/" + h
       if( tx.fileDiff ){
@@ -600,7 +601,7 @@ function TimelineGraph(tx){
         html = "<a href=\""+dest+"\">check-in "+h+"</a>"
       }
     }else if( tooltipInfo.ixHover>=0 ){
-      var ix = tooltipInfo.ixHover
+      ix = tooltipInfo.ixHover
       var br = tx.rowinfo[ix].br
       var dest = branchHyperlink(ix)
       var hbr = br.replace(/&/g, "&amp;")
@@ -613,6 +614,14 @@ function TimelineGraph(tx){
     }
     if( html ){
       /* Setup while hidden, to ensure proper dimensions. */
+      if( tx.rowinfo[ix].bg.length ){
+        tooltipObj.style.backgroundColor = tx.rowinfo[ix].bg
+      }else{
+        tooltipObj.style.backgroundColor = 
+          getComputedStyle(document.body).getPropertyValue('background-color')
+      }
+      tooltipObj.style.color = tx.rowinfo[ix].fg
+
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
       tooltipObj.style.display = "inline"
