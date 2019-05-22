@@ -1,5 +1,5 @@
-C Additional\ssimplification\sof\sthe\stooltip\sjavascript.
-D 2019-05-22T14:34:07.091
+C The\stooltip\sover\sa\sgraph\snode\sshows\sa\slink\sto\sthe\scheck-in\sor\sartifact\sthat\nthe\snode\srepresents,\snot\sa\slink\sto\sthe\sbranch.
+D 2019-05-22T15:42:22.520
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 3c489fabb0536c2db10275d8b54800abae9665e8a8caf0826e9154920f21548d
+F src/graph.js d6256cb50f0a00d268cf287b46e26df3c4c1fd614548ef5b8608b1e1f5309ec6
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2189edcd572747a938247973bfcacaa4adb4ab12db4c41fe790a81665eddc54f
-R a724ec246dd088a743f6f1f1d41a9462
+P c0f8f57835fe368e80fa2987ed1c35b717afa4ff0bdbde3aa5f7a55146eb5ad0
+R f5fd581cde4f62f3eb2c0ccda6680b8b
 U drh
-Z 4f88042b49c9e6094ac6c5cc064fc0ae
+Z fde4075cb8d418ca2277ca9d920013cf
