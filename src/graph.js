@@ -1,5 +1,8 @@
 /* This module contains javascript needed to render timeline graphs in Fossil.
 **
+** There can be multiple graphs on a single webpage, but this script is only
+** loaded once.  
+**
 ** Prior to sourcing this script, there should be a separate
 ** <script type='application/json' id='timeline-data-NN'> for each graph,
 ** each containing JSON like this:
@@ -59,6 +62,11 @@
 **        omitted if there are no cherrypick merges.
 **    h:  The artifact hash of the object being graphed
 */
+
+/* The amendCss() function does a one-time change to the CSS to account
+** for the "circleNodes" and "showArrowheads" settings.  Do this change
+** only once, even if there are multiple graphs being rendered.
+*/
 var amendCssOnce = 1; // Only change the CSS one time
 function amendCss(circleNodes,showArrowheads){
   if( !amendCssOnce ) return;
@@ -76,22 +84,18 @@ function amendCss(circleNodes,showArrowheads){
   }
   amendCssOnce = 0;
 }
+
+/* The <span> object that holds the tooltip */
 var tooltipObj = document.createElement("span");
 tooltipObj.className = "tl-tooltip";
 tooltipObj.style.display = "none";
 document.getElementsByClassName("content")[0].appendChild(tooltipObj);
-/* Clear the close timer if the mouse is over the tooltip. */
-tooltipObj.onmouseenter = function(e) {
-  stopCloseTimer();
-};
-/* Init the close timer if the mouse is no longer over the tooltip. */
-tooltipObj.onmouseleave = function(e) {
-  if (tooltipInfo.ixActive != -1)
-    resumeCloseTimer();
+tooltipObj.onmouseenter = function(){stopCloseTimer();}
+tooltipObj.onmouseleave = function(){
+  if (tooltipInfo.ixActive != -1) resumeCloseTimer();
 };
 
-/* This object must be in the global scope, so that (non-shadowed) access is
-** possible from within a setTimeout() closure. */
+/* State information for the tooltip popup and its timers */
 window.tooltipInfo = {
   dwellTimeout: 250,  /* The tooltip dwell timeout. */
   closeTimeout: 3000, /* The tooltip close timeout. */
@@ -102,7 +106,7 @@ window.tooltipInfo = {
   posX: 0, posY: 0    /* The last mouse position. */
 };
 
-
+/* Functions used to control the tooltip popup and its timer */
 function hideGraphTooltip(){
   stopCloseTimer();
   tooltipObj.style.display = "none";
@@ -130,7 +134,8 @@ function stopCloseTimer(){
   }
 }
 
-/* Construct that graph corresponding to the timeline-data-N object */
+/* Construct that graph corresponding to the timeline-data-N object that
+** is passed in by the tx parameter */
 function TimelineGraph(tx){
   var topObj = document.getElementById("timelineTable"+tx.iTableId);
   amendCss(tx.circleNodes, tx.showArrowheads);
@@ -153,29 +158,25 @@ function TimelineGraph(tx){
     ** mouse position. */
     stopDwellTimer();
     if(ix >= 0){
-      /* Close the tooltip only if the mouse is over another element, and init
-      ** the dwell timer again. */
-      if(!isReentry) hideGraphTooltip();
+      if(!isReentry){
+        /* Close existing tooltip only if the mouse is over a different element */
+        hideGraphTooltip();
+      }
       tooltipInfo.ixHover = ix;
       tooltipInfo.posX = e.x;
       tooltipInfo.posY = e.y;
-      /* Clear the close timer, if not already cleared by hideGraphTooltip(). */
       stopCloseTimer();
       if (!isReentry && tooltipInfo.dwellTimeout>0) {
         tooltipInfo.idTimer = setTimeout(function() {
           tooltipInfo.idTimer = 0;
-          /* Clear the timer to hide the tooltip. */
           stopCloseTimer();
-          showGraphTooltip(tooltipInfo.ixHover,
-                           tooltipInfo.posX,tooltipInfo.posY);
-          tooltipInfo.ixActive = tooltipInfo.ixHover;
+          showGraphTooltip();
         },tooltipInfo.dwellTimeout);
       }
     }
     else {
+      /* The mouse is not over an element with a tooltip */
       tooltipInfo.ixHover = -1;
-      /* The mouse is not over an element with a tooltip, init the hide
-      ** timer. */
       resumeCloseTimer();
     }
   };
@@ -571,13 +572,16 @@ function TimelineGraph(tx){
     return dest
   }
   function clickOnGraph(e){
-    var ix = findTxIndex(e);
-    showGraphTooltip(ix,e.x,e.y);
+    tooltipInfo.ixHover = findTxIndex(e);
+    tooltipInfo.posX = e.x;
+    tooltipInfo.posY = e.y;
+    showGraphTooltip();
   }
-  function showGraphTooltip(ix,posX,posY){
-    if( ix<0 ){
+  function showGraphTooltip(){
+    if( tooltipInfo.ixHoever<0 ){
       hideGraphTooltip()
-    }else{  
+    }else{
+      var ix = tooltipInfo.ixHover
       var br = tx.rowinfo[ix].br
       var dest = branchHyperlink(ix)
       var hbr = br.replace(/&/g, "&amp;")
@@ -590,11 +594,12 @@ function TimelineGraph(tx){
       tooltipObj.innerHTML = "<a href=\""+dest+"\">"+hbr+"</a>"
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
-      var x = posX + 4 + window.pageXOffset
+      var x = tooltipInfo.posX + 4 + window.pageXOffset
       tooltipObj.style.left = x+"px"
-      var y = posY + window.pageYOffset - tooltipObj.clientHeight - 4
+      var y = tooltipInfo.posY + window.pageYOffset - tooltipObj.clientHeight - 4
       tooltipObj.style.top = y+"px"
       tooltipObj.style.visibility = "visible"
+      tooltipInfo.ixActive = ix;
     }
   }
   function dblclickOnGraph(e){
