@@ -596,9 +596,9 @@ function TimelineGraph(tx){
       var h = tx.rowinfo[ix].h
       var dest = tx.baseUrl + "/info/" + h
       if( tx.fileDiff ){
-        html = "<a href=\""+dest+"\">artifact "+h+"</a>"
+        html = "artifact <a href=\""+dest+"\">"+h+"</a>"
       }else{
-        html = "<a href=\""+dest+"\">check-in "+h+"</a>"
+        html = "check-in <a href=\""+dest+"\">"+h+"</a>"
       }
     }else if( tooltipInfo.ixHover>=0 ){
       ix = tooltipInfo.ixHover
@@ -609,19 +609,19 @@ function TimelineGraph(tx){
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
-      html = "<a href=\""+dest+"\">"+hbr+"</a>"
+      html = "branch <a href=\""+dest+"\">"+hbr+"</a>"
       tooltipInfo.ixActive = ix;
     }
     if( html ){
       /* Setup while hidden, to ensure proper dimensions. */
+      var s = getComputedStyle(document.body)
       if( tx.rowinfo[ix].bg.length ){
         tooltipObj.style.backgroundColor = tx.rowinfo[ix].bg
       }else{
-        tooltipObj.style.backgroundColor = 
-          getComputedStyle(document.body).getPropertyValue('background-color')
+        tooltipObj.style.backgroundColor = s.getPropertyValue('background-color')
       }
-      tooltipObj.style.color = tx.rowinfo[ix].fg
-
+      tooltipObj.style.borderColor =
+         tooltipObj.style.color = s.getPropertyValue('color')
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
       tooltipObj.style.display = "inline"

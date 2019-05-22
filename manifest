@@ -1,5 +1,5 @@
-C Show\stooltips\sin\sthe\scolor\sscheme\sof\sthe\sobject\sthat\sthe\stooltip\srefers\sto.
-D 2019-05-22T18:09:41.605
+C Add\sa\snon-linked\s"type"\sname\sin\sfront\sof\sall\stooltips.\s\sStyle\sthe\sforeground\ncolor\sand\sborder\scolor\sbased\son\sthe\sdefault\sfont\scolor.
+D 2019-05-22T23:24:15.253
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 2a79c6fc884da078439d7b4faee8b66e824ec4f5beb60fc1029054fb53ac4adc
+F src/graph.js a1064c26f83ee79f21a6790aa2a7c1a38bf2219c793fea78d01adcb822ca3937
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5cfa435f816834ab076e99e6460ceb442f52e2b9dc14d1e8e8e9852eadc0eb3
-R 97810ffb5c628709681098fc82ef7fb7
+P cf1f42435a38fc62a689e6a21069544bbe25bf055047df25d71738ca09439c3a
+R 569c5b2cf445ea6c1bfd645a96d6e446
 U drh
-Z d29be2dc0786c06c88bc3ae8b6eac6d5
+Z 0a37d1470a03c9788390516a5394f93b
