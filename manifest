@@ -1,5 +1,5 @@
-C Merge\senhancements\sfrom\strunk.
-D 2019-05-23T17:08:02.818
+C Hide\sthe\stooltip\swhen\sleaving\sthe\spage.
+D 2019-05-23T17:18:56.711
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js cb910f2c5fcb9e4b021d2e752e5b773b78b9167861966d01d3a3affcb5b99786
+F src/graph.js 5aeefe80735fa167d92c4541978afbef5c522493f8b800b210014ae2e85db5a3
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0a7ddaba6b11fe4efa60877a9b15c6fb6f6e5f8075839b2501440aab53eded15 4f040a180a6ec90d5be3ea0f325cfd12acf2a6801a10c86900e5a166d4c994b1
-R a7a0d5b9095d6eec68d48f6d0a4ce843
+P cf07e5827ad2c1230f1eb5f75adbc210dc4a36c301e4d3d1647f48b188de4423
+R 378fafc01cf79bcd73e112c998d39038
 U drh
-Z 329f7aa8187c291efb68c0eb8dc13d32
+Z aeaee0a0917f590507dd46f58a1b5058
