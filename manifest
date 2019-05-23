@@ -1,5 +1,5 @@
-C Improved\scomputation\sof\sthe\srail\smapper\sfor\stimelines\son\sa\sbranch.\nIf\sthe\sbranch\sis\sacross\stwo\sor\smore\srails,\sthen\sall\srails\sof\sthat\nbranch\sare\smoved\sto\sthe\sleft\sas\sfar\sas\spractical.
-D 2019-05-21T19:04:50.988
+C Since\slibressl\sabuses\sOPENSSL_VERSION_NUMBER,\sdon't\slet\sfossil\sbeing\sconfused\sby\sthat.
+D 2019-05-23T06:44:09.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -488,7 +488,7 @@ F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
 F src/http.c b92f1c1da44e75b1e385686b17a4597f14ab3db1979be4fed2f3ad7ca745a7b7
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c 516d174698f7ef750358053cafab2fed1e7547c10f7c50a7706afea09869c93b
+F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c bc3578c0c73f3067866e0f9487267ca7451a2cd8a94adc04540e404d86e23b9e
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e008e051cd5076f4c480da7a0c2985a6d7ee72019987f13703a412ed26c8f7ee
-R f12a926053d4030eec2d169d80bd298e
-U drh
-Z 160f9af9dfbd5606c0d26bae55dd371f
+P d19df6161f01cea674a035eef4c9428c9ebc26aa08d5cfc88458803c83d68a3f
+R 3a918fafa5580b8a039530c07b8a3806
+U jan.nijtmans
+Z c50f7b57cdfa486f47d7c36486cf5ac4
