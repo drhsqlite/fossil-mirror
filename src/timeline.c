@@ -844,8 +844,8 @@ void timeline_output_graph_javascript(
     omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
     fileDiff = (tmFlags & TIMELINE_FILEDIFF)!=0;
     scrollToSelect = (tmFlags & TIMELINE_NOSCROLL)==0;
-    dwellTimeout = atoi(db_get("timeline-dwelltime","250"));
-    closeTimeout = atoi(db_get("timeline-closetime","3000"));
+    dwellTimeout = atoi(db_get("timeline-dwelltime","100"));
+    closeTimeout = atoi(db_get("timeline-closetime","250"));
     @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
     @   "iTableId": %d(iTableId),
     @   "circleNodes": %d(circleNodes),

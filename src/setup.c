@@ -753,10 +753,10 @@ void setup_timeline(void){
 
   @ <hr />
   entry_attribute("Tooltip dwell time (milliseconds)", 6,
-                  "timeline-dwelltime", "tdt", "250", 0);
+                  "timeline-dwelltime", "tdt", "100", 0);
   @ <br>
   entry_attribute("Tooltip close time (milliseconds)", 6,
-                  "timeline-closetime", "tct", "3000", 0);
+                  "timeline-closetime", "tct", "250", 0);
   @ <p>The <strong>dwell time</strong> defines how long the mouse pointer
   @ should be stationary above an object of the graph before a tooltip
   @ appears.<br>
