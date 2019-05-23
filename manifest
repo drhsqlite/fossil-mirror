@@ -1,5 +1,5 @@
-C Add\sa\sbox-shadow\sto\sthe\sdefault\sCSS\sfor\stooltips.
-D 2019-05-23T01:55:31.989
+C Avoid\schanging\s"r=TAG"\sinto\s"t=TAG"\sand\s"rel"\sin\sthe\sURL\sof\sa\s/timeline.
+D 2019-05-23T02:25:40.545
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -580,7 +580,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 60a99190527a649214f351a8697730f8de185540e20ad73e6d2f58c972631d7c
+F src/timeline.c 8208c3637d5e12b6a6bddaff32e2739c0930d6a80820fc4ee57821a02cad54d2
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bfa69a3013dde35432933a0ba863eaecf0f9674e333cd14a3a6f928e211c16f
-R 09df8a3dc66abead4a81ca817eb19e48
+P 22082e3ff2f905bb1e226fa0f5e7ea452545345d374da8e7c8e61d7f4138ebb9
+R f88d554430307dd981f40af5d2ac898a
 U drh
-Z a4f992040e4c57a15f6000e12751354d
+Z b6cced3dbadf025ae7634218e96e9420

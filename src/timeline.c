@@ -1664,11 +1664,8 @@ void page_timeline(void){
     );
   }
 
-  /* Convert r=TAG to t=TAG&rel. */
+  /* r=TAG works like a combination of t=TAG & rel */
   if( zBrName && !related ){
-    cgi_delete_query_parameter("r");
-    cgi_set_query_parameter("t", zBrName);
-    cgi_set_query_parameter("rel", "1");
     zTagName = zBrName;
     related = 1;
     zType = "ci";
