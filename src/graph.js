@@ -627,9 +627,11 @@ function TimelineGraph(tx){
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
+                   - absoluteX(tooltipObj.offsetParent)
       tooltipObj.style.left = x+"px"
       var y = tooltipInfo.posY + window.pageYOffset
                    - tooltipObj.clientHeight - 4
+                   - absoluteY(tooltipObj.offsetParent)
       tooltipObj.style.top = y+"px"
       tooltipObj.style.visibility = "visible"
     }else{
