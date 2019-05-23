@@ -1,5 +1,5 @@
-C Since\slibressl\sabuses\sOPENSSL_VERSION_NUMBER,\sdon't\slet\sfossil\sbeing\sconfused\sby\sthat.
-D 2019-05-23T06:44:09.445
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.29.0\salpha.
+D 2019-05-23T17:07:08.228
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -566,8 +566,8 @@ F src/skins.c e671205f17b61e05d4f1323d758ffdf77fb27eed2baba0188714fddd275c0486
 F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c da3cbdc500bb5ad8cb3bbc3ce3ab3cdc56c1c2ce2cd5d483a5155cc6c10086a4
-F src/sqlite3.c 8eae9fdece14c333d93fee0123c65f4e2243fe700f794f75c4c42843db40f4d4
-F src/sqlite3.h 222fa5b021dd9d4bd827538c4b69d4bb27fdf441f46123b28157a5c80e4f129e
+F src/sqlite3.c 5e9872440fc6b38f8611a232cebca1ad7e0ab1a4093f816def839fd4612b708e
+F src/sqlite3.h e94a06ed98e749bd81a596065ee578d2f2e2e836c49c1274004b0b2d4eb7f718
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d19df6161f01cea674a035eef4c9428c9ebc26aa08d5cfc88458803c83d68a3f
-R 3a918fafa5580b8a039530c07b8a3806
-U jan.nijtmans
-Z c50f7b57cdfa486f47d7c36486cf5ac4
+P 5c40d6b0d4cbcafb8fc662465c4f76066a21ea4c38964e3d7e2bc8d8d277c26f
+R 55ce553c1fe327e1ed0b525a9098010a
+U drh
+Z e8094fe52224ca180afbd62c4c72dbda
