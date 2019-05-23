@@ -1,5 +1,5 @@
-C Add\sa\snon-linked\s"type"\sname\sin\sfront\sof\sall\stooltips.\s\sStyle\sthe\sforeground\ncolor\sand\sborder\scolor\sbased\son\sthe\sdefault\sfont\scolor.
-D 2019-05-22T23:24:15.253
+C Add\sa\sbox-shadow\sto\sthe\sdefault\sCSS\sfor\stooltips.
+D 2019-05-23T01:55:31.989
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 1f9ee0e9055e1e9e9768165394744c4e3cbcab47cfa48534d051a2b467d32c9d
-F src/default_css.txt adf7f29c8adf8b2e2e82dfad95e16034559d9f1659098fb44376334888854ffe
+F src/default_css.txt e782bf8d2a03f23fe7d976cda79412c9ac923dd2b6995dd0c9e14ddd3042f9da
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 76168eb64023aec71d686179a0dca8f99c3d3d1dae61307d8e63e5ef7669f4a1
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cf1f42435a38fc62a689e6a21069544bbe25bf055047df25d71738ca09439c3a
-R 569c5b2cf445ea6c1bfd645a96d6e446
+P 2bfa69a3013dde35432933a0ba863eaecf0f9674e333cd14a3a6f928e211c16f
+R 09df8a3dc66abead4a81ca817eb19e48
 U drh
-Z 0a37d1470a03c9788390516a5394f93b
+Z a4f992040e4c57a15f6000e12751354d
