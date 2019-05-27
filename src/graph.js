@@ -104,6 +104,7 @@ window.tooltipInfo = {
   ixHover: -1,        /* The id of the element with the mouse. */
   ixActive: -1,       /* The id of the element with the tooltip. */
   nodeHover: null,    /* Graph node under mouse when ixHover==-2 */
+  imgCopy: null,      /* The image for the "Copy Hash" icon. */
   posX: 0, posY: 0    /* The last mouse position. */
 };
 
@@ -597,9 +598,9 @@ function TimelineGraph(tx){
       var h = tx.rowinfo[ix].h
       var dest = tx.baseUrl + "/info/" + h
       if( tx.fileDiff ){
-        html = "artifact <a href=\""+dest+"\">"+h+"</a>"
+        html = "artifact <a id=\"copyhash\" href=\""+dest+"\">"+h+"</a>"
       }else{
-        html = "check-in <a href=\""+dest+"\">"+h+"</a>"
+        html = "check-in <a id=\"copyhash\" href=\""+dest+"\">"+h+"</a>"
       }
       tooltipInfo.ixActive = -2;
     }else if( tooltipInfo.ixHover>=0 ){
@@ -611,11 +612,32 @@ function TimelineGraph(tx){
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
-      html = "branch <a href=\""+dest+"\">"+hbr+"</a>"
+      html = "branch <a id=\"copyhash\" href=\""+dest+"\">"+hbr+"</a>"
       tooltipInfo.ixActive = ix;
     }
     if( html ){
       /* Setup while hidden, to ensure proper dimensions. */
+      if( tooltipInfo.imgCopy==null ){
+        /* Create the image for the "Copy Hash" icon. */
+        tooltipInfo.imgCopy = document.createElement("img");
+        tooltipInfo.imgCopy.src =
+"data:image/svg+xml;utf8,"+
+"<svg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 14 16'>"+
+"<path style='fill: black; opacity:0' d='M 14 16 H 0 V 0 h 14 v 16 z'/> <path "+
+"style='fill:rgb(240,240,240)' d='M 1 0 h 6.6 l 2 2 h 1 l 3.4 3.4 v 8.6 h -10 "+
+"v -2 h -3 z'/><path style='fill:rgb(64,64,64)' d='M 2 1 h 5 l 3 3 v 7 h -8 "+
+"z'/><path style='fill:rgb(248,248,248)' d='M 3 2 h 3.6 l 2.4 2.4 v 5.6 h -6 "+
+"z'/><path style='fill:rgb(80,128,208)' d='M 4 5 h 4 v 1 h -4 z m 0 2 h 4 v 1 "+
+"h -4 z'/><path style='fill:rgb(64,64,64)' d='M 5 3 h 5 l 3 3 v 7 h -8 "+
+"z'/><path style='fill:rgb(248,248,248)' d='M 10 4.4 v 1.6 h 1.6 z m -4 -0.6 "+
+"h 3 v 3 h -3 z m 0 3 h 6 v 5.4 h -6 z'/><path style= 'fill:rgb(80,128,208)' "+
+"d='M 7 8 h 4 v 1 h -4 z m 0 2 h 4 v 1 h -4 z'/> "+
+"</svg>";
+        tooltipInfo.imgCopy.width = 14;
+        tooltipInfo.imgCopy.height = 16;
+        tooltipInfo.imgCopy.style.verticalAlign = "middle";
+        tooltipInfo.imgCopy.style.cursor = "pointer";
+      }
       var s = getComputedStyle(document.body)
       if( tx.rowinfo[ix].bg.length ){
         tooltipObj.style.backgroundColor = tx.rowinfo[ix].bg
@@ -626,6 +648,11 @@ function TimelineGraph(tx){
          tooltipObj.style.color = s.getPropertyValue('color')
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
+      /* The "Copy Hash" icon is not added via tooltipObj.innerHTML, to allow
+      ** for the image to be cached during the lifetime of the current page. */
+      tooltipObj.appendChild(document.createTextNode(' '));
+      tooltipObj.appendChild(tooltipInfo.imgCopy);
+      tooltipInfo.imgCopy.onclick = clickCopyHash;
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
@@ -746,3 +773,41 @@ function TimelineGraph(tx){
     TimelineGraph(tx);
   }
 }())
+
+/* The onclick handler for the "Copy Hash" icon on the tooltip. */
+var lockCopyHash = false;
+function clickCopyHash(e){
+  //e.preventDefault();
+  e.stopPropagation();
+  if( lockCopyHash ) return;
+  lockCopyHash = true;
+  var link = document.getElementById("copyhash");
+  if( link ){
+    var hash = link.innerText;
+    copyTextToClipboard(hash);
+  }
+  lockCopyHash = false;
+}
+/* Create a temporary <textarea> element and copy the contents to clipboard. */
+function copyTextToClipboard(text){
+  var textArea = document.createElement("textarea");
+  textArea.style.position = 'fixed';
+  textArea.style.top = 0;
+  textArea.style.left = 0;
+  textArea.style.width = '2em';
+  textArea.style.height = '2em';
+  textArea.style.padding = 0;
+  textArea.style.border = 'none';
+  textArea.style.outline = 'none';
+  textArea.style.boxShadow = 'none';
+  textArea.style.background = 'transparent';
+  textArea.value = text;
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try{
+    document.execCommand('copy');
+  }catch(err){
+  }
+  document.body.removeChild(textArea);
+}
