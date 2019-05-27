@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.29.0\salpha.
-D 2019-05-23T17:07:08.228
+C Fix\sa\smemory\sleak\sin\sthe\sdelta_parse()\stable-valued\sfunction,\spointed\sout\nby\sRalf\sJunkers.
+D 2019-05-27T11:17:43.059
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -462,7 +462,7 @@ F src/db.c 1f9ee0e9055e1e9e9768165394744c4e3cbcab47cfa48534d051a2b467d32c9d
 F src/default_css.txt 3f9dc58838759909d33f6029c42712f44f152ec22ef6261cf4270ebd60ee98ae
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
-F src/deltafunc.c 76168eb64023aec71d686179a0dca8f99c3d3d1dae61307d8e63e5ef7669f4a1
+F src/deltafunc.c feea452d2a456600a2efc6add532e527f05fd6f4290310757030ba08a9dadaea
 F src/descendants.c f20663f0c3388811bc57cb614f06a58cedd0ec1c0b0c147b6515d620592dcc99
 F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c40d6b0d4cbcafb8fc662465c4f76066a21ea4c38964e3d7e2bc8d8d277c26f
-R 55ce553c1fe327e1ed0b525a9098010a
+P 4f040a180a6ec90d5be3ea0f325cfd12acf2a6801a10c86900e5a166d4c994b1
+R 229c90fbeca22253e610ec418fa7a838
 U drh
-Z e8094fe52224ca180afbd62c4c72dbda
+Z 881950c35b1f016cca14f73dc06d3cd6
