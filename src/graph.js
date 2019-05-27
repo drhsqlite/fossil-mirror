@@ -601,6 +601,7 @@ function TimelineGraph(tx){
       }else{
         html = "check-in <a href=\""+dest+"\">"+h+"</a>"
       }
+      tooltipInfo.ixActive = -2;
     }else if( tooltipInfo.ixHover>=0 ){
       ix = tooltipInfo.ixHover
       var br = tx.rowinfo[ix].br
@@ -641,9 +642,11 @@ function TimelineGraph(tx){
   }
   function dblclickOnGraph(e){
     var ix = findTxIndex(e);
-    var dest = branchHyperlink(ix)
     hideGraphTooltip()
-    window.location.href = dest
+    if( ix>=0 ){
+      var dest = branchHyperlink(ix)
+      window.location.href = dest
+    }
   }
   function changeDisplay(selector,value){
     var x = document.getElementsByClassName(selector);
