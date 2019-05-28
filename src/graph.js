@@ -160,8 +160,8 @@ function TimelineGraph(tx){
     stopDwellTimer();
     if(ix >= 0){
       tooltipInfo.ixHover = ix;
-      tooltipInfo.posX = e.x;
-      tooltipInfo.posY = e.y;
+      tooltipInfo.posX = e.clientX;
+      tooltipInfo.posY = e.clientY;
       stopCloseTimer();
       if(tooltipInfo.dwellTimeout>0){
         tooltipInfo.idTimer = setTimeout(function() {
@@ -191,8 +191,8 @@ function TimelineGraph(tx){
     e.stopPropagation()
     if(tooltipInfo.ixHover==-2) return
     tooltipInfo.ixHover = -2
-    tooltipInfo.posX = e.x
-    tooltipInfo.posY = e.y
+    tooltipInfo.posX = e.clientX
+    tooltipInfo.posY = e.clientY
     tooltipInfo.nodeHover = this
     stopCloseTimer();
     if(tooltipInfo.dwellTimeout>0){
@@ -560,8 +560,8 @@ function TimelineGraph(tx){
     /* Look at all the graph elements.  If any graph elements that is near
     ** the click-point "e" and has a "data-ix" attribute, then return
     ** the value of that attribute.  Otherwise return -1 */
-    var x = e.x + window.pageXOffset - absoluteX(canvasDiv);
-    var y = e.y + window.pageYOffset - absoluteY(canvasDiv);
+    var x = e.clientX + window.pageXOffset - absoluteX(canvasDiv);
+    var y = e.clientY + window.pageYOffset - absoluteY(canvasDiv);
     var aNode = canvasDiv.childNodes
     var nNode = aNode.length;
     var i;
@@ -586,8 +586,8 @@ function TimelineGraph(tx){
   }
   function clickOnGraph(e){
     tooltipInfo.ixHover = findTxIndex(e);
-    tooltipInfo.posX = e.x;
-    tooltipInfo.posY = e.y;
+    tooltipInfo.posX = e.clientX;
+    tooltipInfo.posY = e.clientY;
     showGraphTooltip();
   }
   function showGraphTooltip(){
