@@ -1,5 +1,5 @@
-C Pedantic\scleanup\sto\show\sto\sthe\sSQL\scompress()/decompress()\sUDFs\sreport\san\sOOM,\swhich\scan\shappen\svia\szlib,\soutside\sof\sfossil's\sfail-fast\sallocator.
-D 2019-05-28T18:43:16.037
+C Add\sthe\slogin-group\scommand\sfor\smanaging\slogin\sgroups\sfrom\sthe\scommand-line.
+D 2019-05-28T20:51:13.362
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 73e026debf0868fc7c09d608ecaa23f5b80d46069349f89819915d21d7ba4c3b
+F src/login.c aa9c5669f0906ae7bd6c414a192b3bad7c1224ebc3bb41255dd6a240f41779fa
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d9040c6f22030a7316a97fae2513bc7324ff113694be72bb867a8c95ef47f1a
@@ -553,7 +553,7 @@ F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c5ce3301a977b3c24d2659f415e9b8c65c67e63896650d2f46eec3b2239fffb9
 F src/security_audit.c 30e55791c7921efafc94ac9febd963b151239764023fc668d55acc3c08f4b86b
-F src/setup.c bedcb23e2cf8fce3095d2a35e7ca7fb5aa11d494906249ea87c13df6bbcaa455
+F src/setup.c 8ba231ba681eb0e49b9dd1c9e1d43c2879e4e39976f610f9c31ab639252d2f87
 F src/setupuser.c c99de47894081f5d97f34e9d0415655535b663b3d496431e3db8b91fc8dae7c1
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9002a80ad62c5d296eebd03fda1b3b8a69623ca86a81387c19b9fb59e5705099
-R f9e819ed05e2b8211ee2e3c32abce5e4
-U stephan
-Z 9065380dab848f430be638fd42d0e8ac
+P 20abe259639742fa8ae9519f070c4b850f34f54345ad300218a5d2ba5c70fce5
+R b6eb584c6be77c879e5094334f037981
+U drh
+Z 0a443932fd98ab1f86a7421e2543479a

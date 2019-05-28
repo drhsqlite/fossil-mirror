@@ -560,7 +560,7 @@ void setup_login_group(void){
   zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
-    login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
+    login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
