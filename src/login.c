@@ -1975,7 +1975,7 @@ void login_group_leave(char **pzErrMsg){
 }
 
 /*
-** COMMAND: login-group
+** COMMAND: login-group*
 **
 ** Usage: %fossil login-group
 **    or: %fossil login-group join REPO [-name NAME]
