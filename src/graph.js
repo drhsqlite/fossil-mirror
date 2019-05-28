@@ -759,18 +759,18 @@ function createCopyHashImg(imgRecycled,idCopyTarget){
   if( img==null ){
     img = document.createElement("img");
     img.src =
-"data:image/svg+xml;utf8,"+
-"<svg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 14 16'>"+
-"<path style='fill: black; opacity:0' d='M 14 16 H 0 V 0 h 14 v 16 z'/> <path "+
-"style='fill:rgb(240,240,240)' d='M 1 0 h 6.6 l 2 2 h 1 l 3.4 3.4 v 8.6 h -10 "+
-"v -2 h -3 z'/><path style='fill:rgb(64,64,64)' d='M 2 1 h 5 l 3 3 v 7 h -8 "+
-"z'/><path style='fill:rgb(248,248,248)' d='M 3 2 h 3.6 l 2.4 2.4 v 5.6 h -6 "+
-"z'/><path style='fill:rgb(80,128,208)' d='M 4 5 h 4 v 1 h -4 z m 0 2 h 4 v 1 "+
-"h -4 z'/><path style='fill:rgb(64,64,64)' d='M 5 3 h 5 l 3 3 v 7 h -8 "+
-"z'/><path style='fill:rgb(248,248,248)' d='M 10 4.4 v 1.6 h 1.6 z m -4 -0.6 "+
-"h 3 v 3 h -3 z m 0 3 h 6 v 5.4 h -6 z'/><path style= 'fill:rgb(80,128,208)' "+
-"d='M 7 8 h 4 v 1 h -4 z m 0 2 h 4 v 1 h -4 z'/> "+
-"</svg>";
+"data:image/svg+xml,"+
+"%3Csvg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 14 16'%3E"+
+"%3Cpath style='fill: black; opacity:0' d='M 14 16 H 0 V 0 h 14 v 16 z'/%3E"+
+"%3Cpath style='fill:rgb(240,240,240)' d='M 1 0 h 6.6 l 2 2 h 1 l 3.4 3.4 v "+
+"8.6 h -10 v -2 h -3 z'/%3E%3Cpath style='fill:rgb(64,64,64)' d='M 2 1 h 5 l "+
+"3 3 v 7 h -8 z'/%3E%3Cpath style='fill:rgb(248,248,248)' d='M 3 2 h 3.6 l "+
+"2.4 2.4 v 5.6 h -6 z'/%3E%3Cpath style='fill:rgb(80,128,208)' d='M 4 5 h 4 v "+
+"1 h -4 z m 0 2 h 4 v 1 h -4 z'/%3E%3Cpath style='fill:rgb(64,64,64)' d='M 5 "+
+"3 h 5 l 3 3 v 7 h -8 z'/%3E%3Cpath style='fill:rgb(248,248,248)' d='M 10 4.4 "+
+"v 1.6 h 1.6 z m -4 -0.6 h 3 v 3 h -3 z m 0 3 h 6 v 5.4 h -6 z'/%3E%3Cpath "+
+"style= 'fill:rgb(80,128,208)' d='M 7 8 h 4 v 1 h -4 z m 0 2 h 4 v 1 h -4 "+
+"z'/%3E%3C/svg%3E";
     img.width = 14;
     img.height = 16;
   }
