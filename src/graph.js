@@ -617,27 +617,6 @@ function TimelineGraph(tx){
     }
     if( html ){
       /* Setup while hidden, to ensure proper dimensions. */
-      if( tooltipInfo.imgCopy==null ){
-        /* Create the image for the "Copy Hash" icon. */
-        tooltipInfo.imgCopy = document.createElement("img");
-        tooltipInfo.imgCopy.src =
-"data:image/svg+xml;utf8,"+
-"<svg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 14 16'>"+
-"<path style='fill: black; opacity:0' d='M 14 16 H 0 V 0 h 14 v 16 z'/> <path "+
-"style='fill:rgb(240,240,240)' d='M 1 0 h 6.6 l 2 2 h 1 l 3.4 3.4 v 8.6 h -10 "+
-"v -2 h -3 z'/><path style='fill:rgb(64,64,64)' d='M 2 1 h 5 l 3 3 v 7 h -8 "+
-"z'/><path style='fill:rgb(248,248,248)' d='M 3 2 h 3.6 l 2.4 2.4 v 5.6 h -6 "+
-"z'/><path style='fill:rgb(80,128,208)' d='M 4 5 h 4 v 1 h -4 z m 0 2 h 4 v 1 "+
-"h -4 z'/><path style='fill:rgb(64,64,64)' d='M 5 3 h 5 l 3 3 v 7 h -8 "+
-"z'/><path style='fill:rgb(248,248,248)' d='M 10 4.4 v 1.6 h 1.6 z m -4 -0.6 "+
-"h 3 v 3 h -3 z m 0 3 h 6 v 5.4 h -6 z'/><path style= 'fill:rgb(80,128,208)' "+
-"d='M 7 8 h 4 v 1 h -4 z m 0 2 h 4 v 1 h -4 z'/> "+
-"</svg>";
-        tooltipInfo.imgCopy.width = 14;
-        tooltipInfo.imgCopy.height = 16;
-        tooltipInfo.imgCopy.style.verticalAlign = "middle";
-        tooltipInfo.imgCopy.style.cursor = "pointer";
-      }
       var s = getComputedStyle(document.body)
       if( tx.rowinfo[ix].bg.length ){
         tooltipObj.style.backgroundColor = tx.rowinfo[ix].bg
@@ -651,8 +630,8 @@ function TimelineGraph(tx){
       /* The "Copy Hash" icon is not added via tooltipObj.innerHTML, to allow
       ** for the image to be cached during the lifetime of the current page. */
       tooltipObj.appendChild(document.createTextNode(' '));
+      tooltipInfo.imgCopy = createCopyHashImg(tooltipInfo.imgCopy,"copyhash");
       tooltipObj.appendChild(tooltipInfo.imgCopy);
-      tooltipInfo.imgCopy.onclick = clickCopyHash;
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
@@ -774,6 +753,33 @@ function TimelineGraph(tx){
   }
 }())
 
+/* Create the image for the "Copy Hash" icon. */
+function createCopyHashImg(imgRecycled,idCopyTarget){
+  var img = imgRecycled;
+  if( img==null ){
+    img = document.createElement("img");
+    img.src =
+"data:image/svg+xml;utf8,"+
+"<svg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 14 16'>"+
+"<path style='fill: black; opacity:0' d='M 14 16 H 0 V 0 h 14 v 16 z'/> <path "+
+"style='fill:rgb(240,240,240)' d='M 1 0 h 6.6 l 2 2 h 1 l 3.4 3.4 v 8.6 h -10 "+
+"v -2 h -3 z'/><path style='fill:rgb(64,64,64)' d='M 2 1 h 5 l 3 3 v 7 h -8 "+
+"z'/><path style='fill:rgb(248,248,248)' d='M 3 2 h 3.6 l 2.4 2.4 v 5.6 h -6 "+
+"z'/><path style='fill:rgb(80,128,208)' d='M 4 5 h 4 v 1 h -4 z m 0 2 h 4 v 1 "+
+"h -4 z'/><path style='fill:rgb(64,64,64)' d='M 5 3 h 5 l 3 3 v 7 h -8 "+
+"z'/><path style='fill:rgb(248,248,248)' d='M 10 4.4 v 1.6 h 1.6 z m -4 -0.6 "+
+"h 3 v 3 h -3 z m 0 3 h 6 v 5.4 h -6 z'/><path style= 'fill:rgb(80,128,208)' "+
+"d='M 7 8 h 4 v 1 h -4 z m 0 2 h 4 v 1 h -4 z'/> "+
+"</svg>";
+    img.width = 14;
+    img.height = 16;
+  }
+  img.style.verticalAlign = "middle";
+  img.style.cursor = "pointer";
+  img.setAttribute("data-copytarget",idCopyTarget);
+  img.onclick = clickCopyHash;
+  return img;
+}
 /* The onclick handler for the "Copy Hash" icon on the tooltip. */
 var lockCopyHash = false;
 function clickCopyHash(e){
@@ -781,9 +787,10 @@ function clickCopyHash(e){
   e.stopPropagation();
   if( lockCopyHash ) return;
   lockCopyHash = true;
-  var link = document.getElementById("copyhash");
-  if( link ){
-    var hash = link.innerText;
+  var idCopyTarget = this.getAttribute("data-copytarget");
+  var elCopyTarget = document.getElementById(idCopyTarget);
+  if( elCopyTarget ){
+    var hash = elCopyTarget.innerText;
     copyTextToClipboard(hash);
   }
   lockCopyHash = false;

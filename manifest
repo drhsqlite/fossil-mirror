@@ -1,5 +1,5 @@
-C Add\sa\s"Copy\sHash"\sicon\sto\sthe\stooltip,\sto\scopy\sthe\shash\sor\sbranch\sname\sof\sthe\sunderlying\selement\sto\sthe\sclipboard.\sSee\sthe\swiki\spage\slinked\sto\sthis\sbranch\sfor\smore\sinformation.
-D 2019-05-27T09:19:00.000
+C Move\sthe\scode\sto\ssetup\sthe\s"Copy\sHash"\sicon\sto\sa\sseparate\sfunction,\sand\slink\sthe\sicon\sto\sthe\starget\selement\sthrough\sa\s"data-copytarget"\sattribute,\sso\sthat\s"Copy\sHash"\sicons\scould\sbe\sadded\sin\sother\splaces\sthan\sjust\stooltips.
+D 2019-05-28T08:11:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 99165cc175fa9fba489a3b9ff97ff3674efd5779f865386200885645215c8a18
+F src/graph.js 60e2a66dbfbb715f4e08d65e1b95d62eef837aa4427db135fb9913165726e3df
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -874,10 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d57c1a797ce9cff50e040ec0d21e2fd793e1beb9d8ada09bd724d6e995ddc08a
-R 91155f76c55b50556f1b61e509a7999e
-T *branch * tooltip-copyhash
-T *sym-tooltip-copyhash *
-T -sym-tooltip-experiments *
+P 371943c936e649b62e4af5f8e6f8d5e9323d30d18d5f487d3c218fd361d9f457
+R 1bfad5fe684fb33761abc540175c71f1
 U florian
-Z 1597a07e035d05fa4749b0825eba83a6
+Z 50d134826c82f2d02810d542d18582a4
