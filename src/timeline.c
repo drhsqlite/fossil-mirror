@@ -993,6 +993,7 @@ void timeline_output_graph_javascript(
     }
     @ }</script>
     style_graph_generator();
+    style_copy_button(); /* Dependency: graph.js requires copybtn.js. */
     graph_free(pGraph);
   }
 }
