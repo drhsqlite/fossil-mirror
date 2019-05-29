@@ -2019,6 +2019,9 @@ void login_group_command(void){
         fossil_fatal("unknown extra arguments to \"login-group add\"");
       }
       zOther = g.argv[3];
+      login_group_leave(&zErr);
+      sqlite3_free(zErr);
+      zErr = 0;
       login_group_join(zOther,0,0,0,zNewName,&zErr);
       if( zErr ){
         fossil_fatal("%s", zErr);
@@ -2033,6 +2036,7 @@ void login_group_command(void){
         char *zErr = 0;
         fossil_print("Leaving login-group \"%s\"\n", zLGName);
         login_group_leave(&zErr);
+        if( zErr ) fossil_fatal("Oops: %s", zErr);
         return;
       }
     }else{

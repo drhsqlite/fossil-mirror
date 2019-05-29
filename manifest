@@ -1,5 +1,5 @@
-C Make\sthe\snew\s"login-group"\scommand\sa\ssecondary\scommand\sin\sthe\shelp\ssystem\nso\sthat\sone\sneeds\sto\sinclude\sthe\s"--all"\soption\sto\ssee\sit.
-D 2019-05-28T20:53:43.525
+C In\sthe\s"fossil\slogin-group"\scommand,\smake\ssure\sto\sleave\sone\sgroup\sbefore\njoining\sanother.
+D 2019-05-29T00:57:47.044
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -512,7 +512,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c b69b1669a767aea7e7ae5a1675e01fffbf3e0b1f273571098f51c29fb6c97fa8
+F src/login.c c4ac693bc6901d66be9be64ed81e24a64ac44fdd074e8b5f2b0423b96e2de08b
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 8d9040c6f22030a7316a97fae2513bc7324ff113694be72bb867a8c95ef47f1a
@@ -874,7 +874,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3ba504d5c85bebffd5d7fa1eb26f94daacfb77dc104d974539ecd06b1951f1e
-R c11a952ff66fec02daa49e09a2b19b42
+P fcec3edb03bc122ae06c8e18f65478f8a63dd2e6e6b7863eb78b5e9c989a8a54
+R 792ccb44fe952706f4472d8548d4aabe
 U drh
-Z df4eee87620a11cdddf62938b2b4de9c
+Z 02745ea2ddb4b9f38c39d61eccaea4db
