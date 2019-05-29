@@ -104,7 +104,6 @@ window.tooltipInfo = {
   ixHover: -1,        /* The id of the element with the mouse. */
   ixActive: -1,       /* The id of the element with the tooltip. */
   nodeHover: null,    /* Graph node under mouse when ixHover==-2 */
-  imgCopy: null,      /* The image for the "Copy Hash" icon. */
   posX: 0, posY: 0    /* The last mouse position. */
 };
 
@@ -598,9 +597,9 @@ function TimelineGraph(tx){
       var h = tx.rowinfo[ix].h
       var dest = tx.baseUrl + "/info/" + h
       if( tx.fileDiff ){
-        html = "artifact <a id=\"copyhash\" href=\""+dest+"\">"+h+"</a>"
+        html = "artifact <a id=\"tooltip-link\" href=\""+dest+"\">"+h+"</a>"
       }else{
-        html = "check-in <a id=\"copyhash\" href=\""+dest+"\">"+h+"</a>"
+        html = "check-in <a id=\"tooltip-link\" href=\""+dest+"\">"+h+"</a>"
       }
       tooltipInfo.ixActive = -2;
     }else if( tooltipInfo.ixHover>=0 ){
@@ -612,7 +611,7 @@ function TimelineGraph(tx){
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
-      html = "branch <a id=\"copyhash\" href=\""+dest+"\">"+hbr+"</a>"
+      html = "branch <a id=\"tooltip-link\" href=\""+dest+"\">"+hbr+"</a>"
       tooltipInfo.ixActive = ix;
     }
     if( html ){
@@ -627,11 +626,8 @@ function TimelineGraph(tx){
          tooltipObj.style.color = s.getPropertyValue('color')
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
-      /* The "Copy Hash" icon is not added via tooltipObj.innerHTML, to allow
-      ** for the image to be cached during the lifetime of the current page. */
       tooltipObj.appendChild(document.createTextNode(' '));
-      tooltipInfo.imgCopy = createCopyHashImg(tooltipInfo.imgCopy,"copyhash");
-      tooltipObj.appendChild(tooltipInfo.imgCopy);
+      tooltipObj.appendChild(makeCopyButton(null,"tooltip-link"));
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
@@ -753,47 +749,40 @@ function TimelineGraph(tx){
   }
 }())
 
-/* Create the image for the "Copy Hash" icon. */
-function createCopyHashImg(imgRecycled,idCopyTarget){
-  var img = imgRecycled;
-  if( img==null ){
-    img = document.createElement("img");
-    img.src =
-"data:image/svg+xml,"+
-"%3Csvg xmlns='http:"+"/"+"/www.w3.org/2000/svg' viewBox='0 0 14 16'%3E"+
-"%3Cpath style='fill: black; opacity:0' d='M 14 16 H 0 V 0 h 14 v 16 z'/%3E"+
-"%3Cpath style='fill:rgb(240,240,240)' d='M 1 0 h 6.6 l 2 2 h 1 l 3.4 3.4 v "+
-"8.6 h -10 v -2 h -3 z'/%3E%3Cpath style='fill:rgb(64,64,64)' d='M 2 1 h 5 l "+
-"3 3 v 7 h -8 z'/%3E%3Cpath style='fill:rgb(248,248,248)' d='M 3 2 h 3.6 l "+
-"2.4 2.4 v 5.6 h -6 z'/%3E%3Cpath style='fill:rgb(80,128,208)' d='M 4 5 h 4 v "+
-"1 h -4 z m 0 2 h 4 v 1 h -4 z'/%3E%3Cpath style='fill:rgb(64,64,64)' d='M 5 "+
-"3 h 5 l 3 3 v 7 h -8 z'/%3E%3Cpath style='fill:rgb(248,248,248)' d='M 10 4.4 "+
-"v 1.6 h 1.6 z m -4 -0.6 h 3 v 3 h -3 z m 0 3 h 6 v 5.4 h -6 z'/%3E%3Cpath "+
-"style= 'fill:rgb(80,128,208)' d='M 7 8 h 4 v 1 h -4 z m 0 2 h 4 v 1 h -4 "+
-"z'/%3E%3C/svg%3E";
-    img.width = 14;
-    img.height = 16;
+/* Create (if necessary) and initialize a "Copy Text" button <idButton> linked
+** to the target element <idTarget>.
+**
+** HTML snippet for statically created buttons:
+**    <span class="copy-button" id="idButton" data-copytarget="idTarget"></span>
+**
+** Note: <idTarget> can be set statically or dynamically, this function does not
+** overwrite "data-copytarget" attributes with empty values.
+*/
+function makeCopyButton(idButton,idTarget){
+  var button = document.getElementById(idButton);
+  if( !button ){
+    button = document.createElement("span");
+    button.className = "copy-button";
+    button.id = idButton;
   }
-  img.style.verticalAlign = "middle";
-  img.style.cursor = "pointer";
-  img.setAttribute("data-copytarget",idCopyTarget);
-  img.onclick = clickCopyHash;
-  return img;
+  if( idTarget ) button.setAttribute("data-copytarget",idTarget);
+  button.onclick = clickCopyButton;
+  return button;
 }
-/* The onclick handler for the "Copy Hash" icon on the tooltip. */
-var lockCopyHash = false;
-function clickCopyHash(e){
-  //e.preventDefault();
+/* The onclick handler for the "Copy Text" button. */
+var lockCopyText = false;
+function clickCopyButton(e){
+  e.preventDefault();   /* Mandatory for <a> and <button>. */
   e.stopPropagation();
-  if( lockCopyHash ) return;
-  lockCopyHash = true;
-  var idCopyTarget = this.getAttribute("data-copytarget");
-  var elCopyTarget = document.getElementById(idCopyTarget);
-  if( elCopyTarget ){
-    var hash = elCopyTarget.innerText;
-    copyTextToClipboard(hash);
+  if( lockCopyText ) return;
+  lockCopyText = true;
+  var idTarget = this.getAttribute("data-copytarget");
+  var elTarget = document.getElementById(idTarget);
+  if( elTarget ){
+    var text = elTarget.innerText;
+    copyTextToClipboard(text);
   }
-  lockCopyHash = false;
+  lockCopyText = false;
 }
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){
