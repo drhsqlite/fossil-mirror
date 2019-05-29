@@ -1,5 +1,5 @@
-C Move\sthe\s"Copy\sButton"\sfunctionality\sto\sa\sseparate\sJavascript\smodule,\sto\sbe\sloaded\sand\sused\sindependently\sfrom\sthe\stimeline\sgraph\smodule.
-D 2019-05-29T14:02:00.000
+C Apply\sthe\s"hash-digits"\ssetting\sto\slimit\sthe\slength\sof\shash\sprefixes\sdisplayed\son\stooltips.
+D 2019-05-29T14:14:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -483,7 +483,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 4e79749f049e8735f7531cec85d042a3e0b1782111aa51d7dfd186126a4e4f7e
+F src/graph.js 0f77159658e41ddde780375174e03ee94a6c2d7906965e9a71568662fa756ef7
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -581,7 +581,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 3966605af6e45682cbc062d4906b265973e235f64481d9a424c58db65dc802bf
+F src/timeline.c f7a4703e726c320c9ed2c064eb639aa84587d6aa02155b13507267af8e1db876
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
 F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c887a1bb007457d2c4d92ed2b0630ba9e457b2f9c85a12a3effe2737fef1fd66
-R 6c2c8d6d029b4ed21a977d2cd24e8578
+P f6fcbf292b9560d47c2eebd845bac5a6b0e0efd0c566975129ee113dd6fe64a7
+R 6c37cf0c3526525587e2ce329c677174
 U florian
-Z efece606f73dbbd4c40d09ce4a6fc974
+Z 7df1612bbeec7825a7c8ec65fec1db27
