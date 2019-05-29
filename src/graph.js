@@ -759,17 +759,17 @@ function TimelineGraph(tx){
 ** overwrite "data-copytarget" attributes with empty values.
 */
 function makeCopyButton(idButton,idTarget){
-  var button = document.getElementById(idButton);
-  if( !button ){
-    button = document.createElement("span");
-    button.className = "copy-button";
-    button.id = idButton;
+  var elButton = document.getElementById(idButton);
+  if( !elButton ){
+    elButton = document.createElement("span");
+    elButton.className = "copy-button";
+    elButton.id = idButton;
   }
-  button.style.transition = "";
-  button.style.opacity = 1;
-  if( idTarget ) button.setAttribute("data-copytarget",idTarget);
-  button.onclick = clickCopyButton;
-  return button;
+  elButton.style.transition = "";
+  elButton.style.opacity = 1;
+  if( idTarget ) elButton.setAttribute("data-copytarget",idTarget);
+  elButton.onclick = clickCopyButton;
+  return elButton;
 }
 /* The onclick handler for the "Copy Text" button. */
 var lockCopyText = false;
