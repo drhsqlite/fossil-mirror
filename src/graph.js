@@ -627,7 +627,7 @@ function TimelineGraph(tx){
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
       tooltipObj.appendChild(document.createTextNode(' '));
-      tooltipObj.appendChild(makeCopyButton(null,"tooltip-link"));
+      tooltipObj.appendChild(makeCopyButton("tooltip-copybtn","tooltip-link"));
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
@@ -765,6 +765,8 @@ function makeCopyButton(idButton,idTarget){
     button.className = "copy-button";
     button.id = idButton;
   }
+  button.style.transition = "";
+  button.style.opacity = 1;
   if( idTarget ) button.setAttribute("data-copytarget",idTarget);
   button.onclick = clickCopyButton;
   return button;
@@ -776,13 +778,22 @@ function clickCopyButton(e){
   e.stopPropagation();
   if( lockCopyText ) return;
   lockCopyText = true;
+  this.style.transition = "opacity 400ms ease-in-out";
+  this.style.opacity = 0;
   var idTarget = this.getAttribute("data-copytarget");
   var elTarget = document.getElementById(idTarget);
   if( elTarget ){
     var text = elTarget.innerText;
     copyTextToClipboard(text);
   }
-  lockCopyText = false;
+  setTimeout(function(id){
+    var elButton = document.getElementById(id);
+    if( elButton ){
+      elButton.style.transition = "";
+      elButton.style.opacity = 1;
+    }
+    lockCopyText = false;
+  }.bind(null,this.id),400);
 }
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){
