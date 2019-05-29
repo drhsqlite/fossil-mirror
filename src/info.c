@@ -1192,6 +1192,7 @@ void vdiff_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
+  load_control();
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
   cookie_render();
