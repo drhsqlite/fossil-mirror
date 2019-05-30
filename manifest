@@ -1,5 +1,5 @@
-C Apply\sthe\s"hash-digits"\ssetting\sto\slimit\sthe\slength\sof\shash\sprefixes\sdisplayed\son\stooltips.
-D 2019-05-29T14:14:00.000
+C Revert\sthe\smanual\sedits\sto\sthe\smakefiles\sfrom\s[f6fcbf292b],\sand\sonly\skeep\sthe\schanges\smade\sby\sthe\ssrc/makemake.tcl\sscript.
+D 2019-05-30T11:04:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -740,7 +740,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake e730fe39345b6e54621a1b541417ab3f3c75d7750c2fe43fcb3ef2d399cd9690
 F win/Makefile.dmc 2b3831624614c3b340018bb63f6c23e73e74d179470ef4910297bbffc17245e3
 F win/Makefile.mingw b1f9a5712dc1d228bba913a125d3426c9e7f73cae9851d1b1cd77f2d396cf19f
-F win/Makefile.mingw.mistachkin 0cca867c61ece39e76a5fabe828968a7dc767985b011f0c015bd683183a89a2a
+F win/Makefile.mingw.mistachkin 4d92838bf7c71c3f4062e9b435c71a9bc61899a0ff3052ee1b7f87f2eae652ac
 F win/Makefile.msc a7ee8a19f9627f99f0fffd48b76fca7d1e83aa4e478e5c04ac525bcddd741d46
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6fcbf292b9560d47c2eebd845bac5a6b0e0efd0c566975129ee113dd6fe64a7
-R 6c37cf0c3526525587e2ce329c677174
+P 90e4f5ae9f8f4e455d1650adb3362e9a372e52ed1117db551cbdcd97e9a615c1
+R 399584bab03b7f4f5a40cc52e67dcf6a
 U florian
-Z 7df1612bbeec7825a7c8ec65fec1db27
+Z 3d7ce975ad4e45758907432770a31c71
