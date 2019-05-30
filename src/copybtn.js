@@ -2,12 +2,15 @@
 ** to the target element <idTarget>.
 **
 ** HTML snippet for statically created buttons:
-**    <span class="copy-button" id="idButton" data-copytarget="idTarget"></span>
 **
-** Note: <idTarget> can be set statically or dynamically, this function does not
-** overwrite "data-copytarget" attributes with empty values.
+**    <span class="copy-button" id="idButton"
+**      data-copytarget="idTarget" data-copylength="cchLength"></span>
+**
+** Note: Both <idTarget> and <cchLength> can be set statically or dynamically,
+** i.e. the makeCopyButton() function does not overwrite the "data-copytarget"
+** and "data-copylength" attributes with empty/zero values.
 */
-function makeCopyButton(idButton,idTarget){
+function makeCopyButton(idButton,idTarget,cchLength){
   var elButton = document.getElementById(idButton);
   if( !elButton ){
     elButton = document.createElement("span");
@@ -17,6 +20,7 @@ function makeCopyButton(idButton,idTarget){
   elButton.style.transition = "";
   elButton.style.opacity = 1;
   if( idTarget ) elButton.setAttribute("data-copytarget",idTarget);
+  if( cchLength ) elButton.setAttribute("data-copylength",cchLength);
   elButton.onclick = clickCopyButton;
   return elButton;
 }
@@ -33,6 +37,8 @@ function clickCopyButton(e){
   var elTarget = document.getElementById(idTarget);
   if( elTarget ){
     var text = elTarget.innerText;
+    var cchLength = this.getAttribute("data-copylength");
+    if( cchLength ) text = text.slice(0,cchLength); // Assume single-byte chars.
     copyTextToClipboard(text);
   }
   setTimeout(function(id){

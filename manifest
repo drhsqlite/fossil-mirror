@@ -1,5 +1,5 @@
-C Revert\sthe\smanual\sedits\sto\sthe\smakefiles\sfrom\s[f6fcbf292b],\sand\sonly\skeep\sthe\schanges\smade\sby\sthe\ssrc/makemake.tcl\sscript.
-D 2019-05-30T11:04:00.000
+C Add\sthe\s"data-copylength"\sattribute\sto\scontrol\sthe\slength\sof\sthe\scopied\stext.\s(Rationale:\sAllow\scopying\sjust\sthe\sshortened\shash\sprefixes\sfrom\selements\sdisplaying\sthe\sfull-length\shashes,\sbecause\sthe\sshort\sforms\sare\spreferred\swhen\sbuilding\scommand-lines\sor\sURLs,\sand\sbecause\sthe\sfull-length\shashes\sare\salready\smuch\seasier\sto\scopy.)
+D 2019-05-30T11:33:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 18483c33db6fab7d58ccbea5a3faf0b8ea7b6c03e028db6a380bd1b8710861e3
 F src/content.c d49bd600d03d5de748c07e1ca0fdaf66b5c890410d61a541d397d4cb1b0ed13c
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
-F src/copybtn.js 266ea171d509e69fb922da14d7f9c6384372bc665043a9b93a5e066ee5103b46
+F src/copybtn.js fadbfb0b16c57d50134bc92cf0c2ddaf3a3976f3eecb8c98ff6d142ec1517890
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -483,7 +483,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 0f77159658e41ddde780375174e03ee94a6c2d7906965e9a71568662fa756ef7
+F src/graph.js 9f353be864c7c7546b296c01044030bee61fc2c5741bbb980942ce1ed44a327b
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 90e4f5ae9f8f4e455d1650adb3362e9a372e52ed1117db551cbdcd97e9a615c1
-R 399584bab03b7f4f5a40cc52e67dcf6a
+P 2002a508936a758d659a151ae7c6bb8909a8600ed297096399f0111acd31e981
+R 32f157fae4c1382ea313da77895c85dc
 U florian
-Z 3d7ce975ad4e45758907432770a31c71
+Z 17df213e05ac9f4bd09a4d144d7ddc1a
