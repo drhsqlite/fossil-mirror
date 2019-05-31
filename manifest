@@ -1,5 +1,5 @@
-C Auto-init\sHTML-defined\sbuttons\sduring\sthe\s"DOMContentLoaded"\sevent,\sso\sno\smore\sJavascript\scode\srequired,\sapart\sfrom\sloading\sthe\scopybtn.js\smodule.
-D 2019-05-31T15:34:00.000
+C Demonstration\sof\sthe\scopybtn.js\smodule\sbeyond\stooltips:\sadd\sa\scopy\sbutton\snear\sthe\sfull-length\shash\sof\scheck-ins\son\sthe\s/info\spage,\sto\scopy\sonly\sthe\shash\sprefix\swhen\sclicked.
+D 2019-05-31T16:36:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c bc3578c0c73f3067866e0f9487267ca7451a2cd8a94adc04540e404d86e23b9e
+F src/info.c 40b53eb2555f0d1486ea65d1b1b964a74526a7009de5c7992a1ea315a1a8263f
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -875,7 +875,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7fddf96cd6ece0fe4e139871be10d8de562f22dfe8312dc9e7aab70d65f41f7c
-R d7a895ef13032f729d98a170fa5159e2
+P 148b01359c844449478443800a64dd734820f838bccc23f17cdccdc93f694b58
+R efb5c6254925386919fde8a53112dd5e
+T *branch * copybtn.js-demonstration
+T *sym-copybtn.js-demonstration *
+T -sym-tooltip-copyhash *
 U florian
-Z 20cf982c120899bf73838a18a3753364
+Z d47449d83380bb2293463e8c0b8290bd

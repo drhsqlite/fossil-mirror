@@ -654,6 +654,12 @@ void ci_page(void){
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
 
+/* Preprocessor definitions copied from src\printf.c. */
+#ifndef FOSSIL_HASH_DIGITS
+# define FOSSIL_HASH_DIGITS 10
+#endif
+  int nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
+
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   zName = P("name");
@@ -795,7 +801,10 @@ void ci_page(void){
     @   </td>
     @ </tr>
 
-    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%.32s(zUuid)<wbr>%s(zUuid+32)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>
+    @ <span class="copy-button" id="copy-fullhash" data-copytarget="fullhash"
+    @ data-copylength="%d(nDigitHuman)"></span>
+    @ <span id="fullhash">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
