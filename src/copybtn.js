@@ -1,22 +1,39 @@
-/* Create (if necessary) and initialize a "Copy Text" button <idButton> linked
-** to the target element <idTarget>.
+/* Manage "Copy Buttons" linked to target elements, to copy the text (or, parts
+** thereof) of the target elements to the clipboard.
+**
+** Newly created buttons are <span> elements with an SVG background icon,
+** defined by the "copy-button" class in the default CSS style sheet.
+**
+** To simplify customization, the only properties modified for HTML-defined
+** buttons are the "onclick" handler, and the "transition" and "opacity" styles
+** (used for animation).
+**
+** For HTML-defined buttons, either initCopyButtonById(), or initCopyButton(),
+** needs to be called to attach the "onclick" handler.
+**
+** The initialization functions do not overwrite the "data-copytarget" and
+** "data-copylength" attributes with empty or null values for <idTarget> and
+** <cchLength>, respectively. Set <cchLength> to "-1" to explicitly remove the
+** previous copy length limit.
 **
 ** HTML snippet for statically created buttons:
 **
 **    <span class="copy-button" id="idButton"
 **      data-copytarget="idTarget" data-copylength="cchLength"></span>
-**
-** Note: Both <idTarget> and <cchLength> can be set statically or dynamically,
-** i.e. the makeCopyButton() function does not overwrite the "data-copytarget"
-** and "data-copylength" attributes with empty/zero values.
 */
 function makeCopyButton(idButton,idTarget,cchLength){
+  var elButton = document.createElement("span");
+  elButton.className = "copy-button";
+  elButton.id = idButton;
+  initCopyButton(elButton,idTarget,cchLength);
+  return elButton;
+}
+function initCopyButtonById(idButton,idTarget,cchLength){
   var elButton = document.getElementById(idButton);
-  if( !elButton ){
-    elButton = document.createElement("span");
-    elButton.className = "copy-button";
-    elButton.id = idButton;
-  }
+  if( elButton ) initCopyButton(elButton,idTarget,cchLength);
+  return elButton;
+}
+function initCopyButton(elButton,idTarget,cchLength){
   elButton.style.transition = "";
   elButton.style.opacity = 1;
   if( idTarget ) elButton.setAttribute("data-copytarget",idTarget);
@@ -24,7 +41,7 @@ function makeCopyButton(idButton,idTarget,cchLength){
   elButton.onclick = clickCopyButton;
   return elButton;
 }
-/* The onclick handler for the "Copy Text" button. */
+/* The onclick handler for the "Copy Button". */
 var lockCopyText = false;
 function clickCopyButton(e){
   e.preventDefault();   /* Mandatory for <a> and <button>. */
