@@ -1,5 +1,5 @@
-C Add\sthe\s"data-copylength"\sattribute\sto\scontrol\sthe\slength\sof\sthe\scopied\stext.\s(Rationale:\sAllow\scopying\sjust\sthe\sshortened\shash\sprefixes\sfrom\selements\sdisplaying\sthe\sfull-length\shashes,\sbecause\sthe\sshort\sforms\sare\spreferred\swhen\sbuilding\scommand-lines\sor\sURLs,\sand\sbecause\sthe\sfull-length\shashes\sare\salready\smuch\seasier\sto\scopy.)
-D 2019-05-30T11:33:00.000
+C Check\sthat\sthe\svalue\sof\sthe\s"data-copylength"\sattribute\sis\sa\spositive\snumber\sprior\sto\schopping\sthe\stext.
+D 2019-05-31T14:44:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 18483c33db6fab7d58ccbea5a3faf0b8ea7b6c03e028db6a380bd1b8710861e3
 F src/content.c d49bd600d03d5de748c07e1ca0fdaf66b5c890410d61a541d397d4cb1b0ed13c
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
-F src/copybtn.js fadbfb0b16c57d50134bc92cf0c2ddaf3a3976f3eecb8c98ff6d142ec1517890
+F src/copybtn.js 83ec6c627523b42aa63593da7d15a0c1161fc91206127ab3cc55b12aaab92759
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2002a508936a758d659a151ae7c6bb8909a8600ed297096399f0111acd31e981
-R 32f157fae4c1382ea313da77895c85dc
+P 2e17a063a25575ff8c5062b99ac1811d9ff702da8568d818c7d629c986236746
+R 19f61a583b7b2d7b7596c76cbb67e546
 U florian
-Z 17df213e05ac9f4bd09a4d144d7ddc1a
+Z 5d68ed4ac25f3b64ba0f2f48c10415c3

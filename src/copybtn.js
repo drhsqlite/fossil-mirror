@@ -37,8 +37,10 @@ function clickCopyButton(e){
   var elTarget = document.getElementById(idTarget);
   if( elTarget ){
     var text = elTarget.innerText;
-    var cchLength = this.getAttribute("data-copylength");
-    if( cchLength ) text = text.slice(0,cchLength); // Assume single-byte chars.
+    var cchLength = parseInt(this.getAttribute("data-copylength"));
+    if( !isNaN(cchLength) && cchLength>0 ){
+      text = text.slice(0,cchLength);   // Assume single-byte chars.
+    }
     copyTextToClipboard(text);
   }
   setTimeout(function(id){
