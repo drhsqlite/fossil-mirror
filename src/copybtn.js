@@ -9,7 +9,8 @@
 ** (used for animation).
 **
 ** For HTML-defined buttons, either initCopyButtonById(), or initCopyButton(),
-** needs to be called to attach the "onclick" handler.
+** needs to be called to attach the "onclick" handler (done automatically from
+** a handler attached to the "DOMContentLoaded" event).
 **
 ** The initialization functions do not overwrite the "data-copytarget" and
 ** "data-copylength" attributes with empty or null values for <idTarget> and
@@ -41,6 +42,12 @@ function initCopyButton(elButton,idTarget,cchLength){
   elButton.onclick = clickCopyButton;
   return elButton;
 }
+onContentLoaded(function(){
+  var aButtons = document.getElementsByClassName("copy-button");
+  for ( var i=0; i<aButtons.length; i++ ){
+    initCopyButton(aButtons[i],0,0);
+  }
+});
 /* The onclick handler for the "Copy Button". */
 var lockCopyText = false;
 function clickCopyButton(e){
@@ -91,4 +98,38 @@ function copyTextToClipboard(text){
   }catch(err){
   }
   document.body.removeChild(textArea);
+}
+/* Execute a function as soon as the HTML document has been completely loaded.
+** The idea for this code is based on the contentLoaded() function presented
+** here:
+**
+**    Cross-browser wrapper for DOMContentLoaded
+**    http://javascript.nwbox.com/ContentLoaded/
+*/
+function onContentLoaded(fnready) {
+  var fninit = function() {
+    if (document.addEventListener ||
+        event.type === 'load' ||
+        document.readyState === 'complete') {
+      if (document.addEventListener) {
+        document.removeEventListener('DOMContentLoaded',fninit,false);
+        window.removeEventListener('load',fninit,false);
+      }
+      else {
+        document.detachEvent('onreadystatechange',fninit);
+        window.detachEvent('onload',fninit);
+      }
+    }
+    fnready.call(window);
+  };
+  if (document.readyState === 'complete')
+    fnready.call(window);
+  else if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded',fninit,false);
+    window.addEventListener('load',fninit,false);
+  }
+  else {
+    document.attachEvent('onreadystatechange',fninit);
+    window.attachEvent('onload',fninit);
+  }
 }
