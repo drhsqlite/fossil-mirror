@@ -796,9 +796,9 @@ void ci_page(void){
     @ </tr>
 
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>
-    @ <span class="copy-button" id="copy-fullhash" data-copytarget="fullhash"
-    @ data-copylength="%d(hash_digits(1))"></span>
-    @ <span id="fullhash">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
+    @ <span class="copy-button" id="copy-fullhash"
+    @   data-copytarget="fullhash" data-copylength="%d(hash_digits(1))">
+    @ </span>&nbsp;<span id="fullhash">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
