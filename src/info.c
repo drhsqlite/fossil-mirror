@@ -2189,10 +2189,16 @@ void artifact_page(void){
   if( isFile ){
     @ <h2>Latest version of file '%h(zName)':</h2>
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
-  }else if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
   }else{
-    @ <h2>Artifact %s(zUuid):</h2>
+    style_copy_button();
+    @ <h2>Artifact
+    @ <span class="copy-button" id="copy-artifacthash"
+    @   data-copytarget="artifacthash" data-copylength="%d(hash_digits(1))">
+    if( g.perm.Setup ){
+      @ </span>&nbsp;<span id="artifacthash">%s(zUuid)</span> (%d(rid)):</h2>
+    }else{
+      @ </span>&nbsp;<span id="artifacthash">%s(zUuid)</span>:</h2>
+    }
   }
   blob_zero(&downloadName);
   asText = P("txt")!=0;
