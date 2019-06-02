@@ -765,7 +765,10 @@ void ci_page(void){
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
-        @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+        @  | <span class="copy-button" id="copy-brname"
+        @      data-copytarget="brname" data-copylength="0">
+        @  </span>&nbsp;<span id="brname">
+        @    %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a></span>
         if( wiki_tagid2("branch",zTagName)!=0 ){
           blob_appendf(&wiki_read_links, " | %z%h</a>",
               href("%R/wiki?name=branch/%h",zTagName), zTagName);

@@ -1,5 +1,5 @@
-C Add\sa\sTH1\scommand\sto\soutput\stext\swith\sa\scopy\sbutton,\sand\smodify\sthe\sdefault\sView\sTicket\sPage\stemplate\sto\sinclude\sa\scopy\sbutton\sfor\sthe\sticket\shash\s(UUID).
-D 2019-06-02T11:31:00.000
+C Add\sa\scopy\sbutton\snear\sthe\sbranch\sname\son\sthe\s/info\spage,\sto\shave\sa\sway\sto\scopy\sthe\sbranch\sname\swithout\sopening\sa\stooltip.
+D 2019-06-02T11:49:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 69d94efe5e30ac6ceb5d11fd70c934cbde633ee89e00013c434de326367b5944
+F src/info.c 2c45e090e74e072386182f538c739f996c87657d28869e0cbdc47b6bdc80f0b6
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c7e26208b46136253bc99702fc04f910a44476025a9279fcbdbbed81889844e
-R d3b4b5de1c2718dd91b7a6bf99fee3f4
+P 68405c3f5b2d1dbaba859590e1d9694f4fc29218f488a4ef20f43906acf976f3
+R 30fbc36b4a79894d76ef34be3c4fa91e
 U florian
-Z 6e36a9c085cd2163093e6c37e0da42f2
+Z 9de6cc27b05f7fda08b6c7548bf00943
