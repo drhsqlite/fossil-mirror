@@ -1,5 +1,5 @@
-C Avoid\sline\sbreaks\sbetween\sthe\scopy\sbutton\sand\sthe\shash\son\sthe\s/info\spage.
-D 2019-06-01T07:12:00.000
+C Add\sa\sTH1\scommand\sto\soutput\stext\swith\sa\scopy\sbutton,\sand\smodify\sthe\sdefault\sView\sTicket\sPage\stemplate\sto\sinclude\sa\scopy\sbutton\sfor\sthe\sticket\shash\s(UUID).
+D 2019-06-02T11:31:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -579,11 +579,11 @@ F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c 319e70f98919a6e65d53e824ff94c5295d87ed3415cfa3dbcc0f011a3c244992
+F src/th_main.c 98d9adbfd214535ec464955f4d649ed62b02c121d173c86a24691096b36a8ebf
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
 F src/timeline.c 2fd6f8714e4a695ef60be01e4f48ecd4a5e27ab53f15e6d134995c9a406f702e
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
-F src/tktsetup.c 164102f7943181021ea5b4122deeb4a7c1ec4c4c
+F src/tktsetup.c 743e30b869161064d5d36da0cc6271109b9a855ed31aea9c2a4d9cf4c89164c2
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
@@ -864,7 +864,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md d03aa9f40d00d5c12508bb0435df205993a568c3e9d724555e68985c24666201
+F www/th1.md 355efa6174dd71de146c4b1fcfacb6a78493665b7e167e21dbbb2315db508952
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 717ff5a436834bf0ec42f9501216449c40b938fe
 F www/tls-nginx.md f3137bcfdf9d14a1271325e9f2f3e52e6884892520e10256ee278d34308f8a90
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 710229e713b81fed2134695a144db4597ed56a1d6ee142bb95b55f73fadfb964
-R e716f60f881305c1d4eb33dc7568b832
+P 8c7e26208b46136253bc99702fc04f910a44476025a9279fcbdbbed81889844e
+R d3b4b5de1c2718dd91b7a6bf99fee3f4
 U florian
-Z 9462fac4b05be788c11d7a25bde4246c
+Z 6e36a9c085cd2163093e6c37e0da42f2
