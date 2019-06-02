@@ -1,5 +1,5 @@
-C Add\sa\scopy\sbutton\sfor\sthe\sartifact\shash\son\sthe\s/artifact\spage.
-D 2019-06-02T12:03:00.000
+C Cherry-pick\s[6a54cf2939]:\sTrim\sleading\sand\strailing\swhite\sspace\sfrom\sthe\stext\sto\sbe\scopied\sto\sclipboard\s(do\sthis\sin\sJavascript,\sso\sno\sneed\sto\scare\sabout\sthe\sextra\swhite\sspace\swhen\sgenerating\sHTML\selements).
+D 2019-06-02T12:36:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -455,7 +455,7 @@ F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c 18483c33db6fab7d58ccbea5a3faf0b8ea7b6c03e028db6a380bd1b8710861e3
 F src/content.c d49bd600d03d5de748c07e1ca0fdaf66b5c890410d61a541d397d4cb1b0ed13c
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
-F src/copybtn.js 2b6856f7c44457e2a38b8f31add69abd0dff388201779002aaeb447a9fa809a6
+F src/copybtn.js 35dc6202fc2248627dc3d943b2778a8142f401fd4aecd4f21752338ceb618848
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
@@ -875,7 +875,8 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b538d5eb79c377a932c1985604b31f7515a881d4a0b8072c19b2017d82b92039
-R 62181e55eaf2f8ff03d02ae429347e89
+P 3aab0bfdc0175d622e20c027c6bfac7d5a37c063635cf39d23f4df74dc612ab4
+Q +6a54cf2939a54f389d1383a7e60e47dcaa936f1a8b7c71b40ac3c6f822220b01
+R 9ba57cbfa79ca1c171b259cf8c95851f
 U florian
-Z 7f6848880ee4730d430f89e47f23ac0e
+Z 54babce0793b0cce9d697a21d6a17043
