@@ -21,7 +21,7 @@
 **     "baseUrl": TEXT,             // Top-level URL
 **     "dwellTimeout": INTEGER,     // Tooltip show delay in milliseconds
 **     "closeTimeout": INTEGER,     // Tooltip close delay in milliseconds
-**     "digitHuman": INTEGER,       // Limit of tooltip hashes ("hash-digits")
+**     "hashDigits": INTEGER,       // Limit of tooltip hashes ("hash-digits")
 **     "rowinfo": ROWINFO-ARRAY }
 **
 ** The rowinfo field is an array of structures, one per entry in the timeline,
@@ -100,7 +100,7 @@ tooltipObj.onmouseleave = function(){
 window.tooltipInfo = {
   dwellTimeout: 250,  /* The tooltip dwell timeout. */
   closeTimeout: 3000, /* The tooltip close timeout. */
-  digitHuman: 10,     /* Limit of tooltip hashes ("hash-digits"). */
+  hashDigits: 16,     /* Limit of tooltip hashes ("hash-digits"). */
   idTimer: 0,         /* The tooltip dwell timer id. */
   idTimerClose: 0,    /* The tooltip close timer id. */
   ixHover: -1,        /* The id of the element with the mouse. */
@@ -145,7 +145,7 @@ function TimelineGraph(tx){
   amendCss(tx.circleNodes, tx.showArrowheads);
   tooltipInfo.dwellTimeout = tx.dwellTimeout
   tooltipInfo.closeTimeout = tx.closeTimeout
-  tooltipInfo.digitHuman = tx.digitHuman
+  tooltipInfo.hashDigits = tx.hashDigits
   topObj.onclick = clickOnGraph
   topObj.ondblclick = dblclickOnGraph
   topObj.onmousemove = function(e) {
@@ -599,7 +599,7 @@ function TimelineGraph(tx){
       ix = parseInt(tooltipInfo.nodeHover.id.match(/\d+$/)[0],10)-tx.iTopRow
       var h = tx.rowinfo[ix].h
       var dest = tx.baseUrl + "/info/" + h
-      h = h.slice(0,tooltipInfo.digitHuman); // Assume single-byte characters.
+      h = h.slice(0,tooltipInfo.hashDigits); // Assume single-byte characters.
       if( tx.fileDiff ){
         html = "artifact <a id=\"tooltip-link\" href=\""+dest+"\">"+h+"</a>"
       }else{

@@ -834,7 +834,6 @@ void timeline_output_graph_javascript(
     int scrollToSelect;  /* True to scroll to the selection */
     int dwellTimeout;    /* Milliseconds to wait for tooltips to show */
     int closeTimeout;    /* Milliseconds to wait for tooltips to close */
-    int nDigitHuman;     /* The "hash-digits" limit for tooltip hash prefixes */
     u8 *aiMap;           /* The rail map */
 
     iRailPitch = atoi(PD("railpitch","0"));
@@ -847,11 +846,6 @@ void timeline_output_graph_javascript(
     scrollToSelect = (tmFlags & TIMELINE_NOSCROLL)==0;
     dwellTimeout = atoi(db_get("timeline-dwelltime","100"));
     closeTimeout = atoi(db_get("timeline-closetime","250"));
-/* Preprocessor definitions copied from src\printf.c. */
-#ifndef FOSSIL_HASH_DIGITS
-# define FOSSIL_HASH_DIGITS 10
-#endif
-    nDigitHuman = db_get_int("hash-digits", FOSSIL_HASH_DIGITS);
     @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
     @   "iTableId": %d(iTableId),
     @   "circleNodes": %d(circleNodes),
@@ -867,7 +861,7 @@ void timeline_output_graph_javascript(
     @   "baseUrl": "%R",
     @   "dwellTimeout": %d(dwellTimeout),
     @   "closeTimeout": %d(closeTimeout),
-    @   "digitHuman": %d(nDigitHuman),
+    @   "hashDigit": %d(hash_digits(1)),
     @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null
