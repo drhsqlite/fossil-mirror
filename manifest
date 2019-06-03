@@ -1,5 +1,5 @@
-C Trim\sleading\sand\strailing\swhite\sspace\sfrom\sthe\stext\sto\sbe\scopied\sto\sclipboard\s(do\sthis\sin\sJavascript,\sso\sno\sneed\sto\scare\sabout\sthe\sextra\swhite\sspace\swhen\sgenerating\sHTML\selements).
-D 2019-06-02T12:32:00.000
+C Minimize\simpact\sof\sthe\sSVG\sicon\son\sline\sheight.
+D 2019-06-03T08:48:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 1f9ee0e9055e1e9e9768165394744c4e3cbcab47cfa48534d051a2b467d32c9d
-F src/default_css.txt bd727e609cdf9bab14efc9d968d4fed5fdae58a6255873c631bc6e772ccfb1d5
+F src/default_css.txt 69e52803595639a4ff39d91ea5f0da875511f6279473bab7b0a4dcfcfbb2d2ff
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 76168eb64023aec71d686179a0dca8f99c3d3d1dae61307d8e63e5ef7669f4a1
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 148b01359c844449478443800a64dd734820f838bccc23f17cdccdc93f694b58
-R 1d69763d3db3c4352c347f704d7291ce
+P 6a54cf2939a54f389d1383a7e60e47dcaa936f1a8b7c71b40ac3c6f822220b01
+R 40bd5b678c569a9416337df1ef7dad1c
 U florian
-Z 812ccf47cdc2124281c7af60fe3d1810
+Z 82ca7b36f7aaba0ffda872b154f4ee0a
