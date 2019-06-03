@@ -84,9 +84,10 @@ static unsigned adUnitFlags = 0;
 /*
 ** Flags for various javascript files needed prior to </body>
 */
-static int needHrefJs = 0;   /* href.js */
-static int needSortJs = 0;   /* sorttable.js */
-static int needGraphJs = 0;  /* graph.js */
+static int needHrefJs = 0;      /* href.js */
+static int needSortJs = 0;      /* sorttable.js */
+static int needGraphJs = 0;     /* graph.js */
+static int needCopyBtnJs = 0;   /* copybtn.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -535,10 +536,17 @@ void style_table_sorter(void){
 }
 
 /*
-** Indicate that the table-sorting javascript is needed.
+** Indicate that the timeline graph javascript is needed.
 */
 void style_graph_generator(void){
   needGraphJs = 1;
+}
+
+/*
+** Indicate that the copy button javascript is needed.
+*/
+void style_copy_button(void){
+  needCopyBtnJs = 1;
 }
 
 /*
@@ -580,6 +588,10 @@ static void style_load_all_js_files(void){
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
   @ <script nonce="%h(style_nonce())">
+  @ function debugMsg(msg){
+  @ var n = document.getElementById("debugMsg");
+  @ if(n){n.textContent=msg;}
+  @ }
   if( needHrefJs ){
     cgi_append_content(builtin_text("href.js"),-1);
   }
@@ -588,6 +600,9 @@ static void style_load_all_js_files(void){
   }
   if( needGraphJs ){
     cgi_append_content(builtin_text("graph.js"),-1);
+  }
+  if( needCopyBtnJs ){
+    cgi_append_content(builtin_text("copybtn.js"),-1);
   }
   for(i=0; i<nJsToLoad; i++){
     cgi_append_content(builtin_text(azJsToLoad[i]),-1);
@@ -745,7 +760,7 @@ void style_footer(void){
       cgi_append_content(zAd, -1);
       @ </div>
     }
-    @ <div class="content">
+    @ <div class="content"><span id="debugMsg"></span>
   }
   cgi_destination(CGI_BODY);
 

@@ -50,7 +50,7 @@
 ** human output if the bForUrl is false and is destined for a URL if
 ** bForUrl is false.
 */
-static int hashDigits(int bForUrl){
+int hash_digits(int bForUrl){
   static int nDigitHuman = 0;
   static int nDigitUrl = 0;
   if( nDigitHuman==0 ){
@@ -68,7 +68,7 @@ static int hashDigits(int bForUrl){
 ** Return the number of characters in a %S output.
 */
 int length_of_S_display(void){
-  return hashDigits(0);
+  return hash_digits(0);
 }
 
 /*
@@ -681,7 +681,7 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
-          precision = hashDigits(flag_altform2);
+          precision = hash_digits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;

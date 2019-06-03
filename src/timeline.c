@@ -832,6 +832,8 @@ void timeline_output_graph_javascript(
     int fileDiff;        /* True for file diff.  False for check-in diff */
     int omitDescenders;  /* True to omit descenders */
     int scrollToSelect;  /* True to scroll to the selection */
+    int dwellTimeout;    /* Milliseconds to wait for tooltips to show */
+    int closeTimeout;    /* Milliseconds to wait for tooltips to close */
     u8 *aiMap;           /* The rail map */
 
     iRailPitch = atoi(PD("railpitch","0"));
@@ -842,6 +844,8 @@ void timeline_output_graph_javascript(
     omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
     fileDiff = (tmFlags & TIMELINE_FILEDIFF)!=0;
     scrollToSelect = (tmFlags & TIMELINE_NOSCROLL)==0;
+    dwellTimeout = atoi(db_get("timeline-dwelltime","100"));
+    closeTimeout = atoi(db_get("timeline-closetime","250"));
     @ <script id='timeline-data-%d(iTableId)' type='application/json'>{
     @   "iTableId": %d(iTableId),
     @   "circleNodes": %d(circleNodes),
@@ -855,6 +859,9 @@ void timeline_output_graph_javascript(
     @   "scrollToSelect": %d(scrollToSelect),
     @   "nrail": %d(pGraph->mxRail+1),
     @   "baseUrl": "%R",
+    @   "dwellTimeout": %d(dwellTimeout),
+    @   "closeTimeout": %d(closeTimeout),
+    @   "hashDigit": %d(hash_digits(1)),
     @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null
@@ -906,6 +913,7 @@ void timeline_output_graph_javascript(
     **   ci:  "cherrypick-in". Like "mi" except for cherrypick merges.
     **        omitted if there are no cherrypick merges.
     **    h:  The artifact hash of the object being graphed
+    *    br:  The branch to which the artifact belongs
     */
     aiMap = pGraph->aiRailMap;
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
@@ -980,11 +988,13 @@ void timeline_output_graph_javascript(
         }
       }
       if( k ) cgi_printf("],");
+      cgi_printf("\"br\":\"%j\",", pRow->zBranch ? pRow->zBranch : "");
       cgi_printf("\"h\":\"%!S\"}%s",
                  pRow->zUuid, pRow->pNext ? ",\n" : "]\n");
     }
     @ }</script>
     style_graph_generator();
+    style_copy_button(); /* Dependency: graph.js requires copybtn.js. */
     graph_free(pGraph);
   }
 }
@@ -1480,6 +1490,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    a=TIMEORTAG     After this event
 **    b=TIMEORTAG     Before this event
 **    c=TIMEORTAG     "Circa" this event
+**    cf=FILEHASH     "Circa" the first use of the file with FILEHASH
 **    m=TIMEORTAG     Mark this event
 **    n=COUNT         Maximum number of events.  "all" for no limit
 **    p=CHECKIN       Parents and ancestors of CHECKIN
@@ -1643,11 +1654,20 @@ void page_timeline(void){
   url_initialize(&url, "timeline");
   cgi_query_parameters_to_url(&url);
 
-  /* Convert r=TAG to t=TAG&rel. */
+  /* Convert the cf=FILEHASH query parameter into a c=CHECKINHASH value */
+  if( P("cf")!=0 ){
+    zCirca = db_text(0,
+      "SELECT (SELECT uuid FROM blob WHERE rid=mlink.mid)"
+      "  FROM mlink, event"
+      " WHERE mlink.fid=(SELECT rid FROM blob WHERE uuid LIKE '%q%%')"
+      "   AND event.objid=mlink.mid"
+      " ORDER BY event.mtime LIMIT 1",
+      P("cf")
+    );
+  }
+
+  /* r=TAG works like a combination of t=TAG & rel */
   if( zBrName && !related ){
-    cgi_delete_query_parameter("r");
-    cgi_set_query_parameter("t", zBrName);
-    cgi_set_query_parameter("rel", "1");
     zTagName = zBrName;
     related = 1;
     zType = "ci";

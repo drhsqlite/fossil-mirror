@@ -172,6 +172,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  cgiHeaderLine
   *  checkout
   *  combobox
+  *  copybtn
   *  date
   *  decorate
   *  dir
@@ -279,6 +280,26 @@ selected value.  TEXT-LIST is a list of possible values for the
 combobox.  NUMLINES is 1 for a true combobox.  If NUMLINES is greater
 than one then the display is a listbox with the number of lines given.
 
+<a name="copybtn"></a>TH1 copybtn Command
+-----------------------------------------
+
+  *  copybtn TARGETID TEXT ?COPYLENGTH?
+
+Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
+Javascript module, and generates HTML elements with the following IDs:
+
+  *  TARGETID:       The `<span>` wrapper around TEXT.
+  *  copy-TARGETID:  The `<span>` for the copy button.
+
+The optional COPYLENGTH argument defines the length of the substring of TEXT
+copied to clipboard:
+
+  *  <= 0:   No limit (default if the argument is omitted).
+  *  >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+  *     1:   Use the "hash-digits" setting as the limit.
+  *     2:   Use the length appropriate for URLs as the limit (defined at
+             compile-time by `FOSSIL_HASH_DIGITS_URL`, defaults to 16).
+
 <a name="date"></a>TH1 date Command
 -----------------------------------
 
@@ -312,7 +333,7 @@ time zone configured for the repository).
 
   *  enable\_output BOOLEAN
 
-Enable or disable sending output when the combobox, puts, or wiki
+Enable or disable sending output when the combobox, copybtn, puts, or wiki
 commands are used.
 
 <a name="encode64"></a>TH1 encode64 Command
