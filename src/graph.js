@@ -110,7 +110,15 @@ window.tooltipInfo = {
 };
 
 /* Functions used to control the tooltip popup and its timer */
+function onKeyDown(event){
+  var key = event.which || event.keyCode;
+  if( key==27 ){
+    event.stopPropagation();
+    hideGraphTooltip();
+  }
+}
 function hideGraphTooltip(){
+  document.removeEventListener('keydown',onKeyDown,/* useCapture == */true);
   stopCloseTimer();
   tooltipObj.style.display = "none";
   tooltipInfo.ixActive = -1;
@@ -641,6 +649,7 @@ function TimelineGraph(tx){
                    - absoluteY(tooltipObj.offsetParent)
       tooltipObj.style.top = y+"px"
       tooltipObj.style.visibility = "visible"
+      document.addEventListener('keydown',onKeyDown,/* useCapture == */true);
     }else{
       hideGraphTooltip()
     }
