@@ -1,5 +1,5 @@
-C Enable\sclosing\stooltips\sby\spressing\sESC.
-D 2019-06-05T08:06:00.000
+C Make\ssure\sthere's\sany\sgraph\selements,\sbefore\saccessing\stheir\sproperties\s(applies\sto\stimelines\sfor\stickets,\swiki\spages,\sor\sforum\sposts).
+D 2019-06-05T08:26:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -483,7 +483,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 8cf081a302d8714ba36d7f1619526a8d4641d0bdf2c3eae6a23358e717e36aba
+F src/graph.js e1f7554809d037134e23796fd2e0b7a656bba970f8873513dce1263e085f7e67
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d23109d8c87bdf6ef6884e25673d7cfc6b0addaef09041358fa6984b8961ad1
-R 42c951f29710faa88eca79b0bfbd6842
+P fc639a0a0257d6c1897059256ea54f48536ae068a3dff4e7924195453646879f
+R 3bc937661f7499a7f747096c1ff527a3
 U florian
-Z 3927fa5d5df7590070be08287892e39f
+Z d719e1b75633f47a5567c1588afa1721

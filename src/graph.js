@@ -567,6 +567,7 @@ function TimelineGraph(tx){
     e.stopPropagation()
   }
   function findTxIndex(e){
+    if( !tx.rowinfo ) return -1;
     /* Look at all the graph elements.  If any graph elements that is near
     ** the click-point "e" and has a "data-ix" attribute, then return
     ** the value of that attribute.  Otherwise return -1 */
