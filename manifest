@@ -1,5 +1,5 @@
-C Define\sthe\sspacing\sbetween\scopy\sbuttons\sand\sadjacent\selements\sby\sCSS\srules,\sso\sthat\s(0)\sno\sadditional\swhite\sspace\s(nbsp)\sneeds\sto\sbe\sinserted\sinto\sthe\sHTML\sdocument,\s(1)\sthe\sspacing\scan\sbe\smodified\sby\sCSS\srules,\sand\s(2)\sthe\scopy\sbuttons\scan\sbe\shidden\sby\sCSS\srules.
-D 2019-06-05T07:47:00.000
+C Also\sadd\sa\scopy\sbutton\sfor\sthe\sartifact\shash\son\sthe\s/artifact\spage\sin\shex-dump\smode.
+D 2019-06-05T07:58:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 203abf8c96c62c5552d80c0751ef3c9bd3c5b76cb7058a565213e29f7c215352
+F src/info.c 9ab0b09c7ce0eb74eb43d10c121d5e746dd20f7073906a19cc4dda2be5a1eb56
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42972005c42a31a4dd8ab4e052876a88d13e99a6134d66f37485b87bbb91b36d
-R c83b0683d578d18fde6e16d8420cb8df
+P 63ebcafb19dd004ba246149fe1ae7018345db2ba7af70209fdee1bc293702845
+R 70273ea2c32fa8e1394107fa81de2704
 U florian
-Z a5049a250131858e59f4d87011c31aae
+Z 039917a764c101f2ecf34b68e5053bca

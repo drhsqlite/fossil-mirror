@@ -1921,11 +1921,15 @@ void hexdump_page(void){
     }
   }
   style_header("Hex Artifact Content");
+  style_copy_button();
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
+  @ <h2>Artifact
+  @ <span class="copy-button" id="copy-hash-ar"
+  @   data-copytarget="hash-ar" data-copylength="%d(hash_digits(1))">
   if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
+    @ </span><span id="hash-ar">%s(zUuid)</span> (%d(rid)):</h2>
   }else{
-    @ <h2>Artifact %s(zUuid):</h2>
+    @ </span><span id="hash-ar">%s(zUuid)</span>:</h2>
   }
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
