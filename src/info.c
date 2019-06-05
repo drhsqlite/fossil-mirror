@@ -765,10 +765,10 @@ void ci_page(void){
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
-        @  | <span class="copy-button" id="copy-br0"
-        @      data-copytarget="br0" data-copylength="0">
-        @  </span>&nbsp;<span
-        @  id="br0">%z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+        @  | <span class="copy-button" id="copy-name-br"
+        @      data-copytarget="name-br" data-copylength="0">
+        @  </span>&nbsp;<span id="name-br"><!--
+        @  -->%z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
         @  </span>
         if( wiki_tagid2("branch",zTagName)!=0 ){
           blob_appendf(&wiki_read_links, " | %z%h</a>",
@@ -800,9 +800,9 @@ void ci_page(void){
     @ </tr>
 
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>
-    @ <span class="copy-button" id="copy-fullhash"
-    @   data-copytarget="fullhash" data-copylength="%d(hash_digits(1))">
-    @ </span>&nbsp;<span id="fullhash">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
+    @ <span class="copy-button" id="copy-hash-ci"
+    @   data-copytarget="hash-ci" data-copylength="%d(hash_digits(1))">
+    @ </span>&nbsp;<span id="hash-ci">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
@@ -2194,12 +2194,12 @@ void artifact_page(void){
   }else{
     style_copy_button();
     @ <h2>Artifact
-    @ <span class="copy-button" id="copy-artifacthash"
-    @   data-copytarget="artifacthash" data-copylength="%d(hash_digits(1))">
+    @ <span class="copy-button" id="copy-hash-ar"
+    @   data-copytarget="hash-ar" data-copylength="%d(hash_digits(1))">
     if( g.perm.Setup ){
-      @ </span>&nbsp;<span id="artifacthash">%s(zUuid)</span> (%d(rid)):</h2>
+      @ </span>&nbsp;<span id="hash-ar">%s(zUuid)</span> (%d(rid)):</h2>
     }else{
-      @ </span>&nbsp;<span id="artifacthash">%s(zUuid)</span>:</h2>
+      @ </span>&nbsp;<span id="hash-ar">%s(zUuid)</span>:</h2>
     }
   }
   blob_zero(&downloadName);

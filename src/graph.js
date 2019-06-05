@@ -632,7 +632,7 @@ function TimelineGraph(tx){
       tooltipObj.innerHTML = html
       tooltipObj.appendChild(document.createTextNode(' '));
       tooltipObj.appendChild(
-        makeCopyButton("tooltip-copybtn","tooltip-link",0));
+        makeCopyButton("copy-tooltip-link","tooltip-link",0));
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
