@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\s"Copy\sButton".
-D 2019-06-05T20:08:09.709
+C Since\sthe\s/info\spage\sis\snow\sreachable\sby\sdouble-clicking\son\sthe\sgraph\snode,\nchange\sthe\stimestamp\sto\sbe\sa\slink\sto\sthe\sgeneral\s/timeline\spage\saround\sthat\nparticular\stime.
+D 2019-06-05T20:15:47.575
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -581,7 +581,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 742dd067387a21156a6a34d78c328b2f5d5e33d337f7c2ca9536c51839528446
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 2fd6f8714e4a695ef60be01e4f48ecd4a5e27ab53f15e6d134995c9a406f702e
+F src/timeline.c 306395e79768d95cc21017b3ba51032f4d1e2c635f8a87acf2b0d84a33c1d1db
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
 F src/tktsetup.c d7c94a74020a72ae919da6bfa93c97ea0f44f2d260a21a4488e5e8d0d04475f0
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -875,8 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c128d2e896fd59b88edb869acaf0042734c0e974e8d9d0f0bc2a01814333264 66788707344d99499f54b27eedd7d9fcec70848c70d7f1b98aa10df27b2f17b7
-R 9848d19fb145cfa0f4470ddbb65b1885
-T +closed 66788707344d99499f54b27eedd7d9fcec70848c70d7f1b98aa10df27b2f17b7
+P 8ee5e55e3c2baac570baadc3d567fe0bac80b73782f93f92bd2ab389f3f42c34
+R 460ef827dadea88a83d68694ee9e4879
 U drh
-Z 619c999a9613f49d74946daf363778a4
+Z 4ea447ab1639edac5a092b7ddbded30a

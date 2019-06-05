@@ -401,13 +401,9 @@ void www_print_timeline(
       @ <tr>
     }
     if( zType[0]=='e' && tagid ){
-      char *zId;
-      zId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
-                        tagid);
-      zDateLink = href("%R/technote/%s",zId);
-      free(zId);
+      zDateLink = href("%R/timeline?c=%t",zDate);
     }else if( zUuid ){
-      zDateLink = chref("timelineHistLink", "%R/info/%!S", zUuid);
+      zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S", zUuid);
     }else{
       zDateLink = mprintf("<a>");
     }
