@@ -110,7 +110,15 @@ window.tooltipInfo = {
 };
 
 /* Functions used to control the tooltip popup and its timer */
+function onKeyDown(event){
+  var key = event.which || event.keyCode;
+  if( key==27 ){
+    event.stopPropagation();
+    hideGraphTooltip();
+  }
+}
 function hideGraphTooltip(){
+  document.removeEventListener('keydown',onKeyDown,/* useCapture == */true);
   stopCloseTimer();
   tooltipObj.style.display = "none";
   tooltipInfo.ixActive = -1;
@@ -559,6 +567,7 @@ function TimelineGraph(tx){
     e.stopPropagation()
   }
   function findTxIndex(e){
+    if( !tx.rowinfo ) return -1;
     /* Look at all the graph elements.  If any graph elements that is near
     ** the click-point "e" and has a "data-ix" attribute, then return
     ** the value of that attribute.  Otherwise return -1 */
@@ -630,9 +639,7 @@ function TimelineGraph(tx){
          tooltipObj.style.color = s.getPropertyValue('color')
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
-      tooltipObj.appendChild(document.createTextNode(' '));
-      tooltipObj.appendChild(
-        makeCopyButton("tooltip-copybtn","tooltip-link",0));
+      tooltipObj.appendChild(makeCopyButton("tooltip-link",true,0));
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
@@ -643,6 +650,7 @@ function TimelineGraph(tx){
                    - absoluteY(tooltipObj.offsetParent)
       tooltipObj.style.top = y+"px"
       tooltipObj.style.visibility = "visible"
+      document.addEventListener('keydown',onKeyDown,/* useCapture == */true);
     }else{
       hideGraphTooltip()
     }

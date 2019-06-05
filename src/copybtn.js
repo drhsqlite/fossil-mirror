@@ -2,7 +2,8 @@
 ** thereof) of the target elements to the clipboard.
 **
 ** Newly created buttons are <span> elements with an SVG background icon,
-** defined by the "copy-button" class in the default CSS style sheet.
+** defined by the "copy-button" class in the default CSS style sheet, and are
+** assigned the element ID "copy-<idTarget>".
 **
 ** To simplify customization, the only properties modified for HTML-defined
 ** buttons are the "onclick" handler, and the "transition" and "opacity" styles
@@ -19,13 +20,14 @@
 **
 ** HTML snippet for statically created buttons:
 **
-**    <span class="copy-button" id="idButton"
-**      data-copytarget="idTarget" data-copylength="cchLength"></span>
+**    <span class="copy-button" id="copy-<idTarget>"
+**      data-copytarget="<idTarget>" data-copylength="<cchLength>"></span>
 */
-function makeCopyButton(idButton,idTarget,cchLength){
+function makeCopyButton(idTarget,bFlipped,cchLength){
   var elButton = document.createElement("span");
   elButton.className = "copy-button";
-  elButton.id = idButton;
+  if( bFlipped ) elButton.className += " copy-button-flipped";
+  elButton.id = "copy-" + idTarget;
   initCopyButton(elButton,idTarget,cchLength);
   return elButton;
 }

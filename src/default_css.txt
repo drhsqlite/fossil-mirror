@@ -773,7 +773,8 @@ label {
   display: inline-block;
   width: 14px;
   height: 14px;
-  margin: -2px 0 0 0;
+//Note: .24em is slightly smaller than the average width of a normal space.
+  margin: -2px .24em 0 0;
   padding: 0;
   border: 0;
   vertical-align: middle;
@@ -782,4 +783,9 @@ label {
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
+}
+.copy-button-flipped {
+//Note: .16em is suitable for element grouping.
+  margin-left: .16em;
+  margin-right: 0;
 }

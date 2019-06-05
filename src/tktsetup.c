@@ -449,7 +449,7 @@ static const char zDefaultView[] =
 @ <th1>
 @ if {[info exists tkt_uuid]} {
 @   html "<td class='tktDspValue' colspan='3'>"
-@   copybtn tkt_uuid $tkt_uuid 1
+@   copybtn hash-tk 0 $tkt_uuid 1
 @   if {[hascap s]} {
 @     html " ($tkt_id)"
 @   }

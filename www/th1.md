@@ -283,13 +283,15 @@ than one then the display is a listbox with the number of lines given.
 <a name="copybtn"></a>TH1 copybtn Command
 -----------------------------------------
 
-  *  copybtn TARGETID TEXT ?COPYLENGTH?
+  *  copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?
 
 Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
 Javascript module, and generates HTML elements with the following IDs:
 
   *  TARGETID:       The `<span>` wrapper around TEXT.
   *  copy-TARGETID:  The `<span>` for the copy button.
+
+If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
 
 The optional COPYLENGTH argument defines the length of the substring of TEXT
 copied to clipboard:
