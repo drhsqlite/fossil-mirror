@@ -23,9 +23,10 @@
 **    <span class="copy-button" id="copy-<idTarget>"
 **      data-copytarget="<idTarget>" data-copylength="<cchLength>"></span>
 */
-function makeCopyButton(idTarget,cchLength){
+function makeCopyButton(idTarget,bFlipped,cchLength){
   var elButton = document.createElement("span");
   elButton.className = "copy-button";
+  if( bFlipped ) elButton.className += " copy-button-flipped";
   elButton.id = "copy-" + idTarget;
   initCopyButton(elButton,idTarget,cchLength);
   return elButton;

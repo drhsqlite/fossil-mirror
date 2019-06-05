@@ -767,7 +767,7 @@ void ci_page(void){
       if( fossil_strcmp(zTagName,zBrName)==0 ){
         @  | <span class="copy-button" id="copy-name-br"
         @      data-copytarget="name-br" data-copylength="0">
-        @  </span>&nbsp;<span id="name-br"><!--
+        @  </span><span id="name-br"><!--
         @  -->%z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
         @  </span>
         if( wiki_tagid2("branch",zTagName)!=0 ){
@@ -802,7 +802,7 @@ void ci_page(void){
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>
     @ <span class="copy-button" id="copy-hash-ci"
     @   data-copytarget="hash-ci" data-copylength="%d(hash_digits(1))">
-    @ </span>&nbsp;<span id="hash-ci">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
+    @ </span><span id="hash-ci">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
     if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
@@ -2197,9 +2197,9 @@ void artifact_page(void){
     @ <span class="copy-button" id="copy-hash-ar"
     @   data-copytarget="hash-ar" data-copylength="%d(hash_digits(1))">
     if( g.perm.Setup ){
-      @ </span>&nbsp;<span id="hash-ar">%s(zUuid)</span> (%d(rid)):</h2>
+      @ </span><span id="hash-ar">%s(zUuid)</span> (%d(rid)):</h2>
     }else{
-      @ </span>&nbsp;<span id="hash-ar">%s(zUuid)</span>:</h2>
+      @ </span><span id="hash-ar">%s(zUuid)</span>:</h2>
     }
   }
   blob_zero(&downloadName);

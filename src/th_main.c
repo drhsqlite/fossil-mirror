@@ -994,13 +994,15 @@ static int comboboxCmd(
 }
 
 /*
-** TH1 command: copybtn TARGETID TEXT ?COPYLENGTH?
+** TH1 command: copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?
 **
 ** Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
 ** Javascript module, and generates HTML elements with the following IDs:
 **
 **    TARGETID:       The <span> wrapper around TEXT.
 **    copy-TARGETID:  The <span> for the copy button.
+**
+** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
 **
 ** The optional COPYLENGTH argument defines the length of the substring of TEXT
 ** copied to clipboard:
@@ -1018,31 +1020,47 @@ static int copybtnCmd(
   const char **argv,
   int *argl
 ){
-  if( argc!=3 && argc!=4 ){
-    return Th_WrongNumArgs(interp, "copybtn TARGETID TEXT COPYLENGTH");
+  if( argc!=4 && argc!=5 ){
+    return Th_WrongNumArgs(interp,
+                           "copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?");
   }
   if( enableOutput ){
+    int flipped = 0;
     int copylength = 0;
     char *zTargetId, *zText, *zResult;
-    if( argc==4 && Th_ToInt(interp, argv[3], argl[3], &copylength) ){
-      return TH_ERROR;
+    if( Th_ToInt(interp, argv[2], argl[2], &flipped) ) return TH_ERROR;
+    if( argc==5 ){
+      if( Th_ToInt(interp, argv[4], argl[4], &copylength) ) return TH_ERROR;
     }
     if( copylength==1 ) copylength = hash_digits(0);
     else if( copylength==2 ) copylength = hash_digits(1);
     zTargetId = htmlize((char*)argv[1], argl[1]);
-    zText = htmlize((char*)argv[2], argl[2]);
-    zResult = mprintf(
-                "<span "
-                "class=\"copy-button\" "
-                "id=\"copy-%s\" "
-                "data-copytarget=\"%s\" "
-                "data-copylength=\"%d\">"
-                "</span>"
-                "&nbsp;"
-                "<span id=\"%s\">"
-                "%s"
-                "</span>",
-                zTargetId, zTargetId, copylength, zTargetId, zText);
+    zText = htmlize((char*)argv[3], argl[3]);
+    if( !flipped ){
+      zResult = mprintf(
+                  "<span "
+                  "class=\"copy-button\" "
+                  "id=\"copy-%s\" "
+                  "data-copytarget=\"%s\" "
+                  "data-copylength=\"%d\">"
+                  "</span>"
+                  "<span id=\"%s\">"
+                  "%s"
+                  "</span>",
+                  zTargetId, zTargetId, copylength, zTargetId, zText);
+    }else{
+      zResult = mprintf(
+                  "<span id=\"%s\">"
+                  "%s"
+                  "</span>"
+                  "<span "
+                  "class=\"copy-button copy-button-flipped\" "
+                  "id=\"copy-%s\" "
+                  "data-copytarget=\"%s\" "
+                  "data-copylength=\"%d\">"
+                  "</span>",
+                  zTargetId, zText, zTargetId, zTargetId, copylength);
+    }
     free(zTargetId);
     free(zText);
     style_copy_button();
