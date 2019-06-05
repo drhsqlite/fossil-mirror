@@ -12,6 +12,13 @@
      [/doc/0d7ac90d575004c2415/www/index.wiki].
   *  Enhancements to the timeline graph layout, to show more information
      with less clutter.
+  *  Added tool-tips to the /timeline graph.  On by default but can be
+     disabled by setting the "Tooltip dwell time" to 0 in the timeline
+     configuration.
+  *  Copy buttons added to various check-in hash and branch name links.
+  *  Double-clicking on a /timeline graph node now jumps to the /info page
+     for the check-in.  So, repurpose the timestamp hyperlink to show all
+     activity around that check-in in time.
   *  Many documentation enhancements.
   *  For the "[/help?cmd=update|fossil update]" and
      "[/help?cmd=checkout|fossil checkout]" commands, if a
