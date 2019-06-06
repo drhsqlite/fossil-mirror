@@ -1432,7 +1432,7 @@ void login_needed(int anonOk){
     }
     if( anonOk ) blob_append(&redir, "&anon", 5);
     if( zQS && zQS[0] ){
-      blob_appendf(&redir, "&%s", zQS);
+      blob_appendf(&redir, "%%3f%T", zQS);
     }
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
