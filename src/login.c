@@ -1430,10 +1430,10 @@ void login_needed(int anonOk){
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
     }
-    if( anonOk ) blob_append(&redir, "&anon", 5);
     if( zQS && zQS[0] ){
       blob_appendf(&redir, "%%3f%T", zQS);
     }
+    if( anonOk ) blob_append(&redir, "&anon", 5);
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
