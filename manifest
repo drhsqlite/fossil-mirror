@@ -1,5 +1,5 @@
-C Another\sattempt\sto\sfix\sthe\slogin\sredirect\sprocessing.
-D 2019-06-06T21:13:16.387
+C Output\sthe\scopy\sbutton\spatterns\sfor\sHTML\spages\sand\sTH1\sscripts\sfrom\sa\scentralized\sfunction,\sto\smake\sit\seasier\sto\sapply\sglobal\smodifications.
+D 2019-06-07T11:47:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 18a06326d0712e083d2192494125315ff3ea7870a8ec1b76ced8b0356e1f6e8b
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 9ab0b09c7ce0eb74eb43d10c121d5e746dd20f7073906a19cc4dda2be5a1eb56
+F src/info.c 4ff5a13d4516304b60f15d30ce9afd1d047427e000844f31ef2eb4a79b34e9ac
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -572,16 +572,16 @@ F src/sqlite3.h fd2c0bae2f97a50d2e8aa73c5f53dd64a0e08179ea98036a7e67fda34c9a648f
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 8c4669e9cf9cc8cf1c83cda7c6595933bdb2927ddfd2f5500497fef3ea260b13
+F src/style.c ce23c50fb1de55cc5e162aeef72be618a21105bef09ee7692128decd6a26e8e8
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 5d635ac362a5160e3e558d21bf06fcaa2349e7e8744546bfce7cc2b55ea45b4e
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c 742dd067387a21156a6a34d78c328b2f5d5e33d337f7c2ca9536c51839528446
+F src/th_main.c 8a9f84aad9b82393e7e04d1519088b6c0905327904e9bd9ec146b685096ed353
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 306395e79768d95cc21017b3ba51032f4d1e2c635f8a87acf2b0d84a33c1d1db
+F src/timeline.c 8f9fefce9859d19c4c0edcf9b16609b2d309d8d94422bc6ccd7daba6941d51d2
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
 F src/tktsetup.c d7c94a74020a72ae919da6bfa93c97ea0f44f2d260a21a4488e5e8d0d04475f0
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -875,7 +875,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8d3d39fb1931067f8f17a776359f25eac9ad53339fe8a4316ccfcec4f0063739
-R 0c32db71efdfc3e0630870ad94f595e5
-U drh
-Z eb3a5200f4b1de7265c422244efee790
+P a8ff3c5092e96cc08a5f81741e6cb4c398316b6936ef37258a115b7cc1ecb4b5
+R 6cc4378d4750e3f7d2937106703f0e45
+T *branch * copybtn.js-tweaks
+T *sym-copybtn.js-tweaks *
+T -sym-trunk *
+U florian
+Z ad84f9526a2bca6decf2d7854458c94b

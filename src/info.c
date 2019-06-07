@@ -765,11 +765,10 @@ void ci_page(void){
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
-        @  | <span class="copy-button" id="copy-name-br"
-        @      data-copytarget="name-br" data-copylength="0">
-        @  </span><span id="name-br"><!--
-        @  -->%z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
-        @  </span>
+        cgi_printf(" | ");
+        copybtn(1, "name-br", 0, 0, "%z%h</a>",
+          href("%R/timeline?r=%T&unhide",zTagName), zTagName);
+        cgi_printf("\n");
         if( wiki_tagid2("branch",zTagName)!=0 ){
           blob_appendf(&wiki_read_links, " | %z%h</a>",
               href("%R/wiki?name=branch/%h",zTagName), zTagName);
@@ -800,11 +799,9 @@ void ci_page(void){
     @ </tr>
 
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>
-    @ <span class="copy-button" id="copy-hash-ci"
-    @   data-copytarget="hash-ci" data-copylength="%d(hash_digits(1))">
-    @ </span><span id="hash-ci">%.32s(zUuid)<wbr>%s(zUuid+32)</span>
+    copybtn(1, "hash-ci", 0, 2, "%.32s<wbr>%s", zUuid, zUuid+32);
     if( g.perm.Setup ){
-      @ (Record ID: %d(rid))
+      @  (Record ID: %d(rid))
     }
     @ </td></tr>
     @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
@@ -1921,15 +1918,13 @@ void hexdump_page(void){
     }
   }
   style_header("Hex Artifact Content");
-  style_copy_button();
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact
-  @ <span class="copy-button" id="copy-hash-ar"
-  @   data-copytarget="hash-ar" data-copylength="%d(hash_digits(1))">
+  copybtn(1, "hash-ar", 0, 2, "%s", zUuid);
   if( g.perm.Setup ){
-    @ </span><span id="hash-ar">%s(zUuid)</span> (%d(rid)):</h2>
+    @  (%d(rid)):</h2>
   }else{
-    @ </span><span id="hash-ar">%s(zUuid)</span>:</h2>
+    @ :</h2>
   }
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
@@ -2196,14 +2191,12 @@ void artifact_page(void){
     @ <h2>Latest version of file '%h(zName)':</h2>
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
   }else{
-    style_copy_button();
     @ <h2>Artifact
-    @ <span class="copy-button" id="copy-hash-ar"
-    @   data-copytarget="hash-ar" data-copylength="%d(hash_digits(1))">
+    copybtn(1, "hash-ar", 0, 2, "%s", zUuid);
     if( g.perm.Setup ){
-      @ </span><span id="hash-ar">%s(zUuid)</span> (%d(rid)):</h2>
+      @  (%d(rid)):</h2>
     }else{
-      @ </span><span id="hash-ar">%s(zUuid)</span>:</h2>
+      @ :</h2>
     }
   }
   blob_zero(&downloadName);

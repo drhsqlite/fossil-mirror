@@ -370,6 +370,86 @@ static void image_url_var(const char *zImageName){
 }
 
 /*
+** Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
+** Javascript module, and generates HTML elements with the following IDs:
+**
+**    TARGETID:       The <span> wrapper around TEXT.
+**    copy-TARGETID:  The <span> for the copy button.
+**
+** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
+**
+** The COPYLENGTH argument defines the length of the substring of TEXT copied to
+** clipboard:
+**
+**    <= 0:   No limit (default if the argument is omitted).
+**    >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+**       1:   Use the "hash-digits" setting as the limit.
+**       2:   Use the length appropriate for URLs as the limit (defined at
+**            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
+*/
+char *copybtn(
+  int bOutputCGI,         /* Don't return result, but send to cgi_printf(). */
+  const char *zTargetId,  /* The TARGETID argument. */
+  int bFlipped,           /* The FLIPPED argument. */
+  int cchLength,          /* The COPYLENGTH argument. */
+  const char *zTextFmt,   /* Formatting of the TEXT argument (htmlized). */
+  ...                     /* Formatting parameters of the TEXT argument. */
+){
+  va_list ap;
+  char *zText;
+  char *zResult = 0;
+  va_start(ap,zTextFmt);
+  zText = vmprintf(zTextFmt/*works-like:?*/,ap);
+  va_end(ap);
+  if( cchLength==1 ) cchLength = hash_digits(0);
+  else if( cchLength==2 ) cchLength = hash_digits(1);
+  if( !bFlipped ){
+    const char *zBtnFmt =
+      "<span "
+      "class=\"copy-button\" "
+      "id=\"copy-%h\" "
+      "data-copytarget=\"%h\" "
+      "data-copylength=\"%d\">"
+      "</span>"
+      "<span id=\"%h\">"
+      "%s"
+      "</span>";
+    if( bOutputCGI ){
+      cgi_printf(
+                  zBtnFmt/*works-like:"%h%h%d%h%s"*/,
+                  zTargetId,zTargetId,cchLength,zTargetId,zText);
+    }else{
+      zResult = mprintf(
+                  zBtnFmt/*works-like:"%h%h%d%h%s"*/,
+                  zTargetId,zTargetId,cchLength,zTargetId,zText);
+    }
+  }else{
+    const char *zBtnFmt =
+      "<span id=\"%h\">"
+      "%s"
+      "</span>"
+      "<span "
+      "class=\"copy-button copy-button-flipped\" "
+      "id=\"copy-%h\" "
+      "data-copytarget=\"%h\" "
+      "data-copylength=\"%d\">"
+      "</span>";
+    if( bOutputCGI ){
+      cgi_printf(
+                  zBtnFmt/*works-like:"%h%s%h%h%d"*/,
+                  zTargetId,zText,zTargetId,zTargetId,cchLength);
+    }else{
+      zResult = mprintf(
+                  zBtnFmt/*works-like:"%h%s%h%h%d"*/,
+                  zTargetId,zText,zTargetId,zTargetId,cchLength);
+    }
+  }
+  free(zText);
+  style_copybtn();
+  return zResult;
+}
+
+/*
 ** Return a random nonce that is stored in static space.  For a particular
 ** run, the same nonce is always returned.
 */
@@ -545,7 +625,7 @@ void style_graph_generator(void){
 /*
 ** Indicate that the copy button javascript is needed.
 */
-void style_copy_button(void){
+void style_copybtn(void){
   needCopyBtnJs = 1;
 }
 

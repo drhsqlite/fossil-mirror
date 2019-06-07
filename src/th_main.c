@@ -1027,43 +1027,14 @@ static int copybtnCmd(
   if( enableOutput ){
     int flipped = 0;
     int copylength = 0;
-    char *zTargetId, *zText, *zResult;
+    char *zResult;
     if( Th_ToInt(interp, argv[2], argl[2], &flipped) ) return TH_ERROR;
     if( argc==5 ){
       if( Th_ToInt(interp, argv[4], argl[4], &copylength) ) return TH_ERROR;
     }
-    if( copylength==1 ) copylength = hash_digits(0);
-    else if( copylength==2 ) copylength = hash_digits(1);
-    zTargetId = htmlize((char*)argv[1], argl[1]);
-    zText = htmlize((char*)argv[3], argl[3]);
-    if( !flipped ){
-      zResult = mprintf(
-                  "<span "
-                  "class=\"copy-button\" "
-                  "id=\"copy-%s\" "
-                  "data-copytarget=\"%s\" "
-                  "data-copylength=\"%d\">"
-                  "</span>"
-                  "<span id=\"%s\">"
-                  "%s"
-                  "</span>",
-                  zTargetId, zTargetId, copylength, zTargetId, zText);
-    }else{
-      zResult = mprintf(
-                  "<span id=\"%s\">"
-                  "%s"
-                  "</span>"
-                  "<span "
-                  "class=\"copy-button copy-button-flipped\" "
-                  "id=\"copy-%s\" "
-                  "data-copytarget=\"%s\" "
-                  "data-copylength=\"%d\">"
-                  "</span>",
-                  zTargetId, zText, zTargetId, zTargetId, copylength);
-    }
-    free(zTargetId);
-    free(zText);
-    style_copy_button();
+    zResult = copybtn(
+                /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
+                flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
     sendText(zResult, -1, 0);
     free(zResult);
   }
