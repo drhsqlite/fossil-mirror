@@ -789,3 +789,6 @@ label {
   margin-left: .16em;
   margin-right: 0;
 }
+.nobr {
+  white-space: nowrap;
+}

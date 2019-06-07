@@ -405,6 +405,7 @@ char *copybtn(
   else if( cchLength==2 ) cchLength = hash_digits(1);
   if( !bFlipped ){
     const char *zBtnFmt =
+      "<span class=\"nobr\">"
       "<span "
       "class=\"copy-button\" "
       "id=\"copy-%h\" "
@@ -413,6 +414,7 @@ char *copybtn(
       "</span>"
       "<span id=\"%h\">"
       "%s"
+      "</span>"
       "</span>";
     if( bOutputCGI ){
       cgi_printf(
@@ -425,6 +427,7 @@ char *copybtn(
     }
   }else{
     const char *zBtnFmt =
+      "<span class=\"nobr\">"
       "<span id=\"%h\">"
       "%s"
       "</span>"
@@ -433,6 +436,7 @@ char *copybtn(
       "id=\"copy-%h\" "
       "data-copytarget=\"%h\" "
       "data-copylength=\"%d\">"
+      "</span>"
       "</span>";
     if( bOutputCGI ){
       cgi_printf(
