@@ -768,6 +768,22 @@ void setup_timeline(void){
   @ <p>(Properties: "timeline-dwelltime", "timeline-closetime")</p>
 
   @ <hr />
+  onoff_attribute("Timestamp hyperlinks to /info",
+                  "timeline-tslink-info", "ttlti", 0, 0);
+  @ <p>The hyperlink on the timestamp associated with each timeline entry,
+  @ on the far left-hand side of the screen, normally targets another
+  @ /timeline page that shows the entry in context.  However, if this
+  @ option is turned on, that hyperlink targets the /info page showing
+  @ the details of the entry.
+  @ <p>The /timeline link is the default since it is often useful to
+  @ see an entry in context, and because that link is not otherwise
+  @ accessible on the timeline.  The /info link is also accessible by
+  @ double-clicking the timeline node or by clicking on the hash that
+  @ follows "check-in:" in the supplimental information section on the
+  @ right of the entry.
+  @ <p>(Properties: "timeline-tslink-info")
+
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);

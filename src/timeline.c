@@ -265,6 +265,8 @@ void www_print_timeline(
   const char *zStyle;         /* Sub-name for classes for the style */
   const char *zDateFmt;
   int iTableId = timeline_tableid();
+  int bTimestampLinksToInfo;  /* True if timestamp hyperlinks go to the /info
+                              ** page rather than the /timeline page */
 
   if( cgi_is_loopback(g.zIpAddr) && db_open_local(0) ){
     vid = db_lget_int("checkout", 0);
@@ -273,6 +275,7 @@ void www_print_timeline(
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   dateFormat = db_get_int("timeline-date-format", 0);
   bCommentGitStyle = db_get_int("timeline-truncate-at-blank", 0);
+  bTimestampLinksToInfo = db_get_boolean("timeline-tslink-info", 0);
   if( (tmFlags & TIMELINE_VIEWS)==0 ){
     tmFlags |= timeline_ss_cookie();
   }
@@ -401,9 +404,21 @@ void www_print_timeline(
       @ <tr>
     }
     if( zType[0]=='e' && tagid ){
-      zDateLink = href("%R/timeline?c=%t",zDate);
+      if( bTimestampLinksToInfo ){
+        char *zId;
+        zId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
+                          tagid);
+        zDateLink = href("%R/technote/%s",zId);
+        free(zId);
+      }else{
+        zDateLink = href("%R/timeline?c=%t",zDate);
+      }
     }else if( zUuid ){
-      zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S", zUuid);
+      if( bTimestampLinksToInfo ){
+        zDateLink = chref("timelineHistLink", "%R/info/%!S", zUuid);
+      }else{
+        zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S", zUuid);
+      }
     }else{
       zDateLink = mprintf("<a>");
     }
