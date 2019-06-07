@@ -1032,7 +1032,7 @@ static int copybtnCmd(
     if( argc==5 ){
       if( Th_ToInt(interp, argv[4], argl[4], &copylength) ) return TH_ERROR;
     }
-    zResult = copybtn(
+    zResult = style_copy_button(
                 /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
                 flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
     sendText(zResult, -1, 0);

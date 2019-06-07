@@ -766,7 +766,7 @@ void ci_page(void){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
         cgi_printf(" | ");
-        copybtn(1, "name-br", 0, 0, "%z%h</a>",
+        style_copy_button(1, "name-br", 0, 0, "%z%h</a>",
           href("%R/timeline?r=%T&unhide",zTagName), zTagName);
         cgi_printf("\n");
         if( wiki_tagid2("branch",zTagName)!=0 ){
@@ -799,7 +799,7 @@ void ci_page(void){
     @ </tr>
 
     @ <tr><th>%s(hname_alg(nUuid)):</th><td>
-    copybtn(1, "hash-ci", 0, 2, "%.32s<wbr>%s", zUuid, zUuid+32);
+    style_copy_button(1, "hash-ci", 0, 2, "%.32s<wbr>%s", zUuid, zUuid+32);
     if( g.perm.Setup ){
       @  (Record ID: %d(rid))
     }
@@ -1920,7 +1920,7 @@ void hexdump_page(void){
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact
-  copybtn(1, "hash-ar", 0, 2, "%s", zUuid);
+  style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
   if( g.perm.Setup ){
     @  (%d(rid)):</h2>
   }else{
@@ -2192,7 +2192,7 @@ void artifact_page(void){
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
   }else{
     @ <h2>Artifact
-    copybtn(1, "hash-ar", 0, 2, "%s", zUuid);
+    style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
     if( g.perm.Setup ){
       @  (%d(rid)):</h2>
     }else{

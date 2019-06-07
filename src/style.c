@@ -387,7 +387,7 @@ static void image_url_var(const char *zImageName){
 **       2:   Use the length appropriate for URLs as the limit (defined at
 **            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
 */
-char *copybtn(
+char *style_copy_button(
   int bOutputCGI,         /* Don't return result, but send to cgi_printf(). */
   const char *zTargetId,  /* The TARGETID argument. */
   int bFlipped,           /* The FLIPPED argument. */
@@ -449,7 +449,7 @@ char *copybtn(
     }
   }
   free(zText);
-  style_copybtn();
+  style_copybutton_control();
   return zResult;
 }
 
@@ -629,7 +629,7 @@ void style_graph_generator(void){
 /*
 ** Indicate that the copy button javascript is needed.
 */
-void style_copybtn(void){
+void style_copybutton_control(void){
   needCopyBtnJs = 1;
 }
 
