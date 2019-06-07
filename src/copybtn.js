@@ -32,6 +32,7 @@ function makeCopyButton(idTarget,bFlipped,cchLength){
   return elButton;
 }
 function initCopyButtonById(idButton,idTarget,cchLength){
+  idButton = idButton || "copy-" + idTarget;
   var elButton = document.getElementById(idButton);
   if( elButton ) initCopyButton(elButton,idTarget,cchLength);
   return elButton;
