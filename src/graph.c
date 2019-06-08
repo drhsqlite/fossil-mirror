@@ -434,6 +434,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   const char *zTrunk;
   u8 *aMap;            /* Copy of p->aiRailMap */
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
+  int nTimewarp = 0;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
   ** coming up from the bottom of the graph from off-screen check-in Y
@@ -526,6 +527,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
     if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
     if( pParent->idx <= pRow->idx ){
       pParent->timeWarp = 1;
+      nTimewarp++;
     }else if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
@@ -738,7 +740,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   */
   aMap = p->aiRailMap;
   for(i=0; i<=p->mxRail; i++) aMap[i] = i;
-  if( zLeftBranch ){
+  if( zLeftBranch && nTimewarp==0 ){
     char *zLeft = persistBranchName(p, zLeftBranch);
     j = 0;
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
