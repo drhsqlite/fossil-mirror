@@ -280,7 +280,8 @@ static int findFreeRail(
     if( (inUseMask & BIT(i))==0 ){
       int dist;
       if( iNearto<=0 ){
-        return i;
+        iBest = i;
+        break;
       }
       dist = i - iNearto;
       if( dist<0 ) dist = -dist;
@@ -309,6 +310,7 @@ static void assignChildrenToRail(GraphRow *pBottom, u32 tmFlags){
   for(pCurrent=pBottom->pChild; pCurrent; pCurrent=pCurrent->pChild){
     assert( pPrior->idx > pCurrent->idx );
     assert( pCurrent->iRail<0 );
+    if( pPrior->timeWarp ) break;
     pCurrent->iRail = iRail;
     pCurrent->railInUse |= mask;
     pPrior->aiRiser[iRail] = pCurrent->idx;
@@ -645,8 +647,16 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       if( !pRow->timeWarp ) riser_to_top(pRow);
     }
     if( pParent ){
-      for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
-        pLoop->railInUse |= mask;
+      if( pParent->idx>pRow->idx ){
+        /* Common case:  Parent is below current row in the graph */
+        for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
+          pLoop->railInUse |= mask;
+        }
+      }else{
+        /* Timewarp case: Parent is above current row in the graph */
+        for(pLoop=pParent->pNext; pLoop && pLoop!=pRow; pLoop=pLoop->pNext){
+          pLoop->railInUse |= mask;
+        }
       }
     }
   }

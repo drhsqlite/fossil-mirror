@@ -487,16 +487,22 @@ function TimelineGraph(tx){
         var y0 = p.y + (node.h-line.w)/2;
         var u = tx.rowinfo[p.au[i+1]-tx.iTopRow];
         if( u.id<p.id ){
+          // normal thick up-arrow
           drawLine(line,u.fg,x0,y0,x1,null);
           drawUpArrow(p,u,u.fg,u.id);
         }else{
+          // timewarp:  The child node occurs before the parent
           var y1 = u.y + (node.h-line.w)/2;
-          drawLine(wLine,u.fg,x0,y0,x1,null);
-          drawLine(wLine,u.fg,x1-line.w,y0,null,y1+line.w);
-          drawLine(wLine,u.fg,x1,y1,u.x-wArrow.w/2,null);
+          var n = drawLine(wLine,u.fg,x0,y0,x1,null);
+          addToolTip(n,u.id)
+          n = drawLine(wLine,u.fg,x1-line.w,y0,null,y1+line.w);
+          addToolTip(n,u.id)
+          n = drawLine(wLine,u.fg,x1,y1,u.x-wArrow.w/2,null);
+          addToolTip(n,u.id)
           var x = u.x-wArrow.w;
           var y = u.y+(node.h-wArrow.h)/2;
-          var n = drawBox(wArrow.cls,null,x,y);
+          n = drawBox(wArrow.cls,null,x,y);
+          addToolTip(n,u.id)
           if( u.fg ) n.style.borderLeftColor = u.fg;
         }
       }

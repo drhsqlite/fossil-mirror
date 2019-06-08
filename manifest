@@ -1,5 +1,5 @@
-C Improvements\sto\stooltip\sbehavior\sin\san\seffort\sto\smake\sit\seasier\sto\smove\nthe\smouse\sover\sto\sthe\s"copy\sbutton"\sor\sto\sthe\shyperlink\swithout\sthe\stooltip\nchanging\sout\sfrom\sunder\sthe\suser.
-D 2019-06-08T14:48:55.761
+C Fix\sto\sthe\sgraph\slayout\sfor\scomplex\stime-warp\scases.\s\sAdd\stooltips\sto\ntimewarp\sarrows.
+D 2019-06-08T16:11:00.324
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,8 +482,8 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js c48b531c7fbedf004f2c6515ba5fa61f93c2ede645e1a0fc928bc4c12ffb9ab2
+F src/graph.c 4283d4eb2e0c4f324589b30f0b089f0ff793300783dd9dbf42c79a80647fc2f2
+F src/graph.js 66747829cf494206f238dc686bafc71ff1180dd21ddabd461173ea291f4c7477
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 786d6167fa008d1fe37d98e355ea6c56a8a95f3f00c6395e501b9a3a83dd755c
-R d0f5b8f7583d7ba63fe799bb07e5fc4a
+P 55f56e91badb50ce8a2b874e7f43fbb57f7706d84be0a992e35209377fc37ba5
+R b95d196ed1191095f603ffb34c252675
 U drh
-Z 445798ade2bdbfe939f434550a1f21ec
+Z 9d149b98aad178677af76bbb400214ee
