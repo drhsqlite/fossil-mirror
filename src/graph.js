@@ -452,7 +452,7 @@ function TimelineGraph(tx){
       }else if( mergeOffset ){
         mergeLines[p.mo] = u.r<p.r ? -mergeOffset-mLine.w : mergeOffset;
         x1 += mergeLines[p.mo];
-        if( p.mo<p.id ){
+        if( p.mu<p.id ){
           drawMergeLine(x1,p.y+node.h/2,null,y1);
         }
         if( p.hasOwnProperty('cu') ){

@@ -1,5 +1,5 @@
-C Minor\simprovements\sto\sthe\scopy-button\slogic.
-D 2019-06-07T13:15:02.462
+C Fix\sa\sminor\sfault\sin\sthe\sgraph\sdrawing\sjavascript.
+D 2019-06-08T10:29:58.210
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -483,7 +483,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js e1f7554809d037134e23796fd2e0b7a656bba970f8873513dce1263e085f7e67
+F src/graph.js 8fa5404418d392e5011d02bbeacac169b8cf423d95f420cc656c4b273a2e6b4b
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -875,8 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 647424d463c9186012df2781f209c8e345a8fa8ea6032a2f2e86e6a2cabe010c ef848025da4df60ca930bc235808ba8172d3340ffa3105bda976a5f1ff99efa3
-R 86ac38850e611097cf7345f7e9b0124b
-T +closed ef848025da4df60ca930bc235808ba8172d3340ffa3105bda976a5f1ff99efa3
+P 759fbda4e8963d89d157ef45b7329f33fb1c5ec633130ffcd6442d8ecf8f72d6
+R 1941d2695ff266fcdc1e6d7343004745
 U drh
-Z c1f50e41f6dde374fdeb808f9cbf7b24
+Z cd51ab98e44476bf8fc8933a5f5b4dec
