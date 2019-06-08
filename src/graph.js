@@ -63,7 +63,6 @@
 **        omitted if there are no cherrypick merges.
 **    h:  The artifact hash of the object being graphed
 */
-
 /* The amendCss() function does a one-time change to the CSS to account
 ** for the "circleNodes" and "showArrowheads" settings.  Do this change
 ** only once, even if there are multiple graphs being rendered.
@@ -91,7 +90,16 @@ var tooltipObj = document.createElement("span");
 tooltipObj.className = "tl-tooltip";
 tooltipObj.style.display = "none";
 document.getElementsByClassName("content")[0].appendChild(tooltipObj);
-tooltipObj.onmouseenter = function(){stopCloseTimer();}
+tooltipObj.onmouseenter = function(){
+  /* Hold the tooltip constant as long as the mouse is over the tooltip.
+  ** In other words, do not let any of the timers changes the tooltip while
+  ** the mouse is directly over the tooltip.  This makes it easier for the
+  ** user to move over top of the "copy-button" or the hyperlink to the
+  ** /info page. */
+  stopCloseTimer();
+  stopDwellTimer();
+  tooltipInfo.ixHover = tooltipInfo.ixActive;
+}
 tooltipObj.onmouseleave = function(){
   if (tooltipInfo.ixActive != -1) resumeCloseTimer();
 };
