@@ -101,23 +101,27 @@ window.tooltipInfo = {
   dwellTimeout: 250,  /* The tooltip dwell timeout. */
   closeTimeout: 3000, /* The tooltip close timeout. */
   hashDigits: 16,     /* Limit of tooltip hashes ("hash-digits"). */
-  idTimer: 0,         /* The tooltip dwell timer id. */
-  idTimerClose: 0,    /* The tooltip close timer id. */
-  ixHover: -1,        /* The id of the element with the mouse. */
-  ixActive: -1,       /* The id of the element with the tooltip. */
+  idTimer: 0,         /* The tooltip dwell timer id */
+  idTimerClose: 0,    /* The tooltip close timer id */
+  ixHover: -1,        /* The mouse is over a thick riser arrow for
+                      ** tx.rowinfo[ixHover].  Or -2 when the mouse is
+                      ** over a graph node.  Or -1 when the mouse is not
+                      ** over anything. */
+  ixActive: -1,       /* The item shown in the tooltip is tx.rowinfo[ixActive].
+                      ** ixActive is -1 if the tooltip is not visible */
   nodeHover: null,    /* Graph node under mouse when ixHover==-2 */
   posX: 0, posY: 0    /* The last mouse position. */
 };
 
 /* Functions used to control the tooltip popup and its timer */
-function onKeyDown(event){
+function onKeyDown(event){  /* Hide the tooltip when ESC key pressed */
   var key = event.which || event.keyCode;
   if( key==27 ){
     event.stopPropagation();
     hideGraphTooltip();
   }
 }
-function hideGraphTooltip(){
+function hideGraphTooltip(){ /* Hide the tooltip */
   document.removeEventListener('keydown',onKeyDown,/* useCapture == */true);
   stopCloseTimer();
   tooltipObj.style.display = "none";
@@ -125,14 +129,14 @@ function hideGraphTooltip(){
 }
 document.body.onunload = hideGraphTooltip
 function stopDwellTimer(){
-  if (tooltipInfo.idTimer != 0) {
+  if(tooltipInfo.idTimer!=0){
     clearTimeout(tooltipInfo.idTimer);
     tooltipInfo.idTimer = 0;
   }
 }
 function resumeCloseTimer(){
   /* This timer must be stopped explicitly to reset the elapsed timeout. */
-  if(tooltipInfo.idTimerClose == 0 && tooltipInfo.closeTimeout>0) {
+  if(tooltipInfo.idTimerClose==0 && tooltipInfo.closeTimeout>0) {
     tooltipInfo.idTimerClose = setTimeout(function(){
       tooltipInfo.idTimerClose = 0;
       hideGraphTooltip();
@@ -140,7 +144,7 @@ function resumeCloseTimer(){
   }
 }
 function stopCloseTimer(){
-  if (tooltipInfo.idTimerClose != 0) {
+  if(tooltipInfo.idTimerClose!=0){
     clearTimeout(tooltipInfo.idTimerClose);
     tooltipInfo.idTimerClose = 0;
   }
@@ -196,8 +200,7 @@ function TimelineGraph(tx){
       stopCloseTimer();
     }
   };
-  function nodeHover(e){
-    /* Invoked by mousemove events over a graph node */
+  function mouseOverNode(e){ /* Invoked by mousemove events over a graph node */
     e.stopPropagation()
     if(tooltipInfo.ixHover==-2) return
     tooltipInfo.ixHover = -2
@@ -401,7 +404,7 @@ function TimelineGraph(tx){
     n.id = "tln"+p.id;
     n.onclick = clickOnNode;
     n.ondblclick = dblclickOnNode;
-    n.onmousemove = nodeHover;
+    n.onmousemove = mouseOverNode;
     n.style.zIndex = 10;
     if( !tx.omitDescenders ){
       if( p.u==0 ){
