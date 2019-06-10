@@ -1,5 +1,5 @@
-C Improved\shandling\sof\stimewarps\sin\sthe\sgraph\slayout.
-D 2019-06-08T18:29:12.441
+C Copy\sbutton\scomes\sbefore\sthe\shyperlink\sin\stooltips.
+D 2019-06-10T01:32:32.151
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -483,7 +483,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 213d042fabfc12a2b642969acede47ac9054fb7c0691eb1587326393cecf3374
-F src/graph.js 66747829cf494206f238dc686bafc71ff1180dd21ddabd461173ea291f4c7477
+F src/graph.js 4fd30754566bb7941dc0a2ab1dd14f7bd8c0aa07ff7ad01711aa9afc3047ce4e
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5399c5dacb808e4cc5ec5a76fd4d8a4823d96f0b1a21d692d9c06522839c3ad3
-R e7f5c597345038f823cbae5708cef389
+P 628fc32dd3f594ac6669499a55c73193abbe740afc495d39842f5b34714d22e3
+R 7b52b1d09fcf8bdd2fabb5d0cf51280d
 U drh
-Z 262e986680a2eb7df57bee7e97263093
+Z afbf64b4d954dc4ba9371b8bc2cd74e0

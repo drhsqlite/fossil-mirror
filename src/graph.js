@@ -656,7 +656,8 @@ function TimelineGraph(tx){
          tooltipObj.style.color = s.getPropertyValue('color')
       tooltipObj.style.visibility = "hidden"
       tooltipObj.innerHTML = html
-      tooltipObj.appendChild(makeCopyButton("tooltip-link",true,0));
+      tooltipObj.insertBefore(makeCopyButton("tooltip-link",0,0),
+                              tooltipObj.childNodes[1]);
       tooltipObj.style.display = "inline"
       tooltipObj.style.position = "absolute"
       var x = tooltipInfo.posX + 4 + window.pageXOffset
