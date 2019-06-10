@@ -872,7 +872,7 @@ void timeline_output_graph_javascript(
     @   "baseUrl": "%R",
     @   "dwellTimeout": %d(dwellTimeout),
     @   "closeTimeout": %d(closeTimeout),
-    @   "hashDigit": %d(hash_digits(1)),
+    @   "hashDigits": %d(hash_digits(1)),
     @   "bottomRowId": "btm-%d(iTableId)",
     if( pGraph->nRow==0 ){
       @   "rowinfo": null

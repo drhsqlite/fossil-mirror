@@ -1,5 +1,5 @@
-C This\scheck-in\sstarted\sas\sa\sfollow-up\sto\s[55f56e91ba]\sto\smake\sthe\stooltip\sless\shasty,\sand\sprevent\sit\sfrom\sbeing\sinstantly\sreshown\s(and\sslightly\smoved)\swhen\sthe\smouse\spointer\sgoes\sback\sfrom\sthe\stooltip\sto\sthe\sowning\snode.\sThe\sfinal\sresult\sis\sa\scombined\sand\ssimplified\s"mousemove"\shandler\sfor\sboth\snodes\sand\srails,\swith\sconsistent\stooltip\slifetime:\sthe\stooltip\sis\sonly\sclosed\sif\sthe\smouse\spointer\sis\sat\sa\sfixed\spoint\sover\sanother\selement\sfor\sthe\s(full)\sduration\sof\sthe\sdwell\stimeout,\sor\saway\sfrom\sthe\sowning\selement\s(and\sthe\stooltip)\sfor\sthe\s(full)\sduration\sof\sthe\sclose\stimeout.\sThis\scheck-in\salso\simproves\spositioning\sof\sthe\stooltip\sfor\slonger\sdwell\stimeouts.
-D 2019-06-10T16:02:00.000
+C Fix\sa\sminor\scoding\stypo\sfrom\s[2196555351]\s(property\sname).
+D 2019-06-10T16:08:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -581,7 +581,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4c91ac7c1e00a8402de8feedf49158560da0cc37bbcc51ebdb94a6c174ffd162
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
-F src/timeline.c 889cd6b940d891173e3dd5506ae509b6df18c8c5c2e0b01275de6f8419e26be1
+F src/timeline.c 3a707c535a48b3228c00ae77f68973d7ad5e9c9dea1085581c9ab7decb6c4c97
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
 F src/tktsetup.c d7c94a74020a72ae919da6bfa93c97ea0f44f2d260a21a4488e5e8d0d04475f0
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -875,10 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55f56e91badb50ce8a2b874e7f43fbb57f7706d84be0a992e35209377fc37ba5
-R ce094fa44921f8803e42c082eda257c0
-T *branch * tooltip-tweaks
-T *sym-tooltip-tweaks *
-T -sym-trunk *
+P 1fc616382820b859e680cfcc5f56b51686ddfa52a4109d323963cd041e177446
+R a43eed1b3aceb718a8d3d2a7fd0fbfd6
 U florian
-Z eb6b5879ff710ff24a915f50f8364f29
+Z 5536ebdaaf6d1fd4fde4c4be74a2481e
