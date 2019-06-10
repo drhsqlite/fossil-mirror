@@ -448,6 +448,17 @@ static int isHuman(const char *zAgent){
 }
 
 /*
+** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
+** is a mobile device that does not normally have a mouse.
+*/
+static int isMobile(const char *zAgent){
+  if( sqlite3_strglob("*Mobile/*", zAgent)==0 ) return 1;
+  if( sqlite3_strglob("*Tablet;*", zAgent)==0 ) return 1;
+  return 0;
+}
+
+
+/*
 ** COMMAND: test-ishuman
 **
 ** Read lines of text from standard input.  Interpret each line of text
@@ -1114,10 +1125,15 @@ void login_check_credentials(void){
   }
   if( PB("isrobot") ){
     g.isHuman = 0;
-  }else if( g.zLogin==0 ){
-    g.isHuman = isHuman(P("HTTP_USER_AGENT"));
+    g.isMobile = 0;
   }else{
-    g.isHuman = 1;
+    const char *zAgent = P("HTTP_USER_AGENT");
+    if( g.zLogin==0 ){
+      g.isHuman = isHuman(zAgent);
+    }else{
+      g.isHuman = 1;
+    }
+    g.isMobile = isMobile(zAgent);
   }
 
   /* Set the capabilities */

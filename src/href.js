@@ -33,9 +33,7 @@ function antiRobotDefense(){
   var x = document.getElementById("href-data");
   var jx = x.textContent || x.innerText;
   var g = JSON.parse(jx);
-  var isOperaMini =
-       Object.prototype.toString.call(window.operamini)==="[object OperaMini]";
-  if(g.mouseover && !isOperaMini){
+  if(g.mouseover){
     document.getElementsByTagName("body")[0].onmousemove=function(){
       setTimeout(setAllHrefs, g.delay);
     }

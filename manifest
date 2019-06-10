@@ -1,5 +1,5 @@
-C Simplifications\sto\sthe\scopybtn.js\sscript.
-D 2019-06-10T01:53:59.139
+C Disable\sthe\smouse-motion\santi-robot\srequirement\sfor\sdevices\sthat\sself-identify\nas\sa\stablet\sor\smobile\sdevice,\sand\shence\smight\snever\ssend\smouse-motion\sevents.
+D 2019-06-10T04:48:50.510
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -486,7 +486,7 @@ F src/graph.c 213d042fabfc12a2b642969acede47ac9054fb7c0691eb1587326393cecf3374
 F src/graph.js 4fd30754566bb7941dc0a2ab1dd14f7bd8c0aa07ff7ad01711aa9afc3047ce4e
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
-F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
+F src/href.js 902aeab2675938fbe2410d0529b07c6c5d2ffa15ee665a8b66669a2ab5fd76c2
 F src/http.c b92f1c1da44e75b1e385686b17a4597f14ab3db1979be4fed2f3ad7ca745a7b7
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
@@ -513,10 +513,10 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c cf87900af15f738b97eb35d685a787a7b9295eb6a698c30210eb57bfeaebde6e
+F src/login.c 1570fe6dac990afae4aa6a0626d52f0a7b4d0ffd81108dc3e044b346fe5a0d62
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 8d9040c6f22030a7316a97fae2513bc7324ff113694be72bb867a8c95ef47f1a
+F src/main.c 16410c9ba8ed6faa60f76277a9f00f5b1f58402ae69b211df7ccb7974c28746e
 F src/main.mk fe53efb1afb2d1cbde3e626cbf03751db72493c59cc168c2d3dc0415d04c0147
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -572,7 +572,7 @@ F src/sqlite3.h fd2c0bae2f97a50d2e8aa73c5f53dd64a0e08179ea98036a7e67fda34c9a648f
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 1ab08da29b93f97bb8e970f280092d43980ca73da14aa11aa6624fe001a4dde3
+F src/style.c 0c4ef9847ad8593fd13dbc0306f00cf339f0b4ca56cf493ef587b9b177e5cacc
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 5d635ac362a5160e3e558d21bf06fcaa2349e7e8744546bfce7cc2b55ea45b4e
 F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e055942cf2e008fbd249253e8de5c91214974545e10fdd71f0ae0e0d7eca6374
-R 5beb6c37e6d8ae311013cd6a500e3a91
+P 5f0479d097fe07212349e1c107bafe0c74127179f2769768e1c4bc7d454092c8
+R 43f55016c5e28930471c4e43414d5257
 U drh
-Z bbdfa31bc5a931f8812ffd9e32667e9c
+Z 597a002f7e74189bb46f58a2a954420c

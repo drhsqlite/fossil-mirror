@@ -667,7 +667,8 @@ static void style_load_all_js_files(void){
   int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
+    int bMouseover = 
+       !g.isMobile && db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
