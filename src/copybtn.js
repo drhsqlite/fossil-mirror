@@ -45,12 +45,12 @@ function initCopyButton(elButton,idTarget,cchLength){
   elButton.onclick = clickCopyButton;
   return elButton;
 }
-onContentLoaded(function(){
+setTimeout(function(){
   var aButtons = document.getElementsByClassName("copy-button");
   for ( var i=0; i<aButtons.length; i++ ){
     initCopyButton(aButtons[i],0,0);
   }
-});
+},1);
 /* The onclick handler for the "Copy Button". */
 var lockCopyText = false;
 function clickCopyButton(e){
@@ -81,58 +81,14 @@ function clickCopyButton(e){
 }
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){
-  var textArea = document.createElement("textarea");
-  textArea.style.position = 'fixed';
-  textArea.style.top = 0;
-  textArea.style.left = 0;
-  textArea.style.width = '2em';
-  textArea.style.height = '2em';
-  textArea.style.padding = 0;
-  textArea.style.border = 'none';
-  textArea.style.outline = 'none';
-  textArea.style.boxShadow = 'none';
-  textArea.style.background = 'transparent';
-  textArea.value = text;
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
+  var x = document.createElement("textarea");
+  x.style.position = 'absolute';
+  x.style.left = '-9999px';
+  x.value = text;
+  document.body.appendChild(x);
+  x.select();
   try{
     document.execCommand('copy');
-  }catch(err){
-  }
-  document.body.removeChild(textArea);
-}
-/* Execute a function as soon as the HTML document has been completely loaded.
-** The idea for this code is based on the contentLoaded() function presented
-** here:
-**
-**    Cross-browser wrapper for DOMContentLoaded
-**    http://javascript.nwbox.com/ContentLoaded/
-*/
-function onContentLoaded(fnready) {
-  var fninit = function() {
-    if (document.addEventListener ||
-        event.type === 'load' ||
-        document.readyState === 'complete') {
-      if (document.addEventListener) {
-        document.removeEventListener('DOMContentLoaded',fninit,false);
-        window.removeEventListener('load',fninit,false);
-      }
-      else {
-        document.detachEvent('onreadystatechange',fninit);
-        window.detachEvent('onload',fninit);
-      }
-    }
-    fnready.call(window);
-  };
-  if (document.readyState === 'complete')
-    fnready.call(window);
-  else if (document.addEventListener) {
-    document.addEventListener('DOMContentLoaded',fninit,false);
-    window.addEventListener('load',fninit,false);
-  }
-  else {
-    document.attachEvent('onreadystatechange',fninit);
-    window.attachEvent('onload',fninit);
-  }
+  }catch(err){}
+  document.body.removeChild(x);
 }
