@@ -1,5 +1,5 @@
-C Copy\sbutton\scomes\sbefore\sthe\shyperlink\sin\stooltips.
-D 2019-06-10T01:32:32.151
+C Longer\sdefault\shash\slength\sfor\sthe\scopy\sbutton\son\sticket\sview\spages.
+D 2019-06-10T01:37:59.679
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -583,7 +583,7 @@ F src/th_main.c 4c91ac7c1e00a8402de8feedf49158560da0cc37bbcc51ebdb94a6c174ffd162
 F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
 F src/timeline.c 889cd6b940d891173e3dd5506ae509b6df18c8c5c2e0b01275de6f8419e26be1
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
-F src/tktsetup.c d7c94a74020a72ae919da6bfa93c97ea0f44f2d260a21a4488e5e8d0d04475f0
+F src/tktsetup.c 7d709613003b9838d00151a08c63d1ca3aaf23664b78f841a46fb80482f4726f
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 628fc32dd3f594ac6669499a55c73193abbe740afc495d39842f5b34714d22e3
-R 7b52b1d09fcf8bdd2fabb5d0cf51280d
+P 9a5169f58581cc0d264fd617e8556def4e7a039ab628a3b7d6657265afac13dd
+R b451e8d1ddbf6c546bbf7d26b5112cf8
 U drh
-Z afbf64b4d954dc4ba9371b8bc2cd74e0
+Z 8dd4d67f343300a224015db16a92cadd
