@@ -1,5 +1,5 @@
-C Fix\sa\sminor\scoding\stypo\sfrom\s[2196555351]\s(property\sname).
-D 2019-06-10T16:08:00.000
+C Fix\sthe\stest\swhether\sthe\scurrently\shovered\selement\sis\sthe\sowner\sof\sthe\stooltip.
+D 2019-06-11T06:59:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -483,7 +483,7 @@ F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c c2082ba84e0b6dc0f0f660ecd6169a53f775591086236ff7c4bf0ac4a3baf37c
-F src/graph.js 5d15faa1c6c5271fe3e8a808b4ec14fed8c4cda49fe9301488b19092c4fd2630
+F src/graph.js 272cdf9318a7189bf41ce8ac50f38988c8b4481704248a4ceabf0771031cd845
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
 F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1fc616382820b859e680cfcc5f56b51686ddfa52a4109d323963cd041e177446
-R a43eed1b3aceb718a8d3d2a7fd0fbfd6
+P af2ca388908c8d8b5e1d657e83c84847ff092d2131140767dbac783a7edf67b8
+R e96f4edcd4271dd14e76645bc62cead5
 U florian
-Z 5536ebdaaf6d1fd4fde4c4be74a2481e
+Z 2a04c8bd1cccb950b710556f6673cdf7

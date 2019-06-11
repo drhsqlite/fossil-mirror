@@ -193,8 +193,8 @@ function TimelineGraph(tx){
   function mouseOverGraph(e,ix,node){
     stopDwellTimer();                 // Mouse movement: reset the dwell timer.
     var ownTooltip =   // Check if the hovered element already has the tooltip.
-      (ix!=-2 && ix==tooltipInfo.ixHover && ix==tooltipInfo.ixActive) ||
-      (ix==-2 && tooltipInfo.ixHover==-2 && tooltipInfo.idNodeActive==node.id);
+      (ix>=0 && ix==tooltipInfo.ixActive) ||
+      (ix==-2 && tooltipInfo.idNodeActive==node.id);
     if(ownTooltip) stopCloseTimer();  // ownTooltip: clear the close timer.
     else resumeCloseTimer();          // !ownTooltip: resume the close timer.
     tooltipInfo.ixHover = ix;
