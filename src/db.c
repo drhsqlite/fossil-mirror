@@ -1259,6 +1259,7 @@ void db_detach(const char *zLabel){
 */
 void db_attach(const char *zDbName, const char *zLabel){
   Blob key;
+  if( db_table_exists(zLabel,"sqlite_master") ) return;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
