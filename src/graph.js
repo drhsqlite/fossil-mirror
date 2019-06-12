@@ -118,6 +118,7 @@ window.tooltipInfo = {
   ixActive: -1,       /* The item shown in the tooltip is tx.rowinfo[ixActive].
                       ** ixActive is -1 if the tooltip is not visible */
   nodeHover: null,    /* Graph node under mouse when ixHover==-2 */
+  idNodeActive: 0,    /* Element ID of the graph node with the tooltip. */
   posX: 0, posY: 0    /* The last mouse position. */
 };
 
@@ -134,6 +135,7 @@ function hideGraphTooltip(){ /* Hide the tooltip */
   stopCloseTimer();
   tooltipObj.style.display = "none";
   tooltipInfo.ixActive = -1;
+  tooltipInfo.idNodeActive = 0;
 }
 document.body.onunload = hideGraphTooltip
 function stopDwellTimer(){
@@ -171,32 +173,7 @@ function TimelineGraph(tx){
   topObj.onmousemove = function(e) {
     var ix = findTxIndex(e);
     topObj.style.cursor = (ix<0) ? "" : "pointer"
-    /* Keep the already visible tooltip at a constant position, as long as the
-    ** mouse is over the same element. */
-    if(tooltipObj.style.display != "none"){
-      if(ix == tooltipInfo.ixHover) return;
-    }
-    /* The tooltip is either not visible, or the mouse is over a different
-    ** element, so clear the dwell timer, and record the new element id and
-    ** mouse position. */
-    stopDwellTimer();
-    if(ix >= 0){
-      tooltipInfo.ixHover = ix;
-      tooltipInfo.posX = e.clientX;
-      tooltipInfo.posY = e.clientY;
-      stopCloseTimer();
-      if(tooltipInfo.dwellTimeout>0){
-        tooltipInfo.idTimer = setTimeout(function() {
-          tooltipInfo.idTimer = 0;
-          stopCloseTimer();
-          showGraphTooltip();
-        },tooltipInfo.dwellTimeout);
-      }
-    }else{
-      /* The mouse is not over an element with a tooltip */
-      tooltipInfo.ixHover = -1;
-      resumeCloseTimer();
-    }
+    mouseOverGraph(e,ix,null);
   };
   topObj.onmouseleave = function(e) {
     /* Hide the tooltip if the mouse is outside the "timelineTableN" element,
@@ -210,14 +187,22 @@ function TimelineGraph(tx){
   };
   function mouseOverNode(e){ /* Invoked by mousemove events over a graph node */
     e.stopPropagation()
-    if(tooltipInfo.ixHover==-2) return
-    tooltipInfo.ixHover = -2
-    tooltipInfo.posX = e.clientX
-    tooltipInfo.posY = e.clientY
-    tooltipInfo.nodeHover = this
-    stopCloseTimer();
-    if(tooltipInfo.dwellTimeout>0){
-      tooltipInfo.idTimer = setTimeout(function() {
+    mouseOverGraph(e,-2,this)
+  }
+  /* Combined mousemove handler for graph nodes and rails. */
+  function mouseOverGraph(e,ix,node){
+    stopDwellTimer();                 // Mouse movement: reset the dwell timer.
+    var ownTooltip =   // Check if the hovered element already has the tooltip.
+      (ix>=0 && ix==tooltipInfo.ixActive) ||
+      (ix==-2 && tooltipInfo.idNodeActive==node.id);
+    if(ownTooltip) stopCloseTimer();  // ownTooltip: clear the close timer.
+    else resumeCloseTimer();          // !ownTooltip: resume the close timer.
+    tooltipInfo.ixHover = ix;
+    tooltipInfo.nodeHover = node;
+    tooltipInfo.posX = e.clientX;
+    tooltipInfo.posY = e.clientY;
+    if(ix!=-1 && !ownTooltip && tooltipInfo.dwellTimeout>0){  // Go dwell timer.
+      tooltipInfo.idTimer = setTimeout(function(){
         tooltipInfo.idTimer = 0;
         stopCloseTimer();
         showGraphTooltip();
@@ -613,6 +598,8 @@ function TimelineGraph(tx){
     return dest
   }
   function clickOnGraph(e){
+    stopCloseTimer();
+    stopDwellTimer();
     tooltipInfo.ixHover = findTxIndex(e);
     tooltipInfo.posX = e.clientX;
     tooltipInfo.posY = e.clientY;
@@ -632,6 +619,7 @@ function TimelineGraph(tx){
         html = "check-in <a id=\"tooltip-link\" href=\""+dest+"\">"+h+"</a>"
       }
       tooltipInfo.ixActive = -2;
+      tooltipInfo.idNodeActive = tooltipInfo.nodeHover.id;
     }else if( tooltipInfo.ixHover>=0 ){
       ix = tooltipInfo.ixHover
       var br = tx.rowinfo[ix].br
@@ -643,6 +631,7 @@ function TimelineGraph(tx){
          .replace(/'/g, "&#039;");
       html = "branch <a id=\"tooltip-link\" href=\""+dest+"\">"+hbr+"</a>"
       tooltipInfo.ixActive = ix;
+      tooltipInfo.idNodeActive = 0;
     }
     if( html ){
       /* Setup while hidden, to ensure proper dimensions. */
