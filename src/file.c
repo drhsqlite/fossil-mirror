@@ -1801,16 +1801,78 @@ void test_dir_size_cmd(void){
   fossil_print("%d\n", file_directory_size(zDir, zGlob, omitDotFiles));
 }
 
+/*
+** Internal helper for touch_cmd(). zAbsName must be resolvable as-is
+** to a file - this function does not expand/normalize it. i.e. it
+** "really should" be an absolute path. zTreeName is strictly
+** cosmetic: it is used when dryRunFlag or verboseFlag generate
+** output. It is assumed to be a repo-relative or or subdir-relative
+** filename.
+**
+** newMTime is the file's new timestamp (Unix epoch).
+**
+** Returns 1 if it sets zAbsName's mtime, 0 if it does not (indicating
+** that the file already has that timestamp). Dies fatally if given an
+** unresolvable filename. If dryRunFlag is true then it outputs the
+** name of the file it would have timestamped but does not stamp the
+** file. If verboseFlag is true, it outputs a message if the files
+** timestamp is actually modified.
+*/
+static int touch_cmd_stamp_one_file(char const *zAbsName,
+                                    char const *zTreeName,
+                                    i64 newMtime, int dryRunFlag,
+                                    int verboseFlag){
+  i64 const currentMtime = file_mtime(zAbsName, 0);
+  if(currentMtime<0){
+    fossil_fatal("Cannot stat file: %s\n", zAbsName);
+  }else if(currentMtime==newMtime){
+    return 0;
+  }else if( dryRunFlag!=0 ){
+    fossil_print( "dry-run: %s\n", zTreeName );
+  }else{
+    file_set_mtime(zAbsName, newMtime);
+    if( verboseFlag!=0 ){
+      fossil_print( "touched %s\n", zTreeName );
+    }
+  }
+  return 1;
+}
+
+/*
+** Internal helper for touch_cmd(). If the given name is found in the
+** given checkout version, which MUST be the checkout version
+** currently populating the vfile table, the vfile.mrid value for the
+** file is returned, else 0 is returned. zName must be resolvable
+** as-is - this function performs neither expands nor normalizes it.
+*/
+static int touch_cmd_vfile_mrid( int vid, char const *zName ){
+  int mrid = 0;
+  static Stmt q = empty_Stmt_m;
+  db_static_prepare(&q, "SELECT vfile.mrid "
+             "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
+             "WHERE vid=:vid AND pathname=:pathname %s",
+             filename_collation());
+  db_bind_int(&q, ":vid", vid);
+  db_bind_text(&q, ":pathname", zName);
+  if(SQLITE_ROW==db_step(&q)){
+    mrid = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return mrid;
+}
 
 /*
 ** COMMAND: touch*
 **
-** Usage: %fossil touch ?OPTIONS?
+** Usage: %fossil touch ?OPTIONS? ?FILENAME...?
 **
 ** For each file in the current checkout matching one of the provided
-** list of glob patterns, or all files if no globs are provided, sets
-** the file's mtime to the time of the last checkin which modified
-** that file.
+** list of glob patterns and/or file names, the file's mtime is
+** updated to a value specified by one of the flags --checkout,
+** --checkin, or --now.
+**
+** If neither glob patterns nor filenames are provided, it operates on
+** all files managed by the currently checked-out version.
 **
 ** This command gets its name from the conventional Unix "touch"
 ** command.
@@ -1819,21 +1881,30 @@ void test_dir_size_cmd(void){
 **   --now          Stamp each affected file with the current time.
 **                  This is the default behavior.
 **   -c|--checkin   Stamp each affected file with the time of the
-**                  most recent checkin which modified that file.
+**                  most recent check-in which modified that file.
+**   -C|--checkout  Stamp each affected file with the time of the
+**                  currently-checked-out version.
 **   -g GLOBLIST    Comma-separated list of glob patterns. Default
 **                  is to touch all SCM-controlled files.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
 **                  fossil-conventional glob list file.
-**   -v|-verbose    Outputs information about its globs and each
-**                  file it touches.
+**   -v|-verbose    Outputs extra information about its globs
+**                  and each file it touches.
 **   -n|--dry-run   Outputs which files would require touching,
 **                  but does not touch them.
+**   -q|--quiet     Suppress warnings when skipping unmanaged
+**                  or out-of-tree files.
 **
-** Only one of -g or -G may be used. If neither is provided,
-** the effect is as if a glob of '*' were provided.
+** Only one of --now, --checkin, and --checkout may be used. The
+** default is --now.
 **
-** Only one of --now and --checkin may be used. The default
-** is --now.
+** Only one of -g or -G may be used. If neither is provided and no
+** additional filenames are provided, the effect is as if a glob of
+** '*' were provided. Note that all glob patterns provided via these
+** flags are always evaluated as if they are relative to the top of
+** the source tree, not the current working (sub)directory. Filenames
+** provided without these flags, on the other hand, are treated as
+** relative to the current directory.
 **
 */
 void touch_cmd(){
@@ -1844,21 +1915,49 @@ void touch_cmd(){
   int dryRunFlag;
   int vid;                /* Checkout version */
   int changeCount = 0;    /* Number of files touched */
-  int checkinFlag;        /* -c|--checkin */
-  i64 const nowTime = time(0);
+  int quietFlag = 0;      /* -q|--quiet */
+  int timeFlag;           /* -1==--checkin, 1==--checkout, 0==--now */
+  i64 nowTime = 0;        /* Timestamp of --now or --checkout */
   Stmt q;
+  Blob absBuffer = empty_blob;
 
   verboseFlag = find_option("verbose","v",0)!=0;
-  dryRunFlag = find_option("dry-run","n",0)!=0;
+  quietFlag = find_option("quiet","q",0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0
+    || find_option("dryrun",0,0)!=0;
   zGlobList = find_option("glob", "g",1);
   zGlobFile = find_option("globfile", "G",1);
-  checkinFlag = find_option("checkin","c",0)!=0;
 
-  if(find_option("now",0,0)!=0 && checkinFlag!=0){
-    fossil_fatal("Options --checkin and --now may not be used together.");
-  }
   if(zGlobList && zGlobFile){
     fossil_fatal("Options -g and -G may not be used together.");
+  }
+
+  {
+    int const ci =
+      (find_option("checkin","c",0) || find_option("check-in",0,0))
+      ? 1 : 0;
+    int const co = find_option("checkout","C",0) ? 1 : 0;
+    int const now = find_option("now",0,0) ? 1 : 0;
+    if(ci + co + now > 1){
+      fossil_fatal("Options --checkin, --checkout, and --now may "
+                   "not be used together.");
+    }else if(co){
+      timeFlag = 1;
+      if(verboseFlag){
+        fossil_print("Timestamp = current checkout version.\n");
+      }
+    }else if(ci){
+      timeFlag = -1;
+      if(verboseFlag){
+        fossil_print("Timestamp = checkin in which each file was "
+                     "most recently modified.\n");
+      }
+    }else{
+      timeFlag = 0;
+      if(verboseFlag){
+        fossil_print("Timestamp = current system time.\n");
+      }
+    }
   }
 
   verify_all_options();
@@ -1868,61 +1967,122 @@ void touch_cmd(){
   if(vid==0){
     fossil_fatal("Cannot determine checkout version.");
   }
+
   if(zGlobList){
     pGlob = *zGlobList ? glob_create(zGlobList) : 0;
   }else if(zGlobFile){
-    Blob globs;
+    Blob globs = empty_blob;
     blob_read_from_file(&globs, zGlobFile, ExtFILE);
     pGlob = glob_create( globs.aData );
     blob_reset(&globs);
   }
-  db_begin_transaction();
-  db_prepare(&q, "SELECT vfile.mrid, pathname "
-             "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
-             "WHERE vid=%d", vid);
   if( pGlob && verboseFlag!=0 ){
     int i;
     for(i=0; i<pGlob->nPattern; ++i){
       fossil_print("glob: %s\n", pGlob->azPattern[i]);
     }
   }
-  if( verboseFlag ){
-    if(checkinFlag){
-      fossil_print("Using mtime from most recent commit(s).\n");
-    }else{
-      fossil_print("Using current time.\n");
+
+  db_begin_transaction();
+  if(timeFlag==0){/*--now*/
+    nowTime = time(0);
+  }else if(timeFlag>0){/*--checkout: get the checkout
+                         manifest's timestamp*/
+    assert(vid>0);
+    nowTime = db_int64(-1,
+                       "SELECT CAST(strftime('%%s',"
+                         "(SELECT mtime FROM event WHERE objid=%d)"
+                       ") AS INTEGER)", vid);
+    if(nowTime<0){
+      fossil_fatal("Could not determine out checkout version's time!");
     }
+  }else{ /* --checkin */
+    assert(0 == nowTime);
   }
-  while(SQLITE_ROW==db_step(&q)){
-    const char * zName = db_column_text(&q, 1);
-    int const fid = db_column_int(&q, 0);
-    i64 newMtime = checkinFlag ? 0 : nowTime;
-    i64 currentMtime;
-    if(pGlob){
-      if(glob_match(pGlob, zName)==0) continue;
-    }
-    currentMtime = file_mtime(zName, 0);
-    if( newMtime || mtime_of_manifest_file(vid, fid, &newMtime)==0 ){
-      if( currentMtime!=newMtime ){
-        ++changeCount;
-        if( dryRunFlag!=0 ){
-          fossil_print( "dry-run: %s\n", zName );
-        }else{
-          file_set_mtime(zName, newMtime);
-          if( verboseFlag!=0 ){
-            fossil_print( "touched %s\n", zName );
-          }
-        }
+  if((pGlob && pGlob->nPattern>0)
+     || g.argc<3 /* no non-flag arguments */ ){
+    /*
+    ** We have either globs or no trailing filenames (in which case an
+    ** effective glob pattern of '*' is assumed). If there are neither
+    ** globs nor filenames then we operate on all managed files.
+    */
+    db_prepare(&q,
+               "SELECT vfile.mrid, pathname "
+               "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
+               "WHERE vid=%d", vid);
+    while(SQLITE_ROW==db_step(&q)){
+      int const fid = db_column_int(&q, 0);
+      const char * zName = db_column_text(&q, 1);
+      i64 newMtime = nowTime;
+      char const * zAbs = 0;         /* absolute path */
+      absBuffer.nUsed = 0;
+      assert(timeFlag<0 ? newMtime==0 : newMtime>0);
+      if(pGlob){
+        if(glob_match(pGlob, zName)==0) continue;
+      }
+      blob_appendf( &absBuffer, "%s%s", g.zLocalRoot, zName );
+      zAbs = blob_str(&absBuffer);
+      if( newMtime || mtime_of_manifest_file(vid, fid, &newMtime)==0 ){
+        changeCount +=
+          touch_cmd_stamp_one_file( zAbs, zName, newMtime,
+                                    dryRunFlag, verboseFlag );
       }
     }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-  db_end_transaction(0);
   glob_free(pGlob);
+  pGlob = 0;
+  if(g.argc>2){
+    /*
+    ** Trailing filenames on the command line. These require extra
+    ** care to avoid modifying unmanaged or out-of-tree files and
+    ** finding an associated --checkin timestamp.
+    */
+    int i;
+    Blob treeNameBuf = empty_blob;
+    for( i = 2; i < g.argc; ++i,
+           blob_reset(&treeNameBuf) ){
+      char const * zArg = g.argv[i];
+      char const * zTreeFile;        /* repo-relative filename */
+      char const * zAbs;             /* absolute filename */
+      i64 newMtime = nowTime;
+      int nameCheck;
+      int fid;                       /* vfile.mrid of file */
+      absBuffer.nUsed = 0;
+      nameCheck = file_tree_name( zArg, &treeNameBuf, 0, 0 );
+      if(nameCheck==0){
+        if(quietFlag==0){
+          fossil_print("SKIPPING out-of-tree file: %s\n", zArg);
+        }
+        continue;
+      }
+      zTreeFile = blob_str(&treeNameBuf);
+      fid = touch_cmd_vfile_mrid( vid, zTreeFile );
+      if(fid==0){
+        if(quietFlag==0){
+          fossil_print("SKIPPING unmanaged file: %s\n", zArg);
+        }
+        continue;
+      }
+      blob_appendf(&absBuffer, "%s%s", g.zLocalRoot, zTreeFile);
+      zAbs = blob_str(&absBuffer);
+      if(timeFlag<0){/*--checkin*/
+        if(mtime_of_manifest_file( vid, fid, &newMtime )!=0){
+          fossil_fatal("Could not resolve --checkin mtime of %s", zTreeFile);
+        }
+      }else{
+        assert(newMtime>0);
+      }
+      changeCount +=
+        touch_cmd_stamp_one_file( zAbs, zArg, newMtime,
+                                  dryRunFlag, verboseFlag );
+    }        
+  }
+  db_end_transaction(0);
+  blob_reset(&absBuffer);
   if( dryRunFlag!=0 ){
     fossil_print("dry-run: would have touched %d file(s)\n",
                  changeCount);
-  }else if( verboseFlag!=0 ){
-    fossil_print("Touched %d file(s)\n", changeCount);
   }
+  fossil_print("Touched %d file(s)\n", changeCount);
 }
