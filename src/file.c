@@ -1817,7 +1817,7 @@ void test_dir_size_cmd(void){
 **
 ** Options:
 **   -g GLOBLIST    Comma-separated list of glob patterns. Default
-**                  is to touch all SCM-control files.
+**                  is to touch all SCM-controlled files.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
 **                  fossil-conventional glob list file.
 **   -v|-verbose    If true, outputs information about its globs
