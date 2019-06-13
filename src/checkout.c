@@ -277,6 +277,9 @@ void get_checkin_taglist(int rid, Blob *pOut){
 **    --force           Ignore edited files in the current checkout
 **    --keep            Only update the manifest and manifest.uuid files
 **    --force-missing   Force checkout even if content is missing
+**    --setmtime        Set timestamps of all files to match their SCM-side
+**                      times (the timestamp of the last checkin which modified
+**                      them).
 **
 ** See also: update
 */
@@ -288,6 +291,7 @@ void checkout_cmd(void){
   char *zVers;                   /* Version to checkout */
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
+  int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   Blob cksum1, cksum1b, cksum2;
 
   db_must_be_within_tree();
@@ -297,6 +301,7 @@ void checkout_cmd(void){
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
   promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
+  setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -331,6 +336,7 @@ void checkout_cmd(void){
   }
   vid = load_vfile(zVers, forceMissingFlag);
   if( prior==vid ){
+    if( setmtimeFlag ) vfile_check_signature(vid, CKSIG_SETMTIME);
     db_end_transaction(0);
     return;
   }
@@ -357,6 +363,7 @@ void checkout_cmd(void){
       fossil_print("WARNING: manifest checksum does not agree with manifest\n");
     }
   }
+  if( setmtimeFlag ) vfile_check_signature(vid, CKSIG_SETMTIME);
   db_end_transaction(0);
 }
 
