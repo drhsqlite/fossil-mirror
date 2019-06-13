@@ -2882,6 +2882,9 @@ void db_record_repository_filename(const char *zName){
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
 **   --force-missing   Force opening a repository with missing content
+**   --setmtime        Set timestamps of all files to match their SCM-side
+**                     times (the timestamp of the last checkin which modified
+**                     them).
 **
 ** See also: close
 */
@@ -2891,6 +2894,7 @@ void cmd_open(void){
   int forceMissingFlag;
   int allowNested;
   int allowSymlinks;
+  int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2898,6 +2902,7 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+  setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2980,6 +2985,12 @@ void cmd_open(void){
       azNewArgv[g.argc++] = "--force-missing";
     }
     checkout_cmd();
+  }
+  if( setmtimeFlag ){
+    int const vid = db_lget_int("checkout", 0);
+    if(vid!=0){
+      vfile_check_signature(vid, CKSIG_SETMTIME);
+    }
   }
   g.argc = 2;
   info_cmd();
