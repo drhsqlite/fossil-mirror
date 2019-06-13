@@ -81,14 +81,19 @@ function clickCopyButton(e){
 }
 /* Create a temporary <textarea> element and copy the contents to clipboard. */
 function copyTextToClipboard(text){
-  var x = document.createElement("textarea");
-  x.style.position = 'absolute';
-  x.style.left = '-9999px';
-  x.value = text;
-  document.body.appendChild(x);
-  x.select();
-  try{
-    document.execCommand('copy');
-  }catch(err){}
-  document.body.removeChild(x);
+  if( window.clipboardData && window.clipboardData.setData ){
+    clipboardData.setData('Text',text);
+  }else{
+    var x = document.createElement("textarea");
+    x.style.position = 'fixed';
+    x.value = text;
+    document.body.appendChild(x);
+    x.select();
+    try{
+      document.execCommand('copy');
+    }catch(err){
+    }finally{
+      document.body.removeChild(x);
+    }
+  }
 }
