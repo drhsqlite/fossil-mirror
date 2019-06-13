@@ -1800,3 +1800,107 @@ void test_dir_size_cmd(void){
   zGlob = g.argc==4 ? g.argv[3] : 0;
   fossil_print("%d\n", file_directory_size(zDir, zGlob, omitDotFiles));
 }
+
+
+/*
+** COMMAND: touch*
+**
+** Usage: %fossil touch ?OPTIONS?
+**
+** For each file in the current checkout matching one of the
+** comma-separated list of glob patterns, or all files if no glob is
+** provided, set the file's mtime to the time of the last checkin
+** which modified that file.
+**
+** This command gets its name from the conventional Unix "touch"
+** command.
+**
+** Options:
+**   -g GLOBLIST    Comma-separated list of glob patterns. Default
+**                  is to touch all SCM-control files.
+**   -G GLOBFILE    Similar to -g but reads its globs from a
+**                  fossil-conventional glob list file.
+**   -v|-verbose    If true, outputs information about its globs
+**                  and each file it touches.
+**   -n|--dry-run   If given, outputs which files would
+**                  require touching, but does not touch them.
+**
+** Only one of -g or -G may be used.
+**
+*/
+void touch_cmd(){
+  const char * zGlobList; /* -g List of glob patterns */ 
+  const char * zGlobFile; /* -G File of glob patterns */
+  Glob * pGlob = 0;       /* List of glob patterns */
+  int verboseFlag;
+  int dryRunFlag;
+  int vid;                /* Checkout version */
+  int changeCount = 0;    /* Number of files touched */
+  Stmt q;
+
+  verboseFlag = find_option("verbose","v",0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  zGlobList = find_option("glob", "g",1);
+  zGlobFile = find_option("globfile", "G",1);
+
+  verify_all_options();
+  if(zGlobList && zGlobFile){
+    fossil_fatal("Cannot use both -g and -G options.");
+  }
+
+  db_must_be_within_tree();
+  vid = db_lget_int("checkout", 0);
+  if(vid==0){
+    fossil_fatal("Cannot determine checkout version.");
+  }
+  if(zGlobList){
+    pGlob = *zGlobList ? glob_create(zGlobList) : 0;
+  }else if(zGlobFile){
+    Blob globs;
+    blob_read_from_file(&globs, zGlobFile, ExtFILE);
+    pGlob = glob_create( globs.aData );
+    blob_reset(&globs);
+  }
+  db_begin_transaction();
+  db_prepare(&q, "SELECT vfile.mrid, pathname "
+             "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
+             "WHERE vid=%d", vid);
+  if( pGlob && verboseFlag!=0 ){
+    int i;
+    for(i=0; i<pGlob->nPattern; ++i){
+      fossil_print("glob: %s\n", pGlob->azPattern[i]);
+    }
+  }
+  while(SQLITE_ROW==db_step(&q)){
+    const char * zName = db_column_text(&q, 1);
+    int const fid = db_column_int(&q, 0);
+    i64 scmMtime;
+    i64 currentMtime;
+    if(pGlob){
+      if(glob_match(pGlob, zName)==0) continue;
+    }
+    currentMtime = file_mtime(zName, 0);
+    if( mtime_of_manifest_file(vid, fid, &scmMtime)==0 ){
+      if( currentMtime!=scmMtime ){
+        ++changeCount;
+        if( dryRunFlag!=0 ){
+          fossil_print( "dry-run: %s\n", zName );
+        }else{
+          file_set_mtime(zName, scmMtime);
+          if( verboseFlag!=0 ){
+            fossil_print( "touched %s\n", zName );
+          }
+        }
+      }
+    }
+  }
+  db_finalize(&q);
+  db_end_transaction(0);
+  glob_free(pGlob);
+  if( dryRunFlag!=0 ){
+    fossil_print("dry-run: would have touched %d file(s)\n",
+                 changeCount);
+  }else if( verboseFlag!=0 ){
+    fossil_print("Touched %d file(s)\n", changeCount);
+  }
+}
