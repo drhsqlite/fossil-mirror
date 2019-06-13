@@ -101,6 +101,9 @@ int update_to(int vid){
 **   -v|--verbose     print status information about all files
 **   -W|--width <num> Width of lines (default is to auto-detect). Must be >20
 **                    or 0 (= no limit, resulting in a single line per entry).
+**   --setmtime       Set timestamps of all files to match their SCM-side
+**                    times (the timestamp of the last checkin which modified
+**                    them).
 **
 ** See also: revert
 */
