@@ -15107,7 +15107,7 @@ static int recoverDatabaseCmd(ShellState *pState, int nArg, char **azArg){
     char *z = azArg[i];
     int n;
     if( z[0]=='-' && z[1]=='-' ) z++;
-    n = strlen(z);
+    n = strlen30(z);
     if( n<=17 && memcmp("-freelist-corrupt", z, n)==0 ){
       bFreelist = 0;
     }else
@@ -15844,8 +15844,8 @@ static int do_meta_command(char *zLine, ShellState *p){
     };
     int filectrl = -1;
     int iCtrl = -1;
-    sqlite3_int64 iRes;  /* Integer result to display if rc2==1 */
-    int isOk = 0;        /* 0: usage  1: %lld  2: no-result */
+    sqlite3_int64 iRes = 0;  /* Integer result to display if rc2==1 */
+    int isOk = 0;            /* 0: usage  1: %lld  2: no-result */
     int n2, i;
     const char *zCmd = 0;
 
@@ -15941,7 +15941,9 @@ static int do_meta_command(char *zLine, ShellState *p){
       utf8_printf(p->out, "Usage: .filectrl %s %s\n", zCmd,aCtrl[iCtrl].zUsage);
       rc = 1;
     }else if( isOk==1 ){
-      raw_printf(p->out, "%lld\n", iRes);
+      char zBuf[100];
+      sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", iRes);
+      raw_printf(p->out, "%s\n", zBuf);
     }
   }else
 

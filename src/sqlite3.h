@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.29.0"
 #define SQLITE_VERSION_NUMBER 3029000
-#define SQLITE_SOURCE_ID      "2019-06-05 14:29:53 7b3a99fce8b4a757f2b2ef2f0b02d68566f2528d9ae1e30628522717f872466c"
+#define SQLITE_SOURCE_ID      "2019-06-13 14:07:41 f8696b60eec0dcacfe92d9a31cbf1436d674140e5447de0cd1c2f52bff6c2be4"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1296,8 +1296,14 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** ^The flags argument to xAccess() may be [SQLITE_ACCESS_EXISTS]
 ** to test for the existence of a file, or [SQLITE_ACCESS_READWRITE] to
 ** test whether a file is readable and writable, or [SQLITE_ACCESS_READ]
-** to test whether a file is at least readable.   The file can be a
-** directory.
+** to test whether a file is at least readable.  The SQLITE_ACCESS_READ
+** flag is never actually used and is not implemented in the built-in
+** VFSes of SQLite.  The file is named by the second argument and can be a
+** directory. The xAccess method returns [SQLITE_OK] on success or some
+** non-zero error code if there is an I/O error or if the name of
+** the file given in the second argument is illegal.  If SQLITE_OK
+** is returned, then non-zero or zero is written into *pResOut to indicate
+** whether or not the file is accessible.  
 **
 ** ^SQLite will always allocate at least mxPathname+1 bytes for the
 ** output buffer xFullPathname.  The exact size of the output buffer

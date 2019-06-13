@@ -1,5 +1,5 @@
-C Add\san\sentry\sabout\sthe\snew\s"touch"\scommand\sand\s"--setmtime"\soption\sto\nthe\schange\slog\sfor\sversion\s2.9.
-D 2019-06-13T10:32:13.609
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.29.0\salpha\sthat\sincludes\ncompiler\swarning\sfixes.
+D 2019-06-13T14:10:01.178
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -559,7 +559,7 @@ F src/setupuser.c c99de47894081f5d97f34e9d0415655535b663b3d496431e3db8b91fc8dae7
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c efee63c0d9edc21cbfad1f8fedbabc74cda409a8279a8195751d4cc75238dbf8
+F src/shell.c 3af5e9d05bd02a1c6fcad1c83dd2cbf77a18b534c445f7c4acb118b722cd4ba1
 F src/shun.c 5c8afe7fffcc26a7cbe497420b15e2101ba64f5c3a75a01790257b622a77930d
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -567,8 +567,8 @@ F src/skins.c e671205f17b61e05d4f1323d758ffdf77fb27eed2baba0188714fddd275c0486
 F src/smtp.c 873d8d3a7cfe327ed8e8459ae9cfc623f1852d53012bcd0d766739d449ffc1cf
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 72e5b3a619b519fe162e88fe789100583a17dd2cc932491b166bf09ce54d6c47
-F src/sqlite3.c 055b5009ac22f719466fcda9b9306366d4b1bb36a9ea1f9fce0d413b0664d4de
-F src/sqlite3.h fd2c0bae2f97a50d2e8aa73c5f53dd64a0e08179ea98036a7e67fda34c9a648f
+F src/sqlite3.c 18151d65cbcbb2cb3a88cd6f0e0e79231e48f9d34bfa95e9f8757d77715e83ff
+F src/sqlite3.h 0f71e04924e3af7cb3a1a2a00eede948bff9865e9ed6f7e805e4dc9174af6c93
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c3b48561ab41ff658113cce7133ed809d5397815fb3cd823c4b137edc499ef66
-R 70ea5bfea5904c04c3bc5447b6da2b3a
+P 93a6893d453f20b905d1fea96b2c5498dad473747c2543bb4a2973d0b52e1081
+R d83e20833e17addbe4827f55a08cfd56
 U drh
-Z a89da93a0e11733c3d4096e22dee906a
+Z da6cb7d5c5aa28b5de1a62f0f856e5b5
