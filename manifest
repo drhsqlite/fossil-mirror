@@ -1,5 +1,5 @@
-C Update\sthe\scopyTextToClipboard()\sjavascript\sroutine\sto\swork\nbetter\scross-platform.
-D 2019-06-13T09:00:30.494
+C Per\sforum\sdiscussion,\sthe\s"touch"\scommand\snow\sdefaults\sto\s--now\s(the\scurrent\stimestamp)\sunless\s--checkin\sis\sused,\swhich\sapplies\sthe\stimestamp\sof\sthe\smost\srecent\scheckin\sin\swhich\seach\sfile\swas\smodified.
+D 2019-06-13T10:15:50.602
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/file.c 2eff77f0067dfc104715dcb5bb956b667c766afe9b9d472165dd5b6b804d9f32
+F src/file.c f476f21117293d3ae9a97cdf434be8bb683f5049fe27f014c3c5ca0a1df4bf39
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
@@ -875,8 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a7e86f5b186b4812f5b76d973a02bf95d7d4b111e0695860b88696b7a50534f3 ba3e6fe7385867459ffc3344511ac1581c3e01f292c535794eb793d943ca1d89
-R 1ab2204132b444630c2cbbe475fccecb
-T +closed ba3e6fe7385867459ffc3344511ac1581c3e01f292c535794eb793d943ca1d89
-U drh
-Z 3259cbe5fa531e53a3e5b0e895aacff5
+P 0904aa8b10fb9fb939f8e1f254edc8ee3d769f946393cc65944d38c4da4beb6e
+R 5fda07fa117ebf94b1a8c5d96d4308f9
+U stephan
+Z 6f7dc43d65ff4451e63d2a938beeef44

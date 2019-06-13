@@ -1816,6 +1816,10 @@ void test_dir_size_cmd(void){
 ** command.
 **
 ** Options:
+**   --now          Stamp each affected file with the current time.
+**                  This is the default behavior.
+**   -c|--checkin   Stamp each affected file with the time of the
+**                  most recent checkin which modified that file.
 **   -g GLOBLIST    Comma-separated list of glob patterns. Default
 **                  is to touch all SCM-controlled files.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
@@ -1825,7 +1829,11 @@ void test_dir_size_cmd(void){
 **   -n|--dry-run   Outputs which files would require touching,
 **                  but does not touch them.
 **
-** Only one of -g or -G may be used.
+** Only one of -g or -G may be used. If neither is provided,
+** the effect is as if a glob of '*' were provided.
+**
+** Only one of --now and --checkin may be used. The default
+** is --now.
 **
 */
 void touch_cmd(){
@@ -1836,17 +1844,24 @@ void touch_cmd(){
   int dryRunFlag;
   int vid;                /* Checkout version */
   int changeCount = 0;    /* Number of files touched */
+  int checkinFlag;        /* -c|--checkin */
+  i64 const nowTime = time(0);
   Stmt q;
 
   verboseFlag = find_option("verbose","v",0)!=0;
   dryRunFlag = find_option("dry-run","n",0)!=0;
   zGlobList = find_option("glob", "g",1);
   zGlobFile = find_option("globfile", "G",1);
+  checkinFlag = find_option("checkin","c",0)!=0;
+
+  if(find_option("now",0,0)!=0 && checkinFlag!=0){
+    fossil_fatal("Options --checkin and --now may not be used together.");
+  }
+  if(zGlobList && zGlobFile){
+    fossil_fatal("Options -g and -G may not be used together.");
+  }
 
   verify_all_options();
-  if(zGlobList && zGlobFile){
-    fossil_fatal("Cannot use both -g and -G options.");
-  }
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
@@ -1871,22 +1886,29 @@ void touch_cmd(){
       fossil_print("glob: %s\n", pGlob->azPattern[i]);
     }
   }
+  if( verboseFlag ){
+    if(checkinFlag){
+      fossil_print("Using mtime from most recent commit(s).\n");
+    }else{
+      fossil_print("Using current time.\n");
+    }
+  }
   while(SQLITE_ROW==db_step(&q)){
     const char * zName = db_column_text(&q, 1);
     int const fid = db_column_int(&q, 0);
-    i64 scmMtime;
+    i64 newMtime = checkinFlag ? 0 : nowTime;
     i64 currentMtime;
     if(pGlob){
       if(glob_match(pGlob, zName)==0) continue;
     }
     currentMtime = file_mtime(zName, 0);
-    if( mtime_of_manifest_file(vid, fid, &scmMtime)==0 ){
-      if( currentMtime!=scmMtime ){
+    if( newMtime || mtime_of_manifest_file(vid, fid, &newMtime)==0 ){
+      if( currentMtime!=newMtime ){
         ++changeCount;
         if( dryRunFlag!=0 ){
           fossil_print( "dry-run: %s\n", zName );
         }else{
-          file_set_mtime(zName, scmMtime);
+          file_set_mtime(zName, newMtime);
           if( verboseFlag!=0 ){
             fossil_print( "touched %s\n", zName );
           }
