@@ -1884,8 +1884,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **                  most recent check-in which modified that file.
 **   -C|--checkout  Stamp each affected file with the time of the
 **                  currently-checked-out version.
-**   -g GLOBLIST    Comma-separated list of glob patterns. Default
-**                  is to touch all SCM-controlled files.
+**   -g GLOBLIST    Comma-separated list of glob patterns.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
 **                  fossil-conventional glob list file.
 **   -v|-verbose    Outputs extra information about its globs
@@ -1900,11 +1899,12 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **
 ** Only one of -g or -G may be used. If neither is provided and no
 ** additional filenames are provided, the effect is as if a glob of
-** '*' were provided. Note that all glob patterns provided via these
-** flags are always evaluated as if they are relative to the top of
-** the source tree, not the current working (sub)directory. Filenames
-** provided without these flags, on the other hand, are treated as
-** relative to the current directory.
+** '*' were provided, i.e. all files belonging to the
+** currently-checked-out version. Note that all glob patterns provided
+** via these flags are always evaluated as if they are relative to the
+** top of the source tree, not the current working (sub)directory.
+** Filenames provided without these flags, on the other hand, are
+** treated as relative to the current directory.
 **
 */
 void touch_cmd(){
