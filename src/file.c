@@ -1807,10 +1807,10 @@ void test_dir_size_cmd(void){
 **
 ** Usage: %fossil touch ?OPTIONS?
 **
-** For each file in the current checkout matching one of the
-** comma-separated list of glob patterns, or all files if no glob is
-** provided, set the file's mtime to the time of the last checkin
-** which modified that file.
+** For each file in the current checkout matching one of the provided
+** list of glob patterns, or all files if no globs are provided, sets
+** the file's mtime to the time of the last checkin which modified
+** that file.
 **
 ** This command gets its name from the conventional Unix "touch"
 ** command.
@@ -1820,10 +1820,10 @@ void test_dir_size_cmd(void){
 **                  is to touch all SCM-controlled files.
 **   -G GLOBFILE    Similar to -g but reads its globs from a
 **                  fossil-conventional glob list file.
-**   -v|-verbose    If true, outputs information about its globs
-**                  and each file it touches.
-**   -n|--dry-run   If given, outputs which files would
-**                  require touching, but does not touch them.
+**   -v|-verbose    Outputs information about its globs and each
+**                  file it touches.
+**   -n|--dry-run   Outputs which files would require touching,
+**                  but does not touch them.
 **
 ** Only one of -g or -G may be used.
 **
