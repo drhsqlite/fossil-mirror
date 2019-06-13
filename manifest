@@ -1,5 +1,5 @@
-C Per\sforum\sdiscussion,\sthe\s"touch"\scommand\snow\sdefaults\sto\s--now\s(the\scurrent\stimestamp)\sunless\s--checkin\sis\sused,\swhich\sapplies\sthe\stimestamp\sof\sthe\smost\srecent\scheckin\sin\swhich\seach\sfile\swas\smodified.
-D 2019-06-13T10:15:50.602
+C Add\san\sentry\sabout\sthe\snew\s"touch"\scommand\sand\s"--setmtime"\soption\sto\nthe\schange\slog\sfor\sversion\s2.9.
+D 2019-06-13T10:32:13.609
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -777,7 +777,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 837f76dc0e6e6b984778fe1fd1d42a620f7bbfb3934522c042f37241b39928dd
-F www/changes.wiki 42f0931b42b8ab067e401d5494255253b298f9ab84f92469c8d3aa8c8c3ccec7
+F www/changes.wiki aa77163d3c58a5a5098b7f75268907fac3b29141ac4e3db0644a6f5514b1051b
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0904aa8b10fb9fb939f8e1f254edc8ee3d769f946393cc65944d38c4da4beb6e
-R 5fda07fa117ebf94b1a8c5d96d4308f9
-U stephan
-Z 6f7dc43d65ff4451e63d2a938beeef44
+P c3b48561ab41ff658113cce7133ed809d5397815fb3cd823c4b137edc499ef66
+R 70ea5bfea5904c04c3bc5447b6da2b3a
+U drh
+Z a89da93a0e11733c3d4096e22dee906a

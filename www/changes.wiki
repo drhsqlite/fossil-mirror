@@ -19,6 +19,9 @@
   *  Double-clicking on a /timeline graph node now jumps to the /info page
      for the check-in.  So, repurpose the timestamp hyperlink to show all
      activity around that check-in in time.
+  *  Added the [/help?cmd=touch|fossil touch] command, and the --setmtime
+     option on the [/help?cmd=open|fossil open] and
+     [/help?cmd=update|fossil update] commands.
   *  Many documentation enhancements.
   *  For the "[/help?cmd=update|fossil update]" and
      "[/help?cmd=checkout|fossil checkout]" commands, if a
