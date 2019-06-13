@@ -1803,11 +1803,11 @@ void test_dir_size_cmd(void){
 
 /*
 ** Internal helper for touch_cmd(). zAbsName must be resolvable as-is
-** to a file - this function does not expand/normalize it. i.e. it
-** "really should" be an absolute path. zTreeName is strictly
-** cosmetic: it is used when dryRunFlag or verboseFlag generate
-** output. It is assumed to be a repo-relative or or subdir-relative
-** filename.
+** to an existing file - this function does not expand/normalize
+** it. i.e. it "really should" be an absolute path. zTreeName is
+** strictly cosmetic: it is used when dryRunFlag or verboseFlag
+** generate output. It is assumed to be a repo-relative or or
+** subdir-relative filename.
 **
 ** newMTime is the file's new timestamp (Unix epoch).
 **
@@ -1815,7 +1815,7 @@ void test_dir_size_cmd(void){
 ** that the file already has that timestamp). Dies fatally if given an
 ** unresolvable filename. If dryRunFlag is true then it outputs the
 ** name of the file it would have timestamped but does not stamp the
-** file. If verboseFlag is true, it outputs a message if the files
+** file. If verboseFlag is true, it outputs a message if the file's
 ** timestamp is actually modified.
 */
 static int touch_cmd_stamp_one_file(char const *zAbsName,
@@ -1839,16 +1839,19 @@ static int touch_cmd_stamp_one_file(char const *zAbsName,
 }
 
 /*
-** Internal helper for touch_cmd(). If the given name is found in the
-** given checkout version, which MUST be the checkout version
+** Internal helper for touch_cmd(). If the given file name is found in
+** the given checkout version, which MUST be the checkout version
 ** currently populating the vfile table, the vfile.mrid value for the
 ** file is returned, else 0 is returned. zName must be resolvable
-** as-is - this function performs neither expands nor normalizes it.
+** as-is from the vfile table - this function neither expands nor
+** normalizes it, though it does compare using the repo's
+** filename_collation() preference.
 */
 static int touch_cmd_vfile_mrid( int vid, char const *zName ){
   int mrid = 0;
   static Stmt q = empty_Stmt_m;
-  db_static_prepare(&q, "SELECT vfile.mrid "
+  db_static_prepare(&q,
+             "SELECT vfile.mrid "
              "FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid "
              "WHERE vid=:vid AND pathname=:pathname %s",
              filename_collation());
@@ -1919,7 +1922,7 @@ void touch_cmd(){
   int timeFlag;           /* -1==--checkin, 1==--checkout, 0==--now */
   i64 nowTime = 0;        /* Timestamp of --now or --checkout */
   Stmt q;
-  Blob absBuffer = empty_blob;
+  Blob absBuffer = empty_blob; /* Absolute filename buffer */
 
   verboseFlag = find_option("verbose","v",0)!=0;
   quietFlag = find_option("quiet","q",0)!=0;
@@ -1999,12 +2002,11 @@ void touch_cmd(){
   }else{ /* --checkin */
     assert(0 == nowTime);
   }
-  if((pGlob && pGlob->nPattern>0)
-     || g.argc<3 /* no non-flag arguments */ ){
+  if((pGlob && pGlob->nPattern>0) || g.argc<3){
     /*
-    ** We have either globs or no trailing filenames (in which case an
-    ** effective glob pattern of '*' is assumed). If there are neither
-    ** globs nor filenames then we operate on all managed files.
+    ** We have either (1) globs or (2) no trailing filenames. If there
+    ** are neither globs nor filenames then we operate on all managed
+    ** files.
     */
     db_prepare(&q,
                "SELECT vfile.mrid, pathname "
@@ -2039,7 +2041,7 @@ void touch_cmd(){
     ** finding an associated --checkin timestamp.
     */
     int i;
-    Blob treeNameBuf = empty_blob;
+    Blob treeNameBuf = empty_blob;   /* Buffer for file_tree_name(). */
     for( i = 2; i < g.argc; ++i,
            blob_reset(&treeNameBuf) ){
       char const * zArg = g.argv[i];
@@ -2048,7 +2050,6 @@ void touch_cmd(){
       i64 newMtime = nowTime;
       int nameCheck;
       int fid;                       /* vfile.mrid of file */
-      absBuffer.nUsed = 0;
       nameCheck = file_tree_name( zArg, &treeNameBuf, 0, 0 );
       if(nameCheck==0){
         if(quietFlag==0){
@@ -2064,6 +2065,7 @@ void touch_cmd(){
         }
         continue;
       }
+      absBuffer.nUsed = 0;
       blob_appendf(&absBuffer, "%s%s", g.zLocalRoot, zTreeFile);
       zAbs = blob_str(&absBuffer);
       if(timeFlag<0){/*--checkin*/
@@ -2083,6 +2085,7 @@ void touch_cmd(){
   if( dryRunFlag!=0 ){
     fossil_print("dry-run: would have touched %d file(s)\n",
                  changeCount);
+  }else{
+    fossil_print("Touched %d file(s)\n", changeCount);
   }
-  fossil_print("Touched %d file(s)\n", changeCount);
 }
