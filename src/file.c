@@ -1925,7 +1925,7 @@ void touch_cmd(){
   Blob absBuffer = empty_blob; /* Absolute filename buffer */
 
   verboseFlag = find_option("verbose","v",0)!=0;
-  quietFlag = find_option("quiet","q",0)!=0;
+  quietFlag = find_option("quiet","q",0)!=0 || g.fQuiet;
   dryRunFlag = find_option("dry-run","n",0)!=0
     || find_option("dryrun",0,0)!=0;
   zGlobList = find_option("glob", "g",1);
