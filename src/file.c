@@ -1997,7 +1997,7 @@ void touch_cmd(){
                          "(SELECT mtime FROM event WHERE objid=%d)"
                        ") AS INTEGER)", vid);
     if(nowTime<0){
-      fossil_fatal("Could not determine out checkout version's time!");
+      fossil_fatal("Could not determine checkout version's time!");
     }
   }else{ /* --checkin */
     assert(0 == nowTime);
