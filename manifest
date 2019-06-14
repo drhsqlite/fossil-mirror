@@ -1,5 +1,5 @@
-C Error\smessage\stypo\sfix.
-D 2019-06-14T00:24:04.169
+C Per\sforum\sdiscussion:\swhen\sthe\scalculated\stimestamp\sof\sa\sto-be-touched\sfile\sis\s0,\semit\sa\swarning\sand\sdo\snot\sset\sthe\stimestamp.\sAs-yet-uncommitted\smerges\scan\scause\smtime_of_manifest_file()\sto\scalculate\sa\stime\sof\szero:\shttps://fossil-scm.org/forum/forumpost/6e49ee3725
+D 2019-06-14T19:16:07.627
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/file.c eb2b4a9b1f21d418bf5ca0f01aca5e2219a0f03f0c8d50acb3bfe1753fdda79c
+F src/file.c d205336bd4de4f1cd837adfb9872e8b1fc9c9a5d2e2a3a4018e4c3521931d716
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
@@ -875,7 +875,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 519af48c8c025f27f18b99488240555372ecf5063ae121bd962c92b6b2d4ebe0
-R 37b4744cb30e111b9d0f3dcb66f52447
+P 5b6be647600ab86b340ae4f88d1d14bebf7c41a24fc59fe70a3a65da8a81265c
+R 2e912ace2369db790d9770bb911b89a8
 U stephan
-Z d8fb5776b5a626fe7e5d5f9400eb7dab
+Z 4d41d385e5f95e37dba621714b82cfc5

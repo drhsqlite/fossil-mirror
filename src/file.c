@@ -1805,24 +1805,41 @@ void test_dir_size_cmd(void){
 ** Internal helper for touch_cmd(). zAbsName must be resolvable as-is
 ** to an existing file - this function does not expand/normalize
 ** it. i.e. it "really should" be an absolute path. zTreeName is
-** strictly cosmetic: it is used when dryRunFlag or verboseFlag
-** generate output. It is assumed to be a repo-relative or or
-** subdir-relative filename.
+** strictly cosmetic: it is used when dryRunFlag, verboseFlag, or
+** quietFlag generate output, and is assumed to be a repo-relative or
+** or subdir-relative filename.
 **
 ** newMTime is the file's new timestamp (Unix epoch).
 **
 ** Returns 1 if it sets zAbsName's mtime, 0 if it does not (indicating
-** that the file already has that timestamp). Dies fatally if given an
-** unresolvable filename. If dryRunFlag is true then it outputs the
-** name of the file it would have timestamped but does not stamp the
-** file. If verboseFlag is true, it outputs a message if the file's
-** timestamp is actually modified.
+** that the file already has that timestamp or a warning was emitted).
+** Dies fatally if given an unresolvable filename. If dryRunFlag is
+** true then it outputs the name of the file it would have timestamped
+** but does not stamp the file. If verboseFlag is true, it outputs a
+** message if the file's timestamp is actually modified. If quietFlag
+** is true then the output of non-fatal warning messages is
+** suppressed.
+**
+** As a special case, if newMTime is 0 then this function emits a
+** warning (unless quietFlag is true), does NOT set the timestamp, and
+** returns 0. The timestamp is known to be zero when
+** mtime_of_manifest_file() is asked to provide the timestamp for a
+** file which is currently undergoing an uncommitted merge (though
+** this may depend on exactly where that merge is happening the
+** history of the project).
 */
 static int touch_cmd_stamp_one_file(char const *zAbsName,
                                     char const *zTreeName,
                                     i64 newMtime, int dryRunFlag,
-                                    int verboseFlag){
-  i64 const currentMtime = file_mtime(zAbsName, 0);
+                                    int verboseFlag, int quietFlag){
+  i64 currentMtime;
+  if(newMtime==0){
+    if( quietFlag==0 ){
+      fossil_print("SKIPPING timestamp of 0: %s\n", zTreeName);
+    }
+    return 0;
+  }
+  currentMtime = file_mtime(zAbsName, 0);
   if(currentMtime<0){
     fossil_fatal("Cannot stat file: %s\n", zAbsName);
   }else if(currentMtime==newMtime){
@@ -1894,7 +1911,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **                  and each file it touches.
 **   -n|--dry-run   Outputs which files would require touching,
 **                  but does not touch them.
-**   -q|--quiet     Suppress warnings when skipping unmanaged
+**   -q|--quiet     Suppress warnings, e.g. when skipping unmanaged
 **                  or out-of-tree files.
 **
 ** Only one of --now, --checkin, and --checkout may be used. The
@@ -1908,6 +1925,11 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 ** top of the source tree, not the current working (sub)directory.
 ** Filenames provided without these flags, on the other hand, are
 ** treated as relative to the current directory.
+**
+** As a special case, files currently undergoing an uncommitted merge
+** might not get timestamped with --checkin because it may be
+** impossible for fossil to choose between multiple potential
+** timestamps. A non-fatal warning is emitted for such cases.
 **
 */
 void touch_cmd(){
@@ -2026,8 +2048,8 @@ void touch_cmd(){
       zAbs = blob_str(&absBuffer);
       if( newMtime || mtime_of_manifest_file(vid, fid, &newMtime)==0 ){
         changeCount +=
-          touch_cmd_stamp_one_file( zAbs, zName, newMtime,
-                                    dryRunFlag, verboseFlag );
+          touch_cmd_stamp_one_file( zAbs, zName, newMtime, dryRunFlag,
+                                    verboseFlag, quietFlag );
       }
     }
     db_finalize(&q);
@@ -2076,8 +2098,8 @@ void touch_cmd(){
         assert(newMtime>0);
       }
       changeCount +=
-        touch_cmd_stamp_one_file( zAbs, zArg, newMtime,
-                                  dryRunFlag, verboseFlag );
+        touch_cmd_stamp_one_file( zAbs, zArg, newMtime, dryRunFlag,
+                                  verboseFlag, quietFlag );
     }        
   }
   db_end_transaction(0);
