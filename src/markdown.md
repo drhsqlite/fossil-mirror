@@ -78,8 +78,30 @@
 > >
     > > Double-indented paragraph
 
-> Begin each line with at least four spaces or one tab to produce a verbatim
-> code block.
+## Literal/Verbatim Text ##
+
+> There are several ways to write text in Markdown that should be
+> rendered without any special interpretation.
+
+> For inline text, you can either use \``backticks`\` or the HTML
+> `<code>` tag.
+>
+> For blocks of text, there are several methods:
+>
+> 1. Indent the text using a tab character or at least four spaces.
+> 2. Precede the block with an HTML `<pre>` tag and follow it with `</pre>`.
+> 3. Surround the block in triple backticks (\`\`\`) either at the
+> left margin or indented no more than three spaces.
+
+> Note that unlike in [GitHub-Flavored Markdown][gfm], Fossil does not
+> currently support any “info string” in [fenced code blocks][gfmf]
+> after the opening sequence, including language tags
+
+> With the standard skins, verbatim text is rendered in a fixed-width font,
+> but that is purely a presentation matter, controlled by the skin’s CSS.
+
+[gfm]:  https://github.github.com/gfm/
+[gfmf]: https://github.github.com/gfm/#fenced-code-blocks
 
 ## Tables ##
 

@@ -1,5 +1,5 @@
-C Adding\sa\ssimulation\s(www/collisions.ipynb)\sfor\scheckin\scollisions\sover\sa\nworking\sday,\sgiven\sparameters\slike\snumber\sof\scheckins\sper\sday.\s\sThis\nis\sin\ssupport\sof\sdiscussion\son\sthe\sforum\scentering\son\sthis\spost:\nhttps://fossil-scm.org/forum/forumpost/7349f4b6e1
-D 2019-06-16T17:58:36.771
+C Expanded\son\sthe\srules\sfor\sliteral/verbatim/fenced\stext\sin\sthe\s/md_rules\ndocument.
+D 2019-06-16T19:03:18.374
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,7 +523,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 1a9deb51ae938f7b0fd503c4b5ac0b06bfeabe09ed7eb41cbb1224342e415761 x
 F src/manifest.c 08b0234fb9b3bc08d5eed6f067ee329ac12ad0effade31fb51d14a557d681b9c
 F src/markdown.c fa512af1446b7773a0177668a1790d60925ae0e81f6ef1767f8b3aacbe4644be
-F src/markdown.md 58d0f6ba76a4850d739a1f60c4c4cf04c8fa12fc0f5f269f0f09c23e11bde666
+F src/markdown.md 6882d37e282154b82893390557874904b3f5e830dabaea1c3810a8a83169af9b
 F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -876,7 +876,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29f450a5328c25dc3f3011e69314657cf4c80d97156a63fda5d4fc46961dfc00
-R eb3fda195517aa0f42c2b67d21cffa39
+P 950e54ef35f61b375ef26ce71800dc07f43305eb5da3f658c8556aae78365a65
+R 0a81f1401db104343c6d72a8365c5f79
 U wyoung
-Z df1254a28e541add89f3bb4789ddd048
+Z d44876f04d347da63f5153c2e8751275
