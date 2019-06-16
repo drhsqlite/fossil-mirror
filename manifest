@@ -1,5 +1,5 @@
-C Expanded\son\sthe\srules\sfor\sliteral/verbatim/fenced\stext\sin\sthe\s/md_rules\ndocument.
-D 2019-06-16T19:03:18.374
+C Removed\sthe\s"or\s--allow-fork"\sadvice\soutput\sfrom\s"fossil\scheckin"\swhen\nforcing\sthe\scheckin\swould\sfork\sthe\sbranch.\s\sIt's\sgood\sfor\sFossil\sto\shave\nthis\soption,\sespecially\sfor\sautomated\stooling\sthat\sneeds\sto\sjust\sbull\nforward\sblindly,\sbut\sit's\sbad\sadvice\sto\sgive\sto\sinteractive\susers.\s\sLet\nthem\sdiscover\sit\svia\s--help,\sif\sthey\slearn\sof\sit\sat\sall.
+D 2019-06-16T19:22:04.567
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c b3f56ec17d83658fbce3f140f52d7f125f8fd447d99d5b76dfbe5fa17288cea6
+F src/checkin.c 742ea1bf3b99c76baca1113120c4f5040f97f5ca27fae20754050a1556bfc223
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -876,7 +876,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 950e54ef35f61b375ef26ce71800dc07f43305eb5da3f658c8556aae78365a65
-R 0a81f1401db104343c6d72a8365c5f79
+P 1b2d6c30ba1ab06b64e9d88186895389c2129119b00ee8d887bbff5b6d3e9d9b
+R 6b6070f63035600b0fa132cf471960f3
 U wyoung
-Z d44876f04d347da63f5153c2e8751275
+Z 53ddbed6c17940886b813b0cf4fe5fe6
