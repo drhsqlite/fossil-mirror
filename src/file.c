@@ -1812,13 +1812,12 @@ void test_dir_size_cmd(void){
 ** newMTime is the file's new timestamp (Unix epoch).
 **
 ** Returns 1 if it sets zAbsName's mtime, 0 if it does not (indicating
-** that the file already has that timestamp or a warning was emitted).
-** Dies fatally if given an unresolvable filename. If dryRunFlag is
-** true then it outputs the name of the file it would have timestamped
-** but does not stamp the file. If verboseFlag is true, it outputs a
-** message if the file's timestamp is actually modified. If quietFlag
-** is true then the output of non-fatal warning messages is
-** suppressed.
+** that the file already has that timestamp or a warning was emitted
+** or was not found). If dryRunFlag is true then it outputs the name
+** of the file it would have timestamped but does not stamp the
+** file. If verboseFlag is true, it outputs a message if the file's
+** timestamp is actually modified. If quietFlag is true then the
+** output of non-fatal warning messages is suppressed.
 **
 ** As a special case, if newMTime is 0 then this function emits a
 ** warning (unless quietFlag is true), does NOT set the timestamp, and
@@ -1841,7 +1840,8 @@ static int touch_cmd_stamp_one_file(char const *zAbsName,
   }
   currentMtime = file_mtime(zAbsName, 0);
   if(currentMtime<0){
-    fossil_fatal("Cannot stat file: %s\n", zAbsName);
+    fossil_print("SKIPPING: cannot stat file: %s\n", zAbsName);
+    return 0;
   }else if(currentMtime==newMtime){
     return 0;
   }else if( dryRunFlag!=0 ){
