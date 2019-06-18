@@ -2274,14 +2274,14 @@ void commit_cmd(void){
     if( sCiInfo.zBranch==0 ){
       if( allowFork==0 && forceFlag==0 && g.markPrivate==0
         && db_exists("SELECT 1 from event where type='ci'") ){
-        fossil_fatal("would fork.  \"update\" first.");
+        fossil_fatal("would fork.  \"update\" first or use --branch.");
       }
       sCiInfo.zBranch = db_get("main-branch", "trunk");
     }
   }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
     && g.markPrivate==0 && !is_a_leaf(vid)
   ){
-    fossil_fatal("would fork.  \"update\" first.");
+    fossil_fatal("would fork.  \"update\" first or use --branch.");
   }
 
   /*

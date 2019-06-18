@@ -1,5 +1,5 @@
-C The\stouch\scommand\sno\slonger\streats\smissing\sfiles\sas\sa\sfatal\serror,\sinstead\semitting\sa\swarning\smessage.
-D 2019-06-17T07:09:49.850
+C Partial\swalk-back\sof\s[66d55e9b43]:\sinstead\sof\ssimply\sremoving\sthe\nrecommendation\sto\spass\s--allow-fork\sto\sfossil\scheckin\sto\ssolve\sthe\n"would\sfork"\sproblem,\srecommend\sinstead\sthat\sthe\suser\screate\sa\snew\nbranch\swith\s--branch.\s\sThat\sadvice\scauses\sFossil\sto\screate\sa\snamed\nbranch\srather\sthan\sa\snameless\sbranch\s--\swell,\s*duplicate-named*,\sanyway\n--\swhich\sis\seasier\sto\scope\swith\sand\sdoesn't\smake\sall\sthe\sother\sFossil\ninstances\sin\san\sorganization\sstart\sgriping\sabout\sunresolved\sforks.\nOnly\sthe\suser\swho\screated\sthe\snamed\sfork\sis\sbothered\swith\screating\sand\nresolving\sthe\sfork\sin\sthis\smode\sof\soperation.
+D 2019-06-18T01:48:05.731
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c 742ea1bf3b99c76baca1113120c4f5040f97f5ca27fae20754050a1556bfc223
+F src/checkin.c fdf337c5d657b6b12b6786e0217c72d37f72eb759fa65ff230b5ecf81475f87e
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -876,7 +876,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 847423edfaae1dd2d9baa767b95194f12cc700c94b595ba8f3372a73d7b158d7
-R 9fcf354e93a674f5bde6ebbec78e1124
-U stephan
-Z 079585fc1f3b0cb2a9722bcb48af3bfa
+P 56530e9b6d061abbc79ea902354ef241acd9271579bb25f08843a39cd64977c3
+R e1b5352e533b64b38ba7e20be44ff483
+U wyoung
+Z ac6a90cda4fc4922368565b9fe3eb4b8
