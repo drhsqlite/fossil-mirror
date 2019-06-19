@@ -2,7 +2,7 @@
 <h2>Background</h2>
 
 In a simple and perfect world, the development of a project would proceed
-linearly, as shown in figure 1.
+linearly, as shown in Figure 1.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
@@ -17,7 +17,7 @@ to allocate collision-free sequential numbers in a distributed system.
 But as sequential numbers are easier to read, we will substitute them for
 the long hashes in this document.
 
-The arrows in figure 1 show the evolution of a project.  The initial
+The arrows in Figure 1 show the evolution of a project.  The initial
 check-in is 1.  Check-in 2 is derived from 1.  In other words, check-in 2
 was created by making edits to check-in 1 and then committing those edits.
 We say that 2 is a <i>child</i> of 1
@@ -26,8 +26,7 @@ Check-in 3 is derived from check-in 2, making
 3 a child of 2.  We say that 3 is a <i>descendant</i> of both 1 and 2 and that 1
 and 2 are both <i>ancestors</i> of 3.
 
-<a name="dag"></a>
-<h2>DAGs</h2>
+<h2 id="dag">DAGs</h2>
 
 The graph of check-ins is a
 [http://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic graph]
@@ -38,7 +37,7 @@ it has no descendants.  (We will give a more precise definition later of
 
 Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
-After both changes are committed, the check-in graph looks like figure 2:
+After both changes are committed, the check-in graph looks like Figure 2:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
@@ -46,19 +45,19 @@ After both changes are committed, the check-in graph looks like figure 2:
 Figure 2
 </td></tr></table>
 
-The graph in figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
+The graph in Figure 2 has two leaves: check-ins 3 and 4.  Check-in 2 has
 two children, check-ins 3 and 4.  We call this state a <i>fork</i>.
 
 Fossil tries to prevent forks. Suppose two programmers named Alice and
 Bob are each editing check-in 2 separately. Alice finishes her edits
 first and commits her changes, resulting in check-in 3. Later, when Bob
-attempts to commit his changes, fossil verifies that check-in 2 is still
+attempts to commit his changes, Fossil verifies that check-in 2 is still
 a leaf. Fossil sees that check-in 3 has occurred and aborts Bob's commit
 attempt with a message "would fork." This allows Bob to do a "fossil
 update" which pulls in Alice's changes, merging them into his own
 changes. After merging, Bob commits check-in 4 as a child of check-in 3.
-The result is a linear graph as shown in figure 1. This is how CVS
-works. This is also how fossil works in [./concepts.wiki#workflow |
+The result is a linear graph as shown in Figure 1. This is how CVS
+works. This is also how Fossil works in [./concepts.wiki#workflow |
 "autosync"] mode.
 
 But perhaps Bob is off-network when he does his commit, so he
@@ -66,18 +65,38 @@ has no way of knowing that Alice has already committed her changes.
 Or, it could be that Bob has turned off "autosync" mode in Fossil.  Or,
 maybe Bob just doesn't want to merge in Alice's changes before he has
 saved his own, so he forces the commit to occur using the "--allow-fork"
-option to the fossil <b>commit</b> command.  For any of these reasons,
+option to the <b>fossil commit</b> command.  For any of these reasons,
 two commits against check-in 2 have occurred and now the DAG has two leaves.
 
 So which version of the project is the "latest" in the sense of having
 the most features and the most bug fixes?  When there is more than
-one leaf in the graph, you don't really know.  So we like to have
-graphs with a single leaf.
+one leaf in the graph, you don't really know, so we like to have
+check-in graphs with a single leaf.
 
-To resolve this situation, Alice can use the fossil <b>merge</b> command
-to merge in Bob's changes in her local copy of check-in 3.  Then she
-can commit the results as check-in 5.  This results in a DAG as shown
-in figure 3.
+Fossil resolves such problems using the check-in time on the leaves to
+decide which leaf to use as the parent of new leaves.  When a branch is
+forked as in Figure 2, Fossil will choose check-in 4 as the parent for a
+later check-in 5, but <i>only</i> if it has sync'd that check-in down
+into the local repository. If autosync is disabled or the user is
+off-network when that fifth check-in occurs, so that check-in 3 is the
+latest on that branch at the time within that clone of the repository,
+Fossil will make check-in 3 the parent of check-in 5!
+
+Fossil also uses a forked branch's leaf check-in timestamps when
+checking out that branch: it gives you the fork with the latest
+check-in, which in turn selects which parent your next check-in will be
+a child of.  This situation means development on that branch can fork
+into two independent lines of development, based solely on which branch
+tip is newer at the time the next user starts his work on it.  Because
+of this, we strongly recommend that you do not intentionally create
+forks on branches with "--allow-fork" if that branch is used by many
+people over a long period of time. (Prime example: trunk.)
+
+Let us return to Figure 2. To resolve such situations before they can
+become a real problem, Alice can use the <b>fossil merge</b> command to
+merge Bob's changes into her local copy of check-in 3.  Then she can
+commit the results as check-in 5.  This results in a DAG as shown in
+Figure 3.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
@@ -89,34 +108,37 @@ Check-in 5 is a child of check-in 3 because it was created by editing
 check-in 3.  But check-in 5 also inherits the changes from check-in 4 by
 virtue of the merge.  So we say that check-in 5 is a <i>merge child</i>
 of check-in 4 and that it is a <i>direct child</i> of check-in 3.
-The graph is now back to a single leaf (check-in 5).
+The graph is now back to a single leaf, check-in 5.
 
-We have already seen that if fossil is in autosync mode then Bob would
+We have already seen that if Fossil is in autosync mode then Bob would
 have been warned about the potential fork the first time he tried to
 commit check-in 4.  If Bob had updated his local check-out to merge in
 Alice's check-in 3 changes, then committed, then the fork would have
 never occurred.  The resulting graph would have been linear, as shown
-in figure 1.  Really the graph of figure 1 is a subset of figure 3.
-Hold your hand over the check-in 4 circle of figure 3 and then figure
-3 looks exactly like figure 1 (except that the leaf has a different check-in
-number, but that is just a notational difference - the two check-ins have
-exactly the same content).  In other words, figure 3 is really a superset
-of figure 1.  The check-in 4 of figure 3 captures additional state which
-is omitted from figure 1.  Check-in 4 of figure 3 holds a copy
-of Bob's local checkout before he merged in Alice's changes.  That snapshot
-of Bob's changes, which is independent of Alice's changes, is omitted from figure 1.
-Some people say that the approach taken in figure 3 is better because it
-preserves this extra intermediate state.  Others say that the approach
-taken in figure 1 is better because it is much easier to visualize a
-linear line of development and because the merging happens automatically
-instead of as a separate manual step.  We will not take sides in that
-debate.  We will simply point out that fossil enables you to do it either way.
+in Figure 1.
 
-<h2>Forking Versus Branching</h2>
+Realize that the graph of Figure 1 is a subset of Figure 3.  Hold your
+hand over the check-in 4 circle of Figure 3 and then Figure 3 looks
+exactly like Figure 1, except that the leaf has a different check-in
+number, but that is just a notational difference — the two check-ins
+have exactly the same content.  In other words, Figure 3 is really a
+superset of Figure 1.  The check-in 4 of Figure 3 captures additional
+state which is omitted from Figure 1.  Check-in 4 of Figure 3 holds a
+copy of Bob's local checkout before he merged in Alice's changes.  That
+snapshot of Bob's changes, which is independent of Alice's changes, is
+omitted from Figure 1.  Some people say that the approach taken in
+Figure 3 is better because it preserves this extra intermediate state.
+Others say that the approach taken in Figure 1 is better because it is
+much easier to visualize a linear line of development and because the
+merging happens automatically instead of as a separate manual step.  We
+will not take sides in that debate.  We will simply point out that
+Fossil enables you to do it either way.
+
+<h2 id="branching">The Alternative to Forking: Branching</h2>
 
 Having more than one leaf in the check-in DAG is called a "fork." This
 is usually undesirable and either avoided entirely,
-as in figure 1, or else quickly resolved as shown in figure 3.
+as in Figure 1, or else quickly resolved as shown in Figure 3.
 But sometimes, one does want to have multiple leaves.  For example, a project
 might have one leaf that is the latest version of the project under
 development and another leaf that is the latest version that has been
@@ -132,7 +154,7 @@ for development work and another for testing.
 Figure 4
 </td></tr></table>
 
-The hypothetical scenario of figure 4 is this:  The project starts and
+The hypothetical scenario of Figure 4 is this:  The project starts and
 progresses to a point where (at check-in 2)
 it is ready to enter testing for its first release.
 In a real project, of course, there might be hundreds or thousands of
@@ -149,22 +171,63 @@ changes in the test branch are merged into the dev branch.  This is
 shown by the dashed merge arrows between check-ins 6 and 7 and between
 check-ins 9 and 10.
 
-In both figures 2 and 4, check-in 2 has two children.  In figure 2,
+In both Figures 2 and 4, check-in 2 has two children.  In Figure 2,
 we call this a "fork."  In diagram 4, we call it a "branch."  What is
-the difference?  As far as the internal fossil data structures are
+the difference?  As far as the internal Fossil data structures are
 concerned, there is no difference.  The distinction is in the intent.
-In figure 2, the fact that check-in 2 has multiple children is an
-accident that stems from concurrent development.  In figure 4, giving
+In Figure 2, the fact that check-in 2 has multiple children is an
+accident that stems from concurrent development.  In Figure 4, giving
 check-in 2 multiple children is a deliberate act.  So, to a good
 approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
 
-<a name="tags"></a>
-<h2>Tags And Properties</h2>
+<h2 id="forking">Justifications For Forking</h2>
 
-Tags and properties are used in fossil to help express the intent, and
+The primary cases where forking is justified are all when it is done purely
+in software in order to avoid losing information:
+
+<ol>
+    <li><p>By Fossil itself when two users check in children to the same
+    leaf of a branch, as in Figure 2.  If they're doing it because
+    autosync is disabled on one or both of the repositories, Fossil has
+    no way of knowing that it is creating a fork until the two
+    repositories are later sync'd manually.</p></li>
+
+    <li><p>By Fossil when the cloning hierarchy is more than 2 levels
+    deep. If your master repository is cloned by user A and then user B
+    clones from user A's repository, check-ins to user B's repo do not
+    check the master repo before allowing the check-in even with
+    autosync enabled. It isn't until user A syncs her repo with the
+    master repo that an inadvertent fork can be detected.
+    <br><br>
+    Because of this, we recommend that if you're using Fossil in a
+    distributed way like this, that check-ins be made only to the master
+    or its immediate child repos, and that those further down the chain
+    be read-only clones.</p></li>
+
+    <li><p>You've automated Fossil (e.g. with a shell script) and
+    forking is a possibility, so you add "--allow-fork" to your
+    "checkin" commands to prevent Fossil from refusing the check-in due
+    to the fork.  It's better to write such a script to detect this
+    condition and cope with it (e.g. "fossil update") but if the
+    alternative is losing information, you may feel justified in
+    creating forks that an interactive user must later clean up with
+    "fossil merge" commands.</p></li>
+</ol>
+
+That leaves only one case where we can recommend use of "--allow-fork"
+by interactive users, while autosync is enabled: when you're working on
+a personal branch so that creating a dual-tipped branch isn't going to
+cause any other user an inconvenience or risk forking the development.
+This is a good alternative to branching when you just need to
+temporarily fork the branch's development.
+
+
+<h2 id="tags">Tags And Properties</h2>
+
+Tags and properties are used in Fossil to help express the intent, and
 thus to distinguish between forks and branches.  Figure 5 shows the
-same scenario as figure 4 but with tags and properties added:
+same scenario as Figure 4 but with tags and properties added:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
@@ -173,7 +236,7 @@ Figure 5
 </td></tr></table>
 
 A <i>tag</i> is a name that is attached to a check-in.  A
-<i>property</i> is a name/value pair.  Internally, fossil implements
+<i>property</i> is a name/value pair.  Internally, Fossil implements
 tags as properties with a NULL value.  So, tags and properties really
 are much the same thing, and henceforth we will use the word "tag"
 to mean either a tag or a property.
@@ -190,7 +253,7 @@ tag that was previously placed on that same check-in, or to block
 tag propagation from an ancestor.
 
 The initial check-in of every repository has two propagating tags.  In
-figure 5, that initial check-in is check-in 1.  The <b>branch</b> tag
+Figure 5, that initial check-in is check-in 1.  The <b>branch</b> tag
 tells (by its value)  what branch the check-in is a member of.
 The default branch is called "trunk."  All tags that begin with "<b>sym-</b>"
 are symbolic name tags.  When a symbolic name tag is attached to a
@@ -252,15 +315,15 @@ children in different branches.  A branch point is similar to a fork,
 except that the children are in different branches.</p></dd>
 </dl></blockquote>
 
-Check-in 4 of figure 3 is not a leaf because it has a child (check-in 5)
-in the same branch.  Check-in 9 of figure 5 also has a child (check-in 10)
+Check-in 4 of Figure 3 is not a leaf because it has a child (check-in 5)
+in the same branch.  Check-in 9 of Figure 5 also has a child (check-in 10)
 but that child is in a different branch, so check-in 9 is a leaf.  Because
 of the <b>closed</b> tag on check-in 9, it is a closed leaf.
 
-Check-in 2 of figure 3 is considered a "fork"
-because it has two children in the same branch.  Check-in 2 of figure 5
+Check-in 2 of Figure 3 is considered a "fork"
+because it has two children in the same branch.  Check-in 2 of Figure 5
 also has two children, but each child is in a different branch, hence in
-figure 5, check-in 2 is considered a "branch point."
+Figure 5, check-in 2 is considered a "branch point."
 
 <h2>Differences With Other DVCSes</h2>
 
