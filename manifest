@@ -1,5 +1,5 @@
-C Fixed\sa\scommand\sin\sthe\sprevioius\scheckin
-D 2019-06-19T17:59:08.008
+C Typo\sfix
+D 2019-06-19T18:01:02.290
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,7 @@ F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb
 F www/branch04.svg 36a99b8ec3ddae3db8a07b719df1c65852b791bf54a9fcb1df06df8ba6fee334
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
-F www/branching.wiki 2782ad20d6e3aeed3200367a6f6f40dcbca7bb98521df3b1bdcad8dad9671067
+F www/branching.wiki 378b61ad9d20e8e780089382787eb0005bbd216a8a37c860fe49faef5c93918f
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 739116689328d03bb93b1af125175a1ff5931c725cdffed31eb1856f0697a77c
-R ab8482d56ce17385d9a68184ad8c4854
+P d5e1e113ef7d35de834d4a6f032c3d464ed3edf79d55b0d35b9c690b637c2524
+R cf6789fe9dd3ecd5187d780140128dcb
 U wyoung
-Z 4819129e807f7e60e615130df7769add
+Z 917150237bcaa98e952eb4820456460d

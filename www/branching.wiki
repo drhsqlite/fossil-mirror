@@ -265,7 +265,7 @@ This is a good alternative to branching when you just need to
 temporarily fork the branch's development.
 
 There's a common generalization of that case: you're a solo developer,
-so that the problems with braching vs forking simply don't matter. In
+so that the problems with branching vs forking simply don't matter. In
 that case, feel free to use "--allow-fork" as much as you like.
 
 
