@@ -186,26 +186,41 @@ check-in 2 multiple children is a deliberate act.  So, to a good
 approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
 
-Fossil offers two primary ways to create branches (a.k.a. named,
-intentional forks):
+Fossil offers two primary ways to create named, intentional forks
+a.k.a. branches. First:
 
 <pre>
-    $ fossil ci --branch my-new-branch-name
-    $ fossil branch new my-new-branch-name trunk
+    $ fossil commit --branch my-new-branch-name
 </pre>
 
-The first option is the one we recommend for most cases: it creates a
-branch as part of a checkin using the current branch as its basis. 
+This is the method we recommend for most cases: it creates a branch as
+part of a checkin using the current branch as its basis. After the
+checkin, your local working directory is switched to that branch, so
+that further checkins occur on that branch as well, as children of the
+last checkin on that branch.
 
-(Keep in mind that trunk is just another branch in Fossil. It is simply
-the default branch name for the first checkin and every checkin made as
-one of its direct descendants.)
+The second, more complicated option is:
 
-The second command above is more complicated.  Also, it creates the
-branch in advance of actual need, which makes it a violation of the
+<pre>
+    $ fossil branch new my-new-branch-name trunk
+    $ fossil update new my-new-branch-name
+    $ fossil commit
+</pre>
+
+Not only is the first command longer, you must give the second command
+before creating any checkins, because until you do, your local working
+directory remains on the same branch it was on at the time you issued
+the command.
+
+In addition to those problems, the second method is a violation of the
 [https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it|YAGNI
 Principle]. We recommend that you wait until you actually need the
 branch and create it using the first command above.
+
+(Keep in mind that trunk is just another branch in Fossil. It is simply
+the default branch name for the first checkin and every checkin made as
+one of its direct descendants. It is special only in that it is Fossil's
+default when it has no better idea of which branch you mean.)
 
 
 <h2 id="forking">Justifications For Forking</h2>

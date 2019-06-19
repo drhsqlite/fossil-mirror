@@ -1,5 +1,5 @@
-C Added\sthe\skey\sdistinction\s("A\sbranch\sis\sa\snamed,\sintentional\sfork")\sto\nwww/branching.wiki\sand\sadded\sinfo\son\sactually\screating\sbranches.
-D 2019-06-19T17:41:34.254
+C More\sexpansion\son\sthe\sdiscussion\sof\screating\sbranches\sin\sFossil,\nespecially\sin\sthe\ssecond-form\scommands,\swhich\swere\sincomplete\sin\sthe\nprior\sversion.
+D 2019-06-19T17:58:34.330
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,7 @@ F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb
 F www/branch04.svg 36a99b8ec3ddae3db8a07b719df1c65852b791bf54a9fcb1df06df8ba6fee334
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
-F www/branching.wiki 385d0cd81dfa7444755b4b93cc00e6ab71e93bcec705a6b2a79e2142be4b624d
+F www/branching.wiki c724c9a7dcad844bcabee80f222e05886e5fb106e34edf6a1fdc9b4e56285c60
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3cc437a50ffe8c6d75b0d404ef3d80ca0dc6a198d0c1c4c419523b7ce1dcf98f
-R 3f16248b5f54085f5334754f9a1a369c
+P 1e0cf46762168ab9e311926ebec625952ee383a98057a8c2d1046344dbb3e890
+R 215161385b8f85c62c41b82e6b439975
 U wyoung
-Z ad0447e35cc4cd7754e659c6c3019464
+Z 375c1b90548a22acea49f0392744a439
