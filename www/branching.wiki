@@ -6,7 +6,7 @@ linearly, as shown in figure 1.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch01.gif" width=280 height=68><br>
+<img src="branch01.svg"><br>
 Figure 1
 </td></tr></table>
 
@@ -42,7 +42,7 @@ After both changes are committed, the check-in graph looks like figure 2:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch02.gif" width=210 height=140><br>
+<img src="branch02.svg"><br>
 Figure 2
 </td></tr></table>
 
@@ -81,7 +81,7 @@ in figure 3.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch03.gif" width=282 height=152><br>
+<img src="branch03.svg"><br>
 Figure 3
 </td></tr></table>
 
@@ -128,7 +128,7 @@ for development work and another for testing.
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch04.gif" width=426 height=123><br>
+<img src="branch04.svg"><br>
 Figure 4
 </td></tr></table>
 
@@ -168,7 +168,7 @@ same scenario as figure 4 but with tags and properties added:
 
 <table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
 <tr><td align="center">
-<img src="branch05.gif" width=485 height=177><br>
+<img src="branch05.svg"><br>
 Figure 5
 </td></tr></table>
 
