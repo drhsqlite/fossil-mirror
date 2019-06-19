@@ -1,5 +1,5 @@
-C Replaced\sthe\sGIFs\sin\swww/branching.wiki\swith\syEd\sdiagrams\sand\sSVGs\nexported\sfrom\sthem.\s\sThis\sallows\sscalability\son\svarious\sscreen\ssizes,\navoids\scrunchy\spixelated\sedges,\sallows\sediting,\sand\ssaves\sspace\non\sthe\swire.
-D 2019-06-19T16:22:21.106
+C Fixed\snumbering\sof\snode\s6\sin\sthe\snew\sSVG/yEd\sbranching\sdiagrams.
+D 2019-06-19T16:56:19.287
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -769,10 +769,10 @@ F www/branch02.graphml d354c6a31ce3866cae007833297e85464e7171ef39d84dde49aa6f72e
 F www/branch02.svg 0d23aaa0b17a5d80cf1224b5339f5c93c45e6d668d578844c13872cbd0e07079
 F www/branch03.graphml d354c6a31ce3866cae007833297e85464e7171ef39d84dde49aa6f72ee9c3713
 F www/branch03.svg e780ab6a6be9b55d12d85837ff33af2c362340efb856241b858e688150b626b6
-F www/branch04.graphml d354c6a31ce3866cae007833297e85464e7171ef39d84dde49aa6f72ee9c3713
-F www/branch04.svg 30f564f1251202d688715718aa84e9a9b50af7f5827f52858f5478617b6130ed
-F www/branch05.graphml d354c6a31ce3866cae007833297e85464e7171ef39d84dde49aa6f72ee9c3713
-F www/branch05.svg 3dd3203d8e3b4b797be959ea2b5133045c823a9e55a8cd6f7afdce9e06f740e2
+F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb60ce84f
+F www/branch04.svg 36a99b8ec3ddae3db8a07b719df1c65852b791bf54a9fcb1df06df8ba6fee334
+F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
+F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
 F www/branching.graphml d354c6a31ce3866cae007833297e85464e7171ef39d84dde49aa6f72ee9c3713
 F www/branching.wiki 2e31fb836ca8e108abc2b7f87e80628435daa1a075f5a5803be08e503d846ba9
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
@@ -882,7 +882,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8dcf4ffce1a74d19bbe7bcce72b1aa74eaf26e5dafd3923010df0ff661f186e9
-R 5ff9fc0c3dc033d4d7dadfbb97750e1c
+P 00aded160133d7dcde76420e7fd4a2c730ca078947d94cf4203e5db471dc6d40
+R 7030fa49cbf4b154cb531518f40bcad9
 U wyoung
-Z 8396bcad637b5eadfec4d402fb888aad
+Z 904f15b1be8e60b633ed434aced106ce
