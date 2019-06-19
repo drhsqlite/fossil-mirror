@@ -144,7 +144,12 @@ might have one leaf that is the latest version of the project under
 development and another leaf that is the latest version that has been
 tested.
 When multiple leaves are desirable, we call this <i>branching</i>
-instead of <i>forking</i>.
+instead of <i>forking</i>:
+
+<blockquote>
+<b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
+</blockquote>
+
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
 
@@ -180,6 +185,28 @@ accident that stems from concurrent development.  In Figure 4, giving
 check-in 2 multiple children is a deliberate act.  So, to a good
 approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
+
+Fossil offers two primary ways to create branches (a.k.a. named,
+intentional forks):
+
+<pre>
+    $ fossil ci --branch my-new-branch-name
+    $ fossil branch new my-new-branch-name trunk
+</pre>
+
+The first option is the one we recommend for most cases: it creates a
+branch as part of a checkin using the current branch as its basis. 
+
+(Keep in mind that trunk is just another branch in Fossil. It is simply
+the default branch name for the first checkin and every checkin made as
+one of its direct descendants.)
+
+The second command above is more complicated.  Also, it creates the
+branch in advance of actual need, which makes it a violation of the
+[https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it|YAGNI
+Principle]. We recommend that you wait until you actually need the
+branch and create it using the first command above.
+
 
 <h2 id="forking">Justifications For Forking</h2>
 
