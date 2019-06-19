@@ -381,8 +381,39 @@ Figure 5, check-in 2 is considered a "branch point."
 
 <h2>Differences With Other DVCSes</h2>
 
+<h3 id="single">Single DAG</h3>
+
 Fossil keeps all check-ins on a single DAG.  Branches are identified with
 tags.  This means that check-ins can be freely moved between branches
 simply by altering their tags.
 
 Most other DVCSes maintain a separate DAG for each branch.
+
+<h3 id="unique">Branch Names Need Not Be Unique</h3>
+
+Fossil does not require that branch names be unique, as in some VCSes,
+most notably Git. Just as with unnamed branches (which we call forks)
+Fossil resolves such ambiguities using the timestamps on the latest
+checkin in each branch. If you have two branches named "foo" and you say
+<b>fossil up foo</b>, you get the tip of the "foo" branch with the most
+recent checkin.
+
+This fact is helpful because it means you can reuse branch names, which
+is especially useful with utility branches.  There are several of these
+in the SQLite and Fossil repositories: "broken-build," "declined,"
+"mistake," etc. As you might guess from these names, such branch names
+are used in renaming the tip of one branch to shunt it off away from the
+mainline of that branch due to some human error. (See <b>fossil
+amend</b> and the Fossil UI checkin ammendment features.) This is a
+workaround for Fossil's [./shunning.wiki|normal inability to forget
+history]: we usually don't want to actually <i>remove</i> history, but
+would like to sometimes set some of it aside under a new label.
+
+Because some VCSes can't cope with duplicate branch names, Fossil
+collapses such names down on export using the same timestamp based
+arbitration logic, so that only the branch with the newest checkin gets
+the branch name in the export.
+
+All of the above is true of tags in general, not just branches.
+
+
