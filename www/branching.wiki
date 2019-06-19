@@ -225,15 +225,16 @@ default when it has no better idea of which branch you mean.)
 
 <h2 id="forking">Justifications For Forking</h2>
 
-The primary cases where forking is justified are all when it is done purely
-in software in order to avoid losing information:
+The primary cases where forking is justified over branching are all when
+it is done purely in software in order to avoid losing information:
 
 <ol>
     <li><p>By Fossil itself when two users check in children to the same
-    leaf of a branch, as in Figure 2.  If they're doing it because
-    autosync is disabled on one or both of the repositories, Fossil has
-    no way of knowing that it is creating a fork until the two
-    repositories are later sync'd manually.</p></li>
+    leaf of a branch, as in Figure 2.  If the fork occurs because
+    autosync is disabled on one or both of the repositories or because
+    the user doing the check-in has no network connection at the moment
+    of the commit, Fossil has no way of knowing that it is creating a
+    fork until the two repositories are later sync'd.</p></li>
 
     <li><p>By Fossil when the cloning hierarchy is more than 2 levels
     deep. If your master repository is cloned by user A and then user B
@@ -245,24 +246,31 @@ in software in order to avoid losing information:
     Because of this, we recommend that if you're using Fossil in a
     distributed way like this, that check-ins be made only to the master
     or its immediate child repos, and that those further down the chain
-    be read-only clones.</p></li>
+    be read-only clones. This is not to say that we repudiate Fossil's
+    use as a Distributed Version Control System, just that such use is
+    prone to creating forks, by the nature of distributed development.
+    We hope we've made it clear in this document why forks on long-lived
+    shared working branches are a problem.</p></li>
 
     <li><p>You've automated Fossil (e.g. with a shell script) and
-    forking is a possibility, so you add "--allow-fork" to your
-    "checkin" commands to prevent Fossil from refusing the check-in due
-    to the fork.  It's better to write such a script to detect this
-    condition and cope with it (e.g. "fossil update") but if the
-    alternative is losing information, you may feel justified in
-    creating forks that an interactive user must later clean up with
-    "fossil merge" commands.</p></li>
+    forking is a possibility, so you write <b>fossil commit
+    --allow-fork</b> commands to prevent Fossil from refusing the
+    check-in because it would create a fork.  It's better to write such
+    a script to detect this condition and cope with it (e.g. <b>fossil
+    update</b>) but if the alternative is losing information, you may
+    feel justified in creating forks that an interactive user must later
+    clean up with <b>fossil merge</b> commands.</p></li>
 </ol>
 
 That leaves only one case where we can recommend use of "--allow-fork"
-by interactive users, while autosync is enabled: when you're working on
+by interactive users: when you're working on
 a personal branch so that creating a dual-tipped branch isn't going to
 cause any other user an inconvenience or risk forking the development.
+Only one developer is involved, and the fork may be short-lived, so
+there is no risk of inadvertently forking the overall development effort.
 This is a good alternative to branching when you just need to
-temporarily fork the branch's development.
+temporarily fork the branch's development. It avoids cluttering the
+global branch namespace with short-lived temporary named branches.
 
 There's a common generalization of that case: you're a solo developer,
 so that the problems with branching vs forking simply don't matter. In
