@@ -203,7 +203,7 @@ The second, more complicated option is:
 
 <pre>
     $ fossil branch new my-new-branch-name trunk
-    $ fossil update new my-new-branch-name
+    $ fossil update my-new-branch-name
     $ fossil commit
 </pre>
 
