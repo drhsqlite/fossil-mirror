@@ -1,5 +1,5 @@
-C Expanded\son\sthe\sdiscussion\sof\sforking\svs\sbranching\sin\nwww/branching.wiki.
-D 2019-06-19T17:13:10.455
+C Added\sa\sgeneraliation\sof\sthe\sprior\sedit\sto\swww/branching.wiki
+D 2019-06-19T17:33:43.154
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,7 @@ F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb
 F www/branch04.svg 36a99b8ec3ddae3db8a07b719df1c65852b791bf54a9fcb1df06df8ba6fee334
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
-F www/branching.wiki 6e1de35c998b79dfbf466e42f37fb9f286dac3da51ddaf26130893eb5c2e0892
+F www/branching.wiki 2aa0d7b54ea58ce871c8da6bb8a88baf133fad425ab1841596c3be15efe0b95b
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e3c55977e21cf459891c7eee7c734c25190f3a32d56fe4153a42fe53b631958d
-R 4cf706254eef512c0dc0c0fdaee30e22
+P b882c623868311dff805ecb8ea48bfc23d2b4e100aea29c83920fee207a5e17a
+R 53dedfc68095295b72783ed7f7def638
 U wyoung
-Z 70827725e00e71608ccdc34d88cc4f3c
+Z bf6566f0bcebb1a985a9d0d8b478a581
