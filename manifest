@@ -1,5 +1,5 @@
-C Several\sexpansions\son\sthe\snew\spoints\sin\swww/branching.wiki
-D 2019-06-19T18:09:11.284
+C Added\sa\slink\sto\shttps://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching\nfrom\sthe\srecent\schanges\sto\sthe\sfossil\sci\s"would\sfork"\serror\smessage.\n*Hopefully*\sthis\swill\send\sthe\sdebate.
+D 2019-06-19T18:24:01.470
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c fdf337c5d657b6b12b6786e0217c72d37f72eb759fa65ff230b5ecf81475f87e
+F src/checkin.c ae3c6f17b15b2604866bfcf47bee87a2496ff262e0c9706d898883e4aef181f2
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 184cf2087affd59937036dbd2bef4ac3900b740b5b7e78c67f7ffe0133c27c1f
-R 85e033237d2e8b0b7b617f86f0708a79
+P bf048cd576fc265fc852c6011302b11c07369c5151ef0ed7348eaa418dcc94fb
+R 66905d0589bb33d39e29533913214dbb
 U wyoung
-Z a2fe624f40cc620bf2f59dd8fd4ac9ee
+Z 92ae1081a039f2cd3e1a4653b4100d7e
