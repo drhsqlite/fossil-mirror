@@ -89,8 +89,8 @@ a child of.  This situation means development on that branch can fork
 into two independent lines of development, based solely on which branch
 tip is newer at the time the next user starts his work on it.  Because
 of this, we strongly recommend that you do not intentionally create
-forks on branches with "--allow-fork" if that branch is used by many
-people over a long period of time. (Prime example: trunk.)
+forks on long-lived shared working branches with "--allow-fork".  (Prime
+example: trunk.)
 
 Let us return to Figure 2. To resolve such situations before they can
 become a real problem, Alice can use the <b>fossil merge</b> command to
@@ -149,6 +149,8 @@ instead of <i>forking</i>:
 <blockquote>
 <b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
 </blockquote>
+
+Forks *may* be intentional, but most of the time, they're accidental.
 
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
@@ -275,6 +277,20 @@ global branch namespace with short-lived temporary named branches.
 There's a common generalization of that case: you're a solo developer,
 so that the problems with branching vs forking simply don't matter. In
 that case, feel free to use "--allow-fork" as much as you like.
+
+
+<h2 id="fix">Fixing Forks</h2>
+
+If your local checkout is on a forked branch, you can usually fix a fork
+automatically with:
+
+<pre>
+    $ fossil merge
+</pre>
+
+Normally you need to pass arguments to <b>fossil merge</b> to tell it
+what you want to merge into the current basis view of the repository,
+but without arguments, the command seeks out and fixes forks.
 
 
 <h2 id="tags">Tags And Properties</h2>
