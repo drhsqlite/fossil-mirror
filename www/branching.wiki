@@ -188,7 +188,7 @@ check-in 2 multiple children is a deliberate act.  So, to a good
 approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
 
-Fossil offers two primary ways to create named, intentional forks
+Fossil offers two primary ways to create named, intentional forks,
 a.k.a. branches. First:
 
 <pre>
@@ -196,10 +196,13 @@ a.k.a. branches. First:
 </pre>
 
 This is the method we recommend for most cases: it creates a branch as
-part of a checkin using the current branch as its basis. After the
+part of a checkin using the version in the current checkout directory
+as its basis. (This is normally the tip of the current branch, though
+it doesn't have to be. You can create a branch from an ancestor checkin
+on a branch as well.) After making this branch-creating
 checkin, your local working directory is switched to that branch, so
 that further checkins occur on that branch as well, as children of the
-last checkin on that branch.
+tip checkin on that branch.
 
 The second, more complicated option is:
 
@@ -209,10 +212,12 @@ The second, more complicated option is:
     $ fossil commit
 </pre>
 
-Not only is the first command longer, you must give the second command
+Not only is this three commands instead of one, the first of which is
+longer than the entire simpler command above, you must give the second command
 before creating any checkins, because until you do, your local working
 directory remains on the same branch it was on at the time you issued
-the command.
+the command, so that the commit would otherwise put the new material on
+the original branch instead of the new one.
 
 In addition to those problems, the second method is a violation of the
 [https://en.wikipedia.org/wiki/You_aren%27t_gonna_need_it|YAGNI
@@ -240,9 +245,10 @@ it is done purely in software in order to avoid losing information:
 
     <li><p>By Fossil when the cloning hierarchy is more than 2 levels
     deep. If your master repository is cloned by user A and then user B
-    clones from user A's repository, check-ins to user B's repo do not
-    check the master repo before allowing the check-in even with
-    autosync enabled. It isn't until user A syncs her repo with the
+    clones from user A's repository, a check-in by user B will cause
+    that repo to attempt an autosync with user A's repo before allowing
+    the checkin, but it will <i>not</i> check with the master repo as
+    well. It isn't until user A syncs her repo with the
     master repo that an inadvertent fork can be detected.
     <br><br>
     Because of this, we recommend that if you're using Fossil in a
@@ -432,4 +438,17 @@ the branch name in the export.
 
 All of the above is true of tags in general, not just branches.
 
+<h2 id="voice">The Authors' Voice</h2>
 
+Above, "we" refers to
+[/blame?udc=1&w=on&checkin=trunk&filename=www%2Fbranching.wiki|the
+historical authors of this file]. It is our collective voice and
+opinions above. As in all walks of life, this is not the only possible
+philosophy, but it is our duty and pleasure in this document to present
+our philosophy to you. You are of course free to adopt or reject as much
+of it as you like. Fossil supports many styles, not just those this
+document's authors prefer. This should go without saying, but we get
+push-back from people who apparently believe all documents on all web
+pages should either support their beliefs, or they are factually wrong.
+Someone is [https://www.xkcd.com/386/|always wrong on the Internet],
+somewhere.  Please don't hold that against us.
