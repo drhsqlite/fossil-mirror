@@ -1,5 +1,5 @@
-C Put\s--allow-fork\sback\sinto\sthe\sfossil\sci\s"would\sfork"\smessage.\nEveryone's\sunhappy\snow.\s:)
-D 2019-06-20T16:46:29.911
+C Replaced\sa\smailing\slist\sreference\swith\sa\sforum\slink\s(reported\sby\sa\sforum\suser).
+D 2019-06-20T17:02:06.401
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -757,7 +757,7 @@ F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb2
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/admin-v-setup.md 7265c5b11712eb550ef97ce3d73432fb8049b3e18d90e5517b24d1376a5fc03c
 F www/alerts.md a52a27a59aaf2d348ea4446e01be9cd5da66d8fbf134d40c84fd4862c56de701
-F www/antibot.wiki 1d8222c3769a8cd4402989d72db1ca2cf8bf34c64c7be7b2a4032e72297ec084
+F www/antibot.wiki 4fc4c0895c2119a4b5e2275b075c3cb2f7328529a409622155c46581a64e9d14
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md 3488f04c85e593ad2379f3b7d021f558aecec0ffd94edecd6ca1396d2b105e78
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1926d1d5b36366884aafba5cd9f647aff5462c707d5b2710160f43b2fc9e4cc0
-R d43f01a22fbdbb010634ac1d7604fed6
-U wyoung
-Z 5b28ff53986269c3e51baa0f7b1d320c
+P acb5324c7925fa68688887807a5269ff8d1c8769f43d0048cb73611a5bd5aa68
+R 6894195fc5d453782d0bb3f1ae18f90f
+U stephan
+Z f2b9ba4e6774f3939f4ad11a6e8cdaa4

@@ -147,5 +147,5 @@ check back from time to time for the latest releases and updates.
 
 Readers of this page who have suggestions on how to improve the spider
 defenses in Fossil are invited to submit your ideas to the Fossil Users
-mailing list:
-[mailto:fossil-users@lists.fossil-scm.org | fossil-users@lists.fossil-scm.org].
+forum:
+[https://fossil-scm.org/forum].
