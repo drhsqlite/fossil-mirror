@@ -437,18 +437,3 @@ arbitration logic, so that only the branch with the newest checkin gets
 the branch name in the export.
 
 All of the above is true of tags in general, not just branches.
-
-<h2 id="voice">The Authors' Voice</h2>
-
-Above, "we" refers to
-[/blame?udc=1&w=on&checkin=trunk&filename=www%2Fbranching.wiki|the
-historical authors of this file]. It is our collective voice and
-opinions above. As in all walks of life, this is not the only possible
-philosophy, but it is our duty and pleasure in this document to present
-our philosophy to you. You are of course free to adopt or reject as much
-of it as you like. Fossil supports many styles, not just those this
-document's authors prefer. This should go without saying, but we get
-push-back from people who apparently believe all documents on all web
-pages should either support their beliefs, or they are factually wrong.
-Someone is [https://www.xkcd.com/386/|always wrong on the Internet],
-somewhere.  Please don't hold that against us.

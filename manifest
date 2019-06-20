@@ -1,5 +1,5 @@
-C Added\snew\ssection,\s"The\sAuthors'\sVoice"\sto\swww/branching.wiki.\s\sOther\nassorted\simprovements\sas\swell.
-D 2019-06-20T13:32:19.993
+C Removed\s"The\sAuthor's\sVoice"\sfrom\swww/branching.wiki\sdue\sto\smultiple\ncomplaints.
+D 2019-06-20T16:40:30.855
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,7 @@ F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb
 F www/branch04.svg 36a99b8ec3ddae3db8a07b719df1c65852b791bf54a9fcb1df06df8ba6fee334
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
-F www/branching.wiki 77d80c5fdf85d31951786b8082efb198073b03fc9c56c94cc9bb438076a3d10d
+F www/branching.wiki e91a7122844d6ef086c9179c377bb98f6a0719a07910288a7fb2d029847fcf91
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cbca374c37eb1a501dfc75e5595166339ddff1ddf2a3dafb54aece6128b05ce4
-R 3a44465c4382c241ee39a57a3811ea74
+P 2da109981a198bf89b00218f510dc6942c98142fef2e00b1188425880e9c57bd
+R 34ddb27206cec352cf840277cd1ec82b
 U wyoung
-Z f4ae6663a77bb756c80013c0918800a7
+Z 2a4a1fbb2edd01eb9477e33d8cb67f3c
