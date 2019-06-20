@@ -1,5 +1,5 @@
-C Removed\s"The\sAuthor's\sVoice"\sfrom\swww/branching.wiki\sdue\sto\smultiple\ncomplaints.
-D 2019-06-20T16:40:30.855
+C Put\s--allow-fork\sback\sinto\sthe\sfossil\sci\s"would\sfork"\smessage.\nEveryone's\sunhappy\snow.\s:)
+D 2019-06-20T16:46:29.911
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c ae3c6f17b15b2604866bfcf47bee87a2496ff262e0c9706d898883e4aef181f2
+F src/checkin.c b498f4d7d33df349b88ddbe9173fb853c5e57ad66b6bd100d5a635c4eb984b94
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -881,7 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2da109981a198bf89b00218f510dc6942c98142fef2e00b1188425880e9c57bd
-R 34ddb27206cec352cf840277cd1ec82b
+P 1926d1d5b36366884aafba5cd9f647aff5462c707d5b2710160f43b2fc9e4cc0
+R d43f01a22fbdbb010634ac1d7604fed6
 U wyoung
-Z 2a4a1fbb2edd01eb9477e33d8cb67f3c
+Z 5b28ff53986269c3e51baa0f7b1d320c

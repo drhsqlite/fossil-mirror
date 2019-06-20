@@ -2274,8 +2274,8 @@ void commit_cmd(void){
     if( sCiInfo.zBranch==0 ){
       if( allowFork==0 && forceFlag==0 && g.markPrivate==0
         && db_exists("SELECT 1 from event where type='ci'") ){
-        fossil_fatal("would fork.  \"update\" first or use --branch.  See also\n"
-          "https://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching");
+        fossil_fatal("Would fork.  \"update\" first, use --branch, or --allow-fork.\n"
+          "See https://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching");
       }
       sCiInfo.zBranch = db_get("main-branch", "trunk");
     }
@@ -2286,8 +2286,8 @@ void commit_cmd(void){
     ** refuse to see static const char zErr[] = "... as "constant"
     ** enough for a printf() style format string.  (e.g. Clang 10)
     */
-    fossil_fatal("would fork.  \"update\" first or use --branch.  See also\n"
-      "https://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching");
+    fossil_fatal("Would fork.  \"update\" first, use --branch or, --allow-fork.\n"
+      "See https://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching");
   }
 
   /*
