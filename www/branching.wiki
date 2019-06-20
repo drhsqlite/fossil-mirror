@@ -150,7 +150,7 @@ instead of <i>forking</i>:
 <b>Key Distinction:</b> A branch is a <i>named, intentional</i> fork.
 </blockquote>
 
-Forks *may* be intentional, but most of the time, they're accidental.
+Forks <i>may</i> be intentional, but most of the time, they're accidental.
 
 Figure 4 shows an example of a project where there are two branches, one
 for development work and another for testing.
