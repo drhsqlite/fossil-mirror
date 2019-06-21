@@ -10,16 +10,16 @@
         <path d="M-223 -1949 L294 -1949 L294 -1448 L-223 -1448 L-223 -1949 Z"/>
       </clipPath>
       <clipPath clipPathUnits="userSpaceOnUse" id="clipPath3">
-        <path d="M121.3857 -18 L121.3857 499 L-379.6143 499 L-379.6143 -18 L121.3857 -18 Z"/>
+        <path d="M115.2451 -18 L115.2451 499 L-385.7549 499 L-385.7549 -18 L115.2451 -18 Z"/>
       </clipPath>
       <clipPath clipPathUnits="userSpaceOnUse" id="clipPath4">
-        <path d="M230.6973 -18 L230.6973 499 L-270.3027 499 L-270.3027 -18 L230.6973 -18 Z"/>
+        <path d="M226.751 -18 L226.751 499 L-274.249 499 L-274.249 -18 L226.751 -18 Z"/>
       </clipPath>
       <clipPath clipPathUnits="userSpaceOnUse" id="clipPath5">
-        <path d="M340.8975 -18 L340.8975 499 L-160.1025 499 L-160.1025 -18 L340.8975 -18 Z"/>
+        <path d="M342.2891 -18 L342.2891 499 L-158.7109 499 L-158.7109 -18 L342.2891 -18 Z"/>
       </clipPath>
       <clipPath clipPathUnits="userSpaceOnUse" id="clipPath6">
-        <path d="M451.2402 -18 L451.2402 499 L-49.7598 499 L-49.7598 -18 L451.2402 -18 Z"/>
+        <path d="M454.2402 -18 L454.2402 499 L-46.7598 499 L-46.7598 -18 L454.2402 -18 Z"/>
       </clipPath>
     </defs>
     <g fill="rgb(236,245,255)" text-rendering="geometricPrecision" shape-rendering="geometricPrecision" transform="matrix(1,0,0,1,223,1949)" stroke="rgb(236,245,255)">
@@ -46,17 +46,17 @@
     <g font-size="15px" stroke-linecap="butt" transform="matrix(1,0,0,1,223,1949)" text-rendering="geometricPrecision" font-family="sans-serif" shape-rendering="geometricPrecision" stroke-miterlimit="1.45">
       <text x="-107.6299" xml:space="preserve" y="-1913.1641" clip-path="url(#clipPath2)" stroke="none">Varying User Views of Fossil Repository</text>
     </g>
-    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,121.3857)" stroke-linecap="butt">
-      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath3)" stroke="none">User A</text>
+    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,115.2451)" stroke-linecap="butt">
+      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath3)" stroke="none">Alan</text>
     </g>
-    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,230.6973)" stroke-linecap="butt">
-      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath4)" stroke="none">User B</text>
+    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,226.751)" stroke-linecap="butt">
+      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath4)" stroke="none">Betty</text>
     </g>
-    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,340.8975)" stroke-linecap="butt">
-      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath5)" stroke="none">User C</text>
+    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,342.2891)" stroke-linecap="butt">
+      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath5)" stroke="none">Charlie</text>
     </g>
-    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,451.2402)" stroke-linecap="butt">
-      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath6)" stroke="none">User D</text>
+    <g text-rendering="geometricPrecision" stroke-miterlimit="1.45" shape-rendering="geometricPrecision" font-family="sans-serif" transform="matrix(-0,-1,1,-0,18,454.2402)" stroke-linecap="butt">
+      <text x="2" xml:space="preserve" y="13.6016" clip-path="url(#clipPath6)" stroke="none">Darlene</text>
     </g>
     <g fill="white" text-rendering="geometricPrecision" shape-rendering="geometricPrecision" transform="matrix(1,0,0,1,223,1949)" stroke="white">
       <circle r="15" clip-path="url(#clipPath2)" cx="-157" cy="-1760.666" stroke="none"/>

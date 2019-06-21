@@ -390,49 +390,58 @@ shared working branch, such as trunk, though it could be anything else
 that matches those same qualifiers. Each user makes only one check-in,
 shaded light gray.
 
-User A sets the stage for this problem by creating a fork from check-in
-1 as check-in 3. Whether what happens as a result is User A's fault
-depends on why and how that fork occurred. We'll come back to that
-point later. For now, you can ignore the how and why of it.
+Alan sets the stage for this problem by creating a fork from check-in 1
+as check-in 3. This has consequences which will occur regardless of how
+that fork was created, so we can ignore the "how" here.  <i>Why</i> that
+fork was created will matter in [#post-mortem|the <i>post mortem</i>
+below], but we can ignore that for now, too.
 
-User B is sync'd with the same view of the repository as User A, so her
-check-in goes in as a child of the forked check-in 3, that being the
+Betty is sync'd with the same view of the repository as Alan, so her
+check-in goes in as a child of the fork-creating check-in 3, that being the
 latest check-in on the branch at the time.
 
-Meanwhile, User C went offline after syncing his repo with check-in 2 as
+Meanwhile, Charlie went offline after syncing his repo with check-in 2 as
 the latest on that branch. When he checks his changes in, it is as a
-child of 2, not of 4, because User C doesn't know about 3 & 4 yet. Since
-he does this at an absolute wall clock time <i>after</i> Users A and B
-made their check-ins, when User C comes back online and pushes his
-changes to the master repository — and learns about check-ins 3 and 4 at
-the same time, during Fossil sync — User C inadvertently revives the
+child of 2, not of 4, because Charlie doesn't know about check-ins 3 & 4 yet.
+He does this at an absolute wall clock time <i>after</i> Alan and Betty
+made their check-ins, so when Charlie comes back online and pushes his
+check-in 5 to the master repository and learns about check-ins 3 and 4
+during Fossil sync, Charlie inadvertently revives the
 other side of the fork.
 
-User D sees all of this, because she comes along after Users A thru C
+Darlene sees all of this, because she comes along after Alan, Betty, and Charlie
 made their check-ins and pushed them to the master repository. Perhaps
-User D is switching a working directory to this forked branch, or
-perhaps User D is opening a Fossil repo clone into a new working
-directory.  Regardless, it happens after User C pushed his check-in 5 to
-the master repo, so User D sees that as the latest on the branch,
+Darlene is switching a working directory to this forked branch, or
+perhaps Darlene is opening a Fossil repo clone into a new working
+directory.  Regardless, it happens after Charlie pushed his check-in 5 to
+the master repo, so Darlene sees that as the latest on the branch,
 causing her work to be saved as a child of check-in 5, not of check-in
-4, as it would if User C didn't come back online and sync before User D
+4, as it would if Charlie didn't come back online and sync before Darlene
 showed up.
+
+<h3 id="post-mortem">Post Mortem</h3>
 
 The end result of all of this is that everyone makes only one check-in,
 but half of the check-ins are on one side of the fork, and half are on
-the other. Some future User E who shows up can end up on either side of
-the fork. If User E shows up with the state of the repository as drawn
-above, they'll end up on the top side of the fork, because check-in 6 is
-the latest, but if User A or B makes a seventh check-in to that branch
-first, it will be as a child of check-in 4, and because it's the latest,
-User E will end up on the bottom side of the fork instead.
+the other. A future user — his mother calls him Edward, but please call him Eddie —
+can then show up and end up on <i>either</i> side of
+the fork. If Eddie shows up with the state of the repository as drawn
+above, he'll end up on the top side of the fork, because check-in 6 is
+the latest, but if Alan or Betty makes a seventh check-in to that branch
+first, it will be as a child of check-in 4 since that's the version in
+their local check-out directories. Since that check-in 7 will then be the latest,
+Eddie will end up on the bottom side of the fork instead.
 
 In all of this, realize that neither side of the fork is obviously
 "correct." Every participant was doing the right thing by their own
-lights at the time they made their lone check-in. We can only blame User
-A for creating the fork if they did so on purpose, as by passing
+lights at the time they made their lone check-in. We can only blame
+the consequences of creating the fork on Alan 
+if he did so on purpose, as by passing
 "--allow-fork" when creating a check-in on a shared working branch. If
-the fork was created inadvertently, it's no one's fault.
+the fork was created inadvertently, it's no one's fault. 
+
+(Or, perhaps it is <i>everyone's</i> fault for using a DVCS while having
+an unrealistic expectation that forks should never occur.)
 
 This is why forks on shared working branches are bad, which is why
 Fossil tries so hard to avoid them, and why it warns you about it when
