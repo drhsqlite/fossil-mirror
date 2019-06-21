@@ -385,15 +385,12 @@ All users in this diagram start off with the same two checkins at the
 tip of the working branch, 1 and 2, and they're all working towards some
 indefinite, unified future. This is all happening on some long-lived,
 shared working branch, such as trunk, though it could be anything else
-that matches those same qualifiers.
-
-The other key thing to realize in the diagram above is that each user
-makes only one check-in to set this problem up, that being the one
-shaded light gray in each swim lane.
+that matches those same qualifiers. Each user makes only one check-in,
+shaded light gray.
 
 User A sets the stage for this problem by creating a fork from check-in
 1 as check-in 3. Whether what happens as a result is User A's fault
-depends on why and how that branch occurred. We'll come back to that
+depends on why and how that fork occurred. We'll come back to that
 point later. For now, you can ignore the how and why of it.
 
 User B is sync'd with the same view of the repository as User A, so her
