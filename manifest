@@ -1,5 +1,5 @@
-C Replaced\sa\smailing\slist\sreference\swith\sa\sforum\slink\s(reported\sby\sa\sforum\suser).
-D 2019-06-20T17:02:06.401
+C Added\s"How\sCan\sForks\sDivide\sDevelopment\sEffort?"\ssection\sto\nwww/branching.wiki.
+D 2019-06-21T11:45:43.825
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -773,7 +773,9 @@ F www/branch04.graphml 42d24b820a030984e1f13d8340a6494919efe81ab9700616f60987cfb
 F www/branch04.svg 36a99b8ec3ddae3db8a07b719df1c65852b791bf54a9fcb1df06df8ba6fee334
 F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5a341f53
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
-F www/branching.wiki e91a7122844d6ef086c9179c377bb98f6a0719a07910288a7fb2d029847fcf91
+F www/branch06.graphml 71624f409dedd56c8b78398cc007f8e77b2b88b929b4f04e7c5d2762db92163b
+F www/branch06.svg bcff38a50ea3a448bd4baf358ead04fd61f42cf06c4ce17428e4065bd0f19b2a
+F www/branching.wiki e0bbed14c9f8538e37d951b490f1529efcd82383c4f352b18442570b9137b7dd
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -881,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acb5324c7925fa68688887807a5269ff8d1c8769f43d0048cb73611a5bd5aa68
-R 6894195fc5d453782d0bb3f1ae18f90f
-U stephan
-Z f2b9ba4e6774f3939f4ad11a6e8cdaa4
+P 8ddeb17d86327f70264d9c8501efc4edc34e75b02b0d1c77f2652869e7b27d43
+R e8348eefceb1a32fc9afe87a3d23562a
+U wyoung
+Z 140ddd15e874f697d32ab88f5e02f7ad

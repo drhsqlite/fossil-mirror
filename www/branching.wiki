@@ -273,7 +273,7 @@ it is done purely in software in order to avoid losing information:
 That leaves only one case where we can recommend use of "--allow-fork"
 by interactive users: when you're working on
 a personal branch so that creating a dual-tipped branch isn't going to
-cause any other user an inconvenience or risk forking the development.
+cause any other user an inconvenience or risk [#bad-fork|forking the development].
 Only one developer is involved, and the fork may be short-lived, so
 there is no risk of inadvertently forking the overall development effort.
 This is a good alternative to branching when you just need to
@@ -367,6 +367,75 @@ The <b>sym-release-1.0</b> tag means that check-in 9 can be referred to
 using the more meaningful name "release-1.0."  The <b>closed</b> tag means
 that check-in 9 is a "closed leaf."  A closed leaf is a leaf that should
 never have direct children.
+
+<h2 id="bad-fork">How Can Forks Divide Development Effort?</h2>
+
+[#forking|Above], we stated that forks carry a risk that development
+effort on a branch can be divided among the forks. It might not be
+immediately obvious why this is so. To see it, consider this swim lane
+diagram:
+
+<table border=1 cellpadding=10 hspace=10 vspace=10 align="center">
+<tr><td align="center">
+<img src="branch06.svg"><br>
+Figure 6
+</td></tr></table>
+
+All users in this diagram start off with the same two checkins at the
+tip of the working branch, 1 and 2, and they're all working towards some
+indefinite, unified future. This is all happening on some long-lived,
+shared working branch, such as trunk, though it could be anything else
+that matches those same qualifiers.
+
+The other key thing to realize in the diagram above is that each user
+makes only one check-in to set this problem up, that being the one
+shaded light gray in each swim lane.
+
+User A sets the stage for this problem by creating a fork from check-in
+1 as check-in 3.  It doesn't matter how this happens or why.
+
+User B is sync'd with the same view of the repository as User A, so her
+check-in goes in as a child of the forked check-in 3, that being the
+latest check-in on the branch at the time.
+
+Meanwhile, User C went offline after syncing his repo, so he still sees
+check-ins 1 and 2 as the lastest on the branch. When he checks his
+latest work in <i>after</i> User B makes her check-in, it's a child of
+check-in 2, the latest on that branch at the time User C went offline.
+User C doesn't learn about check-ins 3 and 4 until after coming back
+online, syncing, and thus publishing his check-in 5 on the other side of
+the fork.
+
+User D sees all of this, because she comes along after Users A thru C
+made their check-ins and pushed them to the master repository. Perhaps
+User D is switching a working directory to this forked branch, or
+perhaps User D is opening a Fossil repo clone into a new working
+directory.  Regardless, it happens after User C pushed his check-in 5 to
+the master repo, so User D sees that as the latest on the branch,
+causing her work to be saved as a child of check-in 5, not of check-in
+4, as it would if User C didn't come back online and sync before User D
+showed up.
+
+The end result of all of this is that everyone makes only one check-in,
+but half of the check-ins are on one side of the fork, and half are on
+the other. Some future User E who shows up can end up on either side of
+the fork. If User E shows up with the state of the repository as drawn
+above, they'll end up on the top side of the fork, because check-in 6 is
+the latest, but if User A or B makes a seventh check-in to that branch
+first, it will be as a child of check-in 4, and because it's the latest,
+User E will end up on the bottom side of the fork instead.
+
+In all of this, relalize that neither side of the fork is obviously
+"correct." Every participant was doing the right thing by their own
+lights at the time they made their lone check-in. We can only blame User
+A for creating the fork if they did so on purpose, as by passing
+"--allow-fork" when creating a check-in on a shared working branch. If
+the fork was created inadvertently, it's no one's fault.
+
+This is why forks on shared working branches are bad, which is why
+Fossil tries so hard to avoid them, and why it warns you about it when
+they do occur.
+
 
 <h2>Review Of Terminology</h2>
 
