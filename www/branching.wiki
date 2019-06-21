@@ -398,7 +398,7 @@ check-in goes in as a child of the forked check-in 3, that being the
 latest check-in on the branch at the time.
 
 Meanwhile, User C went offline after syncing his repo, so he still sees
-check-ins 1 and 2 as the lastest on the branch. When he checks his
+check-ins 1 and 2 as the latest on the branch. When he checks his
 latest work in <i>after</i> User B makes her check-in, it's a child of
 check-in 2, the latest on that branch at the time User C went offline.
 User C doesn't learn about check-ins 3 and 4 until after coming back
