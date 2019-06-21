@@ -1,5 +1,5 @@
-C Clarified\sUser\sC's\sview\sof\sthe\sbad-fork\ssituation\sin\sbranching.wiki.
-D 2019-06-21T12:09:35.752
+C Better\sinternal\slinks\sin\swww/branching.wiki\sto\sthe\snew\s"How\sCan\sForks\nDivide\sDevelopment\sEffort?"\ssection.\s\sAlso\sadded\sa\sWikipedia\slink\sfor\n"DVCS".
+D 2019-06-21T12:20:26.245
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -775,7 +775,7 @@ F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
 F www/branch06.graphml 71624f409dedd56c8b78398cc007f8e77b2b88b929b4f04e7c5d2762db92163b
 F www/branch06.svg bcff38a50ea3a448bd4baf358ead04fd61f42cf06c4ce17428e4065bd0f19b2a
-F www/branching.wiki f6be41da2993e0df0a8ef6969aab811e4f4e1fa6c25fc7b2404609716c12d1a0
+F www/branching.wiki 06b8936311b76ffb626ede0dac89b1e9df770831ed5fbc88752799f8d96d3267
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c16f7cb67c42614c1592b06dc6da10b7981d9edc2406c2832873e7a14af60832
-R 961765e32d3e78c023d3ac441bca2cc6
+P 8a794a5dabdff78f23e09abc946dd2ebd4d6ff1dae333da5e1655d7c5d5367dc
+R eccd46e8bd7029e654d252115db2a673
 U wyoung
-Z db927b531a5346ab488b3aed382309b8
+Z fa43861650398b2beec23a917e471f30

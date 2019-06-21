@@ -255,10 +255,12 @@ it is done purely in software in order to avoid losing information:
     distributed way like this, that check-ins be made only to the master
     or its immediate child repos, and that those further down the chain
     be read-only clones. This is not to say that we repudiate Fossil's
-    use as a Distributed Version Control System, just that such use is
-    prone to creating forks, by the nature of distributed development.
-    We hope we've made it clear in this document why forks on long-lived
-    shared working branches are a problem.</p></li>
+    use as a
+    [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System],
+    just that such use is
+    prone to creating inadvertent forks by the very nature of distributed development.
+    We make a more complete argument that [#bad-fork|forks on long-lived
+    shared working branches are a problem] below.</p></li>
 
     <li><p>You've automated Fossil (e.g. with a shell script) and
     forking is a possibility, so you write <b>fossil commit
@@ -273,9 +275,9 @@ it is done purely in software in order to avoid losing information:
 That leaves only one case where we can recommend use of "--allow-fork"
 by interactive users: when you're working on
 a personal branch so that creating a dual-tipped branch isn't going to
-cause any other user an inconvenience or risk [#bad-fork|forking the development].
+cause any other user an inconvenience or risk forking the development.
 Only one developer is involved, and the fork may be short-lived, so
-there is no risk of inadvertently forking the overall development effort.
+there is no risk of [#bad-fork|inadvertently forking the overall development effort].
 This is a good alternative to branching when you just need to
 temporarily fork the branch's development. It avoids cluttering the
 global branch namespace with short-lived temporary named branches.
