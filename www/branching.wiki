@@ -392,7 +392,9 @@ makes only one check-in to set this problem up, that being the one
 shaded light gray in each swim lane.
 
 User A sets the stage for this problem by creating a fork from check-in
-1 as check-in 3.  It doesn't matter how this happens or why.
+1 as check-in 3. Whether what happens as a result is User A's fault
+depends on why and how that branch occurred. We'll come back to that
+point later. For now, you can ignore the how and why of it.
 
 User B is sync'd with the same view of the repository as User A, so her
 check-in goes in as a child of the forked check-in 3, that being the
