@@ -497,7 +497,7 @@ in the SQLite and Fossil repositories: "broken-build," "declined,"
 "mistake," etc. As you might guess from these names, such branch names
 are used in renaming the tip of one branch to shunt it off away from the
 mainline of that branch due to some human error. (See <b>fossil
-amend</b> and the Fossil UI checkin ammendment features.) This is a
+amend</b> and the Fossil UI checkin amendment features.) This is a
 workaround for Fossil's [./shunning.wiki|normal inability to forget
 history]: we usually don't want to actually <i>remove</i> history, but
 would like to sometimes set some of it aside under a new label.
