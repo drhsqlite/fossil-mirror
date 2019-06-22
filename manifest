@@ -1,5 +1,5 @@
-C Gave\sUsers\sA\sthru\sE\shuman\snames,\sand\shumanized\stheir\sstory\sa\sbit\sin\sthe\nbranching.wiki\sarticle.
-D 2019-06-21T13:19:05.828
+C More\sclarifications\sin\sthe\s"How\sCan\sForks\sDivide\sDevelopment\sEffort?"\nsection\sof\sbranching.wiki,\sprimarily\sin\sexplaining\show\seach\suser\sin\sthe\nexample\sarrives\sat\sthe\sview\sshown\sin\sthe\sswim\slane\sdiagram.\s\sThere\swere\nmultiple\simplicit\spossilibities\sbefore,\sand\ssome\swere\smisinterpreting\nit.
+D 2019-06-22T03:46:07.104
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -775,7 +775,7 @@ F www/branch05.graphml 5c46f571bb7adfd3c4523bfd4edbe1d3c30a361f643b51f1542941fb5
 F www/branch05.svg 9ff6ebac914e440b6b1ac56f51984a4beb9969502752ccb3626905a4aef0cbb0
 F www/branch06.graphml 7a1a988adf9c0266df256eaa2d4b31d11dc3a3cb78c67ea7d7485a97b916c89d
 F www/branch06.svg 903aac73e9ff954950b50e9ed0f39ddc35331c5cd6dc5f1c4c2aa592d3523ca8
-F www/branching.wiki 668173f92f04ad1cc733a0d33b3e8af0c1e7e7e5efae503b05433eef48211f12
+F www/branching.wiki bc0524c37d0fc1b1284a1b7f02737248ef37fed282b081197e70c882ad4d5951
 F www/bugtheory.wiki 786bcb265b8043c41f5985167d88b57866e5a652
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 856c95654b3b3fa0710e7b501f88b35fe43bbe8c7b326182fe654f501530d34c
-R c353c7cb2486c771e633c64e52e37cc3
+P 2ac5bc3c3000288b9660a8b06393a6a2830a126b3f412e81f1c04987a7bb0cac
+R d944d48b059aa9e6413fe486443ea8e7
 U wyoung
-Z a22c36545a7c38229418c18ba3f13f77
+Z 243722384d3a2859bf8694ea7d342b47
