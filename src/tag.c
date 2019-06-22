@@ -416,10 +416,15 @@ void tag_add_artifact(
 **           -t|--type TYPE  One of "ci", or "e".
 **           -n|--limit N    Limit to N results.
 **
-**     %fossil tag list|ls ?--raw? ?CHECK-IN?
+**     %fossil tag list|ls ?OPTIONS? ?CHECK-IN?
 **
 **         List all tags, or if CHECK-IN is supplied, list
-**         all tags and their values for CHECK-IN.
+**         all tags and their values for CHECK-IN.  The tagtype option
+**         takes one of: propagated, singleton, cancel.
+**
+**         Options:
+**           --raw           List tags raw names of tags
+**           --tagtype TYPE  List only tags of type TYPE
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -546,13 +551,29 @@ void tag_cmd(void){
   if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
     int fRaw = find_option("raw","",0)!=0;
+    const char *zTagType = find_option("tagtype","t",1);
+    int nTagType = fRaw ? -1 : 0;
+    if( zTagType!=0 ){
+      int l = strlen(zTagType);
+      if( strncmp(zTagType,"cancel",l)==0 ){
+        nTagType = 0;
+      }else if( strncmp(zTagType,"singleton",l)==0 ){ 
+        nTagType = 1;
+      }else if( strncmp(zTagType,"propagated",l)==0 ){ 
+        nTagType = 2;
+      }else{
+        fossil_fatal("unrecognized tag type");
+      }
+    }
     if( g.argc==3 ){
       db_prepare(&q,
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
-        "                 AND tagtype>0)"
-        " ORDER BY tagname"
+        "                 AND tagtype%c%d)"
+        " ORDER BY tagname",
+        zTagType!=0 ? '=' : '>',
+        nTagType
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
@@ -568,10 +589,11 @@ void tag_cmd(void){
       db_prepare(&q,
         "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND tagtype>%d"
+        "   AND tagtype%c%d"
         " ORDER BY tagname",
         rid,
-        fRaw ? -1 : 0
+        zTagType!=0 ? '=' : '>',
+        nTagType
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
@@ -588,7 +610,7 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      usage("list ?CHECK-IN?");
+      usage("list ?OPTIONS? ?CHECK-IN?");
     }
   }else
   {
