@@ -1,5 +1,5 @@
-C Replaced\sa\smailing\slist\sreference\swith\sa\sforum\slink\s(reported\sby\sa\sforum\suser).
-D 2019-06-20T17:02:06.401
+C When\sdoing\sa\scommit\swith\sautosync\senabled,\sthe\sfirst\sautosync\snow\stakes\na\stemporary\s(24-hour)\slock\son\sthe\sbaseline\scommit\sin\sorder\sto\sprevent\sany\nother\sconnected\suser\sfrom\ssimultaneously\scommitting\sand\screating\san\naccidental\sfork.
+D 2019-06-22T14:54:50.385
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c b498f4d7d33df349b88ddbe9173fb853c5e57ad66b6bd100d5a635c4eb984b94
+F src/checkin.c 6c33e12ad3f6b61a6b88cf19a6f179864c3d9a84381b221c6f2b7fb1669474d9
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -516,7 +516,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c cf87900af15f738b97eb35d685a787a7b9295eb6a698c30210eb57bfeaebde6e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 8d9040c6f22030a7316a97fae2513bc7324ff113694be72bb867a8c95ef47f1a
+F src/main.c 5b41fa0d67f806d9051db9d1f508c29aa7b224307d089aef078ddc12ed90b247
 F src/main.mk fe53efb1afb2d1cbde3e626cbf03751db72493c59cc168c2d3dc0415d04c0147
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -604,7 +604,7 @@ F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 150bd6240464bbe50165aab2122e2f54fda2e88a71362ec26f3f5a53f0eb65cc
+F src/xfer.c b987391e5403678d4d218e9a3f85922e4a22d20c139872f51358bda9d09dca41
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -881,7 +881,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acb5324c7925fa68688887807a5269ff8d1c8769f43d0048cb73611a5bd5aa68
-R 6894195fc5d453782d0bb3f1ae18f90f
-U stephan
-Z f2b9ba4e6774f3939f4ad11a6e8cdaa4
+P 8ddeb17d86327f70264d9c8501efc4edc34e75b02b0d1c77f2652869e7b27d43
+R 4acf26d9f9172ae9e8afabd0b03f3acf
+T *branch * no-race-commit
+T *sym-no-race-commit *
+T -sym-trunk *
+U drh
+Z 382e98636b0e3105ae1a98079e96ce64

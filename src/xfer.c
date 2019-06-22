@@ -1547,6 +1547,58 @@ void page_xfer(void){
         }
         uvCatalogSent = 1;
       }
+
+      /*   pragma ci-lock CHECKIN-HASH CLIENT-ID
+      **
+      ** The client wants to make non-branch commit against the check-in
+      ** identified by CHECKIN-HASH.  The server will remember this and
+      ** subsequent ci-lock request from different clients will generate
+      ** a ci-lock-fail pragma in the reply.
+      */
+      if( blob_eq(&xfer.aToken[1], "ci-lock")
+       && xfer.nToken==4
+       && blob_is_hname(&xfer.aToken[2])
+      ){
+        Stmt q;
+        sqlite3_int64 iNow = time(0);
+        int seenFault = 0;
+        db_prepare(&q,
+          "SELECT json_extract(value,'$.login'),"
+          "       mtime,"
+          "       json_extract(value,'$.clientid'),"
+          "       (SELECT rid FROM blob WHERE uuid=substr(name,9)),"
+          "       name"
+          " FROM config WHERE name GLOB 'ci-lock-*'"
+        );
+        while( db_step(&q)==SQLITE_ROW ){
+          int x = db_column_int(&q,3);
+          const char *zName = db_column_text(&q,4);
+          if( db_column_int64(&q,1)<iNow-3600*24 || !is_a_leaf(x) ){
+            /* check-in locks expire after 24 hours, or when the check-in
+            ** is no longer a leaf */
+            db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+            continue;
+          }
+          if( fossil_strcmp(zName+8, blob_str(&xfer.aToken[2]))==0 ){
+            const char *zClientId = db_column_text(&q, 2);
+            const char *zLogin = db_column_text(&q,0);
+            sqlite3_int64 mtime = db_column_int64(&q, 1);
+            if( fossil_strcmp(zClientId, blob_str(&xfer.aToken[3]))!=0 ){
+              @ pragma ci-lock-fail %F(zLogin) %lld(mtime)
+            }
+            seenFault = 1;
+          }
+        }
+        db_finalize(&q);
+        if( !seenFault ){
+          db_multi_exec(
+            "REPLACE INTO config(name,value,mtime)"
+            "VALUES('ci-lock-%q',json_object('login',%Q,'clientid',%Q),now())",
+            blob_str(&xfer.aToken[2]), g.zLogin,
+            blob_str(&xfer.aToken[3])
+          );
+        }
+      }
     }else
 
     /* Unknown message
@@ -1657,6 +1709,7 @@ static const char zBriefFormat[] =
 #define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
 #define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
 #define SYNC_IFABLE         0x0800    /* Inability to sync is not fatal */
+#define SYNC_CKIN_LOCK      0x1000    /* Lock the current check-in */
 #endif
 
 /*
@@ -1710,6 +1763,7 @@ int client_sync(
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
   sqlite3_int64 mtime;    /* Modification time on a UV file */
   int autopushFailed = 0; /* Autopush following commit failed if true */
+  const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
@@ -1750,6 +1804,14 @@ int client_sync(
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
     blob_append(&send, "pragma send-private\n", -1);
+  }
+
+  /* Figure out which check-in to lock */
+  if( syncFlags & SYNC_CKIN_LOCK ){
+    int vid = db_lget_int("checkout",0);
+    zCkinLock = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  }else{
+    zCkinLock = 0;
   }
 
   /* When syncing unversioned files, create a TEMP table in which to store
@@ -1912,6 +1974,18 @@ int client_sync(
         db_finalize(&uvq);
         if( rc==SQLITE_DONE ) uvDoPush = 0;
       }
+    }
+
+    /* Lock the current check-out */
+    if( zCkinLock ){
+      const char *zClientId;
+      zClientId = db_lget("client-id", 0);
+      if( zClientId==0 ){
+        zClientId = db_text(0, "SELECT lower(hex(randomblob(20)))");
+        db_lset("client-id", zClientId);
+      }
+      blob_appendf(&send, "pragma ci-lock %s %s\n", zCkinLock, zClientId);
+      zCkinLock = 0;
     }
 
     /* Append randomness to the end of the message.  This makes all
@@ -2272,6 +2346,21 @@ int client_sync(
           if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
           uvDoPush = 1;
+        }
+
+        /*    pragma ci-lock-fail  USER-HOLDING-LOCK  LOCK-TIME
+        **
+        ** The server generates this message when a "pragma ci-lock"
+        ** is attempted on a check-in for which there is an existing
+        ** lock.  USER-HOLDING-LOCK is the name of the user who originated
+        ** the lock, and LOCK-TIME is the timestamp (seconds since 1970)
+        ** when the lock was taken.
+        */
+        else if( blob_eq(&xfer.aToken[1], "ci-lock-fail") && xfer.nToken==4 ){
+          char *zUser = blob_terminate(&xfer.aToken[2]);
+          defossilize(zUser);
+          fossil_print("Parent check-in locked by %s\n", zUser);
+          g.ckinLockFail = 1;
         }
       }else
 
