@@ -1,5 +1,5 @@
-C Upgrade\sto\sopenssl\s1.1.1c.\sUse\ssingle-argument\s"expr"\sin\sauto.def.\sUpdate\scustom\smingw\smakefile.
-D 2019-06-27T14:39:40.682
+C commit\sfrom\sworkarea2
+D 2019-06-27T21:22:09.079
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -748,6 +748,10 @@ F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 685e884752132aa4ed9b705d6f77624dc687826729109f1675590d13aa0020d6
 F win/include/dirent.h d816b0827f01a037d1ad01331f25bc940a84439685454d0b4f32ceeb5bee32cc x
 F win/include/unistd.h de304af8b95751f25cf1e45ed25a4a500089b191eab9e51c2eba9fb8d6bf0709
+F workarea2/workarea2.txt bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd3d
+F workarea3/workarea3.txt bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd3d
+F workarea4/workarea4.txt bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd3d
+F workarea5/workarea5.txt bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd3d
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
@@ -883,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70a7db80f577f963a5684e52940f92e7fd55576277ddbc76256a8d84be853380
-R 4211e6a2c58d98720d4cef71c18280e5
-U jan.nijtmans
-Z 61a2f9c91900f47c2081bf256df22ff9
+P 5050132815737a54cbbbdaf76676f99c23206751d2b5b73f3be539a56f49bd97
+R ff44a7f56d762f458f7ce9b700ae1702
+U wyoung
+Z 2eb41e687f4bce289755bf853146bee2
