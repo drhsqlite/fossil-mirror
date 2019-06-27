@@ -1,5 +1,5 @@
-C When\sdoing\sa\scommit\swith\sautosync\senabled,\sthe\sfirst\sautosync\snow\stakes\na\stemporary\s(24-hour)\slock\son\sthe\sbaseline\scommit\sin\sorder\sto\sprevent\sany\nother\sconnected\suser\sfrom\ssimultaneously\scommitting\sand\screating\san\naccidental\sfork.
-D 2019-06-22T14:54:50.385
+C Because\sthe\ssync\sstatus\supdates\sall\soccur\son\sthe\ssame\sline\smake\sthis\sclient\nwarning\sshow\sup\son\sits\sown\sline\sso\sthe\soutput\sdoesn't\sget\scluttered.
+D 2019-06-27T03:54:52.738
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -604,7 +604,7 @@ F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d79
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c b987391e5403678d4d218e9a3f85922e4a22d20c139872f51358bda9d09dca41
+F src/xfer.c badbfa6daed696171a581115f4c79ad4970fe1bbfeb7a236e52b05df3d806028
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -881,10 +881,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ddeb17d86327f70264d9c8501efc4edc34e75b02b0d1c77f2652869e7b27d43
-R 4acf26d9f9172ae9e8afabd0b03f3acf
-T *branch * no-race-commit
-T *sym-no-race-commit *
-T -sym-trunk *
-U drh
-Z 382e98636b0e3105ae1a98079e96ce64
+P 222fc681194147c9dfb0da8729f8946329a475de9d0c849fc7991f7cd53404a6
+R fbf2bbd18f424ec9b316bf13aad6320f
+U andybradford
+Z 6128c2fd07eab8052479be49d751d526

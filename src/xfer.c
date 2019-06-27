@@ -2359,7 +2359,7 @@ int client_sync(
         else if( blob_eq(&xfer.aToken[1], "ci-lock-fail") && xfer.nToken==4 ){
           char *zUser = blob_terminate(&xfer.aToken[2]);
           defossilize(zUser);
-          fossil_print("Parent check-in locked by %s\n", zUser);
+          fossil_print("\nParent check-in locked by %s\n", zUser);
           g.ckinLockFail = 1;
         }
       }else
