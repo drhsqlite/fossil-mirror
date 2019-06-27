@@ -236,33 +236,46 @@ The primary cases where forking is justified over branching are all when
 it is done purely in software in order to avoid losing information:
 
 <ol>
-    <li><p>By Fossil itself when two users check in children to the same
+    <li><p id="offline">By Fossil itself when two users check in children to the same
     leaf of a branch, as in Figure 2.  If the fork occurs because
     autosync is disabled on one or both of the repositories or because
     the user doing the check-in has no network connection at the moment
     of the commit, Fossil has no way of knowing that it is creating a
     fork until the two repositories are later sync'd.</p></li>
 
-    <li><p>By Fossil when the cloning hierarchy is more than 2 levels
-    deep. If your master repository is cloned by user A and then user B
-    clones from user A's repository, a check-in by user B will cause
-    that repo to attempt an autosync with user A's repo before allowing
-    the checkin, but it will <i>not</i> check with the master repo as
-    well. It isn't until user A syncs her repo with the
-    master repo that an inadvertent fork can be detected.
+    <li><p id="dist-clone">By Fossil when the cloning hierarchy is more
+    than 2 levels deep.
     <br><br>
-    Because of this, we recommend that if you're using Fossil in a
-    distributed way like this, that check-ins be made only to the master
-    or its immediate child repos, and that those further down the chain
-    be read-only clones. This is not to say that we repudiate Fossil's
-    use as a
-    [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed Version Control System],
-    just that such use is
-    prone to creating inadvertent forks by the very nature of distributed development.
-    We make a more complete argument that [#bad-fork|forks on long-lived
-    shared working branches are a problem] below.</p></li>
+    [./sync.wiki|Fossil's synchronication protocol] is a two-party
+    negotiation; syncs don't automatically propagate up the clone tree
+    beyond that. Because of that, if you have a master repository and
+    Alice clones it, then Bobby clones from Alice's repository, a
+    check-in by Bobby that autosyncs with Alice's repo will <i>not</i>
+    also autosync with the master repo. The master doesn't get a copy of
+    Bobby's checkin until Alice <i>separately</i> syncs with the master.
+    If Carol cloned from the master repo and checks something in that
+    creates a fork relative to Bobby's check-in, the master repo won't
+    know about that fork until Alice syncs her repo with the master.
+    Even then, realize that Carol still won't know about the fork until
+    she subsequently syncs with the master repo.
+    <br><br>
+    One way to deal with this is to just accept it as a fact of using a
+    [https://en.wikipedia.org/wiki/Distributed_version_control|Distributed
+    Version Control System] like Fossil.
+    <br><br>
+    Another option, which we recommend you consider carefully, is to
+    make it a local policy that checkins be made only against the master
+    repo or one of its immediate child clones so that the autosync
+    algorithm can do its job most effectively; any clones deeper than
+    that should be treated as read-only and thus get a copy of the new
+    state of the world only once these central repos have negotiated
+    that new state. This policy avoids a class of inadvertent fork you
+    might not need to tolerate.  Since [#bad-fork|forks on long-lived
+    shared working branches can end up dividing a team's development
+    effort], a team may easily justify this restriction on distributed
+    cloning.</p></li>
 
-    <li><p>You've automated Fossil (e.g. with a shell script) and
+    <li><p id="automation">You've automated Fossil (e.g. with a shell script) and
     forking is a possibility, so you write <b>fossil commit
     --allow-fork</b> commands to prevent Fossil from refusing the
     check-in because it would create a fork.  It's better to write such
@@ -372,7 +385,7 @@ never have direct children.
 
 <h2 id="bad-fork">How Can Forks Divide Development Effort?</h2>
 
-[#forking|Above], we stated that forks carry a risk that development
+[#dist-clone|Above], we stated that forks carry a risk that development
 effort on a branch can be divided among the forks. It might not be
 immediately obvious why this is so. To see it, consider this swim lane
 diagram:
@@ -383,22 +396,33 @@ diagram:
 Figure 6
 </td></tr></table>
 
-All users in this diagram start off with the same two checkins at the
-tip of the working branch, 1 and 2, they're all cloned directly from the
-same master repository, and they're all working towards some indefinite,
-unified future. This is a happy, cooperating team, with no malice or
-selfishness in sight. This is all happening on some long-lived, shared
-working branch, such as trunk, though it could be anything else that
-matches those same qualifiers. Each user makes only one check-in, shaded
-light gray.
+This is a happy, cooperating team. That is an important restriction on
+our example, because you must understand that this sort of problem can
+arise without any malice, selfishness, or willful ignorance in sight.
+All users on this diagram start out with the same view of the
+repository, cloned from the same master repo, and all of them are
+working toward their shared vision of a unified future.
 
-<a name="bf-alan"></a>Alan sets the stage for this problem by creating a
-fork from check-in 1 as check-in 3. This has consequences which will
-occur regardless of how or why that fork occurred, so we can ignore both
-questions for now.  We'll come back to these questions later in
-[#post-mortem|the <i>post mortem</i> below].
+All users, except possibly Alan, start out with the same two initial
+checkins in their local working clones, 1 & 2. It might be that Alan
+starts out with only check-in 1 in his local clone, but we'll deal with
+that detail later.
 
-<a name="bf-betty"></a>Because Betty's local clone is autosyncing with
+It doesn't matter which branch this happy team is working on, only that
+it be a long-lived shared working branch like trunk. Each user makes
+only one check-in, shaded light gray in the diagram.
+
+<h3 id="bf-alan">Step 1: Alan</h3>
+
+Alan sets the stage for this problem by creating a
+fork from check-in 1 as check-in 3. How and why Alan did this doesn't
+affect what happens next, though we will walk through the possible cases
+and attempt to assign blame [#post-mortem|in the <i>post mortem</i>].
+For now, you can assume that Alan did this out of unavoidable ignorance.
+
+<h3 id="bf-betty">Step 2: Betty</h3>
+
+Because Betty's local clone is autosyncing with
 the same upstream repository as Alan's clone, there are a number of ways
 she can end up seeing Alan's check-in 3 as the latest on that branch:
 
@@ -406,9 +430,9 @@ she can end up seeing Alan's check-in 3 as the latest on that branch:
     <li><p>The working check-out directory she's using at the moment was
     on a different branch at the time Alan made check-in 3, so Fossil
     sees that as the tip at the time she switches her working directory
-    to that branch with a <b>fossil update</b> command. (There is an
-    implicit autosync before <b>update</b> if that option is enabled at
-    the time.)</p></li>
+    to that branch with a <b>fossil update $BRANCH</b> command. (There is an
+    implicit autosync in that command, if the option was enabled at the
+    time of the update.)</p></li>
 
     <li><p>The same thing, only in a fresh checkout directory with a
     <b>fossil open $REPO $BRANCH</b> command.</p></li>
@@ -425,10 +449,13 @@ she can end up seeing Alan's check-in 3 as the latest on that branch:
 </ol>
 
 For our purposes here, it doesn't really matter which one happened. All
-that matters is that this new branch tip becomes the parent of Betty's
-check-in 4.
+that matters is that Alan's check-in 3 becomes the parent of Betty's
+check-in 4 because it was the newest tip of the working branch at the
+time Betty does her check-in.
 
-<a name="bf-charlie"></a>Meanwhile, Charlie went offline after syncing
+<h3 id="bf-charlie">Step 3: Charlie</h3>
+
+Meanwhile, Charlie went offline after syncing
 his repo with check-in 2 as the latest on that branch. When he checks
 his changes in, it is as a child of 2, not of 4, because Charlie doesn't
 know about check-ins 3 & 4 yet.  He does this at an absolute wall clock
@@ -437,7 +464,9 @@ comes back online and pushes his check-in 5 to the master repository and
 learns about check-ins 3 and 4 during Fossil sync, Charlie inadvertently
 revives the other side of the fork.
 
-<a name="bf-darlene"></a>Darlene sees all of this, because she joins in
+<h3 id="bf-darlene">Step 4: Darlene</h3>
+
+Darlene sees all of this, because she joins in
 on the work on this branch after Alan, Betty, and Charlie made their
 check-ins and pushed them to the master repository. She's taking one of
 the same three steps as we [#bf-betty|outlined for Betty above].
@@ -449,9 +478,12 @@ before Darlene started work on that branch up.
 
 <h3 id="post-mortem">Post Mortem</h3>
 
-The end result of all of this is that everyone makes only one check-in,
-but half of the check-ins are on one side of the fork, and half are on
-the other. A future user — his mother calls him Edward, but please call him Eddie —
+The end result of all of this is that even though everyone makes only one check-in
+and no one disables autosync without genuine need,
+half of the check-ins end up on one side of the fork and half on
+the other.
+
+A future user — his mother calls him Edward, but please call him Eddie —
 can then join in on the work on this branch and end up on <i>either</i> side of
 the fork. If Eddie joins in with the state of the repository as drawn
 above, he'll end up on the top side of the fork, because check-in 6 is
@@ -483,16 +515,17 @@ create a fork, and none of them chose a side in this fork to participate
 in. They just took Fossil's default and assumed it was correct.
 
 The only blame I can assign here is on any of these users who believed
-forks couldn't happen before this did occur, and that's for their
-ignorance. (Which isn't you, dear reader, now.) Any time someone can
-work without getting full coordination from every other clone of the
-repo, forks are possible.  Given enough time, they're all but
-inevitable.
+forks couldn't happen before this did occur, and I blame them only for
+their avoidable ignorance. (You, dear reader, have been ejected from
+that category by reading this very document.) Any time someone can work
+without getting full coordination from every other clone of the repo,
+forks are possible.  Given enough time, they're all but inevitable. This
+is a general property of DVCSes, not just of Fossil.
 
 This sort of consequence is why forks on shared working branches are
-bad, which is why Fossil tries so hard to avoid them, why it warns you
-about it when they do occur, and why it makes it relatively quick and
-painless to fix them when they do occur.
+bad, which is why [./concepts.wiki#workflow|Fossil tries so hard to avoid them], why it warns you
+about it when they do occur, and why it makes it relatively [#fix|quick and
+painless to fix them] when they do occur.
 
 
 <h2>Review Of Terminology</h2>
