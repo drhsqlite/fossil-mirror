@@ -409,7 +409,8 @@ starts out with only check-in 1 in his local clone, but we'll deal with
 that detail later.
 
 It doesn't matter which branch this happy team is working on, only that
-it be a long-lived shared working branch like trunk. Each user makes
+our example makes the most sense if you think of it as a long-lived shared
+working branch like trunk. Each user makes
 only one check-in, shaded light gray in the diagram.
 
 <h3 id="bf-alan">Step 1: Alan</h3>
@@ -474,7 +475,7 @@ Regardless of her path to this view, it happens after Charlie pushed his
 check-in 5 to the master repo, so Darlene sees that as the latest on the
 branch, causing her work to be saved as a child of check-in 5, not of
 check-in 4, as it would if Charlie didn't come back online and sync
-before Darlene started work on that branch up.
+before Darlene started work on that branch.
 
 <h3 id="post-mortem">Post Mortem</h3>
 
