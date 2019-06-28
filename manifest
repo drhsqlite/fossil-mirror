@@ -1,5 +1,5 @@
-C Small\sfixes\sto\sbranching.wiki
-D 2019-06-27T23:37:08.938
+C Added\sthe\s--save-http-url-password\soption\sto\sthe\sclone\scommand\sto\smake\nit\sskip\sthe\s"remember\spassword\s(Y/n)?"\sprompt\sif\sthe\spassword\swas\sgiven\nin\san\sHTTP\sURL.\s\sWe\savoid\sthis\sfor\sssh://\sURLs\ssince\syou\shave\spre-shared\nkeys,\sSSH\sagents,\sand\ssuch\sto\savoid\sthe\sneed\sin\sthat\scase.\s\sWithout\sthis\nfeature,\syou\scan't\sscript\saround\sit\sby\spiping\s"echo\sy"\sthrough\sthe\ncommand\sbecause\sthe\s"remember\spassword"\sfeature\sas\sof\strunk\sonly\sworks\nwhen\sisatty(0),\swhich\swill\sbe\sfalse\swhen\sFossil\sis\sdownstream\sfrom\sa\npipe\slike\sthat.
+D 2019-06-28T07:23:33.625
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -448,7 +448,7 @@ F src/checkin.c b498f4d7d33df349b88ddbe9173fb853c5e57ad66b6bd100d5a635c4eb984b94
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 281cbed355be5d1eb030a7ed05da84c1a730a5fefadc15b6a12e34293b8903ac
+F src/clone.c 86d5b642873bd148f038d5e57c3e75b6c26bea6b66c1f97fd2d34dc10c3d0a25
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
@@ -590,7 +590,7 @@ F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
 F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
 F src/unversioned.c 3a7cb905cf2780768438dd8dd3be54fc4f8ec53579fbc67fe44ad0d835258c39
 F src/update.c de5656bccb4f8aa497864188634cbb533161d76b95d39a5cb735623e44b09654
-F src/url.c d12b5af2810f06b6d4840a10217bc8450df4533cd7695cdce9d41f7b7fb7daed
+F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c 86d00e5048f1d1ca7240f08b183d16898db36e16b8757e4817898866ce406767
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
@@ -883,7 +883,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 862b77b69aae9e0b1c7eb49135342a982b51e9840b84bf759894c6a981dd8b89
-R 3e0c73a3e1f99e9b29455da969bede95
+P cdd5e576dddb052db3e1a2a2f71cc9e26bd19305ceb5e206973d72cf60a78423
+R ae169c96e4417fd374d25f4bfede1ed5
+T *branch * save-http-url-password
+T *sym-save-http-url-password *
+T -sym-trunk *
 U wyoung
-Z 40bf287f775358b062a96659a6b79a13
+Z a66c930050460dea244a678342a58fed
