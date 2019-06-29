@@ -2163,7 +2163,11 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    if( autosync_loop(SYNC_PULL, db_get_int("autosync-tries", 1), 1) ){
+    int syncFlags = SYNC_PULL;
+    if( vid!=0 && !allowFork && !forceFlag ){
+      syncFlags |= SYNC_CKIN_LOCK;
+    }
+    if( autosync_loop(syncFlags, db_get_int("autosync-tries", 1), 1) ){
       fossil_exit(1);
     }
   }
@@ -2280,7 +2284,7 @@ void commit_cmd(void){
       sCiInfo.zBranch = db_get("main-branch", "trunk");
     }
   }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
-    && g.markPrivate==0 && !is_a_leaf(vid)
+    && g.markPrivate==0 && (g.ckinLockFail || !is_a_leaf(vid))
   ){
     /* Can't avoid duplicating this string because some C compilers
     ** refuse to see static const char zErr[] = "... as "constant"
