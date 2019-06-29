@@ -3475,6 +3475,12 @@ struct Setting {
 ** is empty and no extra setup is performed.
 */
 #endif /* FOSSIL_ENABLE_TCL */
+/*
+** SETTING: tclsh            width=80 default=tclsh
+** Name of the external TCL interpreter used for such things
+** as running the GUI diff viewer launched by the --tk option
+** of the various "diff" commands.
+*/
 #ifdef FOSSIL_ENABLE_TH1_DOCS
 /*
 ** SETTING: th1-docs         boolean default=off

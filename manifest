@@ -1,5 +1,5 @@
-C Steps\sto\sprevent\saccidental\sforks\sduring\sa\scommit\swhen\stwo\susers\stry\sto\ncommit\sto\sthe\ssame\sparent\sat\sthe\ssame\stime.\s\sThe\sfirst\suser\sto\sdo\sthe\nautosync\spull\stakes\sa\slock\swhich\scauses\sthe\ssecond\suser\sto\sget\sa\s"would\sfork"\nerror,\sunless\sthe\s--allow-fork\sor\s--force\soptions\sare\sused.
-D 2019-06-29T03:17:07.470
+C Add\sthe\s--tclsh\scommand\sto\s"fossil\sdiff"\sin\sorder\sto\sspecify\san\salternative\nTCL\sinterpreter.
+D 2019-06-29T10:21:45.277
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c fffbf427413e99317bdd6d1a05662e746ef0267293fb3b13f96e046b59c2e57d
+F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
 F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -467,7 +467,7 @@ F src/deltafunc.c feea452d2a456600a2efc6add532e527f05fd6f4290310757030ba08a9dada
 F src/descendants.c f20663f0c3388811bc57cb614f06a58cedd0ec1c0b0c147b6515d620592dcc99
 F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
-F src/diffcmd.c 0e59c8c48f7465e69b750a2ce202290d6e9ce809c99a28445583472cb9410d07
+F src/diffcmd.c e179b8ff8b0c80d9d64b60ae6f5064018247baafd52073a07b7dcedc139b770d
 F src/dispatch.c e56f57d2fc0cb48cd097314a181d5e8280e4ad58fa061f687c6e01a7eff80f3f
 F src/doc.c 38b2458da7d43b29621580ff35bfde950ab998522ca6e5e11e4cb0b136d0c493
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
@@ -883,8 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 421e6bb3333e270e5628c03d3914fef136ad732dcf02913675f2ef669dcaa6ef 82d69e7fae0574b25764f51cddbc2679706f7398767a24328ccc837628477830
-R 84c0b568fff861cc9999dfc4b4808adb
-T +closed 82d69e7fae0574b25764f51cddbc2679706f7398767a24328ccc837628477830
+P 03cc3329384cd0c12eab9969fb77fea2a6ff85ac18a91887abb0f510fe090115
+R fa1c6a3484927e1f6abb5338b639aefe
 U drh
-Z 93cb60cbfe50aad809e22ba5dc9e3b34
+Z 38ad4f96b420e01703290bbbb3735767
