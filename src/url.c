@@ -276,7 +276,7 @@ void url_parse_local(
   }else if( pUrlData->user!=0 && pUrlData->passwd==0 && (urlFlags & URL_PROMPT_PW) ){
     url_prompt_for_password_local(pUrlData);
   }else if( pUrlData->user!=0 && ( urlFlags & URL_ASK_REMEMBER_PW ) ){
-    if( isatty(fileno(stdin)) ){
+    if( isatty(fileno(stdin)) && ( urlFlags & URL_REMEMBER_PW )==0 ){
       if( save_password_prompt(pUrlData->passwd) ){
         pUrlData->flags = urlFlags |= URL_REMEMBER_PW;
       }else{
