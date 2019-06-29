@@ -111,13 +111,13 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
-**    --save-password            Remember the password without asking
+**    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
 **    --nocompress               Omit extra delta compression
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
-**    --ssl-identity FILENAME    Use the SSL identity if requested by the server
+**    --save-password            Remember the password without asking
 **    --ssh-command|-c SSH       Use SSH as the "ssh" command
-**    --httpauth|-B USER:PASS    Add HTTP Basic Authorization to requests
+**    --ssl-identity FILENAME    Use the SSL identity if requested by the server
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
 **

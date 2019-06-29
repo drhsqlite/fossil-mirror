@@ -1,5 +1,5 @@
-C Change\sthe\sname\sof\sthe\soption\sto\sjust\s--save-password.
-D 2019-06-29T03:11:38.742
+C For\s"fossil\sclone\shelp",\sput\soptions\sin\salphabetical\sorder.
+D 2019-06-29T03:13:23.324
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -448,7 +448,7 @@ F src/checkin.c b498f4d7d33df349b88ddbe9173fb853c5e57ad66b6bd100d5a635c4eb984b94
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 106a8de4328ef59a79ec2e8336aa90dedb7868e174606bd2ccaa863570918c81
+F src/clone.c 7915f5ce17cb702fac1d0f33ae797d1e4c2898dac3417171795a64ada58ef297
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2600b7719f444b8ccfe660687c1840390a2aab85f4fa79e3cd418a4ed78ac4e3
-R ce67bc27bce7b7f0dc50a04fb4a54722
+P 76e158ad57ac84e4f47c48ffbfe4e1e12bc4670a81fd3bdc34510d4a4364d7d6
+R 4f1d7860137d058ec19e96e86421bb58
 U drh
-Z 2b07d25e2bfc68f1cafea067fd2c9121
+Z b6860b8ef39f82ec3dc94b314a406716
