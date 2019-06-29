@@ -111,7 +111,7 @@ void delete_private_content(void){
 **
 ** Options:
 **    --admin-user|-A USERNAME   Make USERNAME the administrator
-**    --save-http-url-password   Save password without asking if given via HTTP[S] URL
+**    --save-password            Remember the password without asking
 **    --nocompress               Omit extra delta compression
 **    --once                     Don't remember the URI.
 **    --private                  Also clone private branches
@@ -135,7 +135,7 @@ void clone_cmd(void){
   /* Also clone private branches */
   if( find_option("private",0,0)!=0 ) syncFlags |= SYNC_PRIVATE;
   if( find_option("once",0,0)!=0) urlFlags &= ~URL_REMEMBER;
-  if( find_option("save-http-url-password",0,0)!=0 ){
+  if( find_option("save-password",0,0)!=0 ){
     urlFlags &= ~URL_PROMPT_PW;
     urlFlags |= URL_REMEMBER_PW;
   }
