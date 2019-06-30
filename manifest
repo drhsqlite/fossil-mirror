@@ -1,5 +1,5 @@
-C Update\sthe\schange\slog\sand\sthe\ssync\sprotocol\sdocumentation\sfor\sthe\snew\ncheck-in\slocking\smechanism\sthat\stries\sto\sprevent\srace-condition\sforks.
-D 2019-06-30T04:27:59.594
+C Rename\sthe\s--save-password\soption\son\s"fossil\sclone"\sto\s--save-http-password,\nsince\sit\sonly\sworks\sfor\sHTTP.
+D 2019-06-30T11:36:00.712
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -448,7 +448,7 @@ F src/checkin.c 6c33e12ad3f6b61a6b88cf19a6f179864c3d9a84381b221c6f2b7fb1669474d9
 F src/checkout.c 46947255efeed0658e14e168b324c2641e17bf859e92c4d7d49a90b0df38a197
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
-F src/clone.c 7915f5ce17cb702fac1d0f33ae797d1e4c2898dac3417171795a64ada58ef297
+F src/clone.c 4f3742a1851108b9c2de6513fc8b4a79bd1555f6e954eb8935829ae0126e1945
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2655a2d405ac3c5000820a74574f9d6136faafaacc807b1d73d2fefbc819db56
-R 9b41433bc0b3567f8d28f90fbc038f3c
+P 2d7a8a832faa5ab0113c647f587f78cf0e866c0517d31478d04d7a73063a1bc1
+R b0cc3ea96b4746f1e1752c07930ac265
 U drh
-Z fc86c986f42363b7d20479790909cd97
+Z c044a55038dac5e0774a6ebb4d743f35
