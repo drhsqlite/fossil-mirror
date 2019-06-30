@@ -857,7 +857,7 @@ void diff_cmd(void){
   u64 diffFlags = 0;         /* Flags to control the DIFF */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
 
-  if( find_option("tk",0,0)!=0 ){
+  if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
     diff_tk("diff", 2);
     return;
   }

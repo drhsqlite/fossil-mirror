@@ -924,6 +924,22 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   return zReturn;
 }
 
+/* Return true if zOption exists in the command-line arguments,
+** but do not remove it from the list or otherwise process it.
+*/
+int has_option(const char *zOption){
+  int i;
+  int n = (int)strlen(zOption);
+  for(i=1; i<g.argc; i++){
+    char *z = g.argv[i];
+    if( z[0]!='-' ) continue;
+    z++;
+    if( z[0]=='-' ) z++;
+    if( strncmp(z,zOption,n)==0 && (z[n]==0 || z[n]=='=') ) return 1;
+  }
+  return 0;
+}
+
 /*
 ** Look for multiple occurrences of a command-line option with the
 ** corresponding argument.
