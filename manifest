@@ -1,5 +1,5 @@
-C In\sthe\s"fossil\sdiff"\scommand,\sthe\suse\sof\s--tclsh\simplies\s--tk.
-D 2019-06-30T03:38:32.905
+C Update\sthe\schange\slog\sand\sthe\ssync\sprotocol\sdocumentation\sfor\sthe\snew\ncheck-in\slocking\smechanism\sthat\stries\sto\sprevent\srace-condition\sforks.
+D 2019-06-30T04:27:59.594
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -784,7 +784,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6d6cbce83f0d762a7813c96c52f920c363c3cceb1e99c4db75565a9fbccabc11
-F www/changes.wiki aa77163d3c58a5a5098b7f75268907fac3b29141ac4e3db0644a6f5514b1051b
+F www/changes.wiki 4be12f21b19ab4fc9b76cda88833a4cf9048cb7625d42ea8615cd69992d6c4ac
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -869,7 +869,7 @@ F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki 1a94a7032e0fbb3f599dd9682f4ab00c230568e08d0bf2536f5fc41f40c73e5d
+F www/sync.wiki eb7145f4a3606d51997ee03689b8fbbbff93998fce6c6fab4213cbeb90b4e3e5
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 0ccc317ea50f36fca48ce6f2dae4fc6550c5a3f1d391b20d426714725f5a9eba
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9fc945c056ac3da1e9de0628b942a16064519dd174174164708c8cb294c4ff43
-R cc2b9ad3ccb27ff6d5c19f6ebdfdf2c6
+P 2655a2d405ac3c5000820a74574f9d6136faafaacc807b1d73d2fefbc819db56
+R 9b41433bc0b3567f8d28f90fbc038f3c
 U drh
-Z 11778f01128b26b9b0a46aa2a836e6ac
+Z fc86c986f42363b7d20479790909cd97

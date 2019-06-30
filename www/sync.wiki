@@ -627,7 +627,7 @@ depending on the pragma name.
 in order to enhance the capabilities of Fossil.
 Unknown pragmas are silently ignored, for backwards compatibility.
 
-<p>The following are the known pragma names as of 2016-08-03:
+<p>The following are the known pragma names as of 2019-06-30:
 
 <ol>
 <li><p><b>send-private</b>
@@ -679,6 +679,27 @@ between the client and server and that content can only be transfered
 in either direction.  The server is willing to accept content from
 the client because the client login has the "write-unversioned"
 permission.</p>
+
+<li><p><b>ci-lock</b> <i>CHECKIN-HASH CLIENT-ID</i></p>
+<p>A client sends the "ci-lock" pragma to the server to indicate
+that it is about to add a new check-in as a child of the
+CHECKIN-HASH check-in and on the same branch as CHECKIN-HASH.
+If some other client has already indicated that it was also
+trying to commit against CHECKIN-HASH, that indicates that a
+fork is about to occur, and the server will reply with
+a "ci-lock-fail" pragma (see below).  Check-in locks
+automatically expire when the check-in actually occurs, or
+after a timeout (currently 24-hours but subject to change).
+
+<li><p><b>ci-lock-fail</b> <i>LOGIN MTIME</i></p>
+<p>When a server receives two or more "ci-lock" pragma messages
+for the same check-in but from different clients, the second a
+subsequent ci-lock will provoke a ci-lock-fail pragma in the
+reply to let the client know that it if continues with the
+check-in it will likely generate a fork.  The LOGIN and MTIME
+arguments are intended to provide information to the client to
+help it generate a more useful error message.
+</p>
 
 </ol>
 

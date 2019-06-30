@@ -62,6 +62,9 @@
      that user is deleted.  This helps in dealing with spam-bots.
   *  Improvements to the "Capability Summary" section in the
      [/help?cmd=/secaudit0|Security Audit] web-page.
+  *  Use new "ci-lock" and "ci-lock-failed" pragmas in the
+     [./sync.wiki|sync protocol] to try to prevent accident forks
+     caused by concurrent commits when operating in auto-sync mode.
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>
