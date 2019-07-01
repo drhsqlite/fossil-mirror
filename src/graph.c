@@ -435,6 +435,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   u8 *aMap;            /* Copy of p->aiRailMap */
   int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
   int nTimewarp = 0;
+  int riserMargin = (tmFlags & TIMELINE_DISJOINT) ? 0 : RISER_MARGIN;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
   ** coming up from the bottom of the graph from off-screen check-in Y
@@ -579,7 +580,7 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
       if( pRow->isDup ) continue;
       if( pRow->nParent<0 ) continue;
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
-        pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+RISER_MARGIN, 0);
+        pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+riserMargin, 0);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         mask = BIT(pRow->iRail);
         if( !omitDescenders ){

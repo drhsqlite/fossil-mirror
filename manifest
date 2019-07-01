@@ -1,5 +1,5 @@
-C Rename\sthe\s--save-password\soption\son\s"fossil\sclone"\sto\s--save-http-password,\nsince\sit\sonly\sworks\sfor\sHTTP.
-D 2019-06-30T11:36:00.712
+C Improved\slayout\sof\sgraphs\swith\sthe\sTIMELINE_DISJOINT\sproperty,\ssuch\sas\nthe\slist\sof\sleaves.
+D 2019-07-01T09:30:10.354
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -482,7 +482,7 @@ F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
-F src/graph.c 213d042fabfc12a2b642969acede47ac9054fb7c0691eb1587326393cecf3374
+F src/graph.c 6d22c6182b9edfa9f32c555c3476468033146edd3fe6c78c000c3f974770d4ea
 F src/graph.js 73e0509dc0d3acbf448e6fe4847b251e8d110a4d4f3b696bc1c321123818d296
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2d7a8a832faa5ab0113c647f587f78cf0e866c0517d31478d04d7a73063a1bc1
-R b0cc3ea96b4746f1e1752c07930ac265
+P 22517bab6c124e4b16bd64378722dd923f29b39ff183e361dfc2e4a6b2fb8ab6
+R 32a9a6c8dce54f3a937d4d126e62c0a4
 U drh
-Z c044a55038dac5e0774a6ebb4d743f35
+Z f1c3db928eb23bc490a980c5184cf5b8
