@@ -494,8 +494,12 @@ static void new_brlist_page(void){
 **
 **     all         Show all branches
 **     closed      Show only closed branches
-**     open        Show only open branches (default behavior)
+**     open        Show only open branches
 **     colortest   Show all branches with automatic color
+**
+** When there are no query parameters, a new-style /brlist page shows
+** all branches in a sortable table.  The new-style /brlist page is
+** preferred and is the default.
 */
 void brlist_page(void){
   Stmt q;

@@ -1,5 +1,5 @@
-C Add\sa\snew\stest-case\sin\sthe\sgraph\stest\sfor\sthe\s/leaves\spage.
-D 2019-07-01T13:19:45.329
+C Improvements\sto\sthe\shelp-text\sfor\s/brlist.
+D 2019-07-01T13:38:24.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/backoffice.c 43c2b8474ee9c40077fc8cc52310489df0934e445ce761b0f1df8d998bead
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
-F src/branch.c b3c54ee7a524bb8f55032d22f4e89852fe3c93d3732c3b68f0c5d0ed660b0b7e
+F src/branch.c 7f8a8fcd6beb1ff539417f7346f8f66c54be5b06f3639e73f41a2d5db202e508
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4fc08f94fcc4ed595b78015ed4f8f3420a59708766c4b0ab9f883fbbdd4c1863
-R 7c4a2facaf21ac65ec186ef9f36003a9
+P 3bc1a0e80e7089fa59a976944881ba9ad3445d288db4bf05cbb89fab9b1700d5
+R ee4f357e0099dd2502f2c43102fb7c49
 U drh
-Z abb48ca95ec2550f3de10fe0ee9b079e
+Z 23653e0eca32daf22fc523eaf8bf7c37
