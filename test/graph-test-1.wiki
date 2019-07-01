@@ -99,6 +99,7 @@ the correct operation of the graph drawing logic.
      The "diff-eolws" branch containing a non-trunk fork</a>
   *  <a href="../../../timeline?n=all&forks" target="testwindow">
      All forks</a>
+  *  <a href="../../../leaves" target="testwindow">All leaves</a>
 
 External:
 

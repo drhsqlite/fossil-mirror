@@ -1,5 +1,5 @@
-C Improved\slayout\sof\sgraphs\swith\sthe\sTIMELINE_DISJOINT\sproperty,\ssuch\sas\nthe\slist\sof\sleaves.
-D 2019-07-01T09:30:10.354
+C Add\sa\snew\stest-case\sin\sthe\sgraph\stest\sfor\sthe\s/leaves\spage.
+D 2019-07-01T13:19:45.329
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -623,7 +623,7 @@ F test/file1.test 9b2ac578521a7097017c64b8877f6fa6ca0904f7
 F test/fileStat.th1 e3e30f7b46488c26215a6d713be36ad4ed595132
 F test/fileage-test-1.wiki 50661a791a5037d949534b42cfb1c8245687803fa46894f84a1ad458264d8501
 F test/glob.test e135d6e1333452beece53619e9a67cd9224ab00c
-F test/graph-test-1.wiki b7d45afdbf1d8590ddf64ff672489712c4cc1fc18cb33856556f62d35578b843
+F test/graph-test-1.wiki 005464d7086c690588eee46e29f551145178c0eed085f5063f647b0d1231197e
 F test/json.test 6f77d48c30c6f4f0b9f4d5a985814d5780641857e715374b301dd41ebcd0e75c
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/markdown-test1.md bbb3b935b672bd27981d677d35849a4177daa41b
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22517bab6c124e4b16bd64378722dd923f29b39ff183e361dfc2e4a6b2fb8ab6
-R 32a9a6c8dce54f3a937d4d126e62c0a4
+P 4fc08f94fcc4ed595b78015ed4f8f3420a59708766c4b0ab9f883fbbdd4c1863
+R 7c4a2facaf21ac65ec186ef9f36003a9
 U drh
-Z f1c3db928eb23bc490a980c5184cf5b8
+Z abb48ca95ec2550f3de10fe0ee9b079e
