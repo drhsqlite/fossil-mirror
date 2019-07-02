@@ -1,5 +1,5 @@
-C Per\srequest\sin\sforumpost/9fd5135acc,\sadded\sintra-document\slinks\sto\seach\sresponse\swhich\slink\sback\sto\sthe\sbeing-replied-to\spost\swithin\sthe\ssame\spage\s(using\san\s#anchor-tag),\swithout\sreloading\sfrom\sthe\sserver.
-D 2019-07-02T04:45:20.451
+C Replaced\sthe\sforum\spost\sDIV\sids\sforum{RID}\swith\spost-{short-UUID},\swhich\sallowed\sremoval\sof\sthe\snew\sA\sNAME\stag\sand\senables\spermalinks\s(RIDs\sare\svolatile).\sAdded\sforumPost\sclass\sto\sall\spost\sDIVs,\sto\shopefully\ssimplify\ssome\supcoming\sJS\scode.
+D 2019-07-02T06:37:15.917
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -477,8 +477,8 @@ F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/file.c 12bfd236475d763e45dabf474f106de57a558c3b70eca1c42e1e806dfbd0d7b3
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 3ef747ad5799f7a384e7ebaa0ba7fa0f495d0bc0199203a32bd378662ad5a682
-F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
+F src/forum.c 694043ffa3db9e1d6b9c4e38172f018ead022a8284f325c7f14d91d8a5740d80
+F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -883,10 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 611fe9b078d377476c316634296565064acdf4aea613853f4dba7ded5f2451e6
-R 47078c5350e06817620ecaccfb4e592d
-T *branch * forum-reply-links
-T *sym-forum-reply-links *
-T -sym-trunk *
+P 78721d4aa0fa51ee98107da408c89bfa9c5e140ef7086e309aa28e15b59950c0 5d9d62d8188187a44cd2d578b6d825c4e8e745b29bff01c62bdd8c4f16f19a2f
+R 54c571eb9126227a4ad425204a52411a
 U stephan
-Z 238b8edeb02d6d039df571b84d2dacc3
+Z 473c53d150271b1f33d8b38e2cdffba7

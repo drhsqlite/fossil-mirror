@@ -342,13 +342,14 @@ static void forum_display_chronological(int froot, int target,
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
     if( p->fpid==target ){
-      @ <div id="forum%d(p->fpid)" class="forumTime forumSel">
+      @ <div id="post-%!S(p->zUuid)" \
+      @ class="forumPost forumTime forumSel">
     }else if( p->pLeaf!=0 ){
-      @ <div id="forum%d(p->fpid)" class="forumTime forumObs">
+      @ <div id="post-%!S(p->zUuid)" \
+      @ class="forumPost forumTime forumObs">
     }else{
-      @ <div id="forum%d(p->fpid)" class="forumTime">
+      @ <div id="post-%!S(p->zUuid)" class="forumPost forumTime">
     }
-    @ <a name="post-%!S(p->zUuid)"></a>
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
@@ -447,12 +448,12 @@ static int forum_display_hierarchical(int froot, int target,
       zUuid = p->zUuid;
       pPost = pOPost;
     }
-    @ <a name="post-%!S(zUuid)"></a>
     zSel = p->fpid==target ? " forumSel" : "";
     if( p->nIndent==1 ){
-      @ <div id='forum%d(fpid)' class='forumHierRoot%s(zSel)'>
+      @ <div id='post-%!S(p->zUuid)' \
+      @ class='forumPost forumHierRoot%s(zSel)'>
     }else{
-      @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
+      @ <div id='post-%!S(p->zUuid)' class='forumPost forumHier%s(zSel)' \
       @ style='margin-left: %d((p->nIndent-1)*3)ex;'>
     }
     pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
