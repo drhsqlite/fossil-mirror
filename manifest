@@ -1,5 +1,5 @@
-C Replaced\sthe\sforum\spost\sDIV\sids\sforum{RID}\swith\spost-{short-UUID},\swhich\sallowed\sremoval\sof\sthe\snew\sA\sNAME\stag\sand\senables\spermalinks\s(RIDs\sare\svolatile).\sAdded\sforumPost\sclass\sto\sall\spost\sDIVs,\sto\shopefully\ssimplify\ssome\supcoming\sJS\scode.
-D 2019-07-02T06:37:15.917
+C When\sactivating\sone\sof\sthe\snew\s"in\sreply\sto"\slinks,\stag\sthe\snewly-focused\spost\swith\sCSS\sclass\sforumSelReplyTo\sso\sthat\sit\scan\sbe\svisually\smarked.\sAdded\sdefault\sforumSelReplyTo\sCSS\sclass\swhich\suses\sthe\ssame\sborder\sas\sforumTime\sbut\swith\sa\sdotted\sstyle.
+D 2019-07-02T07:31:50.009
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
-F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
+F src/default_css.txt d0e6ff72e9b62e8c520a540422e468ff01ad92da676efdc90308b339ed22d823
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c feea452d2a456600a2efc6add532e527f05fd6f4290310757030ba08a9dadaea
@@ -478,7 +478,7 @@ F src/file.c 12bfd236475d763e45dabf474f106de57a558c3b70eca1c42e1e806dfbd0d7b3
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 694043ffa3db9e1d6b9c4e38172f018ead022a8284f325c7f14d91d8a5740d80
-F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
+F src/forum.js 4b01166c9c81b9712b96b6d9775e90c173a6b523915b339de72f7a7d410be47f
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78721d4aa0fa51ee98107da408c89bfa9c5e140ef7086e309aa28e15b59950c0 5d9d62d8188187a44cd2d578b6d825c4e8e745b29bff01c62bdd8c4f16f19a2f
-R 54c571eb9126227a4ad425204a52411a
+P 69364ba515eb2bf9259675670d6286c937cd7c33bce23eeb2c0cd2c5e339e2f5
+R c45e81eda3d95bb091d7a8a7f5c25df8
 U stephan
-Z 473c53d150271b1f33d8b38e2cdffba7
+Z 1aba731e6a94b2885ebeb6c5ffc40364

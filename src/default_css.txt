@@ -743,6 +743,11 @@ div.forumHier, div.forumTime {
 div.forumSel {
   background-color: #cef;
 }
+div.forumSelReplyTo {
+// This class gets set on DIV.forumPost entries when
+// a "in reply to" link for that DIV gets clicked.
+  border: 1px dotted black;
+}
 div.forumObs {
   color: #bbb;
 }
