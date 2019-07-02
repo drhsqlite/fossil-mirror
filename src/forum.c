@@ -287,9 +287,49 @@ static void generateTrustControls(Manifest *pPost){
 }
 
 /*
-** Display all posts in a forum thread in chronological order
+** If pPost->firt then this routine outputs an "in reply to" link to
+** the post being replied to, else this is a no-op.
+**
+** The generated link is a document-local reference to #post-ID, where
+** ID is the short-form UUID of the being-reponded-to post (the length
+** being determined by the %!S cgi_printf() flag).
+**
+** zPostName must be the name of the current post being displayed, as
+** it appears in the the URL. e.g. for /forumpost/abcddcba, zPostName
+** must be "abcddcba". This is required for building an absolute link
+** to work around the document having a BASE tag which breaks
+** intra-document links (which HTML treats like relative links, thus
+** applying the BASE HREF to them).
+**
+** zTMode must be the current thread display mode: "c"=chronological,
+** "h"=hierarchical. (Without that parameter on the URL, the browser
+** switches from chronological to hierarchical view when clicking an
+** intra-document link in the former mode.)
 */
-static void forum_display_chronological(int froot, int target){
+static void forum_output_reply_link( const char *zPostName,
+                                     const char * zTMode,
+                                     const ForumEntry * pPost ){
+  if( pPost->firt ){
+    const ForumEntry *pIrt = pPost->pPrev;
+    while( pIrt && pIrt->fpid!=pPost->firt ) pIrt = pIrt->pPrev;
+    if( pIrt ){
+      cgi_printf("in reply to [<a "
+                 "href=\"%R/%s/%s?t=%s#post-%!S\">"
+                 "%S</a>]\n",
+                 g.zPath, zPostName, zTMode, pIrt->zUuid,
+                 pIrt->zUuid);
+    }
+  }
+}
+
+/*
+** Display all posts in a forum thread in chronological order
+**
+** See forum_output_reply_link() for details of the zPostName
+** parameter.
+*/
+static void forum_display_chronological(int froot, int target,
+                                        const char *zPostName){
   ForumThread *pThread = forumthread_create(froot, 0);
   ForumEntry *p;
   int notAnon = login_is_individual();
@@ -308,6 +348,7 @@ static void forum_display_chronological(int froot, int target){
     }else{
       @ <div id="forum%d(p->fpid)" class="forumTime">
     }
+    @ <a name="post-%!S(p->zUuid)"></a>
     if( pPost->zThreadTitle ){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
@@ -317,13 +358,7 @@ static void forum_display_chronological(int froot, int target){
     if( p->pEdit ){
       @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))%d(p->fprev)</a>
     }
-    if( p->firt ){
-      ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
-      if( pIrt ){
-        @ reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
-      }
-    }
+    forum_output_reply_link( zPostName, "c", p );
     if( p->pLeaf ){
       @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
       @ %d(p->pLeaf->fpid)</a>
@@ -376,8 +411,12 @@ static void forum_display_chronological(int froot, int target){
 
 /*
 ** Display all messages in a forumthread with indentation.
+**
+** See forum_output_reply_link() for details of the zPostName
+** parameter.
 */
-static int forum_display_hierarchical(int froot, int target){
+static int forum_display_hierarchical(int froot, int target,
+                                      const char * zPostName){
   ForumThread *pThread;
   ForumEntry *p;
   Manifest *pPost, *pOPost;
@@ -408,6 +447,7 @@ static int forum_display_hierarchical(int froot, int target){
       zUuid = p->zUuid;
       pPost = pOPost;
     }
+    @ <a name="post-%!S(zUuid)"></a>
     zSel = p->fpid==target ? " forumSel" : "";
     if( p->nIndent==1 ){
       @ <div id='forum%d(fpid)' class='forumHierRoot%s(zSel)'>
@@ -427,6 +467,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ <span class="debug">\
       @ <a href="%R/artifact/%h(p->zUuid)">(%d(p->fpid))</a></span>
     }
+    forum_output_reply_link( zPostName, "h", p );
     if( p->pLeaf ){
       zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
       if( fossil_strcmp(pOPost->zUser,pPost->zUser)==0 ){
@@ -545,10 +586,10 @@ void forumthread_page(void){
   }
   if( zMode[0]=='c' ){
     style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
-    forum_display_chronological(froot, fpid);
+    forum_display_chronological(froot, fpid, zName);
   }else{
     style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
-    forum_display_hierarchical(froot, fpid);
+    forum_display_hierarchical(froot, fpid, zName);
   }
   style_load_js("forum.js");
   style_footer();
