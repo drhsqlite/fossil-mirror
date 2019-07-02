@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\shelp-text\sfor\s/brlist.
-D 2019-07-01T13:38:24.574
+C Switched\sImmediately-Invoked\sFunction\sExpression\sparentheses\sfrom\sCrockford-style\sto\sthe\smore\sconventional/portable\sstyle.\sSee\shttps://stackoverflow.com/questions/9053842/\sfor\sdetails.
+D 2019-07-02T05:53:00.393
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -478,7 +478,7 @@ F src/file.c 12bfd236475d763e45dabf474f106de57a558c3b70eca1c42e1e806dfbd0d7b3
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
-F src/forum.js 8d297f5f0c08dd09c1c4f4162c8517b153f03cd579227fd7acfe88432486c7af
+F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3bc1a0e80e7089fa59a976944881ba9ad3445d288db4bf05cbb89fab9b1700d5
-R ee4f357e0099dd2502f2c43102fb7c49
-U drh
-Z 23653e0eca32daf22fc523eaf8bf7c37
+P 611fe9b078d377476c316634296565064acdf4aea613853f4dba7ded5f2451e6
+R 18cd008fd05051eba7bb6c534c93c0a1
+U stephan
+Z d2f61dc043a2cbb666e227e912c2c11d
