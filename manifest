@@ -1,5 +1,5 @@
-C Switched\sImmediately-Invoked\sFunction\sExpression\sparentheses\sfrom\sCrockford-style\sto\sthe\smore\sconventional/portable\sstyle.\sSee\shttps://stackoverflow.com/questions/9053842/\sfor\sdetails.
-D 2019-07-02T05:53:00.393
+C For\sthe\star\s/\szip\sweb\spages,\savoid\sdangling\sreferences\sinvolving\szRid.
+D 2019-07-06T20:29:11.966
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -575,7 +575,7 @@ F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
 F src/style.c 1ab08da29b93f97bb8e970f280092d43980ca73da14aa11aa6624fe001a4dde3
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 786e61573107781307de21a2d601a932606e42c9cb8f90b765db2d8ea09e6d48
-F src/tar.c 2c6c9b81bd1e165813ec079b42e554518a499ac73be203feed8418bb9eadb270
+F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
 F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
@@ -606,7 +606,7 @@ F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
 F src/xfer.c badbfa6daed696171a581115f4c79ad4970fe1bbfeb7a236e52b05df3d806028
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
-F src/zip.c 135111d347bd0876ab12cba0c1c8887aa67eec5550cb4e3bc5da8d6e289f824e
+F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
 F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/amend.test 83966725550e04f80c40a52012074f91ef6d22cbd57f51e17e931eccee6663e0
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 611fe9b078d377476c316634296565064acdf4aea613853f4dba7ded5f2451e6
-R 18cd008fd05051eba7bb6c534c93c0a1
-U stephan
-Z d2f61dc043a2cbb666e227e912c2c11d
+P 5d9d62d8188187a44cd2d578b6d825c4e8e745b29bff01c62bdd8c4f16f19a2f
+R cbbe814bdf6402ce2069ec3033281343
+U mistachkin
+Z e6a59fc49f48d3d55d9bc291ef7a5648
