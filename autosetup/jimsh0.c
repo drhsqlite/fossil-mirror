@@ -570,7 +570,7 @@ typedef struct Jim_Interp {
     unsigned long referenceNextId;
     struct Jim_HashTable references;
     unsigned long lastCollectId; /* reference max Id of the last GC
-                execution. It's set to -1 while the collection
+                execution. It's set to ~0 while the collection
                 is running as sentinel to avoid to recursive
                 calls via the [collect] command inside
                 finalizers. */
@@ -1133,11 +1133,15 @@ int Jim_bootstrapInit(Jim_Interp *interp)
 	return Jim_EvalSource(interp, "bootstrap.tcl", 1,
 "\n"
 "\n"
-"proc package {cmd pkg} {\n"
+"proc package {cmd pkg args} {\n"
 "	if {$cmd eq \"require\"} {\n"
 "		foreach path $::auto_path {\n"
-"			if {[file exists $path/$pkg.tcl]} {\n"
-"				uplevel #0 [list source $path/$pkg.tcl]\n"
+"			set pkgpath $path/$pkg.tcl\n"
+"			if {$path eq \".\"} {\n"
+"				set pkgpath $pkg.tcl\n"
+"			}\n"
+"			if {[file exists $pkgpath]} {\n"
+"				uplevel #0 [list source $pkgpath]\n"
 "				return\n"
 "			}\n"
 "		}\n"
@@ -1959,8 +1963,6 @@ int Jim_tclcompatInit(Jim_Interp *interp)
 #undef HAVE_SOCKETPAIR
 #endif
 
-#define JimCheckStreamError(interp, af) af->fops->error(af)
-
 
 struct AioFile;
 
@@ -2064,6 +2066,15 @@ static void JimAioSetError(Jim_Interp *interp, Jim_Obj *name)
     else {
         Jim_SetResultString(interp, JimAioErrorString(af), -1);
     }
+}
+
+static int JimCheckStreamError(Jim_Interp *interp, AioFile *af)
+{
+	int ret = af->fops->error(af);
+	if (ret) {
+		JimAioSetError(interp, af->filename);
+	}
+	return ret;
 }
 
 static void JimAioDelProc(Jim_Interp *interp, void *privData)
@@ -2776,16 +2787,16 @@ static AioFile *JimMakeChannel(Jim_Interp *interp, FILE *fh, int fd, Jim_Obj *fi
     af = Jim_Alloc(sizeof(*af));
     memset(af, 0, sizeof(*af));
     af->fp = fh;
+    af->filename = filename;
+    af->openFlags = openFlags;
 #ifndef JIM_ANSIC
     af->fd = fileno(fh);
-#endif
-    af->filename = filename;
 #ifdef FD_CLOEXEC
     if ((openFlags & AIO_KEEPOPEN) == 0) {
         (void)fcntl(af->fd, F_SETFD, FD_CLOEXEC);
     }
 #endif
-    af->openFlags = openFlags;
+#endif
     af->addr_family = family;
     af->fops = &stdio_fops;
     af->ssl = NULL;
@@ -3454,6 +3465,13 @@ int Jim_regexpInit(Jim_Interp *interp)
 #endif
 
 
+#if defined(HAVE_STRUCT_STAT_ST_MTIMESPEC)
+    #define STAT_MTIME_US(STAT) ((STAT).st_mtimespec.tv_sec * 1000000ll + (STAT).st_mtimespec.tv_nsec / 1000)
+#elif defined(HAVE_STRUCT_STAT_ST_MTIM)
+    #define STAT_MTIME_US(STAT) ((STAT).st_mtim.tv_sec * 1000000ll + (STAT).st_mtim.tv_nsec / 1000)
+#endif
+
+
 static const char *JimGetFileType(int mode)
 {
     if (S_ISREG(mode)) {
@@ -3511,6 +3529,9 @@ static int StoreStatData(Jim_Interp *interp, Jim_Obj *varName, const struct stat
     AppendStatElement(interp, listObj, "atime", sb->st_atime);
     AppendStatElement(interp, listObj, "mtime", sb->st_mtime);
     AppendStatElement(interp, listObj, "ctime", sb->st_ctime);
+#ifdef STAT_MTIME_US
+    AppendStatElement(interp, listObj, "mtimeus", STAT_MTIME_US(*sb));
+#endif
     Jim_ListAppendElement(interp, listObj, Jim_NewStringObj(interp, "type", -1));
     Jim_ListAppendElement(interp, listObj, Jim_NewStringObj(interp, JimGetFileType((int)sb->st_mode), -1));
 
@@ -3945,30 +3966,35 @@ static int file_cmd_atime(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
     return JIM_OK;
 }
 
+static int JimSetFileTimes(Jim_Interp *interp, const char *filename, jim_wide us)
+{
+#ifdef HAVE_UTIMES
+    struct timeval times[2];
+
+    times[1].tv_sec = times[0].tv_sec = us / 1000000;
+    times[1].tv_usec = times[0].tv_usec = us % 1000000;
+
+    if (utimes(filename, times) != 0) {
+        Jim_SetResultFormatted(interp, "can't set time on \"%s\": %s", filename, strerror(errno));
+        return JIM_ERR;
+    }
+    return JIM_OK;
+#else
+    Jim_SetResultString(interp, "Not implemented", -1);
+    return JIM_ERR;
+#endif
+}
+
 static int file_cmd_mtime(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
     struct stat sb;
 
     if (argc == 2) {
-#ifdef HAVE_UTIMES
-        jim_wide newtime;
-        struct timeval times[2];
-
-        if (Jim_GetWide(interp, argv[1], &newtime) != JIM_OK) {
+        jim_wide secs;
+        if (Jim_GetWide(interp, argv[1], &secs) != JIM_OK) {
             return JIM_ERR;
         }
-
-        times[1].tv_sec = times[0].tv_sec = newtime;
-        times[1].tv_usec = times[0].tv_usec = 0;
-
-        if (utimes(Jim_String(argv[0]), times) != 0) {
-            Jim_SetResultFormatted(interp, "can't set time on \"%#s\": %s", argv[0], strerror(errno));
-            return JIM_ERR;
-        }
-#else
-        Jim_SetResultString(interp, "Not implemented", -1);
-        return JIM_ERR;
-#endif
+        return JimSetFileTimes(interp, Jim_String(argv[0]), secs * 1000000);
     }
     if (file_stat(interp, argv[0], &sb) != JIM_OK) {
         return JIM_ERR;
@@ -3976,6 +4002,26 @@ static int file_cmd_mtime(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
     Jim_SetResultInt(interp, sb.st_mtime);
     return JIM_OK;
 }
+
+#ifdef STAT_MTIME_US
+static int file_cmd_mtimeus(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
+    struct stat sb;
+
+    if (argc == 2) {
+        jim_wide us;
+        if (Jim_GetWide(interp, argv[1], &us) != JIM_OK) {
+            return JIM_ERR;
+        }
+        return JimSetFileTimes(interp, Jim_String(argv[0]), us);
+    }
+    if (file_stat(interp, argv[0], &sb) != JIM_OK) {
+        return JIM_ERR;
+    }
+    Jim_SetResultInt(interp, STAT_MTIME_US(sb));
+    return JIM_OK;
+}
+#endif
 
 static int file_cmd_copy(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
@@ -4100,6 +4146,15 @@ static const jim_subcmd_type file_command_table[] = {
         2,
 
     },
+#ifdef STAT_MTIME_US
+    {   "mtimeus",
+        "name ?time?",
+        file_cmd_mtimeus,
+        1,
+        2,
+
+    },
+#endif
     {   "copy",
         "?-force? source dest",
         file_cmd_copy,
@@ -4874,6 +4929,9 @@ JimCreatePipeline(Jim_Interp *interp, int argc, Jim_Obj *const *argv, pidtype **
     int i;
     pidtype pid;
     char **save_environ;
+#ifndef __MINGW32__
+    char **child_environ;
+#endif
     struct WaitInfoTable *table = Jim_CmdPrivData(interp);
 
 
@@ -5115,6 +5173,7 @@ badargs:
         arg_array[lastArg] = NULL;
         if (lastArg == arg_count) {
             outputId = lastOutputId;
+            lastOutputId = -1;
         }
         else {
             if (pipe(pipeIds) != 0) {
@@ -5138,6 +5197,9 @@ badargs:
             goto error;
         }
 #else
+        i = strlen(arg_array[firstArg]);
+
+        child_environ = Jim_GetEnviron();
         pid = vfork();
         if (pid < 0) {
             Jim_SetResultErrno(interp, "couldn't fork child process");
@@ -5145,20 +5207,45 @@ badargs:
         }
         if (pid == 0) {
 
-            if (inputId != -1) dup2(inputId, fileno(stdin));
-            if (outputId != -1) dup2(outputId, fileno(stdout));
-            if (errorId != -1) dup2(errorId, fileno(stderr));
 
-            for (i = 3; (i <= outputId) || (i <= inputId) || (i <= errorId); i++) {
-                close(i);
+            if (inputId != -1) {
+                dup2(inputId, fileno(stdin));
+                close(inputId);
+            }
+            if (outputId != -1) {
+                dup2(outputId, fileno(stdout));
+                if (outputId != errorId) {
+                    close(outputId);
+                }
+            }
+            if (errorId != -1) {
+                dup2(errorId, fileno(stderr));
+                close(errorId);
+            }
+
+            if (outPipePtr) {
+                close(*outPipePtr);
+            }
+            if (errFilePtr) {
+                close(*errFilePtr);
+            }
+            if (pipeIds[0] != -1) {
+                close(pipeIds[0]);
+            }
+            if (lastOutputId != -1) {
+                close(lastOutputId);
             }
 
 
             (void)signal(SIGPIPE, SIG_DFL);
 
-            execvpe(arg_array[firstArg], &arg_array[firstArg], Jim_GetEnviron());
+            execvpe(arg_array[firstArg], &arg_array[firstArg], child_environ);
 
-            fprintf(stderr, "couldn't exec \"%s\"\n", arg_array[firstArg]);
+            if (write(fileno(stderr), "couldn't exec \"", 15) &&
+                write(fileno(stderr), arg_array[firstArg], i) &&
+                write(fileno(stderr), "\"\n", 2)) {
+
+            }
 #ifdef JIM_MAINTAINER
             {
 
@@ -5192,7 +5279,6 @@ badargs:
         }
         if (outputId != -1) {
             close(outputId);
-            outputId = -1;
         }
         inputId = pipeIds[0];
         pipeIds[0] = pipeIds[1] = -1;
@@ -5598,31 +5684,25 @@ static int clock_cmd_format(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 }
 
 #ifdef HAVE_STRPTIME
-#ifndef HAVE_TIMEGM
-
-static time_t timegm(struct tm *tm)
+static time_t jim_timegm(const struct tm *tm)
 {
-    time_t t;
-    const char *tz = getenv("TZ");
-    setenv("TZ", "", 1);
-    tzset();
-    t = mktime(tm);
-    if (tz) {
-        setenv("TZ", tz, 1);
-    }
-    else {
-        unsetenv("TZ");
-    }
-    tzset();
-    return t;
+    int m = tm->tm_mon + 1;
+    int y = 1900 + tm->tm_year - (m <= 2);
+    int era = (y >= 0 ? y : y - 399) / 400;
+    unsigned yoe = (unsigned)(y - era * 400);
+    unsigned doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + tm->tm_mday - 1;
+    unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    long days = (era * 146097 + (int)doe - 719468);
+    int secs = tm->tm_hour * 3600 + tm->tm_min * 60 + tm->tm_sec;
+
+    return days * 24 * 60 * 60 + secs;
 }
-#endif
 
 static int clock_cmd_scan(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
     char *pt;
     struct tm tm;
-
+    time_t now = time(NULL);
 
     struct clock_options options = { 0, NULL };
 
@@ -5637,10 +5717,7 @@ static int clock_cmd_scan(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
         return -1;
     }
 
-
-    memset(&tm, 0, sizeof(tm));
-
-    tm.tm_mday = 1;
+    localtime_r(&now, &tm);
 
     pt = strptime(Jim_String(argv[0]), options.format, &tm);
     if (pt == 0 || *pt != 0) {
@@ -5649,7 +5726,7 @@ static int clock_cmd_scan(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
     }
 
 
-    Jim_SetResultInt(interp, options.gmt ? timegm(&tm) : mktime(&tm));
+    Jim_SetResultInt(interp, options.gmt ? jim_timegm(&tm) : mktime(&tm));
 
     return JIM_OK;
 }
@@ -13743,7 +13820,7 @@ static struct ExprTree *ExprTreeCreateTree(Jim_Interp *interp, const ParseTokenL
     struct ExprTree *expr;
     struct ExprBuilder builder;
     int rc;
-    struct JimExprNode *top;
+    struct JimExprNode *top = NULL;
 
     builder.parencount = 0;
     builder.level = 0;
@@ -16310,7 +16387,7 @@ static int JimForeachMapHelper(Jim_Interp *interp, int argc, Jim_Obj *const *arg
     }
     if (result != JIM_OK) {
         Jim_SetResultString(interp, "foreach varlist is empty", -1);
-        return result;
+        goto empty_varlist;
     }
 
     if (doMap) {
@@ -16373,6 +16450,7 @@ static int JimForeachMapHelper(Jim_Interp *interp, int argc, Jim_Obj *const *arg
     Jim_SetResult(interp, resultObj);
   err:
     Jim_DecrRefCount(interp, resultObj);
+  empty_varlist:
     if (numargs > 2) {
         Jim_Free(iters);
     }
@@ -16896,18 +16974,8 @@ static int Jim_LreplaceCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const 
     JimRelToAbsRange(len, &first, &last, &rangeLen);
 
 
-
-    if (first < len) {
-
-    }
-    else if (len == 0) {
-
-        first = 0;
-    }
-    else {
-        Jim_SetResultString(interp, "list doesn't contain element ", -1);
-        Jim_AppendObj(interp, Jim_GetResult(interp), argv[2]);
-        return JIM_ERR;
+    if (first > len) {
+        first = len;
     }
 
 
@@ -22140,7 +22208,7 @@ void Jim_HistorySave(const char *filename)
 #endif
     linenoiseHistorySave(filename);
 #ifdef HAVE_UMASK
-    mask = umask(mask);
+    umask(mask);
 #endif
 #endif
 }
