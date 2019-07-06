@@ -1,5 +1,5 @@
-C For\sthe\star\s/\szip\sweb\spages,\savoid\sdangling\sreferences\sinvolving\szRid.
-D 2019-07-06T20:29:11.966
+C Update\sJim\sTcl\sto\s0.78.
+D 2019-07-06T21:42:38.577
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -61,7 +61,7 @@ F autosetup/config.guess 947c8873202b420cdd698aa562cd05ee128197f6 x
 F autosetup/config.sub 1ed99f2fce4975f55e82b3833baf74fbcd8bdda0 x
 F autosetup/default.auto f78163e478676728918cbb7360abddb9c830e882
 F autosetup/find-tclsh b0a669272c08652e78d4f228238f1bc5821f226b0c6bdb05ec7897150c37e6cf x
-F autosetup/jimsh0.c c31f25b294314ea582cb2acf8fe4aa04de1065060b72f58fa58c5dd5644863cd
+F autosetup/jimsh0.c 709e66aff68c154eb22791fec9025d49d5ef40b769c238444d911663046dee5c
 F autosetup/local.tcl 60b0633b484a89c87aed299e4c22ac5287803f921ba9b653a04b0c518f699cda
 F autosetup/pkg-config.tcl 1d3eb0476a271d7c506aa253a4a189a68344950d726381d2d0417bb31af21b4d
 F autosetup/system.tcl 8faf3eeadc63cb1718ada6eccecdb8f631801a6627e1d14c80230f8686d23d86
@@ -883,7 +883,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5d9d62d8188187a44cd2d578b6d825c4e8e745b29bff01c62bdd8c4f16f19a2f
-R cbbe814bdf6402ce2069ec3033281343
+P dbe16d7bb4cf72003a67cd5f45d04fb9fd72eaaa277553716b58ee097b522754
+R dd732e4dd5bc4cfc952f5999ee5b1b57
+T *branch * autosetupAndJimTcl
+T *sym-autosetupAndJimTcl *
+T -sym-trunk *
 U mistachkin
-Z e6a59fc49f48d3d55d9bc291ef7a5648
+Z bd904ad19b7ecfca4f12578b43dbfc5c
