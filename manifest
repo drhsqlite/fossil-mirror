@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.29.0\sbeta\sfor\stesting.\nEnable\sthe\s-DSQLITE_DQS=0\scompile-time\soption\sfor\sFossil,\sthus\spreventing\nSQLite\sfrom\susing\sdouble-quoted\sstring\sliterals\sby\sdefault.
-D 2019-07-08T17:05:38.527
+C Fix\san\sapparent\sbug\sin\sthe\s"fossil\sgrep"\scommand\scausing\sit\sto\smiss\sthe\sfirst\ncharacter\sof\seach\sline.
+D 2019-07-08T17:11:41.081
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -545,7 +545,7 @@ F src/printf.c fbbd5d2c7481dcd7bc98c95930498fb0cd6b25b492f0110cbfe595dc1df3952a
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
-F src/regexp.c 21359f8b49b95337e4959f098a382e06409e10bc62a3b1387afd230157f0c55c
+F src/regexp.c 04d511ced556f1e90f38b4c412db79d2b174179f00c49ef702255c0733885c5d
 F src/repolist.c c2bf75fe1eabc1ff60a37058868f0541e2d4f19802b9ea7deaa1f342314794b4
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dbe16d7bb4cf72003a67cd5f45d04fb9fd72eaaa277553716b58ee097b522754
-R f2564334ed4e6b6a1bbef723edc64908
+P 0c0f6db7bad8365ed66dedeb96c105d88ebfec1be56bdd6ed3ddaf2209e04c55
+R bf173baf8f36ec0d95fcde22477f1c4f
 U drh
-Z e4155e24d9898b84dddf6a0f63756898
+Z 585d771d9d0b5097e1cfaed849aa8a40
