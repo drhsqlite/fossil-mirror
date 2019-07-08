@@ -1,5 +1,5 @@
-C Fix\san\sapparent\sbug\sin\sthe\s"fossil\sgrep"\scommand\scausing\sit\sto\smiss\sthe\sfirst\ncharacter\sof\seach\sline.
-D 2019-07-08T17:11:41.081
+C Renamed\sthe\stest-move-repository\scommand\sto\slocal-repo,\ssince\sit's\nuseful\sfor\smore\sthan\sjust\stesting,\sand\sthere's\sno\sgood\salternative\sin\nthe\smain\scommand\sset\sotherwise.\s\sIt\sis\sespecially\suseful\swith\slocal-only\nrepos,\ssince\sthat\smeans\suse\sof\sthe\ssync\sand\sremote-url\scommands\sisn't\nthe\scorrect\sway\sto\schange\sthe\slocation\sof\sthe\slocal\srepo.
+D 2019-07-08T19:14:35.150
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
+F src/db.c bd67a967ab5ed1d0cc0eccb35fb9d1469ae3ef59338a0244a548c1c70b5cbe9f
 F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c0f6db7bad8365ed66dedeb96c105d88ebfec1be56bdd6ed3ddaf2209e04c55
-R bf173baf8f36ec0d95fcde22477f1c4f
-U drh
-Z 585d771d9d0b5097e1cfaed849aa8a40
+P 5421caa21aa83033a6101cf0b6d81d0ae6fa56c2917e5413303dd8d3ce152659
+R 5d47323d006998633160da37f2d92b58
+U wyoung
+Z 1434df6d675a07f41d7da291d635832c
