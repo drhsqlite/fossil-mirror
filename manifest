@@ -1,5 +1,5 @@
-C Update\scustom\sMinGW\smakefile.
-D 2019-07-10T03:49:40.939
+C Back\sout\scheck-in\s[a52c3e1256288c7d].\s\sPerhaps\sthe\s"test-move-repository"\ncommand\sshould\sbe\spromoted\sto\sa\ssupported\sand\sdocumented\scommand,\sbut\sI\sdon't\nthink\s"local-repo"\sis\sthe\scorrect\sname,\sand\sin\sany\sevent,\sthe\scommand\sneeds\nadditional\swork\sbefore\sit\sis\sgiven\sfirst-class\sstatus.\s\sFor\sexample,\styping\n"fossil\slocal-repo"\swithout\sthe\s3rd\sterm\sshould\sshow\sthe\scurrent\srepository,\nnot\sgive\san\serror.
+D 2019-07-10T16:22:51.777
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c bd67a967ab5ed1d0cc0eccb35fb9d1469ae3ef59338a0244a548c1c70b5cbe9f
+F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
 F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -883,7 +883,8 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a52c3e1256288c7d88c2fabe3220e7ee55af9b8ad843d2a25ee611d7ac3da24b
-R a3a33286e6b88606ddcd75d2ee7782c2
-U mistachkin
-Z a342975a3693f14996573c4165d8f515
+P 1c88ed9bec7fa4f431ebfc4b773c25195a8c57a9342acd16c53f3d3e4c52012e
+Q -a52c3e1256288c7d88c2fabe3220e7ee55af9b8ad843d2a25ee611d7ac3da24b
+R 5cbb5af3e148572ea0549e2dd347d55e
+U drh
+Z 900cb2164efdb2c8d2548e9efc4ac23c

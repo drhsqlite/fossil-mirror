@@ -1847,9 +1847,9 @@ void db_verify_schema(void){
 
 
 /*
-** COMMAND: local-repo
+** COMMAND: test-move-repository
 **
-** Usage: %fossil local-repo PATHNAME
+** Usage: %fossil test-move-repository PATHNAME
 **
 ** Change the location of the repository database on a local check-out.
 ** Use this command to avoid having to close and reopen a checkout
