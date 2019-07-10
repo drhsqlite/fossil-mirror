@@ -9,9 +9,9 @@ content between two Fossil repositories.</p>
 collection of artifacts.  Each artifact is identified by a cryptographic
 hash of its content, expressed as a lower-case hexadecimal string.
 Synchronization is the process of sharing artifacts between
-servers so that all servers have copies of all artifacts.  Because
+repositories so that all repositories have copies of all artifacts.  Because
 artifacts are unordered, the order in which artifacts are received
-at a server is inconsequential.  It is assumed that the hash names
+is unimportant.  It is assumed that the hash names
 of artifacts are unique - that every artifact has a different hash.
 To a first approximation, synchronization proceeds by sharing lists
 hash values for available artifacts, then sharing the content of artifacts
@@ -24,13 +24,30 @@ shared to a few hundred.</p>
 <p>Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
-The local state is not using transferred during a sync.  Except,
+The local state is not usually transferred during a sync.  Except,
 some local state is transferred during a [/help?cmd=clone|clone]
 in order to initialize the local state of the new repository.  Also,
 an administrator can sync local state using
 the [/help?cmd=configuration|config push] and
 [/help?cmd=configuration|config pull]
 commands.
+
+<a name="crdt"></a>
+<h3>1.1 Conflict-Free Replicated Datatypes</h3>
+
+<p>The "bag of artifacts" data model used by Fossil
+Fossil is apparently an implementation of a particular 
+[https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|Conflict-Free Replicated
+Datatype (CRDT)]
+called a "G-Set" or "Grow-only Set".
+The academic literature on CRDTs only began to appear in about 2011, and
+Fossil predates that research by at least 4 years.  But it is nice to know
+that theorists have now proven that the underlying data model of Fossil can
+provide strongly-consistent replicas using only peer-to-peer communication
+and without any kind of central authority.</p>
+
+<p>If you are already familiar with CRDTs and were wondering if Fossil
+used them, the answer is "yes".  We just don't call them by that name.</p>
 
 
 <h2>2.0 Transport</h2>
@@ -54,6 +71,14 @@ the client is the issuer of the requests.</p>
 The client maintains state between all requests.  But on the server
 side, each request is independent.  The server does not preserve
 any information about the client from one request to the next.</p>
+
+<p>Note: Throughout this article, we use the terms "server" and "client"
+to represent the listener and initiator of the interaction, respectively.
+Nothing in this protocol requires that the server actually be a back-room
+processor housed in a datacenter, nor does the client need to be a desktop
+or handheld device.  For the purposes of this article "client" simply means
+the repository that initiates the conversation and "server" is the repository
+that responds.  Nothing more.</p>
 
 <h4>2.0.1 Encrypted Transport</h4>
 

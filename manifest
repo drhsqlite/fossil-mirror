@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.29.0\srelease.
-D 2019-07-10T18:55:33.381
+C Add\sa\sreference\sto\sthe\sidea\sof\sa\s"Conflict-Free\sReplicated\sDatatypes"\nto\sthe\ssync\sdocumentation.
+D 2019-07-10T22:19:33.333
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -840,7 +840,7 @@ F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
-F www/hacker-howto.wiki 8e8e526ac0098eaa833200590fafc35aca87728f9dc9837d6261aa3382b2f9e2
+F www/hacker-howto.wiki adc959812858923e0fa13bf4cd73924761db3816fc541a6d575c425a61c2c27c
 F www/hashpolicy.wiki 67069cee03a4759783ca175396a2ac28b9439635b3067d5de3ede3fda96f009b
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 34a0b0637fd50d761de694c0c61afffddc3b898a5b151ac938c3a117dc30cb80
@@ -869,7 +869,7 @@ F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki eb7145f4a3606d51997ee03689b8fbbbff93998fce6c6fab4213cbeb90b4e3e5
+F www/sync.wiki f675ffbbe9e6d8240ceb44a52ef027eea84ff34445ee5a50d2310b14d54a4a44
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 0ccc317ea50f36fca48ce6f2dae4fc6550c5a3f1d391b20d426714725f5a9eba
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aa3f554cff43ea49e22e6a4d46d1a0afde3201948df8cf99f59e316940054325
-R 80cfed36ebfc94cf73599c540d26e8d5
+P 8c9eeb015191df08fb3adb83e142ee6b7575e99e08708ee519d6d8fb8eb54c7f
+R 9ee84bc20b10c8a1647ae16c519e7d26
 U drh
-Z 7b2dfe240a656dfda7fe1fb656df3e92
+Z c45627b0dc00232e4876569f7e70712f
