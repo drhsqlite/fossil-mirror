@@ -1,5 +1,5 @@
-C Renamed\sthe\stest-move-repository\scommand\sto\slocal-repo,\ssince\sit's\nuseful\sfor\smore\sthan\sjust\stesting,\sand\sthere's\sno\sgood\salternative\sin\nthe\smain\scommand\sset\sotherwise.\s\sIt\sis\sespecially\suseful\swith\slocal-only\nrepos,\ssince\sthat\smeans\suse\sof\sthe\ssync\sand\sremote-url\scommands\sisn't\nthe\scorrect\sway\sto\schange\sthe\slocation\sof\sthe\slocal\srepo.
-D 2019-07-08T19:14:35.150
+C Update\scustom\sMinGW\smakefile.
+D 2019-07-10T03:49:40.939
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -740,7 +740,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake 8efb67575a65ec076ecbcbefd4559e5165cdbb8c5c53e0b5342871174f74897a
 F win/Makefile.dmc ba8d75654745e2f23dbbcfed2a3701f90023415ce2e62cae56269e1dd396ec9d
 F win/Makefile.mingw ab6b291cb4599aeeb97d59a7a3eb3ceee77f584c19b802faf107ee2e236c6f59
-F win/Makefile.mingw.mistachkin 0eef010ee83769613246dc722e3e708915bb1912b2ff9dc578e8f9d20ae7975c
+F win/Makefile.mingw.mistachkin da4d949adef2101adabf4dd169bfdc6ddf8c27992b3429e8ec4e7da4b8def3de
 F win/Makefile.msc c5e2b583edb8c80e87999082954ba08c0aca7f3e1297fc1e2c1a8c2f2e398a03
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5421caa21aa83033a6101cf0b6d81d0ae6fa56c2917e5413303dd8d3ce152659
-R 5d47323d006998633160da37f2d92b58
-U wyoung
-Z 1434df6d675a07f41d7da291d635832c
+P a52c3e1256288c7d88c2fabe3220e7ee55af9b8ad843d2a25ee611d7ac3da24b
+R a3a33286e6b88606ddcd75d2ee7782c2
+U mistachkin
+Z a342975a3693f14996573c4165d8f515
