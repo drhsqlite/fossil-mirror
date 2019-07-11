@@ -1,5 +1,5 @@
-C Minor\schange\sto\sthe\s"aboutdownload"\sdocument.
-D 2019-07-11T13:10:36.808
+C Add\smissing\ssemicolon\sin\sthe\santi-robot\sdefense\sjavascript.
+D 2019-07-11T13:58:32.782
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -486,7 +486,7 @@ F src/graph.c 6d22c6182b9edfa9f32c555c3476468033146edd3fe6c78c000c3f974770d4ea
 F src/graph.js 73e0509dc0d3acbf448e6fe4847b251e8d110a4d4f3b696bc1c321123818d296
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c da9e0c4b9b08b17cba1d1fd2273becfb9873e6b0af6183848dcc40ea44fc1ea8
-F src/href.js 66c1427b936bafd34d5140cc925d76d56b1ab7f6a49b60bd5d9169b112862d7a
+F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b92f1c1da44e75b1e385686b17a4597f14ab3db1979be4fed2f3ad7ca745a7b7
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 458ced35354314b1361df4dd627bb1ae7b26352edb110eb613e478fe684f309c
-R f65141fed51110f365b96eb4eb9dfab9
+P fd8d37e2abfe60b473ccfa69e901f65a8e770cc51d99fc46604ae7b2652553a0
+R 560f64a46761016a01a5d3d945b6c0fa
 U drh
-Z 0dccb3e5f6f104bf9aa832252c1c0fc1
+Z 713f3b8d5f018e6373f968d590ee5255

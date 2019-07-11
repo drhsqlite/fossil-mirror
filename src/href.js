@@ -43,4 +43,4 @@ function antiRobotDefense(){
     setTimeout(setAllHrefs, g.delay);
   }
 }
-antiRobotDefense()
+antiRobotDefense();
