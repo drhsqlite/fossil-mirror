@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sbackoffice\sdoes\snot\stry\sto\sreuse\sfile\sdescriptors\sthat\sit\nhas\spreviously\sclosed.
-D 2019-07-11T12:19:29.552
+C Minor\schange\sto\sthe\s"aboutdownload"\sdocument.
+D 2019-07-11T13:10:36.808
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -753,7 +753,7 @@ F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 47d45f0a0a0ffed614f222296fe3c7fed4ebb6b09123d1b9051cf5a17adc84fd
-F www/aboutdownload.wiki 6fcb7f2fa90547b5893a5a6c1aa90fcd9120184c4868e70a2c8deb268d69efaf
+F www/aboutdownload.wiki ecbd388724aafef8c824bf31fa666f7b205f677e2f1cba82fa730256178bdaa4
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
 F www/admin-v-setup.md 7265c5b11712eb550ef97ce3d73432fb8049b3e18d90e5517b24d1376a5fc03c
 F www/alerts.md a52a27a59aaf2d348ea4446e01be9cd5da66d8fbf134d40c84fd4862c56de701
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2b3569d19f207e2dd02f7f685a0deb18da69a010624a138ca2b77f6c427ac486
-R 63b03ae4e544d4e4f4b89bebb36585f0
+P 458ced35354314b1361df4dd627bb1ae7b26352edb110eb613e478fe684f309c
+R f65141fed51110f365b96eb4eb9dfab9
 U drh
-Z 3e1a1b2fcace94291f41f9651206fd76
+Z 0dccb3e5f6f104bf9aa832252c1c0fc1
