@@ -1,5 +1,5 @@
-C Add\sa\sreference\sto\sthe\sidea\sof\sa\s"Conflict-Free\sReplicated\sDatatypes"\nto\sthe\ssync\sdocumentation.
-D 2019-07-10T22:19:33.333
+C Make\ssure\sthe\sbackoffice\sdoes\snot\stry\sto\sreuse\sfile\sdescriptors\sthat\sit\nhas\spreviously\sclosed.
+D 2019-07-11T12:19:29.552
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -432,7 +432,7 @@ F src/add.c f0f7b8fcf4a8ec597a1dbf97fe1af7ead32cd0c261fae15ada25cefc85502811
 F src/alerts.c 9af05613dcfef2fb8195009c271d4567ecb4e5079f1787f7bf29515c217467e0
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/backoffice.c 43c2b8474ee9c40077fc8cc52310489df0934e445ce761b0f1df8d998bead01a
+F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8c9eeb015191df08fb3adb83e142ee6b7575e99e08708ee519d6d8fb8eb54c7f
-R 9ee84bc20b10c8a1647ae16c519e7d26
+P 2b3569d19f207e2dd02f7f685a0deb18da69a010624a138ca2b77f6c427ac486
+R 63b03ae4e544d4e4f4b89bebb36585f0
 U drh
-Z c45627b0dc00232e4876569f7e70712f
+Z 3e1a1b2fcace94291f41f9651206fd76

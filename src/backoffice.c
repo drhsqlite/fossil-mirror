@@ -681,6 +681,9 @@ void backoffice_run_if_needed(void){
         open("/dev/null", O_RDWR);
       }
       for(i=3; i<100; i++){ close(i); }
+      g.fDebug = 0;
+      g.httpIn = 0;
+      g.httpOut = 0;
       db_open_repository(backofficeDb);
       backofficeDb = "x";
       backoffice_thread();
