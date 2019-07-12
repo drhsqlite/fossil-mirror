@@ -157,7 +157,8 @@ Fossil was specifically designed to support the development of SQLite.
 SQLite is much more widely deployed than the Linux kernel, but for
 Linux-based systems, the kernel is the more fundamental component.
 Although both projects must rank high on any objective list of "most
-important FOSS projects," the two projects are almost entirely unlike
+important [https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
+projects," the two projects are almost entirely unlike
 one another, and this shows up in the design choices of the tools
 created to support them.
 
@@ -302,16 +303,10 @@ This difference in outlook allows a GPL-based project to do without a
 license agreement] (CLA) because by the very act of distributing
 binaries, you are bound to also distribute the source under a compatible
 license. There are GPL-based projects that do require a CLA, but this is
-typically done in order to allow a corporation to "own" the
-contributions so that it can legally relicense them to those who do not
-wish to be subject to the GPL. The GPL is being used in this case not so
-much to promote the FOSS philosophy but as a prod to drive companies
-toward the "commercial version," which is naturally available only for a
-significant fee. Because a CLA is unnecessary for the legal integrity of
-a GPL-based
+usually done to further commercial interests rather than to maintain
+the legal integrity of the
 [https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
-project, it's often dispensed with when there aren't other
-considerations pushing the organization to require one.
+project itself.
 
 Contrast a BSD-style project, where contributions are not automatically
 relicensed merely by being distributed with the preexisting BSD code.
