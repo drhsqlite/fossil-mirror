@@ -303,10 +303,14 @@ binaries, you are bound to also distribute the source under a compatible
 license. There are GPL-based projects that do require a CLA, but this is
 typically done in order to allow a corporation to "own" the
 contributions so that it can legally relicense them to those who do not
-wish to be subject to the GPL, usually for a hefty fee. A CLA is not
-necessary for the legal integrity of a GPL-based
+wish to be subject to the GPL. The GPL is being used in this case not so
+much to promote the FOSS philosophy but as a prod to drive companies
+toward the "commercial version," which is naturally available only for a
+significant fee. Because a CLA is unnecessary for the legal integrity of
+a GPL-based
 [https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
-project, so it's often dispensed with.
+project, it's often dispensed with when there aren't other
+considerations pushing the organization to require one.
 
 Contrast a BSD-style project, where contributions are not automatically
 relicensed merely by being distributed with the preexisting BSD code.
