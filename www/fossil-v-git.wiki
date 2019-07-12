@@ -285,7 +285,10 @@ the victors, whereas Fossil records history as it actually happened.
 
 Git is covered by the GPL license, whereas Fossil is covered by
 [https://fossil-scm.org/fossil/file/COPYRIGHT-BSD2.txt|a two-clause BSD
-style license].
+style license]. Neither license affects the repository contents managed
+by either Fossil or Git, but we do believe it affects the design and
+implementation of these two DVCSes, which may affect your choice when
+deciding which one you'd rather use.
 
 The key emphasis in the GPL is that if you distribute a binary built from
 a piece of GPL-licensed source code that you changed, you
@@ -330,12 +333,12 @@ community. More to the point here in this document, we think it affects
 the design and implementation of Fossil: its contributions come from a
 smaller, more cohesive group of people than with Git.
 
-Neither license affects the repository contents managed by either Fossil
-or Git. Nevertheless, one can see a more GPL-oriented world-view in Git and a
-more BSD-oriented world-view in Fossil.  Git encourages anonymous contributions
+These differences in world-view show up in the design and implementation
+of these two DVCSes. 
+Git encourages anonymous contributions
 and siloed development, which are hallmarks of the GPL/bazaar approach to
-software, whereas Fossil encourages a more tightly collaborative,
-cliquish, cathedral-style approach more typical of BSD-licensed projects.
+software, whereas Fossil encourages a more tightly collaborative
+cathedral-style approach more typical of BSD-licensed projects.
 
 <h2>3.0 Missing Features</h2>
 

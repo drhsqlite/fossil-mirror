@@ -1,5 +1,5 @@
-C Removed\sa\sfinal\ssentence\sin\sa\sparagraph\sthat\sbasically\sjust\srestated\sthe\nparagraph\sin\sthe\snew\sFossil\svs\sGit\sdoc.
-D 2019-07-12T15:41:02.491
+C Moved\sa\ssentence\sfrom\sthe\sfinal\sparagraph\sup\sto\sthe\sfirst\sin\sthe\s"GPL\svs\nBSD"\ssection\sof\sthe\s"Fossil\svs.\sGit"\sdoc.\s\sIt\swas\ssomething\sof\sa\nnon-sequitur\swhere\sit\swas,\sand\sin\sits\snew\sposition,\sit\sserves\sto\sbookend\nthe\sdiscussion:\swe\slay\sout\sour\sproposition\sat\sthe\stop\sand\scome\sto\sa\nconclusion\sthat\swe\sbelieve\ssupports\sthat\sproposition\sby\sthe\send.
+D 2019-07-12T15:46:01.757
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 6731eadc1ceb17d6fc3093d4db0aa2c32b91eede9b58b5d0c7d93bca2b0fc575
+F www/fossil-v-git.wiki 3bf2c4ec9d8878c5a5599575852400f8c228821d07fdff027cb5361f680f4a1c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ba1fa73b8708f51702c848fab12fe98e7b3471adcef2a1a946292dc3404e10ec
-R 074672ca5485f85261fc92c4ee6fb537
+P f5a39a7e1d77a4a5df9b68523ef34521402c1b2b37e0c98cfb5e84a2c226cafe
+R 61a142061d8401a45d0dce612a2ac3d9
 U wyoung
-Z f270843e5153c1b16928c60adccbe4ad
+Z 88234315e144460d20ced60d12ebbbb4
