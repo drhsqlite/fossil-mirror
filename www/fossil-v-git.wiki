@@ -315,8 +315,8 @@ considerations pushing the organization to require one.
 
 Contrast a BSD-style project, where contributions are not automatically
 relicensed merely by being distributed with the preexisting BSD code.
-Such projects often require a CLA even when there is no corporate
-overlord or commercial-use relicensing option in order to ensure
+Such projects often require a CLA even when there are no corporate
+interests, to ensure
 that all contributions are compatibly licensed with the existing body of
 code. It's a way to add a "no takebacks" clause to the basic BSD
 license.
