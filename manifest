@@ -1,5 +1,5 @@
-C Added\s"and\suse"\sto\sfossil-v-git:\sthe\slicense\shas\seffects\sthat\sextend\nbeyond\sdesign\sand\simplementation.
-D 2019-07-12T16:40:39.661
+C Typo\sfix
+D 2019-07-12T16:43:00.749
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 59c4c5edfba634e2a0fe937611ff3c0c33ac4702996cd30c5df025e38f8af220
+F www/fossil-v-git.wiki ec19f41e71ee78c8982cd0c48405adc868f9a3b5ff77ad7ea7dc3bb8f8fd80b7
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d2a77c309e9cb00359cb6df41a8743997bfb8c02dfd66233e764e89e3e922f06
-R 374807ca752fc151d149a01999b4ac53
+P 2cc9036e1028d1a849c4998bf0380ef39e95df683d923240f0e82ab9e02c39c8
+R dc98e2c6986d88471aa75066bd29797b
 U wyoung
-Z dc47d8bf7aa864d9289779f8b1e295cb
+Z 9597a64559b255e086261244bdca0075

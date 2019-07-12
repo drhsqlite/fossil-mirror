@@ -292,7 +292,7 @@ license affected the design and implementation of these two DVCSes,
 which may affect your choice when deciding which one you'd rather use.
 
 The GPL allows a project to do without a
-[https://en.wikipedia.org/wiki/Contributor_License_Agreement|constributor
+[https://en.wikipedia.org/wiki/Contributor_License_Agreement|contributor
 license agreement] (CLA) because by the very act of distributing
 binaries, you are bound to also distribute the source under a compatible
 license. There are GPL-based projects that do require a CLA, but this is
