@@ -275,7 +275,7 @@ Git is covered by the GPL license, whereas Fossil is covered by
 style license].
 
 The key emphasis in the GPL is that if you distribute a binary built from
-a version of a piece of GPL-licensed source code that you changed, you
+a piece of GPL-licensed source code that you changed, you
 must also distribute the source code used to produce that binary. To
 enforce that, the GPL licenses have their famous
 [https://en.wikipedia.org/wiki/Viral_license|viral provisions].

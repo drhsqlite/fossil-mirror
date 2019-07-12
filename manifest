@@ -1,5 +1,5 @@
-C Rewrote\sthe\s"GPL\svs.\sBSD"\ssection\sin\swww/fossil-v-git.wiki.\s\sSee\sforum\npost\shere\sfor\sjustification\sand\sdiscussion:\shttps://fossil-scm.org/forum/forumpost/3239c30fff
-D 2019-07-12T04:57:16.929
+C Grammar\sfix\sto\sprevious
+D 2019-07-12T05:03:35.968
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki e10374370a48df8f4b4a850d5d7bb1880672351b0ad4b049c12b40483a07dc73
+F www/fossil-v-git.wiki 3fb73c6b69d06135e6cdef10b6b9194349e539c34547dff565ab7955865d8881
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,10 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd990128dd0dc00bf3a3d14febb7d65e2e958f9ca62cf5ff9e054c25e7529a7d
-R 4c8027133e57d6388a0f05efe7215ba2
-T *branch * bsd-vs-gpl
-T *sym-bsd-vs-gpl *
-T -sym-trunk *
+P 68a7563ec7cee8f833982ebf92b344f8178ead847b6a1b2578efcfd4b15bd0e2
+R fbacab9f75ad7634b0745891b32af97d
 U wyoung
-Z 1fbdbd0a4b5768abdc8c0bbb433a6192
+Z 98ece3f3bc0badd09839c9f38a076b2e
