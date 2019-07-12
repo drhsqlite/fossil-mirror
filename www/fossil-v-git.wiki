@@ -318,10 +318,8 @@ up-front gatekeeping.
 
 We think this additional friction is not an entirely bad thing. We think
 it creates greater contributor community cohesion, because everyone who
-made it over the legal hurdle has made an affirmative step to get into that
-community. More to the point here in this document, we think it affects
-the design and implementation of Fossil: its contributions come from a
-smaller, more cohesive group of people than with Git.
+pushed past that legal friction made an affirmative, active step to get
+into the community.
 
 These differences in world-view show up in the design and implementation
 of these two DVCSes. 

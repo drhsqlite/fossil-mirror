@@ -1,5 +1,5 @@
-C Rewrote\sthe\sopening\sparagraph\sto\s"GPL\svs\sBSD"\sin\s"Fossil\svs\sGit"\sdoc\sto\nmake\sit\sclear\sthat\swe're\snot\strying\sto\spersuade\syou\sto\smake\sour\ssame\nchoice.\s\sAlso\sremoved\stwo\sparagraphs\smaking\sa\sjudgement\sabout\sthe\snature\nof\seach\slicense\sfor\sthe\ssame\sreason.
-D 2019-07-12T16:33:49.654
+C Reduced\srepeition\sof\sthe\s"deisgn\sand\simplementation"\sbits\sof\s"Fossil\svs\nGit"\sin\sthe\snew\s"GPL\svs\sBSD"\smaterial.
+D 2019-07-12T16:38:30.239
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 46d1b40531ac196b948da41a402f82ca9d1adcfcee8fdfa7ffbd7ff824b32c62
+F www/fossil-v-git.wiki 94ca0d200b6a5642333d77e7bdcb3baa2aebfc3919e257541a7123cc9d1fbf0f
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb1b007cd5c0aaf0712f29454cc1f603b6b9ddbae9ce6f1878cd266f40a29040
-R 33bd54e320e2b8f88250aab3eac93c4d
+P d48fdb41fb80fa8aa5e2cb4b43f2bb961c5bfea1fc5a7e55ac52a23c86dd9468
+R 41729520e3ccb3e7e7e68d02f5f8e51f
 U wyoung
-Z 5a81881f0f4bd8310df363b7eee38110
+Z c2111c5ad42227e2998f717bf5fee87f
