@@ -154,21 +154,32 @@ mental picture of what is happening, and better situational awareness.
 Git was specifically designed to support the development of the Linux kernel.
 Fossil was specifically designed to support the development of SQLite.
 
-Both SQLite and the Linux kernel are important pieces of software.
-SQLite is found on far more systems than Linux. Almost every Linux
-system uses SQLite, but there are many non-Linux systems such as
-iPhones, PlayStations, and Windows PCs that use SQLite. On the other
-hand, for those systems that do use Linux, Linux is a far more important
-component.
+SQLite is much more widely deployed than the Linux kernel, but for
+Linux-based systems, the kernel is the more fundamental component.
+Although both projects must rank high on any objective list of "most
+important FOSS projects," the two projects are almost entirely unlike
+one another, and this shows up in the design choices of the tools
+created to support them.
 
 The Linux kernel uses a bazaar-style development model.  There are thousands and
 thousands of contributors, most of whom do not know each others names.
-Git is designed for this scenario.
+These thousands are responsible for producing roughly 89⨉ more code than
+is in SQLite. (10.7
+[https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs 0.12 MLOC
+according to [https://dwheeler.com/sloccount/|SLOCCount].) Git is
+designed for this scenario.
 
 SQLite uses cathedral-style development.  95% of the code in SQLite
-comes from just three programmers, 64% from just the lead developer.
-And all SQLite developers know each other well and interact daily.
+comes from just four programmers, and 64% of it is from the lead developer alone.
+The SQLite developers know each other well and interact daily.
 Fossil is designed for this development model.
+
+We think you should ask yourself whether you have
+[https://en.wikipedia.org/wiki/Linus_Torvalds|Linus Torvalds] scale
+software configuration management problems or
+[https://en.wikipedia.org/wiki/D._Richard_Hipp|D. Richard Hipp] scale
+problems when choosing your DVCS. You don't use a pneumatic ratchet
+wrench to hang a picture on the living room wall.
 
 <h3>2.5 Individual Branches vs. The Entire Change History</h3>
 
