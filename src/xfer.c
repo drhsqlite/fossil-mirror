@@ -1561,6 +1561,7 @@ void page_xfer(void){
       ){
         Stmt q;
         sqlite3_int64 iNow = time(0);
+        const sqlite3_int64 maxAge = 3600*24; /* Locks expire after 24 hours */
         int seenFault = 0;
         db_prepare(&q,
           "SELECT json_extract(value,'$.login'),"
@@ -1573,9 +1574,9 @@ void page_xfer(void){
         while( db_step(&q)==SQLITE_ROW ){
           int x = db_column_int(&q,3);
           const char *zName = db_column_text(&q,4);
-          if( db_column_int64(&q,1)<iNow-3600*24 || !is_a_leaf(x) ){
-            /* check-in locks expire after 24 hours, or when the check-in
-            ** is no longer a leaf */
+          if( db_column_int64(&q,1)<iNow-maxAge || !is_a_leaf(x) ){
+            /* check-in locks expire after maxAge seconds, or when the
+            ** check-in is no longer a leaf */
             db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
             continue;
           }
@@ -1599,6 +1600,25 @@ void page_xfer(void){
           );
         }
       }
+
+      /*   pragma ci-unlock CLIENT-ID
+      **
+      ** Remove any locks previously held by CLIENT-ID.  Clients send this
+      ** pragma with their own ID whenever they know that they no longer
+      ** have any commits pending.
+      */
+      if( blob_eq(&xfer.aToken[1], "ci-unlock")
+       && xfer.nToken==3
+       && blob_is_hname(&xfer.aToken[2])
+      ){
+        db_multi_exec(
+          "DELETE FROM config"
+          " WHERE name GLOB 'ci-lock-*'"
+          "   AND json_extract(value,'$.clientid')=%Q",
+          blob_str(&xfer.aToken[2])
+        );
+      }
+
     }else
 
     /* Unknown message
@@ -1764,6 +1784,7 @@ int client_sync(
   sqlite3_int64 mtime;    /* Modification time on a UV file */
   int autopushFailed = 0; /* Autopush following commit failed if true */
   const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
+  const char *zClientId;  /* A unique identifier for this check-out */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
@@ -1799,7 +1820,7 @@ int client_sync(
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
   origConfigRcvMask = 0;
-
+  zClientId = db_lget("client-id", 0);
 
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
@@ -1978,14 +1999,14 @@ int client_sync(
 
     /* Lock the current check-out */
     if( zCkinLock ){
-      const char *zClientId;
-      zClientId = db_lget("client-id", 0);
       if( zClientId==0 ){
         zClientId = db_text(0, "SELECT lower(hex(randomblob(20)))");
         db_lset("client-id", zClientId);
       }
       blob_appendf(&send, "pragma ci-lock %s %s\n", zCkinLock, zClientId);
       zCkinLock = 0;
+    }else if( zClientId ){
+      blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
 
     /* Append randomness to the end of the message.  This makes all
@@ -2358,9 +2379,17 @@ int client_sync(
         */
         else if( blob_eq(&xfer.aToken[1], "ci-lock-fail") && xfer.nToken==4 ){
           char *zUser = blob_terminate(&xfer.aToken[2]);
+          sqlite3_int64 mtime, iNow;
           defossilize(zUser);
-          fossil_print("\nParent check-in locked by %s\n", zUser);
-          g.ckinLockFail = 1;
+          iNow = time(NULL);
+          if( blob_is_int64(&xfer.aToken[3], &mtime) && iNow>mtime ){
+            iNow = time(NULL);
+            fossil_print("\nParent check-in lock by %s %s ago\n",
+               zUser, human_readable_age((iNow+1-mtime)/86400.0));
+          }else{
+            fossil_print("\nParent check-in locked by %s\n", zUser);
+          }
+          g.ckinLockFail = fossil_strdup(zUser);
         }
       }else
 

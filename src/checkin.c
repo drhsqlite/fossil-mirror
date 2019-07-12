@@ -2014,6 +2014,7 @@ static int tagCmp(const void *a, const void *b){
 **                               question.
 **    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
+**    --override-lock            allow a check-in even though parent is locked
 **    --private                  do not sync changes and their descendants
 **    --hash                     verify file status using hashing rather
 **                               than relying on file mtimes
@@ -2090,6 +2091,7 @@ void commit_cmd(void){
   allowConflict = find_option("allow-conflict",0,0)!=0;
   allowEmpty = find_option("allow-empty",0,0)!=0;
   allowFork = find_option("allow-fork",0,0)!=0;
+  if( find_option("override-lock",0,0)!=0 ) allowFork = 1;
   allowOlder = find_option("allow-older",0,0)!=0;
   noPrompt = find_option("no-prompt", 0, 0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
@@ -2274,24 +2276,20 @@ void commit_cmd(void){
   ** or --force flags is used, or unless this is a private check-in.
   ** The initial commit MUST have tags "trunk" and "sym-trunk".
   */
-  if( !vid ){
-    if( sCiInfo.zBranch==0 ){
-      if( allowFork==0 && forceFlag==0 && g.markPrivate==0
-        && db_exists("SELECT 1 from event where type='ci'") ){
-        fossil_fatal("Would fork.  \"update\" first, use --branch, or --allow-fork.\n"
-          "See https://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching");
-      }
-      sCiInfo.zBranch = db_get("main-branch", "trunk");
-    }
-  }else if( sCiInfo.zBranch==0 && allowFork==0 && forceFlag==0
-    && g.markPrivate==0 && (g.ckinLockFail || !is_a_leaf(vid))
+  if( sCiInfo.zBranch==0
+   && allowFork==0
+   && forceFlag==0
+   && g.markPrivate==0
+   && (vid==0 || !is_a_leaf(vid) || g.ckinLockFail)
   ){
-    /* Can't avoid duplicating this string because some C compilers
-    ** refuse to see static const char zErr[] = "... as "constant"
-    ** enough for a printf() style format string.  (e.g. Clang 10)
-    */
-    fossil_fatal("Would fork.  \"update\" first, use --branch or, --allow-fork.\n"
-      "See https://fossil-scm.org/fossil/doc/trunk/www/branching.wiki#branching");
+    if( g.ckinLockFail ){
+      fossil_fatal("Might fork due to a check-in race with user \"%s\"\n"
+                   "Try \"update\" first, or --branch, or use --override-lock",
+                   g.ckinLockFail);
+    }else{
+      fossil_fatal("Would fork.  \"update\" first or use --branch or "
+                   "--allow-fork.");
+    }
   }
 
   /*
