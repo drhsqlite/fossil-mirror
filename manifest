@@ -1,5 +1,5 @@
-C Distilled\sthe\spoints\sabout\s"GPL\s+\sCLA\s=\scommrecial\sinterests"\sto\sonly\nthe\sbits\sessential\sto\sthe\s"Fossil\svs\sGit"\sargument.
-D 2019-07-12T15:29:34.478
+C Removed\sa\sfinal\ssentence\sin\sa\sparagraph\sthat\sbasically\sjust\srestated\sthe\nparagraph\sin\sthe\snew\sFossil\svs\sGit\sdoc.
+D 2019-07-12T15:41:02.491
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki c435e02310be52889c42cd81431594f0ac1ff6389b621fa7e977a6041261bcdc
+F www/fossil-v-git.wiki 6731eadc1ceb17d6fc3093d4db0aa2c32b91eede9b58b5d0c7d93bca2b0fc575
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 840f2b39297dce1ee37f47a5bac7d60b57d7953af166e86d34a46c845b92cbf0
-R 29794b98e3acb83c1440753694387cf9
+P ba1fa73b8708f51702c848fab12fe98e7b3471adcef2a1a946292dc3404e10ec
+R 074672ca5485f85261fc92c4ee6fb537
 U wyoung
-Z ed31a555df73b55020970603ba5c38e6
+Z f270843e5153c1b16928c60adccbe4ad

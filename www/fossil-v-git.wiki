@@ -321,9 +321,7 @@ gatekeeping step, so it discourages low-engagement contributors. A CLA
 also drives off those unable to accept the CLA's restrictions on their
 rights, which are otherwise quite minimal under a BSD-style license. The
 GPL requires much the same sort of relinquishment of rights without this
-up-front gatekeeping. It's easier to contribute to a CLA-less GPL-based
-project than to a BSD-based project that requires that contributors sign
-a CLA.
+up-front gatekeeping.
 
 We think this additional friction is not an entirely bad thing. We think
 it creates greater contributor community cohesion, because everyone who
