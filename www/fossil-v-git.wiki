@@ -318,8 +318,23 @@ Such projects often require a CLA even when there is no corporate
 overlord or commercial-use relicensing option in order to ensure
 that all contributions are compatibly licensed with the existing body of
 code. It's a way to add a "no takebacks" clause to the basic BSD
-license. The greater necesity for having a CLA in a BSD-licensed project
-makes signing up new contributors harder.
+license.
+
+A CLA makes signing up new contributors harder. It's an extra
+gatekeeping step, so it discourages low-engagement contributors. A CLA
+also drives off those unable to accept the CLA's restrictions on their
+rights, which are otherwise quite minimal under a BSD-style license. The
+GPL requires much the same sort of relinquishment of rights without this
+up-front gatekeeping. It's easier to contribute to a CLA-less GPL-based
+project than to a BSD-based project that requires that contributors sign
+a CLA.
+
+We think this additional friction is not an entirely bad thing. We think
+it creates greater contributor community cohesion, because everyone who
+made it over the legal hurdle has made an active step to get into that
+community. More to the point here in this document, we think it affects
+the design and implementation of Fossil: its contributions come from a
+smaller, more cohesive group of people than with Git.
 
 Neither license affects the repository contents managed by either Fossil
 or Git. Nevertheless, one can see a more GPL-oriented world-view in Git and a

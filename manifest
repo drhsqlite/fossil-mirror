@@ -1,5 +1,5 @@
-C Clarity\stweak\sto\sthe\s"why\sCLA\s+\sBSD"\sjustification\sin\sthe\s"Fossil\svs\nGit"\sdoc.
-D 2019-07-12T13:58:51.564
+C Clarified\sthe\sconsequences\sof\sa\sCLA\son\sFossil\sand\son\sFOSS\sprojects\sin\ngeneral\sin\sthe\s"Fossil\svs\sGit"\sdoc.
+D 2019-07-12T14:15:58.898
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 759207913a7d20fd7de9ebe8dd2238266401af8a3a7800db2c311c2b2c171004
+F www/fossil-v-git.wiki 38ad146575acce325bdd7ba70cc5af77f8dfa265320cc985eadb02f999f1f01a
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 838c9efec8bf6e7c98de94ce03e77756db5039eb6d0bc653ec438d1783c4b3fd
-R d8a92b1b81da14cbcf0640e5f13fa24d
+P 633830fe17d64b0f754b893faa3dc7d205a97c1880e31511b761c1db31fb2e6e
+R 915d83a7623a1eef76be922cd6b1e7a8
 U wyoung
-Z 71fed97fce132b739cf6e325bd6fa522
+Z 17a175ee286fb40700f9e3d67532bc47
