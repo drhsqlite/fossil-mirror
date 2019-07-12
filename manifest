@@ -1,5 +1,5 @@
-C Improved\serror\smessages\swhen\sa\scommit\sfails\sdue\sto\sa\slock\sconflict:\s\sShow\nthe\sage\sof\sthe\slock\sin\saddition\sto\sthe\suser.\s\sSuggest\susing\sthe\nnew\s--override-lock\soption\sinstead\sof\s--allow-fork.\s\sExpire\slocks\safter\nany\ssuccessful\scheck-in\sfrom\sthe\ssame\scheck-out.
-D 2019-07-12T13:58:43.459
+C Add\sdocumentation\son\sthe\s"pragma\sci-unlock"\smessage\sin\sthe\ssync\sprotocol.
+D 2019-07-12T14:08:39.552
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -869,7 +869,7 @@ F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
-F www/sync.wiki f675ffbbe9e6d8240ceb44a52ef027eea84ff34445ee5a50d2310b14d54a4a44
+F www/sync.wiki 05b89b565cb5d8eb37f601b2313a70e78913af6c52801b4472fe7dcbd43389e9
 F www/tech_overview.wiki 202a068495f341712b040ed2c672b4f1a39f4959ef4a71608923b5eefd494364
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 0ccc317ea50f36fca48ce6f2dae4fc6550c5a3f1d391b20d426714725f5a9eba
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69e7827d2636c1a01a56e5ab5d8b6b3a3f120b6683d9bbdddbfd1b0f2d314be5
-R 2a944bc729633741fbb74828c7b63f0a
+P 3a5caa86dbaebba1fd4a956042ebdab2b031f3c26be0870bca7829b4ec2ccea3
+R bdfa9adb7e0a631f3312b75dca88589d
 U drh
-Z 25092614d5b56f6bdf5ba849a41a28c1
+Z 2d022bb856001ef4422241b311552fe2

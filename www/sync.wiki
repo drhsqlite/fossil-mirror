@@ -726,6 +726,13 @@ arguments are intended to provide information to the client to
 help it generate a more useful error message.
 </p>
 
+<li><p><b>ci-unlock</b> <i>CLIENT-ID</i></p>
+<p>A client sends the "ci-unlock" pragma to the server after
+a successful commit.  This instructs the server to release
+any lock on any check-in previously held by that client.
+The ci-unlock pragma helps to avoid false-positive lock warnings
+that might arise if a check-in is aborted and then restarted
+on a branch.
 </ol>
 
 <h3>3.12 Comment Cards</h3>
