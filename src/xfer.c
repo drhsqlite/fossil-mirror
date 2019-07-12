@@ -1820,7 +1820,6 @@ int client_sync(
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
   origConfigRcvMask = 0;
-  zClientId = db_lget("client-id", 0);
 
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
@@ -1834,6 +1833,7 @@ int client_sync(
   }else{
     zCkinLock = 0;
   }
+  zClientId = g.localOpen ? db_lget("client-id", 0) : 0;
 
   /* When syncing unversioned files, create a TEMP table in which to store
   ** the names of files that need to be sent from client to server.
