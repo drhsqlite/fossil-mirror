@@ -345,7 +345,7 @@ other.
    operations over all of them with a single command.  For example, in
    Fossil is possible to request a pull of all repositories on a laptop
    from their respective servers, prior to taking the laptop off network.
-   Or it is possible to do "fossil all status" to see if there are any
+   Or it is possible to do "fossil all changes" to see if there are any
    uncommitted changes that were overlooked prior to the end of the workday.
 
   *  <b>The [/help?cmd=ui|fossil ui] command</b>
