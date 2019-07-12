@@ -178,8 +178,9 @@ We think you should ask yourself whether you have
 [https://en.wikipedia.org/wiki/Linus_Torvalds|Linus Torvalds] scale
 software configuration management problems or
 [https://en.wikipedia.org/wiki/D._Richard_Hipp|D. Richard Hipp] scale
-problems when choosing your DVCS. You don't use a pneumatic ratchet
-wrench to hang a picture on the living room wall.
+problems when choosing your DVCS. You don't use an
+[https://en.wikipedia.org/wiki/Impact_wrench|impact wrench]
+to hang a picture on the living room wall.
 
 <h3>2.5 Individual Branches vs. The Entire Change History</h3>
 
