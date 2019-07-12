@@ -270,36 +270,44 @@ the victors, whereas Fossil records history as it actually happened.
 
 <h3>2.9 GPL vs. BSD</h3>
 
-Git is covered by the GPL license whereas Fossil is covered by
+Git is covered by the GPL license, whereas Fossil is covered by
 [https://fossil-scm.org/fossil/file/COPYRIGHT-BSD2.txt|a two-clause BSD
 style license].
 
-Consider the difference between GPL and BSD licenses:  GPL is designed
-to make writing easier at the expense of making reading harder.  BSD is
-designed to make reading easier at the expense of making writing harder.
+The key emphasis in the GPL is that if you distribute a binary built from
+a version of a piece of GPL-licensed source code that you changed, you
+must also distribute the source code used to produce that binary. To
+enforce that, the GPL licenses have their famous
+[https://en.wikipedia.org/wiki/Viral_license|viral provisions].
 
-To a first approximation, the GPL license grants the right to read
-source code to anyone who promises to give back enhancements.  In other
-words, the act of reading GPL source code (a prerequiste for making changes)
-implies acceptance of the license which requires updates to be contributed
-back under the same license.  (The details are more complex, but the
-foregoing captures the essence of the idea.)  A big advantage of the GPL
-is that anybody can contribute to the code without having to sign additional
-legal documentation because they have implied their acceptance of the GPL
-license by the very act of reading the source code.  This means that a GPL
-project can legally accept anonymous and drive-by patches.
+We can summarize the key emphasis of the BSD style licenses as "Please
+don't sue us." A BSD style license places very little restriction on
+what you are allowed to do with the source code or the binaries produced
+from that source code.
 
-The BSD licenses, on the other hand, make reading much easier than the GPL,
-because the reader need not surrender proprietary interest
-in their own enhancements.  On the flip side, BSD and similarly licensed
-projects must obtain legal affidavits from authors before
-new content can be added into the project.  Anonymous and drive-by
-patches cannot be accepted.  This makes signing up new contributors for
-BSD licensed projects harder.
+This difference in outlook allows a GPL-based project to do without a
+[https://en.wikipedia.org/wiki/Contributor_License_Agreement|constributor
+license agreement] (CLA) because by the very act of distributing
+binaries, you are bound to also distribute the source under a compatible
+license. There are GPL-based projects that do require a CLA, but this is
+typically done in order to allow a corporation to "own" the
+contributions so that it can legally relicense them to those who do not
+wish to be subject to the GPL, usually for a hefty fee. A CLA is not
+necessary for the legal integrity of a GPL-based
+[https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
+project, so it's often dispensed with.
 
-The licenses on the implementations of Git and Fossil only apply to the
-implementations themselves, not to the projects which the systems store.
-Nevertheless, one can see a more GPL-oriented world-view in Git and a
+Contrast a BSD-style project, where contributions are not automatically
+relicensed merely by being distributed with the preexisting BSD code.
+Such projects often require a CLA even when there is no corporate
+overlord or commercial-use relicensing option. It is one way to ensure
+that all contributions are compatibly licensed with the existing body of
+code. It's a way to add a "no takebacks" clause to the basic BSD
+license. The greater necesity for having a CLA in a BSD-licensed project
+makes signing up new contributors harder.
+
+Neither license affects the repository contents managed by either Fossil
+or Git. Nevertheless, one can see a more GPL-oriented world-view in Git and a
 more BSD-oriented world-view in Fossil.  Git encourages anonymous contributions
 and siloed development, which are hallmarks of the GPL/bazaar approach to
 software, whereas Fossil encourages a more tightly collaborative,
