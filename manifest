@@ -1,5 +1,5 @@
-C Toned\sdown\sthe\s"corporate\soverlord"\sstuff\sin\sthe\s"Fossil\svs\sGit"\sdoc.
-D 2019-07-12T14:51:22.057
+C Applied\srewording\ssuggested\sin\shttps://fossil-scm.org/forum/forumpost/1af94ddea9
+D 2019-07-12T14:53:08.418
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki ae9d9bf2ba3667674e6f4302117d4e469a7e406e90dc20ea9513fab39c692e8e
+F www/fossil-v-git.wiki bac0a069e77e98ff072e10af5fcd5d5e5a33f531e5f17e0075c9f2d70caccc3b
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e3383467c70e7c3fa01536f5a2ad2cb8ed0a7fae83cdb052edec033125df2ba
-R 9f9d90b160b5c4adc2824d586ddedac9
+P 133927979ce166b4b72aaf403e2e6407f360f9d26ce9ae3ea7fbe11bd498d78f
+R 5380854148531f09b242233bb3b85e1e
 U wyoung
-Z f891c56ad35aef0a62fffb3881a31636
+Z c709e6a7985cd9554bfde0c10f7756a7
