@@ -317,7 +317,7 @@ GPL requires much the same sort of relinquishment of rights without this
 up-front gatekeeping.
 
 We think this additional friction is not an entirely bad thing. We think
-it creates greater contributor community cohesion, because everyone who
+it improves contributor community cohesion, because everyone who
 pushed past that legal friction made an affirmative, active step to get
 into the community.
 
