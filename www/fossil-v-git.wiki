@@ -321,8 +321,8 @@ it improves contributor community cohesion, because everyone who
 pushed past that legal friction made an affirmative, active step to get
 into the community.
 
-These differences in world-view show up in the design and implementation
-of these two DVCSes. 
+These differences in world-view show up in the design, implementation
+and use of these two DVCSes. 
 Git encourages anonymous contributions
 and siloed development, which are hallmarks of the GPL/bazaar approach to
 software, whereas Fossil encourages a more tightly collaborative
