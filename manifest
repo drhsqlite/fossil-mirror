@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sa\scheck-in\srace\swarning\smessage.
-D 2019-07-13T12:35:04.329
+C Version\s2.9
+D 2019-07-13T13:05:19.574
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -784,7 +784,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6d6cbce83f0d762a7813c96c52f920c363c3cceb1e99c4db75565a9fbccabc11
-F www/changes.wiki 4be12f21b19ab4fc9b76cda88833a4cf9048cb7625d42ea8615cd69992d6c4ac
+F www/changes.wiki 219bba15bb9180d8ef07894bef5ae708567a17bfff5b014790d903c39729b614
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -883,7 +883,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0dba0f4b99c7de08cbb2e6a4666bef80b64b6718fef6ef17821850624af95ae7
-R a55e8daea1e86675ab32fd1d6d1cf3fd
+P 66f06fe23b56b43736c8d9ed994e28e734fc9f494427c273cfc89ff914040067
+R 116ea9c50ca65d929e44121a978cbf1a
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.9 *
 U drh
-Z 47c36d61b161e49f427ef59f9d4bebb0
+Z b4fb8c6b4a81456d354b95251078f411

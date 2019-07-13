@@ -1,7 +1,7 @@
 ﻿<title>Change Log</title>
 
 <a name='v2_9'></a>
-<h2>Changes for Version 2.9 (pending)</h2>
+<h2>Changes for Version 2.9 (2019-07-13)</h2>
 
   *  Added the [/help?cmd=git|fossil git export] command and instructions
      for [./mirrortogithub.md|creating a GitHub mirror of a Fossil project].
@@ -65,6 +65,11 @@
   *  Use new "ci-lock" and "ci-lock-failed" pragmas in the
      [./sync.wiki|sync protocol] to try to prevent accident forks
      caused by concurrent commits when operating in auto-sync mode.
+  *  Fix a bug ([https://www.fossil-scm.org/forum/forumpost/c51b9a1169|details])
+     that can cause repository databases to be overwritten with debugging
+     output, thus corrupting the repository. This is only a factor when
+     CGI debugging is enabled, and even then is a rare occurrence, but it is
+     obviously an important fix.
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>
