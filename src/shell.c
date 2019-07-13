@@ -16933,7 +16933,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         zDiv = " UNION ALL ";
         appendText(&sSelect, "SELECT shell_add_schema(sql,", 0);
         if( sqlite3_stricmp(zDb, "main")!=0 ){
-          appendText(&sSelect, zDb, '"');
+          appendText(&sSelect, zDb, '\'');
         }else{
           appendText(&sSelect, "NULL", 0);
         }
@@ -16942,7 +16942,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         appendText(&sSelect, " AS snum, ", 0);
         appendText(&sSelect, zDb, '\'');
         appendText(&sSelect, " AS sname FROM ", 0);
-        appendText(&sSelect, zDb, '"');
+        appendText(&sSelect, zDb, quoteChar(zDb));
         appendText(&sSelect, ".sqlite_master", 0);
       }
       sqlite3_finalize(pStmt);

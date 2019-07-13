@@ -567,6 +567,7 @@ $(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
+                 -DSQLITE_DQS=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_MEMSTATUS=0 \
                  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -593,6 +594,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_DQS=0 \
                 -DSQLITE_THREADSAFE=0 \
                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
