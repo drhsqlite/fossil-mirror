@@ -1,5 +1,5 @@
-C Import\sthe\scommand-line\stool\sfix\sfrom\sSQLite\s(without\sthe\sother\schanges\non\sSQLite\strunk)\sand\sthen\sdisable\sdouble-quoted\sstring\sliterals\sagain.
-D 2019-07-13T18:03:02.350
+C Eliminate\sall\susage\sof\sTcl_GetStringResult(),\ssince\sthat\scauses\sloss\sof\sTcl_Obj\srepresentation\sin\sTcl\s8.x\s(this\sis\ssolved\sin\sTcl\s9.0)
+D 2019-07-13T19:31:20.731
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -580,7 +580,7 @@ F src/th.c 2aeace70627de71587d04e4324a1989fe40ef4a6
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4c91ac7c1e00a8402de8feedf49158560da0cc37bbcc51ebdb94a6c174ffd162
-F src/th_tcl.c e69b2da18b986295aca4cc1060671a228514c5393822809f3e945cd22dfa7bea
+F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 3a707c535a48b3228c00ae77f68973d7ad5e9c9dea1085581c9ab7decb6c4c97
 F src/tkt.c 1415573c329032355a39769bbba13b89c8312ba5762a95c148a074c211cf92db
 F src/tktsetup.c 7d709613003b9838d00151a08c63d1ca3aaf23664b78f841a46fb80482f4726f
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 05ca5d96c1f71c01bb82a91179972ab82951a02cf5bbd8c22cf589310705d089
-R 3e05ccaab4977877bc2797f8e273f3b6
-U drh
-Z 77ee64a6d978c25c0f7d42ee42320bab
+P 282612762eeef14a0eee19f229fbec16d10443fe92129a027d18dce223977376
+R f64b1bf67f2081da6c7b24646c6cbaa1
+U jan.nijtmans
+Z 0bca9ab40357d74e37cd2068e131e3fc
