@@ -2384,7 +2384,7 @@ int client_sync(
           iNow = time(NULL);
           if( blob_is_int64(&xfer.aToken[3], &mtime) && iNow>mtime ){
             iNow = time(NULL);
-            fossil_print("\nParent check-in lock by %s %s ago\n",
+            fossil_print("\nParent check-in locked by %s %s ago\n",
                zUser, human_readable_age((iNow+1-mtime)/86400.0));
           }else{
             fossil_print("\nParent check-in locked by %s\n", zUser);
