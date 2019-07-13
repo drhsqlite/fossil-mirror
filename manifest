@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\shash\spolicy\sto\s"sha3".\s\sBump\sthe\sversion\snumber\sto\s2.10\nto\sstart\sthe\snext\sdevelopment\scycle.
-D 2019-07-13T14:30:42.143
+C Disable\sthe\sSQLITE_DQS=0\scompile-time\soption.\s\sIt\sturns\sout\sthe\s".schema"\ncommand\sin\sthe\sSQLite\sCLI\smakes\suse\sof\sdouble-quoted\sstring\sliterals.
+D 2019-07-13T16:56:31.926
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,10 +517,10 @@ F src/login.c cf87900af15f738b97eb35d685a787a7b9295eb6a698c30210eb57bfeaebde6e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 622a7b1ae6473b3cdc337221a1ef5ce0c370593ac60dd1dc70b6835735ac4566
-F src/main.mk 9bff2233e86a337cfdba61b54f23cb1e7c2c51d53735fba32ef22354175c0f85
+F src/main.mk fe53efb1afb2d1cbde3e626cbf03751db72493c59cc168c2d3dc0415d04c0147
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 7d99a97d170e4b87cfe98f1c4d4070e86b9962275ae88feba77273535be4fb06 x
+F src/makemake.tcl a7d8e35095cf69e13fc75a99db50534c146c916cca244e0fd8bec666b2ded711 x
 F src/manifest.c 08b0234fb9b3bc08d5eed6f067ee329ac12ad0effade31fb51d14a557d681b9c
 F src/markdown.c fa512af1446b7773a0177668a1790d60925ae0e81f6ef1767f8b3aacbe4644be
 F src/markdown.md 6882d37e282154b82893390557874904b3f5e830dabaea1c3810a8a83169af9b
@@ -737,11 +737,11 @@ F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv ba0ce666694abf427d03189e1388d0238330c029bc5fa399939a9c056e03997c x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
-F win/Makefile.PellesCGMake 8efb67575a65ec076ecbcbefd4559e5165cdbb8c5c53e0b5342871174f74897a
-F win/Makefile.dmc ba8d75654745e2f23dbbcfed2a3701f90023415ce2e62cae56269e1dd396ec9d
-F win/Makefile.mingw ab6b291cb4599aeeb97d59a7a3eb3ceee77f584c19b802faf107ee2e236c6f59
+F win/Makefile.PellesCGMake e730fe39345b6e54621a1b541417ab3f3c75d7750c2fe43fcb3ef2d399cd9690
+F win/Makefile.dmc 2b3831624614c3b340018bb63f6c23e73e74d179470ef4910297bbffc17245e3
+F win/Makefile.mingw eb0f598aac567ba29a5721cb373a31865e82fa773ac0130d9fc7166d0dba8339
 F win/Makefile.mingw.mistachkin da4d949adef2101adabf4dd169bfdc6ddf8c27992b3429e8ec4e7da4b8def3de
-F win/Makefile.msc c5e2b583edb8c80e87999082954ba08c0aca7f3e1297fc1e2c1a8c2f2e398a03
+F win/Makefile.msc 8882df31682dfadf50a4e89866427a3ab988493213b333c67ac36c7977c2074b
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fd79a3e0918611c70a7ec6b610cb4dfc401a2bc9b2c79fa22bb56dde5b1cb96
-R e16843f3c8aeb49846c24a744446ed61
+P b4520f5efc75692575d632f67e47a76e25b331a300fde3fb3f6cefdd1c847b67
+R a2916c263dc6d8a374755c225955a01b
 U drh
-Z dc82e60e1d6d11fe4e5aadd7612f824e
+Z fa2b4e19e5d0855194f21c135317d9bb
