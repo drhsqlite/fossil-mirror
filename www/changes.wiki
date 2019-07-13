@@ -1,5 +1,10 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_10'></a>
+<h2>Changes for Version 2.10 (pending)</h2>
+
+  *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
+
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (2019-07-13)</h2>
 

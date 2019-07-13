@@ -2158,8 +2158,8 @@ static void find_server_repository(int arg, int fCreate){
         db_create_repository(zRepo);
         db_open_repository(zRepo);
         db_begin_transaction();
-        g.eHashPolicy = HPOLICY_AUTO;
-        db_set_int("hash-policy", HPOLICY_AUTO, 0);
+        g.eHashPolicy = HPOLICY_SHA3;
+        db_set_int("hash-policy", HPOLICY_SHA3, 0);
         db_initial_setup(0, "now", g.zLogin);
         db_end_transaction(0);
         fossil_print("project-id: %s\n", db_get("project-code", 0));

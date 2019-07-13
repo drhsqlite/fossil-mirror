@@ -1,5 +1,5 @@
-C Version\s2.9
-D 2019-07-13T13:05:19.574
+C Change\sthe\sdefault\shash\spolicy\sto\s"sha3".\s\sBump\sthe\sversion\snumber\sto\s2.10\nto\sstart\sthe\snext\sdevelopment\scycle.
+D 2019-07-13T14:30:42.143
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -16,7 +16,7 @@ F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2
 F Makefile.in c0c9088da6983daed47eab5d7f98dc8a867b898438b92716ad5e2543e59f823a
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION 5e961720697d2a3e59b2bf0bf2e370310b3088528816ee392e26b916ad1d6bfc
+F VERSION ad89bdb3767ae6964011c9728239aed8f8e03191e9ebef59a4f4d2c60e781ccb
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -516,7 +516,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c cf87900af15f738b97eb35d685a787a7b9295eb6a698c30210eb57bfeaebde6e
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 0c74f5e55a8b5d11ce411de5f6be595c08f50879a15b5aac72a084752082b597
+F src/main.c 622a7b1ae6473b3cdc337221a1ef5ce0c370593ac60dd1dc70b6835735ac4566
 F src/main.mk 9bff2233e86a337cfdba61b54f23cb1e7c2c51d53735fba32ef22354175c0f85
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -784,7 +784,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6d6cbce83f0d762a7813c96c52f920c363c3cceb1e99c4db75565a9fbccabc11
-F www/changes.wiki 219bba15bb9180d8ef07894bef5ae708567a17bfff5b014790d903c39729b614
+F www/changes.wiki 14c0a34db5f75c7491e8d37c574f5b98a60f99ed1ffa9f96118fe3e277588cdf
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -883,10 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 66f06fe23b56b43736c8d9ed994e28e734fc9f494427c273cfc89ff914040067
-R 116ea9c50ca65d929e44121a978cbf1a
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.9 *
+P 0fd79a3e0918611c70a7ec6b610cb4dfc401a2bc9b2c79fa22bb56dde5b1cb96
+R e16843f3c8aeb49846c24a744446ed61
 U drh
-Z b4fb8c6b4a81456d354b95251078f411
+Z dc82e60e1d6d11fe4e5aadd7612f824e
