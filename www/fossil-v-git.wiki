@@ -36,6 +36,8 @@ with further description in the text that follows.
 <tr><td>Bazaar-style development</td><td>Cathedral-style development</td></tr>
 <tr><td>Designed for Linux kernel development</td>
     <td>Designed for SQLite development</td></tr>
+<tr><td>GPLv2</td>
+    <td>2-clause BSD + CLA</td></tr>
 <tr><td>Focus on individual branches</td>
     <td>Focus on the entire tree of changes</td></tr>
 <tr><td>Lots of little tools</td><td>Stand-alone executable</td></tr>
@@ -43,10 +45,9 @@ with further description in the text that follows.
     <td>Many check-outs per repository</td></tr>
 <tr><td>Remembers what you should have done</td>
     <td>Remembers what you actually did</td></tr>
-<tr><td>GPL</td><td>BSD</td></tr>
 </table></blockquote>
 
-<h3>2.1 Feature Set</h3>
+<h3 id="features">2.1 Feature Set</h3>
 
 Git provides file versioning services only, whereas Fossil adds
 integrated [./wikitheory.wiki | wiki],
@@ -74,7 +75,7 @@ and managing a wide assortment of separate tools.  Standing up a developer
 website using Fossil can be done in minutes, whereas doing the same using
 Git requires hours or days.
 
-<h3>2.2 Database</h3>
+<h3 id="database">2.2 Database</h3>
 
 The baseline data structures for Fossil and Git are the same, modulo
 formatting details.  Both systems store check-ins as immutable
@@ -118,72 +119,199 @@ in ways that help developers
 maintain enhanced awareness and comprehension
 and avoid errors.
 
-<h3>2.3 Cathedral vs. Bazaar</h3>
 
-Fossil and Git promote different development styles.  Git promotes a
-"[https://en.wikipedia.org/wiki/The_Cathedral_and_the_Bazaar|bazaar]"
-development style in which numerous anonymous developers make
-small and sometimes haphazard contributions.  Fossil
-promotes a "cathedral" development model in which the project is
-closely supervised by an highly engaged architect and implemented by
-a clique of developers.
+<h3 id="vs-linux">2.3 Linux vs. SQLite</h3>
 
-Nota Bene:  This is not to say that Git cannot be used for cathedral-style
-development or that Fossil cannot be used for bazaar-style development.
-They can be.  But those modes are not their design intent nor their
-low-friction path.
-
-Git encourages a style in which individual developers work in relative
-isolation, maintaining their
-own branches and occasionally rebasing and pushing selected changes up
-to the main repository.  Developers using Git often have their own
-private branches that nobody else ever sees.  Work becomes siloed.
-This is exactly what one wants when doing bazaar-style development.
-
-Fossil, in contrast, strives to keep all changes from all contributors
-mirrored in the main repository (in separate branches) at all times.
-Work in progress from one developer is readily visible to all other
-developers and to the project leader, well before the code is ready
-to integrate.  Fossil places a lot of emphasis on reporting the state
-of the project, and the changes underway by all developers, so that
-all developers and especially the project leader can maintain a better
-mental picture of what is happening, and better situational awareness.
-
-<h3>2.4 Linux vs. SQLite</h3>
-
-Git was specifically designed to support the development of the Linux kernel.
-Fossil was specifically designed to support the development of SQLite.
-
+Fossil and Git promote different development styles because each one was
+specifically designed to support the primary authors' main software
+development project: [https://en.wikipedia.org/wiki/Linus_Torvalds|Linus
+Torvalds] designed Git to support development of
+[https://www.kernel.org/|the Linux kernel], and
+[https://en.wikipedia.org/wiki/D._Richard_Hipp|D. Richard Hipp] designed
+Fossil to support the development of [https://sqlite.org/|SQLite].
 SQLite is much more widely deployed than the Linux kernel, but for
 Linux-based systems, the kernel is the more fundamental component.
 Although both projects must rank high on any objective list of "most
-important [https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
-projects," the two projects are almost entirely unlike
-one another, and this shows up in the design choices of the tools
-created to support them.
+important FOSS projects," the two projects are almost entirely unlike
+one another.
 
-The Linux kernel uses a bazaar-style development model.  There are thousands and
-thousands of contributors, most of whom do not know each others names.
-These thousands are responsible for producing roughly 89⨉ more code than
-is in SQLite. (10.7
+In the following three sections, we will explain the key differences in
+Linux vs. SQLite which affected the designed-in low-friction usage path
+for the DVCSes created to support each one's development.
+
+When deciding between these two DVCSes, you should ask yourself, "Is my
+project more like Linux or more like SQLite?"
+
+
+<h4 id="devorg">2.3.1 Development Organization</h4>
+
+Eric S. Raymond's seminal essay-turned-book
+"[https://en.wikipedia.org/wiki/The_Cathedral_and_the_Bazaar|The
+Cathedral and the Bazaar]" details the two major development
+organization styles found in
+[https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
+projects. As it happens, Linux and SQLite fall on opposite sides of this
+dichotomy. Differing development organization styles dictate a different
+design and low-friction usage path in the tools created to support each
+project.
+
+Git promotes the Linux kernel's bazaar development style, in which a
+loosely-associated mass of developers contribute their work through
+[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|a
+hierarchy of lieutenants] who manage and clean up these contributions
+for consideration by Linus Torvalds, who has the power to cherrypick
+individual contributions into his version of the Linux kernel. Git
+allows an anonymous developer to rebase and push specific locally-named
+private branches, so that a Git repo clone often isn't really a clone at
+all: it may have an arbitrary number of differences relative to the
+repository it originally cloned from. Git encourages siloed development.
+Select work in a developer's local repository may remain private
+indefinitely.
+
+All of this is exactly what one wants when doing bazaar-style
+development.
+
+Fossil's normal mode of operation differs on every one of these points,
+with the specific designed-in goal of promoting SQLite's cathedral
+development model:
+
+<ul>
+    <li><p><b>Personal engagement:</b> SQLite's developers know each
+    other by name and work together daily on the project.</p></li>
+
+    <li><p><b>Trust over hierarchy:</b> Fossil supports developers given
+    direct commit capability on the repository rather than support a
+    hierarchical "dictator and lieutenants" contribution style.  D.
+    Richard Hipp rarely overrides decisions made by those he has trusted
+    with commit access on his repositories.
+    [/doc/trunk/www/admin-v-setup.md|Some users] have more power over
+    what they can do with the repository, but Fossil does not otherwise
+    directly support the enforcement of a development organization's
+    social hierarchy. Fossil is a great fit for
+    [https://en.wikipedia.org/wiki/Flat_organization|flat
+    organizations].</p></li>
+
+    <li><p><b>Anonymous contribution discouraged:</b> Anonymous
+    contribution is possible in a Fossil project, but there is no
+    low-friction path to it, as in Git. Fossil's closest equivalent to
+    Git pull requests is the [/help?cmd=bundle|bundle], which requires
+    higher engagement than firing off a PR. Both Fossil and Git also
+    support <tt>patch(1)</tt> files, but that's a lossy contribution
+    path in both systems.</p></li>
+
+    <li><p><b>No rebasing:</b> When a remote clone syncs changes up to
+    its parent repository, the changes are sent exactly as they were
+    committed to the local repository. [#history|There is no rebasing
+    mechanism, on purpose.]</p></li>
+
+    <li><p><b>Sync over push:</b> Explicit pushes are uncommon in
+    Fossil-based projects; the default is to rely on
+    [/help?cmd=autosync|autosync mode] instead, in which each commit
+    normally syncs immediately to its parent repository, so that
+    explicit pushes are not needed.</p></li>
+
+    <li><p><b>Branch names sync:</b> Unlike in Git, branch names are not
+    purely local labels. They sync along with everything else, so
+    everyone everyone sees the same set of branch names.</p></li>
+
+    <li><p><b>Private branches are rare:</b>
+    [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
+    they're normally used to handle rare exception cases, whereas in
+    many Git projects, they're part of the straight-line development
+    process.</p></li>
+
+    <li><p><b>Identical clones:</b> Fossil's autosync system tries to
+    keep local clones identical to the repository it cloned
+    from.</p></li>
+</ul>
+
+Where Git encourages siloed development, Fossil fights against it.
+[https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy] put
+it well in his book on software project management,
+[https://www.amazon.com/dp/0735623198/|Dynamics of Software
+Development]: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware of a
+guy in a room]." Fossil places a lot of emphasis on synchronizing
+everyone's work and on reporting on the state of the project and the
+work of its developers, so that everyone — especially the project leader
+— can maintain a better mental picture of what is happening, leading to
+better situational awareness.
+
+Each DVCS can be used in the opposite style, but doing so works against
+their low-friction paths.
+
+
+<h4 id="scale">2.3.2 Scale</h4>
+
+The Linux kernel has a far bigger developer community than that of
+SQLite: there are thousands and thousands of contributors to Linux, most
+of whom do not know each others names. These thousands are responsible
+for producing roughly 89⨉ more code than is in SQLite. (10.7
 [https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs 0.12 MLOC
-according to [https://dwheeler.com/sloccount/|SLOCCount].) Git is
-designed for this scenario.
+according to [https://dwheeler.com/sloccount/|SLOCCount].) The Linux
+kernel and its development process were already uncommonly large back in
+2005 when Git was designed, so Git was designed specifically with this
+scenario in mind.
 
-SQLite uses cathedral-style development.  95% of the code in SQLite
-comes from just four programmers, and 64% of it is from the lead developer alone.
-The SQLite developers know each other well and interact daily.
-Fossil is designed for this development model.
+95% of the code in SQLite comes from just four programmers, and 64% of
+it is from the lead developer alone. The SQLite developers know each
+other well and interact daily. Fossil was designed for this development
+model.
 
-We think you should ask yourself whether you have
-[https://en.wikipedia.org/wiki/Linus_Torvalds|Linus Torvalds] scale
-software configuration management problems or
-[https://en.wikipedia.org/wiki/D._Richard_Hipp|D. Richard Hipp] scale
+We think you should ask yourself whether you have Linus Torvalds scale
+software configuration management problems or D. Richard Hipp scale
 problems when choosing your DVCS. An
-[https://en.wikipedia.org/wiki/Impact_wrench|impact wrench]
-is not the best tool for hanging a picture on the living room wall.
+[https://en.wikipedia.org/wiki/Impact_wrench|automotive air impact
+wrench] running at 8000 RPM driving an M8 socket-cap bolt at 16 cm/s is
+not the best way to hang a picture on the living room wall.
 
-<h3>2.5 Individual Branches vs. The Entire Change History</h3>
+
+<h4 id="license">2.3.3 License</h4>
+
+Git is covered by
+[https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2|the
+GPLv2]. Fossil is covered by
+[https://fossil-scm.org/fossil/file/COPYRIGHT-BSD2.txt|a two-clause BSD
+style license]. Neither license affects the managed repository contents,
+and it is not our purpose here to try to persuade you to make the same
+choice of license that we did. However, we do believe the choice of
+license affects the way each tool was developed, which may affect your
+choice of which one to use.
+
+The GPL allows a project to do without a
+[https://en.wikipedia.org/wiki/Contributor_License_Agreement|contributor
+license agreement] (CLA) because by the very act of distributing
+binaries produced from GPL'd source code, you are bound by the license
+to also distribute that source code under a compatible license. Some
+GPL-based projects do require a CLA, but usually only to further
+commercial interests rather than to maintain the legal integrity of the
+[https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
+project itself.
+
+Contrast a BSD-style project, where contributions are not automatically
+relicensed merely by being distributed along with the preexisting BSD
+code. Such projects often require a CLA even when there are no corporate
+interests, to ensure that all contributions are compatibly licensed with
+the existing body of code. It's a way to add a "no takebacks" clause to
+the basic BSD license.
+
+A CLA makes signing up new contributors harder. It's an extra
+gatekeeping step, so it discourages low-engagement contributors. The
+stock GPL requires some of the same relinquishment of rights as Fossil's
+CLA, and the Git project adds to this
+[https://github.com/git/git/blob/master/Documentation/SubmittingPatches#L306|an
+implicit CLA], but contributors agree to both passively.
+[http://fossil-scm.org/home/doc/trunk/www/contribute.wiki|The Fossil
+project's contribution process] requires active steps and processing
+time: the printing, signing, mailing, reception, and processing of the
+CLA.
+
+We think this additional friction has an upside: it improves contributor
+community cohesion, because everyone who pushed past that legal friction
+made an affirmative, active step to get into the community. We think it
+makes for a better, more carefully-designed, simpler DVCS.
+
+
+<h3 id="branches">2.4 Individual Branches vs. The Entire Change History</h3>
 
 Both Fossil and Git store history as a directed acyclic graph (DAG)
 of changes, but Git tends to focus more on individual branches of
@@ -211,7 +339,8 @@ changes on all branches all at once helps keep the whole team
 up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
 
-<h3>2.6 Lots of little tools vs. Self-contained system</h3>
+
+<h3 id="executables">2.5 Lots of little tools vs. Self-contained system</h3>
 
 Git consists of many small tools, each doing one small part of the job,
 which can be recombined (by experts) to perform powerful operations.
@@ -229,7 +358,8 @@ Fossil says that the Unix philosophy is "It just works."  Both
 individuals have written their DVCSes to reflect their own view
 of the "Unix philosophy."
 
-<h3>2.7 One vs. Many Check-outs per Repository</h3>
+
+<h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
 A "repository" in Git is a pile-of-files in the ".git" subdirectory
 of a single check-out.  The check-out and the repository are located
@@ -260,7 +390,8 @@ you can switch branches with a "cd" command rather than replace the
 current working file set with a different file set by updating in place,
 as Git prefers.
 
-<h3>2.8 What you should have done vs. What you actually did</h3>
+
+<h3 id="history">2.7 What you should have done vs. What you actually did</h3>
 
 Git puts a lot of emphasis on maintaining
 a "clean" check-in history.  Extraneous and experimental branches by
@@ -281,54 +412,8 @@ is not a factor.
 One commentator has mused that Git records history according to
 the victors, whereas Fossil records history as it actually happened.
 
-<h3>2.9 GPL vs. BSD</h3>
 
-Git is covered by the GPL license, whereas Fossil is covered by
-[https://fossil-scm.org/fossil/file/COPYRIGHT-BSD2.txt|a two-clause BSD
-style license]. It is not our purpose here to try to persuade you to make
-the same choice of license that we did. Neither license affects the
-managed repository contents. However, we do believe the choice of
-license affected the design and implementation of these two DVCSes,
-which may affect your choice when deciding which one you'd rather use.
-
-The GPL allows a project to do without a
-[https://en.wikipedia.org/wiki/Contributor_License_Agreement|contributor
-license agreement] (CLA) because by the very act of distributing
-binaries, you are bound to also distribute the source under a compatible
-license. There are GPL-based projects that do require a CLA, but this is
-usually done to further commercial interests rather than to maintain
-the legal integrity of the
-[https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
-project itself.
-
-Contrast a BSD-style project, where contributions are not automatically
-relicensed merely by being distributed with the preexisting BSD code.
-Such projects often require a CLA even when there are no corporate
-interests, to ensure
-that all contributions are compatibly licensed with the existing body of
-code. It's a way to add a "no takebacks" clause to the basic BSD
-license.
-
-A CLA makes signing up new contributors harder. It's an extra
-gatekeeping step, so it discourages low-engagement contributors. A CLA
-also drives off those unable to accept the CLA's restrictions on their
-rights, which are otherwise quite minimal under a BSD-style license. The
-GPL requires much the same sort of relinquishment of rights without this
-up-front gatekeeping.
-
-We think this additional friction is not an entirely bad thing. We think
-it improves contributor community cohesion, because everyone who
-pushed past that legal friction made an affirmative, active step to get
-into the community.
-
-These differences in world-view show up in the design, implementation
-and use of these two DVCSes. 
-Git encourages anonymous contributions
-and siloed development, which are hallmarks of the GPL/bazaar approach to
-software, whereas Fossil encourages a more tightly collaborative
-cathedral-style approach more typical of BSD-licensed projects.
-
-<h2>3.0 Missing Features</h2>
+<h2 id="missing">3.0 Missing Features</h2>
 
 Most of the capabilities found in Git are also available in Fossil and
 the other way around. For example, both systems have local check-outs,
@@ -339,7 +424,8 @@ of immutable check-in objects.
 But there are a few capabilities in one system that are missing from the
 other.
 
-<h3>3.1 Features found in Fossil but missing from Git</h3>
+
+<h3 id="missing-in-git">3.1 Features found in Fossil but missing from Git</h3>
 
   *  <b>The ability to show descendents of a check-in.</b>
 
@@ -378,7 +464,7 @@ other.
    nearly as many features and they are not nearly as convenient to use.
 
 
-<h3>3.2 Features found in Git but missing from Fossil</h3>
+<h3 id="missing-in-fossil">3.2 Features found in Git but missing from Fossil</h3>
 
   *  <b>Rebase</b>
 
