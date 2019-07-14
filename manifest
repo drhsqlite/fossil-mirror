@@ -1,5 +1,5 @@
-C Re-cast\sthe\s"BSD\svs\sGPL"\ssection\sas\s"Accepting\sContributions."\s\sIn\sthe\nend,\sthat's\swhat\sthe\sdifference\sin\slicense\samounts\sto.\s\sThis\smakes\sthe\nsection\slonger,\sbut\sthe\schange\sincludes\sa\slink\sto\sskip\spast\sthe\sactual\nlicensing\sdiscussion\sfor\sthose\swho\sdon't\swant\sto\sread\sour\sattempt\sat\san\nunbiased\sdiscussion\sof\sGPL\svs\sBSD,\ssince\seven\sif\swe've\ssucceded,\swe\nwon't\salways\sagree\swith\sthe\suser's\sbiases!
-D 2019-07-14T12:11:26.972
+C Renamed\snamed\sanchor\sfor\s"Accepting\sContributions"\sin\sfossil-v-git\sfrom\n"license"\sto\s"contrib".
+D 2019-07-14T12:12:19.079
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 8acf2244a321ece93c0e4c5f1a51105a5e4a9f98e0798e3b9d9de74e8c592e1a
+F www/fossil-v-git.wiki d7e9d407054af68fe682b479befe3d1299fadfc9bf9652423a87fcaeb071f97d
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcdefd97a74ebb7c141eac3dec7b6336fae66eb3152170a63c41c0b060292851
-R b90666bb3a6984e1fd3babd7070a3cd7
+P 75e93e35b104ca81b4c45d0687964b196ff22131df6dda6ba547689ed6fc50a3
+R 78a486c98f3ddbc2565056ba77f8bb45
 U wyoung
-Z 8a37db34692f1b0dfd782d980cddbaac
+Z 03ea0040beb923dac5ce5eaa662efec8

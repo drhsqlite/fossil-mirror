@@ -265,7 +265,7 @@ wrench] running at 8000 RPM driving an M8 socket-cap bolt at 16 cm/s is
 not the best way to hang a picture on the living room wall.
 
 
-<h4 id="license">2.3.3 Accepting Contributions</h4>
+<h4 id="contrib">2.3.3 Accepting Contributions</h4>
 
 Git is covered by
 [https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2|the
