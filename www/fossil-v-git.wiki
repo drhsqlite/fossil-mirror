@@ -131,13 +131,13 @@ Torvalds] designed Git to support development of
 Fossil to support the development of [https://sqlite.org/|SQLite].
 SQLite is much more widely deployed than the Linux kernel, but for
 Linux-based systems, the kernel is the more fundamental component.
-Although both projects must rank high on any objective list of "most
-important FOSS projects," the two projects are almost entirely unlike
+Both projects must rank high on any objective list of "most
+important FOSS projects," yet these two projects are almost entirely unlike
 one another.
 
-In the following three sections, we will explain the key differences in
-Linux vs. SQLite which affected the designed-in low-friction usage path
-for the DVCSes created to support each one's development.
+In the following sections, we will explain how three key differences
+between Linux and SQLite dictated the design of each DVCS's low-friction
+usage path.
 
 When deciding between these two DVCSes, you should ask yourself, "Is my
 project more like Linux or more like SQLite?"

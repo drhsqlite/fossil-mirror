@@ -1,5 +1,5 @@
-C Prose\spolishing\sin\sthe\s"License"\ssection\sof\sfossil-v-git
-D 2019-07-14T11:28:52.258
+C Another\sbit\sof\sprose\spolishing\sin\sfossil-v-git
+D 2019-07-14T11:37:07.139
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 6d1982d232a82e4b3ebae29ffca4f79218962460084db7e62bc2ebdcd640be53
+F www/fossil-v-git.wiki acf216c8e674f6dc030bcc14c5746074eb4a60e52da39c11dc51720c0b768a77
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bab2656d1c92b7e35849296b9238f2e413fcbd3b28b08a861ee2209b5e7c0109
-R 9f36481fc9d754a7ab734bfe0ca9c5c8
+P eebd7135117f4b3f3c711653abe545b9508c2796a288b7d2e2f13a8254b58682
+R 63a4f944e076c33edbbf2ca38343e751
 U wyoung
-Z dc508b76a0adab3199e7b22c57176146
+Z fb17c796295885fce2a0d3c6411a7c5f
