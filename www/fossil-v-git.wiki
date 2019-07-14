@@ -305,10 +305,11 @@ project's contribution process] requires active steps and processing
 time: the printing, signing, mailing, reception, and processing of the
 CLA.
 
-We think this additional friction has an upside: it improves contributor
-community cohesion, because everyone who pushed past that legal friction
-made an affirmative, active step to get into the community. We think it
-makes for a better, more carefully-designed, simpler DVCS.
+We think there's an upside to this difference, in Fossil's favor: it
+improves contributor community cohesion, because everyone who pushed
+past that legal friction made an affirmative, active step to get commit
+capability on the Fossil project repository. We think it makes for a
+better, more carefully-designed, simpler DVCS.
 
 
 <h3 id="branches">2.4 Individual Branches vs. The Entire Change History</h3>
