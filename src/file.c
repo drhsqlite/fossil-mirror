@@ -703,6 +703,49 @@ int file_mkfolder(
   return rc;
 }
 
+#if defined(_WIN32)
+/*
+** Returns non-zero if the specified name represents a real directory, i.e.
+** not a junction or symbolic link.  This is important for some operations,
+** e.g. removing directories via _wrmdir(), because its detection of empty
+** directories will (apparently) not work right for junctions and symbolic
+** links, etc.
+*/
+int file_is_normal_dir(wchar_t *zName){
+  /*
+  ** Mask off attributes, applicable to directories, that are harmless for
+  ** our purposes.  This may need to be updated if other attributes should
+  ** be ignored by this function.
+  */
+  DWORD dwAttributes = GetFileAttributesW(zName);
+  if( dwAttributes==INVALID_FILE_ATTRIBUTES ) return 0;
+  dwAttributes &= ~(
+    FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_COMPRESSED |
+    FILE_ATTRIBUTE_ENCRYPTED | FILE_ATTRIBUTE_NORMAL |
+    FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
+  );
+  return dwAttributes==FILE_ATTRIBUTE_DIRECTORY;
+}
+
+/*
+** COMMAND: test-is-normal-dir
+**
+** Usage: %fossil test-is-normal-dir NAME...
+**
+** Returns non-zero if the specified names represent real directories, i.e.
+** not junctions, symbolic links, etc.
+*/
+void test_is_normal_dir(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    wchar_t *zMbcs = fossil_utf8_to_path(g.argv[i], 1);
+    fossil_print("ATTRS \"%s\" -> %lx\n", g.argv[i], GetFileAttributesW(zMbcs));
+    fossil_print("ISDIR \"%s\" -> %d\n", g.argv[i], file_is_normal_dir(zMbcs));
+    fossil_path_free(zMbcs);
+  }
+}
+#endif
+
 /*
 ** Removes the directory named in the argument, if it exists.  The directory
 ** must be empty and cannot be the current directory or the root directory.
@@ -715,7 +758,11 @@ int file_rmdir(const char *zName){
   if( rc==1 ){
 #if defined(_WIN32)
     wchar_t *zMbcs = fossil_utf8_to_path(zName, 1);
-    rc = _wrmdir(zMbcs);
+    if( file_is_normal_dir(zMbcs) ){
+      rc = _wrmdir(zMbcs);
+    }else{
+      rc = ENOTDIR; /* junction, symbolic link, etc. */
+    }
 #else
     char *zMbcs = fossil_utf8_to_path(zName, 1);
     rc = rmdir(zName);

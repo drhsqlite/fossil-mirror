@@ -1,5 +1,5 @@
-C Eliminate\sall\susage\sof\sTcl_GetStringResult(),\ssince\sthat\scauses\sloss\sof\sTcl_Obj\srepresentation\sin\sTcl\s8.x\s(this\sis\ssolved\sin\sTcl\s9.0)
-D 2019-07-13T19:31:20.731
+C When\sremoving\sa\sdirectory\son\sWindows,\smake\ssure\sit\sis\sa\sreal\sdirectory\s(i.e.\snot\sa\sjunction,\ssymbolic\slink,\setc).
+D 2019-07-14T04:46:09.191
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/file.c 12bfd236475d763e45dabf474f106de57a558c3b70eca1c42e1e806dfbd0d7b3
+F src/file.c e13538ed0aaf575ee5b9ef46e92f65f583dd15993c22a1979f009a911a4a2f64
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 282612762eeef14a0eee19f229fbec16d10443fe92129a027d18dce223977376
-R f64b1bf67f2081da6c7b24646c6cbaa1
-U jan.nijtmans
-Z 0bca9ab40357d74e37cd2068e131e3fc
+P 743e166cf95c86e5de21c3a245113258d820c0c26424dd5a41a7a452087446c3
+R 9f74a5ce552dd940d55ea3b0a724f0ef
+U mistachkin
+Z e3a775482fcfd181c808bb9c0b9d8aec
