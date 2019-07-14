@@ -323,8 +323,8 @@ strike us as a good use of the user's time. We believe it's better to
 have a simpler tool with a more easily internalized behavior set, which
 you can use quickly then set aside in order to get back to your main
 task of producing the content that you manage in the DVCS. We achieve
-that by carefully choosing which users to give commit bits to, and which
-of their feature branches get merged down to trunk.
+that by carefully choosing which users to give commit bits to, then which
+of their feature branches to merge down to trunk.
 
 
 <h3 id="branches">2.4 Individual Branches vs. The Entire Change History</h3>
