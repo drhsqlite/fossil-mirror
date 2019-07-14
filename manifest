@@ -1,5 +1,5 @@
-C Turned\sa\sredundancy\sin\sthe\s"Scale"\ssection\sof\sfossil-v-git\sinto\sa\nclearer\spoint.\s\sAlso\sadded\sa\sbit\son\sFossil's\slater\sbirthday\sand\sour\stake\non\sits\sconsequences.
-D 2019-07-14T12:24:24.289
+C Small\stweak\sto\sprev
+D 2019-07-14T12:25:07.236
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 59fbe1de84bfea0de784e433e836d6c83dbfa5ac35f91e767f3f39a5eb6bb905
+F www/fossil-v-git.wiki 8e375d2bcfeadd9a2ec8ec20c41b8745ce4920f7b336acf67ec2ac104b97866a
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 074b896e575ce52728e9fe16a53cf7eb00bb934bd3e420663092f4dbd5f6932f
-R 0e6fc8940545af38783b75e875768987
+P 30a74d7e056b063c721177346d93612dd04bf6747e947ac5b6ae944449a60e26
+R ab29d2614b3dd90667499ff17866b2c8
 U wyoung
-Z 357de05fdcdf706de5e0b5e34d6fad19
+Z fbd881303c3b7f6c652ed62f8a6b5506
