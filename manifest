@@ -1,5 +1,5 @@
-C When\sremoving\sa\sdirectory\son\sWindows,\smake\ssure\sit\sis\sa\sreal\sdirectory\s(i.e.\snot\sa\sjunction,\ssymbolic\slink,\setc).
-D 2019-07-14T04:46:09.191
+C Try\sto\somit\sunnecessary\sindentation\son\sthe\shierarchical\sforum\sdisplay.\nInclude\san\s"in\sreply\sto"\smark\son\sthe\shierarchical\sdisplay.
+D 2019-07-14T20:32:28.110
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -477,7 +477,7 @@ F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/file.c e13538ed0aaf575ee5b9ef46e92f65f583dd15993c22a1979f009a911a4a2f64
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c bf70874b79d397adcbca3da8ff31d2cd66ffe907d79016dbaab85ec612fc1fce
+F src/forum.c 9795ee038c14c17356cd9edeffbb1fecbe13140c204a4d280ad8bf1d31c61429
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 743e166cf95c86e5de21c3a245113258d820c0c26424dd5a41a7a452087446c3
-R 9f74a5ce552dd940d55ea3b0a724f0ef
-U mistachkin
-Z e3a775482fcfd181c808bb9c0b9d8aec
+P 9bb25a28627be067847de63528aa23984590bed594abf7640b48fda5d276771d
+R 9f7c498a170160aa5a38261a5fad5b63
+U drh
+Z 8e59c1df4f78b17e6d21e931fd647756

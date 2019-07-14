@@ -37,9 +37,10 @@ struct ForumEntry {
   int fprev;             /* zero if initial entry.  non-zero if an edit */
   int firt;              /* This entry replies to firt */
   int mfirt;             /* Root in-reply-to */
+  int nReply;            /* Number of replies to this entry */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pLeaf;     /* Most recent edit for this entry */
-  ForumEntry *pEdit;     /* This entry is an edit of pEditee */
+  ForumEntry *pEdit;     /* This entry is an edit of pEdit */
   ForumEntry *pNext;     /* Next in chronological order */
   ForumEntry *pPrev;     /* Previous in chronological order */
   ForumEntry *pDisplay;  /* Next in display order */
@@ -106,18 +107,26 @@ static void forumentry_add_to_display(ForumThread *pThread, ForumEntry *p){
 ** entry "p".
 */
 static void forumthread_display_order(
-  ForumThread *pThread,
-  ForumEntry *p,
-  int fpid,
-  int nIndent
+  ForumThread *pThread,    /* The complete thread */
+  ForumEntry *pBase        /* Add replies to this entry */
 ){
-  while( p ){
-    if( p->fprev==0 && p->mfirt==fpid ){
-      p->nIndent = nIndent;
-      forumentry_add_to_display(pThread, p);
-      forumthread_display_order(pThread, p->pNext, p->fpid, nIndent+1);
+  ForumEntry *p;
+  ForumEntry *pPrev = 0;
+  for(p=pBase->pNext; p; p=p->pNext){
+    if( p->fprev==0 && p->mfirt==pBase->fpid ){
+      if( pPrev ){
+        pPrev->nIndent = pBase->nIndent + 1;
+        forumentry_add_to_display(pThread, pPrev);
+        forumthread_display_order(pThread, pPrev);
+      }
+      pBase->nReply++;
+      pPrev = p;
     }
-    p = p->pNext;
+  }
+  if( pPrev ){
+    pPrev->nIndent = pBase->nIndent + (pBase->nReply>1);
+    forumentry_add_to_display(pThread, pPrev);
+    forumthread_display_order(pThread, pPrev);
   }
 }
 
@@ -180,7 +189,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     pEntry = pThread->pFirst;
     pEntry->nIndent = 1;
     forumentry_add_to_display(pThread, pEntry);
-    forumthread_display_order(pThread, pEntry, pEntry->fpid, 2);
+    forumthread_display_order(pThread, pEntry);
   }
 
   /* Return the result */
@@ -207,6 +216,9 @@ void forumthread_cmd(void){
   zName = g.argv[2];
   fpid = symbolic_name_to_rid(zName, "f");
   if( fpid<=0 ){
+    fpid = db_int(0, "SELECT rid FROM blob WHERE rid=%d", atoi(zName));
+  }
+  if( fpid<=0 ){
     fossil_fatal("Unknown or ambiguous forum id: \"%s\"", zName);
   }
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
@@ -217,11 +229,12 @@ void forumthread_cmd(void){
   fossil_print("froot = %d\n", froot);
   pThread = forumthread_create(froot, 1);
   fossil_print("Chronological:\n");
-           /*   123456789 123456789 123456789 123456789 123456789  */
-  fossil_print("     fpid      firt     fprev     mfirt     pLeaf\n");
+           /*   123456789 123456789 123456789 123456789 123456789 123456789  */
+  fossil_print("     fpid      firt     fprev     mfirt     pLeaf    nReply\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%9d %9d %9d %9d %9d\n",
-       p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0);
+    fossil_print("%9d %9d %9d %9d %9d %9d\n",
+       p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0,
+       p->nReply);
   }
   fossil_print("\nDisplay\n");
   for(p=pThread->pDisplay; p; p=p->pDisplay){
@@ -321,7 +334,7 @@ static void forum_display_chronological(int froot, int target){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
+        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
       }
     }
     if( p->pLeaf ){
@@ -443,6 +456,13 @@ static int forum_display_hierarchical(int froot, int target){
     }
     if( fpid!=target ){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
+    }
+    if( p->firt ){
+      ForumEntry *pIrt = p->pPrev;
+      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
+      if( pIrt ){
+        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
+      }
     }
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
