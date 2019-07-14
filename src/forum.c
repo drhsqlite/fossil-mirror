@@ -306,6 +306,7 @@ static void forum_display_chronological(int froot, int target){
   ForumThread *pThread = forumthread_create(froot, 0);
   ForumEntry *p;
   int notAnon = login_is_individual();
+  int iPrev = -1;
   for(p=pThread->pFirst; p; p=p->pNext){
     char *zDate;
     Manifest *pPost;
@@ -334,9 +335,15 @@ static void forum_display_chronological(int froot, int target){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
+        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))\
+        if( p->firt==iPrev ){
+          @ previous</a>
+        }else{
+          @ %d(p->firt)</a>
+        }
       }
     }
+    iPrev = p->fpid;
     if( p->pLeaf ){
       @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
       @ %d(p->pLeaf->fpid)</a>
@@ -399,6 +406,7 @@ static int forum_display_hierarchical(int froot, int target){
   char *zDate;
   const char *zSel;
   int notAnon = login_is_individual();
+  int iPrev = -1;
 
   pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
@@ -461,9 +469,15 @@ static int forum_display_hierarchical(int froot, int target){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
+        @ in reply to %z(href("%R/forumpost/%S?t=h",pIrt->zUuid))\
+        if( p->firt==iPrev ){
+          @ previous</a>
+        }else{
+          @ %d(p->firt)</a>
+        }
       }
     }
+    iPrev = p->fpid;
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     if( isPrivate && !g.perm.ModForum && !sameUser ){
