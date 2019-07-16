@@ -1,5 +1,5 @@
-C Missing\sdb_end_transaction(0)
-D 2019-07-16T14:58:51.076
+C When\scommitting\swithout\sparent-id\s(additional\s"initial"\scommits),\smake\ssure\sthe\sbranch-name\sis\sset\sto\s"trunk"\swhen\snot\sprovided\sotherwise.
+D 2019-07-16T15:42:17.218
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c f6e6ad26919f333a438bd5d2bb42a6914fdf7a7ba95d898562eb7603162acf71
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 488f1fd1a328a2f7abbf411053c0de9e7ff1dceb440eeca4dcb97112f2cc7b31
-F src/checkin.c 6d7bc590635ea1fa055d51daf674e25ca9d3b2e1dd1240e1992cdd6d745595cc
+F src/checkin.c a501e7664fbcf8cdce99c938b303a54dec7cacb60f1d674951d2340bf5dc1147
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b63ab701bc99994e40ede6ef7720af71da57c8e01bb9ce502fd80cc3eee3b76
-R f2700405f9c1ad6b439a1cb944699949
+P b0db865f200f61005cf115a64334f67bca06b8528c789847516d4cb4ad3a3c8d
+R 1f594a42d46f2c6ae15c9890aed4b3e5
 U jan.nijtmans
-Z e1ca26bb6dad3f2fe0e431cc5cb359ad
+Z 75f13b3b64635eb5898bc433b9160629

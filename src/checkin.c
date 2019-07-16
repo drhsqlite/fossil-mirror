@@ -2125,6 +2125,17 @@ void commit_cmd(void){
   outputManifest = db_get_manifest_setting();
   verify_all_options();
 
+  /* Get the ID of the parent manifest artifact */
+  vid = db_lget_int("checkout", 0);
+  if( vid==0 ){
+    useCksum = 1;
+    if( sCiInfo.zBranch==0 ) {
+    	sCiInfo.zBranch=db_get("main-branch", "trunk");
+    }
+  }else if( content_is_private(vid) ){
+    g.markPrivate = 1;
+  }
+
   /* Do not allow the creation of a new branch using an existing open
   ** branch name unless the --force flag is used */
   if( sCiInfo.zBranch!=0
@@ -2151,14 +2162,6 @@ void commit_cmd(void){
   */
   if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
     forceBaseline = 1;
-  }
-
-  /* Get the ID of the parent manifest artifact */
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    useCksum = 1;
-  }else if( content_is_private(vid) ){
-    g.markPrivate = 1;
   }
 
   /*
