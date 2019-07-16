@@ -329,6 +329,7 @@ void checkout_cmd(void){
                          " ORDER BY event.mtime DESC");
     }
     if( zVers==0 ){
+      db_end_transaction(0);
       return;
     }
   }else{
