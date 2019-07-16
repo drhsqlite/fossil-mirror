@@ -1747,7 +1747,7 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 ** path element.
 */
 const char *file_is_win_reserved(const char *zPath){
-  static const char *azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
+  static const char *const azRes[] = { "CON", "PRN", "AUX", "NUL", "COM", "LPT" };
   static char zReturn[5];
   int i;
   while( zPath[0] ){
@@ -1980,7 +1980,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **
 */
 void touch_cmd(){
-  const char * zGlobList; /* -g List of glob patterns */ 
+  const char * zGlobList; /* -g List of glob patterns */
   const char * zGlobFile; /* -G File of glob patterns */
   Glob * pGlob = 0;       /* List of glob patterns */
   int verboseFlag;
@@ -2147,7 +2147,7 @@ void touch_cmd(){
       changeCount +=
         touch_cmd_stamp_one_file( zAbs, zArg, newMtime, dryRunFlag,
                                   verboseFlag, quietFlag );
-    }        
+    }
   }
   db_end_transaction(0);
   blob_reset(&absBuffer);

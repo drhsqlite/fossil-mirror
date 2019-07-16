@@ -1112,7 +1112,7 @@ int search_screen(unsigned srchFlags, int mFlags){
   }
   @ <input type="text" name="s" size="40" value="%h(zPattern)"%s(zDisable1)>
   if( (mFlags & 0x01)!=0 && (srchFlags & (srchFlags-1))!=0 ){
-    static const struct { char *z; char *zNm; unsigned m; } aY[] = {
+    static const struct { const char *z; const char *zNm; unsigned m; } aY[] = {
        { "all",  "All",        SRCH_ALL      },
        { "c",    "Check-ins",  SRCH_CKIN     },
        { "d",    "Docs",       SRCH_DOC      },
@@ -1844,7 +1844,7 @@ void fts_config_cmd(void){
      { 4,  "enable"   },
      { 5,  "stemmer"  },
   };
-  static const struct { char *zSetting; char *zName; char *zSw; } aSetng[] = {
+  static const struct { const char *zSetting; const char *zName; const char *zSw; } aSetng[] = {
      { "search-ci",       "check-in search:",  "c" },
      { "search-doc",      "document search:",  "d" },
      { "search-tkt",      "ticket search:",    "t" },

@@ -218,7 +218,7 @@ int hname_default_policy(void){
 /*
 ** Names of the hash policies.
 */
-static const char *azPolicy[] = {
+static const char *const azPolicy[] = {
   "sha1", "auto", "sha3", "sha3-only", "shun-sha1"
 };
 

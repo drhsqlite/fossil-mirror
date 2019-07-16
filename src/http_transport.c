@@ -82,7 +82,7 @@ void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
 ** like "/bin/rm".
 */
 static int is_safe_fossil_command(const char *zFossil){
-  static const char *azSafe[] = { "*/fossil", "*/echo" };
+  static const char *const azSafe[] = { "*/fossil", "*/echo" };
   int i;
   for(i=0; i<sizeof(azSafe)/sizeof(azSafe[0]); i++){
     if( sqlite3_strglob(azSafe[i], zFossil)==0 ) return 1;

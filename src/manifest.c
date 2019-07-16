@@ -142,7 +142,7 @@ static struct {
 /*
 ** Names of manifest types
 */
-static const char *azNameOfMType[] = {
+static const char *const azNameOfMType[] = {
   "manifest",
   "cluster",
   "tag",

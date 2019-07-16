@@ -314,7 +314,7 @@ void multiple_choice_attribute(
 ** The access-control settings page.  Requires Setup privileges.
 */
 void setup_access(void){
-  static const char * const azRedirectOpts[] = {
+  static const char *const azRedirectOpts[] = {
     "0", "Off",
     "1", "Login Page Only",
     "2", "All Pages"
@@ -334,7 +334,7 @@ void setup_access(void){
   multiple_choice_attribute("Redirect to HTTPS",
      "redirect-to-https", "redirhttps", "0",
      count(azRedirectOpts)/2, azRedirectOpts);
-  @ <p>Force the use of HTTPS by redirecting to HTTPS when an 
+  @ <p>Force the use of HTTPS by redirecting to HTTPS when an
   @ unencrypted request is received.  This feature can be enabled
   @ for the Login page only, or for all pages.
   @ <p>Further details:  When enabled, this option causes the $secureurl TH1
@@ -918,7 +918,7 @@ void setup_config(void){
   @ </p>
   @ <hr />
   entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide 
+  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
   @ a convenient place for newbies
   @ to download a ZIP archive or a tarball of the project.  By default,
   @ the latest trunk check-in is downloaded.  Change this tag to something
@@ -949,8 +949,8 @@ void setup_config(void){
   @ <p>(Property: "index-page")
   @ <hr>
   @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
-  @ Often these are filled in with links like 
-  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to 
+  @ Often these are filled in with links like
+  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to
   @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
   @ to wiki pages.
   @ Leave blank to omit.

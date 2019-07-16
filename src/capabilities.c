@@ -93,7 +93,7 @@ void capability_free(CapabilityString *p){
 }
 
 /*
-** Expand the capability string by including all capabilities for 
+** Expand the capability string by including all capabilities for
 ** special users "nobody" and "anonymous".  Also include "reader"
 ** if "u" is present and "developer" if "v" is present.
 */
@@ -381,8 +381,8 @@ void capability_summary(void){
     const char *zCap = db_column_text(&q, 1);
     int n = db_column_int(&q, 3);
     int eType;
-    static const char *azType[] = { "off", "read", "write" };
-    static const char *azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
+    static const char *const azType[] = { "off", "read", "write" };
+    static const char *const azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
 
     if( n==0 ) continue;
 

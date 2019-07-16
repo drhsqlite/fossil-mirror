@@ -1189,7 +1189,7 @@ int timeline_ss_cookie(void){
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
     case 'x':  tmFlags = TIMELINE_CLASSIC;  break;
     default:   tmFlags = TIMELINE_MODERN;   break;
-  }    
+  }
   return tmFlags;
 }
 
@@ -1200,7 +1200,7 @@ int timeline_ss_cookie(void){
 ** Return the TIMELINE_* value appropriate for the view-style.
 */
 int timeline_ss_submenu(void){
-  static const char *azViewStyles[] = {
+  static const char *const azViewStyles[] = {
      "m", "Modern View",
      "j", "Columnar View",
      "c", "Compact View",
@@ -1629,7 +1629,7 @@ void page_timeline(void){
   }
   cgi_replace_query_parameter("n",z);
   cookie_write_parameter("n","n",0);
-  tmFlags |= timeline_ss_submenu();  
+  tmFlags |= timeline_ss_submenu();
   cookie_link_parameter("advm","advm","0");
   advancedMenu = atoi(PD("advm","0"));
 
@@ -2038,7 +2038,7 @@ void page_timeline(void){
                                  zYearWeek);
         zYearWeek = z;
       }else{
-        if( strlen(zYearWeek)==7 ){       
+        if( strlen(zYearWeek)==7 ){
           zYearWeekStart = db_text(0,
              "SELECT date('%.4q-01-01','+%d days','weekday 1')",
              zYearWeek, atoi(zYearWeek+5)*7);
@@ -2246,7 +2246,7 @@ void page_timeline(void){
     if( zYearMonth ){
       blob_appendf(&desc, "%d %s%s for %h", n, zEType, zPlural, zYearMonth);
     }else if( zYearWeek ){
-      blob_appendf(&desc, "%d %s%s for week %h beginning on %h", 
+      blob_appendf(&desc, "%d %s%s for week %h beginning on %h",
                    n, zEType, zPlural, zYearWeek, zYearWeekStart);
     }else if( zDay ){
       blob_appendf(&desc, "%d %s%s occurring on %h", n, zEType, zPlural, zDay);
@@ -2373,7 +2373,7 @@ void page_timeline(void){
     style_submenu_element("Search", "%R/search?y=c");
   }
   if( advancedMenu ){
-    style_submenu_element("Basic", "%s", 
+    style_submenu_element("Basic", "%s",
         url_render(&url, "advm", "0", "udc", "1"));
   }else{
     style_submenu_element("Advanced", "%s",
