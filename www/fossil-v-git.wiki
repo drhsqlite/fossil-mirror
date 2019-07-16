@@ -285,29 +285,30 @@ how we react to
 contributions]. In brief, it's harder to get a new feature into Fossil
 than into Git.
 
-Git's larger feature set size is not a good thing. Git's command line
+A larger feature set size is not necessarily a good thing. Git's command line
 interface is famously arcane. Masters of the arcane are able to do
 wizardly things, but only by studying their art deeply for years. This
 strikes us as a good thing only in cases where use of the tool itself is
 the primary point of that user's work.
 
 Most DVCS users are not using a DVCS for its own sake, so we do not want
-the DVCS with the most features but the one that lets us get back to our
+the DVCS with the most features, we want the one with a more easily
+internalized behavior set, which we can pick up, use quickly, and then
+set aside in order to get back to our
 actual job as quickly as possible. There is some minimal set of features
 required to achieve that, but there is a level beyond which more
-features only slow us down when we're trying to figure out how to get
-past our latest battle with the DVCS. When the number of features grows
+features only slow us down while we're learning about the DVCS, as we
+must plow through documentation on features we're not likely to ever
+use. When the number of features grows
 to the point where people of normal motivation cannot spend the time to
 master them all, you make the tool <i>less</i> productive to use.
 
-We believe it's better to have a simpler tool with a more easily
-internalized behavior set, which you can pick up, use quickly, then set
-aside in order to get back to your main task: producing the content that
-you manage in the DVCS. We achieve that by carefully choosing which
-users to give commit bits to, then which of the feature branches they
-create to merge down to trunk.
+We achieve this balance between feature set size and ease of use by
+carefully choosing which users to give commit bits to, then in being
+choosy about which of the contributed feature branches to merge down to
+trunk.
 
-Fossil more closely adheres to
+The end result is that Fossil more closely adheres to
 [https://en.wikipedia.org/wiki/Principle_of_least_astonishment|the
 principle of least astonishment] than Git does.
 
