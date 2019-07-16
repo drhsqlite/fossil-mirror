@@ -246,7 +246,7 @@ The Linux kernel has a far bigger developer community than that of
 SQLite: there are thousands and thousands of contributors to Linux, most
 of whom do not know each others names. These thousands are responsible
 for producing roughly 89⨉ more code than is in SQLite. (10.7
-[https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs 0.12 MLOC
+[https://en.wikipedia.org/wiki/Source_lines_of_code|MLOC] vs. 0.12 MLOC
 according to [https://dwheeler.com/sloccount/|SLOCCount].) The Linux
 kernel and its development process were already uncommonly large back in
 2005 when Git was designed, specifically to support the consequences of
@@ -269,62 +269,47 @@ not the best way to hang a picture on the living room wall.
 
 <h4 id="contrib">2.3.3 Accepting Contributions</h4>
 
-Git is covered by
-[https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_2|the
-GPLv2]. Fossil is covered by
-[https://fossil-scm.org/fossil/file/COPYRIGHT-BSD2.txt|a two-clause BSD
-style license]. Neither license affects the managed repository contents,
-and it is not our purpose here to try to persuade you to make the same
-choice of license that we did, but we believe the choice of license has
-an effect on the actual use of each DVCS. If you don't want to read
-about licensing, you can skip to [#whylicmat|our point at the end].
+As of this writing, Git has received about 4.5⨉ as many commits as
+Fossil resulting in about 2.5⨉ as many lines of source code. The line
+count excludes tests and in-tree third-party dependencies. It does not
+exclude the default GUI for each, since it's integral for Fossil, so we
+count the size of <tt>gitk</tt> in this.
 
-The GPL allows a project to do without a
-[https://en.wikipedia.org/wiki/Contributor_License_Agreement|contributor
-license agreement] (CLA) because by the very act of distributing
-binaries produced from GPL'd source code, you are bound by the license
-to also distribute that source code under a compatible license. Some
-GPL-based projects do require a CLA, but usually only to further
-commercial interests rather than to maintain the legal integrity of the
-[https://en.wikipedia.org/wiki/Free_and_open-source_software|FOSS]
-project itself.
-
-Contrast a BSD-style project, where contributions are not automatically
-relicensed merely by being distributed along with the preexisting BSD
-code. Such projects often require a CLA even when there are no corporate
-interests, to ensure that all contributions are compatibly licensed with
-the existing body of code. It's a way to add a "no takebacks" clause to
-the basic BSD license.
-
-A CLA makes signing up new contributors harder. It's an extra
-gatekeeping step, so it discourages low-engagement contributors. The
-stock GPL requires some of the same relinquishment of rights as Fossil's
-CLA, and the Git project adds to this
-[https://github.com/git/git/blob/master/Documentation/SubmittingPatches#L306|an
-implicit CLA], but contributors agree to both passively.
-[http://fossil-scm.org/home/doc/trunk/www/contribute.wiki|The Fossil
-project's contribution process] requires active steps and processing
-time: the printing, signing, mailing, reception, and processing of the
-CLA.
-
-<a name="whylicmat"></a>
-We think there's an upside to this difference in licensing, in Fossil's favor: it
-improves contributor community cohesion, because everyone who pushed
-past that legal friction made an affirmative, active step to get commit
-capability on the Fossil project repository. We believe discouraging
+It is obvious that Git is bigger in part because of its first-mover
+advantage, which resulted in a larger user community, which results in
+more contributions. But is that the <i>only</i> reason? We believe there
+are other relevant differences that also play into this which fall out
+of the "Linux vs. SQLite" framing: licensing, community structure, and
+how we react to
 [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
-contributions] makes for a better, more carefully-designed, simpler
-DVCS.
+contributions]. In brief, it's harder to get a new feature into Fossil
+than into Git.
 
-It's so easy to add features to Git that its command interface has
-become truly arcane. Masters of the arcane are able to do wizardly
-things, but only by studying their art deeply for years. This does not
-strike us as a good use of the user's time. We believe it's better to
-have a simpler tool with a more easily internalized behavior set, which
-you can use quickly then set aside in order to get back to your main
-task of producing the content that you manage in the DVCS. We achieve
-that by carefully choosing which users to give commit bits to, then which
-of their feature branches to merge down to trunk.
+Git's larger feature set size is not a good thing. Git's command line
+interface is famously arcane. Masters of the arcane are able to do
+wizardly things, but only by studying their art deeply for years. This
+strikes us as a good thing only in cases where use of the tool itself is
+the primary point of that user's work.
+
+Most DVCS users are not using a DVCS for its own sake, so we do not want
+the DVCS with the most features but the one that lets us get back to our
+actual job as quickly as possible. There is some minimal set of features
+required to achieve that, but there is a level beyond which more
+features only slow us down when we're trying to figure out how to get
+past our latest battle with the DVCS. When the number of features grows
+to the point where people of normal motivation cannot spend the time to
+master them all, you make the tool <i>less</i> productive to use.
+
+We believe it's better to have a simpler tool with a more easily
+internalized behavior set, which you can pick up, use quickly, then set
+aside in order to get back to your main task: producing the content that
+you manage in the DVCS. We achieve that by carefully choosing which
+users to give commit bits to, then which of the feature branches they
+create to merge down to trunk.
+
+Fossil more closely adheres to
+[https://en.wikipedia.org/wiki/Principle_of_least_astonishment|the
+principle of least astonishment] than Git does.
 
 
 <h3 id="branches">2.4 Individual Branches vs. The Entire Change History</h3>
