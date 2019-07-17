@@ -312,7 +312,6 @@ static void forum_display_chronological(int froot, int target){
   ForumThread *pThread = forumthread_create(froot, 0);
   ForumEntry *p;
   int notAnon = login_is_individual();
-  int iPrev = -1;
   for(p=pThread->pFirst; p; p=p->pNext){
     char *zDate;
     Manifest *pPost;
@@ -332,31 +331,27 @@ static void forum_display_chronological(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <p>By %h(pPost->zUser) on %h(zDate) (%d(p->fpid))
+    @ <p>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))%d(p->fprev)</a>
+      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))\
+      @ %d(p->pEdit->sid)</a>
+    }
+    if( g.perm.Debug ){
+      @ <span class="debug">\
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact)</a></span>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
         @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))\
-        if( p->firt==iPrev ){
-          @ previous</a>
-        }else{
-          @ %d(p->firt)</a>
-        }
+        @ %d(pIrt->sid)</a>
       }
     }
-    iPrev = p->fpid;
     if( p->pLeaf ){
       @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
-      @ %d(p->pLeaf->fpid)</a>
-    }
-    if( g.perm.Debug ){
-      @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">artifact</a></span>
+      @ %d(p->pLeaf->sid)</a>
     }
     if( p->fpid!=target ){
       @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
@@ -412,7 +407,6 @@ static int forum_display_hierarchical(int froot, int target){
   char *zDate;
   const char *zSel;
   int notAnon = login_is_individual();
-  int iPrev = -1;
   int iIndentScale = 4;
 
   pThread = forumthread_create(froot, 1);
@@ -452,11 +446,11 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    @ <p>By %h(pOPost->zUser) on %h(zDate)
+    @ <p>(%d(p->sid)) By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(%d(p->fpid))</a></span>
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact)</a></span>
     }
     if( p->pLeaf ){
       zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
@@ -468,7 +462,7 @@ static int forum_display_hierarchical(int froot, int target){
       fossil_free(zDate);
       if( g.perm.Debug ){
         @ <span class="debug">\
-        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">(%d(fpid))</a></span>
+        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">(artifact)</a></span>
       }
       manifest_destroy(pOPost);
     }
@@ -480,14 +474,9 @@ static int forum_display_hierarchical(int froot, int target){
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
         @ in reply to %z(href("%R/forumpost/%S?t=h",pIrt->zUuid))\
-        if( p->firt==iPrev ){
-          @ previous</a>
-        }else{
-          @ %d(p->firt)</a>
-        }
+        @ %d(pIrt->sid)</a>
       }
     }
-    iPrev = p->fpid;
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     if( isPrivate && !g.perm.ModForum && !sameUser ){
