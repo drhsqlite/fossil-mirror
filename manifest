@@ -1,5 +1,5 @@
-C Code\scleanup:\sAdd\sa\slot\sof\s"const"\squalifiers\sfor\sstatic\s(string)\sarrays,\swhere\sappropriate.\sThis\sallows\sthe\sC\scompiler\sto\soptimize\smore
-D 2019-07-16T20:02:48.833
+C Reworked\sseveral\ssections\sof\sthe\sfossil-v-git.wiki\sdoc\sas\ssub-sections\nof\s"Linux\svs.\sSQLite",\swhich\snow\sacts\sas\sa\sframe\sfor\sthose\ssections.\nSome\sof\sthese\ssections\sare\sexpanded\swhile\sothers\sdisappear\sentirely,\nmost\sespecially\sthe\s"BSD\svs\sGPL"\sargument\sthat\swe\sstarted\soff\son\sthe\nnow-merged\sbranch\sto\stry\sand\srefine.\s\sWe\sreplace\sa\sdiscussion\sof\nlicensing\swith\sone\sof\scommunity\sstructure\sand\sour\sapproach\sto\spatch\nacceptance,\swhich\sis\smore\sof\swhat\sthe\sold\slicensing\sdiscussion\swas\ntrying\sto\sget\sat\swithout\sgetting\sinto\sthe\sdetails\sof\ssoftware\slicensing\nper\sse.
+D 2019-07-17T02:37:15.466
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki a6d28ebb7abe3a5e1a9f56247531fc5e141a6a2ffc9050a5777c2c4792c9ca99
+F www/fossil-v-git.wiki 5842095ad80196c250614aedb498793a6f0aca004a95f41c116ff518f277611e
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,8 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0fd6cf166ce5d9c23d3148bb798b7f1039ebc0b40d3120b60657f760ad15e9aa
-R fe4c289525199815c3d6e305e8f6859f
-U jan.nijtmans
-Z 71f554b78893caa1ac1ca6843332987f
+P 70a94d09720fc8a03aa7a02713c6804734c42f5dd21c25fc09c56a9d75f7a919 a52e68459fe94ce66f87b1a1c247c859caecff77eacc7231eb9b507af66ce039
+R a5ef251dd7dc5389614fee647387459b
+T +closed a52e68459fe94ce66f87b1a1c247c859caecff77eacc7231eb9b507af66ce039
+U wyoung
+Z 059dad1fa38cbf08d934f91ce0e37dc7
