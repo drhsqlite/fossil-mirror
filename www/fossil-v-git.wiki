@@ -411,7 +411,16 @@ is that this makes the history "accurate."  In actual practice, the
 superior reporting tools available in Fossil mean that the added "mess"
 is not a factor.
 
-One commentator has mused that Git records history according to
+Like Git, Fossil has an [/help?cmd=amend|amend command] for modifying
+prior commits, but unlike in Git, this works not by replacing data in
+the repository, but by adding a correction record to the repository that
+affects how later Fossil operations present the corrected data. The old
+information is still there in the repository, it is just overridden from
+the amendment point forward. For extreme situations, Fossil adds the
+[/doc/trunk/www/shunning.wiki|shunning mechanism], but it has strict
+limitations that prevent global history rewrites.
+
+One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
 
 
@@ -464,6 +473,20 @@ other.
    Fossil supports an integrated web interface.  Some of the same features
    are available using third-party add-ons for Git, but they do not provide
    nearly as many features and they are not nearly as convenient to use.
+
+  *  <b>The [/help?cmd=undo|fossil undo] command</b>
+
+   Whenever Fossil is told to modify the local checkout in some
+   destructive way ([/help?cmd=rm|fossil rm], [/help?cmd=update|fossil
+   update], [/help?cmd=revert|fossil revert], etc.) Fossil remembers the
+   prior state and is able to return the local check-out directory to
+   its prior state with a simple "fossil undo" command. You
+   [#history|cannot undo a commit], since writes to the actual
+   repository — as opposed to the local check-out directory — are more
+   or less permanent, on purpose, but as long as the change is simply
+   staged locally, Fossil makes undo
+   [https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things|easier than
+   in Git].
 
 
 <h3 id="missing-in-fossil">3.2 Features found in Git but missing from Fossil</h3>
