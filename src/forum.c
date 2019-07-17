@@ -38,6 +38,7 @@ struct ForumEntry {
   int firt;              /* This entry replies to firt */
   int mfirt;             /* Root in-reply-to */
   int nReply;            /* Number of replies to this entry */
+  int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pLeaf;     /* Most recent edit for this entry */
   ForumEntry *pEdit;     /* This entry is an edit of pEdit */
@@ -55,6 +56,7 @@ struct ForumThread {
   ForumEntry *pLast;     /* Last entry in chronological order */
   ForumEntry *pDisplay;  /* Entries in display order */
   ForumEntry *pTail;     /* Last on the display list */
+  int mxIndent;          /* Maximum indentation level */
 };
 #endif /* INTERFACE */
 
@@ -124,7 +126,8 @@ static void forumthread_display_order(
     }
   }
   if( pPrev ){
-    pPrev->nIndent = pBase->nIndent + (pBase->nReply>1);
+    pPrev->nIndent = pBase->nIndent + 1;
+    if( pPrev->nIndent>pThread->mxIndent ) pThread->mxIndent = pPrev->nIndent;
     forumentry_add_to_display(pThread, pPrev);
     forumthread_display_order(pThread, pPrev);
   }
@@ -137,6 +140,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumThread *pThread;
   ForumEntry *pEntry;
   Stmt q;
+  int sid = 1;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
@@ -153,6 +157,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     pEntry->fprev = db_column_int(&q, 2);
     pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
     pEntry->mfirt = pEntry->firt;
+    pEntry->sid = sid++;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
     if( pThread->pLast==0 ){
@@ -188,6 +193,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     /* Compute the hierarchical display order */
     pEntry = pThread->pFirst;
     pEntry->nIndent = 1;
+    pThread->mxIndent = 1;
     forumentry_add_to_display(pThread, pEntry);
     forumthread_display_order(pThread, pEntry);
   }
@@ -407,6 +413,7 @@ static int forum_display_hierarchical(int froot, int target){
   const char *zSel;
   int notAnon = login_is_individual();
   int iPrev = -1;
+  int iIndentScale = 4;
 
   pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
@@ -415,6 +422,9 @@ static int forum_display_hierarchical(int froot, int target){
       target = p->fpid;
       break;
     }
+  }
+  while( iIndentScale>1 && iIndentScale*pThread->mxIndent>25 ){
+    iIndentScale--;
   }
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     int isPrivate;         /* True for posts awaiting moderation */
@@ -434,7 +444,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ <div id='forum%d(fpid)' class='forumHierRoot%s(zSel)'>
     }else{
       @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
-      @ style='margin-left: %d((p->nIndent-1)*3)ex;'>
+      @ style='margin-left: %d((p->nIndent-1)*iIndentScale)ex;'>
     }
     pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
