@@ -2490,7 +2490,8 @@ void sigalrm_handler(int x){
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
-**   --https             signal a request coming in via https
+**   --https             Indicates that the input is coming through a reverse
+**                       proxy that has already translated HTTPS into HTTP.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
