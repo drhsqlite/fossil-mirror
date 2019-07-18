@@ -1,5 +1,5 @@
-C Give\ssequential\snumbers\sto\sall\sdisplay\sposts\sin\sthe\sforum,\sand\sreference\nother\sforum\sposts\sin\sa\sthread\sby\sthe\ssequence\snumber.
-D 2019-07-17T22:26:28.573
+C In\sthe\shierarchical\sforum\sdisplay,\smake\ssure\sthat\sthe\sedited\spost\snumber\sis\ndisplayed,\snot\sthe\soriginal\spost\snumber.
+D 2019-07-18T17:45:11.468
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -477,7 +477,7 @@ F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/file.c cfc89f2cd599df19edf4c79d7749061f0f843e6e8af85a293283a6b6e37fcd1d
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c e53f07bc456f481a0f60930f3ec14735fe2f51792f275561c00ab619d6a60fdb
+F src/forum.c b34f2b1b2d675a55018ca9b4664f9cd8b167ade1b5510cf29f6fabac6cd29b1d
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0cec52e08eef79ddbfee0ed9e8a8165fbab70a72caf81f4636929a664e09b555
-R d2b5895ac1607fdc8367d818e94e629a
+P 5a7267d9e70cb9a7cc595a6c12f8c55b744f2eeabe758b0184fb6abf62b8aa0e
+R 84b2dadcf088f69715c74fc3317fd51c
 U drh
-Z 702e19a5611c4ee9eefb77e4bede931f
+Z df0c3fd7bf8ff152a2ae5a28c944dd34

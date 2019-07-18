@@ -446,7 +446,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    @ <p>(%d(p->sid)) By %h(pOPost->zUser) on %h(zDate)
+    @ <p>(%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
