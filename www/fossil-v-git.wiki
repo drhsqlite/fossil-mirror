@@ -15,7 +15,7 @@ we try to be fair, the information here
 might be biased in favor of Fossil.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
-&#185;<small><i>Git does not include a
+¹&nbsp;<small><i>Git does not include a
 wiki, a ticket tracker, a forum, or a tech-note feature, so those elements will not transfer when
 exporting from Fossil to Git. GitHub adds some of these to stock Git,
 but because they're not part of Git proper, [./mirrortogithub.md|exporting a Fossil
@@ -195,9 +195,7 @@ development model:
     contribution is possible in a Fossil project, but there is no
     low-friction path to it, as in Git. Fossil's closest equivalent to
     Git pull requests is the [/help?cmd=bundle|bundle], which requires
-    higher engagement than firing off a PR. Both Fossil and Git also
-    support <tt>patch(1)</tt> files, but that's a lossy contribution
-    path in both systems.</p></li>
+    higher engagement than firing off a PR.²</p></li>
 
     <li><p><b>No rebasing:</b> When a remote clone syncs changes up to
     its parent repository, the changes are sent exactly as they were
@@ -238,6 +236,15 @@ better situational awareness.
 
 Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
+
+²&nbsp;<small><i>Both Fossil and Git support
+[https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt> files],
+which is a common way to allow drive-by contributions, but it's a lossy
+contribution path for both systems. Unlike Git PRs and Fossil bundles,
+patches collapse mulitple checkins together, they don't include check-in
+comments, and the cannot encode changes made above the individual file
+content layer: branching decisisions, tag changes, file renames, file
+deletions, etc.</small>
 
 
 <h4 id="scale">2.3.2 Scale</h4>
