@@ -1,5 +1,5 @@
-C Rewrote\s"No\srebasing"\ssection\sin\sfossil-v-git\sfor\sclarity
-D 2019-07-19T16:01:48.970
+C Expanded\sthe\s"Sync\sover\spush"\ssection\sof\sfossil-v-git\sbeyond\sthe\ntechnology\sto\scover\sthe\s"why"\sbehind\sthe\sdecision.\s\sMoved\sthe\sJim\nMcCarthy\squote\sup\sto\sbe\swith\sit.
+D 2019-07-19T16:14:58.049
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 840c0c6e61d6f4bfbbf712e38978c719865b267f0ed2d0e1eaa0d0988c9db4f8
+F www/fossil-v-git.wiki 327185e54e1a5281abf3c1e810eceee4453e0bf27e78906391a3de501a48a446
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d178c782d3b2ed7208389950eb466ee85effa39ac546c5b06663eb6939547799
-R f61416425ec15c7a056d184e73c56ca1
+P 970e9173d472ecc5578b44f416593715bf8008a976f27c4a4c8be0657c213450
+R 67beaa8ebe0f2239a1dadae1004a3032
 U wyoung
-Z 08bfe77487e0160743396c74ef96466e
+Z 3301f8004bcb580531ebd803a1eaaa33

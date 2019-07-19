@@ -210,10 +210,24 @@ development model:
     Fossil, on purpose.]</p></li>
 
     <li><p><b>Sync over push:</b> Explicit pushes are uncommon in
-    Fossil-based projects; the default is to rely on
+    Fossil-based projects: the default is to rely on
     [/help?cmd=autosync|autosync mode] instead, in which each commit
-    normally syncs immediately to its parent repository, so that
-    explicit pushes are not needed.</p></li>
+    syncs immediately to its parent repository. This is a mode so you
+    can turn it off temporarily when needed, such as when working
+    offline. Fossil is still a truly distributed version control system;
+    it's just that its starting default is to assume you're rarely out
+    of communication with the parent repo.
+    <br><br>
+    This is not merely a reflection of modern always-connected computing
+    environments. It is a conscious decision in direct support of
+    SQLite's cathedral development model: we don't want developers going
+    dark, then showing up weeks later with a massive bolus of changes
+    for us to integrate all at once.
+    [https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy]
+    put it well in his book on software project management,
+    <i>[https://www.amazon.com/dp/0735623198/|Dynamics of Software
+    Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
+    of a guy in a room]."</p></li>
 
     <li><p><b>Branch names sync:</b> Unlike in Git, branch names are not
     purely local labels. They sync along with everything else, so
@@ -231,15 +245,11 @@ development model:
 </ul>
 
 Where Git encourages siloed development, Fossil fights against it.
-[https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy] put
-it well in his book on software project management,
-[https://www.amazon.com/dp/0735623198/|Dynamics of Software
-Development]: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware of a
-guy in a room]." Fossil places a lot of emphasis on synchronizing
-everyone's work and on reporting on the state of the project and the
-work of its developers, so that everyone — especially the project leader
-— can maintain a better mental picture of what is happening, leading to
-better situational awareness.
+Fossil places a lot of emphasis on synchronizing everyone's work and on
+reporting on the state of the project and the work of its developers, so
+that everyone — especially the project leader — can maintain a better
+mental picture of what is happening, leading to better situational
+awareness.
 
 Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
