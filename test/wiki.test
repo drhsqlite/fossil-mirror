@@ -47,7 +47,7 @@ proc get_mime_type {name} {
   global CODE RESULT
   fossil http << "GET /wiki?name=$name"
   if {$CODE != 0} {
-    return error: /wiki?name=$name $CODE $RESULT"
+    return "error: /wiki?name=$name $CODE $RESULT"
   }
   set CODE [regexp {href="/info/([0-9a-f]+)"} $RESULT match info]
   if {$CODE == 0} {

@@ -1,5 +1,5 @@
-C If\sthe\ssetting\sis\slong\senough\sto\sfill\sin\sthe\sformat\sspecifier---like\sthe\nemail-send-relayhost\s\ssetting---there\swill\s\sbe\s\sno\s\swhitespace\safter\s\sit\nunless\sit\s\shas\sa\s\svalue\sset,\s\sso\smake\sthe\s\sregex\shandle\s\sthis\sparticular\nstate\sbetter.
-D 2019-07-19T03:55:16.253
+C Correct\sminor\ssyntax\serror\sthat\swas\slikely\snever\shit.
+D 2019-07-19T04:47:06.361
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -674,7 +674,7 @@ F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test b56d0e136bff056946b98cbff333036fb5c68778
+F test/wiki.test 6ce5100cca92141db850bf55c36f209f6fe3551335686067f65a4cdaa76c3fd2
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72e71e904d0067d34094334173947376d35ce11c6c0a911d9655fc9f1574ab2d
-R 8900357455e72dcc6e22b182229a1d91
+P a8656f580f04af93aa52487aed2a59100e8fa8682f485842da57f9ec60ae8f43
+R 34eba648f5224bef37cddd5859dc5b27
 U andybradford
-Z 34f2034610f321b833147c1c089042d1
+Z 17916d91fcb71f29ca8e861c3a327814
