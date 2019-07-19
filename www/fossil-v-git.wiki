@@ -179,15 +179,17 @@ development model:
     <li><p><b>Personal engagement:</b> SQLite's developers know each
     other by name and work together daily on the project.</p></li>
 
-    <li><p><b>Trust over hierarchy:</b> Fossil supports developers given
-    direct commit capability on the repository rather than support a
-    hierarchical "dictator and lieutenants" contribution style.  D.
+    <li><p><b>Trust over hierarchy:</b> SQLite's developers check
+    changes into their local repository, and these are immediately and
+    automatically sync'd up to the central repository; there is no
+    "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
+    and lieutenants]" hierarchy as with Linux kernel contributions.  D.
     Richard Hipp rarely overrides decisions made by those he has trusted
-    with commit access on his repositories.
-    [/doc/trunk/www/admin-v-setup.md|Some users] have more power over
-    what they can do with the repository, but Fossil does not otherwise
+    with commit access on his repositories. Fossil allows you to give
+    [/doc/trunk/www/admin-v-setup.md|some users] more power over what
+    they can do with the repository, but Fossil does not otherwise
     directly support the enforcement of a development organization's
-    social hierarchy. Fossil is a great fit for
+    social and power hierarchies. Fossil is a great fit for
     [https://en.wikipedia.org/wiki/Flat_organization|flat
     organizations].</p></li>
 
