@@ -1,5 +1,5 @@
-C Moved\snumbered\sdigressions\sin\sfossil-v-git\sdown\sto\sthe\send\sof\sthe\ndocument\sas\sa\snew\s"Asides\sand\sDigressions"\ssection.\s\sThese\sare\sthings\swe\ndon't\swant\scluttering\sthe\smain\sargument,\snot\smerely\sbig\sparentheticals.
-D 2019-07-19T16:25:31.323
+C Tightened\sup\sthe\sopening\sparagraph\sof\s"Linux\svs\sSQLite"\ssection\sof\nfossil-v-git.
+D 2019-07-19T16:33:21.933
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 40555486fac8f0df62b8ac4765d102696bd71f977845f1d058dcf374cce19f60
+F www/fossil-v-git.wiki 081b058aeecd9cd037ad6babf4814a87a4cc8ceee4895c8f6f4af55e4746a3ff
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69e64183f1d92eac42cd2fd5721e5f553145762a10e8a3be11a77164dea14fd7
-R d92e2ee608a90b2b6c5349e86a09bf48
+P 845262742eaaeddb6de552db585c59d79846d17cb0e709cae1bec54eac7afff4
+R 76327548b852e3b94a61f5cbdde57a0c
 U wyoung
-Z 18997ed4770eba7a6f6e6801aacf5269
+Z 29550b9ccd2ff708fecdaf8b9673e26f

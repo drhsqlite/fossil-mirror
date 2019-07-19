@@ -117,17 +117,15 @@ and avoid errors.
 <h3 id="vs-linux">2.3 Linux vs. SQLite</h3>
 
 Fossil and Git promote different development styles because each one was
-specifically designed to support the primary authors' main software
+specifically designed to support the creator's main software
 development project: [https://en.wikipedia.org/wiki/Linus_Torvalds|Linus
 Torvalds] designed Git to support development of
 [https://www.kernel.org/|the Linux kernel], and
 [https://en.wikipedia.org/wiki/D._Richard_Hipp|D. Richard Hipp] designed
 Fossil to support the development of [https://sqlite.org/|SQLite].
-SQLite is much more widely deployed than the Linux kernel, but for
-Linux-based systems, the kernel is the more fundamental component.
 Both projects must rank high on any objective list of "most
 important FOSS projects," yet these two projects are almost entirely unlike
-one another.
+one another. So, too, are these two DVCSes.
 
 In the following sections, we will explain how three key differences
 between Linux and SQLite dictated the design of each DVCS's low-friction
