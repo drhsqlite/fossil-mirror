@@ -1,5 +1,5 @@
-C Update\slist\sof\sknown\ssettings\swhich\shad\sdiverged\sdue\sto\snewly\sadded\sfeatures.
-D 2019-07-19T03:52:43.400
+C If\sthe\ssetting\sis\slong\senough\sto\sfill\sin\sthe\sformat\sspecifier---like\sthe\nemail-send-relayhost\s\ssetting---there\swill\s\sbe\s\sno\s\swhitespace\safter\s\sit\nunless\sit\s\shas\sa\s\svalue\sset,\s\sso\smake\sthe\s\sregex\shandle\s\sthis\sparticular\nstate\sbetter.
+D 2019-07-19T03:55:16.253
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -642,7 +642,7 @@ F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
-F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
+F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
 F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
@@ -883,10 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c602dd7f38045cc899302ed7c11d91400ef249b9cf942a4c264061d78549156
-R a3d721f6cb6166d2a6349b73deb83f45
-T *branch * test-updates
-T *sym-test-updates *
-T -sym-trunk *
+P 72e71e904d0067d34094334173947376d35ce11c6c0a911d9655fc9f1574ab2d
+R 8900357455e72dcc6e22b182229a1d91
 U andybradford
-Z 126e54af0f855642bbacdf533e7c39e9
+Z 34f2034610f321b833147c1c089042d1
