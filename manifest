@@ -1,5 +1,5 @@
-C Tightened\sup\sthe\sopening\sparagraph\sof\s"Linux\svs\sSQLite"\ssection\sof\nfossil-v-git.
-D 2019-07-19T16:33:21.933
+C Update\sthe\sserver.wiki\sdocument\sto\stry\sto\smake\sit\sclear\sthat\sFossil\sworks\nfine\sas\sa\speer-to-peer\ssystem\sand\sdoes\snot\srequire\sthe\suse\sof\sa\sserver.
+D 2019-07-19T16:34:09.875
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -863,7 +863,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
-F www/server.wiki c0198bbfaf878e9cd32fd3790b8f02763eda5606c6f00cf3d4cf0c079463d3de
+F www/server.wiki 6d7c1464aac8af7ed6a570f58aa40be980cd9c0cc982e909815c362071373f03
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 845262742eaaeddb6de552db585c59d79846d17cb0e709cae1bec54eac7afff4
-R 76327548b852e3b94a61f5cbdde57a0c
-U wyoung
-Z 29550b9ccd2ff708fecdaf8b9673e26f
+P 0297ae7fae3633f607a30f039ee92bc0c666d29a763a646345376643af1b1e77
+R 7adbbb924ba73b54f652c6d117ecd568
+U drh
+Z fc18adc04696c266b407db501c3e9c1a

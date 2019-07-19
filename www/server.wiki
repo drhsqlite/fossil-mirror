@@ -1,10 +1,20 @@
 <title>How To Configure A Fossil Server</title>
 
-<h2>Introduction</h2>
+<h2>No Server Required</h2>
 
 <blockquote>
-A server is not necessary to use Fossil, but a server does help in collaborating with
-peers.  A Fossil server also works well as a complete website for a project.
+Fossil does <em>not</em> require a central server.
+Data sharing and synchronization can be entirely peer-to-peer.
+Fossil uses [https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|conflict-free replicated data types]
+to ensure that (in the limit) all participating peers see the exact same content.
+</blockquote>
+
+<h2>But, A Server Can Be Useful</h2>
+
+<blockquote>
+Fossil does not require a a server,
+but a server does make collaboration easier.
+A Fossil server also works well as a complete website for a project.
 For example, the complete [https://www.fossil-scm.org/] website, including the
 page you are now reading,
 is just a Fossil server displaying the content of the
