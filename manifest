@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sof\sthe\s--https\soption\son\s"fossil\sserver".
-D 2019-07-18T22:45:22.595
+C Update\slist\sof\sknown\ssettings\swhich\shad\sdiverged\sdue\sto\snewly\sadded\sfeatures.
+D 2019-07-19T03:52:43.400
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -650,7 +650,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 8056f9b16bbfcdb24b6de2f2ebc146339eb1b6dbb0aa957950fb22eea31598f4
+F test/tester.tcl 0ad7359d4fee7a7a3cac19f869042c6bf4045c9474d9776cf2175ff8be8521fa
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -883,7 +883,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 776ce9e6450d276db846b0eceefb5cb7ef088d4b825afeeb0d005a69fb31ddfd
-R 509cab2bdec2989d3b3aff3c31ab7c73
-U drh
-Z 54b11ad17535519f9ac1182f09fb3b80
+P 3c602dd7f38045cc899302ed7c11d91400ef249b9cf942a4c264061d78549156
+R a3d721f6cb6166d2a6349b73deb83f45
+T *branch * test-updates
+T *sym-test-updates *
+T -sym-trunk *
+U andybradford
+Z 126e54af0f855642bbacdf533e7c39e9
