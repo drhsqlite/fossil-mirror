@@ -215,7 +215,7 @@ development model:
 
     <li><p><b>Branch names sync:</b> Unlike in Git, branch names are not
     purely local labels. They sync along with everything else, so
-    everyone everyone sees the same set of branch names.</p></li>
+    everyone sees the same set of branch names.</p></li>
 
     <li><p><b>Private branches are rare:</b>
     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
