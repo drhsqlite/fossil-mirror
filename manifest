@@ -1,5 +1,5 @@
-C Rewrote\sthe\s"Trust\sover\shierarchy"\spoint\sin\sfossil-v-git\sfor\sclarity.
-D 2019-07-19T15:59:48.776
+C Rewrote\s"No\srebasing"\ssection\sin\sfossil-v-git\sfor\sclarity
+D 2019-07-19T16:01:48.970
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 6901746c4d7b2819c8d4a7357652d297af2d42157400f054ea7b74c4463f9b24
+F www/fossil-v-git.wiki 840c0c6e61d6f4bfbbf712e38978c719865b267f0ed2d0e1eaa0d0988c9db4f8
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b798e89a7eb3e2631ee7410ac5626a75d578ed0428f3e165c3ec088cb1e9e49a
-R d01b014777ce21969722583a93eff4d0
+P d178c782d3b2ed7208389950eb466ee85effa39ac546c5b06663eb6939547799
+R f61416425ec15c7a056d184e73c56ca1
 U wyoung
-Z b74ae5c51f828d7594eed3f1e0e9ffad
+Z 08bfe77487e0160743396c74ef96466e

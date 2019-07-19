@@ -204,10 +204,10 @@ development model:
     accept outside contributions from previously-unknown developers, but
     the Linux kernel does.</p></li>
 
-    <li><p><b>No rebasing:</b> When a remote clone syncs changes up to
-    its parent repository, the changes are sent exactly as they were
-    committed to the local repository. [#history|There is no rebasing
-    mechanism, on purpose.]</p></li>
+    <li><p><b>No rebasing:</b> When your local repo clone syncs changes
+    up to its parent, those changes are sent exactly as they were
+    committed locally. [#history|There is no rebasing mechanism in
+    Fossil, on purpose.]</p></li>
 
     <li><p><b>Sync over push:</b> Explicit pushes are uncommon in
     Fossil-based projects; the default is to rely on
