@@ -1,5 +1,5 @@
-C Moved\sthe\scomment\sabout\spatch\sfiles\sin\sfossil-v-git\sdown\sto\sa\sfootnote\nand\sexpanded\son\sthe\spoint.\s\sIt\sisn't\sa\sGit\svs\sFossil\sdifference,\sbut\swe\nneed\sto\sexplain\swhy\s"just\suse\sa\spatch\sfile"\sisn't\sa\sgood\sanswer\sto\sthe\ncommon\s"allow\seasy\sdrive-by\scontributions"\swish.
-D 2019-07-19T15:39:10.840
+C Recast\sthe\s"Anonymous\scontribution\sdiscouraged"\spoint\sin\sfossil-v-git\sas\n"No\seasy\sdrive-by\scontributions".
+D 2019-07-19T15:52:39.168
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -827,7 +827,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 38cb337b6e8570ec3078fc3eb4c975d02878adedb21cd1b3048837b25bbcd686
+F www/fossil-v-git.wiki b460b27b7515b6684282585b3c107b4845a65434d16d8c4b64c80b64610b523f
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c602dd7f38045cc899302ed7c11d91400ef249b9cf942a4c264061d78549156
-R 733750dbbe90f94d412ddcb9e8c67960
+P 4dcbd09feae9c12ac7c8e65311f77611073ad3d4166ae633215a4a348b4eae72
+R 16a55f727ff6b3bb53a45bb8b13ad565
 U wyoung
-Z 771739993b857751a169da7c68d91ed1
+Z 0a7d75c0fb8df2b225029628699603a0

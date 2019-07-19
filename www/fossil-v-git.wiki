@@ -191,11 +191,16 @@ development model:
     [https://en.wikipedia.org/wiki/Flat_organization|flat
     organizations].</p></li>
 
-    <li><p><b>Anonymous contribution discouraged:</b> Anonymous
-    contribution is possible in a Fossil project, but there is no
-    low-friction path to it, as in Git. Fossil's closest equivalent to
-    Git pull requests is the [/help?cmd=bundle|bundle], which requires
-    higher engagement than firing off a PR.²</p></li>
+    <li><p><b>No easy drive-by contributions:</b> Git
+    [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
+    a low-friction path to accepting
+    [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
+    contributions]. Fossil's closest equivalent is its unique
+    [/help?cmd=bundle|bundle] feature, which requires higher engagement
+    than firing off a PR.² This difference comes directly from the
+    initial designed purpose for each tool: the SQLite project doesn't
+    accept outside contributions from previously-unknown developers, but
+    the Linux kernel does.</p></li>
 
     <li><p><b>No rebasing:</b> When a remote clone syncs changes up to
     its parent repository, the changes are sent exactly as they were
