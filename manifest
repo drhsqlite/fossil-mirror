@@ -1,5 +1,5 @@
-C Update\sthe\sserver.wiki\sdocument\sto\stry\sto\smake\sit\sclear\sthat\sFossil\sworks\nfine\sas\sa\speer-to-peer\ssystem\sand\sdoes\snot\srequire\sthe\suse\sof\sa\sserver.
-D 2019-07-19T16:34:09.875
+C In\sthe\salert\ssending\slogic,\sif\sno\s"email-self"\sis\sspecified,\sthen\ssubstitute\nthe\sbogus\semail\saddress\s"nobody@invalid".
+D 2019-07-22T16:12:52.104
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -429,7 +429,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c f0f7b8fcf4a8ec597a1dbf97fe1af7ead32cd0c261fae15ada25cefc85502811
-F src/alerts.c 9af05613dcfef2fb8195009c271d4567ecb4e5079f1787f7bf29515c217467e0
+F src/alerts.c a6f58c4b389ec0814b79038800a70e09bd6098af4025e3e79c7165e933b4dcaa
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0297ae7fae3633f607a30f039ee92bc0c666d29a763a646345376643af1b1e77
-R 7adbbb924ba73b54f652c6d117ecd568
+P dc0a342d76fedfa3c2bae1590f43c528c06ac4b9092ec98dd2ae04af6d04be9d
+R 4e9ef40a9166deb3c1817df07af3e5d8
 U drh
-Z fc18adc04696c266b407db501c3e9c1a
+Z 82108e4e2f23ec50ccd43d593ab3a3ff
