@@ -115,11 +115,9 @@ static void http_build_header(
   Blob *pHdr,                  /* construct the header here */
   const char *zAltMimetype     /* Alternative mimetype */
 ){
-  int i;
   int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
-  i = strlen(g.url.path);
   blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
                nPayload>0 ? "POST" : "GET", g.url.path);
   if( g.url.proxyAuth ){
@@ -359,6 +357,7 @@ int http_exchange(
     }else if( ( rc==301 || rc==302 || rc==307 || rc==308 ) &&
                 fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
+      int wasHttps;
 
       if ( --maxRedirect == 0){
         fossil_warning("redirect limit exceeded");
@@ -377,7 +376,12 @@ int http_exchange(
       if( (mHttpFlags & HTTP_QUIET)==0 ){
         fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
       }
+      wasHttps = g.url.isHttps;
       url_parse(&zLine[i], 0);
+      if( wasHttps && !g.url.isHttps ){
+        fossil_warning("cannot redirect from HTTPS to HTTP");
+        goto write_err;
+       }
       transport_close(&g.url);
       transport_global_shutdown(&g.url);
       fSeenHttpAuth = 0;
