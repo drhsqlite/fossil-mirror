@@ -31,6 +31,17 @@
 #endif
 #endif
 
+
+#if INTERFACE
+/*
+** Bits of the mHttpFlags parameter to http_exchange()
+*/
+#define HTTP_USE_LOGIN   0x00001     /* Add a login card to the sync message */
+#define HTTP_GENERIC     0x00002     /* Generic HTTP request */
+#define HTTP_VERBOSE     0x00004     /* HTTP status messages */
+#define HTTP_QUIET       0x00008     /* No surplus output */
+#endif
+
 /* Maximum number of HTTP Authorization attempts */
 #define MAX_HTTP_AUTH 2
 
@@ -99,18 +110,18 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
 ** into pHdr.  This routine initializes the pHdr blob.  pPayload is
 ** the complete payload (including the login card) already compressed.
 */
-static void http_build_header(Blob *pPayload, Blob *pHdr){
+static void http_build_header(
+  Blob *pPayload,              /* the payload that will be sent */
+  Blob *pHdr,                  /* construct the header here */
+  const char *zAltMimetype     /* Alternative mimetype */
+){
   int i;
-  const char *zSep;
+  int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
   i = strlen(g.url.path);
-  if( i>0 && g.url.path[i-1]=='/' ){
-    zSep = "";
-  }else{
-    zSep = "/";
-  }
-  blob_appendf(pHdr, "POST %s%s HTTP/1.1\r\n", g.url.path, zSep);
+  blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
+               nPayload>0 ? "POST" : "GET", g.url.path);
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }
@@ -123,12 +134,17 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   blob_appendf(pHdr, "Host: %s\r\n", g.url.hostname);
   blob_appendf(pHdr, "User-Agent: %s\r\n", get_user_agent());
   if( g.url.isSsh ) blob_appendf(pHdr, "X-Fossil-Transport: SSH\r\n");
-  if( g.fHttpTrace ){
-    blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
-  }else{
-    blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
+  if( nPayload ){
+    if( zAltMimetype ){
+      blob_appendf(pHdr, "Content-Type: %s\r\n", zAltMimetype);
+    }else if( g.fHttpTrace ){
+      blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
+    }else{
+      blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
+    }
+    blob_appendf(pHdr, "Content-Length: %d\r\n", blob_size(pPayload));
   }
-  blob_appendf(pHdr, "Content-Length: %d\r\n\r\n", blob_size(pPayload));
+  blob_append(pHdr, "\r\n", 2);
 }
 
 /*
@@ -202,7 +218,13 @@ char *prompt_for_httpauth_creds(void){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
+int http_exchange(
+  Blob *pSend,                /* Message to be sent */
+  Blob *pReply,               /* Write the reply here */
+  int mHttpFlags,             /* Flags.  See above */
+  int maxRedirect,            /* Max number of redirects */
+  const char *zAltMimetype    /* Alternative mimetype if not NULL */
+){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -222,18 +244,22 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   }
 
   /* Construct the login card and prepare the complete payload */
-  blob_zero(&login);
-  if( useLogin ) http_build_login_card(pSend, &login);
-  if( g.fHttpTrace ){
-    payload = login;
-    blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+  if( blob_size(pSend)==0 ){
+    blob_zero(&payload);
   }else{
-    blob_compress2(&login, pSend, &payload);
-    blob_reset(&login);
+    blob_zero(&login);
+    if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
+    if( g.fHttpTrace ){
+      payload = login;
+      blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
+    }else{
+      blob_compress2(&login, pSend, &payload);
+      blob_reset(&login);
+    }
   }
 
   /* Construct the HTTP request header */
-  http_build_header(&payload, &hdr);
+  http_build_header(&payload, &hdr, zAltMimetype);
 
   /* When tracing, write the transmitted HTTP message both to standard
   ** output and into a file.  The file can then be used to drive the
@@ -263,6 +289,11 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   /*
   ** Send the request to the server.
   */
+  if( mHttpFlags & HTTP_VERBOSE ){
+    fossil_print("URL: %s\n", g.url.canonical);
+    fossil_print("Sending %d byte header and %d byte payload\n",
+                  blob_size(&hdr), blob_size(&payload));
+  }
   transport_send(&g.url, &hdr);
   transport_send(&g.url, &payload);
   blob_reset(&hdr);
@@ -275,7 +306,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   closeConnection = 1;
   iLength = -1;
   while( (zLine = transport_receive_line(&g.url))!=0 && zLine[0]!=0 ){
-    /* printf("[%s]\n", zLine); fflush(stdout); */
+    if( mHttpFlags & HTTP_VERBOSE ){
+      fossil_print("Read: [%s]\n", zLine);
+    }
     if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc==401 ){
@@ -285,7 +318,8 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
           }
           g.zHttpAuth = prompt_for_httpauth_creds();
           transport_close(&g.url);
-          return http_exchange(pSend, pReply, useLogin, maxRedirect);
+          return http_exchange(pSend, pReply, mHttpFlags,
+                               maxRedirect, zAltMimetype);
         }
       }
       if( rc!=200 && rc!=301 && rc!=302 && rc!=307 && rc!=308 ){
@@ -340,7 +374,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
          j -= 4;
          zLine[j] = 0;
       }
-      fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
+      if( (mHttpFlags & HTTP_QUIET)==0 ){
+        fossil_print("redirect with status %d to %s\n", rc, &zLine[i]);
+      }
       url_parse(&zLine[i], 0);
       transport_close(&g.url);
       transport_global_shutdown(&g.url);
@@ -348,15 +384,20 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
       if( g.zHttpAuth ) free(g.zHttpAuth);
       g.zHttpAuth = get_httpauth();
       if( rc==301 || rc==308 ) url_remember();
-      return http_exchange(pSend, pReply, useLogin, maxRedirect);
+      return http_exchange(pSend, pReply, mHttpFlags,
+                           maxRedirect, zAltMimetype);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
         isCompressed = 0;
       }else if( fossil_strnicmp(&zLine[14],
                           "application/x-fossil-uncompressed", -1)==0 ){
         isCompressed = 0;
-      }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
-        isError = 1;
+      }else{
+        if( (mHttpFlags & HTTP_GENERIC)==0
+         && fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0
+        ){
+          isError = 1;
+        }
       }
     }
   }
@@ -420,4 +461,61 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
 write_err:
   transport_close(&g.url);
   return 1;
+}
+
+/*
+** COMMAND: test-httpmsg
+**
+** Usage: %fossil test-httpmsg URL ?PAYLOAD? ?OPTIONS?
+**
+** Send an HTTP message to URL and get the reply. PAYLOAD is a file containing
+** the payload, or "-" to read payload from standard input.  a POST message
+** is sent if PAYLOAD is specified and is non-empty.  If PAYLOAD is omitted
+** or is an empty file, then a GET message is sent.
+**
+** Options:
+**
+**     --mimetype TYPE            Mimetype of the payload
+**     --out FILE                 Store the reply in FILE
+**     -v                         Verbose output
+*/
+void test_wget_command(void){
+  const char *zMimetype;
+  const char *zInFile;
+  const char *zOutFile;
+  Blob in, out;
+  unsigned int mHttpFlags = HTTP_GENERIC;
+
+  zMimetype = find_option("mimetype",0,1);
+  zOutFile = find_option("out","o",1);
+  if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
+  if( g.argc!=3 && g.argc!=4 ){
+    usage("URL ?PAYLOAD?");
+  }
+  zInFile = g.argc==4 ? g.argv[3] : 0;
+  url_parse(g.argv[2], 0);
+  if( g.url.protocol[0]!='h' ){
+    fossil_fatal("the %s command supports only http: and https:", g.argv[1]);
+  }
+  if( zInFile ){
+    blob_read_from_file(&in, zInFile, ExtFILE);
+    if( zMimetype==0 ){
+      if( fossil_strcmp(zInFile,"-")==0 ){
+        zMimetype = "application/x-unknown";
+      }else{
+        zMimetype = mimetype_from_name(zInFile);
+      }
+    }
+  }else{
+    blob_init(&in, 0, 0);
+  }
+  blob_init(&out, 0, 0);
+  if( (mHttpFlags & HTTP_VERBOSE)==0 && zOutFile==0 ){
+    zOutFile = "-";
+    mHttpFlags |= HTTP_QUIET;
+  }
+  http_exchange(&in, &out, mHttpFlags, 4, zMimetype);
+  if( zOutFile ) blob_write_to_file(&out, zOutFile);
+  blob_zero(&in);
+  blob_zero(&out);
 }

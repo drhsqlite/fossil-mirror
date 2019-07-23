@@ -167,13 +167,13 @@ int transport_open(UrlData *pUrlData){
       rc = transport_ssh_open(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
     }else if( pUrlData->isHttps ){
-      #ifdef FOSSIL_ENABLE_SSL
+#ifdef FOSSIL_ENABLE_SSL
       rc = ssl_open(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
-      #else
+#else
       socket_set_errmsg("HTTPS: Fossil has been compiled without SSL support");
       rc = 1;
-      #endif
+#endif
     }else if( pUrlData->isFile ){
       sqlite3_uint64 iRandId;
       sqlite3_randomness(sizeof(iRandId), &iRandId);
@@ -241,7 +241,7 @@ void transport_send(UrlData *pUrlData, Blob *toSend){
     fwrite(z, 1, n, sshOut);
     fflush(sshOut);
   }else if( pUrlData->isHttps ){
-    #ifdef FOSSIL_ENABLE_SSL
+#ifdef FOSSIL_ENABLE_SSL
     int sent;
     while( n>0 ){
       sent = ssl_send(0, z, n);
@@ -249,7 +249,7 @@ void transport_send(UrlData *pUrlData, Blob *toSend){
       if( sent<=0 ) break;
       n -= sent;
     }
-    #endif
+#endif
   }else if( pUrlData->isFile ){
     fwrite(z, 1, n, transport.pFile);
   }else{
