@@ -1,5 +1,5 @@
-C Bail\sout\sof\sthe\salert_send()\sroutine\sif\sthe\snotification\ssystem\sis\nmisconfigured\swith\sa\sblank\semail-self\svalue.
-D 2019-07-22T19:06:28.829
+C Use\sHTTP/1.1\sfor\sthe\ssync\sprotocol,\snot\sHTTP/1.0.
+D 2019-07-23T13:16:13.426
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -487,7 +487,7 @@ F src/graph.js 73e0509dc0d3acbf448e6fe4847b251e8d110a4d4f3b696bc1c321123818d296
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
-F src/http.c b92f1c1da44e75b1e385686b17a4597f14ab3db1979be4fed2f3ad7ca745a7b7
+F src/http.c 86e80044a0dc5c0b1efa45101ea1132293738d0634fbf5879df612696c8ab532
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 342be272b06ec0267b8ad0264bd5b8b87e285c5b1ab1b90aaa53f722182ab2e3
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 488af3639e4744041b90eb813e6eef91fbc0c83ea07005bcd89161cd34c48dd6
-R 214f7a64c52b8a6e7f7470707a9daa59
+P 4c73b4afb996639652847455a0a70b9a56e3f43fb053450ce38ca30329a3938f
+R a56958661f338f108e719a4f5ef353ac
 U drh
-Z 43c8617639eff5b2f8c5019143b401db
+Z e19d71fa47bc2d64a236ab8ca54ad2be
