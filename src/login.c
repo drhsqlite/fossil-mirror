@@ -899,7 +899,7 @@ static int login_find_user(
 ** Attempt to use Basic Authentication to establish the user.  Return the
 ** (non-zero) uid if successful.  Return 0 if it does not work.
 */
-static int logic_basic_authentication(const char *zIpAddr){
+static int login_basic_authentication(const char *zIpAddr){
   const char *zAuth = PD("HTTP_AUTHORIZATION", 0);
   int i;
   int uid = 0;
@@ -1071,7 +1071,7 @@ void login_check_credentials(void){
   ** see if those credentials are valid for a known user.
   */
   if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
-    uid = logic_basic_authentication(zIpAddr);
+    uid = login_basic_authentication(zIpAddr);
   }
 
   /* If no user found yet, try to log in as "nobody" */
