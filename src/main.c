@@ -175,6 +175,7 @@ struct Global {
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
+  const char *zAuxRoot;   /* Document root for the /aux sub-website */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
@@ -1944,6 +1945,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.
 **
+**    auxroot: DIR             Directory that is the root of the sub-CGI tree
+**                             on the /aux page.
+**
 **    redirect: REPO URL       Extract the "name" query parameter and search
 **                             REPO for a check-in or ticket that matches the
 **                             value of "name", then redirect to URL.  There
@@ -2241,13 +2245,14 @@ void parse_pid_key_value(
 ** enabled.
 **
 ** Options:
+**   --auxroot DIR    Sub-CGI root directory for the /aux page
 **   --baseurl URL    base URL (useful with reverse proxies)
 **   --files GLOB     comma-separate glob patterns for static file to serve
-**   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
 **   --nojail         drop root privilege but do not enter the chroot jail
@@ -2299,6 +2304,7 @@ void cmd_http(void){
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
+  g.zAuxRoot = find_option("auxroot",0,0);
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2484,9 +2490,9 @@ void sigalrm_handler(int x){
 ** by default.
 **
 ** Options:
+**   --auxroot DIR       Sub-CGI root diretory for the /aux page
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --create            Create a new REPOSITORY if it does not already exist
-**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
@@ -2499,6 +2505,7 @@ void sigalrm_handler(int x){
 **   --nossl             signal that no SSL connections are available (Always
 **                       set by default for the "ui" command)
 **   --notfound URL      Redirect
+**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
@@ -2539,6 +2546,7 @@ void cmd_webserver(void){
   if( g.zErrlog==0 ){
     g.zErrlog = "-";
   }
+  g.zAuxRoot = find_option("auxroot",0,0);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
