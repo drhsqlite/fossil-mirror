@@ -1,5 +1,5 @@
-C Enable\s"fossil\swhatis"\sto\sactually\sfind\sa\swiki\spage\swhen\sgiven\s--type\sw.
-D 2019-07-23T03:49:02.476
+C Use\snew\sfunctionality\sin\s"fossil\swhatis"\sto\scorrect\swiki\stest\scases\ssince\s/info\nhrefs\sare\sno\slonger\sincluded\sin\sthe\swiki\spages.
+D 2019-07-23T04:23:41.351
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -674,7 +674,7 @@ F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test 6ce5100cca92141db850bf55c36f209f6fe3551335686067f65a4cdaa76c3fd2
+F test/wiki.test 4fc2527dc5e90bcacc1fd0b82dceb8f933b135a87af4713f0f2f277ad431985f
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d85b2edbb6917c899f80915d7d8685322fb02671f1b4591cd39b954e286c93e9
-R c2a59d3fee8fe864190abefbb2b7bf26
+P 7627d4a73e2e726dc13e81bbaccccc70f17d19b488e0f887433563e32ec2652e
+R 72a1cdfecdb5976d98a89b3c3aa1f279
 U andybradford
-Z bb774442e571f51c5f486f7b0c0697d5
+Z 1b4bc7d6fbad5bd30549c196488382b8
