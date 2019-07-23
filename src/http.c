@@ -118,8 +118,9 @@ static void http_build_header(
   int nPayload = pPayload ? blob_size(pPayload) : 0;
 
   blob_zero(pHdr);
-  blob_appendf(pHdr, "%s %s HTTP/1.0\r\n",
-               nPayload>0 ? "POST" : "GET", g.url.path);
+  blob_appendf(pHdr, "%s %s%s HTTP/1.0\r\n",
+               nPayload>0 ? "POST" : "GET", g.url.path,
+               g.url.path[0]==0 ? "/" : "");
   if( g.url.proxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.url.proxyAuth);
   }

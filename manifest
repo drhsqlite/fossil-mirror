@@ -1,5 +1,5 @@
-C Fix\sover-length\slines\sin\sthe\slogic.c\ssource\sfile.\s\sNo\slogical\schanges.
-D 2019-07-23T18:20:10.067
+C Make\ssure\san\sHTTP\srequest\salways\shas\sat\sleast\sa\ssingle\s"/"\sin\sthe\spathname.
+D 2019-07-23T19:17:26.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -487,7 +487,7 @@ F src/graph.js 73e0509dc0d3acbf448e6fe4847b251e8d110a4d4f3b696bc1c321123818d296
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
-F src/http.c ccfb079aa89672404e17bc828e3cdd8ff215fe463e04c0c159af7b85e842f13e
+F src/http.c 4863f2d3718564846ce42fb8a9cb41b381399d21de6ff007618ffbf1fe5ef082
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c e43626ee0cd317c9825ab18a37c001086370dfe1c7875191a7126f55e52ba8b4
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c921545bff3d7043913d3e2a943cea75295300222cd270f668b968809079ccfb
-R 0c79d4fa2ac662b6db51f4bebb746079
+P cd11f9218670d52595cd0a2642d4856d868986691950a7ab959a23d0dbf02596
+R 55c0ccafffdd4d84586e7aa3c2354b0a
 U drh
-Z d2588b803c43e3f49639481041f058ba
+Z 7ee9c1c0405fcc0ec843b1e0655eddc8
