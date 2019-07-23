@@ -1,5 +1,5 @@
-C Correct\sminor\ssyntax\serror\sthat\swas\slikely\snever\shit.
-D 2019-07-19T04:47:06.361
+C Enable\s"fossil\swhatis"\sto\sactually\sfind\sa\swiki\spage\swhen\sgiven\s--type\sw.
+D 2019-07-23T03:49:02.476
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -535,7 +535,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c c1d4a4459bb68241a99877dd202fede5c24321fede2cbf5d27b400575304349a
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c dc44a6cacb47f8b3ca74ca434ff89daef86bad68e6ea5a5daa5e1aa4b708de50
-F src/name.c e962865417d65c3dba038afc8b9a3be8d2997e38dcadf55782dcebe485dc24db
+F src/name.c 8d103e6cdbb088b8ff4816054e249f6a2c0c73b1e38b5b3b31ca0bfe0647a3ff
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -883,7 +883,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a8656f580f04af93aa52487aed2a59100e8fa8682f485842da57f9ec60ae8f43
-R 34eba648f5224bef37cddd5859dc5b27
+P d85b2edbb6917c899f80915d7d8685322fb02671f1b4591cd39b954e286c93e9
+R c2a59d3fee8fe864190abefbb2b7bf26
 U andybradford
-Z 17916d91fcb71f29ca8e861c3a327814
+Z bb774442e571f51c5f486f7b0c0697d5
