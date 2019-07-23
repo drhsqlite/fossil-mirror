@@ -436,7 +436,9 @@ static int isHuman(const char *zAgent){
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
-    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ) return 1; /* IE11+ */
+    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ){
+      return 1; /* IE11+ */
+    }
     if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent)==0 ) return 1;
     return 0;
   }
@@ -908,9 +910,11 @@ static int login_basic_authentication(const char *zIpAddr){
   const char *zUsername = 0;
   const char *zPasswd = 0;
 
-  if( zAuth==0 ) return 0;                    /* Fail: No Authentication: header */
+  if( zAuth==0 ) return 0;             /* Fail: No Authentication: header */
   while( fossil_isspace(zAuth[0]) ) zAuth++;  /* Skip leading whitespace */
-  if( strncmp(zAuth, "Basic ", 6)!=0 ) return 0;  /* Fail: Not Basic Authentication */
+  if( strncmp(zAuth, "Basic ", 6)!=0 ){
+    return 0;  /* Fail: Not Basic Authentication */
+  }
 
   /* Parse out the username and password, separated by a ":" */
   zAuth += 6;
