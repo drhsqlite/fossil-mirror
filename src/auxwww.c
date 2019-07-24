@@ -80,30 +80,35 @@ void aux_page(void){
   }
   zPath = mprintf("%s/%s", g.zAuxRoot, zName);
   nRoot = (int)strlen(g.zAuxRoot);
-  for(i=nRoot+1; zPath[i]; i++){
-    char c = zPath[i];
-    if( (c=='.' || c=='-') && zPath[i-1]=='/' ){
-      zFailReason = "path element begins with '.' or '-'";
-      goto aux_not_found;
-    }
-    if( !fossil_isalnum(c) && c!='_' && c!='-' && c!='.' ){
-      zFailReason = "illegal character in path";
-      goto aux_not_found;
-    }
-    if( c=='/' ){
-      int isDir, isFile;
-      zPath[i] = 0;
-      isDir = file_isdir(zPath, ExtFILE);
-      isFile = isDir==2 ? file_isfile(zPath, ExtFILE) : 0;
-      zPath[i] = c;
-      if( isDir==0 ){
-        zFailReason = "path does not match any file or script";
+  if( file_isfile(zPath, ExtFILE) ){
+    nScript = (int)strlen(zPath);
+    zScript = zPath;
+  }else{
+    for(i=nRoot+1; zPath[i]; i++){
+      char c = zPath[i];
+      if( (c=='.' || c=='-') && zPath[i-1]=='/' ){
+        zFailReason = "path element begins with '.' or '-'";
         goto aux_not_found;
       }
-      if( isFile!=0 ){
-        zScript = mprintf("%.*s", i, zPath);
-        nScript = i;
-        break;
+      if( !fossil_isalnum(c) && c!='_' && c!='-' && c!='.' ){
+        zFailReason = "illegal character in path";
+        goto aux_not_found;
+      }
+      if( c=='/' ){
+        int isDir, isFile;
+        zPath[i] = 0;
+        isDir = file_isdir(zPath, ExtFILE);
+        isFile = isDir==2 ? file_isfile(zPath, ExtFILE) : 0;
+        zPath[i] = c;
+        if( isDir==0 ){
+          zFailReason = "path does not match any file or script";
+          goto aux_not_found;
+        }
+        if( isFile!=0 ){
+          zScript = mprintf("%.*s", i, zPath);
+          nScript = i;
+          break;
+        }
       }
     }
   }
@@ -112,13 +117,21 @@ void aux_page(void){
     goto aux_not_found;
   }
   if( !file_isexe(zScript, ExtFILE) ){
+    const char *zMime;
     /* File is not executable.  Must be a regular file.  In that case,
     ** disallow extra path elements */
     if( zPath[nScript]!=0 ){
       zFailReason = "extra path elements after filename";
       goto aux_not_found;
     }
+    zMime = mimetype_from_name(zScript);
+    if( zMime==0 ) zMime = "application/octet-stream";
+    cgi_set_content_type(zMime);
+    blob_read_from_file(cgi_output_blob(), zScript, ExtFILE);
+    return;
   }
+  /* If we reach this point, that means we are dealing with an executable
+  ** file name zScript.  Run that file as CGI. */
   login_check_credentials();
 
 aux_not_found:

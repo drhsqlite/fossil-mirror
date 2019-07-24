@@ -2304,7 +2304,7 @@ void cmd_http(void){
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
-  g.zAuxRoot = find_option("auxroot",0,0);
+  g.zAuxRoot = find_option("auxroot",0,1);
   zInFile = find_option("in",0,1);
   if( zInFile ){
     backoffice_disable();
@@ -2399,6 +2399,7 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
+  g.zAuxRoot = find_option("auxroot",0,1);
   find_server_repository(2, 0);
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
@@ -2546,7 +2547,7 @@ void cmd_webserver(void){
   if( g.zErrlog==0 ){
     g.zErrlog = "-";
   }
-  g.zAuxRoot = find_option("auxroot",0,0);
+  g.zAuxRoot = find_option("auxroot",0,1);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);

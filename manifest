@@ -1,5 +1,5 @@
-C Initial\sbut\sincomplete\swork\son\san\sexperimental\s/aux\spage\sthat\sruns\ssecondary\nCGI\sthat\shas\saccess\sto\sthe\sFossil\suser\slogin\scredentials\sand\ssimilar\ninformation.\s\sThis\sis\san\sincremental\scheck-in\sof\swork-in-progress.
-D 2019-07-23T23:25:09.018
+C Continuing\swork\son\sthe\s/aux\spage.\s\sNow\sworking\sfor\sstatic\scontent.
+D 2019-07-24T10:54:59.933
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -432,7 +432,7 @@ F src/add.c f0f7b8fcf4a8ec597a1dbf97fe1af7ead32cd0c261fae15ada25cefc85502811
 F src/alerts.c 2ea635f210c49bdbe978821e111033779b8efff47f2a2b55efc5f644f2439c85
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
-F src/auxwww.c 9e3261b33dcdd860e64c86577c5f869e3640d952892dcc4ae8b212e85f3c1bb7
+F src/auxwww.c fa924c2bb45b9cbfd14fd18fcf045792b7a1b5c727b21cb73f12230c41aa91ef
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c e2f7958e094cf5b17934ffb6eea4993804c1404343523876947d9ee72f6f50c9
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 6b1943a4f760cc6855e3f7b187091431cd4ba24663f35b793ef10a8f9b81ca51
+F src/main.c b0b5744493a4a538a29f31e30ab942abf70ea70ff3aec628b6aa1ba0badff6dc
 F src/main.mk 2b2d31f91707233f28bbe743eedebccf4f935920d0da283c77c11e81ceed495e
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -884,10 +884,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35d609a0ba81799be0992ea4b63ca425d2aff9e3127962feb21e9d4217c0b48f
-R 25cac83ab3100d5396f35744b593e648
-T *branch * sub-cgi
-T *sym-sub-cgi *
-T -sym-trunk *
+P 72f8e77612638e9155d6cfad5824402d825f27e2d41726ccb16152a7053e63b9
+R 24877e6dc93b56f03f710ee74e94e8f9
 U drh
-Z 1b894b413187e5c7ead145b3996060d6
+Z 02513c39a5e84d64c2e80d795b651bec
