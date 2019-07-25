@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sextend\sa\sFossil\sserver\susing\sCGI.\s\sThis\sis\sa\srefactor\sof\nthe\sprior\ssub-cgi\sbranch.
-D 2019-07-25T17:07:08.072
+C Disable\sHTTP_ACCEPT_ENCODING\sfor\sthe\sextension\sCGI.\s\sBut\sleave\sthat\ssetting\nunchanged\sfor\sFossil\sas\sit\smight\sbe\sneeded\sfor\sthe\srelay\sback\sto\sthe\sclient.
+D 2019-07-25T17:40:10.363
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/extcgi.c 535e2b4005d9568d17bed873a521bec65601dda7e987e7bebf1348cb6314f5b9
+F src/extcgi.c d30c418f76491815bce83c9ec7afcf2cb7eb552b1bfb6172ff29b8270bab7b1b
 F src/file.c cfc89f2cd599df19edf4c79d7749061f0f843e6e8af85a293283a6b6e37fcd1d
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -884,10 +884,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35d609a0ba81799be0992ea4b63ca425d2aff9e3127962feb21e9d4217c0b48f
-R 621377eafe5917c488b58fb6b3fe0d4b
-T *branch * extension-cgi
-T *sym-extension-cgi *
-T -sym-trunk *
+P ed2def5ffb96d74ce462ce8f5ad0df2acd2c387e6c6eba0caf678f0eaf63ac71
+R d18e5ecd3cfb5472a790da942961cff8
 U drh
-Z c532a405d72c6f0735e52cfa91dbe88d
+Z 65e3fffe10ead5183cf60e3f0f16f682

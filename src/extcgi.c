@@ -54,7 +54,7 @@ static const char *azCgiEnv[] = {
    "FOSSIL_USER",
    "GATEWAY_INTERFACE",
    "HTTP_ACCEPT",
-   "HTTP_ACCEPT_ENCODING",
+   /* "HTTP_ACCEPT_ENCODING", // omitted from sub-cgi */
    "HTTP_COOKIE",
    "HTTP_HOST",
    "HTTP_IF_MODIFIED_SINCE",
@@ -213,6 +213,7 @@ void ext_page(void){
     const char *zVal = P(azCgiEnv[i]);
     if( zVal ) fossil_setenv(azCgiEnv[i], zVal);
   }
+  fossil_setenv("HTTP_ACCEPT_ENCODING","");
   rc = popen2(zScript, &fdFromChild, &toChild, &pidChild, 1);
   if( rc ){
     zFailReason = "cannot exec CGI child process";
