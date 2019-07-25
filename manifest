@@ -1,5 +1,5 @@
-C Add\sthe\s/ext\spage\sthat\swill\srun\sCGI\sor\sdeliver\sstatic\scontent\sfrom\sa\ndocument\shierarchy\sspecified\sby\sthe\s--extroot\scommand-line\soption\son\n"fossil\sserver"\sor\sthe\sextroot:\soption\sin\sthe\sCGI\sfile.
-D 2019-07-25T21:11:08.441
+C Neither\sSetup\snor\sAdmin\susers\sget\sWrite-Unversioned\spermission\sby\sdefault.\nAnd\sonly\sSetup\susers\sare\sable\sto\sinclude\sWrite-Unversioned\spermission\swhen\nediting\sa\suser.
+D 2019-07-25T23:56:01.439
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c e2f7958e094cf5b17934ffb6eea4993804c1404343523876947d9ee72f6f50c9
+F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
 F src/main.c 183cf5e5ad2ae111ce018f3f33f79e4640a26c4280e556e19371c3c1b06164e1
@@ -556,7 +556,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
 F src/security_audit.c 30e55791c7921efafc94ac9febd963b151239764023fc668d55acc3c08f4b86b
 F src/setup.c 5e859be3e3eb5b82475bbc300a3ff70f6d977e61cf11219b200b2ad5e3a8a22e
-F src/setupuser.c c99de47894081f5d97f34e9d0415655535b663b3d496431e3db8b91fc8dae7c1
+F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -884,8 +884,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35d609a0ba81799be0992ea4b63ca425d2aff9e3127962feb21e9d4217c0b48f c2a98a5d621f29ab2e5967a968b9bba58703ddae79dad0428ef34804af19f676
-R 410d455245041d146909e864482052ca
-T +closed c2a98a5d621f29ab2e5967a968b9bba58703ddae79dad0428ef34804af19f676
+P ec56c69fe98d26d91a3dac2bb3e6a02a673dd6932a87bd20136a2f7b1beab373
+R 47a500449b279f933735bedeb7aee4d5
 U drh
-Z 251b1678b68bb393574e46ae4b31a3f0
+Z c6fce9f8fef9d05eb71e179f03332e52
