@@ -102,7 +102,6 @@ void ext_page(void){
   char *zPath = 0;                /* Complete path from extroot */
   int nRoot;                      /* Number of bytes in the extroot name */
   int nName;                      /* Length of zName */
-  int nPath;                      /* Length of zPath */
   char *zScript = 0;              /* Name of the CGI script */
   int nScript = 0;                /* Bytes in the CGI script name */
   const char *zFailReason = "???";/* Reason for failure */
@@ -137,7 +136,6 @@ void ext_page(void){
   zPath = mprintf("%s/%s", g.zExtRoot, zName);
   nRoot = (int)strlen(g.zExtRoot);
   nName = (int)strlen(zName);
-  nPath = nRoot+nName+1;
   if( file_isfile(zPath, ExtFILE) ){
     nScript = (int)strlen(zPath);
     zScript = zPath;
@@ -239,25 +237,33 @@ void ext_page(void){
     }while( toSend>0 );
     fflush(toChild);
   }
-  while( fgets(zLine,sizeof(zLine),fromChild) ){
-    for(i=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){}
-    zLine[i] = 0;
-    if( i==0 ) break;
-    if( fossil_strnicmp(zLine,"Location:",9)==0 ){
-      fclose(fromChild);
-      fclose(toChild);
-      cgi_redirect(&zLine[10]); /* no return */
-    }else if( fossil_strnicmp(zLine,"Status:",7)==0 ){
-      int j;
-      for(i=7; fossil_isspace(zLine[i]); i++){}
-      for(j=i; fossil_isdigit(zLine[j]); j++){}
-      while( fossil_isspace(zLine[j]) ){ j++; }
-      cgi_set_status(atoi(&zLine[i]), &zLine[j]);
-    }else if( fossil_strnicmp(zLine,"Content-Length:",15)==0 ){
-      nContent = atoi(&zLine[15]);
-    }else if( fossil_strnicmp(zLine,"Content-Type:",13)==0 ){
-      for(i=13; fossil_isspace(zLine[i]); i++){}
-      zMime = mprintf("%s", &zLine[i]);
+  if( g.perm.Debug && P("fossil-ext-debug")!=0 ){
+    /* For users with Debug privilege, if the "fossil-ext-debug" query
+    ** parameter exists, then show raw output from the CGI */
+    zMime = "text/plain";
+  }else{
+    while( fgets(zLine,sizeof(zLine),fromChild) ){
+      for(i=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){}
+      zLine[i] = 0;
+      if( i==0 ) break;
+      if( fossil_strnicmp(zLine,"Location:",9)==0 ){
+        fclose(fromChild);
+        fclose(toChild);
+        cgi_redirect(&zLine[10]); /* no return */
+      }else if( fossil_strnicmp(zLine,"Status:",7)==0 ){
+        int j;
+        for(i=7; fossil_isspace(zLine[i]); i++){}
+        for(j=i; fossil_isdigit(zLine[j]); j++){}
+        while( fossil_isspace(zLine[j]) ){ j++; }
+        cgi_set_status(atoi(&zLine[i]), &zLine[j]);
+      }else if( fossil_strnicmp(zLine,"Content-Length:",15)==0 ){
+        nContent = atoi(&zLine[15]);
+      }else if( fossil_strnicmp(zLine,"Content-Type:",13)==0 ){
+        int j;
+        for(i=13; fossil_isspace(zLine[i]); i++){}
+        for(j=i; zLine[j] && zLine[j]!=';'; j++){}
+        zMime = mprintf("%.*s", j-i, &zLine[i]);
+      }
     }
   }
   blob_read_from_channel(&reply, fromChild, nContent);
