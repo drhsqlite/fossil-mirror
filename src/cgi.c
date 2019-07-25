@@ -1038,8 +1038,8 @@ void cgi_decode_post_parameters(void){
     }else{
       process_multipart_form_data(z, len);
     }
+    blob_init(&g.cgiIn, 0, 0);
   }
-  blob_init(&g.cgiIn, 0, 0);
 }
 
 /*
