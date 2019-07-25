@@ -123,7 +123,13 @@ static int win32_create_child_process(
 **
 ** Return the number of errors.
 */
-int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
+int popen2(
+  const char *zCmd,      /* Command to run in the child process */
+  int *pfdIn,            /* Read from child using this file descriptor */
+  FILE **ppOut,          /* Write to child using this file descriptor */
+  int *pChildPid,        /* PID of the child process */
+  int bDirect            /* 0: run zCmd as a shell cmd.  1: run directly */
+){
 #ifdef _WIN32
   HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr, hStderr;
   SECURITY_ATTRIBUTES saAttr;
@@ -191,7 +197,11 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
     if( fd!=1 ) nErr++;
     close(pin[0]);
     close(pin[1]);
-    execl("/bin/sh", "/bin/sh", "-c", zCmd, (char*)0);
+    if( bDirect ){
+      execl(zCmd, zCmd, (char*)0);
+    }else{
+      execl("/bin/sh", "/bin/sh", "-c", zCmd, (char*)0);
+    }
     return 1;
   }else{
     /* This is the parent process */

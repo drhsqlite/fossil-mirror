@@ -15,11 +15,16 @@
 **
 *******************************************************************************
 **
-** This file contains C functions and procedures that provide useful
-** services to CGI programs.  There are procedures for parsing and
-** dispensing QUERY_STRING parameters and cookies, the "mprintf()"
-** formatting function and its cousins, and routines to encode and
-** decode strings in HTML or HTTP.
+** This file contains C functions and procedures used by CGI programs
+** (Fossil launched as CGI) to interpret CGI environment variables,
+** gather the results, and send they reply back to the CGI server.
+** This file also contains routines for running a simple web-server
+** (the "fossil ui" or "fossil server" command) and launching subprocesses
+** to handle each inbound HTTP request using CGI.
+**
+** This file contains routines used by Fossil when it is acting as a
+** CGI client.  For the code used by Fossil when it is acting as a
+** CGI server (for the /ext webpage) see the "extcgi.c" source file.
 */
 #include "config.h"
 #ifdef _WIN32
@@ -997,10 +1002,6 @@ void cgi_init(void){
     }else if( fossil_strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
 #ifdef FOSSIL_ENABLE_JSON
     else if( fossil_strcmp(zType, "application/json")
@@ -1026,6 +1027,9 @@ void cgi_init(void){
       cgi_set_content_type(json_guess_content_type());
     }
 #endif /* FOSSIL_ENABLE_JSON */
+    else{
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+    }
   }
 
 }
