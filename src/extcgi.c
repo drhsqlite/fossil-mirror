@@ -116,6 +116,7 @@ void ext_page(void){
   Blob reply;                     /* The reply */
   char zLine[1000];               /* One line of the CGI reply */
 
+  login_check_credentials();
   blob_init(&reply, 0, 0);
   if( g.zExtRoot==0 ){
     zFailReason = "extroot is not set";
@@ -197,7 +198,6 @@ void ext_page(void){
         mprintf("%T/ext/%T",g.zTop,zScript+nRoot+1));
   cgi_replace_parameter("SCRIPT_DIRECTORY", file_dirname(zScript));
   cgi_replace_parameter("PATH_INFO", zName + strlen(zScript+nRoot+1));
-  login_check_credentials();
   if( g.zLogin ){
     cgi_replace_parameter("REMOTE_USER", g.zLogin);
     cgi_set_parameter_nocopy("FOSSIL_USER", g.zLogin, 0);
@@ -281,7 +281,11 @@ ext_not_found:
     document_render(&reply, zMime, zName, zName);
   }else{
     cgi_set_status(404, "Not Found");
-    @ %h(zFailReason)
+    @ <h1>Not Found</h1>
+    @ <p>Page not found: %h(g.zPath)</p>
+    if( g.perm.Debug ){
+      @ <p>Reason for failure: %h(zFailReason)</p>
+    }
   }
   return;
 }

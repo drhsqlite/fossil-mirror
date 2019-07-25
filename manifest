@@ -1,5 +1,5 @@
-C Defer\sdecoding\sPOST\sparameters\suntil\safter\sthe\swebpage\sname\sis\slocated.\nDo\snot\sdo\sthe\sdecode\sif\sthe\swebpage\shas\sthe\snew\s"raw-content"\sproperty.\nSet\sthat\sproperty\son\s/ext\sso\sthat\sis\scan\srelay\sthe\sencoded\scontent\sto\nsub-cgi.
-D 2019-07-25T18:34:11.561
+C Do\snot\sprovide\sfailure\sdiagnostics\son\sthe\s/ext\spage\sunless\sthe\suser\shas\nDebug\sprivilege.
+D 2019-07-25T19:53:51.630
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/extcgi.c b058b9cba26c6b8689efb90b8f43173df23d9e05afcc87336ba3c5a1b3af5506
+F src/extcgi.c 86cf7c68e3ce653b7874c2288f42f1a53f8e96f29dca1d3e127ac29059772651
 F src/file.c cfc89f2cd599df19edf4c79d7749061f0f843e6e8af85a293283a6b6e37fcd1d
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -884,7 +884,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc21a4389e1c1c7075b95b51ec64824159fbcfe0a3354d05fa0204cd2f213a4c
-R bdf672870fe41ff58c3c997987e8e456
+P e4849f58e467b68aa107d7ae7c2ee6e55fd89cafde6eff2c69439c576a277222
+R 8bf3a6a40669d022aab842841153ccf2
 U drh
-Z 9795d6f530a195b0aed64a97946c1169
+Z 23354269bf3f37219e592f8938610b4b
