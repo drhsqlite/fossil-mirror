@@ -101,7 +101,6 @@ void ext_page(void){
   const char *zName = P("name");  /* Path information after /ext */
   char *zPath = 0;                /* Complete path from extroot */
   int nRoot;                      /* Number of bytes in the extroot name */
-  int nName;                      /* Length of zName */
   char *zScript = 0;              /* Name of the CGI script */
   int nScript = 0;                /* Bytes in the CGI script name */
   const char *zFailReason = "???";/* Reason for failure */
@@ -136,7 +135,6 @@ void ext_page(void){
   }
   zPath = mprintf("%s/%s", g.zExtRoot, zName);
   nRoot = (int)strlen(g.zExtRoot);
-  nName = (int)strlen(zName);
   if( file_isfile(zPath, ExtFILE) ){
     nScript = (int)strlen(zPath);
     zScript = zPath;
