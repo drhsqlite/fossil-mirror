@@ -76,7 +76,7 @@ static const char *azCgiEnv[] = {
 };
 
 /*
-** WEBPAGE: ext
+** WEBPAGE: ext  raw-content
 **
 ** Relay an HTTP request to secondary CGI after first checking the
 ** login credentials and setting auxiliary environment variables

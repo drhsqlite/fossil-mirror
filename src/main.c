@@ -1786,6 +1786,9 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+    if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
+      cgi_decode_post_parameters();
+    }
     if( g.fCgiTrace ){
       fossil_trace("######## Calling %s #########\n", pCmd->zName);
       cgi_print_all(1, 1);

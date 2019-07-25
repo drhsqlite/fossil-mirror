@@ -988,18 +988,7 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
-    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0
-         || strncmp(zType,"multipart/form-data",19)==0 ){
-      z = fossil_malloc( len+1 );
-      len = fread(z, 1, len, g.httpIn);
-      z[len] = 0;
-      cgi_trace(z);
-      if( zType[0]=='a' ){
-        add_param_list(z, '&');
-      }else{
-        process_multipart_form_data(z, len);
-      }
-    }else if( fossil_strcmp(zType, "application/x-fossil")==0 ){
+    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
@@ -1031,7 +1020,26 @@ void cgi_init(void){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
   }
+}
 
+/*
+** Decode POST parameter information in the cgiIn content, if any.
+*/
+void cgi_decode_post_parameters(void){
+  int len = blob_size(&g.cgiIn);
+  if( len==0 ) return;
+  if( fossil_strcmp(g.zContentType,"application/x-www-form-urlencoded")==0
+   || strncmp(g.zContentType,"multipart/form-data",19)==0
+  ){
+    char *z = blob_str(&g.cgiIn);
+    cgi_trace(z);
+    if( g.zContentType[0]=='a' ){
+      add_param_list(z, '&');
+    }else{
+      process_multipart_form_data(z, len);
+    }
+  }
+  blob_init(&g.cgiIn, 0, 0);
 }
 
 /*
