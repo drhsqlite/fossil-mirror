@@ -2097,6 +2097,15 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "extroot:") && blob_token(&line, &value) ){
+      /* extroot: DIRECTORY
+      **
+      ** Enables the /ext webpage to use sub-cgi rooted at DIRECTORY
+      */
+      g.zExtRoot = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
       /* HOME: VALUE
       **
