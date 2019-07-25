@@ -142,7 +142,7 @@ int transport_ssh_open(UrlData *pUrlData){
   if( g.fSshTrace ){
     fossil_print("%s\n", blob_str(&zCmd));  /* Show the whole SSH command */
   }
-  popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
+  popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid, 0);
   if( sshPid==0 ){
     socket_set_errmsg("cannot start ssh tunnel using [%b]", &zCmd);
   }

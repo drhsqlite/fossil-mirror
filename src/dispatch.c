@@ -49,6 +49,7 @@ struct CmdOrPage {
 #define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
+#define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret POST content */
 /**************************************************************************/
 
 /* Values for the 2nd parameter to dispatch_name_search() */

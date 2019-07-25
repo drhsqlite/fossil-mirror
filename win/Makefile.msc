@@ -381,6 +381,7 @@ SRC   = add_.c \
         etag_.c \
         event_.c \
         export_.c \
+        extcgi_.c \
         file_.c \
         finfo_.c \
         foci_.c \
@@ -593,6 +594,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\etag$O \
         $(OX)\event$O \
         $(OX)\export$O \
+        $(OX)\extcgi$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
@@ -794,6 +796,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
 	echo $(OX)\export.obj >> $@
+	echo $(OX)\extcgi.obj >> $@
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
@@ -1237,6 +1240,12 @@ $(OX)\export$O : export_.c export.h
 	$(TCC) /Fo$@ -c export_.c
 
 export_.c : $(SRCDIR)\export.c
+	translate$E $** > $@
+
+$(OX)\extcgi$O : extcgi_.c extcgi.h
+	$(TCC) /Fo$@ -c extcgi_.c
+
+extcgi_.c : $(SRCDIR)\extcgi.c
 	translate$E $** > $@
 
 $(OX)\file$O : file_.c file.h
@@ -1880,6 +1889,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			etag_.c:etag.h \
 			event_.c:event.h \
 			export_.c:export.h \
+			extcgi_.c:extcgi.h \
 			file_.c:file.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \
