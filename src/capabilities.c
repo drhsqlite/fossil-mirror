@@ -102,6 +102,7 @@ void capability_expand(CapabilityString *pIn){
   static char *zAnon = 0;
   static char *zReader = 0;
   static char *zDev = 0;
+  static char *zAdmin = "bcdefghijklmnopqrtwxz234567AD";
   int doneV = 0;
 
   if( pIn==0 ){
@@ -119,6 +120,9 @@ void capability_expand(CapabilityString *pIn){
   }
   pIn = capability_add(pIn, zAnon);
   pIn = capability_add(pIn, zNobody);
+  if( pIn->x['a'] || pIn->x['s'] ){
+    pIn = capability_add(pIn, zAdmin);
+  }
   if( pIn->x['v'] ){
     pIn = capability_add(pIn, zDev);
     doneV = 1;

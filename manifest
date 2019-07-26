@@ -1,5 +1,5 @@
-C Removed\san\sold\s(#if\s0)'d-out\sblock\s-\sthe\spermissions\scheck\sit\swas\sblocking\sout\sis\sperformed\sfurther\sdown\sin\sthe\sfunction.
-D 2019-07-26T06:14:57.552
+C Fix\sthe\sfullcap()\sSQL\sfunction\sso\sthat\sit\scorrectly\sexpands\sthe\scapabilities\nof\sAdmin\sand\sSetup\susers\sto\sinclude\severything.
+D 2019-07-26T13:35:15.350
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -441,7 +441,7 @@ F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 97f3195667b71146b47ea938f87462308362b83b22c150b99a19c150e650a3d3
+F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c c752574d2147172acd6a5cef7bcf44be0abb61b80b75d3fbdc86b89752d0ecee
 F src/checkin.c a501e7664fbcf8cdce99c938b303a54dec7cacb60f1d674951d2340bf5dc1147
@@ -884,7 +884,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9ca4eb2bda6843bb18ef8e5bf009337d8e20e640f91fa85bb4bffb0deac9e13d
-R fac25f5ba8bf3e950f818978468c12ed
-U stephan
-Z 7e26eff761ce1207c205bb6c559fa7fb
+P 7bd4bca2f4b6bdb17e6b402e127cc3598af43cb408cd0fe4560d006ae860a1a8
+R 19648463e767aedc14cadbfe67841acb
+U drh
+Z 914bd40edb06a8c661ea142ab59e6044
