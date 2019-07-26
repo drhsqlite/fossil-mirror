@@ -1,5 +1,5 @@
-C Fix\sthe\sfullcap()\sSQL\sfunction\sso\sthat\sit\scorrectly\sexpands\sthe\scapabilities\nof\sAdmin\sand\sSetup\susers\sto\sinclude\severything.
-D 2019-07-26T13:35:15.350
+C Preliminary\sdocumentation\sfor\sthe\s/ext\smechanism.
+D 2019-07-26T18:15:25.383
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -864,7 +864,8 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
-F www/server.wiki 6d7c1464aac8af7ed6a570f58aa40be980cd9c0cc982e909815c362071373f03
+F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0ddb
+F www/serverext.wiki 453b751f79924b758da6c29a90192ce6928937fc1db750b28fde6ebacfcd6677
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -884,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7bd4bca2f4b6bdb17e6b402e127cc3598af43cb408cd0fe4560d006ae860a1a8
-R 19648463e767aedc14cadbfe67841acb
+P 384fdb6b4ffb54bbb08acfa30a88cfd9ce1e6f7046c007152d23c97d8d8efe49
+R 0bbdca04cafa7526d3eb1c8f4e5d9b40
 U drh
-Z 914bd40edb06a8c661ea142ab59e6044
+Z 319110a3ff48b1ab27b4320ee405375c

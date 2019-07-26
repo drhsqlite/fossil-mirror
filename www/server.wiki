@@ -248,8 +248,8 @@ Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
 will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
 
 Additional options available to the CGI script are documented in the
-source code.  As of 2017-07-02, the available options are described at
-[/artifact/9a52a07b?ln=1777-1824|main.c lines 1777 through 1824].
+source code.  As of 2019-07-26, the available options are described at
+[/artifact/183cf5e5ad2ae111?ln=1912-1959|main.c lines 1912 through 1959].
 </blockquote>
 
 <h2 id="scgi">Fossil as SCGI</h2>
