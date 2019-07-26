@@ -129,6 +129,10 @@ void ext_page(void){
     zFailReason = "no path beyond /ext";
     goto ext_not_found;
   }
+  if( zName[0]=='.' || zName[0]=='-' ){
+    zFailReason = "path element begins with '.' or '-'";
+    goto ext_not_found;
+  }
   if( file_isdir(g.zExtRoot,ExtFILE)!=1 ){
     zFailReason = "extroot is not a directory";
     goto ext_not_found;
