@@ -1,5 +1,5 @@
-C Neither\sSetup\snor\sAdmin\susers\sget\sWrite-Unversioned\spermission\sby\sdefault.\nAnd\sonly\sSetup\susers\sare\sable\sto\sinclude\sWrite-Unversioned\spermission\swhen\nediting\sa\suser.
-D 2019-07-25T23:56:01.439
+C Removed\san\sold\s(#if\s0)'d-out\sblock\s-\sthe\spermissions\scheck\sit\swas\sblocking\sout\sis\sperformed\sfurther\sdown\sin\sthe\sfunction.
+D 2019-07-26T06:14:57.552
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -508,7 +508,7 @@ F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c 9aa7c3f2c0a450b9a567316261197f85e61e743637844776ad61f8a952d9a08c
 F src/json_tag.c e2b68b9735e706e9e47fb07f063abf7c94da2d76
 F src/json_timeline.c 35b8327ab00667684e295740bdd00744453634bb761fcb9a6998b7279a6b7ef6
-F src/json_user.c 779af89a12af7c0c228d0194fa564379ec77ac76
+F src/json_user.c e7324a6400e53f6d04b690fe3fb642f504ff24dcb91f974dc56b044401233411
 F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
@@ -884,7 +884,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec56c69fe98d26d91a3dac2bb3e6a02a673dd6932a87bd20136a2f7b1beab373
-R 47a500449b279f933735bedeb7aee4d5
-U drh
-Z c6fce9f8fef9d05eb71e179f03332e52
+P 9ca4eb2bda6843bb18ef8e5bf009337d8e20e640f91fa85bb4bffb0deac9e13d
+R fac25f5ba8bf3e950f818978468c12ed
+U stephan
+Z 7e26eff761ce1207c205bb6c559fa7fb
