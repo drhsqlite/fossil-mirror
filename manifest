@@ -1,5 +1,5 @@
-C Update\sthe\sCGI\sextension\sdocumentation.\s\sImproved\sfilename\ssecurity\sin\sthe\nCGI\sextension\ssubsystem.
-D 2019-07-27T15:30:01.666
+C Enhancements\sto\sthe\sCGI\sextension\sdocumentation.\s\sUpdate\sthe\s2.10\schange\nlog\sto\smention\sthis\senhancement\sand\sother\schanges.
+D 2019-07-27T17:11:03.208
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -785,7 +785,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6d6cbce83f0d762a7813c96c52f920c363c3cceb1e99c4db75565a9fbccabc11
-F www/changes.wiki 14c0a34db5f75c7491e8d37c574f5b98a60f99ed1ffa9f96118fe3e277588cdf
+F www/changes.wiki 54436c0940c4f9fdb0b0871c349532bf393e0e5169a2445ca75239266a2c9430
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -865,7 +865,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
 F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0ddb
-F www/serverext.wiki 78eb1a3d4afa1b24420cfc85a178c064b1df203a1fe2b3db271c3803ea69c6ef
+F www/serverext.wiki b715d523c567490c5173e1ed60316a29353129cf3aefe7a328fc6e2b4635af3f
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e91de28b69ca4e2a6121a39e8bd7a6f667b2c6457cff19f35be6a79cfd02a164
-R 097769f0f0de3fa3f78ebf74bb8c9557
+P 12c8cc709d3376ba65439b4c240c6683116215f287ea6631d3bf0e893c9c9b37
+R 3f373a0d70826bcb49537bf669e5631a
 U drh
-Z de4d9d597460b1db33c728ea288a3d44
+Z aba4f6e5bedcf825f2eabbf9f8ccedf5

@@ -17,7 +17,7 @@ the [https://sqlite.org/|SQLite] project.  The checklist
 helps the SQLite developers track which release tests have passed,
 or failed, or are still to be done.  The checklist program began as a
 stand-alone CGI which kept its own private user database and implemented
-its on permissions and login system.  By converting checklist into
+its own permissions and login system.  By converting checklist into
 a Fossil extension, the same login that works for the
 [https://sqlite.org/src|main SQLite source repository] also works
 for the checklist.  And permission to change elements of the checklist
@@ -25,7 +25,7 @@ is based on permission to check-in to the main source repository.
 
 <h2>2.0 How It Works</h2>
 
-Extensions are disabled by default.
+CGI Extensions are disabled by default.
 An administrator activates the CGI extension mechanism by specifying
 an "Extension Root Directory" or "extroot" as part of the server setup.
 If the Fossil server is itself run as CGI, then add a line to the CGI
@@ -80,9 +80,11 @@ Then it takes the leftover "/checklist" part and appends it to the
 that file to be executable, so it runs it as CGI and returns the result.
 
 The /sqlite-src-ext/checklist file is a
-[https://wapp.tcl.tk|Wapp program].  The complete source code to the
+[https://wapp.tcl.tk|Wapp program].  The current source code to the
 this program can be seen at
-[https://www.sqlite.org/src/ext/checklist/self].
+[https://www.sqlite.org/src/ext/checklist/self] and
+historical versions are available at
+[https://sqlite.org/docsrc/finfo/misc/checklist.tcl].
 
 There is a cascade of CGIs happening here.  The webserver that receives
 the initial HTTP request runs Fossil as a CGI based on the
@@ -146,7 +148,18 @@ standard CGI environment variables are supported:
   *  SERVER_PORT
   *  SERVER_PROTOCOL
 
-In addition, Fossil adds the following environment variables:
+Do a web search for
+"[https://duckduckgo.com/?q=cgi+environment_variables|cgi environment variables]"
+to find more detail about what each of the above variables mean and how
+they are used.
+Live listings of the values of some or all of these environment variables
+can be found at links like these:
+
+  *  [https://fossil-scm.org/home/test_env]
+  *  [https://sqlite.org/src/ext/checklist/env]
+
+In addition to the standard CGI environment variables listed above, 
+Fossil adds the following:
 
   *  FOSSIL_CAPABILITIES
   *  FOSSIL_REPOSITORY
@@ -160,12 +173,15 @@ indicate what permissions the user has on the Fossil repository.
 The FOSSIL_REPOSITORY environment variable gives the filename of the
 Fossil repository that is running.
 
-The [https://sqlite.org/ext/checklist|checklist application] uses the
+The [https://sqlite.org/src/ext/checklist|checklist application] uses the
 FOSSIL_USER environment variable to determine the name of the user and
 the FOSSIL_CAPABILITIES variable to determine if the user is allowed to
 mark off changes to the checklist.  Only users with check-in permission
 to the Fossil repository are allowed to mark off checklist items.  That
 means that the FOSSIL_CAPABILITIES string must contain the letter "i".
+Search for "FOSSIL_CAPABILITIES" in the
+[https://sqlite.org/src/ext/checklist/self|source listing] to see how
+this happens.
 
 If the HTTP request includes content (for example if this is a POST request)
 then the CONTENT_LENGTH value will be positive and the data for the content
@@ -194,10 +210,11 @@ line to the requester.
 
 Fossil takes special action with some content types.  If the Content-Type
 is "application/x-fossil-wiki" or "application/x-markdown" then Fossil
-converts the content from Fossil-wiki or Markdown into HTML, adding its
-own header and footer text according to the repository skin.  If the
-content-type is "text/html", that is normally passed straight through
-unchanged.  However, if the HTML content is of the form:
+converts the content from [/wiki_rules|Fossil-Wiki] or 
+[/md_rules|Markdown] into HTML, adding its
+own header and footer text according to the repository skin.  Content
+of type "text/html" is normally passed straight through
+unchanged.  However, if the text/html content is of the form:
 
 <blockquote><verbatim>
 <div class='fossil-doc' data-title='DOCUMENT TITLE'>
@@ -212,7 +229,7 @@ page title contained in the added header will be extracted from the
 "data-title" attribute.
 
 Except for the three cases noted above, Fossil makes no changes or
-additions to the CGI-generated content, but simply passes the verbatim
+additions to the CGI-generated content.  Fossil just passes the verbatim
 content back up the stack towards the requester.
 
 <h2>5.0 Filename Restrictions</h2>
@@ -232,8 +249,7 @@ mechanism:
 If a CGI program requires separate data files, it is safe to put those
 files in the same directory as the CGI program itself as long as the names
 of the data files contain special characters that cause them to be ignored
-by Fossil.  For example, ensure that all datafile begin with "-" or
-end with ",data" or "~data".
+by Fossil.
 
 <h2>6.0 Trouble-Shooting Hints</h2>
 
