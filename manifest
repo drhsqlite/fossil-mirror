@@ -1,5 +1,5 @@
-C Do\snot\sallow\s/ext\sto\sreturn\sfiles\swhose\snames\sbegin\swith\s"."\sor\s"-"\seven\sif\nthose\sfiles\soccur\sin\sthe\stop-level\sextroot\sdirectory.
-D 2019-07-26T20:54:11.340
+C Update\sthe\sCGI\sextension\sdocumentation.\s\sImproved\sfilename\ssecurity\sin\sthe\nCGI\sextension\ssubsystem.
+D 2019-07-27T15:30:01.666
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/extcgi.c 7fe05772e5f4a78c0be1874caf4b032d0ac44922b6ee4dbe95114f2cfb1b425b
+F src/extcgi.c a49695a21db5b21aa7dc3bc616826d1d90f6092975415106784269993f693cf8
 F src/file.c cfc89f2cd599df19edf4c79d7749061f0f843e6e8af85a293283a6b6e37fcd1d
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -865,7 +865,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
 F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0ddb
-F www/serverext.wiki 453b751f79924b758da6c29a90192ce6928937fc1db750b28fde6ebacfcd6677
+F www/serverext.wiki 78eb1a3d4afa1b24420cfc85a178c064b1df203a1fe2b3db271c3803ea69c6ef
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 893fca3a15eff2a3a89dc39b81f8670ad901a7a43171c63d418762404213de77
-R 8f67972b43d45e26a982e3d0897b69fa
+P e91de28b69ca4e2a6121a39e8bd7a6f667b2c6457cff19f35be6a79cfd02a164
+R 097769f0f0de3fa3f78ebf74bb8c9557
 U drh
-Z ba73473028ef625479f7882963206ad8
+Z de4d9d597460b1db33c728ea288a3d44

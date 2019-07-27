@@ -82,7 +82,7 @@ that file to be executable, so it runs it as CGI and returns the result.
 The /sqlite-src-ext/checklist file is a
 [https://wapp.tcl.tk|Wapp program].  The complete source code to the
 this program can be seen at
-[https://www.sqlite.org/checklistapp/file/checklist.tcl].
+[https://www.sqlite.org/src/ext/checklist/self].
 
 There is a cascade of CGIs happening here.  The webserver that receives
 the initial HTTP request runs Fossil as a CGI based on the
@@ -215,7 +215,27 @@ Except for the three cases noted above, Fossil makes no changes or
 additions to the CGI-generated content, but simply passes the verbatim
 content back up the stack towards the requester.
 
-<h2>5.0 Trouble-Shooting Hints</h2>
+<h2>5.0 Filename Restrictions</h2>
+
+For security reasons, Fossil places restrictions on the names of files
+in the extroot directory that can participate in the extension CGI
+mechanism:
+
+  1.  Filenames must consist of only ASCII alphanumeric characters,
+      ".", "_", and "-", and of course "/" as the file separator.
+      Files with names that includes spaces or
+      other punctuation or special characters are ignored.
+
+  2.  No element of the pathname can begin with "." or "-".  Files or
+      directories whose names begin with "." or "-" are ignored.
+
+If a CGI program requires separate data files, it is safe to put those
+files in the same directory as the CGI program itself as long as the names
+of the data files contain special characters that cause them to be ignored
+by Fossil.  For example, ensure that all datafile begin with "-" or
+end with ",data" or "~data".
+
+<h2>6.0 Trouble-Shooting Hints</h2>
 
 Remember that the /ext will return any file in the extroot directory
 hierarchy as static content if the file is readable but not executable.

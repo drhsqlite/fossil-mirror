@@ -112,9 +112,11 @@ void ext_page(void){
   int pidChild = 0;               /* Process id of the child */
   int rc;                         /* Reply code from subroutine call */
   int nContent = -1;              /* Content length */
+  const char *zPathInfo;          /* Original PATH_INFO value */
   Blob reply;                     /* The reply */
   char zLine[1000];               /* One line of the CGI reply */
 
+  zPathInfo = P("PATH_INFO");
   login_check_credentials();
   blob_init(&reply, 0, 0);
   if( g.zExtRoot==0 ){
@@ -129,9 +131,16 @@ void ext_page(void){
     zFailReason = "no path beyond /ext";
     goto ext_not_found;
   }
-  if( zName[0]=='.' || zName[0]=='-' ){
-    zFailReason = "path element begins with '.' or '-'";
-    goto ext_not_found;
+  for(i=0; zName[i]; i++){
+    char c = zName[i];
+    if( (c=='.' || c=='-') && (i==0 || zName[i-1]=='/') ){
+      zFailReason = "path element begins with '.' or '-'";
+      goto ext_not_found;
+    }
+    if( !fossil_isalnum(c) && c!='_' && c!='-' && c!='.' && c!='/' ){
+      zFailReason = "illegal character in path";
+      goto ext_not_found;
+    }
   }
   if( file_isdir(g.zExtRoot,ExtFILE)!=1 ){
     zFailReason = "extroot is not a directory";
@@ -145,14 +154,6 @@ void ext_page(void){
   }else{
     for(i=nRoot+1; zPath[i]; i++){
       char c = zPath[i];
-      if( (c=='.' || c=='-') && zPath[i-1]=='/' ){
-        zFailReason = "path element begins with '.' or '-'";
-        goto ext_not_found;
-      }
-      if( !fossil_isalnum(c) && c!='_' && c!='-' && c!='.' && c!='/' ){
-        zFailReason = "illegal character in path";
-        goto ext_not_found;
-      }
       if( c=='/' ){
         int isDir, isFile;
         zPath[i] = 0;
@@ -284,7 +285,7 @@ ext_not_found:
   }else{
     cgi_set_status(404, "Not Found");
     @ <h1>Not Found</h1>
-    @ <p>Page not found: %h(g.zPath)</p>
+    @ <p>Page not found: %h(zPathInfo)</p>
     if( g.perm.Debug ){
       @ <p>Reason for failure: %h(zFailReason)</p>
     }
