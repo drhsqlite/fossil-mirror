@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\sCGI\sextension\sdocumentation.
-D 2019-07-29T00:12:27.807
+C Fix\sthe\sbuild\sfor\s-DFOSSIL_ENABLE_TH1_DOCS.\s\sThe\sbuild\swas\sbroken\sby\ncheck-in\s[ed2def5ffb96d74c]\sand\son\strunk\sby\s[ec56c69fe98d26d9].
+D 2019-07-29T14:19:52.282
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -469,7 +469,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
-F src/doc.c fe3c4b6fcb6a0b1b9c6e2be19d15dd04e1c37719bc836b6532536cc799a3ab93
+F src/doc.c b3a73656131a8395bb7ac90a652d0727ae3e98b366065df037cca11f9380bb9a
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfa5d50971c757a027917495de12e49a329efb3311770f6e50e6203ce000ddb2
-R b963314d57ed108099c1a1a9b0fbca21
+P f80f753050ce286f7d1878d3a593177beedf2f643ab94427dc2038b1ee5fbd23
+R 6bcb377f1120f0a0673dec3f38173295
 U drh
-Z d31d09f1089c021fa1debbdf6d11b1b5
+Z bc078483af5e27c07aa5f79273af6673
