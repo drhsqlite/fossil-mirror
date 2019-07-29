@@ -1,5 +1,5 @@
-C When\sto\sa\srepolist,\sif\sany\sof\sthe\srepositories\shave\sa\snon-zero\srepolist-skin\nsetting,\suse\sthat\srepository\sas\sthe\sskin\sfor\sthe\slisting.\s\sIf\sthe\srepolist-skin\nsetting\sis\s2,\sthen\somit\sthat\srepository\sfrom\sthe\slist\sfor\sdirectory-scan\nlists,\sbut\salways\sshow\sall\srepos\sfor\sa\s"fossil\sall\sui"\slist.\s\sThis\s*almost*\nworks,\sbut\sstill\shas\ssome\ssmall\sissues.\s\sThis\sis\san\sincremental\scheck-in.
-D 2019-07-29T14:06:19.333
+C Merge\sfixes\sfrom\strunk.
+D 2019-07-29T17:25:36.025
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 9f2c180b20b4da301d892ebae8aeaa65da91e3ac4c01239f29408fa29ebdb188
-F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
+F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -469,7 +469,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
-F src/doc.c fe3c4b6fcb6a0b1b9c6e2be19d15dd04e1c37719bc836b6532536cc799a3ab93
+F src/doc.c b3a73656131a8395bb7ac90a652d0727ae3e98b366065df037cca11f9380bb9a
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -819,7 +819,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
-F www/env-opts.md af78288bc2c48de005e9fc99ab8a64ecbd569865ded19adedb48d8dc32d40da7
+F www/env-opts.md c0060195ff977e37491fd00e0c32882404021a2cdc4a43b9ea5494acbcbf4145
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
@@ -865,7 +865,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
 F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0ddb
-F www/serverext.wiki 69631b2870ea33ee6bb299822fca6c9374f8e4a59fb33ce12a8ed1614728c2d6
+F www/serverext.wiki b32ece4cc661f45d25fecab9baebecf727d63ca837662a8c7abdbcd3ed352042
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -885,10 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f80f753050ce286f7d1878d3a593177beedf2f643ab94427dc2038b1ee5fbd23
-R 185ec5a3063de23d82a9255e19742db0
-T *branch * repolist-skin
-T *sym-repolist-skin *
-T -sym-trunk *
+P 958e0bdc4ab87bdba6c71c3c081a63e9932574171b5dff062dde09a9d8bc9e47 93b0afc889ce44df7162bd8b538fb32a8651ba70ae2ffb0af7bc620dbaab9c24
+R 4250817e2d132a5421b5fb1a76b5309b
 U drh
-Z 1a017a0f22a1bab2b7abbbd1ba7e3fc2
+Z 25375168ddc141e97512d93406b2d9ba
