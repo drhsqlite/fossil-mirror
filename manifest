@@ -1,5 +1,5 @@
-C Trim\sspaces\sfrom\sthe\sCSS\sbackground\simage\sSVG\sdata\sURI\sfor\sthe\scopy\sicon,\sto\smake\sit\slook\smore\scompact\s--\sthis\smay\snot\snecessarily\sreduce\sthe\soverall\ssize\sof\sthe\sfinal\sgzipped\sCSS\sresource\sdelivered\sby\sthe\sFossil\sweb\sserver.\sThe\suncompressed\ssource\scode\sfor\sthe\sicon\sis\son\sthe\s[branch/tooltip-copyhash]\swiki\spage,\swith\sa\scomment\swhy\sthe\svariant\swith\sthe\s"inaccurately"\scalculated\soutline\slooks\sbetter.
-D 2019-07-29T08:14:00.000
+C Move\seach\scommand-line\soption\sto\stheir\sown\sparagraph,\sfor\sconsistency\swith\sthe\sdocument\sstructure\sin\s"Environment\sVariables\sand\sGlobal\sOptions",\sas\sthis\sseems\seasier\sto\sbrowse\sand\ssearch.\sThe\sexplicit\sline-break\sbetween\sthe\stwo\soptions\swas\swiped\swith\sautomatic\scleanup\sof\strailing\sspaces\sby\s[e2751b18af].
+D 2019-07-29T08:28:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -819,7 +819,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 79a109d3a75e86fd99419de4b00f1937043db9a6
-F www/env-opts.md af78288bc2c48de005e9fc99ab8a64ecbd569865ded19adedb48d8dc32d40da7
+F www/env-opts.md c0060195ff977e37491fd00e0c32882404021a2cdc4a43b9ea5494acbcbf4145
 F www/event.wiki 9dad90b3973562c9c59360a616b93d9d3a444bbbd2c8443ae3d0033835298fc2
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
@@ -885,10 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f80f753050ce286f7d1878d3a593177beedf2f643ab94427dc2038b1ee5fbd23
-R ab8b005cef238586649c26d4239424ff
-T *branch * svg-and-md-formatting
-T *sym-svg-and-md-formatting *
-T -sym-trunk *
+P 0be9a2dbb78b6f076d363f3e203d6c80d7046215a90674f985879f33d748f3cb
+R 39960d51b98e628ea35882c5280e2047
 U florian
-Z d96ac536d03d0527aabc891af6c397bd
+Z 473b6198694483dcabc8cdfe7d6715ff
