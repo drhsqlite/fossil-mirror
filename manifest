@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\sCGI\sextension\sdocumentation.
-D 2019-07-29T00:12:27.807
+C When\sto\sa\srepolist,\sif\sany\sof\sthe\srepositories\shave\sa\snon-zero\srepolist-skin\nsetting,\suse\sthat\srepository\sas\sthe\sskin\sfor\sthe\slisting.\s\sIf\sthe\srepolist-skin\nsetting\sis\s2,\sthen\somit\sthat\srepository\sfrom\sthe\slist\sfor\sdirectory-scan\nlists,\sbut\salways\sshow\sall\srepos\sfor\sa\s"fossil\sall\sui"\slist.\s\sThis\s*almost*\nworks,\sbut\sstill\shas\ssome\ssmall\sissues.\s\sThis\sis\san\sincremental\scheck-in.
+D 2019-07-29T14:06:19.333
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
+F src/db.c 9f2c180b20b4da301d892ebae8aeaa65da91e3ac4c01239f29408fa29ebdb188
 F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 183cf5e5ad2ae111ce018f3f33f79e4640a26c4280e556e19371c3c1b06164e1
+F src/main.c 9c33d88f99ca9ac8fab1bbcc270910f37ce183945319e18efee83a095b8e7da6
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -547,7 +547,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
 F src/regexp.c 04d511ced556f1e90f38b4c412db79d2b174179f00c49ef702255c0733885c5d
-F src/repolist.c c2bf75fe1eabc1ff60a37058868f0541e2d4f19802b9ea7deaa1f342314794b4
+F src/repolist.c ff5cde389021c61027d6de18ee37fafbe1b3253d6475caf593e64e5adef074b0
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -573,7 +573,7 @@ F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c 2cbce671a973041cd7db7fc28658e5e7e33bf9a9163ed2e4827203143b2b7384
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 1ab08da29b93f97bb8e970f280092d43980ca73da14aa11aa6624fe001a4dde3
+F src/style.c ec7cd33829f606d2824b51627498e7899efd282c4231a69b0e7ab8890f3c3b62
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 786e61573107781307de21a2d601a932606e42c9cb8f90b765db2d8ea09e6d48
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
@@ -885,7 +885,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfa5d50971c757a027917495de12e49a329efb3311770f6e50e6203ce000ddb2
-R b963314d57ed108099c1a1a9b0fbca21
+P f80f753050ce286f7d1878d3a593177beedf2f643ab94427dc2038b1ee5fbd23
+R 185ec5a3063de23d82a9255e19742db0
+T *branch * repolist-skin
+T *sym-repolist-skin *
+T -sym-trunk *
 U drh
-Z d31d09f1089c021fa1debbdf6d11b1b5
+Z 1a017a0f22a1bab2b7abbbd1ba7e3fc2

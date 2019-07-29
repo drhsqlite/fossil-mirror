@@ -2423,7 +2423,7 @@ void cmd_test_http(void){
   }else{
     cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
     cgi_handle_http_request(0);
-    process_one_web_page(0, 0, 0);
+    process_one_web_page(0, 0, 1);
   }
 }
 
