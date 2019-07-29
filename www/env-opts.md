@@ -33,8 +33,7 @@ most sensible condition.
 any commands.
 
 
-`--comfmtflags NUMBER`
-`--comment-format NUMBER`: Specify flags that control how check-in comments
+`--comfmtflags NUMBER`: Specify flags that control how check-in comments
 and certain other text outputs are formatted for display. The flags are
 individual bits in `NUMBER`, which must be specified in base 10:
 
@@ -57,6 +56,9 @@ individual bits in `NUMBER`, which must be specified in base 10:
   * _16_ &mdash; Looks for the original comment text within the text being
          printed.  Upon matching, a new line will be emitted, thus
          preserving more of the pre-existing formatting.
+
+
+`--comment-format NUMBER`: Alias for `--comfmtflags NUMBER`.
 
 
 `--errorlog ERRLOG`: Name a file to which fossil will log panics,
