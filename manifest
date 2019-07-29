@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\sCGI\sextension\sdocumentation.
-D 2019-07-29T00:12:27.807
+C Trim\sspaces\sfrom\sthe\sCSS\sbackground\simage\sSVG\sdata\sURI\sfor\sthe\scopy\sicon,\sto\smake\sit\slook\smore\scompact\s--\sthis\smay\snot\snecessarily\sreduce\sthe\soverall\ssize\sof\sthe\sfinal\sgzipped\sCSS\sresource\sdelivered\sby\sthe\sFossil\sweb\sserver.\sThe\suncompressed\ssource\scode\sfor\sthe\sicon\sis\son\sthe\s[branch/tooltip-copyhash]\swiki\spage,\swith\sa\scomment\swhy\sthe\svariant\swith\sthe\s"inaccurately"\scalculated\soutline\slooks\sbetter.
+D 2019-07-29T08:14:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
-F src/default_css.txt 19435929148275aa9a124ae25e2f03702019830347038fa8276938a11dfc0eeb
+F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -885,7 +885,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfa5d50971c757a027917495de12e49a329efb3311770f6e50e6203ce000ddb2
-R b963314d57ed108099c1a1a9b0fbca21
-U drh
-Z d31d09f1089c021fa1debbdf6d11b1b5
+P f80f753050ce286f7d1878d3a593177beedf2f643ab94427dc2038b1ee5fbd23
+R ab8b005cef238586649c26d4239424ff
+T *branch * svg-and-md-formatting
+T *sym-svg-and-md-formatting *
+T -sym-trunk *
+U florian
+Z d96ac536d03d0527aabc891af6c397bd
