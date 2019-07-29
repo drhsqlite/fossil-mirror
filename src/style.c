@@ -985,13 +985,16 @@ void page_script_js(void){
 
 
 /*
-** Render the text of the stylesheet.
+** WEBPAGE: style.css
+**
+** Return the style sheet.
 */
-void style_render_stylesheet(void){
+void page_style_css(void){
   Blob css;
   int i;
   int isInit = 0;
 
+  cgi_set_content_type("text/css");
   blob_init(&css,skin_get("css"),-1);
 
   /* add special missing definitions */
@@ -1024,16 +1027,7 @@ void style_render_stylesheet(void){
   image_url_var("logo");
   image_url_var("background");
   Th_Render(blob_str(&css));
-}
 
-/*
-** WEBPAGE: style.css
-**
-** Return the style sheet.
-*/
-void page_style_css(void){
-  cgi_set_content_type("text/css");
-  style_render_stylesheet();
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;
 }

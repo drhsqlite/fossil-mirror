@@ -39,13 +39,8 @@ struct RepoInfo {
 
 /*
 ** Discover information about the repository given by
-** pRepo->zRepoName.  The discovered information is stored in
-** 
-**
-** 
-**
-** This is an expensive routine in that it has to open and close an
-** SQLite database file.
+** pRepo->zRepoName.  The discovered information is stored in other
+** fields of the RepoInfo object.
 */
 static void remote_repo_info(RepoInfo *pRepo){
   sqlite3 *db;
@@ -86,9 +81,6 @@ static void remote_repo_info(RepoInfo *pRepo){
 finish_repo_list:
   g.dbIgnoreErrors--;
   sqlite3_close(db);
-  if( pRepo->isRepolistSkin && !g.repositoryOpen ){
-    db_open_repository(pRepo->zRepoName);
-  }
 }
 
 /*
@@ -109,11 +101,13 @@ finish_repo_list:
 ** return 0.
 */
 int repo_list_page(void){
-  Blob base;          /* document root for all repositories */
-  int n = 0;          /* Number of repositories found */
-  int allRepo;        /* True if running "fossil ui all".
-                      ** False if a directory scan of base for repos */
-  Blob html;          /* Html for the body of the repository list */
+  Blob base;           /* document root for all repositories */
+  int n = 0;           /* Number of repositories found */
+  int allRepo;         /* True if running "fossil ui all".
+                       ** False if a directory scan of base for repos */
+  Blob html;           /* Html for the body of the repository list */
+  char *zSkinRepo = 0; /* Name of the repository database used for skins */
+  char *zSkinUrl = 0;  /* URL for the skin database */
 
   assert( g.db==0 );
   blob_init(&html, 0, 0);
@@ -146,7 +140,10 @@ int repo_list_page(void){
     allRepo = 0;
   }
   n = db_int(0, "SELECT count(*) FROM sfile");
-  if( n>0 ){
+  if( n==0 ){
+    sqlite3_close(g.db);
+    return 0;
+  }else{
     Stmt q;
     double rNow;
     blob_append_sql(&html,
@@ -182,6 +179,12 @@ int repo_list_page(void){
       }
       x.zRepoName = zFull;
       remote_repo_info(&x);
+      if( x.isRepolistSkin ){
+        if( zSkinRepo==0 ){
+          zSkinRepo = mprintf("%s", x.zRepoName);
+          zSkinUrl = mprintf("%s", zUrl);
+        }
+      }
       fossil_free(zFull);
       if( !x.isValid ){
         continue;
@@ -205,11 +208,11 @@ int repo_list_page(void){
         blob_append_sql(&html, "%h (hidden)", zName);
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
         blob_append_sql(&html,
-          "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
+          "<a href='/%T/home' target='_blank'>/%h</a>\n",
           zUrl, zName);
       }else{
         blob_append_sql(&html,
-          "<a href='%R/%T/home' target='_blank'>%h</a>\n",
+          "<a href='/%T/home' target='_blank'>%h</a>\n",
           zUrl, zName);
       }
       if( x.zProjName ){
@@ -226,8 +229,14 @@ int repo_list_page(void){
     }
     db_finalize(&q);
     blob_append_sql(&html,"</tbody></table>\n");
-  }else{
-    blob_append_sql(&html,"<h1>No Repositories Found</h1>\n");
+  }
+  if( zSkinRepo ){
+    char *zNewBase = mprintf("%s/%s", g.zBaseURL, zSkinUrl);
+    g.zBaseURL = 0;
+    set_base_url(zNewBase);
+    db_open_repository(zSkinRepo);
+    fossil_free(zSkinRepo);
+    fossil_free(zSkinUrl);
   }
   if( g.repositoryOpen ){
     /* This case runs if remote_repository_info() found a repository
@@ -236,9 +245,6 @@ int repo_list_page(void){
     ** for display. */
     login_check_credentials();
     style_header("Repository List");
-    @ <style>
-    style_render_stylesheet();
-    @ </style>
     @ %s(blob_str(&html))
     style_table_sorter();
     style_footer();

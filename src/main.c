@@ -1196,7 +1196,7 @@ void test_version_page(void){
 ** is the argument to the --baseurl option command-line option and
 ** g.zBaseURL and g.zTop is set from that instead.
 */
-static void set_base_url(const char *zAltBase){
+void set_base_url(const char *zAltBase){
   int i;
   const char *zHost;
   const char *zMode;
