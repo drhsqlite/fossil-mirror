@@ -1,5 +1,5 @@
-C When\sdoing\sa\srepository\slist,\suse\sthe\sfirst\srepository\sthat\shas\sa\snon-zero\nvalue\sfor\sthe\s"repolist-skin"\ssetting\sas\sthe\sskin\sfor\sthe\slist.\s\sIf\sthe\n"repolist-skin"\ssetting\sis\s2\sand\sif\sthe\srepository\slist\sis\scoming\sfrom\sa\ndirectory\sscan,\sthe\somit\sthat\srepository\sfrom\sthe\slist.\s\sAll\srepositories\nare\salways\sshown,\sregardless\sof\sthe\s"repolist-skin"\ssetting\sfor\sa\n"fossil\sall\sui"\sor\s"fossil\sall\sserver"\sgenerated\srepository\slist.
-D 2019-07-29T18:17:56.184
+C Improved\sdocumentation\sof\sthe\srepolist-skin\ssetting.
+D 2019-07-29T20:02:01.678
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 9f2c180b20b4da301d892ebae8aeaa65da91e3ac4c01239f29408fa29ebdb188
+F src/db.c 940b1186a08d16bd77b2b62c606f9269e404411012310ff4d3b3305d52b2a998
 F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -785,7 +785,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 6d6cbce83f0d762a7813c96c52f920c363c3cceb1e99c4db75565a9fbccabc11
-F www/changes.wiki 54436c0940c4f9fdb0b0871c349532bf393e0e5169a2445ca75239266a2c9430
+F www/changes.wiki fda36638600faf7b77c6c25dbe87f307ee166c86df304b58b4a18e053f71c860
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -885,8 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 93b0afc889ce44df7162bd8b538fb32a8651ba70ae2ffb0af7bc620dbaab9c24 6df7a853ec16865b33835bf346f3ef804a29b514bce209b5bdf25df2bfb45b1c
-R 536a49e78272bb4fd945105e67d01e93
-T +closed 6df7a853ec16865b33835bf346f3ef804a29b514bce209b5bdf25df2bfb45b1c
+P 8f5399bc7b2388a9050ae4cdf5d63d107607b77794d3a8bf8357a28de4743a88
+R 0d0bba3d0631c540f828afa29810cbb8
 U drh
-Z 6a897429a285c3f253fca3d4b9c34530
+Z 524dc6a2614dbc1ac8a5daa0cd2710ac

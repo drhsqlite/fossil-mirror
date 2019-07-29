@@ -4,6 +4,8 @@
 <h2>Changes for Version 2.10 (pending)</h2>
 
   *  Added support for [./serverext.wiki|CGI-based Server Extensions].
+  *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
+     add style to repository list pages.
   *  Enhance the hierarchical display of Forum threads to do less
      indentation and to provide links back to the previous message
      in the thread.  Provide sequential numbers for all messages in

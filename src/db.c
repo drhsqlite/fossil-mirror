@@ -3426,10 +3426,24 @@ struct Setting {
 */
 /*
 ** SETTING: repolist-skin    width=2 default=0
-** If non-zero then this repository desires to be used as the skin for
-** repository lists.  If 2, then use then omit this repository from the
-** list for directory-scan lists.  The repository is always displayed
-** in lists for "fossil all ui" or "fossil all server".
+** If non-zero then use this repository as the skin for a repository list
+** such as created by the one of:
+**
+**    1)  fossil server DIRECTORY --repolist
+**    2)  fossil ui DIRECTORY --repolist
+**    3)  fossil http DIRECTORY --repolist
+**    4)  (The "repolist" option in a CGI script)
+**    5)  fossil all ui
+**    6)  fossil all server
+**
+** All repositories are searched (in lexicographical order) and the first
+** repository with a non-zero "repolist-skin" value is used as the skin
+** for the repository list page.  If none of the repositories on the list
+** have a non-zero "repolist-skin" setting then the repository list is
+** displayed using unadorned HTML ("skinless").
+**
+** If repolist-skin has a value of 2, then the repository is omitted from
+** the list in use cases 1 through 4, but not for 5 and 6.
 */
 /*
 ** SETTING: self-register    boolean default=off
