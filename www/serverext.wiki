@@ -2,14 +2,12 @@
 
 <h2>1.0 Introduction</h2>
 
-If you choose to have a [./server.wiki|central server] for your Fossil-based
-project (which is optional - Fossil can be used in a pure peer-to-peer
-mode) then you can add CGI extensions to the Fossil website.  These
-extensions work like any other CGI program, except that they also have access
-to the Fossil login information, so that they can restrict access based on
-the currently logged in user.  The CGI output can be a stand-alone webpage,
-or it can be incorporated into the Fossil site using the standard Fossil
-header and footer.
+If you have a [./server.wiki|Fossil server] for your project,
+you can add [https://en.wikipedia.org/wiki/Common_Gateway_Interface|CGI]
+extensions to that server.  These extensions work like
+any other CGI program, except that they also have access to the Fossil
+login information and can (optionally) leverage the "skins" of Fossil
+so that they appear to be more tightly integrated into the project.
 
 An example of where this is useful is the 
 [https://sqlite.org/src/ext/checklist|checklist application] on
@@ -17,11 +15,13 @@ the [https://sqlite.org/|SQLite] project.  The checklist
 helps the SQLite developers track which release tests have passed,
 or failed, or are still to be done.  The checklist program began as a
 stand-alone CGI which kept its own private user database and implemented
-its own permissions and login system.  By converting checklist into
-a Fossil extension, the same login that works for the
-[https://sqlite.org/src|main SQLite source repository] also works
-for the checklist.  And permission to change elements of the checklist
-is based on permission to check-in to the main source repository.
+its own permissions and login system and provided its own CSS.  By
+converting checklist into a Fossil extension, the same login that works 
+for the [https://sqlite.org/src|main SQLite source repository] also works
+for the checklist.  Permission to change elements of the checklist
+is tied on permission to check-in to the main source repository.  And
+the standard Fossil header menu and footer appear on each page of
+the checklist.
 
 <h2>2.0 How It Works</h2>
 
@@ -83,8 +83,9 @@ The /sqlite-src-ext/checklist file is a
 [https://wapp.tcl.tk|Wapp program].  The current source code to the
 this program can be seen at
 [https://www.sqlite.org/src/ext/checklist/self] and
-historical versions are available at
-[https://sqlite.org/docsrc/finfo/misc/checklist.tcl].
+recent historical versions are available at
+[https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
+older legacy at [https://sqlite.org/checklistapp/timeline?n=all]
 
 There is a cascade of CGIs happening here.  The webserver that receives
 the initial HTTP request runs Fossil as a CGI based on the
@@ -109,11 +110,11 @@ The extroot for this Fossil server is /fossil-extroot and in that directory
 is an executable file named "fileup1" - another [https://wapp.tcl.tk|Wapp]
 script.  (The extension mechanism does not have to use Wapp.  You can use
 any kind of program you like.  But the creator of SQLite and Fossil is fond
-of Tcl/Tk and so he tends to gravitate toward Tcl-based technologies like
-Wapp.)  The fileup1 script is a demo program that lets the user upload
-a file using a form, and then displays that file in the reply.  There is
-a link on the page that causes the fileup1 script to return a copy of its
-own source-code, so you can see how it works.
+of [https://www.tcl.tk|Tcl/Tk] and so he tends to gravitate toward Tcl-based
+technologies like Wapp.)  The fileup1 script is a demo program that lets
+the user upload a file using a form, and then displays that file in the reply.
+There is a link on the page that causes the fileup1 script to return a copy
+of its own source-code, so you can see how it works.
 
 <h2>3.0 CGI Inputs</h2>
 

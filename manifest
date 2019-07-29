@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\sCGI\sextension\sdocumentation.\s\sUpdate\sthe\s2.10\schange\nlog\sto\smention\sthis\senhancement\sand\sother\schanges.
-D 2019-07-27T17:11:03.208
+C Enhancements\sto\sthe\sCGI\sextension\sdocumentation.
+D 2019-07-29T00:12:27.807
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -865,7 +865,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
 F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0ddb
-F www/serverext.wiki b715d523c567490c5173e1ed60316a29353129cf3aefe7a328fc6e2b4635af3f
+F www/serverext.wiki 69631b2870ea33ee6bb299822fca6c9374f8e4a59fb33ce12a8ed1614728c2d6
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 12c8cc709d3376ba65439b4c240c6683116215f287ea6631d3bf0e893c9c9b37
-R 3f373a0d70826bcb49537bf669e5631a
+P dfa5d50971c757a027917495de12e49a329efb3311770f6e50e6203ce000ddb2
+R b963314d57ed108099c1a1a9b0fbca21
 U drh
-Z aba4f6e5bedcf825f2eabbf9f8ccedf5
+Z d31d09f1089c021fa1debbdf6d11b1b5
