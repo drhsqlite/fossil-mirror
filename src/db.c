@@ -3425,6 +3425,13 @@ struct Setting {
 ** improvement.
 */
 /*
+** SETTING: repolist-skin    width=2 default=0
+** If non-zero then this repository desires to be used as the skin for
+** repository lists.  If 2, then use then omit this repository from the
+** list for directory-scan lists.  The repository is always displayed
+** in lists for "fossil all ui" or "fossil all server".
+*/
+/*
 ** SETTING: self-register    boolean default=off
 ** Allow users to register themselves through the HTTP UI.
 ** This is useful if you want to see other names than

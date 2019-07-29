@@ -1196,7 +1196,7 @@ void test_version_page(void){
 ** is the argument to the --baseurl option command-line option and
 ** g.zBaseURL and g.zTop is set from that instead.
 */
-static void set_base_url(const char *zAltBase){
+void set_base_url(const char *zAltBase){
   int i;
   const char *zHost;
   const char *zMode;
@@ -2423,7 +2423,7 @@ void cmd_test_http(void){
   }else{
     cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
     cgi_handle_http_request(0);
-    process_one_web_page(0, 0, 0);
+    process_one_web_page(0, 0, 1);
   }
 }
 

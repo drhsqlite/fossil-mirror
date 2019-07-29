@@ -1,5 +1,5 @@
-C Enhancements\sto\sthe\scopy/paste\sSVG\sicon\sand\sto\sthe\sglobal\soptions\shelp\spage.
-D 2019-07-29T15:12:59.907
+C When\sdoing\sa\srepository\slist,\suse\sthe\sfirst\srepository\sthat\shas\sa\snon-zero\nvalue\sfor\sthe\s"repolist-skin"\ssetting\sas\sthe\sskin\sfor\sthe\slist.\s\sIf\sthe\n"repolist-skin"\ssetting\sis\s2\sand\sif\sthe\srepository\slist\sis\scoming\sfrom\sa\ndirectory\sscan,\sthe\somit\sthat\srepository\sfrom\sthe\slist.\s\sAll\srepositories\nare\salways\sshown,\sregardless\sof\sthe\s"repolist-skin"\ssetting\sfor\sa\n"fossil\sall\sui"\sor\s"fossil\sall\sserver"\sgenerated\srepository\slist.
+D 2019-07-29T18:17:56.184
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 730bec7bf6aa6a6807bbef2493a26484a4f1c212ef3ecbed82c81f0fc84e6697
+F src/db.c 9f2c180b20b4da301d892ebae8aeaa65da91e3ac4c01239f29408fa29ebdb188
 F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 183cf5e5ad2ae111ce018f3f33f79e4640a26c4280e556e19371c3c1b06164e1
+F src/main.c 52b62c7d69f309102bcf6dfe1329832a46f2a921a48c408957d095d822b8b8e9
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -547,7 +547,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
 F src/regexp.c 04d511ced556f1e90f38b4c412db79d2b174179f00c49ef702255c0733885c5d
-F src/repolist.c c2bf75fe1eabc1ff60a37058868f0541e2d4f19802b9ea7deaa1f342314794b4
+F src/repolist.c 63fd30ae8ffbbc9a43209eb2f86f3143388edab343ad7462861314e8bb71f36b
 F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -885,8 +885,8 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8abeb62737c2b527113174ddc0681c220060f3862cccd1ad52834da81739e968 14f2ba04368affd391fa9fabf6f8f0f8a860314dbf4b62243fb5f6ab33265d31
-R ad706b897d2165c2e9b94b3e5a5ea0b2
-T +closed 14f2ba04368affd391fa9fabf6f8f0f8a860314dbf4b62243fb5f6ab33265d31
+P 93b0afc889ce44df7162bd8b538fb32a8651ba70ae2ffb0af7bc620dbaab9c24 6df7a853ec16865b33835bf346f3ef804a29b514bce209b5bdf25df2bfb45b1c
+R 536a49e78272bb4fd945105e67d01e93
+T +closed 6df7a853ec16865b33835bf346f3ef804a29b514bce209b5bdf25df2bfb45b1c
 U drh
-Z a78fa7cc98365a5e09e21ee9f6b614b6
+Z 6a897429a285c3f253fca3d4b9c34530
