@@ -436,7 +436,9 @@ static int isHuman(const char *zAgent){
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
-    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ) return 1; /* IE11+ */
+    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ){
+      return 1; /* IE11+ */
+    }
     if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent)==0 ) return 1;
     return 0;
   }
@@ -899,7 +901,7 @@ static int login_find_user(
 ** Attempt to use Basic Authentication to establish the user.  Return the
 ** (non-zero) uid if successful.  Return 0 if it does not work.
 */
-static int logic_basic_authentication(const char *zIpAddr){
+static int login_basic_authentication(const char *zIpAddr){
   const char *zAuth = PD("HTTP_AUTHORIZATION", 0);
   int i;
   int uid = 0;
@@ -908,9 +910,11 @@ static int logic_basic_authentication(const char *zIpAddr){
   const char *zUsername = 0;
   const char *zPasswd = 0;
 
-  if( zAuth==0 ) return 0;                    /* Fail: No Authentication: header */
+  if( zAuth==0 ) return 0;             /* Fail: No Authentication: header */
   while( fossil_isspace(zAuth[0]) ) zAuth++;  /* Skip leading whitespace */
-  if( strncmp(zAuth, "Basic ", 6)!=0 ) return 0;  /* Fail: Not Basic Authentication */
+  if( strncmp(zAuth, "Basic ", 6)!=0 ){
+    return 0;  /* Fail: Not Basic Authentication */
+  }
 
   /* Parse out the username and password, separated by a ":" */
   zAuth += 6;
@@ -1071,7 +1075,7 @@ void login_check_credentials(void){
   ** see if those credentials are valid for a known user.
   */
   if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
-    uid = logic_basic_authentication(zIpAddr);
+    uid = login_basic_authentication(zIpAddr);
   }
 
   /* If no user found yet, try to log in as "nobody" */
@@ -1228,7 +1232,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum =
                              p->EmailAlert = p->Announce = p->Debug =
-                             p->WrUnver = p->Private = 1;
+                             p->Private = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;

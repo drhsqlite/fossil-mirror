@@ -142,7 +142,7 @@ int transport_ssh_open(UrlData *pUrlData){
   if( g.fSshTrace ){
     fossil_print("%s\n", blob_str(&zCmd));  /* Show the whole SSH command */
   }
-  popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
+  popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid, 0);
   if( sshPid==0 ){
     socket_set_errmsg("cannot start ssh tunnel using [%b]", &zCmd);
   }
@@ -167,13 +167,13 @@ int transport_open(UrlData *pUrlData){
       rc = transport_ssh_open(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
     }else if( pUrlData->isHttps ){
-      #ifdef FOSSIL_ENABLE_SSL
+#ifdef FOSSIL_ENABLE_SSL
       rc = ssl_open(pUrlData);
       if( rc==0 ) transport.isOpen = 1;
-      #else
+#else
       socket_set_errmsg("HTTPS: Fossil has been compiled without SSL support");
       rc = 1;
-      #endif
+#endif
     }else if( pUrlData->isFile ){
       sqlite3_uint64 iRandId;
       sqlite3_randomness(sizeof(iRandId), &iRandId);
@@ -241,7 +241,7 @@ void transport_send(UrlData *pUrlData, Blob *toSend){
     fwrite(z, 1, n, sshOut);
     fflush(sshOut);
   }else if( pUrlData->isHttps ){
-    #ifdef FOSSIL_ENABLE_SSL
+#ifdef FOSSIL_ENABLE_SSL
     int sent;
     while( n>0 ){
       sent = ssl_send(0, z, n);
@@ -249,7 +249,7 @@ void transport_send(UrlData *pUrlData, Blob *toSend){
       if( sent<=0 ) break;
       n -= sent;
     }
-    #endif
+#endif
   }else if( pUrlData->isFile ){
     fwrite(z, 1, n, transport.pFile);
   }else{

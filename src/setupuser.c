@@ -339,7 +339,7 @@ void user_edit(void){
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
       zNm[1] = c;
-      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      a[c&0x7f] = ((c!='s' && c!='y') || g.perm.Setup) && P(zNm)!=0;
       if( a[c&0x7f] ) zCap[i++] = c;
     }
     for(c='0'; c<='9'; c++){

@@ -15,12 +15,6 @@ we try to be fair, the information here
 might be biased in favor of Fossil.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
-&#185;<small><i>Git does not include a
-wiki, a ticket tracker, a forum, or a tech-note feature, so those elements will not transfer when
-exporting from Fossil to Git. GitHub adds some of these to stock Git,
-but because they're not part of Git proper, [./mirrortogithub.md|exporting a Fossil
-repository to GitHub] will still not include them; Fossil tickets do not
-become GitHub issues, for example.</i></small>
 
 <h2>2.0 Differences Between Fossil And Git</h2>
 
@@ -123,17 +117,15 @@ and avoid errors.
 <h3 id="vs-linux">2.3 Linux vs. SQLite</h3>
 
 Fossil and Git promote different development styles because each one was
-specifically designed to support the primary authors' main software
+specifically designed to support the creator's main software
 development project: [https://en.wikipedia.org/wiki/Linus_Torvalds|Linus
 Torvalds] designed Git to support development of
 [https://www.kernel.org/|the Linux kernel], and
 [https://en.wikipedia.org/wiki/D._Richard_Hipp|D. Richard Hipp] designed
 Fossil to support the development of [https://sqlite.org/|SQLite].
-SQLite is much more widely deployed than the Linux kernel, but for
-Linux-based systems, the kernel is the more fundamental component.
 Both projects must rank high on any objective list of "most
 important FOSS projects," yet these two projects are almost entirely unlike
-one another.
+one another. So, too, are these two DVCSes.
 
 In the following sections, we will explain how three key differences
 between Linux and SQLite dictated the design of each DVCS's low-friction
@@ -179,40 +171,59 @@ development model:
     <li><p><b>Personal engagement:</b> SQLite's developers know each
     other by name and work together daily on the project.</p></li>
 
-    <li><p><b>Trust over hierarchy:</b> Fossil supports developers given
-    direct commit capability on the repository rather than support a
-    hierarchical "dictator and lieutenants" contribution style.  D.
+    <li><p><b>Trust over hierarchy:</b> SQLite's developers check
+    changes into their local repository, and these are immediately and
+    automatically sync'd up to the central repository; there is no
+    "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
+    and lieutenants]" hierarchy as with Linux kernel contributions.  D.
     Richard Hipp rarely overrides decisions made by those he has trusted
-    with commit access on his repositories.
-    [/doc/trunk/www/admin-v-setup.md|Some users] have more power over
-    what they can do with the repository, but Fossil does not otherwise
+    with commit access on his repositories. Fossil allows you to give
+    [/doc/trunk/www/admin-v-setup.md|some users] more power over what
+    they can do with the repository, but Fossil does not otherwise
     directly support the enforcement of a development organization's
-    social hierarchy. Fossil is a great fit for
+    social and power hierarchies. Fossil is a great fit for
     [https://en.wikipedia.org/wiki/Flat_organization|flat
     organizations].</p></li>
 
-    <li><p><b>Anonymous contribution discouraged:</b> Anonymous
-    contribution is possible in a Fossil project, but there is no
-    low-friction path to it, as in Git. Fossil's closest equivalent to
-    Git pull requests is the [/help?cmd=bundle|bundle], which requires
-    higher engagement than firing off a PR. Both Fossil and Git also
-    support <tt>patch(1)</tt> files, but that's a lossy contribution
-    path in both systems.</p></li>
+    <li><p><b>No easy drive-by contributions:</b> Git
+    [https://www.git-scm.com/docs/git-request-pull|pull requests] offer
+    a low-friction path to accepting
+    [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
+    contributions]. Fossil's closest equivalent is its unique
+    [/help?cmd=bundle|bundle] feature, which requires higher engagement
+    than firing off a PR.² This difference comes directly from the
+    initial designed purpose for each tool: the SQLite project doesn't
+    accept outside contributions from previously-unknown developers, but
+    the Linux kernel does.</p></li>
 
-    <li><p><b>No rebasing:</b> When a remote clone syncs changes up to
-    its parent repository, the changes are sent exactly as they were
-    committed to the local repository. [#history|There is no rebasing
-    mechanism, on purpose.]</p></li>
+    <li><p><b>No rebasing:</b> When your local repo clone syncs changes
+    up to its parent, those changes are sent exactly as they were
+    committed locally. [#history|There is no rebasing mechanism in
+    Fossil, on purpose.]</p></li>
 
     <li><p><b>Sync over push:</b> Explicit pushes are uncommon in
-    Fossil-based projects; the default is to rely on
+    Fossil-based projects: the default is to rely on
     [/help?cmd=autosync|autosync mode] instead, in which each commit
-    normally syncs immediately to its parent repository, so that
-    explicit pushes are not needed.</p></li>
+    syncs immediately to its parent repository. This is a mode so you
+    can turn it off temporarily when needed, such as when working
+    offline. Fossil is still a truly distributed version control system;
+    it's just that its starting default is to assume you're rarely out
+    of communication with the parent repo.
+    <br><br>
+    This is not merely a reflection of modern always-connected computing
+    environments. It is a conscious decision in direct support of
+    SQLite's cathedral development model: we don't want developers going
+    dark, then showing up weeks later with a massive bolus of changes
+    for us to integrate all at once.
+    [https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy]
+    put it well in his book on software project management,
+    <i>[https://www.amazon.com/dp/0735623198/|Dynamics of Software
+    Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
+    of a guy in a room]."</p></li>
 
     <li><p><b>Branch names sync:</b> Unlike in Git, branch names are not
     purely local labels. They sync along with everything else, so
-    everyone everyone sees the same set of branch names.</p></li>
+    everyone sees the same set of branch names.</p></li>
 
     <li><p><b>Private branches are rare:</b>
     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
@@ -226,15 +237,11 @@ development model:
 </ul>
 
 Where Git encourages siloed development, Fossil fights against it.
-[https://en.wikipedia.org/wiki/Jim_McCarthy_(author)|Jim McCarthy] put
-it well in his book on software project management,
-[https://www.amazon.com/dp/0735623198/|Dynamics of Software
-Development]: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware of a
-guy in a room]." Fossil places a lot of emphasis on synchronizing
-everyone's work and on reporting on the state of the project and the
-work of its developers, so that everyone — especially the project leader
-— can maintain a better mental picture of what is happening, leading to
-better situational awareness.
+Fossil places a lot of emphasis on synchronizing everyone's work and on
+reporting on the state of the project and the work of its developers, so
+that everyone — especially the project leader — can maintain a better
+mental picture of what is happening, leading to better situational
+awareness.
 
 Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
@@ -506,3 +513,26 @@ other.
    push or pull individual branches.  Pushing and pulling in Fossil is
    all or nothing.  This is in keeping with Fossil's emphasis on maintaining
    a complete record and on sharing everything between all developers.
+
+<hr/>
+
+<h3>Asides and Digressions</h3>
+
+<i><small><ol>
+    <li><p>Git does not include a wiki, a ticket tracker, a forum, or a
+    tech-note feature, so those elements will not transfer when
+    exporting from Fossil to Git. GitHub adds some of these to stock
+    Git, but because they're not part of Git proper,
+    [./mirrortogithub.md|exporting a Fossil repository to GitHub] will
+    still not include them; Fossil tickets do not become GitHub issues,
+    for example.</p></li>
+
+    <li><p>Both Fossil and Git support
+    [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
+    files], a common way to allow drive-by contributions, but it's a
+    lossy contribution path for both systems. Unlike Git PRs and Fossil
+    bundles, patch files collapse mulitple checkins together, they don't
+    include check-in comments, and they cannot encode changes made above
+    the individual file content layer: you lose branching decisisions,
+    tag changes, file renames, and more when using patch files.</p></li>
+</ol></i></small>

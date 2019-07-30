@@ -533,6 +533,81 @@ void convert_href_and_output(Blob *pIn){
 }
 
 /*
+** Render a document as the reply to the HTTP request.  The body
+** of the document is contained in pBody.  The body might be binary.
+** The mimetype is in zMimetype.
+*/
+void document_render(
+  Blob *pBody,                  /* Document content */
+  const char *zMime,            /* MIME-type */
+  const char *zDefaultTitle,    /* Default title */
+  const char *zFilename         /* Name of the file being rendered */
+){
+  Blob title;
+  blob_init(&title,0,0);
+  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
+    Blob tail;
+    style_adunit_config(ADUNIT_RIGHT_OK);
+    if( wiki_find_title(pBody, &title, &tail) ){
+      style_header("%s", blob_str(&title));
+      wiki_convert(&tail, 0, WIKI_BUTTONS);
+    }else{
+      style_header("%s", zDefaultTitle);
+      wiki_convert(pBody, 0, WIKI_BUTTONS);
+    }
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
+    Blob tail = BLOB_INITIALIZER;
+    markdown_to_html(pBody, &title, &tail);
+    if( blob_size(&title)>0 ){
+      style_header("%s", blob_str(&title));
+    }else{
+      style_header("%s", zDefaultTitle);
+    }
+    convert_href_and_output(&tail);
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/plain")==0 ){
+    style_header("%s", zDefaultTitle);
+    @ <blockquote><pre>
+    @ %h(blob_str(pBody))
+    @ </pre></blockquote>
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/html")==0
+            && doc_is_embedded_html(pBody, &title) ){
+    if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
+    style_header("%s", blob_str(&title));
+    convert_href_and_output(pBody);
+    style_footer();
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  }else if( Th_AreDocsEnabled() &&
+            fossil_strcmp(zMime, "application/x-th1")==0 ){
+    int raw = P("raw")!=0;
+    if( !raw ){
+      Blob tail;
+      blob_zero(&tail);
+      if( wiki_find_title(pBody, &title, &tail) ){
+        style_header("%s", blob_str(&title));
+        Th_Render(blob_str(&tail));
+        blob_reset(&tail);
+      }else{
+        style_header("%h", zDefaultTitle);
+        Th_Render(blob_str(pBody));
+      }
+    }else{
+      Th_Render(blob_str(pBody));
+    }
+    if( !raw ){
+      style_footer();
+    }
+#endif
+  }else{
+    cgi_set_content_type(zMime);
+    cgi_set_content(pBody);
+  }
+}
+
+
+/*
 ** WEBPAGE: uv
 ** WEBPAGE: doc
 ** URL: /uv/FILE
@@ -620,6 +695,7 @@ void doc_page(void){
     }
     if( nMiss==count(azSuffix) ){
       zName = "404.md";
+      zDfltTitle = "Not Found";
     }else if( zName[i]==0 ){
       assert( nMiss>=0 && nMiss<count(azSuffix) );
       zName = azSuffix[nMiss];
@@ -692,66 +768,7 @@ void doc_page(void){
     Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                     " WHERE objid=%d AND type='ci'", vid));
   }
-  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
-    Blob tail;
-    style_adunit_config(ADUNIT_RIGHT_OK);
-    if( wiki_find_title(&filebody, &title, &tail) ){
-      style_header("%s", blob_str(&title));
-      wiki_convert(&tail, 0, WIKI_BUTTONS);
-    }else{
-      style_header("%s", zDfltTitle);
-      wiki_convert(&filebody, 0, WIKI_BUTTONS);
-    }
-    style_footer();
-  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
-    Blob tail = BLOB_INITIALIZER;
-    markdown_to_html(&filebody, &title, &tail);
-    if( blob_size(&title)>0 ){
-      style_header("%s", blob_str(&title));
-    }else{
-      style_header("%s", nMiss>=count(azSuffix)?
-                        "Not Found" : zDfltTitle);
-    }
-    convert_href_and_output(&tail);
-    style_footer();
-  }else if( fossil_strcmp(zMime, "text/plain")==0 ){
-    style_header("%s", zDfltTitle);
-    @ <blockquote><pre>
-    @ %h(blob_str(&filebody))
-    @ </pre></blockquote>
-    style_footer();
-  }else if( fossil_strcmp(zMime, "text/html")==0
-            && doc_is_embedded_html(&filebody, &title) ){
-    if( blob_size(&title)==0 ) blob_append(&title,zName,-1);
-    style_header("%s", blob_str(&title));
-    convert_href_and_output(&filebody);
-    style_footer();
-#ifdef FOSSIL_ENABLE_TH1_DOCS
-  }else if( Th_AreDocsEnabled() &&
-            fossil_strcmp(zMime, "application/x-th1")==0 ){
-    int raw = P("raw")!=0;
-    if( !raw ){
-      Blob tail;
-      blob_zero(&tail);
-      if( wiki_find_title(&filebody, &title, &tail) ){
-        style_header("%s", blob_str(&title));
-        Th_Render(blob_str(&tail));
-        blob_reset(&tail);
-      }else{
-        style_header("%h", zName);
-        Th_Render(blob_str(&filebody));
-      }
-    }else{
-      Th_Render(blob_str(&filebody));
-    }
-    if( !raw ){
-      style_footer();
-    }
-#endif
-  }else{
-    cgi_set_content_type(zMime);
-    cgi_set_content(&filebody);
-  }
+  document_render(&filebody, zMime, zDfltTitle, zName);
   if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
   return;

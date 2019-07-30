@@ -63,6 +63,7 @@ set src {
   encode
   etag
   event
+  extcgi
   export
   file
   finfo

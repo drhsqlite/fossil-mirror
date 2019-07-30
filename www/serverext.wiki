@@ -1,0 +1,51 @@
+<title>CGI Server Extensions</title>
+
+If you choose to have a [./server.wiki|central server] for your Fossil-based
+project (which is entirely optional - Fossil can be use an a pure peer-to-peer
+mode) then you can also add CGI extensions to the Fossil websiteite d.  These
+extensions work like any other CGI program, except that they also have access
+to the Fossil login information, so that they can restrict access based on
+the currently logged in user.  The CGI output can be a stand-alone webpage,
+or it can be incorporated into the Fossil site using the standard Fossil
+header and footer.
+
+An example of where this is useful is the 
+[checklist application](https://sqlite.org/src/ext/checklist) on
+the [SQLite](https://sqlite.org/) project.  The checklist
+helps the SQLite developers track which release tests have passed,
+or failed, or are still to be done.  The checklist used to be a
+stand-alone CGI which kept its own private user database and implemented
+its on permissions and login system.  By converting checklist into
+a Fossil extension, the same login that works for the
+[main SQLite source repository](https://sqlite.org/src) also works
+for the checklist.  And permission to change elements of the checklist
+is based on permission to check-in to the main source repository.
+
+<h2>How It Works</h2>
+
+Extensions are off by default.
+An administrator activates the CGI extension mechanism by specifying
+an "Extension Root Directory" or "extroot" as part of the server setup.
+If the Fossil server is itself run as CGI, then add a line to the CGI
+script file that says:
+
+<blockquote><pre>
+extroot: <i>DIRECTORY</i>
+</pre></blockquote>
+
+Or, if the Fossil server is begin run as using the "fossil server" or
+"fossil ui" or "fossil http" commands, then add an extra 
+"--extroot <i>DIRECTORY</i>" option to that command.
+
+The <i>DIRECTORY</i> thus specified becomes the DOCUMENT_ROOT for the
+CGI.  Files in the DOCUMENT_ROOT are accessed via URLs like this:
+
+<blockquote>
+https://example-project.org/ext/<i>FILENAME</i>
+</blockquote>
+
+In other words, access files in DOCUMENT_ROOT by appending the filename
+relative to DOCUMENT_ROOT to the [/help?cmd=/ext|/ext]
+page of the Fossil server.
+Files that are readable but not executable are returned as static
+content.  Files that are executable are run as CGI.

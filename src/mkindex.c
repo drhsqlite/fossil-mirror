@@ -91,6 +91,7 @@
 #define CMDFLAG_VERSIONABLE 0x0040      /* A versionable setting */
 #define CMDFLAG_BLOCKTEXT   0x0080      /* Multi-line text setting */
 #define CMDFLAG_BOOLEAN     0x0100      /* A boolean setting */
+#define CMDFLAG_RAWCONTENT  0x0200      /* Do not interpret webpage content */
 /**************************************************************************/
 
 /*
@@ -238,6 +239,8 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
     }else if( j==4 && strncmp(&zLine[i], "test", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_1ST_TIER|CMDFLAG_2ND_TIER);
       aEntry[nUsed].eType |= CMDFLAG_TEST;
+    }else if( j==11 && strncmp(&zLine[i], "raw-content", j)==0 ){
+      aEntry[nUsed].eType |= CMDFLAG_RAWCONTENT;
     }else if( j==7 && strncmp(&zLine[i], "boolean", j)==0 ){
       aEntry[nUsed].eType &= ~(CMDFLAG_BLOCKTEXT);
       aEntry[nUsed].iWidth = 0;

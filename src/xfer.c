@@ -1122,7 +1122,7 @@ static int disableLogin = 0;
 ** clone clients to specify a URL that omits default pathnames, such
 ** as "http://fossil-scm.org/" instead of "http://fossil-scm.org/index.cgi".
 **
-** WEBPAGE: xfer
+** WEBPAGE: xfer  raw-content
 **
 ** This is the transfer handler on the server side.  The transfer
 ** message has been uncompressed and placed in the g.cgiIn blob.
@@ -1785,6 +1785,7 @@ int client_sync(
   int autopushFailed = 0; /* Autopush following commit failed if true */
   const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
   const char *zClientId;  /* A unique identifier for this check-out */
+  unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
@@ -2022,8 +2023,13 @@ int client_sync(
     }
     fflush(stdout);
     /* Exchange messages with the server */
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
-        MAX_REDIRECTS) ){
+    if( (syncFlags & SYNC_CLONE)!=0 && nCycle==0 ){
+      /* Do not send a login card on the first round-trip of a clone */
+      mHttpFlags = 0;
+    }else{
+      mHttpFlags = HTTP_USE_LOGIN;
+    }
+    if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
       nErr++;
       go = 2;
       break;
