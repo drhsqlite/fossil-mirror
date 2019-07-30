@@ -1,5 +1,5 @@
-C Restore\sthe\sfull\sCGI\sextension\sdocumentation\sthat\swas\ssomehow\struncated\nby\san\searlier\scommit.
-D 2019-07-30T10:28:14.926
+C Fix\sthe\s"fossil\sserver"\scommand\son\swindows\sos\sthat\sit\shonors\sthe\s--https\noption.
+D 2019-07-30T18:55:46.132
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -603,7 +603,7 @@ F src/wiki.c 7ce8c2cc6a74a4cd54fdc5f72a50f89de80aca7e2f95c66c060af1f8944e6a7f
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d799ef
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c 80e07d4cdee9e16dbe3202566ba133020cdc462a063bf21487595449abcc23f7
+F src/winhttp.c a72303503a1f1e655f7bef2857d1f95dfc44c3a98a6169662c3fe0e5b1754ee3
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
 F src/xfer.c 92986942f0fdccd1615697e051bf8a59f10357ea7b5a9745a3a3be25dede9f40
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 02bdcf5e9f71d7f560902da675f303da2f7095858d707af94e4819c928b3974e
-R 3b19c1762caa6a82f7c87b9c79f4d530
+P 4130a22ceeac77711df73e312bd68d738b0aaf918922eab7e2b82f79ef91a408
+R 93cb0c0cd01a58ad522f172ede6adfca
 U drh
-Z 923346f3e9ad6e3178e33565422cc27f
+Z d3b2295a409861f8175923f2b0397416
