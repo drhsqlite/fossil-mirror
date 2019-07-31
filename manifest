@@ -1,5 +1,5 @@
-C Merged\sin\sautosetupAndJimTcl\sbranch\s(autosetup\supdates).
-D 2019-07-31T08:09:56.118
+C Fixed\sfossil_strcmp()\susage\sin\scgi_init()\swhen\sin\sJSON\smode.\sThrough\ssome\sextremely\sserendipitous\sfluke,\sits\sbroken\susage\sjust\shappened\sto\swork\suntil\sa\sbit\swas\sremoved\sfrom\sthat\sfunction\sin\s[ec56c69f]\swhich,\spurely\scoincidentally,\scaused\sthe\sbug\s(mine,\sfrom\s2011!)\sto\sstart\striggering\swhen\sx-www-form-urlencoded\sforms\swere\ssubmitted\s(login/logout).\sBefore\sthat,\sthe\sbuggy\sblock\snever\sgot\sa\schance\sto\strigger\sfor\sthose\sforms.
+D 2019-07-31T12:21:37.522
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -53,10 +53,10 @@ F auto.def f7fb7f5d59457becdabda8f2a365eceb3e381789a211973502a531201da4b3f6
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
-F autosetup/autosetup-config.guess 3b75d9d5f8326458c69745d92193103e27e0481d2f9abd1bae73623cfc598114 x autosetup/config.guess
-F autosetup/autosetup-config.sub 0697a5484327430771886185831e84042e91ce215da18fa282616d22c26f478e x autosetup/config.sub
-F autosetup/autosetup-find-tclsh 2d5d8c103ed193f0627e79467df9e476b0cffe1c5ef99626c2bae5d3cb8ff005 x autosetup/find-tclsh
-F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x autosetup/test-tclsh
+F autosetup/autosetup-config.guess 3b75d9d5f8326458c69745d92193103e27e0481d2f9abd1bae73623cfc598114 x
+F autosetup/autosetup-config.sub 0697a5484327430771886185831e84042e91ce215da18fa282616d22c26f478e x
+F autosetup/autosetup-find-tclsh 2d5d8c103ed193f0627e79467df9e476b0cffe1c5ef99626c2bae5d3cb8ff005 x
+F autosetup/autosetup-test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c x
 F autosetup/cc-db.tcl 4d410387006384f65ec986af45c5799eab1b8ef33f2b74bbcb976c0988ee8279
 F autosetup/cc-lib.tcl 8f02d3adf5051668b603b89ef907fdc74e394ca164207d4db7c33c9a82da4f28
 F autosetup/cc-shared.tcl 381d7305415d3c4509554cc762e094b6b4897fa05ba1fe6d103c02c71405c3d3
@@ -443,7 +443,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c c752574d2147172acd6a5cef7bcf44be0abb61b80b75d3fbdc86b89752d0ecee
+F src/cgi.c 03dfb4a08d524e11fe1888142b96152243328d2aa1a38440f1d7d15ca90e1ebb
 F src/checkin.c a501e7664fbcf8cdce99c938b303a54dec7cacb60f1d674951d2340bf5dc1147
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -885,8 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ed91bbe44d0d383d67c30a1fe3817fe34ce5736d393f8ccb4646e14d490000b 2211bc2a6bd1549aea3f4986aa83a00d9b8b1fc02c9f56c122cb440e534393c2
-R 661541594adb6e9ef8e68ac0219c6098
-T +closed 2211bc2a6bd1549aea3f4986aa83a00d9b8b1fc02c9f56c122cb440e534393c2
+P 51d006f851c538db609fbe113f248b81d43bdb682f8763d280e82909b3e1707c
+R 2fc082a96082fec226dc1a58e6480891
 U stephan
-Z 568377715638e5d3ce14903180387ddc
+Z 3f77fa1fd2fb088d197f69b880be2584

@@ -993,9 +993,9 @@ void cgi_init(void){
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( fossil_strcmp(zType, "application/json")
-              || fossil_strcmp(zType,"text/plain")/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")){
+    else if( fossil_strcmp(zType, "application/json")==0
+              || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+              || fossil_strcmp(zType,"application/javascript")==0){
       g.json.isJsonMode = 1;
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
       /* FIXMEs:
