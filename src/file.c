@@ -1723,6 +1723,17 @@ int fossil_setenv(const char *zName, const char *zValue){
 }
 
 /*
+** Clear all environment variables
+*/
+int fossil_clearenv(void){
+#ifdef _WIN32
+  /* FIXME: Not yet supported */
+#else
+  return clearenv();
+#endif
+}
+
+/*
 ** Like fopen() but always takes a UTF8 argument.
 **
 ** This function assumes ExtFILE. In other words, symbolic links

@@ -212,6 +212,7 @@ void ext_page(void){
      db_text("","SELECT fullcap(cap) FROM user WHERE login=%Q",
              g.zLogin ? g.zLogin : "nobody"), 0);
   cgi_replace_parameter("GATEWAY_INTERFACE","CGI/1.0");
+  fossil_clearenv();
   for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
     const char *zVal = P(azCgiEnv[i]);
     if( zVal ) fossil_setenv(azCgiEnv[i], zVal);
