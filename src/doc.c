@@ -453,7 +453,14 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
       if( seenTitle ) return 1;
     }
     if( nAttr==10 && fossil_strnicmp(zAttr,"data-title",10)==0 ){
-      blob_append(pTitle, zValue, nValue);
+      /* The text argument to data-title="" will have had any characters that
+      ** are special to HTML encoded.  We need to decode these before turning
+      ** the text into a title, as the title text will be reencoded later */
+      char *zTitle = mprintf("%.*s", nValue, zValue);
+      int i;
+      for(i=0; fossil_isspace(zTitle[i]); i++){}
+      html_to_plaintext(zTitle+i, pTitle);
+      fossil_free(zTitle);
       seenTitle = 1;
       if( seenClass ) return 1;
     }

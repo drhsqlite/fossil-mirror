@@ -1,5 +1,5 @@
-C Clear\sall\senvironment\svariables\sprior\sto\sinvoking\sa\sCGI\sextension.\n(Works\son\sposix\s-\sneed\sto\sfix\sit\sfor\swindows.)
-D 2019-08-01T19:30:01.522
+C When\srendering\sHTML\spages\susing\sthe\sfossil-doc\sclass\sand\sthe\ndata-title="..."\sattribute,\sreverse\sthe\sHTML\sescapes\sin\sthe\sargument\sto\ndata-title\ssince\sthey\swill\sbe\sreencoded\sprior\sto\srendering.
+D 2019-08-01T21:05:00.564
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -469,7 +469,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
-F src/doc.c b3a73656131a8395bb7ac90a652d0727ae3e98b366065df037cca11f9380bb9a
+F src/doc.c c1099511e689a16be3616ab7f2bf5b712871eda6b8a4184329fd4e1f36f8ffe0
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b2b9d6995fffbe236587963efd6350543f5dc0244b5ba0ad37671e5e085ebcd
-R ced81046acc4fd192756ee733da7b4a0
+P ed63bdd71e747401ba5044eadabc7c067830e1f3badb37082da51fabc7b12aa3
+R ab78999c1c4eed7761e1ec58bdbc2a3b
 U drh
-Z 575fba67526dcaefe134587239ce46c1
+Z e96e321c42bd1de7a2cd63d148174863
