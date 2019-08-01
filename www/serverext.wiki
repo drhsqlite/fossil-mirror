@@ -164,6 +164,7 @@ Fossil adds the following:
 
   *  FOSSIL_CAPABILITIES
   *  FOSSIL_REPOSITORY
+  *  FOSSIL_URI
   *  FOSSIL_USER
 
 The FOSSIL_USER string is the name of the logged-in user.  This variable
@@ -172,7 +173,9 @@ FOSSIL_CAPABILITIES string is a list of
 [/setup_ulist_notes|Fossil capability letters] that
 indicate what permissions the user has on the Fossil repository.
 The FOSSIL_REPOSITORY environment variable gives the filename of the
-Fossil repository that is running.
+Fossil repository that is running.  The FOSSIL_URI variable shows the
+prefix of the REQUEST_URI that is the Fossil CGI script, or is an
+empty string if Fossil is being run by some method other than CGI.
 
 The [https://sqlite.org/src/ext/checklist|checklist application] uses the
 FOSSIL_USER environment variable to determine the name of the user and

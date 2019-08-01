@@ -1,5 +1,5 @@
-C Fixed\sfossil_strcmp()\susage\sin\scgi_init()\swhen\sin\sJSON\smode.\sThrough\ssome\sextremely\sserendipitous\sfluke,\sits\sbroken\susage\sjust\shappened\sto\swork\suntil\sa\sbit\swas\sremoved\sfrom\sthat\sfunction\sin\s[ec56c69f]\swhich,\spurely\scoincidentally,\scaused\sthe\sbug\s(mine,\sfrom\s2011!)\sto\sstart\striggering\swhen\sx-www-form-urlencoded\sforms\swere\ssubmitted\s(login/logout).\sBefore\sthat,\sthe\sbuggy\sblock\snever\sgot\sa\schance\sto\strigger\sfor\sthose\sforms.
-D 2019-07-31T12:21:37.522
+C Add\sthe\sFOSSIL_URI\senvironment\svariable\sto\sthe\sCGI\sextension\smechanism.
+D 2019-08-01T14:17:51.726
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/extcgi.c a49695a21db5b21aa7dc3bc616826d1d90f6092975415106784269993f693cf8
+F src/extcgi.c ed87a6f451298d0f8d8773f4b2969e57e31435fa42c050076afb68241e60a5f2
 F src/file.c cfc89f2cd599df19edf4c79d7749061f0f843e6e8af85a293283a6b6e37fcd1d
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -865,7 +865,7 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 6bf2b39635f26c1ec2b77542a66c948c51e3d5fba75603b541995f4d0b0bf6ab
 F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0ddb
-F www/serverext.wiki 69631b2870ea33ee6bb299822fca6c9374f8e4a59fb33ce12a8ed1614728c2d6
+F www/serverext.wiki 168c825b3032e74272e1021ce2fe6a863198fa7ef1766292f546e543008116e8
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 51d006f851c538db609fbe113f248b81d43bdb682f8763d280e82909b3e1707c
-R 2fc082a96082fec226dc1a58e6480891
-U stephan
-Z 3f77fa1fd2fb088d197f69b880be2584
+P 115a70b2df921ce64e0483fe6236417debc384639511d836a2ad2c67775ed498
+R 03aa87e28f59efce8a7eaddf92ce8f0b
+U drh
+Z acae1227b63bf54a84d46c1c5af40048

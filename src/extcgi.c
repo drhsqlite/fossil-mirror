@@ -51,6 +51,7 @@ static const char *azCgiEnv[] = {
    "DOCUMENT_ROOT",
    "FOSSIL_CAPABILITIES",
    "FOSSIL_REPOSITORY",
+   "FOSSIL_URI",
    "FOSSIL_USER",
    "GATEWAY_INTERFACE",
    "HTTP_ACCEPT",
@@ -206,6 +207,7 @@ void ext_page(void){
     cgi_set_parameter_nocopy("FOSSIL_USER", g.zLogin, 0);
   }
   cgi_set_parameter_nocopy("FOSSIL_REPOSITORY", g.zRepositoryName, 0);
+  cgi_set_parameter_nocopy("FOSSIL_URI", g.zTop, 0);
   cgi_set_parameter_nocopy("FOSSIL_CAPABILITIES",
      db_text("","SELECT fullcap(cap) FROM user WHERE login=%Q",
              g.zLogin ? g.zLogin : "nobody"), 0);
