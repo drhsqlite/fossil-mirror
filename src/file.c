@@ -1727,7 +1727,47 @@ int fossil_setenv(const char *zName, const char *zValue){
 */
 int fossil_clearenv(void){
 #ifdef _WIN32
-  /* FIXME: Not yet supported */
+  int rc = 0;
+  LPWCH zzEnv = GetEnvironmentStringsW();
+  if( zzEnv ){
+    LPCWSTR zEnv = zzEnv; /* read-only */
+    while( 1 ){
+      LPWSTR zNewEnv = _wcsdup(zEnv); /* writable */
+      if( zNewEnv ){
+        LPWSTR zEquals = wcsstr(zNewEnv, L"=");
+        if( zEquals ){
+          zEquals[1] = 0; /* no value */
+          if( zNewEnv==zEquals || _wputenv(zNewEnv)==0 ){ /* via CRT */
+            /* do nothing */
+          }else{
+            zEquals[0] = 0; /* name only */
+            if( !SetEnvironmentVariableW(zNewEnv, NULL) ){ /* via Win32 */
+              rc = 1;
+            }
+          }
+          if( rc==0 ){
+            zEnv += (lstrlenW(zEnv) + 1); /* double NUL term? */
+            if( zEnv[0]==0 ){
+              free(zNewEnv);
+              break; /* no more vars */
+            }
+          }
+        }else{
+          rc = 1;
+        }
+      }else{
+        rc = 1;
+      }
+      free(zNewEnv);
+      if( rc!=0 ) break;
+    }
+    if( !FreeEnvironmentStringsW(zzEnv) ){
+      rc = 2;
+    }
+  }else{
+    rc = 1;
+  }
+  return rc;
 #else
   return clearenv();
 #endif
