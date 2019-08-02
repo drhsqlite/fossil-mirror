@@ -1,5 +1,5 @@
-C The\sCGI\sextension\smechanism\snow\spasses\sthe\sHTTPS\senvironment\svariable.
-D 2019-08-02T17:23:21.049
+C Make\ssure\sall\sCGI\senvironment\svariables\sare\sloaded\sinto\sthe\sCGI\scache\nprior\sto\sclearing\sthe\senvironment,\swhen\slaunching\sextension\sCGIs.
+D 2019-08-02T17:34:55.441
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/extcgi.c 4795f3bab9a6ab2a7f56914d0ddd7820be25b95e89920f6ef82af07b0dc65135
+F src/extcgi.c c4b9f88f19a0d8ab296bfed4d55d32aa4967bf9cd0551e06aa58c6c932790218
 F src/file.c e678783bddae47de4b349a40cbc2af3bd0bb068aa212f389072de40ba15b4e48
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 41d6540d27cc3655489903cb022bb5c33878fdb023cfc9da238cf7ff1ea222fa
-R 85ef1eb18a5496c19ffa9793894c4ec9
+P f5fe22102641d17125f5ee1c4801e2650635c5df8e9ef38493f3d4e7c0f7d3a8
+R 94f95aa804ab88b112844e222e92f9b4
 U drh
-Z 4600c29d8b0d85072d12bd9316ffe2cb
+Z 87c2e0c21422197b875a7a1308f851f9
