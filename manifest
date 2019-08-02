@@ -1,5 +1,5 @@
-C The\stest-httpmsg\scommand\snow\ssends\sthe\spayload\suncompressed\sunless\sthe\nnew\s--compress\soption\sis\sused.
-D 2019-08-02T00:10:01.061
+C Update\sthe\ssecurity\saudit\sto\sreport\swhen\sextension\sCGI\sis\savailable.
+D 2019-08-02T13:34:41.440
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -554,7 +554,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
-F src/security_audit.c 30e55791c7921efafc94ac9febd963b151239764023fc668d55acc3c08f4b86b
+F src/security_audit.c 2a119e598f4f65bda1bce8562f0722bc0a5bbf812525eb31222e95ead66ca16a
 F src/setup.c 5e859be3e3eb5b82475bbc300a3ff70f6d977e61cf11219b200b2ad5e3a8a22e
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -885,7 +885,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61fd10ecd1d1c9f31258fd85ad1edaaeab2692d0d7434c1a12877ebeb42e19b5
-R d39aed34f79df831046e8879b8c14ba5
+P c31ff76fe98d4b4902327b8eef436058d206d56d5243789d9b323733025bfed6
+R ab3c114fd30ee07b0da538ba05a9e462
 U drh
-Z 5978d7572f02be77e6e571d12a3e82e7
+Z a4e6b40a99610bce9e1e47babad6455c

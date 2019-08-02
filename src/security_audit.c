@@ -421,9 +421,14 @@ void secaudit0_page(void){
     }else{
       fclose(pTest);
       @ <li><p>
-      @ The error log at "<a href='%R/errorlog'>%h(g.zErrlog)</a>" that is
+      @ The error log at "<a href='%R/errorlog'>%h(g.zErrlog)</a>" is
       @ %,lld(file_size(g.zErrlog, ExtFILE)) bytes in size.
     }
+  }
+
+  if( g.zExtRoot ){
+    @ <li><p> CGI Extensions are enabled with a document root
+    @ of <b>%h(g.zExtRoot)</b>.
   }
 
   @ <li><p> User capability summary:
