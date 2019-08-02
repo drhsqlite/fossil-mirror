@@ -41,12 +41,13 @@ function start_one() {
     bn=$1
     port=$(($BASEPORT + $2))
     url="$3"
+    if [ -n "$url" ] ; then baseurl="--baseurl $url" ; fi
 
-    $FOSSIL server --localhost --port $port --scgi \
-            --baseurl $url --errorlog ~/log/fossil/$bn-errors.log \
+    $FOSSIL server --localhost --port $port --scgi $baseurl \
+            --errorlog ~/log/fossil/$bn-errors.log \
             ~/museum/$bn.fossil > ~/log/fossil/$bn-stdout.log &
     echo Fossil server running for $bn, PID $!, port $port.
 }
 
 start_one example 0 https://example.com/code
-start_one foo     1 https://foo.net
+start_one foo     1
