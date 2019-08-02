@@ -40,6 +40,7 @@
 #define HTTP_GENERIC     0x00002     /* Generic HTTP request */
 #define HTTP_VERBOSE     0x00004     /* HTTP status messages */
 #define HTTP_QUIET       0x00008     /* No surplus output */
+#define HTTP_NOCOMPRESS  0x00010     /* Omit payload compression */
 #endif
 
 /* Maximum number of HTTP Authorization attempts */
@@ -248,7 +249,7 @@ int http_exchange(
   }else{
     blob_zero(&login);
     if( mHttpFlags & HTTP_USE_LOGIN ) http_build_login_card(pSend, &login);
-    if( g.fHttpTrace ){
+    if( g.fHttpTrace || (mHttpFlags & HTTP_NOCOMPRESS)!=0 ){
       payload = login;
       blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
     }else{
@@ -480,6 +481,7 @@ write_err:
 **
 ** Options:
 **
+**     --compress                 Use ZLIB compression on the payload
 **     --mimetype TYPE            Mimetype of the payload
 **     --out FILE                 Store the reply in FILE
 **     -v                         Verbose output
@@ -489,11 +491,12 @@ void test_wget_command(void){
   const char *zInFile;
   const char *zOutFile;
   Blob in, out;
-  unsigned int mHttpFlags = HTTP_GENERIC;
+  unsigned int mHttpFlags = HTTP_GENERIC|HTTP_NOCOMPRESS;
 
   zMimetype = find_option("mimetype",0,1);
   zOutFile = find_option("out","o",1);
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
+  if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL ?PAYLOAD?");
   }
