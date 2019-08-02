@@ -525,7 +525,8 @@ other.
     Git, but because they're not part of Git proper,
     [./mirrortogithub.md|exporting a Fossil repository to GitHub] will
     still not include them; Fossil tickets do not become GitHub issues,
-    for example.</p></li>
+    for example.  See further discussion in the
+    [./mirrorlimitations.md|Limitations on Git Mirrors] document</p></li>
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
