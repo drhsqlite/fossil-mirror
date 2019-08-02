@@ -1,5 +1,8 @@
-C The\stest-httpmsg\scommand\snow\ssends\sthe\spayload\suncompressed\sunless\sthe\nnew\s--compress\soption\sis\sused.
-D 2019-08-02T00:10:01.061
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C proper\senv()\shandler\sfor\s(at\sleast)\sNetBSD
+D 2019-08-02T05:09:46.145
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -475,7 +478,7 @@ F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/extcgi.c ec6e2a42c7a4c331f7e62f8ee56eabf512a895c85908813e6c35391a079150b8
-F src/file.c e678783bddae47de4b349a40cbc2af3bd0bb068aa212f389072de40ba15b4e48
+F src/file.c 9561b768854b042cb83d619119c4a34b96efdc1bbb59c51549d2f2fe0ade4f84
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c b34f2b1b2d675a55018ca9b4664f9cd8b167ade1b5510cf29f6fabac6cd29b1d
@@ -885,7 +888,16 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 61fd10ecd1d1c9f31258fd85ad1edaaeab2692d0d7434c1a12877ebeb42e19b5
-R d39aed34f79df831046e8879b8c14ba5
-U drh
-Z 5978d7572f02be77e6e571d12a3e82e7
+P c31ff76fe98d4b4902327b8eef436058d206d56d5243789d9b323733025bfed6
+R e5452575d7de8dae2c0c74197befec7d
+T *branch * env_handler
+T *sym-env_handler *
+T -sym-trunk *
+U bch
+Z 9e38599f3cfe7f311779b66c43b1b56f
+-----BEGIN PGP SIGNATURE-----
+
+iEYEARECAAYFAl1DxZoACgkQad0Kwpwugm+LpACcCYRLAuOstIeCeqUzCnHIB0zo
+7kUAn0Ru1OF83AaCMLLY7dW0rDfUKy9A
+=SCoZ
+-----END PGP SIGNATURE-----

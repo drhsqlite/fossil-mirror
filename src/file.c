@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <time.h>
 #include "file.h"
+extern char **environ;
 
 /*
 ** On Windows, include the Platform SDK header file.
@@ -1769,7 +1770,11 @@ int fossil_clearenv(void){
   }
   return rc;
 #else
+#ifdef HAVE_CLEARENV
   return clearenv();
+#else
+  environ = NULL;
+#endif
 #endif
 }
 
