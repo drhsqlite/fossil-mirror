@@ -1,5 +1,5 @@
-C Made\s--baseurl\sparameter\soptional\sin\stools/fslsrv\ssince\sFossil\scomplains\nif\syou\sgive\sonly\sa\stop-level\sURL;\sit's\sright,\sit\sdoesn't\sneed\s--baseurl\nin\sthat\scase.
-D 2019-08-02T18:00:54.569
+C Added\sa\scomment\sto\sfslsrv\sin\splace\sof\sthe\sjust-removed\sparameter\sto\smake\nit\sclear\swhat's\sgoing\son\shere.
+D 2019-08-02T18:01:52.875
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -736,7 +736,7 @@ F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
-F tools/fslsrv 8c7df58eadaa97c05198d91796ae4abb0e708a8034304324518731e6b77583fc x
+F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake bb69df010a69bf5f1290d16fb2e51f7edcedae8b4866eac77a430fc663a7bfcb
 F win/Makefile.dmc db9859d1d3329d8464aa8ab4c82471c7fa88915a983b7a1688d48b9a1122b398
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6b4d80e9c359498a4027057dcfac0e00cbe5fe7e16f53e4549330ae21ae56f9
-R 03c98493944d189760529baed000b93e
+P 8b2b232886600fd819b1d102671440e6df74401e00393121ef522d46164a6394
+R 3130cf7a68ab16b8ab61ba6177df8d5c
 U wyoung
-Z 8bb9f0bc09433d9bcce88d656885e76e
+Z e0d7361df41597d06394221dc6f612eb
