@@ -54,6 +54,7 @@ static const char *azCgiEnv[] = {
    "FOSSIL_URI",
    "FOSSIL_USER",
    "GATEWAY_INTERFACE",
+   "HTTPS",
    "HTTP_ACCEPT",
    /* "HTTP_ACCEPT_ENCODING", // omitted from sub-cgi */
    "HTTP_COOKIE",
