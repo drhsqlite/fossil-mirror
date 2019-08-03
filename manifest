@@ -1,5 +1,8 @@
-C Avoid\sthe\sclearenv()\sinterface\s(which\sseems\sto\sbe\smissing\son\sNetBSD\naccording\sto\s[2d4c16df5a9e61c2])\sand\ssimply\sset\sthe\sglobal\s"environ"\nvariable\sdirectly.
-D 2019-08-02T18:13:10.855
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C merge\sto\slogical\sconclusion\s(nop)
+D 2019-08-03T01:07:14.873
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -886,7 +889,13 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P df2eb08e2ab2140c79a38c2bdca0e4452533122fb04ff02c361164090fd85156
+P d72aa24ce6172986d9605c927b3cd6e99dfcf6f3e16f3d70e4b9e9a1b23049c4 2d4c16df5a9e61c25fd4b96831c5a1e9f8689ce0f61992d7185dddee11bed973
 R 53962d3b67cbaab351daba1cda1f73c1
-U drh
-Z e6e12b89730576c92cc0950411496744
+U bch
+Z 05ac56243c0e1be315ef8ce337131ed3
+-----BEGIN PGP SIGNATURE-----
+
+iEYEARECAAYFAl1E3kIACgkQad0Kwpwugm99YwCgud83VMSgeDzviCLEfmaZTMQG
+U+wAmwRy3GN4ncPVnbx/AzSKg4VgGIBb
+=mD1+
+-----END PGP SIGNATURE-----
