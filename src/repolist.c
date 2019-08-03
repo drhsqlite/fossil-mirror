@@ -208,11 +208,11 @@ int repo_list_page(void){
         blob_append_sql(&html, "%h (hidden)", zName);
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
         blob_append_sql(&html,
-          "<a href='/%T/home' target='_blank'>/%h</a>\n",
+          "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
           zUrl, zName);
       }else{
         blob_append_sql(&html,
-          "<a href='/%T/home' target='_blank'>%h</a>\n",
+          "<a href='%R/%T/home' target='_blank'>%h</a>\n",
           zUrl, zName);
       }
       if( x.zProjName ){

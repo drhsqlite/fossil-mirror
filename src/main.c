@@ -1582,7 +1582,7 @@ static void process_one_web_page(
       */
       if( szFile<1024 ){
         set_base_url(0);
-        if( strcmp(zPathInfo,"/")==0
+        if( (zPathInfo[0]==0 || strcmp(zPathInfo,"/")==0)
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
