@@ -404,13 +404,14 @@ void secaudit0_page(void){
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <li><p>
     @ The server error log is disabled.
-    @ To set up an error log:
-    @ <ul>
-    @ <li>If running from CGI, make an entry "errorlog: <i>FILENAME</i>"
-    @ in the CGI script.
-    @ <li>If running the "fossil server" or "fossil http" commands,
-    @ add the "--errorlog <i>FILENAME</i>" command-line option.
-    @ </ul>
+    @ To set up an error log,
+    if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
+      @ make an entry like "errorlog: <i>FILENAME</i>" in the
+      @ CGI script at %h(P("SCRIPT_FILENAME")).
+    }else{
+      @ add the "--errorlog <i>FILENAME</i>" option to the 
+      @ "%h(g.argv[0]) %h(g.zCmdName)" command that launched this server.
+    }
   }else{
     FILE *pTest = fossil_fopen(g.zErrlog,"a");
     if( pTest==0 ){
@@ -427,8 +428,14 @@ void secaudit0_page(void){
   }
 
   if( g.zExtRoot ){
+    int nFile;
+    int nCgi;
+    ext_files();
+    nFile = db_int(0, "SELECT count(*) FROM sfile");
+    nCgi = nFile==0 ? 0 : db_int(0,"SELECT count(*) FROM sfile WHERE isexe");
     @ <li><p> CGI Extensions are enabled with a document root
-    @ of <b>%h(g.zExtRoot)</b>.
+    @ at <a href='%R/extfilelist'>%h(g.zExtRoot)</a> holding
+    @ %d(nCgi) CGIs and %d(nFile-nCgi) static content and data files.
   }
 
   @ <li><p> User capability summary:

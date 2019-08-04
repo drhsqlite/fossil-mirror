@@ -82,7 +82,7 @@ static void locate_unmanaged_files(
   nRoot = (int)strlen(g.zLocalRoot);
   if( argc==0 ){
     blob_init(&name, g.zLocalRoot, nRoot - 1);
-    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0);
+    vfile_scan(&name, blob_size(&name), scanFlags, pIgnore, 0, RepoFILE);
     blob_reset(&name);
   }else{
     for(i=0; i<argc; i++){
@@ -90,7 +90,7 @@ static void locate_unmanaged_files(
       zName = blob_str(&name);
       isDir = file_isdir(zName, RepoFILE);
       if( isDir==1 ){
-        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0);
+        vfile_scan(&name, nRoot-1, scanFlags, pIgnore, 0, RepoFILE);
       }else if( isDir==0 ){
         fossil_warning("not found: %s", &zName[nRoot]);
       }else if( file_access(zName, R_OK) ){
@@ -1107,7 +1107,7 @@ void clean_cmd(void){
     Blob root;
     blob_init(&root, g.zLocalRoot, nRoot - 1);
     vfile_dir_scan(&root, blob_size(&root), scanFlags, pIgnore,
-                   pEmptyDirs);
+                   pEmptyDirs, RepoFILE);
     blob_reset(&root);
     db_prepare(&q,
         "SELECT %Q || x FROM dscan_temp"

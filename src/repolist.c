@@ -135,7 +135,7 @@ int repo_list_page(void){
     sqlite3_open(":memory:", &g.db);
     db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
     db_multi_exec("CREATE TABLE vfile(pathname);");
-    vfile_scan(&base, blob_size(&base), 0, 0, 0);
+    vfile_scan(&base, blob_size(&base), 0, 0, 0, ExtFILE);
     db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
     allRepo = 0;
   }

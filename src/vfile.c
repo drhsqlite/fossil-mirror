@@ -432,15 +432,17 @@ static int is_temporary_file(const char *zName){
 #define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
 #define SCAN_MTIME  0x008    /* Populate mtime column */
 #define SCAN_SIZE   0x010    /* Populate size column */
+#define SCAN_ISEXE  0x020    /* Populate isexe column */
 #endif /* INTERFACE */
 
 /*
 ** Load into table SFILE the name of every ordinary file in
 ** the directory pPath.   Omit the first nPrefix characters of
 ** of pPath when inserting into the SFILE table.
-**
 ** Subdirectories are scanned recursively.
-** Omit files named in VFILE.
+**
+** Omit files named in VFILE if eFType==RepoFILE.  Include all files
+** if eFType==ExtFILE.
 **
 ** Files whose names begin with "." are omitted unless the SCAN_ALL
 ** flag is set.
@@ -454,7 +456,8 @@ void vfile_scan(
   int nPrefix,           /* Number of bytes in directory name */
   unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
   Glob *pIgnore1,        /* Do not add files that match this GLOB */
-  Glob *pIgnore2         /* Omit files matching this GLOB too */
+  Glob *pIgnore2,        /* Omit files matching this GLOB too */
+  int eFType             /* ExtFILE or RepoFILE */
 ){
   DIR *d;
   int origSize;
@@ -474,16 +477,30 @@ void vfile_scan(
   if( skipAll ) return;
 
   if( depth==0 ){
-    db_prepare(&ins,
-      "INSERT OR IGNORE INTO sfile(pathname%s%s) SELECT :file%s%s"
-      "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
-      " pathname=:file %s)",
-      scanFlags & SCAN_MTIME ? ", mtime"  : "",
-      scanFlags & SCAN_SIZE  ? ", size"   : "",
-      scanFlags & SCAN_MTIME ? ", :mtime" : "",
-      scanFlags & SCAN_SIZE  ? ", :size"  : "",
-      filename_collation()
-    );
+    if( eFType==ExtFILE ){
+      db_prepare(&ins,
+        "INSERT OR IGNORE INTO sfile(pathname%s%s%s) VALUES(:file%s%s%s)",
+        scanFlags & SCAN_MTIME ? ",mtime"  : "",
+        scanFlags & SCAN_SIZE  ? ",size"   : "",
+        scanFlags & SCAN_ISEXE ? ",isexe"  : "",
+        scanFlags & SCAN_MTIME ? ",:mtime" : "",
+        scanFlags & SCAN_SIZE  ? ",:size"  : "",
+        scanFlags & SCAN_ISEXE ? ",:isexe" : ""
+      );
+    }else{
+      db_prepare(&ins,
+        "INSERT OR IGNORE INTO sfile(pathname%s%s%s) SELECT :file%s%s%s"
+        "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+        " pathname=:file %s)",
+        scanFlags & SCAN_MTIME ? ",mtime"  : "",
+        scanFlags & SCAN_SIZE  ? ",size"   : "",
+        scanFlags & SCAN_ISEXE ? ",isexe"  : "",
+        scanFlags & SCAN_MTIME ? ",:mtime" : "",
+        scanFlags & SCAN_SIZE  ? ",:size"  : "",
+        scanFlags & SCAN_ISEXE ? ",:isexe" : "",
+        filename_collation()
+      );
+    }
   }
   depth++;
 
@@ -506,12 +523,12 @@ void vfile_scan(
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zPath, RepoFILE)==1) : (pEntry->d_type==DT_DIR) ){
+          ? (file_isdir(zPath, eFType)==1) : (pEntry->d_type==DT_DIR) ){
 #else
-      }else if( file_isdir(zPath, RepoFILE)==1 ){
+      }else if( file_isdir(zPath, eFType)==1 ){
 #endif
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2, eFType);
         }
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
@@ -522,10 +539,13 @@ void vfile_scan(
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           if( scanFlags & SCAN_MTIME ){
-            db_bind_int(&ins, ":mtime", file_mtime(zPath, RepoFILE));
+            db_bind_int(&ins, ":mtime", file_mtime(zPath, eFType));
           }
           if( scanFlags & SCAN_SIZE ){
-            db_bind_int(&ins, ":size", file_size(zPath, RepoFILE));
+            db_bind_int(&ins, ":size", file_size(zPath, eFType));
+          }
+          if( scanFlags & SCAN_ISEXE ){
+            db_bind_int(&ins, ":isexe", file_isexe(zPath, eFType));
           }
           db_step(&ins);
           db_reset(&ins);
@@ -566,7 +586,8 @@ int vfile_dir_scan(
   int nPrefix,           /* Number of bytes in base directory name */
   unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
   Glob *pIgnore1,        /* Do not add directories that match this GLOB */
-  Glob *pIgnore2         /* Omit directories matching this GLOB too */
+  Glob *pIgnore2,        /* Omit directories matching this GLOB too */
+  int eFType             /* ExtFILE or RepoFILE */
 ){
   int result = 0;
   DIR *d;
@@ -626,14 +647,14 @@ int vfile_dir_scan(
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zPath, RepoFILE)==1) : (pEntry->d_type==DT_DIR) ){
+          ? (file_isdir(zPath, eFType)==1) : (pEntry->d_type==DT_DIR) ){
 #else
-      }else if( file_isdir(zPath, RepoFILE)==1 ){
+      }else if( file_isdir(zPath, eFType)==1 ){
 #endif
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
-                                     pIgnore2);
+                                     pIgnore2, eFType);
           db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
           db_bind_int(&ins, ":count", count);
           db_step(&ins);

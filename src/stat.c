@@ -106,7 +106,11 @@ void stats_for_email(void){
   @ <tr><th>Pending&nbsp;Alerts:</th><td>
   @ %,d(nPend) normal, %,d(nDPend) digest
   @ </td></tr>
-  @ <tr><th>Subscribers:</th><td>
+  if( g.perm.Admin ){
+    @ <tr><th><a href="%R/subscribers">Subscribers:</a></th><td>
+  }else{
+    @ <tr><th>Subscribers:</th><td>
+  }
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
                    " AND NOT sdonotcall AND length(ssub)>1");

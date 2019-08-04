@@ -150,6 +150,7 @@ struct Global {
   char *zRepositoryName;  /* Name of the repository database file */
   char *zLocalDbName;     /* Name of the local database file */
   char *zOpenRevision;    /* Check-in version to use during database open */
+  char *zCmdName;         /* Name of the Fossil command currently running */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -788,6 +789,7 @@ int main(int argc, char **argv)
     }
   }
 #endif
+  g.zCmdName = zCmdName;
   rc = dispatch_name_search(zCmdName, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
   if( rc==1 ){
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
