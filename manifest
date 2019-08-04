@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sSecurity-Audit\spage\s-\smostly\sin\sproviding\sadditional\ninformation\sabout\sthe\sfiles\sin\sthe\sCGI\sextension\sfolder.
-D 2019-08-04T20:23:46.904
+C Fix\sa\sharmless\scompiler\swarning.
+D 2019-08-04T20:26:39.942
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c e5266b41aab678c165363d831718e9eff61e8a6851dec72582f18dff4f37d78c
+F src/main.c 0cbe4118ce096d4316903a69189a064c9161d39d8c48744520ec2e4f4583bf6c
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 534b060007692cc87a8c3e14d7d048b51c1b098e16c5127dc6d68b53aec2b44d
-R 7f88668e0ad063f344f7887cc6dc4104
+P a3bc6552eea4676d3bb55ed5b40ab608570e30b618d9edc3f2f6ce6ae4a77187
+R eff4e6eac23783365567924204db823c
 U drh
-Z f0c41844f7fe526e3ed1de14be3e6364
+Z fbb123349153739d5e25accb1c2e5357
