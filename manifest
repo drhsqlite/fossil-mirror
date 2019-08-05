@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning.
-D 2019-08-04T20:26:39.942
+C Update\scustom\sMinGW\smakefile.
+D 2019-08-05T16:15:09.232
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -741,7 +741,7 @@ F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9
 F win/Makefile.PellesCGMake bb69df010a69bf5f1290d16fb2e51f7edcedae8b4866eac77a430fc663a7bfcb
 F win/Makefile.dmc db9859d1d3329d8464aa8ab4c82471c7fa88915a983b7a1688d48b9a1122b398
 F win/Makefile.mingw 48c28a92b91e78a409dce894f26c43a586c6aa9b0c5ad274e34a1e64a10bb5cb
-F win/Makefile.mingw.mistachkin da4d949adef2101adabf4dd169bfdc6ddf8c27992b3429e8ec4e7da4b8def3de
+F win/Makefile.mingw.mistachkin 3ced7e28713e63694dcb7d10e19b84a6d51cd310fd9b7f95157203781d23d2a5
 F win/Makefile.msc 77812332312040c52c07d9dad0933a80820ec614e5483c5999adf1a1f7dc41d4
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a3bc6552eea4676d3bb55ed5b40ab608570e30b618d9edc3f2f6ce6ae4a77187
-R eff4e6eac23783365567924204db823c
-U drh
-Z fbb123349153739d5e25accb1c2e5357
+P 95a6a658d40f4d4d7d77a37a68578ec5961ec298a332f3a901cd1e9267376c70
+R a4aebb5a2a547ab2e9581637022e5921
+U mistachkin
+Z 035e493f09913f17cec498475bcff420
