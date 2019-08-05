@@ -2546,6 +2546,7 @@ void cmd_webserver(void){
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
   const char *zFileGlob;     /* Static content must match this */
+  const char *zExtRoot;      /* Document root for the /ext sub-website */
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zInitPage = 0; /* Start on this page.  --page option */
@@ -2561,7 +2562,7 @@ void cmd_webserver(void){
   if( g.zErrlog==0 ){
     g.zErrlog = "-";
   }
-  g.zExtRoot = find_option("extroot",0,1);
+  g.zExtRoot = zExtRoot = find_option("extroot",0,1);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2744,9 +2745,11 @@ void cmd_webserver(void){
   if( allowRepoList ){
     flags |= HTTP_SERVER_REPOLIST;
   }
-  if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob, flags) ){
+  if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob,
+                         zExtRoot, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile,
-                      zAltBase, zNotFound, zFileGlob, zIpAddr, flags);
+                      zAltBase, zNotFound, zFileGlob, zExtRoot,
+                      zIpAddr, flags);
   }
 #endif
 }

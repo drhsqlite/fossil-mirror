@@ -520,6 +520,7 @@ void win32_http_server(
   const char *zBaseUrl,     /* The --baseurl option, or NULL */
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --fileglob option, or NULL */
+  const char *zExtRoot,     /* The --extroot option, or NULL */
   const char *zIpAddr,      /* Bind to this IP address, if not NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
@@ -548,6 +549,9 @@ void win32_http_server(
   }
   if( zFileGlob ){
     blob_appendf(&options, " --files-urlenc %T", zFileGlob);
+  }
+  if( zExtRoot ){
+    blob_appendf(&options, " --extroot %s", zExtRoot);
   }
   if( g.useLocalauth ){
     blob_appendf(&options, " --localauth");
@@ -697,6 +701,7 @@ struct HttpService {
   const char *zBaseUrl;     /* The --baseurl option, or NULL */
   const char *zNotFound;    /* The --notfound option, or NULL */
   const char *zFileGlob;    /* The --files option, or NULL */
+  const char *zExtRoot;     /* The --extroot option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
   int isRunningAsService;   /* Are we running as a service ? */
   const wchar_t *zServiceName;/* Name of the service */
@@ -706,7 +711,7 @@ struct HttpService {
 /*
 ** Variables used for running as windows service.
 */
-static HttpService hsData = {8080, NULL, NULL, NULL, 0, 0, NULL,
+static HttpService hsData = {8080, NULL, NULL, NULL, NULL, 0, 0, NULL,
                              {INVALID_SOCKET, INVALID_SOCKET}};
 static SERVICE_STATUS ssStatus;
 static SERVICE_STATUS_HANDLE sshStatusHandle;
@@ -846,7 +851,7 @@ static void WINAPI win32_http_service_main(
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
                     NULL, NULL, hsData.zBaseUrl, hsData.zNotFound,
-                    hsData.zFileGlob, 0, hsData.flags);
+                    hsData.zFileGlob, hsData.zExtRoot, 0, hsData.flags);
 
   /* Service has stopped now. */
   win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);
@@ -876,6 +881,7 @@ int win32_http_service(
   const char *zBaseUrl,     /* The --baseurl option, or NULL */
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --files option, or NULL */
+  const char *zExtRoot,     /* The --extroot option, or NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   /* Define the service table. */
@@ -887,6 +893,7 @@ int win32_http_service(
   hsData.zBaseUrl = zBaseUrl;
   hsData.zNotFound = zNotFound;
   hsData.zFileGlob = zFileGlob;
+  hsData.zExtRoot = zExtRoot;
   hsData.flags = flags;
 
   if( GetStdHandle(STD_INPUT_HANDLE)!=NULL ){ return 1; }

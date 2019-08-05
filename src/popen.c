@@ -106,7 +106,12 @@ static int win32_create_child_process(
     CloseHandle( pi.hThread );
     *pChildPid = pi.dwProcessId;
   }else{
-    win32_fatal_error("cannot create child process");
+    char zBuf[100];
+    sqlite3_snprintf(
+      sizeof(zBuf), zBuf, "cannot create child process (%lu)",
+      GetLastError()
+    );
+    win32_fatal_error(zBuf);
   }
   return rc!=0;
 }

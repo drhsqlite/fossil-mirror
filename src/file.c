@@ -295,7 +295,18 @@ void symlink_copy(const char *zFrom, const char *zTo){
 ** On windows, this routine returns only PERM_REG.
 */
 int file_perm(const char *zFilename, int eFType){
-#if !defined(_WIN32)
+#if defined(_WIN32)
+  static const char *azExts[] = { ".com", ".exe", NULL };
+  const char *zExt = strrchr(zFilename, '.');
+  if( zExt ){
+    int i;
+    for( i=0; azExts[i]; i++ ){
+      if( sqlite3_stricmp(zExt, azExts[i])==0 ){
+        return PERM_EXE;
+      }
+    }
+  }
+#else
   if( !getStat(zFilename, RepoFILE) ){
      if( S_ISREG(fx.fileStat.st_mode) && ((S_IXUSR)&fx.fileStat.st_mode)!=0 )
       return PERM_EXE;
