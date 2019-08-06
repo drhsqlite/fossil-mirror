@@ -1,5 +1,5 @@
-C Updated\simage-format-vs-repo-size.ipynb\sto\srun\swithin\sthe\sFossil\stree\ncheckout,\sto\srun\sunder\sthe\sPython\s3\sJupyterLab\skernel,\sand\sto\shave\sthe\noutput\sSVG\sembedded\sin\sthe\snotebook\sso\sit\sshows\sup\sin\sthe\snotebook\nviewer\swithout\sneeding\sto\srun\sit\sfirst.\s\sThis\supdates\sthe\sassociated\nseparate\sSVG\sfile\sas\swell,\sso\sthe\stwo\sSVG\sinstantiations\smatch.
-D 2019-08-06T10:17:22.208
+C Updated\sexplanatory\stext\sat\sthe\stop\sof\nwww/image-format-vs-repo-size.ipynb\sto\strack\sthe\srecent\supdate\sfor\nPython\s3.
+D 2019-08-06T10:45:20.220
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -844,7 +844,7 @@ F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki adc959812858923e0fa13bf4cd73924761db3816fc541a6d575c425a61c2c27c
 F www/hashpolicy.wiki 67069cee03a4759783ca175396a2ac28b9439635b3067d5de3ede3fda96f009b
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/image-format-vs-repo-size.ipynb f37e51f3919b0624b00c7ff8ea8267ef565c3582a3efb501241bda56bbc761b3
+F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md 9e8b06d2511a672a7bed6b833d10ef8f8c82b2b75fe631682de159e8549b3bec
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
 F www/index.wiki 89c5ad2569bcc9245e5fb4c6ed391ff9db8e4a7c0fecd00061c0a91f237a56aa
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 759b10021d8a055302ce51bf0293cc813cdb871c10b129c3e6dd3ab0a49320d9
-R 699f04a872d28d670371061879a7a28f
+P f85d924767a4bbd9ec4504d6c2937ee31d2d219d54cfb7cd0516fe2259ebd942
+R 8930b77241a9b51a0222d3883ff7ae9c
 U wyoung
-Z c457f5573d3604d003a5470360915990
+Z 4b8ac759e5ee273805328dc7667fbb68
