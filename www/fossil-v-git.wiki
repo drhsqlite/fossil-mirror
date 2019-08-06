@@ -49,7 +49,8 @@ an integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], 
 [./event.wiki | technical notes], and a [./forum.wiki | web forum],
-all within a single nicely-designed [./customskin.md|skinnable web UI],
+all within a single nicely-designed [./customskin.md|skinnable] web
+[/help?cmd=ui|UI],
 protected by a fine-grained
 [https://en.wikipedia.org/wiki/Role-based_access_control|role-based
 access control system].
@@ -450,8 +451,9 @@ remote repositories, push/pull/sync, bisect capabilities, and a "stash."
 Both systems store project history as a directed acyclic graph (DAG)
 of immutable check-in objects.
 
-But there are a few capabilities in one system that are missing from the
-other.
+There are many areas where one system has a feature that is simply
+missing in the other, however. We covered most of those above, but there
+are some others we haven't gotten to yet.
 
 
 <h3 id="missing-in-git">3.1 Features found in Fossil but missing from Git</h3>
@@ -462,11 +464,6 @@ other.
    only Fossil shows the descendents.  (It is possible to find the
    descendents of a check-in in Git using the log, but that is sufficiently
    difficult that nobody ever actually does it.)
-
-  *  <b>Wiki, Embedded documentation, Trouble-tickets, Tech-Notes, and Forum</b>
-
-   Git only provides versioning of source code.  Fossil strives to provide
-   other related project management services as well.
 
   *  <b>Named branches</b>
 
@@ -485,12 +482,6 @@ other.
    from their respective servers, prior to taking the laptop off network.
    Or it is possible to do "fossil all changes" to see if there are any
    uncommitted changes that were overlooked prior to the end of the workday.
-
-  *  <b>The [/help?cmd=ui|fossil ui] command</b>
-
-   Fossil supports an integrated web interface.  Some of the same features
-   are available using third-party add-ons for Git, but they do not provide
-   nearly as many features and they are not nearly as convenient to use.
 
   *  <b>The [/help?cmd=undo|fossil undo] command</b>
 
