@@ -297,12 +297,14 @@ void symlink_copy(const char *zFrom, const char *zTo){
 int file_perm(const char *zFilename, int eFType){
 #if defined(_WIN32)
   static const char *azExts[] = { ".com", ".exe", NULL };
-  const char *zExt = strrchr(zFilename, '.');
-  if( zExt ){
-    int i;
-    for( i=0; azExts[i]; i++ ){
-      if( sqlite3_stricmp(zExt, azExts[i])==0 ){
-        return PERM_EXE;
+  if( zFilename ){
+    const char *zExt = strrchr(zFilename, '.');
+    if( zExt ){
+      int i;
+      for( i=0; azExts[i]; i++ ){
+        if( sqlite3_stricmp(zExt, azExts[i])==0 ){
+          return PERM_EXE;
+        }
       }
     }
   }

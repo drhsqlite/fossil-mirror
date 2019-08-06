@@ -1,5 +1,5 @@
-C Initial\sdraft\schanges\sto\ssupport\s'extcgi'\son\sWin32.
-D 2019-08-05T16:35:50.261
+C Fix\scrash.
+D 2019-08-06T01:49:05.084
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -475,7 +475,7 @@ F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/extcgi.c 304f6970de8ccd52e1545aa9d76fd86479ee726798d6065dc1d49c3b2d8dd349
-F src/file.c f2b7c94dfb027036e8eb070cfd0e7085ba8bb0f0bf91382117c4d787d5261aed
+F src/file.c 3751a1fc51aed1aff5e71dfe5640c848060781241c3d114bf02e27fb4d15393b
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c b34f2b1b2d675a55018ca9b4664f9cd8b167ade1b5510cf29f6fabac6cd29b1d
@@ -886,10 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 759b10021d8a055302ce51bf0293cc813cdb871c10b129c3e6dd3ab0a49320d9
-R b28f2058d74e546578e811eb1db25f9c
-T *branch * winExtCgi
-T *sym-winExtCgi *
-T -sym-trunk *
+P fbe1eddaa3a020eaf76a8745e5465d091d8aabbe3747398b69a219d0e4031564
+R 01edb57daef9fc9f0eee1728f5af13e4
 U mistachkin
-Z 02fe2c16f569dbd0529a1b58dfc3628e
+Z 7471f12c9f6a096a3205d9cc4075d716
