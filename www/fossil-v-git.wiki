@@ -460,10 +460,18 @@ are some others we haven't gotten to yet.
 
   *  <b>The ability to show descendents of a check-in.</b>
 
-   Both Git and Fossil can easily find the ancestors of a check-in.  But
-   only Fossil shows the descendents.  (It is possible to find the
-   descendents of a check-in in Git using the log, but that is sufficiently
-   difficult that nobody ever actually does it.)
+   Both Git and Fossil can easily find the ancestors of a check-in, but
+   Fossil can also quickly find the descendents for any check-in. To do
+   it in Git, you have to grovel through the commit log.
+
+   This fact has many knock-on effects and shows up in several parts of
+   the design of each tool. It is why Fossil's
+   [/help?cmd=timeline|timeline] is generally easier and more clear than
+   those available in Git front-ends. It is why Fossil is immune from
+   Git's "detached head state." It's why Git has the cryptic <tt>@~</tt>
+   notation meaning "the parent of HEAD" (what Fossil simply
+   [./checkin_names.wiki|calls "prev"]) but there is no way to ask Git
+   for the child of the current checkin, as with "next" in Fossil.
 
   *  <b>Named branches</b>
 

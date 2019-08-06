@@ -1,5 +1,5 @@
-C Removed\ssome\spoints\sin\ssection\s3.1\sof\sfossil-v-git\s(Features\sfound\sin\nFossil\sbut\smissing\sfrom\sGit)\swhich\sare\salready\scovered\sabove.
-D 2019-08-06T23:20:43.071
+C Expanded\son\sthe\spoint\sabout\s"next"\scheckin\sin\sfossil-v-git\sdoc
+D 2019-08-06T23:40:05.350
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki c9b74ea3a78fdc7901b2e8e4213d01a7c5853c35a26dda1c7bbff2479056fdb4
+F www/fossil-v-git.wiki 8623e351639d609edb96d5bf527ed82661574096c8f58cfaab42740fdc8cb2e0
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c22c7056914278c33223951c568fdd99a835e97a748f7dcc5c46edb8b793866
-R f2e00d46655880308d3f5749ffea0b7c
+P c5a74af45c206e551490de0e7464f1b817fff7f0fc47a0458f5ba68c3cfda577
+R 25671f052517fd44ed8f742e92c8a462
 U wyoung
-Z 7f489bca4c90a4d7a442d480e9761ecc
+Z 258f0900b40886fc3d14d7a56006d5e4
