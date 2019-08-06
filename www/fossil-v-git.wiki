@@ -363,8 +363,14 @@ script or program to get it running.
 
 Fossil is a single self-contained stand-alone executable with hardly
 any dependencies.  Fossil can be (and often is) run inside a
-minimally configured chroot jail.  To install Fossil,
-one merely puts the executable somewhere in the $PATH.
+minimally configured [https://en.wikipedia.org/wiki/Chroot|chroot jail]. To install Fossil,
+one merely puts the executable somewhere in the <tt>$PATH</tt>.
+
+This difference is especially stark on Windows: you need to drag along a
+Cygwin or MSYS environment to get Git running on Windows due to all of
+its third-party dependencies. Installing Fossil on Windows is the same
+as installing it on every other OS: download the executable and drop it
+in the path somewhere.
 
 The designer of Git says that the Unix philosophy is to have lots of
 small tools that collaborate to get the job done.  The designer of
