@@ -379,6 +379,24 @@ Fossil says that the Unix philosophy is "It just works."  Both
 individuals have written their DVCSes to reflect their own view
 of the "Unix philosophy."
 
+This point combines with the [#features|feature set differences] in an
+interesting way: although you can add third-party pieces to Git to give
+it equivalent functionality to what Fossil delivers out of the box, the
+resulting system will doubtlessly be far less efficient than an
+equivalent Fossil setup. We've received many reports on the Fossil forum
+about people successfully hosting Fossil service on bare-bones $5/month
+VPS hosts, spare Raspberry Pi boards, and similarly resource-constrained
+environments. Contrast a feature-requivalent like Gitlab, which has
+[https://docs.gitlab.com/ee/install/requirements.html|far steeper
+demands] due to basic differences in technology choices: Ruby and
+PostgreSQL vs C and SQLite!  Gitlab's recommended minimum requirements
+are fine when you're dedicating a local rack server to Gitlab, since
+that's about the smallest thing you could call a "server" these days,
+but when you go to host that in the cloud, their 8&nbsp;GiB of RAM and 2
+CPU core recommendation costs about 8⨉ as much as a comfortable hosting
+environment for Fossil in a recent check at a major VPS hosting
+provider.
+
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
