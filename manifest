@@ -1,5 +1,5 @@
-C Merged\stwo\snearly-redundant\spoints\sabout\sbranch\snames\ssyncing\sin\nfossil-v-git\sdoc.
-D 2019-08-07T02:37:30.866
+C A\sbetter\shyperlink\sfor\salthttpd\sdocumentation\sin\sssl.wiki.
+D 2019-08-07T04:02:52.543
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -869,7 +869,7 @@ F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0d
 F www/serverext.wiki 168c825b3032e74272e1021ce2fe6a863198fa7ef1766292f546e543008116e8
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki 1426dd805bcb1bbdf987cad885e13e02fed1ea2bc4af70b72809b63cbaca8d33
+F www/ssl.wiki 199c0dad02d0f78ad645c9a0f1233ee63f7e8df3d66872e1919b93259546dffd
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 05b89b565cb5d8eb37f601b2313a70e78913af6c52801b4472fe7dcbd43389e9
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c9b177182e36210e770b9c22fa827983e1335ac6b62b905a96a7811308c76d6
-R 1ceb28ead59deec82d0042d689375bc3
-U wyoung
-Z ef3a1d958ea78c232bad3e9c0475b06e
+P 16ea738a8e14924ae8039a9fadfd78a0b6a2e80eb886fe5d628bf8baef115a15
+R 1770dd4174053f76f4154a5017b092cf
+U drh
+Z 303315085dc9d0e15fa6aed382bbd6ae

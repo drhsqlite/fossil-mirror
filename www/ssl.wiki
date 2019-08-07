@@ -245,7 +245,7 @@ scheme on generated hyperlinks.
 
 The public SQLite and Fossil web sites can't just use stunnel + Fossil
 because parts of the web site are static, served by
-[https://www.sqlite.org/docsrc/file/misc/althttpd.c|a separate web
+[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|a separate web
 server called <tt>althttpd</tt>], written by the primary author of both
 SQLite and Fossil. It is a lightweight HTTP-only web server. It handles
 the static HTTP hits on <tt>sqlite.org</tt> and <tt>fossil-scm.org</tt>,
