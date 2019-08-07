@@ -5,10 +5,21 @@
 If you start out using one DVCS and later decide you like the other better,
 you can easily [./inout.wiki | move your content].¹
 
-Fossil and [http://git-scm.com | Git] are very similar in many respects,
-but they also have important differences.
-See the table below for
-a high-level summary and the text that follows for more details.
+The feature sets of Fossil and [http://git-scm.com | Git] overlap in
+many ways. Both are
+[https://en.wikipedia.org/wiki/Distributed_version_control | distributed
+version control systems] managing a
+[https://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic
+graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
+tree] / [./blockchain.md | block chain] structured check-ins to a local
+repository clone. In both systems, new content added to the local repo
+clone can be pushed up to a remote parent, and changes to the remote can
+be easily pulled down to the local clone.  Both systems offer bisecting,
+private branches, a stash, etc.
+
+There are also, however, many important differences between these two
+DVCSes. We summarize the major differences in the following table, then
+detail those differences in the following text.
 
 Keep in mind that you are reading this on a Fossil website, and though
 we try to be fair, the information here
@@ -565,24 +576,20 @@ for solving the same problem by moving to SHA-256 (a variant of the
 February 2019 to release a version containing the change. It's looking
 like this will take years more to percolate through the community.
 
-The practical impact of SHAttered on
-[https://en.wikipedia.org/wiki/Merkle_tree | Merkle tree] /
-[./blockchain.md | block chain] structred data stores like Git and
-Fossil isn't clear, but Fossil moved on the problem quickly and had a
-widely-deployed solution to it years ago.
+The practical impact of SHAttered on structred data stores like the one
+in Git and Fossil isn't clear, but you want to have your repositories
+moved over to a stronger hash algorithm before someone figures out how
+to make use of the weaknesses in the old one.  Fossil's developers moved
+on this problem quickly and had a widely-deployed solution to it years
+ago.
 
 
 <h2 id="missing">3.0 Missing Features</h2>
 
-Most of the capabilities found in Git are also available in Fossil and
-the other way around. For example, both systems have local check-outs,
-remote repositories, push/pull/sync, bisect capabilities, and a "stash."
-Both systems store project history as a directed acyclic graph (DAG)
-of immutable check-in objects.
-
-There are many areas where one system has a feature that is simply
-missing in the other, however. We covered most of those above, but there
-are some others we haven't gotten to yet.
+Although there is a large overlap in capability between Fossil and Git,
+there are many areas where one system has a feature that is simply
+missing in the other. We covered most of those above, but there
+are a few remaining feature differences we haven't gotten to yet.
 
 
 <h3 id="missing-in-git">3.1 Features found in Fossil but missing from Git</h3>
