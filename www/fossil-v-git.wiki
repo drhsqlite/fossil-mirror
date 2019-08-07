@@ -133,21 +133,25 @@ objects referencing their immediate ancestors and named by a
 cryptographic hash of the check-in content.
 
 The difference is that Git stores its objects as individual files
-in the ".git" folder or compressed into
-bespoke "pack-files," whereas Fossil stores its objects in a
+in the <tt>.git</tt> folder or compressed into
+bespoke [https://git-scm.com/book/en/v2/Git-Internals-Packfiles|pack-files],
+whereas Fossil stores its objects in a
 relational ([https://www.sqlite.org/|SQLite]) database file.  To put it
 another way, Git uses an ad-hoc pile-of-files key/value database whereas
-Fossil uses a proven, general-purpose SQL database.  This
-difference is more than an implementation detail.  It
-has important consequences.
+Fossil uses a proven, [https://sqlite.org/testing.html|heavily-tested],
+general-purpose, [https://sqlite.org/transactional.html|durable] SQL
+database.  This difference is more than an implementation detail. It has
+important practical consequences.
 
 With Git, one can easily locate the ancestors of a particular check-in
 by following the pointers embedded in the check-in object, but it is
 difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
-GitHub provide this capability.  With Git, if you are looking at some
-historical check-in then you cannot ask
-"What came next?" or "What are the children of this check-in?"
+GitHub provide this capability short of
+[http://catb.org/jargon/html/G/grovel.html|groveling] the
+[https://www.git-scm.com/docs/git-log|commit log].  With Git, if you
+are looking at some historical check-in then you cannot ask "What came
+next?" or "What are the children of this check-in?"
 
 Fossil, on the other hand, parses essential information about check-ins
 (parents, children, committers, comments, files changed, etc.)
@@ -156,18 +160,23 @@ queried using concise SQL statements to find both ancestors and
 descendents of a check-in.
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
-difficult to locate and subject to garbage collection.  This
-"detached head" problem has caused untold grief for countless
-Git users.  With Fossil, all check-ins are easily located using
-a variety of attributes (parents, children, committer, date, full-text
-search of the check-in comment) and so detached heads are simply not possible.
+difficult to locate and subject to garbage collection. This
+[http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
+state] problem has caused untold grief for countless Git users. With
+Fossil, all check-ins are easily located via multiple possible paths,
+so that detached heads are simply not possible in Fossil.
 
-The ease with which check-ins can be located and queried in Fossil
-has resulted in a huge variety of reports and status screens
-([./webpage-ex.md|examples]) that show project state
-in ways that help developers
-maintain enhanced awareness and comprehension
-and avoid errors.
+This design difference shows up in several other places within each
+tool. It is why Fossil's [/help?cmd=timeline|timeline] is generally more
+detailed yet more clear than those available in Git front-ends.
+(Contrast [/timeline?c=6df7a853ec16865b|this Fossil timeline] with
+[https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34|its
+closest equivalent in GitHub].) It's why there is no inverse of the
+cryptic <tt>@~</tt> notation in Git, meaning "the parent of HEAD," which
+Fossil simply calls "prev", but there <i>is</i> a "next"
+[./checkin_names.wiki|special check-in name] in Fossil. It is why Fossil
+has so many [./webpage-ex.md|built-in status reports] to help maintain
+situational awareness, aid comprehension, and avoid errors.
 
 
 <h3 id="portable">2.4 Portable</h3>
@@ -572,21 +581,6 @@ are some others we haven't gotten to yet.
 
 
 <h3 id="missing-in-git">3.1 Features found in Fossil but missing from Git</h3>
-
-  *  <b>The ability to show descendents of a check-in.</b>
-
-   Both Git and Fossil can easily find the ancestors of a check-in, but
-   Fossil can also quickly find the descendents for any check-in. To do
-   it in Git, you have to grovel through the commit log.
-
-   This fact has many knock-on effects and shows up in several parts of
-   the design of each tool. It is why Fossil's
-   [/help?cmd=timeline|timeline] is generally easier and more clear than
-   those available in Git front-ends. It is why Fossil is immune from
-   Git's "detached head state." It's why Git has the cryptic <tt>@~</tt>
-   notation meaning "the parent of HEAD" (what Fossil simply
-   [./checkin_names.wiki|calls "prev"]) but there is no way to ask Git
-   for the child of the current checkin, as with "next" in Fossil.
 
   *  <b>The [/help?cmd=all|fossil all] command</b>
 
