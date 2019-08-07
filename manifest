@@ -1,5 +1,5 @@
-C Added\sparagraph\sabout\shosting\sefficiency\sof\sFossil\svs\sGitlab\s(to\smake\sit\nan\sapples-to-apples\scomparison)\sto\sthe\sfossil-v-git\sdoc.
-D 2019-08-06T23:56:01.369
+C Updates\sto\sthe\smirrorlimitations.md\sdocument.
+D 2019-08-07T00:19:09.299
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -850,7 +850,7 @@ F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d
 F www/index.wiki 89c5ad2569bcc9245e5fb4c6ed391ff9db8e4a7c0fecd00061c0a91f237a56aa
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mirrorlimitations.md 2c893bc7354c7e3a661b18c4de722033b1fcd8c424f9727de8511df0a9ec395c
+F www/mirrorlimitations.md ea698c5fb339f76f39e74dcd2e9cafa56ee0846080442462625b92c281a07a3f
 F www/mirrortogithub.md 877f0efa428e9653895627bc1e3f7d258bbc54f3c61e0c6be04194365a50712c
 F www/mkindex.tcl c9a926ca524b34a87287a82cfc3efd43304b959255d4643edca0f6f9a1024cba x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 47e495d26b2a122618863ea4ae57cf6d4ef8c2cd51b03ee06adeb95389195c84
-R cef16728ea763742ee201c35d4d51c5d
-U wyoung
-Z 65f52e8a74109cd8a35c2f8f96addfb2
+P f631c7c82e20ffcf4a7e1ef916d4d160886330d67a78ba4031f4e517acd1d5e9
+R 5d98c3d2a98d1568c7187ab9c0fadd57
+U drh
+Z a7ac71439c84a7811e2cdea8f9708aa9
