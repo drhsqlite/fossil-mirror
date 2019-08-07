@@ -26,6 +26,8 @@ with further description in the text that follows.
 <tr><td>File versioning only</td>
     <td>VCS, tickets, wiki, docs, notes, forum, UI,
     [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td></tr>
+<tr><td>Sprawling, incoherent, and inefficient</td>
+    <td>Self-contained and efficient</td></tr>
 <tr><td>Ad-hoc pile-of-files key/value database</td>
     <td>Relational SQL database</td></tr>
 <tr><td>Bazaar-style development</td><td>Cathedral-style development</td></tr>
@@ -35,7 +37,6 @@ with further description in the text that follows.
     <td>Select contributors</td></tr>
 <tr><td>Focus on individual branches</td>
     <td>Focus on the entire tree of changes</td></tr>
-<tr><td>Lots of little tools</td><td>Stand-alone executable</td></tr>
 <tr><td>One check-out per repository</td>
     <td>Many check-outs per repository</td></tr>
 <tr><td>Remembers what you should have done</td>
