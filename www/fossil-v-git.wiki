@@ -40,6 +40,8 @@ with further description in the text that follows.
     <td>Many check-outs per repository</td></tr>
 <tr><td>Remembers what you should have done</td>
     <td>Remembers what you actually did</td></tr>
+<tr><td>SHA-1, SHA-256</td>
+    <td>256-bit SHA-3</td></tr>
 </table></blockquote>
 
 <h3 id="features">2.1 Feature Set</h3>
@@ -459,6 +461,40 @@ limitations that prevent global history rewrites.
 
 One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
+
+
+<h3 id="hash">2.8 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>
+
+Fossil started out using 160-bit SHA-1 hashes to identify check-ins,
+just as in Git. That changed in early 2017 when news of the
+[https://shattered.io/|SHAttered attack] broke, demonstrating that SHA-1
+collisions were now practical to create. Two weeks later, the creator of
+Fossil delivered a new release allowing a clean migration to
+[https://en.wikipedia.org/wiki/SHA-3|256-bit SHA-3] with
+[./hashpolicy.wiki|full backwards compatibility] to old SHA-1 based
+repositories.
+
+Here in mid-2019, that feature is now in every OS and package repository
+known to include Fossil so that the next release as of this writing
+(Fossil 2.10) will default to enforcing SHA-3 hashes by default. This
+not only solves the SHAttered problem, it should prevent a reoccurrence
+for the forseeable future. Only repositories created before the
+transition to Fossil 2 are still using SHA-1, and then only if the
+repository's maintainer chose not to switch them into SHA-3 mode some
+time over the past 2 years.
+
+Meanwhile, the Git community took until August 2018 to announce
+[https://git-scm.com/docs/hash-function-transition/2.18.0|their plan]
+for solving the same problem by moving to SHA-256 (a variant of the
+[https://en.wikipedia.org/wiki/SHA-2|older SHA-2 algorithm]) and until
+February 2019 to release a version containing the change. It's looking
+like this will take years more to percolate through the community.
+
+The practical impact of SHAttered on
+[https://en.wikipedia.org/wiki/Merkle_tree | Merkle tree] /
+[./blockchain.md | block chain] structred data stores like Git and
+Fossil isn't clear, but Fossil moved on the problem quickly and had a
+widely-deployed solution to it years ago.
 
 
 <h2 id="missing">3.0 Missing Features</h2>

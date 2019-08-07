@@ -1,5 +1,5 @@
-C Updates\sto\sthe\smirrorlimitations.md\sdocument.
-D 2019-08-07T00:19:09.299
+C Added\ssection\s2.8\sto\sthe\sfossil-v-git\sdoc:\s"Hash\sAlgorithm:\sSHA-3\svs\nSHA-2\svs\sSHA-1".
+D 2019-08-07T00:42:09.719
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 5113b1203e85f91c59faac4201b1a9e465740c9fe44ea00c1900de43378ce4bf
+F www/fossil-v-git.wiki bc2c0b20ee5067e3fc48c146c55aa4ea3b7e2c6c27cdc2dfbec9bdf272d69bc8
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f631c7c82e20ffcf4a7e1ef916d4d160886330d67a78ba4031f4e517acd1d5e9
-R 5d98c3d2a98d1568c7187ab9c0fadd57
-U drh
-Z a7ac71439c84a7811e2cdea8f9708aa9
+P 31bbb40f13184e9e5a935ec39ee7653f38f298202a38acfe406a03956cf2305f
+R e4ba1bf69ebe464aa872f11cd0ebca4f
+U wyoung
+Z 60a6b5a67d070462496939f46804e8d7
