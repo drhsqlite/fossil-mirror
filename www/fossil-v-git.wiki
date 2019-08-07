@@ -187,7 +187,7 @@ Both projects must rank high on any objective list of "most
 important FOSS projects," yet these two projects are almost entirely unlike
 one another. So, too, are these two DVCSes.
 
-In the following sections, we will explain how three key differences
+In the following sections, we will explain how four key differences
 between Linux and SQLite dictated the design of each DVCS's low-friction
 usage path.
 
@@ -380,7 +380,7 @@ The end result is that Fossil more closely adheres to
 principle of least astonishment] than Git does.
 
 
-<h3 id="branches">2.5 Individual Branches vs. The Entire Change History</h3>
+<h4 id="branches">2.4.4 Individual Branches vs. The Entire Change History</h4>
 
 Both Fossil and Git store history as a directed acyclic graph (DAG)
 of changes, but Git tends to focus more on individual branches of
@@ -409,7 +409,7 @@ up-to-date with what everybody else is doing, resulting in a more
 tightly focused and cohesive implementation.
 
 
-<h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
+<h3 id="checkouts">2.5 One vs. Many Check-outs per Repository</h3>
 
 A "repository" in Git is a pile-of-files in the ".git" subdirectory
 of a single check-out.  The check-out and the repository are located
@@ -441,7 +441,7 @@ current working file set with a different file set by updating in place,
 as Git prefers.
 
 
-<h3 id="history">2.7 What you should have done vs. What you actually did</h3>
+<h3 id="history">2.6 What you should have done vs. What you actually did</h3>
 
 Git puts a lot of emphasis on maintaining
 a "clean" check-in history.  Extraneous and experimental branches by
@@ -472,7 +472,7 @@ One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
 
 
-<h3 id="hash">2.8 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>
+<h3 id="hash">2.7 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>
 
 Fossil started out using 160-bit SHA-1 hashes to identify check-ins,
 just as in Git. That changed in early 2017 when news of the
