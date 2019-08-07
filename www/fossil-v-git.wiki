@@ -488,34 +488,41 @@ tightly focused and cohesive implementation.
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
-A "repository" in Git is a pile-of-files in the ".git" subdirectory
-of a single check-out.  The check-out and the repository are located
-together in the filesystem.
+A "repository" in Git is a pile-of-files in the <tt>.git</tt>
+subdirectory of a single check-out. The working check-out directory and
+the <tt>.git</tt> repository subdirectory are normally in the same
+directory within the filesystem.
 
-With Fossil, a "repository" is a single SQLite database file
-that can be stored anywhere.  There
-can be multiple active check-outs from the same repository, perhaps
-open on different branches or on different snapshots of the same branch.
+With Fossil, a "repository" is a single SQLite database file that can be
+stored anywhere.  There can be multiple active check-outs from the same
+repository, perhaps open on different branches or on different snapshots
+of the same branch.  It is common in Fossil to switch branches with a
+"<tt>cd</tt>" command between two check-out directories rather than
+switching to another branch in place within a single working directory.
 Long-running tests or builds can be running in one check-out while
 changes are being committed in another.
 
-Git version 2.5 adds a feature to emulate Fossil's decoupling of the
-repository from the check-out tree, which it calls
-"[https://git-scm.com/docs/git-worktree|git-worktree]." This command
-sets up a series of links in the filesystem to
-allow a single repository to host multiple check-outs.  However,
-the interface is sufficiently difficult to use that most people
-find it easier to create a separate clone for each check-out.
-There are also practical consequences of the way it's implemented
-that make worktrees not quite equivalent to the main Git repo + checkout
-tree.
+From the start, Git has allowed symlinks to this <tt>.git</tt> directory
+from multiple working directories. The <tt>git init</tt> command offers
+the <tt>--separate-git-dir</tt> option to set this up automatically.
+Then in version 2.5, Git added the
+"[https://git-scm.com/docs/git-worktree|git-worktree]" feature to
+provide a higher-level management interface atop this basic mechanism.
+Use of this more closely emulates Fossil's decoupling of repository and
+working directory, but the fact remains that it is far more common in
+Git usage to simply switch a single working directory among branches in
+place.
 
-With Fossil, the complete decoupling of repository and check-out tree
-means every working check-out tree is treated equally. It's common in
-Fossil to have a check-out tree for each major working branch so that
-you can switch branches with a "cd" command rather than replace the
-current working file set with a different file set by updating in place,
-as Git prefers.
+The main downside of that working style is that it invalidates all build
+objects created from files that change in switching between branches.
+When you have multiple working directories for a single repository, you
+can have a completely independent state in each working directory which
+is untouched by the "<tt>cd</tt>" command you use to switch among them.
+
+There are also practical consequences of the way <tt>.git</tt> links
+work that make multiple working directories in Git
+[https://duckduckgo.com/?q=git+worktree+problem | not quite
+interchangeable], as they are in Fossil.
 
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
