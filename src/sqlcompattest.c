@@ -46,8 +46,8 @@ int main(int argc, char **argv){
   static const char *zRequiredOpts[] = {
     "ENABLE_FTS4",         /* Required for repository search */
     "ENABLE_JSON1",        /* Required for the check-in locking protocol */
-    "ENABLE_DBSTAT_VTAB",  /* Required by the "fossil sql" command */
-    "ENABLE_STMTVTAB",     /* Required by the "fossil sql" command */
+    "ENABLE_DBSTAT_VTAB",  /* Required by /repo-tabsize page */
+    "ENABLE_DBPAGE_VTAB",  /* Required by the .dump command in "fossil sql" */
   };
 
   /* Check minimum SQLite version number */

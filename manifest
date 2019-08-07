@@ -1,5 +1,5 @@
-C Add\sthe\sLDFLAGS\sparameter\swhen\sbuilding\sthe\ssqlcompttest\stest\sprogram.
-D 2019-08-07T12:29:52.270
+C Fix\sincorrect\srequirements\sin\ssqlcompattest.c.
+D 2019-08-07T12:45:49.041
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -568,7 +568,7 @@ F src/skins.c 5321b972ae0947592f84e9a352d0d386e0216bd971d759dd49c05ee9fc362443
 F src/smtp.c cbbc6cc20fde1f000f46870ddeea7b9df54fe1c9784402755782096a8f010af9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 72e5b3a619b519fe162e88fe789100583a17dd2cc932491b166bf09ce54d6c47
-F src/sqlcompattest.c f9dcb7b82344ac535ed982b1c4287e3d7fee29139e9b350151380adbaf4b09f2
+F src/sqlcompattest.c f9bd73fa59107ee1b8ccb40b59711400e9084671daddf60dba44adfd50df96d2
 F src/sqlite3.c d9a5daf7697a827f4b2638276ce639fa04e8e8bb5fd3a6b683cfad10f1c81b12
 F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9c747e1cf33f715764eca740f66c6e5ecd98b706971c0a4ab87ce5723d625af3
-R 5eb75348737d6247c4d2b5eb928491e4
+P 4a15ccdaca2bf3089d964b2a369005ed893705f9aa2bbcceeb897f80bd5c6b54
+R be5c90e78e484b0b286ba261093fc906
 U drh
-Z 696e118091e5f19ae9d3a3bed0a6e0fd
+Z e60b2a8f99e9407d14935968b70b6308
