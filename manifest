@@ -1,5 +1,5 @@
-C Clarity\sand\saccuracy\spass\son\sthe\sgit-worktree\sissue\sin\nfossil-v-git.wiki.
-D 2019-08-07T11:32:53.846
+C Add\san\sSQLite\scompatibility\stest\sprogram\sand\srun\sthat\sprogram\sduring\nthe\s"./configure"\sif\sthe\s--disable-internal-sqlite\soption\sis\sused\sin\sorder\nto\sverify\sthat\sthe\ssystem\sSQLite\slibrary\shas\sall\sof\sthe\scapabilities\sthat\nwe\sneed.
+D 2019-08-07T11:34:35.847
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -49,7 +49,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def f7fb7f5d59457becdabda8f2a365eceb3e381789a211973502a531201da4b3f6
+F auto.def aafb15e787ddac444a75bb0e7c711b596bdb6ba99d5be5f49e78556272f1e2cf
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -568,6 +568,7 @@ F src/skins.c 5321b972ae0947592f84e9a352d0d386e0216bd971d759dd49c05ee9fc362443
 F src/smtp.c cbbc6cc20fde1f000f46870ddeea7b9df54fe1c9784402755782096a8f010af9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 72e5b3a619b519fe162e88fe789100583a17dd2cc932491b166bf09ce54d6c47
+F src/sqlcompattest.c f9dcb7b82344ac535ed982b1c4287e3d7fee29139e9b350151380adbaf4b09f2
 F src/sqlite3.c d9a5daf7697a827f4b2638276ce639fa04e8e8bb5fd3a6b683cfad10f1c81b12
 F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
@@ -886,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3609ff75608d351cb19df0259400af245fbc3eee8b51afb065aaa351a4ff5720
-R e8b88adf2da2ff1ff2df9efbaa9aaf65
-U wyoung
-Z 4fe6a31ad14fdea7ec7b6ebd214c6e65
+P 92dc1021580c8c68e02b06cc2cdd94d1b1c378e1c2ce49d1bff90cb6e5c9e9d5
+R 66b7bc90f8694f8745577e75ebc489f5
+U drh
+Z 2e62e34def91e8fb79a9d665baa77523
