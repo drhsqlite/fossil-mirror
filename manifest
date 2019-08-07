@@ -1,5 +1,5 @@
-C Add\sthe\sFOSSIL_NONCE\sparameter\sto\sextension\sCGI.
-D 2019-08-07T17:39:33.792
+C Have\sthe\stest-httpmsg\scommand\stry\sto\sopen\sthe\srepository\sdatabase\sin\scase\nthat\srepository\sdatabase\scontains\sTLS\scertificate\sexceptions.
+D 2019-08-07T19:10:23.127
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -488,7 +488,7 @@ F src/graph.js 73e0509dc0d3acbf448e6fe4847b251e8d110a4d4f3b696bc1c321123818d296
 F src/gzip.c 43cb7e9eaf4e32983a6368bc0b1f49765ab8ea2a0e9fe2114dfcd07a3e5d1067
 F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
-F src/http.c 5c5b14244abef2b101c42fbbdfa2ba5bb1a3f665e3674d26bdaa1ed45dc8adbc
+F src/http.c a25166d6aee3961bd543425247f0733bd5129d9f5afec4c90a1768905bd35a1b
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c a7fa1a7a79f5f8bc450a9c0727b30cbe2382dc6471e0d3d0089e78e5edb64780
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b26967cfcb58f2434ae99c719f786005f3957cf0cc2ee1068f9b9efd0cc62d3a
-R 10abda219d9b5688836ce08f6b6c7ecb
+P 3f0ade5592df4d91f70335d85fb7f4a5f7ae4c99a2f0663bc0ca533f59dd078f
+R 88e7a59de546cc39a79803e9816298a7
 U drh
-Z dc0c4ae28ee38c04d812d854bfc3ca23
+Z 2ef0f7a90829d7b0a7f001ad2cbdd33d

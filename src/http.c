@@ -497,6 +497,7 @@ void test_wget_command(void){
   zOutFile = find_option("out","o",1);
   if( find_option("verbose","v",0)!=0 ) mHttpFlags |= HTTP_VERBOSE;
   if( find_option("compress",0,0)!=0 ) mHttpFlags &= ~HTTP_NOCOMPRESS;
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_ANY_SCHEMA, 0);
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL ?PAYLOAD?");
   }
