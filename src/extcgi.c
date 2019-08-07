@@ -50,6 +50,7 @@ static const char *azCgiEnv[] = {
    "CONTENT_TYPE",
    "DOCUMENT_ROOT",
    "FOSSIL_CAPABILITIES",
+   "FOSSIL_NONCE",
    "FOSSIL_REPOSITORY",
    "FOSSIL_URI",
    "FOSSIL_USER",
@@ -222,6 +223,7 @@ void ext_page(void){
     cgi_replace_parameter("REMOTE_USER", g.zLogin);
     cgi_set_parameter_nocopy("FOSSIL_USER", g.zLogin, 0);
   }
+  cgi_set_parameter_nocopy("FOSSIL_NONCE", style_nonce(), 0);
   cgi_set_parameter_nocopy("FOSSIL_REPOSITORY", g.zRepositoryName, 0);
   cgi_set_parameter_nocopy("FOSSIL_URI", g.zTop, 0);
   cgi_set_parameter_nocopy("FOSSIL_CAPABILITIES",

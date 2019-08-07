@@ -1,5 +1,5 @@
-C Do\snot\smake\sauthorizer\sSQLITE_READ\scalls\son\stransient\sinternal\stables.
-D 2019-08-07T13:22:40.997
+C Add\sthe\sFOSSIL_NONCE\sparameter\sto\sextension\sCGI.
+D 2019-08-07T17:39:33.792
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -474,7 +474,7 @@ F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
-F src/extcgi.c 304f6970de8ccd52e1545aa9d76fd86479ee726798d6065dc1d49c3b2d8dd349
+F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c bebda0beb9b96574fc77b60ad5d164b6695a05b3922facf1619d039d0c686155
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4d715251739eca9971b94f9dc2c7c8eb4f476eb6315e1d26527c02edd379239
-R 9d57cdff92d21700e90d08246223b9e2
+P b26967cfcb58f2434ae99c719f786005f3957cf0cc2ee1068f9b9efd0cc62d3a
+R 10abda219d9b5688836ce08f6b6c7ecb
 U drh
-Z 66becf18ebd18c14c35e358e7d88636f
+Z dc0c4ae28ee38c04d812d854bfc3ca23
