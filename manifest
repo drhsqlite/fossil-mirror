@@ -1,5 +1,5 @@
-C Remove\sthe\sSQLITE_ENABLE_DBPAGE_VTAB\srequirement\sfrom\sexternal\sSQLite\nlibraries,\sas\swithout\sit\sonly\sthe\s".recover"\scommand\sin\s"fossil\ssql"\sis\nomitted,\sand\sthat\sis\san\sobscure\scase.
-D 2019-08-07T12:55:13.478
+C Do\snot\smake\sauthorizer\sSQLITE_READ\scalls\son\stransient\sinternal\stables.
+D 2019-08-07T13:22:40.997
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -548,7 +548,7 @@ F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
 F src/regexp.c 04d511ced556f1e90f38b4c412db79d2b174179f00c49ef702255c0733885c5d
 F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9e
-F src/report.c 7af9983a099153c1670ea3a51af5a0823fba1cb083b748847be3617b22a351f6
+F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2426e83e417c1120d22d5f2a3ef2e941499ab7d1e6591e80da2e6b6ba141528
-R 460b7f541a622ccd2d967534de42aa8d
+P a4d715251739eca9971b94f9dc2c7c8eb4f476eb6315e1d26527c02edd379239
+R 9d57cdff92d21700e90d08246223b9e2
 U drh
-Z 9235daf2eb46d3e567bb1f31102a59f2
+Z 66becf18ebd18c14c35e358e7d88636f

@@ -197,6 +197,13 @@ static int report_query_authorizer(
          "unversioned",
       };
       int i;
+      if( zArg1==0 ){
+        /* Some legacy versions of SQLite will sometimes send spurious
+        ** READ authorizations that have no table name.  These can be
+        ** ignored. */
+        rc = SQLITE_IGNORE;
+        break;
+      }
       if( fossil_strncmp(zArg1, "fx_", 3)==0 ){
         break;
       }
