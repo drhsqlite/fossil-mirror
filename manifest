@@ -1,5 +1,5 @@
-C Added\sa\snamed\sanchor\sto\sfossil-v-git.wiki\sdoc
-D 2019-08-07T10:17:38.842
+C Clarified\sthe\sissue\sof\sbuilding\sand\sinstalling\sGit\svs\sFossil\sfrom\ssource\nvs\sas\sbinary\spackages\sin\sfossil-v-git.wiki
+D 2019-08-07T10:38:08.581
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 64025f4da89622c2cdd748c0e4634e8a1c1e69e5c66e752d6bd5bc54c12743dd
+F www/fossil-v-git.wiki 511dbcaac8b5fad5bf2f11ecac19a7e50940e2fcdf8a9844e27476c945ffab76
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd989fed408504f5aaa61f0003b933633ecd297ef116a0debb02cdd4c8a7367b
-R bd3516f0c6b11308026c9e6a9e1ebab1
+P e88ae89c0fdff7c37781ab6be13ba63e613ba4972e5013ff796604d267917a60
+R 585b452d405b3542654d2db4acb5e590
 U wyoung
-Z 0430836562a04e1a34a590e406dffc2e
+Z c0d89a151a9a5cb767744d43d96fa383
