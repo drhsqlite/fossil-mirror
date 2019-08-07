@@ -1,5 +1,5 @@
-C Updated\sthe\s"A\sPure\sSHA3\sFuture"\ssection\sof\swww/hashpolicy.wiki\sto\strack\nthe\srecent\sdecision\sto\smake\s"sha3"\smode\sthe\sdefault\sin\sFossil\s2.10.
-D 2019-08-07T00:53:14.801
+C Tightened\sup\sfootnote\s1\sin\sfossil-v-git\sto\sdelegate\sits\spoints\smore\nfully\sto\sthe\snew\smirrorlimitations.md\sdoc.
+D 2019-08-07T01:00:06.745
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki bc2c0b20ee5067e3fc48c146c55aa4ea3b7e2c6c27cdc2dfbec9bdf272d69bc8
+F www/fossil-v-git.wiki 7f7508821778cfea4ef4982aa83563b1b6a420fcb04c3e747352c905b0f8fa26
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42b8890cc246d69f5cbed9bd228f2c8465bff3cdc395084cb2d940035a87e2b5
-R 2bb0379df209a0da0a24c85ffdba79e3
+P c6e8558f2706e763ccffbaa55903264567fa8058acb4411d6d08871c0f9e2033
+R f4df5277be0b8e4ab67499333edd8043
 U wyoung
-Z 7952efe8e6cdf33e53cea8e452bf5966
+Z d17f533dbff85ca67c41064167c3a90e

@@ -583,14 +583,14 @@ are some others we haven't gotten to yet.
 <h3>Asides and Digressions</h3>
 
 <i><small><ol>
-    <li><p>Git does not include a wiki, a ticket tracker, a forum, or a
-    tech-note feature, so those elements will not transfer when
-    exporting from Fossil to Git. GitHub adds some of these to stock
+    <li><p>[./mirrorlimitations.md|Many
+    things are lost] in making a Git mirror of a Fossil repo due to
+    limitations of Git relative to Fossil. GitHub adds some of these
+    missing features to stock
     Git, but because they're not part of Git proper,
     [./mirrortogithub.md|exporting a Fossil repository to GitHub] will
     still not include them; Fossil tickets do not become GitHub issues,
-    for example.  See further discussion in the
-    [./mirrorlimitations.md|Limitations on Git Mirrors] document</p></li>
+    for example.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
