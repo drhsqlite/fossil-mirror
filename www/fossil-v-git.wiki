@@ -44,7 +44,7 @@ with further description in the text that follows.
     <td>256-bit SHA-3</td></tr>
 </table></blockquote>
 
-<h3 id="features">2.1 Feature Set</h3>
+<h3 id="features">2.1 Featureful</h3>
 
 Git provides file versioning services only, whereas Fossil adds
 an integrated [./wikitheory.wiki | wiki],
@@ -70,18 +70,66 @@ and managing a wide assortment of separate tools.  Standing up a developer
 website using Fossil can be done in minutes, whereas doing the same using
 Git requires hours or days.
 
-All of this is complete and self-contained in Fossil.
-If you clone [https://github.com/git/git|Git's self-hosting repository],
-you get just Git's source code.
-If you clone Fossil's self-hosting repository, you get the entire
-Fossil website — source code, documentation, ticket history, and so forth.
-That means you get a copy of this very article and all of its historical
-versions, plus the same for all of the other public content on this
-site.²
+Fossil is small, complete, and self-contained.  If you clone
+[https://github.com/git/git|Git's self-hosting repository], you get just
+Git's source code.  If you clone Fossil's self-hosting repository, you
+get the entire Fossil website — source code, documentation, ticket
+history, and so forth.² That means you get a copy of this very article
+and all of its historical versions, plus the same for all of the other
+public content on this site.
+
+
+<h3 id="efficient" name="effective">2.2 Efficient and Effective</h3>
+
+Git is actually a collection of many small tools, each doing one small
+part of the job, which can be recombined (by experts) to perform
+powerful operations. Git has a lot of complexity and many dependencies,
+so that most people end up installing it via some kind of package
+manager, simply because these problems are best delegated to people
+skilled in the creation of binary softare packages.
+
+Fossil is a single self-contained stand-alone executable with hardly any
+dependencies. Fossil can be (and often is) run inside a minimally
+configured [https://en.wikipedia.org/wiki/Chroot|chroot jail]. To
+install Fossil, one merely puts the executable somewhere in the
+<tt>$PATH</tt>.
+
+This difference is especially stark on Windows: you need to drag along a
+Cygwin or MSYS environment to get Git running on Windows due to all of
+its third-party dependencies. Installing Fossil on Windows is the same
+as installing it on every other OS: download the executable and drop it
+in the <tt>%PATH%</tt> somewhere.
+
+Some say that Git more closely adheres to the Unix philosophy,
+summarized as "many small tools, loosely joined," but we have many
+examples of other successful Unix software that violates that principle
+to good effect, from Apache to Python to ZFS. We can infer from that
+that this is not an absolute principle of good software design.
+Sometimes "many features, tightly-coupled" works better. What actually
+matters is effectiveness and efficiency. We believe Fossil achieves
+this.
+
+Git fails on efficiency once you add to it all of the third-party
+software needed to give it a Fossil-equivalent feature set. Consider
+[https://about.gitlab.com/|Gitlab], a third-party extension to Git
+wrapping it in many features, making int roughly Fossil-equivalent,
+though [https://docs.gitlab.com/ee/install/requirements.html|much more
+resource hungry] and hence more costly to run than the equivalent
+Fossil setup. Gitlab's requirements are tolerable when you're dedicating
+a local rack server or blade to it, since that's about the smallest
+thing you could call a "server" these days, but when you go to host that
+in the cloud, you can expect to pay about 8⨉ as much to comfortably host
+Gitlab as for Fossil.  This difference is largely due to basic
+technology choices: Ruby and PostgreSQL vs C and SQLite.
+
+The Fossil project itself is [./selfhost.wiki|hosted on a very small
+VPS], and we've received many reports on the Fossil forum about people
+successfully hosting Fossil service on bare-bones $5/month VPS hosts,
+spare Raspberry Pi boards, and other small hosts.
 
 
 
-<h3 id="database">2.2 Database</h3>
+<h3 id="database">2.3 Durable</h3>
 
 The baseline data structures for Fossil and Git are the same, modulo
 formatting details.  Both systems store check-ins as immutable
@@ -126,7 +174,7 @@ maintain enhanced awareness and comprehension
 and avoid errors.
 
 
-<h3 id="vs-linux">2.3 Linux vs. SQLite</h3>
+<h3 id="vs-linux">2.4 Linux vs. SQLite</h3>
 
 Fossil and Git promote different development styles because each one was
 specifically designed to support the creator's main software
@@ -147,7 +195,7 @@ When deciding between these two DVCSes, you should ask yourself, "Is my
 project more like Linux or more like SQLite?"
 
 
-<h4 id="devorg">2.3.1 Development Organization</h4>
+<h4 id="devorg">2.4.1 Development Organization</h4>
 
 Eric S. Raymond's seminal essay-turned-book
 "[https://en.wikipedia.org/wiki/The_Cathedral_and_the_Bazaar|The
@@ -259,7 +307,7 @@ Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
 
 
-<h4 id="scale">2.3.2 Scale</h4>
+<h4 id="scale">2.4.2 Scale</h4>
 
 The Linux kernel has a far bigger developer community than that of
 SQLite: there are thousands and thousands of contributors to Linux, most
@@ -286,7 +334,7 @@ wrench] running at 8000 RPM driving an M8 socket-cap bolt at 16 cm/s is
 not the best way to hang a picture on the living room wall.
 
 
-<h4 id="contrib">2.3.3 Accepting Contributions</h4>
+<h4 id="contrib">2.4.3 Accepting Contributions</h4>
 
 As of this writing, Git has received about 4.5⨉ as many commits as
 Fossil resulting in about 2.5⨉ as many lines of source code. The line
@@ -332,7 +380,7 @@ The end result is that Fossil more closely adheres to
 principle of least astonishment] than Git does.
 
 
-<h3 id="branches">2.4 Individual Branches vs. The Entire Change History</h3>
+<h3 id="branches">2.5 Individual Branches vs. The Entire Change History</h3>
 
 Both Fossil and Git store history as a directed acyclic graph (DAG)
 of changes, but Git tends to focus more on individual branches of
@@ -359,49 +407,6 @@ with just a handful of active committers.  Seeing all
 changes on all branches all at once helps keep the whole team
 up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
-
-
-<h3 id="executables">2.5 Lots of little tools vs. Self-contained system</h3>
-
-Git consists of many small tools, each doing one small part of the job,
-which can be recombined (by experts) to perform powerful operations.
-Git has a lot of complexity and many dependencies and requires an "installer"
-script or program to get it running.
-
-Fossil is a single self-contained stand-alone executable with hardly
-any dependencies.  Fossil can be (and often is) run inside a
-minimally configured [https://en.wikipedia.org/wiki/Chroot|chroot jail]. To install Fossil,
-one merely puts the executable somewhere in the <tt>$PATH</tt>.
-
-This difference is especially stark on Windows: you need to drag along a
-Cygwin or MSYS environment to get Git running on Windows due to all of
-its third-party dependencies. Installing Fossil on Windows is the same
-as installing it on every other OS: download the executable and drop it
-in the path somewhere.
-
-The designer of Git says that the Unix philosophy is to have lots of
-small tools that collaborate to get the job done.  The designer of
-Fossil says that the Unix philosophy is "It just works."  Both
-individuals have written their DVCSes to reflect their own view
-of the "Unix philosophy."
-
-This point combines with the [#features|feature set differences] in an
-interesting way: although you can add third-party pieces to Git to give
-it equivalent functionality to what Fossil delivers out of the box, the
-resulting system will doubtlessly be far less efficient than an
-equivalent Fossil setup. We've received many reports on the Fossil forum
-about people successfully hosting Fossil service on bare-bones $5/month
-VPS hosts, spare Raspberry Pi boards, and similarly resource-constrained
-environments. Contrast a feature-requivalent like Gitlab, which has
-[https://docs.gitlab.com/ee/install/requirements.html|far steeper
-demands] due to basic differences in technology choices: Ruby and
-PostgreSQL vs C and SQLite!  Gitlab's recommended minimum requirements
-are fine when you're dedicating a local rack server to Gitlab, since
-that's about the smallest thing you could call a "server" these days,
-but when you go to host that in the cloud, their 8&nbsp;GiB of RAM and 2
-CPU core recommendation costs about 8⨉ as much as a comfortable hosting
-environment for Fossil in a recent check at a major VPS hosting
-provider.
 
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>

@@ -58,7 +58,8 @@ repository: /home/hwaci/fossil/fossil.fossil
 In recent years, virtual private servers have become a more flexible and
 less expensive hosting option compared to shared hosting accounts.
 So on 2017-07-25, server (3) was moved
-onto a $5/month "droplet" VPS from [https://www.digitalocean.com|Digital Ocean]
+onto a $5/month "droplet" [https://en.wikipedia.org/wiki/Virtual_private_server|VPS]
+from [https://www.digitalocean.com|Digital Ocean]
 located in San Francisco.
 
 Server (3) is synchronized with the canonical server (1) by running
