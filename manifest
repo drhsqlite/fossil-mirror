@@ -1,5 +1,5 @@
-C Added\sinfo\sabout\salthttpd\sto\sfootnote\s2\sin\sfossil-v-git.wiki,\swhich\ngives\sdetails\sabout\sthe\sweb\sserving\sconfiguration\sof\sfossil-scm.org.
-D 2019-08-07T08:41:22.284
+C Added\sa\snew\ssection\sto\sfossil-v-git.wiki,\s"2.4\sPortable"\scovering\show\nmuch\smore\sportable\sFossil\sis\sthan\sGit\sand\sits\scommon\sthird-party\nextensions.
+D 2019-08-07T09:45:34.261
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki e5acf78ed9af450de900cfbbdb6682465c0c725adb520a8e58502596e11bce3f
+F www/fossil-v-git.wiki ae8a5f3a4614090bfcb38edc94a8fffe0d413702f5394c15a7f7af0d099f9d2e
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 977109d30893d726a382ea621ef4db17067e6421ebe9092e22b7ed718db63edf
-R 2c27832538a70d456aa6dfd821671087
+P 5866461ef0feb1907940c40d0ede67cb699942d224c007ac79a1fa26e55ea6e4
+R e5bd6c9fd0ee454fb94efce432c54c7c
 U wyoung
-Z 77473987af5407b07eb0d6dd597b3f4c
+Z 4b88ad34f9ce25bd3b4168fd2951235d
