@@ -282,9 +282,13 @@ development model:
     Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
     of a guy in a room]."</p></li>
 
-    <li><p><b>Branch names sync:</b> Unlike in Git, branch names are not
-    purely local labels. They sync along with everything else, so
-    everyone sees the same set of branch names.</p></li>
+    <li><p><b>Branch names sync:</b> Unlike in Git, branch names in
+    Fossil are not purely local labels. They sync along with everything
+    else, so everyone sees the same set of branch names. Fossil's design
+    choice here is a direct reflection of the Linux vs. SQLite project
+    outlook: SQLite's developers collaborate closely on a single
+    conherent project, whereas Linux's developers go off on tangents and
+    occasionally sync changes up with each other.</p></li>
 
     <li><p><b>Private branches are rare:</b>
     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
@@ -536,15 +540,6 @@ are some others we haven't gotten to yet.
    notation meaning "the parent of HEAD" (what Fossil simply
    [./checkin_names.wiki|calls "prev"]) but there is no way to ask Git
    for the child of the current checkin, as with "next" in Fossil.
-
-  *  <b>Named branches</b>
-
-   Branches in Fossil have persistent names that are propagated
-   to collaborators via [/help?cmd=push|push] and [/help?cmd=pull|pull].
-   All developers see the same name on the same branch.  Git, in contrast,
-   uses only local branch names, so developers working on the
-   same project can (and frequently do) use a different name for the
-   same branch.
 
   *  <b>The [/help?cmd=all|fossil all] command</b>
 
