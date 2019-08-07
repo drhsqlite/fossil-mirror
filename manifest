@@ -1,5 +1,5 @@
-C Add\san\sSQLite\scompatibility\stest\sprogram\sand\srun\sthat\sprogram\sduring\nthe\s"./configure"\sif\sthe\s--disable-internal-sqlite\soption\sis\sused\sin\sorder\nto\sverify\sthat\sthe\ssystem\sSQLite\slibrary\shas\sall\sof\sthe\scapabilities\sthat\nwe\sneed.
-D 2019-08-07T11:34:35.847
+C More\sdetails\son\salthttpd\sin\sthe\ssection\sof\swww/ssl.wiki\sthat\sdiscusses\nthe\sstunnel\s+\salthttpd\s+\sfossil\sserving\soption\sused\sby\sfossil-scm.org\nand\ssqlite.org.
+D 2019-08-07T11:50:12.858
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -870,7 +870,7 @@ F www/server.wiki a17e88d9a61b076ac1277ea9705f7bbd73b8b78eb879732dabc6215a639c0d
 F www/serverext.wiki 168c825b3032e74272e1021ce2fe6a863198fa7ef1766292f546e543008116e8
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki 199c0dad02d0f78ad645c9a0f1233ee63f7e8df3d66872e1919b93259546dffd
+F www/ssl.wiki bcc31b138c15144370415cb08fc586b013b374ed720d97f36a2c9d5f321c46aa
 F www/stats.wiki 32bbb5df33013ccfcfe02fb5a678520701084014a2bcf0978326e548743769d4
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 05b89b565cb5d8eb37f601b2313a70e78913af6c52801b4472fe7dcbd43389e9
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 92dc1021580c8c68e02b06cc2cdd94d1b1c378e1c2ce49d1bff90cb6e5c9e9d5
-R 66b7bc90f8694f8745577e75ebc489f5
-U drh
-Z 2e62e34def91e8fb79a9d665baa77523
+P 350c627a52908458a2c598f3134ce76266f3479545c5b2484aa46b2868aa3628
+R f7a6515fdbaf527731681ac1bd68b9b9
+U wyoung
+Z b0256e69d95f72ee1edc2b298d5f1d86
