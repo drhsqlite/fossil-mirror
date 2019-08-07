@@ -154,6 +154,7 @@ if {![opt-bool internal-sqlite]} {
     lappend cmdline {*}[get-define CCACHE]
     lappend cmdline {*}[get-define CC] {*}[get-define CFLAGS]
     lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
+    lappend cmdline {*}[get-define LDFLAGS]
     lappend cmdline {*}[get-define LIBS]
     set ok 1
     set err [catch {exec-with-stderr {*}$cmdline} result errinfo]
