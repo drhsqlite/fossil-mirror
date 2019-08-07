@@ -600,11 +600,17 @@ are some others we haven't gotten to yet.
     <li><p>The <tt>fossil-scm.org</tt> web site is actually hosted in
     several parts, so that it is not strictly true that "everything" on
     it is in the self-hosting Fossil project repo. The web forum is
-    hosted as a separate Fossil repo from the code for administration
-    reasons, and the Download page content isn't normally sync'd with a
-    "<tt>fossil clone</tt>" command unless you add the "-u" option.
-    See the description of [./aboutdownload.wiki|how download is implemented]
-    for details.
+    hosted as [https://fossil-scm.org/forum/|a separate Fossil repo]
+    from the [https://fossil-scm.org/fossil/|main Fossil self-hosting
+    repo] for administration reasons, and the Download page content
+    isn't normally sync'd with a "<tt>fossil clone</tt>" command unless
+    you add the "-u" option.  (See "[./aboutdownload.wiki|How the
+    Download Page Works]" for details.) There may also be some purely
+    static elements of the web site served via D. Richard Hipp's own
+    lightweight web server,
+    <tt>[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|althttpd]</tt>,
+    which is configured as a front end to Fossil running in CGI mode on
+    these sites.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
