@@ -1,5 +1,5 @@
-C Many\simprovements\sto\ssection\s"2.3\sDurable"\sin\sfossil-v-git.wiki,\slargely\ninvolving\sthe\smerger\sof\sa\snear-repeat\sof\sthe\ssame\spoints\sdown\sin\ssection\n3.1,\sbut\salso\sadding\smore\sinformation\semphasizing\sthe\sdurability\sof\nSQLite\sDBs\sin\sgeneral\sand\sFossil\srepos\sin\sspecific.
-D 2019-08-07T10:16:55.426
+C Added\sa\snamed\sanchor\sto\sfossil-v-git.wiki\sdoc
+D 2019-08-07T10:17:38.842
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 7936633cea665cb9e88a15fe6dc04c36f147c718bddaf458d58f2fbeb0f25dbc
+F www/fossil-v-git.wiki 64025f4da89622c2cdd748c0e4634e8a1c1e69e5c66e752d6bd5bc54c12743dd
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 64a33a643ff3ea6d9347352100d7011a18964b848e278eb52e86899678bb3613
-R 43a4959610807af2ba99c23e6b0caf63
+P cd989fed408504f5aaa61f0003b933633ecd297ef116a0debb02cdd4c8a7367b
+R bd3516f0c6b11308026c9e6a9e1ebab1
 U wyoung
-Z b2d232d5e60bef11be2ed600bfd9fb46
+Z 0430836562a04e1a34a590e406dffc2e

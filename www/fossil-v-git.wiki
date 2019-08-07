@@ -125,7 +125,7 @@ spare Raspberry Pi boards, and other small hosts.
 
 
 
-<h3 id="database">2.3 Durable</h3>
+<h3 id="durable" name="database">2.3 Durable</h3>
 
 The baseline data structures for Fossil and Git are the same, modulo
 formatting details.  Both systems store check-ins as immutable
