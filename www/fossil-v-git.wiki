@@ -601,8 +601,9 @@ are some others we haven't gotten to yet.
     it is in the self-hosting Fossil project repo. The web forum is
     hosted as a separate Fossil repo from the code for administration
     reasons, and the Download page content isn't normally sync'd with a
-    "<tt>fossil clone</tt>" command due to [./aboutdownload.wiki|the way
-    it's implemented].
+    "<tt>fossil clone</tt>" command unless you add the "-u" option.
+    See the description of [./aboutdownload.wiki|how download is implemented]
+    for details.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>

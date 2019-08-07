@@ -1,5 +1,5 @@
-C Added\sfootnote\s2\sto\sthe\sfossil-v-git\sdoc,\swhich\sexplains\sthat\snot\n"everything"\son\sfossil-scm.org\sis\sin\sthe\smain\sFossil\sself-hosting\srepo,\nand\slinks\sto\sinfo\sexplaining\sthe\sdetails.
-D 2019-08-07T01:45:57.043
+C Minor\supdate\sto\sfootnote\s2\son\sthe\sfossil-v-git\spage.
+D 2019-08-07T01:53:18.778
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -828,7 +828,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 191551aa91a83df91087a1bed9f172169c27a65268f8be40f0780ab88192fe8c
+F www/fossil-v-git.wiki f96887a360eb31c0696a6b4616041a020042b1781b946b10fd86e27da946ca07
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0ef227b77cfc20507db56c1084732b6184616c9326c4109ca1019c335c727eca
-R 16e29e72d2a5ce69b347e1467b1baac6
-U wyoung
-Z 6df63440966355cea9c09be7d52b4bae
+P d23a8453c55bcfbaee76660a7d6385dc5c6b78def376242660194a6b6119960b
+R 59b228080252fe9fe73b6bcd7a72c39e
+U drh
+Z f4f12267f7bb502c82f58c395cee3ee6
