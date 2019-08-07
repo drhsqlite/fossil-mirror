@@ -116,7 +116,7 @@ software needed to give it a Fossil-equivalent feature set. Consider
 wrapping it in many features, making it roughly Fossil-equivalent,
 though [https://docs.gitlab.com/ee/install/requirements.html|much more
 resource hungry] and hence more costly to run than the equivalent
-Fossil setup. GitLab's requirements are tolerable when you're dedicating
+Fossil setup. GitLab's basic requirements are easy to accept when you're dedicating
 a local rack server or blade to it, since that's about the smallest
 thing you could call a "server" these days, but when you go to host that
 in the cloud, you can expect to pay about 8⨉ as much to comfortably host
