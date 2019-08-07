@@ -1,5 +1,5 @@
-C Added\ssection\s2.8\sto\sthe\sfossil-v-git\sdoc:\s"Hash\sAlgorithm:\sSHA-3\svs\nSHA-2\svs\sSHA-1".
-D 2019-08-07T00:42:09.719
+C Updated\sthe\s"A\sPure\sSHA3\sFuture"\ssection\sof\swww/hashpolicy.wiki\sto\strack\nthe\srecent\sdecision\sto\smake\s"sha3"\smode\sthe\sdefault\sin\sFossil\s2.10.
+D 2019-08-07T00:53:14.801
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -842,7 +842,7 @@ F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki adc959812858923e0fa13bf4cd73924761db3816fc541a6d575c425a61c2c27c
-F www/hashpolicy.wiki 67069cee03a4759783ca175396a2ac28b9439635b3067d5de3ede3fda96f009b
+F www/hashpolicy.wiki 99f34f27bee7cca42451646bded6d5d13f991532cd04bb4a2f1ed1f27e27d1a6
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md 9e8b06d2511a672a7bed6b833d10ef8f8c82b2b75fe631682de159e8549b3bec
@@ -886,7 +886,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31bbb40f13184e9e5a935ec39ee7653f38f298202a38acfe406a03956cf2305f
-R e4ba1bf69ebe464aa872f11cd0ebca4f
+P 42b8890cc246d69f5cbed9bd228f2c8465bff3cdc395084cb2d940035a87e2b5
+R 2bb0379df209a0da0a24c85ffdba79e3
 U wyoung
-Z 60a6b5a67d070462496939f46804e8d7
+Z 7952efe8e6cdf33e53cea8e452bf5966
