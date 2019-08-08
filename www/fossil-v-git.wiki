@@ -180,7 +180,7 @@ Fossil, on the other hand, parses essential information about check-ins
 relational database that can be easily queried using concise SQL
 statements to find both ancestors and descendants of a check-in. This is
 the hybrid data model mentioned above: Fossil manages your check-in and
-other data in NoSQL block chain structured data store, but that's backed
+other data in a NoSQL block chain structured data store, but that's backed
 by a set of relational lookup tables for quick indexing into that
 artifact store.  (See "[./theory1.wiki|Thoughts On The Design Of The
 Fossil DVCS]" for more details.)
@@ -210,9 +210,10 @@ situational awareness, aid comprehension, and avoid errors.
 
 Fossil is largely written in ISO C, almost purely conforming to the
 original 1989 standard. We make very little use of
-[https://en.wikipedia.org/wiki/C99|C99], and even less of
+[https://en.wikipedia.org/wiki/C99|C99], and we do not knowingly make
+any use of
 [https://en.wikipedia.org/wiki/C11_(C_standard_revision)|C11]. Fossil
-does make use of POSIX and Windows APIs where necessary, but it's about
+does call POSIX and Windows APIs where necessary, but it's about
 as portable as you can ask given that ISO C doesn't define all of the
 facilities Fossil needs to do its thing. (Network sockets, file locking,
 etc.) There are certainly well-known platforms Fossil hasn't been ported
@@ -223,25 +224,24 @@ several megs of flat-addressed memory.⁴ Fossil isn't quite as
 [https://www.sqlite.org/custombuild.html|portable as SQLite], but it's
 close.
 
-About half of the code in Fossil is actually an embedded copy of the
+Over half of the C code in Fossil is actually an embedded copy of the
 current version of SQLite. Much of what is Fossil-specific after you set
 SQLite itself aside is SQL code calling into SQLite. The number of lines
 of SQL code in Fossil isn't large by percentage, but since SQL is such
 an expressive, declarative language, it has an outsized contribution to
 Fossil's user-visible functionality.
 
-Fossil also makes good use of JavaScript for its web UI, and there's a
-fair bit of use of the [https://en.wikipedia.org/wiki/Tcl|Tcl] and
-[https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1] scripting
-languages. These do not hamper Fossil's portability, since they are also
-all quite portable technologies themselves.
+Fossil isn't entirely C and SQL code. Its web UI uses JavaScript where
+necessary.⁵ The server-side
+UI scripting usse a custom minimal
+[https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
+[https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
+embedeed into Fossil itself. Fossil's build system and test suite are
+largely based on Tcl.⁶ All of this is quite portable.
 
-Git is largely portable only to POSIX platforms. About half its code is
-POSIX C, and about a third of it is POSIX shell code. There's also
-quite a lot of Perl, Tcl, and Python code in Git. Although these
-technologies are quite portable within the sphere of POSIX OSes, they're
-quite foreign to Windows, which is why the so-called "Git for Windows"
-distributions (both [https://git-scm.com/download/win|first-party] and
+About half of Git's code is POSIX C, and about a third is POSIX shell
+code. This is largely why the so-called "Git for Windows" distributions
+(both [https://git-scm.com/download/win|first-party] and
 [https://gitforwindows.org/|third-party]) are actually an
 [http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
@@ -255,7 +255,8 @@ line endings are treated as first-class citizens over CR+LF, for example
 The third-party extensions to Git tend to follow this same pattern.
 [http://mingw.org/wiki/msys|GitLab isn't portable to Windows at all],
 for example. For that matter, GitLab isn't even officially supported on
-macOS, the BSDs, or uncommon Linuxes!
+macOS, the BSDs, or uncommon Linuxes! We have many users who regularly
+build and run Fossil on all of these systems.
 
 
 <h3 id="vs-linux">2.5 Linux vs. SQLite</h3>
@@ -335,7 +336,7 @@ development model:
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
     contributions]. Fossil's closest equivalent is its unique
     [/help?cmd=bundle|bundle] feature, which requires higher engagement
-    than firing off a PR.⁵ This difference comes directly from the
+    than firing off a PR.⁷ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
     the Linux kernel does.</p></li>
@@ -689,9 +690,25 @@ are a few remaining feature differences we haven't gotten to yet.
     requirements among Digital Ocean's offerings currently costs
     $40/month.
 
-    <li><p>We have yet to hear from someone who has ported Fossil to
-    [https://en.wikipedia.org/wiki/Z/OS|z/OS], for example, though it
-    should be quite possible.
+    <li><p>This means you can give up waiting for Fossil to be ported to
+    the PDP-11, but we remain hopeful that someone may eventually port
+    it to [https://en.wikipedia.org/wiki/Z/OS|z/OS].
+
+    <li><p>We try to keep use of Javascript to a minimum in the web UI,
+    and we always try to provide sensible fallbacks for those that run
+    their browsers with Javascript disabled. Some features of the web UI
+    simply won't run without Javascript, but the UI behavior does
+    degrade gracefully.
+
+    <li><p>"Why is there all this Tcl in and around Fossil?" you may
+    ask. It is because D. Richard Hipp is a long-time Tcl user and
+    contributor. SQLite started out as an embedded database for Tcl
+    specifically. ([https://sqlite.org/tclsqlite.html | [Reference]])
+    When he then created Fossil to manage the development of SQLite, it
+    was natural for him to use Tcl-based tools for its scripting, build
+    system, test system, etc. It came full circle in 2011 when
+    [https://www.reddit.com/r/programming/comments/fwrx5/tcl_and_tk_move_away_from_cvs_to_fossil/
+    | the Tcl and Tk projects moved from CVS to Fossil].
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>

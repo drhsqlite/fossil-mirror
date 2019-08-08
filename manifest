@@ -1,5 +1,5 @@
-C Deferred\sdiscussion\sof\sdata\smodeling\sfrom\sthe\sintro\sof\sfossil-v-git\sto\nsection\s2.3\swhere\sit's\sfully\scovered.\s\sThis\smaterial\snow\stalks\smore\nclearly\sabout\sFossil's\shybrid\sNoSQL/relational\sdata\smodel,\srather\sthan\nhandwave\sit\sas\s"relational".
-D 2019-08-08T05:11:45.231
+C Clarity\spass\son\sthe\snew\s"Portable"\ssection\sof\sfossil-v-git.wiki\sarticle.
+D 2019-08-08T05:44:04.434
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki fff39f5d05fb7acb333a16be793e7c073ae218f5bebfb7ef1a26d4d654f153ef
+F www/fossil-v-git.wiki 759d8d253390838dcd2bec2b747ed9f7833ac1f0b610101255a4d4469c58251a
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P efc873ec6845ea25ef498fd13da187ef59b9ea6ed6ed2a2c68e8f502d540accb
-R 558731aeb2487cd858a8b000ab23a11c
+P e2998923418e6b6616c853e8ffba897fd6a588dd3a96640eb8808b49b958920c
+R a8df3f460840f06a52d91a930493d54c
 U wyoung
-Z 87c45dec0bc9b0f1a62939c72341f82f
+Z 8135201fa24614d31104f24ad9ba3e04
