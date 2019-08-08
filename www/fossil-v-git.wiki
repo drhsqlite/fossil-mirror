@@ -16,7 +16,7 @@ private branches, a stash, etc.
 
 Fossil has inbound and outbound Git conversion features, so if you start
 out using one DVCS and later decide you like the other better, you can
-easily [./inout.wiki | move you version-controlled file content].¹
+easily [./inout.wiki | move your version-controlled file content].¹
 
 The purpose of this document is to cover the important differences
 between the two, especially those that impact the user experience.
