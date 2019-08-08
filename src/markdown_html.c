@@ -327,11 +327,16 @@ static int html_autolink(
   return 1;
 }
 
-static int html_code_span(struct Blob *ob, struct Blob *text, void *opaque){
+static int html_code_span(
+  struct Blob *ob,
+  struct Blob *text,  /* The stuff in between the code span marks */
+  int nSep,           /* Number of grave accents marks as delimiters */
+  void *opaque
+){
   if( text ){
-    BLOB_APPEND_LITERAL(ob, "<code>");
+    blob_append(ob, nSep>=3 ? "<pre>" : "<code>", -1);
     html_escape(ob, blob_buffer(text), blob_size(text));
-    BLOB_APPEND_LITERAL(ob, "</code>");
+    blob_append(ob, nSep>=3 ? "</pre>" : "</code>", -1);
   }
   return 1;
 }

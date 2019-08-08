@@ -69,7 +69,7 @@ struct mkd_renderer {
   /* span level callbacks - NULL or return 0 prints the span verbatim */
   int (*autolink)(struct Blob *ob, struct Blob *link,
           enum mkd_autolink type, void *opaque);
-  int (*codespan)(struct Blob *ob, struct Blob *text, void *opaque);
+  int (*codespan)(struct Blob *ob, struct Blob *text, int nSep, void *opaque);
   int (*double_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
   int (*emphasis)(struct Blob *ob, struct Blob *text, char c,void*opaque);
@@ -750,9 +750,9 @@ static size_t char_codespan(
   if( f_begin<f_end ){
     struct Blob work = BLOB_INITIALIZER;
     blob_init(&work, data+f_begin, f_end-f_begin);
-    if( !rndr->make.codespan(ob, &work, rndr->make.opaque) ) end = 0;
+    if( !rndr->make.codespan(ob, &work, nb, rndr->make.opaque) ) end = 0;
   }else{
-    if( !rndr->make.codespan(ob, 0, rndr->make.opaque) ) end = 0;
+    if( !rndr->make.codespan(ob, 0, nb, rndr->make.opaque) ) end = 0;
   }
   return end;
 }

@@ -1,5 +1,5 @@
-C Moved\sthe\scomment\sabout\slearning\sfrom\sGit's\sdesign\smistakes\sto\sa\splace\nhigher\sup\sin\sthe\sdocument\swhere\sit\smakes\smore\ssense.\s\sIt\swas\salmost\sa\nnon\ssequitur\swhere\sit\swas\sbefore.
-D 2019-08-08T05:55:51.403
+C A\striple\sgrave\saccent\squoted\stext\s(```....```)\sis\srendered\sinside\sof\n&lt;pre&gt;...&lt;/pre&gt;.
+D 2019-08-08T20:35:09.164
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,9 +523,9 @@ F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2ade
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
-F src/markdown.c fa512af1446b7773a0177668a1790d60925ae0e81f6ef1767f8b3aacbe4644be
+F src/markdown.c 25d57b88b19251f60a72daa18de98f9ad41fbdd3cfb528afeaafac977cdcc63a
 F src/markdown.md 6882d37e282154b82893390557874904b3f5e830dabaea1c3810a8a83169af9b
-F src/markdown_html.c c3992bc7eb9806d3fb4ed146d217a77c9ba63ca69c1d2c785557f3aa9c2b5c94
+F src/markdown_html.c 6742f525361996425f2297e5eb1aa3b86c30f75797dfa553b60a36cba3ebc125
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4b574be4e58dbd509b6c7f73519a356b890f491611ce058afa8d1ea8e877fe4d
-R 7f23bea6facc6c15826a84dafd749940
-U wyoung
-Z 28a6c9759ee327b73e2dfdecbb59c341
+P 0e0d76ee274e1591ab1fcd18fbd03075f5696db1f010fd500a9e3158d8f275c4
+R 1d3b3c3d6d91b6609aa65eb20d8d3e16
+U drh
+Z a65ac05bba6f3ada34c766e9bf2a12fa
