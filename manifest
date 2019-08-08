@@ -1,5 +1,5 @@
-C Typo\sfix\spass\son\swww/*
-D 2019-08-08T04:23:52.858
+C Reworked\sthe\sintro\sto\sfossil-v-git.wiki\sto\sflow\sbetter\sand\sbe\sclearer.
+D 2019-08-08T04:33:22.168
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 1d3d2571ab83ac38e7cd20f6260f9fd353c415243ff4cb932533e240058f40b5
+F www/fossil-v-git.wiki c7ee904aa7e9d334ba2a4aea142528640512a50e3d5f7b9a2024ffc05980bd1d
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf25835f6bc9b6af46aa5547959f38520bd8e70dc4b1d8189c94e691582d6c67
-R 11bd1b818937d6386a6f2aa0e5c9e1bb
+P 79c2cb083152d2c6ca8a284b208e296c3a258bcb048804c1b45b65d697f2dbb5
+R ee0f4b842068aee8a0ba3b3ad33a92f4
 U wyoung
-Z 0307badc9c373b031379851296752178
+Z 6553c24fb4758b8dac9ffb24cf18f2de

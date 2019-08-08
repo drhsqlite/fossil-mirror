@@ -2,9 +2,6 @@
 
 <h2>1.0 Don't Stress!</h2>
 
-If you start out using one DVCS and later decide you like the other better,
-you can easily [./inout.wiki | move your content].¹
-
 The feature sets of Fossil and [http://git-scm.com | Git] overlap in
 many ways. Both are
 [https://en.wikipedia.org/wiki/Distributed_version_control | distributed
@@ -17,13 +14,17 @@ clone can be pushed up to a remote parent, and changes to the remote can
 be easily pulled down to the local clone.  Both systems offer bisecting,
 private branches, a stash, etc.
 
-There are also, however, many important differences between these two
-DVCSes. We summarize the major differences in the following table, then
-detail those differences in the following text.
+Fossil has inbound and outbound Git conversion features, so if you start
+out using one DVCS and later decide you like the other better, you can
+easily [./inout.wiki | move you version-controlled file content].¹
+
+The purpose of this document is to cover the important differences
+between the two, especially those that impact the user experience.
 
 Keep in mind that you are reading this on a Fossil website, and though
 we try to be fair, the information here
-might be biased in favor of Fossil.  Ask around for second opinions from
+might be biased in favor of Fossil, if only because we spend most of our
+time using Fossil, not Git.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
 
