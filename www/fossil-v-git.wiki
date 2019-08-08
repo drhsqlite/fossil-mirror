@@ -205,6 +205,9 @@ Fossil simply calls "prev", but there <i>is</i> a "next"
 has so many [./webpage-ex.md|built-in status reports] to help maintain
 situational awareness, aid comprehension, and avoid errors.
 
+These differences are due, in part, to Fossil's start a year later than
+Git: we were able to learn from its key design mistakes.
+
 
 <h3 id="portable">2.4 Portable</h3>
 
@@ -411,9 +414,7 @@ having such a large set of developers working on such a large code base.
 95% of the code in SQLite comes from just four programmers, and 64% of
 it is from the lead developer alone. The SQLite developers know each
 other well and interact daily. Fossil was designed for this development
-model. As well, we think the fact of Fossil's birth a year later
-than Git allowed it to learn from some of the key design mistakes in
-Git.
+model.
 
 We think you should ask yourself whether you have Linus Torvalds scale
 software configuration management problems or D. Richard Hipp scale
