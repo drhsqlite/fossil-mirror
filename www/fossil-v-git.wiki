@@ -129,10 +129,11 @@ wrapping it in many features, making it roughly Fossil-equivalent,
 though [https://docs.gitlab.com/ee/install/requirements.html|much more
 resource hungry] and hence more costly to run than the equivalent
 Fossil setup. GitLab's basic requirements are easy to accept when you're dedicating
-a local rack server or blade to it, since that's about the smallest
+a local rack server or blade to it, since its minimum requirements are
+more or less a description of the smallest
 thing you could call a "server" these days, but when you go to host that
 in the cloud, you can expect to pay about 8⨉ as much to comfortably host
-GitLab as for Fossil. This difference is largely due to basic
+GitLab as for Fossil.³ This difference is largely due to basic
 technology choices: Ruby and PostgreSQL vs C and SQLite.
 
 The Fossil project itself is [./selfhost.wiki|hosted on a very small
@@ -209,7 +210,7 @@ etc.) There are certainly well-known platforms Fossil hasn't been ported
 to yet, but that's most likely due to lack of interest rather than
 inherent difficulties in doing the port. We believe the most stringent
 limit on its portability is that it assumes at least a 32-bit CPU and
-several megs of flat-addressed memory.³ Fossil isn't quite as
+several megs of flat-addressed memory.⁴ Fossil isn't quite as
 [https://www.sqlite.org/custombuild.html|portable as SQLite], but it's
 close.
 
@@ -325,7 +326,7 @@ development model:
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
     contributions]. Fossil's closest equivalent is its unique
     [/help?cmd=bundle|bundle] feature, which requires higher engagement
-    than firing off a PR.⁴ This difference comes directly from the
+    than firing off a PR.⁵ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
     the Linux kernel does.</p></li>
@@ -672,6 +673,12 @@ are a few remaining feature differences we haven't gotten to yet.
     <tt>[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|althttpd]</tt>,
     which is configured as a front end to Fossil running in CGI mode on
     these sites.
+
+    <li><p>That estimate is based on pricing at Digital Ocean in
+    mid-2019: Fossil will run just fine on the smallest instance they
+    offer, at US $5/month, but the closest match to GitLab's minimum
+    requirements among Digital Ocean's offerings currently costs
+    $40/month.
 
     <li><p>We have yet to hear from someone who has ported Fossil to
     [https://en.wikipedia.org/wiki/Z/OS|z/OS], for example, though it
