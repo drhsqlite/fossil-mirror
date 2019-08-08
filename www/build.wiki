@@ -135,7 +135,7 @@ system.
 
 <li><p><i>MinGW 3.x (<u>not</u> 4.x) / MinGW-w64</i> → Use the MinGW makefile:
 "<b>make -f win/Makefile.mingw</b>".  On a Windows box you will need either
-Cygwin or Msys as build environment. On Cygwin, Linux or Darwin you may want
+Cygwin or MSYS as build environment. On Cygwin, Linux or Darwin you may want
 to make minor edits to win/Makefile.mingw to configure the cross-compile
 environment.
 

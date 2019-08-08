@@ -132,7 +132,7 @@ It is perfectly fine for a Fossil repository to only have Setup users,
 no Admin users. The smaller the repository, the more likely the
 repository has no Admin-only users. If the Setup user neither needs nor
 wants to grant Admin power to others, there is no requirement in Fossil
-to do so. [Setup capabilty is a pure superset of Admin capability.][sia]
+to do so. [Setup capability is a pure superset of Admin capability.][sia]
 
 As the number of users on a Fossil repository grows, the value in
 delegating administrivia also grows, because the Setup user typically
@@ -310,7 +310,7 @@ Some features are now and must always be restricted to Setup users only.
 *   **TH1**: The [TH1 language][TH1] is quite restricted relative to the
     Tcl language it descends from, so this author does not believe there
     is a way to damage the Fossil repository or its host via the Admin →
-    TH1 feature, which allows exeuction of arbitrary TH1 code within the
+    TH1 feature, which allows execution of arbitrary TH1 code within the
     repository's execution context. Nevertheless, interpreters are a
     well-known source of security problems, so it seems best to restrict
     this feature to Setup-only users as long as we lack a good reason

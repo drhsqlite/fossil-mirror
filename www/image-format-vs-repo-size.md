@@ -108,7 +108,7 @@ results change with a different image size?  Easy, change the `size`
 value in the second cell of the notebook.  Want to try more image
 formats?  You can put anything ImageMagick can recognize into the
 `formats` list. Want to find the break-even point for images like those
-in your own respository?  Easily done with a small amount of code.
+in your own repository?  Easily done with a small amount of code.
 
 [im]:  https://www.imagemagick.org/
 [jp]:  https://jupyter.org/
@@ -203,7 +203,7 @@ doesn’t need to be run by hand.
 This `Makefile` illustrates two primary strategies:
 
 
-### Input and Ouput File Formats Differ by Extension
+### Input and Output File Formats Differ by Extension
 
 In the case of SVG and the bitmap image formats, the file name extension
 differs between the cases, so we can use `make` suffix rules to get the
@@ -258,7 +258,7 @@ reason:
 4.  The raw data changes somewhat from one run to the next due to the
     use of random noise in the image to make the zlib/PNG compression
     more difficult, and the random pixel changes.  Those test design
-    choices make this a [Monte Carlo experient][mce].  We’ve found that
+    choices make this a [Monte Carlo experiment][mce].  We’ve found that
     the overall character of the results doesn’t change from one run to
     the next.
 

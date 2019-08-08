@@ -16,7 +16,7 @@ so those features are not included in an export.
 
 ## (2) Cherrypick Merges
 
-The Git client supports cherrypick mergs but does not remember them.
+The Git client supports cherrypick merges but does not remember them.
 In other words, Git does not record a history of cherrypick merges
 in its blockchain.
 
@@ -32,7 +32,7 @@ check-in of each branch.  Depending on the check-in graph topology, this
 is sufficient to infer the branch for many historical check-ins as well.
 However, complex histories with lots of cross-merging
 can lead to ambiguities.  Fossil keeps
-track of historical branch names unambigously. 
+track of historical branch names unambiguously. 
 But the extra details about branch names that Fossil keeps
 at hand cannot be exported to Git.
 

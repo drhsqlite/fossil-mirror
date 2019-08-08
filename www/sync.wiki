@@ -85,7 +85,7 @@ that responds.  Nothing more.</p>
 <p>In the current implementation of Fossil, the server only
 understands HTTP requests.  The client can send either
 clear-text HTTP requests or encrypted HTTPS requests.  But when
-HTTPS requests are sent, they first must be decrypted by a webserver
+HTTPS requests are sent, they first must be decrypted by a web server
 or proxy before being passed to the Fossil server.  This limitation
 may be relaxed in a future release.</p>
 
@@ -450,7 +450,7 @@ but its reply message size is already oversized and hence unable to hold
 the usual uvfile reply.
 
 <p>When a client receives a "uvigot" card, it checks to see if the
-file needs to be transfered from client to server or from server to client.
+file needs to be transferred from client to server or from server to client.
 If a client-to-server transmission is needed, the client schedules that
 transfer to occur on a subsequent HTTP request.  If a server-to-client
 transfer is needed, then the client sends a "uvgimme" card back to the
@@ -691,7 +691,7 @@ no further synchronization is required.
 <p>A server sends the uv-pull-only pragma to the client in response
 to a uv-hash pragma with a mismatched content hash argument.  This
 pragma indicates that there are differences in unversioned content
-between the client and server but that content can only be transfered
+between the client and server but that content can only be transferred
 from server to client.  The server is unwilling to accept content from
 the client because the client login lacks the "write-unversioned"
 permission.</p>
@@ -700,7 +700,7 @@ permission.</p>
 <p>A server sends the uv-push-ok pragma to the client in response
 to a uv-hash pragma with a mismatched content hash argument.  This
 pragma indicates that there are differences in unversioned content
-between the client and server and that content can only be transfered
+between the client and server and that content can only be transferred
 in either direction.  The server is willing to accept content from
 the client because the client login has the "write-unversioned"
 permission.</p>

@@ -173,7 +173,7 @@ Fossil, on the other hand, parses essential information about check-ins
 (parents, children, committers, comments, files changed, etc.)
 into a relational database that can be easily
 queried using concise SQL statements to find both ancestors and
-descendents of a check-in.
+descendants of a check-in.
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
@@ -359,7 +359,7 @@ development model:
     else, so everyone sees the same set of branch names. Fossil's design
     choice here is a direct reflection of the Linux vs. SQLite project
     outlook: SQLite's developers collaborate closely on a single
-    conherent project, whereas Linux's developers go off on tangents and
+    coherent project, whereas Linux's developers go off on tangents and
     occasionally sync changes up with each other.</p></li>
 
     <li><p><b>Private branches are rare:</b>
@@ -470,7 +470,7 @@ GitHub, and GitLab tend to show only a single branch at
 a time, whereas Fossil usually shows all parallel branches at
 once.  Git has commands like "rebase" that help keep all relevant
 changes on a single branch, whereas Fossil encourages a style of
-many concurrent branches constantly springing into existance,
+many concurrent branches constantly springing into existence,
 undergoing active development in parallel for a few days or weeks, then
 merging back into the main line and disappearing.
 
@@ -571,7 +571,7 @@ Here in mid-2019, that feature is now in every OS and package repository
 known to include Fossil so that the next release as of this writing
 (Fossil 2.10) will default to enforcing SHA-3 hashes by default. This
 not only solves the SHAttered problem, it should prevent a reoccurrence
-for the forseeable future. Only repositories created before the
+for the foreseeable future. Only repositories created before the
 transition to Fossil 2 are still using SHA-1, and then only if the
 repository's maintainer chose not to switch them into SHA-3 mode some
 time over the past 2 years.
@@ -583,7 +583,7 @@ for solving the same problem by moving to SHA-256 (a variant of the
 February 2019 to release a version containing the change. It's looking
 like this will take years more to percolate through the community.
 
-The practical impact of SHAttered on structred data stores like the one
+The practical impact of SHAttered on structured data stores like the one
 in Git and Fossil isn't clear, but you want to have your repositories
 moved over to a stronger hash algorithm before someone figures out how
 to make use of the weaknesses in the old one.  Fossil's developers moved
@@ -632,7 +632,7 @@ are a few remaining feature differences we haven't gotten to yet.
    Because of its emphasis on recording history exactly as it happened,
    rather than as we would have liked it to happen, Fossil deliberately
    does not provide a "rebase" command.  One can rebase manually in Fossil,
-   with sufficient perserverence, but it is not something that can be done with
+   with sufficient perseverance, but it is not something that can be done with
    a single command.
 
   *  <b>Push or pull a single branch</b>
@@ -680,8 +680,8 @@ are a few remaining feature differences we haven't gotten to yet.
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
     files], a common way to allow drive-by contributions, but it's a
     lossy contribution path for both systems. Unlike Git PRs and Fossil
-    bundles, patch files collapse mulitple checkins together, they don't
+    bundles, patch files collapse multiple checkins together, they don't
     include check-in comments, and they cannot encode changes made above
-    the individual file content layer: you lose branching decisisions,
+    the individual file content layer: you lose branching decisions,
     tag changes, file renames, and more when using patch files.</p></li>
 </ol></i></small>

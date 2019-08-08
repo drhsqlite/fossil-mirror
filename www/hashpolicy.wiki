@@ -114,7 +114,7 @@ artifacts that have never before been encountered.</td>
 <td valign='top'>sha3-only</td>
 <td>Name new artifacts using the SHA3 hash algorithm even if the artifact
 already has a SHA1 name.  In other words, force the use of SHA3.  This can
-cause some artifacts to be added to the respository twice, once under their
+cause some artifacts to be added to the repository twice, once under their
 SHA1 name and again under their SHA3 name.  But delta compression will
 prevent that from causing repository size problems.</td>
 </tr>

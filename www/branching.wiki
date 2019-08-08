@@ -246,7 +246,7 @@ it is done purely in software in order to avoid losing information:
     <li><p id="dist-clone">By Fossil when the cloning hierarchy is more
     than 2 levels deep.
     <br><br>
-    [./sync.wiki|Fossil's synchronication protocol] is a two-party
+    [./sync.wiki|Fossil's synchronization protocol] is a two-party
     negotiation; syncs don't automatically propagate up the clone tree
     beyond that. Because of that, if you have a master repository and
     Alice clones it, then Bobby clones from Alice's repository, a

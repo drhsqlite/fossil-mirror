@@ -66,7 +66,7 @@ fairly simple to set up email alerts.
 service setup.)
 
 This is our "quick setup" option even though setting up an SMTP mail
-server is not trival, because there are many other reasons to have such
+server is not trivial, because there are many other reasons to have such
 a server set up already: internal project email service, `cron`
 notifications, server status monitoring notifications...
 
@@ -196,7 +196,7 @@ and via the default skin's hamburger menu (&#9776;).
 ### Unsubscribing
 
 To unsubscribe from alerts, visit the `/alerts` page on the repository,
-click the "Unsubscribe" button, then check the "Unsbuscribe" checkbox to
+click the "Unsubscribe" button, then check the "Unsubscribe" checkbox to
 verify your action and press the "Unsubscribe" button a second time.
 
 This interlock is intended to prevent accidental unsubscription.
@@ -570,7 +570,7 @@ Administrator-only web pages:
 ## Design of Email Alerts
 
 This section describes the low-level design of the email alert system in
-Fossil.  This expands on the high-level administion focused material
+Fossil.  This expands on the high-level administration focused material
 above with minimal repetition.
 
 This section assumes expert-level systems knowledge. If the material
