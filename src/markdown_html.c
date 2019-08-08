@@ -327,16 +327,48 @@ static int html_autolink(
   return 1;
 }
 
+/* Invoked for `...` blocks where there are nSep grave accents in a
+** row that serve as the delimiter.  According to CommonMark:
+**
+**   *  https://spec.commonmark.org/0.29/#fenced-code-blocks
+**   *  https://spec.commonmark.org/0.29/#code-spans
+**
+** If nSep is 1 or 2, then this is a code-span which is inline.
+** If nSep is 3 or more, then this is a fenced code block
+*/
 static int html_code_span(
-  struct Blob *ob,
+  struct Blob *ob,    /* Write the output here */
   struct Blob *text,  /* The stuff in between the code span marks */
   int nSep,           /* Number of grave accents marks as delimiters */
   void *opaque
 ){
-  if( text ){
-    blob_append(ob, nSep>=3 ? "<pre>" : "<code>", -1);
+  if( text==0 ){
+    /* no-op */
+  }else if( nSep<=2 ){
+    /* One or two graves: an in-line code span */
+    BLOB_APPEND_LITERAL(ob, "<code>");
     html_escape(ob, blob_buffer(text), blob_size(text));
-    blob_append(ob, nSep>=3 ? "</pre>" : "</code>", -1);
+    BLOB_APPEND_LITERAL(ob, "</code>");
+  }else{
+    /* Three or more graves: a fenced code block */
+    int n = blob_size(text);
+    const char *z = blob_buffer(text);
+    int i;
+    for(i=0; i<n && z[i]!='\n'; i++){}
+    if( i>=n ){
+      blob_appendf(ob, "<pre><code>%.*s</code></pre>", n, z);
+    }else{
+      int k, j;
+      i++;
+      for(k=0; k<i && fossil_isspace(z[k]); k++){}
+      if( k==i ){
+        blob_appendf(ob, "<pre><code>%.*s</code></pre>", n-i, z+i);
+      }else{
+        for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
+        blob_appendf(ob, "<pre><code class='language-%#h'>%.*s</code></pre>",
+                          j-k, z+k, n-i, z+i);
+      }
+    }
   }
   return 1;
 }
