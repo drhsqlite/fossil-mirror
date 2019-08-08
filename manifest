@@ -1,5 +1,5 @@
-C Further\srefine\sthe\sfenced\scode\sblock\srendering\sin\smarkdown\sto\stry\sto\ncomply\swith\sthe\sCommonMark\sspec.
-D 2019-08-08T22:26:50.534
+C Fix\sthe\swww/fossil_prompt.sh\sFossilized\sBash\sPrompt\sscript\sso\sthat\sit\sworks\neven\sif\sthe\scurrent\scheck-in\scomment\scontains\sgrave\saccents\s(backticks).
+D 2019-08-08T23:04:54.367
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -838,7 +838,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/fossil_prompt.sh db68e2cae431b9e9f5dd672e2f56e2bde5a57d2a
+F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2077ffe660ec2bcd6cfa5f241b55a9bab8f7eb6f2e2921c8a6fa6b85603e1a1a
-R 7cb9b05ec0f340190b50c28c795fdaa2
+P 81caad6ce6bc412c80b0d1221ca500caad39af5da205dc679025e6233a447b26
+R 4a3728bb37697e88c72bea79728b2334
 U drh
-Z 9a436d8650049a4664cf8ee589709393
+Z 867231184de272d508e1d1f5989e7941
