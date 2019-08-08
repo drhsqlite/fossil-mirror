@@ -5,21 +5,21 @@
 The feature sets of Fossil and [http://git-scm.com | Git] overlap in
 many ways. Both are
 [https://en.wikipedia.org/wiki/Distributed_version_control | distributed
-version control systems] managing a
-[https://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic
-graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
-tree] / [./blockchain.md | block chain] structured check-ins to a local
-repository clone. In both systems, new content added to the local repo
-clone can be pushed up to a remote parent, and changes to the remote can
-be easily pulled down to the local clone.  Both systems offer bisecting,
+version control systems] which store a tree of check-in objects to a
+local repository clone. In both systems, the local clone starts out as a
+full copy of the remote parent. New content gets added to the local
+clone and then later optionally pushed up to the remote, and changes to
+the remote can be pulled down to the local clone at will. Both systems
+offer diffing, patching, branching, merging, cherrypicking, bisecting,
 private branches, a stash, etc.
 
 Fossil has inbound and outbound Git conversion features, so if you start
 out using one DVCS and later decide you like the other better, you can
 easily [./inout.wiki | move your version-controlled file content].¹
 
-The purpose of this document is to cover the important differences
-between the two, especially those that impact the user experience.
+In this document, we set all of that similarity and interoperability
+aside and focus on the important differences between the two, especially
+those that impact the user experience.
 
 Keep in mind that you are reading this on a Fossil website, and though
 we try to be fair, the information here
@@ -41,7 +41,7 @@ with further description in the text that follows.
 <tr><td>Sprawling, incoherent, and inefficient</td>
     <td>Self-contained and efficient</td></tr>
 <tr><td>Ad-hoc pile-of-files key/value database</td>
-    <td>Relational SQL database</td></tr>
+    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td></tr>
 <tr><td>Portable to POSIX systems only</td><td>Runs just about anywhere</td></tr>
 <tr><td>Bazaar-style development</td><td>Cathedral-style development</td></tr>
 <tr><td>Designed for Linux kernel development</td>
@@ -146,20 +146,24 @@ spare Raspberry Pi boards, and other small hosts.
 <h3 id="durable" name="database">2.3 Durable</h3>
 
 The baseline data structures for Fossil and Git are the same, modulo
-formatting details.  Both systems store check-ins as immutable
-objects referencing their immediate ancestors and named by a
-cryptographic hash of the check-in content.
+formatting details. Both systems manage a
+[https://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic
+graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
+tree] / [./blockchain.md | block chain] structured check-in objects.
+Check-ins are identified by a cryptographic hash of the check-in
+comment, and each check-in refers to its parent via <i>its</i> hash.
 
-The difference is that Git stores its objects as individual files
-in the <tt>.git</tt> folder or compressed into
-bespoke [https://git-scm.com/book/en/v2/Git-Internals-Packfiles|pack-files],
-whereas Fossil stores its objects in a
-relational ([https://www.sqlite.org/|SQLite]) database file.  To put it
-another way, Git uses an ad-hoc pile-of-files key/value database whereas
-Fossil uses a proven, [https://sqlite.org/testing.html|heavily-tested],
-general-purpose, [https://sqlite.org/transactional.html|durable] SQL
-database.  This difference is more than an implementation detail. It has
-important practical consequences.
+The difference is that Git stores its objects as individual files in the
+<tt>.git</tt> folder or compressed into bespoke
+[https://git-scm.com/book/en/v2/Git-Internals-Packfiles|pack-files],
+whereas Fossil stores its objects in a [https://www.sqlite.org/|SQLite]
+database file using a hybrid NoSQL/relational data model of the check-in
+history. Git's data storage system is an ad-hoc pile-of-files key/value
+database, whereas Fossil uses a proven,
+[https://sqlite.org/testing.html|heavily-tested], general-purpose,
+[https://sqlite.org/transactional.html|durable] SQL database.  This
+difference is more than an implementation detail. It has important
+practical consequences.
 
 With Git, one can easily locate the ancestors of a particular check-in
 by following the pointers embedded in the check-in object, but it is
@@ -172,17 +176,22 @@ are looking at some historical check-in then you cannot ask "What came
 next?" or "What are the children of this check-in?"
 
 Fossil, on the other hand, parses essential information about check-ins
-(parents, children, committers, comments, files changed, etc.)
-into a relational database that can be easily
-queried using concise SQL statements to find both ancestors and
-descendants of a check-in.
+(parents, children, committers, comments, files changed, etc.) into a
+relational database that can be easily queried using concise SQL
+statements to find both ancestors and descendants of a check-in. This is
+the hybrid data model mentioned above: Fossil manages your check-in and
+other data in NoSQL block chain structured data store, but that's backed
+by a set of relational lookup tables for quick indexing into that
+artifact store.  (See "[./theory1.wiki|Thoughts On The Design Of The
+Fossil DVCS]" for more details.)
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
 [http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
 state] problem has caused untold grief for countless Git users. With
-Fossil, all check-ins are easily located via multiple possible paths,
-so that detached heads are simply not possible in Fossil.
+Fossil, detached heads are simply impossible because we can always find
+our way back into the block chain using one or more of the relational
+indices it automatically manages for you.
 
 This design difference shows up in several other places within each
 tool. It is why Fossil's [/help?cmd=timeline|timeline] is generally more

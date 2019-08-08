@@ -1,5 +1,5 @@
-C Added\sDigital\sOcean\spricing\sfootnote\sto\sfossil-v-git.wiki\sto\sback\sup\sthe\nGitLab\scomparison.\s\sAlso\sclarified\sthe\s"smallest\sthing\syou\scould\scall\sa\nserver"\scomment.
-D 2019-08-08T04:42:18.092
+C Deferred\sdiscussion\sof\sdata\smodeling\sfrom\sthe\sintro\sof\sfossil-v-git\sto\nsection\s2.3\swhere\sit's\sfully\scovered.\s\sThis\smaterial\snow\stalks\smore\nclearly\sabout\sFossil's\shybrid\sNoSQL/relational\sdata\smodel,\srather\sthan\nhandwave\sit\sas\s"relational".
+D 2019-08-08T05:11:45.231
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki be037a429c063faab069b81e3ea40ae315b966762e5d0c8523fa520216b85eec
+F www/fossil-v-git.wiki fff39f5d05fb7acb333a16be793e7c073ae218f5bebfb7ef1a26d4d654f153ef
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 431245edce602338073c5f0830baae71647da23c4edf714f4f5967bf0caf7de2
-R e5060f8172fca9731518dc1daf43798b
+P efc873ec6845ea25ef498fd13da187ef59b9ea6ed6ed2a2c68e8f502d540accb
+R 558731aeb2487cd858a8b000ab23a11c
 U wyoung
-Z 4839e9401128af6cd844b2109fb2adab
+Z 87c45dec0bc9b0f1a62939c72341f82f
