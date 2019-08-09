@@ -431,10 +431,14 @@ static int html_link(
   char *zLink = blob_buffer(link);
   char *zTitle = title!=0 && blob_size(title)>0 ? blob_str(title) : 0;
   char zClose[20];
-  
-  wiki_resolve_hyperlink(ob, 0, zLink, zClose, sizeof(zClose), 0, zTitle);
+
+  if( zLink==0 || zLink[0]==0 ){
+    zClose[0] = 0;
+  }else{  
+    wiki_resolve_hyperlink(ob, 0, zLink, zClose, sizeof(zClose), 0, zTitle);
+  }
   if( blob_size(content)==0 ){
-    BLOB_APPEND_BLOB(ob, link);
+    if( link ) BLOB_APPEND_BLOB(ob, link);
   }else{
     BLOB_APPEND_BLOB(ob, content);
   }

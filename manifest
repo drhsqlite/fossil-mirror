@@ -1,5 +1,5 @@
-C Enhance\smarkdown\sto\suse\sthe\ssame\shyperlink\starget\sresolving\slogic\sas\nFossil\swiki.\s\sThat\smeans\sthat\swiki\spage\snames\sand\scheck-in\sand\sticket\shashes\ncan\snow\sbe\sused\sas\smarkdown\shyperlink\sURLs.\s\sAlso\senhance\smarkdown\shyperlinks\nso\sthat\sif\sthe\sdisplay\stext\sis\san\sempty\sstring,\sthe\sURL\sis\sused\sas\sthe\ndisplay\stext.
-D 2019-08-09T18:14:35.615
+C Fixes\sto\sthe\snew\smarkdown\shyperlink\slogic\sto\shandle\sthe\scase\sthere\sthe\ntarget\sURL\sis\snot\sdefined.
+D 2019-08-09T20:56:44.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -525,7 +525,7 @@ F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad1259
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
 F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
 F src/markdown.md 80465f4841b8669ea4c4b8b0191d3967bc745e4add333a4ad89eb062315cd3ee
-F src/markdown_html.c e2742a280069289cd104301621b89aeb9d9188bb08de450fae37b91e0c99040f
+F src/markdown_html.c 93f780401ae1848b16a88b4bb100771aec3846b4e052552cd067d4c29c0e3213
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5f328d9f902c9fbcfd9cce9654eb6a6b5a4b960f530dfe03308f1041ab7b26a4
-R 2f9841401b3c9b4e216319e52c59f5d9
+P 774fb7712fb43fe3a59b168454f1816208dc1e0e40cbc2affcfdf9e26634bc71
+R a3682187c378cabd81b5adae0e38b94c
 U drh
-Z 2a5db3615f83f831abb4c6ee093cf941
+Z 65a6c1f8ed0347019af758a49ba5370f
