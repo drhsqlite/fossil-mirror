@@ -273,11 +273,12 @@ Torvalds] designed Git to support development of
 Fossil to support the development of [https://sqlite.org/|SQLite].
 Both projects must rank high on any objective list of "most
 important FOSS projects," yet these two projects are almost entirely unlike
-one another. So, too, are these two DVCSes.
+one another, so it is natural that the DVCSes created to support these
+projects also differ in many ways.
 
 In the following sections, we will explain how four key differences
-between Linux and SQLite dictated the design of each DVCS's low-friction
-usage path.
+between the Linux and SQLite software development projects dictated the
+design of each DVCS's low-friction usage path.
 
 When deciding between these two DVCSes, you should ask yourself, "Is my
 project more like Linux or more like SQLite?"

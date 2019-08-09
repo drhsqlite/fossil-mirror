@@ -1,5 +1,5 @@
-C Fix\sthe\swww/fossil_prompt.sh\sFossilized\sBash\sPrompt\sscript\sso\sthat\sit\sworks\neven\sif\sthe\scurrent\scheck-in\scomment\scontains\sgrave\saccents\s(backticks).
-D 2019-08-08T23:04:54.367
+C Small\stweaks\sto\sthe\sprose\sin\ssection\s2.5\sin\sfossil-v-git.wiki
+D 2019-08-09T10:50:48.212
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 2045671427076f8f5c9510dd6d3cc5c7ee05075b37299b29444252bbe8852c70
+F www/fossil-v-git.wiki 0be86bb1b50db1317497717a434a53d5c54a0eff7d5487ee23a5ab4d984c9972
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 81caad6ce6bc412c80b0d1221ca500caad39af5da205dc679025e6233a447b26
-R 4a3728bb37697e88c72bea79728b2334
-U drh
-Z 867231184de272d508e1d1f5989e7941
+P c49f3ef4cf73824f821727baf60ae36c2f61e21615f6a3caf9b0e1528c8b4ef9
+R 3696bd70cee1ca8b5f124b53616f3af8
+U wyoung
+Z cd9668a453e895571d07b09af9a40a27
