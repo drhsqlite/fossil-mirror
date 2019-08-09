@@ -28,17 +28,30 @@
 > 5.  **\[display text\]\[label\]**
 > 6.  **\[display text\]\[\]**
 > 7.  **\[display text\]**
+> 8.  **\[\]\(URL\)**
 
-> **URL** may optionally be written **\<URL\>**.  With link formats 5, 6, and 7
-> ("reference links"), the URL is supplied elsewhere in the document, as shown
-> below.  Link formats 6 and 7 reuse the display text as the label.  Labels are
-> case-insensitive.  The title may be split onto the next line with optional
-> indenting.
+> With link formats 5, 6, and 7 ("reference links"), the URL is supplied
+> elsewhere in the document, as shown below.  Link formats 6 and 7 reuse
+> the display text as the label.  Labels are case-insensitive.  The title
+> may be split onto the next line with optional indenting.
 
 > * **\[label\]:&nbsp;URL**
 > * **\[label\]:&nbsp;URL&nbsp;"Title"**
 > * **\[label\]:&nbsp;URL&nbsp;'Title'**
 > * **\[label\]:&nbsp;URL&nbsp;(Title)**
+
+> **URL** may optionally be written **\<URL\>**.
+> In addition to ordinary URLs, the **URL** may be:
+> <ul>
+> <li>  A pathname starting with "/" in which case the Fossil server
+>      URL prefix is prepended
+> <li>  A wiki page name, or a wiki page name preceded by "wiki:"
+> <li> An artifact or ticket hash or hash prefix
+> <li>  A date and time stamp: "YYYY-MM-DD HH:MM:SS" or a subset that
+>      includes at least the day of the month.</ul>
+
+> In form 8, then the URL becomes the display text.  This is useful for
+> hyperlinks that refer to wiki pages and check-in and ticket hashes.
 
 ## Fonts ##
 

@@ -429,20 +429,16 @@ static int html_link(
   void *opaque
 ){
   char *zLink = blob_buffer(link);
-  BLOB_APPEND_LITERAL(ob, "<a href=\"");
-  if( zLink && zLink[0]=='/' && g.zTop ){
-    /* For any hyperlink that begins with "/", make it refer to the root
-    ** of the Fossil repository */
-    blob_append(ob, g.zTop, -1);
+  char *zTitle = title!=0 && blob_size(title)>0 ? blob_str(title) : 0;
+  char zClose[20];
+  
+  wiki_resolve_hyperlink(ob, 0, zLink, zClose, sizeof(zClose), 0, zTitle);
+  if( blob_size(content)==0 ){
+    BLOB_APPEND_BLOB(ob, link);
+  }else{
+    BLOB_APPEND_BLOB(ob, content);
   }
-  html_quote(ob, blob_buffer(link), blob_size(link));
-  if( title && blob_size(title)>0 ){
-    BLOB_APPEND_LITERAL(ob, "\" title=\"");
-    html_quote(ob, blob_buffer(title), blob_size(title));
-  }
-  BLOB_APPEND_LITERAL(ob, "\">");
-  BLOB_APPEND_BLOB(ob, content);
-  BLOB_APPEND_LITERAL(ob, "</a>");
+  blob_append(ob, zClose, -1);
   return 1;
 }
 

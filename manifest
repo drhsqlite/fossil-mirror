@@ -1,5 +1,5 @@
-C Two\sadditional\splaces\swhere\slinks\sto\s/markup_help\sare\suseful.
-D 2019-08-09T16:40:34.696
+C Enhance\smarkdown\sto\suse\sthe\ssame\shyperlink\starget\sresolving\slogic\sas\nFossil\swiki.\s\sThat\smeans\sthat\swiki\spage\snames\sand\scheck-in\sand\sticket\shashes\ncan\snow\sbe\sused\sas\smarkdown\shyperlink\sURLs.\s\sAlso\senhance\smarkdown\shyperlinks\nso\sthat\sif\sthe\sdisplay\stext\sis\san\sempty\sstring,\sthe\sURL\sis\sused\sas\sthe\ndisplay\stext.
+D 2019-08-09T18:14:35.615
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -524,8 +524,8 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
 F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
-F src/markdown.md 1e94fae9c3f27745b586fc99f2dd56a9951feeb85f7a71685378f6ae9622a85d
-F src/markdown_html.c 9d46b30e1dde501e443db68e95062cdf18d81b9c0a96528c763f0248b8bded4b
+F src/markdown.md 80465f4841b8669ea4c4b8b0191d3967bc745e4add333a4ad89eb062315cd3ee
+F src/markdown_html.c e2742a280069289cd104301621b89aeb9d9188bb08de450fae37b91e0c99040f
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
@@ -574,7 +574,7 @@ F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
 F src/stat.c c30511637bd2b015afc4f70df1310c7b5588987869a4f41511bfe05f7b568bc3
 F src/statrep.c c2509dfa66f9cfea8ce839f36691b061d146e0574e3f1864d0ecc7503f22d114
-F src/style.c 1ab08da29b93f97bb8e970f280092d43980ca73da14aa11aa6624fe001a4dde3
+F src/style.c e654ff9b9b80ca5ce23ad5e5b5b7aa060539a0532111f1b49746d8a0da34d656
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 786e61573107781307de21a2d601a932606e42c9cb8f90b765db2d8ea09e6d48
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
@@ -602,7 +602,7 @@ F src/vfile.c 191590782907ef2fccf6a624b36efa5ab73d4c3f6d6ee15cc419e6b74e4d4e1e
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 008d5f32ea2a739dd8ce41c840db8bdb4277583f426f3010cbde7c59a974935a
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c b4e281bc9847712a4b2dbb66873f180592875bdcec2684f79d1e3d5630d799ef
+F src/wikiformat.c 488a026a7fc89df82fb09305e2316d61b5bd143a48d8771661eedb6a9c79951e
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c a72303503a1f1e655f7bef2857d1f95dfc44c3a98a6169662c3fe0e5b1754ee3
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 18a84ed81edbfb0b4b9a91ff29c8b5a94cf5f204ac8d689f762584c55d8c863e
-R 5a67ce88a8c77a6fd913f63bce6ef1dc
+P 5f328d9f902c9fbcfd9cce9654eb6a6b5a4b960f530dfe03308f1041ab7b26a4
+R 2f9841401b3c9b4e216319e52c59f5d9
 U drh
-Z dc99e34413060b4708c7153a5c057580
+Z 2a5db3615f83f831abb4c6ee093cf941
