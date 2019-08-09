@@ -249,7 +249,7 @@ code. This is largely why the so-called "Git for Windows" distributions
 [http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
-only through a translator.
+only through a translator.⁷
 
 While Fossil does lean toward POSIX norms when given a choice — LF-only
 line endings are treated as first-class citizens over CR+LF, for example
@@ -340,7 +340,7 @@ development model:
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
     contributions]. Fossil's closest equivalent is its unique
     [/help?cmd=bundle|bundle] feature, which requires higher engagement
-    than firing off a PR.⁷ This difference comes directly from the
+    than firing off a PR.⁸ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
     the Linux kernel does.</p></li>
@@ -734,6 +734,19 @@ are a few remaining feature differences we haven't gotten to yet.
     system, test system, etc. It came full circle in 2011 when
     [https://www.reddit.com/r/programming/comments/fwrx5/tcl_and_tk_move_away_from_cvs_to_fossil/
     | the Tcl and Tk projects moved from CVS to Fossil].
+
+    <li><p>A minority of the pieces of the Git core software suite are
+    written in other languages, primarily Perl, Python, and Tcl. (e.g.
+    <tt>git-send-mail</tt>, <tt>git-p4</tt>, and <tt>gitk</tt>,
+    respectively.)  Although these interpreters are quite portable, they
+    aren't installed by default everywhere, and on some platforms you
+    can't count on them at all. (Not just Windows, but also the BSDs and
+    many other non-Linux platforms.) This expands the dependency
+    footprint of Git considerably. It is why the current Git for Windows
+    distribution is 44.7&nbsp;MiB but the current <tt>fossil.exe</tt>
+    zip file for Windows is 2.24&nbsp;MiB. Fossil is much smaller
+    despite using a roughly similar amount of high-level scripting code
+    because its interpreters are compact and built into Fossil itself.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>

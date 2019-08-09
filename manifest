@@ -1,5 +1,5 @@
-C Simplified\sthe\stable\sline\sitems\sfor\sthe\shash\salgorithm\spoint\sin\nfossil-v-git.wiki\sas\s"SHA-3"\svs\s"SHA-2".\s\sDetails\swe\sdelegate\sto\sthe\ndiscussion\sprose\sbelow.
-D 2019-08-09T11:56:01.715
+C Added\san\saside\sin\sfossil-v-git\sabout\sGit's\sminority\suse\sof\shigh-level\nscripting\slanguages\saside\sfrom\sits\sdominant\sone,\sPOSIX\sshell,\swith\sa\ncomparison\sto\sFossil's\sown\suse\sof\shigh-level\sscripting.
+D 2019-08-09T12:15:02.961
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 41691923025e38d4dfc51e5b61b68a6e00f5674aa86450853efbdab397570089
+F www/fossil-v-git.wiki 49d757088e816c0f5069a230234f3abd56cd1aea6578ec7151fb00e627c22073
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b479aff38068197c8a226611ede026072b4c63c590efee5b6bcf76164299964
-R 39ea7dbc9e32188a6f33b1556cb11dec
+P 595559f45ca9789a950d6b1159f9e3764e82cc6bd53abc3f0a4a7b493909333a
+R 55cfb2671fcca03c137936c223bc3618
 U wyoung
-Z 12dfa27aea5eb15c3183319aefd7b359
+Z 8ccd2e394db23e2fe4393994b2532444
