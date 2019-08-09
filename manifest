@@ -1,5 +1,5 @@
-C Expanded\sthe\sdiscussion\son\suser\slearning\stime\svs\sarcance\sfeature\sset\nsize\sin\sfossil-v-git.wiki,\swithin\ssection\s2.5.3\s"Accepting\nContributions".
-D 2019-08-09T11:50:00.290
+C Simplified\sthe\stable\sline\sitems\sfor\sthe\shash\salgorithm\spoint\sin\nfossil-v-git.wiki\sas\s"SHA-3"\svs\s"SHA-2".\s\sDetails\swe\sdelegate\sto\sthe\ndiscussion\sprose\sbelow.
+D 2019-08-09T11:56:01.715
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -829,7 +829,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 801d1cab041d0b4eca6affdbab55e30bb3f694b4a6d7886df0639846aa14c2b0
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki f2915dc9847ed7bf75e851d04047d6fc79d1b7ffe869ca06366f7d7142d18e67
+F www/fossil-v-git.wiki 41691923025e38d4dfc51e5b61b68a6e00f5674aa86450853efbdab397570089
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 466d74c80797d28018490999660500c4e8ff4c9a405d1ab4a7510f3ea8a615a3
-R 6691ef777416e1e15b040f90998f3cb1
+P 1b479aff38068197c8a226611ede026072b4c63c590efee5b6bcf76164299964
+R 39ea7dbc9e32188a6f33b1556cb11dec
 U wyoung
-Z 1126204a7f6cdf7998143f4c00898834
+Z 12dfa27aea5eb15c3183319aefd7b359

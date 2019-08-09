@@ -54,8 +54,8 @@ with further description in the text that follows.
     <td>Many check-outs per repository</td></tr>
 <tr><td>Remembers what you should have done</td>
     <td>Remembers what you actually did</td></tr>
-<tr><td>SHA-1, SHA-256</td>
-    <td>256-bit SHA-3</td></tr>
+<tr><td>SHA-2</td>
+    <td>SHA-3</td></tr>
 </table></blockquote>
 
 <h3 id="features">2.1 Featureful</h3>
