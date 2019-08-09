@@ -534,7 +534,8 @@ void eventedit_page(void){
   @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
 
-  @ <tr><th align="right" valign="top">Markup Style:</th>
+  @ <tr><th align="right" valign="top">\
+  @ %z(href("%R/markup_help"))Markup Style</a>:</th>
   @ <td valign="top">
   mimetype_option_menu(zMimetype);
   @ </td></tr>

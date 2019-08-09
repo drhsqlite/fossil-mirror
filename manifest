@@ -1,5 +1,5 @@
-C Fix\sup\sthe\smarkdown\srules\sto\sinclude\srecent\senhancements\sto\sfenced\scode\nblocks.\s\sOn\s"Markup\sStyle:"\sentry\sboxes,\sprovide\sa\shyperlink\sfor\seasy\naccess\sto\sthe\srule\ssheets.
-D 2019-08-09T16:37:37.821
+C Two\sadditional\splaces\swhere\slinks\sto\s/markup_help\sare\suseful.
+D 2019-08-09T16:40:34.696
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -472,13 +472,13 @@ F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c7504
 F src/doc.c c1099511e689a16be3616ab7f2bf5b712871eda6b8a4184329fd4e1f36f8ffe0
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
-F src/event.c 010f1675103f96cec6fa2ff90bdac7d9ba839c3be8a25fc89cdc66afd4fcd99d
+F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c bebda0beb9b96574fc77b60ad5d164b6695a05b3922facf1619d039d0c686155
 F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c b34f2b1b2d675a55018ca9b4664f9cd8b167ade1b5510cf29f6fabac6cd29b1d
+F src/forum.c 128df71b1bfd9e6bd5b5588f9c0b8015cba932b480bb43de17bf73fed1c15d5e
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c7600da4893b5ea2875bc4bb8617114e498e833c28a07c41e3233c0dddf3def8
-R a01686082e21a6e818bca2740c2fed50
+P 18a84ed81edbfb0b4b9a91ff29c8b5a94cf5f204ac8d689f762584c55d8c863e
+R 5a67ce88a8c77a6fd913f63bce6ef1dc
 U drh
-Z 3bcaf6fa346c37159003966380164c17
+Z dc99e34413060b4708c7153a5c057580
