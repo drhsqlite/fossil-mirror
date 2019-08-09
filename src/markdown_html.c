@@ -356,16 +356,16 @@ static int html_code_span(
     int i;
     for(i=0; i<n && z[i]!='\n'; i++){}
     if( i>=n ){
-      blob_appendf(ob, "<pre><code>%.*s</code></pre>", n, z);
+      blob_appendf(ob, "<pre><code>%#h</code></pre>", n, z);
     }else{
       int k, j;
       i++;
       for(k=0; k<i && fossil_isspace(z[k]); k++){}
       if( k==i ){
-        blob_appendf(ob, "<pre><code>%.*s</code></pre>", n-i, z+i);
+        blob_appendf(ob, "<pre><code>%#h</code></pre>", n-i, z+i);
       }else{
         for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
-        blob_appendf(ob, "<pre><code class='language-%#h'>%.*s</code></pre>",
+        blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
                           j-k, z+k, n-i, z+i);
       }
     }

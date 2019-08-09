@@ -1,5 +1,5 @@
-C Added\san\saside\sin\sfossil-v-git\sabout\sGit's\sminority\suse\sof\shigh-level\nscripting\slanguages\saside\sfrom\sits\sdominant\sone,\sPOSIX\sshell,\swith\sa\ncomparison\sto\sFossil's\sown\suse\sof\shigh-level\sscripting.
-D 2019-08-09T12:15:02.961
+C Further\swork\son\sthe\sfenced\scode\sblocks\sof\smarkdown.\s\sAllow\sblank\slines\nin\sthe\smiddle\sof\sa\sfenced\scode\sblock.\s\sAnd\salso\sallow\s~\scharacter\s(three\nor\smore)\sto\sserve\sas\sthe\sdelimiter\sfor\sfenced\scode\sblocks.
+D 2019-08-09T15:57:25.785
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -523,9 +523,9 @@ F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2ade
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
-F src/markdown.c 25d57b88b19251f60a72daa18de98f9ad41fbdd3cfb528afeaafac977cdcc63a
+F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
 F src/markdown.md 6882d37e282154b82893390557874904b3f5e830dabaea1c3810a8a83169af9b
-F src/markdown_html.c a936cb4f95ce73e51805f230a288528b3e94ee2f515279cf4d8c7e43358e2e9a
+F src/markdown_html.c 9d46b30e1dde501e443db68e95062cdf18d81b9c0a96528c763f0248b8bded4b
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 595559f45ca9789a950d6b1159f9e3764e82cc6bd53abc3f0a4a7b493909333a
-R 55cfb2671fcca03c137936c223bc3618
-U wyoung
-Z 8ccd2e394db23e2fe4393994b2532444
+P 1296ee46a3ad9f03dd315019ce187b32241d70be0741668a25f5fa6fb11e4174
+R 185601d28c199ec9a54d29028e889afd
+U drh
+Z b4611e6749b3a169b45ab11378d11df3
