@@ -249,6 +249,20 @@ void wiki_rules_page(void){
 }
 
 /*
+** WEBPAGE: markup_help
+**
+** Show links to the md_rules and wiki_rules pages.
+*/
+void markup_help_page(void){
+  style_header("Fossil Markup Styles");
+  @ <ul>
+  @ <li><p>%z(href("%R/wiki_rules"))Fossil Wiki Formatting Rules</a></p></li>
+  @ <li><p>%z(href("%R/md_rules"))Markdown Formatting Rules</a></p></li>
+  @ </ul>
+  style_footer();
+}
+
+/*
 ** Returns non-zero if moderation is required for wiki changes and wiki
 ** attachments.
 */
@@ -732,7 +746,7 @@ void wikiedit_page(void){
       }
     }
     form_begin(0, "%R/wikiedit");
-    @ <div>Markup style:
+    @ <div>%z(href("%R/markup_help"))Markup style</a>:
     mimetype_option_menu(zMimetype);
     @ <br /><textarea name="w" class="wikiedit" cols="80" \
     @  rows="%d(n)" wrap="virtual" placeholder="%h(zPlaceholder)">\
@@ -814,7 +828,7 @@ void wikinew_page(void){
   form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
-  @ Markup style:
+  @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu("text/x-fossil-wiki");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
