@@ -219,11 +219,20 @@ void stat_page(void){
                   " WHERE +tagname GLOB 'wiki-*'");
     @ %,d(n)
     @ </td></tr>
-    @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'tkt-*'");
-    @ %,d(n)
-    @ </td></tr>
+    if( n>0 ){
+      @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>%,d(n)</td></tr>
+    }
+    if( db_table_exists("repository","forumpost") ){
+      n = db_int(0, "SELECT count(*) FROM forumpost/*scan*/");
+      if( n>0 ){
+        int nThread = db_int(0, "SELECT count(*) FROM forumpost"
+                                " WHERE froot=fpid");
+        @ <tr><th>Number&nbsp;Of&nbsp;Forum&nbsp;Posts:</th>
+        @ <td>%,d(n) on %d(nThread) threads</td></tr>
+      }
+    }
   }
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
