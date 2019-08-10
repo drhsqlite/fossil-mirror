@@ -1,5 +1,5 @@
-C Updated\sthe\stemp\sfile\sand\sdir\slocation\sdocumentation\sin\swww/env-opts.md\nto\smatch\swhat\sthe\scurrent\scode\sdoes.
-D 2019-08-10T03:44:45.637
+C Refine\sHOME\ssearch\sorder\son\sWindows\sto\smaintain\sbackward\scompatibility\swith\sthe\sprevious\ssearch\shierarchy.
+D 2019-08-10T18:07:13.509
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c fe61a1079f28d256b394cfcab6baf98c7c9eb43c8ec2d7edbbd9e934d7ff1b86
+F src/db.c 07b51b889cf51a97802ae874dc2a6eefb797faf5b3517cbea3c3fe6bcba006f8
 F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -887,7 +887,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15176c8ae51a1e88caa03e5d78fad892b4b485af650dda96adb784f9bab45cf1
-R ed4026838497196335deea956cf39622
-U wyoung
-Z 21d6e082b01a1650d725a6a430142d63
+P 1f63724e5b6fec167f1d482b0fa4f94369894a2df59e497e83cbd6c2c987cfb1
+R 523033ea23eaf5967e29401ca527a431
+T *branch * windows-env-usage-v2
+T *sym-windows-env-usage-v2 *
+T -sym-windows-env-usage *
+U mistachkin
+Z 074659795cfc1c4351d5eb8deab48499
