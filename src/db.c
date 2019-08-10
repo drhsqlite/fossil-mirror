@@ -1381,13 +1381,16 @@ int db_open_config(int useAttach, int isOptional){
   zHome = fossil_getenv("FOSSIL_HOME");
 #if defined(_WIN32) || defined(__CYGWIN__)
   if( zHome==0 ){
-    zHome = fossil_getenv("LOCALAPPDATA");
+    zHome = fossil_getenv("USERPROFILE");
     if( zHome==0 ){
-      zHome = fossil_getenv("APPDATA");
+      zHome = fossil_getenv("LOCALAPPDATA");
       if( zHome==0 ){
-        char *zDrive = fossil_getenv("HOMEDRIVE");
-        char *zPath = fossil_getenv("HOMEPATH");
-        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        zHome = fossil_getenv("APPDATA");
+        if( zHome==0 ){
+          char *zDrive = fossil_getenv("HOMEDRIVE");
+          char *zPath = fossil_getenv("HOMEPATH");
+          if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        }
       }
     }
   }

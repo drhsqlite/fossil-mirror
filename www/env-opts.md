@@ -114,12 +114,21 @@ UTC time.
 Environment Variables
 ---------------------
 
+On most platforms, the location of the user’s account-wide `.fossil`
+file is either `FOSSIL_HOME` or `HOME`, in that order. This ordering
+lets you put this file somewhere other than at the top of your user’s
+home directory by defining `FOSSIL_HOME` to mask the always-defined
+`HOME`.
 
-`APPDATA`: (Windows) Location of the `~/.fossil` file. The first
-environment variable found in the environment from the list
-`FOSSIL_HOME`, `LOCALAPPDATA` (Windows), `APPDATA` (Windows),
-`HOMEDRIVE` and `HOMEPATH` (Windows, used together), and `HOME` is
-used as the location of the `~/.fossil` file.
+For native Windows builds and for Cygwin builds, the file is called
+`_fossil` instead to avoid problems with old programs that assume file
+names cannot begin with a dot, as was true in old versions of Windows
+and in MS-DOS. (Newer Microsoft OSes and file systems don’t have a
+problem with such files, but still we take the safe path in case you’re
+on a system with software that can’t cope.) We start our search with
+`FOSSIL_HOME` again, but instead of falling back to `HOME`, we instead
+try `USERPROFILE`, then `LOCALAPPDATA`, then `APPDATA`, and finally we
+concatenate `HOMEDRIVE` + `HOMEPATH`.
 
 `EDITOR`: Name the editor to use for check-in and stash comments.
 Overridden by the local or global `editor` setting or the `VISUAL`
