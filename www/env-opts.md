@@ -186,20 +186,10 @@ additional measures for password security will be enabled (also see
 specific file or folder containing the version of Tcl to load at run
 time.
 
-`FOSSIL_TEMP`: Fallback location of the temporary directories and files
-created and deleted when running the test suite. The first environment
-variable found in the environment from the list `FOSSIL_TEST_TEMP`,
-`FOSSIL_TEMP`, `TEMP`, and `TMP` is used.
-
 `FOSSIL_TEST_DANGEROUS_IGNORE_OPEN_CHECKOUT`: When set to the literal
 value `YES_DO_IT`, the test suite will relax the constraint that some
 tests may not run within an open checkout.  This is subject to removal
 in the future.
-
-`FOSSIL_TEST_TEMP`: Primary location of the temporary directories
-and files created and deleted when running the test suite. The
-first environment variable found in the environment from the list
-`FOSSIL_TEST_TEMP`, `FOSSIL_TEMP`, `TEMP`, and `TMP` is used.
 
 `FOSSIL_VFS`: Name a VFS to load into SQLite.
 
@@ -270,12 +260,6 @@ set, this will be used instead of `TMPDIR`.
 `SYSTEMROOT`: (Windows) Used to locate `notepad.exe` as a
 fall back comment editor.
 
-`TEMP`: On Windows, the location of temporary files. The first
-environment variable found in the environment that names an existing
-directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
-directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder.
-
 `TERM`: If the linenoise library is used (almost certainly not on
 Windows), it will check `TERM` to verify that the interactive terminal
 is not named on a short list on terminals known to not work with
@@ -307,12 +291,6 @@ when processing the `--set-anon-caps` option for the `test-th-eval`,
 processing the `--set-user-caps` option for the `test-th-eval`,
 `test-th-render`, and `test-th-source` test commands.
 
-`TMP`: On Windows, the location of temporary files. The first
-environment variable found in the environment that names an existing
-directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
-directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder.
-
 `TMPDIR`: Names the temporary file location for SQLite.
 
 
@@ -323,12 +301,6 @@ the discussion of Fossil Username below for a lot more detail.
 `USERNAME`: Name of the logged in user on Windows platforms.
 Used as the fossil user name if `FOSSIL_USER` is not specified. See
 the discussion of Fossil Username below for a lot more detail.
-
-`USERPROFILE`: On Windows, the location of temporary files. The first
-environment variable found in the environment that names an existing
-directory from the list `TMP`, `TEMP`, `USERPROFILE`, the Windows
-directory (usually `C:\WINDOWS`), `TEMP`, `TMP`, and the current
-directory (aka `.`) is the temporary folder.
 
 `VISUAL`: Name the editor to use for check-in and stash comments.
 Overrides the `EDITOR` environment variable. Overridden by the local
@@ -464,26 +436,30 @@ precedence.
 
 ### Temporary File Location
 
-Fossil places some temporary files in the current directory, notably
+Fossil places some temporary files in the checkout directory. Most notably,
 supporting files related to merge conflicts are placed in the same
 folder as the merge result.
 
-Other temporary files need a home. On Unix-like systems, the first
-folder from the hard coded list `/var/tmp`, `/usr/tmp`, `/tmp`,
-`/temp`, and `.` that is found to exist in the file system is used by
-fossil. The SQLite library has its own code for finding a safe place for
-temporary files. It checks the environment variables `SQLITE_TMPDIR`
-and `TMPDIR` ahead of the hard coded list `/var/tmp`, `/usr/tmp`,
-`/tmp`, and `.` for the first directory that exists.
+Other temporary files need a different home. The rules for choosing one are
+complicated.
 
-On Windows, fossil calls [`GetTempPath`][gtp], and also queries the
-environment variables `TEMP`, and `TMP`. If none of those three places
-exist, then it uses `.`. Notice that `GetTempPath` itself used `TMP`,
-`TEMP`, `USERPROFILE`, and the Windows folder (named in the variable
-`SystemRoot`). Since the Windows folder always exists, but in modern
-versions of Windows is generally *not* writable by the logged in user,
-not having `TEMP`, `TMP`, or `USERPROFILE` set is almost guaranteed to
-cause trouble.
+Fossil-specific code uses `FOSSIL_TEMP`, `TEMP`, and `TMP`, in that
+order. Fossil’s own test suite prepends `FOSSIL_TEST_TEMP` to that list.
+
+The underlying SQLite code uses several different path sets for its temp
+files, depending on the platform type.
+
+On Unix-like platforms, excepting Cygwin, SQLite first checks the
+environment variables `SQLITE_TMPDIR` and `TMPDIR`, in that order. If
+neither is defined, it falls back to a hard-coded list of paths:
+`/var/tmp`, `/usr/tmp`, and `/tmp`. If all of that fails, it uses the
+current working directory.
+
+For Cygwin builds, SQLite instead uses the first defined variable in
+this list: `SQLITE_TMPDIR`, `TMPDIR`, `TMP`, `TEMP`, and `USERPROFILE`.
+
+For native Windows builds, SQLite simply calls the OS’s [`GetTempPath()`
+API][gtp].  See that reference page for details.
 
 [gtp]: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364992%28v=vs.85%29.aspx
 
