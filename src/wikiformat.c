@@ -1144,14 +1144,14 @@ static int is_ticket(
 ** if there is one) if zTarget is a valid wiki page name.  Return NULL if
 ** zTarget names a page that does not exist.
 */
-static const char *validWikiPageName(Renderer *p, const char *zTarget){
+static const char *validWikiPageName(int mFlags, const char *zTarget){
   if( strncmp(zTarget, "wiki:", 5)==0
       && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     return zTarget+5;
   }
   if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
   if( wiki_name_is_wellformed((const unsigned char *)zTarget)
-   && ((p->state & WIKI_NOBADLINKS)==0 ||
+   && ((mFlags & WIKI_NOBADLINKS)==0 ||
         db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'"
                   " AND (SELECT value FROM tagxref WHERE tagid=tag.tagid"
                   " ORDER BY mtime DESC LIMIT 1) > 0", zTarget))
@@ -1226,31 +1226,39 @@ static const char *wiki_is_overridden(const char *zTarget){
 **
 **    [2010-02-27 07:13]
 */
-static void openHyperlink(
-  Renderer *p,            /* Rendering context */
+void wiki_resolve_hyperlink(
+  Blob *pOut,             /* Write the HTML output here */
+  int mFlags,             /* Rendering option flags */
   const char *zTarget,    /* Hyperlink target; text within [...] */
   char *zClose,           /* Write hyperlink closing text here */
   int nClose,             /* Bytes available in zClose[] */
-  const char *zOrig       /* Complete document text */
+  const char *zOrig,      /* Complete document text */
+  const char *zTitle      /* Title of the link */
 ){
   const char *zTerm = "</a>";
   const char *z;
+  char *zExtra = 0;
+  const char *zExtraNS = 0;
 
+  if( zTitle ){
+    zExtra = mprintf(" title='%h'", zTitle);
+    zExtraNS = zExtra+1;
+  }
   assert( nClose>=20 );
   if( strncmp(zTarget, "http:", 5)==0
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0
    || strncmp(zTarget, "mailto:", 7)==0
   ){
-    blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
+    blob_appendf(pOut, "<a href=\"%s\"%s>", zTarget, zExtra);
   }else if( zTarget[0]=='/' ){
-    blob_appendf(p->pOut, "<a href=\"%R%h\">", zTarget);
+    blob_appendf(pOut, "<a href=\"%R%h\"%s>", zTarget, zExtra);
   }else if( zTarget[0]=='.'
          && (zTarget[1]=='/' || (zTarget[1]=='.' && zTarget[2]=='/'))
-         && (p->state & WIKI_LINKSONLY)==0 ){
-    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+         && (mFlags & WIKI_LINKSONLY)==0 ){
+    blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( zTarget[0]=='#' ){
-    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+    blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( is_valid_hname(zTarget) ){
     int isClosed = 0;
     if( strlen(zTarget)<=HNAME_MAX && is_ticket(zTarget, &isClosed) ){
@@ -1259,56 +1267,57 @@ static void openHyperlink(
       */
       if( isClosed ){
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,
+          blob_appendf(pOut,
              "%z<span class=\"wikiTagCancelled\">[",
-             href("%R/info/%s",zTarget)
+             xhref(zExtraNS,"%R/info/%s",zTarget)
           );
           zTerm = "]</span></a>";
         }else{
-          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">[");
+          blob_appendf(pOut,"<span class=\"wikiTagCancelled\">[");
           zTerm = "]</span>";
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,"%z[", href("%R/info/%s", zTarget));
+          blob_appendf(pOut,"%z[", xhref(zExtraNS,"%R/info/%s", zTarget));
           zTerm = "]</a>";
         }else{
-          blob_appendf(p->pOut, "[");
+          blob_appendf(pOut, "[");
           zTerm = "]";
         }
       }
     }else if( !in_this_repo(zTarget) ){
-      if( (p->state & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
+      if( (mFlags & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
-        blob_appendf(p->pOut, "<span class=\"brokenlink\">[");
+        blob_appendf(pOut, "<span class=\"brokenlink\">[");
         zTerm = "]</span>";
       }
     }else if( g.perm.Hyperlink ){
-      blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
+      blob_appendf(pOut, "%z[",xhref(zExtraNS, "%R/info/%s", zTarget));
       zTerm = "]</a>";
     }else{
       zTerm = "";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
-  }else if( (z = validWikiPageName(p, zTarget))!=0 ){
+    blob_appendf(pOut, "<a href=\"%R/timeline?c=%T\"%s>", zTarget, zExtra);
+  }else if( (z = validWikiPageName(mFlags, zTarget))!=0 ){
     const char *zOverride = wiki_is_overridden(zTarget);
     if( zOverride ){
-      blob_appendf(p->pOut, "<a href=\"%R/info/%S\">", zOverride);
+      blob_appendf(pOut, "<a href=\"%R/info/%S\"%s>", zOverride, zExtra);
     }else{
-      blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
+      blob_appendf(pOut, "<a href=\"%R/wiki?name=%T\"%s>", z, zExtra);
     }
-  }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
+  }else if( zOrig && zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
     /* Probably an array subscript in code */
     zTerm = "";
-  }else if( (p->state & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
+  }else if( (mFlags & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
     zTerm = "";
   }else{
-    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]", zTarget);
+    blob_appendf(pOut, "<span class=\"brokenlink\">[%h]", zTarget);
     zTerm = "</span>";
   }
+  if( zExtra ) fossil_free(zExtra);
   assert( strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
 }
@@ -1493,7 +1502,8 @@ static void wiki_render(Renderer *p, char *z){
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
-        openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
+        wiki_resolve_hyperlink(p->pOut, p->state,
+                               zTarget, zClose, sizeof(zClose), zOrig, 0);
         if( linksOnly || zClose[0]==0 || p->inVerbatim ){
           if( cS1 ) z[iS1] = cS1;
           if( zClose[0]!=']' ){

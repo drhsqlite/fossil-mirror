@@ -537,6 +537,9 @@ void win32_http_server(
 #endif
 
   blob_zero(&options);
+  if( PB("HTTPS") ){
+    blob_appendf(&options, " --https");
+  }
   if( zBaseUrl ){
     blob_appendf(&options, " --baseurl %s", zBaseUrl);
   }

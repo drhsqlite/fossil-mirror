@@ -13,7 +13,7 @@ Wikipedia defines "blockchain" as
 By that definition, Fossil is clearly an implementation of blockchain.
 The blocks are ["manifests" artifacts](./fileformat.wiki#manifest).
 Each manifest has a SHA1 or SHA3 hash of its parent or parents,
-a timestamp, and other tranactional data.  The repository grows by
+a timestamp, and other transactional data.  The repository grows by
 add new manifests onto the list.
 
 Some people have come to associate blockchain with cryptocurrency, however,

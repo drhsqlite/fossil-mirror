@@ -144,13 +144,22 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    char *zHUrl;
+    if( zExtra ){
+      zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    }else{
+      zHUrl = mprintf("<a href=\"%h\">", zUrl);
+    }
     fossil_free(zUrl);
     return zHUrl;
   }
   needHrefJs = 1;
-  return mprintf("<a %s data-href='%z' href='%R/honeypot'>",
-                  zExtra, zUrl);
+  if( zExtra==0 ){
+    return mprintf("<a data-href='%z' href='%R/honeypot'>", zUrl);
+  }else{
+    return mprintf("<a %s data-href='%z' href='%R/honeypot'>",
+                   zExtra, zUrl);
+  }
 }
 char *chref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;

@@ -373,7 +373,7 @@ two reasons:
     where it can speak HTTPS safely again.
 
 So, from the second `service { }` block, we include this file to set up
-the minimal HTTP service we reqiure, `local/http-certbot-only`:
+the minimal HTTP service we require, `local/http-certbot-only`:
 
       listen 80;
       listen [::]:80;
@@ -412,13 +412,13 @@ Then in `local/http-certbot-only` say:
       access_log /var/log/nginx/$host-http-access.log;
        error_log /var/log/nginx/$host-http-error.log;
 
-Sadly, nginx doesn’t allow variable subtitution into these particular
+Sadly, nginx doesn’t allow variable substitution into these particular
 directives. As I understand it, allowing that would make nginx slower,
 so we must largely repeat these directives in each HTTP `server { }`
 block.
 
 These configurations are, as shown, as small as I know how to get them.
-If you know of a way to reduce some of this repitition, [I solicit your
+If you know of a way to reduce some of this repetition, [I solicit your
 advice][fd].
 
 

@@ -1,7 +1,8 @@
 # How To Mirror A Fossil Repository On GitHub
 
 Beginning with Fossil version 2.9, you can mirror a Fossil-based
-project on GitHub by following these steps:
+project on GitHub (with [limitations](./mirrorlimitations.md))
+by following these steps:
 
 <ol>
 <li><p>Create an account on GitHub if you do not have one already.  Log

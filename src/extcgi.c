@@ -50,9 +50,12 @@ static const char *azCgiEnv[] = {
    "CONTENT_TYPE",
    "DOCUMENT_ROOT",
    "FOSSIL_CAPABILITIES",
+   "FOSSIL_NONCE",
    "FOSSIL_REPOSITORY",
+   "FOSSIL_URI",
    "FOSSIL_USER",
    "GATEWAY_INTERFACE",
+   "HTTPS",
    "HTTP_ACCEPT",
    /* "HTTP_ACCEPT_ENCODING", // omitted from sub-cgi */
    "HTTP_COOKIE",
@@ -74,6 +77,29 @@ static const char *azCgiEnv[] = {
    "SERVER_PORT",
    "SERVER_PROTOCOL",
 };
+
+/*
+** Check a pathname to determine if it is acceptable for use as
+** extension CGI.  Some pathnames are excluded for security reasons.
+** Return NULL on success or a static error string if there is
+** a failure.
+*/
+const char *ext_pathname_ok(const char *zName){
+  int i;
+  const char *zFailReason = 0;
+  for(i=0; zName[i]; i++){
+    char c = zName[i];
+    if( (c=='.' || c=='-') && (i==0 || zName[i-1]=='/') ){
+      zFailReason = "path element begins with '.' or '-'";
+      break;
+    }
+    if( !fossil_isalnum(c) && c!='_' && c!='-' && c!='.' && c!='/' ){
+      zFailReason = "illegal character in path";
+      break;
+    }
+  }
+  return zFailReason;
+}
 
 /*
 ** WEBPAGE: ext  raw-content
@@ -131,17 +157,9 @@ void ext_page(void){
     zFailReason = "no path beyond /ext";
     goto ext_not_found;
   }
-  for(i=0; zName[i]; i++){
-    char c = zName[i];
-    if( (c=='.' || c=='-') && (i==0 || zName[i-1]=='/') ){
-      zFailReason = "path element begins with '.' or '-'";
-      goto ext_not_found;
-    }
-    if( !fossil_isalnum(c) && c!='_' && c!='-' && c!='.' && c!='/' ){
-      zFailReason = "illegal character in path";
-      goto ext_not_found;
-    }
-  }
+  zFailReason = ext_pathname_ok(zName);
+  if( zFailReason ) goto ext_not_found;
+  zFailReason = "???";
   if( file_isdir(g.zExtRoot,ExtFILE)!=1 ){
     zFailReason = "extroot is not a directory";
     goto ext_not_found;
@@ -205,11 +223,17 @@ void ext_page(void){
     cgi_replace_parameter("REMOTE_USER", g.zLogin);
     cgi_set_parameter_nocopy("FOSSIL_USER", g.zLogin, 0);
   }
+  cgi_set_parameter_nocopy("FOSSIL_NONCE", style_nonce(), 0);
   cgi_set_parameter_nocopy("FOSSIL_REPOSITORY", g.zRepositoryName, 0);
+  cgi_set_parameter_nocopy("FOSSIL_URI", g.zTop, 0);
   cgi_set_parameter_nocopy("FOSSIL_CAPABILITIES",
      db_text("","SELECT fullcap(cap) FROM user WHERE login=%Q",
              g.zLogin ? g.zLogin : "nobody"), 0);
   cgi_replace_parameter("GATEWAY_INTERFACE","CGI/1.0");
+  for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
+    (void)P(azCgiEnv[i]);
+  }
+  fossil_clearenv();
   for(i=0; i<sizeof(azCgiEnv)/sizeof(azCgiEnv[0]); i++){
     const char *zVal = P(azCgiEnv[i]);
     if( zVal ) fossil_setenv(azCgiEnv[i], zVal);
@@ -291,4 +315,70 @@ ext_not_found:
     }
   }
   return;
+}
+
+/*
+** Create a temporary SFILE table and fill it with one entry for each file
+** in the extension document root directory (g.zExtRoot).  The SFILE table
+** looks like this:
+**
+**    CREATE TEMP TABLE sfile(
+**      pathname TEXT PRIMARY KEY,
+**      isexe BOOLEAN
+**    ) WITHOUT ROWID;
+*/
+void ext_files(void){
+  Blob base;
+  db_multi_exec(
+     "CREATE TEMP TABLE sfile(\n"
+     "  pathname TEXT PRIMARY KEY,\n"
+     "  isexe BOOLEAN\n"
+     ") WITHOUT ROWID;"
+  );
+  blob_init(&base, g.zExtRoot, -1);
+  vfile_scan(&base, blob_size(&base),
+             SCAN_ALL|SCAN_ISEXE,
+             0, 0, ExtFILE);
+  blob_zero(&base);
+}
+
+/*
+** WEBPAGE: extfilelist
+**
+** List all files in the extension CGI document root and its subfolders.
+*/
+void ext_filelist_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.perm.Admin ){
+    login_needed(0);
+    return;
+  }
+  ext_files();
+  style_header("CGI Extension Filelist");
+  @ <table border="0" cellspacing="0" cellpadding="3">
+  @ <tbody>
+  db_prepare(&q, "SELECT pathname, isexe FROM sfile"
+                 " ORDER BY pathname");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q,0);
+    int isExe = db_column_int(&q,1);
+    @ <tr>
+    if( ext_pathname_ok(zName)!=0 ){
+      @ <td><span style="opacity:0.5;">%h(zName)</span></td>
+      @ <td>data file</td>
+    }else{
+      @ <td><a href="%R/ext/%h(zName)">%h(zName)</a></td>
+      if( isExe ){
+        @ <td>CGI</td>
+      }else{
+        @ <td>static content</td>
+      }
+    }
+    @ </tr>
+  }
+  db_finalize(&q);
+  @ </tbody>
+  @ </table>
+  style_footer();
 }

@@ -2,17 +2,29 @@
 
 <h2>1.0 Don't Stress!</h2>
 
-If you start out using one DVCS and later decide you like the other better,
-you can easily [./inout.wiki | move your content].¹
+The feature sets of Fossil and [http://git-scm.com | Git] overlap in
+many ways. Both are
+[https://en.wikipedia.org/wiki/Distributed_version_control | distributed
+version control systems] which store a tree of check-in objects to a
+local repository clone. In both systems, the local clone starts out as a
+full copy of the remote parent. New content gets added to the local
+clone and then later optionally pushed up to the remote, and changes to
+the remote can be pulled down to the local clone at will. Both systems
+offer diffing, patching, branching, merging, cherrypicking, bisecting,
+private branches, a stash, etc.
 
-Fossil and [http://git-scm.com | Git] are very similar in many respects,
-but they also have important differences.
-See the table below for
-a high-level summary and the text that follows for more details.
+Fossil has inbound and outbound Git conversion features, so if you start
+out using one DVCS and later decide you like the other better, you can
+easily [./inout.wiki | move your version-controlled file content].¹
+
+In this document, we set all of that similarity and interoperability
+aside and focus on the important differences between the two, especially
+those that impact the user experience.
 
 Keep in mind that you are reading this on a Fossil website, and though
 we try to be fair, the information here
-might be biased in favor of Fossil.  Ask around for second opinions from
+might be biased in favor of Fossil, if only because we spend most of our
+time using Fossil, not Git.  Ask around for second opinions from
 people who have used <em>both</em> Fossil and Git.
 
 
@@ -24,9 +36,13 @@ with further description in the text that follows.
 <blockquote><table border=1 cellpadding=5 align=center>
 <tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
 <tr><td>File versioning only</td>
-    <td>Versioning, Tickets, Wiki, Technotes, Forum</td></tr>
+    <td>VCS, tickets, wiki, docs, notes, forum, UI,
+    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td></tr>
+<tr><td>Sprawling, incoherent, and inefficient</td>
+    <td>Self-contained and efficient</td></tr>
 <tr><td>Ad-hoc pile-of-files key/value database</td>
-    <td>Relational SQL database</td></tr>
+    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td></tr>
+<tr><td>Portable to POSIX systems only</td><td>Runs just about anywhere</td></tr>
 <tr><td>Bazaar-style development</td><td>Cathedral-style development</td></tr>
 <tr><td>Designed for Linux kernel development</td>
     <td>Designed for SQLite development</td></tr>
@@ -34,31 +50,30 @@ with further description in the text that follows.
     <td>Select contributors</td></tr>
 <tr><td>Focus on individual branches</td>
     <td>Focus on the entire tree of changes</td></tr>
-<tr><td>Lots of little tools</td><td>Stand-alone executable</td></tr>
 <tr><td>One check-out per repository</td>
     <td>Many check-outs per repository</td></tr>
 <tr><td>Remembers what you should have done</td>
     <td>Remembers what you actually did</td></tr>
+<tr><td>SHA-2</td>
+    <td>SHA-3</td></tr>
 </table></blockquote>
 
-<h3 id="features">2.1 Feature Set</h3>
+<h3 id="features">2.1 Featureful</h3>
 
 Git provides file versioning services only, whereas Fossil adds
-integrated [./wikitheory.wiki | wiki],
+an integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
 [./embeddeddoc.wiki | embedded documentation], 
-[./event.wiki | technical notes], and a [./forum.wiki | forum].
+[./event.wiki | technical notes], and a [./forum.wiki | web forum],
+all within a single nicely-designed [./customskin.md|skinnable] web
+[/help?cmd=ui|UI],
+protected by a fine-grained
+[https://en.wikipedia.org/wiki/Role-based_access_control|role-based
+access control system].
 These additional capabilities are available for Git as 3rd-party
 add-ons, but with Fossil they are integrated into
 the design.  One way to describe Fossil is that it is
 "[https://github.com/ | GitHub]-in-a-box."
-
-If you clone [https://github.com/git/git|Git's self-hosting repository],
-you get just Git's source code.
-If you clone Fossil's self-hosting repository, you get the entire
-Fossil website — source code, documentation, ticket history, and so forth.
-That means you get a copy of this very article and all of its historical
-versions, plus the same for all of the other public content on this site.
 
 For developers who choose to self-host projects (rather than using a
 3rd-party service such as GitHub) Fossil is much easier to set up, since
@@ -69,52 +84,185 @@ and managing a wide assortment of separate tools.  Standing up a developer
 website using Fossil can be done in minutes, whereas doing the same using
 Git requires hours or days.
 
-<h3 id="database">2.2 Database</h3>
+Fossil is small, complete, and self-contained.  If you clone
+[https://github.com/git/git|Git's self-hosting repository], you get just
+Git's source code.  If you clone Fossil's self-hosting repository, you
+get the entire Fossil website — source code, documentation, ticket
+history, and so forth.² That means you get a copy of this very article
+and all of its historical versions, plus the same for all of the other
+public content on this site.
+
+
+<h3 id="efficient" name="effective">2.2 Efficient</h3>
+
+Git is actually a collection of many small tools, each doing one small
+part of the job, which can be recombined (by experts) to perform
+powerful operations. Git has a lot of complexity and many dependencies,
+so that most people end up installing it via some kind of package
+manager, simply because the creation of complicated binary packages is
+best delegated to people skilled in their creation. Normal Git users are
+not expected to build Git from source and install it themselves.
+
+Fossil is a single self-contained stand-alone executable with hardly any
+dependencies. Fossil can be run inside a minimally configured
+[https://en.wikipedia.org/wiki/Chroot|chroot jail], from a Windows
+memory stick, off a Raspberry Pi with a tiny SD card, etc. To install
+Fossil, one merely puts the executable somewhere in the <tt>$PATH</tt>.
+Fossil is
+[https://fossil-scm.org/fossil/doc/trunk/www/build.wiki|straightforward
+to build and install], so that many Fossil users do in fact build and
+install "trunk" versions to get new features between formal releases.
+
+Some say that Git more closely adheres to the Unix philosophy,
+summarized as "many small tools, loosely joined," but we have many
+examples of other successful Unix software that violates that principle
+to good effect, from Apache to Python to ZFS. We can infer from that
+that this is not an absolute principle of good software design.
+Sometimes "many features, tightly-coupled" works better. What actually
+matters is effectiveness and efficiency. We believe Fossil achieves
+this.
+
+Git fails on efficiency once you add to it all of the third-party
+software needed to give it a Fossil-equivalent feature set. Consider
+[https://about.gitlab.com/|GitLab], a third-party extension to Git
+wrapping it in many features, making it roughly Fossil-equivalent,
+though [https://docs.gitlab.com/ee/install/requirements.html|much more
+resource hungry] and hence more costly to run than the equivalent
+Fossil setup. GitLab's basic requirements are easy to accept when you're dedicating
+a local rack server or blade to it, since its minimum requirements are
+more or less a description of the smallest
+thing you could call a "server" these days, but when you go to host that
+in the cloud, you can expect to pay about 8⨉ as much to comfortably host
+GitLab as for Fossil.³ This difference is largely due to basic
+technology choices: Ruby and PostgreSQL vs C and SQLite.
+
+The Fossil project itself is [./selfhost.wiki|hosted on a very small
+VPS], and we've received many reports on the Fossil forum about people
+successfully hosting Fossil service on bare-bones $5/month VPS hosts,
+spare Raspberry Pi boards, and other small hosts.
+
+
+
+<h3 id="durable" name="database">2.3 Durable</h3>
 
 The baseline data structures for Fossil and Git are the same, modulo
-formatting details.  Both systems store check-ins as immutable
-objects referencing their immediate ancestors and named by a
-cryptographic hash of the check-in content.
+formatting details. Both systems manage a
+[https://en.wikipedia.org/wiki/Directed_acyclic_graph | directed acyclic
+graph] (DAG) of [https://en.wikipedia.org/wiki/Merkle_tree | Merkle
+tree] / [./blockchain.md | block chain] structured check-in objects.
+Check-ins are identified by a cryptographic hash of the check-in
+comment, and each check-in refers to its parent via <i>its</i> hash.
 
-The difference is that Git stores its objects as individual files
-in the ".git" folder or compressed into
-bespoke "pack-files," whereas Fossil stores its objects in a
-relational ([https://www.sqlite.org/|SQLite]) database file.  To put it
-another way, Git uses an ad-hoc pile-of-files key/value database whereas
-Fossil uses a proven, general-purpose SQL database.  This
-difference is more than an implementation detail.  It
-has important consequences.
+The difference is that Git stores its objects as individual files in the
+<tt>.git</tt> folder or compressed into bespoke
+[https://git-scm.com/book/en/v2/Git-Internals-Packfiles|pack-files],
+whereas Fossil stores its objects in a [https://www.sqlite.org/|SQLite]
+database file using a hybrid NoSQL/relational data model of the check-in
+history. Git's data storage system is an ad-hoc pile-of-files key/value
+database, whereas Fossil uses a proven,
+[https://sqlite.org/testing.html|heavily-tested], general-purpose,
+[https://sqlite.org/transactional.html|durable] SQL database.  This
+difference is more than an implementation detail. It has important
+practical consequences.
 
 With Git, one can easily locate the ancestors of a particular check-in
 by following the pointers embedded in the check-in object, but it is
 difficult to go the other direction and locate the descendants of a
 check-in.  It is so difficult, in fact, that neither native Git nor
-GitHub provide this capability.  With Git, if you are looking at some
-historical check-in then you cannot ask
-"What came next?" or "What are the children of this check-in?"
+GitHub provide this capability short of
+[http://catb.org/jargon/html/G/grovel.html|groveling] the
+[https://www.git-scm.com/docs/git-log|commit log].  With Git, if you
+are looking at some historical check-in then you cannot ask "What came
+next?" or "What are the children of this check-in?"
 
 Fossil, on the other hand, parses essential information about check-ins
-(parents, children, committers, comments, files changed, etc.)
-into a relational database that can be easily
-queried using concise SQL statements to find both ancestors and
-descendents of a check-in.
+(parents, children, committers, comments, files changed, etc.) into a
+relational database that can be easily queried using concise SQL
+statements to find both ancestors and descendants of a check-in. This is
+the hybrid data model mentioned above: Fossil manages your check-in and
+other data in a NoSQL block chain structured data store, but that's backed
+by a set of relational lookup tables for quick indexing into that
+artifact store.  (See "[./theory1.wiki|Thoughts On The Design Of The
+Fossil DVCS]" for more details.)
 
 Leaf check-ins in Git that lack a "ref" become "detached," making them
-difficult to locate and subject to garbage collection.  This
-"detached head" problem has caused untold grief for countless
-Git users.  With Fossil, all check-ins are easily located using
-a variety of attributes (parents, children, committer, date, full-text
-search of the check-in comment) and so detached heads are simply not possible.
+difficult to locate and subject to garbage collection. This
+[http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
+state] problem has caused untold grief for countless Git users. With
+Fossil, detached heads are simply impossible because we can always find
+our way back into the block chain using one or more of the relational
+indices it automatically manages for you.
 
-The ease with which check-ins can be located and queried in Fossil
-has resulted in a huge variety of reports and status screens
-([./webpage-ex.md|examples]) that show project state
-in ways that help developers
-maintain enhanced awareness and comprehension
-and avoid errors.
+This design difference shows up in several other places within each
+tool. It is why Fossil's [/help?cmd=timeline|timeline] is generally more
+detailed yet more clear than those available in Git front-ends.
+(Contrast [/timeline?c=6df7a853ec16865b|this Fossil timeline] with
+[https://github.com/drhsqlite/fossil-mirror/commits/master?after=f720c106d297ca1f61bccb30c5c191b88a626d01+34|its
+closest equivalent in GitHub].) It's why there is no inverse of the
+cryptic <tt>@~</tt> notation in Git, meaning "the parent of HEAD," which
+Fossil simply calls "prev", but there <i>is</i> a "next"
+[./checkin_names.wiki|special check-in name] in Fossil. It is why Fossil
+has so many [./webpage-ex.md|built-in status reports] to help maintain
+situational awareness, aid comprehension, and avoid errors.
+
+These differences are due, in part, to Fossil's start a year later than
+Git: we were able to learn from its key design mistakes.
 
 
-<h3 id="vs-linux">2.3 Linux vs. SQLite</h3>
+<h3 id="portable">2.4 Portable</h3>
+
+Fossil is largely written in ISO C, almost purely conforming to the
+original 1989 standard. We make very little use of
+[https://en.wikipedia.org/wiki/C99|C99], and we do not knowingly make
+any use of
+[https://en.wikipedia.org/wiki/C11_(C_standard_revision)|C11]. Fossil
+does call POSIX and Windows APIs where necessary, but it's about
+as portable as you can ask given that ISO C doesn't define all of the
+facilities Fossil needs to do its thing. (Network sockets, file locking,
+etc.) There are certainly well-known platforms Fossil hasn't been ported
+to yet, but that's most likely due to lack of interest rather than
+inherent difficulties in doing the port. We believe the most stringent
+limit on its portability is that it assumes at least a 32-bit CPU and
+several megs of flat-addressed memory.⁴ Fossil isn't quite as
+[https://www.sqlite.org/custombuild.html|portable as SQLite], but it's
+close.
+
+Over half of the C code in Fossil is actually an embedded copy of the
+current version of SQLite. Much of what is Fossil-specific after you set
+SQLite itself aside is SQL code calling into SQLite. The number of lines
+of SQL code in Fossil isn't large by percentage, but since SQL is such
+an expressive, declarative language, it has an outsized contribution to
+Fossil's user-visible functionality.
+
+Fossil isn't entirely C and SQL code. Its web UI uses JavaScript where
+necessary.⁵ The server-side
+UI scripting usse a custom minimal
+[https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
+[https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
+embedeed into Fossil itself. Fossil's build system and test suite are
+largely based on Tcl.⁶ All of this is quite portable.
+
+About half of Git's code is POSIX C, and about a third is POSIX shell
+code. This is largely why the so-called "Git for Windows" distributions
+(both [https://git-scm.com/download/win|first-party] and
+[https://gitforwindows.org/|third-party]) are actually an
+[http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
+with all of the Git stuff, because it would be too painful to port Git
+natively to Windows. Git is a foreign citizen on Windows, speaking to it
+only through a translator.⁷
+
+While Fossil does lean toward POSIX norms when given a choice — LF-only
+line endings are treated as first-class citizens over CR+LF, for example
+— the Windows build of Fossil is truly native.
+
+The third-party extensions to Git tend to follow this same pattern.
+[http://mingw.org/wiki/msys|GitLab isn't portable to Windows at all],
+for example. For that matter, GitLab isn't even officially supported on
+macOS, the BSDs, or uncommon Linuxes! We have many users who regularly
+build and run Fossil on all of these systems.
+
+
+<h3 id="vs-linux">2.5 Linux vs. SQLite</h3>
 
 Fossil and Git promote different development styles because each one was
 specifically designed to support the creator's main software
@@ -125,17 +273,18 @@ Torvalds] designed Git to support development of
 Fossil to support the development of [https://sqlite.org/|SQLite].
 Both projects must rank high on any objective list of "most
 important FOSS projects," yet these two projects are almost entirely unlike
-one another. So, too, are these two DVCSes.
+one another, so it is natural that the DVCSes created to support these
+projects also differ in many ways.
 
-In the following sections, we will explain how three key differences
-between Linux and SQLite dictated the design of each DVCS's low-friction
-usage path.
+In the following sections, we will explain how four key differences
+between the Linux and SQLite software development projects dictated the
+design of each DVCS's low-friction usage path.
 
 When deciding between these two DVCSes, you should ask yourself, "Is my
 project more like Linux or more like SQLite?"
 
 
-<h4 id="devorg">2.3.1 Development Organization</h4>
+<h4 id="devorg">2.5.1 Development Organization</h4>
 
 Eric S. Raymond's seminal essay-turned-book
 "[https://en.wikipedia.org/wiki/The_Cathedral_and_the_Bazaar|The
@@ -191,7 +340,7 @@ development model:
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
     contributions]. Fossil's closest equivalent is its unique
     [/help?cmd=bundle|bundle] feature, which requires higher engagement
-    than firing off a PR.² This difference comes directly from the
+    than firing off a PR.⁸ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
     the Linux kernel does.</p></li>
@@ -221,9 +370,13 @@ development model:
     Development]</i>: "[https://www.youtube.com/watch?v=oY6BCHqEbyc|Beware
     of a guy in a room]."</p></li>
 
-    <li><p><b>Branch names sync:</b> Unlike in Git, branch names are not
-    purely local labels. They sync along with everything else, so
-    everyone sees the same set of branch names.</p></li>
+    <li><p><b>Branch names sync:</b> Unlike in Git, branch names in
+    Fossil are not purely local labels. They sync along with everything
+    else, so everyone sees the same set of branch names. Fossil's design
+    choice here is a direct reflection of the Linux vs. SQLite project
+    outlook: SQLite's developers collaborate closely on a single
+    coherent project, whereas Linux's developers go off on tangents and
+    occasionally sync changes up with each other.</p></li>
 
     <li><p><b>Private branches are rare:</b>
     [/doc/trunk/www/private.wiki|Private branches exist in Fossil], but
@@ -247,7 +400,7 @@ Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
 
 
-<h4 id="scale">2.3.2 Scale</h4>
+<h4 id="scale">2.5.2 Scale</h4>
 
 The Linux kernel has a far bigger developer community than that of
 SQLite: there are thousands and thousands of contributors to Linux, most
@@ -262,9 +415,7 @@ having such a large set of developers working on such a large code base.
 95% of the code in SQLite comes from just four programmers, and 64% of
 it is from the lead developer alone. The SQLite developers know each
 other well and interact daily. Fossil was designed for this development
-model. As well, we think the fact of Fossil's birth a year later
-than Git allowed it to learn from some of the key design mistakes in
-Git.
+model.
 
 We think you should ask yourself whether you have Linus Torvalds scale
 software configuration management problems or D. Richard Hipp scale
@@ -274,7 +425,7 @@ wrench] running at 8000 RPM driving an M8 socket-cap bolt at 16 cm/s is
 not the best way to hang a picture on the living room wall.
 
 
-<h4 id="contrib">2.3.3 Accepting Contributions</h4>
+<h4 id="contrib">2.5.3 Accepting Contributions</h4>
 
 As of this writing, Git has received about 4.5⨉ as many commits as
 Fossil resulting in about 2.5⨉ as many lines of source code. The line
@@ -292,35 +443,58 @@ how we react to
 contributions]. In brief, it's harder to get a new feature into Fossil
 than into Git.
 
-A larger feature set size is not necessarily a good thing. Git's command line
+A larger feature set is not necessarily a good thing. Git's command line
 interface is famously arcane. Masters of the arcane are able to do
 wizardly things, but only by studying their art deeply for years. This
 strikes us as a good thing only in cases where use of the tool itself is
 the primary point of that user's work.
 
-Most DVCS users are not using a DVCS for its own sake, so we do not want
-the DVCS with the most features, we want the one with a more easily
-internalized behavior set, which we can pick up, use quickly, and then
-set aside in order to get back to our
-actual job as quickly as possible. There is some minimal set of features
-required to achieve that, but there is a level beyond which more
-features only slow us down while we're learning about the DVCS, as we
-must plow through documentation on features we're not likely to ever
-use. When the number of features grows
-to the point where people of normal motivation cannot spend the time to
-master them all, you make the tool <i>less</i> productive to use.
+Almost no one uses a DVCS for its own sake; very few people get paid
+specifically in order to drive a DVCS. We use DVCSes as a tool to
+support some other effort, so we do not necessarily want the DVCS with
+the most features. We want a DVCS with easily internalized behavior so
+we can thoroughly master it despite spending only a small fraction of
+our working time thinking about the DVCS. We want to pick the tool up,
+use it quickly, and then set it aside in order to get back to our actual
+job as quickly as possible.
 
-We achieve this balance between feature set size and ease of use by
+Professional software developers in particular are prone to focusing on
+feature set sizes when choosing tools because this is sometimes a highly
+important consideration. They spend all day, every day, in their
+favorite text editors, and time they spend learning all of the arcana of
+their favorite programming languages is well-spent. Skills with these
+tools are direct productivity drivers, which in turn directly drives how
+much money a developer can make. (Or how much idle time they can afford
+to take, which amounts to the same thing.) But if you are a professional
+software developer, we want you to ask yourself a question: "How do I
+get paid more by mastering arcane features of my DVCS?" Unless you have
+a good answer to that, you probably do not want to be choosing a DVCS
+based on how many arcane features it has.
+
+The argument is similar for other types of users: if you are a hobbyist,
+how much time do you want to spend mastering your DVCSs instead of on
+the hobby supported by use of that DVCS?
+
+There is some minimal set of features required to achieve the purposes
+that drive our selection of a DVCS, but there is a level beyond which
+more features only slow us down while we're learning the tool, since we
+must plow through documentation on features we're not likely to ever
+use. When the number of features grows to the point where people of
+normal motivation cannot spend the time to master them all, the tool
+becomes <i>less</i> productive to use.
+
+The core developers of the Fossil project achieve a balance between feature
+set size and ease of use by
 carefully choosing which users to give commit bits to, then in being
 choosy about which of the contributed feature branches to merge down to
-trunk.
+trunk. We say "no" to a lot of feature proposals.
 
 The end result is that Fossil more closely adheres to
 [https://en.wikipedia.org/wiki/Principle_of_least_astonishment|the
 principle of least astonishment] than Git does.
 
 
-<h3 id="branches">2.4 Individual Branches vs. The Entire Change History</h3>
+<h4 id="branches">2.5.4 Individual Branches vs. The Entire Change History</h4>
 
 Both Fossil and Git store history as a directed acyclic graph (DAG)
 of changes, but Git tends to focus more on individual branches of
@@ -333,7 +507,7 @@ GitHub, and GitLab tend to show only a single branch at
 a time, whereas Fossil usually shows all parallel branches at
 once.  Git has commands like "rebase" that help keep all relevant
 changes on a single branch, whereas Fossil encourages a style of
-many concurrent branches constantly springing into existance,
+many concurrent branches constantly springing into existence,
 undergoing active development in parallel for a few days or weeks, then
 merging back into the main line and disappearing.
 
@@ -349,55 +523,43 @@ up-to-date with what everybody else is doing, resulting in a more
 tightly focused and cohesive implementation.
 
 
-<h3 id="executables">2.5 Lots of little tools vs. Self-contained system</h3>
-
-Git consists of many small tools, each doing one small part of the job,
-which can be recombined (by experts) to perform powerful operations.
-Git has a lot of complexity and many dependencies and requires an "installer"
-script or program to get it running.
-
-Fossil is a single self-contained stand-alone executable with hardly
-any dependencies.  Fossil can be (and often is) run inside a
-minimally configured chroot jail.  To install Fossil,
-one merely puts the executable somewhere in the $PATH.
-
-The designer of Git says that the Unix philosophy is to have lots of
-small tools that collaborate to get the job done.  The designer of
-Fossil says that the Unix philosophy is "It just works."  Both
-individuals have written their DVCSes to reflect their own view
-of the "Unix philosophy."
-
-
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
-A "repository" in Git is a pile-of-files in the ".git" subdirectory
-of a single check-out.  The check-out and the repository are located
-together in the filesystem.
+A "repository" in Git is a pile-of-files in the <tt>.git</tt>
+subdirectory of a single check-out. The working check-out directory and
+the <tt>.git</tt> repository subdirectory are normally in the same
+directory within the filesystem.
 
-With Fossil, a "repository" is a single SQLite database file
-that can be stored anywhere.  There
-can be multiple active check-outs from the same repository, perhaps
-open on different branches or on different snapshots of the same branch.
+With Fossil, a "repository" is a single SQLite database file that can be
+stored anywhere.  There can be multiple active check-outs from the same
+repository, perhaps open on different branches or on different snapshots
+of the same branch.  It is common in Fossil to switch branches with a
+"<tt>cd</tt>" command between two check-out directories rather than
+switching to another branch in place within a single working directory.
 Long-running tests or builds can be running in one check-out while
 changes are being committed in another.
 
-Git version 2.5 adds a feature to emulate Fossil's decoupling of the
-repository from the check-out tree, which it calls
-"[https://git-scm.com/docs/git-worktree|git-worktree]." This command
-sets up a series of links in the filesystem to
-allow a single repository to host multiple check-outs.  However,
-the interface is sufficiently difficult to use that most people
-find it easier to create a separate clone for each check-out.
-There are also practical consequences of the way it's implemented
-that make worktrees not quite equivalent to the main Git repo + checkout
-tree.
+From the start, Git has allowed symlinks to this <tt>.git</tt> directory
+from multiple working directories. The <tt>git init</tt> command offers
+the <tt>--separate-git-dir</tt> option to set this up automatically.
+Then in version 2.5, Git added the
+"[https://git-scm.com/docs/git-worktree|git-worktree]" feature to
+provide a higher-level management interface atop this basic mechanism.
+Use of this more closely emulates Fossil's decoupling of repository and
+working directory, but the fact remains that it is far more common in
+Git usage to simply switch a single working directory among branches in
+place.
 
-With Fossil, the complete decoupling of repository and check-out tree
-means every working check-out tree is treated equally. It's common in
-Fossil to have a check-out tree for each major working branch so that
-you can switch branches with a "cd" command rather than replace the
-current working file set with a different file set by updating in place,
-as Git prefers.
+The main downside of that working style is that it invalidates all build
+objects created from files that change in switching between branches.
+When you have multiple working directories for a single repository, you
+can have a completely independent state in each working directory which
+is untouched by the "<tt>cd</tt>" command you use to switch among them.
+
+There are also practical consequences of the way <tt>.git</tt> links
+work that make multiple working directories in Git
+[https://duckduckgo.com/?q=git+worktree+problem | not quite
+interchangeable], as they are in Fossil.
 
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
@@ -431,40 +593,50 @@ One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
 
 
+<h3 id="hash">2.8 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>
+
+Fossil started out using 160-bit SHA-1 hashes to identify check-ins,
+just as in Git. That changed in early 2017 when news of the
+[https://shattered.io/|SHAttered attack] broke, demonstrating that SHA-1
+collisions were now practical to create. Two weeks later, the creator of
+Fossil delivered a new release allowing a clean migration to
+[https://en.wikipedia.org/wiki/SHA-3|256-bit SHA-3] with
+[./hashpolicy.wiki|full backwards compatibility] to old SHA-1 based
+repositories.
+
+Here in mid-2019, that feature is now in every OS and package repository
+known to include Fossil so that the next release as of this writing
+(Fossil 2.10) will default to enforcing SHA-3 hashes by default. This
+not only solves the SHAttered problem, it should prevent a reoccurrence
+for the foreseeable future. Only repositories created before the
+transition to Fossil 2 are still using SHA-1, and then only if the
+repository's maintainer chose not to switch them into SHA-3 mode some
+time over the past 2 years.
+
+Meanwhile, the Git community took until August 2018 to announce
+[https://git-scm.com/docs/hash-function-transition/2.18.0|their plan]
+for solving the same problem by moving to SHA-256 (a variant of the
+[https://en.wikipedia.org/wiki/SHA-2|older SHA-2 algorithm]) and until
+February 2019 to release a version containing the change. It's looking
+like this will take years more to percolate through the community.
+
+The practical impact of SHAttered on structured data stores like the one
+in Git and Fossil isn't clear, but you want to have your repositories
+moved over to a stronger hash algorithm before someone figures out how
+to make use of the weaknesses in the old one.  Fossil's developers moved
+on this problem quickly and had a widely-deployed solution to it years
+ago.
+
+
 <h2 id="missing">3.0 Missing Features</h2>
 
-Most of the capabilities found in Git are also available in Fossil and
-the other way around. For example, both systems have local check-outs,
-remote repositories, push/pull/sync, bisect capabilities, and a "stash."
-Both systems store project history as a directed acyclic graph (DAG)
-of immutable check-in objects.
-
-But there are a few capabilities in one system that are missing from the
-other.
+Although there is a large overlap in capability between Fossil and Git,
+there are many areas where one system has a feature that is simply
+missing in the other. We covered most of those above, but there
+are a few remaining feature differences we haven't gotten to yet.
 
 
 <h3 id="missing-in-git">3.1 Features found in Fossil but missing from Git</h3>
-
-  *  <b>The ability to show descendents of a check-in.</b>
-
-   Both Git and Fossil can easily find the ancestors of a check-in.  But
-   only Fossil shows the descendents.  (It is possible to find the
-   descendents of a check-in in Git using the log, but that is sufficiently
-   difficult that nobody ever actually does it.)
-
-  *  <b>Wiki, Embedded documentation, Trouble-tickets, Tech-Notes, and Forum</b>
-
-   Git only provides versioning of source code.  Fossil strives to provide
-   other related project management services as well.
-
-  *  <b>Named branches</b>
-
-   Branches in Fossil have persistent names that are propagated
-   to collaborators via [/help?cmd=push|push] and [/help?cmd=pull|pull].
-   All developers see the same name on the same branch.  Git, in contrast,
-   uses only local branch names, so developers working on the
-   same project can (and frequently do) use a different name for the
-   same branch.
 
   *  <b>The [/help?cmd=all|fossil all] command</b>
 
@@ -474,12 +646,6 @@ other.
    from their respective servers, prior to taking the laptop off network.
    Or it is possible to do "fossil all changes" to see if there are any
    uncommitted changes that were overlooked prior to the end of the workday.
-
-  *  <b>The [/help?cmd=ui|fossil ui] command</b>
-
-   Fossil supports an integrated web interface.  Some of the same features
-   are available using third-party add-ons for Git, but they do not provide
-   nearly as many features and they are not nearly as convenient to use.
 
   *  <b>The [/help?cmd=undo|fossil undo] command</b>
 
@@ -503,7 +669,7 @@ other.
    Because of its emphasis on recording history exactly as it happened,
    rather than as we would have liked it to happen, Fossil deliberately
    does not provide a "rebase" command.  One can rebase manually in Fossil,
-   with sufficient perserverence, but it is not something that can be done with
+   with sufficient perseverance, but it is not something that can be done with
    a single command.
 
   *  <b>Push or pull a single branch</b>
@@ -519,20 +685,75 @@ other.
 <h3>Asides and Digressions</h3>
 
 <i><small><ol>
-    <li><p>Git does not include a wiki, a ticket tracker, a forum, or a
-    tech-note feature, so those elements will not transfer when
-    exporting from Fossil to Git. GitHub adds some of these to stock
+    <li><p>[./mirrorlimitations.md|Many
+    things are lost] in making a Git mirror of a Fossil repo due to
+    limitations of Git relative to Fossil. GitHub adds some of these
+    missing features to stock
     Git, but because they're not part of Git proper,
     [./mirrortogithub.md|exporting a Fossil repository to GitHub] will
     still not include them; Fossil tickets do not become GitHub issues,
-    for example.</p></li>
+    for example.
+
+    <li><p>The <tt>fossil-scm.org</tt> web site is actually hosted in
+    several parts, so that it is not strictly true that "everything" on
+    it is in the self-hosting Fossil project repo. The web forum is
+    hosted as [https://fossil-scm.org/forum/|a separate Fossil repo]
+    from the [https://fossil-scm.org/fossil/|main Fossil self-hosting
+    repo] for administration reasons, and the Download page content
+    isn't normally sync'd with a "<tt>fossil clone</tt>" command unless
+    you add the "-u" option.  (See "[./aboutdownload.wiki|How the
+    Download Page Works]" for details.) There may also be some purely
+    static elements of the web site served via D. Richard Hipp's own
+    lightweight web server,
+    <tt>[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|althttpd]</tt>,
+    which is configured as a front end to Fossil running in CGI mode on
+    these sites.
+
+    <li><p>That estimate is based on pricing at Digital Ocean in
+    mid-2019: Fossil will run just fine on the smallest instance they
+    offer, at US $5/month, but the closest match to GitLab's minimum
+    requirements among Digital Ocean's offerings currently costs
+    $40/month.
+
+    <li><p>This means you can give up waiting for Fossil to be ported to
+    the PDP-11, but we remain hopeful that someone may eventually port
+    it to [https://en.wikipedia.org/wiki/Z/OS|z/OS].
+
+    <li><p>We try to keep use of Javascript to a minimum in the web UI,
+    and we always try to provide sensible fallbacks for those that run
+    their browsers with Javascript disabled. Some features of the web UI
+    simply won't run without Javascript, but the UI behavior does
+    degrade gracefully.
+
+    <li><p>"Why is there all this Tcl in and around Fossil?" you may
+    ask. It is because D. Richard Hipp is a long-time Tcl user and
+    contributor. SQLite started out as an embedded database for Tcl
+    specifically. ([https://sqlite.org/tclsqlite.html | [Reference]])
+    When he then created Fossil to manage the development of SQLite, it
+    was natural for him to use Tcl-based tools for its scripting, build
+    system, test system, etc. It came full circle in 2011 when
+    [https://www.reddit.com/r/programming/comments/fwrx5/tcl_and_tk_move_away_from_cvs_to_fossil/
+    | the Tcl and Tk projects moved from CVS to Fossil].
+
+    <li><p>A minority of the pieces of the Git core software suite are
+    written in other languages, primarily Perl, Python, and Tcl. (e.g.
+    <tt>git-send-mail</tt>, <tt>git-p4</tt>, and <tt>gitk</tt>,
+    respectively.)  Although these interpreters are quite portable, they
+    aren't installed by default everywhere, and on some platforms you
+    can't count on them at all. (Not just Windows, but also the BSDs and
+    many other non-Linux platforms.) This expands the dependency
+    footprint of Git considerably. It is why the current Git for Windows
+    distribution is 44.7&nbsp;MiB but the current <tt>fossil.exe</tt>
+    zip file for Windows is 2.24&nbsp;MiB. Fossil is much smaller
+    despite using a roughly similar amount of high-level scripting code
+    because its interpreters are compact and built into Fossil itself.
 
     <li><p>Both Fossil and Git support
     [https://en.wikipedia.org/wiki/Patch_(Unix)|<tt>patch(1)</tt>
     files], a common way to allow drive-by contributions, but it's a
     lossy contribution path for both systems. Unlike Git PRs and Fossil
-    bundles, patch files collapse mulitple checkins together, they don't
+    bundles, patch files collapse multiple checkins together, they don't
     include check-in comments, and they cannot encode changes made above
-    the individual file content layer: you lose branching decisisions,
+    the individual file content layer: you lose branching decisions,
     tag changes, file renames, and more when using patch files.</p></li>
 </ol></i></small>

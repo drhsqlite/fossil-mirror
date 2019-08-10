@@ -150,7 +150,7 @@ location of the `~/.fossil` file.
 
 
 `FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
-SEE as text to be hashed into the actaul encryption key.  This has no
+SEE as text to be hashed into the actual encryption key.  This has no
 effect if Fossil was not compiled with SEE support enabled.
 
 

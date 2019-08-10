@@ -200,7 +200,7 @@ TH1 Variables
 
 Before expanding the TH1 within the header and footer, Fossil first
 initializes a number of TH1 variables to values that depend on
-respository settings and the specific page being generated.
+repository settings and the specific page being generated.
 
    *   **project_name** - The project_name variable is filled with the
        name of the project as configured under the Admin/Configuration

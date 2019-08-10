@@ -28,17 +28,30 @@
 > 5.  **\[display text\]\[label\]**
 > 6.  **\[display text\]\[\]**
 > 7.  **\[display text\]**
+> 8.  **\[\]\(URL\)**
 
-> **URL** may optionally be written **\<URL\>**.  With link formats 5, 6, and 7
-> ("reference links"), the URL is supplied elsewhere in the document, as shown
-> below.  Link formats 6 and 7 reuse the display text as the label.  Labels are
-> case-insensitive.  The title may be split onto the next line with optional
-> indenting.
+> With link formats 5, 6, and 7 ("reference links"), the URL is supplied
+> elsewhere in the document, as shown below.  Link formats 6 and 7 reuse
+> the display text as the label.  Labels are case-insensitive.  The title
+> may be split onto the next line with optional indenting.
 
 > * **\[label\]:&nbsp;URL**
 > * **\[label\]:&nbsp;URL&nbsp;"Title"**
 > * **\[label\]:&nbsp;URL&nbsp;'Title'**
 > * **\[label\]:&nbsp;URL&nbsp;(Title)**
+
+> **URL** may optionally be written **\<URL\>**.
+> In addition to ordinary URLs, the **URL** may be:
+> <ul>
+> <li>  A pathname starting with "/" in which case the Fossil server
+>      URL prefix is prepended
+> <li>  A wiki page name, or a wiki page name preceded by "wiki:"
+> <li> An artifact or ticket hash or hash prefix
+> <li>  A date and time stamp: "YYYY-MM-DD HH:MM:SS" or a subset that
+>      includes at least the day of the month.</ul>
+
+> In form 8, then the URL becomes the display text.  This is useful for
+> hyperlinks that refer to wiki pages and check-in and ticket hashes.
 
 ## Fonts ##
 
@@ -78,30 +91,20 @@
 > >
     > > Double-indented paragraph
 
-## Literal/Verbatim Text ##
-
-> There are several ways to write text in Markdown that should be
-> rendered without any special interpretation.
+## Literal/Verbatim Text - Code Blocks ##
 
 > For inline text, you can either use \``backticks`\` or the HTML
 > `<code>` tag.
 >
-> For blocks of text, there are several methods:
+> For blocks of text or code:
 >
 > 1. Indent the text using a tab character or at least four spaces.
 > 2. Precede the block with an HTML `<pre>` tag and follow it with `</pre>`.
-> 3. Surround the block in triple backticks (\`\`\`) either at the
+> 3. Surround the block by \`\`\` (three or more) or \~\~\~ either at the
 > left margin or indented no more than three spaces.
-
-> Note that unlike in [GitHub-Flavored Markdown][gfm], Fossil does not
-> currently support any “info string” in [fenced code blocks][gfmf]
-> after the opening sequence, including language tags
 
 > With the standard skins, verbatim text is rendered in a fixed-width font,
 > but that is purely a presentation matter, controlled by the skin’s CSS.
-
-[gfm]:  https://github.github.com/gfm/
-[gfmf]: https://github.github.com/gfm/#fenced-code-blocks
 
 ## Tables ##
 

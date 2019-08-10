@@ -1,29 +1,31 @@
 <title>CGI Server Extensions</title>
 
-If you choose to have a [./server.wiki|central server] for your Fossil-based
-project (which is entirely optional - Fossil can be use an a pure peer-to-peer
-mode) then you can also add CGI extensions to the Fossil websiteite d.  These
-extensions work like any other CGI program, except that they also have access
-to the Fossil login information, so that they can restrict access based on
-the currently logged in user.  The CGI output can be a stand-alone webpage,
-or it can be incorporated into the Fossil site using the standard Fossil
-header and footer.
+<h2>1.0 Introduction</h2>
+
+If you have a [./server.wiki|Fossil server] for your project,
+you can add [https://en.wikipedia.org/wiki/Common_Gateway_Interface|CGI]
+extensions to that server.  These extensions work like
+any other CGI program, except that they also have access to the Fossil
+login information and can (optionally) leverage the "skins" of Fossil
+so that they appear to be more tightly integrated into the project.
 
 An example of where this is useful is the 
-[checklist application](https://sqlite.org/src/ext/checklist) on
-the [SQLite](https://sqlite.org/) project.  The checklist
+[https://sqlite.org/src/ext/checklist|checklist application] on
+the [https://sqlite.org/|SQLite] project.  The checklist
 helps the SQLite developers track which release tests have passed,
-or failed, or are still to be done.  The checklist used to be a
+or failed, or are still to be done.  The checklist program began as a
 stand-alone CGI which kept its own private user database and implemented
-its on permissions and login system.  By converting checklist into
-a Fossil extension, the same login that works for the
-[main SQLite source repository](https://sqlite.org/src) also works
-for the checklist.  And permission to change elements of the checklist
-is based on permission to check-in to the main source repository.
+its own permissions and login system and provided its own CSS.  By
+converting checklist into a Fossil extension, the same login that works 
+for the [https://sqlite.org/src|main SQLite source repository] also works
+for the checklist.  Permission to change elements of the checklist
+is tied on permission to check-in to the main source repository.  And
+the standard Fossil header menu and footer appear on each page of
+the checklist.
 
-<h2>How It Works</h2>
+<h2>2.0 How It Works</h2>
 
-Extensions are off by default.
+CGI Extensions are disabled by default.
 An administrator activates the CGI extension mechanism by specifying
 an "Extension Root Directory" or "extroot" as part of the server setup.
 If the Fossil server is itself run as CGI, then add a line to the CGI
@@ -37,8 +39,8 @@ Or, if the Fossil server is begin run as using the "fossil server" or
 "fossil ui" or "fossil http" commands, then add an extra 
 "--extroot <i>DIRECTORY</i>" option to that command.
 
-The <i>DIRECTORY</i> thus specified becomes the DOCUMENT_ROOT for the
-CGI.  Files in the DOCUMENT_ROOT are accessed via URLs like this:
+The <i>DIRECTORY</i> is the DOCUMENT_ROOT for the CGI.
+Files in the DOCUMENT_ROOT are accessed via URLs like this:
 
 <blockquote>
 https://example-project.org/ext/<i>FILENAME</i>
@@ -49,3 +51,232 @@ relative to DOCUMENT_ROOT to the [/help?cmd=/ext|/ext]
 page of the Fossil server.
 Files that are readable but not executable are returned as static
 content.  Files that are executable are run as CGI.
+
+<h3>2.1 Example #1</h3>
+
+The source code repository for SQLite is a Fossil server that is run
+as CGI.  The URL for the source code repository is [https://sqlite.org/src].
+The CGI script looks like this:
+
+<blockquote><verbatim>
+#!/usr/bin/fossil
+repository: /fossil/sqlite.fossil
+errorlog: /logs/errors.txt
+extroot: /sqlite-src-ext
+</verbatim></blockquote>
+
+The "extroot: /sqlite-src-ext" line tells Fossil that it should look for
+extension CGIs in the /sqlite-src-ext directory.  (All of this is happening
+inside of a chroot jail, so putting the document root in a top-level
+directory is a reasonable thing to do.)
+
+When a URL like "https://sqlite.org/src/ext/checklist" is received by the
+main webserver, it figures out that the /src part refers to the main
+Fossil CGI script and so it runs that script.  Fossil gets the remainder
+of the URL to work with: "/ext/checklist".  Fossil extracts the "/ext"
+prefix and uses that to determine that this a CGI extension request.
+Then it takes the leftover "/checklist" part and appends it to the
+"extroot" to get the filename "/sqlite-src-ext/checklist".  Fossil finds
+that file to be executable, so it runs it as CGI and returns the result.
+
+The /sqlite-src-ext/checklist file is a
+[https://wapp.tcl.tk|Wapp program].  The current source code to the
+this program can be seen at
+[https://www.sqlite.org/src/ext/checklist/self] and
+recent historical versions are available at
+[https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
+older legacy at [https://sqlite.org/checklistapp/timeline?n=all]
+
+There is a cascade of CGIs happening here.  The webserver that receives
+the initial HTTP request runs Fossil as a CGI based on the
+"https://sqlite.org/src" portion of the URL.  The Fossil instance then
+runs the checklist sub-CGI based on the "/ext/checklists" suffix.  The
+output of the sub-CGI is read by Fossil and then relayed on to the
+main webserver which in turn relays the result back to the original client.
+
+<h3>2.2 Example #2</h3>
+
+The [https://fossil-scm.org/home|Fossil self-hosting repository] is also
+a CGI that looks like this:
+
+<blockquote><verbatim>
+#!/usr/bin/fossil
+repository: /fossil/fossil.fossil
+errorlog: /logs/errors.txt
+extroot: /fossil-extroot
+</verbatim></blockquote>
+
+The extroot for this Fossil server is /fossil-extroot and in that directory
+is an executable file named "fileup1" - another [https://wapp.tcl.tk|Wapp]
+script.  (The extension mechanism does not have to use Wapp.  You can use
+any kind of program you like.  But the creator of SQLite and Fossil is fond
+of [https://www.tcl.tk|Tcl/Tk] and so he tends to gravitate toward Tcl-based
+technologies like Wapp.)  The fileup1 script is a demo program that lets
+the user upload a file using a form, and then displays that file in the reply.
+There is a link on the page that causes the fileup1 script to return a copy
+of its own source-code, so you can see how it works.
+
+<h2>3.0 CGI Inputs</h2>
+
+The /ext extension mechanism is an ordinary CGI interface.  Parameters
+are passed to the CGI program using environment variables.  The following
+standard CGI environment variables are supported:
+
+  *  AUTH_TYPE
+  *  AUTH_CONTENT
+  *  CONTENT_LENGTH
+  *  CONTENT_TYPE
+  *  DOCUMENT_ROOT
+  *  GATEWAY_INTERFACE
+  *  HTTP_ACCEPT
+  *  HTTP_ACCEPT_ENCODING
+  *  HTTP_COOKIE
+  *  HTTP_HOST
+  *  HTTP_IF_MODIFIED_SINCE
+  *  HTTP_IF_NONE_MATCH
+  *  HTTP_REFERER
+  *  HTTP_USER_AGENT
+  *  PATH_INFO
+  *  QUERY_STRING
+  *  REMOTE_ADDR
+  *  REMOTE_USER
+  *  REQUEST_METHOD
+  *  REQUEST_URI
+  *  SCRIPT_DIRECTORY
+  *  SCRIPT_FILENAME
+  *  SCRIPT_NAME
+  *  SERVER_NAME
+  *  SERVER_PORT
+  *  SERVER_PROTOCOL
+
+Do a web search for
+"[https://duckduckgo.com/?q=cgi+environment_variables|cgi environment variables]"
+to find more detail about what each of the above variables mean and how
+they are used.
+Live listings of the values of some or all of these environment variables
+can be found at links like these:
+
+  *  [https://fossil-scm.org/home/test_env]
+  *  [https://sqlite.org/src/ext/checklist/env]
+
+In addition to the standard CGI environment variables listed above, 
+Fossil adds the following:
+
+  *  FOSSIL_CAPABILITIES
+  *  FOSSIL_REPOSITORY
+  *  FOSSIL_URI
+  *  FOSSIL_USER
+
+The FOSSIL_USER string is the name of the logged-in user.  This variable
+is missing or is an empty string if the user is not logged in.  The
+FOSSIL_CAPABILITIES string is a list of 
+[/setup_ulist_notes|Fossil capability letters] that
+indicate what permissions the user has on the Fossil repository.
+The FOSSIL_REPOSITORY environment variable gives the filename of the
+Fossil repository that is running.  The FOSSIL_URI variable shows the
+prefix of the REQUEST_URI that is the Fossil CGI script, or is an
+empty string if Fossil is being run by some method other than CGI.
+
+The [https://sqlite.org/src/ext/checklist|checklist application] uses the
+FOSSIL_USER environment variable to determine the name of the user and
+the FOSSIL_CAPABILITIES variable to determine if the user is allowed to
+mark off changes to the checklist.  Only users with check-in permission
+to the Fossil repository are allowed to mark off checklist items.  That
+means that the FOSSIL_CAPABILITIES string must contain the letter "i".
+Search for "FOSSIL_CAPABILITIES" in the
+[https://sqlite.org/src/ext/checklist/self|source listing] to see how
+this happens.
+
+If the HTTP request includes content (for example if this is a POST request)
+then the CONTENT_LENGTH value will be positive and the data for the content
+will be readable on standard input.
+
+<h2>4.0 CGI Outputs</h2>
+
+CGI programs construct a reply by writing to standard output.  The first
+few lines of output are parameters intended for the webserver that invoked
+the CGI.  These are followed by a blank line and then the content.
+
+Typical parameter output looks like this:
+
+<blockquote><verbatim>
+Status: 200 Ok
+Content-Type: text/html
+</verbatim></blockquote>
+
+CGI programs can return any content type they want - they are not restricted
+to text replies.  It is OK for a CGI program to return (for example)
+image/png.
+
+The fields of the CGI response header can be any valid HTTP header fields.
+Those that Fossil does not understand are simply relayed back to up the
+line to the requester.
+
+Fossil takes special action with some content types.  If the Content-Type
+is "application/x-fossil-wiki" or "application/x-markdown" then Fossil
+converts the content from [/wiki_rules|Fossil-Wiki] or 
+[/md_rules|Markdown] into HTML, adding its
+own header and footer text according to the repository skin.  Content
+of type "text/html" is normally passed straight through
+unchanged.  However, if the text/html content is of the form:
+
+<blockquote><verbatim>
+<div class='fossil-doc' data-title='DOCUMENT TITLE'>
+... HTML content there ...
+</div>
+</verbatim></blockquote>
+
+In other words, if the outer-most markup of the HTML is a &lt;div&gt;
+element with a single class of "fossil-doc", 
+then Fossil will adds its own header and footer to the HTML.  The
+page title contained in the added header will be extracted from the
+"data-title" attribute.
+
+Except for the three cases noted above, Fossil makes no changes or
+additions to the CGI-generated content.  Fossil just passes the verbatim
+content back up the stack towards the requester.
+
+<h2>5.0 Filename Restrictions</h2>
+
+For security reasons, Fossil places restrictions on the names of files
+in the extroot directory that can participate in the extension CGI
+mechanism:
+
+  1.  Filenames must consist of only ASCII alphanumeric characters,
+      ".", "_", and "-", and of course "/" as the file separator.
+      Files with names that includes spaces or
+      other punctuation or special characters are ignored.
+
+  2.  No element of the pathname can begin with "." or "-".  Files or
+      directories whose names begin with "." or "-" are ignored.
+
+If a CGI program requires separate data files, it is safe to put those
+files in the same directory as the CGI program itself as long as the names
+of the data files contain special characters that cause them to be ignored
+by Fossil.
+
+<h2>6.0 Trouble-Shooting Hints</h2>
+
+Remember that the /ext will return any file in the extroot directory
+hierarchy as static content if the file is readable but not executable.
+When initially setting up the /ext mechanism, it is sometimes helpful
+to verify that you are able to receive static content prior to working
+on getting your CGIs working.  Also remember that CGIs must be
+executable files.
+
+Fossil likes to run inside a chroot jail, and will automatically put
+itself inside a chroot jail if it can.  The sub-CGI program will also
+run inside this same chroot jail.  Make sure all embedded pathnames
+have been adjusted accordingly and that all resources needed by the
+CGI program are available within the chroot jail.
+
+If anything goes wrong while trying to process an /ext page, Fossil
+returns a 404 Not Found error with no details.  However, if the requester
+is logged in as a user that has Debug privilege (capability letter "D")
+then additional diagnostic information may be included in the output.
+
+If the /ext page has a "fossil-ext-debug=1" query parameter and if
+the requester is logged in as a user with Debug privilege, then the
+CGI output is returned verbatim, as text/plain and with the original
+header intact.  This is useful for trying diagnosing problems with the
+CGI script.

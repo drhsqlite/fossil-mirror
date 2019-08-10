@@ -43,6 +43,7 @@ set doclist {
   forum.wiki {Fossil Forums}
   foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-from-msvc.wiki {Integrating Fossil in the Microsoft Express 2010 IDE}
+  fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
   grep.md {Fossil grep vs POSIX grep}
@@ -54,6 +55,7 @@ set doclist {
   inout.wiki {Import And Export To And From Git}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
   makefile.wiki {The Fossil Build Process}
+  mirrorlimitations.md {Limitations On Git Mirrors}
   mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
   /md_rules {Markdown Formatting Rules}
   newrepo.wiki {How To Create A New Fossil Repository}
@@ -69,6 +71,8 @@ set doclist {
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
+  serverext.wiki {CGI Server Extensions}
+  serverext.wiki {Adding Extensions To A Fossil Server Using CGI Scripts}
   settings.wiki {Fossil Settings}
   /sitemap {Site Map}
   shunning.wiki {Shunning: Deleting Content From Fossil}

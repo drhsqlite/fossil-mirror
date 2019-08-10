@@ -245,15 +245,22 @@ scheme on generated hyperlinks.
 
 The public SQLite and Fossil web sites can't just use stunnel + Fossil
 because parts of the web site are static, served by
-[https://www.sqlite.org/docsrc/file/misc/althttpd.c|a separate web
+[https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md|a separate web
 server called <tt>althttpd</tt>], written by the primary author of both
-SQLite and Fossil. It is a lightweight HTTP-only web server. It handles
-the static HTTP hits on <tt>sqlite.org</tt> and <tt>fossil-scm.org</tt>,
-delegating HTTPS and dynamic Fossil content hits to stunnel and Fossil.
+SQLite and Fossil. <tt>althttpd</tt> is a lightweight HTTP-only web
+server. It handles the static HTTP hits on <tt>sqlite.org</tt> and
+<tt>fossil-scm.org</tt>, delegating HTTPS hits to stunnel and dynamic
+content hits to Fossil.
 
-The only documentation for althttpd currently is in its header comment.
-As is typical for drh software, althttpd is a single-file C program, so
-that at worst, you just have to read its code to understand it.
+(The largest single chunk of static content served directly by
+<tt>althttpd</tt> rather than via Fossil is the
+[https://sqlite.org/docs.html | SQLite documentation], which is built
+[https://sqlite.org/docsrc/ | from source files] and then served
+statically.)
+
+In addition to the documentation linked above, there is a large header
+comment in the [https://sqlite.org/docsrc/file/misc/althttpd.c|single C
+file] of <tt>althttpd</tt> which is most helpful.
 
 
 <h3 id="nginx">nginx</h3>

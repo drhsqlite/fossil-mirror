@@ -69,7 +69,7 @@ struct mkd_renderer {
   /* span level callbacks - NULL or return 0 prints the span verbatim */
   int (*autolink)(struct Blob *ob, struct Blob *link,
           enum mkd_autolink type, void *opaque);
-  int (*codespan)(struct Blob *ob, struct Blob *text, void *opaque);
+  int (*codespan)(struct Blob *ob, struct Blob *text, int nSep, void *opaque);
   int (*double_emphasis)(struct Blob *ob, struct Blob *text,
             char c, void *opaque);
   int (*emphasis)(struct Blob *ob, struct Blob *text, char c,void*opaque);
@@ -727,14 +727,15 @@ static size_t char_codespan(
   size_t size
 ){
   size_t end, nb = 0, i, f_begin, f_end;
+  char delim = data[0];
 
   /* counting the number of backticks in the delimiter */
-  while( nb<size && data[nb]=='`' ){ nb++; }
+  while( nb<size && data[nb]==delim ){ nb++; }
 
   /* finding the next delimiter */
   i = 0;
   for(end=nb; end<size && i<nb; end++){
-    if( data[end]=='`' ) i++; else i = 0;
+    if( data[end]==delim ) i++; else i = 0;
   }
   if( i<nb && end>=size ) return 0; /* no matching delimiter */
 
@@ -750,9 +751,9 @@ static size_t char_codespan(
   if( f_begin<f_end ){
     struct Blob work = BLOB_INITIALIZER;
     blob_init(&work, data+f_begin, f_end-f_begin);
-    if( !rndr->make.codespan(ob, &work, rndr->make.opaque) ) end = 0;
+    if( !rndr->make.codespan(ob, &work, nb, rndr->make.opaque) ) end = 0;
   }else{
-    if( !rndr->make.codespan(ob, 0, rndr->make.opaque) ) end = 0;
+    if( !rndr->make.codespan(ob, 0, nb, rndr->make.opaque) ) end = 0;
   }
   return end;
 }
@@ -1197,6 +1198,18 @@ static size_t prefix_code(char *data, size_t size){
     return 4;
   }
   return 0;
+}
+
+/* Return the number of characters in the delimiter of a fenced code
+** block. */
+static size_t prefix_fencedcode(char *data, size_t size){
+  char c = data[0];
+  int nb;
+  if( c!='`' && c!='~' ) return 0;
+  for(nb=1; nb<size-3 && data[nb]==c; nb++){}
+  if( nb<3 ) return 0;
+  if( nb>=size-nb ) return 0;
+  return nb;
 }
 
 /* prefix_oli -- returns ordered list item prefix */
@@ -2015,6 +2028,8 @@ static void parse_block(
       beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED);
     }else if( has_table && is_tableline(txt_data, end) ){
       beg += parse_table(ob, rndr, txt_data, end);
+    }else if( prefix_fencedcode(txt_data, end) ){
+      beg += char_codespan(ob, rndr, txt_data, 0, end);
     }else{
       beg += parse_paragraph(ob, rndr, txt_data, end);
     }

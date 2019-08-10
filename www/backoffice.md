@@ -76,7 +76,7 @@ However, the daily digest of email notifications is handled by the
 backoffice.  If a Fossil server can sometimes go more than a day without
 being accessed, then the automatic backoffice will never run, and the
 daily digest might not go out until somebody does visit a webpage.
-If this is a problem, an adminstrator can set up a cron job to
+If this is a problem, an administrator can set up a cron job to
 periodically run:
 
 >   fossil backoffice _REPOSITORY_
