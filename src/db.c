@@ -1385,17 +1385,20 @@ int db_open_config(int useAttach, int isOptional){
     if( zHome==0 ){
       zHome = fossil_getenv("APPDATA");
       if( zHome==0 ){
-        char *zDrive = fossil_getenv("HOMEDRIVE");
-        char *zPath = fossil_getenv("HOMEPATH");
-        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        zHome = fossil_getenv("USERPROFILE");
+        if( zHome==0 ){
+          char *zDrive = fossil_getenv("HOMEDRIVE");
+          char *zPath = fossil_getenv("HOMEPATH");
+          if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        }
       }
     }
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
     fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
-                 "environment variables");
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, USERPROFILE, "
+                 "or HOMEDRIVE / HOMEPATH environment variables");
   }
 #else
   if( zHome==0 ){
