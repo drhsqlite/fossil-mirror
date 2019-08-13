@@ -1950,6 +1950,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.
 **
+**    timeout: SECONDS         Do not run for longer than SECONDS.  The default
+**                             timeout is 300 seconds.
+**
 **    extroot: DIR             Directory that is the root of the sub-CGI tree
 **                             on the /ext page.
 **
@@ -1983,6 +1986,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
+  fossil_set_timeout(300);
   blob_read_from_file(&config, zFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
@@ -2106,6 +2110,15 @@ void cmd_cgi(void){
       */
       g.zExtRoot = mprintf("%s", blob_str(&value));
       blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "timeout:") && blob_token(&line, &value) ){
+      /* timeout: SECONDS
+      **
+      ** Set an alarm() that kills the process after SECONDS.  The
+      ** default value is 300 seconds.
+      */
+      fossil_set_timeout(atoi(blob_str(&value)));
       continue;
     }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
@@ -2455,10 +2468,26 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
-** Send a time-out reply
+** Respond to a SIGALRM by writing a message to the error log (if there
+** is one) and exiting.
 */
-void sigalrm_handler(int x){
+static void sigalrm_handler(int x){
   fossil_panic("TIMEOUT");
+}
+
+/*
+** Arrange to timeout using SIGALRM after N seconds.  Or if N==0, cancel
+** any pending timeout.
+**
+** Bugs:
+** (1) This only works on unix systems.
+** (2) Any call to sleep() or sqlite3_sleep() will cancel the alarm.
+*/
+void fossil_set_timeout(int N){
+#ifndef _WIN32
+  signal(SIGALRM, sigalrm_handler);
+  alarm(N);
+#endif
 }
 
 /*
@@ -2541,7 +2570,7 @@ void cmd_webserver(void){
   int flags = 0;            /* Server flags */
 #if !defined(_WIN32)
   int noJail;               /* Do not enter the chroot jail */
-  const char *zMaxLatency;   /* Maximum runtime of any single HTTP request */
+  const char *zTimeout = "300";  /* Max runtime of any single HTTP request */
 #endif
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
@@ -2573,7 +2602,7 @@ void cmd_webserver(void){
   skin_override();
 #if !defined(_WIN32)
   noJail = find_option("nojail",0,0)!=0;
-  zMaxLatency = find_option("max-latency",0,1);
+  zTimeout = find_option("max-latency",0,1);
 #endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
@@ -2691,9 +2720,8 @@ void cmd_webserver(void){
   ** child process, the HTTP or SCGI request is pending on file
   ** descriptor 0 and the reply should be written to file descriptor 1.
   */
-  if( zMaxLatency ){
-    signal(SIGALRM, sigalrm_handler);
-    alarm(atoi(zMaxLatency));
+  if( zTimeout ){
+    fossil_set_timeout(atoi(zTimeout));
   }
   g.httpIn = stdin;
   g.httpOut = stdout;

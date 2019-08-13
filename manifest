@@ -1,5 +1,5 @@
-C Add\s"Forum\sPosts"\sas\san\soption\sto\s"Activity\sReports"
-D 2019-08-13T14:40:42.610
+C Set\sa\sdefault\stimeout\son\sCGI\srequests\sof\s300\sseconds.
+D 2019-08-13T19:31:34.749
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c 0cbe4118ce096d4316903a69189a064c9161d39d8c48744520ec2e4f4583bf6c
+F src/main.c b977f2c1c4dbf45918af11f8235d9a7b15595e8ff5926020c620de5f41069cbf
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -887,8 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8fac03594f7eb91faba5abd30b2f0a8d77e8774797cbbbae214f9e5024a1b75 f39e47a19eb574b3181bae355420dfef70faa25c45f69b35ee8e8fe8f1c44736
-R 6f2bb3ae2b9193dd318759e2897cbe68
-T +closed f39e47a19eb574b3181bae355420dfef70faa25c45f69b35ee8e8fe8f1c44736
+P 6ada7e37686eb3cd8cc014cf525ebd4e8726216ce182e9c45722dd2c48458a7d
+R 8d302a32f6bbf78b1d98cae9d3fe35ca
 U drh
-Z e65e4b3b9922edbec9a3a3df94695a3a
+Z ee2dc4d58858f1da6aafd23235ab7857
