@@ -28,15 +28,18 @@ the checklist.
 CGI Extensions are disabled by default.
 An administrator activates the CGI extension mechanism by specifying
 an "Extension Root Directory" or "extroot" as part of the server setup.
-If the Fossil server is itself run as CGI, then add a line to the CGI
-script file that says:
+If the Fossil server is itself run as 
+[./server.wiki#cgi|CGI], then add a line to the 
+[./cgi.wiki#extroot|CGI script file] that says:
 
 <blockquote><pre>
 extroot: <i>DIRECTORY</i>
 </pre></blockquote>
 
-Or, if the Fossil server is begin run as using the "fossil server" or
-"fossil ui" or "fossil http" commands, then add an extra 
+Or, if the Fossil server is begin run as using the 
+"[./server.wiki#standalone|fossil server]" or
+"[./server.wiki#standalone|fossil ui]" or 
+"[./server.wiki#inetd|fossil http]" commands, then add an extra 
 "--extroot <i>DIRECTORY</i>" option to that command.
 
 The <i>DIRECTORY</i> is the DOCUMENT_ROOT for the CGI.
@@ -108,7 +111,7 @@ extroot: /fossil-extroot
 
 The extroot for this Fossil server is /fossil-extroot and in that directory
 is an executable file named "fileup1" - another [https://wapp.tcl.tk|Wapp]
-script.  (The extension mechanism does not have to use Wapp.  You can use
+script.  (The extension mechanism is not required to use Wapp.  You can use
 any kind of program you like.  But the creator of SQLite and Fossil is fond
 of [https://www.tcl.tk|Tcl/Tk] and so he tends to gravitate toward Tcl-based
 technologies like Wapp.)  The fileup1 script is a demo program that lets
@@ -157,12 +160,13 @@ Live listings of the values of some or all of these environment variables
 can be found at links like these:
 
   *  [https://fossil-scm.org/home/test_env]
-  *  [https://sqlite.org/src/ext/checklist/env]
+  *  [https://sqlite.org/src/ext/checklist/top/env]
 
 In addition to the standard CGI environment variables listed above, 
 Fossil adds the following:
 
   *  FOSSIL_CAPABILITIES
+  *  FOSSIL_NONCE
   *  FOSSIL_REPOSITORY
   *  FOSSIL_URI
   *  FOSSIL_USER
@@ -184,8 +188,23 @@ mark off changes to the checklist.  Only users with check-in permission
 to the Fossil repository are allowed to mark off checklist items.  That
 means that the FOSSIL_CAPABILITIES string must contain the letter "i".
 Search for "FOSSIL_CAPABILITIES" in the
-[https://sqlite.org/src/ext/checklist/self|source listing] to see how
+[https://sqlite.org/src/ext/checklist/top/self|source listing] to see how
 this happens.
+
+If the CGI output is one of the forms for which Fossil inserts its own
+header and footer, then the inserted header will include a
+Content Security Policy (CSP) restriction on the use of javascript within
+the webpage.  Any &lt;script&gt;...&lt;/script&gt; elements within the 
+CGI output must include a nonce or else they will be suppressed by the
+web browser.  The FOSSIL_NONCE variable contains the value of that nonce.
+So, in other words, to get javascript to work, it must be enclosed in:
+
+<blockquote><verbatim>
+<script nonce='$FOSSIL_NONCE'>...</script>
+</verbatim></blockquote>
+
+Except, of course, the $FOSSIL_NONCE is replace by the value of the
+FOSSIL_NONCE environment variable.
 
 If the HTTP request includes content (for example if this is a POST request)
 then the CONTENT_LENGTH value will be positive and the data for the content

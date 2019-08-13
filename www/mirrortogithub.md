@@ -118,6 +118,7 @@ https://github.com/username/project.git
      to Git.  The translation usually involves converting the offending characters
      into underscores.
 
+<a name='ex1'></a>
 ## Example GitHub Mirrors
 
 As of this writing (2019-03-16) Fossil’s own repository is mirrored

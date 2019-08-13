@@ -247,10 +247,14 @@ notfound: http://url-to-go-to-if-repo-not-found/
 Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
 will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
 
-Additional options available to the CGI script are documented in the
-source code.  As of 2019-07-26, the available options are described at
-[/artifact/183cf5e5ad2ae111?ln=1912-1959|main.c lines 1912 through 1959].
-</blockquote>
+Additional options available to the CGI script are 
+[./cgi.wiki|documented separately].
+
+Note that Fossil itself can be launched as CGI, as described here.  But
+Fossil can also launch [./serverext.wiki|sub-CGIs to implement server extensions].
+Do not confuse these two concepts.  Note also that the
+[./serverext.wiki|sub-CGI mechanism] works regardless of how the main
+Fossil server is launched.
 
 <h2 id="scgi">Fossil as SCGI</h2>
 <blockquote>

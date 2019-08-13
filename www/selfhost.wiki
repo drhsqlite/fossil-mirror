@@ -74,4 +74,4 @@ Server (2) is a
 and set up just like the canonical server (1) with the addition of a
 cron job for synchronization.  The same cron job also runs the
 [/help?cmd=git|fossil git export] command after each sync in order to
-[./mirrortogithub.md|mirror all changes to GitHub].
+[./mirrortogithub.md#ex1|mirror all changes to GitHub].
