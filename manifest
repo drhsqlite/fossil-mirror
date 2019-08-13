@@ -1,5 +1,5 @@
-C Update\sthe\s/stat\spage\sto\sshow\sforum\sstatistics.
-D 2019-08-09T21:08:46.050
+C Improvements\sto\sthe\shyperlink\sdescription\sin\s/md_rules.
+D 2019-08-13T12:32:53.841
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -524,7 +524,7 @@ F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
 F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
-F src/markdown.md 80465f4841b8669ea4c4b8b0191d3967bc745e4add333a4ad89eb062315cd3ee
+F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
 F src/markdown_html.c 93f780401ae1848b16a88b4bb100771aec3846b4e052552cd067d4c29c0e3213
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -887,7 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44545eef88e825305798672ea0760c40804e8d7f1d2bb8d0d35dac42805eb9f7
-R 75e7d0d5949b15cf7cd010923c687db5
+P 29141af7af66b7e8f0489e8fae462d02289c53f9c95a93c2c15a0b6a3f60d488
+R 0160adf727292a55b555249451986b58
 U drh
-Z 18bee3d9c70280bfcd3753db7b53f19d
+Z 7cd9c76595854dc7622f984049ca3b5f
