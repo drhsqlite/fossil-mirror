@@ -1,5 +1,5 @@
-C Improvements\sto\sHOME\ssearch\son\swindows,\sand\simprove\sthe\sdocumentation\sof\s\nthe\ssame.
-D 2019-08-13T20:31:14.477
+C Remove\sthe\ssigalrm_handler()\sfunction\son\swindows\sbuilds\sas\sit\sis\snever\scalled\nthere.
+D 2019-08-13T20:44:37.588
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
-F src/main.c b977f2c1c4dbf45918af11f8235d9a7b15595e8ff5926020c620de5f41069cbf
+F src/main.c c3702eb0a1b88799afc09be9f85fcf2e06c6794c5860f78356f8fa153c9a9375
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -887,8 +887,7 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 859d6b16949351dc81b5c1066e3e6f29290ef2ffcc94e37335b4ec6a1d2e07bc c07cbcd3dbf65fbe9d742f8038d8d8d6685aaff4b41c498335a2801bd96d1a73
-R a5796e1bc8a351e9809d8248a9f07429
-T +closed c07cbcd3dbf65fbe9d742f8038d8d8d6685aaff4b41c498335a2801bd96d1a73
+P 006afac0f04b31672ec3ed7fbb176840c62a227feaeea91ff25c50bbed4a2855
+R 9110c3072e4e363c50ac56d62b3a7a7e
 U drh
-Z af2c19f4b443d19d8017a1e2874f7530
+Z e38a12b668433fee28407f89ddf109e8

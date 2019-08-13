@@ -2471,9 +2471,11 @@ static int binaryOnPath(const char *zBinary){
 ** Respond to a SIGALRM by writing a message to the error log (if there
 ** is one) and exiting.
 */
+#ifndef _WIN32
 static void sigalrm_handler(int x){
   fossil_panic("TIMEOUT");
 }
+#endif
 
 /*
 ** Arrange to timeout using SIGALRM after N seconds.  Or if N==0, cancel
