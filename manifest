@@ -1,5 +1,5 @@
-C Additional\sdocumentation\son\sCGI\sconfiguration\soptions.\s\sUpdates\sto\sthe\nchange\slog.\s\sNew\shyperlinks\sinterconnecting\sthe\svarious\sdocuments.
-D 2019-08-13T23:29:38.714
+C Server\sDocumentation\sUpdate.\s\sThis\sckeckin\scontains\sinstructions\sfor\susing\sFossil\sas\sa\swindows\sservice\sand\swith\sstunnel\sas\san\shttps\sproxy.
+D 2019-08-15T16:16:22.644
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -868,6 +868,9 @@ F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
 F www/server.wiki 7f5d4a98516050a33d7a71ec0030f36e3cfe0d5e8c79de58882f373c2675b4a0
+F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
+F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
+F www/server/windows/stunnel.md 4a34932a9c9e2cda31a792294144a009db21e06acf0765bd522a580b16288ce6
 F www/serverext.wiki c03c4e8a46a55c3258b6f5dfda6abcbe7c398d3eb19e97ecf966d8669939b226
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
@@ -888,7 +891,10 @@ F www/webui.wiki ff6949bd42e08a4870dc0556975514654c90fbfd29159bfd2947b1f5cc6af06
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki f07c807aaddb97cdb7de1742b523d9de3cfb07a23235c9932b3bd2600495127b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1d7afcdff65e55a7821f8f4c7051c7cab98f0b127cdce382c731238a8074b3cf
-R e4817e8637f1307182ddc0d1844c0216
-U drh
-Z 25bbac340ae0d0bca4abc85984d3bd2a
+P fbc3b2f72e340f3340e5b4bd2d3d5af2ecfd199d2b69da70283ea478cf953215
+R c0ea813ca79692b5871d69c5abfac693
+T *branch * server-docs
+T *sym-server-docs *
+T -sym-trunk *
+U ckennedy
+Z e01169a134336e1ccc92f0fd24d1344b
