@@ -1,5 +1,5 @@
-C Another\sspell\scheck\spass\son\swww/*\susing\sa\sdifferent\sdictionary\sthan\sin\nthe\sprior\spass.\s([79c2cb083d2c6])
-D 2019-08-16T01:57:48.165
+C Relaxed\sthe\s"enforcing"\slanguage\saround\sthe\splanned\schange\sof\shash\npolicy\sfrom\s"auto"\sto\s"sha3"\sin\sFossil\s2.10\swithin\ssection\s2.8\sof\sthe\nfossil-v-git.wiki\sdoc,\sand\sclarified\swhat\swill\sactually\shappen\swith\sthat\nrelease\sas\scompared\sto\sthe\scurrent\srelease.
+D 2019-08-16T03:33:43.724
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -830,7 +830,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki a65e8c5631402b4b5f9d5e8f1efec991bde4ed69cfce11f2eb234e8e80bcc9ba
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 49a4890d91ffa98d3d9df51934563f684d13c8205297024f2522206d1bf1ffef
+F www/fossil-v-git.wiki 810f9698f2057b30ae3b5ec2e876c36082c84bd3c2ca7d645d3569401aab1920
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -888,7 +888,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbc3b2f72e340f3340e5b4bd2d3d5af2ecfd199d2b69da70283ea478cf953215
-R 77ebbd3f12b20c8742ec9497142e468b
+P 0996347d4ab9d5db6f8bb7cafe5abe4ddcb8ae6881bfa50f3f5ccd995a9a21ac
+R 54f14f806476e2fe73dc7fe592757b84
 U wyoung
-Z 0645cca19e2319b30e418d5746c26b2c
+Z af3e8ca6b2e166efd5c081038b6e9265
