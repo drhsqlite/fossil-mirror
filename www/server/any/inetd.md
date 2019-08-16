@@ -26,7 +26,7 @@ number (“12345” in the above example) in `inetd.conf`.
 
 Notice that we configured `inetd` to launch Fossil as root. See the
 top-level section on “[The Fossil Chroot
-Jail](../../server.wiki#chroot)” for the consequences of this and
+Jail](../../chroot.md)” for the consequences of this and
 alternatives to it.
 
 You can instead configure `inetd` to bind to a higher-numbered TCP port,

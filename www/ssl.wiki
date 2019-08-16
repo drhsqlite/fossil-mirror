@@ -1,4 +1,4 @@
-<title>TLS and Fossil</title>
+<title>Securing a Repository with TLS</title>
 
 <h2>Using TLS-Encrypted Communications with Fossil</h2>
 

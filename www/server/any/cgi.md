@@ -39,7 +39,7 @@ again, may be different for a particular configuration:
 
 *   Fossil must be able to create temporary files in a
     [directory that varies by host OS](../../env-opts.md#temp). When the
-    CGI process is operating [within a chroot](../../server.wiki#chroot),
+    CGI process is operating [within a chroot](../../chroot.md),
     ensure that this directory exists and is readable/writeable by the
     user who executes the Fossil binary.
 

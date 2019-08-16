@@ -1,5 +1,5 @@
-C Changed\s"socket\sactivation"\sto\s"socket\slistener"\sin\sall\sthe\snew\sdocs
-D 2019-08-16T11:59:29.664
+C Moved\sthe\schroot\sand\sloadmgmt\ssections\sof\swww/server.wiki\sinto\sseparate\ndocuments.\s\sThis\schange\salso\sadds\sinfo\son\s/proc\sto\sthe\schroot\sdoc,\swhich\nwas\smissing\sin\sits\sprior\sserver.wiki\sform.\s\sAlso\sreduced\sa\sfew\sother\n"details"\ssections\sof\sserver.wiki\sto\sbullet\spoints\sin\sthe\snew\s"Further\nDetails"\slist\sat\sthe\send\sof\sthe\sdocument.
+D 2019-08-16T12:53:13.196
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -851,6 +851,7 @@ F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b3
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
 F www/index.wiki 89c5ad2569bcc9245e5fb4c6ed391ff9db8e4a7c0fecd00061c0a91f237a56aa
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
+F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
@@ -867,10 +868,10 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki cce5876eb369add3a761e3d66734b32714066579be44a81a4f341d9d42f9dff1
+F www/server.wiki f37f6d76243c6d89e91d7d4f3bea6d45a1bc2021eaf8a15c4a5a7a6805f5e767
 F www/server/any/althttpd.md 38718192cddf425124ccf47953b7f5835643da68e0d275aa3747d2faddecba97
-F www/server/any/cgi.md 1a538998ca4dc250cbf60e5decf825908c7dc884d41ac5b366002f22d6f73db1
-F www/server/any/inetd.md 6cf45bfa0447e5e6cdce4072fadfa5b6af45432ccd61c99be143fb1c9cf5141a
+F www/server/any/cgi.md cf83c00f30adf310bbabe886f6e5d1b0dfa067a072472ca5f75f0e8e84c93083
+F www/server/any/inetd.md 7d4f590a87b7918249cf32b009c0de122bae424b0bbc4d5477f35e9ac36706d3
 F www/server/any/none.md a435ede126bb8ecaf0fe8faf9b8d16093372d7353ffa68a666f9631cd649dab8
 F www/server/any/scgi.md 8684268537091a622675d82e75f969ec12dedd742939f251808773490055b4e1
 F www/server/any/stunnel.md f3972d327c00d477d105774a4db94c023ca5453a4ad61f124a822a7b9be8b9ad
@@ -882,7 +883,7 @@ F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cd
 F www/serverext.wiki b0cb0b65d2b75764c750b8fa3276a1114377ec9b40488ed6980e5a81f7b00507
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki 869caaa44994538a54ce84ea198ac0b6da3a0c741ad135e7fcf75c4c9eb390f8
+F www/ssl.wiki 8b71208e55136de21c530b380e43b7281828acc19e59ea9ba161afa61e4ff588
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki abfd9ecc0d72ad9b06741c58361316ad14415d10b2e839a548f7fe59e0a6ff44
@@ -899,7 +900,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1428f59ec9a2a169e0a1f9cc456f7a7db954bc4bad7629bdce8f1dd576e276a0
-R 68190acc590b22ba34d21789602bf187
+P 3c9f811b872841065b8fa639103d7af7999335c61d7e1da0b5a8351c73334f80
+R 7bda84c8c10c4cbee2797c05582a5290
 U wyoung
-Z c32cf80892c3b7bbce620173c4a1a5c8
+Z 3490163ed38067d130f5adb542d275b0
