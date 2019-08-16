@@ -49,13 +49,12 @@ hierarchy of the web server, and when a client requests the
 appropriate URL, Fossil is run to generate the responce.
 CGI is a good choice for incorporating Fossil as part of a
 larger website.  The Fossil [./selfhost.wiki|self-hosting repositories]
-are implemented CGI running behind althttpd.
+are implemented with CGI underneath althttpd.
 
-For web servers such as Nginx that do not support
-CGI, Fossil can be run using SCGI.  SCGI involves running
-the [/help?cmd=http|fossil http] command with the --scgi
-option.  SCGI is something of a cross between a stand-alone server
-running behind a reverse proxy and an ordinary CGI server.
+For web servers such as nginx that do not support CGI, Fossil supports
+SCGI, a protocol that gives most of the simplicity of CGI with the
+efficiency of the stand-alone server option. With nginx, you use the
+[/help/server|fossil server] command with the --scgi option.
 
 Regardless of the method you choose, all can serve either a single
 repository or a directory hierarchy containing many repositories 
