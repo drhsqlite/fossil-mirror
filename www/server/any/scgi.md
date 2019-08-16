@@ -45,5 +45,10 @@ The [example `fslsrv` script](/file/tools/fslsrv) shows off these same
 concepts in a more complicated setting. You might want to mine that
 script for ideas.
 
+You might want to next read one of the platform-specific versions of this
+document, which goes into more detail:
+
+*   [Debian/Ubuntu](../debian/nginx.md)
+
 There is a [separate article](../../tls-nginx.md) showing how to add TLS
 encryption to this basic SCGI + nginx setup.

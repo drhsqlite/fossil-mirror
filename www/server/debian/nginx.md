@@ -1,4 +1,4 @@
-# Serving via nginx on Debian
+# Serving via nginx on Debian and Ubuntu
 
 This document is an extension of [the platform-independent SCGI
 instructions][scgii], which may suffice for your purposes if your needs
