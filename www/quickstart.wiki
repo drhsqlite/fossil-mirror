@@ -148,7 +148,7 @@ and painlessly.</p>
     <p>When you create a new repository, either by cloning an existing
     project or create a new project of your own, you usually want to do some
     local configuration.  This is easily accomplished using the web-server
-    that is built into fossil.  Start the fossil webserver like this:
+    that is built into fossil.  Start the fossil web server like this:
     ([/help/ui | more info])</p>
 
     <blockquote>
@@ -284,7 +284,7 @@ and painlessly.</p>
     <p>The argument to the [/help/merge|merge] command can be any of the
     version identifier forms that work for [/help/update|update].
     ([./checkin_names.wiki|more info].)
-    The merge command has options to cherrypick individual
+    The merge command has options to cherry-pick individual
     changes, or to back out individual changes, if you don't want to
     do a full merge.</p>
 

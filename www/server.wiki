@@ -220,7 +220,7 @@ configuration):
   from the one running the web server - consult your site's documentation or administrator).</li>
   <li>The repository file AND the directory containing it must be writable by the same account
   which executes the Fossil binary (again, this might differ from the WWW user). The directory
-  needs to be writable so that sqlite can write its journal files.</li>
+  needs to be writable so that SQLite can write its journal files.</li>
   <li>Fossil must be able to create temporary files, the default directory
   for which depends on the OS.  When the CGI process is operating within
   a chroot, ensure that this directory exists and is readable/writeable
@@ -263,7 +263,7 @@ The [/help/server|fossil server] command, described above as a way of
 starting a stand-alone web server, can also be used for SCGI.  Simply add
 the --scgi command-line option and the stand-alone server will interpret
 and respond to the SimpleCGI or SCGI protocol rather than raw HTTP.  This can
-be used in combination with a webserver (such as [http://nginx.org|Nginx])
+be used in combination with a web server (such as [http://nginx.org|Nginx])
 that does not support CGI.  A typical Nginx configuration to support SCGI
 with Fossil would look something like this:
 
@@ -351,7 +351,7 @@ command-line on the server.  Add a -R option to specify the specific repository
 for which to enable caching.  If running this command as root, be sure to
 "chown" the cache database (which is a separate file in the same directory
 and with the same name as the repository but with the suffix changed to ".cache")
-to give it write permission for the userid of the webserver.
+to give it write permission for the userid of the web server.
 
 To activate the server load control feature
 visit the Admin → Access setup page in the administrative web
@@ -375,7 +375,7 @@ Note that this load-average limiting feature is only available on operating
 systems that support the "getloadavg()" API.  Most modern Unix systems have
 this interface, but Windows does not, so the feature will not work on Windows.
 Note also that Linux implements "getloadavg()" by accessing the "/proc/loadavg"
-file in the "proc" virtual filesystem.  If you are running a Fossil instance
+file in the "proc" virtual file system.  If you are running a Fossil instance
 inside a chroot() jail on Linux, you will need to make the "/proc" file
 system available inside that jail in order for this feature to work.  On
 the [./selfhost.wiki|self-hosting Fossil repositories], this was accomplished

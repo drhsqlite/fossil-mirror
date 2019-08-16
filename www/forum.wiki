@@ -61,7 +61,7 @@ of which you cannot get by using third-party alternatives:
      reply to existing ones while off-line, then sync their
      contributions to the server they cloned from when back on-line.
      Yes, you can post to the forum from inside a tent, miles from the
-     nearest wifi router or cellular data tower.
+     nearest WiFi router or cellular data tower.
 
   *  <b>Interlink with Other Fossil-Managed Artifacts:</b> Because forum
      posts are normal Fossil artifacts, you can interlink them with

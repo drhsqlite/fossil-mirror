@@ -168,7 +168,7 @@ set of artifacts. The compression techniques are just a detail of
 how the current implementation of Fossil happens to store these artifacts
 efficiently on disk.
 
-All of the original uncompressed and undeltaed artifacts can be extracted
+All of the original uncompressed and un-delta'd artifacts can be extracted
 from a Fossil repository database using
 the [/help/deconstruct | fossil deconstruct]
 command. Individual artifacts can be extracted using the
@@ -316,7 +316,7 @@ first thing that happens is that Fossil locates the checkout database.
 Fossil first looks in the current directory.  If not found there, it
 looks in the parent directory.  If not found there, the parent of the
 parent.  And so forth until either the checkout database is found
-or the search reaches the root of the filesystem.  (In the latter case,
+or the search reaches the root of the file system.  (In the latter case,
 Fossil returns an error, of course.)  Once the checkout database is
 located, it is used to locate the repository database.
 

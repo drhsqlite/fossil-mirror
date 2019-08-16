@@ -64,10 +64,10 @@ The first two UserAgent strings above identify Firefox 19 and
 Internet Explorer 8.0, both running on Windows NT.  The third
 example is the spider used by Google to index the internet.
 The fourth example is the "wget" utility running on OpenBSD.
-Thus the first two UserAgent strings above identify the requestor
-as human whereas the second two identify the requestor as a spider.
+Thus the first two UserAgent strings above identify the requester
+as human whereas the second two identify the requester as a spider.
 Note that the UserAgent string is completely under the control
-of the requestor and so a malicious spider can forge a UserAgent
+of the requester and so a malicious spider can forge a UserAgent
 string that makes it look like a human.  But most spiders truly
 seem to desire to "play nicely" on the internet and are quite open
 about the fact that they are a spider.  And so the UserAgent string
@@ -84,14 +84,14 @@ from walking the millions of pages on a typical Fossil site.
 
 But the hyperlinks are not enabled directly with the setting above.
 Instead, the HTML code that is generated contains anchor tags ("&lt;a&gt;")
-without "href=" attributes.  Then, javascript code is added to the
+without "href=" attributes.  Then, JavaScript code is added to the
 end of the page that goes back and fills in the "href=" attributes of
 the anchor tags with the hyperlink targets, thus enabling the hyperlinks.
-This extra step of using javascript to enable the hyperlink targets
+This extra step of using JavaScript to enable the hyperlink targets
 is a security measure against spiders that forge a human-looking
-UserAgent string.  Most spiders do not bother to run javascript and
+UserAgent string.  Most spiders do not bother to run JavaScript and
 so to the spider the empty anchor tag will be useless.  But all modern
-web browsers implement javascript, so hyperlinks will show up
+web browsers implement JavaScript, so hyperlinks will show up
 normally for human users.
 
 <h2>Further defenses</h2>
@@ -99,7 +99,7 @@ normally for human users.
 Recently (as of this writing, in the spring of 2013) the Fossil server
 on the SQLite website ([http://www.sqlite.org/src/]) has been hit repeatedly
 by Chinese spiders that use forged UserAgent strings to make them look
-like normal web browsers and which interpret javascript.  We do not
+like normal web browsers and which interpret JavaScript.  We do not
 believe these attacks to be nefarious since SQLite is public domain
 and the attackers could obtain all information they ever wanted to
 know about SQLite simply by cloning the repository.  Instead, we
@@ -112,23 +112,23 @@ spiders have been put in place.
 
 On the Admin/Access page of Fossil, just below the
 "<b>Enable hyperlinks for "nobody" based on User-Agent and Javascript</b>"
-setting, there are now two additional subsettings that can be optionally
+setting, there are now two additional sub-settings that can be optionally
 enabled to control hyperlinks.
 
-The first subsetting waits to run the
-javascript that sets the "href=" attributes on anchor tags until after
+The first sub-setting waits to run the
+JavaScript that sets the "href=" attributes on anchor tags until after
 at least one "mouseover" event has been detected on the &lt;body&gt;
 element of the page.  The thinking here is that spiders will not be
 simulating mouse motion and so no mouseover events will ever occur and
 hence the hyperlinks will never become enabled for spiders.
 
-The second new subsetting is a delay (in milliseconds) before setting
+The second new sub-setting is a delay (in milliseconds) before setting
 the "href=" attributes on anchor tags.  The default value for this
 delay is 10 milliseconds.  The idea here is that a spider will try to
 render the page immediately, and will not wait for delayed scripts
 to be run, thus will never enable the hyperlinks.
 
-These two subsettings can be used separately or together.  If used together,
+These two sub-settings can be used separately or together.  If used together,
 then the delay timer does not start until after the first mouse movement
 is detected.
 

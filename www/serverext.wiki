@@ -90,12 +90,12 @@ recent historical versions are available at
 [https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
 older legacy at [https://sqlite.org/checklistapp/timeline?n=all]
 
-There is a cascade of CGIs happening here.  The webserver that receives
+There is a cascade of CGIs happening here.  The web server that receives
 the initial HTTP request runs Fossil as a CGI based on the
 "https://sqlite.org/src" portion of the URL.  The Fossil instance then
 runs the checklist sub-CGI based on the "/ext/checklists" suffix.  The
 output of the sub-CGI is read by Fossil and then relayed on to the
-main webserver which in turn relays the result back to the original client.
+main web server which in turn relays the result back to the original client.
 
 <h3>2.2 Example #2</h3>
 
@@ -213,7 +213,7 @@ will be readable on standard input.
 <h2>4.0 CGI Outputs</h2>
 
 CGI programs construct a reply by writing to standard output.  The first
-few lines of output are parameters intended for the webserver that invoked
+few lines of output are parameters intended for the web server that invoked
 the CGI.  These are followed by a blank line and then the content.
 
 Typical parameter output looks like this:

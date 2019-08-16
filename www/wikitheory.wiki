@@ -29,7 +29,7 @@ the sequence of check-ins (check-ins).  Wiki pages can branch and merge
 just like check-ins, though as of this writing (2008-07-29) there is
 no mechanism in the user interface to support branching and merging.
 The current implementation of the wiki shows the version of the wiki
-page that has the most recent timestamp.
+page that has the most recent time stamp.
 
 In other words, if two users make unrelated changes to the same wiki
 page on separate repositories and those repositories are synced,
