@@ -1,5 +1,5 @@
-C Small\sclarity\stweak\sto\sthe\snew\s"Methods"\sdiscussion\sin\swww/server.wiki.
-D 2019-08-16T11:08:39.379
+C Small\simprovements\sto\sthe\snew\sFossil\sChroot\sJail\ssection\sof\nwww/server.wiki
+D 2019-08-16T11:41:03.651
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -867,7 +867,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki 5be5ec78f447f833aec28d62fd7ce4731727903fffc32f7343ec44f98b249cd0
+F www/server.wiki 6b7eacb23ee78a9b2a49e391b0d66efdd9c560897a8867cb67784a5786ae9476
 F www/server/any/althttpd.md 38718192cddf425124ccf47953b7f5835643da68e0d275aa3747d2faddecba97
 F www/server/any/cgi.md 1a538998ca4dc250cbf60e5decf825908c7dc884d41ac5b366002f22d6f73db1
 F www/server/any/inetd.md 6cf45bfa0447e5e6cdce4072fadfa5b6af45432ccd61c99be143fb1c9cf5141a
@@ -899,7 +899,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0bb59100f2d93307efa8602bde10f6a8b7ea07d997b36212d2360014ff417b41
-R 076d8190d1ba5ae653541448791a213f
+P fc00b7b2972a81dfc57c247d61586ebf5237c918e2a9fa199e11a0bf5f3d1810
+R 6df172a2a27c781bb4d303bdaea0ed81
 U wyoung
-Z 51ef363fbc125152801dd394a93b2545
+Z ec67939a13bc4bd166f0122e997a4957

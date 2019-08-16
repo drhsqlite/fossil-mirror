@@ -168,8 +168,8 @@ to fill gaps (❌) in the table above.
 If you run Fossil as root in any mode that serves data on the
 network, and you're running it on Unix or a compatible OS, Fossil
 will drop itself into a [https://en.wikipedia.org/wiki/Chroot |
-chroot jail] shortly after starting up. It will drop its root
-privileges once it's done everything that requires root access; most
+chroot jail] shortly after starting up, after
+it's done everything that requires root access. Most
 commonly, you run Fossil as root to allow it to bind to TCP port 80
 for HTTP service, since normal users are restricted to ports 1024
 and up on OSes where this behavior occurs.
@@ -184,20 +184,22 @@ in order to make things work properly:
 <ul>
     <li>the repository file(s)
 
-    <li><tt>/dev/null</tt> — create it with <tt>mknod(8)</tt>
-    inside the jail directory
+    <li><tt>/dev/null</tt> — create it with <tt>mknod(8)</tt> inside the
+    jail directory ([https://fossil-scm.org/forum/forumpost/90caff30cb |
+    Linux example])
 
     <li><tt>/dev/urandom</tt> — ditto
 
-    <li>any shared libraries your <tt>fossil</tt> binary is linked
-    to, such as <tt>/lib/libssl.so</tt>; consider building Fossil as a
-    static binary to avoid this
-</ul>
-</blockquote>
+    <li>any shared libraries your <tt>fossil</tt> binary is linked to,
+    such as <tt>/lib/libssl.so</tt>; consider
+    <tt>[https://www.fossil-scm.org/fossil/doc/trunk/www/build.wiki |
+    ./configure --static]</tt> to avoid the need for this
+</ul> </blockquote>
 
 <blockquote>
-Fossil does all of this in order to protect the host OS.  There is
-no way to bypass it, on purpose.
+Fossil does all of this in order to protect the host OS. You can make it
+bypass the jail part of this by passing `--nojail` to `fossil server`,
+but you cannot make it skip the dropping of root privileges, on purpose.
 </blockquote>
 
 
