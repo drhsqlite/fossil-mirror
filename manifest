@@ -1,5 +1,5 @@
-C Moved\sthe\schroot\sand\sloadmgmt\ssections\sof\swww/server.wiki\sinto\sseparate\ndocuments.\s\sThis\schange\salso\sadds\sinfo\son\s/proc\sto\sthe\schroot\sdoc,\swhich\nwas\smissing\sin\sits\sprior\sserver.wiki\sform.\s\sAlso\sreduced\sa\sfew\sother\n"details"\ssections\sof\sserver.wiki\sto\sbullet\spoints\sin\sthe\snew\s"Further\nDetails"\slist\sat\sthe\send\sof\sthe\sdocument.
-D 2019-08-16T12:53:13.196
+C An\sattempt\sto\smake\sthe\smain\sserver.wiki\spage\ssimpler\sand\syet\sself-contained,\nall\sat\sonce.
+D 2019-08-16T14:25:15.959
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -868,7 +868,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki f37f6d76243c6d89e91d7d4f3bea6d45a1bc2021eaf8a15c4a5a7a6805f5e767
+F www/server.wiki 513d8df7abf4a082b4189f966ed8bbdef624a2bb96b203eff11e3de354c515ea
 F www/server/any/althttpd.md 38718192cddf425124ccf47953b7f5835643da68e0d275aa3747d2faddecba97
 F www/server/any/cgi.md cf83c00f30adf310bbabe886f6e5d1b0dfa067a072472ca5f75f0e8e84c93083
 F www/server/any/inetd.md 7d4f590a87b7918249cf32b009c0de122bae424b0bbc4d5477f35e9ac36706d3
@@ -877,6 +877,7 @@ F www/server/any/scgi.md 8684268537091a622675d82e75f969ec12dedd742939f2518087734
 F www/server/any/stunnel.md f3972d327c00d477d105774a4db94c023ca5453a4ad61f124a822a7b9be8b9ad
 F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
 F www/server/debian/nginx.md 4bcb2be1d9a4e2eb850e1e462a26569491f8568077292e0f101c12d52c7787a6
+F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
 F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
 F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cdb616c8d1374224f3
@@ -900,7 +901,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3c9f811b872841065b8fa639103d7af7999335c61d7e1da0b5a8351c73334f80
-R 7bda84c8c10c4cbee2797c05582a5290
-U wyoung
-Z 3490163ed38067d130f5adb542d275b0
+P 85eaffb6a59c0642ffad9c21d76ae21879b587d793b9b9422cdbb762b5b749f0
+R e37b27d558c8597be6bb7a33269729a0
+U drh
+Z 9d223bd6614b5df8e07adb04e272c956

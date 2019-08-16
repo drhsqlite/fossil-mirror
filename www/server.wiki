@@ -4,29 +4,13 @@
 
 <blockquote>
 Fossil does <em>not</em> require a central server.
-Data sharing and synchronization can be entirely peer-to-peer.
-Fossil uses [https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|conflict-free replicated data types]
-to ensure that (in the limit) all participating peers see the exact same content.
+But, [./server/whyuseaserver.wiki|a server can be very useful].
+
+This article is a quick-reference guide for setting up your own
+Fossil server, with links to more detailed instructions specific
+to particular systems, should you want extra help.
 </blockquote>
 
-<h2>But, A Server Can Be Useful</h2>
-
-<blockquote>
-Fossil does not require a server,
-but a server does make collaboration easier.
-A Fossil server also works well as a complete website for a project.
-For example, the [https://www.fossil-scm.org/] website, including the
-page you are now reading,
-is just a Fossil server displaying the content of the
-self-hosting repository for Fossil.
-
-This article is a guide for setting up your own Fossil server.
-
-See "[./aboutcgi.wiki|How CGI Works In Fossil]" for background
-information on the underlying CGI technology.
-See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
-wire protocol used for client/server communication.
-</blockquote>
 
 <h2 id="methods">Methods</h2>
 
@@ -43,18 +27,50 @@ There are basically four ways to set up a Fossil server:
   <li><a  id="cgi" href="./server/any/cgi.md">CGI</a>
 </ol>
 
-Fossil's HTTP server can be used standalone or you can put it behind
-many different pieces of software via various proxying schemes: Apache,
-nginx, HAProxy, stunnel (proxy mode), IIS... We cover some of those
-options below.
+The idea behind the socket listener approach is that each incoming HTTP
+request is relayed to a new instance of the
+[/help?cmd=http|fossil http] command.  That command reads the HTTP
+request from its standard input, handles the request, and writes a
+complete and correct HTTP reply on standard output which is then
+returned to the client.
 
-The CGI option works with many different web servers: Apache, IIS,
-<tt>lighttpd</tt>, <tt>althttpd</tt>... Where CGI doesn't work, SCGI
-usually does instead, such as in nginx.
+A stand-alone server uses the
+[/help?cmd=server|fossil server] command to run a process that
+listens for incoming HTTP requests on a socket and then dispatches
+a copy of itself to deal with each incoming request.  A
+stand-alone server can talk directly with the client, or the
+system can be configured with a reverse proxy in between the
+client and Fossil.
 
-Regardless of the method you choose, all can serve either a single repository
-or a directory hierarchy containing many repositories with names ending in ".fossil".
+Fossil can also be run using CGI from ordinary web servers
+such as Apache, IIS, <tt>lighttpd</tt>, or <tt>althttpd</tt>.
+A [/help?cmd=cgi|short CGI script] is placed in the document
+hierarchy of the web server, and when a client requests the
+appropriate URL, Fossil is run to generate the responce.
+CGI is a good choice for incorporating Fossil as part of a
+larger website.  The Fossil [./selfhost.wiki|self-hosting repositories]
+are implemented CGI running behind althttpd.
 
+For web servers such as Nginx that do not support
+CGI, Fossil can be run using SCGI.  SCGI involves running
+the [/help?cmd=http|fossil http] command with the --scgi
+option.  SCGI is something of a cross between a stand-alone server
+running behind a reverse proxy and an ordinary CGI server.
+
+Regardless of the method you choose, all can serve either a single
+repository or a directory hierarchy containing many repositories 
+with names ending in ".fossil".
+
+Note that a single project is not restricted to using a single
+server setup method.  The same Fossil repository can be served
+using two or more of the above techniques, at the same time.  And
+the server setup can change over time, to accomodate changes
+in hosting providers or administrator preferences.
+</blockquote>
+
+<h2 id="matrix">System-Specific Setup Tutorials</h2>
+
+<blockquote>
 We've broken the configuration for each method out into a series of
 sub-articles, some of which are OS-specific:
 </blockquote>
@@ -147,3 +163,6 @@ to fill gaps (❌) in the table above.
   *  <a name="loadmgmt"></a>[./loadmgmt.md | Managing Server Load]
   *  <a name="tls"></a>[./ssl.wiki | Securing a Repository with TLS]
   *  <a name="ext"></a>[./serverext.wiki | CGI Server Extensions]
+  *  [./aboutcgi.wiki|How CGI Works In Fossil]
+  *  See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
+     wire protocol used for syncing Fossil repositories.
