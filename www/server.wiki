@@ -34,10 +34,13 @@ wire protocol used for client/server communication.
 There are basically four ways to set up a Fossil server:
 
 <ol>
-  <li>Socket activation: inetd, xinetd, stunnel...
-  <li>Stand-alone HTTP server
-  <li>SCGI
-  <li>CGI
+  <li>Socket activation:
+      <a id="inetd"   href="./server/any/inetd.md">inetd</a>,
+      <a id="xinetd"  href="./server/any/xinetd.md">xinetd</a>,
+      <a id="stunnel" href="./server/any/stunnel.md">stunnel</a>...
+  <li><a id="standalone" href="./server/any/none.md">Stand-alone HTTP server</a>
+  <li><a id="scgi" href="./server/any/scgi.md">SCGI</a>
+  <li><a  id="cgi" href="./server/any/cgi.md">CGI</a>
 </ol>
 
 The HTTP and SCGI options also allow for various sorts of reverse
@@ -129,35 +132,6 @@ documents linked above: Apple’s <tt>launchd</tt>, Linux’s
 <tt>systemd</tt>, Solaris’ SMF, etc. We would welcome [./contribute.wiki
 | contributions] to cover these as well. We also welcome contributions
 to fill gaps (❌) in the table above.
-</blockquote>
-
-
-<h2 id="standalone">Standalone HTTP server</h2>
-
-<blockquote>
-    This is the easiest way to set up a Fossil server. It's covered in
-    [./server/any/none.md | a separate article].
-</blockquote>
-
-
-<h2 id="inetd">Serving via inetd</h2>
-
-<blockquote>
-    See [./server/any/inetd.md | this article].
-</blockquote>
-
-
-<h2 id="cgi">Serving via CGI</h2>
-
-<blockquote>
-    See [./server/any/cgi.md | this article].
-</blockquote>
-
-
-<h2 id="scgi">Serving via SCGI</h2>
-
-<blockquote>
-    See [./server/any/scgi.md | this article].
 </blockquote>
 
 
