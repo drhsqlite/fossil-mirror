@@ -28,7 +28,7 @@ See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
 wire protocol used for client/server communication.
 </blockquote>
 
-<h2>Methods</h2>
+<h2 id="methods">Methods</h2>
 
 <blockquote>
 There are basically four ways to set up a Fossil server:

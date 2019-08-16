@@ -5,179 +5,41 @@ One of the [many ways](./ssl.wiki) to provide TLS-encrypted HTTP access
 TLS. This document explains how to use the powerful [nginx web
 server](http://nginx.org/) to do that.
 
+This document is an extension of the [Serving via nginx on Debian][nod]
+document. Please read that first, then come back here to extend its
+configuration with TLS.
 
-## Benefits
-
-This scheme is complicated, even with the benefit of this guide and
-pre-built binary packages. Why should you put up with this complexity?
-Because it gives many benefits that are difficult or impossible to get
-with the less complicated options:
-
-*   **Power** — nginx is one of the most powerful web servers in the
-    world. The chance that you will run into a web serving wall that you
-    can’t scale with nginx is very low.
-
-    To give you some idea of the sort of thing you can readily
-    accomplish with nginx, your author runs a single public web server
-    that provides transparent name-based virtual hosting for four
-    separate domains:
-
-    *   One is entirely static, not involving any dynamic content or
-        Fossil integration at all.
-
-    *   Another is served almost entirely by Fossil, with a few select
-        static content exceptions punched past Fossil, which are handled
-        entirely via nginx.
-
-    *   The other two domains are aliases for one another — e.g.
-        `example.com` and `example.net` — with most of the content being
-        static.  This pair of domains has three different Fossil repo
-        proxies attached to various sections of the URI hierarchy.
-
-    All of this is done with minimal configuration repetition between
-    the site configurations.
-
-*   **Integration** — Because nginx is so popular, it integrates with
-many different technologies, and many other systems integrate with it in
-turn.  This makes it great middleware, sitting between the outer web
-world and interior site services like Fossil. It allows Fossil to
-participate seamlessly as part of a larger web stack.
-
-*   **Availability** — nginx is already in most operating system binary
-package repositories, so you don’t need to go out of your way to get it.
+[nod]: ./server/debian/nginx.md
 
 
-## Fossil Remote Access Methods
+## Install Certbot
 
-Fossil provides four major ways to access a repository it’s serving
-remotely, three of which are straightforward to use with nginx:
+The [nginx-on-Debian document][nod] had you install a few non-default
+packages to the system, but there’s one more you need for this guide:
 
-*   **HTTP** — Fossil has a built-in HTTP server: `fossil server`.
-    While this method is efficient and it’s possible to use nginx to
-    proxy access to another HTTP server, this option is overkill for our
-    purposes.  nginx is itself a fully featured HTTP server, so we will
-    choose in this guide not to make nginx reinterpret Fossil’s
-    implementation of HTTP.
+       $ sudo apt install certbot
 
-*   **CGI** — This method is simple but inefficient, because it launches
-    a separate Fossil instance on every HTTP hit.
-
-    Since Fossil is a relatively small self-contained program, and it’s
-    designed to start up quickly, this method can work well in a
-    surprisingly large number of cases.
-
-    Nevertheless, we will avoid this option in this document because
-    we’re already buying into a certain amount of complexity here in
-    order to gain power.  There’s no sense in throwing away any of that
-    hard-won performance on CGI overhead.
-
-*   **SCGI** — The [SCGI protocol][scgi] provides the simplicity of CGI
-    without its performance problems.
-
-*   **SSH** — This method exists primarily to avoid the need for HTTPS
-    in the first place.  There is probably a way to get nginx to proxy
-    Fossil to HTTPS via SSH, but it would be pointlessly complicated.
-
-SCGI it is, then.
-
-
-# Installing
-
-The first step is to install the pieces we’ll be working with.  This
-varies on different operating systems, so to avoid overcomplicating this
-guide, we’re going to assume you’re using Ubuntu Server 18.04 LTS, a
-common Tier 1 offering for [virtual private servers][vps].
-
-SSH into your server, then say:
-
-       $ sudo apt install certbot fossil nginx
-
-For other operating systems, simply visit [the front Certbot web
-page][cb] and tell it what OS and web stack you’re using. Chances are
-good that they’ve got a good guide for you already.
-
-
-# Running Fossil in SCGI Mode
-
-You presumably already have a working Fossil configuration on the public
-server you’re trying to set up and are just following this guide to
-replace HTTP service with HTTPS.
-
-(You can adjust the advice in this guide to get both HTTP *and* HTTPS
-service on the same site, but I strongly recommend that you do not do
-that: the good excuses remaining for continuing to allow HTTP on public
-web servers are running thin these days.)
-
-I run my Fossil SCGI server instances with a variant of [the `fslsrv`
-shell script](/file/tools/fslsrv) currently hosted in the Fossil source
-code repository. You’ll want to download that and make a copy of it, so
-you can customize it to your particular needs.
-
-This script allows running multiple Fossil SCGI servers, one per
-repository, each bound to a different high-numbered `localhost` port, so
-that only nginx can see and proxy them out to the public.  The
-“`example`” repo is on TCP port localhost:12345, and the “`foo`” repo is
-on localhost:12346.
-
-As written, the `fslsrv` script expects repositories to be stored in the
-calling user’s home directory under `~/museum`, because where else do
-you keep Fossils?
-
-That home directory also needs to have a directory to hold log files,
-`~/log/fossil/*.log`. Fossil doesn’t put out much logging, but when it
-does, it’s better to have it captured than to need to re-create the
-problem after the fact.
-
-The use of `--baseurl` in this script lets us have each Fossil
-repository mounted in a different location in the URL scheme.  Here, for
-example, we’re saying that the “`example`” repository is hosted under
-the `/code` URI on its domains, but that the “`foo`” repo is hosted at
-the top level of its domain.  You’ll want to do something like the
-former for a Fossil repo that’s just one piece of a larger site, but the
-latter for a repo that is basically the whole point of the site.
-
-You might also want another script to automate the update, build, and
-deployment steps for new Fossil versions:
-
-       #!/bin/sh
-       cd $HOME/src/fossil/trunk
-       fossil up
-       make -j11
-       killall fossil
-       sudo make install
-       fslsrv
-
-The `killall fossil` step is needed only on OSes that refuse to let you
-replace a running binary on disk.
-
-As written, the `fslsrv` script assumes a Linux environment.  It expects
-`/bin/bash` to exist, and it depends on non-POSIX tools like `pgrep`.
-It should not be difficult to port to systems like macOS or the BSDs.
+You can extend this guide to other operating systems by following the
+instructions found via [the front Certbot web page][cb] instead, telling
+it what OS and web stack you’re using. Chances are good that they’ve got
+a good guide for you already.
 
 
 # Configuring Let’s Encrypt, the Easy Way
 
 If your web serving needs are simple, [Certbot][cb] can configure nginx
-for you and keep its certificates up to date. You can follow the Certbot
-documentation for [nginx on Ubuntu 18.04 LTS guide][cbnu] as-is, though
-we’d recommend one small change: to use the version of Certbot in the
-Ubuntu package repository rather than the first-party Certbot package
-that the guide recommends.
+for you and keep its certificates up to date. Simply follow Certbot’s
+[nginx on Ubuntu 18.04 LTS guide][cbnu]. We’d recommend one small
+change: to use the version of Certbot in the Ubuntu package repository
+rather than download it from the Certbot site.
 
-The primary local configuration you need is to tell nginx how to proxy
-certain URLs down to the Fossil instance you started above with the
-`fslsrv` script:
-
-      location / {
-           include scgi_params;
-           scgi_pass 127.0.0.1:12345;
-           scgi_param HTTPS "on";
-           scgi_param SCRIPT_NAME "";
-      }
-
-The TCP port number in that snippet is the key: it has to match the port
-number generated by `fslsrv` from the base port number passed to the
-`start_one` function.
+You should be able to use the nginx configuration given in our [Serving
+via nginx on Debian][nod] guide with little to no change. The main thing
+to watch out for is that the TCP port number in the nginx configuration
+needs to match the value you gave when starting Fossil. If you followed
+that guide’s advice, it will be 9000.  Another option is to use [the
+`fslsrv` script](/file/tools/fslsrv), in which case the TCP port number
+will be 12345 or higher.
 
 
 # Configuring Let’s Encrypt, the Hard Way
@@ -195,7 +57,8 @@ actually has control over the domain(s) for which it wants a certificate
 minted.  Let’s Encrypt will not blithely let you mint certificates for
 `google.com` and `paypal.com` just because you ask for it!
 
-Your author’s configuration, glossed above, is complicated enough that
+Your author’s configuration, glossed [in the HTTP-only guide][nod],
+is complicated enough that
 the current version of Certbot (0.28 at the time of this writing) can’t
 cope with it.  That’s the primary motivation for me to write this guide:
 I’m addressing the “me” years hence who needs to upgrade to Ubuntu 20.04
@@ -218,20 +81,8 @@ entirely.
 
 ## Step 2: Configuring nginx
 
-On Ubuntu systems, at least, the primary user-level configuration file
-is `/etc/nginx/sites-enabled/default`. For a configuration like I
-described at the top of this article, I recommend that this file contain
-only a list of include statements, one for each site that server hosts:
-
-      include local/example
-      include local/foo
-
-Those files then each define one domain’s configuration.  Here,
-`/etc/nginx/local/example` contains the configuration for
-`*.example.com` and `*.example.net`; and `local/foo` contains the
-configuration for `*.foo.net`.
-
-Here’s an example configuration:
+This is a straightforward extension to [the HTTP-only
+configuration](./server/debian/nginx.md#config):
 
       server {
           server_name .foo.net;
@@ -270,8 +121,9 @@ Here’s an example configuration:
            error_log /var/log/nginx/foo.net-http-error.log;
       }
 
-Notice that we need two `server { }` blocks: one for HTTPS service, and
-one for HTTP-only service:
+One big difference between this and the HTTP-only case is
+that we need two `server { }` blocks: one for HTTPS service, and
+one for HTTP-only service.
 
 
 ### HTTP over TLS (HTTPS) Service
@@ -387,39 +239,13 @@ the minimal HTTP service we require, `local/http-certbot-only`:
 
 As written above, this configuration does nothing other than to tell
 nginx that it’s allowed to serve content via HTTP on port 80 as well.
-
 We’ll uncomment the `rewrite` and `return` directives below, when we’re
 ready to begin testing.
 
-
-#### Why the Repetition?
-
-These `server { }` blocks contain several directives that have to be
-either completely repeated or copied with only trivial changes when
-you’re hosting multiple domains from a single server.
-
-You might then wonder, why haven’t I factored some of those directives
-into the included files `local/tls-common` and
-`local/http-certbot-only`? Why can’t the HTTP-only `server { }` block
-above be just two lines? That is, why can I not say:
-
-      server_name .foo.net;
-      include local/http-certbot-only;
-
-Then in `local/http-certbot-only` say:
-
-      root /var/www/$host;
-      access_log /var/log/nginx/$host-http-access.log;
-       error_log /var/log/nginx/$host-http-error.log;
-
-Sadly, nginx doesn’t allow variable substitution into these particular
-directives. As I understand it, allowing that would make nginx slower,
-so we must largely repeat these directives in each HTTP `server { }`
-block.
-
-These configurations are, as shown, as small as I know how to get them.
-If you know of a way to reduce some of this repetition, [I solicit your
-advice][fd].
+Notice that this configuration is very different from that in the
+[HTTP-only nginx on Debian][nod] guide. Most of that guide’s nginx
+directives moved up into the TLS `server { }` block, because we
+eventually want this site to be as close to HTTPS-only as we can get it.
 
 
 ## Step 3: Dry Run
@@ -543,25 +369,15 @@ enabled](./ssl.wiki#rloop).
 
 
 
-## Step 6: Re-Sync Your Repositories
+## Step 6: Re-Point Fossil at Your Repositories
 
-Now that the repositories hosted by this server are available via HTTPS,
-you need to tell Fossil about it:
+As of Fossil 2.9, the permanent HTTP-to-HTTPS redirect we enabled above
+causes Fossil to remember the new URL automatically the first time it’s
+redirected to it. All you need to do to switch your syncs to HTTPS is:
 
       $ cd ~/path/to/checkout
-      $ fossil sync https://example.com/code
-
-Once that’s done per repository file, all checkouts of that repo will
-from that point on use the HTTPS URI to sync.
-
-You might wonder if that’s necessary, since we have the automatic
-HTTP-to-HTTPS redirect on this site now.  If you clone or sync one of
-these nginx-hosted Fossil repositories over an untrustworthy network
-that allows [MITM attacks][mitm], that redirect won’t protect you from a
-sufficiently capable and motivated attacker unless you’ve also gone
-ahead and [enabled HSTS](#hsts).  You can put off the need to enable
-HSTS by explicitly using HTTPS URIs.
-
+      $ fossil sync
+    
 
 ## Step 7: Renewing Automatically
 
@@ -590,23 +406,17 @@ more often than it’s known to work without complaint.  Suit yourself.
 <a id=”evolution”></a>
 **Document Evolution**
 
-TLS and web proxying are a constantly evolving technology. This article
-replaces my [earlier effort][2016], which had whole sections that were
-basically obsolete within about a year of posting it. Two years on, and
-I was encouraging readers to ignore about half of that HOWTO.  I am now
-writing this document about 3 years later because Let’s Encrypt
-deprecated key technology that HOWTO depended on, to the point that
-following that old HOWTO is more likely to confuse than enlighten.
+Large parts of this article have been rewritten several times now due to
+shifting technology in the TLS and proxying spheres.
 
 There is no particularly good reason to expect that this sort of thing
-will not continue to happen, so this effort is expected to be a living
+will not continue to happen, so we consider this to be a living
 document.  If you do not have commit access on the `fossil-scm.org`
 repository to update this document as the world changes around it, you
 can discuss this document [on the forum][fd].  This document’s author
 keeps an eye on the forum and expects to keep this document updated with
 ideas that appear in that thread.
 
-[2016]: https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg22907.html
 [acme]: https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment
 [cb]:   https://certbot.eff.org/
 [cbnu]: https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx
@@ -618,5 +428,3 @@ ideas that appear in that thread.
 [ocsp]: https://en.wikipedia.org/wiki/OCSP_stapling
 [qslc]: https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices
 [qslt]: https://www.ssllabs.com/ssltest/
-[scgi]: https://en.wikipedia.org/wiki/Simple_Common_Gateway_Interface
-[vps]:  https://en.wikipedia.org/wiki/Virtual_private_server
