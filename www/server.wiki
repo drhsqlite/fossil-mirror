@@ -198,7 +198,7 @@ in order to make things work properly:
 
 <blockquote>
 Fossil does all of this in order to protect the host OS. You can make it
-bypass the jail part of this by passing `--nojail` to `fossil server`,
+bypass the jail part of this by passing <tt>--nojail</tt> to <tt>fossil server</tt>,
 but you cannot make it skip the dropping of root privileges, on purpose.
 </blockquote>
 
