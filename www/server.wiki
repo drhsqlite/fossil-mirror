@@ -43,8 +43,14 @@ There are basically four ways to set up a Fossil server:
   <li><a  id="cgi" href="./server/any/cgi.md">CGI</a>
 </ol>
 
-The HTTP and SCGI options also allow for various sorts of reverse
-proxying: Apache, nginx, HAProxy, stunnel (proxy mode), IIS...
+Fossil's HTTP server can be used standalone or you can put it behind
+many different pieces of software via various proxying schemes: Apache,
+nginx, HAProxy, stunnel (proxy mode), IIS... We cover some of those
+options below.
+
+The CGI option works with many different web servers: Apache, IIS,
+<tt>lighttpd</tt>, <tt>althttpd</tt>... Where CGI doesn't work, SCGI
+usually does instead, such as in nginx.
 
 Regardless of the method you choose, all can serve either a single repository
 or a directory hierarchy containing many repositories with names ending in ".fossil".
