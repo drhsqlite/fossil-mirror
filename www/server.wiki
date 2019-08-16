@@ -34,7 +34,7 @@ wire protocol used for client/server communication.
 There are basically four ways to set up a Fossil server:
 
 <ol>
-  <li>Socket activation:
+  <li>Socket listener:
       <a id="inetd"   href="./server/any/inetd.md">inetd</a>,
       <a id="xinetd"  href="./server/any/xinetd.md">xinetd</a>,
       <a id="stunnel" href="./server/any/stunnel.md">stunnel</a>...
@@ -132,7 +132,7 @@ generic enough that it works across OSes that Fossil is known to work
 on. The check marks below that usually just link to this generic
 documentation.
 
-There are several widely-deployed socket activation schemes besides the
+There are several widely-deployed socket listener schemes besides the
 <tt>inetd</tt>, <tt>xinetd</tt>, and <tt>stunnel</tt> schemes with
 documents linked above: Apple’s <tt>launchd</tt>, Linux’s
 <tt>systemd</tt>, Solaris’ SMF, etc. We would welcome [./contribute.wiki

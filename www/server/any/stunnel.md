@@ -7,7 +7,7 @@ outside world as HTTP before passing it to Fossil, and it encodes the
 HTTP replies from Fossil as HTTPS before sending them to the remote host
 that made the request.
 
-You can run `stunnel` in one of two modes: socket activation — much like
+You can run `stunnel` in one of two modes: socket listener — much like
 in our [`inetd` doc](./inetd.md) — and as an HTTP reverse proxy. We’ll
 cover both cases here, separately.
 
@@ -15,7 +15,7 @@ cover both cases here, separately.
 ## S<a name="sa"></a>ocket Activation
 
 The following `stunnel.conf` configuration configures it to run Fossil
-in socket activation mode, launching Fossil only when an HTTPS hit comes
+in socket listener mode, launching Fossil only when an HTTPS hit comes
 in, then shutting it back down as soon as the transaction is complete:
 
 ```dosini
@@ -70,8 +70,8 @@ There are a few advantages to this mode:
 
 1.  At the cost of some server memory and a tiny bit of idle CPU time,
     Fossil remains running so that hits can be served a smidge faster
-    than in socket activation mode, where the Fossil binary has to be
+    than in socket listener mode, where the Fossil binary has to be
     loaded and re-initialized on each HTTPS hit.
 
-2.  The socket activation mode doesn’t work on all platforms that
+2.  The socket listener mode doesn’t work on all platforms that
     `stunnel` runs on, particularly [on Windows](../windows/stunnel.md).
