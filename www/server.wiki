@@ -75,7 +75,7 @@ sub-articles, some of which are OS-specific:
         <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
-        <td style="text-align: center"><a href="./ssl.wiki#stunnel">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
         <td style="text-align: center">❌</td>
@@ -89,7 +89,7 @@ sub-articles, some of which are OS-specific:
         <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
-        <td style="text-align: center"><a href="./ssl.wiki#stunnel">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
         <td style="text-align: center"><a href="./server/debian/nginx.md">✅</a></td>

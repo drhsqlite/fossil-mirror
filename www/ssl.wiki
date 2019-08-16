@@ -213,32 +213,7 @@ it behind some kind of HTTPS proxy.
 
 <h3 id="stunnel">stunnel Alone</h3>
 
-[https://www.stunnel.org/ | <tt>stunnel</tt>] is an
-[https://en.wikipedia.org/wiki/Inetd | <tt>inetd</tt>]-like process that
-accepts and decodes TLS-encrypted connections. It can directly proxy
-Fossil communications, allowing secure TLS-encrypted communications to a
-Fossil repository server. You simply need to install <tt>stunnel</tt>
-and then place something like this in its main configuration file,
-<tt>stunnel.conf</tt>:
-
-<nowiki><pre>
-    [https]
-    accept       = www.ubercool-project.org:443
-    TIMEOUTclose = 0
-    exec         = /usr/bin/fossil
-    execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
-</pre></nowiki>
-
-The directory where that file goes varies between OSes, so check the man
-pages on your system to find out where it should be locally.
-
-See the <tt>stunnel</tt> documentation for further details about this
-configuration file.
-
-It is important that the [/help/http | <tt>fossil http</tt>] command in
-that configuration include the <tt>--https</tt> option to let Fossil
-know to use "<tt>https</tt>" instead of "<tt>http</tt>" as the URL
-scheme on generated hyperlinks.
+That's covered [./server/any/stunnel.md | elsewhere].
 
 
 <h3 id="althttpd">stunnel + althttpd</h3>

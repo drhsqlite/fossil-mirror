@@ -1,5 +1,5 @@
-C Split\sthe\sHTTP-only\sparts\sout\sof\swww/tls-nginx.md\sinto\sa\snew\sdocument\ndiscussing\sonly\sthe\sreverse-proxying\sof\s`fossil\s--scgi`\sto\sHTTP\susing\nnginx\son\sDebian\stype\sOSes.\s\sThat\smaterial\sis\snow\sin\nwww/server/debian/nginx.md,\swhich\sis\sreferred\sto\sfrom\swww/server.wiki.\nWhile\sin\sthere,\sdid\sa\sbit\sof\sprose\spolishing\son\sthis\sold\sguide.
-D 2019-08-16T09:15:03.379
+C Moved\sthe\sstunnel\sproxying\sdocs\sfrom\swww/ssl.wiki\sto\sa\snew\sdocument\nwww/server/any/stunnel.md,\sand\spointed\swww/server.wiki\sat\sit.\s\sAlso\nreplaced\ssome\ssimilar\smaterial\sin\sthis\sbranch's\snew\nwww/server/windows/stunnel.md\sfile\sat\sthis\sgeneric\sdocument.\s\sBetween\nthese\stwo\schanges,\sthe\sgeneric\sstunnel\sdocs\snow\scover\sthe\sreverse\nproxying\soption\sfor\sthe\sfirst\stime.\s\s(The\sold\sversion\sused\sthe\ssocket\nactivation\smethod\sexclusively.)\s\sThe\snew\sdocument\salso\sgives\sa\smore\nrealistic\sconfiguration,\sshowing\sLet's\sEncrypt\spaths\sand\sa\ssensible\nciphersuite\sconfiguration.
+D 2019-08-16T09:54:12.986
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -867,20 +867,21 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki ebb019f1dd6ec8e7a6b81c9c69947b45df8a2742a287d004b19572e5a1c9f27b
+F www/server.wiki d16b5904a9297f5db53d8e3c8c01709747c5b64a82e97a2dcafc104a4faf180a
 F www/server/any/cgi.md 1a538998ca4dc250cbf60e5decf825908c7dc884d41ac5b366002f22d6f73db1
 F www/server/any/inetd.md 6cf45bfa0447e5e6cdce4072fadfa5b6af45432ccd61c99be143fb1c9cf5141a
 F www/server/any/none.md a435ede126bb8ecaf0fe8faf9b8d16093372d7353ffa68a666f9631cd649dab8
 F www/server/any/scgi.md 54437b31d2ff32c6b9e744a12feebf451a4895da7e8e6ca2b857ca1b153bc0c5
+F www/server/any/stunnel.md 2d56d5ae6b9f7525eb3ad02ca3b6fe00515dd8ffe5777e091a55a0eb78ff2d55
 F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
 F www/server/debian/nginx.md bffcb73df54199a7f5793229cc37c8df5293284efec5153c68e6e1e25d9f0386
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
 F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
-F www/server/windows/stunnel.md 4a34932a9c9e2cda31a792294144a009db21e06acf0765bd522a580b16288ce6
+F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cdb616c8d1374224f3
 F www/serverext.wiki b0cb0b65d2b75764c750b8fa3276a1114377ec9b40488ed6980e5a81f7b00507
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki bcc31b138c15144370415cb08fc586b013b374ed720d97f36a2c9d5f321c46aa
+F www/ssl.wiki fb199d6d04a0983c20b968137e5308331f5071cd65b092f9333f7287534ac017
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki abfd9ecc0d72ad9b06741c58361316ad14415d10b2e839a548f7fe59e0a6ff44
@@ -897,7 +898,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fad82714aab2c5b73c47c2b750578b83e79d5ca7471fa4bd68d11c61994b58b1
-R 8f79c1b1493e36ee1b246a3a544ed441
+P 2baa8151d7d79e3eef3a20fbcaaa0c97d89fd3ed697d05516240141822993254
+R f5168a100f4ed30e0b67f1f04dd5be8f
 U wyoung
-Z f4fa8dbe0bab152be5ef9cabc7ba53b5
+Z 8d3e6d503c73be970c7ceaa198d5905a

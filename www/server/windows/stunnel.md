@@ -27,12 +27,12 @@ use with stunnel as an https proxy.  Run the following instead:
 
 ```PowerShell
 New-Service -Name fossil-secure -DisplayName fossil-secure -BinaryPathName '"C:\Program Files (x86)\FossilSCM\fossil.exe"
-server --localhost --port 8080 --https --repolist "D:/Path/to/Repos"' -StartupType Automatic
+server --localhost --port 9000 --https --repolist "D:/Path/to/Repos"' -StartupType Automatic
 
 ```
 
 The use of `--localhost` means Fossil will only listen for traffic on the local
-host on the designated port - 8080 in this case - and will not respond to
+host on the designated port - 9000 in this case - and will not respond to
 network traffic.  Using `--https` will tell Fossil to generate HTTPS URLs rather
 than HTTP ones.
 
@@ -115,18 +115,12 @@ Now move `fossil-scm.key` and `fossil-scm.pem` to your stunnel config directory
 
 ## stunnel Configuration
 
-Next, open up the `stunnel.conf` file located at `\Program Files (x86)\stunnel\config`
-and add the below section.
+Use the reverse proxy configuration given in the generic [Serving via
+stunnel document](../any/stunnel.md#proxy). On Windows, the
+`stunnel.conf` file is located at `\Program Files (x86)\stunnel\config`.
 
-```dosini
-; proxy to fossil-scm service
-[fossil]
-accept = 443
-connect = 8080
-cert = fossil-scm.pem
-key = fossil-scm.key
-TIMEOUTclose = 0
-```
+You will need to modify it to point at the PEM and key files generated
+above.
 
 After completing the above configuration restart the stunnel service in Windows
 with the following:
