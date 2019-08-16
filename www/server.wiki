@@ -12,10 +12,10 @@ to ensure that (in the limit) all participating peers see the exact same content
 <h2>But, A Server Can Be Useful</h2>
 
 <blockquote>
-Fossil does not require a a server,
+Fossil does not require a server,
 but a server does make collaboration easier.
 A Fossil server also works well as a complete website for a project.
-For example, the complete [https://www.fossil-scm.org/] website, including the
+For example, the [https://www.fossil-scm.org/] website, including the
 page you are now reading,
 is just a Fossil server displaying the content of the
 self-hosting repository for Fossil.
@@ -28,275 +28,145 @@ See "[./sync.wiki|The Fossil Sync Protocol]" for information on the
 wire protocol used for client/server communication.
 </blockquote>
 
-<h2>Overview</h2>
+<h2>Methods</h2>
 
 <blockquote>
 There are basically four ways to set up a Fossil server:
 
 <ol>
-  <li>A stand-alone server
-  <li>Using inetd, xinetd, or stunnel
+  <li>Socket activation: inetd, xinetd, stunnel...
+  <li>Stand-alone HTTP server
+  <li>SCGI
   <li>CGI
-  <li>SCGI (a.k.a. SimpleCGI)
 </ol>
 
-Each of these can serve either a single repository, or a directory hierarchy
-containing many repositories with names ending in ".fossil".
+The HTTP and SCGI options also allow for various sorts of reverse
+proxying: Apache, nginx, HAProxy, stunnel (proxy mode), IIS...
+
+Regardless of the method you choose, all can serve either a single repository
+or a directory hierarchy containing many repositories with names ending in ".fossil".
+
+We've broken the configuration for each method out into a series of
+sub-articles, some of which are OS-specific:
+</blockquote>
+
+<table style="margin-left: 6em;">
+    <tr>
+        <th>&nbsp;</th>
+        <th colspan="10" style="background-color: #efefef">Fossil Front-End Program</th>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Host OS</th>
+        <th>none</th>
+        <th>inetd</th>
+        <th>xinetd</th>
+        <th>stunnel</th>
+        <th>CGI</th>
+        <th>SCGI</th>
+        <th>nginx</th>
+        <th>Apache</th>
+        <th>IIS</th>
+        <th>OS&nbsp;service</th>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Any</th>
+        <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./ssl.wiki#stunnel">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Debian/Ubuntu</th>
+        <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./ssl.wiki#stunnel">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/debian/nginx.md">✅</a></td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Windows</th>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center"><a href="./server/windows/stunnel.md">✅</a></td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center"><a href="./server/windows/service.md">✅</a></td>
+    </tr>
+</table>
+
+<blockquote>
+Where there is a check mark in the "Any" row, the method for that is
+generic enough that it works across OSes that Fossil is known to work
+on. The check marks below that usually just link to this generic
+documentation.
+
+There are several widely-deployed socket activation schemes besides the
+<tt>inetd</tt>, <tt>xinetd</tt>, and <tt>stunnel</tt> schemes with
+documents linked above: Apple’s <tt>launchd</tt>, Linux’s
+<tt>systemd</tt>, Solaris’ SMF, etc. We would welcome [./contribute.wiki
+| contributions] to cover these as well. We also welcome contributions
+to fill gaps (❌) in the table above.
 </blockquote>
 
 
-<h2 id="standalone">Standalone server</h2>
+<h2 id="standalone">Standalone HTTP server</h2>
 
 <blockquote>
-The easiest way to set up a Fossil server is to use either the
-[/help/server|server] or the [/help/ui|ui] commands:
-
-<ul>
-  <li><b>fossil server</b> <i>REPOSITORY</i>
-  <li><b>fossil ui</b> <i>REPOSITORY</i>
-</ul>
-
-The <i>REPOSITORY</i> argument is either the name of the repository file, or
-a directory containing many repositories named <tt>*.fossil</tt>.
-Both of these commands start a Fossil server, usually on TCP port 8080, though
-a higher numbered port might also be used if 8080 is already occupied.  You can
-access these using URLs of the form <b>http://localhost:8080/</b>, or if
-<i>REPOSITORY</i> is a directory, URLs of the form
-<b>http://localhost:8080/</b><i>repo</i><b>/</b> where <i>repo</i> is the base
-name of the repository file without the ".fossil" suffix.
-
-There are several key differences between "ui" and "server":
-
-<ul>
-  <li>"ui" always binds the server to the loopback IP address
-      (127.0.0.1) so that it cannot serve to other machines.
-  <li>anyone who visits this URL is treated as the all-powerful Setup
-      user, which is why the first difference exists.
-  <li>"ui" launches a local web browser pointed at this URL.
-</ul>
-
-You can omit the <i>REPOSITORY</i> argument if you run one of the above
-commands from within a Fossil checkout directory to serve that
-repository:
-
-<blockquote><pre>
-$ fossil ui          # or...
-$ fossil serve
-</pre></blockquote>
-
-Note that you can abbreviate Fossil sub-commands, as long as they are
-unambiguous. "<tt>server</tt>" can currently be as short as
-"<tt>ser</tt>".
-
-As a more complicated example, you can serve a directory containing
-multiple <tt>*.fossil</tt> files like so:
-
-<blockquote><pre>
-$ fossil server --port 9000 --repolist /path/to/repo/dir
-</pre></blockquote>
-
-There is an [/file/tools/fslsrv | example script] in the Fossil
-distribution that wraps <tt>fossil server</tt> to produce more
-complicated effects. Feel free to take it, study it, and modify it to
-suit your local needs.
-
-See the [/help/server|online documentation] for more information on the
-options and arguments you can give to these commands.
+    This is the easiest way to set up a Fossil server. It's covered in
+    [./server/any/none.md | a separate article].
 </blockquote>
 
 
-<h2 id="inetd">Fossil as an inetd/xinetd service</h2>
+<h2 id="inetd">Serving via inetd</h2>
 
 <blockquote>
-
-A Fossil server can be launched on-demand by inetd or xinetd using
-the [/help/http|fossil http] command. To launch Fossil from inetd, modify
-your inetd configuration file (typically "/etc/inetd.conf") to contain a
-line something like this:
-
-<blockquote>
-<pre>
-80 stream tcp nowait.1000 root /usr/bin/fossil /usr/bin/fossil http /home/fossil/repo.fossil
-</pre>
+    See [./server/any/inetd.md | this article].
 </blockquote>
 
-In this example, you are telling "inetd" that when an incoming connection
-appears on TCP port "80", that it should launch the binary "/usr/bin/fossil"
-program with the arguments shown.
-Obviously you will
-need to modify the pathnames for your particular setup.
-The final argument is either the name of the fossil repository to be served,
-or a directory containing multiple repositories.
 
-
-If you use a non-standard TCP port on
-systems where the port-specification must be a symbolic name and cannot be
-numeric, add the desired name and port to /etc/services.  For example, if
-you want your Fossil server running on TCP port 12345 instead of 80, you
-will need to add:
+<h2 id="cgi">Serving via CGI</h2>
 
 <blockquote>
-<pre>
-fossil          12345/tcp  #fossil server
-</pre>
+    See [./server/any/cgi.md | this article].
 </blockquote>
 
-and use the symbolic name ('fossil' in this example) instead of the numeral ('12345')
-in inetd.conf. For details, see the relevant section in your system's documentation, e.g.
-the [https://www.freebsd.org/doc/en/books/handbook/network-inetd.html|FreeBSD Handbook] in
-case you use FreeBSD.
 
-If your system is running xinetd, then the configuration is likely to be
-in the file "/etc/xinetd.conf" or in a subfile of "/etc/xinetd.d".
-An xinetd configuration file will appear like this:
+<h2 id="scgi">Serving via SCGI</h2>
 
 <blockquote>
-<pre>
-service http
-{
-  port = 80
-  socket_type = stream
-  wait = no
-  user = root
-  server = /usr/bin/fossil
-  server_args = http /home/fossil/repos/
-}
-</pre>
+    See [./server/any/scgi.md | this article].
 </blockquote>
 
-The xinetd example above has Fossil configured to serve multiple
-repositories, contained under the "/home/fossil/repos/" directory.
 
-In both cases notice that Fossil was launched as root.  This is not required,
-but if it is done, then Fossil will automatically put itself into a chroot
-jail for the user who owns the fossil repository before reading any information
-off of the wire.
-
-Inetd or xinetd must be enabled, and must be (re)started whenever their configuration
-changes - consult your system's documentation for details.
-
-Using inetd or xinetd is a more complex setup
-than the "standalone" server, but it has the
-advantage of only using system resources when an actual connection is
-attempted.  If no-one ever connects to that port, a Fossil server will
-not (automatically) run. It has the disadvantage of requiring "root" access
-and therefore may not normally be available to lower-priced "shared" servers
-on the Internet.
-
-The configuration for <tt>stunnel</tt> is similar, but it is covered in
-[./ssl.wiki#stunnel|a separate document].
-</blockquote>
-
-<h2 id="cgi">Fossil as CGI</h2>
+<h2 id="ext">CGI Server Extensions</h2>
 
 <blockquote>
-
-A Fossil server can also be run from an ordinary web server as a CGI program.
-This feature allows Fossil to be seamlessly integrated into a larger website.
-CGI is how the [./selfhost.wiki | self-hosting fossil repositories] are
-implemented.
-
-To run Fossil as CGI, create a CGI script (here called "repo") in the CGI directory
-of your web server and having content like this:
-
-<blockquote><pre>
-#!/usr/bin/fossil
-repository: /home/fossil/repo.fossil
-</pre></blockquote>
-
-As always, adjust your paths appropriately.
-It may be necessary to set permissions properly, or to modify an ".htaccess"
-file or make other server-specific changes.  Consult the documentation
-for your particular web server. In particular, the following permissions are
-<em>normally</em> required (but, again, may be different for a particular
-configuration):
-
-<ul>
-  <li>The Fossil binary (/usr/bin/fossil in the example above)
-  must be readable/executable, and ALL directories leading up to it
-  must be readable by the process which executes the CGI.</li>
-  <li>ALL directories leading to the CGI script must also be readable and the CGI
-  script itself must be executable for the user under which it will run (which often differs
-  from the one running the web server - consult your site's documentation or administrator).</li>
-  <li>The repository file AND the directory containing it must be writable by the same account
-  which executes the Fossil binary (again, this might differ from the WWW user). The directory
-  needs to be writable so that SQLite can write its journal files.</li>
-  <li>Fossil must be able to create temporary files, the default directory
-  for which depends on the OS.  When the CGI process is operating within
-  a chroot, ensure that this directory exists and is readable/writeable
-  by the user who executes the Fossil binary.</li>
-</ul>
-
-Once the script is set up correctly, and assuming your server is also set
-correctly, you should be able to access your repository with a URL like:
-<b>http://mydomain.org/cgi-bin/repo</b> (assuming the "repo" script is
-accessible under "cgi-bin", which would be a typical deployment on Apache
-for instance).
-
-To serve multiple repositories from a directory using CGI, use the "directory:"
-tag in the CGI script rather than "repository:".   You might also want to add
-a "notfound:" tag to tell where to redirect if the particular repository requested
-by the URL is not found:
-
-<blockquote><pre>
-#!/usr/bin/fossil
-directory: /home/fossil/repos
-notfound: http://url-to-go-to-if-repo-not-found/
-</pre></blockquote>
-
-Once deployed, a URL like: <b>http://mydomain.org/cgi-bin/repo/XYZ</b>
-will serve up the repository "/home/fossil/repos/XYZ.fossil" (if it exists).
-
-Additional options available to the CGI script are 
-[./cgi.wiki|documented separately].
-
-Note that Fossil itself can be launched as CGI, as described here.  But
-Fossil can also launch [./serverext.wiki|sub-CGIs to implement server extensions].
-Do not confuse these two concepts.  Note also that the
-[./serverext.wiki|sub-CGI mechanism] works regardless of how the main
-Fossil server is launched.
-
-<h2 id="scgi">Fossil as SCGI</h2>
-<blockquote>
-
-The [/help/server|fossil server] command, described above as a way of
-starting a stand-alone web server, can also be used for SCGI.  Simply add
-the --scgi command-line option and the stand-alone server will interpret
-and respond to the SimpleCGI or SCGI protocol rather than raw HTTP.  This can
-be used in combination with a web server (such as [http://nginx.org|Nginx])
-that does not support CGI.  A typical Nginx configuration to support SCGI
-with Fossil would look something like this:
-
-<blockquote><pre>
-location /demo_project/ {
-    include scgi_params;
-    scgi_pass localhost:9000;
-    scgi_param SCRIPT_NAME "/demo_project";
-    scgi_param HTTPS "on";
-}
-</pre></blockquote>
-
-Note that Fossil requires the SCRIPT_NAME variable
-in order to function properly, but Nginx does not provide this
-variable by default,
-so it is necessary to provide the SCRIPT_NAME parameter in the configuration.
-Failure to do this will cause Fossil to return an error.
-
-All of the features of the stand-alone server mode described above,
-such as the ability to serve a directory full of Fossil repositories
-rather than just a single repository, work the same way in SCGI mode.
-
-For security, it is probably a good idea to add the --localhost option
-to the [/help/server|fossil server] command to prevent Fossil from accepting
-off-site connections.  One might also want to specify the listening TCP port
-number, rather than letting Fossil choose one for itself, just to avoid
-ambiguity.  A typical command to start a Fossil SCGI server
-would be something like this:
-
-<blockquote><pre>
-fossil server $REPOSITORY --scgi --localhost --port 9000
-</pre></blockquote>
+    In addition to serving Fossil repositories via CGI, Fossil can
+    itself [./serverext.wiki | launch other programs via CGI] to
+    implement server extensions. Do not confuse these two concepts. This
+    extension mechanism works regardless of the method above you choose
+    to serve your Fossil repository.
 </blockquote>
+
 
 <h2 id="tls">Securing a repository with TLS</h2>
 
@@ -306,6 +176,46 @@ fossil server $REPOSITORY --scgi --localhost --port 9000
   TLS. All of this is covered in a separate document, <a
   href="./ssl.wiki">Using TLS-Encrypted Communications with Fossil</a>.
 </blockquote>
+
+
+<h2 id="chroot">The Fossil Chroot Jail</h2>
+
+<blockquote>
+If you run Fossil as root in any mode that serves data on the
+network, and you're running it on Unix or a compatible OS, Fossil
+will drop itself into a [https://en.wikipedia.org/wiki/Chroot |
+chroot jail] shortly after starting up. It will drop its root
+privileges once it's done everything that requires root access; most
+commonly, you run Fossil as root to allow it to bind to TCP port 80
+for HTTP service, since normal users are restricted to ports 1024
+and up on OSes where this behavior occurs.
+
+Fossil uses the owner of the Fossil repository file as its new user
+ID when dropping root privileges.
+
+When this happens, Fossil needs to have all of its dependencies
+inside the chroot jail.  There are several things you typically need
+in order to make things work properly:
+
+<ul>
+    <li>the repository file(s)
+
+    <li><tt>/dev/null</tt> — create it with <tt>mknod(8)</tt>
+    inside the jail directory
+
+    <li><tt>/dev/urandom</tt> — ditto
+
+    <li>any shared libraries your <tt>fossil</tt> binary is linked
+    to, such as <tt>/lib/libssl.so</tt>; consider building Fossil as a
+    static binary to avoid this
+</ul>
+</blockquote>
+
+<blockquote>
+Fossil does all of this in order to protect the host OS.  There is
+no way to bypass it, on purpose.
+</blockquote>
+
 
 <h2 id="loadmgmt">Managing Server Load</h2>
 

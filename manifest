@@ -1,5 +1,5 @@
-C Merged\srecent\sspell\scheck\sfixes\sinto\sthis\sbranch\sso\swe\sdon't\srevert\sany\sof\sthem.
-D 2019-08-16T01:58:44.549
+C Broke\smost\sof\sthe\scontents\sof\swww/server/wiki\sout\sinto\sa\sseries\sof\nwww/server/*.md\sarticles\sthat\sare\snow\slinked\sfrom\sa\scheckmark\stable\sin\nits\splace,\swhich\salso\slinks\sto\sthe\snew\swww/server/windows/*.md\sfiles\ncreated\sto\sstart\sthis\sbranch\soff.\s\sThis\sis\snot\spurely\sa\smatter\sof\smoving\nprose\saround:\sthere\sis\sa\sfair\sbit\sof\simprovement\sto\sthe\spre-existing\nprose\sas\swell,\smost\snotably\sthat\swe\snow\sdocument\sthe\sFossil\schroot\sjail\nrequirements\sfor\sthe\sfirst\stime.\s\s(Previously,\syou\shad\sto\sgo\sdig\sup\nmailing\slist\sor\sforum\sposts\s(or\seven\sRTFS!)\sto\swork\sout\sthose\nrequirements.)\s\sThere's\smore\sto\sdo\son\sall\sof\sthis;\sdo\snot\smerge\sit\sto\ntrunk\syet.
+D 2019-08-16T07:13:10.530
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -821,7 +821,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
-F www/env-opts.md c5780566362606b82069a5153d7a808ee5419b0a4c4771e2e0e3c1d9a77a8a15
+F www/env-opts.md fe8477eb1c1a45e488932f32ccbe105d63858552c16cc4469413432150587c92
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
@@ -867,7 +867,12 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki 6b45c2172536b9e79c9fb9f83075a56a7277dd13b6aee13bda2281d90418a57b
+F www/server.wiki a60c90375a233fe2c88ee0c1f60888b24a1fee524a6f749670008a8fb1a3610f
+F www/server/any/cgi.md 1a538998ca4dc250cbf60e5decf825908c7dc884d41ac5b366002f22d6f73db1
+F www/server/any/inetd.md 6cf45bfa0447e5e6cdce4072fadfa5b6af45432ccd61c99be143fb1c9cf5141a w www/server/any/inted.md
+F www/server/any/none.md a435ede126bb8ecaf0fe8faf9b8d16093372d7353ffa68a666f9631cd649dab8
+F www/server/any/scgi.md 54437b31d2ff32c6b9e744a12feebf451a4895da7e8e6ca2b857ca1b153bc0c5
+F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6 w www/server/any/xinted.md
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
 F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
 F www/server/windows/stunnel.md 4a34932a9c9e2cda31a792294144a009db21e06acf0765bd522a580b16288ce6
@@ -891,7 +896,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b7c563d4999f99150b16be3a902ced19014b78527cc9d42cf2ae793a1c3acd5 0996347d4ab9d5db6f8bb7cafe5abe4ddcb8ae6881bfa50f3f5ccd995a9a21ac
-R a57e9f3fb9467cb445d15f867f629ae5
+P a9fd086f132705b43482089d6f52fe2848f00060405bd14223b1001cef12df58
+R ceb68d994d08049e661d1b8e137132ed
 U wyoung
-Z 30ad2a9114b2d5af7a4a655caafc2e7c
+Z d9ab27f7a8199d3664350c5e45da2b51
