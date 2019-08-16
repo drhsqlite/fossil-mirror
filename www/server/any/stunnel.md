@@ -12,7 +12,7 @@ in our [`inetd` doc](./inetd.md) — and as an HTTP reverse proxy. We’ll
 cover both cases here, separately.
 
 
-## Socket Activation
+## S<a name="sa"></a>ocket Activation
 
 The following `stunnel.conf` configuration configures it to run Fossil
 in socket activation mode, launching Fossil only when an HTTPS hit comes
@@ -49,7 +49,7 @@ configuration include the `--https` option to let Fossil know to use
 
 
 
-## Reverse Proxy
+## <a name="proxy"></a>Reverse Proxy
 
 You can instead have Fossil running in the background in [standalone
 HTTP server mode](./none.md), bound to a high random TCP port number on

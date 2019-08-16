@@ -1,5 +1,5 @@
-C Moved\sthe\sstunnel\sproxying\sdocs\sfrom\swww/ssl.wiki\sto\sa\snew\sdocument\nwww/server/any/stunnel.md,\sand\spointed\swww/server.wiki\sat\sit.\s\sAlso\nreplaced\ssome\ssimilar\smaterial\sin\sthis\sbranch's\snew\nwww/server/windows/stunnel.md\sfile\sat\sthis\sgeneric\sdocument.\s\sBetween\nthese\stwo\schanges,\sthe\sgeneric\sstunnel\sdocs\snow\scover\sthe\sreverse\nproxying\soption\sfor\sthe\sfirst\stime.\s\s(The\sold\sversion\sused\sthe\ssocket\nactivation\smethod\sexclusively.)\s\sThe\snew\sdocument\salso\sgives\sa\smore\nrealistic\sconfiguration,\sshowing\sLet's\sEncrypt\spaths\sand\sa\ssensible\nciphersuite\sconfiguration.
-D 2019-08-16T09:54:12.986
+C Added\ssome\snamed\sanchors\sto\swww/server/any/stunnel.md
+D 2019-08-16T09:55:20.859
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -872,7 +872,7 @@ F www/server/any/cgi.md 1a538998ca4dc250cbf60e5decf825908c7dc884d41ac5b366002f22
 F www/server/any/inetd.md 6cf45bfa0447e5e6cdce4072fadfa5b6af45432ccd61c99be143fb1c9cf5141a
 F www/server/any/none.md a435ede126bb8ecaf0fe8faf9b8d16093372d7353ffa68a666f9631cd649dab8
 F www/server/any/scgi.md 54437b31d2ff32c6b9e744a12feebf451a4895da7e8e6ca2b857ca1b153bc0c5
-F www/server/any/stunnel.md 2d56d5ae6b9f7525eb3ad02ca3b6fe00515dd8ffe5777e091a55a0eb78ff2d55
+F www/server/any/stunnel.md e91c2d5b0aa76303e85aa2ececb8d25a2dc511f342c5fce5aeeda114b5446412
 F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
 F www/server/debian/nginx.md bffcb73df54199a7f5793229cc37c8df5293284efec5153c68e6e1e25d9f0386
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
@@ -898,7 +898,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2baa8151d7d79e3eef3a20fbcaaa0c97d89fd3ed697d05516240141822993254
-R f5168a100f4ed30e0b67f1f04dd5be8f
+P 53b2e866e1632ad000c2e87e37c453a590acd4eba968c32287545e688dd0a2e0
+R 3b82fb591d6bfc5d4881edc0eb4c0185
 U wyoung
-Z 8d3e6d503c73be970c7ceaa198d5905a
+Z b9955868b527bff6608c169f207c28e8
