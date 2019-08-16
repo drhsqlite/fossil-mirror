@@ -137,7 +137,7 @@ sub-articles, some of which are OS-specific:
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
+        <td style="text-align: center"><a href="./server/windows/iis.md">✅</a></td>
         <td style="text-align: center"><a href="./server/windows/service.md">✅</a></td>
     </tr>
 </table>
