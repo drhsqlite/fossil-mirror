@@ -10,7 +10,7 @@ local repository clone. In both systems, the local clone starts out as a
 full copy of the remote parent. New content gets added to the local
 clone and then later optionally pushed up to the remote, and changes to
 the remote can be pulled down to the local clone at will. Both systems
-offer diffing, patching, branching, merging, cherrypicking, bisecting,
+offer diffing, patching, branching, merging, cherry-picking, bisecting,
 private branches, a stash, etc.
 
 Fossil has inbound and outbound Git conversion features, so if you start
@@ -236,10 +236,10 @@ Fossil's user-visible functionality.
 
 Fossil isn't entirely C and SQL code. Its web UI uses JavaScript where
 necessary.⁵ The server-side
-UI scripting usse a custom minimal
+UI scripting uses a custom minimal
 [https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
 [https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
-embedeed into Fossil itself. Fossil's build system and test suite are
+embedded into Fossil itself. Fossil's build system and test suite are
 largely based on Tcl.⁶ All of this is quite portable.
 
 About half of Git's code is POSIX C, and about a third is POSIX shell
@@ -300,7 +300,7 @@ Git promotes the Linux kernel's bazaar development style, in which a
 loosely-associated mass of developers contribute their work through
 [https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|a
 hierarchy of lieutenants] who manage and clean up these contributions
-for consideration by Linus Torvalds, who has the power to cherrypick
+for consideration by Linus Torvalds, who has the power to cherry-pick
 individual contributions into his version of the Linux kernel. Git
 allows an anonymous developer to rebase and push specific locally-named
 private branches, so that a Git repo clone often isn't really a clone at
@@ -322,7 +322,7 @@ development model:
 
     <li><p><b>Trust over hierarchy:</b> SQLite's developers check
     changes into their local repository, and these are immediately and
-    automatically sync'd up to the central repository; there is no
+    automatically synchronized up to the central repository; there is no
     "[https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows#_dictator_and_lieutenants_workflow|dictator
     and lieutenants]" hierarchy as with Linux kernel contributions.  D.
     Richard Hipp rarely overrides decisions made by those he has trusted
@@ -528,7 +528,7 @@ tightly focused and cohesive implementation.
 A "repository" in Git is a pile-of-files in the <tt>.git</tt>
 subdirectory of a single check-out. The working check-out directory and
 the <tt>.git</tt> repository subdirectory are normally in the same
-directory within the filesystem.
+directory within the file system.
 
 With Fossil, a "repository" is a single SQLite database file that can be
 stored anywhere.  There can be multiple active check-outs from the same
@@ -700,7 +700,7 @@ are a few remaining feature differences we haven't gotten to yet.
     hosted as [https://fossil-scm.org/forum/|a separate Fossil repo]
     from the [https://fossil-scm.org/fossil/|main Fossil self-hosting
     repo] for administration reasons, and the Download page content
-    isn't normally sync'd with a "<tt>fossil clone</tt>" command unless
+    isn't normally synchronized with a "<tt>fossil clone</tt>" command unless
     you add the "-u" option.  (See "[./aboutdownload.wiki|How the
     Download Page Works]" for details.) There may also be some purely
     static elements of the web site served via D. Richard Hipp's own
@@ -720,7 +720,7 @@ are a few remaining feature differences we haven't gotten to yet.
     it to [https://en.wikipedia.org/wiki/Z/OS|z/OS].
 
     <li><p>We try to keep use of Javascript to a minimum in the web UI,
-    and we always try to provide sensible fallbacks for those that run
+    and we always try to provide sensible fall-backs for those that run
     their browsers with Javascript disabled. Some features of the web UI
     simply won't run without Javascript, but the UI behavior does
     degrade gracefully.

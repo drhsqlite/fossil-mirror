@@ -198,7 +198,7 @@ putting that file somewhere on your PATH.
 
 Fossil is completely self-contained.  It is not necessary to
 install any other software in order to use Fossil.  You do <u>not</u> need
-CVS, gzip, diff, rsync, Python, Perl, Tcl, Java, apache, PostgreSQL, MySQL,
+CVS, gzip, diff, rsync, Python, Perl, Tcl, Java, Apache, PostgreSQL, MySQL,
 SQLite, patch, or any similar software on your system in order to use
 Fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor

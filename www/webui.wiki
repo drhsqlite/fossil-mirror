@@ -54,7 +54,7 @@ repository, simply type this:
    <b>fossil ui existing-repository.fossil</b>
 
 Substitute the name of your repository, of course.
-The "ui" command will start a webserver running (it figures out an
+The "ui" command will start a web server running (it figures out an
 available TCP port to use on its own) and then automatically launches
 your web browser to point at that server.  If you run the "ui" command
 from within an open check-out, you can omit the repository name:
@@ -110,7 +110,7 @@ You can view summary reports of <b>branches</b> in the
 check-in graph by visiting the "Branches" link on the
 menu bar.  From those pages you can follow hyperlinks to get additional
 details.  These screens allow you to easily keep track of what is going
-on with separate subteams within your project team.
+on with separate sub-teams within your project team.
 
 The "Files" link on the menu allows you to browse through the <b>file
 hierarchy</b> of the project and to view complete changes histories on

@@ -127,7 +127,7 @@ means megabytes and kilobytes, not mebibytes and kibibytes.
 
 <h2>Analysis And Supplemental Data</h2>
 
-Perhaps the two most interesting datapoints in the above table are SQLite
+Perhaps the two most interesting data points in the above table are SQLite
 and SLT.  SQLite is a long-running project with long revision chains.
 Some of the files in SQLite have been edited over a thousand times.
 Each of these edits is stored as a delta, and hence the SQLite project

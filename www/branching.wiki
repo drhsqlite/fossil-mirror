@@ -241,7 +241,7 @@ it is done purely in software in order to avoid losing information:
     autosync is disabled on one or both of the repositories or because
     the user doing the check-in has no network connection at the moment
     of the commit, Fossil has no way of knowing that it is creating a
-    fork until the two repositories are later sync'd.</p></li>
+    fork until the two repositories are later synchronized.</p></li>
 
     <li><p id="dist-clone">By Fossil when the cloning hierarchy is more
     than 2 levels deep.
@@ -593,7 +593,7 @@ history]: we usually don't want to actually <i>remove</i> history, but
 would like to sometimes set some of it aside under a new label.
 
 Because some VCSes can't cope with duplicate branch names, Fossil
-collapses such names down on export using the same timestamp based
+collapses such names down on export using the same time stamp based
 arbitration logic, so that only the branch with the newest checkin gets
 the branch name in the export.
 
