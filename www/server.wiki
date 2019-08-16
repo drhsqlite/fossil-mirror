@@ -53,7 +53,7 @@ sub-articles, some of which are OS-specific:
 <table style="margin-left: 6em;">
     <tr>
         <th>&nbsp;</th>
-        <th colspan="10" style="background-color: #efefef">Fossil Front-End Program</th>
+        <th colspan="11" style="background-color: #efefef">Fossil Front-End Program</th>
     </tr>
 
     <tr>
@@ -64,6 +64,7 @@ sub-articles, some of which are OS-specific:
         <th>stunnel</th>
         <th>CGI</th>
         <th>SCGI</th>
+        <th>althttpd</th>
         <th>nginx</th>
         <th>Apache</th>
         <th>IIS</th>
@@ -78,6 +79,7 @@ sub-articles, some of which are OS-specific:
         <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/althttpd.md">✅</a></td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
@@ -92,6 +94,7 @@ sub-articles, some of which are OS-specific:
         <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
         <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/althttpd.md">✅</a></td>
         <td style="text-align: center"><a href="./server/debian/nginx.md">✅</a></td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
@@ -104,6 +107,7 @@ sub-articles, some of which are OS-specific:
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center"><a href="./server/windows/stunnel.md">✅</a></td>
+        <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>
         <td style="text-align: center">❌</td>

@@ -1,5 +1,5 @@
-C Added\ssome\snamed\sanchors\sto\swww/server/any/stunnel.md
-D 2019-08-16T09:55:20.859
+C Moved\sthe\s"Serving\svia\salthttpd"\smaterial\sfrom\swww/ssl.wiki\sto\sa\snew\s\ndocument,\swww/server/any/althttpd.md,\slinked\sfrom\swww/server.wiki.
+D 2019-08-16T10:11:12.245
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -867,7 +867,8 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki d16b5904a9297f5db53d8e3c8c01709747c5b64a82e97a2dcafc104a4faf180a
+F www/server.wiki b58aa2843278817c31e09e563a362722c5efa29cc57060c3e3b2c82157727549
+F www/server/any/althttpd.md 38718192cddf425124ccf47953b7f5835643da68e0d275aa3747d2faddecba97
 F www/server/any/cgi.md 1a538998ca4dc250cbf60e5decf825908c7dc884d41ac5b366002f22d6f73db1
 F www/server/any/inetd.md 6cf45bfa0447e5e6cdce4072fadfa5b6af45432ccd61c99be143fb1c9cf5141a
 F www/server/any/none.md a435ede126bb8ecaf0fe8faf9b8d16093372d7353ffa68a666f9631cd649dab8
@@ -881,7 +882,7 @@ F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cd
 F www/serverext.wiki b0cb0b65d2b75764c750b8fa3276a1114377ec9b40488ed6980e5a81f7b00507
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
-F www/ssl.wiki fb199d6d04a0983c20b968137e5308331f5071cd65b092f9333f7287534ac017
+F www/ssl.wiki 6f1ce6af07b9d638232d8653334676195e828cbd1550da80fc79aba079031f9d
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki abfd9ecc0d72ad9b06741c58361316ad14415d10b2e839a548f7fe59e0a6ff44
@@ -898,7 +899,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53b2e866e1632ad000c2e87e37c453a590acd4eba968c32287545e688dd0a2e0
-R 3b82fb591d6bfc5d4881edc0eb4c0185
+P ce4b4bae311ac87026f7efa4ec5de9c763dda09a0b8bd3350ae9fb352c114cc3
+R 03be07199581d0890b5af29d2d61aac2
 U wyoung
-Z b9955868b527bff6608c169f207c28e8
+Z 4f11ee064513711f897d7d126ccdc6e7
