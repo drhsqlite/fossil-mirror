@@ -525,15 +525,21 @@ void convert_href_and_output(Blob *pIn){
   char *z = blob_buffer(pIn);
   for(base=0, i=7; i<n; i++){
     if( z[i]=='$'
-     && strncmp(&z[i],"$ROOT/", 6)==0
      && (z[i-1]=='\'' || z[i-1]=='"')
-     && i-base>=9
-     && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
-           fossil_strnicmp(&z[i-9]," action=", 8)==0)
-    ){
+     && i-base>=9 ) {
       blob_append(cgi_output_blob(), &z[base], i-base);
-      blob_appendf(cgi_output_blob(), "%R");
-      base = i+5;
+      if( strncmp(&z[i],"$ROOT/", 6)==0
+       && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
+             fossil_strnicmp(&z[i-9]," action=", 8)==0)
+      ){
+        blob_appendf(cgi_output_blob(), "%R");
+        base = i+5;
+      } else if( strncmp(&z[i],"$NONCE", 6)==0
+       && (fossil_strnicmp(&z[i-8]," nonce=", 6)==0)
+       && (z[i+6]=='\'' || z[i+6]=='"') ) { 
+        blob_append(cgi_output_blob(), style_nonce(), 48);
+        base = i+6;
+      }
     }
   }
   blob_append(cgi_output_blob(), &z[base], i-base);
