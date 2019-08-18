@@ -2,7 +2,7 @@
 
 <style>
   p {
-    margin-left: 3em;
+    margin-left: 4em;
     margin-right: 3em;
   }
 
@@ -122,21 +122,18 @@ particular operating systems or front-end software:</p>
 <table style="margin-left: 6em;">
     <tr>
         <th>&nbsp;</th>
-        <th colspan="11" class="feps">Fossil Front-End Program</th>
+        <th colspan="8" class="feps">Fossil Front-End Program</th>
     </tr>
 
     <tr>
         <th class="host">Host OS</th>
         <th class="fep">none</th>
         <th class="fep">inetd</th>
-        <th class="fep">xinetd</th>
         <th class="fep">stunnel</th>
         <th class="fep">CGI</th>
         <th class="fep">SCGI</th>
         <th class="fep">althttpd</th>
-        <th class="fep">nginx</th>
-        <th class="fep">Apache</th>
-        <th class="fep">IIS</th>
+        <th class="fep">Web</th>
         <th class="fep">OS service</th>
     </tr>
 
@@ -144,13 +141,10 @@ particular operating systems or front-end software:</p>
         <th class="host">Any</th>
         <td class="doc"><a href="any/none.md">✅</a></td>
         <td class="doc"><a href="any/inetd.md">✅</a></td>
-        <td class="doc"><a href="any/xinetd.md">✅</a></td>
         <td class="doc"><a href="any/stunnel.md">✅</a></td>
         <td class="doc"><a href="any/cgi.md">✅</a></td>
         <td class="doc"><a href="any/scgi.md">✅</a></td>
         <td class="doc"><a href="any/althttpd.md">✅</a></td>
-        <td class="doc">❌</td>
-        <td class="doc">❌</td>
         <td class="doc">❌</td>
         <td class="doc">❌</td>
     </tr>
@@ -159,14 +153,11 @@ particular operating systems or front-end software:</p>
         <th class="host">Debian/Ubuntu</th>
         <td class="doc"><a href="any/none.md">✅</a></td>
         <td class="doc"><a href="any/inetd.md">✅</a></td>
-        <td class="doc"><a href="any/xinetd.md">✅</a></td>
         <td class="doc"><a href="any/stunnel.md">✅</a></td>
         <td class="doc"><a href="any/cgi.md">✅</a></td>
         <td class="doc"><a href="any/scgi.md">✅</a></td>
         <td class="doc"><a href="any/althttpd.md">✅</a></td>
         <td class="doc"><a href="debian/nginx.md">✅</a></td>
-        <td class="doc">❌</td>
-        <td class="doc">❌</td>
         <td class="doc">❌</td>
     </tr>
 
@@ -174,11 +165,8 @@ particular operating systems or front-end software:</p>
         <th class="host">Windows</th>
         <td class="doc">❌</td>
         <td class="doc">❌</td>
-        <td class="doc">❌</td>
         <td class="doc"><a href="windows/stunnel.md">✅</a></td>
         <td class="doc"><a href="windows/cgi.md">✅</a></td>
-        <td class="doc">❌</td>
-        <td class="doc">❌</td>
         <td class="doc">❌</td>
         <td class="doc">❌</td>
         <td class="doc"><a href="windows/iis.md">✅</a></td>
@@ -186,17 +174,24 @@ particular operating systems or front-end software:</p>
     </tr>
 </table>
 
-<p>Where there is a check mark in the "Any" row, the method for that is
+<p>Where there is a check mark in the "<b>Any</b>" row, the method for that is
 generic enough that it works across OSes that Fossil is known to work
 on. The check marks below that usually just link to this generic
 documentation.</p>
+
+<p>The method in the "<b>Web</b>" column is for the platform's default
+web server configured as a <a
+href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a> for
+Fossil's built-in HTTP server: <a href="debian/nginx.md">nginx</a>, <a
+href="windows/iis.md">IIS</a>, Apache, etc.</p>
 
 <p>There are several widely-deployed socket listener schemes besides the
 <tt>inetd</tt>, <tt>xinetd</tt>, and <tt>stunnel</tt> schemes with
 documents linked above: Apple’s <tt>launchd</tt>, Linux’s
 <tt>systemd</tt>, Solaris’ SMF, etc. We would welcome <a
 href="contribute.wiki">contributions</a> to cover these as well. We also
-welcome contributions to fill gaps () in the table above.  </p>
+welcome contributions to fill gaps (<font size="-2">❌</font>) in the table
+above.  </p>
 
 
 <h2 id="more">Further Details</h2>
