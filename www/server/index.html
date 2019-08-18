@@ -19,17 +19,15 @@
   }
 
   th.fep {
-    white-space: nowrap;
+    background-color: #e8e8e8;
     min-width: 3em;
-  }
-
-  th.feps {
-    background-color: #efefef;
+    padding: 0.4em;
+    white-space: nowrap;
   }
 
   th.host {
     background-color: #e8e8e8;
-    padding: 6px;
+    padding: 0.4em;
     text-align: right;
   }
 
@@ -121,20 +119,15 @@ particular operating systems or front-end software:</p>
 
 <table style="margin-left: 6em;">
     <tr>
-        <th>&nbsp;</th>
-        <th colspan="8" class="feps">Fossil Front-End Program</th>
-    </tr>
-
-    <tr>
-        <th class="host">Host OS</th>
+        <th class="host">⇩ OS / Method ⇨</th>
         <th class="fep">none</th>
         <th class="fep">inetd</th>
         <th class="fep">stunnel</th>
         <th class="fep">CGI</th>
         <th class="fep">SCGI</th>
         <th class="fep">althttpd</th>
-        <th class="fep">Web</th>
-        <th class="fep">OS service</th>
+        <th class="fep">proxy</th>
+        <th class="fep">service</th>
     </tr>
 
     <tr>
@@ -179,7 +172,7 @@ generic enough that it works across OSes that Fossil is known to work
 on. The check marks below that usually just link to this generic
 documentation.</p>
 
-<p>The method in the "<b>Web</b>" column is for the platform's default
+<p>The method in the "<b>proxy</b>" column is for the platform's default
 web server configured as a <a
 href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a> for
 Fossil's built-in HTTP server: <a href="debian/nginx.md">nginx</a>, <a
