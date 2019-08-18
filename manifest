@@ -1,5 +1,5 @@
-C Include\sforum\sartifact\sstatistics\son\sthe\s/artifact_stats\spage.
-D 2019-08-18T00:59:14.499
+C Capitalization\sfix\sin\sHTML\soutput\sfrom\s/artifact_stats
+D 2019-08-18T01:03:46.235
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -572,7 +572,7 @@ F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae
 F src/sqlite3.c d9a5daf7697a827f4b2638276ce639fa04e8e8bb5fd3a6b683cfad10f1c81b12
 F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
 F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
-F src/stat.c d295b8b9e510ee8cf39f470d68e0e85d070131f8df3243a2c1882d5697ff9dc5
+F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c e654ff9b9b80ca5ce23ad5e5b5b7aa060539a0532111f1b49746d8a0da34d656
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
@@ -888,7 +888,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5461fb599b20002a48e7ddf9228e6022ee47f9109f079bba26ccab4cb654e5c
-R c683252e8d30dfe92023b3cc68b94eaf
-U drh
-Z 72d26eb983d03d1f3f7abfb50c492341
+P e2f2a05eff484d6a60b998e072e84a4c981e72a6224516d574662ae871c00afe
+R 022fd39260fcc1b5a867d2cf0fa21253
+U wyoung
+Z cad3c2d45561cdec7142583235fcdcfe
