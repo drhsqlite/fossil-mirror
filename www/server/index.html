@@ -1,6 +1,6 @@
 <div class='fossil-doc' data-title="How To Configure A Fossil Server">
 
-<style>
+<style type="text/css" nonce="$NONCE">
   p {
     margin-left: 4em;
     margin-right: 3em;
@@ -16,6 +16,20 @@
 
   ol, ul {
     margin-left: 3em;
+  }
+
+  a#all {
+    font-size: 90%;
+    margin-left: 1em;
+  }
+
+  div#tutpick.show {
+    max-height: 99em;
+    transition: max-height 1000ms ease-in;
+  }
+  div#tutpick {
+    max-height: 0;
+    overflow: hidden;
   }
 
   th.fep {
@@ -117,6 +131,11 @@ the efficiency of the stand-alone server option. With nginx, you use the
 sub-articles. Some of these are generic, while others depend on
 particular operating systems or front-end software:</p>
 
+<div id="tutpick"></div>
+
+<!-- Define alternative to JS tutorial picker below.  When updating this
+     table, update "matrix" in the JS code below to match! -->
+<noscript id="tutmatrix">
 <table style="margin-left: 6em;">
     <tr>
         <th class="host">⇩ OS / Method ⇨</th>
@@ -185,17 +204,119 @@ documents linked above: Apple’s <tt>launchd</tt>, Linux’s
 href="contribute.wiki">contributions</a> to cover these as well. We also
 welcome contributions to fill gaps (<font size="-2">❌</font>) in the table
 above.  </p>
+</noscript>
 
 
 <h2 id="more">Further Details</h2>
 
 <ul>
-  <li> <a id="chroot"   href="../chroot.md">The Server Chroot Jail</a>
-  <li><a id="loadmgmt" href="../loadmgmt.md">Managing Server Load</a>
-  <li><a id="tls"      href="../ssl.wiki">Securing a Repository with TLS</a>
+  <li><a id="chroot"   href="../chroot.md"     >The Server Chroot Jail</a>
+  <li><a id="loadmgmt" href="../loadmgmt.md"   >Managing Server Load</a>
+  <li><a id="tls"      href="../ssl.wiki"      >Securing a Repository with TLS</a>
   <li><a id="ext"      href="../serverext.wiki">CGI Server Extensions</a>
-  <li><a id="about"    href="../aboutcgi.wiki">How CGI Works In Fossil</a>
-  <li><a id="sync"     href="../sync.wiki">The Fossil Sync Protocol</a>
+  <li><a id="about"    href="../aboutcgi.wiki" >How CGI Works In Fossil</a>
+  <li><a id="sync"     href="../sync.wiki"     >The Fossil Sync Protocol</a>
 </ul>
 
 </div>
+
+<script type="text/javascript" nonce="$NONCE">
+  (function() {
+    // Define data structure analog to <table> above.  Matrix elements
+    // can have one of these constant values or a string for a one-off
+    // custom value.  Values outside the <table> above go at the end of
+    // the rows we define here.
+    const YES = 1;  // host-specific doc provided
+    const IFA = 2;  // inherit doc from "any"
+    const NO  = 3;  // method invalid or undocumented for this host OS
+    const methods = [
+      "none", "inetd", "stunnel", "CGI", "SCGI", "althttpd", "proxy", "service"
+    ];
+    const matrix =     {
+               "any OS": [ YES, YES, YES, YES, YES, YES, NO,      NO ],
+     "Debian or Ubuntu": [ IFA, IFA, IFA, IFA, IFA, IFA, "nginx", NO ],
+              "Windows": [ NO,  NO,  YES, YES, NO,  NO,  "IIS",   NO ],
+    }
+    const osNames = Object.keys(matrix).sort((e) => {
+      return e.toLowerCase()
+    }).map((longName, i) => {
+      var shortName = longName.toLowerCase().split(' ')[0];
+      return [ longName, shortName ];
+    });
+    const osNameMap = Object.fromEntries(osNames);
+    //console.log("OS name map: " + JSON.stringify(osNameMap));
+    
+    // Build initial tutorial chooser HTML, and insert it into doc where
+    // the static HTML <table> matrix normally goes.
+    var html = '<p><b>I want to run Fossil on</b> <select id="os">';
+    for (var os of osNames) {
+      const  longName = os[0];
+      const shortName = os[1];
+      html += '<option name="' + shortName + '">' + longName + '</option>';
+    }
+    html += '</select> <b>underneath</b> <select id="fep"></select>'
+    html += '<a id="all">SHOW ALL</a></p>';
+    const picker = document.querySelector('div#tutpick');
+    picker.innerHTML = html;
+    picker.classList.add('show');
+
+    // Slide noscript <table> in place of JS tutorial chooser on
+    // "SHOW ALL" click.
+    document.querySelector('a#all').addEventListener('click', () => {
+      picker.classList.remove('show');
+      picker.innerHTML = document.querySelector('#tutmatrix').innerHTML;
+      setTimeout(() => {
+        // Let doc update to set new height, so transition happens.
+        picker.classList.add('show');
+      }, 10);
+    });
+
+    // Attach event handlers to drop-downs.  Have to wait until the page
+    // loads, else we'll get null back from querySelector(('select#foo')).
+    window.addEventListener('load', () => {
+      // Set up the FEP choice drop-down on initial page load and
+      // update it when the OS choice drop-down changes.
+      const osSel  = document.querySelector('select#os');
+      const fepSel = document.querySelector('select#fep');
+      function osClickHandler() {
+        var osLong  = osSel.value;
+        var osShort = osNameMap[osLong];
+
+        var html = '<option>---</option>';
+        matrix[osLong].forEach((choice, i) => {
+          var mu;
+          if (typeof(choice) === 'string') {
+            mu = choice;
+            choice = YES;
+          }
+          else {
+            mu = methods[i];
+          }
+          const ml = mu.toLowerCase();
+
+          if (choice != NO) {
+            if (choice == YES) {
+              html += '<option value="' + osShort + '/' + ml + '.md">';
+            }
+            else if (choice == IFA) {
+              html += '<option value="any/' + ml + '.md">';
+            }
+            html += mu + '</option>';
+          }
+        });
+
+        fepSel.innerHTML = html;
+      }
+      osSel.addEventListener('change', osClickHandler);
+      osClickHandler();   // load fepSel initial content
+
+      // Go to selected document when user changes FEP drop-down
+      fepSel.addEventListener('change', () => {
+        var doc = fepSel.value;
+        if (doc) location.href = doc;
+        // else it's the --- entry, either because we just reloaded the
+        // <option> set or because the user re-selected it.
+      });
+    });
+  })();
+</script>
