@@ -1,5 +1,5 @@
-C Assorted\simprovements\sto\swww/server/windows/iis.md.\sRemoved\sthe\sempty\nCGI\sand\sSCGI\ssections,\sas\sthose\swill\sbe\sseparate\sarticles.\s\sAdded\s"Why\nBother?"\ssection.\s\sAdded\slink\sto\s./service.md.\s\sBetter\sexplanation\sof\nthe\s/code\srewriting\sexample.\s\sHoist\sTLS\sinfo\sup\sinto\sthe\snew\s"Why\nBother?"\ssection.
-D 2019-08-18T02:21:03.620
+C Added\sdocs\sfor\sIIS\s+\sCGI\sserver\sconfiguration.
+D 2019-08-18T03:53:07.487
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -868,7 +868,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server.wiki 62dfa1072601fdf2ff8a2bd4c56657e73119a7f6610eadcf4d0eee2a3d254a83
+F www/server.wiki 075a27c8c9c976e90bbb62945975bd1b6ad61be06f828cec72176415157d7a82
 F www/server/any/althttpd.md 38718192cddf425124ccf47953b7f5835643da68e0d275aa3747d2faddecba97
 F www/server/any/cgi.md cf83c00f30adf310bbabe886f6e5d1b0dfa067a072472ca5f75f0e8e84c93083
 F www/server/any/inetd.md 7d4f590a87b7918249cf32b009c0de122bae424b0bbc4d5477f35e9ac36706d3
@@ -878,7 +878,11 @@ F www/server/any/stunnel.md f3972d327c00d477d105774a4db94c023ca5453a4ad61f124a82
 F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
 F www/server/debian/nginx.md 4bcb2be1d9a4e2eb850e1e462a26569491f8568077292e0f101c12d52c7787a6
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
-F www/server/windows/iis.md ebded05d399274396ff6504e3247612ec1163aab0c21357bfb1a642d6a8b431d
+F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
+F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
+F www/server/windows/cgi-script-map.png a1e6567130bb82b7a9240eff90a83c261edc01332e940072a3e1cd23c70148de
+F www/server/windows/cgi.md 7c64d365946b7aaddd155bf805e0b5d471ff2a2ff387a4a22add81cd81a5a4b8
+F www/server/windows/iis.md ccfb6198204f772d1c183268f528b3c70711a474d823c5a9775f883250f06a8c
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
 F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
 F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cdb616c8d1374224f3
@@ -902,7 +906,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f217e89f27e80e8c3fac34b01b2b05998d1b890fbf6189d45f13252a0329391
-R 4ff3f4f240e0717718cbf0ee03267995
+P 1670e5fac609dba40405cc4a3ecf66bb4f7c6faeb2ccc05d5150aa5e4d9ef1e6
+R 29c9a1d5c69087d1a5be0b78a21f5922
 U wyoung
-Z 6d173646b9d0d3a7d9b6944a620f581d
+Z ed5781cc6d01c5cc12114506b5e42f73

@@ -23,6 +23,9 @@ IIS, but there are several use cases where adding it is helpful:
 This article shows how you can get any combination of those benefits by
 using IIS as a reverse proxy for `fossil server`.
 
+There are other ways to use IIS to serve Fossil, such as [via
+CGI](./cgi.md).
+
 
 ## Background Fossil Service Setup
 
