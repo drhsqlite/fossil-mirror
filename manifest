@@ -1,5 +1,5 @@
-C Corrected\sthe\sdescription\sof\snginx\s+\sSCGI\sin\swww/server.wiki.
-D 2019-08-16T18:58:35.950
+C Assorted\simprovements\sto\swww/server/windows/iis.md.\sRemoved\sthe\sempty\nCGI\sand\sSCGI\ssections,\sas\sthose\swill\sbe\sseparate\sarticles.\s\sAdded\s"Why\nBother?"\ssection.\s\sAdded\slink\sto\s./service.md.\s\sBetter\sexplanation\sof\nthe\s/code\srewriting\sexample.\s\sHoist\sTLS\sinfo\sup\sinto\sthe\snew\s"Why\nBother?"\ssection.
+D 2019-08-18T02:21:03.620
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -878,7 +878,7 @@ F www/server/any/stunnel.md f3972d327c00d477d105774a4db94c023ca5453a4ad61f124a82
 F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
 F www/server/debian/nginx.md 4bcb2be1d9a4e2eb850e1e462a26569491f8568077292e0f101c12d52c7787a6
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
-F www/server/windows/iis.md 19a00a70c4beeff77b6c7f6ab2b8447797e4db13561f3f1d7e77c687f42e8c64
+F www/server/windows/iis.md ebded05d399274396ff6504e3247612ec1163aab0c21357bfb1a642d6a8b431d
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
 F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
 F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cdb616c8d1374224f3
@@ -902,7 +902,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fbacfacfe6939a4328c7a42de9d668de7d85c108887efa9c9faa62423566b4ce
-R 908468335d70ae9f3644c5de37c59192
+P 0f217e89f27e80e8c3fac34b01b2b05998d1b890fbf6189d45f13252a0329391
+R 4ff3f4f240e0717718cbf0ee03267995
 U wyoung
-Z d4e7143107b393d5743637b1c41e571e
+Z 6d173646b9d0d3a7d9b6944a620f581d
