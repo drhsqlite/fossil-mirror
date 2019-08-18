@@ -515,9 +515,11 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 **
 **       href="$ROOT/
 **       action="$ROOT/
+**       nonce="$NONCE"
 **
-** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
-** and any case for href or action.
+** Convert $ROOT to the root URI of the repository and $NONCE to the 
+** CSP nonce returned by style_nonce().  Allow ' in place of "
+** and any case for href or action or nonce.
 */
 void convert_href_and_output(Blob *pIn){
   int i, base;
@@ -536,8 +538,9 @@ void convert_href_and_output(Blob *pIn){
         base = i+5;
       } else if( strncmp(&z[i],"$NONCE", 6)==0
        && (fossil_strnicmp(&z[i-8]," nonce=", 6)==0)
-       && (z[i+6]=='\'' || z[i+6]=='"') ) { 
-        blob_append(cgi_output_blob(), style_nonce(), 48);
+       && z[i+6]==z[i-1]
+      ) { 
+        blob_append(cgi_output_blob(), style_nonce(), -1);
         base = i+6;
       }
     }
