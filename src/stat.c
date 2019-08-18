@@ -683,6 +683,8 @@ static void gather_artifact_stats(int bWithTypes){
     @    AND atype IS NULL;
     @ UPDATE artstat SET atype='manifest'
     @  WHERE id IN (SELECT objid FROM event WHERE type='ci') AND atype IS NULL;
+    @ UPDATE artstat SET atype='forum'
+    @  WHERE id IN (SELECT objid FROM event WHERE type='f') AND atype IS NULL;
     @ UPDATE artstat SET atype='cluster'
     @  WHERE atype IS NULL 
     @    AND id IN (SELECT rid FROM tagxref
