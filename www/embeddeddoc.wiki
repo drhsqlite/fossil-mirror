@@ -104,7 +104,7 @@ into the embedded document.
 
 <h3>1. $ROOT</h3>
 
-To allow for repositories [server/ | served deeper than the root of the
+To allow for repositories [./server/ | served deeper than the root of the
 URL hierarchy], Fossil can substitute the repository's root in the URL
 scheme into HTML <tt>href</tt> and <tt>action</tt> attributes. For
 example:
