@@ -22,14 +22,14 @@ Fossil service.
 You lose a lot of that benefit on Windows:
 
 1.  It only matters to start with on servers that are highly RAM
-    constrained.  (Rougly &le; 128 MiB.)  Our configuration steps below
+    constrained.  (Roughly &le; 128 MiB.)  Our configuration steps below
     assume you’re using the Windows and IIS GUIs, which have RAM
     requirements well in excess of this, making Fossil’s resource
-    requirements a drop in the bucket next to them. On the test VM I
-    used to prepare these instructions, the Windows Server Manager kept
-    running the system out of RAM and crashing on the 1&nbsp;GiB Azure
-    B1s VM I started out using. I had to upgrade the VM’s RAM to
-    2&nbsp;GiB just to get useful work done!
+    requirements a drop in the bucket next to them. On the [Azure
+    B1s][b1s] virtual machine I used to prepare these instructions, the
+    Windows Server Manager GUI kept filling the VM’s 1&nbsp;GiB of RAM
+    during feature installation and crashing. I had to upgrade the VM’s
+    RAM to 2&nbsp;GiB just to get useful work done!
 
 2.  Process creation on Windows is [much more expensive][cp] than on the
     other OSes Fossil runs on, so the benefits of firing up a Fossil
@@ -38,13 +38,15 @@ You lose a lot of that benefit on Windows:
 
 Therefore, unless you’re willing to replace all of the GUI configuration
 steps below with command line equivalents, or shut the GUI down entirely
-after configuring IIS, CGI is much less a compelling option on Windows.
+after configuring IIS, CGI is a much less compelling option on Windows.
 
 **WARNING:** The following tutorial appears to fail with the current
-(2019-08-17) version of Fossil, apparently due to an inability of Fossil
-to detect that it’s being run in CGI mode.
+(2019-08-17) version of Fossil, [apparently][fbug] due to an inability
+of Fossil to detect that it’s being run in CGI mode.
 
-[cp]: https://stackoverflow.com/a/48244/142454
+[b1s]:  https://azure.microsoft.com/en-us/blog/introducing-b-series-our-new-burstable-vm-size/
+[cp]:   https://stackoverflow.com/a/48244/142454
+[fbug]: https://fossil-scm.org/forum/forumpost/de18dc32c0
 
 
 ## Setup

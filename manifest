@@ -1,5 +1,5 @@
-C Added\sdocs\sfor\sIIS\s+\sCGI\sserver\sconfiguration.
-D 2019-08-18T03:53:07.487
+C Small\simprovements\sto\sIIS\s+\sCGI\sdoc
+D 2019-08-18T04:12:42.793
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -881,7 +881,7 @@ F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e336
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
 F www/server/windows/cgi-script-map.png a1e6567130bb82b7a9240eff90a83c261edc01332e940072a3e1cd23c70148de
-F www/server/windows/cgi.md 7c64d365946b7aaddd155bf805e0b5d471ff2a2ff387a4a22add81cd81a5a4b8
+F www/server/windows/cgi.md 63acb56a8dda8b8c6c5acafda523e118802f5a15de912dfb9e8e592ed0dcb0cb
 F www/server/windows/iis.md ccfb6198204f772d1c183268f528b3c70711a474d823c5a9775f883250f06a8c
 F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
 F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
@@ -906,7 +906,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1670e5fac609dba40405cc4a3ecf66bb4f7c6faeb2ccc05d5150aa5e4d9ef1e6
-R 29c9a1d5c69087d1a5be0b78a21f5922
+P 9098ebba2d32218a25420132d8a343d910ea5b42b3dc4fe9e38f33ecd27b90ed
+R 2d44a85d6cc20918a460dd21e55c5c11
 U wyoung
-Z ed5781cc6d01c5cc12114506b5e42f73
+Z f3b0583373ec46212045d26c284f1cd7
