@@ -1,0 +1,194 @@
+<div class='fossil-doc' data-title="How To Configure A Fossil Server">
+
+<style>
+  p {
+    margin-left: 3em;
+    margin-right: 3em;
+  }
+
+  h2 {
+    margin-left: 1em;
+  }
+
+  h3 {
+    margin-left: 3em;
+  }
+
+  ol, ul {
+    margin-left: 3em;
+  }
+</style>
+
+
+<h2>No Server Required</h2>
+
+<p>Fossil does not require a central server, but <a
+href="whyuseaserver.wiki">a server can be very useful</a>.</p>
+
+<p>This article is a quick-reference guide for setting up your own
+Fossil server, with links to more detailed instructions specific to
+particular systems, should you want extra help.</p>
+
+
+<h2 id="methods">Methods</h2>
+
+<p>There are basically four ways to set up a Fossil server:</p>
+
+<ol>
+  <li>Socket listener:
+      <a id="inetd"      href="any/inetd.md">inetd</a>,
+      <a id="xinetd"     href="any/xinetd.md">xinetd</a>,
+      <a id="stunnel"    href="any/stunnel.md">stunnel</a>...
+  <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
+  <li><a id="scgi"       href="any/scgi.md">SCGI</a>
+  <li><a id="cgi"        href="any/cgi.md">CGI</a>
+</ol>
+
+<p>All of these methods can serve either a single repository or a
+directory hierarchy containing many repositories with names ending in
+"<tt>.fossil</tt>".</p>
+
+<p>You are not restricted to using a single method. The same Fossil
+repository can be served using two or more of the above techniques at
+the same time. You can also migrate from one method to another to
+accommodate changes in hosting providers or administrator
+preferences.</p>
+
+
+<h3>Socket Listener</h3>
+
+<p>The idea behind the socket listener approach is that each incoming
+HTTP request is relayed to a new instance of the <a
+href="/help?cmd=http"><tt>fossil http</tt></a> command.  That command
+reads the HTTP request from its standard input, handles the request, and
+writes a complete and correct HTTP reply on standard output which is
+then returned to the client.</p>
+
+
+<h3>Stand-alone HTTP Server</h3>
+
+<p>A stand-alone server uses the <a href="/help?cmd=server"><tt>fossil
+server</tt></a> command to run a process that listens for incoming HTTP
+requests on a socket and then dispatches a copy of itself to deal with
+each incoming request.  A stand-alone server can talk directly with the
+client, or the system can be configured with a reverse proxy in between
+the client and Fossil.</p>
+
+
+<h3>CGI and SCGI</h3>
+
+<p>Fossil can also be run using CGI from ordinary web servers such as
+Apache, <a href="windows/cgi.md">IIS</a>, <tt>lighttpd</tt>, or
+<tt>althttpd</tt>. The Fossil server administrator places a <a
+href="/help?cmd=cgi">short CGI script</a> in the web server's document
+hierarchy, and when a client requests the appropriate URL, that script
+runs Fossil to generate the responce.  CGI is a good choice for merging
+Fossil into an existing web site. The Fossil <a
+href="../selfhost.wiki">self-hosting repositories</a> are implemented
+with CGI underneath <tt>althttpd</tt>.</p>
+
+<p>For web servers such as nginx that do not support CGI, Fossil
+supports SCGI, a protocol that gives most of the simplicity of CGI with
+the efficiency of the stand-alone server option. With nginx, you use the
+<a href="/help/server"><tt>fossil server --scgi</tt></a> command.</p>
+
+
+
+<h2 id="matrix">Setup Tutorials</h2>
+
+<p>We've broken the configuration for each method out into a series of
+sub-articles. Some of these are generic, while others depend on
+particular operating systems or front-end software:</p>
+
+<table style="margin-left: 6em;">
+    <tr>
+        <th>&nbsp;</th>
+        <th colspan="11" style="background-color: #efefef">Fossil Front-End Program</th>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Host OS</th>
+        <th>none</th>
+        <th>inetd</th>
+        <th>xinetd</th>
+        <th>stunnel</th>
+        <th>CGI</th>
+        <th>SCGI</th>
+        <th>althttpd</th>
+        <th>nginx</th>
+        <th>Apache</th>
+        <th>IIS</th>
+        <th>OS&nbsp;service</th>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Any</th>
+        <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/althttpd.md">✅</a></td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Debian/Ubuntu</th>
+        <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/any/althttpd.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/debian/nginx.md">✅</a></td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+    </tr>
+
+    <tr>
+        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Windows</th>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center"><a href="./server/windows/stunnel.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/windows/cgi.md">✅</a></td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center">❌</td>
+        <td style="text-align: center"><a href="./server/windows/iis.md">✅</a></td>
+        <td style="text-align: center"><a href="./server/windows/service.md">✅</a></td>
+    </tr>
+</table>
+
+<p>Where there is a check mark in the "Any" row, the method for that is
+generic enough that it works across OSes that Fossil is known to work
+on. The check marks below that usually just link to this generic
+documentation.</p>
+
+<p>There are several widely-deployed socket listener schemes besides the
+<tt>inetd</tt>, <tt>xinetd</tt>, and <tt>stunnel</tt> schemes with
+documents linked above: Apple’s <tt>launchd</tt>, Linux’s
+<tt>systemd</tt>, Solaris’ SMF, etc. We would welcome <a
+href="contribute.wiki">contributions</a> to cover these as well. We also
+welcome contributions to fill gaps () in the table above.  </p>
+
+
+<h2 id="more">Further Details</h2>
+
+<ul>
+  <li> <a id="chroot"   href="../chroot.md">The Server Chroot Jail</a>
+  <li><a id="loadmgmt" href="../loadmgmt.md">Managing Server Load</a>
+  <li><a id="tls"      href="../ssl.wiki">Securing a Repository with TLS</a>
+  <li><a id="ext"      href="../serverext.wiki">CGI Server Extensions</a>
+  <li><a id="about"    href="../aboutcgi.wiki">How CGI Works In Fossil</a>
+  <li><a id="sync"     href="../sync.wiki">The Fossil Sync Protocol</a>
+</ul>
+
+</div>
