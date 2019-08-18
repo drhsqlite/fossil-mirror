@@ -17,6 +17,25 @@
   ol, ul {
     margin-left: 3em;
   }
+
+  th.fep {
+    white-space: nowrap;
+    min-width: 3em;
+  }
+
+  th.feps {
+    background-color: #efefef;
+  }
+
+  th.host {
+    background-color: #e8e8e8;
+    padding: 6px;
+    text-align: right;
+  }
+
+  td.doc {
+    text-align: center;
+  }
 </style>
 
 
@@ -103,67 +122,67 @@ particular operating systems or front-end software:</p>
 <table style="margin-left: 6em;">
     <tr>
         <th>&nbsp;</th>
-        <th colspan="11" style="background-color: #efefef">Fossil Front-End Program</th>
+        <th colspan="11" class="feps">Fossil Front-End Program</th>
     </tr>
 
     <tr>
-        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Host OS</th>
-        <th>none</th>
-        <th>inetd</th>
-        <th>xinetd</th>
-        <th>stunnel</th>
-        <th>CGI</th>
-        <th>SCGI</th>
-        <th>althttpd</th>
-        <th>nginx</th>
-        <th>Apache</th>
-        <th>IIS</th>
-        <th>OS&nbsp;service</th>
+        <th class="host">Host OS</th>
+        <th class="fep">none</th>
+        <th class="fep">inetd</th>
+        <th class="fep">xinetd</th>
+        <th class="fep">stunnel</th>
+        <th class="fep">CGI</th>
+        <th class="fep">SCGI</th>
+        <th class="fep">althttpd</th>
+        <th class="fep">nginx</th>
+        <th class="fep">Apache</th>
+        <th class="fep">IIS</th>
+        <th class="fep">OS service</th>
     </tr>
 
     <tr>
-        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Any</th>
-        <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/althttpd.md">✅</a></td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
+        <th class="host">Any</th>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc"><a href="any/inetd.md">✅</a></td>
+        <td class="doc"><a href="any/xinetd.md">✅</a></td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
     </tr>
 
     <tr>
-        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Debian/Ubuntu</th>
-        <td style="text-align: center"><a href="./server/any/none.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/inetd.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/xinetd.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/stunnel.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/cgi.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/scgi.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/any/althttpd.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/debian/nginx.md">✅</a></td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
+        <th class="host">Debian/Ubuntu</th>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc"><a href="any/inetd.md">✅</a></td>
+        <td class="doc"><a href="any/xinetd.md">✅</a></td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc"><a href="debian/nginx.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
     </tr>
 
     <tr>
-        <th style="background-color: #e8e8e8; padding: 6px; text-align: right">Windows</th>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center"><a href="./server/windows/stunnel.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/windows/cgi.md">✅</a></td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center">❌</td>
-        <td style="text-align: center"><a href="./server/windows/iis.md">✅</a></td>
-        <td style="text-align: center"><a href="./server/windows/service.md">✅</a></td>
+        <th class="host">Windows</th>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="windows/stunnel.md">✅</a></td>
+        <td class="doc"><a href="windows/cgi.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="windows/iis.md">✅</a></td>
+        <td class="doc"><a href="windows/service.md">✅</a></td>
     </tr>
 </table>
 

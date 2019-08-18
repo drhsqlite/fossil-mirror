@@ -1,5 +1,5 @@
-C Renamed\swww/server.wiki\sto\swww/server/index.html\sand\sconverted\sit\sto\nHTML\sformat.\sDid\sa\sbit\sof\sprose\spolishing\sand\sCSS\swork\swhile\sin\sthere.
-D 2019-08-18T04:41:56.832
+C Moved\sinline\sCSS\swithin\swww/server/index.html\selements\sup\sinto\sa\s<style>\nblock\sat\sthe\stop.\s\sThen\sused\sthat\sto\screate\sa\smore\seven\smatrix\slayout.\nAlso\sfixed\ssome\sincorrect\sURLs\schecked\sin\swith\sthe\sprior\sversion,\sdue\sto\nthe\sdocument\schanging\sdirectory\slevel.
+D 2019-08-18T04:51:47.185
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -876,7 +876,7 @@ F www/server/any/scgi.md 8684268537091a622675d82e75f969ec12dedd742939f2518087734
 F www/server/any/stunnel.md f3972d327c00d477d105774a4db94c023ca5453a4ad61f124a822a7b9be8b9ad
 F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
 F www/server/debian/nginx.md 4bcb2be1d9a4e2eb850e1e462a26569491f8568077292e0f101c12d52c7787a6
-F www/server/index.html 146622d0a792ae1ab0da197b8e7400ceecb9890d982db9b94273e0d5b159bf62 w www/server.wiki
+F www/server/index.html 0bcefb2070d7b739e1e7796111c0cc0232c87f7539d045ca8d6b1d2f262b3921
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -906,7 +906,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7c839c1c6adc2b36471024df08837b7977757b5de687801265fc768a0759a36
-R ff71744ca733688adcf4706f555e94c4
+P 819326676390d2742a28314726c616503549a71fb60eab195f16ce10b3121515
+R a8f262f5a6d8a4fcca0bfb922e456516
 U wyoung
-Z e515359e3e1327a38ab260168a8a18aa
+Z 68601414ad1c7a1e8fdba0e06da1c1db
