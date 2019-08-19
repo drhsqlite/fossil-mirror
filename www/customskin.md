@@ -11,36 +11,52 @@ Fossil-Generated Content</td></tr>
 <tr><td style='background-color:lightyellow;text-align:center;'>Javascript (optional)</td></tr>
 </tbody></table></blockquote>
 
-The header and footer control the "look" of Fossil pages.  Those
-two sections can be customized separately for each repository to
-develop a new theme.
+The default header looks something like this:
 
-The header will normally look something like this:
+        <div class="header">
+          <div class="title"><h1>$<project_name></h1>$<title></div>
+          ... top banner and menu bar ...
 
-        <html>
-        <head> ... </head>
-        <body>
-        ... top banner and menu bar ...
-        <div class='content'>
+The Fossil-generated content section looks like this:
 
-And the footer will look something like this:
-
+        <div class="content">
+          ... generated content here ...
         </div>
-        ... bottom material ...
-        </body>
-        </html>
 
-The &lt;head&gt; element in the header will normally reference the
-/style.css CSS file that Fossil stores internally.  (The $stylesheet_url
-TH1 variable, described below, is useful for accomplishing this.)
+And the footer looks like this:
 
-The middle "content" section comprised the bulk of most pages and
+        <div class="footer">
+          ... skin-specific stuff here ...
+        </div>
+        <script nonce="$nonce">
+          <th1>styleScript</th1>
+        </script>
+
+Notice that there are no `<html>` or `<head>` elements in the header,
+nor is there an `</html>` closing tag in the footer.  Fossil generates
+this material automatically unless it sees that you have provided your
+own HTML document header within the skin’s Header section.
+
+This design lets most users get the benefit of Fossil’s automatic HTML
+document header, which takes care of quite a few different things for
+you, while still allowing you to override if at need. For example, you
+might not agree with Fossil’s default [Content Security Policy][csp]
+which gets set in a `<meta>` tag within this default document header, so
+you could provide your own, which would suppress that code.
+
+When overriding the default document header, you might want to use some
+of the TH1 variables documented below such as `$stylesheet_url`
+to avoid hand-writing code that Fossil can generate for you.
+
+The middle "content" section comprises the bulk of most pages and
 contains the actual Fossil-generated data
 that the user is interested in seeing.  The text of this content
 section is not normally configurable.  The content text can be styled
-using CSS, but it otherwise fixed.  Hence it is the header and footer
+using CSS, but it is otherwise fixed.  Hence it is the header, the footer,
 and the CSS that determine the look of a repository.
 We call the bundle of built-in CSS, header, and footer a "skin".
+
+[csp]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
 
 Built-in Skins
 --------------
@@ -90,12 +106,12 @@ necessary.
 When cloning a repository, the skin of new repository is initialized to
 the skin of the repository from which it was cloned.
 
-Header And Footer Processing
+Header and Footer Processing
 ----------------------------
 
-The header.txt and footer.txt files of a skin are merely the HTML text
-of the header and footer.  Except, before being prepended and appended to
-the content, the header and footer text are run through a
+The `header.txt` and `footer.txt` files of a skin are merely the HTML text
+of the header and footer, except that before being prepended and appended to
+the content, their text content is run through a
 [TH1 interpreter](./th1.md) that might adjust the text as follows:
 
   *  All text within &lt;th1&gt;...&lt;/th1&gt; is elided from the
@@ -103,38 +119,29 @@ the content, the header and footer text are run through a
      script has the opportunity to insert new text in place of itself,
      or to inhibit or enable the output of subsequent text.
 
-  *  Text for the form "$NAME" or "$&lt;NAME&gt;" is replace with
+  *  Text of the form "$NAME" or "$&lt;NAME&gt;" is replaced with
      the value of the TH1 variable NAME.
 
-For example, the following is the first few lines of a typical
-header file:
+Above, we saw the first few lines of a typical header file:
 
-       <html>
-        <head>
-         <base href="$baseurl/$current_page" />
-         <title>$<project_name>: $<title></title>
-         <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-               href="$home/timeline.rss" />
-         <link rel="stylesheet" href="$stylesheet_url" type="text/css"
-               media="screen" />
-       </head>
+        <div class="header">
+          <div class="title"><h1>$<project_name></h1>$<title>/div>
 
-After variables are substituted by TH1, the final header text
-delivered to the web browser might look something like this:
+After variables are substituted by TH1, that will look more like this:
 
-        <html>
-         <head>
-          <base href="https://www.fossil-scm.org/skin2/timeline" />
-          <title>Fossil: Timeline</title>
-          <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-                href="/skin2/timeline.rss" />
-          <link rel="stylesheet" href="/skin2/style.css?default" type="text/css"
-                media="screen" />
-         </head>
+        <div class="header">
+          <div class="title"><h1>Project Name</h1>Page Title</div>
+
+As you can see, two TH1 variable substitutions were done.
 
 The same TH1 interpreter is used for both the header and the footer
 and for all scripts contained within them both.  Hence, any global
 TH1 variables that are set by the header are available to the footer.
+
+As pointed out at the start of this document, Fossil provides the HTML
+document container tags `<html>`, `<head>`, and their inner content when
+your skin’s header and footer don’t include them.
+
 
 Customizing the ≡ Hamburger Menu
 --------------------------------

@@ -1,5 +1,5 @@
-C Fix\sembedded\sHTML\sdetection\sfor\sthe\s'doc'\sweb\spage\swhen\sthe\s'data-title'\sattribute\sis\snot\sspecified.
-D 2019-08-19T00:51:55.517
+C The\swww/customskin.md\sdocument\shadn't\sbeen\supdated\ssince\swe\sremoved\sthe\nexplicit\s<html><head>\sstuff\sfrom\sthe\sdefault\sskins\sand\smoved\sthat\sinto\nthe\sC\scode\sso\swe\scould\sinsert\sthe\sCSP\sand\ssuch\sautomatically.\s\sUpdated\nit\sto\sshow\sthe\sinner\s<div>\stags\sthat\syou\sactually\sget\sby\sdefault\snow,\nand\stalked\sabout\show\sthe\sHTML\sdocument\swrapper\sis\sadded\sautomatically.\nAlso\sfixed\ssome\sspelling\sand\sgrammar\serrors.
+D 2019-08-19T01:17:06.711
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -800,7 +800,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md d1b52b2c17ca6711f45e4edcea1655e645ccae66c622dac8a17e20eef0e529a2
+F www/customskin.md 8ad4e06755af3549b68587a67a53c5a902b76f0a6ed2d0638a9da411c8724640
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -888,7 +888,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d570edc646f54ded92cc8b72f51ed6b84e6b338bf8034eb84ad95f5112bb04bb
-R f821833273a3eaee17b00fca77b3729a
-U mistachkin
-Z b9463f23d9ca24c3cf5d44367b771b3a
+P 3d6a4fd95ce9572d04d4d788e581146869e7e03e00d21116eeb9e78218b1af90
+R 4b5663846616c096dd3e37172f8abb9a
+U wyoung
+Z aa27bc594a7f2773e3e235ac2c2c3b4e
