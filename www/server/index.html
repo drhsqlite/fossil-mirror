@@ -66,44 +66,52 @@ particular systems, should you want extra help.</p>
 <p>There are basically four ways to set up a Fossil server:</p>
 
 <ol>
-  <li>Socket listener:
-      <a id="inetd"      href="any/inetd.md">inetd</a>,
-      <a id="xinetd"     href="any/xinetd.md">xinetd</a>,
-      <a id="stunnel"    href="any/stunnel.md">stunnel</a>...
   <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
+  <li>Socket listener
   <li><a id="scgi"       href="any/scgi.md">SCGI</a>
   <li><a id="cgi"        href="any/cgi.md">CGI</a>
 </ol>
 
 <p>All of these methods can serve either a single repository or a
-directory hierarchy containing many repositories with names ending in
-"<tt>.fossil</tt>".</p>
+directory containing repositories named "<tt>*.fossil</tt>".</p>
 
 <p>You are not restricted to using a single method. The same Fossil
 repository can be served using two or more of the above techniques at
-the same time. You can also migrate from one method to another to
-accommodate changes in hosting providers or administrator
-preferences.</p>
-
-
-<h3>Socket Listener</h3>
-
-<p>The idea behind the socket listener approach is that each incoming
-HTTP request is relayed to a new instance of the <a
-href="/help?cmd=http"><tt>fossil http</tt></a> command.  That command
-reads the HTTP request from its standard input, handles the request, and
-writes a complete and correct HTTP reply on standard output which is
-then returned to the client.</p>
+the same time. These methods use clean, well-defined, standard
+interfaces (CGI, SCGI, and HTTP) which allow you to easily migrate from
+one method to another to accommodate changes in hosting providers or
+administrator preferences.</p>
 
 
 <h3>Stand-alone HTTP Server</h3>
 
-<p>A stand-alone server uses the <a href="/help?cmd=server"><tt>fossil
-server</tt></a> command to run a process that listens for incoming HTTP
-requests on a socket and then dispatches a copy of itself to deal with
-each incoming request.  A stand-alone server can talk directly with the
-client, or the system can be configured with a reverse proxy in between
-the client and Fossil.</p>
+<p>This is the easiest method.  A stand-alone server uses the <a
+href="/help?cmd=server"><tt>fossil server</tt></a> command to run a
+process that listens for incoming HTTP requests on a socket and then
+dispatches a copy of itself to deal with each incoming request. You can
+expose Fossil directly to the clients in this way or you can interpose a
+<a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
+layer between the clients and Fossil.</p>
+
+
+<h3>Socket Listener</h3>
+
+<p>Only slightly more complicated is the socket listener method.
+Instead of letting Fossil run in the background continuously to handle
+HTTP requests from clients, you configure a socket listener daemon to
+run a <a href="/help?cmd=http"><tt>fossil http</tt></a> command on each
+HTTP hit.  That Fossil instance handles only that one hit and then shuts
+back down, letting the socket listener go back to waiting for the next
+hit.  This scheme is known to work with <a id="inetd"
+href="any/inetd.md">inetd</a>, <a id="xinetd"
+href="any/xinetd.md">xinetd</a>, and <a id="stunnel"
+href="any/stunnel.md">stunnel</a>.</p>
+
+<p>In principle, this method should also work with Apple’s
+<tt>launchd</tt>, Linux’s <tt>systemd</tt>, and Solaris’ SMF, all of
+which have similar socket listener features. We do not yet have
+tutorials showing how to configure these advanced daemons for Fossil,
+but we welcome <a href="contribute.wiki">contributions</a>.</p>
 
 
 <h3>CGI and SCGI</h3>
@@ -197,13 +205,8 @@ href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a> for
 Fossil's built-in HTTP server: <a href="debian/nginx.md">nginx</a>, <a
 href="windows/iis.md">IIS</a>, Apache, etc.</p>
 
-<p>There are several widely-deployed socket listener schemes besides the
-<tt>inetd</tt>, <tt>xinetd</tt>, and <tt>stunnel</tt> schemes with
-documents linked above: Apple’s <tt>launchd</tt>, Linux’s
-<tt>systemd</tt>, Solaris’ SMF, etc. We would welcome <a
-href="contribute.wiki">contributions</a> to cover these as well. We also
-welcome contributions to fill gaps (<font size="-2">❌</font>) in the table
-above.  </p>
+<p>We welcome <a href="contribute.wiki">contributions</a> to fill gaps
+(<font size="-2">❌</font>) in the table above.</p>
 </noscript>
 
 
