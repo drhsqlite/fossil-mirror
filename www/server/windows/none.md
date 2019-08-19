@@ -1,4 +1,4 @@
-# Serving as a Standalone Server
+# Serving as a Standalone Server on Windows
 
 On Windows, this method works more or less identically to how it’s
 documented in [the generic instructions](../any/none.md).
