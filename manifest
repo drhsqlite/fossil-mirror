@@ -1,5 +1,5 @@
-C Added\sexplicit\sinstructions\son\sinstalling\sIIS\swithin\sthe\snew\sIIS\sserver\ndocs.\s\sIt\sisn't\sinstalled\sby\sdefault,\sand\sin\sthe\sCGI\scase,\sCGI\sisn't\npart\sof\sthe\sdefault\sIIS\sinstall.
-D 2019-08-19T03:44:28.833
+C Added\swww/server/windows/none.md\sserver\ssetup\sarticle
+D 2019-08-19T04:57:25.777
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -876,7 +876,7 @@ F www/server/any/scgi.md 7deb938aa2829439c18ba849783b2b76dbbc721c53e53778c816f02
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
-F www/server/index.html 9ca623e2998c8302f9deebf7e4d9747caf5af0be6e6c6d18427e24537ad046dd
+F www/server/index.html ab5fdbfc941d75106aa09a31d6ef20e32852359459eb39dc526204a9db1e0597
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -885,6 +885,7 @@ F www/server/windows/cgi-script-map.png a1e6567130bb82b7a9240eff90a83c261edc0133
 F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed7ee450a2f3db
 F www/server/windows/iis.md c33e4e6b91decf633454c2c34ba2728c833615fac1b8d0dede11035237fc5d77
 F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2bb47e030f48910c
+F www/server/windows/none.md 40b942939c72773bb3e8b9ba7be061d23da9f95f5c7d568b9ea5ac1a5550f89f
 F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
 F www/server/windows/stunnel.md 6c183e7e198fe99ea54bb4b7364aaa1ae762c7720e4f38900ff4c9ffe39deecc
 F www/serverext.wiki b0cb0b65d2b75764c750b8fa3276a1114377ec9b40488ed6980e5a81f7b00507
@@ -907,7 +908,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0f6f151dd31d118365c8ff8c15ea5077b9eb72b471048af7e3204919f0f4607e
-R 94c9b4ce67a0c55aa6e888e6a6030ee4
+P b2f10ad5855b3aeb0536b369b105eaa5b34e41d1f82b1f0c0eba47a5989d216e
+R 4d34f44fab016cdd938419adfeae2af1
 U wyoung
-Z ab89d3b801564626715742a6f30bdae0
+Z 497278da296d3eb182a65de379ded556
