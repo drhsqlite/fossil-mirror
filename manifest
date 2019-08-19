@@ -1,5 +1,5 @@
-C Assorted\ssmall\stweaks\sto\swww/server/windows/iis.md
-D 2019-08-19T10:22:22.642
+C Added\swww/server/macos/service.md\sand\sthen\sadded\smacOS\sto\sthe\sset\sof\nserver\sOSes\soffered\sin\swww/server/index.html
+D 2019-08-19T11:59:05.662
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -877,7 +877,8 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html ffceb399a534f755276b753eb1dc701dcc041a503fb12f052232bd8f7ec925a0
+F www/server/index.html 271fcb536826d6d9a770af1af4bf8a023ec813b468dbed4296f4204b630a95c0
+F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -909,7 +910,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3995a3c7ae8f362d985884044a830285490de6d35ebc9fbf03a572151a5a9184
-R 613e1ae437a41be53d3f8ac95e720fc1
+P b5fefeec237395976cda6b888c982bbb322b2ea0afd4df4f02bbfa2e8900d42e
+R 24b640d2efa4e40a65f0e242fbbd8a6e
 U wyoung
-Z 528beb1c0360f5810e9d871e94e91d45
+Z 4caec8292e8607b1196a0b66f83b3e03
