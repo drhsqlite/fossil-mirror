@@ -47,13 +47,10 @@ system boot, before anyone has logged in interactively.
 
 ## <a name="install"></a>Install IIS
 
-IIS might not already be already in your system, so follow the path
+IIS might not be installed in your system yet, so follow the path
 appropriate to your host OS.  We’ve tested only the latest Microsoft
 OSes as of the time of this writing, but the basic process should be
 similar on older OSes.
-
-The default set of IIS features there will suffice for this tutorial,
-but you might want to enable additional features.
 
 
 ### Windows Server 2019
@@ -72,8 +69,11 @@ but you might want to enable additional features.
 4.  In the “Windows Features” dialog, enable “Internet Information
     Services”
 
+The default set of IIS features there will suffice for this tutorial,
+but you might want to enable additional features.
 
-## Reverse Proxy with URL Rewriting
+
+## Setting up the Proxy
 
 The stock IIS setup doesn’t have reverse proxying features, but they’re
 easily added through extensions. You will need to install the
@@ -85,7 +85,7 @@ You can install these things through the direct links above, or you can
 do it via the Web Platform Installer feature of IIS Manager (a.k.a.
 `INETMGR`).
 
-Now you can set these extensions up in IIS Manager:
+Set these extensions up in IIS Manager like so:
 
 1.  Double-click the “Application Request Routing Cache” icon.
 
@@ -99,7 +99,7 @@ Now you can set these extensions up in IIS Manager:
     double-click the “URL Rewrite” icon. Alternately, you might find
     “URL Rewrite” in the right-side pane from within the ARR settings.
 
-5.  Right click in the window that results and click “Add Rule(s)...”
+5.  Right click in the window that results, and click “Add Rule(s)...”
     Tell it you want a “Blank rule” under “Inbound rules”.
 
 6.  In the dialog that results, create a new rule called “Fossil repo
@@ -109,7 +109,7 @@ Now you can set these extensions up in IIS Manager:
     `fossil server` is listening.
 
 7.  Click “Apply” in the right-side pane, then get back to the top level
-    configuration for the server and click “Restart” in that same pane.
+    configuration for the server, and click “Restart” in that same pane.
 
 At this point, if you go to `http://localhost/` in your browser, you
 should see your Fossil repository’s web interface instead of the default
@@ -117,9 +117,11 @@ IIS web site, as before you did all of the above.
 
 This is a very simple configuration. You can do more complicated and
 interesting things with this, such as redirecting only `/code` URLs to
-Fossil by setting the Pattern in step 6 to “`^/code(.*)$`”. IIS would
-then directly serve all other URLs. You could also intermix ASP.NET
-applications in the URL scheme in this way.
+Fossil by setting the Pattern in step 6 to “`^/code(.*)$`”. (You would
+also need to pass `--baseurl http://example.com/code` in the `fossil
+server` command to make this work properly.) IIS would then directly
+serve all other URLs. You could also intermix ASP.NET applications in
+the URL scheme in this way.
 
 See the documentation on [URL Rewrite rules][urr] for more ideas.
 
