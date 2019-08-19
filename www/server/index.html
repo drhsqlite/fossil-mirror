@@ -1,6 +1,6 @@
 <div class='fossil-doc' data-title="How To Configure A Fossil Server">
 
-<style type="text/css" nonce="$NONCE">
+<style type="text/css">
   p {
     margin-left: 4em;
     margin-right: 3em;
@@ -66,10 +66,10 @@ particular systems, should you want extra help.</p>
 <p>There are basically four ways to set up a Fossil server:</p>
 
 <ol>
+  <li><a id="cgi"        href="any/cgi.md">CGI</a>
   <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
   <li>Socket listener
   <li><a id="scgi"       href="any/scgi.md">SCGI</a>
-  <li><a id="cgi"        href="any/cgi.md">CGI</a>
 </ol>
 
 <p>All of these methods can serve either a single repository or a
@@ -82,6 +82,21 @@ interfaces (CGI, SCGI, and HTTP) which allow you to easily migrate from
 one method to another to accommodate changes in hosting providers or
 administrator preferences.</p>
 
+<h3>CGI</h3>
+
+<p>Most ordinary web servers can <a href="any/cgi.md">run Fossil as a
+CGI script</a>. This method is known to work with Apache, <a
+href="windows/cgi.md">IIS</a>, <tt>lighttpd</tt>, and <a
+href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
+administrator places a <a href="/help?cmd=cgi">short CGI script</a> in
+the web server's document hierarchy, and when a client requests the
+appropriate URL, that script runs Fossil to generate the response.</p>
+
+<p>CGI is a good choice for merging Fossil into an existing web site,
+particularly on hosts that have CGI set up for you already and won't let
+you modify the web server configuration further. The Fossil <a
+href="../selfhost.wiki">self-hosting repositories</a> are implemented
+with CGI underneath <tt>althttpd</tt>.</p>
 
 <h3>Stand-alone HTTP Server</h3>
 
@@ -93,7 +108,6 @@ dispatches a copy of itself to deal with each incoming request. You can
 expose Fossil directly to the clients in this way or you can interpose a
 <a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
 layer between the clients and Fossil.</p>
-
 
 <h3>Socket Listener</h3>
 
@@ -110,7 +124,6 @@ href="any/stunnel.md"><tt>stunnel</tt></a>, <a
 href="macos/service.md"><tt>launchd</tt></a>, and <a
 href="debian/service.md"><tt>systemd</tt></a>.</p>
 
-
 <h3>SCGI</h3>
 
 <p>The Fossil standalone server can also run <a href="any/scgi.md">in
@@ -125,32 +138,6 @@ worth taking on this difficulty only when you need to integrate Fossil
 into an existing web site already being served by an SCGI-capable web
 server.</p>
 
-
-<h3>CGI</h3>
-
-<p>Most ordinary web servers can <a href="any/cgi.md">run Fossil as a
-CGI script</a>. This method is known to work with Apache, <a
-href="windows/cgi.md">IIS</a>, <tt>lighttpd</tt>, and <a
-href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
-administrator places a <a href="/help?cmd=cgi">short CGI script</a> in
-the web server's document hierarchy, and when a client requests the
-appropriate URL, that script runs Fossil to generate the response.</p>
-
-<p>Back when CGI was first created, this method was quite simple, but
-because of all of the security barriers put up around CGI in most web
-servers, it can actually be one of the most complicated methods to set
-up, feature-for-feature. Reverse proxying (both HTTP and SCGI) is the
-only more complicated method for serving Fossil, but you do get a lot of
-additional power when doing that.</p>
-
-<p>CGI is a good choice for merging Fossil into an existing web site,
-particularly on hosts that have CGI set up for you already and won't let
-you modify the web server configuration further. The Fossil <a
-href="../selfhost.wiki">self-hosting repositories</a> are implemented
-with CGI underneath <tt>althttpd</tt>.</p>
-
-
-
 <h2 id="matrix">Setup Tutorials</h2>
 
 <p>We've broken the configuration for each method out into a series of
@@ -159,13 +146,10 @@ particular operating systems or front-end software:</p>
 
 <div id="tutpick" class="show"></div>
 
-<!-- Define alternative to JS tutorial picker below.  When updating this
-     table, update "matrix" in the JS code below to match! -->
-<noscript id="tutmatrix">
 <table style="margin-left: 6em;">
     <tr>
         <th class="host">⇩ OS / Method ⇨</th>
-        <th class="fep">none</th>
+        <th class="fep">direct</th>
         <th class="fep">inetd</th>
         <th class="fep">stunnel</th>
         <th class="fep">CGI</th>
@@ -252,104 +236,3 @@ href="windows/iis.md">IIS</a>, Apache, etc.</p>
 </ul>
 
 </div>
-
-<script type="text/javascript" nonce="$NONCE">
-  (function() {
-    // Define data structure analog to <table> above.  Matrix elements
-    // can have one of these constant values or a string for a one-off
-    // custom value.  Values outside the <table> above go at the end of
-    // the rows we define here.
-    const YES = 1;  // host-specific doc provided
-    const IFA = 2;  // inherit doc from "any"
-    const NO  = 3;  // method invalid or undocumented for this host OS
-    const methods = [
-      "none", "inetd", "stunnel", "CGI", "SCGI", "althttpd", "proxy", "service"
-    ];
-    const matrix =     {
-               "any OS": [ YES, YES, YES, YES, YES, YES, NO,      NO  ],
-     "Debian or Ubuntu": [ IFA, IFA, IFA, IFA, IFA, IFA, "nginx", YES ],
-                "macOS": [ IFA, NO,  IFA, IFA, IFA, IFA, NO,      YES ],
-              "Windows": [ YES, NO,  YES, YES, NO,  NO,  "IIS",   NO  ],
-    }
-    const osNames = Object.keys(matrix).sort((e) => {
-      return e.toLowerCase()
-    }).map((longName, i) => {
-      var shortName = longName.toLowerCase().split(' ')[0];
-      return [ longName, shortName ];
-    });
-    const osNameMap = Object.fromEntries(osNames);
-    //console.log("OS name map: " + JSON.stringify(osNameMap));
-    
-    // Build initial tutorial chooser HTML, and insert it into doc where
-    // the static HTML <table> matrix normally goes.
-    var html = '<p><b>I want to run Fossil on</b> <select id="os">';
-    for (var os of osNames) {
-      const  longName = os[0];
-      const shortName = os[1];
-      html += '<option name="' + shortName + '">' + longName + '</option>';
-    }
-    html += '</select> <b>underneath</b> <select id="fep"></select>'
-    html += '<a id="all">SHOW ALL</a></p>';
-    const picker = document.querySelector('div#tutpick');
-    picker.innerHTML = html;
-
-    // Slide noscript <table> in place of JS tutorial chooser on
-    // "SHOW ALL" click.
-    document.querySelector('a#all').addEventListener('click', () => {
-      picker.classList.remove('show');
-      picker.innerHTML = document.querySelector('#tutmatrix').innerHTML;
-      setTimeout(() => {
-        // Let doc update to set new height, so transition happens.
-        picker.classList.add('show');
-      }, 10);
-    });
-
-    // Attach event handlers to drop-downs.  Have to wait until the page
-    // loads, else we'll get null back from querySelector(('select#foo')).
-    window.addEventListener('load', () => {
-      // Set up the FEP choice drop-down on initial page load and
-      // update it when the OS choice drop-down changes.
-      const osSel  = document.querySelector('select#os');
-      const fepSel = document.querySelector('select#fep');
-      function osClickHandler() {
-        var osLong  = osSel.value;
-        var osShort = osNameMap[osLong];
-
-        var html = '<option>---</option>';
-        matrix[osLong].forEach((choice, i) => {
-          var mu;
-          if (typeof(choice) === 'string') {
-            mu = choice;
-            choice = YES;
-          }
-          else {
-            mu = methods[i];
-          }
-          const ml = mu.toLowerCase();
-
-          if (choice != NO) {
-            if (choice == YES) {
-              html += '<option value="' + osShort + '/' + ml + '.md">';
-            }
-            else if (choice == IFA) {
-              html += '<option value="any/' + ml + '.md">';
-            }
-            html += mu + '</option>';
-          }
-        });
-
-        fepSel.innerHTML = html;
-      }
-      osSel.addEventListener('change', osClickHandler);
-      osClickHandler();   // load fepSel initial content
-
-      // Go to selected document when user changes FEP drop-down
-      fepSel.addEventListener('change', () => {
-        var doc = fepSel.value;
-        if (doc) location.href = doc;
-        // else it's the --- entry, either because we just reloaded the
-        // <option> set or because the user re-selected it.
-      });
-    });
-  })();
-</script>
