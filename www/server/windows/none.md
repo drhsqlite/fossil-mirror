@@ -29,8 +29,8 @@ the Windows login screen, the Fossil server is *down*.
 
 ## No Simple Background Mode
 
-Windows also lacks a direct equivalent of the “`&`” control operator to
-run a program in the background, which you can give in the `rc.local`
+Windows also lacks a direct equivalent of the Bourne shell’s “`&`” control operator to
+run a program in the background, which you can give in Unix’s `rc.local`
 file, which is just a normal Bourne shell script.
 
 I don’t mean “background” in the sense of “has no user interface,” I
