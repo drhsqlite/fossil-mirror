@@ -4,7 +4,7 @@ On Windows, this method works more or less identically to how it’s
 documented in [the generic instructions](../any/none.md).
 
 ...but only while `fossil.exe` is actually running, which is the source
-of much trouble on Windows. There problem has two halves:
+of much trouble on Windows. This problem has two halves:
 
 
 ## No App Startup without Desktop
