@@ -64,3 +64,5 @@ exists.
 
 Additional options available to the CGI script are [documented
 separately](../../cgi.wiki).
+
+*[Return to the top-level Fossil server article.](../)*

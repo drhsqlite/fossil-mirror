@@ -99,4 +99,4 @@ of Fossil to detect that it’s being run in CGI mode.
 For more complicated setups such as “directory” mode, see [the generic
 CGI instructions](../any/cgi.md).
 
-*[Return to the top-level Fossil server article.](../../server.wiki)*
+*[Return to the top-level Fossil server article.](../)*

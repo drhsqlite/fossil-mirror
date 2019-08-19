@@ -75,3 +75,5 @@ There are a few advantages to this mode:
 
 2.  The socket listener mode doesn’t work on all platforms that
     `stunnel` runs on, particularly [on Windows](../windows/stunnel.md).
+
+*[Return to the top-level Fossil server article.](../)*

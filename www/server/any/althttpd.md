@@ -27,6 +27,8 @@ implementation][ac]. Between that and the generic [Serving via CGI][cgi]
 docs, you should be able to figure out how to serve Fossil via
 `althttpd`.
 
+*[Return to the top-level Fossil server article.](../)*
+
 
 [ac]:  https://sqlite.org/docsrc/file/misc/althttpd.c
 [ah]:  https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md

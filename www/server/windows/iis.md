@@ -95,6 +95,8 @@ applications in the URL scheme in this way.
 
 See the documentation on [URL Rewrite rules][urr] for more ideas.
 
+*[Return to the top-level Fossil server article.](../)*
+
 
 [arr]: https://www.iis.net/downloads/microsoft/application-request-routing
 [tls]: https://docs.microsoft.com/en-us/iis/manage/configuring-security/understanding-iis-url-authorization

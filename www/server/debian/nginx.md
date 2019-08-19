@@ -226,3 +226,5 @@ on a single server.
 The configuration for `example.com` and `example.net` is similar.
 
 See [the nginx docs](http://nginx.org/en/docs/) for more ideas.
+
+*[Return to the top-level Fossil server article.](../)*

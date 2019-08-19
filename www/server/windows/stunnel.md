@@ -145,3 +145,5 @@ New-NetFirewallRule -DisplayName "Allow Fossil Inbound" -Description "Allow Foss
 
 You should now be able to access your new Fossil Server via HTTPS.
 
+
+*[Return to the top-level Fossil server article.](../)*

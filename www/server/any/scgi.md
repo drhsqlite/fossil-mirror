@@ -52,3 +52,5 @@ document, which goes into more detail:
 
 There is a [separate article](../../tls-nginx.md) showing how to add TLS
 encryption to this basic SCGI + nginx setup.
+
+*[Return to the top-level Fossil server article.](../)*

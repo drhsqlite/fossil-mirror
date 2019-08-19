@@ -1,5 +1,5 @@
-C Justified\sthe\sordering\sof\ssections\sin\swww/server/index.html\sby\sincluding\ninfo\son\scomplexity.\s\sCGI\sremains\slast\sbecause\sCGI\sis\sonly\sa\s"simple"\noption\swhen\ssomeone\selse\ssets\sup\sthe\sCGI\ssecurity\sfor\syou,\sas\son\nold-style\scheap\shosting\splans.\s\sAlso\sadded\sseveral\sinline\ssub-document\nreferences.
-D 2019-08-19T00:25:17.124
+C Added\slinks\sback\sto\sthe\stop-level\swww/server/index.html\sarticle\sfrom\sthe\ntail\send\sof\swww/server/*/*.md.
+D 2019-08-19T00:30:25.151
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -868,24 +868,24 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server/any/althttpd.md 38718192cddf425124ccf47953b7f5835643da68e0d275aa3747d2faddecba97
-F www/server/any/cgi.md cf83c00f30adf310bbabe886f6e5d1b0dfa067a072472ca5f75f0e8e84c93083
-F www/server/any/inetd.md 7d4f590a87b7918249cf32b009c0de122bae424b0bbc4d5477f35e9ac36706d3
-F www/server/any/none.md a435ede126bb8ecaf0fe8faf9b8d16093372d7353ffa68a666f9631cd649dab8
-F www/server/any/scgi.md 8684268537091a622675d82e75f969ec12dedd742939f251808773490055b4e1
-F www/server/any/stunnel.md f3972d327c00d477d105774a4db94c023ca5453a4ad61f124a822a7b9be8b9ad
-F www/server/any/xinetd.md 1f6562a632e65a50e850549209ac8aee0038b6f07f2ba79058229676518bddb6
-F www/server/debian/nginx.md 4bcb2be1d9a4e2eb850e1e462a26569491f8568077292e0f101c12d52c7787a6
+F www/server/any/althttpd.md 3a055ed2d1a86465381bb55dadabb9babc71f5f25549a567e6bfac550fe7a32e
+F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
+F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
+F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
+F www/server/any/scgi.md 7deb938aa2829439c18ba849783b2b76dbbc721c53e53778c816f021e1e4d67a
+F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
+F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
+F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/index.html 9ca623e2998c8302f9deebf7e4d9747caf5af0be6e6c6d18427e24537ad046dd
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
 F www/server/windows/cgi-script-map.png a1e6567130bb82b7a9240eff90a83c261edc01332e940072a3e1cd23c70148de
-F www/server/windows/cgi.md 63acb56a8dda8b8c6c5acafda523e118802f5a15de912dfb9e8e592ed0dcb0cb
-F www/server/windows/iis.md ccfb6198204f772d1c183268f528b3c70711a474d823c5a9775f883250f06a8c
-F www/server/windows/index.md 6868c9d75462ef00df69cacf02310968aa49a029a4cefa139c5854a52ec5e660
-F www/server/windows/service.md d05694ca8d5c91d7c5373eeb087424386b513ab57f93a216bde11ee83bbecbf3
-F www/server/windows/stunnel.md 7c6edb4d067fd6512c1b7fbfacc0f663a6b331146fa5b6cdb616c8d1374224f3
+F www/server/windows/cgi.md e8f38fb9a376b56b24f967a5eafe63365a5a17e64d940c3aabe72e651ec45ab8
+F www/server/windows/iis.md f4acc8fc915947239d4e2a3fbd37d83a98362499892530b92d1f354022563660
+F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2bb47e030f48910c
+F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
+F www/server/windows/stunnel.md 6c183e7e198fe99ea54bb4b7364aaa1ae762c7720e4f38900ff4c9ffe39deecc
 F www/serverext.wiki b0cb0b65d2b75764c750b8fa3276a1114377ec9b40488ed6980e5a81f7b00507
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
@@ -906,7 +906,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d9ab9c567c500169a4b854d3218b311960d93ae422d6ad347acebd591a963304
-R 92c2aee02c4ee85495ad797bbb0919ff
+P 9f4121db3b8033ca2d11e58079fab76bbc9cecb4e9b27cbc363a8f3aa1c5b1d3
+R d19f43683ef21bf775598461eace1e55
 U wyoung
-Z 4b8f60f6da023b60c4cfd0af4f9deb5b
+Z 2537ee1b2971445420c710212606b981

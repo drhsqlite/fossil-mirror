@@ -47,3 +47,5 @@ local needs.
 
 See the [online documentation](/help/server) for more information on the
 options and arguments you can give to these commands.
+
+*[Return to the top-level Fossil server article.](../)*

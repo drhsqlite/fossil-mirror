@@ -48,3 +48,5 @@ restrictions at your shared Internet hosting service.
 For further details, see the relevant section in your system's
 documentation. The FreeBSD Handbook covers `inetd` in [this
 chapter](https://www.freebsd.org/doc/en/books/handbook/network-inetd.html).
+
+*[Return to the top-level Fossil server article.](../)*

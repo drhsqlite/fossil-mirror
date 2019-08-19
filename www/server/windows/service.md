@@ -53,3 +53,5 @@ in the PowerShell console.
 
 Congratulations, you now have a base http accessible Fossil server running on
 Windows.
+
+*[Return to the top-level Fossil server article.](../)*

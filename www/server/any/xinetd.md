@@ -23,3 +23,5 @@ This example configures Fossil to serve multiple repositories under the
 
 Beyond this, see the general commentary in our article on [the `inetd`
 method](./inetd.md) as they also apply to service via `xinetd`.
+
+*[Return to the top-level Fossil server article.](../)*
