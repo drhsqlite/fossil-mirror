@@ -1,5 +1,5 @@
-C Clarity\stweak
-D 2019-08-19T05:00:11.557
+C Added\swww/server/debian/service.md,\sdemonstrating\ssystemd\sconfiguration\nof\sFossil\sfor\sthe\sfirst\stime\sin\sthe\sofficial\sdocs,\sboth\sas\sa\suser\nserivce\sand\sin\ssocket\sactivation\smode\sas\sa\ssystem-level\sservice.
+D 2019-08-19T09:10:19.093
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -876,7 +876,8 @@ F www/server/any/scgi.md 7deb938aa2829439c18ba849783b2b76dbbc721c53e53778c816f02
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
-F www/server/index.html ab5fdbfc941d75106aa09a31d6ef20e32852359459eb39dc526204a9db1e0597
+F www/server/debian/service.md c338a8ffa3a343739c1e15ae1db1c9fce2894755e3039777032820950977e76c
+F www/server/index.html ada9a8a7d750d5555d39c6c53dbf8ed83ffab13164e390989f5cafe0407c590c
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
@@ -908,7 +909,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5c754f97bab0f41ebeed41a00d5be968f78be2ae1c22c142e574ca27a30aa5b
-R 233a0f563c3826f0d0c7882564c670e0
+P bc678e1321917b1d2a569c506147b216da8347b6d79a2823556b7a487c50ab53
+R 6e89ff0026b9801ec8b5851d836534a9
 U wyoung
-Z 5bced015504b58ebddbc0899680f1285
+Z d4d39d5a764586a147277b7b302a98f9

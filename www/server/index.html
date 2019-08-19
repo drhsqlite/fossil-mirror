@@ -200,7 +200,7 @@ particular operating systems or front-end software:</p>
         <td class="doc"><a href="any/scgi.md">✅</a></td>
         <td class="doc"><a href="any/althttpd.md">✅</a></td>
         <td class="doc"><a href="debian/nginx.md">✅</a></td>
-        <td class="doc">❌</td>
+        <td class="doc"><a href="debian/service.md">✅</a></td>
     </tr>
 
     <tr>
@@ -258,9 +258,9 @@ href="windows/iis.md">IIS</a>, Apache, etc.</p>
       "none", "inetd", "stunnel", "CGI", "SCGI", "althttpd", "proxy", "service"
     ];
     const matrix =     {
-               "any OS": [ YES, YES, YES, YES, YES, YES, NO,      NO ],
-     "Debian or Ubuntu": [ IFA, IFA, IFA, IFA, IFA, IFA, "nginx", NO ],
-              "Windows": [ YES, NO,  YES, YES, NO,  NO,  "IIS",   NO ],
+               "any OS": [ YES, YES, YES, YES, YES, YES, NO,      NO  ],
+     "Debian or Ubuntu": [ IFA, IFA, IFA, IFA, IFA, IFA, "nginx", YES ],
+              "Windows": [ YES, NO,  YES, YES, NO,  NO,  "IIS",   NO  ],
     }
     const osNames = Object.keys(matrix).sort((e) => {
       return e.toLowerCase()
