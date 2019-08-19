@@ -3,7 +3,7 @@
 While there are many ways to configure Fossil as a server using various web
 servers (Apache, IIS, nginx, etc.), this document will focus on setting up a
 minimal Fossil server using only Fossil's native [server
-capabilities](server.wiki#standalone) and [stunnel](https://www.stunnel.org/)
+capabilities](../any/none.md) and [stunnel](https://www.stunnel.org/)
 to provide a TLS proxy.  It is recommended for public repositories to go to the
 extra step of configuring stunnel to provide a proper HTTPS setup.
 
@@ -21,7 +21,7 @@ URLs when used with stunnel as a proxy.  Please make sure you are using Fossil
 
 ## Configure Fossil Service for https
 
-Following most of [Fossil as a Windows Service](service.md), you will need
+Following most of [Fossil as a Windows Service](./service.md), you will need
 to change the command to install the Fossil Service to configure it properly for
 use with stunnel as an https proxy.  Run the following instead:
 
