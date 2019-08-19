@@ -1,5 +1,5 @@
-C Capitalization\sfix\sin\sHTML\soutput\sfrom\s/artifact_stats
-D 2019-08-18T01:03:46.235
+C Fix\sembedded\sHTML\sdetection\sfor\sthe\s'doc'\sweb\spage\swhen\sthe\s'data-title'\sattribute\sis\snot\sspecified.
+D 2019-08-19T00:51:55.517
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -469,7 +469,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
-F src/doc.c c1099511e689a16be3616ab7f2bf5b712871eda6b8a4184329fd4e1f36f8ffe0
+F src/doc.c bda41e25ef34f0da0beab9baef941d612f62401a17f710998d0faf2f72d2a9e5
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
@@ -888,7 +888,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e2f2a05eff484d6a60b998e072e84a4c981e72a6224516d574662ae871c00afe
-R 022fd39260fcc1b5a867d2cf0fa21253
-U wyoung
-Z cad3c2d45561cdec7142583235fcdcfe
+P d570edc646f54ded92cc8b72f51ed6b84e6b338bf8034eb84ad95f5112bb04bb
+R f821833273a3eaee17b00fca77b3729a
+U mistachkin
+Z b9463f23d9ca24c3cf5d44367b771b3a

@@ -424,7 +424,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
   zIn += 4;
   while( zIn[0] ){
     if( fossil_isspace(zIn[0]) ) zIn++;
-    if( zIn[0]=='>' ) return 0;
+    if( zIn[0]=='>' ) break;
     zAttr = zIn;
     while( fossil_isalnum(zIn[0]) || zIn[0]=='-' ) zIn++;
     nAttr = (int)(zIn - zAttr);
