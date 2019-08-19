@@ -85,7 +85,8 @@ administrator preferences.</p>
 
 <h3>Stand-alone HTTP Server</h3>
 
-<p>This is the easiest method.  A stand-alone server uses the <a
+<p>This is the <a href="any/none.md">easiest method</a>.
+A stand-alone server uses the <a
 href="/help?cmd=server"><tt>fossil server</tt></a> command to run a
 process that listens for incoming HTTP requests on a socket and then
 dispatches a copy of itself to deal with each incoming request. You can
@@ -114,22 +115,43 @@ tutorials showing how to configure these advanced daemons for Fossil,
 but we welcome <a href="contribute.wiki">contributions</a>.</p>
 
 
-<h3>CGI and SCGI</h3>
+<h3>SCGI</h3>
 
-<p>Fossil can also be run using CGI from ordinary web servers such as
-Apache, <a href="windows/cgi.md">IIS</a>, <tt>lighttpd</tt>, or
-<tt>althttpd</tt>. The Fossil server administrator places a <a
-href="/help?cmd=cgi">short CGI script</a> in the web server's document
-hierarchy, and when a client requests the appropriate URL, that script
-runs Fossil to generate the responce.  CGI is a good choice for merging
-Fossil into an existing web site. The Fossil <a
+<p>The Fossil standalone server can also run <a href="any/scgi.md">in
+SCGI mode</a> — <a href="/help/server"><tt>fossil server --scgi</tt></a>
+— instead of <a href="any/none.md">HTTP mode</a>, which allows it to
+respond to requests from web servers <a href="debian/nginx.md">such as
+nginx</a> that don't support CGI. SCGI is a simpler protocol to proxy
+than HTTP, since the HTTP doesn't have to be re-interpreted in terms of
+the proxy's existing HTTP implementation, but it's more complex to set
+up because you also have to set up an SCGI-to-HTTP proxy for it. It is
+worth taking on this difficulty only when you need to integrate Fossil
+into an existing web site already being served by an SCGI-capable web
+server.</p>
+
+
+<h3>CGI</h3>
+
+<p>Most ordinary web servers can <a href="any/cgi.md">run Fossil as a
+CGI script</a>. This method is known to work with Apache, <a
+href="windows/cgi.md">IIS</a>, <tt>lighttpd</tt>, and <a
+href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
+administrator places a <a href="/help?cmd=cgi">short CGI script</a> in
+the web server's document hierarchy, and when a client requests the
+appropriate URL, that script runs Fossil to generate the response.</p>
+
+<p>Back when CGI was first created, this method was quite simple, but
+because of all of the security barriers put up around CGI in most web
+servers, it can actually be one of the most complicated methods to set
+up, feature-for-feature. Reverse proxying (both HTTP and SCGI) is the
+only more complicated method for serving Fossil, but you do get a lot of
+additional power when doing that.</p>
+
+<p>CGI is a good choice for merging Fossil into an existing web site,
+particularly on hosts that have CGI set up for you already and won't let
+you modify the web server configuration further. The Fossil <a
 href="../selfhost.wiki">self-hosting repositories</a> are implemented
 with CGI underneath <tt>althttpd</tt>.</p>
-
-<p>For web servers such as nginx that do not support CGI, Fossil
-supports SCGI, a protocol that gives most of the simplicity of CGI with
-the efficiency of the stand-alone server option. With nginx, you use the
-<a href="/help/server"><tt>fossil server --scgi</tt></a> command.</p>
 
 
 
