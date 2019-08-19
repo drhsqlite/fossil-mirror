@@ -49,6 +49,19 @@ of Fossil to detect that it’s being run in CGI mode.
 [fbug]: https://fossil-scm.org/forum/forumpost/de18dc32c0
 
 
+## Install IIS with CGI Support
+
+The steps for this are identical to those for the [reverse proxying IIS
+setup](./iis.md#install) except that you need to enable CGI in the last
+step, since it isn’t installed by default. For Windows Server, the path
+is:
+
+![Install CGI in IIS](./cgi-install-iis.png)
+
+The path is similar on the consumer-focused versions of Windows, once
+you get to that last step.
+
+
 ## Setup
 
 1.  Install the Fossil executable to `c:\inetpub\wwwroot\bin` on the web

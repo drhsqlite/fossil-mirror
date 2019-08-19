@@ -45,6 +45,34 @@ Windows service](./service.md), which will allow Fossil to start at
 system boot, before anyone has logged in interactively.
 
 
+## <a name="install"></a>Install IIS
+
+IIS might not already be already in your system, so follow the path
+appropriate to your host OS.  We’ve tested only the latest Microsoft
+OSes as of the time of this writing, but the basic process should be
+similar on older OSes.
+
+The default set of IIS features there will suffice for this tutorial,
+but you might want to enable additional features.
+
+
+### Windows Server 2019
+
+1.  Start “Server Manager”
+2.  Tell it you want to “Add roles and features”
+3.  Select “Role-based or feature-based installation”
+4.  Select your local server
+5.  In the Server Roles section, enable “Web Server (IIS)”
+
+### Windows 
+
+1.  Open Control Panel
+2.  Go to “Programs”
+3.  Select “Turn Windows features on or off” in the left-side pane
+4.  In the “Windows Features” dialog, enable “Internet Information
+    Services”
+
+
 ## Reverse Proxy with URL Rewriting
 
 The stock IIS setup doesn’t have reverse proxying features, but they’re

@@ -1,5 +1,5 @@
-C Added\slinks\sback\sto\sthe\stop-level\swww/server/index.html\sarticle\sfrom\sthe\ntail\send\sof\swww/server/*/*.md.
-D 2019-08-19T00:30:25.151
+C Added\sexplicit\sinstructions\son\sinstalling\sIIS\swithin\sthe\snew\sIIS\sserver\ndocs.\s\sIt\sisn't\sinstalled\sby\sdefault,\sand\sin\sthe\sCGI\scase,\sCGI\sisn't\npart\sof\sthe\sdefault\sIIS\sinstall.
+D 2019-08-19T03:44:28.833
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -880,9 +880,10 @@ F www/server/index.html 9ca623e2998c8302f9deebf7e4d9747caf5af0be6e6c6d18427e2453
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
+F www/server/windows/cgi-install-iis.png c713f470dcc58ceb3b634e56944a08a691db097b25a42a91dcb8edf5917c182d
 F www/server/windows/cgi-script-map.png a1e6567130bb82b7a9240eff90a83c261edc01332e940072a3e1cd23c70148de
-F www/server/windows/cgi.md e8f38fb9a376b56b24f967a5eafe63365a5a17e64d940c3aabe72e651ec45ab8
-F www/server/windows/iis.md f4acc8fc915947239d4e2a3fbd37d83a98362499892530b92d1f354022563660
+F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed7ee450a2f3db
+F www/server/windows/iis.md c33e4e6b91decf633454c2c34ba2728c833615fac1b8d0dede11035237fc5d77
 F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2bb47e030f48910c
 F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
 F www/server/windows/stunnel.md 6c183e7e198fe99ea54bb4b7364aaa1ae762c7720e4f38900ff4c9ffe39deecc
@@ -906,7 +907,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f4121db3b8033ca2d11e58079fab76bbc9cecb4e9b27cbc363a8f3aa1c5b1d3
-R d19f43683ef21bf775598461eace1e55
+P 0f6f151dd31d118365c8ff8c15ea5077b9eb72b471048af7e3204919f0f4607e
+R 94c9b4ce67a0c55aa6e888e6a6030ee4
 U wyoung
-Z 2537ee1b2971445420c710212606b981
+Z ab89d3b801564626715742a6f30bdae0
