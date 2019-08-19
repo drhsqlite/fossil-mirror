@@ -1,5 +1,5 @@
-C Updated\swww/server/index.html\sto\sno\slonger\sdiscuss\slaunchd\sas\sa\s"maybe"\noption\snow\sthat\swe\shave\sa\sdocument\sfor\sit,\sand\sremoved\smention\sof\nSolaris\sSMF\sentirely.
-D 2019-08-19T12:09:03.128
+C Added\smissing\swww/chroot.md\sfile
+D 2019-08-19T12:38:42.722
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -791,6 +791,7 @@ F www/changes.wiki 15813cc83e5c0ebd22edcddb3f22e084de26e3a52f933e6696d1bf0c8d6cb
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
+F www/chroot.md a19468240d28173fd7043007d3cb221f8174ad881aedfc9f02ee8240dbfa1958
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -910,7 +911,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e0ad4b48b5a7c5cecdf8938f8e81ef9570061e1eb039bf7b6914b0f2371d76bb
-R 09bf47f0b722d9c362d1df78f547a984
+P 1e6fbcf214e4b8d1eb05c0c5501172e7fb4c1a2809d120ae2d52e89d98d93754
+R 8507a7328092d3eb8dc119191e257321
 U wyoung
-Z 7cb3ed38fea74b0dc8db302763d12e1c
+Z e7e1a11377060e0c96b738a255009198
