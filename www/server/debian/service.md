@@ -80,7 +80,7 @@ giving a much more robust configuration.
 ## Socket Activation
 
 Another useful method to serve a Fossil repo via `systemd` is via a
-“socket listener,” though `systemd` calls it “[socket activation][sa]”.
+socket listener, which `systemd` calls “[socket activation][sa].”
 It’s more complicated, but it has some nice properties.  It is the
 feature that allows `systemd` to replace `inetd`, `xinetd`, Upstart, and
 several other competing technologies.
@@ -128,23 +128,21 @@ Next, create the service definition file in that same directory as
     WantedBy=multi-user.target
 ```
 
-The name change, adding the `@` tells `systemd` this is an “instantiated
-service”, meaning that it will create a separate copy of the service
-each time it’s called upon. We’ll show the effect of this below.
+We’ll explain the “`@`” in the file name below.
 
 Notice that we haven’t told `systemd` which user and group to run Fossil
 under. Since this is a system-level service definition, that means it
 will run as root, which then causes Fossil to [automatically drop into a
 `chroot(2)` jail](../../chroot.md) rooted at the `WorkingDirectory`
-we’ve configured above.
+we’ve configured above, shortly each `fossil http` call starts.
 
 The `Restart*` directives we had in the user service configuration above
-are unnecessary, since Fossil isn’t supposed to remain running under
-this configuration. Each HTTP hit starts one Fossil instance, which
-handles the client’s request and then immediately shuts down.
+are unnecessary for this method, since Fossil isn’t supposed to remain
+running under it. Each HTTP hit starts one Fossil instance, which
+handles that single client’s request and then immediately shuts down.
 
-Next, you need to tell `systemd` to reload its configuration files and
-enable the listening socket:
+Next, you need to tell `systemd` to reload its system-level
+configuration files and enable the listening socket:
 
         $ sudo systemctl daemon-reload
         $ sudo systemctl enable fossil.socket

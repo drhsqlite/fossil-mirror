@@ -104,15 +104,15 @@ run a <a href="/help?cmd=http"><tt>fossil http</tt></a> command on each
 HTTP hit.  That Fossil instance handles only that one hit and then shuts
 back down, letting the socket listener go back to waiting for the next
 hit.  This scheme is known to work with <a id="inetd"
-href="any/inetd.md">inetd</a>, <a id="xinetd"
-href="any/xinetd.md">xinetd</a>, and <a id="stunnel"
-href="any/stunnel.md">stunnel</a>.</p>
+href="any/inetd.md"><tt>inetd</tt></a>, <a id="xinetd"
+href="any/xinetd.md"><tt>xinetd</tt></a>, <a id="stunnel"
+href="any/stunnel.md"><tt>stunnel</tt></a>, and <a
+href="debian/service.md"><tt>systemd</tt></a>.</p>
 
 <p>In principle, this method should also work with Apple’s
-<tt>launchd</tt>, Linux’s <tt>systemd</tt>, and Solaris’ SMF, all of
-which have similar socket listener features. We do not yet have
-tutorials showing how to configure these advanced daemons for Fossil,
-but we welcome <a href="contribute.wiki">contributions</a>.</p>
+<tt>launchd</tt> and Solaris’ SMF
+which have similar socket listener features. We
+we welcome <a href="contribute.wiki">contributions</a> of such tutorials.</p>
 
 
 <h3>SCGI</h3>
@@ -161,7 +161,7 @@ with CGI underneath <tt>althttpd</tt>.</p>
 sub-articles. Some of these are generic, while others depend on
 particular operating systems or front-end software:</p>
 
-<div id="tutpick"></div>
+<div id="tutpick" class="show"></div>
 
 <!-- Define alternative to JS tutorial picker below.  When updating this
      table, update "matrix" in the JS code below to match! -->
@@ -283,7 +283,6 @@ href="windows/iis.md">IIS</a>, Apache, etc.</p>
     html += '<a id="all">SHOW ALL</a></p>';
     const picker = document.querySelector('div#tutpick');
     picker.innerHTML = html;
-    picker.classList.add('show');
 
     // Slide noscript <table> in place of JS tutorial chooser on
     // "SHOW ALL" click.
