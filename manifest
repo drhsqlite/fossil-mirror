@@ -1,5 +1,5 @@
-C Updated\sand\sexpanded\sdocumentation\son\show\sto\sset\sup\sa\sFossil\sserver.
-D 2019-08-20T15:04:55.655
+C Fix\spossible\smisaligned\spointer\sto\sa\s16-bit\sobject.
+D 2019-08-20T16:11:28.991
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -516,7 +516,7 @@ F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
-F src/lookslike.c 2f276c62fe8e83fcb2b8a41b1e75e50713c4c165c92111c63c0f0171e6828ddf
+F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 210237c34ad4480e66364de63321009471f5d886eb59a5ceae81d5d3329cec9e
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
@@ -879,7 +879,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html d567e542ac954b797fc760f58aaacf11f5e858f48024df3b0f327c923921b212 w www/server.wiki
+F www/server/index.html d567e542ac954b797fc760f58aaacf11f5e858f48024df3b0f327c923921b212
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -912,8 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 231d693314522e0a3b4a170cf2b705dfa992dda10549885427b9a3415fdaefa7 c57e17931dd2d7f4552552974f1ae36623f61597ce4681691a1dab235af45cec
-R 8be812a0512e22eddf2d66d3d18778d2
-T +closed c57e17931dd2d7f4552552974f1ae36623f61597ce4681691a1dab235af45cec
+P f146e21af9eaa2fdac4ce9ee045f08830c1d511bb37f443157966005398a95f0
+R 347d7f9cbc12494d0d3d5cecf36226be
 U drh
-Z c8b4535622b1ba45d36a6a08a07eac5d
+Z 68780101a6f244f543dd8d22b944360f
