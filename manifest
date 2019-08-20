@@ -1,5 +1,5 @@
-C Missed\sa\slink\sto\sserver.wiki\sthat\sshould\shave\sbeen\schecked\sin\swith\n[74a6578c].
-D 2019-08-20T06:35:06.636
+C The\smerge\sfrom\strunk\saccidentally\sreverted\spart\sof\sthe\snew\stext\sin\nwww/embeddeddoc.wiki.\s\s(This\spart\swas\smanually\smerged,\sand\sI\smissed\sa\ndiff\srelative\sto\strunk.)
+D 2019-08-20T06:45:53.965
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -811,7 +811,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki ba5304c104020e8d5d2a1411713843bc6fd4823ac0406770473b0da83d685db1
+F www/embeddeddoc.wiki fbd766c1fc3789bb46aac51623ad14b1a327943a69eb7f683861bfc99846fc27
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 42d28c02868fd7c26cb276c4fbe0d9a7af2e07eade93b2de3a012ccf663a401f
-R d7483af781bffab1db708c12ac3c429e
+P d5def0c8c4bb6f206cb83419547f26531416b831ca8c02e56218973e5cbf315d
+R d0480515f1d061f3f4420e83a6520df7
 U wyoung
-Z 5d8788ea4a3b729a3cd61d3c720564ba
+Z be7e1db7f7d9f338288817842ab05960
