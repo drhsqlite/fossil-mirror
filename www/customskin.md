@@ -27,7 +27,7 @@ And the footer looks like this:
         <div class="footer">
           ... skin-specific stuff here ...
         </div>
-        <script nonce="$nonce">
+        <script nonce=$nonce>
           <th1>styleScript</th1>
         </script>
 

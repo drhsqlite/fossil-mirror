@@ -1,5 +1,5 @@
-C Fixed\sa\slink\sfrom\sthe\snew\smaterial\sin\sembeddeddoc.wiki\sto\sthe\snew\sCSP\nmaterial:\sthat\sbriefly\slived\sin\scustomskin.md\sbefore\schecking\sit\sin,\sbut\nthen\sI\smoved\sit\sto\sa\snew\sdocument\sand\sforgot\sto\supdate\sthe\slink.
-D 2019-08-20T04:34:15.888
+C Fixed\san\sunwanted\s"$nonce"\svariable\sexpansion\swithin\sthe\snew\ncustomskin.md\sintroduced\sby\s[9044fd2dbe]\swhich\sonly\soccurs\s*sometimes*:\nnot\son\sfossil-scm.org,\sand\sapparently\snot\sin\smy\searlier\sckout\stesting\nprior\sto\schecking\sit\sin,\sbut\snow\sin\sa\sdifferent\sckout\stest.\s\sThis\shas\sto\nbe\sa\sTH1\sthing,\sbut\sI\sdon't\sunderstand\swhy\swe\sdidn't\ssee\sthis\searlier.\nThis\sis\sjust\sa\sworkaround\sfor\sthe\ssymptom.
+D 2019-08-20T04:57:07.004
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -800,7 +800,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 221312b1f8051be467bbc6edaa34c2705653c4d299438d52c0256d1c496e48a0
+F www/customskin.md b2a1362ac5bac2a652fb2a56b5a05d0ceeaf3196dbe80d5e650bf00aae47c6ac
 F www/defcsp.md 9b0930d291b12951f2f916db63629e82522fb33439a0dbeb4ae584defa083912
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -889,7 +889,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4e6d36d7d480a4701ca5c8275e45c3ec1cd615fceeeb2623403ac96a042817c3
-R 3f5a54493c5bba81649b5a48c131d83e
+P f4cbfd5accbde671c99367cc31e4e0f7f792543588ad6ebbb31850a3a7f10fdf
+R 24fb48c8fb51c30690a1402ebaea1ad0
 U wyoung
-Z 449cbaa4987254cbb6436894068ebee4
+Z 5659e2bd424f8f7b070f50a8c41bd1dc
