@@ -1,5 +1,5 @@
-C Updated\sall\sof\sthe\sinternal\shyperlinks\sreferencing\swww/server.wiki\sto\spoint\nat\seither\swww/server/index.html\sor\sone\sof\sthe\sdocs\sit\snow\spoints\sat.
-D 2019-08-20T06:03:29.525
+C Reverted\ssrc/doc.c\sto\sthe\strunk\sversion.\s\sThe\s"Plan\sZ"\sreversion\sin\n[8264fd75]\swas\sincomplete,\scausing\sbad\sTH1\svariable\sexpansion.\s\sI\nbelieve\sthis\sexplains\sthe\ssymptom\sI\sworked\saround\sin\s[9bdf650f0b8].\nThis\scheck-in\salso\scherry-picks\s[3d6a4fd95c]\sonto\sthe\sbranch.
+D 2019-08-20T06:28:32.429
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -469,7 +469,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
-F src/doc.c 4d50ffe82809f940aecabf6c902abac869f7e2a529f062cea9574c46a967a852
+F src/doc.c bda41e25ef34f0da0beab9baef941d612f62401a17f710998d0faf2f72d2a9e5
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
@@ -911,7 +911,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8b7c17de3f993080ab2bee4e638c49657bf66caec6d3a19afc156dbcff6b4a1c
-R 1ae220e914f52ce5caa707b5c99bed67
+P 74a6578cd4b1f189d4a96aed70fa51b57ca2a8b0ac4f84bb6105645d78b4204d
+R f8e9ec78ad62328d0301bd4f0ff9e5e4
 U wyoung
-Z 6d957c0af6231b5ab62bba1d30b7d368
+Z f22886151a5245b6f938a9172c7d2e77

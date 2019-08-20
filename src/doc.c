@@ -424,7 +424,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
   zIn += 4;
   while( zIn[0] ){
     if( fossil_isspace(zIn[0]) ) zIn++;
-    if( zIn[0]=='>' ) return 0;
+    if( zIn[0]=='>' ) break;
     zAttr = zIn;
     while( fossil_isalnum(zIn[0]) || zIn[0]=='-' ) zIn++;
     nAttr = (int)(zIn - zAttr);
@@ -516,8 +516,8 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 **       href="$ROOT/
 **       action="$ROOT/
 **
-** Convert $ROOT to the root URI of the repository.
-** Allow ' in place of "
+** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
+** and any case for href or action.
 */
 void convert_href_and_output(Blob *pIn){
   int i, base;
@@ -525,16 +525,15 @@ void convert_href_and_output(Blob *pIn){
   char *z = blob_buffer(pIn);
   for(base=0, i=7; i<n; i++){
     if( z[i]=='$'
+     && strncmp(&z[i],"$ROOT/", 6)==0
      && (z[i-1]=='\'' || z[i-1]=='"')
-     && i-base>=9 ) {
+     && i-base>=9
+     && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
+           fossil_strnicmp(&z[i-9]," action=", 8)==0)
+    ){
       blob_append(cgi_output_blob(), &z[base], i-base);
-      if( strncmp(&z[i],"$ROOT/", 6)==0
-       && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
-             fossil_strnicmp(&z[i-9]," action=", 8)==0)
-      ){
-        blob_appendf(cgi_output_blob(), "%R");
-        base = i+5;
-      }
+      blob_appendf(cgi_output_blob(), "%R");
+      base = i+5;
     }
   }
   blob_append(cgi_output_blob(), &z[base], i-base);
