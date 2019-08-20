@@ -11,6 +11,7 @@ options {
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-legacy-mv-rm=1  => {Enable legacy behavior for mv/rm (skip checkout files)}
+    with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
@@ -590,6 +591,20 @@ if {[opt-bool fusefs]} {
      define-append LIBS -lfuse
      msg-result "FuseFS support enabled"
   }
+}
+
+# Add -fsanitize compile and link options late: we don't want the C
+# checks above to run with those sanitizers enabled.  It can not only
+# be pointless, it can actually break correct tests.
+set fsan [opt-val with-sanitizer]
+if {[string length fsan]} {
+    define-append  EXTRA_CFLAGS -fsanitize=$fsan
+    define-append EXTRA_LDFLAGS -fsanitize=$fsan
+    if {[string first "undefined" $fsan]} {
+        # We need to link with libubsan if we're compiling under
+        # GCC with -fsanitize=undefined.
+        cc-check-function-in-lib __ubsan_handle_add_overflow ubsan
+    }
 }
 
 # Finally, append -ldl to make sure it's the last in the list.
