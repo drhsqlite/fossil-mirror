@@ -597,10 +597,10 @@ if {[opt-bool fusefs]} {
 # checks above to run with those sanitizers enabled.  It can not only
 # be pointless, it can actually break correct tests.
 set fsan [opt-val with-sanitizer]
-if {[string length fsan]} {
+if {[string length $fsan]} {
     define-append  EXTRA_CFLAGS -fsanitize=$fsan
     define-append EXTRA_LDFLAGS -fsanitize=$fsan
-    if {[string first "undefined" $fsan]} {
+    if {[string first "undefined" $fsan] != -1} {
         # We need to link with libubsan if we're compiling under
         # GCC with -fsanitize=undefined.
         cc-check-function-in-lib __ubsan_handle_add_overflow ubsan
