@@ -2,7 +2,7 @@
 
 <h2>1.0 Introduction</h2>
 
-If you have a [./server.wiki|Fossil server] for your project,
+If you have a [./server/|Fossil server] for your project,
 you can add [https://en.wikipedia.org/wiki/Common_Gateway_Interface|CGI]
 extensions to that server.  These extensions work like
 any other CGI program, except that they also have access to the Fossil
@@ -29,7 +29,7 @@ CGI Extensions are disabled by default.
 An administrator activates the CGI extension mechanism by specifying
 an "Extension Root Directory" or "extroot" as part of the server setup.
 If the Fossil server is itself run as 
-[./server.wiki#cgi|CGI], then add a line to the 
+[./server/any/cgi.md|CGI], then add a line to the 
 [./cgi.wiki#extroot|CGI script file] that says:
 
 <blockquote><pre>
@@ -37,9 +37,9 @@ extroot: <i>DIRECTORY</i>
 </pre></blockquote>
 
 Or, if the Fossil server is begin run as using the 
-"[./server.wiki#standalone|fossil server]" or
-"[./server.wiki#standalone|fossil ui]" or 
-"[./server.wiki#inetd|fossil http]" commands, then add an extra 
+"[./server/any/none.md|fossil server]" or
+"[./server/any/none.md|fossil ui]" or 
+"[./server/any/inetd.md|fossil http]" commands, then add an extra 
 "--extroot <i>DIRECTORY</i>" option to that command.
 
 The <i>DIRECTORY</i> is the DOCUMENT_ROOT for the CGI.

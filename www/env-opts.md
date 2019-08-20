@@ -434,7 +434,7 @@ can be selected with either the `--vfs VFSNAME` option or the
 precedence.
 
 
-### Temporary File Location
+### <a name="temp"></a>Temporary File Location
 
 Fossil places some temporary files in the checkout directory. Most notably,
 supporting files related to merge conflicts are placed in the same

@@ -4,7 +4,7 @@
 generating dynamic web content.  This article gives a quick background on how
 CGI works and describes how Fossil can act as a CGI service.
 <p>This is a "how it works" guide.  If you just want to set up Fossil
-as a CGI server, see the [./server.wiki | Fossil Server Setup] page.
+as a CGI server, see the [./server/ | Fossil Server Setup] page.
 </blockquote>
 <h2>A Quick Review Of CGI</h2><blockquote>
 <p>

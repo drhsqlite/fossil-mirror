@@ -340,9 +340,10 @@ and painlessly.</p>
 
     <p>Servers are also easily configured as:
     <ul>
-    <li>[./server.wiki#inetd|inetd/xinetd]
-    <li>[./server.wiki#cgi|CGI]
-    <li>[./server.wiki#scgi|SCGI]
+    <li>[./server/any/inetd.md|inetd]
+    <li>[./server/debian/service.md|systemd]
+    <li>[./server/any/cgi.md|CGI]
+    <li>[./server/any/scgi.md|SCGI]
     </ul>
 
     <p>The [./selfhost.wiki | self-hosting fossil repositories] use

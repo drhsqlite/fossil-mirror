@@ -32,7 +32,7 @@ For larger files, you could instead store the file in Fossil as:
     via a [`/uv`](/help?cmd=/uv) URL
 
 Another path around this restriction is to [serve your
-repo](./server.wiki) behind an HTTP proxy server, allowing mixed-mode
+repo](./server/) behind an HTTP proxy server, allowing mixed-mode
 content serving, with static images and such served directly by the HTTP
 server and the dynamic content by Fossil. That allows a URI scheme that
 prevents the browser’s CSP enforcement from distinguishing content from

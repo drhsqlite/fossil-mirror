@@ -77,7 +77,7 @@ the design.  One way to describe Fossil is that it is
 
 For developers who choose to self-host projects (rather than using a
 3rd-party service such as GitHub) Fossil is much easier to set up, since
-the stand-alone Fossil executable together with a [./server.wiki#cgi|2-line CGI script]
+the stand-alone Fossil executable together with a [./server/any/cgi.md|2-line CGI script]
 suffice to instantiate a full-featured developer website.  To accomplish
 the same using Git requires locating, installing, configuring, integrating,
 and managing a wide assortment of separate tools.  Standing up a developer

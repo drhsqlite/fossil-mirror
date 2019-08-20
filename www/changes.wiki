@@ -15,7 +15,7 @@
   *  Enhance the [/help?cmd=/stat|/stat] page so that it gives the
      option to show a breakdown of forum posts.
   *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
-  *  Timeout [./server.wiki#cgi|CGI requests] after 300 seconds, or 
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
      some other value set by the 
      [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
   *  Documentation improvements

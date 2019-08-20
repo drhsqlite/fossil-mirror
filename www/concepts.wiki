@@ -425,7 +425,7 @@ Configure programs like inetd, xinetd, or stunnel to hand off HTTP requests
 directly to the [/help?cmd=http|fossil http] command.
 </ol>
 
-See the [./server.wiki | How To Configure A Fossil Server] document
+See the [./server/ | How To Configure A Fossil Server] document
 for details.
 
 <h2>6.0 Review Of Key Concepts</h2>

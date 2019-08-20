@@ -72,7 +72,7 @@ set doclist {
   reviews.wiki {Reviews}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
-  server.wiki {How To Configure A Fossil Server}
+  server/ {How To Configure A Fossil Server}
   serverext.wiki {CGI Server Extensions}
   serverext.wiki {Adding Extensions To A Fossil Server Using CGI Scripts}
   settings.wiki {Fossil Settings}
