@@ -1,5 +1,5 @@
-C Removed\sdocumentation\sof\sthe\snonce="$NONCE"\sfeature\sin\nwww/embeddeddoc.wiki,\sremoved\sas\spart\sof\s[8264fd75].
-D 2019-08-20T00:37:45.635
+C Removed\s"known\sto\swork\swith\sIIS"\sbit\sfrom\swww/server/index.html\sin\sthe\nCGI\ssection,\ssince\sthat\sis\snot\sactually\strue.\s\sWe\scan\sput\sit\sback\sonce\nsomeone\sfigures\sout\s[https://fossil-scm.org/forum/forumpost/de18dc32c0\s|\nthe\sIIS\s+\sCGI\s+\sFossil\sCPU\spegging\sproblem].
+D 2019-08-20T00:41:18.545
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -878,7 +878,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html cdf684efcf7044e1352bc409b2978a3fa9ade97a7f6c1c1a84882a276fc6d450
+F www/server/index.html d567e542ac954b797fc760f58aaacf11f5e858f48024df3b0f327c923921b212
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -911,7 +911,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 461c8f06fc9a0010e4658addb773f1ae7e1b22c5033a6508d6ca09c28036a93c
-R 8123446c3e5d18109516f548107f24aa
+P d55f6b1501da3414e8c600bb20069c79fd288f1746f71ec0fdeb06cb17ce89e8
+R eab0f44477cbdcb3c63fa4aff1d2e0be
 U wyoung
-Z c6b03f07d1696dd2f69ae6dfc3e16c62
+Z 9c21e954bc59010263098400fdc73837
