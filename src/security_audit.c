@@ -66,7 +66,7 @@ static char **parse_content_security_policy(void){
     ){
       for(jj=nSemi=0; jj<nAll; jj++){ if( zAll[jj]==';' ) nSemi++; }
       azCSP = fossil_malloc( nAll+1 + (nSemi+2)*sizeof(char*) );
-      zCopy = &azCSP[nSemi+2];
+      zCopy = (char*)&azCSP[nSemi+2];
       memcpy(zCopy,zAll,nAll);
       zCopy[nAll] = 0;
       while( fossil_isspace(zCopy[0]) || zCopy[0]==';' ){ zCopy++; }

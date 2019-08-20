@@ -1,5 +1,5 @@
-C Have\sthe\ssecurity-audit\spage\sanalyze\sand\sdisplay\sthe\scontent\ssecurity\spolicy.
-D 2019-08-19T17:18:31.499
+C Fix\sa\scompiler\swarning\sin\sthe\ssecurity-audit\spage.
+D 2019-08-20T02:09:52.336
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -554,7 +554,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
-F src/security_audit.c 2e3920bc8213ffb02aa3d3d8381536e58684b23c86d9ba8222fd95b2176ffd40
+F src/security_audit.c ad815d34551cd5b222bf29d4a49cbda86dfe49368a6a716dffff3dc62f97c50d
 F src/setup.c 5e859be3e3eb5b82475bbc300a3ff70f6d977e61cf11219b200b2ad5e3a8a22e
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
@@ -888,7 +888,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7979989dff34a2797dd917c881fe47df15d541cc514bf5fe2204840f93cd294d
-R e9eab06128b1c5a4362259ded2d7ee57
+P 9cf90a4f9d134b7fddb190e27c33c8d5d6f25fd25d37a2241e3fae02c715b5e9
+R 3a5bed7f982b8dcdca8888262d2b71de
 U drh
-Z 57df84f2d1e2a7d6ea240c64ef2270cc
+Z 1b5e34fee87527c90a3b42fae1bc873b
