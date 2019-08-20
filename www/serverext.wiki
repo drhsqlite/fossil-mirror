@@ -2,7 +2,7 @@
 
 <h2>1.0 Introduction</h2>
 
-If you have a [./server/Fossil server] for your project,
+If you have a [./server/|Fossil server] for your project,
 you can add [https://en.wikipedia.org/wiki/Common_Gateway_Interface|CGI]
 extensions to that server.  These extensions work like
 any other CGI program, except that they also have access to the Fossil

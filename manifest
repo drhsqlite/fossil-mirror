@@ -1,5 +1,5 @@
-C The\smerge\sfrom\strunk\saccidentally\sreverted\spart\sof\sthe\snew\stext\sin\nwww/embeddeddoc.wiki.\s\s(This\spart\swas\smanually\smerged,\sand\sI\smissed\sa\ndiff\srelative\sto\strunk.)
-D 2019-08-20T06:45:53.965
+C Fixed\sa\slink\spunctuation\sbug\sintroduced\sin\s[74a6578c].
+D 2019-08-20T07:01:59.314
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -892,7 +892,7 @@ F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2b
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
 F www/server/windows/stunnel.md a69f4f8335d0c19bbf4b31cb8c126ad3ad4967e7537ac1b99d7bcea02462a7b2
-F www/serverext.wiki 8482f9e03ebfe596104d2bd99877a63bc28e391cb65192b551a77af631e312eb
+F www/serverext.wiki 2bd0c934cc7765c7b8902de228bcb33edf67b52f3f4fecd8daf941372feca7a6
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5def0c8c4bb6f206cb83419547f26531416b831ca8c02e56218973e5cbf315d
-R d0480515f1d061f3f4420e83a6520df7
+P 8976a9dae3a399949db09adfb34f04085781653ea573633a14c3ec74085f273f
+R edb1b8ff8d4234e7ac65eb421353661b
 U wyoung
-Z be7e1db7f7d9f338288817842ab05960
+Z 8cc62b2a4ab2d9677a15d327d0264509
