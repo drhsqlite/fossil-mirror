@@ -683,6 +683,8 @@ static void gather_artifact_stats(int bWithTypes){
     @    AND atype IS NULL;
     @ UPDATE artstat SET atype='manifest'
     @  WHERE id IN (SELECT objid FROM event WHERE type='ci') AND atype IS NULL;
+    @ UPDATE artstat SET atype='forum'
+    @  WHERE id IN (SELECT objid FROM event WHERE type='f') AND atype IS NULL;
     @ UPDATE artstat SET atype='cluster'
     @  WHERE atype IS NULL 
     @    AND id IN (SELECT rid FROM tagxref
@@ -847,7 +849,7 @@ void artifact_stats_page(void){
   @ <td>largest: %,d(mxCmpr), average: %,d((int)r), median: %,d(med)</td>
   @ </table>
 
-  @ <h1>Artifact size distribution facts:</h1>
+  @ <h1>Artifact Size Distribution Facts:</h1>
   @ <ol>
   @ <li><p>The largest %.2f(n50pct*100.0/nTotal)%% of artifacts
   largest_n_artifacts(n50pct);

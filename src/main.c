@@ -61,6 +61,15 @@
 #endif
 
 /*
+** Default length of a timeout for serving an HTTP request.  Changable
+** using the "--timeout N" command-line option or via "timeout: N" in the
+** CGI script.
+*/
+#ifndef FOSSIL_DEFAULT_TIMEOUT
+# define FOSSIL_DEFAULT_TIMEOUT 600  /* 10 minutes */
+#endif
+
+/*
 ** Maximum number of auxiliary parameters on reports
 */
 #define MX_AUX  5
@@ -1951,7 +1960,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.
 **
 **    timeout: SECONDS         Do not run for longer than SECONDS.  The default
-**                             timeout is 300 seconds.
+**                             timeout is FOSSIL_DEFAULT_TIMEOUT (600) seconds.
 **
 **    extroot: DIR             Directory that is the root of the sub-CGI tree
 **                             on the /ext page.
@@ -1986,7 +1995,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
-  fossil_set_timeout(300);
+  fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   blob_read_from_file(&config, zFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
@@ -2116,7 +2125,7 @@ void cmd_cgi(void){
       /* timeout: SECONDS
       **
       ** Set an alarm() that kills the process after SECONDS.  The
-      ** default value is 300 seconds.
+      ** default value is FOSSIL_DEFAULT_TIMEOUT (600) seconds.
       */
       fossil_set_timeout(atoi(blob_str(&value)));
       continue;
@@ -2572,7 +2581,7 @@ void cmd_webserver(void){
   int flags = 0;            /* Server flags */
 #if !defined(_WIN32)
   int noJail;               /* Do not enter the chroot jail */
-  const char *zTimeout = "300";  /* Max runtime of any single HTTP request */
+  const char *zTimeout = 0; /* Max runtime of any single HTTP request */
 #endif
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
@@ -2724,6 +2733,8 @@ void cmd_webserver(void){
   */
   if( zTimeout ){
     fossil_set_timeout(atoi(zTimeout));
+  }else{
+    fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   }
   g.httpIn = stdin;
   g.httpOut = stdout;

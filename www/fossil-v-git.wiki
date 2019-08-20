@@ -472,7 +472,7 @@ a good answer to that, you probably do not want to be choosing a DVCS
 based on how many arcane features it has.
 
 The argument is similar for other types of users: if you are a hobbyist,
-how much time do you want to spend mastering your DVCSs instead of on
+how much time do you want to spend mastering your DVCS instead of on
 the hobby supported by use of that DVCS?
 
 There is some minimal set of features required to achieve the purposes
@@ -605,10 +605,13 @@ Fossil delivered a new release allowing a clean migration to
 repositories.
 
 Here in mid-2019, that feature is now in every OS and package repository
-known to include Fossil so that the next release as of this writing
-(Fossil 2.10) will default to enforcing SHA-3 hashes by default. This
+known to include Fossil so that the next release
+(Fossil 2.10) will begin using SHA-3 hashes even on repos currently
+limited to SHA-1 for compatibility with Fossil 1.<i>x</i>,
+effectively upgrading them to require Fossil 2.1 or newer. This
 not only solves the SHAttered problem, it should prevent a reoccurrence
-for the foreseeable future. Only repositories created before the
+for the foreseeable future. With the current release (Fossil 2.9) only
+repositories created before the
 transition to Fossil 2 are still using SHA-1, and then only if the
 repository's maintainer chose not to switch them into SHA-3 mode some
 time over the past 2 years.

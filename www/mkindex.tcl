@@ -32,6 +32,7 @@ set doclist {
   customskin.md {Theming: Customizing The Appearance of Web Pages}
   customskin.md {Custom Skins}
   custom_ticket.wiki {Customizing The Ticket System}
+  defcsp.md {The Default Content Security Policy}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
   embeddeddoc.wiki {Embedded Project Documentation}
