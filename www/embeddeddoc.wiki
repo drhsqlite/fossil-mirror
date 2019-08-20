@@ -124,18 +124,7 @@ rendering as HTML, not just source documents in the HTML
 <tt>fossil-doc</tt> format described at the end of the prior section.
 
 
-<h3>2. $NONCE</h3>
-
-If you put the string <tt>nonce="$NONCE"</tt> or <tt>nonce='$NONCE'</tt>
-anywhere in your document, the server's per-page CSP nonce value is
-substituted into the document at that point. This is most useful in
-combination with the HTML embedded doc type when using
-<tt>&lt;script&gt;</tt> and <tt>&lt;style&gt;</tt> tags to allow that
-tag to be accepted by Fossil's default
-[https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP | CSP settings].
-
-
-<h3>3. TH1 Documents</h3>
+<h3>2. TH1 Documents</h3>
 
 Fossil will substitute the value of [./th1.md | TH1 expressions] within
 <tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have
