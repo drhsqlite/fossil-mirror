@@ -1,5 +1,5 @@
-C Added\swww/defcsp.md,\swhich\sdocuments\sthe\sdefault\sContent\sSecurity\sPolicy\napplied\sby\sFossil\sto\sthe\sHTML\spages\sit\sserves.\s\sLinked\sthat\sinto\nembeddeddoc.wik\sand\scustomskin.md,\swhich\stouched\son\sthis\stopic\sbefore\nbut\sdidn't\sgo\sinto\smuch\sdetail.
-D 2019-08-20T04:07:31.823
+C Fixed\sa\slink\sfrom\sthe\snew\smaterial\sin\sembeddeddoc.wiki\sto\sthe\snew\sCSP\nmaterial:\sthat\sbriefly\slived\sin\scustomskin.md\sbefore\schecking\sit\sin,\sbut\nthen\sI\smoved\sit\sto\sa\snew\sdocument\sand\sforgot\sto\supdate\sthe\slink.
+D 2019-08-20T04:34:15.888
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -810,7 +810,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki 52e39482712dcbef6c1684c7ebeac3d7128ff28c4974e13c83b77d9df5170604
+F www/embeddeddoc.wiki e7ee255c7cc6d559fc78bc59dca23878140f775dd124c0498c574a616f3dd9d7
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -889,7 +889,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3243a6c148401814e5e6c4cbdeab071c46a1983a44c3cc0ddffe332b7170a327
-R b6d2a04b64b0be695bd868fce193228e
+P 4e6d36d7d480a4701ca5c8275e45c3ec1cd615fceeeb2623403ac96a042817c3
+R 3f5a54493c5bba81649b5a48c131d83e
 U wyoung
-Z 138f2b3920fa51d9c14e496705ff06a7
+Z 449cbaa4987254cbb6436894068ebee4

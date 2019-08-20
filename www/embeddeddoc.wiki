@@ -102,9 +102,8 @@ fully-independent web pages. One practical consequence of this is that
 embedded <tt>&lt;script&gt;</tt> tags will cause a
 [https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP | Content
 Security Policy] error in your browser with the default CSP as served by
-Fossil. See the sections on [./customskin.md#headfoot | Header and
-Footer Processing] and [./customskin.md#defcsp | The Default CSP] within
-the document on Fossil skinning.
+Fossil. See the documentation on [./customskin.md#headfoot | Header and
+Footer Processing] and [./defcsp.md | The Default CSP].
 
 
 <h2>Examples</h2>
