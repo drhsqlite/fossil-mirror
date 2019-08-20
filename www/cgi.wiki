@@ -9,9 +9,9 @@ portal where developers and non-developers alike can learn about the
 project and its current state.
 
 Setting up a server using Fossil is easy.
-A [./server.wiki|separate document] talks about four different methods for
-setting up a Fossil server.  One of those methods, and perhaps the most
-popular is [./server.wiki#cgi|CGI].  CGI is the technique that the three
+A [./server/|separate document] talks about all of the many different methods for
+setting up a Fossil server, one of which is [./server/any/cgi.md | as a CGI
+script].  CGI is the technique that the three
 [./selfhost.wiki|self-hosting Fossil repositories] all use.
 
 Setting up a Fossil server using CGI is mostly about writing a short

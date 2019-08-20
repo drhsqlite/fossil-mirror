@@ -132,7 +132,7 @@ These two sub-settings can be used separately or together.  If used together,
 then the delay timer does not start until after the first mouse movement
 is detected.
 
-See also [./server.wiki#loadmgmt|Managing Server Load] for a description
+See also [./loadmgmt.md|Managing Server Load] for a description
 of how expensive pages can be disabled when the server is under heavy
 load.
 

@@ -155,8 +155,8 @@ CGI mode.  The "index.html" CGI script looks like this:
 repository: /fossil/fossil.fossil
 </pre></blockquote>
 
-This is one of four ways to set up a
-<a href="./server.wiki">fossil web server</a>.
+This is one of the many ways to set up a
+<a href="./server/">Fossil server</a>.
 
 The "<b>/trunk/</b>" part of the URL tells fossil to use
 the documentation files from the most recent trunk check-in.

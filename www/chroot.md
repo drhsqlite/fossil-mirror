@@ -38,4 +38,4 @@ but you cannot make it skip the dropping of root privileges, on purpose.
 [cj]:  https://en.wikipedia.org/wiki/Chroot
 [fls]: ./loadmgmt.md
 [mnl]: https://fossil-scm.org/forum/forumpost/90caff30cb
-[srv]: ./server.wiki
+[srv]: ./server/

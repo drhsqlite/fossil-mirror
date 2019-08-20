@@ -209,7 +209,7 @@ Fossil's built-in HTTP server feature does not currently have a built-in
 way to serve via HTTP over TLS, a.k.a. HTTPS, even when you've linked
 Fossil to OpenSSL. To serve a Fossil repository via HTTPS, you must put
 it behind some kind of HTTPS proxy. We have a number of documents
-elsewhere in this repository that cover your options for [./server.wiki
+elsewhere in this repository that cover your options for [./server/
 | serving Fossil repositories]. A few of the most useful of these are:
 
   *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
