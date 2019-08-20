@@ -1,5 +1,5 @@
-C Fix\sa\scompiler\swarning\sin\sthe\ssecurity-audit\spage.
-D 2019-08-20T02:09:52.336
+C Added\swww/defcsp.md,\swhich\sdocuments\sthe\sdefault\sContent\sSecurity\sPolicy\napplied\sby\sFossil\sto\sthe\sHTML\spages\sit\sserves.\s\sLinked\sthat\sinto\nembeddeddoc.wik\sand\scustomskin.md,\swhich\stouched\son\sthis\stopic\sbefore\nbut\sdidn't\sgo\sinto\smuch\sdetail.
+D 2019-08-20T04:07:31.823
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -800,7 +800,8 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 8ad4e06755af3549b68587a67a53c5a902b76f0a6ed2d0638a9da411c8724640
+F www/customskin.md 221312b1f8051be467bbc6edaa34c2705653c4d299438d52c0256d1c496e48a0
+F www/defcsp.md 9b0930d291b12951f2f916db63629e82522fb33439a0dbeb4ae584defa083912
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -809,7 +810,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki 5072dbdd2c7902da176bcdd6c7e7bc044c1960757bb9ea52941de5dfc4f0b6d9
+F www/embeddeddoc.wiki 52e39482712dcbef6c1684c7ebeac3d7128ff28c4974e13c83b77d9df5170604
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -854,10 +855,10 @@ F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c833
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl f81d53f408c7a32d28f33a6053bd86dbfd3c2334e7f592671d1a689f36de46f3 x
+F www/mkindex.tcl 9a341ef51307fefa2249adba3b4b0fcb62858aa8e6dfd5c3f139656c93c91f79 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 59d7764cb59f9ffc37720a9007c0625118d7c2139c03b4066bc28611f3e6c0ff
+F www/permutedindex.html 490e2a32e9b67439dbca06c41aca81f69e33d39b827d0cd1a07c3b14a1afe963
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -888,7 +889,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9cf90a4f9d134b7fddb190e27c33c8d5d6f25fd25d37a2241e3fae02c715b5e9
-R 3a5bed7f982b8dcdca8888262d2b71de
-U drh
-Z 1b5e34fee87527c90a3b42fae1bc873b
+P 3243a6c148401814e5e6c4cbdeab071c46a1983a44c3cc0ddffe332b7170a327
+R b6d2a04b64b0be695bd868fce193228e
+U wyoung
+Z 138f2b3920fa51d9c14e496705ff06a7

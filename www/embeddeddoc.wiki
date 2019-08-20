@@ -96,6 +96,17 @@ in the Fossil header.  An example of this can be seen in the text
 of the [/artifact/84b4b3d041d93a?txt=1 | Index Of Fossil Documentation]
 document.
 
+Beware that such HTML files render in the same browser security context
+as all other embedded documentation served from Fossil; they are not
+fully-independent web pages. One practical consequence of this is that
+embedded <tt>&lt;script&gt;</tt> tags will cause a
+[https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP | Content
+Security Policy] error in your browser with the default CSP as served by
+Fossil. See the sections on [./customskin.md#headfoot | Header and
+Footer Processing] and [./customskin.md#defcsp | The Default CSP] within
+the document on Fossil skinning.
+
+
 <h2>Examples</h2>
 
 This file that you are currently reading is an example of
