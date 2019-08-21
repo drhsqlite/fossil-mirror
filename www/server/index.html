@@ -77,13 +77,13 @@ particular systems, should you want extra help.</p>
 </ol>
 
 <p>All of these methods can serve either a single repository or a
-directory containing repositories named "<tt>*.fossil</tt>".</p>
+directory hierarchy containing mulitiple repositories.</p>
 
-<p>You are not restricted to using a single method. The same Fossil
+<p>You are not restricted to a single server setup. The same Fossil
 repository can be served using two or more of the above techniques at
 the same time. These methods use clean, well-defined, standard
 interfaces (CGI, SCGI, and HTTP) which allow you to easily migrate from
-one method to another to accommodate changes in hosting providers or
+one method to another in response to changes in hosting providers or
 administrator preferences.</p>
 
 <h3>CGI</h3>
@@ -93,30 +93,32 @@ CGI script</a>. This method is known to work with Apache,
 <tt>lighttpd</tt>, and <a
 href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
 administrator places a <a href="/help?cmd=cgi">short CGI script</a> in
-the web server's document hierarchy, and when a client requests the URL
-that corresponds to that script, the script runs Fossil to generate the
+the web server's document hierarchy and when a client requests the URL
+that corresponds to that script, Fossil runs and generates the
 response.</p>
 
 <p>CGI is a good choice for merging Fossil into an existing web site,
-particularly on hosts that have CGI set up for you already and won't let
-you modify the web server configuration further. The Fossil <a
-href="../selfhost.wiki">self-hosting repositories</a> are implemented
-with CGI underneath <tt>althttpd</tt>.</p>
+particularly on hosts that have CGI set up and working.
+The Fossil <a href="../selfhost.wiki">self-hosting repositories</a> are
+implemented with CGI underneath <tt>althttpd</tt>.</p>
 
 <h3>Socket Listener</h3>
 
-<p>Only slightly more complicated is the socket listener method.
-Instead of letting Fossil run in the background continuously to handle
-HTTP requests from clients, you configure a socket listener daemon to
-run a <a href="/help?cmd=http"><tt>fossil http</tt></a> command on each
-HTTP hit.  That Fossil instance handles only that one hit and then shuts
-back down, letting the socket listener go back to waiting for the next
-hit.  This scheme is known to work with <a id="inetd"
-href="any/inetd.md"><tt>inetd</tt></a>, <a id="xinetd"
+<p>Socket listener daemons such as
+<a id="inetd" href="any/inetd.md"><tt>inetd</tt></a>, <a id="xinetd"
 href="any/xinetd.md"><tt>xinetd</tt></a>, <a id="stunnel"
 href="any/stunnel.md"><tt>stunnel</tt></a>, <a
 href="macos/service.md"><tt>launchd</tt></a>, and <a
-href="debian/service.md"><tt>systemd</tt></a>.</p>
+href="debian/service.md"><tt>systemd</tt></a>
+can be configured to invoke the the
+<a href="/help?cmd=http"><tt>fossil http</tt></a> command to handle
+each incoming HTTP request.  The "<tt>fossil http</tt>" command reads
+the HTTP request off of standard input, computes an appropriate
+reply, and writes the reply on standard output.  There is a separate
+invocation of the "<tt>fossil http</tt>" command for each HTTP request.
+The socket listener daemon takes care of relaying content to and from
+the client, and (in the case of <a href="any/stunnel.md">stunnel</a>) 
+handling TLS decryption and encryption.
 
 <h3>Stand-alone HTTP Server</h3>
 
@@ -131,9 +133,10 @@ layer between the clients and Fossil.</p>
 
 <h3>SCGI</h3>
 
-<p>The Fossil standalone server can also run <a href="any/scgi.md">in
-SCGI mode</a> — <a href="/help/server"><tt>fossil server --scgi</tt></a>
-— instead of <a href="any/none.md">HTTP mode</a>, which allows it to
+<p>The Fossil standalone server can also handle <a href="any/scgi.md">SCGI</a>.
+When the <a href="/help/server"><tt>fossil server</tt></a> command is
+run with the extra <tt>--scgi</tt> option, it listens for incoming
+SCGI requests rather than HTTP requests. This allows Fossil to
 respond to requests from web servers <a href="debian/nginx.md">such as
 nginx</a> that don't support CGI. SCGI is a simpler protocol to proxy
 than HTTP, since the HTTP doesn't have to be re-interpreted in terms of
@@ -234,6 +237,7 @@ href="windows/iis.md">IIS</a>, Apache, etc.</p>
 <ul>
   <li><a id="chroot"   href="../chroot.md"     >The Server Chroot Jail</a>
   <li><a id="loadmgmt" href="../loadmgmt.md"   >Managing Server Load</a>
+  <li><a id="bkofc"    href="../backoffice.md" >The Backoffice</a>
   <li><a id="tls"      href="../ssl.wiki"      >Securing a Repository with TLS</a>
   <li><a id="ext"      href="../serverext.wiki">CGI Server Extensions</a>
   <li><a id="about"    href="../aboutcgi.wiki" >How CGI Works In Fossil</a>

@@ -1,5 +1,5 @@
-C Extra\sdefenses\sagainst\srunning\sfossil_atexit()\smore\sthan\sonce.
-D 2019-08-21T16:57:10.780
+C Further\simprovements\sto\sthe\sserver\sdocument.
+D 2019-08-21T17:21:00.588
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -879,7 +879,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html 82069ae255c6c2f51f5d9f3b3f98fae903718fb459187bb52be6b280cd7c0726
+F www/server/index.html c362e64c02bcd4f874fb26d34ed0fddece9c96da066524e7b3bcc297b6a2ed98
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07a5a2118e23760ea090d7b9fed3aa48b54f1bf857a22baf56e019e274bcb3c4
-R cb59ea14e5da3ca25df4fa8fe7f667c3
+P bc7683e15ab55d0062b140741cf49f3f87b761e326432dcb2881dc5cab1ee4b4
+R c88881a82aefe6fa477396c62fc6afa1
 U drh
-Z 959d5e5c8374363e3d156fec0810525b
+Z 944a144893ce33c30a3b9c87e35ed22d
