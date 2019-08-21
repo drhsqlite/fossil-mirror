@@ -54,12 +54,16 @@
 <h2>No Server Required</h2>
 
 <p>Fossil does not require a central server, but <a
-href="whyuseaserver.wiki">a server can be very useful</a>.</p>
+href="whyuseaserver.wiki">a server can be useful</a>.</p>
+
+<p>A Fossil server does not require much memory, CPU, or disk space
+and can run comfortably on a generic $5/month virtual host 
+or on a small device like a RaspberryPI, or it can co-exist 
+on a host running other services without getting in the way.
 
 <p>This article is a quick-reference guide for setting up your own
 Fossil server, with links to more detailed instructions specific to
 particular systems, should you want extra help.</p>
-
 
 <h2 id="methods">Methods</h2>
 
@@ -67,8 +71,8 @@ particular systems, should you want extra help.</p>
 
 <ol>
   <li><a id="cgi"        href="any/cgi.md">CGI</a>
-  <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
   <li>Socket listener
+  <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
   <li><a id="scgi"       href="any/scgi.md">SCGI</a>
 </ol>
 
@@ -89,25 +93,15 @@ CGI script</a>. This method is known to work with Apache,
 <tt>lighttpd</tt>, and <a
 href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
 administrator places a <a href="/help?cmd=cgi">short CGI script</a> in
-the web server's document hierarchy, and when a client requests the
-appropriate URL, that script runs Fossil to generate the response.</p>
+the web server's document hierarchy, and when a client requests the URL
+that corresponds to that script, the script runs Fossil to generate the
+response.</p>
 
 <p>CGI is a good choice for merging Fossil into an existing web site,
 particularly on hosts that have CGI set up for you already and won't let
 you modify the web server configuration further. The Fossil <a
 href="../selfhost.wiki">self-hosting repositories</a> are implemented
 with CGI underneath <tt>althttpd</tt>.</p>
-
-<h3>Stand-alone HTTP Server</h3>
-
-<p>This is the <a href="any/none.md">easiest method</a>.
-A stand-alone server uses the <a
-href="/help?cmd=server"><tt>fossil server</tt></a> command to run a
-process that listens for incoming HTTP requests on a socket and then
-dispatches a copy of itself to deal with each incoming request. You can
-expose Fossil directly to the clients in this way or you can interpose a
-<a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
-layer between the clients and Fossil.</p>
 
 <h3>Socket Listener</h3>
 
@@ -123,6 +117,17 @@ href="any/xinetd.md"><tt>xinetd</tt></a>, <a id="stunnel"
 href="any/stunnel.md"><tt>stunnel</tt></a>, <a
 href="macos/service.md"><tt>launchd</tt></a>, and <a
 href="debian/service.md"><tt>systemd</tt></a>.</p>
+
+<h3>Stand-alone HTTP Server</h3>
+
+<p>This is the <a href="any/none.md">easiest method</a>.
+A stand-alone server uses the <a
+href="/help?cmd=server"><tt>fossil server</tt></a> command to run a
+process that listens for incoming HTTP requests on a socket and then
+dispatches a copy of itself to deal with each incoming request. You can
+expose Fossil directly to the clients in this way or you can interpose a
+<a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
+layer between the clients and Fossil.</p>
 
 <h3>SCGI</h3>
 

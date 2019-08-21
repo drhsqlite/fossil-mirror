@@ -1,5 +1,5 @@
-C Disallow\sversioning\sof\ssecurity\ssensitive\ssettings\stcl-setup,\sth1-setup,\nand\sth1-uri-regexp.\s\sFor\seffective\ssecurity,\sthese\ssettings\sshould\sonly\sbe\ncontrollable\sby\san\sadministrator.
-D 2019-08-21T12:32:20.649
+C Server\sdocumentation\supdates.
+D 2019-08-21T15:56:44.641
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -879,9 +879,9 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html d567e542ac954b797fc760f58aaacf11f5e858f48024df3b0f327c923921b212
+F www/server/index.html 82069ae255c6c2f51f5d9f3b3f98fae903718fb459187bb52be6b280cd7c0726
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
-F www/server/whyuseaserver.wiki a83d9e7f91a92b453f7e9f3a6813d6b63002e10298d7e3362d4ccfe160b17f8b
+F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
 F www/server/windows/cgi-install-iis.png c713f470dcc58ceb3b634e56944a08a691db097b25a42a91dcb8edf5917c182d
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33a7b8babe56cc9dcd6bba4b5cf9df6d3452afc350673c1d6811d171790fd088
-R 31ad5cb0eeac22e9f2264122b48448c6
+P 2da704c5a17a802ae51e870934505e822429ff1883d06f230ad99d028ccdecea
+R e31ae6f387580451922ed38e6c1f442f
 U drh
-Z 86ed6eb304ea5db4ea6c980c6591f2b8
+Z bf23f1bb259d229fc175174388f377b1
