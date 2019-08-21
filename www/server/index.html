@@ -65,9 +65,41 @@ on a host running other services without getting in the way.
 Fossil server, with links to more detailed instructions specific to
 particular systems, should you want extra help.</p>
 
-<h2 id="methods">Methods</h2>
+<h2 id="prep">Repository Prep</h2>
 
-<p>There are basically four ways to set up a Fossil server:</p>
+<p>
+Prior to launching a server on a Fossil repository, it is best to
+prepare the repository to be served.  The easiest way to do this
+is to run the <a href="/help?cmd=ui"><tt>fossil ui</tt></a> command
+on a workstation and then visit the "Setup" menu.  
+Minimum preparation actions include:</p>
+
+<ol>
+<li>
+Ensure that you have an administrator user account and password
+configured.  Visit the Setup/Users page to accomplish this.</p></li>
+<li>
+Visit the Setup/Security-Audit page to verify that other
+security-related permissions and settings are as you want them.
+You might want to configure the repository to be completely private
+for the initial upload and server activatation, then open access up to
+the public as part of the 
+<a href="#postsetup">post-activation configuration refinement</a>
+stage.
+</p></li>
+</ol>
+
+<p>
+Additional configuration can be accomplished after the server is up
+and running.  Once the preliminary configuration is completed
+upload the repository database file to the server and proceed to
+activate the server using one or more of the techniques described
+in the next two sections.
+</p>
+
+<h2 id="methods">Activation Methods</h2>
+
+<p>There are basically four ways to run a Fossil server:</p>
 
 <ol>
   <li><a id="cgi"        href="any/cgi.md">CGI</a>
@@ -146,7 +178,7 @@ worth taking on this difficulty only when you need to integrate Fossil
 into an existing web site already being served by an SCGI-capable web
 server.</p>
 
-<h2 id="matrix">Setup Tutorials</h2>
+<h2 id="matrix">Activation Tutorials</h2>
 
 <p>We've broken the configuration for each method out into a series of
 sub-articles. Some of these are generic, while others depend on
@@ -231,6 +263,42 @@ href="windows/iis.md">IIS</a>, Apache, etc.</p>
 (<font size="-2">❌</font>) in the table above.</p>
 </noscript>
 
+<h2 id="postsetup">Post-Activation Configuration</h2>
+
+<p>After the server is up and running, additional configuration
+fine-tuning can be accomplished by logging in as an administrator
+and visiting the Setup menu.  Pay particular attention to the
+"Setup/Security-Audit" page to ensure that you have not mistakenly
+configured the server in a way that might expose information that you
+want to keep private. Other post-activation steps include the following:</p>
+
+<ol>
+<li>
+Add additional users accounts so that all team members have appropriate
+check-in and check-out access to the repository.</li>
+<li>
+Modify the look-and-feel of site by customizing the skin.
+<li>
+If the repository includes <a href="../embeddeddoc.wiki">embedded
+documentation</a> then perhaps activate the search feature so that
+visitors can do full-text search on your documentation.
+<li>
+Connect the repository to an email server so that it can send email
+notifications of new check-ins or other repository activate.
+<li>
+Turn on the various logging features.
+<li>
+If you locked down the repository as completely private prior to
+upload, you might want to open up access to the public once you get
+everything working.  Or, keep the repository private, according to
+your needs.
+</ol>
+
+<p>
+After any signification configuration change, it is a good idea to
+revisit the Setup/Security-Audit page just to double-check that you
+have not created any security problems in your installation.
+</p>
 
 <h2 id="more">Further Details</h2>
 
