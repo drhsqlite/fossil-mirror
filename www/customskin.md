@@ -239,15 +239,10 @@ repository settings and the specific page being generated.
 
    *   **csrf_token** - A token used to prevent cross-site request forgery.
 
-   *   **default_csp** - The content to be used within the default header
-       for the "Content-Security-Policy" `<meta>` tag. You can use
-       [Fossil’s default CSP](./defcsp.md) from this variable in your
-       [own custom `<head>`](#headfoot). Alternately, you can override
-       the default CSP from the [`th1-setup` script](./th1-hooks.md),
-       which runs before TH1 processing happens during skin processing,
-       allowing you to set a custom CSP without recompiling Fossil or
-       providing a hand-written `<head>` section in the Header section
-       of a custom skin.
+   *   **default_csp** - [Fossil’s default CSP](./defcsp.md) unless
+       [overridden by custom TH1 code](./defcsp.md#th1). Useful within
+       the skin for inserting the CSP into a `<meta>` tag within [a
+       custom `<head>` element](#headfoot).
 
    *   **nonce** - The value of the cryptographic nonce for the request
        being processed.
