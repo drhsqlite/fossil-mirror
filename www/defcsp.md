@@ -107,6 +107,9 @@ JavaScript by [defining a custom skin][cs], adding it to the skin’s
 by Fossil when it serves the page. This is how the JS backing the
 default skin’s [hamburger menu](./customskin.md#menu) works.
 
+
+#### <a name="xss"></a>Cross-Site Scripting via Ordinary User Capabilities
+
 We’re so restrictive about how we treat JavaScript because it can lead
 to difficult-to-avoid scripting attacks. If we used the same CSP for
 `<script>` tags [as for `<style>` tags](#style), anyone with check-in
