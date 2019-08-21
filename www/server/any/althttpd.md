@@ -1,37 +1,42 @@
 # Serving via althttpd
 
-The public SQLite and Fossil web sites are not purely served by Fossil
-for two reasons:
+[Althttpd][althttpd]
+is a light-weight web server that has been used to implement the SQLite and
+Fossil websites for well over a decade. Althttpd strives for simplicity,
+security, ease of configuration, and low resource usage.
 
-1.  We want access to these sites to be secured with TLS, which we do
-    [via `stunnel`](./stunnel.md).
+To set up a Fossil server as CGI on a host running the althttpd web
+server, follow these steps.
+<ol>
+<li<p>Get the althttpd webserver running on the host.  This is easily
+done by following the [althttpd documentation][althttpd].
 
-2.  Parts of these web sites are static, stored as plain files on disk,
-    not as Fossil artifacts. We serve such files using a separate web
-    server called [`althttpd`][ah], written by the primary author of
-    both SQLite and Fossil, D. Richard Hipp. `althttpd` is a lightweight
-    HTTP-only web server. It handles the static HTTP hits on
-    <tt>sqlite.org</tt> and <tt>fossil-scm.org</tt>, delegating HTTPS
-    hits to `stunnel` and dynamic content hits to Fossil [via
-    CGI][cgi].
+<li><p>Create a CGI script for your Fossil respository.  The script will
+be typically be two lines of code that look something like this:
 
-The largest single chunk of static content served directly by `althttpd`
-rather than via Fossil is the [SQLite documentation][sd], which is built
-[from source files][ds]. We don’t want those output files stored in
-Fossil; we already keep that process’s *input* files in Fossil. Thus the
-choice to serve the output statically.
+~~~
+    #!/usr/bin/fossil
+    repository: /home/yourlogin/fossils/project.fossil
+~~~
 
-In addition to the [server’s documentation page][ah], there is a large,
-helpful header comment in the server’s [single-file C
-implementation][ac]. Between that and the generic [Serving via CGI][cgi]
-docs, you should be able to figure out how to serve Fossil via
-`althttpd`.
+Modify the filenames to conform to your system, of course.  The
+CGI script accepts [other options][cgi] besides the
+repository:" line.  You can add in other options as you desire,
+but the single "repository:" line is normally all that is needed
+to get started.
+
+<li><p>Make the CGI script executable.
+
+<li><p>Verify that the fossil repository file and the directory that contains
+the repository are both writable by whatever user the web server is
+running and.
+</ol>
+
+And you are done.  Visit the URL that corresponds to the CGI script
+you created to start using your Fossil server.
 
 *[Return to the top-level Fossil server article.](../)*
 
 
-[ac]:  https://sqlite.org/docsrc/file/misc/althttpd.c
-[ah]:  https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md
-[cgi]: ./cgi.md
-[ds]:  https://sqlite.org/docsrc/
-[sd]:  https://sqlite.org/docs.html
+[althttpd]:  https://sqlite.org/docsrc/doc/trunk/misc/althttpd.md
+[cgi]:       ../../cgi.wiki

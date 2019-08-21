@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\sserver\sdocument.
-D 2019-08-21T17:21:00.588
+C Improvements\sto\sthe\salthttpd\sdocumentation.
+D 2019-08-21T17:37:55.072
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -870,7 +870,7 @@ F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
 F www/selfhost.wiki 15af0fc605e92fe30c2d9a7f6f3e6fbd8439dd24d1899cf1e295474305dbfcc7
-F www/server/any/althttpd.md 3a055ed2d1a86465381bb55dadabb9babc71f5f25549a567e6bfac550fe7a32e
+F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18bedecbcccd08d2
 F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc7683e15ab55d0062b140741cf49f3f87b761e326432dcb2881dc5cab1ee4b4
-R c88881a82aefe6fa477396c62fc6afa1
+P c2c4d3039fbdd44f0baadc5da858bf0ccb8cbf6fe6bf0f267e554be2dcc22eea
+R 065f8732c5c414b8da8efa773932865e
 U drh
-Z 944a144893ce33c30a3b9c87e35ed22d
+Z a897f44f54339ede1b1a9355b9e28d83
