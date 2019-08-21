@@ -148,6 +148,13 @@ Blob *cgi_output_blob(void){
 }
 
 /*
+** Return complete text of the output header
+*/
+const char *cgi_header(void){
+  return blob_str(&cgiContent[0]);
+}
+
+/*
 ** Combine the header and body of the CGI into a single string.
 */
 static void cgi_combine_header_and_body(void){

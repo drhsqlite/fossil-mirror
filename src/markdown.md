@@ -40,9 +40,11 @@
 > * **\[label\]:&nbsp;URL&nbsp;'Title'**
 > * **\[label\]:&nbsp;URL&nbsp;(Title)**
 
-> **URL** may optionally be written **\<URL\>**.
-> In addition to ordinary URLs, the **URL** may be:
+> If **URL** begins with "http:", "https:', "ftp:' or "mailto:",
+> it may optionally be written **\<URL\>** (format 4).
+> Other **URL** formats include:
 > <ul>
+> <li>  A relative pathname.
 > <li>  A pathname starting with "/" in which case the Fossil server
 >      URL prefix is prepended
 > <li>  A wiki page name, or a wiki page name preceded by "wiki:"
@@ -50,7 +52,7 @@
 > <li>  A date and time stamp: "YYYY-MM-DD HH:MM:SS" or a subset that
 >      includes at least the day of the month.</ul>
 
-> In form 8, then the URL becomes the display text.  This is useful for
+> In format 8, then the URL becomes the display text.  This is useful for
 > hyperlinks that refer to wiki pages and check-in and ticket hashes.
 
 ## Fonts ##

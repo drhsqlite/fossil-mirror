@@ -1385,17 +1385,20 @@ int db_open_config(int useAttach, int isOptional){
     if( zHome==0 ){
       zHome = fossil_getenv("APPDATA");
       if( zHome==0 ){
-        char *zDrive = fossil_getenv("HOMEDRIVE");
-        char *zPath = fossil_getenv("HOMEPATH");
-        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        zHome = fossil_getenv("USERPROFILE");
+        if( zHome==0 ){
+          char *zDrive = fossil_getenv("HOMEDRIVE");
+          char *zPath = fossil_getenv("HOMEPATH");
+          if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        }
       }
     }
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
     fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
-                 "environment variables");
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, USERPROFILE, "
+                 "or HOMEDRIVE / HOMEPATH environment variables");
   }
 #else
   if( zHome==0 ){
@@ -3490,7 +3493,7 @@ struct Setting {
 ** expressions and scripts.
 */
 /*
-** SETTING: tcl-setup        width=40 versionable block-text
+** SETTING: tcl-setup        width=40 block-text
 ** This is the setup script to be evaluated after creating
 ** and initializing the Tcl interpreter.  By default, this
 ** is empty and no extra setup is performed.
@@ -3522,13 +3525,13 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 versionable block-text
+** SETTING: th1-setup        width=40 block-text
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 /*
-** SETTING: th1-uri-regexp   width=40 versionable block-text
+** SETTING: th1-uri-regexp   width=40 block-text
 ** Specify which URI's are allowed in HTTP requests from
 ** TH1 scripts.  If empty, no HTTP requests are allowed
 ** whatsoever.

@@ -20,6 +20,7 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  cgi.wiki {CGI Script Configuration Options}
   changes.wiki {Fossil Changelog}
   checkin_names.wiki {Check-in And Version Names}
   checkin.wiki {Check-in Checklist}
@@ -31,6 +32,7 @@ set doclist {
   customskin.md {Theming: Customizing The Appearance of Web Pages}
   customskin.md {Custom Skins}
   custom_ticket.wiki {Customizing The Ticket System}
+  defcsp.md {The Default Content Security Policy}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
   embeddeddoc.wiki {Embedded Project Documentation}
@@ -70,7 +72,7 @@ set doclist {
   reviews.wiki {Reviews}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
-  server.wiki {How To Configure A Fossil Server}
+  server/ {How To Configure A Fossil Server}
   serverext.wiki {CGI Server Extensions}
   serverext.wiki {Adding Extensions To A Fossil Server Using CGI Scripts}
   settings.wiki {Fossil Settings}

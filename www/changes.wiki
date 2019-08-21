@@ -10,7 +10,14 @@
      indentation and to provide links back to the previous message
      in the thread.  Provide sequential numbers for all messages in
      a forum thread.
+  *  Add support for fenced code blocks and improved hyperlink
+     processing to the [/md_rules|markdown formatter].
+  *  Enhance the [/help?cmd=/stat|/stat] page so that it gives the
+     option to show a breakdown of forum posts.
   *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
+     some other value set by the 
+     [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
   *  Documentation improvements
 
 <a name='v2_9'></a>

@@ -61,7 +61,7 @@ request.</p>
 using the <b>server</b> command, or it might be launched from
 inetd or xinetd using the <b>http</b> command.  Or the server might
 be launched from CGI.
-(See "[./server.wiki|How To Configure A Fossil Server]" for details.)
+(See "[./server/|How To Configure A Fossil Server]" for details.)
 The specifics of how the server listens
 for incoming HTTP requests is immaterial to this protocol.
 The important point is that the server is listening for requests and

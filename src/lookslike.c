@@ -365,15 +365,17 @@ int starts_with_utf16_bom(
   int *pnByte,          /* OUT: The number of bytes used for the BOM. */
   int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
 ){
-  const unsigned short *z = (unsigned short *)blob_buffer(pContent);
+  const unsigned char *z = (unsigned char *)blob_buffer(pContent);
   int bomSize = sizeof(unsigned short);
   int size = blob_size(pContent);
+  unsigned short i0;
 
   if( size<bomSize ) goto noBom;  /* No: cannot read BOM. */
-  if( size>=(2*bomSize) && z[1]==0 ) goto noBom;  /* No: possible UTF-32. */
-  if( z[0]==0xfeff ){
+  if( size>=(2*bomSize) && z[2]==0 && z[3]==0 ) goto noBom;
+  memcpy(&i0, z, sizeof(i0));
+  if( i0==0xfeff ){
     if( pbReverse ) *pbReverse = 0;
-  }else if( z[0]==0xfffe ){
+  }else if( i0==0xfffe ){
     if( pbReverse ) *pbReverse = 1;
   }else{
     static const int one = 1;

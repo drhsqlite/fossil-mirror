@@ -2016,12 +2016,9 @@ void wiki_extract_links(
 }
 
 /*
-** Get the next HTML token.
-**
-** z points to the start of a token.  Return the number of
-** characters in that token.
+** Return the length, in bytes, of the HTML token that z is pointing to.
 */
-static int nextHtmlToken(const char *z){
+int html_token_length(const char *z){
   int n;
   char c;
   if( (c=z[0])=='<' ){
@@ -2041,6 +2038,108 @@ static int nextHtmlToken(const char *z){
     }
   }
   return n;
+}
+
+/*
+** z points to someplace in the middle of HTML markup.  Return the length
+** of the subtoken that starts on z.
+*/
+int html_subtoken_length(const char *z){
+  int n;
+  char c;
+  c = z[0];
+  if( fossil_isspace(c) ){
+    for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+    return n;
+  }
+  if( c=='"' || c=='\'' ){
+    for(n=1; z[n] && z[n]!=c && z[n]!='>'; n++){}
+    if( z[n]==c ) n++;
+    return n;
+  }
+  if( c=='>' ){
+    return 0;
+  }
+  if( c=='=' ){
+    return 1;
+  }
+  if( fossil_isalnum(c) || c=='/' ){
+    for(n=1; (c=z[n])!=0 && (fossil_isalnum(c) || c=='-' || c=='_'); n++){}
+    return n;
+  }
+  return 1;
+}
+
+/*
+** z points to an HTML markup token:  <TAG ATTR=VALUE ...>
+** This routine looks for the VALUE associated with zAttr and returns
+** a pointer to the start of that value and sets *pLen to be the length
+** in bytes for the value.  Or it returns NULL if no such attr exists.
+*/
+const char *html_attribute(const char *zMarkup, const char *zAttr, int *pLen){
+  int i = 1;
+  int n;
+  int nAttr;
+  int iMatchCnt = 0;
+  assert( zMarkup[0]=='<' );
+  assert( zMarkup[1]!=0 );
+  n = html_subtoken_length(zMarkup+i);
+  if( n==0 ) return 0;
+  i += n;
+  nAttr = (int)strlen(zAttr);
+  while( 1 ){
+    const char *zStart = zMarkup+i;
+    n = html_subtoken_length(zStart);
+    if( n==0 ) break;
+    i += n;
+    if( fossil_isspace(zStart[0]) ) continue;
+    if( n==nAttr && fossil_strnicmp(zAttr,zStart,nAttr)==0 ){
+      iMatchCnt = 1;
+    }else if( n==1 && zStart[0]=='=' && iMatchCnt==1 ){
+      iMatchCnt = 2;
+    }else if( iMatchCnt==2 ){
+      if( (zStart[0]=='"' || zStart[0]=='\'') && zStart[n-1]==zStart[0] ){
+        zStart++;
+        n -= 2;
+      } 
+      *pLen = n;
+      return zStart;
+    }else{
+      iMatchCnt = 0;
+    }
+  }
+  return 0;
+}
+
+/*
+** COMMAND: test-html-tokenize
+**
+** Tokenize an HTML file.  Return the offset and length and text of
+** each token - one token per line.  Omit white-space tokens.
+*/
+void test_html_tokenize(void){
+  Blob in;
+  char *z;
+  int i;
+  int iOfst, n;
+
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&in, g.argv[i], ExtFILE);
+    z = blob_str(&in);
+    for(iOfst=0; z[iOfst]; iOfst+=n){
+      n = html_token_length(z+iOfst);
+      if( fossil_isspace(z[iOfst]) ) continue;
+      fossil_print("%d %d %.*s\n", iOfst, n, n, z+iOfst);
+      if( z[iOfst]=='<' && n>1 ){
+        int j,k;
+        for(j=iOfst+1; (k = html_subtoken_length(z+j))>0; j+=k){
+          if( fossil_isspace(z[j]) || z[j]=='=' ) continue;
+          fossil_print("# %d %d %.*s\n", j, k, k, z+j);
+        }
+      }
+    }
+    blob_reset(&in);
+  }
 }
 
 /*
@@ -2064,7 +2163,7 @@ void htmlTidy(const char *zIn, Blob *pOut){
   int wantSpace = 0;
   int omitSpace = 1;
   while( zIn[0] ){
-    n = nextHtmlToken(zIn);
+    n = html_token_length(zIn);
     if( zIn[0]=='<' && n>1 ){
       int i, j;
       int isCloseTag;
@@ -2183,7 +2282,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
   int nWS = 0;              /* True if pOut ends with whitespace */
   while( fossil_isspace(zIn[0]) ) zIn++;
   while( zIn[0] ){
-    n = nextHtmlToken(zIn);
+    n = html_token_length(zIn);
     if( zIn[0]=='<' && n>1 ){
       int isCloseTag;
       int eTag;
@@ -2199,7 +2298,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
       if( eTag==MARKUP_INVALID && fossil_strnicmp(zIn,"<style",6)==0 ){
         zIn += n;
         while( zIn[0] ){
-          n = nextHtmlToken(zIn);
+          n = html_token_length(zIn);
           if( fossil_strnicmp(zIn, "</style",7)==0 ) break;
           zIn += n;
         }

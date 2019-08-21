@@ -14,7 +14,7 @@ subscribers to alert them to changes in the repository:
 Subscribers can elect to receive emails as soon as these events happen,
 or they can receive a daily digest of the events instead.
 
-Email alerts are sent by a [Fossil server](./server.wiki), which must be
+Email alerts are sent by a [Fossil server](./server/), which must be
 [set up](#quick) by the Fossil administrator to send email.
 
 Email alerts do not currently work if you are only using Fossil from the
@@ -31,7 +31,7 @@ latter term.
 Much of this document describes how to set up Fossil's email alert
 system. To follow this guide, you will need a Fossil UI browser window
 open to the [Admin → Notification](/setup_notification) Fossil UI screen
-on the the Fossil server that will be sending these email alerts, logged
+on the Fossil server that will be sending these email alerts, logged
 in as a user with Admin capability. It is not possible to work on a
 clone of the server's repository and push the configuration changes up
 to that repo as an Admin user, [on purpose](#backup).
