@@ -70,7 +70,7 @@ particular systems, should you want extra help.</p>
 <p>
 Prior to launching a server on a Fossil repository, it is best to
 prepare the repository to be served.  The easiest way to do this
-is to run the <a href="/help?cmd=ui"><tt>fossil ui</tt></a> command
+is to run the <a href="$ROOT/help?cmd=ui"><tt>fossil ui</tt></a> command
 on a workstation and then visit the "Setup" menu.  
 Minimum preparation actions include:</p>
 
@@ -124,7 +124,7 @@ administrator preferences.</p>
 CGI script</a>. This method is known to work with Apache,
 <tt>lighttpd</tt>, and <a
 href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
-administrator places a <a href="/help?cmd=cgi">short CGI script</a> in
+administrator places a <a href="$ROOT/help?cmd=cgi">short CGI script</a> in
 the web server's document hierarchy and when a client requests the URL
 that corresponds to that script, Fossil runs and generates the
 response.</p>
@@ -143,7 +143,7 @@ href="any/stunnel.md"><tt>stunnel</tt></a>, <a
 href="macos/service.md"><tt>launchd</tt></a>, and <a
 href="debian/service.md"><tt>systemd</tt></a>
 can be configured to invoke the the
-<a href="/help?cmd=http"><tt>fossil http</tt></a> command to handle
+<a href="$ROOT/help?cmd=http"><tt>fossil http</tt></a> command to handle
 each incoming HTTP request.  The "<tt>fossil http</tt>" command reads
 the HTTP request off of standard input, computes an appropriate
 reply, and writes the reply on standard output.  There is a separate
@@ -155,8 +155,8 @@ handling TLS decryption and encryption.
 <h3>Stand-alone HTTP Server</h3>
 
 <p>This is the <a href="any/none.md">easiest method</a>.
-A stand-alone server uses the <a
-href="/help?cmd=server"><tt>fossil server</tt></a> command to run a
+A stand-alone server uses the
+<a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command to run a
 process that listens for incoming HTTP requests on a socket and then
 dispatches a copy of itself to deal with each incoming request. You can
 expose Fossil directly to the clients in this way or you can interpose a
@@ -166,7 +166,7 @@ layer between the clients and Fossil.</p>
 <h3>SCGI</h3>
 
 <p>The Fossil standalone server can also handle <a href="any/scgi.md">SCGI</a>.
-When the <a href="/help/server"><tt>fossil server</tt></a> command is
+When the <a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command is
 run with the extra <tt>--scgi</tt> option, it listens for incoming
 SCGI requests rather than HTTP requests. This allows Fossil to
 respond to requests from web servers <a href="debian/nginx.md">such as

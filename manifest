@@ -1,5 +1,5 @@
-C Outline\show\sto\sconfigure\sa\srepository\sbefore\sand\safter\sserver\sactivation.
-D 2019-08-21T18:15:14.220
+C Fix\sthe\s$ROOT\smechanism\sin\sHTML\sdocuments\sso\sthat\sit\saccepts\sany\nwhitespace\scharacter\sbefore\shref=\sand\sscript=.\s\sAdd\s$ROOT\sin\sappropriate\nplaces\sin\sthe\sserver\sdocumentation.
+D 2019-08-21T19:18:06.190
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -469,7 +469,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
-F src/doc.c bda41e25ef34f0da0beab9baef941d612f62401a17f710998d0faf2f72d2a9e5
+F src/doc.c c330cc99fabd27414871ae7382e6b71be78a3eab841d5a3cc9d420dc6e7495f9
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
@@ -879,7 +879,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html 2468817ce0b08d58ab2149e8c721e1b5bfc5223b3c2ae4195cb2b5798e09f499
+F www/server/index.html df07ca80aa3d94ddd363246ff1b673936521c9670b6e07216275c2cd19e6d6bd
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44f1df9fefdb4e95184d4c8f8d23da78fa256e9eb09165ae47159329eae6bbc4
-R cdc6724c521c5d6272560c26d8d3d366
+P 154ea087af6d39dbcb45799f9af88d8ad2f2a759b1e0faaf1d1224182c235a88
+R f9e5744d3f07fe1159ca1ec9d3ac1b95
 U drh
-Z 03a25ea80669fbc968f930d6dce8f0ca
+Z 3e91a48b99ff51a8a30de414839a7091
