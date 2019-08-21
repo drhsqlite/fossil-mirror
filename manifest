@@ -1,5 +1,5 @@
-C Fix\sthe\s"shell"\scommand\sso\sthat\sit\savoids\sinvoking\sthe\satexit()\shandler\smore\nthan\sonce.
-D 2019-08-21T16:55:49.993
+C Extra\sdefenses\sagainst\srunning\sfossil_atexit()\smore\sthan\sonce.
+D 2019-08-21T16:57:10.780
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 111f5e9385d5c7851b2fcbd1890bafa50e19b3bd52a6029fc8c906ef349caede
+F src/main.c 52d2860fa03ae63693d12cd0169bc1640fd52c809ae47325b92f27d8de2fc977
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2426c278669b8b4173a33609a5749e5b5e01a1c625e39c5580d25a0e6386ec1
-R 771aecd701613ea141963ec02e21f8a6
+P 07a5a2118e23760ea090d7b9fed3aa48b54f1bf857a22baf56e019e274bcb3c4
+R cb59ea14e5da3ca25df4fa8fe7f667c3
 U drh
-Z 60927468b552380e3e1a93a1f9c00d1c
+Z 959d5e5c8374363e3d156fec0810525b

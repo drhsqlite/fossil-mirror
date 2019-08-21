@@ -330,6 +330,8 @@ Global g;
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+  static int once = 0;
+  if( once++ ) return; /* Ensure that this routine only runs once */
 #if USE_SEE
   /*
   ** Zero, unlock, and free the saved database encryption key now.
