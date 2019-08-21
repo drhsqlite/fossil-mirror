@@ -82,7 +82,7 @@ are rendered with the standard fossil header and footer added.
 Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
-Files with the mimetype "text/html" (the .html or .htm suffix) are
+<a name="html"></a>Files with the mimetype "text/html" (the .html or .htm suffix) are
 usually rendered directly to the browser without interpretation.
 However, if the file begins with a &lt;div&gt; element like this:
 
@@ -133,7 +133,7 @@ rendering as HTML, not just source documents in the HTML
 <tt>fossil-doc</tt> format described at the end of the prior section.
 
 
-<h3>2. TH1 Documents</h3>
+<h3 id="th1">2. TH1 Documents</h3>
 
 Fossil will substitute the value of [./th1.md | TH1 expressions] within
 <tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have

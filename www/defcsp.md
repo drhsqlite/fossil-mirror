@@ -91,18 +91,82 @@ do for JavaScript:
 
 This policy means HTML `<script>` tags are only allowed to be emitted
 into the output HTML by Fossil C or TH1 code, because only code running
-in those contexts can correctly apply the random “nonce” attribute to
-the tag that matches the one declared in the CSP, which changes on each
-HTTP hit Fossil handles.
+in those contexts can insert the correct “nonce” tag attribute, matching
+the one declared in the CSP.¹ Since the nonce is a very large random
+number that changes on each HTTP hit Fossil handles, it is effectively
+unguessable, which prevents attackers from inserting `<script>` tags
+statically.
 
-This means the workarounds given above will not work for JavaScript. In
-effect, the only JavaScript that Fossil can serve is that which it
-directly provided, such as that for the CSS section of the skin and that
-behind the default [hamburger menu](./customskin.md#menu).
+This means the workarounds given above will not work for JavaScript.
+Under this policy, the only JavaScript that Fossil can serve is that
+which it directly provided.
+
+Users with the all-powerful Setup capability can insert arbitrary
+JavaScript by [defining a custom skin][cs], adding it to the skin’s
+“JavaScript” section, which has the random nonce automatically inserted
+by Fossil when it serves the page. This is how the JS backing the
+default skin’s [hamburger menu](./customskin.md#menu) works.
 
 We’re so restrictive about how we treat JavaScript because it can lead
-to [difficult-to-avoid cross-site scripting attacks][xssci].
+to difficult-to-avoid scripting attacks. If we used the same CSP for
+`<script>` tags [as for `<style>` tags](#style), anyone with check-in
+rights on your repository could add a JavaScript file to your repository
+and then refer to it from other content added to the site.  Since
+JavaScript code can access any data from any URI served under its same
+Internet domain, and many Fossil users host multiple Fossil repositories
+under a single Internet domain, such a CSP would only be safe if all of
+those repositories are trusted equally.
 
+Consider [the Chisel hosting service](http://chiselapp.com/), which
+offers free Fossil repository hosting to anyone on the Internet, all
+served under the same `http://chiselapp.com/user/$NAME/$REPO` URL
+scheme. Any one of those hundreds of repositories could trick you into
+visiting their repository home page, set to [an HTML-formatted embedded
+doc page][hfed] via Admin → Configuration → Index&nbsp;Page, with this
+content:
+
+         <script src="/doc/trunk/bad.js"></script>
+
+That script can then do anything allowed in JavaScript to *any other*
+Chisel repository your browser can access.The possibilities for mischief
+are *vast*. For just one example, if you have login cookies on four
+different Chisel repositories, your attacker could harvest the login
+cookies for all of them through this path if we allowed Fossil to serve
+JavaScript files under the same CSP policy as we do for CSS files.
+
+This is why the default configuration of Fossil has no way for [embedded
+docs][ed], [wiki articles][wiki], [tickets][tkt], [forum posts][fp], or
+[tech notes][tn] to automatically insert a nonce into the page content.
+This is all user-provided content, which could link to user-provided
+JavaScript via check-in rights, effectively giving all such users a
+capability that is usually reserved to the repository’s administrator.
+
+The default-disabled [TH1 documents feature][edtf] is the only known
+path around this restriction.  If you are serving a Fossil repository
+that has any user you do not implicitly trust to a level that you would
+willingly run any JavaScript code they’ve provided, blind, you **must
+not** give the `--with-th1-docs` option when configuring Fossil, because
+that allows substitution of the [pre-defined `$nonce` TH1
+variable](./th1.md#nonce) into [HTML-formatted embedded docs][hfed]:
+
+         <script src="/doc/trunk/bad.js" nonce="$nonce"></script>
+
+Even with this feature enabled, you cannot put `<script>` tags into
+Fossil Wiki or Markdown-formatted content, because our HTML generators
+for those formats purposely strip or disable such tags in the output.
+Therefore, if you trust those users with check-in rights to provide
+JavaScript but not those allowed to file tickets, append to wiki
+articles, etc., you might justify enabling TH1 docs on your repository,
+since the only way to create or modify HTML-formatted embedded docs is
+through check-ins.
+
+[ed]:   ./embeddeddoc.wiki
+[edtf]: ./embeddeddoc.wiki#th1
+[fp]:   ./forum.wiki
+[hfed]: ./embeddeddoc.wiki#html
+[tkt]:  ./tickets.wiki
+[tn]:   ./event.wiki
+[wiki]: ./wikitheory.wiki
 
 
 ## <a name="override"></a>Replacing the Default CSP
@@ -139,7 +203,7 @@ same effect by telling the browser there are no content restrictions:
 
 Fossil only inserts a CSP into the HTML pages it generates when the
 [skin’s Header section](./customskin.md#headfoot) doesn’t contain a
-`<head>` tag. None of the stock skins include a `<head>` tag,¹ so if you
+`<head>` tag. None of the stock skins include a `<head>` tag,² so if you
 haven’t [created a custom skin][cs], you should be getting Fossil’s
 default CSP.
 
@@ -174,7 +238,11 @@ headers.
 
 **Asides and Digressions:**
 
-1.  The stock Bootstrap skin does actually include a `<head>` tag, but
+1.  There is actually a third context that can correctly insert this
+    nonce attribute: [a CGI server extension](./serverext.wiki), by use of
+    the `FOSSIL_NONCE` variable sent to the CGI by Fossil.
+
+2.  The stock Bootstrap skin does actually include a `<head>` tag, but
     from Fossil 2.7 through Fossil 2.9, it just repeated the same CSP
     text that Fossil’s C code inserts into the HTML header for all other
     stock skins. With Fossil 2.10, the stock Bootstrap skin uses
@@ -184,4 +252,3 @@ headers.
 [cs]:    ./customskin.md
 [csp]:   https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
 [de]:    https://dopiaza.org/tools/datauri/index.php
-[xssci]: https://fossil-scm.org/forum/forumpost/e7c386b21f

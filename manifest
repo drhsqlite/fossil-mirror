@@ -1,5 +1,5 @@
-C Major\simprovements\sto\sthe\snew\sdefcsp.md\sarticle.\s\sExpanded\sthe\nintroductory\smaterial\sto\sbetter\sdescribe\swhat\sthe\sCSP\sdoes;\sadded\snamed\nanchors\sto\sheaders;\smoved\sthe\sdiscussion\sof\s$default_csp\soverrides\sinto\nthis\sdocument\sfrom\scustomskin.md,\swhich\snow\sjust\ssays\show\syou\suse\sthat\nvariable\sread-only;\sand\sadded\san\sentirely\snew\ssection,\s"Replacing\sthe\nDefault\sCSP".
-D 2019-08-21T09:40:26.259
+C More\sthorough\sexplanation\sof\s<script\snonce>\sin\swww/defcsp.md,\sand\nexplained\sthe\sreason\swhy\sFossil\shas\sno\sway\sof\sproviding\sthat\snonce\sin\nmost\scontent\stypes\srather\sthan\slink\sto\sthe\s"XSS\svia\scheck-in\srights"\nforum\spost.\s\sThis\snew\spresentation\sof\sthat\spost's\sideas\sis\smore\sdetailed\nand\sincludes\sdiscussion\sof\sthe\sfeature's\sinteraction\swith\sthe\sTH1\sdocs\nfeature.
+D 2019-08-21T11:01:22.653
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -802,7 +802,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
-F www/defcsp.md 6b0134aeea01ad725f1ed31c3da777b62efcb242571a695826b70345b32eee74
+F www/defcsp.md cebd4bed5c1ccbfad1c5e2005572a61bd332c200752d34ee9686a13d9bdd4a06
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -811,7 +811,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki fbd766c1fc3789bb46aac51623ad14b1a327943a69eb7f683861bfc99846fc27
+F www/embeddeddoc.wiki b1816a8e05fd7afbef6f994d711a6f0a78f61f4b781aef279adeccd7cf3f1356
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 14ac2cacdd93ced87906daef3f0102b1177233811edae82a9276ab76b6dc826e
-R 6d6bfaecfe76edff0d77ab10051d583b
+P 366b23a180f7734c244b57be240bde233cf9f7f694ff46b9827a054c5d23a1ba
+R f8f3e6b00c65bcd2a1723ddc81bf784e
 U wyoung
-Z 2d51486c4b15608e3a7bd1877c5aa599
+Z 4177b9ac77de44676d5c7ddfd6e514a5
