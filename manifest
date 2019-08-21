@@ -1,5 +1,5 @@
-C Fix\smemcpy()\scompiler\swarnings.
-D 2019-08-20T19:16:52.687
+C Replaced\sthe\sredundant\scopy\sof\sthe\sdefault\sCSP\sin\nskins/bootstrap/header.txt\swith\s"$default_csp",\sallowing\sthe\sTH1\ssetup\nscript\sto\soverride\sthe\sCSP\sas\sin\sall\sthe\sother\sstock\sskins.\s\s(Bootstrap\nis\sthe\slast\sstock\sskin\sto\sdefine\sa\scustom\s<head>\selement.)
+D 2019-08-21T08:52:21.811
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -390,7 +390,7 @@ F skins/blitz_no_logo/ticket.txt b35ac95d03bb2da2f10634bb16cb7bdc67062b2b
 F skins/bootstrap/css.txt fa5b97ea68c3a1e285504a60a937c0086309fd26da3464cab47a2ac0ae3b2c31
 F skins/bootstrap/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/bootstrap/footer.txt ad5bb84f85ae060be4a467d870001ee04c644d044770feb43ac4e684c7b05cc3
-F skins/bootstrap/header.txt 6d483b485c011f4546adde0e69838f3ecc6ccd4b104b6d377f2f379de5a175bf
+F skins/bootstrap/header.txt bef080a6929a3e6fbd73cc1aca5377f6cd374decf1ffdb126e49c4b70dd879af
 F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt ea9118ba7297556a8306593c9ceb19cf80f553c45adfaa6f03c01b02422524d8
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7c41be825ba568460bf43a63c551e1848e8f0f2fee533682d6083e1c02bad7a
-R 16128b81bc39baf83896caaf0dc3b020
-U drh
-Z 3fe31af2aad330432e89857b8b27b586
+P 7ae4b1a719c4a175a47e135dc00c9a84065f36640e637a74abf60b0378f6f283
+R 3f049a335c68577067d8f8b4f2d2ae33
+U wyoung
+Z d23f242a371836d80eb626ae363e94d6
