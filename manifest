@@ -1,5 +1,5 @@
-C Server\sdocumentation\supdates.
-D 2019-08-21T15:56:44.641
+C Fix\sthe\s"shell"\scommand\sso\sthat\sit\savoids\sinvoking\sthe\satexit()\shandler\smore\nthan\sonce.
+D 2019-08-21T16:55:49.993
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -480,7 +480,7 @@ F src/finfo.c 83b690e9af932f548bab6aae7c0f23ec6dd0b60f578fc0a002c466f10bfefe0f
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 128df71b1bfd9e6bd5b5588f9c0b8015cba932b480bb43de17bf73fed1c15d5e
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
-F src/fshell.c aaa11e134f984ac5c349b81324dfd5d3bf4e0825
+F src/fshell.c 9e7d580ff965ac8b58c030f916ed2326020061480954b50192aa5b9cf65404d9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
 F src/graph.c 6d22c6182b9edfa9f32c555c3476468033146edd3fe6c78c000c3f974770d4ea
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 210237c34ad4480e66364de63321009471f5d886eb59a5ceae81d5d3329cec9e
+F src/main.c 111f5e9385d5c7851b2fcbd1890bafa50e19b3bd52a6029fc8c906ef349caede
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2da704c5a17a802ae51e870934505e822429ff1883d06f230ad99d028ccdecea
-R e31ae6f387580451922ed38e6c1f442f
+P b2426c278669b8b4173a33609a5749e5b5e01a1c625e39c5580d25a0e6386ec1
+R 771aecd701613ea141963ec02e21f8a6
 U drh
-Z bf23f1bb259d229fc175174388f377b1
+Z 60927468b552380e3e1a93a1f9c00d1c

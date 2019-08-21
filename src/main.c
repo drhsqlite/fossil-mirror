@@ -632,6 +632,15 @@ int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
 int main(int argc, char **argv)
 #endif
 {
+  return fossil_main(argc, argv);
+}
+
+/* All the work of main() is done by a separate procedure "fossil_main()".
+** We have to break this out, because fossil_main() is sometimes called
+** separately (by the "shell" command) but we do not want atwait() handlers
+** being called by separate invocations of fossil_main().
+*/
+int fossil_main(int argc, char **argv){
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
