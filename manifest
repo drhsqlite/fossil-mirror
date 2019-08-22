@@ -1,5 +1,5 @@
-C Assorted\srefinements\sto\sthe\snew\spre-\sand\spost-activation\sadvice\ssections\nin\swww/server/index.html:\snix\spassive\svoice,\sadd\sa\sfew\sdetails,\sadd\ssome\nlinks\sto\srelated\sdocs,\setc.\s\sAlso\sfixed\sa\sCSS\sindenting\sproblem\npreventing\scorrect\suse\sof\s<p>\sin\s<li>,\sthen\smade\suse\sof\sthe\snew\sfreedom\nin\sthese\ssections'\snumbered\slists.
-D 2019-08-22T11:53:45.023
+C "RaspberryPI"\s->\s"Raspberry\sPi"
+D 2019-08-22T11:54:33.712
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -879,7 +879,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html 1947f74c4cdda48a8ff068b18e118fd6931b2cc715503be8259977558d9c4e68
+F www/server/index.html 86b836e48063df75092cdc321b839f65efc0a337a2a6ab271b06c19f50b72274
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e183bfad836ac9ff470596897227391ed4d36f786350332c5cc5a5cd54dbe4d
-R 5e6faa2285d2b83d57481fba20f9a3c2
+P b5c2c9bf3102ed35c09f1725d5926c1ade0f918f40f965e513a2cc25eea790fa
+R 5c6218e16998be895249b3a9fdc6525c
 U wyoung
-Z 8f341d67f87f8fd5cdd33a0d007982cb
+Z 6b2ed2b42eee5c5a0eba69e94849a679
