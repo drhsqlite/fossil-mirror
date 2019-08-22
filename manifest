@@ -1,5 +1,5 @@
-C Expanded\sthe\sdiscussion\sof\sin-repo\sand\sout-of-repo\sresource\slinks\sin\ndefcsp.md.
-D 2019-08-22T13:13:56.895
+C Reworked\sthe\smaterial\sexplaining\swhy\sin-page\s<style>\sis\scurrently\nallowed\sby\sFossil's\sdefault\sCSP\sto\smake\sit\sclearer\sthat\sthis\sis\smost\nlikely\sa\stemporary\ssituation\sand\sthat\slocal\scustom\sCSS\sshould\sgo\sin\sthe\nskin\sinstead.
+D 2019-08-22T13:31:37.674
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -802,7 +802,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
-F www/defcsp.md 85d32e367b74e6b96ba4365fa1c5c5b5a4ca9c4532bf6af105d5a01cfbbeae05
+F www/defcsp.md 08cb78abe3cfa7a9ca8c5e7ea667b29a85962efd90f41e08f1173a907b16f98f
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1c4df5bf0a52724062aa50d0f698df86028cbfe046c1b01d72a782f497eaf723
-R 0b7736ea5afa564b94e965b42559acf4
+P 23fcd765f6183aada401460c8a3ba27fb240b45626d54cd4bbdfd0042c1908f6
+R f32b32034def0e2891219826017f8a23
 U wyoung
-Z bfb3d58d72a70ed0dc194892e31f8fdb
+Z d67d234f0f139331f53b4fe585191398
