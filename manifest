@@ -1,5 +1,5 @@
-C "RaspberryPI"\s->\s"Raspberry\sPi"
-D 2019-08-22T11:54:33.712
+C Reworked\sthe\snew\sintroductory\smaterial\sin\sdefcsp.md\sto\sbe\sless\sabout\sthe\nCSP\sas\slast-resort\sand\smore\sabout\sbeing\sa\ssecondary\sfilter\sto\sour\sother\nmeasures.\s\sGave\sexamples\sto\sclarify\sthe\stensions\sthat\sprevent\sa\spurely\nserver-side\ssolution\sfrom\sbeing\sa\spractical\ssolution.
+D 2019-08-22T12:39:32.264
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -802,7 +802,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
-F www/defcsp.md f125487e071c10724fdcbcb2d1a29daf8301f9ac706a431a33b515b76e5f96e0
+F www/defcsp.md 97075106819be4d70a4eab0bbae09bfb9c27e0d768bd1ff765b2d4f5bf1cc6b8
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5c2c9bf3102ed35c09f1725d5926c1ade0f918f40f965e513a2cc25eea790fa
-R 5c6218e16998be895249b3a9fdc6525c
+P 5182be99c9408305daffda7d0d117ee12594bdfd72a411206df67579fb86490a
+R 151af64498b13a66da653a1c3cc86843
 U wyoung
-Z 6b2ed2b42eee5c5a0eba69e94849a679
+Z 86bafc89dd7e40a847fede65b711f7e6
