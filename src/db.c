@@ -2048,8 +2048,8 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
      "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
   );
   db_multi_exec(
-     "UPDATE user SET cap='s', pw=lower(hex(randomblob(3)))"
-     " WHERE login=%Q", zUser
+     "UPDATE user SET cap='s', pw=%Q"
+     " WHERE login=%Q", fossil_random_password(10), zUser
   );
   if( !setupUserOnly ){
     db_multi_exec(

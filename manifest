@@ -1,5 +1,5 @@
-C If\sthe\stest-markdown-render\sor\stest-wiki-render\scommands\sare\sinvoked\swithout\na\srepository\sin\swhich\sto\scheck\sfor\sWiki\spage\snames\sand\sartifact\shashes,\sthen\nsubstitute\sa\stemporary,\sempty,\sin-memory\srepository\sso\sthat\sthe\scommands\swill\nstill\swork\sand\swon't\sgive\sSQL\serrors.
-D 2019-08-23T12:23:56.895
+C Add\sthe\sfossil_random_password()\sutility\sfunction\sand\suse\sit\sto\sgenerate\na\sstronger\sinitial\sadmin-user\spassword\sin\sthe\s"fossil\snew"\scommand.
+D 2019-08-23T12:42:56.884
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 9bf16cfbc918db9babfbdaec181bb258cf692933e9c292d46e105f8022eedf3a
+F src/db.c 97d1ef6fd8f41bf2f517483718c062a8c4dac86f309ee49c1cef2bda3a8b2038
 F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -596,7 +596,7 @@ F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c 86d00e5048f1d1ca7240f08b183d16898db36e16b8757e4817898866ce406767
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
-F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
+F src/util.c 28a9c1dd25163fec1dd943a99c641e09aac50e15984b33d07c1935d13ddcec1d
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 191590782907ef2fccf6a624b36efa5ab73d4c3f6d6ee15cc419e6b74e4d4e1e
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b10e644686bc279a4e8606853572351d98ab5a68a225e66c3f435f097d19965
-R d4ba5669bdbc2ea2d6ed96f94955825a
+P 0ac64dad806cabeb436439db59380bb3ddf6464d61cef96d11eaec46be93d62a
+R 18259d6cf168d7187df17057f81b6b4d
 U drh
-Z ea4b78ef95b04fc83400fcf2605832f8
+Z bedbf08a4aaeae97ab3723dcf00916e3
