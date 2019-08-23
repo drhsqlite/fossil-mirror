@@ -1,5 +1,5 @@
-C Fixed\sa\sfew\sfatal\serror\smessages\sfrom\sthe\slogin-group\scommand\sthat\nreferred\sto\san\s"add"\scommand,\swhich\sis\snow\scalled\s"join".\s\sThe\ssymptom\sI\nsaw\sis\sthat\s"fossil\slogin-group\sadd"\scomplained\sthat\s"add"\sis\snot\sa\nvalid\scommand\sand\sthat\syou\sshould\sgive\s'"add"\sor\s"leave"'\sinstead!
-D 2019-08-23T05:32:52.366
+C Markdown\shyperlinks\sare\sonly\sconverted\sto\slinks\sto\swiki\sif\sthe\snamed\nwikipage\sactually\sexists.\s\sOtherwise,\sthe\slink\sbecomes\sa\srelative\slink.\nThis\sis\sfor\sbackwards\scompatibility.
+D 2019-08-23T11:07:53.553
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -525,7 +525,7 @@ F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad1259
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
 F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
-F src/markdown_html.c 93f780401ae1848b16a88b4bb100771aec3846b4e052552cd067d4c29c0e3213
+F src/markdown_html.c c73b21b6a83fc856ba103246a51c09849bd9e4dd5dc18cf9bbb08e96748cb1ee
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
@@ -600,9 +600,9 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 191590782907ef2fccf6a624b36efa5ab73d4c3f6d6ee15cc419e6b74e4d4e1e
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 008d5f32ea2a739dd8ce41c840db8bdb4277583f426f3010cbde7c59a974935a
+F src/wiki.c d1fa91d756fa4055209a3e8a82ebc8b870cd027a60f9f57ed637049bea45982d
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c d8a25f7c21a149e8fd71e325e1faf31ea39d46a01cae5460801dfe1ce2d9576b
+F src/wikiformat.c 35beec9d430d18d0052190dfb39192b1d8daf130d6aba2a14c54c489d3f8095d
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c a72303503a1f1e655f7bef2857d1f95dfc44c3a98a6169662c3fe0e5b1754ee3
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9fcd6e443cdefb5a3432a65739d3732d710a2ad73a0420203e28d4c4dc9ca255
-R 1d592b78d72301e7b494b0d8f2fe7380
-U wyoung
-Z e0f3c4f861d79e348c73b78a358d22d8
+P 09c65d752781e1058f90c65382b36dbf36232bba9d01f0d5874f4d6040364ec5
+R 707bf1a30fa4440bb48e23adb3fdf927
+U drh
+Z 4a797f21b9c2b0cf1d24118a40d8bf4d

@@ -32,6 +32,7 @@
 #define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
+#define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
 #endif
 
 
@@ -1213,16 +1214,18 @@ static const char *wiki_is_overridden(const char *zTarget){
 **    [ftp://www.fossil-scm.org/]
 **    [mailto:fossil-users@lists.fossil-scm.org]
 **
-**    [/path]
+**    [/path]        ->  Refers to the root of the Fossil hierarchy, not
+**                       the root of the URI domain
 **
 **    [./relpath]
+**    [../relpath]
 **
-**    [WikiPageName]
-**    [wiki:WikiPageName]
+**    [#fragment]
 **
 **    [0123456789abcdef]
 **
-**    [#fragment]
+**    [WikiPageName]
+**    [wiki:WikiPageName]
 **
 **    [2010-02-27 07:13]
 */
@@ -1298,20 +1301,31 @@ void wiki_resolve_hyperlink(
     }else{
       zTerm = "";
     }
-  }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
-            && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(pOut, "<a href=\"%R/timeline?c=%T\"%s>", zTarget, zExtra);
   }else if( (z = validWikiPageName(mFlags, zTarget))!=0 ){
+    /* The link is to a valid wiki page name */
     const char *zOverride = wiki_is_overridden(zTarget);
     if( zOverride ){
       blob_appendf(pOut, "<a href=\"%R/info/%S\"%s>", zOverride, zExtra);
     }else{
       blob_appendf(pOut, "<a href=\"%R/wiki?name=%T\"%s>", z, zExtra);
     }
-  }else if( zOrig && zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
-    /* Probably an array subscript in code */
+  }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
+            && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
+    /* Dates or date-and-times in ISO8610 resolve to a link to the
+    ** timeline for that date */
+    blob_appendf(pOut, "<a href=\"%R/timeline?c=%T\"%s>", zTarget, zExtra);
+  }else if( mFlags & WIKI_MARKDOWNLINKS ){
+    /* If none of the above, and if rendering links for markdown, then
+    ** create a link to the literal text of the target */
+    blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
+  }else if( zOrig && zTarget>=&zOrig[2]
+        && zTarget[-1]=='[' && !fossil_isspace(zTarget[-2]) ){
+    /* If the hyperlink markup is not preceded by whitespace, then it
+    ** is probably a C-language subscript or similar, not really a
+    ** hyperlink.  Just ignore it. */
     zTerm = "";
   }else if( (mFlags & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
+    /* Also ignore the link if various flags are set */
     zTerm = "";
   }else{
     blob_appendf(pOut, "<span class=\"brokenlink\">[%h]", zTarget);
@@ -1761,16 +1775,6 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 }
 
 /*
-** Send a string as wiki to CGI output.
-*/
-void wiki_write(const char *zIn, int flags){
-  Blob in;
-  blob_init(&in, zIn, -1);
-  wiki_convert(&in, 0, flags);
-  blob_reset(&in);
-}
-
-/*
 ** COMMAND: test-wiki-render
 **
 ** Usage: %fossil test-wiki-render FILE [OPTIONS]
@@ -1792,6 +1796,7 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
