@@ -2020,7 +2020,7 @@ void login_group_command(void){
       char *zErr = 0;
       verify_all_options();
       if( g.argc!=4 ){
-        fossil_fatal("unknown extra arguments to \"login-group add\"");
+        fossil_fatal("unknown extra arguments to \"login-group join\"");
       }
       zOther = g.argv[3];
       login_group_leave(&zErr);
@@ -2044,7 +2044,7 @@ void login_group_command(void){
         return;
       }
     }else{
-      fossil_fatal("unknown command \"%s\" - should be \"add\" or \"leave\"",
+      fossil_fatal("unknown command \"%s\" - should be \"join\" or \"leave\"",
                    zCmd);
     }
   }

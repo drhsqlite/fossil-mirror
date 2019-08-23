@@ -1,5 +1,5 @@
-C Stronger\srecommendation\sfor\schanging\sthe\sdefault\suser's\srandom\shex\npassword\sprior\sto\ssetting\sup\sa\sFossil\sserver\safter\slearning\sit's\s6\shex\ndigits,\snot\s8\sas\sI\sthoght\swhen\sI\swrote\sthat!
-D 2019-08-22T15:06:20.659
+C Fixed\sa\sfew\smessages\sfrom\sthe\slogin-group\scommand\sthat\sreferred\sto\san\napparent\solder\sname\sfor\sthe\s"join"\ssub-command,\s"add".\s\sThis\slead\sto\sa\nconfusing\ssymptom:\s"fossil\slogin-group\sadd\sfoo"\s->\s{unknown\scommand\n"add"\s-\sshould\sbe\s"add"\sor\s"leave"}.
+D 2019-08-23T05:22:55.683
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 96ad6032b8bb6ff4d899e899785643fb99181c7cf4d26d6223db43934daa86c6
+F src/login.c 889d6724939894d2825d5be2292f097caae7742ebe8019974abc102fc0e54c4d
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 52d2860fa03ae63693d12cd0169bc1640fd52c809ae47325b92f27d8de2fc977
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 91377ae432ed02fae89428a03e3589d40cb5bc1ab333a22f927d052399d91da2
-R c13899a114c886d46c2811ecc666a9e7
+P 9fcd6e443cdefb5a3432a65739d3732d710a2ad73a0420203e28d4c4dc9ca255
+R 1d592b78d72301e7b494b0d8f2fe7380
 U wyoung
-Z b76367fd16879c9ae73f2497e82daedd
+Z e513cfb3e93744c9f589f33ee5514a78
