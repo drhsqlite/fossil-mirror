@@ -12,7 +12,7 @@ explain how we came to assign each character [below](#impl).
 
 [an]:   https://en.wikipediAsa.org/wiki/Alphanumeric
 [avs]:  ./admin-v-setup.md
-[rbac]: https://en.wikipedia.org/wiki/Role-based_access_contro
+[rbac]: https://en.wikipedia.org/wiki/Role-based_access_control
 [sync]: /help?cmd=sync
 
 
@@ -85,11 +85,26 @@ the most part, you want to simply read the [reference material
 below](#ref) when doing such work.
 
 However, it is useful at this time to expand on the mathematical
-expression [above](#cat), which covered only the four user categories.
+expression [above](#cat), which covered only the four fixed user categories.
 If we bring the individual user capabilities into it, the full hierarchy
 of user power in Fossil is:
 
 > *setup* &ge; *admin* &ge; *moderator* &ge; *developer* &ge; *reader* &ge; *subscriber* &ge; *anonymous* &ge; *nobody*
+
+The two additions at the top are clear: [setup is all-powerful](#apsu),
+and admin users are [subordinate to the setup user(s)](#a).
+
+The moderator insertion could go anywhere from where it’s shown now down
+to above the “anonymous” level, depending on what other caps you give to
+your moderators. Also, there is not just one type of moderator: Fossil
+has [wiki](#l), [ticket](#q), and [forum](#5) moderators, each
+independent of the others. Usually your moderators are fairly
+high-status users, with developer capabilities or higher.
+
+The placement of “subscriber” in that hierarchy is shorthand for the
+sort of subscriber who has registered an account on the repository
+purely to [receive email alerts and announcements](#7). Users higher up
+the hierarchy can also be subscribers.
 
 
 ## <a name="new"></a>New Repository Defaults
