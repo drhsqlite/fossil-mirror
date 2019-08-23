@@ -119,6 +119,7 @@ static struct DbLocalData {
 */
 void db_delete_on_failure(const char *zFilename){
   assert( db.nDeleteOnFail<count(db.azDeleteOnFail) );
+  if( zFilename==0 ) return;
   db.azDeleteOnFail[db.nDeleteOnFail++] = fossil_strdup(zFilename);
 }
 
@@ -801,6 +802,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
+**
+** If zFilename is NULL, then create an empty repository in an in-memory
+** database.
 */
 void db_init_database(
   const char *zFileName,   /* Name of database file to create */
@@ -812,7 +816,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-  db = db_open(zFileName);
+  db = db_open(zFileName ? zFileName : ":memory:");
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
@@ -827,7 +831,11 @@ void db_init_database(
   }
   va_end(ap);
   sqlite3_exec(db, "COMMIT", 0, 0, 0);
-  sqlite3_close(db);
+  if( zFileName || g.db!=0 ){
+    sqlite3_close(db);
+  }else{
+    g.db = db;
+  }
 }
 
 /*
@@ -1770,8 +1778,9 @@ int db_repository_has_changed(void){
 ** Flags for the db_find_and_open_repository() function.
 */
 #if INTERFACE
-#define OPEN_OK_NOT_FOUND    0x001      /* Do not error out if not found */
-#define OPEN_ANY_SCHEMA      0x002      /* Do not error if schema is wrong */
+#define OPEN_OK_NOT_FOUND       0x001   /* Do not error out if not found */
+#define OPEN_ANY_SCHEMA         0x002   /* Do not error if schema is wrong */
+#define OPEN_SUBSTITUTE         0x004   /* Fake in-memory repo if not found */
 #endif
 
 /*
@@ -1804,7 +1813,12 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     return;
   }
 rep_not_found:
-  if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+  if( bFlags & OPEN_OK_NOT_FOUND ){
+    /* No errors if the database is not found */
+    if( bFlags & OPEN_SUBSTITUTE ){
+      db_create_repository(0);
+    }
+  }else{
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif

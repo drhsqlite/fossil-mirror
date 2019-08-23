@@ -1,5 +1,5 @@
-C Markdown\shyperlinks\sare\sonly\sconverted\sto\slinks\sto\swiki\sif\sthe\snamed\nwikipage\sactually\sexists.\s\sOtherwise,\sthe\slink\sbecomes\sa\srelative\slink.\nThis\sis\sfor\sbackwards\scompatibility.
-D 2019-08-23T11:07:53.553
+C If\sthe\stest-markdown-render\sor\stest-wiki-render\scommands\sare\sinvoked\swithout\na\srepository\sin\swhich\sto\scheck\sfor\sWiki\spage\snames\sand\sartifact\shashes,\sthen\nsubstitute\sa\stemporary,\sempty,\sin-memory\srepository\sso\sthat\sthe\scommands\swill\nstill\swork\sand\swon't\sgive\sSQL\serrors.
+D 2019-08-23T12:23:56.895
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 248bb362c220c9453b5fffb9c80e8e97a7b90ea2c8b5dece08ff0925c112c036
+F src/db.c 9bf16cfbc918db9babfbdaec181bb258cf692933e9c292d46e105f8022eedf3a
 F src/default_css.txt dfe6ab056b87206e4ab8d360b257e84964173c846be9bd128dc2f213c0420f5b
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -600,9 +600,9 @@ F src/util.c 8c7d4b565fd769ff14c190377a86c5ec0cffccc60da25fe13262bea40c09c7d6
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 191590782907ef2fccf6a624b36efa5ab73d4c3f6d6ee15cc419e6b74e4d4e1e
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c d1fa91d756fa4055209a3e8a82ebc8b870cd027a60f9f57ed637049bea45982d
+F src/wiki.c 6d7b71d87c88904b7974a28b9404dbec49113a2ccf52e389f23899269179eb00
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c 35beec9d430d18d0052190dfb39192b1d8daf130d6aba2a14c54c489d3f8095d
+F src/wikiformat.c bbc61e8c423b1bf8ef068f3804be29aafbb75f8c877f13936635e7cd07e53d82
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c a72303503a1f1e655f7bef2857d1f95dfc44c3a98a6169662c3fe0e5b1754ee3
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 09c65d752781e1058f90c65382b36dbf36232bba9d01f0d5874f4d6040364ec5
-R 707bf1a30fa4440bb48e23adb3fdf927
+P 3b10e644686bc279a4e8606853572351d98ab5a68a225e66c3f435f097d19965
+R d4ba5669bdbc2ea2d6ed96f94955825a
 U drh
-Z 4a797f21b9c2b0cf1d24118a40d8bf4d
+Z ea4b78ef95b04fc83400fcf2605832f8
