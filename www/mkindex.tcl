@@ -20,6 +20,7 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  capabilities.md {Administering User Capabilities}
   cgi.wiki {CGI Script Configuration Options}
   changes.wiki {Fossil Changelog}
   checkin_names.wiki {Check-in And Version Names}

@@ -111,34 +111,10 @@ of which you cannot get by using third-party alternatives:
 
 <h3 id="caps">Capabilities</h3>
 
-Fossil forums use the same role-based access control mechanism as
-for normal Fossil repository logins.
-
-There are several dedicated forum-related capability bits you can grant
-a user:
-
-  *  <b>Read Forum</b> (<tt>2</tt>): The user may read forum posts.
-
-  *  <b>Write Forum</b> (<tt>3</tt>): The user may create new forum
-     threads, reply to existing threads, and edit their own posts. New
-     posts are held for moderation, and they are marked to prevent them
-     from being included in clone and sync operations.
-
-  *  <b>WriteTrusted Forum</b> (<tt>4</tt>): Same as <b>Write Forum</b>
-     except that forum updates bypass the [#moderation | moderation and
-     private artifact restrictions].
-
-  *  <b>Moderate Forum</b> (<tt>5</tt>): User gets buttons on posts
-     which allow them to either reject or approve posts held for
-     moderation. User also gets access to a page (<tt>/modreq</tt>)
-     showing the list of pending moderation tasks.
-
-  *  <b>Supervise Forum</b> (<tt>6</tt>): User can grant or revoke
-     <b>WriteTrusted</b> capability for other users. (Currently
-     unimplemented.)
-
-  *  <b>Email Alerts</b> (<tt>7</tt>): User can sign themselves up for
-     email alerts, a.k.a. notifications.
+Fossil forums use the same [./capability.md | role-based access control
+mechanism] as for normal Fossil repository logins. There are
+[./capability.md#2 | several dedicated forum-related capabilities] you
+can grant to a user.
 
 By default, no Fossil user has permission to use the forums except for
 users with Setup and Admin capabilities, which get these as part of the

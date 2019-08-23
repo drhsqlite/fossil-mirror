@@ -1,18 +1,15 @@
 # The Differences Between the Setup and Admin User Capabilities
 
-Several of the Fossil user capabilities form a clear power hierarchy.
-Mathematically speaking:
+This document explains the distinction between [Setup users][su] and
+[Admin users][au]. For other information about use types, see:
 
-> *Setup > Admin > Moderator > User > Subscriber > Anonymous > Nobody*
-
-This document explains the distinction between the first two. For the
-others, see:
-
+* [Administering User Capabilities](./capabilities.md)
 * [How Moderation Works](./forum.wiki#moderation)
-
 * [Users vs Subscribers](./alerts.md#uvs)
-
 * [Defense Against Spiders](./antibot.wiki)
+
+[au]: ./capabilities.md#a
+[su]: ./capabilities.md#apsu
 
 
 ## Philosophical Core
@@ -81,6 +78,8 @@ free to correct this without bothering the Setup user.
 Another common case is that the Setup user upgrades Fossil on the server
 but forgets to merge the upstream skin changes: Admin users are
 entrusted to do that work on behalf of the Setup user.
+
+[ucap]: ./capabilities.md#ref
 
 
 ## Capability Groups
@@ -323,4 +322,3 @@ Some features are now and must always be restricted to Setup users only.
 [sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
 [th1]:   https://www.fossil-scm.org/index.html/doc/trunk/www/th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
-[ucap]:  https://fossil-scm.org/fossil/setup_ucap_list
