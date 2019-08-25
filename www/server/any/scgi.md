@@ -13,14 +13,24 @@ A basic nginx configuration to support SCGI with Fossil looks like this:
 
         location /example/ {
             include scgi_params;
-            scgi_pass localhost:9000;
             scgi_param SCRIPT_NAME "/example";
-            scgi_param HTTPS "on";
+            scgi_pass localhost:9000;
         }
 
-Start Fossil so that it will respond to nginx’s SCGI calls like this:
+The `scgi_params` file comes with nginx, and it simply translates nginx
+internal variables to `scgi_param` directives to create SCGI environment
+variables for the proxied program; in this case, Fossil. Our explicit
+`scgi_param` call to define `SCRIPT_NAME` adds one more variable to this
+set, which is necessary for this configuration to work properly, because
+our repo isn’t at the root of the URL hierarchy. Without it, when Fossil
+generates absolute URLs, they’ll be missing the `/example` part at the
+start, which will typically cause [404 errors][404].
 
-        fossil server /path/to/repo.fossil --scgi --localhost --port 9000
+The final directive simply tells nginx to proxy all calls to URLs under
+`/example` down to an SCGI program on TCP port 9000. We can temporarily
+set Fossil up as a server on that port like so:
+
+        $ fossil server /path/to/repo.fossil --scgi --localhost --port 9000 &
 
 The `--scgi` option switches Fossil into SCGI mode from its default,
 which is [stand-alone HTTP server mode](./none.md). All of the other
@@ -36,21 +46,25 @@ Giving an explicit non-default TCP port number via `--port` is a good
 idea to avoid conflicts with use of Fossil’s default TCP service port,
 8080, which may conflict with local uses of `fossil ui` and such.
 
-Fossil requires the `SCRIPT_NAME` environment variable in order to
-function properly, but nginx does not provide this variable by default,
-so it is necessary to provide it in the configuration.  Failure to do
-this will cause Fossil to return an error.
+We characterized the SCGI service start command above as “temporary”
+because running Fossil in the background like that means it won’t start
+back up on a reboot of the server. A simple solution to that is to add
+that command to `/etc/rc.local` on systems that have it. However, you
+might want to consider setting Fossil up as an OS service instead, so
+that you get the benefits of the platform’s service management
+framework:
 
-The [example `fslsrv` script](/file/tools/fslsrv) shows off these same
-concepts in a more complicated setting. You might want to mine that
-script for ideas.
+*   [Linux (systemd)](../debian/service.md)
+*   [Windows service](../windows/service.md)
+*   [macOS (launchd)](../macos/service.md)
+*   [xinetd](../any/xinetd.md)
+*   [inetd](../any/inetd.md)
 
-You might want to next read one of the platform-specific versions of this
-document, which goes into more detail:
-
-*   [Debian/Ubuntu](../debian/nginx.md)
-
-There is a [separate article](../../tls-nginx.md) showing how to add TLS
-encryption to this basic SCGI + nginx setup.
+We go into more detail on nginx service setup with Fossil in our
+[Debian/Ubuntu specific guide](../debian/nginx.md). Then in [a later
+article](../../tls-nginx.md) that builds upon that, we show how to add
+TLS encryption to this basic SCGI + nginx setup on Debian type OSes.
 
 *[Return to the top-level Fossil server article.](../)*
+
+[404]: https://en.wikipedia.org/wiki/HTTP_404
