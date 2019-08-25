@@ -11,9 +11,9 @@ which does not support [Fossil’s CGI mode](./cgi.md).
 
 A basic nginx configuration to support SCGI with Fossil looks like this:
 
-        location /example/ {
+        location /code/ {
             include scgi_params;
-            scgi_param SCRIPT_NAME "/example";
+            scgi_param SCRIPT_NAME "/code";
             scgi_pass localhost:9000;
         }
 
@@ -23,11 +23,11 @@ variables for the proxied program; in this case, Fossil. Our explicit
 `scgi_param` call to define `SCRIPT_NAME` adds one more variable to this
 set, which is necessary for this configuration to work properly, because
 our repo isn’t at the root of the URL hierarchy. Without it, when Fossil
-generates absolute URLs, they’ll be missing the `/example` part at the
+generates absolute URLs, they’ll be missing the `/code` part at the
 start, which will typically cause [404 errors][404].
 
 The final directive simply tells nginx to proxy all calls to URLs under
-`/example` down to an SCGI program on TCP port 9000. We can temporarily
+`/code` down to an SCGI program on TCP port 9000. We can temporarily
 set Fossil up as a server on that port like so:
 
         $ fossil server /path/to/repo.fossil --scgi --localhost --port 9000 &

@@ -1,5 +1,5 @@
-C Clarified\suse\sof\sscgi_params,\sSCRIPT_NAME,\sand\sservice\sstarting\sin\sthe\ngeneric\sSCGI\sserver\ssetup\sdoc.
-D 2019-08-25T11:52:21.457
+C Swapped\sthe\ssimple\sfoo.net\s"whole\ssite\sis\sFossil"\sexample\sin\nwww/server/debian/nginx.md\sfor\sthe\smore\scomplicated\sexample.com\sone\nwhere\sonly\s/code\sis\sserved\sby\sFossil.\s\sThis\sis\sprobably\sgoing\sto\sbe\smore\ncommon,\sand\sit\sshows\soff\sthe\simportant\sdetail\sof\ssetting\sSCRIPT_NAME\nproperly.\s\sMade\sa\sminor\sadjustment\sto\sany/scgi.md\sto\strack\sthis\schange,\nso\sthere\sis\snot\sa\spointless\sdifference\sbetween\sthese\stwo\snginx\sconfigs.
+D 2019-08-25T12:29:14.199
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -874,10 +874,10 @@ F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18b
 F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
-F www/server/any/scgi.md 61d9eb04dfab3b288aa027366b9fd57bc8d1eb5db658372a6e6c58fea5249c55
+F www/server/any/scgi.md 993544d440f771c1e77b45e692afa830362e94012564862827a8fda69cd7ce2f
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
-F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
+F www/server/debian/nginx.md ff7e853b814056b86769a7a0b3e5b5493f0044253139d14c6e88c60b972cbc27
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
 F www/server/index.html 916990abc80a945b28bcf3773feada48c86acf0c9f12e5a709ffe4d1d8bf2753
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6c6aae97821d7a969e20eca93d026841873de687b9a38f2ae3ecbec76ae432f9
-R 6aaaf40ff94f9d2941a79fc9764c72bc
+P 5a58ac3141612f2638d3d02f7d32281851782042852d944220c7c8961820687f
+R 9a36b2c04486166ed4c5cb60903de143
 U wyoung
-Z d48f454b6eff880171fa5a2c90dc982c
+Z be0bde18bd2d45705039588821704361

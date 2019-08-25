@@ -163,27 +163,32 @@ for nginx is `/etc/nginx/sites-enabled/default`. I recommend that this
 file contain only a list of include statements, one for each site that
 server hosts:
 
-      include local/example
-      include local/foo
+      include local/example.com
+      include local/foo.net
 
 Those files then each define one domain’s configuration.  Here,
-`/etc/nginx/local/example` contains the configuration for
-`*.example.com` and `*.example.net`; and `local/foo` contains the
-configuration for `*.foo.net`.
+`/etc/nginx/local/example.com` contains the configuration for
+`*.example.com` and its alias `*.example.net`; and `local/foo.net`
+contains the configuration for `*.foo.net`.
 
-The configuration for our `foo.net` web site, stored in
-`/etc/nginx/sites-enabled/local/foo` is:
+The configuration for our `example.com` web site, stored in
+`/etc/nginx/sites-enabled/local/example.com` is:
 
       server {
-          server_name .foo.net;
+          server_name .example.com .example.net "";
           include local/generic;
 
-          access_log /var/log/nginx/foo.net-https-access.log;
-           error_log /var/log/nginx/foo.net-https-error.log;
+          access_log /var/log/nginx/example.com-https-access.log;
+           error_log /var/log/nginx/example.com-https-error.log;
 
-          # Bypass Fossil for the static Doxygen docs
-          location /doc/html {
-              root /var/www/foo.net;
+          # Bypass Fossil for the static documentation generated from
+          # our source code by Doxygen, so it merges into the embedded
+          # doc URL hierarchy at Fossil’s $ROOT/doc without requiring that
+          # these generated files actually be stored in the repo.  This
+          # also lets us set aggressive caching on these docs, since
+          # they rarely change.
+          location /code/doc/html {
+              root /var/www/example.com/code/doc/html;
 
               location ~* \.(html|ico|css|js|gif|jpg|png)$ {
                   expires 7d;
@@ -193,15 +198,14 @@ The configuration for our `foo.net` web site, stored in
           }
 
           # Redirect everything else to the Fossil instance
-          location / {
+          location /code {
               include scgi_params;
+              scgi_param SCRIPT_NAME "/code";
               scgi_pass 127.0.0.1:12345;
-              scgi_param HTTPS "on";
-              scgi_param SCRIPT_NAME "";
           }
       }
 
-As you can see, this is a simple extension of [the basic nginx service
+As you can see, this is a pure extension of [the basic nginx service
 configuration for SCGI][scgii], showing off a few ideas you might want to
 try on your own site, such as static asset proxying.
 
@@ -223,7 +227,7 @@ pattern from one host to the next. Sadly, you must tolerate some
 repetition across `server { }` blocks when setting up multiple domains
 on a single server.
 
-The configuration for `example.com` and `example.net` is similar.
+The configuration for `foo.net` is similar.
 
 See [the nginx docs](http://nginx.org/en/docs/) for more ideas.
 
