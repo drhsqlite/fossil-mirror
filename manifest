@@ -1,5 +1,5 @@
-C Replaced\sthe\scontent\sof\s"Running\sFossil\sin\sSCGI\sMode"\swithin\nwww/server/debian/nginx.md\swith\sreferences\sto\sour\sother\sFossil\sserver\ndocs.\s\sThis\salso\sreduces\sthe\sprior\sfocus\sof\sthis\ssection\son\sfslsrv\sto\sa\nsingle\ssentence,\ssince\swe\snow\sprefer\sthe\ssystemd\soption,\snow\sthat\swe\nhave\sit.
-D 2019-08-25T12:39:03.779
+C Added\sHTTP\sproxying\sinfo\sto\sDebian\snginx\sserver\ssetup\sguide.
+D 2019-08-25T13:24:49.476
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -877,7 +877,7 @@ F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348
 F www/server/any/scgi.md 993544d440f771c1e77b45e692afa830362e94012564862827a8fda69cd7ce2f
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
-F www/server/debian/nginx.md b96c1e95bfedd3b288eceef1107db52f2510f7d37f381d916313c087c0c5e03f
+F www/server/debian/nginx.md f9e435dd8557b4094e889fa6f0378f8bc4fffde14ef9e9c84e27dde0f8e4c93e
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
 F www/server/index.html 916990abc80a945b28bcf3773feada48c86acf0c9f12e5a709ffe4d1d8bf2753
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 653e90ca6277eea53426b6bd78d3f75bd319195b9e1e950f6a68e2ffc63e6dd0
-R 1ba1e165ec78c921758153af3509831c
+P a4bb92f7916cafff936ad23c4fbb38da47aeea47b8a5cd20f90f1ce3e5281b35
+R bb53216dca92f0c3d446f43da2dbb010
 U wyoung
-Z ce74d8cd1d6d382da668b36d7a0483a8
+Z a42ac366accf9659a49ee422d6ea6a59

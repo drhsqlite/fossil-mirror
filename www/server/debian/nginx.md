@@ -68,11 +68,11 @@ Fossil provides four major ways to access a repository it’s serving
 remotely, three of which are straightforward to use with nginx:
 
 *   **HTTP** — Fossil has a built-in HTTP server: [`fossil
-    server`](/help/server).  While this method is efficient and it’s
-    possible to use nginx to proxy access to another HTTP server, this
-    option is overkill for our purposes.  nginx is itself a fully
-    featured HTTP server, so we will choose in this guide not to make
-    nginx reinterpret Fossil’s implementation of HTTP.
+    server`](../any/none.md).  While this method is efficient and it’s
+    possible to use nginx to proxy access to another HTTP server, we
+    don’t see any particularly good reason to make nginx reinterpret
+    Fossil’s own implementation of HTTP when we have a better option.
+    (But see [below](#http).)
 
 *   **CGI** — This method is simple but inefficient, because it launches
     a separate Fossil instance on every HTTP hit.
@@ -197,5 +197,29 @@ on a single server.
 The configuration for `foo.net` is similar.
 
 See [the nginx docs](http://nginx.org/en/docs/) for more ideas.
+
+
+## <a name="http"></a>Proxying HTTP Anyway
+
+[Above](#modes), we argued that proxying SCGI is a better option than
+making nginx reinterpret Fossil’s own implementation of HTTP.  If you
+want Fossil to speak HTTP, just [set Fossil up as a standalone
+server](../any/none.md). And if you want nginx to [provide TLS
+encryption for Fossil][tls], proxying HTTP instead of SCGI provides no
+benefit.
+
+However, it is still worth showing the proper method of proxying
+Fossil’s HTTP server through nginx if only to make reading nginx
+documentation on other sites easier:
+
+        location /code {
+            rewrite ^/code(/.*) $1 break;
+            proxy_pass http://127.0.0.1:12345;
+        }
+
+The most common thing people get wrong when hand-rolling a configuration
+like this is to get the slashes wrong. Fossil is senstitive to this. For
+instance, Fossil will not collapse double slashes down to a single
+slash, as some other HTTP servers will.
 
 *[Return to the top-level Fossil server article.](../)*
