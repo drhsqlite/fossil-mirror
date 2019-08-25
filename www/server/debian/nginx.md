@@ -109,51 +109,18 @@ your server, then say:
 
 ## <a name="scgi"></a>Running Fossil in SCGI Mode
 
-I run my Fossil SCGI server instances with a variant of [the `fslsrv`
-shell script](/file/tools/fslsrv) currently hosted in the Fossil source
-code repository. You’ll want to download that and make a copy of it, so
-you can customize it to your particular needs.
+For the following nginx configuration to work, it needs to contact a
+Fossil instance speaking the SCGI protocol. There are [many ways](../)
+to set that up. For Debian type systems, we primarily recommend
+following [our systemd user service guide](service.md).
 
-This script allows running multiple Fossil SCGI servers, one per
-repository, each bound to a different high-numbered `localhost` port, so
-that only nginx can see and proxy them out to the public.  The
-“`example`” repo is on TCP port localhost:12345, and the “`foo`” repo is
-on localhost:12346.
+Another option would be to customize [the `fslsrv` shell
+script](/file/tools/fslsrv) that ships with Fossil as an example of
+launching multiple Fossil instances in the background to serve multiple
+URLs.
 
-As written, the `fslsrv` script expects repositories to be stored in the
-calling user’s home directory under `~/museum`, because where else do
-you keep Fossils?
-
-That home directory also needs to have a directory to hold log files,
-`~/log/fossil/*.log`. Fossil doesn’t put out much logging, but when it
-does, it’s better to have it captured than to need to re-create the
-problem after the fact.
-
-The use of `--baseurl` in this script lets us have each Fossil
-repository mounted in a different location in the URL scheme.  Here, for
-example, we’re saying that the “`example`” repository is hosted under
-the `/code` URI on its domains, but that the “`foo`” repo is hosted at
-the top level of its domain.  You’ll want to do something like the
-former for a Fossil repo that’s just one piece of a larger site, but the
-latter for a repo that is basically the whole point of the site.
-
-You might also want another script to automate the update, build, and
-deployment steps for new Fossil versions:
-
-       #!/bin/sh
-       cd $HOME/src/fossil/trunk
-       fossil up
-       make -j11
-       killall fossil
-       sudo make install
-       fslsrv
-
-The `killall fossil` step is needed only on OSes that refuse to let you
-replace a running binary on disk.
-
-As written, the `fslsrv` script assumes a Linux environment.  It expects
-`/bin/bash` to exist, and it depends on non-POSIX tools like `pgrep`.
-It should not be difficult to port to systems like macOS or the BSDs.
+However you do it, you need to match up the TCP port numbers between it
+and those in the nginx configuration below.
 
 
 ## <a name="config"></a>Configuration
