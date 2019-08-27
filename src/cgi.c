@@ -961,6 +961,7 @@ static NORETURN void malformed_request(const char *zMsg);
 void cgi_init(void){
   char *z;
   const char *zType;
+  char *zSemi;
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
@@ -1007,7 +1008,14 @@ void cgi_init(void){
   }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
-  g.zContentType = zType = P("CONTENT_TYPE");
+  zType = P("CONTENT_TYPE");
+  zSemi = zType ? strchr(zType, ';') : 0;
+  if( zSemi ){
+    g.zContentType = mprintf("%.*s", zSemi-zType, zType);
+    zType = g.zContentType;
+  }else{
+    g.zContentType = zType;
+  }
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
     if( fossil_strcmp(zType, "application/x-fossil")==0 ){

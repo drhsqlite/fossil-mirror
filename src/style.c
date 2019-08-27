@@ -1200,6 +1200,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.userUid = %d(g.userUid)<br />
     @ g.zLogin = %h(g.zLogin)<br />
     @ g.isHuman = %d(g.isHuman)<br />
+    @ g.cgiUpperParamsOk = %d(g.cgiUpperParamsOk)<br />
     if( g.nRequest ){
       @ g.nRequest = %d(g.nRequest)<br />
     }
