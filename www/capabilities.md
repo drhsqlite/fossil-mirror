@@ -241,7 +241,7 @@ login group.
 [lg]: /help?cmd=login-group
 
 
-## <a name="utclone" id="ssh"></a>Cloning the User Table
+## <a name="utclone"></a>Cloning the User Table
 
 When cloning over HTTP, the initial user table in the local clone is set
 to its “[new state:](#new)” only one user with Setup capability, named
@@ -261,38 +261,38 @@ get a complete clone, including the parent repo’s complete user table.
 All of the above applies to [login groups](#group) as well.
 
 
-## <a name="fssync" id="ssh"></a>Caps Affect Web Interfaces Only
+## <a name="webonly"></a>Caps Affect Web Interfaces Only
 
-User caps only affect Fossil’s [UI pages][wp] and clones done over
-`http[s]://` URLs. If you use any other URL type, Fossil will not check
-user caps.
+User caps only affect Fossil’s [UI pages][wp], remote operations over
+`http[s]://` URLs, and [the JSON API][japi].
 
-This is sensible when working only on a local repository: only local
-file permissions matter when operating on a local SQLite DB file.  The
-same sense extends to clones done via a file system path
-(`/path/to/repo.fossil`) or through a `file://` URL. The only difference
-is that there are two sets of file system permission checks: once to
-modify the working check-out’s repo clone DB file, then again on
+User caps *do not* affect operations done on a local repo opened via a
+`file://` URL or a file system path. This should strike you as sensible:
+only local file permissions matter when operating on a local SQLite DB
+file. The same is true when working on a clone done over such a path,
+except that there are then two sets of file system permission checks:
+once to modify the working check-out’s repo clone DB file, then again on
 [sync][sync] with the parent DB file.
 
-However, Fossil *also* ignores caps when working on a repo cloned over
-SSH! When you make a change to such a repository, the change first goes
-to the local clone, where file system permissions are all that matter,
-but then upon sync, the situation is effectively the same as when the
-parent repo is on the local file system. If you can log into the remote
-system over SSH and that user has the necessary file system permissions
-on that remote repo DB file, your user is effectively the [all-powerful
-Setup user](#apsu) on both sides of the SSH connection.
+What may surprise you is that user caps *also do not affect SSH!* When
+you make a change to such a repository, the change first goes to the
+local clone, where file system permissions are all that matter, but then
+upon sync, the situation is effectively the same as when the parent repo
+is on the local file system. If you can log into the remote system over
+SSH and that user has the necessary file system permissions on that
+remote repo DB file, your user is effectively the [all-powerful Setup
+user](#apsu) on both sides of the SSH connection.
 
 Fossil reuses the HTTP-based [sync protocol][sp] in both cases above,
 tunnelling HTTP through an OS pipe or through SSH (FIXME?), but all of
-the user cap checks in Fossil are on the web UI route handlers only.
+the user cap checks in Fossil are on its web interfaces only.
 
 TODO: Why then can I not `/xfer` my local repo contents to a remote repo
 without logging in?
 
-[sp]: ./sync.wiki
-[wp]: /help#webpages
+[japi]: https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view#heading=h.6k0k5plm18p1
+[sp]:  ./sync.wiki
+[wp]:  /help#webpages
 
 
 ## <a name="apsu"></a>The All-Powerful Setup User
@@ -394,7 +394,7 @@ extent](#choices), this is unavoidable.
 *   <a name="i"></a>**i (Write)** — Check changes into the repository. Note that
     a lack of this capability does not prevent you from checking changes
     into your local clone, only from syncing those changes up to the
-    parent repo, and then [only over HTTP](#fssync). Granting this
+    parent repo, and then [only over HTTP](#webonly). Granting this
     capability also grants **o (Read)**.  Mnemonic: check **i**n
     changes.
 
@@ -418,7 +418,7 @@ extent](#choices), this is unavoidable.
 *   <a name="o"></a>**o (Read)** — Read repository content from a remote
     Fossil instance over HTTP. This capability has nothing to do with
     reading data from a local repository, because [caps affect Fossil’s
-    web interfaces only](#fssync). Once you’ve cloned a remote
+    web interfaces only](#webonly). Once you’ve cloned a remote
     repository to your local machine, you can do any reading you want on
     that repository irrespective of whether your user has **o**
     capability; the repo clone is completely under your user’s power at
@@ -442,7 +442,28 @@ extent](#choices), this is unavoidable.
 *   <a name="r"></a>**r (RdTkt)** — View existing tickets. Mnemonic: **r**ead
     tickets.
 
-*   <a name="s"></a>**s (Setup)** — The [all-powerful Setup user](#apsu).
+*   <a name="s"></a>**s (Setup)** — The [all-powerful Setup user](#apsu) who
+    can uniquely:
+
+    *   Use roughly half of the Admin page settings
+    *   See record IDs (RIDs) on screens that show them
+    *   See the MIME type of attachments on [`/ainfo` pages](/help?cmd=/ainfo)
+    *   See a remote repo’s HTTP [cache status](/help?cmd=/cachestat)
+        and [pull cache entries](/help?cmd=/cacheget)
+    *   TODO: fold in results of [the timestamp override thread](https://fossil-scm.org/forum/forumpost/ee950efd2d)
+    *   Edit a Setup user’s account!
+
+    The Admin pages that only Setup can use are: Access, Configuration,
+    Email-Server, Login-Group, Notification, Settings, SQL, TH1,
+    Tickets, Transfers (TH1 hooks), and Wiki.
+
+    Remember, [user caps affect Fossil’s web interfaces](#webonly) only.
+    A user can do anything they like to a repo stored on their local
+    machine. Fossil protects itself against malcious pushes, but someone
+    with clone and push capability on your repo could clone it, modify
+    their local repo as the local default Setup user account they got on
+    clone, and then push the changes back to your repo.
+
     Mnemonics: **s**etup or **s**uperuser.
 
 *   <a name="t"></a>**t (TktFmt)** — Create new ticket report formats. Note that

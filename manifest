@@ -1,5 +1,5 @@
-C Rewrote\sexplanation\sof\s"o"\scap.
-D 2019-08-27T01:55:32.989
+C Grepped\sthe\sFossil\ssource\scode\sfor\sC\scode\sthat\schecks\sfor\sSetup\scaps\nexclusively\sto\spreotect\sfunctions\sand\slisted\sthose\sin\sthe\sReference\nsection\sof\scapablities.md.\s\sAlso\sexpanded\sthe\scoverage\sof\sthe\s"caps\naffect\sFossil\sweb\sinterfaces\sonly"\ssection,\swhich\splays\sinto\sthis.
+D 2019-08-27T03:56:03.789
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -786,7 +786,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/capabilities.md d7a42d6ab1b9527b8f0035f6bb062ecc4595666435761b4bcbe4694818b0a9de
+F www/capabilities.md 6c641861ece2afe41550f8c0e7215060e3a33cf37c71af3abdefdd2e4d6e82af
 F www/cgi.wiki 8c246b996555eb61d2010b2238dcae5572f559fe9d84c0ad12e63e0e98861b12
 F www/changes.wiki 488fa1c2a4d2acd19d6171ba551a331fb8a04ed3bbded551c814889438593833
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
@@ -913,7 +913,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 869494eb8f6b57083b0dcb2fb972ee138baa522f8cf5e7ee44df287c176871a2
-R e756ef74a4b40c8f8ec059ddec3f88f9
+P 208ca0d713d93212e33d29805e55ad3e8555f05b53f42301c3d9bc558a9d0fa9
+R 70b9406ac5315ffc758c71c93d14cf49
 U wyoung
-Z b6be8ab21e8acdfee72ad7452824993e
+Z a627c05e33a1272f36d086e65855b04c
