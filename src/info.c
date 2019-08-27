@@ -1209,6 +1209,7 @@ void vdiff_page(void){
   const char *zW;
   const char *zGlob;
   char *zQuery;
+  char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -1223,7 +1224,8 @@ void vdiff_page(void){
   if( zBranch && zBranch[0]==0 ) zBranch = 0;
   if( zBranch ){
     zQuery = mprintf("branch=%T", zBranch);
-    cgi_replace_parameter("from", mprintf("root:%s", zBranch));
+    zMergeOrigin = mprintf("merge-in:%s", zBranch);
+    cgi_replace_parameter("from", zMergeOrigin);
     cgi_replace_parameter("to", zBranch);
   }else{
     zQuery = mprintf("from=%T&to=%T",PD("from",""),PD("to",""));
@@ -1274,12 +1276,33 @@ void vdiff_page(void){
   if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   }
-  style_header("Check-in Differences");
+  if( zBranch ){
+    style_header("Changes On Branch %h", zBranch);
+  }else{
+    style_header("Check-in Differences");
+  }
   if( P("nohdr")==0 ){
-    @ <h2>Difference From <span class='timelineSelected'>\
-    @ %z(href("%R/info/%h",zFrom))%h(zFrom)</a></span>
-    @ To <span class='timelineSelected timelineSecondary'>\
-    @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
+    if( zBranch ){
+      char *zRealBranch = branch_of_rid(ridTo);
+      char *zToUuid = rid_to_uuid(ridTo);
+      char *zFromUuid = rid_to_uuid(ridFrom);
+      @ <h2>Changes In Branch \
+      @ %z(href("%R/timeline?r=%T",zRealBranch))%h(zRealBranch)</a>
+      if( strcmp(zRealBranch,zBranch)!=0 ){
+        @ Through %z(href("%R/info/%!S",zToUuid))[%S(zToUuid)]</a>
+      }
+      @ Excluding Merge-Ins</h2>
+      @ <p>This is equivalent to a difference from
+      @ <span class='timelineSelected'>\
+      @ %z(href("%R/info/%!S",zFromUuid))%S(zFromUuid)</a></span>
+      @ to <span class='timelineSelected timelineSecondary'>\
+      @ %z(href("%R/info/%!S",zToUuid))%S(zToUuid)</a></span></p>
+    }else{
+      @ <h2>Difference From <span class='timelineSelected'>\
+      @ %z(href("%R/info/%h",zFrom))%h(zFrom)</a></span>
+      @ To <span class='timelineSelected timelineSecondary'>\
+      @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
+    }
     render_checkin_context(ridFrom, ridTo, 0);
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
