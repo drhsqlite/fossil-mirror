@@ -47,7 +47,7 @@ if {[hascap o]} {
 if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
   menulink /forum Forum
 }
-if {[hascap r]} {
+if {[anycap nr]} {
   menulink /ticket Tickets
 }
 if {[hascap j]} {

@@ -112,7 +112,7 @@ if {[anoncap o]} {
 if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
   menulink /forum Forum
 }
-if {[anoncap r]} {
+if {[anycap nr]} {
   menulink /ticket Tickets
 }
 if {[anoncap j]} {

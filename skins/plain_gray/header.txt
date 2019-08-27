@@ -24,7 +24,7 @@ if {[anoncap o]} {
 if {[anycap 23456] || [anoncap 2] || [anoncap 3]} {
   html "<a href='$home/forum'>Forum</a>\n"
 }
-if {[anoncap r]} {
+if {[anycap nr]} {
   html "<a href='$home/ticket'>Tickets</a>\n"
 }
 if {[anoncap j]} {
