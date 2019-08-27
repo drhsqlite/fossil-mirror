@@ -16,7 +16,7 @@ explain how we came to assign each character [below](#impl).
 [sync]: /help?cmd=sync
 
 
-## <a name="cat"></a>User Categories
+## <a name="ucat"></a>User Categories
 
 Before we explain individual user capabilities and their proper
 administration, we want to talk about an oft-overlooked and
@@ -29,12 +29,11 @@ use the word “group” for [another purpose](#group) in Fossil, we will
 avoid using it that way again in this document. The correct term in
 Fossil is “category.”
 
-Fossil’s user category set is currently fixed. There is no way to define
-custom categories.
+Fossil user categories give you a way to define capability sets for four
+hard-coded situations within the Fossil C source code. Logically
+speaking:
 
-These categories form a strict hierarchy. Mathematically speaking:
-
-> *developer* &ge; *reader* &ge; *anonymous* &ge; *nobody*
+> *(developer* &or; *reader)* &ge; *anonymous* &ge; *nobody*
 
 When a user visits a [served Fossil repository][svr] via its web UI,
 they initially get the capabilities of the “nobody” user category. This
@@ -47,15 +46,14 @@ get all of the “nobody” category’s caps plus those assigned to the
 affects all logged-in users, not just those logged in via Fossil’s
 anonymous user feature.
 
-When a user with capability letter [**u**](#u) signs in, they get their
-own user’s explicit capabilities plus those assigned to the “reader”
-category. They also get those assigned to the “anonymous” and “nobody”
-categories.
+When a user with either the “reader” ([**u**](#u)) or “developer”
+([**v**](#v)) capability letter logs in, they get their [individual user
+caps](#ucap) plus those assigned to this special user category. They
+also get those assigned to the “anonymous” and “nobody” categories.
 
-That then extends to those in the “developer” category, being those with
-capability letter [**v**](#v): they get their own explicit caps, plus
-the “developer” caps, plus the “reader” caps, plus the “anonymous” caps,
-plus the “nobody” caps. Thus the hierarchy mathematically defined above.
+Because “developer” users do not automatically inherit “reader” caps,
+it is standard practice to give both letters to your “developer” users:
+**uv**.
 
 Fossil shows how these capabilities apply hierarchically in the user
 editing screen (Admin → Users → name) with the `[N]` `[A]` `[D]` `[R]`
@@ -71,8 +69,9 @@ setting up new users. Ideally, your users will group neatly into one of
 the predefined categories, but if not, you might be able to shoehorn
 them into our fixed scheme. For example, the administrator of a repo
 that’s mainly used as a wiki or forum for non-developers could treat the
-“developer” user category as if it were called “contributor” or
-“author.”
+“developer” user category as if it were called “author”.
+
+There is currently no way to define custom user categories.
 
 [svr]: ./server/
 
@@ -84,27 +83,31 @@ defined in user categories, you can assign caps to individual users. For
 the most part, you want to simply read the [reference material
 below](#ref) when doing such work.
 
-However, it is useful at this time to expand on the mathematical
+However, it is useful at this time to expand on the logical
 expression [above](#cat), which covered only the four fixed user categories.
-If we bring the individual user capabilities into it, the full hierarchy
-of user power in Fossil is:
+When we bring the individual user capabilities into it, the complete
+expression of the way Fossil implements user power becomes:
 
-> *setup* &ge; *admin* &ge; *moderator* &ge; *developer* &ge; *reader* &ge; *subscriber* &ge; *anonymous* &ge; *nobody*
+> *setup* &ge; *admin* &ge; *moderator* &ge; *(developer* &or; *reader)* &ge; *[subscriber]* &ge; *anonymous* &ge; *nobody*
 
 The two additions at the top are clear: [setup is all-powerful](#apsu),
-and admin users are [subordinate to the setup user(s)](#a).
+and admin users are [subordinate to the setup user(s)](#a). Both are
+superior to all other users.
 
 The moderator insertion could go anywhere from where it’s shown now down
 to above the “anonymous” level, depending on what other caps you give to
 your moderators. Also, there is not just one type of moderator: Fossil
 has [wiki](#l), [ticket](#q), and [forum](#5) moderators, each
 independent of the others. Usually your moderators are fairly
-high-status users, with developer capabilities or higher.
+high-status users, with developer capabilities or higher, but Fossil
+does allow the creation of low-status moderators.
 
-The placement of “subscriber” in that hierarchy is shorthand for the
+The placement of “subscriber” in that hierarchy is for the
 sort of subscriber who has registered an account on the repository
-purely to [receive email alerts and announcements](#7). Users higher up
-the hierarchy can also be subscribers.
+purely to [receive email alerts and announcements](#7). Users with
+additional caps can also be subscribers, but not all users *are* in fact
+subscribers, which is why we show it in square brackets.  (See [Users vs
+Subscribers](./alerts.md#uvs).)
 
 
 ## <a name="new"></a>New Repository Defaults
@@ -137,16 +140,11 @@ in the project. The default capability set on a Fossil repo adds
 “anonymous”. This category is not well-named, because the default caps
 are all about modifying repository content: edit existing wiki pages,
 change one’s own password, create new ticket report formats, and modify
-existing tickets. This category would be better named “contributor,” or
-“participant.”
+existing tickets. This category would be better named “participant”.
 
 Those in the “developer” category get all of the above plus the
 **[d](#d)[e](#e)[i](#i)** caps: delete wiki articles and tickets, view
 sensitive user material, and check in changes.
-
-The default setup does not explicitly define anything between
-“developer” and “setup,” but there is the intermediary [Admin
-capability, **a**](#a).
 
 [bot]: ./antibot.wiki
 
@@ -332,6 +330,10 @@ in more detail than the brief summary on the [user capability “key”
 page](/setup_ucap_list). Each entry begins with the capability letter
 used in the Fossil user editor followed by the C code’s name for that
 cap within the `FossilUserPerms` object.
+
+The [mnemonics][mn] given here vary from obviously-correct to *post
+facto* rationalizations to the outright fanciful. To [some
+extent](#choices), this is unavoidable.
 
 *   <a name="a"></a>**a (Admin)** — Admin users have *all* of the capabilities
     below except for [setup](#s): they can create new users, change user
@@ -538,6 +540,8 @@ cap within the `FossilUserPerms` object.
 
 ## <a name="impl"></a>Implementation Details
 
+### <a name="choices"></a>Capability Letter Choices
+
 We assigned user capability characters using only lowercase ASCII
 letters at first, so those are the most important within Fossil: they
 control the functions most core to Fossil’s operation. Once we used up
@@ -546,13 +550,17 @@ during the development of the [forum feature][for] we assigned most of
 the decimal numerals.  Eventually, we might have to start using
 punctuation. We expect to run out of reasons to define new caps before
 we’re forced to switch to Unicode, though the possibilities for mnemonic
-assignments with emoji are intriguing.
+assignments with emoji are intriguing. <span style="vertical-align:
+bottom">😉</span>
 
-The existing caps are usually [mnemonic][mn], especially among the
+The existing caps are usually mnemonic, especially among the
 earliest and therefore most central assignments, made when we still had
 lots of letters to choose from.  There is still hope for good future
 mnemonic assignments among the uppercase letters, which are mostly still
 unused.
+
+
+### <a name="bitfield"></a>Why Not Bitfields?
 
 When Fossil is deciding whether a user has a given capability, it simply
 searches the cap string for a given character. This is slower than
