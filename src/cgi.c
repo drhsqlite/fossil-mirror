@@ -953,7 +953,8 @@ void cgi_init(void){
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
 
 #ifdef FOSSIL_ENABLE_JSON
-  json_main_bootstrap();
+  int noJson = P("NO_JSON")!=0;
+  if( noJson==0 ){ json_main_bootstrap(); }
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
@@ -1000,9 +1001,9 @@ void cgi_init(void){
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( fossil_strcmp(zType, "application/json")==0
+    else if( noJson==0 && (fossil_strcmp(zType, "application/json")==0
               || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")==0){
+              || fossil_strcmp(zType,"application/javascript")==0) ){
       g.json.isJsonMode = 1;
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
       /* FIXMEs:

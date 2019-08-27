@@ -1,5 +1,5 @@
-C Added\sHTTP\sproxying\sinfo\sto\sDebian\snginx\sserver\ssetup\sguide.
-D 2019-08-25T13:24:49.476
+C Make\sit\spossible\sto\sdisable\sJSON\sauto-detection\sin\sthe\sCGI\ssubsystem.
+D 2019-08-27T04:15:33.568
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c 2ec5bce4bc982a9cdb1a3eb4e7dad8e36e494168b07f5fefacdffb5977d25fce
+F src/cgi.c 762d91f8a69b044597a2a64062c28f9b381f93ccab5f780a83aa2b526372c81f
 F src/checkin.c 3b34471d3ba5d00e39db09a0e497b044b1781a622e85e7276f67c36a428f3a8c
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -912,7 +912,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4bb92f7916cafff936ad23c4fbb38da47aeea47b8a5cd20f90f1ce3e5281b35
-R bb53216dca92f0c3d446f43da2dbb010
-U wyoung
-Z a42ac366accf9659a49ee422d6ea6a59
+P c6a033cea66f8c0208bb53d15bd39eea05906fc82b216a5eea0faf3b8022cf23
+R 05e64ce466cd30f758a910923df0ef03
+T *branch * noJsonCgiFlag
+T *sym-noJsonCgiFlag *
+T -sym-trunk *
+U mistachkin
+Z cb70b3bd6887aabc4b08a22ae45d1a9d
