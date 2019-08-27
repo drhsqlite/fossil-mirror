@@ -213,6 +213,7 @@ struct Global {
   const char *zLogin;     /* Login name.  NULL or "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
                              ** SSL client identity */
+  int cgiUpperParamsOk;   /* Allow CGI parameters to start with uppercase */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -732,6 +733,7 @@ int fossil_main(int argc, char **argv){
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
+    g.cgiUpperParamsOk = find_option("cgiupperparamsok", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -2011,6 +2013,14 @@ void cmd_cgi(void){
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
+    if( blob_eq(&key, "uppercase_params") ){
+      /* uppercase_params
+      **
+      ** Allow CGI parameters to start with an uppercase letter.
+      */
+      g.cgiUpperParamsOk = 1;
+      continue;
+    }
     if( blob_eq(&key, "repository:") && blob_tail(&line, &value) ){
       /* repository: FILENAME
       **

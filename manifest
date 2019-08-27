@@ -1,5 +1,5 @@
-C Make\sit\spossible\sto\sdisable\sJSON\sauto-detection\sin\sthe\sCGI\ssubsystem.
-D 2019-08-27T04:15:33.568
+C If\sthe\s'--cgiupperparamsok'\scommand\sline\soption\sor\s'uppercase_params'\sCGI\scontrol\sline\sare\spresent,\sallow\sparameter\snames\sto\sstart\swith\san\suppercase\sletter.
+D 2019-08-27T05:34:42.515
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c 762d91f8a69b044597a2a64062c28f9b381f93ccab5f780a83aa2b526372c81f
+F src/cgi.c f91a191551f0011028fbcc0a70aae572c8e5216cf7c9db50f866538ae3f65e99
 F src/checkin.c 3b34471d3ba5d00e39db09a0e497b044b1781a622e85e7276f67c36a428f3a8c
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -468,7 +468,7 @@ F src/descendants.c f20663f0c3388811bc57cb614f06a58cedd0ec1c0b0c147b6515d620592d
 F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
-F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
+F src/dispatch.c 682ac2871b0aa888184527239b16aecfa25fa567e268033fda29a2772a8c203e
 F src/doc.c c330cc99fabd27414871ae7382e6b71be78a3eab841d5a3cc9d420dc6e7495f9
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 889d6724939894d2825d5be2292f097caae7742ebe8019974abc102fc0e54c4d
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 52d2860fa03ae63693d12cd0169bc1640fd52c809ae47325b92f27d8de2fc977
+F src/main.c e8e873fd40cb15d83bef51606ee92ec411805af8a809246d19008d2a4e8fb79a
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -912,10 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6a033cea66f8c0208bb53d15bd39eea05906fc82b216a5eea0faf3b8022cf23
-R 05e64ce466cd30f758a910923df0ef03
-T *branch * noJsonCgiFlag
-T *sym-noJsonCgiFlag *
-T -sym-trunk *
+P a775435357c9c272d201907a67bb03d05d988b969d27450d50742a2e89bf8c47
+R fba7f18d3fdee2aee4c28d098002ff87
 U mistachkin
-Z cb70b3bd6887aabc4b08a22ae45d1a9d
+Z 267a5b35a9c54487cad54dfa9d769a7d
