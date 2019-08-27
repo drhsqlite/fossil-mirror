@@ -953,7 +953,7 @@ void cgi_init(void){
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
 
 #ifdef FOSSIL_ENABLE_JSON
-  int noJson = P("NO_JSON")!=0;
+  int noJson = P("no_json")!=0;
   if( noJson==0 ){ json_main_bootstrap(); }
 #endif
   g.isHTTP = 1;

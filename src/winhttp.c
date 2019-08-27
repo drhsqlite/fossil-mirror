@@ -552,9 +552,6 @@ void win32_http_server(
   if( g.useLocalauth ){
     blob_appendf(&options, " --localauth");
   }
-  if( g.cgiUpperParamsOk ){
-    blob_appendf(&options, " --cgiupperok");
-  }
   if( g.thTrace ){
     blob_appendf(&options, " --th-trace");
   }
@@ -989,10 +986,6 @@ int win32_http_service(
 **              and the "localauth" setting is off and the connection is from
 **              localhost.
 **
-**         --cgiupperok
-**
-**              Allows CGI parameter names to begin with an uppercase letter.
-**
 **         --repolist
 **
 **              If REPOSITORY is directory, URL "/" lists all repositories.
@@ -1053,7 +1046,6 @@ void cmd_win32_service(void){
     const char *zNotFound   = find_option("notfound", 0, 1);
     const char *zFileGlob   = find_option("files", 0, 1);
     const char *zLocalAuth  = find_option("localauth", 0, 0);
-    const char *zCgiUpperOk = find_option("cgiupperok", 0, 0);
     const char *zRepository = find_repository_option();
     int useSCGI             = find_option("scgi", 0, 0)!=0;
     int allowRepoList       = find_option("repolist",0,0)!=0;
@@ -1108,7 +1100,6 @@ void cmd_win32_service(void){
     if( zNotFound ) blob_appendf(&binPath, " --notfound \"%s\"", zNotFound);
     if( zFileGlob ) blob_appendf(&binPath, " --files-urlenc %T", zFileGlob);
     if( zLocalAuth ) blob_append(&binPath, " --localauth", -1);
-    if( zCgiUpperOk ) blob_append(&binPath, " --cgiupperok", -1);
     blob_appendf(&binPath, " \"%s\"", g.zRepositoryName);
     /* Create the service. */
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
