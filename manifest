@@ -1,5 +1,5 @@
-C On\sthe\s/vdiff\spage,\sshow\sa\stimeline\swith\sboth\scheck-ins\susing\sdifferent\nhighlights\son\seach\scheck-in.
-D 2019-08-27T00:11:57.995
+C Remove\san\sunused\ssubroutine.\s\sFix\sa\sminor\sCSS\sproblem.
+D 2019-08-27T00:29:06.331
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -460,7 +460,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 97d1ef6fd8f41bf2f517483718c062a8c4dac86f309ee49c1cef2bda3a8b2038
-F src/default_css.txt 957945ba7ae31c637fe0fb3beeeb4d1d8f4dcbaee65a09800538226670c84c10
+F src/default_css.txt cd60aeffd23196d712858c31dd8ab4a33a3e4f91b970c6ab0976f769473f6e76
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -493,7 +493,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c a7fa1a7a79f5f8bc450a9c0727b30cbe2382dc6471e0d3d0089e78e5edb64780
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 0d1f846f3b6c0ebda9003cb4a72684b2458398a8c150fcac26ccc6d5421b8f72
+F src/info.c 10f9f5b797dff7ed6f0d12d4f30a08d1d2457f0810f372864b43bee9998f0f1e
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -912,10 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 23a9f9bac2aaddb55e5d72689fcf4bb079306ac7411db269c1c44c8240455865
-R 59fd26858b27050d4b5467c8ed92c03a
-T *branch * vdiff-improvements
-T *sym-vdiff-improvements *
-T -sym-trunk *
+P 6e40f866abec68e1217f0f0bb5f00bbadf9380b9fd5a940a68fe79147c06914b
+R e3c321f38378d1e56a689ca73534804f
 U drh
-Z 2831b531a541e7943dfba6c119b86af4
+Z 3aebe47584d4078696713c21149f67ce

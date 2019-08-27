@@ -1113,6 +1113,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
 
+#if 0 /* not used */
 /*
 ** Output a description of a check-in
 */
@@ -1171,6 +1172,7 @@ static void checkin_description(int rid){
   }
   db_finalize(&q);
 }
+#endif /* not used */
 
 
 /*
@@ -1269,6 +1271,7 @@ void vdiff_page(void){
     @ %z(href("%R/info/%h",zFrom))%h(zFrom)</a></span>
     @ To <span class='timelineSelected timelineSecondary'>\
     @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
+    render_checkin_context(ridFrom, ridTo, 0);
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
@@ -1276,7 +1279,6 @@ void vdiff_page(void){
     if( zGlob ){
       @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
     }
-    render_checkin_context(ridFrom, ridTo, 0);
     @<hr /><p>
   }
 
