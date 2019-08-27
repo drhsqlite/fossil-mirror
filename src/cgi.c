@@ -564,21 +564,6 @@ void cgi_setenv(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
 }
 
-
-/*
-** Returns non-zero if the specified character is lowercase -OR-
-** the specified character is uppercase and the CGI subsystem has
-** been configured to allow uppercase parameter names.
-*/
-int cgi_char_allowed(char c){
-  if( fossil_islower(c) ){
-    return 1; /* lowercase letter, always OK */
-  }else if( fossil_isupper(c) && g.cgiUpperParamsOk ){
-    return 1; /* uppercase letter, OK if allowed explicitly */
-  }
-  return 0; /* something else, never OK */
-}
-
 /*
 ** Add a list of query parameters or cookies to the parameter set.
 **
@@ -631,7 +616,7 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( cgi_char_allowed(zName[0]) && fossil_no_strange_characters(zName+1) ){
+    if( fossil_islower(zName[0]) && fossil_no_strange_characters(zName+1) ){
       cgi_set_parameter_nocopy(zName, zValue, isQP);
     }
 #ifdef FOSSIL_ENABLE_JSON
@@ -775,7 +760,7 @@ static void process_multipart_form_data(char *z, int len){
     if( zLine[0]==0 ){
       int nContent = 0;
       zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
-      if( zName && zValue && cgi_char_allowed(zName[0]) ){
+      if( zName && zValue && fossil_islower(zName[0]) ){
         cgi_set_parameter_nocopy(zName, zValue, 1);
         if( showBytes ){
           cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
@@ -795,13 +780,13 @@ static void process_multipart_form_data(char *z, int len){
           zName = azArg[++i];
         }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && cgi_char_allowed(zName[0]) ){
+          if( zName && z && fossil_islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
           }
           showBytes = 1;
         }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && cgi_char_allowed(zName[0]) ){
+          if( zName && z && fossil_islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
           }
         }

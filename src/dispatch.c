@@ -196,7 +196,7 @@ int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( cgi_char_allowed(zName[0]) ){
+    if( fossil_islower(zName[0]) ){
       cgi_replace_query_parameter(zName, zValue);
     }
   }
