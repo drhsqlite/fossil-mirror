@@ -1,5 +1,5 @@
-C Grepped\sthe\sFossil\ssource\scode\sfor\sC\scode\sthat\schecks\sfor\sSetup\scaps\nexclusively\sto\spreotect\sfunctions\sand\slisted\sthose\sin\sthe\sReference\nsection\sof\scapablities.md.\s\sAlso\sexpanded\sthe\scoverage\sof\sthe\s"caps\naffect\sFossil\sweb\sinterfaces\sonly"\ssection,\swhich\splays\sinto\sthis.
-D 2019-08-27T03:56:03.789
+C Merged\smost\sof\sthe\snew\smaterial\son\sSetup\svs\sAdmin\sin\sthe\snew\scapabilities\ndoc\sinto\sthe\spre-existing\sadmin-v-setup.md\sdoc,\swhich\salready\scovers\nthis\stopic.
+D 2019-08-27T18:04:59.072
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -757,7 +757,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178ca9d
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/admin-v-setup.md a2d805811b400e0c785c74bd4e363a59f5efc571efc988bbbcf549388eca732d
+F www/admin-v-setup.md d96154ca56077f889ba15f455acb0a6e99fe981102878d83a6109aa4ee2d567c
 F www/alerts.md 6afc3d7d07b13ac79cc9e7062071852bfca083ca7162f53484c3b50077d8d261
 F www/antibot.wiki ab2b0cb215895ada22cf5130986c662e6bc892a58998f367fa8c0bb18639fbe5
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -786,7 +786,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/capabilities.md 6c641861ece2afe41550f8c0e7215060e3a33cf37c71af3abdefdd2e4d6e82af
+F www/capabilities.md 5e59a050b4db93b2c8ffe322200b933c52688ec58911b4cbf0a4d9a06267b2bc
 F www/cgi.wiki 8c246b996555eb61d2010b2238dcae5572f559fe9d84c0ad12e63e0e98861b12
 F www/changes.wiki 488fa1c2a4d2acd19d6171ba551a331fb8a04ed3bbded551c814889438593833
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
@@ -913,7 +913,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 208ca0d713d93212e33d29805e55ad3e8555f05b53f42301c3d9bc558a9d0fa9
-R 70b9406ac5315ffc758c71c93d14cf49
+P 689f7683b694a0beb93291ef8326a1a35fe0f59ba8778f89ec3d0925860284d0
+R 833638521d3ead6b842741082e249242
 U wyoung
-Z a627c05e33a1272f36d086e65855b04c
+Z 8b33a6fd054bcc3c105bad9c894a03d1

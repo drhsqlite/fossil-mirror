@@ -90,7 +90,7 @@ expression of the way Fossil implements user power becomes:
 
 > *setup* &ge; *admin* &ge; *moderator* &ge; *(developer* &or; *reader)* &ge; *[subscriber]* &ge; *anonymous* &ge; *nobody*
 
-The two additions at the top are clear: [setup is all-powerful](#apsu),
+The two additions at the top are clear: [setup is all-powerful][apsu],
 and admin users are [subordinate to the setup user(s)](#a). Both are
 superior to all other users.
 
@@ -109,6 +109,8 @@ additional caps can also be subscribers, but not all users *are* in fact
 subscribers, which is why we show it in square brackets.  (See [Users vs
 Subscribers](./alerts.md#uvs).)
 
+[apsu]: ./admin-v-setup.md#apsu
+
 
 ## <a name="new"></a>New Repository Defaults
 
@@ -116,7 +118,7 @@ When you create a new repository, Fossil creates only one user account
 named after your OS user name [by default](#defuser).
 
 Fossil gives the initial repository user the [all-powerful Setup
-capability](#apsu).
+capability][apsu].
 
 Users who visit a [served repository][svr] without logging in get the
 “nobody” user category’s caps which default to
@@ -163,7 +165,7 @@ Beware: Fossil does not reassign the capabilities these users had to
 other users or to the “reader” or “developer” user category! All users
 except those with Setup capability will lose all capabilities they
 inherited from “nobody” and “anonymous” categories. Setup is the [lone
-exception](#apsu).
+exception][apsu].
 
 If you will have non-Setup users in your private repo, you should parcel
 out some subset of the capability set the “nobody” and “anonymous”
@@ -281,7 +283,7 @@ upon sync, the situation is effectively the same as when the parent repo
 is on the local file system. If you can log into the remote system over
 SSH and that user has the necessary file system permissions on that
 remote repo DB file, your user is effectively the [all-powerful Setup
-user](#apsu) on both sides of the SSH connection.
+user][apsu] on both sides of the SSH connection.
 
 Fossil reuses the HTTP-based [sync protocol][sp] in both cases above,
 tunnelling HTTP through an OS pipe or through SSH (FIXME?), but all of
@@ -293,34 +295,6 @@ without logging in?
 [japi]: https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view#heading=h.6k0k5plm18p1
 [sp]:  ./sync.wiki
 [wp]:  /help#webpages
-
-
-## <a name="apsu"></a>The All-Powerful Setup User
-
-A user with [Setup capability, **s**](#s) needs no other user
-capabliities, because its scope of its power is hard-coded in the Fossil
-C source. You can take all capabilities away from all of the user
-categories so that the Setup user inherits no capabilities from them,
-yet the Setup user will still be able to use every feature of the Fossil
-web user interface.
-
-Another way to look at it is that the setup user is a superset of all
-other capabilities, even [Admin capability, **a**](#a). This is
-literally how it’s implemented in the code: enabling setup capability on
-a user turns on all of the flags controlled by all of the [other
-capability characters](#ref).
-
-When you run [`fossil ui`][fui], you are effectively given setup
-capability on that repo through that UI instance, regardless of the
-capability set defined in the repo’s user table. This is why `ui` always
-binds to `localhost` without needing the `--localhost` flag: in this
-mode, anyone who can connect to that repo’s web UI has full power over
-that repo.
-
-See the [Admin vs Setup article][avs] for a deeper treatment on the
-differences between these two related capability sets.
-
-[fui]: /help?cmd=ui
 
 
 ## <a name="ref"></a>Capability Reference
@@ -336,34 +310,8 @@ facto* rationalizations to the outright fanciful. To [some
 extent](#choices), this is unavoidable.
 
 *   <a name="a"></a>**a (Admin)** — Admin users have *all* of the capabilities
-    below except for [setup](#s): they can create new users, change user
-    capability assignments, and use about half of the functions on the
-    Admin screen in Fossil UI. (And that is why that screen is now
-    called “Admin,” not “Setup,” as it was in old versions of Fossil!)
-
-    There are a couple of ways to view the role of Fossil
-    administrators:
-
-    *   Administrators occupy a place between “developer” category users
-        and the setup user; a super-developer capability, if you will.
-        Administrators have full control over the repository’s managed
-        content: versioned artifacts in [the block chain][bc],
-        [unversioned content][uv], forum posts, wiki articles, tickets,
-        etc.<p>
-
-    *   Administrators are subordinate to the repository’s superuser,
-        being the one with setup capability.  Granting users admin
-        capability is useful in repositories with enough users
-        generating enough activity that the [all-powerful setup
-        user](#apsu) could use helpers to take care of routine
-        administrivia, user management, content management, site
-        cosmetics, etc. without giving over complete control of the
-        repository.
-
-    For a much deeper dive into this topic, see the [Admin vs. Setup
-    article][avs].
-
-    Mnemonic: **a**dministrate.
+    below except for [setup](#s). See [Admin vs. Setup][avs] for a more
+    nuanced discussion.  Mnemonic: **a**dministrate.
 
 *   <a name="b"></a>**b (Attach)** — Add attachments to wiki articles or tickets.
     Mnemonics: **b**ind, **b**utton, **b**ond, or **b**olt.
@@ -442,28 +390,7 @@ extent](#choices), this is unavoidable.
 *   <a name="r"></a>**r (RdTkt)** — View existing tickets. Mnemonic: **r**ead
     tickets.
 
-*   <a name="s"></a>**s (Setup)** — The [all-powerful Setup user](#apsu) who
-    can uniquely:
-
-    *   Use roughly half of the Admin page settings
-    *   See record IDs (RIDs) on screens that show them
-    *   See the MIME type of attachments on [`/ainfo` pages](/help?cmd=/ainfo)
-    *   See a remote repo’s HTTP [cache status](/help?cmd=/cachestat)
-        and [pull cache entries](/help?cmd=/cacheget)
-    *   TODO: fold in results of [the timestamp override thread](https://fossil-scm.org/forum/forumpost/ee950efd2d)
-    *   Edit a Setup user’s account!
-
-    The Admin pages that only Setup can use are: Access, Configuration,
-    Email-Server, Login-Group, Notification, Settings, SQL, TH1,
-    Tickets, Transfers (TH1 hooks), and Wiki.
-
-    Remember, [user caps affect Fossil’s web interfaces](#webonly) only.
-    A user can do anything they like to a repo stored on their local
-    machine. Fossil protects itself against malcious pushes, but someone
-    with clone and push capability on your repo could clone it, modify
-    their local repo as the local default Setup user account they got on
-    clone, and then push the changes back to your repo.
-
+*   <a name="s"></a>**s (Setup)** — The [all-powerful Setup user][apsu].
     Mnemonics: **s**etup or **s**uperuser.
 
 *   <a name="t"></a>**t (TktFmt)** — Create new ticket report formats. Note that
