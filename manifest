@@ -1,5 +1,5 @@
-C If\sthe\s'--cgiupperparamsok'\scommand\sline\soption\sor\s'uppercase_params'\sCGI\scontrol\sline\sare\spresent,\sallow\sparameter\snames\sto\sstart\swith\san\suppercase\sletter.
-D 2019-08-27T05:34:42.515
+C More\srefinements.
+D 2019-08-27T05:55:47.768
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 889d6724939894d2825d5be2292f097caae7742ebe8019974abc102fc0e54c4d
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c e8e873fd40cb15d83bef51606ee92ec411805af8a809246d19008d2a4e8fb79a
+F src/main.c c3083f23055f6ca798576988870a739d04ffbb968c38fa2dfe2f736f3d7dc7ab
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -604,7 +604,7 @@ F src/wiki.c 6d7b71d87c88904b7974a28b9404dbec49113a2ccf52e389f23899269179eb00
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c bbc61e8c423b1bf8ef068f3804be29aafbb75f8c877f13936635e7cd07e53d82
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c a72303503a1f1e655f7bef2857d1f95dfc44c3a98a6169662c3fe0e5b1754ee3
+F src/winhttp.c e52a7eb172e079a0a07f40e8c781a5bdd7efce0701cf374bc67e799784e077d0
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
 F src/xfer.c 92986942f0fdccd1615697e051bf8a59f10357ea7b5a9745a3a3be25dede9f40
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a775435357c9c272d201907a67bb03d05d988b969d27450d50742a2e89bf8c47
-R fba7f18d3fdee2aee4c28d098002ff87
+P ab0d81f893b1f60c13cc11be0169685f34cf3c3ea662f808d80c630f6af869a7
+R 54d7c818dcd88052f92546731a3635ad
 U mistachkin
-Z 267a5b35a9c54487cad54dfa9d769a7d
+Z f5f662cfba44a3115ad1bb6bcf139dd6

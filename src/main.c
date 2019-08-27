@@ -733,7 +733,7 @@ int fossil_main(int argc, char **argv){
     const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.rcvid = 0;
-    g.cgiUpperParamsOk = find_option("cgiupperparamsok", 0, 0)!=0;
+    g.cgiUpperParamsOk = find_option("cgiupperok", 0, 0)!=0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -1952,6 +1952,9 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **    localauth                Grant administrator privileges to connections
 **                             from 127.0.0.1 or ::1.
 **
+**    uppercase_params         Allows CGI parameter names to begin with an
+**                             uppercase letter.
+**
 **    skin: LABEL              Use the built-in skin called LABEL rather than
 **                             the default.  If there are no skins called LABEL
 **                             then this line is a no-op.
@@ -2310,6 +2313,8 @@ void parse_pid_key_value(
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
 **   --localauth      enable automatic login for local connections
+**   --cgiupperok     Allows CGI parameter names to begin with an uppercase
+**                    letter.
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
 **   --nojail         drop root privilege but do not enter the chroot jail
