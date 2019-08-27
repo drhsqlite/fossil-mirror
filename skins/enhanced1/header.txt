@@ -99,7 +99,7 @@ proc menulink {url name} {
 }
 menulink $index_page Home
 menulink /help Help
-if {[anycap jor]} {
+if {[anycap ijr2]} {
   menulink /timeline Timeline
 }
 if {[anoncap oh]} {

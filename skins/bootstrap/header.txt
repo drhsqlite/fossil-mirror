@@ -55,7 +55,7 @@
                     html "<li><a href='$home/wiki'>Wiki</a></li>\n"
                   }
                 }
-                if {[anycap jor]} {
+                if {[anycap ijr2]} {
                   if {[string compare $current_page "timeline"] == 0} {
                     html "<li class='active'><a href='$home/timeline'>Timeline</a></li>\n"
                   } else {

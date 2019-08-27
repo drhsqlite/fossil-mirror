@@ -103,7 +103,7 @@ proc menulink {url name} {
   }
 }
 menulink $index_page Home
-if {[anycap jor]} {
+if {[anycap ijr2]} {
   menulink /timeline Timeline
 }
 if {[anoncap oh]} {

@@ -21,7 +21,7 @@ proc menulink {url name cls} {
 }
 html "<a id='hbbtn' href='#'>&#9776;</a>"
 menulink $index_page Home {}
-if {[anycap jor]} {
+if {[anycap ijr2]} {
   menulink /timeline Timeline {}
 }
 if {[hascap oh]} {

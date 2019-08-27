@@ -12,7 +12,7 @@
     <div class='title'>
       <h1>$<project_name>
       <th1>
-      if {[anycap jor]} {
+      if {[anycap ijr2]} {
         html "<a class='rss' href='$home/timeline.rss'></a>"
       }
       </th1>
@@ -34,7 +34,7 @@ proc menulink {url name} {
   html "<a href='$home$url'>$name</a></li>\n"
 }
 menulink $index_page Home
-if {[anycap jor]} {
+if {[anycap ijr2]} {
   menulink /timeline Timeline
 }
 if {[hascap oh]} {
