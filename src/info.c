@@ -1208,6 +1208,7 @@ void vdiff_page(void){
   const char *zRe;
   const char *zW;
   const char *zGlob;
+  char *zQuery;
   ReCompiled *pRe = 0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -1219,9 +1220,13 @@ void vdiff_page(void){
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
-  if( zBranch && zBranch[0] ){
+  if( zBranch && zBranch[0]==0 ) zBranch = 0;
+  if( zBranch ){
+    zQuery = mprintf("branch=%T", zBranch);
     cgi_replace_parameter("from", mprintf("root:%s", zBranch));
     cgi_replace_parameter("to", zBranch);
+  }else{
+    zQuery = mprintf("from=%T&to=%T",PD("from",""),PD("to",""));
   }
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
@@ -1235,30 +1240,34 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  if( zBranch==0 ){
+    style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  }
   if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?from=%T&to=%T&diff=0%s%T%s",
-                          zFrom, zTo,
+    style_submenu_element("Hide Diff", "%R/vdiff?%s&diff=0%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( diffType!=2 ){
     style_submenu_element("Side-by-Side Diff",
-                          "%R/vdiff?from=%T&to=%T&diff=2%s%T%s",
-                          zFrom, zTo,
+                          "%R/vdiff?%s&diff=2%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( diffType!=1 ) {
     style_submenu_element("Unified Diff",
-                          "%R/vdiff?from=%T&to=%T&diff=1%s%T%s",
-                          zFrom, zTo,
+                          "%R/vdiff?%s&diff=1%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  style_submenu_element("Invert",
-                        "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
-                        zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+  if( zBranch==0 ){
+    style_submenu_element("Invert",
+                          "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+  }
   if( zGlob ){
     style_submenu_element("Clear glob",
-                          "%R/vdiff?from=%T&to=%T&%s", zFrom, zTo, zW);
+                          "%R/vdiff?%s&%s", zQuery, zW);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
@@ -1281,6 +1290,7 @@ void vdiff_page(void){
     }
     @<hr /><p>
   }
+  fossil_free(zQuery);
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
