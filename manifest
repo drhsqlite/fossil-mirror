@@ -1,5 +1,5 @@
-C Change\s'NO_JSON'\sto\slowercase.\s\sRemove\sother\sbranch\schanges\sthat\sare\snow\ssuperfluous.
-D 2019-08-27T12:51:34.174
+C For\scandidate\sCGI\sparameter\snames\sthat\sstart\swith\san\suppercase\sletter,\sconvert\sthem\sto\slowercase\sand\sthen\sadd.
+D 2019-08-27T20:57:54.293
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c a06d1719e67d33656d18b87c48c1e7a38fafcade8eed89eaf02d3d6832cfda88
+F src/cgi.c 6a01135c2811f9c432e40c72ecd0254bf403f50b23cccb7a51d8ffd04b8eb309
 F src/checkin.c 3b34471d3ba5d00e39db09a0e497b044b1781a622e85e7276f67c36a428f3a8c
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -468,7 +468,7 @@ F src/descendants.c f20663f0c3388811bc57cb614f06a58cedd0ec1c0b0c147b6515d620592d
 F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
-F src/dispatch.c 710b7743424849a1878804c11e3afdee8e99f9e4075cb9b21ddec438b3c75049
+F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
 F src/doc.c 85fedf504b8c401c170a09357304531c143e4ca27214480cf9a09cd713b31501
 F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72c721eacf9401f3e6e84be1994debfe5084948d5fa65a681b2d281484cdf4d1
-R af2e4eac44738eb2e4536f7371ef13e6
+P 8baac2646c3ef6ccf70722a6cc07580df874f987c68be68a881724a8fbda942b
+R e600a04a1ab5587f3ef6612cb5cd53a1
 U mistachkin
-Z 602727bb1873d819bcb0272938602e9a
+Z fd34d5349cfe6a82e89253ab661b5c6c

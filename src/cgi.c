@@ -491,6 +491,25 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 /*
 ** Add another query parameter or cookie to the parameter set.
 ** zName is the name of the query parameter or cookie and zValue
+** is its fully decoded value.  zName will be modified to be an
+** all lowercase string.
+**
+** zName and zValue are not copied and must not change or be
+** deallocated after this routine returns.
+*/
+void cgi_set_parameter_nocopy_tolower(
+  char *zName,
+  const char *zValue,
+  int isQP
+){
+  int i;
+  for(i=0; zName[i]; i++){ zName[i] = fossil_tolower(zName[i]); }
+  cgi_set_parameter_nocopy(zName, zValue, isQP);
+}
+
+/*
+** Add another query parameter or cookie to the parameter set.
+** zName is the name of the query parameter or cookie and zValue
 ** is its fully decoded value.
 **
 ** Copies are made of both the zName and zValue parameters.
@@ -525,6 +544,11 @@ void cgi_replace_query_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 1);
+}
+void cgi_replace_query_parameter_tolower(char *zName, const char *zValue){
+  int i;
+  for(i=0; zName[i]; i++){ zName[i] = fossil_tolower(zName[i]); }
+  cgi_replace_query_parameter(zName, zValue);
 }
 
 /*
@@ -616,8 +640,12 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( fossil_islower(zName[0]) && fossil_no_strange_characters(zName+1) ){
-      cgi_set_parameter_nocopy(zName, zValue, isQP);
+    if( zName[0] && fossil_no_strange_characters(zName+1) ){
+      if( fossil_islower(zName[0]) ){
+        cgi_set_parameter_nocopy(zName, zValue, isQP);
+      }else if( fossil_isupper(zName[0]) ){
+        cgi_set_parameter_nocopy_tolower(zName, zValue, isQP);
+      }
     }
 #ifdef FOSSIL_ENABLE_JSON
     json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
@@ -760,11 +788,19 @@ static void process_multipart_form_data(char *z, int len){
     if( zLine[0]==0 ){
       int nContent = 0;
       zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
-      if( zName && zValue && fossil_islower(zName[0]) ){
-        cgi_set_parameter_nocopy(zName, zValue, 1);
-        if( showBytes ){
-          cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
-               mprintf("%d",nContent), 1);
+      if( zName && zValue ){
+        if( fossil_islower(zName[0]) ){
+          cgi_set_parameter_nocopy(zName, zValue, 1);
+          if( showBytes ){
+            cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
+                 mprintf("%d",nContent), 1);
+          }
+        }else if( fossil_isupper(zName[0]) ){
+          cgi_set_parameter_nocopy_tolower(zName, zValue, 1);
+          if( showBytes ){
+            cgi_set_parameter_nocopy_tolower(mprintf("%s:bytes", zName),
+                 mprintf("%d",nContent), 1);
+          }
         }
       }
       zName = 0;
@@ -780,14 +816,24 @@ static void process_multipart_form_data(char *z, int len){
           zName = azArg[++i];
         }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
+          if( zName && z ){
+            if( fossil_islower(zName[0]) ){
+              cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
+            }else if( fossil_isupper(zName[0]) ){
+              cgi_set_parameter_nocopy_tolower(mprintf("%s:filename",zName),
+                                               z, 1);
+            }
           }
           showBytes = 1;
         }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
+          if( zName && z ){
+            if( fossil_islower(zName[0]) ){
+              cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
+            }else if( fossil_isupper(zName[0]) ){
+              cgi_set_parameter_nocopy_tolower(mprintf("%s:mimetype",zName),
+                                               z, 1);
+            }
           }
         }
       }
