@@ -1,0 +1,412 @@
+<div class='fossil-doc' data-title="User Capability Reference">
+
+<style type="text/css">
+  p#backlink {
+    /* Make empty space below the table so hyperlinks to named anchors
+       near the bottom of the table still scroll that row to the top of
+       the user's browser, even on tall screens. */
+    margin-bottom: 75em;
+  }
+
+  tr > th {
+    background-color: #e8e8e8;
+    vertical-align: top;
+  }
+
+  tr.cols th {
+    white-space: nowrap;
+  }
+
+  td, th {
+    padding: 0.4em;
+  }
+</style>
+
+<p>Here we document each currently-defined user capability character in
+more detail than the brief summary on the <a
+href="/setup_ucap_list">“key” page</a> in the Fossil user editor. Each
+row gives the capability letter used in the Fossil user editor followed
+by the C code’s name for that cap within the <tt>FossilUserPerms</tt>
+object, so you can use this reference both from the UI down and from the
+C code up.</p>
+
+<p>The <a href="https://en.wikipedia.org/wiki/Mnemonic">mnemonics</a>
+given here vary from obviously-correct to <i>post facto</i>
+rationalizations to the outright fanciful. To <a
+href="./impl.md#choices">some extent</a>, this is unavoidable.</p>
+
+
+<h2>Reference</h2>
+
+<table>
+  <tr class="cols">
+    <th>?</th>
+    <th>Name</th>
+    <th style="text-align: left">Description</th>
+  </tr>
+
+  <tr id="a">
+    <th>a</th>
+    <th>Admin</th>
+    <td>
+      Admin users have <em>all</em> of the capabilities below except for
+      <a href="#s">setup</a>. See <a href="admin-v-setup.md">Admin vs.
+      Setup</a> for a more nuanced discussion.  Mnemonic:
+      <b>a</b>dministrate.
+    </td>
+  </tr> 
+
+  <tr id="b">
+    <th>b</th>
+    <th>Attach</th>
+    <td>
+      Add attachments to wiki articles or tickets.  Mnemonics: <b>b</b>ind,
+      <b>b</b>utton, <b>b</b>ond, or <b>b</b>olt.
+    </td>
+  </tr> 
+
+  <tr id="c">
+    <th>c</th>
+    <th>ApndTkt</th>
+    <td>
+      Append comments to existing tickets. Mnemonic: <b>c</b>omment.
+    </td>
+  </tr> 
+
+  <tr id="d">
+    <th>d</th>
+    <th>Delete</th>
+    <td>
+      Delete wiki articles or tickets. Mnemonic: <b>d</b>elete.
+    </td>
+  </tr> 
+
+  <tr id="e">
+    <th>e</th>
+    <th>RdAddr</th>
+    <td>
+      View <a
+      href="https://en.wikipedia.org/wiki/Personal_data">personal
+      identifying information</a> (PII) about other users such as email
+      addresses. Mnemonics: show <b>e</b>mail addresses; or
+      <b>E</b>urope, home of <a
+      href="https://en.wikipedia.org/wiki/General_Data_Protection_Regulation">GDPR</a>.
+    </td>
+  </tr> 
+
+  <tr id="f">
+    <th>f</th>
+    <th>NewWiki</th>
+    <td>
+      Create new wiki articles. Mnemonic: <b>f</b>ast, English
+      translation of the Hawaiian word <a
+      href="https://en.wikipedia.org/wiki/History_of_wikis#WikiWikiWeb,_the_first_wiki"><i>wiki</i></a>.
+    </td>
+  </tr> 
+
+  <tr id="g">
+    <th>g</th>
+    <th>Clone</th>
+    <td>
+      Clone the repository. Note that this is distinct from <a
+      href="#o">check-out capability, <b>o</b></a>. Mnemonic:
+      <b>g</b>et.
+    </td>
+  </tr> 
+
+  <tr id="h">
+    <th>h</th>
+    <th>Hyperlink</th>
+    <td>
+      Get hyperlinks in generated HTML which link you to other parts of
+      the repository. This capability exists so we can deny it to the
+      “nobody” category, to <a href="../antibot.wiki">prevent bots from
+      wandering around aimlessly</a> in the site’s hyperlink web, <a
+      href="../loadmgmt.md">chewing up server resources</a> to little
+      good purpose. Mnemonic: <b>h</b>yperlink.
+    </td>
+  </tr> 
+
+  <tr id="i">
+    <th>i</th>
+    <th>Write</th>
+    <td>
+      Check changes into the repository. Note that a lack of this
+      capability does not prevent you from checking changes into your
+      local clone, only from syncing those changes up to the parent
+      repo, and then <a href="./basics.md#webonly">only over HTTP</a>.
+      Granting this capability also grants <b>o (Read)</b>  Mnemonics:
+      <b>i</b>nput, check <b>i</b>n changes.
+    </td>
+  </tr> 
+
+  <tr id="j">
+    <th>j</th>
+    <th>RdWiki</th>
+    <td>
+      View wiki articles. Mnemonic: in<b>j</b>est page content.  (All
+      right, you critics, you do better, then.)
+    </td>
+  </tr> 
+
+  <tr id="k">
+    <th>k</th>
+    <th>WrWiki</th>
+    <td>
+      Edit wiki articles. Granting this capability also grants <a
+      href="#j"><b>RdWiki</b></a> and <a href="#m"><b>ApndWiki</b></a>,
+      but it does <em>not</em> grant <a href="#f"><b>NewWiki</b></a>!
+      Mnemonic: <b>k</b>ontribute.
+    </td>
+  </tr> 
+
+  <tr id="l">
+    <th>l</th>
+    <th>ModWiki</th>
+    <td>
+      Moderate <a href="#m">wiki article appends</a>. Appends do not get
+      saved permanently to the receiving repo’s block chain until <a
+      href="#s">Setup</a> or someone with this cap approves it.
+      Mnemonic: a<b>l</b>low.
+    </td>
+  </tr> 
+
+  <tr id="m">
+    <th>m</th>
+    <th>ApndWiki</th>
+    <td>
+      Append content to existing wiki articles.  Mnemonic: a<b>m</b>end
+      wiki
+    </td>
+  </tr> 
+
+  <tr id="n">
+    <th>n</th>
+    <th>NewTkt</th>
+    <td>
+      File new tickets. Mnemonic: <b>n</b>ew ticket.
+    </td>
+  </tr> 
+
+  <tr id="o">
+    <th>o</th>
+    <th>Read</th>
+    <td>
+      Read repository content from a remote Fossil instance over
+      HTTP. See <a href="index.md#read-v-clone">Reading vs.
+      Cloning</a>. Mnemonic: check <b>o</b>ut remote repo contents.
+    </td>
+  </tr> 
+
+  <tr id="p">
+    <th>p</th>
+    <th>Password</th>
+    <td>
+      Change one’s own password. Mnemonic: <b>p</b>assword.
+    </td>
+  </tr> 
+
+  <tr id="q">
+    <th>q</th>
+    <th>ModTkt</th>
+    <td>
+      Moderate tickets: delete comments appended to tickets. Mnemonic:
+      <b>q</b>uash noise commentary.
+    </td>
+  </tr> 
+
+  <tr id="r">
+    <th>r</th>
+    <th>RdTkt</th>
+    <td>
+      View existing tickets. Mnemonic: <b>r</b>ead tickets.
+    </td>
+  </tr> 
+
+  <tr id="s">
+    <th>s</th>
+    <th>Setup</th>
+    <td>
+      The <a href="./admin-v-setup.md#apsu">all-powerful Setup user</a>.
+      Mnemonics: <b>s</b>etup or <b>s</b>uperuser.
+    </td>
+  </tr>
+
+  <tr id="t">
+    <th>t</th>
+    <th>TktFmt</th>
+    <td>
+      Create new ticket report formats. Note that although this allows
+      the user to provide SQL code to be run in the server’s context,
+      and this capability is given to the untrusted “anonymous” user
+      category by default, this is a safe capability to give to users
+      because it is internally restricted to read-only queries on the
+      tickets table only. (This restriction is done with a SQLite
+      authorization hook, not by any method so weak as SQL text
+      filtering.) Mnemonic: new <b>t</b>icket report.
+    </td>
+  </tr> 
+
+  <tr id="u">
+    <th>u</th>
+    <th>n/a</th>
+    <td>
+      Inherit all capabilities of the “reader” user category; does not
+      have a dedicated flag internally within Fossil. Mnemonic:
+      <a href="./index.md#ucat"><b>u</b>ser</a>
+    </td>
+  </tr> 
+
+  <tr id="v">
+    <th>v</th>
+    <th>n/a</th>
+    <td>
+      Inherit all capabilities of the “developer” user category; does
+      not have a dedicated flag internally within Fossil.  Mnemonic:
+      de<b>v</b>eloper.
+    </td>
+  </tr> 
+
+  <tr id="w">
+    <th>w</th>
+    <th>WrTkt</th>
+    <td>
+      Edit existing tickets. Granting this capability also grants <a
+      href="#r"><b>RdTkt</b></a>, <a href="#c"><b>ApndTkt</b></a>, and
+      <a href="#n"><b>NewTkt</b></a>. Mnemonic: <b>w</b>rite to ticket.
+    </td>
+  </tr> 
+
+  <tr id="x">
+    <th>x</th>
+    <th>Private</th>
+    <td>
+      Push or pull <a href="../private.wiki">private branches</a>.
+      Mnemonic: e<b>x</b>clusivity; “x” connotes unknown material in
+      many Western languages due to its <a
+      href="https://en.wikipedia.org/wiki/La_Géométrie#The_text">traditional
+      use in mathematics</a>.
+    </td>
+  </tr> 
+
+  <tr id="y">
+    <th>y</th>
+    <th>WrUnver</th>
+    <td>
+      Push <a href="../unvers.wiki">unversioned content</a>. Mnemonic:
+      <b>y</b>ield, <a href="https://en.wiktionary.org/wiki/yield">sense
+      4</a>: “hand over.”
+    </td>
+  </tr> 
+
+  <tr id="z">
+    <th>z</th>
+    <th>Zip</th>
+    <td>
+      Pull archives of particular repository versions via <a
+      href="/help?cmd=/zip"><tt>/zip</tt></a>, <a
+      href="/help?cmd=/tarball"><tt>/tarball</tt></a>, and <a
+      href="/help?cmd=/sqlar"><tt>/sqlar</tt></a> URLs. This is an
+      expensive capability to grant, because creating such archives can
+      put a large load on <a href="../server/">a Fossil server</a> which
+      you may then need to <a href="../loadmgmt.md">manage</a>.
+      Mnemonic: <b>z</b>ip file download.
+    </td>
+  </tr> 
+
+  <tr id="2">
+    <th>2</th>
+    <th>RdForum</th>
+    <td>
+      Read <a href="../forum.wiki">forum posts</a> by other users.
+      Mnemonic: from thee <b>2</b> me.
+    </td>
+  </tr> 
+
+  <tr id="3">
+    <th>3</th>
+    <th>WrForum</th>
+    <td>
+      Create new forum threads, reply to threads created by others, and
+      edit one’s own posts. New posts are <a
+      href="../forum.wiki#moderation">held for moderation</a> and do
+      not appear in repo clones or syncs. Granting this capability also
+      grants <a href="#2"><b>RdForum</b></a>.   Mnemonic: post for
+      <b>3</b> audiences: me, <a href="#5">the mods</a>, and <a
+      href="https://en.wikipedia.org/wiki/The_Man">the Man</a>.
+    </td>
+  </tr> 
+
+  <tr id="4">
+    <th>4</th>
+    <th>WrTForum</th>
+    <td>
+      Extends <a href="#3"><b>WrForum</b></a>, bypassing the moderation
+      and sync restrictions. Mnemonic: post <b>4</b> immediate release.
+    </td>
+  </tr> 
+
+  <tr id="5">
+    <th>5</th>
+    <th>ModForum</th>
+    <td>
+      <a href="../forum.wiki#moderation">Moderate forum posts</a>.
+      Granting this capability also grants <a
+      href="#4"><b>WrTForum</b></a> and <a href="#2"><b>RdForum</b></a>,
+      so a user with this cap never has to moderate their own posts.
+      Mnemonic: “May I have <b>5</b> seconds of your time, honored
+      Gatekeeper?”
+    </td>
+  </tr> 
+
+  <tr id="6">
+    <th>6</th>
+    <th>AdminForum</th>
+    <td>
+      Users with this capability see a checkbox on unmoderated forum
+      posts labeled “Trust user X so that future posts by user X do not
+      require moderation.” Checking that box and then clicking the
+      moderator-only “Approve” button on that post grants <a
+      href="#4"><b>WrTForum</b></a> capability to that post’s author.
+      There is currently no UI for a user with this cap to
+      <em>revoke</em> trust from a user once it is granted; only <a
+      href="#a"><b>Admin</b></a> and <a href="#s"><b>Setup</b></a> can
+      currently revoke granted caps.  Granting this capability also
+      grants <a href="#5"><b>ModForum</b></a> and those it in turn
+      grants.  Mnemonic: “I’m <b>6</b> [sick] of hitting Approve on your
+      posts!”
+    </td>
+  </tr> 
+
+  <tr id="7">
+    <th>7</th>
+    <th>EmailAlert</th>
+    <td>
+      Sign up for <a href="../alerts.md">email alerts</a>. Mnemonic: <a
+      href="https://en.wikipedia.org/wiki/Heaven_Can_Wait">Seven can
+      wait</a>, I’ve got email to read now.
+    </td>
+  </tr> 
+
+  <tr id="A">
+    <th>A</th>
+    <th>Announce</th>
+    <td>
+      Send email announcements to users <a href="#7">signed up to
+      receive them</a>. Mnemonic: <b>a</b>nnounce.
+    </td>
+  </tr> 
+
+  <tr id="D">
+    <th>D</th>
+    <th>Debug</th>
+    <td>
+      Enable debugging features. Mnemonic: <b>d</b>ebug.
+    </td>
+  </tr> 
+</table>
+
+<hr/>
+
+<p id="backlink"><a href="./"><em>Back to Administering User
+Capabilities</em></a></p>

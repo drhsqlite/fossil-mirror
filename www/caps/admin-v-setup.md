@@ -1,15 +1,15 @@
-# Differences Between Setup and Admin User Capabilities
+# Differences Between Setup and Admin User
 
 This document explains the distinction between [Setup users][su] and
 [Admin users][au]. For other information about use types, see:
 
-* [Administering User Capabilities](./capabilities.md)
+* [Administering User Capabilities](./)
 * [How Moderation Works](./forum.wiki#moderation)
 * [Users vs Subscribers](./alerts.md#uvs)
 * [Defense Against Spiders](./antibot.wiki)
 
-[au]: ./capabilities.md#a
-[su]: ./capabilities.md#s
+[au]: ./ref.md#a
+[su]: ./ref.md#s
 
 
 ## <a name="philosophy"></a>Philosophical Core
@@ -58,7 +58,7 @@ tickets, etc.
 We’ll explore these distinctions in the rest of this document.
 
 [bc]:   ./blockchain.md
-[ucap]: ./capabilities.md#ucap
+[ucap]: ./index.md#ucap
 [uv]:   ./unvers.wiki
 
 
@@ -386,9 +386,7 @@ who can connect to that repo’s web UI has full power over that repo.
 [fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
 [forum]: https://fossil-scm.org/forum/
 [fui]:   /help?cmd=ui
-[lg]:    ./capabilities.md#group
+[lg]:    ./login-groups.md
 [rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
 [sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
-[th1]:   https://www.fossil-scm.org/index.html/doc/trunk/www/th1.md
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
-[webo]:  ./capabilities.md#webonly
