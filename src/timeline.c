@@ -2396,11 +2396,13 @@ void page_timeline(void){
   if( fossil_islower(desc.aData[0]) ){
     desc.aData[0] = fossil_toupper(desc.aData[0]);
   }
-  if( zBrName
-   && !PB("nowiki")
-   && wiki_render_associated("branch", zBrName, WIKIASSOC_ALL)
-  ){
-    @ <div class="section">%b(&desc)</div>
+  if( zBrName ){
+    if( !PB("nowiki")
+     && wiki_render_associated("branch", zBrName, WIKIASSOC_ALL)
+    ){
+      @ <div class="section">%b(&desc)</div>
+    }
+    style_submenu_element("Diff", "%R/vdiff?branch=%T", zBrName);
   }else
   if( zTagName
    && matchStyle==MS_EXACT

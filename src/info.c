@@ -667,6 +667,7 @@ void ci_page(void){
   const char *zW;      /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
+  const char *zBrName; /* Branch name */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -695,6 +696,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
+  zBrName = branch_of_rid(rid);
   
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
@@ -707,7 +709,6 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
-    const char *zBrName;
     int okWiki = 0;
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
@@ -721,9 +722,6 @@ void ci_page(void){
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
-    zBrName = db_text(0,
-                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
-                   TAG_BRANCH, rid);
     zOrigUser = db_column_text(&q1, 2);
     zUser = zEUser ? zEUser : zOrigUser;
     zComment = db_column_text(&q1, 3);
@@ -888,7 +886,10 @@ void ci_page(void){
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @   %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      if( fossil_strcmp(zBrName, db_get("main-branch","trunk"))!=0 ){
+        @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
+      }
+      @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
       @ | %z(href("%R/ci_tags/%!S",zUuid))tags</a>
       if( g.perm.Admin ){
         @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
@@ -1288,7 +1289,7 @@ void vdiff_page(void){
       char *zFromUuid = rid_to_uuid(ridFrom);
       @ <h2>Changes In Branch \
       @ %z(href("%R/timeline?r=%T",zRealBranch))%h(zRealBranch)</a>
-      if( strcmp(zRealBranch,zBranch)!=0 ){
+      if( ridTo != symbolic_name_to_rid(zRealBranch,"ci") ){
         @ Through %z(href("%R/info/%!S",zToUuid))[%S(zToUuid)]</a>
       }
       @ Excluding Merge-Ins</h2>
