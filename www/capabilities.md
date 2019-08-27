@@ -415,14 +415,22 @@ extent](#choices), this is unavoidable.
 
 *   <a name="n"></a>**n (NewTkt)** — File new tickets. Mnemonic: **n**ew ticket.
 
-*   <a name="o"></a>**o (Read)** — Check data out from Fossil. This capability
-    has nothing to do with the ability to “open” a local repo clone or
-    switch branches in that clone. It only controls whether similar
-    operations over HTTP to a remote repo are allowed. You must have
-    this capability to view [embedded documentation][edoc], for example,
-    since that basically amounts to opening a file in the remote repo.
-    This capability also controls the [`/artifact`][au], [`/file`][fu],
-    and [`/raw`][ru] URLs.  Mnemonic: check **o**ut file.
+*   <a name="o"></a>**o (Read)** — Read repository content from a remote
+    Fossil instance over HTTP. This capability has nothing to do with
+    reading data from a local repository, because [caps affect Fossil’s
+    web interfaces only](#fssync). Once you’ve cloned a remote
+    repository to your local machine, you can do any reading you want on
+    that repository irrespective of whether your user has **o**
+    capability; the repo clone is completely under your user’s power at
+    that point, affectted only by OS file permissions and such. (To
+    prevent cloning, see [**g**](#g).)
+
+    It is common to withhold this capability from low-status visitors to
+    prevent them from viewing [embedded documentation][edoc], seeing
+    [the file browser][du], and pulling file content via the
+    [`/artifact`][au], [`/file`][fu], and [`/raw`][ru] URLs.
+
+    Mnemonic: check **o**ut remote repo contents.
 
 *   <a name="p"></a>**p (Password)** — Change one’s own password.  Mnemonic:
     **p**assword.
@@ -518,6 +526,7 @@ extent](#choices), this is unavoidable.
 
 [ale]:  ./alerts.md
 [au]:   /help?cmd=/artifact
+[du]:   /help?cmd=/dir
 [edoc]: ./embeddeddoc.wiki
 [fmod]: ./forum.wiki#moderation
 [for]:  ./forum.wiki
