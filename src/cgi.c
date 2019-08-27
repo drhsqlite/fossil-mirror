@@ -566,8 +566,9 @@ void cgi_setenv(const char *zName, const char *zValue){
 
 
 /*
-** Returns non-zero if the specified character is lower case -OR-
-** CGI has been configured to allow uppercase parameter names.
+** Returns non-zero if the specified character is lowercase -OR-
+** the specified character is uppercase and the CGI subsystem has
+** been configured to allow uppercase parameter names.
 */
 int cgi_char_allowed(char c){
   if( fossil_islower(c) ){
