@@ -254,30 +254,42 @@ void info_cmd(void){
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
-void render_checkin_context(int rid, int parentsOnly){
+void render_checkin_context(int rid, int rid2, int parentsOnly){
   Blob sql;
   Stmt q;
+  int rx[2];
+  int i, n;
+  rx[0] = rid;
+  rx[1] = rid2;
+  n = rid2 ? 2 : 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
+
   db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM ok;"
-     "INSERT INTO ok VALUES(%d);"
-     "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
-     rid, rid
+    "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+    "DELETE FROM ok;"
   );
-  if( !parentsOnly ){
+  for(i=0; i<n; i++){
     db_multi_exec(
-      "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rid
+      "INSERT INTO ok VALUES(%d);"
+      "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
+      rx[i], rx[i]
     );
-    if( db_table_exists("repository","cherrypick") ){
+  }
+  if( !parentsOnly ){
+    for(i=0; i<n; i++){
       db_multi_exec(
-        "INSERT OR IGNORE INTO ok "
-        "  SELECT parentid FROM cherrypick WHERE childid=%d;"
-        "INSERT OR IGNORE INTO ok "
-        "  SELECT childid FROM cherrypick WHERE parentid=%d;",
-        rid, rid
+        "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rx[i]
       );
+      if( db_table_exists("repository","cherrypick") ){
+        db_multi_exec(
+          "INSERT OR IGNORE INTO ok "
+          "  SELECT parentid FROM cherrypick WHERE childid=%d;"
+          "INSERT OR IGNORE INTO ok "
+          "  SELECT childid FROM cherrypick WHERE parentid=%d;",
+          rx[i], rx[i]
+        );
+      }
     }
   }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
@@ -288,7 +300,7 @@ void render_checkin_context(int rid, int parentsOnly){
          |TIMELINE_NOSCROLL
          |TIMELINE_XMERGE
          |TIMELINE_CHPICK,
-       0, 0, 0, rid, 0);
+       0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
 }
 
@@ -319,7 +331,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
 }
 
@@ -352,7 +364,7 @@ void backlink_timeline_page(void){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -607,6 +619,7 @@ void ci_tags_page(void){
      "  WHERE tagxref.rid=%d;",
      rid, rid, rid
   );
+#if 0
   db_multi_exec(
     "SELECT tag.tagid, tagname, "
     "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
@@ -616,12 +629,13 @@ void ci_tags_page(void){
     " WHERE tagxref.rid=%d"
     " ORDER BY tagname /*sort*/", rid, rid, rid
   );
+#endif
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, rid, 0);
+                     0, 0, 0, rid, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -898,7 +912,7 @@ void ci_page(void){
   }
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
-  render_checkin_context(rid, 0);
+  render_checkin_context(rid, 0, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(diffType);
@@ -1251,11 +1265,10 @@ void vdiff_page(void){
   }
   style_header("Check-in Differences");
   if( P("nohdr")==0 ){
-    @ <h2>Difference From:</h2><blockquote>
-    checkin_description(ridFrom);
-    @ </blockquote><h2>To:</h2><blockquote>
-    checkin_description(ridTo);
-    @ </blockquote>
+    @ <h2>Difference From <span class='timelineSelected'>\
+    @ %z(href("%R/info/%h",zFrom))%h(zFrom)</a></span>
+    @ To <span class='timelineSelected timelineSecondary'>\
+    @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
@@ -1263,6 +1276,7 @@ void vdiff_page(void){
     if( zGlob ){
       @ <p><b>Only files matching the glob "%h(zGlob)" are shown.</b></p>
     }
+    render_checkin_context(ridFrom, ridTo, 0);
     @<hr /><p>
   }
 

@@ -40,11 +40,14 @@ tr.timelineCurrent {
   border: 1px dashed #446979;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
-tr.timelineSelected {
+.timelineSelected {
   padding: .1em .2em;
   border: 2px solid lightgray;
   background-color: #ffc;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+.timelineSecondary {
+  background-color: #ffc;
 }
 tr.timelineSelected td {
   border-radius: 0;

@@ -245,7 +245,8 @@ void www_print_timeline(
   const char *zThisUser,   /* Suppress links to this user */
   const char *zThisTag,    /* Suppress links to this tag */
   const char *zLeftBranch, /* Strive to put this branch on the left margin */
-  int selectedRid,         /* Highlight the line with this RID value */
+  int selectedRid,         /* Highlight the line with this RID value or zero */
+  int secondRid,           /* Secondary highlight (or zero) */
   void (*xExtra)(int)      /* Routine to call on each line of display */
 ){
   int mxWikiLen;
@@ -396,6 +397,9 @@ void www_print_timeline(
     pendingEndTr = 1;
     if( rid==selectedRid ){
       @ <tr class="timelineSelected">
+      isSelectedOrCurrent = 1;
+    }else if( rid==secondRid ){
+      @ <tr class="timelineSelected timelineSecondary">
       isSelectedOrCurrent = 1;
     }else if( rid==vid ){
       @ <tr class="timelineCurrent">
@@ -1603,7 +1607,8 @@ void page_timeline(void){
   const char *z;
   char *zOlderButton = 0;             /* URL for Older button at the bottom */
   char *zNewerButton = 0;             /* URL for Newer button at the top */
-  int selectedRid = -9999999;         /* Show a highlight on this RID */
+  int selectedRid = 0;                /* Show a highlight on this RID */
+  int secondaryRid = 0;               /* Show secondary highlight */
   int disableY = 0;                   /* Disable type selector on submenu */
   int advancedMenu = 0;               /* Use the advanced menu design */
   char *zPlural;                      /* Ending for plural forms */
@@ -1627,6 +1632,8 @@ void page_timeline(void){
     z = "50";
     nEntry = 50;
   }
+  secondaryRid = name_to_typed_rid(P("sel2"),"ci");
+  selectedRid = name_to_typed_rid(P("sel1"),"ci");
   cgi_replace_query_parameter("n",z);
   cookie_write_parameter("n","n",0);
   tmFlags |= timeline_ss_submenu();
@@ -2416,7 +2423,7 @@ void page_timeline(void){
     @ %z(chref("button","%z",zNewerButton))More&nbsp;&uarr;</a>
   }
   www_print_timeline(&q, tmFlags, zThisUser, zThisTag, zBrName,
-                     selectedRid, 0);
+                     selectedRid, secondaryRid, 0);
   db_finalize(&q);
   if( zOlderButton ){
     @ %z(chref("button","%z",zOlderButton))More&nbsp;&darr;</a>
@@ -2909,7 +2916,7 @@ void thisdayinhistory_page(void){
     @ <h2>%d(iAgo) Year%s(iAgo>1?"s":"") Ago
     @ <small>%z(href("%R/timeline?c=%t",zId))(more context)</a>\
     @ </small></h2>
-    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0, 0);
+    www_print_timeline(&q, TIMELINE_GRAPH, 0, 0, 0, 0, 0, 0);
   }
   db_finalize(&q);
   style_footer();
