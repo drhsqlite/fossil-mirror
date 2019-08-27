@@ -1,5 +1,5 @@
-C Remove\san\sunused\ssubroutine.\s\sFix\sa\sminor\sCSS\sproblem.
-D 2019-08-27T00:29:06.331
+C Merge\sin\sdocumentation\senhancements\sfrom\strunk.
+D 2019-08-27T00:29:40.125
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -874,10 +874,10 @@ F www/server/any/althttpd.md 450f52ad23c0ac8b3783302964e60b765dcf8a4fca9b6efc18b
 F www/server/any/cgi.md 936ee3d21bbc4a9b47e20e3051177aed3e80ca42b970480b98dd374cc27f99a3
 F www/server/any/inetd.md f0eafe585c935d6942024e7867e573b179e9101a4688eecd22fae4cadce8aac7
 F www/server/any/none.md 20241e3dd57305c1aa995cc31bc1b46ff9b9c3a2a92bc3f0a197348d7aded8fa
-F www/server/any/scgi.md 7deb938aa2829439c18ba849783b2b76dbbc721c53e53778c816f021e1e4d67a
+F www/server/any/scgi.md 993544d440f771c1e77b45e692afa830362e94012564862827a8fda69cd7ce2f
 F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db42ef40e182d2c
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
-F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
+F www/server/debian/nginx.md f9e435dd8557b4094e889fa6f0378f8bc4fffde14ef9e9c84e27dde0f8e4c93e
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
 F www/server/index.html 916990abc80a945b28bcf3773feada48c86acf0c9f12e5a709ffe4d1d8bf2753
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e40f866abec68e1217f0f0bb5f00bbadf9380b9fd5a940a68fe79147c06914b
-R e3c321f38378d1e56a689ca73534804f
+P 2078c746a5abb9eaf30ca1cc801c41f1ac779f02962ea8728381bf0b8e6c75c7 c6a033cea66f8c0208bb53d15bd39eea05906fc82b216a5eea0faf3b8022cf23
+R e81d4c161cc7b9dcc076fc10918f6f60
 U drh
-Z 3aebe47584d4078696713c21149f67ce
+Z caccdf6f8dacdb76d212db61a763de93
