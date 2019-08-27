@@ -1292,7 +1292,7 @@ void vdiff_page(void){
         @ Through %z(href("%R/info/%!S",zToUuid))[%S(zToUuid)]</a>
       }
       @ Excluding Merge-Ins</h2>
-      @ <p>This is equivalent to a difference from
+      @ <p>This is equivalent to a diff from
       @ <span class='timelineSelected'>\
       @ %z(href("%R/info/%!S",zFromUuid))%S(zFromUuid)</a></span>
       @ to <span class='timelineSelected timelineSecondary'>\
