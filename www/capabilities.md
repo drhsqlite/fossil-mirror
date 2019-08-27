@@ -329,9 +329,11 @@ differences between these two related capability sets.
 
 This section documents each currently-defined user capability character
 in more detail than the brief summary on the [user capability “key”
-page](/setup_ucap_list).
+page](/setup_ucap_list). Each entry begins with the capability letter
+used in the Fossil user editor followed by the C code’s name for that
+cap within the `FossilUserPerms` object.
 
-*   <a name="a"></a>**a** — Admin users have all of the capabilities
+*   <a name="a"></a>**a (Admin)** — Admin users have *all* of the capabilities
     below except for [setup](#s): they can create new users, change user
     capability assignments, and use about half of the functions on the
     Admin screen in Fossil UI. (And that is why that screen is now
@@ -361,55 +363,57 @@ page](/setup_ucap_list).
 
     Mnemonic: **a**dministrate.
 
-*   <a name="b"></a>**b** — Add attachments to wiki articles or tickets.
+*   <a name="b"></a>**b (Attach)** — Add attachments to wiki articles or tickets.
     Mnemonics: **b**ind, **b**utton, **b**ond, or **b**olt.
 
-*   <a name="c"></a>**c** — Append comments to existing tickets.
+*   <a name="c"></a>**c (ApndTkt)** — Append comments to existing tickets.
     Mnemonic: **c**omment.
 
-*   <a name="d"></a>**d** — Delete wiki articles or tickets. Mnemonic:
+*   <a name="d"></a>**d (Delete)** — Delete wiki articles or tickets. Mnemonic:
     **d**elete.
 
-*   <a name="e"></a>**e** — View [personal identifying information][pii]
+*   <a name="e"></a>**e (RdAddr)** — View [personal identifying information][pii]
     (PII) about other users such as email addresses. Mnemonics: show
     **e**mail addresses; or **E**urope, home of [GDPR][gdpr].
 
-*   <a name="f"></a>**f** — Create new wiki articles. Mnemonic:
+*   <a name="f"></a>**f (NewWiki)** — Create new wiki articles. Mnemonic:
     **f**ast, English translation of the Hawaiian word [*wiki*][wnh].
 
-*   <a name="g"></a>**g** — Clone the repository. Note that this is
+*   <a name="g"></a>**g (Clone)** — Clone the repository. Note that this is
     distinct from [check-out capability, **o**](#o). Mnemonic: **g**et.
 
-*   <a name="h"></a>**h** — Get hyperlinks in generated HTML which link
+*   <a name="h"></a>**h (Hyperlink)** — Get hyperlinks in generated HTML which link
     you to other parts of the repository. This capability exists and is
     disabled by default for the “nobody” category to [prevent bots from
     wandering around aimlessly][bot] in the site’s hyperlink web,
     chewing up server resources to little good purpose. Mnemonic:
     **h**yperlink.
 
-*   <a name="i"></a>**i** — Check changes into the repository. Note that
+*   <a name="i"></a>**i (Write)** — Check changes into the repository. Note that
     a lack of this capability does not prevent you from checking changes
     into your local clone, only from syncing those changes up to the
-    parent repo, and then [only over HTTP](#fssync). Mnemonic: check
-    **i**n changes.
+    parent repo, and then [only over HTTP](#fssync). Granting this
+    capability also grants **o (Read)**.  Mnemonic: check **i**n
+    changes.
 
-*   <a name="j"></a>**j** — View wiki articles. Mnemonic: in**j**est
+*   <a name="j"></a>**j (RdWiki)** — View wiki articles. Mnemonic: in**j**est
     page content.  (All right, you critics, you do better, then.)
 
-*   <a name="k"></a>**k** — Edit wiki articles. Mnemonic:
-    **k**ontribute.
+*   <a name="k"></a>**k (WrWiki)** — Edit wiki articles. Granting this
+    capability also grants **j (RdWiki)** and **m (ApndWiki)**, but it
+    does *not* grant **f (NewWiki)**! Mnemonic: **k**ontribute.
 
-*   <a name="l"></a>**l** — Moderate [wiki article appends](#m). Appends
+*   <a name="l"></a>**l (ModWiki)** — Moderate [wiki article appends](#m). Appends
     do not get saved permamently to the receiving repo’s block chain
     until some user (one with this cap or [Setup cap](#s)) approves it.
     Mnemonic: a**l**low.
 
-*   <a name="m"></a>**m** — Append content to existing wiki articles.
+*   <a name="m"></a>**m (ApndWiki)** — Append content to existing wiki articles.
     Mmnemonics: a**m**end or **m**odify.
 
-*   <a name="n"></a>**n** — File new tickets. Mnemonic: **n**ew ticket.
+*   <a name="n"></a>**n (NewTkt)** — File new tickets. Mnemonic: **n**ew ticket.
 
-*   <a name="o"></a>**o** — Check data out from Fossil. This capability
+*   <a name="o"></a>**o (Read)** — Check data out from Fossil. This capability
     has nothing to do with the ability to “open” a local repo clone or
     switch branches in that clone. It only controls whether similar
     operations over HTTP to a remote repo are allowed. You must have
@@ -418,20 +422,20 @@ page](/setup_ucap_list).
     This capability also controls the [`/artifact`][au], [`/file`][fu],
     and [`/raw`][ru] URLs.  Mnemonic: check **o**ut file.
 
-*   <a name="p"></a>**p** — Change one’s own password.  Mnemonic:
+*   <a name="p"></a>**p (Password)** — Change one’s own password.  Mnemonic:
     **p**assword.
 
-*   <a name="q"></a>**q** — Moderate tickets: comments appended to
+*   <a name="q"></a>**q (ModTkt)** — Moderate tickets: comments appended to
     tickets can be deleted by users with this capability. Mnemonic:
     **q**uash noise commentary.
 
-*   <a name="r"></a>**r** — View existing tickets. Mnemonic: **r**ead
+*   <a name="r"></a>**r (RdTkt)** — View existing tickets. Mnemonic: **r**ead
     tickets.
 
-*   <a name="s"></a>**s** — The [all-powerful Setup user](#apsu).
+*   <a name="s"></a>**s (Setup)** — The [all-powerful Setup user](#apsu).
     Mnemonics: **s**etup or **s**uperuser.
 
-*   <a name="t"></a>**t** — Create new ticket report formats. Note that
+*   <a name="t"></a>**t (TktFmt)** — Create new ticket report formats. Note that
     although this allows the user to provide SQL code to be run in the
     server’s context, and this capability is given to the untrusted
     “anonymous” user category by default, this is a safe capability to
@@ -441,64 +445,72 @@ page](/setup_ucap_list).
     filtering.) Mnemonic: new **t**icket report.
 
 *   <a name="u"></a>**u** — Inherit all capabilities of the “reader”
-    user category. Mnemonic: **u**ser, per [naming suggestion
+    user category; does not have a dedicated flag internally within
+    Fossil.  Mnemonic: **u**ser, per [naming suggestion
     above](#cat).
 
 *   <a name="v"></a>**v** — Inheheit all capabilities of the “developer”
-    user category. Mnemonic: de**v**eloper.
+    user category; does not have a dedicated flag internally within
+    Fossil.  Mnemonic: de**v**eloper.
 
-*   <a name="w"></a>**w** — Edit existing tickets. Mnemonic: **w**rite
-    to ticket.
+*   <a name="w"></a>**w (WrTkt)** — Edit existing tickets. Granting this
+    capability also grants **r (RdTkt)**, **c (ApndTkt)**, and **n
+    (NewTkt)**. Mnemonic: **w**rite to ticket.
 
-*   <a name="x"></a>**x** — Push or pull [private branches][pb].
+*   <a name="x"></a>**x (Private)** — Push or pull [private branches][pb].
     Mnemonic: e**x**clusivity; “x” connotes unknown material in many
     Western languages due to its [traditional use in mathematics][lgrd]
 
-*   <a name="y"></a>**y** — Push [unversioned content][uv]. Mnemonic:
+*   <a name="y"></a>**y (WrUnver)** — Push [unversioned content][uv]. Mnemonic:
     **y**ield, [sense 4][ywik]: “hand over.”
 
-*   <a name="z"></a>**z** — Pull archives of particular repository
+*   <a name="z"></a>**z (Zip)** — Pull archives of particular repository
     versions via [`/zip`][zu], [`/tarball`][tbu], and [`/sqlar`][sau]
     URLs. This is an expensive capability to assign, because creating
     such archives can put a large load on [a Fossil server][svr], which
     you may then need to [manage][load]. Mnemonic: **z**ip file
     download.
 
-*   <a name="2"></a>**2** — Read [forum posts][for] by other users.
+*   <a name="2"></a>**2 (RdForum)** — Read [forum posts][for] by other users.
     Mnemonic: from thee **2** me.
 
-*   <a name="3"></a>**3** — Create new forum threads, reply to threads
+*   <a name="3"></a>**3 (WrForum)** — Create new forum threads, reply to threads
     created by others, and edit one’s own posts. New posts are held for
     [moderation][fmod], and they are marked to prevent them from being
-    included in clone and sync operations. Mnemonic: post for **3**
+    included in clone and sync operations. Granting this capability also
+    grants **2 (RdForum)**. Mnemonic: post for **3**
     audiences: me, [the mods](#5), and [the Man][man].
 
-*   <a name="4"></a>**4** — Same as [**3**](#3) except that forum
-    updates bypass the [moderation and private artifact
-    restrictions][fmod]. Mnemonic: post 4 immediate release.
+*   <a name="4"></a>**4 (WrTForum)** — Extends cap [**3**](#3) so that
+    forum updates bypass the [moderation and private artifact
+    restrictions][fmod]. Granting this capability also grants **2
+    (RdForum)**. Mnemonic: post 4 immediate release.
 
-*   <a name="5"></a>**5** — [Moderate][fmod] forum posts. Note that this
+*   <a name="5"></a>**5 (ModForum)** — [Moderate][fmod] forum posts. Note that this
     capabilitty does not automatically grant [**4**](#4), so it is
     possible to have a user that can create a new post via capability
     [**3**](#3) and then approve that post immediately themselves with
-    *this* capability! Mnemonic: “May I have **5** seconds of your time,
-    honored Gatekeeper?”
+    *this* capability! Granting this capability also grants caps **4
+    (WrTForum)** and **2 (RdForum)**. Mnemonic: “May I have **5**
+    seconds of your time, honored Gatekeeper?”
 
-*   <a name="6"></a>**6** — Users with this capability see a checkbox on
+*   <a name="6"></a>**6 (AdminForum)** — Users with this capability see a checkbox on
     un-moderated forum posts labeled “Trust user X so that future posts
     by user X do not require moderation.” Checking that box and then
     clicking the moderator-only “Approve” button on that post grants
     capability [**4**](#4) to that post’s author. There is currently no
     UI for a user with capability **6** to remove trust from a user once
-    it is granted. Mnemonic: “I’m six of hitting Approve on your posts!”
+    it is granted. Granting this capability also grants cap **5
+    (ModForum)** and those it in turn grants.
+    Mnemonic: “I’m six of hitting Approve on your posts!”
 
-*   <a name="7"></a>**7** — Sign up for [email alerts][ale]. Mnemonic:
+*   <a name="7"></a>**7 (EmailAlert)** — Sign up for [email alerts][ale]. Mnemonic:
     [Seven can wait][scw], I’ve got email to read now.
 
-*   <a name="A"></a>**A** — Send email announcements to users
+*   <a name="A"></a>**A (Announce)** — Send email announcements to users
     [signed up to receive them](#7).  Mnemonic: **a**nnounce.
 
-*   <a name="D"></a>**D** — Enable debugging features. Mnemonic:
+*   <a name="D"></a>**D (Debug)** — Enable debugging features. Mnemonic:
     **d**ebug.
 
 

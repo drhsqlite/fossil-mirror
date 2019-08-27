@@ -1,5 +1,5 @@
-C Clarified\sthe\splacement\sof\s"moderator"\sand\s"subscriber"\sin\sthe\spower\nhierarchy\sexpression\swithin\swww/capabilities.md,\ssince\seach\scould\sfloat\nup\sand\sdown\ssomewhat\swithin\sthe\sfixed\shierarchy\swe\sgive\shere.\sAlso\sfixed\na\sbroken\sURL.
-D 2019-08-23T11:49:29.080
+C Added\s(Names)\sto\sthe\s"Capability\sReference"\ssection\sof\scapabilities.md\nso\sthe\sreference\scan\sbe\sused\swhile\sreading\sC\ssource\scode,\swhich\suses\nthese\snames\sinstead\sof\sthe\scapability\scharacters\sin\sall\scode\spast\sthe\nlogin\shandler.
+D 2019-08-27T01:00:00.751
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -786,7 +786,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/capabilities.md 4a0632996e3073ca505c6c9a94e9ed009471618754ceb70518924446543ca686
+F www/capabilities.md 61c558d71e2349b23f61f5fd9d64140f28c56d2c84b82045c8fe0344de9ad526
 F www/cgi.wiki 8c246b996555eb61d2010b2238dcae5572f559fe9d84c0ad12e63e0e98861b12
 F www/changes.wiki 488fa1c2a4d2acd19d6171ba551a331fb8a04ed3bbded551c814889438593833
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
@@ -913,7 +913,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 832f107ebbb4a82dc71a44d2b6a073e5306c41b6e1dfa5484549627723a2fb58
-R b86b8b87aeb3e0b3465a1198e6392d30
+P ba88f4f2a7ba879c834abd49d5a3c07c1aacf84d8d16e0e505a5c5465f04ef72
+R 6fc9792c6ed327c96c7ffac82630d862
 U wyoung
-Z e59f5b04799ba72dc8a4596e9e1eb952
+Z 7f2c5ab666877c36ec5a30be3ddd1026
