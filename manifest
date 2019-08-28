@@ -1,5 +1,5 @@
-C Added\s'or'\shelp\sfor\scheckin/ci\salias,\sper\sforum\srequest.
-D 2019-08-28T16:08:22.292
+C Changed\sthe\shamburger\smenu\s<a\shref="#">\sto\spoint\sto\s/sitemap\sinstead\sso\nclicks\son\sit\sdo\ssomething\suseful\sin\sthe\snoscript\scase.
+D 2019-08-28T19:52:26.767
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -395,7 +395,7 @@ F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt ea9118ba7297556a8306593c9ceb19cf80f553c45adfaa6f03c01b02422524d8
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
-F skins/default/header.txt a9b4a351ed7bfa0b4eeee934bb3ec4c6a6848f96
+F skins/default/header.txt b4c113fca5da4f1c7787f445797c1a8b502785e62228c9b9b1fd4af192e2c7f6
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt cc86aa8408f877c0423189f089a2af81e4f1cd753593ef3c3cda40d1bb82cb6e
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6a033cea66f8c0208bb53d15bd39eea05906fc82b216a5eea0faf3b8022cf23
-R 5e55dfe8644ecda7e6f00ff04683ee08
-U stephan
-Z 0c33d13438c8538370fe3c60d9c9e6c9
+P f616380dfa9190bc5b9ad114bb7a6633a4b3aabfc008d424e298593ef739868e
+R 9c187baf9de22702d1fa899ef947d177
+U wyoung
+Z 002e766168890f6d95d74d320bca812c
