@@ -222,27 +222,14 @@ repository under a different name and sync your repo with it, your
 earlier “private” check-ins will get synced to the remote under your OS
 user name!
 
-This is unavoidable because those check-ins are already written durably
-to [the local Fossil block chain][bc]. Changing a check-in’s user name
-during sync would require rewriting parts of that block chain, which
-then means it isn’t actually a “sync” protocol. Either the local and
-remote clones would be different or the check-in IDs would change as the
-artifacts get rewritten. That in turn means all references to the old
-IDs in check-in comments, wiki articles, forum posts, tickets, and more
-would break.
-
 When such problems occur, you can amend the check-in to hide the
 incorrect name from Fossil reports, but the original values remain in
-the repository [forever][shun].
-
-This does mean that anyone with check-in rights on your repository can
-impersonate any Fossil user in those check-ins. They check in their work
-under any name they like locally, then upon sync, those names are
-transferred as-is to the remote repository. Be careful who you give
-check-in rights to!
+the repository [forever][shun]. It is [difficult enough][fos] to fix
+such problems automatically during sync that we are unlikely to ever do
+so.
 
 [auo]:  /help?cmd=new
-[bc]:   ../blockchain.md
+[fos]:  ./impl.md#filter
 [shun]: ../shunning.wiki
 
 
@@ -294,6 +281,9 @@ tunnelling HTTP through an OS pipe or through SSH (FIXME?), but because
 the checks for capabilities like [**Read**][o] and [**Write**][i] are
 done against your effective Setup user on the other repo, the check only
 has an effect when done over an `http[s]://` URL.
+
+<!-- add padding so anchor links always scroll ref’d section to top -->
+<div style="height: 75em"></div>
 
 [ref]: ./ref.html
 
