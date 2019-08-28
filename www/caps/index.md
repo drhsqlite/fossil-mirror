@@ -196,7 +196,7 @@ that, you want to deny **Clone** capability instead.
 
 Withholding the **Read** capability has a different effect: it
 prevents a web client from viewing [embedded
-documentation](../embeddeddoc.wiki), using [the file
+documentation][edoc], using [the file
 browser](/help?cmd=/dir), and pulling file content via the
 [`/artifact`](/help?cmd=/artifact), [`/file`](/help?cmd=/file), and
 [`/raw`](/help?cmd=/raw) URLs.
@@ -204,6 +204,8 @@ It is is common to withhold **Read** capability from low-status visitors
 on private or semi-private repos to prevent them from pulling individual
 elements of the repo over the web one at a time, as someone may do when
 denied the bulk **Clone** capability.
+
+[edoc]: ../embeddeddoc.wiki
 
 
 ## <a name="defuser"></a>Default User Name
@@ -282,6 +284,31 @@ the checks for capabilities like [**Read**][o] and [**Write**][i] are
 done against your effective Setup user on the other repo, the check only
 has an effect when done over an `http[s]://` URL.
 
+
+## <a name="pubpg"></a>Public Pages
+
+In Admin → Access, there is an option for giving a list of [globs][glob]
+to name URLs which get treated as if the visitor had [the default cap
+set](#defcap). For example, you could take the [**Read**][o] capability
+away from the “nobody” user category, who has it by default, to prevent
+users without logins from pulling down your repository contents one
+artifact at a time, yet give those users the ability to read the project
+documentation by setting the glob to match your [embedded
+documentation][edoc]’s URL root.
+
+
+## <a name="defcap"></a>Default User Capability Set
+
+In Admin → Access, you can define a default user capability set, which
+is used as:
+
+1.  the default caps for users newly created by an Admin or Setup user
+2.  the default caps for self-registered users, an option in that same UI
+3.  the effective caps for URIs considered [public pages](#pubpg)
+
+This defaults to [**Reader**][u].
+
+
 <!-- add padding so anchor links always scroll ref’d section to top -->
 <div style="height: 75em"></div>
 
@@ -321,6 +348,7 @@ has an effect when done over an `http[s]://` URL.
 [6]:   ./ref.html#6
 [7]:   ./ref.html#7
 
+[glob]: https://en.wikipedia.org/wiki/Glob_(programming)
 [japi]: https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view#heading=h.6k0k5plm18p1
 [sp]:  ../sync.wiki
 [sync]: /help?cmd=sync

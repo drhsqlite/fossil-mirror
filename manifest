@@ -1,5 +1,5 @@
-C Moved\sthe\sdiscussion\sabout\sinadvertent\sattribution\sof\sartifacts\sand\sthe\nproblems\swith\seasy\ssolutions\sto\sthe\sproblem\sinto\sthe\simplementation\ndetails\ssection\sof\sthe\snew\scaps\sdocs\sand\sexpanded\sit\sto\scover\srecent\nforum\sdiscussions.
-D 2019-08-28T23:15:38.701
+C Documented\sPublic\sPages\sand\sthe\sdefault\suser\scapability\sset\sin\nwww/caps/index.md.
+D 2019-08-28T23:33:54.985
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -787,7 +787,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
 F www/caps/admin-v-setup.md 562e095d53859025d4ef1993f870e44096b8fef45894af150673174dc287aebf
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
-F www/caps/index.md fa13d544135121d0e2d427962fb21b291444fa43aa6c0e0668b1fdd41aa12224
+F www/caps/index.md 4e8fb57769e68bf05da2fa16da1ff24580a08bbdde1f46571f268a8c751c7175
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 23898639f01eacecf3562be6eef266e9180e3e12e44d594248e66cb47e24b316
 F www/cgi.wiki 8c246b996555eb61d2010b2238dcae5572f559fe9d84c0ad12e63e0e98861b12
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f21bfbeede1755a26351144d5cc4cf2cab776e5b70e79d0ca43211b44e1ab848
-R b4c699661882da3baf993fe7eabeb966
+P 78ad8b749615fa5c21b9d4c72f78edf5e15a23266d461fede1aa1a447f9442ce
+R f79773c9ffc9455ce4ee845c65d2d614
 U wyoung
-Z 6a0c8d969f9f380170258c7d7215ba30
+Z 0b106ec980a18e9f1b182bdaac40636d
