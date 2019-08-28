@@ -74,9 +74,10 @@ set **ve** is redundant because **v** grants **dei**, which includes
 We suggest that you lean heavily on these fixed user categories when
 setting up new users. Ideally, your users will group neatly into one of
 the predefined categories, but if not, you might be able to shoehorn
-them into our fixed scheme. For example, the administrator of a repo
-that’s mainly used as a wiki or forum for non-developers could treat the
-“developer” user category as if it were called “author”.
+them into our fixed scheme. For example, the administrator of a
+wiki-only Fossil repo for non-developers could treat the “developer”
+user category as if it were called “author,” and a forum-only repo could
+treat the same category as if it were called “member.”
 
 There is currently no way to define custom user categories.
 
@@ -89,7 +90,7 @@ When one or more users need to be different from the basic capabilities
 defined in user categories, you can assign caps to individual users. You
 may want to have the [cap reference][ref] open when doing such work.
 
-However, it is useful at this time to expand on the logical
+It is useful at this time to expand on the logical
 expression [above](#cat), which covered only the four fixed user categories.
 When we bring the individual user capabilities into it, the complete
 expression of the way Fossil implements user power becomes:
@@ -97,8 +98,8 @@ expression of the way Fossil implements user power becomes:
 > *setup* &ge; *admin* &ge; *moderator* &ge; *(developer* &or; *reader)* &ge; *[subscriber]* &ge; *anonymous* &ge; *nobody*
 
 The two additions at the top are clear: [setup is all-powerful][apsu],
-and admin users are [subordinate to the setup
-user(s)][avsp]. Both are superior to all other users.
+and since  admin users have [all capabilities][ref] except for Setup
+capability, they are [subordinate only to the setup user(s)][avsp].
 
 The moderator insertion could go anywhere from where it’s shown now down
 to above the “anonymous” level, depending on what other caps you give to
@@ -121,8 +122,8 @@ Subscribers](../alerts.md#uvs).)
 
 ## <a name="new"></a>New Repository Defaults
 
-When you create a new repository, Fossil creates only one user account
-named after your OS user name [by default](#defuser).
+Fossil creates one user account in new repos, which is named after your
+OS user name [by default](#defuser).
 
 Fossil gives the initial repository user the [all-powerful Setup
 capability][apsu].
@@ -131,7 +132,7 @@ Users who visit a [served repository][svr] without logging in get the
 “nobody” user category’s caps which default to
 **[g][g][j][j][o][o][r][r][z][z]**: clone the repo, read the wiki,
 check-out files via the web UI, view tickets, and pull version archives.
-The defaults are suited to random passers-by on a typical FOSS project’s
+This default is suited to random passers-by on a typical FOSS project’s
 public web site and its code repository.
 
 Users who [prove they are not a bot][bot] by logging in — even if only
@@ -151,8 +152,8 @@ are all about modifying repository content: edit existing wiki pages,
 change one’s own password, create new ticket report formats, and modify
 existing tickets. This category would be better named “participant”.
 
-Those in the “developer” category get all of the above plus the
-**[d][d][e][e][i][i]** caps: delete wiki articles and tickets, view
+Those in the “developer” category get the “nobody” and “anonymous” cap
+sets plus **[d][d][e][e][i][i]**: delete wiki articles and tickets, view
 sensitive user material, and check in changes.
 
 [bot]: ../antibot.wiki
@@ -193,12 +194,16 @@ The repo clone is completely under your user’s power at that point,
 affected only by OS file permissions and such. If you need to prevent
 that, you want to deny **Clone** capability instead.
 
-It is common to withhold **Clone** capability from low-status visitors
-to prevent them from viewing [embedded
-documentation](../embeddeddoc.wiki), seeing [the file
+Withholding the **Read** capability has a different effect: it
+prevents a web client from viewing [embedded
+documentation](../embeddeddoc.wiki), using [the file
 browser](/help?cmd=/dir), and pulling file content via the
 [`/artifact`](/help?cmd=/artifact), [`/file`](/help?cmd=/file), and
 [`/raw`](/help?cmd=/raw) URLs.
+It is is common to withhold **Read** capability from low-status visitors
+on private or semi-private repos to prevent them from pulling individual
+elements of the repo over the web one at a time, as someone may do when
+denied the bulk **Clone** capability.
 
 
 ## <a name="defuser"></a>Default User Name
