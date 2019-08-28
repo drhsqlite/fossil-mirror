@@ -1,5 +1,5 @@
-C Moved\swww/capabilities.md\sto\swww/caps/index.md\sand\swww/admin-v-setup.md\nto\swww/caps/admin-v-setup.md.\s\sThen\sbroke\sthree\schunks\sof\sthe\sold\ncapabilities.md\sdoc\sout\sinto\snew\swww/caps/*\sdocs:\slogin\sgroups,\nimplementation\sdetails\sof\suser\scapabilities,\sand\sthe\suser\scapability\nreference\smaterial.\s\sThe\slatter\sswitched\sfrom\sMarkdown\sto\sHTML\sformat\nso\swe\scould\smake\sit\sa\sclearer-looking\stable,\srather\sthan\sits\sprior\nhard-to-read\sbullet\slist\sform.
-D 2019-08-27T20:35:09.655
+C Expanded\sthe\s"Why\sNot\sBitfields?"\sdiscussion\sin\swww/caps/impl.md.\s\sAlso\ntweaked\sthe\s"Capability\sLetter\sChoices"\stext\sa\sbit\swhile\sin\sthere.
+D 2019-08-28T22:09:02.339
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -785,9 +785,9 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/caps/admin-v-setup.md 562e095d53859025d4ef1993f870e44096b8fef45894af150673174dc287aebf w www/admin-v-setup.md
-F www/caps/impl.md 8c9eaa27217de0ea62c563bb45323996f0c14fd8330e6679cb9a08c17aa3270d
-F www/caps/index.md f5b78fc8329576bcd232afc2b37ade576c01739f284867f4e8460b459a0380de w www/capabilities.md
+F www/caps/admin-v-setup.md 562e095d53859025d4ef1993f870e44096b8fef45894af150673174dc287aebf
+F www/caps/impl.md 1035eb8c6336f7d4fd3f72ea113386a90037ade30ebe0cb81add768abc916d20
+F www/caps/index.md f5b78fc8329576bcd232afc2b37ade576c01739f284867f4e8460b459a0380de
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 23898639f01eacecf3562be6eef266e9180e3e12e44d594248e66cb47e24b316
 F www/cgi.wiki 8c246b996555eb61d2010b2238dcae5572f559fe9d84c0ad12e63e0e98861b12
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ee901c7be39e4b999eb903cb7127d11c8ee03eae16dacbd458e916f05312070c
-R 3e8138dcddf3616f660e54eaad6b0f1c
+P c6cdf9ce8e95df14ab30255f3d98a91f070de2cc1ae009aade5642a0fb29dc7f
+R 26b3e701f4ad090bfb4c6f82c7045eef
 U wyoung
-Z 9c6a1abf6003ae1a17512ae93089b7a5
+Z 7fa4598c694646763453388834b6c1ab
