@@ -327,7 +327,7 @@ development model:
     and lieutenants]" hierarchy as with Linux kernel contributions.  D.
     Richard Hipp rarely overrides decisions made by those he has trusted
     with commit access on his repositories. Fossil allows you to give
-    [/doc/trunk/www/admin-v-setup.md|some users] more power over what
+    [./caps/admin-v-setup.md|some users] more power over what
     they can do with the repository, but Fossil does not otherwise
     directly support the enforcement of a development organization's
     social and power hierarchies. Fossil is a great fit for

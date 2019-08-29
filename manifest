@@ -1,5 +1,5 @@
-C Investigated\sthe\suse\sof\sHTTP\sfor\ssync\sover\sssh://\sand\sfile://\sURLs\sand\nadded\swhat\sI\sfound\sto\sthe\s"Caps\sAffect\sWeb\sInterfaces\sOnly"\ssection\sof\nthe\snew\scaps\sdocs.
-D 2019-08-29T00:07:01.635
+C Fixed\ssome\sURLs\sstill\sreferring\sto\sadmin-v-setup.md\sin\sits\sold\slocation.
+D 2019-08-29T00:17:16.293
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -806,7 +806,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
-F www/defcsp.md 74d25cc0a4180489e2e8fa4685ffce738304429ba42229bfc330e23a6a1e09ca
+F www/defcsp.md 5b493dbbe9614446523ce473f6b33d0ea46113685888040a3bef730172f4370b
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -836,7 +836,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 38fe9b40d403fcbb6153a5454b576500403abc682c143a08d71fbe20df8d0a57
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki a3cf2de29e767c91d4fbcb857e0300c8fef52521acc047e7e50be3a626553d55
+F www/fossil-v-git.wiki 0297abf10fb3e6fd345eb7e73ea780808cf51a4beafda6b6743076609eed188c
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md a5ab3e5351bded48f933c2b6a960f2ab32a33b5d91e02326954452e0f969f400
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html 916990abc80a945b28bcf3773feada48c86acf0c9f12e5a709ffe4d1d8bf2753
+F www/server/index.html 80f41e838c00718b9cebe5c2a03981ae24d07adf84c043b47725cc091905d3e1
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4671ddb17966a6e134f9d20185d18ed1c6ec6d36ca8cee19b79e37c3a0d8175d
-R 20c8606471901a501ff253bfd49ac3e0
+P 845b45943991862bb25be780987bc9a38db117f71274a745cead14d98cf444b9
+R 465a30a28032e41a71af6b05e5707d63
 U wyoung
-Z ab587260f0ad702e641ea51df81c70f1
+Z 207060053080dbbdfb987f30b785007d
