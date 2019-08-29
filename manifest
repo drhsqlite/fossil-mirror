@@ -1,5 +1,5 @@
-C Linked\sto\sthe\snew\scaps\sdocs\sfrom\sthe\sexisting\swww/*\sdocs\swherever\n"capability"\sor\s"capabilities"\swas\smentioned\sbefore.
-D 2019-08-29T01:57:01.047
+C Changed\sinternal\sdocs\son\scapability\s6\s(AdminForum)\sto\sremove\sthe\sclaim\nthat\sit\scan\sbe\sused\sto\srevoke\scapabilty\s4\s(WrTForum)\sfrom\susers.\s\sI\nthink\sthat\sfeature\swas\splanned,\sbut\sno\sUI\swas\sever\screated\sto\ssupport\nit.\s\sMaybe\sthat\sfeature\swill\scome\ssomeday,\sbut\sthe\sforum\sfeature\sis\sover\na\syear\sold\snow.\s\sDoing\sit\son\sthis\sbranch\sbecause\sthis\sis\sall\spart\sof\nthe\scapability\sdocumentation\simprovements.\s\sWithout\sthis\scheckin,\sthe\ncap\sref\sdoesn't\smatch\sthe\scode's\sinternal\sdocs.
+D 2019-08-29T02:44:49.944
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -441,7 +441,7 @@ F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
+F src/capabilities.c b0c35705c43c88771d6709b9c1bd87e7e4c8dccf373ff4d9a847ee7619594cae
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 2ec5bce4bc982a9cdb1a3eb4e7dad8e36e494168b07f5fefacdffb5977d25fce
 F src/checkin.c a0652004d92b1d0b56c0ae37440325c73a77461c40e4b6ec6191829795addf65
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 889d6724939894d2825d5be2292f097caae7742ebe8019974abc102fc0e54c4d
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 52d2860fa03ae63693d12cd0169bc1640fd52c809ae47325b92f27d8de2fc977
+F src/main.c 4165634b6cad703ef1d1f1c3673b87474b710bca5687355f1ab7c025a386ca40
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4aceb600dc34c9fa43fff80875fafba0b4cca9f4ce3d794f1d8bbdf1b0b50bf0
-R 61ed613493a5bc7984b692c0263cfb7b
+P 0af0e14688c7bfc4f1024ae68e0b87161b5b0b686d79c46e88e60d0772379247
+R c084c8111ccf80c9d63bb8663015f5be
 U wyoung
-Z b8097c5b4b95555731e83a4d71a18887
+Z f3b9312e6d2793c3789ab6ed5a641f96
