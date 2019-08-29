@@ -46,7 +46,7 @@ they initially get the capabilities of the “nobody” user category. This
 category would be better named “everybody” because it applies whether
 you’re logged in or not.
 
-When a user logs in as “anonymous” via [`/login`](/help?cmd=/login) they
+When a user logs in as “anonymous” via [`/login`](/help?name=/login) they
 get all of the “nobody” category’s caps plus those assigned to the
 “anonymous” user category. It would be better named “user” because it
 affects all logged-in users, not just those logged in via Fossil’s
@@ -197,9 +197,9 @@ that, you want to deny **Clone** capability instead.
 Withholding the **Read** capability has a different effect: it
 prevents a web client from viewing [embedded
 documentation][edoc], using [the file
-browser](/help?cmd=/dir), and pulling file content via the
-[`/artifact`](/help?cmd=/artifact), [`/file`](/help?cmd=/file), and
-[`/raw`](/help?cmd=/raw) URLs.
+browser](/help?name=/dir), and pulling file content via the
+[`/artifact`](/help?name=/artifact), [`/file`](/help?name=/file), and
+[`/raw`](/help?name=/raw) URLs.
 It is is common to withhold **Read** capability from low-status visitors
 on private or semi-private repos to prevent them from pulling individual
 elements of the repo over the web one at a time, as someone may do when
@@ -230,7 +230,7 @@ the repository [forever][shun]. It is [difficult enough][fos] to fix
 such problems automatically during sync that we are unlikely to ever do
 so.
 
-[auo]:  /help?cmd=new
+[auo]:  /help?name=new
 [fos]:  ./impl.md#filter
 [shun]: ../shunning.wiki
 
@@ -267,7 +267,9 @@ only local file permissions matter when operating on a local SQLite DB
 file. The same is true when working on a clone done over such a path,
 except that there are then two sets of file system permission checks:
 once to modify the working check-out’s repo clone DB file, then again on
-[sync][sync] with the parent DB file.
+[sync][sync] with the parent DB file. The Fossil capability checks are
+effectively defeated because your user has [**Setup**][s] capability on
+both sides of the sync.
 
 What may surprise you is that user caps *also do not affect SSH!* When
 you make a change to such a repository, the change first goes to the
@@ -275,14 +277,31 @@ local clone, where file system permissions are all that matter, but then
 upon sync, the situation is effectively the same as when the parent repo
 is on the local file system. If you can log into the remote system over
 SSH and that user has the necessary file system permissions on that
-remote repo DB file, your user is effectively the [all-powerful Setup
-user][apsu] on both sides of the SSH connection.
+remote repo DB file, it is the same situation as for `file://` URLs.
 
-Fossil reuses the HTTP-based [sync protocol][sp] in both cases above,
-tunnelling HTTP through an OS pipe or through SSH (FIXME?), but because
-the checks for capabilities like [**Read**][o] and [**Write**][i] are
-done against your effective Setup user on the other repo, the check only
-has an effect when done over an `http[s]://` URL.
+All Fossil syncs are done over HTTP, even for `file://` and `ssh://`
+URLs:
+
+*   For `ssh://` URLs, Fossil pipes the HTTP conversation through a
+    local SSH client to a remote instance of Fossil running the
+    [`test-http`](/help?name=test-http) command to recieve the tunneled
+    HTTP connection without cap checks. The SSH client defaults to “`ssh
+    -e none -T`” on most platforms, except on Windows where it defaults
+    to “`plink -ssh -T`”. You can override this with [the `ssh-command`
+    setting](/help?name=ssh-command).
+
+*   For `file://` URLs, the “sending” Fossil instance writes its side of
+    the HTTP conversation out to a temporary file in the same directory
+    as the local repo clone and then calls itself on the “receiving”
+    repository to read that same HTTP transcript file back in to apply
+    those changes to that repository. Presumably Fossil doesn’t do this
+    with a pipe to ease portability to Windows.
+
+Because both mechanisms work on local repos, the checks for capabilities
+like [**Read**][o] and [**Write**][i] within the HTTP conversation for
+such URLs can never return “false,” because you are the [**Setup**][s]
+user on both sides of the conversation. Such checks only have a useful
+effect when done over an `http[s]://` URL.
 
 
 ## <a name="pubpg"></a>Public Pages
@@ -351,5 +370,5 @@ This defaults to [**Reader**][u].
 [glob]: https://en.wikipedia.org/wiki/Glob_(programming)
 [japi]: https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/view#heading=h.6k0k5plm18p1
 [sp]:  ../sync.wiki
-[sync]: /help?cmd=sync
+[sync]: /help?name=sync
 [wp]:  /help#webpages
