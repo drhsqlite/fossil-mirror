@@ -1,5 +1,5 @@
-C Clarified\smeaning\sof\sEmailAlert\s(7)\sin\scap\sref.
-D 2019-08-29T00:45:26.878
+C Linked\sto\sthe\snew\scaps\sdocs\sfrom\sthe\sexisting\swww/*\sdocs\swherever\n"capability"\sor\s"capabilities"\swas\smentioned\sbefore.
+D 2019-08-29T01:57:01.047
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -757,8 +757,8 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178ca9d
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
-F www/alerts.md 6afc3d7d07b13ac79cc9e7062071852bfca083ca7162f53484c3b50077d8d261
-F www/antibot.wiki ab2b0cb215895ada22cf5130986c662e6bc892a58998f367fa8c0bb18639fbe5
+F www/alerts.md 5b5721f88510f708118687708150f3fe3d140aef22af1aa56fd73a77b34ce7a4
+F www/antibot.wiki 0a0da1170b10103300004661f00ee71652c9f30faf5a6d28afdee93a5ddd36a6
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md e052e61ec7c94bb7c1671a4f9d97d7fd324aecfc8a9887cb772e3f2fe3718706
@@ -790,7 +790,7 @@ F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 45115ecbb0112e915acdbb1758a6c1a42ce01469a2ce945b36945c0aa0f3444e
-F www/cgi.wiki 8c246b996555eb61d2010b2238dcae5572f559fe9d84c0ad12e63e0e98861b12
+F www/cgi.wiki 8b9f787cb0e162e9672f5b3ce0d32f60dabae0003f7bd7dc6ffa6ae2b05ceec2
 F www/changes.wiki 488fa1c2a4d2acd19d6171ba551a331fb8a04ed3bbded551c814889438593833
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
@@ -803,7 +803,7 @@ F www/concepts.wiki dd3f4b1f737cba173f8987e27b1eea8c83485727bcf885ce5f2b17837bf0
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
-F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
+F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
 F www/defcsp.md 5b493dbbe9614446523ce473f6b33d0ea46113685888040a3bef730172f4370b
@@ -833,10 +833,10 @@ F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8fbc9c965cd66444b730513727342b64b9924f6e8ddfbe6bcdd5a1fdfabee2cf
 F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
-F www/forum.wiki 38fe9b40d403fcbb6153a5454b576500403abc682c143a08d71fbe20df8d0a57
+F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 6f674ee8fe4feffce75ef140569497fbeacf4506a164a62470f104cbb23b27f4
+F www/fossil-v-git.wiki fb087f5d01758a907e41dc1e04544c67fd5afce9c2b63680eac48fd080780ffa
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -883,7 +883,7 @@ F www/server/any/stunnel.md ee439f644292a5f6272a97b95a9e5bd2c86fd753ec2cd6c78db4
 F www/server/any/xinetd.md dd52096aff2f39ef55072724e16bed332a4ce813260515e7e7cd8f16706d83bb
 F www/server/debian/nginx.md f9e435dd8557b4094e889fa6f0378f8bc4fffde14ef9e9c84e27dde0f8e4c93e
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
-F www/server/index.html 6ee3a27219f64aa5bccd317f51f13405ae2d3838d10e079ffaafac1549195ca2
+F www/server/index.html 53527cad50f6a442a4b15c12f4ce133035893c1b71c4439e5f833280ffdf60e4
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
 F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
@@ -896,7 +896,7 @@ F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2b
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
 F www/server/windows/stunnel.md a69f4f8335d0c19bbf4b31cb8c126ad3ad4967e7537ac1b99d7bcea02462a7b2
-F www/serverext.wiki 2bd0c934cc7765c7b8902de228bcb33edf67b52f3f4fecd8daf941372feca7a6
+F www/serverext.wiki 559c5babda8967b6e02a50397a9bc56d76c4c07a7043d48c29bc4bad4c347c16
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 493254b2e7753546c4a4c0996c16a9f53cf1dee9246884380694be578229919a
-R 246664f64cbad7d7e9e1c868d512854c
+P 4aceb600dc34c9fa43fff80875fafba0b4cca9f4ce3d794f1d8bbdf1b0b50bf0
+R 61ed613493a5bc7984b692c0263cfb7b
 U wyoung
-Z 64bd7a9bb641554fa90c3432d922f9ed
+Z b8097c5b4b95555731e83a4d71a18887

@@ -67,8 +67,7 @@ an integrated [./wikitheory.wiki | wiki],
 [./event.wiki | technical notes], and a [./forum.wiki | web forum],
 all within a single nicely-designed [./customskin.md|skinnable] web
 [/help?cmd=ui|UI],
-protected by a fine-grained
-[https://en.wikipedia.org/wiki/Role-based_access_control|role-based
+protected by [./caps/ | a fine-grained role-based
 access control system].
 These additional capabilities are available for Git as 3rd-party
 add-ons, but with Fossil they are integrated into

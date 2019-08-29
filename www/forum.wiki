@@ -76,10 +76,10 @@ of which you cannot get by using third-party alternatives:
      URL scheme or disappears from the web.
 
   *  <b>Role-Based Access Control:</b> The forum uses the same
-     [https://en.wikipedia.org/wiki/Role-based_access_control | RBAC
+     [./caps/ | capability-based access control
      system] that Fossil uses to control all other repository accesses.
-     The Fossil forum feature simply adds several new fine-grained
-     capability bits to the existing system.
+     The Fossil forum feature simply adds [./caps/ref.html#2 | several new fine-grained
+     capabilities] to the existing system.
 
   *  <b>Enduring, Open File Format:</b> Since Fossil has an
      [./fileformat.wiki | open and well-documented file format], your
@@ -111,11 +111,6 @@ of which you cannot get by using third-party alternatives:
 
 <h3 id="caps">Capabilities</h3>
 
-Fossil forums use the same [./capability.md | role-based access control
-mechanism] as for normal Fossil repository logins. There are
-[./capability.md#2 | several dedicated forum-related capabilities] you
-can grant to a user.
-
 By default, no Fossil user has permission to use the forums except for
 users with Setup and Admin capabilities, which get these as part of the
 large package of other capabilities they get.
@@ -123,23 +118,26 @@ large package of other capabilities they get.
 For public Fossil repositories that wish to accept new users without
 involving a human, go into Admin &rarr; Access and enable the "Allow
 users to register themselves" setting. You may also wish to give users
-in the <tt>anonymous</tt> category the Read Forum (2) and Write Forum
-(3) capabilities: this allows people to post without creating an account
+in [./caps/#ucat | the <tt>anonymous</tt> user category] the
+<b>[./caps/ref.html#2 | RdForum]</b> and
+<b>[./caps/ref.html#3 | WrForum]</b>
+capabilities: this allows people to post without creating an account
 simply by solving [./antibot.wiki | a simple CAPTCHA].
 
 For a private repository, you probably won't want to give the
 <tt>anonymous</tt> user any forum access, but you may wish to give the
-Read Forum capability (2) to users in the <tt>reader</tt> category.
+<b>RdForum</b> capability to users in the <tt>reader</tt> category.
 
 For either type of repository, you are likely to want to give at least
-the WriteTrusted capability (4) to users in the <tt>developer</tt>
-category. If you did not give the Read Forum capability (2) to
+the <b>[./caps/ref.html#4 | WrTForum]</b> capability to users in the <tt>developer</tt>
+category. If you did not give the <b>RdForum</b> capability to
 <tt>anonymous</tt> above, you should give <tt>developer</tt> that
-capability here if you choose to give it capability 3 or 4.
+capability here if you choose to give it <b>WrForum</b> or
+<b>WrTForum</b> capability.
 
 If you want to use the email alert feature, by default only those
 users in the Setup and Admin user categories can make use of it. Grant
-the Email Alerts capability (7) to give others access to this feature.
+the <b>[./caps/ref.html#7 | EmailAlert]</b> capability to give others access to this feature.
 Alternately, you can handle alert signups outside of Fossil, with
 a Setup or Admin users manually signing users up via Admin &rarr;
 Notification. You'll want to grant this capability to the
@@ -152,7 +150,7 @@ these capabilities to every user on your Fossil repository.)
 
 By following this advice, you should not need to tediously add
 capabilities to individual accounts except in atypical cases, such as
-to grant the Moderate Forum capability (5) to an uncommonly
+to grant the <b>[./caps/ref.html#5 | ModForum]</b> capability to an uncommonly
 highly-trusted user.
 
 
@@ -188,9 +186,9 @@ to the Header part of the skin to create the navbar link:
   }
 </verbatim>
 
-These rules say that any logged-in user with any forum-related
-capability (2-6 inclusive, as of this writing) or an anonymous user with
-read or write capability on the forum (2, 3) will see the "Forum" navbar
+These rules say that any logged-in user with any [./caps/ref.html#2 |
+forum-related capability] or an anonymous user <b>RdForum</b> or
+<b>WrForum</b> capability will see the "Forum" navbar
 link, which just takes you to <tt>/forum</tt>.
 
 The exact code you need here varies depending on which skin you're
@@ -281,10 +279,7 @@ Yet, what of the users who will have logins on both repositories? Some
 users will be trusted with access to the project's main Fossil
 repository, and these users will probably also participate in the
 project's Fossil-hosted forum. Fossil has a feature to solve this
-problem which is probably less well known than it should be, and which
-has been a feature of Fossil since April of 2011: Admin &rarr;
-Login-Group. This allows one Fossil repository to recognize users
-authorized on a different Fossil repository.
+problem: [./caps/login-groups.md | login groups].
 
 
 <h3 id="alerts">Email Alerts (a.k.a. Notifications)</h3>
@@ -305,16 +300,14 @@ There are many paths to a repository's Fossil forum:
 
 <ul>
   <li>
-    <p>If you're using the default Fossil skin as shipped with Fossil
-    2.7 or one updated to include the changes since 2.6 or prior, there
-    is a Forum button in the navbar which appears for users with any of
-    the forum-related user capabilities: 2 through 6 inclusive for those
-    with repository logins, or caps 2 and 3 for users without a user
-    account but who have solved the Anonymous user CAPTCHA.</p>
-    <p>This button will not appear in the default skin for such users if
-    their browser window is not greater than 1200 pixels wide.  The
+    If you're using the default Fossil skin as shipped with Fossil
+    2.7+ or one [#skin | updated] to support it, there
+    is a Forum button in the navbar which appears for users able to
+    access the forum. With the default skin, that button will only
+    appear if the user's browser window is at least
+    1200 pixels wide.  The
     Fossil admin can adjust this limit in the skin's CSS section, down
-    near the bottom in the definition of the `wideonly` style.</p>
+    near the bottom in the definition of the `wideonly` style.
   </li>
 
   <li>The other stock skins have this button in them as of 2.7 as well,
@@ -346,7 +339,7 @@ update:"
   *  reply to an existing post
   *  edit a post or reply
 
-When a person with the normal <b>Write Forum</b> capability (<tt>3</tt>)
+When a person with the normal <b>WrForum</b> capability
 updates the forum, Fossil saves the update in its block chain, but this
 update is impermanent because of two other table updates made at the
 same time:
@@ -364,10 +357,9 @@ same time:
 </ol>
 
 When a moderator approves an update, Fossil deletes these table entries,
-making the update semi-permanent. This changes how Fossil renders the
+making the update [./shunning.wiki | semi-permanent]. This changes how Fossil renders the
 HTML for that update. It also means the artifact will now sync to
-clones, if the sync is done by a user with <b>Check-Out</b> capability
-(<tt>o</tt>).
+users with <b>[./caps/ref.html#g | Clone]</b> capability.
 
 When a forum user edits a moderator-approved artifact, what actually
 happens under the hood is that Fossil writes another artifact to the
@@ -381,7 +373,7 @@ When you "Delete" a moderator-approved post or reply through Fossil UI,
 it's actually an edit with blank replacement content. The only way to
 truly delete such artifacts is through [./shunning.wiki | shunning].
 
-When a user with <b>WriteTrusted Forum</b> capability (<tt>4</tt>)
+When a user with <b>WrTForum</b> capability
 updates the forum, it happens in the same way except that Fossil skips
 the <tt>private</tt> and <tt>modreq</tt> table insertions.
 
@@ -400,17 +392,17 @@ behalf of its users, we can now give the short list of work left for the
 repository's administrators and moderators:
 
 <ol>
-    <li>Add the <b>Moderate Forum</b> capability (<tt>5</tt>) to any of
+    <li>Add the <b>[./caps/ref.html#5 | ModForum]</b> capability to any of
     your users who should have this ability. You don't need to do this
-    for any user with Setup (<tt>s</tt>) or Admin (<tt>a</tt>)
-    capability; it's
+    for any user with <b>[./caps/ref.html#s | Setup]</b> or
+    <b>[./caps/ref.html#a | Admin]</b> capability; it's
     [http://fossil-scm.org/index.html/artifact/b16221ffb736caa2?ln=1246-1257
     | already included].</li>
 
     <li>When someone updates the forum, an entry will appear in the
     timeline if the type filter is set to "Forum" or "Any Type". If that
-    user has only the <b>Write Forum</b> capability (<tt>3</tt>), any
-    other user with the <b>Moderate Forum</b> capability (<tt>5</tt>)
+    user has only the <b>WrForum</b> capability, any
+    other user with the <b>ModForum</b> capability
     will see a conditional link appear at the top of the main forum
     page: "Moderation Requests".  Clicking this takes the moderator to
     the <tt>/modreq</tt> page. A moderator may wish to keep the main
