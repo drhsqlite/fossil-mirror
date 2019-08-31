@@ -1,5 +1,5 @@
-C Avoid\swarning\sabout\sextra\scall\sto\sdb_end_transaction()\sby\sreturning\sat\sthe\nend\sof\sa\scomplete\sblock.
-D 2019-08-31T18:09:41.002
+C Minor\stypo\scorrection\sin\scomment---no\sfunctional\schange.
+D 2019-08-31T18:22:39.522
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -578,7 +578,7 @@ F src/style.c e654ff9b9b80ca5ce23ad5e5b5b7aa060539a0532111f1b49746d8a0da34d656
 F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
 F src/tag.c 786e61573107781307de21a2d601a932606e42c9cb8f90b765db2d8ea09e6d48
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
-F src/th.c 053e8473bda3d26db4aa5b7be79c413b3eba5945624a1018abba4f70e85def3e
+F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c 4c91ac7c1e00a8402de8feedf49158560da0cc37bbcc51ebdb94a6c174ffd162
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d959c48ac6c34057c4b0d38c6b0c77aa8fbe74550528d4e5b30ae1cafd18393e
-R f608da353ae2fd792bf902f4381520c7
+P 7b2350a86b96f2b5839a6480ca0bee17eeab0014a931689a4640387b18ab9540
+R 6c6b1ce592ffa299a4bbb766ae769c5a
 U andybradford
-Z d8dc74b24d99e3080964fc83ba4a8ca0
+Z ec71662ca3f71a1824132af85f7662d8
