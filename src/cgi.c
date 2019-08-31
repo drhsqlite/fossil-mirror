@@ -951,6 +951,9 @@ void cgi_init(void){
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+#ifdef _WIN32
+  const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
+#endif
 
 #ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
@@ -958,6 +961,20 @@ void cgi_init(void){
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
   if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
+#ifdef _WIN32
+  /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
+  ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
+  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the 
+  ** beginning. */
+  if( zServerSoftware && strstr(zServerSoftware, "Microsoft-IIS") ){
+    int i, j;
+    cgi_set_parameter("REQUEST_URI", zPathInfo);
+    for(i=0; zPathInfo[i]==zScriptName[i] && zPathInfo[i]; i++){}
+    for(j=i; zPathInfo[j] && zPathInfo[j]!='?'; j++){}
+    zPathInfo = mprintf("%.*s", j-i, zPathInfo+i);
+    cgi_replace_parameter("PATH_INFO", zPathInfo);
+  }
+#endif
   if( zRequestUri==0 ){
     const char *z = zPathInfo;
     if( zPathInfo==0 ){
