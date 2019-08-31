@@ -68,11 +68,11 @@ Fossil provides four major ways to access a repository it’s serving
 remotely, three of which are straightforward to use with nginx:
 
 *   **HTTP** — Fossil has a built-in HTTP server: [`fossil
-    server`](/help/server).  While this method is efficient and it’s
-    possible to use nginx to proxy access to another HTTP server, this
-    option is overkill for our purposes.  nginx is itself a fully
-    featured HTTP server, so we will choose in this guide not to make
-    nginx reinterpret Fossil’s implementation of HTTP.
+    server`](../any/none.md).  While this method is efficient and it’s
+    possible to use nginx to proxy access to another HTTP server, we
+    don’t see any particularly good reason to make nginx reinterpret
+    Fossil’s own implementation of HTTP when we have a better option.
+    (But see [below](#http).)
 
 *   **CGI** — This method is simple but inefficient, because it launches
     a separate Fossil instance on every HTTP hit.
@@ -109,51 +109,18 @@ your server, then say:
 
 ## <a name="scgi"></a>Running Fossil in SCGI Mode
 
-I run my Fossil SCGI server instances with a variant of [the `fslsrv`
-shell script](/file/tools/fslsrv) currently hosted in the Fossil source
-code repository. You’ll want to download that and make a copy of it, so
-you can customize it to your particular needs.
+For the following nginx configuration to work, it needs to contact a
+Fossil instance speaking the SCGI protocol. There are [many ways](../)
+to set that up. For Debian type systems, we primarily recommend
+following [our systemd user service guide](service.md).
 
-This script allows running multiple Fossil SCGI servers, one per
-repository, each bound to a different high-numbered `localhost` port, so
-that only nginx can see and proxy them out to the public.  The
-“`example`” repo is on TCP port localhost:12345, and the “`foo`” repo is
-on localhost:12346.
+Another option would be to customize [the `fslsrv` shell
+script](/file/tools/fslsrv) that ships with Fossil as an example of
+launching multiple Fossil instances in the background to serve multiple
+URLs.
 
-As written, the `fslsrv` script expects repositories to be stored in the
-calling user’s home directory under `~/museum`, because where else do
-you keep Fossils?
-
-That home directory also needs to have a directory to hold log files,
-`~/log/fossil/*.log`. Fossil doesn’t put out much logging, but when it
-does, it’s better to have it captured than to need to re-create the
-problem after the fact.
-
-The use of `--baseurl` in this script lets us have each Fossil
-repository mounted in a different location in the URL scheme.  Here, for
-example, we’re saying that the “`example`” repository is hosted under
-the `/code` URI on its domains, but that the “`foo`” repo is hosted at
-the top level of its domain.  You’ll want to do something like the
-former for a Fossil repo that’s just one piece of a larger site, but the
-latter for a repo that is basically the whole point of the site.
-
-You might also want another script to automate the update, build, and
-deployment steps for new Fossil versions:
-
-       #!/bin/sh
-       cd $HOME/src/fossil/trunk
-       fossil up
-       make -j11
-       killall fossil
-       sudo make install
-       fslsrv
-
-The `killall fossil` step is needed only on OSes that refuse to let you
-replace a running binary on disk.
-
-As written, the `fslsrv` script assumes a Linux environment.  It expects
-`/bin/bash` to exist, and it depends on non-POSIX tools like `pgrep`.
-It should not be difficult to port to systems like macOS or the BSDs.
+However you do it, you need to match up the TCP port numbers between it
+and those in the nginx configuration below.
 
 
 ## <a name="config"></a>Configuration
@@ -163,27 +130,32 @@ for nginx is `/etc/nginx/sites-enabled/default`. I recommend that this
 file contain only a list of include statements, one for each site that
 server hosts:
 
-      include local/example
-      include local/foo
+      include local/example.com
+      include local/foo.net
 
 Those files then each define one domain’s configuration.  Here,
-`/etc/nginx/local/example` contains the configuration for
-`*.example.com` and `*.example.net`; and `local/foo` contains the
-configuration for `*.foo.net`.
+`/etc/nginx/local/example.com` contains the configuration for
+`*.example.com` and its alias `*.example.net`; and `local/foo.net`
+contains the configuration for `*.foo.net`.
 
-The configuration for our `foo.net` web site, stored in
-`/etc/nginx/sites-enabled/local/foo` is:
+The configuration for our `example.com` web site, stored in
+`/etc/nginx/sites-enabled/local/example.com` is:
 
       server {
-          server_name .foo.net;
+          server_name .example.com .example.net "";
           include local/generic;
 
-          access_log /var/log/nginx/foo.net-https-access.log;
-           error_log /var/log/nginx/foo.net-https-error.log;
+          access_log /var/log/nginx/example.com-https-access.log;
+           error_log /var/log/nginx/example.com-https-error.log;
 
-          # Bypass Fossil for the static Doxygen docs
-          location /doc/html {
-              root /var/www/foo.net;
+          # Bypass Fossil for the static documentation generated from
+          # our source code by Doxygen, so it merges into the embedded
+          # doc URL hierarchy at Fossil’s $ROOT/doc without requiring that
+          # these generated files actually be stored in the repo.  This
+          # also lets us set aggressive caching on these docs, since
+          # they rarely change.
+          location /code/doc/html {
+              root /var/www/example.com/code/doc/html;
 
               location ~* \.(html|ico|css|js|gif|jpg|png)$ {
                   expires 7d;
@@ -193,15 +165,14 @@ The configuration for our `foo.net` web site, stored in
           }
 
           # Redirect everything else to the Fossil instance
-          location / {
+          location /code {
               include scgi_params;
+              scgi_param SCRIPT_NAME "/code";
               scgi_pass 127.0.0.1:12345;
-              scgi_param HTTPS "on";
-              scgi_param SCRIPT_NAME "";
           }
       }
 
-As you can see, this is a simple extension of [the basic nginx service
+As you can see, this is a pure extension of [the basic nginx service
 configuration for SCGI][scgii], showing off a few ideas you might want to
 try on your own site, such as static asset proxying.
 
@@ -223,8 +194,32 @@ pattern from one host to the next. Sadly, you must tolerate some
 repetition across `server { }` blocks when setting up multiple domains
 on a single server.
 
-The configuration for `example.com` and `example.net` is similar.
+The configuration for `foo.net` is similar.
 
 See [the nginx docs](http://nginx.org/en/docs/) for more ideas.
+
+
+## <a name="http"></a>Proxying HTTP Anyway
+
+[Above](#modes), we argued that proxying SCGI is a better option than
+making nginx reinterpret Fossil’s own implementation of HTTP.  If you
+want Fossil to speak HTTP, just [set Fossil up as a standalone
+server](../any/none.md). And if you want nginx to [provide TLS
+encryption for Fossil][tls], proxying HTTP instead of SCGI provides no
+benefit.
+
+However, it is still worth showing the proper method of proxying
+Fossil’s HTTP server through nginx if only to make reading nginx
+documentation on other sites easier:
+
+        location /code {
+            rewrite ^/code(/.*) $1 break;
+            proxy_pass http://127.0.0.1:12345;
+        }
+
+The most common thing people get wrong when hand-rolling a configuration
+like this is to get the slashes wrong. Fossil is senstitive to this. For
+instance, Fossil will not collapse double slashes down to a single
+slash, as some other HTTP servers will.
 
 *[Return to the top-level Fossil server article.](../)*

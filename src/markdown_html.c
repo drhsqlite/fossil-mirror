@@ -435,7 +435,11 @@ static int html_link(
   if( zLink==0 || zLink[0]==0 ){
     zClose[0] = 0;
   }else{  
-    wiki_resolve_hyperlink(ob, 0, zLink, zClose, sizeof(zClose), 0, zTitle);
+    static const int flags = 
+       WIKI_NOBADLINKS |
+       WIKI_MARKDOWNLINKS
+    ;
+    wiki_resolve_hyperlink(ob, flags, zLink, zClose, sizeof(zClose), 0, zTitle);
   }
   if( blob_size(content)==0 ){
     if( link ) BLOB_APPEND_BLOB(ob, link);

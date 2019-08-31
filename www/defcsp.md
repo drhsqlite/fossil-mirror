@@ -1,29 +1,38 @@
 # The Default Content Security Policy (CSP)
 
-When Fossil’s web interface generates an HTML page, it
-normally includes a [Content Security Policy][csp] (CSP)
-in the `<head>`.
-The CSP tells the browser what types of content (HTML, image, CSS,
-JavaScript...) the document may reference and from where the
-content may be sourced.
+When Fossil’s web interface generates an HTML page, it normally includes
+a [Content Security Policy][csp] (CSP) in the `<head>`.  The CSP defines
+a “white list” to tell the browser what types of content (HTML, images,
+CSS, JavaScript...) the document may reference and the sources the
+browser is allowed to pull such content from. The aim is to prevent
+certain classes of [cross-site scripting][xss] (XSS) and code injection
+attacks.  The browser will not pull content types disallowed by the CSP.
 
-CSP is a security measure designed to prevent [cross-site scripting][xss]
-(XSS) and other similar code injection attacks.
-The CSP defines a “white list” of content types and origins that
-are considered safe.  Any references to resources that are not
-on the white list are ignored.
+Fossil has built-in server-side content filtering logic. For example, it
+purposely breaks `<script>` tags when it finds them in Markdown and
+Fossil Wiki documents. (But not in [HTML-formatted embedded
+docs][hfed]!) We also back that with multiple levels of analysis and
+checks to find and fix content security problems: compile-time static
+analysis, run-time dynamic analysis, and manual code inspection. Fossil
+is open source software, so it benefits from the “[many
+eyeballs][llaw],” limited by the size of its developer community.
 
-If Fossil were perfect and bug-free and never allowed any kind of
-code injection on the pages it generates, then the CSP would not
-be useful.  The Fossil developers are not aware of any defects
-in Fossil that allow code injection, and will promptly fix any defects 
-that are brought to their attention.  Lots of eyeballs are looking at
-Fossil to find problems in the code, and the Fossil build process uses
-custom static analysis techniques to help identify code injection problems
-at compile-time.  Nevertheless, problems do sometimes (rarely) slip
-through.  The CSP serves as a final line of defense, preventing
-code injection defects in Fossil from turning into actual
-vulnerabilities.
+However, there is a practical limit to the power of server-side
+filtering and code quality practices.
+
+First, there is an endless battle between those looking for clever paths
+around such barriers and those erecting the barriers. The developers of
+Fossil are committed to holding up our end of that fight, but this is,
+to some extent, a reactive posture. It is cold comfort if Fossil’s
+developers react quickly to a report of code injection — as we do! — if
+the bad guys learn of it and start exploiting it first.
+
+Second, Fossil has purposefully powerful features that are inherently
+difficult to police from the server side: HTML [in wiki](/wiki_rules)
+and [in Markdown](/md_rules) docs, [TH1 docs](./th1.md), etc.
+
+Fossil’s strong default CSP adds client-side filtering to backstop our
+server-side measures.
 
 Fossil site administrators can [modify the default CSP](#override), perhaps
 to add trusted external sources for auxiliary content.  But for maximum
@@ -32,6 +41,9 @@ imposed by the default CSP and avoid the temptation to relax the CSP
 unless they fully understand the security implications of what they are
 doing.
 
+[llaw]: https://en.wikipedia.org/wiki/Linus%27s_Law
+
+
 ## The Default Restrictions
 
 The Fossil default CSP declares the following content restrictions:
@@ -39,12 +51,14 @@ The Fossil default CSP declares the following content restrictions:
 
 ### <a name="base"></a> default-src 'self' data:
 
-This policy means mixed-origin content isn’t allowed, so you can’t refer to
-resources (images, style-sheets, and scripts) on other web domains.
-Hence the following Markdown for an inline
-image hosted on another site will cause a CSP error:
+This policy means mixed-origin content isn’t allowed, so you can’t refer
+to resources on other web domains. Browsers will ignore a link like the
+one in the following Markdown under our default CSP:
 
          ![fancy 3D Fossil logotype](https://i.imgur.com/HalpMgt.png)
+
+If you look in the browser’s developer console, you should see a CSP
+error when attempting to render such a page.
 
 The default policy does allows inline `data:` URIs, which means you could
 [data-encode][de] your image content and put it inline within the
@@ -53,52 +67,120 @@ document:
          ![small inline image](data:image/gif;base64,R0lGODlh...)
 
 That method is best used for fairly small resources. Large `data:` URIs
-are hard to read and edit. Keep in mind that if you put such a thing
-into a Fossil forum post, anyone subscribed to email alerts will get a
-copy of the raw URI text, which is really ugly.
+are hard to read and edit. There are secondary problems as well: if you
+put a large image into a Fossil forum post this way, anyone subscribed
+to email alerts will get a copy of the raw URI text, which can amount to
+pages and pages of [ugly Base64-encoded text][b64].
 
-For larger images in [embedded documentation](./embeddeddoc.wiki) you
-store the image as a separate file in the Fossil repository and reference
-it via a relative URI.
+Fossil offers several alternatives for serving large content resources
+from within the repository:
+
+*   **versioned content** via [`/raw`](/help?cmd=/raw)
+*   **[unversioned content](./unvers.wiki)** via [`/uv`](/help?cmd=/uv)
+*   **relative links**
+
+Only the first two options work in [wiki articles][wiki],
+[tickets][tkt], [forum posts][fp], and [tech notes][tn].  The last
+option is a much simpler alternative, but it only works within [embedded
+documentation][ed]:
 
          ![large inline image](./inlineimage.jpg)
 
-Any content from the same domain as the Fossil repository will work fine.
-So if the Fossil repository is but one path in a larger website, it will
-be able reference other static resources within that same website.  It
-can also reference [unversioned content](./unvers.wiki).  However, as
-unversioned content and content outside of the Fossil repository itself
-will not be transferred by [sync](/help?cmd=sync), the references probably
-will not work in clones of your repository.
+Because all of these methods pull content from within the Fossil
+repository, they all count as “self” for the purposes of the CSP.
+
+This rule also works when the Fossil repository is but one path in a
+larger website. The browser can’t distinguish Fossil-served content from
+that served by the rest of the same web domain, so your repository can
+refer to other resources within that same web site, whether they are
+static files served by [an HTTP proxy in front of Fossil][svr], by
+another Fossil repository served under that same domain, or dynamic
+content served by, say, a PHP app on that same site.
+
+Beware that there are a number of problems that come up with using such
+out-of-repository resources, which all stem from the fact that they
+aren’t included in a [sync](/help?cmd=sync):
+
+1.  Relative links break in `fossil ui` when run on a clone.
+
+2.  Absolute links break under certain types of failover and
+    load-balancing schemes.
+
+3.  Absolute links fail when one’s purpose in using a clone is to
+    recover from the loss of a project web site by standing that clone
+    up [as a server][svr] elsewhere.
+
+You can avoid all of these problems by referring to in-repo resources
+exclusively.
+
+[b64]: https://en.wikipedia.org/wiki/Base64
+[svr]: ./server/
+
 
 ### <a name="style"></a> style-src 'self' 'unsafe-inline'
 
-This policy allows CSS information to come from separate files in the
-same domain of the Fossil server, or for CSS to be embedded inline within
-the document text.
+This policy allows CSS information to come from separate files hosted
+under the Fossil repo server’s Internet domain, or for CSS to be
+embedded within `<style>` tags within the document text.
 
-The `'unsafe-inline'` element means that an injection vulnerability in
-Fossil would allow an attacker to modify the CSS for a Fossil-generated
-page.  This is not ideal, but nor is it as dangerous as allowing
-injected javascript to run, and Fossil uses of in-line CSS
-for things like setting background colors in timelines and defining
-line widths in bar graphs on the [Activity Reports](/reports) page, 
-so it seems like in-line CSS is a necessary compromise at this time.
+The `'unsafe-inline'` declaration excludes CSS within individual HTML
+elements:
+
+        <p style="margin-left: 4em">Indented text.</p>
+
+Because this policy is weaker than [our default for script
+elements](#script), there is the potential for an atacker to modify a
+Fossil-generated page via CSS. While such page modifications are not as
+dangerous as injected JavaScript, the real reason we allow it is that
+Fossil still emits in-page `<style>` blocks in a few places. Over time,
+we may work out ways to avoid each of these, which will eventually allow
+us to tighten this CSP rule down to match the `script` rule. We
+recommend that you do your own CSS modifications [via the skin][cs]
+rather than depend on the ability to insert `<script>` blocks into
+individual pages.
+
 
 ### <a name="script"></a> script-src 'self' 'nonce-%s'
 
-This policy disables in-line javascript and only allows `<script>`
-elements if the `<script>` includes a `nonce=` attribute the
-matches the %s section of the CSP.  Fossil provides a different
-random nonce for every page it generates, and since an attacker has
-no way of predicting what that nonce will be, the attacker is unable
-to inject working javascript.
+This policy disables in-line JavaScript and only allows `<script>`
+elements if the `<script>` includes a `nonce` attribute that matches the
+one declared by the CSP. That nonce is a large random number, unique for
+each HTTP page generated by Fossil, so an attacker cannot guess the
+value, so the browser will ignore an attacker’s injected JavaScript.
 
-For documents generated by the [CGI extensions](./serverext.wiki), the
-value of the nonce is accessible in the FOSSIL_NONCE environment variable.
-TH1 scripts that run while generating the header or footer can access
-the nonce in the $nonce variable.  The JavaScript section of a
-[custom skin][cs] automatically includes the appropriate nonce.
+That nonce can only come from one of three sources, all of which should
+be protected at the system administration level on the Fossil server:
+
+*   **Fossil server C code:** All code paths in Fossil that emit
+    `<script>` elements include the `nonce` attribute. There are several
+    cases, such as the “JavaScript” section of a [custom skin][cs].
+    That text is currently inserted into each HTML page generated by
+    Fossil,¹ which means it needs to include a `nonce` attribute to
+    allow it to run under this default CSP.  We consider JavaScript
+    emitted via these paths to be safe because it’s audited by the
+    Fossil developers. We assume that you got your Fossil server’s code
+    from a trustworthy source and that an attacker cannot replace your
+    Fossil server binary.
+
+*   **TH1 code:** The Fossil TH1 interpreter pre-defines the [`$nonce`
+    variable](./th1.md#nonce) for use in [custom skins][cs].  For
+    example, some of the stock skins that ship with Fossil include a
+    wall clock feature up in the corner that updates once a minute.
+    These paths are safe in the default Fossil configuration because
+    only the [all-powerful Setup user][su] can write TH1 code that
+    executes in the server’s running context.
+
+    There is, however, [a default-disabled path](#xss) to beware of,
+    covered in the next section.
+
+*   **[CGI server extensions][ext]:** Fossil exports the nonce to the
+    CGI in the `FOSSIL_NONCE` environment variable, which it can then
+    use in `<script>` elements it generates. Because these extensions
+    can only be installed by the Fossil server’s system administrator,
+    this path is also considered safe.
+
+[su]: ./admin-v-setup.md
+
 
 #### <a name="xss"></a>Cross-Site Scripting via Ordinary User Capabilities
 
@@ -157,6 +239,7 @@ through check-ins.
 
 [ed]:   ./embeddeddoc.wiki
 [edtf]: ./embeddeddoc.wiki#th1
+[ext]:  ./serverext.wiki
 [fp]:   ./forum.wiki
 [hfed]: ./embeddeddoc.wiki#html
 [tkt]:  ./tickets.wiki
@@ -222,7 +305,7 @@ This then tells you one way to override Fossil’s default CSP: provide
 your own HTML header in a custom skin.
 
 A useful combination is to entirely override the default CSP in the skin
-but then provide a new CSP [in the front-end proxy layer](./server/)
+but then provide a new CSP [in the front-end proxy layer][svr]
 using any of the many reverse proxy servers that can define custom HTTP
 headers.
 
@@ -232,9 +315,9 @@ headers.
 
 **Asides and Digressions:**
 
-1.  There is actually a third context that can correctly insert this
-    nonce attribute: [a CGI server extension](./serverext.wiki), by use of
-    the `FOSSIL_NONCE` variable sent to the CGI by Fossil.
+1.  Fossil might someday switch to serving the “JavaScript” section of a
+    custom skin as a virtual text file, allowing it to be cached by the
+    browser, reducing page load times.
 
 2.  The stock Bootstrap skin does actually include a `<head>` tag, but
     from Fossil 2.7 through Fossil 2.9, it just repeated the same CSP
@@ -247,4 +330,3 @@ headers.
 [csp]:   https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
 [de]:    https://dopiaza.org/tools/datauri/index.php
 [xss]:   https://en.wikipedia.org/wiki/Cross-site_scripting
-[xssci]: https://fossil-scm.org/forum/forumpost/e7c386b21f

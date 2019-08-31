@@ -2,7 +2,7 @@
 
 <h2>No Server Required</h2>
 
-Fossil does <em>not</em> require a central server.
+Fossil does not require a central server.
 Data sharing and synchronization can be entirely peer-to-peer.
 Fossil uses 
 [https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|conflict-free replicated data types]
@@ -13,9 +13,18 @@ to ensure that (in the limit) all participating peers see the same content.
 Fossil does not require a server, but a server can be very useful.
 Here are a few reasons to set up a Fossil server for your project:
 
-  1.  <b>A server gives developers a common point of rendezvous for
+  1.  <b>A server works as a complete project website.</b><p>
+      Fossil does more than just version control.  It also supports
+      [../tickets.wiki|trouble-tickets], 
+      [../wikitheory.wiki|wiki], and a [../forum.wiki|forum].
+      The [../embeddeddoc.wiki|embedded documentation]
+      feature provides  a great mechanism for providing project documentation.
+      The [../unvers.wiki|unversioned files] feature is a convenient way
+      to host builds and downloads on the project website.
+
+  2.  <b>A server gives developers a common point of rendezvous for
       syncing their work.</b><p>
-      It is possible for developers to synchronous peer-to-peer but
+      It is possible for developers to synchronize peer-to-peer but
       that requires the developers coordinate the sync, which in turn
       requires that the developers both want to sync at the same moment.
       A server aleviates this time dependency by allowing each developer
@@ -23,12 +32,6 @@ Here are a few reasons to set up a Fossil server for your project:
       after each commit and before each update).  Developers all stay
       in sync with each other, without having to interrupt each other
       constantly to set up a peer-to-peer sync.
-
-  2.  <b>A server works as a project website for non-developers.</b><p>
-      Fossil does more than just version control.  It also supports
-      trouble-tickets, and wiki, and a forum.  It shows the status
-      of the project.  And the embedded documentation feature provides
-      a great mechanism for providing only instructions.
 
   3.  <b>A server provides project leaders with up-to-date status.</b><p>
       Project coordinators and BDFLs can click on a link or two at the
@@ -41,4 +44,4 @@ Here are a few reasons to set up a Fossil server for your project:
       going into a project.  You can even set up multiple servers, at
       multiple sites, with automatic synchronization between them, for
       added redundancy.  Such a set up means that no work is lost due
-      to a single machine failure.
+      to a single machine failur

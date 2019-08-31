@@ -1631,6 +1631,7 @@ wiki_cmd_usage:
 */
 void test_markdown_render(void){
   Blob in, out;
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);

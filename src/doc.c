@@ -528,8 +528,8 @@ void convert_href_and_output(Blob *pIn){
      && strncmp(&z[i],"$ROOT/", 6)==0
      && (z[i-1]=='\'' || z[i-1]=='"')
      && i-base>=9
-     && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
-           fossil_strnicmp(&z[i-9]," action=", 8)==0)
+     && ((fossil_strnicmp(&z[i-6],"href=",5)==0 && fossil_isspace(z[i-7])) ||
+         (fossil_strnicmp(&z[i-8],"action=",7)==0 && fossil_isspace(z[i-9])) )
     ){
       blob_append(cgi_output_blob(), &z[base], i-base);
       blob_appendf(cgi_output_blob(), "%R");
