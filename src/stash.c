@@ -618,6 +618,7 @@ void stash_cmd(void){
     db_commit_transaction();
     g.argv[1] = "revert";
     revert_cmd();
+    return;
   }else
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
     stash_create();
