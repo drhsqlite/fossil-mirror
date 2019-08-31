@@ -1,5 +1,5 @@
-C Updated\scomment\sabout\s"6-character\srandom\shex\spassword"\sat\sthe\stop\slevel\nof\sthe\snew\ssetup\sdocs\sto\strack\s[23a9f9bac2].
-D 2019-08-29T00:28:53.462
+C Ouput\san\serror\sif\sthe\sCGI\scontrol\sfile\sis\smissing\son\sthe\scommand\sline.\sThis\sprevents\sIIS\sto\sfall\sin\sa\sendless\sloop.
+D 2019-08-31T13:04:32.769
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -517,7 +517,7 @@ F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
 F src/login.c 889d6724939894d2825d5be2292f097caae7742ebe8019974abc102fc0e54c4d
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 52d2860fa03ae63693d12cd0169bc1640fd52c809ae47325b92f27d8de2fc977
+F src/main.c 455266ff4678f7d3e9fc56cbb930bf3e2af1f8756e296070c66e579460587a26
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -912,7 +912,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2379b31c2e1965629ffe305e2e7ea02514e03d48d0bb2322b1d3a78cb2ac1b7
-R 0be9c6b84ddd850725bfd4e3c8ef66bc
-U wyoung
-Z 1d365e1505d076895091de6ff895e21b
+P f304ba31fe42e2dabf1c6f208464d8aa65156f5d3f89012ae1c523d49dc11a35
+R 69820a98b30f8600e29eb71e0bd58c54
+T *branch * iis-cgi
+T *sym-iis-cgi *
+T -sym-trunk *
+U tsbg
+Z 7b8879e5867d0a05acaecdba62f3e9d8

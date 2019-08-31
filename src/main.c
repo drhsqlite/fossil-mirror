@@ -1996,17 +1996,22 @@ void cmd_cgi(void){
   Glob *pFileGlob = 0;               /* Pattern for files */
   int allowRepoList = 0;             /* Allow lists of repository files */
   Blob config, line, key, value, value2;
-  if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
-    zFile = g.argv[2];
-  }else{
-    zFile = g.argv[1];
-  }
+  /* Initialize the CGI environment. */
   g.httpOut = stdout;
   g.httpIn = stdin;
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
+  /* Read and parse the CGI control file. */
+  if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
+    zFile = g.argv[2];
+  }else if( g.argc>=2 ){
+    zFile = g.argv[1];
+  }else{
+    cgi_panic("No CGI control file specified");
+  }
+  /* Read and parse the CGI control file. */
   blob_read_from_file(&config, zFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
