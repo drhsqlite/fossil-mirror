@@ -269,7 +269,7 @@ static int enableOutput = 1;
 /*
 ** TH1 command: enable_output BOOLEAN
 **
-** Enable or disable the puts and wiki commands.
+** Enable or disable the puts, wiki, combobox and copybtn commands.
 */
 static int enableOutputCmd(
   Th_Interp *interp,
@@ -989,6 +989,54 @@ static int comboboxCmd(
     }
     sendText("</select>", -1, 0);
     Th_Free(interp, azElem);
+  }
+  return TH_OK;
+}
+
+/*
+** TH1 command: copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?
+**
+** Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
+** Javascript module, and generates HTML elements with the following IDs:
+**
+**    TARGETID:       The <span> wrapper around TEXT.
+**    copy-TARGETID:  The <span> for the copy button.
+**
+** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
+**
+** The optional COPYLENGTH argument defines the length of the substring of TEXT
+** copied to clipboard:
+**
+**    <= 0:   No limit (default if the argument is omitted).
+**    >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+**       1:   Use the "hash-digits" setting as the limit.
+**       2:   Use the length appropriate for URLs as the limit (defined at
+**            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
+*/
+static int copybtnCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=4 && argc!=5 ){
+    return Th_WrongNumArgs(interp,
+                           "copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?");
+  }
+  if( enableOutput ){
+    int flipped = 0;
+    int copylength = 0;
+    char *zResult;
+    if( Th_ToInt(interp, argv[2], argl[2], &flipped) ) return TH_ERROR;
+    if( argc==5 ){
+      if( Th_ToInt(interp, argv[4], argl[4], &copylength) ) return TH_ERROR;
+    }
+    zResult = style_copy_button(
+                /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
+                flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
+    sendText(zResult, -1, 0);
+    free(zResult);
   }
   return TH_OK;
 }
@@ -2026,6 +2074,7 @@ void Th_FossilInit(u32 flags){
     {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
+    {"copybtn",       copybtnCmd,           0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"dir",           dirCmd,               0},

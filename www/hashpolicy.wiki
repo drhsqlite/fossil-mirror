@@ -114,7 +114,7 @@ artifacts that have never before been encountered.</td>
 <td valign='top'>sha3-only</td>
 <td>Name new artifacts using the SHA3 hash algorithm even if the artifact
 already has a SHA1 name.  In other words, force the use of SHA3.  This can
-cause some artifacts to be added to the respository twice, once under their
+cause some artifacts to be added to the repository twice, once under their
 SHA1 name and again under their SHA3 name.  But delta compression will
 prevent that from causing repository size problems.</td>
 </tr>
@@ -170,19 +170,12 @@ coworkers will no longer be able to collaborate.
 
 <h2>A Pure SHA3 Future</h2>
 
-At some point in the future, after everybody has finally upgraded to
-Fossil 2.0 or later, the default hash policy will probably change to
-"sha3", or maybe even "shun-sha1".  By the time that happens, you will
-probably already be using SHA3 on all your projects and so you are
-unlikely to notice.
+Fossil 2.10 will change the default hash policy to "sha3" mode. We
+decided to make the change since the last known distributor of Fossil
+1.x binaries — Debian 9 — was finally replaced in June 2019 by a newer
+version distributing Fossil 2.x. All other known sources of Fossil 1.x
+binaries upgraded well before that point.
 
-This probably won't happen until after all of the operating systems
-shipping binary versions of Fossil switch to Fossil 2.1 or later. The
-big standout is Debian Stretch (v9), since it still ships Fossil 1.37
-due to its stable packages policy. Stretch will be the current release
-version of Debian until "some time mid 2019" according to
-[https://lists.debian.org/debian-devel-announce/2018/04/msg00006.html|the latest
-published release plan]. Debian Stretch will then remain in
-support until June 2022. We do not yet know if we will switch the
-default hash policy during that window or not until after Stretch is
-fully out of support.
+Because Fossil 2.x tends to silently upgrade existing repos to SHA-3
+mode unless carefully forced not to, you probably won't even notice the
+change.

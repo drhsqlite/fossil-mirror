@@ -118,7 +118,7 @@ char *smtp_mx_host(const char *zDomain){
     p = p->pNext;
   }
   if( pBest ){
-    pBest = fossil_strdup(pBest); 
+    pBest = fossil_strdup(pBest);
   }
   DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
   return pBest;
@@ -648,7 +648,7 @@ void test_smtp_send(void){
 /*
 ** Schema used by the email processing system.
 */
-static const char zEmailSchema[] = 
+static const char zEmailSchema[] =
 @ -- bulk storage is in this table.  This table can store either
 @ -- the body of email messages or transcripts of an smtp session.
 @ CREATE TABLE IF NOT EXISTS repository.emailblob(
@@ -905,7 +905,7 @@ smtp_route_edit:
   @ </table>
   @ <hr>
   @ <h1>Instructions</h1>
-  @ 
+  @
   @ <p>The "Routing" field consists of zero or more lines where each
   @ line is an "action" followed by an "argument".  Available actions:
   @ <ul>
@@ -915,7 +915,7 @@ smtp_route_edit:
   @ <p>Store the message in the local mailbox for the user
   @ with USER.LOGIN=<i>login-name</i>.
   @ </ul>
-  @ 
+  @
   @ <p>To delete a route &rarr; erase all text from the "Routing" field then
   @ press the "Apply" button.
   style_footer();
@@ -953,7 +953,7 @@ struct SmtpServer {
 
 /*
 ** Clear the SmtpServer object.  Deallocate resources.
-** How much to clear depends on eHowMuch 
+** How much to clear depends on eHowMuch
 */
 static void smtp_server_clear(SmtpServer *p, int eHowMuch){
   int i;
@@ -1097,7 +1097,7 @@ static void smtp_server_send_one_user(
   char *zPolicy;
   Blob policy, line, token, tail;
 
-  zPolicy = db_text(0, 
+  zPolicy = db_text(0,
     "SELECT epolicy FROM emailroute WHERE eaddr=%Q", zAddr);
   if( zPolicy==0 ){
     if( okRemote ){
@@ -1206,7 +1206,7 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     /* Fix up the emailblob.enref field of the email message body */
     if( p->nRef ){
       db_multi_exec(
-        "UPDATE emailblob SET enref=%d WHERE emailid=%lld", 
+        "UPDATE emailblob SET enref=%d WHERE emailid=%lld",
         p->nRef, p->idMsg
       );
     }else{
@@ -1288,7 +1288,7 @@ void test_refcheck_emailblob(void){
     }
   }
   blob_init(&sql, 0, 0);
-  blob_append_sql(&sql, 
+  blob_append_sql(&sql,
     "SELECT a.emailid, a.enref, b.n"
     "  FROM emailblob AS a JOIN refcnt AS b ON a.emailid=b.id"
   );
@@ -1516,7 +1516,7 @@ void pop3d_command(void){
       break;
     }
     if( strcmp(zCmd,"capa")==0 ){
-      static const char *azCap[] = {
+      static const char *const azCap[] = {
           "TOP", "USER", "UIDL",
       };
       int i;
@@ -1554,7 +1554,7 @@ void pop3d_command(void){
             zUser
           );
           goto cmd_ok;
-        }   
+        }
       }
       /* Fossil cannot process APOP since the users clear-text password is
       ** unknown. */

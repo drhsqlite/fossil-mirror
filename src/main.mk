@@ -53,6 +53,7 @@ SRC = \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
+  $(SRCDIR)/extcgi.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
@@ -212,6 +213,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
+  $(SRCDIR)/copybtn.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
@@ -265,6 +267,7 @@ TRANS_SRC = \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
+  $(OBJDIR)/extcgi_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
@@ -404,6 +407,7 @@ OBJ = \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
+ $(OBJDIR)/extcgi.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
@@ -566,6 +570,7 @@ $(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
+                 -DSQLITE_DQS=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_MEMSTATUS=0 \
                  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -592,6 +597,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_DQS=0 \
                 -DSQLITE_THREADSAFE=0 \
                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -739,6 +745,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
+	$(OBJDIR)/extcgi_.c:$(OBJDIR)/extcgi.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
@@ -1141,6 +1148,14 @@ $(OBJDIR)/export.o:	$(OBJDIR)/export_.c $(OBJDIR)/export.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/export.o -c $(OBJDIR)/export_.c
 
 $(OBJDIR)/export.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/extcgi_.c:	$(SRCDIR)/extcgi.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/extcgi.c >$@
+
+$(OBJDIR)/extcgi.o:	$(OBJDIR)/extcgi_.c $(OBJDIR)/extcgi.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/extcgi.o -c $(OBJDIR)/extcgi_.c
+
+$(OBJDIR)/extcgi.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/file_.c:	$(SRCDIR)/file.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/file.c >$@

@@ -11,7 +11,7 @@ What Is The Backoffice
 ----------------------
 
 The backoffice is a mechanism used by a
-[Fossil server](/doc/trunk/www/server.wiki) to do low-priority
+[Fossil server](./server/) to do low-priority
 background work that is not directly related to the user interface.  Here
 are some examples of the kinds of work that backoffice performs:
 
@@ -41,8 +41,8 @@ server for "[fossil sync](/help?cmd=sync)" and
 web requests - albeit requests that the human user never sees.
 Web requests can arrive at the Fossil server via direct TCP/IP (for example
 when Fossil is started using commands like "[fossil server](/help?cmd=server)")
-or via [CGI](/doc/trunk/www/server.wiki) or
-[SCGI](/doc/trunk/www/scgi.wiki) or via SSH.
+or via [CGI](./server/any/cgi.md) or
+[SCGI](./server/any/scgi.md) or via SSH.
 A backoffice process might be started regardless of the origin of the
 request.
 
@@ -76,7 +76,7 @@ However, the daily digest of email notifications is handled by the
 backoffice.  If a Fossil server can sometimes go more than a day without
 being accessed, then the automatic backoffice will never run, and the
 daily digest might not go out until somebody does visit a webpage.
-If this is a problem, an adminstrator can set up a cron job to
+If this is a problem, an administrator can set up a cron job to
 periodically run:
 
 >   fossil backoffice _REPOSITORY_

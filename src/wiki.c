@@ -221,6 +221,7 @@ void markdown_rules_page(void){
     style_submenu_element("Plain-Text", "%R/md_rules?txt=1");
   }
   blob_init(&x, builtin_text("markdown.md"), -1);
+  blob_materialize(&x);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-markdown");
   blob_reset(&x);
   style_footer();
@@ -241,8 +242,23 @@ void wiki_rules_page(void){
     style_submenu_element("Plain-Text", "%R/wiki_rules?txt=1");
   }
   blob_init(&x, builtin_text("wiki.wiki"), -1);
+  blob_materialize(&x);
   wiki_render_by_mimetype(&x, fTxt ? "text/plain" : "text/x-fossil-wiki");
   blob_reset(&x);
+  style_footer();
+}
+
+/*
+** WEBPAGE: markup_help
+**
+** Show links to the md_rules and wiki_rules pages.
+*/
+void markup_help_page(void){
+  style_header("Fossil Markup Styles");
+  @ <ul>
+  @ <li><p>%z(href("%R/wiki_rules"))Fossil Wiki Formatting Rules</a></p></li>
+  @ <li><p>%z(href("%R/md_rules"))Markdown Formatting Rules</a></p></li>
+  @ </ul>
   style_footer();
 }
 
@@ -730,7 +746,7 @@ void wikiedit_page(void){
       }
     }
     form_begin(0, "%R/wikiedit");
-    @ <div>Markup style:
+    @ <div>%z(href("%R/markup_help"))Markup style</a>:
     mimetype_option_menu(zMimetype);
     @ <br /><textarea name="w" class="wikiedit" cols="80" \
     @  rows="%d(n)" wrap="virtual" placeholder="%h(zPlaceholder)">\
@@ -812,7 +828,7 @@ void wikinew_page(void){
   form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" /><br />
-  @ Markup style:
+  @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu("text/x-fossil-wiki");
   @ <br /><input type="submit" value="Create" />
   @ </p></form>
@@ -1615,6 +1631,7 @@ wiki_cmd_usage:
 */
 void test_markdown_render(void){
   Blob in, out;
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);

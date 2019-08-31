@@ -314,7 +314,7 @@ void multiple_choice_attribute(
 ** The access-control settings page.  Requires Setup privileges.
 */
 void setup_access(void){
-  static const char * const azRedirectOpts[] = {
+  static const char *const azRedirectOpts[] = {
     "0", "Off",
     "1", "Login Page Only",
     "2", "All Pages"
@@ -334,7 +334,7 @@ void setup_access(void){
   multiple_choice_attribute("Redirect to HTTPS",
      "redirect-to-https", "redirhttps", "0",
      count(azRedirectOpts)/2, azRedirectOpts);
-  @ <p>Force the use of HTTPS by redirecting to HTTPS when an 
+  @ <p>Force the use of HTTPS by redirecting to HTTPS when an
   @ unencrypted request is received.  This feature can be enabled
   @ for the Login page only, or for all pages.
   @ <p>Further details:  When enabled, this option causes the $secureurl TH1
@@ -560,7 +560,7 @@ void setup_login_group(void){
   zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
-    login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
+    login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
@@ -752,6 +752,38 @@ void setup_timeline(void){
   @ (Property: "timeline-max-comment")</p>
 
   @ <hr />
+  entry_attribute("Tooltip dwell time (milliseconds)", 6,
+                  "timeline-dwelltime", "tdt", "100", 0);
+  @ <br>
+  entry_attribute("Tooltip close time (milliseconds)", 6,
+                  "timeline-closetime", "tct", "250", 0);
+  @ <p>The <strong>dwell time</strong> defines how long the mouse pointer
+  @ should be stationary above an object of the graph before a tooltip
+  @ appears.<br>
+  @ The <strong>close time</strong> defines how long the mouse pointer
+  @ can be away from an object before a tooltip is closed.</p>
+  @ <p>Set <strong>dwell time</strong> to "0" to disable tooltips.<br>
+  @ Set <strong>close time</strong> to "0" to keep tooltips visible until
+  @ the mouse is clicked elsewhere.<p>
+  @ <p>(Properties: "timeline-dwelltime", "timeline-closetime")</p>
+
+  @ <hr />
+  onoff_attribute("Timestamp hyperlinks to /info",
+                  "timeline-tslink-info", "ttlti", 0, 0);
+  @ <p>The hyperlink on the timestamp associated with each timeline entry,
+  @ on the far left-hand side of the screen, normally targets another
+  @ /timeline page that shows the entry in context.  However, if this
+  @ option is turned on, that hyperlink targets the /info page showing
+  @ the details of the entry.
+  @ <p>The /timeline link is the default since it is often useful to
+  @ see an entry in context, and because that link is not otherwise
+  @ accessible on the timeline.  The /info link is also accessible by
+  @ double-clicking the timeline node or by clicking on the hash that
+  @ follows "check-in:" in the supplimental information section on the
+  @ right of the entry.
+  @ <p>(Properties: "timeline-tslink-info")
+
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
@@ -886,7 +918,7 @@ void setup_config(void){
   @ </p>
   @ <hr />
   entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide 
+  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
   @ a convenient place for newbies
   @ to download a ZIP archive or a tarball of the project.  By default,
   @ the latest trunk check-in is downloaded.  Change this tag to something
@@ -917,8 +949,8 @@ void setup_config(void){
   @ <p>(Property: "index-page")
   @ <hr>
   @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
-  @ Often these are filled in with links like 
-  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to 
+  @ Often these are filled in with links like
+  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to
   @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
   @ to wiki pages.
   @ Leave blank to omit.

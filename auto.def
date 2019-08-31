@@ -11,6 +11,7 @@ options {
     with-exec-rel-paths=0
                          => {Enable relative paths for external diff/gdiff}
     with-legacy-mv-rm=1  => {Enable legacy behavior for mv/rm (skip checkout files)}
+    with-sanitizer:      => {Build with C compiler's -fsanitize=LIST; e.g. address,enum,null,undefined}
     with-th1-docs=0      => {Enable TH1 for embedded documentation pages}
     with-th1-hooks=0     => {Enable TH1 hooks for commands and web pages}
     with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
@@ -52,7 +53,7 @@ if {[string equal false [get-define TCLSH]]} {
     msg-result "WARNING: 'make test' will not run here."
 } else {
     set v [exec /bin/sh -c "echo 'puts \$tcl_version' | tclsh"]
-    if {[expr $v >= 8.6]} {
+    if {[expr {$v >= 8.6}]} {
         msg-result "Found Tclsh version $v in the PATH."
         define TCLSH tclsh
     } elseif {[file isdirectory $hbtd]} {
@@ -118,7 +119,7 @@ proc check-function-in-lib {function libs {otherlibs {}}} {
 }
 
 if {![opt-bool internal-sqlite]} {
-  proc find_internal_sqlite {} {
+  proc find_system_sqlite {} {
 
     # On some systems (slackware), libsqlite3 requires -ldl to link. So
     # search for the system SQLite once with -ldl, and once without. If
@@ -128,15 +129,11 @@ if {![opt-bool internal-sqlite]} {
     foreach extralibs {{} {-ldl}} {
 
       # Locate the system SQLite by searching for sqlite3_open(). Then check
-      # if sqlite3_create_window_function can be found as well. If we can find open() but
-      # not create_window_function(), then the system SQLite is too old to link against
+      # if sqlite3_stmt_isexplain can be found as well. If we can find open() but
+      # not stmt_isexplain(), then the system SQLite is too old to link against
       # fossil.
       #
       if {[check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
-        if {![check-function-in-lib sqlite3_create_window_function sqlite3 $extralibs]} {
-          user-error "system sqlite3 too old (require >= 3.25.0)"
-        }
-
         # Success. Update symbols and return.
         #
         define USE_SYSTEM_SQLITE 1
@@ -148,7 +145,40 @@ if {![opt-bool internal-sqlite]} {
     user-error "system sqlite3 not found"
   }
 
-  find_internal_sqlite
+  find_system_sqlite
+
+  proc test_system_sqlite {} {
+    # Check compatibility of the system SQLite library by running the sqlcompttest.c
+    # program in the source tree
+    #
+    set cmdline {}
+    lappend cmdline {*}[get-define CCACHE]
+    lappend cmdline {*}[get-define CC] {*}[get-define CFLAGS]
+    lappend cmdline $::autosetup(dir)/../src/sqlcompattest.c -o conftest__
+    lappend cmdline {*}[get-define LDFLAGS]
+    lappend cmdline {*}[get-define LIBS]
+    set ok 1
+    set err [catch {exec-with-stderr {*}$cmdline} result errinfo]
+    if {$err} {
+       configlog "Failed: [join $cmdline]"
+       if {[string length $result]>0} {configlog $result}
+       configlog "============"
+       set ok 0
+    } elseif {$::autosetup(debug)} {
+       configlog "Compiled OK: [join $cmdline]"
+       configlog "============"
+    }
+    if {!$ok} {
+      user-error "unable to compile SQLite compatibility test program"
+    }
+    set err [catch {exec-with-stderr ./conftest__} result errinfo]
+    if {$err} {
+      user-error $result
+    }
+    file delete ./conftest__
+  }
+  test_system_sqlite
+    
 }
 
 proc is_mingw {} {
@@ -561,6 +591,20 @@ if {[opt-bool fusefs]} {
      define-append LIBS -lfuse
      msg-result "FuseFS support enabled"
   }
+}
+
+# Add -fsanitize compile and link options late: we don't want the C
+# checks above to run with those sanitizers enabled.  It can not only
+# be pointless, it can actually break correct tests.
+set fsan [opt-val with-sanitizer]
+if {[string length $fsan]} {
+    define-append  EXTRA_CFLAGS -fsanitize=$fsan
+    define-append EXTRA_LDFLAGS -fsanitize=$fsan
+    if {[string first "undefined" $fsan] != -1} {
+        # We need to link with libubsan if we're compiling under
+        # GCC with -fsanitize=undefined.
+        cc-check-function-in-lib __ubsan_handle_add_overflow ubsan
+    }
 }
 
 # Finally, append -ldl to make sure it's the last in the list.

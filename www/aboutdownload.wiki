@@ -7,7 +7,7 @@ The [/uv/download.html|Download] page for the Fossil self-hosting
 repository is implemented using [./unvers.wiki|unversioned files].
 The "download.html" screen itself, and the various build products
 are all stored as unversioned content.  The download.html page
-uses AJAX to retrieve the [/help?cmd=/juvlist|/juvlist] webpage
+uses XMLHttpRequest() to retrieve the [/help?cmd=/juvlist|/juvlist] webpage
 for a list of all unversioned files.  Javascript in the
 [/uv/download.js?mimetype=text/plain|download.js] file (which is
 sourced by "download.html") then figures out which unversioned files are
@@ -53,7 +53,7 @@ the [/uv/download.js?mimetype=text/plain|download.js] page is
 edited (using "[/help?cmd=uv|fossil uv edit download.js]") to add
 details of the release.
 
-When the javascript in the "download.js" file runs, it requests
+When the JavaScript in the "download.js" file runs, it requests
 a listing of all unversioned content using the /juvlist URL.
 ([/juvlist|sample /juvlist output]).  The content of the download page is
 constructed by matching unversioned files against regular expressions

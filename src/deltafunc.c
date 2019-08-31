@@ -177,7 +177,7 @@ struct deltaparsevtab_cursor {
 
 /* Operator names:
 */
-static const char *azOp[] = {
+static const char *const azOp[] = {
   "SIZE", "COPY", "INSERT", "CHECKSUM", "ERROR", "EOF"
 };
 #define DELTAPARSE_OP_SIZE         0
@@ -283,6 +283,7 @@ static int deltaparsevtabOpen(sqlite3_vtab *p, sqlite3_vtab_cursor **ppCursor){
 */
 static int deltaparsevtabClose(sqlite3_vtab_cursor *cur){
   deltaparsevtab_cursor *pCur = (deltaparsevtab_cursor*)cur;
+  sqlite3_free(pCur->aDelta);
   sqlite3_free(pCur);
   return SQLITE_OK;
 }
@@ -390,11 +391,11 @@ static int deltaparsevtabEof(sqlite3_vtab_cursor *cur){
 /*
 ** This method is called to "rewind" the deltaparsevtab_cursor object back
 ** to the first row of output.  This method is always called at least
-** once prior to any call to deltaparsevtabColumn() or deltaparsevtabRowid() or 
+** once prior to any call to deltaparsevtabColumn() or deltaparsevtabRowid() or
 ** deltaparsevtabEof().
 */
 static int deltaparsevtabFilter(
-  sqlite3_vtab_cursor *pVtabCursor, 
+  sqlite3_vtab_cursor *pVtabCursor,
   int idxNum, const char *idxStr,
   int argc, sqlite3_value **argv
 ){
@@ -460,7 +461,7 @@ static int deltaparsevtabBestIndex(
 }
 
 /*
-** This following structure defines all the methods for the 
+** This following structure defines all the methods for the
 ** virtual table.
 */
 static sqlite3_module deltaparsevtabModule = {

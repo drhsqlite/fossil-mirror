@@ -16,4 +16,4 @@
     if( w>h ) y = y + (h-w)/2;
     if( y>0 ) window.scrollTo(0, y);
   }
-}())
+})()

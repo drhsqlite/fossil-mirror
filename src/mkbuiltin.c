@@ -71,16 +71,14 @@ static void compressJavascript(unsigned char *z, int *pn){
     unsigned char c = z[i];
     if( c=='/' ){
       if( z[i+1]=='*' ){
+        while( j>0 && (z[j-1]==' ' || z[j-1]=='\t') ){ j--; }
         for(k=i+3; k<n && (z[k]!='/' || z[k-1]!='*'); k++){}
-        if( k<n ){
-          i = k;
-          while( i+1<n && isspace(z[i+1]) ) i++;
-          continue;
-        }
-      }else if( z[i+1]=='/' ){
-        for(k=i+2; k<n && z[k]!='\n'; k++){}
         i = k;
-        while( i+1<n && isspace(z[i+1]) ) i++;
+        continue;
+      }else if( z[i+1]=='/' ){
+        while( j>0 && (z[j-1]==' ' || z[j-1]=='\t') ){ j--; }
+        for(k=i+2; k<n && z[k]!='\n'; k++){}
+        i = k-1;
         continue;
       }
     }
@@ -164,7 +162,9 @@ int main(int argc, char **argv){
 
     /* Compress javascript source files */
     nName = (int)strlen(aRes[i].zName);
-    if( nName>3 && strcmp(&aRes[i].zName[nName-3],".js")==0 ){
+    if( (nName>3 && strcmp(&aRes[i].zName[nName-3],".js")==0)
+     || (nName>7  && strcmp(&aRes[i].zName[nName-7], "/js.txt")==0)
+    ){
       int x = sz-nSkip;
       compressJavascript(pData+nSkip, &x);
       sz = x + nSkip;

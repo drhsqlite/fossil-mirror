@@ -36,11 +36,11 @@ function antiRobotDefense(){
   var isOperaMini =
        Object.prototype.toString.call(window.operamini)==="[object OperaMini]";
   if(g.mouseover && !isOperaMini){
-    document.getElementByTagName("body")[0].onmousemove=function(){
+    document.getElementsByTagName("body")[0].onmousemove=function(){
       setTimeout(setAllHrefs, g.delay);
     }
   }else{
     setTimeout(setAllHrefs, g.delay);
   }
 }
-antiRobotDefense()
+antiRobotDefense();

@@ -35,7 +35,7 @@ Possible uses for technotes include:
      performance results and details of where the test was run and who
      ran it recorded in the wiki content.
 
-  *  <b>News Articles</b>.  Significant occurrences in the lifecycle of
+  *  <b>News Articles</b>.  Significant occurrences in the life cycle of
      a project can be recorded as news articles using technotes.  Perhaps the
      domain name of the canonical website for a project changes, or new
      server hardware is obtained.  Such happenings are appropriate for

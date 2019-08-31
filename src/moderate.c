@@ -186,8 +186,41 @@ void modreq_page(void){
         " ORDER BY event.mtime DESC"
     );
     db_prepare(&q, "%s", blob_sql_text(&sql));
-    www_print_timeline(&q, 0, 0, 0, 0, 0);
+    www_print_timeline(&q, 0, 0, 0, 0, 0, 0);
     db_finalize(&q);
   }
   style_footer();
+}
+
+/*
+** Disapproves any entries in the modreq table which belong to any
+** user whose name is no longer found in the user table. This is only
+** intended to be called after user deletion via /setup_uedit.
+**
+** To figure out whether a name exists it cross-references
+** coalesce(event.euser, event.user) with user.login, limiting the
+** selection to event entries where objid matches an entry in the
+** modreq table.
+**
+** This is a no-op if called without g.perm.Admin permissions or if
+** moderation_table_exists() returns false.
+*/
+void moderation_disapprove_for_missing_users(){
+  Stmt q;
+  if( !g.perm.Admin || !moderation_table_exists() ){
+    return;
+  }
+  db_begin_transaction();
+  db_prepare(&q,
+    "SELECT objid FROM event WHERE objid IN "
+    "(SELECT objid FROM modreq) "
+    "AND coalesce(euser,user) NOT IN "
+    "(SELECT login FROM user)"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int const objid = db_column_int(&q, 0);
+    moderation_disapprove(objid);
+  }
+  db_finalize(&q);
+  db_end_transaction(0);
 }

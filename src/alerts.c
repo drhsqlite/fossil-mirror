@@ -806,7 +806,9 @@ void alert_send(
     pOut = &all;
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
-  if( zFromName ){
+  if( p->zFrom==0 || p->zFrom[0]==0 ){
+    return;  /* email-self is not set.  Error will be reported separately */
+  }else if( zFromName ){
     blob_appendf(pOut, "From: %s <%s@%s>\r\n",
        zFromName, alert_mailbox_name(zFromName), alert_hostname(p->zFrom));
     blob_appendf(pOut, "X-Fossil-From: <%s>\r\n", p->zFrom);

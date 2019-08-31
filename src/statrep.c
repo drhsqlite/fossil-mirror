@@ -52,7 +52,7 @@ static const char *statsReportTimelineYFlag = NULL;
 ** abstraction level to simplify the implementation code for the
 ** various /reports pages.
 **
-** Returns one of: 'c', 'w', 'g', 't', 'e', representing the type of
+** Returns one of: 'c', 'f', 'w', 'g', 't', 'e', representing the type of
 ** filter it applies, or '*' if no filter is applied (i.e. if "all" is
 ** used).
 */
@@ -71,6 +71,11 @@ static int stats_report_init_view(){
     case 'e':
     case 'E':
       zRealType = "e";
+      rc = *zRealType;
+      break;
+    case 'f':
+    case 'F':
+      zRealType = "f";
       rc = *zRealType;
       break;
     case 'g':
@@ -126,6 +131,8 @@ static const char *stats_report_label_for_type(){
       return "check-ins";
     case 'e':
       return "technotes";
+    case 'f':
+      return "forum posts";
     case 'w':
       return "wiki changes";
     case 't':
@@ -720,7 +727,7 @@ static void stats_report_last_change(void){
 **   view=REPORT_NAME  Valid values: bymonth, byyear, byuser
 **   user=NAME         Restricts statistics to the given user
 **   type=TYPE         Restricts the report to a specific event type:
-**                     ci (check-in), w (wiki), t (ticket), g (tag)
+**                     ci (check-in), f (forum), w (wiki), t (ticket), g (tag)
 **                     Defaulting to all event types.
 **
 ** The view-specific query parameters include:
@@ -752,6 +759,7 @@ void stats_report_page(){
   static const char *const azType[] = {
      "a",  "All Changes",
      "ci", "Check-ins",
+     "f",  "Forum Posts",
      "g",  "Tags",
      "e",  "Tech Notes",
      "t",  "Tickets",

@@ -1166,14 +1166,14 @@ static int createTclInterp(
   tclContext->interp = tclInterp;
   if( Tcl_Init(tclInterp)!=TCL_OK ){
     Th_ErrorMessage(interp,
-        "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);
+        "Tcl initialization error:", Tcl_GetString(Tcl_GetObjResult(tclInterp)), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
   }
   if( setTclArguments(tclInterp, argc, argv)!=TCL_OK ){
     Th_ErrorMessage(interp,
-        "Tcl error setting arguments:", Tcl_GetStringResult(tclInterp), -1);
+        "Tcl error setting arguments:", Tcl_GetString(Tcl_GetObjResult(tclInterp)), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
@@ -1196,7 +1196,7 @@ static int createTclInterp(
   setup = tclContext->setup;
   if( setup && Tcl_EvalEx(tclInterp, setup, -1, 0)!=TCL_OK ){
     Th_ErrorMessage(interp,
-        "Tcl setup script error:", Tcl_GetStringResult(tclInterp), -1);
+        "Tcl setup script error:", Tcl_GetString(Tcl_GetObjResult(tclInterp)), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;

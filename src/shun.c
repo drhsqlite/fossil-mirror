@@ -383,7 +383,7 @@ void rcvfromlist_page(void){
     const char *zIpAddr = db_column_text(&q, 3);
     int usesSha1 = db_column_int(&q, 5)!=0;
     int usesSha3 = db_column_int(&q, 6)!=0;
-    static const char *zHashType[] = { "", "sha1", "sha3", "both" };
+    static const char *const zHashType[] = { "", "sha1", "sha3", "both" };
     const char *zHash = zHashType[usesSha1+usesSha3*2];
     if( cnt==perScreen && !showAll ){
       style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+perScreen);

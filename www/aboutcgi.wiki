@@ -4,7 +4,7 @@
 generating dynamic web content.  This article gives a quick background on how
 CGI works and describes how Fossil can act as a CGI service.
 <p>This is a "how it works" guide.  If you just want to set up Fossil
-as a CGI server, see the [./server.wiki | Fossil Server Setup] page.
+as a CGI server, see the [./server/ | Fossil Server Setup] page.
 </blockquote>
 <h2>A Quick Review Of CGI</h2><blockquote>
 <p>
@@ -183,6 +183,14 @@ Here is what happens:
      requested is "timeline".
 </ol>
 </blockquote>
+<h2>Additional CGI Script Options</h2>
+<blockquote>
+<p>
+The CGI script can have additional options used to fine-tune
+Fossil's behavior.  See the [./cgi.wiki|CGI script documentation]
+for details.
+</p>
+</blockquote>
 <h2>Additional Observations</h2>
 <blockquote><ol type="I">
 <li><p>
@@ -210,5 +218,9 @@ SCGI is processed using the same built-in web server, just modified
 to parse SCGI requests instead of HTTP requests.  Each SCGI request is
 converted into CGI, then Fossil creates a separate child Fossil
 process to handle each CGI request.
+<li><p>
+Fossil is itself often launched using CGI.  But Fossil can also then
+turn around and launch [./serverext.wiki|sub-CGI scripts to implement
+extensions].
 </ol>
 </blockquote>

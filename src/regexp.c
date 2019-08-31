@@ -735,7 +735,6 @@ static int grep_buffer(
   for(i=j=ln=cnt=0; z[i]; i=j+1){
     for(j=i; z[j] && z[j]!='\n'; j++){}
     n = j - i;
-    if( z[j]=='\n' ) j++;
     ln++;
     if( re_match(pRe, (const unsigned char*)(z+i), j-i) ){
       cnt++;

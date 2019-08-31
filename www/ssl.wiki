@@ -1,4 +1,4 @@
-<title>TLS and Fossil</title>
+<title>Securing a Repository with TLS</title>
 
 <h2>Using TLS-Encrypted Communications with Fossil</h2>
 
@@ -208,61 +208,13 @@ which explains what to do to authenticate with the server.
 Fossil's built-in HTTP server feature does not currently have a built-in
 way to serve via HTTP over TLS, a.k.a. HTTPS, even when you've linked
 Fossil to OpenSSL. To serve a Fossil repository via HTTPS, you must put
-it behind some kind of HTTPS proxy.
+it behind some kind of HTTPS proxy. We have a number of documents
+elsewhere in this repository that cover your options for [./server/
+| serving Fossil repositories]. A few of the most useful of these are:
 
-
-<h3 id="stunnel">stunnel Alone</h3>
-
-[https://www.stunnel.org/ | <tt>stunnel</tt>] is an
-[https://en.wikipedia.org/wiki/Inetd | <tt>inetd</tt>]-like process that
-accepts and decodes TLS-encrypted connections. It can directly proxy
-Fossil communications, allowing secure TLS-encrypted communications to a
-Fossil repository server. You simply need to install <tt>stunnel</tt>
-and then place something like this in its main configuration file,
-<tt>stunnel.conf</tt>:
-
-<nowiki><pre>
-    [https]
-    accept       = www.ubercool-project.org:443
-    TIMEOUTclose = 0
-    exec         = /usr/bin/fossil
-    execargs     = /usr/bin/fossil http /home/fossil/ubercool.fossil --https
-</pre></nowiki>
-
-The directory where that file goes varies between OSes, so check the man
-pages on your system to find out where it should be locally.
-
-See the <tt>stunnel</tt> documentation for further details about this
-configuration file.
-
-It is important that the [/help/http | <tt>fossil http</tt>] command in
-that configuration include the <tt>--https</tt> option to let Fossil
-know to use "<tt>https</tt>" instead of "<tt>http</tt>" as the URL
-scheme on generated hyperlinks.
-
-
-<h3 id="althttpd">stunnel + althttpd</h3>
-
-The public SQLite and Fossil web sites can't just use stunnel + Fossil
-because parts of the web site are static, served by
-[https://www.sqlite.org/docsrc/file/misc/althttpd.c|a separate web
-server called <tt>althttpd</tt>], written by the primary author of both
-SQLite and Fossil. It is a lightweight HTTP-only web server. It handles
-the static HTTP hits on <tt>sqlite.org</tt> and <tt>fossil-scm.org</tt>,
-delegating HTTPS and dynamic Fossil content hits to stunnel and Fossil.
-
-The only documentation for althttpd currently is in its header comment.
-As is typical for drh software, althttpd is a single-file C program, so
-that at worst, you just have to read its code to understand it.
-
-
-<h3 id="nginx">nginx</h3>
-
-If your needs are more complex than althttpd can handle or you'd prefer
-to use only software available in your server operating system's package
-repository, we recommend that you step up to [http://nginx.org/|nginx].
-Setting this up is complex enough that we cover it [./tls-nginx.md|in a
-separate document].
+  *  <a id="stunnel"  href="./server/any/stunnel.md">Serving via stunnel</a>
+  *  <a id="althttpd" href="./server/any/althttpd.md">Serving via stunnel + althttpd</a>
+  *  <a id="nginx"    href="./server/any/scgi.md">Serving via SCGI (nginx)</a>
 
 
 <h2 id="enforcing">Enforcing TLS Access</h2>

@@ -100,74 +100,38 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2r
-SSLINCDIR = $(SSLDIR)\inc32
+SSLDIR    = $(B)\compat\openssl-1.1.1c
+SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLLIBDIR = $(SSLDIR)\out32dll
+SSLLIBDIR = $(SSLDIR)
 !else
-SSLLIBDIR = $(SSLDIR)\out32
+SSLLIBDIR = $(SSLDIR)
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
+SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN64A no-asm
+SSLCONFIG = VC-WIN64A no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_win64a.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN64I no-asm
+SSLCONFIG = VC-WIN64I no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_win64i.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN32 no-asm
+SSLCONFIG = VC-WIN32 no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_ms.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif
@@ -314,6 +278,7 @@ RCC       = $(RCC) /DUSE_SEE=1
 !endif
 
 SQLITE_OPTIONS = /DNDEBUG=1 \
+                 /DSQLITE_DQS=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_MEMSTATUS=0 \
                  /DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -340,6 +305,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /DNDEBUG=1 \
+                /DSQLITE_DQS=0 \
                 /DSQLITE_THREADSAFE=0 \
                 /DSQLITE_DEFAULT_MEMSTATUS=0 \
                 /DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -415,6 +381,7 @@ SRC   = add_.c \
         etag_.c \
         event_.c \
         export_.c \
+        extcgi_.c \
         file_.c \
         finfo_.c \
         foci_.c \
@@ -573,6 +540,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\..\skins\xekri\footer.txt \
         $(SRCDIR)\..\skins\xekri\header.txt \
         $(SRCDIR)\ci_edit.js \
+        $(SRCDIR)\copybtn.js \
         $(SRCDIR)\diff.tcl \
         $(SRCDIR)\forum.js \
         $(SRCDIR)\graph.js \
@@ -626,6 +594,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\etag$O \
         $(OX)\event$O \
         $(OX)\export$O \
+        $(OX)\extcgi$O \
         $(OX)\file$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
@@ -762,11 +731,10 @@ openssl:
 	@set PATH=$(PERLDIR);$(PATH)
 !endif
 	@pushd "$(SSLDIR)" && $(PERL) Configure $(SSLCONFIG) && popd
-	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
 !if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+	@pushd "$(SSLDIR)" && $(MAKE) "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
 !else
-	@pushd "$(SSLDIR)" && $(MAKE) /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
+	@pushd "$(SSLDIR)" && $(MAKE) && popd
 !endif
 !endif
 
@@ -828,6 +796,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\etag.obj >> $@
 	echo $(OX)\event.obj >> $@
 	echo $(OX)\export.obj >> $@
+	echo $(OX)\extcgi.obj >> $@
 	echo $(OX)\file.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
@@ -1271,6 +1240,12 @@ $(OX)\export$O : export_.c export.h
 	$(TCC) /Fo$@ -c export_.c
 
 export_.c : $(SRCDIR)\export.c
+	translate$E $** > $@
+
+$(OX)\extcgi$O : extcgi_.c extcgi.h
+	$(TCC) /Fo$@ -c extcgi_.c
+
+extcgi_.c : $(SRCDIR)\extcgi.c
 	translate$E $** > $@
 
 $(OX)\file$O : file_.c file.h
@@ -1914,6 +1889,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			etag_.c:etag.h \
 			event_.c:event.h \
 			export_.c:export.h \
+			extcgi_.c:extcgi.h \
 			file_.c:file.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \

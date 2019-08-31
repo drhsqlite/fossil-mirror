@@ -111,7 +111,7 @@ void shell_cmd(void){
     if( childPid==0 ){
       /* This is the child process */
       int main(int, char**);
-      main(nArg, azArg);
+      fossil_main(nArg, azArg);
       exit(0);
     }else{
       /* The parent process */

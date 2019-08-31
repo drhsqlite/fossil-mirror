@@ -32,6 +32,7 @@
 #define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
 #define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #define WIKI_NEWLINE        0x040  /* Honor \n - break lines at each \n */
+#define WIKI_MARKDOWNLINKS  0x080  /* Resolve hyperlinks as in markdown */
 #endif
 
 
@@ -1144,14 +1145,14 @@ static int is_ticket(
 ** if there is one) if zTarget is a valid wiki page name.  Return NULL if
 ** zTarget names a page that does not exist.
 */
-static const char *validWikiPageName(Renderer *p, const char *zTarget){
+static const char *validWikiPageName(int mFlags, const char *zTarget){
   if( strncmp(zTarget, "wiki:", 5)==0
       && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     return zTarget+5;
   }
   if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
   if( wiki_name_is_wellformed((const unsigned char *)zTarget)
-   && ((p->state & WIKI_NOBADLINKS)==0 ||
+   && ((mFlags & WIKI_NOBADLINKS)==0 ||
         db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'"
                   " AND (SELECT value FROM tagxref WHERE tagid=tag.tagid"
                   " ORDER BY mtime DESC LIMIT 1) > 0", zTarget))
@@ -1213,44 +1214,54 @@ static const char *wiki_is_overridden(const char *zTarget){
 **    [ftp://www.fossil-scm.org/]
 **    [mailto:fossil-users@lists.fossil-scm.org]
 **
-**    [/path]
+**    [/path]        ->  Refers to the root of the Fossil hierarchy, not
+**                       the root of the URI domain
 **
 **    [./relpath]
+**    [../relpath]
+**
+**    [#fragment]
+**
+**    [0123456789abcdef]
 **
 **    [WikiPageName]
 **    [wiki:WikiPageName]
 **
-**    [0123456789abcdef]
-**
-**    [#fragment]
-**
 **    [2010-02-27 07:13]
 */
-static void openHyperlink(
-  Renderer *p,            /* Rendering context */
+void wiki_resolve_hyperlink(
+  Blob *pOut,             /* Write the HTML output here */
+  int mFlags,             /* Rendering option flags */
   const char *zTarget,    /* Hyperlink target; text within [...] */
   char *zClose,           /* Write hyperlink closing text here */
   int nClose,             /* Bytes available in zClose[] */
-  const char *zOrig       /* Complete document text */
+  const char *zOrig,      /* Complete document text */
+  const char *zTitle      /* Title of the link */
 ){
   const char *zTerm = "</a>";
   const char *z;
+  char *zExtra = 0;
+  const char *zExtraNS = 0;
 
+  if( zTitle ){
+    zExtra = mprintf(" title='%h'", zTitle);
+    zExtraNS = zExtra+1;
+  }
   assert( nClose>=20 );
   if( strncmp(zTarget, "http:", 5)==0
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0
    || strncmp(zTarget, "mailto:", 7)==0
   ){
-    blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
+    blob_appendf(pOut, "<a href=\"%s\"%s>", zTarget, zExtra);
   }else if( zTarget[0]=='/' ){
-    blob_appendf(p->pOut, "<a href=\"%R%h\">", zTarget);
+    blob_appendf(pOut, "<a href=\"%R%h\"%s>", zTarget, zExtra);
   }else if( zTarget[0]=='.'
          && (zTarget[1]=='/' || (zTarget[1]=='.' && zTarget[2]=='/'))
-         && (p->state & WIKI_LINKSONLY)==0 ){
-    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+         && (mFlags & WIKI_LINKSONLY)==0 ){
+    blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( zTarget[0]=='#' ){
-    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+    blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
   }else if( is_valid_hname(zTarget) ){
     int isClosed = 0;
     if( strlen(zTarget)<=HNAME_MAX && is_ticket(zTarget, &isClosed) ){
@@ -1259,56 +1270,68 @@ static void openHyperlink(
       */
       if( isClosed ){
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,
+          blob_appendf(pOut,
              "%z<span class=\"wikiTagCancelled\">[",
-             href("%R/info/%s",zTarget)
+             xhref(zExtraNS,"%R/info/%s",zTarget)
           );
           zTerm = "]</span></a>";
         }else{
-          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">[");
+          blob_appendf(pOut,"<span class=\"wikiTagCancelled\">[");
           zTerm = "]</span>";
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,"%z[", href("%R/info/%s", zTarget));
+          blob_appendf(pOut,"%z[", xhref(zExtraNS,"%R/info/%s", zTarget));
           zTerm = "]</a>";
         }else{
-          blob_appendf(p->pOut, "[");
+          blob_appendf(pOut, "[");
           zTerm = "]";
         }
       }
     }else if( !in_this_repo(zTarget) ){
-      if( (p->state & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
+      if( (mFlags & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
-        blob_appendf(p->pOut, "<span class=\"brokenlink\">[");
+        blob_appendf(pOut, "<span class=\"brokenlink\">[");
         zTerm = "]</span>";
       }
     }else if( g.perm.Hyperlink ){
-      blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
+      blob_appendf(pOut, "%z[",xhref(zExtraNS, "%R/info/%s", zTarget));
       zTerm = "]</a>";
     }else{
       zTerm = "";
     }
-  }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
-            && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
-  }else if( (z = validWikiPageName(p, zTarget))!=0 ){
+  }else if( (z = validWikiPageName(mFlags, zTarget))!=0 ){
+    /* The link is to a valid wiki page name */
     const char *zOverride = wiki_is_overridden(zTarget);
     if( zOverride ){
-      blob_appendf(p->pOut, "<a href=\"%R/info/%S\">", zOverride);
+      blob_appendf(pOut, "<a href=\"%R/info/%S\"%s>", zOverride, zExtra);
     }else{
-      blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
+      blob_appendf(pOut, "<a href=\"%R/wiki?name=%T\"%s>", z, zExtra);
     }
-  }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
-    /* Probably an array subscript in code */
+  }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
+            && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
+    /* Dates or date-and-times in ISO8610 resolve to a link to the
+    ** timeline for that date */
+    blob_appendf(pOut, "<a href=\"%R/timeline?c=%T\"%s>", zTarget, zExtra);
+  }else if( mFlags & WIKI_MARKDOWNLINKS ){
+    /* If none of the above, and if rendering links for markdown, then
+    ** create a link to the literal text of the target */
+    blob_appendf(pOut, "<a href=\"%h\"%s>", zTarget, zExtra);
+  }else if( zOrig && zTarget>=&zOrig[2]
+        && zTarget[-1]=='[' && !fossil_isspace(zTarget[-2]) ){
+    /* If the hyperlink markup is not preceded by whitespace, then it
+    ** is probably a C-language subscript or similar, not really a
+    ** hyperlink.  Just ignore it. */
     zTerm = "";
-  }else if( (p->state & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
+  }else if( (mFlags & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
+    /* Also ignore the link if various flags are set */
     zTerm = "";
   }else{
-    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]", zTarget);
+    blob_appendf(pOut, "<span class=\"brokenlink\">[%h]", zTarget);
     zTerm = "</span>";
   }
+  if( zExtra ) fossil_free(zExtra);
   assert( strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
 }
@@ -1493,7 +1516,8 @@ static void wiki_render(Renderer *p, char *z){
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
-        openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
+        wiki_resolve_hyperlink(p->pOut, p->state,
+                               zTarget, zClose, sizeof(zClose), zOrig, 0);
         if( linksOnly || zClose[0]==0 || p->inVerbatim ){
           if( cS1 ) z[iS1] = cS1;
           if( zClose[0]!=']' ){
@@ -1751,16 +1775,6 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 }
 
 /*
-** Send a string as wiki to CGI output.
-*/
-void wiki_write(const char *zIn, int flags){
-  Blob in;
-  blob_init(&in, zIn, -1);
-  wiki_convert(&in, 0, flags);
-  blob_reset(&in);
-}
-
-/*
 ** COMMAND: test-wiki-render
 **
 ** Usage: %fossil test-wiki-render FILE [OPTIONS]
@@ -1782,6 +1796,7 @@ void test_wiki_render(void){
   if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
   if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
   if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
@@ -2006,12 +2021,9 @@ void wiki_extract_links(
 }
 
 /*
-** Get the next HTML token.
-**
-** z points to the start of a token.  Return the number of
-** characters in that token.
+** Return the length, in bytes, of the HTML token that z is pointing to.
 */
-static int nextHtmlToken(const char *z){
+int html_token_length(const char *z){
   int n;
   char c;
   if( (c=z[0])=='<' ){
@@ -2031,6 +2043,108 @@ static int nextHtmlToken(const char *z){
     }
   }
   return n;
+}
+
+/*
+** z points to someplace in the middle of HTML markup.  Return the length
+** of the subtoken that starts on z.
+*/
+int html_subtoken_length(const char *z){
+  int n;
+  char c;
+  c = z[0];
+  if( fossil_isspace(c) ){
+    for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+    return n;
+  }
+  if( c=='"' || c=='\'' ){
+    for(n=1; z[n] && z[n]!=c && z[n]!='>'; n++){}
+    if( z[n]==c ) n++;
+    return n;
+  }
+  if( c=='>' ){
+    return 0;
+  }
+  if( c=='=' ){
+    return 1;
+  }
+  if( fossil_isalnum(c) || c=='/' ){
+    for(n=1; (c=z[n])!=0 && (fossil_isalnum(c) || c=='-' || c=='_'); n++){}
+    return n;
+  }
+  return 1;
+}
+
+/*
+** z points to an HTML markup token:  <TAG ATTR=VALUE ...>
+** This routine looks for the VALUE associated with zAttr and returns
+** a pointer to the start of that value and sets *pLen to be the length
+** in bytes for the value.  Or it returns NULL if no such attr exists.
+*/
+const char *html_attribute(const char *zMarkup, const char *zAttr, int *pLen){
+  int i = 1;
+  int n;
+  int nAttr;
+  int iMatchCnt = 0;
+  assert( zMarkup[0]=='<' );
+  assert( zMarkup[1]!=0 );
+  n = html_subtoken_length(zMarkup+i);
+  if( n==0 ) return 0;
+  i += n;
+  nAttr = (int)strlen(zAttr);
+  while( 1 ){
+    const char *zStart = zMarkup+i;
+    n = html_subtoken_length(zStart);
+    if( n==0 ) break;
+    i += n;
+    if( fossil_isspace(zStart[0]) ) continue;
+    if( n==nAttr && fossil_strnicmp(zAttr,zStart,nAttr)==0 ){
+      iMatchCnt = 1;
+    }else if( n==1 && zStart[0]=='=' && iMatchCnt==1 ){
+      iMatchCnt = 2;
+    }else if( iMatchCnt==2 ){
+      if( (zStart[0]=='"' || zStart[0]=='\'') && zStart[n-1]==zStart[0] ){
+        zStart++;
+        n -= 2;
+      } 
+      *pLen = n;
+      return zStart;
+    }else{
+      iMatchCnt = 0;
+    }
+  }
+  return 0;
+}
+
+/*
+** COMMAND: test-html-tokenize
+**
+** Tokenize an HTML file.  Return the offset and length and text of
+** each token - one token per line.  Omit white-space tokens.
+*/
+void test_html_tokenize(void){
+  Blob in;
+  char *z;
+  int i;
+  int iOfst, n;
+
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&in, g.argv[i], ExtFILE);
+    z = blob_str(&in);
+    for(iOfst=0; z[iOfst]; iOfst+=n){
+      n = html_token_length(z+iOfst);
+      if( fossil_isspace(z[iOfst]) ) continue;
+      fossil_print("%d %d %.*s\n", iOfst, n, n, z+iOfst);
+      if( z[iOfst]=='<' && n>1 ){
+        int j,k;
+        for(j=iOfst+1; (k = html_subtoken_length(z+j))>0; j+=k){
+          if( fossil_isspace(z[j]) || z[j]=='=' ) continue;
+          fossil_print("# %d %d %.*s\n", j, k, k, z+j);
+        }
+      }
+    }
+    blob_reset(&in);
+  }
 }
 
 /*
@@ -2054,7 +2168,7 @@ void htmlTidy(const char *zIn, Blob *pOut){
   int wantSpace = 0;
   int omitSpace = 1;
   while( zIn[0] ){
-    n = nextHtmlToken(zIn);
+    n = html_token_length(zIn);
     if( zIn[0]=='<' && n>1 ){
       int i, j;
       int isCloseTag;
@@ -2173,7 +2287,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
   int nWS = 0;              /* True if pOut ends with whitespace */
   while( fossil_isspace(zIn[0]) ) zIn++;
   while( zIn[0] ){
-    n = nextHtmlToken(zIn);
+    n = html_token_length(zIn);
     if( zIn[0]=='<' && n>1 ){
       int isCloseTag;
       int eTag;
@@ -2189,7 +2303,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
       if( eTag==MARKUP_INVALID && fossil_strnicmp(zIn,"<style",6)==0 ){
         zIn += n;
         while( zIn[0] ){
-          n = nextHtmlToken(zIn);
+          n = html_token_length(zIn);
           if( fossil_strnicmp(zIn, "</style",7)==0 ) break;
           zIn += n;
         }

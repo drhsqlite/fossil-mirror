@@ -21,6 +21,26 @@
 #include "graph.h"
 #include <assert.h>
 
+/* Notes:
+**
+** The graph is laid out in 1 or more "rails".  A "rail" is a vertical
+** band in the graph in which one can place nodes or arrows connecting
+** nodes.  There can be between 1 and GR_MAX_RAIL rails.  If the graph
+** is to complex to be displayed in GR_MAX_RAIL rails, it is omitted.
+**
+** A "riser" is the thick line that comes out of the top of a node and
+** goes up to the next node on the branch, or to the top of the screen.
+** A "descender" is a thick line that comes out of the bottom of a node
+** and proceeds down to the bottom of the page.
+**
+** Invoke graph_init() to create a new GraphContext object.  Then
+** call graph_add_row() to add nodes, one by one, to the graph.
+** Nodes must be added in display order, from top to bottom.
+** Then invoke graph_render() to run the layout algorithm.  The
+** layout algorithm computes which rails all of the nodes sit on, and
+** the rails used for merge arrows.
+*/
+
 #if INTERFACE
 
 #define GR_MAX_RAIL   40      /* Max number of "rails" to display */
@@ -35,7 +55,7 @@
 */
 struct GraphRow {
   int rid;                    /* The rid for the check-in */
-  i8 nParent;                 /* Number of parents.  -1 for technote lines */
+  i8 nParent;                 /* Number of parents. */
   i8 nCherrypick;             /* Subset of aParent that are cherrypicks */
   i8 nNonCherrypick;          /* Number of non-cherrypick parents */
   int *aParent;               /* Array of parents.  0 element is primary .*/
@@ -46,14 +66,16 @@ struct GraphRow {
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
 
-  int idx;                    /* Row index.  First is 1.  0 used for "none" */
+  int idx;                    /* Row index.  Top row is smallest. */
   int idxTop;                 /* Direct descendent highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 isLeaf;                  /* True if this is a leaf node */
+  u8 isStepParent;            /* pChild is actually a step-child */
   u8 hasNormalOutMerge;       /* Is parent of at laest 1 non-cherrypick merge */
   u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
+  u8 selfUp;                  /* Space above this node but belonging */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
   i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
   u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
@@ -62,7 +84,6 @@ struct GraphRow {
   int cherrypickUpto;         /* Continue the mergeOut rail up to here */
   u64 mergeDown;              /* Draw merge lines up from bottom of graph */
   u64 cherrypickDown;         /* Draw cherrypick lines up from bottom */
-
   u64 railInUse;              /* Mask of occupied rails at this row */
 };
 
@@ -71,19 +92,27 @@ struct GraphRow {
 struct GraphContext {
   int nErr;                  /* Number of errors encountered */
   int mxRail;                /* Number of rails required to render the graph */
-  GraphRow *pFirst;          /* First row in the list */
-  GraphRow *pLast;           /* Last row in the list */
+  GraphRow *pFirst;          /* First row in the list.  Top row of graph. */
+  GraphRow *pLast;           /* Last row in the list. Bottom row of graph. */
   int nBranch;               /* Number of distinct branches */
   char **azBranch;           /* Names of the branches */
   int nRow;                  /* Number of rows */
   int nHash;                 /* Number of slots in apHash[] */
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
+  u8 aiRailMap[GR_MAX_RAIL]; /* Mapping of rails to actually columns */
 };
 
 #endif
 
 /* The N-th bit */
 #define BIT(N)  (((u64)1)<<(N))
+
+/*
+** Number of rows before and answer a node with a riser or descender
+** that goes off-screen before we can reuse that rail.
+*/
+#define RISER_MARGIN 4
+
 
 /*
 ** Malloc for zeroed space.  Panic if unable to provide the
@@ -247,11 +276,12 @@ static int findFreeRail(
     inUseMask |= pRow->railInUse;
     pRow = pRow->pNext;
   }
-  for(i=0; i<32; i++){
+  for(i=0; i<GR_MAX_RAIL; i++){
     if( (inUseMask & BIT(i))==0 ){
       int dist;
       if( iNearto<=0 ){
-        return i;
+        iBest = i;
+        break;
       }
       dist = i - iNearto;
       if( dist<0 ) dist = -dist;
@@ -269,7 +299,7 @@ static int findFreeRail(
 /*
 ** Assign all children of node pBottom to the same rail as pBottom.
 */
-static void assignChildrenToRail(GraphRow *pBottom){
+static void assignChildrenToRail(GraphRow *pBottom, u32 tmFlags){
   int iRail = pBottom->iRail;
   GraphRow *pCurrent;
   GraphRow *pPrior;
@@ -280,6 +310,7 @@ static void assignChildrenToRail(GraphRow *pBottom){
   for(pCurrent=pBottom->pChild; pCurrent; pCurrent=pCurrent->pChild){
     assert( pPrior->idx > pCurrent->idx );
     assert( pCurrent->iRail<0 );
+    if( pPrior->timeWarp ) break;
     pCurrent->iRail = iRail;
     pCurrent->railInUse |= mask;
     pPrior->aiRiser[iRail] = pCurrent->idx;
@@ -287,6 +318,16 @@ static void assignChildrenToRail(GraphRow *pBottom){
       pPrior->railInUse |= mask;
       pPrior = pPrior->pPrev;
       assert( pPrior!=0 );
+    }
+  }
+  /* Mask of additional rows for the riser to infinity */
+  if( !pPrior->isLeaf && (tmFlags & TIMELINE_DISJOINT)==0 ){
+    int n = RISER_MARGIN;
+    GraphRow *p;
+    pPrior->selfUp = 0;
+    for(p=pPrior; p && (n--)>0; p=p->pPrev){
+      pPrior->selfUp++;
+      p->railInUse |= mask;
     }
   }
 }
@@ -306,12 +347,14 @@ static void createMergeRiser(
 
   if( pParent->mergeOut<0 ){
     u = pParent->aiRiser[pParent->iRail];
-    if( u>=0 && u<pChild->idx ){
+    if( u>0 && u<pChild->idx ){
       /* The thick arrow up to the next primary child of pDesc goes
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
       pParent->mergeOut = pParent->iRail;
-     }else{
+    }else if( pParent->idx - pChild->idx < pParent->selfUp ){
+      pParent->mergeOut = pParent->iRail;
+    }else{
       /* The thin merge arrow riser is taller than the thick primary
       ** child riser, so use separate rails. */
       int iTarget = pParent->iRail;
@@ -354,12 +397,14 @@ static void find_max_rail(GraphContext *p){
 }
 
 /*
-** Draw a riser from pRow to the top of the graph
+** Draw a riser from pRow upward to indicate that it is going
+** to a node that is off the graph to the top.
 */
 static void riser_to_top(GraphRow *pRow){
   u64 mask = BIT(pRow->iRail);
+  int n = RISER_MARGIN;
   pRow->aiRiser[pRow->iRail] = 0;
-  while( pRow ){
+  while( pRow && (n--)>0 ){
     pRow->railInUse |= mask;
     pRow = pRow->pPrev;
   }
@@ -373,13 +418,24 @@ static void riser_to_top(GraphRow *pRow){
 ** from the node down to the bottom of the graph.  This line is called a
 ** "descender".  But if the omitDescenders flag is true, then lines down
 ** to the bottom of the screen are omitted.
+**
+** The tmFlags parameter is zero or more of the TIMELINE_* constants.
+** Only the following are honored:
+**
+**       TIMELINE_DISJOINT:    Omit descenders
+**       TIMELINE_FILLGAPS:    Use step-children
+**       TIMELINE_XMERGE:      Omit off-graph merge lines
 */
-void graph_finish(GraphContext *p, int omitDescenders){
+void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   GraphRow *pRow, *pDesc, *pDup, *pLoop, *pParent;
   int i, j;
   u64 mask;
   int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
+  u8 *aMap;            /* Copy of p->aiRailMap */
+  int omitDescenders = (tmFlags & TIMELINE_DISJOINT)!=0;
+  int nTimewarp = 0;
+  int riserMargin = (tmFlags & TIMELINE_DISJOINT) ? 0 : RISER_MARGIN;
 
   /* If mergeRiserFrom[X]==Y that means rail X holds a merge riser
   ** coming up from the bottom of the graph from off-screen check-in Y
@@ -415,7 +471,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** of this graph, then no arrows will be drawn for it, so remove it from
   ** the aParent[] array.
   */
-  if( omitDescenders ){
+  if( (tmFlags & (TIMELINE_DISJOINT|TIMELINE_XMERGE))!=0 ){
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       for(i=1; i<pRow->nParent; i++){
         if( hashFind(p, pRow->aParent[i])==0 ){
@@ -471,45 +527,70 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pParent==0 ) continue;                         /* Parent off-screen */
     if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
     if( pParent->idx <= pRow->idx ){
-       pParent->timeWarp = 1;
-       continue;                                       /* Time-warp */
-    }
-    if( pRow->idxTop < pParent->idxTop ){
+      pParent->timeWarp = 1;
+      nTimewarp++;
+    }else if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
     }
   }
 
+  if( tmFlags & TIMELINE_FILLGAPS ){
+    /* If a node has no pChild and there is a node higher up in the graph
+    ** that is in the same branch and has no in-graph parent, then
+    ** make the lower node a step-child of the upper node.  This will
+    ** be represented on the graph by a thick dotted line without an arrowhead.
+    */
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( pRow->pChild ) continue;
+      for(pLoop=pRow->pPrev; pLoop; pLoop=pLoop->pPrev){
+        if( pLoop->nParent>0
+         && pLoop->zBranch==pRow->zBranch
+         && hashFind(p,pLoop->aParent[0])==0
+        ){
+          pRow->pChild = pLoop;
+          pRow->isStepParent = 1;
+          pLoop->aParent[0] = pRow->rid;
+          break;
+        }
+      }
+    }
+  }
+
+  /* Set the idxTop values for all entries.  The idxTop value is the
+  ** "idx" value for the top entry in its stack of children.
+  */
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    GraphRow *pChild = pRow->pChild;
+    if( pChild && pRow->idxTop>pChild->idxTop ){
+      pRow->idxTop = pChild->idxTop;
+    }
+  }
+
   /* Identify rows where the primary parent is off screen.  Assign
-  ** each to a rail and draw descenders to the bottom of the screen.
+  ** each to a rail and draw descenders downward.
   **
   ** Strive to put the "trunk" branch on far left.
   */
   zTrunk = persistBranchName(p, "trunk");
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
+      if( i==0 && pRow->zBranch!=zTrunk ) continue;
+      if( pRow->iRail>=0 ) continue;
       if( pRow->isDup ) continue;
       if( pRow->nParent<0 ) continue;
-      if( i==0 ){
-        if( pRow->zBranch!=zTrunk ) continue;
-      }else {
-        if( pRow->iRail>=0 ) continue;
-      }
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
-        if( omitDescenders ){
-          pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx, 0);
-        }else{
-          pRow->iRail = ++p->mxRail;
-        }
+        pRow->iRail = findFreeRail(p, pRow->idxTop, pRow->idx+riserMargin, 0);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         mask = BIT(pRow->iRail);
         if( !omitDescenders ){
+          int n = RISER_MARGIN;
           pRow->bDescender = pRow->nParent>0;
-          for(pLoop=pRow; pLoop; pLoop=pLoop->pNext){
+          for(pLoop=pRow; pLoop && (n--)>0; pLoop=pLoop->pNext){
             pLoop->railInUse |= mask;
           }
         }
-        assignChildrenToRail(pRow);
+        assignChildrenToRail(pRow, tmFlags);
       }
     }
   }
@@ -542,7 +623,8 @@ void graph_finish(GraphContext *p, int omitDescenders){
       if( pParent->idx>pRow->idx ){
         /* Common case:  Child occurs after parent and is above the
         ** parent in the timeline */
-        pRow->iRail = findFreeRail(p, 0, pParent->idx, pParent->iRail);
+        pRow->iRail = findFreeRail(p, pRow->idxTop, pParent->idx,
+                                   pParent->iRail);
         if( p->mxRail>=GR_MAX_RAIL ) return;
         pParent->aiRiser[pRow->iRail] = pRow->idx;
       }else{
@@ -563,13 +645,21 @@ void graph_finish(GraphContext *p, int omitDescenders){
     mask = BIT(pRow->iRail);
     pRow->railInUse |= mask;
     if( pRow->pChild ){
-      assignChildrenToRail(pRow);
+      assignChildrenToRail(pRow, tmFlags);
     }else if( !omitDescenders && count_nonbranch_children(pRow->rid)!=0 ){
       if( !pRow->timeWarp ) riser_to_top(pRow);
     }
     if( pParent ){
-      for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
-        pLoop->railInUse |= mask;
+      if( pParent->idx>pRow->idx ){
+        /* Common case:  Parent is below current row in the graph */
+        for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
+          pLoop->railInUse |= mask;
+        }
+      }else{
+        /* Timewarp case: Parent is above current row in the graph */
+        for(pLoop=pParent->pNext; pLoop && pLoop!=pRow; pLoop=pLoop->pNext){
+          pLoop->railInUse |= mask;
+        }
       }
     }
   }
@@ -591,7 +681,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
           }
         }
         if( iMrail==-1 ){
-          iMrail = findFreeRail(p, pRow->idx, p->nRow, 0);
+          iMrail = findFreeRail(p, pRow->idx, p->pLast->idx, 0);
           if( p->mxRail>=GR_MAX_RAIL ) return;
           mergeRiserFrom[iMrail] = parentRid;
         }
@@ -645,5 +735,27 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Find the maximum rail number.
   */
   find_max_rail(p);
+
+  /*
+  ** Compute the rail mapping.
+  */
+  aMap = p->aiRailMap;
+  for(i=0; i<=p->mxRail; i++) aMap[i] = i;
+  if( zLeftBranch && nTimewarp==0 ){
+    char *zLeft = persistBranchName(p, zLeftBranch);
+    j = 0;
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( pRow->zBranch==zLeft && aMap[pRow->iRail]>=j ){
+        for(i=0; i<=p->mxRail; i++){
+          if( aMap[i]>=j && aMap[i]<=pRow->iRail ) aMap[i]++;
+        }
+        aMap[pRow->iRail] = j++;
+      }
+    }
+    cgi_printf("<!-- aiRailMap =");
+    for(i=0; i<=p->mxRail; i++) cgi_printf(" %d", aMap[i]);
+    cgi_printf(" -->\n");
+  }
+
   p->nErr = 0;
 }

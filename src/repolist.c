@@ -29,6 +29,9 @@
 struct RepoInfo {
   char *zRepoName;      /* Name of the repository file */
   int isValid;          /* True if zRepoName is a valid Fossil repository */
+  int isRepolistSkin;   /* 1 or 2 if this repository wants to be the skin
+                        ** for the repository list.  2 means do use this
+                        ** repository but do not display it in the list. */
   char *zProjName;      /* Project Name.  Memory from fossil_malloc() */
   double rMTime;        /* Last update.  Julian day number */
 };
@@ -36,19 +39,30 @@ struct RepoInfo {
 
 /*
 ** Discover information about the repository given by
-** pRepo->zRepoName.
+** pRepo->zRepoName.  The discovered information is stored in other
+** fields of the RepoInfo object.
 */
-void remote_repo_info(RepoInfo *pRepo){
+static void remote_repo_info(RepoInfo *pRepo){
   sqlite3 *db;
   sqlite3_stmt *pStmt;
   int rc;
 
+  pRepo->isRepolistSkin = 0;
   pRepo->isValid = 0;
   pRepo->zProjName = 0;
   pRepo->rMTime = 0.0;
 
   g.dbIgnoreErrors++;
-  rc = sqlite3_open(pRepo->zRepoName, &db);
+  rc = sqlite3_open_v2(pRepo->zRepoName, &db, SQLITE_OPEN_READWRITE, 0);
+  if( rc ) goto finish_repo_list;
+  rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
+                              " WHERE name='repolist-skin'",
+                          -1, &pStmt, 0);
+  if( rc ) goto finish_repo_list;
+  if( sqlite3_step(pStmt)==SQLITE_ROW ){
+    pRepo->isRepolistSkin = sqlite3_column_int(pStmt,0);
+  }
+  sqlite3_finalize(pStmt);
   if( rc ) goto finish_repo_list;
   rc = sqlite3_prepare_v2(db, "SELECT value FROM config"
                               " WHERE name='project-name'",
@@ -87,11 +101,16 @@ finish_repo_list:
 ** return 0.
 */
 int repo_list_page(void){
-  Blob base;
-  int n = 0;
-  int allRepo;
+  Blob base;           /* document root for all repositories */
+  int n = 0;           /* Number of repositories found */
+  int allRepo;         /* True if running "fossil ui all".
+                       ** False if a directory scan of base for repos */
+  Blob html;           /* Html for the body of the repository list */
+  char *zSkinRepo = 0; /* Name of the repository database used for skins */
+  char *zSkinUrl = 0;  /* URL for the skin database */
 
   assert( g.db==0 );
+  blob_init(&html, 0, 0);
   if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
     /* For the special case of the "repository directory" being "/",
     ** show all of the repositories named in the ~/.fossil database.
@@ -116,28 +135,24 @@ int repo_list_page(void){
     sqlite3_open(":memory:", &g.db);
     db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
     db_multi_exec("CREATE TABLE vfile(pathname);");
-    vfile_scan(&base, blob_size(&base), 0, 0, 0);
+    vfile_scan(&base, blob_size(&base), 0, 0, 0, ExtFILE);
     db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
     allRepo = 0;
   }
-  @ <html>
-  @ <head>
-  @ <base href="%s(g.zBaseURL)/" />
-  @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  @ <title>Repository List</title>
-  @ </head>
-  @ <body>
   n = db_int(0, "SELECT count(*) FROM sfile");
-  if( n>0 ){
+  if( n==0 ){
+    sqlite3_close(g.db);
+    return 0;
+  }else{
     Stmt q;
     double rNow;
-    @ <h1 align="center">Fossil Repositories</h1>
-    @ <table border="0" class="sortable" data-init-sort="1" \
-    @ data-column-types="tntnk"><thead>
-    @ <tr><th>Filename<th width="20">\
-    @ <th>Project Name<th width="20">\
-    @ <th>Last Modified</tr>
-    @ </thead><tbody>
+    blob_append_sql(&html,
+      "<table border='0' class='sortable' data-init-sort='1'"
+      " data-column-types='txtxk'><thead>\n"
+      "<tr><th>Filename<th width='20'>"
+      "<th>Project Name<th width='20'>"
+      "<th>Last Modified</tr>\n"
+      "</thead><tbody>\n");
     db_prepare(&q, "SELECT pathname"
                    " FROM sfile ORDER BY pathname COLLATE nocase;");
     rNow = db_double(0, "SELECT julianday('now')");
@@ -164,49 +179,93 @@ int repo_list_page(void){
       }
       x.zRepoName = zFull;
       remote_repo_info(&x);
+      if( x.isRepolistSkin ){
+        if( zSkinRepo==0 ){
+          zSkinRepo = mprintf("%s", x.zRepoName);
+          zSkinUrl = mprintf("%s", zUrl);
+        }
+      }
       fossil_free(zFull);
       if( !x.isValid ){
-        zAge = mprintf("...");
-        iAge = 0;
-      }else{
-        iAge = (rNow - x.rMTime)*86400;
-        if( iAge<0 ) x.rMTime = rNow;
-        zAge = human_readable_age(rNow - x.rMTime);
+        continue;
       }
-      @ <tr><td valign="top">\
+      if( x.isRepolistSkin==2 && !allRepo ){
+        /* Repositories with repolist-skin==2 are omitted from directory
+        ** scan lists, but included in "fossil all ui" lists */
+        continue;
+      }
+      iAge = (rNow - x.rMTime)*86400;
+      if( iAge<0 ) x.rMTime = rNow;
+      zAge = human_readable_age(rNow - x.rMTime);
+      blob_append_sql(&html, "<tr><td valign='top'>");
       if( sqlite3_strglob("*.fossil", zName)!=0 ){
         /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
         ** do not work for repositories whose names do not end in ".fossil".
         ** So do not hyperlink those cases. */
-        @ %h(zName)
+        blob_append_sql(&html,"%h",zName);
       } else if( sqlite3_strglob("*/.*", zName)==0 ){
-        /* Do not show hidden repos */
-        @ %h(zName) (hidden)
+        /* Do not show hyperlinks for hidden repos */
+        blob_append_sql(&html, "%h (hidden)", zName);
       } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        @ <a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a>
+        blob_append_sql(&html,
+          "<a href='%R/%T/home' target='_blank'>/%h</a>\n",
+          zUrl, zName);
       }else{
-        @ <a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a>
+        blob_append_sql(&html,
+          "<a href='%R/%T/home' target='_blank'>%h</a>\n",
+          zUrl, zName);
       }
       if( x.zProjName ){
-        @ <td></td><td>%h(x.zProjName)</td>
+        blob_append_sql(&html, "<td></td><td>%h</td>\n", x.zProjName);
         fossil_free(x.zProjName);
       }else{
-        @ <td></td><td></td>
+        blob_append_sql(&html, "<td></td><td></td>\n");
       }
-      @ <td></td><td data-sortkey='%08x(iAge)'>%h(zAge)</tr>
+      blob_append_sql(&html,
+        "<td></td><td data-sortkey='%08x'>%h</tr>\n",
+        iAge, zAge);
       fossil_free(zAge);
       sqlite3_free(zUrl);
     }
-    @ </tbody></table>
-  }else{
-    @ <h1>No Repositories Found</h1>
+    db_finalize(&q);
+    blob_append_sql(&html,"</tbody></table>\n");
   }
-  @ <script>%s(builtin_text("sorttable.js"))</script>
-  @ </body>
-  @ </html>
+  if( zSkinRepo ){
+    char *zNewBase = mprintf("%s/%s", g.zBaseURL, zSkinUrl);
+    g.zBaseURL = 0;
+    set_base_url(zNewBase);
+    db_open_repository(zSkinRepo);
+    fossil_free(zSkinRepo);
+    fossil_free(zSkinUrl);
+  }
+  if( g.repositoryOpen ){
+    /* This case runs if remote_repository_info() found a repository
+    ** that has the "repolist_skin" property set to non-zero and left
+    ** that repository open in g.db.  Use the skin of that repository
+    ** for display. */
+    login_check_credentials();
+    style_header("Repository List");
+    @ %s(blob_str(&html))
+    style_table_sorter();
+    style_footer();
+  }else{
+    /* If no repositories were found that had the "repolist_skin"
+    ** property set, then use a default skin */
+    @ <html>
+    @ <head>
+    @ <base href="%s(g.zBaseURL)/" />
+    @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @ <title>Repository List</title>
+    @ </head>
+    @ <body>
+    @ <h1 align="center">Fossil Repositories</h1>
+    @ %s(blob_str(&html))
+    @ <script>%s(builtin_text("sorttable.js"))</script>
+    @ </body>
+    @ </html>
+  }
+  blob_reset(&html);
   cgi_reply();
-  sqlite3_close(g.db);
-  g.db = 0;
   return n;
 }
 

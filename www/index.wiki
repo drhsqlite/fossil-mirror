@@ -63,9 +63,11 @@ management system with these advanced features:
       used comfortably over dial-up or over the exceedingly slow Wifi on
       airliners.
 
-  5.  <b>CGI/SCGI Enabled</b> -  No server is required, but if you want to
-      set one up, Fossil supports four easy
-      [./server.wiki | server configurations].
+  5.  <b>Simple Server Setup</b> -  No server is required, but if you want to
+      set one up, Fossil supports [./server/ | several different server
+      configurations] including CGI, SCGI, and direct HTTP.
+      You can also easily set up your Fossil repository to automatically
+      [./mirrortogithub.md | mirror content on GitHub].
 
   6.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
@@ -129,7 +131,7 @@ management system with these advanced features:
      customization of commands and web pages.
   *  A free hosting server for Fossil repositories is available at
      [http://chiselapp.com/].
-  *  How to [./server.wiki | set up a server] for your repository.
+  *  How to [./server/ | set up a server] for your repository.
   *  Customizing the [./custom_ticket.wiki | ticket system].
   *  Methods to [./checkin_names.wiki | identify a specific check-in].
   *  [./inout.wiki | Import and export] from and to Git.

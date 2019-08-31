@@ -621,14 +621,12 @@ void uvlist_json_page(void){
      int fullSize = db_column_int(&q, 3);
      const char *zLogin = db_column_text(&q, 4);
      if( zLogin==0 ) zLogin = "";
-     blob_appendf(&json, "%s{\"name\":\"", zSep);
+     blob_appendf(&json, "%s{\"name\":\"%j\",\n", zSep, zName);
      zSep = ",\n ";
-     blob_append_json_string(&json, zName);
-     blob_appendf(&json, "\",\n  \"mtime\":%lld,\n  \"hash\":\"", mtime);
-     blob_append_json_string(&json, zHash);
-     blob_appendf(&json, "\",\n  \"size\":%d,\n  \"user\":\"", fullSize);
-     blob_append_json_string(&json, zLogin);
-     blob_appendf(&json, "\"}");
+     blob_appendf(&json, "  \"mtime\":%lld,\n", mtime);
+     blob_appendf(&json, "  \"hash\":\"%j\",\n", zHash);
+     blob_appendf(&json, "  \"size\":%d,\n", fullSize);
+     blob_appendf(&json, "  \"user\":\"%j\"}", zLogin);
    }
    db_finalize(&q);
    blob_appendf(&json,"]\n");

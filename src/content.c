@@ -600,7 +600,7 @@ int content_put_ex(
     }
   }
   if( g.markPrivate || isPrivate ){
-    db_multi_exec("INSERT INTO private VALUES(%d)", rid);
+    db_multi_exec("INSERT OR IGNORE INTO private VALUES(%d)", rid);
     markAsUnclustered = 0;
   }
   if( nBlob==0 ) blob_reset(&cmpr);

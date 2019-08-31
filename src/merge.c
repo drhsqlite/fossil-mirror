@@ -754,7 +754,7 @@ void merge_cmd(void){
       zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       if( file_size(zFullNewPath, RepoFILE)>=0 ){
         Blob tmpPath;
-        file_tempname(&tmpPath, "");
+        file_tempname(&tmpPath, "", 0);
         db_multi_exec("INSERT INTO tmprn(fn,tmpfn) VALUES(%Q,%Q)",
                       zNewName, blob_str(&tmpPath));
         if( file_islink(zFullNewPath) ){

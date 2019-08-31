@@ -974,7 +974,7 @@ static int send_unclustered(Xfer *pXfer){
     );
   }else{
     db_prepare(&q,
-      "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+      "SELECT uuid FROM unclustered JOIN blob USING(rid) /*scan*/"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
       "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
@@ -1122,7 +1122,7 @@ static int disableLogin = 0;
 ** clone clients to specify a URL that omits default pathnames, such
 ** as "http://fossil-scm.org/" instead of "http://fossil-scm.org/index.cgi".
 **
-** WEBPAGE: xfer
+** WEBPAGE: xfer  raw-content
 **
 ** This is the transfer handler on the server side.  The transfer
 ** message has been uncompressed and placed in the g.cgiIn blob.
@@ -1547,6 +1547,78 @@ void page_xfer(void){
         }
         uvCatalogSent = 1;
       }
+
+      /*   pragma ci-lock CHECKIN-HASH CLIENT-ID
+      **
+      ** The client wants to make non-branch commit against the check-in
+      ** identified by CHECKIN-HASH.  The server will remember this and
+      ** subsequent ci-lock request from different clients will generate
+      ** a ci-lock-fail pragma in the reply.
+      */
+      if( blob_eq(&xfer.aToken[1], "ci-lock")
+       && xfer.nToken==4
+       && blob_is_hname(&xfer.aToken[2])
+      ){
+        Stmt q;
+        sqlite3_int64 iNow = time(0);
+        const sqlite3_int64 maxAge = 3600*24; /* Locks expire after 24 hours */
+        int seenFault = 0;
+        db_prepare(&q,
+          "SELECT json_extract(value,'$.login'),"
+          "       mtime,"
+          "       json_extract(value,'$.clientid'),"
+          "       (SELECT rid FROM blob WHERE uuid=substr(name,9)),"
+          "       name"
+          " FROM config WHERE name GLOB 'ci-lock-*'"
+        );
+        while( db_step(&q)==SQLITE_ROW ){
+          int x = db_column_int(&q,3);
+          const char *zName = db_column_text(&q,4);
+          if( db_column_int64(&q,1)<iNow-maxAge || !is_a_leaf(x) ){
+            /* check-in locks expire after maxAge seconds, or when the
+            ** check-in is no longer a leaf */
+            db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+            continue;
+          }
+          if( fossil_strcmp(zName+8, blob_str(&xfer.aToken[2]))==0 ){
+            const char *zClientId = db_column_text(&q, 2);
+            const char *zLogin = db_column_text(&q,0);
+            sqlite3_int64 mtime = db_column_int64(&q, 1);
+            if( fossil_strcmp(zClientId, blob_str(&xfer.aToken[3]))!=0 ){
+              @ pragma ci-lock-fail %F(zLogin) %lld(mtime)
+            }
+            seenFault = 1;
+          }
+        }
+        db_finalize(&q);
+        if( !seenFault ){
+          db_multi_exec(
+            "REPLACE INTO config(name,value,mtime)"
+            "VALUES('ci-lock-%q',json_object('login',%Q,'clientid',%Q),now())",
+            blob_str(&xfer.aToken[2]), g.zLogin,
+            blob_str(&xfer.aToken[3])
+          );
+        }
+      }
+
+      /*   pragma ci-unlock CLIENT-ID
+      **
+      ** Remove any locks previously held by CLIENT-ID.  Clients send this
+      ** pragma with their own ID whenever they know that they no longer
+      ** have any commits pending.
+      */
+      if( blob_eq(&xfer.aToken[1], "ci-unlock")
+       && xfer.nToken==3
+       && blob_is_hname(&xfer.aToken[2])
+      ){
+        db_multi_exec(
+          "DELETE FROM config"
+          " WHERE name GLOB 'ci-lock-*'"
+          "   AND json_extract(value,'$.clientid')=%Q",
+          blob_str(&xfer.aToken[2])
+        );
+      }
+
     }else
 
     /* Unknown message
@@ -1656,6 +1728,8 @@ static const char zBriefFormat[] =
 #define SYNC_FROMPARENT     0x0100    /* Pull from the parent project */
 #define SYNC_UV_TRACE       0x0200    /* Describe UV activities */
 #define SYNC_UV_DRYRUN      0x0400    /* Do not actually exchange files */
+#define SYNC_IFABLE         0x0800    /* Inability to sync is not fatal */
+#define SYNC_CKIN_LOCK      0x1000    /* Lock the current check-in */
 #endif
 
 /*
@@ -1708,6 +1782,10 @@ int client_sync(
   int nUvGimmeSent = 0;   /* Number of uvgimme cards sent on this cycle */
   int nUvFileRcvd = 0;    /* Number of uvfile cards received on this cycle */
   sqlite3_int64 mtime;    /* Modification time on a UV file */
+  int autopushFailed = 0; /* Autopush following commit failed if true */
+  const char *zCkinLock;  /* Name of check-in to lock.  NULL for none */
+  const char *zClientId;  /* A unique identifier for this check-out */
+  unsigned int mHttpFlags;/* Flags for the http_exchange() subsystem */
 
   if( db_get_boolean("dont-push", 0) ) syncFlags &= ~SYNC_PUSH;
   if( (syncFlags & (SYNC_PUSH|SYNC_PULL|SYNC_CLONE|SYNC_UNVERSIONED))==0
@@ -1744,11 +1822,19 @@ int client_sync(
   blob_zero(&xfer.line);
   origConfigRcvMask = 0;
 
-
   /* Send the send-private pragma if we are trying to sync private data */
   if( syncFlags & SYNC_PRIVATE ){
     blob_append(&send, "pragma send-private\n", -1);
   }
+
+  /* Figure out which check-in to lock */
+  if( syncFlags & SYNC_CKIN_LOCK ){
+    int vid = db_lget_int("checkout",0);
+    zCkinLock = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  }else{
+    zCkinLock = 0;
+  }
+  zClientId = g.localOpen ? db_lget("client-id", 0) : 0;
 
   /* When syncing unversioned files, create a TEMP table in which to store
   ** the names of files that need to be sent from client to server.
@@ -1912,6 +1998,18 @@ int client_sync(
       }
     }
 
+    /* Lock the current check-out */
+    if( zCkinLock ){
+      if( zClientId==0 ){
+        zClientId = db_text(0, "SELECT lower(hex(randomblob(20)))");
+        db_lset("client-id", zClientId);
+      }
+      blob_appendf(&send, "pragma ci-lock %s %s\n", zCkinLock, zClientId);
+      zCkinLock = 0;
+    }else if( zClientId ){
+      blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
+    }
+
     /* Append randomness to the end of the message.  This makes all
     ** messages unique so that that the login-card nonce will always
     ** be unique.
@@ -1925,8 +2023,13 @@ int client_sync(
     }
     fflush(stdout);
     /* Exchange messages with the server */
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
-        MAX_REDIRECTS) ){
+    if( (syncFlags & SYNC_CLONE)!=0 && nCycle==0 ){
+      /* Do not send a login card on the first round-trip of a clone */
+      mHttpFlags = 0;
+    }else{
+      mHttpFlags = HTTP_USE_LOGIN;
+    }
+    if( http_exchange(&send, &recv, mHttpFlags, MAX_REDIRECTS, 0) ){
       nErr++;
       go = 2;
       break;
@@ -2271,6 +2374,29 @@ int client_sync(
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
           uvDoPush = 1;
         }
+
+        /*    pragma ci-lock-fail  USER-HOLDING-LOCK  LOCK-TIME
+        **
+        ** The server generates this message when a "pragma ci-lock"
+        ** is attempted on a check-in for which there is an existing
+        ** lock.  USER-HOLDING-LOCK is the name of the user who originated
+        ** the lock, and LOCK-TIME is the timestamp (seconds since 1970)
+        ** when the lock was taken.
+        */
+        else if( blob_eq(&xfer.aToken[1], "ci-lock-fail") && xfer.nToken==4 ){
+          char *zUser = blob_terminate(&xfer.aToken[2]);
+          sqlite3_int64 mtime, iNow;
+          defossilize(zUser);
+          iNow = time(NULL);
+          if( blob_is_int64(&xfer.aToken[3], &mtime) && iNow>mtime ){
+            iNow = time(NULL);
+            fossil_print("\nParent check-in locked by %s %s ago\n",
+               zUser, human_readable_age((iNow+1-mtime)/86400.0));
+          }else{
+            fossil_print("\nParent check-in locked by %s\n", zUser);
+          }
+          g.ckinLockFail = fossil_strdup(zUser);
+        }
       }else
 
       /*   error MESSAGE
@@ -2283,30 +2409,22 @@ int client_sync(
       ** is returned in the reply before the error card, so second and
       ** subsequent messages should be OK.  Nevertheless, we need to ignore
       ** the error card on the first message of a clone.
+      **
+      ** Also ignore "not authorized to write" errors if this is an
+      ** autopush following a commit.
       */
       if( blob_eq(&xfer.aToken[0],"error") && xfer.nToken==2 ){
-        if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
-          char *zMsg = blob_terminate(&xfer.aToken[1]);
-          defossilize(zMsg);
+        char *zMsg = blob_terminate(&xfer.aToken[1]);
+        defossilize(zMsg);
+        if( (syncFlags & SYNC_IFABLE)!=0
+         && sqlite3_strlike("%not authorized to write%",zMsg,0)==0 ){
+          autopushFailed = 1;
+          nErr++;
+        }else if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
           fossil_force_newline();
           fossil_print("Error: %s\n", zMsg);
-          if( fossil_strcmp(zMsg, "login failed")==0 ){
-            if( nCycle<2 ){
-              g.url.passwd = 0;
-              go = 1;
-              if( g.cgiOutput==0 ){
-                g.url.flags |= URL_PROMPT_PW;
-                g.url.flags &= ~URL_PROMPTED;
-                url_prompt_for_password();
-                url_remember();
-              }
-            }else{
-              nErr++;
-            }
-          }else{
-            blob_appendf(&xfer.err, "server says: %s\n", zMsg);
-            nErr++;
-          }
+          blob_appendf(&xfer.err, "server says: %s\n", zMsg);
+          nErr++;
           break;
         }
       }else
@@ -2413,6 +2531,15 @@ int client_sync(
     manifest_crosslink_end(MC_PERMIT_HOOKS);
     content_enable_dephantomize(1);
     db_end_transaction(0);
+  }
+  if( nErr && autopushFailed ){
+    fossil_warning(
+      "Warning: The check-in was successful and is saved locally but you\n"
+      "         are not authorized to push the changes back to the server\n"
+      "         at %s",
+      g.url.canonical
+    );
+    nErr--;
   }
   if( (syncFlags & SYNC_CLONE)==0 && g.rcvid && fossil_any_has_fork(g.rcvid) ){
     fossil_warning("***** WARNING: a fork has occurred *****\n"

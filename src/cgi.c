@@ -15,11 +15,16 @@
 **
 *******************************************************************************
 **
-** This file contains C functions and procedures that provide useful
-** services to CGI programs.  There are procedures for parsing and
-** dispensing QUERY_STRING parameters and cookies, the "mprintf()"
-** formatting function and its cousins, and routines to encode and
-** decode strings in HTML or HTTP.
+** This file contains C functions and procedures used by CGI programs
+** (Fossil launched as CGI) to interpret CGI environment variables,
+** gather the results, and send they reply back to the CGI server.
+** This file also contains routines for running a simple web-server
+** (the "fossil ui" or "fossil server" command) and launching subprocesses
+** to handle each inbound HTTP request using CGI.
+**
+** This file contains routines used by Fossil when it is acting as a
+** CGI client.  For the code used by Fossil when it is acting as a
+** CGI server (for the /ext webpage) see the "extcgi.c" source file.
 */
 #include "config.h"
 #ifdef _WIN32
@@ -143,6 +148,13 @@ Blob *cgi_output_blob(void){
 }
 
 /*
+** Return complete text of the output header
+*/
+const char *cgi_header(void){
+  return blob_str(&cgiContent[0]);
+}
+
+/*
 ** Combine the header and body of the CGI into a single string.
 */
 static void cgi_combine_header_and_body(void){
@@ -164,8 +176,8 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static char *zContentType = "text/html";     /* Content type of the reply */
-static char *zReplyStatus = "OK";            /* Reply status description */
+static const char *zContentType = "text/html";     /* Content type of the reply */
+static const char *zReplyStatus = "OK";            /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
 
@@ -983,29 +995,14 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
-    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0
-         || strncmp(zType,"multipart/form-data",19)==0 ){
-      z = fossil_malloc( len+1 );
-      len = fread(z, 1, len, g.httpIn);
-      z[len] = 0;
-      cgi_trace(z);
-      if( zType[0]=='a' ){
-        add_param_list(z, '&');
-      }else{
-        process_multipart_form_data(z, len);
-      }
-    }else if( fossil_strcmp(zType, "application/x-fossil")==0 ){
+    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( fossil_strcmp(zType, "application/json")
-              || fossil_strcmp(zType,"text/plain")/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")){
+    else if( fossil_strcmp(zType, "application/json")==0
+              || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+              || fossil_strcmp(zType,"application/javascript")==0){
       g.json.isJsonMode = 1;
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
       /* FIXMEs:
@@ -1026,8 +1023,30 @@ void cgi_init(void){
       cgi_set_content_type(json_guess_content_type());
     }
 #endif /* FOSSIL_ENABLE_JSON */
+    else{
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+    }
   }
+}
 
+/*
+** Decode POST parameter information in the cgiIn content, if any.
+*/
+void cgi_decode_post_parameters(void){
+  int len = blob_size(&g.cgiIn);
+  if( len==0 ) return;
+  if( fossil_strcmp(g.zContentType,"application/x-www-form-urlencoded")==0
+   || strncmp(g.zContentType,"multipart/form-data",19)==0
+  ){
+    char *z = blob_str(&g.cgiIn);
+    cgi_trace(z);
+    if( g.zContentType[0]=='a' ){
+      add_param_list(z, '&');
+    }else{
+      process_multipart_form_data(z, len);
+    }
+    blob_init(&g.cgiIn, 0, 0);
+  }
 }
 
 /*
@@ -1945,7 +1964,7 @@ int cgi_http_server(
         }
         nchildren--;
       }
-    }  
+    }
   }
   /* NOT REACHED */
   fossil_exit(1);

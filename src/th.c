@@ -206,6 +206,14 @@ static void thBufferInit(Buffer *);
 static void thBufferFree(Th_Interp *interp, Buffer *);
 
 /*
+** This version of memcpy() allows the first are second argument to
+** be NULL as long as the number of bytes to copy is zero.
+*/
+static void *th_memcpy(void *dest, const void *src, size_t n){
+  return n>0 ? memcpy(dest,src,n) : dest;
+}
+
+/*
 ** Append nAdd bytes of content copied from zAdd to the end of buffer
 ** pBuffer. If there is not enough space currently allocated, resize
 ** the allocation to make space.
@@ -229,13 +237,13 @@ static int thBufferWrite(
 
     nNew = nReq*2;
     zNew = (char *)Th_Malloc(interp, nNew);
-    memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
+    th_memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
     Th_Free(interp, pBuffer->zBuf);
     pBuffer->nBufAlloc = nNew;
     pBuffer->zBuf = zNew;
   }
 
-  memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
+  th_memcpy(&pBuffer->zBuf[pBuffer->nBuf], zAdd, nAdd);
   pBuffer->nBuf += nAdd;
   pBuffer->zBuf[pBuffer->nBuf] = '\0';
 
@@ -843,8 +851,8 @@ static int thSplitList(
     );
     anElem = (int *)&azElem[nCount];
     zElem = (char *)&anElem[nCount];
-    memcpy(anElem, lenbuf.zBuf, lenbuf.nBuf);
-    memcpy(zElem, strbuf.zBuf, strbuf.nBuf);
+    th_memcpy(anElem, lenbuf.zBuf, lenbuf.nBuf);
+    th_memcpy(zElem, strbuf.zBuf, strbuf.nBuf);
     for(i=0; i<nCount;i++){
       azElem[i] = zElem;
       zElem += (anElem[i] + 1);
@@ -1295,7 +1303,7 @@ int Th_SetVar(
   assert(zValue || nValue==0);
   pValue->zData = Th_Malloc(interp, nValue+1);
   pValue->zData[nValue] = '\0';
-  memcpy(pValue->zData, zValue, nValue);
+  th_memcpy(pValue->zData, zValue, nValue);
   pValue->nData = nValue;
 
   return TH_OK;
@@ -1414,7 +1422,7 @@ char *th_strdup(Th_Interp *interp, const char *z, int n){
     n = th_strlen(z);
   }
   zRes = Th_Malloc(interp, n+1);
-  memcpy(zRes, z, n);
+  th_memcpy(zRes, z, n);
   zRes[n] = '\0';
   return zRes;
 }
@@ -1474,7 +1482,7 @@ int Th_SetResult(Th_Interp *pInterp, const char *z, int n){
   if( z && n>0 ){
     char *zResult;
     zResult = Th_Malloc(pInterp, n+1);
-    memcpy(zResult, z, n);
+    th_memcpy(zResult, z, n);
     zResult[n] = '\0';
     pInterp->zResult = zResult;
     pInterp->nResult = n;
@@ -1777,8 +1785,8 @@ int Th_StringAppend(
 
   nNew = *pnStr + nElem;
   zNew = Th_Malloc(interp, nNew);
-  memcpy(zNew, *pzStr, *pnStr);
-  memcpy(&zNew[*pnStr], zElem, nElem);
+  th_memcpy(zNew, *pzStr, *pnStr);
+  th_memcpy(&zNew[*pnStr], zElem, nElem);
 
   Th_Free(interp, *pzStr);
   *pzStr = zNew;
@@ -2337,14 +2345,14 @@ static int exprParse(
           /* A terminal. Copy the string value. */
           assert( !pNew->pOp );
           pNew->zValue = Th_Malloc(interp, pNew->nValue);
-          memcpy(pNew->zValue, z, pNew->nValue);
+          th_memcpy(pNew->zValue, z, pNew->nValue);
           i += pNew->nValue;
         }
         if( (nToken%16)==0 ){
           /* Grow the apToken array. */
           Expr **apTokenOld = apToken;
           apToken = Th_Malloc(interp, sizeof(Expr *)*(nToken+16));
-          memcpy(apToken, apTokenOld, sizeof(Expr *)*nToken);
+          th_memcpy(apToken, apTokenOld, sizeof(Expr *)*nToken);
         }
 
         /* Put the new token at the end of the apToken array */
@@ -2515,7 +2523,7 @@ Th_HashEntry *Th_HashFind(
     pRet = (Th_HashEntry *)Th_Malloc(interp, sizeof(Th_HashEntry) + nKey);
     pRet->zKey = (char *)&pRet[1];
     pRet->nKey = nKey;
-    memcpy(pRet->zKey, zKey, nKey);
+    th_memcpy(pRet->zKey, zKey, nKey);
     pRet->pNext = pHash->a[iKey];
     pHash->a[iKey] = pRet;
   }

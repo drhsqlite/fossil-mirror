@@ -93,7 +93,7 @@ void capability_free(CapabilityString *p){
 }
 
 /*
-** Expand the capability string by including all capabilities for 
+** Expand the capability string by including all capabilities for
 ** special users "nobody" and "anonymous".  Also include "reader"
 ** if "u" is present and "developer" if "v" is present.
 */
@@ -102,6 +102,7 @@ void capability_expand(CapabilityString *pIn){
   static char *zAnon = 0;
   static char *zReader = 0;
   static char *zDev = 0;
+  static char *zAdmin = "bcdefghijklmnopqrtwxz234567AD";
   int doneV = 0;
 
   if( pIn==0 ){
@@ -119,6 +120,9 @@ void capability_expand(CapabilityString *pIn){
   }
   pIn = capability_add(pIn, zAnon);
   pIn = capability_add(pIn, zNobody);
+  if( pIn->x['a'] || pIn->x['s'] ){
+    pIn = capability_add(pIn, zAdmin);
+  }
   if( pIn->x['v'] ){
     pIn = capability_add(pIn, zDev);
     doneV = 1;
@@ -366,9 +370,9 @@ void capability_summary(void){
     " SELECT 'New User Default', fullcap(%Q), 10, 1"
     " UNION ALL"
     " SELECT 'Regular User', fullcap(capunion(cap)), 20, count(*) FROM user"
-    " WHERE cap NOT GLOB '*[as]*'"
+    " WHERE cap NOT GLOB '*[as]*' AND login NOT IN (SELECT id FROM t)"
     " UNION ALL"
-    " SELECT 'Adminstator', fullcap(capunion(cap)), 30, count(*) FROM user"
+    " SELECT 'Adminstrator', fullcap(capunion(cap)), 30, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
     " ORDER BY 3 ASC",
     db_get("default-perms","")
@@ -381,8 +385,8 @@ void capability_summary(void){
     const char *zCap = db_column_text(&q, 1);
     int n = db_column_int(&q, 3);
     int eType;
-    static const char *azType[] = { "off", "read", "write" };
-    static const char *azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
+    static const char *const azType[] = { "off", "read", "write" };
+    static const char *const azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
 
     if( n==0 ) continue;
 

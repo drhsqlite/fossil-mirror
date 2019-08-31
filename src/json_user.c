@@ -188,13 +188,6 @@ int json_user_update_from_json( cson_object * pUser ){
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
 
-#if 0
-  if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
-    return json_set_err( FSL_JSON_E_DENIED,
-                         "Password change requires 'a', 's', "
-                         "or 'p' permissions.");
-  }
-#endif
   if(uid<=0 && (!zName||!*zName)){
     return json_set_err(FSL_JSON_E_MISSING_ARGS,
                         "One of 'uid' or 'name' is required.");

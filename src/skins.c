@@ -59,7 +59,7 @@ static struct BuiltinSkin {
 /*
 ** A skin consists of five "files" named here:
 */
-static const char *azSkinFile[] = { 
+static const char *const azSkinFile[] = {
   "css", "header", "footer", "details", "js"
 };
 
@@ -500,11 +500,11 @@ void setup_skin_admin(void){
       db_end_transaction(0);
       return;
     }
-  
+
     /* The user pressed one of the "Install" buttons. */
     if( P("load") && (z = P("sn"))!=0 && z[0] ){
       int seen = 0;
-  
+
       /* Check to see if the current skin is already saved.  If it is, there
       ** is no need to create a backup */
       zCurrent = getSkin(0);
@@ -541,7 +541,7 @@ void setup_skin_admin(void){
       }
     }
   }
-  
+
   style_header("Skins");
   if( zErr ){
     @ <p style="color:red">%h(zErr)</p>
@@ -883,7 +883,7 @@ void setup_skin(void){
   int isEditor;   /* Others authorized to make edits */
   char *zAllowedEditors;   /* Who may edit the draft skin */
   char *zBase;             /* Base URL for draft under test */
-  static const char *azTestPages[] = {
+  static const char *const azTestPages[] = {
      "home",
      "timeline",
      "dir?ci=tip",

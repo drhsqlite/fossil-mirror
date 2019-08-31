@@ -106,7 +106,11 @@ void stats_for_email(void){
   @ <tr><th>Pending&nbsp;Alerts:</th><td>
   @ %,d(nPend) normal, %,d(nDPend) digest
   @ </td></tr>
-  @ <tr><th>Subscribers:</th><td>
+  if( g.perm.Admin ){
+    @ <tr><th><a href="%R/subscribers">Subscribers:</a></th><td>
+  }else{
+    @ <tr><th>Subscribers:</th><td>
+  }
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
                    " AND NOT sdonotcall AND length(ssub)>1");
@@ -215,11 +219,20 @@ void stat_page(void){
                   " WHERE +tagname GLOB 'wiki-*'");
     @ %,d(n)
     @ </td></tr>
-    @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'tkt-*'");
-    @ %,d(n)
-    @ </td></tr>
+    if( n>0 ){
+      @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>%,d(n)</td></tr>
+    }
+    if( db_table_exists("repository","forumpost") ){
+      n = db_int(0, "SELECT count(*) FROM forumpost/*scan*/");
+      if( n>0 ){
+        int nThread = db_int(0, "SELECT count(*) FROM forumpost"
+                                " WHERE froot=fpid");
+        @ <tr><th>Number&nbsp;Of&nbsp;Forum&nbsp;Posts:</th>
+        @ <td>%,d(n) on %d(nThread) threads</td></tr>
+      }
+    }
   }
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
@@ -670,6 +683,8 @@ static void gather_artifact_stats(int bWithTypes){
     @    AND atype IS NULL;
     @ UPDATE artstat SET atype='manifest'
     @  WHERE id IN (SELECT objid FROM event WHERE type='ci') AND atype IS NULL;
+    @ UPDATE artstat SET atype='forum'
+    @  WHERE id IN (SELECT objid FROM event WHERE type='f') AND atype IS NULL;
     @ UPDATE artstat SET atype='cluster'
     @  WHERE atype IS NULL 
     @    AND id IN (SELECT rid FROM tagxref
@@ -834,7 +849,7 @@ void artifact_stats_page(void){
   @ <td>largest: %,d(mxCmpr), average: %,d((int)r), median: %,d(med)</td>
   @ </table>
 
-  @ <h1>Artifact size distribution facts:</h1>
+  @ <h1>Artifact Size Distribution Facts:</h1>
   @ <ol>
   @ <li><p>The largest %.2f(n50pct*100.0/nTotal)%% of artifacts
   largest_n_artifacts(n50pct);

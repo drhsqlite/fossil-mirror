@@ -37,9 +37,11 @@ struct ForumEntry {
   int fprev;             /* zero if initial entry.  non-zero if an edit */
   int firt;              /* This entry replies to firt */
   int mfirt;             /* Root in-reply-to */
+  int nReply;            /* Number of replies to this entry */
+  int sid;               /* Serial ID number */
   char *zUuid;           /* Artifact hash */
   ForumEntry *pLeaf;     /* Most recent edit for this entry */
-  ForumEntry *pEdit;     /* This entry is an edit of pEditee */
+  ForumEntry *pEdit;     /* This entry is an edit of pEdit */
   ForumEntry *pNext;     /* Next in chronological order */
   ForumEntry *pPrev;     /* Previous in chronological order */
   ForumEntry *pDisplay;  /* Next in display order */
@@ -54,6 +56,7 @@ struct ForumThread {
   ForumEntry *pLast;     /* Last entry in chronological order */
   ForumEntry *pDisplay;  /* Entries in display order */
   ForumEntry *pTail;     /* Last on the display list */
+  int mxIndent;          /* Maximum indentation level */
 };
 #endif /* INTERFACE */
 
@@ -106,18 +109,27 @@ static void forumentry_add_to_display(ForumThread *pThread, ForumEntry *p){
 ** entry "p".
 */
 static void forumthread_display_order(
-  ForumThread *pThread,
-  ForumEntry *p,
-  int fpid,
-  int nIndent
+  ForumThread *pThread,    /* The complete thread */
+  ForumEntry *pBase        /* Add replies to this entry */
 ){
-  while( p ){
-    if( p->fprev==0 && p->mfirt==fpid ){
-      p->nIndent = nIndent;
-      forumentry_add_to_display(pThread, p);
-      forumthread_display_order(pThread, p->pNext, p->fpid, nIndent+1);
+  ForumEntry *p;
+  ForumEntry *pPrev = 0;
+  for(p=pBase->pNext; p; p=p->pNext){
+    if( p->fprev==0 && p->mfirt==pBase->fpid ){
+      if( pPrev ){
+        pPrev->nIndent = pBase->nIndent + 1;
+        forumentry_add_to_display(pThread, pPrev);
+        forumthread_display_order(pThread, pPrev);
+      }
+      pBase->nReply++;
+      pPrev = p;
     }
-    p = p->pNext;
+  }
+  if( pPrev ){
+    pPrev->nIndent = pBase->nIndent + 1;
+    if( pPrev->nIndent>pThread->mxIndent ) pThread->mxIndent = pPrev->nIndent;
+    forumentry_add_to_display(pThread, pPrev);
+    forumthread_display_order(pThread, pPrev);
   }
 }
 
@@ -128,6 +140,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumThread *pThread;
   ForumEntry *pEntry;
   Stmt q;
+  int sid = 1;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
@@ -144,6 +157,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     pEntry->fprev = db_column_int(&q, 2);
     pEntry->zUuid = fossil_strdup(db_column_text(&q,3));
     pEntry->mfirt = pEntry->firt;
+    pEntry->sid = sid++;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
     if( pThread->pLast==0 ){
@@ -179,8 +193,9 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     /* Compute the hierarchical display order */
     pEntry = pThread->pFirst;
     pEntry->nIndent = 1;
+    pThread->mxIndent = 1;
     forumentry_add_to_display(pThread, pEntry);
-    forumthread_display_order(pThread, pEntry, pEntry->fpid, 2);
+    forumthread_display_order(pThread, pEntry);
   }
 
   /* Return the result */
@@ -207,6 +222,9 @@ void forumthread_cmd(void){
   zName = g.argv[2];
   fpid = symbolic_name_to_rid(zName, "f");
   if( fpid<=0 ){
+    fpid = db_int(0, "SELECT rid FROM blob WHERE rid=%d", atoi(zName));
+  }
+  if( fpid<=0 ){
     fossil_fatal("Unknown or ambiguous forum id: \"%s\"", zName);
   }
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
@@ -217,11 +235,12 @@ void forumthread_cmd(void){
   fossil_print("froot = %d\n", froot);
   pThread = forumthread_create(froot, 1);
   fossil_print("Chronological:\n");
-           /*   123456789 123456789 123456789 123456789 123456789  */
-  fossil_print("     fpid      firt     fprev     mfirt     pLeaf\n");
+           /*   123456789 123456789 123456789 123456789 123456789 123456789  */
+  fossil_print("     fpid      firt     fprev     mfirt     pLeaf    nReply\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%9d %9d %9d %9d %9d\n",
-       p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0);
+    fossil_print("%9d %9d %9d %9d %9d %9d\n",
+       p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0,
+       p->nReply);
   }
   fossil_print("\nDisplay\n");
   for(p=pThread->pDisplay; p; p=p->pDisplay){
@@ -312,25 +331,27 @@ static void forum_display_chronological(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <p>By %h(pPost->zUser) on %h(zDate) (%d(p->fpid))
+    @ <p>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))%d(p->fprev)</a>
+      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))\
+      @ %d(p->pEdit->sid)</a>
+    }
+    if( g.perm.Debug ){
+      @ <span class="debug">\
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact)</a></span>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))%d(p->firt)</a>
+        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))\
+        @ %d(pIrt->sid)</a>
       }
     }
     if( p->pLeaf ){
       @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
-      @ %d(p->pLeaf->fpid)</a>
-    }
-    if( g.perm.Debug ){
-      @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">artifact</a></span>
+      @ %d(p->pLeaf->sid)</a>
     }
     if( p->fpid!=target ){
       @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
@@ -386,6 +407,7 @@ static int forum_display_hierarchical(int froot, int target){
   char *zDate;
   const char *zSel;
   int notAnon = login_is_individual();
+  int iIndentScale = 4;
 
   pThread = forumthread_create(froot, 1);
   for(p=pThread->pFirst; p; p=p->pNext){
@@ -394,6 +416,9 @@ static int forum_display_hierarchical(int froot, int target){
       target = p->fpid;
       break;
     }
+  }
+  while( iIndentScale>1 && iIndentScale*pThread->mxIndent>25 ){
+    iIndentScale--;
   }
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     int isPrivate;         /* True for posts awaiting moderation */
@@ -413,7 +438,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ <div id='forum%d(fpid)' class='forumHierRoot%s(zSel)'>
     }else{
       @ <div id='forum%d(fpid)' class='forumHier%s(zSel)' \
-      @ style='margin-left: %d((p->nIndent-1)*3)ex;'>
+      @ style='margin-left: %d((p->nIndent-1)*iIndentScale)ex;'>
     }
     pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -421,11 +446,11 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    @ <p>By %h(pOPost->zUser) on %h(zDate)
+    @ <p>(%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(%d(p->fpid))</a></span>
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact)</a></span>
     }
     if( p->pLeaf ){
       zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
@@ -437,12 +462,20 @@ static int forum_display_hierarchical(int froot, int target){
       fossil_free(zDate);
       if( g.perm.Debug ){
         @ <span class="debug">\
-        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">(%d(fpid))</a></span>
+        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">(artifact)</a></span>
       }
       manifest_destroy(pOPost);
     }
     if( fpid!=target ){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
+    }
+    if( p->firt ){
+      ForumEntry *pIrt = p->pPrev;
+      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
+      if( pIrt ){
+        @ in reply to %z(href("%R/forumpost/%S?t=h",pIrt->zUuid))\
+        @ %d(pIrt->sid)</a>
+      }
     }
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -670,7 +703,7 @@ static void forum_entry_widget(
   if( zTitle ){
     @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"><br>
   }
-  @ Markup style:
+  @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype);
   @ <br><textarea name="content" class="wikiedit" cols="80" \
   @ rows="25" wrap="virtual">%h(zContent)</textarea><br>

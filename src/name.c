@@ -42,6 +42,73 @@ int fossil_isdate(const char *z){
 }
 
 /*
+** Check to see if the string might be a compact date/time that omits
+** the punctuation.  Example:  "20190327084549" instead of
+** "2019-03-27 08:45:49".  If the string is of the appropriate form,
+** then return an alternative string (in static space) that is the same
+** string with punctuation inserted.
+**
+** If the bVerifyNotAHash flag is true, then a check is made to see if
+** the string is a hash prefix and NULL is returned if it is.  If the
+** bVerifyNotAHash flag is false, then the result is determined by syntax
+** of the input string only, without reference to the artifact table.
+*/
+char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
+  static char zEDate[20];
+  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+  int n = (int)strlen(zIn);
+  int i, j;
+
+  /* Only three forms allowed:
+  **   (1)  YYYYMMDD
+  **   (2)  YYYYMMDDHHMM
+  **   (3)  YYYYMMDDHHMMSS
+  */
+  if( n!=8 && n!=12 && n!=14 ) return 0;
+
+  /* Every character must be a digit */
+  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  if( i!=n ) return 0;
+
+  /* Expand the date */
+  for(i=j=0; zIn[i]; i++){
+    if( i>=4 && (i%2)==0 ){
+      zEDate[j++] = aPunct[i/2];
+    }
+    zEDate[j++] = zIn[i];
+  }
+  zEDate[j] = 0;
+
+  /* Check for reasonable date values.
+  ** Offset references:
+  **    YYYY-MM-DD HH:MM:SS
+  **    0123456789 12345678
+  */
+
+  i = atoi(zEDate);
+  if( i<1970 || i>2100 ) return 0;
+  i = atoi(zEDate+5);
+  if( i<1 || i>12 ) return 0;
+  i = atoi(zEDate+8);
+  if( i<1 || i>31 ) return 0;
+  if( n>8 ){
+    i = atoi(zEDate+11);
+    if( i>24 ) return 0;
+    i = atoi(zEDate+14);
+    if( i>60 ) return 0;
+    if( n==14 && atoi(zEDate+17)>60 ) return 0;
+  }
+
+  /* The string is not also a hash prefix */
+  if( bVerifyNotAHash ){
+    if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'",zIn) ) return 0;
+  }
+
+  /* It looks like this may be a date.  Return it with punctuation added. */
+  return zEDate;
+}
+
+/*
 ** Return the RID that is the "root" of the branch that contains
 ** check-in "rid" if inBranch==0 or the first check-in in the branch
 ** if inBranch==1.
@@ -116,6 +183,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   int startOfBranch = 0;
   const char *zXTag;     /* zTag with optional [...] removed */
   int nXTag;             /* Size of zXTag */
+  const char *zDate;     /* Expanded date-time string */
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -152,11 +220,13 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Date and times */
   if( memcmp(zTag, "date:", 5)==0 ){
+    zDate = fossil_expand_datetime(&zTag[5],0);
+    if( zDate==0 ) zDate = &zTag[5];
     rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
-      &zTag[5], zType);
+      zDate, zType);
     return rid;
   }
   if( fossil_isdate(zTag) ){
@@ -285,6 +355,18 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
   }
+
+  /* Pure numeric date/time */
+  zDate = fossil_expand_datetime(zTag, 0);
+  if( zDate ){
+    rid = db_int(0,
+      "SELECT objid FROM event"
+      " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
+      " ORDER BY mtime DESC LIMIT 1",
+      zDate, zType);
+    if( rid) return rid;
+  }
+
 
   /* Undocumented:  numeric tags get translated directly into the RID */
   if( memcmp(zTag, "rid:", 4)==0 ){

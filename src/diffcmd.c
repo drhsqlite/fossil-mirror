@@ -215,7 +215,6 @@ void diff_file(
     /* Release memory resources */
     blob_reset(&file2);
   }else{
-    int cnt = 0;
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
     Blob cmd;          /* Text of command to run */
 
@@ -248,11 +247,7 @@ void diff_file(
 
     /* Construct a temporary file to hold pFile1 based on the name of
     ** zFile2 */
-    blob_zero(&nameFile1);
-    do{
-      blob_reset(&nameFile1);
-      blob_appendf(&nameFile1, "%s~%d", zFile2, cnt++);
-    }while( file_access(blob_str(&nameFile1),F_OK)==0 );
+    file_tempname(&nameFile1, zFile2, "orig");
     blob_write_to_file(pFile1, blob_str(&nameFile1));
 
     /* Construct the external diff command */
@@ -319,8 +314,6 @@ void diff_file_mem(
     Blob cmd;
     Blob temp1;
     Blob temp2;
-    Blob prefix1;
-    Blob prefix2;
 
     if( !fIncludeBinary ){
       if( isBin1 || isBin2 ){
@@ -338,15 +331,9 @@ void diff_file_mem(
       }
     }
 
-    /* Construct a prefix for the temporary file names */
-    blob_zero(&prefix1);
-    blob_zero(&prefix2);
-    blob_appendf(&prefix1, "%s-v1", zName);
-    blob_appendf(&prefix2, "%s-v2", zName);
-
     /* Construct a temporary file names */
-    file_tempname(&temp1, blob_str(&prefix1));
-    file_tempname(&temp2, blob_str(&prefix2));
+    file_tempname(&temp1, zName, "before");
+    file_tempname(&temp2, zName, "after");
     blob_write_to_file(pFile1, blob_str(&temp1));
     blob_write_to_file(pFile2, blob_str(&temp2));
 
@@ -363,8 +350,6 @@ void diff_file_mem(
     file_delete(blob_str(&temp1));
     file_delete(blob_str(&temp2));
 
-    blob_reset(&prefix1);
-    blob_reset(&prefix2);
     blob_reset(&temp1);
     blob_reset(&temp2);
     blob_reset(&cmd);
@@ -714,6 +699,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   Blob script;
   const char *zTempFile = 0;
   char *zCmd;
+  const char *zTclsh;
   blob_zero(&script);
   blob_appendf(&script, "set fossilcmd {| \"%/\" %s --html -y -i -v",
                g.nameOfExe, zSubCmd);
@@ -721,6 +707,10 @@ void diff_tk(const char *zSubCmd, int firstArg){
   find_option("side-by-side","y",0);
   find_option("internal","i",0);
   find_option("verbose","v",0);
+  zTclsh = find_option("tclsh",0,1);
+  if( zTclsh==0 ){
+    zTclsh = db_get("tclsh","tclsh");
+  }
   /* The undocumented --script FILENAME option causes the Tk script to
   ** be written into the FILENAME instead of being run.  This is used
   ** for testing and debugging. */
@@ -738,7 +728,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   blob_appendf(&script, "}\n%s", builtin_file("diff.tcl", 0));
   if( zTempFile ){
     blob_write_to_file(&script, zTempFile);
-    fossil_print("To see diff, run: tclsh \"%s\"\n", zTempFile);
+    fossil_print("To see diff, run: %s \"%s\"\n", zTclsh, zTempFile);
   }else{
 #if defined(FOSSIL_ENABLE_TCL)
     Th_FossilInit(TH_INIT_DEFAULT);
@@ -755,7 +745,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
      */
 #endif
     zTempFile = write_blob_to_temp_file(&script);
-    zCmd = mprintf("tclsh \"%s\"", zTempFile);
+    zCmd = mprintf("\"%s\" \"%s\"", zTclsh, zTempFile);
     fossil_system(zCmd);
     file_delete(zTempFile);
     fossil_free(zCmd);
@@ -842,6 +832,7 @@ const char *diff_get_binary_glob(void){
 **   --numstat                  Show only the number of lines delete and added
 **   --side-by-side|-y          Side-by-side diff
 **   --strip-trailing-cr        Strip trailing CR
+**   --tclsh PATH               Tcl/Tk used for --tk (default: "tclsh")
 **   --tk                       Launch a Tcl/Tk GUI for display
 **   --to VERSION               Select VERSION as target for the diff
 **   --undo                     Diff against the "undo" buffer
@@ -866,7 +857,7 @@ void diff_cmd(void){
   u64 diffFlags = 0;         /* Flags to control the DIFF */
   FileDirList *pFileDir = 0; /* Restrict the diff to these files */
 
-  if( find_option("tk",0,0)!=0 ){
+  if( find_option("tk",0,0)!=0 || has_option("tclsh") ){
     diff_tk("diff", 2);
     return;
   }

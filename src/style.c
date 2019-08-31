@@ -84,9 +84,10 @@ static unsigned adUnitFlags = 0;
 /*
 ** Flags for various javascript files needed prior to </body>
 */
-static int needHrefJs = 0;   /* href.js */
-static int needSortJs = 0;   /* sorttable.js */
-static int needGraphJs = 0;  /* graph.js */
+static int needHrefJs = 0;      /* href.js */
+static int needSortJs = 0;      /* sorttable.js */
+static int needGraphJs = 0;     /* graph.js */
+static int needCopyBtnJs = 0;   /* copybtn.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -143,13 +144,22 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    char *zHUrl;
+    if( zExtra ){
+      zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    }else{
+      zHUrl = mprintf("<a href=\"%h\">", zUrl);
+    }
     fossil_free(zUrl);
     return zHUrl;
   }
   needHrefJs = 1;
-  return mprintf("<a %s data-href='%z' href='%R/honeypot'>",
-                  zExtra, zUrl);
+  if( zExtra==0 ){
+    return mprintf("<a data-href='%z' href='%R/honeypot'>", zUrl);
+  }else{
+    return mprintf("<a %s data-href='%z' href='%R/honeypot'>",
+                   zExtra, zUrl);
+  }
 }
 char *chref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
@@ -369,6 +379,90 @@ static void image_url_var(const char *zImageName){
 }
 
 /*
+** Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
+** Javascript module, and generates HTML elements with the following IDs:
+**
+**    TARGETID:       The <span> wrapper around TEXT.
+**    copy-TARGETID:  The <span> for the copy button.
+**
+** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
+**
+** The COPYLENGTH argument defines the length of the substring of TEXT copied to
+** clipboard:
+**
+**    <= 0:   No limit (default if the argument is omitted).
+**    >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+**       1:   Use the "hash-digits" setting as the limit.
+**       2:   Use the length appropriate for URLs as the limit (defined at
+**            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
+*/
+char *style_copy_button(
+  int bOutputCGI,         /* Don't return result, but send to cgi_printf(). */
+  const char *zTargetId,  /* The TARGETID argument. */
+  int bFlipped,           /* The FLIPPED argument. */
+  int cchLength,          /* The COPYLENGTH argument. */
+  const char *zTextFmt,   /* Formatting of the TEXT argument (htmlized). */
+  ...                     /* Formatting parameters of the TEXT argument. */
+){
+  va_list ap;
+  char *zText;
+  char *zResult = 0;
+  va_start(ap,zTextFmt);
+  zText = vmprintf(zTextFmt/*works-like:?*/,ap);
+  va_end(ap);
+  if( cchLength==1 ) cchLength = hash_digits(0);
+  else if( cchLength==2 ) cchLength = hash_digits(1);
+  if( !bFlipped ){
+    const char *zBtnFmt =
+      "<span class=\"nobr\">"
+      "<span "
+      "class=\"copy-button\" "
+      "id=\"copy-%h\" "
+      "data-copytarget=\"%h\" "
+      "data-copylength=\"%d\">"
+      "</span>"
+      "<span id=\"%h\">"
+      "%s"
+      "</span>"
+      "</span>";
+    if( bOutputCGI ){
+      cgi_printf(
+                  zBtnFmt/*works-like:"%h%h%d%h%s"*/,
+                  zTargetId,zTargetId,cchLength,zTargetId,zText);
+    }else{
+      zResult = mprintf(
+                  zBtnFmt/*works-like:"%h%h%d%h%s"*/,
+                  zTargetId,zTargetId,cchLength,zTargetId,zText);
+    }
+  }else{
+    const char *zBtnFmt =
+      "<span class=\"nobr\">"
+      "<span id=\"%h\">"
+      "%s"
+      "</span>"
+      "<span "
+      "class=\"copy-button copy-button-flipped\" "
+      "id=\"copy-%h\" "
+      "data-copytarget=\"%h\" "
+      "data-copylength=\"%d\">"
+      "</span>"
+      "</span>";
+    if( bOutputCGI ){
+      cgi_printf(
+                  zBtnFmt/*works-like:"%h%s%h%h%d"*/,
+                  zTargetId,zText,zTargetId,zTargetId,cchLength);
+    }else{
+      zResult = mprintf(
+                  zBtnFmt/*works-like:"%h%s%h%h%d"*/,
+                  zTargetId,zText,zTargetId,zTargetId,cchLength);
+    }
+  }
+  free(zText);
+  style_copybutton_control();
+  return zResult;
+}
+
+/*
 ** Return a random nonce that is stored in static space.  For a particular
 ** run, the same nonce is always returned.
 */
@@ -535,10 +629,17 @@ void style_table_sorter(void){
 }
 
 /*
-** Indicate that the table-sorting javascript is needed.
+** Indicate that the timeline graph javascript is needed.
 */
 void style_graph_generator(void){
   needGraphJs = 1;
+}
+
+/*
+** Indicate that the copy button javascript is needed.
+*/
+void style_copybutton_control(void){
+  needCopyBtnJs = 1;
 }
 
 /*
@@ -575,14 +676,15 @@ static void style_load_all_js_files(void){
   int i;
   if( needHrefJs ){
     int nDelay = db_get_int("auto-hyperlink-delay",0);
-    int bMouseover;
-    /* Load up the page data */
-    bMouseover = (!g.isHuman || db_get_boolean("auto-hyperlink-ishuman",0))
-                 && db_get_boolean("auto-hyperlink-mouseover",0);
+    int bMouseover = db_get_boolean("auto-hyperlink-mouseover",0);
     @ <script id='href-data' type='application/json'>\
     @ {"delay":%d(nDelay),"mouseover":%d(bMouseover)}</script>
   }
   @ <script nonce="%h(style_nonce())">
+  @ function debugMsg(msg){
+  @ var n = document.getElementById("debugMsg");
+  @ if(n){n.textContent=msg;}
+  @ }
   if( needHrefJs ){
     cgi_append_content(builtin_text("href.js"),-1);
   }
@@ -591,6 +693,9 @@ static void style_load_all_js_files(void){
   }
   if( needGraphJs ){
     cgi_append_content(builtin_text("graph.js"),-1);
+  }
+  if( needCopyBtnJs ){
+    cgi_append_content(builtin_text("copybtn.js"),-1);
   }
   for(i=0; i<nJsToLoad; i++){
     cgi_append_content(builtin_text(azJsToLoad[i]),-1);
@@ -633,6 +738,7 @@ void style_footer(void){
     if( nSubmenuCtrl ){
       @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
       @ <input type='hidden' name='udc' value='1'>
+      cgi_tag_query_parameter("udc");
     }
     @ <div class="submenu">
     if( nSubmenu>0 ){
@@ -747,7 +853,7 @@ void style_footer(void){
       cgi_append_content(zAd, -1);
       @ </div>
     }
-    @ <div class="content">
+    @ <div class="content"><span id="debugMsg"></span>
   }
   cgi_destination(CGI_BODY);
 

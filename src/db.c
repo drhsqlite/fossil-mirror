@@ -119,6 +119,7 @@ static struct DbLocalData {
 */
 void db_delete_on_failure(const char *zFilename){
   assert( db.nDeleteOnFail<count(db.azDeleteOnFail) );
+  if( zFilename==0 ) return;
   db.azDeleteOnFail[db.nDeleteOnFail++] = fossil_strdup(zFilename);
 }
 
@@ -801,6 +802,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
+**
+** If zFilename is NULL, then create an empty repository in an in-memory
+** database.
 */
 void db_init_database(
   const char *zFileName,   /* Name of database file to create */
@@ -812,7 +816,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-  db = db_open(zFileName);
+  db = db_open(zFileName ? zFileName : ":memory:");
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
@@ -827,7 +831,11 @@ void db_init_database(
   }
   va_end(ap);
   sqlite3_exec(db, "COMMIT", 0, 0, 0);
-  sqlite3_close(db);
+  if( zFileName || g.db!=0 ){
+    sqlite3_close(db);
+  }else{
+    g.db = db;
+  }
 }
 
 /*
@@ -1259,6 +1267,7 @@ void db_detach(const char *zLabel){
 */
 void db_attach(const char *zDbName, const char *zLabel){
   Blob key;
+  if( db_table_exists(zLabel,"sqlite_master") ) return;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
@@ -1384,17 +1393,20 @@ int db_open_config(int useAttach, int isOptional){
     if( zHome==0 ){
       zHome = fossil_getenv("APPDATA");
       if( zHome==0 ){
-        char *zDrive = fossil_getenv("HOMEDRIVE");
-        char *zPath = fossil_getenv("HOMEPATH");
-        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        zHome = fossil_getenv("USERPROFILE");
+        if( zHome==0 ){
+          char *zDrive = fossil_getenv("HOMEDRIVE");
+          char *zPath = fossil_getenv("HOMEPATH");
+          if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        }
       }
     }
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
     fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
-                 "environment variables");
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, USERPROFILE, "
+                 "or HOMEDRIVE / HOMEPATH environment variables");
   }
 #else
   if( zHome==0 ){
@@ -1766,8 +1778,9 @@ int db_repository_has_changed(void){
 ** Flags for the db_find_and_open_repository() function.
 */
 #if INTERFACE
-#define OPEN_OK_NOT_FOUND    0x001      /* Do not error out if not found */
-#define OPEN_ANY_SCHEMA      0x002      /* Do not error if schema is wrong */
+#define OPEN_OK_NOT_FOUND       0x001   /* Do not error out if not found */
+#define OPEN_ANY_SCHEMA         0x002   /* Do not error if schema is wrong */
+#define OPEN_SUBSTITUTE         0x004   /* Fake in-memory repo if not found */
 #endif
 
 /*
@@ -1800,7 +1813,12 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     return;
   }
 rep_not_found:
-  if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+  if( bFlags & OPEN_OK_NOT_FOUND ){
+    /* No errors if the database is not found */
+    if( bFlags & OPEN_SUBSTITUTE ){
+      db_create_repository(0);
+    }
+  }else{
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
@@ -2030,8 +2048,8 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
      "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
   );
   db_multi_exec(
-     "UPDATE user SET cap='s', pw=lower(hex(randomblob(3)))"
-     " WHERE login=%Q", zUser
+     "UPDATE user SET cap='s', pw=%Q"
+     " WHERE login=%Q", fossil_random_password(10), zUser
   );
   if( !setupUserOnly ){
     db_multi_exec(
@@ -2881,6 +2899,9 @@ void db_record_repository_filename(const char *zName){
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
 **   --force-missing   Force opening a repository with missing content
+**   --setmtime        Set timestamps of all files to match their SCM-side
+**                     times (the timestamp of the last checkin which modified
+**                     them).
 **
 ** See also: close
 */
@@ -2890,6 +2911,7 @@ void cmd_open(void){
   int forceMissingFlag;
   int allowNested;
   int allowSymlinks;
+  int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2897,6 +2919,7 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+  setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2979,6 +3002,12 @@ void cmd_open(void){
       azNewArgv[g.argc++] = "--force-missing";
     }
     checkout_cmd();
+  }
+  if( setmtimeFlag ){
+    int const vid = db_lget_int("checkout", 0);
+    if(vid!=0){
+      vfile_check_signature(vid, CKSIG_SETMTIME);
+    }
   }
   g.argc = 2;
   info_cmd();
@@ -3413,6 +3442,27 @@ struct Setting {
 ** improvement.
 */
 /*
+** SETTING: repolist-skin    width=2 default=0
+** If non-zero then use this repository as the skin for a repository list
+** such as created by the one of:
+**
+**    1)  fossil server DIRECTORY --repolist
+**    2)  fossil ui DIRECTORY --repolist
+**    3)  fossil http DIRECTORY --repolist
+**    4)  (The "repolist" option in a CGI script)
+**    5)  fossil all ui
+**    6)  fossil all server
+**
+** All repositories are searched (in lexicographical order) and the first
+** repository with a non-zero "repolist-skin" value is used as the skin
+** for the repository list page.  If none of the repositories on the list
+** have a non-zero "repolist-skin" setting then the repository list is
+** displayed using unadorned HTML ("skinless").
+**
+** If repolist-skin has a value of 2, then the repository is omitted from
+** the list in use cases 1 through 4, but not for 5 and 6.
+*/
+/*
 ** SETTING: self-register    boolean default=off
 ** Allow users to register themselves through the HTTP UI.
 ** This is useful if you want to see other names than
@@ -3457,12 +3507,18 @@ struct Setting {
 ** expressions and scripts.
 */
 /*
-** SETTING: tcl-setup        width=40 versionable block-text
+** SETTING: tcl-setup        width=40 block-text
 ** This is the setup script to be evaluated after creating
 ** and initializing the Tcl interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 #endif /* FOSSIL_ENABLE_TCL */
+/*
+** SETTING: tclsh            width=80 default=tclsh
+** Name of the external TCL interpreter used for such things
+** as running the GUI diff viewer launched by the --tk option
+** of the various "diff" commands.
+*/
 #ifdef FOSSIL_ENABLE_TH1_DOCS
 /*
 ** SETTING: th1-docs         boolean default=off
@@ -3483,13 +3539,13 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 versionable block-text
+** SETTING: th1-setup        width=40 block-text
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 /*
-** SETTING: th1-uri-regexp   width=40 versionable block-text
+** SETTING: th1-uri-regexp   width=40 block-text
 ** Specify which URI's are allowed in HTTP requests from
 ** TH1 scripts.  If empty, no HTTP requests are allowed
 ** whatsoever.

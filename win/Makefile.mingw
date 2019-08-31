@@ -160,9 +160,9 @@ ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
-#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
+#    for SSLv3 (i.e. thereby forcing the use of TLS).
 #
-SSLCONFIG += no-ssl2 no-ssl3 no-weak-ssl-ciphers no-shared
+SSLCONFIG += no-ssl3 no-weak-ssl-ciphers no-shared
 
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
@@ -176,7 +176,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2r
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1c
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -475,6 +475,7 @@ SRC = \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
+  $(SRCDIR)/extcgi.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
@@ -634,6 +635,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
+  $(SRCDIR)/copybtn.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
@@ -687,6 +689,7 @@ TRANS_SRC = \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
+  $(OBJDIR)/extcgi_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
@@ -826,6 +829,7 @@ OBJ = \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
+ $(OBJDIR)/extcgi.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
@@ -1097,6 +1101,7 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
+	sed -i -e 's/^PERL=C:\\.*$$/PERL=perl.exe/i' $(OPENSSLLIBDIR)/Makefile
 	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
@@ -1184,6 +1189,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 		$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 		$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 		$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
+		$(OBJDIR)/extcgi_.c:$(OBJDIR)/extcgi.h \
 		$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 		$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 		$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
@@ -1588,6 +1594,14 @@ $(OBJDIR)/export.o:	$(OBJDIR)/export_.c $(OBJDIR)/export.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/export.o -c $(OBJDIR)/export_.c
 
 $(OBJDIR)/export.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/extcgi_.c:	$(SRCDIR)/extcgi.c $(TRANSLATE)
+	$(TRANSLATE) $(SRCDIR)/extcgi.c >$@
+
+$(OBJDIR)/extcgi.o:	$(OBJDIR)/extcgi_.c $(OBJDIR)/extcgi.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/extcgi.o -c $(OBJDIR)/extcgi_.c
+
+$(OBJDIR)/extcgi.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/file_.c:	$(SRCDIR)/file.c $(TRANSLATE)
 	$(TRANSLATE) $(SRCDIR)/file.c >$@
@@ -2392,6 +2406,7 @@ $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 MINGW_OPTIONS = -D_HAVE__MINGW_H
 
 SQLITE_OPTIONS = -DNDEBUG=1 \
+                 -DSQLITE_DQS=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_MEMSTATUS=0 \
                  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -2421,6 +2436,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_USE_MSIZE
 
 SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_DQS=0 \
                 -DSQLITE_THREADSAFE=0 \
                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \

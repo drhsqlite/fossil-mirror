@@ -283,11 +283,12 @@ void render_checkin_context(int rid, int parentsOnly){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q,
-       TIMELINE_DISJOINT
-         |TIMELINE_GRAPH
+          TIMELINE_GRAPH
+         |TIMELINE_FILLGAPS
          |TIMELINE_NOSCROLL
+         |TIMELINE_XMERGE
          |TIMELINE_CHPICK,
-       0, 0, rid, 0);
+       0, 0, 0, rid, 0);
   db_finalize(&q);
 }
 
@@ -318,7 +319,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0);
+                     0, 0, 0, 0, 0);
   db_finalize(&q);
 }
 
@@ -351,7 +352,7 @@ void backlink_timeline_page(void){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0);
+                     0, 0, 0, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -620,7 +621,7 @@ void ci_tags_page(void){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, rid, 0);
+                     0, 0, 0, rid, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -764,7 +765,10 @@ void ci_page(void){
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zTagName = db_column_text(&q2, 0);
       if( fossil_strcmp(zTagName,zBrName)==0 ){
-        @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+        cgi_printf(" | ");
+        style_copy_button(1, "name-br", 0, 0, "%z%h</a>",
+          href("%R/timeline?r=%T&unhide",zTagName), zTagName);
+        cgi_printf("\n");
         if( wiki_tagid2("branch",zTagName)!=0 ){
           blob_appendf(&wiki_read_links, " | %z%h</a>",
               href("%R/wiki?name=branch/%h",zTagName), zTagName);
@@ -794,9 +798,10 @@ void ci_page(void){
     @   </td>
     @ </tr>
 
-    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%.32s(zUuid)<wbr>%s(zUuid+32)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>
+    style_copy_button(1, "hash-ci", 0, 2, "%.32s<wbr>%s", zUuid, zUuid+32);
     if( g.perm.Setup ){
-      @ (Record ID: %d(rid))
+      @  (Record ID: %d(rid))
     }
     @ </td></tr>
     @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
@@ -1191,6 +1196,7 @@ void vdiff_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
+  load_control();
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
   cookie_render();
@@ -1913,10 +1919,12 @@ void hexdump_page(void){
   }
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
+  @ <h2>Artifact
+  style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
   if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
+    @  (%d(rid)):</h2>
   }else{
-    @ <h2>Artifact %s(zUuid):</h2>
+    @ :</h2>
   }
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
@@ -2182,10 +2190,14 @@ void artifact_page(void){
   if( isFile ){
     @ <h2>Latest version of file '%h(zName)':</h2>
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
-  }else if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
   }else{
-    @ <h2>Artifact %s(zUuid):</h2>
+    @ <h2>Artifact
+    style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
+    if( g.perm.Setup ){
+      @  (%d(rid)):</h2>
+    }else{
+      @ :</h2>
+    }
   }
   blob_zero(&downloadName);
   asText = P("txt")!=0;
@@ -2253,9 +2265,6 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    if( zLn==0 || atoi(zLn)==0 ){
-      style_submenu_checkbox("ln", "Line Numbers", 0, 0);
-    }
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){
@@ -2274,6 +2283,9 @@ void artifact_page(void){
       @ </script>
     }else{
       style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      if( zLn==0 || atoi(zLn)==0 ){
+        style_submenu_checkbox("ln", "Line Numbers", 0, 0);
+      }
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
       @ <blockquote>

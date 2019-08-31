@@ -1,0 +1,140 @@
+<title>CGI Script Configuration Options</title>
+
+<h1>Summary</h1>
+
+It is not necessary to have a central server in order to use Fossil.
+But a central server can help a project run more smoothly by giving developers
+a common point of rendezvous for syncing, and by providing a web-based
+portal where developers and non-developers alike can learn about the
+project and its current state.
+
+Setting up a server using Fossil is easy.
+A [./server/|separate document] talks about all of the many different methods for
+setting up a Fossil server, one of which is [./server/any/cgi.md | as a CGI
+script].  CGI is the technique that the three
+[./selfhost.wiki|self-hosting Fossil repositories] all use.
+
+Setting up a Fossil server using CGI is mostly about writing a short
+script (usually just 2 lines line) in the cgi-bin folder of an ordinary
+web-browser.  But there are a lot of extra options that can be added
+to this script, to customize the configuration.  This article descripts
+those options.
+
+<h1>CGI Script Options</h1>
+
+The CGI script used to launch a Fossil server will usually look something
+like this:
+
+<blockquote><verbatim>
+#!/usr/bin/fossil
+repository: /home/www/fossils/myproject.fossil
+</verbatim></blockquote>
+
+Of course, pathnames will likely be different.  The first line (the "shebang")
+always gives the name of the Fossil executable.  Subsequent lines are of
+the form "<b>property:&nbsp;argument&nbsp;...</b>".
+The remainder of this document describes the available properties and
+their arguments.
+
+<hr>
+<h2 id="repository">repository: <i>PATH</i></h2>
+
+This property defines the Fossil repository that the server will use.
+Every Fossil CGI requires either this property or the
+[#directory|<b>directory:</b>] property (but not both).
+Many Fossil repository sets have this one property and no other.
+
+<h2 id="directory">directory: <i>PATH</i></h2>
+
+The PATH is the name of a directory that contains one or more Fossil
+repository files having the suffix ".fossil".  If this property is used
+instead of [#repository|<b>repository:</b>], then the Fossil server is
+able to serve all of the repositories in the directory.  The specific
+repository used is selected by a prefix on the PATH_INFO.
+
+
+<h2 id="errorlog">errorlog: <i>FILENAME</i></h2>
+
+This setting causes the server to log any errors in FILENAME.
+It is ok for multiple Fossil CGIs to share the same error log.
+
+Setting up an error log for Fossil servers is not required, but it
+is recommended.
+
+<h2 id="notfound">notfound: <i>URL</i></h2>
+
+If the [#directory|<b>directory:</b>] option is used and if the PATH_INFO
+of the HTTP request does not correspond to any Fossil repository, then
+the request redirects to URL.
+
+<h2 id="repolist">repolist</h2>
+
+This is a boolean property.
+If it is present, and if the [#directory:|<b>directory:</b>] option is used,
+and if the PATH_INFO string is empty, then Fossil will show a list
+of available Fossil repositories.
+
+The "skin" of the reply is determined by the first
+repository in the list that has a non-zero
+[/help?cmd=repolist-skin|repolist-skin] setting.
+If no repository has such a non-zero repolist-skin setting, then
+the repository list is generic HTML without any decoration.
+
+<h2 id="extroot">extroot: <i>PATH</i></h2>
+
+This property defines the DOCUMENT_ROOT for the
+[./serverext.wiki|CGI Server Extensions].  If this property
+is present, then CGI Server Extensions are enabled.  When this
+property is omitted, CGI Server Extensions are disabled.
+
+A cascade of CGI invocations can occur here.  Fossil itself is
+started as CGI, then Fossil can turn around and invoke a sub-CGI
+extension.  The sub-CGI extension outputs reply text, when Fossil
+then (optionally) augments with its own header and footer and returns
+to the original requestor.  The property controls the DOCUMENT_ROOT
+of the sub-CGI.
+
+<h2 id="timeout">timeout: <i>N</i></h2>
+
+This property changes the timeout on each CGI request to N seconds.
+If N is zero, then there is no timeout.  If this property is omitted,
+then the default timeout is 300 seconds (5 minutes).
+
+<h2 id="localauth">localauth</h2>
+
+This is a boolean property.
+If it is present, setup administrator privileges
+(capability letter 's') are granted to any HTTP request that
+comes in over a loopback interface, such as 127.0.0.1.
+and if the PATH_INFO string is empty, then Fossil will show a list
+of available Fossil repositories.
+
+<h2 id="skin">skin: <i>NAME</i></h2>
+
+If NAME is the name of one of the built-in skins supported by Fossil,
+then this option causes Fossil to display using that built-in skin,
+and to ignore any custom skin that might be configured in the repository
+itself.
+
+So, if you wanted to set up a server for a single Fossil project, but
+also give users the option to use several of the different built-in
+skins, you could create multiple CGI scripts, each with a different
+"<b>skin:</b>" property, but all pointing to the same <b>repository:</b>.
+Then users can select which skin to use by using the appropriate CGI.
+
+<h2 id="files">files: </i>GLOBLIST</i></h2>
+
+The GLOBLIST argument is a comma-separate list of "globs" that specify
+filenames.  In [#directory|<b>directory:</b> mode], if the PATH_INFO
+does not identify any Fossil repository, but it does refer some other
+file in the directory, and that filename matches one of the glob patterns
+in the GLOBLIST, then the file is returned as static content.
+
+<h2 id="setenv">setenv: <i>NAME VALUE</i></h2>
+
+This parameter causes additional environment variable NAME to have VALUE.
+This parameter can be repeated as many times as necessary.
+
+<h2 id="HOME">HOME: <i>PATH</i></h2>
+
+This parameter is a short-hand for "<b>setenv HOME <i>PATH</i></b>".

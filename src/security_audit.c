@@ -34,12 +34,76 @@ static int hasAnyCap(const char *zCap, const char *zTest){
   return 0;
 }
 
+/*
+** Extract the content-security-policy from the reply header.  Parse it
+** up into separate fields, and return a pointer to a null-terminated
+** array of pointers to strings, one entry for each field.  Or return
+** a NULL pointer if no CSP could be located in the header.
+**
+** Memory to hold the returned array and of the strings is obtained from
+** a single memory allocation, which the caller should free to avoid a
+** memory leak.
+*/
+static char **parse_content_security_policy(void){
+  char **azCSP = 0;
+  int nCSP = 0;
+  const char *zHeader;
+  const char *zAll;
+  char *zCopy;
+  int nAll = 0;
+  int ii, jj, n, nx = 0;
+  int nSemi;
+
+  zHeader = cgi_header();
+  if( zHeader==0 ) return 0;
+  for(ii=0; zHeader[ii]; ii+=n){
+    n = html_token_length(zHeader+ii);
+    if( zHeader[ii]=='<'
+     && fossil_strnicmp(html_attribute(zHeader+ii,"http-equiv",&nx),
+                        "Content-Security-Policy",23)==0
+     && nx==23
+     && (zAll = html_attribute(zHeader+ii,"content",&nAll))!=0
+    ){
+      for(jj=nSemi=0; jj<nAll; jj++){ if( zAll[jj]==';' ) nSemi++; }
+      azCSP = fossil_malloc( nAll+1 + (nSemi+2)*sizeof(char*) );
+      zCopy = (char*)&azCSP[nSemi+2];
+      memcpy(zCopy,zAll,nAll);
+      zCopy[nAll] = 0;
+      while( fossil_isspace(zCopy[0]) || zCopy[0]==';' ){ zCopy++; }
+      azCSP[0] = zCopy;
+      nCSP = 1;
+      for(jj=0; zCopy[jj]; jj++){
+        if( zCopy[jj]==';' ){
+          int k;
+          for(k=jj-1; k>0 && fossil_isspace(zCopy[k]); k--){ zCopy[k] = 0; }
+          zCopy[jj] = 0;
+          while( jj+1<nAll
+             && (fossil_isspace(zCopy[jj+1]) || zCopy[jj+1]==';')
+          ){
+            jj++;
+          }
+          assert( nCSP<nSemi+1 );
+          azCSP[nCSP++] = zCopy+jj;
+        }
+      }
+      assert( nCSP<=nSemi+2 );
+      azCSP[nCSP] = 0;
+      return azCSP;
+    }
+  }
+  return 0;
+}
 
 /*
 ** WEBPAGE: secaudit0
 **
-** Run a security audit of the current Fossil setup.
-** This page requires administrator access
+** Run a security audit of the current Fossil setup, looking
+** for configuration problems that might allow unauthorized
+** access to the repository.
+**
+** This page requires administrator access.  It is usually
+** accessed using the Admin/Security-Audit menu option
+** from any of the default skins.
 */
 void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
@@ -47,6 +111,7 @@ void secaudit0_page(void){
   const char *zSelfCap;      /* Capabilities of self-registered users */
   char *z;
   int n;
+  char **azCSP;              /* Parsed content security policy */
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -290,7 +355,7 @@ void secaudit0_page(void){
       @ <li><p><b>WARNING:</b>
       @ Administrator privilege is granted to
       @ <a href='setup_ulist?with=as'>%d(n) users</a>.
-      @ Ideally, administator privilege ('s' or 'a') should only
+      @ Ideally, administrator privilege ('s' or 'a') should only
       @ be granted to one or two users.
     }
   }
@@ -399,13 +464,14 @@ void secaudit0_page(void){
   if( g.zErrlog==0 || fossil_strcmp(g.zErrlog,"-")==0 ){
     @ <li><p>
     @ The server error log is disabled.
-    @ To set up an error log:
-    @ <ul>
-    @ <li>If running from CGI, make an entry "errorlog: <i>FILENAME</i>"
-    @ in the CGI script.
-    @ <li>If running the "fossil server" or "fossil http" commands,
-    @ add the "--errorlog <i>FILENAME</i>" command-line option.
-    @ </ul>
+    @ To set up an error log,
+    if( fossil_strcmp(g.zCmdName, "cgi")==0 ){
+      @ make an entry like "errorlog: <i>FILENAME</i>" in the
+      @ CGI script at %h(P("SCRIPT_FILENAME")).
+    }else{
+      @ add the "--errorlog <i>FILENAME</i>" option to the 
+      @ "%h(g.argv[0]) %h(g.zCmdName)" command that launched this server.
+    }
   }else{
     FILE *pTest = fossil_fopen(g.zErrlog,"a");
     if( pTest==0 ){
@@ -416,13 +482,44 @@ void secaudit0_page(void){
     }else{
       fclose(pTest);
       @ <li><p>
-      @ The error log at "<a href='%R/errorlog'>%h(g.zErrlog)</a>" that is
+      @ The error log at "<a href='%R/errorlog'>%h(g.zErrlog)</a>" is
       @ %,lld(file_size(g.zErrlog, ExtFILE)) bytes in size.
     }
   }
 
+  if( g.zExtRoot ){
+    int nFile;
+    int nCgi;
+    ext_files();
+    nFile = db_int(0, "SELECT count(*) FROM sfile");
+    nCgi = nFile==0 ? 0 : db_int(0,"SELECT count(*) FROM sfile WHERE isexe");
+    @ <li><p> CGI Extensions are enabled with a document root
+    @ at <a href='%R/extfilelist'>%h(g.zExtRoot)</a> holding
+    @ %d(nCgi) CGIs and %d(nFile-nCgi) static content and data files.
+  }
+
   @ <li><p> User capability summary:
   capability_summary();
+
+
+  azCSP = parse_content_security_policy();
+  if( azCSP==0 ){
+    @ <li><p> WARNING: No Content Security Policy (CSP) is specified in the
+    @ header. Though not required, a strong CSP is recommended. Fossil will
+    @ automatically insert an appropriate CSP if you let it generate the
+    @ HTML <tt>&lt;head&gt;</tt> element by omitting <tt>&lt;body&gt;</tt>
+    @ from the header configuration in your customized skin.
+    @ 
+  }else{
+    int ii;
+    @ <li><p> Content Security Policy:
+    @ <ol type="a">
+    for(ii=0; azCSP[ii]; ii++){
+      @ <li>%h(azCSP[ii])
+    }
+    @ </ol>
+  }
+  fossil_free(azCSP);
 
   if( alert_enabled() ){
     @ <li><p> Email alert configuration summary:

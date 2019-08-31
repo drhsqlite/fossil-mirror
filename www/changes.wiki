@@ -1,7 +1,27 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_10'></a>
+<h2>Changes for Version 2.10 (pending)</h2>
+
+  *  Added support for [./serverext.wiki|CGI-based Server Extensions].
+  *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
+     add style to repository list pages.
+  *  Enhance the hierarchical display of Forum threads to do less
+     indentation and to provide links back to the previous message
+     in the thread.  Provide sequential numbers for all messages in
+     a forum thread.
+  *  Add support for fenced code blocks and improved hyperlink
+     processing to the [/md_rules|markdown formatter].
+  *  Enhance the [/help?cmd=/stat|/stat] page so that it gives the
+     option to show a breakdown of forum posts.
+  *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
+     some other value set by the 
+     [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
+  *  Documentation improvements
+
 <a name='v2_9'></a>
-<h2>Changes for Version 2.9 (pending)</h2>
+<h2>Changes for Version 2.9 (2019-07-13)</h2>
 
   *  Added the [/help?cmd=git|fossil git export] command and instructions
      for [./mirrortogithub.md|creating a GitHub mirror of a Fossil project].
@@ -10,6 +30,19 @@
      hyperlinks and the lizard &lt;img&gt; now work correctly
      for both [/artifact/2ff24ab0887cf522] and
      [/doc/0d7ac90d575004c2415/www/index.wiki].
+  *  Enhancements to the timeline graph layout, to show more information
+     with less clutter.
+  *  Added tool-tips to the /timeline graph.  On by default but can be
+     disabled by setting the "Tooltip dwell time" to 0 in the timeline
+     configuration.
+  *  Copy buttons added to various check-in hash and branch name links.
+  *  Double-clicking on a /timeline graph node now jumps to the /info page
+     for the check-in.  So, repurpose the timestamp hyperlink to show all
+     activity around that check-in in time.
+  *  Added the [/help?cmd=touch|fossil touch] command, and the --setmtime
+     option on the [/help?cmd=open|fossil open] and
+     [/help?cmd=update|fossil update] commands.
+  *  Many documentation enhancements.
   *  For the "[/help?cmd=update|fossil update]" and
      "[/help?cmd=checkout|fossil checkout]" commands, if a
      managed file is removed because it is no longer part of the target
@@ -18,11 +51,45 @@
      directory and is not on the [/help?cmd=empty-dirs|empty-dirs]
      list, then also remove the directory.
   *  Update internal Unicode character tables, used in regular expression
-     handling, from version 11.0 to 12.0.
+     handling, from version 11.0 to 12.1.
   *  In "[/help?cmd=regexp|fossil regexp]", "[/help?cmd=grep|fossil grep]"
      and the TH1 "regexp" command, the -nocase option now removes multiple
      diacritics from the same character (derived from SQLite's
      remove_diacritics=2)
+  *  Added the [/help?cmd=/secureraw|/secureraw] page that requires the
+     complete SHA1 or SHA3 hash, not just a prefix, before it will deliver
+     content.
+  *  Accept purely numeric ISO8601 date/time strings as long as they
+     do not conflict with a hash.  Example: "20190510134217" instead of
+     "2019-05-10 13:42:17".  This helps keep URLs shorter and less
+     complicated
+  *  Support both "1)" and "1." for numbered lists in markdown, as
+     commonmark does.
+  *  The sync and clone HTTP requests omit the extra /xfer path element
+     from the end of the request URI. All servers since 2010 know that
+     the HTTP request is for a sync or clone from the mimetype so the
+     extra path element is not needed.
+  *  If an automatic sync gets a permanent redirect request, then update
+     the saved remote URL to the new address.
+  *  Temporary filenames (for example used for external "diff" commands)
+     try to preserve the suffix of the original file.
+  *  Added the [/help?cmd=/thisdayinhistory|/thisdayinhistory] web page.
+  *  Enhanced parsing of [/help?cmd=/timeline|/timeline] query parameters
+     "ymd=", "ym=", and "yw=".  All arguments are option (in which case they
+     default to the current time) and all accept ISO8601 date/times without
+     punctuation.
+  *  Automatically disapprove pending moderation requests for a user when
+     that user is deleted.  This helps in dealing with spam-bots.
+  *  Improvements to the "Capability Summary" section in the
+     [/help?cmd=/secaudit0|Security Audit] web-page.
+  *  Use new "ci-lock" and "ci-lock-failed" pragmas in the
+     [./sync.wiki|sync protocol] to try to prevent accident forks
+     caused by concurrent commits when operating in auto-sync mode.
+  *  Fix a bug ([https://www.fossil-scm.org/forum/forumpost/c51b9a1169|details])
+     that can cause repository databases to be overwritten with debugging
+     output, thus corrupting the repository. This is only a factor when
+     CGI debugging is enabled, and even then is a rare occurrence, but it is
+     obviously an important fix.
 
 <a name='v2_8'></a>
 <h2>Changes for Version 2.8 (2019-02-20)</h2>

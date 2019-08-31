@@ -86,6 +86,9 @@ static void sqlcmd_compress(
   rc = compress(&pOut[4], &nOut, pIn, nIn);
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut+4, sqlite3_free);
+  }else if( rc==Z_MEM_ERROR ){
+    sqlite3_free(pOut);
+    sqlite3_result_error_nomem(context);
   }else{
     sqlite3_free(pOut);
     sqlite3_result_error(context, "input cannot be zlib compressed", -1);
@@ -115,6 +118,9 @@ static void sqlcmd_decompress(
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut, sqlite3_free);
+  }else if( rc==Z_MEM_ERROR ){
+    sqlite3_free(pOut);
+    sqlite3_result_error_nomem(context);
   }else{
     sqlite3_free(pOut);
     sqlite3_result_error(context, "input is not zlib compressed", -1);

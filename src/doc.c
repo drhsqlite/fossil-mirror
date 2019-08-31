@@ -424,7 +424,7 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
   zIn += 4;
   while( zIn[0] ){
     if( fossil_isspace(zIn[0]) ) zIn++;
-    if( zIn[0]=='>' ) return 0;
+    if( zIn[0]=='>' ) break;
     zAttr = zIn;
     while( fossil_isalnum(zIn[0]) || zIn[0]=='-' ) zIn++;
     nAttr = (int)(zIn - zAttr);
@@ -453,7 +453,14 @@ int doc_is_embedded_html(Blob *pContent, Blob *pTitle){
       if( seenTitle ) return 1;
     }
     if( nAttr==10 && fossil_strnicmp(zAttr,"data-title",10)==0 ){
-      blob_append(pTitle, zValue, nValue);
+      /* The text argument to data-title="" will have had any characters that
+      ** are special to HTML encoded.  We need to decode these before turning
+      ** the text into a title, as the title text will be reencoded later */
+      char *zTitle = mprintf("%.*s", nValue, zValue);
+      int i;
+      for(i=0; fossil_isspace(zTitle[i]); i++){}
+      html_to_plaintext(zTitle+i, pTitle);
+      fossil_free(zTitle);
       seenTitle = 1;
       if( seenClass ) return 1;
     }
@@ -521,8 +528,8 @@ void convert_href_and_output(Blob *pIn){
      && strncmp(&z[i],"$ROOT/", 6)==0
      && (z[i-1]=='\'' || z[i-1]=='"')
      && i-base>=9
-     && (fossil_strnicmp(&z[i-7]," href=", 6)==0 ||
-           fossil_strnicmp(&z[i-9]," action=", 8)==0)
+     && ((fossil_strnicmp(&z[i-6],"href=",5)==0 && fossil_isspace(z[i-7])) ||
+         (fossil_strnicmp(&z[i-8],"action=",7)==0 && fossil_isspace(z[i-9])) )
     ){
       blob_append(cgi_output_blob(), &z[base], i-base);
       blob_appendf(cgi_output_blob(), "%R");
@@ -531,6 +538,81 @@ void convert_href_and_output(Blob *pIn){
   }
   blob_append(cgi_output_blob(), &z[base], i-base);
 }
+
+/*
+** Render a document as the reply to the HTTP request.  The body
+** of the document is contained in pBody.  The body might be binary.
+** The mimetype is in zMimetype.
+*/
+void document_render(
+  Blob *pBody,                  /* Document content */
+  const char *zMime,            /* MIME-type */
+  const char *zDefaultTitle,    /* Default title */
+  const char *zFilename         /* Name of the file being rendered */
+){
+  Blob title;
+  blob_init(&title,0,0);
+  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
+    Blob tail;
+    style_adunit_config(ADUNIT_RIGHT_OK);
+    if( wiki_find_title(pBody, &title, &tail) ){
+      style_header("%s", blob_str(&title));
+      wiki_convert(&tail, 0, WIKI_BUTTONS);
+    }else{
+      style_header("%s", zDefaultTitle);
+      wiki_convert(pBody, 0, WIKI_BUTTONS);
+    }
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
+    Blob tail = BLOB_INITIALIZER;
+    markdown_to_html(pBody, &title, &tail);
+    if( blob_size(&title)>0 ){
+      style_header("%s", blob_str(&title));
+    }else{
+      style_header("%s", zDefaultTitle);
+    }
+    convert_href_and_output(&tail);
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/plain")==0 ){
+    style_header("%s", zDefaultTitle);
+    @ <blockquote><pre>
+    @ %h(blob_str(pBody))
+    @ </pre></blockquote>
+    style_footer();
+  }else if( fossil_strcmp(zMime, "text/html")==0
+            && doc_is_embedded_html(pBody, &title) ){
+    if( blob_size(&title)==0 ) blob_append(&title,zFilename,-1);
+    style_header("%s", blob_str(&title));
+    convert_href_and_output(pBody);
+    style_footer();
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  }else if( Th_AreDocsEnabled() &&
+            fossil_strcmp(zMime, "application/x-th1")==0 ){
+    int raw = P("raw")!=0;
+    if( !raw ){
+      Blob tail;
+      blob_zero(&tail);
+      if( wiki_find_title(pBody, &title, &tail) ){
+        style_header("%s", blob_str(&title));
+        Th_Render(blob_str(&tail));
+        blob_reset(&tail);
+      }else{
+        style_header("%h", zDefaultTitle);
+        Th_Render(blob_str(pBody));
+      }
+    }else{
+      Th_Render(blob_str(pBody));
+    }
+    if( !raw ){
+      style_footer();
+    }
+#endif
+  }else{
+    cgi_set_content_type(zMime);
+    cgi_set_content(pBody);
+  }
+}
+
 
 /*
 ** WEBPAGE: uv
@@ -620,6 +702,7 @@ void doc_page(void){
     }
     if( nMiss==count(azSuffix) ){
       zName = "404.md";
+      zDfltTitle = "Not Found";
     }else if( zName[i]==0 ){
       assert( nMiss>=0 && nMiss<count(azSuffix) );
       zName = azSuffix[nMiss];
@@ -692,66 +775,7 @@ void doc_page(void){
     Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                     " WHERE objid=%d AND type='ci'", vid));
   }
-  if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0 ){
-    Blob tail;
-    style_adunit_config(ADUNIT_RIGHT_OK);
-    if( wiki_find_title(&filebody, &title, &tail) ){
-      style_header("%s", blob_str(&title));
-      wiki_convert(&tail, 0, WIKI_BUTTONS);
-    }else{
-      style_header("%s", zDfltTitle);
-      wiki_convert(&filebody, 0, WIKI_BUTTONS);
-    }
-    style_footer();
-  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
-    Blob tail = BLOB_INITIALIZER;
-    markdown_to_html(&filebody, &title, &tail);
-    if( blob_size(&title)>0 ){
-      style_header("%s", blob_str(&title));
-    }else{
-      style_header("%s", nMiss>=count(azSuffix)?
-                        "Not Found" : zDfltTitle);
-    }
-    convert_href_and_output(&tail);
-    style_footer();
-  }else if( fossil_strcmp(zMime, "text/plain")==0 ){
-    style_header("%s", zDfltTitle);
-    @ <blockquote><pre>
-    @ %h(blob_str(&filebody))
-    @ </pre></blockquote>
-    style_footer();
-  }else if( fossil_strcmp(zMime, "text/html")==0
-            && doc_is_embedded_html(&filebody, &title) ){
-    if( blob_size(&title)==0 ) blob_append(&title,zName,-1);
-    style_header("%s", blob_str(&title));
-    convert_href_and_output(&filebody);
-    style_footer();
-#ifdef FOSSIL_ENABLE_TH1_DOCS
-  }else if( Th_AreDocsEnabled() &&
-            fossil_strcmp(zMime, "application/x-th1")==0 ){
-    int raw = P("raw")!=0;
-    if( !raw ){
-      Blob tail;
-      blob_zero(&tail);
-      if( wiki_find_title(&filebody, &title, &tail) ){
-        style_header("%s", blob_str(&title));
-        Th_Render(blob_str(&tail));
-        blob_reset(&tail);
-      }else{
-        style_header("%h", zName);
-        Th_Render(blob_str(&filebody));
-      }
-    }else{
-      Th_Render(blob_str(&filebody));
-    }
-    if( !raw ){
-      style_footer();
-    }
-#endif
-  }else{
-    cgi_set_content_type(zMime);
-    cgi_set_content(&filebody);
-  }
+  document_render(&filebody, zMime, zDfltTitle, zName);
   if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
   return;

@@ -494,8 +494,12 @@ static void new_brlist_page(void){
 **
 **     all         Show all branches
 **     closed      Show only closed branches
-**     open        Show only open branches (default behavior)
+**     open        Show only open branches
 **     colortest   Show all branches with automatic color
+**
+** When there are no query parameters, a new-style /brlist page shows
+** all branches in a sortable table.  The new-style /brlist page is
+** preferred and is the default.
 */
 void brlist_page(void){
   Stmt q;
@@ -659,7 +663,7 @@ void brtimeline_page(void){
   if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, brtimeline_extra);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }

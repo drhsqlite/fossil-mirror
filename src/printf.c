@@ -50,7 +50,7 @@
 ** human output if the bForUrl is false and is destined for a URL if
 ** bForUrl is false.
 */
-static int hashDigits(int bForUrl){
+int hash_digits(int bForUrl){
   static int nDigitHuman = 0;
   static int nDigitUrl = 0;
   if( nDigitHuman==0 ){
@@ -68,7 +68,7 @@ static int hashDigits(int bForUrl){
 ** Return the number of characters in a %S output.
 */
 int length_of_S_display(void){
-  return hashDigits(0);
+  return hash_digits(0);
 }
 
 /*
@@ -101,6 +101,7 @@ int length_of_S_display(void){
 #define etWIKISTR    22 /* Timeline comment text rendered from a char*: %W */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
 #define etROOT       24 /* String value of g.zTop: %R */
+#define etJSONSTR    25 /* String encoded as a JSON string literal: %j */
 
 
 /*
@@ -152,6 +153,7 @@ static const et_info fmtinfo[] = {
   {  'w',  0, 4, etSQLESCAPE3, 0,  0 },
   {  'F',  0, 4, etFOSSILIZE,  0,  0 },
   {  'S',  0, 4, etSTRINGID,   0,  0 },
+  {  'j',  0, 0, etJSONSTR,    0,  0 },
   {  'c',  0, 0, etCHARX,      0,  0 },
   {  'o',  8, 0, etRADIX,      0,  2 },
   {  'u', 10, 0, etRADIX,      0,  0 },
@@ -679,7 +681,7 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }else if( xtype==etSTRINGID ){
-          precision = hashDigits(flag_altform2);
+          precision = hash_digits(flag_altform2);
         }
         length = StrNLen32(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
@@ -781,6 +783,20 @@ int vxprintf(
         char *zMem = va_arg(ap,char*);
         if( zMem==0 ) zMem = "";
         zExtra = bufpt = fossilize(zMem, limit);
+        length = strlen(bufpt);
+        if( precision>=0 && precision<length ) length = precision;
+        break;
+      }
+      case etJSONSTR: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
+        char *zMem = va_arg(ap,char*);
+        if( limit!=0 ){
+          /* Ignore the limit flag, if set, for JSON string
+          ** output. This block exists to squelch the associated
+          ** "unused variable" compiler warning. */
+        }
+        if( zMem==0 ) zMem = "";
+        zExtra = bufpt = encode_json_string_literal(zMem);
         length = strlen(bufpt);
         if( precision>=0 && precision<length ) length = precision;
         break;

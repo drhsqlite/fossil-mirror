@@ -1,0 +1,324 @@
+<div class='fossil-doc' data-title="How To Configure A Fossil Server">
+
+<style type="text/css">
+  p {
+    margin-left: 4em;
+    margin-right: 3em;
+  }
+
+  li p {
+    margin-left: 0;
+  }
+
+  h2 {
+    margin-left: 1em;
+  }
+
+  h3 {
+    margin-left: 3em;
+  }
+
+  ol, ul {
+    margin-left: 3em;
+  }
+
+  a#all {
+    font-size: 90%;
+    margin-left: 1em;
+  }
+
+  div#tutpick.show {
+    max-height: 99em;
+    transition: max-height 1000ms ease-in;
+  }
+  div#tutpick {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  th.fep {
+    background-color: #e8e8e8;
+    min-width: 3em;
+    padding: 0.4em;
+    white-space: nowrap;
+  }
+
+  th.host {
+    background-color: #e8e8e8;
+    padding: 0.4em;
+    text-align: right;
+  }
+
+  td.doc {
+    text-align: center;
+  }
+</style>
+
+
+<h2>No Server Required</h2>
+
+<p>Fossil does not require a central server, but <a
+href="whyuseaserver.wiki">a server can be useful</a>.</p>
+
+<p>A Fossil server does not require much memory, CPU, or disk space
+and can run comfortably on a generic $5/month virtual host 
+or on a small device like a Raspberry Pi, or it can co-exist 
+on a host running other services without getting in the way.
+
+<p>This article is a quick-reference guide for setting up your own
+Fossil server, with links to more detailed instructions specific to
+particular systems, should you want extra help.</p>
+
+
+<h2 id="prep">Repository Prep</h2>
+
+<p>Prior to serving a Fossil repository to others, consider running <a
+href="$ROOT/help?cmd=ui"><tt>fossil ui</tt></a> locally and taking these
+minimum recommended preparation steps:</p>
+
+<ol>
+  <li><p>Fossil creates only one user in a <a
+  href="$ROOT/help?cmd=new">new repository</a> and gives it the <a
+  href="../admin-v-setup.md">all-powerful Setup capability</a>.  (“s”)
+  The 10-digit random password generated for that user is fairly strong
+  against remote attack, even without explicit password guess rate
+  limiting, but because that user has so much power, you may want to
+  give it a much stronger password under Admin → Users.</a></li>
+
+  <li><p>Run the Admin → Security-Audit tool to verify that other
+  security-related permissions and settings are as you want them.
+  Consider clicking the “Take it private” link on that page to lock down
+  the security on that site to a level appropriate to a private
+  repository, even if you will eventually want some public service. It's
+  better to start from a secure position and open up service
+  feature-by-feature as necessary than it is to start from a fully open
+  position and lock down features one by one to achieve a secure
+  stance.</p></li>
+</ol>
+
+<p>With the repository secured, it is safe to upload a copy of the
+repository file to your server and proceed with server setup, below.
+Further configuration steps can wait until <a href="#postsetup">after
+the server is running</a>.</p>
+
+
+<h2 id="methods">Activation Methods</h2>
+
+<p>There are basically four ways to run a Fossil server:</p>
+
+<ol>
+  <li><a id="cgi"        href="any/cgi.md">CGI</a>
+  <li>Socket listener
+  <li><a id="standalone" href="any/none.md">Stand-alone HTTP server</a>
+  <li><a id="scgi"       href="any/scgi.md">SCGI</a>
+</ol>
+
+<p>All of these methods can serve either a single repository or a
+directory hierarchy containing mulitiple repositories.</p>
+
+<p>You are not restricted to a single server setup. The same Fossil
+repository can be served using two or more of the above techniques at
+the same time. These methods use clean, well-defined, standard
+interfaces (CGI, SCGI, and HTTP) which allow you to easily migrate from
+one method to another in response to changes in hosting providers or
+administrator preferences.</p>
+
+<h3>CGI</h3>
+
+<p>Most ordinary web servers can <a href="any/cgi.md">run Fossil as a
+CGI script</a>. This method is known to work with Apache,
+<tt>lighttpd</tt>, and <a
+href="any/althttpd.md"><tt>althttpd</tt></a>.  The Fossil server
+administrator places a <a href="$ROOT/help?cmd=cgi">short CGI script</a> in
+the web server's document hierarchy and when a client requests the URL
+that corresponds to that script, Fossil runs and generates the
+response.</p>
+
+<p>CGI is a good choice for merging Fossil into an existing web site,
+particularly on hosts that have CGI set up and working.
+The Fossil <a href="../selfhost.wiki">self-hosting repositories</a> are
+implemented with CGI underneath <tt>althttpd</tt>.</p>
+
+<h3>Socket Listener</h3>
+
+<p>Socket listener daemons such as
+<a id="inetd" href="any/inetd.md"><tt>inetd</tt></a>, <a id="xinetd"
+href="any/xinetd.md"><tt>xinetd</tt></a>, <a id="stunnel"
+href="any/stunnel.md"><tt>stunnel</tt></a>, <a
+href="macos/service.md"><tt>launchd</tt></a>, and <a
+href="debian/service.md"><tt>systemd</tt></a>
+can be configured to invoke the the
+<a href="$ROOT/help?cmd=http"><tt>fossil http</tt></a> command to handle
+each incoming HTTP request.  The "<tt>fossil http</tt>" command reads
+the HTTP request off of standard input, computes an appropriate
+reply, and writes the reply on standard output.  There is a separate
+invocation of the "<tt>fossil http</tt>" command for each HTTP request.
+The socket listener daemon takes care of relaying content to and from
+the client, and (in the case of <a href="any/stunnel.md">stunnel</a>) 
+handling TLS decryption and encryption.
+
+<h3>Stand-alone HTTP Server</h3>
+
+<p>This is the <a href="any/none.md">easiest method</a>.
+A stand-alone server uses the
+<a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command to run a
+process that listens for incoming HTTP requests on a socket and then
+dispatches a copy of itself to deal with each incoming request. You can
+expose Fossil directly to the clients in this way or you can interpose a
+<a href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a>
+layer between the clients and Fossil.</p>
+
+<h3>SCGI</h3>
+
+<p>The Fossil standalone server can also handle <a href="any/scgi.md">SCGI</a>.
+When the <a href="$ROOT/help?cmd=server"><tt>fossil server</tt></a> command is
+run with the extra <tt>--scgi</tt> option, it listens for incoming
+SCGI requests rather than HTTP requests. This allows Fossil to
+respond to requests from web servers <a href="debian/nginx.md">such as
+nginx</a> that don't support CGI. SCGI is a simpler protocol to proxy
+than HTTP, since the HTTP doesn't have to be re-interpreted in terms of
+the proxy's existing HTTP implementation, but it's more complex to set
+up because you also have to set up an SCGI-to-HTTP proxy for it. It is
+worth taking on this difficulty only when you need to integrate Fossil
+into an existing web site already being served by an SCGI-capable web
+server.</p>
+
+<h2 id="matrix">Activation Tutorials</h2>
+
+<p>We've broken the configuration for each method out into a series of
+sub-articles. Some of these are generic, while others depend on
+particular operating systems or front-end software:</p>
+
+<div id="tutpick" class="show"></div>
+
+<table style="margin-left: 6em;">
+    <tr>
+        <th class="host">⇩ OS / Method ⇨</th>
+        <th class="fep">direct</th>
+        <th class="fep">inetd</th>
+        <th class="fep">stunnel</th>
+        <th class="fep">CGI</th>
+        <th class="fep">SCGI</th>
+        <th class="fep">althttpd</th>
+        <th class="fep">proxy</th>
+        <th class="fep">service</th>
+    </tr>
+
+    <tr>
+        <th class="host">Any</th>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc"><a href="any/inetd.md">✅</a></td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+    </tr>
+
+    <tr>
+        <th class="host">Debian/Ubuntu</th>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc"><a href="any/inetd.md">✅</a></td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc"><a href="debian/nginx.md">✅</a></td>
+        <td class="doc"><a href="debian/service.md">✅</a></td>
+    </tr>
+
+    <tr>
+        <th class="host">macOS</th>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="macos/service.md">✅</a></td>
+    </tr>
+
+    <tr>
+        <th class="host">Windows</th>
+        <td class="doc"><a href="windows/none.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="windows/stunnel.md">✅</a></td>
+        <td class="doc"><a href="windows/cgi.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="windows/iis.md">✅</a></td>
+        <td class="doc"><a href="windows/service.md">✅</a></td>
+    </tr>
+</table>
+
+<p>Where there is a check mark in the "<b>Any</b>" row, the method for that is
+generic enough that it works across OSes that Fossil is known to work
+on. The check marks below that usually just link to this generic
+documentation.</p>
+
+<p>The method in the "<b>proxy</b>" column is for the platform's default
+web server configured as a <a
+href="https://en.wikipedia.org/wiki/Reverse_proxy">reverse proxy</a> for
+Fossil's built-in HTTP server: <a href="debian/nginx.md">nginx</a>, <a
+href="windows/iis.md">IIS</a>, Apache, etc.</p>
+
+<p>We welcome <a href="../contribute.wiki">contributions</a> to fill gaps
+(<font size="-2">❌</font>) in the table above.</p>
+</noscript>
+
+
+<h2 id="postsetup">Post-Activation Configuration</h2>
+
+<p>After the server is up and running, log into it as the Setup user and
+visit the Admin menu to finish configuring that repository for
+service:</p>
+
+<ol>
+  <li><p>Add user accounts for your other team members. Use the
+  pre-defined user capabilities to define access policies rather than
+  give out those same set of capabilities redundantly to each
+  user.</p></li>
+
+  <li><p>Test access to the repository from each category of non-Setup
+  user that you created. You may have to give your user categories some
+  overlooked capabilities, particularly if you followed <a
+  href="#prep">our earlier advice</a> to take the repository private
+  prior to setting up the server.</p></li>
+
+  <li><p>Modify the repository's look and feel by <a
+  href="../customskin.md">customizing the skin</a>.</p></li>
+
+  <li><p>If the repository includes <a
+  href="../embeddeddoc.wiki">embedded documentation</a>, consider
+  activating the search feature (Admin → Search) so that visitors can do
+  full-text search on your documentation.</p></li>
+
+  <li><p>Now that others can be making changes to the repository,
+  consider monitoring them via <a href="../alerts.md">email alerts</a>
+  or the <a href="$ROOT/help?cmd=/timeline.rss">timeline RSS
+  feed</a>.</p></li>
+
+  <li><p>Turn on the various logging features.</p></li>
+</ol>
+
+<p>Reload the Admin → Security-Audit page occasionally during this
+process to double check that you have not mistakenly configured the
+server in a way that might expose information that you want to keep
+private.</p>
+
+
+<h2 id="more">Further Details</h2>
+
+<ul>
+  <li><a id="chroot"   href="../chroot.md"     >The Server Chroot Jail</a>
+  <li><a id="loadmgmt" href="../loadmgmt.md"   >Managing Server Load</a>
+  <li><a id="bkofc"    href="../backoffice.md" >The Backoffice</a>
+  <li><a id="tls"      href="../ssl.wiki"      >Securing a Repository with TLS</a>
+  <li><a id="ext"      href="../serverext.wiki">CGI Server Extensions</a>
+  <li><a id="about"    href="../aboutcgi.wiki" >How CGI Works In Fossil</a>
+  <li><a id="sync"     href="../sync.wiki"     >The Fossil Sync Protocol</a>
+</ul>
+
+</div>

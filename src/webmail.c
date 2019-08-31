@@ -122,7 +122,7 @@ static int email_line_length(const char *z){
 
 /*
 ** Look for a parameter of the form NAME=VALUE in the given email
-** header line.  Return a copy of VALUE in space obtained from 
+** header line.  Return a copy of VALUE in space obtained from
 ** fossil_malloc().  Or return NULL if there is no such parameter.
 */
 static char *email_hdr_value(const char *z, const char *zName){
@@ -360,7 +360,7 @@ void test_email_decode_cmd(void){
 ** the various email message formats.
 */
 static void webmail_f_submenu(void){
-  static const char *az[] = {
+  static const char *const az[] = {
      "0", "Normal",
      "1", "Decoded",
      "2", "Raw",
@@ -373,7 +373,7 @@ static void webmail_f_submenu(void){
 ** that should be shown in "Normal" mode, then return 1.
 */
 static int webmail_normal_header(const char *z, int N){
-  static const char *az[] = {
+  static const char *const az[] = {
     "To",  "Cc",  "Bcc",  "Date", "From",  "Subject",
   };
   int i;
@@ -417,7 +417,7 @@ static void webmail_show_one_message(
     eTranscript = db_column_int(&q, 2);
     if( eFormat==2 ){
       @ <pre>%h(db_column_text(&q, 0))</pre>
-    }else{      
+    }else{
       EmailToc *p = emailtoc_from_email(&msg);
       int i, j;
       @ <p>
@@ -565,7 +565,7 @@ static void webmail_change_state(int eNewState, const char *zUser){
 ** which messages to include in the index.
 */
 static void webmail_d_submenu(void){
-  static const char *az[] = {
+  static const char *const az[] = {
      "0", "InBox",
      "1", "Unread",
      "2", "Trash",
@@ -592,7 +592,7 @@ static void webmail_d_submenu(void){
 **     trash                Move selected entries to trash (estate=2)
 **     read                 Mark selected entries as read (estate=1)
 **     unread               Mark selected entries as unread (estate=0)
-**  
+**
 */
 void webmail_page(void){
   int emailid;
@@ -771,7 +771,7 @@ void webmail_page(void){
 ** both inbound and outbound, and transcripts of SMTP sessions.
 **
 **    id=N          Show the text of emailblob with emailid==N
-**    
+**
 */
 void webmail_emailblob_page(void){
   int id = atoi(PD("id","0"));
