@@ -591,6 +591,9 @@ void stash_cmd(void){
   }
   nCmd = strlen(zCmd);
   if( memcmp(zCmd, "save", nCmd)==0 ){
+    if( unsaved_changes(0)==0 ){
+      fossil_fatal("nothing to stash");
+    }
     stashid = stash_create();
     undo_disable();
     if( g.argc>=2 ){

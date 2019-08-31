@@ -1,5 +1,5 @@
-C Updated\scomment\sabout\s"6-character\srandom\shex\spassword"\sat\sthe\stop\slevel\nof\sthe\snew\ssetup\sdocs\sto\strack\s[23a9f9bac2].
-D 2019-08-29T00:28:53.462
+C If\sthere\sis\snothing\sto\sstash,\sissue\san\serror.
+D 2019-08-31T17:09:38.563
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -571,7 +571,7 @@ F src/sqlcmd.c 72e5b3a619b519fe162e88fe789100583a17dd2cc932491b166bf09ce54d6c47
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
 F src/sqlite3.c d9a5daf7697a827f4b2638276ce639fa04e8e8bb5fd3a6b683cfad10f1c81b12
 F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
-F src/stash.c bdf6fa8dc420079fe6cf20174978dea95087c2cd0e4c2888a082c832b101e358
+F src/stash.c b9741441af2f6fb3357e52b40499e3feb8442e3653dd2b3f8515511d0923fdaf
 F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c e654ff9b9b80ca5ce23ad5e5b5b7aa060539a0532111f1b49746d8a0da34d656
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b2379b31c2e1965629ffe305e2e7ea02514e03d48d0bb2322b1d3a78cb2ac1b7
-R 0be9c6b84ddd850725bfd4e3c8ef66bc
-U wyoung
-Z 1d365e1505d076895091de6ff895e21b
+P f304ba31fe42e2dabf1c6f208464d8aa65156f5d3f89012ae1c523d49dc11a35
+R 2d7e97113a6d139f1fb491d6958398f1
+U andybradford
+Z 5b37702d51bd82db5676260e743c18c8
