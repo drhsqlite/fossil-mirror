@@ -1,5 +1,5 @@
-C Ouput\san\serror\sif\sthe\sCGI\scontrol\sfile\sis\smissing\son\sthe\scommand\sline.\sThis\sprevents\sIIS\sto\sfall\sin\sa\sendless\sloop.
-D 2019-08-31T13:04:32.769
+C IIS\sand\spossibly\sother\sweb\sservers\sdefine\senvironment\svariables\swith\san\sempty\svalue.\sHandle\sthem\sthe\ssame\sas\snon-existing\senvironment\svariables.
+D 2019-08-31T13:21:29.823
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 43fe0c849fdd190b45fab653ff78d536f4121a649c20d4efc6d1d3b3709b04b4
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c 2ec5bce4bc982a9cdb1a3eb4e7dad8e36e494168b07f5fefacdffb5977d25fce
+F src/cgi.c cbec94046cc0665dfe13e955972662f39e60e53184500af0492c373e82bdc19d
 F src/checkin.c a0652004d92b1d0b56c0ae37440325c73a77461c40e4b6ec6191829795addf65
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -912,10 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f304ba31fe42e2dabf1c6f208464d8aa65156f5d3f89012ae1c523d49dc11a35
-R 69820a98b30f8600e29eb71e0bd58c54
-T *branch * iis-cgi
-T *sym-iis-cgi *
-T -sym-trunk *
+P 6a59d33e3d1f95022c7e75705bf3d85540d54d90725bbdbe97d8e3e2124a40e6
+R d563092142ce75284670a1d7af4f0e46
 U tsbg
-Z 7b8879e5867d0a05acaecdba62f3e9d8
+Z f1a4b144f1aa0a6592d86207726602e7

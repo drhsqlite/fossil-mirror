@@ -1115,11 +1115,12 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
   /* If no match is found and the name begins with an upper-case
   ** letter, then check to see if there is an environment variable
-  ** with the given name.
+  ** with the given name. Handle environment variables with empty values
+  ** the same as non-existent environment variables.
   */
   if( zName && fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
-    if( zValue ){
+    if( zValue && zValue[0] ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
       return zValue;
