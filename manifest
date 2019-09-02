@@ -1,5 +1,5 @@
-C Minor\stypo\scorrection\sin\scomment---no\sfunctional\schange.
-D 2019-08-31T18:22:39.522
+C Added\sa\snew\ssection\sto\swww/defcsp.md,\s"Serving\sFiles\sWithin\sthe\sLimits".\nIt\spulls\stogether\sa\sbit\sof\sinfo\salready\sin\sthe\sdocument\son\sthe\stopic\sand\nthen\sexpands\sit\sconsiderably.\s\sThe\soverall\smessage\sis,\s"You\sprobably\ndon't\shave\sto\soverride\sthe\sdefault\sCSP."
+D 2019-09-02T23:26:52.387
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -802,7 +802,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 237e66bca7ae40c77285357967bfa6728e79a73d
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
-F www/defcsp.md 74d25cc0a4180489e2e8fa4685ffce738304429ba42229bfc330e23a6a1e09ca
+F www/defcsp.md dfdac6a88e1ffb6be101235f5b63424bf0972229df803f0a5af96867e1c2fd2e
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7b2350a86b96f2b5839a6480ca0bee17eeab0014a931689a4640387b18ab9540
-R 6c6b1ce592ffa299a4bbb766ae769c5a
-U andybradford
-Z ec71662ca3f71a1824132af85f7662d8
+P ab2b8de8962831ef515f3ef4a0708eaa531d71935bbe17d48ecadaf0b55ffc43
+R ef351a6ab81d9ae4d421fdfb829a9fe2
+U wyoung
+Z 57e1d7d0c6a59feb9de05526256ce8a1
