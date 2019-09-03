@@ -22,6 +22,33 @@
 #include <assert.h>
 
 /*
+** If RID refers to a check-in, return the name of the branch for that
+** check-in.
+**
+** Space to hold the returned value is obtained from fossil_malloc()
+** and should be freed by the caller.
+*/
+char *branch_of_rid(int rid){
+  char *zBr = 0;
+  static Stmt q;
+  db_static_prepare(&q,
+      "SELECT value FROM tagxref"
+      " WHERE rid=$rid AND tagid=%d"
+      " AND tagtype>0", TAG_BRANCH);
+  db_bind_int(&q, "$rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    zBr = fossil_strdup(db_column_text(&q,0));
+  }
+  db_reset(&q);
+  if( zBr==0 ){
+    static char *zMain = 0;
+    if( zMain==0 ) zMain = db_get("main-branch","trunk");
+    zBr = fossil_strdup(zMain);
+  }
+  return zBr;
+}
+
+/*
 **  fossil branch new    NAME  BASIS ?OPTIONS?
 **  argv0  argv1  argv2  argv3 argv4
 */
@@ -663,7 +690,7 @@ void brtimeline_page(void){
   if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, brtimeline_extra);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }

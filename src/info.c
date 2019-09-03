@@ -254,30 +254,42 @@ void info_cmd(void){
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
-void render_checkin_context(int rid, int parentsOnly){
+void render_checkin_context(int rid, int rid2, int parentsOnly){
   Blob sql;
   Stmt q;
+  int rx[2];
+  int i, n;
+  rx[0] = rid;
+  rx[1] = rid2;
+  n = rid2 ? 2 : 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
+
   db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM ok;"
-     "INSERT INTO ok VALUES(%d);"
-     "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
-     rid, rid
+    "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+    "DELETE FROM ok;"
   );
-  if( !parentsOnly ){
+  for(i=0; i<n; i++){
     db_multi_exec(
-      "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rid
+      "INSERT OR IGNORE INTO ok VALUES(%d);"
+      "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
+      rx[i], rx[i]
     );
-    if( db_table_exists("repository","cherrypick") ){
+  }
+  if( !parentsOnly ){
+    for(i=0; i<n; i++){
       db_multi_exec(
-        "INSERT OR IGNORE INTO ok "
-        "  SELECT parentid FROM cherrypick WHERE childid=%d;"
-        "INSERT OR IGNORE INTO ok "
-        "  SELECT childid FROM cherrypick WHERE parentid=%d;",
-        rid, rid
+        "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rx[i]
       );
+      if( db_table_exists("repository","cherrypick") ){
+        db_multi_exec(
+          "INSERT OR IGNORE INTO ok "
+          "  SELECT parentid FROM cherrypick WHERE childid=%d;"
+          "INSERT OR IGNORE INTO ok "
+          "  SELECT childid FROM cherrypick WHERE parentid=%d;",
+          rx[i], rx[i]
+        );
+      }
     }
   }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
@@ -288,7 +300,7 @@ void render_checkin_context(int rid, int parentsOnly){
          |TIMELINE_NOSCROLL
          |TIMELINE_XMERGE
          |TIMELINE_CHPICK,
-       0, 0, 0, rid, 0);
+       0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
 }
 
@@ -319,7 +331,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
 }
 
@@ -352,7 +364,7 @@ void backlink_timeline_page(void){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -607,6 +619,7 @@ void ci_tags_page(void){
      "  WHERE tagxref.rid=%d;",
      rid, rid, rid
   );
+#if 0
   db_multi_exec(
     "SELECT tag.tagid, tagname, "
     "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
@@ -616,12 +629,13 @@ void ci_tags_page(void){
     " WHERE tagxref.rid=%d"
     " ORDER BY tagname /*sort*/", rid, rid, rid
   );
+#endif
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, rid, 0);
+                     0, 0, 0, rid, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -653,6 +667,7 @@ void ci_page(void){
   const char *zW;      /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
+  const char *zBrName; /* Branch name */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -681,6 +696,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
+  zBrName = branch_of_rid(rid);
   
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
@@ -693,7 +709,6 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
-    const char *zBrName;
     int okWiki = 0;
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
@@ -707,9 +722,6 @@ void ci_page(void){
     zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
-    zBrName = db_text(0,
-                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
-                   TAG_BRANCH, rid);
     zOrigUser = db_column_text(&q1, 2);
     zUser = zEUser ? zEUser : zOrigUser;
     zComment = db_column_text(&q1, 3);
@@ -874,7 +886,10 @@ void ci_page(void){
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @   %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      if( fossil_strcmp(zBrName, db_get("main-branch","trunk"))!=0 ){
+        @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
+      }
+      @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
       @ | %z(href("%R/ci_tags/%!S",zUuid))tags</a>
       if( g.perm.Admin ){
         @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
@@ -898,7 +913,7 @@ void ci_page(void){
   }
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
-  render_checkin_context(rid, 0);
+  render_checkin_context(rid, 0, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(diffType);
@@ -1099,6 +1114,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
 
+#if 0 /* not used */
 /*
 ** Output a description of a check-in
 */
@@ -1157,6 +1173,7 @@ static void checkin_description(int rid){
   }
   db_finalize(&q);
 }
+#endif /* not used */
 
 
 /*
@@ -1192,6 +1209,8 @@ void vdiff_page(void){
   const char *zRe;
   const char *zW;
   const char *zGlob;
+  char *zQuery;
+  char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -1203,9 +1222,14 @@ void vdiff_page(void){
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
-  if( zBranch && zBranch[0] ){
-    cgi_replace_parameter("from", mprintf("root:%s", zBranch));
+  if( zBranch && zBranch[0]==0 ) zBranch = 0;
+  if( zBranch ){
+    zQuery = mprintf("branch=%T", zBranch);
+    zMergeOrigin = mprintf("merge-in:%s", zBranch);
+    cgi_replace_parameter("from", zMergeOrigin);
     cgi_replace_parameter("to", zBranch);
+  }else{
+    zQuery = mprintf("from=%T&to=%T",PD("from",""),PD("to",""));
   }
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
@@ -1219,43 +1243,68 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  if( zBranch==0 ){
+    style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  }
   if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?from=%T&to=%T&diff=0%s%T%s",
-                          zFrom, zTo,
+    style_submenu_element("Hide Diff", "%R/vdiff?%s&diff=0%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( diffType!=2 ){
     style_submenu_element("Side-by-Side Diff",
-                          "%R/vdiff?from=%T&to=%T&diff=2%s%T%s",
-                          zFrom, zTo,
+                          "%R/vdiff?%s&diff=2%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( diffType!=1 ) {
     style_submenu_element("Unified Diff",
-                          "%R/vdiff?from=%T&to=%T&diff=1%s%T%s",
-                          zFrom, zTo,
+                          "%R/vdiff?%s&diff=1%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  style_submenu_element("Invert",
-                        "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
-                        zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+  if( zBranch==0 ){
+    style_submenu_element("Invert",
+                          "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+  }
   if( zGlob ){
     style_submenu_element("Clear glob",
-                          "%R/vdiff?from=%T&to=%T&%s", zFrom, zTo, zW);
+                          "%R/vdiff?%s&%s", zQuery, zW);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
   if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   }
-  style_header("Check-in Differences");
+  if( zBranch ){
+    style_header("Changes On Branch %h", zBranch);
+  }else{
+    style_header("Check-in Differences");
+  }
   if( P("nohdr")==0 ){
-    @ <h2>Difference From:</h2><blockquote>
-    checkin_description(ridFrom);
-    @ </blockquote><h2>To:</h2><blockquote>
-    checkin_description(ridTo);
-    @ </blockquote>
+    if( zBranch ){
+      char *zRealBranch = branch_of_rid(ridTo);
+      char *zToUuid = rid_to_uuid(ridTo);
+      char *zFromUuid = rid_to_uuid(ridFrom);
+      @ <h2>Changes In Branch \
+      @ %z(href("%R/timeline?r=%T",zRealBranch))%h(zRealBranch)</a>
+      if( ridTo != symbolic_name_to_rid(zRealBranch,"ci") ){
+        @ Through %z(href("%R/info/%!S",zToUuid))[%S(zToUuid)]</a>
+      }
+      @ Excluding Merge-Ins</h2>
+      @ <p>This is equivalent to a diff from
+      @ <span class='timelineSelected'>\
+      @ %z(href("%R/info/%!S",zFromUuid))%S(zFromUuid)</a></span>
+      @ to <span class='timelineSelected timelineSecondary'>\
+      @ %z(href("%R/info/%!S",zToUuid))%S(zToUuid)</a></span></p>
+    }else{
+      @ <h2>Difference From <span class='timelineSelected'>\
+      @ %z(href("%R/info/%h",zFrom))%h(zFrom)</a></span>
+      @ To <span class='timelineSelected timelineSecondary'>\
+      @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
+    }
+    render_checkin_context(ridFrom, ridTo, 0);
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
@@ -1265,6 +1314,7 @@ void vdiff_page(void){
     }
     @<hr /><p>
   }
+  fossil_free(zQuery);
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);

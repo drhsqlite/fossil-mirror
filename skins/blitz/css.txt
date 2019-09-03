@@ -1062,11 +1062,14 @@ tr.timelineCurrent {
   border-right: 1px solid #ddd;
 }
 
-tr.timelineSelected {
+.timelineSelected {
   border-left: 2px solid orange;
   background-color: #ffffe8;
   border-bottom: 1px solid #ddd;
   border-right: 1px solid #ddd;
+}
+.timelineSecondary {
+  background-color: #e8ffff;
 }
 
 tr.timelineCurrent td.timelineTableCell {

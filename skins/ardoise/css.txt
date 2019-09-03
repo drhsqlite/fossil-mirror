@@ -950,6 +950,34 @@ table.timelineTable {
   text-align: left;
   background: #442800
 }
+span.timelineSelected {
+  border-radius: 5px;
+  border: solid #ff8000;
+  vertical-align: top;
+  text-align: left;
+  background: #442800
+}
+.timelineSelected {}
+.timelineSecondary {}
+.timelineSecondary > .timelineColumnarCell,
+.timelineSecondary > .timelineCompactCell,
+.timelineSecondary > .timelineDetailCell,
+.timelineSecondary > .timelineModernCell,
+.timelineSecondary > .timelineVerboseCell {
+  padding: .75em;
+  border-radius: 5px;
+  border: solid #0080ff;
+  vertical-align: top;
+  text-align: left;
+  background: #002844
+}
+span.timelineSecondary {
+  border-radius: 5px;
+  border: solid #0080ff;
+  vertical-align: top;
+  text-align: left;
+  background: #002844
+}
 .timelineCurrent > .timelineColumnarCell,
 .timelineCurrent > .timelineCompactCell,
 .timelineCurrent > .timelineDetailCell,
