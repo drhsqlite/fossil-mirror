@@ -1,5 +1,5 @@
-C Added\sa\snew\ssection\sto\swww/defcsp.md,\s"Serving\sFiles\sWithin\sthe\sLimits".\nIt\spulls\stogether\sa\sbit\sof\sinfo\salready\sin\sthe\sdocument\son\sthe\stopic\sand\nthen\sexpands\sit\sconsiderably.\s\sThe\soverall\smessage\sis,\s"You\sprobably\ndon't\shave\sto\soverride\sthe\sdefault\sCSP."
-D 2019-09-02T23:26:52.387
+C Adds\s'js'\sto\sCONFIGSET_SKIN\sso\sthat\sskin\sjavascript\sis\sincluded\sin\sexports,\ssyncs,\setc.\s\sWorks\sokay\soutside\sof\scheckouts\sin\smy\stesting,\sbut\scauses\san\s'Unresolved\sRID\svalues:\s0'\serror\sin\sopen\scheckouts.
+D 2019-09-03T17:17:42.767
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -452,7 +452,7 @@ F src/clone.c 4f3742a1851108b9c2de6513fc8b4a79bd1555f6e954eb8935829ae0126e1945
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
-F src/configure.c 18483c33db6fab7d58ccbea5a3faf0b8ea7b6c03e028db6a380bd1b8710861e3
+F src/configure.c fbcefee6b1a63fa86b0a80b2b6bd5ccc8199d21cda1bfef57ef7da203fd43e6d
 F src/content.c d49bd600d03d5de748c07e1ca0fdaf66b5c890410d61a541d397d4cb1b0ed13c
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
@@ -912,7 +912,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ab2b8de8962831ef515f3ef4a0708eaa531d71935bbe17d48ecadaf0b55ffc43
-R ef351a6ab81d9ae4d421fdfb829a9fe2
-U wyoung
-Z 57e1d7d0c6a59feb9de05526256ce8a1
+P 58883ecceaf8cfe38a442b48f886849016343e942898b8c85744adb5c20c0363
+R f22994f59cd978bea85aa783849cb294
+T *branch * js-skin-export
+T *sym-js-skin-export *
+T -sym-trunk *
+U ckennedy
+Z 512479ae090150cb7654b5855bc25659
