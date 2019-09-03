@@ -109,7 +109,7 @@ void moderation_disapprove(int objid){
   int attachRid = 0;
   int rid;
   if( !moderation_pending(objid) ) return;
-  db_begin_write();
+  db_begin_transaction();
   rid = objid;
   while( rid && content_is_private(rid) ){
     db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
@@ -151,7 +151,7 @@ void moderation_disapprove(int objid){
 */
 void moderation_approve(int rid){
   if( !moderation_pending(rid) ) return;
-  db_begin_write();
+  db_begin_transaction();
   db_multi_exec(
     "DELETE FROM private WHERE rid=%d;"
     "INSERT OR IGNORE INTO unclustered VALUES(%d);"

@@ -1883,7 +1883,7 @@ void fts_config_cmd(void){
     if( g.argc<3 ) usage("index (on|off)");
     iAction = 1 + is_truth(g.argv[3]);
   }
-  db_begin_write();
+  db_begin_transaction();
 
   /* Adjust search settings */
   if( iCmd==3 || iCmd==4 ){

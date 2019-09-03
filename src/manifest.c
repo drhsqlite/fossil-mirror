@@ -1808,7 +1808,7 @@ reparent_abort:
 void manifest_crosslink_begin(void){
   assert( manifest_crosslink_busy==0 );
   manifest_crosslink_busy = 1;
-  db_begin_write();
+  db_begin_transaction();
   db_multi_exec(
      "CREATE TEMP TABLE pending_tkt(uuid TEXT UNIQUE);"
      "CREATE TEMP TABLE time_fudge("
@@ -2101,7 +2101,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     }
     return 0;
   }
-  db_begin_write();
+  db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
     if( permitHooks ){
       zScript = xfer_commit_code();

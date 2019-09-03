@@ -2237,7 +2237,7 @@ static void annotate_file(
     iLimit = 0;
     mxTime = current_time_in_milliseconds()+1000;
   }
-  db_begin_write();
+  db_begin_transaction();
 
   /* Get the artifact ID for the check-in begin analyzed */
   if( zRevision ){

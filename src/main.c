@@ -2208,7 +2208,7 @@ static void find_server_repository(int arg, int fCreate){
         const char *zPassword;
         db_create_repository(zRepo);
         db_open_repository(zRepo);
-        db_begin_write();
+        db_begin_transaction();
         g.eHashPolicy = HPOLICY_SHA3;
         db_set_int("hash-policy", HPOLICY_SHA3, 0);
         db_initial_setup(0, "now", g.zLogin);

@@ -105,7 +105,7 @@ int purge_artifact_list(
   char *z;
 
   assert( g.repositoryOpen );   /* Main database must already be open */
-  db_begin_write();
+  db_begin_transaction();
   z = sqlite3_mprintf("IN \"%w\"", zTab);
   describe_artifacts(z);
   sqlite3_free(z);
@@ -262,7 +262,7 @@ int purge_baseline_out_from_under_delta(const char *zTab){
 ** function.
 */
 void find_checkin_associates(const char *zTab, int bExclusive){
-  db_begin_write();
+  db_begin_transaction();
 
   /* Compute the set of files that need to be added to zTab */
   db_multi_exec("CREATE TEMP TABLE \"%w_files\"(fid INTEGER PRIMARY KEY)",zTab);
@@ -537,7 +537,7 @@ void purge_cmd(void){
   }
   if( strncmp(zSubcmd, "artifacts", n)==0 ){
     verify_all_options();
-    db_begin_write();
+    db_begin_transaction();
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     for(i=3; i<g.argc; i++){
       int r = name_to_typed_rid(g.argv[i], "");
@@ -564,7 +564,7 @@ void purge_cmd(void){
       purgeFlags |= PURGE_EXPLAIN_ONLY;
     }
     verify_all_options();
-    db_begin_write();
+    db_begin_transaction();
     if( g.argc<=3 ) usage("checkins TAGS... [OPTIONS]");
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     for(i=3; i<g.argc; i++){
@@ -580,7 +580,7 @@ void purge_cmd(void){
     db_end_transaction(0);
   }else if( strncmp(zSubcmd, "files", n)==0 ){
     verify_all_options();
-    db_begin_write();
+    db_begin_transaction();
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     for(i=3; i<g.argc; i++){
       db_multi_exec(
@@ -620,7 +620,7 @@ void purge_cmd(void){
         fossil_exit(1);
       }
     }
-    db_begin_write();
+    db_begin_transaction();
     for(i=3; i<g.argc; i++){
       int peid = atoi(g.argv[i]);
       if( !db_exists("SELECT 1 FROM purgeevent WHERE peid=%d",peid) ){
@@ -640,7 +640,7 @@ void purge_cmd(void){
     if( g.argc!=4 ) usage("undo ID");
     peid = atoi(g.argv[3]);
     if( (purgeFlags & PURGE_EXPLAIN_ONLY)==0 ){
-      db_begin_write();
+      db_begin_transaction();
       db_multi_exec(
         "CREATE TEMP TABLE ix("
         "  piid INTEGER PRIMARY KEY,"

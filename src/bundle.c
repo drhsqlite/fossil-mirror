@@ -160,7 +160,7 @@ static void bundle_append_cmd(void){
   db_prepare(&q,
     "INSERT INTO bblob(blobid, uuid, sz, delta, data, notes) "
     "VALUES(NULL, $uuid, $sz, NULL, $data, $filename)");
-  db_begin_write();
+  db_begin_transaction();
   for(i=4; i<g.argc; i++){
     int sz;
     blob_read_from_file(&content, g.argv[i], ExtFILE);
@@ -305,7 +305,7 @@ static void bundle_export_cmd(void){
   if( g.argc!=4 ) usage("export BUNDLE ?OPTIONS?");
   /* Create the new bundle */
   bundle_attach_file(g.argv[3], "b1", 1);
-  db_begin_write();
+  db_begin_transaction();
 
   /* Add 'mtime' and 'project-code' entries to the bconfig table */
   db_multi_exec(
@@ -601,7 +601,7 @@ static void bundle_import_cmd(void){
                  zMissingDeltas);
   }
 
-  db_begin_write();
+  db_begin_transaction();
   db_multi_exec(
     "CREATE TEMP TABLE bix("
     "  blobid INTEGER PRIMARY KEY,"
@@ -641,7 +641,7 @@ static void bundle_purge_cmd(void){
   verify_all_options();
   if ( g.argc!=4 ) usage("purge BUNDLE ?OPTIONS?");
   bundle_attach_file(zFile, "b1", 0);
-  db_begin_write();
+  db_begin_transaction();
 
   /* Find all check-ins of the bundle */
   db_multi_exec(

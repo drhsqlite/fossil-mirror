@@ -398,7 +398,7 @@ void merge_cmd(void){
     print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, CKSIG_ENOTFILE);
-  db_begin_write();
+  db_begin_transaction();
   if( !dryRunFlag ) undo_begin();
   if( load_vfile_from_rid(mid) && !forceMissingFlag ){
     fossil_fatal("missing content, unable to merge");

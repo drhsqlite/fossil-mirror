@@ -515,7 +515,7 @@ int content_put_ex(
   assert( g.repositoryOpen );
   assert( pBlob!=0 );
   assert( srcId==0 || zUuid!=0 );
-  db_begin_write();
+  db_begin_transaction();
   if( zUuid==0 ){
     assert( nBlob==0 );
     /* First check the auxiliary hash to see if there is already an artifact
@@ -661,7 +661,7 @@ int content_new(const char *zUuid, int isPrivate){
   static Stmt s1, s2, s3;
 
   assert( g.repositoryOpen );
-  db_begin_write();
+  db_begin_transaction();
   if( uuid_is_shunned(zUuid) ){
     db_end_transaction(0);
     return 0;
@@ -872,7 +872,7 @@ int content_deltify(int rid, int *aSrc, int nSrc, int force){
     db_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=%d", rid);
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, bestSrc);
     db_bind_blob(&s1, ":data", &bestDelta);
-    db_begin_write();
+    db_begin_transaction();
     db_exec(&s1);
     db_exec(&s2);
     db_end_transaction(0);
@@ -1235,7 +1235,7 @@ void test_content_erase(void){
   blob_reset(&x);
   if( c!='y' && c!='Y' ) return;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-  db_begin_write();
+  db_begin_transaction();
   db_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
   for(i=2; i<g.argc; i++){
     int rid = atoi(g.argv[i]);

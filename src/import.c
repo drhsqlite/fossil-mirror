@@ -1756,7 +1756,7 @@ void import_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config(0, 0);
 
-  db_begin_write();
+  db_begin_transaction();
   if( !incrFlag ){
     db_initial_setup(0, 0, 0);
     db_set("main-branch", gimport.zTrunkName, 0);
@@ -1902,7 +1902,7 @@ void import_cmd(void){
   if( omitRebuild ){
     omitVacuum = 1;
   }else{
-    db_begin_write();
+    db_begin_transaction();
     fossil_print("Rebuilding repository meta-data...\n");
     rebuild_db(0, 1, !incrFlag);
     verify_cancel();
