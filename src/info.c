@@ -2340,10 +2340,20 @@ void artifact_page(void){
       zMime = mimetype_from_content(&content);
       @ <blockquote>
       if( zMime==0 ){
-        const char *z;
+        const char *z, *zFileName, *zExt;
         z = blob_str(&content);
+        zFileName = db_text(0,
+         "SELECT name FROM mlink, filename"
+         " WHERE filename.fnid=mlink.fnid"
+         "   AND mlink.fid=%d",
+         rid);
+        zExt = zFileName ? strrchr(zFileName, '.') : 0;
         if( zLn ){
           output_text_with_line_numbers(z, zLn);
+        }else if( zExt && zExt[1] ){
+          @ <pre>
+          @ <code class="language-%s(zExt+1)">%h(z)</code>
+          @ </pre>
         }else{
           @ <pre>
           @ %h(z)
