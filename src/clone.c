@@ -179,7 +179,7 @@ void clone_cmd(void){
     db_create_repository(g.argv[3]);
     db_open_repository(g.argv[3]);
     db_open_config(0,0);
-    db_begin_transaction();
+    db_begin_write();
     db_record_repository_filename(g.argv[3]);
     db_initial_setup(0, 0, zDefaultUser);
     user_select();
@@ -217,7 +217,7 @@ void clone_cmd(void){
     }
     db_open_repository(g.argv[3]);
   }
-  db_begin_transaction();
+  db_begin_write();
   fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
   if( !noCompress ){

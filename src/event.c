@@ -257,7 +257,7 @@ int event_commit_common(
   int nrid, n;
 
   blob_init(&event, 0, 0);
-  db_begin_transaction();
+  db_begin_write();
   while( fossil_isspace(zComment[0]) ) zComment++;
   n = strlen(zComment);
   while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }

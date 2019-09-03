@@ -781,7 +781,7 @@ void configuration_cmd(void){
     int groupMask;
     if( g.argc!=4 ) usage(mprintf("%s FILENAME",zMethod));
     blob_read_from_file(&in, g.argv[3], ExtFILE);
-    db_begin_transaction();
+    db_begin_write();
     if( zMethod[0]=='i' ){
       groupMask = CONFIGSET_ALL | CONFIGSET_OVERWRITE;
     }else{
@@ -829,7 +829,7 @@ void configuration_cmd(void){
     mask = configure_name_to_mask(g.argv[3], 1);
     zBackup = db_text(0,
        "SELECT strftime('config-backup-%%Y%%m%%d%%H%%M%%f','now')");
-    db_begin_transaction();
+    db_begin_write();
     export_config(mask, g.argv[3], 0, zBackup);
     for(i=0; i<count(aConfig); i++){
       const char *zName = aConfig[i].zName;

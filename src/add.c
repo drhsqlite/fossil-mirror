@@ -308,7 +308,7 @@ void add_cmd(void){
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
-  db_begin_transaction();
+  db_begin_write();
   db_multi_exec("CREATE TEMP TABLE sfile(pathname TEXT PRIMARY KEY %s)",
                 filename_collation());
   pClean = glob_create(zCleanFlag);
@@ -462,7 +462,7 @@ void delete_cmd(void){
   verify_all_options();
 
   db_must_be_within_tree();
-  db_begin_transaction();
+  db_begin_write();
   if( g.argv[1][0]=='f' ){ /* i.e. "forget" */
     removeFiles = 0;
   }else if( softFlag ){
@@ -664,7 +664,7 @@ void addremove_cmd(void){
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
   vid = db_lget_int("checkout",0);
-  db_begin_transaction();
+  db_begin_write();
 
   /* step 1:
   ** Populate the temp table "sfile" with the names of all unmanaged
@@ -883,7 +883,7 @@ void mv_cmd(void){
     usage("OLDNAME NEWNAME");
   }
   zDest = g.argv[g.argc-1];
-  db_begin_transaction();
+  db_begin_write();
   if( g.argv[1][0]=='r' ){ /* i.e. "rename" */
     moveFiles = 0;
   }else if( softFlag ){

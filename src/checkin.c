@@ -2253,7 +2253,7 @@ void commit_cmd(void){
   }
 
   hasChanges = unsaved_changes(useHash ? CKSIG_HASH : 0);
-  db_begin_transaction();
+  db_begin_write();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){
     fossil_fatal("nothing has changed; use --allow-empty to override");
@@ -2354,7 +2354,7 @@ void commit_cmd(void){
   }else{
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
     db_end_transaction(0);
-    db_begin_transaction();
+    db_begin_write();
   }
 
   /*

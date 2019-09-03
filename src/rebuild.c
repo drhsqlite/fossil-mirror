@@ -43,7 +43,7 @@ static void rebuild_update_schema(void){
   ** 2015-01-24 or later schema.
   */
   if( !db_table_has_column("repository","mlink","isaux") ){
-    db_begin_transaction();
+    db_begin_write();
     db_multi_exec(
       "ALTER TABLE repository.mlink ADD COLUMN pmid INTEGER DEFAULT 0;"
       "ALTER TABLE repository.mlink ADD COLUMN isaux BOOLEAN DEFAULT 0;"
@@ -488,7 +488,7 @@ void extra_deltification(void){
   int nPrev;
   int rid;
   int prevfnid, fnid;
-  db_begin_transaction();
+  db_begin_write();
 
   /* Look for manifests that have not been deltaed and try to make them
   ** children of one of the 5 chronologically subsequent check-ins
@@ -663,7 +663,7 @@ void rebuild_database(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  db_begin_transaction();
+  db_begin_write();
   if( !compressOnlyFlag ){
     search_drop_index();
     ttyOutput = 1;
@@ -751,7 +751,7 @@ void rebuild_database(void){
 */
 void test_detach_cmd(void){
   db_find_and_open_repository(0, 2);
-  db_begin_transaction();
+  db_begin_write();
   db_multi_exec(
     "DELETE FROM config WHERE name='last-sync-url';"
     "UPDATE config SET value=lower(hex(randomblob(20)))"
@@ -779,7 +779,7 @@ void test_createcluster_cmd(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
   }
-  db_begin_transaction();
+  db_begin_write();
   create_cluster();
   db_end_transaction(0);
 }
@@ -900,7 +900,7 @@ void scrub_cmd(void){
       fossil_exit(1);
     }
   }
-  db_begin_transaction();
+  db_begin_write();
   if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
     delete_private_content();
@@ -1169,7 +1169,7 @@ void reconstruct_cmd(void) {
   verify_all_options();
 
   db_open_config(0, 0);
-  db_begin_transaction();
+  db_begin_write();
   db_initial_setup(0, 0, 0);
 
   fossil_print("Reading files from directory \"%s\"...\n", g.argv[3]);

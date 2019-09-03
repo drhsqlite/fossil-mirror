@@ -1169,7 +1169,7 @@ void page_xfer(void){
   xfer.maxTime += time(NULL);
   g.xferPanic = 1;
 
-  db_begin_transaction();
+  db_begin_write();
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
@@ -1890,7 +1890,7 @@ int client_sync(
   while( go ){
     int newPhantom = 0;
     char *zRandomness;
-    db_begin_transaction();
+    db_begin_write();
     db_record_repository_filename(0);
     db_multi_exec(
       "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"

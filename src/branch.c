@@ -97,7 +97,7 @@ void branch_new(void){
   }
 
   user_select();
-  db_begin_transaction();
+  db_begin_write();
   rootid = name_to_typed_rid(g.argv[4], "ci");
   if( rootid==0 ){
     fossil_fatal("unable to locate check-in off of which to branch");

@@ -465,7 +465,7 @@ void setup_skin_admin(void){
     login_needed(0);
     return;
   }
-  db_begin_transaction();
+  db_begin_write();
   zCurrent = getSkin(0);
   for(i=0; i<count(aBuiltinSkin); i++){
     aBuiltinSkin[i].zSQL = getSkin(aBuiltinSkin[i].zLabel);
@@ -766,7 +766,7 @@ void setup_skinedit(void){
     isRevert = 1;
   }
 
-  db_begin_transaction();
+  db_begin_write();
   style_header("%s", zTitle);
   for(j=0; j<count(aSkinAttr); j++){
     style_submenu_element(aSkinAttr[j].zSubmenu,

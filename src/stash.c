@@ -582,7 +582,7 @@ void stash_cmd(void){
   undo_capture_command_line();
   db_must_be_within_tree();
   db_open_config(0, 0);
-  db_begin_transaction();
+  db_begin_write();
   stash_tables_exist_and_current();
   if( g.argc<=2 ){
     zCmd = "save";

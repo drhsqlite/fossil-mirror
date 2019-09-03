@@ -83,7 +83,7 @@ int load_vfile_from_rid(int vid){
     return 0;
   }
 
-  db_begin_transaction();
+  db_begin_write();
   p = manifest_get(vid, CFTYPE_MANIFEST, 0);
   if( p==0 ) {
     db_end_transaction(1);
@@ -176,7 +176,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
   int useMtime = (cksigFlags & CKSIG_HASH)==0
                     && db_get_boolean("mtime-changes", 1);
 
-  db_begin_transaction();
+  db_begin_write();
   db_prepare(&q, "SELECT id, %Q || pathname,"
                  "       vfile.mrid, deleted, chnged, uuid, size, mtime,"
                  "      CASE WHEN isexe THEN %d WHEN islink THEN %d ELSE %d END"

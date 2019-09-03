@@ -412,7 +412,7 @@ void bisect_cmd(void){
     int ridGood = 0;
     int cnt = 0, i;
     foundCmd = 1;
-    db_begin_transaction();
+    db_begin_write();
     zLog = db_lget("bisect-log","");
     blob_init(&log, zLog, -1);
     while( blob_token(&log, &id) ){ cnt++; }
