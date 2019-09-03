@@ -194,6 +194,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   const char *zXTag;     /* zTag with optional [...] removed */
   int nXTag;             /* Size of zXTag */
   const char *zDate;     /* Expanded date-time string */
+  const char *zTagPrefix = "sym";
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -356,16 +357,20 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     if( rid ) return rid;
   }
 
+  if( zType[0]=='w' ){
+    zTagPrefix = "wiki";
+  }
   /* Symbolic name */
   rid = db_int(0,
     "SELECT event.objid, max(event.mtime)"
     "  FROM tag, tagxref, event"
-    " WHERE tag.tagname='sym-%q' "
+    " WHERE tag.tagname='%q-%q' "
     "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
     "   AND event.objid=tagxref.rid "
     "   AND event.type GLOB '%q'",
-    zTag, zType
+    zTagPrefix, zTag, zType
   );
+
   if( rid>0 ){
     if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;

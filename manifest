@@ -1,5 +1,5 @@
-C Make\scalls\sto\sdb_begin_write()\sinstead\sof\sdb_begin_transaction()\swhere\nappropriate.
-D 2019-09-03T20:22:33.911
+C Wiki\stest\sfixes.
+D 2019-09-03T20:36:12.638
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -536,7 +536,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c 697491167f586b818c60a785a01f701d4fbe3ba0e254b038db4f7527ab7d0210
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 543b1c45c307e078ad2b57ce838e0bdb9f185c4c85499cf6c6af6c2258a5b7d8
-F src/name.c bce5ab30c6f0a3d9da753b46badc2cbc0366dfc1c540bd7031788ec79a4bcfc2
+F src/name.c cc802dd97bb52e2197a56ca9d1ed2058da0cbb02da153b2b6353dd73b15188e1
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -644,7 +644,7 @@ F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
 F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
-F test/settings.test 1877083a0fecb044a698e8ca60d7f9ff2b4f4450
+F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
 F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
@@ -652,7 +652,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 8056f9b16bbfcdb24b6de2f2ebc146339eb1b6dbb0aa957950fb22eea31598f4
+F test/tester.tcl 0ad7359d4fee7a7a3cac19f869042c6bf4045c9474d9776cf2175ff8be8521fa
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -676,7 +676,7 @@ F test/utf.test e2489218e27ea0c643185707e2a4fd33db59f13b
 F test/utf16be.txt 53a0f53370156db87378709ca00deeb560681ec1
 F test/utf16le.txt ffa2c69c1239ec3ea46ef5abc04210171ed88719
 F test/valgrind-www.tcl b298cdae985190042a1cf83782af99ec28875b03
-F test/wiki.test b56d0e136bff056946b98cbff333036fb5c68778
+F test/wiki.test 4fc2527dc5e90bcacc1fd0b82dceb8f933b135a87af4713f0f2f277ad431985f
 F tools/cvs2fossil/changeset 1c99ad8ca9b2f049266d63e0bcc5f26196c72627
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -912,8 +912,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 498fc87ac16971723fe9c19b449d29e31718b0f79b8a20afc37f6c54b9874fe9 aa376391121a53c90627a7fecc8de47d4cb7cd55cb4a39e25a7cb09d23f8ecb8
-R de3ffe2e1198e592af3962782df15a72
-T +closed aa376391121a53c90627a7fecc8de47d4cb7cd55cb4a39e25a7cb09d23f8ecb8
+P 3ad81c3c499599b47f6027414aa636779a79ebbc9b14bd91932477b0b6afacac 08291fec9f6f215bee8acbbbf5a7c8e4b5ee49a98ed493dcb0809ceb49a76f8b
+R 7b7d2d9fb8ab8a7db84e143a73a05478
+T +closed 08291fec9f6f215bee8acbbbf5a7c8e4b5ee49a98ed493dcb0809ceb49a76f8b
 U drh
-Z acc41bba12f74a11a8d550b9287aed6b
+Z b57001710c37ef9d7032298a625a087b
