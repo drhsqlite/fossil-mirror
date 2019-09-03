@@ -271,7 +271,7 @@ void render_checkin_context(int rid, int rid2, int parentsOnly){
   );
   for(i=0; i<n; i++){
     db_multi_exec(
-      "INSERT INTO ok VALUES(%d);"
+      "INSERT OR IGNORE INTO ok VALUES(%d);"
       "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
       rx[i], rx[i]
     );

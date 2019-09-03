@@ -1,5 +1,5 @@
-C Add\shyperlinks\sto\sthe\sbranch\sdiff\spage\sfrom\sbranch\stimeline\sand\sfrom\n/info.
-D 2019-08-27T12:36:27.838
+C Fix\sa\spossible\sUNIQUE\sconstraint\sviolation\sin\sthe\snew\s/vdiff\slogic.
+D 2019-09-03T20:08:24.028
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,7 +493,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c a7fa1a7a79f5f8bc450a9c0727b30cbe2382dc6471e0d3d0089e78e5edb64780
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c 4804ce30da7b96345dc5a6ec1e98e33366a9ecbbc97fa8260e0561fde92af0fc
+F src/info.c e80f694fc2b538687e55318bd93f36ad178c5fc272aa5ccc4bd703cb1fdace3b
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -912,7 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69adb45da0b8fc3b937524efcf13e88c44dd019ecfffab5dd886b76d8da1d5d5
-R 4371a21e53b442d6e5cd3ec61ae4e6a0
+P 833b220adc20fe57dd301adca264c7bb21d5b44f5b17c79540dc2bdab6011c67
+R c4b1e38aa6e8d9b063fd78ef0393f9af
 U drh
-Z e7937dacba4138e591d69586cb328ea5
+Z 77a6f684ef45e55a209a20d380ef76b5
