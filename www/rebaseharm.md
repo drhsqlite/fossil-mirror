@@ -140,7 +140,7 @@ one another.  Similar finds arise in other disciplines.  Keeping
 private branches is a key symptom of siloing.
 
 [Weinberg][weinberg] argues programming should be "egoless".  That
-is to say, programmers should linking their code with their sense of
+is to say, programmers should avoid linking their code with their sense of
 self, as they makes it more difficult for them to find and respond
 to bugs, and hence makes them less productive.  Many developers are
 drawn to private branches out of sense of ego.  "I want to get the
