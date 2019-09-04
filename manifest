@@ -1,5 +1,5 @@
-C Merged\scaps-doc\sbranch\sdown\sto\strunk,\simproving\sdocumentation\sof\suser\ncapabilities\sin\sFossil.
-D 2019-09-04T00:58:38.587
+C Update\sthe\s'branch\snew'\scommand\sto\strack\sthe\sstatus\sof\sprivate\sbranches\sin\sthe\sPRIVATE\stable,\sinstead\sof\susing\s+private\stags.
+D 2019-09-04T08:32:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -436,7 +436,7 @@ F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63dd
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
-F src/branch.c fac4e85cf17517f18f6f9466160e0b74e51c82b7f4f6f2da3a0486a92181aba2
+F src/branch.c 7ba95769c47ae3d247d7081fd7d5c080944a965770cf0e4f1519d2c411eecd53
 F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -496,7 +496,7 @@ F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
 F src/info.c cd9c8eee15f46bf6cbd9a0e8d5b14d2629a655e8586ac37bf583caebf5fe2e44
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
-F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
+F src/json_branch.c 9cb17597003f2f77b0706a7f28f0c32c01f50f465b475faa0019721c485714b3
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
@@ -785,7 +785,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/caps/admin-v-setup.md a931f0f8554dacd8336484be47ece923b49689061bb564a2a0c20fac98ce1a3a w www/admin-v-setup.md
+F www/caps/admin-v-setup.md a931f0f8554dacd8336484be47ece923b49689061bb564a2a0c20fac98ce1a3a
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -916,8 +916,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5561039e1fffe351964e14da756996671f2ff41573fd767ac69b285cac7695b ca4085c2917bae7be094dd8499d605d1d1466a4907edf602d298750305d72d78
-R 19c6a6edf4bdd55041c92963f94ea461
-T +closed ca4085c2917bae7be094dd8499d605d1d1466a4907edf602d298750305d72d78
-U wyoung
-Z fcc7b2903ced17ce5d3b0699f5f8c7b4
+P 779ddefa190931fd55d5df2d2467632aa0df69bef74294e9b322e1c950f98c45
+R 1edc6f21d2687135fe6fde62af90d73d
+T *branch * private-branches
+T *sym-private-branches *
+T -sym-trunk *
+U florian
+Z 1a87ebe7dba178304df7a699c1381036

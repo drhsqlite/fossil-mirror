@@ -146,7 +146,6 @@ void branch_new(void){
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
   if( isPrivate ){
-    blob_appendf(&branch, "T +private *\n");
     noSign = 1;
   }
 
