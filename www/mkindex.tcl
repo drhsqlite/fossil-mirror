@@ -11,7 +11,6 @@ set doclist {
   aboutdownload.wiki {How The Download Page Works}
   adding_code.wiki {Adding New Features To Fossil}
   adding_code.wiki {Hacking Fossil}
-  admin-v-setup.md {The Differences Between the Setup and Admin User Capabilities}
   alerts.md {Email Alerts And Notifications}
   antibot.wiki {Defense against Spiders and Bots}
   backoffice.md {The "Backoffice" mechanism of Fossil}
@@ -20,6 +19,10 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   bugtheory.wiki {Bug Tracking In Fossil}
   build.wiki {Compiling and Installing Fossil}
+  caps/ {Administering User Capabilities}
+  caps/admin-v-setup.md {Differences Between Setup and Admin Users}
+  caps/login-groups.md {Differences Between Setup and Admin Users}
+  caps/ref.html {User Capability Reference}
   cgi.wiki {CGI Script Configuration Options}
   changes.wiki {Fossil Changelog}
   checkin_names.wiki {Check-in And Version Names}

@@ -67,8 +67,7 @@ an integrated [./wikitheory.wiki | wiki],
 [./event.wiki | technical notes], and a [./forum.wiki | web forum],
 all within a single nicely-designed [./customskin.md|skinnable] web
 [/help?cmd=ui|UI],
-protected by a fine-grained
-[https://en.wikipedia.org/wiki/Role-based_access_control|role-based
+protected by [./caps/ | a fine-grained role-based
 access control system].
 These additional capabilities are available for Git as 3rd-party
 add-ons, but with Fossil they are integrated into
@@ -327,9 +326,9 @@ development model:
     and lieutenants]" hierarchy as with Linux kernel contributions.  D.
     Richard Hipp rarely overrides decisions made by those he has trusted
     with commit access on his repositories. Fossil allows you to give
-    [/doc/trunk/www/admin-v-setup.md|some users] more power over what
-    they can do with the repository, but Fossil does not otherwise
-    directly support the enforcement of a development organization's
+    [./caps/admin-v-setup.md|some users] more power over what
+    they can do with the repository, but Fossil [./caps/index.md#ucap |
+    only loosely supports] the enforcement of a development organization's
     social and power hierarchies. Fossil is a great fit for
     [https://en.wikipedia.org/wiki/Flat_organization|flat
     organizations].</p></li>

@@ -32,7 +32,7 @@ Much of this document describes how to set up Fossil's email alert
 system. To follow this guide, you will need a Fossil UI browser window
 open to the [Admin → Notification](/setup_notification) Fossil UI screen
 on the Fossil server that will be sending these email alerts, logged
-in as a user with Admin capability. It is not possible to work on a
+in as a user with [**Admin** capability](./caps/ref.html#a). It is not possible to work on a
 clone of the server's repository and push the configuration changes up
 to that repo as an Admin user, [on purpose](#backup).
 
@@ -162,7 +162,8 @@ If you are seeing the following complaint from Fossil:
   /subscribe
 </blockquote>
 
-...then the repository's administrator forgot to [give the Alerts capability](#cap7)
+...then the repository's administrator forgot to give the
+[**EmailAlert** capability][cap7]
 to that user or to a user category that the user is a member of.
 
 After a subscriber signs up for alerts for the first time, a single
@@ -190,6 +191,8 @@ default skin, you can get there by clicking the "Logout" link in the
 upper right corner of any Fossil UI page then clicking the "Email
 Alerts" link.  That link is also available via the Sitemap (`/sitemap`)
 and via the default skin's hamburger menu (&#9776;).
+
+[cap7]: ./caps/ref.html#7
 
 
 <a id="unsub" name="unsubscribe"></a>
@@ -225,20 +228,23 @@ Checklist][cl], right? Right.
 [cl]: https://sendgrid.com/blog/programming-style-guide-checklist/
 
 
-<a id="cap7"></a>
+<a id="cap7" name="ucap"></a>
 ### User Capabilities
 
-Once email alerts are working, one must also adjust user permissions to
-allow users to subscribe to email alerts.  In the capability list for
-each user on the Admin → Users page is a new capability called "Email
-Alerts".  The corresponding capability letter is "7", which you must
-give to any user that needs to use the subscription setup pages,
-`/subscribe` and `/alerts`.
+Once email alerts are working, you may need to [adjust the default user
+capabilities](./caps/) to give "[Email Alerts][cap7]" capability to any
+[user category](./caps/#ucat) or [individual user](./caps/#ucap) that
+needs to use the subscription setup pages, `/subscribe` and `/alerts`.
+[**Admin**][capa] and [**Setup**][caps] users always have this
+capability.
 
 To allow any passer-by on the Internet to subscribe, give the "Email
 Alerts" capability to the "nobody" user category.  To require that a
 person solve a simple CAPTCHA first, give that capability to the
 "anonymous" user category instead.
+
+[capa]: ./caps/ref.html#a
+[caps]: ./caps/ref.html#s
 
 
 <a id="first" name="frist"></a>

@@ -299,7 +299,7 @@ static struct Caps {
   { '5', CAPCLASS_FORUM|CAPCLASS_SUPER, 0,
     "Forum-Mod", "Moderator for forum messages" },
   { '6', CAPCLASS_FORUM|CAPCLASS_SUPER, 0,
-    "Forum-Admin", "Set or remove capability '4' from other users" },
+    "Forum-Admin", "Grant capability '4' to other users" },
   { '7', CAPCLASS_ALERT, 0,
     "Alerts", "Sign up for email alerts" },
   { 'A', CAPCLASS_ALERT|CAPCLASS_SUPER, 0,

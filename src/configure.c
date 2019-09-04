@@ -91,6 +91,7 @@ static struct {
   { "header",                 CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
   { "details",                CONFIGSET_SKIN },
+  { "js",                     CONFIGSET_SKIN },
   { "logo-mimetype",          CONFIGSET_SKIN },
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },

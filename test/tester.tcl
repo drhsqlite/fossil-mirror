@@ -274,10 +274,14 @@ proc get_all_settings {} {
       auto-shun \
       autosync \
       autosync-tries \
+      backoffice-disable \
+      backoffice-logfile \
+      backoffice-nodelay \
       binary-glob \
       case-sensitive \
       clean-glob \
       clearsign \
+      comment-format \
       crlf-glob \
       crnl-glob \
       default-perms \
@@ -286,6 +290,12 @@ proc get_all_settings {} {
       dont-push \
       dotfiles \
       editor \
+      email-self \
+      email-send-command \
+      email-send-db \
+      email-send-dir \
+      email-send-method \
+      email-send-relayhost \
       empty-dirs \
       encoding-glob \
       exec-rel-paths \
@@ -310,6 +320,7 @@ proc get_all_settings {} {
       ssh-command \
       ssl-ca-location \
       ssl-identity \
+      tclsh \
       th1-setup \
       th1-uri-regexp \
       uv-sync \
