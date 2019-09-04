@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sRebase\sdocument.
-D 2019-09-04T19:34:39.654
+C Setup\sand\sAdmin\susers\sshould\snot\sautomatically\shave\shave\sthe\sPrivate\scapability.\s\sThis\sreverses\sthe\sprincipal\schange\sfrom\scheck-in\s[b241130222].
+D 2019-09-04T19:56:16.988
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 889d6724939894d2825d5be2292f097caae7742ebe8019974abc102fc0e54c4d
+F src/login.c 4a67074250edddefd79ad543fdfdd0938127d58d0f165ce09c60dc41aabba2b4
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 4165634b6cad703ef1d1f1c3673b87474b710bca5687355f1ab7c025a386ca40
@@ -866,7 +866,7 @@ F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
 F www/permutedindex.html 7300dd3d933b5f0d22ba43b8efa7ef7c82938920eb18470d92ef97151f93ea0b
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
-F www/private.wiki 772286d0ae11f28282fb08b0fe136d9841e8f3863ff15dfda3908f1d8f17ed6b
+F www/private.wiki 950f1e45e79f57c278acc54b4d9130a7ba266797793ba78ac13038379f9df4bb
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki 1223942438dde4c54f052a2f555435e234f2dfdf76ecc216d3a09508722f288a
 F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c783
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a2ea815183932d79f33f8214dd4d13442169ab7710f0aee5c67628023deff9fa
-R 8ca2ce7654995afeb6844e26d018ffc5
-U drh
-Z a7e8b8f580a4622f2afde62a268fcb85
+P 18e58e29ccac8069b8b82158fafca6a3fa15c0578aa48aa0d1b30351fc9aad4e
+R dff2f4d31a0f28cd567163415558bc56
+U mistachkin
+Z 351747ac7edb5b635ca34aed57209b84
