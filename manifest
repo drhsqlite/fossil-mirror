@@ -1,5 +1,5 @@
-C Back\sout\scheck-in\s[3ad81c3c499599b4]\swhich\swas\scausing\ssync\sto\sfail.
-D 2019-09-03T21:22:12.161
+C Fixed\sdiscussion\sof\s"x"\scap\sin\swww/private.wiki\sto\smatch\sits\scurrent\nimplementation.
+D 2019-09-04T00:49:24.936
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -862,7 +862,7 @@ F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
 F www/permutedindex.html 15ecebaff27077e06d312cedbac7254a4777305a9f08646e4630e918e270723f
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
-F www/private.wiki e5109b9f545d4b1ded991057a7b2d80630f89712ef67a568e574b1809106f843
+F www/private.wiki 772286d0ae11f28282fb08b0fe136d9841e8f3863ff15dfda3908f1d8f17ed6b
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki 1223942438dde4c54f052a2f555435e234f2dfdf76ecc216d3a09508722f288a
 F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c783
@@ -912,8 +912,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b40f1ac135038a0b410d21a882aa1dd78fd831bd201fc38561b4c7cc5296c6ae
-Q -3ad81c3c499599b47f6027414aa636779a79ebbc9b14bd91932477b0b6afacac
-R a61fba808f7ca0d7e2e87c58b8da64dd
-U drh
-Z 666a20c11629b8260d5d10a857079100
+P e1962ef67f88fc0878755131c7a7b1936f87b3c94259261b71c5b8e3d03c4e78
+R ca6e40b4bb6ed157a1fc8b1f2db1476f
+U wyoung
+Z 341e5fbab0204fc311d6f4db461f3fd3
