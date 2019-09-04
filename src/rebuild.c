@@ -1137,6 +1137,56 @@ void test_hash_from_path_cmd(void) {
 #endif
 
 /*
+** Helper functions used by the `deconstruct' and `reconstruct' commands to
+** save and restore the contents of the PRIVATE table.
+*/
+void private_export(char *zFileName)
+{
+  Stmt q;
+  Blob fctx = empty_blob;
+  blob_append(&fctx, "# The UUIDs of private artifacts\n", -1);
+  db_prepare(&q,
+    "SELECT uuid FROM blob WHERE rid IN ( SELECT rid FROM private );");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    blob_append(&fctx, zUuid, -1);
+    blob_append(&fctx, "\n", -1);
+  }
+  db_finalize(&q);
+  blob_write_to_file(&fctx, zFileName);
+  blob_reset(&fctx);
+}
+int private_import(char *zFileName)
+{
+  if( file_size(zFileName, ExtFILE)>0 ){
+    Blob fctx;
+    if( blob_read_from_file(&fctx, zFileName, ExtFILE)!=-1 ){
+      Blob line, value;
+      while( blob_line(&fctx, &line)>0 ){
+        char *zUuid;
+        int nUuid;
+        if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+        if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+        blob_trim(&value);
+        zUuid = blob_buffer(&value);
+        nUuid = blob_size(&value);
+        zUuid[nUuid] = 0;
+        if( hname_validate(zUuid, nUuid)!=HNAME_ERROR ){
+          canonical16(zUuid, nUuid);
+          db_multi_exec(
+            "INSERT OR IGNORE INTO private"
+            " SELECT rid FROM blob WHERE uuid = %Q;",
+            zUuid);
+        }
+      }
+      blob_reset(&fctx);
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
 ** COMMAND: reconstruct*
 **
 ** Usage: %fossil reconstruct ?OPTIONS? FILENAME DIRECTORY
@@ -1154,7 +1204,9 @@ void test_hash_from_path_cmd(void) {
 */
 void reconstruct_cmd(void) {
   char *zPassword;
+  int fKeepPrivate;
   fKeepRid1 = find_option("keep-rid1","K",0)!=0;
+  fKeepPrivate = find_option("keep-private","P",0)!=0;
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -1177,7 +1229,17 @@ void reconstruct_cmd(void) {
   fossil_print("\nBuilding the Fossil repository...\n");
 
   rebuild_db(0, 1, 1);
+
+  /* Backwards compatibility: Mark check-ins with "+private" tags as private. */
   reconstruct_private_table();
+  /* Newer method: Import the list of private artifacts to the PRIVATE table. */
+  if( fKeepPrivate ){
+    char *zFnDotPrivate = mprintf("%s/.private", g.argv[3]);
+    if( private_import(zFnDotPrivate)==0 ){
+      fossil_warning("Warning: failure reading the list of private artifacts.");
+    }
+    free(zFnDotPrivate);
+  }
 
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
   ** will have been changed and verification therefore takes a really, really
@@ -1219,6 +1281,7 @@ void deconstruct_cmd(void){
   const char *zPrefixOpt;
   Stmt        s;
   int privateFlag;
+  int fKeepPrivate;
 
   fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   /* get and check prefix length argument and build format string */
@@ -1235,6 +1298,8 @@ void deconstruct_cmd(void){
   /* open repository and open query for all artifacts */
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   privateFlag = find_option("private",0,0)!=0;
+  fKeepPrivate = find_option("keep-private","P",0)!=0;
+  if( fKeepPrivate ) privateFlag = 1;
   verify_all_options();
   /* check number of arguments */
   if( g.argc!=3 ){
@@ -1302,6 +1367,14 @@ void deconstruct_cmd(void){
     }
   }
   db_finalize(&s);
+
+  /* Export the list of private artifacts. */
+  if( fKeepPrivate ){
+    char *zFnDotPrivate = mprintf("%s/.private", zDestDir);
+    private_export(zFnDotPrivate);
+    free(zFnDotPrivate);
+  }
+
   if(!g.fQuiet && ttyOutput ){
     fossil_print("\n");
   }
