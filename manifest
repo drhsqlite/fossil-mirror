@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.30.0\salpha,\sas\san\sSQLite\sbeta\stest.
-D 2019-09-04T15:41:19.990
+C Add\sinitial\sdraft\sof\sthe\s"Rebase\sConsidered\sHarmful"\sdocument.
+D 2019-09-04T19:04:57.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -870,6 +870,7 @@ F www/private.wiki 772286d0ae11f28282fb08b0fe136d9841e8f3863ff15dfda3908f1d8f17e
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki 1223942438dde4c54f052a2f555435e234f2dfdf76ecc216d3a09508722f288a
 F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c783
+F www/rebaseharm.md f0cc2af538a956e3b71145e7aa28bd666144ee0673bde8bd4f2cdcee97b609b1
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
@@ -916,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 779ddefa190931fd55d5df2d2467632aa0df69bef74294e9b322e1c950f98c45
-R 1175697bb457b488e0266ad47f082b99
+P f8823ae809f2fdc3a44407fbd6ea79ddb2aec88ae432fc8a7dfbcc65092ed6b7
+R bc93ef1a2ac6b779671e97edc696e373
 U drh
-Z 0f0e897e7fbc2c1909317f6b4f1463a9
+Z f42088670312304846dfa1c2034d5dc7
