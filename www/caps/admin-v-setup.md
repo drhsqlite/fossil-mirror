@@ -1,15 +1,12 @@
 # Differences Between Setup and Admin User
 
-This document explains the distinction between [Setup users][su] and
-[Admin users][au]. For other information about use types, see:
+This document explains the distinction between [Setup users][caps] and
+[Admin users][capa]. For other information about use types, see:
 
 * [Administering User Capabilities](./)
-* [How Moderation Works](./forum.wiki#moderation)
-* [Users vs Subscribers](./alerts.md#uvs)
-* [Defense Against Spiders](./antibot.wiki)
-
-[au]: ./ref.md#a
-[su]: ./ref.md#s
+* [How Moderation Works](../forum.wiki#moderation)
+* [Users vs Subscribers](../alerts.md#uvs)
+* [Defense Against Spiders](../antibot.wiki)
 
 
 ## <a name="philosophy"></a>Philosophical Core
@@ -57,9 +54,9 @@ tickets, etc.
 
 We’ll explore these distinctions in the rest of this document.
 
-[bc]:   ./blockchain.md
+[bc]:   ../blockchain.md
 [ucap]: ./index.md#ucap
-[uv]:   ./unvers.wiki
+[uv]:   ../unvers.wiki
 
 
 ## <a name="binary"></a>No Granularity
@@ -158,12 +155,12 @@ Setup user:
     powers of an Admin-only user. Fossil grants access to the Admin →
     Shunned page to Admin users rather than reserve it to Setup users
     because one of the primary purposes of [the Fossil shunning
-    system](./shunning.wiki) is to clean up after a spammer, and that's
+    system][shun] is to clean up after a spammer, and that's
     exactly the sort of administrivia we wish to delegate to Admin users.
 
     Coupled with the Rebuild button on the same page, an Admin user has
     the power to delete the repository's entire
-    [blockchain](./blockchain.md)! This makes this feature a pretty good
+    [blockchain][bc]! This makes this feature a pretty good
     razor in deciding whether to grant someone Admin capability: do you
     trust that user to shun Fossil artifacts responsibly?
 
@@ -182,7 +179,7 @@ Setup user:
     user with Read capability, there are several additional things this
     page gives access to when a user also has the Admin capability:
 
-    *   <p>[Email alerts][ale] and [backoffice](./backoffice.md)
+    *   <p>[Email alerts][ale] and [backoffice](../backoffice.md)
         status. Admin-only users cannot modify the email alerts setup,
         but they can see some details about its configuration and
         current status.</p>
@@ -205,7 +202,8 @@ Setup user:
 
 *   **Configure search**
 
-[ale]: ./alerts.md
+[ale]:  ../alerts.md
+[shun]: ../shunning.wiki
 
 
 ### <a name="cosmetics"></a>Cosmetics
@@ -255,7 +253,8 @@ failover system.
 ## <a name="apsu"></a>The All-Powerful Setup User
 
 Setup users get [every user capability](./ref.html) of Fossil except for
-[**WrUnver**](./ref.html#y). (That lone hold-out is [by design][snoy].)
+[two exceptionally dangerous capabilities](#dcap), which they can later
+grant to themselves or to others at the Setup user’s discretion.
 
 In addition, Setup users can use every feature of the Fossil UI. If Fossil can do a
 thing, a Setup user on that repo can make Fossil do it.
@@ -386,7 +385,71 @@ where you do not have Setup caps. This is why `ui` always binds to
 `localhost` without needing the `--localhost` flag: in this mode, anyone
 who can connect to that repo’s web UI has full power over that repo.
 
+
+## <a name="dcap"></a>Dangerous Capabilities Initially Denied to Everyone
+
+There are two capabilities that Fossil doesn’t grant by default to Setup
+or Admin users automatically. They are exceptionally dangerous, so
+Fossil makes these users grant themselves (or others) these capabilities
+deliberately, hopefully after careful consideration.
+
+
+### <a name="y"></a>Write Unversioned
+
+Fossil currently doesn’t distinguish the sub-operations of [`fossil
+uv`](/help?cmd=uv); they’re all covered by [**WrUnver**][capy] (“y”)
+capability. Since some of these operations are unconditionally
+destructive due to the nature of unversioned content, and since this
+goes against Fossil’s philosophy of immutable history, nobody gets cap
+“y” on a Fossil repo by default, not even the Setup or Admin users.  A
+Setup or Admin user must grant “y” cap to someone — not necessarily
+themselves! — this powerful capability before modifications to remote
+unversioned content are possible.
+
+Operations on unversioned content made without this capability affect
+your local clone only. In this way, your local unversioned file table
+can have different content from that in its parent repo. This state of
+affairs will continue until your user either gets cap “y” and syncs that
+content with its parent or you say `fossil uv revert` to make your local
+unversioned content table match that of its parent repo.
+
+
+### <a name="x"></a>Private Branch Push
+
+For private branches to remain private, they must never be accidentally
+pushed to a public repository. It can be [difficult to impossible][shun]
+to recover from such a mistake, so nobody gets [**Private**][capx] (“x”)
+capability on a Fossil repo by default, not even Admin or Setup users.
+
+There are two common uses for private branches.
+
+One use is part of a local social contract allowing individual
+developers to work on some things in private until they’re ready to push
+them up to the parent repository. This goes against [a core tenet][fdp]
+of Fossil’s design philosophy, but Fossil allows it, so some development
+organizations do this. If yours is one of these, you might give cap “x”
+to the “developer” category.
+
+The other use is in development organizations that follow the Fossil
+philosophy, where you do not work in private unless you absolutely must.
+You may have a public-facing project — let’s call it “SQLite” for the
+sake of argument — but then someone comes along and commissions a custom
+modification to your project which they wish to keep proprietary.  You
+do your work on a private branch, which you absolutely must never push
+to the public repo, because that would be illegal.  (Breach of contract,
+copyright violation on a work-for-hire agreement, etc.) If you are using
+Fossil in this way, we recommend that you give “x” capability to a
+special developer account only, if at all, to minimize the chance of an
+accidental push.
+
+
+[capa]: ./ref.html#a
+[caps]: ./ref.html#s
+[capx]: ./ref.html#x
+[capy]: ./ref.html#y
+
 [fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
+[fdp]:   ../fossil-v-git.wiki#devorg
 [forum]: https://fossil-scm.org/forum/
 [fui]:   /help?cmd=ui
 [lg]:    ./login-groups.md
