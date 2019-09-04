@@ -254,7 +254,10 @@ failover system.
 
 ## <a name="apsu"></a>The All-Powerful Setup User
 
-Setup users can use every feature of the Fossil UI. If Fossil can do a
+Setup users get [every user capability](./ref.html) of Fossil except for
+[**WrUnver**](./ref.html#y). (That lone hold-out is [by design][snoy].)
+
+In addition, Setup users can use every feature of the Fossil UI. If Fossil can do a
 thing, a Setup user on that repo can make Fossil do it.
 
 Setup users can do many things that Admin users cannot:
@@ -389,4 +392,5 @@ who can connect to that repo’s web UI has full power over that repo.
 [lg]:    ./login-groups.md
 [rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
 [sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
+[snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
