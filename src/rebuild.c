@@ -1156,34 +1156,30 @@ void private_export(char *zFileName)
   blob_write_to_file(&fctx, zFileName);
   blob_reset(&fctx);
 }
-int private_import(char *zFileName)
+void private_import(char *zFileName)
 {
-  if( file_size(zFileName, ExtFILE)>0 ){
-    Blob fctx;
-    if( blob_read_from_file(&fctx, zFileName, ExtFILE)!=-1 ){
-      Blob line, value;
-      while( blob_line(&fctx, &line)>0 ){
-        char *zUuid;
-        int nUuid;
-        if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
-        if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
-        blob_trim(&value);
-        zUuid = blob_buffer(&value);
-        nUuid = blob_size(&value);
-        zUuid[nUuid] = 0;
-        if( hname_validate(zUuid, nUuid)!=HNAME_ERROR ){
-          canonical16(zUuid, nUuid);
-          db_multi_exec(
-            "INSERT OR IGNORE INTO private"
-            " SELECT rid FROM blob WHERE uuid = %Q;",
-            zUuid);
-        }
+  Blob fctx;
+  if( blob_read_from_file(&fctx, zFileName, ExtFILE)!=-1 ){
+    Blob line, value;
+    while( blob_line(&fctx, &line)>0 ){
+      char *zUuid;
+      int nUuid;
+      if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+      if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+      blob_trim(&value);
+      zUuid = blob_buffer(&value);
+      nUuid = blob_size(&value);
+      zUuid[nUuid] = 0;
+      if( hname_validate(zUuid, nUuid)!=HNAME_ERROR ){
+        canonical16(zUuid, nUuid);
+        db_multi_exec(
+          "INSERT OR IGNORE INTO private"
+          " SELECT rid FROM blob WHERE uuid = %Q;",
+          zUuid);
       }
-      blob_reset(&fctx);
-      return 1;
     }
+    blob_reset(&fctx);
   }
-  return 0;
 }
 
 /*
@@ -1236,9 +1232,7 @@ void reconstruct_cmd(void) {
   /* Newer method: Import the list of private artifacts to the PRIVATE table. */
   if( fKeepPrivate ){
     char *zFnDotPrivate = mprintf("%s/.private", g.argv[3]);
-    if( private_import(zFnDotPrivate)==0 ){
-      fossil_warning("Warning: failure reading the list of private artifacts.");
-    }
+    private_import(zFnDotPrivate);
     free(zFnDotPrivate);
   }
 
