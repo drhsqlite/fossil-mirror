@@ -174,7 +174,7 @@ Fossil adds the following:
 The FOSSIL_USER string is the name of the logged-in user.  This variable
 is missing or is an empty string if the user is not logged in.  The
 FOSSIL_CAPABILITIES string is a list of 
-[/setup_ulist_notes|Fossil capability letters] that
+[./caps/ref.html|Fossil capabilities] that
 indicate what permissions the user has on the Fossil repository.
 The FOSSIL_REPOSITORY environment variable gives the filename of the
 Fossil repository that is running.  The FOSSIL_URI variable shows the
@@ -291,7 +291,7 @@ CGI program are available within the chroot jail.
 
 If anything goes wrong while trying to process an /ext page, Fossil
 returns a 404 Not Found error with no details.  However, if the requester
-is logged in as a user that has Debug privilege (capability letter "D")
+is logged in as a user that has <b>[./caps/ref.html#D | Debug]</b> capability 
 then additional diagnostic information may be included in the output.
 
 If the /ext page has a "fossil-ext-debug=1" query parameter and if

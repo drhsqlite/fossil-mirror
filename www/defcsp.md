@@ -148,8 +148,8 @@ be protected at the system administration level on the Fossil server:
     can only be installed by the Fossil server’s system administrator,
     this path is also considered safe.
 
-[su]:  ./admin-v-setup.md
 [ext]: ./serverext.wiki
+[su]:  ./caps/admin-v-setup.md#apsu
 
 
 #### <a name="xss"></a>Cross-Site Scripting via Ordinary User Capabilities

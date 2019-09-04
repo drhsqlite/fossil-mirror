@@ -69,7 +69,7 @@ the request redirects to URL.
 
 <h2 id="repolist">repolist</h2>
 
-This is a boolean property.
+This is a Boolean property.
 If it is present, and if the [#directory:|<b>directory:</b>] option is used,
 and if the PATH_INFO string is empty, then Fossil will show a list
 of available Fossil repositories.
@@ -102,11 +102,11 @@ then the default timeout is 300 seconds (5 minutes).
 
 <h2 id="localauth">localauth</h2>
 
-This is a boolean property.
-If it is present, setup administrator privileges
-(capability letter 's') are granted to any HTTP request that
+This is a Boolean property.
+If it is present, [./caps/ref.html#s | setup capability]
+is granted to any HTTP request that
 comes in over a loopback interface, such as 127.0.0.1.
-and if the PATH_INFO string is empty, then Fossil will show a list
+If the PATH_INFO string is empty, Fossil will show a list
 of available Fossil repositories.
 
 <h2 id="skin">skin: <i>NAME</i></h2>

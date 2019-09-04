@@ -1,21 +1,18 @@
-# The Differences Between the Setup and Admin User Capabilities
+# Differences Between Setup and Admin User
 
-Several of the Fossil user capabilities form a clear power hierarchy.
-Mathematically speaking:
+This document explains the distinction between [Setup users][su] and
+[Admin users][au]. For other information about use types, see:
 
-> *Setup > Admin > Moderator > User > Subscriber > Anonymous > Nobody*
-
-This document explains the distinction between the first two. For the
-others, see:
-
+* [Administering User Capabilities](./)
 * [How Moderation Works](./forum.wiki#moderation)
-
 * [Users vs Subscribers](./alerts.md#uvs)
-
 * [Defense Against Spiders](./antibot.wiki)
 
+[au]: ./ref.md#a
+[su]: ./ref.md#s
 
-## Philosophical Core
+
+## <a name="philosophy"></a>Philosophical Core
 
 The Setup user "owns" the Fossil repository and may delegate a subset of
 that power to one or more Admin users.
@@ -31,10 +28,10 @@ host system running the Fossil repository, whereas it makes no sense for
 Admin users to have that ability. If an Admin-only user had `root`
 access on a Linux box running the Fossil instance they are an Admin on,
 they could elevate their capability to Setup in several ways. (The
-`fossil admin` command, the `fossil sql` command, editing the repository
+`fossil user` command, the `fossil sql` command, editing the repository
 DB file directly, etc.) Therefore, if you wish to grant someone
 Setup-like capability on a Fossil repository but you're unwilling to
-give them full control over the host system, you probably want to grant
+give them a login on the host system, you probably want to grant
 them Admin capability instead.
 
 Admin power is delegated from Setup. When a Setup user grants Admin
@@ -42,54 +39,70 @@ capability, it is an expression of trust in that user's judgement.
 
 Admin-only users must not fight against the policies of the Setup user.
 Such a rift would be just cause for the Setup user to strip the Admin
-user's capabilities, for the ex-Admin to fork the repository, and for
-both to go their separate ways.
+user's capabilities. This may then create a fork in the project’s
+development effort as the ex-Admin takes their clone and stands it up
+elsewhere, so they may become that fork’s Setup user.
 
 A useful rule of thumb here is that Admin users should only change
 things that the Setup user has not changed from the stock configuration.
 In this way, an Admin-only user can avoid overriding the Setup user's
 choices.
 
-This rule is not enforced by the Fossil permission system for a couple
-of reasons:
+You can also look at the role of Admin from the other direction, up
+through the [user power hierarchy][ucap] rather than down from Setup. An
+Admin user is usually a “super-developer” role, given full control over
+the repository’s managed content: versioned artifacts in [the block
+chain][bc], [unversioned content][uv], forum posts, wiki articles,
+tickets, etc.
 
-1.  There are too many exceptions to encode in the remaining
-    [user capability bits][ucap]. As of this writing, we've already
-    assigned meaning to all of the lowercase letters, most of the
-    decimal digits, and a few of the uppercase letters. We'd rather not
-    resort to punctuation and Unicode to express future extensions to
-    the policy choices Fossil offers its power users.
+We’ll explore these distinctions in the rest of this document.
 
-2.  Even if we had enough suitable printable ASCII characters left to
-    assign one to every imaginable purpose and policy, we want to keep
-    the number of exceptions manageable. Consider the Admin → Settings
-    page, which is currently restricted to Setup users only: you might
-    imagine breaking this up into several subsets so that some subsets
-    are available to non-Setup users, each controlled by a user
-    capability bit. Is that a good idea? Maybe, but it should be done
-    only after due consideration. It would definitely be wrong to assign
-    a user capability bit to *each* setting on that page.
-
-Let's consider a concrete application of this rule: Admin → Skins.
-Fossil grants Admin-only users full access to this page so that the
-Admins can maintain and extend the skin as the repository evolves, not
-so Admins can switch the entire skin to another without consulting with
-the Setup user first. If, during a forum discussion one of the mere
-users notices a problem with the skin, an Admin-only user should feel
-free to correct this without bothering the Setup user.
-
-Another common case is that the Setup user upgrades Fossil on the server
-but forgets to merge the upstream skin changes: Admin users are
-entrusted to do that work on behalf of the Setup user.
+[bc]:   ./blockchain.md
+[ucap]: ./index.md#ucap
+[uv]:   ./unvers.wiki
 
 
-## Capability Groups
+## <a name="binary"></a>No Granularity
+
+Fossil doesn’t make any distinction between these two user types beyond
+this binary choice: Setup or Admin.
+
+A few features of Fossil are broken down so that only part of the
+feature is accessible to Admin, with the rest left only to Setup users,
+but for the most part each feature affected by this distinction is
+either Admin + Setup or Setup-only.
+
+We could add more capability letters to break down individual
+sub-features, but we’d run out of ASCII alphanumerics pretty quickly,
+and we might even run out of ASCII punctuation and symbols. Then would
+we need to shift to Unicode?
+
+Consider the Admin → Settings page, which is currently restricted to
+Setup users only: you might imagine breaking this up into several
+subsets so that some settings can be changed by Admin users.  Is that a
+good idea? Maybe, but it should be done only after due consideration. It
+would definitely be wrong to assign a user capability bit to *each*
+setting on that page.
+
+Now consider the opposite sort of case, Admin → Skins.  Fossil grants
+Admin users full access to this page so that the Admins can maintain and
+extend the skin as the repository evolves, not so Admins can switch the
+entire skin to another without consulting with the Setup user first. How
+would Fossil decide, using user capabilities only, which skin changes
+the Admin user is allowed to do, and which must be left to Setup? Do we
+assign a separate capability letter to each step in `/setup_skin`? Do we
+assign one more each to the five sections of a skin? (Header, Footer,
+CSS, JavaScript, and Details.) It quickly becomes unmanageable.
+
+
+
+## <a name="capgroups"></a>Capability Groups
 
 We can break up the set of powers the Admin user capability grants into
 several groups, then defend each group as a coherent whole.
 
 
-### Security
+### <a name="security"></a>Security
 
 While establishing the Fossil repository's security policy is a task for
 the Setup user, *maintaining* that policy is something that Fossil
@@ -126,7 +139,7 @@ if the CIO hires a [tiger team][tt] to test the company's internal IT
 defenses, the line grunts fix the reported problems, not the CIO.
 
 
-### Administrivia
+### <a name="administrivia"></a>Administrivia
 
 It is perfectly fine for a Fossil repository to only have Setup users,
 no Admin users. The smaller the repository, the more likely the
@@ -169,7 +182,7 @@ Setup user:
     user with Read capability, there are several additional things this
     page gives access to when a user also has the Admin capability:
 
-    *   <p>[Email alerts](./alerts.md) and [backoffice](./backoffice.md)
+    *   <p>[Email alerts][ale] and [backoffice](./backoffice.md)
         status. Admin-only users cannot modify the email alerts setup,
         but they can see some details about its configuration and
         current status.</p>
@@ -192,8 +205,10 @@ Setup user:
 
 *   **Configure search**
 
+[ale]: ./alerts.md
 
-### Cosmetics
+
+### <a name="cosmetics"></a>Cosmetics
 
 While the Setup user is responsible for setting up the initial "look" of
 a Fossil repository, the Setup user entrusts Admin users with
@@ -216,7 +231,7 @@ this document with a philosophical discussion: if you cannot entrust a
 user with these powers, you should not grant that user Admin capability.
 
 
-## Clones and Backups
+## <a name="clones"></a>Clones and Backups
 
 Keep in mind that Fossil is a *distributed* version control system,
 which means that a user known to Fossil might have Setup capability on
@@ -237,26 +252,55 @@ Admin-only users, it is a useful element of a load balancing and
 failover system.
 
 
-## Setup-Only Features
+## <a name="apsu"></a>The All-Powerful Setup User
 
-Some features are now and must always be restricted to Setup users only.
+Setup users get [every user capability](./ref.html) of Fossil except for
+[**WrUnver**](./ref.html#y). (That lone hold-out is [by design][snoy].)
 
-*   **Configuration**: The Admin → Configuration page nominally falls
-    under Cosmetics above, but it's such a core part of the Fossil
+In addition, Setup users can use every feature of the Fossil UI. If Fossil can do a
+thing, a Setup user on that repo can make Fossil do it.
+
+Setup users can do many things that Admin users cannot:
+
+*   Use all of the Admin UI features
+*   See record IDs (RIDs) on screens that show them
+*   See the MIME type of attachments on [`/ainfo` pages](/help?cmd=/ainfo)
+*   See a remote repo’s HTTP [cache status](/help?cmd=/cachestat)
+    and [pull cache entries](/help?cmd=/cacheget)
+*   Edit a Setup user’s account!
+
+The “Admin” feature of Fossil UI is so-named because Admin users can use
+about half of its functions, but only Setup can use these pages:
+
+*   **Access**: This page falls under the [Security](#security)
+    category above, but like Configuration, it's generally something set
+    up once and never touched, so only Setup users should change it.
+
+*   **Configuration**: This page nominally falls
+    under [Cosmetics](#cosmetics) above, but it's such a core part of the Fossil
     configuration — something every Setup user is expected to fully
     specify on initial repository setup — that we have trouble
     justifying any case where an Admin-only user would have good cause
     to modify any of it. This page is generally set up once and then
     never touched again.
 
-*   **Access**: The Admin → Access page falls under the Security
-    category above, but like Configuration, it's generally something set
-    up once and never touched, so only Setup users should change it.
-
-*   **Login-Group**: Login groups allow one Fossil repository to
+*   **Email-Server**: This is an experimental SMTP server feature which
+    is currently unused in Fossil. Should we get it working, it will
+    likely remain Setup-only, since it will likely be used as a
+    replacement for the platform’s default SMTP server, a powerful
+    position for a piece of software to take.
+  
+*   **Login-Group**: [Login groups][lg] allow one Fossil repository to
     delegate user access to another. Since an Admin-only user on one
     repo might not have such access to another repo on the same host
     system, this must be a Setup-only task.
+
+*   **Notification**: This is the main UI for setting up integration
+    with a platform’s SMTP service, for use in sending out [email
+    notifications][ale]. Because this screen can set commands to execute
+    on the host, and because finishing the configuration requires a
+    login on the Fossil host system, it is not appropriate to give Admin
+    users access to it.
 
 *   **Settings**: The [repository settings][rs] available via Admin →
     Settings have too wide a range of power to allow modification by
@@ -307,6 +351,11 @@ Some features are now and must always be restricted to Setup users only.
     and its backing data tables, it can probably also be used to damage
     the host such as via `PRAGMA temp_store = FILE`.
 
+*   **Tickets**: This section allows input of aribtrary TH1 code that
+    runs on the server, affecting the way the Fossil ticketing system
+    works. The justification in the **TH1** section below therefore
+    applies.
+
 *   **TH1**: The [TH1 language][TH1] is quite restricted relative to the
     Tcl language it descends from, so this author does not believe there
     is a way to damage the Fossil repository or its host via the Admin →
@@ -316,11 +365,32 @@ Some features are now and must always be restricted to Setup users only.
     this feature to Setup-only users as long as we lack a good reason
     for Admin-only users to have access to it.
 
+*   **Transfers**: This is for setting up TH1 hooks on various actions,
+    so the justification in the **TH1** section above applies.
+
+*   **Wiki**: These are mainly cosmetic and usability settings. We might
+    open this up to Admin users in the future.
+
+Just remember, [user caps affect Fossil’s web interfaces only][webo].  A
+user is a Setup user by default on their local clone of a repo, and
+Fossil’s ability to protect itself against malicious (or even simply
+incorrect) pushes is limited. Someone with clone and push capability on
+your repo could clone it, modify their local repo, and then push the
+changes back to your repo. Be careful who you give that combination of
+capabilities to!
+
+When you run [`fossil ui`][fui], you are the Setup user on that repo
+through that UI instance, regardless of the capability set defined in
+the repo’s user table. This is true even if you cloned a remote repo
+where you do not have Setup caps. This is why `ui` always binds to
+`localhost` without needing the `--localhost` flag: in this mode, anyone
+who can connect to that repo’s web UI has full power over that repo.
 
 [fcp]:   https://fossil-scm.org/fossil/help?cmd=configuration
 [forum]: https://fossil-scm.org/forum/
+[fui]:   /help?cmd=ui
+[lg]:    ./login-groups.md
 [rs]:    https://www.fossil-scm.org/index.html/doc/trunk/www/settings.wiki
 [sia]:   https://fossil-scm.org/fossil/artifact?udc=1&ln=1259-1260&name=0fda31b6683c206a
-[th1]:   https://www.fossil-scm.org/index.html/doc/trunk/www/th1.md
+[snoy]:  https://fossil-scm.org/forum/forumpost/00e1c4ecff
 [tt]:    https://en.wikipedia.org/wiki/Tiger_team#Security
-[ucap]:  https://fossil-scm.org/fossil/setup_ucap_list
