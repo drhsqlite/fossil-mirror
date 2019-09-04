@@ -1,5 +1,5 @@
-C Remove\sa\sspurious\sline\sfrom\sthe\sheader\scomment\sof\sthe\smakeheaders.c\nutility\sprogram.
-D 2019-09-04T21:01:05.238
+C Removed\s'x'\sfrom\sthe\sstring\sof\scaps\sreported\sfor\sAdmin\sand\sSetup\susers\nin\scapability_expand(),\swhich\sis\sused\swithin\sthe\sSQLite\sextension\nfunction\sfullcaps(),\swhich\samong\sother\sthings\saffects\sthe\soutput\sof\n/setup_ucap_list.\s\sWe\swere\sstill\sreporting\sthat\sAdmin\sand\sSetup\susers\nhave\sPrivate\scapability\sdespite\s[bcdc4c55].
+D 2019-09-04T22:46:48.694
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -441,7 +441,7 @@ F src/browse.c 5cf4fad58576663d7e6192e42be81f6212c3ad3c8babaf6be866c8c64f6e0984
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c b0c35705c43c88771d6709b9c1bd87e7e4c8dccf373ff4d9a847ee7619594cae
+F src/capabilities.c 09af50b15bea994bd1e7096b11eec5a274ba9e4f6983ce3c5961ccaf80531fc3
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 2ec5bce4bc982a9cdb1a3eb4e7dad8e36e494168b07f5fefacdffb5977d25fce
 F src/checkin.c a0652004d92b1d0b56c0ae37440325c73a77461c40e4b6ec6191829795addf65
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 237bde9638cd0b7f050eb154b06a70ec3f9cb497495f6d8654e7a3217d67efdc
-R 311da37da49374a30ae83bf564f7d719
-U drh
-Z 610d585abd637eaf0b4eab02dd5853fa
+P d5a6ea969c8b3a8bffedae8f9670cefbec972fdacb5e1b9d50b870c83cdb86d2
+R e17ad49aee505135cc694e415db6d61a
+U wyoung
+Z 8d7ae9dfade33c7f1b9d3eefdc445da7

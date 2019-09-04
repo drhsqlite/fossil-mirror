@@ -102,7 +102,7 @@ void capability_expand(CapabilityString *pIn){
   static char *zAnon = 0;
   static char *zReader = 0;
   static char *zDev = 0;
-  static char *zAdmin = "bcdefghijklmnopqrtwxz234567AD";
+  static char *zAdmin = "bcdefghijklmnopqrtwz234567AD";
   int doneV = 0;
 
   if( pIn==0 ){
