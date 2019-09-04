@@ -206,19 +206,20 @@ to tell the story in the way that’s best for future readers."_
 
 I reject this argument utterly.
 Unless you project is a work of fiction, it is not a "story" but a "history".
-Honorable writers (of non-fiction) adjust their narrative to fit
-history.  Rebase, in contrast, adjusts history to fit the narrative.
-I call that being dishonest.
+Honorable writers adjust their narrative to fit
+history.  Rebase adjusts history to fit the narrative.
 
-This is not to say that historical texts cannot be redrafted for clarity
-and accuracy.  Fossil supports this by providing mechanisms to fix
-typos in check-in comments, and make other editorial changes, by adding
+Truthful texts can be redrafted for clarity and accuracy.
+Fossil supports this by providing mechanisms to fix
+typos in check-in comments, attach supplemental notes,
+and make other editorial changes.
+The corrections are accomplished by adding
 new modification records to the blockchain.  The original incorrect
-inputs are preserved as part of the blockchain and are easily
-accessible, but for routine display purposes, a more readable
-presentation is provided.  Thus, the repository need not be your first
-and only draft, but can also be true and historically correct at the
-same time.
+inputs are preserved in the blockchain and are easily accessible.
+But for routine display purposes, the more readable edited
+presentation is provided.  A repository can be a true and accurate
+representation of history even without getting everything perfect
+on the first draft.
 
 Unfortunately, Git does not provide the ability to add corrections
 or clarifications to historical check-ins in its blockchain.  Hence,
