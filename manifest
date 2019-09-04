@@ -1,5 +1,5 @@
-C Add\ssection\snumbers\sto\sthe\sRebase\sdocument.
-D 2019-09-04T20:09:05.139
+C Remove\sa\sspurious\sline\sfrom\sthe\sheader\scomment\sof\sthe\smakeheaders.c\nutility\sprogram.
+D 2019-09-04T21:01:05.238
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -519,7 +519,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 4165634b6cad703ef1d1f1c3673b87474b710bca5687355f1ab7c025a386ca40
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
-F src/makeheaders.c 49c76a6973d579ff0b346e5f73182fa72dd797cbb07e8b20612849dc2adef85d
+F src/makeheaders.c 0f8d7da729c40d9c4ec52319b0744b22885b5e38e3044bb521bfc707ffbc711c
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aaacce23cd81f057d1bac8271cc0db74aa6d3ce2b6f9458cd0e53ca0b560e2be
-R 46c36d7466d1e98bd8cec4007190ca46
+P 237bde9638cd0b7f050eb154b06a70ec3f9cb497495f6d8654e7a3217d67efdc
+R 311da37da49374a30ae83bf564f7d719
 U drh
-Z 661e23e202344944bda17e980749ba74
+Z 610d585abd637eaf0b4eab02dd5853fa
