@@ -1,5 +1,5 @@
-C Merged\scaps-doc\sbranch\sdown\sto\strunk,\simproving\sdocumentation\sof\suser\ncapabilities\sin\sFossil.
-D 2019-09-04T00:58:38.587
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.30.0\salpha,\sas\san\sSQLite\sbeta\stest.
+D 2019-09-04T15:41:19.990
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -560,7 +560,7 @@ F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c 1865a156953ac46b51f06c415dfc8759fc0d2be1c86cbcd761b4b4c202287d30
+F src/shell.c d1a2e5b5944d1859a3e1d05e4d13491c52d8288eaacd250371573ec83af1a089
 F src/shun.c 70697974afba3043e88ad3d7b571ddb1ff62f6b1d3bd1e6adc98944de3dbc220
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -569,8 +569,8 @@ F src/smtp.c cbbc6cc20fde1f000f46870ddeea7b9df54fe1c9784402755782096a8f010af9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c 72e5b3a619b519fe162e88fe789100583a17dd2cc932491b166bf09ce54d6c47
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c d9a5daf7697a827f4b2638276ce639fa04e8e8bb5fd3a6b683cfad10f1c81b12
-F src/sqlite3.h 1f81186aac72798ef4635dc7ff4206a07405cbe2eca1108e3ad2c5ead2db5549
+F src/sqlite3.c a661ae5be78f61fa17a8db9cd30017f3003693d65e6b84a3649891d90b59c2a7
+F src/sqlite3.h d5cfcaa78c64e79a5a8a3d1be5c7175f183ffdeb57aeb3228ec2f7ae0733dfb5
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -785,7 +785,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/caps/admin-v-setup.md a931f0f8554dacd8336484be47ece923b49689061bb564a2a0c20fac98ce1a3a w www/admin-v-setup.md
+F www/caps/admin-v-setup.md a931f0f8554dacd8336484be47ece923b49689061bb564a2a0c20fac98ce1a3a
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -916,8 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5561039e1fffe351964e14da756996671f2ff41573fd767ac69b285cac7695b ca4085c2917bae7be094dd8499d605d1d1466a4907edf602d298750305d72d78
-R 19c6a6edf4bdd55041c92963f94ea461
-T +closed ca4085c2917bae7be094dd8499d605d1d1466a4907edf602d298750305d72d78
-U wyoung
-Z fcc7b2903ced17ce5d3b0699f5f8c7b4
+P 779ddefa190931fd55d5df2d2467632aa0df69bef74294e9b322e1c950f98c45
+R 1175697bb457b488e0266ad47f082b99
+U drh
+Z 0f0e897e7fbc2c1909317f6b4f1463a9
