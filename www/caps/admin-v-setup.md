@@ -254,7 +254,7 @@ failover system.
 
 Setup users get [every user capability](./ref.html) of Fossil except for
 [two exceptionally dangerous capabilities](#dcap), which they can later
-grant to themselves or to others at the Setup user’s discretion.
+grant to themselves or to others.
 
 In addition, Setup users can use every feature of the Fossil UI. If Fossil can do a
 thing, a Setup user on that repo can make Fossil do it.
@@ -402,8 +402,8 @@ capability. Since some of these operations are unconditionally
 destructive due to the nature of unversioned content, and since this
 goes against Fossil’s philosophy of immutable history, nobody gets cap
 “y” on a Fossil repo by default, not even the Setup or Admin users.  A
-Setup or Admin user must grant “y” cap to someone — not necessarily
-themselves! — this powerful capability before modifications to remote
+Setup or Admin user must grant cap “y” to someone — not necessarily
+themselves! — before modifications to remote
 unversioned content are possible.
 
 Operations on unversioned content made without this capability affect

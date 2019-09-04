@@ -1,5 +1,5 @@
-C Updated\scaps\sdocs\sto\scover\sthe\stwo\s"missing"\scaps\son\sAdmin\sand\sSetup\nusers\sbetter,\sincluding\sthis\srecent\sdecision\sto\sdeny\sthem\scap\sx.\s\sThis\ncheck-in\salso\sfixes\sa\snumber\sof\slinks\sbroken\swithin\sthese\sdocs\sduring\nthe\sstage\swhere\swe\swere\sbreaking\sthe\sdocs\sup\sand\smoving\sthings\saround,\nwhich\sshould\shave\sbeen\scaught\sbefore\smerging\sthis\sdown\sto\strunk.
-D 2019-09-04T23:37:59.069
+C Small\stweaks\sto\sprevious.
+D 2019-09-04T23:44:22.226
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -785,7 +785,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/caps/admin-v-setup.md 6ac6c1a1f1f0baa41b69b91b1a257103d1c6f1a1abda2e30386e55f02c0ee06c
+F www/caps/admin-v-setup.md c3b9ac2648ac6665bcec46a29a3361bedd0ad08b168f388a1a7bc686cebe9aaf
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 63581ec8ba19874c9bfd63afbe9c0a7ee7a9269afbfcb236e0e65622661603d2
-R a4f4347ab382fc33c7a4e412fdfe382e
+P 8a77f4593e52c51398426663070e04e1328789b9281d4e61fbe9e71df48b1b64
+R c303a463be70aa2ab276a749cf5a33a6
 U wyoung
-Z 7a6f508f7ea2370a49b84453721fef38
+Z 254639fe7d2c75e35c8feab01e8aad6a
