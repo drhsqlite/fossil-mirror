@@ -33,10 +33,23 @@ fossil merge private
 fossil commit
 </pre></blockquote>
 
-The private branch remains private.  (There is no way to convert a private
-branch into a public branch.)  But all of the changes associated with
+The private branch remains private, but all of the changes associated with
 the private branch are now folded into the public branch and are hence
 visible to other users of the project.
+
+A private branch created with Fossil version 1.30 or newer can also be
+converted into a public branch using the <code>fossil publish</code>
+command.  However, there is no way to convert a private branch created with
+older versions of Fossil into a public branch.
+
+The <code>--integrate</code> option of <code>fossil merge</code> (to close
+the merged branch when committing) is ignored for a private branch -- or the
+check-in manifest of the resulting merge child would include a
+<code>+close</code> tag referring to the leaf check-in on the private branch,
+and generate a missing artifact reference on repository clones without that
+private branch.  It's still possible to close the leaf of the private branch
+(after committing the merge child) with the <code>fossil amend --close</code>
+command.
 
 <h2>Syncing Private Branches</h2>
 
