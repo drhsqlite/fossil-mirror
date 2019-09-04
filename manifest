@@ -1,5 +1,5 @@
-C Update\sthe\s'branch\snew'\scommand\sto\strack\sthe\sstatus\sof\sprivate\sbranches\sin\sthe\sPRIVATE\stable,\sinstead\sof\susing\s+private\stags.
-D 2019-09-04T08:32:00.000
+C Make\ssure\sthe\scheck-in\smanifest\sof\sa\smerge\schild\sdoes\snot\sinclude\sa\s+close\stag\sreferring\sto\sthe\sleaf\scheck-in\son\sa\sprivate\sbranch,\sso\sas\snot\sto\sgenerate\sa\smissing\sartifact\sreference\son\srepository\sclones\swithout\sthat\sprivate\sbranch.
+D 2019-09-04T08:46:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b0c35705c43c88771d6709b9c1bd87e7e4c8dccf373ff4d9a847ee7619594cae
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 2ec5bce4bc982a9cdb1a3eb4e7dad8e36e494168b07f5fefacdffb5977d25fce
-F src/checkin.c a0652004d92b1d0b56c0ae37440325c73a77461c40e4b6ec6191829795addf65
+F src/checkin.c dd34aaa17210b1d5465deea14722a2cf6db736dea00b28d8098939eeaf00a33e
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -528,7 +528,7 @@ F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48
 F src/markdown_html.c c73b21b6a83fc856ba103246a51c09849bd9e4dd5dc18cf9bbb08e96748cb1ee
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
+F src/merge.c 6839f66c80c0d4cfd75b74552c9ce1284eb61a4f33f32252211690cb39521a50
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 9be20ec713e4a8422c1228f1f40c40b321a3a1411929e6a07c43d104a2e30883
@@ -916,10 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 779ddefa190931fd55d5df2d2467632aa0df69bef74294e9b322e1c950f98c45
-R 1edc6f21d2687135fe6fde62af90d73d
-T *branch * private-branches
-T *sym-private-branches *
-T -sym-trunk *
+P 70849e76417e2e27f09b6df95f798055fdcff4e53a890ae87917f460b2575c69
+R d250ce74f0996221b481eefbdd0d9233
 U florian
-Z 1a87ebe7dba178304df7a699c1381036
+Z 73a5ee5e43d875d390397d975e191cdc

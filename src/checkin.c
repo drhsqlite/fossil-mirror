@@ -1675,6 +1675,14 @@ static void create_manifest(
     int rid = db_column_int(&q, 1);
     if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
         " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
+#if 0
+      /* Make sure the check-in manifest of the resulting merge child does not
+      ** include a +close tag referring to the leaf check-in on a private
+      ** branch, so as not to generate a missing artifact reference on
+      ** repository clones without that private branch.  The merge command
+      ** should have dropped the --integrate option, at this point. */
+      assert( !content_is_private(rid) );
+#endif
       blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
     }
   }
