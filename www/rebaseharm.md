@@ -141,12 +141,12 @@ private branches is a key symptom of siloing.
 
 [Weinberg][weinberg] argues programming should be "egoless".  That
 is to say, programmers should avoid linking their code with their sense of
-self, as they makes it more difficult for them to find and respond
+self, as that makes it more difficult for them to find and respond
 to bugs, and hence makes them less productive.  Many developers are
 drawn to private branches out of sense of ego.  "I want to get the
 code right before I publish it".  I sympathize with this sentiment,
 and am frequently guilty of it myself.  It is humbling to display
-your stupid mistake to the whole world on the open internet that
+your stupid mistake to the whole world on an internet that
 never forgets.  And yet, humble programmers generate better code.
 
 ## Rebase commits untested check-ins to the blockchain
