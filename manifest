@@ -1,5 +1,5 @@
-C Make\ssure\sthe\scheck-in\smanifest\sof\sa\smerge\schild\sdoes\snot\sinclude\sa\s+close\stag\sreferring\sto\sthe\sleaf\scheck-in\son\sa\sprivate\sbranch,\sso\sas\snot\sto\sgenerate\sa\smissing\sartifact\sreference\son\srepository\sclones\swithout\sthat\sprivate\sbranch.
-D 2019-09-04T08:46:00.000
+C Update\sthe\s'commit\s--private'\scommand\sto\sonly\sapply\sdefault\sbranch\sname\s("private")\sand\scolor\s("orange")\sif\snot\sspecified\sotherwise\son\sthe\scommand-line,\sand\sif\sthe\sparent\sis\snot\salready\sprivate,\sto\ssimplify\sthe\smanagement\sof\sprivate\sbranches\swith\sdistinct\snames.
+D 2019-09-04T09:09:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b0c35705c43c88771d6709b9c1bd87e7e4c8dccf373ff4d9a847ee7619594cae
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c 2ec5bce4bc982a9cdb1a3eb4e7dad8e36e494168b07f5fefacdffb5977d25fce
-F src/checkin.c dd34aaa17210b1d5465deea14722a2cf6db736dea00b28d8098939eeaf00a33e
+F src/checkin.c 68764d3ece035701a2fc277558cc1e611bbec50486d32f71fcb9f18ff1b84b39
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 70849e76417e2e27f09b6df95f798055fdcff4e53a890ae87917f460b2575c69
-R d250ce74f0996221b481eefbdd0d9233
+P 8268c5dafba8acdf6ca7a24fbd49a9463383dbfcee1e48e3f0216c28d4cb34ec
+R 2692ae4ede19ea708228c3e1100f8ebf
 U florian
-Z 73a5ee5e43d875d390397d975e191cdc
+Z af7c8c0c4aeda0e7470fda5db7022714
