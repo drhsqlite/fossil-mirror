@@ -1191,14 +1191,15 @@ int private_import(char *zFileName)
 **
 ** Usage: %fossil reconstruct ?OPTIONS? FILENAME DIRECTORY
 **
-** This command studies the artifacts (files) in DIRECTORY and
-** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME. Subdirectories are read, files
-** with leading '.' in the filename are ignored.
+** This command studies the artifacts (files) in DIRECTORY and reconstructs the
+** Fossil record from them.  It places the new Fossil repository in FILENAME.
+** Subdirectories are read, files with leading '.' in the filename are ignored.
 **
 ** Options:
-**    -K|--keep-rid1    Read the filename of the artifact with
-**                      RID=1 from the file .rid in DIRECTORY.
+**   -K|--keep-rid1     Read the filename of the artifact with RID=1 from the
+**                      file .rid in DIRECTORY.
+**   -P|--keep-private  Mark the artifacts listed in the file .private in
+**                      DIRECTORY as private in the new Fossil repository.
 **
 ** See also: deconstruct, rebuild
 */
@@ -1259,13 +1260,12 @@ void reconstruct_cmd(void) {
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **
-**
-** This command exports all artifacts of a given repository and
-** writes all artifacts to the file system. The DESTINATION directory
-** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
-** AABBBBBBBBB.. is the 40+ character artifact ID, AA the first 2 characters.
-** If -L|--prefixlength is given, the length (default 2) of the directory
-** prefix can be set to 0,1,..,9 characters.
+** This command exports all artifacts of a given repository and writes all
+** artifacts to the file system.  The DESTINATION directory will be populated
+** with subdirectories AA and files AA/BBBBBBBBB.., where AABBBBBBBBB.. is the
+** 40+ character artifact ID, AA the first 2 characters.
+** If -L|--prefixlength is given, the length (default 2) of the directory prefix
+** can be set to 0,1,..,9 characters.
 **
 ** Options:
 **   -R|--repository REPOSITORY  Deconstruct given REPOSITORY.
@@ -1274,8 +1274,11 @@ void reconstruct_cmd(void) {
 **   -L|--prefixlength N         Set the length of the names of the DESTINATION
 **                               subdirectories to N.
 **   --private                   Include private artifacts.
+**   -P|--keep-private           Save the list of private artifacts to the file
+**                               .private in the DESTINATION directory (implies
+**                               the --private option).
 **
-** See also: rebuild, reconstruct
+** See also: reconstruct, rebuild
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;

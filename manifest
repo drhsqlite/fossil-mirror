@@ -1,5 +1,5 @@
-C Enhance\sthe\s'deconstruct'\sand\s'reconstruct'\scommands\swith\sa\snew\scommand-line\soption\sto\ssave\sand\srestore\sthe\slist\sof\sprivate\sartifacts.
-D 2019-09-04T09:53:00.000
+C Reflow\sthe\shelp\sscreens\sfor\s'deconstruct'\sand\s'reconstruct',\sand\sadd\sthe\snew\s--keep-private\soption.
+D 2019-09-04T10:09:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -545,7 +545,7 @@ F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c fbbd5d2c7481dcd7bc98c95930498fb0cd6b25b492f0110cbfe595dc1df3952a
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
-F src/rebuild.c be3de469fbf3fb3addff8139fd1ce4d8b2520386ae9d0dc85892fd4df714b3e9
+F src/rebuild.c 1d74a7daac6c123a4c9596f73e301351f4c2a66d8feab738a4c43918a26647ee
 F src/regexp.c 04d511ced556f1e90f38b4c412db79d2b174179f00c49ef702255c0733885c5d
 F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9e
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
@@ -916,7 +916,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 836a85cbaead8fecb4345436e98d91726bd33e4206d9b7de40f8b13e2f406932
-R 9abdf85e17badc3960c6c355e11ed849
+P 66a14e93c7b275cd71848aaa8edb2f5674fcc0faf44910a4577b4bdcd64fda17
+R f81d101f7d18c4f84fe9febe93355cfd
 U florian
-Z 35b029b19de38c91a101417b56bfa285
+Z 8c92fa1df8d44f81e6ac768a141d2ade
