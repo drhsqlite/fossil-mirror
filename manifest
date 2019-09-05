@@ -1,5 +1,5 @@
-C Fixed\sa\sfew\sspelling\sand\sgrammar\serrors\sin\swww/rebaseharm.md
-D 2019-09-05T00:41:14.096
+C Correct\sa\sminor\sgrammatical\serror\sin\sa\ssentence\sfor\snew\srebase\sdocument.
+D 2019-09-05T01:39:07.311
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -870,7 +870,7 @@ F www/private.wiki 950f1e45e79f57c278acc54b4d9130a7ba266797793ba78ac13038379f9df
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
 F www/quickstart.wiki 1223942438dde4c54f052a2f555435e234f2dfdf76ecc216d3a09508722f288a
 F www/quotes.wiki dcb5b56c3438294218ccb7f0c6f7c81c98f747a46472516e1d6f17dac9f5c783
-F www/rebaseharm.md 1510845a18e7b2b7bab2730b49ba2734c3bc63511ecb24fd6df93902beec8bbb
+F www/rebaseharm.md 33f9b3232095c2ddb9f3bd27c0d25e4b32a331d36ae5ab8b396f38ed5d20a7f8
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ff41ddaea182cfeca642e9ef8dbadad1717ee1c8a90be7ec656ecb888f0826f
-R 06e2960b655eb0fb31eb07902126e2bd
-U wyoung
-Z cdb538f0ae002eb0764bfac77efa4921
+P 708696d88ae4935ecc6bebaa60e874d9037f539ab6bb9f009dba954e964fa088
+R 4acf4d3cfe715c4791ec024415b5e7f7
+U andybradford
+Z cd882843bc056611a23e485eaff3e17d

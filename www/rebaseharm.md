@@ -62,7 +62,7 @@ complete, messy history for cases where detail and accuracy are more
 important.
 
 So, another way of thinking about rebase is that it is a kind of
-merge the intentionally forgets some details in order to
+merge that intentionally forgets some details in order to
 not overwhelm the weak history display mechanisms available in Git.
 
 ### 2.1 Rebase does not actually provide better feature-branch diffs
