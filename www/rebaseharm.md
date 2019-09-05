@@ -29,19 +29,11 @@ To help illustrate this fact,
 consider the first rebase example from the 
 [Git documentation][gitrebase].  The merge looks like this:
 
-~~~
-                      ,-- C4 --.
-                     /          \
-   C0 --- C1 --- C2 ----- C3 --- C5
-~~~
+![merge case](./rebase01.svg)
 
 And the rebase looks like this:
 
-~~~
-                      ,-- C4
-                     /      
-   C0 --- C1 --- C2 ----- C3 --- C4'
-~~~
+![rebase case](./rebase02.svg)
 
 As the [Git documentation][gitrebase] points out, check-ins C4\' and C5
 are identical.  The only difference between C4\' and C5 is that C5
@@ -72,11 +64,7 @@ allows one to see just the changes in the feature branch without
 the concurrent changes in the main line of development. 
 Consider a hypothetical case:
 
-~~~
-                    ,-- C3 --- C5           (feature)
-                   /
-   C0 --- C1 --- C2 ------- C4 --- C6       (main)
-~~~
+![unmerged feature branch](./rebase03.svg)
 
 In the above, a feature branch consisting of check-ins C3 and C5 is
 run concurrently with the main line in check-ins C4 and C6.  Advocates
@@ -84,20 +72,12 @@ for rebase say that you should rebase the feature branch to the tip
 of main like the following (perhaps collapsing C3\' into C5\' to form
 a single check-in, or not, depending on preferences):
 
-~~~
-                    ,-- C3 --- C5    ,-- C3' -- C5'
-                   /                /
-   C0 --- C1 --- C2 ------ C4 --- C6
-~~~
+![rebased feature branch](./rebase04.svg)
 
 If only merge is available, one would do a merge from the concurrent
 mainline changes into the feature branch as follows:
 
-~~~
-                    ,-- C3 --- C5 --- C7
-                   /                /
-   C0 --- C1 --- C2 ------ C4 --- C6
-~~~
+![merged feature branch](./rebase05.svg)
 
 Check-ins C5\' and C7 check-ins hold identical code.  The only
 difference is in their history.  
@@ -172,11 +152,7 @@ With rebase, pre-commit testing is not an option.
 
 Consider the earlier example of rebasing a feature branch:
 
-~~~
-                    ,-- C3 --- C5    ,-- C3' -- C5'
-                   /                /
-   C0 --- C1 --- C2 ------ C4 --- C6
-~~~
+![rebased feature branch, again](./rebase04.svg)
 
 What timestamps go on the C3\' and C5\' check-ins?  If you choose
 the same timestamps as the original C3 and C5, then you have the
