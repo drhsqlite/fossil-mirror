@@ -491,6 +491,27 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 /*
 ** Add another query parameter or cookie to the parameter set.
 ** zName is the name of the query parameter or cookie and zValue
+** is its fully decoded value.  zName will be modified to be an
+** all lowercase string.
+**
+** zName and zValue are not copied and must not change or be
+** deallocated after this routine returns.  This routine changes
+** all ASCII alphabetic characters in zName to lower case.  The
+** caller must not change them back.
+*/
+void cgi_set_parameter_nocopy_tolower(
+  char *zName,
+  const char *zValue,
+  int isQP
+){
+  int i;
+  for(i=0; zName[i]; i++){ zName[i] = fossil_tolower(zName[i]); }
+  cgi_set_parameter_nocopy(zName, zValue, isQP);
+}
+
+/*
+** Add another query parameter or cookie to the parameter set.
+** zName is the name of the query parameter or cookie and zValue
 ** is its fully decoded value.
 **
 ** Copies are made of both the zName and zValue parameters.
@@ -525,6 +546,11 @@ void cgi_replace_query_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 1);
+}
+void cgi_replace_query_parameter_tolower(char *zName, const char *zValue){
+  int i;
+  for(i=0; zName[i]; i++){ zName[i] = fossil_tolower(zName[i]); }
+  cgi_replace_query_parameter(zName, zValue);
 }
 
 /*
@@ -563,7 +589,6 @@ void cgi_delete_query_parameter(const char *zName){
 void cgi_setenv(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
 }
-
 
 /*
 ** Add a list of query parameters or cookies to the parameter set.
@@ -617,8 +642,12 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( fossil_islower(zName[0]) && fossil_no_strange_characters(zName+1) ){
-      cgi_set_parameter_nocopy(zName, zValue, isQP);
+    if( zName[0] && fossil_no_strange_characters(zName+1) ){
+      if( fossil_islower(zName[0]) ){
+        cgi_set_parameter_nocopy(zName, zValue, isQP);
+      }else if( fossil_isupper(zName[0]) ){
+        cgi_set_parameter_nocopy_tolower(zName, zValue, isQP);
+      }
     }
 #ifdef FOSSIL_ENABLE_JSON
     json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
@@ -761,11 +790,19 @@ static void process_multipart_form_data(char *z, int len){
     if( zLine[0]==0 ){
       int nContent = 0;
       zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
-      if( zName && zValue && fossil_islower(zName[0]) ){
-        cgi_set_parameter_nocopy(zName, zValue, 1);
-        if( showBytes ){
-          cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
-               mprintf("%d",nContent), 1);
+      if( zName && zValue ){
+        if( fossil_islower(zName[0]) ){
+          cgi_set_parameter_nocopy(zName, zValue, 1);
+          if( showBytes ){
+            cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
+                 mprintf("%d",nContent), 1);
+          }
+        }else if( fossil_isupper(zName[0]) ){
+          cgi_set_parameter_nocopy_tolower(zName, zValue, 1);
+          if( showBytes ){
+            cgi_set_parameter_nocopy_tolower(mprintf("%s:bytes", zName),
+                 mprintf("%d",nContent), 1);
+          }
         }
       }
       zName = 0;
@@ -781,14 +818,24 @@ static void process_multipart_form_data(char *z, int len){
           zName = azArg[++i];
         }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
+          if( zName && z ){
+            if( fossil_islower(zName[0]) ){
+              cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
+            }else if( fossil_isupper(zName[0]) ){
+              cgi_set_parameter_nocopy_tolower(mprintf("%s:filename",zName),
+                                               z, 1);
+            }
           }
           showBytes = 1;
         }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
+          if( zName && z ){
+            if( fossil_islower(zName[0]) ){
+              cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
+            }else if( fossil_isupper(zName[0]) ){
+              cgi_set_parameter_nocopy_tolower(mprintf("%s:mimetype",zName),
+                                               z, 1);
+            }
           }
         }
       }
@@ -947,13 +994,15 @@ static NORETURN void malformed_request(const char *zMsg);
 void cgi_init(void){
   char *z;
   const char *zType;
+  char *zSemi;
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
 
 #ifdef FOSSIL_ENABLE_JSON
-  json_main_bootstrap();
+  int noJson = P("no_json")!=0;
+  if( noJson==0 ){ json_main_bootstrap(); }
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
@@ -992,7 +1041,14 @@ void cgi_init(void){
   }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
-  g.zContentType = zType = P("CONTENT_TYPE");
+  zType = P("CONTENT_TYPE");
+  zSemi = zType ? strchr(zType, ';') : 0;
+  if( zSemi ){
+    g.zContentType = mprintf("%.*s", (int)(zSemi-zType), zType);
+    zType = g.zContentType;
+  }else{
+    g.zContentType = zType;
+  }
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
     if( fossil_strcmp(zType, "application/x-fossil")==0 ){
@@ -1000,9 +1056,9 @@ void cgi_init(void){
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( fossil_strcmp(zType, "application/json")==0
+    else if( noJson==0 && (fossil_strcmp(zType, "application/json")==0
               || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")==0){
+              || fossil_strcmp(zType,"application/javascript")==0) ){
       g.json.isJsonMode = 1;
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
       /* FIXMEs:

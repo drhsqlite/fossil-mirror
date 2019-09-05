@@ -597,7 +597,7 @@ void document_render(
         Th_Render(blob_str(&tail));
         blob_reset(&tail);
       }else{
-        style_header("%h", zDefaultTitle);
+        style_header("%h", zFilename);
         Th_Render(blob_str(pBody));
       }
     }else{
