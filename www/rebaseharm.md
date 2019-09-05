@@ -1,7 +1,5 @@
 # Rebase Considered Harmful
 
-<center><font color="red"><big>** DRAFT **</big></font></center>
-
 Fossil deliberately does not implement "rebase", because the original
 designer of Fossil (and author of this article) considers rebase to be 
 an anti-pattern to be avoided. This article attempts to

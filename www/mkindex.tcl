@@ -72,6 +72,7 @@ set doclist {
   quotes.wiki
       {Quotes: What People Are Saying About Fossil, Git, and DVCSes in General}
   ../test/release-checklist.wiki {Pre-Release Testing Checklist}
+  rebaseharm.md {Rebase Considered Harmful}
   reviews.wiki {Reviews}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}

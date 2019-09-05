@@ -669,10 +669,11 @@ are a few remaining feature differences we haven't gotten to yet.
   *  <b>Rebase</b>
 
    Because of its emphasis on recording history exactly as it happened,
-   rather than as we would have liked it to happen, Fossil deliberately
-   does not provide a "rebase" command.  One can rebase manually in Fossil,
-   with sufficient perseverance, but it is not something that can be done with
-   a single command.
+   rather than as we would have liked it to happen, 
+   [./rebaseharm.md|Fossil deliberately omits the "rebase" command].
+   For those rare
+   occasions where something like rebase is actually needed, the same
+   topology can be achieved using cherrypick merges.
 
   *  <b>Push or pull a single branch</b>
 
