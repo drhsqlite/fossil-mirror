@@ -106,7 +106,7 @@ The argument from rebase advocates
 is that with merge it is difficult to see only the changes associated
 with the feature branch without the commingled mainline changes.
 In other words, diff(C2,C7) shows changes associated both the feature
-branch and from the mainline, where as in the rebase case
+branch and from the mainline, whereas in the rebase case
 diff(C6,C5\') should only the feature branch changes.
 
 But that argument is comparing apples to oranges, since the two diffs
@@ -119,18 +119,18 @@ branch changes in the merge case is not diff(C2,C7) but rather diff(C6,C7).
 <tr><td>diff(C6,C5\')<td>diff(C6,C7)<td>Branch changes only
 </table></center>
 
-Remember: C7 and C5\' are bit-for-bit identical.  So the output of the
-diff is not determined by whether your select C7 or C5\' as the target
+Remember: C7 and C5\' are bit-for-bit identical, so the output of the
+diff is not determined by whether you select C7 or C5\' as the target
 of the diff, but rather by your choice of the diff source, C2 or C6.
 
-So to help with the problem of viewing changes associated with a feature
+So, to help with the problem of viewing changes associated with a feature
 branch, perhaps what is needed is not rebase but rather better tools to 
 help users identify an appropriate baseline for their diffs.
 
 ## 3.0 Rebase encourages siloed development
 
 The [golden rule of rebase][golden] is that you should never do it
-on public branches.  So if you are using rebase as intended, that means
+on public branches, so if you are using rebase as intended, that means
 you are keeping private branches.  Or, to put it another way, you are
 doing siloed development.  You are not sharing your intermediate work
 with collaborators.  This is not good for product quality.
@@ -226,7 +226,7 @@ on the first draft.
 Unfortunately, Git does not provide the ability to add corrections
 or clarifications to historical check-ins in its blockchain.  Hence,
 once again, rebase can be seen as an attempt to work around limitations
-of Git.  Wouldn't it be better to fix the tool rather that to lie about
+of Git.  Wouldn't it be better to fix the tool rather than to lie about
 the project history?
 
 ## 7.0 Cherry-pick merges work better then rebase
@@ -249,7 +249,7 @@ topology, but with advantages:
   4.  Cherry-picks preserve both the original and the revised check-ins,
       so both timestamps are preserved.
 
-## 8.0 Summary And Conclusion
+## 8.0 Summary and conclusion
 
 Rebasing is an anti-pattern.  It is dishonest.  It deliberately
 omits historical information.  It causes problems for collaboration.
