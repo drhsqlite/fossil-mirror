@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2019-09-04T20:01:16.411
+C Minor\stweaks\sprior\sto\smerging.
+D 2019-09-05T02:31:24.878
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -443,7 +443,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c b0c35705c43c88771d6709b9c1bd87e7e4c8dccf373ff4d9a847ee7619594cae
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c 6a01135c2811f9c432e40c72ecd0254bf403f50b23cccb7a51d8ffd04b8eb309
+F src/cgi.c a9b43d5ba51c0daa9c747b2be215ad430aa11507f7fb779e0567123a7a62b175
 F src/checkin.c a0652004d92b1d0b56c0ae37440325c73a77461c40e4b6ec6191829795addf65
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -785,7 +785,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
-F www/caps/admin-v-setup.md a931f0f8554dacd8336484be47ece923b49689061bb564a2a0c20fac98ce1a3a w www/admin-v-setup.md
+F www/caps/admin-v-setup.md a931f0f8554dacd8336484be47ece923b49689061bb564a2a0c20fac98ce1a3a
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b47b6b6906d51af37309c572d89a9aa545fbc89f8abd1d17b3900ab9e509cba9 bcdc4c5546aad7dc4f0cf1bcf300e6553b6eef4772ac1509fdf26d9d276ab08e
-R 5c7d6c539fcfe8f5091d52ee52f26bac
-U mistachkin
-Z 798987e65225f1172713c124a6a14035
+P 20c64950a9a1da4c276a908f2bf30b445b8ab0e451be7027d600336c59912028
+R b490beea4e2a292c6fe1f6f925509a43
+U drh
+Z a1f004ae4d0d4d0dad4e9e8bca835a03

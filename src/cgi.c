@@ -495,7 +495,9 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 ** all lowercase string.
 **
 ** zName and zValue are not copied and must not change or be
-** deallocated after this routine returns.
+** deallocated after this routine returns.  This routine changes
+** all ASCII alphabetic characters in zName to lower case.  The
+** caller must not change them back.
 */
 void cgi_set_parameter_nocopy_tolower(
   char *zName,
@@ -1042,7 +1044,7 @@ void cgi_init(void){
   zType = P("CONTENT_TYPE");
   zSemi = zType ? strchr(zType, ';') : 0;
   if( zSemi ){
-    g.zContentType = mprintf("%.*s", zSemi-zType, zType);
+    g.zContentType = mprintf("%.*s", (int)(zSemi-zType), zType);
     zType = g.zContentType;
   }else{
     g.zContentType = zType;
