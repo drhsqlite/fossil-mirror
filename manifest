@@ -1,5 +1,5 @@
-C Correct\sa\sminor\sgrammatical\serror\sin\sa\ssentence\sfor\snew\srebase\sdocument.
-D 2019-09-05T01:39:07.311
+C Fixed\sa\sbug\sintroduced\sin\s[bcdc4c55]\swhich\sbreaks\scapabilities\sfor\sall\nAdmin\sand\sSetup\susers.
+D 2019-09-05T02:29:29.548
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -514,7 +514,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 76592cbc8dce7f6d6aeffef6b77975a5ffdf6e1f
-F src/login.c 4a67074250edddefd79ad543fdfdd0938127d58d0f165ce09c60dc41aabba2b4
+F src/login.c 078133fbc7fbd2c22f171129713367901944a697c298276c1e003c77410b1248
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 4165634b6cad703ef1d1f1c3673b87474b710bca5687355f1ab7c025a386ca40
@@ -917,7 +917,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 708696d88ae4935ecc6bebaa60e874d9037f539ab6bb9f009dba954e964fa088
-R 4acf4d3cfe715c4791ec024415b5e7f7
-U andybradford
-Z cd882843bc056611a23e485eaff3e17d
+P 049c42df2ae4c08299ab6315a95415aa592182d53a617c891fb6f8622e6a5af7
+R cba58c6339304fc4701a4d83ff59b451
+U wyoung
+Z 0144eeb33ae04872a26e0bcbae3348aa
