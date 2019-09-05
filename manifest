@@ -1,5 +1,5 @@
-C Fixed\sa\sfew\sspelling\sand\sgrammar\serrors\sin\swww/rebaseharm.md
-D 2019-09-05T00:41:14.096
+C An\sextension\sof\sthe\snow-merged\scode-in-pre\sbranch\sto\sallow\sit\sto\swork\son\n/artifact\spages\sand\ssuch\swhen\sthe\sln\sparameter\sis\sgiven.\s\sThis\sbranch\sis\na\sproof\sof\sconcept\sonly,\sfor\sdemonstrating\sa\spoint\sand\sexperimentation,\nnot\sto\sbe\smerged.\s\sSee\s[https://fossil-scm.org/forum/forumpost/0c4b91b48a\s|\nthe\sforum\sdiscussion]\sfor\sdetails.
+D 2019-09-05T01:33:36.932
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -493,7 +493,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c a7fa1a7a79f5f8bc450a9c0727b30cbe2382dc6471e0d3d0089e78e5edb64780
 F src/import.c d1c748c011f8584db0ea0bb8f298236f77ba9225f34d5291baa0a9b585fd06f7
-F src/info.c cd9c8eee15f46bf6cbd9a0e8d5b14d2629a655e8586ac37bf583caebf5fe2e44
+F src/info.c 518f265c0c1cc4c3ae8712d8e7e01278575a364305317a5b4b0ace56a0e380f8
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -917,7 +917,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1ff41ddaea182cfeca642e9ef8dbadad1717ee1c8a90be7ec656ecb888f0826f
-R 06e2960b655eb0fb31eb07902126e2bd
+P 708696d88ae4935ecc6bebaa60e874d9037f539ab6bb9f009dba954e964fa088
+R b5a9225a8a696c0cede0d5fb495ad61a
+T *branch * code-in-pre-with-ln
+T *sym-code-in-pre-with-ln *
+T -sym-trunk *
 U wyoung
-Z cdb538f0ae002eb0764bfac77efa4921
+Z 78359a3e0635a5211884ec6871f8d71d

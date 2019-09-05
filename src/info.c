@@ -2053,10 +2053,15 @@ int artifact_from_ci_and_filename(HQuery *pUrl, const char *zNameParam){
 ** If there are two line numbers, highlight the range of lines.
 ** Multiple ranges can be highlighed by adding additional line numbers
 ** separated by a non-digit character (also not one of [-,.]).
+**
+** zExt is the file name extension, if any. It is used to tag the output in
+** a way that allows CSS to attach styling to text blocks conditionally based
+** on file type. (e.g. code syntax highlighters)
 */
 void output_text_with_line_numbers(
   const char *z,
-  const char *zLn
+  const char *zLn,
+  const char *zExt
 ){
   int iStart, iEnd;    /* Start and end of region to highlight */
   int n = 0;           /* Current line number */
@@ -2092,7 +2097,12 @@ void output_text_with_line_numbers(
     if( iTop>iStart - 2 ) iTop = iStart-2;
   }
   db_finalize(&q);
-  @ <pre>
+  if( zExt && zExt[1] ){
+    @ <pre><code class="language-%s(zExt+1)">
+  }
+  else {
+    @ <pre>
+  }
   while( z[0] ){
     n++;
     db_prepare(&q,
@@ -2121,7 +2131,12 @@ void output_text_with_line_numbers(
     if( z[0]=='\n' ) z++;
   }
   if( n<iEnd ) cgi_printf("</div>");
-  @ </pre>
+  if( zExt && zExt[1] ){
+    @ </code></pre>
+  }
+  else {
+    @ </pre>
+  }
   if( db_int(0, "SELECT EXISTS(SELECT 1 FROM lnos)") ){
     style_load_one_js_file("scroll.js");
   }
@@ -2349,7 +2364,7 @@ void artifact_page(void){
          rid);
         zExt = zFileName ? strrchr(zFileName, '.') : 0;
         if( zLn ){
-          output_text_with_line_numbers(z, zLn);
+          output_text_with_line_numbers(z, zLn, zExt);
         }else if( zExt && zExt[1] ){
           @ <pre>
           @ <code class="language-%s(zExt+1)">%h(z)</code>
