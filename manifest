@@ -1,5 +1,5 @@
-C Add\sthe\snoreadme\squery\sparameter\sto\s/dir
-D 2019-09-06T13:49:55.702
+C Include\snew\srepolist-skin\ssetting\sin\slist\sof\sall\ssettings\sso\stests\swill\spass.
+D 2019-09-06T14:01:38.446
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -652,7 +652,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 0ad7359d4fee7a7a3cac19f869042c6bf4045c9474d9776cf2175ff8be8521fa
+F test/tester.tcl 4b56d8116f5f7b9fc66bf0c85b41dd2c3bde7b3cc6f4b16585b492e130ec1ede
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9512ed93d37a7cfd00d075597bae4728b5178230b49bf8478ec628c5e4b103c8
-R 0b26c8521aa861bd39fe1f3937d8c560
-U drh
-Z aed8678361c30fd592610263bcae3651
+P bf3383b957bb2fffc48574abe3eedc0df409efdea6ac899fb5e89de13af5ded7
+R 6b0235a8a8b6797dbc9c0476ca1551c2
+U andybradford
+Z c2e22cd7e50a9e7d589be75282edead8
