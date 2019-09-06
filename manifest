@@ -1,5 +1,5 @@
-C Remove\sthe\s"Draft"\snotation\sfrom\sthe\srebase\sdocument.\s\sLink\sthe\snew\ndocument\sinto\sthe\sdocumentation\sindex.
-D 2019-09-05T13:33:38.095
+C makeheaders.c:\ssuggestions\sfrom\shttps://fossil-scm.org/forum/forumpost/00ff64e63e:\sdo\snot\semit\smain()\sdecl,\selide\sC++\sconstructor\smember\sinitialization,\sand\sadd\sa\smissing\sfclose().
+D 2019-09-06T10:36:51.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -519,7 +519,7 @@ F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 4165634b6cad703ef1d1f1c3673b87474b710bca5687355f1ab7c025a386ca40
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
-F src/makeheaders.c 0f8d7da729c40d9c4ec52319b0744b22885b5e38e3044bb521bfc707ffbc711c
+F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
 F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d6222f894589236473d2a3fe7d34d6d332281af7675df67f329357cf271d3274
-R 38fa5de70ad2ed70aafa7d6c1afc3145
-U drh
-Z 7618a82600c6906c7f4ce53d3d18ac45
+P 569cc741d65fbd3857d4998cc3f59fac5bb41a90f6ede7177f235bb4c13c5e7c
+R 82fcff8573cd8a875f73ccb6c3804d51
+U stephan
+Z 5da02be5a187f3d853437309d288dd00
