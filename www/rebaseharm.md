@@ -205,7 +205,7 @@ the project history?
 
 ## 7.0 Cherry-pick merges work better then rebase
 
-Perhaps there some cases where a rebase-like transformation
+Perhaps there are some cases where a rebase-like transformation
 is actually helpful.  But those cases are rare.  And when they do
 come up, running a series of cherry-pick merges achieve the same
 topology, but with advantages:
