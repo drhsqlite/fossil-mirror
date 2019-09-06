@@ -1,23 +1,23 @@
 # Rebase Considered Harmful
 
-Fossil deliberately does not implement "rebase", because the original
+Fossil deliberately omits a "rebase" command, because the original
 designer of Fossil (and author of this article) considers rebase to be 
 an anti-pattern to be avoided. This article attempts to
 explain that point of view.
 
 ## 1.0 Rebasing is dangerous
 
-Everyone, even the most vocal advocates of rebase, agrees that rebase can
-cause problems when misused.  All rebase documentation talks about the
-[golden rule of rebase][golden], that it should never be used on a public
+Most people, even strident advocates rebase, agree that rebase can
+cause problems when misused.  Rebase documentation talks about the
+[golden rule of rebase][golden]: that it should never be used on a public
 branch.  Horror stories of misused rebase abound, and the rebase 
-documentation devotes considerable space to hints on how to recover from
-rebase errors and/or misuse.
+documentation devotes considerable space toward explaining how to
+recover from rebase errors and/or misuse.
 
 Sometimes sharp and dangerous tools are justified,
 because they accomplish things that cannot be
-(easily) done otherwise.  But rebase does not fall into that category.
-It provides no new capabilities, as we shall see in the next section:
+(easily) done otherwise.  But rebase does not fall into that category,
+because rebase provides no new capabilities.  To wit:
 
 ## 2.0 A rebase is just a merge with historical references omitted
 
@@ -47,7 +47,7 @@ keep things manageable.
 Surely a better approach is to record
 the complete ancestry of every check-in but then fix the tool to show
 a "clean" history in those instances where a simplified display is
-desirable and edifying, but retaining the option to show the real,
+desirable and edifying, but retain the option to show the real,
 complete, messy history for cases where detail and accuracy are more
 important.
 
@@ -116,8 +116,9 @@ with collaborators.  This is not good for product quality.
 [Nagappan, et. al][nagappan] studied bugs in Windows Vista and found
 that best predictor of bugs is the distance on the org-chart between
 the stake-holders.  Or, bugs are reduced when the engineers talk to
-one another.  Similar finds arise in other disciplines.  Keeping
-private branches is a key symptom of siloing.
+one another.  Similar findings arise in other disciplines.  Keeping
+private branches does not prove that developers are communicating
+insufficiently, but it is a key symptom that problem.
 
 [Weinberg][weinberg] argues programming should be "egoless".  That
 is to say, programmers should avoid linking their code with their sense of
@@ -220,7 +221,7 @@ topology, but with advantages:
   3.  Cherry-pick merges are "safe" in the sense that they do not
       cause problems for collaborators if you do them on public branches.
 
-  4.  Cherry-picks preserve both the original and the revised check-ins,
+  4.  Cherry-picks keep both the original and the revised check-ins,
       so both timestamps are preserved.
 
 ## 8.0 Summary and conclusion
