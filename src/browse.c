@@ -118,6 +118,7 @@ void hyperlinked_path(
 **    ci=LABEL         Show only files in this check-in.  Optional.
 **    type=TYPE        TYPE=flat: use this display
 **                     TYPE=tree: use the /tree display instead
+**    noreadme         Do not attempt to display the README file.
 */
 void page_dir(void){
   char *zD = fossil_strdup(P("name"));
@@ -296,6 +297,14 @@ void page_dir(void){
   db_finalize(&q);
   manifest_destroy(pM);
   @ </ul></div>
+
+  /* If the "noreadme" query parameter is present, do not try to
+  ** show the content of the README file.
+  */
+  if( P("noreadme")!=0 ){
+    style_footer();
+    return;
+  }
 
   /* If the directory contains a readme file, then display its content below
   ** the list of files
