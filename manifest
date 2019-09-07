@@ -1,5 +1,5 @@
-C Minor\seditorial\schanges\sto\srebaseharm.md,\sin\san\sattempt\sto\simprove\sclarity\nand\sreadability.
-D 2019-09-06T20:38:58.558
+C Adjust\stest\scase\sfor\sTH1\spermissions\stests.\s\sWrUnver\s(y)\sis\snot\senabled\sby\ndefault\sand\smust\sbe\sintentionally\sset.
+D 2019-09-07T15:03:57.834
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -668,7 +668,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test 0e24866a8e46049db62485c4e63133af3609b3b7a2851b3c86180842ab223d2c
+F test/th1.test ac4ea823758757e226db83ba8d5f670b7cb3d4e81e7233b7e6f0a52df02bf6d4
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 82f75864d5664a1ea7c9a9d6f258f8c733313883c0066736b8cc81f74824ca1e
-R 9c4e8fa1c8d1694ed490d38a64f10298
-U drh
-Z 1cdeba130542ede3fb6d8b0e8eb3c66b
+P 9b32c180eba0f4628c91cdff8da2f33e3b6b3055c9f3b62fbf30d775f80bbc1e
+R d66595a7b1c442cc3dc0733836131a29
+U andybradford
+Z 5757cbbeb887a056d7bd7b1e4c569b19
