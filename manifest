@@ -1,5 +1,5 @@
-C Adjust\stest\scase\sfor\sTH1\spermissions\stests.\s\sWrUnver\s(y)\sis\snot\senabled\sby\ndefault\sand\smust\sbe\sintentionally\sset.
-D 2019-09-07T15:03:57.834
+C Performance\soptimization\sin\sfossil_strcmp().
+D 2019-09-10T11:30:42.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -596,7 +596,7 @@ F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c 86d00e5048f1d1ca7240f08b183d16898db36e16b8757e4817898866ce406767
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
-F src/util.c 28a9c1dd25163fec1dd943a99c641e09aac50e15984b33d07c1935d13ddcec1d
+F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 191590782907ef2fccf6a624b36efa5ab73d4c3f6d6ee15cc419e6b74e4d4e1e
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b32c180eba0f4628c91cdff8da2f33e3b6b3055c9f3b62fbf30d775f80bbc1e
-R d66595a7b1c442cc3dc0733836131a29
-U andybradford
-Z 5757cbbeb887a056d7bd7b1e4c569b19
+P 582d335737f2438327108d60c013644111263933b7cdd07d03e9189e0a1f23ee
+R 691a0b40d85d22ea2481c9bfffae56ee
+U drh
+Z 59a466b6a723e7e03394462fca088f80
