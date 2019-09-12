@@ -1561,7 +1561,7 @@ void page_xfer(void){
       ){
         Stmt q;
         sqlite3_int64 iNow = time(0);
-        const sqlite3_int64 maxAge = 3600*24; /* Locks expire after 24 hours */
+        sqlite3_int64 maxAge = db_get_int("lock-timeout",3600*24);
         int seenFault = 0;
         db_prepare(&q,
           "SELECT json_extract(value,'$.login'),"
@@ -1574,7 +1574,7 @@ void page_xfer(void){
         while( db_step(&q)==SQLITE_ROW ){
           int x = db_column_int(&q,3);
           const char *zName = db_column_text(&q,4);
-          if( db_column_int64(&q,1)<iNow-maxAge || !is_a_leaf(x) ){
+          if( db_column_int64(&q,1)<=iNow-maxAge || !is_a_leaf(x) ){
             /* check-in locks expire after maxAge seconds, or when the
             ** check-in is no longer a leaf */
             db_multi_exec("DELETE FROM config WHERE name=%Q", zName);

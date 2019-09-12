@@ -3377,6 +3377,24 @@ struct Setting {
 ** to use.
 */
 /*
+** SETTING: lock-timeout  width=25 default=86400
+** This is the number of seconds that a check-in lock will be held on
+** the server before the lock expires.  The default is a 24-hour delay.
+** Set this value to zero to disable the check-in lock mechanism.
+**
+** This value should be set on the server to which users auto-sync
+** their work.  This setting has no affect on client repositories.  The
+** check-in lock mechanism is only effective if all users are auto-syncing
+** to the same server.
+**
+** Check-in locks are an advisory mechanism designed to help prevent
+** accidental forks due to a check-in race in installations where many
+** user are  committing to the same branch and auto-sync is enabled.
+** As forks are harmless, there is no harm in disabling this mechanism.
+** However, keeping check-in locks turned on can help prevent unnecessary
+** confusion.
+*/
+/*
 ** SETTING: main-branch      width=40 default=trunk
 ** The value is the primary branch for the project.
 */
