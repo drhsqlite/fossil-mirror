@@ -1,5 +1,5 @@
-C Add\sthe\slock-timeout\ssetting.
-D 2019-09-12T07:31:58.092
+C Performance\soptimization\sin\sthe\scontrol\sartifact\sparser.
+D 2019-09-12T16:31:25.163
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -522,7 +522,7 @@ F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
-F src/manifest.c 9cf226de6f66a7c06cf55329731f014f186d3ea0c0ac9a8d0e57eea361e77d81
+F src/manifest.c 864125bada226078836382bdf3a282a745feadc677c90781d7d43cdc6a99a347
 F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
 F src/markdown_html.c c73b21b6a83fc856ba103246a51c09849bd9e4dd5dc18cf9bbb08e96748cb1ee
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72a4b613479ad77bbfc60c8953cc3da598edcf69e4a78c6f7eda5675c98d42fe
-R 1b54b59678cdce25fab8fa2e4e1351a2
+P 6d3daf74e385072cdf1dcf748e709faeefb632cb63c6fb707e05ec3593f326bd
+R 96346084967a61191ba394a8b33d7721
 U drh
-Z 87b612278c83b535e8a7ad1c133d4036
+Z 30800c69b4ba946ab3e3311ae48bd280

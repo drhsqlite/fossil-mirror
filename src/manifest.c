@@ -347,16 +347,15 @@ struct ManifestText {
 ** Return NULL if there are no more tokens on the current line.
 */
 static char *next_token(ManifestText *p, int *pLen){
-  char *z;
   char *zStart;
-  int c;
+  int n;
   if( p->atEol ) return 0;
-  zStart = z = p->z;
-  while( (c=(*z))!=' ' && c!='\n' ){ z++; }
-  *z = 0;
-  p->z = &z[1];
-  p->atEol = c=='\n';
-  if( pLen ) *pLen = z - zStart;
+  zStart = p->z;
+  n = strcspn(p->z, " \n");
+  p->atEol = p->z[n]=='\n';
+  p->z[n] = 0;
+  p->z += n+1;
+  if( pLen ) *pLen = n;
   return zStart;
 }
 
