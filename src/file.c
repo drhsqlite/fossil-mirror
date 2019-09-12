@@ -878,6 +878,23 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
   if( z[i-1]=='/' ) return 0;
   return 1;
 }
+int file_is_simple_pathname_nonstrict(const char *z){
+  unsigned char c = (unsigned char) z[0];
+  if( c=='/' || c==0 ) return 0;
+  if( c=='.' ){
+    if( z[1]=='/' || z[1]==0 ) return 0;
+    if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
+  }
+  while( (z = strchr(z+1, '/'))!=0 ){
+    if( z[1]=='/' ) return 0;
+    if( z[1]==0 ) return 0;
+    if( z[1]=='.' ){
+      if( z[2]=='/' || z[2]==0 ) return 0;
+      if( z[2]=='.' && (z[3]=='/' || z[3]==0) ) return 0;
+    }
+  }
+  return 1;
+}
 
 /*
 ** If the last component of the pathname in z[0]..z[j-1] is something
