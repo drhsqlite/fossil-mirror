@@ -1,5 +1,5 @@
-C Add\sthe\s--limit\sN\soption\sto\sthe\stest-parse-all-blobs\stest\scommand,\sso\sthat\nwe\scan\seasily\slimit\sthe\srun-time\sof\sthat\scommand\sfor\scachegrind\sperformance\ntesting.
-D 2019-09-12T16:43:29.206
+C Use\sstrspn()\sto\simprove\sthe\sperformance\sof\svalidate16().
+D 2019-09-12T16:51:09.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -470,7 +470,7 @@ F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 1a7dd8eea68a883f639c39fdb0982662c54e73dfd5fe216f77c71eb8249b66f7
 F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
 F src/doc.c 85fedf504b8c401c170a09357304531c143e4ca27214480cf9a09cd713b31501
-F src/encode.c 415dce08b31bd25aaf37d81178504f751fa78fb00f873b8bb9cd1dd685a51d9e
+F src/encode.c e0cb2bf677e4ab80beb994d01590312b2c83e6a274bca028156961f03176f0fd
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d802ec514f6e48414e749b3e8821f8b091d73522bd90db40bf54d06c5fcb70e
-R 7258d9c37d1bc14edece19c1d85ab007
+P 52211ccc2f90d333213cfd790458dcc16c5e471822d01d396a6dd9f735809885
+R bae3204d70658fa57f70ee30f8119b42
 U drh
-Z 9ad2a834b7ef1fb71926e9851e8dba20
+Z 9b350b78896989ae55987a38eb8a0604
