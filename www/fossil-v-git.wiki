@@ -386,7 +386,7 @@ development model:
     process.</p></li>
 
     <li><p><b>Identical clones:</b> Fossil's autosync system tries to
-    keep local clones identical to the repository it cloned
+    keep each local clone identical to the repository it cloned
     from.</p></li>
 </ul>
 
@@ -396,6 +396,22 @@ reporting on the state of the project and the work of its developers, so
 that everyone — especially the project leader — can maintain a better
 mental picture of what is happening, leading to better situational
 awareness.
+
+You can think about this difference in terms of
+[https://en.wikipedia.org/wiki/Feedback | feedback loop size], which we
+know from the mathematics of
+[https://en.wikipedia.org/wiki/Control_theory | control theory] to
+directly affect the speed at which any system can safely make changes.
+The larger the feedback loop, the slower the whole system must run in
+order to avoid loss of control. The same concept shows up in other
+contexts, such as in the [https://en.wikipedia.org/wiki/OODA_loop | OODA
+loop] concept originally developed to explain the success of the US F-86
+Sabre fighter aircraft over the on-paper superior MiG-15, then later
+applied in other contexts, such as business process management.
+Committing your changes to private branches in order to delay a public
+push to the parent repo increases the size of your collaborators'
+control loops, either causing them to slow their work in order to safely
+react to your work, or to overcorrect in response to each change.
 
 Each DVCS can be used in the opposite style, but doing so works against
 their low-friction paths.
