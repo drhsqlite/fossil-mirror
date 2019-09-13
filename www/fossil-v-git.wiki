@@ -54,6 +54,8 @@ with further description in the text that follows.
     <td>Many check-outs per repository</td></tr>
 <tr><td>Remembers what you should have done</td>
     <td>Remembers what you actually did</td></tr>
+<tr><td>Commit first</td>
+    <td>Test first</td></tr>
 <tr><td>SHA-2</td>
     <td>SHA-3</td></tr>
 </table></blockquote>
@@ -595,7 +597,89 @@ We go into more detail on this topic in a separate article,
 [./rebaseharm.md | Rebase Considered Harmful].
 
 
-<h3 id="hash">2.8 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>
+<h3 id="testing">2.8 Test Before Commit</h3>
+
+One of the things that falls out of Git's default separation of commit
+from push is that there are several Git sub-commands that jump straight
+to the commit step before a change could possibly be tested. Fossil, by
+contrast, makes the equivalent change to the local working check-out
+only, requiring a separate check-in step to commit the change. This
+design difference falls naturally out of Fossil's default-enabled
+autosync feature.
+
+The prime example in Git is rebasing: the change happens to the local
+repository immediately if successful, even though you haven't tested the
+change yet. It's possible to argue for such a design in a tool like Git
+which doesn't automatically push the change up to its parent, because
+you can still test the change before pushing local changes to the parent
+repo, but in the meantime you've made a durable change to your local Git
+repository's blockchain. You must do something drastic like <tt>git
+reset --hard</tt> to revert that rebase if it causes a problem. If you
+push your rebased local repo up to the parent without testing first,
+you've now committed the error on a public branch, effectively a
+violation of
+[https://www.atlassian.com/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing
+| the golden rule of rebasing].
+
+Lesser examples are the Git <tt>merge</tt>, <tt>cherry-pick</tt>, and
+<tt>revert</tt> commands, all of which apply work from one branch onto
+another, and all of which do their work immediately without giving you
+an opportunity to test the change first locally unless you give the
+<tt>--no-commit</tt> option.
+
+Fossil cannot sensibly work that way because of its default-enabled
+autosync feature. Instead of jumping straight to the commit step, Fossil
+applies the proposed merge to the local working directory only,
+requiring a separate check-in step before the change is committed to the
+repository blockchain. This gives you a chance to test the change,
+whether manually, or by running your software's automatic tests, or
+both.
+
+Another difference is that because Fossil requires an explicit commit
+for a merge, it makes you give an explicit commit <i>message</i> for
+each merge, whereas Git writes that commit message itself by default
+unless you give the optional <tt>--edit</tt> flag to override it.
+
+We don't look at this difference as a workaround in Fossil for autosync,
+but instead as a test-first philosophical difference. When every commit
+is pushed to the parent repo by default, it encourages a working style
+in which every commit is tested first. We think this is an inherently
+good thing.
+
+Incidentally, this is a good example of Git's messy command design.
+These three commands:
+
+<pre>
+    $ git merge HASH 
+    $ git cherry-pick HASH 
+    $ git revert HASH
+</pre>
+
+...are all the same command in Fossil:
+
+<pre>
+    $ fossil merge HASH
+    $ fossil merge --cherrypick HASH
+    $ fossil merge --backout HASH
+</pre>
+
+If you think about it, they're all the same function: apply work done on
+one branch to another. All that changes between these commands is how
+much work gets applied — just one check-in or a whole branch — and the
+merge direction.  This is the sort of thing we mean when we point out
+that Fossil's command interface is simpler than Git's: there are fewer
+concepts to keep track of in your mental model of Fossil's internal
+operation.
+
+Fossil's implementation of the feature is also simpler to describe. The
+online help for <tt> [/help?cmd=merge | fossil merge]</tt> is currently
+41 lines long, whereas the aggregate man page length for the above three
+Git commands is over 1000 lines, much of it mutually redundant. (e.g.
+the <tt>--edit</tt> and <tt>--no-commit</tt> options get described three
+different times, each time differently.)
+
+
+<h3 id="hash">2.9 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>
 
 Fossil started out using 160-bit SHA-1 hashes to identify check-ins,
 just as in Git. That changed in early 2017 when news of the

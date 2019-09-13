@@ -1,5 +1,5 @@
-C Added\sa\sfew\sparas\sto\ssection\s3.0\sin\srebaseharm.md,\sgiving\sconsequences\nof\ssiloed\sdevelopment\sin\sSocratic\sfashion.
-D 2019-09-13T09:25:05.172
+C Added\ssection\s"2.8\sTest\sBefore\sCommit"\sto\sthe\sfossil-v-git\sdoc.
+D 2019-09-13T10:46:12.632
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -836,7 +836,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki b85534705f3d29b22b3f850e92579c4ce274b3eaed7582aa445639b4f0dd07b7
+F www/fossil-v-git.wiki a9dc5330e3d468b1aac7c2777a63494bf6344474069dd5193180b8cf127f259e
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd689b3813464a41d1bfb3f0879960b9a1c18f1c0a268094ffddf0a03c31af68
-R d60b48c92bfad6f379a3a729b23d41d7
+P 924bf44d398461d03ac1eb1ccc058928260ebe789ec61cd23c86b39186b7ddb5
+R 2b79b92d21918bf1607c19bcd5b02feb
 U wyoung
-Z fc66f8eb3a1e6eacd7d1b1a873c8a555
+Z 7895f75e28541cf13c9cb036cdf54368
