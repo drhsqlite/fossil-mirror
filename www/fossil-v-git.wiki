@@ -574,7 +574,7 @@ mistakes.
 Fossil, in contrast, puts more emphasis on recording exactly what happened,
 including all of the messy errors, dead-ends, experimental branches, and
 so forth.  One might argue that this
-makes the history of a Fossil project "messy."  But another point of view
+makes the history of a Fossil project "messy," but another point of view
 is that this makes the history "accurate."  In actual practice, the
 superior reporting tools available in Fossil mean that the added "mess"
 is not a factor.
@@ -590,6 +590,9 @@ limitations that prevent global history rewrites.
 
 One commentator characterized Git as recording history according to
 the victors, whereas Fossil records history as it actually happened.
+
+We go into more detail on this topic in a separate article,
+[./rebaseharm.md | Rebase Considered Harmful].
 
 
 <h3 id="hash">2.8 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>

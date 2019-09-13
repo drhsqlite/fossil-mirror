@@ -1,5 +1,5 @@
-C Add\sthe\soptimized\sfile_is_simple_pathname_nonstrict()\sas\san\salternative\nto\sfile_is_simple_pathname()\swhen\sparsing\smanifests.
-D 2019-09-12T17:51:42.638
+C Added\sanother\slink\sfrom\swww/fossil-v-git.wiki\sto\srebaseharm.md.
+D 2019-09-13T09:00:06.435
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -836,7 +836,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki c14208acfd3c483234310ec6254fd842257f9515fac6cff818f3d40a1138dbcc
+F www/fossil-v-git.wiki b85534705f3d29b22b3f850e92579c4ce274b3eaed7582aa445639b4f0dd07b7
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0aaefeaba1bbca5811b7e4cb946eb2f1a2afebeeaca35d76fac05d014b43c25f
-R bf3d49c572388014316d319f1807e50c
-U drh
-Z 32d2c42717a46fbdb118597f8d045c9c
+P b4aadf2cea1a4a082044a9ce11fd676517a7224900ac817e0cfe07d13cbc33b2
+R 49124658657b60b3ecdcc1ccb928b99c
+U wyoung
+Z 9c3eab09b74c51c7dd05e668343e8991
