@@ -542,41 +542,58 @@ tightly focused and cohesive implementation.
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
-A "repository" in Git is a pile-of-files in the <tt>.git</tt>
-subdirectory of a single check-out. The working check-out directory and
-the <tt>.git</tt> repository subdirectory are normally in the same
-directory within the file system.
+The default mode of operation in Git is to have a single working
+directory with a single <tt>.git</tt> subdirectory holding the actual
+local repository contents.
 
-With Fossil, a "repository" is a single SQLite database file that can be
-stored anywhere.  There can be multiple active check-outs from the same
-repository, perhaps open on different branches or on different snapshots
-of the same branch.  It is common in Fossil to switch branches with a
-"<tt>cd</tt>" command between two check-out directories rather than
-switching to another branch in place within a single working directory.
-Long-running tests or builds can be running in one check-out while
-changes are being committed in another.
+Fossil doesn't work that way. A Fossil repository is a SQLite database
+file which is normally stored outside the working directory. You can
+[/help?cmd=open | open] a Fossil repository any number of times into
+any number of working directories. A common usage pattern is to have one
+working directory per active working branch, so that switching branches
+is done with a <tt>cd</tt> command rather than by checking out the
+branches successively in a single working directory.
 
-From the start, Git has allowed symlinks to this <tt>.git</tt> directory
-from multiple working directories. The <tt>git init</tt> command offers
-the <tt>--separate-git-dir</tt> option to set this up automatically.
-Then in version 2.5, Git added the
-"[https://git-scm.com/docs/git-worktree|git-worktree]" feature to
-provide a higher-level management interface atop this basic mechanism.
-Use of this more closely emulates Fossil's decoupling of repository and
-working directory, but the fact remains that it is far more common in
-Git usage to simply switch a single working directory among branches in
-place.
+You can use Git in the Fossil style, either by manually symlinking the
+<tt>.git</tt> directory from one working directory to another or by use
+of the <tt>[https://git-scm.com/docs/git-worktree|git-worktree]</tt>
+feature. Nevertheless, Git's default tie between working directory and
+repository means the standard method for working with a Git repo is to
+have one working directory only. Most Git tutorials teach this style, so
+it is how most people learn to use Git. Because relatively few people
+use Git with multiple working directories per repository, there are
+[https://duckduckgo.com/?q=git+worktree+problem | several known
+problems] in working that way, which don't happen in Fossil because of
+the clear separation between repository and working directory.
 
-The main downside of that working style is that it invalidates all build
-objects created from files that change in switching between branches.
-When you have multiple working directories for a single repository, you
-can have a completely independent state in each working directory which
-is untouched by the "<tt>cd</tt>" command you use to switch among them.
+Switching branches inside a single working directory loses local context
+on each switch.
 
-There are also practical consequences of the way <tt>.git</tt> links
-work that make multiple working directories in Git
-[https://duckduckgo.com/?q=git+worktree+problem | not quite
-interchangeable], as they are in Fossil.
+For instance, in any software project where the runnable program must be
+built from source files, you invalidate build objects on each switch,
+artificially increasing the time required to switch versions. This
+affects software written in statically-compiled programming languages
+such as C, Java, and Haskell, but it can even affect programs written in
+dynamic languages like JavaScript. A common
+[https://en.wikipedia.org/wiki/Single-page_application | SPA] build
+process involves a [http://browserify.org/ | Browserify] pass to convert
+[https://nodejs.org/ | Node] packages to run in a web browser,
+[https://sass-lang.com | SASS files] to CSS,
+[https://www.typescriptlang.org | Typescript] to JavaScript, etc., to
+say nothing of [https://github.com/mishoo/UglifyJS | uglification] and
+other passes. Once all that processing work is done for a given input
+file in a given working directory, why re-do that work just to switch
+versions?
+
+For another example, you might have an active long-running test grinding
+away in a working directory, then get a call from a customer requiring
+that you switch to a stable branch to answer questions in terms of the
+version that customer is running. You don't want to stop the test in
+order to switch your lone working directory to the stable branch.
+
+Disk space is cheap. Having several working directories, each with its
+own local state, makes switching versions cheap and fast. Plus,
+<tt>cd</tt> is faster to type than <tt>git checkout</tt>.
 
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
