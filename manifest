@@ -1,5 +1,5 @@
-C Attempt\sto\simprove\serror\smessages\sresulting\sfrom\sSQL\serrors.
-D 2019-09-13T13:54:36.692
+C Update\sto\sopenssl\s1.1.1d
+D 2019-09-13T22:53:09.225
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -521,7 +521,7 @@ F src/main.c 4165634b6cad703ef1d1f1c3673b87474b710bca5687355f1ab7c025a386ca40
 F src/main.mk 48fd777d64d4adbcefc05457287855b9b55e9f39af2b8b3c40b6b54b72f1ed9c
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
-F src/makemake.tcl 253fdfe2177d1fc0ee965618c78c4815ef0b022c5a68e7f843a61a9ad12592fd x
+F src/makemake.tcl 868eeab769868d490e9cc718f706d679dcf12645a6e4183300140aeec47e9290 x
 F src/manifest.c 93eae17cb8265384cd066432f45c2475ac6d86ce30dc864823462b7215762fe6
 F src/markdown.c 8f0616a9e7fc73d1d79423be357059036816893301f15f9fd252964774cc9ae4
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
@@ -741,9 +741,9 @@ F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba 
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
 F win/Makefile.PellesCGMake bb69df010a69bf5f1290d16fb2e51f7edcedae8b4866eac77a430fc663a7bfcb
 F win/Makefile.dmc db9859d1d3329d8464aa8ab4c82471c7fa88915a983b7a1688d48b9a1122b398
-F win/Makefile.mingw 48c28a92b91e78a409dce894f26c43a586c6aa9b0c5ad274e34a1e64a10bb5cb
-F win/Makefile.mingw.mistachkin 3ced7e28713e63694dcb7d10e19b84a6d51cd310fd9b7f95157203781d23d2a5
-F win/Makefile.msc 77812332312040c52c07d9dad0933a80820ec614e5483c5999adf1a1f7dc41d4
+F win/Makefile.mingw 7b6e3c2eb04b3dc48bbafb54aad7e5c75a724f9a8accda84f0562a94d5f960c9
+F win/Makefile.mingw.mistachkin e02d24f4584e59247c9168322204f39771e87dad5add8a16f5440585c8c968f2
+F win/Makefile.msc fdab11e877da45e769735363358745a2677cded0ba9ae2f27fbbdb977c92929d
 F win/buildmsvc.bat dbf59cba8aff8cc6babf6d516a6be4d693d9753ecba3d4b5b862c496c775ec3a
 F win/fossil.exe.manifest f81a7d376816e7c6c38495b475e7fa54ed09b002
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -784,7 +784,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 3f8e37424de6455beb95bd1e7eba2faa132f4bdf0d4be5826c431f1f98a8e283
+F www/build.wiki bcf17529f482d64242778d4b7c0730f499c3c27426e49b1d326a879b70817c78
 F www/caps/admin-v-setup.md c3b9ac2648ac6665bcec46a29a3361bedd0ad08b168f388a1a7bc686cebe9aaf
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 10a57cece17e70fff787546f565213e43d6123400a5da3530c540910c848635c
-R 90d4f7d166839f09800f4d70fa50c9f6
-U drh
-Z 5609fde0a4924b906d57a2e49e059000
+P b94e15cff72b105e9fa6ecbf404baeb4036827bd1b6fb75ed7459574fba2c361
+R 1337e7fde9a18b58a8036b2b2034534c
+U jan.nijtmans
+Z a0a8b65fc19a87892023c49a306161fe
