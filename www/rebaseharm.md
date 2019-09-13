@@ -5,7 +5,7 @@ designer of Fossil (and [original author][vhist] of this article) considers reba
 an anti-pattern to be avoided. This article attempts to
 explain that point of view.
 
-[vhist]: https://fossil-scm.org/fossil/finfo?name=www/rebaseharm.md
+[vhist]: /finfo?name=www/rebaseharm.md&ubg
 
 ## 1.0 Rebasing is dangerous
 

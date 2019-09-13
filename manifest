@@ -1,5 +1,5 @@
-C Added\sparagraph\son\sfeedback\sloops,\scontrol\stheory,\sand\sOODA\sto\sthe\nfossil-v-git\sdoc,\sdistilling\sa\srecent\sdiscussion\son\sthe\sforum.
-D 2019-09-13T12:00:34.680
+C Enhance\sthe\stitle\sfor\sthe\s/finfo\spage\swhen\sthe\subg\squery\sparameter\sis\spresent.\nUse\sthe\subg\squery\sparameter\sfor\sthe\sdocument\shistory\slink\son\sthe\nrebaseharm.md\spage.
+D 2019-09-13T12:40:12.369
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -476,7 +476,7 @@ F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
 F src/export.c d7b08f3754bb9b3767a2d025a1150a6cfcb273637ca8822558dc87ca13f3f2ff
 F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c 38f22c1609bd18715e821a57aba3c99e7b2687a93be467cbcf23ce9ffe0f9b30
-F src/finfo.c 286bed32c283609fcd0cfa1976b2881d9d011507e38df31518faa57e1c97eb1d
+F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 128df71b1bfd9e6bd5b5588f9c0b8015cba932b480bb43de17bf73fed1c15d5e
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
@@ -880,7 +880,7 @@ F www/rebase04.graphml 9b1d5de1e8275bfad9a913b42368fca75c55a4562d4465b1228766d0f
 F www/rebase04.svg 854a2068b9e6b0e6030707e2e463f72caa414efed652c1468d883a30b0a9ce7d
 F www/rebase05.graphml 92f4ad1ffc94f1b82ade20a3cef8d58e6f34ff5e121b64a9a1a12d66181a9bdb
 F www/rebase05.svg b2b6e6ad4c7bcd1c39a08b4f72106dfcb6d7ae4eb21aa15732ed3c2320067672
-F www/rebaseharm.md 9b3f89e89498e6fe5e455a855271418cecfb6ced88768d90ac80dff76ade92cc
+F www/rebaseharm.md c8576839e3fa34c236b0d096e279cf54277dcd7a9379375345babda4b4519e9e
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f7576b0242accf6e0aae1e03debd89a7bcc01e4ee3ccbe559fbf85c0a727dbb
-R f56891ff3340f8626c17f35137253018
-U wyoung
-Z a44371799035667dd658d9be4bc8b97c
+P b0f2a48f98e0bf0eeabdee4d3b2fdffaef209c95a984056ab6ba31ce566b6f89
+R 13bd5ac1c6c97f8b06199d4e65030f69
+U drh
+Z c13d117a9b2bcf13f2d3bc4666f42ade

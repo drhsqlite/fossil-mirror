@@ -455,6 +455,9 @@ void finfo_page(void){
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
+  if( uBg ){
+    blob_append(&title, " (color-coded by user)", -1);
+  }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
