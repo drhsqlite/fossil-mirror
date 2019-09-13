@@ -192,12 +192,7 @@ int fossil_strcmp(const char *zA, const char *zB){
   }else if( zB==0 ){
     return +1;
   }else{
-    int a, b;
-    do{
-      a = *zA++;
-      b = *zB++;
-    }while( a==b && a!=0 );
-    return ((unsigned char)a) - (unsigned char)b;
+    return strcmp(zA,zB);
   }
 }
 int fossil_strncmp(const char *zA, const char *zB, int nByte){

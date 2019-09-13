@@ -61,7 +61,7 @@ void shun_page(void){
   if( P("rebuild") ){
     db_close(1);
     db_open_repository(g.zRepositoryName);
-    db_begin_write();
+    db_begin_transaction();
     rebuild_db(0, 0, 0);
     admin_log("Rebuilt database.");
     db_end_transaction(0);

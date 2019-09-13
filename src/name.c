@@ -110,17 +110,21 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
 
 /*
 ** Return the RID that is the "root" of the branch that contains
-** check-in "rid" if inBranch==0 or the first check-in in the branch
-** if inBranch==1.
+** check-in "rid".  Details depending on eType:
+**
+**    eType==0    The check-in of the parent branch off of which
+**                the branch containing RID originally diverged.
+**
+**    eType==1    The first check-in of the branch that contains RID.
+**
+**    eType==2    The youngest ancestor of RID that is on the branch
+**                from which the branch containing RID diverged.
 */
-int start_of_branch(int rid, int inBranch){
+int start_of_branch(int rid, int eType){
   Stmt q;
   int rc;
-  char *zBr;
-  zBr = db_text("trunk","SELECT value FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d"
-                        " AND tagtype>0",
-                        rid, TAG_BRANCH);
+  int ans = rid;
+  char *zBr = branch_of_rid(rid);
   db_prepare(&q,
     "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
                        " WHERE tagid=%d AND tagtype>0"
@@ -132,14 +136,19 @@ int start_of_branch(int rid, int inBranch){
   fossil_free(zBr);
   do{
     db_reset(&q);
-    db_bind_int(&q, ":cid", rid);
+    db_bind_int(&q, ":cid", ans);
     rc = db_step(&q);
     if( rc!=SQLITE_ROW ) break;
-    if( inBranch && db_column_int(&q,1)==0 ) break;
-    rid = db_column_int(&q, 0);
-  }while( db_column_int(&q, 1)==1 && rid>0 );
+    if( eType==1 && db_column_int(&q,1)==0 ) break;
+    ans = db_column_int(&q, 0);
+  }while( db_column_int(&q, 1)==1 && ans>0 );
   db_finalize(&q);
-  return rid;
+  if( eType==2 && ans>0 ){
+    zBr = branch_of_rid(ans);
+    ans = compute_youngest_ancestor_in_branch(rid, zBr);
+    fossil_free(zBr);
+  }
+  return ans;
 }
 
 /*
@@ -167,6 +176,7 @@ int start_of_branch(int rid, int inBranch){
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
 ** If zType is "br" then find the first check-in of the named branch
 ** rather than the last.
+**
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 **
@@ -184,6 +194,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   const char *zXTag;     /* zTag with optional [...] removed */
   int nXTag;             /* Size of zXTag */
   const char *zDate;     /* Expanded date-time string */
+  const char *zTagPrefix = "sym";
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -272,10 +283,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
-  /* root:TAG -> The origin of the branch */
-  if( memcmp(zTag, "root:", 5)==0 ){
+  /* root:BR -> The origin of the branch named BR */
+  if( strncmp(zTag, "root:", 5)==0 ){
     rid = symbolic_name_to_rid(zTag+5, zType);
     return start_of_branch(rid, 0);
+  }
+  /* rootx:BR -> Most recent merge-in for the branch name BR */
+  if( strncmp(zTag, "merge-in:", 9)==0 ){
+    rid = symbolic_name_to_rid(zTag+9, zType);
+    return start_of_branch(rid, 2);
   }
 
   /* symbolic-name ":" date-time */
@@ -341,16 +357,20 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     if( rid ) return rid;
   }
 
+  if( zType[0]=='w' ){
+    zTagPrefix = "wiki";
+  }
   /* Symbolic name */
   rid = db_int(0,
     "SELECT event.objid, max(event.mtime)"
     "  FROM tag, tagxref, event"
-    " WHERE tag.tagname='sym-%q' "
+    " WHERE tag.tagname='%q-%q' "
     "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
     "   AND event.objid=tagxref.rid "
     "   AND event.type GLOB '%q'",
-    zTag, zType
+    zTagPrefix, zTag, zType
   );
+
   if( rid>0 ){
     if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
@@ -467,22 +487,33 @@ int name_collisions(const char *zName){
 /*
 ** COMMAND: test-name-to-id
 **
-** Convert a name to a full artifact ID.
+** Usage:  %fossil test-name-to-id [--count N] NAME
+**
+** Convert a NAME to a full artifact ID.  Repeat the conversion N
+** times (for timing purposes) if the --count option is given.
 */
 void test_name_to_id(void){
   int i;
+  int n = 0;
   Blob name;
   db_must_be_within_tree();
   for(i=2; i<g.argc; i++){
-    blob_init(&name, g.argv[i], -1);
-    fossil_print("%s -> ", g.argv[i]);
-    if( name_to_uuid(&name, 1, "*") ){
-      fossil_print("ERROR: %s\n", g.zErrMsg);
-      fossil_error_reset();
-    }else{
-      fossil_print("%s\n", blob_buffer(&name));
+    if( strcmp(g.argv[i],"--count")==0 && i+1<g.argc ){
+      i++;
+      n = atoi(g.argv[i]);
+      continue;
     }
-    blob_reset(&name);
+    do{
+      blob_init(&name, g.argv[i], -1);
+      fossil_print("%s -> ", g.argv[i]);
+      if( name_to_uuid(&name, 1, "*") ){
+        fossil_print("ERROR: %s\n", g.zErrMsg);
+        fossil_error_reset();
+      }else{
+        fossil_print("%s\n", blob_buffer(&name));
+      }
+      blob_reset(&name);
+    }while( n-- > 0 );
   }
 }
 

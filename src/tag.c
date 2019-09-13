@@ -276,7 +276,7 @@ void testtag_cmd(void){
   }
   g.markPrivate = content_is_private(rid);
   zValue = g.argc==5 ? g.argv[4] : 0;
-  db_begin_write();
+  db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
   db_end_transaction(0);
 }
@@ -471,7 +471,7 @@ void tag_cmd(void){
       usage("add ?options? TAGNAME CHECK-IN ?VALUE?");
     }
     zValue = g.argc==6 ? g.argv[5] : 0;
-    db_begin_write();
+    db_begin_transaction();
     tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue,
                      1+fPropagate+dryRun,zDateOvrd,zUserOvrd);
     db_end_transaction(0);
@@ -492,7 +492,7 @@ void tag_cmd(void){
     if( g.argc!=5 ){
       usage("cancel ?options? TAGNAME CHECK-IN");
     }
-    db_begin_write();
+    db_begin_transaction();
     tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, dryRun,
                      zDateOvrd, zUserOvrd);
     db_end_transaction(0);
@@ -778,7 +778,7 @@ void tagtimeline_page(void){
   if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
   if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
   if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

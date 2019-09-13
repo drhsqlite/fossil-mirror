@@ -388,7 +388,7 @@ void ticket_create_table(int separateConnection){
 void ticket_rebuild(void){
   Stmt q;
   ticket_create_table(1);
-  db_begin_write();
+  db_begin_transaction();
   db_prepare(&q,"SELECT tagname FROM tag WHERE tagname GLOB 'tkt-*'");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
@@ -898,7 +898,7 @@ void tkttimeline_page(void){
   }
   db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
   www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
-                     0, 0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   style_footer();
 }

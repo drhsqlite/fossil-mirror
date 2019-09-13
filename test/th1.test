@@ -565,10 +565,14 @@ if {$::outside_fossil_repo} {
   set skip_anycap 0
 }
 
-foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
+foreach perm [list \
+    a b c d e f g h i j k l m n o p q r s t u v w x y z \
+    A D \
+    2 3 4 5 6 7 ] {
   if {$perm eq "u"} continue; # NOTE: Skip "reader" meta-permission.
   if {$perm eq "v"} continue; # NOTE: Skip "developer" meta-permission.
 
+  set ::env(TH1_TEST_USER_CAPS) sxy
   fossil test-th-eval "anycap $perm"
   test th1-anycap-no-$perm-1 {$RESULT eq {0}}
 
@@ -581,14 +585,15 @@ foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
   if {$skip_anycap} { continue }
 
   run_in_checkout {
+    set ::env(TH1_TEST_USER_CAPS) sxy
     fossil test-th-eval --set-user-caps "anycap $perm"
     test th1-anycap-yes-$perm-1 {$RESULT eq {1}}
 
     set ::env(TH1_TEST_USER_CAPS) 1; # NOTE: Bad permission.
     fossil test-th-eval --set-user-caps "anycap $perm"
     test th1-anycap-no-$perm-1 {$RESULT eq {0}}
-    unset ::env(TH1_TEST_USER_CAPS)
 
+    set ::env(TH1_TEST_USER_CAPS) sxy
     fossil test-th-eval --set-user-caps "hascap $perm"
     test th1-hascap-yes-$perm-1 {$RESULT eq {1}}
 
@@ -597,6 +602,7 @@ foreach perm [list a b c d e f g h i j k l m n o p q r s t u v w x y z] {
     test th1-hascap-no-$perm-1 {$RESULT eq {0}}
     unset ::env(TH1_TEST_USER_CAPS)
 
+    set ::env(TH1_TEST_ANON_CAPS) sxy
     fossil test-th-eval --set-anon-caps "anoncap $perm"
     test th1-anoncap-yes-$perm-1 {$RESULT eq {1}}
 

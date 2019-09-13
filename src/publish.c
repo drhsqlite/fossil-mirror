@@ -79,7 +79,7 @@ void publish_cmd(void){
   db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc<3 ) usage("?--only? TAGS...");
-  db_begin_write();
+  db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY);");
   for(i=2; i<g.argc; i++){
     int rid = name_to_rid(g.argv[i]);

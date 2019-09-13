@@ -72,46 +72,15 @@ put a large image into a Fossil forum post this way, anyone subscribed
 to email alerts will get a copy of the raw URI text, which can amount to
 pages and pages of [ugly Base64-encoded text][b64].
 
-Fossil offers several alternatives for serving large content resources
-from within the repository:
-
-*   **versioned content** via [`/raw`](/help?cmd=/raw)
-*   **[unversioned content](./unvers.wiki)** via [`/uv`](/help?cmd=/uv)
-*   **relative links**
-
-Only the first two options work in [wiki articles][wiki],
-[tickets][tkt], [forum posts][fp], and [tech notes][tn].  The last
-option is a much simpler alternative, but it only works within [embedded
-documentation][ed]:
+For inline images within [embedded documentation][ed], it suffices to
+store the referred-to files in the repo and then refer to them using
+repo-relative URLs:
 
          ![large inline image](./inlineimage.jpg)
 
-Because all of these methods pull content from within the Fossil
-repository, they all count as “self” for the purposes of the CSP.
+This avoids bloating the doc text with `data:` URI blobs:
 
-This rule also works when the Fossil repository is but one path in a
-larger website. The browser can’t distinguish Fossil-served content from
-that served by the rest of the same web domain, so your repository can
-refer to other resources within that same web site, whether they are
-static files served by [an HTTP proxy in front of Fossil][svr], by
-another Fossil repository served under that same domain, or dynamic
-content served by, say, a PHP app on that same site.
-
-Beware that there are a number of problems that come up with using such
-out-of-repository resources, which all stem from the fact that they
-aren’t included in a [sync](/help?cmd=sync):
-
-1.  Relative links break in `fossil ui` when run on a clone.
-
-2.  Absolute links break under certain types of failover and
-    load-balancing schemes.
-
-3.  Absolute links fail when one’s purpose in using a clone is to
-    recover from the loss of a project web site by standing that clone
-    up [as a server][svr] elsewhere.
-
-You can avoid all of these problems by referring to in-repo resources
-exclusively.
+There are many other cases, [covered below](#serving).
 
 [b64]: https://en.wikipedia.org/wiki/Base64
 [svr]: ./server/
@@ -162,8 +131,8 @@ be protected at the system administration level on the Fossil server:
     from a trustworthy source and that an attacker cannot replace your
     Fossil server binary.
 
-*   **TH1 code:** The Fossil TH1 interpreter pre-defines the [`$nonce`
-    variable](./th1.md#nonce) for use in [custom skins][cs].  For
+*   **TH1 code:** The Fossil TH1 interpreter pre-defines the
+    [`$nonce` variable](./th1.md#nonce) for use in [custom skins][cs].  For
     example, some of the stock skins that ship with Fossil include a
     wall clock feature up in the corner that updates once a minute.
     These paths are safe in the default Fossil configuration because
@@ -179,7 +148,8 @@ be protected at the system administration level on the Fossil server:
     can only be installed by the Fossil server’s system administrator,
     this path is also considered safe.
 
-[su]: ./admin-v-setup.md
+[ext]: ./serverext.wiki
+[su]:  ./caps/admin-v-setup.md#apsu
 
 
 #### <a name="xss"></a>Cross-Site Scripting via Ordinary User Capabilities
@@ -239,14 +209,101 @@ through check-ins.
 
 [ed]:   ./embeddeddoc.wiki
 [edtf]: ./embeddeddoc.wiki#th1
-[ext]:  ./serverext.wiki
-[fp]:   ./forum.wiki
 [hfed]: ./embeddeddoc.wiki#html
+
+
+## <a name="serving"></a>Serving Files Within the Limits
+
+There are several ways to serve files within the above restrictions,
+avoiding the need to [override the default CSP](#override). In
+decreasing order of simplicity and preference:
+
+1.  Within [embedded documentation][ed] (only!) you can refer to files
+    stored in the repo using document-relative file URLs:
+
+         ![inline image](./inlineimage.jpg)
+
+2.  Relative file URLs don’t work from [wiki articles][wiki],
+    [tickets][tkt], [forum posts][fp], or [tech notes][tn], but you can
+    still refer to them inside the repo with [`/doc`][du] or
+    [`/raw`][ru] URLs:
+
+         ![inline image](/doc/trunk/images/inlineimage.jpg)
+         <img src="/raw/logo.png" style="float: right; margin-left: 2em">
+
+3.  Store the files as [unversioned content][uv], referred to using
+    [`/uv`][uu] URLs instead:
+
+         ![logo](/uv/logo.png)
+
+4.  Use the [optional CGI server extensions feature](./serverext.wiki)
+    to serve such content via `/ext` URLs.
+
+5.  Put Fossil behind a [front-end proxy server][svr] as a virtual
+    subdirectory within the site, so that our default CSP’s “self” rules
+    match static file routes on that same site. For instance, your repo
+    might be at `https://example.com/code`, allowing documentes in that
+    repo to refer to:
+
+    *   images as `/image/foo.png`
+    *   JavaScript files  as `/js/bar.js`
+    *   CSS style sheets as `/style/qux.css`
+
+    Although those files are all outside the Fossil repo at `/code`,
+    keep in mind that it is the browser’s notion of “self” that matters
+    here, not Fossil’s. All resources come from the same Internet
+    domain, so the browser cannot distinguish Fossil-provided content
+    from static content served directly by the proxy server.
+
+    This method opens up many other potential benefits, such as [TLS
+    encryption](./tls-nginx.md), high-performance tuning via custom HTTP
+    headers, integration with other web technologies like PHP, etc.
+
+You might wonder why we rank in-repo content as most preferred above. It
+is because the first two options are the only ones that cause such
+resources to be included in an initial clone or in subsequent repo
+syncs. The methods further down the list have a number of undesirable
+properties:
+
+1.  Relative links to out-of-repo files break in `fossil ui` when run on
+    a clone.
+
+2.  Absolute links back to the public repo instance solve that:
+
+        ![inline image](https://example.com/images/logo.png)
+
+    ...but using them breaks some types of failover and load-balancing
+    schemes, because it creates a [single point of failure][spof].
+
+3.  Absolute links fail when one’s purpose in using a clone is to
+    recover from the loss of a project web site by standing that clone
+    up [as a server][svr] elsewhere. You probably forgot to copy such
+    external resources in the backup copies, so that when the main repo
+    site disappears, so do those files.
+
+Unversioned content is in the middle of the first list above — between
+fully-external content and fully in-repo content — because it isn’t
+included in a clone unless you give the `--unversioned` flag. If you
+then want updates to the unversioned content to be included in syncs,
+you have to give the same flag to [a `sync` command](/help?cmd=sync).
+There is no equivalent with other commands such as `up` and `pull`, so
+you must then remember to give `fossil uv` commands when necessary to
+pull new unversioned content down.
+
+Thus our recommendation that you refer to in-repo resources exclusively.
+
+[du]:   /help?cmd=/doc
+[fp]:   ./forum.wiki
+[ru]:   /help?cmd=/raw
+[spof]: https://en.wikipedia.org/wiki/Single_point_of_failure
 [tkt]:  ./tickets.wiki
 [tn]:   ./event.wiki
+[uu]:   /help?cmd=/uv
+[uv]:   ./unvers.wiki
 [wiki]: ./wikitheory.wiki
 
-## <a name="override"></a>Replacing the Default CSP
+
+## <a name="override"></a>Overriding the Default CSP
 
 If you wish to relax the default CSP’s restrictions or to tighten them
 further, there are two ways to accomplish that:

@@ -187,6 +187,31 @@ void compute_ancestors(int rid, int N, int directOnly){
 }
 
 /*
+** Compute the youngest ancestor of record ID rid that is a member of
+** branch zBranch.
+*/
+int compute_youngest_ancestor_in_branch(int rid, const char *zBranch){
+  return db_int(0,
+    "WITH RECURSIVE "
+    "  ancestor(rid, mtime) AS ("
+    "    SELECT %d, mtime FROM event WHERE objid=%d "
+    "    UNION "
+    "    SELECT plink.pid, event.mtime"
+    "      FROM ancestor, plink, event"
+    "     WHERE plink.cid=ancestor.rid"
+    "       AND event.objid=plink.pid"
+    "     ORDER BY mtime DESC"
+    "  )"
+    "  SELECT ancestor.rid FROM ancestor"
+    "   WHERE EXISTS(SELECT 1 FROM tagxref"
+                    " WHERE tagid=%d AND tagxref.rid=ancestor.rid"
+                    "   AND value=%Q AND tagtype>0)"
+    "  LIMIT 1",
+    rid, rid, TAG_BRANCH, zBranch
+  );
+}
+
+/*
 ** Compute all direct ancestors (merge ancestors do not count)
 ** for the check-in rid and put them in a table named "ancestor".
 ** Label each generation with consecutive integers going backwards
@@ -542,7 +567,7 @@ void leaves_page(void){
   if( fNg==0 ) tmFlags |= TIMELINE_GRAPH;
   if( fBrBg ) tmFlags |= TIMELINE_BRCOLOR;
   if( fUBg ) tmFlags |= TIMELINE_UCOLOR;
-  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0);
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   style_footer();

@@ -1231,8 +1231,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt = p->Delete =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum =
-                             p->EmailAlert = p->Announce = p->Debug =
-                             p->Private = 1;
+                             p->EmailAlert = p->Announce = p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1913,7 +1912,7 @@ void login_group_join(
   */
   zSelfProjCode = abbreviated_project_code(zSelfProjCode);
   zOtherProjCode = abbreviated_project_code(zOtherProjCode);
-  db_begin_write();
+  db_begin_transaction();
   db_multi_exec(
     "DELETE FROM \"%w\".config WHERE name GLOB 'peer-*';"
     "INSERT INTO \"%w\".config(name,value) VALUES('peer-repo-%q',%Q);"

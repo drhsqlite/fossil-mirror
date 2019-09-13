@@ -92,6 +92,18 @@ static void db_err(const char *zFormat, ...){
 }
 
 /*
+** Check a result code.  If it is not SQLITE_OK, print the
+** corresponding error message and exit.
+*/
+static void db_check_result(int rc, Stmt *pStmt){
+  if( rc!=SQLITE_OK ){
+    db_err("SQL error (%d,%d: %s) while running [%s]",
+       rc, sqlite3_extended_errcode(g.db),
+       sqlite3_errmsg(g.db), blob_str(&pStmt->sql));
+  }
+}
+
+/*
 ** All static variable that a used by only this file are gathered into
 ** the following structure.
 */
@@ -480,7 +492,7 @@ int db_reset(Stmt *pStmt){
   int rc;
   db_stats(pStmt);
   rc = sqlite3_reset(pStmt->pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   return rc;
 }
 int db_finalize(Stmt *pStmt){
@@ -498,7 +510,7 @@ int db_finalize(Stmt *pStmt){
   db_stats(pStmt);
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   pStmt->pStmt = 0;
   return rc;
 }
@@ -579,24 +591,27 @@ void db_ephemeral_blob(Stmt *pStmt, int N, Blob *pBlob){
 }
 
 /*
-** Check a result code.  If it is not SQLITE_OK, print the
-** corresponding error message and exit.
-*/
-void db_check_result(int rc){
-  if( rc!=SQLITE_OK ){
-    db_err("SQL error: %s", sqlite3_errmsg(g.db));
-  }
-}
-
-/*
 ** Execute a single prepared statement until it finishes.
 */
 int db_exec(Stmt *pStmt){
   int rc;
   while( (rc = db_step(pStmt))==SQLITE_ROW ){}
   rc = db_reset(pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   return rc;
+}
+
+/*
+** COMMAND: test-db-exec-error
+**
+** Invoke the db_exec() interface with an erroneous SQL statement
+** in order to verify the error handling logic.
+*/
+void db_test_db_exec_cmd(void){
+  Stmt err;
+  db_find_and_open_repository(0,0);
+  db_prepare(&err, "INSERT INTO repository.config(name) VALUES(NULL);");
+  db_exec(&err);
 }
 
 /*
@@ -2260,7 +2275,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config(0, 0);
   if( zTemplate ) db_attach(zTemplate, "settingSrc");
-  db_begin_write();
+  db_begin_transaction();
   if( bUseSha1 ){
     g.eHashPolicy = HPOLICY_SHA1;
     db_set_int("hash-policy", HPOLICY_SHA1, 0);
@@ -2643,7 +2658,7 @@ char *db_get_mtime(const char *zName, const char *zFormat, const char *zDefault)
   return z;
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
-  db_begin_write();
+  db_begin_transaction();
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%Q)",
@@ -2659,7 +2674,7 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   db_end_transaction(0);
 }
 void db_unset(const char *zName, int globalFlag){
-  db_begin_write();
+  db_begin_transaction();
   if( globalFlag ){
     db_swap_connections();
     db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
@@ -3375,6 +3390,24 @@ struct Setting {
 ** especially on cloned repositories on workstations. Leaving
 ** "localauth" at 0 makes the "fossil ui" command more convenient
 ** to use.
+*/
+/*
+** SETTING: lock-timeout  width=25 default=86400
+** This is the number of seconds that a check-in lock will be held on
+** the server before the lock expires.  The default is a 24-hour delay.
+** Set this value to zero to disable the check-in lock mechanism.
+**
+** This value should be set on the server to which users auto-sync
+** their work.  This setting has no affect on client repositories.  The
+** check-in lock mechanism is only effective if all users are auto-syncing
+** to the same server.
+**
+** Check-in locks are an advisory mechanism designed to help prevent
+** accidental forks due to a check-in race in installations where many
+** user are  committing to the same branch and auto-sync is enabled.
+** As forks are harmless, there is no harm in disabling this mechanism.
+** However, keeping check-in locks turned on can help prevent unnecessary
+** confusion.
 */
 /*
 ** SETTING: main-branch      width=40 default=trunk

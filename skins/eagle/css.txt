@@ -170,8 +170,11 @@ table.timelineTable {
   // border-collapse: collapse;
 }
 
-tr.timelineSelected {
+.timelineSelected {
   background-color: #7EA2D9;
+}
+.timelineSecondary {
+  background-color: #7EA27E;
 }
 
 /* commit node */

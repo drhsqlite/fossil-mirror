@@ -893,7 +893,7 @@ void tktsetup_timeline_page(void){
     cgi_redirect("tktsetup");
   }
   style_header("Ticket Display On Timelines");
-  db_begin_write();
+  db_begin_transaction();
   @ <form action="%s(g.zTop)/tktsetup_timeline" method="post"><div>
   login_insert_csrf_secret();
 

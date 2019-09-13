@@ -198,6 +198,8 @@ int dispatch_alias(const char *zName, const CmdOrPage **ppCmd){
     }
     if( fossil_islower(zName[0]) ){
       cgi_replace_query_parameter(zName, zValue);
+    }else if( fossil_isupper(zName[0]) ){
+      cgi_replace_query_parameter_tolower(zName, zValue);
     }
   }
   return 0;

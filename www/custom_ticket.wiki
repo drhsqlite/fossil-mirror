@@ -85,7 +85,7 @@ after the closing tr tag and before the "enable_output" line:
   &lt;/td>
 </pre>
 This will add a row which displays these two fields, in the event the user has
-"edit" capability.
+<a href="./caps/ref.html#w">ticket "edit" capability</a>.
 </p>
 </blockquote>
 

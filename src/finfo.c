@@ -455,6 +455,9 @@ void finfo_page(void){
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
+  if( uBg ){
+    blob_append(&title, " (color-coded by user)", -1);
+  }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -782,7 +785,7 @@ void mlink_page(void){
        mid
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
-    render_checkin_context(mid, 1);
+    render_checkin_context(mid, 0, 1);
     style_table_sorter();
     @ <hr />
     @ <div class='brlist'>

@@ -206,7 +206,7 @@ static void thBufferInit(Buffer *);
 static void thBufferFree(Th_Interp *interp, Buffer *);
 
 /*
-** This version of memcpy() allows the first are second argument to
+** This version of memcpy() allows the first and second argument to
 ** be NULL as long as the number of bytes to copy is zero.
 */
 static void *th_memcpy(void *dest, const void *src, size_t n){

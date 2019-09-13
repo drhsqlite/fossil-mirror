@@ -107,7 +107,7 @@ struct FossilUserPerms {
   char WrForum;          /* 3: Create new forum posts */
   char WrTForum;         /* 4: Post to forums not subject to moderation */
   char ModForum;         /* 5: Moderate (approve or reject) forum posts */
-  char AdminForum;       /* 6: Set or remove capability 4 on other users */
+  char AdminForum;       /* 6: Grant capability 4 to other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
   char Debug;            /* D: show extra Fossil debugging features */
@@ -2208,7 +2208,7 @@ static void find_server_repository(int arg, int fCreate){
         const char *zPassword;
         db_create_repository(zRepo);
         db_open_repository(zRepo);
-        db_begin_write();
+        db_begin_transaction();
         g.eHashPolicy = HPOLICY_SHA3;
         db_set_int("hash-policy", HPOLICY_SHA3, 0);
         db_initial_setup(0, "now", g.zLogin);
