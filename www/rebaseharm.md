@@ -1,25 +1,30 @@
 # Rebase Considered Harmful
 
 Fossil deliberately omits a "rebase" command, because the original
-designer of Fossil (and author of this article) considers rebase to be 
+designer of Fossil (and [original author][vhist] of this article) considers rebase to be 
 an anti-pattern to be avoided. This article attempts to
 explain that point of view.
 
+[vhist]: https://fossil-scm.org/fossil/finfo?name=www/rebaseharm.md
+
 ## 1.0 Rebasing is dangerous
 
-Most people, even strident advocates rebase, agree that rebase can
-cause problems when misused.  Rebase documentation talks about the
+Most people, even strident advocates of rebase, agree that rebase can
+cause problems when misused. The Git rebase documentation talks about the
 [golden rule of rebase][golden]: that it should never be used on a public
 branch.  Horror stories of misused rebase abound, and the rebase 
 documentation devotes considerable space toward explaining how to
 recover from rebase errors and/or misuse.
 
+## <a name="cap-loss"></a>2.0 Rebase provides no new capabilities
+
 Sometimes sharp and dangerous tools are justified,
 because they accomplish things that cannot be
-(easily) done otherwise.  But rebase does not fall into that category,
-because rebase provides no new capabilities.  To wit:
+done otherwise, or at least cannot be done easily.
+Rebase does not fall into that category,
+because it provides no new capabilities.
 
-## 2.0 A rebase is just a merge with historical references omitted
+### <a name="orphaning"></a>2.1 A rebase is just a merge with historical references omitted
 
 A rebase is really nothing more than a merge (or a series of merges)
 that deliberately forgets one of the parents of each merge step.
@@ -40,7 +45,7 @@ records the fact that C4 is its merge parent but C4\' does not.
 Thus, a rebase is just a merge that forgets where it came from.
 
 The Git documentation acknowledges this fact (in so many words) and
-justifies it by saying "rebas[e] makes for a cleaner history".  I read
+justifies it by saying "rebasing makes for a cleaner history."  I read
 that sentence as a tacit admission that the Git history display 
 capabilities are weak and need active assistance from the user to 
 keep things manageable.
@@ -55,7 +60,7 @@ So, another way of thinking about rebase is that it is a kind of
 merge that intentionally forgets some details in order to
 not overwhelm the weak history display mechanisms available in Git.
 
-### 2.1 Rebase does not actually provide better feature-branch diffs
+### <a name="clean-diffs"></a>2.2 Rebase does not actually provide better feature-branch diffs
 
 Another argument, often cited, is that rebasing a feature branch
 allows one to see just the changes in the feature branch without
@@ -105,7 +110,7 @@ So, to help with the problem of viewing changes associated with a feature
 branch, perhaps what is needed is not rebase but rather better tools to 
 help users identify an appropriate baseline for their diffs.
 
-## 3.0 Rebase encourages siloed development
+## <a name="siloing"></a>3.0 Rebase encourages siloed development
 
 The [golden rule of rebase][golden] is that you should never do it
 on public branches, so if you are using rebase as intended, that means
@@ -120,17 +125,17 @@ one another.  Similar findings arise in other disciplines.  Keeping
 private branches does not prove that developers are communicating
 insufficiently, but it is a key symptom that problem.
 
-[Weinberg][weinberg] argues programming should be "egoless".  That
+[Weinberg][weinberg] argues programming should be "egoless."  That
 is to say, programmers should avoid linking their code with their sense of
 self, as that makes it more difficult for them to find and respond
 to bugs, and hence makes them less productive.  Many developers are
 drawn to private branches out of sense of ego.  "I want to get the
-code right before I publish it".  I sympathize with this sentiment,
+code right before I publish it."  I sympathize with this sentiment,
 and am frequently guilty of it myself.  It is humbling to display
 your stupid mistake to the whole world on an internet that
 never forgets.  And yet, humble programmers generate better code.
 
-## 4.0 Rebase commits untested check-ins to the blockchain
+## <a name="testing"></a>4.0 Rebase commits untested check-ins to the blockchain
 
 Rebase adds new check-ins to the blockchain without giving the operator
 an opportunity to test and verify those check-ins.  Just because the
@@ -147,7 +152,7 @@ busted check-ins on the blockchain to complicate future bisects.
 
 With rebase, pre-commit testing is not an option.
 
-## 5.0 Rebase causes timestamp confusion
+## <a name="timestamps"></a>5.0 Rebase causes timestamp confusion
 
 Consider the earlier example of rebasing a feature branch:
 
@@ -164,7 +169,7 @@ about when those check-ins were originally created, which can make
 historical analysis of changes more difficult, and might also
 complicate prior art claims.
 
-## 6.0 Rebasing is the same as lying
+## <a name="lying"></a>6.0 Rebasing is the same as lying
 
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
@@ -182,7 +187,7 @@ editing. This is the camp that uses tools like rebase and filter-branch
 to tell the story in the way that’s best for future readers."_
 
 I reject this argument utterly.
-Unless you project is a work of fiction, it is not a "story" but a "history".
+Unless your project is a work of fiction, it is not a "story" but a "history."
 Honorable writers adjust their narrative to fit
 history.  Rebase adjusts history to fit the narrative.
 
@@ -204,7 +209,7 @@ once again, rebase can be seen as an attempt to work around limitations
 of Git.  Wouldn't it be better to fix the tool rather than to lie about
 the project history?
 
-## 7.0 Cherry-pick merges work better then rebase
+## <a name="better-plan"></a>7.0 Cherry-pick merges work better than rebase
 
 Perhaps there are some cases where a rebase-like transformation
 is actually helpful.  But those cases are rare.  And when they do
@@ -224,7 +229,7 @@ topology, but with advantages:
   4.  Cherry-picks keep both the original and the revised check-ins,
       so both timestamps are preserved.
 
-## 8.0 Summary and conclusion
+## <a name="conclusion"></a>8.0 Summary and conclusion
 
 Rebasing is an anti-pattern.  It is dishonest.  It deliberately
 omits historical information.  It causes problems for collaboration.
