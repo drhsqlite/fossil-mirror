@@ -72,10 +72,13 @@ Consider a hypothetical case:
 In the above, a feature branch consisting of check-ins C3 and C5 is
 run concurrently with the main line in check-ins C4 and C6.  Advocates
 for rebase say that you should rebase the feature branch to the tip
-of main like the following (perhaps collapsing C3\' into C5\' to form
-a single check-in, or not, depending on preferences):
+of main like the following:
 
 ![rebased feature branch](./rebase04.svg)
+
+You could choose to collapse C3\' and C5\' into a single check-in
+as part of this rebase, but that’s a side issue we’ll deal with
+[separately](#collapsing).
 
 If only merge is available, one would do a merge from the concurrent
 mainline changes into the feature branch as follows:
@@ -222,7 +225,145 @@ once again, rebase can be seen as an attempt to work around limitations
 of Git.  Wouldn't it be better to fix the tool rather than to lie about
 the project history?
 
-## <a name="better-plan"></a>7.0 Cherry-pick merges work better than rebase
+## <a name="collapsing"></a>7.0 Collapsing check-ins throws away valuable information
+
+One of the oft-cited advantages of rebasing in Git is that it lets you
+collapse multiple check-ins down to a single check-in to make the
+development history “clean.” The intent is that development appear as
+though every feature were created in a single step: no multi-step
+evolution, no back-tracking, no false starts, no mistakes. This ignores
+actual developer psychology: ideas rarely spring forth from fingers to
+files in faultless finished form. A wish for collapsed, finalized
+check-ins is a wish for a counterfactual situation.
+
+The common counterargument is that collapsed check-ins represent a
+better world, the ideal we’re striving for. What that argument overlooks
+is that we must throw away valuable information to get there.
+
+## <a name="empathy"></a>7.1 Individual check-ins support developer empathy
+
+Ideally, future developers of our software can understand every feature
+in it using only context available in the version of the code they start
+work with. Prior to widespread version control, developers had no choice
+but to work that way.  Pre-existing codebases could only be understood
+as-is or not at all.  Developers in that world had an incentive to
+develop software that was easy to understand retrospectively, even if
+they were selfish people, because they knew they might end up being
+those future developers!
+
+Yet, sometimes we come upon a piece of code that we simply cannot
+understand. If you have never asked yourself, “What was this code’s
+developer thinking?” you haven’t been developing software for very long.
+
+When a developer can go back to the individual check-ins leading up to
+the current code, they can work out the answers to such questions using
+only the level of empathy necessary to be a good developer. To
+understand such code using only the finished form, you are asking future
+developers to make intuitive leaps that the original developer was
+unable to make. In other words, you are asking your future maintenance
+developers to be smarter than the original developers!  That’s a
+beautiful wish, but there’s a sharp limit to how far you can carry it.
+Eventually you hit the limits of human brilliance.
+
+When the operation of some bit of code is not obvious, both Fossil and
+Git let you run a [`blame`](/help?cmd=blame) on the code file to get
+information about each line of code, and from that which check-in last
+touched a given line of code. If you squash the check-ins on a branch
+down to a single check-in, you throw away the information leading up to
+that finished form. Fossil not only preserves the check-ins surrounding
+the one that included the line of code you’re trying to understand, its
+[superior data model][sdm] lets you see the surrounding check-ins in
+both directions; not only what lead up to it, but what came next. Git
+can’t do that short of crawling the block-chain backwards from the tip
+of the branch to the check-in you’re looking at, an expensive operation.
+
+We believe it is easier to understand a line of code from the 10-line
+check-in it was a part of — and then to understand the surrounding
+check-ins as necessary — than it is to understand a 500-line check-in
+that collapses a whole branch’s worth of changes down to a single
+finished feature.
+
+[sdm]: ./fossil-v-git.wiki#durable
+
+## <a name="bisecting"></a>7.2 Bisecting works better on small check-ins
+
+Git lets a developer write a feature in ten check-ins but collapse it
+down to an eleventh check-in and then deliberately push only that final
+collapsed check-in to the parent repo. Someone else may then do a bisect
+that blames the merged check-in as the source of the problem they’re
+chasing down; they then have to manually work out which of the 10 steps
+the original developer took to create it to find the source of the
+actual problem.
+
+Fossil pushes all 11 check-ins to the parent repository by default, so
+that someone doing that bisect sees the complete check-in history, so
+the bisect will point them at the single original check-in that caused
+the problem.
+
+## <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
+
+The more comments you have from a given developer on a given body of
+code, the more concise documentation you have of that developer’s
+thought process. To resume the bisecting example, a developer trying to
+work out what the original developer was thinking with a given change
+will have more success given a check-in comment that explains what the
+one check-in out of ten blamed by the “bisect” command was trying to
+accomplish than if they must work that out from the eleventh check-in’s
+comment, which only explains the “clean” version of the collapsed
+feature.
+
+## <a name="cherrypicking"></a>7.4 Cherry-picks work better with small check-ins
+
+While working on a new feature in one branch, you may come across a bug
+in the pre-existing code that you need to fix in order for work on that
+feature to proceed. You could choose to switch briefly back to the
+parent branch, develop the fix there, check it in, then merge the parent
+back up to the feature branch in order to continue work, but that’s
+distracting. If the fix isn’t for a critical bug, fixing it on the
+parent branch can wait, so it’s better to maintain your mental working
+state by fixing the problem in place on the feature branch, then check
+the fix in on the feature branch, resume work on the feature, and later
+merge that fix down into the parent branch along with the feature.
+
+But now what happens if another branch *also* needs that fix? Let us say
+our code repository has a branch for the current stable release, a
+development branch for the next major version, and feature branches off
+of the development branch. If we rebase each feature branch down into
+the development branch as a single check-in, pushing only the rebase
+check-in up to the parent repo, only that fix’s developer has the
+information locally to perform the cherry-pick of the fix onto the
+stable branch.
+
+Developers working on new features often do not care about old stable
+versions, yet that stable version may have an end user community that
+depends on that version, who either cannot wait for the next stable
+version or who wish to put off upgrading to it for some time. Such users
+want backported bug fixes, yet the developers creating those fixes have
+poor incentives to provide those backports.  Thus the existence of
+maintenance and support organizations, who end up doing such work.
+(There is [a famous company][rh] that built a multi-billion dollar
+enterprise on such work.)
+
+This work is far easier when each cherry-pick transfers completely and
+cleanly from one branch to another, and we increase the likelihood of
+achieving that state by working from the smallest check-ins that remain
+complete. If a support organization must manually disentangle a fix from
+a feature check-in, they are likely to introduce new bugs on the stable
+branch. Even if they manage to do their work without error, it takes
+them more time to do the cherry-pick that way.
+
+[rh]: https://en.wikipedia.org/wiki/Red_Hat
+
+## <a name="backouts"></a>7.5 Back-outs also work better with small check-ins
+
+The inverse of the cherry-pick merge is the back-out merge. If you push
+only a collapsed version of a private working branch up to the parent
+repo, those working from that parent repo cannot automatically back out
+any of the individual check-ins that went into that private branch.
+Others must either manually disentangle the problematic part of your
+merge check-in or back out the entire feature.
+
+## <a name="better-plan"></a>8.0 Cherry-pick merges work better than rebase
 
 Perhaps there are some cases where a rebase-like transformation
 is actually helpful.  But those cases are rare.  And when they do
@@ -233,8 +374,8 @@ topology, but with advantages:
       (They do in Fossil at least.  Git's file format does not have
       a slot to record cherry-pick merge history, unfortunately.)
 
-  2.  Cherry-picks provide an opportunity to test each new check-in
-      before it is committed to the blockchain
+  2.  Cherry-picks provide an opportunity to [test each new check-in
+      before it is committed][tbc] to the blockchain
 
   3.  Cherry-pick merges are "safe" in the sense that they do not
       cause problems for collaborators if you do them on public branches.
@@ -242,7 +383,9 @@ topology, but with advantages:
   4.  Cherry-picks keep both the original and the revised check-ins,
       so both timestamps are preserved.
 
-## <a name="conclusion"></a>8.0 Summary and conclusion
+[tbc]: ./fossil-v-git.wiki#testing
+
+## <a name="conclusion"></a>9.0 Summary and conclusion
 
 Rebasing is an anti-pattern.  It is dishonest.  It deliberately
 omits historical information.  It causes problems for collaboration.
