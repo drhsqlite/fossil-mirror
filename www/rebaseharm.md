@@ -135,6 +135,19 @@ and am frequently guilty of it myself.  It is humbling to display
 your stupid mistake to the whole world on an internet that
 never forgets.  And yet, humble programmers generate better code.
 
+What is the fastest path to solid code? Is it to continue staring at
+your private branch to seek out every last bug, or is it to publish it
+as-is, whereupon the many eyeballs will immediately see that last stupid
+error in the code? Testing and development are often done by separate
+groups within a larger software development organization, because
+developers get too close to their own code to see every problem in it.
+
+Given that, is it better for those many eyeballs to find your problems
+while they’re still isolated on a feature branch, or should that vetting
+wait until you finally push a collapsed version of a private working
+branch to the parent repo? Will the many eyeballs even see those errors
+when they’re intermingled with code implementing some tasty new feature?
+
 ## <a name="testing"></a>4.0 Rebase commits untested check-ins to the blockchain
 
 Rebase adds new check-ins to the blockchain without giving the operator
