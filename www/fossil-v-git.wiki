@@ -672,11 +672,15 @@ concepts to keep track of in your mental model of Fossil's internal
 operation.
 
 Fossil's implementation of the feature is also simpler to describe. The
-online help for <tt> [/help?cmd=merge | fossil merge]</tt> is currently
-41 lines long, whereas the aggregate man page length for the above three
-Git commands is over 1000 lines, much of it mutually redundant. (e.g.
-the <tt>--edit</tt> and <tt>--no-commit</tt> options get described three
-different times, each time differently.)
+brief online help for <tt>[/help?cmd=merge | fossil merge]</tt> is
+currently 41 lines long, to which you want to add the 600 lines of
+[./branching.wiki | the branching document]. The equivalent
+documentation in Git is the aggregation of the man pages for the above
+three commands, which is over 1000 lines, much of it mutually redundant.
+(e.g.  the <tt>--edit</tt> and <tt>--no-commit</tt> options get
+described three different times, each time differently.) Fossil's
+documentation is not only more concise, it gives a nice split of brief
+online help and full online documentation.
 
 
 <h3 id="hash">2.9 Hash Algorithm: SHA-3 vs SHA-2 vs SHA-1</h3>

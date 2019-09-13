@@ -1,5 +1,5 @@
-C Added\ssection\s"7.0\sCollapsing\scheck-ins\sthrows\saway\svaluable\ninformation"\sto\srebaseharm.md,\slinked\sto\sfrom\sthe\sprevious\sthrowaway\ncomment\sabout\ssquashing\sa\swhole\sbranch\sdown\sto\sa\ssingle\scommit\sduring\nrebase.\s\sThis\ssection\sexplains\san\sentire\sclass\sof\sharms\sthat\scome\sfrom\nrebase\swhich\swasn't\spreviously\scovered.
-D 2019-09-13T11:12:17.071
+C Reworked\sthe\sfinal\sparagraph\sof\sthe\snew\ssection\s2.8\sin\nfossil-v-git.wiki,\sadding\sin\sa\smention\sof\swww/branching.wiki\sto\sthe\ncomparison,\sto\smake\sit\sfairer.
+D 2019-09-13T11:33:57.844
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -836,7 +836,7 @@ F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki a9dc5330e3d468b1aac7c2777a63494bf6344474069dd5193180b8cf127f259e
+F www/fossil-v-git.wiki 23e09bd0482670abfa9415d5d754936454c3a7aca2fe3ac790ff929c88079a69
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5ba45788b9938487af172163908af04f1ef440ee4c07abd6f15df14ec74f1b8
-R 9208d8521a5d2a3fbe9eb773211e2d96
+P c71fe99f9b21b0b33335b031ca8bae4965b8a9e1aa3519efe77202186e02e7b0
+R a6e8ac22043c7f61e83e5b5108584487
 U wyoung
-Z e74ab85f6d0a7c1eb950354c061a95e6
+Z 465664af8209348d9e61f68758d5b280
