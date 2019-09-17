@@ -1,5 +1,5 @@
-C Update\sto\sopenssl\s1.1.1d
-D 2019-09-13T22:53:09.225
+C Updates\sto\sthe\scheck-in\slocking\sprotocol.\s\sThe\scheck-in\slock\stimeout\snow\ndefaults\sto\s60\sseconds,\sbut\sthe\slock\sis\srenewed\sand\sfork\sand\sclose-branch\ntests\sare\srepeated\safter\san\sinteractive\scheck-in\scomment\sentry.
+D 2019-09-17T18:33:24.182
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -444,7 +444,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 09af50b15bea994bd1e7096b11eec5a274ba9e4f6983ce3c5961ccaf80531fc3
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c a9b43d5ba51c0daa9c747b2be215ad430aa11507f7fb779e0567123a7a62b175
-F src/checkin.c a0652004d92b1d0b56c0ae37440325c73a77461c40e4b6ec6191829795addf65
+F src/checkin.c 7209a0d342df9aebb4816d2c31f6cc5d8e7c90721ef9e140882bdd6520a3d086
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 6a98a931f5ba42faf01e67bd3f2b47b80646fe51a5ddfdb7ebb491de11f2d7af
+F src/db.c 7e8aa979a87fbe7afd7c11c7f6e7a55cfd68574b2741221d244f7bf881486fbf
 F src/default_css.txt cd60aeffd23196d712858c31dd8ab4a33a3e4f91b970c6ab0976f769473f6e76
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -606,7 +606,7 @@ F src/wikiformat.c bbc61e8c423b1bf8ef068f3804be29aafbb75f8c877f13936635e7cd07e53
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c a72303503a1f1e655f7bef2857d1f95dfc44c3a98a6169662c3fe0e5b1754ee3
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c aa13aa6231a9f699f3164a84c2a971bd6a7533ba5e25de41dcc0e25c02a3a805
+F src/xfer.c a25e6ee6e3cb579e17b37d402b65debb81e499659b35093167775ce82346ad69
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b94e15cff72b105e9fa6ecbf404baeb4036827bd1b6fb75ed7459574fba2c361
-R 1337e7fde9a18b58a8036b2b2034534c
-U jan.nijtmans
-Z a0a8b65fc19a87892023c49a306161fe
+P 74aac0ed3d6e8ccb096c2a3f4d5895649e2b363560419e717296d734ece41d08
+R f82a63a075285a59d06018c789595011
+U drh
+Z 1246fc80cb2c8d0dc327f2ab1b14d112

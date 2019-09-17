@@ -1561,7 +1561,7 @@ void page_xfer(void){
       ){
         Stmt q;
         sqlite3_int64 iNow = time(0);
-        sqlite3_int64 maxAge = db_get_int("lock-timeout",3600*24);
+        sqlite3_int64 maxAge = db_get_int("lock-timeout",60);
         int seenFault = 0;
         db_prepare(&q,
           "SELECT json_extract(value,'$.login'),"
