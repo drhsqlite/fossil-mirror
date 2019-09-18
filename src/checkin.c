@@ -2132,7 +2132,7 @@ void commit_cmd(void){
   if( vid==0 ){
     useCksum = 1;
     if( sCiInfo.zBranch==0 ) {
-    	sCiInfo.zBranch=db_get("main-branch", "trunk");
+      sCiInfo.zBranch=db_get("main-branch", "trunk");
     }
   }else if( content_is_private(vid) ){
     g.markPrivate = 1;

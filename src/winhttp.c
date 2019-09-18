@@ -205,22 +205,22 @@ static int DualSocket_listen(DualSocket* ds, const char* zIp, int iPort){
 */
 static void DualSocket_accept(DualSocket* pListen, DualSocket* pClient,
                               DualAddr* pClientAddr){
-	fd_set rs;
+  fd_set rs;
   int rs_count = 0;
   assert( pListen!=NULL && pClient!=NULL && pClientAddr!= NULL );
   DualSocket_init(pClient);
   DualAddr_init(pClientAddr);
   FD_ZERO(&rs);
-	if( pListen->s4!=INVALID_SOCKET ){
+  if( pListen->s4!=INVALID_SOCKET ){
     FD_SET(pListen->s4, &rs);
     ++rs_count;
   }
-	if( pListen->s6!=INVALID_SOCKET ){
+  if( pListen->s6!=INVALID_SOCKET ){
     FD_SET(pListen->s6, &rs);
     ++rs_count;
   }
-	if( select(rs_count, &rs, 0, 0, 0 /*blocking*/)==SOCKET_ERROR ){
-		return;
+  if( select(rs_count, &rs, 0, 0, 0 /*blocking*/)==SOCKET_ERROR ){
+    return;
   }
   if( FD_ISSET(pListen->s4, &rs) ){
     pClient->s4 = accept(pListen->s4, (struct sockaddr*)&pClientAddr->a4.addr,
