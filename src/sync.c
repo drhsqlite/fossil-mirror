@@ -23,10 +23,22 @@
 
 /*
 ** If the repository is configured for autosyncing, then do an
-** autosync.  This will be a pull if the argument is true or a push
-** if the argument is false.
+** autosync.  Bits of the "flags" parameter determine details of behavior:
+**
+**   SYNC_PULL           Pull content from the server to the local repo
+**   SYNC_PUSH           Push content from local up to the server
+**   SYNC_CKIN_LOCK      Take a check-in lock on the current checkout.
+**   SYNC_VERBOSE        Extra output
 **
 ** Return the number of errors.
+**
+** The autosync setting can be a boolean or "pullonly".  No autosync
+** is attempted if the autosync setting is off, and only auto-pull is
+** attempted if autosync is set to "pullonly".  The check-in lock is
+** not acquired unless autosync is set to "on".
+**
+** If dont-push setting is true, that is the same as having autosync
+** set to pullonly.
 */
 int autosync(int flags){
   const char *zAutosync;
@@ -35,19 +47,11 @@ int autosync(int flags){
   if( g.fNoSync ){
     return 0;
   }
-  if( flags==SYNC_PUSH && db_get_boolean("dont-push",0) ){
-    return 0;
-  }
-  zAutosync = db_get("autosync", 0);
-  if( zAutosync ){
-    if( (flags & SYNC_PUSH)!=0 && fossil_strncmp(zAutosync,"pull",4)==0 ){
-      return 0;   /* Do not auto-push when autosync=pullonly */
-    }
-    if( is_false(zAutosync) ){
-      return 0;   /* Autosync is completely off */
-    }
-  }else{
-    /* Autosync defaults on.  To make it default off, "return" here. */
+  zAutosync = db_get("autosync", "on");
+  if( is_false(zAutosync) ) return 0;
+  if( db_get_boolean("dont-push",0) || fossil_strncmp(zAutosync,"pull",4)==0 ){
+    flags &= ~SYNC_CKIN_LOCK;
+    if( flags & SYNC_PUSH ) return 0;
   }
   url_parse(0, URL_REMEMBER);
   if( g.url.protocol==0 ) return 0;

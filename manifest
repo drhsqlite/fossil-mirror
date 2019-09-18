@@ -1,5 +1,5 @@
-C Updates\sto\sthe\scheck-in\slocking\sprotocol.\s\sThe\scheck-in\slock\stimeout\snow\ndefaults\sto\s60\sseconds,\sbut\sthe\slock\sis\srenewed\sand\sfork\sand\sclose-branch\ntests\sare\srepeated\safter\san\sinteractive\scheck-in\scomment\sentry.
-D 2019-09-17T18:33:24.182
+C Do\snot\sacquire\scheck-in\slocks\sif\sautosync\sis\spullonly,\sas\sthe\slock\swill\snot\nbe\scancelled\sby\sa\ssubsequent\spush\sand\swill\sneed\sto\stime\sout.
+D 2019-09-18T14:04:35.699
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -575,7 +575,7 @@ F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c e654ff9b9b80ca5ce23ad5e5b5b7aa060539a0532111f1b49746d8a0da34d656
-F src/sync.c 70b47ff9ec8a4c30e42d484322f5d9c2ede690116d14b75dc3c47fdd225d3cb8
+F src/sync.c 76d346ffecec7f69c8e515a9be35c3503647a2620a883c42707a02973d38a448
 F src/tag.c f1a049a1162e7b91748c65d2feb72cc1c415d11aa0882fd4bb7fa4756d5d3e4b
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
 F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 74aac0ed3d6e8ccb096c2a3f4d5895649e2b363560419e717296d734ece41d08
-R f82a63a075285a59d06018c789595011
+P 18d588015bd508c5ab57d973b00542ef525c39c9c9da0f509e9891b99883cffa
+R 6e59e4df32dc8f02b64617b00d8a2ab3
 U drh
-Z 1246fc80cb2c8d0dc327f2ab1b14d112
+Z f8c424a07eb088d439ee748bc967af91
