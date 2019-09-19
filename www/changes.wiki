@@ -12,13 +12,28 @@
      a forum thread.
   *  Add support for fenced code blocks and improved hyperlink
      processing to the [/md_rules|markdown formatter].
+  *  Add support for hyperlinks to wiki pages in the
+     [/md_rules|markdown formatter].
   *  Enhance the [/help?cmd=/stat|/stat] page so that it gives the
      option to show a breakdown of forum posts.
+  *  The special check-in name "merge-in:BRANCH" means the source of
+     the most recent merge-in from the parent branch of BRANCH.
+  *  Add hyperlinks to branch-diffs on the /info page and from
+     timelines of a branch.
+  *  Add graphical context /vdiff page.
+  *  Uppercase query parameters, POST parameters, and cookie names are
+     converted to all lowercase and entered into the parameter set,
+     instead of being discarded.
   *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
   *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
      some other value set by the 
      [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
-  *  Documentation improvements
+  *  The check-in lock interval is reduced from 24 hours to 60 seconds,
+     though the interval is now configurable using a setting.
+     An additional check for conflicts is added after interactive
+     check-in comment entry, to compensate for the reduced lock interval.
+  *  Performance optimizations for control artifact parsing.
+  *  Many documentation improvements
 
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (2019-07-13)</h2>

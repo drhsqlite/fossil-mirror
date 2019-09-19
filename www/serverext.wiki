@@ -85,7 +85,7 @@ that file to be executable, so it runs it as CGI and returns the result.
 The /sqlite-src-ext/checklist file is a
 [https://wapp.tcl.tk|Wapp program].  The current source code to the
 this program can be seen at
-[https://www.sqlite.org/src/ext/checklist/self] and
+[https://www.sqlite.org/src/ext/checklist/3070700/self] and
 recent historical versions are available at
 [https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
 older legacy at [https://sqlite.org/checklistapp/timeline?n=all]

@@ -1,5 +1,5 @@
-C In\sthe\sdb_get(N,D)\sfunction,\sif\sN\sis\ssetting,\sthen\salways\sleave\sD\sas\sNULL\sso\nthat\swe\suse\sthe\spublished\sdefault\svalue\sfor\sthat\ssetting.
-D 2019-09-19T14:14:14.151
+C Updates\sto\sthe\schange\slog.
+D 2019-09-19T16:33:08.551
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -791,9 +791,9 @@ F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b57
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki 8b9f787cb0e162e9672f5b3ce0d32f60dabae0003f7bd7dc6ffa6ae2b05ceec2
-F www/changes.wiki 488fa1c2a4d2acd19d6171ba551a331fb8a04ed3bbded551c814889438593833
+F www/changes.wiki 9a087ee3eb814d39e844c6a574c801f0a0682fd598d9a6786e08a0c8b29dbefe
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki b0fe8faa8a4f82735c478463d9174a0bdadc8995831452587c736dfb0fb705ea
+F www/checkin_names.wiki 911ba32f0c06b7f01cc0dd3bd92fe06450680ea09dda8ac8f69834853bb0d4e9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md 98a9f4a11f6e1a4ed06e13b0adc1806472b03e825575c2f503f90d9dcdf878d9
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -907,7 +907,7 @@ F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2b
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
 F www/server/windows/stunnel.md a69f4f8335d0c19bbf4b31cb8c126ad3ad4967e7537ac1b99d7bcea02462a7b2
-F www/serverext.wiki 559c5babda8967b6e02a50397a9bc56d76c4c07a7043d48c29bc4bad4c347c16
+F www/serverext.wiki 076a33f25e6d437e5a606fe0f9e38f9c158f78ce53b58f042895fa4e8318bdb1
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki c7d6e43f27b9d65774b46f6b4aba386225c24716
 F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 89872d17d1b908cdc16414833f72e234a60c95877c5aff3f9b3a84d4cd31736f
-R e8583dd8b83c840a90af1081f02ae55a
+P eb804dc6749a1f29b118a7ea3718e6b5d1e3b360a40edc266242dc598a9ad06a
+R 57d2863c5b7a3ab8ae5c7351e55d95b6
 U drh
-Z 169ee537625112b41e4a11bbb4b353d7
+Z 52a9dddbd90f15b24b9133d8ef8cd45b

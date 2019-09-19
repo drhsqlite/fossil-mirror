@@ -214,6 +214,12 @@ branch "xyzzy":
 fossil diff --from root:xyzzy --to xyzzy
 </blockquote>
 
+A branch name that begins with the "<tt>merge-in:</tt>" prefix refers not
+to the root of the branch, but to the most recent merge-in for that branch
+from its parent.  The most recent merge-in is the version to diff the branch
+against in order to see all changes in just the branch itself, omitting
+any changes that have already been merged in from the parent branch.
+
 
 <h2>Special Tags</h2>
 
