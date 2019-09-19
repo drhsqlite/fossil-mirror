@@ -679,7 +679,7 @@ Manifest *historical_manifest(
   if( zRevision ){
     vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
-    vid = name_to_typed_rid(db_get("main-branch", "trunk"), "ci");
+    vid = name_to_typed_rid(db_get("main-branch", 0), "ci");
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){

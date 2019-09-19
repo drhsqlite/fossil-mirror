@@ -130,7 +130,7 @@ void secaudit0_page(void){
   zPubPages = db_get("public-pages",0);
   if( db_get_boolean("self-register",0) ){
     CapabilityString *pCap;
-    pCap = capability_add(0, db_get("default-perms",""));
+    pCap = capability_add(0, db_get("default-perms",0));
     capability_expand(pCap);
     zSelfCap = capability_string(pCap);
     capability_free(pCap);
@@ -442,7 +442,7 @@ void secaudit0_page(void){
     @ filesystem is mounted within the jail, so that the load average
     @ can be obtained from the /proc/loadavg file.
   }else {
-    double r = atof(db_get("max-loadavg", "0"));
+    double r = atof(db_get("max-loadavg", 0));
     if( r<=0.0 ){
       @ <li><p>
       @ Load average limiting is turned off.  This can cause the server

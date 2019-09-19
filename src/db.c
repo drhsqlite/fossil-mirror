@@ -2952,7 +2952,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", "trunk");
+      g.zOpenRevision = db_get("main-branch", 0);
     }
   }
 

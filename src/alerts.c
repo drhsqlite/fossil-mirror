@@ -112,7 +112,7 @@ int alert_tables_exist(void){
 void alert_schema(int bOnlyIfEnabled){
   if( !alert_tables_exist() ){
     if( bOnlyIfEnabled
-     && fossil_strcmp(db_get("email-send-method","off"),"off")==0
+     && fossil_strcmp(db_get("email-send-method",0),"off")==0
     ){
       return;  /* Don't create table for disabled email */
     }
@@ -160,7 +160,7 @@ void alert_triggers_disable(void){
 */
 int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
-  if( fossil_strcmp(db_get("email-send-method","off"),"off")==0 ) return 0;
+  if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
 }
 
@@ -484,7 +484,7 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
   if( zAltDest ){
     p->zDest = zAltDest;
   }else{
-    p->zDest = db_get("email-send-method","off");
+    p->zDest = db_get("email-send-method",0);
   }
   if( fossil_strcmp(p->zDest,"off")==0 ) return p;
   if( emailerGetSetting(p, &p->zFrom, "email-self") ) return p;

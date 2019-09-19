@@ -886,7 +886,7 @@ void ci_page(void){
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      if( fossil_strcmp(zBrName, db_get("main-branch","trunk"))!=0 ){
+      if( fossil_strcmp(zBrName, db_get("main-branch",0))!=0 ){
         @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
       }
       @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
@@ -3010,7 +3010,7 @@ void ci_edit_page(void){
   @ </td></tr>
 
   if( !zBranchName ){
-    zBranchName = db_get("main-branch", "trunk");
+    zBranchName = db_get("main-branch", 0);
   }
   if( !zNewBranch || !zNewBranch[0]){
     zNewBranch = zBranchName;

@@ -42,7 +42,7 @@ char *branch_of_rid(int rid){
   db_reset(&q);
   if( zBr==0 ){
     static char *zMain = 0;
-    if( zMain==0 ) zMain = db_get("main-branch","trunk");
+    if( zMain==0 ) zMain = db_get("main-branch",0);
     zBr = fossil_strdup(zMain);
   }
   return zBr;

@@ -47,7 +47,8 @@ int autosync(int flags){
   if( g.fNoSync ){
     return 0;
   }
-  zAutosync = db_get("autosync", "on");
+  zAutosync = db_get("autosync", 0);
+  if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
   if( is_false(zAutosync) ) return 0;
   if( db_get_boolean("dont-push",0) || fossil_strncmp(zAutosync,"pull",4)==0 ){
     flags &= ~SYNC_CKIN_LOCK;
