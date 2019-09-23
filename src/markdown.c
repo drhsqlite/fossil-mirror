@@ -2028,8 +2028,10 @@ static void parse_block(
       beg += parse_list(ob, rndr, txt_data, end, MKD_LIST_ORDERED);
     }else if( has_table && is_tableline(txt_data, end) ){
       beg += parse_table(ob, rndr, txt_data, end);
-    }else if( prefix_fencedcode(txt_data, end) ){
-      beg += char_codespan(ob, rndr, txt_data, 0, end);
+    }else if( prefix_fencedcode(txt_data, end) 
+             && (i = char_codespan(ob, rndr, txt_data, 0, end))!=0
+    ){
+      beg += i;
     }else{
       beg += parse_paragraph(ob, rndr, txt_data, end);
     }

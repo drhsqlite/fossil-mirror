@@ -76,11 +76,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *aData, size_t nByte){
   blob_zero(&out);
   switch( eFuzzType ){
     case FUZZ_WIKI: {
-      wiki_convert(&in, &out, 0);
-      break;
-    }
-    case FUZZ_MARKDOWN: {
       Blob title = BLOB_INITIALIZER;
+      wiki_convert(&in, &out, 0);
+      blob_reset(&out);
       markdown_to_html(&in, &title, &out);
       blob_reset(&title);
       break;
