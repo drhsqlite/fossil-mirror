@@ -71,6 +71,7 @@ set src {
   forum
   fshell
   fusefs
+  fuzz
   glob
   graph
   gzip
@@ -312,9 +313,6 @@ writeln -nonewline "OBJ ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
-writeln "\n"
-writeln "APPNAME = $name\$(E)"
-writeln "\n"
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
@@ -444,7 +442,7 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 writeln {
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"

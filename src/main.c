@@ -389,7 +389,7 @@ static void fossil_atexit(void) {
 **     (c) If the line begins with "-" and contains a space, it is broken
 **         into two arguments at the space.
 */
-static void expand_args_option(int argc, void *argv){
+void expand_args_option(int argc, void *argv){
   Blob file = empty_blob;   /* Content of the file */
   Blob line = empty_blob;   /* One line of the file */
   unsigned int nLine;       /* Number of lines in the file*/
@@ -624,18 +624,18 @@ static int fossilExeHasAppendedRepo(void){
 /*
 ** This procedure runs first.
 */
-#if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
-int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
-int wmain(int argc, wchar_t **argv)
+#if defined(FOSSIL_FUZZ)
+  /* Do not include a main() procedure when building for fuzz testing.
+  ** libFuzzer will supply main(). */
+#elif defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
+  int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
+  int wmain(int argc, wchar_t **argv){ return fossil_main(argc, argv); }
+#elif defined(_WIN32)
+  int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+  int main(int argc, char **argv){ return fossil_main(argc, argv); }
 #else
-#if defined(_WIN32)
-int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+  int main(int argc, char **argv){ return fossil_main(argc, argv); }
 #endif
-int main(int argc, char **argv)
-#endif
-{
-  return fossil_main(argc, argv);
-}
 
 /* All the work of main() is done by a separate procedure "fossil_main()".
 ** We have to break this out, because fossil_main() is sometimes called
