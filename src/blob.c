@@ -1346,7 +1346,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     if( bomReverse ){
       /* Found BOM, but with reversed bytes */
       unsigned int i = blob_size(pBlob);
-      while( i>0 ){
+      while( i>1 ){
         /* swap bytes of unicode representation */
         char zTemp = zUtf8[--i];
         zUtf8[i] = zUtf8[i-1];

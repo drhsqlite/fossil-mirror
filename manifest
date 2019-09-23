@@ -1,5 +1,5 @@
-C Change\sthe\sdatabase\sfingerprint\salgorithm\sslightly\sso\sthat\sit\sis\snot\sdependent\non\sthe\sdetails\sof\sfloating-point\scomputations,\sand\sthus\sgives\sthe\ssame\sanswer\non\sa\snative\sx64\sprocessor\sas\sit\sdoes\sunder\svalgrind.\s\sAlso\sfix\sa\sbug\sin\sthe\nRID\schange\sevent\scomputation\sso\sthat\sit\sworks\seven\sif\sfiles\shave\sbeen\sadded.
-D 2019-09-23T18:25:23.161
+C Fix\san\soff-by-one\serror\sin\sthe\sBOM\sdecoder.
+D 2019-09-23T19:35:53.261
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 9d1197f88c8f76b6a00c7fb936fc0b6eab3801c87a384750c1ca017c23ba1485
+F src/blob.c 946f5206d24a3935d0cf1fd0cd84882a4e62b9e02c43bdb045da5df7300a9de7
 F src/branch.c 9825c3877ecaa8a933d131b8e10413d13b81100183916207f0bc6b06f0a75760
 F src/browse.c 0ee3626f260dc863b66d609f4bcd6a8b7dcf3be912b6d1f321452a6f7fc644c7
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44900415b10f342581193f21e51b08ef3575e7d929f19777a8cc9990f79a58ba
-R 3df51d1e68355df36ceae0a41bb1ae75
+P 265f8e2d8337f4c34e3dfc7645f2c81c65f0f3fb33f1d195fa09f387d4d20dfc
+R c5230935a03cc408019e5673fee47641
 U drh
-Z ade938229d5cfe5d37112a7eafb41e51
+Z f91ef23d9d2b4ab0df8c39a151509bfc
