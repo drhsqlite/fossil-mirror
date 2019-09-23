@@ -60,6 +60,7 @@ SRC = \
   $(SRCDIR)/forum.c \
   $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
+  $(SRCDIR)/fuzz.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
@@ -274,6 +275,7 @@ TRANS_SRC = \
   $(OBJDIR)/forum_.c \
   $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
+  $(OBJDIR)/fuzz_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
@@ -414,6 +416,7 @@ OBJ = \
  $(OBJDIR)/forum.o \
  $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
+ $(OBJDIR)/fuzz.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
@@ -508,11 +511,6 @@ OBJ = \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
-
-APPNAME = fossil$(E)
-
-
-
 all:	$(OBJDIR) $(APPNAME)
 
 install:	all
@@ -689,7 +687,7 @@ EXTRAOBJ = \
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -752,6 +750,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
 	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
+	$(OBJDIR)/fuzz_.c:$(OBJDIR)/fuzz.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
@@ -1204,6 +1203,14 @@ $(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/fusefs.o -c $(OBJDIR)/fusefs_.c
 
 $(OBJDIR)/fusefs.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fuzz_.c:	$(SRCDIR)/fuzz.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fuzz.c >$@
+
+$(OBJDIR)/fuzz.o:	$(OBJDIR)/fuzz_.c $(OBJDIR)/fuzz.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fuzz.o -c $(OBJDIR)/fuzz_.c
+
+$(OBJDIR)/fuzz.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/glob.c >$@

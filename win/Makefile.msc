@@ -388,6 +388,7 @@ SRC   = add_.c \
         forum_.c \
         fshell_.c \
         fusefs_.c \
+        fuzz_.c \
         glob_.c \
         graph_.c \
         gzip_.c \
@@ -601,6 +602,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\forum$O \
         $(OX)\fshell$O \
         $(OX)\fusefs$O \
+        $(OX)\fuzz$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
         $(OX)\gzip$O \
@@ -803,6 +805,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\forum.obj >> $@
 	echo $(OX)\fshell.obj >> $@
 	echo $(OX)\fusefs.obj >> $@
+	echo $(OX)\fuzz.obj >> $@
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
 	echo $(OX)\gzip.obj >> $@
@@ -1282,6 +1285,12 @@ $(OX)\fusefs$O : fusefs_.c fusefs.h
 	$(TCC) /Fo$@ -c fusefs_.c
 
 fusefs_.c : $(SRCDIR)\fusefs.c
+	translate$E $** > $@
+
+$(OX)\fuzz$O : fuzz_.c fuzz.h
+	$(TCC) /Fo$@ -c fuzz_.c
+
+fuzz_.c : $(SRCDIR)\fuzz.c
 	translate$E $** > $@
 
 $(OX)\glob$O : glob_.c glob.h
@@ -1896,6 +1905,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			forum_.c:forum.h \
 			fshell_.c:fshell.h \
 			fusefs_.c:fusefs.h \
+			fuzz_.c:fuzz.h \
 			glob_.c:glob.h \
 			graph_.c:graph.h \
 			gzip_.c:gzip.h \
