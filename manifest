@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.30.0\salpha\sversion,\sfor\stesting.
-D 2019-09-21T17:50:15.651
+C Change\sthe\sdatabase\sfingerprint\salgorithm\sslightly\sso\sthat\sit\sis\snot\sdependent\non\sthe\sdetails\sof\sfloating-point\scomputations,\sand\sthus\sgives\sthe\ssame\sanswer\non\sa\snative\sx64\sprocessor\sas\sit\sdoes\sunder\svalgrind.\s\sAlso\sfix\sa\sbug\sin\sthe\nRID\schange\sevent\scomputation\sso\sthat\sit\sworks\seven\sif\sfiles\shave\sbeen\sadded.
+D 2019-09-23T18:25:23.161
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 481a88e6d24f3aa656300c678b47c7b667e7da78f894b1b02553977b3e7dac25
+F src/db.c 38fa02f37b460e4b2c4805f5153382c1f25e0c6ae678c29477cbe23c195f2554
 F src/default_css.txt cd60aeffd23196d712858c31dd8ab4a33a3e4f91b970c6ab0976f769473f6e76
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -598,7 +598,7 @@ F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a
 F src/utf8.c d4d73906b07ccbb1e8037f090c1b02c8ea925d72b8f6091efa822060c4484657
 F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
-F src/vfile.c 191590782907ef2fccf6a624b36efa5ab73d4c3f6d6ee15cc419e6b74e4d4e1e
+F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 6d7b71d87c88904b7974a28b9404dbec49113a2ccf52e389f23899269179eb00
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
@@ -927,7 +927,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b6c36e87ba9fc5bfe8eacaca8ed313155243a47b7b16f960737928cf2fd42086
-R 80300d6129c9060bbb69a4df458e0016
+P 44900415b10f342581193f21e51b08ef3575e7d929f19777a8cc9990f79a58ba
+R 3df51d1e68355df36ceae0a41bb1ae75
 U drh
-Z 020ffae24612636782df178afdda37db
+Z ade938229d5cfe5d37112a7eafb41e51

@@ -3930,12 +3930,12 @@ void test_database_name_cmd(void){
 ** are no security concerns - this is just a checksum, not a security
 ** token.
 */
-char *db_fingerprint(int rcvid){
+char *db_fingerprint(int rcvid){ 
   char *z = 0;
   Blob sql = BLOB_INITIALIZER;
   Stmt q;
   blob_append_sql(&sql,
-    "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
+    "SELECT rcvid, quote(uid), datetime(mtime), quote(nonce), quote(ipaddr)"
     "  FROM rcvfrom"
   );
   if( rcvid<=0 ){
