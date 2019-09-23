@@ -15,20 +15,24 @@
 **
 *******************************************************************************
 **
-** This file contains code to connect Fossil to libFuzzer.
+** This file contains code to connect Fossil to libFuzzer.  Do a web search
+** for "libfuzzer" for details about that fuzzing platform.
 **
-** To build on linux (the only platform for which this works) first do
+** To build on linux (the only platform for which this works at
+** present) first do
 **
 **     ./configure
 **
-** The edit the Makefile as follows:
+** Then edit the Makefile as follows:
 **
 **   (1)  Change CC to be "clang-6.0" or some other compiler that
 **        supports libFuzzer
 **
 **   (2)  Chagne APPNAME to "fossil-fuzz"
 **
-**   (3)  Add "-fsanitize=fuzzer" and "-DFOSSIL_FUZZ" to TCCFLAGS
+**   (3)  Add "-fsanitize=fuzzer" and "-DFOSSIL_FUZZ" to TCCFLAGS.  Perhaps
+**        make the first change "-fsanitize=fuzzer,undefined,address" for
+**        extra, but slower, testing.
 **
 ** Then build the fuzzer using:
 **
