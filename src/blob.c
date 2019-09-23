@@ -335,7 +335,9 @@ char *blob_str(Blob *p){
     blob_append_char(p, 0); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
-  if( p->aData[p->nUsed]!=0 ){
+  if( p->nUsed<p->nAlloc ){
+    p->aData[p->nUsed] = 0;
+  }else{
     blob_materialize(p);
   }
   return p->aData;
@@ -1354,7 +1356,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
       }
     }
     /* Make sure the blob contains two terminating 0-bytes */
-    blob_append_char(pBlob, 0);
+    blob_append(pBlob, "\000\000", 3);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_set_dynamic(pBlob, zUtf8);
