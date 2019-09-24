@@ -834,7 +834,11 @@ static int parseMarkup(ParsedMarkup *p, char *z){
       if( attrOk ){
         p->aAttr[p->nAttr].zValue = zValue;
         p->aAttr[p->nAttr].cTerm = c = z[i];
-        z[i] = 0;
+        if( z[i]==0 ){
+          i--;
+        }else{
+          z[i] = 0;
+        }
       }
       i++;
     }
@@ -843,7 +847,7 @@ static int parseMarkup(ParsedMarkup *p, char *z){
       p->nAttr++;
     }
     while( fossil_isspace(z[i]) ){ i++; }
-    if( z[i]=='>' || (z[i]=='/' && z[i+1]=='>') ) break;
+    if( z[i]==0 || z[i]=='>' || (z[i]=='/' && z[i+1]=='>') ) break;
   }
   return seen;
 }
