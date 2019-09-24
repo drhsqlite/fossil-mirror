@@ -279,8 +279,15 @@ void blob_zero(Blob *pBlob){
 
 /*
 ** Append text or data to the end of a blob.
+**
+** The blob_append_full() routine is a complete implementation.
+** The blob_append() routine only works for cases where nData>0 and
+** no resizing is required, and falls back to blob_append_full() if
+** either condition is not met, but runs faster in the common case
+** where all conditions are met.  The use of blob_append() is
+** recommended, unless it is known in advance that nData<0.
 */
-void blob_append(Blob *pBlob, const char *aData, int nData){
+void blob_append_full(Blob *pBlob, const char *aData, int nData){
   sqlite3_int64 nNew;
   assert( aData!=0 || nData==0 );
   blob_is_init(pBlob);
@@ -302,6 +309,19 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
   memcpy(&pBlob->aData[pBlob->nUsed], aData, nData);
   pBlob->nUsed += nData;
   pBlob->aData[pBlob->nUsed] = 0;   /* Blobs are always nul-terminated */
+}
+void blob_append(Blob *pBlob, const char *aData, int nData){
+  sqlite3_int64 nUsed;
+  assert( aData!=0 || nData==0 );
+  blob_is_init(pBlob);
+  if( nData<=0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
+    blob_append_full(pBlob, aData, nData);
+    return;
+  }
+  nUsed = pBlob->nUsed;
+  pBlob->nUsed += nData;
+  pBlob->aData[pBlob->nUsed] = 0;
+  memcpy(&pBlob->aData[nUsed], aData, nData);
 }
 
 /*

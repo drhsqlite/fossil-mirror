@@ -1,5 +1,5 @@
-C Use\sthe\sstrcspn()\sC-library\sroutine\sto\soptimize\sthe\stextLength()\sfunction\nin\sthe\sFossil-wiki\sformatter.
-D 2019-09-24T19:52:08.673
+C Performance\soptimization\sto\sfrequently\sused\sblob_append()\sroutine.
+D 2019-09-24T20:05:15.081
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c c87215906d1e3b3e5478767d4c6e6e28d09dc3671b1a1d0a7561c8c7b019172f
+F src/blob.c c3df9eb92253b9033fb1bfa675a5da2acabfba871723224e20a17c2687130481
 F src/branch.c 9825c3877ecaa8a933d131b8e10413d13b81100183916207f0bc6b06f0a75760
 F src/browse.c 0ee3626f260dc863b66d609f4bcd6a8b7dcf3be912b6d1f321452a6f7fc644c7
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cd5e9f265de1a0d57fcdab55ee2a8c96823e11eb20142d67164fdc9ed7810581
-R 9a1e3d1d7d561e90654bbac7786220ac
+P 64a63468892a7ebb095adb5617d5163db8c59ec7d0ba91bcd498cb6d1ed7e65d
+R c8e907abe6d88f25890be3dfac41d242
 U drh
-Z f9d88ab27a75ee71e06ab32d5b3e01cd
+Z 9ee760a6c0ea4b35f3b7e2940c75b97b
