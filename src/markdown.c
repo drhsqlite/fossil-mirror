@@ -155,6 +155,7 @@ struct render {
   struct mkd_renderer make;
   struct Blob refs;
   char_trigger active_char[256];
+  int iDepth;                    /* Depth of recursion */
   int nBlobCache;                /* Number of entries in aBlobCache */
   struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
 };
@@ -301,10 +302,16 @@ static const struct html_tag *find_block_tag(const char *data, size_t size){
                  cmp_html_tag);
 }
 
+/* return true if recursion has gone too deep */
+static int too_deep(struct render *rndr){
+  return rndr->iDepth>200;
+}
 
-/* get a new working buffer from the cache or create one */
+/* get a new working buffer from the cache or create one.  return NULL
+** if failIfDeep is true and the depth of recursion has gone too deep. */
 static struct Blob *new_work_buffer(struct render *rndr){
   struct Blob *ret;
+  rndr->iDepth++;
   if( rndr->nBlobCache ){
     ret = rndr->aBlobCache[--rndr->nBlobCache];
   }else{
@@ -318,6 +325,7 @@ static struct Blob *new_work_buffer(struct render *rndr){
 /* release the given working buffer back to the cache */
 static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
+  rndr->iDepth--;
   blob_reset(buf);
   if( rndr->nBlobCache < sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0]) ){
     rndr->aBlobCache[rndr->nBlobCache++] = buf;
@@ -558,9 +566,9 @@ static size_t parse_emph1(
      && data[i-1]!=' '
      && data[i-1]!='\t'
      && data[i-1]!='\n'
+     && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
-      if( !work ) return 0;
       parse_inline(work, rndr, data, i);
       r = rndr->make.emphasis(ob, work, c, rndr->make.opaque);
       release_work_buffer(rndr, work);
@@ -596,9 +604,9 @@ static size_t parse_emph2(
      && data[i-1]!=' '
      && data[i-1]!='\t'
      && data[i-1]!='\n'
+     && !too_deep(rndr)
     ){
       work = new_work_buffer(rndr);
-      if( !work ) return 0;
       parse_inline(work, rndr, data, i);
       r = rndr->make.double_emphasis(ob, work, c, rndr->make.opaque);
       release_work_buffer(rndr, work);
@@ -636,10 +644,10 @@ static size_t parse_emph3(
      && data[i+1]==c
      && data[i+2] == c
      && rndr->make.triple_emphasis
+     && !too_deep(rndr)
     ){
       /* triple symbol found */
       struct Blob *work = new_work_buffer(rndr);
-      if( !work ) return 0;
       parse_inline(work, rndr, data, i);
       r = rndr->make.triple_emphasis(ob, work, c, rndr->make.opaque);
       release_work_buffer(rndr, work);
@@ -992,10 +1000,9 @@ static size_t char_link(
   while( i<size && (data[i]==' ' || data[i]=='\t' || data[i]=='\n') ){ i++; }
 
   /* allocate temporary buffers to store content, link and title */
+  title = new_work_buffer(rndr);
   content = new_work_buffer(rndr);
   link = new_work_buffer(rndr);
-  title = new_work_buffer(rndr);
-  if( !title ) return 0;
   ret = 0; /* error if we don't get to the callback */
 
   /* inline style link */
@@ -1386,7 +1393,6 @@ static size_t parse_blockcode(
 ){
   size_t beg, end, pre;
   struct Blob *work = new_work_buffer(rndr);
-  if( !work ) work = ob;
 
   beg = 0;
   while( beg<size ){
@@ -1895,9 +1901,7 @@ static size_t parse_table(
 
     /* render the header row */
     head = new_work_buffer(rndr);
-    if( head ){
-      parse_table_row(head, rndr, data, head_end, 0, 0, MKD_CELL_HEAD);
-    }
+    parse_table_row(head, rndr, data, head_end, 0, 0, MKD_CELL_HEAD);
 
     /* parse alignments if provided */
     if( col && (aligns=fossil_malloc(align_size * sizeof *aligns))!=0 ){
@@ -2148,6 +2152,7 @@ void markdown(
   if( !rndrer ) return;
   rndr.make = *rndrer;
   rndr.nBlobCache = 0;
+  rndr.iDepth = 0;
   rndr.refs = empty_blob;
   for(i=0; i<256; i++) rndr.active_char[i] = 0;
   if( (rndr.make.emphasis
@@ -2206,6 +2211,7 @@ void markdown(
   if( rndr.make.epilog ) rndr.make.epilog(ob, rndr.make.opaque);
 
   /* clean-up */
+  assert( rndr.iDepth==0 );
   blob_reset(&text);
   lr = (struct link_ref *)blob_buffer(&rndr.refs);
   end = blob_size(&rndr.refs)/sizeof(struct link_ref);
