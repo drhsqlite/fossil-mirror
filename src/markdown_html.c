@@ -512,7 +512,6 @@ void markdown_to_html(
     html_normal_text,
 
     /* misc. parameters */
-    64, /* maximum stack */
     "*_", /* emphasis characters */
     0 /* opaque data */
   };

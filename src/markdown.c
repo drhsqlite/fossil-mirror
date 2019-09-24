@@ -87,7 +87,6 @@ struct mkd_renderer {
   void (*normal_text)(struct Blob *ob, struct Blob *text, void *opaque);
 
   /* renderer data */
-  int max_work_stack; /* prevent arbitrary deep recursion, cf README */
   const char *emph_chars; /* chars that trigger emphasis rendering */
   void *opaque; /* opaque data send to every rendering callback */
 };
@@ -156,8 +155,8 @@ struct render {
   struct mkd_renderer make;
   struct Blob refs;
   char_trigger active_char[256];
-  int work_active;
-  struct Blob *work;
+  int nBlobCache;                /* Number of entries in aBlobCache */
+  struct Blob *aBlobCache[20];   /* Cache of Blobs available for reuse */
 };
 
 
@@ -303,25 +302,28 @@ static const struct html_tag *find_block_tag(const char *data, size_t size){
 }
 
 
-/* new_work_buffer -- get a new working buffer from the stack or create one */
+/* get a new working buffer from the cache or create one */
 static struct Blob *new_work_buffer(struct render *rndr){
-  struct Blob *ret = 0;
-
-  if( rndr->work_active < rndr->make.max_work_stack ){
-    ret = rndr->work + rndr->work_active;
-    rndr->work_active += 1;
-    blob_reset(ret);
+  struct Blob *ret;
+  if( rndr->nBlobCache ){
+    ret = rndr->aBlobCache[--rndr->nBlobCache];
+  }else{
+    ret = fossil_malloc(sizeof(*ret));
   }
+  *ret = empty_blob;
   return ret;
 }
 
 
-/* release_work_buffer -- release the given working buffer */
+/* release the given working buffer back to the cache */
 static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
-  assert(rndr->work_active>0 && buf==(rndr->work+rndr->work_active-1));
-  rndr->work_active -= 1;
   blob_reset(buf);
+  if( rndr->nBlobCache < sizeof(rndr->aBlobCache)/sizeof(rndr->aBlobCache[0]) ){
+    rndr->aBlobCache[rndr->nBlobCache++] = buf;
+  }else{
+    fossil_free(buf);
+  }
 }
 
 
@@ -1298,13 +1300,8 @@ static size_t parse_blockquote(
   }
 
   if( rndr->make.blockquote ){
-    struct Blob fallback = BLOB_INITIALIZER;
-    if( out ){
-      parse_block(out, rndr, work_data, work_size);
-    }else{
-      blob_init(&fallback, work_data, work_size);
-    }
-    rndr->make.blockquote(ob, out ? out : &fallback, rndr->make.opaque);
+    parse_block(out, rndr, work_data, work_size);
+    rndr->make.blockquote(ob, out, rndr->make.opaque);
   }
   release_work_buffer(rndr, out);
   return end;
@@ -1322,7 +1319,6 @@ static size_t parse_paragraph(
   int level = 0;
   char *work_data = data;
   size_t work_size = 0;
-  struct Blob fallback = BLOB_INITIALIZER;
 
   while( i<size ){
     for(end=i+1; end<size && data[end-1]!='\n'; end++);
@@ -1344,12 +1340,8 @@ static size_t parse_paragraph(
   if( !level ){
     if( rndr->make.paragraph ){
       struct Blob *tmp = new_work_buffer(rndr);
-      if( tmp ){
-        parse_inline(tmp, rndr, work_data, work_size);
-      }else{
-        blob_init(&fallback, work_data, work_size);
-      }
-      rndr->make.paragraph(ob, tmp ? tmp : &fallback, rndr->make.opaque);
+      parse_inline(tmp, rndr, work_data, work_size);
+      rndr->make.paragraph(ob, tmp, rndr->make.opaque);
       release_work_buffer(rndr, tmp);
     }
   }else{
@@ -1362,13 +1354,9 @@ static size_t parse_paragraph(
       while( work_size && data[work_size-1]=='\n'){ work_size--; }
       if( work_size ){
         struct Blob *tmp = new_work_buffer(rndr);
-        if( tmp ){
-          parse_inline(tmp, rndr, work_data, work_size);
-        }else{
-          blob_init (&fallback, work_data, work_size);
-        }
+        parse_inline(tmp, rndr, work_data, work_size);
         if( rndr->make.paragraph ){
-          rndr->make.paragraph(ob, tmp ? tmp : &fallback, rndr->make.opaque);
+          rndr->make.paragraph(ob, tmp, rndr->make.opaque);
         }
         release_work_buffer(rndr, tmp);
         work_data += beg;
@@ -1380,13 +1368,8 @@ static size_t parse_paragraph(
 
     if( rndr->make.header ){
       struct Blob *span = new_work_buffer(rndr);
-      if( span ){
-        parse_inline(span, rndr, work_data, work_size);
-        rndr->make.header(ob, span, level, rndr->make.opaque);
-      }else{
-        blob_init(&fallback, work_data, work_size);
-        rndr->make.header(ob, &fallback, level, rndr->make.opaque);
-      }
+      parse_inline(span, rndr, work_data, work_size);
+      rndr->make.header(ob, span, level, rndr->make.opaque);
       release_work_buffer(rndr, span);
     }
   }
@@ -1450,7 +1433,6 @@ static size_t parse_listitem(
   size_t size,
   int *flags
 ){
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *work = 0, *inter = 0;
   size_t beg = 0, end, pre, sublist = 0, orgpre = 0, i;
   int in_empty = 0, has_inside_empty = 0;
@@ -1475,7 +1457,6 @@ static size_t parse_listitem(
   /* getting working buffers */
   work = new_work_buffer(rndr);
   inter = new_work_buffer(rndr);
-  if( !work ) work = &fallback;
 
   /* putting the first line into the working buffer */
   blob_append(work, data+beg, end-beg);
@@ -1540,8 +1521,7 @@ static size_t parse_listitem(
     if( rndr->make.listitem ){
       rndr->make.listitem(ob, work, *flags, rndr->make.opaque);
     }
-    if( work!=&fallback ) release_work_buffer(rndr, work);
-    blob_reset(&fallback);
+    release_work_buffer(rndr, work);
     return beg;
   }
 
@@ -1576,8 +1556,7 @@ static size_t parse_listitem(
     rndr->make.listitem(ob, inter, *flags, rndr->make.opaque);
   }
   release_work_buffer(rndr, inter);
-  if( work!=&fallback ) release_work_buffer(rndr, work);
-  blob_reset(&fallback);
+  release_work_buffer(rndr, work);
   return beg;
 }
 
@@ -1590,10 +1569,8 @@ static size_t parse_list(
   size_t size,
   int flags
 ){
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *work = new_work_buffer(rndr);
   size_t i = 0, j;
-  if( !work ) work = &fallback;
 
   while( i<size ){
     j = parse_listitem(work, rndr, data+i, size-i, &flags);
@@ -1602,8 +1579,7 @@ static size_t parse_list(
   }
 
   if( rndr->make.list ) rndr->make.list(ob, work, flags, rndr->make.opaque);
-  if( work!=&fallback ) release_work_buffer(rndr, work);
-  blob_reset(&fallback);
+  release_work_buffer(rndr, work);
   return i;
 }
 
@@ -1633,15 +1609,9 @@ static size_t parse_atxheader(
 
   span_size = end-span_beg;
   if( rndr->make.header ){
-    struct Blob fallback = BLOB_INITIALIZER;
     struct Blob *span = new_work_buffer(rndr);
-
-    if( span ){
-      parse_inline(span, rndr, data+span_beg, span_size);
-    }else{
-      blob_init(&fallback, data+span_beg, span_size);
-    }
-    rndr->make.header(ob, span ? span : &fallback, level, rndr->make.opaque);
+    parse_inline(span, rndr, data+span_beg, span_size);
+    rndr->make.header(ob, span, level, rndr->make.opaque);
     release_work_buffer(rndr, span);
   }
   return skip;
@@ -1802,15 +1772,9 @@ static void parse_table_cell(
   size_t size,         /* input text size */
   int flags            /* table flags */
 ){
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *span = new_work_buffer(rndr);
-
-  if( span ){
-    parse_inline(span, rndr, data, size);
-  }else{
-    blob_init(&fallback, data, size);
-  }
-  rndr->make.table_cell(ob, span ? span : &fallback, flags, rndr->make.opaque);
+  parse_inline(span, rndr, data, size);
+  rndr->make.table_cell(ob, span, flags, rndr->make.opaque);
   release_work_buffer(rndr, span);
 }
 
@@ -1880,13 +1844,7 @@ static size_t parse_table_row(
   }
 
   /* render the whole row and clean up */
-  if( cells ){
-    rndr->make.table_row(ob, cells, flags, rndr->make.opaque);
-  }else{
-    struct Blob fallback = BLOB_INITIALIZER;
-    blob_init(&fallback, data, total ? total : size);
-    rndr->make.table_row(ob, &fallback, flags, rndr->make.opaque);
-  }
+  rndr->make.table_row(ob, cells, flags, rndr->make.opaque);
   release_work_buffer(rndr, cells);
   return total ? total : size;
 }
@@ -1902,10 +1860,8 @@ static size_t parse_table(
   size_t i = 0, head_end, col;
   size_t align_size = 0;
   int *aligns = 0;
-  struct Blob fallback = BLOB_INITIALIZER;
   struct Blob *head = 0;
   struct Blob *rows = new_work_buffer(rndr);
-  if( !rows ) rows = &fallback;
 
   /* skip the first (presumably header) line */
   while( i<size && data[i]!='\n' ){ i++; }
@@ -1915,7 +1871,7 @@ static size_t parse_table(
   if( i>=size ){
     parse_table_row(rows, rndr, data, size, 0, 0, 0);
     rndr->make.table(ob, 0, rows, rndr->make.opaque);
-    if( rows!=&fallback ) release_work_buffer(rndr, rows);
+    release_work_buffer(rndr, rows);
     return i;
   }
 
@@ -1984,8 +1940,8 @@ static size_t parse_table(
   rndr->make.table(ob, head, rows, rndr->make.opaque);
 
   /* cleanup */
-  if( head ) release_work_buffer(rndr, head);
-  if( rows!=&fallback ) release_work_buffer(rndr, rows);
+  release_work_buffer(rndr, head);
+  release_work_buffer(rndr, rows);
   fossil_free(aligns);
   return i;
 }
@@ -2183,19 +2139,16 @@ void markdown(
   const struct mkd_renderer *rndrer  /* renderer descriptor (callbacks) */
 ){
   struct link_ref *lr;
-  struct Blob text = BLOB_INITIALIZER;
   size_t i, beg, end = 0;
   struct render rndr;
   char *ib_data;
+  Blob text = BLOB_INITIALIZER;
 
   /* filling the render structure */
   if( !rndrer ) return;
   rndr.make = *rndrer;
-  if( rndr.make.max_work_stack<1 ) rndr.make.max_work_stack = 1;
-  rndr.work_active = 0;
-  rndr.work = fossil_malloc(rndr.make.max_work_stack * sizeof *rndr.work);
-  for(i=0; i<rndr.make.max_work_stack; i++) rndr.work[i] = text;
-  rndr.refs = text;
+  rndr.nBlobCache = 0;
+  rndr.refs = empty_blob;
   for(i=0; i<256; i++) rndr.active_char[i] = 0;
   if( (rndr.make.emphasis
     || rndr.make.double_emphasis
@@ -2262,6 +2215,7 @@ void markdown(
     blob_reset(&lr[i].title);
   }
   blob_reset(&rndr.refs);
-  blobarray_zero(rndr.work, rndr.make.max_work_stack);
-  fossil_free(rndr.work);
+  for(i=0; i<rndr.nBlobCache; i++){
+    fossil_free(rndr.aBlobCache[i]);
+  }
 }

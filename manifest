@@ -1,5 +1,5 @@
-C Fix\stwo\sharmless\smemory\sleaks.
-D 2019-09-24T13:16:02.499
+C Simplification\sof\sbuffer\smanagement\sin\sthe\smarkdown\sformatter.
+D 2019-09-24T15:12:34.961
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -524,9 +524,9 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e6366ee7862a999785e33957c4caea204602603c0f5e5665b181c7e492b0e1d0 x
 F src/manifest.c 93eae17cb8265384cd066432f45c2475ac6d86ce30dc864823462b7215762fe6
-F src/markdown.c 15506a5ea69e8121a15382d2b41988ff7221841ddb67e5ad765f6a29236905e4
+F src/markdown.c 05c76e69403852b0dc0b2fefa40a645cf13d2ae0e2557e3d961506fc190ec73c
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
-F src/markdown_html.c c73b21b6a83fc856ba103246a51c09849bd9e4dd5dc18cf9bbb08e96748cb1ee
+F src/markdown_html.c e4a6b3ed567fded8a6e60f097f377b5ae68601316afb2ee0cc1354af6f331bec
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcb20df757ad8f214b5270ef0d24de139579ebdbe8e83d6d44437e43d6984858
-R c80d5edc19aed49a36630e69a587d0fd
+P 7949d941c631896e48de8723e45dcfff75c8bf079713991629e8a68f06bd8870
+R f92b60e2f575936ba9eb2632d3709fc5
 U drh
-Z 7c6cb6c1ec34267c48fe2dc6eadb19c4
+Z 9d30f5784d0e4f16832326ff2f15eded
