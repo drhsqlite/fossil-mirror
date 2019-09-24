@@ -529,23 +529,15 @@ static int paragraphBreakLength(const char *z){
 ** The "\n" is only considered interesting if the flags constains ALLOW_WIKI.
 */
 static int textLength(const char *z, int flags){
-  int n = 0;
-  int c, x1, x2;
-
+  const char *zReject;
   if( flags & ALLOW_WIKI ){
-    x1 = '[';
-    x2 = '\n';
+    zReject = "<&[\n";
   }else if( flags & ALLOW_LINKS ){
-    x1 = '[';
-    x2 = 0;
+    zReject = "<&[";
   }else{
-    x1 = x2 = 0;
+    zReject = "<&";
   }
-  while( (c = z[0])!=0 && c!='<' && c!='&' && c!=x1 && c!=x2 ){
-    n++;
-    z++;
-  }
-  return n;
+  return strcspn(z, zReject);
 }
 
 /*

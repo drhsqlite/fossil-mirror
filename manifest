@@ -1,5 +1,5 @@
-C Additional\sefforts\sto\slimit\sdepth\sof\srecursion\sin\smarkdown.
-D 2019-09-24T18:16:26.835
+C Use\sthe\sstrcspn()\sC-library\sroutine\sto\soptimize\sthe\stextLength()\sfunction\nin\sthe\sFossil-wiki\sformatter.
+D 2019-09-24T19:52:08.673
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -603,7 +603,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 13017b5ea7a3a799b17f2809a2b382fd092ccbdfa08d2a63def5cb99f8c13bfb
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c eb544c3170276ccdb9f44f83a15bb10096b07d001254970851aa4abef5631bba
+F src/wikiformat.c 514fde511cd38b7a3cae0e3f874baeb631d3dcb39c3cafab1082b9fe361d7bcc
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a5835cac3b63d2d4fe5bfffcbe8bc99b64781124a87748c054eef2270cbf1cac
-R 14100c3520fc76b5e9a6706cc810623f
+P cd5e9f265de1a0d57fcdab55ee2a8c96823e11eb20142d67164fdc9ed7810581
+R 9a1e3d1d7d561e90654bbac7786220ac
 U drh
-Z f96be6f42b1f675ecdccc3d74e754a00
+Z f9d88ab27a75ee71e06ab32d5b3e01cd
