@@ -321,6 +321,7 @@ static void release_work_buffer(struct render *rndr, struct Blob *buf){
   if( !buf ) return;
   assert(rndr->work_active>0 && buf==(rndr->work+rndr->work_active-1));
   rndr->work_active -= 1;
+  blob_reset(buf);
 }
 
 
