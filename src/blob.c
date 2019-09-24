@@ -1359,6 +1359,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_append(pBlob, "\000\000", 3);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
+    blob_reset(pBlob);
     blob_set_dynamic(pBlob, zUtf8);
   }else if( useMbcs && invalid_utf8(pBlob) ){
 #if defined(_WIN32) || defined(__CYGWIN__)

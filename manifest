@@ -1,5 +1,5 @@
-C Move\sthe\simplementation\sof\sthe\stest-markdown-render\scommand\sso\sthat\sit\nis\sbeside\sthe\stest-wiki-render\scommand\sin\swikiformat.c.\s\sAlso\smake\sminor\nenhancements\sto\sthe\shelp\stext\sfor\sboth\scommands.
-D 2019-09-24T10:44:04.508
+C Fix\stwo\sharmless\smemory\sleaks.
+D 2019-09-24T13:16:02.499
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c f8c3e0c28c6a8a44b07c008d1a83f3f3026813c8a973b0e6bb7a548fe607477d
+F src/blob.c c87215906d1e3b3e5478767d4c6e6e28d09dc3671b1a1d0a7561c8c7b019172f
 F src/branch.c 9825c3877ecaa8a933d131b8e10413d13b81100183916207f0bc6b06f0a75760
 F src/browse.c 0ee3626f260dc863b66d609f4bcd6a8b7dcf3be912b6d1f321452a6f7fc644c7
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -603,7 +603,7 @@ F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
 F src/wiki.c 13017b5ea7a3a799b17f2809a2b382fd092ccbdfa08d2a63def5cb99f8c13bfb
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
-F src/wikiformat.c dfd5729ad0715e760563234d59969c3c264cf64ea980af6a07a77314b4f2ff0e
+F src/wikiformat.c 84a0f3be18fe505947ce50f5eaba58734e2512288421a086057530d5cf59007d
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 199b20d0e150d31caf8106f629b72f1b7c3284d0e751077108cd47c588a03a08
-R be73419b78762140724a9d8b205861e8
+P fcb20df757ad8f214b5270ef0d24de139579ebdbe8e83d6d44437e43d6984858
+R c80d5edc19aed49a36630e69a587d0fd
 U drh
-Z 7bc707f62d2dc59784c5ae5f1c22c13a
+Z 7c6cb6c1ec34267c48fe2dc6eadb19c4

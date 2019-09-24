@@ -1121,9 +1121,9 @@ static int is_ticket(
   memcpy(zUpper, zLower, n+1);
   zUpper[n-1]++;
   if( !db_static_stmt_is_init(&q) ){
-    const char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
+    char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
     db_static_prepare(&q,
-      "SELECT %s FROM ticket "
+      "SELECT %z FROM ticket "
       " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
       zClosedExpr /*safe-for-%s*/
     );
