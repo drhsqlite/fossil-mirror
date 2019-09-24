@@ -434,6 +434,10 @@ static void parse_inline(
   char_trigger action = 0;
   struct Blob work = BLOB_INITIALIZER;
 
+  if( too_deep(rndr) ){
+    blob_append(ob, data, size);
+    return;
+  }
   while( i<size ){
     /* copying inactive chars into the output */
     while( end<size
@@ -1307,7 +1311,11 @@ static size_t parse_blockquote(
   }
 
   if( rndr->make.blockquote ){
-    parse_block(out, rndr, work_data, work_size);
+    if( !too_deep(rndr) ){
+      parse_block(out, rndr, work_data, work_size);
+    }else{
+      blob_append(out, work_data, work_size);
+    }
     rndr->make.blockquote(ob, out, rndr->make.opaque);
   }
   release_work_buffer(rndr, out);

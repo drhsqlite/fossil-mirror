@@ -1,5 +1,5 @@
-C Attempt\sto\slimit\sthe\sdepth\sof\srecursion\sin\smarkdown\sformatting.
-D 2019-09-24T18:04:02.852
+C Additional\sefforts\sto\slimit\sdepth\sof\srecursion\sin\smarkdown.
+D 2019-09-24T18:16:26.835
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -524,7 +524,7 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e6366ee7862a999785e33957c4caea204602603c0f5e5665b181c7e492b0e1d0 x
 F src/manifest.c 93eae17cb8265384cd066432f45c2475ac6d86ce30dc864823462b7215762fe6
-F src/markdown.c 94c4775ba81e6f2de11de6ffdff421ed636e0485380f7b362242e53da45cdcab
+F src/markdown.c e7e1096993283986d7091a931e6741d0775afde591cc67dc41eb39115f430f92
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
 F src/markdown_html.c e4a6b3ed567fded8a6e60f097f377b5ae68601316afb2ee0cc1354af6f331bec
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48276cfc811da9ad46503a2cabf5e847fbc9e8adae17ab5a64b927ba80059478
-R 18788984d68c60df9aca9d2bfdb68cd0
+P a5835cac3b63d2d4fe5bfffcbe8bc99b64781124a87748c054eef2270cbf1cac
+R 14100c3520fc76b5e9a6706cc810623f
 U drh
-Z 6db5502467067568447e6dd22b26cdc1
+Z f96be6f42b1f675ecdccc3d74e754a00
