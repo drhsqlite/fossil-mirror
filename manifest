@@ -1,5 +1,5 @@
-C Create\sand\suse\sthe\sblob_append_string()\smacro\sfor\sappending\sstring\sliterals.\nImprovements\sto\sblob_append_char().
-D 2019-09-24T20:27:03.293
+C Performance\soptimizations\sin\sthe\smarkdown\sformatter.
+D 2019-09-24T23:29:58.308
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -435,7 +435,7 @@ F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c a7eb89018c959ebe74f36496ff742d58610220b2
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 7b287407fbbdb005ce0119f1411382ea2b00b7dff2000541e21a492aa161e2c4
+F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c 9825c3877ecaa8a933d131b8e10413d13b81100183916207f0bc6b06f0a75760
 F src/browse.c 0ee3626f260dc863b66d609f4bcd6a8b7dcf3be912b6d1f321452a6f7fc644c7
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -524,7 +524,7 @@ F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc700
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e6366ee7862a999785e33957c4caea204602603c0f5e5665b181c7e492b0e1d0 x
 F src/manifest.c 93eae17cb8265384cd066432f45c2475ac6d86ce30dc864823462b7215762fe6
-F src/markdown.c 02e8700469ee2ec474ee36b6d2c5015a939e848d06f6bfa90a566335d353f021
+F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 933923747cb62c197e0a919c870fdf577221a9efeba7ae631dce40767961b4bf
-R 513bbf9eadc6d2df28ba119bcad3697d
+P 48c47e1eb7d3012715653a55aad2bc65ed678ed78301487e4cfa29a5a601fb25
+R bbf987c7cdf939c1e82cfe44ddc18c38
 U drh
-Z 5c76c70d61c29709330300434d7ea9b0
+Z 772a7c13921eef94ed772c6db484a1dc

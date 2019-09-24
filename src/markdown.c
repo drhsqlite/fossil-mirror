@@ -1336,7 +1336,12 @@ static size_t parse_paragraph(
   size_t work_size = 0;
 
   while( i<size ){
-    for(end=i+1; end<size && data[end-1]!='\n'; end++);
+    char *zEnd = memchr(data+i, '\n', size-i-1);
+    end = zEnd==0 ? size : (int)(zEnd - (data-1));
+    /* The above is the same as:
+    **    for(end=i+1; end<size && data[end-1]!='\n'; end++);
+    ** "end" is left with a value such that data[end] is one byte
+    ** past the first '\n' or one byte past the end of the string */
     if( is_empty(data+i, size-i)
      || (level = is_headerline(data+i, size-i))!= 0
     ){
@@ -1404,7 +1409,12 @@ static size_t parse_blockcode(
 
   beg = 0;
   while( beg<size ){
-    for(end=beg+1; end<size && data[end-1]!='\n'; end++);
+    char *zEnd = memchr(data+beg, '\n', size-beg-1);
+    end = zEnd==0 ? size : (int)(zEnd - (data-1));
+    /* The above is the same as:
+    **   for(end=beg+1; end<size && data[end-1]!='\n'; end++);
+    ** "end" is left with a value such that data[end] is one byte
+    ** past the first \n or past then end of the string. */
     pre = prefix_code(data+beg, end-beg);
     if( pre ){
       beg += pre; /* skipping prefix */

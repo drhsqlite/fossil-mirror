@@ -313,7 +313,7 @@ void blob_append_full(Blob *pBlob, const char *aData, int nData){
 void blob_append(Blob *pBlob, const char *aData, int nData){
   sqlite3_int64 nUsed;
   assert( aData!=0 || nData==0 );
-  blob_is_init(pBlob);
+  /* blob_is_init(pBlob); // omitted for speed */
   if( nData<=0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
     blob_append_full(pBlob, aData, nData);
     return;
