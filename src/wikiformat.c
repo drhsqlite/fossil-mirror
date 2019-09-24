@@ -1779,6 +1779,9 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **
 ** Usage: %fossil test-wiki-render FILE [OPTIONS]
 **
+** Translate the input FILE from Fossil-wiki into HTML and write
+** the resulting HTML on standard output.
+**
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag
 **    --htmlonly       Set the WIKI_HTMLONLY flag
@@ -1803,6 +1806,26 @@ void test_wiki_render(void){
   blob_read_from_file(&in, g.argv[2], ExtFILE);
   wiki_convert(&in, &out, flags);
   blob_write_to_file(&out, "-");
+}
+
+/*
+** COMMAND: test-markdown-render
+**
+** Usage: %fossil test-markdown-render FILE
+**
+** Render markdown in FILE as HTML on stdout.
+*/
+void test_markdown_render(void){
+  Blob in, out;
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  verify_all_options();
+  if( g.argc!=3 ) usage("FILE");
+  blob_zero(&out);
+  blob_read_from_file(&in, g.argv[2], ExtFILE);
+  markdown_to_html(&in, 0, &out);
+  blob_write_to_file(&out, "-");
+  blob_reset(&in);
+  blob_reset(&out);
 }
 
 /*
