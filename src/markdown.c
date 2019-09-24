@@ -240,7 +240,7 @@ static int build_ref_id(struct Blob *id, const char *data, size_t size){
     blob_append(id, data+beg, i-beg);
 
     /* add a single space and skip all consecutive whitespace */
-    if( i<size ) blob_append(id, " ", 1);
+    if( i<size ) blob_append_char(id, ' ');
     while( i<size && (data[i]==' ' || data[i]=='\t' || data[i]=='\n') ){ i++; }
   }
 
@@ -1415,7 +1415,7 @@ static size_t parse_blockcode(
     if( beg<end ){
       /* verbatim copy to the working buffer, escaping entities */
       if( is_empty(data + beg, end - beg) ){
-        blob_append(work, "\n", 1);
+        blob_append_char(work, '\n');
       }else{
         blob_append(work, data+beg, end-beg);
       }
@@ -1426,7 +1426,7 @@ static size_t parse_blockcode(
   end = blob_size(work);
   while( end>0 && blob_buffer(work)[end-1]=='\n' ){ end--; }
   work->nUsed = end;
-  blob_append(work, "\n", 1);
+  blob_append_char(work, '\n');
 
   if( work!=ob ){
     if( rndr->make.blockcode ){
@@ -1520,7 +1520,7 @@ static size_t parse_listitem(
         *flags |= MKD_LI_END;
         break;
     }else if( in_empty ){
-      blob_append(work, "\n", 1);
+      blob_append_char(work, '\n');
       has_inside_empty = 1;
     }
     in_empty = 0;
@@ -2197,7 +2197,7 @@ void markdown(
         if( ib_data[end]=='\n'
          || (end+1<blob_size(ib) && ib_data[end+1]!='\n')
         ){
-          blob_append(&text, "\n", 1);
+          blob_append_char(&text, '\n');
         }
         end += 1;
       }

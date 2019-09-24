@@ -325,16 +325,21 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 }
 
 /*
+** Append a string literal to a blob.
+*/
+#if INTERFACE
+#define blob_append_string(BLOB,STR) blob_append(BLOB,STR,sizeof(STR)-1)
+#endif
+
+/*
 ** Append a single character to the blob
 */
 void blob_append_char(Blob *pBlob, char c){
   if( pBlob->nUsed+1 >= pBlob->nAlloc ){
-    pBlob->xRealloc(pBlob, pBlob->nUsed + pBlob->nAlloc + 100);
-    if( pBlob->nUsed + 1 >= pBlob->nAlloc ){
-      blob_panic();
-    }
+    blob_append_full(pBlob, &c, 1);
+  }else{
+    pBlob->aData[pBlob->nUsed++] = c;
   }
-  pBlob->aData[pBlob->nUsed++] = c;    
 }
 
 /*
