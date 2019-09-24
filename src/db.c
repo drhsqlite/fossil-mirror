@@ -1365,20 +1365,21 @@ void db_close_config(){
   int iSlot = db_database_slot("configdb");
   if( iSlot>0 ){
     db_detach("configdb");
-    g.zConfigDbName = 0;
   }else if( g.dbConfig ){
     sqlite3_wal_checkpoint(g.dbConfig, 0);
     sqlite3_close(g.dbConfig);
     g.dbConfig = 0;
-    g.zConfigDbName = 0;
   }else if( g.db && 0==iSlot ){
     int rc;
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
-    g.zConfigDbName = 0;
+  }else{
+    return;
   }
+  fossil_free(g.zConfigDbName);
+  g.zConfigDbName = 0;
 }
 
 /*
@@ -2733,8 +2734,12 @@ void db_set_int(const char *zName, int value, int globalFlag){
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
-  if( is_truth(zVal) ) return 1;
-  if( is_false(zVal) ) return 0;
+  if( is_truth(zVal) ){
+    dflt = 1;
+  }else if( is_false(zVal) ){
+    dflt = 0;
+  }
+  fossil_free(zVal);
   return dflt;
 }
 int db_get_versioned_boolean(const char *zName, int dflt){

@@ -304,7 +304,7 @@ static void fossil_close(int bDb, int noRepository){
 */
 void cmd_sqlite3(void){
   int noRepository;
-  const char *zConfigDb;
+  char *zConfigDb;
   extern int sqlite3_shell(int, char**);
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   g.fNoThHook = 1;
@@ -314,7 +314,7 @@ void cmd_sqlite3(void){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   }
   db_open_config(1,0);
-  zConfigDb = g.zConfigDbName;
+  zConfigDb = fossil_strdup(g.zConfigDbName);
   fossil_close(1, noRepository);
   sqlite3_shutdown();
 #ifndef _WIN32

@@ -151,7 +151,7 @@ struct Global {
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   char *zAuxSchema;       /* Main repository aux-schema */
   int dbIgnoreErrors;     /* Ignore database errors if true */
-  const char *zConfigDbName;/* Path of the config database. NULL if not open */
+  char *zConfigDbName;    /* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   unsigned iRepoDataVers;  /* Initial data version for repository database */

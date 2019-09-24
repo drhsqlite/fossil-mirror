@@ -1638,6 +1638,8 @@ void test_markdown_render(void){
   blob_read_from_file(&in, g.argv[2], ExtFILE);
   markdown_to_html(&in, 0, &out);
   blob_write_to_file(&out, "-");
+  blob_reset(&in);
+  blob_reset(&out);
 }
 
 /*
