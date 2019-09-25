@@ -1,5 +1,5 @@
-C Performance\soptimizations\sin\sthe\smarkdown\sformatter.
-D 2019-09-24T23:29:58.308
+C Allow\sremote\scommands\sof\sthe\sform\s"*/fossil.exe"\son\sthe\s"ssh:"\sprotocol.
+D 2019-09-25T13:28:54.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -492,7 +492,7 @@ F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c a25166d6aee3961bd543425247f0733bd5129d9f5afec4c90a1768905bd35a1b
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
-F src/http_transport.c a7fa1a7a79f5f8bc450a9c0727b30cbe2382dc6471e0d3d0089e78e5edb64780
+F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 4689601689be55d05e83756fcdc886ad3958a15b4de5678cb250db176cb4cee0
 F src/info.c 626771c067209d7f1b7fc1f3735662660be146be181eb26e4ac694f57bfe3a90
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 48c47e1eb7d3012715653a55aad2bc65ed678ed78301487e4cfa29a5a601fb25
-R bbf987c7cdf939c1e82cfe44ddc18c38
+P ef41fbfa598dd7fa1fb48593d4e5edd266dc95c4184ea66c30df4f377c8131e3
+R 5b46495b2ac253aef17b4a23ba6a1f64
 U drh
-Z 772a7c13921eef94ed772c6db484a1dc
+Z 69cc8971a1ca3422bb6285777fa5507a
