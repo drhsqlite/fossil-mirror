@@ -2446,6 +2446,8 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
+  fossil_binary_mode(g.httpOut);
+  fossil_binary_mode(g.httpIn);
   g.zExtRoot = find_option("extroot",0,1);
   find_server_repository(2, 0);
   g.cgiOutput = 1;

@@ -1,5 +1,5 @@
-C Allow\sremote\scommands\sof\sthe\sform\s"*/fossil.exe"\son\sthe\s"ssh:"\sprotocol.
-D 2019-09-25T13:28:54.088
+C Fix\sthe\stest-http\scommand\sso\sthat\sit\somits\sline-ending\sconversions.\s\sThis\nallows\sthe\sssh:\sclone/sync\smethod\sto\swork\swith\sa\swindows\sserver.
+D 2019-09-25T13:45:15.040
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 750cecd2573bd3e0eb7156e8507165b307afe3b3b5abe74aa8466017eef78dcc
+F src/main.c a35b33b329ab2038f9c5f4cefd8bd339c6fa1a95d530a88df59481fadee76f7f
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef41fbfa598dd7fa1fb48593d4e5edd266dc95c4184ea66c30df4f377c8131e3
-R 5b46495b2ac253aef17b4a23ba6a1f64
+P 8f70ccaac82d0e30e00158841d1715f14d279687892ba5202cf9f876394a85b8
+R 56bde5552cb108762672d26e1afb622b
 U drh
-Z 69cc8971a1ca3422bb6285777fa5507a
+Z b6e19d0200c856ba80736eb6bfbf6283
