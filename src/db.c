@@ -3602,6 +3602,11 @@ struct Setting {
 ** Defaults to "start" on windows, "open" on Mac,
 ** and "firefox" on Unix.
 */
+/*
+** SETTING: syntax-hl        boolean default=off
+** This is a boolean set such that themes can use TH1 code
+** to detect if they should enable syntax highlighting.
+*/
 
 /*
 ** Look up a control setting by its name.  Return a pointer to the Setting

@@ -2340,23 +2340,16 @@ void artifact_page(void){
       zMime = mimetype_from_content(&content);
       @ <blockquote>
       if( zMime==0 ){
-        const char *z, *zFileName, *zExt;
+        const char *z, *zFileName, *zExt, *zLanguage, *tmp;
         z = blob_str(&content);
-        zFileName = db_text(0,
-         "SELECT name FROM mlink, filename"
-         " WHERE filename.fnid=mlink.fnid"
-         "   AND mlink.fid=%d",
-         rid);
-        zExt = zFileName ? strrchr(zFileName, '.') : 0;
-        if( zLn ){
+        zFileName = blob_str(&downloadName);
+        zExt = (tmp = strrchr(zFileName, '.')) == NULL ? "" : tmp+1;
+        zLanguage = strrchr(zFileName, '.') == NULL ? "" : "language-";
+        if( zLn && (db_get_boolean("syntax-hl", 0) == 0) ) {
           output_text_with_line_numbers(z, zLn);
-        }else if( zExt && zExt[1] ){
-          @ <pre>
-          @ <code class="language-%s(zExt+1)">%h(z)</code>
-          @ </pre>
         }else{
           @ <pre>
-          @ %h(z)
+          @ <code class="%s(zLanguage)%s(zExt)">%h(z)</code>
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
