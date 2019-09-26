@@ -297,5 +297,5 @@ then additional diagnostic information may be included in the output.
 If the /ext page has a "fossil-ext-debug=1" query parameter and if
 the requester is logged in as a user with Debug privilege, then the
 CGI output is returned verbatim, as text/plain and with the original
-header intact.  This is useful for trying diagnosing problems with the
+header intact.  This is useful for diagnosing problems with the
 CGI script.
