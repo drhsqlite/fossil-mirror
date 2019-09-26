@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sCGI\sextension\sdocumentation.
-D 2019-09-26T17:36:31.648
+C Remove\sthe\sdiscussion\sof\sthe\s"close"\scommand\sfrom\sthe\sfiveminutes.wiki\ndocument\sas\sthe\s"close"\scommand\sis\snot\sreally\sneeded,\sis\srarely\sused,\nand\sserves\sno\spurpose\sin\sthe\sdocument\sbut\sto\sconfuse\sthe\sreader.
+D 2019-09-26T17:58:29.403
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -833,7 +833,7 @@ F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f5
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
 F www/fileformat.wiki 8fbc9c965cd66444b730513727342b64b9924f6e8ddfbe6bcdd5a1fdfabee2cf
-F www/fiveminutes.wiki 0f0faaf4eb29a6652660d32516f9079772fb25da
+F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4eea6bf9dc2f11149705948b6ca53998642a68e863d250ebeafa6ee93736a863
-R 792059bd344fa9b8721c8609cbca7d5c
+P b4ac00d8bb7ad36219f4fe71f3bfa6b62114e5c53fb652fd71ebb281274fe3b9
+R b0000a62638e092551ecee64c4d08745
 U drh
-Z 92ddf933b4e15bfbede551379ddd6322
+Z 2179413c767580aebd5338122a72115e
