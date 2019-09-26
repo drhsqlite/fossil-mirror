@@ -1,5 +1,5 @@
-C Remove\sthe\sdiscussion\sof\sthe\s"close"\scommand\sfrom\sthe\sfiveminutes.wiki\ndocument\sas\sthe\s"close"\scommand\sis\snot\sreally\sneeded,\sis\srarely\sused,\nand\sserves\sno\spurpose\sin\sthe\sdocument\sbut\sto\sconfuse\sthe\sreader.
-D 2019-09-26T17:58:29.403
+C Create\snew\sbranch\snamed\s"syntax-hl-with-numbering"
+D 2019-09-26T23:36:36.006
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -928,7 +928,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4ac00d8bb7ad36219f4fe71f3bfa6b62114e5c53fb652fd71ebb281274fe3b9
+P f6e635308c0c03f7684305de93ba1adbbe25a1b7c1e2b6ce9dd34b65a9e30024
 R b0000a62638e092551ecee64c4d08745
-U drh
-Z 2179413c767580aebd5338122a72115e
+T *branch * syntax-hl-with-numbering
+T *sym-syntax-hl-with-numbering *
+T -sym-trunk *
+U lmartin92
+Z 510f4145128da6c3ace2efb80753c173
