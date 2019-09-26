@@ -1,5 +1,5 @@
-C Fix\sthe\stest-http\scommand\sso\sthat\sit\somits\sline-ending\sconversions.\s\sThis\nallows\sthe\sssh:\sclone/sync\smethod\sto\swork\swith\sa\swindows\sserver.
-D 2019-09-25T13:45:15.040
+C Updates\sto\sthe\schange\slog.
+D 2019-09-26T17:23:44.800
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -792,7 +792,7 @@ F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b57
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki 8b9f787cb0e162e9672f5b3ce0d32f60dabae0003f7bd7dc6ffa6ae2b05ceec2
-F www/changes.wiki 9a087ee3eb814d39e844c6a574c801f0a0682fd598d9a6786e08a0c8b29dbefe
+F www/changes.wiki c3b554588aa4ca4a1795a900d88bdd3fd77b46f44ef6f2af8ce6d929b0c93c9a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 911ba32f0c06b7f01cc0dd3bd92fe06450680ea09dda8ac8f69834853bb0d4e9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8f70ccaac82d0e30e00158841d1715f14d279687892ba5202cf9f876394a85b8
-R 56bde5552cb108762672d26e1afb622b
+P 28b15b4816b9e05b365cafa7f5651761c6688ebeda9a32545b90c16e25690176
+R 048e8c1c9b733d400e6955ebadda8512
 U drh
-Z b6e19d0200c856ba80736eb6bfbf6283
+Z e4f626145cb77cdd6803de2315136ef5

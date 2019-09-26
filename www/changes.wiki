@@ -20,7 +20,7 @@
      the most recent merge-in from the parent branch of BRANCH.
   *  Add hyperlinks to branch-diffs on the /info page and from
      timelines of a branch.
-  *  Add graphical context /vdiff page.
+  *  Add graphical context on the [/help?cmd=/vdiff|/vdiff] page.
   *  Uppercase query parameters, POST parameters, and cookie names are
      converted to all lowercase and entered into the parameter set,
      instead of being discarded.
@@ -32,8 +32,8 @@
      though the interval is now configurable using a setting.
      An additional check for conflicts is added after interactive
      check-in comment entry, to compensate for the reduced lock interval.
-  *  Performance optimizations for control artifact parsing.
-  *  Many documentation improvements
+  *  Performance optimizations.
+  *  Many documentation improvements.
 
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (2019-07-13)</h2>
