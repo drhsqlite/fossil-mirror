@@ -1039,20 +1039,18 @@ const char *find_repository_option(){
 **
 ** If fAllowDoubleDash is true then if the flag "--" is found, it is
 ** removed from the list and arguments after that flag are not
-** inspected by this function (they are assumed to be filenames, even
-** if they syntactically look like flags). If fAllowDoubleDash is
-** false then the "--" flag will trigger a fatal error exactly as if
-** an unprocessed flag were encountered.
+** inspected by this function (they are assumed to be
+** file/wiki/branch/etc. names, even if they syntactically look like
+** flags). If fAllowDoubleDash is false then the "--" flag will
+** trigger a fatal error exactly as if an unprocessed flag were
+** encountered.
 **
 ** Sidebar: the question of whether fAllowDoubleDash should be true or
 ** false would seem to boil down to: does the calling routine
 ** expect/allow arbitrary file/page/branch/whatever name arguments
 ** after its required arguments?
-**
-** Once the "--" support is completed, this function will be renamed
-** (back) to verify_all_options().
 */
-void verify_all_options_porting_crutch(int fAllowDoubleDash){
+static void verify_all_options_impl(int fAllowDoubleDash){
   int i;
   for(i=1; i<g.argc; i++){
     const char * arg = g.argv[i];
@@ -1075,8 +1073,23 @@ void verify_all_options_porting_crutch(int fAllowDoubleDash){
   }
 }
 
+/*
+** Must be called by all commands which process CLI flags, after
+** consuming those flags (via find_option() and friends), to confirm
+** that no unconsumed flags are still in the arguments list.  If the
+** command should/can honor the "--" flag, call verify_all_options2()
+** instead.
+*/
 void verify_all_options(void){
-  verify_all_options_porting_crutch(0);
+  verify_all_options_impl(0);
+}
+
+/*
+** Identical to verify_all_options() except that it honors the "--"
+** flag.
+*/
+void verify_all_options2(void){
+  verify_all_options_impl(1);
 }
 
 /*

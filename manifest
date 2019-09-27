@@ -1,5 +1,5 @@
-C Initial\swork\son\sunified\s"--"\sflag\ssupport,\sas\srequested\sin\shttps://fossil-scm.org/forum/forumpost/64acc6b653.\sThere's\sstill\slots\sto\sdo\shere.
-D 2019-09-27T08:48:57.015
+C Simplified\sthe\sverify_all_options()\sporting\sstrategy,\ssuch\sthat\s--\sis\sdisallowed\sby\sdefault\sand\sroutines\swhich\sshould/can\ssupport\sit\sneed\sto\scall\sverify_all_options2()\sinstead\sof\sus\schanging\sthe\ssignature\sof\sverify_all_options().\sThis\swill\sresult\sin\sfar\sfewer\schanges\sthan\sthe\sprevious\sapproach.
+D 2019-09-27T09:55:12.182
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c a2ce872d9d6b7b6a864297b932e0921fcb0dd6cb9132f6047bed3f96b9aca318
+F src/main.c 080f977284ab0b79c498cf29cbacb24e7611d7c5f629309565031dadf2fb7fed
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -928,10 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f6e635308c0c03f7684305de93ba1adbbe25a1b7c1e2b6ce9dd34b65a9e30024
-R 4bf9146e21ef814e2019d92ae10f5b58
-T *branch * double-dash-flag
-T *sym-double-dash-flag *
-T -sym-trunk *
+P d8ebbd76cc9ae94b6f9ffb8ef6856b3afd5ee2b5a14063d923fd567206f08ad3
+R d12c68f9dcf5eb525d9d5de1eb216022
 U stephan
-Z a8e1f34503e1b6882d9eaf16f4721e95
+Z 5504dd4260a7df4e79cc50642fe29718
