@@ -2536,7 +2536,7 @@ void annotation_page(void){
 ** COMMAND: blame
 ** COMMAND: praise
 **
-** Usage: %fossil annotate|blame|praise ?OPTIONS? FILENAME
+** Usage: %fossil annotate|blame|praise ?OPTIONS? ?--? FILENAME
 **
 ** Output the text of a file with markings to show when each line of the file
 ** was last modified.  The version currently checked out is shown by default.
@@ -2567,6 +2567,8 @@ void annotation_page(void){
 **                                 similar for a reverse annotation.
 **   -w|--ignore-all-space       Ignore white space when comparing lines
 **   -Z|--ignore-trailing-space  Ignore whitespace at line end
+**   --                          Treat all following arguments as files,
+**                               even if they look like flags.
 **
 ** See also: info, finfo, timeline
 */
@@ -2599,7 +2601,7 @@ void annotate_cmd(void){
   db_must_be_within_tree();
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc<3 ) {
     usage("FILENAME");

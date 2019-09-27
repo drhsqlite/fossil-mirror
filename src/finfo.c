@@ -237,7 +237,7 @@ void finfo_cmd(void){
 /*
 ** COMMAND: cat
 **
-** Usage: %fossil cat FILENAME ... ?OPTIONS?
+** Usage: %fossil cat ?OPTIONS? ?--? FILENAME ...
 **
 ** Print on standard output the content of one or more files as they exist
 ** in the repository.  The version currently checked out is shown by default.
@@ -246,6 +246,8 @@ void finfo_cmd(void){
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
 **    -r VERSION                 The specific check-in containing the file
+**    --                         Treat all following arguments as files,
+**                               even if they look like flags.
 **
 ** See also: finfo
 */
@@ -257,7 +259,7 @@ void cat_cmd(void){
   zRev = find_option("r","r",1);
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   for(i=2; i<g.argc; i++){
     file_tree_name(g.argv[i], &fname, 0, 1);

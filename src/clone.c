@@ -82,7 +82,7 @@ void delete_private_content(void){
 /*
 ** COMMAND: clone
 **
-** Usage: %fossil clone ?OPTIONS? URI FILENAME
+** Usage: %fossil clone ?OPTIONS? URI ?--? FILENAME
 **
 ** Make a clone of a repository specified by URI in the local
 ** file named FILENAME.
@@ -120,6 +120,8 @@ void delete_private_content(void){
 **    --ssl-identity FILENAME    Use the SSL identity if requested by the server
 **    -u|--unversioned           Also sync unversioned content
 **    -v|--verbose               Show more statistics in output
+**    --                         Treat all following arguments as files,
+**                               even if they look like flags.
 **
 ** See also: init
 */
@@ -147,7 +149,7 @@ void clone_cmd(void){
   url_proxy_options();
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");

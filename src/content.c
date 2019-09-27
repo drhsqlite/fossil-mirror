@@ -312,7 +312,7 @@ int content_get(int rid, Blob *pBlob){
 /*
 ** COMMAND: artifact*
 **
-** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
+** Usage: %fossil artifact ARTIFACT-ID ?OPTIONS? ?--? ?OUTPUT-FILENAME?
 **
 ** Extract an artifact by its artifact hash and write the results on
 ** standard output, or if the optional 4th argument is given, in
@@ -320,6 +320,10 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
+**    --                         Treat all following arguments as files,
+**                               even if they look like flags and treat
+**                               output filename "-" as a literal filename
+**                               instead of an alias for stdout.
 **
 ** See also: finfo
 */
@@ -328,8 +332,9 @@ void artifact_cmd(void){
   Blob content;
   const char *zFile;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-  if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
-  zFile = g.argc==4 ? g.argv[3] : "-";
+  verify_all_options2();
+  if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?OPTIONS? ?--? ?FILENAME?");
+  zFile = g.argc==4 ? get_dash_filename_arg(3) : "-";
   rid = name_to_rid(g.argv[2]);
   if( rid==0 ){
     fossil_fatal("%s",g.zErrMsg);
