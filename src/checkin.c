@@ -354,7 +354,7 @@ static int determine_cwd_relative_option()
 ** COMMAND: changes
 ** COMMAND: status
 **
-** Usage: %fossil changes|status ?OPTIONS? ?PATHS ...?
+** Usage: %fossil changes|status ?OPTIONS? [--] ?PATHS ...?
 **
 ** Report the change status of files in the current checkout.  If one or
 ** more PATHS are specified, only changes among the named files and
@@ -441,6 +441,8 @@ static int determine_cwd_relative_option()
 **    --differ          Display modified and extra files.
 **    --merge           Display merge contributors.
 **    --no-merge        Do not display merge contributors.
+**    --                Treat all following arguments as files,
+**                      even if they look like flags.
 **
 ** See also: extras, ls
 */
@@ -528,7 +530,7 @@ void status_cmd(void){
   }
 
   /* We should be done with options. */
-  verify_all_options();
+  verify_all_options2();
 
   /* Check for changed files. */
   vfile_check_signature(vid, useHash ? CKSIG_HASH : 0);
@@ -649,7 +651,7 @@ static void ls_cmd_rev(
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? ?PATHS ...?
+** Usage: %fossil ls ?OPTIONS? [--] ?PATHS ...?
 **
 ** List all files in the current checkout.  If PATHS is included, only the
 ** named files (or their children if directories) are shown.
@@ -677,6 +679,8 @@ static void ls_cmd_rev(
 **   -t                    Sort output in time order.
 **   -r VERSION            The specific check-in to list.
 **   -R|--repository FILE  Extract info from repository FILE.
+**   --                    Treat all following arguments as files,
+**                         even if they look like flags.
 **
 ** See also: changes, extras, status
 */
@@ -702,7 +706,7 @@ void ls_cmd(void){
 
   if( zRev!=0 ){
     db_find_and_open_repository(0, 0);
-    verify_all_options();
+    verify_all_options2();
     ls_cmd_rev(zRev,verboseFlag,showAge,timeOrder);
     return;
   }else if( find_option("R",0,1)!=0 ){
@@ -807,7 +811,7 @@ void ls_cmd(void){
 /*
 ** COMMAND: extras
 **
-** Usage: %fossil extras ?OPTIONS? ?PATH1 ...?
+** Usage: %fossil extras ?OPTIONS? [--] ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
 ** current checkout. See also the "clean" command. If paths are specified,
@@ -831,6 +835,8 @@ void ls_cmd(void){
 **    --ignore <CSG>   ignore files matching patterns from the argument
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
+**    --               Treat all following arguments as files,
+**                     even if they look like flags.
 **
 ** See also: changes, clean, status
 */
@@ -852,7 +858,7 @@ void extras_cmd(void){
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -878,7 +884,7 @@ void extras_cmd(void){
 /*
 ** COMMAND: clean
 **
-** Usage: %fossil clean ?OPTIONS? ?PATH ...?
+** Usage: %fossil clean ?OPTIONS? [--] ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
 ** that are not officially part of the checkout.  If one or more PATH
@@ -955,6 +961,8 @@ void extras_cmd(void){
 **                     and assumes an answer of 'No' for every question.
 **    --temp           Remove only Fossil-generated temporary files.
 **    -v|--verbose     Show all files as they are removed.
+**    --               Treat all following arguments as files,
+**                     even if they look like flags.
 **
 ** See also: addremove, extras, status
 */
@@ -1012,7 +1020,7 @@ void clean_cmd(void){
     zCleanFlag = db_get("clean-glob", 0);
   }
   if( db_get_boolean("dotfiles", 0) ) scanFlags |= SCAN_ALL;
-  verify_all_options();
+  verify_all_options2();
   pIgnore = glob_create(zIgnoreFlag);
   pKeep = glob_create(zKeepFlag);
   pClean = glob_create(zCleanFlag);
@@ -1940,8 +1948,8 @@ static int tagCmp(const void *a, const void *b){
 ** COMMAND: ci*
 ** COMMAND: commit
 **
-** Usage: %fossil commit ?OPTIONS? ?FILE...?
-**    or: %fossil ci ?OPTIONS? ?FILE...?
+** Usage: %fossil commit ?OPTIONS? [--] ?FILE...?
+**    or: %fossil ci ?OPTIONS? [--] ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
@@ -2022,6 +2030,8 @@ static int tagCmp(const void *a, const void *b){
 **    --tag TAG-NAME             assign given tag TAG-NAME to the check-in
 **    --date-override DATETIME   DATE to use instead of 'now'
 **    --user-override USER       USER to use instead of the current default
+**    --                         Treat all following arguments as files,
+**                               even if they look like flags.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -2125,7 +2135,7 @@ void commit_cmd(void){
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
   outputManifest = db_get_manifest_setting();
-  verify_all_options();
+  verify_all_options2();
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
