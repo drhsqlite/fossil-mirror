@@ -1737,7 +1737,7 @@ void db_open_repository(const char *zDbName){
         vfile_rid_renumbering_event(0);
         undo_reset();
         bisect_reset();
-        z = db_fingerprint(0);
+        z = db_fingerprint(0, 1);
         db_lset("fingerprint", z);
         fossil_free(z);
         fossil_print(
@@ -3935,14 +3935,26 @@ void test_database_name_cmd(void){
 ** are no security concerns - this is just a checksum, not a security
 ** token.
 */
-char *db_fingerprint(int rcvid){ 
+char *db_fingerprint(int rcvid, int iVersion){ 
   char *z = 0;
   Blob sql = BLOB_INITIALIZER;
   Stmt q;
-  blob_append_sql(&sql,
-    "SELECT rcvid, quote(uid), datetime(mtime), quote(nonce), quote(ipaddr)"
-    "  FROM rcvfrom"
-  );
+  if( iVersion==0 ){
+    /* The original fingerprint algorithm used "quote(mtime)".  But this
+    ** could give slightly different answers depending on how the floating-
+    ** point hardware is configured.  For example, it gave different
+    ** answers on native Linux versus running under valgrind.  */
+    blob_append_sql(&sql,
+      "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
+      "  FROM rcvfrom"
+    );
+  }else{
+    /* These days, we use "datetime(mtime)" for more consistent answers */
+    blob_append_sql(&sql,
+      "SELECT rcvid, quote(uid), datetime(mtime), quote(nonce), quote(ipaddr)"
+      "  FROM rcvfrom"
+    );
+  }
   if( rcvid<=0 ){
     blob_append_sql(&sql, " ORDER BY rcvid DESC LIMIT 1");
   }else{
@@ -3965,26 +3977,27 @@ char *db_fingerprint(int rcvid){
 /*
 ** COMMAND: test-fingerprint
 **
-** Usage: %fossil test-fingerprint ?RCVID? ?--check?
+** Usage: %fossil test-fingerprint ?RCVID?
 **
-** Display the repository fingerprint.  Or if the --check option
-** is provided and this command is run from a checkout, invoke the
-** db_fingerprint_ok() method and print its result.
+** Display the repository fingerprint using the supplied RCVID or
+** using the latest RCVID if not is given on the command line.
+** Show both the legacy and the newer version of the fingerprint,
+** and the currently stored fingerprint if there is one.
 */
 void test_fingerprint(void){
   int rcvid = 0;
-  if( find_option("check",0,0)!=0 ){
-    db_must_be_within_tree();
-    fossil_print("db_fingerprint_ok() => %d\n", db_fingerprint_ok());
-    return;
-  }
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   if( g.argc==3 ){
     rcvid = atoi(g.argv[2]);
   }else if( g.argc!=2 ){
     fossil_fatal("wrong number of arguments");
   } 
-  fossil_print("%z\n", db_fingerprint(rcvid));
+  fossil_print("legecy:              %z\n", db_fingerprint(rcvid, 0));
+  fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
+  if( g.localOpen ){
+    fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
+    fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
+  }
 }
 
 /*
@@ -3998,7 +4011,7 @@ void db_set_checkout(int rid){
   z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
   db_lset("checkout-hash", z);
   fossil_free(z);
-  z = db_fingerprint(0);
+  z = db_fingerprint(0, 1);
   db_lset("fingerprint", z);
   fossil_free(z);
 }
@@ -4020,9 +4033,16 @@ int db_fingerprint_ok(void){
     ** We have to assume everything is ok */
     return 2;
   }
-  zRepo = db_fingerprint(atoi(zCkout));
+  zRepo = db_fingerprint(atoi(zCkout), 1);
   rc = fossil_strcmp(zCkout,zRepo)==0;
-  fossil_free(zCkout);
   fossil_free(zRepo);
+  /* If the initial test fails, try again using the older fingerprint
+  ** algorithm */
+  if( !rc ){
+    zRepo = db_fingerprint(atoi(zCkout), 0);
+    rc = fossil_strcmp(zCkout,zRepo)==0;
+    fossil_free(zRepo);
+  }  
+  fossil_free(zCkout);
   return rc;
 }
