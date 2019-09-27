@@ -298,10 +298,9 @@ void unversioned_cmd(void){
     const char *zFileArg;
     Blob file;
     int i;
-    int fDoubleDash;         /* True if "--" flag is provided */
     zAs = find_option("as",0,1);
-    fDoubleDash = verify_all_options2();
-    if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
+    verify_all_options2();
+    if( zAs && g.argc!=4 ) usage("add --as UVFILE [--] DISKFILE");
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
@@ -319,11 +318,7 @@ void unversioned_cmd(void){
         fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
       }
       blob_init(&file,0,0);
-      zFileArg = g.argv[i];
-      if(fDoubleDash>0 && fDoubleDash<=i
-         && fossil_strcmp("-",zFileArg)==0){
-        zFileArg = "./-" /* do not treat "-" as stdin! */;
-      }
+      zFileArg = get_dash_filename_arg(i);
       blob_read_from_file(&file, zFileArg, ExtFILE);
       unversioned_write(zIn, &file, mtime);
       blob_reset(&file);
@@ -384,12 +379,25 @@ void unversioned_cmd(void){
     blob_reset(&content);
   }else if( memcmp(zCmd, "export", nCmd)==0 ){
     Blob content;
+    const char * zOutfile;
     verify_all_options2();
-    if( g.argc!=5 ) usage("export UVFILE OUTPUT");
+    if( g.argc!=5 ) usage("export [--] UVFILE OUTPUT");
     if( unversioned_content(g.argv[3], &content) ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
-    blob_write_to_file(&content, g.argv[4]);
+    /*
+    ** Pathological(?) corner case:
+    **
+    **   export -- --UVFILE -
+    **
+    ** We have no way of applying -- to just the UVFILE name but not
+    ** the output file name, so the above would output the uv file
+    ** literally named --UVFILE to a file literally named -. The only
+    ** alternative is that we never apply -- to the output file name,
+    ** which seems likely to cause yet more confusion.
+    */
+    zOutfile = get_dash_filename_arg(4);
+    blob_write_to_file(&content, zOutfile);
     blob_reset(&content);
   }else if( memcmp(zCmd, "hash", nCmd)==0 ){  /* undocumented */
     /* Show the hash value used during uv sync */

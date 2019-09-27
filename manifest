@@ -1,5 +1,5 @@
-C Added\s--\ssupport\sto:\s(branch\snew)\s(uv\sadd/cat/edit/export/rm)
-D 2019-09-27T11:47:17.819
+C Added\s--\ssupport\sto\swiki\screate/commit/export.\sRefactored/simplified\show\sfetching\sof\sa\sdash-as-stdin/stdout\sargument\sis\sdone\sfrom\scommand-side\scode.
+D 2019-09-27T14:32:22.993
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 162f5f3e4100362ab154f81294618e0ae6ee75c3b43b4eeeb7b44ea4fd6eb311
+F src/main.c 87d67e7452c9d4095bfd1950f551599cb2644502ad77fb74a9509215d21e631e
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -591,7 +591,7 @@ F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde6555652
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
 F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
-F src/unversioned.c 51b2b3229e7211c5327cd1372ff7bfc3501484fa516ac033ca575f47d3f04258
+F src/unversioned.c a96027abcc21266242cff8f0e014624d2d705498a54380f9f1306dd6ead86b0d
 F src/update.c a5b48c28d98a1715e7e046f82eff21acd8f259fc78a071e6acdde8b61d68a93f
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
@@ -601,7 +601,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 13017b5ea7a3a799b17f2809a2b382fd092ccbdfa08d2a63def5cb99f8c13bfb
+F src/wiki.c 402cef20e9c0e584577b9432089861a349b76f3a756b38c6b0c9d490ab3d1bfa
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 18438a60f1193cad855fa6e483455b68a348fc69c274d5233fccb61e37dbbd86
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9b9b5bceea2f4d24aa9ac81d298d240ab17734b4ac66870b374f3d08a697b66
-R 81a8ee5430bfa8bd343cd7c19ae62948
+P 78a30d8d7c3d5e2e2591f9d29938ae64a7673a489fb7e6f3e6e9c4f977e62ef5
+R b24acf4540de1660315d4a5de749e097
 U stephan
-Z 789b93445844ce14bce8d3d849f7285a
+Z 534e2059a26a4aaccd582f7641023c8b

@@ -1366,8 +1366,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export PAGENAME ?FILE?
-**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID
+**    %fossil wiki export PAGENAME [--] ?FILE?
+**    %fossil wiki export -t|--technote DATETIME|TECHNOTE-ID [--] ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech note
 **       to the given file or standard output.
@@ -1427,6 +1427,11 @@ int wiki_technote_to_rid(const char *zETime) {
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 **
+** Options:
+**   --                      For commands which support this, it means to treat
+**                           all subsequent arguments as file names even if they
+**                           start with a "-".
+**
 */
 void wiki_cmd(void){
   int n;
@@ -1438,7 +1443,6 @@ void wiki_cmd(void){
   if( n==0 ){
     goto wiki_cmd_usage;
   }
-
   if( strncmp(g.argv[2],"export",n)==0 ){
     const char *zPageName;        /* Name of the wiki page to export */
     const char *zFile;            /* Name of the output file (0=stdout) */
@@ -1448,11 +1452,11 @@ void wiki_cmd(void){
     char *zBody = 0;              /* Wiki page content */
     Blob body;                    /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-
     zETime = find_option("technote","t",1);
+    verify_all_options2();
     if( !zETime ){
       if( (g.argc!=4) && (g.argc!=5) ){
-        usage("export PAGENAME ?FILE?");
+        usage("export PAGENAME [--] ?FILE?");
       }
       zPageName = g.argv[3];
       rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -1466,10 +1470,10 @@ void wiki_cmd(void){
       if( zBody==0 ){
         fossil_fatal("wiki page [%s] not found",zPageName);
       }
-      zFile = (g.argc==4) ? "-" : g.argv[4];
+      zFile = g.argc==4 ? "-" : get_dash_filename_arg(4);
     }else{
       if( (g.argc!=3) && (g.argc!=4) ){
-        usage("export ?FILE? --technote DATETIME|TECHNOTE-ID");
+        usage("export --technote DATETIME|TECHNOTE-ID [--] ?FILE?");
       }
       rid = wiki_technote_to_rid(zETime);
       if ( rid==-1 ){
@@ -1481,7 +1485,7 @@ void wiki_cmd(void){
       if( zBody==0 ){
         fossil_fatal("technote [%s] not found",zETime);
       }
-      zFile = (g.argc==3) ? "-" : g.argv[3];
+      zFile = g.argc==3 ? "-" : get_dash_filename_arg(3);
     }
     for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
     zBody[i] = 0;
@@ -1501,16 +1505,18 @@ void wiki_cmd(void){
     const char *zETime = find_option("technote", "t", 1);
     const char *zTags = find_option("technote-tags", NULL, 1);
     const char *zClr = find_option("technote-bgcolor", NULL, 1);
+    verify_all_options2();
     if( g.argc!=4 && g.argc!=5 ){
-      usage("commit|create PAGENAME ?FILE? [--mimetype TEXT-FORMAT]"
+      usage("commit|create PAGENAME [--mimetype TEXT-FORMAT]"
             " [--technote DATETIME] [--technote-tags TAGS]"
-            " [--technote-bgcolor COLOR]");
+            " [--technote-bgcolor COLOR] [--] ?FILE?");
     }
     zPageName = g.argv[3];
     if( g.argc==4 ){
       blob_read_from_channel(&content, stdin, -1);
     }else{
-      blob_read_from_file(&content, g.argv[4], ExtFILE);
+      const char * zFilename = get_dash_filename_arg(4);
+      blob_read_from_file(&content, zFilename, ExtFILE);
     }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */

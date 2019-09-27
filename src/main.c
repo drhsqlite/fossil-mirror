@@ -143,6 +143,9 @@ struct TclContext {
 
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
+  int argDashDashIndex;   /* Index of the "--" flag in g.argv, if provided
+                          ** (else 0). Not valid until verify_all_options()
+                          ** or verify_all_options2() is called. */;
   char *nameOfExe;        /* Full path of executable. */
   const char *zErrlog;    /* Log errors to this file, if not NULL */
   int isConst;            /* True if the output is unchanging & cacheable */
@@ -1048,7 +1051,7 @@ const char *find_repository_option(){
 ** Returns false (0) if fAllowDoubleDash is false or if "--" is not
 ** encountered. If fAllowDoubleDash is true and "--" is encountered,
 ** the argument index (in g.argv) at which "--" was encountered (and
-** removed) is returned.
+** removed) is returned (that value will always be greater than 0).
 **
 ** Sidebar: the question of whether fAllowDoubleDash should be true or
 ** false would seem to boil down to: does the calling routine
@@ -1057,6 +1060,7 @@ const char *find_repository_option(){
 */
 static int verify_all_options_impl(int fAllowDoubleDash){
   int i;
+  g.argDashDashIndex = 0;
   for(i=1; i<g.argc; i++){
     const char * arg = g.argv[i];
     if( arg[0]=='-' ){
@@ -1065,7 +1069,7 @@ static int verify_all_options_impl(int fAllowDoubleDash){
           /* Remove "--" from the list and assume any following
           ** arguments are file names. */
           remove_from_argv(i, 1);
-          return i;
+          return g.argDashDashIndex = i;
         }else{
           fossil_fatal("The -- flag is not allowed here.");
         }
@@ -1096,6 +1100,43 @@ void verify_all_options(void){
 */
 int verify_all_options2(void){
   return verify_all_options_impl(1);
+}
+
+/*
+** Expects nArgPos to be a valid index of g.argv. If nArgPos is a
+** string with the value "-" and g.argDashDashIndex is greater than 0
+** and <= nArgPos then the value "-" gets transformed to "./-". In all
+** other cases, the value of g.argv[nArgPos] is returned as-is.
+**
+** The intention is that this function be called by commands which
+** accept a filename argument for which "-" is interpreted as stdin or
+** stdout. If the "--" flag was found BEFORE that filename flag then
+** "-" is transformed such that it will be seen as a file named "./-"
+** rather than "-" (stdin or stdout, depending on the context). Returns
+** a string from g.argv or the static string "./-", so its lifetime is
+** effectively that of the app.
+*/
+const char * get_dash_filename_arg(int nArgPos){
+  const char * zName;
+  assert(nArgPos < g.argc);
+  zName = g.argv[nArgPos];
+  if(zName!=0
+     && g.argDashDashIndex>0 && g.argDashDashIndex<=nArgPos
+     && fossil_strcmp("-",zName)==0){
+    zName = "./-";
+  }
+  return zName;
+};
+
+/*
+ ** Only for debugging during "--"-related refactoring. To be deleted
+ ** before merging with trunk.
+ */
+void dump_g_argv(){
+  int i;
+  for( i = 0; i < g.argc; ++i ){
+    fossil_print("\tg.argv[%d] = %s\n", i, g.argv[i]);
+  }
 }
 
 /*
