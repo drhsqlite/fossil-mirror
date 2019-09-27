@@ -354,7 +354,7 @@ static int determine_cwd_relative_option()
 ** COMMAND: changes
 ** COMMAND: status
 **
-** Usage: %fossil changes|status ?OPTIONS? [--] ?PATHS ...?
+** Usage: %fossil changes|status ?OPTIONS? ?--? ?PATHS ...?
 **
 ** Report the change status of files in the current checkout.  If one or
 ** more PATHS are specified, only changes among the named files and
@@ -651,7 +651,7 @@ static void ls_cmd_rev(
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS? [--] ?PATHS ...?
+** Usage: %fossil ls ?OPTIONS? ?--? ?PATHS ...?
 **
 ** List all files in the current checkout.  If PATHS is included, only the
 ** named files (or their children if directories) are shown.
@@ -811,7 +811,7 @@ void ls_cmd(void){
 /*
 ** COMMAND: extras
 **
-** Usage: %fossil extras ?OPTIONS? [--] ?PATH1 ...?
+** Usage: %fossil extras ?OPTIONS? ?--? ?PATH1 ...?
 **
 ** Print a list of all files in the source tree that are not part of the
 ** current checkout. See also the "clean" command. If paths are specified,
@@ -884,7 +884,7 @@ void extras_cmd(void){
 /*
 ** COMMAND: clean
 **
-** Usage: %fossil clean ?OPTIONS? [--] ?PATH ...?
+** Usage: %fossil clean ?OPTIONS? ?--? ?PATH ...?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are files
 ** that are not officially part of the checkout.  If one or more PATH
@@ -1948,8 +1948,8 @@ static int tagCmp(const void *a, const void *b){
 ** COMMAND: ci*
 ** COMMAND: commit
 **
-** Usage: %fossil commit ?OPTIONS? [--] ?FILE...?
-**    or: %fossil ci ?OPTIONS? [--] ?FILE...?
+** Usage: %fossil commit ?OPTIONS? ?--? ?FILE...?
+**    or: %fossil ci ?OPTIONS? ?--? ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless

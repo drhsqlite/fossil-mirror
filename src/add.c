@@ -246,7 +246,7 @@ static int add_files_in_sfile(int vid){
 /*
 ** COMMAND: add
 **
-** Usage: %fossil add ?OPTIONS? [--] FILE1 ?FILE2 ...?
+** Usage: %fossil add ?OPTIONS? ?--? FILE1 ?FILE2 ...?
 **
 ** Make arrangements to add one or more files or directories to the
 ** current checkout at the next commit.
@@ -422,7 +422,7 @@ static void process_files_to_remove(
 ** COMMAND: delete
 ** COMMAND: forget*
 **
-** Usage: %fossil rm|delete|forget ?OPTIONS? [--] FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget ?OPTIONS? ?--? FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -830,8 +830,8 @@ static void process_files_to_move(
 ** COMMAND: mv
 ** COMMAND: rename*
 **
-** Usage: %fossil mv|rename ?OPTIONS? [--] OLDNAME NEWNAME
-**    or: %fossil mv|rename ?OPTIONS? [--] OLDNAME... DIR
+** Usage: %fossil mv|rename ?OPTIONS? ?--? OLDNAME NEWNAME
+**    or: %fossil mv|rename ?OPTIONS? ?--? OLDNAME... DIR
 **
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
@@ -887,7 +887,7 @@ void mv_cmd(void){
     fossil_fatal("no checkout in which to rename files");
   }
   if( g.argc<4 ){
-    usage("?OPTIONS? [--] OLDNAME NEWNAME");
+    usage("?OPTIONS? ?--? OLDNAME NEWNAME");
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
@@ -918,7 +918,7 @@ void mv_cmd(void){
   }
   destType = file_isdir(zDest, RepoFILE);
   if( origType==-1 && destType!=1 ){
-    usage("?OPTIONS? [--] OLDNAME NEWNAME");
+    usage("?OPTIONS? ?--? OLDNAME NEWNAME");
   }else if( origType==1 && destType==2 ){
     fossil_fatal("cannot rename '%s' to '%s' since another file named"
                  " '%s' exists", g.argv[2], zDest, zDest);

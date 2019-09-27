@@ -1366,8 +1366,8 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export PAGENAME [--] ?FILE?
-**    %fossil wiki export -t|--technote DATETIME|TECHNOTE-ID [--] ?FILE?
+**    %fossil wiki export PAGENAME ?--? ?FILE?
+**    %fossil wiki export -t|--technote DATETIME|TECHNOTE-ID ?--? ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech note
 **       to the given file or standard output.
@@ -1456,7 +1456,7 @@ void wiki_cmd(void){
     verify_all_options2();
     if( !zETime ){
       if( (g.argc!=4) && (g.argc!=5) ){
-        usage("export PAGENAME [--] ?FILE?");
+        usage("export PAGENAME ?--? ?FILE?");
       }
       zPageName = g.argv[3];
       rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -1473,7 +1473,7 @@ void wiki_cmd(void){
       zFile = g.argc==4 ? "-" : get_dash_filename_arg(4);
     }else{
       if( (g.argc!=3) && (g.argc!=4) ){
-        usage("export --technote DATETIME|TECHNOTE-ID [--] ?FILE?");
+        usage("export --technote DATETIME|TECHNOTE-ID ?--? ?FILE?");
       }
       rid = wiki_technote_to_rid(zETime);
       if ( rid==-1 ){
@@ -1509,7 +1509,7 @@ void wiki_cmd(void){
     if( g.argc!=4 && g.argc!=5 ){
       usage("commit|create PAGENAME [--mimetype TEXT-FORMAT]"
             " [--technote DATETIME] [--technote-tags TAGS]"
-            " [--technote-bgcolor COLOR] [--] ?FILE?");
+            " [--technote-bgcolor COLOR] ?--? ?FILE?");
     }
     zPageName = g.argv[3];
     if( g.argc==4 ){

@@ -220,7 +220,7 @@ static int contains_whitespace(const char *zName){
 **
 ** Subcommands:
 **
-**    add [--] FILE ...      Add or update one or more unversioned files in
+**    add ?--? FILE ...      Add or update one or more unversioned files in
 **                           the local repository so that they match FILEs
 **                           on disk. Changes are not pushed to other
 **                           repositories until the next sync.
@@ -234,11 +234,11 @@ static int contains_whitespace(const char *zName){
 **                           what appears on disk, but it only allows adding
 **                           a single file at a time.
 **
-**    cat [--] FILE ...      Concatenate the content of FILEs to stdout.
+**    cat ?--? FILE ...      Concatenate the content of FILEs to stdout.
 **
-**    edit [--] FILE         Bring up FILE in a text editor for modification.
+**    edit ?--? FILE         Bring up FILE in a text editor for modification.
 **
-**    export [--] FILE OUTPUT
+**    export ?--? FILE OUTPUT
 **                           Write the content of FILE into OUTPUT on disk
 **
 **    list | ls              Show all unversioned files held in the local
@@ -252,7 +252,7 @@ static int contains_whitespace(const char *zName){
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dryrun      Show what would have happened
 **
-**    remove|rm|delete [--] FILE ...
+**    remove|rm|delete ?--? FILE ...
 **                           Remove unversioned files from the local repository.
 **                           Changes are not pushed to other repositories until
 **                           the next sync.
@@ -266,7 +266,7 @@ static int contains_whitespace(const char *zName){
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dryrun      Show what would have happened
 **
-**    touch [--] FILE ...    Update the TIMESTAMP on all of the listed files
+**    touch ?--? FILE ...    Update the TIMESTAMP on all of the listed files
 **
 ** Options:
 **
@@ -300,7 +300,7 @@ void unversioned_cmd(void){
     int i;
     zAs = find_option("as",0,1);
     verify_all_options2();
-    if( zAs && g.argc!=4 ) usage("add --as UVFILE [--] DISKFILE");
+    if( zAs && g.argc!=4 ) usage("add --as UVFILE ?--? DISKFILE");
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
@@ -344,7 +344,7 @@ void unversioned_cmd(void){
     Blob content;           /* Content of the unversioned file */
 
     verify_all_options2();
-    if( g.argc!=4) usage("edit [--] UVFILE");
+    if( g.argc!=4) usage("edit ?--? UVFILE");
     zUVFile = g.argv[3];
     zEditor = fossil_text_editor();
     if( zEditor==0 ) fossil_fatal("no text editor - set the VISUAL env variable");
@@ -381,7 +381,7 @@ void unversioned_cmd(void){
     Blob content;
     const char * zOutfile;
     verify_all_options2();
-    if( g.argc!=5 ) usage("export [--] UVFILE OUTPUT");
+    if( g.argc!=5 ) usage("export ?--? UVFILE OUTPUT");
     if( unversioned_content(g.argv[3], &content) ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
     }
