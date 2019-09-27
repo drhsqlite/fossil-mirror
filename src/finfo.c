@@ -23,7 +23,7 @@
 /*
 ** COMMAND: finfo
 **
-** Usage: %fossil finfo ?OPTIONS? FILENAME
+** Usage: %fossil finfo ?OPTIONS? ?--? FILENAME
 **
 ** Print the complete change history for a single file going backwards
 ** in time.  The default mode is -l.
@@ -55,6 +55,8 @@
 **   -W|--width <num>     Width of lines (default is to auto-detect). Must be
 **                        >22 or 0 (= no limit, resulting in a single line per
 **                        entry).
+**   --                   Treat all following arguments as files, even if they
+**                        look like flags.
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
@@ -67,7 +69,7 @@ void finfo_cmd(void){
     int vid;
 
     /* We should be done with options.. */
-    verify_all_options();
+    verify_all_options2();
 
     if( g.argc!=3 ) usage("-s|--status FILENAME");
     vid = db_lget_int("checkout", 0);
@@ -122,7 +124,7 @@ void finfo_cmd(void){
     const char *zRevision = find_option("revision", "r", 1);
 
     /* We should be done with options.. */
-    verify_all_options();
+    verify_all_options2();
 
     file_tree_name(g.argv[2], &fname, 0, 1);
     if( zRevision ){
@@ -171,7 +173,7 @@ void finfo_cmd(void){
     }
 
     /* We should be done with options.. */
-    verify_all_options();
+    verify_all_options2();
 
     if( g.argc!=3 ){
       usage("?-l|--log? ?-b|--brief? FILENAME");

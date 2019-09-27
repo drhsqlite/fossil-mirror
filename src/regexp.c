@@ -789,7 +789,7 @@ void re_test_grep(void){
 /*
 ** COMMAND: grep
 **
-** Usage: %fossil grep [OPTIONS] PATTERN FILENAME
+** Usage: %fossil grep [OPTIONS] ?--? PATTERN FILENAME
 **
 ** Attempt to match the given POSIX extended regular expression PATTERN
 ** over all historic versions of FILENAME.  For details of the supported
@@ -800,6 +800,9 @@ void re_test_grep(void){
 **     -i|--ignore-case         Ignore case
 **     -l|--files-with-matches  List only checkin ID for versions that match
 **     -v|--verbose             Show each file as it is analyzed
+**     --                       Treat all following arguments as non-flags,
+**                              even if they look like flags. Use this before
+**                              the PATTERN or FILENAME, but not both.
 */
 void re_grep_cmd(void){
   u32 flags = 0;
@@ -813,7 +816,7 @@ void re_grep_cmd(void){
   if( find_option("files-with-matches","l",0)!=0 ) flags |= GREP_EXISTS;
   if( find_option("verbose","v",0)!=0 ) bVerbose = 1;
   db_find_and_open_repository(0, 0);
-  verify_all_options();
+  verify_all_options2();
   if( g.argc<4 ){
     usage("REGEXP FILENAME");
   }

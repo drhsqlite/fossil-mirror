@@ -782,7 +782,7 @@ const char *diff_get_binary_glob(void){
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
-** Usage: %fossil diff|gdiff ?OPTIONS? ?FILE1? ?FILE2 ...?
+** Usage: %fossil diff|gdiff ?OPTIONS? ?--? ?FILE1? ?FILE2 ...?
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked
@@ -841,6 +841,8 @@ const char *diff_get_binary_glob(void){
 **   -w|--ignore-all-space      Ignore white space when comparing lines
 **   -W|--width <num>           Width of lines in side-by-side diff
 **   -Z|--ignore-trailing-space Ignore changes to end-of-line whitespace
+**   --                         Treat all following arguments as files,
+**                              even if they look like flags.
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -902,7 +904,7 @@ void diff_cmd(void){
   zBinGlob = diff_get_binary_glob();
   fIncludeBinary = diff_include_binary_files();
   determine_exec_relative_option(1);
-  verify_all_options();
+  verify_all_options2();
   if( g.argc>=3 ){
     int i;
     Blob fname;

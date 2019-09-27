@@ -2215,8 +2215,8 @@ void db_initial_setup(
 ** COMMAND: new*
 ** COMMAND: init
 **
-** Usage: %fossil new ?OPTIONS? FILENAME
-**    or: %fossil init ?OPTIONS? FILENAME
+** Usage: %fossil new ?OPTIONS? ?--? FILENAME
+**    or: %fossil init ?OPTIONS? ?--? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
@@ -2240,6 +2240,8 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME     Select given USERNAME as admin user
 **    --date-override DATETIME     Use DATETIME as time of the initial check-in
 **    --sha1                       Use a initial hash policy of "sha1"
+**    --                           Treat all following arguments as files,
+**                                 even if they look like flags.
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -2262,7 +2264,7 @@ void create_repository_cmd(void){
   zDefaultUser = find_option("admin-user","A",1);
   bUseSha1 = find_option("sha1",0,0)!=0;
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
