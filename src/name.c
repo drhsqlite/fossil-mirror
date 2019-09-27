@@ -792,7 +792,7 @@ void whatis_rid(int rid, int verboseFlag){
 /*
 ** COMMAND: whatis*
 **
-** Usage: %fossil whatis NAME
+** Usage: %fossil whatis ?--? NAME
 **
 ** Resolve the symbol NAME into its canonical artifact hash
 ** artifact name and provide a description of what role that artifact
@@ -803,6 +803,8 @@ void whatis_rid(int rid, int verboseFlag){
 **    --type TYPE          Only find artifacts of TYPE (one of: 'ci', 't',
 **                         'w', 'g', or 'e').
 **    -v|--verbose         Provide extra information (such as the RID)
+**    --                   Treat all following arguments as non-flags, even if
+**                         they look like flags.
 */
 void whatis_cmd(void){
   int rid;
@@ -815,7 +817,7 @@ void whatis_cmd(void){
   zType = find_option("type",0,1);
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc<3 ) usage("NAME ...");
   for(i=2; i<g.argc; i++){

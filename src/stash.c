@@ -261,7 +261,7 @@ static int stash_create(void){
   int vid;                           /* Current checkout */
 
   zComment = find_option("comment", "m", 1);
-  verify_all_options();
+  verify_all_options2();
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
@@ -513,8 +513,8 @@ static int stash_get_id(const char *zStashId){
 ** Usage: %fossil stash SUBCOMMAND ARGS...
 **
 **  fossil stash
-**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+**  fossil stash save ?-m|--comment COMMENT? ?--? ?FILES...?
+**  fossil stash snapshot ?-m|--comment COMMENT? ?--? ?FILES...?
 **
 **     Save the current changes in the working tree as a new stash.
 **     Then revert the changes back to the last check-in.  If FILES
@@ -564,8 +564,8 @@ static int stash_get_id(const char *zStashId){
 **
 ** SUMMARY:
 **  fossil stash
-**  fossil stash save ?-m|--comment COMMENT? ?FILES...?
-**  fossil stash snapshot ?-m|--comment COMMENT? ?FILES...?
+**  fossil stash save ?-m|--comment COMMENT? ?--? ?FILES...?
+**  fossil stash snapshot ?-m|--comment COMMENT? ?--? ?FILES...?
 **  fossil stash list|ls ?-v|--verbose? ?-W|--width <num>?
 **  fossil stash show|cat ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash gshow|gcat ?STASHID? ?DIFF-OPTIONS?
@@ -574,6 +574,11 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash drop|rm ?STASHID? ?-a|--all?
 **  fossil stash diff ?STASHID? ?DIFF-OPTIONS?
 **  fossil stash gdiff ?STASHID? ?DIFF-OPTIONS?
+**
+**  Options:
+**  --                 For commands which support it, treat all following
+**                     arguments as non-flags, even if they look like flags.
+**
 */
 void stash_cmd(void){
   const char *zCmd;

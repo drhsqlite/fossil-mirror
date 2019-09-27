@@ -422,8 +422,8 @@ void undo_rollback(void){
 ** COMMAND: undo
 ** COMMAND: redo*
 **
-** Usage: %fossil undo ?OPTIONS? ?FILENAME...?
-**    or: %fossil redo ?OPTIONS? ?FILENAME...?
+** Usage: %fossil undo ?OPTIONS? ?--? ?FILENAME...?
+**    or: %fossil redo ?OPTIONS? ?--? ?FILENAME...?
 **
 ** Undo the changes to the working checkout caused by the most recent
 ** of the following operations:
@@ -449,6 +449,8 @@ void undo_rollback(void){
 **
 ** Options:
 **   -n|--dry-run   do not make changes but show what would be done
+**   --             Treat all following arguments as non-flags, even if
+**                  they look like flags.
 **
 ** See also: commit, status
 */
@@ -462,7 +464,7 @@ void undo_cmd(void){
     dryRunFlag = find_option("explain", 0, 0)!=0;
   }
   db_must_be_within_tree();
-  verify_all_options();
+  verify_all_options2();
   db_begin_transaction();
   undo_available = db_lget_int("undo_available", 0);
   if( dryRunFlag ){

@@ -584,7 +584,7 @@ void tarball_of_checkin(
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE [OPTIONS]
+** Usage: %fossil tarball ?OPTIONS? VERSION ?--? OUTPUTFILE
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
@@ -602,6 +602,9 @@ void tarball_of_checkin(
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
+**   --                      Treat all following arguments as non-flags, even if
+**                           they look like flags. Use before the VERSION or
+**                           OUTPUTFILE, but not both.
 */
 void tarball_cmd(void){
   int rid;
@@ -619,7 +622,7 @@ void tarball_cmd(void){
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");

@@ -749,7 +749,7 @@ static void archive_cmd(int eType){
   db_find_and_open_repository(0, 0);
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
@@ -782,7 +782,7 @@ static void archive_cmd(int eType){
 /*
 ** COMMAND: zip*
 **
-** Usage: %fossil zip VERSION OUTPUTFILE [OPTIONS]
+** Usage: %fossil zip ?OPTIONS? VERSION ?--? OUTPUTFILE
 **
 ** Generate a ZIP archive for a check-in.  If the --name option is
 ** used, its argument becomes the name of the top-level directory in the
@@ -800,6 +800,9 @@ static void archive_cmd(int eType){
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
+**   --                      Treat all following arguments as non-flags, even if
+**                           they look like flags. Use before the VERSION or
+**                           OUTPUTFILE, but not both.
 */
 void zip_cmd(void){
   archive_cmd(ARCHIVE_ZIP);
@@ -808,7 +811,7 @@ void zip_cmd(void){
 /*
 ** COMMAND: sqlar*
 **
-** Usage: %fossil sqlar VERSION OUTPUTFILE [OPTIONS]
+** Usage: %fossil sqlar ?OPTIONS? VERSION ?--? OUTPUTFILE
 **
 ** Generate an SQLAR archive for a check-in.  If the --name option is
 ** used, its argument becomes the name of the top-level directory in the
@@ -826,6 +829,9 @@ void zip_cmd(void){
 **   --include GLOBLIST      Comma-separated list of GLOBs of files to include
 **   --name DIRECTORYNAME    The name of the top-level directory in the archive
 **   -R REPOSITORY           Specify a Fossil repository
+**   --                      Treat all following arguments as non-flags, even if
+**                           they look like flags. Use before the VERSION or
+**                           OUTPUTFILE, but not both.
 */
 void sqlar_cmd(void){
   archive_cmd(ARCHIVE_SQLAR);

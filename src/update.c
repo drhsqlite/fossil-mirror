@@ -62,7 +62,7 @@ int update_to(int vid){
 /*
 ** COMMAND: update
 **
-** Usage: %fossil update ?OPTIONS? ?VERSION? ?FILES...?
+** Usage: %fossil update ?OPTIONS? ?--? ?VERSION? ?FILES...?
 **
 ** Change the version of the current checkout to VERSION.  Any
 ** uncommitted changes are retained and applied to the new checkout.
@@ -104,6 +104,9 @@ int update_to(int vid){
 **   --setmtime       Set timestamps of all files to match their SCM-side
 **                    times (the timestamp of the last checkin which modified
 **                    them).
+**   --               Treat all following arguments as non-flags, even if
+**                    they look like flags. Use before the VERSION or
+**                    FILES..., but not both.
 **
 ** See also: revert
 */
@@ -151,7 +154,7 @@ void update_cmd(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
@@ -759,7 +762,7 @@ int historical_blob(
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?-r REVISION? ?FILE ...?
+** Usage: %fossil revert ?-r REVISION? ?--? ?FILE ...?
 **
 ** Revert to the current repository version of FILE, or to
 ** the version associated with baseline REVISION if the -r flag
@@ -775,6 +778,8 @@ int historical_blob(
 **
 ** Options:
 **   -r REVISION    revert given FILE(s) back to given REVISION
+**   --             Treat all following arguments as files, even
+**                  if they look like flags.
 **
 ** See also: redo, undo, update
 */
@@ -791,7 +796,7 @@ void revert_cmd(void){
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc<2 ){
     usage("?OPTIONS? [FILE] ...");

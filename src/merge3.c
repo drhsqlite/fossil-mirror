@@ -344,14 +344,16 @@ int file_contains_merge_marker(const char *zFullpath){
 /*
 ** COMMAND: 3-way-merge*
 **
-** Usage: %fossil 3-way-merge BASELINE V1 V2 MERGED
+** Usage: %fossil 3-way-merge ?--? BASELINE V1 V2 MERGED
 **
 ** Inputs are files BASELINE, V1, and V2.  The file MERGED is generated
 ** as output.
 **
 ** BASELINE is a common ancestor of two files V1 and V2 that have diverging
 ** edits.  The generated output file MERGED is the combination of all
-** changes in both V1 and V2.
+** changes in both V1 and V2. The -- flag may be used one time, anywhere
+** in the argument list, to mean that all following arguments should be
+** treated as filenames even if they look like flags.
 **
 ** This command has no effect on the Fossil repository.  It is a utility
 ** command made available for the convenience of users.  This command can
@@ -373,7 +375,7 @@ void delta_3waymerge_cmd(void){
   int nConflict;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc!=6 ){
     usage("PIVOT V1 V2 MERGED");

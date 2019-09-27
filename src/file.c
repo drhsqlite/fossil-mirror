@@ -2001,7 +2001,7 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 /*
 ** COMMAND: touch*
 **
-** Usage: %fossil touch ?OPTIONS? ?FILENAME...?
+** Usage: %fossil touch ?OPTIONS? ?--? ?FILENAME...?
 **
 ** For each file in the current checkout matching one of the provided
 ** list of glob patterns and/or file names, the file's mtime is
@@ -2030,6 +2030,8 @@ static int touch_cmd_vfile_mrid( int vid, char const *zName ){
 **                  but does not touch them.
 **   -q|--quiet     Suppress warnings, e.g. when skipping unmanaged
 **                  or out-of-tree files.
+**   --             Treat all following arguments as non-flags, even if
+**                  they look like flags.
 **
 ** Only one of --now, --checkin, and --checkout may be used. The
 ** default is --now.
@@ -2102,7 +2104,7 @@ void touch_cmd(){
     }
   }
 
-  verify_all_options();
+  verify_all_options2();
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);

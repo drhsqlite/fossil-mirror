@@ -2906,7 +2906,7 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?OPTIONS?
+** Usage: %fossil open ?OPTIONS? ?--? FILENAME ?VERSION?
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
@@ -2924,6 +2924,9 @@ void db_record_repository_filename(const char *zName){
 **   --setmtime        Set timestamps of all files to match their SCM-side
 **                     times (the timestamp of the last checkin which modified
 **                     them).
+**   --                Treat all following arguments as files, even if they
+**                     look like flags. Use before the FILENAME or VERSION,
+**                     but not both.
 **
 ** See also: close
 */
@@ -2944,7 +2947,7 @@ void cmd_open(void){
   setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
