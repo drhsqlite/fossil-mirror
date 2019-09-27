@@ -220,23 +220,26 @@ static int contains_whitespace(const char *zName){
 **
 ** Subcommands:
 **
-**    add FILE ...           Add or update one or more unversioned files in
+**    add [--] FILE ...      Add or update one or more unversioned files in
 **                           the local repository so that they match FILEs
 **                           on disk. Changes are not pushed to other
 **                           repositories until the next sync.
 **
-**    add FILE --as UVFILE   Add or update a single file named FILE on disk
+**    add FILE --as UVFILE
+**    add --as UVFILE -- FILE
+**                           Add or update a single file named FILE on disk
 **                           and UVFILE in the repository unversioned file
 **                           namespace. This variant of the 'add' command allows
 **                           the name to be different in the repository versus
 **                           what appears on disk, but it only allows adding
 **                           a single file at a time.
 **
-**    cat FILE ...           Concatenate the content of FILEs to stdout.
+**    cat [--] FILE ...      Concatenate the content of FILEs to stdout.
 **
-**    edit FILE              Bring up FILE in a text editor for modification.
+**    edit [--] FILE         Bring up FILE in a text editor for modification.
 **
-**    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
+**    export [--] FILE OUTPUT
+**                           Write the content of FILE into OUTPUT on disk
 **
 **    list | ls              Show all unversioned files held in the local
 **                           repository.
@@ -249,7 +252,7 @@ static int contains_whitespace(const char *zName){
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dryrun      Show what would have happened
 **
-**    remove|rm|delete FILE ...
+**    remove|rm|delete [--] FILE ...
 **                           Remove unversioned files from the local repository.
 **                           Changes are not pushed to other repositories until
 **                           the next sync.
@@ -263,12 +266,15 @@ static int contains_whitespace(const char *zName){
 **                              -v|--verbose     Extra diagnostic output
 **                              -n|--dryrun      Show what would have happened
 **
-**    touch FILE ...         Update the TIMESTAMP on all of the listed files
+**    touch [--] FILE ...    Update the TIMESTAMP on all of the listed files
 **
 ** Options:
 **
 **   --mtime TIMESTAMP       Use TIMESTAMP instead of "now" for the "add",
 **                           "edit", "remove", and "touch" subcommands.
+**   --                      For commands which support this, it means to treat
+**                           all subsequent arguments as file names even if they
+**                           start with a "-".
 */
 void unversioned_cmd(void){
   const char *zCmd;
@@ -289,12 +295,13 @@ void unversioned_cmd(void){
     const char *zError = 0;
     const char *zIn;
     const char *zAs;
+    const char *zFileArg;
     Blob file;
     int i;
-
+    int fDoubleDash;         /* True if "--" flag is provided */
     zAs = find_option("as",0,1);
+    fDoubleDash = verify_all_options2();
     if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
-    verify_all_options();
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){
@@ -312,14 +319,19 @@ void unversioned_cmd(void){
         fossil_fatal("unversioned filenames may not %s: %Q", zError, zIn);
       }
       blob_init(&file,0,0);
-      blob_read_from_file(&file, g.argv[i], ExtFILE);
+      zFileArg = g.argv[i];
+      if(fDoubleDash>0 && fDoubleDash<=i
+         && fossil_strcmp("-",zFileArg)==0){
+        zFileArg = "./-" /* do not treat "-" as stdin! */;
+      }
+      blob_read_from_file(&file, zFileArg, ExtFILE);
       unversioned_write(zIn, &file, mtime);
       blob_reset(&file);
     }
     db_end_transaction(0);
   }else if( memcmp(zCmd, "cat", nCmd)==0 ){
     int i;
-    verify_all_options();
+    verify_all_options2();
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       Blob content;
@@ -336,8 +348,8 @@ void unversioned_cmd(void){
     char *zCmd;             /* Command to run the text editor */
     Blob content;           /* Content of the unversioned file */
 
-    verify_all_options();
-    if( g.argc!=4) usage("edit UVFILE");
+    verify_all_options2();
+    if( g.argc!=4) usage("edit [--] UVFILE");
     zUVFile = g.argv[3];
     zEditor = fossil_text_editor();
     if( zEditor==0 ) fossil_fatal("no text editor - set the VISUAL env variable");
@@ -372,7 +384,7 @@ void unversioned_cmd(void){
     blob_reset(&content);
   }else if( memcmp(zCmd, "export", nCmd)==0 ){
     Blob content;
-    verify_all_options();
+    verify_all_options2();
     if( g.argc!=5 ) usage("export UVFILE OUTPUT");
     if( unversioned_content(g.argv[3], &content) ){
       fossil_fatal("no such uv-file: %Q", g.argv[3]);
@@ -432,7 +444,7 @@ void unversioned_cmd(void){
   }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0
          || memcmp(zCmd, "delete", nCmd)==0 ){
     int i;
-    verify_all_options();
+    verify_all_options2();
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       db_multi_exec(
@@ -450,7 +462,7 @@ void unversioned_cmd(void){
     sync_unversioned(syncFlags);
   }else if( memcmp(zCmd, "touch", nCmd)==0 ){
     int i;
-    verify_all_options();
+    verify_all_options2();
     db_begin_transaction();
     for(i=3; i<g.argc; i++){
       db_multi_exec(

@@ -51,6 +51,12 @@ char *branch_of_rid(int rid){
 /*
 **  fossil branch new    NAME  BASIS ?OPTIONS?
 **  argv0  argv1  argv2  argv3 argv4
+**
+** Or:
+**
+**  fossil branch new ?OPTIONS? NAME BASIS
+**
+**  with the "--" flag before NAME *or* BASIS.
 */
 void branch_new(void){
   int rootid;            /* RID of the root check-in - what we branch off of */
@@ -75,7 +81,7 @@ void branch_new(void){
   isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
-  verify_all_options();
+  verify_all_options2();
   if( g.argc<5 ){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
@@ -353,6 +359,7 @@ int branch_is_open(const char *zBrName){
 **          -t            Show recently changed branches first
 **
 **    fossil branch new BRANCH-NAME BASIS ?OPTIONS?
+**    fossil branch new ?OPTIONS? -- BRANCH-NAME BASIS
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **        Supported options for this subcommand include:
@@ -361,6 +368,8 @@ int branch_is_open(const char *zBrName){
 **        --nosign              do not sign contents on this branch
 **        --date-override DATE  DATE to use instead of 'now'
 **        --user-override USER  USER to use instead of the current default
+**        --                    All arguments after this  are treated as
+**                              non-flags.
 **
 **        DATE may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 **        year-month-day form, it may be truncated, the "T" may be

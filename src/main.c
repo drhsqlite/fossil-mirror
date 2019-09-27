@@ -1045,12 +1045,17 @@ const char *find_repository_option(){
 ** trigger a fatal error exactly as if an unprocessed flag were
 ** encountered.
 **
+** Returns false (0) if fAllowDoubleDash is false or if "--" is not
+** encountered. If fAllowDoubleDash is true and "--" is encountered,
+** the argument index (in g.argv) at which "--" was encountered (and
+** removed) is returned.
+**
 ** Sidebar: the question of whether fAllowDoubleDash should be true or
 ** false would seem to boil down to: does the calling routine
 ** expect/allow arbitrary file/page/branch/whatever name arguments
 ** after its required arguments?
 */
-static void verify_all_options_impl(int fAllowDoubleDash){
+static int verify_all_options_impl(int fAllowDoubleDash){
   int i;
   for(i=1; i<g.argc; i++){
     const char * arg = g.argv[i];
@@ -1060,7 +1065,7 @@ static void verify_all_options_impl(int fAllowDoubleDash){
           /* Remove "--" from the list and assume any following
           ** arguments are file names. */
           remove_from_argv(i, 1);
-          break;
+          return i;
         }else{
           fossil_fatal("The -- flag is not allowed here.");
         }
@@ -1071,6 +1076,7 @@ static void verify_all_options_impl(int fAllowDoubleDash){
       }
     }
   }
+  return 0;
 }
 
 /*
@@ -1086,10 +1092,10 @@ void verify_all_options(void){
 
 /*
 ** Identical to verify_all_options() except that it honors the "--"
-** flag.
+** flag and returns true (non-0) if that flag was encountered/consumed.
 */
-void verify_all_options2(void){
-  verify_all_options_impl(1);
+int verify_all_options2(void){
+  return verify_all_options_impl(1);
 }
 
 /*
