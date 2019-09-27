@@ -246,7 +246,7 @@ static int add_files_in_sfile(int vid){
 /*
 ** COMMAND: add
 **
-** Usage: %fossil add ?OPTIONS? FILE1 ?FILE2 ...?
+** Usage: %fossil add ?OPTIONS? [--] FILE1 ?FILE2 ...?
 **
 ** Make arrangements to add one or more files or directories to the
 ** current checkout at the next commit.
@@ -278,6 +278,8 @@ static int add_files_in_sfile(int vid){
 **                            the comma separated list of glob patterns.
 **    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
+**    --                      Treat all following arguments as files,
+**                            even if they look like flags.
 **
 ** See also: addremove, rm
 */
@@ -297,7 +299,7 @@ void add_cmd(void){
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   db_must_be_within_tree();
   if( zCleanFlag==0 ){
@@ -334,13 +336,14 @@ void add_cmd(void){
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else{
-      char *zTreeName = &zName[nRoot];
+      const char *zTreeName = &zName[nRoot];
       if( !forceFlag && glob_match(pIgnore, zTreeName) ){
         Blob ans;
         char cReply;
         char *prompt = mprintf("file \"%s\" matches \"ignore-glob\".  "
                                "Add it (a=all/y/N)? ", zTreeName);
         prompt_user(prompt, &ans);
+        fossil_free(prompt);
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);
         if( cReply=='a' || cReply=='A' ){
@@ -419,7 +422,7 @@ static void process_files_to_remove(
 ** COMMAND: delete
 ** COMMAND: forget*
 **
-** Usage: %fossil rm|delete|forget FILE1 ?FILE2 ...?
+** Usage: %fossil rm|delete|forget ?OPTIONS? [--] FILE1 ?FILE2 ...?
 **
 ** Remove one or more files or directories from the repository.
 **
@@ -443,6 +446,8 @@ static void process_files_to_remove(
 **   --hard                  Remove files from the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
+**   --                      Treat all following arguments as files,
+**                           even if they look like flags.
 **
 ** See also: addremove, add
 */
@@ -459,7 +464,7 @@ void delete_cmd(void){
   hardFlag = find_option("hard",0,0)!=0;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   db_must_be_within_tree();
   db_begin_transaction();
@@ -825,8 +830,8 @@ static void process_files_to_move(
 ** COMMAND: mv
 ** COMMAND: rename*
 **
-** Usage: %fossil mv|rename OLDNAME NEWNAME
-**    or: %fossil mv|rename OLDNAME... DIR
+** Usage: %fossil mv|rename ?OPTIONS? [--] OLDNAME NEWNAME
+**    or: %fossil mv|rename ?OPTIONS? [--] OLDNAME... DIR
 **
 ** Move or rename one or more files or directories within the repository tree.
 ** You can either rename a file or directory or move it to another subdirectory.
@@ -851,6 +856,8 @@ static void process_files_to_move(
 **   --hard                  Move files within the checkout.
 **   --case-sensitive <BOOL> Override the case-sensitive setting.
 **   -n|--dry-run            If given, display instead of run actions.
+**   --                      Treat all following arguments as files,
+**                           even if they look like flags.
 **
 ** See also: changes, status
 */
@@ -873,14 +880,14 @@ void mv_cmd(void){
   hardFlag = find_option("hard",0,0)!=0;
 
   /* We should be done with options.. */
-  verify_all_options();
+  verify_all_options2();
 
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("no checkout in which to rename files");
   }
   if( g.argc<4 ){
-    usage("OLDNAME NEWNAME");
+    usage("?OPTIONS? [--] OLDNAME NEWNAME");
   }
   zDest = g.argv[g.argc-1];
   db_begin_transaction();
@@ -911,7 +918,7 @@ void mv_cmd(void){
   }
   destType = file_isdir(zDest, RepoFILE);
   if( origType==-1 && destType!=1 ){
-    usage("OLDNAME NEWNAME");
+    usage("?OPTIONS? [--] OLDNAME NEWNAME");
   }else if( origType==1 && destType==2 ){
     fossil_fatal("cannot rename '%s' to '%s' since another file named"
                  " '%s' exists", g.argv[2], zDest, zDest);

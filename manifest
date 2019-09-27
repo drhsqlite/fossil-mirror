@@ -1,5 +1,5 @@
-C Added\s--\ssupport\sto\swiki\screate/commit/export.\sRefactored/simplified\show\sfetching\sof\sa\sdash-as-stdin/stdout\sargument\sis\sdone\sfrom\scommand-side\scode.
-D 2019-09-27T14:32:22.993
+C Added\s--\ssupport\sto\s(add,\srm,\smv).
+D 2019-09-27T16:10:34.382
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -428,7 +428,7 @@ F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 5653eb36319187844ef1611cb0860d8735419f2bcbdb2abb620cad84822947e9
+F src/add.c 649df5493eea2c12b9e61f5a6d5a76ecbcc547a9514e5cffea67e78f8071ac46
 F src/alerts.c 0e045c861a79ccb7fb3cfa011b8a0d7d8dd8202ffe2c4a4df1193b8d672c2cd9
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 78a30d8d7c3d5e2e2591f9d29938ae64a7673a489fb7e6f3e6e9c4f977e62ef5
-R b24acf4540de1660315d4a5de749e097
+P dba4fd9b69c5d8c7cb24d6874dcbcc826c5306b69fa303423fe4b3d01b768d52 e5e094071d75c96ea08b90b04c4d7005043d8d02e83c5ac496439527c5f4e7bc
+R c9f7d1e149e15d96944f97c48f050ef9
 U stephan
-Z 534e2059a26a4aaccd582f7641023c8b
+Z a26262b1e72952e28525144d72dbd034
