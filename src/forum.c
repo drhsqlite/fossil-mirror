@@ -835,10 +835,13 @@ void forumnew_page(void){
 */
 void forumedit_page(void){
   int fpid;
+  int froot;
   Manifest *pPost = 0;
+  Manifest *pRootPost = 0;
   const char *zMimetype = 0;
   const char *zContent = 0;
   const char *zTitle = 0;
+  char *zDate = 0;
   int isCsrfSafe;
   int isDelete = 0;
 
@@ -850,6 +853,10 @@ void forumedit_page(void){
   fpid = symbolic_name_to_rid(PD("fpid",""), "f");
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
+  }
+  froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
+  if( froot==0 || (pRootPost = manifest_get(froot, CFTYPE_FORUM, 0))==0 ){
+    webpage_error("fpid does not appear to be a forum post: \"%d\"", fpid);
   }
   if( P("cancel") ){
     cgi_redirectf("%R/forumpost/%S",P("fpid"));
@@ -949,6 +956,12 @@ void forumedit_page(void){
     zContent = PDT("content","");
     style_header("Reply");
     @ <h1>Replying To:</h1>
+    if( pRootPost->zThreadTitle ){
+      @ <h3>%h(pRootPost->zThreadTitle)</h3>
+    }
+    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+    @ <p>%h(pPost->zThreadTitle ? "Post" : "Reply") by %h(pPost->zUser) on %h(zDate)
+    fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
     if( P("preview") ){
       @ <h1>Preview:</h1>
