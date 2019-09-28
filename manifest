@@ -1,5 +1,5 @@
-C Update\sthe\sfingerprint\smechanism\sso\sthat\sit\sif\sthe\srevised\shash\salgorithm\nfails,\sit\sretries\susing\sthe\slegacy\shash\salgorithm\sbefore\sreporting\san\serror\n(and\salarming\susers).\s\sThe\srevised\shash\sis\salways\sstored.\s\sThe\n"test-fingerprint"\scommand\sis\supdated\sto\sshow\sboth\sthe\sold\sand\sthe\snew\nhash\salgorithm\sand\sthe\sfingerprint\scurrently\sstored\sin\sthe\slocaldb.
-D 2019-09-27T18:47:33.403
+C Minor\s/shun\swording\schange\ssuggested\sin\sthe\sforum.
+D 2019-09-28T12:17:53.714
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -562,7 +562,7 @@ F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c 3aca6e397d5a40a03c916ee4ba425c828aa3e489e3aa978e6aa49c70ae5f9947
-F src/shun.c 70697974afba3043e88ad3d7b571ddb1ff62f6b1d3bd1e6adc98944de3dbc220
+F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 5321b972ae0947592f84e9a352d0d386e0216bd971d759dd49c05ee9fc362443
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e5e094071d75c96ea08b90b04c4d7005043d8d02e83c5ac496439527c5f4e7bc
-R 5c6662fd99fe750e61e593842ad9393e
-U drh
-Z ac595c4332e52bb10227bfdf922010ee
+P 36d3685833e1eb1a2802c0094c7e7bc7a588bb209328e6ab4b0259a163e96296
+R a44a345e1c9741425c72bf2de8cb7a00
+U stephan
+Z 7ebccfa81337ad6a195eb58a17cdb5b1

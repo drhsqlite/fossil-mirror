@@ -176,8 +176,8 @@ void shun_page(void){
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40- or 64-character artifact hashes,
-  @ not an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter full artifact hashes, not abbreviations
+  @ or symbolic tags.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as
