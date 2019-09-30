@@ -965,15 +965,21 @@ void diff_cmd(void){
 ** WEBPAGE: vpatch
 ** URL: /vpatch?from=FROM&to=TO
 **
+** Query parameters:
+**
+**   binary=1        Attempt to compute diff for binary files as well.
+**
+**
 ** Show a patch that goes from check-in FROM to check-in TO.
 */
 void vpatch_page(void){
   const char *zFrom = P("from");
   const char *zTo = P("to");
+  const char *zBinary = P("binary");
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
   cgi_set_content_type("text/plain");
-  diff_two_versions(zFrom, zTo, 0, 0, 0, DIFF_VERBOSE, 0);
+  diff_two_versions(zFrom, zTo, 0, 0, zBinary!=0, DIFF_VERBOSE, 0);
 }
