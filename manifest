@@ -1,5 +1,5 @@
-C Correction\sand\sclarification\sof\sthe\suse\sof\sunsafe-inline\sfor\sstyle\sin\nthe\s"defcsp.md"\sdocument.
-D 2019-10-01T16:57:40.148
+C Use\sdouble-quotes\sinstead\sof\ssingle-quotes\sfor\sthe\sargument\sto\s"git\sexport"\nin\sthe\s"fossil\sgit\sexport"\scommand,\sfor\swindows\scompatibility.
+D 2019-10-01T18:11:07.380
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -473,7 +473,7 @@ F src/doc.c 85fedf504b8c401c170a09357304531c143e4ca27214480cf9a09cd713b31501
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
-F src/export.c 3fe6d81d8c6949c388d01a625132e17f1e238f72677c7a2bc8622fa6b060c25e
+F src/export.c 6cc3f255338df35df2cc5c4d8ba4d0f274fcfd4f50efe994119a365f5be752f6
 F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c 38f22c1609bd18715e821a57aba3c99e7b2687a93be467cbcf23ce9ffe0f9b30
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e73901f15c6797a9cce5692093b900fdf02ab4fb64438dff38f7796437cae61a
-R 566efdaa3355614a6176da06af10ae81
+P baecb63d9b904ef4633affe9c120916f844713c9e08df029783da309f076782b
+R 8410fb13e180a26ea112721a208718b4
 U drh
-Z 00acd2d6459416ef6c29b5559adb0a7b
+Z f9f803dc16c29bdcd7b5d7ee9d2d936c

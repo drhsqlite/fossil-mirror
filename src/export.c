@@ -1288,7 +1288,7 @@ void gitmirror_export_command(void){
   /* Make sure GIT has been initialized */
   z = mprintf("%s/.git", zMirror);
   if( !file_isdir(z, ExtFILE) ){
-    zCmd = mprintf("git init '%s'",zMirror);
+    zCmd = mprintf("git init \"%s\"",zMirror);
     gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
     rc = fossil_system(zCmd);
     if( rc ){
