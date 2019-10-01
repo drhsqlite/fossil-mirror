@@ -1,5 +1,5 @@
-C Update\scustom\sMakefile\sfor\sMinGW.
-D 2019-09-30T16:08:18.053
+C Enable\sclient\sto\scontrol\show\smuch\stime\sskew\sis\sallowed\sbefore\swarning.\nThis\scan\sbe\suseful\sif\sone\sis\snot\sin\scontrol\sof\sthe\stime\son\sthe\sremote\sserver.
+D 2019-10-01T07:13:55.347
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -459,7 +459,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 225f85e3f304b67772fb326a06900e63397baf5e3ce109d91f77f474333d7b99
+F src/db.c a699c000c98bf47ef1b971ece9e37626ac5e7c6a431cc2b63e340e71f36b25f3
 F src/default_css.txt cd60aeffd23196d712858c31dd8ab4a33a3e4f91b970c6ab0976f769473f6e76
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -607,7 +607,7 @@ F src/wikiformat.c 18438a60f1193cad855fa6e483455b68a348fc69c274d5233fccb61e37dbb
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c a25e6ee6e3cb579e17b37d402b65debb81e499659b35093167775ce82346ad69
+F src/xfer.c f0d8287c250a1d0247375bf5907ee35b93a5da86d67d034208f188f3531748ea
 F src/xfersetup.c 5e6e1cfd2481329bf58ff0551926c11fd8470559
 F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -928,7 +928,11 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 004c5507247702b8d89c907c3377207b199b6d37852f99a9ac3aceb73259f12b
-R 0137125bedf5078842d013dd0bfc22e5
-U mistachkin
-Z d5f5e0718b36e6f0a20ea3b88093dae3
+P 161958a49b7d2841e56985f6dd065488ac449768f2a30331c6f28317480ca92c
+Q +526b0c29979ce4fe898b9a60a10669481450c686366f083aa29bffcab06a3b13
+R fba9db3e153469e824c456f4190b4588
+T *branch * time-skew-setting
+T *sym-time-skew-setting *
+T -sym-trunk *
+U andybradford
+Z 674999cc11ac857c5c9800858dafb689

@@ -3589,6 +3589,12 @@ struct Setting {
 ** whatsoever.
 */
 /*
+** SETTING: time-skew-tolerance   width=25 default=10
+** The number of seconds of skew against server time that
+** the client will tolerate before issuing a warning.
+** The default is 10 seconds.
+*/
+/*
 ** SETTING: uv-sync          boolean default=off
 ** If true, automatically send unversioned files as part
 ** of a "fossil clone" or "fossil sync" command.  The

@@ -2510,11 +2510,11 @@ int client_sync(
     db_end_transaction(0);
   };
   transport_stats(&nSent, &nRcvd, 1);
-  if( (rSkew*24.0*3600.0) > 10.0 ){
+  if( (rSkew*24.0*3600.0) > 1.0*db_get_int("time-skew-tolerance", 10) ){
      fossil_warning("*** time skew *** server is fast by %s",
                     db_timespan_name(rSkew));
      g.clockSkewSeen = 1;
-  }else if( rSkew*24.0*3600.0 < -10.0 ){
+  }else if( rSkew*24.0*3600.0 < -1.0*db_get_int("time-skew-tolerance", 10) ){
      fossil_warning("*** time skew *** server is slow by %s",
                     db_timespan_name(-rSkew));
      g.clockSkewSeen = 1;
