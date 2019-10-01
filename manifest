@@ -1,5 +1,5 @@
-C Several\ssmall\stweaks\sto\sdefcsp.md
-D 2019-10-01T13:44:19.608
+C Added\swww/javascript.md\sdoc.\sOn\sa\sbranch\spending\sforum\sdiscussion.
+D 2019-10-01T16:13:47.859
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -858,11 +858,12 @@ F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b3
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
 F www/index.wiki 9dd1783bf5f9b84a22fc2d3e4f0cfcbda7afba353d68318ed768f84d560d20ab
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
+F www/javascript.md c3068775fed683fb52d70139b99589dcf6c98d2e8f3c6d5279818dc0adfe6378
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 6e005b5cb0efa809ddefe3e4a7d574a8b33614fa326dcd5a92627d632dc27131 x
+F www/mkindex.tcl 93f9c63c2742ae3f95d2c190a1c98837e4018257c90936cf31b59fb5c0c3057c x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
 F www/permutedindex.html 9f85970e77185aa2fc1ebe50cedde742aed4cde71e53ebf0071f76722d4d7587
@@ -928,7 +929,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 161958a49b7d2841e56985f6dd065488ac449768f2a30331c6f28317480ca92c
-R a7c67b9a04e4d5ee5d273d7b9a0cc06a
+P e73901f15c6797a9cce5692093b900fdf02ab4fb64438dff38f7796437cae61a
+R 9d3c66a0010a64f2df65680139c60a11
+T *branch * js-use-doc
+T *sym-js-use-doc *
+T -sym-trunk *
 U wyoung
-Z 61d466a8ff36d456b4713e5fde187e7e
+Z 66a988dfc841754f3559b42039225eaa
