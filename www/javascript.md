@@ -11,17 +11,17 @@ to accomplish a given end without using JavaScript.
 
 This is not to say that Fossil’s fall-backs for such cases are always as
 elegant and functional as a no-JS purist might wish. That is simply
-because [the vast majority of web users run with JS enabled](#stats), and a
-minority of those run with some kind of conditional JavaScript blocking
-in place. Fossil’s active developers do not deviate from that norm
-enough that we have many no-JS purists among us, so the no-JS case
+because [the vast majority of web users run with JS enabled](#stats),
+and a minority of those run with some kind of conditional JavaScript
+blocking in place. Fossil’s active developers do not deviate from that
+norm enough that we have many no-JS purists among us, so the no-JS case
 doesn’t get as much attention as some might want. We do [accept code
 contributions][cg], and we are philosophically in favor of graceful
 fall-backs, so you are welcome to appoint yourself the position of no-JS
 czar for the Fossil project!
 
 Evil is in actions, not in nouns, so we do not believe JavaScript *can*
-be evil. It is an active technology, but the actions that matters here
+be evil. It is an active technology, but the actions that matter here
 are those of writing the code and checking it into the Fossil project
 repository. None of the JavaScript code in Fossil is evil, a fact we
 enforce by being careful about who we give check-in rights on the
@@ -91,10 +91,10 @@ version of Fossil was written specifically for the Fossil project and is
 stored [in its code repository](https://fossil-scm.org/fossil/file).
 
 Therefore, if you want to hack on the JavaScript code served by Fossil
-and mechanisms like [skin editing][cs] don’t suffice for your
-purposes, you can hack on the JavaScript in your local instance
-directly, just as you can hack on its C, SQL, Tcl, etc. code. Fossil is
-free and open source software, under [a single license][2cbsd].
+and mechanisms like [skin editing][cs] don’t suffice for your purposes,
+you can hack on the JavaScript in your local instance directly, just as
+you can hack on its C, SQL, and Tcl code. Fossil is free and open source
+software, under [a single license][2cbsd].
 
 [2cbsd]: https://fossil-scm.org/home/doc/trunk/COPYRIGHT-BSD2.txt
 [cs]:    ./customskin.md
@@ -139,13 +139,13 @@ get from the timeline can be retrieved from Fossil in other ways not
 using JavaScript: the “`fossil timeline`” command, the “`fossil info`”
 command, by clicking around within the web UI, etc.
 
-_Potential Workaround:_ The timeline could be enhanced with
-`<noscript>` tags that replace the graph with a column of checkboxes
-that control what a series of form submit buttons do when clicked,
-replicating the current JS-based features of the graph using
-client-server round-trips. For example, you could click two of those
-checkboxes and then a button labeled “Diff Selected” to replicate the
-current “click two nodes to diff them” feature.
+_Potential Workaround:_ The timeline could be enhanced with `<noscript>`
+tags that replace the graph with a column of checkboxes that control
+what a series of form submit buttons do when clicked, replicating the
+current JS-based features of the graph using client-server round-trips.
+For example, you could click two of those checkboxes and then a button
+labeled “Diff Selected” to replicate the current “click two nodes to
+diff them” feature.
 
 [wt]: https://fossil-scm.org/fossil/timeline
 
@@ -156,13 +156,13 @@ The Admin → Wiki → “Enable WYSIWYG Wiki Editing” toggle switches the
 default plaintext editor for [Fossil wiki][fw] documents to one that
 works like a basic word processor. This feature requires JavaScript in
 order to react to editor button clicks like the “**B**” button, meaning
-“make \[selected\] text boldface.” There is no standard WYSIWIG editor
+“make \[selected\] text boldface.” There is no standard WYSIWYG editor
 component in browsers, doubtless because it’s relatively straightforward
 to create one using JavaScript.
 
-_Graceful Fallback:_ Edit your wiki documents in plain text. Fossil’s
-wiki and Markdown language processors were designed to be edited that
-way, and this is the default behavior.
+_Graceful Fallback:_ Edit your wiki documents in the default plain text
+wiki editor. Fossil’s wiki and Markdown language processors were
+designed to be edited that way.
 
 [fw]: ./wikitheory.wiki
 
@@ -170,8 +170,8 @@ way, and this is the default behavior.
 ### <a id="ln"></a>Line Numbering
 
 When viewing source files, Fossil offers to show line numbers in some
-cases. Toggling them on and off is currently handled
-in JavaScript. ([Example][mainc].)
+cases. Toggling them on and off is currently handled in JavaScript.
+([Example][mainc].)
 
 _Workaround:_ Edit the URL to give the “`ln`” query parameter per [the
 `/file` docs](/help?cmd=/file), or provide a patch to reload the page
@@ -197,14 +197,14 @@ similar, hovering over that check-in shows a tooltip with details about
 the type of artifact the hash refers to and allows you to click to copy
 the hash to the clipboard.
 
-_Graceful Fallback:_ When JavaScript is disabled, these tooltips
-simply don’t appear. You can then select and copy the hash using your
-browser, make “`fossil info`” queries on those hashes, etc.
+_Graceful Fallback:_ When JavaScript is disabled, these tooltips simply
+don’t appear. You can then select and copy the hash using your browser,
+make “`fossil info`” queries on those hashes, etc.
 
 
 ### <a id="bots"></a>Anti-Bot Defenses
 
-Fossil has [anit-bot defenses][abd], and it has some JavaScript code
+Fossil has [anti-bot defenses][abd], and it has some JavaScript code
 that, if run, can drop some of these defenses if it decides a given page
 was loaded on behalf of a human, rather than a bot.
 
@@ -246,6 +246,6 @@ absence of JavaScript.
 
 However, we are willing to study patches to make this better. For
 example, the wall clock displays could include the page load time in the
-dynamically-generated HTML shipped from the remote Fossil server, so
+dynamically generated HTML shipped from the remote Fossil server, so
 that in the absence of JavaScript, you at least get the page generation
 time, expressed in the server’s time zone.

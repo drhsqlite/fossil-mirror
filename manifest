@@ -1,5 +1,5 @@
-C Added\swww/javascript.md\sdoc.\sOn\sa\sbranch\spending\sforum\sdiscussion.
-D 2019-10-01T16:13:47.859
+C Assorted\simprovements\sto\sthe\snew\suse-of-JS\sdoc
+D 2019-10-01T16:56:37.193
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -858,7 +858,7 @@ F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b3
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
 F www/index.wiki 9dd1783bf5f9b84a22fc2d3e4f0cfcbda7afba353d68318ed768f84d560d20ab
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md c3068775fed683fb52d70139b99589dcf6c98d2e8f3c6d5279818dc0adfe6378
+F www/javascript.md 400c9efdd7506017ce9988a836584cf4d6c76883d95d669dc0fa548e6387c641
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
@@ -929,10 +929,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e73901f15c6797a9cce5692093b900fdf02ab4fb64438dff38f7796437cae61a
-R 9d3c66a0010a64f2df65680139c60a11
-T *branch * js-use-doc
-T *sym-js-use-doc *
-T -sym-trunk *
+P 9fd8b1c9d192efb3a5da8060a9424e6a61861e0c2e620d0e567ab60aa10cb910
+R 6aab816869c7fb2f1d572fb53d4b3e5d
 U wyoung
-Z 66a988dfc841754f3559b42039225eaa
+Z 3d82bc4f84997a1f662d5e0c26e49b61
