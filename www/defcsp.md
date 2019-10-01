@@ -95,22 +95,19 @@ This policy allows CSS information to come from separate files hosted
 under the Fossil repo server’s Internet domain. It also allows inline CSS
 `<style>` tags within the document text.
 
-The `'unsafe-inline'` declaration excludes CSS within individual HTML
+The `'unsafe-inline'` declaration allows CSS within individual HTML
 elements:
 
         <p style="margin-left: 4em">Indented text.</p>
 
-Because this policy is weaker than [our default for script
-elements](#script), there is the potential for an atacker to modify a
-Fossil-generated page via CSS. While such page modifications are not as
-dangerous as injected JavaScript, the real reason we allow it is that
-Fossil still emits in-page `<style>` blocks in a few places. Over time,
-we may work out ways to avoid each of these, which will eventually allow
-us to tighten this CSP rule down to match the `script` rule. We
-recommend that you do your own CSS modifications [via the skin][cs]
-rather than depend on the ability to insert `<script>` blocks into
-individual pages.
-
+As the "`unsafe-`" prefix on the name implies, the `'unsafe-inline'`
+feature is suboptimal for security.  However, there are
+a few places in the Fossil-generated HTML that benefit from this
+flexibility and the work-arounds are verbose and difficult to maintain.
+Futhermore, the harm that can be done with style injections is far
+less than the harm possible with injected javascript.  And so the
+`'unsafe-inline'` compromise is accepted for now, though it might
+go away in some future release of Fossil.
 
 ### <a name="script"></a> script-src 'self' 'nonce-%s'
 

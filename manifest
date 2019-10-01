@@ -1,5 +1,5 @@
-C Several\ssmall\stweaks\sto\sdefcsp.md
-D 2019-10-01T13:44:19.608
+C Correction\sand\sclarification\sof\sthe\suse\sof\sunsafe-inline\sfor\sstyle\sin\nthe\s"defcsp.md"\sdocument.
+D 2019-10-01T16:57:40.148
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -807,7 +807,7 @@ F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md bc7b51bc012b5724205f63e9df2e896619980d2b4af0cbda6f30021286cb731d
-F www/defcsp.md 45554c5ebcdd74c8aa2765410a1d403ea7338d79faa8a4e1aa9b11d5e953a43a
+F www/defcsp.md 5afba0dd385fd50365a534f3d79e16e3cf2330905ddfa077e7a56f5fe7f0b202
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 161958a49b7d2841e56985f6dd065488ac449768f2a30331c6f28317480ca92c
-R a7c67b9a04e4d5ee5d273d7b9a0cc06a
-U wyoung
-Z 61d466a8ff36d456b4713e5fde187e7e
+P e73901f15c6797a9cce5692093b900fdf02ab4fb64438dff38f7796437cae61a
+R 566efdaa3355614a6176da06af10ae81
+U drh
+Z 00acd2d6459416ef6c29b5559adb0a7b
