@@ -1497,6 +1497,7 @@ void wiki_cmd(void){
     Blob content;                 /* Input content */
     int rid = 0;
     Manifest *pWiki = 0;          /* Parsed wiki page content */
+    const int isCreate = 'r'==g.argv[2][1] /* else "commit" */;
     const char *zMimeType = find_option("mimetype", "M", 1);
     const char *zETime = find_option("technote", "t", 1);
     const char *zTags = find_option("technote-tags", NULL, 1);
@@ -1512,29 +1513,30 @@ void wiki_cmd(void){
     }else{
       blob_read_from_file(&content, g.argv[4], ExtFILE);
     }
+    if ( !zETime ){
+      rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+                   " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+                   " ORDER BY x.mtime DESC LIMIT 1",
+                   zPageName
+                   );
+      if( rid>0 ){
+        pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+      }
+    }else{
+      rid = wiki_technote_to_rid(zETime);
+      if( rid>0 ){
+        pWiki = manifest_get(rid, CFTYPE_EVENT, 0);
+      }
+    }
     if( !zMimeType || !*zMimeType ){
       /* Try to deduce the mime type based on the prior version. */
-      if ( !zETime ){
-        rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-                     " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-                     " ORDER BY x.mtime DESC LIMIT 1",
-                     zPageName
-                     );
-        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_WIKI, 0))!=0
-           && (pWiki->zMimetype && *pWiki->zMimetype) ){
-          zMimeType = pWiki->zMimetype;
-        }
-      }else{
-        rid = wiki_technote_to_rid(zETime);
-        if( rid>0 && (pWiki = manifest_get(rid, CFTYPE_EVENT, 0))!=0
-           && (pWiki->zMimetype && *pWiki->zMimetype) ){
-          zMimeType = pWiki->zMimetype;
-        }
+      if( pWiki!=0 && (pWiki->zMimetype && *pWiki->zMimetype) ){
+        zMimeType = pWiki->zMimetype;
       }
     }else{
       zMimeType = wiki_filter_mimetypes(zMimeType);
     }
-    if( g.argv[2][1]=='r' && rid>0 ){
+    if( isCreate && rid>0 ){
       if ( !zETime ){
         fossil_fatal("wiki page %s already exists", zPageName);
       }else{
@@ -1542,7 +1544,7 @@ void wiki_cmd(void){
            and should create a new tech note */
         rid = 0;
       }
-    }else if( g.argv[2][1]=='o' && rid == 0 ){
+    }else if( !isCreate && rid == 0 ){
       if ( !zETime ){
         fossil_fatal("no such wiki page: %s", zPageName);
       }else{

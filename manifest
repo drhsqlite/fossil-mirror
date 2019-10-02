@@ -1,5 +1,5 @@
-C Use\sdouble-quotes\sinstead\sof\ssingle-quotes\sfor\sthe\sargument\sto\s"git\sexport"\nin\sthe\s"fossil\sgit\sexport"\scommand,\sfor\swindows\scompatibility.
-D 2019-10-01T18:11:07.380
+C Fixed\s(wiki\scommit)\sto\scheck\sfor\san\sexisting\spage\swhen\sthe\s--mimetype\sflag\sis\sused\s(previously\sit\sonly\schecked\swhen\sthat\sflag\swas\snot\sprovided).
+D 2019-10-02T20:18:17.929
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -601,7 +601,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 13017b5ea7a3a799b17f2809a2b382fd092ccbdfa08d2a63def5cb99f8c13bfb
+F src/wiki.c dc56c679f9389b64211dd2d1fceccbd10ce64c65048266aadb1ac34d4d90ace5
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 18438a60f1193cad855fa6e483455b68a348fc69c274d5233fccb61e37dbbd86
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P baecb63d9b904ef4633affe9c120916f844713c9e08df029783da309f076782b
-R 8410fb13e180a26ea112721a208718b4
-U drh
-Z f9f803dc16c29bdcd7b5d7ee9d2d936c
+P be7c1bde92c8caae92fd5e5a4c928a06c0e59554fea14cce34d116d777efd0ae
+R 1a96ff24ed72c1299fa5c53aeee405c3
+U stephan
+Z d6bc8cbb2f36fcc2b296c30ce8992d0d
