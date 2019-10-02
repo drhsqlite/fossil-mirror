@@ -1064,16 +1064,6 @@ void verify_all_options(void){
     }
   }
 }
-/*
- ** Only for debugging during "--"-related refactoring. To be deleted
- ** before merging with trunk.
- */
-void dump_g_argv(){
-  int i;
-  for( i = 0; i < g.argc; ++i ){
-    fossil_print("\tg.argv[%d] = %s\n", i, g.argv[i]);
-  }
-}
 
 /*
 ** This function returns a human readable version string.
