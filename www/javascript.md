@@ -190,6 +190,19 @@ _Potential Workaround:_ This feature could be enhanced to do the sort on
 the server side using a page re-load.
 
 
+### <a id="tree"></a>File Browser Tree View
+
+The [file browser’s tree view mode][tv] uses JavaScript to handle clicks
+on folders so they fold and unfold without needing to reload the entire
+page.
+
+_Graceful Fallback:_ When JavaScript is disabled, clicks on folders
+reload the page showing the folder contents instead. You then have to
+use the browser’s Back button to return to the higher folder level.
+
+[tv]: https://www.fossil-scm.org/fossil/dir?type=tree
+
+
 ### <a id="hash"></a>Version Hashes
 
 In several places where the Fossil web UI shows a check-in hash or
