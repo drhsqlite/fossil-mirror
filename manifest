@@ -1,5 +1,5 @@
-C Fixed\s(wiki\scommit)\sto\scheck\sfor\san\sexisting\spage\swhen\sthe\s--mimetype\sflag\sis\sused\s(previously\sit\sonly\schecked\swhen\sthat\sflag\swas\snot\sprovided).
-D 2019-10-02T20:18:17.929
+C Merged\sjs-use-doc\sbranch\sdown\sto\strunk
+D 2019-10-03T21:22:13.389
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -858,11 +858,12 @@ F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b3
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
 F www/index.wiki 9dd1783bf5f9b84a22fc2d3e4f0cfcbda7afba353d68318ed768f84d560d20ab
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
+F www/javascript.md bc37398d4f01179da2390f40cbdf635a62382ca21ca51749e1bb9316d60d0ff5
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 6e005b5cb0efa809ddefe3e4a7d574a8b33614fa326dcd5a92627d632dc27131 x
+F www/mkindex.tcl 93f9c63c2742ae3f95d2c190a1c98837e4018257c90936cf31b59fb5c0c3057c x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
 F www/permutedindex.html 9f85970e77185aa2fc1ebe50cedde742aed4cde71e53ebf0071f76722d4d7587
@@ -928,7 +929,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be7c1bde92c8caae92fd5e5a4c928a06c0e59554fea14cce34d116d777efd0ae
-R 1a96ff24ed72c1299fa5c53aeee405c3
-U stephan
-Z d6bc8cbb2f36fcc2b296c30ce8992d0d
+P c0de97a1555c6397adaa2f03e48a89d916e37030a1c4b1ca5dfadff6f009ee75 72a00d1f74f460992e6eff9af0c555376d9cd9a77a983f025b8905dad6ae4026
+R c400625ac73433a72265cbf4ff85a0c0
+T +closed 72a00d1f74f460992e6eff9af0c555376d9cd9a77a983f025b8905dad6ae4026
+U wyoung
+Z f1bfa00259e4de597e0c136995d09362

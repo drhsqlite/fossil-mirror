@@ -59,6 +59,7 @@ set doclist {
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
+  javascript.md {Use of JavaScript in Fossil}
   makefile.wiki {The Fossil Build Process}
   mirrorlimitations.md {Limitations On Git Mirrors}
   mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
