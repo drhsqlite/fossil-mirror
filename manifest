@@ -1,5 +1,5 @@
-C Removed\sa\sdebugging-only\sfunction.
-D 2019-10-02T16:14:55.745
+C Clarified\sa\sfalsehood\sin\sthe\snew\sverify_all_options()\sdocs.
+D 2019-10-03T15:19:42.558
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
@@ -518,7 +518,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 07b4f66c5a39fef3ac2307f7dcbcb85b1218aa023249b69d98e6cec67aa6a9fa
+F src/main.c 33931c8befa2a15169cad2c0be10ff5120699faf20f1d7f4f82fdeb92cb82702
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -928,7 +928,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c32966e0de2e03e422319c56b770b0fc980b69e8dec898a3632d55c58e1b4dbe
-R 10e2feb0d7013f92e635f4ffb431b71e
+P 05cde4f8eb04e987a3531a5f13e4229566ed0f5edad16a59c31a5874211da060
+R 315420f933bcbcfbf81678979695b24f
 U stephan
-Z aed8e6aaf413e8987b1c9f7af614731f
+Z 40fa8e4dcca87aa971925647f55942be

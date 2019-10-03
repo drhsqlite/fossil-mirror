@@ -1043,8 +1043,12 @@ const char *find_repository_option(){
 ** all arguments after "--" as non-flags (conventionally used to
 ** enable passing-in of filenames which start with a dash).
 **
-** This function must only be called one time per app invokation.
-** Calling it more than once results in undefined behaviour.
+** This function must normally only be called one time per app
+** invokation. The exception is commands which process their
+** arguments, call this to confirm that there are no extraneous flags,
+** then modify the arguments list for forwarding to another
+** (sub)command (which itself will call this to confirm its own
+** arguments).
 */
 void verify_all_options(void){
   int i;
