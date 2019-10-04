@@ -1,6 +1,7 @@
-C Merged\sjs-use-doc\sbranch\sdown\sto\strunk
-D 2019-10-03T21:22:13.389
+C EditorConfig\sfile\sfor\sFossil\sProject.\s\sSee\shttps://fossil-scm.org/forum/forumpost/7da5900698\sfor\sdiscussion.
+D 2019-10-04T01:16:52.054
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
+F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
 F .fossil-settings/clean-glob 50327fe7150c88e5daf5150f240dc805398665fb
 F .fossil-settings/crlf-glob 2da052c2bd7a53c5e083152cd3ea3cefd6228b17
@@ -929,8 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0de97a1555c6397adaa2f03e48a89d916e37030a1c4b1ca5dfadff6f009ee75 72a00d1f74f460992e6eff9af0c555376d9cd9a77a983f025b8905dad6ae4026
-R c400625ac73433a72265cbf4ff85a0c0
-T +closed 72a00d1f74f460992e6eff9af0c555376d9cd9a77a983f025b8905dad6ae4026
-U wyoung
-Z f1bfa00259e4de597e0c136995d09362
+P 39d3baabf63e6a08a0e10b8941c873c921d42e986e49522401b4e8bf3937cd2d
+R 52f72f70a898acff9d5f974a52df5500
+U ckennedy
+Z 4abb5696c1abd8b0dac5030a9659d81a
