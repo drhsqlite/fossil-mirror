@@ -1,5 +1,5 @@
-C Fix\sthe\sdate\son\sthe\s2.10\schange\slog.
-D 2019-10-04T22:20:04.935
+C Fix\stypo\sin\sthe\sserver\sextension\sdocumentation.
+D 2019-10-04T22:22:45.396
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -910,7 +910,7 @@ F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2b
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
 F www/server/windows/stunnel.md a69f4f8335d0c19bbf4b31cb8c126ad3ad4967e7537ac1b99d7bcea02462a7b2
-F www/serverext.wiki cfe983561c0be4a982c6355a15357ed8d5da6c0e17345af2019815afd2b59651
+F www/serverext.wiki 2fe5dd76ffd7fdb05bff1c031fd0147fb5c73aba8bc5548cf32f57195a6e6319
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
 F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9d9ef82234f63758ff19a121677cc81a6c43d70c9995207e9237ddb4a7dcc8bf
-R 42b15a00f5fe2152eb2c985054ee56a8
+P 80ea65af53c5aefc87fc67a71721c8b0dcd27cfb75f240fcea931c483a3bd122
+R a50afd4712ba0a305141e40ce1496973
 U drh
-Z 2218496b197ad46368161baf38b06193
+Z 4aabefbafa3291dbebc47229510c245b
