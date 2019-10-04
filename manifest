@@ -1,5 +1,5 @@
-C Version\s2.10
-D 2019-10-04T21:41:13.700
+C Fix\sthe\sdate\son\sthe\s2.10\schange\slog.
+D 2019-10-04T22:20:04.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -793,7 +793,7 @@ F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b57
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki 8b9f787cb0e162e9672f5b3ce0d32f60dabae0003f7bd7dc6ffa6ae2b05ceec2
-F www/changes.wiki c3b554588aa4ca4a1795a900d88bdd3fd77b46f44ef6f2af8ce6d929b0c93c9a
+F www/changes.wiki 84b2f6e6c1f90092692e6c7af286989a39788ddd23b6dc99d7bf07341e6d9623
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 911ba32f0c06b7f01cc0dd3bd92fe06450680ea09dda8ac8f69834853bb0d4e9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -930,10 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc19d369ab46fa74e798b19ea4181116e8f27856a4dc68c7221c2d09bda13106
-R 9ee59be8855f06e2a0ca92207e6a8f4c
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.10 *
+P 9d9ef82234f63758ff19a121677cc81a6c43d70c9995207e9237ddb4a7dcc8bf
+R 42b15a00f5fe2152eb2c985054ee56a8
 U drh
-Z 75c9db64df682c60924b336fa3d075c1
+Z 2218496b197ad46368161baf38b06193

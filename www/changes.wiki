@@ -1,7 +1,7 @@
 ﻿<title>Change Log</title>
 
 <a name='v2_10'></a>
-<h2>Changes for Version 2.10 (pending)</h2>
+<h2>Changes for Version 2.10 (2019-10-04)</h2>
 
   *  Added support for [./serverext.wiki|CGI-based Server Extensions].
   *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
