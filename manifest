@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.30.0\srelease\sversion.
-D 2019-10-04T15:44:44.889
+C Version\s2.10
+D 2019-10-04T21:41:13.700
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -930,7 +930,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb4412b6c5800776c161f8493f0f1763e4ded9e1dd68d2ec30ee1eecc214b405
+P fc19d369ab46fa74e798b19ea4181116e8f27856a4dc68c7221c2d09bda13106
 R 9ee59be8855f06e2a0ca92207e6a8f4c
+T +bgcolor * #d0c0ff
+T +sym-release *
+T +sym-version-2.10 *
 U drh
-Z 4870d1bf7a24a90cdadaf90606892631
+Z 75c9db64df682c60924b336fa3d075c1
