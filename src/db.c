@@ -4008,12 +4008,14 @@ void test_fingerprint(void){
 void db_set_checkout(int rid){
   char *z;
   db_lset_int("checkout", rid);
-  z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
-  db_lset("checkout-hash", z);
-  fossil_free(z);
-  z = db_fingerprint(0, 1);
-  db_lset("fingerprint", z);
-  fossil_free(z);
+  if (rid != 0) {
+    z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+    db_lset("checkout-hash", z);
+    fossil_free(z);
+    z = db_fingerprint(0, 1);
+    db_lset("fingerprint", z);
+    fossil_free(z);
+  }
 }
 
 /*
@@ -4028,6 +4030,10 @@ int db_fingerprint_ok(void){
   int rc;         /* Result */
 
   zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
+  if( !db_lget_int("checkout", 0) ){
+    /* We have an empty checkout, fingerprint is still NULL. */
+    return 2;
+  }
   if( zCkout==0 ){
     /* This is an older checkout that does not record a fingerprint.
     ** We have to assume everything is ok */

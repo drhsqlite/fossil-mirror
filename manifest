@@ -1,5 +1,5 @@
-C Removed\sa\sduplicate\sentry\sfrom\swww/mkindex.tcl
-D 2019-10-07T08:42:15.309
+C Prevent\sfals-posivitive\sin\sfingerprint\scheck,\swhen\sthe\scurrent\scheckout\sis\sempty.
+D 2019-10-07T10:07:22.861
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -460,7 +460,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 225f85e3f304b67772fb326a06900e63397baf5e3ce109d91f77f474333d7b99
+F src/db.c a2f06f3f431bb8a82ecc63f7c100326eb1827eb61db722a10211cd10d3bc9481
 F src/default_css.txt cd60aeffd23196d712858c31dd8ab4a33a3e4f91b970c6ab0976f769473f6e76
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11c65043409c7dd7e233185c002b5fd317d45ff1865b1a9b8f133c2e060a07ad
-R f542bf75ff47b42b59cc303f7eb6c15a
-U wyoung
-Z a0c64894065088268da334c5c94e5187
+P 4edc1302a48fb1c56919971aef3962b508328e7c80391e82af6d59e2bd8de176
+R 6361f7e2433bdee13aaa9cd920bdb35b
+U jan.nijtmans
+Z 209e91b74e2a83bf0a073b0c67800d4c
