@@ -21,7 +21,6 @@ set doclist {
   build.wiki {Compiling and Installing Fossil}
   caps/ {Administering User Capabilities}
   caps/admin-v-setup.md {Differences Between Setup and Admin Users}
-  caps/login-groups.md {Differences Between Setup and Admin Users}
   caps/ref.html {User Capability Reference}
   cgi.wiki {CGI Script Configuration Options}
   changes.wiki {Fossil Changelog}
