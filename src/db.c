@@ -4029,11 +4029,11 @@ int db_fingerprint_ok(void){
   char *zRepo;    /* The fingerprint of the repository */
   int rc;         /* Result */
 
-  zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
   if( !db_lget_int("checkout", 0) ){
     /* We have an empty checkout, fingerprint is still NULL. */
     return 2;
   }
+  zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
   if( zCkout==0 ){
     /* This is an older checkout that does not record a fingerprint.
     ** We have to assume everything is ok */
