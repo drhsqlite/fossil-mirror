@@ -1,5 +1,5 @@
-C Statement\sordering:\sDon't\sread\s'fingerprint'\swhen\sthere\sare\sno\scheckin's.
-D 2019-10-07T11:03:57.635
+C Fix\sa\stypo\sin\sthe\shelp\stext\sfor\sthe\s"fossil\sinfo"\scommand.
+D 2019-10-07T11:49:35.301
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -495,7 +495,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 4689601689be55d05e83756fcdc886ad3958a15b4de5678cb250db176cb4cee0
-F src/info.c 626771c067209d7f1b7fc1f3735662660be146be181eb26e4ac694f57bfe3a90
+F src/info.c c3eb9376021aa9523b7dd0c08ee6d94d0a2ccf62ca17e3a4ded2dc53032a47e1
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd8816ecf6eeea11adb07e335419535c5d6a0bf4efa22f5eb09184e9dbcb877c
-R b17a8819d4ffb29fb06bc9c3cba5af15
-U jan.nijtmans
-Z 5d52bee4c5cdf4e264c63fe2d3ce09d7
+P ffe7cc595e4c1835f2e55abf4aa09ba81667bcbb0e5a698f19e7a5f92d6f8333
+R e0b5ca8335daf63588cbae6574d20ee5
+U drh
+Z 26f30c778b25f37e4400aad621925a73
