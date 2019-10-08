@@ -1,5 +1,8 @@
-C Updated\sWindows\sService\sdocumentation\sto\sreflect\snew\s64bit\sbinaries\sfor\sFossil\s2.10\sfor\sWindows.
-D 2019-10-08T00:57:17.702
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Increase\sthe\sversion\snumber\sto\s2.11\sfor\sthe\snext\srelease\scycle.
+D 2019-10-08T16:00:16.077
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -17,7 +20,7 @@ F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2
 F Makefile.in 2f34d0fa84449834fe6f415be1c347de931a27e46be437e2611e155c813f9880
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
-F VERSION ad89bdb3767ae6964011c9728239aed8f8e03191e9ebef59a4f4d2c60e781ccb
+F VERSION f45d5f3094f467be86f0d94e4d3ab915611942868fae57126a479b3a628f7722
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -930,7 +933,14 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3d58d89041d7a41bb5c19f83a2cc8363293230a5fa187e27ce900f59117f5559
-R e148288f17662401bd64e167dc96da8d
-U ckennedy
-Z 923fe154425e03d40f01978b2b4211de
+P cb13b611005b9f0a3be031c934a0cea7fc684f575a831f523e9196777b854162
+R 7205a7f457e630a6a1a7b12028ca5309
+U drh
+Z 9c7dd2ea369e5d4d230184fcf458a277
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl2cspAACgkQoxKgR168RlHfDwCgiALeTj2g5QQcvXjHDkmTYY+F
+FcgAn34JpwY2k279Mi5Wq3/wPNd5pfPI
+=4sea
+-----END PGP SIGNATURE-----
