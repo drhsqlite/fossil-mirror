@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\shelp\stext\sfor\sthe\s"fossil\sinfo"\scommand.
-D 2019-10-07T11:49:35.301
+C Updated\sWindows\sService\sdocumentation\sto\sreflect\snew\s64bit\sbinaries\sfor\sFossil\s2.10\sfor\sWindows.
+D 2019-10-08T00:57:17.702
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -908,8 +908,8 @@ F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed
 F www/server/windows/iis.md fb8614ab24ddc1e538cbc3f230379e367bfdde58fe4b11d200115e971d26f04d
 F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2bb47e030f48910c
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md 891431eb85e17e745b180625f98a7e1a3fa4f5286ae5d1c542a8b8f93f754352
-F www/server/windows/stunnel.md a69f4f8335d0c19bbf4b31cb8c126ad3ad4967e7537ac1b99d7bcea02462a7b2
+F www/server/windows/service.md 3a912973d1763a5cbe812180c6fc24673604b9595eb615cb05b3c97cc34556e9
+F www/server/windows/stunnel.md 8f3e566d3670c9b5264f0f119e9a87e46c01537f88edaaf04435e00e87bd7854
 F www/serverext.wiki 2fe5dd76ffd7fdb05bff1c031fd0147fb5c73aba8bc5548cf32f57195a6e6319
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ffe7cc595e4c1835f2e55abf4aa09ba81667bcbb0e5a698f19e7a5f92d6f8333
-R e0b5ca8335daf63588cbae6574d20ee5
-U drh
-Z 26f30c778b25f37e4400aad621925a73
+P 3d58d89041d7a41bb5c19f83a2cc8363293230a5fa187e27ce900f59117f5559
+R e148288f17662401bd64e167dc96da8d
+U ckennedy
+Z 923fe154425e03d40f01978b2b4211de

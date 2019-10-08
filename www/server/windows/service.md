@@ -11,8 +11,8 @@ Fossil as a Windows Service.
 ## Place Fossil on Server
 
 However you obtained your copy of Fossil, it is recommended that you follow
-Windows conventions and place it within `\Program Files (x86)\FossilSCM`.  Since
-Fossil is a 32bit binary, this is the proper location for the executable.  This
+Windows conventions and place it within `\Program Files\FossilSCM`.  Since
+Fossil 2.10 is a 64bit binary, this is the proper location for the executable.  This
 way Fossil is in an expected location and you will have minimal issues with
 Windows interfering in your ability to run Fossil as a service.  You will need
 Administrative rights to place fossil at the recommended location.  You do NOT
@@ -22,21 +22,22 @@ need to add this location to the path, though you may do so if you wish.
 
 Luckily the hard work to use Fossil as a Windows Service has been done by the
 Fossil team.  We simply have to install it with the proper command line options.
-As of Fossil 2.9 the built in `fossil winsrv` command is failing, so an
-alternative service install using PowerShell is documented here.  The below
-should all be entered as a single line in an Administrative PowerShell console.
+Fossil on Windows has a command `fossil winsrv` to allow installing Fossil as a
+service on Windows, but the options are limited, so an alternative service
+install using PowerShell is documented here.  The below should all be entered
+as a single line in an Administrative PowerShell console.
 
 ```PowerShell
-New-Service -Name fossil -DisplayName fossil -BinaryPathName '"C:\Program Files (x86)\FossilSCM\fossil.exe"
+New-Service -Name fossil -DisplayName fossil -BinaryPathName '"C:\Program Files\FossilSCM\fossil.exe"
 server --port 8080 --repolist "D:/Path/to/Repos"' -StartupType Automatic
 ```
 
-Please note the use of forward slashes in the paths passed to Fossil.  Windows
-will accept either back slashes or forward slashes in path names, but Fossil has
-a preference for forward slashes.  The use of `--repolist` will make this a
-multiple repository server.  If you want to serve only a single repository,
-then leave off the `--repolist` parameter and provide the full path to the
-proper repository file. Other options are listed in the
+Please note the use of forward slashes in the repolist path passed to Fossil.
+Windows will accept either back slashes or forward slashes in path names, but
+Fossil has a preference for forward slashes.  The use of `--repolist` will make
+this a multiple repository server.  If you want to serve only a single
+repository, then leave off the `--repolist` parameter and provide the full path
+to the proper repository file. Other options are listed in the
 [fossil server](/help?cmd=server) documentation.
 
 The service will be installed by default to use the Local Service account.
