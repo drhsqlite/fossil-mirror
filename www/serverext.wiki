@@ -36,7 +36,7 @@ If the Fossil server is itself run as
 extroot: <i>DIRECTORY</i>
 </pre></blockquote>
 
-Or, if the Fossil server is begin run as using the 
+Or, if the Fossil server is being run using the 
 "[./server/any/none.md|fossil server]" or
 "[./server/any/none.md|fossil ui]" or 
 "[./server/any/inetd.md|fossil http]" commands, then add an extra 

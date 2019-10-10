@@ -26,7 +26,7 @@ to change the command to install the Fossil Service to configure it properly for
 use with stunnel as an https proxy.  Run the following instead:
 
 ```PowerShell
-New-Service -Name fossil-secure -DisplayName fossil-secure -BinaryPathName '"C:\Program Files (x86)\FossilSCM\fossil.exe"
+New-Service -Name fossil-secure -DisplayName fossil-secure -BinaryPathName '"C:\Program Files\FossilSCM\fossil.exe"
 server --localhost --port 9000 --https --repolist "D:/Path/to/Repos"' -StartupType Automatic
 
 ```
