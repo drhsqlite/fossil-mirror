@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Increase\sthe\sversion\snumber\sto\s2.11\sfor\sthe\snext\srelease\scycle.
-D 2019-10-08T16:00:16.077
+C Updates\sto\swindows\sserver\sdocumenttion\sto\sinclude\sexamples\sof\swinsrv\scommand.
+D 2019-10-12T22:39:37.418
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -909,10 +906,10 @@ F www/server/windows/cgi-install-iis.png c713f470dcc58ceb3b634e56944a08a691db097
 F www/server/windows/cgi-script-map.png a1e6567130bb82b7a9240eff90a83c261edc01332e940072a3e1cd23c70148de
 F www/server/windows/cgi.md 89c7bf1611509648df2362acfbcdd5bf275dda2fe8a1d64b3eed7ee450a2f3db
 F www/server/windows/iis.md fb8614ab24ddc1e538cbc3f230379e367bfdde58fe4b11d200115e971d26f04d
-F www/server/windows/index.md 9a7c9a223f29e3880166e63b188d4d0510402b9c27a7635d2bb47e030f48910c
+F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3090199a5050f5e
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
-F www/server/windows/service.md 3a912973d1763a5cbe812180c6fc24673604b9595eb615cb05b3c97cc34556e9
-F www/server/windows/stunnel.md 8f3e566d3670c9b5264f0f119e9a87e46c01537f88edaaf04435e00e87bd7854
+F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
+F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
 F www/serverext.wiki 2fe5dd76ffd7fdb05bff1c031fd0147fb5c73aba8bc5548cf32f57195a6e6319
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
@@ -933,14 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb13b611005b9f0a3be031c934a0cea7fc684f575a831f523e9196777b854162
-R 7205a7f457e630a6a1a7b12028ca5309
-U drh
-Z 9c7dd2ea369e5d4d230184fcf458a277
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl2cspAACgkQoxKgR168RlHfDwCgiALeTj2g5QQcvXjHDkmTYY+F
-FcgAn34JpwY2k279Mi5Wq3/wPNd5pfPI
-=4sea
------END PGP SIGNATURE-----
+P 10fb90fcae08a311009ec2cee0fa06fd0625d85f83fb75a536d8795eed57d6d6
+R f8f4166512300a084947cb7127b6f8c5
+U ckennedy
+Z 976ad7faf6fff391bfc47338dcad96f4

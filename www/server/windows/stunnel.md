@@ -21,14 +21,13 @@ URLs when used with stunnel as a proxy.  Please make sure you are using Fossil
 
 ## Configure Fossil Service for https
 
-Following most of [Fossil as a Windows Service](./service.md), you will need
-to change the command to install the Fossil Service to configure it properly for
-use with stunnel as an https proxy.  Run the following instead:
+Due to the need for the `--https` option for successfully using Fossil with
+stunnel, we will use [Advanced service installation using PowerShell](./service.md#PowerShell).
+We will need to change the command to install the Fossil Service to configure
+it properly for use with stunnel as an https proxy.  Run the following:
 
 ```PowerShell
-New-Service -Name fossil-secure -DisplayName fossil-secure -BinaryPathName '"C:\Program Files\FossilSCM\fossil.exe"
-server --localhost --port 9000 --https --repolist "D:/Path/to/Repos"' -StartupType Automatic
-
+New-Service -Name fossil-secure -DisplayName fossil-secure -BinaryPathName '"C:\Program Files\FossilSCM\fossil.exe" server --localhost --port 9000 --https --repolist "D:/Path/to/Repos"' -StartupType Automatic
 ```
 
 The use of `--localhost` means Fossil will only listen for traffic on the local
