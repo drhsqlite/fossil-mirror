@@ -197,7 +197,11 @@ static void vmerge_insert(int id, int rid){
 ** file and directory names from the current checkout even if those
 ** names might have been changed in the branch being merged in.
 **
-** Other options:
+** Options:
+**
+**   --backout               Do a reverse cherrypick merge against VERSION.
+**                           In other words, back out the changes that were
+**                           added by VERSION.
 **
 **   --baseline BASELINE     Use BASELINE as the "pivot" of the merge instead
 **                           of the nearest common ancestor.  This allows
@@ -211,6 +215,11 @@ static void vmerge_insert(int id, int rid){
 **   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
+**
+**   --cherrypick            Do a cherrypick merge VERSION into the current
+**                           checkout.  A cherrypick merge pulls in the changes
+**                           of the single check-in VERSION, rather than all
+**                           changes back to the nearest common ancestor.
 **
 **   -f|--force              Force the merge even if it would be a no-op.
 **

@@ -1,5 +1,5 @@
-C Updates\sto\swindows\sserver\sdocumenttion\sto\sinclude\sexamples\sof\swinsrv\scommand.
-D 2019-10-12T22:39:37.418
+C Improved\sdocumentation\sfor\sthe\s--cherrypick\sand\s--backout\soptions\sof\sthe\n"fossil\smerge"\scommand.
+D 2019-10-16T17:44:44.706
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -530,7 +530,7 @@ F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 469e165c996c146afa6b0e5a873e67f251fc84f4ba73d9af7a73fe1497cadbfb
+F src/merge.c 6279e042ec7f95ef37b4a6b9895a88f7c98f4f3bbe56bd6418e28c507753f35c
 F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 9be20ec713e4a8422c1228f1f40c40b321a3a1411929e6a07c43d104a2e30883
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 10fb90fcae08a311009ec2cee0fa06fd0625d85f83fb75a536d8795eed57d6d6
-R f8f4166512300a084947cb7127b6f8c5
-U ckennedy
-Z 976ad7faf6fff391bfc47338dcad96f4
+P 6a0ec82baef5b4d6c2bd6a556bc9124ac18ddfa4d7df173601ce314c64958ace
+R 3814a811faf220506119c4dde8659d73
+U drh
+Z 00bf865f75351a4fcf95ff2beb9aff70
