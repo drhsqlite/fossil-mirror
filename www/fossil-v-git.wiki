@@ -235,13 +235,14 @@ of SQL code in Fossil isn't large by percentage, but since SQL is such
 an expressive, declarative language, it has an outsized contribution to
 Fossil's user-visible functionality.
 
-Fossil isn't entirely C and SQL code. Its web UI uses JavaScript where
-necessary.⁵ The server-side
+Fossil isn't entirely C and SQL code. Its web UI [./javascript.md |
+uses JavaScript where
+necessary]. The server-side
 UI scripting uses a custom minimal
 [https://en.wikipedia.org/wiki/Tcl|Tcl] dialect called
 [https://www.fossil-scm.org/xfer/doc/trunk/www/th1.md|TH1], which is
 embedded into Fossil itself. Fossil's build system and test suite are
-largely based on Tcl.⁶ All of this is quite portable.
+largely based on Tcl.⁵ All of this is quite portable.
 
 About half of Git's code is POSIX C, and about a third is POSIX shell
 code. This is largely why the so-called "Git for Windows" distributions
@@ -250,7 +251,7 @@ code. This is largely why the so-called "Git for Windows" distributions
 [http://mingw.org/wiki/msys|MSYS POSIX portability environment] bundled
 with all of the Git stuff, because it would be too painful to port Git
 natively to Windows. Git is a foreign citizen on Windows, speaking to it
-only through a translator.⁷
+only through a translator.⁶
 
 While Fossil does lean toward POSIX norms when given a choice — LF-only
 line endings are treated as first-class citizens over CR+LF, for example
@@ -341,7 +342,7 @@ development model:
     [https://www.jonobacon.com/2012/07/25/building-strong-community-structural-integrity/|drive-by
     contributions]. Fossil's closest equivalent is its unique
     [/help?cmd=bundle|bundle] feature, which requires higher engagement
-    than firing off a PR.⁸ This difference comes directly from the
+    than firing off a PR.⁷ This difference comes directly from the
     initial designed purpose for each tool: the SQLite project doesn't
     accept outside contributions from previously-unknown developers, but
     the Linux kernel does.</p></li>
@@ -845,12 +846,6 @@ are a few remaining feature differences we haven't gotten to yet.
     <li><p>This means you can give up waiting for Fossil to be ported to
     the PDP-11, but we remain hopeful that someone may eventually port
     it to [https://en.wikipedia.org/wiki/Z/OS|z/OS].
-
-    <li><p>We try to keep use of Javascript to a minimum in the web UI,
-    and we always try to provide sensible fall-backs for those that run
-    their browsers with Javascript disabled. Some features of the web UI
-    simply won't run without Javascript, but the UI behavior does
-    degrade gracefully.
 
     <li><p>"Why is there all this Tcl in and around Fossil?" you may
     ask. It is because D. Richard Hipp is a long-time Tcl user and
