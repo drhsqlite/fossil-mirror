@@ -240,7 +240,7 @@ The common counterargument is that collapsed check-ins represent a
 better world, the ideal we’re striving for. What that argument overlooks
 is that we must throw away valuable information to get there.
 
-## <a name="empathy"></a>7.1 Individual check-ins support developer empathy
+### <a name="empathy"></a>7.1 Individual check-ins support developer empathy
 
 Ideally, future developers of our software can understand every feature
 in it using only context available in the version of the code they start
@@ -285,7 +285,7 @@ finished feature.
 
 [sdm]: ./fossil-v-git.wiki#durable
 
-## <a name="bisecting"></a>7.2 Bisecting works better on small check-ins
+### <a name="bisecting"></a>7.2 Bisecting works better on small check-ins
 
 Git lets a developer write a feature in ten check-ins but collapse it
 down to an eleventh check-in and then deliberately push only that final
@@ -300,7 +300,7 @@ that someone doing that bisect sees the complete check-in history, so
 the bisect will point them at the single original check-in that caused
 the problem.
 
-## <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
+### <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
 
 The more comments you have from a given developer on a given body of
 code, the more concise documentation you have of that developer’s
@@ -312,7 +312,7 @@ accomplish than if they must work that out from the eleventh check-in’s
 comment, which only explains the “clean” version of the collapsed
 feature.
 
-## <a name="cherrypicking"></a>7.4 Cherry-picks work better with small check-ins
+### <a name="cherrypicking"></a>7.4 Cherry-picks work better with small check-ins
 
 While working on a new feature in one branch, you may come across a bug
 in the pre-existing code that you need to fix in order for work on that
@@ -354,7 +354,7 @@ them more time to do the cherry-pick that way.
 
 [rh]: https://en.wikipedia.org/wiki/Red_Hat
 
-## <a name="backouts"></a>7.5 Back-outs also work better with small check-ins
+### <a name="backouts"></a>7.5 Back-outs also work better with small check-ins
 
 The inverse of the cherry-pick merge is the back-out merge. If you push
 only a collapsed version of a private working branch up to the parent
