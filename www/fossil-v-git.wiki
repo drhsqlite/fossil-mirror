@@ -518,8 +518,8 @@ Both Fossil and Git store history as a directed acyclic graph (DAG)
 of changes, but Git tends to focus more on individual branches of
 the DAG, whereas Fossil puts more emphasis on the entire DAG.
 
-For example, the default "sync" behavior in Git is to only sync
-a single branch, whereas with Fossil the only sync option it to
+For example, the default behavior in Git is to only synchronize
+a single branch, whereas with Fossil the only sync option is to
 sync the entire DAG.  Git commands,
 GitHub, and GitLab tend to show only a single branch at
 a time, whereas Fossil usually shows all parallel branches at
@@ -712,7 +712,7 @@ currently 41 lines long, to which you want to add the 600 lines of
 documentation in Git is the aggregation of the man pages for the above
 three commands, which is over 1000 lines, much of it mutually redundant.
 (e.g.  the <tt>--edit</tt> and <tt>--no-commit</tt> options get
-described three different times, each time differently.) Fossil's
+described three times, each time differently.) Fossil's
 documentation is not only more concise, it gives a nice split of brief
 online help and full online documentation.
 
@@ -728,17 +728,15 @@ Fossil delivered a new release allowing a clean migration to
 [./hashpolicy.wiki|full backwards compatibility] to old SHA-1 based
 repositories.
 
-Here in mid-2019, that feature is now in every OS and package repository
-known to include Fossil so that the next release
-(Fossil 2.10) will begin using SHA-3 hashes even on repos currently
-limited to SHA-1 for compatibility with Fossil 1.<i>x</i>,
-effectively upgrading them to require Fossil 2.1 or newer. This
-not only solves the SHAttered problem, it should prevent a reoccurrence
-for the foreseeable future. With the current release (Fossil 2.9) only
-repositories created before the
-transition to Fossil 2 are still using SHA-1, and then only if the
-repository's maintainer chose not to switch them into SHA-3 mode some
-time over the past 2 years.
+By mid-2019, that feature arrived in every software package repository
+shipping Fossil, the last mover being Debian's stable package repo,
+which has a highly conservative policy on upgrading to new versions.
+With that hurdle run, we were able to change the default hash mode in
+Fossil 2.10 (released 2019-10-04) to require SHA-3 support both for new
+repositories and to create SHA-3 hashes in existing repos, effectively
+upgrading them if they were created with Fossil 1.<i>x</i>. This not
+only solves the SHAttered problem, it should prevent a reoccurrence of
+similar problems for the foreseeable future.
 
 Meanwhile, the Git community took until August 2018 to announce
 [https://git-scm.com/docs/hash-function-transition/2.18.0|their plan]

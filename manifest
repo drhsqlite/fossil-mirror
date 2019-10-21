@@ -1,5 +1,5 @@
-C Replaced\sbrief\sfootnote\sin\sfossil-v-git\sdoc\sexplaining\swhy\swe\suse\nJavaScript\s(sparingly)\swith\sa\sreference\sto\sthe\snew\sjavascript.md\sdoc,\nwhich\sexplains\sthis\smuch\smore\sfully.
-D 2019-10-21T01:53:28.211
+C Updated\sthe\sdiscussion\sof\sSHA-3\ssupport\sin\sFossil\swithin\sthe\nfossil-v-git.wiki\sdoc\snow\sthat\sFossil\s2.10\sis\sout.\sBasically,\sit\schanges\nthe\stense\son\sall\sSHA-1\stext\sto\spast\stense.
+D 2019-10-21T02:40:54.055
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -838,7 +838,7 @@ F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 7340534189561342965a6eca27ef1945cd3181ef405d1c32a64b16d689599927
+F www/fossil-v-git.wiki 394995872fbee703657b371a26ba6e8d2f2643363c906959deac4ad2a6e53605
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 29a383e4b6c36c81a0b087fd86d2ec20771c211af27b29b420748b4c967ca748
-R acadf34532a54f3308f05edd885e0861
+P 21c7f1f8a3b971c84f519b4c5c9db8784b0131b50bde824a21a31c90d4665184
+R 097d6c0d536fc5b2acc6b53b9fcf2696
 U wyoung
-Z 28d763c85dec9f64fafe17d294b135ba
+Z 56c9bfe60018b872cda77b8966c7c076
