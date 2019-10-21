@@ -1,5 +1,5 @@
-C Updated\sthe\sdiscussion\sof\sSHA-3\ssupport\sin\sFossil\swithin\sthe\nfossil-v-git.wiki\sdoc\snow\sthat\sFossil\s2.10\sis\sout.\sBasically,\sit\schanges\nthe\stense\son\sall\sSHA-1\stext\sto\spast\stense.
-D 2019-10-21T02:40:54.055
+C Moved\sall\sof\sthe\s"Features\sfound\sin\sFossil\sbut\snot\sin\sGit"\sup\sfrom\nsection\s3.1\sinto\ssection\s2.1\sFeatureful\sof\sthe\sfossil-v-git\sdoc,\swhere\nsuch\sdifferences\sare\sotherwise\scovered.\s\sRemoved\ssection\s3.2,\sgiving\sthe\nopposite\scase,\ssince\sall\sof\sthe\sGit\sfeatures\snot\sfound\sin\sFossil\sare\nalready\scovered\selsewhere\sin\sthe\sdoc,\ssometimes\smore\sthan\sonce,\sas\swith\nthe\srebase\sissue.
+D 2019-10-21T03:05:00.696
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -838,7 +838,7 @@ F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 394995872fbee703657b371a26ba6e8d2f2643363c906959deac4ad2a6e53605
+F www/fossil-v-git.wiki 2356aac341f29010f056e25e565041f272db055e1a19a4445633d915d8b79818
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 21c7f1f8a3b971c84f519b4c5c9db8784b0131b50bde824a21a31c90d4665184
-R 097d6c0d536fc5b2acc6b53b9fcf2696
+P d887a6d74d7958c069a2da22345e8bd4b0c33a4bbb6ff62b01e2882192ce9642
+R cca2f77e3ef430205e670454bab52ffc
 U wyoung
-Z 56c9bfe60018b872cda77b8966c7c076
+Z 8e4650824ecc82d5ceefd3d414e8d07b

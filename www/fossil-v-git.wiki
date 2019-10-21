@@ -76,6 +76,27 @@ add-ons, but with Fossil they are integrated into
 the design.  One way to describe Fossil is that it is
 "[https://github.com/ | GitHub]-in-a-box."
 
+Fossil can do operations over all local repo clones and check-out
+directories with a single command. For example, Fossil lets you say
+<tt>fossil all pull</tt> on a laptop prior to taking it off the network
+hosting those repos. You can sync up to all of the private repos on your
+company network plus those public Internet-hosted repos you use. Whether
+going out for a working lunch or on a transoceanic an airplane trip, one
+command gets you in sync. This works with several other Fossil
+sub-commands, such as <tt>fossil all changes</tt> to get a list of files
+that you forgot to commit prior to the end of your working day, across
+all repos.
+
+Whenever Fossil is told to modify the local checkout in some destructive
+way ([/help?cmd=rm|fossil rm], [/help?cmd=update|fossil update],
+[/help?cmd=revert|fossil revert], etc.) Fossil remembers the prior state
+and is able to return the check-out directory to that state with a
+<tt>fossil undo</tt> command. You cannot undo a commit in Fossil
+([#history | on purpose!]) but as long as the change remains confined to
+the local check-out directory only, Fossil makes undo
+[https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things|easier than in
+Git].
+
 For developers who choose to self-host projects (rather than using a
 3rd-party service such as GitHub) Fossil is much easier to set up, since
 the stand-alone Fossil executable together with a [./server/any/cgi.md|2-line CGI script]
@@ -751,60 +772,6 @@ moved over to a stronger hash algorithm before someone figures out how
 to make use of the weaknesses in the old one.  Fossil's developers moved
 on this problem quickly and had a widely-deployed solution to it years
 ago.
-
-
-<h2 id="missing">3.0 Missing Features</h2>
-
-Although there is a large overlap in capability between Fossil and Git,
-there are many areas where one system has a feature that is simply
-missing in the other. We covered most of those above, but there
-are a few remaining feature differences we haven't gotten to yet.
-
-
-<h3 id="missing-in-git">3.1 Features found in Fossil but missing from Git</h3>
-
-  *  <b>The [/help?cmd=all|fossil all] command</b>
-
-   Fossil keeps track of all repositories and check-outs and allows
-   operations over all of them with a single command.  For example, in
-   Fossil is possible to request a pull of all repositories on a laptop
-   from their respective servers, prior to taking the laptop off network.
-   Or it is possible to do "fossil all changes" to see if there are any
-   uncommitted changes that were overlooked prior to the end of the workday.
-
-  *  <b>The [/help?cmd=undo|fossil undo] command</b>
-
-   Whenever Fossil is told to modify the local checkout in some
-   destructive way ([/help?cmd=rm|fossil rm], [/help?cmd=update|fossil
-   update], [/help?cmd=revert|fossil revert], etc.) Fossil remembers the
-   prior state and is able to return the local check-out directory to
-   its prior state with a simple "fossil undo" command. You
-   [#history|cannot undo a commit], since writes to the actual
-   repository — as opposed to the local check-out directory — are more
-   or less permanent, on purpose, but as long as the change is simply
-   staged locally, Fossil makes undo
-   [https://git-scm.com/book/en/v2/Git-Basics-Undoing-Things|easier than
-   in Git].
-
-
-<h3 id="missing-in-fossil">3.2 Features found in Git but missing from Fossil</h3>
-
-  *  <b>Rebase</b>
-
-   Because of its emphasis on recording history exactly as it happened,
-   rather than as we would have liked it to happen, 
-   [./rebaseharm.md|Fossil deliberately omits the "rebase" command].
-   For those rare
-   occasions where something like rebase is actually needed, the same
-   topology can be achieved using cherrypick merges.
-
-  *  <b>Push or pull a single branch</b>
-
-   The [/help?cmd=push|fossil push], [/help?cmd=pull|fossil pull], and
-   [/help?cmd=sync|fossil sync] commands do not provide the capability to
-   push or pull individual branches.  Pushing and pulling in Fossil is
-   all or nothing.  This is in keeping with Fossil's emphasis on maintaining
-   a complete record and on sharing everything between all developers.
 
 <hr/>
 
