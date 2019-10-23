@@ -1,5 +1,5 @@
-C Put\s7.x\sseries\sheadlines\sone\slevel\sdeeper\sso\sthey\snest\sproperly\sunder\ntheir\sparent,\sthe\s7.0\ssection,\sin\srebaseharm.md\sdoc.
-D 2019-10-21T03:22:39.329
+C Make\sa\shyperlink\sto\sthe\sArtifact\sReceipt\slog\sfrom\sthe\s"Received\sFrom"\sfield\nof\sthe\s/info\spage\s(visible\sto\sadministrators\sonly).
+D 2019-10-23T00:46:53.118
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -495,7 +495,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 4689601689be55d05e83756fcdc886ad3958a15b4de5678cb250db176cb4cee0
-F src/info.c c3eb9376021aa9523b7dd0c08ee6d94d0a2ccf62ca17e3a4ded2dc53032a47e1
+F src/info.c 6e0eebada4eadcd20a8aa29c4093a125ac18fdbd58ce73047ed3ad9d123a6ee2
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d357f81b6c179313caf0b5128e90ea2180757c2de39a9dac435e86137643cd5b
-R 30e20c5e6c14d34a95d243db8ff17698
-U wyoung
-Z 6b52ead7a573f43914e2a98c47232619
+P 5453dbff5bd03a49d95d6f5527f678c59fbb3e5e167386fa53d6683c103204c3
+R 35de50714d73d7e284925d11023a5dc3
+U drh
+Z cd5f1168d589c1f36474e994d5b6505a

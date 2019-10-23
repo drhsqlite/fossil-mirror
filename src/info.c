@@ -832,7 +832,8 @@ void ci_page(void){
     }
     if( g.perm.Admin ){
       db_prepare(&q2,
-         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
+         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime),"
+               " blob.rcvid"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
          " WHERE blob.rid=%d",
          rid
@@ -841,9 +842,11 @@ void ci_page(void){
         const char *zIpAddr = db_column_text(&q2, 0);
         const char *zUser = db_column_text(&q2, 1);
         const char *zDate = db_column_text(&q2, 2);
+        int rcvid = db_column_int(&q2,3);
         if( zUser==0 || zUser[0]==0 ) zUser = "unknown";
         @ <tr><th>Received&nbsp;From:</th>
-        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate)</td></tr>
+        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate) \
+        @ (<a href="%R/rcvfrom?rcvid=%d(rcvid)">Rcvid %d(rcvid)</a>)</td></tr>
       }
       db_finalize(&q2);
     }
