@@ -902,12 +902,24 @@ static void remove_from_argv(int i, int n){
 
 
 /*
-** Look for a command-line option.  If present, return a pointer.
-** Return NULL if missing.
+** Look for a command-line option.  If present, remove it from the
+** argument list and return a pointer to either the flag's name (if
+** hasArg==0), sans leading - or --, or its value (if hasArg==1).
+** Return NULL if the flag is not found.
+**
+** zLong is the "long" form of the flag and zShort is the
+** short/abbreviated form (typically a single letter, but it may be
+** longer). zLong must not be NULL, but zShort may be.
 **
 ** hasArg==0 means the option is a flag.  It is either present or not.
-** hasArg==1 means the option has an argument.  Return a pointer to the
-** argument.
+** hasArg==1 means the option has an argument, in which case a pointer
+** to the argument's value is returned. For zLong, a flag value (if
+** hasValue==1) may either be in the form (--flag=value) or (--flag
+** value). For zShort, only the latter form is accepted.
+**
+** If a standalone argument of "--" is encountered in the argument
+** list while searching for the given flag(s), this routine stops
+** searching and NULL is returned.
 */
 const char *find_option(const char *zLong, const char *zShort, int hasArg){
   int i;
@@ -923,7 +935,8 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     z++;
     if( z[0]=='-' ){
       if( z[1]==0 ){
-        remove_from_argv(i, 1);
+        /* Stop processing at "--" without consuming it.
+           verify_all_options() will consume this flag. */
         break;
       }
       z++;
@@ -957,7 +970,13 @@ int has_option(const char *zOption){
     char *z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
-    if( z[0]=='-' ) z++;
+    if( z[0]=='-' ){
+      if( z[1]==0 ){
+        /* Stop processing at "--" */
+        break;
+      }
+      z++;
+    }
     if( strncmp(z,zOption,n)==0 && (z[n]==0 || z[n]=='=') ) return 1;
   }
   return 0;
@@ -971,7 +990,10 @@ int has_option(const char *zOption){
 **
 ** pnUsedArgs is used to store the number of matched arguments.
 **
-** Caller is responsible to free allocated memory.
+** Caller is responsible for freeing allocated memory by passing the
+** head of the array (not each entry) to fossil_free(). (The
+** individual entries have the same lifetime as values returned from
+** find_option().)
 */
 const char **find_repeatable_option(
   const char *zLong,
@@ -1015,18 +1037,37 @@ const char *find_repository_option(){
 ** Verify that there are no unprocessed command-line options.  If
 ** Any remaining command-line argument begins with "-" print
 ** an error message and quit.
+**
+** Exception: if "--" is encountered, it is consumed from the argument
+** list and this function immediately returns. The effect is to treat
+** all arguments after "--" as non-flags (conventionally used to
+** enable passing-in of filenames which start with a dash).
+**
+** This function must normally only be called one time per app
+** invokation. The exception is commands which process their
+** arguments, call this to confirm that there are no extraneous flags,
+** then modify the arguments list for forwarding to another
+** (sub)command (which itself will call this to confirm its own
+** arguments).
 */
 void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
-    if( g.argv[i][0]=='-' && g.argv[i][1]!=0 ){
-      fossil_fatal(
-        "unrecognized command-line option, or missing argument: %s",
-        g.argv[i]);
+    const char * arg = g.argv[i];
+    if( arg[0]=='-' ){
+      if( arg[1]=='-' && arg[2]==0 ){
+        /* Remove "--" from the list and treat all following
+        ** arguments as non-flags. */
+        remove_from_argv(i, 1);
+        break;
+      }else if( arg[1]!=0 ){
+        fossil_fatal(
+          "unrecognized command-line option or missing argument: %s",
+          arg);
+      }
     }
   }
 }
-
 
 /*
 ** This function returns a human readable version string.

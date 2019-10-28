@@ -293,8 +293,8 @@ void unversioned_cmd(void){
     int i;
 
     zAs = find_option("as",0,1);
-    if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     verify_all_options();
+    if( zAs && g.argc!=4 ) usage("add DISKFILE --as UVFILE");
     db_begin_transaction();
     content_rcvid_init("#!fossil unversioned add");
     for(i=3; i<g.argc; i++){

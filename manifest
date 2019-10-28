@@ -1,5 +1,5 @@
-C Make\sa\shyperlink\sto\sthe\sArtifact\sReceipt\slog\sfrom\sthe\s"Received\sFrom"\sfield\nof\sthe\s/info\spage\s(visible\sto\sadministrators\sonly).
-D 2019-10-23T00:46:53.118
+C Merged\sin\sdouble-dash-flag2\sbranch,\swhich\sadds\sconventional\s--\shandling\sto\sthe\svast\smajority\sof\scommands\s(the\sexception\sbeing\sthose\sfew\swhich\sdon't\scall\sverify_all_arguments()).
+D 2019-10-28T19:16:53.312
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -519,7 +519,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c a35b33b329ab2038f9c5f4cefd8bd339c6fa1a95d530a88df59481fadee76f7f
+F src/main.c 33931c8befa2a15169cad2c0be10ff5120699faf20f1d7f4f82fdeb92cb82702
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -592,7 +592,7 @@ F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde6555652
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
 F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
-F src/unversioned.c 3a7cb905cf2780768438dd8dd3be54fc4f8ec53579fbc67fe44ad0d835258c39
+F src/unversioned.c c5a2db07e194905ef5e5a0f4de110afbbab6a52ab4cf690dd33530cc6b2b89ed
 F src/update.c a5b48c28d98a1715e7e046f82eff21acd8f259fc78a071e6acdde8b61d68a93f
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
@@ -930,7 +930,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5453dbff5bd03a49d95d6f5527f678c59fbb3e5e167386fa53d6683c103204c3
-R 35de50714d73d7e284925d11023a5dc3
-U drh
-Z cd5f1168d589c1f36474e994d5b6505a
+P a92d5a514d7ffd5e3b2b8f04d486cf543c414b8456b4e82bc3f12394e7a018e1 22150abaf2b6e55d761c3838cc07d7d667fa4d78a0bda07563917daf2fbb2cfa
+R 4b1684e137ed88935cc5e1edde972bc2
+T +closed 22150abaf2b6e55d761c3838cc07d7d667fa4d78a0bda07563917daf2fbb2cfa
+U stephan
+Z 930e7dd0ba71cf1c585f55f8bc95ddc6
