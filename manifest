@@ -1,5 +1,5 @@
-C Told\s.editorconfig\sto\suse\stabs\sfor\sMakefiles,\sotherwise\sit\smangles\sthem\swith\sthe\sdefault\sindention\sstyle\s(spaces).
-D 2019-11-09T04:27:43.056
+C Omit\ssome\sasm\scode\sfrom\sthe\sSHA1\simplementation\sas\sit\sprovides\sno\sperformance\nimprovement\swith\smodern\scompilers,\sand\sSHA1\sis\sseldom\sused\snow\sanyhow.
+D 2019-11-11T15:22:09.854
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -559,7 +559,7 @@ F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
 F src/security_audit.c 74f8651e0e78e986575a43576c22d8d49a0f83408f18542db4bab12f42ec9d19
 F src/setup.c 5e859be3e3eb5b82475bbc300a3ff70f6d977e61cf11219b200b2ad5e3a8a22e
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
-F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
+F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c e6c82b70be832638510b057fdf4896ab9610d1f2b38b7dfb857ad94b27efd88c
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5cca46469f24d7c862f04cff94c9ede557d26cf5e9396ded0d6eca462e4b0676
-R 64195e0f0425ad07929172f0c9d01172
-U stephan
-Z e2d45ed2ad5f81dc0dc232dad447e3f2
+P b86c8b476b4af7ed7b5fc311d1e3d1c14a93d897d9afa8c39d744b76461fabdf
+R bfd2d0a875ad521c2ddd80d41477b833
+U drh
+Z a647a5e4d2cbb9a868b4ee15299f400a
