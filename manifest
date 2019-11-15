@@ -1,5 +1,5 @@
-C Omit\ssome\sasm\scode\sfrom\sthe\sSHA1\simplementation\sas\sit\sprovides\sno\sperformance\nimprovement\swith\smodern\scompilers,\sand\sSHA1\sis\sseldom\sused\snow\sanyhow.
-D 2019-11-11T15:22:09.854
+C Removed\sthe\smedia="screen"\spart\sof\sthe\sstylesheet\slink\soutput\sbecause\sit\sprovides\sno\sbenefit\sto\son-screen\sreading\sand\scauses\sthe\sstyle\sto\sbe\scompletely\slost\swhen\sprinting.\sSee\shttps://fossil-scm.org/forum/forumpost/63a45d759e.
+D 2019-11-15T02:50:30.863
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -576,7 +576,7 @@ F src/sqlite3.h 10c9e8fecfb99a46c3c3d198ef07b88a5f8dd1c8daf798c95a3afb303f2f7198
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
-F src/style.c e654ff9b9b80ca5ce23ad5e5b5b7aa060539a0532111f1b49746d8a0da34d656
+F src/style.c 47aff3cdc9265ecc740fda83eb4f44b9859dc31043265430f64a8533b5cd6068
 F src/sync.c c450606f9ae4cb95761e64c70f338ced701b7ec8fb37a36f051649591da6e005
 F src/tag.c f1a049a1162e7b91748c65d2feb72cc1c415d11aa0882fd4bb7fa4756d5d3e4b
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b86c8b476b4af7ed7b5fc311d1e3d1c14a93d897d9afa8c39d744b76461fabdf
-R bfd2d0a875ad521c2ddd80d41477b833
-U drh
-Z a647a5e4d2cbb9a868b4ee15299f400a
+P 20187be72370eda24b32cfe1bd3c7216bc1ada7158cc33491a8ebe1bd5f55b2c
+R d8abac021d141e9c35c19ea57776f124
+U stephan
+Z 9244e3b5342cb5144b73824d07ad6260

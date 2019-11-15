@@ -490,8 +490,7 @@ static char zDfltHeader[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" \
 @  href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$stylesheet_url" type="text/css" \
-@  media="screen" />
+@ <link rel="stylesheet" href="$stylesheet_url" type="text/css" />
 @ </head>
 @ <body>
 ;
