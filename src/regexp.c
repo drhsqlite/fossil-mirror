@@ -739,10 +739,10 @@ static int grep_buffer(
     if( re_match(pRe, (const unsigned char*)(z+i), j-i) ){
       cnt++;
       if( flags & GREP_EXISTS ){
-        fossil_print("%s\n", zName);
+        fossil_print("%S\n", zName);
         break;
       }
-      fossil_print("%s:%d:%.*s\n", zName, ln, n, z+i);
+      fossil_print("%S:%d:%.*s\n", zName, ln, n, z+i);
     }
   }
   return cnt;
@@ -827,7 +827,7 @@ void re_grep_cmd(void){
       Stmt q;
       add_content_sql_commands(g.db);
       db_prepare(&q,
-        "SELECT content(ux), substr(ux,1,10) FROM ("
+        "SELECT content(ux), ux FROM ("
         "  SELECT blob.uuid AS ux, min(event.mtime) AS mx"
         "    FROM mlink, blob, event"
         "   WHERE mlink.mid=event.objid"
@@ -838,7 +838,7 @@ void re_grep_cmd(void){
         fnid
       );
       while( db_step(&q)==SQLITE_ROW ){
-        if( bVerbose ) fossil_print("%s:\n", db_column_text(&q,1));
+        if( bVerbose ) fossil_print("%S:\n", db_column_text(&q,1));
         grep_buffer(pRe, db_column_text(&q,1), db_column_text(&q,0), flags);
       }
       db_finalize(&q);

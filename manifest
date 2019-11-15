@@ -1,5 +1,5 @@
-C Omit\ssome\sasm\scode\sfrom\sthe\sSHA1\simplementation\sas\sit\sprovides\sno\sperformance\nimprovement\swith\smodern\scompilers,\sand\sSHA1\sis\sseldom\sused\snow\sanyhow.
-D 2019-11-11T15:22:09.854
+C Modified\sgrep\scommand\sto\srespect\sthe\shash-digits\sconfig\soption.
+D 2019-11-15T02:31:35.032
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/printf.c fbbd5d2c7481dcd7bc98c95930498fb0cd6b25b492f0110cbfe595dc1df3952a
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
-F src/regexp.c 04d511ced556f1e90f38b4c412db79d2b174179f00c49ef702255c0733885c5d
+F src/regexp.c c1ed1a34b6fa54e767d95a7e808e46824d0f7532222835f42d66519676efcb9c
 F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9e
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -930,7 +930,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b86c8b476b4af7ed7b5fc311d1e3d1c14a93d897d9afa8c39d744b76461fabdf
-R bfd2d0a875ad521c2ddd80d41477b833
-U drh
-Z a647a5e4d2cbb9a868b4ee15299f400a
+P 20187be72370eda24b32cfe1bd3c7216bc1ada7158cc33491a8ebe1bd5f55b2c
+R 2698a42ca7890ba4e5d17adf85bf0bf4
+T *branch * grep-hash-digits
+T *sym-grep-hash-digits *
+T -sym-trunk *
+U stephan
+Z ff507a5f1fe7e9e0bdc612c2fa958419
