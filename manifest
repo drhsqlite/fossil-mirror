@@ -1,5 +1,5 @@
-C Removed\sthe\smedia="screen"\spart\sof\sthe\sstylesheet\slink\soutput\sbecause\sit\sprovides\sno\sbenefit\sto\son-screen\sreading\sand\scauses\sthe\sstyle\sto\sbe\scompletely\slost\swhen\sprinting.\sSee\shttps://fossil-scm.org/forum/forumpost/63a45d759e.
-D 2019-11-15T02:50:30.863
+C When\sediting\sa\stechnote\svia\sHTTP\sGET\srequest\s(e.g.,\san\sEdit\slink,\sas\sopposed\sto\sPOST\sform\ssubmission),\sretain\sthe\sprevious\sversion's\scustom\scolor\sby\sdefault.
+D 2019-11-18T07:29:25.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -473,7 +473,7 @@ F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e
 F src/doc.c 85fedf504b8c401c170a09357304531c143e4ca27214480cf9a09cd713b31501
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
-F src/event.c 44bf50af2fac394234d38b7e3d50dbe4f3e104cd6cf15fb823588570a4bf5e8d
+F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 6cc3f255338df35df2cc5c4d8ba4d0f274fcfd4f50efe994119a365f5be752f6
 F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c 38f22c1609bd18715e821a57aba3c99e7b2687a93be467cbcf23ce9ffe0f9b30
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 20187be72370eda24b32cfe1bd3c7216bc1ada7158cc33491a8ebe1bd5f55b2c
-R d8abac021d141e9c35c19ea57776f124
+P f27d4b5054a0d85b08ef0408150fdd873973e05d3100eec02f13f4dc044764c0
+R 932ff40a0fa469c90d5f698ab7804d58
 U stephan
-Z 9244e3b5342cb5144b73824d07ad6260
+Z 6953fbcb6edb531786d4550c8e2a5bd8
