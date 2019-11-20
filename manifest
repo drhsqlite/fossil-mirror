@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sMarkdown\sin\sthe\sdefault\sticket\sconfiguration,\sand\smake\nMarkdown\sthe\sdefault\schoice\sfor\smarkup.
-D 2019-11-20T15:25:45.599
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.31.0\salpha\sversion\sas\sa\sbeta-test\nfor\sSQLite.
+D 2019-11-20T15:29:02.101
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -562,7 +562,7 @@ F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c e6c82b70be832638510b057fdf4896ab9610d1f2b38b7dfb857ad94b27efd88c
+F src/shell.c 9f095a20fa21f91a7c92b8b6113a80c24159e153d38d45c2d12dee40e5c5f315
 F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -571,8 +571,8 @@ F src/smtp.c cbbc6cc20fde1f000f46870ddeea7b9df54fe1c9784402755782096a8f010af9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c f04393dd47205a4ee2b98ff737dc51a3fdbcc14c055b88d58f5b27d0672158f5
-F src/sqlite3.h 10c9e8fecfb99a46c3c3d198ef07b88a5f8dd1c8daf798c95a3afb303f2f7198
+F src/sqlite3.c 907eda62365f3737d49d2d6db592506244a1aa7c9e219ba5abd8f135902265f3
+F src/sqlite3.h 7345047cf21a7f5f481078e780a20c638e68ca1fdd55e60f5a7f62f911885da0
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4de1ed780c60524d550a834949efa036b5b4c045ced19a03f876023b785b53f1
-R 6110bbfb011355946fd88170b9db1a95
+P 16fb915279a56a54e1766373d36e2b35f459700d7f57ebb35fa59261688dbdb8
+R d55560791596d1f9f5f6975da02d870d
 U drh
-Z f9002db5ba47e386890a8395a1b9ffbd
+Z aa3a5f09680a7ab1229ebb0aeee38610
