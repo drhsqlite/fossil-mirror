@@ -2404,6 +2404,8 @@ void page_timeline(void){
      && wiki_render_associated("branch", zBrName, WIKIASSOC_ALL)
     ){
       @ <div class="section">%b(&desc)</div>
+    } else{
+      @ <h2>%b(&desc)</h2>
     }
     style_submenu_element("Diff", "%R/vdiff?branch=%T", zBrName);
   }else
