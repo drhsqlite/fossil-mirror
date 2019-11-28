@@ -999,6 +999,9 @@ void cgi_init(void){
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+#ifdef _WIN32
+  const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
+#endif
 
 #ifdef FOSSIL_ENABLE_JSON
   int noJson = P("no_json")!=0;
@@ -1007,6 +1010,20 @@ void cgi_init(void){
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
   if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
+#ifdef _WIN32
+  /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
+  ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
+  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the 
+  ** beginning. */
+  if( zServerSoftware && strstr(zServerSoftware, "Microsoft-IIS") ){
+    int i, j;
+    cgi_set_parameter("REQUEST_URI", zPathInfo);
+    for(i=0; zPathInfo[i]==zScriptName[i] && zPathInfo[i]; i++){}
+    for(j=i; zPathInfo[j] && zPathInfo[j]!='?'; j++){}
+    zPathInfo = mprintf("%.*s", j-i, zPathInfo+i);
+    cgi_replace_parameter("PATH_INFO", zPathInfo);
+  }
+#endif
   if( zRequestUri==0 ){
     const char *z = zPathInfo;
     if( zPathInfo==0 ){
@@ -1171,11 +1188,12 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
   /* If no match is found and the name begins with an upper-case
   ** letter, then check to see if there is an environment variable
-  ** with the given name.
+  ** with the given name. Handle environment variables with empty values
+  ** the same as non-existent environment variables.
   */
   if( zName && fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
-    if( zValue ){
+    if( zValue && zValue[0] ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
       return zValue;
