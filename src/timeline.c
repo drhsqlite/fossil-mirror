@@ -1684,8 +1684,11 @@ void page_timeline(void){
     );
   }
 
-  /* r=TAG works like a combination of t=TAG & rel */
+  /* Convert r=TAG to t=TAG&rel in order to populate the UI style widgets. */
   if( zBrName && !related ){
+    cgi_delete_query_parameter("r");
+    cgi_set_query_parameter("t", zBrName);
+    cgi_set_query_parameter("rel", "1");
     zTagName = zBrName;
     related = 1;
     zType = "ci";
@@ -2401,6 +2404,8 @@ void page_timeline(void){
      && wiki_render_associated("branch", zBrName, WIKIASSOC_ALL)
     ){
       @ <div class="section">%b(&desc)</div>
+    } else{
+      @ <h2>%b(&desc)</h2>
     }
     style_submenu_element("Diff", "%R/vdiff?branch=%T", zBrName);
   }else
