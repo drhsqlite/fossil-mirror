@@ -231,3 +231,84 @@ To uninstall, just delete the binary.</p>
   TCC += -DSQLITE_MAX_MMAP_SIZE=0
 </pre></blockquote>
 </ul>
+
+<h2>5.0 Building a Static Binary on Linux using Docker</h2>
+
+Building a static binary on Linux is not as straightforward as it
+could be because the GNU C library requires that certain components be
+dynamically loadable. That can be worked around by building against a
+different C library, which is simplest to do by way of a container
+environment like [https://www.docker.com/ | Docker].
+
+The following instructions for building fossil using Docker
+were adapted from [https://fossil-scm.org/forum/forumpost/5dd2d61e5f | forumpost/5dd2d61e5f].
+These instructions assume that docker is installed and that the user running
+these instructions has permission to do so (i.e., they are <tt>root</tt> or
+are a member of the <tt>docker</tt> group).
+
+First, create a file named <tt>Dockerfile</tt> with the following contents:
+
+<pre><code>
+FROM    alpine:edge
+RUN     apk update                                                                                      \
+        && apk upgrade                                                                                  \
+                                                                                                        \
+        && apk add --no-cache                                                                           \
+        curl gcc make tcl                                                                               \
+        musl-dev                                                                                        \
+        openssl-dev zlib-dev                                                                            \
+        openssl-libs-static zlib-static                                                                 \
+                                                                                                        \
+        && curl                                                                                         \
+        "https://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=trunk"    \
+        -o fossil-src.tar.gz                                                                            \
+                                                                                                        \
+        && tar xf fossil-src.tar.gz                                                                     \
+        && cd fossil-src                                                                                \
+                                                                                                        \
+        && ./configure                                                                                  \
+        --static                                                                                        \
+        --disable-fusefs                                                                                \
+        --with-th1-docs                                                                                 \
+        --with-th1-hooks                                                                                \
+                                                                                                        \
+        && make
+</code></pre>
+
+Be sure to modify the <tt>configure</tt> flags, if desired. e.g., add <tt>--json</tt>
+for JSON support.
+
+From the directory containing that file, build it with docker:
+
+<pre><code># docker build -t fossil_static .</code></pre>
+
+If you get permissions errors when running that as a non-root user,
+be sure to add the user to the <tt>docker</tt> group before trying
+again.
+
+That creates a docker image and builds a static fossil binary inside
+it. That step will take several minutes or more, depending on the
+speed of the build environment.
+
+Next, create a docker container to host the image we just created:
+
+<pre><code># docker create --name fossil fossil_static</code></pre>
+
+Then copy the fossil binary from that container:
+
+<pre><code># docker cp fossil:/fossil-src/fossil fossil</code></pre>
+
+The resulting binary will be <em>huge</em> because it is built with
+debug info. To strip that information, reducing the size greatly:
+
+<pre><code># strip fossil</code></pre>
+
+To delete the Docker container and image (if desired), run:
+
+<pre><code># docker container rm fossil
+# docker image ls
+</code></pre>
+
+Note the IDs of the images named <tt>fossil_static</tt> and <tt>alpine</tt>, then:
+
+<pre><code>docker image rm THE_FOSSIL_ID THE_ALPINE_ID</code></pre>

@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.31.0\salpha\sversion\sas\sa\sbeta-test\nfor\sSQLite.
-D 2019-11-20T15:29:02.101
+C build.wiki:\sadded\sa\ssection\son\sbuilding\sa\sstatic\sbinary\susing\sDocker,\sadapted\sfrom\shttps://fossil-scm.org/forum/forumpost/5dd2d61e5f.
+D 2019-11-28T07:54:19.397
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -786,7 +786,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki bcf17529f482d64242778d4b7c0730f499c3c27426e49b1d326a879b70817c78
+F www/build.wiki 2dd96c8f28107fe0acf6451ea4c266585dc3de3f6273fd6c5580afc7c3444f87
 F www/caps/admin-v-setup.md c3b9ac2648ac6665bcec46a29a3361bedd0ad08b168f388a1a7bc686cebe9aaf
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
 F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 16fb915279a56a54e1766373d36e2b35f459700d7f57ebb35fa59261688dbdb8
-R d55560791596d1f9f5f6975da02d870d
-U drh
-Z aa3a5f09680a7ab1229ebb0aeee38610
+P a9027e7d10e2fd2178d1e9d2872080aba427b58f15ccfeb20b71c50587d820af
+R ddf1f56986e5e370e8c4094e33c0d962
+U stephan
+Z 2cf27603ee9cd1b4e2c600c896280d82
