@@ -721,6 +721,7 @@ static void grep_file(ReCompiled *pRe, const char *zFile, FILE *in){
 ** Flags for grep_buffer()
 */
 #define GREP_EXISTS    0x001    /* If any match, print only the name and stop */
+#define GREP_QUIET     0x002    /* Return code only */
 
 /*
 ** Run a "grep" over a text file
@@ -739,10 +740,12 @@ static int grep_buffer(
     if( re_match(pRe, (const unsigned char*)(z+i), j-i) ){
       cnt++;
       if( flags & GREP_EXISTS ){
-        fossil_print("%S\n", zName);
+        if( (flags & GREP_QUIET)==0 ) fossil_print("%S\n", zName);
         break;
       }
-      fossil_print("%S:%d:%.*s\n", zName, ln, n, z+i);
+      if( (flags & GREP_QUIET)==0 ){
+        fossil_print("%S:%d:%.*s\n", zName, ln, n, z+i);
+      }
     }
   }
   return cnt;
@@ -789,7 +792,7 @@ void re_test_grep(void){
 /*
 ** COMMAND: grep
 **
-** Usage: %fossil grep [OPTIONS] PATTERN FILENAME
+** Usage: %fossil grep [OPTIONS] PATTERN FILENAME ...
 **
 ** Attempt to match the given POSIX extended regular expression PATTERN
 ** over all historic versions of FILENAME.  For details of the supported
@@ -797,9 +800,18 @@ void re_test_grep(void){
 **
 ** Options:
 **
-**     -i|--ignore-case         Ignore case
-**     -l|--files-with-matches  List only checkin ID for versions that match
-**     -v|--verbose             Show each file as it is analyzed
+**     -c|--count                 Suppress normal output; instead print a count
+**                                of the number of matching files
+**     -H|--checkin-hash          Show the check-in hash rather than
+**                                file artifact hash for each match
+**     -i|--ignore-case           Ignore case
+**     -l|--files-with-matches    List only hash for each match
+**     --once                     Stop searching after the first match
+**     -s|--no-messages           Suppress error messages about nonexistant
+**                                or unreadable files
+**     -v|--invert-match          Invert the sense of matching.  Show only
+**                                files that have no matches. Implies -l
+**     --verbose                  Show each file as it is analyzed
 */
 void re_grep_cmd(void){
   u32 flags = 0;
@@ -808,40 +820,97 @@ void re_grep_cmd(void){
   const char *zErr;
   int ignoreCase = 0;
   Blob fullName;
+  int ckinHash = 0;
+  int ii;
+  int nMatch = 0;
+  int bNoMsg;
+  int cntFlag;
+  int bOnce;
+  int bInvert;
+  int nSearch = 0;
 
   if( find_option("ignore-case","i",0)!=0 ) ignoreCase = 1;
   if( find_option("files-with-matches","l",0)!=0 ) flags |= GREP_EXISTS;
-  if( find_option("verbose","v",0)!=0 ) bVerbose = 1;
+  if( find_option("verbose",0,0)!=0 ) bVerbose = 1;
+  ckinHash = find_option("checkin-hash","H",0)!=0;
+  if( find_option("quiet","q",0) ) flags |= GREP_QUIET|GREP_EXISTS;
+  bNoMsg = find_option("no-messages","s",0)!=0;
+  bOnce = find_option("once",0,0)!=0;
+  bInvert = find_option("invert-match","v",0)!=0;
+  if( bInvert ){
+    flags |= GREP_QUIET|GREP_EXISTS;
+  }
+  cntFlag = find_option("count","c",0)!=0;
+  if( cntFlag ){
+    flags |= GREP_QUIET|GREP_EXISTS;
+  }
   db_find_and_open_repository(0, 0);
   verify_all_options();
   if( g.argc<4 ){
-    usage("REGEXP FILENAME");
+    usage("REGEXP FILENAME ...");
   }
   zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
 
-  if( file_tree_name(g.argv[3], &fullName, 0, 0) ){
-    int fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q",
-                      blob_str(&fullName));
-    if( fnid ){
-      Stmt q;
-      add_content_sql_commands(g.db);
-      db_prepare(&q,
-        "SELECT content(ux), ux FROM ("
-        "  SELECT blob.uuid AS ux, min(event.mtime) AS mx"
-        "    FROM mlink, blob, event"
-        "   WHERE mlink.mid=event.objid"
-        "     AND mlink.fid=blob.rid"
-        "     AND mlink.fnid=%d"
-        "   GROUP BY blob.uuid"
-        ") ORDER BY mx DESC;",
-        fnid
-      );
-      while( db_step(&q)==SQLITE_ROW ){
-        if( bVerbose ) fossil_print("%S:\n", db_column_text(&q,1));
-        grep_buffer(pRe, db_column_text(&q,1), db_column_text(&q,0), flags);
+  add_content_sql_commands(g.db);
+  for(ii=3; ii<g.argc; ii++){
+    const char *zTarget = g.argv[ii];
+    if( nMatch ){
+      if( (flags & GREP_QUIET)!=0 ) break;
+      if( bOnce ) break;
+    }
+    if( file_tree_name(zTarget, &fullName, 0, 1) ){
+      int fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q",
+                        blob_str(&fullName));
+      if( !fnid ){
+        if( bNoMsg ) continue;
+        if( file_size(zTarget, ExtFILE)<0 ){
+          fossil_fatal("no such file: %s", zTarget);
+        }
+        fossil_fatal("not a managed file: %s", zTarget);
+      }else{
+        Stmt q;
+        db_prepare(&q,
+          "SELECT content(ux), %w FROM ("
+          "  SELECT A.uuid AS ux, B.uuid AS ckin, min(event.mtime) AS mx"
+          "    FROM mlink, blob A, blob B, event"
+          "   WHERE mlink.mid=event.objid"
+          "     AND mlink.fid=A.rid"
+          "     AND mlink.mid=B.rid"
+          "     AND mlink.fnid=%d"
+          "   GROUP BY A.uuid"
+          ") ORDER BY mx DESC;",
+          ckinHash ? "ckin" : "ux",
+          fnid
+        );
+        while( db_step(&q)==SQLITE_ROW ){
+          const char *zHash = db_column_text(&q,1);
+          const char *zContent = db_column_text(&q,0);
+          if( bVerbose ) fossil_print("%S:\n", zHash);
+          nSearch++;
+          nMatch += grep_buffer(pRe, zHash, zContent, flags);
+          if( bInvert && cntFlag==0 ){
+            if( nMatch==0 ){
+              fossil_print("%S\n", zHash);
+              if( bOnce ) nMatch = 1;
+            }else{
+              nMatch = 0;
+            }
+          }
+          if( nMatch ){
+            if( (flags & GREP_QUIET)!=0 ) break;
+            if( bOnce ) break;
+          }
+        }
+        db_finalize(&q);
       }
-      db_finalize(&q);
+    }
+  }
+  if( cntFlag ){
+    if( bInvert ){
+      fossil_print("%d\n", nSearch-nMatch);
+    }else{
+      fossil_print("%d\n", nMatch);
     }
   }
 }
