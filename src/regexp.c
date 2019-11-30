@@ -740,11 +740,14 @@ static int grep_buffer(
     if( re_match(pRe, (const unsigned char*)(z+i), j-i) ){
       cnt++;
       if( flags & GREP_EXISTS ){
-        if( (flags & GREP_QUIET)==0 ) fossil_print("%S\n", zName);
+        if( (flags & GREP_QUIET)==0 && zName ) fossil_print("%s\n", zName);
         break;
       }
       if( (flags & GREP_QUIET)==0 ){
-        fossil_print("%S:%d:%.*s\n", zName, ln, n, z+i);
+        if( cnt==1 && zName ){
+          fossil_print("== %s\n", zName);
+        }
+        fossil_print("%d:%.*s\n", ln, n, z+i);
       }
     }
   }
@@ -795,15 +798,18 @@ void re_test_grep(void){
 ** Usage: %fossil grep [OPTIONS] PATTERN FILENAME ...
 **
 ** Attempt to match the given POSIX extended regular expression PATTERN
-** over all historic versions of FILENAME.  For details of the supported
-** RE dialect, see https://fossil-scm.org/fossil/doc/trunk/www/grep.md
+** historic versions of FILENAME.  The search begins with the most recent
+** version of the file and moves backwards in time.  Multiple FILENAMEs can
+** be specified, in which case all named files are searched in reverse
+** chronological order.
+**
+** For details of the supported regular expression dialect, see
+** https://fossil-scm.org/fossil/doc/trunk/www/grep.md
 **
 ** Options:
 **
 **     -c|--count                 Suppress normal output; instead print a count
 **                                of the number of matching files
-**     -H|--checkin-hash          Show the check-in hash rather than
-**                                file artifact hash for each match
 **     -i|--ignore-case           Ignore case
 **     -l|--files-with-matches    List only hash for each match
 **     --once                     Stop searching after the first match
@@ -820,7 +826,6 @@ void re_grep_cmd(void){
   const char *zErr;
   int ignoreCase = 0;
   Blob fullName;
-  int ckinHash = 0;
   int ii;
   int nMatch = 0;
   int bNoMsg;
@@ -828,11 +833,12 @@ void re_grep_cmd(void){
   int bOnce;
   int bInvert;
   int nSearch = 0;
+  Stmt q;
+
 
   if( find_option("ignore-case","i",0)!=0 ) ignoreCase = 1;
   if( find_option("files-with-matches","l",0)!=0 ) flags |= GREP_EXISTS;
   if( find_option("verbose",0,0)!=0 ) bVerbose = 1;
-  ckinHash = find_option("checkin-hash","H",0)!=0;
   if( find_option("quiet","q",0) ) flags |= GREP_QUIET|GREP_EXISTS;
   bNoMsg = find_option("no-messages","s",0)!=0;
   bOnce = find_option("once",0,0)!=0;
@@ -853,12 +859,9 @@ void re_grep_cmd(void){
   if( zErr ) fossil_fatal("%s", zErr);
 
   add_content_sql_commands(g.db);
+  db_multi_exec("CREATE TEMP TABLE arglist(iname,fname,fnid);");
   for(ii=3; ii<g.argc; ii++){
     const char *zTarget = g.argv[ii];
-    if( nMatch ){
-      if( (flags & GREP_QUIET)!=0 ) break;
-      if( bOnce ) break;
-    }
     if( file_tree_name(zTarget, &fullName, 0, 1) ){
       int fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q",
                         blob_str(&fullName));
@@ -869,43 +872,58 @@ void re_grep_cmd(void){
         }
         fossil_fatal("not a managed file: %s", zTarget);
       }else{
-        Stmt q;
-        db_prepare(&q,
-          "SELECT content(ux), %w FROM ("
-          "  SELECT A.uuid AS ux, B.uuid AS ckin, min(event.mtime) AS mx"
-          "    FROM mlink, blob A, blob B, event"
-          "   WHERE mlink.mid=event.objid"
-          "     AND mlink.fid=A.rid"
-          "     AND mlink.mid=B.rid"
-          "     AND mlink.fnid=%d"
-          "   GROUP BY A.uuid"
-          ") ORDER BY mx DESC;",
-          ckinHash ? "ckin" : "ux",
-          fnid
-        );
-        while( db_step(&q)==SQLITE_ROW ){
-          const char *zHash = db_column_text(&q,1);
-          const char *zContent = db_column_text(&q,0);
-          if( bVerbose ) fossil_print("%S:\n", zHash);
-          nSearch++;
-          nMatch += grep_buffer(pRe, zHash, zContent, flags);
-          if( bInvert && cntFlag==0 ){
-            if( nMatch==0 ){
-              fossil_print("%S\n", zHash);
-              if( bOnce ) nMatch = 1;
-            }else{
-              nMatch = 0;
-            }
-          }
-          if( nMatch ){
-            if( (flags & GREP_QUIET)!=0 ) break;
-            if( bOnce ) break;
-          }
-        }
-        db_finalize(&q);
+        db_multi_exec(
+          "INSERT INTO arglist(iname,fname,fnid) VALUES(%Q,%Q,%d)",
+          zTarget, blob_str(&fullName), fnid);
       }
     }
+    blob_reset(&fullName);
   }
+  db_prepare(&q,
+    " SELECT"
+    "   A.uuid,"       /* file hash */
+    "   A.rid,"        /* file rid */
+    "   B.uuid,"       /* check-in hash */
+    "   datetime(min(event.mtime)),"  /* check-in time */
+    "   arglist.iname"                /* file name */
+    " FROM arglist, mlink, blob A, blob B, event"
+    " WHERE mlink.mid=event.objid"
+    "   AND mlink.fid=A.rid"
+    "   AND mlink.mid=B.rid"
+    "   AND mlink.fnid=arglist.fnid"
+    " GROUP BY A.uuid"
+    " ORDER BY min(event.mtime) DESC;"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFileHash = db_column_text(&q,0);
+    int rid = db_column_int(&q,1);
+    const char *zCkinHash = db_column_text(&q,2);
+    const char *zDate = db_column_text(&q,3);
+    const char *zFN = db_column_text(&q,4);
+    char *zLabel;
+    Blob cx;
+    content_get(rid, &cx);
+    zLabel = mprintf("%.16s %s %S checkin %S", zDate, zFN,zFileHash,zCkinHash);
+    if( bVerbose ) fossil_print("Scanning: %s\n", zLabel);
+    nSearch++;
+    nMatch += grep_buffer(pRe, zLabel, blob_str(&cx), flags);
+    blob_reset(&cx);
+    if( bInvert && cntFlag==0 ){
+      if( nMatch==0 ){
+        fossil_print("== %s\n", zLabel);
+        if( bOnce ) nMatch = 1;
+      }else{
+        nMatch = 0;
+      }
+    }
+    fossil_free(zLabel);
+    if( nMatch ){
+      if( (flags & GREP_QUIET)!=0 ) break;
+      if( bOnce ) break;
+    }
+  }
+  db_finalize(&q);
+  re_free(pRe);
   if( cntFlag ){
     if( bInvert ){
       fossil_print("%d\n", nSearch-nMatch);
