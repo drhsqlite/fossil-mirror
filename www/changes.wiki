@@ -1,5 +1,11 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_11'></a>
+<h2>Changes for Version 2.11 (pending)</h2>
+
+  *  Support Markdown in the default ticket configuration
+  *  Rework the "fossil grep" command to be more useful
+
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>
 

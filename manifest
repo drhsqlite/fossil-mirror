@@ -1,5 +1,5 @@
-C Changes\sto\ssupport\sCGI\son\sIIS\sweb\sservers.
-D 2019-11-28T10:31:46.344
+C Rework\sthe\s"fossil\sgrep"\scommand\sso\sthat\sit\sshows\sboth\sthe\sfile\sand\scheck-in\nhash\sfor\smatching\sfiles,\sand\sso\sthat\sit\scan\sscan\smultiple\sfiles\sall\sat\sonce.
+D 2019-11-30T13:53:45.098
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/printf.c fbbd5d2c7481dcd7bc98c95930498fb0cd6b25b492f0110cbfe595dc1df3952a
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
-F src/regexp.c c1ed1a34b6fa54e767d95a7e808e46824d0f7532222835f42d66519676efcb9c
+F src/regexp.c 2b7a91970e0282b1adcd6bd08bd6ea86c6b120bab0b69b1d93cb4cc332838543
 F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9e
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -793,7 +793,7 @@ F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b57
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki 8b9f787cb0e162e9672f5b3ce0d32f60dabae0003f7bd7dc6ffa6ae2b05ceec2
-F www/changes.wiki 84b2f6e6c1f90092692e6c7af286989a39788ddd23b6dc99d7bf07341e6d9623
+F www/changes.wiki b48c0e6a0a5133cf78c2917760275c890825773cb19bc5ab264e00ff11c27f30
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 911ba32f0c06b7f01cc0dd3bd92fe06450680ea09dda8ac8f69834853bb0d4e9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -930,8 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6dfb5580251648383af20f3eab81465232e8e44ed1352568285954e0ad27ec6 54fdd1a5d714fc0ec90ece08757d42d597ba6562907f4771720b1566cddb0436
-R 388e84153b973158f89f74565320f6c5
-T +closed 54fdd1a5d714fc0ec90ece08757d42d597ba6562907f4771720b1566cddb0436
+P c06e0b2d0a201aec744b708f1421ce0f4465cf490af4ee6c698609d3d0f1642a 9c2080a360fc4a4e7496eadf0d49722bf7861bf515157bf632bab46c41ec58cb
+R 77af4afb8d375d22c0f2ca4ce14bcf7c
 U drh
-Z bb578f2b121855e79cf9e1ce5e054ce1
+Z 77de41bb3248fadadd81173c28ed50d2
