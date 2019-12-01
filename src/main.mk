@@ -228,6 +228,7 @@ EXTRA_FILES = \
   $(SRCDIR)/sorttable.js \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
+  $(SRCDIR)/whistory.js \
   $(SRCDIR)/wiki.wiki
 
 TRANS_SRC = \

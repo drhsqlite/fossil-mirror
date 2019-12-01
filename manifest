@@ -1,5 +1,5 @@
-C Rework\sthe\s"fossil\sgrep"\scommand\sso\sthat\sit\sshows\sboth\sthe\sfile\sand\scheck-in\nhash\sfor\smatching\sfiles,\sand\sso\sthat\sit\scan\sscan\smultiple\sfiles\sall\sat\sonce.
-D 2019-11-30T13:53:45.098
+C Special\sUI\scontrols\sadded\sonto\sthe\s/whistory\swebpage\sfor\seasy\scomparison\sof\sarbitrary\sversions\sof\sa\swiki\spage.
+D 2019-12-01T20:18:14.897
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -520,7 +520,7 @@ F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 472f2a7328de411b5c67b3f0f24403a04c80363358de2e06c5f75e90480d5fd7
-F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
+F src/main.mk b20445cdcdf091156df81fcaa5b4b66d7c06e111515cee76d40976cba9264a70
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e6366ee7862a999785e33957c4caea204602603c0f5e5665b181c7e492b0e1d0 x
@@ -602,7 +602,8 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 6db2ab665e85fb28bcf6f27472bb453bcfc29fe1839a6b8e8396e10cd7b6025b
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c dc56c679f9389b64211dd2d1fceccbd10ce64c65048266aadb1ac34d4d90ace5
+F src/whistory.js bbf697f49cf59b145daa84c66e4af2e63c4577cef01c8fb7a999b7c3adfc773a
+F src/wiki.c a06c24fb5eee847950d1f67f885b0f3866b7898a3f82a884cb536b9623c9b857
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c 18438a60f1193cad855fa6e483455b68a348fc69c274d5233fccb61e37dbbd86
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -930,7 +931,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c06e0b2d0a201aec744b708f1421ce0f4465cf490af4ee6c698609d3d0f1642a 9c2080a360fc4a4e7496eadf0d49722bf7861bf515157bf632bab46c41ec58cb
-R 77af4afb8d375d22c0f2ca4ce14bcf7c
-U drh
-Z 77de41bb3248fadadd81173c28ed50d2
+P f5f4471323d44a82a73a506f4ecd277f7ff8a937547d9bc2a023f07243b82d3b
+R b14d42394f7de24c801c8f514101c223
+T *branch * wiki-history
+T *sym-wiki-history *
+T -sym-trunk *
+U george
+Z d67cbf17cbc1655402ac3576657718cc

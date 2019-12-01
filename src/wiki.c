@@ -1025,7 +1025,8 @@ void whistory_page(void){
     "  event.mtime,"
     "  blob.uuid,"
     "  coalesce(event.euser,event.user),"
-    "  event.objid"
+    "  event.objid,"
+    "  datetime(event.mtime)"
     " FROM event, blob, tag, tagxref"
     " WHERE event.type='w' AND blob.rid=event.objid"
     "   AND tag.tagname='wiki-%q'"
@@ -1034,39 +1035,57 @@ void whistory_page(void){
     zPageName
   );
   @ <h2>History of <a href="%R/wiki?name=%T(zPageName)">%h(zPageName)</a></h2>
+  form_begin( "id='wh-form'", "%R/wdiff" );
+  @   <input id="wh-pid" name="pid" type="radio" hidden />
+  @   <input id="wh-id"  name="id"  type="hidden" />
+  @ </form>
+  @ <style> .wh-clickable { cursor: pointer; } </style>
   @ <div class="brlist">
   @ <table>
   @ <thead><tr>
   @ <th>Age</th>
   @ <th>Hash</th>
-  @ <th>User</th>
+  @ <th><span title="Baseline from which diffs are computed (click to unset)"
+  @      id="wh-cleaner" class="wh-clickable">&#9875;</span></th>
+  @ <th>User<span hidden class="wh-clickable"
+  @                   id="wh-collapser">&emsp;&#9842;</span></th>
   if( showRid ){
     @ <th>RID</th>
   }
   @ <th>&nbsp;</th>
   @ </tr></thead><tbody>
   rNow = db_double(0.0, "SELECT julianday('now')");
+  char zAuthor[64]; memset( zAuthor, 0, sizeof(zAuthor) );
   while( db_step(&q)==SQLITE_ROW ){
     double rMtime = db_column_double(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     int wrid = db_column_int(&q, 3);
+    const char *zWhen = db_column_text(&q, 4);
     /* sqlite3_int64 iMtime = (sqlite3_int64)(rMtime*86400.0); */
     char *zAge = human_readable_age(rNow - rMtime);
-    @ <tr>
+    if( strncmp( zAuthor, zUser, sizeof(zAuthor) - 1 ) == 0 ) {
+      @ <tr class="wh-intermediate" title="%s(zWhen)">
+    }
+    else {
+      strncpy( zAuthor, zUser, sizeof(zAuthor) - 1 );
+      @ <tr class="wh-major" title="%s(zWhen)">
+    }
     /* @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td> */
     @ <td>%s(zAge)</td>
     fossil_free(zAge);
     @ <td>%z(href("%R/info/%s",zUuid))%S(zUuid)</a></td>
-    @ <td>%h(zUser)</td>
+    @ <td><input disabled type="radio" name="baseline" value="%S(zUuid)"/></td>
+    @ <td>%h(zUser)<span class="wh-iterations" hidden /></td>
     if( showRid ){
       @ <td>%z(href("%R/artifact/%S",zUuid))%d(wrid)</a></td>
     }
-    @ <td>%z(href("%R/wdiff?id=%S",zUuid))diff</a></td>
+    @ <td>%z(chref("wh-difflink","%R/wdiff?id=%S",zUuid))diff</a></td>
     @ </tr>
   }
   @ </tbody></table></div>
   db_finalize(&q);
+  style_load_one_js_file("whistory.js");
   /* style_table_sorter(); */
   style_footer();
 }
