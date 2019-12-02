@@ -132,7 +132,7 @@ static struct {
                      ** but we must limit for historical compatibility */
   /* CFTYPE_CLUSTER    2 */ { "MZ",            "MZ"          },
   /* CFTYPE_CONTROL    3 */ { "DTUZ",          "DTUZ"        },
-  /* CFTYPE_WIKI       4 */ { "DLNPUWZ",       "DLUWZ"       },
+  /* CFTYPE_WIKI       4 */ { "CDLNPUWZ",      "DLUWZ"       },
   /* CFTYPE_TICKET     5 */ { "DJKUZ",         "DJKUZ"       },
   /* CFTYPE_ATTACHMENT 6 */ { "ACDNUZ",        "ADZ"         },
   /* CFTYPE_EVENT      7 */ { "CDENPTUWZ",     "DEWZ"        },
@@ -320,14 +320,17 @@ static void remove_pgp_signature(char **pz, int *pn){
 **   0123456789 123456789 123456789 123456789
 **   Z aea84f4f863865a8d59d0384e4d2a41c
 */
-static int verify_z_card(const char *z, int n){
+static int verify_z_card(const char *z, int n, Blob *pErr){
+  const char *zHash;
   if( n<35 ) return 0;
   if( z[n-35]!='Z' || z[n-34]!=' ' ) return 0;
   md5sum_init();
   md5sum_step_text(z, n-35);
-  if( memcmp(&z[n-33], md5sum_finish(0), 32)==0 ){
+  zHash = md5sum_finish(0);
+  if( memcmp(&z[n-33], zHash, 32)==0 ){
     return 1;
   }else{
+    blob_appendf(pErr, "incorrect Z-card cksum: expected %.32s", zHash);
     return 2;
   }
 }
@@ -468,9 +471,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   /* Then verify the Z-card.
   */
-  if( verify_z_card(z, n)==2 ){
+  if( verify_z_card(z, n, pErr)==2 ){
     blob_reset(pContent);
-    blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
 
@@ -1143,6 +1145,7 @@ void manifest_test_parse_cmd(void){
     blob_reset(&err);
     manifest_destroy(p);
   }
+  blob_reset(&b);
 }
 
 /*

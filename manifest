@@ -1,5 +1,5 @@
-C Rework\sthe\s"fossil\sgrep"\scommand\sso\sthat\sit\sshows\sboth\sthe\sfile\sand\scheck-in\nhash\sfor\smatching\sfiles,\sand\sso\sthat\sit\scan\sscan\smultiple\sfiles\sall\sat\sonce.
-D 2019-11-30T13:53:45.098
+C Add\sthe\sability\sto\shave\sa\sC-card\son\sa\swiki\spage.\s\sThe\scurrent\simplementation\ndoes\snot\suse\sor\sgenerate\swiki\spage\sartifacts\swith\sa\sC-card.
+D 2019-12-02T13:45:47.159
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -524,7 +524,7 @@ F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
 F src/makemake.tcl e6366ee7862a999785e33957c4caea204602603c0f5e5665b181c7e492b0e1d0 x
-F src/manifest.c 93eae17cb8265384cd066432f45c2475ac6d86ce30dc864823462b7215762fe6
+F src/manifest.c d105dbd2bd86aca38a3aaeda068e6c97a7ef0534c7e5977f2cc1deeaa8470830
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
 F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
@@ -833,7 +833,7 @@ F www/env-opts.md fe8477eb1c1a45e488932f32ccbe105d63858552c16cc4469413432150587c
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
-F www/fileformat.wiki 8fbc9c965cd66444b730513727342b64b9924f6e8ddfbe6bcdd5a1fdfabee2cf
+F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
 F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c06e0b2d0a201aec744b708f1421ce0f4465cf490af4ee6c698609d3d0f1642a 9c2080a360fc4a4e7496eadf0d49722bf7861bf515157bf632bab46c41ec58cb
-R 77af4afb8d375d22c0f2ca4ce14bcf7c
+P f5f4471323d44a82a73a506f4ecd277f7ff8a937547d9bc2a023f07243b82d3b
+R 3a3b70db0bfaa3db4c8d33a3ad05c2e7
 U drh
-Z 77de41bb3248fadadd81173c28ed50d2
+Z f989f6c5898b8785bb489701b99b25f7
