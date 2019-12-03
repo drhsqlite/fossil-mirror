@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\shave\sa\sC-card\son\sa\swiki\spage.\s\sThe\scurrent\simplementation\ndoes\snot\suse\sor\sgenerate\swiki\spage\sartifacts\swith\sa\sC-card.
-D 2019-12-02T13:45:47.159
+C Improved\sdocumentation\son\sthe\sundo\scommand.\s\sHave\sthe\smv\scommand\sclear\nthe\sundo\sstack.
+D 2019-12-03T13:06:08.974
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -429,7 +429,7 @@ F skins/xekri/details.txt 8c1af2cc39db2dfb43c1b9df0cdcfde0d9a25432a2dbb130b1af0f
 F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f6089b701d42
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c cc915cff2cefeb23fae2c07091799e41d0f81202c84982277ef3e711e7678551
+F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
 F src/alerts.c 0e045c861a79ccb7fb3cfa011b8a0d7d8dd8202ffe2c4a4df1193b8d672c2cd9
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
@@ -590,7 +590,7 @@ F src/tkt.c 1704060fa39c989b6dedd6cdc254ce8b95f07841d439cf485c8fce79f17d9ad0
 F src/tktsetup.c d70ee363fd78165e405c750b5d5d0f19e42a310fada36191697aa3b5d2848359
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
-F src/undo.c 2052765775f211321e1344276504ca111cc0030925c15d3dd579fc9c3a7f8826
+F src/undo.c 0a8d4dc37c169c614bdd814e0c8b2f7bb0fdb96faeacca09f0a634e25ffd1f7f
 F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
 F src/unversioned.c c5a2db07e194905ef5e5a0f4de110afbbab6a52ab4cf690dd33530cc6b2b89ed
 F src/update.c a5b48c28d98a1715e7e046f82eff21acd8f259fc78a071e6acdde8b61d68a93f
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f5f4471323d44a82a73a506f4ecd277f7ff8a937547d9bc2a023f07243b82d3b
-R 3a3b70db0bfaa3db4c8d33a3ad05c2e7
+P cad57db96e8c4c5c6b857ce6119c22c4b6b0a2c22468c8072dce257b522328fe
+R 01ded760bf9b9a0820aed36173f86c3c
 U drh
-Z f989f6c5898b8785bb489701b99b25f7
+Z 19ad69a62b77cc398004522adbdee9aa
