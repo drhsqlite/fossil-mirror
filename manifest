@@ -1,5 +1,5 @@
-C Improved\sdocumentation\son\sthe\sundo\scommand.\s\sHave\sthe\smv\scommand\sclear\nthe\sundo\sstack.
-D 2019-12-03T13:06:08.974
+C Exposed\sthe\sredirect-to-https\ssetting\sto\sthe\sCLI\sand\sextended\sthe\sdefinition\sof\sthe\sSETTING.width\sproperty\ssuch\sthat\snegative\svalues\stell\s/setup_settings\snot\sto\srender\sthat\ssetting\s(unlike\smost\sCLI-configurable\ssettings,\sredirect-to-https\sis\sconfigured\svia\s/setup_access).\sPer\srequest\sfrom\shttps://fossil-scm.org/forum/forumpost/780138230c.
+D 2019-12-04T11:45:32.037
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -460,7 +460,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 47f871fcb145a66969e3005a517914dd204184c31c3bad5213fab753181b03c3
+F src/db.c b69d7fc1e84f2e317332df89fdccec535e7a521e8732916a62703d238e980892
 F src/default_css.txt cd60aeffd23196d712858c31dd8ab4a33a3e4f91b970c6ab0976f769473f6e76
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -535,7 +535,7 @@ F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 9be20ec713e4a8422c1228f1f40c40b321a3a1411929e6a07c43d104a2e30883
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
-F src/mkindex.c 697491167f586b818c60a785a01f701d4fbe3ba0e254b038db4f7527ab7d0210
+F src/mkindex.c 6070854fabaee6c04ec7a354cb1f17b3ed95197ed294b74ab811377390a0a95e
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 7ce35741d841e95a71129a8f987d888d017dfbb91d29763f7ce11569a7b932e7
 F src/name.c cc802dd97bb52e2197a56ca9d1ed2058da0cbb02da153b2b6353dd73b15188e1
@@ -557,7 +557,7 @@ F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
 F src/security_audit.c 74f8651e0e78e986575a43576c22d8d49a0f83408f18542db4bab12f42ec9d19
-F src/setup.c 5e859be3e3eb5b82475bbc300a3ff70f6d977e61cf11219b200b2ad5e3a8a22e
+F src/setup.c 9f1d5849f889b34104a887bdff680be5a22c34293348506ed1df74d187a3ac6b
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cad57db96e8c4c5c6b857ce6119c22c4b6b0a2c22468c8072dce257b522328fe
-R 01ded760bf9b9a0820aed36173f86c3c
-U drh
-Z 19ad69a62b77cc398004522adbdee9aa
+P 3f8cdaa15ecc13e63a14f34fd9ca507e0fd94452586943ae92e8844a26493ed7
+R 5543e42614982dc7ae1f8932313e7379
+U stephan
+Z e951495419ccd77c741049dfbac03e89

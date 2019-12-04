@@ -515,6 +515,7 @@ void process_file(void){
 
 int main(int argc, char **argv){
   int i;
+  memset(aEntry, 0, sizeof(Entry) * N_ENTRY);
   for(i=1; i<argc; i++){
     zFile = argv[i];
     process_file();

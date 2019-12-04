@@ -3080,8 +3080,11 @@ void print_setting(const Setting *pSetting){
 ** var is the name of the internal configuration name for db_(un)set.
 ** If var is 0, the settings name is used.
 **
-** width is the length for the edit field on the behavior page, 0
-** is used for on/off checkboxes.
+** width is the length for the edit field on the behavior page, 0 is
+** used for on/off checkboxes. A negative value indicates that that
+** page should not render this setting. Such values may be rendered
+** separately/manually on another page, e.g., /setup_access, and are
+** exposed via the CLI settings command.
 **
 ** The behaviour page doesn't use a special layout. It lists all
 ** set-commands and displays the 'set'-help as info.
@@ -3089,7 +3092,9 @@ void print_setting(const Setting *pSetting){
 struct Setting {
   const char *name;     /* Name of the setting */
   const char *var;      /* Internal variable name used by db_set() */
-  int width;            /* Width of display.  0 for boolean values. */
+  int width;            /* Width of display.  0 for boolean values and
+                        ** negative for values which should not appear
+                        ** on the /setup_settings page. */
   int versionable;      /* Is this setting versionable? */
   int forceTextArea;    /* Force using a text area for display? */
   const char *def;      /* Default value */
@@ -3467,6 +3472,13 @@ struct Setting {
 ** the "http_proxy" environment variable is consulted.
 ** If the http_proxy environment variable is undefined
 ** then a direct HTTP connection is used.
+*/
+/*
+** SETTING: redirect-to-https   default=0 width=-1
+** Specifies whether or not to redirect http:// requests to
+** https:// URIs. A value of 0 (the default) means not to
+** redirect, 1 means to redirect only the /login page, and 2
+** means to always redirect.
 */
 /*
 ** SETTING: relative-paths   boolean default=on
