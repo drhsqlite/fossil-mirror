@@ -686,7 +686,9 @@ static int forum_post(
     blob_reset(&x);
     return 0;
   }else{
-    int nrid = wiki_put(&x, 0, forum_need_moderation());
+    int nrid = wiki_put(&x, iEdit>0 ? iEdit : 0,
+                        forum_need_moderation());
+    blob_reset(&x);
     cgi_redirectf("%R/forumpost/%S", rid_to_uuid(nrid));
     return 1;
   }

@@ -1,5 +1,5 @@
-C Exposed\sthe\sredirect-to-https\ssetting\sto\sthe\sCLI\sand\sextended\sthe\sdefinition\sof\sthe\sSETTING.width\sproperty\ssuch\sthat\snegative\svalues\stell\s/setup_settings\snot\sto\srender\sthat\ssetting\s(unlike\smost\sCLI-configurable\ssettings,\sredirect-to-https\sis\sconfigured\svia\s/setup_access).\sPer\srequest\sfrom\shttps://fossil-scm.org/forum/forumpost/780138230c.
-D 2019-12-04T11:45:32.037
+C Enable\sdeltification\sof\sedits\sof\sforum\sposts,\slimited\sto\sthose\swhich\sdo\snot\srequire\smoderation.\sSeems\sto\swork\sbut\srequires\smore\stesting.
+D 2019-12-05T06:48:33.575
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -454,7 +454,7 @@ F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e69
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h d9a16a4931ebf2dfd6ac29cca9d89689f7fbcd858fd37ebbe8fe52851c9db934
 F src/configure.c fbcefee6b1a63fa86b0a80b2b6bd5ccc8199d21cda1bfef57ef7da203fd43e6d
-F src/content.c d49bd600d03d5de748c07e1ca0fdaf66b5c890410d61a541d397d4cb1b0ed13c
+F src/content.c 28b51109659c661a782dea58a10849f1acdffaf924226a2ab172073131128b4f
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -479,7 +479,7 @@ F src/extcgi.c 16aecc87ca24bb584568f8fc3487134954cd78f836e941e826a9cc050ac7ca6f
 F src/file.c 38f22c1609bd18715e821a57aba3c99e7b2687a93be467cbcf23ce9ffe0f9b30
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c c3243b13a1af8a8c7ccba9201da3ea5dbc6b94e9c3c2f70614fa0499830ab7de
+F src/forum.c da1db6b244c48cb4cb159edf73b7c03078a9365b71c1d4cd15c6188f158ace3b
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 9e7d580ff965ac8b58c030f916ed2326020061480954b50192aa5b9cf65404d9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -930,7 +930,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f8cdaa15ecc13e63a14f34fd9ca507e0fd94452586943ae92e8844a26493ed7
-R 5543e42614982dc7ae1f8932313e7379
+P 45953a4ad0c1581ec8f9075ca094ec3954d9a6e89d0893abf175191598024f6f
+R a37f2eabce032f6de83a09ac70ffc9af
+T *branch * forum-edit-deltify
+T *sym-forum-edit-deltify *
+T -sym-trunk *
 U stephan
-Z e951495419ccd77c741049dfbac03e89
+Z 140969dc3162970764318124a45a6662

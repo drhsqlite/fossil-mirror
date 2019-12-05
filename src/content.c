@@ -788,7 +788,7 @@ void content_make_public(int rid){
 ** the source of the delta.  It is OK to delta private->private and
 ** public->private and public->public.  Just no private->public delta.
 **
-** If aSrc[bestSrc] is already a dleta that depends on rid, then it is
+** If aSrc[bestSrc] is already a delta that depends on rid, then it is
 ** converted to undeltaed text before the aSrc[bestSrc]->rid delta is
 ** created, in order to prevent a delta loop.
 **
