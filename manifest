@@ -1,5 +1,5 @@
-C Exposed\sthe\sredirect-to-https\ssetting\sto\sthe\sCLI\sand\sextended\sthe\sdefinition\sof\sthe\sSETTING.width\sproperty\ssuch\sthat\snegative\svalues\stell\s/setup_settings\snot\sto\srender\sthat\ssetting\s(unlike\smost\sCLI-configurable\ssettings,\sredirect-to-https\sis\sconfigured\svia\s/setup_access).\sPer\srequest\sfrom\shttps://fossil-scm.org/forum/forumpost/780138230c.
-D 2019-12-04T11:45:32.037
+C Updated\sthe\s2.11\schange\slog.
+D 2019-12-05T09:31:16.585
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -793,7 +793,7 @@ F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b57
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki 8b9f787cb0e162e9672f5b3ce0d32f60dabae0003f7bd7dc6ffa6ae2b05ceec2
-F www/changes.wiki b48c0e6a0a5133cf78c2917760275c890825773cb19bc5ab264e00ff11c27f30
+F www/changes.wiki cbb08e2ec547cf8584e46ce5d0397ff9f314b0307fbc9f301bc7db7a06a44f3a
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 911ba32f0c06b7f01cc0dd3bd92fe06450680ea09dda8ac8f69834853bb0d4e9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3f8cdaa15ecc13e63a14f34fd9ca507e0fd94452586943ae92e8844a26493ed7
-R 5543e42614982dc7ae1f8932313e7379
+P 45953a4ad0c1581ec8f9075ca094ec3954d9a6e89d0893abf175191598024f6f
+R 3b04b8d7911e90477e21dc86846948b2
 U stephan
-Z e951495419ccd77c741049dfbac03e89
+Z 959de4a355416a9f9aaddd0e7cfc7654
