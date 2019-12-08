@@ -533,6 +533,30 @@ static int verifyCsrfCmd(
 }
 
 /*
+** TH1 command: verifyLogin
+**
+** Returns non-zero if the specified user name and password represent a
+** valid login for the repository.
+*/
+static int verifyLoginCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zUser;
+  const char *zPass;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "verifyLogin userName password");
+  }
+  zUser = argv[1];
+  zPass = argv[2];
+  Th_SetResultInt(interp, login_search_uid(&zUser, zPass) != 0);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: markdown STRING
 **
 ** Renders the input string as markdown.  The result is a two-element list.
@@ -2113,6 +2137,7 @@ void Th_FossilInit(u32 flags){
     {"unversioned",   unversionedCmd,       0},
     {"utime",         utimeCmd,             0},
     {"verifyCsrf",    verifyCsrfCmd,        0},
+    {"verifyLogin",   verifyLoginCmd,       0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };

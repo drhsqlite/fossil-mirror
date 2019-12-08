@@ -1,5 +1,5 @@
-C Updated\spush/pull\scommand\shelp\sto\sreflect\sthat\sthey\salso\soperate\son\sforum\scontent.
-D 2019-12-05T10:58:46.828
+C Add\sexperimental\s'verifyLogin'\scommand\sto\sTH1.
+D 2019-12-08T23:49:43.326
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -583,7 +583,7 @@ F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
 F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
-F src/th_main.c 4c91ac7c1e00a8402de8feedf49158560da0cc37bbcc51ebdb94a6c174ffd162
+F src/th_main.c 97da94aefcb6c7dda5b390bcc36e474ee3725aeb2c69b0d56353da0dc1bae612
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c cf30f09f83c0c441f7e33b317458fe1e75b7468787dc9fa393cd2f445a32d860
 F src/tkt.c 1704060fa39c989b6dedd6cdc254ce8b95f07841d439cf485c8fce79f17d9ad0
@@ -670,7 +670,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt 2a865ef58e16647b30545b6d970ae99e4e1576af
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/th1.test ac4ea823758757e226db83ba8d5f670b7cb3d4e81e7233b7e6f0a52df02bf6d4
+F test/th1.test abe96b7b4dd6010b60ad407e44d14bdf733474348fa94b2e807b8af00aa82c11
 F test/unversioned.test 454f7010d05252a07c6b196545c55dc05e14e8287ba87dbb3a80a82f7773040c
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
@@ -919,7 +919,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 96ddacc9bccab1829c1b1c864cc47aa0e2f00c6d597e80fa60cf2d01bf77a887
 F www/tech_overview.wiki 8aa7e30ca9a1e99701f4e4189e98778458898e04b816537538da37d3ddcc5e47
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md 0ccc317ea50f36fca48ce6f2dae4fc6550c5a3f1d391b20d426714725f5a9eba
+F www/th1.md a400d92abfcc268ff4c8cc092cb52def1ac868e120a1fe85be51eb513a347b4e
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
@@ -930,7 +930,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 01d64d8c18b0d306a237471e70f1635363eaccbf7142eecfc4fbb831deed02fb
-R 9811a90670701eee310d109550f769a8
-U stephan
-Z 0727a02bd396f0a012404332d5f5606b
+P 120f950026d5fc0995c98b6c549f621be78f7f857f2888c23433265b9184bfba
+R e623a231b01aa131f1f3c95eea6f1cd6
+T *branch * verifyLogin
+T *sym-verifyLogin *
+T -sym-trunk *
+U mistachkin
+Z cc3dd2dc03a055e07c9dd23d8cf65d9a

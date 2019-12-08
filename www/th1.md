@@ -217,6 +217,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  unversioned list
   *  utime
   *  verifyCsrf
+  *  verifyLogin
   *  wiki
 
 Each of the commands above is documented by a block comment above their
@@ -735,6 +736,14 @@ that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
 is missing or is incorrect, that indicates a cross-site scripting attack.
 If the event of an attack is detected, an error message is generated and
 all further processing is aborted.
+
+<a name="verifyLogin"></a>TH1 verifyLogin Command
+-------------------------------------------------
+
+  *  verifyLogin
+
+Returns non-zero if the specified user name and password represent a
+valid login for the repository.
 
 <a name="wiki"></a>TH1 wiki Command
 -----------------------------------
