@@ -600,6 +600,7 @@ static const char *domainOfAddr(const char *z){
 ** Options:
 **
 **      --direct              Go directly to the TO domain.  Bypass MX lookup
+**      --relayhost R         Use R as relay host directly for delivery.
 **      --port N              Use TCP port N instead of 25
 **      --trace               Show the SMTP conversation on the console
 */

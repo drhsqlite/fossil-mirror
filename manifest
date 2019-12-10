@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\stest-smtp-send\sto\suse\sa\srelayhost\sinstead\sof\slooking\sit\nup\sfrom\sa\sdomain\sname.
-D 2019-12-10T05:34:44.603
+C Don't\slet\sthe\snew\s--relayhost\soption\sfor\stest-smtp-send\sbecome\san\sundocumented\nfeature.
+D 2019-12-10T14:01:46.310
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -567,7 +567,7 @@ F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 5321b972ae0947592f84e9a352d0d386e0216bd971d759dd49c05ee9fc362443
-F src/smtp.c dde8e1bff7d02d1e4f42726142f5eb8934b71f1173549942ecfceb64e5c0faec
+F src/smtp.c 5e8b272d6a24f2bcb3e05e5a619bae29fa760d171dcee270e798aea25347bf80
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 120f950026d5fc0995c98b6c549f621be78f7f857f2888c23433265b9184bfba
-R b4bfe9ac739aba245caa598794c7df6b
+P c668444ddade478b0514684b8ede59b63a012bc02842d8b6d4fdb952d9a642a5
+R c414e5b52f461a9f8ee1784503fee142
 U andybradford
-Z 3e182e905150ce36c166d011bc56fdef
+Z 6700acf01cd8905fd93e4246180236d1
