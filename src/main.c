@@ -2199,14 +2199,19 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      /* debug: FILENAME
+    if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
+      /* cgi-debug: FILENAME
       **
       ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
-      ** into FILENAME.
+      ** into FILENAME.  Useful for debugging CGI configuration problems.
       */
+      char *zNow = cgi_iso8601_datestamp();
+      cgi_load_environment();
       g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);
+      cgi_debug("-------- BEGIN cgi at %s --------\n", zNow);
+      fossil_free(zNow);
+      cgi_print_all(1,2);
       continue;
     }
   }
