@@ -1,5 +1,5 @@
-C Don't\slet\sthe\snew\s--relayhost\soption\sfor\stest-smtp-send\sbecome\san\sundocumented\nfeature.
-D 2019-12-10T14:01:46.310
+C Fix\san\sincorrect\scomment\sin\sthe\sCGI\shandler.\s\sWhen\sparsing\sthe\sCGI\scontrol\nfile,\scheck\sfor\s"debug:"\slast,\sas\sit\sis\sthe\smost\sinfrequent\soption.
+D 2019-12-11T11:59:37.729
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -519,7 +519,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 472f2a7328de411b5c67b3f0f24403a04c80363358de2e06c5f75e90480d5fd7
+F src/main.c d7236548ec3ee48dfd5ff1124fa94e360d519588e8d97ed6bd5a9780ccec821c
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -930,7 +930,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c668444ddade478b0514684b8ede59b63a012bc02842d8b6d4fdb952d9a642a5
-R c414e5b52f461a9f8ee1784503fee142
-U andybradford
-Z 6700acf01cd8905fd93e4246180236d1
+P edcde1fdaef5193a70ac1b1d328a8067ac841a6a6d3bd7a5a49efc34ba2ef114
+R 76628e0cfa4653c83cbfe198e2257e27
+U drh
+Z 2b298b03c8fd24885e167be3efe77807

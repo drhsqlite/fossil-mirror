@@ -2044,7 +2044,7 @@ void cmd_cgi(void){
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
   fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
-  /* Read and parse the CGI control file. */
+  /* Find the name of the CGI control file */
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
   }else if( g.argc>=2 ){
@@ -2149,16 +2149,6 @@ void cmd_cgi(void){
       blob_reset(&value2);
       continue;
     }
-    if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      /* debug: FILENAME
-      **
-      ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
-      ** into FILENAME.
-      */
-      g.fDebug = fossil_fopen(blob_str(&value), "ab");
-      blob_reset(&value);
-      continue;
-    }
     if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
       /* errorlog: FILENAME
       **
@@ -2206,6 +2196,16 @@ void cmd_cgi(void){
       ** this directive is a silent no-op.
       */
       skin_use_alternative(blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
+      /* debug: FILENAME
+      **
+      ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
+      ** into FILENAME.
+      */
+      g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);
       continue;
     }
