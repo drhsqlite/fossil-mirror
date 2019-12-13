@@ -8,6 +8,8 @@
   *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
      setting to the [/help?cmd=settings|settings] command.
   *  Improve support for CGI on IIS web servers.
+  *  The [/help?cmd=/ext|/ext page] can now render index files,
+     analog to how the embedded docs do.
   *  Most commands now support the Unix-conventional "<tt>--</tt>"
      flag to treat all following arguments as filenames
      instead of flags.
