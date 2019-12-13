@@ -614,6 +614,60 @@ void document_render(
   }
 }
 
+/*
+** Returns a list of possible index page names, in the order of their
+** priority, and writes the number of entries in the list to *pCount
+** (which must not be NULL). The returned memory is static but the
+** number of entries depends on compile-time options.
+*/
+const char * const * document_index_list( int * pCount ){
+  static const char *const azSuffix[] = {
+  "index.html", "index.wiki", "index.md"
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  , "index.th1"
+#endif
+  };
+  *pCount = (int)count(azSuffix);
+  return azSuffix;
+}
+
+/*
+** If the given NUL-terminated directory name contains one of the
+** index files defined by document_index_list(), the path to that file
+** is returned in the form zDirName/FILE_NAME, else NULL is
+** returned. Ownership of the returned memory is transfered to the
+** caller.
+**
+** If pNResult is not NULL and non-NULL is returned, the length of the
+** returned string is written to *pNResult, otherwise pNResult is not
+** dereferenced.
+*/
+char * document_dir_has_index(const char * zDirName, int * pNResult){
+  Blob bName = BLOB_INITIALIZER; /* File path */
+  int i;                         /* Loop counter */
+  int nIndex;                    /* Number of index entries. */
+  const char * const * azIndex = document_index_list(&nIndex);
+  unsigned int nDirName = strlen(zDirName)
+                                 /* Cursor for the end of the initial
+                                    path+separator part of bName */;
+  blob_appendf( &bName, "%s%s", zDirName,
+                zDirName[nDirName-1]=='/' ? "" : "/" );
+  nDirName = bName.nUsed;
+  for(i=0; i<nIndex; ++i){
+    bName.nUsed = nDirName;
+    blob_append(&bName, azIndex[i], strlen(azIndex[i]));
+    if(file_isfile(bName.aData, ExtFILE)!=0){
+      break;
+    }
+  }
+  if(i<nIndex){
+    if(pNResult) *pNResult = (int)bName.nUsed;
+    return bName.aData;
+  }else{
+    blob_reset(&bName);
+    return 0;
+  }
+}
 
 /*
 ** WEBPAGE: uv
@@ -676,19 +730,15 @@ void doc_page(void){
   int nMiss = (-1);                 /* Failed attempts to find the document */
   int isUV = g.zPath[0]=='u';       /* True for /uv.  False for /doc */
   const char *zDfltTitle;
-  static const char *const azSuffix[] = {
-     "index.html", "index.wiki", "index.md"
-#ifdef FOSSIL_ENABLE_TH1_DOCS
-      , "index.th1"
-#endif
-  };
+  int nSuffix;                      /* Number of entries in azSuffix */
+  const char *const * azSuffix = document_index_list(&nSuffix);
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   blob_init(&title, 0, 0);
   zDfltTitle = isUV ? "" : "Documentation";
   db_begin_transaction();
-  while( rid==0 && (++nMiss)<=count(azSuffix) ){
+  while( rid==0 && (++nMiss)<=nSuffix ){
     zName = P("name");
     if( isUV ){
       if( zName==0 ) zName = "index.wiki";
@@ -701,11 +751,11 @@ void doc_page(void){
         zCheckin = "tip";
       }
     }
-    if( nMiss==count(azSuffix) ){
+    if( nMiss==nSuffix ){
       zName = "404.md";
       zDfltTitle = "Not Found";
     }else if( zName[i]==0 ){
-      assert( nMiss>=0 && nMiss<count(azSuffix) );
+      assert( nMiss>=0 && nMiss<nSuffix );
       zName = azSuffix[nMiss];
     }else if( !isUV ){
       zName += i;
@@ -719,7 +769,7 @@ void doc_page(void){
     if( nMiss==0 ) zOrigName = zName;
     if( !file_is_simple_pathname(zName, 1) ){
       if( sqlite3_strglob("*/", zName)==0 ){
-        assert( nMiss>=0 && nMiss<count(azSuffix) );
+        assert( nMiss>=0 && nMiss<nSuffix );
         zName = mprintf("%s%s", zName, azSuffix[nMiss]);
         if( !file_is_simple_pathname(zName, 1) ){
           goto doc_not_found;
@@ -777,7 +827,7 @@ void doc_page(void){
                                     " WHERE objid=%d AND type='ci'", vid));
   }
   document_render(&filebody, zMime, zDfltTitle, zName);
-  if( nMiss>=count(azSuffix) ) cgi_set_status(404, "Not Found");
+  if( nMiss>=nSuffix ) cgi_set_status(404, "Not Found");
   db_end_transaction(0);
   return;
 

@@ -190,6 +190,12 @@ void ext_page(void){
       }
     }
   }
+
+  if( nScript==0 && file_isdir(zPath,ExtFILE)==1 ){
+    /* Check for an index.* file */
+    zScript = document_dir_has_index(zPath, &nScript);
+  }
+
   if( nScript==0 ){
     zFailReason = "path does not match any file or script";
     goto ext_not_found;
@@ -206,6 +212,7 @@ void ext_page(void){
       goto ext_not_found;
     }
     blob_read_from_file(&reply, zScript, ExtFILE);
+    fossil_free(zScript);
     document_render(&reply, zMime, zName, zName);
     return;
   }
@@ -240,6 +247,7 @@ void ext_page(void){
   }
   fossil_setenv("HTTP_ACCEPT_ENCODING","");
   rc = popen2(zScript, &fdFromChild, &toChild, &pidChild, 1);
+  fossil_free(zScript);
   if( rc ){
     zFailReason = "cannot exec CGI child process";
     goto ext_not_found;
