@@ -547,12 +547,15 @@ static int verifyLoginCmd(
 ){
   const char *zUser;
   const char *zPass;
+  int uid;
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "verifyLogin userName password");
   }
   zUser = argv[1];
   zPass = argv[2];
-  Th_SetResultInt(interp, login_search_uid(&zUser, zPass) != 0);
+  uid = login_search_uid(&zUser, zPass);
+  Th_SetResultInt(interp, uid!=0);
+  if( uid==0 ) sqlite3_sleep(100);
   return TH_OK;
 }
 
