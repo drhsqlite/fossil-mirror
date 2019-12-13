@@ -203,7 +203,7 @@ So, in other words, to get javascript to work, it must be enclosed in:
 <script nonce='$FOSSIL_NONCE'>...</script>
 </verbatim></blockquote>
 
-Except, of course, the $FOSSIL_NONCE is replace by the value of the
+Except, of course, the $FOSSIL_NONCE is replaced by the value of the
 FOSSIL_NONCE environment variable.
 
 If the HTTP request includes content (for example if this is a POST request)

@@ -41,7 +41,7 @@ const char *mimetype_from_content(Blob *pBlob){
   */
   static const struct {
     const char *zPrefix;       /* The file prefix */
-    int size;                  /* Length of the prefix */
+    const int size;            /* Length of the prefix */
     const char *zMimetype;     /* The corresponding mimetype */
   } aMime[] = {
     { "GIF87a",                  6, "image/gif"  },
@@ -271,6 +271,7 @@ static const struct {
   { "vrml",       4, "model/vrml"                        },
   { "wav",        3, "audio/x-wav"                       },
   { "wax",        3, "audio/x-ms-wax"                    },
+  { "webp",       4, "image/webp"                        },
   { "wiki",       4, "text/x-fossil-wiki"                },
   { "wma",        3, "audio/x-ms-wma"                    },
   { "wmv",        3, "video/x-ms-wmv"                    },

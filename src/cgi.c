@@ -352,7 +352,7 @@ void cgi_reply(void){
     }
   }
   fflush(g.httpOut);
-  CGIDEBUG(("DONE\n"));
+  CGIDEBUG(("-------- END cgi ---------\n"));
 
   /* After the webpage has been sent, do any useful background
   ** processing.
@@ -1170,6 +1170,10 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     nUsedQP = j;
   }
 
+  /* Invoking with a NULL zName is just a way to cause the parameters
+  ** to be sorted.  So go ahead and bail out in that case */
+  if( zName==0 || zName[0]==0 ) return 0;
+
   /* Do a binary search for a matching query parameter */
   lo = 0;
   hi = nUsedQP-1;
@@ -1191,7 +1195,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** with the given name. Handle environment variables with empty values
   ** the same as non-existent environment variables.
   */
-  if( zName && fossil_isupper(zName[0]) ){
+  if( fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
     if( zValue && zValue[0] ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
@@ -1316,12 +1320,48 @@ int cgi_all(const char *z, ...){
 }
 
 /*
-** Print all query parameters on standard output.  Format the
-** parameters as HTML.  This is used for testing and debugging.
+** Load all relevant environment variables into the parameter buffer.
+** Invoke this routine prior to calling cgi_print_all() in order to see
+** the full CGI environment.  This routine intended for debugging purposes
+** only.
+*/
+void cgi_load_environment(void){
+  /* The following is a list of environment variables that Fossil considers
+  ** to be "relevant". */
+  static const char *const azCgiVars[] = {
+    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE", "SCGI",
+    "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
+    "HTTP_ACCEPT_LANGUAGE", "HTTP_AUTHENICATION",
+    "HTTP_CONNECTION", "HTTP_HOST",
+    "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
+    "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
+    "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
+    "REMOTE_USER", "REQUEST_METHOD",
+    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
+    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
+    "SQLITE_TMPDIR", "TMPDIR",
+    "TEMP", "TMP", "FOSSIL_VFS",
+    "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
+    "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
+    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
+  };
+  int i;
+  for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
+}
+
+/*
+** Print all query parameters on standard output.
+** This is used for testing and debugging.
 **
 ** Omit the values of the cookies unless showAll is true.
+**
+** The eDest parameter determines where the output is shown:
+**
+**     eDest==0:    Rendering as HTML into the CGI reply
+**     eDest==1:    Written to stderr
+**     eDest==2:    Written to cgi_debug
 */
-void cgi_print_all(int showAll, int onConsole){
+void cgi_print_all(int showAll, unsigned int eDest){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
@@ -1330,10 +1370,19 @@ void cgi_print_all(int showAll, int onConsole){
       if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
       if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
-    if( onConsole ){
-      fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
-    }else{
-      cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    switch( eDest ){
+      case 0: {
+        cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+        break;
+      }
+      case 1: {  
+        fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+        break;
+      }
+      case 2: {
+        cgi_debug("%s = %s\n", zName, aParamQP[i].zValue);
+        break;
+      }
     }
   }
 }
@@ -2076,6 +2125,26 @@ char *cgi_rfc822_datestamp(time_t now){
     return mprintf("%s, %d %s %02d %02d:%02d:%02d +0000",
                    azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
                    pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
+  }
+}
+
+/*
+** Returns an ISO8601-formatted time string suitable for debugging
+** purposes.
+**
+** The value returned is always a string obtained from mprintf() and must
+** be freed using fossil_free() to avoid a memory leak.
+*/
+char *cgi_iso8601_datestamp(void){
+  struct tm *pTm;
+  time_t now = time(0);
+  pTm = gmtime(&now);
+  if( pTm==0 ){
+    return mprintf("");
+  }else{
+    return mprintf("%04d-%02d-%02d %02d:%02d:%02d",
+                   pTm->tm_year+1900, pTm->tm_mon, pTm->tm_mday,
+                   pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
 }
 
