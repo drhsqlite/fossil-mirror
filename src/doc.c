@@ -511,6 +511,35 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 }
 
 /*
+** Check to verify that z[i] is contained within HTML markup.
+**
+** This works by looking backwards in the string for the most recent
+** '<' or '>' character.  If a '<' is found first, then we assume that
+** z[i] is within markup.  If a '>' is seen or neither character is seen,
+** then z[i] is not within markup.
+*/
+static int isWithinHtmlMarkup(const char *z, int i){
+  while( i>=0 && z[i]!='>' && z[i]!='<' ){ i--; }
+  return z[i]=='<';
+}
+
+/*
+** Check to see if z[i] is contained within an href='...' of markup.
+*/
+static int isWithinHref(const char *z, int i){
+  while( i>5
+     && !fossil_isspace(z[i])
+     && z[i]!='\'' && z[i]!='"'
+     && z[i]!='>'
+  ){ i--; }
+  if( i<=6 ) return 0;
+  if( z[i]!='\'' && z[i]!='\"' ) return 0;
+  if( strncmp(&z[i-5],"href=",5)!=0 ) return 0;
+  if( !fossil_isspace(z[i-6]) ) return 0;
+  return 1;
+}
+
+/*
 ** Transfer content to the output.  During the transfer, when text of
 ** the following form is seen:
 **
@@ -531,9 +560,22 @@ void convert_href_and_output(Blob *pIn){
      && i-base>=9
      && ((fossil_strnicmp(&z[i-6],"href=",5)==0 && fossil_isspace(z[i-7])) ||
          (fossil_strnicmp(&z[i-8],"action=",7)==0 && fossil_isspace(z[i-9])) )
+     && isWithinHtmlMarkup(z, i-6)
     ){
       blob_append(cgi_output_blob(), &z[base], i-base);
       blob_appendf(cgi_output_blob(), "%R");
+      base = i+5;
+    }else
+    if( z[i]=='$'
+     && strncmp(&z[i-5],"/doc/$SELF/", 11)==0
+     && isWithinHref(z,i-5)
+     && isWithinHtmlMarkup(z, i-5)
+     && strncmp(g.zPath, "doc/",4)==0
+    ){
+      int j;
+      for(j=4; g.zPath[j] && g.zPath[j]!='/'; j++){}
+      blob_append(cgi_output_blob(), &z[base], i-base);
+      blob_appendf(cgi_output_blob(), "%.*s", j-4, g.zPath+4);
       base = i+5;
     }
   }

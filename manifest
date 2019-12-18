@@ -1,5 +1,5 @@
-C Add\sa\stest\sdocument\sto\sverify\sthat\srelative\spath\shyperlinks\swork\sin\sthe\nMarkdown\sformatter.
-D 2019-12-18T14:02:09.998
+C Add\ssupport\sfor\smagic\sconversion\sof\s/doc/$SELF/\sURIs\sby\sexpanding\sthe\n$SELF\sto\sthe\sversion\sof\sthe\scurrently\sdisplayed\sdocument.
+D 2019-12-18T15:11:59.016
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -470,7 +470,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
-F src/doc.c f151f4a822d178c398a41e7c63010984c7da219dc19dab573756cda4fb730125
+F src/doc.c 56fea3075f7304f4a0457b5f3dc3b1322b48105b8cc86816fdcaaf668f61e376
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
@@ -862,7 +862,7 @@ F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c833
 F www/javascript.md bc37398d4f01179da2390f40cbdf635a62382ca21ca51749e1bb9316d60d0ff5
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mdtest/test1.md be52655ccbf50b9e5ad296a21be8418bb827035108667133a732df717f61f68e
+F www/mdtest/test1.md d3e3d6600fbcf2bee70a5db79e8736f6e4ae0717a8fe28e2b109573311ace7ae
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
 F www/mkindex.tcl 573e9b6062559e6121846023921130c9ffc0d008168d41cbad4ea70a41ed071b x
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8664930277065985fff6773dd2135fb719754089e8d593a033186650e7d12d26
-R 8c8e193e73a6274d5891739801e8ed52
+P 367f9b32d677bc463c29ea5f0902b47335f0b5d6bf710af5cd2966bb70bc46bc
+R 34be4521ba07bec1d0cf9b82f5abb523
 U drh
-Z fc387086dbc55ab58a8c2d8b86a59dde
+Z fd4b5219676a02051222ff058d172db7
