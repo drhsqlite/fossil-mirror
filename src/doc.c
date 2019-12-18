@@ -543,11 +543,16 @@ static int isWithinHref(const char *z, int i){
 ** Transfer content to the output.  During the transfer, when text of
 ** the following form is seen:
 **
-**       href="$ROOT/
-**       action="$ROOT/
+**       href="$ROOT/..."
+**       action="$ROOT/..."
+**       href=".../doc/$SELF/..."
 **
-** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
-** and any case for href or action.
+** Convert $ROOT to the root URI of the repository, and $SELF to the 
+** version number of the /doc/ document currently being displayed (if any).
+** Allow ' in place of " and any case for href or action.  
+**
+** Efforts are made to limit this translation to cases where the text is
+** fully contained with an HTML markup element.
 */
 void convert_href_and_output(Blob *pIn){
   int i, base;
