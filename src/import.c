@@ -325,6 +325,7 @@ static void finish_commit(void){
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
   fast_insert_content(&record, gg.zMark, 1, 1);
+  blob_reset(&record);
   blob_reset(&cksum);
 
   /* The "git fast-export" command might output multiple "commit" lines
