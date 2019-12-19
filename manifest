@@ -1,5 +1,5 @@
-C Comment\supdates\sthat\sshould\shave\sbeen\sin\sthe\sprevious\scheck-in,\sbut\sI\sdidn't\npress\sthe\s"Save"\sbutton\son\smy\seditor,\sand\sI\sfailed\sto\sadequately\sreview\sthe\nchanges\sbefore\scommitted\s-\sI\sshould\sfollow\smy\sown\schecklists...
-D 2019-12-18T15:19:33.310
+C Moved\sa\sblob_reset()\sto\sfix\sa\sleak\sreported\sin\shttps://fossil-scm.org/forum/forumpost/6871eaaa07.
+D 2019-12-19T14:40:33.722
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/http.c a25166d6aee3961bd543425247f0733bd5129d9f5afec4c90a1768905bd35a1b
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
-F src/import.c 4689601689be55d05e83756fcdc886ad3958a15b4de5678cb250db176cb4cee0
+F src/import.c a5f4dc08a8714c2f644c52e7242c41213d79904e81aa1720b8e26f583e63212e
 F src/info.c 6e0eebada4eadcd20a8aa29c4093a125ac18fdbd58ce73047ed3ad9d123a6ee2
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 703e62a68e87aea76d753ffb0410ea2997f5b88dc7cb99191a40f78ffd099dcd
-R 0a8ac23d96869dd173992ace3a33136d
-U drh
-Z 169d48e182824f9b54b0ec55ce41003d
+P c865e1a0fcf3e15edb567a3dc1b7d03957de3c8cd547d41d78daf8121d77a03c
+R 2a957f260ad4060d679faba8e5ed8eac
+U stephan
+Z 008f4bd3c2061a74839ca499d3745d7a

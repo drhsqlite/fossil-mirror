@@ -348,10 +348,10 @@ static void finish_commit(void){
        "INSERT OR REPLACE INTO xtag(tname, tcontent)"
        " VALUES(%Q,%Q)", gg.zBranch, blob_str(&record)
     );
-    blob_reset(&record);
     blob_reset(&cksum);
   }
 
+  blob_reset(&record);
   fossil_free(gg.zPrevBranch);
   gg.zPrevBranch = gg.zBranch;
   gg.zBranch = 0;
