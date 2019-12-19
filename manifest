@@ -1,5 +1,5 @@
-C Moved\sa\sblob_reset()\sto\sfix\sa\sleak\sreported\sin\shttps://fossil-scm.org/forum/forumpost/6871eaaa07.
-D 2019-12-19T14:40:33.722
+C Fix\sto\sthe\sregexp()\sSQL\sfunction\simplementation\s(pointed\sout\sby\s\n[https://fossil-scm.org/forum/forumpost/c9eb457131|Florian\sBalmer])\nso\sthat\sit\sproperly\srejects\sall\soverlong\s3-byte\sUTF8\scharacters,\sconverting\nthem\sinto\s0xfffd.
+D 2019-12-19T20:56:55.746
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -548,7 +548,7 @@ F src/printf.c fbbd5d2c7481dcd7bc98c95930498fb0cd6b25b492f0110cbfe595dc1df3952a
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c baff9a5eef64716871858a87f4ca4f2245e87ea4fcd6e5fc907fa3923b2e5b6a
-F src/regexp.c 2b7a91970e0282b1adcd6bd08bd6ea86c6b120bab0b69b1d93cb4cc332838543
+F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9e
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c865e1a0fcf3e15edb567a3dc1b7d03957de3c8cd547d41d78daf8121d77a03c
-R 2a957f260ad4060d679faba8e5ed8eac
-U stephan
-Z 008f4bd3c2061a74839ca499d3745d7a
+P 8628cbd428cb507ce67682ec96904553417e631a43afa3dd5d78706d7254c31c
+R 95473797246f76e8fa511f8e150063bc
+U drh
+Z 7ce563da0ffea1f8274b8bb8cd5bf312
