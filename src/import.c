@@ -228,6 +228,7 @@ static void finish_tag(void){
     blob_appendf(&record, "Z %b\n", &cksum);
     fast_insert_content(&record, 0, 0, 1);
     blob_reset(&cksum);
+    blob_reset(&record);
   }
   import_reset(0);
 }

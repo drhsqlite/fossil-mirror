@@ -362,10 +362,29 @@ static void fossil_atexit(void) {
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
 #endif
-  free(g.zErrMsg);
   if(g.db){
     db_close(0);
   }
+  fossil_free(g.ckinLockFail);
+  fossil_free(g.zAuxSchema);
+  fossil_free(g.zBaseURL);
+  fossil_free(g.zConfigDbName);
+  fossil_free(g.zErrMsg);
+  fossil_free(g.zExtra);
+  fossil_free(g.zHttpAuth);
+  fossil_free(g.zHttpsURL);
+  fossil_free(g.zIpAddr);
+  fossil_free(g.zLocalDbName);
+  fossil_free(g.zLocalRoot);
+  fossil_free(g.zNonce);
+  fossil_free(g.zOpenRevision);
+  fossil_free(g.zPath);
+  fossil_free(g.zRepositoryName);
+  fossil_free(g.zRepositoryOption);
+  fossil_free(g.zSshCmd);
+  fossil_free(g.zTop);
+  /* TODO: clean up the file-local content.c::contentCache
+  ** via new function in that file */
   /*
   ** FIXME: The next two lines cannot always be enabled; however, they
   **        are very useful for tracking down TH1 memory leaks.

@@ -1,5 +1,5 @@
-C Several\smemleak\sfixes\sreported\svia\shttps://fossil-scm.org/forum/forumpost/205b004d8a.\sIn\sa\sbranch\sso\sthe\sOP\scan\stest\sthem\sin\shis\ssetup.
-D 2019-12-19T18:54:12.194
+C Clean\sup\sg.non-const\szXYZ\smembers\sin\sthe\satexit\shandler.\sAdd\sa\sblob_reset()\sin\sfinish_tag()\sto\scover\sthe\scase\sthat\sfast_insert_content()\sdoes\snot\sreset\sit.
+D 2019-12-19T20:41:30.348
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/http.c a25166d6aee3961bd543425247f0733bd5129d9f5afec4c90a1768905bd35a1b
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
-F src/import.c 4b4c8232e14c975aa590783ed8d1d529a694da81f37cdef4ea4718075ac4837f
+F src/import.c f4862b1b07e1c70e66720c7d0a6fa15adcc065cd66daf547297dec4e4ec48cfc
 F src/info.c 6e0eebada4eadcd20a8aa29c4093a125ac18fdbd58ce73047ed3ad9d123a6ee2
 F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
 F src/json_artifact.c 6530c919e6671cbec7f72e6240c361229e21d8f4
@@ -519,7 +519,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c add6f201997bce15f6d32f62670270a387fe2cd0fc4ff4ed5788da63dbc8fb71
+F src/main.c 0a47b3cd40d0796f11529b65cdd2a46c1d82fd74bb07069514f6e98625c5838f
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
@@ -931,10 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8628cbd428cb507ce67682ec96904553417e631a43afa3dd5d78706d7254c31c
-R 3aaff9430e71499040af77adfb8c4263
-T *branch * memleak-fixes
-T *sym-memleak-fixes *
-T -sym-trunk *
+P 4566da665ddb4b5f321def7fd67ffc7fbf616d8666adee6e5bc5db5654fecf5b
+R a9d5ab22b5f69ba49bb30ff6c7bf7387
 U stephan
-Z d721d9caab06eaa4380aa34667fe3b9c
+Z b3ece6cd7e12ed314490ce69cd799f42
