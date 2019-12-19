@@ -2089,8 +2089,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "syntax error in manifest [%S]",
-                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+      char * zErrUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid);
+      fossil_error(1, "syntax error in manifest [%S]", zErrUuid);
+      fossil_free(zErrUuid);
     }
     return 0;
   }

@@ -338,6 +338,8 @@ static void finish_commit(void){
   ** to work around the problem than to fix git-fast-export.
   */
   if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
+    record.nUsed = 0
+      /*in case fast_insert_comment() did not indirectly blob_reset() it */;
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zBranchPre, gg.zBranch,
         gimport.zBranchSuf, gg.zPrevCheckin);
