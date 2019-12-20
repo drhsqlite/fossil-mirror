@@ -1,5 +1,5 @@
-C Fix\sto\sthe\sregexp()\sSQL\sfunction\simplementation\s(pointed\sout\sby\s\n[https://fossil-scm.org/forum/forumpost/c9eb457131|Florian\sBalmer])\nso\sthat\sit\sproperly\srejects\sall\soverlong\s3-byte\sUTF8\scharacters,\sconverting\nthem\sinto\s0xfffd.
-D 2019-12-19T20:56:55.746
+C Added\sinfo\sabout\sthe\sside-by-side\sdiff\sviewer's\sscrolling\sto\nwww/javascript.md;\sit\suses\sJS.
+D 2019-12-20T06:22:11.754
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -859,7 +859,7 @@ F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b3
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
 F www/index.wiki 9dd1783bf5f9b84a22fc2d3e4f0cfcbda7afba353d68318ed768f84d560d20ab
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
-F www/javascript.md bc37398d4f01179da2390f40cbdf635a62382ca21ca51749e1bb9316d60d0ff5
+F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mdtest/test1.md d3e3d6600fbcf2bee70a5db79e8736f6e4ae0717a8fe28e2b109573311ace7ae
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8628cbd428cb507ce67682ec96904553417e631a43afa3dd5d78706d7254c31c
-R 95473797246f76e8fa511f8e150063bc
-U drh
-Z 7ce563da0ffea1f8274b8bb8cd5bf312
+P 6b32e213056cea75554b25427f3c28d22fd1325dadcd1024ccf2b8ae7080973e
+R ac98a8fede1d52586e9ef6bc46beafed
+U wyoung
+Z c742c491dea9397f590cad28942b3afb
