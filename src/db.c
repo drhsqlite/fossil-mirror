@@ -1630,8 +1630,11 @@ const char *db_repository_filename(void){
   if( zRepo==0 ){
     zRepo = db_lget("repository", 0);
     if( zRepo && !file_is_absolute_path(zRepo) ){
+      char * zFree = zRepo;
       zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+      fossil_free(zFree);
     }
+    fossil_atexit_free_this(zRepo);
   }
   return zRepo;
 }
@@ -2635,7 +2638,11 @@ char *db_get(const char *zName, const char *zDefault){
   if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
+    char * zZ = z;
     z = db_get_versioned(zName, z);
+    if(zZ != z){
+      fossil_free(zZ);
+    }
   }
   if( z==0 ){
     if( zDefault==0 && pSetting && pSetting->def[0] ){

@@ -70,7 +70,7 @@ struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of artifact.  One of CFTYPE_xxxxx */
   int rid;              /* The blob-id for this manifest */
-  char *zBaseline;      /* Baseline manifest.  The B card. */
+  const char *zBaseline;/* Baseline manifest.  The B card. */
   Manifest *pBaseline;  /* The actual baseline manifest */
   char *zComment;       /* Decoded comment.  The C card. */
   double rDate;         /* Date and time from D card.  0.0 if no D card. */
@@ -388,6 +388,19 @@ static char next_card(ManifestText *p){
 #define SYNTAX(T)  {zErr=(T); goto manifest_syntax_error;}
 
 /*
+** A cache of manifest IDs which manifest_parse() has seen in this
+** session.
+*/
+static Bag seenManifests =  Bag_INIT;
+/*
+** Frees all memory owned by the manifest "has-seen" cache.  Intended
+** to be called only from the app's atexit() handler.
+*/
+void manifest_clear_cache(){
+  bag_clear(&seenManifests);
+}
+
+/*
 ** Parse a blob into a Manifest object.  The Manifest object
 ** takes over the input blob and will free it when the
 ** Manifest object is freed.  Zeros are inserted into the blob
@@ -430,7 +443,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int isRepeat;
   int nSelfTag = 0;     /* Number of T cards referring to this manifest */
   int nSimpleTag = 0;   /* Number of T cards with "+" prefix */
-  static Bag seen;
   const char *zErr = 0;
   unsigned int m;
   unsigned int seenCard = 0;   /* Which card types have been seen */
@@ -438,11 +450,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
   if( rid==0 ){
     isRepeat = 1;
-  }else if( bag_find(&seen, rid) ){
+  }else if( bag_find(&seenManifests, rid) ){
     isRepeat = 1;
   }else{
     isRepeat = 0;
-    bag_insert(&seen, rid);
+    bag_insert(&seenManifests, rid);
   }
 
   /* Every structural artifact ends with a '\n' character.  Exit early
@@ -1706,7 +1718,7 @@ static int manifest_add_checkin_linkages(
   int rid,                   /* The RID of the check-in */
   Manifest *p,               /* Manifest for this check-in */
   int nParent,               /* Number of parents for this check-in */
-  char **azParent            /* hashes for each parent */
+  char * const * azParent    /* hashes for each parent */
 ){
   int i;
   int parentid = 0;
@@ -1940,6 +1952,8 @@ void manifest_ticket_event(
     once = 0;
     zTitleExpr = db_get("ticket-title-expr", "title");
     zStatusColumn = db_get("ticket-status-column", "status");
+    fossil_atexit_free_this(zTitleExpr);
+    fossil_atexit_free_this(zStatusColumn);
   }
   zTitle = db_text("unknown",
     "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
@@ -2200,6 +2214,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
             fossil_error(1, "unknown tag type in manifest: %s", p->aTag);
+            manifest_destroy(p);
             return 0;
         }
         tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue,

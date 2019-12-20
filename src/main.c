@@ -326,6 +326,33 @@ struct Global {
 Global g;
 
 /*
+** Infrastructure for fossil_atexit_free_this().
+*/
+static struct {
+  void* list[20];  /* Pointers to pass to fossil_free() during
+                    ** atexit(). */
+  int n;            /* Number of items currently in this->list. */
+} fossilFreeAtExit = { {0}, 0 };
+
+/*
+** If zMem is not NULL and there is space in fossil's atexit cleanup
+** queue, zMem is added to that queue so that it will be passed to
+** fossil_free() during the atexit() phase of app shutdown. If the
+** queue is full or zMem is NULL, this function has no side effects.
+**
+** This is intended to be called by routines which allocate heap
+** memory for static-scope values which otherwise won't be freed, and
+** the static queue size is relatively small.
+*/
+void fossil_atexit_free_this(void * zMem){
+  if(zMem!=0
+     && fossilFreeAtExit.n < (sizeof(fossilFreeAtExit.list)
+                              / sizeof(fossilFreeAtExit.list[0]))){
+    fossilFreeAtExit.list[fossilFreeAtExit.n++] = zMem;
+  }
+}
+
+/*
 ** atexit() handler which frees up "some" of the resources
 ** used by fossil.
 */
@@ -383,8 +410,17 @@ static void fossil_atexit(void) {
   fossil_free(g.zRepositoryOption);
   fossil_free(g.zSshCmd);
   fossil_free(g.zTop);
-  /* TODO: clean up the file-local content.c::contentCache
-  ** via new function in that file */
+  manifest_clear_cache();
+  content_clear_cache(1);
+  rebuild_clear_cache();
+  if(fossilFreeAtExit.n>0){
+    int i;
+    for(i = 0; i < fossilFreeAtExit.n; ++i){
+      fossil_free(fossilFreeAtExit.list[i]);
+      fossilFreeAtExit.list[i] = 0;
+    }
+    fossilFreeAtExit.n = 0;
+  }
   /*
   ** FIXME: The next two lines cannot always be enabled; however, they
   **        are very useful for tracking down TH1 memory leaks.
