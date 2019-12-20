@@ -394,22 +394,24 @@ static void fossil_atexit(void) {
   }
   fossil_free(g.ckinLockFail);
   fossil_free(g.zAuxSchema);
-  fossil_free(g.zBaseURL);
   fossil_free(g.zConfigDbName);
   fossil_free(g.zErrMsg);
-  fossil_free(g.zExtra);
   fossil_free(g.zHttpAuth);
-  fossil_free(g.zHttpsURL);
   fossil_free(g.zIpAddr);
   fossil_free(g.zLocalDbName);
   fossil_free(g.zLocalRoot);
   fossil_free(g.zNonce);
-  fossil_free(g.zOpenRevision);
-  fossil_free(g.zPath);
-  fossil_free(g.zRepositoryName);
-  fossil_free(g.zRepositoryOption);
   fossil_free(g.zSshCmd);
-  fossil_free(g.zTop);
+#define never_free(x)
+  never_free(g.zTop/* sometimes part of another string */);
+  never_free(g.zPath /* sometimes part of another string */);
+  never_free(g.zBaseURL /* might be the same as g.zTop */);
+  never_free(g.zRepositoryOption/* sometimes static */);
+  never_free(g.zRepositoryName /* sometimes static */);
+  never_free(g.zOpenRevision /* sometimes static */);
+  never_free(g.zHttpsURL /* sometimes = g.zBaseUrl */);
+  never_free(g.zExtra /* might be part of another string */);
+#undef never_free
   manifest_clear_cache();
   content_clear_cache(1);
   rebuild_clear_cache();
