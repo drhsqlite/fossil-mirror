@@ -1634,7 +1634,6 @@ const char *db_repository_filename(void){
       zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
       fossil_free(zFree);
     }
-    fossil_atexit_free_this(zRepo);
   }
   return zRepo;
 }

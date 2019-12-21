@@ -1952,8 +1952,6 @@ void manifest_ticket_event(
     once = 0;
     zTitleExpr = db_get("ticket-title-expr", "title");
     zStatusColumn = db_get("ticket-status-column", "status");
-    fossil_atexit_free_this(zTitleExpr);
-    fossil_atexit_free_this(zStatusColumn);
   }
   zTitle = db_text("unknown",
     "SELECT \"%w\" FROM ticket WHERE tkt_uuid=%Q",
