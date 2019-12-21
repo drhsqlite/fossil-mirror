@@ -214,8 +214,8 @@ static void finish_blob(void){
 ** control artifact to the BLOB table.
 */
 static void finish_tag(void){
-  Blob record, cksum;
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
+    Blob record, cksum;
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s", gimport.zTagPre, gg.zTag,
