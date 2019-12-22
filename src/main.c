@@ -362,6 +362,7 @@ static void fossil_atexit(void) {
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
 #endif
+  free(g.zErrMsg);
   if(g.db){
     db_close(0);
   }
