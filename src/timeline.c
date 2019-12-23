@@ -617,7 +617,8 @@ void www_print_timeline(
       }else{
         cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
       }
-    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t' || zType[0]=='f'){
+    }else if( zType[0]=='g' || zType[0]=='w' || zType[0]=='t'
+              || zType[0]=='n' || zType[0]=='f'){
       cgi_printf("artifact:&nbsp;%z%S</a> ",href("%R/info/%!S",zUuid),zUuid);
     }
 
@@ -1147,7 +1148,7 @@ char *names_of_file(const char *zUuid){
 */
 static void timeline_y_submenu(int isDisabled){
   static int i = 0;
-  static const char *az[14];
+  static const char *az[16];
   if( i==0 ){
     az[0] = "all";
     az[1] = "Any Type";
@@ -1165,6 +1166,8 @@ static void timeline_y_submenu(int isDisabled){
     if( g.perm.RdTkt ){
       az[i++] = "t";
       az[i++] = "Tickets";
+      az[i++] = "n";
+      az[i++] = "New Tickets";
     }
     if( g.perm.RdWiki ){
       az[i++] = "w";
@@ -1518,7 +1521,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    nowiki          Do not show wiki associated with branch or tag
 **    ms=MATCHSTYLE   Set tag match style to EXACT, GLOB, LIKE, REGEXP
 **    u=USER          Only show items associated with USER
-**    y=TYPE          'ci', 'w', 't', 'e', 'f', or 'all'.
+**    y=TYPE          'ci', 'w', 't', 'n', 'e', 'f', or 'all'.
 **    ss=VIEWSTYLE    c: "Compact"  v: "Verbose"   m: "Modern"  j: "Columnar"
 **    advm            Use the "Advanced" or "Busy" menu design.
 **    ng              No Graph.
@@ -2142,6 +2145,7 @@ void page_timeline(void){
     }
     if( (zType[0]=='w' && !g.perm.RdWiki)
      || (zType[0]=='t' && !g.perm.RdTkt)
+     || (zType[0]=='n' && !g.perm.RdTkt)
      || (zType[0]=='e' && !g.perm.RdWiki)
      || (zType[0]=='c' && !g.perm.Read)
      || (zType[0]=='g' && !g.perm.Read)
@@ -2172,13 +2176,20 @@ void page_timeline(void){
         blob_append_sql(&cond, ")");
       }
     }else{ /* zType!="all" */
-      blob_append_sql(&cond, " AND event.type=%Q", zType);
+      if( zType[0]=='n' ){
+        blob_append_sql(&cond,
+            " AND event.type='t' AND event.comment GLOB 'New ticket*'");
+      }else{
+        blob_append_sql(&cond, " AND event.type=%Q", zType);
+      }
       if( zType[0]=='c' ){
         zEType = "check-in";
       }else if( zType[0]=='w' ){
         zEType = "wiki";
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
+      }else if( zType[0]=='t' ){
+        zEType = "new tickets";
       }else if( zType[0]=='e' ){
         zEType = "technical note";
       }else if( zType[0]=='g' ){
