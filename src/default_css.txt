@@ -458,6 +458,12 @@ td.tktDspValue {
   vertical-align: top;
   background-color: #d0d0d0;
 }
+td.tktTlOpen {
+  color: #800;
+}
+td.tktTlClosed {
+  color: #888;
+}
 span.tktError {
   color: red;
   font-weight: bold;

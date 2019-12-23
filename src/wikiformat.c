@@ -1102,7 +1102,7 @@ static int in_this_repo(const char *zUuid){
 ** the ticket is closed and return true. If zTarget
 ** is not the UUID of a ticket, return false.
 */
-static int is_ticket(
+int is_ticket(
   const char *zTarget,    /* Ticket UUID */
   int *pClosed            /* True if the ticket is closed */
 ){
