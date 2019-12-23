@@ -447,14 +447,18 @@ static void showAllFields(void){
 
 /*
 ** WEBPAGE: tktview
-** URL:  tktview?name=UUID
+** URL:  tktview?name=HASH
 **
 ** View a ticket identified by the name= query parameter.
+** Other query parameters:
+**
+**      tl               Show a timeline of the ticket above the status
 */
 void tktview_page(void){
   const char *zScript;
   char *zFullName;
   const char *zUuid = PD("name","");
+  int showTimeline = P("tl")!=0;
 
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
@@ -463,7 +467,6 @@ void tktview_page(void){
   }
   if( g.perm.Hyperlink ){
     style_submenu_element("History", "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Timeline", "%s/tkttimeline/%T", g.zTop, zUuid);
     style_submenu_element("Check-ins", "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
   if( g.anon.NewTkt ){
@@ -479,6 +482,19 @@ void tktview_page(void){
     style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
+  if( showTimeline ){
+    int tagid = db_int(0,"SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
+                       zUuid);
+    if( tagid ){
+      tkt_draw_timeline(tagid, "a");
+      @ <hr>
+    }else{
+      showTimeline = 0;
+    }
+  }
+  if( !showTimeline && g.perm.Hyperlink ){
+    style_submenu_element("Timeline", "%s/info/%T", g.zTop, zUuid);
+  }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -829,17 +845,52 @@ char *ticket_schema_check(const char *zSchema){
 }
 
 /*
+** Draw a timeline for a ticket with tag.tagid given by the tagid
+** parameter.
+*/
+void tkt_draw_timeline(int tagid, const char *zType){
+  Stmt q;
+  char *zFullUuid;
+  char *zSQL;
+  zFullUuid = db_text(0, "SELECT substr(tagname, 5) FROM tag WHERE tagid=%d",
+                         tagid);
+  if( zType[0]=='c' ){
+    zSQL = mprintf(
+         "%s AND event.objid IN "
+         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                         "AND '%s' GLOB (target||'*')) "
+         "ORDER BY mtime DESC",
+         timeline_query_for_www(), zFullUuid, zFullUuid
+    );
+  }else{
+    zSQL = mprintf(
+         "%s AND event.objid IN "
+         "  (SELECT rid FROM tagxref WHERE tagid=%d"
+         "   UNION SELECT srcid FROM backlink"
+                  " WHERE target GLOB '%.4s*'"
+                  "   AND '%s' GLOB (target||'*')"
+         "   UNION SELECT attachid FROM attachment"
+                  " WHERE target=%Q) "
+         "ORDER BY mtime DESC",
+         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
+    );
+  }
+  db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
+  www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
+                     0, 0, 0, 0, 0, 0);
+  db_finalize(&q);
+  fossil_free(zFullUuid);
+}
+
+/*
 ** WEBPAGE: tkttimeline
 ** URL: /tkttimeline?name=TICKETUUID&y=TYPE
 **
 ** Show the change history for a single ticket in timeline format.
 */
 void tkttimeline_page(void){
-  Stmt q;
   char *zTitle;
-  char *zSQL;
   const char *zUuid;
-  char *zFullUuid;
   int tagid;
   char zGlobPattern[50];
   const char *zType;
@@ -874,33 +925,7 @@ void tkttimeline_page(void){
     style_footer();
     return;
   }
-  zFullUuid = db_text(0, "SELECT substr(tagname, 5) FROM tag WHERE tagid=%d",
-                         tagid);
-  if( zType[0]=='c' ){
-    zSQL = mprintf(
-         "%s AND event.objid IN "
-         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
-                                         "AND '%s' GLOB (target||'*')) "
-         "ORDER BY mtime DESC",
-         timeline_query_for_www(), zFullUuid, zFullUuid
-    );
-  }else{
-    zSQL = mprintf(
-         "%s AND event.objid IN "
-         "  (SELECT rid FROM tagxref WHERE tagid=%d"
-         "   UNION SELECT srcid FROM backlink"
-                  " WHERE target GLOB '%.4s*'"
-                  "   AND '%s' GLOB (target||'*')"
-         "   UNION SELECT attachid FROM attachment"
-                  " WHERE target=%Q) "
-         "ORDER BY mtime DESC",
-         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
-    );
-  }
-  db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
-  www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
-                     0, 0, 0, 0, 0, 0);
-  db_finalize(&q);
+  tkt_draw_timeline(tagid, zType);
   style_footer();
 }
 
