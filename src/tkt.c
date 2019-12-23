@@ -366,7 +366,7 @@ int ticket_change(const char *zUuid){
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
-  const char *zSql;
+  char *zSql;
 
   db_multi_exec(
     "DROP TABLE IF EXISTS ticket;"
@@ -379,6 +379,7 @@ void ticket_create_table(int separateConnection){
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
+  fossil_free(zSql);
 }
 
 /*

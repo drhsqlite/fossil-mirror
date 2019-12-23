@@ -214,8 +214,8 @@ static void finish_blob(void){
 ** control artifact to the BLOB table.
 */
 static void finish_tag(void){
-  Blob record, cksum;
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
+    Blob record, cksum;
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s", gimport.zTagPre, gg.zTag,
@@ -228,6 +228,7 @@ static void finish_tag(void){
     blob_appendf(&record, "Z %b\n", &cksum);
     fast_insert_content(&record, 0, 0, 1);
     blob_reset(&cksum);
+    blob_reset(&record);
   }
   import_reset(0);
 }
@@ -338,6 +339,8 @@ static void finish_commit(void){
   ** to work around the problem than to fix git-fast-export.
   */
   if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
+    record.nUsed = 0
+      /*in case fast_insert_comment() did not indirectly blob_reset() it */;
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zBranchPre, gg.zBranch,
         gimport.zBranchSuf, gg.zPrevCheckin);

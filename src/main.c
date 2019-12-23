@@ -366,6 +366,9 @@ static void fossil_atexit(void) {
   if(g.db){
     db_close(0);
   }
+  manifest_clear_cache();
+  content_clear_cache(1);
+  rebuild_clear_cache();
   /*
   ** FIXME: The next two lines cannot always be enabled; however, they
   **        are very useful for tracking down TH1 memory leaks.

@@ -98,9 +98,10 @@ static const char zDefaultTicketTable[] =
 ;
 
 /*
-** Return the ticket table definition
+** Return the ticket table definition in heap-allocated
+** memory owned by the caller.
 */
-const char *ticket_table_schema(void){
+char *ticket_table_schema(void){
   return db_get("ticket-table", zDefaultTicketTable);
 }
 

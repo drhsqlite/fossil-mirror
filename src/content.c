@@ -101,9 +101,11 @@ void content_cache_insert(int rid, Blob *pBlob){
 }
 
 /*
-** Clear the content cache.
+** Clear the content cache. If it is passed true, it
+** also frees all associated memory, otherwise it may
+** retain parts for future uses of the cache.
 */
-void content_clear_cache(void){
+void content_clear_cache(int bFreeIt){
   int i;
   for(i=0; i<contentCache.n; i++){
     blob_reset(&contentCache.a[i].content);
@@ -113,6 +115,11 @@ void content_clear_cache(void){
   bag_clear(&contentCache.inCache);
   contentCache.n = 0;
   contentCache.szTotal = 0;
+  if(bFreeIt){
+    fossil_free(contentCache.a);
+    contentCache.a = 0;
+    contentCache.nAlloc = 0;
+  }
 }
 
 /*
