@@ -2005,7 +2005,10 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   /* First do non-forum post events */
   db_prepare(&q,
     "SELECT"
-    " blob.uuid,"                /* 0 */
+    " CASE WHEN event.type='t'"
+         " THEN (SELECT substr(tagname,5) FROM tag"
+                " WHERE tagid=event.tagid AND tagname LIKE 'tkt-%%')"
+         " ELSE blob.uuid END,"  /* 0 */
     " datetime(event.mtime),"    /* 1 */
     " coalesce(ecomment,comment)"
     "  || ' (user: ' || coalesce(euser,user,'?')"
