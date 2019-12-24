@@ -2207,7 +2207,7 @@ void page_timeline(void){
         zEType = "wiki";
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
-      }else if( zType[0]=='t' ){
+      }else if( zType[0]=='n' ){
         zEType = "new tickets";
       }else if( zType[0]=='e' ){
         zEType = "technical note";
