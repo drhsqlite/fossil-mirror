@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.31.0\salpha\sversion,\sfor\stesting.
-D 2019-12-26T01:26:58.094
+C Fix\sa\scomment\sdescribing\sthe\smeaning\sof\sthe\sBACKLINK.SRCID\sfield\sof\sthe\nrepository\sschema.\s\sNo\schanges\sto\scode.
+D 2019-12-26T02:08:22.088
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -553,7 +553,7 @@ F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
+F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
 F src/security_audit.c 74f8651e0e78e986575a43576c22d8d49a0f83408f18542db4bab12f42ec9d19
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b00e89d47b94116ca1a6fd8beaa5759b0fbe68f68b45d7d8b0b4a80ae25cd042
-R a5893daceee57c03365be9d6b038d742
+P 9258d7462e677cd37df90179c5e4ba4bf699da883b839a05b58a456eeaf7d396
+R c5f87220869354b082863c3287cb99c1
 U drh
-Z bb83f99bf98e7f64286c0b6866bc5fbb
+Z 62d17867c0f55e1b9836fcac49e0120f
