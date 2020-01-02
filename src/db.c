@@ -4010,12 +4010,14 @@ void test_fingerprint(void){
   }else if( g.argc!=2 ){
     fossil_fatal("wrong number of arguments");
   } 
-  fossil_print("legecy:              %z\n", db_fingerprint(rcvid, 0));
+  fossil_print("legacy:              %z\n", db_fingerprint(rcvid, 0));
   fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
   if( g.localOpen ){
     fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
     fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
   }
+  fossil_print("Fossil version:      %s - %.10s %.19s\n", 
+    RELEASE_VERSION, MANIFEST_DATE, MANIFEST_UUID);
 }
 
 /*
