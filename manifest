@@ -1,5 +1,5 @@
-C Fix\sthe\sspelling\sof\s"legacy"\sin\sthe\s"test-fingerprint"\scommand.\s\sAlso\sshow\nthe\scurrent\sFossil\sversion\sin\sthe\s"test-fingerprint"\scommand.
-D 2020-01-02T14:35:51.444
+C Add\s--inverse|-v\sflag\sto\stag\sls,\sper\sdiscussion\sat\shttps://fossil-scm.org/forum/forumpost/944e611710.
+D 2020-01-03T16:39:27.721
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -578,7 +578,7 @@ F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 4f75a6a67ae9bc72f41dee4370aa6d03c4a30b6e34431c931796acddaa2f4fa3
 F src/sync.c 16c91ecfc35119b4437bfb8e5708f4029ad4607b0dfb52fdff03e42b3d6d8744
-F src/tag.c f1a049a1162e7b91748c65d2feb72cc1c415d11aa0882fd4bb7fa4756d5d3e4b
+F src/tag.c 8a0c53995aa7f7f814e95c8fa3376a00f91b0e8feccf80ed0946682ad5fecef8
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
 F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -931,7 +931,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 088aabafd7e50ba5d0ad30593f500146ad89d3515ea6ae2bab1ddcd49d29b428
-R cd2f6c668ba4323f7bdcc1f45e3c2f4a
-U drh
-Z 3530fc8983bff1b5be3ef62ca5ac75e2
+P 2af7fedd67c08dbf3280fc1721b5c4569ce09635866074892ed8290fe07daf70
+R a740e1af408304d666dc403a36e53b17
+T *branch * tag-ls-inverse
+T *sym-tag-ls-inverse *
+T -sym-trunk *
+U stephan
+Z d78a0c2dd977125e4cee537b95fed7fa
