@@ -2513,6 +2513,7 @@ void info_page(void){
   if( rc==1 ){
     if( validate16(zName, nLen) ){
       if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        cgi_set_parameter_nocopy("tl","1",0);
         tktview_page();
         return;
       }

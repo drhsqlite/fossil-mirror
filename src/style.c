@@ -1141,34 +1141,16 @@ void honeypot_page(void){
 ** If zFormat is an empty string, then this is the /test_env page.
 */
 void webpage_error(const char *zFormat, ...){
-  int i;
   int showAll;
   char *zErr = 0;
   int isAuth = 0;
   char zCap[100];
-  static const char *const azCgiVars[] = {
-    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE", "SCGI",
-    "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
-    "HTTP_ACCEPT_LANGUAGE", "HTTP_AUTHENICATION",
-    "HTTP_CONNECTION", "HTTP_HOST",
-    "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
-    "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
-    "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
-    "REMOTE_USER", "REQUEST_METHOD",
-    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
-    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
-    "SQLITE_TMPDIR", "TMPDIR",
-    "TEMP", "TMP", "FOSSIL_VFS",
-    "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
-    "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
-    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
-  };
 
   login_check_credentials();
   if( g.perm.Admin || g.perm.Setup  || db_get_boolean("test_env_enable",0) ){
     isAuth = 1;
   }
-  for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
+  cgi_load_environment();
   if( zFormat[0] ){
     va_list ap;
     va_start(ap, zFormat);

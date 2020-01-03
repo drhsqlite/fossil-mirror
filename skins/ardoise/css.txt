@@ -805,6 +805,12 @@ td.browser,
 td.tktDescLabel {
   vertical-align: top
 }
+td.tktTlOpen {
+  color: #ffa0a0;
+}
+td.tktTlClosed {
+  color: #555;
+}
 div.filetreeline {
   display: table;
   width: 100%;

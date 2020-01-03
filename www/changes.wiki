@@ -3,8 +3,17 @@
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (pending)</h2>
 
-  *  Support Markdown in the default ticket configuration
-  *  Rework the "fossil grep" command to be more useful
+  *  Support Markdown in the default ticket configuration.
+  *  Rework the "[/help?cmd=grep|fossil grep]" command to be more useful.
+  *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
+     setting to the [/help?cmd=settings|settings] command.
+  *  Improve support for CGI on IIS web servers.
+  *  The [/help?cmd=/ext|/ext page] can now render index files,
+     analog to how the embedded docs do.
+  *  Most commands now support the Unix-conventional "<tt>--</tt>"
+     flag to treat all following arguments as filenames
+     instead of flags.
+  *  Several minor enhancements to existing features.
 
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>

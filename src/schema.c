@@ -404,7 +404,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE backlink(
 @   target TEXT,           -- Where the hyperlink points to
 @   srctype INT,           -- 0: check-in  1: ticket  2: wiki
-@   srcid INT,             -- rid for check-in or wiki.  tkt_id for ticket.
+@   srcid INT,             -- EVENT.OBJID for the source document
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
 @ );

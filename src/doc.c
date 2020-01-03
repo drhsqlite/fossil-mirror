@@ -41,7 +41,7 @@ const char *mimetype_from_content(Blob *pBlob){
   */
   static const struct {
     const char *zPrefix;       /* The file prefix */
-    int size;                  /* Length of the prefix */
+    const int size;            /* Length of the prefix */
     const char *zMimetype;     /* The corresponding mimetype */
   } aMime[] = {
     { "GIF87a",                  6, "image/gif"  },
@@ -271,6 +271,7 @@ static const struct {
   { "vrml",       4, "model/vrml"                        },
   { "wav",        3, "audio/x-wav"                       },
   { "wax",        3, "audio/x-ms-wax"                    },
+  { "webp",       4, "image/webp"                        },
   { "wiki",       4, "text/x-fossil-wiki"                },
   { "wma",        3, "audio/x-ms-wma"                    },
   { "wmv",        3, "video/x-ms-wmv"                    },
@@ -510,14 +511,48 @@ int doc_load_content(int vid, const char *zName, Blob *pContent){
 }
 
 /*
+** Check to verify that z[i] is contained within HTML markup.
+**
+** This works by looking backwards in the string for the most recent
+** '<' or '>' character.  If a '<' is found first, then we assume that
+** z[i] is within markup.  If a '>' is seen or neither character is seen,
+** then z[i] is not within markup.
+*/
+static int isWithinHtmlMarkup(const char *z, int i){
+  while( i>=0 && z[i]!='>' && z[i]!='<' ){ i--; }
+  return z[i]=='<';
+}
+
+/*
+** Check to see if z[i] is contained within an href='...' of markup.
+*/
+static int isWithinHref(const char *z, int i){
+  while( i>5
+     && !fossil_isspace(z[i])
+     && z[i]!='\'' && z[i]!='"'
+     && z[i]!='>'
+  ){ i--; }
+  if( i<=6 ) return 0;
+  if( z[i]!='\'' && z[i]!='\"' ) return 0;
+  if( strncmp(&z[i-5],"href=",5)!=0 ) return 0;
+  if( !fossil_isspace(z[i-6]) ) return 0;
+  return 1;
+}
+
+/*
 ** Transfer content to the output.  During the transfer, when text of
 ** the following form is seen:
 **
-**       href="$ROOT/
-**       action="$ROOT/
+**       href="$ROOT/..."
+**       action="$ROOT/..."
+**       href=".../doc/$SELF/..."
 **
-** Convert $ROOT to the root URI of the repository.  Allow ' in place of "
-** and any case for href or action.
+** Convert $ROOT to the root URI of the repository, and $SELF to the 
+** version number of the /doc/ document currently being displayed (if any).
+** Allow ' in place of " and any case for href or action.  
+**
+** Efforts are made to limit this translation to cases where the text is
+** fully contained with an HTML markup element.
 */
 void convert_href_and_output(Blob *pIn){
   int i, base;
@@ -530,9 +565,22 @@ void convert_href_and_output(Blob *pIn){
      && i-base>=9
      && ((fossil_strnicmp(&z[i-6],"href=",5)==0 && fossil_isspace(z[i-7])) ||
          (fossil_strnicmp(&z[i-8],"action=",7)==0 && fossil_isspace(z[i-9])) )
+     && isWithinHtmlMarkup(z, i-6)
     ){
       blob_append(cgi_output_blob(), &z[base], i-base);
       blob_appendf(cgi_output_blob(), "%R");
+      base = i+5;
+    }else
+    if( z[i]=='$'
+     && strncmp(&z[i-5],"/doc/$SELF/", 11)==0
+     && isWithinHref(z,i-5)
+     && isWithinHtmlMarkup(z, i-5)
+     && strncmp(g.zPath, "doc/",4)==0
+    ){
+      int j;
+      for(j=4; g.zPath[j] && g.zPath[j]!='/'; j++){}
+      blob_append(cgi_output_blob(), &z[base], i-base);
+      blob_appendf(cgi_output_blob(), "%.*s", j-4, g.zPath+4);
       base = i+5;
     }
   }

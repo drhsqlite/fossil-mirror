@@ -178,14 +178,14 @@ void rebuild_schema_update_2_0(void){
 ** Variables used to store state information about an on-going "rebuild"
 ** or "deconstruct".
 */
-static int totalSize;       /* Total number of artifacts to process */
-static int processCnt;      /* Number processed so far */
-static int ttyOutput;       /* Do progress output */
-static Bag bagDone;         /* Bag of records rebuilt */
+static int totalSize;          /* Total number of artifacts to process */
+static int processCnt;         /* Number processed so far */
+static int ttyOutput;          /* Do progress output */
+static Bag bagDone = Bag_INIT; /* Bag of records rebuilt */
 
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
 static int cchFNamePrefix;  /* Length of directory prefix in zFNameFormat */
-static char *zDestDir;      /* Destination directory on deconstruct */
+static const char *zDestDir;/* Destination directory on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
 static int fKeepRid1;       /* Flag to preserve RID=1 on de- and reconstruct */
 
@@ -203,6 +203,13 @@ static void percent_complete(int permill){
   }
 }
 
+/*
+** Frees rebuild-level cached state. Intended only to be called by the
+** app-level atexit() handler.
+*/
+void rebuild_clear_cache(){
+  bag_clear(&bagDone);
+}
 
 /*
 ** Called after each artifact is processed
@@ -368,7 +375,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   int incrSize;
   Blob sql;
 
-  bag_init(&bagDone);
+  bag_clear(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
   if (ttyOutput && !g.fQuiet) {

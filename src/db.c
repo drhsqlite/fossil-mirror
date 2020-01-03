@@ -1630,7 +1630,9 @@ const char *db_repository_filename(void){
   if( zRepo==0 ){
     zRepo = db_lget("repository", 0);
     if( zRepo && !file_is_absolute_path(zRepo) ){
+      char * zFree = zRepo;
       zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+      fossil_free(zFree);
     }
   }
   return zRepo;
@@ -2635,7 +2637,11 @@ char *db_get(const char *zName, const char *zDefault){
   if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
+    char * zZ = z;
     z = db_get_versioned(zName, z);
+    if(zZ != z){
+      fossil_free(zZ);
+    }
   }
   if( z==0 ){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
@@ -4004,12 +4010,14 @@ void test_fingerprint(void){
   }else if( g.argc!=2 ){
     fossil_fatal("wrong number of arguments");
   } 
-  fossil_print("legecy:              %z\n", db_fingerprint(rcvid, 0));
+  fossil_print("legacy:              %z\n", db_fingerprint(rcvid, 0));
   fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
   if( g.localOpen ){
     fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
     fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
   }
+  fossil_print("Fossil version:      %s - %.10s %.19s\n", 
+    RELEASE_VERSION, MANIFEST_DATE, MANIFEST_UUID);
 }
 
 /*
