@@ -163,15 +163,35 @@ manager, simply because the creation of complicated binary packages is
 best delegated to people skilled in their creation. Normal Git users are
 not expected to build Git from source and install it themselves.
 
-Fossil is a single self-contained stand-alone executable with hardly any
-dependencies. Fossil can be run inside a minimally configured
-[https://en.wikipedia.org/wiki/Chroot|chroot jail], from a Windows
-memory stick, off a Raspberry Pi with a tiny SD card, etc. To install
-Fossil, one merely puts the executable somewhere in the <tt>$PATH</tt>.
-Fossil is
+Fossil is a single self-contained stand-alone executable which by default
+depends only on common platform libraries. If your platform allows static
+linking &mdash; not all do these days! &mdash; you can even get it down to
+a single executable with no external dependencies at all. Most notably,
+we deliver the official Windows builds of Fossil this way: the Zip file
+contains only <tt>fossil.exe</tt>, a self-contained Fossil executable;
+it is not a <tt>setup.exe</tt> style installer, it is the whole enchilada.
+
+A typical Fossil executable is about 5&nbsp;MiB, not counting system
+libraries it shares in common with Git such as OpenSSL and zlib, which
+we can factor out of the discussion.
+
+These properties allow Fossil to easily run inside a minimally configured
+[https://en.wikipedia.org/wiki/Chroot|chroot jail], from a Windows memory
+stick, off a Raspberry Pi with a tiny SD card, etc. To install Fossil,
+one merely puts the executable somewhere in the <tt>$PATH</tt>. Fossil is
 [https://fossil-scm.org/fossil/doc/trunk/www/build.wiki|straightforward
 to build and install], so that many Fossil users do in fact build and
 install "trunk" versions to get new features between formal releases.
+
+Contrast a basic installation of Git, which takes up about
+15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
+<tt>/usr/share/doc</tt> or <tt>/usr/share/locale</tt>. If you need to
+deploy to any platform where you cannot count facilities like the POSIX
+shell, Perl interpreter, and Tcl/Tk platform needed to fully use Git
+as part of the base platform, the full footprint of a Git installation
+extends to more like 45&nbsp;MiB and thousands of files. This complicates
+several common scenarios: Git for Windows, chrooted Git servers,
+Docker images...
 
 Some say that Git more closely adheres to the Unix philosophy,
 summarized as "many small tools, loosely joined," but we have many
@@ -182,8 +202,11 @@ Sometimes "many features, tightly-coupled" works better. What actually
 matters is effectiveness and efficiency. We believe Fossil achieves
 this.
 
-Git fails on efficiency once you add to it all of the third-party
-software needed to give it a Fossil-equivalent feature set. Consider
+The above size comparisons aren't apples-to-apples anyway. We've
+compared the size of Fossil with all of its [#features | many built-in
+features] to a fairly minimal Git installation. You must add a lot
+of third-party
+software to Git to give it a Fossil-equivalent feature set. Consider
 [https://about.gitlab.com/|GitLab], a third-party extension to Git
 wrapping it in many features, making it roughly Fossil-equivalent,
 though [https://docs.gitlab.com/ee/install/requirements.html|much more
@@ -192,7 +215,7 @@ Fossil setup. GitLab's basic requirements are easy to accept when you're dedicat
 a local rack server or blade to it, since its minimum requirements are
 more or less a description of the smallest
 thing you could call a "server" these days, but when you go to host that
-in the cloud, you can expect to pay about 8⨉ as much to comfortably host
+in the cloud, you can expect to pay about 8× as much to comfortably host
 GitLab as for Fossil.³ This difference is largely due to basic
 technology choices: Ruby and PostgreSQL vs C and SQLite.
 

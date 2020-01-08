@@ -1,5 +1,5 @@
-C Healed\sinadvertent\sfork\sof\strunk
-D 2020-01-08T18:30:37.515
+C Clarified\spoint\s2.2\sof\sfossil-v-git.wiki,\sadding\smore\sinfo\sabout\sthe\nsizes\sof\sFossil\svs\sGit\sin\sresponse\sto\scomments\son\sthis\sHacker\sNews\nposting:\shttps://news.ycombinator.com/item?id=21974942
+D 2020-01-08T19:18:45.004
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -838,7 +838,7 @@ F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 6094fdbd9d42727a94b3ce5a3a5cc1af6ecb738ca819fccde1ab7ee701550079
+F www/fossil-v-git.wiki a22e72bbcf5857191048e82254adaeddf7a4947265379e4c0a6fc171915db13d
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd9e211d39d0dd377d05f120b79761ca8f3b265983a7c5f0cc9748e768188a5b 63f5031476e15b6d4bca5a12692b20cfcffbe08016827bb62548a978625fa19b
-R 9e79b368372ca11a4bc9bbe002370c6e
+P 636b47f9a2ba1540c0b6d1e666f0845cec4f150089c45257695465076b0963cb
+R 7f0d6d26148d0621ca5c8c32ebe148fc
 U wyoung
-Z 63864cbb7cffbee6fc14d881a8c0a2f1
+Z 3cff760fd1836d93081c3e01466845d4
