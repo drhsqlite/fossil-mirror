@@ -34,30 +34,68 @@ Differences between Fossil and Git are summarized by the following table,
 with further description in the text that follows.
 
 <blockquote><table border=1 cellpadding=5 align=center>
-<tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
-<tr><td>File versioning only</td>
+<tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
+<tr>
+    <td>File versioning only</td>
     <td>VCS, tickets, wiki, docs, notes, forum, UI,
-    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td></tr>
-<tr><td>Sprawling, incoherent, and inefficient</td>
-    <td>Self-contained and efficient</td></tr>
-<tr><td>Ad-hoc pile-of-files key/value database</td>
-    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td></tr>
-<tr><td>Portable to POSIX systems only</td><td>Runs just about anywhere</td></tr>
-<tr><td>Bazaar-style development</td><td>Cathedral-style development</td></tr>
-<tr><td>Designed for Linux kernel development</td>
-    <td>Designed for SQLite development</td></tr>
-<tr><td>Many contributors</td>
-    <td>Select contributors</td></tr>
-<tr><td>Focus on individual branches</td>
-    <td>Focus on the entire tree of changes</td></tr>
-<tr><td>One check-out per repository</td>
-    <td>Many check-outs per repository</td></tr>
-<tr><td>Remembers what you should have done</td>
-    <td>Remembers what you actually did</td></tr>
-<tr><td>Commit first</td>
-    <td>Test first</td></tr>
-<tr><td>SHA-2</td>
-    <td>SHA-3</td></tr>
+    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
+    <td><a href="#features">2.1&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Sprawling, incoherent, and inefficient</td>
+    <td>Self-contained and efficient</td>
+    <td><a href="#efficient">2.2&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Ad-hoc pile-of-files key/value database</td>
+    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td>
+    <td><a href="#durable">2.3&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Portable to POSIX systems only</td>
+    <td>Runs just about anywhere</td>
+    <td><a href="#portable">2.4&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Bazaar-style development</td>
+    <td>Cathedral-style development</td>
+    <td><a href="#devorg">2.5.1&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Designed for Linux kernel development</td>
+    <td>Designed for SQLite development</td>
+    <td><a href="#scale">2.5.2&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Many contributors</td>
+    <td>Select contributors</td>
+    <td><a href="#contrib">2.5.3&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Focus on individual branches</td>
+    <td>Focus on the entire tree of changes</td>
+    <td><a href="#branches">2.5.4&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>One check-out per repository</td>
+    <td>Many check-outs per repository</td>
+    <td><a href="#checkouts">2.6&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Remembers what you should have done</td>
+    <td>Remembers what you actually did</td>
+    <td><a href="#history">2.7&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Commit first</td>
+    <td>Test first</td>
+    <td><a href="#testing">2.8&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>SHA-2</td>
+    <td>SHA-3</td>
+    <td><a href="#hash">2.9&nbsp;&darr;</a></td>
+</tr>
 </table></blockquote>
 
 <h3 id="features">2.1 Featureful</h3>
