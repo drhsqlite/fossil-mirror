@@ -11,6 +11,7 @@ names:
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
 <li> <b>root :</b> <i>branchname</i>
+<li> <b>merge-in :</b> <i>branchname</i>
 <li> Special names:
 <ul>
 <li> <b>tip</b>
