@@ -564,17 +564,25 @@ tightly focused and cohesive implementation.
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
-The default mode of operation in Git is to have a single working
-directory with a single <tt>.git</tt> subdirectory holding the actual
-local repository contents.
+Because Git commingles the repository data with the initial checkout of
+that repository, the default mode of operation in Git is to stick to that
+single work/repo tree, even when that's a shortsighted way of working.
 
 Fossil doesn't work that way. A Fossil repository is a SQLite database
-file which is normally stored outside the working directory. You can
+file which is normally stored outside the working checkout directory. You can
 [/help?cmd=open | open] a Fossil repository any number of times into
 any number of working directories. A common usage pattern is to have one
 working directory per active working branch, so that switching branches
 is done with a <tt>cd</tt> command rather than by checking out the
 branches successively in a single working directory.
+
+Fossil does allow you to switch branches within a working checkout
+directory, and this is also often done. It is simply that there is no
+inherent penalty to either choice in Fossil as there is in Git. The
+standard advice is to use a switch-in-place workflow in Fossil when
+the disturbance from switching branches is small, and to use multiple
+checkouts when you have long-lived working branches that are different
+enough that switching in place is disruptive.
 
 You can use Git in the Fossil style, either by manually symlinking the
 <tt>.git</tt> directory from one working directory to another or by use
@@ -585,27 +593,30 @@ have one working directory only. Most Git tutorials teach this style, so
 it is how most people learn to use Git. Because relatively few people
 use Git with multiple working directories per repository, there are
 [https://duckduckgo.com/?q=git+worktree+problem | several known
-problems] in working that way, which don't happen in Fossil because of
+problems] with that way of working, problems which don't happen in Fossil because of
 the clear separation between repository and working directory.
 
-Switching branches inside a single working directory loses local context
+This distinction matters because switching branches inside a single working directory loses local context
 on each switch.
 
 For instance, in any software project where the runnable program must be
 built from source files, you invalidate build objects on each switch,
-artificially increasing the time required to switch versions. This
+artificially increasing the time required to switch versions. Most obviously, this
 affects software written in statically-compiled programming languages
 such as C, Java, and Haskell, but it can even affect programs written in
-dynamic languages like JavaScript. A common
+dynamic languages like JavaScript. A typical
 [https://en.wikipedia.org/wiki/Single-page_application | SPA] build
-process involves a [http://browserify.org/ | Browserify] pass to convert
-[https://nodejs.org/ | Node] packages to run in a web browser,
-[https://sass-lang.com | SASS files] to CSS,
-[https://www.typescriptlang.org | Typescript] to JavaScript, etc., to
-say nothing of [https://github.com/mishoo/UglifyJS | uglification] and
-other passes. Once all that processing work is done for a given input
+process involves several passes: [http://browserify.org/ | Browserify] to convert
+[https://nodejs.org/ | Node] packages so they'll run in a web browser,
+[https://sass-lang.com | SASS] to CSS translation,
+transpilation of [https://www.typescriptlang.org | Typescript] to JavaScript,
+[https://github.com/mishoo/UglifyJS | uglification], etc.
+Once all that processing work is done for a given input
 file in a given working directory, why re-do that work just to switch
-versions?
+versions? If most of the files that differ between versions don't change
+very often, you can save substantial time by switching branches with
+<tt>cd</tt> rather than swapping versions in-place within a working
+checkout directory.
 
 For another example, you might have an active long-running test grinding
 away in a working directory, then get a call from a customer requiring
@@ -615,7 +626,8 @@ order to switch your lone working directory to the stable branch.
 
 Disk space is cheap. Having several working directories, each with its
 own local state, makes switching versions cheap and fast. Plus,
-<tt>cd</tt> is faster to type than <tt>git checkout</tt>.
+<tt>cd</tt> is faster to type than <tt>git checkout</tt> or <tt>fossil
+update</tt>.
 
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
