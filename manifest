@@ -1,5 +1,5 @@
-C Fix\sthe\sspelling\sof\s"legacy"\sin\sthe\s"test-fingerprint"\scommand.\s\sAlso\sshow\nthe\scurrent\sFossil\sversion\sin\sthe\s"test-fingerprint"\scommand.
-D 2020-01-02T14:35:51.444
+C Edit\sthe\sExecutive\sSummary\sto\smention\smerge-in:\sprefix.
+D 2020-01-08T17:56:40.768
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -795,7 +795,7 @@ F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
 F www/changes.wiki 4834f391453cf393f99c8f88788802443a2e89df2e4586598d327f5212bac72d
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 911ba32f0c06b7f01cc0dd3bd92fe06450680ea09dda8ac8f69834853bb0d4e9
+F www/checkin_names.wiki 8363ec4673847d2d059a8949d152c291f3a3fed50271e03cf461a4354470ddd9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md 98a9f4a11f6e1a4ed06e13b0adc1806472b03e825575c2f503f90d9dcdf878d9
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -931,7 +931,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 088aabafd7e50ba5d0ad30593f500146ad89d3515ea6ae2bab1ddcd49d29b428
-R cd2f6c668ba4323f7bdcc1f45e3c2f4a
-U drh
-Z 3530fc8983bff1b5be3ef62ca5ac75e2
+P 2af7fedd67c08dbf3280fc1721b5c4569ce09635866074892ed8290fe07daf70
+Q +e34e7768bb5c21ba1366700da38a78ec1569fdb62b4855a4fee72462e05db089
+R 482eee865e5e7d567445b7a68b099445
+U ashepilko
+Z e342a74014639888b9889a465f1e4e3e
