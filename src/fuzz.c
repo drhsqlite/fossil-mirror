@@ -53,7 +53,6 @@
 */
 #include "config.h"
 #include "fuzz.h"
-#include <stdint.h>
 
 #if LOCAL_INTERFACE
 /*
