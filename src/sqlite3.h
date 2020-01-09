@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.31.0"
 #define SQLITE_VERSION_NUMBER 3031000
-#define SQLITE_SOURCE_ID      "2019-12-26 01:10:17 f482a4cdfa768941e22c399de8ec29a55e729529eeae86d3832077ad1bef22f3"
+#define SQLITE_SOURCE_ID      "2020-01-09 20:44:37 5720924cb07766cd54fb042da58f4b4acf12b60029fba86a23a606ad0d0f7c68"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -536,6 +536,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_CONSTRAINT_UNIQUE       (SQLITE_CONSTRAINT | (8<<8))
 #define SQLITE_CONSTRAINT_VTAB         (SQLITE_CONSTRAINT | (9<<8))
 #define SQLITE_CONSTRAINT_ROWID        (SQLITE_CONSTRAINT |(10<<8))
+#define SQLITE_CONSTRAINT_PINNED       (SQLITE_CONSTRAINT |(11<<8))
 #define SQLITE_NOTICE_RECOVER_WAL      (SQLITE_NOTICE | (1<<8))
 #define SQLITE_NOTICE_RECOVER_ROLLBACK (SQLITE_NOTICE | (2<<8))
 #define SQLITE_WARNING_AUTOINDEX       (SQLITE_WARNING | (1<<8))
@@ -2264,6 +2265,25 @@ struct sqlite3_mem_methods {
 ** compile-time option.
 ** </dd>
 **
+** [[SQLITE_DBCONFIG_TRUSTED_SCHEMA]]
+** <dt>SQLITE_DBCONFIG_TRUSTED_SCHEMA</td>
+** <dd>The SQLITE_DBCONFIG_TRUSTED_SCHEMA option tells the SQLite to
+** assume that database schemas are untainted by malicious content.
+** When the SQLITE_DBCONFIG_TRUSTED_SCHEMA option is disabled, SQLite
+** takes additional defensive steps to protect the application from harm
+** including, but not limited to, the following:
+** <ul>
+** <li> Prohibit the use of SQL functions inside triggers, views,
+** CHECK constraints, DEFAULT VALUEs, index definitions, and/or
+** generated columns unless those functions are tagged
+** with [SQLITE_INNOCUOUS].
+** <li> Pohibit the use of virtual tables inside of triggers and/or views
+** unless those virtual tables are tagged with [SQLITE_VTAB_INNOCUOUS].
+** </ul>
+** This setting defaults to "on" for legacy compatibility, however
+** all applications are advised to turn it off if possible.
+** </dd>
+**
 ** [[SQLITE_DBCONFIG_LEGACY_FILE_FORMAT]]
 ** <dt>SQLITE_DBCONFIG_LEGACY_FILE_FORMAT</td>
 ** <dd>The SQLITE_DBCONFIG_LEGACY_FILE_FORMAT option activates or deactivates
@@ -2304,7 +2324,8 @@ struct sqlite3_mem_methods {
 #define SQLITE_DBCONFIG_DQS_DDL               1014 /* int int* */
 #define SQLITE_DBCONFIG_ENABLE_VIEW           1015 /* int int* */
 #define SQLITE_DBCONFIG_LEGACY_FILE_FORMAT    1016 /* int int* */
-#define SQLITE_DBCONFIG_MAX                   1016 /* Largest DBCONFIG */
+#define SQLITE_DBCONFIG_TRUSTED_SCHEMA        1017 /* int int* */
+#define SQLITE_DBCONFIG_MAX                   1017 /* Largest DBCONFIG */
 
 /*
 ** CAPI3REF: Enable Or Disable Extended Result Codes
@@ -4995,11 +5016,25 @@ SQLITE_API int sqlite3_create_window_function(
 ** [sqlite3_create_function_v2()].
 **
 ** The SQLITE_DETERMINISTIC flag means that the new function always gives
-** the same output when the input parameters are the same. The abs() function
-** is deterministic, for example, but randomblob() is not.  Functions must
+** the same output when the input parameters are the same.
+** The [abs|abs() function] is deterministic, for example, but
+** [randomblob|randomblob()] is not.  Functions must
 ** be deterministic in order to be used in certain contexts such as
 ** [CHECK constraints] or [generated columns].  SQLite might also optimize
 ** deterministic functions by factoring them out of inner loops.
+**
+** The SQLITE_INNOCUOUS flag means that the new function is unlikely
+** to cause problems even if misused.  An innocuous function should have
+** no side effects and consume few resources. The [abs|abs() function] 
+** is an example of an innocuous function.
+** The [load_extension() SQL function] is not innocuous because of its
+** side effects.  Some heightened security settings
+** ([SQLITE_DBCONFIG_UNSAFE_FUNC_IN_VIEW])
+** disable the use of SQLlfunctions inside views and triggers unless
+** the function is tagged with SQLITE_INNOCUOUS.  Most built-in functions
+** are innocuous.  Developers are advised to avoid using the
+** SQLITE_INNOCUOUS flag for application-defined functions unless the
+** function is specifically intended for use inside of views and triggers.
 **
 ** The SQLITE_DIRECTONLY flag means that the function may only be invoked
 ** from top-level SQL, and cannot be used in VIEWs or TRIGGERs.  This is
@@ -5020,6 +5055,7 @@ SQLITE_API int sqlite3_create_window_function(
 #define SQLITE_DETERMINISTIC    0x000000800
 #define SQLITE_DIRECTONLY       0x000080000
 #define SQLITE_SUBTYPE          0x000100000
+#define SQLITE_INNOCUOUS        0x000200000
 
 /*
 ** CAPI3REF: Deprecated Functions
@@ -5551,7 +5587,7 @@ SQLITE_API void sqlite3_result_subtype(sqlite3_context*,unsigned int);
 ** <li> [SQLITE_UTF16_ALIGNED].
 ** </ul>)^
 ** ^The eTextRep argument determines the encoding of strings passed
-** to the collating function callback, xCallback.
+** to the collating function callback, xCompare.
 ** ^The [SQLITE_UTF16] and [SQLITE_UTF16_ALIGNED] values for eTextRep
 ** force strings to be UTF16 with native byte order.
 ** ^The [SQLITE_UTF16_ALIGNED] value for eTextRep forces strings to begin
@@ -5560,18 +5596,19 @@ SQLITE_API void sqlite3_result_subtype(sqlite3_context*,unsigned int);
 ** ^The fourth argument, pArg, is an application data pointer that is passed
 ** through as the first argument to the collating function callback.
 **
-** ^The fifth argument, xCallback, is a pointer to the collating function.
+** ^The fifth argument, xCompare, is a pointer to the collating function.
 ** ^Multiple collating functions can be registered using the same name but
 ** with different eTextRep parameters and SQLite will use whichever
 ** function requires the least amount of data transformation.
-** ^If the xCallback argument is NULL then the collating function is
+** ^If the xCompare argument is NULL then the collating function is
 ** deleted.  ^When all collating functions having the same name are deleted,
 ** that collation is no longer usable.
 **
 ** ^The collating function callback is invoked with a copy of the pArg 
 ** application data pointer and with two strings in the encoding specified
-** by the eTextRep argument.  The collating function must return an
-** integer that is negative, zero, or positive
+** by the eTextRep argument.  The two integer parameters to the collating
+** function callback are the length of the two strings, in bytes. The collating
+** function must return an integer that is negative, zero, or positive
 ** if the first string is less than, equal to, or greater than the second,
 ** respectively.  A collating function must always return the same answer
 ** given the same inputs.  If two or more collating functions are registered
@@ -8867,7 +8904,7 @@ SQLITE_API int sqlite3_vtab_config(sqlite3*, int op, ...);
 **
 ** <dl>
 ** [[SQLITE_VTAB_CONSTRAINT_SUPPORT]]
-** <dt>SQLITE_VTAB_CONSTRAINT_SUPPORT
+** <dt>SQLITE_VTAB_CONSTRAINT_SUPPORT</dt>
 ** <dd>Calls of the form
 ** [sqlite3_vtab_config](db,SQLITE_VTAB_CONSTRAINT_SUPPORT,X) are supported,
 ** where X is an integer.  If X is zero, then the [virtual table] whose
@@ -8896,9 +8933,31 @@ SQLITE_API int sqlite3_vtab_config(sqlite3*, int op, ...);
 ** return SQLITE_OK. Or, if this is not possible, it may return
 ** SQLITE_CONSTRAINT, in which case SQLite falls back to OR ABORT 
 ** constraint handling.
+** </dd>
+**
+** [[SQLITE_VTAB_INNOCUOUS]]<dt>SQLITE_VTAB_INNOCUOUS</dt>
+** <dd>Calls of the form
+** [sqlite3_vtab_config](db,SQLITE_VTAB_INNOCUOUS) from within the
+** the [xConnect] or [xCreate] methods of a [virtual table] implmentation
+** identify that virtual table as being safe to use from within triggers
+** and views.  Conceptually, the SQLITE_VTAB_INNOCUOUS tag means that the
+** virtual table can do no serious harm even if it is controlled by a
+** malicious hacker.  Developers should avoid setting the SQLITE_VTAB_INNOCUOUS
+** flag unless absolutely necessary.
+** </dd>
+**
+** [[SQLITE_VTAB_DIRECTONLY]]<dt>SQLITE_VTAB_DIRECTONLY</dt>
+** <dd>Calls of the form
+** [sqlite3_vtab_config](db,SQLITE_VTAB_DIRECTONLY) from within the
+** the [xConnect] or [xCreate] methods of a [virtual table] implmentation
+** prohibits that virtual table from being used from within triggers and
+** views.
+** </dd>
 ** </dl>
 */
 #define SQLITE_VTAB_CONSTRAINT_SUPPORT 1
+#define SQLITE_VTAB_INNOCUOUS          2
+#define SQLITE_VTAB_DIRECTONLY         3
 
 /*
 ** CAPI3REF: Determine The Virtual Table Conflict Policy
