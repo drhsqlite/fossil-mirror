@@ -1,5 +1,5 @@
-C Clarified\spoint\s2.2\sof\sfossil-v-git.wiki,\sadding\smore\sinfo\sabout\sthe\nsizes\sof\sFossil\svs\sGit\sin\sresponse\sto\scomments\son\sthis\sHacker\sNews\nposting:\shttps://news.ycombinator.com/item?id=21974942
-D 2020-01-08T19:18:45.004
+C Modify\sthe\s/doc\swebpage\sso\sthat\sif\sthe\sfirst\sterm\sof\sthe\sargument\sis\s"latest"\nit\schooses\sthe\smost\srecent\scheck-in\sfor\sthe\sdocument\sregardless\sof\swhat\nbranch\sthat\scheck-in\soccurred\son.
+D 2020-01-09T15:29:46.072
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -470,7 +470,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
-F src/doc.c 86642bf57dea3126c659cff7004b72ae73fa9762ab7b81393e51760b36353781
+F src/doc.c 176e02366764e9c5fef25acb6143055fbee96c6214927ef0ce2d1352c0d326a1
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 636b47f9a2ba1540c0b6d1e666f0845cec4f150089c45257695465076b0963cb
-R 7f0d6d26148d0621ca5c8c32ebe148fc
-U wyoung
-Z 3cff760fd1836d93081c3e01466845d4
+P 9dcb3de471d35e7df777001f9f3f3ebe7f055c5e2ac06d5688b89255e1eef1aa
+R 99ebcceb64163484714496f67f44dc4e
+U drh
+Z fba47233f0bbd54582810f2b9b3a3a95

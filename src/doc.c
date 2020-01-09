@@ -677,6 +677,9 @@ void document_render(
 **     "ckout"    means the current check-out, if the server is run from
 **                within a check-out, otherwise it is the same as "tip"
 **
+**     "latest"   means use the most recent check-in for the document
+**                regardless of what branch it occurs on.
+**
 ** FILE is the name of a file to delivered up as a webpage.  FILE is relative
 ** to the root of the source tree of the repository. The FILE must
 ** be a part of CHECKIN, except when CHECKIN=="ckout" when FILE is read
@@ -746,6 +749,16 @@ void doc_page(void){
       zCheckin = mprintf("%.*s", i, zName);
       if( fossil_strcmp(zCheckin,"ckout")==0 && g.localOpen==0 ){
         zCheckin = "tip";
+      }else if( fossil_strcmp(zCheckin,"latest")==0 ){
+        char *zNewCkin = db_text(0,
+          "SELECT uuid FROM blob, mlink, event, filename"
+          " WHERE filename.name=%Q"
+          "   AND mlink.fnid=filename.fnid"
+          "   AND blob.rid=mlink.mid"
+          "   AND event.objid=mlink.mid"
+          " ORDER BY event.mtime DESC LIMIT 1",
+          zName + i + 1);
+        if( zNewCkin ) zCheckin = zNewCkin;
       }
     }
     if( nMiss==count(azSuffix) ){
