@@ -1,5 +1,5 @@
-C Modify\sthe\s/doc\swebpage\sso\sthat\sif\sthe\sfirst\sterm\sof\sthe\sargument\sis\s"latest"\nit\schooses\sthe\smost\srecent\scheck-in\sfor\sthe\sdocument\sregardless\sof\swhat\nbranch\sthat\scheck-in\soccurred\son.
-D 2020-01-09T15:29:46.072
+C Fix\stypos.
+D 2020-01-09T20:03:31.121
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -522,7 +522,7 @@ F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297
 F src/main.c f7633ba20675648d1cdebd0fbe69824e797142b1d684700bd43f975ed02c9916
 F src/main.mk fd47835e2e8a2f70e95ce387dfdb458f88e1877f845d81ddedeb3ae19d3527d9
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
-F src/makeheaders.html c09a2e625c04fe6ac83bcbe148af321f75a956eb
+F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl e6366ee7862a999785e33957c4caea204602603c0f5e5665b181c7e492b0e1d0 x
 F src/manifest.c bcc5df212b950ffff5c6ad5ff29f0a567110dcf3523416260211c06468a62b36
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9dcb3de471d35e7df777001f9f3f3ebe7f055c5e2ac06d5688b89255e1eef1aa
-R 99ebcceb64163484714496f67f44dc4e
-U drh
-Z fba47233f0bbd54582810f2b9b3a3a95
+P d08bc9e61f3abf2d928f53c8da36efa9c85ba33affc337004054a7a17ac96506
+R 81db871bf069d2c5e0f3749bbd3239fe
+U ashepilko
+Z 715766827b45ceab959058524ed244b4
