@@ -138,6 +138,12 @@ endif()
 # binary dir.
 #
 
+if(isDebugBuild)
+    set_property(DIRECTORY APPEND PROPERTY
+        COMPILE_DEFINITIONS FOSSIL_DEBUG
+    )
+endif()
+
 set(fossil_build_FLAGS "")
 if(build_FLAGS)
     set(fossil_build_FLAGS ${build_FLAGS})
@@ -166,6 +172,10 @@ if(MSVC)
     )
 
 else(MSVC)
+
+    set_property(DIRECTORY APPEND PROPERTY
+        COMPILE_DEFINITIONS HAVE_AUTOCONFIG_H;_HAVE_SQLITE_CONFIG_H
+    )
 
     file(RELATIVE_PATH fossil_DESTDIR "${fossil_BINARY_DIR}" "${fossil_INSTALL_DIR}")
 
