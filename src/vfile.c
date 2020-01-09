@@ -90,8 +90,8 @@ int load_vfile_from_rid(int vid){
     return 0;
   }
   db_prepare(&ins,
-    "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
-    " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
+    "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname,mhash) "
+    " VALUES(:vid,:isexe,:islink,:id,:id,:name,NULL)");
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
@@ -244,7 +244,7 @@ void vfile_check_signature(int vid, unsigned int cksigFlags){
       assert( origSize==currentSize );
       if( !hname_verify_file_hash(zName, zUuid, nUuid) ) chnged = 1;
     }
-    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4) ){
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2 || chnged==4)){
       i64 desiredMtime;
       if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
         if( currentMtime!=desiredMtime ){
@@ -361,24 +361,6 @@ void vfile_to_disk(
   db_finalize(&q);
 }
 
-
-/*
-** Delete from the disk every file in VFILE vid.
-*/
-void vfile_unlink(int vid){
-  Stmt q;
-  db_prepare(&q, "SELECT %Q || pathname FROM vfile"
-                 " WHERE vid=%d AND mrid>0", g.zLocalRoot, vid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName;
-
-    zName = db_column_text(&q, 0);
-    file_delete(zName);
-  }
-  db_finalize(&q);
-  db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
-}
-
 /*
 ** Check to see if the directory named in zPath is the top of a checkout.
 ** In other words, check to see if directory pPath contains a file named
@@ -450,15 +432,17 @@ static int is_temporary_file(const char *zName){
 #define SCAN_NESTED 0x004    /* Scan for empty dirs in nested checkouts */
 #define SCAN_MTIME  0x008    /* Populate mtime column */
 #define SCAN_SIZE   0x010    /* Populate size column */
+#define SCAN_ISEXE  0x020    /* Populate isexe column */
 #endif /* INTERFACE */
 
 /*
 ** Load into table SFILE the name of every ordinary file in
 ** the directory pPath.   Omit the first nPrefix characters of
 ** of pPath when inserting into the SFILE table.
-**
 ** Subdirectories are scanned recursively.
-** Omit files named in VFILE.
+**
+** Omit files named in VFILE if eFType==RepoFILE.  Include all files
+** if eFType==ExtFILE.
 **
 ** Files whose names begin with "." are omitted unless the SCAN_ALL
 ** flag is set.
@@ -472,7 +456,8 @@ void vfile_scan(
   int nPrefix,           /* Number of bytes in directory name */
   unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
   Glob *pIgnore1,        /* Do not add files that match this GLOB */
-  Glob *pIgnore2         /* Omit files matching this GLOB too */
+  Glob *pIgnore2,        /* Omit files matching this GLOB too */
+  int eFType             /* ExtFILE or RepoFILE */
 ){
   DIR *d;
   int origSize;
@@ -492,16 +477,30 @@ void vfile_scan(
   if( skipAll ) return;
 
   if( depth==0 ){
-    db_prepare(&ins,
-      "INSERT OR IGNORE INTO sfile(pathname%s%s) SELECT :file%s%s"
-      "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
-      " pathname=:file %s)",
-      scanFlags & SCAN_MTIME ? ", mtime"  : "",
-      scanFlags & SCAN_SIZE  ? ", size"   : "",
-      scanFlags & SCAN_MTIME ? ", :mtime" : "",
-      scanFlags & SCAN_SIZE  ? ", :size"  : "",
-      filename_collation()
-    );
+    if( eFType==ExtFILE ){
+      db_prepare(&ins,
+        "INSERT OR IGNORE INTO sfile(pathname%s%s%s) VALUES(:file%s%s%s)",
+        scanFlags & SCAN_MTIME ? ",mtime"  : "",
+        scanFlags & SCAN_SIZE  ? ",size"   : "",
+        scanFlags & SCAN_ISEXE ? ",isexe"  : "",
+        scanFlags & SCAN_MTIME ? ",:mtime" : "",
+        scanFlags & SCAN_SIZE  ? ",:size"  : "",
+        scanFlags & SCAN_ISEXE ? ",:isexe" : ""
+      );
+    }else{
+      db_prepare(&ins,
+        "INSERT OR IGNORE INTO sfile(pathname%s%s%s) SELECT :file%s%s%s"
+        "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+        " pathname=:file %s)",
+        scanFlags & SCAN_MTIME ? ",mtime"  : "",
+        scanFlags & SCAN_SIZE  ? ",size"   : "",
+        scanFlags & SCAN_ISEXE ? ",isexe"  : "",
+        scanFlags & SCAN_MTIME ? ",:mtime" : "",
+        scanFlags & SCAN_SIZE  ? ",:size"  : "",
+        scanFlags & SCAN_ISEXE ? ",:isexe" : "",
+        filename_collation()
+      );
+    }
   }
   depth++;
 
@@ -524,12 +523,12 @@ void vfile_scan(
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zPath, RepoFILE)==1) : (pEntry->d_type==DT_DIR) ){
+          ? (file_isdir(zPath, eFType)==1) : (pEntry->d_type==DT_DIR) ){
 #else
-      }else if( file_isdir(zPath, RepoFILE)==1 ){
+      }else if( file_isdir(zPath, eFType)==1 ){
 #endif
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore1, pIgnore2, eFType);
         }
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
@@ -540,10 +539,13 @@ void vfile_scan(
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           if( scanFlags & SCAN_MTIME ){
-            db_bind_int(&ins, ":mtime", file_mtime(zPath, RepoFILE));
+            db_bind_int(&ins, ":mtime", file_mtime(zPath, eFType));
           }
           if( scanFlags & SCAN_SIZE ){
-            db_bind_int(&ins, ":size", file_size(zPath, RepoFILE));
+            db_bind_int(&ins, ":size", file_size(zPath, eFType));
+          }
+          if( scanFlags & SCAN_ISEXE ){
+            db_bind_int(&ins, ":isexe", file_isexe(zPath, eFType));
           }
           db_step(&ins);
           db_reset(&ins);
@@ -584,7 +586,8 @@ int vfile_dir_scan(
   int nPrefix,           /* Number of bytes in base directory name */
   unsigned scanFlags,    /* Zero or more SCAN_xxx flags */
   Glob *pIgnore1,        /* Do not add directories that match this GLOB */
-  Glob *pIgnore2         /* Omit directories matching this GLOB too */
+  Glob *pIgnore2,        /* Omit directories matching this GLOB too */
+  int eFType             /* ExtFILE or RepoFILE */
 ){
   int result = 0;
   DIR *d;
@@ -644,14 +647,14 @@ int vfile_dir_scan(
         /* do nothing */
 #ifdef _DIRENT_HAVE_D_TYPE
       }else if( (pEntry->d_type==DT_UNKNOWN || pEntry->d_type==DT_LNK)
-          ? (file_isdir(zPath, RepoFILE)==1) : (pEntry->d_type==DT_DIR) ){
+          ? (file_isdir(zPath, eFType)==1) : (pEntry->d_type==DT_DIR) ){
 #else
-      }else if( file_isdir(zPath, RepoFILE)==1 ){
+      }else if( file_isdir(zPath, eFType)==1 ){
 #endif
         if( (scanFlags & SCAN_NESTED) || !vfile_top_of_checkout(zPath) ){
           char *zSavePath = mprintf("%s", zPath);
           int count = vfile_dir_scan(pPath, nPrefix, scanFlags, pIgnore1,
-                                     pIgnore2);
+                                     pIgnore2, eFType);
           db_bind_text(&ins, ":file", &zSavePath[nPrefix+1]);
           db_bind_int(&ins, ":count", count);
           db_step(&ins);
@@ -967,4 +970,131 @@ void test_agg_cksum_cmd(void){
   vfile_aggregate_checksum_manifest(vid, &hash, &hash2);
   printf("manifest: %s\n", blob_str(&hash));
   printf("recorded: %s\n", blob_str(&hash2));
+}
+
+/*
+** This routine recomputes certain columns of the vfile and vmerge tables
+** when the associated repository is swapped out for a clone of the same
+** project, and the blob.rid value change.  The following columns are
+** updated:
+**
+**      vmerge.merge
+**      vfile.vid
+**      vfile.rid
+**      vfile.mrid
+**
+** Also:
+**
+**      vvar.value WHERE name='checkout'
+*/
+void vfile_rid_renumbering_event(int dryRun){
+  int oldVid;
+  int newVid;
+  char *zUnresolved;
+
+  oldVid = db_lget_int("checkout", 0);
+  newVid = db_int(0, "SELECT blob.rid FROM blob, vvar"
+                     " WHERE blob.uuid=vvar.value"
+                     "   AND vvar.name='checkout-hash'");
+
+  /* The idMap table will make old RID values into new ones */
+  db_multi_exec(
+    "CREATE TEMP TABLE idMap(oldrid INTEGER PRIMARY KEY, newrid INT);\n"
+  );
+
+  /* Add the RID value for the current check-out */
+  db_multi_exec(
+    "INSERT INTO idMap(oldrid, newrid) VALUES(%d,%d)",
+    oldVid, newVid
+  );
+
+  /* Add the RID values for any other check-ins that have been merged into
+  ** the current check-out. */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO idMap(oldrid, newrid)"
+    "  SELECT vmerge.merge, blob.rid FROM vmerge, blob"
+    "   WHERE blob.uuid=vmerge.mhash;"
+  );
+
+  /* Add RID values for files in the current check-out */
+  db_multi_exec(
+    "CREATE TEMP TABLE hashoffile(name TEXT PRIMARY KEY, hash TEXT)"
+    "WITHOUT ROWID;"
+
+    "INSERT INTO hashoffile(name,hash)"
+    "  SELECT filename, uuid FROM vvar, files_of_checkin(vvar.value)"
+    "   WHERE vvar.name='checkout-hash';"
+
+    "INSERT OR IGNORE INTO idMap(oldrid, newrid)"
+    "  SELECT vfile.rid, blob.rid FROM vfile, hashoffile, blob"
+    "   WHERE hashoffile.name=coalesce(vfile.origname,vfile.pathname)"
+    "     AND blob.uuid=hashoffile.hash;"
+  );
+
+  /* Add RID values for merged-in files */
+  db_multi_exec(
+    "INSERT OR IGNORE INTO idMap(oldrid, newrid)"
+    " SELECT vfile.mrid, blob.rid FROM vfile, blob"
+    "  WHERE blob.uuid=vfile.mhash;"
+  );
+  
+  if( dryRun ){
+    Stmt q;
+    db_prepare(&q, "SELECT oldrid, newrid, blob.uuid"
+                   "  FROM idMap, blob WHERE blob.rid=idMap.newrid");
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("%8d -> %8d  %.25s\n", 
+         db_column_int(&q,0),
+         db_column_int(&q,1),
+         db_column_text(&q,2));
+    }
+    db_finalize(&q);
+  }
+
+  /* Verify that all RID values in the VFILE table and VMERGE table have
+  ** been resolved. */
+  zUnresolved = db_text("",
+     "WITH allrid(x) AS ("
+     "  SELECT rid FROM vfile"
+     "  UNION SELECT mrid FROM vfile"
+     "  UNION SELECT merge FROM vmerge"
+     "  UNION SELECT %d"
+     ")"
+     "SELECT group_concat(x,' ') FROM allrid"
+     " WHERE x<>0 AND x NOT IN (SELECT oldrid FROM idMap);",
+     oldVid
+  );
+  if( zUnresolved[0] ){
+    fossil_fatal("Unresolved RID values: %s\n", zUnresolved);
+  }
+
+  /* Make the changes to the VFILE and VMERGE tables */
+  if( !dryRun ){
+    db_multi_exec(
+      "UPDATE vfile"
+      "   SET rid=(SELECT newrid FROM idMap WHERE oldrid=vfile.rid)"
+      " WHERE vid=%d AND rid>0;", oldVid);
+
+    db_multi_exec(
+      "UPDATE vfile"
+      "   SET mrid=(SELECT newrid FROM idMap WHERE oldrid=vfile.mrid)"
+      " WHERE vid=%d AND mrid>0;", oldVid);
+
+    db_multi_exec(
+      "UPDATE vfile"
+      "   SET vid=%d"
+      " WHERE vid=%d", newVid, oldVid);
+
+    db_multi_exec(
+      "UPDATE vmerge"
+      "   SET merge=(SELECT newrid FROM idMap WHERE oldrid=vmerge.merge);");
+
+    db_lset_int("checkout",newVid);
+  }
+
+  /* Clear out the TEMP tables we constructed */
+  db_multi_exec(
+    "DROP TABLE idMap;"
+    "DROP TABLE hashoffile;"
+  );
 }

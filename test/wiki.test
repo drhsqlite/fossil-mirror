@@ -47,21 +47,21 @@ proc get_mime_type {name} {
   global CODE RESULT
   fossil http << "GET /wiki?name=$name"
   if {$CODE != 0} {
-    return error: /wiki?name=$name $CODE $RESULT"
+    return "error: /wiki?name=$name $CODE $RESULT"
   }
-  set CODE [regexp {href="/info/([0-9a-f]+)"} $RESULT match info]
-  if {$CODE == 0} {
-    return "error: No info link found for wiki page $name"
-  }
-  fossil http << "GET /artifact/$info"
+  fossil whatis --type w $name
   if {$CODE != 0} {
-    return "error: /artifact/$info $CODE $RESULT"
+    return "error: fossil whatis --type w $name $CODE $RESULT"
   }
-  set CODE [regexp {<pre>(.*)</pre>} $RESULT match pre]
+  set CODE [regexp -line {^artifact:\s*([0-9a-f]+)$} $RESULT match info]
   if {$CODE == 0} {
-    return "error: No pre block in /artifact/$info"
+    return "error: whatis returned no info for wiki page $name"
   }
-  set CODE [regexp -line {^N (.*)$} $pre match mimetype]
+  fossil artifact $info
+  if {$CODE != 0} {
+    return "error: fossil artifact $info $CODE $RESULT"
+  }
+  set CODE [regexp -line {^N (.*)$} $RESULT match mimetype]
   if {$CODE == 0} {
     return "text/x-fossil-wiki"
   }

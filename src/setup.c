@@ -61,13 +61,17 @@ void setup_menu_entry(
 /*
 ** WEBPAGE: setup
 **
-** Main menu for the administrative pages.  Requires Admin privileges.
+** Main menu for the administrative pages.  Requires Admin or Setup
+** privileges.  Links to sub-pages only usable by Setup users are
+** shown only to Setup users.
 */
 void setup_page(void){
+  int setup_user = 0;
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
   }
+  setup_user = g.perm.Setup;
 
   style_header("Server Administration");
 
@@ -97,31 +101,41 @@ void setup_page(void){
   @ <table border="0" cellspacing="3">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
-  setup_menu_entry("Access", "setup_access",
-    "Control access settings.");
-  setup_menu_entry("Configuration", "setup_config",
-    "Configure the WWW components of the repository");
+  if( setup_user ){
+    setup_menu_entry("Access", "setup_access",
+      "Control access settings.");
+    setup_menu_entry("Configuration", "setup_config",
+      "Configure the WWW components of the repository");
+  }
   setup_menu_entry("Security-Audit", "secaudit0",
     "Analyze the current configuration for security problems");
-  setup_menu_entry("Settings", "setup_settings",
-    "Web interface to the \"fossil settings\" command");
+  if( setup_user ){
+    setup_menu_entry("Settings", "setup_settings",
+      "Web interface to the \"fossil settings\" command");
+  }
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
-  setup_menu_entry("Login-Group", "setup_login_group",
-    "Manage single sign-on between this repository and others"
-    " on the same server");
-  setup_menu_entry("Tickets", "tktsetup",
-    "Configure the trouble-ticketing system for this repository");
+  if( setup_user ){
+    setup_menu_entry("Login-Group", "setup_login_group",
+      "Manage single sign-on between this repository and others"
+      " on the same server");
+    setup_menu_entry("Tickets", "tktsetup",
+      "Configure the trouble-ticketing system for this repository");
+    setup_menu_entry("Wiki", "setup_wiki",
+      "Configure the wiki for this repository");
+  }
   setup_menu_entry("Search","srchsetup",
     "Configure the built-in search engine");
   setup_menu_entry("URL Aliases", "waliassetup",
     "Configure URL aliases");
-  setup_menu_entry("Notification", "setup_notification",
-    "Automatic notifications of changes via outbound email");
-  setup_menu_entry("Email-Server", "setup_smtp",
-    "Activate and configure the built-in email server");
-  setup_menu_entry("Transfers", "xfersetup",
-    "Configure the transfer system for this repository");
+  if( setup_user ){
+    setup_menu_entry("Notification", "setup_notification",
+      "Automatic notifications of changes via outbound email");
+    setup_menu_entry("Email-Server", "setup_smtp",
+      "Activate and configure the built-in email server");
+    setup_menu_entry("Transfers", "xfersetup",
+      "Configure the transfer system for this repository");
+  }
   setup_menu_entry("Skins", "setup_skin",
     "Select and/or modify the web interface \"skins\"");
   setup_menu_entry("Moderation", "setup_modreq",
@@ -131,8 +145,10 @@ void setup_page(void){
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("URLs & Checkouts", "urllist",
     "Show URLs used to access this repo and known check-outs");
-  setup_menu_entry("Web-Cache", "cachestat",
-    "View the status of the expensive-page cache");
+  if( setup_user ){
+    setup_menu_entry("Web-Cache", "cachestat",
+      "View the status of the expensive-page cache");
+  }
   setup_menu_entry("Logo", "setup_logo",
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
@@ -151,10 +167,12 @@ void setup_page(void){
     "Repository Status Reports");
   setup_menu_entry("Sitemap", "sitemap",
     "Links to miscellaneous pages");
-  setup_menu_entry("SQL", "admin_sql",
-    "Enter raw SQL commands");
-  setup_menu_entry("TH1", "admin_th1",
-    "Enter raw TH1 commands");
+  if( setup_user ){
+    setup_menu_entry("SQL", "admin_sql",
+      "Enter raw SQL commands");
+    setup_menu_entry("TH1", "admin_th1",
+      "Enter raw TH1 commands");
+  }
   @ </table>
 
   style_footer();
@@ -268,7 +286,7 @@ void multiple_choice_attribute(
   const char *zQP,      /* The query parameter */
   const char *zDflt,    /* Default value if VAR table entry does not exist */
   int nChoice,          /* Number of choices */
-  const char *const *azChoice /* Choices. 2 per choice: (VAR value, Display) */
+  const char *const *azChoice /* Choices in pairs (VAR value, Display) */
 ){
   const char *z = db_get(zVar, zDflt);
   const char *zQ = P(zQP);
@@ -293,9 +311,14 @@ void multiple_choice_attribute(
 /*
 ** WEBPAGE: setup_access
 **
-** The access-control settings page.  Requires Admin privileges.
+** The access-control settings page.  Requires Setup privileges.
 */
 void setup_access(void){
+  static const char *const azRedirectOpts[] = {
+    "0", "Off",
+    "1", "Login Page Only",
+    "2", "All Pages"
+  };
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -308,14 +331,17 @@ void setup_access(void){
   login_insert_csrf_secret();
   @ <input type="submit"  name="submit" value="Apply Changes" /></p>
   @ <hr />
-  onoff_attribute("Redirect to HTTPS on the Login page",
-     "redirect-to-https", "redirhttps", 0, 0);
-  @ <p>When selected, force the use of HTTPS for the Login page.
-  @ <p>Details:  When enabled, this option causes the $secureurl TH1
+  multiple_choice_attribute("Redirect to HTTPS",
+     "redirect-to-https", "redirhttps", "0",
+     count(azRedirectOpts)/2, azRedirectOpts);
+  @ <p>Force the use of HTTPS by redirecting to HTTPS when an
+  @ unencrypted request is received.  This feature can be enabled
+  @ for the Login page only, or for all pages.
+  @ <p>Further details:  When enabled, this option causes the $secureurl TH1
   @ variable is set to an "https:" variant of $baseurl.  Otherwise,
-  @ $secureurl is just an alias for $baseurl.  Also when enabled, the
-  @ Login page redirects to https if accessed via http.
-  @ (Property: "redirhttps")
+  @ $secureurl is just an alias for $baseurl.
+  @ (Property: "redirect-to-https".  "0" for off, "1" for Login page only,
+  @ "2" otherwise.)
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0, 0);
@@ -534,7 +560,7 @@ void setup_login_group(void){
   zSelfRepo = fossil_strdup(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
-    login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
+    login_group_join(zRepo, 1, zLogin, zPw, zNewName, &zErrMsg);
   }else if( P("leave") ){
     login_group_leave(&zErrMsg);
   }
@@ -649,7 +675,7 @@ void setup_timeline(void){
       "4", "(off)"
   };
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -676,10 +702,18 @@ void setup_timeline(void){
   @ (Property: "timeline-plaintext")</p>
 
   @ <hr />
-  onoff_attribute("Truncate comment at first blank line",
+  onoff_attribute("Truncate comment at first blank line (Git-style)",
                   "timeline-truncate-at-blank", "ttb", 0, 0);
   @ <p>In timeline displays, check-in comments are displayed only through
-  @ the first blank line. (Property: "timeline-truncate-at-blank")</p>
+  @ the first blank line.  This is the traditional way to display comments
+  @ in Git repositories (Property: "timeline-truncate-at-blank")</p>
+
+  @ <hr />
+  onoff_attribute("Break comments at newline characters",
+                  "timeline-hard-newlines", "thnl", 0, 0);
+  @ <p>In timeline displays, newline characters in check-in comments force
+  @ a line break on the display.
+  @ (Property: "timeline-hard-newlines")</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -718,6 +752,38 @@ void setup_timeline(void){
   @ (Property: "timeline-max-comment")</p>
 
   @ <hr />
+  entry_attribute("Tooltip dwell time (milliseconds)", 6,
+                  "timeline-dwelltime", "tdt", "100", 0);
+  @ <br>
+  entry_attribute("Tooltip close time (milliseconds)", 6,
+                  "timeline-closetime", "tct", "250", 0);
+  @ <p>The <strong>dwell time</strong> defines how long the mouse pointer
+  @ should be stationary above an object of the graph before a tooltip
+  @ appears.<br>
+  @ The <strong>close time</strong> defines how long the mouse pointer
+  @ can be away from an object before a tooltip is closed.</p>
+  @ <p>Set <strong>dwell time</strong> to "0" to disable tooltips.<br>
+  @ Set <strong>close time</strong> to "0" to keep tooltips visible until
+  @ the mouse is clicked elsewhere.<p>
+  @ <p>(Properties: "timeline-dwelltime", "timeline-closetime")</p>
+
+  @ <hr />
+  onoff_attribute("Timestamp hyperlinks to /info",
+                  "timeline-tslink-info", "ttlti", 0, 0);
+  @ <p>The hyperlink on the timestamp associated with each timeline entry,
+  @ on the far left-hand side of the screen, normally targets another
+  @ /timeline page that shows the entry in context.  However, if this
+  @ option is turned on, that hyperlink targets the /info page showing
+  @ the details of the entry.
+  @ <p>The /timeline link is the default since it is often useful to
+  @ see an entry in context, and because that link is not otherwise
+  @ accessible on the timeline.  The /info link is also accessible by
+  @ double-clicking the timeline node or by clicking on the hash that
+  @ follows "check-in:" in the supplimental information section on the
+  @ right of the entry.
+  @ <p>(Properties: "timeline-tslink-info")
+
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
@@ -728,7 +794,7 @@ void setup_timeline(void){
 ** WEBPAGE: setup_settings
 **
 ** Change or view miscellaneous settings.  Part of the
-** Admin pages requiring Admin privileges.
+** /setup pages requiring Setup privileges.
 */
 void setup_settings(void){
   int nSetting;
@@ -776,7 +842,7 @@ void setup_settings(void){
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
-    if( pSet->width!=0 && !pSet->forceTextArea ){
+    if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
       entry_attribute("", /*pSet->width*/ 25, pSet->name,
@@ -792,7 +858,7 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
-    if( pSet->width!=0 && pSet->forceTextArea ){
+    if( pSet->width>0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
@@ -815,7 +881,7 @@ void setup_settings(void){
 /*
 ** WEBPAGE: setup_config
 **
-** The "Admin/Configuration" page.  Requires Admin privilege.
+** The "Admin/Configuration" page.  Requires Setup privilege.
 */
 void setup_config(void){
   login_check_credentials();
@@ -852,20 +918,13 @@ void setup_config(void){
   @ </p>
   @ <hr />
   entry_attribute("Download Tag", 20, "download-tag", "dlt", "trunk", 0);
-  @ <p>The <a href='%R/download'>/download</a> page is designed to provide 
+  @ <p>The <a href='%R/download'>/download</a> page is designed to provide
   @ a convenient place for newbies
   @ to download a ZIP archive or a tarball of the project.  By default,
   @ the latest trunk check-in is downloaded.  Change this tag to something
   @ else (ex: release) to alter the behavior of the /download page.
   @ (Property: "download-tag")
   @ </p>
-  @ <hr />
-  onoff_attribute("Enable WYSIWYG Wiki Editing",
-                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
-  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
-  @ The WYSIWYG editor generates HTML instead of markup, which makes
-  @ subsequent manual editing more difficult.
-  @ (Property: "wysiwyg-wiki")</p>
   @ <hr />
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home", 0);
   @ <p>Enter the pathname of the page to display when the "Home" menu
@@ -890,8 +949,8 @@ void setup_config(void){
   @ <p>(Property: "index-page")
   @ <hr>
   @ <p>Extra links to appear on the <a href="%R/sitemap">/sitemap</a> page.
-  @ Often these are filled in with links like 
-  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to 
+  @ Often these are filled in with links like
+  @ "/doc/trunk/doc/<i>filename</i>.md" so that they refer to
   @ embedded documentation, or like "/wiki/<i>pagename</i>" to refer
   @ to wiki pages.
   @ Leave blank to omit.
@@ -908,6 +967,51 @@ void setup_config(void){
   entry_attribute("Contact", 40, "sitemap-contact", "smcontact",
                   "", 0);
   @ (Property: sitemap-contact)
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_wiki
+**
+** The "Admin/Wiki" page.  Requires Setup privilege.
+*/
+void setup_wiki(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed(0);
+    return;
+  }
+
+  style_header("Wiki Configuration");
+  db_begin_transaction();
+  @ <form action="%s(g.zTop)/setup_wiki" method="post"><div>
+  login_insert_csrf_secret();
+  @ <input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  onoff_attribute("Associate Wiki Pages With Branches, Tags, or Checkins",
+                  "wiki-about", "wiki-about", 1, 0);
+  @ <p>
+  @ Associate wiki pages with branches, tags, or checkins, based on
+  @ the wiki page name.  Wiki pages that begin with "branch/", "checkin/"
+  @ or "tag/" and which continue with the name of an existing branch, checkin
+  @ or tag are treated specially when this feature is enabled.
+  @ <ul>
+  @ <li> <b>branch/</b><i>branch-name</i>
+  @ <li> <b>checkin/</b><i>full-checkin-hash</i>
+  @ <li> <b>tag/</b><i>tag-name</i>
+  @ </ul>
+  @ (Property: "wiki-about")</p>
+  @ <hr />
+  onoff_attribute("Enable WYSIWYG Wiki Editing",
+                  "wysiwyg-wiki", "wysiwyg-wiki", 0, 0);
+  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
+  @ The WYSIWYG editor generates HTML instead of markup, which makes
+  @ subsequent manual editing more difficult.
+  @ (Property: "wysiwyg-wiki")</p>
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0, 0);
@@ -937,7 +1041,7 @@ void setup_config(void){
 */
 void setup_modreq(void){
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -985,7 +1089,7 @@ void setup_modreq(void){
 */
 void setup_adunit(void){
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1075,7 +1179,7 @@ void setup_logo(void){
     zBgMime = PD("bgim:mimetype","image/gif");
   }
   login_check_credentials();
-  if( !g.perm.Setup ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1216,7 +1320,7 @@ int raw_sql_query_authorizer(
 ** WEBPAGE: admin_sql
 **
 ** Run raw SQL commands against the database file using the web interface.
-** Requires Admin privileges.
+** Requires Setup privileges.
 */
 void sql_page(void){
   const char *zQ;
@@ -1407,7 +1511,7 @@ void page_admin_log(){
   int fLogEnabled;
   int counter = 0;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1467,7 +1571,7 @@ void page_admin_log(){
 */
 void page_srchsetup(){
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }
@@ -1591,7 +1695,7 @@ void page_waliassetup(){
   int cnt = 0;
   Blob namelist;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }

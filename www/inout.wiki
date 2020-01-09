@@ -51,6 +51,15 @@ future versions of Fossil might add the ability to generate other
 VCS interchange formats, and so for compatibility, the use of the --git
 option recommended.
 
+<h2>Mirror A Fossil Repository In Git</h2>
+
+Fossil version 2.9 and later supports a simple mechanism for
+doing a Git or
+[./mirrortogithub.md|GitHub mirror of a Fossil repository].
+See that separate document for details.  Fossil is self-hosting,
+but a [https://github.com/drhsqlite/fossil-mirror|GitHub mirror of Fossil]
+is available as a proof-of-concept.
+
 <h2>Bidirectional Synchronization</h2>
 Fossil also has the ability to synchronize with a Git repository via repeated
 imports and/or exports.  To do this, it uses marks files to store a record of

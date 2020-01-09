@@ -86,6 +86,9 @@ static void sqlcmd_compress(
   rc = compress(&pOut[4], &nOut, pIn, nIn);
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut+4, sqlite3_free);
+  }else if( rc==Z_MEM_ERROR ){
+    sqlite3_free(pOut);
+    sqlite3_result_error_nomem(context);
   }else{
     sqlite3_free(pOut);
     sqlite3_result_error(context, "input cannot be zlib compressed", -1);
@@ -115,6 +118,9 @@ static void sqlcmd_decompress(
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
   if( rc==Z_OK ){
     sqlite3_result_blob(context, pOut, nOut, sqlite3_free);
+  }else if( rc==Z_MEM_ERROR ){
+    sqlite3_free(pOut);
+    sqlite3_result_error_nomem(context);
   }else{
     sqlite3_free(pOut);
     sqlite3_result_error(context, "input is not zlib compressed", -1);
@@ -150,6 +156,7 @@ static int sqlcmd_autoinit(
   re_add_sql_func(db);
   search_sql_setup(db);
   foci_register(db);
+  deltafunc_init(db);
   g.repositoryOpen = 1;
   g.db = db;
   sqlite3_db_config(db, SQLITE_DBCONFIG_MAINDBNAME, "repository");
@@ -257,32 +264,47 @@ static void fossil_close(int bDb, int noRepository){
 **
 ** The following extensions to the usual SQLite commands are provided:
 **
-**    content(X)                Return the content of artifact X.  X can be an
-**                              artifact hash or prefix or a tag.
+**    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
+**                              found in check-in X (another BLOB.RID value).
 **
 **    compress(X)               Compress text X.
+**
+**    content(X)                Return the content of artifact X. X can be an
+**                              artifact hash or hash prefix or a tag. Artifacts
+**                              are stored compressed and deltaed. This function
+**                              does all necessary decompression and undeltaing.
 **
 **    decompress(X)             Decompress text X.  Undoes the work of
 **                              compress(X).
 **
-**    checkin_mtime(X,Y)        Return the mtime for the file Y (a BLOB.RID)
-**                              found in check-in X (another BLOB.RID value).
+**    delta_apply(X,D)          Apply delta D to source blob X and return
+**                              the result.
 **
-**    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
-**                              name X.
+**    delta_create(X,Y)         Create and return a delta that will convert
+**                              X into Y.
+**
+**    delta_output_size(D)      Return the number of bytes of output to expect
+**                              when applying delta D
+**
+**    delta_parse(D)            A table-valued function that deconstructs
+**                              delta D and returns rows for each element of
+**                              that delta.
+**
+**    files_of_checkin(X)       A table-valued function that returns info on
+**                              all files contained in check-in X.  Example:
+**                                SELECT * FROM files_of_checkin('trunk');
 **
 **    now()                     Return the number of seconds since 1970.
 **
 **    REGEXP                    The REGEXP operator works, unlike in
 **                              standard SQLite.
 **
-**    files_of_checkin(X)       A table-valued function that returns info on
-**                              all files contained in check-in X.  Example:
-**                                SELECT * FROM files_of_checkin('trunk');
+**    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
+**                              name X.
 */
 void cmd_sqlite3(void){
   int noRepository;
-  const char *zConfigDb;
+  char *zConfigDb;
   extern int sqlite3_shell(int, char**);
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   g.fNoThHook = 1;
@@ -292,7 +314,7 @@ void cmd_sqlite3(void){
     db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   }
   db_open_config(1,0);
-  zConfigDb = g.zConfigDbName;
+  zConfigDb = fossil_strdup(g.zConfigDbName);
   fossil_close(1, noRepository);
   sqlite3_shutdown();
 #ifndef _WIN32

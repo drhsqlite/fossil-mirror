@@ -10,7 +10,8 @@
 #
 B       = ..
 SRCDIR  = $(B)\src
-OBJDIR  = msvcbld
+T       = msvcbld
+OBJDIR  = $(T)
 OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
@@ -112,74 +113,38 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2p
-SSLINCDIR = $(SSLDIR)\inc32
+SSLDIR    = $(B)\compat\openssl-1.1.1d
+SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLLIBDIR = $(SSLDIR)\out32dll
+SSLLIBDIR = $(SSLDIR)
 !else
-SSLLIBDIR = $(SSLDIR)\out32
+SSLLIBDIR = $(SSLDIR)
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
+SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN64A no-asm
+SSLCONFIG = VC-WIN64A no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_win64a.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN64I no-asm
+SSLCONFIG = VC-WIN64I no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_win64i.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN32 no-asm
+SSLCONFIG = VC-WIN32 no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_ms.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif
@@ -326,6 +291,7 @@ RCC       = $(RCC) /DUSE_SEE=1
 !endif
 
 SQLITE_OPTIONS = /DNDEBUG=1 \
+                 /DSQLITE_DQS=0 \
                  /DSQLITE_THREADSAFE=0 \
                  /DSQLITE_DEFAULT_MEMSTATUS=0 \
                  /DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -342,7 +308,6 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  /DSQLITE_ENABLE_FTS4 \
-                 /DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  /DSQLITE_ENABLE_DBSTAT_VTAB \
                  /DSQLITE_ENABLE_JSON1 \
                  /DSQLITE_ENABLE_FTS5 \
@@ -353,6 +318,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /DNDEBUG=1 \
+                /DSQLITE_DQS=0 \
                 /DSQLITE_THREADSAFE=0 \
                 /DSQLITE_DEFAULT_MEMSTATUS=0 \
                 /DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -369,7 +335,6 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
                 /DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 /DSQLITE_ENABLE_FTS4 \
-                /DSQLITE_ENABLE_FTS3_PARENTHESIS \
                 /DSQLITE_ENABLE_DBSTAT_VTAB \
                 /DSQLITE_ENABLE_JSON1 \
                 /DSQLITE_ENABLE_FTS5 \
@@ -419,6 +384,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\db_.c" \
         "$(OX)\delta_.c" \
         "$(OX)\deltacmd_.c" \
+        "$(OX)\deltafunc_.c" \
         "$(OX)\descendants_.c" \
         "$(OX)\diff_.c" \
         "$(OX)\diffcmd_.c" \
@@ -428,12 +394,14 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\etag_.c" \
         "$(OX)\event_.c" \
         "$(OX)\export_.c" \
+        "$(OX)\extcgi_.c" \
         "$(OX)\file_.c" \
         "$(OX)\finfo_.c" \
         "$(OX)\foci_.c" \
         "$(OX)\forum_.c" \
         "$(OX)\fshell_.c" \
         "$(OX)\fusefs_.c" \
+        "$(OX)\fuzz_.c" \
         "$(OX)\glob_.c" \
         "$(OX)\graph_.c" \
         "$(OX)\gzip_.c" \
@@ -482,6 +450,7 @@ SRC   = "$(OX)\add_.c" \
         "$(OX)\purge_.c" \
         "$(OX)\rebuild_.c" \
         "$(OX)\regexp_.c" \
+        "$(OX)\repolist_.c" \
         "$(OX)\report_.c" \
         "$(OX)\rss_.c" \
         "$(OX)\schema_.c" \
@@ -585,6 +554,7 @@ EXTRA_FILES   = "$(SRCDIR)\..\skins\aht\details.txt" \
         "$(SRCDIR)\..\skins\xekri\footer.txt" \
         "$(SRCDIR)\..\skins\xekri\header.txt" \
         "$(SRCDIR)\ci_edit.js" \
+        "$(SRCDIR)\copybtn.js" \
         "$(SRCDIR)\diff.tcl" \
         "$(SRCDIR)\forum.js" \
         "$(SRCDIR)\graph.js" \
@@ -628,6 +598,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\db$O" \
         "$(OX)\delta$O" \
         "$(OX)\deltacmd$O" \
+        "$(OX)\deltafunc$O" \
         "$(OX)\descendants$O" \
         "$(OX)\diff$O" \
         "$(OX)\diffcmd$O" \
@@ -637,12 +608,14 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\etag$O" \
         "$(OX)\event$O" \
         "$(OX)\export$O" \
+        "$(OX)\extcgi$O" \
         "$(OX)\file$O" \
         "$(OX)\finfo$O" \
         "$(OX)\foci$O" \
         "$(OX)\forum$O" \
         "$(OX)\fshell$O" \
         "$(OX)\fusefs$O" \
+        "$(OX)\fuzz$O" \
         "$(OX)\glob$O" \
         "$(OX)\graph$O" \
         "$(OX)\gzip$O" \
@@ -691,6 +664,7 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\purge$O" \
         "$(OX)\rebuild$O" \
         "$(OX)\regexp$O" \
+        "$(OX)\repolist$O" \
         "$(OX)\report$O" \
         "$(OX)\rss$O" \
         "$(OX)\schema$O" \
@@ -747,10 +721,14 @@ OBJ   = "$(OX)\add$O" \
         "$(OX)\fossil.res"
 
 
-APPNAME    = $(OX)\fossil$(E)
-PDBNAME    = $(OX)\fossil$(P)
-APPMANIFEST=$(APPNAME).manifest
-APPTARGETS =
+!ifndef BASEAPPNAME
+BASEAPPNAME = fossil
+!endif
+
+APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
+PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
+APPMANIFEST = $(APPNAME).manifest
+APPTARGETS  =
 
 all: "$(OX)" "$(APPNAME)"
 
@@ -782,15 +760,14 @@ openssl:
 	@set "PATH=$(PERLDIR);$(PATH)"
 !endif
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
-	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
 !if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && "$(MAKE)" /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+	@pushd "$(SSLDIR)" && "$(MAKE)" "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
 !else
-	@pushd "$(SSLDIR)" && "$(MAKE)" /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
+	@pushd "$(SSLDIR)" && "$(MAKE)" && popd
 !endif
 
 clean-openssl:
-	@pushd "$(SSLDIR)" && "$(MAKE)" /f $(SSLNMAKE) clean && popd
+	@pushd "$(SSLDIR)" && "$(MAKE)" clean && popd
 
 !endif
 
@@ -841,6 +818,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\db.obj" >> $@
 	echo "$(OX)\delta.obj" >> $@
 	echo "$(OX)\deltacmd.obj" >> $@
+	echo "$(OX)\deltafunc.obj" >> $@
 	echo "$(OX)\descendants.obj" >> $@
 	echo "$(OX)\diff.obj" >> $@
 	echo "$(OX)\diffcmd.obj" >> $@
@@ -850,12 +828,14 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\etag.obj" >> $@
 	echo "$(OX)\event.obj" >> $@
 	echo "$(OX)\export.obj" >> $@
+	echo "$(OX)\extcgi.obj" >> $@
 	echo "$(OX)\file.obj" >> $@
 	echo "$(OX)\finfo.obj" >> $@
 	echo "$(OX)\foci.obj" >> $@
 	echo "$(OX)\forum.obj" >> $@
 	echo "$(OX)\fshell.obj" >> $@
 	echo "$(OX)\fusefs.obj" >> $@
+	echo "$(OX)\fuzz.obj" >> $@
 	echo "$(OX)\glob.obj" >> $@
 	echo "$(OX)\graph.obj" >> $@
 	echo "$(OX)\gzip.obj" >> $@
@@ -904,6 +884,7 @@ APPTARGETS = $(APPTARGETS) openssl
 	echo "$(OX)\purge.obj" >> $@
 	echo "$(OX)\rebuild.obj" >> $@
 	echo "$(OX)\regexp.obj" >> $@
+	echo "$(OX)\repolist.obj" >> $@
 	echo "$(OX)\report.obj" >> $@
 	echo "$(OX)\rss.obj" >> $@
 	echo "$(OX)\schema.obj" >> $@
@@ -1131,6 +1112,7 @@ realclean: clean
 	echo "$(SRCDIR)\../skins/xekri/footer.txt" >> $@
 	echo "$(SRCDIR)\../skins/xekri/header.txt" >> $@
 	echo "$(SRCDIR)\ci_edit.js" >> $@
+	echo "$(SRCDIR)\copybtn.js" >> $@
 	echo "$(SRCDIR)\diff.tcl" >> $@
 	echo "$(SRCDIR)\forum.js" >> $@
 	echo "$(SRCDIR)\graph.js" >> $@
@@ -1308,6 +1290,12 @@ realclean: clean
 "$(OX)\deltacmd_.c" : "$(SRCDIR)\deltacmd.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\deltafunc$O" : "$(OX)\deltafunc_.c" "$(OX)\deltafunc.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\deltafunc_.c"
+
+"$(OX)\deltafunc_.c" : "$(SRCDIR)\deltafunc.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\descendants$O" : "$(OX)\descendants_.c" "$(OX)\descendants.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\descendants_.c"
 
@@ -1362,6 +1350,12 @@ realclean: clean
 "$(OX)\export_.c" : "$(SRCDIR)\export.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
+"$(OX)\extcgi$O" : "$(OX)\extcgi_.c" "$(OX)\extcgi.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\extcgi_.c"
+
+"$(OX)\extcgi_.c" : "$(SRCDIR)\extcgi.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
 "$(OX)\file$O" : "$(OX)\file_.c" "$(OX)\file.h"
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\file_.c"
 
@@ -1396,6 +1390,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\fusefs_.c"
 
 "$(OX)\fusefs_.c" : "$(SRCDIR)\fusefs.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\fuzz$O" : "$(OX)\fuzz_.c" "$(OX)\fuzz.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\fuzz_.c"
+
+"$(OX)\fuzz_.c" : "$(SRCDIR)\fuzz.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\glob$O" : "$(OX)\glob_.c" "$(OX)\glob.h"
@@ -1684,6 +1684,12 @@ realclean: clean
 	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\regexp_.c"
 
 "$(OX)\regexp_.c" : "$(SRCDIR)\regexp.c"
+	"$(OBJDIR)\translate$E" $** > $@
+
+"$(OX)\repolist$O" : "$(OX)\repolist_.c" "$(OX)\repolist.h"
+	$(TCC) /Fo$@ /Fd$(@D)\ -c "$(OX)\repolist_.c"
+
+"$(OX)\repolist_.c" : "$(SRCDIR)\repolist.c"
 	"$(OBJDIR)\translate$E" $** > $@
 
 "$(OX)\report$O" : "$(OX)\report_.c" "$(OX)\report.h"
@@ -1990,6 +1996,7 @@ realclean: clean
 			"$(OX)\db_.c":"$(OX)\db.h" \
 			"$(OX)\delta_.c":"$(OX)\delta.h" \
 			"$(OX)\deltacmd_.c":"$(OX)\deltacmd.h" \
+			"$(OX)\deltafunc_.c":"$(OX)\deltafunc.h" \
 			"$(OX)\descendants_.c":"$(OX)\descendants.h" \
 			"$(OX)\diff_.c":"$(OX)\diff.h" \
 			"$(OX)\diffcmd_.c":"$(OX)\diffcmd.h" \
@@ -1999,12 +2006,14 @@ realclean: clean
 			"$(OX)\etag_.c":"$(OX)\etag.h" \
 			"$(OX)\event_.c":"$(OX)\event.h" \
 			"$(OX)\export_.c":"$(OX)\export.h" \
+			"$(OX)\extcgi_.c":"$(OX)\extcgi.h" \
 			"$(OX)\file_.c":"$(OX)\file.h" \
 			"$(OX)\finfo_.c":"$(OX)\finfo.h" \
 			"$(OX)\foci_.c":"$(OX)\foci.h" \
 			"$(OX)\forum_.c":"$(OX)\forum.h" \
 			"$(OX)\fshell_.c":"$(OX)\fshell.h" \
 			"$(OX)\fusefs_.c":"$(OX)\fusefs.h" \
+			"$(OX)\fuzz_.c":"$(OX)\fuzz.h" \
 			"$(OX)\glob_.c":"$(OX)\glob.h" \
 			"$(OX)\graph_.c":"$(OX)\graph.h" \
 			"$(OX)\gzip_.c":"$(OX)\gzip.h" \
@@ -2053,6 +2062,7 @@ realclean: clean
 			"$(OX)\purge_.c":"$(OX)\purge.h" \
 			"$(OX)\rebuild_.c":"$(OX)\rebuild.h" \
 			"$(OX)\regexp_.c":"$(OX)\regexp.h" \
+			"$(OX)\repolist_.c":"$(OX)\repolist.h" \
 			"$(OX)\report_.c":"$(OX)\report.h" \
 			"$(OX)\rss_.c":"$(OX)\rss.h" \
 			"$(OX)\schema_.c":"$(OX)\schema.h" \

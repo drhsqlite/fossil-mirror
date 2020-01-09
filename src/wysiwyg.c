@@ -51,13 +51,12 @@ void wysiwygEditor(
 
   @ <input id="wysiwygValue" type="hidden" name="%s(zId)">
   @ <div id="editModeDiv">Edit mode:
-  @   <select id="editMode" size=1 onchange="setDocMode(this.selectedIndex)">
+  @   <select id="editMode" size=1>
   @ <option value="0">WYSIWYG</option>
   @ <option value="1">Raw HTML</option>
   @ </select></div>
   @ <div id="toolBar1">
-  @ <select onchange="formatDoc('formatblock',this[this.selectedIndex].value);
-  @                   this.selectedIndex=0;">
+  @ <select class="format" data-format="formatblock">
   @ <option selected>- formatting -</option>
   @ <option value="h1">Title 1 &lt;h1&gt;</option>
   @ <option value="h2">Title 2 &lt;h2&gt;</option>
@@ -68,16 +67,14 @@ void wysiwygEditor(
   @ <option value="p">Paragraph &lt;p&gt;</option>
   @ <option value="pre">Preformatted &lt;pre&gt;</option>
   @ </select>
-  @ <select onchange="formatDoc('fontname',this[this.selectedIndex].value);
-  @                   this.selectedIndex=0;">
+  @ <select class="format" data-format="fontname">
   @ <option class="heading" selected>- font -</option>
   @ <option>Arial</option>
   @ <option>Arial Black</option>
   @ <option>Courier New</option>
   @ <option>Times New Roman</option>
   @ </select>
-  @ <select onchange="formatDoc('fontsize',this[this.selectedIndex].value);
-  @                   this.selectedIndex=0;">
+  @ <select class="format" data-format="fontsize">
   @ <option class="heading" selected>- size -</option>
   @ <option value="1">Very small</option>
   @ <option value="2">A bit small</option>
@@ -87,8 +84,7 @@ void wysiwygEditor(
   @ <option value="6">Very big</option>
   @ <option value="7">Maximum</option>
   @ </select>
-  @ <select onchange="formatDoc('forecolor',this[this.selectedIndex].value);
-  @                   this.selectedIndex=0;">
+  @ <select class="format" data-format="forecolor">
   @ <option class="heading" selected>- color -</option>
   @ <option value="red">Red</option>
   @ <option value="blue">Blue</option>
@@ -97,19 +93,18 @@ void wysiwygEditor(
   @ </select>
   @ </div>
   @ <div id="toolBar2">
-  @ <img class="intLink" title="Undo" onclick="formatDoc('undo');"
+  @ <img class="intLink" title="Undo" data-format="undo"
   @ src="data:image/gif;base64,R0lGODlhFgAWAOMKADljwliE33mOrpGjuYKl8aezxqPD+7
   @ /I19DV3NHa7P///////////////////////yH5BAEKAA8ALAAAAAAWABYAAARR8MlJq704680
   @ 7TkaYeJJBnES4EeUJvIGapWYAC0CsocQ7SDlWJkAkCA6ToMYWIARGQF3mRQVIEjkkSVLIbSfE
   @ whdRIH4fh/DZMICe3/C4nBQBADs=">
 
-  @ <img class="intLink" title="Redo" onclick="formatDoc('redo');"
+  @ <img class="intLink" title="Redo" data-format="redo"
   @ src="data:image/gif;base64,R0lGODlhFgAWAMIHAB1ChDljwl9vj1iE34Kl8aPD+7/I1/
   @ ///yH5BAEKAAcALAAAAAAWABYAAANKeLrc/jDKSesyphi7SiEgsVXZEATDICqBVJjpqWZt9Na
   @ EDNbQK1wCQsxlYnxMAImhyDoFAElJasRRvAZVRqqQXUy7Cgx4TC6bswkAOw==">
 
-  @ <img class="intLink" title="Remove formatting"
-  @ onclick="formatDoc('removeFormat')"
+  @ <img class="intLink" title="Remove formatting" data-format="removeFormat"
   @ src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AA
   @ AABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOxAAADsQBlSsOGwA
   @ AAAd0SU1FB9oECQMCKPI8CIIAAAAIdEVYdENvbW1lbnQA9syWvwAAAuhJREFUOMtjYBgFxAB5
@@ -128,68 +123,60 @@ void wysiwygEditor(
   @ 6s+fv1fMdKR3TK72zpix8nTc7bdfhfkEeVbC9KhbK/9iYWHiErbu6MWbY/7//8/4//9/pgOnH
   @ 6jGVazvFDRtq2VgiBIZrUTIBgCk+ivHvuEKwAAAAABJRU5ErkJggg==">
 
-  @ <img class="intLink" title="Bold" onclick="formatDoc('bold');"
+  @ <img class="intLink" title="Bold" data-format="bold"
   @ src="data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB
   @ YAQAInhI+pa+H9mJy0LhdgtrxzDG5WGFVk6aXqyk6Y9kXvKKNuLbb6zgMFADs=" />
 
-  @ <img class="intLink" title="Italic" onclick="formatDoc('italic');"
+  @ <img class="intLink" title="Italic" data-format="italic"
   @ src="data:image/gif;base64,R0lGODlhFgAWAKEDAAAAAF9vj5WIbf///yH5BAEAAAMALA
   @ AAAAAWABYAAAIjnI+py+0Po5x0gXvruEKHrF2BB1YiCWgbMFIYpsbyTNd2UwAAOw==" />
 
-  @ <img class="intLink" title="Underline" onclick="formatDoc('underline');"
+  @ <img class="intLink" title="Underline" data-format="underline"
   @ src="data:image/gif;base64,R0lGODlhFgAWAKECAAAAAF9vj////////yH5BAEAAAIALA
   @ AAAAAWABYAAAIrlI+py+0Po5zUgAsEzvEeL4Ea15EiJJ5PSqJmuwKBEKgxVuXWtun+DwxCCgA
   @ 7" />
 
-  @ <img class="intLink" title="Left align"
-  @ onclick="formatDoc('justifyleft');"
+  @ <img class="intLink" title="Left align" data-format="justifyleft"
   @ src="data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB
   @ YAQAIghI+py+0Po5y02ouz3jL4D4JMGELkGYxo+qzl4nKyXAAAOw==" />
 
-  @ <img class="intLink" title="Center align"
-  @ onclick="formatDoc('justifycenter');"
+  @ <img class="intLink" title="Center align" data-format="justifycenter"
   @ src="data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB
   @ YAQAIfhI+py+0Po5y02ouz3jL4D4JOGI7kaZ5Bqn4sycVbAQA7" />
 
-  @ <img class="intLink" title="Right align"
-  @ onclick="formatDoc('justifyright');"
+  @ <img class="intLink" title="Right align" data-format="justifyright"
   @ src="data:image/gif;base64,R0lGODlhFgAWAID/AMDAwAAAACH5BAEAAAAALAAAAAAWAB
   @ YAQAIghI+py+0Po5y02ouz3jL4D4JQGDLkGYxouqzl43JyVgAAOw==" />
   @ <img class="intLink" title="Numbered list"
-  @ onclick="formatDoc('insertorderedlist');"
+  @ data-format="insertorderedlist"
   @ src="data:image/gif;base64,R0lGODlhFgAWAMIGAAAAADljwliE35GjuaezxtHa7P////
   @ ///yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKSespwjoRFvggCBUBoTFBeq6QIAysQnRHaEO
   @ zyaZ07Lu9lUBnC0UGQU1K52s6n5oEADs=" />
 
-  @ <img class="intLink" title="Dotted list"
-  @ onclick="formatDoc('insertunorderedlist');"
+  @ <img class="intLink" title="Dotted list" 
+  @ data-format="insertunorderedlist"
   @ src="data:image/gif;base64,R0lGODlhFgAWAMIGAAAAAB1ChF9vj1iE33mOrqezxv////
   @ ///yH5BAEAAAcALAAAAAAWABYAAAMyeLrc/jDKSesppNhGRlBAKIZRERBbqm6YtnbfMY7lud6
   @ 4UwiuKnigGQliQuWOyKQykgAAOw==" />
 
-  @ <img class="intLink" title="Quote"
-  @ onclick="formatDoc('formatblock','blockquote');"
+  @ <img class="intLink" title="Quote" data-format="formatblock"
   @ src="data:image/gif;base64,R0lGODlhFgAWAIQXAC1NqjFRjkBgmT9nqUJnsk9xrFJ7u2
   @ R9qmKBt1iGzHmOrm6Sz4OXw3Odz4Cl2ZSnw6KxyqO306K63bG70bTB0rDI3bvI4P/////////
   @ //////////////////////////yH5BAEKAB8ALAAAAAAWABYAAAVP4CeOZGmeaKqubEs2Cekk
   @ ErvEI1zZuOgYFlakECEZFi0GgTGKEBATFmJAVXweVOoKEQgABB9IQDCmrLpjETrQQlhHjINrT
   @ q/b7/i8fp8PAQA7" />
 
-  @ <img class="intLink" title="Delete indentation"
-  @ onclick="formatDoc('outdent');"
+  @ <img class="intLink" title="Delete indentation" data-format="outdent"
   @ src="data:image/gif;base64,R0lGODlhFgAWAMIHAAAAADljwliE35GjuaezxtDV3NHa7P
   @ ///yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKCQG9F2i7u8agQgyK1z2EIBil+TWqEMxhMcz
   @ sYVJ3e4ahk+sFnAgtxSQDqWw6n5cEADs=" />
 
-  @ <img class="intLink" title="Add indentation"
-  @ onclick="formatDoc('indent');"
+  @ <img class="intLink" title="Add indentation" data-format="indent"
   @ src="data:image/gif;base64,R0lGODlhFgAWAOMIAAAAADljwl9vj1iE35GjuaezxtDV3N
   @ Ha7P///////////////////////////////yH5BAEAAAgALAAAAAAWABYAAAQ7EMlJq704650
   @ B/x8gemMpgugwHJNZXodKsO5oqUOgo5KhBwWESyMQsCRDHu9VOyk5TM9zSpFSr9gsJwIAOw==">
 
-  @ <img class="intLink" title="Hyperlink"
-  @ onclick="var sLnk=prompt('Target URL:','');
-  @          if(sLnk&&sLnk!=''){formatDoc('createlink',sLnk)}"
+  @ <img class="intLink" title="Hyperlink" data-format="createlink"
   @ src="data:image/gif;base64,R0lGODlhFgAWAOMKAB1ChDRLY19vj3mOrpGjuaezxrCztb
   @ /I19Ha7Pv8/f///////////////////////yH5BAEKAA8ALAAAAAAWABYAAARY8MlJq704682
   @ 7/2BYIQVhHg9pEgVGIklyDEUBy/RlE4FQF4dCj2AQXAiJQDCWQCAEBwIioEMQBgSAFhDAGghG
@@ -197,16 +184,14 @@ void wysiwygEditor(
 
 #if 0  /* Cut/Copy/Paste requires special browser permissions for security
        ** reasons.  So omit these buttons */
-  @ <img class="intLink" title="Cut"
-  @ onclick="formatDoc('cut');"
+  @ <img class="intLink" title="Cut" data-format="cut"
   @ src="data:image/gif;base64,R0lGODlhFgAWAIQSAB1ChBFNsRJTySJYwjljwkxwl19vj1
   @ dusYODhl6MnHmOrpqbmpGjuaezxrCztcDCxL/I18rL1P/////////////////////////////
   @ //////////////////////////yH5BAEAAB8ALAAAAAAWABYAAAVu4CeOZGmeaKqubDs6TNnE
   @ bGNApNG0kbGMi5trwcA9GArXh+FAfBAw5UexUDAQESkRsfhJPwaH4YsEGAAJGisRGAQY7UCC9
   @ ZAXBB+74LGCRxIEHwAHdWooDgGJcwpxDisQBQRjIgkDCVlfmZqbmiEAOw==" />
 
-  @ <img class="intLink" title="Copy"
-  @ onclick="formatDoc('copy');"
+  @ <img class="intLink" title="Copy" data-format="copy"
   @ src="data:image/gif;base64,R0lGODlhFgAWAIQcAB1ChBFNsTRLYyJYwjljwl9vj1iE31
   @ iGzF6MnHWX9HOdz5GjuYCl2YKl8ZOt4qezxqK63aK/9KPD+7DI3b/I17LM/MrL1MLY9NHa7OP
   @ s++bx/Pv8/f///////////////yH5BAEAAB8ALAAAAAAWABYAAAWG4CeOZGmeaKqubOum1SQ/
@@ -214,8 +199,7 @@ void wysiwygEditor(
   @ ACgNw0FQx9kP+wmaRgYFBQNeAoGihCAJQsCkJAKOhgXEw8BLQYciooHf5o7EA+kC40qBKkAAA
   @ Grpy+wsbKzIiEAOw==" />
 
-  @ <img class="intLink" title="Paste"
-  @ onclick="formatDoc('paste');"
+  @ <img class="intLink" title="Paste" data-format="paste"
   @ src="data:image/gif;base64,R0lGODlhFgAWAIQUAD04KTRLY2tXQF9vj414WZWIbXmOrp
   @ qbmpGjudClFaezxsa0cb/I1+3YitHa7PrkIPHvbuPs+/fvrvv8/f/////////////////////
   @ //////////////////////////yH5BAEAAB8ALAAAAAAWABYAAAWN4CeOZGmeaKqubGsusPvB
@@ -226,15 +210,53 @@ void wysiwygEditor(
 
   @ </div>
   @ <div id="wysiwygBox"
-  @  style="resize:both; overflow:auto; width: %d(w)em; height: %d(h)em;"
+  @  style="resize:both;overflow:auto;width:95%%;min-height:%d(h)em;"
   @  contenteditable="true">%s(zContent)</div>
-  @ <script>
+  @ <script nonce="%h(style_nonce())">
   @ var oDoc;
   @
   @ /* Initialize the document editor */
   @ function initDoc() {
+  @   initEventHandlers();
   @   oDoc = document.getElementById("wysiwygBox");
   @   if (!isWysiwyg()) { setDocMode(true); }
+  @ }
+  @
+  @ function initEventHandlers() {
+  @     document.querySelector('form').onsubmit = wysiwygSubmit;
+  @     document.querySelector('#editMode').onchange = function() { 
+  @         setDocMode(this.selectedIndex)
+  @     };
+  @     var controls = document.querySelectorAll('select.format');
+  @     for(var i = 0; i < controls.length; i++) {
+  @         controls[i].onchange = handleDropDown;
+  @     }
+  @     controls = document.querySelectorAll('.intLink');
+  @     for(i = 0; i < controls.length; i++) {
+  @         controls[i].onclick = handleFormatButton;
+  @     }
+  @ 
+  @     function handleDropDown() {
+  @         formatDoc(this.dataset.format,this[this.selectedIndex].value);
+  @         this.selectedIndex = 0;
+  @     }
+  @ 
+  @     function handleFormatButton() {
+  @         var extra;
+  @         switch (this.dataset.format) {
+  @             case 'createlink':
+  @                 var sLnk = prompt('Target URL:','');
+  @                 if(sLnk && sLnk != '')
+  @                 {
+  @                     extra = sLnk;
+  @                 }
+  @                 break;
+  @             case 'formatblock':
+  @                 extra = 'blockquote';
+  @                 break;
+  @         }
+  @         formatDoc(this.dataset.format, extra);
+  @     }
   @ }
   @
   @ /* Return true if the document editor is in WYSIWYG mode.  Return

@@ -14,7 +14,7 @@ subscribers to alert them to changes in the repository:
 Subscribers can elect to receive emails as soon as these events happen,
 or they can receive a daily digest of the events instead.
 
-Email alerts are sent by a [Fossil server](./server.wiki), which must be
+Email alerts are sent by a [Fossil server](./server/), which must be
 [set up](#quick) by the Fossil administrator to send email.
 
 Email alerts do not currently work if you are only using Fossil from the
@@ -31,8 +31,8 @@ latter term.
 Much of this document describes how to set up Fossil's email alert
 system. To follow this guide, you will need a Fossil UI browser window
 open to the [Admin → Notification](/setup_notification) Fossil UI screen
-on the the Fossil server that will be sending these email alerts, logged
-in as a user with Admin capability. It is not possible to work on a
+on the Fossil server that will be sending these email alerts, logged
+in as a user with [**Admin** capability](./caps/ref.html#a). It is not possible to work on a
 clone of the server's repository and push the configuration changes up
 to that repo as an Admin user, [on purpose](#backup).
 
@@ -66,7 +66,7 @@ fairly simple to set up email alerts.
 service setup.)
 
 This is our "quick setup" option even though setting up an SMTP mail
-server is not trival, because there are many other reasons to have such
+server is not trivial, because there are many other reasons to have such
 a server set up already: internal project email service, `cron`
 notifications, server status monitoring notifications...
 
@@ -162,7 +162,8 @@ If you are seeing the following complaint from Fossil:
   /subscribe
 </blockquote>
 
-...then the repository's administrator forgot to [give the Alerts capability](#cap7)
+...then the repository's administrator forgot to give the
+[**EmailAlert** capability][cap7]
 to that user or to a user category that the user is a member of.
 
 After a subscriber signs up for alerts for the first time, a single
@@ -191,12 +192,14 @@ upper right corner of any Fossil UI page then clicking the "Email
 Alerts" link.  That link is also available via the Sitemap (`/sitemap`)
 and via the default skin's hamburger menu (&#9776;).
 
+[cap7]: ./caps/ref.html#7
+
 
 <a id="unsub" name="unsubscribe"></a>
 ### Unsubscribing
 
 To unsubscribe from alerts, visit the `/alerts` page on the repository,
-click the "Unsubscribe" button, then check the "Unsbuscribe" checkbox to
+click the "Unsubscribe" button, then check the "Unsubscribe" checkbox to
 verify your action and press the "Unsubscribe" button a second time.
 
 This interlock is intended to prevent accidental unsubscription.
@@ -225,20 +228,23 @@ Checklist][cl], right? Right.
 [cl]: https://sendgrid.com/blog/programming-style-guide-checklist/
 
 
-<a id="cap7"></a>
+<a id="cap7" name="ucap"></a>
 ### User Capabilities
 
-Once email alerts are working, one must also adjust user permissions to
-allow users to subscribe to email alerts.  In the capability list for
-each user on the Admin → Users page is a new capability called "Email
-Alerts".  The corresponding capability letter is "7", which you must
-give to any user that needs to use the subscription setup pages,
-`/subscribe` and `/alerts`.
+Once email alerts are working, you may need to [adjust the default user
+capabilities](./caps/) to give "[Email Alerts][cap7]" capability to any
+[user category](./caps/#ucat) or [individual user](./caps/#ucap) that
+needs to use the subscription setup pages, `/subscribe` and `/alerts`.
+[**Admin**][capa] and [**Setup**][caps] users always have this
+capability.
 
 To allow any passer-by on the Internet to subscribe, give the "Email
 Alerts" capability to the "nobody" user category.  To require that a
 person solve a simple CAPTCHA first, give that capability to the
 "anonymous" user category instead.
+
+[capa]: ./caps/ref.html#a
+[caps]: ./caps/ref.html#s
 
 
 <a id="first" name="frist"></a>
@@ -476,7 +482,7 @@ cannot currently select it as an option in Admin → Notification.
 
 Fossil makes a distinction between "users" and "subscribers".  A user is
 someone with a username and password: that is, someone who can log into
-the Fossi repository.  A subscriber is someone who receives email
+the Fossil repository.  A subscriber is someone who receives email
 alerts.  Users can also be subscribers and subscribers can be users, but
 that does not have to be the case.  It is possible to be a user without
 being a subscriber and to be a subscriber without being a user.
@@ -570,7 +576,7 @@ Administrator-only web pages:
 ## Design of Email Alerts
 
 This section describes the low-level design of the email alert system in
-Fossil.  This expands on the high-level administion focused material
+Fossil.  This expands on the high-level administration focused material
 above with minimal repetition.
 
 This section assumes expert-level systems knowledge. If the material

@@ -269,7 +269,7 @@ static int enableOutput = 1;
 /*
 ** TH1 command: enable_output BOOLEAN
 **
-** Enable or disable the puts and wiki commands.
+** Enable or disable the puts, wiki, combobox and copybtn commands.
 */
 static int enableOutputCmd(
   Th_Interp *interp,
@@ -415,10 +415,30 @@ int th1_artifact_from_ci_and_filename(
 }
 
 /*
+** TH1 command: nonce
+**
+** Returns the value of the cryptographic nonce for the request being
+** processed.
+*/
+static int nonceCmd(
+  Th_Interp *interp,
+  void *pConvert,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=1 ){
+    return Th_WrongNumArgs(interp, "nonce");
+  }
+  Th_SetResult(interp, style_nonce(), -1);
+  return TH_OK;
+}
+
+/*
 ** TH1 command: puts STRING
 ** TH1 command: html STRING
 **
-** Output STRING escaped for HTML (html) or unchanged (puts).
+** Output STRING escaped for HTML (puts) or unchanged (html).
 */
 static int putsCmd(
   Th_Interp *interp,
@@ -509,6 +529,33 @@ static int verifyCsrfCmd(
     return Th_WrongNumArgs(interp, "verifyCsrf");
   }
   login_verify_csrf_secret();
+  return TH_OK;
+}
+
+/*
+** TH1 command: verifyLogin
+**
+** Returns non-zero if the specified user name and password represent a
+** valid login for the repository.
+*/
+static int verifyLoginCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  const char *zUser;
+  const char *zPass;
+  int uid;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "verifyLogin userName password");
+  }
+  zUser = argv[1];
+  zPass = argv[2];
+  uid = login_search_uid(&zUser, zPass);
+  Th_SetResultInt(interp, uid!=0);
+  if( uid==0 ) sqlite3_sleep(100);
   return TH_OK;
 }
 
@@ -974,6 +1021,54 @@ static int comboboxCmd(
 }
 
 /*
+** TH1 command: copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?
+**
+** Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
+** Javascript module, and generates HTML elements with the following IDs:
+**
+**    TARGETID:       The <span> wrapper around TEXT.
+**    copy-TARGETID:  The <span> for the copy button.
+**
+** If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
+**
+** The optional COPYLENGTH argument defines the length of the substring of TEXT
+** copied to clipboard:
+**
+**    <= 0:   No limit (default if the argument is omitted).
+**    >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+**       1:   Use the "hash-digits" setting as the limit.
+**       2:   Use the length appropriate for URLs as the limit (defined at
+**            compile-time by FOSSIL_HASH_DIGITS_URL, defaults to 16).
+*/
+static int copybtnCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=4 && argc!=5 ){
+    return Th_WrongNumArgs(interp,
+                           "copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?");
+  }
+  if( enableOutput ){
+    int flipped = 0;
+    int copylength = 0;
+    char *zResult;
+    if( Th_ToInt(interp, argv[2], argl[2], &flipped) ) return TH_ERROR;
+    if( argc==5 ){
+      if( Th_ToInt(interp, argv[4], argl[4], &copylength) ) return TH_ERROR;
+    }
+    zResult = style_copy_button(
+                /*bOutputCGI==*/0, /*TARGETID==*/(char*)argv[1],
+                flipped, copylength, "%h", /*TEXT==*/(char*)argv[3]);
+    sendText(zResult, -1, 0);
+    free(zResult);
+  }
+  return TH_OK;
+}
+
+/*
 ** TH1 command: linecount STRING MAX MIN
 **
 ** Return one more than the number of \n characters in STRING.  But
@@ -1367,6 +1462,25 @@ static int artifactCmd(
     Th_SetResult(interp, "repository unavailable", -1);
     return TH_ERROR;
   }
+}
+
+/*
+** TH1 command: cgiHeaderLine line
+**
+** Adds the specified line to the CGI header.
+*/
+static int cgiHeaderLineCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "cgiHeaderLine line");
+  }
+  cgi_append_header(argv[1]);
+  return TH_OK;
 }
 
 /*
@@ -1984,8 +2098,10 @@ void Th_FossilInit(u32 flags){
     {"anoncap",       hascapCmd,            (void*)&anonFlag},
     {"anycap",        anycapCmd,            0},
     {"artifact",      artifactCmd,          0},
+    {"cgiHeaderLine", cgiHeaderLineCmd,     0},
     {"checkout",      checkoutCmd,          0},
     {"combobox",      comboboxCmd,          0},
+    {"copybtn",       copybtnCmd,           0},
     {"date",          dateCmd,              0},
     {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"dir",           dirCmd,               0},
@@ -2003,6 +2119,7 @@ void Th_FossilInit(u32 flags){
     {"insertCsrf",    insertCsrfCmd,        0},
     {"linecount",     linecntCmd,           0},
     {"markdown",      markdownCmd,          0},
+    {"nonce",         nonceCmd,             0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
@@ -2023,6 +2140,7 @@ void Th_FossilInit(u32 flags){
     {"unversioned",   unversionedCmd,       0},
     {"utime",         utimeCmd,             0},
     {"verifyCsrf",    verifyCsrfCmd,        0},
+    {"verifyLogin",   verifyLoginCmd,       0},
     {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };
@@ -2085,6 +2203,20 @@ void Th_FossilInit(u32 flags){
   }
   g.th1Flags &= ~TH_INIT_MASK;
   g.th1Flags |= (flags & TH_INIT_MASK);
+}
+
+/*
+** Store a string value in a variable in the interpreter if the variable
+** does not already exist.
+*/
+void Th_MaybeStore(const char *zName, const char *zValue){
+  Th_FossilInit(TH_INIT_DEFAULT);
+  if( zValue && !Th_ExistsVar(g.interp, zName, -1) ){
+    if( g.thTrace ){
+      Th_Trace("maybe_set %h {%h}<br />\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  }
 }
 
 /*

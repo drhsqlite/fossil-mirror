@@ -279,14 +279,29 @@ void blob_zero(Blob *pBlob){
 
 /*
 ** Append text or data to the end of a blob.
+**
+** The blob_append_full() routine is a complete implementation.
+** The blob_append() routine only works for cases where nData>0 and
+** no resizing is required, and falls back to blob_append_full() if
+** either condition is not met, but runs faster in the common case
+** where all conditions are met.  The use of blob_append() is
+** recommended, unless it is known in advance that nData<0.
 */
-void blob_append(Blob *pBlob, const char *aData, int nData){
+void blob_append_full(Blob *pBlob, const char *aData, int nData){
+  sqlite3_int64 nNew;
   assert( aData!=0 || nData==0 );
   blob_is_init(pBlob);
   if( nData<0 ) nData = strlen(aData);
   if( nData==0 ) return;
-  if( pBlob->nUsed + nData >= pBlob->nAlloc ){
-    pBlob->xRealloc(pBlob, pBlob->nUsed + nData + pBlob->nAlloc + 100);
+  nNew = pBlob->nUsed;
+  nNew += nData;
+  if( nNew >= pBlob->nAlloc ){
+    nNew += pBlob->nAlloc;
+    nNew += 100;
+    if( nNew>=0x7fff0000 ){
+      blob_panic();
+    }
+    pBlob->xRealloc(pBlob, (int)nNew);
     if( pBlob->nUsed + nData >= pBlob->nAlloc ){
       blob_panic();
     }
@@ -295,18 +310,36 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
   pBlob->nUsed += nData;
   pBlob->aData[pBlob->nUsed] = 0;   /* Blobs are always nul-terminated */
 }
+void blob_append(Blob *pBlob, const char *aData, int nData){
+  sqlite3_int64 nUsed;
+  assert( aData!=0 || nData==0 );
+  /* blob_is_init(pBlob); // omitted for speed */
+  if( nData<=0 || pBlob->nUsed + nData >= pBlob->nAlloc ){
+    blob_append_full(pBlob, aData, nData);
+    return;
+  }
+  nUsed = pBlob->nUsed;
+  pBlob->nUsed += nData;
+  pBlob->aData[pBlob->nUsed] = 0;
+  memcpy(&pBlob->aData[nUsed], aData, nData);
+}
+
+/*
+** Append a string literal to a blob.
+*/
+#if INTERFACE
+#define blob_append_string(BLOB,STR) blob_append(BLOB,STR,sizeof(STR)-1)
+#endif
 
 /*
 ** Append a single character to the blob
 */
 void blob_append_char(Blob *pBlob, char c){
   if( pBlob->nUsed+1 >= pBlob->nAlloc ){
-    pBlob->xRealloc(pBlob, pBlob->nUsed + pBlob->nAlloc + 100);
-    if( pBlob->nUsed + 1 >= pBlob->nAlloc ){
-      blob_panic();
-    }
+    blob_append_full(pBlob, &c, 1);
+  }else{
+    pBlob->aData[pBlob->nUsed++] = c;
   }
-  pBlob->aData[pBlob->nUsed++] = c;    
 }
 
 /*
@@ -327,7 +360,9 @@ char *blob_str(Blob *p){
     blob_append_char(p, 0); /* NOTE: Changes nUsed. */
     p->nUsed = 0;
   }
-  if( p->aData[p->nUsed]!=0 ){
+  if( p->nUsed<p->nAlloc ){
+    p->aData[p->nUsed] = 0;
+  }else{
     blob_materialize(p);
   }
   return p->aData;
@@ -1257,7 +1292,8 @@ void blob_append_escaped_arg(Blob *pBlob, const char *zIn){
 #endif
 
   for(i=0; (c = zIn[i])!=0; i++){
-    if( c==cQuote || c=='\\' || c<' ' || c==';' || c=='*' || c=='?' || c=='[') {
+    if( c==cQuote || (unsigned char)c<' ' ||
+        c=='\\' || c==';' || c=='*' || c=='?' || c=='[' ){
       Blob bad;
       blob_token(pBlob, &bad);
       fossil_fatal("the [%s] argument to the \"%s\" command contains "
@@ -1337,7 +1373,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     if( bomReverse ){
       /* Found BOM, but with reversed bytes */
       unsigned int i = blob_size(pBlob);
-      while( i>0 ){
+      while( i>1 ){
         /* swap bytes of unicode representation */
         char zTemp = zUtf8[--i];
         zUtf8[i] = zUtf8[i-1];
@@ -1345,9 +1381,10 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
       }
     }
     /* Make sure the blob contains two terminating 0-bytes */
-    blob_append_char(pBlob, 0);
+    blob_append(pBlob, "\000\000", 3);
     zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
+    blob_reset(pBlob);
     blob_set_dynamic(pBlob, zUtf8);
   }else if( useMbcs && invalid_utf8(pBlob) ){
 #if defined(_WIN32) || defined(__CYGWIN__)

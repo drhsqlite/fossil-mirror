@@ -189,8 +189,8 @@ static int add_one_file(
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     int isExe = file_isexe(zFullname, RepoFILE);
     db_multi_exec(
-      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
-      "VALUES(%d,0,0,0,%Q,%d,%d)",
+      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink,mhash)"
+      "VALUES(%d,0,0,0,%Q,%d,%d,NULL)",
       vid, zPath, isExe, file_islink(0));
     fossil_free(zFullname);
   }
@@ -330,7 +330,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_isdir(zName, RepoFILE);
     if( isDir==1 ){
-      vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pClean, pIgnore, RepoFILE);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else{
@@ -341,6 +341,7 @@ void add_cmd(void){
         char *prompt = mprintf("file \"%s\" matches \"ignore-glob\".  "
                                "Add it (a=all/y/N)? ", zTreeName);
         prompt_user(prompt, &ans);
+        fossil_free(prompt);
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);
         if( cReply=='a' || cReply=='A' ){
@@ -679,7 +680,7 @@ void addremove_cmd(void){
   /* now we read the complete file structure into a temp table */
   pClean = glob_create(zCleanFlag);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pClean, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pClean, pIgnore, RepoFILE);
   glob_free(pIgnore);
   glob_free(pClean);
   nAdd = add_files_in_sfile(vid);
@@ -937,7 +938,7 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
+         "  AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
          " ORDER BY 1",
          vid, zOrig, filename_collation(), zOrig, filename_collation(),
          zOrig, filename_collation()
@@ -969,6 +970,7 @@ void mv_cmd(void){
     if( moveFiles ) add_file_to_move(zFrom, zTo);
   }
   db_finalize(&q);
+  undo_reset();
   db_end_transaction(0);
   if( moveFiles ) process_files_to_move(dryRunFlag);
 }

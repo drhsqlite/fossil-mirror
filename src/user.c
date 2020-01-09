@@ -367,7 +367,7 @@ void user_cmd(void){
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     Blob passwd, login, caps, contact;
     char *zPw;
-    blob_init(&caps, db_get("default-perms", "u"), -1);
+    blob_init(&caps, db_get("default-perms", 0), -1);
 
     if( g.argc>=4 ){
       blob_init(&login, g.argv[3], -1);
@@ -500,6 +500,7 @@ static int attempt_user(const char *zLogin){
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
+  UrlData url;
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -521,8 +522,9 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
-  url_parse(0, 0);
-  if( g.url.user && attempt_user(g.url.user) ) return;
+  memset(&url, 0, sizeof(url));
+  url_parse_local(0, 0, &url);
+  if( url.user && attempt_user(url.user) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

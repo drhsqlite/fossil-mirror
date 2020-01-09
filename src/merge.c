@@ -49,7 +49,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
        db_column_text(&q, 1),
        db_column_text(&q, 0),
        indent, "");
-    comment_print(zCom, db_column_text(&q,2), indent, -1, g.comFmtFlags);
+    comment_print(zCom, db_column_text(&q,2), indent, -1, get_comment_format());
     fossil_free(zCom);
   }
   db_finalize(&q);
@@ -167,6 +167,16 @@ static void add_renames(
   free(aChng);
 }
 
+/* Make an entry in the vmerge table for the given id, and rid.
+*/
+static void vmerge_insert(int id, int rid){
+  db_multi_exec(
+    "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
+    "VALUES(%d,%d,(SELECT uuid FROM blob WHERE rid=%d))",
+    id, rid, rid
+  );
+}
+
 /*
 ** COMMAND: merge
 **
@@ -187,7 +197,11 @@ static void add_renames(
 ** file and directory names from the current checkout even if those
 ** names might have been changed in the branch being merged in.
 **
-** Other options:
+** Options:
+**
+**   --backout               Do a reverse cherrypick merge against VERSION.
+**                           In other words, back out the changes that were
+**                           added by VERSION.
 **
 **   --baseline BASELINE     Use BASELINE as the "pivot" of the merge instead
 **                           of the nearest common ancestor.  This allows
@@ -201,6 +215,11 @@ static void add_renames(
 **   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
+**
+**   --cherrypick            Do a cherrypick merge VERSION into the current
+**                           checkout.  A cherrypick merge pulls in the changes
+**                           of the single check-in VERSION, rather than all
+**                           changes back to the nearest common ancestor.
 **
 **   -f|--force              Force the merge even if it would be a no-op.
 **
@@ -313,7 +332,7 @@ void merge_cmd(void){
       char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
             db_column_text(&q, 0), db_column_text(&q, 1),
             db_column_text(&q, 3), db_column_text(&q, 2));
-      comment_print(zCom, db_column_text(&q,2), 0, -1, g.comFmtFlags);
+      comment_print(zCom, db_column_text(&q,2), 0, -1, get_comment_format());
       fossil_free(zCom);
     }
     db_finalize(&q);
@@ -596,8 +615,10 @@ void merge_cmd(void){
     if( !dryRunFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d "
-        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=%d, islink=%d,"
+        " mhash=CASE WHEN rid<>%d"
+                   " THEN (SELECT uuid FROM blob WHERE blob.rid=%d) END"
+        " WHERE id=%d", ridm, integrateFlag?4:2, islinkm, ridm, ridm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
@@ -666,8 +687,7 @@ void merge_cmd(void){
       blob_reset(&m);
       blob_reset(&r);
     }
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
-                  idv,ridm);
+    vmerge_insert(idv, ridm);
   }
   db_finalize(&q);
 
@@ -743,7 +763,7 @@ void merge_cmd(void){
       zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       if( file_size(zFullNewPath, RepoFILE)>=0 ){
         Blob tmpPath;
-        file_tempname(&tmpPath, "");
+        file_tempname(&tmpPath, "", 0);
         db_multi_exec("INSERT INTO tmprn(fn,tmpfn) VALUES(%Q,%Q)",
                       zNewName, blob_str(&tmpPath));
         if( file_islink(zFullNewPath) ){
@@ -788,8 +808,12 @@ void merge_cmd(void){
     const char *zName;
     char *zFullName;
     db_multi_exec(
-      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
-      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
+      "REPLACE INTO vfile(vid,chnged,deleted,rid,mrid,"
+                         "isexe,islink,pathname,mhash)"
+      "  SELECT %d,%d,0,rid,mrid,isexe,islink,pathname,"
+              "CASE WHEN rid<>mrid"
+              "     THEN (SELECT uuid FROM blob WHERE blob.rid=vfile.mrid) END "
+              "FROM vfile WHERE id=%d",
       vid, integrateFlag?5:3, idm
     );
     zName = db_column_text(&q, 1);
@@ -828,7 +852,7 @@ void merge_cmd(void){
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( pickFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-1,%d)",mid);
+    vmerge_insert(-1, mid);
     /* For a cherry-pick merge, make the default check-in comment the same
     ** as the check-in comment on the check-in that is being merged in. */
     db_multi_exec(
@@ -838,11 +862,11 @@ void merge_cmd(void){
        mid
     );
   }else if( backoutFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-2,%d)",pid);
+    vmerge_insert(-2, pid);
   }else if( integrateFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-4,%d)",mid);
+    vmerge_insert(-4, mid);
   }else{
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+    vmerge_insert(0, mid);
   }
   if( !dryRunFlag ) undo_finish();
   db_end_transaction(dryRunFlag);

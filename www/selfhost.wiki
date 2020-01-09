@@ -12,6 +12,8 @@ The canonical repository is (1).  Repositories (2) and (3) automatically
 stay in synchronization with (1) via a
 <a href="http://en.wikipedia.org/wiki/Cron">cron job</a> that invokes
 "fossil sync" at regular intervals.
+Repository (2) also publishes a
+[./mirrortogithub.md|GitHub mirror of Fossil] as a demonstration.
 
 Note that the two secondary repositories are more than just read-only mirrors.
 All three servers support full read/write capabilities.
@@ -56,7 +58,8 @@ repository: /home/hwaci/fossil/fossil.fossil
 In recent years, virtual private servers have become a more flexible and
 less expensive hosting option compared to shared hosting accounts.
 So on 2017-07-25, server (3) was moved
-onto a $5/month "droplet" VPS from [https://www.digitalocean.com|Digital Ocean]
+onto a $5/month "droplet" [https://en.wikipedia.org/wiki/Virtual_private_server|VPS]
+from [https://www.digitalocean.com|Digital Ocean]
 located in San Francisco.
 
 Server (3) is synchronized with the canonical server (1) by running
@@ -69,4 +72,6 @@ the following command via cron:
 Server (2) is a
 <a href="http://www.linode.com/">Linode 4096</a> located in Newark, NJ
 and set up just like the canonical server (1) with the addition of a
-cron job for synchronization as in server (3).
+cron job for synchronization.  The same cron job also runs the
+[/help?cmd=git|fossil git export] command after each sync in order to
+[./mirrortogithub.md#ex1|mirror all changes to GitHub].

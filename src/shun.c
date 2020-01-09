@@ -176,8 +176,8 @@ void shun_page(void){
   @ to be removed from the repository and will prevent the artifacts from being
   @ readded to the repository by subsequent sync operation.</p>
   @
-  @ <p>Note that you must enter the full 40- or 64-character artifact hashes,
-  @ not an abbreviation or a symbolic tag.</p>
+  @ <p>Note that you must enter full artifact hashes, not abbreviations
+  @ or symbolic tags.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as
@@ -383,7 +383,7 @@ void rcvfromlist_page(void){
     const char *zIpAddr = db_column_text(&q, 3);
     int usesSha1 = db_column_int(&q, 5)!=0;
     int usesSha3 = db_column_int(&q, 6)!=0;
-    static const char *zHashType[] = { "", "sha1", "sha3", "both" };
+    static const char *const zHashType[] = { "", "sha1", "sha3", "both" };
     const char *zHash = zHashType[usesSha1+usesSha3*2];
     if( cnt==perScreen && !showAll ){
       style_submenu_element("Older", "rcvfromlist?ofst=%d", ofst+perScreen);

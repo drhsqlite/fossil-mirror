@@ -42,18 +42,89 @@ int fossil_isdate(const char *z){
 }
 
 /*
-** Return the RID that is the "root" of the branch that contains
-** check-in "rid" if inBranch==0 or the first check-in in the branch
-** if inBranch==1.
+** Check to see if the string might be a compact date/time that omits
+** the punctuation.  Example:  "20190327084549" instead of
+** "2019-03-27 08:45:49".  If the string is of the appropriate form,
+** then return an alternative string (in static space) that is the same
+** string with punctuation inserted.
+**
+** If the bVerifyNotAHash flag is true, then a check is made to see if
+** the string is a hash prefix and NULL is returned if it is.  If the
+** bVerifyNotAHash flag is false, then the result is determined by syntax
+** of the input string only, without reference to the artifact table.
 */
-int start_of_branch(int rid, int inBranch){
+char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
+  static char zEDate[20];
+  static const char aPunct[] = { 0, 0, '-', '-', ' ', ':', ':' };
+  int n = (int)strlen(zIn);
+  int i, j;
+
+  /* Only three forms allowed:
+  **   (1)  YYYYMMDD
+  **   (2)  YYYYMMDDHHMM
+  **   (3)  YYYYMMDDHHMMSS
+  */
+  if( n!=8 && n!=12 && n!=14 ) return 0;
+
+  /* Every character must be a digit */
+  for(i=0; fossil_isdigit(zIn[i]); i++){}
+  if( i!=n ) return 0;
+
+  /* Expand the date */
+  for(i=j=0; zIn[i]; i++){
+    if( i>=4 && (i%2)==0 ){
+      zEDate[j++] = aPunct[i/2];
+    }
+    zEDate[j++] = zIn[i];
+  }
+  zEDate[j] = 0;
+
+  /* Check for reasonable date values.
+  ** Offset references:
+  **    YYYY-MM-DD HH:MM:SS
+  **    0123456789 12345678
+  */
+
+  i = atoi(zEDate);
+  if( i<1970 || i>2100 ) return 0;
+  i = atoi(zEDate+5);
+  if( i<1 || i>12 ) return 0;
+  i = atoi(zEDate+8);
+  if( i<1 || i>31 ) return 0;
+  if( n>8 ){
+    i = atoi(zEDate+11);
+    if( i>24 ) return 0;
+    i = atoi(zEDate+14);
+    if( i>60 ) return 0;
+    if( n==14 && atoi(zEDate+17)>60 ) return 0;
+  }
+
+  /* The string is not also a hash prefix */
+  if( bVerifyNotAHash ){
+    if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%q*'",zIn) ) return 0;
+  }
+
+  /* It looks like this may be a date.  Return it with punctuation added. */
+  return zEDate;
+}
+
+/*
+** Return the RID that is the "root" of the branch that contains
+** check-in "rid".  Details depending on eType:
+**
+**    eType==0    The check-in of the parent branch off of which
+**                the branch containing RID originally diverged.
+**
+**    eType==1    The first check-in of the branch that contains RID.
+**
+**    eType==2    The youngest ancestor of RID that is on the branch
+**                from which the branch containing RID diverged.
+*/
+int start_of_branch(int rid, int eType){
   Stmt q;
   int rc;
-  char *zBr;
-  zBr = db_text("trunk","SELECT value FROM tagxref"
-                        " WHERE rid=%d AND tagid=%d"
-                        " AND tagtype>0",
-                        rid, TAG_BRANCH);
+  int ans = rid;
+  char *zBr = branch_of_rid(rid);
   db_prepare(&q,
     "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
                        " WHERE tagid=%d AND tagtype>0"
@@ -65,14 +136,19 @@ int start_of_branch(int rid, int inBranch){
   fossil_free(zBr);
   do{
     db_reset(&q);
-    db_bind_int(&q, ":cid", rid);
+    db_bind_int(&q, ":cid", ans);
     rc = db_step(&q);
     if( rc!=SQLITE_ROW ) break;
-    if( inBranch && db_column_int(&q,1)==0 ) break;
-    rid = db_column_int(&q, 0);
-  }while( db_column_int(&q, 1)==1 && rid>0 );
+    if( eType==1 && db_column_int(&q,1)==0 ) break;
+    ans = db_column_int(&q, 0);
+  }while( db_column_int(&q, 1)==1 && ans>0 );
   db_finalize(&q);
-  return rid;
+  if( eType==2 && ans>0 ){
+    zBr = branch_of_rid(ans);
+    ans = compute_youngest_ancestor_in_branch(rid, zBr);
+    fossil_free(zBr);
+  }
+  return ans;
 }
 
 /*
@@ -100,6 +176,7 @@ int start_of_branch(int rid, int inBranch){
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
 ** If zType is "br" then find the first check-in of the named branch
 ** rather than the last.
+**
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 **
@@ -116,6 +193,8 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   int startOfBranch = 0;
   const char *zXTag;     /* zTag with optional [...] removed */
   int nXTag;             /* Size of zXTag */
+  const char *zDate;     /* Expanded date-time string */
+  const char *zTagPrefix = "sym";
 
   if( zType==0 || zType[0]==0 ){
     zType = "*";
@@ -152,11 +231,13 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Date and times */
   if( memcmp(zTag, "date:", 5)==0 ){
+    zDate = fossil_expand_datetime(&zTag[5],0);
+    if( zDate==0 ) zDate = &zTag[5];
     rid = db_int(0,
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
-      &zTag[5], zType);
+      zDate, zType);
     return rid;
   }
   if( fossil_isdate(zTag) ){
@@ -202,10 +283,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     return rid;
   }
 
-  /* root:TAG -> The origin of the branch */
-  if( memcmp(zTag, "root:", 5)==0 ){
+  /* root:BR -> The origin of the branch named BR */
+  if( strncmp(zTag, "root:", 5)==0 ){
     rid = symbolic_name_to_rid(zTag+5, zType);
     return start_of_branch(rid, 0);
+  }
+  /* rootx:BR -> Most recent merge-in for the branch name BR */
+  if( strncmp(zTag, "merge-in:", 9)==0 ){
+    rid = symbolic_name_to_rid(zTag+9, zType);
+    return start_of_branch(rid, 2);
   }
 
   /* symbolic-name ":" date-time */
@@ -271,20 +357,36 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     if( rid ) return rid;
   }
 
+  if( zType[0]=='w' ){
+    zTagPrefix = "wiki";
+  }
   /* Symbolic name */
   rid = db_int(0,
     "SELECT event.objid, max(event.mtime)"
     "  FROM tag, tagxref, event"
-    " WHERE tag.tagname='sym-%q' "
+    " WHERE tag.tagname='%q-%q' "
     "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
     "   AND event.objid=tagxref.rid "
     "   AND event.type GLOB '%q'",
-    zTag, zType
+    zTagPrefix, zTag, zType
   );
+
   if( rid>0 ){
     if( startOfBranch ) rid = start_of_branch(rid,1);
     return rid;
   }
+
+  /* Pure numeric date/time */
+  zDate = fossil_expand_datetime(zTag, 0);
+  if( zDate ){
+    rid = db_int(0,
+      "SELECT objid FROM event"
+      " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
+      " ORDER BY mtime DESC LIMIT 1",
+      zDate, zType);
+    if( rid) return rid;
+  }
+
 
   /* Undocumented:  numeric tags get translated directly into the RID */
   if( memcmp(zTag, "rid:", 4)==0 ){
@@ -385,22 +487,33 @@ int name_collisions(const char *zName){
 /*
 ** COMMAND: test-name-to-id
 **
-** Convert a name to a full artifact ID.
+** Usage:  %fossil test-name-to-id [--count N] NAME
+**
+** Convert a NAME to a full artifact ID.  Repeat the conversion N
+** times (for timing purposes) if the --count option is given.
 */
 void test_name_to_id(void){
   int i;
+  int n = 0;
   Blob name;
   db_must_be_within_tree();
   for(i=2; i<g.argc; i++){
-    blob_init(&name, g.argv[i], -1);
-    fossil_print("%s -> ", g.argv[i]);
-    if( name_to_uuid(&name, 1, "*") ){
-      fossil_print("ERROR: %s\n", g.zErrMsg);
-      fossil_error_reset();
-    }else{
-      fossil_print("%s\n", blob_buffer(&name));
+    if( strcmp(g.argv[i],"--count")==0 && i+1<g.argc ){
+      i++;
+      n = atoi(g.argv[i]);
+      continue;
     }
-    blob_reset(&name);
+    do{
+      blob_init(&name, g.argv[i], -1);
+      fossil_print("%s -> ", g.argv[i]);
+      if( name_to_uuid(&name, 1, "*") ){
+        fossil_print("ERROR: %s\n", g.zErrMsg);
+        fossil_error_reset();
+      }else{
+        fossil_print("%s\n", blob_buffer(&name));
+      }
+      blob_reset(&name);
+    }while( n-- > 0 );
   }
 }
 
@@ -614,7 +727,7 @@ void whatis_rid(int rid, int verboseFlag){
     fossil_print("type:       %s by %s on %s\n", zType, db_column_text(&q,2),
                  db_column_text(&q, 1));
     fossil_print("comment:    ");
-    comment_print(db_column_text(&q,3), 0, 12, -1, g.comFmtFlags);
+    comment_print(db_column_text(&q,3), 0, 12, -1, get_comment_format());
   }
   db_finalize(&q);
 
@@ -636,7 +749,7 @@ void whatis_rid(int rid, int verboseFlag){
       db_column_text(&q, 3),
       db_column_text(&q, 2));
     fossil_print("            ");
-    comment_print(db_column_text(&q,4), 0, 12, -1, g.comFmtFlags);
+    comment_print(db_column_text(&q,4), 0, 12, -1, get_comment_format());
   }
   db_finalize(&q);
 
@@ -671,7 +784,7 @@ void whatis_rid(int rid, int verboseFlag){
     fossil_print("            by user %s on %s\n",
                  db_column_text(&q,2), db_column_text(&q,3));
     fossil_print("            ");
-    comment_print(db_column_text(&q,1), 0, 12, -1, g.comFmtFlags);
+    comment_print(db_column_text(&q,1), 0, 12, -1, get_comment_format());
   }
   db_finalize(&q);
 }

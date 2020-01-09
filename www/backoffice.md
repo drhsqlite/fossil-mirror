@@ -4,14 +4,14 @@ Backoffice
 This is technical documentation about the internal workings of Fossil.
 Ordinary Fossil users do not need to know about anything covered by this
 document.  The information here is intended for people who want to enhance
-or extend the Fossil code, or who just want a deeper understanding of 
+or extend the Fossil code, or who just want a deeper understanding of
 the internal workings of Fossil.
 
 What Is The Backoffice
 ----------------------
 
-The backoffice is a mechanism used by a 
-[Fossil server](/doc/trunk/www/server.wiki) to do low-priority
+The backoffice is a mechanism used by a
+[Fossil server](./server/) to do low-priority
 background work that is not directly related to the user interface.  Here
 are some examples of the kinds of work that backoffice performs:
 
@@ -41,8 +41,8 @@ server for "[fossil sync](/help?cmd=sync)" and
 web requests - albeit requests that the human user never sees.
 Web requests can arrive at the Fossil server via direct TCP/IP (for example
 when Fossil is started using commands like "[fossil server](/help?cmd=server)")
-or via [CGI](/doc/trunk/www/server.wiki) or
-[SCGI](/doc/trunk/www/scgi.wiki) or via SSH.
+or via [CGI](./server/any/cgi.md) or
+[SCGI](./server/any/scgi.md) or via SSH.
 A backoffice process might be started regardless of the origin of the
 request.
 
@@ -51,8 +51,8 @@ while and then exits.  This helps keep Fossil easy to manage, since there
 are no daemons to start and stop.  To upgrade Fossil to a new version,
 you simply replace the older "fossil" executable with the newer one, and
 the backoffice processes will (within a minute or so) start using the new
-one.  (Upgrading the executable on Windows is more complicated, since on 
-Windows it is not possible to replace an executable file that is in active 
+one.  (Upgrading the executable on Windows is more complicated, since on
+Windows it is not possible to replace an executable file that is in active
 use.  But Windows users probably already know this.)
 
 The backoffice is serialized and rate limited.  No more than a single
@@ -60,7 +60,7 @@ backoffice process will be running at once, and backoffice runs will not
 occur more frequently than once every 60 seconds.
 
 If a Fossil server is idle, then no backoffice processes will be running.
-That means there are no extra processes sitting around taking up memory 
+That means there are no extra processes sitting around taking up memory
 and process table slots for seldom accessed repositories.
 The backoffice is an on-demand system.
 A busy repository will usually have a backoffice
@@ -76,10 +76,10 @@ However, the daily digest of email notifications is handled by the
 backoffice.  If a Fossil server can sometimes go more than a day without
 being accessed, then the automatic backoffice will never run, and the
 daily digest might not go out until somebody does visit a webpage.
-If this is a problem, an adminstrator can set up a cron job to
+If this is a problem, an administrator can set up a cron job to
 periodically run:
 
->   fossil backoffice -R _REPOSITORY_
+>   fossil backoffice _REPOSITORY_
 
 That command will cause backoffice processing to occur immediately.
 Note that this is almost never necessary for an internet-facing
@@ -120,9 +120,9 @@ backoffice processes.  (Either the process id entries in the lease
 will be zero, or there will exist no process associated with the
 process id.) When a new web request comes in, the system
 sees that no backoffice process is active and so it kicks off a separate
-process to run backoffice.  
+process to run backoffice.
 
-The new backoffice process becomes the "current" process.  It sets a 
+The new backoffice process becomes the "current" process.  It sets a
 lease expiration time for itself to be 60 seconds in the future.
 Then it does the backoffice processing and exits.  Note that usually
 the backoffice process will exit long before its lease expires.  That
@@ -168,7 +168,7 @@ for a repository:
 Running that command every few seconds should show what is going on with
 backoffice processing in a particular repository.
 
-There are also two settings that control backoffice behavior.  The
+There are also settings that control backoffice behavior.  The
 "backoffice-nodelay" setting prevents the "next" process from taking a
 lease and sleeping.  If "backoffice-nodelay" is set, that causes all
 backoffice processes to exit either immediately or after doing whatever
@@ -179,5 +179,11 @@ can be fixed.  The "backoffice-logfile" setting is the name of a log
 file onto which is appended a short message everything a backoffice
 process actually starts to do the backoffice work.  This log file can
 be used to verify that backoffice really is running, if there is any
-doubt.  Most installations should leave "backoffice-nodelay" off and
+doubt.  The "backoffice-disable" setting prevents automatic backoffice
+processing, if true.  Use this to completely disable backoffice processing
+that occurs automatically after each HTTP request.  The "backoffice-disable"
+setting does not affect the operation of the manual
+"fossil backoffice" command.
+Most installations should leave "backoffice-nodelay" and "backoffice-disable"
+set to their default values of off and
 leave "backoffice-logfile" unset or set to an empty string.

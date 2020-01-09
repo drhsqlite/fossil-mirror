@@ -15,7 +15,8 @@ function get_fossil_data() {
   eval `get_fossil_data2`
 }
 function get_fossil_data2() {
-  fossil info 2> /dev/null | sed 's/"//g'|grep "^[^ ]*:" | while read LINE ; do
+  fossil info 2> /dev/null |tr '\042\047\140' _|grep "^[^ ]*:" |
+  while read LINE ; do
     local field=`echo $LINE | sed 's/:.*$//' | sed 's/-/_/'`
     local value=`echo $LINE | sed 's/^[^ ]*: *//'`
     echo fossil_info_${field}=\"${value}\"

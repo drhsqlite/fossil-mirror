@@ -22,7 +22,34 @@
 #include <assert.h>
 
 /*
-**  fossil branch new    NAME BASIS ?OPTIONS?
+** If RID refers to a check-in, return the name of the branch for that
+** check-in.
+**
+** Space to hold the returned value is obtained from fossil_malloc()
+** and should be freed by the caller.
+*/
+char *branch_of_rid(int rid){
+  char *zBr = 0;
+  static Stmt q;
+  db_static_prepare(&q,
+      "SELECT value FROM tagxref"
+      " WHERE rid=$rid AND tagid=%d"
+      " AND tagtype>0", TAG_BRANCH);
+  db_bind_int(&q, "$rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    zBr = fossil_strdup(db_column_text(&q,0));
+  }
+  db_reset(&q);
+  if( zBr==0 ){
+    static char *zMain = 0;
+    if( zMain==0 ) zMain = db_get("main-branch",0);
+    zBr = fossil_strdup(zMain);
+  }
+  return zBr;
+}
+
+/*
+**  fossil branch new    NAME  BASIS ?OPTIONS?
 **  argv0  argv1  argv2  argv3 argv4
 */
 void branch_new(void){
@@ -181,6 +208,49 @@ void branch_new(void){
   if( !isPrivate ) autosync_loop(SYNC_PUSH, db_get_int("autosync-tries",1),0);
 }
 
+/*
+** Create a TEMP table named "tmp_brlist" with 7 columns:
+**
+**      name           Name of the branch
+**      mtime          Time of last checkin on this branch
+**      isclosed       True if the branch is closed
+**      mergeto        Another branch this branch was merged into
+**      nckin          Number of checkins on this branch
+**      ckin           Hash of the last checkin on this branch
+**      bgclr          Background color for this branch
+*/
+static const char createBrlistQuery[] =
+@ CREATE TEMP TABLE IF NOT EXISTS tmp_brlist AS
+@ SELECT
+@   tagxref.value AS name,
+@   max(event.mtime) AS mtime,
+@   EXISTS(SELECT 1 FROM tagxref AS tx
+@           WHERE tx.rid=tagxref.rid
+@             AND tx.tagid=(SELECT tagid FROM tag WHERE tagname='closed')
+@             AND tx.tagtype>0) AS isclosed,
+@   (SELECT tagxref.value
+@      FROM plink CROSS JOIN tagxref
+@    WHERE plink.pid=event.objid
+@       AND tagxref.rid=plink.cid
+@      AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='branch')
+@      AND tagtype>0) AS mergeto,
+@   count(*) AS nckin,
+@   (SELECT uuid FROM blob WHERE rid=tagxref.rid) AS ckin,
+@   event.bgcolor AS bgclr
+@  FROM tagxref, tag, event
+@ WHERE tagxref.tagid=tag.tagid
+@   AND tagxref.tagtype>0
+@   AND tag.tagname='branch'
+@   AND event.objid=tagxref.rid
+@ GROUP BY 1;
+;
+
+/* Call this routine to create the TEMP table */
+static void brlist_create_temp_table(void){
+  db_multi_exec(createBrlistQuery/*works-like:""*/);
+}
+
+
 #if INTERFACE
 /*
 ** Allows bits in the mBplqFlags parameter to branch_prepare_list_query().
@@ -189,8 +259,8 @@ void branch_new(void){
 #define BRL_OPEN_ONLY        0x002 /* Show only open branches */
 #define BRL_BOTH             0x003 /* Show both open and closed branches */
 #define BRL_OPEN_CLOSED_MASK 0x003
-#define BRL_MTIME            0x004 /* Include lastest check-in time */
-#define BRL_ORDERBY_MTIME    0x008 /* Sort by MTIME. (otherwise sort by name)*/
+#define BRL_ORDERBY_MTIME    0x004 /* Sort by MTIME. (otherwise sort by name)*/
+#define BRL_REVERSE          0x008 /* Reverse the sort order */
 
 #endif /* INTERFACE */
 
@@ -202,43 +272,39 @@ void branch_new(void){
 ** branches. Else the query pulls currently-opened branches.
 */
 void branch_prepare_list_query(Stmt *pQuery, int brFlags){
+  Blob sql;
+  blob_init(&sql, 0, 0);
+  brlist_create_temp_table();
   switch( brFlags & BRL_OPEN_CLOSED_MASK ){
     case BRL_CLOSED_ONLY: {
-      db_prepare(pQuery,
-        "SELECT value FROM tagxref"
-        " WHERE tagid=%d AND value NOT NULL "
-        "EXCEPT "
-        "SELECT value FROM tagxref"
-        " WHERE tagid=%d"
-        "   AND rid IN leaf"
-        "   AND NOT %z"
-        " ORDER BY value COLLATE nocase /*sort*/",
-        TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+      blob_append_sql(&sql,
+        "SELECT name FROM tmp_brlist WHERE isclosed"
       );
       break;
     }
     case BRL_BOTH: {
-      db_prepare(pQuery,
-        "SELECT DISTINCT value FROM tagxref"
-        " WHERE tagid=%d AND value NOT NULL"
-        "   AND rid IN leaf"
-        " ORDER BY value COLLATE nocase /*sort*/",
-        TAG_BRANCH
+      blob_append_sql(&sql,
+        "SELECT name FROM tmp_brlist"
       );
       break;
     }
     case BRL_OPEN_ONLY: {
-      db_prepare(pQuery,
-        "SELECT DISTINCT value FROM tagxref"
-        " WHERE tagid=%d AND value NOT NULL"
-        "   AND rid IN leaf"
-        "   AND NOT %z"
-        " ORDER BY value COLLATE nocase /*sort*/",
-        TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+      blob_append_sql(&sql,
+        "SELECT name FROM tmp_brlist WHERE NOT isclosed"
       );
       break;
     }
   }
+  if( brFlags & BRL_ORDERBY_MTIME ){
+    blob_append_sql(&sql, " ORDER BY -mtime");
+  }else{
+    blob_append_sql(&sql, " ORDER BY name COLLATE nocase");
+  }
+  if( brFlags & BRL_REVERSE ){
+    blob_append_sql(&sql," DESC");
+  }
+  db_prepare_blob(pQuery, &sql);
+  blob_reset(&sql);
 }
 
 /*
@@ -278,11 +344,13 @@ int branch_is_open(const char *zBrName){
 **
 **        Print information about a branch
 **
-**    fossil branch list|ls ?-a|--all|-c|--closed?
+**    fossil branch list|ls ?OPTIONS?
 **
-**        List all branches.  Use -a or --all to list all branches and
-**        -c or --closed to list all closed branches.  The default is to
-**        show only open branches.
+**        List all branches. Options:
+**          -a|--all      List all branches.  Default show only open branches
+**          -c|--closed   List closed branches.
+**          -r            Reverse the sort order
+**          -t            Show recently changed branches first
 **
 **    fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
@@ -347,6 +415,8 @@ void branch_cmd(void){
     int brFlags = BRL_OPEN_ONLY;
     if( find_option("all","a",0)!=0 ) brFlags = BRL_BOTH;
     if( find_option("closed","c",0)!=0 ) brFlags = BRL_CLOSED_ONLY;
+    if( find_option("t",0,0)!=0 ) brFlags |= BRL_ORDERBY_MTIME;
+    if( find_option("r",0,0)!=0 ) brFlags |= BRL_REVERSE;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
@@ -368,32 +438,6 @@ void branch_cmd(void){
   }
 }
 
-static const char brlistQuery[] =
-@ SELECT
-@   tagxref.value,
-@   max(event.mtime),
-@   EXISTS(SELECT 1 FROM tagxref AS tx
-@           WHERE tx.rid=tagxref.rid
-@             AND tx.tagid=(SELECT tagid FROM tag WHERE tagname='closed')
-@             AND tx.tagtype>0),
-@   (SELECT tagxref.value
-@      FROM plink CROSS JOIN tagxref
-@    WHERE plink.pid=event.objid
-@       AND tagxref.rid=plink.cid
-@      AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='branch')
-@      AND tagtype>0),
-@   count(*),
-@   (SELECT uuid FROM blob WHERE rid=tagxref.rid),
-@   event.bgcolor
-@  FROM tagxref, tag, event
-@ WHERE tagxref.tagid=tag.tagid
-@   AND tagxref.tagtype>0
-@   AND tag.tagname='branch'
-@   AND event.objid=tagxref.rid
-@ GROUP BY 1
-@ ORDER BY 2 DESC;
-;
-
 /*
 ** This is the new-style branch-list page that shows the branch names
 ** together with their ages (time of last check-in) and whether or not
@@ -413,13 +457,14 @@ static void new_brlist_page(void){
   style_submenu_checkbox("colors", "Use Branch Colors", 0, 0);
   login_anonymous_available();
 
-  db_prepare(&q, brlistQuery/*works-like:""*/);
+  brlist_create_temp_table();
+  db_prepare(&q, "SELECT * FROM tmp_brlist ORDER BY mtime DESC");
   rNow = db_double(0.0, "SELECT julianday('now')");
   @ <div class="brlist">
   @ <table class='sortable' data-column-types='tkNtt' data-init-sort='2'>
   @ <thead><tr>
   @ <th>Branch Name</th>
-  @ <th>Age</th>
+  @ <th>Last Change</th>
   @ <th>Check-ins</th>
   @ <th>Status</th>
   @ <th>Resolution</th>
@@ -447,8 +492,8 @@ static void new_brlist_page(void){
     }else{
       @ <tr>
     }
-    @ <td>%z(href("%R/timeline?n=100&r=%T",zBranch))%h(zBranch)</a></td>
-    @ <td data-sortkey="%016llx(-iMtime)">%s(zAge)</td>
+    @ <td>%z(href("%R/timeline?r=%T",zBranch))%h(zBranch)</a></td>
+    @ <td data-sortkey="%016llx(iMtime)">%s(zAge)</td>
     @ <td>%d(nCkin)</td>
     fossil_free(zAge);
     @ <td>%s(isClosed?"closed":"")</td>
@@ -476,8 +521,12 @@ static void new_brlist_page(void){
 **
 **     all         Show all branches
 **     closed      Show only closed branches
-**     open        Show only open branches (default behavior)
+**     open        Show only open branches
 **     colortest   Show all branches with automatic color
+**
+** When there are no query parameters, a new-style /brlist page shows
+** all branches in a sortable table.  The new-style /brlist page is
+** preferred and is the default.
 */
 void brlist_page(void){
   Stmt q;
@@ -560,7 +609,7 @@ void brlist_page(void){
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
     }else{
-      @ <li>%z(href("%R/timeline?r=%T&n=200",zBr))%h(zBr)</a></li>
+      @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
     }
   }
   if( cnt ){
@@ -588,7 +637,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ %z(href("%R/timeline?r=%T&n=200",zTagName))[timeline]</a>
+    @  %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
   }
   db_finalize(&q);
 }
@@ -597,9 +646,21 @@ static void brtimeline_extra(int rid){
 ** WEBPAGE: brtimeline
 **
 ** Show a timeline of all branches
+**
+** Query parameters:
+**
+**     ng            No graph
+**     nohidden      Hide check-ins with "hidden" tag
+**     onlyhidden    Show only check-ins with "hidden" tag
+**     brbg          Background color by branch name
+**     ubg           Background color by user name
 */
 void brtimeline_page(void){
+  Blob sql = empty_blob;
   Stmt q;
+  int tmFlags;                            /* Timeline display flags */
+  int fNoHidden = PB("nohidden")!=0;      /* The "nohidden" query parameter */
+  int fOnlyHidden = PB("onlyhidden")!=0;  /* The "onlyhidden" query parameter */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -607,14 +668,29 @@ void brtimeline_page(void){
   style_header("Branches");
   style_submenu_element("List", "brlist");
   login_anonymous_available();
+  timeline_ss_submenu();
+  cookie_render();
   @ <h2>The initial check-in for each branch:</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_BRANCH
-  );
-  www_print_timeline(&q, 0, 0, 0, 0, brtimeline_extra);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append_sql(&sql,
+    "AND blob.rid IN (SELECT rid FROM tagxref"
+    "                  WHERE tagtype>0 AND tagid=%d AND srcid!=0)", TAG_BRANCH);
+  if( fNoHidden || fOnlyHidden ){
+    const char* zUnaryOp = fNoHidden ? "NOT" : "";
+    blob_append_sql(&sql,
+      " AND %s EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)\n",
+      zUnaryOp/*safe-for-%s*/, TAG_HIDDEN);
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_sql_text(&sql));
+  blob_reset(&sql);
+  /* Always specify TIMELINE_DISJOINT, or graph_finish() may fail because of too
+  ** many descenders to (off-screen) parents. */
+  tmFlags = TIMELINE_DISJOINT | TIMELINE_NOSCROLL;
+  if( PB("ng")==0 ) tmFlags |= TIMELINE_GRAPH;
+  if( PB("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( PB("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  www_print_timeline(&q, tmFlags, 0, 0, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   style_footer();
 }

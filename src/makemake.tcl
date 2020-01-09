@@ -54,6 +54,7 @@ set src {
   db
   delta
   deltacmd
+  deltafunc
   descendants
   diff
   diffcmd
@@ -62,6 +63,7 @@ set src {
   encode
   etag
   event
+  extcgi
   export
   file
   finfo
@@ -69,6 +71,7 @@ set src {
   forum
   fshell
   fusefs
+  fuzz
   glob
   graph
   gzip
@@ -116,6 +119,7 @@ set src {
   purge
   rebuild
   regexp
+  repolist
   report
   rss
   schema
@@ -178,6 +182,7 @@ set extra_files {
 #
 set SQLITE_OPTIONS {
   -DNDEBUG=1
+  -DSQLITE_DQS=0
   -DSQLITE_THREADSAFE=0
   -DSQLITE_DEFAULT_MEMSTATUS=0
   -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1
@@ -194,7 +199,6 @@ set SQLITE_OPTIONS {
   -DSQLITE_DEFAULT_FILE_FORMAT=4
   -DSQLITE_ENABLE_EXPLAIN_COMMENTS
   -DSQLITE_ENABLE_FTS4
-  -DSQLITE_ENABLE_FTS3_PARENTHESIS
   -DSQLITE_ENABLE_DBSTAT_VTAB
   -DSQLITE_ENABLE_JSON1
   -DSQLITE_ENABLE_FTS5
@@ -309,9 +313,6 @@ writeln -nonewline "OBJ ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
-writeln "\n"
-writeln "APPNAME = $name\$(E)"
-writeln "\n"
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
@@ -319,7 +320,7 @@ writeln [string map [list \
     <<<MINIZ_OPTIONS>>> [join $MINIZ_OPTIONS " \\\n                "]] {
 all:	$(OBJDIR) $(APPNAME)
 
-install:	$(APPNAME)
+install:	all
 	mkdir -p $(INSTALLDIR)
 	cp $(APPNAME) $(INSTALLDIR)
 
@@ -441,7 +442,7 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 writeln {
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -696,9 +697,9 @@ ZLIBTARGETS =
 endif
 
 #### Disable creation of the OpenSSL shared libraries.  Also, disable support
-#    for both SSLv2 and SSLv3 (i.e. thereby forcing the use of TLS).
+#    for SSLv3 (i.e. thereby forcing the use of TLS).
 #
-SSLCONFIG += no-ssl2 no-ssl3 no-weak-ssl-ciphers no-shared
+SSLCONFIG += no-ssl3 no-weak-ssl-ciphers no-shared
 
 #### When using zlib, make sure that OpenSSL is configured to use the zlib
 #    that Fossil knows about (i.e. the one within the source tree).
@@ -712,7 +713,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.0.2p
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1d
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1166,6 +1167,7 @@ endif
 
 openssl:	$(BLDTARGETS)
 	cd $(OPENSSLLIBDIR);./Configure --cross-compile-prefix=$(PREFIX) $(SSLCONFIG)
+	sed -i -e 's/^PERL=C:\\.*$$/PERL=perl.exe/i' $(OPENSSLLIBDIR)/Makefile
 	$(MAKE) -C $(OPENSSLLIBDIR) PREFIX=$(PREFIX) CC=$(PREFIX)$(TCCEXE) build_libs
 
 clean-openssl:
@@ -1478,7 +1480,8 @@ writeln {#
 #
 B       = ..
 SRCDIR  = $(B)\src
-OBJDIR  = msvcbld
+T       = msvcbld
+OBJDIR  = $(T)
 OX      = $(OBJDIR)
 O       = .obj
 E       = .exe
@@ -1580,74 +1583,38 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.0.2p
-SSLINCDIR = $(SSLDIR)\inc32
+SSLDIR    = $(B)\compat\openssl-1.1.1d
+SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLLIBDIR = $(SSLDIR)\out32dll
+SSLLIBDIR = $(SSLDIR)
 !else
-SSLLIBDIR = $(SSLDIR)\out32
+SSLLIBDIR = $(SSLDIR)
 !endif
 SSLLFLAGS = /nologo /opt:ref /debug
-SSLLIB    = ssleay32.lib libeay32.lib user32.lib gdi32.lib crypt32.lib
+SSLLIB    = libssl.lib libcrypto.lib user32.lib gdi32.lib crypt32.lib
 !if "$(PLATFORM)"=="amd64" || "$(PLATFORM)"=="x64"
 !message Using 'x64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64A no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN64A no-asm
+SSLCONFIG = VC-WIN64A no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_win64a.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !elseif "$(PLATFORM)"=="ia64"
 !message Using 'ia64' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN64I no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN64I no-asm
+SSLCONFIG = VC-WIN64I no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_win64i.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !else
 !message Assuming 'x86' platform for OpenSSL...
-# BUGBUG (OpenSSL): Using "no-ssl*" here breaks the build.
-# SSLCONFIG = VC-WIN32 no-asm no-ssl2 no-ssl3 no-weak-ssl-ciphers
-SSLCONFIG = VC-WIN32 no-asm
+SSLCONFIG = VC-WIN32 no-asm no-ssl3 no-weak-ssl-ciphers
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLCONFIG = $(SSLCONFIG) shared
 !else
 SSLCONFIG = $(SSLCONFIG) no-shared
-!endif
-SSLSETUP  = ms\do_ms.bat
-!if $(FOSSIL_DYNAMIC_BUILD)!=0
-SSLNMAKE  = ms\ntdll.mak all
-!else
-SSLNMAKE  = ms\nt.mak all
-!endif
-# BUGBUG (OpenSSL): Using "OPENSSL_NO_SSL*" here breaks dynamic builds.
-!if $(FOSSIL_DYNAMIC_BUILD)==0
-SSLCFLAGS = -DOPENSSL_NO_SSL2 -DOPENSSL_NO_SSL3 -DOPENSSL_NO_WEAK_SSL_CIPHERS
 !endif
 !endif
 !endif
@@ -1845,10 +1812,14 @@ writeln "\"\$(OX)\\miniz\$O\" \\"; incr i
 writeln "!endif"
 writeln -nonewline "        \"\$(OX)\\fossil.res\"\n\n"
 writeln [string map [list <<<NEXT_LINE>>> \\] {
-APPNAME    = $(OX)\fossil$(E)
-PDBNAME    = $(OX)\fossil$(P)
-APPMANIFEST=$(APPNAME).manifest
-APPTARGETS =
+!ifndef BASEAPPNAME
+BASEAPPNAME = fossil
+!endif
+
+APPNAME     = $(OX)\$(BASEAPPNAME)$(E)
+PDBNAME     = $(OX)\$(BASEAPPNAME)$(P)
+APPMANIFEST = $(APPNAME).manifest
+APPTARGETS  =
 
 all: "$(OX)" "$(APPNAME)"
 
@@ -1880,15 +1851,14 @@ openssl:
 	@set "PATH=$(PERLDIR);$(PATH)"
 !endif
 	@pushd "$(SSLDIR)" && "$(PERL)" Configure $(SSLCONFIG) && popd
-	@pushd "$(SSLDIR)" && call $(SSLSETUP) && popd
 !if $(FOSSIL_ENABLE_WINXP)!=0
-	@pushd "$(SSLDIR)" && "$(MAKE)" /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS) $(XPCFLAGS)" "LFLAGS=$(SSLLFLAGS) $(XPLDFLAGS)" && popd
+	@pushd "$(SSLDIR)" && "$(MAKE)" "CC=cl $(XPCFLAGS)" "LFLAGS=$(XPLDFLAGS)" && popd
 !else
-	@pushd "$(SSLDIR)" && "$(MAKE)" /f $(SSLNMAKE) "CC=cl $(SSLCFLAGS)" && popd
+	@pushd "$(SSLDIR)" && "$(MAKE)" && popd
 !endif
 
 clean-openssl:
-	@pushd "$(SSLDIR)" && "$(MAKE)" /f $(SSLNMAKE) clean && popd
+	@pushd "$(SSLDIR)" && "$(MAKE)" clean && popd
 
 !endif
 

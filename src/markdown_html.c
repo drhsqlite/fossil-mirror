@@ -34,7 +34,7 @@ void markdown_to_html(
 
 /* INTER_BLOCK -- skip a line between block level elements */
 #define INTER_BLOCK(ob) \
-  do { if( blob_size(ob)>0 ) blob_append(ob, "\n", 1); } while (0)
+  do { if( blob_size(ob)>0 ) blob_append_char(ob, '\n'); } while (0)
 
 /* BLOB_APPEND_LITERAL -- append a string literal to a blob */
 #define BLOB_APPEND_LITERAL(blob, literal) \
@@ -50,9 +50,12 @@ void markdown_to_html(
   blob_append((dest), blob_buffer(src), blob_size(src))
 
 
-/* HTML escape */
-
-static void html_escape(struct Blob *ob, const char *data, size_t size){
+/* HTML escapes
+**
+** html_escape() converts < to &lt;, > to &gt;, and & to &amp;.
+** html_quote() goes further and converts " into &quot; and ' in &#39;.
+*/
+static void html_quote(struct Blob *ob, const char *data, size_t size){
   size_t beg = 0, i = 0;
   while( i<size ){
     beg = i;
@@ -61,6 +64,7 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
      && data[i]!='>'
      && data[i]!='"'
      && data[i]!='&'
+     && data[i]!='\''
     ){
       i++;
     }
@@ -76,6 +80,32 @@ static void html_escape(struct Blob *ob, const char *data, size_t size){
         BLOB_APPEND_LITERAL(ob, "&quot;");
       }else if( data[i]=='\'' ){
         BLOB_APPEND_LITERAL(ob, "&#39;");
+      }else{
+        break;
+      }
+      i++;
+    }
+  }
+}
+static void html_escape(struct Blob *ob, const char *data, size_t size){
+  size_t beg = 0, i = 0;
+  while( i<size ){
+    beg = i;
+    while( i<size
+     && data[i]!='<'
+     && data[i]!='>'
+     && data[i]!='&'
+    ){
+      i++;
+    }
+    blob_append(ob, data+beg, i-beg);
+    while( i<size ){
+      if( data[i]=='<' ){
+        BLOB_APPEND_LITERAL(ob, "&lt;");
+      }else if( data[i]=='>' ){
+        BLOB_APPEND_LITERAL(ob, "&gt;");
+      }else if( data[i]=='&' ){
+        BLOB_APPEND_LITERAL(ob, "&amp;");
       }else{
         break;
       }
@@ -285,7 +315,7 @@ static int html_autolink(
   if( !link || blob_size(link)<=0 ) return 0;
   BLOB_APPEND_LITERAL(ob, "<a href=\"");
   if( type==MKDA_IMPLICIT_EMAIL ) BLOB_APPEND_LITERAL(ob, "mailto:");
-  html_escape(ob, blob_buffer(link), blob_size(link));
+  html_quote(ob, blob_buffer(link), blob_size(link));
   BLOB_APPEND_LITERAL(ob, "\">");
   if( type==MKDA_EXPLICIT_EMAIL && blob_size(link)>7 ){
     /* remove "mailto:" from displayed text */
@@ -297,11 +327,48 @@ static int html_autolink(
   return 1;
 }
 
-static int html_code_span(struct Blob *ob, struct Blob *text, void *opaque){
-  if( text ){
+/* Invoked for `...` blocks where there are nSep grave accents in a
+** row that serve as the delimiter.  According to CommonMark:
+**
+**   *  https://spec.commonmark.org/0.29/#fenced-code-blocks
+**   *  https://spec.commonmark.org/0.29/#code-spans
+**
+** If nSep is 1 or 2, then this is a code-span which is inline.
+** If nSep is 3 or more, then this is a fenced code block
+*/
+static int html_code_span(
+  struct Blob *ob,    /* Write the output here */
+  struct Blob *text,  /* The stuff in between the code span marks */
+  int nSep,           /* Number of grave accents marks as delimiters */
+  void *opaque
+){
+  if( text==0 ){
+    /* no-op */
+  }else if( nSep<=2 ){
+    /* One or two graves: an in-line code span */
     BLOB_APPEND_LITERAL(ob, "<code>");
     html_escape(ob, blob_buffer(text), blob_size(text));
     BLOB_APPEND_LITERAL(ob, "</code>");
+  }else{
+    /* Three or more graves: a fenced code block */
+    int n = blob_size(text);
+    const char *z = blob_buffer(text);
+    int i;
+    for(i=0; i<n && z[i]!='\n'; i++){}
+    if( i>=n ){
+      blob_appendf(ob, "<pre><code>%#h</code></pre>", n, z);
+    }else{
+      int k, j;
+      i++;
+      for(k=0; k<i && fossil_isspace(z[k]); k++){}
+      if( k==i ){
+        blob_appendf(ob, "<pre><code>%#h</code></pre>", n-i, z+i);
+      }else{
+        for(j=k+1; j<i && !fossil_isspace(z[j]); j++){}
+        blob_appendf(ob, "<pre><code class='language-%#h'>%#h</code></pre>",
+                          j-k, z+k, n-i, z+i);
+      }
+    }
   }
   return 1;
 }
@@ -338,12 +405,12 @@ static int html_image(
   void *opaque
 ){
   BLOB_APPEND_LITERAL(ob, "<img src=\"");
-  html_escape(ob, blob_buffer(link), blob_size(link));
+  html_quote(ob, blob_buffer(link), blob_size(link));
   BLOB_APPEND_LITERAL(ob, "\" alt=\"");
-  html_escape(ob, blob_buffer(alt), blob_size(alt));
+  html_quote(ob, blob_buffer(alt), blob_size(alt));
   if( title && blob_size(title)>0 ){
     BLOB_APPEND_LITERAL(ob, "\" title=\"");
-    html_escape(ob, blob_buffer(title), blob_size(title));
+    html_quote(ob, blob_buffer(title), blob_size(title));
   }
   BLOB_APPEND_LITERAL(ob, "\" />");
   return 1;
@@ -362,20 +429,24 @@ static int html_link(
   void *opaque
 ){
   char *zLink = blob_buffer(link);
-  BLOB_APPEND_LITERAL(ob, "<a href=\"");
-  if( zLink && zLink[0]=='/' && g.zTop ){
-    /* For any hyperlink that begins with "/", make it refer to the root
-    ** of the Fossil repository */
-    blob_append(ob, g.zTop, -1);
+  char *zTitle = title!=0 && blob_size(title)>0 ? blob_str(title) : 0;
+  char zClose[20];
+
+  if( zLink==0 || zLink[0]==0 ){
+    zClose[0] = 0;
+  }else{  
+    static const int flags = 
+       WIKI_NOBADLINKS |
+       WIKI_MARKDOWNLINKS
+    ;
+    wiki_resolve_hyperlink(ob, flags, zLink, zClose, sizeof(zClose), 0, zTitle);
   }
-  html_escape(ob, blob_buffer(link), blob_size(link));
-  if( title && blob_size(title)>0 ){
-    BLOB_APPEND_LITERAL(ob, "\" title=\"");
-    html_escape(ob, blob_buffer(title), blob_size(title));
+  if( blob_size(content)==0 ){
+    if( link ) BLOB_APPEND_BLOB(ob, link);
+  }else{
+    BLOB_APPEND_BLOB(ob, content);
   }
-  BLOB_APPEND_LITERAL(ob, "\">");
-  BLOB_APPEND_BLOB(ob, content);
-  BLOB_APPEND_LITERAL(ob, "</a>");
+  blob_append(ob, zClose, -1);
   return 1;
 }
 
@@ -441,7 +512,6 @@ void markdown_to_html(
     html_normal_text,
 
     /* misc. parameters */
-    64, /* maximum stack */
     "*_", /* emphasis characters */
     0 /* opaque data */
   };

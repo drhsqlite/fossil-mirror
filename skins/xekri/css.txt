@@ -698,6 +698,11 @@ td.tktDspValue {
   vertical-align: top;
 }
 
+/* Tickets on timelines */
+td.tktTlOpen {
+  color: #ffa0a0;
+}
+
 /* format for ticket error messages */
 span.tktError {
   color: #f00;
@@ -805,6 +810,8 @@ span.tktError {
   border:     0;
   box-shadow: none;
 }
+.timelineSelected {}
+.timelineSecondary {}
 
 .timelineTable .timelineSelected .timelineTime {
   background:    #333;
@@ -823,6 +830,13 @@ span.tktError {
 .timelineTable .timelineSelected .timelineDetailCell  {
   background:    #333;
   border-radius: 0 1rem 1rem 0;
+  box-shadow:    2px 2px 1px #000;
+}
+
+span.timelineSelected {
+  padding: 0 1em 0 1em;
+  border-radius: 1rem;
+  background: #333;
   box-shadow:    2px 2px 1px #000;
 }
 

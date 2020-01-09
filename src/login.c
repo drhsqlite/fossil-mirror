@@ -436,7 +436,9 @@ static int isHuman(const char *zAgent){
     if( sqlite3_strglob("*Firefox/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*Chrome/[1-9]*", zAgent)==0 ) return 1;
     if( sqlite3_strglob("*(compatible;?MSIE?[1789]*", zAgent)==0 ) return 1;
-    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ) return 1; /* IE11+ */
+    if( sqlite3_strglob("*Trident/[1-9]*;?rv:[1-9]*", zAgent)==0 ){
+      return 1; /* IE11+ */
+    }
     if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent)==0 ) return 1;
     return 0;
   }
@@ -514,7 +516,7 @@ int login_self_register_available(const char *zNeeded){
   int rc;
   if( !db_get_boolean("self-register",0) ) return 0;
   if( zNeeded==0 ) return 1;
-  pCap = capability_add(0, db_get("default-perms",""));
+  pCap = capability_add(0, db_get("default-perms", 0));
   capability_expand(pCap);
   rc = capability_has_any(pCap, zNeeded);
   capability_free(pCap);
@@ -551,30 +553,7 @@ void login_page(void){
   int noAnon = P("noanon")!=0;
 
   login_check_credentials();
-  if( login_wants_https_redirect() ){
-    const char *zQS = P("QUERY_STRING");
-    if( P("redir")!=0 ){
-      style_header("Insecure Connection");
-      @ <h1>Unable To Establish An Encrypted Connection</h1>
-      @ <p>This website requires that login credentials be sent over
-      @ an encrypted connection.  The current connection is not encrypted
-      @ across the entire route between your browser and the server.
-      @ An attempt was made to redirect to %h(g.zHttpsURL) but
-      @ the connection is still insecure even after the redirect.</p>
-      @ <p>This is probably some kind of configuration problem.  Please
-      @ contact your sysadmin.</p>
-      @ <p>Sorry it did not work out.</p>
-      style_footer();
-      return;
-    }
-    if( zQS==0 ){
-      zQS = "?redir=1";
-    }else if( zQS[0]!=0 ){
-      zQS = mprintf("?%s&redir=1", zQS);
-    }
-    cgi_redirectf("%s%T%s", g.zHttpsURL, P("PATH_INFO"), zQS);
-    return;
-  }
+  fossil_redirect_to_https_if_needed(1);
   sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
                   constant_time_cmp_function, 0, 0);
   zUsername = P("u");
@@ -722,6 +701,7 @@ void login_page(void){
   if( g.zLogin ){
     @ <p>Currently logged in as <b>%h(g.zLogin)</b>.
     @ <input type="submit" name="out" value="Logout"></p>
+    @ </form>
   }else{
     @ <table class="login_out">
     @ <tr>
@@ -918,26 +898,10 @@ static int login_find_user(
 }
 
 /*
-** Return true if it is appropriate to redirect login requests to HTTPS.
-**
-** Redirect to https is appropriate if all of the above are true:
-**    (1) The redirect-to-https flag is set
-**    (2) The current connection is http, not https or ssh
-**    (3) The sslNotAvailable flag is clear
-*/
-int login_wants_https_redirect(void){
-  if( g.sslNotAvailable ) return 0;
-  if( db_get_boolean("redirect-to-https",0)==0 ) return 0;
-  if( P("HTTPS")!=0 ) return 0;
-  return 1;
-}
-
-
-/*
 ** Attempt to use Basic Authentication to establish the user.  Return the
 ** (non-zero) uid if successful.  Return 0 if it does not work.
 */
-static int logic_basic_authentication(const char *zIpAddr){
+static int login_basic_authentication(const char *zIpAddr){
   const char *zAuth = PD("HTTP_AUTHORIZATION", 0);
   int i;
   int uid = 0;
@@ -946,9 +910,11 @@ static int logic_basic_authentication(const char *zIpAddr){
   const char *zUsername = 0;
   const char *zPasswd = 0;
 
-  if( zAuth==0 ) return 0;                    /* Fail: No Authentication: header */
+  if( zAuth==0 ) return 0;             /* Fail: No Authentication: header */
   while( fossil_isspace(zAuth[0]) ) zAuth++;  /* Skip leading whitespace */
-  if( strncmp(zAuth, "Basic ", 6)!=0 ) return 0;  /* Fail: Not Basic Authentication */
+  if( strncmp(zAuth, "Basic ", 6)!=0 ){
+    return 0;  /* Fail: Not Basic Authentication */
+  }
 
   /* Parse out the username and password, separated by a ":" */
   zAuth += 6;
@@ -1109,7 +1075,7 @@ void login_check_credentials(void){
   ** see if those credentials are valid for a known user.
   */
   if( uid==0 && db_get_boolean("http_authentication_ok",0) ){
-    uid = logic_basic_authentication(zIpAddr);
+    uid = login_basic_authentication(zIpAddr);
   }
 
   /* If no user found yet, try to log in as "nobody" */
@@ -1198,7 +1164,7 @@ void login_check_credentials(void){
     const char *zUri = PD("REQUEST_URI","");
     zUri += (int)strlen(g.zTop);
     if( glob_match(pGlob, zUri) ){
-      login_set_capabilities(db_get("default-perms","u"), 0);
+      login_set_capabilities(db_get("default-perms", 0), 0);
     }
     glob_free(pGlob);
   }
@@ -1265,8 +1231,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                              p->ModWiki = p->ModTkt = p->Delete =
                              p->RdForum = p->WrForum = p->ModForum =
                              p->WrTForum = p->AdminForum =
-                             p->EmailAlert = p->Announce = p->Debug =
-                             p->WrUnver = p->Private = 1;
+                             p->EmailAlert = p->Announce = p->Debug = 1;
                              /* Fall thru into Read/Write */
       case 'i':   p->Read = p->Write = 1;                      break;
       case 'o':   p->Read = 1;                                 break;
@@ -1463,15 +1428,15 @@ void login_needed(int anonOk){
     const char *zQS = P("QUERY_STRING");
     Blob redir;
     blob_init(&redir, 0, 0);
-    if( login_wants_https_redirect() && !g.sslNotAvailable ){
+    if( fossil_wants_https(1) ){
       blob_appendf(&redir, "%s/login?g=%T", g.zHttpsURL, zUrl);
     }else{
       blob_appendf(&redir, "%R/login?g=%T", zUrl);
     }
-    if( anonOk ) blob_append(&redir, "&anon", 5);
     if( zQS && zQS[0] ){
-      blob_appendf(&redir, "&%s", zQS);
+      blob_appendf(&redir, "%%3f%T", zQS);
     }
+    if( anonOk ) blob_append(&redir, "&anon", 5);
     cgi_redirect(blob_str(&redir));
     /* NOTREACHED */
     assert(0);
@@ -1541,7 +1506,7 @@ void register_page(void){
     style_footer();
     return;
   }
-  zPerms = db_get("default-perms","u");
+  zPerms = db_get("default-perms", 0);
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
@@ -1861,6 +1826,7 @@ int login_group_sql(
 */
 void login_group_join(
   const char *zRepo,         /* Repository file in the login group */
+  int bPwRequired,           /* True if the login,password is required */
   const char *zLogin,        /* Login name for the other repo */
   const char *zPassword,     /* Password to prove we are authorized to join */
   const char *zNewName,      /* Name of new login group if making a new one */
@@ -1870,7 +1836,6 @@ void login_group_join(
   sqlite3 *pOther;           /* The other repository */
   int rc;                    /* Return code from sqlite3 functions */
   char *zOtherProjCode;      /* Project code for pOther */
-  char *zPwHash;             /* Password hash on pOther */
   char *zSelfRepo;           /* Name of our repository */
   char *zSelfLabel;          /* Project-name for our repository */
   char *zSelfProjCode;       /* Our project-code */
@@ -1926,17 +1891,20 @@ void login_group_join(
   db_attach(zRepo, "other");
   zOtherProjCode = db_text("x", "SELECT value FROM other.config"
                                 " WHERE name='project-code'");
-  zPwHash = sha1_shared_secret(zPassword, zLogin, zOtherProjCode);
-  if( !db_exists(
-    "SELECT 1 FROM other.user"
-    " WHERE login=%Q AND cap GLOB '*s*'"
-    "   AND (pw=%Q OR pw=%Q)",
-    zLogin, zPassword, zPwHash)
-  ){
-    db_detach("other");
-    *pzErrMsg = "The supplied username/password does not correspond to a"
-                " user Setup permission on the other repository.";
-    return;
+  if( bPwRequired ){
+    char *zPwHash;             /* Password hash on pOther */
+    zPwHash = sha1_shared_secret(zPassword, zLogin, zOtherProjCode);
+    if( !db_exists(
+      "SELECT 1 FROM other.user"
+      " WHERE login=%Q AND cap GLOB '*s*'"
+      "   AND (pw=%Q OR pw=%Q)",
+      zLogin, zPassword, zPwHash)
+    ){
+      db_detach("other");
+      *pzErrMsg = "The supplied username/password does not correspond to a"
+                  " user Setup permission on the other repository.";
+      return;
+    }
   }
 
   /* Create all the necessary CONFIG table entries on both the
@@ -2007,4 +1975,89 @@ void login_group_leave(char **pzErrMsg){
     " WHERE name GLOB 'peer-*'"
     "    OR name GLOB 'login-group-*';"
   );
+}
+
+/*
+** COMMAND: login-group*
+**
+** Usage: %fossil login-group
+**    or: %fossil login-group join REPO [-name NAME]
+**    or: %fossil login-group leave
+**
+** With no arguments, this command shows the login-group to which the
+** repository belongs.
+**
+** The "join" command adds this repository to login group to which REPO
+** belongs, or creates a new login group between itself and REPO if REPO
+** does not already belong to a login-group.  When creating a new login-
+** group, the name of the new group is determined by the "--name" option.
+**
+** The "leave" command takes the repository out of whatever login group
+** it is currently a part of.
+**
+** About Login Groups:
+**
+** A login-group is a set of repositories that share user credentials.
+** If a user is logged into one member of the group, then that user can
+** access any other group member as long as they have an entry in the
+** USER table of that member.  If a user changes their password using
+** web interface, their password is also automatically changed in every
+** other member of the login group.
+*/
+void login_group_command(void){
+  const char *zLGName;
+  const char *zCmd;
+  int nCmd;
+  Stmt q;
+  db_find_and_open_repository(0,0);
+  if( g.argc>2 ){
+    zCmd = g.argv[2];
+    nCmd = (int)strlen(zCmd);
+    if( strncmp(zCmd,"join",nCmd)==0 && nCmd>=1 ){
+      const char *zNewName = find_option("name",0,1);
+      const char *zOther;
+      char *zErr = 0;
+      verify_all_options();
+      if( g.argc!=4 ){
+        fossil_fatal("unknown extra arguments to \"login-group join\"");
+      }
+      zOther = g.argv[3];
+      login_group_leave(&zErr);
+      sqlite3_free(zErr);
+      zErr = 0;
+      login_group_join(zOther,0,0,0,zNewName,&zErr);
+      if( zErr ){
+        fossil_fatal("%s", zErr);
+      }
+    }else if( strncmp(zCmd,"leave",nCmd)==0 && nCmd>=1 ){
+      verify_all_options();
+      if( g.argc!=3 ){
+        fossil_fatal("unknown extra arguments to \"login-group leave\"");
+      }
+      zLGName = login_group_name();
+      if( zLGName ){
+        char *zErr = 0;
+        fossil_print("Leaving login-group \"%s\"\n", zLGName);
+        login_group_leave(&zErr);
+        if( zErr ) fossil_fatal("Oops: %s", zErr);
+        return;
+      }
+    }else{
+      fossil_fatal("unknown command \"%s\" - should be \"join\" or \"leave\"",
+                   zCmd);
+    }
+  }
+  /* Show the current login group information */
+  zLGName = login_group_name();
+  if( zLGName==0 ){
+    fossil_print("Not currently a part of any login-group\n");
+    return;
+  }
+  fossil_print("Now part of login-group \"%s\" with:\n", zLGName);
+  db_prepare(&q, "SELECT value FROM config WHERE name LIKE 'peer-name-%%'");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("  %s\n", db_column_text(&q,0));
+  }
+  db_finalize(&q);
+
 }

@@ -43,6 +43,7 @@ SRC = \
   $(SRCDIR)/db.c \
   $(SRCDIR)/delta.c \
   $(SRCDIR)/deltacmd.c \
+  $(SRCDIR)/deltafunc.c \
   $(SRCDIR)/descendants.c \
   $(SRCDIR)/diff.c \
   $(SRCDIR)/diffcmd.c \
@@ -52,12 +53,14 @@ SRC = \
   $(SRCDIR)/etag.c \
   $(SRCDIR)/event.c \
   $(SRCDIR)/export.c \
+  $(SRCDIR)/extcgi.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
   $(SRCDIR)/forum.c \
   $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
+  $(SRCDIR)/fuzz.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
@@ -106,6 +109,7 @@ SRC = \
   $(SRCDIR)/purge.c \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/regexp.c \
+  $(SRCDIR)/repolist.c \
   $(SRCDIR)/report.c \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
@@ -210,6 +214,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
   $(SRCDIR)/ci_edit.js \
+  $(SRCDIR)/copybtn.js \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
@@ -253,6 +258,7 @@ TRANS_SRC = \
   $(OBJDIR)/db_.c \
   $(OBJDIR)/delta_.c \
   $(OBJDIR)/deltacmd_.c \
+  $(OBJDIR)/deltafunc_.c \
   $(OBJDIR)/descendants_.c \
   $(OBJDIR)/diff_.c \
   $(OBJDIR)/diffcmd_.c \
@@ -262,12 +268,14 @@ TRANS_SRC = \
   $(OBJDIR)/etag_.c \
   $(OBJDIR)/event_.c \
   $(OBJDIR)/export_.c \
+  $(OBJDIR)/extcgi_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
   $(OBJDIR)/forum_.c \
   $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
+  $(OBJDIR)/fuzz_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
@@ -316,6 +324,7 @@ TRANS_SRC = \
   $(OBJDIR)/purge_.c \
   $(OBJDIR)/rebuild_.c \
   $(OBJDIR)/regexp_.c \
+  $(OBJDIR)/repolist_.c \
   $(OBJDIR)/report_.c \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
@@ -390,6 +399,7 @@ OBJ = \
  $(OBJDIR)/db.o \
  $(OBJDIR)/delta.o \
  $(OBJDIR)/deltacmd.o \
+ $(OBJDIR)/deltafunc.o \
  $(OBJDIR)/descendants.o \
  $(OBJDIR)/diff.o \
  $(OBJDIR)/diffcmd.o \
@@ -399,12 +409,14 @@ OBJ = \
  $(OBJDIR)/etag.o \
  $(OBJDIR)/event.o \
  $(OBJDIR)/export.o \
+ $(OBJDIR)/extcgi.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
  $(OBJDIR)/forum.o \
  $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
+ $(OBJDIR)/fuzz.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
@@ -453,6 +465,7 @@ OBJ = \
  $(OBJDIR)/purge.o \
  $(OBJDIR)/rebuild.o \
  $(OBJDIR)/regexp.o \
+ $(OBJDIR)/repolist.o \
  $(OBJDIR)/report.o \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
@@ -498,14 +511,9 @@ OBJ = \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
-
-APPNAME = fossil$(E)
-
-
-
 all:	$(OBJDIR) $(APPNAME)
 
-install:	$(APPNAME)
+install:	all
 	mkdir -p $(INSTALLDIR)
 	cp $(APPNAME) $(INSTALLDIR)
 
@@ -560,6 +568,7 @@ $(OBJDIR)/default_css.h:	$(SRCDIR)/default_css.txt $(OBJDIR)/mkcss
 
 # Setup the options used to compile the included SQLite library.
 SQLITE_OPTIONS = -DNDEBUG=1 \
+                 -DSQLITE_DQS=0 \
                  -DSQLITE_THREADSAFE=0 \
                  -DSQLITE_DEFAULT_MEMSTATUS=0 \
                  -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -576,7 +585,6 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                  -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                  -DSQLITE_ENABLE_FTS4 \
-                 -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                  -DSQLITE_ENABLE_DBSTAT_VTAB \
                  -DSQLITE_ENABLE_JSON1 \
                  -DSQLITE_ENABLE_FTS5 \
@@ -587,6 +595,7 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
+                -DSQLITE_DQS=0 \
                 -DSQLITE_THREADSAFE=0 \
                 -DSQLITE_DEFAULT_MEMSTATUS=0 \
                 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 \
@@ -603,7 +612,6 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_DEFAULT_FILE_FORMAT=4 \
                 -DSQLITE_ENABLE_EXPLAIN_COMMENTS \
                 -DSQLITE_ENABLE_FTS4 \
-                -DSQLITE_ENABLE_FTS3_PARENTHESIS \
                 -DSQLITE_ENABLE_DBSTAT_VTAB \
                 -DSQLITE_ENABLE_JSON1 \
                 -DSQLITE_ENABLE_FTS5 \
@@ -679,7 +687,7 @@ EXTRAOBJ = \
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -725,6 +733,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/db_.c:$(OBJDIR)/db.h \
 	$(OBJDIR)/delta_.c:$(OBJDIR)/delta.h \
 	$(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h \
+	$(OBJDIR)/deltafunc_.c:$(OBJDIR)/deltafunc.h \
 	$(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h \
 	$(OBJDIR)/diff_.c:$(OBJDIR)/diff.h \
 	$(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h \
@@ -734,12 +743,14 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/etag_.c:$(OBJDIR)/etag.h \
 	$(OBJDIR)/event_.c:$(OBJDIR)/event.h \
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
+	$(OBJDIR)/extcgi_.c:$(OBJDIR)/extcgi.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
 	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
 	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
+	$(OBJDIR)/fuzz_.c:$(OBJDIR)/fuzz.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
@@ -788,6 +799,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/purge_.c:$(OBJDIR)/purge.h \
 	$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
 	$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
+	$(OBJDIR)/repolist_.c:$(OBJDIR)/repolist.h \
 	$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
 	$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 	$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
@@ -1056,6 +1068,14 @@ $(OBJDIR)/deltacmd.o:	$(OBJDIR)/deltacmd_.c $(OBJDIR)/deltacmd.h $(SRCDIR)/confi
 
 $(OBJDIR)/deltacmd.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/deltafunc_.c:	$(SRCDIR)/deltafunc.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/deltafunc.c >$@
+
+$(OBJDIR)/deltafunc.o:	$(OBJDIR)/deltafunc_.c $(OBJDIR)/deltafunc.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/deltafunc.o -c $(OBJDIR)/deltafunc_.c
+
+$(OBJDIR)/deltafunc.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/descendants_.c:	$(SRCDIR)/descendants.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/descendants.c >$@
 
@@ -1128,6 +1148,14 @@ $(OBJDIR)/export.o:	$(OBJDIR)/export_.c $(OBJDIR)/export.h $(SRCDIR)/config.h
 
 $(OBJDIR)/export.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/extcgi_.c:	$(SRCDIR)/extcgi.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/extcgi.c >$@
+
+$(OBJDIR)/extcgi.o:	$(OBJDIR)/extcgi_.c $(OBJDIR)/extcgi.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/extcgi.o -c $(OBJDIR)/extcgi_.c
+
+$(OBJDIR)/extcgi.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/file_.c:	$(SRCDIR)/file.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/file.c >$@
 
@@ -1175,6 +1203,14 @@ $(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/fusefs.o -c $(OBJDIR)/fusefs_.c
 
 $(OBJDIR)/fusefs.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fuzz_.c:	$(SRCDIR)/fuzz.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fuzz.c >$@
+
+$(OBJDIR)/fuzz.o:	$(OBJDIR)/fuzz_.c $(OBJDIR)/fuzz.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fuzz.o -c $(OBJDIR)/fuzz_.c
+
+$(OBJDIR)/fuzz.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/glob.c >$@
@@ -1559,6 +1595,14 @@ $(OBJDIR)/regexp.o:	$(OBJDIR)/regexp_.c $(OBJDIR)/regexp.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/regexp.o -c $(OBJDIR)/regexp_.c
 
 $(OBJDIR)/regexp.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/repolist_.c:	$(SRCDIR)/repolist.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/repolist.c >$@
+
+$(OBJDIR)/repolist.o:	$(OBJDIR)/repolist_.c $(OBJDIR)/repolist.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/repolist.o -c $(OBJDIR)/repolist_.c
+
+$(OBJDIR)/repolist.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/report_.c:	$(SRCDIR)/report.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/report.c >$@

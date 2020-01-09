@@ -82,7 +82,7 @@ are rendered with the standard fossil header and footer added.
 Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
-Files with the mimetype "text/html" (the .html or .htm suffix) are
+<a name="html"></a>Files with the mimetype "text/html" (the .html or .htm suffix) are
 usually rendered directly to the browser without interpretation.
 However, if the file begins with a &lt;div&gt; element like this:
 
@@ -95,6 +95,51 @@ optional, but if it is present the text will become the title displayed
 in the Fossil header.  An example of this can be seen in the text
 of the [/artifact/84b4b3d041d93a?txt=1 | Index Of Fossil Documentation]
 document.
+
+Beware that such HTML files render in the same browser security context
+as all other embedded documentation served from Fossil; they are not
+fully-independent web pages. One practical consequence of this is that
+embedded <tt>&lt;script&gt;</tt> tags will cause a
+[https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP | Content
+Security Policy] error in your browser with the default CSP as served by
+Fossil. See the documentation on [./customskin.md#headfoot | Header and
+Footer Processing] and [./defcsp.md | The Default CSP].
+
+
+<h2>Server-Side Text Substitution</h2>
+
+Fossil can do a few types of substitution of server-side information
+into the embedded document.
+
+<h3>1. $ROOT</h3>
+
+To allow for repositories [./server/ | served deeper than the root of the
+URL hierarchy], Fossil can substitute the repository's root in the URL
+scheme into HTML <tt>href</tt> and <tt>action</tt> attributes. For
+example:
+
+<nowiki><pre>
+        [$ROOT/doc.wiki | doc at project root]
+</pre></nowiki>
+
+might become this in the rendered HTML:
+
+<nowiki><pre>
+        &lt;a href="/project/root/doc.wiki"&gt;doc at project root&lt;/a&gt;
+</pre></nowiki>
+
+As you can see, this happens for all source document types that end up
+rendering as HTML, not just source documents in the HTML
+<tt>fossil-doc</tt> format described at the end of the prior section.
+
+
+<h3 id="th1">2. TH1 Documents</h3>
+
+Fossil will substitute the value of [./th1.md | TH1 expressions] within
+<tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have
+configured it with the <tt>--with-th1-docs</tt> option, which is
+disabled by default.
+
 
 <h2>Examples</h2>
 
@@ -119,8 +164,8 @@ CGI mode.  The "index.html" CGI script looks like this:
 repository: /fossil/fossil.fossil
 </pre></blockquote>
 
-This is one of four ways to set up a
-<a href="./server.wiki">fossil web server</a>.
+This is one of the many ways to set up a
+<a href="./server/">Fossil server</a>.
 
 The "<b>/trunk/</b>" part of the URL tells fossil to use
 the documentation files from the most recent trunk check-in.

@@ -15,11 +15,16 @@
 **
 *******************************************************************************
 **
-** This file contains C functions and procedures that provide useful
-** services to CGI programs.  There are procedures for parsing and
-** dispensing QUERY_STRING parameters and cookies, the "mprintf()"
-** formatting function and its cousins, and routines to encode and
-** decode strings in HTML or HTTP.
+** This file contains C functions and procedures used by CGI programs
+** (Fossil launched as CGI) to interpret CGI environment variables,
+** gather the results, and send they reply back to the CGI server.
+** This file also contains routines for running a simple web-server
+** (the "fossil ui" or "fossil server" command) and launching subprocesses
+** to handle each inbound HTTP request using CGI.
+**
+** This file contains routines used by Fossil when it is acting as a
+** CGI client.  For the code used by Fossil when it is acting as a
+** CGI server (for the /ext webpage) see the "extcgi.c" source file.
 */
 #include "config.h"
 #ifdef _WIN32
@@ -143,6 +148,13 @@ Blob *cgi_output_blob(void){
 }
 
 /*
+** Return complete text of the output header
+*/
+const char *cgi_header(void){
+  return blob_str(&cgiContent[0]);
+}
+
+/*
 ** Combine the header and body of the CGI into a single string.
 */
 static void cgi_combine_header_and_body(void){
@@ -164,8 +176,8 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static char *zContentType = "text/html";     /* Content type of the reply */
-static char *zReplyStatus = "OK";            /* Reply status description */
+static const char *zContentType = "text/html";     /* Content type of the reply */
+static const char *zReplyStatus = "OK";            /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
 
@@ -340,7 +352,7 @@ void cgi_reply(void){
     }
   }
   fflush(g.httpOut);
-  CGIDEBUG(("DONE\n"));
+  CGIDEBUG(("-------- END cgi ---------\n"));
 
   /* After the webpage has been sent, do any useful background
   ** processing.
@@ -356,7 +368,7 @@ void cgi_reply(void){
 **
 ** The URL must be relative to the base of the fossil server.
 */
-NORETURN static void cgi_redirect_with_status(
+NORETURN void cgi_redirect_with_status(
   const char *zURL,
   int iStat,
   const char *zStat
@@ -479,6 +491,27 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue, int isQP){
 /*
 ** Add another query parameter or cookie to the parameter set.
 ** zName is the name of the query parameter or cookie and zValue
+** is its fully decoded value.  zName will be modified to be an
+** all lowercase string.
+**
+** zName and zValue are not copied and must not change or be
+** deallocated after this routine returns.  This routine changes
+** all ASCII alphabetic characters in zName to lower case.  The
+** caller must not change them back.
+*/
+void cgi_set_parameter_nocopy_tolower(
+  char *zName,
+  const char *zValue,
+  int isQP
+){
+  int i;
+  for(i=0; zName[i]; i++){ zName[i] = fossil_tolower(zName[i]); }
+  cgi_set_parameter_nocopy(zName, zValue, isQP);
+}
+
+/*
+** Add another query parameter or cookie to the parameter set.
+** zName is the name of the query parameter or cookie and zValue
 ** is its fully decoded value.
 **
 ** Copies are made of both the zName and zValue parameters.
@@ -513,6 +546,11 @@ void cgi_replace_query_parameter(const char *zName, const char *zValue){
     }
   }
   cgi_set_parameter_nocopy(zName, zValue, 1);
+}
+void cgi_replace_query_parameter_tolower(char *zName, const char *zValue){
+  int i;
+  for(i=0; zName[i]; i++){ zName[i] = fossil_tolower(zName[i]); }
+  cgi_replace_query_parameter(zName, zValue);
 }
 
 /*
@@ -551,7 +589,6 @@ void cgi_delete_query_parameter(const char *zName){
 void cgi_setenv(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(zName, mprintf("%s",zValue), 0);
 }
-
 
 /*
 ** Add a list of query parameters or cookies to the parameter set.
@@ -605,8 +642,12 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( fossil_islower(zName[0]) && fossil_no_strange_characters(zName+1) ){
-      cgi_set_parameter_nocopy(zName, zValue, isQP);
+    if( zName[0] && fossil_no_strange_characters(zName+1) ){
+      if( fossil_islower(zName[0]) ){
+        cgi_set_parameter_nocopy(zName, zValue, isQP);
+      }else if( fossil_isupper(zName[0]) ){
+        cgi_set_parameter_nocopy_tolower(zName, zValue, isQP);
+      }
     }
 #ifdef FOSSIL_ENABLE_JSON
     json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
@@ -749,11 +790,19 @@ static void process_multipart_form_data(char *z, int len){
     if( zLine[0]==0 ){
       int nContent = 0;
       zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
-      if( zName && zValue && fossil_islower(zName[0]) ){
-        cgi_set_parameter_nocopy(zName, zValue, 1);
-        if( showBytes ){
-          cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
-               mprintf("%d",nContent), 1);
+      if( zName && zValue ){
+        if( fossil_islower(zName[0]) ){
+          cgi_set_parameter_nocopy(zName, zValue, 1);
+          if( showBytes ){
+            cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
+                 mprintf("%d",nContent), 1);
+          }
+        }else if( fossil_isupper(zName[0]) ){
+          cgi_set_parameter_nocopy_tolower(zName, zValue, 1);
+          if( showBytes ){
+            cgi_set_parameter_nocopy_tolower(mprintf("%s:bytes", zName),
+                 mprintf("%d",nContent), 1);
+          }
         }
       }
       zName = 0;
@@ -769,14 +818,24 @@ static void process_multipart_form_data(char *z, int len){
           zName = azArg[++i];
         }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
+          if( zName && z ){
+            if( fossil_islower(zName[0]) ){
+              cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z, 1);
+            }else if( fossil_isupper(zName[0]) ){
+              cgi_set_parameter_nocopy_tolower(mprintf("%s:filename",zName),
+                                               z, 1);
+            }
           }
           showBytes = 1;
         }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && fossil_islower(zName[0]) ){
-            cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
+          if( zName && z ){
+            if( fossil_islower(zName[0]) ){
+              cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z, 1);
+            }else if( fossil_isupper(zName[0]) ){
+              cgi_set_parameter_nocopy_tolower(mprintf("%s:mimetype",zName),
+                                               z, 1);
+            }
           }
         }
       }
@@ -935,17 +994,36 @@ static NORETURN void malformed_request(const char *zMsg);
 void cgi_init(void){
   char *z;
   const char *zType;
+  char *zSemi;
   int len;
   const char *zRequestUri = cgi_parameter("REQUEST_URI",0);
   const char *zScriptName = cgi_parameter("SCRIPT_NAME",0);
   const char *zPathInfo = cgi_parameter("PATH_INFO",0);
+#ifdef _WIN32
+  const char *zServerSoftware = cgi_parameter("SERVER_SOFTWARE",0);
+#endif
 
 #ifdef FOSSIL_ENABLE_JSON
-  json_main_bootstrap();
+  int noJson = P("no_json")!=0;
+  if( noJson==0 ){ json_main_bootstrap(); }
 #endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
   if( zScriptName==0 ) malformed_request("missing SCRIPT_NAME");
+#ifdef _WIN32
+  /* The Microsoft IIS web server does not define REQUEST_URI, instead it uses
+  ** PATH_INFO for virtually the same purpose.  Define REQUEST_URI the same as
+  ** PATH_INFO and redefine PATH_INFO with SCRIPT_NAME removed from the 
+  ** beginning. */
+  if( zServerSoftware && strstr(zServerSoftware, "Microsoft-IIS") ){
+    int i, j;
+    cgi_set_parameter("REQUEST_URI", zPathInfo);
+    for(i=0; zPathInfo[i]==zScriptName[i] && zPathInfo[i]; i++){}
+    for(j=i; zPathInfo[j] && zPathInfo[j]!='?'; j++){}
+    zPathInfo = mprintf("%.*s", j-i, zPathInfo+i);
+    cgi_replace_parameter("PATH_INFO", zPathInfo);
+  }
+#endif
   if( zRequestUri==0 ){
     const char *z = zPathInfo;
     if( zPathInfo==0 ){
@@ -980,32 +1058,24 @@ void cgi_init(void){
   }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
-  g.zContentType = zType = P("CONTENT_TYPE");
+  zType = P("CONTENT_TYPE");
+  zSemi = zType ? strchr(zType, ';') : 0;
+  if( zSemi ){
+    g.zContentType = mprintf("%.*s", (int)(zSemi-zType), zType);
+    zType = g.zContentType;
+  }else{
+    g.zContentType = zType;
+  }
   blob_zero(&g.cgiIn);
   if( len>0 && zType ){
-    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0
-         || strncmp(zType,"multipart/form-data",19)==0 ){
-      z = fossil_malloc( len+1 );
-      len = fread(z, 1, len, g.httpIn);
-      z[len] = 0;
-      cgi_trace(z);
-      if( zType[0]=='a' ){
-        add_param_list(z, '&');
-      }else{
-        process_multipart_form_data(z, len);
-      }
-    }else if( fossil_strcmp(zType, "application/x-fossil")==0 ){
+    if( fossil_strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
-      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( fossil_strcmp(zType, "application/json")
-              || fossil_strcmp(zType,"text/plain")/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")){
+    else if( noJson==0 && (fossil_strcmp(zType, "application/json")==0
+              || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+              || fossil_strcmp(zType,"application/javascript")==0) ){
       g.json.isJsonMode = 1;
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
       /* FIXMEs:
@@ -1026,8 +1096,30 @@ void cgi_init(void){
       cgi_set_content_type(json_guess_content_type());
     }
 #endif /* FOSSIL_ENABLE_JSON */
+    else{
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+    }
   }
+}
 
+/*
+** Decode POST parameter information in the cgiIn content, if any.
+*/
+void cgi_decode_post_parameters(void){
+  int len = blob_size(&g.cgiIn);
+  if( len==0 ) return;
+  if( fossil_strcmp(g.zContentType,"application/x-www-form-urlencoded")==0
+   || strncmp(g.zContentType,"multipart/form-data",19)==0
+  ){
+    char *z = blob_str(&g.cgiIn);
+    cgi_trace(z);
+    if( g.zContentType[0]=='a' ){
+      add_param_list(z, '&');
+    }else{
+      process_multipart_form_data(z, len);
+    }
+    blob_init(&g.cgiIn, 0, 0);
+  }
 }
 
 /*
@@ -1078,6 +1170,10 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     nUsedQP = j;
   }
 
+  /* Invoking with a NULL zName is just a way to cause the parameters
+  ** to be sorted.  So go ahead and bail out in that case */
+  if( zName==0 || zName[0]==0 ) return 0;
+
   /* Do a binary search for a matching query parameter */
   lo = 0;
   hi = nUsedQP-1;
@@ -1096,11 +1192,12 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 
   /* If no match is found and the name begins with an upper-case
   ** letter, then check to see if there is an environment variable
-  ** with the given name.
+  ** with the given name. Handle environment variables with empty values
+  ** the same as non-existent environment variables.
   */
-  if( zName && fossil_isupper(zName[0]) ){
+  if( fossil_isupper(zName[0]) ){
     const char *zValue = fossil_getenv(zName);
-    if( zValue ){
+    if( zValue && zValue[0] ){
       cgi_set_parameter_nocopy(zName, zValue, 0);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
       return zValue;
@@ -1223,12 +1320,48 @@ int cgi_all(const char *z, ...){
 }
 
 /*
-** Print all query parameters on standard output.  Format the
-** parameters as HTML.  This is used for testing and debugging.
+** Load all relevant environment variables into the parameter buffer.
+** Invoke this routine prior to calling cgi_print_all() in order to see
+** the full CGI environment.  This routine intended for debugging purposes
+** only.
+*/
+void cgi_load_environment(void){
+  /* The following is a list of environment variables that Fossil considers
+  ** to be "relevant". */
+  static const char *const azCgiVars[] = {
+    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE", "SCGI",
+    "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
+    "HTTP_ACCEPT_LANGUAGE", "HTTP_AUTHENICATION",
+    "HTTP_CONNECTION", "HTTP_HOST",
+    "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
+    "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
+    "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
+    "REMOTE_USER", "REQUEST_METHOD",
+    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
+    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
+    "SQLITE_TMPDIR", "TMPDIR",
+    "TEMP", "TMP", "FOSSIL_VFS",
+    "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
+    "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
+    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
+  };
+  int i;
+  for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
+}
+
+/*
+** Print all query parameters on standard output.
+** This is used for testing and debugging.
 **
 ** Omit the values of the cookies unless showAll is true.
+**
+** The eDest parameter determines where the output is shown:
+**
+**     eDest==0:    Rendering as HTML into the CGI reply
+**     eDest==1:    Written to stderr
+**     eDest==2:    Written to cgi_debug
 */
-void cgi_print_all(int showAll, int onConsole){
+void cgi_print_all(int showAll, unsigned int eDest){
   int i;
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
@@ -1237,10 +1370,19 @@ void cgi_print_all(int showAll, int onConsole){
       if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
       if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
-    if( onConsole ){
-      fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
-    }else{
-      cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+    switch( eDest ){
+      case 0: {
+        cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
+        break;
+      }
+      case 1: {  
+        fossil_trace("%s = %s\n", zName, aParamQP[i].zValue);
+        break;
+      }
+      case 2: {
+        cgi_debug("%s = %s\n", zName, aParamQP[i].zValue);
+        break;
+      }
     }
   }
 }
@@ -1945,7 +2087,7 @@ int cgi_http_server(
         }
         nchildren--;
       }
-    }  
+    }
   }
   /* NOT REACHED */
   fossil_exit(1);
@@ -1983,6 +2125,26 @@ char *cgi_rfc822_datestamp(time_t now){
     return mprintf("%s, %d %s %02d %02d:%02d:%02d +0000",
                    azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
                    pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
+  }
+}
+
+/*
+** Returns an ISO8601-formatted time string suitable for debugging
+** purposes.
+**
+** The value returned is always a string obtained from mprintf() and must
+** be freed using fossil_free() to avoid a memory leak.
+*/
+char *cgi_iso8601_datestamp(void){
+  struct tm *pTm;
+  time_t now = time(0);
+  pTm = gmtime(&now);
+  if( pTm==0 ){
+    return mprintf("");
+  }else{
+    return mprintf("%04d-%02d-%02d %02d:%02d:%02d",
+                   pTm->tm_year+1900, pTm->tm_mon, pTm->tm_mday,
+                   pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
   }
 }
 
@@ -2068,4 +2230,17 @@ int cgi_is_loopback(const char *zIpAddr){
   return fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
          fossil_strcmp(zIpAddr, "::ffff:127.0.0.1")==0 ||
          fossil_strcmp(zIpAddr, "::1")==0;
+}
+
+/*
+** Return true if the HTTP request is likely to be from a small-screen
+** mobile device.
+**
+** The returned value is a guess.  Use it only for setting up defaults.
+*/
+int cgi_from_mobile(void){
+  const char *zAgent = P("HTTP_USER_AGENT");
+  if( zAgent==0 ) return 0;
+  if( sqlite3_strglob("*iPad*", zAgent)==0 ) return 0;
+  return sqlite3_strlike("%mobile%", zAgent, 0)==0;
 }

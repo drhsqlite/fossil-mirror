@@ -91,13 +91,19 @@ static struct {
   { "header",                 CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
   { "details",                CONFIGSET_SKIN },
+  { "js",                     CONFIGSET_SKIN },
   { "logo-mimetype",          CONFIGSET_SKIN },
   { "logo-image",             CONFIGSET_SKIN },
   { "background-mimetype",    CONFIGSET_SKIN },
   { "background-image",       CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
+  { "timeline-date-format",   CONFIGSET_SKIN },
+  { "timeline-dwelltime",     CONFIGSET_SKIN },
+  { "timeline-closetime",     CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
+  { "timeline-truncate-at-blank", CONFIGSET_SKIN },
+  { "timeline-utc",           CONFIGSET_SKIN },
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
@@ -138,6 +144,7 @@ static struct {
   { "parent-project-code",    CONFIGSET_PROJ },
   { "parent-project-name",    CONFIGSET_PROJ },
   { "hash-policy",            CONFIGSET_PROJ },
+  { "comment-format",         CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },
@@ -421,7 +428,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
     }
     blob_append_sql(&sql, "\"%w\"(\"%w\",mtime",
          &zName[1], aType[ii].zPrimKey);
-    if( fossil_stricmp(zName,"/subscriber") ) alert_schema(0);
+    if( fossil_stricmp(zName,"/subscriber")==0 ) alert_schema(0);
     for(jj=2; jj<nToken; jj+=2){
        blob_append_sql(&sql, ",\"%w\"", azToken[jj]);
     }

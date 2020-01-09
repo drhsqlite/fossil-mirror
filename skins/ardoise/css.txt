@@ -805,6 +805,12 @@ td.browser,
 td.tktDescLabel {
   vertical-align: top
 }
+td.tktTlOpen {
+  color: #ffa0a0;
+}
+td.tktTlClosed {
+  color: #555;
+}
 div.filetreeline {
   display: table;
   width: 100%;
@@ -950,6 +956,34 @@ table.timelineTable {
   text-align: left;
   background: #442800
 }
+span.timelineSelected {
+  border-radius: 5px;
+  border: solid #ff8000;
+  vertical-align: top;
+  text-align: left;
+  background: #442800
+}
+.timelineSelected {}
+.timelineSecondary {}
+.timelineSecondary > .timelineColumnarCell,
+.timelineSecondary > .timelineCompactCell,
+.timelineSecondary > .timelineDetailCell,
+.timelineSecondary > .timelineModernCell,
+.timelineSecondary > .timelineVerboseCell {
+  padding: .75em;
+  border-radius: 5px;
+  border: solid #0080ff;
+  vertical-align: top;
+  text-align: left;
+  background: #002844
+}
+span.timelineSecondary {
+  border-radius: 5px;
+  border: solid #0080ff;
+  vertical-align: top;
+  text-align: left;
+  background: #002844
+}
 .timelineCurrent > .timelineColumnarCell,
 .timelineCurrent > .timelineCompactCell,
 .timelineCurrent > .timelineDetailCell,
@@ -1032,6 +1066,29 @@ table.timelineTable {
 .tl-line.merge {
   width: 1px
 }
+.tl-arrow.cherrypick {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.cherrypick.l {
+  border-right: 3px solid #bbb;
+}
+.tl-arrow.cherrypick.r {
+  border-left: 3px solid #bbb;
+}
+.tl-line.cherrypick.h {
+  width: 0px;
+  border-top: 1px dashed #bbb;
+  border-left: 0px dashed #bbb;
+  background: rgba(255,255,255,0);
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #bbb;
+  border-left: 1px dashed #bbb;
+  background: rgba(255,255,255,0);
+}
+
 .intLink[title="Add indentation"],
 .intLink[title="Center align"],
 .intLink[title="Dotted list"],

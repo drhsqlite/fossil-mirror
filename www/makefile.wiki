@@ -101,9 +101,9 @@ There is an option code verification step implemented using
   15.  [/file/src/codecheck1.c | codecheck1.c]
 
 This file implements a small utility program ("codecheck1")
-that scans other Fossil source files looking for errors in printf-style 
+that scans other Fossil source files looking for errors in printf-style
 format strings.
-The codecheck1 utility detects missing or surplus arguments on 
+The codecheck1 utility detects missing or surplus arguments on
 printf-like functions and dangerous uses of "%s" that might
 permit SQL injection or cross-site scripting attacks.  This code
 check step is run automatically on each build of Fossil, and can

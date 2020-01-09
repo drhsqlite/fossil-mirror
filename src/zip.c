@@ -980,6 +980,7 @@ void baseline_zip_page(void){
   glob_free(pExclude);
   fossil_free(zName);
   fossil_free(zRid);
+  g.zOpenRevision = 0;
   blob_reset(&cacheKey);
   cgi_set_content(&zip);
   if( eType==ARCHIVE_ZIP ){

@@ -183,6 +183,46 @@ REM
 %_VECHO% VcInstallDir = '%VCINSTALLDIR%'
 
 REM
+REM NOTE: Attempt to create the build output directory, if necessary.
+REM
+
+SET OBJDIR=msvcbld
+
+IF NOT DEFINED BUILDDIR ( 
+  IF DEFINED BUILDSUFFIX (
+    SET BUILDDIR=%ROOT%\%OBJDIR%%BUILDSUFFIX%
+  )
+)
+
+IF NOT DEFINED BUILDDIR GOTO skip_createBuildDir
+
+SET OBJDIR=.
+
+%_VECHO% BuildSuffix = '%BUILDSUFFIX%'
+%_VECHO% BuildDir = '%BUILDDIR%'
+
+IF NOT EXIST "%BUILDDIR%" (
+  %__ECHO% MKDIR "%BUILDDIR%"
+
+  IF ERRORLEVEL 1 (
+    ECHO Could not make directory "%BUILDDIR%".
+    GOTO errors
+  )
+)
+
+REM
+REM NOTE: Attempt to change to the created build output directory so that
+REM       the generated files will be placed there.
+REM
+%__ECHO2% PUSHD "%BUILDDIR%"
+
+IF ERRORLEVEL 1 (
+  ECHO Could not change to directory "%BUILDDIR%".
+  GOTO errors
+)
+:skip_createBuildDir
+
+REM
 REM NOTE: If requested, setup the build environment to refer to the Windows
 REM       SDK v7.1A, which is required if the binaries are being built with
 REM       Visual Studio 201x and need to work on Windows XP.
@@ -203,7 +243,7 @@ REM       anything extra from our command line along (e.g. extra options).
 REM       Also, pass the base directory of the Fossil source tree as this
 REM       allows an out-of-source-tree build.
 REM
-%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" %NMAKE_ARGS% %*
+%__ECHO% nmake /f "%TOOLS%\Makefile.msc" B="%ROOT%" T="%OBJDIR%" %NMAKE_ARGS% %*
 
 IF ERRORLEVEL 1 (
   GOTO errors

@@ -61,6 +61,15 @@
 #endif
 
 /*
+** Default length of a timeout for serving an HTTP request.  Changable
+** using the "--timeout N" command-line option or via "timeout: N" in the
+** CGI script.
+*/
+#ifndef FOSSIL_DEFAULT_TIMEOUT
+# define FOSSIL_DEFAULT_TIMEOUT 600  /* 10 minutes */
+#endif
+
+/*
 ** Maximum number of auxiliary parameters on reports
 */
 #define MX_AUX  5
@@ -98,7 +107,7 @@ struct FossilUserPerms {
   char WrForum;          /* 3: Create new forum posts */
   char WrTForum;         /* 4: Post to forums not subject to moderation */
   char ModForum;         /* 5: Moderate (approve or reject) forum posts */
-  char AdminForum;       /* 6: Set or remove capability 4 on other users */
+  char AdminForum;       /* 6: Grant capability 4 to other users */
   char EmailAlert;       /* 7: Sign up for email notifications */
   char Announce;         /* A: Send announcements */
   char Debug;            /* D: show extra Fossil debugging features */
@@ -142,7 +151,7 @@ struct Global {
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   char *zAuxSchema;       /* Main repository aux-schema */
   int dbIgnoreErrors;     /* Ignore database errors if true */
-  const char *zConfigDbName;/* Path of the config database. NULL if not open */
+  char *zConfigDbName;    /* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   unsigned iRepoDataVers;  /* Initial data version for repository database */
@@ -150,6 +159,7 @@ struct Global {
   char *zRepositoryName;  /* Name of the repository database file */
   char *zLocalDbName;     /* Name of the local database file */
   char *zOpenRevision;    /* Check-in version to use during database open */
+  const char *zCmdName;   /* Name of the Fossil command currently running */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -175,6 +185,7 @@ struct Global {
   char *zBaseURL;         /* Full text of the URL being served */
   char *zHttpsURL;        /* zBaseURL translated to https: */
   char *zTop;             /* Parent directory of zPath */
+  const char *zExtRoot;   /* Document root for the /ext sub-website */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
@@ -192,6 +203,7 @@ struct Global {
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
+  char *ckinLockFail;     /* Check-in lock failure received from server */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
   int wikiFlags;          /* Wiki conversion flags applied to %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
@@ -205,7 +217,8 @@ struct Global {
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
   int isHuman;            /* True if access by a human, not a spider or bot */
-  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags */
+  int comFmtFlags;        /* Zero or more "COMMENT_PRINT_*" bit flags, should be
+                          ** accessed through get_comment_format(). */
 
   /* Information used to populate the RCVFROM table */
   int rcvid;              /* The rcvid.  0 if not yet defined. */
@@ -317,6 +330,8 @@ Global g;
 ** used by fossil.
 */
 static void fossil_atexit(void) {
+  static int once = 0;
+  if( once++ ) return; /* Ensure that this routine only runs once */
 #if USE_SEE
   /*
   ** Zero, unlock, and free the saved database encryption key now.
@@ -351,6 +366,9 @@ static void fossil_atexit(void) {
   if(g.db){
     db_close(0);
   }
+  manifest_clear_cache();
+  content_clear_cache(1);
+  rebuild_clear_cache();
   /*
   ** FIXME: The next two lines cannot always be enabled; however, they
   **        are very useful for tracking down TH1 memory leaks.
@@ -374,12 +392,13 @@ static void fossil_atexit(void) {
 **     (c) If the line begins with "-" and contains a space, it is broken
 **         into two arguments at the space.
 */
-static void expand_args_option(int argc, void *argv){
+void expand_args_option(int argc, void *argv){
   Blob file = empty_blob;   /* Content of the file */
   Blob line = empty_blob;   /* One line of the file */
   unsigned int nLine;       /* Number of lines in the file*/
   unsigned int i, j, k;     /* Loop counters */
   int n;                    /* Number of bytes in one line */
+  unsigned int nArg;        /* Number of new arguments */
   char *z;                  /* General use string pointer */
   char **newArgv;           /* New expanded g.argv under construction */
   const char *zFileName;    /* input file name */
@@ -413,30 +432,35 @@ static void expand_args_option(int argc, void *argv){
   if( i>=g.argc-1 ) return;
 
   zFileName = g.argv[i+1];
-  inFile = (0==strcmp("-",zFileName))
-    ? stdin
-    : fossil_fopen(zFileName,"rb");
-  if(!inFile){
-    fossil_fatal("Cannot open -args file [%s]", zFileName);
+  if( strcmp(zFileName,"-")==0 ){
+    inFile = stdin;
+  }else if( !file_isfile(zFileName, ExtFILE) ){
+    fossil_fatal("Not an ordinary file: \"%s\"", zFileName);
   }else{
-    blob_read_from_channel(&file, inFile, -1);
-    if(stdin != inFile){
-      fclose(inFile);
+    inFile = fossil_fopen(zFileName,"rb");
+    if( inFile==0 ){
+      fossil_fatal("Cannot open -args file [%s]", zFileName);
     }
-    inFile = NULL;
   }
+  blob_read_from_channel(&file, inFile, -1);
+  if(stdin != inFile){
+    fclose(inFile);
+  }
+  inFile = NULL;
   blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
-  newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
+  if( nLine>100000000 ) fossil_fatal("too many command-line arguments");
+  nArg = g.argc + nLine*2;
+  newArgv = fossil_malloc( sizeof(char*)*nArg );
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
 
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
-    if( n<1 ) continue
-      /**
-       ** Reminder: corner-case: a line with 1 byte and no newline.
-       */;
+    if( n<1 ){
+      /* Reminder: corner-case: a line with 1 byte and no newline. */
+      continue;
+    }
     z = blob_buffer(&line);
     if('\n'==z[n-1]){
       z[n-1] = 0;
@@ -447,6 +471,9 @@ static void expand_args_option(int argc, void *argv){
       z[n-2] = 0;
     }
     if(!z[0]) continue;
+    if( j>=nArg ){
+      fossil_fatal("malformed command-line arguments");
+    }
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
@@ -568,10 +595,13 @@ static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 */
 static void fossil_init_flags_from_options(void){
   const char *zValue = find_option("comfmtflags", 0, 1);
+  if( zValue==0 ){
+    zValue = find_option("comment-format", 0, 1);
+  }
   if( zValue ){
     g.comFmtFlags = atoi(zValue);
   }else{
-    g.comFmtFlags = COMMENT_PRINT_DEFAULT;
+    g.comFmtFlags = COMMENT_PRINT_UNSET;   /* Command-line option not found. */
   }
 }
 
@@ -597,16 +627,25 @@ static int fossilExeHasAppendedRepo(void){
 /*
 ** This procedure runs first.
 */
-#if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
-int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
-int wmain(int argc, wchar_t **argv)
+#if defined(FOSSIL_FUZZ)
+  /* Do not include a main() procedure when building for fuzz testing.
+  ** libFuzzer will supply main(). */
+#elif defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
+  int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
+  int wmain(int argc, wchar_t **argv){ return fossil_main(argc, argv); }
+#elif defined(_WIN32)
+  int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+  int main(int argc, char **argv){ return fossil_main(argc, argv); }
 #else
-#if defined(_WIN32)
-int _CRT_glob = 0x0001; /* See MinGW bug #2062 */
+  int main(int argc, char **argv){ return fossil_main(argc, argv); }
 #endif
-int main(int argc, char **argv)
-#endif
-{
+
+/* All the work of main() is done by a separate procedure "fossil_main()".
+** We have to break this out, because fossil_main() is sometimes called
+** separately (by the "shell" command) but we do not want atwait() handlers
+** being called by separate invocations of fossil_main().
+*/
+int fossil_main(int argc, char **argv){
   const char *zCmdName = "unknown";
   const CmdOrPage *pCmd = 0;
   int rc;
@@ -773,6 +812,7 @@ int main(int argc, char **argv)
     }
   }
 #endif
+  g.zCmdName = zCmdName;
   rc = dispatch_name_search(zCmdName, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
   if( rc==1 ){
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
@@ -865,12 +905,24 @@ static void remove_from_argv(int i, int n){
 
 
 /*
-** Look for a command-line option.  If present, return a pointer.
-** Return NULL if missing.
+** Look for a command-line option.  If present, remove it from the
+** argument list and return a pointer to either the flag's name (if
+** hasArg==0), sans leading - or --, or its value (if hasArg==1).
+** Return NULL if the flag is not found.
+**
+** zLong is the "long" form of the flag and zShort is the
+** short/abbreviated form (typically a single letter, but it may be
+** longer). zLong must not be NULL, but zShort may be.
 **
 ** hasArg==0 means the option is a flag.  It is either present or not.
-** hasArg==1 means the option has an argument.  Return a pointer to the
-** argument.
+** hasArg==1 means the option has an argument, in which case a pointer
+** to the argument's value is returned. For zLong, a flag value (if
+** hasValue==1) may either be in the form (--flag=value) or (--flag
+** value). For zShort, only the latter form is accepted.
+**
+** If a standalone argument of "--" is encountered in the argument
+** list while searching for the given flag(s), this routine stops
+** searching and NULL is returned.
 */
 const char *find_option(const char *zLong, const char *zShort, int hasArg){
   int i;
@@ -886,7 +938,8 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
     z++;
     if( z[0]=='-' ){
       if( z[1]==0 ){
-        remove_from_argv(i, 1);
+        /* Stop processing at "--" without consuming it.
+           verify_all_options() will consume this flag. */
         break;
       }
       z++;
@@ -910,6 +963,28 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   return zReturn;
 }
 
+/* Return true if zOption exists in the command-line arguments,
+** but do not remove it from the list or otherwise process it.
+*/
+int has_option(const char *zOption){
+  int i;
+  int n = (int)strlen(zOption);
+  for(i=1; i<g.argc; i++){
+    char *z = g.argv[i];
+    if( z[0]!='-' ) continue;
+    z++;
+    if( z[0]=='-' ){
+      if( z[1]==0 ){
+        /* Stop processing at "--" */
+        break;
+      }
+      z++;
+    }
+    if( strncmp(z,zOption,n)==0 && (z[n]==0 || z[n]=='=') ) return 1;
+  }
+  return 0;
+}
+
 /*
 ** Look for multiple occurrences of a command-line option with the
 ** corresponding argument.
@@ -918,7 +993,10 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 **
 ** pnUsedArgs is used to store the number of matched arguments.
 **
-** Caller is responsible to free allocated memory.
+** Caller is responsible for freeing allocated memory by passing the
+** head of the array (not each entry) to fossil_free(). (The
+** individual entries have the same lifetime as values returned from
+** find_option().)
 */
 const char **find_repeatable_option(
   const char *zLong,
@@ -962,22 +1040,37 @@ const char *find_repository_option(){
 ** Verify that there are no unprocessed command-line options.  If
 ** Any remaining command-line argument begins with "-" print
 ** an error message and quit.
+**
+** Exception: if "--" is encountered, it is consumed from the argument
+** list and this function immediately returns. The effect is to treat
+** all arguments after "--" as non-flags (conventionally used to
+** enable passing-in of filenames which start with a dash).
+**
+** This function must normally only be called one time per app
+** invokation. The exception is commands which process their
+** arguments, call this to confirm that there are no extraneous flags,
+** then modify the arguments list for forwarding to another
+** (sub)command (which itself will call this to confirm its own
+** arguments).
 */
 void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
-    if( g.argv[i][0]=='-' && g.argv[i][1]!=0 ){
-      fossil_fatal(
-        "unrecognized command-line option, or missing argument: %s",
-        g.argv[i]);
+    const char * arg = g.argv[i];
+    if( arg[0]=='-' ){
+      if( arg[1]=='-' && arg[2]==0 ){
+        /* Remove "--" from the list and treat all following
+        ** arguments as non-flags. */
+        remove_from_argv(i, 1);
+        break;
+      }else if( arg[1]!=0 ){
+        fossil_fatal(
+          "unrecognized command-line option or missing argument: %s",
+          arg);
+      }
     }
   }
 }
-
-/*
-** Print a list of words in multiple columns.
-*/
-
 
 /*
 ** This function returns a human readable version string.
@@ -1169,7 +1262,7 @@ void test_version_page(void){
 ** is the argument to the --baseurl option command-line option and
 ** g.zBaseURL and g.zTop is set from that instead.
 */
-static void set_base_url(const char *zAltBase){
+void set_base_url(const char *zAltBase){
   int i;
   const char *zHost;
   const char *zMode;
@@ -1304,150 +1397,6 @@ char *enter_chroot_jail(char *zRepo, int noJail){
 }
 
 /*
-** Generate a web-page that lists all repositories located under the
-** g.zRepositoryName directory and return non-zero.
-**
-** For the special case when g.zRepositoryName a non-chroot-jail "/",
-** compose the list using the "repo:" entries in the global_config
-** table of the configuration database.  These entries comprise all
-** of the repositories known to the "all" command.  The special case
-** processing is disallowed for chroot jails because g.zRepositoryName
-** is always "/" inside a chroot jail and so it cannot be used as a flag
-** to signal the special processing in that case.  The special case
-** processing is intended for the "fossil all ui" command which never
-** runs in a chroot jail anyhow.
-**
-** Or, if no repositories can be located beneath g.zRepositoryName,
-** return 0.
-*/
-static int repo_list_page(void){
-  Blob base;
-  int n = 0;
-  int allRepo;
-
-  assert( g.db==0 );
-  if( fossil_strcmp(g.zRepositoryName,"/")==0 && !g.fJail ){
-    /* For the special case of the "repository directory" being "/",
-    ** show all of the repositories named in the ~/.fossil database.
-    **
-    ** On unix systems, then entries are of the form "repo:/home/..."
-    ** and on Windows systems they are like on unix, starting with a "/"
-    ** or they can begin with a drive letter: "repo:C:/Users/...".  In either
-    ** case, we want returned path to omit any initial "/".
-    */
-    db_open_config(1, 0);
-    db_multi_exec(
-       "CREATE TEMP VIEW sfile AS"
-       "  SELECT ltrim(substr(name,6),'/') AS 'pathname' FROM global_config"
-       "   WHERE name GLOB 'repo:*'"
-    );
-    allRepo = 1;
-  }else{
-    /* The default case:  All repositories under the g.zRepositoryName
-    ** directory.
-    */
-    blob_init(&base, g.zRepositoryName, -1);
-    sqlite3_open(":memory:", &g.db);
-    db_multi_exec("CREATE TABLE sfile(pathname TEXT);");
-    db_multi_exec("CREATE TABLE vfile(pathname);");
-    vfile_scan(&base, blob_size(&base), 0, 0, 0);
-    db_multi_exec("DELETE FROM sfile WHERE pathname NOT GLOB '*[^/].fossil'");
-    allRepo = 0;
-  }
-  @ <html>
-  @ <head>
-  @ <base href="%s(g.zBaseURL)/" />
-  @ <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  @ <title>Repository List</title>
-  @ </head>
-  @ <body>
-  n = db_int(0, "SELECT count(*) FROM sfile");
-  if( n>0 ){
-    Stmt q;
-    sqlite3_int64 iNow, iMTime;
-    @ <h1 align="center">Fossil Repositories</h1>
-    @ <table border="0" class="sortable" data-init-sort="1" \
-    @ data-column-types="tnk"><thead>
-    @ <tr><th>Filename<th width="20"><th>Last Modified</tr>
-    @ </thead><tbody>
-    db_prepare(&q, "SELECT pathname"
-                   " FROM sfile ORDER BY pathname COLLATE nocase;");
-    iNow = db_int64(0, "SELECT strftime('%%s','now')");
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zName = db_column_text(&q, 0);
-      int nName = (int)strlen(zName);
-      char *zUrl;
-      char *zAge;
-      char *zFull;
-      if( nName<7 ) continue;
-      zUrl = sqlite3_mprintf("%.*s", nName-7, zName);
-      if( zName[0]=='/'
-#ifdef _WIN32
-          || sqlite3_strglob("[a-zA-Z]:/*", zName)==0
-#endif
-      ){
-        zFull = mprintf("%s", zName);
-      }else if ( allRepo ){
-        zFull = mprintf("/%s", zName);
-      }else{
-        zFull = mprintf("%s/%s", g.zRepositoryName, zName);
-      }
-      iMTime = file_mtime(zFull, ExtFILE);
-      fossil_free(zFull);
-      if( iMTime<=0 ){
-        zAge = mprintf("...");
-      }else{
-        zAge = human_readable_age((iNow - iMTime)/86400.0);
-      }
-      if( sqlite3_strglob("*.fossil", zName)!=0 ){
-        /* The "fossil server DIRECTORY" and "fossil ui DIRECTORY" commands
-        ** do not work for repositories whose names do not end in ".fossil".
-        ** So do not hyperlink those cases. */
-        @ <tr><td>%h(zName)
-      } else if( sqlite3_strglob("*/.*", zName)==0 ){
-        /* Do not show hidden repos */
-        @ <tr><td>%h(zName) (hidden)
-      } else if( allRepo && sqlite3_strglob("[a-zA-Z]:/?*", zName)!=0 ){
-        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">/%h(zName)</a>
-      }else{
-        @ <tr><td><a href="%R/%T(zUrl)/home" target="_blank">%h(zName)</a>
-      }
-      @ <td></td><td data-sortkey='%010llx(iNow - iMTime)'>%h(zAge)</tr>
-      fossil_free(zAge);
-      sqlite3_free(zUrl);
-    }
-    @ </tbody></table>
-  }else{
-    @ <h1>No Repositories Found</h1>
-  }
-  @ <script>%s(builtin_text("sorttable.js"))</script>
-  @ </body>
-  @ </html>
-  cgi_reply();
-  sqlite3_close(g.db);
-  g.db = 0;
-  return n;
-}
-
-/*
-** COMMAND: test-list-page
-**
-** Usage: %fossil test-list-page DIRECTORY
-**
-** Show all repositories underneath DIRECTORY.  Or if DIRECTORY is "/"
-** show all repositories in the ~/.fossil file.
-*/
-void test_list_page(void){
-  if( g.argc<3 ){
-    g.zRepositoryName = "/";
-  }else{
-    g.zRepositoryName = g.argv[2];
-  }
-  g.httpOut = stdout;
-  repo_list_page();
-}
-
-/*
 ** Called whenever a crash is encountered while processing a webpage.
 */
 void sigsegv_handler(int x){
@@ -1483,6 +1432,41 @@ void sigpipe_handler(int x){
 #endif
   db_panic_close();
   exit(1);
+}
+
+/*
+** Return true if it is appropriate to redirect requests to HTTPS.
+**
+** Redirect to https is appropriate if all of the above are true:
+**    (1) The redirect-to-https flag has a valud of iLevel or greater.
+**    (2) The current connection is http, not https or ssh
+**    (3) The sslNotAvailable flag is clear
+*/
+int fossil_wants_https(int iLevel){
+  if( g.sslNotAvailable ) return 0;
+  if( db_get_int("redirect-to-https",0)<iLevel ) return 0;
+  if( P("HTTPS")!=0 ) return 0;
+  return 1;
+}
+
+/*
+** Redirect to the equivalent HTTPS request if the current connection is
+** insecure and if the redirect-to-https flag greater than or equal to 
+** iLevel.  iLevel is 1 for /login pages and 2 for every other page.
+*/
+int fossil_redirect_to_https_if_needed(int iLevel){
+  if( fossil_wants_https(iLevel) ){
+    const char *zQS = P("QUERY_STRING");
+    char *zURL;
+    if( zQS==0 || zQS[0]==0 ){
+      zURL = mprintf("%s%T", g.zHttpsURL, P("PATH_INFO"));
+    }else if( zQS[0]!=0 ){
+      zURL = mprintf("%s%T?%s", g.zHttpsURL, P("PATH_INFO"), zQS);
+    }
+    cgi_redirect_with_status(zURL, 301, "Moved Permanently");
+    return 1;
+  }
+  return 0;
 }
 
 /*
@@ -1664,7 +1648,7 @@ static void process_one_web_page(
       */
       if( szFile<1024 ){
         set_base_url(0);
-        if( strcmp(zPathInfo,"/")==0
+        if( (zPathInfo[0]==0 || strcmp(zPathInfo,"/")==0)
                   && allowRepoList
                   && repo_list_page() ){
           /* Will return a list of repositories */
@@ -1759,6 +1743,7 @@ static void process_one_web_page(
   ** and deliver the appropriate page back to the user.
   */
   set_base_url(0);
+  if( fossil_redirect_to_https_if_needed(2) ) return;
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
     /* Second special case: If the PATH_INFO is blank, issue a redirect to
@@ -1867,6 +1852,9 @@ static void process_one_web_page(
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
+    if( (pCmd->eCmdFlags & CMDFLAG_RAWCONTENT)==0 ){
+      cgi_decode_post_parameters();
+    }
     if( g.fCgiTrace ){
       fossil_trace("######## Calling %s #########\n", pCmd->zName);
       cgi_print_all(1, 1);
@@ -2026,6 +2014,12 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 **    errorlog: FILE           Warnings, errors, and panics written to FILE.
 **
+**    timeout: SECONDS         Do not run for longer than SECONDS.  The default
+**                             timeout is FOSSIL_DEFAULT_TIMEOUT (600) seconds.
+**
+**    extroot: DIR             Directory that is the root of the sub-CGI tree
+**                             on the /ext page.
+**
 **    redirect: REPO URL       Extract the "name" query parameter and search
 **                             REPO for a check-in or ticket that matches the
 **                             value of "name", then redirect to URL.  There
@@ -2046,16 +2040,22 @@ void cmd_cgi(void){
   Glob *pFileGlob = 0;               /* Pattern for files */
   int allowRepoList = 0;             /* Allow lists of repository files */
   Blob config, line, key, value, value2;
-  if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
-    zFile = g.argv[2];
-  }else{
-    zFile = g.argv[1];
-  }
+  /* Initialize the CGI environment. */
   g.httpOut = stdout;
   g.httpIn = stdin;
   fossil_binary_mode(g.httpOut);
   fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
+  fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
+  /* Find the name of the CGI control file */
+  if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
+    zFile = g.argv[2];
+  }else if( g.argc>=2 ){
+    zFile = g.argv[1];
+  }else{
+    cgi_panic("No CGI control file specified");
+  }
+  /* Read and parse the CGI control file. */
   blob_read_from_file(&config, zFile, ExtFILE);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
@@ -2152,16 +2152,6 @@ void cmd_cgi(void){
       blob_reset(&value2);
       continue;
     }
-    if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      /* debug: FILENAME
-      **
-      ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
-      ** into FILENAME.
-      */
-      g.fDebug = fossil_fopen(blob_str(&value), "ab");
-      blob_reset(&value);
-      continue;
-    }
     if( blob_eq(&key, "errorlog:") && blob_token(&line, &value) ){
       /* errorlog: FILENAME
       **
@@ -2170,6 +2160,24 @@ void cmd_cgi(void){
       */
       g.zErrlog = mprintf("%s", blob_str(&value));
       blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "extroot:") && blob_token(&line, &value) ){
+      /* extroot: DIRECTORY
+      **
+      ** Enables the /ext webpage to use sub-cgi rooted at DIRECTORY
+      */
+      g.zExtRoot = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "timeout:") && blob_token(&line, &value) ){
+      /* timeout: SECONDS
+      **
+      ** Set an alarm() that kills the process after SECONDS.  The
+      ** default value is FOSSIL_DEFAULT_TIMEOUT (600) seconds.
+      */
+      fossil_set_timeout(atoi(blob_str(&value)));
       continue;
     }
     if( blob_eq(&key, "HOME:") && blob_token(&line, &value) ){
@@ -2192,6 +2200,21 @@ void cmd_cgi(void){
       */
       skin_use_alternative(blob_str(&value));
       blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "cgi-debug:") && blob_token(&line, &value) ){
+      /* cgi-debug: FILENAME
+      **
+      ** Causes output from cgi_debug() and CGIDEBUG(()) calls to go
+      ** into FILENAME.  Useful for debugging CGI configuration problems.
+      */
+      char *zNow = cgi_iso8601_datestamp();
+      cgi_load_environment();
+      g.fDebug = fossil_fopen(blob_str(&value), "ab");
+      blob_reset(&value);
+      cgi_debug("-------- BEGIN cgi at %s --------\n", zNow);
+      fossil_free(zNow);
+      cgi_print_all(1,2);
       continue;
     }
   }
@@ -2240,8 +2263,8 @@ static void find_server_repository(int arg, int fCreate){
         db_create_repository(zRepo);
         db_open_repository(zRepo);
         db_begin_transaction();
-        g.eHashPolicy = HPOLICY_AUTO;
-        db_set_int("hash-policy", HPOLICY_AUTO, 0);
+        g.eHashPolicy = HPOLICY_SHA3;
+        db_set_int("hash-policy", HPOLICY_SHA3, 0);
         db_initial_setup(0, "now", g.zLogin);
         db_end_transaction(0);
         fossil_print("project-id: %s\n", db_get("project-code", 0));
@@ -2324,12 +2347,13 @@ void parse_pid_key_value(
 **
 ** Options:
 **   --baseurl URL    base URL (useful with reverse proxies)
+**   --extroot DIR    document root for the /ext extension mechanism
 **   --files GLOB     comma-separate glob patterns for static file to serve
-**   --localauth      enable automatic login for local connections
 **   --host NAME      specify hostname of the server
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
 **   --nojail         drop root privilege but do not enter the chroot jail
@@ -2381,8 +2405,10 @@ void cmd_http(void){
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   g.fNoHttpCompress = find_option("nocompress",0,0)!=0;
+  g.zExtRoot = find_option("extroot",0,1);
   zInFile = find_option("in",0,1);
   if( zInFile ){
+    backoffice_disable();
     g.httpIn = fossil_fopen(zInFile, "rb");
     if( g.httpIn==0 ) fossil_fatal("cannot open \"%s\" for reading", zInFile);
   }else{
@@ -2474,6 +2500,9 @@ void cmd_test_http(void){
   g.useLocalauth = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
+  fossil_binary_mode(g.httpOut);
+  fossil_binary_mode(g.httpIn);
+  g.zExtRoot = find_option("extroot",0,1);
   find_server_repository(2, 0);
   g.cgiOutput = 1;
   g.fNoHttpCompress = 1;
@@ -2485,7 +2514,7 @@ void cmd_test_http(void){
   }else{
     cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
     cgi_handle_http_request(0);
-    process_one_web_page(0, 0, 0);
+    process_one_web_page(0, 0, 1);
   }
 }
 
@@ -2515,10 +2544,28 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
-** Send a time-out reply
+** Respond to a SIGALRM by writing a message to the error log (if there
+** is one) and exiting.
 */
-void sigalrm_handler(int x){
+#ifndef _WIN32
+static void sigalrm_handler(int x){
   fossil_panic("TIMEOUT");
+}
+#endif
+
+/*
+** Arrange to timeout using SIGALRM after N seconds.  Or if N==0, cancel
+** any pending timeout.
+**
+** Bugs:
+** (1) This only works on unix systems.
+** (2) Any call to sleep() or sqlite3_sleep() will cancel the alarm.
+*/
+void fossil_set_timeout(int N){
+#ifndef _WIN32
+  signal(SIGALRM, sigalrm_handler);
+  alarm(N);
+#endif
 }
 
 /*
@@ -2567,17 +2614,20 @@ void sigalrm_handler(int x){
 ** Options:
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --create            Create a new REPOSITORY if it does not already exist
-**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
-**   --https             signal a request coming in via https
+**   --https             Indicates that the input is coming through a reverse
+**                       proxy that has already translated HTTPS into HTTP.
 **   --max-latency N     Do not let any single HTTP request run for more than N
 **                       seconds (only works on unix)
 **   --nocompress        Do not compress HTTP replies
 **   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available
+**   --nossl             signal that no SSL connections are available (Always
+**                       set by default for the "ui" command)
 **   --notfound URL      Redirect
+**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **   --repolist          If REPOSITORY is dir, URL "/" lists repos.
@@ -2598,7 +2648,7 @@ void cmd_webserver(void){
   int flags = 0;            /* Server flags */
 #if !defined(_WIN32)
   int noJail;               /* Do not enter the chroot jail */
-  const char *zMaxLatency;   /* Maximum runtime of any single HTTP request */
+  const char *zTimeout = 0; /* Max runtime of any single HTTP request */
 #endif
   int allowRepoList;         /* List repositories on URL "/" */
   const char *zAltBase;      /* Argument to the --baseurl option */
@@ -2618,6 +2668,7 @@ void cmd_webserver(void){
   if( g.zErrlog==0 ){
     g.zErrlog = "-";
   }
+  g.zExtRoot = find_option("extroot",0,1);
   zFileGlob = find_option("files-urlenc",0,1);
   if( zFileGlob ){
     char *z = mprintf("%s", zFileGlob);
@@ -2629,7 +2680,7 @@ void cmd_webserver(void){
   skin_override();
 #if !defined(_WIN32)
   noJail = find_option("nojail",0,0)!=0;
-  zMaxLatency = find_option("max-latency",0,1);
+  zTimeout = find_option("max-latency",0,1);
 #endif
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   Th_InitTraceLog();
@@ -2647,7 +2698,7 @@ void cmd_webserver(void){
   if( zAltBase ){
     set_base_url(zAltBase);
   }
-  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0 || isUiCmd;
   if( find_option("https",0,0)!=0 ){
     cgi_replace_parameter("HTTPS","on");
   }
@@ -2738,9 +2789,19 @@ void cmd_webserver(void){
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
-  if( zMaxLatency ){
-    signal(SIGALRM, sigalrm_handler);
-    alarm(atoi(zMaxLatency));
+  /* For the parent process, the cgi_http_server() command above never
+  ** returns (except in the case of an error).  Instead, for each incoming
+  ** client connection, a child process is created, file descriptors 0
+  ** and 1 are bound to that connection, and the child returns.
+  **
+  ** So, when control reaches this point, we are running as a
+  ** child process, the HTTP or SCGI request is pending on file
+  ** descriptor 0 and the reply should be written to file descriptor 1.
+  */
+  if( zTimeout ){
+    fossil_set_timeout(atoi(zTimeout));
+  }else{
+    fossil_set_timeout(FOSSIL_DEFAULT_TIMEOUT);
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
@@ -2847,7 +2908,7 @@ void test_warning_page(void){
   int iCase = atoi(PD("case","0"));
   int i;
   login_check_credentials();
-  if( !g.perm.Setup && !g.perm.Admin ){
+  if( !g.perm.Admin ){
     login_needed(0);
     return;
   }

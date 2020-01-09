@@ -1,21 +1,214 @@
 ﻿<title>Change Log</title>
 
+<a name='v2_11'></a>
+<h2>Changes for Version 2.11 (pending)</h2>
+
+  *  Support Markdown in the default ticket configuration.
+  *  Rework the "[/help?cmd=grep|fossil grep]" command to be more useful.
+  *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
+     setting to the [/help?cmd=settings|settings] command.
+  *  Improve support for CGI on IIS web servers.
+  *  The [/help?cmd=/ext|/ext page] can now render index files,
+     analog to how the embedded docs do.
+  *  Most commands now support the Unix-conventional "<tt>--</tt>"
+     flag to treat all following arguments as filenames
+     instead of flags.
+  *  Several minor enhancements to existing features.
+
+<a name='v2_10'></a>
+<h2>Changes for Version 2.10 (2019-10-04)</h2>
+
+  *  Added support for [./serverext.wiki|CGI-based Server Extensions].
+  *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
+     add style to repository list pages.
+  *  Enhance the hierarchical display of Forum threads to do less
+     indentation and to provide links back to the previous message
+     in the thread.  Provide sequential numbers for all messages in
+     a forum thread.
+  *  Add support for fenced code blocks and improved hyperlink
+     processing to the [/md_rules|markdown formatter].
+  *  Add support for hyperlinks to wiki pages in the
+     [/md_rules|markdown formatter].
+  *  Enhance the [/help?cmd=/stat|/stat] page so that it gives the
+     option to show a breakdown of forum posts.
+  *  The special check-in name "merge-in:BRANCH" means the source of
+     the most recent merge-in from the parent branch of BRANCH.
+  *  Add hyperlinks to branch-diffs on the /info page and from
+     timelines of a branch.
+  *  Add graphical context on the [/help?cmd=/vdiff|/vdiff] page.
+  *  Uppercase query parameters, POST parameters, and cookie names are
+     converted to all lowercase and entered into the parameter set,
+     instead of being discarded.
+  *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
+     some other value set by the 
+     [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
+  *  The check-in lock interval is reduced from 24 hours to 60 seconds,
+     though the interval is now configurable using a setting.
+     An additional check for conflicts is added after interactive
+     check-in comment entry, to compensate for the reduced lock interval.
+  *  Performance optimizations.
+  *  Many documentation improvements.
+
+<a name='v2_9'></a>
+<h2>Changes for Version 2.9 (2019-07-13)</h2>
+
+  *  Added the [/help?cmd=git|fossil git export] command and instructions
+     for [./mirrortogithub.md|creating a GitHub mirror of a Fossil project].
+  *  Improved handling of relative hyperlinks on the
+     [/help?cmd=/artifact|/artifact] pages for wiki. For example,
+     hyperlinks and the lizard &lt;img&gt; now work correctly
+     for both [/artifact/2ff24ab0887cf522] and
+     [/doc/0d7ac90d575004c2415/www/index.wiki].
+  *  Enhancements to the timeline graph layout, to show more information
+     with less clutter.
+  *  Added tool-tips to the /timeline graph.  On by default but can be
+     disabled by setting the "Tooltip dwell time" to 0 in the timeline
+     configuration.
+  *  Copy buttons added to various check-in hash and branch name links.
+  *  Double-clicking on a /timeline graph node now jumps to the /info page
+     for the check-in.  So, repurpose the timestamp hyperlink to show all
+     activity around that check-in in time.
+  *  Added the [/help?cmd=touch|fossil touch] command, and the --setmtime
+     option on the [/help?cmd=open|fossil open] and
+     [/help?cmd=update|fossil update] commands.
+  *  Many documentation enhancements.
+  *  For the "[/help?cmd=update|fossil update]" and
+     "[/help?cmd=checkout|fossil checkout]" commands, if a
+     managed file is removed because it is no longer part of the target
+     check-in and the directory containing the file is empty after the
+     file is removed and the directory is not the current working
+     directory and is not on the [/help?cmd=empty-dirs|empty-dirs]
+     list, then also remove the directory.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 11.0 to 12.1.
+  *  In "[/help?cmd=regexp|fossil regexp]", "[/help?cmd=grep|fossil grep]"
+     and the TH1 "regexp" command, the -nocase option now removes multiple
+     diacritics from the same character (derived from SQLite's
+     remove_diacritics=2)
+  *  Added the [/help?cmd=/secureraw|/secureraw] page that requires the
+     complete SHA1 or SHA3 hash, not just a prefix, before it will deliver
+     content.
+  *  Accept purely numeric ISO8601 date/time strings as long as they
+     do not conflict with a hash.  Example: "20190510134217" instead of
+     "2019-05-10 13:42:17".  This helps keep URLs shorter and less
+     complicated
+  *  Support both "1)" and "1." for numbered lists in markdown, as
+     commonmark does.
+  *  The sync and clone HTTP requests omit the extra /xfer path element
+     from the end of the request URI. All servers since 2010 know that
+     the HTTP request is for a sync or clone from the mimetype so the
+     extra path element is not needed.
+  *  If an automatic sync gets a permanent redirect request, then update
+     the saved remote URL to the new address.
+  *  Temporary filenames (for example used for external "diff" commands)
+     try to preserve the suffix of the original file.
+  *  Added the [/help?cmd=/thisdayinhistory|/thisdayinhistory] web page.
+  *  Enhanced parsing of [/help?cmd=/timeline|/timeline] query parameters
+     "ymd=", "ym=", and "yw=".  All arguments are option (in which case they
+     default to the current time) and all accept ISO8601 date/times without
+     punctuation.
+  *  Automatically disapprove pending moderation requests for a user when
+     that user is deleted.  This helps in dealing with spam-bots.
+  *  Improvements to the "Capability Summary" section in the
+     [/help?cmd=/secaudit0|Security Audit] web-page.
+  *  Use new "ci-lock" and "ci-lock-failed" pragmas in the
+     [./sync.wiki|sync protocol] to try to prevent accident forks
+     caused by concurrent commits when operating in auto-sync mode.
+  *  Fix a bug ([https://www.fossil-scm.org/forum/forumpost/c51b9a1169|details])
+     that can cause repository databases to be overwritten with debugging
+     output, thus corrupting the repository. This is only a factor when
+     CGI debugging is enabled, and even then is a rare occurrence, but it is
+     obviously an important fix.
+
+<a name='v2_8'></a>
+<h2>Changes for Version 2.8 (2019-02-20)</h2>
+
+  *  Show cherry-pick merges as dotted lines on the timeline graph.
+     &rarr; The "fossil rebuild" command must be run to create and
+     populate the new "cherrypick" table in the repository in order
+     for this feature to operate.
+  *  Add the ability to associate branches, check-ins, and tags with
+     specially-named Wiki pages. This gives the ability to better
+     document branches and tags, and provide more documentation on
+     check-ins beyond the check-in comment.  The associated Wiki is
+     automatically displayed on /info pages for check-ins, and on
+     /timeline?r=BRANCH and /timeline?t=TAG pages for branches and
+     tags. This feature is on by default, but can be disabled in on
+     the Admin/Wiki page.
+  *  Enhance the repository list page (shown for example by
+     "fossil all ui") so that it shows the name and last check-in
+     time for each project.  The implementation of the repository
+     list page is now broken out into a separate source file (repolist.c).
+  *  Allow users with Forum Supervisor permission ('6') to add Forum
+     Write Trusted permission ('4') to users as they are approving a
+     forum post by that user.
+  *  When running a bisect, report the number of check-ins still in
+     the search range and the estimated number of bisect steps remaining.
+     Do this at each step of the bisect.
+  *  Provide a permanent link to a bisect timeline using the bid= query
+     parameter.
+  *  Make the chronological forum display feature available to all users,
+     and make it the default format on mobile devices.
+  *  Break out Wiki setup into a separate /setup_wiki page, accessible
+     on the standard menus through Admin/Wiki.
+  *  Add "Next" and "Previous" buttons on the /wdiff page, allowing
+     the user to step through the versions of a wiki page.
+  *  Improve the display of the /whistory page.
+  *  Omit the "HH:MM" timestamps on timeline graphs on narrow-screen
+     devices, to improve horizontal space uses.  This helps make Fossil
+     more mobile-friendly.
+  *  Enhance /wcontent to show a sortable list of Wiki pages together
+     with the number of revisions and the most recent change time for
+     each page.
+  *  Hyperlinks to Wiki pages on the /timeline go to the specific
+     version of the Wiki page named in the timeline, not to the latest
+     version.
+  *  Enhancements to the "amend", "tag", and "reparent" commands, including
+     adding options --override-date, --override-user, and --dry-run.
+  *  Add the global --comment-format command-line option and the
+     comment-format setting to control the display of the command-line
+     timeline.
+  *  Change the "fossil reparent" command so that it only works from
+     within an active checkout.
+  *  On the /setup_ucap_list, show administrators how many users have
+     each capability.  The counts are a hyperlink to the /setup_ulist
+     page showing the subset of users that have that capability.
+  *  Provide the ability to redirect all HTTP pages to HTTPS.  Formerly
+     one could cause this to occur for the /login page only.  That option
+     still exists, but the redirect can now also be done for all pages.
+  *  "Compress" the built-in javascript by omitting comments and
+     leading and trailing whitespace.
+  *  Detect when the repository used by a checkout is swapped out for
+     a clone that uses different RID values, and make appropriate adjustments
+     to the checkout database to avoid any problems.
+  *  Add the backoffice-disable setting to completely disable the
+     backoffice feature.
+  *  Update the built-in SQLite to version 3.27.1.
+  *  Various other small enhancements to webpages and documentation.
+
+
 <a name='v2_7'></a>
-<h2>Changes for Version 2.7 (2018-09-??)</h2>
+<h2>Changes for Version 2.7 (2018-09-22)</h2>
 
   *  Add the [./alerts.md|email alerts] feature for commits, ticket
      changes, wiki changes, forum posts, and announcements.  This is
-     still a work in progress.  It works, but it is not as easy to
+     still a work in progress.  It is functional, but it is not as easy to
      setup and use as it ought to be.
   *  Add the [./forum.wiki|discussion forum] feature.
   *  Add new user capabilities letters needed to support alerts and forum.
      Formerly, user capabilities were letters from &#91;a-z&#93;, but with the
      enhancements, the supply of lower case letters was exhausted.
      User capabilities are now letters in &#91;a-zA-Z0-9&#93;.
-  *  The default skin is now responsive, providing better layout on
+  *  The built-in skins are now responsive, providing better layout on
      small screens, including mobile devices.
   *  The default skin now includes a hamburger menu that is generated
      by the [/sitemap] page.
+  *  All of the built-in skins now use a
+     [https://en.wikipedia.org/wiki/Content_Security_Policy|Content Security Policy (CSP)]
+     to help prevent cross-site injection and forgery attacks.  There are no known
+     vulnerabilities in Fossil.  The added CSP does not fix anything; it merely adds
+     another layer of defense.
   *  The [/sitemap] and other list pages show as multiple columns if
      the viewing window is wide enough.
   *  There is an optional "js" file for each skin that can be used to
@@ -25,12 +218,18 @@
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 10.0 to 11.0.
   *  Improvements to the "Security Audit" administration page
-  *  Added the [/help?cmd=branch|fossil branch current] command.
-  *  Update the built-in SQLite to version 3.25.0.
-  *  Add support for TLS 1.3, when compiled with OpenSSL 1.1.1.
+  *  Add the [/help?cmd=branch|fossil branch current] command.
+  *  Add the [./grep.md|grep] command.
+  *  Update the built-in SQLite to version 3.25.1.
   *  Some code and interfaces are in place to support sending and
      receiving email directly via SMTP, but this feature is not yet
      complete or ready for production use.
+  *  The `mv-rm-files` setting is now compiled into Fossil in the
+     default Fossil configuration; no longer must you say
+     <tt>./configure --with-legacy-mv-rm</tt> to make it available.  The
+     setting remains disabled by default, however, so you must still say
+     <tt>fossil set mv-rm-files 1</tt> to enable it on each repository
+     where you want hard <tt>mv/rm</tt> behavior.
 
 <a name='v2_6'></a>
 <h2>Changes for Version 2.6 (2018-05-04)</h2>

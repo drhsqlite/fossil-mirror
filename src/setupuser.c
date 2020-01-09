@@ -44,11 +44,11 @@ void setup_ulist(void){
     return;
   }
 
+  style_submenu_element("Add", "setup_uedit");
+  style_submenu_element("Log", "access_log");
+  style_submenu_element("Help", "setup_ulist_notes");
+  style_header("User List");
   if( zWith==0 || zWith[0]==0 ){
-    style_submenu_element("Add", "setup_uedit");
-    style_submenu_element("Log", "access_log");
-    style_submenu_element("Help", "setup_ulist_notes");
-    style_header("User List");
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
     @ <thead><tr>
     @   <th>Category
@@ -89,11 +89,16 @@ void setup_ulist(void){
       @ </tr>
     }
     db_finalize(&s);
+    @ </tbody></table>
+    @ <div class='section'>Users</div>
   }else{
-    style_header("Users With Capabilities \"%h\"", zWith);
+    style_submenu_element("All Users", "setup_ulist");
+    if( zWith[1]==0 ){
+      @ <div class='section'>Users with capability "%h(zWith)"</div>
+    }else{
+      @ <div class='section'>Users with any capability in "%h(zWith)"</div>
+    }
   }
-  @ </tbody></table>
-  @ <div class='section'>Users</div>
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
   @  data-column-types='ktxTTK' data-init-sort='2'>
   @ <thead><tr>
@@ -294,6 +299,9 @@ void user_edit(void){
     if( P("verifydelete") ){
       /* Verified delete user request */
       db_multi_exec("DELETE FROM user WHERE uid=%d", uid);
+      moderation_disapprove_for_missing_users();
+      admin_log("Deleted user [%s] (uid %d).",
+                PD("login","???")/*safe-for-%s*/, uid);
       cgi_redirect(cgi_referer("setup_ulist"));
       return;
     }
@@ -331,7 +339,7 @@ void user_edit(void){
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
       zNm[1] = c;
-      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      a[c&0x7f] = ((c!='s' && c!='y') || g.perm.Setup) && P(zNm)!=0;
       if( a[c&0x7f] ) zCap[i++] = c;
     }
     for(c='0'; c<='9'; c++){

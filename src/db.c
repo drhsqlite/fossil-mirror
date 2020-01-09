@@ -88,7 +88,19 @@ static void db_err(const char *zFormat, ...){
     @ error Database\serror:\s%F(z)
     cgi_reply();
   }
-  fossil_panic("Database error: %s", z);
+  fossil_fatal("Database error: %s", z);
+}
+
+/*
+** Check a result code.  If it is not SQLITE_OK, print the
+** corresponding error message and exit.
+*/
+static void db_check_result(int rc, Stmt *pStmt){
+  if( rc!=SQLITE_OK ){
+    db_err("SQL error (%d,%d: %s) while running [%s]",
+       rc, sqlite3_extended_errcode(g.db),
+       sqlite3_errmsg(g.db), blob_str(&pStmt->sql));
+  }
 }
 
 /*
@@ -119,6 +131,7 @@ static struct DbLocalData {
 */
 void db_delete_on_failure(const char *zFilename){
   assert( db.nDeleteOnFail<count(db.azDeleteOnFail) );
+  if( zFilename==0 ) return;
   db.azDeleteOnFail[db.nDeleteOnFail++] = fossil_strdup(zFilename);
 }
 
@@ -364,6 +377,12 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
   return rc;
 }
 
+/* Return TRUE if static Stmt object pStmt has been initialized.
+*/
+int db_static_stmt_is_init(Stmt *pStmt){
+  return blob_size(&pStmt->sql)>0;
+}
+
 /* Prepare a statement using text placed inside a Blob
 ** using blob_append_sql().
 */
@@ -473,7 +492,7 @@ int db_reset(Stmt *pStmt){
   int rc;
   db_stats(pStmt);
   rc = sqlite3_reset(pStmt->pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   return rc;
 }
 int db_finalize(Stmt *pStmt){
@@ -491,7 +510,7 @@ int db_finalize(Stmt *pStmt){
   db_stats(pStmt);
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   pStmt->pStmt = 0;
   return rc;
 }
@@ -572,24 +591,27 @@ void db_ephemeral_blob(Stmt *pStmt, int N, Blob *pBlob){
 }
 
 /*
-** Check a result code.  If it is not SQLITE_OK, print the
-** corresponding error message and exit.
-*/
-void db_check_result(int rc){
-  if( rc!=SQLITE_OK ){
-    db_err("SQL error: %s", sqlite3_errmsg(g.db));
-  }
-}
-
-/*
 ** Execute a single prepared statement until it finishes.
 */
 int db_exec(Stmt *pStmt){
   int rc;
   while( (rc = db_step(pStmt))==SQLITE_ROW ){}
   rc = db_reset(pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   return rc;
+}
+
+/*
+** COMMAND: test-db-exec-error
+**
+** Invoke the db_exec() interface with an erroneous SQL statement
+** in order to verify the error handling logic.
+*/
+void db_test_db_exec_cmd(void){
+  Stmt err;
+  db_find_and_open_repository(0,0);
+  db_prepare(&err, "INSERT INTO repository.config(name) VALUES(NULL);");
+  db_exec(&err);
 }
 
 /*
@@ -795,6 +817,9 @@ char *db_text(const char *zDefault, const char *zSql, ...){
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
+**
+** If zFilename is NULL, then create an empty repository in an in-memory
+** database.
 */
 void db_init_database(
   const char *zFileName,   /* Name of database file to create */
@@ -806,7 +831,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-  db = db_open(zFileName);
+  db = db_open(zFileName ? zFileName : ":memory:");
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
@@ -821,7 +846,11 @@ void db_init_database(
   }
   va_end(ap);
   sqlite3_exec(db, "COMMIT", 0, 0, 0);
-  sqlite3_close(db);
+  if( zFileName || g.db!=0 ){
+    sqlite3_close(db);
+  }else{
+    g.db = db;
+  }
 }
 
 /*
@@ -1253,6 +1282,7 @@ void db_detach(const char *zLabel){
 */
 void db_attach(const char *zDbName, const char *zLabel){
   Blob key;
+  if( db_table_exists(zLabel,"sqlite_master") ) return;
   blob_init(&key, 0, 0);
   db_maybe_obtain_encryption_key(zDbName, &key);
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
@@ -1335,20 +1365,21 @@ void db_close_config(){
   int iSlot = db_database_slot("configdb");
   if( iSlot>0 ){
     db_detach("configdb");
-    g.zConfigDbName = 0;
   }else if( g.dbConfig ){
     sqlite3_wal_checkpoint(g.dbConfig, 0);
     sqlite3_close(g.dbConfig);
     g.dbConfig = 0;
-    g.zConfigDbName = 0;
   }else if( g.db && 0==iSlot ){
     int rc;
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
-    g.zConfigDbName = 0;
+  }else{
+    return;
   }
+  fossil_free(g.zConfigDbName);
+  g.zConfigDbName = 0;
 }
 
 /*
@@ -1378,17 +1409,20 @@ int db_open_config(int useAttach, int isOptional){
     if( zHome==0 ){
       zHome = fossil_getenv("APPDATA");
       if( zHome==0 ){
-        char *zDrive = fossil_getenv("HOMEDRIVE");
-        char *zPath = fossil_getenv("HOMEPATH");
-        if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        zHome = fossil_getenv("USERPROFILE");
+        if( zHome==0 ){
+          char *zDrive = fossil_getenv("HOMEDRIVE");
+          char *zPath = fossil_getenv("HOMEPATH");
+          if( zDrive && zPath ) zHome = mprintf("%s%s", zDrive, zPath);
+        }
       }
     }
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
     fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, or HOMEPATH "
-                 "environment variables");
+                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, USERPROFILE, "
+                 "or HOMEDRIVE / HOMEPATH environment variables");
   }
 #else
   if( zHome==0 ){
@@ -1475,21 +1509,32 @@ static int db_local_table_exists_but_lacks_column(
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
-  char *zVFileDef;
 
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName, ExtFILE);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
-  zVFileDef = db_text(0, "SELECT sql FROM localdb.sqlite_master"
-                         " WHERE name=='vfile'");
-  if( zVFileDef==0 ) return 0;
+
+  /* Check to see if the checkout database has the lastest schema changes.
+  ** The most recent schema change (2019-01-19) is the addition of the
+  ** vmerge.mhash and vfile.mhash fields.  If the schema has the vmerge.mhash
+  ** column, assume everything else is up-to-date. 
+  */
+  if( db_table_has_column("localdb","vmerge","mhash") ){
+    return 1;   /* This is a checkout database with the latest schema */
+  }
+
+  /* If there is no vfile table, then assume we have picked up something
+  ** that is not even close to being a valid checkout database */
+  if( !db_table_exists("localdb","vfile") ){
+    return 0;  /* Not a  DB */
+  }
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( sqlite3_strglob("* isexe *", zVFileDef)!=0 ){
+  if( !db_table_has_column("localdb","vfile","isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -1497,7 +1542,7 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( sqlite3_strglob("* islink *", zVFileDef)!=0 ){
+  if( !db_table_has_column("localdb","vfile","isLink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
     if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
       db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
@@ -1509,7 +1554,12 @@ static int isValidLocalDb(const char *zDbName){
       db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
     }
   }
-  fossil_free(zVFileDef);
+
+  /* The design of the checkout database changed on 2019-01-19, adding the mhash
+  ** column to vfile and vmerge and changing the UNIQUE index on vmerge into
+  ** a PRIMARY KEY that includes the new mhash column.  However, we must have
+  ** the repository database at hand in order to do the migration, so that
+  ** step is deferred. */
   return 1;
 }
 
@@ -1580,7 +1630,9 @@ const char *db_repository_filename(void){
   if( zRepo==0 ){
     zRepo = db_lget("repository", 0);
     if( zRepo && !file_is_absolute_path(zRepo) ){
+      char * zFree = zRepo;
       zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+      fossil_free(zFree);
     }
   }
   return zRepo;
@@ -1657,6 +1709,72 @@ void db_open_repository(const char *zDbName){
   ** version 2.0 and later.
   */
   rebuild_schema_update_2_0();   /* Do the Fossil-2.0 schema updates */
+
+  /* Additional checks that occur when opening the checkout database */
+  if( g.localOpen ){
+
+    /* If the repository database that was just opened has been
+    ** eplaced by a clone of the same project, with different RID
+    ** values, then renumber the RID values stored in various tables
+    ** of the checkout database, so that the repository and checkout
+    ** databases align.
+    */
+    if( !db_fingerprint_ok() ){
+      if( find_option("no-rid-adjust",0,0)!=0 ){
+        /* The --no-rid-adjust command-line option bypasses the RID value
+        ** updates. Intended for use during debugging, especially to be
+        ** able to run "fossil sql" after a database swap. */
+        fossil_print(
+          "WARNING: repository change detected, but no adjust made.\n"
+        );
+      }else if( find_option("rid-renumber-dryrun",0,0)!=0 ){
+        /* the --rid-renumber-dryrun option shows how RID values would be
+        ** renumbered, but does not actually perform the renumbering.
+        ** This is a debugging-only option. */
+        vfile_rid_renumbering_event(1);
+        exit(0);
+      }else{
+        char *z;
+        stash_rid_renumbering_event();
+        vfile_rid_renumbering_event(0);
+        undo_reset();
+        bisect_reset();
+        z = db_fingerprint(0, 1);
+        db_lset("fingerprint", z);
+        fossil_free(z);
+        fossil_print(
+          "WARNING: The repository database has been replaced by a clone.\n"
+          "Bisect history and undo have been lost.\n"
+        );
+      }
+    }
+
+    /* Make sure the checkout database schema migration of 2019-01-20 
+    ** has occurred.
+    **
+    ** The 2019-01-19 migration is the addition of the vmerge.mhash and
+    ** vfile.mhash columns and making the vmerge.mhash column part of the
+    ** PRIMARY KEY for vmerge.
+    */
+    if( !db_table_has_column("localdb", "vfile", "mhash") ){
+      db_multi_exec("ALTER TABLE vfile ADD COLUMN mhash;");
+      db_multi_exec(
+        "UPDATE vfile"
+        "   SET mhash=(SELECT uuid FROM blob WHERE blob.rid=vfile.mrid)"
+        " WHERE mrid!=rid;"
+      );
+      if( !db_table_has_column("localdb", "vmerge", "mhash") ){
+        db_multi_exec("ALTER TABLE vmerge RENAME TO old_vmerge;");
+        db_multi_exec(zLocalSchemaVmerge /*works-like:""*/);
+        db_multi_exec(  
+           "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
+           "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
+           "   WHERE old_vmerge.merge=blob.rid;"
+           "DROP TABLE old_vmerge;"
+        );
+      }
+    }
+  }
 }
 
 /*
@@ -1678,8 +1796,9 @@ int db_repository_has_changed(void){
 ** Flags for the db_find_and_open_repository() function.
 */
 #if INTERFACE
-#define OPEN_OK_NOT_FOUND    0x001      /* Do not error out if not found */
-#define OPEN_ANY_SCHEMA      0x002      /* Do not error if schema is wrong */
+#define OPEN_OK_NOT_FOUND       0x001   /* Do not error out if not found */
+#define OPEN_ANY_SCHEMA         0x002   /* Do not error if schema is wrong */
+#define OPEN_SUBSTITUTE         0x004   /* Fake in-memory repo if not found */
 #endif
 
 /*
@@ -1712,7 +1831,12 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     return;
   }
 rep_not_found:
-  if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+  if( bFlags & OPEN_OK_NOT_FOUND ){
+    /* No errors if the database is not found */
+    if( bFlags & OPEN_SUBSTITUTE ){
+      db_create_repository(0);
+    }
+  }else{
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
@@ -1942,8 +2066,8 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
      "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
   );
   db_multi_exec(
-     "UPDATE user SET cap='s', pw=lower(hex(randomblob(3)))"
-     " WHERE login=%Q", zUser
+     "UPDATE user SET cap='s', pw=%Q"
+     " WHERE login=%Q", fossil_random_password(10), zUser
   );
   if( !setupUserOnly ){
     db_multi_exec(
@@ -2513,7 +2637,11 @@ char *db_get(const char *zName, const char *zDefault){
   if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
+    char * zZ = z;
     z = db_get_versioned(zName, z);
+    if(zZ != z){
+      fossil_free(zZ);
+    }
   }
   if( z==0 ){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
@@ -2612,8 +2740,12 @@ void db_set_int(const char *zName, int value, int globalFlag){
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
-  if( is_truth(zVal) ) return 1;
-  if( is_false(zVal) ) return 0;
+  if( is_truth(zVal) ){
+    dflt = 1;
+  }else if( is_false(zVal) ){
+    dflt = 0;
+  }
+  fossil_free(zVal);
   return dflt;
 }
 int db_get_versioned_boolean(const char *zName, int dflt){
@@ -2793,6 +2925,9 @@ void db_record_repository_filename(const char *zName){
 **   --keep            Only modify the manifest and manifest.uuid files
 **   --nested          Allow opening a repository inside an opened checkout
 **   --force-missing   Force opening a repository with missing content
+**   --setmtime        Set timestamps of all files to match their SCM-side
+**                     times (the timestamp of the last checkin which modified
+**                     them).
 **
 ** See also: close
 */
@@ -2802,6 +2937,7 @@ void cmd_open(void){
   int forceMissingFlag;
   int allowNested;
   int allowSymlinks;
+  int setmtimeFlag;              /* --setmtime.  Set mtimes on files */
   static char *azNewArgv[] = { 0, "checkout", "--prompt", 0, 0, 0, 0 };
 
   url_proxy_options();
@@ -2809,6 +2945,7 @@ void cmd_open(void){
   keepFlag = find_option("keep",0,0)!=0;
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   allowNested = find_option("nested",0,0)!=0;
+  setmtimeFlag = find_option("setmtime",0,0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -2826,7 +2963,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", "trunk");
+      g.zOpenRevision = db_get("main-branch", 0);
     }
   }
 
@@ -2849,7 +2986,7 @@ void cmd_open(void){
 #else
 # define LOCALDB_NAME "./.fslckout"
 #endif
-  db_init_database(LOCALDB_NAME, zLocalSchema,
+  db_init_database(LOCALDB_NAME, zLocalSchema, zLocalSchemaVmerge,
 #ifdef FOSSIL_LOCAL_WAL
                    "COMMIT; PRAGMA journal_mode=WAL; BEGIN;",
 #endif
@@ -2874,7 +3011,7 @@ void cmd_open(void){
   }
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(g.argv[2]);
-  db_lset_int("checkout", 0);
+  db_set_checkout(0);
   azNewArgv[0] = g.argv[0];
   g.argv = azNewArgv;
   if( !emptyFlag ){
@@ -2891,6 +3028,12 @@ void cmd_open(void){
       azNewArgv[g.argc++] = "--force-missing";
     }
     checkout_cmd();
+  }
+  if( setmtimeFlag ){
+    int const vid = db_lget_int("checkout", 0);
+    if(vid!=0){
+      vfile_check_signature(vid, CKSIG_SETMTIME);
+    }
   }
   g.argc = 2;
   info_cmd();
@@ -2943,8 +3086,11 @@ void print_setting(const Setting *pSetting){
 ** var is the name of the internal configuration name for db_(un)set.
 ** If var is 0, the settings name is used.
 **
-** width is the length for the edit field on the behavior page, 0
-** is used for on/off checkboxes.
+** width is the length for the edit field on the behavior page, 0 is
+** used for on/off checkboxes. A negative value indicates that that
+** page should not render this setting. Such values may be rendered
+** separately/manually on another page, e.g., /setup_access, and are
+** exposed via the CLI settings command.
 **
 ** The behaviour page doesn't use a special layout. It lists all
 ** set-commands and displays the 'set'-help as info.
@@ -2952,7 +3098,9 @@ void print_setting(const Setting *pSetting){
 struct Setting {
   const char *name;     /* Name of the setting */
   const char *var;      /* Internal variable name used by db_set() */
-  int width;            /* Width of display.  0 for boolean values. */
+  int width;            /* Width of display.  0 for boolean values and
+                        ** negative for values which should not appear
+                        ** on the /setup_settings page. */
   int versionable;      /* Is this setting versionable? */
   int forceTextArea;    /* Force using a text area for display? */
   const char *def;      /* Default value */
@@ -3033,6 +3181,20 @@ struct Setting {
 ** it simply exits.
 */
 /*
+** SETTING: backoffice-disable boolean default=off
+** If backoffice-disable is true, then the automatic backoffice
+** processing is disabled.  Automatic backoffice processing is the
+** backoffice work that normally runs after each web page is
+** rendered.  Backoffice processing that is triggered by the
+** "fossil backoffice" command is unaffected by this setting.
+**
+** Backoffice processing does things such as delivering
+** email notifications.  So if this setting is true, and if
+** there is no cron job periodically running "fossil backoffice",
+** email notifications and other work normally done by the
+** backoffice will not occur.
+*/
+/*
 ** SETTING: backoffice-logfile width=40
 ** If backoffice-logfile is not an empty string and is a valid
 ** filename, then a one-line message is appended to that file
@@ -3074,6 +3236,29 @@ struct Setting {
 ** SETTING: clearsign       boolean default=off
 ** When enabled, fossil will attempt to sign all commits
 ** with gpg.  When disabled, commits will be unsigned.
+*/
+/*
+** SETTING: comment-format  width=16 default=1
+** Set the default options for printing timeline comments to the console.
+**
+** The global --comfmtflags command-line option (or alias --comment-format)
+** overrides this setting.
+**
+** Possible values are:
+**    1     Activate the legacy comment printing format (default).
+**
+** Or a bitwise combination of the following flags:
+**    0     Activate the newer (non-legacy) comment printing format.
+**    2     Trim leading and trailing CR and LF characters.
+**    4     Trim leading and trailing white space characters.
+**    8     Attempt to break lines on word boundaries.
+**   16     Break lines before the original comment embedded in other text.
+**
+** Note: To preserve line breaks, activate the newer (non-legacy) comment
+** printing format (i.e. set to "0", or a combination not including "1").
+**
+** Note: The options for timeline comments displayed on the web UI can be
+** configured through the /setup_timeline web page.
 */
 /*
 ** SETTING: crlf-glob       width=40 versionable block-text
@@ -3190,10 +3375,55 @@ struct Setting {
 */
 /*
 ** SETTING: localauth        boolean default=off
-** If enabled, require that HTTP connections from
-** 127.0.0.1 be authenticated by password.  If
-** false, all HTTP requests from localhost have
-** unrestricted access to the repository.
+** If enabled, require that HTTP connections from the loopback
+** address (127.0.0.1) be authenticated by password.  If false,
+** some HTTP requests might be granted full "Setup" user
+** privileges without having to present login credentials.
+** This mechanism allows the "fossil ui" command to provide
+** full access to the repository without requiring the user to
+** log in first.
+**
+** In order for full "Setup" privilege to be granted without a
+** login, the following conditions must be met:
+**
+**   (1)  This setting ("localauth") must be off
+**   (2)  The HTTP request arrive over the loopback TCP/IP
+**        address (127.0.01) or else via SSH.
+**   (3)  The request must be HTTP, not HTTPS. (This
+**        restriction is designed to help prevent accidentally
+**        providing "Setup" privileges to requests arriving
+**        over a reverse proxy.)
+**   (4)  The command that launched the fossil server must be
+**        one of the following:
+**        (a) "fossil ui"
+**        (b) "fossil server" with the --localauth option
+**        (c) "fossil http" with the --localauth option
+**        (d) CGI with the "localauth" setting in the cgi script.
+**
+** For maximum security, set "localauth" to 1.  However, because
+** of the other restrictions (2) through (4), it should be safe
+** to leave "localauth" set to 0 in most installations, and 
+** especially on cloned repositories on workstations. Leaving
+** "localauth" at 0 makes the "fossil ui" command more convenient
+** to use.
+*/
+/*
+** SETTING: lock-timeout  width=25 default=60
+** This is the number of seconds that a check-in lock will be held on
+** the server before the lock expires.  The default is a 60-second delay.
+** Set this value to zero to disable the check-in lock mechanism.
+**
+** This value should be set on the server to which users auto-sync
+** their work.  This setting has no affect on client repositories.  The
+** check-in lock mechanism is only effective if all users are auto-syncing
+** to the same server.
+**
+** Check-in locks are an advisory mechanism designed to help prevent
+** accidental forks due to a check-in race in installations where many
+** user are  committing to the same branch and auto-sync is enabled.
+** As forks are harmless, there is no danger in disabling this mechanism.
+** However, keeping check-in locks turned on can help prevent unnecessary
+** confusion.
 */
 /*
 ** SETTING: main-branch      width=40 default=trunk
@@ -3250,6 +3480,13 @@ struct Setting {
 ** then a direct HTTP connection is used.
 */
 /*
+** SETTING: redirect-to-https   default=0 width=-1
+** Specifies whether or not to redirect http:// requests to
+** https:// URIs. A value of 0 (the default) means not to
+** redirect, 1 means to redirect only the /login page, and 2
+** means to always redirect.
+*/
+/*
 ** SETTING: relative-paths   boolean default=on
 ** When showing changes and extras, report paths relative
 ** to the current working directory.
@@ -3259,6 +3496,27 @@ struct Setting {
 ** Compute checksums over all files in each checkout as a double-check
 ** of correctness.  Disable this on large repositories for a performance
 ** improvement.
+*/
+/*
+** SETTING: repolist-skin    width=2 default=0
+** If non-zero then use this repository as the skin for a repository list
+** such as created by the one of:
+**
+**    1)  fossil server DIRECTORY --repolist
+**    2)  fossil ui DIRECTORY --repolist
+**    3)  fossil http DIRECTORY --repolist
+**    4)  (The "repolist" option in a CGI script)
+**    5)  fossil all ui
+**    6)  fossil all server
+**
+** All repositories are searched (in lexicographical order) and the first
+** repository with a non-zero "repolist-skin" value is used as the skin
+** for the repository list page.  If none of the repositories on the list
+** have a non-zero "repolist-skin" setting then the repository list is
+** displayed using unadorned HTML ("skinless").
+**
+** If repolist-skin has a value of 2, then the repository is omitted from
+** the list in use cases 1 through 4, but not for 5 and 6.
 */
 /*
 ** SETTING: self-register    boolean default=off
@@ -3305,12 +3563,18 @@ struct Setting {
 ** expressions and scripts.
 */
 /*
-** SETTING: tcl-setup        width=40 versionable block-text
+** SETTING: tcl-setup        width=40 block-text
 ** This is the setup script to be evaluated after creating
 ** and initializing the Tcl interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 #endif /* FOSSIL_ENABLE_TCL */
+/*
+** SETTING: tclsh            width=80 default=tclsh
+** Name of the external TCL interpreter used for such things
+** as running the GUI diff viewer launched by the --tk option
+** of the various "diff" commands.
+*/
 #ifdef FOSSIL_ENABLE_TH1_DOCS
 /*
 ** SETTING: th1-docs         boolean default=off
@@ -3331,13 +3595,13 @@ struct Setting {
 */
 #endif
 /*
-** SETTING: th1-setup        width=40 versionable block-text
+** SETTING: th1-setup        width=40 block-text
 ** This is the setup script to be evaluated after creating
 ** and initializing the TH1 interpreter.  By default, this
 ** is empty and no extra setup is performed.
 */
 /*
-** SETTING: th1-uri-regexp   width=40 versionable block-text
+** SETTING: th1-uri-regexp   width=40 block-text
 ** Specify which URI's are allowed in HTTP requests from
 ** TH1 scripts.  If empty, no HTTP requests are allowed
 ** whatsoever.
@@ -3664,4 +3928,147 @@ void test_database_name_cmd(void){
   fossil_print("Repository database: %s\n", g.zRepositoryName);
   fossil_print("Local database:      %s\n", g.zLocalDbName);
   fossil_print("Config database:     %s\n", g.zConfigDbName);
+}
+
+/*
+** Compute a "fingerprint" on the repository.  A fingerprint is used
+** to verify that that the repository has not been replaced by a clone
+** of the same repository.  More precisely, a fingerprint are used to
+** verify that the mapping between SHA3 hashes and RID values is unchanged.
+**
+** The checkout database ("localdb") stores RID values.  When associating
+** a checkout database against a repository database, it is useful to verify
+** the fingerprint so that we know tha the RID values in the checkout
+** database still correspond to the correct entries in the BLOB table of
+** the repository.
+**
+** The fingerprint is based on the RCVFROM table.  When constructing a
+** new fingerprint, use the most recent RCVFROM entry.  (Set rcvid==0 to
+** accomplish this.)  When verifying an old fingerprint, use the same
+** RCVFROM entry that generated the fingerprint in the first place.
+**
+** The fingerprint consists of the rcvid, a "/", and the MD5 checksum of
+** the remaining fields of the RCVFROM table entry.  MD5 is used for this
+** because it is 4x faster than SHA3 and 5x faster than SHA1, and there
+** are no security concerns - this is just a checksum, not a security
+** token.
+*/
+char *db_fingerprint(int rcvid, int iVersion){ 
+  char *z = 0;
+  Blob sql = BLOB_INITIALIZER;
+  Stmt q;
+  if( iVersion==0 ){
+    /* The original fingerprint algorithm used "quote(mtime)".  But this
+    ** could give slightly different answers depending on how the floating-
+    ** point hardware is configured.  For example, it gave different
+    ** answers on native Linux versus running under valgrind.  */
+    blob_append_sql(&sql,
+      "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
+      "  FROM rcvfrom"
+    );
+  }else{
+    /* These days, we use "datetime(mtime)" for more consistent answers */
+    blob_append_sql(&sql,
+      "SELECT rcvid, quote(uid), datetime(mtime), quote(nonce), quote(ipaddr)"
+      "  FROM rcvfrom"
+    );
+  }
+  if( rcvid<=0 ){
+    blob_append_sql(&sql, " ORDER BY rcvid DESC LIMIT 1");
+  }else{
+    blob_append_sql(&sql, " WHERE rcvid=%d", rcvid);
+  }
+  db_prepare_blob(&q, &sql);
+  blob_reset(&sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    int i;
+    md5sum_init();
+    for(i=1; i<=4; i++){
+      md5sum_step_text(db_column_text(&q,i),-1);
+    }
+    z = mprintf("%d/%s",db_column_int(&q,0),md5sum_finish(0));
+  }
+  db_finalize(&q);
+  return z;
+}
+
+/*
+** COMMAND: test-fingerprint
+**
+** Usage: %fossil test-fingerprint ?RCVID?
+**
+** Display the repository fingerprint using the supplied RCVID or
+** using the latest RCVID if not is given on the command line.
+** Show both the legacy and the newer version of the fingerprint,
+** and the currently stored fingerprint if there is one.
+*/
+void test_fingerprint(void){
+  int rcvid = 0;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
+  if( g.argc==3 ){
+    rcvid = atoi(g.argv[2]);
+  }else if( g.argc!=2 ){
+    fossil_fatal("wrong number of arguments");
+  } 
+  fossil_print("legacy:              %z\n", db_fingerprint(rcvid, 0));
+  fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
+  if( g.localOpen ){
+    fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
+    fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
+  }
+  fossil_print("Fossil version:      %s - %.10s %.19s\n", 
+    RELEASE_VERSION, MANIFEST_DATE, MANIFEST_UUID);
+}
+
+/*
+** Set the value of the "checkout" entry in the VVAR table.
+**
+** Also set "fingerprint" and "checkout-hash".
+*/
+void db_set_checkout(int rid){
+  char *z;
+  db_lset_int("checkout", rid);
+  if (rid != 0) {
+    z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+    db_lset("checkout-hash", z);
+    fossil_free(z);
+    z = db_fingerprint(0, 1);
+    db_lset("fingerprint", z);
+    fossil_free(z);
+  }
+}
+
+/*
+** Verify that the fingerprint recorded in the "fingerprint" entry
+** of the VVAR table matches the fingerprint on the currently
+** connected repository.  Return true if the fingerprint is ok, and
+** return false if the fingerprint does not match.
+*/
+int db_fingerprint_ok(void){
+  char *zCkout;   /* The fingerprint recorded in the checkout database */
+  char *zRepo;    /* The fingerprint of the repository */
+  int rc;         /* Result */
+
+  if( !db_lget_int("checkout", 0) ){
+    /* We have an empty checkout, fingerprint is still NULL. */
+    return 2;
+  }
+  zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
+  if( zCkout==0 ){
+    /* This is an older checkout that does not record a fingerprint.
+    ** We have to assume everything is ok */
+    return 2;
+  }
+  zRepo = db_fingerprint(atoi(zCkout), 1);
+  rc = fossil_strcmp(zCkout,zRepo)==0;
+  fossil_free(zRepo);
+  /* If the initial test fails, try again using the older fingerprint
+  ** algorithm */
+  if( !rc ){
+    zRepo = db_fingerprint(atoi(zCkout), 0);
+    rc = fossil_strcmp(zCkout,zRepo)==0;
+    fossil_free(zRepo);
+  }  
+  fossil_free(zCkout);
+  return rc;
 }

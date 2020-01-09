@@ -217,7 +217,7 @@ void finfo_cmd(void){
         zOut = mprintf(
            "[%S] %s (user: %s, artifact: [%S], branch: %s)",
            zCiUuid, zCom, zUser, zFileUuid, zBr);
-        comment_print(zOut, zCom, 11, iWidth, g.comFmtFlags);
+        comment_print(zOut, zCom, 11, iWidth, get_comment_format());
         fossil_free(zOut);
       }else{
         blob_reset(&line);
@@ -226,7 +226,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%8.8s ", zUser);
         blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-39.39s", zCom );
-        comment_print(blob_str(&line), zCom, 0, iWidth, g.comFmtFlags);
+        comment_print(blob_str(&line), zCom, 0, iWidth, get_comment_format());
       }
     }
     db_finalize(&q);
@@ -332,6 +332,8 @@ void finfo_page(void){
     zStyle = "Compact";
   }else if( tmFlags & TIMELINE_VERBOSE ){
     zStyle = "Verbose";
+  }else if( tmFlags & TIMELINE_CLASSIC ){
+    zStyle = "Classic";
   }else{
     zStyle = "Modern";
   }
@@ -453,6 +455,9 @@ void finfo_page(void){
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
+  if( uBg ){
+    blob_append(&title, " (color-coded by user)", -1);
+  }
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
@@ -505,7 +510,7 @@ void finfo_page(void){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
     gidx = graph_add_row(pGraph, frid>0 ? frid : fpid+1000000000,
-                         nParent, aParent, zBr, zBgClr,
+                         nParent, 0, aParent, zBr, zBgClr,
                          zUuid, 0);
     if( strncmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
@@ -575,7 +580,7 @@ void finfo_page(void){
     }
     @ user:&nbsp;\
     hyperlink_to_user(zUser, zDate, ",");
-    @ branch:&nbsp;%z(href("%R/timeline?t=%T&n=200",zBr))%h(zBr)</a>,
+    @ branch:&nbsp;%z(href("%R/timeline?t=%T",zBr))%h(zBr)</a>,
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ){
       @ size:&nbsp;%d(szFile))
     }else{
@@ -645,12 +650,13 @@ void finfo_page(void){
   db_finalize(&q);
   db_finalize(&qparent);
   if( pGraph ){
-    graph_finish(pGraph, 1);
+    graph_finish(pGraph, 0, TIMELINE_DISJOINT);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr class="timelineBottom"><td></td><td></td><td></td></tr>
+      @ <tr class="timelineBottom" id="btm-%d(iTableId)">\
+      @ <td></td><td></td><td></td></tr>
     }
   }
   @ </table>
@@ -779,7 +785,7 @@ void mlink_page(void){
        mid
     );
     @ <h1>MLINK table for check-in %h(zCI)</h1>
-    render_checkin_context(mid, 1);
+    render_checkin_context(mid, 0, 1);
     style_table_sorter();
     @ <hr />
     @ <div class='brlist'>

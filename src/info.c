@@ -119,7 +119,7 @@ void show_common_info(
   free(zTags);
   if( zComment ){
     fossil_print("comment:      ");
-    comment_print(zComment, 0, 14, -1, g.comFmtFlags);
+    comment_print(zComment, 0, 14, -1, get_comment_format());
     free(zComment);
   }
 }
@@ -182,7 +182,7 @@ static void showParentProject(void){
 ** information about that repository.
 **
 ** If the argument is a repository name, then the --verbose option shows
-** known the check-out locations for that repository and all URLs used
+** all known check-out locations for that repository and all URLs used
 ** to access the repository.  The --verbose is (currently) a no-op if
 ** the argument is the name of a object within the repository.
 **
@@ -204,6 +204,7 @@ void info_cmd(void){
   }
 
   if( g.argc==3
+   && file_isfile(g.argv[2], ExtFILE)
    && (fsize = file_size(g.argv[2], ExtFILE))>0
    && (fsize&0x1ff)==0
   ){
@@ -253,27 +254,53 @@ void info_cmd(void){
 ** Show the context graph (immediate parents and children) for
 ** check-in rid.
 */
-void render_checkin_context(int rid, int parentsOnly){
+void render_checkin_context(int rid, int rid2, int parentsOnly){
   Blob sql;
   Stmt q;
+  int rx[2];
+  int i, n;
+  rx[0] = rid;
+  rx[1] = rid2;
+  n = rid2 ? 2 : 1;
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
+
   db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM ok;"
-     "INSERT INTO ok VALUES(%d);"
-     "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
-     rid, rid
+    "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
+    "DELETE FROM ok;"
   );
-  if( !parentsOnly ){
+  for(i=0; i<n; i++){
     db_multi_exec(
-      "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rid
+      "INSERT OR IGNORE INTO ok VALUES(%d);"
+      "INSERT OR IGNORE INTO ok SELECT pid FROM plink WHERE cid=%d;",
+      rx[i], rx[i]
     );
+  }
+  if( !parentsOnly ){
+    for(i=0; i<n; i++){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO ok SELECT cid FROM plink WHERE pid=%d;", rx[i]
+      );
+      if( db_table_exists("repository","cherrypick") ){
+        db_multi_exec(
+          "INSERT OR IGNORE INTO ok "
+          "  SELECT parentid FROM cherrypick WHERE childid=%d;"
+          "INSERT OR IGNORE INTO ok "
+          "  SELECT childid FROM cherrypick WHERE parentid=%d;",
+          rx[i], rx[i]
+        );
+      }
+    }
   }
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, rid, 0);
+  www_print_timeline(&q,
+          TIMELINE_GRAPH
+         |TIMELINE_FILLGAPS
+         |TIMELINE_NOSCROLL
+         |TIMELINE_XMERGE
+         |TIMELINE_CHPICK,
+       0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
 }
 
@@ -304,7 +331,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
 }
 
@@ -337,7 +364,7 @@ void backlink_timeline_page(void){
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0);
+                     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -592,6 +619,7 @@ void ci_tags_page(void){
      "  WHERE tagxref.rid=%d;",
      rid, rid, rid
   );
+#if 0
   db_multi_exec(
     "SELECT tag.tagid, tagname, "
     "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
@@ -601,12 +629,13 @@ void ci_tags_page(void){
     " WHERE tagxref.rid=%d"
     " ORDER BY tagname /*sort*/", rid, rid, rid
   );
+#endif
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);
   blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_sql_text(&sql));
   www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, rid, 0);
+                     0, 0, 0, rid, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -614,16 +643,15 @@ void ci_tags_page(void){
 /*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
-** URL:  /ci?name=ARTIFACTID
-** URL:  /vinfo?name=ARTIFACTID
+** URL:  /ci/ARTIFACTID
+**  OR:  /ci?name=ARTIFACTID
 **
-** Display information about a particular check-in.
+** Display information about a particular check-in.  The exact
+** same information is shown on the /info page if the name query
+** parameter to /info describes a check-in.
 **
-** We also jump here from /info if the name is a check-in
-**
-** If the /ci and /vinfo pages used to differ in their default
-** diff settings, but now diff settings persist with a cookie and
-** so /ci and /vinfo behave the same.
+** The ARTIFACTID can be a unique prefix for the HASH of the check-in,
+** or a tag or branch name that identifies the check-in.
 */
 void ci_page(void){
   Stmt q1, q2, q3;
@@ -639,6 +667,7 @@ void ci_page(void){
   const char *zW;      /* URL param for ignoring whitespace */
   const char *zPage = "vinfo";  /* Page that shows diffs */
   const char *zPageHide = "ci"; /* Page that hides diffs */
+  const char *zBrName; /* Branch name */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -667,6 +696,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
+  zBrName = branch_of_rid(rid);
   
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
@@ -679,6 +709,9 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+    int okWiki = 0;
+    Blob wiki_read_links = BLOB_INITIALIZER;
+    Blob wiki_add_links = BLOB_INITIALIZER;
 
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
@@ -743,7 +776,28 @@ void ci_page(void){
                    "   AND +tag.tagname GLOB 'sym-*'", rid);
     while( db_step(&q2)==SQLITE_ROW ){
       const char *zTagName = db_column_text(&q2, 0);
-      @  | %z(href("%R/timeline?r=%T&unhide",zTagName))%h(zTagName)</a>
+      if( fossil_strcmp(zTagName,zBrName)==0 ){
+        cgi_printf(" | ");
+        style_copy_button(1, "name-br", 0, 0, "%z%h</a>",
+          href("%R/timeline?r=%T&unhide",zTagName), zTagName);
+        cgi_printf("\n");
+        if( wiki_tagid2("branch",zTagName)!=0 ){
+          blob_appendf(&wiki_read_links, " | %z%h</a>",
+              href("%R/wiki?name=branch/%h",zTagName), zTagName);
+        }else if( g.perm.Write && g.perm.WrWiki ){
+          blob_appendf(&wiki_add_links, " | %z%h</a>",
+              href("%R/wikiedit?name=branch/%h",zTagName), zTagName);
+        }
+      }else{
+        @  | %z(href("%R/timeline?t=%T&unhide",zTagName))%h(zTagName)</a>
+        if( wiki_tagid2("tag",zTagName)!=0 ){
+          blob_appendf(&wiki_read_links, " | %z%h</a>",
+              href("%R/wiki?name=tag/%h",zTagName), zTagName);
+        }else if( g.perm.Write && g.perm.WrWiki ){
+          blob_appendf(&wiki_add_links, " | %z%h</a>",
+              href("%R/wikiedit?name=tag/%h",zTagName), zTagName);
+        }
+      }
     }
     db_finalize(&q2);
     @ </td></tr>
@@ -756,9 +810,10 @@ void ci_page(void){
     @   </td>
     @ </tr>
 
-    @ <tr><th>%s(hname_alg(nUuid)):</th><td>%s(zUuid)
+    @ <tr><th>%s(hname_alg(nUuid)):</th><td>
+    style_copy_button(1, "hash-ci", 0, 2, "%.32s<wbr>%s", zUuid, zUuid+32);
     if( g.perm.Setup ){
-      @ (Record ID: %d(rid))
+      @  (Record ID: %d(rid))
     }
     @ </td></tr>
     @ <tr><th>User&nbsp;&amp;&nbsp;Date:</th><td>
@@ -777,7 +832,8 @@ void ci_page(void){
     }
     if( g.perm.Admin ){
       db_prepare(&q2,
-         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
+         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime),"
+               " blob.rcvid"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
          " WHERE blob.rid=%d",
          rid
@@ -786,16 +842,57 @@ void ci_page(void){
         const char *zIpAddr = db_column_text(&q2, 0);
         const char *zUser = db_column_text(&q2, 1);
         const char *zDate = db_column_text(&q2, 2);
+        int rcvid = db_column_int(&q2,3);
         if( zUser==0 || zUser[0]==0 ) zUser = "unknown";
         @ <tr><th>Received&nbsp;From:</th>
-        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate)</td></tr>
+        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate) \
+        @ (<a href="%R/rcvfrom?rcvid=%d(rcvid)">Rcvid %d(rcvid)</a>)</td></tr>
       }
       db_finalize(&q2);
     }
+
+    /* Only show links to read wiki pages if the users can read wiki
+    ** and if the wiki pages already exist */
+    if( g.perm.RdWiki
+     && ((okWiki = wiki_tagid2("checkin",zUuid))!=0 ||
+                 blob_size(&wiki_read_links)>0)
+     && db_get_boolean("wiki-about",1)
+    ){
+      const char *zLinks = blob_str(&wiki_read_links);
+      @ <tr><th>Wiki:</th><td>\
+      if( okWiki ){
+        @ %z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a>\
+      }else if( zLinks[0] ){
+        zLinks += 3;
+      }
+      @ %s(zLinks)</td></tr>
+    }
+
+    /* Only show links to create new wiki pages if the users can write wiki
+    ** and if the wiki pages do not already exist */
+    if( g.perm.WrWiki
+     && g.perm.RdWiki
+     && g.perm.Write
+     && (blob_size(&wiki_add_links)>0 || !okWiki)
+     && db_get_boolean("wiki-about",1)
+    ){
+      const char *zLinks = blob_str(&wiki_add_links);
+      @ <tr><th>Add&nbsp;Wiki:</th><td>\
+      if( !okWiki ){
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
+      }else if( zLinks[0] ){
+        zLinks += 3;
+      }
+      @ %s(zLinks)</td></tr>
+    }
+
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @   %z(href("%R/artifact/%!S",zUuid))manifest</a>
+      if( fossil_strcmp(zBrName, db_get("main-branch",0))!=0 ){
+        @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
+      }
+      @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
       @ | %z(href("%R/ci_tags/%!S",zUuid))tags</a>
       if( g.perm.Admin ){
         @   | %z(href("%R/mlink?ci=%!S",zUuid))mlink table</a>
@@ -807,14 +904,19 @@ void ci_page(void){
       @ </tr>
     }
     @ </table>
+    blob_reset(&wiki_read_links);
+    blob_reset(&wiki_add_links);
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
   }
   db_finalize(&q1);
+  if( !PB("nowiki") ){
+    wiki_render_associated("checkin", zUuid, 0);
+  }
   render_backlink_graph(zUuid, "<div class=\"section\">References</div>\n");
   @ <div class="section">Context</div>
-  render_checkin_context(rid, 0);
+  render_checkin_context(rid, 0, 0);
   @ <div class="section">Changes</div>
   @ <div class="sectionmenu">
   diffFlags = construct_diff_flags(diffType);
@@ -893,6 +995,8 @@ void winfo_page(void){
   Blob wiki;
   int modPending;
   const char *zModAction;
+  int tagid;
+  int ridNext;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -939,7 +1043,9 @@ void winfo_page(void){
   }
   modPending = moderation_pending_www(rid);
   @ </td></tr>
-  @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
+  @ <tr><th>Page&nbsp;Name:</th>\
+  @ <td>%z(href("%R/whistory?name=%h",pWiki->zWikiTitle))\
+  @ %h(pWiki->zWikiTitle)</a></td></tr>
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
   @ <tr><th>Original&nbsp;User:</th><td>
@@ -953,8 +1059,15 @@ void winfo_page(void){
     for(i=0; i<pWiki->nParent; i++){
       char *zParent = pWiki->azParent[i];
       @ %z(href("info/%!S",zParent))%s(zParent)</a>
+      @ %z(href("%R/wdiff?id=%!S&pid=%!S",zUuid,zParent))(diff)</a>
     }
     @ </td></tr>
+  }
+  tagid = wiki_tagid(pWiki->zWikiTitle);
+  if( tagid>0 && (ridNext = wiki_next(tagid, pWiki->rDate))>0 ){
+    char *zId = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ridNext);
+    @ <tr><th>Next</th>
+    @ <td>%z(href("%R/info/%!S",zId))%s(zId)</a></td>
   }
   @ </table>
 
@@ -1004,6 +1117,7 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
   return manifest_get(rid, CFTYPE_MANIFEST, 0);
 }
 
+#if 0 /* not used */
 /*
 ** Output a description of a check-in
 */
@@ -1062,6 +1176,7 @@ static void checkin_description(int rid){
   }
   db_finalize(&q);
 }
+#endif /* not used */
 
 
 /*
@@ -1097,19 +1212,27 @@ void vdiff_page(void){
   const char *zRe;
   const char *zW;
   const char *zGlob;
+  char *zQuery;
+  char *zMergeOrigin = 0;
   ReCompiled *pRe = 0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   login_anonymous_available();
+  load_control();
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
   cookie_render();
   zRe = P("regex");
   if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
-  if( zBranch && zBranch[0] ){
-    cgi_replace_parameter("from", mprintf("root:%s", zBranch));
+  if( zBranch && zBranch[0]==0 ) zBranch = 0;
+  if( zBranch ){
+    zQuery = mprintf("branch=%T", zBranch);
+    zMergeOrigin = mprintf("merge-in:%s", zBranch);
+    cgi_replace_parameter("from", zMergeOrigin);
     cgi_replace_parameter("to", zBranch);
+  }else{
+    zQuery = mprintf("from=%T&to=%T",PD("from",""),PD("to",""));
   }
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
@@ -1123,43 +1246,68 @@ void vdiff_page(void){
   }
   diffFlags = construct_diff_flags(diffType);
   zW = (diffFlags&DIFF_IGNORE_ALLWS)?"&w":"";
-  style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  if( zBranch==0 ){
+    style_submenu_element("Path", "%R/timeline?me=%T&you=%T", zFrom, zTo);
+  }
   if( diffType!=0 ){
-    style_submenu_element("Hide Diff", "%R/vdiff?from=%T&to=%T&diff=0%s%T%s",
-                          zFrom, zTo,
+    style_submenu_element("Hide Diff", "%R/vdiff?%s&diff=0%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( diffType!=2 ){
     style_submenu_element("Side-by-Side Diff",
-                          "%R/vdiff?from=%T&to=%T&diff=2%s%T%s",
-                          zFrom, zTo,
+                          "%R/vdiff?%s&diff=2%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
   if( diffType!=1 ) {
     style_submenu_element("Unified Diff",
-                          "%R/vdiff?from=%T&to=%T&diff=1%s%T%s",
-                          zFrom, zTo,
+                          "%R/vdiff?%s&diff=1%s%T%s",
+                          zQuery,
                           zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
   }
-  style_submenu_element("Invert",
-                        "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
-                        zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+  if( zBranch==0 ){
+    style_submenu_element("Invert",
+                          "%R/vdiff?from=%T&to=%T&%s%T%s", zTo, zFrom,
+                          zGlob ? "&glob=" : "", zGlob ? zGlob : "", zW);
+  }
   if( zGlob ){
     style_submenu_element("Clear glob",
-                          "%R/vdiff?from=%T&to=%T&%s", zFrom, zTo, zW);
+                          "%R/vdiff?%s&%s", zQuery, zW);
   }else{
     style_submenu_element("Patch", "%R/vpatch?from=%T&to=%T%s", zFrom, zTo, zW);
   }
   if( diffType!=0 ){
     style_submenu_checkbox("w", "Ignore Whitespace", 0, 0);
   }
-  style_header("Check-in Differences");
+  if( zBranch ){
+    style_header("Changes On Branch %h", zBranch);
+  }else{
+    style_header("Check-in Differences");
+  }
   if( P("nohdr")==0 ){
-    @ <h2>Difference From:</h2><blockquote>
-    checkin_description(ridFrom);
-    @ </blockquote><h2>To:</h2><blockquote>
-    checkin_description(ridTo);
-    @ </blockquote>
+    if( zBranch ){
+      char *zRealBranch = branch_of_rid(ridTo);
+      char *zToUuid = rid_to_uuid(ridTo);
+      char *zFromUuid = rid_to_uuid(ridFrom);
+      @ <h2>Changes In Branch \
+      @ %z(href("%R/timeline?r=%T",zRealBranch))%h(zRealBranch)</a>
+      if( ridTo != symbolic_name_to_rid(zRealBranch,"ci") ){
+        @ Through %z(href("%R/info/%!S",zToUuid))[%S(zToUuid)]</a>
+      }
+      @ Excluding Merge-Ins</h2>
+      @ <p>This is equivalent to a diff from
+      @ <span class='timelineSelected'>\
+      @ %z(href("%R/info/%!S",zFromUuid))%S(zFromUuid)</a></span>
+      @ to <span class='timelineSelected timelineSecondary'>\
+      @ %z(href("%R/info/%!S",zToUuid))%S(zToUuid)</a></span></p>
+    }else{
+      @ <h2>Difference From <span class='timelineSelected'>\
+      @ %z(href("%R/info/%h",zFrom))%h(zFrom)</a></span>
+      @ To <span class='timelineSelected timelineSecondary'>\
+      @ %z(href("%R/info/%h",zTo))%h(zTo)</a></span></h2>
+    }
+    render_checkin_context(ridFrom, ridTo, 0);
     if( pRe ){
       @ <p><b>Only differences that match regular expression "%h(zRe)"
       @ are shown.</b></p>
@@ -1169,6 +1317,7 @@ void vdiff_page(void){
     }
     @<hr /><p>
   }
+  fossil_free(zQuery);
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
@@ -1237,6 +1386,7 @@ void vdiff_page(void){
 ** object_description()
 */
 #define OBJDESC_DETAIL      0x0001   /* more detail */
+#define OBJDESC_BASE        0x0002   /* Set <base> using this object */
 #endif
 
 /*
@@ -1266,6 +1416,7 @@ int object_description(
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   int showDetail = (objdescFlags & OBJDESC_DETAIL)!=0;
   char *prevName = 0;
+  int bNeedBase = (objdescFlags & OBJDESC_BASE)!=0;
 
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime,toLocal()),"
@@ -1314,6 +1465,10 @@ int object_description(
         objType |= OBJTYPE_EXE;
       }else{
         @ <li>File
+        if( bNeedBase ){
+          bNeedBase = 0;
+          style_set_current_page("doc/%S/%s",zVers,zName);
+        }
       }
       objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T&m=%!S",zName,zUuid))%h(zName)</a>
@@ -1662,8 +1817,6 @@ void diff_page(void){
 void rawartifact_page(void){
   int rid = 0;
   char *zUuid;
-  const char *zMime;
-  Blob content;
 
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename(0, 0);
@@ -1679,7 +1832,44 @@ void rawartifact_page(void){
     g.isConst = 1;
   }
   free(zUuid);
-  zMime = P("m");
+  deliver_artifact(rid, P("m"));
+}
+
+
+/*
+** WEBPAGE: secureraw
+** URL: /secureraw/HASH?m=TYPE
+**
+** Return the uninterpreted content of an artifact.  This is similar
+** to /raw except in this case the only way to specify the artifact
+** is by the full-length SHA1 or SHA3 hash.  Abbreviations are not
+** accepted.
+*/
+void secure_rawartifact_page(void){
+  int rid = 0;
+  const char *zUuid = PD("name", "");
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
+  if( rid==0 ){
+    cgi_set_status(404, "Not Found");
+    @ Unknown artifact: "%h(zUuid)"
+    return;
+  }
+  g.isConst = 1;
+  deliver_artifact(rid, P("m"));
+}
+
+
+/*
+** Generate a verbatim artifact as the result of an HTTP request.
+** If zMime is not NULL, use it as the MIME-type.  If zMime is
+** NULL, guess at the MIME-type based on the filename
+** associated with the artifact.
+*/
+void deliver_artifact(int rid, const char *zMime){
+  Blob content;
   if( zMime==0 ){
     char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
                               " WHERE mlink.fid=%d"
@@ -1782,10 +1972,12 @@ void hexdump_page(void){
   }
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
+  @ <h2>Artifact
+  style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
   if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
+    @  (%d(rid)):</h2>
   }else{
-    @ <h2>Artifact %s(zUuid):</h2>
+    @ :</h2>
   }
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
@@ -1980,7 +2172,7 @@ void artifact_page(void){
   int objType;
   int asText;
   const char *zUuid;
-  u32 objdescFlags = 0;
+  u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
@@ -2051,12 +2243,18 @@ void artifact_page(void){
   if( isFile ){
     @ <h2>Latest version of file '%h(zName)':</h2>
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
-  }else if( g.perm.Setup ){
-    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
   }else{
-    @ <h2>Artifact %s(zUuid):</h2>
+    @ <h2>Artifact
+    style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
+    if( g.perm.Setup ){
+      @  (%d(rid)):</h2>
+    }else{
+      @ :</h2>
+    }
   }
   blob_zero(&downloadName);
+  asText = P("txt")!=0;
+  if( asText ) objdescFlags &= ~OBJDESC_BASE;
   objType = object_description(rid, objdescFlags, &downloadName);
   if( !descOnly && P("download")!=0 ){
     cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
@@ -2095,7 +2293,6 @@ void artifact_page(void){
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     style_submenu_element("Check-ins Using", "%R/timeline?n=200&uf=%s", zUuid);
   }
-  asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
@@ -2121,9 +2318,6 @@ void artifact_page(void){
   if( descOnly ){
     style_submenu_element("Content", "%R/artifact/%s", zUuid);
   }else{
-    if( zLn==0 || atoi(zLn)==0 ){
-      style_submenu_checkbox("ln", "Line Numbers", 0, 0);
-    }
     @ <hr />
     content_get(rid, &content);
     if( renderAsWiki ){
@@ -2131,27 +2325,46 @@ void artifact_page(void){
     }else if( renderAsHtml ){
       @ <iframe src="%R/raw/%T(blob_str(&downloadName))?name=%s(zUuid)"
       @ width="100%%" frameborder="0" marginwidth="0" marginheight="0"
-      @ sandbox="allow-same-origin"
-      @ onload="this.height=this.contentDocument.documentElement.scrollHeight;">
+      @ sandbox="allow-same-origin" id="ifm1">
       @ </iframe>
+      @ <script nonce="%h(style_nonce())">
+      @ document.getElementById("ifm1").addEventListener("load",
+      @   function(){
+      @     this.height=this.contentDocument.documentElement.scrollHeight + 75;
+      @   }
+      @ );
+      @ </script>
     }else{
       style_submenu_element("Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
+      if( zLn==0 || atoi(zLn)==0 ){
+        style_submenu_checkbox("ln", "Line Numbers", 0, 0);
+      }
       blob_to_utf8_no_bom(&content, 0);
       zMime = mimetype_from_content(&content);
       @ <blockquote>
       if( zMime==0 ){
-        const char *z;
+        const char *z, *zFileName, *zExt;
         z = blob_str(&content);
+        zFileName = db_text(0,
+         "SELECT name FROM mlink, filename"
+         " WHERE filename.fnid=mlink.fnid"
+         "   AND mlink.fid=%d",
+         rid);
+        zExt = zFileName ? strrchr(zFileName, '.') : 0;
         if( zLn ){
           output_text_with_line_numbers(z, zLn);
+        }else if( zExt && zExt[1] ){
+          @ <pre>
+          @ <code class="language-%s(zExt+1)">%h(z)</code>
+          @ </pre>
         }else{
           @ <pre>
           @ %h(z)
           @ </pre>
         }
       }else if( strncmp(zMime, "image/", 6)==0 ){
-        @ <i>(file is %d(blob_size(&content)) bytes of image data)</i><br />
-        @ <img src="%R/raw/%s(zUuid)?m=%s(zMime)" />
+        @ <p>(file is %d(blob_size(&content)) bytes of image data)</i></p>
+        @ <p><img src="%R/raw/%s(zUuid)?m=%s(zMime)"></p>
         style_submenu_element("Image", "%R/raw/%s?m=%s", zUuid, zMime);
       }else{
         @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
@@ -2300,6 +2513,7 @@ void info_page(void){
   if( rc==1 ){
     if( validate16(zName, nLen) ){
       if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        cgi_set_parameter_nocopy("tl","1",0);
         tktview_page();
         return;
       }
@@ -2474,7 +2688,13 @@ static void change_branch(int rid, const char *zNewBranch){
 ** The apply_newtags method is called after all newtags have been added
 ** and the control artifact is completed and then written to the DB.
 */
-static void apply_newtags(Blob *ctrl, int rid, const char *zUuid){
+static void apply_newtags(
+  Blob *ctrl,
+  int rid,
+  const char *zUuid,
+  const char *zUserOvrd,  /* The user name on the control artifact */
+  int fDryRun             /* Print control artifact, but make no changes */
+){
   Stmt q;
   int nChng = 0;
 
@@ -2495,15 +2715,25 @@ static void apply_newtags(Blob *ctrl, int rid, const char *zUuid){
   if( nChng>0 ){
     int nrid;
     Blob cksum;
-    blob_appendf(ctrl, "U %F\n", login_name());
+    if( zUserOvrd && zUserOvrd[0] ){
+      blob_appendf(ctrl, "U %F\n", zUserOvrd);
+    }else{
+      blob_appendf(ctrl, "U %F\n", login_name());
+    }
     md5sum_blob(ctrl, &cksum);
     blob_appendf(ctrl, "Z %b\n", &cksum);
-    db_begin_transaction();
-    g.markPrivate = content_is_private(rid);
-    nrid = content_put(ctrl);
-    manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
+    if( fDryRun ){
+      assert( g.isHTTP==0 ); /* Only print control artifact in console mode. */
+      fossil_print("%s", blob_str(ctrl));
+      blob_reset(ctrl);
+    }else{
+      db_begin_transaction();
+      g.markPrivate = content_is_private(rid);
+      nrid = content_put(ctrl);
+      manifest_crosslink(nrid, ctrl, MC_PERMIT_HOOKS);
+      db_end_transaction(0);
+    }
     assert( blob_is_reset(ctrl) );
-    db_end_transaction(0);
   }
 }
 
@@ -2643,7 +2873,7 @@ void ci_edit_page(void){
     if( zCloseFlag[0] ) close_leaf(rid);
     if( zNewTagFlag[0] && zNewTag[0] ) add_tag(zNewTag);
     if( zNewBrFlag[0] && zNewBranch[0] ) change_branch(rid,zNewBranch);
-    apply_newtags(&ctrl, rid, zUuid);
+    apply_newtags(&ctrl, rid, zUuid, 0, 0);
     cgi_redirectf("%R/ci/%S", zUuid);
   }
   blob_zero(&comment);
@@ -2784,7 +3014,7 @@ void ci_edit_page(void){
   @ </td></tr>
 
   if( !zBranchName ){
-    zBranchName = db_get("main-branch", "trunk");
+    zBranchName = db_get("main-branch", 0);
   }
   if( !zNewBranch || !zNewBranch[0]){
     zNewBranch = zBranchName;
@@ -2897,6 +3127,9 @@ static void prepare_amend_comment(
 **    --branch NAME           Make this check-in the start of branch NAME
 **    --hide                  Hide branch starting from this check-in
 **    --close                 Mark this "leaf" as closed
+**    -n|--dry-run            Print control artifact, but make no changes
+**    --date-override DATETIME  Set the change time on the control artifact
+**    --user-override USER      Set the user name on the control artifact
 **
 ** DATETIME may be "now" or "YYYY-MM-DDTHH:MM:SS.SSS". If in
 ** year-month-day form, it may be truncated, the "T" may be replaced by
@@ -2926,7 +3159,9 @@ void ci_amend_cmd(void){
   int fHasHidden = 0;           /* True if hidden tag already set */
   int fHasClosed = 0;           /* True if closed tag already set */
   int fEditComment;             /* True if editor to be used for comment */
+  int fDryRun;                  /* Print control artifact, make no changes */
   const char *zChngTime;        /* The change time on the control artifact */
+  const char *zUserOvrd;        /* The user name on the control artifact */
   const char *zUuid;
   Blob ctrl;
   Blob comment;
@@ -2952,7 +3187,11 @@ void ci_amend_cmd(void){
   pzCancelTags = find_repeatable_option("cancel",0,&nCancels);
   fClose = find_option("close",0,0)!=0;
   fHide = find_option("hide",0,0)!=0;
-  zChngTime = find_option("chngtime",0,1);
+  fDryRun = find_option("dry-run","n",0)!=0;
+  if( fDryRun==0 ) fDryRun = find_option("dryrun","n",0)!=0;
+  zChngTime = find_option("date-override",0,1);
+  if( zChngTime==0 ) zChngTime = find_option("chngtime",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_find_and_open_repository(0,0);
   user_select();
   verify_all_options();
@@ -3048,6 +3287,11 @@ void ci_amend_cmd(void){
   if( fHide && !fHasHidden ) hide_branch();
   if( fClose && !fHasClosed ) close_leaf(rid);
   if( zNewBranch && zNewBranch[0] ) change_branch(rid,zNewBranch);
-  apply_newtags(&ctrl, rid, zUuid);
-  show_common_info(rid, "uuid:", 1, 0);
+  apply_newtags(&ctrl, rid, zUuid, zUserOvrd, fDryRun);
+  if( fDryRun==0 ){
+    show_common_info(rid, "uuid:", 1, 0);
+  }
+  if( g.localOpen ){
+    manifest_to_disk(rid);
+  }
 }

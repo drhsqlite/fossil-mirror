@@ -6,7 +6,7 @@ files stored in a Fossil repository without history.
 Only the newest version of each unversioned file is retained.
 
 Though history is omitted, unversioned content is synced between
-respositories.  In the event of a conflict during a sync, the most recent
+repositories.  In the event of a conflict during a sync, the most recent
 version of each unversioned file is retained and older versions are discarded.
 
 Unversioned files are useful for storing ephemeral content such as builds
@@ -22,7 +22,7 @@ Unversioned files are intended to be accessible as web pages using
 URLs of the form:  "http://domain/cgi-script/<b>uv</b>/<i>FILENAME</i>".
 In other words, the URI method "<b>uv</b>" (short for "unversioned")
 followed by the name of the unversioned file will retrieve the content
-of the file.  The mimetype is inferred from the filename suffix.
+of the file.  The MIME type is inferred from the filename suffix.
 
 The content of unversioned files can also be retrieved using the
 [/help?cmd=unversioned|fossil unvers cat <i>FILENAME</i>] command.
@@ -32,7 +32,7 @@ the [/help?cmd=/uvlist|/uvlist] URL.  ([/uvlist|example]).
 
 <h2>Syncing Unversioned Files</h2>
 
-Unversioned content is synced between respositories, though not by default.
+Unversioned content is synced between repositories, though not by default.
 Special commands or command-line options are required.
 Unversioned content can be synced using the following commands:
 

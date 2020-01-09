@@ -57,7 +57,7 @@ Contributors are required to following the
 the Fossil self-hosting repository.  This checklist is short and succinct
 and should only require a few seconds to follow.  Contributors
 should print out a copy of the pre-checkin checklist and keep
-it on a notecard beside their workstations, for quick reference.
+it on a note card beside their workstations, for quick reference.
 
 Contributors should review the
 [./style.wiki | Coding Style Guidelines] and mimic the coding style

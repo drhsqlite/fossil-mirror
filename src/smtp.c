@@ -21,11 +21,23 @@
 #include "config.h"
 #include "smtp.h"
 #include <assert.h>
-#if defined(__linux__) && !defined(FOSSIL_OMIT_DNS)
+#if (HAVE_DN_EXPAND || HAVE___NS_NAME_UNCOMPRESS || HAVE_NS_NAME_UNCOMPRESS) && \
+    (HAVE_NS_PARSERR || HAVE___NS_PARSERR) && !defined(FOSSIL_OMIT_DNS)
 #  include <sys/types.h>
 #  include <netinet/in.h>
-#  include <arpa/nameser.h>
-#  include <resolv.h>
+#  if defined(HAVE_BIND_RESOLV_H)
+#    include <bind/resolv.h>
+#    include <bind/arpa/nameser_compat.h>
+#  else
+#    include <arpa/nameser.h>
+#    include <resolv.h>
+#  endif
+#  if defined(HAVENS_NAME_UNCOMPRESS) && !defined(dn_expand)
+#    define dn_expand ns_name_uncompress
+#  endif
+#  if defined(HAVE__NS_NAME_UNCOMPRESS) && !defined(dn_expand)
+#    define dn_expand __ns_name_uncompress
+#  endif
 #  define FOSSIL_UNIX_STYLE_DNS 1
 #endif
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
@@ -79,8 +91,7 @@ char *smtp_mx_host(const char *zDomain){
     }
   }
   if( pBest ){
-    ns_name_uncompress(aDns, aDns+nDns, pBest+2,
-                       zHostname, sizeof(zHostname));
+    dn_expand(aDns, aDns+nDns, pBest+2, zHostname, sizeof(zHostname));
     return fossil_strdup(zHostname);
   }
   return 0;
@@ -107,7 +118,7 @@ char *smtp_mx_host(const char *zDomain){
     p = p->pNext;
   }
   if( pBest ){
-    pBest = fossil_strdup(pBest); 
+    pBest = fossil_strdup(pBest);
   }
   DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
   return pBest;
@@ -589,6 +600,7 @@ static const char *domainOfAddr(const char *z){
 ** Options:
 **
 **      --direct              Go directly to the TO domain.  Bypass MX lookup
+**      --relayhost R         Use R as relay host directly for delivery.
 **      --port N              Use TCP port N instead of 25
 **      --trace               Show the SMTP conversation on the console
 */
@@ -598,6 +610,7 @@ void test_smtp_send(void){
   int nTo;
   const char *zToDomain;
   const char *zFromDomain;
+  const char *zRelay;
   const char **azTo;
   int smtpPort = 25;
   const char *zPort;
@@ -607,6 +620,7 @@ void test_smtp_send(void){
   if( find_option("direct",0,0)!=0 ) smtpFlags |= SMTP_DIRECT;
   zPort = find_option("port",0,1);
   if( zPort ) smtpPort = atoi(zPort);
+  zRelay = find_option("relayhost",0,1);
   verify_all_options();
   if( g.argc<5 ) usage("EMAIL FROM TO ...");
   blob_read_from_file(&body, g.argv[2], ExtFILE);
@@ -614,7 +628,12 @@ void test_smtp_send(void){
   nTo = g.argc-4;
   azTo = (const char**)g.argv+4;
   zFromDomain = domainOfAddr(zFrom);
-  zToDomain = domainOfAddr(azTo[0]);
+  if( zRelay!=0 && zRelay[0]!= 0) {
+    smtpFlags |= SMTP_DIRECT;
+    zToDomain = zRelay;
+  }else{
+    zToDomain = domainOfAddr(azTo[0]);
+  }
   p = smtp_session_new(zFromDomain, zToDomain, smtpFlags, smtpPort);
   if( p->zErr ){
     fossil_fatal("%s", p->zErr);
@@ -637,7 +656,7 @@ void test_smtp_send(void){
 /*
 ** Schema used by the email processing system.
 */
-static const char zEmailSchema[] = 
+static const char zEmailSchema[] =
 @ -- bulk storage is in this table.  This table can store either
 @ -- the body of email messages or transcripts of an smtp session.
 @ CREATE TABLE IF NOT EXISTS repository.emailblob(
@@ -894,7 +913,7 @@ smtp_route_edit:
   @ </table>
   @ <hr>
   @ <h1>Instructions</h1>
-  @ 
+  @
   @ <p>The "Routing" field consists of zero or more lines where each
   @ line is an "action" followed by an "argument".  Available actions:
   @ <ul>
@@ -904,7 +923,7 @@ smtp_route_edit:
   @ <p>Store the message in the local mailbox for the user
   @ with USER.LOGIN=<i>login-name</i>.
   @ </ul>
-  @ 
+  @
   @ <p>To delete a route &rarr; erase all text from the "Routing" field then
   @ press the "Apply" button.
   style_footer();
@@ -942,7 +961,7 @@ struct SmtpServer {
 
 /*
 ** Clear the SmtpServer object.  Deallocate resources.
-** How much to clear depends on eHowMuch 
+** How much to clear depends on eHowMuch
 */
 static void smtp_server_clear(SmtpServer *p, int eHowMuch){
   int i;
@@ -1086,7 +1105,7 @@ static void smtp_server_send_one_user(
   char *zPolicy;
   Blob policy, line, token, tail;
 
-  zPolicy = db_text(0, 
+  zPolicy = db_text(0,
     "SELECT epolicy FROM emailroute WHERE eaddr=%Q", zAddr);
   if( zPolicy==0 ){
     if( okRemote ){
@@ -1195,7 +1214,7 @@ static void smtp_server_route_incoming(SmtpServer *p, int bFinish){
     /* Fix up the emailblob.enref field of the email message body */
     if( p->nRef ){
       db_multi_exec(
-        "UPDATE emailblob SET enref=%d WHERE emailid=%lld", 
+        "UPDATE emailblob SET enref=%d WHERE emailid=%lld",
         p->nRef, p->idMsg
       );
     }else{
@@ -1277,7 +1296,7 @@ void test_refcheck_emailblob(void){
     }
   }
   blob_init(&sql, 0, 0);
-  blob_append_sql(&sql, 
+  blob_append_sql(&sql,
     "SELECT a.emailid, a.enref, b.n"
     "  FROM emailblob AS a JOIN refcnt AS b ON a.emailid=b.id"
   );
@@ -1301,7 +1320,7 @@ void test_refcheck_emailblob(void){
 
 
 /*
-** COMMAND: smtpd
+** COMMAND: smtpd*
 **
 ** Usage: %fossil smtpd [OPTIONS] REPOSITORY
 **
@@ -1448,7 +1467,7 @@ static int pop3_login(const char *zUser, char *zPass){
 }
 
 /*
-** COMMAND: pop3d
+** COMMAND: pop3d*
 **
 ** Usage: %fossil pop3d [OPTIONS] REPOSITORY
 **
@@ -1505,7 +1524,7 @@ void pop3d_command(void){
       break;
     }
     if( strcmp(zCmd,"capa")==0 ){
-      static const char *azCap[] = {
+      static const char *const azCap[] = {
           "TOP", "USER", "UIDL",
       };
       int i;
@@ -1543,7 +1562,7 @@ void pop3d_command(void){
             zUser
           );
           goto cmd_ok;
-        }   
+        }
       }
       /* Fossil cannot process APOP since the users clear-text password is
       ** unknown. */

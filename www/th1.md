@@ -169,8 +169,10 @@ features of Fossil.  The following is a summary of the extended commands:
   *  anoncap
   *  anycap
   *  artifact
+  *  cgiHeaderLine
   *  checkout
   *  combobox
+  *  copybtn
   *  date
   *  decorate
   *  dir
@@ -188,6 +190,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  insertCsrf
   *  linecount
   *  markdown
+  *  nonce
   *  puts
   *  query
   *  randhex
@@ -214,6 +217,7 @@ features of Fossil.  The following is a summary of the extended commands:
   *  unversioned list
   *  utime
   *  verifyCsrf
+  *  verifyLogin
   *  wiki
 
 Each of the commands above is documented by a block comment above their
@@ -249,6 +253,13 @@ Attempts to locate the specified artifact and return its contents.  An
 error is generated if the repository is not open or the artifact cannot
 be found.
 
+<a name="cgiHeaderLine"></a>TH1 cgiHeaderLine Command
+-----------------------------------------------------
+
+  *  cgiHeaderLine line
+
+Adds the specified line to the CGI header.
+
 <a name="checkout"></a>TH1 checkout Command
 -------------------------------------------
 
@@ -269,6 +280,28 @@ CGI parameter and the name of a variable that contains the currently
 selected value.  TEXT-LIST is a list of possible values for the
 combobox.  NUMLINES is 1 for a true combobox.  If NUMLINES is greater
 than one then the display is a listbox with the number of lines given.
+
+<a name="copybtn"></a>TH1 copybtn Command
+-----------------------------------------
+
+  *  copybtn TARGETID FLIPPED TEXT ?COPYLENGTH?
+
+Output TEXT with a click-to-copy button next to it. Loads the copybtn.js
+Javascript module, and generates HTML elements with the following IDs:
+
+  *  TARGETID:       The `<span>` wrapper around TEXT.
+  *  copy-TARGETID:  The `<span>` for the copy button.
+
+If the FLIPPED argument is non-zero, the copy button is displayed after TEXT.
+
+The optional COPYLENGTH argument defines the length of the substring of TEXT
+copied to clipboard:
+
+  *  <= 0:   No limit (default if the argument is omitted).
+  *  >= 3:   Truncate TEXT after COPYLENGTH (single-byte) characters.
+  *     1:   Use the "hash-digits" setting as the limit.
+  *     2:   Use the length appropriate for URLs as the limit (defined at
+             compile-time by `FOSSIL_HASH_DIGITS_URL`, defaults to 16).
 
 <a name="date"></a>TH1 date Command
 -----------------------------------
@@ -303,7 +336,7 @@ time zone configured for the repository).
 
   *  enable\_output BOOLEAN
 
-Enable or disable sending output when the combobox, puts, or wiki
+Enable or disable sending output when the combobox, copybtn, puts, or wiki
 commands are used.
 
 <a name="encode64"></a>TH1 encode64 Command
@@ -446,6 +479,13 @@ never returns less than MIN or more than MAX.
 Renders the input string as markdown.  The result is a two-element list.
 The first element contains the body, rendered as HTML.  The second element
 is the text-only title string.
+
+<a name="nonce"></a>TH1 nonce Command
+-------------------------------------
+
+  *  nonce
+
+Returns the value of the cryptographic nonce for the request being processed.
 
 <a name="puts"></a>TH1 puts Command
 -----------------------------------
@@ -696,6 +736,14 @@ that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
 is missing or is incorrect, that indicates a cross-site scripting attack.
 If the event of an attack is detected, an error message is generated and
 all further processing is aborted.
+
+<a name="verifyLogin"></a>TH1 verifyLogin Command
+-------------------------------------------------
+
+  *  verifyLogin
+
+Returns non-zero if the specified user name and password represent a
+valid login for the repository.
 
 <a name="wiki"></a>TH1 wiki Command
 -----------------------------------

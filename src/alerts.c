@@ -112,7 +112,7 @@ int alert_tables_exist(void){
 void alert_schema(int bOnlyIfEnabled){
   if( !alert_tables_exist() ){
     if( bOnlyIfEnabled
-     && fossil_strcmp(db_get("email-send-method","off"),"off")==0
+     && fossil_strcmp(db_get("email-send-method",0),"off")==0
     ){
       return;  /* Don't create table for disabled email */
     }
@@ -160,7 +160,7 @@ void alert_triggers_disable(void){
 */
 int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
-  if( fossil_strcmp(db_get("email-send-method","off"),"off")==0 ) return 0;
+  if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
 }
 
@@ -484,7 +484,7 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
   if( zAltDest ){
     p->zDest = zAltDest;
   }else{
-    p->zDest = db_get("email-send-method","off");
+    p->zDest = db_get("email-send-method",0);
   }
   if( fossil_strcmp(p->zDest,"off")==0 ) return p;
   if( emailerGetSetting(p, &p->zFrom, "email-self") ) return p;
@@ -806,7 +806,9 @@ void alert_send(
     pOut = &all;
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
-  if( zFromName ){
+  if( p->zFrom==0 || p->zFrom[0]==0 ){
+    return;  /* email-self is not set.  Error will be reported separately */
+  }else if( zFromName ){
     blob_appendf(pOut, "From: %s <%s@%s>\r\n",
        zFromName, alert_mailbox_name(zFromName), alert_hostname(p->zFrom));
     blob_appendf(pOut, "X-Fossil-From: <%s>\r\n", p->zFrom);
@@ -848,7 +850,7 @@ void alert_send(
     FILE *out = popen(p->zCmd, "w");
     if( out ){
       fwrite(blob_buffer(&all), 1, blob_size(&all), out);
-      fclose(out);
+      pclose(out);
     }else{
       emailerError(p, "Could not open output pipe \"%s\"", p->zCmd);
     }
@@ -924,7 +926,7 @@ void alert_send(
 
 
 /*
-** COMMAND: alerts
+** COMMAND: alerts*
 ** 
 ** Usage: %fossil alerts SUBCOMMAND ARGS...
 **
@@ -2003,7 +2005,10 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   /* First do non-forum post events */
   db_prepare(&q,
     "SELECT"
-    " blob.uuid,"                /* 0 */
+    " CASE WHEN event.type='t'"
+         " THEN (SELECT substr(tagname,5) FROM tag"
+                " WHERE tagid=event.tagid AND tagname LIKE 'tkt-%%')"
+         " ELSE blob.uuid END,"  /* 0 */
     " datetime(event.mtime),"    /* 1 */
     " coalesce(ecomment,comment)"
     "  || ' (user: ' || coalesce(euser,user,'?')"
@@ -2037,8 +2042,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
       case 'f':  zType = "Forum post";      break;
-      case 't':  zType = "Wiki Edit";       break;
-      case 'w':  zType = "Ticket Change";   break;
+      case 't':  zType = "Ticket Change";   break;
+      case 'w':  zType = "Wiki Edit";       break;
     }
     blob_init(&p->hdr, 0, 0);
     blob_init(&p->txt, 0, 0);
@@ -2428,14 +2433,17 @@ void alert_send_alerts(u32 flags){
       if( strchr(zSub,p->type)==0 ) continue;
       if( p->needMod ){
         /* For events that require moderator approval, only send an alert
-        ** if the recipient is a moderator for that type of event */
+        ** if the recipient is a moderator for that type of event.  Setup
+        ** and Admin users always get notified. */
         char xType = '*';
-        switch( p->type ){
-          case 'f':  xType = '5';  break;
-          case 't':  xType = 'q';  break;
-          case 'w':  xType = 'l';  break;
+        if( strpbrk(zCap,"as")==0 ){
+          switch( p->type ){
+            case 'f':  xType = '5';  break;
+            case 't':  xType = 'q';  break;
+            case 'w':  xType = 'l';  break;
+          }
+          if( strchr(zCap,xType)==0 ) continue;
         }
-        if( strchr(zCap,xType)==0 ) continue;
       }else if( strchr(zCap,'s')!=0 || strchr(zCap,'a')!=0 ){
         /* Setup and admin users can get any notification that does not
         ** require moderation */
@@ -2700,8 +2708,7 @@ void announce_page(void){
     @ <p style='border: 1px solid black; padding: 1ex;'>
     cgi_print_all(0, 0);
     @ </p>
-  }else
-  if( P("submit")!=0 && cgi_csrf_safe(1) ){
+  }else if( P("submit")!=0 && cgi_csrf_safe(1) ){
     char *zErr = alert_send_announcement();
     style_header("Announcement Sent");
     if( zErr ){
@@ -2715,7 +2722,14 @@ void announce_page(void){
     }
     style_footer();    
     return;
+  } else if( !alert_enabled() ){
+    style_header("Cannot Send Announcement");
+    @ <p>Either you have no subscribers yet, or email alerts are not yet
+    @ <a href="https://fossil-scm.org/fossil/doc/trunk/www/alerts.md">set up</a>
+    @ for this repository.</p>
+    return;
   }
+
   style_header("Send Announcement");
   @ <form method="POST">
   @ <table class="subscribe">

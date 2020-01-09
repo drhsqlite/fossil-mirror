@@ -40,11 +40,14 @@ tr.timelineCurrent {
   border: 1px dashed #446979;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
-tr.timelineSelected {
+.timelineSelected {
   padding: .1em .2em;
   border: 2px solid lightgray;
   background-color: #ffc;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+.timelineSecondary {
+  background-color: #cff;
 }
 tr.timelineSelected td {
   border-radius: 0;
@@ -161,6 +164,28 @@ span.timelineEllipsis {
 .tl-line.merge {
   width: 1px;
 }
+.tl-arrow.cherrypick {
+  height: 1px;
+  border-width: 2px 0;
+}
+.tl-arrow.cherrypick.l {
+  border-right: 3px solid #000;
+}
+.tl-arrow.cherrypick.r {
+  border-left: 3px solid #000;
+}
+.tl-line.cherrypick.h {
+  width: 0px;
+  border-top: 1px dashed #000;
+  border-left: 0px dashed #000;
+  background: rgba(255,255,255,0);
+}
+.tl-line.cherrypick.v {
+  width: 0px;
+  border-top: 0px dashed #000;
+  border-left: 1px dashed #000;
+  background: rgba(255,255,255,0);
+}
 .tl-arrow.warp {
   margin-left: 1px;
   border-width: 3px 0;
@@ -169,6 +194,22 @@ span.timelineEllipsis {
 .tl-line.warp {
   background: #600000;
 }
+.tl-line.dotted.v {
+  width: 0px;
+  border-left-width: 2px;
+  border-left-style: dotted;
+  background: rgba(255,255,255,0);
+}
+.tl-tooltip {
+  text-align: center;
+  padding: 5px 1em;
+  border: 1px solid black;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 100;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.75);
+}
+
 span.tagDsp {
   font-weight: bold;
 }
@@ -197,8 +238,9 @@ div.columns > ul {
 div.columns > ul li:first-child {
   margin-top:0px;
 }
-div.columns li {
+.columns li {
   break-inside: avoid;
+  page-break-inside: avoid;
 }
 .filetree {
   margin: 1em 0;
@@ -415,6 +457,12 @@ td.tktDspValue {
   text-align: left;
   vertical-align: top;
   background-color: #d0d0d0;
+}
+td.tktTlOpen {
+  color: #800;
+}
+td.tktTlClosed {
+  color: #888;
 }
 span.tktError {
   color: red;
@@ -728,5 +776,28 @@ div.forumObs {
   background-color: #ffb;
 }
 label {
+  white-space: nowrap;
+}
+.copy-button {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+//Note: .24em is slightly smaller than the average width of a normal space.
+  margin: -2px .24em 0 0;
+  padding: 0;
+  border: 0;
+  vertical-align: middle;
+//Note: the mkcss utility does not support line breaks in data URIs.
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0,0,14,14'%3E%3Cpath style='fill:black;opacity:0' d='M14,14H0V0h14v14z'/%3E%3Cpath style='fill:rgb(240,240,240)' d='M1,0h6.6l2,2h1l3.4,3.4v8.6h-10v-2h-3z'/%3E%3Cpath style='fill:rgb(64,64,64)' d='M2,1h5l3,3v7h-8z'/%3E%3Cpath style='fill:rgb(248,248,248)' d='M3,2h3.6l2.4,2.4v5.6h-6z'/%3E%3Cpath style='fill:rgb(80,128,208)' d='M4,5h4v1h-4zm0,2h4v1h-4z'/%3E%3Cpath style='fill:rgb(64,64,64)' d='M5,3h5l3,3v7h-8z'/%3E%3Cpath style='fill:rgb(248,248,248)' d='M10,4.4v1.6h1.6zm-4,-0.6h3v3h-3zm0,3h6v5.4h-6z'/%3E%3Cpath style='fill:rgb(80,128,208)' d='M7,8h4v1h-4zm0,2h4v1h-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+.copy-button-flipped {
+//Note: .16em is suitable for element grouping.
+  margin-left: .16em;
+  margin-right: 0;
+}
+.nobr {
   white-space: nowrap;
 }

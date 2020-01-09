@@ -192,12 +192,7 @@ int fossil_strcmp(const char *zA, const char *zB){
   }else if( zB==0 ){
     return +1;
   }else{
-    int a, b;
-    do{
-      a = *zA++;
-      b = *zB++;
-    }while( a==b && a!=0 );
-    return ((unsigned char)a) - (unsigned char)b;
+    return strcmp(zA,zB);
   }
 }
 int fossil_strncmp(const char *zA, const char *zB, int nByte){
@@ -527,3 +522,56 @@ void fossil_pledge(const char *promises){
   }
 }
 #endif /* defined(HAVE_PLEDGE) */
+
+/*
+** Construct a random password and return it as a string.  N is the
+** recommended number of characters for the password.
+**
+** Space to hold the returned string is obtained from fossil_malloc()
+** and should be freed by the caller.
+*/
+char *fossil_random_password(int N){
+  char zSrc[60];
+  int nSrc;
+  int i;
+  char z[60];
+
+  /* Source characters for the password.  Omit characters like "0", "O",
+  ** "1" and "I"  that might be easily confused */
+  static const char zAlphabet[] = 
+           /*  0         1         2         3         4         5       */
+           /*   123456789 123456789 123456789 123456789 123456789 123456 */
+              "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+
+  if( N<8 ) N = 8;
+  else if( N>sizeof(zAlphabet)-2 ) N = sizeof(zAlphabet)-2;
+  nSrc = sizeof(zAlphabet) - 1;
+  memcpy(zSrc, zAlphabet, nSrc);
+
+  for(i=0; i<N; i++){
+    unsigned r;
+    sqlite3_randomness(sizeof(r), &r);
+    r %= nSrc;
+    z[i] = zSrc[r];
+    zSrc[r] = zSrc[--nSrc];
+  }
+  z[i] = 0;
+  return fossil_strdup(z);
+}
+
+/*
+** COMMAND: test-random-password
+**
+** Usage: %fossil test-random-password ?N?
+**
+** Generate a random password string of approximately N characters in length.
+** If N is omitted, use 10.  Values of N less than 8 are changed to 8
+** and greater than 55 and changed to 55.
+*/
+void test_random_password(void){
+  int N = 10;
+  if( g.argc>=3 ){
+    N = atoi(g.argv[2]);
+  }
+  fossil_print("%s\n", fossil_random_password(N));
+}

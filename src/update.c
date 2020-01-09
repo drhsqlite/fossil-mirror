@@ -101,6 +101,9 @@ int update_to(int vid){
 **   -v|--verbose     print status information about all files
 **   -W|--width <num> Width of lines (default is to auto-detect). Must be >20
 **                    or 0 (= no limit, resulting in a single line per entry).
+**   --setmtime       Set timestamps of all files to match their SCM-side
+**                    times (the timestamp of the last checkin which modified
+**                    them).
 **
 ** See also: revert
 */
@@ -162,7 +165,7 @@ void update_cmd(void){
 
   /* Create any empty directories now, as well as after the update,
   ** so changes in settings are reflected now */
-  if( !dryRunFlag ) ensure_empty_dirs_created();
+  if( !dryRunFlag ) ensure_empty_dirs_created(0);
 
   if( internalUpdate ){
     tid = internalUpdate;
@@ -229,6 +232,10 @@ void update_cmd(void){
   }
 
   db_begin_transaction();
+  db_multi_exec(
+     "CREATE TEMP TABLE dir_to_delete(name TEXT %s PRIMARY KEY)WITHOUT ROWID",
+     filename_collation()
+  );
   vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( !dryRunFlag && !internalUpdate ) undo_begin();
   if( load_vfile_from_rid(tid) && !forceMissingFlag ){
@@ -457,7 +464,19 @@ void update_cmd(void){
       }else{
         fossil_print("REMOVE %s\n", zName);
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
-        if( !dryRunFlag ) file_delete(zFullPath);
+        if( !dryRunFlag ){
+          char *zDir;
+          file_delete(zFullPath);
+          zDir = file_dirname(zName);
+          while( zDir!=0 ){
+            char *zNext;
+            db_multi_exec("INSERT OR IGNORE INTO dir_to_delete(name)"
+                          "VALUES(%Q)", zDir);
+            zNext = db_changes() ? file_dirname(zDir) : 0;
+            fossil_free(zDir);
+            zDir = zNext;
+          }
+        }
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
@@ -531,8 +550,7 @@ void update_cmd(void){
   if( !dryRunFlag ){
     Stmt q;
     int nMerge = 0;
-    db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
-                   " WHERE id<=0");
+    db_prepare(&q, "SELECT mhash, id FROM vmerge WHERE id<=0");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zLabel = "merge";
       switch( db_column_int(&q, 1) ){
@@ -569,13 +587,23 @@ void update_cmd(void){
   if( dryRunFlag ){
     db_end_transaction(1);  /* With --dry-run, rollback changes */
   }else{
-    ensure_empty_dirs_created();
+    char *zPwd;
+    ensure_empty_dirs_created(1);
+    sqlite3_create_function(g.db, "rmdir", 1, SQLITE_UTF8, 0,
+                            file_rmdir_sql_function, 0, 0);
+    zPwd = file_getcwd(0,0);
+    db_multi_exec(
+      "SELECT rmdir(%Q||name) FROM dir_to_delete"
+      " WHERE (%Q||name)<>%Q ORDER BY name DESC",
+      g.zLocalRoot, g.zLocalRoot, zPwd
+    );
+    fossil_free(zPwd);
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
       checkout_set_all_exe(tid);
       manifest_to_disk(tid);
-      db_lset_int("checkout", tid);
+      db_set_checkout(tid);
     }else{
       /* A subset of files have been checked out.  Keep the current
       ** checkout unchanged. */
@@ -590,7 +618,7 @@ void update_cmd(void){
 /*
 ** Create empty directories specified by the empty-dirs setting.
 */
-void ensure_empty_dirs_created(void){
+void ensure_empty_dirs_created(int clearDirTable){
   char *zEmptyDirs = db_get("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
     int i;
@@ -616,7 +644,12 @@ void ensure_empty_dirs_created(void){
           break;
         }
         case 1: { /* exists, and is a directory */
-          /* do nothing - required directory exists already */
+          /* make sure this directory is not on the delete list */
+          if( clearDirTable ){
+            db_multi_exec(
+              "DELETE FROM dir_to_delete WHERE name=%Q", zDir
+            );
+          }
           break;
         }
         case 2: { /* exists, but isn't a directory */
@@ -646,7 +679,7 @@ Manifest *historical_manifest(
   if( zRevision ){
     vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
-    vid = name_to_typed_rid(db_get("main-branch", "trunk"), "ci");
+    vid = name_to_typed_rid(db_get("main-branch", 0), "ci");
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){
@@ -867,7 +900,8 @@ void revert_cmd(void){
       mtime = file_mtime(zFull, RepoFILE);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,mrid=rid"
+         "   SET mtime=%lld, chnged=%d, deleted=0, isexe=%d, islink=%d,"
+         "       mrid=rid, mhash=NULL"
          " WHERE pathname=%Q OR origname=%Q",
          mtime, rvChnged, rvPerm==PERM_EXE, rvPerm==PERM_LNK, zFile, zFile
       );
