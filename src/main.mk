@@ -591,7 +591,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_INTROSPECTION_PRAGMAS \
-                 -DSQLITE_ENABLE_DBPAGE_VTAB
+                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                 -DSQLITE_TRUSTED_SCHEMA=0
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
@@ -619,6 +620,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_INTROSPECTION_PRAGMAS \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                -DSQLITE_TRUSTED_SCHEMA=0 \
                 -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
