@@ -1,5 +1,5 @@
-C Fix\sbuild\serrors\swhen\susing\sMSVC\sversion\sthat\shas\sno\s'stdint.h'
-D 2020-01-09T23:02:52.531
+C Explained\sthe\s"language-WORD"\sCSS\sstyling\sused\swith\sfenced\scode\sblocks\nin\sMarkdown\swithin\smd_rules.
+D 2020-01-11T01:00:50.445
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -526,7 +526,7 @@ F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd
 F src/makemake.tcl 444b8dcd7d0509c97010fa75a13ae8b68dde56ce0a5e4cc973e48bf2678c0d0a x
 F src/manifest.c bcc5df212b950ffff5c6ad5ff29f0a567110dcf3523416260211c06468a62b36
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
-F src/markdown.md 36b19ca92f330323e2edb7b2e80dd96d708753951da73b725b025a10cadf48b6
+F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 31be929a307ed785238fbe809053fcad9c38ffbb3aec7d591bf8acabac2e1dcc
-R afea899b1547569c31ff70e2722a873f
-U ashepilko
-Z 943e16b02d6be11adb9204a6ff560e01
+P c6ae8584b1bd13c70bdd9ea9890cc371b88d451b97456f78238727b227d27963
+R 76c20cddb0e5991fa632b746856870ca
+U wyoung
+Z 37f10369e2988db0c66770116abfd29c
