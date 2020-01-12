@@ -1,5 +1,5 @@
-C Explained\sthe\s"language-WORD"\sCSS\sstyling\sused\swith\sfenced\scode\sblocks\nin\sMarkdown\swithin\smd_rules.
-D 2020-01-11T01:00:50.445
+C Fossil-defined\sSQL\sfunctions\sused\sinside\sof\sviews\sfor\sfull-text-serch\smuch\nbe\stagged\susing\sSQLITE_INNOCUOUS.
+D 2020-01-12T20:45:02.481
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -555,7 +555,7 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
+F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
 F src/security_audit.c 74f8651e0e78e986575a43576c22d8d49a0f83408f18542db4bab12f42ec9d19
 F src/setup.c 9f1d5849f889b34104a887bdff680be5a22c34293348506ed1df74d187a3ac6b
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6ae8584b1bd13c70bdd9ea9890cc371b88d451b97456f78238727b227d27963
-R 76c20cddb0e5991fa632b746856870ca
-U wyoung
-Z 37f10369e2988db0c66770116abfd29c
+P 06a3361dc08754ae251ebe73cfd5a69592c5256135df383ca1a6667adb12fd8a
+R c3932e676638d456a53a02a9bb507248
+U drh
+Z afb758507d5c26ce8875b9583650b51e

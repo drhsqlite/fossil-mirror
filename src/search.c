@@ -532,22 +532,23 @@ static void search_urlencode_sqlfunc(
 */
 void search_sql_setup(sqlite3 *db){
   static int once = 0;
+  static const int enc = SQLITE_UTF8|SQLITE_INNOCUOUS;
   if( once++ ) return;
-  sqlite3_create_function(db, "search_match", -1, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "search_match", -1, enc, 0,
      search_match_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "search_score", 0, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "search_score", 0, enc, 0,
      search_score_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "search_snippet", 0, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "search_snippet", 0, enc, 0,
      search_snippet_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "search_init", -1, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "search_init", -1, enc, 0,
      search_init_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "stext", 3, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "stext", 3, enc, 0,
      search_stext_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "title", 3, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "title", 3, enc, 0,
      search_title_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "body", 3, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "body", 3, enc, 0,
      search_body_sqlfunc, 0, 0);
-  sqlite3_create_function(db, "urlencode", 1, SQLITE_UTF8, 0,
+  sqlite3_create_function(db, "urlencode", 1, enc, 0,
      search_urlencode_sqlfunc, 0, 0);
 }
 
@@ -907,7 +908,7 @@ static void search_indexed(
 ){
   Blob sql;
   if( srchFlags==0 ) return;
-  sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8, 0,
+  sqlite3_create_function(g.db, "rank", 1, SQLITE_UTF8|SQLITE_INNOCUOUS, 0,
      search_rank_sqlfunc, 0, 0);
   blob_init(&sql, 0, 0);
   blob_appendf(&sql,
