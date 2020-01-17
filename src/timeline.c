@@ -1890,11 +1890,9 @@ void page_timeline(void){
       blob_init(&ins, 0, 0);
       blob_append_sql(&ins, "INSERT INTO pathnode(x) VALUES(%d)", p->rid);
       p = p->u.pTo;
-      nNodeOnPath = 1;
       while( p ){
         blob_append_sql(&ins, ",(%d)", p->rid);
         p = p->u.pTo;
-        nNodeOnPath++;
       }
     }
     path_reset();
@@ -1927,13 +1925,22 @@ void page_timeline(void){
       db_multi_exec("INSERT OR IGNORE INTO pathnode SELECT x FROM related");
     }
     blob_append_sql(&sql, " AND event.objid IN pathnode");
-    addFileGlobExclusion(zChng, &sql);
+    if( zChng && zChng[0] ){
+      db_multi_exec(
+        "DELETE FROM pathnode "
+        " WHERE NOT EXISTS(SELECT 1 FROM mlink, filename"
+                          " WHERE mlink.mid=x"
+                          "   AND mlink.fnid=filename.fnid AND %s)",
+        glob_expr("filename.name", zChng)
+      );
+    }
     tmFlags |= TIMELINE_DISJOINT;
     tmFlags &= ~TIMELINE_CHPICK;
     db_multi_exec("%s", blob_sql_text(&sql));
     if( advancedMenu ){
       style_submenu_checkbox("v", "Files", (zType[0]!='a' && zType[0]!='c'),0);
     }
+    nNodeOnPath = db_int(0, "SELECT count(*) FROM temp.pathnode");
     blob_appendf(&desc, "%d check-ins going from ", nNodeOnPath);
     blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " to ", -1);
