@@ -1,5 +1,5 @@
-C Give\sthe\scorrect\scount\sof\scheck-ins\sfor\s/timeline\sdisplays\sthat\sinclude\nthe\sfrom=,\sto=,\sand\schng=\squery\sparameters.
-D 2020-01-17T13:31:21.553
+C Replaced\s"countless\sGit\susers"\sin\spoint\sabout\sdetached\sheads\swithin\nfossil-v-git\sdoc\swith\sa\slink\sto\sa\sGoogle\sweb\ssearch\sthat\scurrently\nreturns\s~389000\sresults.\s\sSo\snot\scountless\sat\sall;\sjust\svery,\svery\nlarge.\s:)
+D 2020-01-17T17:23:02.142
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -838,7 +838,7 @@ F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki a22e72bbcf5857191048e82254adaeddf7a4947265379e4c0a6fc171915db13d
+F www/fossil-v-git.wiki 8513e6056263933bd945cda5acf0000ff070b09568d2b902b70cf9ed81a4b710
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9826bd007a9a5af4fa6b5f5f00e4dfec3062ed8ecdd32a3a9aebb3f6256f66f6
-R e02155102822bc04e8cd807f27fc8d96
-U drh
-Z 02a0fab1a039a058cba604ec4473c5dc
+P 9dce5ffe5f3f6e1482c4f0cf52b861f292f89aefc5d5c3d32117d9c5fabfd276
+R 5da6d25b555ac68be4a70ff6a940d89f
+U wyoung
+Z 6e46a97f40909baecbd144f434883d63

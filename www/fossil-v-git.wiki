@@ -271,7 +271,9 @@ Fossil DVCS]" for more details.)
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
 [http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
-state] problem has caused untold grief for countless Git users. With
+state] problem has caused untold grief for
+[https://www.google.com/search?q=git+detached+head+state | a huge number
+of Git users]. With
 Fossil, detached heads are simply impossible because we can always find
 our way back into the block chain using one or more of the relational
 indices it automatically manages for you.
