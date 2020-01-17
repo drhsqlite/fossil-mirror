@@ -608,9 +608,9 @@ void repo_tabsize_page(void){
     "   SELECT name, tbl_name FROM repository.sqlite_master;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
     "INSERT INTO piechart(amt,label)"
-    "  SELECT count(*), "
+    "  SELECT sum(pageno),"
     "  coalesce((SELECT tabname FROM trans WHERE trans.name=dbstat.name),name)"
-    "    FROM dbstat('repository')"
+    "    FROM dbstat('repository',TRUE)"
     "   GROUP BY 2 ORDER BY 2;"
   );
   nPageFree = db_int(0, "PRAGMA repository.freelist_count");
@@ -634,9 +634,9 @@ void repo_tabsize_page(void){
       "   SELECT name, tbl_name FROM localdb.sqlite_master;"
       "DELETE FROM piechart;"
       "INSERT INTO piechart(amt,label)"
-      "  SELECT count(*), "
+      "  SELECT sum(pageno), "
       " coalesce((SELECT tabname FROM trans WHERE trans.name=dbstat.name),name)"
-      "    FROM dbstat('localdb')"
+      "    FROM dbstat('localdb',TRUE)"
       "   GROUP BY 2 ORDER BY 2;"
     );
     nPageFree = db_int(0, "PRAGMA localdb.freelist_count");
