@@ -1,5 +1,5 @@
-C Make\suse\sof\sthe\snew\s"aggregate\smode"\sfor\sthe\sDBSTAT\svirtual\stable\swhen\ncomputing\sthe\s/repo-tabsize\spage,\sboth\sas\sa\stest\sof\sDBSTAT\sand\sbecause\sthe\nnew\smode\sis\susually\sfaster.
-D 2020-01-17T22:00:35.668
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\sbeta\sfor\s3.31.0,\sfor\sSQLite\stesting.
+D 2020-01-20T20:29:43.670
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -562,7 +562,7 @@ F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c 2cb0c548a760a35b8ea731d92fc3f0ed6feb0a731c4093b8ab0e1191dadf2ab3
+F src/shell.c 98aad8016561b3add6191b550d03738ccf1ae09fedcb125607305a6fec667fff
 F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -571,8 +571,8 @@ F src/smtp.c 5e8b272d6a24f2bcb3e05e5a619bae29fa760d171dcee270e798aea25347bf80
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c 3669963b8f424fecc01a00131fada87765e379d89b075add84fed9909114585f
-F src/sqlite3.h 72f1fb5661dc54812f2e893247a3590a7d55e7b7080e96672c5f2b6713461d70
+F src/sqlite3.c 408cfb5d035a5a776d56d01b8b5afc8a1e8ea1e384f2bf3f53cfcb7774019b65
+F src/sqlite3.h 8dc045c38233df900926d4f479dfe5f18f4260af541bb7455a6e786b3f0109b7
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c cd2271ee77b1b78ca82c34f4f692ab22f42f4b0b786ebe42cedf481a7a1d0948
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e472ad36d663230b677b7b769f7ebf3e261a682cd4f0a74f8d56b809bb01467e
-R f8e108cb3e57cfef1d02070ad3983047
+P cc86de732a71c94b1843e1908b14028b80c825368229a8da8d15c0f28a105a36
+R 3f86d9f0016b4db8d91048b0f50478b5
 U drh
-Z 0fa8c0d9e42e45eb6923ecf8db15a1af
+Z 3f75ef979af2dd3c1908fdf55610489d
