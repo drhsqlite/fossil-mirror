@@ -308,6 +308,79 @@ static void mimetype_verify(void){
 }
 
 /*
+** Looks in the contents of the "mimetypes" setting for a suffix
+** matching zSuffix. If found, it returns the configured value
+** in memory owned by the app (i.e. do not free() it), else it
+** returns 0.
+*/
+static const char *mimetype_from_name_custom(const char *zSuffix){
+  static char * zList = 0;
+  static char const * zEnd = 0;
+  static int once = 0;
+  char * z;
+  int tokenizerState /* 0=expecting a key, 1=skip next token,
+                     ** 2=accept next token */;
+  if(once==0){
+    once = 1; 
+    zList = db_get("mimetypes",0);
+    if(zList==0){
+      return 0;
+    }
+    /* Initialize zList and transform it to simplify
+       the main loop. */
+    zEnd = zList + strlen(zList);
+    for(z = zList; z<zEnd; ++z){
+      if('\n'==*z) continue;
+      else if(fossil_isspace(*z)){
+        *z = 0;
+      }else if(!(0x80 & *z)){
+        *z = (char)fossil_tolower(*z);
+      }
+    }
+  }else if(zList==0){
+    return 0;
+  }
+  tokenizerState = 0;
+  z = zList;
+  while( z<zEnd ){
+    if(*z==0){
+      ++z;
+      continue;
+    }
+    else if('\n'==*z){
+      /* May happen on malformed inputs. Skip this record. */
+      if(2==tokenizerState){
+        /* We were expecting a value for a successful match
+           here, but got no value. Bail out. */
+        break;
+      }else{
+        tokenizerState = 0;
+        ++z;
+        continue;
+      }
+    }
+    switch(tokenizerState){
+      case 0: /* This is a file extension */
+        if(strcmp(z,zSuffix)==0){
+          tokenizerState = 2 /*Match: accept the next value. */;
+        }else{
+          tokenizerState = 1 /* No match: skip the next value */;
+        }
+        z += strlen(z);
+        break;
+      case 1: /* This is a value, but not a match. Skip it. */
+        z += strlen(z);
+        break;
+      case 2: /* This is the value which matched the previous key */;
+        return z;
+      default:
+        assert(!"cannot happen - invalid tokenizerState value.");
+    }
+  }
+  return 0;
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
@@ -335,6 +408,10 @@ const char *mimetype_from_name(const char *zName){
   len = strlen(z);
   if( len<sizeof(zSuffix)-1 ){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
+    z = mimetype_from_name_custom(zSuffix);
+    if(z!=0){
+      return z;
+    }
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
     last = count(aMime) - 1;
@@ -367,6 +444,7 @@ const char *mimetype_from_name(const char *zName){
 void mimetype_test_cmd(void){
   int i;
   mimetype_verify();
+  db_find_and_open_repository(0, 0);
   for(i=2; i<g.argc; i++){
     fossil_print("%-20s -> %s\n", g.argv[i], mimetype_from_name(g.argv[i]));
   }
@@ -380,6 +458,7 @@ void mimetype_test_cmd(void){
 */
 void mimetype_list_page(void){
   int i;
+  char * zCustomList = 0;
   mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
@@ -395,7 +474,18 @@ void mimetype_list_page(void){
     @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
-  style_table_sorter();
+  zCustomList = db_get("mimetypes",0);
+  if(zCustomList!=0){
+    /* TODO: render this as a table, rather than a TEXTAREA.  That
+    ** requires tokenizing the input, though, duplicating much of the
+    ** work done in mimetype_from_name_custom().
+    */
+    @ <h1>Repo-specific mimetypes</h1>
+    @ The following extention-to-mimetype mappings are defined via the
+    @ <a href="%R/help?cmd=mimetypes">mimetypes setting</a>:<br>
+    @ <textarea rows='10' cols='40' readonly>%s(zCustomList)</textarea>
+    fossil_free(zCustomList);
+  }
   style_footer();
 }
 
