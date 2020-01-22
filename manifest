@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\ssecond\sbeta\sfor\s3.31.0,\sfor\sSQLite\stesting.
-D 2020-01-20T20:29:43.670
+C Added\smissing\sAPPNAME\sto\sMakefile.classic,\sas\s[https://fossil-scm.org/forum/forumpost/e51cc756b0|reported\sin\sthe\sforum].
+D 2020-01-22T00:44:35.409
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -13,7 +13,7 @@ F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b47
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
 F Dockerfile f4d360e34758d3ca6b454a4258ffd5d1b7f81c97236ea796bd7a373f739258d5
-F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2673
+F Makefile.classic 42738dd35437f4527e5979784931760641f7fffd6a0d7b964eb86b90dbdf08a2
 F Makefile.in 2f34d0fa84449834fe6f415be1c347de931a27e46be437e2611e155c813f9880
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
 F README.md 597251593cf09dbd57f456d4cc3b74de75cd758f5ebff9654a99e3678b6dccbc
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cc86de732a71c94b1843e1908b14028b80c825368229a8da8d15c0f28a105a36
-R 3f86d9f0016b4db8d91048b0f50478b5
-U drh
-Z 3f75ef979af2dd3c1908fdf55610489d
+P f4e7ca02da2f9bfaea0c7e1fdea9667ba2ecc38b8bef4ef39e88439963bc613e
+R 3e368a5e63ed70a9272b7d18c4e4992a
+U stephan
+Z 48fd00f8ef9d3740fbedeb8af0fec5f4

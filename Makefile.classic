@@ -102,4 +102,6 @@ TCC.NetBSD += -DUSE_PREAD
 TCC.OpenBSD += -DUSE_PREAD
 TCC += $(TCC.$(HOST_OS))
 
+APPNAME = fossil$(E)
+
 include $(SRCDIR)/main.mk
