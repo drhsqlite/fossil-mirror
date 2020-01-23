@@ -361,6 +361,13 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
     }
     switch(tokenizerState){
       case 0: /* This is a file extension */
+        if('.'==*z){
+          /*ignore an optional leading dot, for compatibility
+            with some external mimetype lists*/;
+          if(++z==zEnd){
+            break;
+          }
+        }        
         if(strcmp(z,zSuffix)==0){
           tokenizerState = 2 /*Match: accept the next value. */;
         }else{
