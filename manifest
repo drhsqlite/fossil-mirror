@@ -1,5 +1,5 @@
-C Added\ssupport\sfor\sclient-configurable\smimetypes\sas\sa\sversionable\ssetting.
-D 2020-01-22T02:41:15.464
+C /mimetype_list\spage\snow\soutputs\scustom\smimetypes\susing\s%h\sformatting\sinstead\sof\s%s,\sper\sforum\sfeedback.
+D 2020-01-23T18:00:38.505
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -470,7 +470,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
-F src/doc.c 884928b8a8c4e2cbaaf3cb8c30f3ccbff4beaa28cb63ef8aa442028ef21fbe82
+F src/doc.c 9482f9243af11e679a5cad84fe21e1c67ad1ae4de86f7bc7abfb03cac143f6be
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
@@ -931,10 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6ee6add6348d6193d8a8544a30c292a6e250c92ac3c481e721ee9dc31f09db5
-R 711c1840ea1f912b2b480fb18959d201
-T *branch * mimetypes-setting
-T *sym-mimetypes-setting *
-T -sym-trunk *
+P 322643cac8465e9e62295a8ffa375b378677b09c3a962b1556352d1152599d15
+R 7598f9225301c6b7e6cd24c94d00f2ff
 U stephan
-Z 21a3001af4f4f07d4cd6551cf8a5b29e
+Z e14ba30916ff329230bc9093184c53c1

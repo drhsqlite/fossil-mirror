@@ -483,7 +483,7 @@ void mimetype_list_page(void){
     @ <h1>Repo-specific mimetypes</h1>
     @ The following extention-to-mimetype mappings are defined via the
     @ <a href="%R/help?cmd=mimetypes">mimetypes setting</a>:<br>
-    @ <textarea rows='10' cols='40' readonly>%s(zCustomList)</textarea>
+    @ <textarea rows='10' cols='40' readonly>%h(zCustomList)</textarea>
     fossil_free(zCustomList);
   }
   style_footer();
