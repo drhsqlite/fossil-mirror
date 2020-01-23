@@ -312,6 +312,11 @@ static void mimetype_verify(void){
 ** matching zSuffix. If found, it returns the configured value
 ** in memory owned by the app (i.e. do not free() it), else it
 ** returns 0.
+**
+** The mimetypes setting is expected to be a list of file extensions
+** and mimetypes, with one such mapping per line. A leading '.'  on
+** extensions is permitted for compatibility with lists imported from
+** other tools which require them.
 */
 static const char *mimetype_from_name_custom(const char *zSuffix){
   static char * zList = 0;
@@ -326,15 +331,13 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
     if(zList==0){
       return 0;
     }
-    /* Initialize zList and transform it to simplify
-       the main loop. */
+    /* Transform zList to simplify the main loop:
+       replace non-newline spaces with NUL bytes. */
     zEnd = zList + strlen(zList);
     for(z = zList; z<zEnd; ++z){
       if('\n'==*z) continue;
       else if(fossil_isspace(*z)){
         *z = 0;
-      }else if(!(0x80 & *z)){
-        *z = (char)fossil_tolower(*z);
       }
     }
   }else if(zList==0){
@@ -348,37 +351,47 @@ static const char *mimetype_from_name_custom(const char *zSuffix){
       continue;
     }
     else if('\n'==*z){
-      /* May happen on malformed inputs. Skip this record. */
       if(2==tokenizerState){
         /* We were expecting a value for a successful match
            here, but got no value. Bail out. */
         break;
       }else{
+        /* May happen on malformed inputs. Skip this record. */
         tokenizerState = 0;
         ++z;
         continue;
       }
     }
     switch(tokenizerState){
-      case 0: /* This is a file extension */
+      case 0:{ /* This is a file extension */
+        static char * zCase = 0;
         if('.'==*z){
           /*ignore an optional leading dot, for compatibility
             with some external mimetype lists*/;
           if(++z==zEnd){
             break;
           }
-        }        
+        }
+        if(zCase<z){
+          /*we have not yet case-folded this section: lower-case it*/
+          for(zCase = z; zCase<zEnd && *zCase!=0; ++zCase){
+            if(!(0x80 & *zCase)){
+              *zCase = (char)fossil_tolower(*zCase);
+            }
+          }
+        }
         if(strcmp(z,zSuffix)==0){
-          tokenizerState = 2 /*Match: accept the next value. */;
+          tokenizerState = 2 /* Match: accept the next value. */;
         }else{
-          tokenizerState = 1 /* No match: skip the next value */;
+          tokenizerState = 1 /* No match: skip the next value. */;
         }
         z += strlen(z);
         break;
+      }
       case 1: /* This is a value, but not a match. Skip it. */
         z += strlen(z);
         break;
-      case 2: /* This is the value which matched the previous key */;
+      case 2: /* This is the value which matched the previous key. */;
         return z;
       default:
         assert(!"cannot happen - invalid tokenizerState value.");
@@ -415,11 +428,11 @@ const char *mimetype_from_name(const char *zName){
   len = strlen(z);
   if( len<sizeof(zSuffix)-1 ){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
+    for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     z = mimetype_from_name_custom(zSuffix);
     if(z!=0){
       return z;
     }
-    for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
     last = count(aMime) - 1;
     while( first<=last ){
