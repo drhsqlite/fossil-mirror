@@ -489,7 +489,7 @@ void mimetype_list_page(void){
   @ <p>The following extension-to-mimetype mappings are defined via
   @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
   @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
-  @ data-column-types='tt' data-init-sort='1'>
+  @ data-column-types='tt' data-init-sort='0'>
   @ <thead>
   @ <tr><th>Suffix<th>Mimetype
   @ </thead>
@@ -528,6 +528,7 @@ void mimetype_list_page(void){
     @ <tr><td>%s(zFlag)%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
+  style_table_sorter();
   style_footer();
 }
 

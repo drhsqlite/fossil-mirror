@@ -1,5 +1,5 @@
-C Tweak\sthe\s/mimetype_list\sweb\spage\sto\sdisplay\sthe\srepository-specific\smimetypes\sin\sa\stable,\sand\sflag\sbuilt-in\sentries\sthat\sare\soverwritten\sby\srepository-specific\sentries.
-D 2020-01-24T15:05:00.000
+C Fix\sdynamic\ssorting\sof\sthe\smimetype\stables,\sas\soriginally\sintended.\sNote\sthat\sthe\stable\ssorter\sutility\sskips\sleading\snon-word\scharacters,\ssuch\sas\sthe\sleading\sexclamation\smark\sused\sto\sflag\soverwritten\sentries.
+D 2020-01-24T15:14:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -470,7 +470,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
-F src/doc.c 769dae90fc9f4aa8c7a76a0e3fb0cda4f6e3360d7611e5876aaa8342ba1e1f92
+F src/doc.c c1844d10f3231dcd558925abd2a9c1008e728b61a290c8fd7be6c91da573ff20
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
@@ -931,10 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e34ea5b6b80ab7afc9fe7faef3b2db502d3c8284069875db11421504c833d216
-R 596bb97e656d47420a929fb0a6140598
-T *branch * mimetypes-list
-T *sym-mimetypes-list *
-T -sym-mimetypes-setting *
+P 566a27315e88a3a2b8f0af791b6cf6e71475a9574c8c25dd2ae4dce921eac91a
+R 3a3fa5c53a2ea2ddd1dd701b290fa911
 U florian
-Z b172209b2e5e3022ea6470ad5104d1fd
+Z 994e632ac51fc7d88a6ed17be320f3b2
