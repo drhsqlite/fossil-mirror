@@ -1,5 +1,5 @@
-C /mimetype_list:\sonly\sshow\sthe\scustom\smimetypes\stable\sif\sany\sare\sset.\sAdd\sa\slink\sto\sthe\smimetypes\ssetting\shelp\sto\sthe\stop\sof\sthe\spage.\sExpanded\sthe\ssetting's\shelp\stext.
-D 2020-01-24T18:28:02.197
+C Added\smimetypes\ssetting\sto\sthe\s'project'\sconfiguration\sarea,\sper\sforum\sfeedback.
+D 2020-01-24T18:56:15.029
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -453,7 +453,7 @@ F src/clone.c 4f3742a1851108b9c2de6513fc8b4a79bd1555f6e954eb8935829ae0126e1945
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h 5599c3074e2250f49e06c22716e516140a0b2d22c703c604e050b6178c0d536a
-F src/configure.c fbcefee6b1a63fa86b0a80b2b6bd5ccc8199d21cda1bfef57ef7da203fd43e6d
+F src/configure.c b8a4a4846233d0b71493bd2624be6f6975333d67c6209a262ae07bce485366dd
 F src/content.c 2d2630468eae31e35ed702fba0cc3f58438e1b03320032445038147e38935f8f
 F src/cookies.c 8de916392619e97cf643f9eae51cc82dab465d4c64ee80120b745f53567a455e
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P baf119337bdc675bab87a0e58d0c473ab44ab423b0796b53a0b375453a407fea
-R 7db70cb623fbfe73e44186cf911b7c9d
+P 14d1b7a9770c87fe26151b607754620d2c03024800faf8d96c3c14487de1d4c4
+R 3dde9ec717a26e782197f0a8ab62485b
 U stephan
-Z d32a78942057aaeef4f51aeab5c4e49d
+Z a5342cc453ae98176bbcd8201837ceda
