@@ -478,12 +478,44 @@ void mimetype_test_cmd(void){
 */
 void mimetype_list_page(void){
   int i;
-  char * zCustomList = 0;
+  char *zCustomList = 0;
+  int nCustomEntries = 0;
   mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
-  @ suffixes and the following table to guess at the appropriate mimetype
+  @ suffixes and the following tables to guess at the appropriate mimetype
   @ for each document.</p>
+  @ <h1>Repository-specific mimetypes</h1>
+  @ <p>The following extension-to-mimetype mappings are defined via
+  @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
+  @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
+  @ data-column-types='tt' data-init-sort='1'>
+  @ <thead>
+  @ <tr><th>Suffix<th>Mimetype
+  @ </thead>
+  @ <tbody>
+  zCustomList = db_get("mimetypes",0);
+  if( zCustomList!=0 ){
+    Blob list, entry, key, val;
+    blob_set(&list, zCustomList);
+    while( blob_line(&list, &entry)>0 ){
+      const char *zKey;
+      if( blob_token(&entry, &key)==0 ) continue;
+      if( blob_token(&entry, &val)==0 ) continue;
+      zKey = blob_str(&key);
+      if( zKey[0]=='.' ) zKey++;
+      @ <tr><td>%h(zKey)<td>%h(blob_str(&val))</tr>
+      nCustomEntries++;
+    }
+    fossil_free(zCustomList);
+  }
+  if( nCustomEntries==0 ){
+    @ <tr><td colspan="2"><em>none</em></tr>
+  }
+  @ </tbody></table>
+  @ <h1>Default built-in mimetypes</h1>
+  @ <p>Entries starting with an exclamation mark <em><strong>!</strong></em>
+  @ are overwritten by repository-specific settings.</p>
   @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
   @ data-column-types='tt' data-init-sort='1'>
   @ <thead>
@@ -491,21 +523,11 @@ void mimetype_list_page(void){
   @ </thead>
   @ <tbody>
   for(i=0; i<count(aMime); i++){
-    @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
+    const char *zFlag = "<em><strong>!</strong></em> ";
+    if( mimetype_from_name_custom(aMime[i].zSuffix)==0 ) zFlag = 0;
+    @ <tr><td>%s(zFlag)%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
-  zCustomList = db_get("mimetypes",0);
-  if(zCustomList!=0){
-    /* TODO: render this as a table, rather than a TEXTAREA.  That
-    ** requires tokenizing the input, though, duplicating much of the
-    ** work done in mimetype_from_name_custom().
-    */
-    @ <h1>Repo-specific mimetypes</h1>
-    @ The following extention-to-mimetype mappings are defined via the
-    @ <a href="%R/help?cmd=mimetypes">mimetypes setting</a>:<br>
-    @ <textarea rows='10' cols='40' readonly>%h(zCustomList)</textarea>
-    fossil_free(zCustomList);
-  }
   style_footer();
 }
 
