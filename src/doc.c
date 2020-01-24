@@ -480,24 +480,25 @@ void mimetype_list_page(void){
   int i;
   char *zCustomList = 0;    /* value of the mimetypes setting */
   int nCustomEntries = 0;   /* number of entries in the mimetypes
-                               setting */
+                            ** setting */
   mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
   @ suffixes and the following tables to guess at the appropriate mimetype
-  @ for each document.</p>
-  @ <h1>Repository-specific mimetypes</h1>
-  @ <p>The following extension-to-mimetype mappings are defined via
-  @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
-  @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
-  @ data-column-types='tt' data-init-sort='0'>
-  @ <thead>
-  @ <tr><th>Suffix<th>Mimetype
-  @ </thead>
-  @ <tbody>
+  @ for each document. Mimetypes may be customized and overridden using
+  @ <a href="%R/help?cmd=mimetypes">the mimetypes config setting</a>.</p>
   zCustomList = db_get("mimetypes",0);
   if( zCustomList!=0 ){
     Blob list, entry, key, val;
+    @ <h1>Repository-specific mimetypes</h1>
+    @ <p>The following extension-to-mimetype mappings are defined via
+    @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
+    @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
+    @ data-column-types='tt' data-init-sort='0'>
+    @ <thead>
+    @ <tr><th>Suffix<th>Mimetype
+    @ </thead>
+    @ <tbody>
     blob_set(&list, zCustomList);
     while( blob_line(&list, &entry)>0 ){
       const char *zKey;
@@ -509,11 +510,13 @@ void mimetype_list_page(void){
       nCustomEntries++;
     }
     fossil_free(zCustomList);
+    if( nCustomEntries==0 ){
+      /* This can happen if the option is set to an empty/space-only
+      ** value. */
+      @ <tr><td colspan="2"><em>none</em></tr>
+    }
+    @ </tbody></table>
   }
-  if( nCustomEntries==0 ){
-    @ <tr><td colspan="2"><em>none</em></tr>
-  }
-  @ </tbody></table>
   @ <h1>Default built-in mimetypes</h1>
   if(nCustomEntries>0){
     @ <p>Entries starting with an exclamation mark <em><strong>!</strong></em>

@@ -3453,8 +3453,10 @@ struct Setting {
 */
 /*
 ** SETTING: mimetypes        width=40 versionable block-text
-** A list of file extension-to-mimetype mappings, one per line.
-** Note that extensions are compared case-insensitively.
+** A list of file extension-to-mimetype mappings, one per line. e.g.
+** "foo application/x-foo". File extensions are compared
+** case-insensitively in the order listed in this setting.  A leading
+** '.' on file extensions is permitted but not required.
 */
 /*
 ** SETTING: mtime-changes    boolean default=on
