@@ -478,8 +478,9 @@ void mimetype_test_cmd(void){
 */
 void mimetype_list_page(void){
   int i;
-  char *zCustomList = 0;
-  int nCustomEntries = 0;
+  char *zCustomList = 0;    /* value of the mimetypes setting */
+  int nCustomEntries = 0;   /* number of entries in the mimetypes
+                               setting */
   mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
@@ -514,8 +515,10 @@ void mimetype_list_page(void){
   }
   @ </tbody></table>
   @ <h1>Default built-in mimetypes</h1>
-  @ <p>Entries starting with an exclamation mark <em><strong>!</strong></em>
-  @ are overwritten by repository-specific settings.</p>
+  if(nCustomEntries>0){
+    @ <p>Entries starting with an exclamation mark <em><strong>!</strong></em>
+    @ are overwritten by repository-specific settings.</p>
+  }
   @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
   @ data-column-types='tt' data-init-sort='1'>
   @ <thead>
@@ -523,8 +526,11 @@ void mimetype_list_page(void){
   @ </thead>
   @ <tbody>
   for(i=0; i<count(aMime); i++){
-    const char *zFlag = mimetype_from_name_custom(aMime[i].zSuffix)==0
-      ? "" : "<em><strong>!</strong></em> ";
+    const char *zFlag = "";
+    if(nCustomEntries>0 &&
+       mimetype_from_name_custom(aMime[i].zSuffix)!=0){
+      zFlag = "<em><strong>!</strong></em> ";
+    }
     @ <tr><td>%s(zFlag)%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
