@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.31.0.
-D 2020-01-22T19:08:54.799
+C Added\s--inverse/-v\sflag\sto\sthe\stag\scommand,\sas\scovered\sin\s[https://fossil-scm.org/forum/forumpost/d717561e8b7406fc|forumpost/d717561e8b7406fc].
+D 2020-01-27T06:56:23.459
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -578,7 +578,7 @@ F src/stat.c cd2271ee77b1b78ca82c34f4f692ab22f42f4b0b786ebe42cedf481a7a1d0948
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 4f75a6a67ae9bc72f41dee4370aa6d03c4a30b6e34431c931796acddaa2f4fa3
 F src/sync.c 16c91ecfc35119b4437bfb8e5708f4029ad4607b0dfb52fdff03e42b3d6d8744
-F src/tag.c f1a049a1162e7b91748c65d2feb72cc1c415d11aa0882fd4bb7fa4756d5d3e4b
+F src/tag.c 8a0c53995aa7f7f814e95c8fa3376a00f91b0e8feccf80ed0946682ad5fecef8
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
 F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
@@ -931,7 +931,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a6ee6add6348d6193d8a8544a30c292a6e250c92ac3c481e721ee9dc31f09db5
-R d457ac9e142b79f3d55913455c9e53fc
-U drh
-Z a9c91c4b43c1499905e6a9a30333cc84
+P eee161e823e3df1fb2e05c7e47227ef513de000208792363cd86afa530e9630c e170afb93626671811bbb3aa1f02225aa07eeeca392aa59ec08f8f5aee8039c3
+R 09f48565e607b76e8910ee1807f73ce4
+T +closed e170afb93626671811bbb3aa1f02225aa07eeeca392aa59ec08f8f5aee8039c3
+U stephan
+Z de962e3eebbc0f723323c577f1b2fc69
