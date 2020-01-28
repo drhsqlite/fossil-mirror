@@ -14,9 +14,9 @@ changed at any time until we find/implement useful APIs.
 The APIs, alphabetically by category:
 
 * [Artifact Info](api-artifact.md)
-* TODO [Authentication](api-auth.md)
-* TODO [Branches](api-branches.md)
-* TODO [Config](api-config.md)
+* [Authentication](api-auth.md)
+* [Branches](api-branch.md)
+* [Config](api-config.md)
 * TODO [Diffs](api-diffs.md)
 * TODO [Directory Listing](api-dir.md)
 * TODO [File Info](api-finfo.md)
