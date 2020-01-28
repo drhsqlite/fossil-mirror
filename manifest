@@ -1,5 +1,5 @@
-C Added\s-html|-h\sflag\sto\s[/help?cmd=wiki|the\swiki\scommand],\sas\sdiscussed\sin\s[https://fossil-scm.org/forum/forumpost/7377c83dca|forumpost/7377c83dca],\sand\scleaned\sup\sthe\scommand's\shelp\stext\sand\sargument\svalidation.
-D 2020-01-28T02:53:22.639
+C Added\s-H|-html\sand\s-p|-pre\sflags\sto\s[/help?cmd=wiki|wiki\scommand].\sAdded\sfossil_fopen_for_output()\sand\sfossil_fclose()\sto\ssupport\sthat.
+D 2020-01-28T03:49:06.916
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -476,7 +476,7 @@ F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 6cc3f255338df35df2cc5c4d8ba4d0f274fcfd4f50efe994119a365f5be752f6
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 38f22c1609bd18715e821a57aba3c99e7b2687a93be467cbcf23ce9ffe0f9b30
+F src/file.c a7c0bf18a822d0057dcffdd0f46924a082075f69d3a416d711aaf782b78a479d
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c c3243b13a1af8a8c7ccba9201da3ea5dbc6b94e9c3c2f70614fa0499830ab7de
@@ -602,7 +602,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 8289d112a2a7f7f5bba937afb605b1759fc10a1773edcfd3a216320a46309ee7
+F src/wiki.c e5c88eaf1b7a63659ef3444ec28fbe9fe5d583f02331249d666c7889ce68df21
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -931,7 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 890614f13711f96bf6cf1b1a44530e9f5f70f41f7e7fa74a5aa9f40a489c9c6e
-R 5d95456d7534d9ea79843381894306c6
+P b23eb8331488435e423eefae2aee76071b3f1aed64ca4f16a43d1b8a0ea580c4
+R 3cc727d4747b707940c0510b4f854dfd
 U stephan
-Z c99a3dffec6fbb04ad123daf8f14c76b
+Z 6ac4f787f0b8522e3c0f17702c38f36e

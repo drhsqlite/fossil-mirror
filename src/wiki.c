@@ -1366,11 +1366,13 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export ?OPTIONS? ?PAGENAME? ?FILE?
+**    %fossil wiki export ?OPTIONS? PAGENAME ?FILE?
 **    %fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
 **
-**       Sends the latest version of either a wiki page or of a tech note
-**       to the given file or standard output.
+**       Sends the latest version of either a wiki page or of a tech
+**       note to the given file or standard output.  A filename of "-"
+**       writes the output to standard output.  The directory parts of
+**       the output filename are created if needed.
 **
 **    Options:
 **       If PAGENAME is provided, the named wiki page will be output.
@@ -1381,6 +1383,11 @@ int wiki_technote_to_rid(const char *zETime) {
 **                  output.
 **       -h|--html  The body (only) is rendered in HTML form, without
 **                  any page header/foot or HTML/BODY tag wrappers.
+**       -H|--HTML  Works like -h|-html but wraps the output in
+**                  <html><body>...</body></html>.
+**       -p|--pre   If -h|-H is used and the page or technote has
+**                  the text/plain mimetype, its HTML-escaped output
+**                  will be wrapped in <pre>...</pre>.
 **
 **    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **
@@ -1455,8 +1462,15 @@ void wiki_cmd(void){
     Blob body = empty_blob;       /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
     int fHtml = 0;                /* Export in HTML form */
-
-    fHtml = find_option("html","h",0)!=0;
+    FILE * pFile = 0;             /* Output file */
+    int fPre = 0;                 /* Indicates that -h|-H should be
+                                  ** wrapped in <pre>...</pre> if pWiki
+                                  ** has the text/plain mimetype. */
+    fHtml = find_option("HTML","H",0)!=0
+      ? 2
+      : (find_option("html","h",0)!=0 ? 1 : 0)
+      /* 1 == -html, 2 == -HTML */;
+    fPre = fHtml==0 ? 0 : find_option("pre","p",0)!=0;
     zETime = find_option("technote","t",1);
     verify_all_options();
     if( !zETime ){
@@ -1522,7 +1536,21 @@ void wiki_cmd(void){
       blob_reset(&body);
       body = html /* transfer memory */;
     }
-    blob_write_to_file(&body, zFile);
+    pFile = fossil_fopen_for_output(zFile);
+    if(fHtml==2){
+      fwrite("<html><body>", 1, 12, pFile);
+    }
+    if(fPre!=0){
+      fwrite("<pre>", 1, 5, pFile);
+    }
+    fwrite(blob_buffer(&body), 1, blob_size(&body), pFile);
+    if(fPre!=0){
+      fwrite("</pre>", 1, 6, pFile);
+    }
+    if(fHtml==2){
+      fwrite("</body></html>\n", 1, 15, pFile);
+    }
+    fossil_fclose(pFile);
     blob_reset(&body);
     manifest_destroy(pWiki);
     return;

@@ -1812,6 +1812,55 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 }
 
 /*
+** Works like fclose() except that is a no-op if f is 0 and it
+** flushes, but does not close, f if it is one of (stdout, stderr).
+*/
+void fossil_fclose(FILE *f){
+
+  if(f!=0){
+    if(stdout==f || stderr==f){
+      fflush(f);
+    }else{
+      fclose(f);
+    }
+  }
+}
+
+/*
+**   Works like fopen(zName,"wb") except that:
+**
+**   1) If zName is "-", the stdout handle is returned.
+**
+**   2) Else file_mkfolder() is used to create all directories
+**      which lead up to the file before opening it.
+**
+**   3) It fails fatally if the file cannot be opened.
+*/
+FILE *fossil_fopen_for_output(const char *zFilename){
+  if(zFilename[0]=='-' && zFilename[1]==0){
+    return stdout;
+  }else{
+    FILE * p;
+    file_mkfolder(zFilename, ExtFILE, 1, 0);
+    p = fossil_fopen(zFilename, "wb");
+    if( p==0 ){
+#if _WIN32
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+                     "a reserved name on Windows", zFilename,
+                     zReserved);
+      }
+#endif
+      fossil_fatal("unable to open file \"%s\" for writing",
+                   zFilename);
+    }
+    return p;
+  }
+}
+
+
+/*
 ** Return non-NULL if zFilename contains pathname elements that
 ** are reserved on Windows.  The returned string is the disallowed
 ** path element.
