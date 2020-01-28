@@ -51,12 +51,12 @@ very simple to do - clients post plain/unencoded JSON using a common
 wrapper envelope which contains the request-specific data to submit as
 well as some request-independent information (like authentication data).
 
+<a id="request-envelope"></a>
 ## POST Request Envelope
 
 POST requests are sent to the same URL as their GET counterpart (if any,
 else their own path), and are sent as plain-text/unencoded JSON wrapped
 in a common request envelope with the following properties:
-
 
 (TODO: convert to a simple list...)
 ```
@@ -146,11 +146,11 @@ Fossil/JSON error response (as opposed to an HTTP error response). GET
 requests, by definition, never have an envelope.
 
 POSTed client requests *must* send a Content-Type header of either
-application/json , application/javascript, or text/plain, or the
+`application/json` , `application/javascript`, or `text/plain`, or the
 JSON-handling code will never see the POST data. The POST handler
-optimistically assumes that type text/plain "might be JSON", since
-application/json is a newer convention which many existing clients do
-not use.
+optimistically assumes that type `text/plain` "might be JSON", since
+`application/json` is a newer convention which many existing clients
+do not use (as of the time these docs were written, back in 2011).
 
 ## POST Envelope vs. `POST.payload`
 
@@ -395,7 +395,7 @@ handle UTF-8 then using this API in CLI mode might (depending on the
 content) render garbage on your screen.
 
 
-<a href="cli-vs-http"></a>
+<a id="cli-vs-http"></a>
 # CLI vs. HTTP Mode
 
 CLI (command-line interface) and HTTP modes (CGI and standalone server)

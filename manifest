@@ -1,5 +1,5 @@
-C Started\sporting\sthe\sJSON\sAPI\sfrom\sGoogleDocs\sto\sembedded\sdocs\s(markdown).\sThis\scheckin\sis\sapproximately\sthe\sfirst\shalf,\sin\sterms\sof\sbytes.
-D 2020-01-28T09:10:24.901
+C Ported\sin\s/json/wiki\sand\s/json/artifact\sdocs.
+D 2020-01-28T10:20:58.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -861,9 +861,12 @@ F www/index.wiki 9dd1783bf5f9b84a22fc2d3e4f0cfcbda7afba353d68318ed768f84d560d20a
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
-F www/json-api/conventions.md 50d37b83396c3985e91452b2d0b92a8011e07c81e66b9fb8f518bd6b1ed417a9
+F www/json-api/api-artifact.md e68c10d313fafbbe059b13b3d7f877cde1a7b9962549abf6bba90a754d9b9ba1
+F www/json-api/api-index.md 2b0640939d25cfc1cf81094645ba4e574cce95050b197fae3688feeccf0aa350
+F www/json-api/api-wiki.md b2e44efaf926e3089dbafabfe1ddcd14a866ba6b139ebf765f9ddd87df15f507
+F www/json-api/conventions.md ebdbbe441b51dd256c376b4332a47210af17aa82836fc38b7ebaa981ae37b81c
 F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
-F www/json-api/index.md b895cdedb0a18c8eb3f57af47efbfe523fb17b5daa29d2ee46af22dfcff2b58e
+F www/json-api/index.md ca271b53044d2eb81694691afe79c9ddaa995a4b643597e72322212a0aa8c821
 F www/json-api/intro.md b2c063082f9c84251d50bd3061f772e91bd71bc0dcf31ee5aad0825bf70601da
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
@@ -936,7 +939,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 038f595f981d616b54a7429e0c3d61ebf99ccbf1ef3266628b07b0f981e5315c
-R b6689c5f11fc77636d554400bafc9a3d
+P c95f11b4548d769109141dd7ae25f7ff357d93f5da294c7f7db308a4728590e4
+R 155d6d2468cbd99bf4f310c831f624cf
 U stephan
-Z 83e92631417b8dd5fc602f2c729bd867
+Z 910b90581881c3ef5f60ff5689238eea
