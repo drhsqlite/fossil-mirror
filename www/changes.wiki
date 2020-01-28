@@ -13,6 +13,8 @@
   *  Most commands now support the Unix-conventional "<tt>--</tt>"
      flag to treat all following arguments as filenames
      instead of flags.
+  *  Added the [/help?cmd=mimetypes|mimetypes config setting]
+     (versionable) to enable mimetype overrides and custom definitions.
   *  Several minor enhancements to existing features.
 
 <a name='v2_10'></a>
