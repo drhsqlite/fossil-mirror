@@ -364,7 +364,8 @@ void capability_summary(void){
   db_prepare(&q,
     "WITH t(id,seq) AS (VALUES('nobody',1),('anonymous',2),('reader',3),"
                        "('developer',4))"
-    " SELECT id, fullcap(user.cap),seq,1"
+    " SELECT id, CASE WHEN user.login='nobody' THEN user.cap"
+                    " ELSE fullcap(user.cap) END,seq,1"
     "   FROM t LEFT JOIN user ON t.id=user.login"
     " UNION ALL"
     " SELECT 'New User Default', fullcap(%Q), 10, 1"

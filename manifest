@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.31.1\splus\sthe\ss390x\sarchitecture\sfix.
-D 2020-01-28T15:21:43.358
+C In\sthe\scapability\ssummary\smatrix\s(shown\son\sthe\sSecurity\sAudit\spage,\sfor\nexample)\sdo\snot\sattribute\s"anonymous"\scapabilities\sto\suser\s"nobody".
+D 2020-01-28T15:33:15.525
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/browse.c 0ee3626f260dc863b66d609f4bcd6a8b7dcf3be912b6d1f321452a6f7fc644c7
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 09af50b15bea994bd1e7096b11eec5a274ba9e4f6983ce3c5961ccaf80531fc3
+F src/capabilities.c 76ed4eb5d551aa0867ccc7bb76656a3bd404248d1f32aa134c9ec2ddd76a565d
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c a8cfab71f54574f9c89aacf7c398a86bfcee3a9efb4cb485c40ceb6269c500ff
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
@@ -953,7 +953,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 514dd66f3354dec0076c58332167d1b6431483723014339ea412013b1f9b2e3a
-R d6e2af2f94d757a5630b9f60b5021056
+P e8f24f7ecdc1707d8b66cee982d00ddece8d6d6bf9582b567992da0e8c443200
+R c3ca15bcc0df5e0f87c6d82d5142ad6c
 U drh
-Z 87527358fb7650e387b240fe93f91461
+Z 3b54ab28611216a8192166b64586d5d9
