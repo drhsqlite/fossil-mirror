@@ -1,5 +1,5 @@
-C Added\s--inverse/-v\sflag\sto\sthe\stag\scommand,\sas\scovered\sin\s[https://fossil-scm.org/forum/forumpost/d717561e8b7406fc|forumpost/d717561e8b7406fc].
-D 2020-01-27T06:56:23.459
+C Added\s-html|-h\sflag\sto\s[/help?cmd=wiki|the\swiki\scommand],\sas\sdiscussed\sin\s[https://fossil-scm.org/forum/forumpost/7377c83dca|forumpost/7377c83dca],\sand\scleaned\sup\sthe\scommand's\shelp\stext\sand\sargument\svalidation.
+D 2020-01-28T02:53:22.639
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -602,7 +602,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c dc56c679f9389b64211dd2d1fceccbd10ce64c65048266aadb1ac34d4d90ace5
+F src/wiki.c 8289d112a2a7f7f5bba937afb605b1759fc10a1773edcfd3a216320a46309ee7
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -931,8 +931,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P eee161e823e3df1fb2e05c7e47227ef513de000208792363cd86afa530e9630c e170afb93626671811bbb3aa1f02225aa07eeeca392aa59ec08f8f5aee8039c3
-R 09f48565e607b76e8910ee1807f73ce4
-T +closed e170afb93626671811bbb3aa1f02225aa07eeeca392aa59ec08f8f5aee8039c3
+P 890614f13711f96bf6cf1b1a44530e9f5f70f41f7e7fa74a5aa9f40a489c9c6e
+R 5d95456d7534d9ea79843381894306c6
 U stephan
-Z de962e3eebbc0f723323c577f1b2fc69
+Z c99a3dffec6fbb04ad123daf8f14c76b

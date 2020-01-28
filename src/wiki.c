@@ -1226,7 +1226,7 @@ void wcontent_page(void){
       @ <tr><td data-sortkey="%h(zSort)">\
       @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWDisplayName)</s></a></td>
     }else{
-      @ <tr><td data=sortkey='%h(zSort)">\
+      @ <tr><td data=sortkey="%h(zSort)">\
       @ %z(href("%R/wiki?name=%T",zWName))%h(zWDisplayName)</a></td>
     }
     zAge = human_readable_age(rNow - rWmtime);
@@ -1366,15 +1366,21 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export PAGENAME ?FILE?
-**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID
+**    %fossil wiki export ?OPTIONS? ?PAGENAME? ?FILE?
+**    %fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
 **
 **       Sends the latest version of either a wiki page or of a tech note
 **       to the given file or standard output.
-**       If PAGENAME is provided, the wiki page will be output. For
-**       a tech note either DATETIME or TECHNOTE-ID must be specified. If
-**       DATETIME is used, the most recently modified tech note with that
-**       DATETIME will be sent.
+**
+**    Options:
+**       If PAGENAME is provided, the named wiki page will be output.
+**       --technote|-t DATETIME|TECHNOTE-ID
+**                  Specifies that a technote, rather than a wiki page,
+**                  will be exported. If DATETIME is used, the most
+**                  recently modified tech note with that DATETIME will
+**                  output.
+**       -h|--html  The body (only) is rendered in HTML form, without
+**                  any page header/foot or HTML/BODY tag wrappers.
 **
 **    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **
@@ -1446,13 +1452,16 @@ void wiki_cmd(void){
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
-    Blob body;                    /* Wiki page content */
+    Blob body = empty_blob;       /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
+    int fHtml = 0;                /* Export in HTML form */
 
+    fHtml = find_option("html","h",0)!=0;
     zETime = find_option("technote","t",1);
+    verify_all_options();
     if( !zETime ){
       if( (g.argc!=4) && (g.argc!=5) ){
-        usage("export PAGENAME ?FILE?");
+        usage("export ?-html? PAGENAME ?FILE?");
       }
       zPageName = g.argv[3];
       rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -1469,7 +1478,8 @@ void wiki_cmd(void){
       zFile = (g.argc==4) ? "-" : g.argv[4];
     }else{
       if( (g.argc!=3) && (g.argc!=4) ){
-        usage("export ?FILE? --technote DATETIME|TECHNOTE-ID");
+        usage("export ?-html? ?FILE? --technote "
+              "DATETIME|TECHNOTE-ID");
       }
       rid = wiki_technote_to_rid(zETime);
       if ( rid==-1 ){
@@ -1486,7 +1496,32 @@ void wiki_cmd(void){
     for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
     zBody[i] = 0;
     blob_init(&body, zBody, -1);
-    blob_append(&body, "\n", 1);
+    if(fHtml==0){
+      blob_append(&body, "\n", 1);
+    }else{
+      Blob html = empty_blob;   /* HTML-ized content */
+      const char * zMimetype = wiki_filter_mimetypes(pWiki->zMimetype);
+      if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+        wiki_convert(&body,&html,0);
+      }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+        markdown_to_html(&body,0,&html)
+          /* TODO: add -HTML|-H flag to work like -html|-h but also
+          ** add <html><body> tag wrappers around the output. The
+          ** hurdle here is that the markdown converter resets its
+          ** input blob before appending the output, which is
+          ** different from wiki_convert() and htmlize_to_blob(), and
+          ** precludes us simply appending the opening <html><body>
+          ** part to the body
+          */;
+      }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
+        htmlize_to_blob(&html,zBody,i);
+      }else{
+        fossil_fatal("Unsupported MIME type '%s' for wiki page '%s'.",
+                     zMimetype, pWiki->zWikiTitle );
+      }
+      blob_reset(&body);
+      body = html /* transfer memory */;
+    }
     blob_write_to_file(&body, zFile);
     blob_reset(&body);
     manifest_destroy(pWiki);
@@ -1502,6 +1537,7 @@ void wiki_cmd(void){
     const char *zETime = find_option("technote", "t", 1);
     const char *zTags = find_option("technote-tags", NULL, 1);
     const char *zClr = find_option("technote-bgcolor", NULL, 1);
+    verify_all_options();
     if( g.argc!=4 && g.argc!=5 ){
       usage("commit|create PAGENAME ?FILE? [--mimetype TEXT-FORMAT]"
             " [--technote DATETIME] [--technote-tags TAGS]"
@@ -1579,22 +1615,22 @@ void wiki_cmd(void){
     manifest_destroy(pWiki);
     blob_reset(&content);
   }else if( strncmp(g.argv[2],"delete",n)==0 ){
-    if( g.argc!=5 ){
+    if( g.argc!=4 ){
       usage("delete PAGENAME");
     }
     fossil_fatal("delete not yet implemented.");
   }else if(( strncmp(g.argv[2],"list",n)==0 )
           || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
-    int showIds = 0;
-
-    if ( !find_option("technote","t",0) ){
+    const int fTechnote = find_option("technote","t",0)!=0;
+    const int showIds = find_option("show-technote-ids","s",0)!=0;
+    verify_all_options();
+    if (fTechnote==0){
       db_prepare(&q,
         "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
         " ORDER BY lower(tagname) /*sort*/"
       );
     }else{
-      showIds = find_option("show-technote-ids","s",0)!=0;
       db_prepare(&q,
         "SELECT datetime(e.mtime), substr(t.tagname,7)"
          " FROM event e, tag t"
@@ -1604,7 +1640,6 @@ void wiki_cmd(void){
         " ORDER BY e.mtime DESC /*sort*/"
       );
     }
-
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( showIds ){
