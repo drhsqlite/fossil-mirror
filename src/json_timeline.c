@@ -37,7 +37,8 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 */
 {"branch", json_timeline_branch, 0},
 {"checkin", json_timeline_ci, 0},
-{"event", json_timeline_event, 0},
+{"event" /* old name for technotes */, json_timeline_event, 0},
+{"technote", json_timeline_event, 0},
 {"ticket", json_timeline_ticket, 0},
 {"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */

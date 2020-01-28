@@ -5,7 +5,8 @@ Jump to:
 
 * [JSON Property Naming](#property-names)
 * [HTTP GET Requests](#http-get)
-* [HTTP Post Requests](#http-post)
+* [HTTP POST Requests](#http-post)
+    * [POST Request Envelope](#request-envelope)
 * [Request Parameter Data Types](#request-param-types)
 * [Response Envelope](#response-envelope)
 * [HTTP Response Headers](#http-response-header)
@@ -29,18 +30,19 @@ been made) adopted the ubiquitous JavaScript convention of
 # HTTP GET Requests
 
 Many (if not most) requests can be made via simple GET requests, e.g. we
-*could* use any of the following:
+*could* use any of the following patterns for a hypothetical JSON-format
+timeline:
 
-- `http://..../timeline/json`
+- `https://..../timeline/json`
 - `/timeline?format=json`
 - `/timeline?json=1`
 - `/timeline.json`
 - `/json/timeline?...options...`
 
-After several discussions, the API settled on the `/json/...` convention,
-primarily because it simplifies dispatching and argument-handling logic
-compared to the `/[.../]foo.json` approach. Using `/json/...` allows us
-to unify that logic for all JSON sub-commands, for both CLI and HTTP modes.
+The API settled on the `/json/...` convention, primarily because it
+simplifies dispatching and argument-handling logic compared to the
+`/[.../]foo.json` approach. Using `/json/...` allows us to unify that
+logic for all JSON sub-commands, for both CLI and HTTP modes.
 
 <a id="http-post"></a>
 # HTTP Post Requests
@@ -58,82 +60,38 @@ POST requests are sent to the same URL as their GET counterpart (if any,
 else their own path), and are sent as plain-text/unencoded JSON wrapped
 in a common request envelope with the following properties:
 
-(TODO: convert to a simple list...)
-```
-+-----------------------------------+-----------------------------------+
-| requestId                         | Optional arbitrary JSON value,    |
-|                                   | not used by fossil, but returned  |
-|                                   | as-is in responses.               |
-+-----------------------------------+-----------------------------------+
-| command                           | Provides a secondary mechanism    |
-|                                   | for specifying which JSON command |
-|                                   | should be run. A request path of  |
-|                                   | /json/foo/bar is equivalent to a  |
-|                                   | request with path=/json and       |
-|                                   | command=foo/bar. Note that        |
-|                                   | subpaths do *not* work this way.  |
-|                                   | e.g. path=/json/foo, command=bar  |
-|                                   | will not work, but path=/json,    |
-|                                   | command=foo/bar will.             |
-|                                   |                                   |
-|                                   | This option is particularly       |
-|                                   | useful when generating JSON for   |
-|                                   | piping in to CLI mode, but it     |
-|                                   | also has some                     |
-|                                   | response-dispatching uses on the  |
-|                                   | client side.                      |
-+-----------------------------------+-----------------------------------+
-| authToken                         | Authentication token. Created by  |
-|                                   | a login request. Determines what  |
-|                                   | access rights the user has, and   |
-|                                   | any given request may require     |
-|                                   | specific rights. In principle     |
-|                                   | this is required by any request   |
-|                                   | which needs non-guest privileges, |
-|                                   | but cookie-aware clients do not   |
-|                                   | manually need to track this (it   |
-|                                   | is managed as a cookie by the     |
-|                                   | agent/browser).                   |
-+-----------------------------------+-----------------------------------+
-| payload                           | Command-specific parameters. Most |
-|                                   | can optionally come in via GET    |
-|                                   | parameters, but those taking      |
-|                                   | complex structures expect them to |
-|                                   | be placed here.                   |
-+-----------------------------------+-----------------------------------+
-| indent                            | Optionally specifies indentation  |
-|                                   | for the output. 0=no indention.   |
-|                                   | 1=a single TAB character for each |
-|                                   | level of indentation. &gt;1 means |
-|                                   | that many *spaces* per level.     |
-|                                   | e.g. indent=7 means to indent 7   |
-|                                   | spaces per object/array depth     |
-|                                   | level. cson also supports other   |
-|                                   | flags for fine-tuning the output  |
-|                                   | spacing, and adding them to this  |
-|                                   | interface might be interesting at |
-|                                   | some point. e.g. whether or not   |
-|                                   | to add a newline to the output.\  |
-|                                   | CLI mode adds extra indentation   |
-|                                   | by default, whereas CGI/server    |
-|                                   | modes produce unindented output   |
-|                                   | by default.                       |
-+-----------------------------------+-----------------------------------+
-| jsonp                             | Optional String (client function  |
-|                                   | name).                            |
-|                                   |                                   |
-|                                   | Requests which include this will  |
-|                                   | be returned with Content-Type     |
-|                                   | application/javascript and will   |
-|                                   | be wrapped up in a function call  |
-|                                   | using the given name. e.g. if     |
-|                                   | jsonp=foo then the result would   |
-|                                   | look like:                        |
-|                                   |                                   |
-|                                   | foo( {...the response             |
-|                                   | envelope...} )                    |
-+-----------------------------------+-----------------------------------+
-```
+- `requestId`: Optional arbitrary JSON value, not used by fossil, but
+  returned as-is in responses.
+- `command`: Provides a secondary mechanism for specifying which JSON
+  command should be run. A request path of /json/foo/bar is equivalent
+  to a request with path=/json and command=foo/bar. Note that subpaths
+  do not work this way. e.g. path=/json/foo, command=bar will not
+  work, but path=/json, command=foo/bar will.  This option is
+  particularly useful when generating JSON for piping in to CLI mode,
+  but it also has some response-dispatching uses on the client side.
+- `authToken`: Authentication token. Created by a login
+  request. Determines what access rights the user has, and any given
+  request may require specific rights. In principle this is required
+  by any request which needs non-guest privileges, but cookie-aware
+  clients do not manually need to track this (it is managed as a
+  cookie by the agent/browser).
+- `payload`: Command-specific parameters. Most can optionally come in
+  via GET parameters, but those taking complex structures expect them
+  to be placed here.
+- `indent`: Optionally specifies indentation for the output. 0=no
+  indention. 1=a single TAB character for each level of
+  indentation. >1 means that many spaces per level. e.g. indent=7
+  means to indent 7 spaces per object/array depth level. cson also
+  supports other flags for fine-tuning the output spacing, and adding
+  them to this interface might be interesting at some
+  point. e.g. whether or not to add a newline to the output.  CLI mode
+  adds extra indentation by default, whereas CGI/server modes produce
+  unindented output by default.
+- `jsonp`: Optional String (client function name). Requests which
+  include this will be returned with `Content-Type
+  application/javascript` and will be wrapped up in a function call
+  using the given name. e.g. if `jsonp=foo` then the result would look like:\  
+`foo( {...the response envelope...} )`
 
 The API allows most of those (normally all but the payload) to come in
 as either GET parameters or properties of the top-level POSTed request
@@ -182,12 +140,13 @@ vs. request-specific):
 ```
 
 When a given parameter is set in two places, e.g. GET and POST, or
-POST-from-a-file and CLI parameters, which one takes precedence depends
-on the concrete command handler (and may be unspecified). Most will give
-precedence to CLI and GET parameters, but POSTed values are technically
-preferred for non-string data because no additional "type guessing" or
-string-to-whatever conversion has to be made (GET/CLI parameters are
-*always* strings, even if they look like a number or boolean).
+POST-from-a-file and CLI parameters, which one takes precedence
+depends on the concrete command handler (and may be unspecified). Most
+will give precedence to CLI and GET parameters, but POSTed values are
+technically preferred for non-string data because no additional "type
+guessing" or string-to-whatever conversion has to be made (GET/CLI
+parameters are *always* strings, even if they look like a number or
+boolean).
 
 
 <a id="request-param-types"></a>
@@ -247,136 +206,67 @@ Every response comes in the form of a HTTP response or (in CLI mode)
 JSON sent to stdout. The body of the response is a JSON object following
 a common envelope format. The envelope has the following properties:
 
-(TODO: convert to a simple list...)
-```
-+-----------------------------------+-----------------------------------+
-| fossil                            | Fossil server version string.     |
-|                                   | This property is basically "the   |
-|                                   | official response envelope        |
-|                                   | marker" - if it is set, clients   |
-|                                   | can "probably safely assume" that |
-|                                   | the object indeed came from one   |
-|                                   | of the Fossil/JSON APIs. This API |
-|                                   | never creates responses which do  |
-|                                   | not contain this property.        |
-+-----------------------------------+-----------------------------------+
-| requestId                         | Only set if the request contained |
-|                                   | it, and then it is echoed back to |
-|                                   | the caller as-is. This can be use |
-|                                   | to determine (client-side) which  |
-|                                   | request a given response is       |
-|                                   | coming in for (assuming multiple  |
-|                                   | asynchronous requests are         |
-|                                   | pending). In practice this        |
-|                                   | generally isn’t needed because    |
-|                                   | response handling tends to be     |
-|                                   | done by closures associated with  |
-|                                   | the original request object (at   |
-|                                   | least in JavaScript code). In     |
-|                                   | languages without closures it     |
-|                                   | might have some use. It may be    |
-|                                   | any legal JSON value - it need    |
-|                                   | not be confined to a string or    |
-|                                   | number.                           |
-+-----------------------------------+-----------------------------------+
-| resultCode                        | Standardized result code string   |
-|                                   | in the form FOSSIL-\#\#\#\#.\     |
-|                                   | *Only error responses* contain a  |
-|                                   | resultCode.                       |
-+-----------------------------------+-----------------------------------+
-| resultText                        | *Possibly* a descriptive string,  |
-|                                   | possibly empty. Supplements the   |
-|                                   | resultCode, but can also be set   |
-|                                   | on success responses (but         |
-|                                   | normally isn't). Clients must not |
-|                                   | rely on any specific values being |
-|                                   | set here.                         |
-+-----------------------------------+-----------------------------------+
-| payload                           | Request-specific response payload |
-|                                   | (data type/structure is           |
-|                                   | request-specific).                |
-|                                   |                                   |
-|                                   | The payload is *never* set for    |
-|                                   | error responses, *only* for       |
-|                                   | success responses (and only those |
-|                                   | which actually have a payload -   |
-|                                   | not all do).                      |
-+-----------------------------------+-----------------------------------+
-| timestamp                         | Response timestamp (GMT Unix      |
-|                                   | Epoch). We use seconds precision  |
-|                                   | because i did not know at the     |
-|                                   | time that Fossil actually records |
-|                                   | millisecond precision.            |
-+-----------------------------------+-----------------------------------+
-| payloadVersion                    | Not initially needed, but         |
-|                                   | reserved for future use in        |
-|                                   | maintaining version compatibility |
-|                                   | when the format of a given        |
-|                                   | response type's payload changes.  |
-|                                   | If needed, the "first version"    |
-|                                   | value is assumed to be 0, for     |
-|                                   | semantic \[near-\]compatibility   |
-|                                   | with the undefined value clients  |
-|                                   | see when this property is not     |
-|                                   | set.                              |
-+-----------------------------------+-----------------------------------+
-| command                           | Normalized form of the command    |
-|                                   | being run. It consists of the     |
-|                                   | "command" (non-argument) parts of |
-|                                   | the request path (or CLI          |
-|                                   | positional arguments), excluding  |
-|                                   | the initial "/json/" part. e.g.   |
-|                                   | the "command" part of             |
-|                                   | "/json/timeline/checkin?a=b"      |
-|                                   | (CLI: json timeline checkin...)   |
-|                                   | is "timeline/checkin" (both in    |
-|                                   | CLI and HTTP modes).              |
-+-----------------------------------+-----------------------------------+
-| apiVersion                        | Not yet used, but reserved for a  |
-|                                   | numeric value which represents    |
-|                                   | the JSON API's version (which can |
-|                                   | be used to determine if it has a  |
-|                                   | given feature or not). This will  |
-|                                   | not be implemented until it's     |
-|                                   | needed.                           |
-+-----------------------------------+-----------------------------------+
-| warnings                          | Reserved for future use as a      |
-|                                   | standard place to put non-fatal   |
-|                                   | warnings in responses. Will be an |
-|                                   | array but the warning             |
-|                                   | structure/type is not yet         |
-|                                   | specified. Intended primarily as  |
-|                                   | a debugging tool, and will        |
-|                                   | "probably not" become part of the |
-|                                   | public client interface.          |
-+-----------------------------------+-----------------------------------+
-| g                                 | Fossil administrators (those with |
-|                                   | the "a" or "s" permissions) may   |
-|                                   | use the debugFossilG boolean      |
-|                                   | request parameter (CLI:           |
-|                                   | --json-debug-g) to enable this    |
-|                                   | property for any given response.  |
-|                                   | It contains a good deal of the    |
-|                                   | server-side internal state at the |
-|                                   | time the response was generated,  |
-|                                   | which is often useful in          |
-|                                   | debuggering problems. Trivia: it  |
-|                                   | is called "g" because that's the  |
-|                                   | name of fossil's internal global  |
-|                                   | state object.                     |
-+-----------------------------------+-----------------------------------+
-| procTimeMs                        | For debugging only - generic      |
-|                                   | clients must not rely on this     |
-|                                   | property. Contains the number of  |
-|                                   | milliseconds the JSON command     |
-|                                   | processor needed to dispatch and  |
-|                                   | process the command. TODO: move   |
-|                                   | the timer into the fossil core so |
-|                                   | that we can generically time its  |
-|                                   | responses and include the startup |
-|                                   | overhead in the time calculation. |
-+-----------------------------------+-----------------------------------+
-```
+
+- `fossil`: Fossil server version string. This property is basically
+  "the official response envelope marker" - if it is set, clients can
+  "probably safely assume" that the object indeed came from one of the
+  Fossil/JSON APIs. This API never creates responses which do not
+  contain this property.
+- `requestId`: Only set if the request contained it, and then it is
+  echoed back to the caller as-is. This can be use to determine
+  (client-side) which request a given response is coming in for
+  (assuming multiple asynchronous requests are pending). In practice
+  this generally isn’t needed because response handling tends to be
+  done by closures associated with the original request object (at
+  least in JavaScript code). In languages without closures it might
+  have some use. It may be any legal JSON value - it need not be
+  confined to a string or number.
+- `resultCode`: Standardized result code string in the form
+  `FOSSIL-####`. Only error responses contain a `resultCode`.
+- `resultText`: Possibly a descriptive string, possibly
+  empty. Supplements the resultCode, but can also be set on success
+  responses (but normally isn't). Clients must not rely on any
+  specific values being set here.
+- `payload`: Request-specific response payload (data type/structure is
+  request-specific).  The payload is never set for error responses,
+  only for success responses (and only those which actually have a
+  payload - not all do).
+- `timestamp`: Response timestamp (GMT Unix Epoch). We use seconds
+  precision because i did not know at the time that Fossil actually
+  records millisecond precision.
+- `payloadVersion`: Not initially needed, but reserved for future use
+  in maintaining version compatibility when the format of a given
+  response type's payload changes. If needed, the "first version"
+  value is assumed to be 0, for semantic [near-]compatibility with the
+  undefined value clients see when this property is not set.
+- `command`: Normalized form of the command being run. It consists of
+  the "command" (non-argument) parts of the request path (or CLI
+  positional arguments), excluding the initial "/json/" part. e.g. the
+  "command" part of "/json/timeline/checkin?a=b" (CLI: json timeline
+  checkin...)  is "timeline/checkin" (both in CLI and HTTP modes).
+- `apiVersion`: Not yet used, but reserved for a numeric value which
+  represents the JSON API's version (which can be used to determine if
+  it has a given feature or not). This will not be implemented until
+  it's needed.
+- `warnings`: Reserved for future use as a standard place to put
+  non-fatal warnings in responses. Will be an array but the warning
+  structure/type is not yet specified. Intended primarily as a
+  debugging tool, and will "probably not" become part of the public
+  client interface.
+- `g`: Fossil administrators (those with the "a" or "s" permissions)
+  may use the debugFossilG boolean request parameter (CLI:
+  --json-debug-g) to enable this property for any given response. It
+  contains a good deal of the server-side internal state at the time
+  the response was generated, which is often useful in debuggering
+  problems. Trivia: it is called "g" because that's the name of
+  fossil's internal global state object.
+- `procTimeMs`: For debugging only - generic clients must not rely on
+  this property. Contains the number of milliseconds the JSON command
+  processor needed to dispatch and process the command. TODO: move the
+  timer into the fossil core so that we can generically time its
+  responses and include the startup overhead in the time calculation.
+
+
 
 <a id="http-response-header"></a>
 # HTTP Response Headers
@@ -617,211 +507,111 @@ to be reflected here (and vice versa). Also, we have assertions in
 place to ensure that C-side codes are in the range 1000-9999, so do
 not just go blindly change the numeric ranges used by the enum.
 
-TODO: convert to plain list:
 
-```
-+-----------------------------------+-----------------------------------+
-| **FOSSIL-0###**                   | **Non-error Category**            |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-0000                       | Success/not an error. Succesful   |
-|                                   | responses do not contain a        |
-|                                   | resultCode, so clients should     |
-|                                   | never see this.                   |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-0###                       | Reserved for *potential* future   |
-|                                   | use in reporting non-fatal        |
-|                                   | warnings.                         |
-+-----------------------------------+-----------------------------------+
-|                                   |                                   |
-+-----------------------------------+-----------------------------------+
-| **FOSSIL-1000**                   | **Generic Errors Category**       |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1101                       | Invalid request. Request envelope |
-|                                   | is invalid or missing.            |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1102                       | Unknown command. This is only     |
-|                                   | useful if we dispatch all         |
-|                                   | /json/XXX paths through a central |
-|                                   | dispatcher and the XXX part is an |
-|                                   | unknown command.                  |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1103                       | Unknown/unspecified error         |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1104                       | RE-USE                            |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1105                       | A server-side timeout was         |
-|                                   | reached. (i’m not sure we can     |
-|                                   | actually implement this one,      |
-|                                   | though.)                          |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1106                       | Assertion failed (or would have   |
-|                                   | had we continued). Note: if an    |
-|                                   | assert() fails in CGI/server      |
-|                                   | modes, the HTTP response will be  |
-|                                   | code 500 (Internal Server Error). |
-|                                   | We want to avoid that and return  |
-|                                   | a JSON response instead.          |
-|                                   |                                   |
-|                                   | All of that said - i have no real |
-|                                   | intention of implementing this,   |
-|                                   | since assertions are "truly       |
-|                                   | serious" errors.                  |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1107                       | Allocation/out of memory error.\  |
-|                                   | There is a way to report this via |
-|                                   | JSON without allocating further   |
-|                                   | memory. Well, depending on where  |
-|                                   | exactly it happens. That said,    |
-|                                   | much of the code does not check   |
-|                                   | this condition or asserts() if an |
-|                                   | alloc fails.                      |
-|                                   |                                   |
-|                                   | Fossil's internal allocator       |
-|                                   | abort()s on OOM, so we can't      |
-|                                   | actually implement this, only     |
-|                                   | reserve it for use with, e.g.,    |
-|                                   | libfossil.                        |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1108                       | Requested API is not yet          |
-|                                   | implemented.                      |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1109                       | Panic! Fossil's `fossil_panic()`  |
-|                                   | or `cgi_panic()`was called. In    |
-|                                   | non-JSON HTML mode this produces  |
-|                                   | an HTTP 500 error. Clients        |
-|                                   | "should" report this as a         |
-|                                   | potential bug, as it "possibly"   |
-|                                   | indicates that the C code has     |
-|                                   | incorrect argument- or error      |
-|                                   | handling somewhere.               |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1110                       | Reading of artifact manifest      |
-|                                   | failed. Time to contact your      |
-|                                   | local fossil guru.                |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-1111                       | Opening of file failed (e.g. POST |
-|                                   | data provided to CLI mode).       |
-+-----------------------------------+-----------------------------------+
-|                                   |                                   |
-+-----------------------------------+-----------------------------------+
-| **FOSSIL-2000**                   | **Authentication/Access Error     |
-|                                   | Category**                        |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2001                       | Privileged request was missing    |
-|                                   | authentication token/cookie.      |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2002                       | Access to requested resource was  |
-|                                   | denied. Oftentimes the resultText |
-|                                   | property will contain a           |
-|                                   | human-language description of the |
-|                                   | access rights needed for the      |
-|                                   | given command.                    |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2003                       | Requested command is not          |
-|                                   | available in the current          |
-|                                   | operating mode. Returned in CLI   |
-|                                   | mode by commands which require    |
-|                                   | HTTP mode (e.g. login), and vice  |
-|                                   | versa.                            |
-+-----------------------------------+-----------------------------------+
-|                                   |                                   |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2100                       | Login Failed.                     |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2101                       | Anonymous login attempt is        |
-|                                   | missing the "anonymousSeed"       |
-|                                   | property (fetched via the         |
-|                                   | /json/anonymousPassword request). |
-|                                   | Note that this is more specific   |
-|                                   | form of FOSSIL-3002.              |
-+-----------------------------------+-----------------------------------+
-|                                   | **ONLY FOR TESTING purposes       |
-|                                   | should the remaning 210X          |
-|                                   | sub-codes be enabled (they are    |
-|                                   | potentially security-relevant, in |
-|                                   | that the client knows which part  |
-|                                   | of the request was                |
-|                                   | valid/invalid)**                  |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2102                       | Name not supplied in login        |
-|                                   | request                           |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2103                       | Password not supplied in login    |
-|                                   | request                           |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-2104                       | No name/password match found      |
-+-----------------------------------+-----------------------------------+
-|                                   |                                   |
-+-----------------------------------+-----------------------------------+
-| **FOSSIL-3000**                   | **Usage Error Category**          |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-3001                       | Invalid argument/parameter        |
-|                                   | type(s) or value(s) in request    |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-3002                       | Required argument(s)/parameter(s) |
-|                                   | missing from request              |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-3003                       | Requested resource identifier is  |
-|                                   | ambiguous (e.g. a shortened UUID  |
-|                                   | can be ambiguous).                |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-3004                       | Unresolved resource identifier. A |
-|                                   | branch/tag/uuid provided by       |
-|                                   | client code could not be          |
-|                                   | resolved.\                        |
-|                                   | This is a special case of #3006.  |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-3005                       | Resource already exists and       |
-|                                   | overwriting/replacing is not      |
-|                                   | allowed. e.g. trying to create a  |
-|                                   | wiki page or user which already   |
-|                                   | exists.                           |
-|                                   |                                   |
-|                                   | FIXME? Consolidate this and       |
-|                                   | resource-not-found into a         |
-|                                   | separate category for dumb-down   |
-|                                   | purposes?                         |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-3006                       | Requested resource not found. e.g |
-|                                   | artifact ID, branch name, etc.    |
-+-----------------------------------+-----------------------------------+
-|                                   |                                   |
-+-----------------------------------+-----------------------------------+
-| **FOSSIL-4000**                   | **Database-related Error          |
-|                                   | Category**                        |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4001                       | Statement preparation failed.     |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4002                       | Parameter binding failed.         |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4003                       | Statement execution failed.       |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4004                       | Database locked (this is not used |
-|                                   | anywhere, but reserved for future |
-|                                   | use).                             |
-+-----------------------------------+-----------------------------------+
-|                                   | **Special-case DB-related         |
-|                                   | errors...**                       |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4101                       | Fossil Schema out of date (repo   |
-|                                   | rebuild required).                |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4102                       | Fossil repo db could not be       |
-|                                   | found.                            |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4103                       | Repository db is not valid        |
-|                                   | (possibly corrupt).               |
-+-----------------------------------+-----------------------------------+
-| FOSSIL-4104                       | Check-out not found. This is      |
-|                                   | similar to FOSSIL-4102 but        |
-|                                   | indicates that a local checkout   |
-|                                   | is required (but was not found).  |
-|                                   | Note that the 4102 gets triggered |
-|                                   | earlier than this one, and so can |
-|                                   | appear in cases when a user might |
-|                                   | otherwise expect a 4104 error.    |
-+-----------------------------------+-----------------------------------+
-```
+**`FOSSIL-0###`: Non-error Category**
+
+- `FOSSIL-0000`: Success/not an error. Succesful responses do not
+  contain a resultCode, so clients should never see this.
+- `FOSSIL-0###`: Reserved for potential future use in reporting
+  non-fatal warnings.
+
+
+
+**`FOSSIL-1000`: Generic Errors Category**
+
+- `FOSSIL-1101`: Invalid request. Request envelope is invalid or
+  missing.
+- `FOSSIL-1102`: Unknown JSON command.
+- `FOSSIL-1103`: Unknown/unspecified error
+- `FOSSIL-1104`: RE-USE
+- `FOSSIL-1105`: A server-side timeout was reached. (i’m not sure we
+  can actually implement this one, though.)
+- `FOSSIL-1106`: Assertion failed (or would have had we
+  continued). Note: if an `assert()` fails in CGI/server modes, the HTTP
+  response will be code 500 (Internal Server Error). We want to avoid
+  that and return a JSON response instead. All of that said - there seems
+  to be little reason to implementi this, since assertions are "truly
+  serious" errors.
+- `FOSSIL-1107`: Allocation/out of memory error. This cannot be reasonably
+  reported because fossil aborts if an allocation fails.
+- `FOSSIL-1108`: Requested API is not yet implemented.
+- `FOSSIL-1109`: Panic! Fossil's `fossil_panic()` or `cgi_panic()` was
+  called. In non-JSON HTML mode this produces an HTTP 500
+  error. Clients "should" report this as a potential bug, as it
+  "possibly" indicates that the C code has incorrect argument- or
+  error handling somewhere.
+- `FOSSIL-1110`: Reading of artifact manifest failed. Time to contact
+  your local fossil guru.
+- `FOSSIL-1111`: Opening of file failed (e.g. POST data provided to
+  CLI mode).
+
+
+**`FOSSIL-2000`: Authentication/Access Error Category**
+
+- `FOSSIL-2001`: Privileged request was missing authentication
+  token/cookie.
+- `FOSSIL-2002`: Access to requested resource was denied. Oftentimes
+  the `resultText` property will contain a human-language description of
+  the access rights needed for the given command.
+- `FOSSIL-2003`: Requested command is not available in the current
+  operating mode. Returned in CLI mode by commands which require HTTP
+  mode (e.g. login), and vice versa. FIXME: now that we can simulate
+  POST in CLI mode, we can get rid of this distinction for some of the
+  commands.
+- `FOSSIL-2100`: Login Failed.
+- `FOSSIL-2101`: Anonymous login attempt is missing the
+  "anonymousSeed" property (fetched via [the `/json/anonymousPassword`
+  request](api-auth.md#login-anonymous)). Note that this is more
+  specific form of `FOSSIL-3002`.
+
+
+ONLY FOR TESTING purposes should the remaning 210X sub-codes be
+enabled (they are potentially security-relevant, in that the client
+knows which part of the request was valid/invalid):
+
+- `FOSSIL-2102`: Name not supplied in login request
+- `FOSSIL-2103`: Password not supplied in login request
+- `FOSSIL-2104`: No name/password match found
+
+
+**`FOSSIL-3000`: Usage Error Category**
+
+- `FOSSIL-3001`: Invalid argument/parameter type(s) or value(s) in
+  request
+- `FOSSIL-3002`: Required argument(s)/parameter(s) missing from
+  request
+- `FOSSIL-3003`: Requested resource identifier is ambiguous (e.g. a
+  shortened UUID can be ambiguous).
+- `FOSSIL-3004`: Unresolved resource identifier. A branch/tag/uuid
+  provided by client code could not be resolved. This is a special
+  case of #3006.
+- `FOSSIL-3005`: Resource already exists and overwriting/replacing is
+  not allowed. e.g. trying to create a wiki page or user which already
+  exists. FIXME? Consolidate this and resource-not-found into a
+  separate category for dumb-down purposes?
+- `FOSSIL-3006`: Requested resource not found. e.g artifact ID, branch
+  name, etc.
+
+
+**`FOSSIL-4000`: Database-related Error Category**
+
+- `FOSSIL-4001`: Statement preparation failed.
+- `FOSSIL-4002`: Parameter binding failed.
+- `FOSSIL-4003`: Statement execution failed.
+- `FOSSIL-4004`: Database locked (this is not used anywhere, but
+  reserved for future use).
+
+Special-case DB-related errors...
+
+- `FOSSIL-4101`: Fossil Schema out of date (repo rebuild required).
+- `FOSSIL-4102`: Fossil repo db could not be found.
+- `FOSSIL-4103`: Repository db is not valid (possibly corrupt).
+- `FOSSIL-4104`: Check-out not found. This is similar to FOSSIL-4102
+  but indicates that a local checkout is required (but was not
+  found). Note that the 4102 gets triggered earlier than this one, and
+  so can appear in cases when a user might otherwise expect a 4104
+  error.
+
 
 Some of those error codes are of course "too detailed" for the client to
 do anything with (e.g.. 4001-4004), but their intention is to make it
