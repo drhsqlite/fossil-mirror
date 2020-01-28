@@ -308,6 +308,99 @@ static void mimetype_verify(void){
 }
 
 /*
+** Looks in the contents of the "mimetypes" setting for a suffix
+** matching zSuffix. If found, it returns the configured value
+** in memory owned by the app (i.e. do not free() it), else it
+** returns 0.
+**
+** The mimetypes setting is expected to be a list of file extensions
+** and mimetypes, with one such mapping per line. A leading '.'  on
+** extensions is permitted for compatibility with lists imported from
+** other tools which require them.
+*/
+static const char *mimetype_from_name_custom(const char *zSuffix){
+  static char * zList = 0;
+  static char const * zEnd = 0;
+  static int once = 0;
+  char * z;
+  int tokenizerState /* 0=expecting a key, 1=skip next token,
+                     ** 2=accept next token */;
+  if(once==0){
+    once = 1; 
+    zList = db_get("mimetypes",0);
+    if(zList==0){
+      return 0;
+    }
+    /* Transform zList to simplify the main loop:
+       replace non-newline spaces with NUL bytes. */
+    zEnd = zList + strlen(zList);
+    for(z = zList; z<zEnd; ++z){
+      if('\n'==*z) continue;
+      else if(fossil_isspace(*z)){
+        *z = 0;
+      }
+    }
+  }else if(zList==0){
+    return 0;
+  }
+  tokenizerState = 0;
+  z = zList;
+  while( z<zEnd ){
+    if(*z==0){
+      ++z;
+      continue;
+    }
+    else if('\n'==*z){
+      if(2==tokenizerState){
+        /* We were expecting a value for a successful match
+           here, but got no value. Bail out. */
+        break;
+      }else{
+        /* May happen on malformed inputs. Skip this record. */
+        tokenizerState = 0;
+        ++z;
+        continue;
+      }
+    }
+    switch(tokenizerState){
+      case 0:{ /* This is a file extension */
+        static char * zCase = 0;
+        if('.'==*z){
+          /*ignore an optional leading dot, for compatibility
+            with some external mimetype lists*/;
+          if(++z==zEnd){
+            break;
+          }
+        }
+        if(zCase<z){
+          /*we have not yet case-folded this section: lower-case it*/
+          for(zCase = z; zCase<zEnd && *zCase!=0; ++zCase){
+            if(!(0x80 & *zCase)){
+              *zCase = (char)fossil_tolower(*zCase);
+            }
+          }
+        }
+        if(strcmp(z,zSuffix)==0){
+          tokenizerState = 2 /* Match: accept the next value. */;
+        }else{
+          tokenizerState = 1 /* No match: skip the next value. */;
+        }
+        z += strlen(z);
+        break;
+      }
+      case 1: /* This is a value, but not a match. Skip it. */
+        z += strlen(z);
+        break;
+      case 2: /* This is the value which matched the previous key. */;
+        return z;
+      default:
+        assert(!"cannot happen - invalid tokenizerState value.");
+    }
+  }
+  return 0;
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
@@ -336,6 +429,10 @@ const char *mimetype_from_name(const char *zName){
   if( len<sizeof(zSuffix)-1 ){
     sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
+    z = mimetype_from_name_custom(zSuffix);
+    if(z!=0){
+      return z;
+    }
     first = 0;
     last = count(aMime) - 1;
     while( first<=last ){
@@ -367,6 +464,7 @@ const char *mimetype_from_name(const char *zName){
 void mimetype_test_cmd(void){
   int i;
   mimetype_verify();
+  db_find_and_open_repository(0, 0);
   for(i=2; i<g.argc; i++){
     fossil_print("%-20s -> %s\n", g.argv[i], mimetype_from_name(g.argv[i]));
   }
@@ -380,11 +478,50 @@ void mimetype_test_cmd(void){
 */
 void mimetype_list_page(void){
   int i;
+  char *zCustomList = 0;    /* value of the mimetypes setting */
+  int nCustomEntries = 0;   /* number of entries in the mimetypes
+                            ** setting */
   mimetype_verify();
   style_header("Mimetype List");
   @ <p>The Fossil <a href="%R/help?cmd=/doc">/doc</a> page uses filename
-  @ suffixes and the following table to guess at the appropriate mimetype
-  @ for each document.</p>
+  @ suffixes and the following tables to guess at the appropriate mimetype
+  @ for each document. Mimetypes may be customized and overridden using
+  @ <a href="%R/help?cmd=mimetypes">the mimetypes config setting</a>.</p>
+  zCustomList = db_get("mimetypes",0);
+  if( zCustomList!=0 ){
+    Blob list, entry, key, val;
+    @ <h1>Repository-specific mimetypes</h1>
+    @ <p>The following extension-to-mimetype mappings are defined via
+    @ the <a href="%R/help?cmd=mimetypes">mimetypes setting</a>.</p>
+    @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
+    @ data-column-types='tt' data-init-sort='0'>
+    @ <thead>
+    @ <tr><th>Suffix<th>Mimetype
+    @ </thead>
+    @ <tbody>
+    blob_set(&list, zCustomList);
+    while( blob_line(&list, &entry)>0 ){
+      const char *zKey;
+      if( blob_token(&entry, &key)==0 ) continue;
+      if( blob_token(&entry, &val)==0 ) continue;
+      zKey = blob_str(&key);
+      if( zKey[0]=='.' ) zKey++;
+      @ <tr><td>%h(zKey)<td>%h(blob_str(&val))</tr>
+      nCustomEntries++;
+    }
+    fossil_free(zCustomList);
+    if( nCustomEntries==0 ){
+      /* This can happen if the option is set to an empty/space-only
+      ** value. */
+      @ <tr><td colspan="2"><em>none</em></tr>
+    }
+    @ </tbody></table>
+  }
+  @ <h1>Default built-in mimetypes</h1>
+  if(nCustomEntries>0){
+    @ <p>Entries starting with an exclamation mark <em><strong>!</strong></em>
+    @ are overwritten by repository-specific settings.</p>
+  }
   @ <table class='sortable mimetypetable' border=1 cellpadding=0 \
   @ data-column-types='tt' data-init-sort='1'>
   @ <thead>
@@ -392,7 +529,12 @@ void mimetype_list_page(void){
   @ </thead>
   @ <tbody>
   for(i=0; i<count(aMime); i++){
-    @ <tr><td>%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
+    const char *zFlag = "";
+    if(nCustomEntries>0 &&
+       mimetype_from_name_custom(aMime[i].zSuffix)!=0){
+      zFlag = "<em><strong>!</strong></em> ";
+    }
+    @ <tr><td>%s(zFlag)%h(aMime[i].zSuffix)<td>%h(aMime[i].zMimetype)</tr>
   }
   @ </tbody></table>
   style_table_sorter();

@@ -3452,6 +3452,13 @@ struct Setting {
 ** A limit on the size of uplink HTTP requests.
 */
 /*
+** SETTING: mimetypes        width=40 versionable block-text
+** A list of file extension-to-mimetype mappings, one per line. e.g.
+** "foo application/x-foo". File extensions are compared
+** case-insensitively in the order listed in this setting.  A leading
+** '.' on file extensions is permitted but not required.
+*/
+/*
 ** SETTING: mtime-changes    boolean default=on
 ** Use file modification times (mtimes) to detect when
 ** files have been modified.  If disabled, all managed files
