@@ -1,5 +1,5 @@
-C Ported\sin\sthe\sremaining\sJSON\sAPI\sdocs.\sCombined\sthe\sAPI\sindex\sinto\sthe\smain\sindex.\sReplaced\sthe\spandoc-exported\stables\swith\slists.\sA\scouple\spatches\sto\sthe\sC\sbits\sfor\sissues\sfound\sduring\sdoc\sporting.
-D 2020-01-28T13:33:13.187
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.31.1\splus\sthe\ss390x\sarchitecture\sfix.
+D 2020-01-28T15:21:43.358
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -571,8 +571,8 @@ F src/smtp.c 5e8b272d6a24f2bcb3e05e5a619bae29fa760d171dcee270e798aea25347bf80
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c a5fca0b9f8cbf80ac89b97193378c719d4af4b7d647729d8df9c0c0fca7b1388
-F src/sqlite3.h 49ad438a86b7bcd3d02dad7445cc8511e4a0ad3343e98d22283c47639ec5816b
+F src/sqlite3.c db6df305071f3c23c68ce82acbab4b362c1e2fbfa4cf05bd23b35d254ed609bd
+F src/sqlite3.h 880e4f2dd3cb41e4a1bdd132a31bcb397b50c7a24349eca1632e36eb2b7d4672
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c cd2271ee77b1b78ca82c34f4f692ab22f42f4b0b786ebe42cedf481a7a1d0948
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -953,7 +953,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 85967b7c46f0f09f1dc7eeb1bee138a7a23f93ae03fb311bd78ed6dd3a0d7177
-R 3dfb23301206f057500216d6f4a9efd0
-U stephan
-Z ef53988d2e7d2bf7a3ba28fedb534180
+P 514dd66f3354dec0076c58332167d1b6431483723014339ea412013b1f9b2e3a
+R d6e2af2f94d757a5630b9f60b5021056
+U drh
+Z 87527358fb7650e387b240fe93f91461
