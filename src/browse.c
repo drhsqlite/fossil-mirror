@@ -124,7 +124,6 @@ void page_dir(void){
   char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
-  int n;
   char *zPrefix;
   Stmt q;
   const char *zCI = P("ci");
@@ -271,11 +270,10 @@ void page_dir(void){
   ** directory.
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
-  n = db_int(1,"SELECT count(*) FROM localfiles; /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
-  @ <div class="columns files" style="columns: %d(mxLen)ex %d(n);">
+  @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN;
