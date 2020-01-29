@@ -1812,15 +1812,17 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 }
 
 /*
-** Works like fclose() except that is a no-op if f is 0 and it
-** flushes, but does not close, f if it is one of (stdout, stderr).
+** Works like fclose() except that:
+**
+** 1) is a no-op if f is 0 or if it is stdin.
+**
+** 2) If f is one of (stdout, stderr), it is flushed but not closed.
 */
 void fossil_fclose(FILE *f){
-
   if(f!=0){
     if(stdout==f || stderr==f){
       fflush(f);
-    }else{
+    }else if(stdin!=f){
       fclose(f);
     }
   }
