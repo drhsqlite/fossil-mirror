@@ -1,5 +1,5 @@
-C fossil_fclose()\sis\snow\sa\sno-op\sif\spassed\sstdin\s(as\swas\sinitially\sintended).
-D 2020-01-29T07:10:35.170
+C Removed\s.column,.columns\s{float:left}\sfrom\sArdoise\sskin\sbecause\sit\scan\sbreak\sdisplay\sof\sREADME.md\sin\s/dir\sview\sby\scausing\sthe\sREADME\sto\sdisplay\sin\sthe\ssame\srow\sas\sthe\sdir\scolumns.
+D 2020-01-29T09:47:10.245
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -328,7 +328,7 @@ F setup/fossil.nsi 806b01761d5d42543d1c90b95b927c0ea8b251bf
 F skins/README.md a32271fe6907cc4c0cabb9d24c1dab16b89dbc64
 F skins/aht/details.txt b8f20e99b2dd421f72f686b286f04c0283f242c5
 F skins/ardoise/README.md b26ddcc8204482ac1deccdf7aff37416858fe887d85368de2ec1d6565a3a1a3d
-F skins/ardoise/css.txt 7152b8988671164103e36d382f27ad00c2c0a9211c7b8c0a6ca4138afdcbfd46
+F skins/ardoise/css.txt b3ccc142a85db548b753cebee93187fb618a5be0e8f4a1c83d1c8165ccb6d018
 F skins/ardoise/details.txt 143655ad0389eec5976d4b453ad9a194c72fcc430d647efe7c033c39db28b428
 F skins/ardoise/footer.txt 8a8ded401c096c7c3434f29c444d506f4b2f15b25c79ec6373253be6561119fa
 F skins/ardoise/header.txt 47309feeacc1a9d4d65affb0174b914dcb96dcef1666356248039145c2feeb9e
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83d02c01b4f2b51703b5fc531c92ca83a6309128a0855627912926bbe39a87f6
-R e50a413e2f772f27a4572286afb4a89b
+P 7723a92f069102ae153e01912939ab7e60771c61ba032eed6c3f32c31916a439
+R 2d1058289404f15ac26fdeef8fd9ce4e
 U stephan
-Z 444393ef2497b79b1e0f774597794b1f
+Z 02de9362f02429fc95148e3a14147e3c
