@@ -642,7 +642,7 @@ void json_send_response( cson_value const * pResponse ){
 cson_value * json_auth_token(){
   assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   if( g.json.authToken==0 && g.noPswd==0
-      /* g.noPswd==0 means the user was logged in via a local
+      /* g.noPswd!=0 means the user was logged in via a local
          connection using --localauth. */
       ){
     /* Try to get an authorization token from GET parameter, POSTed

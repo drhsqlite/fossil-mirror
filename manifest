@@ -1,5 +1,5 @@
-C json:\swhen\slogging\sin\slocally\sto\sa\sserver\sstarted\swith\sthe\s--localauth\sflag,\sthe\sauthToken\sis\snow\signored\sentirely.
-D 2020-01-29T06:25:37.923
+C Doc\stypo/misinformation\sfix.
+D 2020-01-29T06:31:10.959
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d337103
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 7f99ab7269aae0b46a5ab49d8571afadd64aa6e582f97328a7ff1c6f32d2dfa9
 F src/info.c 56f29d9da19ce6b93a95ab809eb5424875ac739ea1dea33eef5934db805b9208
-F src/json.c cde40834125f940d92254043a62e8ccd91458fdcbc29a0853bcb4135e5453d8b
+F src/json.c d7e0f3dc2f419df0c808ad7ef595ae833defef476f96bd506e81e3b0c2b84a69
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f3d3c589855b6933f9a9bc91aa7c9a6d7a8b1e9ca707b90306e01599118555bf
-R 1adb986f69ef1cba8be6ef09097a7527
+P 6dfc395a4869945a4fd85e2f3913ddb939add1f5dc3995f916d6e162f922b499
+R f97117e822bd777002dccb1487188ea0
 U stephan
-Z 653c5a5e19ee70dbe46f579c2d31375e
+Z 4eef07646fcd9b06c899d8a811ea6509
