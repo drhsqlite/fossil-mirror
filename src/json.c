@@ -54,10 +54,11 @@ const FossilJsonKeys_ FossilJsonKeys = {
   "timestamp" /*timestamp*/
 };
 
-
-
 /*
 ** Returns true (non-0) if fossil appears to be running in JSON mode.
+** and either has JSON POSTed input awaiting consumption or fossil is
+** running in HTTP mode (in which case certain JSON data *might* be
+** available via GET parameters).
 */
 int fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
@@ -580,6 +581,21 @@ char const * json_guess_content_type(){
 }
 
 /*
+ ** Given a request CONTENT_TYPE value, this function returns true
+ ** if it is of a type which the JSON API can ostensibly read.
+ **
+ ** It accepts any of application/json, text/plain, or
+ ** application/javascript. The former is preferred, but was not
+ ** widespread when this API was initially built, so the latter forms
+ ** are permitted as fallbacks.
+ */
+int json_can_consume_content_type(const char * zType){
+  return fossil_strcmp(zType, "application/json")==0
+    || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
+    || fossil_strcmp(zType,"application/javascript")==0;
+}
+
+/*
 ** Sends pResponse to the output stream as the response object.  This
 ** function does no validation of pResponse except to assert() that it
 ** is not NULL. The caller is responsible for ensuring that it meets
@@ -927,7 +943,8 @@ static void json_mode_bootstrap(){
   }else{
     once = 1;
   }
-  g.json.isJsonMode = 1;
+  assert(g.json.isJsonMode
+         && "g.json.isJsonMode should have been set up by now.");
   g.json.resultCode = 0;
   g.json.cmd.offset = -1;
   g.json.jsonp = PD("jsonp",NULL)
@@ -1007,14 +1024,12 @@ static void json_mode_bootstrap(){
       : fossil_fopen(jfile,"rb");
     if(!inFile){
       g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
-      fossil_panic("Could not open JSON file [%s].",jfile)
+      fossil_fatal("Could not open JSON file [%s].",jfile)
         /* Does not return. */
         ;
     }
     cgi_parse_POST_JSON(inFile, 0);
-    if( stdin != inFile ){
-      fclose(inFile);
-    }
+    fossil_fclose(inFile);
     break;
   }
 
@@ -1112,9 +1127,9 @@ char const * json_command_arg(unsigned short ndx){
                    ))
     char const * tok = NEXT;
     while( tok ){
-      if( !g.isHTTP/*workaround for "abbreviated name" in CLI mode*/
-          ? (0==strcmp(g.argv[1],tok))
-          : (0==strncmp("json",tok,4))
+      if( g.isHTTP/*workaround for "abbreviated name" in CLI mode*/
+          ? (0==strncmp("json",tok,4))
+          : (0==strcmp(g.argv[1],tok))
           ){
         g.json.cmd.offset = i;
         break;
@@ -1385,13 +1400,13 @@ static cson_value * json_create_response( int resultCode,
   v = cson_object_value(o);
   if( ! o ) return NULL;
 #define SET(K) if(!tmp) goto cleanup; \
-  rc = cson_object_set( o, K, tmp ); \
-  if(rc) do{\
-    cson_value_free(tmp); \
-    tmp = NULL; \
-    goto cleanup; \
+  cson_value_add_reference(tmp);      \
+  rc = cson_object_set( o, K, tmp );  \
+  cson_value_free(tmp);               \
+  if(rc) do{                          \
+    tmp = NULL;                       \
+    goto cleanup;                     \
   }while(0)
-
 
   tmp = json_new_string(MANIFEST_UUID);
   SET("fossil");
@@ -1420,6 +1435,9 @@ static cson_value * json_create_response( int resultCode,
   }else{
     tmp = json_response_command_path();
   }
+  if(!tmp){
+    tmp = json_new_string("???");
+  }
   SET("command");
 
   tmp = json_getenv(FossilJsonKeys.requestId);
@@ -1436,8 +1454,9 @@ static cson_value * json_create_response( int resultCode,
     }
     if(0){/*Only for debugging, add some info to the response.*/
       tmp = cson_value_new_integer( g.json.cmd.offset );
-      cson_object_set( o, "cmd.offset", tmp );
-      cson_object_set( o, "isCGI", cson_value_new_bool( g.isHTTP ) );
+      SET("cmd.offset");
+      tmp = cson_value_new_bool( g.isHTTP );
+      SET("isCGI");
     }
   }
 
@@ -1456,7 +1475,6 @@ static cson_value * json_create_response( int resultCode,
     cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)span));
     assert(!fossil_timer_is_active(g.json.timerId));
     g.json.timerId = -1;
-
   }
   if(g.json.warnings){
     tmp = cson_array_value(g.json.warnings);
@@ -1474,8 +1492,9 @@ static cson_value * json_create_response( int resultCode,
     }
   }
 
-  if(json_find_option_bool("debugFossilG","json-debug-g",NULL,0)
-     &&(g.perm.Admin||g.perm.Setup)){
+  if((g.perm.Admin||g.perm.Setup)
+     && json_find_option_bool("debugFossilG","json-debug-g",NULL,0)
+     ){
     tmp = json_g_to_json();
     SET("g");
   }
@@ -1516,6 +1535,7 @@ void json_err( int code, char const * msg, int alsoOutput ){
                           ? g.json.resultCode
                           : FSL_JSON_E_UNKNOWN);
   cson_value * resp = NULL;
+  if(g.json.isJsonMode==0) return;
   rc = json_dumbdown_rc(rc);
   if( rc && !msg ){
     msg = g.zErrMsg;
@@ -1526,7 +1546,8 @@ void json_err( int code, char const * msg, int alsoOutput ){
   resp = json_create_response(rc, msg, NULL);
   if(!resp){
     /* about the only error case here is out-of-memory. DO NOT
-       call fossil_panic() here because that calls this function.
+       call fossil_panic() or fossil_fatal() here because those
+       allocate.
     */
     fprintf(stderr, "%s: Fatal error: could not allocate "
             "response object.\n", g.argv[0]);

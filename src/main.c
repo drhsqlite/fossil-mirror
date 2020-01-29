@@ -269,8 +269,9 @@ struct Global {
                                   false. This changes how errors are
                                   reported. In JSON mode we try to
                                   always output JSON-form error
-                                  responses and always exit() with
-                                  code 0 to avoid an HTTP 500 error.
+                                  responses and always (in CGI mode)
+                                  exit() with code 0 to avoid an HTTP
+                                  500 error.
                                */
     int resultCode;            /* used for passing back specific codes
                                ** from /json callbacks. */
@@ -845,6 +846,13 @@ int fossil_main(int argc, char **argv){
                  g.argv[0], zCmdName, g.argv[0], blob_str(&couldbe), g.argv[0]);
     fossil_exit(1);
   }
+#ifdef FOSSIL_ENABLE_JSON
+  else if( rc==0 && strcmp("json",pCmd->zName)==0 ){
+    g.json.isJsonMode = 1;
+  }else{
+    assert(!g.json.isJsonMode && "JSON-mode misconfiguration.");
+  }
+#endif
   atexit( fossil_atexit );
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
   /*
@@ -1512,7 +1520,21 @@ static void process_one_web_page(
   }else if( PB("localtime") ){
     g.fTimeFormat = 2;
   }
-
+#ifdef FOSSIL_ENABLE_JSON
+  /*
+  ** Ensure that JSON mode is set up if we're visiting /json, to allow
+  ** us to customize some following behaviour (error handling and only
+  ** process JSON-mode POST data if we're actually in a /json
+  ** page). This is normally set up before this routine is called, but
+  ** it looks like the ssh_request_loop() approach to dispatching
+  ** might bypass that.
+  */
+  if( g.json.isJsonMode==0 && zPathInfo!=0
+      && 0==strncmp("/json",zPathInfo,5)
+      && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+    g.json.isJsonMode = 1;
+  }
+#endif
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
@@ -1643,7 +1665,7 @@ static void process_one_web_page(
 
       /* If we reach this point, it means that the search of the PATH_INFO
       ** string is finished.  Either zRepo contains the name of the
-      ** repository to be used, or else no repository could be found an
+      ** repository to be used, or else no repository could be found and
       ** some kind of error response is required.
       */
       if( szFile<1024 ){
@@ -1774,17 +1796,6 @@ static void process_one_web_page(
     }
     break;
   }
-#ifdef FOSSIL_ENABLE_JSON
-  /*
-  ** Workaround to allow us to customize some following behaviour for
-  ** JSON mode.  The problem is, we don't always know if we're in JSON
-  ** mode at this point (namely, for GET mode we don't know but POST
-  ** we do), so we snoop g.zPath and cheat a bit.
-  */
-  if( !g.json.isJsonMode && g.zPath && (0==strncmp("json",g.zPath,4)) ){
-    g.json.isJsonMode = 1;
-  }
-#endif
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.

@@ -1037,9 +1037,23 @@ void cgi_init(void){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
-    cgi_set_parameter("PATH_INFO", mprintf("%.*s", j-i, zRequestUri+i));
+    zPathInfo = mprintf("%.*s", j-i, zRequestUri+i);
+    cgi_set_parameter("PATH_INFO", zPathInfo);
   }
-
+#ifdef FOSSIL_ENABLE_JSON
+  if(strncmp("/json",zPathInfo,5)==0
+     && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+    /* We need to change some following behaviour depending on whether
+    ** we are operating in JSON mode or not. We cannot, however, be
+    ** certain whether we should/need to be in JSON mode until the
+    ** PATH_INFO is set up.
+    */
+    g.json.isJsonMode = 1;
+  }else{
+    assert(!g.json.isJsonMode &&
+           "Internal misconfiguration of g.json.isJsonMode");
+  }
+#endif
   z = (char*)P("HTTP_COOKIE");
   if( z ){
     z = mprintf("%s",z);
@@ -1073,25 +1087,14 @@ void cgi_init(void){
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( noJson==0 && (fossil_strcmp(zType, "application/json")==0
-              || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")==0) ){
-      g.json.isJsonMode = 1;
+    else if( noJson==0 && g.json.isJsonMode!=0 
+             && json_can_consume_content_type(zType)!=0 ){
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
-      /* FIXMEs:
+      /*
+       Potential TODOs:
 
-      - See if fossil really needs g.cgiIn to be set for this purpose
-      (i don't think it does). If it does then fill g.cgiIn and
-      refactor to parse the JSON from there.
-
-      - After parsing POST JSON, copy the "first layer" of keys/values
-      to cgi_setenv(), honoring the upper-case distinction used
-      in add_param_list(). However...
-
-      - If we do that then we might get a disconnect in precedence of
-      GET/POST arguments. i prefer for GET entries to take precedence
-      over like-named POST entries, but in order for that to happen we
-      need to process QUERY_STRING _after_ reading the POST data.
+       1) If parsing fails, immediately return an error response
+       without dispatching the ostensibly-upcoming JSON API.
       */
       cgi_set_content_type(json_guess_content_type());
     }
@@ -1605,6 +1608,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     cgi_setenv("REMOTE_ADDR", zIpAddr);
     g.zIpAddr = mprintf("%s", zIpAddr);
   }
+
 
   /* Get all the optional fields that follow the first line.
   */

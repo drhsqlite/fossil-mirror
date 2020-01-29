@@ -259,8 +259,8 @@ a common envelope format. The envelope has the following properties:
   debugging tool, and will "probably not" become part of the public
   client interface.
 - `g`: Fossil administrators (those with the "a" or "s" permissions)
-  may use the debugFossilG boolean request parameter (CLI:
-  --json-debug-g) to enable this property for any given response. It
+  may set the `debugFossilG` boolean request parameter (CLI:
+  `--json-debug-g`) to enable this property for any given response. It
   contains a good deal of the server-side internal state at the time
   the response was generated, which is often useful in debuggering
   problems. Trivia: it is called "g" because that's the name of

@@ -81,7 +81,7 @@ static cson_value * json_branch_list(){
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   if(fossil_has_json()){
-      range = json_getenv_cstr("range");
+    range = json_getenv_cstr("range");
   }
 
   range = json_find_option_cstr("range",NULL,"r");

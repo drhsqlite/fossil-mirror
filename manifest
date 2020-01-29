@@ -1,5 +1,5 @@
-C Removed\s.column,.columns\s{float:left}\sfrom\sArdoise\sskin\sbecause\sit\scan\sbreak\sdisplay\sof\sREADME.md\sin\s/dir\sview\sby\scausing\sthe\sREADME\sto\sdisplay\sin\sthe\ssame\srow\sas\sthe\sdir\scolumns.
-D 2020-01-29T09:47:10.245
+C Several\sminor\sinternal\scleanups\sin\sthe\s/json\sbits,\smost\snotably\show\sg.json.isJsonMode\sgets\sinitialized\s(based\sstrictly\son\sthe\spath/command,\snot\sguessing\sbased\son\sPOST\sinput).
+D 2020-01-29T12:34:07.334
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -444,7 +444,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 76ed4eb5d551aa0867ccc7bb76656a3bd404248d1f32aa134c9ec2ddd76a565d
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
-F src/cgi.c a8cfab71f54574f9c89aacf7c398a86bfcee3a9efb4cb485c40ceb6269c500ff
+F src/cgi.c 47b0d32be817273b13c21d09fcc8f888aa821fcf1dd0b4e85630a8236456e71e
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -496,9 +496,9 @@ F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d337103
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 7f99ab7269aae0b46a5ab49d8571afadd64aa6e582f97328a7ff1c6f32d2dfa9
 F src/info.c 56f29d9da19ce6b93a95ab809eb5424875ac739ea1dea33eef5934db805b9208
-F src/json.c d7e0f3dc2f419df0c808ad7ef595ae833defef476f96bd506e81e3b0c2b84a69
+F src/json.c ae4868f02ca47bac8aa57b726884aeb351d41af47434b99e6c5c0336bd96381d
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
-F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
+F src/json_branch.c 95c5701b39f75428a84f39bf7799118793a94202d1eb3e64e4c9f35aa22c343c
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
 F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
@@ -519,7 +519,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c cb683f252d45457867f8e2c71fdffa8554d731431a8ed6afa971ffd7458ecddc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c f7633ba20675648d1cdebd0fbe69824e797142b1d684700bd43f975ed02c9916
+F src/main.c f63e3516040534710a9f0fd5b73d61503f2186dea7462e47381c402cfe9c42b3
 F src/main.mk 16ed8fa4752f05dbeed39f50b47be3f1817e8fc94f869a04b6001aea5a994a79
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -878,7 +878,7 @@ F www/json-api/api-timeline.md c20ab20fd5c35504fe8630b04a9c76bef878a65d7943bbaa6
 F www/json-api/api-user.md 73bb8d8fc50a5214ef8c19c7277d71f5538705d9337fef05314b126f71003ff1
 F www/json-api/api-version.md 25fd79470bbab485de7ffddfa658d923be0aa514f86e0b4d3570c5bf2f06f6d6
 F www/json-api/api-wiki.md b2e44efaf926e3089dbafabfe1ddcd14a866ba6b139ebf765f9ddd87df15f507
-F www/json-api/conventions.md 13a920c35c4d5817e9d96bdf59c6245bc6846420d345223323707e1865c34fed
+F www/json-api/conventions.md 5410460c5d701fb1a188b556ec306e4eca3b2b0c7e131daa2afd8d76bb7de608
 F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
 F www/json-api/intro.md b2c063082f9c84251d50bd3061f772e91bd71bc0dcf31ee5aad0825bf70601da
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7723a92f069102ae153e01912939ab7e60771c61ba032eed6c3f32c31916a439
-R 2d1058289404f15ac26fdeef8fd9ce4e
+P da76d728b4f6c207cb2783d681ec4cabd2388f361eb3b4a8a806e9f039817794
+R 84951c769fc0357ab76b9b0c4b9b71a1
 U stephan
-Z 02de9362f02429fc95148e3a14147e3c
+Z 6905888e08d64841e954081b62d62fd5
