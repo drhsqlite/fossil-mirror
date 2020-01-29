@@ -23,10 +23,10 @@ and whatnot).
 By default the entries are returned in chronological order from newest
 to oldest, but some options might change that.
 
-FIXME (20120623): we have some inconsistent "type" vs. "eventType" in
-the result sets. "type" is the current preferred choice (and it seems
+FIXME (20120623): we have some inconsistent `type` vs. `eventType` in
+the result sets. `type` is the current preferred choice (and it seems
 unlikely that `eventType` is actually used in any client code). We
-don't actually need either one (but a use for "type" is easily
+don't actually need either one (but a use for `type` is easily
 envisioned), and we may get rid of both.
 
 **Common request options (via CLI, GET or POST.payload):**
