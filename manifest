@@ -1,5 +1,5 @@
-C Several\sminor\sinternal\scleanups\sin\sthe\s/json\sbits,\smost\snotably\show\sg.json.isJsonMode\sgets\sinitialized\s(based\sstrictly\son\sthe\spath/command,\snot\sguessing\sbased\son\sPOST\sinput).
-D 2020-01-29T12:34:07.334
+C Added\sthe\s'files'\sCSS\sclass\sto\sthe\s/dir\scolumn\sview\selement,\sper\sdiscussion\sat\s[https://fossil-scm.org/forum/forumpost/092ec8a4d0|/forumpost/092ec8a4d0].
+D 2020-01-29T13:52:20.598
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c 9825c3877ecaa8a933d131b8e10413d13b81100183916207f0bc6b06f0a75760
-F src/browse.c 0ee3626f260dc863b66d609f4bcd6a8b7dcf3be912b6d1f321452a6f7fc644c7
+F src/browse.c ac4273df0c6136837cdace0e3b87b2de30bc667cfcc671801893e2ea45a5e0b0
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da76d728b4f6c207cb2783d681ec4cabd2388f361eb3b4a8a806e9f039817794
-R 84951c769fc0357ab76b9b0c4b9b71a1
+P 39bef9274530c454c2368c442f7b6a54e2d39a5319db8b59e8f7ccda3cb4df5c
+R 49b747437328ea554383d1b9f2051b68
 U stephan
-Z 6905888e08d64841e954081b62d62fd5
+Z 523d032eaebdd1026e0840a2ee7bea43

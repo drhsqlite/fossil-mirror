@@ -275,7 +275,7 @@ void page_dir(void){
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
-  @ <div class="columns" style="columns: %d(mxLen)ex %d(n);">
+  @ <div class="columns files" style="columns: %d(mxLen)ex %d(n);">
   @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN;
