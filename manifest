@@ -1,5 +1,5 @@
-C json-api:\sadded\sa\snote\sabout\sthe\sauthToken\sbeing\sunnecessary,\sand\smaybe\sproblematic,\swhen\susing\sthe\s--localauth\sfossil\sserver\soption.
-D 2020-01-29T05:55:40.522
+C json:\swhen\slogging\sin\slocally\sto\sa\sserver\sstarted\swith\sthe\s--localauth\sflag,\sthe\sauthToken\sis\snow\signored\sentirely.
+D 2020-01-29T06:25:37.923
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -496,7 +496,7 @@ F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d337103
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 7f99ab7269aae0b46a5ab49d8571afadd64aa6e582f97328a7ff1c6f32d2dfa9
 F src/info.c 56f29d9da19ce6b93a95ab809eb5424875ac739ea1dea33eef5934db805b9208
-F src/json.c 356dc00fca5481569a58c65a23f85b880edc11e363526226de62da844afe74e9
+F src/json.c cde40834125f940d92254043a62e8ccd91458fdcbc29a0853bcb4135e5453d8b
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c f41e9f37e4ab0654cb395811acd6edf1c6464085ea3f3eb27fca417e0ae90a69
 F src/json_config.c f53fa14ab92730d30be35311b52a17848eeabe44
@@ -504,7 +504,7 @@ F src/json_detail.h 76bc835feb671a5001d4a20bd3f0c8882f228382
 F src/json_diff.c ece93153083c388397620c7c7c8b56ce986b85c6
 F src/json_dir.c 749c78497a1ca3d29659e760a8ecb482bf1a090e9ce6dd01f4e55d6abf062295
 F src/json_finfo.c 1061327153acf9d8f29228ae27c98e8f0c089955
-F src/json_login.c 3531595edce8ff47682bf8f2ddd9456d0d39f0a6b71c92179f79e5f83f44c7e0
+F src/json_login.c 1c6b1f158a56a3918b88822163280384272b7ed0adf4f8f9c046e07c5fda44e9
 F src/json_query.c 15f7b943478b3fa4a423aefb5a022e6e9513abc7
 F src/json_report.c abda9047e6031f55078e6254f9c1dd50dc54f2b2
 F src/json_status.c 9aa7c3f2c0a450b9a567316261197f85e61e743637844776ad61f8a952d9a08c
@@ -862,7 +862,7 @@ F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c833
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
 F www/json-api/api-artifact.md e68c10d313fafbbe059b13b3d7f877cde1a7b9962549abf6bba90a754d9b9ba1
-F www/json-api/api-auth.md 11ef9041371e64a76a175e7e23673aa121e28cb6065533e3ecdf29355797ac81
+F www/json-api/api-auth.md 748aa6d59c3fb5bd830fbb2b4db8052a0ac22d430a449344e2aeb069420cd6fd
 F www/json-api/api-branch.md fead45003061de747b18abf26212d1bac38f799e25118966aaf522a82ced7b54
 F www/json-api/api-checkout.md 573374b07c229885ea0ee198a5d16574750623082c041441e4cca514666d8805
 F www/json-api/api-config.md fd78b7737b04dac1b458259e2c9a4b8e49473533949420c8735c55afc654f229
@@ -878,7 +878,7 @@ F www/json-api/api-timeline.md c20ab20fd5c35504fe8630b04a9c76bef878a65d7943bbaa6
 F www/json-api/api-user.md 73bb8d8fc50a5214ef8c19c7277d71f5538705d9337fef05314b126f71003ff1
 F www/json-api/api-version.md 25fd79470bbab485de7ffddfa658d923be0aa514f86e0b4d3570c5bf2f06f6d6
 F www/json-api/api-wiki.md b2e44efaf926e3089dbafabfe1ddcd14a866ba6b139ebf765f9ddd87df15f507
-F www/json-api/conventions.md ca03778e8c05314a135d54c37070c0dee77deda6cc145354f09bc70d03c93f11
+F www/json-api/conventions.md 13a920c35c4d5817e9d96bdf59c6245bc6846420d345223323707e1865c34fed
 F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029e03be74080
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
 F www/json-api/intro.md b2c063082f9c84251d50bd3061f772e91bd71bc0dcf31ee5aad0825bf70601da
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 946bb7e592b90faf82690a472e9da23b05ba0188ebce0b5675b12bf010d6d00a
-R 72ac6b9246ca8683672f9a03f47c2d8f
+P f3d3c589855b6933f9a9bc91aa7c9a6d7a8b1e9ca707b90306e01599118555bf
+R 1adb986f69ef1cba8be6ef09097a7527
 U stephan
-Z c9623bb41907be3ac032884136f2410f
+Z 653c5a5e19ee70dbe46f579c2d31375e

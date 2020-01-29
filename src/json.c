@@ -284,8 +284,8 @@ cson_value * json_new_int( i64 v ){
 ** Precedence: POST.payload, GET/COOKIE/non-JSON POST, JSON POST, ENV.
 **
 ** FIXME: the precedence SHOULD be: GET, POST.payload, POST, COOKIE,
-** ENV, but the amalgamation of the GET/POST vars makes it difficult
-** for me to do that. Since fossil only uses one cookie, cookie
+** ENV, but the amalgamation of the GET/POST vars makes it effectively
+** impossible to do that. Since fossil only uses one cookie, cookie
 ** precedence isn't a real/high-priority problem.
 */
 cson_value * json_getenv( char const * zKey ){
@@ -632,10 +632,19 @@ void json_send_response( cson_value const * pResponse ){
 ** results).
 **
 ** The result of this call are cached for future calls.
+**
+** Special case: if g.useLocalauth is true (i.e. the --localauth flag
+** was used to start the fossil server instance) and the current
+** connection is "local", any authToken provided by the user is
+** ignored and no new token is created: localauth mode trumps the
+** authToken.
 */
 cson_value * json_auth_token(){
-    assert(g.json.gc.a && "json_main_bootstrap() was not called!");
-    if( !g.json.authToken ){
+  assert(g.json.gc.a && "json_main_bootstrap() was not called!");
+  if( g.json.authToken==0 && g.noPswd==0
+      /* g.noPswd==0 means the user was logged in via a local
+         connection using --localauth. */
+      ){
     /* Try to get an authorization token from GET parameter, POSTed
        JSON, or fossil cookie (in that order). */
     g.json.authToken = json_getenv(FossilJsonKeys.authToken);
@@ -644,13 +653,13 @@ cson_value * json_auth_token(){
        && !PD(login_cookie_name(),NULL)){
       /* tell fossil to use this login info.
 
-      FIXME?: because the JSON bits don't carry around
-      login_cookie_name(), there is(?) a potential(?) login hijacking
-      window here. We may need to change the JSON auth token to be in
-      the form: login_cookie_name()=...
+         FIXME?: because the JSON bits don't carry around
+         login_cookie_name(), there is(?) a potential(?) login hijacking
+         window here. We may need to change the JSON auth token to be in
+         the form: login_cookie_name()=...
 
-      Then again, the hardened cookie value helps ensure that
-      only a proper key/value match is valid.
+         Then again, the hardened cookie value helps ensure that
+         only a proper key/value match is valid.
       */
       cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
     }else if( g.isHTTP ){

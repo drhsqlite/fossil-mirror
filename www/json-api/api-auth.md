@@ -150,9 +150,9 @@ clients which can make use of cookies), using fossil's existing
 mechanism for this.
 
 Further requests which require authentication must include the
-"authToken" (from the returned payload value) in the request (or it must
+`authToken` (from the returned payload value) in the request (or it must
 be available via fossil's standard cookie) or access may (depending on
-the request) be denied. The authToken may optionally be set in the
+the request) be denied. The `authToken` may optionally be set in the
 request envelope or as a GET parameter, and it *must* be given if the
 request requires restricted access to a resource. e.g. if reading
 tickets is disabled for the guest user then all non-guest users must
@@ -160,11 +160,17 @@ send authentication info in their requests in order to be able to fetch
 ticket info.
 
 Cookie-aware clients should send the login-generated cookie with each
-request, in which case they do not need explicitly include the auth
-token in the JSON envelope/GET arguments. Note that fossil uses a
-project-dependent cookie name in order to help thwart attacks, so there
-is no simple mapping of cookie *name* to auth token. That said, the
-cookie's *value* is also the auth token's value.
+request, in which case they do not need explicitly include the
+`authToken` in the JSON envelope/GET arguments. If submitted, the
+`authToken` is used, otherwise the cookie, if set, is used. Note that
+fossil uses a project-dependent cookie name in order to help thwart
+attacks, so there is no simple mapping of cookie *name* to auth
+token. That said, the cookie's *value* is also the auth token's value.
+
+> Special case: when accessing fossil over a local server instance
+which was started with the `--localauth` flag, the `authToken` is ignored
+(neither validated nor used for any form of authentication).
+
 
 <a id="login-anonymous"></a>
 ## Anonymous User Logins

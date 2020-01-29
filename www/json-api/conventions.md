@@ -75,10 +75,11 @@ in a common request envelope with the following properties:
   by any request which needs non-guest privileges, but cookie-aware
   clients do not manually need to track this (it is managed as a
   cookie by the agent/browser).
-    - Note that when using a fossil server with the `--localauth` option,
-    the `authToken` should not be used. FIXME: have the JSON API simply ignore
-    the `authToken` for this case, rather than failing if the `authToken`
-    is missing or invalid.
+    - Note that when accessing fossil over a local server instance
+    which was started with the `--localauth` flag, the `authToken`
+    will be ignored and need not be sent with any requests. The user
+    will automatically be given full privileges, as if they were
+    using CLI mode.
 - `payload`: Command-specific parameters. Most can optionally come in
   via GET parameters, but those taking complex structures expect them
   to be placed here.
