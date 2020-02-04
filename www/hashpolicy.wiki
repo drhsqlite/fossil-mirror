@@ -10,11 +10,11 @@ about this and its implications for Fossil, simply
 [./quickstart.wiki#install|upgrade to Fossil 2.1 or later], and the
 problem will go away.  Everything will continue to work as before.
 
-  *  All of your legacy repositories will continue to work, without
-     needing any changes or upgrades.
-  *  All of your historical check-ins will still have the same historical
+  *  Legacy repositories will continue working just as
+     they always have, without any conversions or upgrades.
+  *  Historical check-ins will keep their same historical
      SHA1 names.
-  *  Your new check-ins will get more secure SHA3-256 hash names.
+  *  New check-ins will get more secure SHA3-256 hash names.
   *  Your workflow will be unchanged.
   *  Everything will continue as if nothing happened.
 
@@ -190,7 +190,7 @@ upgrade to the latest version of Fossil, all of your new artifacts will
 use a SHA3 hash.  Legacy SHA1 artifacts continue to use their original
 names but new artifacts will use SHA3 names.
 
-We decided to make the change pur SHA3 since the last known distributor 
+We decided to make the change pure SHA3 since the last known distributor 
 of Fossil 1.x binaries — Debian 9 — was finally replaced in June 2019 
 by a newer version distributing Fossil 2.x. All other known sources of 
 Fossil 1.x binaries upgraded well before that point.
