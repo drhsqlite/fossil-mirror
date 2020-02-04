@@ -1,5 +1,5 @@
-C More\stweaks\sto\sthe\shashpolicy.wiki\sdocument.
-D 2020-02-04T16:40:39.774
+C Updated\sthe\s"SHA-3\svs\sSHA-2\svs\sSHA-1"\ssection\sof\sthe\sfossil-v-git\narticle\sto\scover\sBrian\sM.\sCarlson's\splan\sfor\smigrating\sGit\sto\sSHA-256.
+D 2020-02-04T20:21:56.795
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -838,7 +838,7 @@ F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki 8513e6056263933bd945cda5acf0000ff070b09568d2b902b70cf9ed81a4b710
+F www/fossil-v-git.wiki b87da27d161eef56f527f088de361f9e4cbb609cdf4e2398c9afe99d264dc527
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2f5bb4f04deb9ad8435b8c8f98f797f25f0e26758c85eb284a017dc62b9bf2d4
-R 5e2445b1ac2d57cc5073f39e8b007cdb
-U drh
-Z 4c02ef0afab8a65fc214d3c28fb0f640
+P f5e02af3ab16ec191ac12723f6b050cc5c0f7bd16f45841f86e8b591041f8540
+R 29ef23c64f6598596d1bbe4421a599f0
+U wyoung
+Z 678f064f08f36c17910a9a592894f8ee

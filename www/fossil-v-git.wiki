@@ -824,29 +824,41 @@ Fossil delivered a new release allowing a clean migration to
 [./hashpolicy.wiki|full backwards compatibility] to old SHA-1 based
 repositories.
 
-By mid-2019, that feature arrived in every software package repository
-shipping Fossil, the last mover being Debian's stable package repo,
-which has a highly conservative policy on upgrading to new versions.
-With that hurdle run, we were able to change the default hash mode in
-Fossil 2.10 (released 2019-10-04) to require SHA-3 support both for new
-repositories and to create SHA-3 hashes in existing repos, effectively
-upgrading them if they were created with Fossil 1.<i>x</i>. This not
+In October 2019, after the last of the major binary
+package repos offering Fossil upgraded to Fossil 2.<i>x</i>,
+we switched the default hash mode so that from
+Fossil 2.10 forward, the conversion to SHA-3 is fully automatic.
+This not
 only solves the SHAttered problem, it should prevent a reoccurrence of
 similar problems for the foreseeable future.
 
-Meanwhile, the Git community took until August 2018 to announce
-[https://git-scm.com/docs/hash-function-transition/2.18.0|their plan]
-for solving the same problem by moving to SHA-256 (a variant of the
-[https://en.wikipedia.org/wiki/SHA-2|older SHA-2 algorithm]) and until
-February 2019 to release a version containing the change. It's looking
-like this will take years more to percolate through the community.
+Meanwhile, the Git community took until August 2018 to publish
+[https://git-scm.com/docs/hash-function-transition/|their first plan]
+for solving the same problem by moving to SHA-256, a variant of the
+[https://en.wikipedia.org/wiki/SHA-2 | older SHA-2 algorithm].  As of
+this writing in February 2020, that plan hasn't been implemented, as far
+as this author is aware, but there is now
+[https://lwn.net/ml/git/20200113124729.3684846-1-sandals@crustytoothpaste.net/
+| a competing SHA-256 based plan] which requires complete repository
+conversion from SHA-1 to SHA-256, breaking all public hashes in the
+repo. One way to characterize such a massive upheaval in Git terms is a
+whole-project rebase, which violates
+[https://blog.axosoft.com/golden-rule-of-rebasing-in-git/ | Git's own
+Golden Rule of Rebasing].
 
-The practical impact of SHAttered on structured data stores like the one
-in Git and Fossil isn't clear, but you want to have your repositories
+Regardless of the eventual implementation details, we fully expect Git
+to move off SHA-1 eventually and for the changes to take years more to
+percolate through the community.
+
+Almost three years after Fossil solved this problem, the
+[https://sha-mbles.github.io/ | SHAmbles attack] was published, further
+weakening the case for continuing to use SHA-1.
+
+The practical impact of attacks like SHAttered and SHAmbles on the
+Git and Fossil blockchains isn't clear, but you want to have your repositories
 moved over to a stronger hash algorithm before someone figures out how
-to make use of the weaknesses in the old one.  Fossil's developers moved
-on this problem quickly and had a widely-deployed solution to it years
-ago.
+to make use of the weaknesses in the old one. Fossil had this covered
+for years now, so that the solution is now almost universally deployed.
 
 <hr/>
 
