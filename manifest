@@ -1,5 +1,5 @@
-C /dir\spage:\schanged\sthe\s(columns:\sXex\sY)\sto\s(Xex\sauto),\sas\sthe\sprevious\scomputed\svalue\s(the\snumber\sof\sentries\sin\sthe\slist)\swas\sa\ssemantic\smismatch\sfor\sthat\sCSS\sproperty\s(the\snumber\sof\scolumns).
-D 2020-01-29T14:12:13.728
+C Updates\sto\sthe\shashpolicy.wiki\sdocument.\s\sThe\srecent\sattention\sit\sreceived\non\sHN\scaused\sme\sto\snotice\sthat\sit\sneeded\srefreshing.
+D 2020-02-04T16:13:51.131
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -852,7 +852,7 @@ F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c81
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki adc959812858923e0fa13bf4cd73924761db3816fc541a6d575c425a61c2c27c
-F www/hashpolicy.wiki 4baf249c19a0c1cf733cd44c0c0b8f3daf9bafc72b9b63e50fc6aad548607d02
+F www/hashpolicy.wiki 54c77ca31f58bec1f1870b941c05c65e74840b6a4f91c282228282fc7c26ddfd
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 374ca0c007974d03413af35332035306c1726c31cb8301902efbb1cbe35b0333
-R 7856cb9a96f7813a1e7c8aa0b7e8866a
-U stephan
-Z f1f675ac4e575dbfa4a4c64dbeb9a162
+P ea66927c0cb112ad408c9b17646e344c85bca9324d3a3a0aad14e65c55d25c28
+R f64467449581d760b20dfd10a5167ff0
+U drh
+Z 529a49b093a846579db8a4f5076e3069
