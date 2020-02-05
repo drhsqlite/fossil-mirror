@@ -185,7 +185,7 @@ about when those check-ins were originally created, which can make
 historical analysis of changes more difficult, and might also
 complicate prior art claims.
 
-## <a name="lying"></a>6.0 Rebasing is the same as lying
+## <a name="lying"></a>6.0 Rebasing is lying about the project history
 
 By discarding parentage information, rebase attempts to deceive the
 reader about how the code actually came together.
@@ -202,28 +202,44 @@ book, and the manual for how to maintain your software deserves careful
 editing. This is the camp that uses tools like rebase and filter-branch 
 to tell the story in the way that’s best for future readers."_
 
-I reject this argument utterly.
-Unless your project is a work of fiction, it is not a "story" but a "history."
-Honorable writers adjust their narrative to fit
-history.  Rebase adjusts history to fit the narrative.
+The problem with this counter-argument is that it assumes you must
+change history in order to enhance readability.
+And, in fairness to the Git documentation authors, changing the
+project history appears to be the only way to make editorial
+changes in Git.
 
-Truthful texts can be redrafted for clarity and accuracy.
-Fossil supports this by providing mechanisms to fix
-typos in check-in comments, attach supplemental notes,
-and make other editorial changes.
-The corrections are accomplished by adding
-new modification records to the blockchain.  The original incorrect
-inputs are preserved in the blockchain and are easily accessible.
-But for routine display purposes, the more readable edited
-presentation is provided.  A repository can be a true and accurate
+But it does not have to be that way.
+Fossil supports improvements to "the story of how your project
+was made" without changing the actual history of your project
+by allowing users to:
+
+  1.  Edit check-in comments to fix typos or enhance clarify
+  2.  Attaching supplemental notes to check-ins or whole branches
+  3.  Cross-referencing check-ins with each other, or with
+      wiki, tickets, forum posts, and/or embedded documentation
+  4.  Cause mistaken or unused branches to be hidden from
+      routine display
+  5.  Fix faulty check-in date/times resulting from misconfigured
+      system clocks
+  6.  And so forth....
+
+These changes are accomplishes not by removing or modifying existing
+repository entries, but rather by adding new supplimental records.
+The original incorrect or unclear inputs are preserved and are
+readily accessible.  The original history is preserved.
+But for routine display purposes, the more
+readable edited presentation is provided.
+
+A repository can be a true and accurate
 representation of history even without getting everything perfect
-on the first draft.
+on the first draft.  Those are not contradictory goals, at least
+not in theory.
 
 Unfortunately, Git does not provide the ability to add corrections
-or clarifications to historical check-ins in its blockchain.  Hence,
-once again, rebase can be seen as an attempt to work around limitations
-of Git.  Wouldn't it be better to fix the tool rather than to lie about
-the project history?
+or clarifications to historical check-ins.  Hence, once again,
+rebase can be seen as an attempt to work around limitations
+of Git.  Wouldn't it be better to fix the tool rather than 
+fabricate a fictious project history?
 
 ## <a name="collapsing"></a>7.0 Collapsing check-ins throws away valuable information
 
