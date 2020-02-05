@@ -1,5 +1,5 @@
-C Still\smore\seditorial\schanges\sto\srebaseharm.md.
-D 2020-02-05T14:41:07.812
+C Assorted\simprovements\sto\srebaseharm,\smainly\sgrammar\sand\sclarity,\sbut\nalso\ssome\stypo\sfixes.
+D 2020-02-05T22:11:40.370
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -907,7 +907,7 @@ F www/rebase04.graphml 9b1d5de1e8275bfad9a913b42368fca75c55a4562d4465b1228766d0f
 F www/rebase04.svg 854a2068b9e6b0e6030707e2e463f72caa414efed652c1468d883a30b0a9ce7d
 F www/rebase05.graphml 92f4ad1ffc94f1b82ade20a3cef8d58e6f34ff5e121b64a9a1a12d66181a9bdb
 F www/rebase05.svg b2b6e6ad4c7bcd1c39a08b4f72106dfcb6d7ae4eb21aa15732ed3c2320067672
-F www/rebaseharm.md 8b1e1733354383888ec689a738fe9989ae6894e29dbe1f0f7b6791889dc57f63
+F www/rebaseharm.md 3c95a69491812e1e2e865adf8505b0917e150a7206a1dfbc7a568e18d9ac5b51
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d0807c23ead6517818aff09284cd2e8b67d5d7904db4db8c114f2a77d6e2c6be
-R 763d3b2dd5f25d979e4e262976e9ca57
-U drh
-Z 830f856e4dde88e394065299d5526dbe
+P 9b068a39799f83afac4dc520b8364216738b4d106ab17cc7edee6529da84fff0
+R b62c9d6332ca0686a23634b44f8f7d11
+U wyoung
+Z 7be5698f8cbf87a45b8c7be18d86010f

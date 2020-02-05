@@ -1,6 +1,6 @@
 # Rebase Considered Harmful
 
-Fossil deliberately omits a "rebase" command, because the original
+Fossil deliberately omits a "rebase" command because the original
 designer of Fossil (and [original author][vhist] of this article) considers rebase to be 
 an anti-pattern to be avoided. This article attempts to
 explain that point of view.
@@ -11,7 +11,7 @@ explain that point of view.
 
 Most people, even strident advocates of rebase, agree that rebase can
 cause problems when misused. The Git rebase documentation talks about the
-[golden rule of rebase][golden]: that it should never be used on a public
+[golden rule of rebasing][golden]: never rebase on a public
 branch.  Horror stories of misused rebase abound, and the rebase 
 documentation devotes considerable space toward explaining how to
 recover from rebase errors and/or misuse.
@@ -59,7 +59,7 @@ important.
 So, another way of thinking about rebase is that it is a kind of
 merge that intentionally forgets some details in order to
 not overwhelm the weak history display mechanisms available in Git.
-Wouldn't it be better, less error-prone, and easier on users,
+Wouldn't it be better, less error-prone, and easier on users
 to enhance the history display mechanisms in Git so that rebasing 
 for a clean, linear history became unnecessary?
 
@@ -75,7 +75,8 @@ Consider a hypothetical case:
 In the above, a feature branch consisting of check-ins C3 and C5 is
 run concurrently with the main line in check-ins C4 and C6.  Advocates
 for rebase say that you should rebase the feature branch to the tip
-of main like the following:
+of main in order to remove main-line development differences from
+the feature branch's history:
 
 ![rebased feature branch](./rebase04.svg)
 
@@ -83,8 +84,8 @@ You could choose to collapse C3\' and C5\' into a single check-in
 as part of this rebase, but that's a side issue we'll deal with
 [separately](#collapsing).
 
-If only merge is available, one would do a merge from the concurrent
-mainline changes into the feature branch as follows:
+Fossil lacks rebase, so the closest you can get to this same check-in
+history is the following merge:
 
 ![merged feature branch](./rebase05.svg)
 
@@ -94,9 +95,9 @@ difference is in their history.
 The argument from rebase advocates
 is that with merge it is difficult to see only the changes associated
 with the feature branch without the commingled mainline changes.
-In other words, diff(C2,C7) shows changes associated both the feature
+In other words, diff(C2,C7) shows changes from both the feature
 branch and from the mainline, whereas in the rebase case
-diff(C6,C5\') should only the feature branch changes.
+diff(C6,C5\') shows only the feature branch changes.
 
 But that argument is comparing apples to oranges, since the two diffs
 do not have the same baseline.  The correct way to see only the feature
@@ -118,7 +119,7 @@ help users identify an appropriate baseline for their diffs.
 
 ## <a name="siloing"></a>3.0 Rebase encourages siloed development
 
-The [golden rule of rebase][golden] is that you should never do it
+The [golden rule of rebasing][golden] is that you should never do it
 on public branches, so if you are using rebase as intended, that means
 you are keeping private branches.  Or, to put it another way, you are
 doing siloed development.  You are not sharing your intermediate work
@@ -126,8 +127,9 @@ with collaborators.  This is not good for product quality.
 
 [Nagappan, et. al][nagappan] studied bugs in Windows Vista and found
 that best predictor of bugs is the distance on the org-chart between
-the stake-holders.  Or, bugs are reduced when the engineers talk to
-one another.  Similar findings arise in other disciplines.  Keeping
+the stake-holders. The bug rate is inversely related to the
+amount of communication among the engineers.
+Similar findings arise in other disciplines.  Keeping
 private branches does not prove that developers are communicating
 insufficiently, but it is a key symptom that problem.
 
@@ -138,7 +140,7 @@ to bugs, and hence makes them less productive.  Many developers are
 drawn to private branches out of sense of ego.  "I want to get the
 code right before I publish it."  I sympathize with this sentiment,
 and am frequently guilty of it myself.  It is humbling to display
-your stupid mistake to the whole world on an internet that
+your stupid mistake to the whole world on an Internet that
 never forgets.  And yet, humble programmers generate better code.
 
 What is the fastest path to solid code? Is it to continue staring at
@@ -166,7 +168,7 @@ Of course, a user can also commit untested or broken check-ins without
 the help of rebase.  But at least with an ordinary commit or merge
 (in Fossil at least), the operator
 has the *opportunity* to test and verify the merge before it is committed,
-and a chance to back out or fix the change if it is broken, without leaving
+and a chance to back out or fix the change if it is broken without leaving
 busted check-ins on the blockchain to complicate future bisects.
 
 With rebase, pre-commit testing is not an option.
@@ -181,12 +183,12 @@ What timestamps go on the C3\' and C5\' check-ins?  If you choose
 the same timestamps as the original C3 and C5, then you have the
 odd situation C3' is older than its parent C6.  We call that a
 "timewarp" in Fossil.  Timewarps can also happen due to misconfigured
-system clocks, so they are not unique to rebase.  But they are very
-confusing and best avoided.  The other option is to provide new
-unique timestamps for C3' and C5'.  But then you lose the information
+system clocks, so they are not unique to rebase, but they are very
+confusing and so best avoided.  The other option is to provide new
+unique timestamps for C3' and C5' but then you lose the information
 about when those check-ins were originally created, which can make
-historical analysis of changes more difficult, and might also
-complicate prior art claims.
+historical analysis of changes more difficult. It might also
+complicate the legal defense of prior art claims.
 
 ## <a name="lying"></a>6.0 Rebasing is lying about the project history
 
@@ -212,7 +214,7 @@ In fairness to the Git documentation authors, changing the
 project history appears to be the only way to make editorial
 changes in Git.
 But it does not have to be that way.
-Fossil demonstrations how "the story of your project"
+Fossil demonstrates how "the story of your project"
 can be enhanced without changing the actual history
 by allowing users to:
 
@@ -274,7 +276,7 @@ they were selfish people, because they knew they might end up being
 those future developers!
 
 Yet, sometimes we come upon a piece of code that we simply cannot
-understand. If you have never asked yourself,a "What was this code's
+understand. If you have never asked yourself, "What was this code's
 developer thinking?" you haven't been developing software for very long.
 
 When a developer can go back to the individual check-ins leading up to
@@ -325,7 +327,7 @@ the problem.
 ### <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
 
 The more comments you have from a given developer on a given body of
-code, the more concise documentation you have of that developer'as
+code, the more concise documentation you have of that developer's
 thought process. To resume the bisecting example, a developer trying to
 work out what the original developer was thinking with a given change
 will have more success given a check-in comment that explains what the
@@ -388,9 +390,9 @@ merge check-in or back out the entire feature.
 ## <a name="better-plan"></a>8.0 Cherry-pick merges work better than rebase
 
 Perhaps there are some cases where a rebase-like transformation
-is actually helpful.  But those cases are rare.  And when they do
-come up, running a series of cherry-pick merges achieve the same
-topology, but with advantages:
+is actually helpful, but those cases are rare, and when they do
+come up, running a series of cherry-pick merges achieves the same
+topology with several advantages:
 
   1.  Cherry-pick merges preserve an honest record of history.
       (They do in Fossil at least.  Git's file format does not have
