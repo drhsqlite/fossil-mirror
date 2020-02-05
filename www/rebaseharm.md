@@ -59,6 +59,9 @@ important.
 So, another way of thinking about rebase is that it is a kind of
 merge that intentionally forgets some details in order to
 not overwhelm the weak history display mechanisms available in Git.
+Wouldn't it be better, less error-prone, and easier on users,
+to enhance the history display mechanisms in Git so that rebasing 
+for a clean, linear history became unnecessary?
 
 ### <a name="clean-diffs"></a>2.2 Rebase does not actually provide better feature-branch diffs
 
@@ -149,7 +152,7 @@ Given that, is it better for those many eyeballs to find your problems
 while they're still isolated on a feature branch, or should that vetting
 wait until you finally push a collapsed version of a private working
 branch to the parent repo? Will the many eyeballs even see those errors
-when they’re intermingled with code implementing some tasty new feature?
+when they’re intermingled with code implementing some compelling new feature?
 
 ## <a name="testing"></a>4.0 Rebase commits untested check-ins to the blockchain
 
@@ -209,13 +212,13 @@ In fairness to the Git documentation authors, changing the
 project history appears to be the only way to make editorial
 changes in Git.
 But it does not have to be that way.
-Fossil supports improvements to "the story of how your project
-was made" without changing the actual history of your project
+Fossil demonstrations how "the story of your project"
+can be enhanced without changing the actual history
 by allowing users to:
 
-  1.  Edit check-in comments to fix typos or enhance clarify
-  2.  Attaching supplemental notes to check-ins or whole branches
-  3.  Cross-referencing check-ins with each other, or with
+  1.  Edit check-in comments to fix typos or enhance clarity
+  2.  Attach supplemental notes to check-ins or whole branches
+  3.  Cross-reference check-ins with each other, or with
       wiki, tickets, forum posts, and/or embedded documentation
   4.  Cause mistaken or unused branches to be hidden from
       routine display
@@ -223,7 +226,7 @@ by allowing users to:
       system clocks
   6.  And so forth....
 
-These changes are accomplishes not by removing or modifying existing
+These changes are accomplished not by removing or modifying existing
 repository entries, but rather by adding new supplemental records.
 The original incorrect or unclear inputs are preserved and are
 readily accessible.  The original history is preserved.
@@ -235,11 +238,14 @@ representation of history even without getting everything perfect
 on the first draft.  Those are not contradictory goals, at least
 not in theory.
 
-Unfortunately, Git does not provide the ability to add corrections
-or clarifications to historical check-ins.  Hence, once again,
+Unfortunately, Git does not currently provide the ability to add
+corrections or clarifications or supplimental notes to historical check-ins.
+Hence, once again,
 rebase can be seen as an attempt to work around limitations
-of Git.  Wouldn't it be better to fix the tool rather than 
-fabricate a fictitious project history?
+of Git.  Git could be enhanced to support editorial changes
+to check-ins. 
+Wouldn't it be better to fix the version control tool
+rather than requiring users to fabricate a fictitious project history?
 
 ## <a name="collapsing"></a>7.0 Collapsing check-ins throws away valuable information
 
