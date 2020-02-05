@@ -202,12 +202,12 @@ book, and the manual for how to maintain your software deserves careful
 editing. This is the camp that uses tools like rebase and filter-branch 
 to tell the story in the way that's best for future readers."_
 
-The problem with this counter-argument is that it assumes you must
-change history in order to enhance readability.
-And, in fairness to the Git documentation authors, changing the
+This counter-argument assumes you must
+change history in order to enhance readability, which is not true.
+
+In fairness to the Git documentation authors, changing the
 project history appears to be the only way to make editorial
 changes in Git.
-
 But it does not have to be that way.
 Fossil supports improvements to "the story of how your project
 was made" without changing the actual history of your project

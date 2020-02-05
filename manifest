@@ -1,5 +1,5 @@
-C Fix\stypos\sand\sremove\sunnecessary\snon-ASCII\scharacters\sfrom\sthe\srebaseharm\ndocument.
-D 2020-02-05T13:45:26.026
+C Still\smore\sminor\sedits\sto\sthe\srebaseharm.md\sdocument.
+D 2020-02-05T13:52:41.439
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -907,7 +907,7 @@ F www/rebase04.graphml 9b1d5de1e8275bfad9a913b42368fca75c55a4562d4465b1228766d0f
 F www/rebase04.svg 854a2068b9e6b0e6030707e2e463f72caa414efed652c1468d883a30b0a9ce7d
 F www/rebase05.graphml 92f4ad1ffc94f1b82ade20a3cef8d58e6f34ff5e121b64a9a1a12d66181a9bdb
 F www/rebase05.svg b2b6e6ad4c7bcd1c39a08b4f72106dfcb6d7ae4eb21aa15732ed3c2320067672
-F www/rebaseharm.md 0ef36a7737d0df089ba91492b4cb8df7371bc00024af7342e3acb69755242151
+F www/rebaseharm.md 82e9bde4a687691838f7d57482e879d4549984946b169baadb6f5dbc711eb4c5
 F www/reviews.wiki b5733a2b7f6aa8495493b4b43eafe98b388e6acb
 F www/scgi.wiki 227d2749e84d696d3f5266888196dfe4c4451098
 F www/selfcheck.wiki 02e46328cb1a6308a1e07a502456acf4e508d264f11942b1427bc5427a2a57eb
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 629259df14b114c376c5df3e7c10319f9c37571b7cee3ec2bd6fd8c11d7b6343
-R bccce71890b5a5a83c9ebff0508a332b
+P 6a903b39e81e641a332f50d7238bf8ee8acf2c3e2fd8efb3ca4c2aa28514ed2a
+R 26a4a6193127ce760d4efa1f45815dbd
 U drh
-Z 5195f8797b5b57baf7783756e355eb6e
+Z d4118fef9a5c1bc74b4126c9623ca8da
