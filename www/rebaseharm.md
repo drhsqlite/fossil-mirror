@@ -77,7 +77,7 @@ of main like the following:
 ![rebased feature branch](./rebase04.svg)
 
 You could choose to collapse C3\' and C5\' into a single check-in
-as part of this rebase, but that’s a side issue we’ll deal with
+as part of this rebase, but that's a side issue we'll deal with
 [separately](#collapsing).
 
 If only merge is available, one would do a merge from the concurrent
@@ -146,7 +146,7 @@ groups within a larger software development organization, because
 developers get too close to their own code to see every problem in it.
 
 Given that, is it better for those many eyeballs to find your problems
-while they’re still isolated on a feature branch, or should that vetting
+while they're still isolated on a feature branch, or should that vetting
 wait until you finally push a collapsed version of a private working
 branch to the parent repo? Will the many eyeballs even see those errors
 when they’re intermingled with code implementing some tasty new feature?
@@ -197,10 +197,10 @@ actually happened", but then goes on to justify rebase as follows:
 
 >
 _"The opposing point of view is that the commit history is the **story of 
-how your project was made.** You wouldn\'t publish the first draft of a 
+how your project was made.** You wouldn't publish the first draft of a 
 book, and the manual for how to maintain your software deserves careful
 editing. This is the camp that uses tools like rebase and filter-branch 
-to tell the story in the way that’s best for future readers."_
+to tell the story in the way that's best for future readers."_
 
 The problem with this counter-argument is that it assumes you must
 change history in order to enhance readability.
@@ -224,7 +224,7 @@ by allowing users to:
   6.  And so forth....
 
 These changes are accomplishes not by removing or modifying existing
-repository entries, but rather by adding new supplimental records.
+repository entries, but rather by adding new supplemental records.
 The original incorrect or unclear inputs are preserved and are
 readily accessible.  The original history is preserved.
 But for routine display purposes, the more
@@ -239,7 +239,7 @@ Unfortunately, Git does not provide the ability to add corrections
 or clarifications to historical check-ins.  Hence, once again,
 rebase can be seen as an attempt to work around limitations
 of Git.  Wouldn't it be better to fix the tool rather than 
-fabricate a fictious project history?
+fabricate a fictitious project history?
 
 ## <a name="collapsing"></a>7.0 Collapsing check-ins throws away valuable information
 
@@ -253,7 +253,7 @@ files in faultless finished form. A wish for collapsed, finalized
 check-ins is a wish for a counterfactual situation.
 
 The common counterargument is that collapsed check-ins represent a
-better world, the ideal we’re striving for. What that argument overlooks
+better world, the ideal we're striving for. What that argument overlooks
 is that we must throw away valuable information to get there.
 
 ### <a name="empathy"></a>7.1 Individual check-ins support developer empathy
@@ -268,8 +268,8 @@ they were selfish people, because they knew they might end up being
 those future developers!
 
 Yet, sometimes we come upon a piece of code that we simply cannot
-understand. If you have never asked yourself, “What was this code’s
-developer thinking?” you haven’t been developing software for very long.
+understand. If you have never asked yourself,a "What was this code's
+developer thinking?" you haven't been developing software for very long.
 
 When a developer can go back to the individual check-ins leading up to
 the current code, they can work out the answers to such questions using
@@ -277,8 +277,8 @@ only the level of empathy necessary to be a good developer. To
 understand such code using only the finished form, you are asking future
 developers to make intuitive leaps that the original developer was
 unable to make. In other words, you are asking your future maintenance
-developers to be smarter than the original developers!  That’s a
-beautiful wish, but there’s a sharp limit to how far you can carry it.
+developers to be smarter than the original developers!  That's a
+beautiful wish, but there's a sharp limit to how far you can carry it.
 Eventually you hit the limits of human brilliance.
 
 When the operation of some bit of code is not obvious, both Fossil and
@@ -287,16 +287,16 @@ information about each line of code, and from that which check-in last
 touched a given line of code. If you squash the check-ins on a branch
 down to a single check-in, you throw away the information leading up to
 that finished form. Fossil not only preserves the check-ins surrounding
-the one that included the line of code you’re trying to understand, its
+the one that included the line of code you're trying to understand, its
 [superior data model][sdm] lets you see the surrounding check-ins in
 both directions; not only what lead up to it, but what came next. Git
-can’t do that short of crawling the block-chain backwards from the tip
+can't do that short of crawling the block-chain backwards from the tip
 of the branch to the check-in you’re looking at, an expensive operation.
 
 We believe it is easier to understand a line of code from the 10-line
 check-in it was a part of — and then to understand the surrounding
 check-ins as necessary — than it is to understand a 500-line check-in
-that collapses a whole branch’s worth of changes down to a single
+that collapses a whole branch's worth of changes down to a single
 finished feature.
 
 [sdm]: ./fossil-v-git.wiki#durable
@@ -319,13 +319,13 @@ the problem.
 ### <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
 
 The more comments you have from a given developer on a given body of
-code, the more concise documentation you have of that developer’s
+code, the more concise documentation you have of that developer'as
 thought process. To resume the bisecting example, a developer trying to
 work out what the original developer was thinking with a given change
 will have more success given a check-in comment that explains what the
-one check-in out of ten blamed by the “bisect” command was trying to
-accomplish than if they must work that out from the eleventh check-in’s
-comment, which only explains the “clean” version of the collapsed
+one check-in out of ten blamed by the "bisect" command was trying to
+accomplish than if they must work that out from the eleventh check-in's
+comment, which only explains the "clean" version of the collapsed
 feature.
 
 ### <a name="cherrypicking"></a>7.4 Cherry-picks work better with small check-ins
@@ -334,9 +334,9 @@ While working on a new feature in one branch, you may come across a bug
 in the pre-existing code that you need to fix in order for work on that
 feature to proceed. You could choose to switch briefly back to the
 parent branch, develop the fix there, check it in, then merge the parent
-back up to the feature branch in order to continue work, but that’s
-distracting. If the fix isn’t for a critical bug, fixing it on the
-parent branch can wait, so it’s better to maintain your mental working
+back up to the feature branch in order to continue work, but that's
+distracting. If the fix isn't for a critical bug, fixing it on the
+parent branch can wait, so it's better to maintain your mental working
 state by fixing the problem in place on the feature branch, then check
 the fix in on the feature branch, resume work on the feature, and later
 merge that fix down into the parent branch along with the feature.
@@ -346,7 +346,7 @@ our code repository has a branch for the current stable release, a
 development branch for the next major version, and feature branches off
 of the development branch. If we rebase each feature branch down into
 the development branch as a single check-in, pushing only the rebase
-check-in up to the parent repo, only that fix’s developer has the
+check-in up to the parent repo, only that fix's developer has the
 information locally to perform the cherry-pick of the fix onto the
 stable branch.
 
