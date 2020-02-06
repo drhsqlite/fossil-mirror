@@ -1,5 +1,5 @@
-C Assorted\simprovements\sto\srebaseharm,\smainly\sgrammar\sand\sclarity,\sbut\nalso\ssome\stypo\sfixes.
-D 2020-02-05T22:11:40.370
+C Get\sthe\s"fossil\sgit\sexport"\scommand\sworking\son\swindows.
+D 2020-02-06T15:06:51.284
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -474,7 +474,7 @@ F src/doc.c c266467290b1ac4560952e02bd5641266e4ee7ea8000bf05b343bcc9ea92a81d
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
-F src/export.c 6cc3f255338df35df2cc5c4d8ba4d0f274fcfd4f50efe994119a365f5be752f6
+F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 54eebd53714fd749f8ed89795ea5100f2b44c2367572f868cd3330674303e7fc
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9b068a39799f83afac4dc520b8364216738b4d106ab17cc7edee6529da84fff0
-R b62c9d6332ca0686a23634b44f8f7d11
-U wyoung
-Z 7be5698f8cbf87a45b8c7be18d86010f
+P 5a7cda57cb9fbe7817472f298aeaf45296e382475b1476d50a493be7a80d890c
+R 45572572b15aeec75c4fd008399ef70a
+U drh
+Z 7e9a02b75652b198f6656d9ceb021334
