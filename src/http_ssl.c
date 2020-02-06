@@ -170,7 +170,18 @@ void ssl_global_shutdown(void){
 ** this routine is a no-op.
 */
 void ssl_close(void){
+  char buf[1];
+  int ret;
   if( iBio!=NULL ){
+    if( (ret=SSL_peek(ssl,buf,sizeof(buf)))<=0 ){
+      switch( SSL_get_error(ssl,ret) ){
+        case SSL_ERROR_SYSCALL:
+        case SSL_ERROR_SSL: {
+          SSL_set_quiet_shutdown(ssl,1);
+          break;
+        }
+      }
+    }
     (void)BIO_reset(iBio);
     BIO_free_all(iBio);
     iBio = NULL;

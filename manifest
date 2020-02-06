@@ -1,5 +1,5 @@
-C /dir\spage:\schanged\sthe\s(columns:\sXex\sY)\sto\s(Xex\sauto),\sas\sthe\sprevious\scomputed\svalue\s(the\snumber\sof\sentries\sin\sthe\slist)\swas\sa\ssemantic\smismatch\sfor\sthat\sCSS\sproperty\s(the\snumber\sof\scolumns).
-D 2020-01-29T14:12:13.728
+C When\susing\sHTTPS\scombined\swith\sHTTP\sAUTH,\sthe\sSSL\sconnection\smay\sgo\saway\nand\sany\sfurther\s\soperations\son\sit,\sincluding\s\sthe\simplied\sSSL_shutdown()\nthat\s\soccurs\sas\s\sa\sresult\s\sof\sBIO_reset()\s\sor\sBIO_free_all()\s\swill\scrash\nFossil.\s\sAttempt\sto\s\sdeal\swith\s\sthis\sby\s\ssignaling\sa\s\squiet\sshutdown\s\sif\nSSL_peek()\sreturns\san\serror.
+D 2020-02-06T15:32:12.798
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -492,7 +492,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c a25166d6aee3961bd543425247f0733bd5129d9f5afec4c90a1768905bd35a1b
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
+F src/http_ssl.c ccfd580e83f35d57ce1b2266987d41ba5ceb7af8ff749f605e890b31d5deefe5
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 7f99ab7269aae0b46a5ab49d8571afadd64aa6e582f97328a7ff1c6f32d2dfa9
 F src/info.c 56f29d9da19ce6b93a95ab809eb5424875ac739ea1dea33eef5934db805b9208
@@ -954,7 +954,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 374ca0c007974d03413af35332035306c1726c31cb8301902efbb1cbe35b0333
-R 7856cb9a96f7813a1e7c8aa0b7e8866a
-U stephan
-Z f1f675ac4e575dbfa4a4c64dbeb9a162
+P ea66927c0cb112ad408c9b17646e344c85bca9324d3a3a0aad14e65c55d25c28
+R 118b2c33eea983fdb58c8d68616108bb
+T *branch * fix-ssl-crash
+T *sym-fix-ssl-crash *
+T -sym-trunk *
+U andybradford
+Z 7a5f40396c444a9370fa26fa9e4b00b7
