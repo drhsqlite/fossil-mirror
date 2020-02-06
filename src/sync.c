@@ -78,7 +78,7 @@ int autosync(int flags){
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
   fossil_print("Autosync:  %s\n", g.url.canonical);
   url_enable_proxy("via proxy: ");
-  rc = client_sync(flags, configSync, 0);
+  rc = client_sync(flags, configSync, 0, 0);
   return rc;
 }
 
@@ -219,8 +219,9 @@ static void process_sync_args(
 **   --from-parent-project      Pull content from the parent project
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
-**   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Pull private branches too
+**   --project-code CODE        Use CODE as the project code
+**   --proxy PROXY              Use the specified HTTP proxy
 **   -R|--repository REPO       Local repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
@@ -233,6 +234,7 @@ static void process_sync_args(
 void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
+  const char *zAltPCode = find_option("project-code",0,1);
   if( find_option("from-parent-project",0,0)!=0 ){
     syncFlags |= SYNC_FROMPARENT;
   }
@@ -241,7 +243,7 @@ void pull_cmd(void){
   /* We should be done with options.. */
   verify_all_options();
 
-  client_sync(syncFlags, configFlags, 0);
+  client_sync(syncFlags, configFlags, 0, zAltPCode);
 }
 
 /*
@@ -287,7 +289,7 @@ void push_cmd(void){
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync(syncFlags, 0, 0);
+  client_sync(syncFlags, 0, 0, 0);
 }
 
 
@@ -334,7 +336,7 @@ void sync_cmd(void){
   verify_all_options();
 
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
-  client_sync(syncFlags, configFlags, 0);
+  client_sync(syncFlags, configFlags, 0, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
@@ -349,7 +351,7 @@ void sync_unversioned(unsigned syncFlags){
   (void)find_option("uv-noop",0,0);
   process_sync_args(&configFlags, &syncFlags, 1);
   verify_all_options();
-  client_sync(syncFlags, 0, 0);
+  client_sync(syncFlags, 0, 0, 0);
 }
 
 /*

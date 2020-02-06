@@ -1748,9 +1748,10 @@ static double fossil_fabs(double x){
 ** true.
 */
 int client_sync(
-  unsigned syncFlags,     /* Mask of SYNC_* flags */
-  unsigned configRcvMask, /* Receive these configuration items */
-  unsigned configSendMask /* Send these configuration items */
+  unsigned syncFlags,      /* Mask of SYNC_* flags */
+  unsigned configRcvMask,  /* Receive these configuration items */
+  unsigned configSendMask, /* Send these configuration items */
+  const char *zAltPCode    /* Alternative project code (usually NULL) */
 ){
   int go = 1;             /* Loop until zero */
   int nCardSent = 0;      /* Number of cards sent */
@@ -1868,7 +1869,8 @@ int client_sync(
     content_enable_dephantomize(0);
     zOpType = "Clone";
   }else if( syncFlags & SYNC_PULL ){
-    blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+    blob_appendf(&send, "pull %s %s\n", zSCode,
+                 zAltPCode ? zAltPCode : zPCode);
     nCardSent++;
     zOpType = (syncFlags & SYNC_PUSH)?"Sync":"Pull";
     if( (syncFlags & SYNC_RESYNC)!=0 && nCycle<2 ){
@@ -2067,7 +2069,8 @@ int client_sync(
     ** sent) by beginning with the pull or push cards
     */
     if( syncFlags & SYNC_PULL ){
-      blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+      blob_appendf(&send, "pull %s %s\n", zSCode,
+                   zAltPCode ? zAltPCode : zPCode);
       nCardSent++;
     }
     if( syncFlags & SYNC_PUSH ){
