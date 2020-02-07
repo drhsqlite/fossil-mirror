@@ -84,7 +84,7 @@ You could choose to collapse C3\' and C5\' into a single check-in
 as part of this rebase, but that's a side issue we'll deal with
 [separately](#collapsing).
 
-Fossil lacks rebase, so the closest you can get to this same check-in
+Because Fossil purposefully lacks rebase, the closest you can get to this same check-in
 history is the following merge:
 
 ![merged feature branch](./rebase05.svg)
