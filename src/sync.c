@@ -128,7 +128,8 @@ int autosync_loop(int flags, int nTries, int doPrompt){
 static void process_sync_args(
   unsigned *pConfigFlags,      /* Write configuration flags here */
   unsigned *pSyncFlags,        /* Write sync flags here */
-  int uvOnly                   /* Special handling flags for UV sync */
+  int uvOnly,                  /* Special handling flags for UV sync */
+  unsigned urlOmitFlags        /* Omit these URL flags */
 ){
   const char *zUrl = 0;
   const char *zHttpAuth = 0;
@@ -173,6 +174,7 @@ static void process_sync_args(
   ){
     *pSyncFlags |= SYNC_UNVERSIONED;
   }
+  urlFlags &= ~urlOmitFlags;
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();
   }
@@ -234,11 +236,13 @@ static void process_sync_args(
 void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
+  unsigned urlOmitFlags = 0;
   const char *zAltPCode = find_option("project-code",0,1);
   if( find_option("from-parent-project",0,0)!=0 ){
     syncFlags |= SYNC_FROMPARENT;
   }
-  process_sync_args(&configFlags, &syncFlags, 0);
+  if( zAltPCode ) urlOmitFlags = URL_REMEMBER;
+  process_sync_args(&configFlags, &syncFlags, 0, urlOmitFlags);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -281,7 +285,7 @@ void pull_cmd(void){
 void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
-  process_sync_args(&configFlags, &syncFlags, 0);
+  process_sync_args(&configFlags, &syncFlags, 0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -330,7 +334,7 @@ void sync_cmd(void){
   if( find_option("unversioned","u",0)!=0 ){
     syncFlags |= SYNC_UNVERSIONED;
   }
-  process_sync_args(&configFlags, &syncFlags, 0);
+  process_sync_args(&configFlags, &syncFlags, 0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -349,7 +353,7 @@ void sync_cmd(void){
 void sync_unversioned(unsigned syncFlags){
   unsigned configFlags = 0;
   (void)find_option("uv-noop",0,0);
-  process_sync_args(&configFlags, &syncFlags, 1);
+  process_sync_args(&configFlags, &syncFlags, 1, 0);
   verify_all_options();
   client_sync(syncFlags, 0, 0, 0);
 }
