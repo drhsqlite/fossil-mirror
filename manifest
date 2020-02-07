@@ -1,5 +1,5 @@
-C The\s--project-code\soption\son\s"fossil\spull"\simplies\s--once.
-D 2020-02-07T12:44:42.756
+C Issue\sa\sverbose\swarning\smessage\sif\sa\sunversion\scontent\ssync\sreverts\sto\npull-only\sdue\sto\slack\sof\spermission\son\sthe\sserver.
+D 2020-02-07T16:53:04.170
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -608,7 +608,7 @@ F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 718a538a3649293bdc3089209b02ab3444b1f38bca9ad52b888f295fec7a0d0b
+F src/xfer.c 66909a32a65292ab19ae485704181f55db62907b7393141a0d0969ec2a858214
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P be9df83b420a3f8e385ececea4c173128c514decd5c18033c32de4d333e13d69
-R 0ed9d7e00089fdf774b299bafd29d189
+P 6696d4de7d3107864715ea6a377e76feaae612a5d88f65277eb593a1701ecebe
+R 9118c3153f22dfb24471ee2a72223c97
 U drh
-Z db6ff7c100de389bc8bab47638b8dd38
+Z b5f0c636414f6f032a53f88a9104a4a1

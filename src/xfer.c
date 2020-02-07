@@ -2373,6 +2373,11 @@ int client_sync(
         ** does accept new unversioned content, it sends "uv-push-ok".
         */
         if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
+          fossil_print(
+            "Warning: uv-pull-only                                       \n"
+            "         Unable to push unversioned content because you lack\n"
+            "         sufficient permission on the server\n"
+          );
           if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
           uvDoPush = 1;
