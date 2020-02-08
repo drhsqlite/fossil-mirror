@@ -1,5 +1,5 @@
-C Issue\sa\sverbose\swarning\smessage\sif\sa\sunversion\scontent\ssync\sreverts\sto\npull-only\sdue\sto\slack\sof\spermission\son\sthe\sserver.
-D 2020-02-07T16:53:04.170
+C Updated\sstats\sand\sa\stypo\sfix\sin\sthe\stechnical\soverview\sdocument.
+D 2020-02-08T16:43:13.325
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -941,7 +941,7 @@ F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki 96ddacc9bccab1829c1b1c864cc47aa0e2f00c6d597e80fa60cf2d01bf77a887
-F www/tech_overview.wiki 8aa7e30ca9a1e99701f4e4189e98778458898e04b816537538da37d3ddcc5e47
+F www/tech_overview.wiki 10ae08b8a0f7941fba1d9e9f35cbcef6d23e6305931980f58000e4e39051f0ef
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md a400d92abfcc268ff4c8cc092cb52def1ac868e120a1fe85be51eb513a347b4e
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6696d4de7d3107864715ea6a377e76feaae612a5d88f65277eb593a1701ecebe
-R 9118c3153f22dfb24471ee2a72223c97
+P ef9305a47cd13b404eece1a8839d562bc63ba8cb2753cde00ddc2e5a33b402c9
+R 10d3ddae470330f7dcd7774ae8bf393c
 U drh
-Z b5f0c636414f6f032a53f88a9104a4a1
+Z eb51a8bd2311589a264831e00149844e
