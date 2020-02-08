@@ -15,7 +15,6 @@
 <li> [./hints.wiki | Tip &amp; Hints]
 <li> [./permutedindex.html | Documentation Index]
 <li> [https://fossil-scm.org/forum | Forum ]
-<li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | Mailing list archives]
 </ul>
 <img src="fossil3.gif" align="center">
 </div>

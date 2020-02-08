@@ -44,4 +44,4 @@ Here are a few reasons to set up a Fossil server for your project:
       going into a project.  You can even set up multiple servers, at
       multiple sites, with automatic synchronization between them, for
       added redundancy.  Such a set up means that no work is lost due
-      to a single machine failur
+      to a single machine failure.

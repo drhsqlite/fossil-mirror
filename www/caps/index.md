@@ -16,7 +16,7 @@ This is a complex topic, so some sub-topics have their own documents:
 2.  [Implementation Details](./impl.md)
 3.  [User Capability Reference](./ref.html)
 
-[an]:   https://en.wikipediAsa.org/wiki/Alphanumeric
+[an]:   https://en.wikipedia.org/wiki/Alphanumeric
 [avs]:  ./admin-v-setup.md
 [lg]:   ./login-groups.md
 [rbac]: https://en.wikipedia.org/wiki/Role-based_access_control

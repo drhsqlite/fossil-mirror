@@ -1,5 +1,5 @@
-C Updated\sstats\sand\sa\stypo\sfix\sin\sthe\stechnical\soverview\sdocument.
-D 2020-02-08T16:43:13.325
+C Various\sdocumentation\stypo\sfixes.\s\sRemove\sthe\slink\sto\sthe\s(now\sobsolete)\nFossil\smailing\slist\sarchive\sfrom\sthe\sfront\spage.
+D 2020-02-08T17:53:35.227
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -789,7 +789,7 @@ F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 2dd96c8f28107fe0acf6451ea4c266585dc3de3f6273fd6c5580afc7c3444f87
 F www/caps/admin-v-setup.md c3b9ac2648ac6665bcec46a29a3361bedd0ad08b168f388a1a7bc686cebe9aaf
 F www/caps/impl.md 0e8cdffdbe3f7b40b65c8b6b359b9bf80b6687e3e1964f1fae7cd9a3718a2651
-F www/caps/index.md 3b128763bffea03157b88410b839dabbcb5cabf7b873de1c95fda3847b571793
+F www/caps/index.md 21c7d3068bc5b9c25f2f11c2aa44a5d13bcd84c6bf3ca55dbe293987c476213c
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
@@ -857,7 +857,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
-F www/index.wiki 9dd1783bf5f9b84a22fc2d3e4f0cfcbda7afba353d68318ed768f84d560d20ab
+F www/index.wiki f707e3eb65d5ba2ea86f7930499f4a552b2c18b68bf167f393b7fb332cb3ae1e
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -923,7 +923,7 @@ F www/server/debian/nginx.md f9e435dd8557b4094e889fa6f0378f8bc4fffde14ef9e9c84e2
 F www/server/debian/service.md a55670c4ec6a1b2853cf632b4596a03a4ae7b460e8735ff74f64388630f81b21
 F www/server/index.html 53527cad50f6a442a4b15c12f4ce133035893c1b71c4439e5f833280ffdf60e4
 F www/server/macos/service.md 8dc953ab84f55046d9f516bfd2497f5b5d2989943a091f3e7095745f0c67732e
-F www/server/whyuseaserver.wiki 716bdc37dda1d5c147a7ded08b9ea8223f85a7aeb57ed00621efcfa72862d645
+F www/server/whyuseaserver.wiki 7e29e0d31965faa3b0523b94949406b9d297da39f91da0ff96973bcdb0cf8be8
 F www/server/windows/cgi-bin-perm.png 8d72c174650311d18cb15cda0278a9148f87bc45ef8819aab7946e1ee7d3b7be
 F www/server/windows/cgi-exec-perm.png 8bb1801608f130e306f6ae1b65117f1aefebaac8b6b7d32562c4984e5ba5b5fe
 F www/server/windows/cgi-install-iis.png c713f470dcc58ceb3b634e56944a08a691db097b25a42a91dcb8edf5917c182d
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ef9305a47cd13b404eece1a8839d562bc63ba8cb2753cde00ddc2e5a33b402c9
-R 10d3ddae470330f7dcd7774ae8bf393c
+P bcae84663de82ab3ad8971fdef99dd32b1f6d4ecf2e9598cc70aa69d6827eb15
+R df04b99f5b711bc899c523a6d9e3c798
 U drh
-Z eb51a8bd2311589a264831e00149844e
+Z a15c73ea9934b288e078a09fd9e25bd2
