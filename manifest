@@ -1,5 +1,5 @@
-C Various\sdocumentation\stypo\sfixes.\s\sRemove\sthe\slink\sto\sthe\s(now\sobsolete)\nFossil\smailing\slist\sarchive\sfrom\sthe\sfront\spage.
-D 2020-02-08T17:53:35.227
+C Minor\srepo_list_page()\sAPI\sdoc\saddition\sand\szeroed\sa\sclosed\sdb\shandle,\s"just\sin\scase".
+D 2020-02-10T08:32:38.939
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -549,7 +549,7 @@ F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c c09d72ba95c62bb392a30b12b86c952665452a166bb304c05b3545d55c4db23c
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
-F src/repolist.c 67d2e7bee8d2488edcb6f812d7279acf640b8fa485ed95fadbb5c71d3439ac9e
+F src/repolist.c 42df2ab648579b2ea73e7dd3acac98f153028e3a147f4b0126971ca04736e3d4
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bcae84663de82ab3ad8971fdef99dd32b1f6d4ecf2e9598cc70aa69d6827eb15
-R df04b99f5b711bc899c523a6d9e3c798
-U drh
-Z a15c73ea9934b288e078a09fd9e25bd2
+P b45da258cbbc2d8ca25bc6ffe7ff32b6fa9da4bdedcb0528329e8cda662b070f
+R 616a14014eeff9df730689569994a059
+U stephan
+Z f1146c231f81a59015dcf9a0294026de
