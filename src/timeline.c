@@ -955,7 +955,7 @@ void timeline_output_graph_javascript(
       int k = 0;
       cgi_printf("{\"id\":%d,",     pRow->idx);
       cgi_printf("\"bg\":\"%s\",",  pRow->zBgClr);
-      cgi_printf("\"r\":%d,",       aiMap[pRow->iRail]);
+      cgi_printf("\"r\":%d,",       pRow->iRail>=0 ? aiMap[pRow->iRail] : -1);
       if( pRow->bDescender ){
         cgi_printf("\"d\":%d,",       pRow->bDescender);
       }
