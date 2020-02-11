@@ -1209,7 +1209,9 @@ static void timeline_y_submenu(int isDisabled){
 */
 int timeline_ss_cookie(void){
   int tmFlags;
-  switch( cookie_value("ss","m")[0] ){
+  const char *v = cookie_value("ss",0);
+  if( v==0 ) v = db_get("timeline-default-style","m");
+  switch( v[0] ){
     case 'c':  tmFlags = TIMELINE_COMPACT;  break;
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
     case 'j':  tmFlags = TIMELINE_COLUMNAR; break;
@@ -1219,6 +1221,20 @@ int timeline_ss_cookie(void){
   return tmFlags;
 }
 
+/* Available timeline display styles, together with their y= query
+** parameter names.
+*/
+const char *const timeline_view_styles[] = {
+  "m", "Modern View",
+  "j", "Columnar View",
+  "c", "Compact View",
+  "v", "Verbose View",
+  "x", "Classic View",
+};
+#if INTERFACE
+# define N_TIMELINE_VIEW_STYLE 5
+#endif
+
 /*
 ** Add the select/option box to the timeline submenu that is used to
 ** set the ss= parameter that determines the viewing mode.
@@ -1226,16 +1242,10 @@ int timeline_ss_cookie(void){
 ** Return the TIMELINE_* value appropriate for the view-style.
 */
 int timeline_ss_submenu(void){
-  static const char *const azViewStyles[] = {
-     "m", "Modern View",
-     "j", "Columnar View",
-     "c", "Compact View",
-     "v", "Verbose View",
-     "x", "Classic View",
-  };
-  cookie_link_parameter("ss","ss","m");
-  style_submenu_multichoice("ss", sizeof(azViewStyles)/(2*sizeof(azViewStyles[0])),
-                            azViewStyles, 0);
+  cookie_link_parameter("ss","ss",db_get("timeline-default-style","m"));
+  style_submenu_multichoice("ss",
+              N_TIMELINE_VIEW_STYLE,
+              timeline_view_styles, 0);
   return timeline_ss_cookie();
 }
 

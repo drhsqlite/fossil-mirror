@@ -735,6 +735,13 @@ void setup_timeline(void){
     @ %s(zTmDiff) hours ahead of UTC.</p>
   }
   @ <p>(Property: "timeline-utc")
+
+  @ <hr />
+  multiple_choice_attribute("Style", "timeline-default-style",
+            "tdss", "0", N_TIMELINE_VIEW_STYLE, timeline_view_styles);
+  @ <p>The default timeline viewing style, for when the user has not
+  @ specified an alternative.  (Property: "timeline-default-style")</p>
+
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
