@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s"embedded\sdocumentation"\sdocumentation.
-D 2020-02-12T18:38:06.835
+C Minor\sedits\sto\sthe\scheck-in\snames\sdocumentation.
+D 2020-02-12T18:43:50.281
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -795,7 +795,7 @@ F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
 F www/changes.wiki a9787d7e4a81ea2de977fefae4ec2099e6f3f159dd495904377c44b171a82d53
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
-F www/checkin_names.wiki 8363ec4673847d2d059a8949d152c291f3a3fed50271e03cf461a4354470ddd9
+F www/checkin_names.wiki e0707a3fd024990bc95294502d5ca6cd39688bf40c3c87a2a449e7e3af9e40f6
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
 F www/chroot.md 98a9f4a11f6e1a4ed06e13b0adc1806472b03e825575c2f503f90d9dcdf878d9
 F www/collisions.ipynb bc571b6a2764c04ea365f4ec72a644c02beb42855b4eb1b753141e77b174f225 x
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c0bb964cdf0e1a34d41b4b06d1abe1ea795eedc0d41f5dc19b1254ed5ae267d
-R 947bd6af608c027c8bed8979caa2ffc4
+P c5d9ca673b5364d25ccb0ce3217ed625bfde2c2785635d0c8a498578cfbb68ae
+R 22db7bb0721676f131b63c6544076ea1
 U drh
-Z eb93307f0bd9f5bda2772d2db80222b2
+Z 75c8be9bc84da8463d94f5749ed03bd0
