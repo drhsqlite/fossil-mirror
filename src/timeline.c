@@ -1204,13 +1204,24 @@ static void timeline_y_submenu(int isDisabled){
 }
 
 /*
+** Return the default value for the "ss" cookie or query parameter.
+** The "ss" cookie determines the graph style.  See the
+** timeline_view_styles[] global constant for a list of choices.
+*/
+const char *timeline_default_ss(void){
+  static const char *zSs = 0;
+  if( zSs==0 ) zSs = db_get("timeline-default-style","m");
+  return zSs;
+}
+
+/*
 ** Convert the current "ss" display preferences cookie into an
 ** appropriate TIMELINE_* flag
 */
 int timeline_ss_cookie(void){
   int tmFlags;
   const char *v = cookie_value("ss",0);
-  if( v==0 ) v = db_get("timeline-default-style","m");
+  if( v==0 ) v = timeline_default_ss();
   switch( v[0] ){
     case 'c':  tmFlags = TIMELINE_COMPACT;  break;
     case 'v':  tmFlags = TIMELINE_VERBOSE;  break;
@@ -1242,7 +1253,7 @@ const char *const timeline_view_styles[] = {
 ** Return the TIMELINE_* value appropriate for the view-style.
 */
 int timeline_ss_submenu(void){
-  cookie_link_parameter("ss","ss",db_get("timeline-default-style","m"));
+  cookie_link_parameter("ss","ss",timeline_default_ss());
   style_submenu_multichoice("ss",
               N_TIMELINE_VIEW_STYLE,
               timeline_view_styles, 0);
