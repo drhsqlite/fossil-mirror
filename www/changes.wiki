@@ -9,19 +9,22 @@
      setting to the [/help?cmd=settings|settings] command.
   *  Improve support for CGI on IIS web servers.
   *  The [/help?cmd=/ext|/ext page] can now render index files,
-     analog to how the embedded docs do.
+     in the same way as the embedded docs.
   *  Most commands now support the Unix-conventional "<tt>--</tt>"
      flag to treat all following arguments as filenames
      instead of flags.
   *  Added the [/help?cmd=mimetypes|mimetypes config setting]
      (versionable) to enable mimetype overrides and custom definitions.
-  *  Add the ability to set a default timeline style other than
-     "Modern".
+  *  Add an option on the /Admin/Timeline setup page to set a default
+     timeline style other than "Modern".
+  *  In [./embeddeddoc.wiki|embedded documentation], hyperlink URLs
+     of the form "/doc/$CURRENT/..." the "$CURRENT" text is translated
+     into the check-in hash for the document currently being viewed.
   *  Proactive security: Fossil now assumes that the schema of every
      database it opens has been tampered with by an adversary and takes
      extra precautions to ensure that such tampering is harmless.
   *  Bug fix: the "fossil git export" command is now working on Windows
-  *  Bug fix: display of Technote items on the timeline correctly
+  *  Bug fix: display Technote items on the timeline correctly
   *  Bug fix: fix the capability summary matrix of the Security Audit
      page so that it does not add "anonymous" capabilities to the
      "nobody" user.

@@ -687,9 +687,9 @@ static int isWithinHref(const char *z, int i){
 **
 **       href="$ROOT/..."
 **       action="$ROOT/..."
-**       href=".../doc/$SELF/..."
+**       href=".../doc/$CURRENT/..."
 **
-** Convert $ROOT to the root URI of the repository, and $SELF to the 
+** Convert $ROOT to the root URI of the repository, and $CURRENT to the 
 ** version number of the /doc/ document currently being displayed (if any).
 ** Allow ' in place of " and any case for href or action.  
 **
@@ -714,16 +714,16 @@ void convert_href_and_output(Blob *pIn){
       base = i+5;
     }else
     if( z[i]=='$'
-     && strncmp(&z[i-5],"/doc/$SELF/", 11)==0
+     && strncmp(&z[i-5],"/doc/$CURRENT/", 11)==0
      && isWithinHref(z,i-5)
      && isWithinHtmlMarkup(z, i-5)
      && strncmp(g.zPath, "doc/",4)==0
     ){
       int j;
-      for(j=4; g.zPath[j] && g.zPath[j]!='/'; j++){}
+      for(j=7; g.zPath[j] && g.zPath[j]!='/'; j++){}
       blob_append(cgi_output_blob(), &z[base], i-base);
       blob_appendf(cgi_output_blob(), "%.*s", j-4, g.zPath+4);
-      base = i+5;
+      base = i+8;
     }
   }
   blob_append(cgi_output_blob(), &z[base], i-base);

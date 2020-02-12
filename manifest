@@ -1,5 +1,5 @@
-C Updates\sto\sthe\schange\slog.
-D 2020-02-12T14:44:11.437
+C Change\sthe\sspecial\s$SELF\ssubstitution\sused\sby\sMarkdown\sand\sHTML\sembedded\ndocumentation\sinto\s$CURRENT.\sSee\sthe\s\n[https://www.fossil-scm.org/forum/forumpost/69cf42b0c9|forum\sdiscussion]\nfor\sdetails.
+D 2020-02-12T16:35:45.635
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -470,7 +470,7 @@ F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 97cfd9c938ae12657a95a2bca64d41e88a7ad62c1993bda5f60134c9e69b84e3
-F src/doc.c c266467290b1ac4560952e02bd5641266e4ee7ea8000bf05b343bcc9ea92a81d
+F src/doc.c 502a0f9036774fcfb97c0b00c7d51fcbc85009af72eb33d7152d6a7a2a21f691
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
 F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
@@ -793,7 +793,7 @@ F www/caps/index.md 21c7d3068bc5b9c25f2f11c2aa44a5d13bcd84c6bf3ca55dbe293987c476
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki 1cc537c303b12db92c6068073085034eb5f127329c1e5ac8330f0e9ca2127211
+F www/changes.wiki a9787d7e4a81ea2de977fefae4ec2099e6f3f159dd495904377c44b171a82d53
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 8363ec4673847d2d059a8949d152c291f3a3fed50271e03cf461a4354470ddd9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -817,7 +817,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki b1816a8e05fd7afbef6f994d711a6f0a78f61f4b781aef279adeccd7cf3f1356
+F www/embeddeddoc.wiki 8947e94d5afcbcf89b62f64b5c2adb3a9a7ce8d6076a0febe3895de1d679d0da
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -885,7 +885,7 @@ F www/json-api/intro.md b2c063082f9c84251d50bd3061f772e91bd71bc0dcf31ee5aad0825b
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
 F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
-F www/mdtest/test1.md d3e3d6600fbcf2bee70a5db79e8736f6e4ae0717a8fe28e2b109573311ace7ae
+F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
 F www/mkindex.tcl 573e9b6062559e6121846023921130c9ffc0d008168d41cbad4ea70a41ed071b x
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bc8691cd09e89ce3e6362ac51e87edcb6f21790b07254f23ed9fac5c4796c894
-R ff07187d920b1d1e415b8515ac2dc080
+P 0c9339bfb0d370e0cebd0aae031fcd87ce3ade5aad50570e46017f0e9909e11f
+R bfb406befb11c49b6f07593bde3ed993
 U drh
-Z 0a925aa905e1f357789686a8b8a84696
+Z 6f51b2aaea66d59b1d4d92535a39169d
