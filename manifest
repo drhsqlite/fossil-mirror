@@ -1,5 +1,5 @@
-C Propagate\sthe\stimeline-default-style\ssetting\swhen\scloning.\s\sFix\sthe\ninitialization\sof\sthe\stimeline\sstyle\sselect\smenu\sso\sthat\sit\sshows\nit\sis\sinitialized\sto\sthe\sdefault\ssetting.
-D 2020-02-12T14:17:00.760
+C Updates\sto\sthe\schange\slog.
+D 2020-02-12T14:44:11.437
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -793,7 +793,7 @@ F www/caps/index.md 21c7d3068bc5b9c25f2f11c2aa44a5d13bcd84c6bf3ca55dbe293987c476
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki 6a5aa01c7d9162ac0276a3b8614530d0f5f040b9ea4973c689c70bde4a88e4be
+F www/changes.wiki 1cc537c303b12db92c6068073085034eb5f127329c1e5ac8330f0e9ca2127211
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki 8363ec4673847d2d059a8949d152c291f3a3fed50271e03cf461a4354470ddd9
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 895eac4feb428783f331a58e4c88d882424a078c4abe4c0bd96152ce1e831830
-R 3fa9ba97f37b03b4001ad18cea23525f
+P bc8691cd09e89ce3e6362ac51e87edcb6f21790b07254f23ed9fac5c4796c894
+R ff07187d920b1d1e415b8515ac2dc080
 U drh
-Z 4889739d89f3979b179b790db8aa58bb
+Z 0a925aa905e1f357789686a8b8a84696

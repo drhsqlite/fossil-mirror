@@ -15,6 +15,17 @@
      instead of flags.
   *  Added the [/help?cmd=mimetypes|mimetypes config setting]
      (versionable) to enable mimetype overrides and custom definitions.
+  *  Add the ability to set a default timeline style other than
+     "Modern".
+  *  Proactive security: Fossil now assumes that the schema of every
+     database it opens has been tampered with by an adversary and takes
+     extra precautions to ensure that such tampering is harmless.
+  *  Bug fix: the "fossil git export" command is now working on Windows
+  *  Bug fix: display of Technote items on the timeline correctly
+  *  Bug fix: fix the capability summary matrix of the Security Audit
+     page so that it does not add "anonymous" capabilities to the
+     "nobody" user.
+  *  Many documentation enhancements.
   *  Several minor enhancements to existing features.
 
 <a name='v2_10'></a>
