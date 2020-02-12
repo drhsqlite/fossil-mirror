@@ -1,5 +1,5 @@
-C Change\sthe\sspecial\s$SELF\ssubstitution\sused\sby\sMarkdown\sand\sHTML\sembedded\ndocumentation\sinto\s$CURRENT.\sSee\sthe\s\n[https://www.fossil-scm.org/forum/forumpost/69cf42b0c9|forum\sdiscussion]\nfor\sdetails.
-D 2020-02-12T16:35:45.635
+C Provide\sa\sscary\swarning\sabout\sthe\suse\sof\sTH1\sdocs\son\sthe\sSecurity\sAudit\spage.
+D 2020-02-12T17:03:20.915
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -556,7 +556,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
-F src/security_audit.c 74f8651e0e78e986575a43576c22d8d49a0f83408f18542db4bab12f42ec9d19
+F src/security_audit.c 14c283658370638c6521fd0690dd7c796905ca7d107edee06a152445f1602a3d
 F src/setup.c e9e5bfaf85c6e4d3bf41c9986bc8720b59cc7ad70d12ac678b05157024e2b4f5
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0c9339bfb0d370e0cebd0aae031fcd87ce3ade5aad50570e46017f0e9909e11f
-R bfb406befb11c49b6f07593bde3ed993
+P 45427ae1c9312bd81f272dfe8c080a0bc42e1fa30c9b660a1088020f0daba84b
+R 12b3bd751f57a40beab7a37cbd87acad
 U drh
-Z 6f51b2aaea66d59b1d4d92535a39169d
+Z a22ec1019ad50b3877f9da73475f65ff

@@ -221,6 +221,35 @@ void secaudit0_page(void){
     @ new setting: it has a more secure implementation.
   }
 
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  /* The use of embedded TH1 is dangerous.  Warn if it is possible.
+  */
+  if( !Th_AreDocsEnabled() ){
+    @ <li><p>
+    @ This server is compiled with -DFOSSIL_ENABLE_TH1_DOCS. TH1 docs
+    @ are disabled for this particular repository, so you are safe for
+    @ now.  However, to prevent future problems caused by accidentally
+    @ enabling TH1 docs in the future, it is recommended that you
+    @ recompile Fossil without the -DFOSSIL_ENABLE_TH1_DOCS flag.</p>
+  }else{
+    @ <li><p><b>DANGER:</b>
+    @ This server is compiled with -DFOSSIL_ENABLE_TH1_DOCS and TH1 docs
+    @ are enabled for this repository.  Anyone who can check-in or push
+    @ to this repository can create a malicious TH1 script and then cause
+    @ that script to be run on the server. This is a serious security concern.
+    @ TH1 docs should only be enabled for repositories with a very limited
+    @ number of trusted committers, and the repository should be monitored
+    @ closely to ensure no hostile content sneaks in.  If a bad TH1 script
+    @ does make it into the repository, the only want to prevent it from
+    @ being run is to shun it.</p>
+    @
+    @ <p>Disable TH1 docs by recompiling Fossil without the
+    @ -DFOSSIL_ENABLE_TH1_DOCS flag, and/or clear the th1-docs setting
+    @ and ensure that the TH1_ENABLE_DOCS environment variable does not
+    @ exist in the environment.</p>
+  }
+#endif
+
   /* Anonymous users should not be able to harvest email addresses
   ** from tickets.
   */
