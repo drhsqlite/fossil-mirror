@@ -1,5 +1,5 @@
-C Version\s2.10
-D 2019-10-04T21:41:13.700
+C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.31.1\splus\sthe\ss390x\sarchitecture\sfix.
+D 2020-02-12T09:25:20.626
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 858e35d8c2d55ef6a89bce4c0077a76ac5cd94c6fad3cd238969cb9c2db9675a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -12,7 +12,7 @@ F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 976db410b019ec100c95da8aa977d6209fee9a4e
 F COPYRIGHT-BSD2.txt f99187d1905883d3b3cff4c5f97687290b1f3edf
-F Dockerfile f4d360e34758d3ca6b454a4258ffd5d1b7f81c97236ea796bd7a373f739258d5
+F Dockerfile 4572f79ec45fc481fabe954ed01f889608b4c765f066c8701187966b33651f9b
 F Makefile.classic e6ff839ebefb79129ba54d53b6ba1ce879c920f43a3bdbf0caba18f4424c2673
 F Makefile.in 2f34d0fa84449834fe6f415be1c347de931a27e46be437e2611e155c813f9880
 F Makefile.osx-jaguar 4e0de35d390a2d402a3f07f58cb9c119073c7a74e889ce23f0a100171dc45816
@@ -555,14 +555,14 @@ F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c a2056ebdaf2c7a1aedb735ead43006b9e1e7ca8ae15d08bfc33a3fc5af728ff2
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 9d6d84091606111324ac1421e0c0db551c20aaa3ac11cf57cfe1909e0f3235c0
+F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
 F src/security_audit.c 74f8651e0e78e986575a43576c22d8d49a0f83408f18542db4bab12f42ec9d19
 F src/setup.c 5e859be3e3eb5b82475bbc300a3ff70f6d977e61cf11219b200b2ad5e3a8a22e
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 19c038afd779378da9d49ccd461b67bfd453bc0d75c9e4ebcae2e835f505e27d
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c e6c82b70be832638510b057fdf4896ab9610d1f2b38b7dfb857ad94b27efd88c
+F src/shell.c 98aad8016561b3add6191b550d03738ccf1ae09fedcb125607305a6fec667fff
 F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -571,8 +571,8 @@ F src/smtp.c cbbc6cc20fde1f000f46870ddeea7b9df54fe1c9784402755782096a8f010af9
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
 F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c f04393dd47205a4ee2b98ff737dc51a3fdbcc14c055b88d58f5b27d0672158f5
-F src/sqlite3.h 10c9e8fecfb99a46c3c3d198ef07b88a5f8dd1c8daf798c95a3afb303f2f7198
+F src/sqlite3.c db6df305071f3c23c68ce82acbab4b362c1e2fbfa4cf05bd23b35d254ed609bd
+F src/sqlite3.h 880e4f2dd3cb41e4a1bdd132a31bcb397b50c7a24349eca1632e36eb2b7d4672
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
 F src/stat.c a87b40c8b97d0bd5459710f5befe9bd2723b0dc52ddcce722180b63d22dfb3f8
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -930,10 +930,12 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc19d369ab46fa74e798b19ea4181116e8f27856a4dc68c7221c2d09bda13106
-R 9ee59be8855f06e2a0ca92207e6a8f4c
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-2.10 *
-U drh
-Z 75c9db64df682c60924b336fa3d075c1
+P 9d9ef82234f63758ff19a121677cc81a6c43d70c9995207e9237ddb4a7dcc8bf
+Q +9826bd007a9a5af4fa6b5f5f00e4dfec3062ed8ecdd32a3a9aebb3f6256f66f6
+Q +e8f24f7ecdc1707d8b66cee982d00ddece8d6d6bf9582b567992da0e8c443200
+R 77a18408af1472f2b7e75895940c40df
+T *branch * branch-2.10
+T *sym-branch-2.10 *
+T -sym-trunk *
+U jan.nijtmans
+Z 12fd2ec292fb32e2f0083a9b01efadf2

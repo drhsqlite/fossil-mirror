@@ -7,7 +7,7 @@ FROM fedora:29
 RUN dnf update -y && dnf install -y gcc make tcl tcl-devel zlib-devel openssl-devel tar && dnf clean all && groupadd -r fossil -g 433 && useradd -u 431 -r -g fossil -d /opt/fossil -s /sbin/nologin -c "Fossil user" fossil
 
 ### If you want to build "trunk", change the next line accordingly.
-ENV FOSSIL_INSTALL_VERSION release
+ENV FOSSIL_INSTALL_VERSION branch-2.10
 
 RUN curl "https://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=${FOSSIL_INSTALL_VERSION}" | tar zx
 RUN cd fossil-src && ./configure --disable-fusefs --json --with-th1-docs --with-th1-hooks --with-tcl=1 --with-tcl-stubs --with-tcl-private-stubs
