@@ -768,10 +768,11 @@ void artifact_stats_page(void){
   ** user without check-in privileges, to prevent excessive usage by
   ** robots and random passers-by on the internet
   */
-  if( !g.perm.Write ){
-    login_needed(g.anon.Admin);
+  if( !g.perm.Write && !db_get_boolean("artifact_stats_enable",0) ){
+    login_needed(g.anon.Write);
     return;
   }
+  load_control();
 
   style_header("Artifact Statistics");
   style_submenu_element("Repository Stats", "stat");

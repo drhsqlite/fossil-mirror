@@ -1,5 +1,5 @@
-C Minor\sedits\sto\sthe\scheck-in\snames\sdocumentation.
-D 2020-02-12T18:43:50.281
+C Add\sa\ssetting\sin\s/Admin/Access\sthat\sallows\sthe\s/artifact_stats\spage\sto\sbe\naccessed\sby\sany\suser.\s\sActivate\sload\scontrol\son\sthe\s/artifact_stats\spage.
+D 2020-02-13T18:28:02.948
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -557,7 +557,7 @@ F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
 F src/security_audit.c 14c283658370638c6521fd0690dd7c796905ca7d107edee06a152445f1602a3d
-F src/setup.c e9e5bfaf85c6e4d3bf41c9986bc8720b59cc7ad70d12ac678b05157024e2b4f5
+F src/setup.c 1a6b9636c7860c33c37e90356f0333ad3e850909aefbc69a820a6ba6632e871b
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -574,7 +574,7 @@ F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae
 F src/sqlite3.c db6df305071f3c23c68ce82acbab4b362c1e2fbfa4cf05bd23b35d254ed609bd
 F src/sqlite3.h 880e4f2dd3cb41e4a1bdd132a31bcb397b50c7a24349eca1632e36eb2b7d4672
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
-F src/stat.c cd2271ee77b1b78ca82c34f4f692ab22f42f4b0b786ebe42cedf481a7a1d0948
+F src/stat.c 883b1974738763cda4567a957a4dea873ec582655b467882c5cca8215cd9db07
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 4f75a6a67ae9bc72f41dee4370aa6d03c4a30b6e34431c931796acddaa2f4fa3
 F src/sync.c cd1de2bc952d83e08d5d3f42c2657f5f83adff1a619b71c3410af6fa393f59c0
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c5d9ca673b5364d25ccb0ce3217ed625bfde2c2785635d0c8a498578cfbb68ae
-R 22db7bb0721676f131b63c6544076ea1
+P f7b34aac4f3fdc35fe0ff26594631c80923a792dfcb207b977c7e6a654b9fe79
+R 152055edfe29d01b4c98070b8deefd15
 U drh
-Z 75c8be9bc84da8463d94f5749ed03bd0
+Z efc0f426e2a20e08c0b284fcd5ae8673

@@ -378,6 +378,15 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
+  onoff_attribute("Enable /artifact_stats",
+     "artifact_stats_enable", "artifact_stats_enable", 0, 0);
+  @ <p>When enabled, the %h(g.zBaseURL)/artifact_stats URL is available to all
+  @ users.  When disabled (the default) only users with check-in privilege may
+  @ access the /artifact_stats page.
+  @ (Property: "artifact_stats_enable")
+  @ </p>
+  @
+  @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0, 0);
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
