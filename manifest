@@ -1,5 +1,5 @@
-C Add\sa\ssetting\sin\s/Admin/Access\sthat\sallows\sthe\s/artifact_stats\spage\sto\sbe\naccessed\sby\sany\suser.\s\sActivate\sload\scontrol\son\sthe\s/artifact_stats\spage.
-D 2020-02-13T18:28:02.948
+C Enhance\sthe\s--sqltrace\soption\sto\sshow\sthe\selapse\stime\sused\sby\seach\sSQL\nstatement\sin\smilliseconds.
+D 2020-02-13T19:43:19.441
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -460,7 +460,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 3489f0a4eaa8708572cd4fdf72772829286af9a1afd33e3932051e880b8b0205
+F src/db.c 4f1db83b1b7dca23ce19c4a715f2ff9754b147e68e14ae405b089be0be5cf711
 F src/default_css.txt 3e0961a20297ee8131b149f755093176a87bbfdf0474a962fb3b0a35281f616f
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P f7b34aac4f3fdc35fe0ff26594631c80923a792dfcb207b977c7e6a654b9fe79
-R 152055edfe29d01b4c98070b8deefd15
+P 86619b995dc31d951d8b88fdcb4cc9938e0497ca6405ee1314bea74fa6ccc7af
+R 3f8804b86d340e7ac6610cc20b41a158
 U drh
-Z efc0f426e2a20e08c0b284fcd5ae8673
+Z 51581440644babc6e6194763faf613ed
