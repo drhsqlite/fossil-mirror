@@ -1,5 +1,5 @@
-C Enhance\sthe\s--sqltrace\soption\sto\sshow\sthe\selapse\stime\sused\sby\seach\sSQL\nstatement\sin\smilliseconds.
-D 2020-02-13T19:43:19.441
+C Minor\sperformance\soptimizations\son\sthe\s/artifact_stats\spage.
+D 2020-02-13T20:09:03.329
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -574,7 +574,7 @@ F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae
 F src/sqlite3.c db6df305071f3c23c68ce82acbab4b362c1e2fbfa4cf05bd23b35d254ed609bd
 F src/sqlite3.h 880e4f2dd3cb41e4a1bdd132a31bcb397b50c7a24349eca1632e36eb2b7d4672
 F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
-F src/stat.c 883b1974738763cda4567a957a4dea873ec582655b467882c5cca8215cd9db07
+F src/stat.c 374a8ca306edffb8164a5359c8572cada607c6d5677acf81ff478ef962c0c3de
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 4f75a6a67ae9bc72f41dee4370aa6d03c4a30b6e34431c931796acddaa2f4fa3
 F src/sync.c cd1de2bc952d83e08d5d3f42c2657f5f83adff1a619b71c3410af6fa393f59c0
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 86619b995dc31d951d8b88fdcb4cc9938e0497ca6405ee1314bea74fa6ccc7af
-R 3f8804b86d340e7ac6610cc20b41a158
+P ada305fbc0c2e1d108f503bd8322621d67edefe12c9ba6aad4c46c5fc0f3b8f1
+R b9d13c07ad3f549acb934f1ba123a694
 U drh
-Z 51581440644babc6e6194763faf613ed
+Z 881bc339337606fe94064374128c0dcb

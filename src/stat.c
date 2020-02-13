@@ -672,15 +672,14 @@ static void gather_artifact_stats(int bWithTypes){
     @ );
     @ INSERT INTO artstat(id,atype,isDelta,szExp,szCmpr)
     @    SELECT blob.rid, NULL,
-    @           EXISTS(SELECT 1 FROM delta WHERE delta.rid=blob.rid),
+    @           delta.rid IS NOT NULL,
     @           size, length(content)
-    @      FROM blob
+    @      FROM blob LEFT JOIN delta ON blob.rid=delta.rid
     @     WHERE content IS NOT NULL;
   ;
   static const char zSql2[] = 
     @ UPDATE artstat SET atype='file'
-    @  WHERE id IN (SELECT fid FROM mlink)
-    @    AND atype IS NULL;
+    @  WHERE +id IN (SELECT fid FROM mlink);
     @ UPDATE artstat SET atype='manifest'
     @  WHERE id IN (SELECT objid FROM event WHERE type='ci') AND atype IS NULL;
     @ UPDATE artstat SET atype='forum'
