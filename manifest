@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s/test-all-help\swebpage.
-D 2020-02-15T18:48:12.165
+C Add\s'timeline-tslink-info'\sto\sthe\slist\sof\sskin/web-ui-related\ssettings\sto\smake\sit\swork\swith\s`fossil\sconfig\s...'\sand\s`fossil\sinit\s--template\s...'.
+D 2020-02-16T14:48:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -453,7 +453,7 @@ F src/clone.c 009c36a98c8904b9db991a4ad0814d42f0f3fed3fb232bc41e34d22616ff49a6
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h 5599c3074e2250f49e06c22716e516140a0b2d22c703c604e050b6178c0d536a
-F src/configure.c 0d0c3569f589d70c6ef446e34dadac7021ca0b72e55d5034d48b336a92ebdae1
+F src/configure.c fbb5d103489fdd966de4a8596ced03718a51bc9e4963b3c3056b2360fe1ae29e
 F src/content.c 2d2630468eae31e35ed702fba0cc3f58438e1b03320032445038147e38935f8f
 F src/cookies.c 3c7a533e11f5a562292ef3e9c67542ea124afa6872adfd5ed77b6c4c1bd1668f
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
@@ -954,7 +954,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c2cf7ea14130e6af85e0fce67c8bf4d713a1b66cdbd05d8dc96af388a384f4b5
-R 56da6e90ce0ab04fd9c497b368084172
-U drh
-Z 0e796aee639eee21311e8ad8c762f0a0
+P 9e4083401606246bff740526591e7386286b457b0ac22077bdfbff564f462b30
+R 2330d053e046fe87acaf308bfd0b4e1f
+T *branch * misc-skin-fixes
+T *sym-misc-skin-fixes *
+T -sym-trunk *
+U florian
+Z 1d4d13fb24d32b222a0525c7a1dfd73c
