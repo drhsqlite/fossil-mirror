@@ -1,5 +1,5 @@
-C Add\s'timeline-tslink-info'\sto\sthe\slist\sof\sskin/web-ui-related\ssettings\sto\smake\sit\swork\swith\s`fossil\sconfig\s...'\sand\s`fossil\sinit\s--template\s...'.
-D 2020-02-16T14:48:00.000
+C Fix\sthe\sJavascript-disabled\sfallback\shamburger\sbutton\slink\sto\sthe\ssitemap.
+D 2020-02-16T14:51:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -396,7 +396,7 @@ F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt ea9118ba7297556a8306593c9ceb19cf80f553c45adfaa6f03c01b02422524d8
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
-F skins/default/header.txt b4c113fca5da4f1c7787f445797c1a8b502785e62228c9b9b1fd4af192e2c7f6
+F skins/default/header.txt 951f84d12b2d92e64de41d3bc61a504f1c3ea44e10f7cc1aecb5b8f58edacaa1
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt b0ae29bcf7b7863707a4909be680d41a4c7b04791e497ade7bc24b827dbc684b
@@ -954,10 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e4083401606246bff740526591e7386286b457b0ac22077bdfbff564f462b30
-R 2330d053e046fe87acaf308bfd0b4e1f
-T *branch * misc-skin-fixes
-T *sym-misc-skin-fixes *
-T -sym-trunk *
+P c27e206970d5a058a4f2bfc479d1849fd955d0c2cb761f439e52eb1339c8dbdd
+R ae2e89f4d2a29062d3da54beb25d1647
 U florian
-Z 1d4d13fb24d32b222a0525c7a1dfd73c
+Z 350c6a98b00d59f412ef047ce85ebd4e
