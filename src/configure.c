@@ -104,6 +104,7 @@ static struct {
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
   { "timeline-truncate-at-blank", CONFIGSET_SKIN },
+  { "timeline-tslink-info",   CONFIGSET_SKIN },
   { "timeline-utc",           CONFIGSET_SKIN },
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
