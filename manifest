@@ -1,5 +1,5 @@
-C Minor\sskin-related\sfixes\s(merged\sto\strunk\swith\sthe\sgo\sfrom\sstephan).
-D 2020-02-16T15:25:00.000
+C Fix\sa\sbug\sin\sthe\sCGI\sextension\sdocumentation.
+D 2020-02-18T20:51:43.063
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -934,7 +934,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki dc8cd1fd9a5a167ed242e173c394de91f7d7b876f0a5102e5d8edccc77abe565
+F www/serverext.wiki 13176230350b665058d6d143e7ff1f1ce9d90de633afa0ebccc93f5bbb47186a
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
 F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
@@ -954,8 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9e4083401606246bff740526591e7386286b457b0ac22077bdfbff564f462b30 9782e6726d985fbfc2714deee60d2e82ae63eeec56ed37ba2e821f79765a9d6c
-R ae2e89f4d2a29062d3da54beb25d1647
-T +closed 9782e6726d985fbfc2714deee60d2e82ae63eeec56ed37ba2e821f79765a9d6c
-U florian
-Z ac6eb76f8bd4e97ae5c92b6ace2dcaee
+P 4dbd4e33c457611812dca6f3bd89fc3639ad27916242c439680125138f8d897a
+R aa27378cbcb86c47d0ac5b651afb23c8
+U drh
+Z 1bd4fa12316e5c0a5e945feae69da05a
