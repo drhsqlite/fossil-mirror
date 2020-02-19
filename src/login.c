@@ -440,6 +440,7 @@ static int isHuman(const char *zAgent){
       return 1; /* IE11+ */
     }
     if( sqlite3_strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent)==0 ) return 1;
+    if( sqlite3_strglob("*PaleMoon/[1-9]*", zAgent)==0 ) return 1;
     return 0;
   }
   if( strncmp(zAgent, "Opera/", 6)==0 ) return 1;
