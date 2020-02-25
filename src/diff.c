@@ -62,9 +62,9 @@
     "whitespace changes only\n"
 
 /*
-** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
+** Maximum length of a line in a text file, in bytes.  (2**15 = 32768 bytes)
 */
-#define LENGTH_MASK_SZ  13
+#define LENGTH_MASK_SZ  15
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
 #endif /* INTERFACE */
@@ -78,16 +78,16 @@
 */
 typedef struct DLine DLine;
 struct DLine {
-  const char *z;        /* The text of the line */
-  unsigned int h;       /* Hash of the line */
+  const char *z;          /* The text of the line */
+  u64 h;                  /* Hash of the line */
   unsigned short indent;  /* Indent of the line. Only !=0 with -w/-Z option */
-  unsigned short n;     /* number of bytes */
-  unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
+  unsigned short n;       /* number of bytes */
+  unsigned int iNext;     /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
   ** above are one per line of input text.  But each entry is also
   ** a bucket in a hash table, as follows: */
-  unsigned int iHash;   /* 1+(first entry in the hash chain) */
+  unsigned int iHash;     /* 1+(first entry in the hash chain) */
 };
 
 /*
@@ -166,7 +166,7 @@ static DLine *break_into_lines(
   u64 diffFlags
 ){
   int nLine, i, k, nn, s, x;
-  unsigned int h, h2;
+  u64 h, h2;
   DLine *a;
   const char *zNL;
 
@@ -207,19 +207,23 @@ static DLine *break_into_lines(
         if( fossil_isspace(c) ){
           ++numws;
         }else{
-          h += c;
-          h *= 0x9e3779b1;
+          h = (h^c)*9000000000000000041LL;
         }
       }
       k -= numws;
     }else{
-      for(h=0, x=s; x<k; x++){
-        h += z[x];
-        h *= 0x9e3779b1;
+      int k2 = k & ~0x7;
+      u64 m;
+      for(h=0, x=s; x<k2; x += 8){
+        memcpy(&m, z+x, 8);
+        h = (h^m)*9000000000000000041LL;
       }
+      m = 0;
+      memcpy(&m, z+x, k-k2);
+      h ^= m;
     }
     a[i].indent = s;
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | (k-s);
+    a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
