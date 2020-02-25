@@ -1641,10 +1641,12 @@ static void svn_dump_import(FILE *pIn){
 **   --rename-trunk NAME  use NAME as name of imported trunk branch
 **   --rename-branch PAT  rename all branch names using PAT pattern
 **   --rename-tag PAT     rename all tag names using PAT pattern
+**   --admin-user|-A NAME use NAME for the admin user 
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name
-** conflicts when using the --incremental option.
+** conflicts when using the --incremental option. The --admin-user
+** option is ignored if --incremental is specified.
 **
 ** The argument to --rename-* contains one "%" character to be replaced
 ** with the original name.  For example, "--rename-tag svn-%-tag" renames
@@ -1665,6 +1667,7 @@ void import_cmd(void){
   int gitFlag = find_option("git", 0, 0)!=0;
   int omitRebuild = find_option("no-rebuild",0,0)!=0;
   int omitVacuum = find_option("no-vacuum",0,0)!=0;
+  const char *zDefaultUser = find_option("admin-user","A",1);
 
   /* Options common to all input formats */
   int incrFlag = find_option("incremental", "i", 0)!=0;
@@ -1761,7 +1764,7 @@ void import_cmd(void){
 
   db_begin_transaction();
   if( !incrFlag ){
-    db_initial_setup(0, 0, 0);
+    db_initial_setup(0, 0, zDefaultUser);
     db_set("main-branch", gimport.zTrunkName, 0);
   }
 

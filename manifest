@@ -1,5 +1,5 @@
-C Improved\sdiff\sperformance\sby\susing\sa\s64-bit\shash.\s\sNow\sable\sto\sdiff\sfiles\nwith\slines\sup\sto\s32KiB\sin\slength.
-D 2020-02-25T15:59:11.431
+C Added\s--admin-user\sflag\sto\sthe\simport\scommand,\sper\sdiscussion\sat\s[https://fossil-scm.org/forum/forumpost/2ecbbdf7c6|forumpost/2ecbbdf7c6].
+D 2020-02-25T18:34:41.607
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/http.c a25166d6aee3961bd543425247f0733bd5129d9f5afec4c90a1768905bd35a1b
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
-F src/import.c 7f99ab7269aae0b46a5ab49d8571afadd64aa6e582f97328a7ff1c6f32d2dfa9
+F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
 F src/info.c 56f29d9da19ce6b93a95ab809eb5424875ac739ea1dea33eef5934db805b9208
 F src/json.c ae4868f02ca47bac8aa57b726884aeb351d41af47434b99e6c5c0336bd96381d
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
@@ -954,7 +954,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a84fe09c7a09db713e53746d2527eeb4330ff72a757679820a72f41f9d59b1a a4616a2c9946980d0ce02052b971f21af9602d3deec23bc1293ac69399d9603a
-R 4398cd021cdde8cf5ca5053bbcf61caa
-U drh
-Z 0ef926f5b28bbf37eafc97d81af48334
+P ce0bce90cf31caef65249793036492e59a3f5f3e97c74d35ab793b9e5704407c
+R ef051689b0e91ef5a492757b3c6aabbd
+T *branch * import-admin-user
+T *sym-import-admin-user *
+T -sym-trunk *
+U stephan
+Z f446fed92d022159e06d9a0f38ec9051
