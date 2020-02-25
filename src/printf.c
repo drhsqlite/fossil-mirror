@@ -201,18 +201,6 @@ static int et_getdigit(long double *val, int *cnt){
 #define etBUFSIZE 500
 
 /*
-** Find the length of a string as long as that length does not
-** exceed N bytes.  If no zero terminator is seen in the first
-** N bytes then return N.  If N is negative, then this routine
-** is an alias for strlen().
-*/
-static int StrNLen32(const char *z, int N){
-  int n = 0;
-  while( (N-- != 0) && *(z++)!=0 ){ n++; }
-  return n;
-}
-
-/*
 ** Return an appropriate set of flags for wiki_convert() for displaying
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
@@ -654,7 +642,7 @@ int vxprintf(
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *e = va_arg(ap,char*);
         if( e==0 ){e="";}
-        length = StrNLen32(e, limit);
+        length = (int)strnlen(e,limit);
         zExtra = bufpt = fossil_malloc(length+1);
         for( i=0; i<length; i++ ){
           if( e[i]=='\\' ){
@@ -683,7 +671,7 @@ int vxprintf(
         }else if( xtype==etSTRINGID ){
           precision = hash_digits(flag_altform2);
         }
-        length = StrNLen32(bufpt, limit);
+        length = (int)strnlen(bufpt,limit);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
