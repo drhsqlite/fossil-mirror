@@ -1,5 +1,5 @@
-C Performance\soptimization\sin\sthe\sbuilding\sprintf()\slogic\smakes\sthe\n"fossil\sannotate"\scommand\srun\s6x\sfaster.
-D 2020-02-25T11:32:25.081
+C Change\sthe\ssense\sof\sthe\s"same_dline()"\sroutine\sin\sthe\sdiff\sgenerator\sso\sthat\nit\sreturns\s0\sif\sthe\slines\sare\sthe\ssame\sand\snon-zero\sif\sthe\slines\sare\sdifferent,\nas\sthis\shelps\sthe\sdiff\slogic\sto\srun\sfaster.
+D 2020-02-25T11:56:42.439
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -466,7 +466,7 @@ F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
 F src/descendants.c 5b51ac221ef6fc6a5290fbd83874844f6a255f8929aea475bafbf237f9ec4a90
-F src/diff.c cf6baad848effb64b08df7bf6b94887e9db367270d16bd66ff5e8bc070610bc6
+F src/diff.c b4b306c32c86d9a614d4d6ab36d23ea8c8acb062990bbb868a5d1c422073182c
 F src/diff.tcl 5541bc7846d7707e29ea9f1ecaf85d8e4a52e51d7a4d9e160c869a2a467117b8
 F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 2539d055706cdd69dba6a4fd4c674b859f7958b8edfba2bd1121db1c59a67685
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6d0be557dc12a4721acbfa0ad9d389a84732f1e7ef70ad7f865b39f5d8c4bfb3
-R a43c9a25dd94302812870909c93dd1a0
+P 1e881f59786bd89129f2b3be03903d0a0d8af7ca0aab00b332941e3126d801c6
+R c68afbd9811eee53d55842d5e0e77966
 U drh
-Z 8ae72682ae91b3ff81dfb02e19506c81
+Z 0a972d93bec44934b1d9f36f56fbb792
