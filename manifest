@@ -1,5 +1,5 @@
-C Change\sthe\ssense\sof\sthe\s"same_dline()"\sroutine\sin\sthe\sdiff\sgenerator\sso\sthat\nit\sreturns\s0\sif\sthe\slines\sare\sthe\ssame\sand\snon-zero\sif\sthe\slines\sare\sdifferent,\nas\sthis\shelps\sthe\sdiff\slogic\sto\srun\sfaster.
-D 2020-02-25T11:56:42.439
+C Redo\sthe\senhancement\sof\scheck-in\s[1e881f59786bd891]\sin\sa\sway\sthat\sis\sportable\nto\slegacy\ssystems.\s\sThe\sstrnlen()\sfunction\sis\snow\salways\savailable.
+D 2020-02-25T15:58:05.661
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -544,7 +544,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 7b3b991666434b912cb6b75e98fdb3f500d57ba21a84239f7ffbff28b3c55b59
+F src/printf.c 507d360bb704e3cbe38de09c29a576df0bb2974b660ef8b890ca21300d0c1abe
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c c09d72ba95c62bb392a30b12b86c952665452a166bb304c05b3545d55c4db23c
@@ -954,7 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1e881f59786bd89129f2b3be03903d0a0d8af7ca0aab00b332941e3126d801c6
-R c68afbd9811eee53d55842d5e0e77966
+P 2f7527e88c169da38b51d5696bac3b72f6eb9b0f727e211a6ad14e94d64d4a3b
+R fc4f47c2295cb4eb1595c347df5db075
 U drh
-Z 0a972d93bec44934b1d9f36f56fbb792
+Z 45bdc47fc93b18bcf4dbf988cfcf1dfe
