@@ -105,6 +105,10 @@ int update_to(int vid){
 **                    times (the timestamp of the last checkin which modified
 **                    them).
 **
+**  -K|--keep-merge-files  On merge conflict, retain the temporary files
+**                         used for merging, named *-baseline, *-original,
+**                         and *-merge.
+**
 ** See also: revert
 */
 void update_cmd(void){
@@ -117,6 +121,7 @@ void update_cmd(void){
   int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
+  int keepMergeFlag;    /* True if --keep-merge-files is present */
   int nChng;            /* Number of file renames */
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
@@ -149,6 +154,7 @@ void update_cmd(void){
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -492,6 +498,7 @@ void update_cmd(void){
         nConflict++;
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
+        if(keepMergeFlag!=0) mergeFlags |= MERGE_KEEP_FILES;
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);

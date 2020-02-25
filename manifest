@@ -1,5 +1,5 @@
-C Improved\sdiff\sperformance\sby\susing\sa\s64-bit\shash.\s\sNow\sable\sto\sdiff\sfiles\nwith\slines\sup\sto\s32KiB\sin\slength.
-D 2020-02-25T15:59:11.431
+C Implemented\smerge/update\s--keep-merge-files,\sper\sdiscussion\sat\s[https://fossil-scm.org/forum/forumpost/1407a2d73e|/forumpost/1407a2d73e].
+D 2020-02-25T20:57:44.560
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -530,8 +530,8 @@ F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec569
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
-F src/merge.c 6279e042ec7f95ef37b4a6b9895a88f7c98f4f3bbe56bd6418e28c507753f35c
-F src/merge3.c 3ed67f9d2a6e9a0b75f0eb319c0331b18b1879a8361c0f38d49dd17a930fbc9e
+F src/merge.c e58775ef9f8033664332dca41393608901d4598838ba7bfc256019f8fc4b7766
+F src/merge3.c d4892488520ad225695bcd020c132f868af12271e2bc2f7ede80259ac711b9dd
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 9be20ec713e4a8422c1228f1f40c40b321a3a1411929e6a07c43d104a2e30883
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
@@ -593,7 +593,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 0a8d4dc37c169c614bdd814e0c8b2f7bb0fdb96faeacca09f0a634e25ffd1f7f
 F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
 F src/unversioned.c c5a2db07e194905ef5e5a0f4de110afbbab6a52ab4cf690dd33530cc6b2b89ed
-F src/update.c a5b48c28d98a1715e7e046f82eff21acd8f259fc78a071e6acdde8b61d68a93f
+F src/update.c fa87da575576559ee01236b47d1a8d41dc4118ad5df1b4fe7f36c55e14db132c
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -793,7 +793,7 @@ F www/caps/index.md 21c7d3068bc5b9c25f2f11c2aa44a5d13bcd84c6bf3ca55dbe293987c476
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 8dea331be05fd7b2013cc31e0441993f3a5aa224e5c300a81bcfe7f5776b2c8d
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki a9787d7e4a81ea2de977fefae4ec2099e6f3f159dd495904377c44b171a82d53
+F www/changes.wiki d721b9ba2b013844c1fb35297b1609af9bc5d23fa8d36f43833abb8259bd3746
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki e0707a3fd024990bc95294502d5ca6cd39688bf40c3c87a2a449e7e3af9e40f6
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -954,7 +954,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a84fe09c7a09db713e53746d2527eeb4330ff72a757679820a72f41f9d59b1a a4616a2c9946980d0ce02052b971f21af9602d3deec23bc1293ac69399d9603a
-R 4398cd021cdde8cf5ca5053bbcf61caa
-U drh
-Z 0ef926f5b28bbf37eafc97d81af48334
+P ce0bce90cf31caef65249793036492e59a3f5f3e97c74d35ab793b9e5704407c bdc242fb070232155389c6e108eb6968fc1d6cada5b7509f14ffedafa60b5756
+R b1e17435d6317d6bcbf16ceb198c3b4a
+T *branch * merge-remove-temp-files
+T *sym-merge-remove-temp-files *
+T -sym-trunk *
+U stephan
+Z e61e42c288ceac39ac5d60253a79b47f

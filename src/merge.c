@@ -227,6 +227,10 @@ static void vmerge_insert(int id, int rid){
 **
 **   --integrate             Merged branch will be closed when committing.
 **
+**   -K|--keep-merge-files   On merge conflict, retain the temporary files
+**                           used for merging, named *-baseline, *-original,
+**                           and *-merge.
+**
 **   -n|--dry-run            If given, display instead of run actions
 **
 **   -v|--verbose            Show additional details of the merge
@@ -246,6 +250,7 @@ void merge_cmd(void){
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
+  int keepMergeFlag;    /* True if --keep-merge-files is present */
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   char vAncestor = 'p'; /* If P is an ancestor of V then 'p', else 'n' */
@@ -277,6 +282,8 @@ void merge_cmd(void){
   }
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
+  keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
+
   verify_all_options();
   db_must_be_within_tree();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
@@ -667,6 +674,7 @@ void merge_cmd(void){
         blob_zero(&r);
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
+        if(keepMergeFlag!=0) mergeFlags |= MERGE_KEEP_FILES;
         rc = merge_3way(&p, zFullPath, &m, &r, mergeFlags);
       }
       if( rc>=0 ){
