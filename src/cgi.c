@@ -212,6 +212,12 @@ void cgi_set_status(int iStat, const char *zStat){
 void cgi_append_header(const char *zLine){
   blob_append(&extraHeader, zLine, -1);
 }
+void cgi_printf_header(const char *zLine, ...){
+  va_list ap;
+  va_start(ap, zLine);
+  blob_vappendf(&extraHeader, zLine, ap);
+  va_end(ap);
+}
 
 /*
 ** Set a cookie by queuing up the appropriate HTTP header output. If

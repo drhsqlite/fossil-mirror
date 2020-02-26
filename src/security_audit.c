@@ -35,8 +35,8 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 }
 
 /*
-** Extract the content-security-policy from the reply header.  Parse it
-** up into separate fields, and return a pointer to a null-terminated
+** Parse the content-security-policy
+** into separate fields, and return a pointer to a null-terminated
 ** array of pointers to strings, one entry for each field.  Or return
 ** a NULL pointer if no CSP could be located in the header.
 **
@@ -47,51 +47,40 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 static char **parse_content_security_policy(void){
   char **azCSP = 0;
   int nCSP = 0;
-  const char *zHeader;
-  const char *zAll;
+  char *zAll;
   char *zCopy;
   int nAll = 0;
-  int ii, jj, n, nx = 0;
+  int jj;
   int nSemi;
 
-  zHeader = cgi_header();
-  if( zHeader==0 ) return 0;
-  for(ii=0; zHeader[ii]; ii+=n){
-    n = html_token_length(zHeader+ii);
-    if( zHeader[ii]=='<'
-     && fossil_strnicmp(html_attribute(zHeader+ii,"http-equiv",&nx),
-                        "Content-Security-Policy",23)==0
-     && nx==23
-     && (zAll = html_attribute(zHeader+ii,"content",&nAll))!=0
-    ){
-      for(jj=nSemi=0; jj<nAll; jj++){ if( zAll[jj]==';' ) nSemi++; }
-      azCSP = fossil_malloc( nAll+1 + (nSemi+2)*sizeof(char*) );
-      zCopy = (char*)&azCSP[nSemi+2];
-      memcpy(zCopy,zAll,nAll);
-      zCopy[nAll] = 0;
-      while( fossil_isspace(zCopy[0]) || zCopy[0]==';' ){ zCopy++; }
-      azCSP[0] = zCopy;
-      nCSP = 1;
-      for(jj=0; zCopy[jj]; jj++){
-        if( zCopy[jj]==';' ){
-          int k;
-          for(k=jj-1; k>0 && fossil_isspace(zCopy[k]); k--){ zCopy[k] = 0; }
-          zCopy[jj] = 0;
-          while( jj+1<nAll
-             && (fossil_isspace(zCopy[jj+1]) || zCopy[jj+1]==';')
-          ){
-            jj++;
-          }
-          assert( nCSP<nSemi+1 );
-          azCSP[nCSP++] = zCopy+jj;
-        }
+  zAll = style_csp(0);
+  nAll = (int)strlen(zAll);
+  for(jj=nSemi=0; jj<nAll; jj++){ if( zAll[jj]==';' ) nSemi++; }
+  azCSP = fossil_malloc( nAll+1+(nSemi+2)*sizeof(char*) );
+  zCopy = (char*)&azCSP[nSemi+2];
+  memcpy(zCopy,zAll,nAll);
+  zCopy[nAll] = 0;
+  while( fossil_isspace(zCopy[0]) || zCopy[0]==';' ){ zCopy++; }
+  azCSP[0] = zCopy;
+  nCSP = 1;
+  for(jj=0; zCopy[jj]; jj++){
+    if( zCopy[jj]==';' ){
+      int k;
+      for(k=jj-1; k>0 && fossil_isspace(zCopy[k]); k--){ zCopy[k] = 0; }
+      zCopy[jj] = 0;
+      while( jj+1<nAll
+         && (fossil_isspace(zCopy[jj+1]) || zCopy[jj+1]==';')
+      ){
+        jj++;
       }
-      assert( nCSP<=nSemi+2 );
-      azCSP[nCSP] = 0;
-      return azCSP;
+      assert( nCSP<nSemi+1 );
+      azCSP[nCSP++] = zCopy+jj;
     }
   }
-  return 0;
+  assert( nCSP<=nSemi+2 );
+  azCSP[nCSP] = 0;
+  fossil_free(zAll);
+  return azCSP;
 }
 
 /*

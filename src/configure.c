@@ -109,6 +109,7 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "default-csp",            CONFIGSET_SKIN },
   { "sitemap-docidx",         CONFIGSET_SKIN },
   { "sitemap-download",       CONFIGSET_SKIN },
   { "sitemap-license",        CONFIGSET_SKIN },

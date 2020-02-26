@@ -3623,6 +3623,26 @@ struct Setting {
 ** whatsoever.
 */
 /*
+** SETTING: default-csp      width=40 block-text
+**
+** The text of the Content Security Policy that is included
+** in the Content-Security-Policy: header field of the HTTP
+** reply and in the default HTML <head> section that is added when the
+** skin header does not specify a <head> section.  The text "$nonce"
+** is replaced by the random nonce that is created for each web page.
+**
+** If this setting is an empty string or is omitted, then
+** the following default Content Security Policy is used:
+**
+**     default-src 'self' data:;
+**     script-src 'self' 'nonce-$nonce';
+**     style-src 'self' 'unsafe-inline';
+**
+** The default CSP is recommended.  The main reason to change
+** this setting would be to add CDNs from which it is safe to
+** load additional content.
+*/
+/*
 ** SETTING: uv-sync          boolean default=off
 ** If true, automatically send unversioned files as part
 ** of a "fossil clone" or "fossil sync" command.  The

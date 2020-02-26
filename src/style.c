@@ -477,6 +477,51 @@ char *style_nonce(void){
 }
 
 /*
+** Return the default Content Security Policy (CSP) string.
+** If the toHeader argument is true, then also add the
+** CSP to the HTTP reply header.
+**
+** The CSP comes from the "default-csp" setting if it exists and
+** is non-empty.  If that setting is an empty string, then the following
+** default is used instead:
+**
+**     default-src 'self' data:;
+**     script-src 'self' 'nonce-$nonce';
+**     style-src 'self' 'unsafe-inline';
+**
+** The text '$nonce' is replaced by style_nonce() if and whereever it
+** occurs in the input string.
+**
+** The string returned is obtained from fossil_malloc() and
+** should be released by the caller.
+*/
+char *style_csp(int toHeader){
+  static const char zBackupCSP[] = 
+   "default-src 'self' data:; "
+   "script-src 'self' 'nonce-$nonce'; "
+   "style-src 'self' 'unsafe-inline'";
+  const char *zFormat = db_get("default-csp","");
+  Blob csp;
+  char *zNonce;
+  char *zCsp;
+  if( zFormat[0]==0 ){
+    zFormat = zBackupCSP;
+  }
+  blob_init(&csp, 0, 0);
+  while( zFormat[0] && (zNonce = strstr(zFormat,"$nonce"))!=0 ){
+    blob_append(&csp, zFormat, (int)(zNonce - zFormat));
+    blob_append(&csp, style_nonce(), -1);
+    zFormat = zNonce + 6;
+  }
+  blob_append(&csp, zFormat, -1);
+  zCsp = blob_str(&csp);
+  if( toHeader ){
+    cgi_printf_header("Content-Security-Policy: %s\r\n", zCsp);
+  }
+  return zCsp;
+}
+
+/*
 ** Default HTML page header text through <body>.  If the repository-specific
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
@@ -500,17 +545,16 @@ static char zDfltHeader[] =
 */
 static void style_init_th1_vars(const char *zTitle){
   const char *zNonce = style_nonce();
+  char *zDfltCsp;
+
+  zDfltCsp = style_csp(1);
   /*
   ** Do not overwrite the TH1 variable "default_csp" if it exists, as this
   ** allows it to be properly overridden via the TH1 setup script (i.e. it
   ** is evaluated before the header is rendered).
   */
-  char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
-                                   "script-src 'self' 'nonce-%s' ; "
-                                   "style-src 'self' 'unsafe-inline'",
-                                   zNonce);
   Th_MaybeStore("default_csp", zDfltCsp);
-  sqlite3_free(zDfltCsp);
+  fossil_free(zDfltCsp);
   Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));

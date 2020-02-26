@@ -1884,6 +1884,7 @@ void deliver_artifact(int rid, const char *zMime){
     if( zMime==0 ) zMime = "application/x-fossil-artifact";
   }
   content_get(rid, &content);
+  fossil_free(style_csp(1));
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
 }

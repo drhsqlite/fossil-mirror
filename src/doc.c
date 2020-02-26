@@ -798,6 +798,7 @@ void document_render(
     }
 #endif
   }else{
+    fossil_free(style_csp(1));
     cgi_set_content_type(zMime);
     cgi_set_content(pBody);
   }
