@@ -20,13 +20,24 @@
   *  In [./embeddeddoc.wiki|embedded documentation], hyperlink URLs
      of the form "/doc/$CURRENT/..." the "$CURRENT" text is translated
      into the check-in hash for the document currently being viewed.
-  *  Proactive security: Fossil now assumes that the schema of every
+  *  Security: Fossil now assumes that the schema of every
      database it opens has been tampered with by an adversary and takes
      extra precautions to ensure that such tampering is harmless.
+  *  Security: Fossil now puts the Content-Security-Policy in the
+     HTTP reply header, in addition to also leaving it in the
+     HTML &lt;head&gt; section, so that it is always available, if
+     if a custom skin overrides the HTML &lt;head&gt; and omits
+     the CSP in the process.
+  *  The Content-Security-Policy is now set using the
+     [/help?cmd=default-csp|default-csp setting].
   *  Merge conflicts caused via the [/help?cmd=merge|merge] and
      [/help?cmd=update|update] commands no longer leave temporary
      files behind unless the new <tt>--keep-merge-file</tt> flag
      is used.
+  *  The [/help?cmd=/artifact_stats|/artifact_stats page] is now accessible
+     to all users if the new "artifact_stats_enable" setting is turned
+     on.  There is a new checkbox under the /Admin/Access menu to turn
+     that capability on and off.
   *  Bug fix: the "fossil git export" command is now working on Windows
   *  Bug fix: display Technote items on the timeline correctly
   *  Bug fix: fix the capability summary matrix of the Security Audit
