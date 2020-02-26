@@ -1,5 +1,5 @@
-C Implemented\smerge/update\s--keep-merge-files,\sper\sdiscussion\sat\s[https://fossil-scm.org/forum/forumpost/1407a2d73e|/forumpost/1407a2d73e].
-D 2020-02-25T20:57:44.560
+C The\sstash\snow\suses\sthe\slegacy\sbehaviour\sfor\smerge\sconflicts,\salways\skeeping\sthe\sbaseline/original/merge\sfiles,\sbecause\sthere's\sotherwise\sa\spotential\sfor\sundo\ssuffering\swhen\sstash\spop\shas\sa\sconflict.\s(Thanks\sto\sFlorian\sfor\spointing\sthat\sout.)
+D 2020-02-26T14:07:47.215
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -573,7 +573,7 @@ F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
 F src/sqlite3.c db6df305071f3c23c68ce82acbab4b362c1e2fbfa4cf05bd23b35d254ed609bd
 F src/sqlite3.h 880e4f2dd3cb41e4a1bdd132a31bcb397b50c7a24349eca1632e36eb2b7d4672
-F src/stash.c c541e3bb52e4d24e74bd49d86996ac2b8590513a6959d22855c01cd44f647468
+F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 374a8ca306edffb8164a5359c8572cada607c6d5677acf81ff478ef962c0c3de
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c 4f75a6a67ae9bc72f41dee4370aa6d03c4a30b6e34431c931796acddaa2f4fa3
@@ -954,10 +954,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce0bce90cf31caef65249793036492e59a3f5f3e97c74d35ab793b9e5704407c bdc242fb070232155389c6e108eb6968fc1d6cada5b7509f14ffedafa60b5756
-R b1e17435d6317d6bcbf16ceb198c3b4a
-T *branch * merge-remove-temp-files
-T *sym-merge-remove-temp-files *
-T -sym-trunk *
+P 1bfd760de440e2044368cd08225d836643079e23c03cae5e138e3489c38fa55b
+R 8c88e1c9777a7bef61aa92093cba6cf0
 U stephan
-Z e61e42c288ceac39ac5d60253a79b47f
+Z 86226a4adbcce70fcd29f63bb417609e
