@@ -23,6 +23,10 @@
   *  Proactive security: Fossil now assumes that the schema of every
      database it opens has been tampered with by an adversary and takes
      extra precautions to ensure that such tampering is harmless.
+  *  Merge conflicts caused via the [/help?cmd=merge|merge] and
+     [/help?cmd=update|update] commands no longer leave temporary
+     files behind unless the new <tt>--keep-merge-file</tt> flag
+     is used.
   *  Bug fix: the "fossil git export" command is now working on Windows
   *  Bug fix: display Technote items on the timeline correctly
   *  Bug fix: fix the capability summary matrix of the Security Audit
