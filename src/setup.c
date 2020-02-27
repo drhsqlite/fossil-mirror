@@ -499,8 +499,11 @@ void setup_access(void){
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below.  Example use case: Set this field
-  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the
+  @ "Default privileges" setting below. 
+  @
+  @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
+  @ the "Default privileges" to include the "o" privilege
+  @ to give anonymous users read-only permission to the
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ (Property: "public-pages")

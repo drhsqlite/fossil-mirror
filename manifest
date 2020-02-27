@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\san\searly\salpha\sfor\s3.32.0,\sfor\stesting.
-D 2020-02-27T17:07:34.130
+C More\sinformation\son\sSetup\sand\sin\sSecurity-Audit\sto\shelp\sadmins\sconfigure\nPublic\sPages\swith\sthe\scorrect\scapabilities.
+D 2020-02-27T19:16:53.486
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/browse.c 2fe022787253199f5a06bc725d079678adf867bf9150dbc1658b3735d0128c35
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 76ed4eb5d551aa0867ccc7bb76656a3bd404248d1f32aa134c9ec2ddd76a565d
+F src/capabilities.c aee39ddf230e4ad8b8b244afdb0050d55a5bb0ba11a08271d15b532a0d515993
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c f8d1490e630210fa612a4fffcb5c6a26709a3f753ca127bd5e7456a45f676db1
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
@@ -556,8 +556,8 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
-F src/security_audit.c 3c00ffa5b42c9f5131a8cb9f41fa730dbdf44776bc089cede451bed92b4c14fb
-F src/setup.c 1a6b9636c7860c33c37e90356f0333ad3e850909aefbc69a820a6ba6632e871b
+F src/security_audit.c ea45c622737095fe510ae628c387aaaf171548aee03ed53a4c72af633a05c08c
+F src/setup.c e86861d2c8a9024b40aea32cc9f932540c8b1aa57f5eb0a2e878e35d5cb4f86d
 F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 13919ef8fcddd93bd7eaeabdb5c079c8477807f7d125684b6bf6415055ae5645
-R e1df4b563b14e443f734b189df5731f7
+P d239550e9e00a9f894a296c9b539f29b52d1650e999baa466c15624a2c5baeff
+R e7757caa0bca7fc5ac3dd60b0cbb94ea
 U drh
-Z 7d9f43e478edf92825260bc5882e5558
+Z ec208daf20ed97a7d1a34a03c60dd34a

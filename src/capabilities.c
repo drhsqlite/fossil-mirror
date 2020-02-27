@@ -361,6 +361,16 @@ void capabilities_table(unsigned mClass){
 */
 void capability_summary(void){
   Stmt q;
+  CapabilityString *pCap;
+  char *zSelfCap;
+  char *zPubPages = db_get("public-pages",0);
+  int hasPubPages = zPubPages && zPubPages[0];
+
+  pCap = capability_add(0, db_get("default-perms",0));
+  capability_expand(pCap);
+  zSelfCap = capability_string(pCap);
+  capability_free(pCap);
+
   db_prepare(&q,
     "WITH t(id,seq) AS (VALUES('nobody',1),('anonymous',2),('reader',3),"
                        "('developer',4))"
@@ -368,15 +378,17 @@ void capability_summary(void){
                     " ELSE fullcap(user.cap) END,seq,1"
     "   FROM t LEFT JOIN user ON t.id=user.login"
     " UNION ALL"
-    " SELECT 'New User Default', fullcap(%Q), 10, 1"
+    " SELECT 'Public Pages', %Q, 100, %d"
     " UNION ALL"
-    " SELECT 'Regular User', fullcap(capunion(cap)), 20, count(*) FROM user"
+    " SELECT 'New User Default', %Q, 110, 1"
+    " UNION ALL"
+    " SELECT 'Regular User', fullcap(capunion(cap)), 200, count(*) FROM user"
     " WHERE cap NOT GLOB '*[as]*' AND login NOT IN (SELECT id FROM t)"
     " UNION ALL"
-    " SELECT 'Adminstrator', fullcap(capunion(cap)), 30, count(*) FROM user"
+    " SELECT 'Adminstrator', fullcap(capunion(cap)), 300, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
     " ORDER BY 3 ASC",
-    db_get("default-perms","")
+    zSelfCap, hasPubPages, zSelfCap
   );
   @ <table id='capabilitySummary' cellpadding="0" cellspacing="0" border="1">
   @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki\
@@ -387,7 +399,8 @@ void capability_summary(void){
     int n = db_column_int(&q, 3);
     int eType;
     static const char *const azType[] = { "off", "read", "write" };
-    static const char *const azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
+    static const char *const azClass[] = 
+        { "capsumOff", "capsumRead", "capsumWrite" };
 
     if( n==0 ) continue;
 

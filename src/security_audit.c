@@ -98,8 +98,10 @@ void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
   const char *zPubPages;     /* GLOB pattern for public pages */
   const char *zSelfCap;      /* Capabilities of self-registered users */
+  int hasSelfReg = 0;        /* True if able to self-register */
   char *z;
   int n;
+  CapabilityString *pCap;
   char **azCSP;              /* Parsed content security policy */
 
   login_check_credentials();
@@ -117,15 +119,11 @@ void secaudit0_page(void){
   */
   zAnonCap = db_text("", "SELECT fullcap(NULL)");
   zPubPages = db_get("public-pages",0);
-  if( db_get_boolean("self-register",0) ){
-    CapabilityString *pCap;
-    pCap = capability_add(0, db_get("default-perms",0));
-    capability_expand(pCap);
-    zSelfCap = capability_string(pCap);
-    capability_free(pCap);
-  }else{
-    zSelfCap = fossil_strdup("");
-  }
+  hasSelfReg = db_get_boolean("self-register",0);
+  pCap = capability_add(0, db_get("default-perms",0));
+  capability_expand(pCap);
+  zSelfCap = capability_string(pCap);
+  capability_free(pCap);
   if( hasAnyCap(zAnonCap,"as") ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
     @ it grants administrator privileges to anonymous users.  You
@@ -133,7 +131,7 @@ void secaudit0_page(void){
     @ immediately!  Or, at least remove the Setup and Admin privileges
     @ for users "anonymous" and "login" on the
     @ <a href="setup_ulist">User Configuration</a> page.
-  }else if( hasAnyCap(zSelfCap,"as") ){
+  }else if( hasAnyCap(zSelfCap,"as") && hasSelfReg ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
     @ it grants administrator privileges to self-registered users.  You
     @ should <a href="takeitprivate">take this repository private</a>
@@ -156,12 +154,12 @@ void secaudit0_page(void){
     @ <li><p>This repository is <big><b>PUBLIC</b></big>. All
     @ checked-in content can be accessed by anonymous users.
     @ <a href="takeitprivate">Take it private</a>.<p>
-  }else if( hasAnyCap(zSelfCap,"goz") ){
+  }else if( hasAnyCap(zSelfCap,"goz") && hasSelfReg ){
     @ <li><p>This repository is <big><b>PUBLIC</b></big> because all
     @ checked-in content can be accessed by self-registered users.
     @ This repostory would be private if you disabled self-registration.</p>
   }else if( !hasAnyCap(zAnonCap, "jrwy234567")
-         && !hasAnyCap(zSelfCap, "jrwy234567")
+         && (!hasSelfReg || !hasAnyCap(zSelfCap, "jrwy234567"))
          && (zPubPages==0 || zPubPages[0]==0) ){
     @ <li><p>This repository is <big><b>Completely PRIVATE</b></big>.
     @ A valid login and password is required to access any content.
@@ -171,24 +169,29 @@ void secaudit0_page(void){
     @ content can be accessed either anonymously or by self-registered
     @ users:
     @ <ul>
-    if( hasAnyCap(zAnonCap,"j") || hasAnyCap(zSelfCap,"j") ){
-      @ <li> Wiki pages
-    }
-    if( hasAnyCap(zAnonCap,"r") || hasAnyCap(zSelfCap,"r") ){
-      @ <li> Tickets
-    }
-    if( hasAnyCap(zAnonCap,"234567") || hasAnyCap(zSelfCap,"234567") ){
-      @ <li> Forum posts
+    if( hasSelfReg ){
+      if( hasAnyCap(zAnonCap,"j") || hasAnyCap(zSelfCap,"j") ){
+        @ <li> Wiki pages
+      }
+      if( hasAnyCap(zAnonCap,"r") || hasAnyCap(zSelfCap,"r") ){
+        @ <li> Tickets
+      }
+      if( hasAnyCap(zAnonCap,"234567") || hasAnyCap(zSelfCap,"234567") ){
+        @ <li> Forum posts
+      }
     }
     if( zPubPages && zPubPages[0] ){
       Glob *pGlob = glob_create(zPubPages);
       int i;
-      @ <li> URLs that match any of these GLOB patterns:
-      @ <ul>
+      @ <li> "Public Pages" are URLs that match any of these GLOB patterns:
+      @ <p><ul>
       for(i=0; i<pGlob->nPattern; i++){
         @ <li> %h(pGlob->azPattern[i])
       }
       @ </ul>
+      @ <p>Anoymous users are vested with capabilities "%h(zSelfCap)" on
+      @ public pages. See the "Public Pages" entry in the
+      @ "User capability summary" below.
     }
     @ </ul>
     if( zPubPages && zPubPages[0] ){
