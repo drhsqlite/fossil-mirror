@@ -1,5 +1,5 @@
-C More\sinformation\son\sSetup\sand\sin\sSecurity-Audit\sto\shelp\sadmins\sconfigure\nPublic\sPages\swith\sthe\scorrect\scapabilities.
-D 2020-02-27T19:16:53.486
+C Create\snew\sbranch\snamed\s"forumthread-title"
+D 2020-02-28T21:51:47.072
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -955,7 +955,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d239550e9e00a9f894a296c9b539f29b52d1650e999baa466c15624a2c5baeff
+P 0c374456b3f8be0070a2521b8aa73a220bcb60d465403fefb38e250c131cb7a0
 R e7757caa0bca7fc5ac3dd60b0cbb94ea
-U drh
-Z ec208daf20ed97a7d1a34a03c60dd34a
+T *branch * forumthread-title
+T *sym-forumthread-title *
+T -sym-trunk *
+U ashepilko
+Z e0d07e47444fb6f8f187848cfcdcf924
