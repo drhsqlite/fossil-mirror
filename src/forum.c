@@ -534,6 +534,35 @@ void forumpost_page(void){
 }
 
 /*
+** Add an appropriate style_header() to include title of the
+** given forum post.
+*/
+static int forumthread_page_header(int froot, int fpid){
+  Blob title;
+  int mxForumPostTitleLen = 50;
+  char *zThreadTitle = "";
+
+  zThreadTitle = db_text("",
+    "SELECT"
+    " substr(event.comment,instr(event.comment,':')+2)"
+    " FROM forumpost, event"
+    " WHERE event.objid=forumpost.fpid"
+    "   AND forumpost.fpid=%d;",
+    fpid
+  );
+  blob_set(&title, zThreadTitle);
+  /* truncate title when longer than max allowed */
+  if ( mxForumPostTitleLen>0 && blob_size(&title)>mxForumPostTitleLen ) {
+    blob_resize(&title, mxForumPostTitleLen);
+    blob_append(&title, "...", 3);
+  }
+  style_header("%s%s", blob_str(&title), blob_size(&title) ? " - Forum" : "Forum");
+  blob_reset(&title);
+  fossil_free(zThreadTitle);
+  return 0;
+}
+
+/*
 ** WEBPAGE: forumthread
 **
 ** Show all forum messages associated with a particular message thread.
@@ -563,7 +592,6 @@ void forumthread_page(void){
   if( fpid<=0 ){
     webpage_error("Unknown or ambiguous forum id: \"%s\"", zName);
   }
-  style_header("Forum");
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
     webpage_error("Not a forum post: \"%s\"", zName);
@@ -576,6 +604,7 @@ void forumthread_page(void){
       zMode = "h";
     }
   }
+  forumthread_page_header(froot, fpid);
   if( zMode[0]=='c' ){
     style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
     forum_display_chronological(froot, fpid);
