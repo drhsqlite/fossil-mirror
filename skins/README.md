@@ -2,8 +2,13 @@ Built-in Skins
 ==============
 
 Each subdirectory under this folder describes a built-in "skin".
-There are four files in each subdirectory for the CSS, the "details"
-file, the footer, and the header for that skin.
+There are five key files in each subdirectory:
+
+  * `css.txt`	&rarr; The CSS for the skin
+  * `details.txt` &rarr; Skin-specific settings
+  * `footer.txt` &rarr; Text of the Content Footer for each page
+  * `header.txt` &rarr; Text of the Content Header for each page
+  * `js.txt` &rarr; Javascript included in the Content Footer
 
 To improve an existing built-in skin, simply edit the appropriate
 files and recompile.
@@ -15,8 +20,8 @@ To add a new skin:
         name, of course.)
 
    2.   Add files skins/newskin/css.txt, skins/newskin/details.txt,
-        skins/newskin/footer.txt and skins/newskin/header.txt.
-        Be sure to "fossil add" these files.
+        skins/newskin/footer.txt, skins/newskin/header.txt, and
+        skins/newskin/js.txt. Be sure to "fossil add" these files.
 
    3.   Go to the src/ directory and rerun "tclsh makemake.tcl".  This
         step rebuilds the various makefiles so that they have dependencies
@@ -27,19 +32,21 @@ To add a new skin:
 
    5.   Type "make" to rebuild.
 
+See the [custom skin documentation](../www/customskin.md) for more information.
+
 Development Hints
 -----------------
 
 One way to develop a new skin is to copy the baseline files (css.txt,
-details.txt, footer.txt, and header.txt) into a working directory $WORKDIR
-then launch Fossil with a command-line option "--skin $WORKDIR".  Example:
+details.txt, footer.txt, header.txt, and js.txt) into a working 
+directory $WORKDIR then launch Fossil with a command-line option 
+"--skin $WORKDIR".  Example:
 
         cp -r skins/default newskin
         fossil ui --skin ./newskin
 
 When the argument to --skin contains one or more '/' characters, the
 appropriate skin files are read from disk from the directory specified.
-So after launching fossil as shown above, you can edit the newskin/css.txt,
-newskin/details.txt, newskin/footer.txt, and newskin/header.txt files using
-your favorite text editor, then press Reload on your browser to see
-immediate results.
+So after launching fossil as shown above, you can edit the newskin/*.txt
+files using your favorite text editor, then press Reload on your browser
+to see immediate results.
