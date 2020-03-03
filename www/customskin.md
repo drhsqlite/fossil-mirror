@@ -218,10 +218,10 @@ versions of these five control files.
 Users with admin privileges can use the Admin/Skin configuration page
 on the web interface to develop a new skin.  The development of a new
 skin occurs without disrupting the existing skin.  So you can work on
-a new skin for a Fossil instance will the existing skin is still in
+a new skin for a Fossil instance while the existing skin is still in
 active use.
 
-The new skins is "draft" skin.  You initialize one of 9 draft skins
+The new skin is a "draft" skin.  You initialize one of 9 draft skins
 to either the current skin or to one of the built-in skins.  Then
 use forms to edit the 5 control files described above.  The new
 skin can be tested after each edit.  Finally, once the new skin is

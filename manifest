@@ -1,5 +1,5 @@
-C Properly\struncate\sa\sUTF-8\sencoded\stitle\susing\sa\sfunction\sby\s@florian.balmer\sper\s[http://fossil-scm.org/forum/forumpost/52b141aa91]
-D 2020-03-03T19:13:42.945
+C Various\sminor\sdocumentation\senhancements.
+D 2020-03-03T20:53:33.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -808,7 +808,7 @@ F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
-F www/customskin.md 93319de2d63ed841ab731094777a7fbbba1ce8bb2f2abaf5c5c65c3e38a3f567
+F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
 F www/defcsp.md 5afba0dd385fd50365a534f3d79e16e3cf2330905ddfa077e7a56f5fe7f0b202
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -935,7 +935,7 @@ F www/server/windows/index.md 835238f5504ae926b561be6879536a98ed5dd92255adfd1ae3
 F www/server/windows/none.md 06e557bd46a6f83b88b664ac1c14610b9dbeec44234acbe6493f22e3015fe3f4
 F www/server/windows/service.md fc8895623c5b168d0218df760979ee09126b0d514347ab30035fc131efc9899a
 F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a7b74a87765ba9083
-F www/serverext.wiki 13176230350b665058d6d143e7ff1f1ce9d90de633afa0ebccc93f5bbb47186a
+F www/serverext.wiki 43b453c4dce18c46c9808c9e977ee0f17e4794b469f0c6297345ed95b98753fb
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
 F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
@@ -944,7 +944,7 @@ F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0b
 F www/sync.wiki 96ddacc9bccab1829c1b1c864cc47aa0e2f00c6d597e80fa60cf2d01bf77a887
 F www/tech_overview.wiki 10ae08b8a0f7941fba1d9e9f35cbcef6d23e6305931980f58000e4e39051f0ef
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
-F www/th1.md a400d92abfcc268ff4c8cc092cb52def1ac868e120a1fe85be51eb513a347b4e
+F www/th1.md 91bd4a81c1a90eaab82b3545fc10989464fbbd65dfed09502829aaa0a84ef616
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
 F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5d5d
 F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 00e2f0511e2bcd518c6880925b69ad528a220c15a60b6d57706396ae9fc8a3ff
-R 70bdb1c940184f0cc7835662dd137da6
-U ashepilko
-Z d118d2b3f95f515258ae285afd73f096
+P 35ad8eca06ffad05f6dfa4606c307cf54dbe67b2234c1b9dc4de3c097e726063
+R 94bec1b861d183148ee3017a1282141f
+U drh
+Z 9f4d918b73314a857e3ecfa996c55e1b
