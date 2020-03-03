@@ -302,6 +302,29 @@ void fossil_path_free(void *pOld){
 }
 
 /*
+** For a given index in a UTF-8 string, return the nearest index that is the
+** start of a new code point. The returned index is equal or lower than the
+** given index. The end of the string (the null-terminator) is considered a
+** valid start index. The given index is returned unchanged if the string
+** contains invalid UTF-8 (i.e. overlong runs of trail bytes).
+** This function is useful to find code point boundaries for truncation, for
+** example, so that no incomplete UTF-8 sequences are left at the end of the
+** truncated string.
+** This function does not attempt to keep logical and/or visual constructs
+** spanning across multiple code points intact, that is no attempts are made
+** keep combining characters together with their base characters, or to keep
+** more complex grapheme clusters intact.
+*/
+#define IsUTF8TrailByte(c) ( (c&0xc0)==0x80 )
+int utf8_nearest_codepoint(const char *zString, int maxByteIndex){
+  int i,n;
+  for( n=0, i=maxByteIndex; n<4 && i>=0; n++, i-- ){
+    if( !IsUTF8TrailByte(zString[i]) ) return i;
+  }
+  return maxByteIndex;
+}
+
+/*
 ** Display UTF-8 on the console.  Return the number of
 ** Characters written. If stdout or stderr is redirected
 ** to a file, -1 is returned and nothing is written

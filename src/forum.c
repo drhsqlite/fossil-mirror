@@ -556,18 +556,12 @@ static int forumthread_page_header(int froot, int fpid){
    * otherwise (different encoding?) pass as-is
    */
   if( mxForumPostTitleLen>0 && blob_size(&title)>mxForumPostTitleLen ){
-    Blob truncated;
     int len;
-    blob_copy(&truncated, &title);
-    for( len = mxForumPostTitleLen; len; --len ){
-      blob_truncate(&truncated, len);
-      if( !invalid_utf8(&truncated) ) break;
-    }
+    len = utf8_nearest_codepoint(blob_str(&title), mxForumPostTitleLen);
     if( len ){
-      blob_append(&truncated, "...", 3);
-      blob_copy(&title, &truncated);
+      blob_truncate(&title, len);
+      blob_append(&title, "...", 3);
     }
-    blob_reset(&truncated);
   }
   style_header("%s%s", blob_str(&title), blob_size(&title) ? " - Forum" : "Forum");
   blob_reset(&title);
