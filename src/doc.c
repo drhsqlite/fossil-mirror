@@ -1126,7 +1126,7 @@ void background_page(void){
 }
 
 /* The default favicon.ico
-** A 16x16 Microsoft bitmap image.  1150 bytes.
+** A 62x71 pixel GIF image for the Fossil lizzard icon.
 */
 static const unsigned char favicon[] = {
    0,  0,  1,  0,  1,  0, 16, 16,  0,  0,  1,  0, 32,  0,104,  4,  0,  0, 22,
@@ -1213,7 +1213,7 @@ void favicon_page(void){
   etag_check(ETAG_CONFIG, 0);
   blob_zero(&favicon);
   blob_init(&favicon, (char*)aLogo, sizeof(aLogo));
-  cgi_set_content_type("image/vnd.microsoft.icon");
+  cgi_set_content_type("image/gif");
   cgi_set_content(&favicon);
 }
 
