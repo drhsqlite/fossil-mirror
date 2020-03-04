@@ -1,5 +1,5 @@
-C Various\sminor\sdocumentation\senhancements.
-D 2020-03-03T20:53:33.849
+C New\sdocumentation\scrosslinks.
+D 2020-03-04T13:51:55.420
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -759,7 +759,7 @@ F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178ca9d
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
-F www/adding_code.wiki 5254f0811146471cf1cc5dde727822745e554a9c
+F www/adding_code.wiki 5c4a5a9e2beb960f29be4c52ce4a3f9f219e5472523c4f1ef5496e9bccf91335
 F www/alerts.md 5b5721f88510f708118687708150f3fe3d140aef22af1aa56fd73a77b34ce7a4
 F www/antibot.wiki 0a0da1170b10103300004661f00ee71652c9f30faf5a6d28afdee93a5ddd36a6
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 35ad8eca06ffad05f6dfa4606c307cf54dbe67b2234c1b9dc4de3c097e726063
-R 94bec1b861d183148ee3017a1282141f
+P 787466468d4ebf99c3c486446e770f9de34a521f8a90a0cc2a76162992639522
+R dff8ee27b383f765980270ce2728be52
 U drh
-Z 9f4d918b73314a857e3ecfa996c55e1b
+Z eca9c9b9f2248a3ebfe8ba54e1f00e03

@@ -2,8 +2,14 @@
 
 <h2>1.0 Introduction</h2>
 
-This article provides a brief overview of how to write new code that extends
-or enhances Fossil.
+This article provides a brief overview of how to write new C-code code that
+extends or enhances the core Fossil binary.
+
+New features can be added to a Fossil server using
+[./serverext.wiki|external CGI programs],
+but that is not what this article is about.
+This article focuses on how to make changes
+to Fossil itself.
 
 <h2>2.0 Programming Language</h2>
 
@@ -213,3 +219,4 @@ works.
   *  [./makefile.wiki|The Fossil Build Process]
   *  [./tech_overview.wiki|A Technical Overview Of Fossil]
   *  [./contribute.wiki|Contributing To The Fossil Project]
+  *  [./serverext.wiki|Adding CGI Extensions To A Fossil Server]
