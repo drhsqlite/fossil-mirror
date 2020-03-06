@@ -1,5 +1,5 @@
-C eol-spacing\sin\sdocumentation
-D 2020-03-06T10:06:20.844
+C Update\sto\sUnicode-13
+D 2020-03-06T10:07:09.091
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -591,7 +591,7 @@ F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c1
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 0a8d4dc37c169c614bdd814e0c8b2f7bb0fdb96faeacca09f0a634e25ffd1f7f
-F src/unicode.c cb0745b6fb17314758b1c198362a0e294c124b87d0497e917cf721b549ef1785
+F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c c5a2db07e194905ef5e5a0f4de110afbbab6a52ab4cf690dd33530cc6b2b89ed
 F src/update.c fa87da575576559ee01236b47d1a8d41dc4118ad5df1b4fe7f36c55e14db132c
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
@@ -794,7 +794,7 @@ F www/caps/index.md 21c7d3068bc5b9c25f2f11c2aa44a5d13bcd84c6bf3ca55dbe293987c476
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 49cf87eb8a049998e5fa14120ac0c9a9b4f0d99eb1510625dc084e7666063692
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki 2c773fed340e451d06150574d70003b2566bd90a4cc7b2a14ce37af6b690b96e
+F www/changes.wiki e998c31460a38e0e81fd4b4091b247d4e18457c7cf6b3c628dd39662fa990b3c
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki cffa9c97a8c8a201b0b8eaf1dedc7c5c1abbdbdf3c8a7336c22fd029bc344390
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P abf865bb5f0ed0fe36ad802e253ce8f991ed10e209645939498be98488d86648
-R 9e6a1cdf682dec420a384f468c4a38e7
+P d65540f5a9180d861afe2093adf81de209d0cafd2c842793e7e4662c0ff450ed
+R 15216105eee9acd63f99669ec173e1de
 U jan.nijtmans
-Z e391fa821e40f7beb21098110ce45d1f
+Z 4e6ff994ca5493398a88cef96053eaf2

@@ -43,6 +43,8 @@
   *  Bug fix: fix the capability summary matrix of the Security Audit
      page so that it does not add "anonymous" capabilities to the
      "nobody" user.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 12.1 to 13.
   *  Many documentation enhancements.
   *  Several minor enhancements to existing features.
 
@@ -71,8 +73,8 @@
      converted to all lowercase and entered into the parameter set,
      instead of being discarded.
   *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
-  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
-     some other value set by the 
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or
+     some other value set by the
      [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
   *  The check-in lock interval is reduced from 24 hours to 60 seconds,
      though the interval is now configurable using a setting.
