@@ -325,6 +325,36 @@ int utf8_nearest_codepoint(const char *zString, int maxByteIndex){
 }
 
 /*
+** Find the byte index corresponding to the given code point index in a UTF-8
+** string. If the string contains fewer than the given number of code points,
+** the index of the end of the string (the null-terminator) is returned.
+** Incomplete, ill-formed and overlong sequences are counted as one sequence.
+** The invalid lead bytes 0xC0 to 0xC1 and 0xF5 to 0xF7 are allowed to initiate
+** (ill-formed) 2- and 4-byte sequences, respectively, the other invalid lead
+** bytes 0xF8 to 0xFF are treated as invalid 1-byte sequences (as lone trail
+** bytes).
+*/
+int utf8_codepoint_index(const char *zString, int nCodePoint){
+  int i;       /* Counted bytes. */
+  int lenUTF8; /* Counted UTF-8 sequences. */
+  if( zString==0 ) return 0;
+  for(i=0, lenUTF8=0; zString[i]!=0 && lenUTF8<nCodePoint; i++, lenUTF8++){
+    char c = zString[i];
+    int cchUTF8=1; /* Code units consumed. */
+    int maxUTF8=1; /* Expected sequence length. */
+    if( (c&0xe0)==0xc0 )maxUTF8=2;          /* UTF-8 lead byte 110vvvvv */
+    else if( (c&0xf0)==0xe0 )maxUTF8=3;     /* UTF-8 lead byte 1110vvvv */
+    else if( (c&0xf8)==0xf0 )maxUTF8=4;     /* UTF-8 lead byte 11110vvv */
+    while( cchUTF8<maxUTF8 &&
+            (zString[i+1]&0xc0)==0x80 ){    /* UTF-8 trail byte 10vvvvvv */
+      cchUTF8++;
+      i++;
+    }
+  }
+  return i;
+}
+
+/*
 ** Display UTF-8 on the console.  Return the number of
 ** Characters written. If stdout or stderr is redirected
 ** to a file, -1 is returned and nothing is written

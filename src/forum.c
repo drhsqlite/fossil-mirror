@@ -557,7 +557,7 @@ static int forumthread_page_header(int froot, int fpid){
    */
   if( mxForumPostTitleLen>0 && blob_size(&title)>mxForumPostTitleLen ){
     int len;
-    len = utf8_nearest_codepoint(blob_str(&title), mxForumPostTitleLen);
+    len = utf8_codepoint_index(blob_str(&title), mxForumPostTitleLen);
     if( len ){
       blob_truncate(&title, len);
       blob_append(&title, "...", 3);
