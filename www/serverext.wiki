@@ -9,14 +9,14 @@ any other CGI program, except that they also have access to the Fossil
 login information and can (optionally) leverage the "skins" of Fossil
 so that they appear to be more tightly integrated into the project.
 
-An example of where this is useful is the 
+An example of where this is useful is the
 [https://sqlite.org/src/ext/checklist|checklist application] on
 the [https://sqlite.org/|SQLite] project.  The checklist
 helps the SQLite developers track which release tests have passed,
 or failed, or are still to be done.  The checklist program began as a
 stand-alone CGI which kept its own private user database and implemented
 its own permissions and login system and provided its own CSS.  By
-converting checklist into a Fossil extension, the same login that works 
+converting checklist into a Fossil extension, the same login that works
 for the [https://sqlite.org/src|main SQLite source repository] also works
 for the checklist.  Permission to change elements of the checklist
 is tied on permission to check-in to the main source repository.  And
@@ -28,18 +28,18 @@ the checklist.
 CGI Extensions are disabled by default.
 An administrator activates the CGI extension mechanism by specifying
 an "Extension Root Directory" or "extroot" as part of the server setup.
-If the Fossil server is itself run as 
-[./server/any/cgi.md|CGI], then add a line to the 
+If the Fossil server is itself run as
+[./server/any/cgi.md|CGI], then add a line to the
 [./cgi.wiki#extroot|CGI script file] that says:
 
 <blockquote><pre>
 extroot: <i>DIRECTORY</i>
 </pre></blockquote>
 
-Or, if the Fossil server is being run using the 
-"[./server/any/none.md|fossil server]" or
-"[./server/any/none.md|fossil ui]" or 
-"[./server/any/inetd.md|fossil http]" commands, then add an extra 
+Or, if the Fossil server is being run using the
+"[./server/any/none.md|fossil server]" o
+"[./server/any/none.md|fossil ui]" or
+"[./server/any/inetd.md|fossil http]" commands, then add an extra
 "--extroot <i>DIRECTORY</i>" option to that command.
 
 The <i>DIRECTORY</i> is the DOCUMENT_ROOT for the CGI.
@@ -162,7 +162,7 @@ can be found at links like these:
   *  [https://fossil-scm.org/home/test_env]
   *  [https://sqlite.org/src/ext/checklist/top/env]
 
-In addition to the standard CGI environment variables listed above, 
+In addition to the standard CGI environment variables listed above,
 Fossil adds the following:
 
   *  FOSSIL_CAPABILITIES
@@ -173,7 +173,7 @@ Fossil adds the following:
 
 The FOSSIL_USER string is the name of the logged-in user.  This variable
 is missing or is an empty string if the user is not logged in.  The
-FOSSIL_CAPABILITIES string is a list of 
+FOSSIL_CAPABILITIES string is a list of
 [./caps/ref.html|Fossil capabilities] that
 indicate what permissions the user has on the Fossil repository.
 The FOSSIL_REPOSITORY environment variable gives the filename of the
@@ -194,7 +194,7 @@ this happens.
 If the CGI output is one of the forms for which Fossil inserts its own
 header and footer, then the inserted header will include a
 Content Security Policy (CSP) restriction on the use of javascript within
-the webpage.  Any &lt;script&gt;...&lt;/script&gt; elements within the 
+the webpage.  Any &lt;script&gt;...&lt;/script&gt; elements within the
 CGI output must include a nonce or else they will be suppressed by the
 web browser.  The FOSSIL_NONCE variable contains the value of that nonce.
 So, in other words, to get javascript to work, it must be enclosed in:
@@ -235,7 +235,7 @@ line to the requester.
 
 Fossil takes special action with some content types.  If the Content-Type
 is "text/x-fossil-wiki" or "text/x-markdown" then Fossil
-converts the content from [/wiki_rules|Fossil-Wiki] or 
+converts the content from [/wiki_rules|Fossil-Wiki] or
 [/md_rules|Markdown] into HTML, adding its
 own header and footer text according to the repository skin.  Content
 of type "text/html" is normally passed straight through
@@ -248,7 +248,7 @@ unchanged.  However, if the text/html content is of the form:
 </verbatim></blockquote>
 
 In other words, if the outer-most markup of the HTML is a &lt;div&gt;
-element with a single class of "fossil-doc", 
+element with a single class of "fossil-doc",
 then Fossil will adds its own header and footer to the HTML.  The
 page title contained in the added header will be extracted from the
 "data-title" attribute.
@@ -293,7 +293,7 @@ CGI program are available within the chroot jail.
 
 If anything goes wrong while trying to process an /ext page, Fossil
 returns a 404 Not Found error with no details.  However, if the requester
-is logged in as a user that has <b>[./caps/ref.html#D | Debug]</b> capability 
+is logged in as a user that has <b>[./caps/ref.html#D | Debug]</b> capability
 then additional diagnostic information may be included in the output.
 
 If the /ext page has a "fossil-ext-debug=1" query parameter and if

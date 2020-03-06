@@ -36,7 +36,7 @@ commands.
 <h3>1.1 Conflict-Free Replicated Datatypes</h3>
 
 <p>The "bag of artifacts" data model used by Fossil
-Fossil is apparently an implementation of a particular 
+Fossil is apparently an implementation of a particular
 [https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|Conflict-Free Replicated
 Datatype (CRDT)]
 called a "G-Set" or "Grow-only Set".

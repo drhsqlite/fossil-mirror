@@ -377,7 +377,7 @@ redirected to it. All you need to do to switch your syncs to HTTPS is:
 
       $ cd ~/path/to/checkout
       $ fossil sync
-    
+
 
 ## Step 7: Renewing Automatically
 

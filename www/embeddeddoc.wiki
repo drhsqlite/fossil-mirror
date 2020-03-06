@@ -52,7 +52,7 @@ also be the special identifier "<b>ckout</b>".
 The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
 from the any check-in.  The "<b>ckout</b>" keyword
-only works when you start your server using the 
+only works when you start your server using the
 "[/help?cmd=server|fossil server]" or "[/help?cmd=ui|fossil ui]"
 commands.  The "/doc/ckout" URL is intended to show a preview of
 the documentation you are currently but have not yet you checked in.
@@ -114,7 +114,7 @@ into the embedded document.
 
 <h2>2.1 "$ROOT" In HTML and Markdown Hyperlinks</h2>
 
-Hyperlinks in Markdown and HTML embedded documents can reference 
+Hyperlinks in Markdown and HTML embedded documents can reference
 the root of the Fossil repository using the special text "$ROOT"
 at the beginning of a URL. For example, a Markdown hyperlink to
 the Markdown formatting rules might be
@@ -166,7 +166,7 @@ configured it with the <tt>--with-th1-docs</tt> option, which is
 disabled by default.
 
 Since TH1 is a full scripting language, this feature essential grants
-the ability to execute code on the server to any with check-in 
+the ability to execute code on the server to any with check-in
 privilege for the project.
 This is a security risk that needs to be carefully managed.
 The feature is off by default.

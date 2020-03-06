@@ -23,7 +23,7 @@ There are several key differences between “`ui`” and “`server`”:
 
 *   Anyone who visits this URL is treated as the all-powerful Setup
     user, which is why the first difference exists.
-  
+
 *   “`ui`” launches a local web browser pointed at this URL.
 
 You can omit the _REPOSITORY_ argument if you run one of the above

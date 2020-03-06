@@ -36,11 +36,11 @@ https://github.com/username/project.git
 
 <p>   The <code>--autopush</code> option tells Fossil that you want to
       push the Git translation up to GitHub every time it is updated.
-      
+
 <p>   The URL parameter is the same as the one GitHub gave you, but with
       your GitHub <font color="orange">username</font> and <font
       color="red">password</font> added.
-      
+
 <p>   If your GitHub account uses two-factor authentication (2FA), you
       will have to <a href="https://github.com/settings/tokens">generate
       a personal access token</a> and use that in place of your actual
@@ -111,7 +111,7 @@ https://github.com/username/project.git
      same tag on two or more check-ins, the tag will only be preserved on
      the chronologically newest check-in.
 
-  *  There is a 
+  *  There is a
      [long list of restrictions](https://git-scm.com/docs/git-check-ref-format)
      on tag and branch names in Git.  If any of your Fossil tag or branch names
      violate these rules, then the names are translated prior to being exported
@@ -135,7 +135,7 @@ In addition, an official Git mirror of SQLite is available:
 The Fossil source repositories for these mirrors are at
 <https://www2.fossil-scm.org/fossil> and <https://www2.sqlite.org/src>,
 respectively.  Both repositories are hosted on the same VM at
-[Linode](https://www.linode.com).  On that machine, there is a 
+[Linode](https://www.linode.com).  On that machine, there is a
 [cron job](https://linux.die.net/man/8/cron)
 that runs at 17 minutes after the hour, every hour that does:
 

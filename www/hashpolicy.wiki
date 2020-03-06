@@ -193,7 +193,7 @@ use a SHA3 hash.  Legacy SHA1 artifacts continue to use their original
 names, but new artifacts will use SHA3 names. You might not even notice
 this automatic change over to stronger hashes.
 
-We decided to make the change to pure SHA3 since the last known distributor 
-of Fossil 1.x binaries — Debian 9 — was finally replaced in June 2019 
-by Debian 10, which included Fossil 2.8. All other known sources of 
+We decided to make the change to pure SHA3 since the last known distributor
+of Fossil 1.x binaries — Debian 9 — was finally replaced in June 2019
+by Debian 10, which included Fossil 2.8. All other known sources of
 Fossil 1.x binaries upgraded well before that point.

@@ -32,7 +32,7 @@ check-in of each branch.  Depending on the check-in graph topology, this
 is sufficient to infer the branch for many historical check-ins as well.
 However, complex histories with lots of cross-merging
 can lead to ambiguities.  Fossil keeps
-track of historical branch names unambiguously. 
+track of historical branch names unambiguously.
 But the extra details about branch names that Fossil keeps
 at hand cannot be exported to Git.
 
@@ -46,7 +46,7 @@ tag, so that all historical releases can be found all at once.
 ([example](/timeline?t=release))
 
 Git does not allow this.  The "release" tag must refer to just one
-check-in.  The work-around is that the non-unique tag in the Git export is 
+check-in.  The work-around is that the non-unique tag in the Git export is
 made to refer to only the most recent check-in with that tag.
 
 ## (5) Amendments To Check-ins
