@@ -737,7 +737,8 @@ static void forum_entry_widget(
   const char *zContent
 ){
   if( zTitle ){
-    @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"><br>
+    @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"
+    @ maxlength="125"><br>
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype);

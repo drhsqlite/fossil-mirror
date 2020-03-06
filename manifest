@@ -1,5 +1,5 @@
-C Improve\struncation\sof\sUTF-8\sencoded\stitle\susing\sa\sfunction\sby\s@florian.balmer\sper\s[https://fossil-scm.org/forum/forumpost/6d90d5d99c]
-D 2020-03-06T17:08:26.313
+C Limit\sthe\smax\slength\sof\snew\sforum\sthread's\stitle.
+D 2020-03-06T17:27:18.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 54eebd53714fd749f8ed89795ea5100f2b44c2367572f868cd3330674303e7fc
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 89c9d20dbb1ecbaebc059a4daf9a6214e34dcfad031ebe4983899edc19228ccc
+F src/forum.c 9ae30b737612676674cfbda16d0b6ede59006ea46f7e8a13cdbc8e4b33224e93
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 9e7d580ff965ac8b58c030f916ed2326020061480954b50192aa5b9cf65404d9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b70a76e35495d5035a9cf6c00ef95ac3325e9e15c103bf9267a01892d3b09bef
-R a0f835b2c0343115f90b77a860718971
+P d076853d10a2f2f7b1812b1db4c45ef522060e0fdcddd6b865d79a164906bea8
+R 91c99805f94c3f6242480222cc1acc4f
 U ashepilko
-Z 47564a55d509c983827390ade6aecf04
+Z 57696b04b083ab10a7555c6942ea87fb
