@@ -121,7 +121,7 @@ static void unversioned_write(
     "REPLACE INTO unversioned(name,rcvid,mtime,hash,sz,encoding,content)"
     " VALUES(:name,:rcvid,:mtime,:hash,:sz,:encoding,:content)"
   );
-  sha1sum_blob(pContent, &hash);
+  hname_hash(pContent, 0, &hash);
   blob_compress(pContent, &compressed);
   db_bind_text(&ins, ":name", zUVFile);
   db_bind_int(&ins, ":rcvid", g.rcvid);
@@ -145,7 +145,7 @@ static void unversioned_write(
 
 /*
 ** Check the status of unversioned file zName.  "mtime" and "zHash" are the
-** time of last change and SHA1 hash of a copy of this file on a remote
+** time of last change and hash of a copy of this file on a remote
 ** server.  Return an integer status code as follows:
 **
 **    0:     zName does not exist in the unversioned table.
@@ -528,7 +528,7 @@ void uvlist_page(void){
       @   <th> Age
       @   <th> Size
       @   <th> User
-      @   <th> SHA1
+      @   <th> Hash
       if( g.perm.Admin ){
         @ <th> rcvid
       }

@@ -1,5 +1,5 @@
-C Back\sout\sthe\sattempt\sto\sfix\sexcess\sline\sending\swhitespace\sbecause\sthat\ncheck-in\smangled\ssome\stext\sand\sinserted\sunwelcomed\sunicode\scharacters.
-D 2020-03-07T12:21:23.442
+C Use\sSHA3\sto\sidentify\sunversioned\sfiles,\sif\sthe\shash\spolicy\sis\ssha3\sor\shigher.
+D 2020-03-07T16:56:50.287
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -592,7 +592,7 @@ F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde6555652
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c 0a8d4dc37c169c614bdd814e0c8b2f7bb0fdb96faeacca09f0a634e25ffd1f7f
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c c5a2db07e194905ef5e5a0f4de110afbbab6a52ab4cf690dd33530cc6b2b89ed
+F src/unversioned.c b0fd9ca85dcd10a98fc87527836677ea5b939fc8d42e9c0d93753fa43073be5f
 F src/update.c fa87da575576559ee01236b47d1a8d41dc4118ad5df1b4fe7f36c55e14db132c
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
@@ -955,8 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5ca0a05a804d61f9c1ce85b9538283f2fc607aa15df550299e0d7a1d3025e938
-Q -d65540f5a9180d861afe2093adf81de209d0cafd2c842793e7e4662c0ff450ed
-R 2e8a92adb423c99ef8b11306b5b1c257
+P fd1282e685315ae8db0ba11cb967896d2f1408b85ccc56671fb4c5da4528f738
+R bb23fcaaa91072598d211db459e1f99d
 U drh
-Z bec98f76d8fbada26ab8590b32072114
+Z fc236eaf92bcef6e874d5c3f98278566
