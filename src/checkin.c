@@ -677,6 +677,8 @@ static void ls_cmd_rev(
 **   -t                    Sort output in time order.
 **   -r VERSION            The specific check-in to list.
 **   -R|--repository FILE  Extract info from repository FILE.
+**   -0                    Use NULL instead of whitespace to separate
+**                         filenames
 **
 ** See also: changes, extras, status
 */
@@ -684,6 +686,8 @@ void ls_cmd(void){
   int vid;
   Stmt q;
   int verboseFlag;
+  int nullSeparateFlag;
+  char separator = '\n';
   int showAge;
   int timeOrder;
   char *zOrderBy = "pathname";
@@ -692,6 +696,7 @@ void ls_cmd(void){
   const char *zName;
   const char *zRev;
 
+  nullSeparateFlag = find_option("0", "0", 0)!=0;
   verboseFlag = find_option("verbose","v", 0)!=0;
   if( !verboseFlag ){
     verboseFlag = find_option("l","l", 0)!=0; /* deprecated */
@@ -794,10 +799,14 @@ void ls_cmd(void){
         type = "UNCHANGED  ";
       }
     }
+    if (nullSeparateFlag) 
+      separator='\0';
     if( showAge ){
-      fossil_print("%s%s  %s\n", type, db_column_text(&q, 5), zPathname);
+      fossil_print("%s%s  %s%c", type, db_column_text(&q, 5), zPathname, separator);
+      if (nullSeparateFlag) putchar('\0');
     }else{
-      fossil_print("%s%s\n", type, zPathname);
+      fossil_print("%s%s%c", type, zPathname, separator);
+      if (nullSeparateFlag) putchar('\0');
     }
     free(zFullName);
   }

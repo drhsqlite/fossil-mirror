@@ -1,5 +1,5 @@
-C Use\sSHA3\sto\sidentify\sunversioned\sfiles,\sif\sthe\shash\spolicy\sis\ssha3\sor\shigher.
-D 2020-03-07T16:56:50.287
+C option\sto\sseparate\sfilenames\sw/\sNULL\sinstead\sof\swhitespace.\sEases\soperations\sw/\swhitespace-containing\sfilenames
+D 2020-03-07T22:14:15.730
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -445,7 +445,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c aee39ddf230e4ad8b8b244afdb0050d55a5bb0ba11a08271d15b532a0d515993
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c f8d1490e630210fa612a4fffcb5c6a26709a3f753ca127bd5e7456a45f676db1
-F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
+F src/checkin.c 2eb624168833849e006c27c3f0af59bacea6e0d5f2051180b791cf9cf2420e3b
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -955,7 +955,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd1282e685315ae8db0ba11cb967896d2f1408b85ccc56671fb4c5da4528f738
-R bb23fcaaa91072598d211db459e1f99d
-U drh
-Z fc236eaf92bcef6e874d5c3f98278566
+P 17525ceddb79e375e58761b055ccf169341aa1342bf3ec4098d8d917d2289eec
+R 7a4084a90e7db288aaebdd3f9b17265a
+T *branch * NULLSeparated
+T *sym-NULLSeparated *
+T -sym-trunk *
+U bch
+Z 197b11a1b9a72ce44517333a83128315
