@@ -1,7 +1,7 @@
 # Rebase Considered Harmful
 
 Fossil deliberately omits a "rebase" command because the original
-designer of Fossil (and [original author][vhist] of this article) considers rebase to be
+designer of Fossil (and [original author][vhist] of this article) considers rebase to be 
 an anti-pattern to be avoided. This article attempts to
 explain that point of view.
 
@@ -12,7 +12,7 @@ explain that point of view.
 Most people, even strident advocates of rebase, agree that rebase can
 cause problems when misused. The Git rebase documentation talks about the
 [golden rule of rebasing][golden]: never rebase on a public
-branch.  Horror stories of misused rebase abound, and the rebase
+branch.  Horror stories of misused rebase abound, and the rebase 
 documentation devotes considerable space toward explaining how to
 recover from rebase errors and/or misuse.
 
@@ -29,7 +29,7 @@ because it provides no new capabilities.
 A rebase is really nothing more than a merge (or a series of merges)
 that deliberately forgets one of the parents of each merge step.
 To help illustrate this fact,
-consider the first rebase example from the
+consider the first rebase example from the 
 [Git documentation][gitrebase].  The merge looks like this:
 
 ![merge case](./rebase01.svg)
@@ -46,8 +46,8 @@ Thus, a rebase is just a merge that forgets where it came from.
 
 The Git documentation acknowledges this fact (in so many words) and
 justifies it by saying "rebasing makes for a cleaner history."  I read
-that sentence as a tacit admission that the Git history display
-capabilities are weak and need active assistance from the user to
+that sentence as a tacit admission that the Git history display 
+capabilities are weak and need active assistance from the user to 
 keep things manageable.
 Surely a better approach is to record
 the complete ancestry of every check-in but then fix the tool to show
@@ -60,14 +60,14 @@ So, another way of thinking about rebase is that it is a kind of
 merge that intentionally forgets some details in order to
 not overwhelm the weak history display mechanisms available in Git.
 Wouldn't it be better, less error-prone, and easier on users
-to enhance the history display mechanisms in Git so that rebasing
+to enhance the history display mechanisms in Git so that rebasing 
 for a clean, linear history became unnecessary?
 
 ### <a name="clean-diffs"></a>2.2 Rebase does not actually provide better feature-branch diffs
 
 Another argument, often cited, is that rebasing a feature branch
 allows one to see just the changes in the feature branch without
-the concurrent changes in the main line of development.
+the concurrent changes in the main line of development. 
 Consider a hypothetical case:
 
 ![unmerged feature branch](./rebase03.svg)
@@ -90,7 +90,7 @@ history is the following merge:
 ![merged feature branch](./rebase05.svg)
 
 Check-ins C5\' and C7 check-ins hold identical code.  The only
-difference is in their history.
+difference is in their history.  
 
 The argument from rebase advocates
 is that with merge it is difficult to see only the changes associated
@@ -114,7 +114,7 @@ diff is not determined by whether you select C7 or C5\' as the target
 of the diff, but rather by your choice of the diff source, C2 or C6.
 
 So, to help with the problem of viewing changes associated with a feature
-branch, perhaps what is needed is not rebase but rather better tools to
+branch, perhaps what is needed is not rebase but rather better tools to 
 help users identify an appropriate baseline for their diffs.
 
 ## <a name="siloing"></a>3.0 Rebase encourages siloed development
@@ -201,10 +201,10 @@ doing a rebase is "blasphemous" and "you're _lying_ about what
 actually happened", but then goes on to justify rebase as follows:
 
 >
-_"The opposing point of view is that the commit history is the **story of
-how your project was made.** You wouldn't publish the first draft of a
+_"The opposing point of view is that the commit history is the **story of 
+how your project was made.** You wouldn't publish the first draft of a 
 book, and the manual for how to maintain your software deserves careful
-editing. This is the camp that uses tools like rebase and filter-branch
+editing. This is the camp that uses tools like rebase and filter-branch 
 to tell the story in the way that's best for future readers."_
 
 This counter-argument assumes you must
@@ -245,7 +245,7 @@ corrections or clarifications or supplimental notes to historical check-ins.
 Hence, once again,
 rebase can be seen as an attempt to work around limitations
 of Git.  Git could be enhanced to support editorial changes
-to check-ins.
+to check-ins. 
 Wouldn't it be better to fix the version control tool
 rather than requiring users to fabricate a fictitious project history?
 

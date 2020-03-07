@@ -13,7 +13,7 @@ The intended audience is developers working on either
 Fossil. Understanding of this document is <em>not</em> required for
 ordinary users of Fossil.  This document is an implementation detail.</p>
 
-<p>This document only describes the delta file format.  A
+<p>This document only describes the delta file format.  A 
 [./delta_encoder_algorithm.wiki|separate document] describes one possible
 algorithm for generating deltas in this format.</p>
 

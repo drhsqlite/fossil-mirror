@@ -4,7 +4,7 @@
 
 Fossil does not require a central server.
 Data sharing and synchronization can be entirely peer-to-peer.
-Fossil uses
+Fossil uses 
 [https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type|conflict-free replicated data types]
 to ensure that (in the limit) all participating peers see the same content.
 
@@ -15,7 +15,7 @@ Here are a few reasons to set up a Fossil server for your project:
 
   1.  <b>A server works as a complete project website.</b><p>
       Fossil does more than just version control.  It also supports
-      [../tickets.wiki|trouble-tickets],
+      [../tickets.wiki|trouble-tickets], 
       [../wikitheory.wiki|wiki], and a [../forum.wiki|forum].
       The [../embeddeddoc.wiki|embedded documentation]
       feature provides  a great mechanism for providing project documentation.

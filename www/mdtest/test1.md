@@ -16,7 +16,7 @@ capabilities of Markdown as implemented by Fossil.
 ## The Magic $ROOT Path Prefix
 
 In text of the form `href="$ROOT/..."` in the HTML that markdown
-generates, the $ROOT is replaced by the complete URI for the root
+generates, the $ROOT is replaced by the complete URI for the root 
 of the document tree.
 Note that the $ROOT translation only occurs within the `<a href="...">`
 element, not within the text of the hyperlink.  So you should see the

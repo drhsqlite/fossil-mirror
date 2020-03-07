@@ -61,8 +61,8 @@
 href="whyuseaserver.wiki">a server can be useful</a>.</p>
 
 <p>A Fossil server does not require much memory, CPU, or disk space
-and can run comfortably on a generic $5/month virtual host
-or on a small device like a Raspberry Pi, or it can co-exist
+and can run comfortably on a generic $5/month virtual host 
+or on a small device like a Raspberry Pi, or it can co-exist 
 on a host running other services without getting in the way.
 
 <p>This article is a quick-reference guide for setting up your own
@@ -83,11 +83,11 @@ minimum recommended preparation steps:</p>
   The 10-digit random password generated for that user is fairly strong
   against remote attack, even without explicit password guess rate
   limiting, but because that user has so much power, you may want to
-  give it a much stronger password under Admin â†’ Users.</a></li>
+  give it a much stronger password under Admin → Users.</a></li>
 
-  <li><p>Run the Admin â†’ Security-Audit tool to verify that other
+  <li><p>Run the Admin → Security-Audit tool to verify that other
   security-related permissions and settings are as you want them.
-  Consider clicking the â€œTake it privateâ€� link on that page to lock down
+  Consider clicking the “Take it private” link on that page to lock down
   the security on that site to a level appropriate to a private
   repository, even if you will eventually want some public service. It's
   better to start from a secure position and open up service
@@ -154,7 +154,7 @@ the HTTP request off of standard input, computes an appropriate
 reply, and writes the reply on standard output.  There is a separate
 invocation of the "<tt>fossil http</tt>" command for each HTTP request.
 The socket listener daemon takes care of relaying content to and from
-the client, and (in the case of <a href="any/stunnel.md">stunnel</a>)
+the client, and (in the case of <a href="any/stunnel.md">stunnel</a>) 
 handling TLS decryption and encryption.
 
 <h3>Stand-alone HTTP Server</h3>
@@ -193,7 +193,7 @@ particular operating systems or front-end software:</p>
 
 <table style="margin-left: 6em;">
     <tr>
-        <th class="host">â‡© OS / Method â‡¨</th>
+        <th class="host">⇩ OS / Method ⇨</th>
         <th class="fep">direct</th>
         <th class="fep">inetd</th>
         <th class="fep">stunnel</th>
@@ -206,50 +206,50 @@ particular operating systems or front-end software:</p>
 
     <tr>
         <th class="host">Any</th>
-        <td class="doc"><a href="any/none.md">âœ…</a></td>
-        <td class="doc"><a href="any/inetd.md">âœ…</a></td>
-        <td class="doc"><a href="any/stunnel.md">âœ…</a></td>
-        <td class="doc"><a href="any/cgi.md">âœ…</a></td>
-        <td class="doc"><a href="any/scgi.md">âœ…</a></td>
-        <td class="doc"><a href="any/althttpd.md">âœ…</a></td>
-        <td class="doc">â�Œ</td>
-        <td class="doc">â�Œ</td>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc"><a href="any/inetd.md">✅</a></td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
     </tr>
 
     <tr>
         <th class="host">Debian/Ubuntu</th>
-        <td class="doc"><a href="any/none.md">âœ…</a></td>
-        <td class="doc"><a href="any/inetd.md">âœ…</a></td>
-        <td class="doc"><a href="any/stunnel.md">âœ…</a></td>
-        <td class="doc"><a href="any/cgi.md">âœ…</a></td>
-        <td class="doc"><a href="any/scgi.md">âœ…</a></td>
-        <td class="doc"><a href="any/althttpd.md">âœ…</a></td>
-        <td class="doc"><a href="debian/nginx.md">âœ…</a></td>
-        <td class="doc"><a href="debian/service.md">âœ…</a></td>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc"><a href="any/inetd.md">✅</a></td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc"><a href="debian/nginx.md">✅</a></td>
+        <td class="doc"><a href="debian/service.md">✅</a></td>
     </tr>
 
     <tr>
         <th class="host">macOS</th>
-        <td class="doc"><a href="any/none.md">âœ…</a></td>
-        <td class="doc">â�Œ</td>
-        <td class="doc"><a href="any/stunnel.md">âœ…</a></td>
-        <td class="doc"><a href="any/cgi.md">âœ…</a></td>
-        <td class="doc"><a href="any/scgi.md">âœ…</a></td>
-        <td class="doc"><a href="any/althttpd.md">âœ…</a></td>
-        <td class="doc">â�Œ</td>
-        <td class="doc"><a href="macos/service.md">âœ…</a></td>
+        <td class="doc"><a href="any/none.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="any/stunnel.md">✅</a></td>
+        <td class="doc"><a href="any/cgi.md">✅</a></td>
+        <td class="doc"><a href="any/scgi.md">✅</a></td>
+        <td class="doc"><a href="any/althttpd.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="macos/service.md">✅</a></td>
     </tr>
 
     <tr>
         <th class="host">Windows</th>
-        <td class="doc"><a href="windows/none.md">âœ…</a></td>
-        <td class="doc">â�Œ</td>
-        <td class="doc"><a href="windows/stunnel.md">âœ…</a></td>
-        <td class="doc"><a href="windows/cgi.md">âœ…</a></td>
-        <td class="doc">â�Œ</td>
-        <td class="doc">â�Œ</td>
-        <td class="doc"><a href="windows/iis.md">âœ…</a></td>
-        <td class="doc"><a href="windows/service.md">âœ…</a></td>
+        <td class="doc"><a href="windows/none.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="windows/stunnel.md">✅</a></td>
+        <td class="doc"><a href="windows/cgi.md">✅</a></td>
+        <td class="doc">❌</td>
+        <td class="doc">❌</td>
+        <td class="doc"><a href="windows/iis.md">✅</a></td>
+        <td class="doc"><a href="windows/service.md">✅</a></td>
     </tr>
 </table>
 
@@ -265,7 +265,7 @@ Fossil's built-in HTTP server: <a href="debian/nginx.md">nginx</a>, <a
 href="windows/iis.md">IIS</a>, Apache, etc.</p>
 
 <p>We welcome <a href="../contribute.wiki">contributions</a> to fill gaps
-(<font size="-2">â�Œ</font>) in the table above.</p>
+(<font size="-2">❌</font>) in the table above.</p>
 </noscript>
 
 
@@ -292,7 +292,7 @@ service:</p>
 
   <li><p>If the repository includes <a
   href="../embeddeddoc.wiki">embedded documentation</a>, consider
-  activating the search feature (Admin â†’ Search) so that visitors can do
+  activating the search feature (Admin → Search) so that visitors can do
   full-text search on your documentation.</p></li>
 
   <li><p>Now that others can be making changes to the repository,
@@ -303,7 +303,7 @@ service:</p>
   <li><p>Turn on the various logging features.</p></li>
 </ol>
 
-<p>Reload the Admin â†’ Security-Audit page occasionally during this
+<p>Reload the Admin → Security-Audit page occasionally during this
 process to double check that you have not mistakenly configured the
 server in a way that might expose information that you want to keep
 private.</p>

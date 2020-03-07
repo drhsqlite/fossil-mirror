@@ -158,7 +158,7 @@ replaced by an uppercase <b>T</b> and the entire timestamp can
 optionally be followed by "<b>z</b>" or "<b>Z</b>".  In the fourth
 form with fractional seconds, any number of digits may follow the
 decimal point, though due to precision limits only the first three
-digits will be significant.  The final three pure-digit forms
+digits will be significant.  The final three pure-digit forms 
 without punctuation are only valid if the number they encode is
 not also the prefix of an artifact hash.
 

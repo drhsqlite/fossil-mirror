@@ -61,7 +61,7 @@ similar on older OSes.
 4.  Select your local server
 5.  In the Server Roles section, enable “Web Server (IIS)”
 
-### Windows
+### Windows 
 
 1.  Open Control Panel
 2.  Go to “Programs”

@@ -103,7 +103,7 @@ with further description in the text that follows.
 Git provides file versioning services only, whereas Fossil adds
 an integrated [./wikitheory.wiki | wiki],
 [./bugtheory.wiki | ticketing &amp; bug tracking],
-[./embeddeddoc.wiki | embedded documentation],
+[./embeddeddoc.wiki | embedded documentation], 
 [./event.wiki | technical notes], and a [./forum.wiki | web forum],
 all within a single nicely-designed [./customskin.md|skinnable] web
 [/help?cmd=ui|UI],
@@ -621,7 +621,7 @@ by every contributor to Linux, as such extreme visibility does not scale
 well.  But Fossil was written for the cathedral-style SQLite project
 with just a handful of active committers.  Seeing all
 changes on all branches all at once helps keep the whole team
-up-to-date with what everybody else is doing, resulting in a more
+up-to-date with what everybody else is doing, resulting in a more 
 tightly focused and cohesive implementation.
 
 
@@ -780,8 +780,8 @@ Incidentally, this is a good example of Git's messy command design.
 These three commands:
 
 <pre>
-    $ git merge HASH
-    $ git cherry-pick HASH
+    $ git merge HASH 
+    $ git cherry-pick HASH 
     $ git revert HASH
 </pre>
 

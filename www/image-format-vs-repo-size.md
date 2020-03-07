@@ -13,8 +13,8 @@ these space-saving measures:
 
 1.  Binary data compression algorithms — whether lossless as with zlib
     or lossy as with JPEG — turn the file data into [pseudorandom
-    noise][prn].²
-
+    noise][prn].² 
+    
     Typical data compression algorithms are not [hash functions][hf],
     where the goal is that a change to each bit in the input has a
     statistically even chance of changing every bit in the output, but
