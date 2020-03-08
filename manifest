@@ -1,5 +1,5 @@
-C Use\sSHA3\sto\sidentify\sunversioned\sfiles,\sif\sthe\shash\spolicy\sis\ssha3\sor\shigher.
-D 2020-03-07T16:56:50.287
+C Fix\stypo\sin\sdata-sortkey.
+D 2020-03-08T07:20:42.489
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -602,7 +602,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c e5c88eaf1b7a63659ef3444ec28fbe9fe5d583f02331249d666c7889ce68df21
+F src/wiki.c 23b7d2c854fd328e7f63323195ab9621c29af01e2e5a66ad37d2170f11acbc2b
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fd1282e685315ae8db0ba11cb967896d2f1408b85ccc56671fb4c5da4528f738
-R bb23fcaaa91072598d211db459e1f99d
-U drh
-Z fc236eaf92bcef6e874d5c3f98278566
+P 17525ceddb79e375e58761b055ccf169341aa1342bf3ec4098d8d917d2289eec
+R 0997a2c75ddfea441eeeed9644adbea8
+U ashepilko
+Z de9d63ec4b03b3e6f3ccc031d56b6e6e
