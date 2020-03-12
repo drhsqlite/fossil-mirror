@@ -538,9 +538,7 @@ void forumpost_page(void){
 ** given forum post.
 */
 static int forumthread_page_header(int froot, int fpid){
-  Blob title;
-  int mxForumPostTitleLen = 50;
-  char *zThreadTitle = "";
+  char *zThreadTitle = 0;
 
   zThreadTitle = db_text("",
     "SELECT"
@@ -550,21 +548,7 @@ static int forumthread_page_header(int froot, int fpid){
     "   AND forumpost.fpid=%d;",
     fpid
   );
-  blob_set(&title, zThreadTitle);
-  /* truncate the title when longer than max allowed;
-   * in case of UTF-8 make sure the truncated string remains valid,
-   * otherwise (different encoding?) pass as-is
-   */
-  if( mxForumPostTitleLen>0 && blob_size(&title)>mxForumPostTitleLen ){
-    int len;
-    len = utf8_codepoint_index(blob_str(&title), mxForumPostTitleLen);
-    if( len ){
-      blob_truncate(&title, len);
-      blob_append(&title, "...", 3);
-    }
-  }
-  style_header("%s%s", blob_str(&title), blob_size(&title) ? " - Forum" : "Forum");
-  blob_reset(&title);
+  style_header("%s%s", zThreadTitle, zThreadTitle[0] ? "" : "Forum");
   fossil_free(zThreadTitle);
   return 0;
 }
