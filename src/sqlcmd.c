@@ -128,6 +128,19 @@ static void sqlcmd_decompress(
 }
 
 /*
+** Implementation of the "gather_artifact_stats(X)" SQL function.
+** That function merely calls the gather_artifact_stats() function
+** in stat.c to populate the ARTSTAT temporary table.
+*/
+static void sqlcmd_gather_artifact_stats(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  gather_artifact_stats(1);
+}
+
+/*
 ** Add the content(), compress(), and decompress() SQL functions to
 ** database connection db.
 */
@@ -138,6 +151,8 @@ int add_content_sql_commands(sqlite3 *db){
                           sqlcmd_compress, 0, 0);
   sqlite3_create_function(db, "decompress", 1, SQLITE_UTF8, 0,
                           sqlcmd_decompress, 0, 0);
+  sqlite3_create_function(db, "gather_artifact_stats", 0, SQLITE_UTF8, 0,
+                          sqlcmd_gather_artifact_stats, 0, 0);
   return SQLITE_OK;
 }
 

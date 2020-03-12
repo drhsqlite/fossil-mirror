@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sdata-sortkey.
-D 2020-03-08T07:20:42.489
+C Add\sthe\s"gather_artifact_stats()"\sSQL\sfunction\sto\sthe\s"fossil\ssql"\scommand.\nThis\sfunction\sinvokes\sthe\sgather_artifact_stats()\sC-language\sroutine\sin\sorder\nto\spopulate\sthe\stemporary\sARTSTAT\stable.
+D 2020-03-12T00:44:57.500
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -569,12 +569,12 @@ F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c 5321b972ae0947592f84e9a352d0d386e0216bd971d759dd49c05ee9fc362443
 F src/smtp.c 5e8b272d6a24f2bcb3e05e5a619bae29fa760d171dcee270e798aea25347bf80
 F src/sorttable.js 305b1187e44046264d2da98f8e1d53bc078373e3d1fc603049d48067c4125c9f
-F src/sqlcmd.c bd30d12c137eb6ef7a835a610804336c00bd9f0e57d48d320f22ad7cdd6a4bfe
+F src/sqlcmd.c 5ffbfbc99793bdd235355acc13d2ccd497eedc22e5afa5c68287d29f1b4f5d4b
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
 F src/sqlite3.c 73cd35224cf60f109bb4ce529673dd417ea35adcfef2c9ccac5417679656653f
 F src/sqlite3.h 6880445a9bcd10f215547ffc7d9ca78d5f7c13bd0c90e835213aaf480cd38adc
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
-F src/stat.c 374a8ca306edffb8164a5359c8572cada607c6d5677acf81ff478ef962c0c3de
+F src/stat.c 103400dc356978b3be5072303e3b188dbebf8cb8c7fa2634125fa09b57da43c3
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c bea38d5b9400aa5273701ff402f421b3afe60e861c42c173945440e83591edac
 F src/sync.c cd1de2bc952d83e08d5d3f42c2657f5f83adff1a619b71c3410af6fa393f59c0
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17525ceddb79e375e58761b055ccf169341aa1342bf3ec4098d8d917d2289eec
-R 0997a2c75ddfea441eeeed9644adbea8
-U ashepilko
-Z de9d63ec4b03b3e6f3ccc031d56b6e6e
+P 88b8df356b468935c87e2876070bd56ba8c0ed5bdcac8e9d23509537e9237773
+R 5317964cad1af88a363f39513e3fe75c
+U drh
+Z 8f5ffedcca05ad167f9353076ba4b0e5

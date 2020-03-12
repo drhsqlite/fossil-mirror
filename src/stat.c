@@ -661,7 +661,7 @@ void repo_tabsize_page(void){
 **
 ** Only populate the artstat.atype field if the bWithTypes parameter is true.
 */
-static void gather_artifact_stats(int bWithTypes){
+void gather_artifact_stats(int bWithTypes){
   static const char zSql[] = 
     @ CREATE TEMP TABLE artstat(
     @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
