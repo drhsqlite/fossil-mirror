@@ -1034,6 +1034,7 @@ void forumedit_page(void){
 }
 
 /*
+** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
 ** The main page for the forum feature.  Show a list of recent forum
