@@ -244,8 +244,10 @@ static struct Caps {
     "Attach", "Add attchments to wiki or tickets" },
   { 'c', CAPCLASS_TKT, 0,
     "Append-Tkt", "Append to existing tickets" },
+#if 0 /* Not Used */
   { 'd', CAPCLASS_WIKI|CAPCLASS_TKT, 0,
     "Delete", "Delete wiki or tickets" },
+#endif
   { 'e', CAPCLASS_DATA, 0,
     "View-PII", "View sensitive info such as email addresses" },
   { 'f', CAPCLASS_WIKI, 0,
@@ -432,7 +434,7 @@ void capability_summary(void){
     @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Ticket */
-    if( sqlite3_strglob("*[ascdnqtw]*",zCap)==0 ){
+    if( sqlite3_strglob("*[ascnqtw]*",zCap)==0 ){
       eType = 2;
     }else if( sqlite3_strglob("*r*",zCap)==0 ){
       eType = 1;

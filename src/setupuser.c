@@ -552,8 +552,10 @@ void user_edit(void){
   @  Reader%s(B('u'))</label>
   @  <li><label><input type="checkbox" name="av"%s(oa['v']) />
   @  Developer%s(B('v'))</label>
+#if 0  /* Not Used */
   @  <li><label><input type="checkbox" name="ad"%s(oa['d']) />
   @  Delete%s(B('d'))</label>
+#endif
   @  <li><label><input type="checkbox" name="ae"%s(oa['e']) />
   @  View-PII%s(B('e'))</label>
   @  <li><label><input type="checkbox" name="ap"%s(oa['p']) />

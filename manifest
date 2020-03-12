@@ -1,5 +1,5 @@
-C Fix\sa\slong-standing\serror\sin\sa\sprintf()\sspecification\son\sthe\s/artifact_stats\npage\sthat\sonly\scaused\sproblems\swhen\scompiling\son\s32-bit\swindows\susing\nmingw32.
-D 2020-03-12T00:57:09.861
+C Omit\sthe\s'd'\scapability\s(the\sability\sto\sdelete\swiki\sand\stickets).\s\sThis\ncapability\sdoes\snot\sdo\sanything.\s\sApparently,\sit\sis\sa\shold-over\sfrom\nthe\sold\sCVSTrac\scode.
+D 2020-03-12T10:50:56.007
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/browse.c 2fe022787253199f5a06bc725d079678adf867bf9150dbc1658b3735d0128c35
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c aee39ddf230e4ad8b8b244afdb0050d55a5bb0ba11a08271d15b532a0d515993
+F src/capabilities.c 340f212b7258c17aab0b97f3b42ba514a2b0edc24a6dd59faa727f001869176b
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c f8d1490e630210fa612a4fffcb5c6a26709a3f753ca127bd5e7456a45f676db1
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
@@ -516,10 +516,10 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c 68ab16c4cce20ab547072a1d4ac968d5ed6cf39376daba1c0fa29fbcc901cead
+F src/login.c e9eb36004493ffee71d8d5b6ddb663ba7830a1891ba00b98f9bb58625dacef74
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c f63e3516040534710a9f0fd5b73d61503f2186dea7462e47381c402cfe9c42b3
+F src/main.c 432d30fcd18db71de90bcaedfb7c355297600935eba5f31567d97d0b0c753e99
 F src/main.mk 16ed8fa4752f05dbeed39f50b47be3f1817e8fc94f869a04b6001aea5a994a79
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -558,7 +558,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
 F src/security_audit.c ea45c622737095fe510ae628c387aaaf171548aee03ed53a4c72af633a05c08c
 F src/setup.c e86861d2c8a9024b40aea32cc9f932540c8b1aa57f5eb0a2e878e35d5cb4f86d
-F src/setupuser.c 5c7982f3cea310ef3115461828f0cf5ca6ce79ddb66c4f3ef291f0bb72007c48
+F src/setupuser.c 631732f9ae4e597b6281f850295656589ad36f26d9300dc48e3fe3d7f93be609
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6e890f737f0337f6b685d13ca7382a37d2c51723ec5617bf9538943900d41b45
-R a7b5eb7b1216d94993b10e70d0b19e30
+P afb4f7480840471eee4370669725f06b5451da19d9859ec6686bd65637bf66fd
+R 755cb96075effed203b66331cbba8561
 U drh
-Z 21dc85b34fad6b2c8827ef954467b736
+Z 223bb781dea7780e0d9bf1d2b1765c95

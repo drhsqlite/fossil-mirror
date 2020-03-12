@@ -1238,7 +1238,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'o':   p->Read = 1;                                 break;
       case 'z':   p->Zip = 1;                                  break;
 
-      case 'd':   p->Delete = 1;                               break;
+      case 'd':   p->Delete = 1;  /* Not Used */               break;
       case 'h':   p->Hyperlink = 1;                            break;
       case 'g':   p->Clone = 1;                                break;
       case 'p':   p->Password = 1;                             break;
@@ -1322,7 +1322,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'a':  rc = p->Admin;     break;
       case 'b':  rc = p->Attach;    break;
       case 'c':  rc = p->ApndTkt;   break;
-      case 'd':  rc = p->Delete;    break;
+      case 'd':  rc = p->Delete;    break;  /* Not used */
       case 'e':  rc = p->RdAddr;    break;
       case 'f':  rc = p->NewWiki;   break;
       case 'g':  rc = p->Clone;     break;
