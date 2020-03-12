@@ -1,5 +1,5 @@
-C Added\scomments\sand\sdocumentation\sfor\sthe\sremoval\sof\sd\scap.
-D 2020-03-12T18:03:12.759
+C Repurposed\sthe\scheck\sfor\s"d"\scap\sin\sthe\sSecurity\sAudit\spage\sto\swarn\sthat\nit\sshould\sbe\sremoved\sfrom\suse.\sIt\schecks\sthe\sanonymous,\sdeveloper,\sand\nreader\susers\sfor\sit\sonly,\snot\sany\sone-off\suses.\s\sIt\salso\sdoesn't\scheck\nSetup\sor\sAdmin,\sbut\spresumably\swhatever\swe\sreuse\s"d"\sfor\sin\sthe\sfuture\nwill\sbe\sgranted\sto\sthem\sby\sdefault.
+D 2020-03-12T18:17:19.267
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -556,7 +556,7 @@ F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d
 F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
-F src/security_audit.c ea45c622737095fe510ae628c387aaaf171548aee03ed53a4c72af633a05c08c
+F src/security_audit.c f341318437bfc9001ace860378a5f1d1e8a7dd17228461345a378346f15755e9
 F src/setup.c e86861d2c8a9024b40aea32cc9f932540c8b1aa57f5eb0a2e878e35d5cb4f86d
 F src/setupuser.c 631732f9ae4e597b6281f850295656589ad36f26d9300dc48e3fe3d7f93be609
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dfa6609a9ac5c7fdae9c0fd033ea5b97328a2d8ec3ee1325f464398bb8c27c5d
-R 6c7d1757215a25c2ffd18316c17c43b9
+P 7454cce841beaf85eb0e9d65eff0aa4f2df5e628b6294951ed0ba80076f70178
+R 3c58a38e4b850d56b1fcce5845877d44
 U wyoung
-Z 08616814b36650178ca75f860dfe81a5
+Z cfdf12bf87c5a470c87894c4c833db8f
