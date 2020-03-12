@@ -1900,7 +1900,6 @@ cson_value * json_page_cap(){
 #define ADD(X,K) cson_object_set(obj, K, cson_value_new_bool(g.perm.X))
   ADD(Setup,"setup");
   ADD(Admin,"admin");
-  ADD(Delete,"delete");
   ADD(Password,"password");
   ADD(Query,"query"); /* don't think this one is actually used */
   ADD(Write,"checkin");

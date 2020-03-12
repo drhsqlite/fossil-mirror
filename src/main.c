@@ -80,7 +80,6 @@
 struct FossilUserPerms {
   char Setup;            /* s: use Setup screens on web interface */
   char Admin;            /* a: administrative permission */
-  char Delete;           /* d: delete wiki or tickets -  Not Used */
   char Password;         /* p: change password */
   char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. check-in */
