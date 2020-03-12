@@ -1,5 +1,5 @@
-C Add\sthe\s"gather_artifact_stats()"\sSQL\sfunction\sto\sthe\s"fossil\ssql"\scommand.\nThis\sfunction\sinvokes\sthe\sgather_artifact_stats()\sC-language\sroutine\sin\sorder\nto\spopulate\sthe\stemporary\sARTSTAT\stable.
-D 2020-03-12T00:44:57.500
+C Fix\sa\slong-standing\serror\sin\sa\sprintf()\sspecification\son\sthe\s/artifact_stats\npage\sthat\sonly\scaused\sproblems\swhen\scompiling\son\s32-bit\swindows\susing\nmingw32.
+D 2020-03-12T00:57:09.861
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -574,7 +574,7 @@ F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae
 F src/sqlite3.c 73cd35224cf60f109bb4ce529673dd417ea35adcfef2c9ccac5417679656653f
 F src/sqlite3.h 6880445a9bcd10f215547ffc7d9ca78d5f7c13bd0c90e835213aaf480cd38adc
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
-F src/stat.c 103400dc356978b3be5072303e3b188dbebf8cb8c7fa2634125fa09b57da43c3
+F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
 F src/style.c bea38d5b9400aa5273701ff402f421b3afe60e861c42c173945440e83591edac
 F src/sync.c cd1de2bc952d83e08d5d3f42c2657f5f83adff1a619b71c3410af6fa393f59c0
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 88b8df356b468935c87e2876070bd56ba8c0ed5bdcac8e9d23509537e9237773
-R 5317964cad1af88a363f39513e3fe75c
+P 6e890f737f0337f6b685d13ca7382a37d2c51723ec5617bf9538943900d41b45
+R a7b5eb7b1216d94993b10e70d0b19e30
 U drh
-Z 8f5ffedcca05ad167f9353076ba4b0e5
+Z 21dc85b34fad6b2c8827ef954467b736

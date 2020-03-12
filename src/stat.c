@@ -898,8 +898,8 @@ void artifact_stats_page(void){
     @ <td data-sortkey='%08x(nTotal)' align='right'>%,d(nTotal)</td>
     @ <td data-sortkey='%08x(nFull)' align='right'>%,d(nFull)</td>
     @ <td data-sortkey='%08x(nDelta)' align='right'>%,d(nDelta)</td>
-    @ <td data-sortkey='%016x(szCmpr)' align='right'>%,lld(szCmpr)</td>
-    @ <td data-sortkey='%016x(szExp)' align='right'>%,lld(szExp)</td>
+    @ <td data-sortkey='%016llx(szCmpr)' align='right'>%,lld(szCmpr)</td>
+    @ <td data-sortkey='%016llx(szExp)' align='right'>%,lld(szExp)</td>
   }
   @ </tbody></table>
   db_finalize(&q);
