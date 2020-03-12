@@ -1321,6 +1321,7 @@ int login_has_capability(const char *zCap, int nCap, u32 flgs){
       case 'a':  rc = p->Admin;     break;
       case 'b':  rc = p->Attach;    break;
       case 'c':  rc = p->ApndTkt;   break;
+      /* d unused: see comment in capabilities.c */
       case 'e':  rc = p->RdAddr;    break;
       case 'f':  rc = p->NewWiki;   break;
       case 'g':  rc = p->Clone;     break;
