@@ -244,10 +244,6 @@ static struct Caps {
     "Attach", "Add attchments to wiki or tickets" },
   { 'c', CAPCLASS_TKT, 0,
     "Append-Tkt", "Append to existing tickets" },
-#if 0 /* Not Used */
-  { 'd', CAPCLASS_WIKI|CAPCLASS_TKT, 0,
-    "Delete", "Delete wiki or tickets" },
-#endif
   { 'e', CAPCLASS_DATA, 0,
     "View-PII", "View sensitive info such as email addresses" },
   { 'f', CAPCLASS_WIKI, 0,

@@ -1,5 +1,5 @@
-C An\sextension\sof\s[3941824d]\sto\sremove\sall\smention\sof\s'd'\scapability\sfrom\nthe\scode,\snot\sjust\sifdef\sor\scomment\sit\sout.\s\sAlso\sremoves\sit\sfrom\sthe\ndocs\sand\sfrom\sthe\sdefault\scapability\sset\sfor\sDeveloper,\sdei\s->\sei.
-D 2020-03-12T16:56:27.359
+C Removed\sa\s"#if\s0"\srelated\sto\sthis\sbranch.
+D 2020-03-12T18:02:50.881
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -442,7 +442,7 @@ F src/browse.c 2fe022787253199f5a06bc725d079678adf867bf9150dbc1658b3735d0128c35
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
-F src/capabilities.c 340f212b7258c17aab0b97f3b42ba514a2b0edc24a6dd59faa727f001869176b
+F src/capabilities.c 6ebbff4330c10e2e6b146d64177fc9f51868535fdeb299723acb098821542b5f
 F src/captcha.c 57551edb289cd4e1ab4b1424bd2d4392e7f47694701d67acffdc6ce1c594d4a9
 F src/cgi.c f8d1490e630210fa612a4fffcb5c6a26709a3f753ca127bd5e7456a45f676db1
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
@@ -955,10 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3941824d8547d8c78c310bbfba0b896e65b9579eec37351d697cf4d86f351833
-R bca1c3edc01880f1bd64a9cb07562649
-T *branch * eradicate-d-cap
-T *sym-eradicate-d-cap *
-T -sym-trunk *
+P 55a76439382ffc5df495a610392f222fff567463a915abc4b75bcd374babebda
+R 0d688cd6c9c845930515c664b3390896
 U wyoung
-Z 65f8ae486167426f65bb4ca2f863323f
+Z f6cedf370b36031e6511b501c39a9938
