@@ -389,6 +389,9 @@ static void forum_display_chronological(int froot, int target){
     if( p->fpid!=target ){
       @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
     }
+    if( fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
+      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+    }
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     if( isPrivate && !g.perm.ModForum && !sameUser ){
@@ -502,6 +505,9 @@ static int forum_display_hierarchical(int froot, int target){
     if( fpid!=target ){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
+    if( fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
+      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+    }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
@@ -561,6 +567,8 @@ static int forum_display_hierarchical(int froot, int target){
 **   name=X        REQUIRED.  The hash of the post to display
 **   t=MODE        Display mode. MODE is 'c' for chronological or
 **                   'h' for hierarchical, or 'a' for automatic.
+**   raw           If present, show only the post specified and
+**                 show its original unformatted source text.
 */
 void forumpost_page(void){
   forumthread_page();
@@ -620,6 +628,7 @@ void forumthread_page(void){
   int froot;
   const char *zName = P("name");
   const char *zMode = PD("t","a");
+  int bRaw = PB("raw");
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -645,7 +654,23 @@ void forumthread_page(void){
     }
   }
   forumthread_page_header(froot, fpid);
-  if( zMode[0]=='c' ){
+  if( bRaw && fpid ){
+    Manifest *pPost;
+    pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
+    if( pPost==0 ){
+      @ <p>No such forum post: %h(zName)
+    }else{
+      int isPrivate = content_is_private(fpid);
+      int notAnon = login_is_individual();
+      int sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+      if( isPrivate && !g.perm.ModForum && !sameUser ){
+        @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+      }else{
+        forum_render(0, "text/plain", pPost->zWiki, 0);
+      }
+      manifest_destroy(pPost);
+    }
+  }else if( zMode[0]=='c' ){
     style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
     forum_display_chronological(froot, fpid);
   }else{
