@@ -1,5 +1,5 @@
-C Show\sthe\stitle\sof\sa\sforum\sthread\swithout\struncation.
-D 2020-03-12T22:53:02.826
+C Added\sdocumentation\sfor\sthe\sother\slegal\svalues\sfor\sevent.type\sin\sthe\s"y"\nparameter\sto\s/timeline.rss.
+D 2020-03-13T01:25:01.452
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -551,7 +551,7 @@ F src/rebuild.c c09d72ba95c62bb392a30b12b86c952665452a166bb304c05b3545d55c4db23c
 F src/regexp.c 0aa8c2ad2949900dfc3957702a756efc4eb937f4f20848f131085c21b7faa4ab
 F src/repolist.c 42df2ab648579b2ea73e7dd3acac98f153028e3a147f4b0126971ca04736e3d4
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
-F src/rss.c 98ec416bc5870b56e8ddfffa6c9f928a298e4aaf
+F src/rss.c c41ad19e65b0de1882d9b25a2dce0b618b65f050edc130b6c0cd1de097e27c99
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
@@ -955,7 +955,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4b82e96ac84c2fbacc1f9a36ff3871a9083db70b4a696a8f4079c9c84e6bc811
-R 28d71de6fc461f7cc5ea8b4459fb17c6
-U ashepilko
-Z f15c672df5814f425527a204cb25d11a
+P 81d66a357d291213f56daf82c86498bdc2c33744a4ba3cea5aa3ded140684bad
+R 6659af39c7f0d9bb5c69917da640bd40
+U wyoung
+Z 7b8340f6d3e105b36afa9fe45aa5e68c
