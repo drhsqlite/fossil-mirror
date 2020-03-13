@@ -96,6 +96,8 @@ static char **parse_content_security_policy(void){
 */
 void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
+  const char *zDevCap;       /* Capabilities of user group "developer" */
+  const char *zReadCap;      /* Capabilities of user group "reader" */
   const char *zPubPages;     /* GLOB pattern for public pages */
   const char *zSelfCap;      /* Capabilities of self-registered users */
   int hasSelfReg = 0;        /* True if able to self-register */
@@ -118,6 +120,8 @@ void secaudit0_page(void){
   ** though some content may be accessible anonymously.
   */
   zAnonCap = db_text("", "SELECT fullcap(NULL)");
+  zDevCap  = db_text("", "SELECT fullcap('v')");
+  zReadCap = db_text("", "SELECT fullcap('u')");
   zPubPages = db_get("public-pages",0);
   hasSelfReg = db_get_boolean("self-register",0);
   pCap = capability_add(0, db_get("default-perms",0));
@@ -280,15 +284,16 @@ void secaudit0_page(void){
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
-  /* Anonymous users probably should not be allowed to delete
-  ** wiki or tickets.
-  */
-  if( hasAnyCap(zAnonCap, "d") ){
+  /* Obsolete:  */
+  if( hasAnyCap(zAnonCap, "d") ||
+      hasAnyCap(zDevCap,  "d") ||
+      hasAnyCap(zReadCap, "d") ){
     @ <li><p><b>WARNING:</b>
-    @ Anonymous users can delete wiki and tickets.
-    @ <p>Fix this by removing the "Delete"
-    @ privilege from users "anonymous" and "nobody" on the
-    @ <a href="setup_ulist">User Configuration</a> page.
+    @ One or more users has the <a
+    @ href="https://fossil-scm.org/forum/forumpost/43c78f4bef">obsolete</a>
+    @ "d" capability. You should remove it using the
+    @ <a href="setup_ulist">User Configuration</a> page in case we
+    @ ever reuse the letter for another purpose.
   }
 
   /* If anonymous users are allowed to create new Wiki, then
