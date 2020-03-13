@@ -203,11 +203,40 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
 }
 
 /*
+** List all forum threads to standard output.
+*/
+static void forum_thread_list(void){
+  Stmt q;
+  db_prepare(&q,
+    " SELECT"
+    "  datetime(max(fmtime)),"
+    "  sum(fprev IS NULL),"
+    "  froot"
+    " FROM forumpost"
+    " GROUP BY froot"
+    " ORDER BY 1;"
+  );
+  fossil_print("    id  cnt    most recent post\n");
+  fossil_print("------ ---- -------------------\n");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%6d %4d %s\n",
+      db_column_int(&q, 2),
+      db_column_int(&q, 1),
+      db_column_text(&q, 0)
+    );
+  }
+  db_finalize(&q);
+}
+
+/*
 ** COMMAND: test-forumthread
 **
-** Usage: %fossil test-forumthread THREADID
+** Usage: %fossil test-forumthread [THREADID]
 **
-** Display a summary of all messages on a thread.
+** Display a summary of all messages on a thread THREADID.  If the
+** THREADID argument is omitted, then show a list of all threads.
+**
+** This command is intended for testing an analysis only.
 */
 void forumthread_cmd(void){
   int fpid;
@@ -218,6 +247,10 @@ void forumthread_cmd(void){
 
   db_find_and_open_repository(0,0);
   verify_all_options();
+  if( g.argc==2 ){
+    forum_thread_list();
+    return;
+  }
   if( g.argc!=3 ) usage("THREADID");
   zName = g.argv[2];
   fpid = symbolic_name_to_rid(zName, "f");
@@ -538,7 +571,9 @@ void forumpost_page(void){
 ** given forum post.
 */
 static int forumthread_page_header(int froot, int fpid){
-  char *zThreadTitle = 0;
+  Blob title;
+  int mxForumPostTitleLen = 50;
+  char *zThreadTitle = "";
 
   zThreadTitle = db_text("",
     "SELECT"
@@ -548,7 +583,21 @@ static int forumthread_page_header(int froot, int fpid){
     "   AND forumpost.fpid=%d;",
     fpid
   );
-  style_header("%s%s", zThreadTitle, zThreadTitle[0] ? "" : "Forum");
+  blob_set(&title, zThreadTitle);
+  /* truncate the title when longer than max allowed;
+   * in case of UTF-8 make sure the truncated string remains valid,
+   * otherwise (different encoding?) pass as-is
+   */
+  if( mxForumPostTitleLen>0 && blob_size(&title)>mxForumPostTitleLen ){
+    int len;
+    len = utf8_codepoint_index(blob_str(&title), mxForumPostTitleLen);
+    if( len ){
+      blob_truncate(&title, len);
+      blob_append(&title, "...", 3);
+    }
+  }
+  style_header("%s%s", blob_str(&title), blob_size(&title) ? " - Forum" : "Forum");
+  blob_reset(&title);
   fossil_free(zThreadTitle);
   return 0;
 }
