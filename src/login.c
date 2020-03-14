@@ -1717,7 +1717,9 @@ void register_page(void){
   }
   @ <tr>
   @   <td class="form_label" align="right">Captcha:</td>
-  @   <td><input type="text" name="captcha" value="" size="30"></td>
+  @   <td><input type="text" name="captcha" value="" size="30">
+  captcha_speakit_button(uSeed, "Speak the captcha text");
+  @   </td>
   @ </tr>
   if( iErrLine==6 ){
     @ <tr><td><td><span class='loginError'>&uarr; %h(zErr)</span></td></tr>
