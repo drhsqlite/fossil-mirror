@@ -350,6 +350,7 @@ static void forum_display_chronological(int froot, int target){
     Manifest *pPost;
     int isPrivate;        /* True for posts awaiting moderation */
     int sameUser;         /* True if author is also the reader */
+    const char *zUuid;
 
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -382,15 +383,17 @@ static void forum_display_chronological(int froot, int target){
         @ %d(pIrt->sid)</a>
       }
     }
+    zUuid = p->zUuid;
     if( p->pLeaf ){
       @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
       @ %d(p->pLeaf->sid)</a>
+      zUuid = p->pLeaf->zUuid;
     }
     if( p->fpid!=target ){
-      @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S?t=c",zUuid))[link]</a>
     }
     if( fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
-      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     }
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
@@ -508,7 +511,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
     if( fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
-      @ %z(href("%R/forumpost/%S?raw",p->zUuid))[source]</a>
+      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
