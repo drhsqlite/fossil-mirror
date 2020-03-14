@@ -341,10 +341,11 @@ static void generateTrustControls(Manifest *pPost){
 /*
 ** Display all posts in a forum thread in chronological order
 */
-static void forum_display_chronological(int froot, int target){
+static void forum_display_chronological(int froot, int target, int bRawMode){
   ForumThread *pThread = forumthread_create(froot, 0);
   ForumEntry *p;
   int notAnon = login_is_individual();
+  char cMode = bRawMode ? 'r' : 'c';
   for(p=pThread->pFirst; p; p=p->pNext){
     char *zDate;
     Manifest *pPost;
@@ -368,7 +369,7 @@ static void forum_display_chronological(int froot, int target){
     @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))\
+      @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEdit->zUuid,cMode))\
       @ %d(p->pEdit->sid)</a>
     }
     if( g.perm.Debug ){
@@ -379,20 +380,20 @@ static void forum_display_chronological(int froot, int target){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))\
+        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
         @ %d(pIrt->sid)</a>
       }
     }
     zUuid = p->zUuid;
     if( p->pLeaf ){
-      @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
+      @ updated by %z(href("%R/forumpost/%S?t=%c",p->pLeaf->zUuid,cMode))\
       @ %d(p->pLeaf->sid)</a>
       zUuid = p->pLeaf->zUuid;
     }
     if( p->fpid!=target ){
-      @ %z(href("%R/forumpost/%S?t=c",zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S?t=%c",zUuid,cMode))[link]</a>
     }
-    if( fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
+    if( !bRawMode && fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
       @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     }
     isPrivate = content_is_private(p->fpid);
@@ -401,7 +402,7 @@ static void forum_display_chronological(int froot, int target){
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
-      forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki, 0);
     }
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
@@ -571,8 +572,11 @@ static int forum_display_hierarchical(int froot, int target){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of the post to display
-**   t=MODE        Display mode. MODE is 'c' for chronological or
-**                   'h' for hierarchical, or 'a' for automatic.
+**   t=MODE        Display mode.
+**                   'c' for chronological
+**                   'h' for hierarchical
+**                   'a' for automatic
+**                   'r' for raw
 **   raw           If present, show only the post specified and
 **                 show its original unformatted source text.
 */
@@ -610,8 +614,11 @@ static int forumthread_page_header(int froot, int fpid){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of any post of the thread.
-**   t=MODE        Display mode. MODE is 'c' for chronological or
-**                   'h' for hierarchical, or 'a' for automatic.
+**   t=MODE        Display mode. MODE is...
+**                   'c' for chronological, or
+**                   'h' for hierarchical, or
+**                   'a' for automatic, or
+**                   'r' for raw.
 */
 void forumthread_page(void){
   int fpid;
@@ -662,9 +669,15 @@ void forumthread_page(void){
     }
   }else if( zMode[0]=='c' ){
     style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
-    forum_display_chronological(froot, fpid);
+    style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
+    forum_display_chronological(froot, fpid, 0);
+  }else if( zMode[0]=='r' ){
+    style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
+    style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
+    forum_display_chronological(froot, fpid, 1);
   }else{
     style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
+    style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
   style_load_js("forum.js");
