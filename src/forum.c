@@ -364,7 +364,7 @@ static void forum_display_chronological(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <p>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
+    @ <h3>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( p->pEdit ){
       @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))\
@@ -394,6 +394,7 @@ static void forum_display_chronological(int froot, int target){
     }
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+    @ </h3>
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
@@ -482,7 +483,7 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    @ <p>(%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
+    @ <h3>(%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
@@ -516,6 +517,7 @@ static int forum_display_hierarchical(int froot, int target){
         @ %d(pIrt->sid)</a>
       }
     }
+    @ </h3>
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     if( isPrivate && !g.perm.ModForum && !sameUser ){
