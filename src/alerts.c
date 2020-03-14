@@ -1261,7 +1261,7 @@ void alert_append_confirmation_message(Blob *pMsg, const char *zCode){
 */
 void subscribe_page(void){
   int needCaptcha;
-  unsigned int uSeed;
+  unsigned int uSeed = 0;
   const char *zDecoded;
   char *zCaptcha = 0;
   char *zErr = 0;
@@ -1763,7 +1763,7 @@ void unsubscribe_page(void){
   const char *zName = P("name");
   char *zErr = 0;
   int eErr = 0;
-  unsigned int uSeed;
+  unsigned int uSeed = 0;
   const char *zDecoded;
   char *zCaptcha = 0;
   int dx;

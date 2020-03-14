@@ -1,5 +1,5 @@
-C Show\sthe\stitle\sof\sa\sforum\sthread\swithout\struncation.\s\s(This\scheck-in\sis\nreapply\safter\shaving\sbeen\saccidently\sdeleted.)
-D 2020-03-14T12:46:57.798
+C Fix\sa\sharmless\scompiler\swarning.
+D 2020-03-14T12:49:07.378
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
-F src/alerts.c ef99a223188535642892f791602088df8d8139f067fcd79dd2b5c3e33d1c6b50
+F src/alerts.c d90edfc88f32b9d91b7f2efceeb1df0035c16434d10df1374fee5690994468c6
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
@@ -972,8 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dcf441077d52bae84f7a1d70c879002b71d584ff5437ceb14ec26a83bea346f2
-Q +81d66a357d291213f56daf82c86498bdc2c33744a4ba3cea5aa3ded140684bad
-R 0cbd1d5424dacca76d39f3a6fae0dbc0
+P 74549a9a8d1668b01c2890616097c7b87bf5755d7d5cb35684cb4edcfcf8c7a0
+R df007130fcdaf33694c6bf16cd9cb5e8
 U drh
-Z 8f84d2025d6f1892a5c664075961bb81
+Z 13068b47bc39b60b5902035eb5b86d9d
