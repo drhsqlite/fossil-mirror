@@ -1,5 +1,5 @@
-C Put\sthe\s"speak\sthe\stext"\sbuttons\sfor\scaptcha\saudio\scloser\sto\sthe\sboxes\nin\swhich\sthe\sperson\smust\senter\sthe\stext.
-D 2020-03-14T13:36:53.180
+C Use\s&lt;h3&gt;\stags,\swith\sa\sCSS\sclass\sfor\sstyling,\sfor\sthe\stitle\son\nforum\sposts,\sas\sthis\sworks\sbetter\sfor\sscreen\sreaders.
+D 2020-03-14T14:22:17.721
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 54eebd53714fd749f8ed89795ea5100f2b44c2367572f868cd3330674303e7fc
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c ebcf5b54bb8c016930a644d3015564cdf3212d6a423fbf8e1b4d9b4881d653c3
+F src/forum.c f0f5682c128ae94f6bf77c5888629ab847dddd18a27296351670890a23a28c7e
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 9e7d580ff965ac8b58c030f916ed2326020061480954b50192aa5b9cf65404d9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -972,7 +972,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2e32552331937fbac1a982299fe72da88af590bebea046a6edae7666516a596c
-R 0790a56bdf04f266ce2ff9e925bab145
+P a584491ab87691cb1774e3ab9dc1cb760a85bdd3130d64565998e3e3f9e23e5e ff3365e83e508587d7c1673b81f7d693e94536c4bbd7ebe0495c71369f888211
+R 640b826119ede26c67786a31ed40b0d7
+T +closed ff3365e83e508587d7c1673b81f7d693e94536c4bbd7ebe0495c71369f888211
 U drh
-Z 1552b5110f42ed9a98dd76fceb99b692
+Z 4f75e393799b1216be2966af07fa9604
