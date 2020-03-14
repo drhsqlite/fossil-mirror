@@ -117,6 +117,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FILLGAPS 0x0800000 /* Dotted lines for missing nodes */
 #define TIMELINE_XMERGE   0x1000000 /* Omit merges from off-graph nodes */
 #define TIMELINE_NOTKT    0x2000000 /* Omit extra ticket classes */
+#define TIMELINE_FORUMTXT 0x4000000 /* Render all forum messages */
 #endif
 
 /*
@@ -235,7 +236,7 @@ int timeline_tableid(void){
 **    4.  User
 **    5.  True if is a leaf
 **    6.  background color
-**    7.  type ("ci", "w", "t", "e", "g", "div")
+**    7.  type ("ci", "w", "t", "e", "g", "f", "div")
 **    8.  list of symbolic tags.
 **    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
@@ -785,6 +786,17 @@ void www_print_timeline(
       db_reset(&fchngQuery);
       if( inUl ){
         @ </ul>
+      }
+    }
+
+    /* Show the complete text of forum messages */
+    if( (tmFlags & (TIMELINE_FORUMTXT))!=0
+     && zType[0]=='f' && g.perm.Hyperlink
+    ){
+      Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+      if( pPost ){
+        forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
+        manifest_destroy(pPost);
       }
     }
   }
@@ -1568,6 +1580,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ncp             Omit cherrypick merges
 **    nd              Do not highlight the focus check-in
 **    v               Show details of files changed
+**    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
 **      to=CHECKIN      ... to this
@@ -1875,6 +1888,9 @@ void page_timeline(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   if( PB("fc") || PB("v") || PB("detail") ){
     tmFlags |= TIMELINE_FCHANGES;
+  }
+  if( PB("vfx") ){
+    tmFlags |= TIMELINE_FORUMTXT;
   }
   if( (tmFlags & TIMELINE_UNHIDE)==0 ){
     blob_append_sql(&sql,
