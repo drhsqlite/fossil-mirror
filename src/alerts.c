@@ -1463,7 +1463,8 @@ void subscribe_page(void){
     @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
     @ %h(zCaptcha)
     @ </pre>
-    @ Enter the 8 characters above in the "Security Code" box
+    @ Enter the 8 characters above in the "Security Code" box<br/>
+    captcha_speakit_button(uSeed);
     @ </td></tr></table></div>
   }
   @ </form>
@@ -1876,7 +1877,8 @@ void unsubscribe_page(void){
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre>
-  @ Enter the 8 characters above in the "Security Code" box
+  @ Enter the 8 characters above in the "Security Code" box<br/>
+  captcha_speakit_button(uSeed);
   @ </td></tr></table></div>
   @ </form>
   fossil_free(zErr);
@@ -2622,7 +2624,8 @@ void contact_admin_page(void){
     @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
     @ %h(zCaptcha)
     @ </pre>
-    @ Enter the 8 characters above in the "Security Code" box
+    @ Enter the 8 characters above in the "Security Code" box<br/>
+    captcha_speakit_button(uSeed);
     @ </td></tr></table></div>
   }
   @ </form>

@@ -176,6 +176,7 @@ set extra_files {
   wiki.wiki
   *.js
   ../skins/*/*.txt
+  sounds/*.wav
 }
 
 # Options used to compile the included SQLite library.

@@ -759,6 +759,7 @@ void login_page(void){
       @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
+      captcha_speakit_button(uSeed);
       if( bAutoCaptcha ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)' />
