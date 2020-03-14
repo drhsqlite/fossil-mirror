@@ -220,12 +220,29 @@ EXTRA_FILES = \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
+  $(SRCDIR)/markdeep.min.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
+  $(SRCDIR)/sounds/0.wav \
+  $(SRCDIR)/sounds/1.wav \
+  $(SRCDIR)/sounds/2.wav \
+  $(SRCDIR)/sounds/3.wav \
+  $(SRCDIR)/sounds/4.wav \
+  $(SRCDIR)/sounds/5.wav \
+  $(SRCDIR)/sounds/6.wav \
+  $(SRCDIR)/sounds/7.wav \
+  $(SRCDIR)/sounds/8.wav \
+  $(SRCDIR)/sounds/9.wav \
+  $(SRCDIR)/sounds/a.wav \
+  $(SRCDIR)/sounds/b.wav \
+  $(SRCDIR)/sounds/c.wav \
+  $(SRCDIR)/sounds/d.wav \
+  $(SRCDIR)/sounds/e.wav \
+  $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
