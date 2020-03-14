@@ -1,4 +1,4 @@
-﻿<title>Change Log</title>
+<title>Change Log</title>
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (pending)</h2>
@@ -32,7 +32,7 @@
      [/help?cmd=default-csp|default-csp setting].
   *  Merge conflicts caused via the [/help?cmd=merge|merge] and
      [/help?cmd=update|update] commands no longer leave temporary
-     files behind unless the new <tt>--keep-merge-file</tt> flag
+     files behind unless the new <tt>--keep-merge-files</tt> flag
      is used.
   *  The [/help?cmd=/artifact_stats|/artifact_stats page] is now accessible
      to all users if the new "artifact_stats_enable" setting is turned

@@ -1,5 +1,5 @@
-C Add\sthe\saudio-captcha\sfeature\sto\sthe\schange\slog.
-D 2020-03-14T12:57:36.230
+C Typo\sfix\sin\sthe\schange\slog.
+D 2020-03-14T13:13:24.270
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -811,7 +811,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki e7b59eb7ab48e87dc2eb2d0e988afa24e502abedfda7ad1bcfea6a75e89381c7
+F www/changes.wiki c3000705ec270f49dfbb34a05fc84d79866784d36f7ff24e2956859eddca1eee
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki e0707a3fd024990bc95294502d5ca6cd39688bf40c3c87a2a449e7e3af9e40f6
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 11d1233d305c0fd667114be1ebedd6e4141425d47a6ae8c633637b20b731a81f
-R 5a08424079643daa650cc155ee1ee518
-U drh
-Z 693ee3c970c55bbb11f9356a5c3c608b
+P b003f7cd531da42e6619b69210d2bc0e1d92fb97cd9275cb5838046388a6e316
+R b247f34433a5f360ee3a3ecd297999e6
+U stephan
+Z f244775012a2396b936be3397b0849c4
