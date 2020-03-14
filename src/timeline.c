@@ -795,7 +795,7 @@ void www_print_timeline(
     ){
       Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
       if( pPost ){
-        forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
+        forum_render(0, pPost->zMimetype, pPost->zWiki, "forumTimeline");
         manifest_destroy(pPost);
       }
     }
