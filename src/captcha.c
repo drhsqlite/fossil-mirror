@@ -549,8 +549,9 @@ void captcha_generate(int showButton){
   @ <input type="text" name="captcha" size=8 />
   if( showButton ){
     @ <input type="submit" value="Submit">
-    captcha_speakit_button(uSeed);
   }
+  @ <br/>\
+  captcha_speakit_button(uSeed);
   @ </td></tr></table></div>
 }
 
