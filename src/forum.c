@@ -364,7 +364,7 @@ static void forum_display_chronological(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <h3>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
+    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( p->pEdit ){
       @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))\
@@ -483,7 +483,8 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    @ <h3>(%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
+    @ <h3 class='forumPostHdr'>\
+    @ (%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
@@ -1018,14 +1019,14 @@ void forumedit_page(void){
       zTitle = fossil_strdup(pPost->zThreadTitle);
     }
     style_header("Edit %s", zTitle ? "Post" : "Reply");
-    @ <h1>Original Post:</h1>
+    @ <h2>Original Post:</h2>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
                  "forumEdit");
     if( P("preview") ){
-      @ <h1>Preview of Edited Post:</h1>
+      @ <h2>Preview of Edited Post:</h2>
       forum_render(zTitle, zMimetype, zContent,"forumEdit");
     }
-    @ <h1>Revised Message:</h1>
+    @ <h2>Revised Message:</h2>
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
@@ -1036,19 +1037,19 @@ void forumedit_page(void){
     zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
-    @ <h1>Replying To:</h1>
     if( pRootPost->zThreadTitle ){
-      @ <h3>%h(pRootPost->zThreadTitle)</h3>
+      @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
     }
+    @ <h2>Replying To:</h2>
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <p>%h(pPost->zThreadTitle ? "Post" : "Reply") by %h(pPost->zUser) on %h(zDate)
+    @ <h3 class='forumPostHdr'>By %h(pPost->zUser) on %h(zDate)</h3>
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
     if( P("preview") ){
-      @ <h1>Preview:</h1>
+      @ <h2>Preview:</h2>
       forum_render(0, zMimetype,zContent, "forumEdit");
     }
-    @ <h1>Enter Reply:</h1>
+    @ <h2>Enter Reply:</h2>
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
