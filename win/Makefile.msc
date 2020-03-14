@@ -549,7 +549,6 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\graph.js \
         $(SRCDIR)\href.js \
         $(SRCDIR)\login.js \
-        $(SRCDIR)\markdeep.min.js \
         $(SRCDIR)\markdown.md \
         $(SRCDIR)\menu.js \
         $(SRCDIR)\sbsdiff.js \

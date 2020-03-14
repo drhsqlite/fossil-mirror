@@ -220,7 +220,6 @@ EXTRA_FILES = \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \
-  $(SRCDIR)/markdeep.min.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \
   $(SRCDIR)/sbsdiff.js \
