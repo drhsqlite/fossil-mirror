@@ -1579,6 +1579,7 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
 **    nd              Do not highlight the focus check-in
+**    nsm             Omit the submenu
 **    v               Show details of files changed
 **    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
@@ -1804,6 +1805,9 @@ void page_timeline(void){
   }
   if( PB("ng") || zSearch!=0 ){
     tmFlags &= ~(TIMELINE_GRAPH|TIMELINE_CHPICK);
+  }
+  if( PB("nsm") ){
+    style_submenu_enable(0);
   }
   if( PB("brbg") ){
     tmFlags |= TIMELINE_BRCOLOR;
