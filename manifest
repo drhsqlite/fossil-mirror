@@ -1,5 +1,5 @@
-C Add\sthe\snsm\squery\sparameter\sto\s/timeline\sfor\sdisabling\sthe\ssubmenu.
-D 2020-03-14T21:00:01.410
+C For\sthe\saudio\scaptcha,\sdo\snot\sactually\sdownload\sthe\ssound\sfile\suntil\nthe\suser\sclicks\son\sthe\sbutton.
+D 2020-03-14T23:41:40.791
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -443,7 +443,7 @@ F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c c301971cf4ab8a1ef3e310367e58db07428eab15c07f7df4b3e33ef5fc3e04bb
-F src/captcha.c 32d5eb619612a4e86197891f7744c521e6ca415b30663efdb58819d30615aa31
+F src/captcha.c 5ed80cc4180da0115604e3cc2354cdcfe52bbaa891f9f1f3750fc77fef3e6b3d
 F src/cgi.c f8d1490e630210fa612a4fffcb5c6a26709a3f753ca127bd5e7456a45f676db1
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5acbe9b55bb5e2bc971c532af972a1d1bd45217b7fd7ca26d3072736efa1066
-R 4cf95d2004295ce33bac92e51eb4ca1a
+P 220ed0a939c4d353cc674ced4f528ffe16b4e3523526453685abd35b6650d684
+R 3698afd53f5bac189f99d84e34ac7576
 U drh
-Z 7caf8e768e42621c20268ad0436324e1
+Z 08b3dd517e0307731263b855f6e99106

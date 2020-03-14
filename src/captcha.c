@@ -561,11 +561,10 @@ void captcha_generate(int showButton){
 void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
   if( zMsg==0 ) zMsg = "Speak the text";
   @ <input type="button" value="%h(zMsg)" id="speakthetext">
-  @ <audio id="spokencaptcha" src="%R/captcha-audio/%u(uSeed)" />
   @ <script nonce="%h(style_nonce())">
   @ var x = document.getElementById("speakthetext")
   @ x.onclick = function(){
-  @   var audio = document.getElementById("spokencaptcha");
+  @   var audio = new Audio("%R/captcha-audio/%u(uSeed)")
   @   audio.play();
   @ }
   @ </script>
