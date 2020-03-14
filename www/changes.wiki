@@ -38,6 +38,8 @@
      to all users if the new "artifact_stats_enable" setting is turned
      on.  There is a new checkbox under the /Admin/Access menu to turn
      that capability on and off.
+  *  Captchas all include a button to read the captcha using an audio
+     file, so that they can be completed by the visually impaired.
   *  Bug fix: the "fossil git export" command is now working on Windows
   *  Bug fix: display Technote items on the timeline correctly
   *  Bug fix: fix the capability summary matrix of the Security Audit
