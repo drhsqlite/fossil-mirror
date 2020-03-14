@@ -704,6 +704,14 @@ void login_page(void){
     @ <input type="submit" name="out" value="Logout"></p>
     @ </form>
   }else{
+    unsigned int uSeed = captcha_seed();
+    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
+      zAnonPw = db_text(0, "SELECT pw FROM user"
+                           " WHERE login='anonymous'"
+                           "   AND cap!=''");
+    }else{
+      zAnonPw = 0;
+    }
     @ <table class="login_out">
     @ <tr>
     @   <td class="form_label">User ID:</td>
@@ -715,7 +723,11 @@ void login_page(void){
     @ </tr>
     @ <tr>
     @  <td class="form_label">Password:</td>
-    @  <td><input type="password" id="p" name="p" value="" size="30" /></td>
+    @  <td><input type="password" id="p" name="p" value="" size="30" />\
+    if( zAnonPw && !noAnon ){
+      captcha_speakit_button(uSeed, "Speak password for \"anonymous\"");
+    }
+    @ </td>
     @ </tr>
     if( P("HTTPS")==0 ){
       @ <tr><td class="form_label">Warning:</td>
@@ -730,11 +742,6 @@ void login_page(void){
       }
       @ </span></td></tr>
     }
-    if( g.zLogin==0 && (anonFlag || zGoto==0) ){
-      zAnonPw = db_text(0, "SELECT pw FROM user"
-                           " WHERE login='anonymous'"
-                           "   AND cap!=''");
-    }
     @ <tr>
     @   <td></td>
     @   <td><input type="submit" name="in" value="Login"></td>
@@ -747,7 +754,6 @@ void login_page(void){
     }
     @ </table>
     if( zAnonPw && !noAnon ){
-      unsigned int uSeed = captcha_seed();
       const char *zDecoded = captcha_decode(uSeed);
       int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
       char *zCaptcha = captcha_render(zDecoded);
@@ -759,7 +765,6 @@ void login_page(void){
       @ <pre class="captcha">
       @ %h(zCaptcha)
       @ </pre></td></tr></table>
-      captcha_speakit_button(uSeed);
       if( bAutoCaptcha ) {
          @ <input type="button" value="Fill out captcha" id='autofillButton' \
          @ data-af='%s(zDecoded)' />

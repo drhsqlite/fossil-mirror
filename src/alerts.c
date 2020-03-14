@@ -1394,6 +1394,7 @@ void subscribe_page(void){
     @ <tr>
     @  <td class="form_label">Security Code:</td>
     @  <td><input type="text" name="captcha" value="" size="30">
+    captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
     if( eErr==2 ){
@@ -1464,7 +1465,6 @@ void subscribe_page(void){
     @ %h(zCaptcha)
     @ </pre>
     @ Enter the 8 characters above in the "Security Code" box<br/>
-    captcha_speakit_button(uSeed);
     @ </td></tr></table></div>
   }
   @ </form>
@@ -1858,6 +1858,7 @@ void unsubscribe_page(void){
   @ <tr>
   @  <td class="form_label">Security Code:</td>
   @  <td><input type="text" name="captcha" value="" size="30">
+  captcha_speakit_button(uSeed, "Speak the code");
   @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
   if( eErr==2 ){
     @  <td><span class="loginError">&larr; %h(zErr)</span></td>
@@ -1878,7 +1879,6 @@ void unsubscribe_page(void){
   @ %h(zCaptcha)
   @ </pre>
   @ Enter the 8 characters above in the "Security Code" box<br/>
-  captcha_speakit_button(uSeed);
   @ </td></tr></table></div>
   @ </form>
   fossil_free(zErr);
@@ -2598,6 +2598,7 @@ void contact_admin_page(void){
     @ <tr>
     @  <td class="form_label">Security&nbsp;Code:</td>
     @  <td><input type="text" name="captcha" value="" size="10">
+    captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
   }
@@ -2625,7 +2626,6 @@ void contact_admin_page(void){
     @ %h(zCaptcha)
     @ </pre>
     @ Enter the 8 characters above in the "Security Code" box<br/>
-    captcha_speakit_button(uSeed);
     @ </td></tr></table></div>
   }
   @ </form>
