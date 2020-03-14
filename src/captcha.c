@@ -648,6 +648,12 @@ static void captcha_wav(const char *zHex, Blob *pOut){
     char zSoundName[50];
     sqlite3_snprintf(sizeof(zSoundName),zSoundName,"sounds/%c.wav",
                      "0123456789abcdef"[v]);
+    /* Extra silence in between letters */
+    if( i>0 ){
+      int nQuiet = 3000;
+      blob_resize(pOut, pOut->nUsed+nQuiet);
+      memset(pOut->aData+pOut->nUsed-nQuiet, 0x80, nQuiet);
+    }
     pData = builtin_file(zSoundName, &sz);
     nData = sz - szWavHdr;
     blob_resize(pOut, pOut->nUsed+nData);
