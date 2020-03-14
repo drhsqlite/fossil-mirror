@@ -549,8 +549,24 @@ void captcha_generate(int showButton){
   @ <input type="text" name="captcha" size=8 />
   if( showButton ){
     @ <input type="submit" value="Submit">
+    captcha_speakit_button(uSeed);
   }
   @ </td></tr></table></div>
+}
+
+/*
+** Add a "Speak the captcha" button.
+*/
+void captcha_speakit_button(unsigned int uSeed){
+  @ <input type="button" value="Speak the text" id="speakthetext">
+  @ <audio id="spokencaptcha" src="%R/captcha-audio/%u(uSeed)" />
+  @ <script nonce="%h(style_nonce())">
+  @ var x = document.getElementById("speakthetext")
+  @ x.onclick = function(){
+  @   var audio = document.getElementById("spokencaptcha");
+  @   audio.play();
+  @ }
+  @ </script>
 }
 
 /*
@@ -622,6 +638,7 @@ static void captcha_wav(const char *zHex, Blob *pOut){
   blob_resize(pOut, szWavHdr);  /* Space for the WAV header */
   pOut->nUsed = szWavHdr;
   memset(pOut->aData, 0, szWavHdr);
+  if( zHex==0 || zHex[0]==0 ) zHex = "0";
   for(i=0; zHex[i]; i++){
     int v = hex_digit_value(zHex[i]);
     int sz;
@@ -661,7 +678,7 @@ void captcha_wav_page(void){
   const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
   Blob audio;
   captcha_wav(zDecode, &audio);
-  cgi_set_content_type("audio/x-wav");
+  cgi_set_content_type("audio/wav");
   cgi_set_content(&audio);
 }
 
@@ -675,6 +692,6 @@ void captcha_test_wav_page(void){
   const char *zSeed = P("name");
   Blob audio;
   captcha_wav(zSeed, &audio);
-  cgi_set_content_type("audio/x-wav");
+  cgi_set_content_type("audio/wav");
   cgi_set_content(&audio);
 }
