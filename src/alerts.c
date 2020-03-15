@@ -116,7 +116,7 @@ void alert_schema(int bOnlyIfEnabled){
     ){
       return;  /* Don't create table for disabled email */
     }
-    db_multi_exec(zAlertInit/*works-like:""*/);
+    db_exec_sql(zAlertInit);
     alert_triggers_enable();
   }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
     db_multi_exec(
