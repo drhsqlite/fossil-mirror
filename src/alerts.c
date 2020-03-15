@@ -796,13 +796,13 @@ void alert_send(
   if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
   }
+  blob_init(&all, 0, 0);
   if( fossil_strcmp(p->zDest, "blob")==0 ){
     pOut = &p->out;
     if( blob_size(pOut) ){
       blob_appendf(pOut, "%.72c\n", '=');
     }
   }else{
-    blob_init(&all, 0, 0);
     pOut = &all;
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
