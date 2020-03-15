@@ -180,6 +180,8 @@ static const char *zContentType = "text/html";     /* Content type of the reply 
 static const char *zReplyStatus = "OK";            /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
+static int rangeStart = 0;
+static int rangeEnd = 0;
 
 /*
 ** Set the reply content type
@@ -274,6 +276,9 @@ void cgi_reply(void){
   }
 
   if( g.fullHttpReply ){
+    if( rangeEnd>rangeStart && iReplyStatus==200 ){
+      iReplyStatus = 206;
+    }
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     fprintf(g.httpOut, "Connection: close\r\n");
@@ -327,8 +332,8 @@ void cgi_reply(void){
     blob_compress(&cgiContent[0], &cgiContent[0]);
   }
 
-  if( iReplyStatus != 304 ) {
-    if( is_gzippable() ){
+  if( iReplyStatus!=304 ) {
+    if( is_gzippable() && iReplyStatus!=206 ){
       int i;
       gzip_begin(0);
       for( i=0; i<2; i++ ){
@@ -341,6 +346,11 @@ void cgi_reply(void){
       fprintf(g.httpOut, "Vary: Accept-Encoding\r\n");
     }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
+    if( iReplyStatus==206 ){
+      fprintf(g.httpOut, "Content-Range: bytes %d-%d/%d\r\n",
+              rangeStart, rangeEnd, total_size);
+      total_size = rangeEnd - rangeStart; 
+    }
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
   }else{
     total_size = 0;
@@ -352,8 +362,16 @@ void cgi_reply(void){
     int i, size;
     for(i=0; i<2; i++){
       size = blob_size(&cgiContent[i]);
-      if( size>0 ){
-        fwrite(blob_buffer(&cgiContent[i]), 1, size, g.httpOut);
+      if( size<=rangeStart ){
+        rangeStart -= size;
+      }else{
+        int n = size - rangeStart;
+        if( n>total_size ){
+          n = total_size;
+        }
+        fwrite(blob_buffer(&cgiContent[i])+rangeStart, 1, n, g.httpOut);
+        rangeStart = 0;
+        total_size -= n;
       }
     }
   }
@@ -1660,6 +1678,13 @@ void cgi_handle_http_request(const char *zIpAddr){
       if( zIpAddr!=0 ){
         g.zIpAddr = mprintf("%s", zIpAddr);
         cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
+      }
+    }else if( fossil_strcmp(zFieldName,"range:")==0 ){
+      int x1 = 0;
+      int x2 = 0;
+      if( sscanf(zVal,"bytes=%d-%d",&x1,&x2)==2 && x1>=0 && x1<=x2 ){
+        rangeStart = x1;
+        rangeEnd = x2+1;
       }
     }
   }
