@@ -2643,6 +2643,7 @@ static char *alert_send_announcement(void){
   char *zSubject = PT("subject");
   int bAll = PB("all");
   int bAA = PB("aa");
+  int bMods = PB("mods");
   const char *zSub = db_get("email-subname", "[Fossil Repo]");
   int bTest2 = fossil_strcmp(P("name"),"test2")==0;
   Blob hdr, body;
@@ -2654,13 +2655,25 @@ static char *alert_send_announcement(void){
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
     alert_send(pSender, &hdr, &body, 0);
   }
-  if( bAll || bAA ){
+  if( bAll || bAA || bMods ){
     Stmt q;
     int nUsed = blob_size(&body);
     const char *zURL =  db_get("email-url",0);
-    db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
-                   " WHERE sverified AND NOT sdonotcall %s",
-                   bAll ? "" : " AND ssub LIKE '%a%'");
+    if( bAll ){
+      db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
+                     " WHERE sverified AND NOT sdonotcall");
+    }else if( bAA ){
+      db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
+                     " WHERE sverified AND NOT sdonotcall"
+                     " AND ssub LIKE '%%a%%'");
+    }else if( bMods ){
+      db_prepare(&q,
+        "SELECT semail, hex(subscriberCode)"
+        "  FROM subscriber, user "
+        " WHERE sverified AND NOT sdonotcall"
+        "   AND suname=login"
+        "   AND fullcap(cap) GLOB '*5*'");
+    }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zCode = db_column_text(&q, 1);
       zTo = db_column_text(&q, 0);
@@ -2721,7 +2734,8 @@ void announce_page(void){
       @ %h(zErr)
       @ </pre></blockquote>
     }else{
-      @ <p>The announcement has been sent.</p>
+      @ <p>The announcement has been sent.
+      @ <a href="%h(PD("REQUEST_URI","/"))">Send another</a></p>
     }
     style_footer();    
     return;
@@ -2739,8 +2753,10 @@ void announce_page(void){
   if( g.perm.Admin ){
     int aa = PB("aa");
     int all = PB("all");
+    int aMod = PB("mods");
     const char *aack = aa ? "checked" : "";
     const char *allck = all ? "checked" : "";
+    const char *modck = aMod ? "checked" : "";
     @ <tr>
     @  <td class="form_label">To:</td>
     @  <td><input type="text" name="to" value="%h(PT("to"))" size="30"><br>
@@ -2749,7 +2765,10 @@ void announce_page(void){
     @  <a href="%R/subscribers?only=a" target="_blank">(list)</a><br>
     @  <label><input type="checkbox" name="all" %s(allck)> \
     @  All subscribers</label> \
-    @  <a href="%R/subscribers" target="_blank">(list)</a><br></td>
+    @  <a href="%R/subscribers" target="_blank">(list)</a><br>
+    @  <label><input type="checkbox" name="mods" %s(modck)> \
+    @  All moderators</label> \
+    @  <a href="%R/setup_ulist?with=5" target="_blank">(list)</a><br></td>
     @ </tr>
   }
   @ <tr>
@@ -2764,7 +2783,11 @@ void announce_page(void){
   @ </tr>
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="submit" value="Send Message">
+  if( fossil_strcmp(P("name"),"test2")==0 ){
+    @   <td><input type="submit" name="submit" value="Dry Run">
+  }else{
+    @   <td><input type="submit" name="submit" value="Send Message">
+  }
   @ </tr>
   @ </table>
   @ </form>
