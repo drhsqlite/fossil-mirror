@@ -1,5 +1,5 @@
-C For\sthe\saudio\scaptcha,\sdo\snot\sactually\sdownload\sthe\ssound\sfile\suntil\nthe\suser\sclicks\son\sthe\sbutton.
-D 2020-03-14T23:41:40.791
+C Resolve\smis-expansion\sof\sATTACH\sDATABASE\sreported\sin\s[https://fossil-scm.org/forum/forumpost/e5cf69b8a0|forumpost/e5cf69b8a0].
+D 2020-03-15T15:37:15.030
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -460,7 +460,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c e4c7d9dfeffbeb2fdf4a7f8f7330da729044b372dcce3444e5e71216bef3ad06
+F src/db.c 5ff9dae9a4c5acaee5bee402fa8f45f3e8ad4d61a3fc78c7c10fa34c2e4fc4d6
 F src/default_css.txt 3ddc9182ff6e823247594396cbe285f6c0561e7fe246905f439b403d7bc17b98
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 220ed0a939c4d353cc674ced4f528ffe16b4e3523526453685abd35b6650d684
-R 3698afd53f5bac189f99d84e34ac7576
-U drh
-Z 08b3dd517e0307731263b855f6e99106
+P 54d93954a9848d6671877c79f1fa180f3aa3a8bec55a8c7982d8732bfe54a998
+R e4ab952092aac3727995f3e9a932d913
+U stephan
+Z 89eeca3141cab21eaff407e0afb735d5

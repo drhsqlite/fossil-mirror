@@ -1288,13 +1288,13 @@ void db_attach(const char *zDbName, const char *zLabel){
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
                                  zDbName, zLabel, blob_str(&key));
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_multi_exec("%s", zCmd /*safe-for-%s*/);
     fossil_secure_zero(zCmd, strlen(zCmd));
     sqlite3_free(zCmd);
   }else{
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY ''",
                                  zDbName, zLabel);
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_multi_exec("%s", zCmd /*safe-for-%s*/);
     sqlite3_free(zCmd);
 #if USE_SEE
     if( blob_size(&key)>0 ){
