@@ -749,7 +749,10 @@ div.forumTimeline {
   padding-right: 1ex;
 }
 div.forumTimeline code {
-  white-space: pre-line;
+  white-space: pre-wrap;
+}
+div.markdown code {
+  white-space: pre-wrap;
 }
 div.forumHier, div.forumTime {
   border: 1px solid black;
