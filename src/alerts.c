@@ -764,7 +764,7 @@ void email_header_to_free(int nTo, char **azTo){
 **     Content-Type:
 **     Content-Transfer-Encoding:
 **     MIME-Version:
-**     X-Fossil-From:
+**     Sender:
 **     
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
@@ -776,10 +776,10 @@ void email_header_to_free(int nTo, char **azTo){
 ** If the zFromName argument is not NULL, then it should be a human-readable
 ** name or handle for the sender.  In that case, "From:" becomes a made-up
 ** email address based on a hash of zFromName and the domain of email-self,
-** and an additional "X-Fossil-From:" field is inserted with the email-self
-** address.  Downstream software might use the X-Fossil-From header to set
+** and an additional "Sender:" field is inserted with the email-self
+** address.  Downstream software might use the Sender header to set
 ** the envelope-from address of the email.  If zFromName is a NULL pointer, 
-** then the "From:" is set to the email-self value and X-Fossil-From is
+** then the "From:" is set to the email-self value and Sender is
 ** omitted.
 */
 void alert_send(
@@ -811,7 +811,7 @@ void alert_send(
   }else if( zFromName ){
     blob_appendf(pOut, "From: %s <%s@%s>\r\n",
        zFromName, alert_mailbox_name(zFromName), alert_hostname(p->zFrom));
-    blob_appendf(pOut, "X-Fossil-From: <%s>\r\n", p->zFrom);
+    blob_appendf(pOut, "Sender: <%s>\r\n", p->zFrom);
   }else{
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   }
