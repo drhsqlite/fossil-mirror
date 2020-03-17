@@ -306,6 +306,32 @@ void setup_notification(void){
   @ (Property: "email-admin")</p>
   @ <hr>
 
+  onoff_attribute("Omit alerts for edited forum posts",
+                  "alert-omit-edited", "alert-omit-edited", 1, 0 ) ;
+
+  @ <p>If enabled, notifications will only be sent for the latest
+  @ versions of edited forum posts. If disabled, notifications will
+  @ be sent for all versions. Applies to both individual and digest
+  @ notifications.</p>
+
+  entry_attribute("Grace period in minutes allowed for editing", 5,
+                  "alert-edit-window", "alert-edit-window", "5", 0 ) ;
+
+  @ <p>Number of minutes grace allowed for just-posted forum topics
+  @ during which notifications will be sent. This is to reduce the
+  @ number of alerts if someone edits a post shortly after posting.
+  @ Set to zero to disable this feature.</p>
+
+  onoff_attribute("Notify immediately if replied-to",
+                  "alert-notify-on-reply", "alert-notify-on-reply", 1, 0 ) ;
+
+  @ <p>If enabled, and a forum post has been replied-to, send
+  @ notifications immediately, even if the "grace period" has not
+  @ expired. If disabled, notifications for replied-to posts will
+  @ not be sent until the grace-period has expired. Does not affect
+  @ the handling of the reply itself.</p>
+  @ <hr>
+
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
@@ -1969,6 +1995,7 @@ struct EmailEvent {
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
   char *zFromName;   /* Human name of the sender */
+  int edited;        /* Forum post has been edited */
   EmailEvent *pNext; /* Next in chronological order */
 };
 #endif
@@ -2002,6 +2029,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   const char *zUrl = db_get("email-url","http://localhost:8080");
   const char *zFrom;
   const char *zSub;
+  const int alert_omit_edited = db_get_int("alert-omit-edited",0);
 
 
   /* First do non-forum post events */
@@ -2026,8 +2054,10 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     " WHERE blob.rid=event.objid"
     "   AND event.objid=substr(wantalert.eventId,2)+0"
     "   AND (%d OR eventId NOT GLOB 'f*')"
+    "   AND (%d OR wantalert.edited=false)"
     " ORDER BY event.mtime",
-    doDigest
+    doDigest,
+    !alert_omit_edited
   );
   memset(&anchor, 0, sizeof(anchor));
   pLast = &anchor;
@@ -2039,6 +2069,11 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     pLast = p;
     p->type = db_column_text(&q, 3)[0];
     p->needMod = db_column_int(&q, 4);
+    /* For forum posts in a digest, the "edited=false" above will have prevented
+    ** them being included in the result-set. For non-forum posts, set p->edited
+    ** to 0 so they are processed as normal.
+    */
+    p->edited = 0;
     p->zFromName = 0;
     p->pNext = 0;
     switch( p->type ){
@@ -2088,7 +2123,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     " substr(comment,instr(comment,':')+2),"                /* 3 */
     " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
     " wantalert.needMod,"                                   /* 5 */
-    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user)"   /* 6 */
+    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user),"   /* 6 */
+    " wantalert.edited"                                     /* 7 */
     " FROM temp.wantalert, event, forumpost"
     "      LEFT JOIN user ON (login=coalesce(euser,user))"
     " WHERE event.objid=substr(wantalert.eventId,2)+0"
@@ -2111,6 +2147,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p->type = 'f';
     p->needMod = db_column_int(&q, 5);
     z = db_column_text(&q,6);
+    p->edited = db_column_int(&q, 7);
     p->zFromName = z && z[0] ? fossil_strdup(z) : 0;
     p->pNext = 0;
     blob_init(&p->hdr, 0, 0);
@@ -2200,15 +2237,17 @@ void test_alert_cmd(void){
   verify_all_options();
   db_begin_transaction();
   alert_schema(0);
-  db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT, needMod BOOLEAN)");
+  db_multi_exec("CREATE TEMP TABLE wantalert(eventid TEXT, needMod BOOLEAN,"
+                "edited BOOLEAN)");
   if( g.argc==2 ){
     db_multi_exec(
-      "INSERT INTO wantalert(eventId,needMod)"
-      " SELECT eventid, %d FROM pending_alert", needMod);
+      "INSERT INTO wantalert(eventId,needMod,edited)"
+      " SELECT eventid, %d, 0 FROM pending_alert", needMod);
   }else{
     int i;
     for(i=2; i<g.argc; i++){
-      db_multi_exec("INSERT INTO wantalert(eventId,needMod) VALUES(%Q,%d)",
+      db_multi_exec("INSERT INTO wantalert(eventId,needMod,edited)"
+                    " VALUES(%Q,%d,0)",
            g.argv[i], needMod);
     }
   }
@@ -2306,6 +2345,14 @@ void test_add_alert_cmd(void){
 **       moderator approval.  Events with the needMod flag are only
 **       shown to users that have moderator privileges.
 **
+**  (1b) For forum posts, mark those that have been edited so we can
+**       avoid notifications for out-of-date posts, if so configured.
+**
+**  (1c) Purge forum-post entries from wantalert if not enough time
+**       has passed since creation (and, optionally, if they have not
+**       been replied to). This gives an opportunity for "oops I made
+**       a typo" to be corrected before people are notified.
+**
 **   (2) Call alert_compute_event_text() to compute a list of EmailEvent
 **       objects that describe all events about which we want to send
 **       alerts.
@@ -2337,6 +2384,9 @@ void alert_send_alerts(u32 flags){
   const char *zDest = (flags & SENDALERT_STDOUT) ? "stdout" : 0;
   AlertSender *pSender = 0;
   u32 senderFlags = 0;
+  const int alert_omit_edited = db_get_int("alert-omit-edited", 0);
+  const int alert_edit_window = db_get_int("alert-edit-window", 0);
+  const int alert_notify_on_reply = db_get_int("alert-notify-on-reply", 0);
 
   if( g.fSqlTrace ) fossil_trace("-- BEGIN alert_send_alerts(%u)\n", flags);
   alert_schema(0);
@@ -2356,13 +2406,14 @@ void alert_send_alerts(u32 flags){
   */
   db_multi_exec(
     "DROP TABLE IF EXISTS temp.wantalert;"
-    "CREATE TEMP TABLE wantalert(eventId TEXT, needMod BOOLEAN, sentMod);"
+    "CREATE TEMP TABLE wantalert(eventId TEXT, needMod BOOLEAN, sentMod,"
+    "                            edited BOOLEAN);"
   );
   if( flags & SENDALERT_DIGEST ){
     /* Unmoderated changes are never sent as part of a digest */
     db_multi_exec(
-      "INSERT INTO wantalert(eventId,needMod)"
-      " SELECT eventid, 0"
+      "INSERT INTO wantalert(eventId,needMod,edited)"
+      " SELECT eventid, 0, 0"
       "   FROM pending_alert"
       "  WHERE sentDigest IS FALSE"
       "    AND NOT EXISTS(SELECT 1 FROM private WHERE rid=substr(eventid,2));"
@@ -2372,14 +2423,66 @@ void alert_send_alerts(u32 flags){
     /* Immediate alerts might include events that are subject to
     ** moderator approval */
     db_multi_exec(
-      "INSERT INTO wantalert(eventId,needMod,sentMod)"
+      "INSERT INTO wantalert(eventId,needMod,sentMod,edited)"
       " SELECT eventid,"
       "        EXISTS(SELECT 1 FROM private WHERE rid=substr(eventid,2)),"
-      "        sentMod"
+      "        sentMod,0"
       "   FROM pending_alert"
       "  WHERE sentSep IS FALSE;"
       "DELETE FROM wantalert WHERE needMod AND sentMod;"
     );
+  }
+
+  /* Step 1b
+  ** Mark all entries as "edited" if a forum-post ("f...") and the id (after
+  ** the "f") appears in the 'fprev' field of a 'forumpost' record. If
+  ** 'alert-omit-edited' is enabled, notifications for such entries will NOT be
+  ** generated, but the entries WILL be marked as 'sentSep' or 'sepDigest'.
+  **
+  ** Step 1c
+  ** Delete any entry that matchs all the following:
+  **   a. Is a forum-post and the 'fmtime' entry from 'forumpost' is less than
+  **      'alert-edit-window' minutes in the past.
+  **   b. Either 'alert-notift-on-reply' is turned off OR there is no reply to
+  **      this post.
+  **   c. Does not require approval.
+  ** Entries matching all the above are removed from 'wantalert' so the original
+  ** entries in 'pending_alert' will NOT be marked as sent/deleted.
+  */
+  db_multi_exec(
+    "UPDATE wantalert SET edited=1"
+    " WHERE EXISTS ("
+    "           SELECT 1"
+    "             FROM forumpost"
+    "            WHERE substr(eventid,1,1)='f' AND fprev=substr(eventid,2)"
+    "       );"
+    "DELETE FROM wantalert"
+    " WHERE ( SELECT fmtime > julianday('now', '-%d minutes')"
+    "           FROM forumpost"
+    "          WHERE substr(eventid,1,1)='f' AND fpid=substr(eventid,2)"
+    "       )"
+    "   AND ( %d OR NOT EXISTS ("
+    "           SELECT 1"
+    "             FROM forumpost"
+    "            WHERE substr(eventid,1,1)='f' AND firt=substr(eventid,2)"
+    "         )"
+    "       )"
+    "   AND NOT needMod;",
+    alert_edit_window,
+    1-alert_notify_on_reply
+  );
+
+  if( g.fSqlTrace ) {
+    db_prepare(&q, "SELECT eventid, needMod, sentMod, edited FROM wantalert" ) ;
+    fossil_trace( "%10s %10s %10s %10s\n", "EventID", "NeedMod", "SentMod", "Edited" );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char*   eventid = db_column_text( &q, 0 ) ;
+      const char*   needMod = db_column_text( &q, 1 ) ;
+      const char*   sentMod = db_column_text( &q, 2 ) ;
+      const char*    edited = db_column_text( &q, 3 ) ;
+      fossil_trace( "%10s %10s %10s %10s\n", eventid, needMod, sentMod, edited );
+    }
+    db_finalize(&q);
   }
 
   /* Step 2: compute EmailEvent objects for every notification that
@@ -2461,6 +2564,12 @@ void alert_send_alerts(u32 flags){
         }
         if( strchr(zCap,xType)==0 ) continue;
       }
+      /* If 'alert-omit-edited' is enabled, and the current entry
+      ** has been edited, skip it. This potentially could be made
+      ** the subject of a user-specific setting.
+      */
+      if( alert_omit_edited && p->edited ) continue;
+
       if( blob_size(&p->hdr)>0 ){
         /* This alert should be sent as a separate email */
         Blob fhdr, fbody;
