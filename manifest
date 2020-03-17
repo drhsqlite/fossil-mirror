@@ -1,5 +1,5 @@
-C Experimental:\s\sChange\sthe\sX-Fossil-From:\sheader\sin\salert\semails\sto\sSender:.\nThis\smight\shelp\swith\sOutlook\susers.\s\sOr\sit\smight\smake\sthings\sworse.\s\sThe\nonly\sthink\sI\sknow\sto\sdo\sis\stry\sit\sand\ssee\swhat\shappens.
-D 2020-03-16T19:45:49.904
+C Add\sthe\s-R\soption\sto\sthe\s"fossil\suv"\son-line\shelp.
+D 2020-03-17T10:45:38.345
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -609,7 +609,7 @@ F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde6555652
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c fbb75d065fa2a229a1f7cbb36f9589dc8fe500d16381d8aad31dadae3a9e5bd9
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c b0fd9ca85dcd10a98fc87527836677ea5b939fc8d42e9c0d93753fa43073be5f
+F src/unversioned.c 227f616ce7c2d1b8dd8c979ba362ffdb43cd4c48ac931d806f6dc4ac54ebf3b1
 F src/update.c fa87da575576559ee01236b47d1a8d41dc4118ad5df1b4fe7f36c55e14db132c
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 192c809a31242c6cc8c015e6039004378bc5a58721da6a169eb92d3c00fe7a1a
-R 60f84f4151639a79195d9345750d3ce0
+P b4dcf8e4ef8660044a1fc1b9926d408212e614aea50bd60e78adba5d1cc0b60b
+R bcf65789d07dcea24b23755f5d33abd2
 U drh
-Z d7f30151f32e4df5b47967346089ece7
+Z 0412a289acb4b5a0f2d039ff2e589354
