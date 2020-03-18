@@ -104,6 +104,7 @@ It is recommended that you try this.
 Be sure to [/help/add|fossil add] your new source file to the self-hosting
 Fossil repository and then [/help/commit|commit] your changes!
 
+<a name="newcmd"></a>
 <h2>4.0 Creating A New Command</h2>
 
 By "commands" we mean the keywords that follow "fossil" when invoking
@@ -169,6 +170,7 @@ to get an idea of how things are done.  You can easily find the implementations
 of existing commands by searching for "COMMAND: <i>name</i>" in the
 files of the "src/" directory.
 
+<a name="newpage"></a>
 <h2>5.0 Creating A New Web Page</h2>
 
 As with commands, new webpages can be added simply by inserting a function

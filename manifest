@@ -1,5 +1,5 @@
-C Don't\seven\sshow\sthe\s"Awaiting\sModerator\sApproval"\smessage,\sas\sthat\swould\nbe\sredundant.
-D 2020-03-18T00:45:47.413
+C Try\sto\smake\sit\seasier\sfor\speople\sto\sfind\sthe\sdocumentation\son\show\sto\nadd\snew\scommands\sto\sthe\sFossil\score.
+D 2020-03-18T14:56:41.142
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -776,7 +776,7 @@ F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178ca9d
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
-F www/adding_code.wiki 5c4a5a9e2beb960f29be4c52ce4a3f9f219e5472523c4f1ef5496e9bccf91335
+F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
 F www/alerts.md 5b5721f88510f708118687708150f3fe3d140aef22af1aa56fd73a77b34ce7a4
 F www/antibot.wiki 0a0da1170b10103300004661f00ee71652c9f30faf5a6d28afdee93a5ddd36a6
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
@@ -869,7 +869,7 @@ F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe6
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/globs.md 023c06fa69c833dfab2128d07070e9d58e34da5f0c6a58d7e55e0de12e1a6fdf
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
-F www/hacker-howto.wiki adc959812858923e0fa13bf4cd73924761db3816fc541a6d575c425a61c2c27c
+F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
@@ -906,10 +906,10 @@ F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 573e9b6062559e6121846023921130c9ffc0d008168d41cbad4ea70a41ed071b x
+F www/mkindex.tcl 24bbba721dcc77099d641a0b5bcda77304f1fc2e09f709fa3534261394565c12 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 280c4e9883cf6c70ece770f1e558c630c87060a693eaabc832f8e6a96e642741
+F www/permutedindex.html bbbc4b8cd080384ea2c6b171bbd476c65840eb58af2dfc5c1fb18054741c98c2
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 950f1e45e79f57c278acc54b4d9130a7ba266797793ba78ac13038379f9df4bb
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bf410211c7324eff7da752b462c03feb69a1d29cc0ba4d27eb8a18aec8f6802d
-R 56bc533217e8b72bceb12b0827352dc0
+P 2233a7b7ac48c5f266d31be93fd2239f08e8d6ab8924eea8bc51e37dffce4175
+R 321d2f281d2b1818ad941e43792c1694
 U drh
-Z e7b0ff384efc663ba5f21ad1d6486535
+Z 4a9fef97aacc694bc757fa295336c5c1
