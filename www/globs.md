@@ -383,12 +383,13 @@ way this works depends on several factors:
  *  whether the Fossil command is being run from a file named `*.BAT` vs
     being named `*.CMD`
 
-These factors also affect how a program like `fossil.exe` interprets
-quotation marks on its command line.
-
-The fifth item above does not apply to `fossil.exe` when built with
-typical tool chains, but we will see an example below where the exception
-applies in a way that affects how Fossil interprets the glob pattern.
+Usually (but not always!) the C runtime library that your `fossil.exe`
+executable is built against does this glob expansion on Windows so the
+program proper does not have to. This may then interact with the way the
+Windows command shell you’re using handles argument quoting. Because of
+these differences, it is common to find perfectly valid Fossil command
+examples that were written and tested on a POSIX system which then fail
+when tried on Windows.
 
 The most common problem is figuring out how to get a glob pattern passed
 on the command line into `fossil.exe` without it being expanded by the C
@@ -398,38 +399,54 @@ not strongly governed by POSIX, so it has not historically hewed closely
 to its strictures.
 
 For example, consider how you would set `crlf-glob` to `*` in order to
-disable Fossil's "looks like a binary file" checks. The na&iuml;ve
-approach will not work:
+get normal Windows text files with CR+LF line endings past Fossil's
+"looks like a binary file" check. The na&iuml;ve approach will not work:
 
     C:\...> fossil setting crlf-glob *
 
 The C runtime library will expand that to the list of all files in the
 current directory, which will probably cause a Fossil error because
 Fossil expects either nothing or option flags after the setting's new
-value.
+value, not a list of file names. (To be fair, the same thing will happen
+on POSIX systems, only at the shell level, before `.../bin/fossil` even
+gets run by the shell.)
 
 Let's try again:
 
     C:\...> fossil setting crlf-glob '*'
 
-That may or may not work. Either `'*'` or `*` needs to be passed through
-to Fossil untouched for this to do what you expect, which may or may not
-happen, depending on the factors listed above.
+Quoting the argument like that will work reliably on POSIX, but it may
+or may not work on Windows. If your Windows command shell interprets the
+quotes, it means `fossil.exe` will see only the bare `*` so the C
+runtime library it is linked to will likely expand the list of files in
+the current directory before the `setting` command gets a chance to
+parse the command line arguments, causing the same failure as above.
+This alternative only works if you’re using a Windows command shell that
+passes the quotes through to the executable *and* you have linked Fossil
+to a C runtime library that interprets the quotes properly itself,
+resulting in a bare `*` getting clear down to Fossil’s `setting` command
+parser.
 
 An approach that *will* work reliably is:
 
     C:\...> echo * | fossil setting crlf-glob --args -
 
-This works because the built-in command `echo` does not expand its
-arguments, and the `--args -` option makes it read further command
-arguments from Fossil's standard input, which is connected to the output
+This works because the built-in Windows command `echo` does not expand its
+arguments, and the `--args -` option makes Fossil read further command
+arguments from its standard input, which is connected to the output
 of `echo` by the pipe. (`-` is a common Unix convention meaning
-"standard input.") A [batch script][fng.cmd] to automate this trick was
-posted on the (now inactive) Fossil Mailing List.
+"standard input," which Fossil obeys.) A [batch script][fng.cmd] to automate this trick was
+posted on the now-inactive Fossil Mailing List.
 
 [fng.cmd]: https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg25099.html
 
-Another (usually) correct approach is:
+(Ironically, this method will *not* work on POSIX systems because it is
+not up to the command to expand globs. The shell will expand the `*` in
+the `echo` command, so the list of file names will be passed to the
+`fossil` standard input, just as with the first example above!)
+
+Another (usually) correct approach which will work on both Windows and
+POSIX systems:
 
     C:\...> fossil setting crlf-glob *,
 
@@ -438,22 +455,22 @@ matching any files, unless you happen to have files named with a
 trailing comma in the current directory. If the pattern matches no
 files, it is passed into Fossil's `main()` function as-is by the C
 runtime system. Since Fossil uses commas to separate multiple glob
-patterns, this means "all files at the root of the Fossil checkout
-directory and nothing else."
+patterns, this means "all files from the root of the Fossil checkout
+directory downward and nothing else," which is of course equivalent to
+"all managed files in this repository," our original goal.
 
 
 ## Experimenting
 
 To preview the effects of command line glob pattern expansion for
 various glob patterns (unquoted, quoted, comma-terminated), for any
-combination of command shell and Fossil executable, on both POSIX
-systems and Windows, the [`test-echo`][] command can be injected as
-the first argument on the Fossil command line:
+combination of command shell, OS, C run time, and Fossil version,
+preceed the command you want to test with [`test-echo`][] like so:
 
     $ fossil test-echo setting crlf-glob "*"
-    $ echo * | fossil test-echo setting crlf-glob --args -
+    C:\> echo * | fossil test-echo setting crlf-glob --args -
 
-Moreover, the [`test-glob`][] command is handy to test if a string
+The [`test-glob`][] command is also handy to test if a string
 matches a glob pattern.
 
 [`test-echo`]: /help?cmd=test-echo
