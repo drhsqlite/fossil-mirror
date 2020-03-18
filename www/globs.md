@@ -420,7 +420,7 @@ Another (usually) correct approach is:
 
     C:\...> fossil setting crlf-glob *,
 
-This works because the trailing comma prevents the command shell from
+This works because the trailing comma prevents the glob pattern from
 matching any files, unless you happen to have files named with a
 trailing comma in the current directory. If the pattern matches no
 files, it is passed into Fossil's `main()` function as-is by the C
