@@ -432,6 +432,24 @@ patterns, this means "all files at the root of the Fossil checkout
 directory and nothing else."
 
 
+## Experimenting
+
+To preview the effects of command line glob pattern expansion for
+various glob patterns (unquoted, quoted, comma-terminated), for any
+combination of command shell and Fossil executable, on both POSIX
+systems and Windows, the [`test-echo`][] command can be injected as
+the first argument on the Fossil command line:
+
+    $ fossil test-echo setting crlf-glob "*"
+    $ echo * | fossil test-echo setting crlf-glob --args -
+
+Moreover, the [`test-glob`][] command is handy to test if a string
+matches a glob pattern.
+
+[`test-echo`]: /help?cmd=test-echo
+[`test-glob`]: /help?cmd=test-glob
+
+
 ## Converting `.gitignore` to `ignore-glob`
 
 Many other version control systems handle the specific case of
