@@ -281,6 +281,7 @@ void cgi_reply(void){
      && fossil_strcmp(P("REQUEST_METHOD"),"GET")==0
     ){
       iReplyStatus = 206;
+      zReplyStatus = "Partial Content";
     }
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));

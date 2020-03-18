@@ -1,5 +1,5 @@
-C Have\srepeated\sclicks\sto\sthe\s"Speakit"\sbutton\srestart\sthe\saudio-captcha\sfrom\sthe\sbeginning\sinstead\sof\srepeating\sseveral\stimes\sin\sparallel.
-D 2020-03-18T14:08:00.000
+C Change\sthe\sHTTP\sreply\sstatus\sfor\srange\srequests\sfrom\s"206\sOK"\sto\s"206\sPartial\sContent".
+D 2020-03-18T14:14:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -444,7 +444,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c c301971cf4ab8a1ef3e310367e58db07428eab15c07f7df4b3e33ef5fc3e04bb
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
-F src/cgi.c 19eabf394d700c9eefa2c0b864d3274f0d6a0ab40716d6922fb0041841b8faa1
+F src/cgi.c 83da1771a66a5dc6ecae6f9cb5027636abf930f81e2245641dc4480c67eb3af7
 F src/checkin.c abd09d106b51e50b0533e7807afe47edcc84f9975dd3b277ec307de256bed188
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -972,10 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2233a7b7ac48c5f266d31be93fd2239f08e8d6ab8924eea8bc51e37dffce4175
-R 8e64b84baa3816896ada6460134bd78d
-T *branch * audio-captcha
-T *sym-audio-captcha *
-T -sym-trunk *
+P 1bf8df8ad2e1993f1c04509a613e4ffd1bb4384a3cb1bba56caa7ea8b3c9567f
+R 05477712311b770514584c298d550d6a
 U florian
-Z ea73967eb6bb300967182c40daf21544
+Z f913b3ec0f9820bc73dec109daad3a2f
