@@ -263,7 +263,7 @@ in `fossil` commands. The remainder of this section gives remedies and
 workarounds for these problems.
 
 
-## POSIX Systems
+### <a name="posix"></a>POSIX Systems
 
 If you are using Fossil on a system with a POSIX-compatible shell
 &mdash; Linux, macOS, the BSDs, Unix, Cygwin, WSL etc. &mdash; the shell
@@ -350,7 +350,24 @@ private half of a public cryptographic key into Fossil repository that
 can be read by people who should not have such secrets.
 
 
-## Windows
+### <a name="windows"></a>Windows
+
+Before we get into Windows-specific details here, beware that this
+section does not apply to the several Microsoft Windows extensions that
+provide POSIX semantics to Windows, for which you want to use the advice
+in [the POSIX section above](#posix) instead:
+
+  *  the ancient and rarely-used [Microsoft POSIX subsystem][mps];
+  *  its now-discontinued replacement feature, [Services for Unix][sfu]; or
+  *  their modern replacement, the [Windows Subsystem for Linux][wsl]
+
+[mps]: https://en.wikipedia.org/wiki/Microsoft_POSIX_subsystem
+[sfu]: https://en.wikipedia.org/wiki/Windows_Services_for_UNIX
+[wsl]: https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux
+
+(The latter is sometimes incorrectly called "Bash on Windows" or "Ubuntu
+on Windows," but the feature provides much more than just Bash or Ubuntu
+for Windows.)
 
 Neither standard Windows command shell &mdash; `cmd.exe` or PowerShell
 &mdash; expands glob patterns the way POSIX shells do. Windows command
@@ -376,18 +393,9 @@ applies in a way that affects how Fossil interprets the glob pattern.
 The most common problem is figuring out how to get a glob pattern passed
 on the command line into `fossil.exe` without it being expanded by the C
 runtime library that your particular Fossil executable is linked to,
-which tries to act like the POSIX systems described above. Windows is
+which tries to act like [the POSIX systems described above](#posix). Windows is
 not strongly governed by POSIX, so it has not historically hewed closely
 to its strictures.
-
-(This section does not cover the [Microsoft POSIX
-subsystem](https://en.wikipedia.org/wiki/Microsoft_POSIX_subsystem),
-Windows' obsolete [Services for Unix
-3.*x*](https://en.wikipedia.org/wiki/Windows_Services_for_UNIX) feature,
-or the [Windows Subsystem for
-Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). (The
-latter is sometimes incorrectly called "Bash on Windows" or "Ubuntu on
-Windows.") See the POSIX Systems section above for those cases.)
 
 For example, consider how you would set `crlf-glob` to `*` in order to
 disable Fossil's "looks like a binary file" checks. The na&iuml;ve
