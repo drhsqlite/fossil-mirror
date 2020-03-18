@@ -792,17 +792,12 @@ void www_print_timeline(
     /* Show the complete text of forum messages */
     if( (tmFlags & (TIMELINE_FORUMTXT))!=0
      && zType[0]=='f' && g.perm.Hyperlink
+     && (!content_is_private(rid) || g.perm.ModForum)
     ){
-      if( content_is_private(rid)
-       && !g.perm.ModForum
-      ){
-        @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
-      }else{
-        Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
-        if( pPost ){
-          forum_render(0, pPost->zMimetype, pPost->zWiki, "forumTimeline");
-          manifest_destroy(pPost);
-        }
+      Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+      if( pPost ){
+        forum_render(0, pPost->zMimetype, pPost->zWiki, "forumTimeline");
+        manifest_destroy(pPost);
       }
     }
   }
