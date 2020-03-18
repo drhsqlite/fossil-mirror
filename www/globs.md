@@ -190,6 +190,7 @@ usually named to correspond to the setting they override, such as
  *  [`merge`][]
  *  [`settings`][]
  *  [`status`][]
+ *  [`touch`][]
  *  [`unset`][]
 
 The commands [`tarball`][] and [`zip`][] produce compressed archives of a
@@ -211,6 +212,7 @@ specifies what content may be served.
 [`merge`]: /help?cmd=merge
 [`settings`]: /help?cmd=settings
 [`status`]: /help?cmd=status
+[`touch`]: /help?cmd=touch
 [`unset`]: /help?cmd=unset
 
 [`tarball`]: /help?cmd=tarball
@@ -261,7 +263,7 @@ in `fossil` commands. The remainder of this section gives remedies and
 workarounds for these problems.
 
 
-## POSIX Systems
+### <a name="posix"></a>POSIX Systems
 
 If you are using Fossil on a system with a POSIX-compatible shell
 &mdash; Linux, macOS, the BSDs, Unix, Cygwin, WSL etc. &mdash; the shell
@@ -348,7 +350,24 @@ private half of a public cryptographic key into Fossil repository that
 can be read by people who should not have such secrets.
 
 
-## Windows
+### <a name="windows"></a>Windows
+
+Before we get into Windows-specific details here, beware that this
+section does not apply to the several Microsoft Windows extensions that
+provide POSIX semantics to Windows, for which you want to use the advice
+in [the POSIX section above](#posix) instead:
+
+  *  the ancient and rarely-used [Microsoft POSIX subsystem][mps];
+  *  its now-discontinued replacement feature, [Services for Unix][sfu]; or
+  *  their modern replacement, the [Windows Subsystem for Linux][wsl]
+
+[mps]: https://en.wikipedia.org/wiki/Microsoft_POSIX_subsystem
+[sfu]: https://en.wikipedia.org/wiki/Windows_Services_for_UNIX
+[wsl]: https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux
+
+(The latter is sometimes incorrectly called "Bash on Windows" or "Ubuntu
+on Windows," but the feature provides much more than just Bash or Ubuntu
+for Windows.)
 
 Neither standard Windows command shell &mdash; `cmd.exe` or PowerShell
 &mdash; expands glob patterns the way POSIX shells do. Windows command
@@ -364,69 +383,98 @@ way this works depends on several factors:
  *  whether the Fossil command is being run from a file named `*.BAT` vs
     being named `*.CMD`
 
-These factors also affect how a program like `fossil.exe` interprets
-quotation marks on its command line.
-
-The fifth item above does not apply to `fossil.exe` when built with
-typical tool chains, but we will see an example below where the exception
-applies in a way that affects how Fossil interprets the glob pattern.
+Usually (but not always!) the C runtime library that your `fossil.exe`
+executable is built against does this glob expansion on Windows so the
+program proper does not have to. This may then interact with the way the
+Windows command shell you’re using handles argument quoting. Because of
+these differences, it is common to find perfectly valid Fossil command
+examples that were written and tested on a POSIX system which then fail
+when tried on Windows.
 
 The most common problem is figuring out how to get a glob pattern passed
 on the command line into `fossil.exe` without it being expanded by the C
 runtime library that your particular Fossil executable is linked to,
-which tries to act like the POSIX systems described above. Windows is
+which tries to act like [the POSIX systems described above](#posix). Windows is
 not strongly governed by POSIX, so it has not historically hewed closely
 to its strictures.
 
-(This section does not cover the [Microsoft POSIX
-subsystem](https://en.wikipedia.org/wiki/Microsoft_POSIX_subsystem),
-Windows' obsolete [Services for Unix
-3.*x*](https://en.wikipedia.org/wiki/Windows_Services_for_UNIX) feature,
-or the [Windows Subsystem for
-Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). (The
-latter is sometimes incorrectly called "Bash on Windows" or "Ubuntu on
-Windows.") See the POSIX Systems section above for those cases.)
-
 For example, consider how you would set `crlf-glob` to `*` in order to
-disable Fossil's "looks like a binary file" checks. The na&iuml;ve
-approach will not work:
+get normal Windows text files with CR+LF line endings past Fossil's
+"looks like a binary file" check. The na&iuml;ve approach will not work:
 
     C:\...> fossil setting crlf-glob *
 
 The C runtime library will expand that to the list of all files in the
 current directory, which will probably cause a Fossil error because
 Fossil expects either nothing or option flags after the setting's new
-value.
+value, not a list of file names. (To be fair, the same thing will happen
+on POSIX systems, only at the shell level, before `.../bin/fossil` even
+gets run by the shell.)
 
 Let's try again:
 
     C:\...> fossil setting crlf-glob '*'
 
-That may or may not work. Either `'*'` or `*` needs to be passed through
-to Fossil untouched for this to do what you expect, which may or may not
-happen, depending on the factors listed above.
+Quoting the argument like that will work reliably on POSIX, but it may
+or may not work on Windows. If your Windows command shell interprets the
+quotes, it means `fossil.exe` will see only the bare `*` so the C
+runtime library it is linked to will likely expand the list of files in
+the current directory before the `setting` command gets a chance to
+parse the command line arguments, causing the same failure as above.
+This alternative only works if you’re using a Windows command shell that
+passes the quotes through to the executable *and* you have linked Fossil
+to a C runtime library that interprets the quotes properly itself,
+resulting in a bare `*` getting clear down to Fossil’s `setting` command
+parser.
 
 An approach that *will* work reliably is:
 
     C:\...> echo * | fossil setting crlf-glob --args -
 
-This works because the built-in command `echo` does not expand its
-arguments, and the `--args -` option makes it read further command
-arguments from Fossil's standard input, which is connected to the output
+This works because the built-in Windows command `echo` does not expand its
+arguments, and the `--args -` option makes Fossil read further command
+arguments from its standard input, which is connected to the output
 of `echo` by the pipe. (`-` is a common Unix convention meaning
-"standard input.")
+"standard input," which Fossil obeys.) A [batch script][fng.cmd] to automate this trick was
+posted on the now-inactive Fossil Mailing List.
 
-Another (usually) correct approach is:
+[fng.cmd]: https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg25099.html
+
+(Ironically, this method will *not* work on POSIX systems because it is
+not up to the command to expand globs. The shell will expand the `*` in
+the `echo` command, so the list of file names will be passed to the
+`fossil` standard input, just as with the first example above!)
+
+Another (usually) correct approach which will work on both Windows and
+POSIX systems:
 
     C:\...> fossil setting crlf-glob *,
 
-This works because the trailing comma prevents the command shell from
+This works because the trailing comma prevents the glob pattern from
 matching any files, unless you happen to have files named with a
 trailing comma in the current directory. If the pattern matches no
 files, it is passed into Fossil's `main()` function as-is by the C
 runtime system. Since Fossil uses commas to separate multiple glob
-patterns, this means "all files at the root of the Fossil checkout
-directory and nothing else."
+patterns, this means "all files from the root of the Fossil checkout
+directory downward and nothing else," which is of course equivalent to
+"all managed files in this repository," our original goal.
+
+
+## Experimenting
+
+To preview the effects of command line glob pattern expansion for
+various glob patterns (unquoted, quoted, comma-terminated), for any
+combination of command shell, OS, C run time, and Fossil version,
+preceed the command you want to test with [`test-echo`][] like so:
+
+    $ fossil test-echo setting crlf-glob "*"
+    C:\> echo * | fossil test-echo setting crlf-glob --args -
+
+The [`test-glob`][] command is also handy to test if a string
+matches a glob pattern.
+
+[`test-echo`]: /help?cmd=test-echo
+[`test-glob`]: /help?cmd=test-glob
 
 
 ## Converting `.gitignore` to `ignore-glob`
