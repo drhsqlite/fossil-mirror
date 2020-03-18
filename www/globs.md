@@ -190,6 +190,7 @@ usually named to correspond to the setting they override, such as
  *  [`merge`][]
  *  [`settings`][]
  *  [`status`][]
+ *  [`touch`][]
  *  [`unset`][]
 
 The commands [`tarball`][] and [`zip`][] produce compressed archives of a
@@ -211,6 +212,7 @@ specifies what content may be served.
 [`merge`]: /help?cmd=merge
 [`settings`]: /help?cmd=settings
 [`status`]: /help?cmd=status
+[`touch`]: /help?cmd=touch
 [`unset`]: /help?cmd=unset
 
 [`tarball`]: /help?cmd=tarball

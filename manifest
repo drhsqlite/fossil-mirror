@@ -1,5 +1,5 @@
-C Mention\sthe\stricks\sto\spreview\sglob\sexpansion\swith\sthe\s`test-echo'\scommand,\sand\sto\stry\sglob\smatching\swith\s`test-glob'.
-D 2020-03-18T15:25:00.000
+C Update\sthe\slist\sof\s"Commands\sthat\sRefer\sto\sGlobs".
+D 2020-03-18T15:28:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -867,7 +867,7 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
-F www/globs.md 8d50dfd479cfc81f4735f53be52cb2e54f59cc2c7dc16a8bd75dec9971bd17e4
+F www/globs.md 643dee6b7466eef54d7a398aa0f010ecf72fa7f54be060ed938b0c5f435661f6
 F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1a305a5ceb9f32974049e87ff935604f0427948f366f758e10b8f158e3585f4e
-R b05780c75005bc665c34ccb41a8d2467
+P 9a428be5142e482fa1ab868908dee927f6290d4e3f68e0c3c6e5c01966124252
+R 88c31140a937d0905aa11ac20c92def7
 U florian
-Z 1630ac58d54d049f073304f53c8d1799
+Z 31baaa647f84e8419200090f744b792e
