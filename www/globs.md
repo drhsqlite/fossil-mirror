@@ -414,7 +414,10 @@ This works because the built-in command `echo` does not expand its
 arguments, and the `--args -` option makes it read further command
 arguments from Fossil's standard input, which is connected to the output
 of `echo` by the pipe. (`-` is a common Unix convention meaning
-"standard input.")
+"standard input.") A [batch script][fng.cmd] to automate this trick was
+posted on the (now inactive) Fossil Mailing List.
+
+[fng.cmd]: https://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg25099.html
 
 Another (usually) correct approach is:
 
