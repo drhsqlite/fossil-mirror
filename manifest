@@ -1,5 +1,5 @@
-C Merged\sglob-docs\sbranch\sdown\sto\strunk.
-D 2020-03-18T17:25:36.149
+C Add\sa\sconfigure\stiem\scheck\sfor\sthe\sexistence\sof\ssetenv(3)\sin\slibc\sfor\nuse\sby\sfossil_putenv()\swhich\shas\snicer\ssemantics\sthan\sputenv(3).\s\sThis\ndoesn't\sfix\sany\sknown\sissue\sother\sthan\sa\stechnical\smemory\sleak,\sbut\sI'm\nchecking\sit\sin\sin\scase\ssomeone\sfinds\sthe\scode\suseful\ssomeday.
+D 2020-03-19T15:11:14.935
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def cd0b3f9a15bbd884f56303aac2ad0456516671ea60e46cc8825a687792ce4969
+F auto.def 4e826170e2cecdbb752d6e4f99d7b23c528ef73dc2e9dd4451e2c0e32345259b
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -476,7 +476,7 @@ F src/etag.c 177dba66981b89dac32083a265b04799269c628de7b447de2589d707a656a77a
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
-F src/file.c 54eebd53714fd749f8ed89795ea5100f2b44c2367572f868cd3330674303e7fc
+F src/file.c 9fe5917ab3c7ed8d11bfd5bdbde9ca3e6ab3238c68b99f4304de1945c8fdc074
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c c4b189ce14150cd0a5a1d036324d72062303d72276da0c90fe4f665c8e30c92b
@@ -972,8 +972,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8466a1572259134179d933975c850008e0d8c6f5dfac2b007930b7f3b076474b bb292b64ae7358911fdc1fd2120270050f239496a6e7f3a1954474fd72999792
-R 4805cd5c105aeb783844611e8c9dd9ce
-T +closed bb292b64ae7358911fdc1fd2120270050f239496a6e7f3a1954474fd72999792
+P b45a985c864d06a3da00807b0609c21d695ebb8e36e1dd132a03828719d5df35
+R 0a39224faa3a7db181b4e5f1b7b68bc3
+T *branch * setenv-alternative
+T *sym-setenv-alternative *
+T -sym-trunk *
 U wyoung
-Z eee8164b10dd04798f77be5aa73ad7be
+Z 825b21371b42395c7765d88e16848a0b

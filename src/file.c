@@ -1731,6 +1731,9 @@ int fossil_setenv(const char *zName, const char *zValue){
   rc = _wputenv(uString);
   fossil_unicode_free(uString);
   fossil_free(zString);
+#elif defined(HAVE_SETENV)
+  rc = setenv(zName, zValue, 0);
+  fossil_free(zString);
 #else
   rc = putenv(zString);
   /* NOTE: Cannot free the string on POSIX. */
