@@ -6,78 +6,88 @@ file names using wild cards familiar to most users of a command line.
 For example, `*` is a glob that matches any name at all and
 `Readme.txt` is a glob that matches exactly one file.
 
-Note that although both are notations for describing patterns in text,
-glob patterns are not the same thing as a [regular expression or
-regexp][regexp].
+A glob should not be confused with a [regular expression][regexp] (RE),
+even though they use some of the same special characters for similar
+purposes, because [they are not fully compatible][greinc] pattern
+matching languages. Fossil uses globs when matching file names with the
+settings described in this document, not REs.
 
-[glob]: https://en.wikipedia.org/wiki/Glob_(programming) (Wikipedia)
+[glob]:   https://en.wikipedia.org/wiki/Glob_(programming)
+[greinc]: https://unix.stackexchange.com/a/57958/138
 [regexp]: https://en.wikipedia.org/wiki/Regular_expression
 
+These settings hold one or more file glob patterns to cause Fossil to
+give matching named files special treatment.  Glob patterns are also
+accepted in options to certain commands and as query parameters to
+certain Fossil UI web pages.
 
-A number of fossil setting values hold one or more file glob patterns
-that will identify files needing special treatment.  Glob patterns are
-also accepted in options to certain commands as well as query
-parameters to certain pages.
-
-In many cases more than one glob may be specified in a setting,
-option, or query parameter by listing multiple globs separated by a
-comma or white space.
-
-Of course, many fossil commands also accept lists of files to act on,
-and those also may be specified with globs. Although those glob
-patterns are similar to what is described here, they are not defined
-by fossil, but rather by the conventions of the operating system in
-use.
+Where Fossil also accepts globs in commands, this handling may interact
+with your OS’s command shell or its C runtime system, because they may
+have their own glob pattern handling. We will detail such interactions
+below.
 
 
 ## Syntax
 
-A list of glob patterns is simply one or more glob patterns separated
+Where Fossil accepts glob patterns, it will usually accept a *list* of
+such patterns, each individual pattern separated from the others
 by white space or commas. If a glob must contain white spaces or
 commas, it can be quoted with either single or double quotation marks.
-A list is said to match if any one (or more) globs in the list
+A list is said to match if any one glob in the list
 matches.
 
-A glob pattern is a collection of characters compared to a target
-text, usually a file name. The whole glob is said to match if it
-successfully consumes and matches the entire target text. Glob
-patterns are made up of ordinary characters and special characters.
+A glob pattern matches a given file name if it successfully consumes and
+matches the *entire* name. Partial matches are failed matches.
 
-Ordinary characters consume a single character of the target and must
-match it exactly.
+Most characters in a glob pattern consume a single character of the file
+name and must match it exactly. For instance, “a” in a glob simply
+matches the letter “a” in the file name unless it is inside a special
+character sequence.
 
-Special characters (and special character sequences) consume zero or
-more characters from the target and describe what matches. The special
-characters (and sequences) are:
+Other characters have special meaning, and they may include otherwise
+normal characters to give them special meaning:
 
 :Pattern |:Effect
 ---------------------------------------------------------------------
 `*`      | Matches any sequence of zero or more characters
 `?`      | Matches exactly one character
 `[...]`  | Matches one character from the enclosed list of characters
-`[^...]` | Matches one character not in the enclosed list
+`[^...]` | Matches one character *not* in the enclosed list
 
-Special character sequences have some additional features:
+Note that unlike [POSIX globs][pg], these special characters and
+sequences are allowed to match `/` directory separators as well as the
+initial `.` in the name of a hidden file or directory. This is because
+Fossil file names are stored as complete path names. The distinction
+between file name and directory name is “below” Fossil in this sense.
 
- *  A range of characters may be specified with `-`, so `[a-d]` matches
-    exactly the same characters as `[abcd]`. Ranges reflect Unicode
+[pg]: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_13
+
+The bracket expresssions above require some additional explanation:
+
+ *  A range of characters may be specified with `-`, so `[a-f]` matches
+    exactly the same characters as `[abcdef]`. Ranges reflect Unicode
     code points without any locale-specific collation sequence.
- *  Include `-` in a list by placing it last, just before the `]`.
- *  Include `]` in a list by making the first character after the `[` or
-    `[^`. At any other place, `]` ends the list.
- *  Include `^` in a list by placing anywhere except first after the
-    `[`.
- *  Beware that ranges in lists may include more than you expect:
-    `[A-z]` Matches `A` and `Z`, but also matches `a` and some less
-    obvious characters such as `[`, `\`, and `]` with code point
-    values between `Z` and `a`.
+    Therefore, this particular sequence never matches the Unicode
+    pre-composed character `é`, for example. (U+00E9)
+
+ *  This dependence on character/code point ordering may have other
+    effects to surprise you. For example, the glob `[A-z]` not only
+    matches upper and lowercase ASCII letters, it also matches several
+    punctuation characters placed between `Z` and `a` in both ASCII and
+    Unicode: `[`, `\`, `]`, `^`, `_`, and <tt>\`</tt>.
+
+ *  You may include a literal `-` in a list by placing it last, just
+    before the `]`.
+
+ *  You may include a literal `]` in a list by making the first
+    character after the `[` or `[^`. At any other place, `]` ends the list.
+
+ *  You may include a literal `^` in a list by placing it anywhere
+    except after the opening `[`.
+
  *  Beware that a range must be specified from low value to high
     value: `[z-a]` does not match any character at all, preventing the
     entire glob from matching.
- *  Note that unlike typical Unix shell globs, wildcards (`*`, `?`,
-    and character lists) are allowed to match `/` directory
-    separators as well as the initial `.` in the name of a hidden
-    file or directory.
 
 Some examples of character lists:
 
@@ -94,15 +104,15 @@ Some examples of character lists:
 
 White space means the specific ASCII characters TAB, LF, VT, FF, CR,
 and SPACE.  Note that this does not include any of the many additional
-spacing characters available in Unicode, and specifically does not
-include U+00A0 NO-BREAK SPACE.
+spacing characters available in Unicode such as
+U+00A0, NO-BREAK SPACE.
 
 Because both LF and CR are white space and leading and trailing spaces
 are stripped from each glob in a list, a list of globs may be broken
-into lines between globs when the list is stored in a file (as for a
-versioned setting).
+into lines between globs when the list is stored in a file, as for a
+versioned setting.
 
-Similarly 'single quotes' and "double quotes" are the ASCII straight
+Note that 'single quotes' and "double quotes" are the ASCII straight
 quote characters, not any of the other quotation marks provided in
 Unicode and specifically not the "curly" quotes preferred by
 typesetters and word processors.
@@ -111,24 +121,35 @@ typesetters and word processors.
 ## File Names to Match
 
 Before it is compared to a glob pattern, each file name is transformed
-to a canonical form. The glob must match the entire canonical file
-name to be considered a match.
+to a canonical form:
 
-The canonical name of a file has all directory separators changed to
-`/`, redundant slashes are removed, all `.` path components are
-removed, and all `..` path components are resolved. (There are
-additional details we are ignoring here, but they cover rare edge
-cases and also follow the principle of least surprise.)
+  *  all directory separators are changed to `/`
+  *  redundant slashes are removed
+  *  all `.` path components are removed
+  *  all `..` path components are resolved
+
+(There are additional details we are ignoring here, but they cover rare
+edge cases and follow the principle of least surprise.)
+
+The glob must match the *entire* canonical file name to be considered a
+match.
 
 The goal is to have a name that is the simplest possible for each
-particular file, and that will be the same on Windows, Unix, and any
-other platform where fossil is run.
+particular file, and that will be the same regardless of the platform
+you run Fossil on. This is important when you have a repository cloned
+from multiple platforms and have globs in versioned settings: you want
+those settings to be interpreted the same way everywhere.
 
-Beware, however, that all glob matching is case sensitive. This will
-not be a surprise on Unix where all file names are also case
-sensitive. However, most Windows file systems are case preserving and
+Beware, however, that all glob matching in Fossil is case sensitive
+regardless of host platform and file system. This will not be a surprise
+on POSIX platforms where file names are usually treated case
+sensitively. However, most Windows file systems are case preserving but
 case insensitive. That is, on Windows, the names `ReadMe` and `README`
-are names of the same file; on Unix they are different files.
+are usually names of the same file. The same is true in other cases,
+such as by default on macOS file systems and in the file system drivers
+for Windows file systems running on non-Windows systems. (e.g. exfat on
+Linux.) Therefore, write your Fossil glob patterns to match the name of
+the file as checked into the repository.
 
 Some example cases:
 
@@ -480,10 +501,10 @@ matches a glob pattern.
 ## Converting `.gitignore` to `ignore-glob`
 
 Many other version control systems handle the specific case of
-ignoring certain files differently from fossil: they have you create
+ignoring certain files differently from Fossil: they have you create
 individual "ignore" files in each folder, which specify things ignored
 in that folder and below. Usually some form of glob patterns are used
-in those files, but the details differ from fossil.
+in those files, but the details differ from Fossil.
 
 In many simple cases, you can just store a top level "ignore" file in
 `.fossil-settings/ignore-glob`. But as usual, there will be lots of
@@ -497,29 +518,29 @@ are called out in configuration files.
 
 [gitignore]: https://git-scm.com/docs/gitignore
 
-In contrast, fossil has a global setting and a local setting, but the local setting
-overrides the global rather than extending it. Similarly, a fossil
+In contrast, Fossil has a global setting and a local setting, but the local setting
+overrides the global rather than extending it. Similarly, a Fossil
 command's `--ignore` option replaces the `ignore-glob` setting rather
 than extending it.
 
 With that in mind, translating a `.gitignore` file into
 `.fossil-settings/ignore-glob` may be possible in many cases. Here are
 some of features of `.gitignore` and comments on how they relate to
-fossil:
+Fossil:
 
- *  "A blank line matches no files..." is the same in fossil.
- *  "A line starting with # serves as a comment...." not in fossil.
+ *  "A blank line matches no files...": same in Fossil.
+ *  "A line starting with # serves as a comment....": not in Fossil.
  *  "Trailing spaces are ignored unless they are quoted..." is similar
-    in fossil. All whitespace before and after a glob is trimmed in
-    fossil unless quoted with single or double quotes. Git uses
-    backslash quoting instead, which fossil does not.
- *  "An optional prefix "!" which negates the pattern..." not in
-    fossil.
- *  Git's globs are relative to the location of the `.gitignore` file;
-    fossil's globs are relative to the root of the workspace.
- *  Git's globs and fossil's globs treat directory separators
+    in Fossil. All whitespace before and after a glob is trimmed in
+    Fossil unless quoted with single or double quotes. Git uses
+    backslash quoting instead, which Fossil does not.
+ *  "An optional prefix "!" which negates the pattern...": not in
+    Fossil.
+ *  Git's globs are relative to the location of the `.gitignore` file:
+    Fossil's globs are relative to the root of the workspace.
+ *  Git's globs and Fossil's globs treat directory separators
     differently. Git includes a notation for zero or more directories
-    that is not needed in fossil.
+    that is not needed in Fossil.
 
 ### Example
 
@@ -552,28 +573,24 @@ limited to the `doc` folder:
 
 ## Implementation and References
 
-Most of the implementation of glob pattern handling in fossil is found
-`glob.c`, `file.c`, and each individual command and web page that uses
-a glob pattern. Find commands and pages in the fossil sources by
-looking for comments like `COMMAND: add` or `WEBPAGE: timeline` in
-front of the function that implements the command or page in files
-`src/*.c`. (Fossil's build system creates the tables used to dispatch
-commands at build time by searching the sources for those comments.) A
-few starting points:
+The implementation of the Fossil-specific glob pattern handling is here:
 
 :File            |:Description
 --------------------------------------------------------------------------------
-[`src/glob.c`][] | Implementation of glob pattern list loading, parsing, and matching.
-[`src/file.c`][] | Implementation of various kinds of canonical names of a file.
+[`src/glob.c`][] | pattern list loading, parsing, and generic matching code
+[`src/file.c`][] | application of glob patterns to file names
 
 [`src/glob.c`]: https://www.fossil-scm.org/index.html/file/src/glob.c
 [`src/file.c`]: https://www.fossil-scm.org/index.html/file/src/file.c
 
-The actual pattern matching is implemented in SQL, so the
-documentation for `GLOB` and the other string matching operators in
-[SQLite] (https://sqlite.org/lang_expr.html#like) is useful. Of
-course, the SQLite [source code]
-(https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768)
-and [test harnesses]
-(https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673)
-also make entertaining reading.
+See the [Adding Features to Fossil][aff] document for broader details
+about finding and working with such code.
+
+The actual pattern matching leverages the `GLOB` operator in SQLite, so
+you may find [its documentation][gdoc], [source code][gsrc] and [test
+harness][gtst] helpful.
+
+[aff]:  ./adding_code.wiki
+[gdoc]: https://sqlite.org/lang_expr.html#like
+[gsrc]: https://www.sqlite.org/src/artifact?name=9d52522cc8ae7f5c&ln=570-768
+[gtst]: https://www.sqlite.org/src/artifact?name=66a2c9ac34f74f03&ln=586-673
