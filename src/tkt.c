@@ -937,11 +937,11 @@ void tkttimeline_page(void){
 ** Show the complete change history for a single ticket.  Or (to put it
 ** another way) show a list of artifacts associated with a single ticket.
 **
-** By default, the artifacts are decoded and formatted.  If the
-** "plaintext" query parameter is present, then icomment text fields
-** are shown as plain text rather than being formatted according
-** to mimetype.  Or if the "raw" query parameter is present, then the
-** undecoded and unformatted text of each artifact is displayed.
+** By default, the artifacts are decoded and formatted.  Text fields
+** are formatted as text/plain, since in the general case Fossil does
+** not have knowledge of the encoding.  If the "raw" query parameter
+** is present, then the* undecoded and unformatted text of each artifact
+** is displayed.
 */
 void tkthistory_page(void){
   Stmt q;
@@ -962,18 +962,9 @@ void tkthistory_page(void){
     g.zTop, zUuid);
   style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
   if( P("raw")!=0 ){
-    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
-    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
-  }else if( P("plaintext")!=0 ){
-    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
-    if( g.perm.Admin ){
-      style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
-    }
-  }else{
-    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
-    if( g.perm.Admin ){
-      style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
-    }
+    style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);
+  }else if( g.perm.Admin ){
+    style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
   }
   style_header("%z", zTitle);
 
@@ -985,6 +976,8 @@ void tkthistory_page(void){
   }
   if( P("raw")!=0 ){
     @ <h2>Raw Artifacts Associated With Ticket %h(zUuid)</h2>
+  }else{
+    @ <h2>Artifacts Associated With Ticket %h(zUuid)</h2>
   }
   db_prepare(&q,
     "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
@@ -1074,13 +1067,8 @@ static int contains_newline(Blob *p){
 void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
   int i;
   int wikiFlags = WIKI_NOBADLINKS;
-  const char *zBlock = "<blockquote>";
-  const char *zEnd = "</blockquote>";
-  if( P("plaintext")!=0 ){
-    wikiFlags |= WIKI_LINKSONLY;
-    zBlock = "<blockquote><pre class='verbatim'>";
-    zEnd = "</pre></blockquote>";
-  }
+  const char *zBlock = "<blockquote><pre class='verbatim'>";
+  const char *zEnd = "</pre></blockquote>";
   if( zListType==0 ) zListType = "1";
   @ <ol type="%s(zListType)">
   for(i=0; i<pTkt->nField; i++){
@@ -1090,11 +1078,11 @@ void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
     blob_set(&val, pTkt->aField[i].zValue);
     if( z[0]=='+' ){
       @ <li>Appended to %h(&z[1]):%s(zBlock)
-      wiki_convert(&val, 0, wikiFlags);
+      @ %h(blob_str(&val))
       @ %s(zEnd)</li>
     }else if( blob_size(&val)>50 || contains_newline(&val) ){
       @ <li>Change %h(z) to:%s(zBlock)
-      wiki_convert(&val, 0, wikiFlags);
+      @ %h(blob_str(&val))
       @ %s(zEnd)</li>
     }else{
       @ <li>Change %h(z) to "%h(blob_str(&val))"</li>
