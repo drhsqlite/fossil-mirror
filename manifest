@@ -1,5 +1,5 @@
-C Assorted\simprovements\sto\swww/globs.md,\smainly\sto\sclarity\sand\sgrammar.
-D 2020-03-21T19:57:43.803
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.32.0\salpha\sthat\sincludes\sfixes\nfor\sthe\sDBCONFIG_MAINDBNAME\sproblem.
+D 2020-03-22T14:29:25.731
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -562,7 +562,7 @@ F src/setupuser.c 631732f9ae4e597b6281f850295656589ad36f26d9300dc48e3fe3d7f93be6
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
-F src/shell.c 98aad8016561b3add6191b550d03738ccf1ae09fedcb125607305a6fec667fff
+F src/shell.c 6270da460f7652739cdde39794a5233d0fe080b146f3951e2d44b4d2c50cca6f
 F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
@@ -588,8 +588,8 @@ F src/sounds/e.wav c68cc3f4819d3fc8eaa340980f8e3748102d903b40449bc654a3ca9506192
 F src/sounds/f.wav be836de35a821523beac2e53168e135d5ebd725d7af421e5f736a28e8034673a
 F src/sqlcmd.c 5ffbfbc99793bdd235355acc13d2ccd497eedc22e5afa5c68287d29f1b4f5d4b
 F src/sqlcompattest.c 006acddc0299b3816d04ccbe49eca4c180b37f0f709bba056964c96aae23e72d
-F src/sqlite3.c 73cd35224cf60f109bb4ce529673dd417ea35adcfef2c9ccac5417679656653f
-F src/sqlite3.h 6880445a9bcd10f215547ffc7d9ca78d5f7c13bd0c90e835213aaf480cd38adc
+F src/sqlite3.c dc83bc2623c0c55c91495b1f41cb67082ad18392148087eb931c69569a3e710b
+F src/sqlite3.h 8c3e68cd1f4917c9e894385e44c5211a05d160205f21a5e4c1b23dfce188745e
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77be1777e19338127f46908ba6f51a60f054371afb177f79e9b03299b507fcfb
-R 04b66615535b70b983ac9306032a117d
-U wyoung
-Z 3ba70a1c52fb35b0a63292fc91dda63b
+P 7898593d9de25804fc1c737148ab0f96b646cf861d24fcdd8afdf5ed57a48670
+R f86df4cc3c3ef71fae4573c3dbaa0cff
+U drh
+Z 78fb0778cfa57a25e82c4b3c1d749c18
