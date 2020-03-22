@@ -934,7 +934,14 @@ void tkttimeline_page(void){
 ** WEBPAGE: tkthistory
 ** URL: /tkthistory?name=TICKETUUID
 **
-** Show the complete change history for a single ticket
+** Show the complete change history for a single ticket.  Or (to put it
+** another way) show a list of artifacts associated with a single ticket.
+**
+** By default, the artifacts are decoded and formatted.  If the
+** "plaintext" query parameter is present, then icomment text fields
+** are shown as plain text rather than being formatted according
+** to mimetype.  Or if the "raw" query parameter is present, then the
+** undecoded and unformatted text of each artifact is displayed.
 */
 void tkthistory_page(void){
   Stmt q;
@@ -954,10 +961,19 @@ void tkthistory_page(void){
   style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
     g.zTop, zUuid);
   style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
-  if( P("plaintext")!=0 ){
+  if( P("raw")!=0 ){
     style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
+    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
+  }else if( P("plaintext")!=0 ){
+    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
+    if( g.perm.Admin ){
+      style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
+    }
   }else{
     style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
+    if( g.perm.Admin ){
+      style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
+    }
   }
   style_header("%z", zTitle);
 
@@ -966,6 +982,9 @@ void tkthistory_page(void){
     @ No such ticket: %h(zUuid)
     style_footer();
     return;
+  }
+  if( P("raw")!=0 ){
+    @ <h2>Raw Artifacts Associated With Ticket %h(zUuid)</h2>
   }
   db_prepare(&q,
     "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
@@ -1015,7 +1034,16 @@ void tkthistory_page(void){
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
         @ </p>
-        ticket_output_change_artifact(pTicket, "a");
+        if( P("raw")!=0 ){
+          Blob c;
+          content_get(rid, &c);
+          @ <blockquote><pre>
+          @ %h(blob_str(&c))
+          @ </pre></blockquote>
+          blob_reset(&c);
+        }else{
+          ticket_output_change_artifact(pTicket, "a");
+        }
       }
       manifest_destroy(pTicket);
     }
