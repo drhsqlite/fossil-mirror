@@ -1,5 +1,5 @@
-C The\s"formatted"\smode\sfor\sthe\sticket\shistory\sviewer\sassumed\sthat\sall\ntext\swas\sFossil-Wiki\sformatted.\s\sIt\sdid\snot\saccount\sfor\sMarkdown\s(since\nthat\sfeature\swas\sadded\slong\sbefore\sMarkdown\sformatting\swas\sadded).\nAnd,\sindeed,\sthere\sis\sno\sgeneral\sway\sfor\sit\sto\sknow\swhat\sthe\smimetype\nof\sthe\stext\sis.\s\sHence,\sdisable\sformatted\smode,\sand\sshow\sall\stext\sas\nplaintext.
-D 2020-03-22T15:33:27.527
+C Further\senhancements\sto\sthe\sticket\shistory\smechanism\sso\sthat\sit\stakes\sinto\naccount\sthe\sdifference\sbetween\sTICKET\sand\sTICKETCHNG\sfields.
+D 2020-03-22T15:58:09.917
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -495,7 +495,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c f3f34536a823f362ed6233278b48016c68cc6faa8555b89842772f76139e8b35
+F src/info.c ad253e844cd5c9e760cb3f98c7ea81c979e7d19cb8f4a17029f07b4716891164
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 95c5701b39f75428a84f39bf7799118793a94202d1eb3e64e4c9f35aa22c343c
@@ -603,7 +603,7 @@ F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 50c4204d0a739f9cb7704c89d9445ae38bfc2e01ba6a67ed5877d22840c4c3ec
-F src/tkt.c c1edfec9291be1dcd9a059a94d3725bf26143d669ef16e638a2c5d8719f538b6
+F src/tkt.c 5a3959e1c9567343293992e1f7b3bc87c7e74c578202a68efd35609a0428563f
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4c9e24fdcc334b97e76c764657bb6748e751691808dd8a90e57e08c85837f099
-R 03ea1351ad94cbd93aff410d9a8397ec
+P f1e8cd6977e0de32fc5b7e12a2492c8058daadfbbd507faba5aff0c4c204cf1b
+R 083be71362e0d71bf728e67f65525902
 U drh
-Z a527d84981f5d2d144a1d496afd3f25d
+Z 148fdad05e55501a6795e659b5e17d53

@@ -992,7 +992,7 @@ void tkthistory_page(void){
     " ORDER BY 1",
     tagid, tagid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  for(nChng=0; db_step(&q)==SQLITE_ROW; nChng++){
     Manifest *pTicket;
     const char *zDate = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
@@ -1001,7 +1001,6 @@ void tkthistory_page(void){
     if( nChng==0 ){
       @ <ol>
     }
-    nChng++;
     if( zFile!=0 ){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
@@ -1035,7 +1034,7 @@ void tkthistory_page(void){
           @ </pre></blockquote>
           blob_reset(&c);
         }else{
-          ticket_output_change_artifact(pTicket, "a");
+          ticket_output_change_artifact(pTicket, "a", nChng);
         }
       }
       manifest_destroy(pTicket);
@@ -1064,28 +1063,41 @@ static int contains_newline(Blob *p){
 ** The pTkt object is a ticket change artifact.  Output a detailed
 ** description of this object.
 */
-void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
+void ticket_output_change_artifact(
+  Manifest *pTkt,           /* Parsed artifact for the ticket change */
+  const char *zListType,    /* Which type of list */
+  int n                     /* Which ticket change is this */
+){
   int i;
-  int wikiFlags = WIKI_NOBADLINKS;
-  const char *zBlock = "<blockquote><pre class='verbatim'>";
-  const char *zEnd = "</pre></blockquote>";
   if( zListType==0 ) zListType = "1";
+  getAllTicketFields();
   @ <ol type="%s(zListType)">
   for(i=0; i<pTkt->nField; i++){
     Blob val;
-    const char *z;
+    const char *z, *zX;
+    int id;
     z = pTkt->aField[i].zName;
     blob_set(&val, pTkt->aField[i].zValue);
-    if( z[0]=='+' ){
-      @ <li>Appended to %h(&z[1]):%s(zBlock)
-      @ %h(blob_str(&val))
-      @ %s(zEnd)</li>
-    }else if( blob_size(&val)>50 || contains_newline(&val) ){
-      @ <li>Change %h(z) to:%s(zBlock)
-      @ %h(blob_str(&val))
-      @ %s(zEnd)</li>
+    zX = z[0]=='+' ? z+1 : z;
+    id = fieldId(zX);
+    @ <li>\
+    if( id<0 ){
+      @ Untracked field %h(zX):
+    }else if( aField[id].mUsed==USEDBY_TICKETCHNG ){
+      @ %h(zX):
+    }else if( n==0 ){
+      @ %h(zX) initialized to:
+    }else if( z[0]=='+' && (aField[id].mUsed&USEDBY_TICKET)!=0 ){
+      @ Appended to %h(zX):
     }else{
-      @ <li>Change %h(z) to "%h(blob_str(&val))"</li>
+      @ %h(zX) changed to:
+    }
+    if( blob_size(&val)>50 || contains_newline(&val) ){
+      @ <blockquote><pre class='verbatim'>
+      @ %h(blob_str(&val))
+      @ </pre></blockquote></li>
+    }else{
+      @ "%h(blob_str(&val))"</li>
     }
     blob_reset(&val);
   }
