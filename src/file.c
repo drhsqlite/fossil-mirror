@@ -1787,7 +1787,7 @@ int fossil_clearenv(void){
   return rc;
 #else
   extern char **environ;
-  environ = 0;
+  environ[0] = 0;
   return 0;
 #endif
 }
