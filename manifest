@@ -1,5 +1,5 @@
-C Clear\sthe\senvironment\sby\ssetting\sits\sfirst\sentry\sto\sNULL;\sfixes\sthe\smacOS-bound\sbug\sas\sper\s[https://fossil-scm.org/forum/forumpost/2fcb3a490b|forumpost/2fcb3a490b]
-D 2020-03-23T01:08:41.267
+C Add\sthe\s"nsm"\sor\s"No-SubMenu"\squery\sparameter\sto\sthe\s/wiki\spage.
+D 2020-03-24T15:04:10.907
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -619,7 +619,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c 23b7d2c854fd328e7f63323195ab9621c29af01e2e5a66ad37d2170f11acbc2b
+F src/wiki.c b38e8220e4a2372fba963d9716582151d203b879c1bc1a83f0c80a15ea8e5c33
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fc70ec085e81b3f521d6f4193f4e5911cca695185ad05b1c66c00023ef487e10
-R 6b3f63dd20b1b1a029ef5362f6cafd4b
-U ashepilko
-Z ec558a7049da2a9dad009ee4670d01fd
+P 6e7211a26da8981a3a7e396174dfd369e9111cfa8897ced6e59799a38d520297
+R e95c0de18f9ee6ade7db63ce719282b4
+U drh
+Z 0945db1c3d395ca604088b9be51462d7

@@ -454,7 +454,14 @@ static int wiki_special_permission(const char *zPageName){
 
 /*
 ** WEBPAGE: wiki
-** URL: /wiki?name=PAGENAME
+**
+** Display a wiki page.  Example:  /wiki?name=PAGENAME
+**
+** Query parameters:
+**
+**    name=NAME        Name of the wiki page to display.  Required.
+**    nsm              Omit the submenu if present.  (Mnemonic: No SubMenu)
+**
 */
 void wiki_page(void){
   char *zTag;
@@ -466,6 +473,7 @@ void wiki_page(void){
   const char *zPageName;
   const char *zMimetype = 0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
+  int noSubmenu = P("nsm")!=0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -503,7 +511,7 @@ void wiki_page(void){
     }
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
-  if( !g.isHome ){
+  if( !g.isHome && !noSubmenu ){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
@@ -522,7 +530,9 @@ void wiki_page(void){
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
   wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
-  wiki_standard_submenu(submenuFlags);
+  if( !noSubmenu ){
+    wiki_standard_submenu(submenuFlags);
+  }
   if( zBody[0]==0 ){
     @ <i>This page has been deleted</i>
   }else{
