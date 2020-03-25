@@ -47,6 +47,9 @@ void setup_ulist(void){
   style_submenu_element("Add", "setup_uedit");
   style_submenu_element("Log", "access_log");
   style_submenu_element("Help", "setup_ulist_notes");
+  if( alert_tables_exist() ){
+    style_submenu_element("Subscribers", "subscribers");
+  }
   style_header("User List");
   if( zWith==0 || zWith[0]==0 ){
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
@@ -519,7 +522,8 @@ void user_edit(void){
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
   if( uid ){
-    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" /></td>
+    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" />\
+    @ </td>
   }else{
     @   <td>(new user)<input type="hidden" name="id" value="0" /></td>
   }
@@ -529,8 +533,18 @@ void user_edit(void){
   if( login_is_special(zLogin) ){
     @    <td><b>%h(zLogin)</b></td>
   }else{
-    @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
-    @ </tr>
+    @   <td><input type="text" name="login" value="%h(zLogin)" />\
+    if( alert_tables_exist() ){
+      char *zSCode;  /* Subscriber Code */
+      zSCode = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
+                          " WHERE suname=%Q", zLogin);
+      if( zSCode && zSCode[0] ){
+        @ &nbsp;&nbsp;<a href="%R/alerts/%s(zSCode)">\
+        @ (subscription info for %h(zLogin))</a>\
+      }
+      fossil_free(zSCode);
+    }
+    @ </td></tr>
     @ <tr>
     @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
     @   <td><textarea name="info" cols="40" rows="2">%h(zInfo)</textarea></td>

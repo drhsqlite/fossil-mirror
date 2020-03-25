@@ -1,5 +1,5 @@
-C Update\sopenssl\sversion\snumber\sto\s1.1.1e.\sUpdate\scustom\smakefile.
-D 2020-03-24T20:24:06.730
+C Add\sthe\semail\saddress\sediting\sto\sthe\ssubscriber\sinformation\sscreen\s(/alerts).\nImproved\scross-linking\sbetween\ssubscriber\sand\suser\sediting\sscreens\sfor\nadministrators.
+D 2020-03-25T17:48:50.335
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
-F src/alerts.c 6398f1bc7c66d8ea9d9746bf9d7bfdaab3060dcace17b5a475f1d9a87c3736e9
+F src/alerts.c 6c5581457f895bd81e999845d1868b5e9575f957fee18a36aba4dde9b45318dd
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
@@ -558,7 +558,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
 F src/security_audit.c f341318437bfc9001ace860378a5f1d1e8a7dd17228461345a378346f15755e9
 F src/setup.c e86861d2c8a9024b40aea32cc9f932540c8b1aa57f5eb0a2e878e35d5cb4f86d
-F src/setupuser.c 631732f9ae4e597b6281f850295656589ad36f26d9300dc48e3fe3d7f93be609
+F src/setupuser.c 40fa7cc2a6a6112b7dffdc78dcf014ac058bc83d42c59de17d5565133d9711f2
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 993700abaf4aa936de2bbb9ba8616e753aa828e256be8deee7c8f18072ca55dc
-R 1237379cb08a2d66cd7748effe12badb
-U jan.nijtmans
-Z 90ef75016812e91b499e36783931dd74
+P 77a7078f74bc74a49fc132381907e05518041f0716f8bba34da53f837d3d106a
+R 5e4a87621f02114b23ad7f1d34993640
+U drh
+Z e53e0c3569b4512ac0cd593b390eb0cd

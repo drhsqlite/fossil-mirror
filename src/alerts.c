@@ -185,7 +185,7 @@ static int alert_webpages_disabled(void){
 void alert_submenu_common(void){
   if( g.perm.Admin ){
     if( fossil_strcmp(g.zPath,"subscribers") ){
-      style_submenu_element("List Subscribers","%R/subscribers");
+      style_submenu_element("Subscribers","%R/subscribers");
     }
     if( fossil_strcmp(g.zPath,"subscribe") ){
       style_submenu_element("Add New Subscriber","%R/subscribe");
@@ -1516,6 +1516,7 @@ void alert_page(void){
   Stmt q;
   int sa, sc, sf, st, sw;
   int sdigest, sdonotcall, sverified;
+  int isLogin;         /* Logged in as an individual */
   const char *ssub;
   const char *semail;
   const char *smip;
@@ -1531,7 +1532,8 @@ void alert_page(void){
     login_needed(g.anon.EmailAlert);
     return;
   }
-  if( zName==0 && login_is_individual() ){
+  isLogin = login_is_individual();
+  if( zName==0 && isLogin ){
     zName = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
                        " WHERE suname=%Q", g.zLogin);
   }
@@ -1545,50 +1547,42 @@ void alert_page(void){
     int sdigest = PB("sdigest");
     char ssub[10];
     int nsub = 0;
+    Blob update;
     if( PB("sa") )                   ssub[nsub++] = 'a';
     if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
     if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
     ssub[nsub] = 0;
+    blob_init(&update, "UPDATE subscriber SET", -1);
+    blob_append_sql(&update,
+        " sdonotcall=%d,"
+        " sdigest=%d,"
+        " ssub=%Q,"
+        " mtime=strftime('%%s','now'),"
+        " smip=%Q",
+        sdonotcall,
+        sdigest,
+        ssub,
+        g.zIpAddr
+    );
     if( g.perm.Admin ){
       const char *suname = PT("suname");
       int sverified = PB("sverified");
       if( suname && suname[0]==0 ) suname = 0;
-      db_multi_exec(
-        "UPDATE subscriber SET"
-        " sdonotcall=%d,"
-        " sdigest=%d,"
-        " ssub=%Q,"
-        " mtime=strftime('%%s','now'),"
-        " smip=%Q,"
-        " suname=%Q,"
-        " sverified=%d"
-        " WHERE subscriberCode=hextoblob(%Q)",
-        sdonotcall,
-        sdigest,
-        ssub,
-        g.zIpAddr,
+      blob_append_sql(&update,
+        ", suname=%Q,"
+        " sverified=%d",
         suname,
-        sverified,
-        zName
-      );
-    }else{
-      db_multi_exec(
-        "UPDATE subscriber SET"
-        " sdonotcall=%d,"
-        " sdigest=%d,"
-        " ssub=%Q,"
-        " mtime=strftime('%%s','now'),"
-        " smip=%Q"
-        " WHERE subscriberCode=hextoblob(%Q)",
-        sdonotcall,
-        sdigest,
-        ssub,
-        g.zIpAddr,
-        zName
+        sverified
       );
     }
+    if( isLogin ){
+      blob_append_sql(&update, ", semail=%Q", P("semail"));
+    }
+    blob_append_sql(&update," WHERE subscriberCode=hextoblob(%Q)", zName);
+    db_exec_sql(blob_str(&update));
+    blob_reset(&update);
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
@@ -1649,9 +1643,14 @@ void alert_page(void){
   @ <table class="subscribe">
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
-  @  <td>%h(semail)</td>
+  if( isLogin ){
+    @  <td><input type="text" name="semail" value="%h(semail)" size="30"></td>
+  }else{
+    @  <td>%h(semail)</td>
+  }
   @ </tr>
   if( g.perm.Admin ){
+    int uid;
     @ <tr>
     @  <td class='form_label'>Created:</td>
     @  <td>%h(sctime)</td>
@@ -1667,7 +1666,12 @@ void alert_page(void){
     @ <tr>
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
-    @  size="30"></td>
+    @  size="30">\
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", suname);
+    if( uid ){
+      @ &nbsp;&nbsp;<a href='%R/setup_uedit?id=%d(uid)'>\
+      @ (login info for %h(suname))</a>\
+    }
     @ </tr>
   }
   @ <tr>
@@ -1706,7 +1710,7 @@ void alert_page(void){
     @ <tr>
     @  <td class="form_label">Admin Options:</td><td>
     @  <label><input type="checkbox" name="sdonotcall" \
-    @  %s(sdonotcall?"checked":"")> Do not call</label><br>
+    @  %s(sdonotcall?"checked":"")> Do not disturb</label><br>
     @  <label><input type="checkbox" name="sverified" \
     @  %s(sverified?"checked":"")>\
     @  Verified</label></td></tr>
@@ -1905,6 +1909,7 @@ void subscriber_list_page(void){
     return;
   }
   alert_submenu_common();
+  style_submenu_element("Users","setup_ulist");
   style_header("Subscriber List");
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
@@ -1915,7 +1920,8 @@ void subscriber_list_page(void){
     "       sverified,"                    /* 4 */
     "       sdigest,"                      /* 5 */
     "       mtime,"                        /* 6 */
-    "       date(sctime,'unixepoch')"      /* 7 */
+    "       date(sctime,'unixepoch'),"     /* 7 */
+    "       (SELECT uid FROM user WHERE login=subscriber.suname)" /* 8 */
     " FROM subscriber"
   );
   if( P("only")!=0 ){
@@ -1941,12 +1947,18 @@ void subscriber_list_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     sqlite3_int64 iMtime = db_column_int64(&q, 6);
     double rAge = (iNow - iMtime)/86400.0;
+    int uid = db_column_int(&q, 8);
+    const char *zUname = db_column_text(&q, 3);
     @ <tr>
     @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
     @ <td>%h(db_column_text(&q,2))</td>
     @ <td>%s(db_column_int(&q,5)?"digest":"")</td>
-    @ <td>%h(db_column_text(&q,3))</td>
+    if( uid ){
+      @ <td><a href='%R/setup_uedit?id=%d(uid)'>%h(zUname)</a>
+    }else{
+      @ <td>%h(zUname)</td>
+    }
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
     @ <td data-sortkey='%010llx(iMtime)'>%z(human_readable_age(rAge))</td>
     @ <td>%h(db_column_text(&q,7))</td>
