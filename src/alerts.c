@@ -577,18 +577,14 @@ int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
 }
 
 /*
-** Make a copy of the input string up to but not including the
-** first cTerm character.
+** Determine whether or not the input string is a valid email address.
+** Only look at character up to but not including the first \000 or
+** the first cTerm character, whichever comes first.
 **
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
-**
-** This routine is more restrictive than necessary.  It does not
-** allow comments, IP address, quoted strings, or certain uncommon
-** characters.  The only non-alphanumerics allowed in the local
-** part are "_", "+", "-" and "+".
+** Return the length of the email addresss string in bytes if the email
+** address is valid.  If the email address is misformed, return 0.
 */
-char *email_copy_addr(const char *z, char cTerm ){
+int email_address_is_valid(const char *z, char cTerm){
   int i;
   int nAt = 0;
   int nDot = 0;
@@ -622,9 +618,24 @@ char *email_copy_addr(const char *z, char cTerm ){
   if( c!=cTerm ) return 0;    /* Missing terminator */
   if( nAt==0 ) return 0;      /* No "@" found anywhere */
   if( nDot==0 ) return 0;     /* No "." in the domain */
+  return i;
+}
 
-  /* If we reach this point, the email address is valid */
-  return mprintf("%.*s", i, z);
+/*
+** Make a copy of the input string up to but not including the
+** first cTerm character.
+**
+** Verify that the string really that is to be copied really is a
+** valid email address.  If it is not, then return NULL.
+**
+** This routine is more restrictive than necessary.  It does not
+** allow comments, IP address, quoted strings, or certain uncommon
+** characters.  The only non-alphanumerics allowed in the local
+** part are "_", "+", "-" and "+".
+*/
+char *email_copy_addr(const char *z, char cTerm ){
+  int i = email_address_is_valid(z, cTerm);
+  return i==0 ? 0 : mprintf("%.*s", i, z);
 }
 
 /*
@@ -1518,10 +1529,10 @@ void alert_page(void){
   int sa, sc, sf, st, sw;
   int sdigest, sdonotcall, sverified;
   int isLogin;         /* Logged in as an individual */
-  const char *ssub;
+  const char *ssub = 0;
   const char *semail;
   const char *smip;
-  const char *suname;
+  const char *suname = 0;
   const char *mtime;
   const char *sctime;
   int eErr = 0;
@@ -1544,18 +1555,20 @@ void alert_page(void){
   }
   alert_submenu_common();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
-    int sdonotcall = PB("sdonotcall");
-    int sdigest = PB("sdigest");
-    const char *zEmail = P("semail");
-    char ssub[10];
+    char newSsub[10];
     int nsub = 0;
     Blob update;
-    if( PB("sa") )                   ssub[nsub++] = 'a';
-    if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
-    if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
-    if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
-    if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
-    ssub[nsub] = 0;
+
+    sdonotcall = PB("sdonotcall");
+    sdigest = PB("sdigest");
+    semail = P("semail");
+    if( PB("sa") )                   newSsub[nsub++] = 'a';
+    if( g.perm.Read && PB("sc") )    newSsub[nsub++] = 'c';
+    if( g.perm.RdForum && PB("sf") ) newSsub[nsub++] = 'f';
+    if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
+    if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
+    newSsub[nsub] = 0;
+    ssub = newSsub;
     blob_init(&update, "UPDATE subscriber SET", -1);
     blob_append_sql(&update,
         " sdonotcall=%d,"
@@ -1569,8 +1582,8 @@ void alert_page(void){
         g.zIpAddr
     );
     if( g.perm.Admin ){
-      const char *suname = PT("suname");
-      int sverified = PB("sverified");
+      suname = PT("suname");
+      sverified = PB("sverified");
       if( suname && suname[0]==0 ) suname = 0;
       blob_append_sql(&update,
         ", suname=%Q,"
@@ -1579,11 +1592,17 @@ void alert_page(void){
         sverified
       );
     }
-    if( isLogin && zEmail && zEmail[0] ){
-      blob_append_sql(&update, ", semail=%Q", zEmail);
+    if( isLogin ){
+      if( semail==0 || email_address_is_valid(semail,0)==0 ){
+        eErr = 8;
+      }
+      blob_append_sql(&update, ", semail=%Q", semail);
     }
     blob_append_sql(&update," WHERE subscriberCode=hextoblob(%Q)", zName);
-    db_exec_sql(blob_str(&update));
+    if( eErr==0 ){
+      db_exec_sql(blob_str(&update));
+      ssub = 0;
+    }
     blob_reset(&update);
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
@@ -1596,6 +1615,7 @@ void alert_page(void){
       return;
     }
   }
+  style_header("Update Subscription");
   db_prepare(&q,
     "SELECT"
     "  semail,"                       /* 0 */
@@ -1613,19 +1633,22 @@ void alert_page(void){
     cgi_redirect("subscribe");
     return;
   }
-  style_header("Update Subscription");
-  semail = db_column_text(&q, 0);
-  sverified = db_column_int(&q, 1);
-  sdonotcall = db_column_int(&q, 2);
-  sdigest = db_column_int(&q, 3);
-  ssub = db_column_text(&q, 4);
+  if( ssub==0 ){
+    semail = db_column_text(&q, 0);
+    sdonotcall = db_column_int(&q, 2);
+    sdigest = db_column_int(&q, 3);
+    ssub = db_column_text(&q, 4);
+  }
+  if( suname==0 ){
+    suname = db_column_text(&q, 6);
+    sverified = db_column_int(&q, 1);
+  }
   sa = strchr(ssub,'a')!=0;
   sc = strchr(ssub,'c')!=0;
   sf = strchr(ssub,'f')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
   smip = db_column_text(&q, 5);
-  suname = db_column_text(&q, 6);
   mtime = db_column_text(&q, 7);
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
@@ -1647,9 +1670,11 @@ void alert_page(void){
   @  <td class="form_label">Email&nbsp;Address:</td>
   if( isLogin ){
     @  <td><input type="text" name="semail" value="%h(semail)" size="30">\
-    if( g.perm.Admin ){
-       @ &nbsp;&nbsp;<a href="%R/announce?to=%t(semail)">\
-       @ (Send a message to %h(semail))</a>\
+    if( eErr==8 ){
+      @ <span class='loginError'>&larr; not a valid email address!</span>
+    }else if( g.perm.Admin ){
+      @ &nbsp;&nbsp;<a href="%R/announce?to=%t(semail)">\
+      @ (Send a message to %h(semail))</a>\
     }
     @ </td>
   }else{

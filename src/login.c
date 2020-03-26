@@ -1546,7 +1546,7 @@ void register_page(void){
   }else if( zEAddr[0]==0 ){
     iErrLine = 3;
     zErr = "Required";
-  }else if( email_copy_addr(zEAddr,0)==0 ){
+  }else if( email_address_is_valid(zEAddr,0)==0 ){
     iErrLine = 3;
     zErr = "Not a valid email address";
   }else if( strlen(zPasswd)<6 ){
