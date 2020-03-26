@@ -713,32 +713,32 @@ static char *get_line_from_string(char **pz, int *pLen){
 
 /*
 ** The input *pz points to content that is terminated by a "\r\n"
-** followed by the boundry marker zBoundry.  An extra "--" may or
-** may not be appended to the boundry marker.  There are *pLen characters
+** followed by the boundary marker zBoundary.  An extra "--" may or
+** may not be appended to the boundary marker.  There are *pLen characters
 ** in *pz.
 **
 ** This routine adds a "\000" to the end of the content (overwriting
 ** the "\r\n") and returns a pointer to the content.  The *pz input
-** is adjusted to point to the first line following the boundry.
+** is adjusted to point to the first line following the boundary.
 ** The length of the content is stored in *pnContent.
 */
 static char *get_bounded_content(
   char **pz,         /* Content taken from here */
   int *pLen,         /* Number of bytes of data in (*pz)[] */
-  char *zBoundry,    /* Boundry text marking the end of content */
+  char *zBoundary,    /* Boundary text marking the end of content */
   int *pnContent     /* Write the size of the content here */
 ){
   char *z = *pz;
   int len = *pLen;
   int i;
-  int nBoundry = strlen(zBoundry);
+  int nBoundary = strlen(zBoundary);
   *pnContent = len;
   for(i=0; i<len; i++){
-    if( z[i]=='\n' && strncmp(zBoundry, &z[i+1], nBoundry)==0 ){
+    if( z[i]=='\n' && strncmp(zBoundary, &z[i+1], nBoundary)==0 ){
       if( i>0 && z[i-1]=='\r' ) i--;
       z[i] = 0;
       *pnContent = i;
-      i += nBoundry;
+      i += nBoundary;
       break;
     }
   }
@@ -807,18 +807,18 @@ static int tokenize_line(char *z, int mxArg, char **azArg){
 static void process_multipart_form_data(char *z, int len){
   char *zLine;
   int nArg, i;
-  char *zBoundry;
+  char *zBoundary;
   char *zValue;
   char *zName = 0;
   int showBytes = 0;
   char *azArg[50];
 
-  zBoundry = get_line_from_string(&z, &len);
-  if( zBoundry==0 ) return;
+  zBoundary = get_line_from_string(&z, &len);
+  if( zBoundary==0 ) return;
   while( (zLine = get_line_from_string(&z, &len))!=0 ){
     if( zLine[0]==0 ){
       int nContent = 0;
-      zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
+      zValue = get_bounded_content(&z, &len, zBoundary, &nContent);
       if( zName && zValue ){
         if( fossil_islower(zName[0]) ){
           cgi_set_parameter_nocopy(zName, zValue, 1);

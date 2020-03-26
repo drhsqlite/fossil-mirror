@@ -1688,7 +1688,7 @@ static void process_one_web_page(
           @ </head><body>
           @ <h1>Not Found</h1>
           @ </body>
-          cgi_set_status(404, "not found");
+          cgi_set_status(404, "Not Found");
           cgi_reply();
         }
         return;
