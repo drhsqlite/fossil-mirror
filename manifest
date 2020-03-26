@@ -1,5 +1,5 @@
-C Validate\sthe\semail\saddress\sin\sthe\ssubscription\sediting\sform.
-D 2020-03-26T13:53:08.663
+C Set\sthe\sautocomplete="off"\sparameter\son\sthe\spassword\sinput\sto\sthe\nuser\sediting\sscreen.
+D 2020-03-26T14:48:08.760
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -558,7 +558,7 @@ F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c c1b0497b365fc1a0eb70c65257f80f5f7d686a22c17135b8aa73223cdd98c181
 F src/security_audit.c f341318437bfc9001ace860378a5f1d1e8a7dd17228461345a378346f15755e9
 F src/setup.c e86861d2c8a9024b40aea32cc9f932540c8b1aa57f5eb0a2e878e35d5cb4f86d
-F src/setupuser.c 40fa7cc2a6a6112b7dffdc78dcf014ac058bc83d42c59de17d5565133d9711f2
+F src/setupuser.c 3989fca47de677d21428565643c853f93b7d3566275db225e27dd91cac585d3d
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P bb05299ee78c531144a01e1abef0d949655330f985c37fb665501d5f23b9ddfb
-R 23e99493af76e90a3ced088860da6cae
+P 32a8d1102527724a43977c05f18d105f68d699cd1e02f5f32952826c58db2097
+R 911bb42c0a35a359b31e0b6bbee01db0
 U drh
-Z efbc52d32ccfb62037bfaf37dbe52bbc
+Z b9edb3bbcba95f38ba68d21bb52723bf

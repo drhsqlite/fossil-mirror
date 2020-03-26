@@ -643,10 +643,12 @@ void user_edit(void){
     @   <td align="right">Password:</td>
     if( zPw[0] ){
       /* Obscure the password for all users */
-      @   <td><input type="password" name="pw" value="**********" /></td>
+      @   <td><input type="password" autocomplete="off" name="pw"\
+      @   value="**********" /></td>
     }else{
       /* Show an empty password as an empty input field */
-      @   <td><input type="password" name="pw" value="" /></td>
+      @   <td><input type="password" autocomplete="off" name="pw"\
+      @   value="" /></td>
     }
     @ </tr>
   }
