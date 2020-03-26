@@ -1,5 +1,5 @@
-C Fix\stypos.
-D 2020-03-26T03:01:16.250
+C Removed\sobsolete\sreference\sto\sthe\shistorical\slimitation\sof\sthe\sgrep\scommand\saccepting\sonly\sa\ssingle\sfilename.
+D 2020-03-26T05:30:43.208
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -868,7 +868,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh 14c5abc975b0f604f9945d85ff02f92422e8964f59f5f87b2ad32dfe67d2b32d
 F www/fossil_prompt.wiki a7e325e945dda51f115fa1b636bbcc2f36cc24dd71efbef8f682c816faa703c6
 F www/globs.md fb92287b95e7fc588a768f5961b3268a1b8d82c4b3e657ee0453f988825ebc72
-F www/grep.md 4a94442af669f01b6a30334b11f762e05346a936008207397654a43e476eae8c
+F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 455c743ab46b9f60a4a835ec7fd64f11df697e62551ec2cb6fcfaf71de8e6c86
-R 50004e500ce46641a683a66c3831bf3c
-U ashepilko
-Z c5de3c649c859ec0db916f099dc770d5
+P 58f00d333ac3fb6f78a8d4e49bd4290f8a82ebc0472a17451d5eefe1cea57850
+R 6a66a16396e3533d1193cfb1fd4fc9e5
+U stephan
+Z 2eca067439f01ff297ec1b23122a53aa
