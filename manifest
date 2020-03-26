@@ -1,5 +1,5 @@
-C Add\sthe\semail\saddress\sediting\sto\sthe\ssubscriber\sinformation\sscreen\s(/alerts).\nImproved\scross-linking\sbetween\ssubscriber\sand\suser\sediting\sscreens\sfor\nadministrators.
-D 2020-03-25T17:48:50.335
+C Documentation\stypo\sfix.
+D 2020-03-26T02:24:02.477
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -835,7 +835,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki ac576e788f4a96212a59e81761e4d73a9cc8cfbd
 F www/delta_format.wiki e70aabb6f50657b435f5ea9f31180ad43c1c239cfc3f56e1d370ae4095b90039
-F www/embeddeddoc.wiki d83a1e5f1b82772cd84ec8e5fb2ddeaa543efad4505a9879023632285851678d
+F www/embeddeddoc.wiki 7827532ba87f8678890cba69ef891af2601c169dffa494b28c8fb862d0fcf45c
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 77a7078f74bc74a49fc132381907e05518041f0716f8bba34da53f837d3d106a
-R 5e4a87621f02114b23ad7f1d34993640
+P 54a6f098ec4e41c2bbf4d6daf1be4de861190206c763491fba00c20a6f083cb1
+R b0654b51ce2b7a1752698d7681816664
 U drh
-Z e53e0c3569b4512ac0cd593b390eb0cd
+Z ce85472ef61c071fc27341a08c11aa0f
