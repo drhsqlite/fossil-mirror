@@ -61,6 +61,23 @@ struct ForumThread {
 #endif /* INTERFACE */
 
 /*
+** Return true if the forum entry with the given rid has been
+** subsequently edited.
+*/
+int forum_rid_has_been_edited(int rid){
+  static Stmt q;
+  int res;
+  db_static_prepare(&q,
+     "SELECT 1 FROM forumpost A, forumpost B"
+     " WHERE A.fpid=$rid AND B.froot=A.froot AND B.fprev=$rid"
+  );
+  db_bind_int(&q, "$rid", rid);
+  res = db_step(&q)==SQLITE_ROW;
+  db_reset(&q);
+  return res;
+}
+
+/*
 ** Delete a complete ForumThread and all its entries.
 */
 static void forumthread_delete(ForumThread *pThread){

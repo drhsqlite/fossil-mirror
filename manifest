@@ -1,5 +1,5 @@
-C Set\sthe\sautocomplete="off"\sparameter\son\sthe\spassword\sinput\sto\sthe\nuser\sediting\sscreen.
-D 2020-03-26T14:48:08.760
+C Add\sa\snew\ssubscription\soption\sto\sreceive\sedits\sto\sforum\sposts.\s\sIf\sthis\noption\sis\snot\sselected,\sthen\salerts\sare\sonly\ssent\son\sthe\sinitial\spost,\snot\non\sedits.\s\sAlso:\s\sUse\sthe\s"forumObs"\sclass\son\stimeline\sforum\stext\sthat\shas\nbeen\ssubsequently\sedited.
+D 2020-03-26T18:54:02.729
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
-F src/alerts.c ce79a8c774d43b77ecd5efe1bdd3bac52c340a5585c387b15e34d5d7fc3bd77b
+F src/alerts.c 1b00ef0e97a4f17eb3ee70cc46ca0726ae3cd53b46ba137f22028ae006210dcf
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
@@ -479,7 +479,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 3d7988645f83b21166d177af0a9f0309bd17bb3728cd582a110ab11f2fc328cd
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c c4b189ce14150cd0a5a1d036324d72062303d72276da0c90fe4f665c8e30c92b
+F src/forum.c 243d2e753ff5d1b399d9f547a02c1fd4af57b5472f613324c577e75eb29f28c1
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 9e7d580ff965ac8b58c030f916ed2326020061480954b50192aa5b9cf65404d9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -602,7 +602,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 50c4204d0a739f9cb7704c89d9445ae38bfc2e01ba6a67ed5877d22840c4c3ec
+F src/timeline.c 23304d43e39413575eb3c1508ac348c2f73fb4dc34ea6f01224356228deebf97
 F src/tkt.c 5a3959e1c9567343293992e1f7b3bc87c7e74c578202a68efd35609a0428563f
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 32a8d1102527724a43977c05f18d105f68d699cd1e02f5f32952826c58db2097
-R 911bb42c0a35a359b31e0b6bbee01db0
+P a02385427f4595b402194283609b85cd3cfcff4371013cb8b5c687203e978848
+R 6e74d206fa79266f2b678509384a21f9
 U drh
-Z b9edb3bbcba95f38ba68d21bb52723bf
+Z bb547b90b5a06a359c14e51760ae827b

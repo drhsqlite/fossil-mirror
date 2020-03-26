@@ -796,7 +796,11 @@ void www_print_timeline(
     ){
       Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
       if( pPost ){
-        forum_render(0, pPost->zMimetype, pPost->zWiki, "forumTimeline");
+        const char *zClass = "forumTimeline";
+        if( forum_rid_has_been_edited(rid) ){
+          zClass = "forumTimeline forumObs";
+        }
+        forum_render(0, pPost->zMimetype, pPost->zWiki, zClass);
         manifest_destroy(pPost);
       }
     }

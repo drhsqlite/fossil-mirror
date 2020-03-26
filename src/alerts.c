@@ -1526,7 +1526,7 @@ static void alert_unsubscribe(const char *zName){
 void alert_page(void){
   const char *zName = P("name");
   Stmt q;
-  int sa, sc, sf, st, sw;
+  int sa, sc, sf, st, sw, sx;
   int sdigest, sdonotcall, sverified;
   int isLogin;         /* Logged in as an individual */
   const char *ssub = 0;
@@ -1567,6 +1567,7 @@ void alert_page(void){
     if( g.perm.RdForum && PB("sf") ) newSsub[nsub++] = 'f';
     if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
+    if( g.perm.RdForum && PB("sx") ) newSsub[nsub++] = 'x';
     newSsub[nsub] = 0;
     ssub = newSsub;
     blob_init(&update, "UPDATE subscriber SET", -1);
@@ -1648,6 +1649,7 @@ void alert_page(void){
   sf = strchr(ssub,'f')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
+  sx = strchr(ssub,'x')!=0;
   smip = db_column_text(&q, 5);
   mtime = db_column_text(&q, 7);
   sctime = db_column_text(&q, 8);
@@ -1717,6 +1719,8 @@ void alert_page(void){
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(sf?"checked":"")>\
     @  Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sx" %s(sx?"checked":"")>\
+    @  Forum Edits</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
@@ -2006,9 +2010,17 @@ void subscriber_list_page(void){
 /*
 ** A single event that might appear in an alert is recorded as an
 ** instance of the following object.
+**
+** type values:
+**
+**      c       A new check-in
+**      f       An original forum post
+**      x       An edit to a prior forum post
+**      t       A new ticket or a change to an existing ticket
+**      w       A change to a wiki page
 */
 struct EmailEvent {
-  int type;          /* 'c', 'f', 'm', 't', 'w' */
+  int type;          /* 'c', 'f', 't', 'w', 'x' */
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
@@ -2087,7 +2099,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p->pNext = 0;
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
-      case 'f':  zType = "Forum post";      break;
+      /* case 'f':  -- forum posts omitted from this loop.  See below */
       case 't':  zType = "Ticket Change";   break;
       case 'w':  zType = "Wiki Edit";       break;
     }
@@ -2096,7 +2108,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
       zType,
-      db_column_text(&q,2),
+      db_column_text(&q, 2),
       zUrl,
       db_column_text(&q,0)
     );
@@ -2132,7 +2144,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     " substr(comment,instr(comment,':')+2),"                /* 3 */
     " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
     " wantalert.needMod,"                                   /* 5 */
-    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user)"   /* 6 */
+    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user)," /* 6 */
+    " forumpost.fprev IS NULL"                                      /* 7 */
     " FROM temp.wantalert, event, forumpost"
     "      LEFT JOIN user ON (login=coalesce(euser,user))"
     " WHERE event.objid=substr(wantalert.eventId,2)+0"
@@ -2152,7 +2165,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
-    p->type = 'f';
+    p->type = db_column_int(&q,7) ? 'f' : 'x';
     p->needMod = db_column_int(&q, 5);
     z = db_column_text(&q,6);
     p->zFromName = z && z[0] ? fossil_strdup(z) : 0;
@@ -2484,9 +2497,9 @@ void alert_send_alerts(u32 flags){
         char xType = '*';
         if( strpbrk(zCap,"as")==0 ){
           switch( p->type ){
-            case 'f':  xType = '5';  break;
-            case 't':  xType = 'q';  break;
-            case 'w':  xType = 'l';  break;
+            case 'x': case 'f':  xType = '5';  break;
+            case 't':            xType = 'q';  break;
+            case 'w':            xType = 'l';  break;
           }
           if( strchr(zCap,xType)==0 ) continue;
         }
@@ -2498,10 +2511,10 @@ void alert_send_alerts(u32 flags){
         ** privilege to view the event itself */
         char xType = '*';
         switch( p->type ){
-          case 'c':  xType = 'o';  break;
-          case 'f':  xType = '2';  break;
-          case 't':  xType = 'r';  break;
-          case 'w':  xType = 'j';  break;
+          case 'c':            xType = 'o';  break;
+          case 'x': case 'f':  xType = '2';  break;
+          case 't':            xType = 'r';  break;
+          case 'w':            xType = 'j';  break;
         }
         if( strchr(zCap,xType)==0 ) continue;
       }
