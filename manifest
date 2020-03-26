@@ -1,5 +1,5 @@
-C Removed\sobsolete\sreference\sto\sthe\shistorical\slimitation\sof\sthe\sgrep\scommand\saccepting\sonly\sa\ssingle\sfilename.
-D 2020-03-26T05:30:43.208
+C Fix\sa\sformatting\sissue\son\sthe\sload-management\sdocumentation\spage.
+D 2020-03-26T10:40:42.376
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -901,7 +901,7 @@ F www/json-api/hacking.md f3d3a8f029a03fe60029f15dff36a92a5103c36911e84818adc029
 F www/json-api/index.md 67e1faea9d01a0e041c229aaeecc6c3090b43951aff8f43c8fb1c8bc4d605802
 F www/json-api/intro.md b2c063082f9c84251d50bd3061f772e91bd71bc0dcf31ee5aad0825bf70601da
 F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b639a7bc
-F www/loadmgmt.md 1a5b39c99709f98c2f536ab2fb9987d4935fa307b675c80a2dbc1e12eded2b3c
+F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 58f00d333ac3fb6f78a8d4e49bd4290f8a82ebc0472a17451d5eefe1cea57850
-R 6a66a16396e3533d1193cfb1fd4fc9e5
-U stephan
-Z 2eca067439f01ff297ec1b23122a53aa
+P 30a2af8e394c3b54ea4fa0601e8a787063b8c085531753a2a6c434e764725e29
+R 0814c16fd582e5f20ba92d1541ca8cda
+U drh
+Z 55aa382201fe3a27d37912a621a26dd0
