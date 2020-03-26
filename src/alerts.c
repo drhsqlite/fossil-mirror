@@ -48,6 +48,7 @@ static const char zAlertInit[] =
 @ -- type of event to subscribe to.  Choices:
 @ --     a - Announcements
 @ --     c - Check-ins
+@ --     f - Forum posts
 @ --     t - Ticket changes
 @ --     w - Wiki changes
 @ -- Probably different codes will be added in the future.  In the future
@@ -241,6 +242,13 @@ void setup_notification(void){
   @ (Property: "email-url")</p>
   @ <hr>
 
+  entry_attribute("Administrator email address", 40, "email-admin",
+                   "eadmin", "", 0);
+  @ <p>This is the email for the human administrator for the system.
+  @ Abuse and trouble reports and password reset requests are send here.
+  @ (Property: "email-admin")</p>
+  @ <hr>
+
   entry_attribute("\"Return-Path\" email address", 20, "email-self",
                    "eself", "", 0);
   @ <p><b>Required.</b>
@@ -297,13 +305,6 @@ void setup_notification(void){
   @ append a colon and TCP port number (ex: smtp.example.com:587).
   @ The default TCP port number is 25.
   @ (Property: "email-send-relayhost")</p>
-  @ <hr>
-
-  entry_attribute("Administrator email address", 40, "email-admin",
-                   "eadmin", "", 0);
-  @ <p>This is the email for the human administrator for the system.
-  @ Abuse and trouble reports are send here.
-  @ (Property: "email-admin")</p>
   @ <hr>
 
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
@@ -1545,6 +1546,7 @@ void alert_page(void){
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
     int sdonotcall = PB("sdonotcall");
     int sdigest = PB("sdigest");
+    const char *zEmail = P("semail");
     char ssub[10];
     int nsub = 0;
     Blob update;
@@ -1577,8 +1579,8 @@ void alert_page(void){
         sverified
       );
     }
-    if( isLogin ){
-      blob_append_sql(&update, ", semail=%Q", P("semail"));
+    if( isLogin && zEmail && zEmail[0] ){
+      blob_append_sql(&update, ", semail=%Q", zEmail);
     }
     blob_append_sql(&update," WHERE subscriberCode=hextoblob(%Q)", zName);
     db_exec_sql(blob_str(&update));
