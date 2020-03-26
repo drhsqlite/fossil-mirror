@@ -1646,7 +1646,12 @@ void alert_page(void){
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
   if( isLogin ){
-    @  <td><input type="text" name="semail" value="%h(semail)" size="30"></td>
+    @  <td><input type="text" name="semail" value="%h(semail)" size="30">\
+    if( g.perm.Admin ){
+       @ &nbsp;&nbsp;<a href="%R/announce?to=%t(semail)">\
+       @ (Send a message to %h(semail))</a>\
+    }
+    @ </td>
   }else{
     @  <td>%h(semail)</td>
   }
