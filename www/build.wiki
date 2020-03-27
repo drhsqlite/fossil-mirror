@@ -312,3 +312,56 @@ To delete the Docker container and image (if desired), run:
 Note the IDs of the images named <tt>fossil_static</tt> and <tt>alpine</tt>, then:
 
 <pre><code>docker image rm THE_FOSSIL_ID THE_ALPINE_ID</code></pre>
+
+
+<h2>6.0 Building on/for Android</h2>
+
+<h3>6.1 Cross-compiling from Linux</h3>
+
+The following instructions for building Fossil for Andoid,
+without requiring a rooted OS, are adapted from
+[https://fossil-scm.org/forum/forumpost/e0e9de4a7e | forumpost/e0e9de4a7e].
+
+On the development machine, from the fossil source tree:
+
+<pre><code>export CC=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang
+./configure --with-openssl=none
+make
+</code></pre>
+
+
+On the Android device, enable the <em>USB debugging</em> option from
+Developer menu in Device Options. Connect the device to the development
+system with USB. If it's configured and connected properly,
+the device should show up in the output of <code>adb devices</code>:
+
+<pre><code>sudo adb devices
+</code></pre>
+
+Copy the resulting fossil binary onto the device...
+
+<pre><code>sudo adb push fossil /data/local/tmp
+</code></pre>
+
+And run it from an <code>adb</code> shell:
+
+<pre><code>sudo adb shell
+&gt; cd /data/local/tmp
+# Fossil requires a HOME directory to work with:
+&gt; export HOME=$PWD
+&gt; export PATH=$PWD:$PATH
+&gt; fossil version
+This is fossil version 2.11 &#91;e5653a4ceb] 2020-03-26 18:54:02 UTC
+</code></pre>
+
+The output might, or might not, include warnings such as:
+
+<pre><code>WARNING: linker: ./fossil: unused DT entry: type 0x6ffffef5 arg 0x1464
+WARNING: linker: ./fossil: unused DT entry: type 0x6ffffffe arg 0x1ba8
+WARNING: linker: ./fossil: unused DT entry: type 0x6fffffff arg 0x2
+</code></pre>
+
+The source of such warnings is not 100% certain.
+Some information about these (reportedly harmless) warnings can
+be found
+[https://stackoverflow.com/a/41900551 | on this StackOverflow post].
