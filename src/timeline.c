@@ -431,13 +431,13 @@ void www_print_timeline(
         zDateLink = href("%R/technote/%s",zId);
         free(zId);
       }else{
-        zDateLink = href("%R/timeline?c=%t",zDate);
+        zDateLink = href("%R/timeline?c=%t&y=a",zDate);
       }
     }else if( zUuid ){
       if( bTimestampLinksToInfo ){
         zDateLink = chref("timelineHistLink", "%R/info/%!S", zUuid);
       }else{
-        zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S", zUuid);
+        zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S&y=a", zUuid);
       }
     }else{
       zDateLink = mprintf("<a>");
