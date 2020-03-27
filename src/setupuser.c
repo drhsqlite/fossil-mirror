@@ -37,6 +37,7 @@ void setup_ulist(void){
   Stmt s;
   double rNow;
   const char *zWith = P("with");
+  int bUnusedOnly = P("unused")!=0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -51,7 +52,7 @@ void setup_ulist(void){
     style_submenu_element("Subscribers", "subscribers");
   }
   style_header("User List");
-  if( zWith==0 || zWith[0]==0 ){
+  if( (zWith==0 || zWith[0]==0) && !bUnusedOnly ){
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
     @ <thead><tr>
     @   <th>Category
@@ -96,11 +97,18 @@ void setup_ulist(void){
     @ <div class='section'>Users</div>
   }else{
     style_submenu_element("All Users", "setup_ulist");
-    if( zWith[1]==0 ){
-      @ <div class='section'>Users with capability "%h(zWith)"</div>
-    }else{
-      @ <div class='section'>Users with any capability in "%h(zWith)"</div>
+    if( bUnusedOnly ){
+      @ <div class='section'>Unused logins</div>
+    }else if( zWith ){
+      if( zWith[1]==0 ){
+        @ <div class='section'>Users with capability "%h(zWith)"</div>
+      }else{
+        @ <div class='section'>Users with any capability in "%h(zWith)"</div>
+      }
     }
+  }
+  if( !bUnusedOnly ){
+    style_submenu_element("Unused", "setup_ulist?unused");
   }
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
   @  data-column-types='ktxTTK' data-init-sort='2'>
@@ -122,7 +130,15 @@ void setup_ulist(void){
       " GROUP BY 1;"
     );
   }
-  if( zWith && zWith[0] ){
+  if( bUnusedOnly ){
+    zWith = mprintf(
+        " AND login NOT IN ("
+        "SELECT user FROM event WHERE user NOT NULL "
+        "UNION ALL SELECT euser FROM event WHERE euser NOT NULL%s)"
+        " AND uid NOT IN (SELECT uid FROM rcvfrom)",
+        alert_tables_exist() ?
+          " UNION ALL SELECT suname FROM subscriber WHERE suname NOT NULL":"");
+  }else if( zWith && zWith[0] ){
     zWith = mprintf(" AND fullcap(cap) GLOB '*[%q]*'", zWith);
   }else{
     zWith = "";
