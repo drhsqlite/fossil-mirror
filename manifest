@@ -1,5 +1,5 @@
-C Added\sbuild\sinstructions\sfor\scross-compiling\sFossil\sfor\sAndroid\sfrom\sLinux,\sadapted\sfrom\s[https://fossil-scm.org/forum/forumpost/e0e9de4a7e\s|\sforumpost/e0e9de4a7e].
-D 2020-03-27T15:15:46.382
+C Fix\san\saccidental\sfork.
+D 2020-03-27T15:19:19.576
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 3d7988645f83b21166d177af0a9f0309bd17bb3728cd582a110ab11f2fc328cd
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c db0ea132195ce513b1399776764f8ff1349e724feb6a851215b66ec3ece77fd6
+F src/forum.c a1b0c6b6e5a31a3e6fbb200c6e848426ecc55e0448a1cd4bc3a4cb30696ed904
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 9e7d580ff965ac8b58c030f916ed2326020061480954b50192aa5b9cf65404d9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d5455f5b1b83d7d1aa688b69468b5c504eafa2948d22007247a7697c9b60c0e6
-R c887864994f540ed34ed9482adc0174e
-U stephan
-Z 632f32096c0746dc7e27e224814b4740
+P b70744576b31e654c285e52a472b4c0ad8e37e9aaaab645ea507f9f37cc66849 069b7ee7a4c63dbfc5b651fd9e3d85030a7ad0a84783d83a34239fa373f63dba
+R 67788b787cf4a1ef48b94698b5a2e4b4
+U drh
+Z 02cf5f7d23a1785c5559b63073e7d8ac

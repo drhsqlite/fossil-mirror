@@ -374,7 +374,12 @@ char *display_name_from_login(const char *zLogin){
   );
   db_bind_text(&q, "$login", zLogin);
   if( db_step(&q)==SQLITE_ROW && db_column_type(&q,0)==SQLITE_TEXT ){
-    zResult = mprintf("%s (%s)", db_column_text(&q,0), zLogin);
+    const char *zDisplay = db_column_text(&q,0);
+    if( fossil_strcmp(zDisplay,zLogin)==0 ){
+      zResult = fossil_strdup(zLogin);
+    }else{
+      zResult = mprintf("%s (%s)", zDisplay, zLogin);
+    }
   }else{
     zResult = fossil_strdup(zLogin);
   }
