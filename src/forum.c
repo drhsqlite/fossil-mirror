@@ -363,18 +363,21 @@ static void generateTrustControls(Manifest *pPost){
 ** If it does, that becomes the new display name.  If not, let the display
 ** name just be the login.
 **
-** Space to hold the returned name is obtained form fossil_strdup()
-** and should be freed by the caller.
+** Space to hold the returned name is obtained from fossil_strdup() or
+** mprintf() and should be freed by the caller.
 */
 char *display_name_from_login(const char *zLogin){
   static Stmt q;
   char *zResult;
   db_static_prepare(&q,
-     "SELECT coalesce(display_name(info),$login) FROM user WHERE login=$login"
+     "SELECT display_name(info) FROM user WHERE login=$login"
   );
   db_bind_text(&q, "$login", zLogin);
-  db_step(&q);
-  zResult = fossil_strdup(db_column_text(&q,0));
+  if( db_step(&q)==SQLITE_ROW && db_column_type(&q,0)==SQLITE_TEXT ){
+    zResult = mprintf("%s (%s)", db_column_text(&q,0), zLogin);
+  }else{
+    zResult = fossil_strdup(zLogin);
+  }
   db_reset(&q);
   return zResult;
 }
