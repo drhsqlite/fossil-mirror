@@ -1043,6 +1043,8 @@ void db_add_aux_functions(sqlite3 *db){
                           capability_fullcap, 0, 0);
   sqlite3_create_function(db, "find_emailaddr", 1, SQLITE_UTF8, 0,
                           alert_find_emailaddr_func, 0, 0);
+  sqlite3_create_function(db, "display_name", 1, SQLITE_UTF8, 0,
+                          alert_display_name_func, 0, 0);
 }
 
 #if USE_SEE

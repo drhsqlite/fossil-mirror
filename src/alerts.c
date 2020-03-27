@@ -675,6 +675,34 @@ void alert_find_emailaddr_func(
 }
 
 /*
+** SQL function:  display_name(X)
+**
+** If X is a string, search for a user name at the beginning of that
+** string.  The user name must be followed by an email address.  If
+** found, return the user name.  If not found, return NULL.
+**
+** This routine is used to extract the display name from the USER.INFO
+** field.
+*/
+void alert_display_name_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zIn = (const char*)sqlite3_value_text(argv[0]);
+  int i;
+  if( zIn==0 ) return;
+  while( fossil_isspace(zIn[0]) ) zIn++;
+  for(i=0; zIn[i] && zIn[i]!='<' && zIn[i]!='\n'; i++){}
+  if( zIn[i]=='<' ){
+    while( i>0 && fossil_isspace(zIn[i-1]) ){ i--; }
+    if( i>0 ){
+      sqlite3_result_text(context, zIn, i, SQLITE_TRANSIENT);
+    }
+  }
+}
+
+/*
 ** Return the hostname portion of an email address - the part following
 ** the @
 */
@@ -2144,8 +2172,8 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     " substr(comment,instr(comment,':')+2),"                /* 3 */
     " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
     " wantalert.needMod,"                                   /* 5 */
-    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user)," /* 6 */
-    " forumpost.fprev IS NULL"                                      /* 7 */
+    " coalesce(display_name(info),euser,user),"             /* 6 */
+    " forumpost.fprev IS NULL"                              /* 7 */
     " FROM temp.wantalert, event, forumpost"
     "      LEFT JOIN user ON (login=coalesce(euser,user))"
     " WHERE event.objid=substr(wantalert.eventId,2)+0"

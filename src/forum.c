@@ -356,6 +356,31 @@ static void generateTrustControls(Manifest *pPost){
 }
 
 /*
+** Compute a display name from a login name.
+**
+** If the input login is found in the USER table, then check the USER.INFO
+** field to see if it has display-name followed by an email address.
+** If it does, that becomes the new display name.  If not, let the display
+** name just be the login.
+**
+** Space to hold the returned name is obtained form fossil_strdup()
+** and should be freed by the caller.
+*/
+char *display_name_from_login(const char *zLogin){
+  static Stmt q;
+  char *zResult;
+  db_static_prepare(&q,
+     "SELECT coalesce(display_name(info),$login) FROM user WHERE login=$login"
+  );
+  db_bind_text(&q, "$login", zLogin);
+  db_step(&q);
+  zResult = fossil_strdup(db_column_text(&q,0));
+  db_reset(&q);
+  return zResult;
+}
+
+
+/*
 ** Display all posts in a forum thread in chronological order
 */
 static void forum_display_chronological(int froot, int target, int bRawMode){
@@ -369,6 +394,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     int isPrivate;        /* True for posts awaiting moderation */
     int sameUser;         /* True if author is also the reader */
     const char *zUuid;
+    char *zDisplayName;   /* The display name */
 
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -383,7 +409,9 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
+    zDisplayName = display_name_from_login(pPost->zUser);
+    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(zDisplayName) on %h(zDate)
+    fossil_free(zDisplayName);
     fossil_free(zDate);
     if( p->pEdit ){
       @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEdit->zUuid,cMode))\
@@ -481,6 +509,7 @@ static int forum_display_hierarchical(int froot, int target){
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     int isPrivate;         /* True for posts awaiting moderation */
     int sameUser;          /* True if reader is also the poster */
+    char *zDisplayName;    /* User name to be displayed */
     pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( p->pLeaf ){
       fpid = p->pLeaf->fpid;
@@ -504,8 +533,10 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
+    zDisplayName = display_name_from_login(pOPost->zUser);
     @ <h3 class='forumPostHdr'>\
-    @ (%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
+    @ (%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(zDisplayName) on %h(zDate)
+    fossil_free(zDisplayName);
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
@@ -1067,6 +1098,7 @@ void forumedit_page(void){
     forum_entry_widget(zTitle, zMimetype, zContent);
   }else{
     /* Reply */
+    char *zDisplayName;
     zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
@@ -1075,7 +1107,9 @@ void forumedit_page(void){
     }
     @ <h2>Replying To:</h2>
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <h3 class='forumPostHdr'>By %h(pPost->zUser) on %h(zDate)</h3>
+    zDisplayName = display_name_from_login(pPost->zUser);
+    @ <h3 class='forumPostHdr'>By %h(zDisplayName) on %h(zDate)</h3>
+    fossil_free(zDisplayName);
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
     if( P("preview") ){
