@@ -123,7 +123,11 @@ static char *ipPrefix(const char *zIP){
   int i, j;
   static int ip_prefix_terms = -1;
   if( ip_prefix_terms<0 ){
-    ip_prefix_terms = db_get_int("ip-prefix-terms",2);
+    if( db_get_int("redirect-to-https",0)>=2 ){
+      ip_prefix_terms = 0;
+    }else{
+      ip_prefix_terms = db_get_int("ip-prefix-terms",2);
+    }
   }
   if( ip_prefix_terms==0 ) return mprintf("0");
   for(i=j=0; zIP[i]; i++){

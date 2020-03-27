@@ -407,9 +407,12 @@ void setup_access(void){
   @ <hr />
   entry_attribute("IP address terms used in login cookie", 3,
                   "ip-prefix-terms", "ipt", "2", 0);
-  @ <p>The number of octets of of the IP address used in the login cookie.
+  @ <p>The number of octets of of the IP address used in the login cookie
+  @ when using unencrypted HTTP instead of HTTPS.
   @ Set to zero to omit the IP address from the login cookie.  A value of
   @ 2 is recommended.
+  @ If the "Redirect to HTTP" above is set to "Always", then the IP address
+  @ is not used in the login cookie and this setting is irrelevant.
   @ (Property: "ip-prefix-terms")
   @ </p>
   @
