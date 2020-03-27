@@ -114,7 +114,7 @@ void stats_for_email(void){
   nSub = db_int(0, "SELECT count(*) FROM subscriber");
   nASub = db_int(0, "SELECT count(*) FROM subscriber WHERE sverified"
                    " AND NOT sdonotcall AND length(ssub)>1");
-  @ %,d(nASub) active, %,d(nSub-nASub) pending, %,d(nSub) total
+  @ %,d(nASub) active, %,d(nSub) total
   @ </td></tr>
 }
 

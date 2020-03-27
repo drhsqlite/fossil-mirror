@@ -1957,7 +1957,7 @@ void unsubscribe_page(void){
 ** WEBPAGE: subscribers
 **
 ** This page, accessible to administrators only,
-** shows a list of email notification email addresses.
+** shows a list of subscriber email addresses.
 ** Clicking on an email takes one to the /alerts page
 ** for that email where the delivery settings can be
 ** modified.
@@ -1966,6 +1966,9 @@ void subscriber_list_page(void){
   Blob sql;
   Stmt q;
   sqlite3_int64 iNow;
+  int nTotal;
+  int nPending;
+  int nDel = 0;
   if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -1975,6 +1978,32 @@ void subscriber_list_page(void){
   alert_submenu_common();
   style_submenu_element("Users","setup_ulist");
   style_header("Subscriber List");
+  nTotal = db_int(0, "SELECT count(*) FROM subscriber");
+  nPending = db_int(0, "SELECT count(*) FROM subscriber WHERE NOT sverified");
+  if( nPending>0 && P("purge") && cgi_csrf_safe(0) ){
+    int nNewPending;
+    db_multi_exec(
+       "DELETE FROM subscriber"
+       " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')"
+    );
+    nNewPending = db_int(0, "SELECT count(*) FROM subscriber"
+                            " WHERE NOT sverified");
+    nDel = nPending - nNewPending;
+    nPending = nNewPending;
+  }
+  if( nPending>0 ){
+    @ <h1>%,d(nTotal) Subscribers, %,d(nPending) Pending</h1>
+    if( nDel==0 && 0<db_int(0,"SELECT count(*) FROM subscriber"
+            " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')")
+    ){
+      style_submenu_element("Purge Pending","subscribers?purge");
+    }
+  }else{
+    @ <h1>%,d(nTotal) Subscribers</h1>
+  }
+  if( nDel>0 ){
+    @ <p>*** %d(nDel) pending subscriptions deleted ***</p>
+  }
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
     "SELECT hex(subscriberCode),"          /* 0 */
