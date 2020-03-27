@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\spurge\sold\spending\ssubscriptions\sfrom\sthe\s/subscribers\spage.
-D 2020-03-27T22:23:58.864
+C In\sthe\sprevious\scheck-in,\sfix\sthe\ssubscriber\scount\safter\sdoing\sa\spurge.
+D 2020-03-27T22:25:20.652
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
-F src/alerts.c a342c2b2d56be88c90d47b979c1c9fed43e506bae9adda7f2c2980c83b1e7afd
+F src/alerts.c f9cbe9c5bfb3ee50e862249c77659b86681256daf4b6a8e1b637744e5219c5ac
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c 13d3f5c193a6b9c215390c285835daaf63845c1aa170465d951fb1c88febaa3d
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce4bece94608e13e791484d41bc741a3175130631ec72eeee80d9f9e564e06c0
-R 4a19f955851b35327927cd2a2853d2b0
+P 8c40c38f5e525663dd2ede5e25dbf1c199ea51ceb05e546c0a5c879c95151e86
+R 8300e8a6ae1a63fe8a8ad3edd92a15db
 U drh
-Z 03a878fa3b4d877eae5c27cdb1aa9cc8
+Z 5de7203acb3419aee621debcf0bde0e3

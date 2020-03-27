@@ -1990,6 +1990,7 @@ void subscriber_list_page(void){
                             " WHERE NOT sverified");
     nDel = nPending - nNewPending;
     nPending = nNewPending;
+    nTotal -= nDel;
   }
   if( nPending>0 ){
     @ <h1>%,d(nTotal) Subscribers, %,d(nPending) Pending</h1>
