@@ -922,6 +922,22 @@ void alert_send(
 }
 
 /*
+** SETTING: email-url                 width=40
+** This URL is used as the basename for hyperlinks included in email alert
+** text. Omit the trailing "/".
+*/
+/*
+** SETTING: email-admin               width=40
+** This is the email address for the human administrator for the system. 
+** Abuse and trouble reports and password reset requests are send here.
+*/
+/*
+** SETTING: email-subname             width=16
+** This is a short name used to identifies the repository in the Subject:
+** line of email alerts. Traditionally this name is included in square
+** brackets. Examples: "[fossil-src]", "[sqlite-src]".
+*/
+/*
 ** SETTING: email-send-method         width=5 default=off
 ** Determine the method used to send email.  Allowed values are
 ** "off", "relay", "pipe", "dir", "db", and "stdout".  The "off" value
