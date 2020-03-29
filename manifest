@@ -1,5 +1,5 @@
-C Add\semail-url,\semail-admin,\sand\semail-subname\sto\sthe\ssettings\sthat\scan\nbe\smanaged\sby\sthe\s"fossil\salert\ssetting"\scommand.
-D 2020-03-28T18:21:59.076
+C Fix\sa\sminor\sformatting\serror\sin\sthe\salerts.md\sdocument.
+D 2020-03-29T14:04:47.469
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -777,7 +777,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178ca9d
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
-F www/alerts.md 5b5721f88510f708118687708150f3fe3d140aef22af1aa56fd73a77b34ce7a4
+F www/alerts.md 66619f74c5bfa23fb1bfb47828656d7718926230b8e24e5eca15927039e9a034
 F www/antibot.wiki 0a0da1170b10103300004661f00ee71652c9f30faf5a6d28afdee93a5ddd36a6
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8ccab68fc6f679d16f657660be3eb709c7494c85c00715701dac944559b99a19
-R d7f856cd8a417564270fa029fb7e403a
+P a0ae0c9ff660fba55db63b9da3f0d07c7fe6510e8a210cf667d529c066ab55ef
+R 5b1a5bba5baea8ad00c5f7d39baaf19a
 U drh
-Z 9975dbd57d61ce0d796d895a0fab99e9
+Z 75f540a2f8e644607aeb4cf0b27b9271

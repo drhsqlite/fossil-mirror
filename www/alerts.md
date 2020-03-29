@@ -720,8 +720,8 @@ Almost all of the email alert code is found in the
 
 When email alerts are enabled, a trigger is created in the schema
 (`email_trigger1`) that adds a new entry to the `PENDING_ALERT` table
-every time a row is added to the `EVENT` table.  During a `fossil
-rebuild`, the `EVENT` table is rebuilt from scratch; since we do not
+every time a row is added to the `EVENT` table.  During a 
+`fossil rebuild`, the `EVENT` table is rebuilt from scratch; since we do not
 want users to get alerts for every historical check-in, the trigger is
 disabled during `rebuild`.
 
