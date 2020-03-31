@@ -114,32 +114,6 @@ static void redirect_to_g(void){
 }
 
 /*
-** The IP address of the client is stored as part of login cookies.
-** But some clients are behind firewalls that shift the IP address
-** with each HTTP request.  To allow such (broken) clients to log in,
-** extract just a prefix of the IP address.
-*/
-static char *ipPrefix(const char *zIP){
-  int i, j;
-  static int ip_prefix_terms = -1;
-  if( ip_prefix_terms<0 ){
-    if( db_get_int("redirect-to-https",0)>=2 ){
-      ip_prefix_terms = 0;
-    }else{
-      ip_prefix_terms = db_get_int("ip-prefix-terms",2);
-    }
-  }
-  if( ip_prefix_terms==0 ) return mprintf("0");
-  for(i=j=0; zIP[i]; i++){
-    if( zIP[i]=='.' ){
-      j++;
-      if( j==ip_prefix_terms ) break;
-    }
-  }
-  return mprintf("%.*s", i, zIP);
-}
-
-/*
 ** Return an abbreviated project code.  The abbreviation is the first
 ** 16 characters of the project code.
 **
@@ -301,26 +275,23 @@ void login_set_user_cookie(
   char *zHash;
   char *zCookie;
   const char *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
-  char *zRemoteAddr = ipPrefix(zIpAddr);         /* Abbreviated IP address */
 
   assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
   zHash = db_text(0,
       "SELECT cookie FROM user"
       " WHERE uid=%d"
-      "   AND ipaddr=%Q"
       "   AND cexpire>julianday('now')"
       "   AND length(cookie)>30",
-      uid, zRemoteAddr);
+      uid);
   if( zHash==0 ) zHash = db_text(0, "SELECT hex(randomblob(25))");
   zCookie = login_gen_user_cookie_value(zUsername, zHash);
   cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   record_login_attempt(zUsername, zIpAddr, 1);
   db_multi_exec(
-                "UPDATE user SET cookie=%Q, ipaddr=%Q, "
+                "UPDATE user SET cookie=%Q,"
                 "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-                zHash, zRemoteAddr, expires, uid
+                zHash, expires, uid
                 );
-  free(zRemoteAddr);
   free(zHash);
   if( zDest ){
     *zDest = zCookie;
@@ -333,11 +304,7 @@ void login_set_user_cookie(
 **
 **    HASH/TIME/anonymous
 **
-** Where HASH is the sha1sum of TIME/IPADDR/SECRET, in which IPADDR
-** is the abbreviated IP address and SECRET is captcha-secret.
-**
-** If either zIpAddr or zRemoteAddr are NULL then REMOTE_ADDR
-** is used.
+** Where HASH is the sha1sum of TIME/SECRET, in which SECRET is captcha-secret.
 **
 ** If zCookieDest is not NULL then the generated cookie is assigned to
 ** *zCookieDest and the caller must eventually free() it.
@@ -347,16 +314,11 @@ void login_set_anon_cookie(const char *zIpAddr, char **zCookieDest ){
   char *zCookie;               /* The login cookie */
   const char *zCookieName;     /* Name of the login cookie */
   Blob b;                      /* Blob used during cookie construction */
-  char *zRemoteAddr;           /* Abbreviated IP address */
-  if(!zIpAddr){
-    zIpAddr = PD("REMOTE_ADDR","nil");
-  }
-  zRemoteAddr = ipPrefix(zIpAddr);
   zCookieName = login_cookie_name();
   zNow = db_text("0", "SELECT julianday('now')");
-  assert( zCookieName && zRemoteAddr && zIpAddr && zNow );
+  assert( zCookieName && zNow );
   blob_init(&b, zNow, -1);
-  blob_appendf(&b, "/%s/%s", zRemoteAddr, db_get("captcha-secret",""));
+  blob_appendf(&b, "/%s", db_get("captcha-secret",""));
   sha1sum_blob(&b, &b);
   zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
   blob_reset(&b);
@@ -815,8 +777,7 @@ void login_page(void){
 static int login_transfer_credentials(
   const char *zLogin,          /* Login we are looking for */
   const char *zCode,           /* Project code of peer repository */
-  const char *zHash,           /* HASH from login cookie HASH/CODE/LOGIN */
-  const char *zRemoteAddr      /* Request comes from here */
+  const char *zHash            /* HASH from login cookie HASH/CODE/LOGIN */
 ){
   sqlite3 *pOther = 0;         /* The other repository */
   sqlite3_stmt *pStmt;         /* Query against the other repository */
@@ -844,20 +805,19 @@ static int login_transfer_credentials(
     zSQL = mprintf(
       "SELECT cexpire FROM user"
       " WHERE login=%Q"
-      "   AND ipaddr=%Q"
       "   AND length(cap)>0"
       "   AND length(pw)>0"
       "   AND cexpire>julianday('now')"
       "   AND constant_time_cmp(cookie,%Q)=0",
-      zLogin, zRemoteAddr, zHash
+      zLogin, zHash
     );
     pStmt = 0;
     rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
     if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
       db_multi_exec(
-        "UPDATE user SET cookie=%Q, ipaddr=%Q, cexpire=%.17g"
+        "UPDATE user SET cookie=%Q, cexpire=%.17g"
         " WHERE login=%Q",
-        zHash, zRemoteAddr,
+        zHash, 
         sqlite3_column_double(pStmt, 0), zLogin
       );
       nXfer++;
@@ -881,29 +841,26 @@ int login_is_special(const char *zLogin){
 }
 
 /*
-** Lookup the uid for a non-built-in user with zLogin and zCookie and
-** zRemoteAddr.  Return 0 if not found.
+** Lookup the uid for a non-built-in user with zLogin and zCookie.
+** Return 0 if not found.
 **
 ** Note that this only searches for logged-in entries with matching
-** zCookie (db: user.cookie) and zRemoteAddr (db: user.ipaddr)
-** entries.
+** zCookie (db: user.cookie) entries.
 */
 static int login_find_user(
   const char *zLogin,            /* User name */
-  const char *zCookie,           /* Login cookie value */
-  const char *zRemoteAddr        /* Abbreviated IP address for valid login */
+  const char *zCookie            /* Login cookie value */
 ){
   int uid;
   if( login_is_special(zLogin) ) return 0;
   uid = db_int(0,
     "SELECT uid FROM user"
     " WHERE login=%Q"
-    "   AND ipaddr=%Q"
     "   AND cexpire>julianday('now')"
     "   AND length(cap)>0"
     "   AND length(pw)>0"
     "   AND constant_time_cmp(cookie,%Q)=0",
-    zLogin, zRemoteAddr, zCookie
+    zLogin, zCookie
   );
   return uid;
 }
@@ -976,7 +933,6 @@ void login_check_credentials(void){
   int uid = 0;                  /* User id */
   const char *zCookie;          /* Text of the login cookie */
   const char *zIpAddr;          /* Raw IP address of the requestor */
-  char *zRemoteAddr;            /* Abbreviated IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
   const char *zPublicPages = 0; /* GLOB patterns of public pages */
   const char *zLogin = 0;       /* Login user for credentials */
@@ -994,7 +950,7 @@ void login_check_credentials(void){
   ** This feature allows the "fossil ui" command to give the user
   ** full access rights without having to log in.
   */
-  zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
+  zIpAddr = PD("REMOTE_ADDR","nil");
   if( ( cgi_is_loopback(zIpAddr)
        || (g.fSshClient & CGI_SSH_CLIENT)!=0 )
    && g.useLocalauth
@@ -1043,8 +999,7 @@ void login_check_credentials(void){
       double rTime = atof(zArg);
       Blob b;
       blob_zero(&b);
-      blob_appendf(&b, "%s/%s/%s",
-                   zArg, zRemoteAddr, db_get("captcha-secret",""));
+      blob_appendf(&b, "%s/%s", zArg, db_get("captcha-secret",""));
       sha1sum_blob(&b, &b);
       if( fossil_strcmp(zHash, blob_str(&b))==0 ){
         uid = db_int(0,
@@ -1061,9 +1016,9 @@ void login_check_credentials(void){
       ** local user table, then the user table for project CODE if we
       ** are part of a login-group.
       */
-      uid = login_find_user(zUser, zHash, zRemoteAddr);
-      if( uid==0 && login_transfer_credentials(zUser,zArg,zHash,zRemoteAddr) ){
-        uid = login_find_user(zUser, zHash, zRemoteAddr);
+      uid = login_find_user(zUser, zHash);
+      if( uid==0 && login_transfer_credentials(zUser,zArg,zHash) ){
+        uid = login_find_user(zUser, zHash);
         if( uid ) record_login_attempt(zUser, zIpAddr, 1);
       }
     }

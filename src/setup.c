@@ -405,18 +405,6 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
-  entry_attribute("IP address terms used in login cookie", 3,
-                  "ip-prefix-terms", "ipt", "2", 0);
-  @ <p>The number of octets of of the IP address used in the login cookie
-  @ when using unencrypted HTTP instead of HTTPS.
-  @ Set to zero to omit the IP address from the login cookie.  A value of
-  @ 2 is recommended.
-  @ If the "Redirect to HTTP" above is set to "Always", then the IP address
-  @ is not used in the login cookie and this setting is irrelevant.
-  @ (Property: "ip-prefix-terms")
-  @ </p>
-  @
-  @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex",
                   "8766", 0);
   @ <p>The number of hours for which a login is valid.  This must be a
