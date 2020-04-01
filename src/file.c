@@ -501,6 +501,7 @@ void file_copy(const char *zFrom, const char *zTo){
   }
   fclose(in);
   fclose(out);
+  if( file_isexe(zFrom, ExtFILE) ) file_setexe(zTo, 1);
 }
 
 /*
