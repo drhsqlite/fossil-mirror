@@ -1448,6 +1448,21 @@ void login_verify_csrf_secret(void){
 }
 
 /*
+** Check to see if the candidate username zUserID is already used.
+** Return 1 if it is already in use.  Return 0 if the name is 
+** available for a self-registeration.
+*/
+static int login_self_choosen_userid_already_exists(const char *zUserID){
+  int rc = db_exists(
+    "SELECT 1 FROM user WHERE login=%Q "
+    "UNION ALL "
+    "SELECT 1 FROM event WHERE user=%Q OR euser=%Q",
+    zUserID, zUserID, zUserID
+  );
+  return rc;
+}
+
+/*
 ** WEBPAGE: register
 **
 ** Page to allow users to self-register.  The "self-register" setting
@@ -1493,9 +1508,9 @@ void register_page(void){
   }else if( !captcha_is_correct(1) ){
     iErrLine = 6;
     zErr = "Incorrect CAPTCHA";
-  }else if( strlen(zUserID)<3 ){
+  }else if( strlen(zUserID)<6 ){
     iErrLine = 1;
-    zErr = "User ID too short. Must be at least 3 characters.";
+    zErr = "User ID too short. Must be at least 6 characters.";
   }else if( sqlite3_strglob("*[^-a-zA-Z0-9_.]*",zUserID)==0 ){
     iErrLine = 1;
     zErr = "User ID may not contain spaces or special characters.";
@@ -1514,7 +1529,7 @@ void register_page(void){
   }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
     iErrLine = 5;
     zErr = "Passwords do not match";
-  }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zUserID) ){
+  }else if( login_self_choosen_userid_already_exists(zUserID) ){
     iErrLine = 1;
     zErr = "This User ID is already taken. Choose something different.";
   }else if(
