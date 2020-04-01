@@ -1571,10 +1571,10 @@ void alert_page(void){
   const char *zName = P("name");
   Stmt q;
   int sa, sc, sf, st, sw, sx;
-  int sdigest, sdonotcall, sverified;
+  int sdigest = 0, sdonotcall = 0, sverified = 0;
   int isLogin;         /* Logged in as an individual */
   const char *ssub = 0;
-  const char *semail;
+  const char *semail = 0;
   const char *smip;
   const char *suname = 0;
   const char *mtime;
