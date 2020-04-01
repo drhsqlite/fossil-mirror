@@ -176,7 +176,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1d
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1e
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -648,6 +648,22 @@ EXTRA_FILES = \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
+  $(SRCDIR)/sounds/0.wav \
+  $(SRCDIR)/sounds/1.wav \
+  $(SRCDIR)/sounds/2.wav \
+  $(SRCDIR)/sounds/3.wav \
+  $(SRCDIR)/sounds/4.wav \
+  $(SRCDIR)/sounds/5.wav \
+  $(SRCDIR)/sounds/6.wav \
+  $(SRCDIR)/sounds/7.wav \
+  $(SRCDIR)/sounds/8.wav \
+  $(SRCDIR)/sounds/9.wav \
+  $(SRCDIR)/sounds/a.wav \
+  $(SRCDIR)/sounds/b.wav \
+  $(SRCDIR)/sounds/c.wav \
+  $(SRCDIR)/sounds/d.wav \
+  $(SRCDIR)/sounds/e.wav \
+  $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki

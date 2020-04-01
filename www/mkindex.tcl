@@ -52,6 +52,7 @@ set doclist {
   globs.md {File Name Glob Patterns}
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
+  hacker-howto.wiki {Fossil Developers Guide}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
@@ -141,7 +142,7 @@ puts $out {
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
 <li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
-<li> <a href='hacker-howto.wiki'>Hacker How-To</a>
+<li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>

@@ -655,19 +655,13 @@ int db_debug(const char *zSql, ...){
 }
 
 /*
-** Execute multiple SQL statements.
+** Execute multiple SQL statements.  The input text is executed
+** directly without any formatting.
 */
-int db_multi_exec(const char *zSql, ...){
-  Blob sql;
+int db_exec_sql(const char *z){
   int rc = SQLITE_OK;
-  va_list ap;
-  const char *z, *zEnd;
   sqlite3_stmt *pStmt;
-  blob_init(&sql, 0, 0);
-  va_start(ap, zSql);
-  blob_vappendf(&sql, zSql, ap);
-  va_end(ap);
-  z = blob_str(&sql);
+  const char *zEnd;
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
@@ -681,6 +675,22 @@ int db_multi_exec(const char *zSql, ...){
     }
     z = zEnd;
   }
+  return rc;
+}
+
+/*
+** Execute multiple SQL statements using printf-style formatting.
+*/
+int db_multi_exec(const char *zSql, ...){
+  Blob sql;
+  int rc;
+  va_list ap;
+
+  blob_init(&sql, 0, 0);
+  va_start(ap, zSql);
+  blob_vappendf(&sql, zSql, ap);
+  va_end(ap);
+  rc = db_exec_sql(blob_str(&sql));
   blob_reset(&sql);
   return rc;
 }
@@ -1033,6 +1043,8 @@ void db_add_aux_functions(sqlite3 *db){
                           capability_fullcap, 0, 0);
   sqlite3_create_function(db, "find_emailaddr", 1, SQLITE_UTF8, 0,
                           alert_find_emailaddr_func, 0, 0);
+  sqlite3_create_function(db, "display_name", 1, SQLITE_UTF8, 0,
+                          alert_display_name_func, 0, 0);
 }
 
 #if USE_SEE
@@ -1288,13 +1300,13 @@ void db_attach(const char *zDbName, const char *zLabel){
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
                                  zDbName, zLabel, blob_str(&key));
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_exec_sql(zCmd);
     fossil_secure_zero(zCmd, strlen(zCmd));
     sqlite3_free(zCmd);
   }else{
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY ''",
                                  zDbName, zLabel);
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_exec_sql(zCmd);
     sqlite3_free(zCmd);
 #if USE_SEE
     if( blob_size(&key)>0 ){
@@ -1764,9 +1776,9 @@ void db_open_repository(const char *zDbName){
         " WHERE mrid!=rid;"
       );
       if( !db_table_has_column("localdb", "vmerge", "mhash") ){
-        db_multi_exec("ALTER TABLE vmerge RENAME TO old_vmerge;");
-        db_multi_exec(zLocalSchemaVmerge /*works-like:""*/);
-        db_multi_exec(  
+        db_exec_sql("ALTER TABLE vmerge RENAME TO old_vmerge;");
+        db_exec_sql(zLocalSchemaVmerge);
+        db_exec_sql(  
            "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
            "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
            "   WHERE old_vmerge.merge=blob.rid;"
@@ -2076,7 +2088,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('developer','','dei','Dev');"
+       "   VALUES('developer','','ei','Dev');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );

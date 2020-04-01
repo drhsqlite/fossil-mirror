@@ -920,7 +920,7 @@ static const char zComputeFileAgeRun[] =
 */
 int compute_fileage(int vid, const char* zGlob){
   Stmt q;
-  db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
+  db_exec_sql(zComputeFileAgeSetup);
   db_prepare(&q, zComputeFileAgeRun  /*works-like:"constant"*/);
   db_bind_int(&q, ":ckin", vid);
   db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");

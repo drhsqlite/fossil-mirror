@@ -117,6 +117,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FILLGAPS 0x0800000 /* Dotted lines for missing nodes */
 #define TIMELINE_XMERGE   0x1000000 /* Omit merges from off-graph nodes */
 #define TIMELINE_NOTKT    0x2000000 /* Omit extra ticket classes */
+#define TIMELINE_FORUMTXT 0x4000000 /* Render all forum messages */
 #endif
 
 /*
@@ -235,7 +236,7 @@ int timeline_tableid(void){
 **    4.  User
 **    5.  True if is a leaf
 **    6.  background color
-**    7.  type ("ci", "w", "t", "e", "g", "div")
+**    7.  type ("ci", "w", "t", "e", "g", "f", "div")
 **    8.  list of symbolic tags.
 **    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
@@ -430,13 +431,13 @@ void www_print_timeline(
         zDateLink = href("%R/technote/%s",zId);
         free(zId);
       }else{
-        zDateLink = href("%R/timeline?c=%t",zDate);
+        zDateLink = href("%R/timeline?c=%t&y=a",zDate);
       }
     }else if( zUuid ){
       if( bTimestampLinksToInfo ){
         zDateLink = chref("timelineHistLink", "%R/info/%!S", zUuid);
       }else{
-        zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S", zUuid);
+        zDateLink = chref("timelineHistLink", "%R/timeline?c=%!S&y=a", zUuid);
       }
     }else{
       zDateLink = mprintf("<a>");
@@ -785,6 +786,22 @@ void www_print_timeline(
       db_reset(&fchngQuery);
       if( inUl ){
         @ </ul>
+      }
+    }
+
+    /* Show the complete text of forum messages */
+    if( (tmFlags & (TIMELINE_FORUMTXT))!=0
+     && zType[0]=='f' && g.perm.Hyperlink
+     && (!content_is_private(rid) || g.perm.ModForum)
+    ){
+      Manifest *pPost = manifest_get(rid, CFTYPE_FORUM, 0);
+      if( pPost ){
+        const char *zClass = "forumTimeline";
+        if( forum_rid_has_been_edited(rid) ){
+          zClass = "forumTimeline forumObs";
+        }
+        forum_render(0, pPost->zMimetype, pPost->zWiki, zClass);
+        manifest_destroy(pPost);
       }
     }
   }
@@ -1567,7 +1584,9 @@ const char *timeline_expand_datetime(const char *zIn){
 **    ng              No Graph.
 **    ncp             Omit cherrypick merges
 **    nd              Do not highlight the focus check-in
+**    nsm             Omit the submenu
 **    v               Show details of files changed
+**    vfx             Show complete text of forum messages
 **    f=CHECKIN       Show family (immediate parents and children) of CHECKIN
 **    from=CHECKIN    Path from...
 **      to=CHECKIN      ... to this
@@ -1792,6 +1811,9 @@ void page_timeline(void){
   if( PB("ng") || zSearch!=0 ){
     tmFlags &= ~(TIMELINE_GRAPH|TIMELINE_CHPICK);
   }
+  if( PB("nsm") ){
+    style_submenu_enable(0);
+  }
   if( PB("brbg") ){
     tmFlags |= TIMELINE_BRCOLOR;
   }
@@ -1875,6 +1897,9 @@ void page_timeline(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   if( PB("fc") || PB("v") || PB("detail") ){
     tmFlags |= TIMELINE_FCHANGES;
+  }
+  if( PB("vfx") ){
+    tmFlags |= TIMELINE_FORUMTXT;
   }
   if( (tmFlags & TIMELINE_UNHIDE)==0 ){
     blob_append_sql(&sql,

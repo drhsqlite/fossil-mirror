@@ -415,6 +415,15 @@ static sqlite3 *globalDb = 0;
 */
 static volatile int seenInterrupt = 0;
 
+#ifdef SQLITE_DEBUG
+/*
+** Out-of-memory simulator variables
+*/
+static unsigned int oomCounter = 0;    /* Simulate OOM when equals 1 */
+static unsigned int oomRepeat = 0;     /* Number of OOMs in a row */
+static void*(*defaultMalloc)(int) = 0; /* The low-level malloc routine */
+#endif /* SQLITE_DEBUG */
+
 /*
 ** This is the name of our program. It is set in main(), used
 ** in a number of other places, mostly for error messages.
@@ -465,6 +474,49 @@ static void shell_out_of_memory(void){
   raw_printf(stderr,"Error: out of memory\n");
   exit(1);
 }
+
+#ifdef SQLITE_DEBUG
+/* This routine is called when a simulated OOM occurs.  It is broken
+** out as a separate routine to make it easy to set a breakpoint on
+** the OOM
+*/
+void shellOomFault(void){
+  if( oomRepeat>0 ){
+    oomRepeat--;
+  }else{
+    oomCounter--;
+  }
+}
+#endif /* SQLITE_DEBUG */
+
+#ifdef SQLITE_DEBUG
+/* This routine is a replacement malloc() that is used to simulate
+** Out-Of-Memory (OOM) errors for testing purposes.
+*/
+static void *oomMalloc(int nByte){
+  if( oomCounter ){
+    if( oomCounter==1 ){
+      shellOomFault();
+      return 0;
+    }else{
+      oomCounter--;
+    }
+  }
+  return defaultMalloc(nByte);
+}
+#endif /* SQLITE_DEBUG */
+
+#ifdef SQLITE_DEBUG
+/* Register the OOM simulator.  This must occur before any memory
+** allocations */
+static void registerOomSimulator(void){
+  sqlite3_mem_methods mem;
+  sqlite3_config(SQLITE_CONFIG_GETMALLOC, &mem);
+  defaultMalloc = mem.xMalloc;
+  mem.xMalloc = oomMalloc;
+  sqlite3_config(SQLITE_CONFIG_MALLOC, &mem);
+}
+#endif
 
 /*
 ** Write I/O traces to the following stream.
@@ -12088,6 +12140,18 @@ static const char *(azHelp[]) = {
   ".headers on|off          Turn display of headers on or off",
   ".help ?-all? ?PATTERN?   Show help text for PATTERN",
   ".import FILE TABLE       Import data from FILE into TABLE",
+  "   Options:",
+  "     --ascii               Use \\037 and \\036 as column and row separators",
+  "     --csv                 Use , and \\n as column and row separators",
+  "     --skip N              Skip the first N rows of input",
+  "     -v                    \"Verbose\" - increase auxiliary output",
+  "   Notes:",
+  "     *  If TABLE does not exist, it is created.  The first row of input",
+  "        determines the column names.",
+  "     *  If neither --csv or --ascii are used, the input mode is derived",
+  "        from the \".mode\" output mode",
+  "     *  If FILE begins with \"|\" then it is a command that generates the",
+  "        input text.",
 #ifndef SQLITE_OMIT_TEST_CONTROL
   ".imposter INDEX TABLE    Create imposter table TABLE on index INDEX",
 #endif
@@ -12123,6 +12187,9 @@ static const char *(azHelp[]) = {
   "     Other options:",
   "       -e    Invoke system text editor",
   "       -x    Open in a spreadsheet",
+#ifdef SQLITE_DEBUG
+  ".oom [--repeat M] [N]    Simulate an OOM error on the N-th allocation",
+#endif 
   ".open ?OPTIONS? ?FILE?   Close existing database and reopen FILE",
   "     Options:",
   "        --append        Use appendvfs to append database to the end of FILE",
@@ -13073,6 +13140,8 @@ struct ImportCtx {
   int n;              /* Number of bytes in z */
   int nAlloc;         /* Space allocated for z[] */
   int nLine;          /* Current line number */
+  int nRow;           /* Number of rows imported */
+  int nErr;           /* Number of errors encountered */
   int bNotFirst;      /* True if one or more bytes already read */
   int cTerm;          /* Character that terminated the most recent field */
   int cColSep;        /* The column separator character.  (Usually ",") */
@@ -16133,8 +16202,8 @@ static int do_meta_command(char *zLine, ShellState *p){
   }else
 
   if( c=='i' && strncmp(azArg[0], "import", n)==0 ){
-    char *zTable;               /* Insert data into this table */
-    char *zFile;                /* Name of file to extra content from */
+    char *zTable = 0;           /* Insert data into this table */
+    char *zFile = 0;            /* Name of file to extra content from */
     sqlite3_stmt *pStmt = NULL; /* A statement */
     int nCol;                   /* Number of columns in the table */
     int nByte;                  /* Number of bytes in an SQL string */
@@ -16145,51 +16214,108 @@ static int do_meta_command(char *zLine, ShellState *p){
     ImportCtx sCtx;             /* Reader context */
     char *(SQLITE_CDECL *xRead)(ImportCtx*); /* Func to read one value */
     int (SQLITE_CDECL *xCloser)(FILE*);      /* Func to close file */
+    int eVerbose = 0;           /* Larger for more console output */
+    int nSkip = 0;              /* Initial lines to skip */
+    int useOutputMode = 1;      /* Use output mode to determine separators */
 
-    if( nArg!=3 ){
-      raw_printf(stderr, "Usage: .import FILE TABLE\n");
+    memset(&sCtx, 0, sizeof(sCtx));
+    if( p->mode==MODE_Ascii ){
+      xRead = ascii_read_one_field;
+    }else{
+      xRead = csv_read_one_field;
+    }
+    for(i=1; i<nArg; i++){
+      char *z = azArg[i];
+      if( z[0]=='-' && z[1]=='-' ) z++;
+      if( z[0]!='-' ){
+        if( zFile==0 ){
+          zFile = z;
+        }else if( zTable==0 ){
+          zTable = z;
+        }else{
+          utf8_printf(p->out, "ERROR: extra argument: \"%s\".  Usage:\n", z);
+          showHelp(p->out, "import");
+          rc = 1;
+          goto meta_command_exit;
+        }
+      }else if( strcmp(z,"-v")==0 ){
+        eVerbose++;
+      }else if( strcmp(z,"-skip")==0 && i<nArg-1 ){
+        nSkip = integerValue(azArg[++i]);
+      }else if( strcmp(z,"-ascii")==0 ){
+        sCtx.cColSep = SEP_Unit[0];
+        sCtx.cRowSep = SEP_Record[0];
+        xRead = ascii_read_one_field;
+        useOutputMode = 0;
+      }else if( strcmp(z,"-csv")==0 ){
+        sCtx.cColSep = ',';
+        sCtx.cRowSep = '\n';
+        xRead = csv_read_one_field;
+        useOutputMode = 0;
+      }else{
+        utf8_printf(p->out, "ERROR: unknown option: \"%s\".  Usage:\n", z);
+        showHelp(p->out, "import");
+        rc = 1;
+        goto meta_command_exit;
+      }
+    }
+    if( zTable==0 ){
+      utf8_printf(p->out, "ERROR: missing %s argument. Usage:\n",
+                  zFile==0 ? "FILE" : "TABLE");
+      showHelp(p->out, "import");
+      rc = 1;
       goto meta_command_exit;
     }
-    zFile = azArg[1];
-    zTable = azArg[2];
     seenInterrupt = 0;
-    memset(&sCtx, 0, sizeof(sCtx));
     open_db(p, 0);
-    nSep = strlen30(p->colSeparator);
-    if( nSep==0 ){
-      raw_printf(stderr,
-                 "Error: non-null column separator required for import\n");
-      return 1;
-    }
-    if( nSep>1 ){
-      raw_printf(stderr, "Error: multi-character column separators not allowed"
-                      " for import\n");
-      return 1;
-    }
-    nSep = strlen30(p->rowSeparator);
-    if( nSep==0 ){
-      raw_printf(stderr, "Error: non-null row separator required for import\n");
-      return 1;
-    }
-    if( nSep==2 && p->mode==MODE_Csv && strcmp(p->rowSeparator, SEP_CrLf)==0 ){
-      /* When importing CSV (only), if the row separator is set to the
-      ** default output row separator, change it to the default input
-      ** row separator.  This avoids having to maintain different input
-      ** and output row separators. */
-      sqlite3_snprintf(sizeof(p->rowSeparator), p->rowSeparator, SEP_Row);
+    if( useOutputMode ){
+      /* If neither the --csv or --ascii options are specified, then set
+      ** the column and row separator characters from the output mode. */
+      nSep = strlen30(p->colSeparator);
+      if( nSep==0 ){
+        raw_printf(stderr,
+                   "Error: non-null column separator required for import\n");
+        rc = 1;
+        goto meta_command_exit;
+      }
+      if( nSep>1 ){
+        raw_printf(stderr, 
+              "Error: multi-character column separators not allowed"
+              " for import\n");
+        rc = 1;
+        goto meta_command_exit;
+      }
       nSep = strlen30(p->rowSeparator);
-    }
-    if( nSep>1 ){
-      raw_printf(stderr, "Error: multi-character row separators not allowed"
-                      " for import\n");
-      return 1;
+      if( nSep==0 ){
+        raw_printf(stderr,
+            "Error: non-null row separator required for import\n");
+        rc = 1;
+        goto meta_command_exit;
+      }
+      if( nSep==2 && p->mode==MODE_Csv && strcmp(p->rowSeparator,SEP_CrLf)==0 ){
+        /* When importing CSV (only), if the row separator is set to the
+        ** default output row separator, change it to the default input
+        ** row separator.  This avoids having to maintain different input
+        ** and output row separators. */
+        sqlite3_snprintf(sizeof(p->rowSeparator), p->rowSeparator, SEP_Row);
+        nSep = strlen30(p->rowSeparator);
+      }
+      if( nSep>1 ){
+        raw_printf(stderr, "Error: multi-character row separators not allowed"
+                           " for import\n");
+        rc = 1;
+        goto meta_command_exit;
+      }
+      sCtx.cColSep = p->colSeparator[0];
+      sCtx.cRowSep = p->rowSeparator[0];
     }
     sCtx.zFile = zFile;
     sCtx.nLine = 1;
     if( sCtx.zFile[0]=='|' ){
 #ifdef SQLITE_OMIT_POPEN
       raw_printf(stderr, "Error: pipes are not supported in this OS\n");
-      return 1;
+      rc = 1;
+      goto meta_command_exit;
 #else
       sCtx.in = popen(sCtx.zFile+1, "r");
       sCtx.zFile = "<pipe>";
@@ -16199,17 +16325,26 @@ static int do_meta_command(char *zLine, ShellState *p){
       sCtx.in = fopen(sCtx.zFile, "rb");
       xCloser = fclose;
     }
-    if( p->mode==MODE_Ascii ){
-      xRead = ascii_read_one_field;
-    }else{
-      xRead = csv_read_one_field;
-    }
     if( sCtx.in==0 ){
       utf8_printf(stderr, "Error: cannot open \"%s\"\n", zFile);
-      return 1;
+      rc = 1;
+      goto meta_command_exit;
     }
-    sCtx.cColSep = p->colSeparator[0];
-    sCtx.cRowSep = p->rowSeparator[0];
+    if( eVerbose>=2 || (eVerbose>=1 && useOutputMode) ){
+      char zSep[2];
+      zSep[1] = 0;
+      zSep[0] = sCtx.cColSep;
+      utf8_printf(p->out, "Column separator ");
+      output_c_string(p->out, zSep);
+      utf8_printf(p->out, ", row separator ");
+      zSep[0] = sCtx.cRowSep;
+      output_c_string(p->out, zSep);
+      utf8_printf(p->out, "\n");
+    }
+    while( (nSkip--)>0 ){
+      while( xRead(&sCtx) && sCtx.cTerm==sCtx.cColSep ){}
+      sCtx.nLine++;
+    }
     zSql = sqlite3_mprintf("SELECT * FROM %s", zTable);
     if( zSql==0 ){
       xCloser(sCtx.in);
@@ -16231,9 +16366,13 @@ static int do_meta_command(char *zLine, ShellState *p){
         sqlite3_free(sCtx.z);
         xCloser(sCtx.in);
         utf8_printf(stderr,"%s: empty file\n", sCtx.zFile);
-        return 1;
+        rc = 1;
+        goto meta_command_exit;
       }
       zCreate = sqlite3_mprintf("%z\n)", zCreate);
+      if( eVerbose>=1 ){
+        utf8_printf(p->out, "%s\n", zCreate);
+      }
       rc = sqlite3_exec(p->db, zCreate, 0, 0, 0);
       sqlite3_free(zCreate);
       if( rc ){
@@ -16241,7 +16380,8 @@ static int do_meta_command(char *zLine, ShellState *p){
                 sqlite3_errmsg(p->db));
         sqlite3_free(sCtx.z);
         xCloser(sCtx.in);
-        return 1;
+        rc = 1;
+        goto meta_command_exit;
       }
       rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     }
@@ -16250,7 +16390,8 @@ static int do_meta_command(char *zLine, ShellState *p){
       if (pStmt) sqlite3_finalize(pStmt);
       utf8_printf(stderr,"Error: %s\n", sqlite3_errmsg(p->db));
       xCloser(sCtx.in);
-      return 1;
+      rc = 1;
+      goto meta_command_exit;
     }
     nCol = sqlite3_column_count(pStmt);
     sqlite3_finalize(pStmt);
@@ -16269,13 +16410,17 @@ static int do_meta_command(char *zLine, ShellState *p){
     }
     zSql[j++] = ')';
     zSql[j] = 0;
+    if( eVerbose>=2 ){
+      utf8_printf(p->out, "Insert using: %s\n", zSql);
+    }
     rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
     sqlite3_free(zSql);
     if( rc ){
       utf8_printf(stderr, "Error: %s\n", sqlite3_errmsg(p->db));
       if (pStmt) sqlite3_finalize(pStmt);
       xCloser(sCtx.in);
-      return 1;
+      rc = 1;
+      goto meta_command_exit;
     }
     needCommit = sqlite3_get_autocommit(p->db);
     if( needCommit ) sqlite3_exec(p->db, "BEGIN", 0, 0, 0);
@@ -16318,6 +16463,9 @@ static int do_meta_command(char *zLine, ShellState *p){
         if( rc!=SQLITE_OK ){
           utf8_printf(stderr, "%s:%d: INSERT failed: %s\n", sCtx.zFile,
                       startLine, sqlite3_errmsg(p->db));
+          sCtx.nErr++;
+        }else{
+          sCtx.nRow++;
         }
       }
     }while( sCtx.cTerm!=EOF );
@@ -16326,6 +16474,11 @@ static int do_meta_command(char *zLine, ShellState *p){
     sqlite3_free(sCtx.z);
     sqlite3_finalize(pStmt);
     if( needCommit ) sqlite3_exec(p->db, "COMMIT", 0, 0, 0);
+    if( eVerbose>0 ){
+      utf8_printf(p->out,
+          "Added %d rows with %d errors using %d lines of input\n",
+          sCtx.nRow, sCtx.nErr, sCtx.nLine-1);
+    }
   }else
 
 #ifndef SQLITE_UNTESTABLE
@@ -16603,6 +16756,34 @@ static int do_meta_command(char *zLine, ShellState *p){
       rc = 1;
     }
   }else
+
+#ifdef SQLITE_DEBUG
+  if( c=='o' && strcmp(azArg[0],"oom")==0 ){
+    int i;
+    for(i=1; i<nArg; i++){
+      const char *z = azArg[i];
+      if( z[0]=='-' && z[1]=='-' ) z++;
+      if( strcmp(z,"-repeat")==0 ){
+        if( i==nArg-1 ){
+          raw_printf(p->out, "missing argument on \"%s\"\n", azArg[i]);
+          rc = 1;
+        }else{
+          oomRepeat = (int)integerValue(azArg[++i]);
+        }
+      }else if( IsDigit(z[0]) ){
+        oomCounter = (int)integerValue(azArg[i]);
+      }else{
+        raw_printf(p->out, "unknown argument: \"%s\"\n", azArg[i]);
+        raw_printf(p->out, "Usage: .oom [--repeat N] [M]\n");
+        rc = 1;
+      }
+    }
+    if( rc==0 ){
+      raw_printf(p->out, "oomCounter = %d\n", oomCounter);
+      raw_printf(p->out, "oomRepeat  = %d\n", oomRepeat);
+    }
+  }else
+#endif /* SQLITE_DEBUG */
 
   if( c=='o' && strncmp(azArg[0], "open", n)==0 && n>=2 ){
     char *zNewFilename;  /* Name of the database file to open */
@@ -18686,6 +18867,10 @@ int SQLITE_CDECL wmain(int argc, wchar_t **wargv){
   setvbuf(stderr, 0, _IONBF, 0); /* Make sure stderr is unbuffered */
   stdin_is_interactive = isatty(0);
   stdout_is_console = isatty(1);
+
+#ifdef SQLITE_DEBUG
+  registerOomSimulator();
+#endif
 
 #if !defined(_WIN32_WCE)
   if( getenv("SQLITE_DEBUG_BREAK") ){

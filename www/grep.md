@@ -41,12 +41,11 @@ That leaves many divergences at the option level from POSIX `grep`:
 
 *   There is no way to suppress error output, as with `grep -s`.
 
-*   Fossil `grep` accepts only a single input file name. You cannot give
-    it a list of file names, and you cannot give it a directory name for
-    Fossil to expand to the set of all files under that directory. This
-    means Fossil `grep` has no equivalent of the common POSIX `grep -R`
-    extension. (And if it did, it would probably have a different option
-    letter, since `-R` in Fossil has a different meaning, by
+*   Fossil `grep` does not accept a directory name for Fossil to
+    expand to the set of all files under that directory. This means
+    Fossil `grep` has no equivalent of the common POSIX `grep -R`
+    extension. (And if it did, it would probably have a different
+    option letter, since `-R` in Fossil has a different meaning, by
     convention.)
 
 *   You cannot invert the match, as with `grep -v`.

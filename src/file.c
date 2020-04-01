@@ -501,6 +501,7 @@ void file_copy(const char *zFrom, const char *zTo){
   }
   fclose(in);
   fclose(out);
+  if( file_isexe(zFrom, ExtFILE) ) file_setexe(zTo, 1);
 }
 
 /*
@@ -1787,7 +1788,7 @@ int fossil_clearenv(void){
   return rc;
 #else
   extern char **environ;
-  environ = 0;
+  environ[0] = 0;
   return 0;
 #endif
 }

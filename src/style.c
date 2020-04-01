@@ -82,6 +82,11 @@ static int sideboxUsed = 0;
 static unsigned adUnitFlags = 0;
 
 /*
+** Submenu disable flag
+*/
+static int submenuEnable = 1;
+
+/*
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
@@ -317,6 +322,13 @@ void style_submenu_sql(
     aSubmenuCtrl[nSubmenuCtrl].eType = FF_MULTI;
     nSubmenuCtrl++;
   }
+}
+
+/*
+** Disable or enable the submenu
+*/
+void style_submenu_enable(int onOff){
+  submenuEnable = onOff;
 }
 
 
@@ -776,7 +788,7 @@ void style_footer(void){
   ** to the submenu while generating page text.
   */
   cgi_destination(CGI_HEADER);
-  if( nSubmenu+nSubmenuCtrl>0 ){
+  if( submenuEnable && nSubmenu+nSubmenuCtrl>0 ){
     int i;
     if( nSubmenuCtrl ){
       @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>

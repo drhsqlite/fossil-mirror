@@ -743,6 +743,17 @@ div.forumEdit {
   padding-left: 1ex;
   padding-right: 1ex;
 }
+div.forumTimeline {
+  border: 1px solid black;
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
+div.forumTimeline code {
+  white-space: pre-wrap;
+}
+div.markdown code {
+  white-space: pre-wrap;
+}
 div.forumHier, div.forumTime {
   border: 1px solid black;
   padding-left: 1ex;

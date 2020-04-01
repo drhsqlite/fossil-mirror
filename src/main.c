@@ -80,7 +80,6 @@
 struct FossilUserPerms {
   char Setup;            /* s: use Setup screens on web interface */
   char Admin;            /* a: administrative permission */
-  char Delete;           /* d: delete wiki or tickets */
   char Password;         /* p: change password */
   char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. check-in */
@@ -1689,7 +1688,7 @@ static void process_one_web_page(
           @ </head><body>
           @ <h1>Not Found</h1>
           @ </body>
-          cgi_set_status(404, "not found");
+          cgi_set_status(404, "Not Found");
           cgi_reply();
         }
         return;
