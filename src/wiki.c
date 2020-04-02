@@ -1715,11 +1715,11 @@ static void wiki_section_label(
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
-    @ <div class="section">About</div>
+    @ <div class="section accordion">About</div>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section">About checkin %.20h(zName)</div>
+    @ <div class="section accordion">About checkin %.20h(zName)</div>
   }else{
-    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+    @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
   }
 }
 
@@ -1777,16 +1777,18 @@ int wiki_render_associated(
       wiki_section_label(zPrefix, zName, mFlags);
     }
     wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel">
     convert_href_and_output(&tail);
+    @ </div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&markdown);
   }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
     wiki_section_label(zPrefix, zName, mFlags);
     wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
-    @ <pre>
+    @ <div class="accordion_panel"><pre>
     @ %h(pWiki->zWiki)
-    @ </pre>
+    @ </pre></div>
   }else{
     Blob tail = BLOB_INITIALIZER;
     Blob title = BLOB_INITIALIZER;
@@ -1794,20 +1796,21 @@ int wiki_render_associated(
     Blob *pBody;
     blob_init(&wiki, pWiki->zWiki, -1);
     if( wiki_find_title(&wiki, &title, &tail) ){
-      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="section accordion">%h(blob_str(&title))</div>
       pBody = &tail;
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
       pBody = &wiki;
     }
     wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
-    @ <div class="wiki">
+    @ <div class="accordion_panel"><div class="wiki">
     wiki_convert(pBody, 0, WIKI_BUTTONS);
-    @ </div>
+    @ </div></div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&wiki);
   }
   manifest_destroy(pWiki);
+  style_accordion();
   return 1;
 }

@@ -812,3 +812,17 @@ label {
 .nobr {
   white-space: nowrap;
 }
+.accordion {
+  cursor: pointer;
+}
+.accordion:after {
+  content: '\02796';
+  margin-left: 1em;
+}
+.accordion_closed:after {
+  content: '\02795';
+}
+.accordion_panel {
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+}
