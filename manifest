@@ -1,5 +1,5 @@
-C Attempting\sto\sadd\s"accordion"\saction\sto\sthe\s"About"\ssections\sof\spages\sthat\nhave\sassociated\swiki.\s\sBasically\sworks,\sbut\sneeds\sCSS\stweaks,\sand\spossibly\nother\sUX\simprovements.
-D 2020-04-02T00:15:24.551
+C Fix\sthe\s"fossil\srevert"\scommand\sso\sthat\sit\sworks\seven\sfor\sa\snew\s--empty\ncheckout.
+D 2020-04-02T18:56:09.516
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -611,7 +611,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c fbb75d065fa2a229a1f7cbb36f9589dc8fe500d16381d8aad31dadae3a9e5bd9
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 227f616ce7c2d1b8dd8c979ba362ffdb43cd4c48ac931d806f6dc4ac54ebf3b1
-F src/update.c fa87da575576559ee01236b47d1a8d41dc4118ad5df1b4fe7f36c55e14db132c
+F src/update.c 65025982df907734b207a6203373e5c123280985493ff0afea2405df14cf0f08
 F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -973,10 +973,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P cb2f254096081379d5a85945057af98f71c33b39d37490612b9833e30324acde
-R e499d6aafa95f36a855cc9abbb35769f
-T *branch * accordion-about-wiki
-T *sym-accordion-about-wiki *
-T -sym-trunk *
+P b17e4c5a779447a018fe848b48532412907c99a3ced775823e84137c5b3b2463
+R 49c9b8d35a42eaf51bcc4106fed8a6eb
 U drh
-Z a5cd52da217680d4df9b2baa19ec32e4
+Z 5f984ae8bd21fcd68901e94602c61cbf
