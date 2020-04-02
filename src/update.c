@@ -690,6 +690,7 @@ Manifest *historical_manifest(
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){
+      if( vid==0 ) return 0;
       zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
       if( zRevision ){
         fossil_fatal("checkout artifact is not a check-in: %s", zRevision);
@@ -860,7 +861,7 @@ void revert_cmd(void){
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    pRvFile = manifest_file_find(pRvManifest, zFile);
+    pRvFile = pRvManifest? manifest_file_find(pRvManifest, zFile) : 0;
     if( !pRvFile ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
                  zFile, zFile)==0 ){
