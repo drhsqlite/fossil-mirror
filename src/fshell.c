@@ -59,12 +59,14 @@ void shell_cmd(void){
   int fDebug;
   pid_t childPid;
   char *zLine = 0;
+  char *zPrompt = 0;
   fDebug = find_option("debug", 0, 0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
+  zPrompt = mprintf("fossil (%z)> ", db_get("project-name","no repo"));
   db_close(0);
   sqlite3_shutdown();
   linenoiseSetMultiLine(1);
-  while( (free(zLine), zLine = linenoise("fossil> ")) ){
+  while( (free(zLine), zLine = linenoise(zPrompt)) ){
     /* Remember shell history within the current session */
     linenoiseHistoryAdd(zLine);
 
@@ -119,5 +121,6 @@ void shell_cmd(void){
       waitpid(childPid, &status, 0);
     }
   }
+  free(zPrompt);
 #endif
 }
