@@ -16,7 +16,8 @@
 *******************************************************************************
 **
 ** This file contains code to implement a search functions
-** against timeline comments, check-in content, wiki pages, and/or tickets.
+** against timeline comments, check-in content, wiki pages, tickets,
+** and/or forum posts.
 **
 ** The search can be either a per-query "grep"-like search that scans
 ** the entire corpus.  Or it can use the FTS4 or FTS5 search engine of
@@ -333,6 +334,14 @@ static int search_match(
 **
 ** Run the full-scan search algorithm using SEARCHSTRING against
 ** the text of the files listed.  Output matches and snippets.
+**
+** Options:
+**
+**    --begin TEXT        Text to insert before each match
+**    --end TEXT          Text to insert after each match
+**    --gap TEXT          Text to indicate elided content
+**    --html              Input is HTML
+**    --static            Use the static Search object
 */
 void test_match_cmd(void){
   Search *p;
@@ -374,7 +383,8 @@ void test_match_cmd(void){
 ** is omitted, then the global search pattern is reset.  BEGIN and END
 ** and GAP are the strings used to construct snippets.  FLAGS is an
 ** integer bit pattern containing the various SRCH_CKIN, SRCH_DOC,
-** SRCH_TKT, or SRCH_ALL bits to determine what is to be searched.
+** SRCH_TKT, SRCH_FORUM, or SRCH_ALL bits to determine what is to be
+** searched.
 */
 static void search_init_sqlfunc(
   sqlite3_context *context,
@@ -409,7 +419,7 @@ static void search_init_sqlfunc(
 **
 ** Using the full-scan search engine created by the most recent call
 ** to search_init(), match the input the TEXT arguments.
-** Remember the results global full-scan search object.
+** Remember the results in the global full-scan search object.
 ** Return non-zero on a match and zero on a miss.
 */
 static void search_match_sqlfunc(
@@ -563,6 +573,11 @@ void search_sql_setup(sqlite3 *db){
 ** command line. Whole-word matches scope more highly than partial
 ** matches.
 **
+** Note:  The command only search the EVENT table.  So it will only
+** display check-in comments or other comments that appear on an
+** unaugmented timeline.  It does not search document text or forum
+** messages.
+**
 ** Outputs, by default, some top-N fraction of the results. The -all
 ** option can be used to output all matches, regardless of their search
 ** score.  The -limit option can be used to limit the number of entries
@@ -647,7 +662,8 @@ void search_cmd(void){
 
 /*
 ** Remove bits from srchFlags which are disallowed by either the
-** current server configuration or by user permissions.
+** current server configuration or by user permissions.  Return
+** the revised search flags mask.
 */
 unsigned int search_restrict(unsigned int srchFlags){
   static unsigned int knownGood = 0;
