@@ -1642,6 +1642,7 @@ void page_srchsetup(){
     onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for

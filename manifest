@@ -1,5 +1,5 @@
-C Minor\scomment\sfixes\sin\sthe\ssearch\slogic.\s\sNo\schanges\sto\scode.
-D 2020-04-04T18:03:37.815
+C Many\simprovements\sto\sthe\sindexed\ssearch\sdebugging\slogic.
+D 2020-04-04T19:34:29.234
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -555,9 +555,9 @@ F src/rss.c c41ad19e65b0de1882d9b25a2dce0b618b65f050edc130b6c0cd1de097e27c99
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
 F src/schema.c 0b3bde0c26fb7e930181e2900f1e6380a9acc12a7222322db1ce75b5da187dcf
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
-F src/search.c 1d9255261f8cf606a9a0880f122ab215e482f8ed5a2c88c40b6c2365edd65221
+F src/search.c ce115b6aca7c0ffc5c49f5744b4a23cc27be611f9362a056bbba1d09cc3f5f7e
 F src/security_audit.c f341318437bfc9001ace860378a5f1d1e8a7dd17228461345a378346f15755e9
-F src/setup.c b7edb9842a7fb4d1c98580b88a15a78e5b8c33d68fcea24d92a7e1de88e3a138
+F src/setup.c 512364bad26d1f3c53f29df61dad963ca001592f747331b57fc8e73171ff424d
 F src/setupuser.c 9f805c40d770cb4297b3547ea10d2b7ee50fe35b26b62f7eb58ac954ba075db5
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ce6eaf0fb0444a9b3139054dacd9fca033b6bce3d6632ae6d1ad78e32e0b147c
-R 4681ad0daaf02b23a8f9dd07fb6a56ec
+P 4d351608666ae138087bfb4c61720000eaaa9b41edead85a332941f084104368
+R 7a1d7acc5efb774185ec66dfadab62c7
 U drh
-Z 6c5d831494447380d4e94e5d1103fa77
+Z 5a0bd5a4e359ba9e5bb155c6903b711a

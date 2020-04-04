@@ -1854,14 +1854,21 @@ void search_rebuild_index(void){
 ** Run this command with no arguments to simply see the settings.
 */
 void fts_config_cmd(void){
-  static const struct { int iCmd; const char *z; } aCmd[] = {
+  static const struct { 
+    int iCmd;
+    const char *z;
+  } aCmd[] = {
      { 1,  "reindex"  },
      { 2,  "index"    },
      { 3,  "disable"  },
      { 4,  "enable"   },
      { 5,  "stemmer"  },
   };
-  static const struct { const char *zSetting; const char *zName; const char *zSw; } aSetng[] = {
+  static const struct {
+    const char *zSetting;
+    const char *zName;
+    const char *zSw;
+  } aSetng[] = {
      { "search-ci",       "check-in search:",  "c" },
      { "search-doc",      "document search:",  "d" },
      { "search-tkt",      "ticket search:",    "t" },
@@ -1955,7 +1962,7 @@ void search_data_page(void){
   const char *zType = P("y");
   const char *zIdxed = P("ixed");
   int id;
-  int cnt = 0;
+  int cnt1 = 0, cnt2 = 0, cnt3 = 0;
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(0); return; }
   if( !search_index_exists() ){
@@ -1963,25 +1970,45 @@ void search_data_page(void){
     style_footer();
     return;
   }
+  search_sql_setup(g.db);
+  style_submenu_element("Setup","%R/srchsetup");
   if( zId!=0 && (id = atoi(zId))>0 ){
     /* Show information about a single ftsdocs entry */
     style_header("Information about ftsdoc entry %d", id);
+    style_submenu_element("Summary","%R/test-ftsdocs");
     db_prepare(&q,
       "SELECT type||rid, name, idxed, label, url, datetime(mtime)"
       "  FROM ftsdocs WHERE rowid=%d", id
     );
     if( db_step(&q)==SQLITE_ROW ){
       const char *zUrl = db_column_text(&q,4);
+      const char *zDocId = db_column_text(&q,0);
+      char *zName;
+      char *z;
       @ <table border=0>
-      @ <tr><td align='right'>rowid:<td>&nbsp;&nbsp;<td>%d(id)
-      @ <tr><td align='right'>id:<td><td>%s(db_column_text(&q,0))
+      @ <tr><td align='right'>docid:<td>&nbsp;&nbsp;<td>%d(id)
+      @ <tr><td align='right'>id:<td><td>%s(zDocId)
       @ <tr><td align='right'>name:<td><td>%h(db_column_text(&q,1))
       @ <tr><td align='right'>idxed:<td><td>%d(db_column_int(&q,2))
       @ <tr><td align='right'>label:<td><td>%h(db_column_text(&q,3))
       @ <tr><td align='right'>url:<td><td>
       @ <a href='%R%s(zUrl)'>%h(zUrl)</a>
       @ <tr><td align='right'>mtime:<td><td>%s(db_column_text(&q,5))
+      z = db_text(0, "SELECT title FROM ftsidx WHERE docid=%d",id);
+      if( z && z[0] ){
+        @ <tr><td align="right">title:<td><td>%h(z)
+        fossil_free(z);
+      }
+      z = db_text(0, "SELECT body FROM ftsidx WHERE docid=%d",id);
+      if( z && z[0] ){
+        @ <tr><td align="right" valign="top">body:<td><td>%h(z)
+        fossil_free(z);
+      }
       @ </table>
+      zName = mprintf("Indexed '%c' docs",zDocId[0]);
+      style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=1",zDocId[0]);
+      zName = mprintf("Unindexed '%c' docs",zDocId[0]);
+      style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=0",zDocId[0]);
     }
     db_finalize(&q);
     style_footer();
@@ -1991,8 +2018,17 @@ void search_data_page(void){
       zIdxed!=0 && (zIdxed[0]=='1' || zIdxed[0]=='0') && zIdxed[1]==0
   ){
     int ixed = zIdxed[0]=='1';
+    char *zName;
     style_header("List of '%c' documents that are%s indexed",
                  zType[0], ixed ? "" : " not");
+    style_submenu_element("Summary","%R/test-ftsdocs");
+    if( ixed==0 ){
+      zName = mprintf("Indexed '%c' docs",zType[0]);
+      style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=1",zType[0]);
+    }else{
+      zName = mprintf("Unindexed '%c' docs",zType[0]);
+      style_submenu_element(zName,"%R/test-ftsdocs?y=%c&ixed=0",zType[0]);
+    }
     db_prepare(&q,
       "SELECT rowid, type||rid ||' '|| coalesce(label,'')"
       "  FROM ftsdocs WHERE type='%c' AND %s idxed",
@@ -2010,26 +2046,43 @@ void search_data_page(void){
   }
   style_header("Summary of ftsdocs");
   db_prepare(&q,
-     "SELECT type, idxed, count(*) FROM ftsdocs"
-     " GROUP BY 1, 2 ORDER BY 3 DESC"
+     "SELECT type, sum(idxed IS TRUE), sum(idxed IS FALSE), count(*)"
+     "  FROM ftsdocs"
+     " GROUP BY 1 ORDER BY 4 DESC"
   );
   @ <table border=1 cellpadding=3 cellspacing=0>
   @ <thead>
-  @ <tr><th>Type<th>Indexed?<th>Count<th>Link
+  @ <tr><th>Type<th>Indexed<th>Unindexed<th>Total
   @ </thead>
   @ <tbody>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zType = db_column_text(&q,0);
-    int idxed = db_column_int(&q,1);
-    int n = db_column_int(&q,2);
-    @ <tr><td>%h(zType)<td>%d(idxed)
-    @ <td>%d(n)
-    @ <td><a href='test-ftsdocs?y=%s(zType)&ixed=%d(idxed)'>listing</a>
+    int nIndexed = db_column_int(&q, 1);
+    int nUnindexed = db_column_int(&q, 2);
+    int nTotal = db_column_int(&q, 3);
+    @ <tr><td>%h(zType)
+    if( nIndexed>0 ){
+      @ <td align="right"><a href='%R/test-ftsdocs?y=%s(zType)&ixed=1'>\
+      @ %d(nIndexed)</a>
+    }else{
+      @ <td align="right">0
+    }
+    if( nUnindexed>0 ){
+      @ <td align="right"><a href='%R/test-ftsdocs?y=%s(zType)&ixed=0'>\
+      @ %d(nUnindexed)</a>
+    }else{
+      @ <td align="right">0
+    }
+    @ <td align="right">%d(nTotal)
     @ </tr>
-    cnt += n;
+    cnt1 += nIndexed;
+    cnt2 += nUnindexed;
+    cnt3 += nTotal;
   }
+  db_finalize(&q);
   @ </tbody><tfooter>
-  @ <tr><th>Total<th><th>%d(cnt)<th>
+  @ <tr><th>Total<th align="right">%d(cnt1)<th align="right">%d(cnt2)
+  @ <th align="right">%d(cnt3)
   @ </tfooter>
   @ </table>
   style_footer();
