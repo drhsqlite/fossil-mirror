@@ -1,6 +1,6 @@
-# Attach appropriate javascript to each ".accordion" button so that
-# it expands and contracts when clicked.
-#
+/* Attach appropriate javascript to each ".accordion" button so that
+** it expands and contracts when clicked.
+*/
 var a = document.getElementsByClassName("accordion");
 for(var i=0; i<a.length; i++){
   var p = a[i].nextElementSibling;
