@@ -1,5 +1,5 @@
-C Many\simprovements\sto\sthe\sindexed\ssearch\sdebugging\slogic.
-D 2020-04-04T19:34:29.234
+C Improved\sprocessing\sof\stimestamp\sstrings\sused\sas\scheck-in\sidentifiers.\nThe\sISO8601\sdate\swithout\spunctuation\s(digits\sonly)\sis\snow\saccept\son\sthe\ntag:date\sformat.\s\sAlso,\sincomplete\sISO8601\sdate/time\svalues\sare\srounding\nup\sinstead\sof\srounded\sdown,\ssuch\sthat\sthe\smatch\son\s20200101\sactually\sfinds\na\scheck-in\son\s2020-01-01\s(if\sany)\srather\sthan\sthe\slast\scheck-in\son\s2019-12-31.
+D 2020-04-05T19:02:38.627
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -538,7 +538,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c 6070854fabaee6c04ec7a354cb1f17b3ed95197ed294b74ab811377390a0a95e
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 7ce35741d841e95a71129a8f987d888d017dfbb91d29763f7ce11569a7b932e7
-F src/name.c cc802dd97bb52e2197a56ca9d1ed2058da0cbb02da153b2b6353dd73b15188e1
+F src/name.c 489a8f2bc2eb672501a532817abce9d5c30753b4079b89d20c1811208ab256fc
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -602,7 +602,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 5a85be179ee4e1f5d12dedd05ddf60defcb2601b6c9e12e820648c7dabacf893
+F src/timeline.c f08b0f2798d0fe95969e3720ec4f27edaae22a23fc970dc628b290100d8cca5a
 F src/tkt.c 5a3959e1c9567343293992e1f7b3bc87c7e74c578202a68efd35609a0428563f
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d351608666ae138087bfb4c61720000eaaa9b41edead85a332941f084104368
-R 7a1d7acc5efb774185ec66dfadab62c7
+P 53d1f053ad9271639bfc998ead403fcc55aa877f54171825a4725d0baca1c421
+R ee168302221ec2d50c1eb371674ead91
 U drh
-Z 5a0bd5a4e359ba9e5bb155c6903b711a
+Z 9d3167085dbb3fef793e191ed5a745f8

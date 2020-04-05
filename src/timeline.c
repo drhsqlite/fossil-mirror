@@ -1115,11 +1115,13 @@ double symbolic_name_to_mtime(const char *z, const char **pzDisplay){
     if( mtime>0.0 ) return mtime;
   }
   zDate = fossil_expand_datetime(z, 1);
-  if( zDate!=0
-   && (mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())", zDate))>0.0
-  ){
-    if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
-    return mtime;
+  if( zDate!=0 ){
+    mtime = db_double(0.0, "SELECT julianday(%Q,fromLocal())",
+                      fossil_roundup_date(zDate));
+    if( mtime>0.0 ){
+      if( pzDisplay ) *pzDisplay = fossil_strdup(zDate);
+      return mtime;
+    }
   }
   rid = symbolic_name_to_rid(z, "*");
   if( rid ){

@@ -109,6 +109,39 @@ char *fossil_expand_datetime(const char *zIn, int bVerifyNotAHash){
 }
 
 /*
+** The data-time string in the argument is going to be used as an
+** upper bound like this:    mtime<=julianday(zDate,'localtime').
+** But if the zDate parameter omits the fractional seconds or the
+** seconds, or the time, that might mess up the == part of the
+** comparison.  So add in missing factional seconds or seconds or time.
+**
+** The returned string is held in a static buffer that is overwritten
+** with each call, or else is just a copy of its input if there are
+** no changes.
+*/
+const char *fossil_roundup_date(const char *zDate){
+  static char zUp[24];
+  int n = (int)strlen(zDate);
+  if( n==19 ){  /* YYYY-MM-DD HH:MM:SS */
+    memcpy(zUp, zDate, 19);
+    memcpy(zUp+19, ".999", 5);
+    return zUp;
+  }
+  if( n==16 ){ /* YYYY-MM-DD HH:MM */
+    memcpy(zUp, zDate, 16);
+    memcpy(zUp+16, ":59.999", 8);
+    return zUp;
+  }
+  if( n==10 ){ /* YYYY-MM-DD */
+    memcpy(zUp, zDate, 10);
+    memcpy(zUp+10, " 23:59:59.999", 14);
+    return zUp;
+  }
+  return zDate;
+}
+
+
+/*
 ** Return the RID that is the "root" of the branch that contains
 ** check-in "rid".  Details depending on eType:
 **
@@ -237,7 +270,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
-      zDate, zType);
+      fossil_roundup_date(zDate), zType);
     return rid;
   }
   if( fossil_isdate(zTag) ){
@@ -245,7 +278,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
-      zTag, zType);
+      fossil_roundup_date(zTag), zType);
     if( rid) return rid;
   }
 
@@ -264,7 +297,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       "SELECT objid FROM event"
       " WHERE mtime<=julianday('%qz') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
-      &zTag[4], zType);
+      fossil_roundup_date(&zTag[4]), zType);
     return rid;
   }
 
@@ -296,25 +329,32 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* symbolic-name ":" date-time */
   nTag = strlen(zTag);
-  for(i=0; i<nTag-10 && zTag[i]!=':'; i++){}
-  if( zTag[i]==':' && fossil_isdate(&zTag[i+1]) ){
+  for(i=0; i<nTag-8 && zTag[i]!=':'; i++){}
+  if( zTag[i]==':' 
+   && (fossil_isdate(&zTag[i+1]) || fossil_expand_datetime(&zTag[i+1],0)!=0)
+  ){
     char *zDate = mprintf("%s", &zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
+    char *zXDate;
     int nDate = strlen(zDate);
     if( sqlite3_strnicmp(&zDate[nDate-3],"utc",3)==0 ){
       zDate[nDate-3] = 'z';
       zDate[nDate-2] = 0;
     }
+    zXDate = fossil_expand_datetime(zDate,0);
+    if( zXDate==0 ) zXDate = zDate;
     rid = db_int(0,
       "SELECT event.objid, max(event.mtime)"
       "  FROM tag, tagxref, event"
       " WHERE tag.tagname='sym-%q' "
       "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
       "   AND event.objid=tagxref.rid "
-      "   AND event.mtime<=julianday(%Q)"
+      "   AND event.mtime<=julianday(%Q,fromLocal())"
       "   AND event.type GLOB '%q'",
-      zTagBase, zDate, zType
+      zTagBase, fossil_roundup_date(zXDate), zType
     );
+    fossil_free(zDate);
+    fossil_free(zTagBase);
     return rid;
   }
 
@@ -383,7 +423,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,fromLocal()) AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
-      zDate, zType);
+      fossil_roundup_date(zDate), zType);
     if( rid) return rid;
   }
 
