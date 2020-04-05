@@ -1587,7 +1587,7 @@ void search_fill_index(void){
 ** to the queue of documents that need to be indexed or reindexed.
 */
 void search_doc_touch(char cType, int rid, const char *zName){
-  if( search_index_exists() ){
+  if( search_index_exists() && !content_is_private(rid) ){
     char zType[2];
     zType[0] = cType;
     zType[1] = 0;

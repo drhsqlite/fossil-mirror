@@ -1024,7 +1024,7 @@ void winfo_page(void){
       }
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('w', rid);
     }
   }
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
@@ -2425,7 +2425,7 @@ void tinfo_page(void){
       }
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('t', rid);
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )

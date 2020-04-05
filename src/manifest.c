@@ -2061,7 +2061,7 @@ static int tag_compare(const void *a, const void *b){
 
 /*
 ** Scan artifact rid/pContent to see if it is a control artifact of
-** any key:
+** any type:
 **
 **      *  Manifest
 **      *  Control
@@ -2070,6 +2070,7 @@ static int tag_compare(const void *a, const void *b){
 **      *  Cluster
 **      *  Attachment
 **      *  Event
+**      *  Forum post
 **
 ** If the input is a control artifact, then make appropriate entries
 ** in the auxiliary tables of the database in order to crosslink the
@@ -2560,6 +2561,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     char *zFType;
     char *zTitle;
     schema_forum();
+    search_doc_touch('f', rid, 0);
     froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
     firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;

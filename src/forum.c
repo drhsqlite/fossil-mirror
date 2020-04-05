@@ -1020,7 +1020,7 @@ void forumedit_page(void){
   if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
       const char *zUserToTrust;
-      moderation_approve(fpid);
+      moderation_approve('f', fpid);
       if( g.perm.AdminForum
        && PB("trust")
        && (zUserToTrust = P("trustuser"))!=0
