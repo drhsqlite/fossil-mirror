@@ -278,7 +278,7 @@ int repo_list_page(void){
 ** Show all repositories underneath DIRECTORY.  Or if DIRECTORY is "/"
 ** show all repositories in the ~/.fossil file.
 */
-void test_list_page(void){
+void test_list_page_cmd(void){
   if( g.argc<3 ){
     g.zRepositoryName = "/";
   }else{

@@ -1786,7 +1786,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **    --inline         Set the WIKI_INLINE flag
 **    --noblock        Set the WIKI_NOBLOCK flag
 */
-void test_wiki_render(void){
+void test_wiki_render_cmd(void){
   Blob in, out;
   int flags = 0;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
@@ -1811,7 +1811,7 @@ void test_wiki_render(void){
 **
 ** Render markdown in FILE as HTML on stdout.
 */
-void test_markdown_render(void){
+void test_markdown_render_cmd(void){
   Blob in, out;
   db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
   verify_all_options();
@@ -2141,7 +2141,7 @@ const char *html_attribute(const char *zMarkup, const char *zAttr, int *pLen){
 ** Tokenize an HTML file.  Return the offset and length and text of
 ** each token - one token per line.  Omit white-space tokens.
 */
-void test_html_tokenize(void){
+void test_html_tokenize_cmd(void){
   Blob in;
   char *z;
   int i;
@@ -2276,7 +2276,7 @@ void htmlTidy(const char *zIn, Blob *pOut){
 ** Run the htmlTidy() routine on the content of all files named on
 ** the command-line and write the results to standard output.
 */
-void test_html_tidy(void){
+void test_html_tidy_cmd(void){
   Blob in, out;
   int i;
 
@@ -2403,7 +2403,7 @@ void html_to_plaintext(const char *zIn, Blob *pOut){
 ** This command is intended as a test and debug interface for
 ** the html_to_plaintext() routine.
 */
-void test_html_to_text(void){
+void test_html_to_text_cmd(void){
   Blob in, out;
   int i;
 

@@ -419,7 +419,7 @@ char *captcha_render(const char *zPw){
 **
 ** Render an ASCII-art captcha for numbers given on the command line.
 */
-void test_captcha(void){
+void test_captcha_cmd(void){
   int i;
   unsigned int v;
   char *z;
@@ -578,7 +578,7 @@ void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
 ** parameter using ascii-art.  If name= is omitted, show a random 16-digit
 ** hexadecimal number.
 */
-void captcha_test(void){
+void test_captcha_page(void){
   const char *zPw = P("name");
   if( zPw==0 || zPw[0]==0 ){
     u64 x;
@@ -677,12 +677,12 @@ static void captcha_wav(const char *zHex, Blob *pOut){
 }
 
 /*
-** WEBPAGE: /captcha-audio
+** WEBPAGE: captcha-audio
 **
 ** Return a WAV file that pronounces the digits of the captcha that
 ** is determined by the seed given in the name= query parameter.
 */
-void captcha_wav_page(void){
+void captcha_audio_page(void){
   const char *zSeed = P("name");
   const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
   Blob audio;
@@ -692,12 +692,12 @@ void captcha_wav_page(void){
 }
 
 /*
-** WEBPAGE: /test-captcha-audio
+** WEBPAGE: test-captcha-audio
 **
 ** Return a WAV file that pronounces the hex digits of the name=
 ** query parameter.
 */
-void captcha_test_wav_page(void){
+void test_captcha_audio_page(void){
   const char *zSeed = P("name");
   Blob audio;
   captcha_wav(zSeed, &audio);

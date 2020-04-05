@@ -385,7 +385,7 @@ void ext_files(void){
 **
 ** List all files in the extension CGI document root and its subfolders.
 */
-void ext_filelist_page(void){
+void extfilelist_page(void){
   Stmt q;
   login_check_credentials();
   if( !g.perm.Admin ){

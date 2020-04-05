@@ -324,7 +324,7 @@ void url_parse(const char *zUrl, unsigned int urlFlags){
 **    --remember      Store results in last-sync-url
 **    --prompt-pw     Prompt for password if missing
 */
-void cmd_test_urlparser(void){
+void test_urlparser_cmd(void){
   int i;
   unsigned fg = 0;
   url_proxy_options();

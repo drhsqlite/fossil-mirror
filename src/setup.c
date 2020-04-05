@@ -313,7 +313,7 @@ void multiple_choice_attribute(
 **
 ** The access-control settings page.  Requires Setup privileges.
 */
-void setup_access(void){
+void setup_access_page(void){
   static const char *const azRedirectOpts[] = {
     "0", "Off",
     "1", "Login Page Only",
@@ -544,7 +544,7 @@ void setup_access(void){
 ** Change how the current repository participates in a login
 ** group.
 */
-void setup_login_group(void){
+void setup_login_group_page(void){
   const char *zGroup;
   char *zErrMsg = 0;
   Blob fullName;
@@ -667,7 +667,7 @@ void setup_login_group(void){
 ** Edit administrative settings controlling the display of
 ** timelines.
 */
-void setup_timeline(void){
+void setup_timeline_page(void){
   double tmDiff;
   char zTmDiff[20];
   static const char *const azTimeFormats[] = {
@@ -806,7 +806,7 @@ void setup_timeline(void){
 ** Change or view miscellaneous settings.  Part of the
 ** /setup pages requiring Setup privileges.
 */
-void setup_settings(void){
+void setup_settings_page(void){
   int nSetting;
   int i;
   Setting const *pSet;
@@ -893,7 +893,7 @@ void setup_settings(void){
 **
 ** The "Admin/Configuration" page.  Requires Setup privilege.
 */
-void setup_config(void){
+void setup_config_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -989,7 +989,7 @@ void setup_config(void){
 **
 ** The "Admin/Wiki" page.  Requires Setup privilege.
 */
-void setup_wiki(void){
+void setup_wiki_page(void){
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed(0);
@@ -1049,7 +1049,7 @@ void setup_wiki(void){
 **
 ** Admin page for setting up moderation of tickets and wiki.
 */
-void setup_modreq(void){
+void setup_modreq_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1097,7 +1097,7 @@ void setup_modreq(void){
 ** Administrative page for configuring and controlling ad units
 ** and how they are displayed.
 */
-void setup_adunit(void){
+void setup_adunit_page(void){
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1173,7 +1173,7 @@ void setup_adunit(void){
 **
 ** Administrative page for changing the logo image.
 */
-void setup_logo(void){
+void setup_logo_page(void){
   const char *zLogoMtime = db_get_mtime("logo-image", 0, 0);
   const char *zLogoMime = db_get("logo-mimetype","image/gif");
   const char *aLogoImg = P("logoim");
@@ -1332,7 +1332,7 @@ int raw_sql_query_authorizer(
 ** Run raw SQL commands against the database file using the web interface.
 ** Requires Setup privileges.
 */
-void sql_page(void){
+void admin_sql_page(void){
   const char *zQ;
   int go = P("go")!=0;
   login_check_credentials();
@@ -1471,7 +1471,7 @@ void sql_page(void){
 ** enabled at compile-time and the "tcl" setting is enabled, Tcl commands
 ** may be run as well.  Requires Admin privilege.
 */
-void th1_page(void){
+void admin_th1_page(void){
   const char *zQ = P("q");
   int go = P("go")!=0;
   login_check_credentials();
@@ -1514,7 +1514,7 @@ void th1_page(void){
 ** the admin-log setting is enabled. Requires Admin or Setup ('a' or
 ** 's') permissions.
 */
-void page_admin_log(){
+void admin_log_page(){
   Stmt stLog;
   int limit;                 /* How many entries to show */
   int ofst;                  /* Offset to the first entry */
@@ -1579,7 +1579,7 @@ void page_admin_log(){
 **
 ** Configure the search engine.  Requires Admin privilege.
 */
-void page_srchsetup(){
+void srchsetup_page(){
   login_check_credentials();
   if( !g.perm.Admin ){
     login_needed(0);
@@ -1701,7 +1701,7 @@ static void setup_update_url_alias(
 **
 ** Configure the URL aliases
 */
-void page_waliassetup(){
+void waliassetup_page(){
   Stmt q;
   int cnt = 0;
   Blob namelist;

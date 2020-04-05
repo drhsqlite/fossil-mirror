@@ -1461,7 +1461,7 @@ char *search_stext_cached(
 ** ID.  The NAME is used to figure out a mimetype to use for formatting
 ** the raw document text.
 */
-void test_search_stext(void){
+void test_search_stext_cmd(void){
   Blob out;
   db_find_and_open_repository(0,0);
   if( g.argc!=5 ) usage("TYPE RID NAME");
@@ -1478,7 +1478,7 @@ void test_search_stext(void){
 ** Read the content of FILE and convert it to stext according to MIMETYPE.
 ** Send the result to standard output.
 */
-void test_convert_stext(void){
+void test_convert_stext_cmd(void){
   Blob in, out;
   db_find_and_open_repository(0,0);
   if( g.argc!=4 ) usage("FILENAME MIMETYPE");
@@ -1956,7 +1956,7 @@ void fts_config_cmd(void){
 **
 ** Show a table of all documents currently in the search index.
 */
-void search_data_page(void){
+void test_ftsdocs_page(void){
   Stmt q;
   const char *zId = P("id");
   const char *zType = P("y");

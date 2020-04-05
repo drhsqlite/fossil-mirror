@@ -839,7 +839,7 @@ int topological_sort_checkins(int bVerbose){
 ** Invoke the topological_sort_checkins() interface for testing
 ** purposes.
 */
-void test_topological_sort(void){
+void test_topological_sort_cmd(void){
   int n;
   db_find_and_open_repository(0, 0);
   n = topological_sort_checkins(1);
@@ -1664,7 +1664,7 @@ void gitmirror_status_command(void){
 **
 **       Show the status of the current Git mirror, if there is one.
 */
-void gitmirror_command(void){
+void gitmirror_cmd(void){
   char *zCmd;
   int nCmd;
   if( g.argc<3 ){

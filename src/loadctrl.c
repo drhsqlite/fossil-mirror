@@ -42,7 +42,7 @@ double load_average(void){
 **
 ** Print the load average on the host machine.
 */
-void loadavg_test_cmd(void){
+void test_loadavg_cmd(void){
   fossil_print("load-average: %f\n", load_average());
 }
 

@@ -737,7 +737,7 @@ static void stats_report_last_change(void){
 **   y=YYYY            The year to report (default is the server's
 **                     current year).
 */
-void stats_report_page(){
+void reports_page(){
   const char *zView = P("view");     /* Which view/report to show. */
   int eType = RPT_NONE;              /* Numeric code for view/report to show */
   int i;                             /* Loop counter */

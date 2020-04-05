@@ -1135,7 +1135,7 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 ** Parse the manifest(s) given on the command-line and report any
 ** errors.  If the N argument is given, run the parsing N times.
 */
-void manifest_test_parse_cmd(void){
+void test_parse_manifest_cmd(void){
   Manifest *p;
   Blob b;
   int i;
@@ -1172,7 +1172,7 @@ void manifest_test_parse_cmd(void){
 **
 ** If the --limit N argument is given, parse no more than N blobs
 */
-void manifest_test_parse_all_blobs_cmd(void){
+void test_parse_all_blobs_cmd(void){
   Manifest *p;
   Blob err;
   Stmt q;

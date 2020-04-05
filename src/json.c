@@ -25,8 +25,8 @@
 **
 ** Notes for hackers...
 **
-** Here's how command/page dispatching works: json_page_top() (in HTTP mode) or
-** json_cmd_top() (in CLI mode) catch the "json" path/command. Those functions then
+** Here's how command/page dispatching works: json_page() (in HTTP mode) or
+** json_cmd() (in CLI mode) catch the "json" path/command. Those functions then
 ** dispatch to a JSON-mode-specific command/page handler with the type fossil_json_f().
 ** See the API docs for that typedef (below) for the semantics of the callbacks.
 **
@@ -713,7 +713,7 @@ cson_value * json_req_payload_get(char const *pKey){
 /*
 ** Initializes some JSON bits which need to be initialized relatively
 ** early on. It should only be called from cgi_init() or
-** json_cmd_top() (early on in those functions).
+** json_cmd() (early on in those functions).
 **
 ** Initializes g.json.gc and g.json.param. This code does not (and
 ** must not) rely on any of the fossil environment having been set
@@ -921,7 +921,7 @@ cson_value * json_string_split2( char const * zStr,
 
 /*
 ** Performs some common initialization of JSON-related state.  Must be
-** called by the json_page_top() and json_cmd_top() dispatching
+** called by the json_page() and json_cmd() dispatching
 ** functions to set up the JSON stat used by the dispatched functions.
 **
 ** Implicitly sets up the login information state in CGI mode, but
@@ -2218,7 +2218,7 @@ static const JsonPageDef JsonPageDefs[] = {
 };
 
 /*
-** Internal helper for json_cmd_top() and json_page_top().
+** Internal helper for json_cmd() and json_page().
 **
 ** Searches JsonPageDefs for a command with the given name. If found,
 ** it is used to generate and output a JSON response. If not found, it
@@ -2259,9 +2259,9 @@ static int json_dispatch_root_command( char const * zCommand ){
 **
 ** Pages under /json/... must be entered into JsonPageDefs.
 ** This function dispatches them, and is the HTTP equivalent of
-** json_cmd_top().
+** json_cmd().
 */
-void json_page_top(void){
+void json_page(void){
   char const * zCommand;
   assert(g.json.gc.a && "json_main_bootstrap() was not called!");
   json_mode_bootstrap();
@@ -2280,7 +2280,7 @@ void json_page_top(void){
 /* dupe ifdef needed for mkindex */
 /*
 ** This function dispatches json commands and is the CLI equivalent of
-** json_page_top().
+** json_page().
 **
 ** COMMAND: json
 **
@@ -2323,7 +2323,7 @@ void json_page_top(void){
 ** aware that some listed might not yet be fully implemented).
 **
 */
-void json_cmd_top(void){
+void json_cmd(void){
   char const * cmd = NULL;
   int rc = 0;
   memset( &g.perm, 0xff, sizeof(g.perm) )

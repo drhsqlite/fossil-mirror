@@ -170,7 +170,7 @@ char *hash_color(const char *z){
 ** Print out the color names associated with each tag.  Used for
 ** testing the hash_color() function.
 */
-void test_hash_color(void){
+void test_hash_color_cmd(void){
   int i;
   for(i=2; i<g.argc; i++){
     fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
@@ -183,7 +183,7 @@ void test_hash_color(void){
 ** Print out the color names associated with each tag.  Used for
 ** testing the hash_color() function.
 */
-void test_hash_color_page(void){
+void hash_color_test_page(void){
   const char *zBr;
   char zNm[10];
   int i, cnt;
@@ -1620,7 +1620,7 @@ const char *timeline_expand_datetime(const char *zIn){
 ** CHECKIN or TIMEORTAG can be a check-in hash prefix, or a tag, or the
 ** name of a branch.
 */
-void page_timeline(void){
+void timeline_page(void){
   Stmt q;                            /* Query used to generate the timeline */
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
@@ -3024,7 +3024,7 @@ void thisdayinhistory_page(void){
 ** than their parent.  If the -v|--verbose option is provided, both the
 ** parent and child check-ins and their times are shown.
 */
-void test_timewarp_cmd(void){
+void test_timewarp_list_cmd(void){
   Stmt q;
   int verboseFlag;
 
@@ -3062,7 +3062,7 @@ void test_timewarp_cmd(void){
 ** timestamp information on the check-in.  This can only actually
 ** happen, of course, if a users system clock is set incorrectly.
 */
-void test_timewarp_page(void){
+void timewarps_page(void){
   Stmt q;
   int cnt = 0;
 

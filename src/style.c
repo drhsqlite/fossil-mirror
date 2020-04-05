@@ -1016,7 +1016,7 @@ static int containsSelector(const char *zCss, const char *zSelector){
 **
 ** Determine if the CSS stylesheet FILENAME contains SELECTOR.
 */
-void contains_selector_cmd(void){
+void test_contains_selector_cmd(void){
   int found;
   char *zSelector;
   Blob css;
@@ -1033,7 +1033,7 @@ void contains_selector_cmd(void){
 **
 ** Return the "Javascript" content for the current skin (if there is any)
 */
-void page_script_js(void){
+void script_js_page(void){
   const char *zScript = skin_get("js");
   if( P("test") ){
     /* Render the script as plain-text for testing purposes, if the "test"
@@ -1053,7 +1053,7 @@ void page_script_js(void){
 **
 ** Return the style sheet.
 */
-void page_style_css(void){
+void style_css_page(void){
   Blob css;
   int i;
   int isInit = 0;
@@ -1106,7 +1106,7 @@ void page_style_css(void){
 ** If the id= query parameter is present, then Fossil assumes that the
 ** result is immutable and sets a very large cache retention time (1 year).
 */
-void page_builtin_text(void){
+void builtin_page(void){
   Blob out;
   const char *zName = P("name");
   const char *zTxt = 0;
@@ -1172,7 +1172,7 @@ static char *find_anon_capabilities(char *zCap){
 ** Display CGI-variables and other aspects of the run-time
 ** environment, for debugging and trouble-shooting purposes.
 */
-void page_test_env(void){
+void test_env_page(void){
   webpage_error("");
 }
 

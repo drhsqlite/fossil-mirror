@@ -570,7 +570,7 @@ void test_usernames_cmd(void){
 ** rather than cleartext.  Passwords that are already stored as the SHA1
 ** has are unchanged.
 */
-void user_hash_passwords_cmd(void){
+void test_hash_passwords_cmd(void){
   if( g.argc!=3 ) usage("REPOSITORY");
   db_open_repository(g.argv[2]);
   sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,

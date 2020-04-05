@@ -575,7 +575,7 @@ static void zip_close(Archive *p){
 ** Generate a ZIP archive specified by the first argument that
 ** contains files given in the second and subsequent arguments.
 */
-void filezip_cmd(void){
+void test_filezip_cmd(void){
   int i;
   Blob zip;
   Blob file;
@@ -869,7 +869,7 @@ void sqlar_cmd(void){
 **                       pattern can optionally be quoted using ".." or '..'.
 **                       Any file matching both ex= and in= is excluded.
 */
-void baseline_zip_page(void){
+void zip_page(void){
   int rid;
   const char *z;
   char *zName, *zRid, *zKey;

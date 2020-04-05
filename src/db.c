@@ -607,7 +607,7 @@ int db_exec(Stmt *pStmt){
 ** Invoke the db_exec() interface with an erroneous SQL statement
 ** in order to verify the error handling logic.
 */
-void db_test_db_exec_cmd(void){
+void test_db_exec_error_cmd(void){
   Stmt err;
   db_find_and_open_repository(0,0);
   db_prepare(&err, "INSERT INTO repository.config(name) VALUES(NULL);");
@@ -1902,7 +1902,7 @@ void db_verify_schema(void){
 ** Use this command to avoid having to close and reopen a checkout
 ** when relocating the repository database.
 */
-void move_repo_cmd(void){
+void test_move_repo_cmd(void){
   Blob repo;
   char *zRepo;
   if( g.argc!=3 ){
@@ -2952,7 +2952,7 @@ void db_record_repository_filename(const char *zName){
 **
 ** See also: close
 */
-void cmd_open(void){
+void open_cmd(void){
   int emptyFlag;
   int keepFlag;
   int forceMissingFlag;
@@ -3735,7 +3735,7 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 **
 ** See also: configuration
 */
-void setting_cmd(void){
+void settings_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int exactFlag = find_option("exact",0,0)!=0;
@@ -3869,7 +3869,7 @@ void test_timespan_cmd(void){
 ** Options:
 **    --dryrun | -n         No changes.  Just print what would happen.
 */
-void test_without_rowid(void){
+void test_without_rowid_cmd(void){
   int i, j;
   Stmt q;
   Blob allSql;
@@ -3971,7 +3971,7 @@ void admin_log(const char *zFormat, ...){
 ** (2) The local checkout database
 ** (3) The global configuration database
 */
-void test_database_name_cmd(void){
+void test_database_names_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   fossil_print("Repository database: %s\n", g.zRepositoryName);
   fossil_print("Local database:      %s\n", g.zLocalDbName);
@@ -4050,7 +4050,7 @@ char *db_fingerprint(int rcvid, int iVersion){
 ** Show both the legacy and the newer version of the fingerprint,
 ** and the currently stored fingerprint if there is one.
 */
-void test_fingerprint(void){
+void test_fingerprint_cmd(void){
   int rcvid = 0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   if( g.argc==3 ){

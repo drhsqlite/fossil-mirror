@@ -113,7 +113,7 @@ void verify_cancel(void){
 **
 ** Verify all records in the repository.
 */
-void verify_all_cmd(void){
+void test_verify_all_cmd(void){
   Stmt q;
   int cnt = 0;
   db_must_be_within_tree();

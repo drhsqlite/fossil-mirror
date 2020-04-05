@@ -198,7 +198,7 @@ void all_cmd(void){
   if( strncmp(zCmd, "ui", n)==0 || strncmp(zCmd, "server", n)==0 ){
     g.argv[1] = g.argv[2];
     g.argv[2] = "/";
-    cmd_webserver();
+    webserver_cmd();
     return;
   }
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){

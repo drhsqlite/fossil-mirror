@@ -486,7 +486,7 @@ write_err:
 **     --out FILE                 Store the reply in FILE
 **     -v                         Verbose output
 */
-void test_httpmsg_command(void){
+void test_httpmsg_cmd(void){
   const char *zMimetype;
   const char *zInFile;
   const char *zOutFile;

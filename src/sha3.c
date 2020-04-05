@@ -640,7 +640,7 @@ char *sha3sum(const char *zIn, int iSize){
 **    -h, --dereference   If FILE is a symbolic link, compute the hash on
 **                        the object pointed to, not on the link itself.
 */
-void sha3sum_test(void){
+void sha3sum_cmd(void){
   int i;
   Blob in;
   Blob cksum;

@@ -423,7 +423,7 @@ static int isHuman(const char *zAgent){
 ** as a User-Agent string from an HTTP header.  Label each line as HUMAN
 ** or ROBOT.
 */
-void test_ishuman(void){
+void test_ishuman_cmd(void){
   char zLine[3000];
   while( fgets(zLine, sizeof(zLine), stdin) ){
     fossil_print("%s %s", isHuman(zLine) ? "HUMAN" : "ROBOT", zLine);
@@ -1986,7 +1986,7 @@ void login_group_leave(char **pzErrMsg){
 ** web interface, their password is also automatically changed in every
 ** other member of the login group.
 */
-void login_group_command(void){
+void login_group_cmd(void){
   const char *zLGName;
   const char *zCmd;
   int nCmd;

@@ -211,7 +211,7 @@ void wiki_render_by_mimetype(Blob *pWiki, const char *zMimetype){
 **
 ** Show a summary of the Markdown wiki formatting rules.
 */
-void markdown_rules_page(void){
+void md_rules_page(void){
   Blob x;
   int fTxt = P("txt")!=0;
   style_header("Markdown Formatting Rules");
@@ -320,7 +320,7 @@ static void wiki_standard_submenu(unsigned int ok){
 ** WEBPAGE: wikihelp
 ** A generic landing page for wiki.
 */
-void wiki_helppage(void){
+void wikihelp_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
   style_header("Wiki Help");
@@ -358,7 +358,7 @@ void wiki_helppage(void){
 **
 ** Full-text search of all current wiki text
 */
-void wiki_srchpage(void){
+void wikisrch_page(void){
   login_check_credentials();
   style_header("Wiki Search");
   wiki_standard_submenu(W_HELP|W_LIST|W_SANDBOX);
@@ -480,9 +480,9 @@ void wiki_page(void){
   zPageName = P("name");
   if( zPageName==0 ){
     if( search_restrict(SRCH_WIKI)!=0 ){
-      wiki_srchpage();
+      wikisrch_page();
     }else{
-      wiki_helppage();
+      wikihelp_page();
     }
     return;
   }

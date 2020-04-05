@@ -252,7 +252,7 @@ int tag_insert(
 ** time the repository is rebuilt.  This routine is for testing
 ** use only.
 */
-void testtag_cmd(void){
+void test_tag_cmd(void){
   const char *zTag;
   const char *zValue;
   int rid;
@@ -730,7 +730,7 @@ void taglist_page(void){
 }
 
 /*
-** WEBPAGE: /tagtimeline
+** WEBPAGE: tagtimeline
 **
 ** Render a timeline with all check-ins that contain non-propagating
 ** symbolic tags.

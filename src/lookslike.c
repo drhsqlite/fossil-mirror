@@ -410,7 +410,7 @@ int could_be_utf16(const Blob *pContent, int *pbReverse){
 ** FILENAME is the name of a file to check for textual content in the UTF-8
 ** and/or UTF-16 encodings.
 */
-void looks_like_utf_test_cmd(void){
+void test_looks_like_utf_cmd(void){
   Blob blob;         /* the contents of the specified file */
   int fUtf8 = 0;     /* return value of starts_with_utf8_bom() */
   int fUtf16 = 0;    /* return value of starts_with_utf16_bom() */

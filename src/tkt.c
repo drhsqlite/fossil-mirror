@@ -411,7 +411,7 @@ void ticket_rebuild(void){
 ** Rebuild the TICKET and TICKETCHNG tables for the given ticket ID
 ** or for ALL.
 */
-void test_ticket_rebuild(void){
+void test_ticket_rebuild_cmd(void){
   db_find_and_open_repository(0, 0);
   if( g.argc!=3 ) usage("TICKETID|all");
   if( fossil_strcmp(g.argv[2], "all")==0 ){
@@ -1476,12 +1476,12 @@ void ticket_standard_submenu(unsigned int ok){
 ** either ticket-search (if search is enabled) or as the
 ** /reportlist page (if ticket search is disabled).
 */
-void tkt_home_page(void){
+void ticket_page(void){
   login_check_credentials();
   if( search_restrict(SRCH_TKT)!=0 ){
-    tkt_srchpage();
+    tktsrch_page();
   }else{
-    view_list();
+    reportlist_page();
   }
 }
 
@@ -1491,7 +1491,7 @@ void tkt_home_page(void){
 **
 ** Full-text search of all current tickets
 */
-void tkt_srchpage(void){
+void tktsrch_page(void){
   login_check_credentials();
   style_header("Ticket Search");
   ticket_standard_submenu(T_ALL_BUT(T_SRCH));

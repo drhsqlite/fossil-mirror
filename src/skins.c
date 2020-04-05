@@ -450,7 +450,7 @@ static int skinSave(const char *zCurrent){
 **
 ** Administrative actions on skins.  For administrators only.
 */
-void setup_skin_admin(void){
+void setup_skin_admin_page(void){
   const char *z;
   char *zName;
   char *zErr = 0;
@@ -700,7 +700,7 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
 **    w=NUM     -- 0=CSS, 1=footer, 2=header, 3=details, 4=js
 **    sk=NUM    -- the draft skin number
 */
-void setup_skinedit(void){
+void setup_skinedit_page(void){
   static const struct sSkinAddr {
     const char *zFile;
     const char *zTitle;
@@ -876,7 +876,7 @@ static void skin_publish(int iSkin){
 **
 ** Generate a page showing the steps needed to customize a skin.
 */
-void setup_skin(void){
+void setup_skin_page(void){
   int i;          /* Loop counter */
   int iSkin;      /* Which draft skin is being edited */
   int isSetup;    /* True for an administrator */

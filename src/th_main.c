@@ -2662,7 +2662,7 @@ int Th_Render(const char *z){
 **     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
-void test_th_render(void){
+void test_th_render_cmd(void){
   int forceCgi, fullHttpReply;
   Blob in;
   Th_InitTraceLog();
@@ -2711,7 +2711,7 @@ void test_th_render(void){
 **     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
-void test_th_eval(void){
+void test_th_eval_cmd(void){
   int rc;
   const char *zRc;
   int forceCgi, fullHttpReply;
@@ -2763,7 +2763,7 @@ void test_th_eval(void){
 **     --set-user-caps      Set user login capabilities
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
-void test_th_source(void){
+void test_th_source_cmd(void){
   int rc;
   const char *zRc;
   int forceCgi, fullHttpReply;
@@ -2837,7 +2837,7 @@ void test_th_source(void){
 **     --http               Include an HTTP response header in the output
 **     --th-trace           Trace TH1 execution (for debugging purposes)
 */
-void test_th_hook(void){
+void test_th_hook_cmd(void){
   int rc = TH_OK;
   int nResult = 0;
   char *zResult = 0;

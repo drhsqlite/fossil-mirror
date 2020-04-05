@@ -360,7 +360,7 @@ static void rebuild_tag_trunk(void){
 /*
 ** Core function to rebuild the information in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
-** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
+** 'rebuild_database_cmd' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
 ** from scratch.
 **
@@ -606,7 +606,7 @@ static void reconstruct_private_table(void){
 **
 ** See also: deconstruct, reconstruct
 */
-void rebuild_database(void){
+void rebuild_database_cmd(void){
   int forceFlag;
   int randomizeFlag;
   int errCnt = 0;
@@ -775,7 +775,7 @@ void test_detach_cmd(void){
 ** Create clusters for all unclustered artifacts if the number of unclustered
 ** artifacts exceeds the current clustering threshold.
 */
-void test_createcluster_cmd(void){
+void test_create_clusters_cmd(void){
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{

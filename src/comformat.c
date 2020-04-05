@@ -570,7 +570,7 @@ int get_comment_format(){
 **   -W|--width <num> Width of lines (default (-1) is to auto-detect).
 **                    Zero means no limit.
 */
-void test_comment_format(void){
+void test_comment_format_cmd(void){
   const char *zWidth;
   const char *zIndent;
   const char *zPrefix;

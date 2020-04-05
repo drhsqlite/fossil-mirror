@@ -348,7 +348,7 @@ void cache_cmd(void){
 **
 ** Show information about the webpage cache.  Requires Setup privilege.
 */
-void cache_page(void){
+void cachestat_page(void){
   sqlite3 *db;
   sqlite3_stmt *pStmt;
   char zBuf[100];
@@ -398,7 +398,7 @@ void cache_page(void){
 ** This page is normally a hyperlink from the /cachestat page.
 ** Requires Admin privilege.
 */
-void cache_getpage(void){
+void cacheget_page(void){
   const char *zKey;
   Blob content;
 

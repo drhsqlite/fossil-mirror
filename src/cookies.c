@@ -203,12 +203,12 @@ const char *cookie_value(const char *zPName, const char *zDefault){
 }
 
 /*
-** WEBPAGE:  cookies
+** WEBPAGE: cookies
 **
 ** Show the current display settings contained in the
 ** "fossil_display_settings" cookie.
 */
-void cookie_page(void){
+void cookies_page(void){
   int i;
   if( PB("clear") ){
     cgi_set_cookie(DISPLAY_SETTINGS_COOKIE, "", 0, 1);

@@ -50,7 +50,7 @@ int blob_delta_create(Blob *pOriginal, Blob *pTarget, Blob *pDelta){
 ** Create and output a delta that carries FILE1 into FILE2.
 ** Store the result in DELTA.
 */
-void delta_create_cmd(void){
+void test_delta_create_cmd(void){
   Blob orig, target, delta;
   if( g.argc!=5 ){
     usage("ORIGIN TARGET DELTA");
@@ -78,7 +78,7 @@ void delta_create_cmd(void){
 ** Create and a delta that carries FILE1 into FILE2.  Print the
 ** number bytes copied and the number of bytes inserted.
 */
-void delta_analyze_cmd(void){
+void test_delta_analyze_cmd(void){
   Blob orig, target, delta;
   int nCopy = 0;
   int nInsert = 0;
@@ -149,7 +149,7 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 **
 ** Apply DELTA to FILE1 and output the result.
 */
-void delta_apply_cmd(void){
+void test_delta_apply_cmd(void){
   Blob orig, target, delta;
   if( g.argc!=5 ){
     usage("ORIGIN DELTA TARGET");
@@ -179,7 +179,7 @@ void delta_apply_cmd(void){
 ** going in both directions.  Verify that the original files are
 ** correctly recovered.
 */
-void cmd_test_delta(void){
+void test_delta_cmd(void){
   Blob f1, f2;     /* Original file content */
   Blob d12, d21;   /* Deltas from f1->f2 and f2->f1 */
   Blob a1, a2;     /* Recovered file content */

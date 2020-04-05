@@ -308,7 +308,7 @@ static void email_hdr_unfold(char *z){
 ** Read an rfc-2822 formatted email out of FILE, then write a decoding
 ** to stdout.  Use for testing and validating the email decoder.
 */
-void test_email_decode_cmd(void){
+void test_decode_email_cmd(void){
   Blob email;
   EmailToc *p;
   int i;
@@ -576,7 +576,7 @@ static void webmail_d_submenu(void){
 }
 
 /*
-** WEBPAGE:  webmail
+** WEBPAGE: webmail
 **
 ** This page can be used to read content from the EMAILBOX table
 ** that contains email received by the "fossil smtpd" command.
@@ -764,7 +764,7 @@ void webmail_page(void){
 }
 
 /*
-** WEBPAGE:  emailblob
+** WEBPAGE: emailblob
 **
 ** This page, accessible only to administrators, allows easy viewing of
 ** the emailblob table - the table that contains the text of email messages
@@ -773,7 +773,7 @@ void webmail_page(void){
 **    id=N          Show the text of emailblob with emailid==N
 **
 */
-void webmail_emailblob_page(void){
+void emailblob_page(void){
   int id = atoi(PD("id","0"));
   Stmt q;
   login_check_credentials();
@@ -860,13 +860,13 @@ void webmail_emailblob_page(void){
 }
 
 /*
-** WEBPAGE:  emailoutq
+** WEBPAGE: emailoutq
 **
 ** This page, accessible only to administrators, allows easy viewing of
 ** the emailoutq table - the table that contains the email messages
 ** that are queued for transmission via SMTP.
 */
-void webmail_emailoutq_page(void){
+void emailoutq_page(void){
   Stmt q;
   login_check_credentials();
   if( !g.perm.Setup ){

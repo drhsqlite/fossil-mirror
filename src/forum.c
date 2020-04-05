@@ -255,7 +255,7 @@ static void forum_thread_list(void){
 **
 ** This command is intended for testing an analysis only.
 */
-void forumthread_cmd(void){
+void test_forumthread_cmd(void){
   int fpid;
   int froot;
   const char *zName;

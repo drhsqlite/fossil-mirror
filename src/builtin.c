@@ -60,7 +60,7 @@ const char *builtin_text(const char *zFilename){
 **
 ** List the names and sizes of all built-in resources.
 */
-void test_builtin_list(void){
+void test_builtin_list_cmd(void){
   int i;
   for(i=0; i<count(aBuiltinFiles); i++){
     fossil_print("%-30s %6d\n", aBuiltinFiles[i].zName,aBuiltinFiles[i].nByte);
@@ -72,7 +72,7 @@ void test_builtin_list(void){
 **
 ** Show all built-in text files.
 */
-void test_builtin_list_page(void){
+void test_builtin_files_page(void){
   int i;
   style_header("Built-in Text Files");
   @ <ul>
@@ -89,7 +89,7 @@ void test_builtin_list_page(void){
 **
 ** Usage: %fossil test-builtin-get NAME ?OUTPUT-FILE?
 */
-void test_builtin_get(void){
+void test_builtin_get_cmd(void){
   const unsigned char *pData;
   int nByte;
   Blob x;

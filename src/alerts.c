@@ -21,7 +21,7 @@
 ** email protocol?  That is not here.  See the "smtp.c" file instead.
 ** Yes, the choice of source code filenames is not the greatest, but
 ** it is not so bad that changing them seems justified.
-*/ 
+*/
 #include "config.h"
 #include "alerts.h"
 #include <assert.h>
@@ -201,7 +201,7 @@ void alert_submenu_common(void){
 ** Administrative page for configuring and controlling email notification.
 ** Normally accessible via the /Admin/Notification menu.
 */
-void setup_notification(void){
+void setup_notification_page(void){
   static const char *const azSendMethods[] = {
     "off",   "Disabled",
     "pipe",  "Pipe to a command",
@@ -748,7 +748,7 @@ static char *alert_mailbox_name(const char *zFromName){
 ** name on the command line.  This is a test interface for the
 ** alert_mailbox_name() function.
 */
-void alert_test_mailbox_hashname(void){
+void test_mailbox_hashname_cmd(void){
   int i;
   for(i=2; i<g.argc; i++){
     fossil_print("%30s: %s\n", g.argv[i], alert_mailbox_name(g.argv[i]));
@@ -1023,7 +1023,7 @@ void alert_send(
 **
 **    unsubscribe EMAIL       Remove a single subscriber with the given EMAIL.
 */
-void alert_cmd(void){
+void alerts_cmd(void){
   const char *zCmd;
   int nCmd;
   db_find_and_open_repository(0, 0);
@@ -1561,13 +1561,13 @@ static void alert_unsubscribe(const char *zName){
 ** The subscriber is identified in either of two ways:
 **
 **    (1)  The name= query parameter contains the subscriberCode.
-**         
+**
 **    (2)  The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
 **         to know the subscriber code.
 */
-void alert_page(void){
+void alerts_page(void){
   const char *zName = P("name");
   Stmt q;
   int sa, sc, sf, st, sw, sx;
@@ -1978,7 +1978,7 @@ void unsubscribe_page(void){
 ** for that email where the delivery settings can be
 ** modified.
 */
-void subscriber_list_page(void){
+void subscribers_page(void){
   Blob sql;
   Stmt q;
   sqlite3_int64 iNow;
@@ -2301,7 +2301,7 @@ void alert_footer(Blob *pOut){
 }
 
 /*
-** COMMAND:  test-alert
+** COMMAND: test-alert
 **
 ** Usage: %fossil test-alert EVENTID ...
 **
@@ -2362,7 +2362,7 @@ void test_alert_cmd(void){
 }
 
 /*
-** COMMAND:  test-add-alerts
+** COMMAND: test-add-alerts
 **
 ** Usage: %fossil test-add-alerts [OPTIONS] EVENTID ...
 **
@@ -2387,7 +2387,7 @@ void test_alert_cmd(void){
 **
 **    --digest            Process emails using SENDALERT_DIGEST
 */
-void test_add_alert_cmd(void){
+void test_add_alerts_cmd(void){
   int i;
   int doAuto = find_option("backoffice",0,0)!=0;
   unsigned mFlags = 0;

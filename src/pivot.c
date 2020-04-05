@@ -163,7 +163,7 @@ int pivot_find(int ignoreMerges){
 ** Options:
 **    --ignore-merges       Ignore merges for discovering name pivots
 */
-void test_find_pivot(void){
+void test_find_pivot_cmd(void){
   int i, rid;
   int ignoreMerges = find_option("ignore-merges",0,0)!=0;
   int showDetails = find_option("details",0,0)!=0;

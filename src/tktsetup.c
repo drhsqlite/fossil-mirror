@@ -776,7 +776,7 @@ const char *ticket_reportlist_code(void){
 ** Administrative page used to view or edit the TH1 script that
 ** defines the "report list" page.
 */
-void tktsetup_reportlist(void){
+void tktsetup_reportlist_page(void){
   static const char zDesc[] =
   @ Enter HTML with embedded TH1 script that will render the "report list" page
   ;

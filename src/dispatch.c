@@ -500,7 +500,7 @@ static void multi_column_list(const char **azWord, int nWord){
 **
 ** List all web pages.
 */
-void cmd_test_webpage_list(void){
+void test_list_webpage_cmd(void){
   int i, nCmd;
   const char *aCmd[MX_COMMAND];
   for(i=nCmd=0; i<MX_COMMAND; i++){

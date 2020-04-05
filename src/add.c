@@ -152,7 +152,7 @@ const char *fossil_all_reserved_names(int omitRepo){
 **
 ** Show all reserved filenames for the current check-out.
 */
-void test_reserved_names(void){
+void test_reserved_names_cmd(void){
   int i;
   const char *z;
   int omitRepo = find_option("omitrepo",0,0)!=0;

@@ -318,7 +318,7 @@ static sqlite3_uint64 backofficeProcessId(void){
 ** processes IDs on the command line are running or not.  If the --sleep N
 ** option is provide, then sleep for N seconds before exiting.
 */
-void test_process_id_command(void){
+void test_process_id_cmd(void){
   const char *zSleep = find_option("sleep",0,1);
   int i;
   verify_all_options();
@@ -340,7 +340,7 @@ void test_process_id_command(void){
 ** Print out information about the backoffice "lease" entry in the
 ** config table that controls whether or not backoffice should run.
 */
-void test_backoffice_lease(void){
+void test_backoffice_lease_cmd(void){
   sqlite3_int64 tmNow = time(0);
   Lease x;
   const char *zLease;
@@ -569,7 +569,7 @@ void backoffice_work(void){
 **
 **    --trace                 Enable debugging output on stderr
 */
-void backoffice_command(void){
+void backoffice_cmd(void){
   int nPoll;
   const char *zPoll;
   int bDebug = 0;

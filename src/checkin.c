@@ -351,8 +351,8 @@ static int determine_cwd_relative_option()
 }
 
 /*
-** COMMAND: changes
 ** COMMAND: status
+** COMMAND: changes
 **
 ** Usage: %fossil changes|status ?OPTIONS? ?PATHS ...?
 **
@@ -1455,7 +1455,7 @@ char *date_in_standard_format(const char *zInputDate){
 ** Convert the DATE-STRING into the standard format used in artifacts
 ** and display the result.
 */
-void test_date_format(void){
+void test_date_format_cmd(void){
   int i;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   for(i=2; i<g.argc; i++){
@@ -1881,7 +1881,7 @@ static int commit_warning(
 **
 ** See also: commit, extras
 */
-void test_commit_warning(void){
+void test_commit_warning_cmd(void){
   int rc = 0;
   int noSettings;
   int verboseFlag;

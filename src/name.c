@@ -532,7 +532,7 @@ int name_collisions(const char *zName){
 ** Convert a NAME to a full artifact ID.  Repeat the conversion N
 ** times (for timing purposes) if the --count option is given.
 */
-void test_name_to_id(void){
+void test_name_to_id_cmd(void){
   int i;
   int n = 0;
   Blob name;
@@ -1337,7 +1337,7 @@ void test_unsent_cmd(void){
 **
 ** Show all artifacts in the unclustered table
 */
-void test_unclusterd_cmd(void){
+void test_unclustered_cmd(void){
   db_find_and_open_repository(0,0);
   describe_artifacts_to_stdout("IN unclustered", 0);
 }
@@ -1349,7 +1349,7 @@ void test_unclusterd_cmd(void){
 **
 ** Show all phantom artifacts
 */
-void test_phatoms_cmd(void){
+void test_phantoms_cmd(void){
   db_find_and_open_repository(0,0);
   describe_artifacts_to_stdout("IN (SELECT rid FROM blob WHERE size<0)", 0);
 }
@@ -1427,7 +1427,7 @@ static void collision_report(const char *zSql){
 **
 ** Show the number of hash collisions for hash prefixes of various lengths.
 */
-void hash_collisions_webpage(void){
+void hash_collisions_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   style_header("Hash Prefix Collisions");

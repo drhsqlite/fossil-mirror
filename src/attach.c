@@ -149,9 +149,9 @@ void attachlist_page(void){
 }
 
 /*
+** WEBPAGE: attachview
 ** WEBPAGE: attachdownload
 ** WEBPAGE: attachimage
-** WEBPAGE: attachview
 **
 ** Download or display an attachment.
 ** Query parameters:

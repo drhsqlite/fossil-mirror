@@ -179,7 +179,7 @@ void glob_free(Glob *pGlob){
 ** to be a setting name (such as binary-glob, crln-glob, or encoding-glob)
 ** and the value of that setting is used as the actually glob pattern.
 */
-void glob_test_cmd(void){
+void test_glob_cmd(void){
   Glob *pGlob;
   int i;
   char *zPattern;

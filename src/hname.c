@@ -258,7 +258,7 @@ const char *hpolicy_name(void){
 ** artifacts with SHA3 names.  The default hash policy for new repositories
 ** is "shun-sha1".
 */
-void hash_policy_command(void){
+void hash_policy_cmd(void){
   int i;
   db_find_and_open_repository(0, 0);
   if( g.argc!=2 && g.argc!=3 ) usage("?NEW-POLICY?");

@@ -938,7 +938,7 @@ static int looks_like_control_artifact(Blob *p){
 **    --parse            Parse all manifests, wikis, tickets, events, and
 **                       so forth, reporting any errors found.
 */
-void test_integrity(void){
+void test_integrity_cmd(void){
   Stmt q;
   Blob content;
   int n1 = 0;
@@ -1048,7 +1048,7 @@ void test_integrity(void){
 **
 ** Search the repository for orphaned artifacts.
 */
-void test_orphans(void){
+void test_orphans_cmd(void){
   Stmt q;
   int cnt = 0;
 
@@ -1157,7 +1157,7 @@ static int check_exists(
 **    --notshunned          Do not report shunned artifacts
 **    --quiet               Only show output if there are errors
 */
-void test_missing(void){
+void test_missing_cmd(void){
   Stmt q;
   Blob content;
   int nErr = 0;
@@ -1229,7 +1229,7 @@ void test_missing(void){
 ** Note that the arguments are the integer raw RID values from the BLOB table,
 ** not artifact hashes or labels.
 */
-void test_content_erase(void){
+void test_content_erase_cmd(void){
   int i;
   Blob x;
   char c;

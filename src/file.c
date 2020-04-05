@@ -513,7 +513,7 @@ void file_copy(const char *zFrom, const char *zTo){
 ** directories in the path leading up to DESTINATION that do not already
 ** exist are created automatically.
 */
-void test_file_copy(void){
+void test_file_copy_cmd(void){
   if( g.argc!=4 ){
     fossil_fatal("Usage: %s test-file-copy SOURCE DESTINATION", g.argv[0]);
   }
@@ -580,7 +580,7 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
 **
 ** Sets the mtime of the named file to the date/time shown.
 */
-void test_set_mtime(void){
+void test_set_mtime_cmd(void){
   const char *zFile;
   char *zDate;
   i64 iMTime;
@@ -736,7 +736,7 @@ int file_is_normal_dir(wchar_t *zName){
 ** Returns non-zero if the specified names represent real directories, i.e.
 ** not junctions, symbolic links, etc.
 */
-void test_is_normal_dir(void){
+void test_is_normal_dir_cmd(void){
   int i;
   for(i=2; i<g.argc; i++){
     wchar_t *zMbcs = fossil_utf8_to_path(g.argv[i], 1);
@@ -998,7 +998,7 @@ int file_simplify_name(char *z, int n, int slash){
 **
 ** Print the simplified versions of each FILENAME.
 */
-void cmd_test_simplify_name(void){
+void test_simplify_name_cmd(void){
   int i;
   char *z;
   for(i=2; i<g.argc; i++){
@@ -1186,7 +1186,7 @@ static void emitFileStat(
 **     --slash                      Trailing slashes, if any, are retained.
 **     --reset                      Reset cached stat() info for each file.
 */
-void cmd_test_file_environment(void){
+void test_file_environment_cmd(void){
   int i;
   int slashFlag = find_option("slash",0,0)!=0;
   int resetFlag = find_option("reset",0,0)!=0;
@@ -1216,7 +1216,7 @@ void cmd_test_file_environment(void){
 ** Test the operation of the canonical name generator.
 ** Also test Fossil's ability to measure attributes of a file.
 */
-void cmd_test_canonical_name(void){
+void test_canonical_name_cmd(void){
   int i;
   Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
@@ -1351,7 +1351,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
 **
 ** Test the operation of the relative name generator.
 */
-void cmd_test_relative_name(void){
+void test_relative_name_cmd(void){
   int i;
   Blob x;
   int slashFlag = find_option("slash",0,0)!=0;
@@ -1470,7 +1470,7 @@ int file_tree_name(
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is
 **                        a boolean: "yes", "no", "true", "false", etc.
 */
-void cmd_test_tree_name(void){
+void test_tree_name_cmd(void){
   int i;
   Blob x;
   int absoluteFlag = find_option("absolute",0,0)!=0;
@@ -1663,7 +1663,7 @@ char *file_time_tempname(const char *zDir, const char *zSuffix){
 ** option to generate temp names based on the time of day.  If --tag NAME
 ** is specified, try to use NAME as the differentiator in the temp file.
 */
-void file_test_tempname(void){
+void test_tempname_cmd(void){
   int i;
   const char *zSuffix = find_option("time",0,1);
   Blob x = BLOB_INITIALIZER;
@@ -1895,7 +1895,7 @@ const char *file_is_win_reserved(const char *zPath){
 **
 ** Show which filenames are not valid for Windows
 */
-void file_test_valid_for_windows(void){
+void test_valid_for_windows_cmd(void){
   int i;
   for(i=2; i<g.argc; i++){
     fossil_print("%s %s\n", file_is_win_reserved(g.argv[i]), g.argv[i]);

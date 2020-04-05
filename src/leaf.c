@@ -253,7 +253,7 @@ int leaf_ambiguity_warning(int rid, int currentCkout){
 ** Resolve each name on the command line and call leaf_ambiguity_warning()
 ** for each resulting RID.
 */
-void leaf_ambiguity_warning_test(void){
+void test_leaf_ambiguity_cmd(void){
   int i;
   int rid;
   int rc;

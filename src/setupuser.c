@@ -33,7 +33,7 @@
 **
 **   with=CAP         Only show users that have one or more capabilities in CAP.
 */
-void setup_ulist(void){
+void setup_ulist_page(void){
   Stmt s;
   double rNow;
   const char *zWith = P("with");
@@ -192,7 +192,7 @@ void setup_ulist(void){
 ** information used to be a side-bar on the user list page, but has been
 ** factored out for improved presentation.
 */
-void setup_ulist_notes(void){
+void setup_ulist_notes_page(void){
   style_header("User Configuration Notes");
   @ <h1>User Configuration Notes:</h1>
   @ <ol>
@@ -237,7 +237,7 @@ void setup_ulist_notes(void){
 ** A documentation page showing the meaning of the various user capabilities
 ** code letters.
 */
-void setup_ucap_list(void){
+void setup_ucap_list_page(void){
   style_header("User Capability Codes");
   @ <h1>All capabilities</h1>
   capabilities_table(CAPCLASS_ALL);
@@ -278,7 +278,7 @@ static int isValidPwString(const char *zPw){
 ** Edit information about a user or create a new user.
 ** Requires Admin privileges.
 */
-void user_edit(void){
+void setup_uedit_page(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   const char *zGroup;
   const char *zOldLogin;

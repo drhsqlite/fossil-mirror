@@ -1242,7 +1242,7 @@ void version_cmd(void){
 **
 **    verbose       Show details
 */
-void test_version_page(void){
+void version_page(void){
   Blob versionInfo;
   int verboseFlag;
 
@@ -1850,7 +1850,7 @@ static void process_one_web_page(
       }
 #endif
     }
-  }else if( pCmd->xFunc!=page_xfer && db_schema_is_outofdate() ){
+  }else if( pCmd->xFunc!=xfer_page && db_schema_is_outofdate() ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
       json_err(FSL_JSON_E_DB_NEEDS_REBUILD,NULL,0);
@@ -2042,7 +2042,7 @@ static void redirect_web_page(int nRedirect, char **azRedirect){
 **
 ** See also: http, server, winsrv
 */
-void cmd_cgi(void){
+void cgi_cmd(void){
   const char *zFile;
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
@@ -2379,7 +2379,7 @@ void parse_pid_key_value(
 **
 ** See also: cgi, server, winsrv
 */
-void cmd_http(void){
+void http_cmd(void){
   const char *zIpAddr = 0;
   const char *zNotFound;
   const char *zHost;
@@ -2502,7 +2502,7 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **
 */
-void cmd_test_http(void){
+void test_http_cmd(void){
   const char *zIpAddr;    /* IP address of remote client */
 
   Th_InitTraceLog();
@@ -2648,7 +2648,7 @@ void fossil_set_timeout(int N){
 **
 ** See also: cgi, http, winsrv
 */
-void cmd_webserver(void){
+void webserver_cmd(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
   const char *zPort;        /* Value of the --port option */
   const char *zBrowser;     /* Name of web browser program */

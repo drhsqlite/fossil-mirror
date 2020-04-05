@@ -34,7 +34,7 @@ static void report_format_hints(void);
 **
 ** Main menu for Tickets.
 */
-void view_list(void){
+void reportlist_page(void){
   const char *zScript;
   Blob ril;   /* Report Item List */
   Stmt q;
@@ -301,7 +301,7 @@ char *verify_sql_statement(char *zSql){
 ** Display the SQL query used to generate a ticket report.  The rn=N
 ** query parameter identifies the specific report number to be displayed.
 */
-void view_see_sql(void){
+void rptsql_page(void){
   int rn;
   const char *zTitle;
   const char *zSQL;
@@ -359,7 +359,7 @@ void view_see_sql(void){
 **     s=SQL          SQL text used to implement the report
 **     k=KEY          Color key
 */
-void view_edit(void){
+void rptedit_page(void){
   int rn;
   const char *zTitle;
   const char *z;

@@ -512,7 +512,7 @@ void bisect_cmd(void){
     newArgv[4] = 0;
     g.argv = newArgv;
     g.argc = 4;
-    cmd_webserver();
+    webserver_cmd();
   }else if( strncmp(zCmd, "vlist", n)==0
          || strncmp(zCmd, "ls", n)==0
          || strncmp(zCmd, "status", n)==0

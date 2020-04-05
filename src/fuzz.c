@@ -127,7 +127,7 @@ int LLVMFuzzerInitialize(int *pArgc, char ***pArgv){
 **     markdown              Fuzz the markdown translator
 **     artifact              Fuzz the artifact parser
 */
-void fuzz_command(void){
+void test_fuzz_cmd(void){
   Blob in;
   int i;
   fuzzer_options();

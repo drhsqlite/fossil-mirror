@@ -568,7 +568,7 @@ char *fossil_random_password(int N){
 ** If N is omitted, use 10.  Values of N less than 8 are changed to 8
 ** and greater than 55 and changed to 55.
 */
-void test_random_password(void){
+void test_random_password_cmd(void){
   int N = 10;
   if( g.argc>=3 ){
     N = atoi(g.argv[2]);

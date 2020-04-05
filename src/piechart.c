@@ -267,7 +267,7 @@ void piechart_render(int width, int height, unsigned int pieFlags){
 **
 ** Generate a pie-chart based on data input from a form.
 */
-void piechart_test_page(void){
+void test_piechart_page(void){
   const char *zData;
   Stmt ins;
   int n = 0;

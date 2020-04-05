@@ -2387,7 +2387,7 @@ unsigned gradient_color(unsigned c1, unsigned c2, int n, int i){
 **                           annotation
 **    w=BOOLEAN           Ignore whitespace
 */
-void annotation_page(void){
+void annotate_page(void){
   int i;
   const char *zLimit;    /* Depth limit */
   u64 annFlags = DIFF_STRIP_EOLCR;

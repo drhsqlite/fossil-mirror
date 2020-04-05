@@ -120,7 +120,7 @@ void hyperlinked_path(
 **                     TYPE=tree: use the /tree display instead
 **    noreadme         Do not attempt to display the README file.
 */
-void page_dir(void){
+void dir_page(void){
   char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
@@ -136,7 +136,7 @@ void page_dir(void){
   int linkTip = 1;
   HQuery sURI;
 
-  if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
+  if( strcmp(PD("type","flat"),"tree")==0 ){ tree_page(); return; }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
@@ -589,7 +589,7 @@ static void relinkTree(FileTree *pTree, FileTreeNode *pRoot){
 **    nofiles          Show directories (folders) only.  Omit files.
 **    mtime            Order directory elements by decreasing mtime
 */
-void page_tree(void){
+void tree_page(void){
   char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   const char *zCI = P("ci");
@@ -615,7 +615,7 @@ void page_tree(void){
   int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
 
-  if( strcmp(PD("type","flat"),"flat")==0 ){ page_dir(); return; }
+  if( strcmp(PD("type","flat"),"flat")==0 ){ dir_page(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }

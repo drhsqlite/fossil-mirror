@@ -510,7 +510,7 @@ void sha1_shared_secret_sql_function(
 **                          the hash is over the name of the object that
 **                          the link points to.
 */
-void sha1sum_test(void){
+void sha1sum_cmd(void){
   int i;
   Blob in;
   Blob cksum;

@@ -135,7 +135,7 @@ char *smtp_mx_host(const char *zDomain){
 ** Do a DNS MX lookup to find the hostname for sending email for
 ** DOMAIN.
 */
-void test_find_mx(void){
+void test_find_mx_cmd(void){
   int i;
   if( g.argc<=2 ){
     usage("DOMAIN ...");
@@ -429,7 +429,7 @@ int smtp_client_startup(SmtpSession *p){
 **    --direct              Use DOMAIN directly without going through MX
 **    --port N              Talk on TCP port N
 */
-void test_smtp_probe(void){
+void test_smtp_probe_cmd(void){
   SmtpSession *p;
   const char *zDomain;
   const char *zSelf;
@@ -509,7 +509,7 @@ static size_t smtp_test_sender(void *NotUsed, const void *pContent, size_t N){
 ** to the DATA portion of an SMTP session.  This command is used to
 ** test the encoding logic.
 */
-void test_smtp_senddata(void){
+void test_smtp_senddata_cmd(void){
   Blob f;
   if( g.argc!=3 ) usage("FILE");
   blob_read_from_file(&f, g.argv[2], ExtFILE);
@@ -604,7 +604,7 @@ static const char *domainOfAddr(const char *z){
 **      --port N              Use TCP port N instead of 25
 **      --trace               Show the SMTP conversation on the console
 */
-void test_smtp_send(void){
+void test_smtp_send_cmd(void){
   SmtpSession *p;
   const char *zFrom;
   int nTo;
@@ -763,7 +763,7 @@ void smtp_server_schema(int eForce){
 ** output email queuing.  This page is available to administrators
 ** only via the /Admin/EmailServer menu.
 */
-void setup_smtp(void){
+void setup_smtp_page(void){
   Stmt q;
   login_check_credentials();
   if( !g.perm.Setup ){
@@ -824,7 +824,7 @@ void setup_smtp(void){
 **
 **    epolicy=TXT         The routing policy.
 */
-void setup_smtp_route(void){
+void setup_smtp_route_page(void){
   char *zEAddr = PT("eaddr");         /* new email address */
   char *zEPolicy = PT("epolicy");     /* new routing policy */
   char *zOAddr = PT("oaddr");         /* original email address */
@@ -1260,7 +1260,7 @@ void smtp_cleanup(void){
 ** emailblob table.  If the --clean flags is used together with --repair,
 ** then emailblob table entires with enref==0 are removed.
 */
-void test_refcheck_emailblob(void){
+void test_emailblob_refcheck_cmd(void){
   int doRepair;
   int fullReport;
   int doClean;
@@ -1338,7 +1338,7 @@ void test_refcheck_emailblob(void){
 **                        is the name of an environment variable, the address
 **                        is taken from that environment variable.
 */
-void smtp_server(void){
+void smtp_server_cmd(void){
   char *zDbName;
   const char *zDomain;
   SmtpServer x;
@@ -1484,7 +1484,7 @@ static int pop3_login(const char *zUser, char *zPass){
 **                        of the session there.  The logfile is opened
 **                        before entering the chroot jail.
 */
-void pop3d_command(void){
+void pop3d_cmd(void){
   char *zDbName;
   char *zA1, *zA2, *zCmd, *z;
   int inAuth = 1;

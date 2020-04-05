@@ -132,7 +132,7 @@ int fossil_no_strange_characters(const char *z){
 ** Verify that the fossil_isspace() routine is working correctly by
 ** testing it on all possible inputs.
 */
-void isspace_cmd(void){
+void test_isspace_cmd(void){
   int i;
   for(i=0; i<=255; i++){
     if( i==' ' || i=='\n' || i=='\t' || i=='\v'
@@ -1027,7 +1027,7 @@ void blob_compress(Blob *pIn, Blob *pOut){
 **
 ** This is used to test and debug the blob_compress() routine.
 */
-void compress_cmd(void){
+void test_compress_cmd(void){
   Blob f;
   if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
   blob_read_from_file(&f, g.argv[2], ExtFILE);
@@ -1086,7 +1086,7 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
 **
 ** This is used to test and debug the blob_compress2() routine.
 */
-void compress2_cmd(void){
+void test_compress2_cmd(void){
   Blob f1, f2;
   if( g.argc!=5 ) usage("INPUTFILE1 INPUTFILE2 OUTPUTFILE");
   blob_read_from_file(&f1, g.argv[2], ExtFILE);
@@ -1138,7 +1138,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
 ** result into OUT.  This command is intended for testing of the
 ** blob_compress() function.
 */
-void uncompress_cmd(void){
+void test_uncompress_cmd(void){
   Blob f;
   if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
   blob_read_from_file(&f, g.argv[2], ExtFILE);
@@ -1152,7 +1152,7 @@ void uncompress_cmd(void){
 ** Compress and uncompress each file named on the command line.
 ** Verify that the original content is recovered.
 */
-void test_cycle_compress(void){
+void test_cycle_compress_cmd(void){
   int i;
   Blob b1, b2, b3;
   for(i=2; i<g.argc; i++){

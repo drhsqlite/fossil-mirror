@@ -342,7 +342,7 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
 ** in the backlink table.  This is used for testing the rendering
 ** of the "References" section of the /info page.
 */
-void backlink_timeline_page(void){
+void test_backlinks_page(void){
   Blob sql;
   Stmt q;
 
@@ -641,8 +641,8 @@ void ci_tags_page(void){
 }
 
 /*
-** WEBPAGE: vinfo
 ** WEBPAGE: ci
+** WEBPAGE: vinfo
 ** URL:  /ci/ARTIFACTID
 **  OR:  /ci?name=ARTIFACTID
 **
@@ -1698,7 +1698,7 @@ int object_description(
 **      verbose=BOOLEAN  Show more detail when describing artifacts
 **      w=BOOLEAN        Ignore whitespace
 */
-void diff_page(void){
+void fdiff_page(void){
   int v1, v2;
   int isPatch = P("patch")!=0;
   int diffType;          /* 0: none, 1: unified,  2: side-by-side */
@@ -2189,7 +2189,7 @@ void artifact_page(void){
       ** specified */
       if( zName==0 || zName[0]==0 ){
         if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
-        page_tree();
+        tree_page();
         return;
       }
       /* Look for a single file with the given name */
@@ -2212,7 +2212,7 @@ void artifact_page(void){
            nName, zName, nName+1, nName, zName
         ) ){
           if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
-          page_tree();
+          tree_page();
           return;
         }
       }
@@ -3138,7 +3138,7 @@ static void prepare_amend_comment(
 ** (westward) or "+HH:MM" (eastward). Either no timezone suffix or "Z"
 ** means UTC.
 */
-void ci_amend_cmd(void){
+void amend_cmd(void){
   int rid;
   const char *zComment;         /* Current comment on the check-in */
   const char *zNewComment;      /* Revised check-in comment */

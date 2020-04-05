@@ -1020,7 +1020,7 @@ int win32_http_service(
 **       requires administrative rights on the machine executed.
 **
 */
-void cmd_win32_service(void){
+void win32_service_cmd(void){
   int n;
   const char *zMethod;
   const char *zSvcName = "Fossil-DSCM";    /* Default service name */

@@ -1128,7 +1128,7 @@ static int disableLogin = 0;
 ** message has been uncompressed and placed in the g.cgiIn blob.
 ** Process this message and form an appropriate reply.
 */
-void page_xfer(void){
+void xfer_page(void){
   int isPull = 0;
   int isPush = 0;
   int nErr = 0;
@@ -1693,7 +1693,7 @@ void page_xfer(void){
 **     gdb fossil
 **     r test-xfer out.txt
 */
-void cmd_test_xfer(void){
+void test_xfer_cmd(void){
   db_find_and_open_repository(0,0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("?MESSAGEFILE?");
@@ -1701,7 +1701,7 @@ void cmd_test_xfer(void){
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2], ExtFILE);
   disableLogin = 1;
-  page_xfer();
+  xfer_page();
   fossil_print("%s\n", cgi_extract_content());
 }
 

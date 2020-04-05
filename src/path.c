@@ -245,7 +245,7 @@ void path_shortest_stored_in_ancestor_table(
 ** Report the shortest path between two check-ins.  If the --no-merge flag
 ** is used, follow only direct parent-child paths and omit merge links.
 */
-void shortest_path_test_cmd(void){
+void test_shortest_path_cmd(void){
   int iFrom;
   int iTo;
   PathNode *p;
@@ -351,7 +351,7 @@ int path_common_ancestor(int iMe, int iYou){
 ** Report the path from VERSION1 to VERSION2 through their most recent
 ** common ancestor.
 */
-void ancestor_path_test_cmd(void){
+void test_ancestor_path_cmd(void){
   int iFrom;
   int iTo;
   int iPivot;
@@ -523,7 +523,7 @@ void find_filename_changes(
 **
 ** Show all filename changes that occur going from VERSION1 to VERSION2
 */
-void test_name_change(void){
+void test_name_changes_cmd(void){
   int iFrom;
   int iTo;
   int *aChng;

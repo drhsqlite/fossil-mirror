@@ -766,7 +766,7 @@ static int grep_buffer(
 **
 **   -i|--ignore-case    Ignore case
 */
-void re_test_grep(void){
+void test_grep_cmd(void){
   ReCompiled *pRe;
   const char *zErr;
   int ignoreCase = find_option("ignore-case","i",0)!=0;
@@ -819,7 +819,7 @@ void re_test_grep(void){
 **                                files that have no matches. Implies -l
 **     --verbose                  Show each file as it is analyzed
 */
-void re_grep_cmd(void){
+void grep_cmd(void){
   u32 flags = 0;
   int bVerbose = 0;
   ReCompiled *pRe;

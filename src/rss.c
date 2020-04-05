@@ -42,7 +42,7 @@
 ** branch).
 */
 
-void page_timeline_rss(void){
+void timeline_rss_page(void){
   Stmt q;
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
@@ -252,7 +252,7 @@ void page_timeline_rss(void){
 **   Sets the RSS feed's root URL to the given string. The default is
 ** "URL-PLACEHOLDER" (without quotes).
 */
-void cmd_timeline_rss(void){
+void timeline_rss_cmd(void){
   Stmt q;
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;

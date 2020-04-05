@@ -461,7 +461,7 @@ const char *mimetype_from_name(const char *zName){
 ** filename is special and verifies the integrity of the mimetype table.
 ** It should return "ok".
 */
-void mimetype_test_cmd(void){
+void test_mimetype_cmd(void){
   int i;
   mimetype_verify();
   db_find_and_open_repository(0, 0);
@@ -806,8 +806,8 @@ void document_render(
 
 
 /*
-** WEBPAGE: uv
 ** WEBPAGE: doc
+** WEBPAGE: uv
 ** URL: /uv/FILE
 ** URL: /doc/CHECKIN/FILE
 **
@@ -1161,7 +1161,7 @@ void favicon_page(void){
 **
 **     s=PATTERN             Search for PATTERN
 */
-void doc_search_page(void){
+void docsrch_page(void){
   login_check_credentials();
   style_header("Document Search");
   search_screen(SRCH_DOC, 0);

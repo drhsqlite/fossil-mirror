@@ -317,7 +317,7 @@ static void fossil_close(int bDb, int noRepository){
 **    symbolic_name_to_rid(X)   Return the BLOB.RID corresponding to symbolic
 **                              name X.
 */
-void cmd_sqlite3(void){
+void sqlite3_cmd(void){
   int noRepository;
   char *zConfigDb;
   extern int sqlite3_shell(int, char**);
