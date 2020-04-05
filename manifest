@@ -1,5 +1,5 @@
-C Fix\sthe\s"fossil\srevert"\scommand\sso\sthat\sit\sworks\seven\sfor\sa\snew\s--empty\ncheckout.
-D 2020-04-02T18:56:09.516
+C Use\sSVG\sicons\sto\sindicate\sthe\sstatus\sand\savailable\sactions\sfor\sthe\saccordion.
+D 2020-04-05T14:28:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -462,7 +462,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3b61704d4d6c7efb745898b5b0d92f79c5b1daf88a3c1ab174d7508c671216a0
-F src/default_css.txt 8a9ae3d2dd00c23b68838e68737d7fbdd8230a105c6ab2c2fa4800b675c9d5e6
+F src/default_css.txt 9c46fddc6e58a0b9282299a842b527e5e6ea2d98384a7c3630169a09b50632f6
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -973,7 +973,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b17e4c5a779447a018fe848b48532412907c99a3ced775823e84137c5b3b2463
-R 49c9b8d35a42eaf51bcc4106fed8a6eb
-U drh
-Z 5f984ae8bd21fcd68901e94602c61cbf
+P 04bbb05df762a82c325991750e6f1d4209f509eedabfd772e8039aae5a72811a
+R 9593d84d7fd708590fbfb470f5800c11
+T *branch * accordion-experiments
+T *sym-accordion-experiments *
+T -sym-accordion-about-wiki *
+U florian
+Z 434427a3140264296ea0b7e5d35555d4
