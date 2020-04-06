@@ -1,5 +1,5 @@
-C Futher\sviewing\senhancements\sfor\slarger\sforum\sposts.\s\sThe\sdefault\sCSS\snow\nlimits\sthe\smaximum\sheight\sto\s25em\s(because\sthat\samount\sfits\snicely\son\sa\nsingle\sscreen\son\san\siPhone)\sand\sall\smessages\shave\sa\s"source"\slink\swhich\nshows\sthe\sfully\sexpanded\stext\swithout\sscrollbars.
-D 2020-04-06T15:44:58.894
+C Prevent\sridicuously\swide\sforum\sposts\sdisplay\swith\sthe\s"vfx"\squery\sparameter\non\s/timeline.
+D 2020-04-06T15:54:45.627
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -461,7 +461,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3b61704d4d6c7efb745898b5b0d92f79c5b1daf88a3c1ab174d7508c671216a0
-F src/default_css.txt 95870bf7dc5ac63a35c503f4a4ae824b3668c0c0f22f960e8ea8cf09e018e447
+F src/default_css.txt 06e04c4e1b45cb1349c3959ce3ac1926942bbe6c706e4ba9a75d2818e16a46de
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 421955cdf720c093e9744427f7264fdc17d6f062a9f7ed96f1d8f9895cf2c678
-R 427f051aa26f66fa54327e03ad65aa54
+P 46dd6963027259f1ee479a022ebb91f755eb999ad7323d10291025094c50824e
+R 13cd026c3918dad081fa75ea81140d9e
 U drh
-Z 18afaf09078c88aa5cb0dbfac3370c4e
+Z 18060236ea94662842a1f515b4e61166

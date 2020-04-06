@@ -747,6 +747,8 @@ div.forumTimeline {
   border: 1px solid black;
   padding-left: 1ex;
   padding-right: 1ex;
+  max-width: 50em;
+  overflow: auto;
 }
 div.forumTimeline code {
   white-space: pre-wrap;
