@@ -311,7 +311,8 @@ void forum_render(
   const char *zTitle,         /* The title.  Might be NULL for no title */
   const char *zMimetype,      /* Mimetype of the message */
   const char *zContent,       /* Content of the message */
-  const char *zClass          /* Put in a <div> if not NULL */
+  const char *zClass,         /* Put in a <div> if not NULL */
+  int bScroll                 /* Large message content scrolls if true */
 ){
   if( zClass ){
     @ <div class='%s(zClass)'>
@@ -325,7 +326,11 @@ void forum_render(
   }
   if( zContent && zContent[0] ){
     Blob x;
-    @ <div class='forumPostBody'>
+    if( bScroll ){
+      @ <div class='forumPostBody'>
+    }else{
+      @ <div class='forumPostFullBody'>
+    }
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
     wiki_render_by_mimetype(&x, zMimetype);
@@ -448,7 +453,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( p->fpid!=target ){
       @ %z(href("%R/forumpost/%S?t=%c",zUuid,cMode))[link]</a>
     }
-    if( !bRawMode && fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
+    if( !bRawMode ){
       @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     }
     isPrivate = content_is_private(p->fpid);
@@ -457,7 +462,8 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
-      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki, 0);
+      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki,
+                   0, 1);
     }
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
@@ -569,9 +575,7 @@ static int forum_display_hierarchical(int froot, int target){
     if( fpid!=target ){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
-    if( fossil_strcmp(pPost->zMimetype,"text/plain")!=0 ){
-      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
-    }
+    @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
@@ -586,7 +590,7 @@ static int forum_display_hierarchical(int froot, int target){
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
-      forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+      forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 1);
     }
     if( g.perm.WrForum ){
       @ <p><form action="%R/forumedit" method="POST">
@@ -721,7 +725,7 @@ void forumthread_page(void){
       if( isPrivate && !g.perm.ModForum && !sameUser ){
         @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
       }else{
-        forum_render(0, "text/plain", pPost->zWiki, 0);
+        forum_render(0, "text/plain", pPost->zWiki, 0, 0);
       }
       manifest_destroy(pPost);
     }
@@ -953,7 +957,7 @@ void forumnew_page(void){
   }
   if( P("preview") ){
     @ <h1>Preview:</h1>
-    forum_render(zTitle, zMimetype, zContent, "forumEdit");
+    forum_render(zTitle, zMimetype, zContent, "forumEdit", 1);
   }
   style_header("New Forum Thread");
   @ <form action="%R/forume1" method="POST">
@@ -1071,9 +1075,9 @@ void forumedit_page(void){
     style_header("Delete %s", zTitle ? "Post" : "Reply");
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
-                 "forumEdit");
+                 "forumEdit", 1);
     @ <h1>Change Into:</h1>
-    forum_render(zTitle, zMimetype, zContent,"forumEdit");
+    forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
@@ -1095,10 +1099,10 @@ void forumedit_page(void){
     style_header("Edit %s", zTitle ? "Post" : "Reply");
     @ <h2>Original Post:</h2>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
-                 "forumEdit");
+                 "forumEdit", 1);
     if( P("preview") ){
       @ <h2>Preview of Edited Post:</h2>
-      forum_render(zTitle, zMimetype, zContent,"forumEdit");
+      forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     }
     @ <h2>Revised Message:</h2>
     @ <form action="%R/forume2" method="POST">
@@ -1121,10 +1125,10 @@ void forumedit_page(void){
     @ <h3 class='forumPostHdr'>By %h(zDisplayName) on %h(zDate)</h3>
     fossil_free(zDisplayName);
     fossil_free(zDate);
-    forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
+    forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);
     if( P("preview") ){
       @ <h2>Preview:</h2>
-      forum_render(0, zMimetype,zContent, "forumEdit");
+      forum_render(0, zMimetype,zContent, "forumEdit", 1);
     }
     @ <h2>Enter Reply:</h2>
     @ <form action="%R/forume2" method="POST">
