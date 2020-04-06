@@ -325,10 +325,12 @@ void forum_render(
   }
   if( zContent && zContent[0] ){
     Blob x;
+    @ <div class='forumPostBody'>
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
     wiki_render_by_mimetype(&x, zMimetype);
     blob_reset(&x);
+    @ </div>
   }else{
     @ <i>Deleted</i>
   }

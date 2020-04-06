@@ -1,5 +1,5 @@
-C Fixes\sto\ssearch.\s\s(1)\sKeep\sforum\ssearch\sup-to-date.\s\s(2)\sDo\snot\sadd\sitems\nto\ssearch\sif\sthey\sare\spending\smoderation.
-D 2020-04-05T19:44:06.860
+C Limit\sthe\sdisplayed\slength\sof\sa\sforum-post\sto\s50em\susing\sCSS.\s\sLonger\sposts\nscroll.
+D 2020-04-06T15:03:37.568
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -461,7 +461,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3b61704d4d6c7efb745898b5b0d92f79c5b1daf88a3c1ab174d7508c671216a0
-F src/default_css.txt 08d66fc0a509e2feea968e1e0412d6592b952222fd0c3272adfdb5ea5a031a43
+F src/default_css.txt eefe7fbd5f2e7e3ed312a7c46165049f3fffc8f8e078bc0a08e4d8e0f13267d9
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -479,7 +479,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 8d38c77cecb1a3afb4f41028364c30a4dacaea7d2737e301524e05f3e66e32d9
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c efe3bb2acd225930284cba42799770621de61eb70cd9de28bec4b895e619ad4f
+F src/forum.c 01feefae7a6df0ab1c64f99eed15ecded9b7302877cb128f0e8729427008dedc
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 632b614437d83c80a3a359f5bbb2d7d65e8d7f2f3a1319f00a5b363ea81264f9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -972,7 +972,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a5f3103111ee0866fd3a3768933a171949c38a5a47cc9409d2804ed7e971930a
-R 95759f228e37419e203e1c587b7a94e3
+P 5e28febf2bc03d2bd7a614c4085ced2423c4764245c69e05acfae1964f952aed
+R 719bdb3c0f23f981e97f8fd2a72abe4e
 U drh
-Z b424348471dde166ef6f4b34c6d81554
+Z 43f93d6995c0394f07e7f7f969f1a881

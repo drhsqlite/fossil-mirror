@@ -760,6 +760,10 @@ div.forumHier, div.forumTime {
   padding-right: 1ex;
   margin-top: 1ex;
 }
+div.forumPostBody {
+  max-height: 50em;
+  overflow: auto;
+}
 div.forumSel {
   background-color: #cef;
 }
