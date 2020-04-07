@@ -1,5 +1,5 @@
-C Prevent\sridicuously\swide\sforum\sposts\sdisplay\swith\sthe\s"vfx"\squery\sparameter\non\s/timeline.
-D 2020-04-06T15:54:45.627
+C Initial\sversion\sof\scss-tricks.md,\sas\srequested\sin\s[https://fossil-scm.org/forum/forumpost/eb04fd28b5|forumpost/eb04fd28b5].
+D 2020-04-07T12:27:50.144
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -823,6 +823,7 @@ F www/concepts.wiki dd3f4b1f737cba173f8987e27b1eea8c83485727bcf885ce5f2b17837bf0
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
+F www/css-tricks.md 24acb97189360022b9037e751ddad01c65a41c6a7ad1ee13b0aa374c492fd4f0
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
@@ -906,10 +907,10 @@ F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 24bbba721dcc77099d641a0b5bcda77304f1fc2e09f709fa3534261394565c12 x
+F www/mkindex.tcl 95e927552380ba48f9ffef4ca509b3ba421662aec16973bacf709f8c12283c8d x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html bbbc4b8cd080384ea2c6b171bbd476c65840eb58af2dfc5c1fb18054741c98c2
+F www/permutedindex.html 05a7664946083b36bd86af288b436c0052c1d2576bba63cc9d0dbaf1c96318e5
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 950f1e45e79f57c278acc54b4d9130a7ba266797793ba78ac13038379f9df4bb
 F www/qandc.wiki b8b6f9668796bde63440e64dfd40a176766dd78e
@@ -972,7 +973,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 46dd6963027259f1ee479a022ebb91f755eb999ad7323d10291025094c50824e
-R 13cd026c3918dad081fa75ea81140d9e
-U drh
-Z 18060236ea94662842a1f515b4e61166
+P da7d816201df6be54cb024dae649408eb491dc13f75c3b16e3d7e51d30940f6e
+R 3cffb9e104468f6ecbdeb325037ee276
+U stephan
+Z 0647e7a82fc21a3ddbb4b8f1309475fa
