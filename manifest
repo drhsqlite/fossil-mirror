@@ -1,5 +1,5 @@
-C Merge\sthe\saccordion\ssection\senhancement\sto\strunk.
-D 2020-04-08T14:59:06.661
+C Fix\stypo\sin\sdefault-src\sdirecive\sspec.
+D 2020-04-08T18:53:08.650
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -828,7 +828,7 @@ F www/css-tricks.md 24acb97189360022b9037e751ddad01c65a41c6a7ad1ee13b0aa374c492f
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
-F www/defcsp.md 5afba0dd385fd50365a534f3d79e16e3cf2330905ddfa077e7a56f5fe7f0b202
+F www/defcsp.md e2467d7aade0dbfdf562e01d5647eb7d55634d21319d59db81c874ef4e6cb69f
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -974,8 +974,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 72026ed39dbe7f17ba9f17d1bb80a9038efb8e55fad777d0297555508b5bbc0b 343f31f9bf9ae4623b27cefba0921335bbdfad3777ea94ded008d4de398ad058
-R 52d5507a6abe39dc872ea2dfb0d721e4
-T +closed 343f31f9bf9ae4623b27cefba0921335bbdfad3777ea94ded008d4de398ad058
-U drh
-Z fcf9195d05c53e08eb19b85dba256aa6
+P 22d28547b7d0595c93f3e939fcbf39018a8b869176c2df684c0945a6e4980159
+R b17f199026123d022a9cfa172ea08136
+U ashepilko
+Z 0446971972d115711ecb220dc7d1c56b
