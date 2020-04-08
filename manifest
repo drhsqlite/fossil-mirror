@@ -1,5 +1,5 @@
-C Initial\sversion\sof\scss-tricks.md,\sas\srequested\sin\s[https://fossil-scm.org/forum/forumpost/eb04fd28b5|forumpost/eb04fd28b5].
-D 2020-04-07T12:27:50.144
+C Increase\sthe\sdefault\sscroll\sthreshold\son\sforum\sposts\sfrom\s25em\sto\s40em.
+D 2020-04-08T10:11:43.834
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -461,7 +461,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c 3b61704d4d6c7efb745898b5b0d92f79c5b1daf88a3c1ab174d7508c671216a0
-F src/default_css.txt 06e04c4e1b45cb1349c3959ce3ac1926942bbe6c706e4ba9a75d2818e16a46de
+F src/default_css.txt c77446c4e432b2f8d73aa7598c3a692d5b956ae080d58bdc61adf8101719097a
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -973,7 +973,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P da7d816201df6be54cb024dae649408eb491dc13f75c3b16e3d7e51d30940f6e
-R 3cffb9e104468f6ecbdeb325037ee276
-U stephan
-Z 0647e7a82fc21a3ddbb4b8f1309475fa
+P 5900530223fc605d42b65a1f456164bb087f249db98fed600636a6f1a63a53f5
+R 39a98097a7933aed6bf63c287ccc479c
+U drh
+Z ae6ace5a36c37185d81a6158c3b55a2c
