@@ -820,7 +820,7 @@ label {
   width: 16px;
   height: 16px;
   margin-right: .5em;
-  vertical-align: top;
+  vertical-align: middle;
 }
 // Note: the order of the next 3 entries should be
 // maintained for the hierarchical cascade to work.
