@@ -818,3 +818,28 @@ label {
 .nobr {
   white-space: nowrap;
 }
+.accordion {
+  cursor: pointer;
+}
+.accordion_btn {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: .5em;
+  vertical-align: middle;
+}
+// Note: the order of the next 3 entries should be
+// maintained for the hierarchical cascade to work.
+.accordion > .accordion_btn_plus {
+  display: none;
+}
+.accordion_closed > .accordion_btn_minus {
+  display: none;
+}
+.accordion_closed > .accordion_btn_plus {
+  display: inline-block;
+}
+.accordion_panel {
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+}
