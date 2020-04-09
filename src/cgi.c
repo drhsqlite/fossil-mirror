@@ -2012,7 +2012,7 @@ int cgi_http_server(
   struct sockaddr_in inaddr;   /* The socket address */
   int opt = 1;                 /* setsockopt flag */
   int iPort = mnPort;          /* TCP port to use */
-  time_t stopTime;             /* When to timeout */
+  time_t stopTime = 0;         /* When to timeout */
 
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
