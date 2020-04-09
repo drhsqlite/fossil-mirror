@@ -1,5 +1,5 @@
-C Initial\scode\sfor\simplementing\sthe\sidle-timeout\sfeature\sfor\s"fossil\sui".\nSeems\sto\swork\sin\spreliminary\stests\son\sunix.\s\sWindows\simplementation\sis\nincomplete\sand\suntested.
-D 2020-04-09T16:14:27.239
+C Forgot\sto\sadd\sthe\s"keepalive.js"\ssource\sfile.
+D 2020-04-09T16:16:26.277
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -513,6 +513,7 @@ F src/json_tag.c e2b68b9735e706e9e47fb07f063abf7c94da2d76
 F src/json_timeline.c 25f5da14306f30a3ce31a8e2448708affddb0ba7f13be29fb7cdaae5383df762
 F src/json_user.c e7324a6400e53f6d04b690fe3fb642f504ff24dcb91f974dc56b044401233411
 F src/json_wiki.c 67ce76b80f4571bb928c4f0e1beec3231404b9c3
+F src/keepalive.js 529373fea1d804b2140c3c60c4813aad65c62a7874097500015d7c8e46d16a7d
 F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
@@ -974,10 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P facc16233b951414e479aac4792c7b6c77b7e6e0e81be7e8456a15314e5b5769
-R e307fefcc8f4cf1e1c0234244e8a241f
-T *branch * idle-timeout
-T *sym-idle-timeout *
-T -sym-trunk *
+P 39a899e4cf7da42e2f31802488160385ba134527525fa7d2c306691e03237c88
+R 34c557036381e5dcf046aa673707662e
 U drh
-Z 4a3a018286a7111486b243b763cc7c3e
+Z bddd7d3098a15ca7a3aea6c2d684a025
