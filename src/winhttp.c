@@ -850,7 +850,7 @@ static void WINAPI win32_http_service_main(
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
                     NULL, NULL, hsData.zBaseUrl, hsData.zNotFound,
-                    hsData.zFileGlob, 0, hsData.flags);
+                    hsData.zFileGlob, 0, 0, hsData.flags);
 
   /* Service has stopped now. */
   win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);

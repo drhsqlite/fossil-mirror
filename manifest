@@ -1,5 +1,5 @@
-C Forgot\sto\sadd\sthe\s"keepalive.js"\ssource\sfile.
-D 2020-04-09T16:16:26.277
+C Fix\sthe\sbuild\sfor\swindows.\s\sThe\sidle-timeout\sis\sstill\snot\simplemented\nin\sthe\sWindows\sHTTP\sserver,\sthough.
+D 2020-04-09T16:34:40.278
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -625,7 +625,7 @@ F src/wiki.c 7a1da7ceb5909d9f4d46a52e653b33680062ecae5bfa9b320218c5b572356871
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c dfd203afa8997f07241f202a886e80f4391d01751963a113c47a92b0468c3558
+F src/winhttp.c 3aacd34cc5b605823bf1866c79f324fab8d6ff7d517867d089d121ebe3888d55
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
 F src/xfer.c 66909a32a65292ab19ae485704181f55db62907b7393141a0d0969ec2a858214
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
@@ -975,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 39a899e4cf7da42e2f31802488160385ba134527525fa7d2c306691e03237c88
-R 34c557036381e5dcf046aa673707662e
+P 58dbde20c4bf19ab6ef8ac74e1c798a3dba45bae527d055442e4651d0b9e7716
+R 8aceaa123d3482c42d8da65b2d086d98
 U drh
-Z bddd7d3098a15ca7a3aea6c2d684a025
+Z 5ca5db1eef199605bfee47fa868d7a0d
