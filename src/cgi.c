@@ -1994,6 +1994,7 @@ int cgi_http_server(
   int mnPort, int mxPort,   /* Range of TCP ports to try */
   const char *zBrowser,     /* Run this browser, if not NULL */
   const char *zIpAddr,      /* Bind to this IP address, if not null */
+  int iIdleTimeout,         /* Stop after this many seconds of inactivity */
   int flags                 /* HTTP_SERVER_* flags */
 ){
 #if defined(_WIN32)
@@ -2010,7 +2011,8 @@ int cgi_http_server(
   struct timeval delay;        /* How long to wait inside select() */
   struct sockaddr_in inaddr;   /* The socket address */
   int opt = 1;                 /* setsockopt flag */
-  int iPort = mnPort;
+  int iPort = mnPort;          /* TCP port to use */
+  time_t stopTime;             /* When to timeout */
 
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
@@ -2072,6 +2074,7 @@ int cgi_http_server(
       fossil_warning("cannot start browser: %s\n", zBrowser);
     }
   }
+  if( iIdleTimeout>0 ) stopTime = time(0)+iIdleTimeout;
   while( 1 ){
 #if FOSSIL_MAX_CONNECTIONS>0
     while( nchildren>=FOSSIL_MAX_CONNECTIONS ){
@@ -2088,6 +2091,7 @@ int cgi_http_server(
       lenaddr = sizeof(inaddr);
       connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
       if( connection>=0 ){
+        if( iIdleTimeout>0 ) stopTime = time(0)+iIdleTimeout;
         child = fork();
         if( child!=0 ){
           if( child>0 ){
@@ -2127,6 +2131,10 @@ int cgi_http_server(
         }
         nchildren--;
       }
+    }
+    /* Stop serving if idle for too long */
+    if( iIdleTimeout>0 && stopTime<time(0) ){
+      fossil_exit(0);
     }
   }
   /* NOT REACHED */

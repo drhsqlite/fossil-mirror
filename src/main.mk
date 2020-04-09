@@ -220,6 +220,7 @@ EXTRA_FILES = \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
+  $(SRCDIR)/keepalive.js \
   $(SRCDIR)/login.js \
   $(SRCDIR)/markdown.md \
   $(SRCDIR)/menu.js \

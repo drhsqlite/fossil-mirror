@@ -1258,6 +1258,16 @@ void test_version_page(void){
   style_footer();
 }
 
+/*
+** WEBPAGE: noop
+**
+** Send back an empty HTTP reply.  Deliver no content.
+*/
+void noop_page(void){
+  fossil_free(style_csp(1));
+  cgi_set_content_type("text/plain");
+}
+
 
 /*
 ** Set the g.zBaseURL value to the full URL for the toplevel of
@@ -2363,6 +2373,7 @@ void parse_pid_key_value(
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
+**   --keep-alive     Include "keepalive.js" in HTML pages
 **   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
@@ -2442,6 +2453,7 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
+  if( find_option("keep-alive",0,0) ) style_load_js("keepalive.js");
 
 #if defined(_WIN32) && USE_SEE
   zPidKey = find_option("usepidkey", 0, 1);
@@ -2626,6 +2638,7 @@ void fossil_set_timeout(int N){
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
+**   --idle-timeout N    Exit if no HTTP requests received for N seconds
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
@@ -2665,6 +2678,8 @@ void cmd_webserver(void){
   const char *zFileGlob;     /* Static content must match this */
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
+  const char *zIdleTimeout;  /* Value of the --idle-timeout flag */
+  int iIdle = 0;             /* Idle timeout value */
   const char *zInitPage = 0; /* Start on this page.  --page option */
 #if defined(_WIN32) && USE_SEE
   const char *zPidKey;
@@ -2698,7 +2713,13 @@ void cmd_webserver(void){
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
+    iIdle = 60;
   }
+  zIdleTimeout = find_option("idle-timeout",0,1);
+  if( zIdleTimeout ){
+    iIdle = atoi(zIdleTimeout);
+  }
+  
   zNotFound = find_option("notfound", 0, 1);
   allowRepoList = find_option("repolist",0,0)!=0;
   if( find_option("nocompress",0,0)!=0 ) g.fNoHttpCompress = 1;
@@ -2796,7 +2817,7 @@ void cmd_webserver(void){
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
-  if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
+  if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, iIdle, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   /* For the parent process, the cgi_http_server() command above never
@@ -2836,6 +2857,7 @@ void cmd_webserver(void){
   }else{
     cgi_handle_http_request(0);
   }
+  if( iIdle>0 ) style_load_js("keepalive.js");
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
@@ -2864,7 +2886,7 @@ void cmd_webserver(void){
   }
   if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile,
-                      zAltBase, zNotFound, zFileGlob, zIpAddr, flags);
+                      zAltBase, zNotFound, zFileGlob, zIpAddr, iIdle, flags);
   }
 #endif
 }

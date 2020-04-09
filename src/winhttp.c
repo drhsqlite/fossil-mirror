@@ -521,6 +521,7 @@ void win32_http_server(
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --fileglob option, or NULL */
   const char *zIpAddr,      /* Bind to this IP address, if not NULL */
+  int idleTimeout,          /* Idle timeout in seconds.  0 means none */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   HANDLE hStoppedEvent;
@@ -554,6 +555,9 @@ void win32_http_server(
   }
   if( g.thTrace ){
     blob_appendf(&options, " --th-trace");
+  }
+  if( idleTimeout>0 ){
+    blob_appendf(&options, " --keep-alive");
   }
   if( flags & HTTP_SERVER_REPOLIST ){
     blob_appendf(&options, " --repolist");
