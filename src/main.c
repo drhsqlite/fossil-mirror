@@ -2638,7 +2638,9 @@ void fossil_set_timeout(int N){
 **   --create            Create a new REPOSITORY if it does not already exist
 **   --extroot DIR       Document root for the /ext extension mechanism
 **   --files GLOBLIST    Comma-separated list of glob patterns for static files
-**   --idle-timeout N    Exit if no HTTP requests received for N seconds
+**   --idle-timeout N    Exit if no HTTP requests are received for N seconds. 
+**                       "0" means never. 0 is default for the "server" 
+**                       command and "60" is the default for the "ui" command.
 **   --localauth         enable automatic login for requests from localhost
 **   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   --https             Indicates that the input is coming through a reverse
