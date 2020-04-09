@@ -1128,6 +1128,7 @@ static void emitFileStat(
   fossil_print("  stat_rc                = %d\n", rc);
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
   fossil_print("  stat_size              = %s\n", zBuf);
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
   fossil_free(z);
@@ -1194,7 +1195,7 @@ void cmd_test_file_environment(void){
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
   fossil_print("db_allow_symlinks_by_default() = %d\n",
