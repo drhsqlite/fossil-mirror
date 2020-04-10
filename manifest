@@ -1,5 +1,5 @@
-C Bug\sfix:\s\sMake\ssure\sthat\sassociated-wiki\suses\san\saccordion\seven\sif\sthe\nname\sof\sthe\ssection\sis\smodified\sby\sa\sMarkdown\stitle.\nExample:\s[/timeline?r=double-dash-flag]
-D 2020-04-10T13:51:14.625
+C Documentation\sfix:\s\sadd\sthe\s"p"\squery\sparameter\sto\spure\sassociated\swiki-page\nexamples\sin\sthe\swikitheory.wiki\spage.
+D 2020-04-10T13:56:51.365
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -972,9 +972,9 @@ F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
 F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b941
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
-F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
+F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 093943d744fac4d337336871c53faa4e3faaf3dd877cb2d06e2fc4f1033b5213
-R e0e937b7ebe5c96aec582d5a8915a45b
+P b1c8e791ae68ef83a10a3aaf61af0a1e492eebc00353b86498cf976d237e2b1d
+R ff3b9e87478e54197ad09f152e8e6d7b
 U drh
-Z edc0920546109d59f9be04c2b6a1ad59
+Z cc7d6aca11b719d700dc10c30c584787
