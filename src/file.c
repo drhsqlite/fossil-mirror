@@ -349,6 +349,46 @@ int file_isdir(const char *zFilename, int eFType){
   return rc;
 }
 
+/*
+** Return true (1) if zFilename seems like it seems like a valid
+** repository database.
+*/
+int file_is_repository(const char *zFilename){
+  i64 sz;
+  sqlite3 *db = 0;
+  sqlite3_stmt *pStmt = 0;
+  int rc;
+  int i;
+  static const char *azReqTab[] = {
+     "blob", "delta", "rcvfrom", "user", "config"
+  };
+  if( !file_isfile(zFilename, ExtFILE) ) return 0;
+  sz = file_size(zFilename, ExtFILE);
+  if( sz<35328 ) return 0;
+  if( sz%512!=0 ) return 0;
+  rc = sqlite3_open_v2(zFilename, &db, 
+          SQLITE_OPEN_READWRITE, 0);
+  if( rc!=0 ) goto not_a_repo;
+  for(i=0; i<count(azReqTab); i++){
+    if( sqlite3_table_column_metadata(db, "main", azReqTab[i],0,0,0,0,0,0) ){
+      goto not_a_repo;
+    }
+  }
+  rc = sqlite3_prepare_v2(db, "SELECT 1 FROM config WHERE name='project-code'",
+                          -1, &pStmt, 0);
+  if( rc ) goto not_a_repo;
+  rc = sqlite3_step(pStmt);
+  if( rc!=SQLITE_ROW ) goto not_a_repo;
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return 1;
+
+not_a_repo:
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return 0;
+}
+
 
 /*
 ** Wrapper around the access() system call.
@@ -1169,6 +1209,7 @@ static void emitFileStat(
   fossil_print("  file_islink            = %d\n", file_islink(zPath));
   fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
   fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
+  fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
   if( reset ) resetStat();
 }
 
