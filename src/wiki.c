@@ -1793,7 +1793,7 @@ int wiki_render_associated(
     blob_init(&markdown, pWiki->zWiki, -1);
     markdown_to_html(&markdown, &title, &tail);
     if( blob_size(&title) ){
-      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="section accordion">%h(blob_str(&title))</div>
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }

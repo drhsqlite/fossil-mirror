@@ -1,5 +1,5 @@
-C For\swiki\spages\sthat\sare\sassociated\swith\sa\scheck-in,\sbranch,\sor\stag,\sredirect\nto\sthe\sassociated\s/info\sor\s/timeline\spage\sunless\sthe\s"p"\squery\sparameter\sis\npresent.
-D 2020-04-10T13:37:12.676
+C Bug\sfix:\s\sMake\ssure\sthat\sassociated-wiki\suses\san\saccordion\seven\sif\sthe\nname\sof\sthe\ssection\sis\smodified\sby\sa\sMarkdown\stitle.\nExample:\s[/timeline?r=double-dash-flag]
+D 2020-04-10T13:51:14.625
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -620,7 +620,7 @@ F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
-F src/wiki.c a49c3e335484b9e9f4a145d2d77572969c017deaf3ca0c173666fc6ad40926c0
+F src/wiki.c 8ebad5379801bbddc1bed7e182b7d648b0453ec821f258a02fb90addf6e88941
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
@@ -974,7 +974,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P facc16233b951414e479aac4792c7b6c77b7e6e0e81be7e8456a15314e5b5769
-R 54c27da96628e15bac8439a25f13021c
+P 093943d744fac4d337336871c53faa4e3faaf3dd877cb2d06e2fc4f1033b5213
+R e0e937b7ebe5c96aec582d5a8915a45b
 U drh
-Z ecd0d5eb24f842695abe7b8113765e9c
+Z edc0920546109d59f9be04c2b6a1ad59
