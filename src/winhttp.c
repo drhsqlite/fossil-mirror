@@ -524,7 +524,6 @@ void win32_http_server(
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --fileglob option, or NULL */
   const char *zIpAddr,      /* Bind to this IP address, if not NULL */
-  int iIdleTimeout,         /* Idle timeout in seconds.  0 means none */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   HANDLE hStoppedEvent;
@@ -560,8 +559,8 @@ void win32_http_server(
   if( g.thTrace ){
     blob_appendf(&options, " --th-trace");
   }
-  if( iIdleTimeout>0 ){
-    blob_appendf(&options, " --keep-alive");
+  if( g.iHTTPdIdleTimeout>0 ){
+    blob_appendf(&options, " --keep-alive %d", g.iHTTPdIdleTimeout);
   }
   if( flags & HTTP_SERVER_REPOLIST ){
     blob_appendf(&options, " --repolist");
@@ -642,7 +641,7 @@ void win32_http_server(
   /* Set the service status to running and pass the listener socket to the
   ** service handling procedures. */
   win32_http_service_running(&ds);
-  if( iIdleTimeout>0 ) stopTime = time(0) + iIdleTimeout;
+  if( g.iHTTPdIdleTimeout>0 ) stopTime = time(0) + g.iHTTPdIdleTimeout;
   for(;;){
     DualSocket client;
     DualAddr client_addr;
@@ -674,7 +673,7 @@ void win32_http_server(
       memcpy(&pRequest->addr, &client_addr.a4, sizeof(client_addr.a4));
       pRequest->flags = flags;
       pRequest->zOptions = blob_str(&options);
-      if( iIdleTimeout>0 ) stopTime = time(0) + iIdleTimeout;
+      if( g.iHTTPdIdleTimeout>0 ) stopTime = time(0) + g.iHTTPdIdleTimeout;
       if( flags & HTTP_SERVER_SCGI ){
         _beginthread(win32_scgi_request, 0, (void*)pRequest);
       }else{
@@ -688,14 +687,14 @@ void win32_http_server(
       memcpy(&pRequest->addr, &client_addr.a6, sizeof(client_addr.a6));
       pRequest->flags = flags;
       pRequest->zOptions = blob_str(&options);
-      if( iIdleTimeout>0 ) stopTime = time(0) + iIdleTimeout;
+      if( g.iHTTPdIdleTimeout>0 ) stopTime = time(0) + g.iHTTPdIdleTimeout;
       if( flags & HTTP_SERVER_SCGI ){
         _beginthread(win32_scgi_request, 0, (void*)pRequest);
       }else{
         _beginthread(win32_http_request, 0, (void*)pRequest);
       }
     }
-    if( iIdleTimeout>0 && stopTime<time(0) ) break;
+    if( g.iHTTPdIdleTimeout>0 && stopTime<time(0) ) break;
   }
   DualSocket_close(&ds);
   WSACleanup();

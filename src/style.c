@@ -771,6 +771,21 @@ static void style_load_all_js_files(void){
     cgi_append_content(blob_buffer(&blobOnLoad), blob_size(&blobOnLoad));
     cgi_append_content("\n}\n", -1);
   }
+  if( g.iHTTPdIdleTimeout>0 ){
+    /* This javascript runs on web-pages that need to periodically send
+    ** a keep-alive HTTP request back to the server.  This is typically
+    ** used with the "fossil ui" command with a --idle-timeout set.  The
+    ** HTTP server will stop if it does not receive a new HTTP request
+    ** within some time interval (60 seconds).  This script keeps sending
+    ** new HTTP requests every 20 seconds or so to keep the server running
+    ** while the page is still viewable.
+    */
+    /* TODO: move to separate function, or to built-in file enhanced to handle
+    ** the g.iHTTPdIdleTimeout variable? */
+    @ setInterval(function(){
+    @ var xhr=new XMLHttpRequest();xhr.open('GET','/noop',true);xhr.send();
+    @ },%d((g.iHTTPdIdleTimeout-1)*1000+100));
+  }
   @ </script>
 }
 

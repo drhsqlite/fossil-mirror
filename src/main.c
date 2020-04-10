@@ -205,6 +205,9 @@ struct Global {
   char *ckinLockFail;     /* Check-in lock failure received from server */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
   int wikiFlags;          /* Wiki conversion flags applied to %W */
+  int iHTTPdIdleTimeout;  /* Auto-shutdown the HTTP server after an idle timeout
+                          ** of N seconds without HTTP requests; disabled if set
+                          ** to 0 (default). */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
   Blob httpHeader;        /* Complete text of the HTTP request header */
@@ -2373,7 +2376,7 @@ void parse_pid_key_value(
 **   --https          signal a request coming in via https
 **   --in FILE        Take input from FILE instead of standard input
 **   --ipaddr ADDR    Assume the request comes from the given IP address
-**   --keep-alive     Include "keepalive.js" in HTML pages
+**   --keep-alive N   Add "keep alive" script in HTML to poll every N seconds
 **   --localauth      enable automatic login for local connections
 **   --nocompress     do not compress HTTP replies
 **   --nodelay        omit backoffice processing if it would delay process exit
@@ -2394,6 +2397,7 @@ void cmd_http(void){
   const char *zIpAddr = 0;
   const char *zNotFound;
   const char *zHost;
+  const char *zKeepAliveTimeout;
   const char *zAltBase;
   const char *zFileGlob;
   const char *zInFile;
@@ -2453,7 +2457,9 @@ void cmd_http(void){
   }
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
-  if( find_option("keep-alive",0,0) ) style_load_js("keepalive.js");
+  zKeepAliveTimeout = find_option("keep-alive", 0, 1);
+  if( zKeepAliveTimeout )
+    g.iHTTPdIdleTimeout = atoi(zKeepAliveTimeout);
 
 #if defined(_WIN32) && USE_SEE
   zPidKey = find_option("usepidkey", 0, 1);
@@ -2634,32 +2640,32 @@ void fossil_set_timeout(int N){
 ** by default.
 **
 ** Options:
-**   --baseurl URL       Use URL as the base (useful for reverse proxies)
-**   --create            Create a new REPOSITORY if it does not already exist
-**   --extroot DIR       Document root for the /ext extension mechanism
-**   --files GLOBLIST    Comma-separated list of glob patterns for static files
-**   --idle-timeout N    Exit if no HTTP requests are received for N seconds. 
-**                       "0" means never. 0 is default for the "server" 
-**                       command and "60" is the default for the "ui" command.
-**   --localauth         enable automatic login for requests from localhost
-**   --localhost         listen on 127.0.0.1 only (always true for "ui")
-**   --https             Indicates that the input is coming through a reverse
-**                       proxy that has already translated HTTPS into HTTP.
-**   --max-latency N     Do not let any single HTTP request run for more than N
-**                       seconds (only works on unix)
-**   --nocompress        Do not compress HTTP replies
-**   --nojail            Drop root privileges but do not enter the chroot jail
-**   --nossl             signal that no SSL connections are available (Always
-**                       set by default for the "ui" command)
-**   --notfound URL      Redirect
-**   --page PAGE         Start "ui" on PAGE.  ex: --page "timeline?y=ci"
-**   -P|--port TCPPORT   listen to request on port TCPPORT
-**   --th-trace          trace TH1 execution (for debugging purposes)
-**   --repolist          If REPOSITORY is dir, URL "/" lists repos.
-**   --scgi              Accept SCGI rather than HTTP
-**   --skin LABEL        Use override skin LABEL
-**   --usepidkey         Use saved encryption key from parent process.  This is
-**                       only necessary when using SEE on Windows.
+**   --baseurl URL        Use URL as the base (useful for reverse proxies)
+**   --create             Create a new REPOSITORY if it does not already exist
+**   --extroot DIR        Document root for the /ext extension mechanism
+**   --files GLOBLIST     Comma-separated list of glob patterns for static files
+**   -t|--idle-timeout N  Exit if no HTTP requests are received for N seconds.
+**                        "0" means never. "0" is the default for the "server"
+**                        command and "60" is the default for the "ui" command.
+**   --localauth          enable automatic login for requests from localhost
+**   --localhost          listen on 127.0.0.1 only (always true for "ui")
+**   --https              Indicates that the input is coming through a reverse
+**                        proxy that has already translated HTTPS into HTTP.
+**   --max-latency N      Do not let any single HTTP request run for more than N
+**                        seconds (only works on unix)
+**   --nocompress         Do not compress HTTP replies
+**   --nojail             Drop root privileges but do not enter the chroot jail
+**   --nossl              signal that no SSL connections are available (Always
+**                        set by default for the "ui" command)
+**   --notfound URL       Redirect
+**   --page PAGE          Start "ui" on PAGE.  ex: --page "timeline?y=ci"
+**   -P|--port TCPPORT    listen to request on port TCPPORT
+**   --th-trace           trace TH1 execution (for debugging purposes)
+**   --repolist           If REPOSITORY is dir, URL "/" lists repos.
+**   --scgi               Accept SCGI rather than HTTP
+**   --skin LABEL         Use override skin LABEL
+**   --usepidkey          Use saved encryption key from parent process.  This is
+**                        only necessary when using SEE on Windows.
 **
 ** See also: cgi, http, winsrv
 */
@@ -2681,7 +2687,6 @@ void cmd_webserver(void){
   char *zIpAddr = 0;         /* Bind to this IP address */
   int fCreate = 0;           /* The --create flag */
   const char *zIdleTimeout;  /* Value of the --idle-timeout flag */
-  int iIdle = 0;             /* Idle timeout value */
   const char *zInitPage = 0; /* Start on this page.  --page option */
 #if defined(_WIN32) && USE_SEE
   const char *zPidKey;
@@ -2715,11 +2720,11 @@ void cmd_webserver(void){
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
     zInitPage = find_option("page", 0, 1);
-    iIdle = 60;
+    g.iHTTPdIdleTimeout = 60;
   }
-  zIdleTimeout = find_option("idle-timeout",0,1);
+  zIdleTimeout = find_option("idle-timeout", "t", 1);
   if( zIdleTimeout ){
-    iIdle = atoi(zIdleTimeout);
+    g.iHTTPdIdleTimeout = atoi(zIdleTimeout);
   }
   
   zNotFound = find_option("notfound", 0, 1);
@@ -2819,7 +2824,7 @@ void cmd_webserver(void){
   if( g.repositoryOpen ) flags |= HTTP_SERVER_HAD_REPOSITORY;
   if( g.localOpen ) flags |= HTTP_SERVER_HAD_CHECKOUT;
   db_close(1);
-  if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, iIdle, flags) ){
+  if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   /* For the parent process, the cgi_http_server() command above never
@@ -2859,7 +2864,7 @@ void cmd_webserver(void){
   }else{
     cgi_handle_http_request(0);
   }
-  if( iIdle>0 ) style_load_js("keepalive.js");
+
   process_one_web_page(zNotFound, glob_create(zFileGlob), allowRepoList);
   if( g.fAnyTrace ){
     fprintf(stderr, "/***** Webpage finished in subprocess %d *****/\n",
@@ -2888,7 +2893,7 @@ void cmd_webserver(void){
   }
   if( win32_http_service(iPort, zAltBase, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile,
-                      zAltBase, zNotFound, zFileGlob, zIpAddr, iIdle, flags);
+                      zAltBase, zNotFound, zFileGlob, zIpAddr, flags);
   }
 #endif
 }

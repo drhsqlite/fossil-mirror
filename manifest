@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning.
-D 2020-04-09T17:29:48.142
+C Modifications\sto\sthe\s"fossil\sui"\sidle\stimeout\sfeature:\s(0)\sMake\sthe\sJavascript\swork\swith\sIE\s(lacking\sthe\s`fetch()'\sfunction)\s(1)\sEnsure\sthe\sJavascript\skeep-alive\spolling\sinterval\sis\slower\sthan\sthe\sidle\stimeout\s(2)\sAdd\sthe\sshort\sform\s`-t'\sas\san\salias\sfor\sthe\s`--idle-timeout'\scommand-line\soption,\ssince\sit\sis\snow\salways\srequired\sto\senable\slegacy\sbehavior.
+D 2020-04-10T14:02:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -521,7 +521,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c 7d96c07541bc21ebb22a8b91d08a857637efd38e1a93a01bade244a83c6f9dec
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 2d6c577a1575a22727ecc338a32d0e06c73a8181a926211eaa5672fdc39d1e17
+F src/main.c 69d14a5fa3ccb3017fa1a0961c0c5a963f633b106cbcb60b2973b14a2d3c4421
 F src/main.mk 3cb170425017f37be98273b29cace33f8ee8fbf13ecd0346193a383605d9884a
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -595,7 +595,7 @@ F src/sqlite3.h 8c3e68cd1f4917c9e894385e44c5211a05d160205f21a5e4c1b23dfce188745e
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
-F src/style.c 88f09f051f67a91de6084e4160f879b2dcaa77c4c57e2c4f764c834ee8c7e38b
+F src/style.c 2e4e6fe49231609bd707d936a0bb2c9694fb2b14ce99486bc92eeca8637e526b
 F src/sync.c cd1de2bc952d83e08d5d3f42c2657f5f83adff1a619b71c3410af6fa393f59c0
 F src/tag.c 8a0c53995aa7f7f814e95c8fa3376a00f91b0e8feccf80ed0946682ad5fecef8
 F src/tar.c ded518e27f8191f8a9c92172cbc813e229aee1573d6c008c9d6001a9feddf7b8
@@ -625,7 +625,7 @@ F src/wiki.c 7a1da7ceb5909d9f4d46a52e653b33680062ecae5bfa9b320218c5b572356871
 F src/wiki.wiki 4c7b322f6a638307560e7649df4e60a577c02497ee980fe214ddd5badd45f7ce
 F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae456
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
-F src/winhttp.c 47f440a8873352027eae6d2d422f807fe045f0f3c5ca0c688efd7f873d69baf9
+F src/winhttp.c 3304111300b6639504fa6ea0d39ef310c145241d0bbba2346b03b3301501ad4f
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
 F src/xfer.c 66909a32a65292ab19ae485704181f55db62907b7393141a0d0969ec2a858214
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
@@ -975,7 +975,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki d11fd8dfa727887d941fe998fd48030c60276b81c1d460e656ac5acb5e87af99
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aee7401958cf16b2707252ba67c5e496744532573e35f727e2876e50cba94bb7
-R 15e98b3dce6f6948dd693c733420f0f3
-U drh
-Z d59c66a6785ebb131e499bde92fc32ef
+P eb750c284a32e9ab55f87e005d36cee39558ad813edf9124e0a4fcbfe94a93ff
+R 1f588b1e195c4d492d91ebb1f79b807c
+T *branch * idle-time-suggestions
+T *sym-idle-time-suggestions *
+T -sym-idle-timeout *
+U florian
+Z cfae55acd6ebcb8893c82564fa097488
