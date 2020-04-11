@@ -1,5 +1,5 @@
-C First\sdraft\sof\sthe\s"history.md"\sdocumentation\sfile.\s\sThis\sfile\sis\sfar\sfrom\ncomplete\sand\shas\snot\syet\sbe\sintegrated\sinto\sthe\spermuted\sindex.
-D 2020-04-11T20:55:06.825
+C Edits\sto\sthe\shistory\sof\sFossil.\s\sAdd\sthe\shistory\sof\sfossil\sto\sthe\npermuted\sindex\sas\sa\sprimary\sdocument,\sreplacing\sthe\s(unmaintained)\sFAQ.
+D 2020-04-11T23:19:34.200
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -874,7 +874,7 @@ F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/history.md b91d42551d8af86f5c3877029081f7997fa3328359cf08774d1e9e61ddc64807
+F www/history.md d98c45a93e503f6de6f71e9a64145cc8077bea71f156a1cd9d413161062436aa
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
@@ -909,10 +909,10 @@ F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 95e927552380ba48f9ffef4ca509b3ba421662aec16973bacf709f8c12283c8d x
+F www/mkindex.tcl 87508dbbd4f422ce372c43916a33f647fe42dd8575caf92bec510c768e0252d4 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 05a7664946083b36bd86af288b436c0052c1d2576bba63cc9d0dbaf1c96318e5
+F www/permutedindex.html a991cf7249eb925ea2f9af1e8c2b1772b87868719e406aea2e8fb7c16b88f9a8
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 950f1e45e79f57c278acc54b4d9130a7ba266797793ba78ac13038379f9df4bb
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -975,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 07605f369c3a1ec22ded7bcafc056924b5d14222a2d2976b7067e71dd2413e7a
-R 0193571d95e3ab455b2dc6bc1d6d3e0f
+P 8c6aca20adb26442bb006de2c21dc97af8aff7142bfc00cb831330951445631a
+R c5b6bffeeb74eab747a8320ae1a097e9
 U drh
-Z f8225e268b236a9f9b1e576182263578
+Z 2873cb55893592b50e48841421d82f26

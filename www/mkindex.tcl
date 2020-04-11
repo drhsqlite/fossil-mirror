@@ -57,6 +57,7 @@ set doclist {
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
+  history.md {The Purpose And History Of Fossil}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
@@ -137,7 +138,7 @@ puts $out {
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
-<li> <a href='faq.wiki'>FAQ</a>
+<li> <a href='history.md'>Purpose and History of Fossil</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
