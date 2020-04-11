@@ -1,5 +1,5 @@
-C For\semail\salerts\son\sforum\sposts\sthat\sare\sin\sreply\sto\sa\sprior\spost\nthat\shas\sbeen\sedited,\smake\sthe\sIn-Reply-To\spoint\sto\sthe\sMessage-Id\sof\sthe\noriginal\sunedited\spost.\s\sThis\sshould\shelp\savoid\sbreaking\sthreads\nin\semail\sreaders\sfor\ssubscribers\swho\sdo\snot\sreceive\snotification\sof\spost\nedits.\s[https://www.fossil-scm.org/forum/info/db34def829be984c|bug\sreport].
-D 2020-04-10T19:01:47.951
+C Updated\sbroken\slink\sto\smailing\slist\sand\sarchives,\sper\sreport\sin\sthe\sforum.
+D 2020-04-11T10:12:43.072
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -877,7 +877,7 @@ F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
-F www/index.wiki f707e3eb65d5ba2ea86f7930499f4a552b2c18b68bf167f393b7fb332cb3ae1e
+F www/index.wiki 2e69577d0b4cda046274ed225d7446cf4c1ba6ae00e2d5bef19081e439054a0c
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -974,7 +974,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P aad4c2485b706595be986bee1fc010a5bcddeb53db1a9526daf543d818fc7fc6
-R b56d7dd69defb0ecb8794958cba84bfd
-U drh
-Z 6b564ee83f6ffed5ec70212b0f7d3797
+P 137cba6f1b81170d35627cd62d03759d15ad884ca5080ae52c102a91e3dd4be1
+R 82ad8cecc38bc2d8d9508102d76285e7
+U stephan
+Z 308df30cda346962b6f8a3d671d7b292
