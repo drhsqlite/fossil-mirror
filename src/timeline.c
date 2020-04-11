@@ -800,7 +800,7 @@ void www_print_timeline(
         if( forum_rid_has_been_edited(rid) ){
           zClass = "forumTimeline forumObs";
         }
-        forum_render(0, pPost->zMimetype, pPost->zWiki, zClass);
+        forum_render(0, pPost->zMimetype, pPost->zWiki, zClass, 1);
         manifest_destroy(pPost);
       }
     }

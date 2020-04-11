@@ -110,11 +110,11 @@ management system with these advanced features:
      with a point in time rather than a name.
   *  [./settings.wiki | Settings] control the behaviour of Fossil.
   *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
-  *  There is a
-     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
-     (with publicly readable
-     [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives])
-     available for discussing Fossil issues.
+  *  The [https://fossil-scm.org/forum|Fossil forum] is, as of mid-2018,
+     the project's central communication channel. The
+     [https://www.mail-archive.com/fossil-users@lists.fossil-scm.org
+     | read-only mailing list archives] house discussions spanning Fossil's
+     first decade.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
      hosted on Fossil.
   *  How to [./shunning.wiki | delete content] from a Fossil repository.

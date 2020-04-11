@@ -30,6 +30,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
+  css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}
   customskin.md {Theming: Customizing The Appearance of Web Pages}
   customskin.md {Custom Skins}

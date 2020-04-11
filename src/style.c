@@ -93,6 +93,7 @@ static int needHrefJs = 0;      /* href.js */
 static int needSortJs = 0;      /* sorttable.js */
 static int needGraphJs = 0;     /* graph.js */
 static int needCopyBtnJs = 0;   /* copybtn.js */
+static int needAccordionJs = 0; /* accordion.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -684,6 +685,13 @@ void style_table_sorter(void){
 }
 
 /*
+** Indicate that the accordion javascript is needed.
+*/
+void style_accordion(void){
+  needAccordionJs = 1;
+}
+
+/*
 ** Indicate that the timeline graph javascript is needed.
 */
 void style_graph_generator(void){
@@ -751,6 +759,9 @@ static void style_load_all_js_files(void){
   }
   if( needCopyBtnJs ){
     cgi_append_content(builtin_text("copybtn.js"),-1);
+  }
+  if( needAccordionJs ){
+    cgi_append_content(builtin_text("accordion.js"),-1);
   }
   for(i=0; i<nJsToLoad; i++){
     cgi_append_content(builtin_text(azJsToLoad[i]),-1);

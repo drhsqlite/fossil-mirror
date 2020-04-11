@@ -3,7 +3,7 @@
 The website presented by a Fossil server has many hyperlinks.
 Even a modest project can have millions of pages in its
 tree, and many of those pages (for example diffs and annotations
-and ZIP archive of older check-ins) can be expensive to compute.
+and ZIP archives of older check-ins) can be expensive to compute.
 If a spider or bot tries to walk a website implemented by
 Fossil, it can present a crippling bandwidth and CPU load.
 

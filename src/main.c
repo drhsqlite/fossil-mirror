@@ -784,7 +784,17 @@ int fossil_main(int argc, char **argv){
       }
       g.argc = nNewArgc;
       g.argv = zNewArgv;
-    }
+#if 0
+    }else if( g.argc==2 && file_is_repository(g.argv[1]) ){
+      char **zNewArgv = fossil_malloc( sizeof(char*)*4 );
+      zNewArgv[0] = g.argv[0];
+      zNewArgv[1] = "ui";
+      zNewArgv[2] = g.argv[1];
+      zNewArgv[3] = 0;
+      g.argc = 3;
+      g.argv = zNewArgv;
+#endif
+    }   
     zCmdName = g.argv[1];
   }
 #ifndef _WIN32
@@ -814,6 +824,21 @@ int fossil_main(int argc, char **argv){
 #endif
   g.zCmdName = zCmdName;
   rc = dispatch_name_search(zCmdName, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
+  if( rc==1 && g.argc==2 && file_is_repository(g.argv[1]) ){
+    /* If the command-line is "fossil ABC" and "ABC" is no a valid command,
+    ** but "ABC" is the name of a repository file, make the command be
+    ** "fossil ui ABC" instead.
+    */
+    char **zNewArgv = fossil_malloc( sizeof(char*)*4 );
+    zNewArgv[0] = g.argv[0];
+    zNewArgv[1] = "ui";
+    zNewArgv[2] = g.argv[1];
+    zNewArgv[3] = 0;
+    g.argc = 3;
+    g.argv = zNewArgv;
+    g.zCmdName = zCmdName = "ui";
+    rc = dispatch_name_search(zCmdName, CMDFLAG_COMMAND|CMDFLAG_PREFIX, &pCmd);
+  }
   if( rc==1 ){
 #ifdef FOSSIL_ENABLE_TH1_HOOKS
     if( !g.isHTTP && !g.fNoThHook ){

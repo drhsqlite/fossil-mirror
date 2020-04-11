@@ -2216,7 +2216,9 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     " (SELECT uuid FROM blob WHERE rid=forumpost.fpid),"    /* 1 */
     " datetime(event.mtime),"                               /* 2 */
     " substr(comment,instr(comment,':')+2),"                /* 3 */
-    " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
+    " (SELECT uuid FROM blob, forumpost AS irt"
+    "   WHERE irt.fpid=forumpost.firt"
+    "     AND blob.rid=coalesce(irt.fprev,irt.fpid)),"      /* 4 */
     " wantalert.needMod,"                                   /* 5 */
     " coalesce(display_name(info),euser,user),"             /* 6 */
     " forumpost.fprev IS NULL"                              /* 7 */

@@ -396,14 +396,20 @@ static int wiki_page_type(const char *zPageName){
 
 /*
 ** Add an appropriate style_header() for either the /wiki or /wikiedit page
-** for zPageName.
+** for zPageName.  zExtra is an empty string for /wiki but has the text
+** "Edit: " for /wikiedit.
+**
+** If the page is /wiki and the page is one of the special times (check-in,
+** branch, or tag) and the "p" query parameter is omitted, then do a 
+** redirect to the display of the check-in, branch, or tag rather than
+** continuing to the plain wiki display.
 */
 static int wiki_page_header(
-  int eType,                /* Page type.  -1 for unknown */
+  int eType,                /* Page type.  Might be WIKITYPE_UNKNOWN */
   const char *zPageName,    /* Name of the page */
   const char *zExtra        /* Extra prefix text on the page header */
 ){
-  if( eType<0 ) eType = wiki_page_type(zPageName);
+  if( eType==WIKITYPE_UNKNOWN ) eType = wiki_page_type(zPageName);
   switch( eType ){
     case WIKITYPE_NORMAL: {
       style_header("%s%s", zExtra, zPageName);
@@ -411,21 +417,33 @@ static int wiki_page_header(
     }
     case WIKITYPE_CHECKIN: {
       zPageName += 8;
-      style_header("Notes About Checkin %S", zPageName);
-      style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
-      style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/info/%s",zPageName);
+      }else{
+        style_header("Notes About Checkin %S", zPageName);
+        style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+      }
       break;
     }
     case WIKITYPE_BRANCH: {
       zPageName += 7;
-      style_header("Notes About Branch %h", zPageName);
-      style_submenu_element("Branch Timeline","%R/timeline?r=%t", zPageName);
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/timeline?r=%t", zPageName);
+      }else{
+        style_header("Notes About Branch %h", zPageName);
+        style_submenu_element("Branch Timeline","%R/timeline?r=%t", zPageName);
+      }
       break;
     }
     case WIKITYPE_TAG: {
       zPageName += 4;
-      style_header("Notes About Tag %h", zPageName);
-      style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName);
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/timeline?t=%t",zPageName);
+      }else{
+        style_header("Notes About Tag %h", zPageName);
+        style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName);
+      }
       break;
     }
   }
@@ -461,7 +479,10 @@ static int wiki_special_permission(const char *zPageName){
 **
 **    name=NAME        Name of the wiki page to display.  Required.
 **    nsm              Omit the submenu if present.  (Mnemonic: No SubMenu)
-**
+**    p                Always show just the wiki page.  For special
+**                     pages for check-ins, branches, or tags, there will
+**                     be a redirect to the associated /info page unless
+**                     this query parameter is present.
 */
 void wiki_page(void){
   char *zTag;
@@ -1715,24 +1736,24 @@ static void wiki_section_label(
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
-    @ <div class="section">About</div>
+    @ <div class="section accordion">About</div>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section">About checkin %.20h(zName)</div>
+    @ <div class="section accordion">About checkin %.20h(zName)</div>
   }else{
-    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+    @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
   }
 }
 
 /*
 ** Add an "Wiki" button in a submenu that links to the read-wiki page.
 */
-static void wiki_submenu_to_read_wiki(
+static void wiki_submenu_to_edit_wiki(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
-    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
+    style_submenu_element("Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
   }
 }
 
@@ -1772,21 +1793,23 @@ int wiki_render_associated(
     blob_init(&markdown, pWiki->zWiki, -1);
     markdown_to_html(&markdown, &title, &tail);
     if( blob_size(&title) ){
-      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="section accordion">%h(blob_str(&title))</div>
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
-    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
+    wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel">
     convert_href_and_output(&tail);
+    @ </div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&markdown);
   }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
     wiki_section_label(zPrefix, zName, mFlags);
-    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
-    @ <pre>
+    wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel"><pre>
     @ %h(pWiki->zWiki)
-    @ </pre>
+    @ </pre></div>
   }else{
     Blob tail = BLOB_INITIALIZER;
     Blob title = BLOB_INITIALIZER;
@@ -1794,20 +1817,21 @@ int wiki_render_associated(
     Blob *pBody;
     blob_init(&wiki, pWiki->zWiki, -1);
     if( wiki_find_title(&wiki, &title, &tail) ){
-      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="section accordion">%h(blob_str(&title))</div>
       pBody = &tail;
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
       pBody = &wiki;
     }
-    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
-    @ <div class="wiki">
+    wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel"><div class="wiki">
     wiki_convert(pBody, 0, WIKI_BUTTONS);
-    @ </div>
+    @ </div></div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&wiki);
   }
   manifest_destroy(pWiki);
+  style_accordion();
   return 1;
 }
