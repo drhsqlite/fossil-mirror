@@ -1,5 +1,5 @@
-C Add\sa\swarning\sto\sthe\sqandc.wiki\spage\sthat\sit\sis\sold\sand\sout-of-date.
-D 2020-04-11T12:15:11.321
+C First\sdraft\sof\sthe\s"history.md"\sdocumentation\sfile.\s\sThis\sfile\sis\sfar\sfrom\ncomplete\sand\shas\snot\syet\sbe\sintegrated\sinto\sthe\spermuted\sindex.
+D 2020-04-11T20:55:06.825
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -852,7 +852,7 @@ F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf
 F www/env-opts.md fe8477eb1c1a45e488932f32ccbe105d63858552c16cc4469413432150587c92
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
-F www/faq.wiki 86cf76ff52e06d06ed4f4f82470192286323eee2
+F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
 F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
 F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
@@ -874,6 +874,7 @@ F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
+F www/history.md b91d42551d8af86f5c3877029081f7997fa3328359cf08774d1e9e61ddc64807
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
@@ -974,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 236c46ced3250a1a9a6614972eaad9ecd332e733bf787cbc1e4eae29aeed7708
-R c13e721e7e70543fb40449eceddd56db
+P 07605f369c3a1ec22ded7bcafc056924b5d14222a2d2976b7067e71dd2413e7a
+R 0193571d95e3ab455b2dc6bc1d6d3e0f
 U drh
-Z 59265a7723c34c7ca9fd21e991917c30
+Z f8225e268b236a9f9b1e576182263578

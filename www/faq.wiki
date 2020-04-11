@@ -1,7 +1,9 @@
 <title>Fossil FAQ</title>
 <h1 align="center">Frequently Asked Questions</h1>
 
-<p>Note: See also <a href="qandc.wiki">Questions and Criticisms</a>.
+<p>Note:
+This page is old and has not been kept up-to-date.  See the
+[/finfo?name=www/faq.wiki|change history of this page].</p>
 
 <ol>
 <li><a href="#q1">What GUIs are available for fossil?</a></li>
