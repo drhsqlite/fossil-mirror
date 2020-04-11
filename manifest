@@ -1,5 +1,5 @@
-C Updated\sbroken\slink\sto\smailing\slist\sand\sarchives,\sper\sreport\sin\sthe\sforum.
-D 2020-04-11T10:12:43.072
+C Fix\sa\sharmless\sdocumentation\stypo.
+D 2020-04-11T11:46:25.640
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -779,7 +779,7 @@ F www/aboutcgi.wiki 1213785a5b889c2eaf6bfbe05836f2e253a6fdd7a4de14b36dbdf248c178
 F www/aboutdownload.wiki 630f23dca4cf1801751472b4dee6f667875635b75be2c28baa125e82c5b5b20c
 F www/adding_code.wiki 0c6c3aa15c2f2d9b89607d39738aa5dbbea312553f859563d22848a476906acf
 F www/alerts.md 66619f74c5bfa23fb1bfb47828656d7718926230b8e24e5eca15927039e9a034
-F www/antibot.wiki 0a0da1170b10103300004661f00ee71652c9f30faf5a6d28afdee93a5ddd36a6
+F www/antibot.wiki f25714a3fb06677e8869a8404fdeb9d68c5109658a3d82674c0e4cd0af9a0c45
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/backoffice.md e052e61ec7c94bb7c1671a4f9d97d7fd324aecfc8a9887cb772e3f2fe3718706
@@ -974,7 +974,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 137cba6f1b81170d35627cd62d03759d15ad884ca5080ae52c102a91e3dd4be1
-R 82ad8cecc38bc2d8d9508102d76285e7
-U stephan
-Z 308df30cda346962b6f8a3d671d7b292
+P e1592a65d42fb56bac1210b503276f67e880b47b363fe226400282f9c2b90b21
+R 847411cb6710f3c94ed65a6ed2587e8a
+U drh
+Z 048ff7de343e93479fd383aa5634828f
