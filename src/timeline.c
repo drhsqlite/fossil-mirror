@@ -43,7 +43,7 @@
 #define UNPUB_TAG "<em>(unpublished)</em>"
 void tag_private_status(int rid){
   if( content_is_private(rid) ){
-    cgi_printf("%s", UNPUB_TAG);
+    cgi_printf(" %s", UNPUB_TAG);
   }
 }
 

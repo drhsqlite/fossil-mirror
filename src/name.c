@@ -1175,6 +1175,7 @@ void test_describe_artifacts_cmd(void){
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
 **   unpub       Show only unpublished artifacts
+**   phan        Show only phantom artifacts
 **   hclr        Color code hash types (SHA1 vs SHA3)
 */
 void bloblist_page(void){
@@ -1183,6 +1184,7 @@ void bloblist_page(void){
   int n = atoi(PD("n","5000"));
   int mx = db_int(0, "SELECT max(rid) FROM blob");
   int unpubOnly = PB("unpub");
+  int phantomOnly = PB("phan");
   int hashClr = PB("hclr");
   char *zRange;
   char *zSha1Bg;
@@ -1198,7 +1200,13 @@ void bloblist_page(void){
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
-  if( !unpubOnly && mx>n && P("s")==0 ){
+  if( !unpubOnly ){
+    style_submenu_element("Unpublished", "bloblist?unpub");
+  }
+  if( !phantomOnly ){
+    style_submenu_element("Phantoms", "bloblist?phan");
+  }
+  if( !unpubOnly && !phantomOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1210,18 +1218,21 @@ void bloblist_page(void){
     style_footer();
     return;
   }
-  if( !unpubOnly && mx>n ){
+  if( phantomOnly || unpubOnly || mx>n ){
     style_submenu_element("Index", "bloblist");
   }
   if( unpubOnly ){
     zRange = mprintf("IN private");
+  }else if( phantomOnly ){
+    zRange = mprintf("IN (SELECT rid FROM blob WHERE size<0)");
   }else{
     zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   }
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, isPrivate FROM description ORDER BY rid"
+    "SELECT rid, uuid, summary, isPrivate, type='phantom'"
+    "  FROM description ORDER BY rid"
   );
   if( skin_detail_boolean("white-foreground") ){
     zSha1Bg = "#714417";
@@ -1236,6 +1247,7 @@ void bloblist_page(void){
     const char *zUuid = db_column_text(&q, 1);
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
+    int isPhantom = db_column_int(&q,4);
     if( hashClr ){
       const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
       @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
@@ -1244,8 +1256,14 @@ void bloblist_page(void){
     }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     @ <td align="left">%h(zDesc)</td>
-    if( isPriv ){
-      @ <td>(unpublished)</td>
+    if( isPriv || isPhantom ){
+      if( isPriv==0 ){
+        @ <td>&nbsp;(phantom)</td>
+      }else if( isPhantom==0 ){
+        @ <td>&nbsp;(unpublished)</td>
+      }else{
+        @ <td>&nbsp;(unpublished,phantom)</td>
+      }
     }
     @ </tr>
   }
