@@ -643,7 +643,12 @@ void www_print_timeline(
     }
 
     if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
+      char *zLink;
+      if( zType[0]!='f' || (tmFlags & TIMELINE_FORUMTXT)==0 ){
+        zLink = mprintf("%R/timeline?u=%h&c=%t&y=a", zDispUser, zDate);
+      }else{
+        zLink = mprintf("%R/timeline?u=%h&c=%t&y=a&vfx", zDispUser, zDate);
+      }
       cgi_printf("user:&nbsp;%z%h</a>", href("%z",zLink), zDispUser);
     }else{
       cgi_printf("user:&nbsp;%h", zDispUser);
