@@ -958,26 +958,44 @@ static int send_private(Xfer *pXfer){
 /*
 ** Send an igot message for every entry in unclustered table.
 ** Return the number of cards sent.
+**
+** Except:
+**    *  Do not send igot cards for shunned artifacts
+**    *  Do not send igot cards for phantoms
+**    *  Do not send igot cards for private artifacts
+**    *  Do not send igot cards for any artifact that is in the
+**       ONREMOTE table, if that table exists.
+**
+** If the pXfer->resync flag is set, that means we are doing a "--verily"
+** sync and all artifacts that don't meet the restrictions above should
+** be sent.
 */
 static int send_unclustered(Xfer *pXfer){
   Stmt q;
   int cnt = 0;
+  const char *zExtra;
+  if( db_table_exists("temp","onremote") ){
+    zExtra = " AND NOT EXISTS(SELECT 1 FROM onremote WHERE rid=blob.rid)";
+  }else{
+    zExtra = "";
+  }
   if( pXfer->resync ){
     db_prepare(&q,
       "SELECT uuid, rid FROM blob"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
-      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)%s"
       "   AND blob.rid<=%d"
       " ORDER BY blob.rid DESC",
-      pXfer->resync
+      zExtra /*safe-for-%s*/, pXfer->resync
     );
   }else{
     db_prepare(&q,
       "SELECT uuid FROM unclustered JOIN blob USING(rid) /*scan*/"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
-      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)%s",
+      zExtra /*safe-for-%s*/
     );
   }
   while( db_step(&q)==SQLITE_ROW ){
