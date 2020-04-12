@@ -1,5 +1,5 @@
-C On\sthe\s/bloblist\swebpage,\senhance\sthe\s"published"\sdisplay\sand\sadd\sthe\nability\sto\sdisplay\sphantom\sartifacts.\s\s(A\sphantom\sis\san\sartifact\swhose\ncontent\sis\sunknown.)
-D 2020-04-12T23:10:45.225
+C Only\sallow\susers\swith\sappropriate\sprivileges\sto\ssee\sprivate\sand\sphantom\nartifacts\sin\sthe\s/bloblist\sreport.
+D 2020-04-12T23:25:55.833
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -539,7 +539,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c 6070854fabaee6c04ec7a354cb1f17b3ed95197ed294b74ab811377390a0a95e
 F src/mkversion.c 6e606c3a895f71b35a878e817104b5e5eb056ce47925e341fde567f2448e9aa7
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
-F src/name.c 546b6e12e5e25c07f49281d395065bf61559b886b8d627bf6742dcce631844e7
+F src/name.c 989292f4ec0bd19a9ec7059c4e18ae04e5352376290434d30b834e654670943e
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -975,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 55f9d7b6ecfce6ca9338083877d14d8d10c2a75670e6214b4d032eac44bc2820
-R e13d30cb24cc8870e64a3ccf36235c54
+P ea83cdad1d9bb63cb19a1ad2d9c0a32303d0854d7689214106acc997fab7df88
+R 0f11c3aaf93418fa6bf6c5109d5f5415
 U drh
-Z 334abf2d70b9cf26a136add7f251a4da
+Z 4f920459c869ea1488a507e9666a4bf8

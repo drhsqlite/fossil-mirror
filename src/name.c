@@ -1137,7 +1137,7 @@ int describe_artifacts_to_stdout(const char *zWhere, const char *zLabel){
       zLabel = 0;
     }
     fossil_print("  %.16s %s", db_column_text(&q,0), db_column_text(&q,1));
-    if( db_column_int(&q,2) ) fossil_print(" (unpublished)");
+    if( db_column_int(&q,2) ) fossil_print(" (private)");
     fossil_print("\n");
     cnt++;
   }
@@ -1174,7 +1174,7 @@ void test_describe_artifacts_cmd(void){
 **
 **   n=N         Show N artifacts
 **   s=S         Start with artifact number S
-**   unpub       Show only unpublished artifacts
+**   priv        Show only unpublished or private artifacts
 **   phan        Show only phantom artifacts
 **   hclr        Color code hash types (SHA1 vs SHA3)
 */
@@ -1183,7 +1183,7 @@ void bloblist_page(void){
   int s = atoi(PD("s","0"));
   int n = atoi(PD("n","5000"));
   int mx = db_int(0, "SELECT max(rid) FROM blob");
-  int unpubOnly = PB("unpub");
+  int privOnly = PB("priv");
   int phantomOnly = PB("phan");
   int hashClr = PB("hclr");
   char *zRange;
@@ -1196,17 +1196,24 @@ void bloblist_page(void){
   style_submenu_element("250 Largest", "bigbloblist");
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
+    if( !phantomOnly ){
+      style_submenu_element("Phantoms", "bloblist?phan");
+    }
+  }else{
+    privOnly = 0;
+    phantomOnly = 0;
+  }
+  if( g.perm.Private ){
+    if( !privOnly ){
+      style_submenu_element("Private", "bloblist?priv");
+    }
+  }else{
+    privOnly = 0;
   }
   if( g.perm.Write ){
     style_submenu_element("Artifact Stats", "artifact_stats");
   }
-  if( !unpubOnly ){
-    style_submenu_element("Unpublished", "bloblist?unpub");
-  }
-  if( !phantomOnly ){
-    style_submenu_element("Phantoms", "bloblist?phan");
-  }
-  if( !unpubOnly && !phantomOnly && mx>n && P("s")==0 ){
+  if( !privOnly && !phantomOnly && mx>n && P("s")==0 ){
     int i;
     @ <p>Select a range of artifacts to view:</p>
     @ <ul>
@@ -1218,10 +1225,10 @@ void bloblist_page(void){
     style_footer();
     return;
   }
-  if( phantomOnly || unpubOnly || mx>n ){
+  if( phantomOnly || privOnly || mx>n ){
     style_submenu_element("Index", "bloblist");
   }
-  if( unpubOnly ){
+  if( privOnly ){
     zRange = mprintf("IN private");
   }else if( phantomOnly ){
     zRange = mprintf("IN (SELECT rid FROM blob WHERE size<0)");
@@ -1248,6 +1255,14 @@ void bloblist_page(void){
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
     int isPhantom = db_column_int(&q,4);
+    if( isPhantom && !g.perm.Admin ){
+      /* Do not show phantom artifacts to non-admin users */
+      continue;
+    }
+    if( isPriv && !g.perm.Private ){
+      /* Don't show private artifacts to users without Private (x) permission */
+      continue;
+    }
     if( hashClr ){
       const char *zClr = db_column_bytes(&q,1)>40 ? zSha3Bg : zSha1Bg;
       @ <tr style='background-color:%s(zClr);'><td align="right">%d(rid)</td>
@@ -1260,9 +1275,9 @@ void bloblist_page(void){
       if( isPriv==0 ){
         @ <td>&nbsp;(phantom)</td>
       }else if( isPhantom==0 ){
-        @ <td>&nbsp;(unpublished)</td>
+        @ <td>&nbsp;(private)</td>
       }else{
-        @ <td>&nbsp;(unpublished,phantom)</td>
+        @ <td>&nbsp;(private,phantom)</td>
       }
     }
     @ </tr>
