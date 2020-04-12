@@ -1,5 +1,5 @@
-C The\sserver\sshould\smake\san\sONREMOTE\sentry\sfor\seach\sigot\scard\sreceived\sfrom\nthe\sclient.
-D 2020-04-12T19:31:02.670
+C Improvements\sto\scomments\sin\sthe\ssync\slogic.\s\sNo\schanges\sto\scode.
+D 2020-04-12T19:55:26.143
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -626,7 +626,7 @@ F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 2f22feb715fa195da4e287984353b88b90b31aece9bbe9273d4f9c2135e5541c
+F src/xfer.c 104eaaace219d2b62b3526e82b73f7bda582cc5535e666a56c2a98d4369756a9
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -975,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3e2a9bc37335447c17b96125e85e342ca2c1e1e646b2d7a7b7e96a88ba4e7ee8
-R 3f286a9f7573ed58433a260b04206be1
+P 20a40056f1c58a30489d265f382eab85b9acd1a6c5783b9e1df074654f370719
+R 545b0468f96a6eccd8e62d09d24bb28b
 U drh
-Z 1e42c0d2eb6f97dcf862df53eed601a5
+Z 81819a30530fb7cef9c551b00f8f00c0

@@ -1211,7 +1211,7 @@ void page_xfer(void){
     /*   file HASH SIZE \n CONTENT
     **   file HASH DELTASRC SIZE \n CONTENT
     **
-    ** Accept a file from the client.
+    ** Server accepts a file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "file") ){
       if( !isPush ){
@@ -1232,7 +1232,7 @@ void page_xfer(void){
     /*   cfile HASH USIZE CSIZE \n CONTENT
     **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
     **
-    ** Accept a file from the client.
+    ** Server accepts a compressed file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "cfile") ){
       if( !isPush ){
@@ -1252,7 +1252,7 @@ void page_xfer(void){
 
     /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
     **
-    ** Accept an unversioned file from the client.
+    ** Server accepts an unversioned file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "uvfile") ){
       xfer_accept_unversioned_file(&xfer, g.perm.WrUnver);
@@ -1266,7 +1266,7 @@ void page_xfer(void){
 
     /*   gimme HASH
     **
-    ** Client is requesting a file.  Send it.
+    ** Client is requesting a file from the server.  Send it.
     */
     if( blob_eq(&xfer.aToken[0], "gimme")
      && xfer.nToken==2
@@ -1283,7 +1283,7 @@ void page_xfer(void){
 
     /*   uvgimme NAME
     **
-    ** Client is requesting an unversioned file.  Send it.
+    ** Client is requesting an unversioned file from the server.  Send it.
     */
     if( blob_eq(&xfer.aToken[0], "uvgimme")
      && xfer.nToken==2
@@ -1410,7 +1410,8 @@ void page_xfer(void){
 
     /*    login  USER  NONCE  SIGNATURE
     **
-    ** Check for a valid login.  This has to happen before anything else.
+    ** The client has sent login credentials to the server.
+    ** Validate the login.  This has to happen before anything else.
     ** The client can send multiple logins.  Permissions are cumulative.
     */
     if( blob_eq(&xfer.aToken[0], "login")
@@ -1432,7 +1433,7 @@ void page_xfer(void){
 
     /*    reqconfig  NAME
     **
-    ** Request a configuration value
+    ** Client is requesting a configuration value from the server
     */
     if( blob_eq(&xfer.aToken[0], "reqconfig")
      && xfer.nToken==2
@@ -1451,8 +1452,8 @@ void page_xfer(void){
 
     /*   config NAME SIZE \n CONTENT
     **
-    ** Receive a configuration value from the client.  This is only
-    ** permitted for high-privilege users.
+    ** Client has sent a configuration value to the server.
+    ** This is only permitted for high-privilege users.
     */
     if( blob_eq(&xfer.aToken[0],"config") && xfer.nToken==3
         && blob_is_int(&xfer.aToken[2], &size) ){
@@ -1496,7 +1497,7 @@ void page_xfer(void){
 
     /*    private
     **
-    ** This card indicates that the next "file" or "cfile" will contain
+    ** The client card indicates that the next "file" or "cfile" will contain
     ** private content.
     */
     if( blob_eq(&xfer.aToken[0], "private") ){
@@ -1518,6 +1519,8 @@ void page_xfer(void){
 
       /*   pragma send-private
       **
+      ** The client is requesting private artifacts.
+      **
       ** If the user has the "x" privilege (which must be set explicitly -
       ** it is not automatic with "a" or "s") then this pragma causes
       ** private information to be pulled in addition to public records.
@@ -1533,7 +1536,9 @@ void page_xfer(void){
 
       /*   pragma send-catalog
       **
-      ** Send igot cards for all known artifacts.
+      ** The client wants to see igot cards for all known artifacts.
+      ** This is used as part of "sync --verily" to help ensure that
+      ** no artifacts have been missed on prior syncs.
       */
       if( blob_eq(&xfer.aToken[1], "send-catalog") ){
         xfer.resync = 0x7fffffff;
@@ -1541,7 +1546,8 @@ void page_xfer(void){
 
       /*   pragma client-version VERSION
       **
-      ** Let the server know what version of Fossil is running on the client.
+      ** The client announces to the server what version of Fossil it
+      ** is running.
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
         xfer.clientVersion = atoi(blob_str(&xfer.aToken[2]));
@@ -1572,7 +1578,7 @@ void page_xfer(void){
       **
       ** The client wants to make non-branch commit against the check-in
       ** identified by CHECKIN-HASH.  The server will remember this and
-      ** subsequent ci-lock request from different clients will generate
+      ** subsequent ci-lock requests from different clients will generate
       ** a ci-lock-fail pragma in the reply.
       */
       if( blob_eq(&xfer.aToken[1], "ci-lock")
@@ -1878,7 +1884,8 @@ int client_sync(
   }
 
   /*
-  ** Always begin with a clone, pull, or push message
+  ** The request from the client always begin with a clone, pull,
+  ** or push message.
   */
   blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
   if( syncFlags & SYNC_CLONE ){
@@ -1920,16 +1927,15 @@ int client_sync(
     manifest_crosslink_begin();
 
 
-    /* Send back the most recently received cookie.  Let the server
-    ** figure out if this is a cookie that it cares about.
+    /* Client sends the most recently received cookie back to the server.
+    ** Let the server figure out if this is a cookie that it cares about.
     */
     zCookie = db_get("cookie", 0);
     if( zCookie ){
       blob_appendf(&send, "cookie %s\n", zCookie);
     }
 
-    /* Generate gimme cards for phantoms and leaf cards
-    ** for all leaves.
+    /* Client sends gimme cards for phantoms
     */
     if( (syncFlags & SYNC_PULL)!=0
      || ((syncFlags & SYNC_CLONE)!=0 && cloneSeqno==1)
@@ -1942,7 +1948,7 @@ int client_sync(
       if( syncFlags & SYNC_PRIVATE ) send_private(&xfer);
     }
 
-    /* Send configuration parameter requests.  On a clone, delay sending
+    /* Client sends configuration parameter requests.  On a clone, delay sending
     ** this until the second cycle since the login card might fail on
     ** the first cycle.
     */
@@ -1959,9 +1965,9 @@ int client_sync(
       configRcvMask = 0;
     }
 
-    /* Send a request to sync unversioned files.  On a clone, delay sending
-    ** this until the second cycle since the login card might fail on
-    ** the first cycle.
+    /* Client sends a request to sync unversioned files.
+    ** On a clone, delay sending this until the second cycle since
+    ** the login card might fail on the first cycle.
     */
     if( (syncFlags & SYNC_UNVERSIONED)!=0
      && ((syncFlags & SYNC_CLONE)==0 || nCycle>0)
@@ -1972,7 +1978,8 @@ int client_sync(
       uvHashSent = 1;
     }
 
-    /* Send configuration parameters being pushed */
+    /* On a "fossil config push", the client send configuration parameters
+    ** being pushed up to the server */
     if( configSendMask ){
       if( zOpType==0 ) zOpType = "Push";
       nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
@@ -2032,7 +2039,7 @@ int client_sync(
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
 
-    /* Append randomness to the end of the message.  This makes all
+    /* Append randomness to the end of the uplink message.  This makes all
     ** messages unique so that that the login-card nonce will always
     ** be unique.
     */
@@ -2134,7 +2141,7 @@ int client_sync(
       /*   file HASH SIZE \n CONTENT
       **   file HASH DELTASRC SIZE \n CONTENT
       **
-      ** Receive a file transmitted from the server.
+      ** Client receives a file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"file") ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
@@ -2144,7 +2151,7 @@ int client_sync(
       /*   cfile HASH USIZE CSIZE \n CONTENT
       **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
       **
-      ** Receive a compressed file transmitted from the server.
+      ** Client receives a compressed file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
         xfer_accept_compressed_file(&xfer, 0, 0);
@@ -2153,7 +2160,7 @@ int client_sync(
 
       /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
       **
-      ** Accept an unversioned file from the server.
+      ** Client accepts an unversioned file from the server.
       */
       if( blob_eq(&xfer.aToken[0], "uvfile") ){
         xfer_accept_unversioned_file(&xfer, 1);
@@ -2167,9 +2174,10 @@ int client_sync(
 
       /*   gimme HASH
       **
-      ** Server is requesting a file.  If the file is a manifest, assume
-      ** that the server will also want to know all of the content files
-      ** associated with the manifest and send those too.
+      ** Client receives an artifact request from the server.
+      ** If the file is a manifest, assume that the server will also want
+      ** to know all of the content artifacts associated with the manifest
+      ** and send those too.
       */
       if( blob_eq(&xfer.aToken[0], "gimme")
        && xfer.nToken==2
@@ -2286,7 +2294,7 @@ int client_sync(
       /*   push  SERVERCODE  PRODUCTCODE
       **
       ** Should only happen in response to a clone.  This message tells
-      ** the client what product to use for the new database.
+      ** the client what product code to use for the new database.
       */
       if( blob_eq(&xfer.aToken[0],"push")
        && xfer.nToken==3
@@ -2303,7 +2311,7 @@ int client_sync(
 
       /*   config NAME SIZE \n CONTENT
       **
-      ** Receive a configuration value from the server.
+      ** Client receive a configuration value from the server.
       **
       ** The received configuration setting is silently ignored if it was
       ** not requested by a prior "reqconfig" sent from client to server.
@@ -2325,7 +2333,7 @@ int client_sync(
 
       /*    cookie TEXT
       **
-      ** The server might include a cookie in its reply.  The client
+      ** The client reserves a cookie from the server.  The client
       ** should remember this cookie and send it back to the server
       ** in its next query.
       **
@@ -2339,8 +2347,8 @@ int client_sync(
 
       /*    private
       **
-      ** This card indicates that the next "file" or "cfile" will contain
-      ** private content.
+      ** The server tells the client that the next "file" or "cfile" will
+      ** contain private content.
       */
       if( blob_eq(&xfer.aToken[0], "private") ){
         xfer.nextIsPrivate = 1;
@@ -2360,7 +2368,8 @@ int client_sync(
 
       /*   message MESSAGE
       **
-      ** Print a message.  Similar to "error" but does not stop processing.
+      ** A message is received from the server.  Print it.
+      ** Similar to "error" but does not stop processing.
       **
       ** If the "login failed" message is seen, clear the sync password prior
       ** to the next cycle.
@@ -2429,7 +2438,8 @@ int client_sync(
 
       /*   error MESSAGE
       **
-      ** Report an error and abandon the sync session.
+      ** The server is reporting an error.  The client will abandon
+      ** the sync session.
       **
       ** Except, when cloning we will sometimes get an error on the
       ** first message exchange because the project-code is unknown
