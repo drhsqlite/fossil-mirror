@@ -1,5 +1,5 @@
-C For\sthe\s"user:"\shyperlink\sin\sa\sforum\spost\sin\s"vfx"\smode,\slink\sto\sanother\ntimeline\sthat\sis\salso\sin\s"vfx"\smode.
-D 2020-04-12T03:06:30.957
+C Attempts\sto\simprove\sthe\shomepage\sand\sfirst\simpression\sfor\snew\susers.
+D 2020-04-12T15:19:34.765
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -878,7 +878,7 @@ F www/history.md d98c45a93e503f6de6f71e9a64145cc8077bea71f156a1cd9d413161062436a
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
-F www/index.wiki 2e69577d0b4cda046274ed225d7446cf4c1ba6ae00e2d5bef19081e439054a0c
+F www/index.wiki 4a6a801e7679cf2851f037a11d970eb3740d5f0af43206efbd65f310306f5156
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -909,10 +909,10 @@ F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 87508dbbd4f422ce372c43916a33f647fe42dd8575caf92bec510c768e0252d4 x
+F www/mkindex.tcl 249c40bf435c6edf3bede8fba7b87a9158bb84fa48b8f49c634457530e069aeb x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html a991cf7249eb925ea2f9af1e8c2b1772b87868719e406aea2e8fb7c16b88f9a8
+F www/permutedindex.html 2c8863e6e3e08a8a5cd1376d654a03d9e5048138ca8adbb703f961b7ecd16e55
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 950f1e45e79f57c278acc54b4d9130a7ba266797793ba78ac13038379f9df4bb
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -970,12 +970,16 @@ F www/tickets.wiki 6bbf8b9f0cf6e06e19b466af1880b56a56021bfc67ad2c5d6936503aaa5f5
 F www/tls-nginx.md e990fe64149e85e4f1aa8e0359bfcd7eaecef924a6b4460caa47fb585c911b3c
 F www/uitest.html 7d7bd8198689c266012398d1df12eb71ab98031c
 F www/unvers.wiki 12dd5355cc4be467901675c41af4e47aeae1b9c3c25cdc49c0b038db1a4e4a70
+F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b655ec
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
 F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b941
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b8ad564dc59cb35ac4475d8071b2454d9d93a1e3896204e10107a7e6642a80f5
-R c7aed2cf7961a74f465a290c3b30ceb3
+P 55f9d7b6ecfce6ca9338083877d14d8d10c2a75670e6214b4d032eac44bc2820
+R 78ee0444a916c696c196275d9a335e53
+T *branch * revamp-home-page
+T *sym-revamp-home-page *
+T -sym-trunk *
 U drh
-Z dc8d62c2b97b4ff296472b59a71ac715
+Z 0f860127d3d7736145addd188589d2e0
