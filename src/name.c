@@ -1203,7 +1203,7 @@ void bloblist_page(void){
     privOnly = 0;
     phantomOnly = 0;
   }
-  if( g.perm.Private ){
+  if( g.perm.Private || g.perm.Admin ){
     if( !privOnly ){
       style_submenu_element("Private", "bloblist?priv");
     }
@@ -1259,7 +1259,7 @@ void bloblist_page(void){
       /* Do not show phantom artifacts to non-admin users */
       continue;
     }
-    if( isPriv && !g.perm.Private ){
+    if( isPriv && !g.perm.Private && !g.perm.Admin ){
       /* Don't show private artifacts to users without Private (x) permission */
       continue;
     }
