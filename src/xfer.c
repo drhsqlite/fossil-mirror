@@ -1302,13 +1302,15 @@ void page_xfer(void){
      && blob_is_hname(&xfer.aToken[1])
     ){
       if( isPush ){
+        int rid = 0;
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
-          rid_from_uuid(&xfer.aToken[1], 1, 0);
+          rid = rid_from_uuid(&xfer.aToken[1], 1, 0);
         }else if( g.perm.Private ){
-          rid_from_uuid(&xfer.aToken[1], 1, 1);
+          rid = rid_from_uuid(&xfer.aToken[1], 1, 1);
         }else{
           server_private_xfer_not_authorized();
         }
+        if( rid ) remote_has(rid);
       }
     }else
 
