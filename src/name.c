@@ -1281,7 +1281,12 @@ void bloblist_page(void){
     }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
     if( g.perm.Admin ){
-      @ <td>%d(db_column_int(&q,5))
+      int rcvid = db_column_int(&q,5);
+      if( rcvid<=0 ){
+        @ <td>&nbsp;
+      }else{
+        @ <td><a href='%R/rcvfrom?rcvid=%d(rcvid)'>%d(rcvid)</a>
+      }
     }
     @ <td align="left">%h(zDesc)</td>
     if( isPriv || isPhantom ){
