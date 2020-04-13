@@ -964,6 +964,7 @@ static const char zDescTab[] =
 @   ctime DATETIME,                -- Time of creation
 @   isPrivate BOOLEAN DEFAULT 0,   -- True for unpublished artifacts
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
+@   rcvid INT,                     -- When the artifact was received
 @   summary TEXT,                  -- Summary comment for the object
 @   detail TEXT                    -- File name, check-in comment, etc
 @ );
@@ -979,8 +980,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Describe check-ins */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, event.mtime, 'checkin',\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, event.mtime, 'checkin',\n"
     "       'check-in on ' || strftime('%%Y-%%m-%%d %%H:%%M',event.mtime)\n"
     "  FROM event, blob\n"
     " WHERE (event.objid %s) AND event.type='ci'\n"
@@ -990,8 +991,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Describe files */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, event.mtime, 'file', 'file '||filename.name\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, event.mtime,"
+    "       'file', 'file '||filename.name\n"
     "  FROM mlink, blob, event, filename\n"
     " WHERE (mlink.fid %s)\n"
     "   AND mlink.mid=event.objid\n"
@@ -1002,8 +1004,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Describe tags */
   db_multi_exec(
-   "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'tag',\n"
+   "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, tagxref.mtime, 'tag',\n"
     "     'tag '||substr((SELECT uuid FROM blob WHERE rid=tagxref.rid),1,16)\n"
     "  FROM tagxref, blob\n"
     " WHERE (tagxref.srcid %s) AND tagxref.srcid!=tagxref.rid\n"
@@ -1013,8 +1015,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Cluster artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, rcvfrom.mtime, 'cluster', 'cluster'\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, rcvfrom.mtime,"
+    "       'cluster', 'cluster'\n"
     "  FROM tagxref, blob, rcvfrom\n"
     " WHERE (tagxref.rid %s)\n"
     "   AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
@@ -1025,8 +1028,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Ticket change artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'ticket',\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, tagxref.mtime, 'ticket',\n"
     "       'ticket '||substr(tag.tagname,5,21)\n"
     "  FROM tagxref, tag, blob\n"
     " WHERE (tagxref.rid %s)\n"
@@ -1038,8 +1041,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Wiki edit artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'wiki',\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, tagxref.mtime, 'wiki',\n"
     "       printf('wiki \"%%s\"',substr(tag.tagname,6))\n"
     "  FROM tagxref, tag, blob\n"
     " WHERE (tagxref.rid %s)\n"
@@ -1051,8 +1054,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Event edit artifacts */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, tagxref.mtime, 'event',\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, tagxref.mtime, 'event',\n"
     "       'event '||substr(tag.tagname,7)\n"
     "  FROM tagxref, tag, blob\n"
     " WHERE (tagxref.rid %s)\n"
@@ -1064,8 +1067,9 @@ void describe_artifacts(const char *zWhere){
 
   /* Attachments */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attach-control',\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, attachment.mtime,"
+    "       'attach-control',\n"
     "       'attachment-control for '||attachment.filename\n"
     "  FROM attachment, blob\n"
     " WHERE (attachment.attachid %s)\n"
@@ -1073,8 +1077,8 @@ void describe_artifacts(const char *zWhere){
     zWhere /*safe-for-%s*/
   );
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-    "SELECT blob.rid, blob.uuid, attachment.mtime, 'attachment',\n"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+    "SELECT blob.rid, blob.uuid, blob.rcvid, attachment.mtime, 'attachment',\n"
     "       'attachment '||attachment.filename\n"
     "  FROM attachment, blob\n"
     " WHERE (blob.rid %s)\n"
@@ -1086,8 +1090,9 @@ void describe_artifacts(const char *zWhere){
   /* Forum posts */
   if( db_table_exists("repository","forumpost") ){
     db_multi_exec(
-      "INSERT OR IGNORE INTO description(rid,uuid,ctime,type,summary)\n"
-      "SELECT postblob.rid, postblob.uuid, forumpost.fmtime, 'forumpost',\n"
+      "INSERT OR IGNORE INTO description(rid,uuid,rcvid,ctime,type,summary)\n"
+      "SELECT postblob.rid, postblob.uuid, postblob.rcvid,"
+      "       forumpost.fmtime, 'forumpost',\n"
       "       CASE WHEN fpid=froot THEN 'forum-post '\n"
       "            ELSE 'forum-reply-to ' END || substr(rootblob.uuid,1,14)\n"
       "  FROM forumpost, blob AS postblob, blob AS rootblob\n"
@@ -1100,8 +1105,8 @@ void describe_artifacts(const char *zWhere){
 
   /* Everything else */
   db_multi_exec(
-    "INSERT OR IGNORE INTO description(rid,uuid,type,summary)\n"
-    "SELECT blob.rid, blob.uuid,"
+    "INSERT OR IGNORE INTO description(rid,uuid,rcvid,type,summary)\n"
+    "SELECT blob.rid, blob.uuid,blob.rcvid,"
     "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
     "       'unknown'\n"
     "  FROM blob WHERE (blob.rid %s);",
@@ -1238,7 +1243,7 @@ void bloblist_page(void){
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, isPrivate, type='phantom'"
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid"
     "  FROM description ORDER BY rid"
   );
   if( skin_detail_boolean("white-foreground") ){
@@ -1248,7 +1253,12 @@ void bloblist_page(void){
     zSha1Bg = "#ebffb0";
     zSha3Bg = "#b0ffb0";
   }
-  @ <table cellpadding="0" cellspacing="0">
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  if( g.perm.Admin ){
+    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Remarks
+  }else{
+    @ <tr><th>RID<th>Hash<th>Description<th>Remarks
+  }
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
     const char *zUuid = db_column_text(&q, 1);
@@ -1270,15 +1280,20 @@ void bloblist_page(void){
       @ <tr><td align="right">%d(rid)</td>
     }
     @ <td>&nbsp;%z(href("%R/info/%!S",zUuid))%S(zUuid)</a>&nbsp;</td>
+    if( g.perm.Admin ){
+      @ <td>%d(db_column_int(&q,5))
+    }
     @ <td align="left">%h(zDesc)</td>
     if( isPriv || isPhantom ){
       if( isPriv==0 ){
-        @ <td>&nbsp;(phantom)</td>
+        @ <td>phantom</td>
       }else if( isPhantom==0 ){
-        @ <td>&nbsp;(private)</td>
+        @ <td>private</td>
       }else{
-        @ <td>&nbsp;(private,phantom)</td>
+        @ <td>private,phantom</td>
       }
+    }else{
+      @ <td>&nbsp;
     }
     @ </tr>
   }
