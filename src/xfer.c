@@ -51,7 +51,9 @@ struct Xfer {
   int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
-  u32 clientVersion;  /* Version of the client software */
+  u32 remoteVersion;  /* Version of fossil running on the other side */
+  u32 remoteDate;     /* Date for specific client software edition */
+  u32 remoteTime;     /* Time of date correspoding on remoteDate */
   time_t maxTime;     /* Time when this transfer should be finished */
 };
 
@@ -526,7 +528,6 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   int size = 0;
   int isPriv = content_is_private(rid);
 
-  if( pXfer->syncPrivate==0 && isPriv ) return;
   if( db_exists("SELECT 1 FROM onremote WHERE rid=%d", rid) ){
      return;
   }
@@ -535,7 +536,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   if( blob_size(&uuid)==0 ){
     return;
   }
-  if( blob_size(&uuid)>HNAME_LEN_SHA1 && pXfer->clientVersion<20000 ){
+  if( blob_size(&uuid)>HNAME_LEN_SHA1 && pXfer->remoteVersion<20000 ){
     xfer_cannot_send_sha3_error(pXfer);
     return;
   }
@@ -549,6 +550,17 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   }
   if( uuid_is_shunned(blob_str(pUuid)) ){
     blob_reset(&uuid);
+    return;
+  }
+  if( isPriv && pXfer->syncPrivate==0 ){
+    if( pXfer->remoteDate>=20200413 ){
+      /* If the artifact is private and we are not doing a private sync,
+      ** at least tell the other side that the artifact exists and is
+      ** known to be private.  But only do this for newer clients since
+      ** older ones will throw an error if they get a private igot card
+      ** and private syncing is disallowed */
+      blob_appendf(pXfer->pOut, "igot %b 1\n", pUuid);
+    }
     return;
   }
   if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) ||
@@ -628,7 +640,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     srcIsPrivate = db_column_int(&q1, 3);
     zDelta = db_column_text(&q1, 4);
     if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
-    if( pXfer->clientVersion<20000 && db_column_bytes(&q1,0)!=HNAME_LEN_SHA1 ){
+    if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,0)!=HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
       db_reset(&q1);
       return;
@@ -692,7 +704,7 @@ static void send_unversioned_file(
   if( db_step(&q1)==SQLITE_ROW ){
     sqlite3_int64 mtime = db_column_int64(&q1, 0);
     const char *zHash = db_column_text(&q1, 1);
-    if( pXfer->clientVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
+    if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
       db_reset(&q1);
       return;
@@ -1295,7 +1307,7 @@ void page_xfer(void){
     /*   igot HASH ?ISPRIVATE?
     **
     ** Client announces that it has a particular file.  If the ISPRIVATE
-    ** argument exists and is non-zero, then the file is a private file.
+    ** argument exists and is "1", then the file is a private file.
     */
     if( xfer.nToken>=2
      && blob_eq(&xfer.aToken[0], "igot")
@@ -1304,11 +1316,23 @@ void page_xfer(void){
       if( isPush ){
         int rid = 0;
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
+          /* Client says the artifact is public */
           rid = rid_from_uuid(&xfer.aToken[1], 1, 0);
         }else if( g.perm.Private ){
+          /* Client says the artifact is private and the client has
+          ** permission to push private content.  Create a new phantom
+          ** artifact that is marked private. */
           rid = rid_from_uuid(&xfer.aToken[1], 1, 1);
         }else{
-          server_private_xfer_not_authorized();
+          /* Client says the artifact is private and the client is unable
+          ** or unwilling to send us the artifact.  If we already hold the
+          ** artifact here on the server as a phantom, make sure that
+          ** phantom is marked as private so that we don't keep asking about
+          ** it in subsequent sync requests. */
+          rid = rid_from_uuid(&xfer.aToken[1], 0, 1);
+          if( rid>0 ){
+            db_multi_exec("INSERT OR IGNORE INTO private(rid) VALUES(%d)",rid);
+          }
         }
         if( rid ) remote_has(rid);
       }
@@ -1544,13 +1568,20 @@ void page_xfer(void){
         xfer.resync = 0x7fffffff;
       }
 
-      /*   pragma client-version VERSION
+      /*   pragma client-version VERSION ?DATE? ?TIME?
       **
       ** The client announces to the server what version of Fossil it
-      ** is running.
+      ** is running.  The DATE and TIME are a pure numeric ISO8601 time
+      ** for the specific check-in of the client.
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
-        xfer.clientVersion = atoi(blob_str(&xfer.aToken[2]));
+        xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+        if( xfer.nToken>=5 ){
+          xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
+          xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
+          @ pragma server-version %d(RELEASE_VERSION_NUMBER) \
+          @ %d(MANIFEST_NUMERIC_DATE) %d(MANIFEST_NUMERIC_TIME)
+        }
       }
 
       /*   pragma uv-hash HASH
@@ -1836,7 +1867,7 @@ int client_sync(
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
   xfer.maxTime = -1;
-  xfer.clientVersion = RELEASE_VERSION_NUMBER;
+  xfer.remoteVersion = RELEASE_VERSION_NUMBER;
   if( syncFlags & SYNC_PRIVATE ){
     g.perm.Private = 1;
     xfer.syncPrivate = 1;
@@ -1887,7 +1918,9 @@ int client_sync(
   ** The request from the client always begin with a clone, pull,
   ** or push message.
   */
-  blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
+  blob_appendf(&send, "pragma client-version %d %d %d\n",
+               RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
+               MANIFEST_NUMERIC_TIME);
   if( syncFlags & SYNC_CLONE ){
     blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     syncFlags &= ~(SYNC_PUSH|SYNC_PULL);
@@ -2084,7 +2117,9 @@ int client_sync(
 
     lastPctDone = -1;
     blob_reset(&send);
-    blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
+    blob_appendf(&send, "pragma client-version %d %d %d\n",
+                 RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
+                 MANIFEST_NUMERIC_TIME);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
 
     /* Send the send-private pragma if we are trying to sync private data */
@@ -2212,6 +2247,7 @@ int client_sync(
           if( !isPriv ) content_make_public(rid);
         }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
+          db_multi_exec("INSERT OR IGNORE INTO private VALUES(%d)", rid);
         }else if( (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0 ){
           rid = content_new(blob_str(&xfer.aToken[1]), isPriv);
           if( rid ) newPhantom = 1;
@@ -2395,7 +2431,23 @@ int client_sync(
       ** silently ignored.
       */
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
-        /* If the server is unwill to accept new unversioned content (because
+        /*   pragma server-version VERSION ?DATE? ?TIME?
+        **
+        ** The servger announces to the server what version of Fossil it
+        ** is running.  The DATE and TIME are a pure numeric ISO8601 time
+        ** for the specific check-in of the client.
+        */
+        if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
+          xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+          if( xfer.nToken>=5 ){
+            xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
+            xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
+          }
+        }
+
+        /*   pragma uv-pull-only
+        **
+        ** If the server is unwill to accept new unversioned content (because
         ** this client lacks the necessary permissions) then it sends a
         ** "uv-pull-only" pragma so that the client will know not to waste
         ** bandwidth trying to upload unversioned content.  If the server

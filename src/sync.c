@@ -63,18 +63,6 @@ int autosync(int flags){
   }
   g.zHttpAuth = get_httpauth();
   url_remember();
-#if 0 /* Disabled for now */
-  if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
-    /* When doing an automatic pull, also automatically pull shuns from
-    ** the server if pull_shuns is enabled.
-    **
-    ** TODO:  What happens if the shun list gets really big?
-    ** Maybe the shunning list should only be pulled on every 10th
-    ** autosync, or something?
-    */
-    configSync = CONFIGSET_SHUN;
-  }
-#endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
   fossil_print("Autosync:  %s\n", g.url.canonical);
   url_enable_proxy("via proxy: ");
@@ -165,7 +153,7 @@ static void process_sync_args(
   if( !uvOnly ) db_find_and_open_repository(0, 0);
   db_open_config(0, 1);
   if( g.argc==2 ){
-    if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
+    if( db_get_boolean("auto-shun",0) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
