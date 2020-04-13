@@ -142,10 +142,11 @@ puts $out {
 <li> <a href='history.md'>Purpose and History of Fossil</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
+<li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
+<li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
+<li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
-<li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
-<li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
