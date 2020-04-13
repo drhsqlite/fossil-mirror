@@ -1,5 +1,5 @@
-C For\sthe\srcvids\sshown\son\sthe\s/bloblist\spage,\sprovide\shyperlinks.
-D 2020-04-13T14:32:37.918
+C Correctly\shandle\sprivate\sigot\scards\sreceived\sin\sthe\sserver\sreply.
+D 2020-04-13T15:01:03.840
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -455,7 +455,7 @@ F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e69
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h 5599c3074e2250f49e06c22716e516140a0b2d22c703c604e050b6178c0d536a
 F src/configure.c 839107b0dcb9e24a219ddfd8aaff74eff81f77dc30c1e945b6fbfd379dd3ea46
-F src/content.c 2d2630468eae31e35ed702fba0cc3f58438e1b03320032445038147e38935f8f
+F src/content.c 9cc33a35574ac0f099f532a7f017b58899c3a1ed330e61aef306aa65596dd94c
 F src/cookies.c 3c7a533e11f5a562292ef3e9c67542ea124afa6872adfd5ed77b6c4c1bd1668f
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
@@ -626,7 +626,7 @@ F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 1dd78b2ccc0671deeb3decac5b849cdac489e9e80c4838e054b53b1646e27821
+F src/xfer.c 349b91d6765a602e51b159d6a4d00b226d9008440e33ea3c0f3e816c8a6f8005
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -975,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 71b6ada40fdef0b3a894a1b60b0685b53f6bdc34a7eae77ccea106501c65e36f
-R 4e0b73774ffef4b151394d8d61d963bd
+P 10c90175a702dcc433bb9f7cbaeca0a85bd712abed011964bcab3645bfc01f96
+R 3ab3f15408435b10b6acf245d7a5de90
 U drh
-Z fb7802696dd187e457de7002a4d616d6
+Z 564d4793b678504a3a08c1cabef506b7

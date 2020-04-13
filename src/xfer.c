@@ -1334,7 +1334,7 @@ void page_xfer(void){
           ** it in subsequent sync requests. */
           rid = rid_from_uuid(&xfer.aToken[1], 0, 1);
           if( rid>0 ){
-            db_multi_exec("INSERT OR IGNORE INTO private(rid) VALUES(%d)",rid);
+            content_make_private(rid);
           }
         }
         if( rid ) remote_has(rid);
@@ -2248,10 +2248,13 @@ int client_sync(
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
-          if( !isPriv ) content_make_public(rid);
-        }else if( isPriv && !g.perm.Private ){
+          if( isPriv ){
+            content_make_private(rid);
+          }else{
+            content_make_public(rid);
+          }
+        }else if( !g.perm.Private ){
           /* ignore private files */
-          db_multi_exec("INSERT OR IGNORE INTO private VALUES(%d)", rid);
         }else if( (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0 ){
           rid = content_new(blob_str(&xfer.aToken[1]), isPriv);
           if( rid ) newPhantom = 1;

@@ -781,6 +781,18 @@ void content_make_public(int rid){
 }
 
 /*
+** Make sure an artifact is private
+*/
+void content_make_private(int rid){
+  static Stmt s1;
+  db_static_prepare(&s1,
+    "INSERT OR IGNORE INTO private(rid) VALUES(:rid)"
+  );
+  db_bind_int(&s1, ":rid", rid);
+  db_exec(&s1);
+}
+
+/*
 ** Try to change the storage of rid so that it is a delta from one
 ** of the artifacts given in aSrc[0]..aSrc[nSrc-1].  The aSrc[*] that
 ** gives the smallest delta is choosen.
