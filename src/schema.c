@@ -161,6 +161,12 @@ const char zRepositorySchema1[] =
 @ -- table.  Private artifacts are omitted from the "unclustered" and
 @ -- "unsent" tables.
 @ --
+@ -- A phantom artifact (that is, an artifact with BLOB.SIZE<0 - an artifact
+@ -- for which we do not know the content) might also be marked as private.
+@ -- This comes about when an artifact is named in a manifest or tag but
+@ -- the content of that artifact is held privately by some other peer
+@ -- repository.
+@ --
 @ CREATE TABLE private(rid INTEGER PRIMARY KEY);
 @
 @ -- An entry in this table describes a database query that generates a
