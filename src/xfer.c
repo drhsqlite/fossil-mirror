@@ -41,6 +41,7 @@ struct Xfer {
   Blob err;           /* Error message text */
   int nToken;         /* Number of tokens in line */
   int nIGotSent;      /* Number of "igot" cards sent */
+  int nPrivIGot;      /* Number of private "igot" cards */
   int nGimmeSent;     /* Number of gimme cards sent */
   int nFileSent;      /* Number of files sent */
   int nDeltaSent;     /* Number of deltas sent */
@@ -560,6 +561,8 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
       ** older ones will throw an error if they get a private igot card
       ** and private syncing is disallowed */
       blob_appendf(pXfer->pOut, "igot %b 1\n", pUuid);
+      pXfer->nIGotSent++;
+      pXfer->nPrivIGot++;
     }
     return;
   }
@@ -2114,6 +2117,7 @@ int client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
+    xfer.nPrivIGot = 0;
 
     lastPctDone = -1;
     blob_reset(&send);
@@ -2572,7 +2576,7 @@ int client_sync(
     /* If we have one or more files queued to send, then go
     ** another round
     */
-    if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
+    if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush || xfer.nPrivIGot>0 ){
       go = 1;
     }
 
