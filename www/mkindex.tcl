@@ -51,6 +51,7 @@ set doclist {
   fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
+  gitusers.md {Hints For Users With Git Experience}
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
   hacker-howto.wiki {Fossil Developers Guide}
