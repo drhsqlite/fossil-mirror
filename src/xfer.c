@@ -529,6 +529,19 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   int size = 0;
   int isPriv = content_is_private(rid);
 
+  if( isPriv && pXfer->syncPrivate==0 ){
+    if( pXfer->remoteDate>=20200413 && pUuid && blob_size(pUuid)>0 ){
+      /* If the artifact is private and we are not doing a private sync,
+      ** at least tell the other side that the artifact exists and is
+      ** known to be private.  But only do this for newer clients since
+      ** older ones will throw an error if they get a private igot card
+      ** and private syncing is disallowed */
+      blob_appendf(pXfer->pOut, "igot %b 1\n", pUuid);
+      pXfer->nIGotSent++;
+      pXfer->nPrivIGot++;
+    }
+    return;
+  }
   if( db_exists("SELECT 1 FROM onremote WHERE rid=%d", rid) ){
      return;
   }
@@ -551,19 +564,6 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   }
   if( uuid_is_shunned(blob_str(pUuid)) ){
     blob_reset(&uuid);
-    return;
-  }
-  if( isPriv && pXfer->syncPrivate==0 ){
-    if( pXfer->remoteDate>=20200413 ){
-      /* If the artifact is private and we are not doing a private sync,
-      ** at least tell the other side that the artifact exists and is
-      ** known to be private.  But only do this for newer clients since
-      ** older ones will throw an error if they get a private igot card
-      ** and private syncing is disallowed */
-      blob_appendf(pXfer->pOut, "igot %b 1\n", pUuid);
-      pXfer->nIGotSent++;
-      pXfer->nPrivIGot++;
-    }
     return;
   }
   if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) ||
