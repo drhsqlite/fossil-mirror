@@ -966,8 +966,9 @@ static const char zDescTab[] =
 @   type TEXT,                     -- file, checkin, wiki, ticket, etc.
 @   rcvid INT,                     -- When the artifact was received
 @   summary TEXT,                  -- Summary comment for the object
-@   detail TEXT                    -- File name, check-in comment, etc
+@   ref TEXT                       -- hash of an object to link against
 @ );
+@ CREATE INDEX desctype ON description(summary) WHERE summary='unknown';
 ;
 
 /*
@@ -1103,19 +1104,45 @@ void describe_artifacts(const char *zWhere){
     );
   }
 
-  /* Everything else */
+  /* Mark all other artifacts as "unknown" for now */
   db_multi_exec(
     "INSERT OR IGNORE INTO description(rid,uuid,rcvid,type,summary)\n"
-    "SELECT blob.rid, blob.uuid,blob.rcvid,"
-    "       CASE WHEN blob.size<0 THEN 'phantom' ELSE '' END,\n"
+    "SELECT blob.rid, blob.uuid,blob.rcvid,\n"
+    "       CASE WHEN EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)\n"
+           " THEN 'phantom' ELSE '' END,\n"
     "       'unknown'\n"
-    "  FROM blob WHERE (blob.rid %s);",
+    "  FROM blob\n"
+    " WHERE (blob.rid %s)\n"
+    "   AND (blob.rid NOT IN (SELECT rid FROM description));",
     zWhere /*safe-for-%s*/
   );
 
   /* Mark private elements */
   db_multi_exec(
    "UPDATE description SET isPrivate=1 WHERE rid IN private"
+  );
+
+  /* Try to figure out the origin of unknown artifacts */
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         CASE WHEN plink.isprim THEN '' ELSE 'merge ' END ||\n"
+    "         'parent of check-in', blob.uuid\n"
+    "    FROM description, plink, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND plink.pid=description.rid\n"
+    "     AND blob.rid=plink.cid;"
+  );
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         'check-in referenced by \"'||tag.tagname ||'\" tag',\n"
+    "         blob.uuid\n"
+    "    FROM description, tagxref, tag, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND tagxref.origid=description.rid\n"
+    "     AND tag.tagid=tagxref.tagid\n"
+    "     AND blob.rid=tagxref.srcid;"
   );
 }
 
@@ -1243,7 +1270,7 @@ void bloblist_page(void){
   describe_artifacts(zRange);
   fossil_free(zRange);
   db_prepare(&q,
-    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid"
+    "SELECT rid, uuid, summary, isPrivate, type='phantom', rcvid, ref"
     "  FROM description ORDER BY rid"
   );
   if( skin_detail_boolean("white-foreground") ){
@@ -1255,9 +1282,9 @@ void bloblist_page(void){
   }
   @ <table cellpadding="2" cellspacing="0" border="1">
   if( g.perm.Admin ){
-    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Remarks
+    @ <tr><th>RID<th>Hash<th>Rcvid<th>Description<th>Ref<th>Remarks
   }else{
-    @ <tr><th>RID<th>Hash<th>Description<th>Remarks
+    @ <tr><th>RID<th>Hash<th>Description<th>Ref<th>Remarks
   }
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q,0);
@@ -1265,6 +1292,7 @@ void bloblist_page(void){
     const char *zDesc = db_column_text(&q, 2);
     int isPriv = db_column_int(&q,3);
     int isPhantom = db_column_int(&q,4);
+    const char *zRef = db_column_text(&q,6);
     if( isPhantom && !g.perm.Admin ){
       /* Do not show phantom artifacts to non-admin users */
       continue;
@@ -1289,6 +1317,11 @@ void bloblist_page(void){
       }
     }
     @ <td align="left">%h(zDesc)</td>
+    if( zRef && zRef[0] ){
+      @ <td>%z(href("%R/info/%!S",zRef))%S(zRef)</a>
+    }else{
+      @ <td>&nbsp;
+    }
     if( isPriv || isPhantom ){
       if( isPriv==0 ){
         @ <td>phantom</td>
