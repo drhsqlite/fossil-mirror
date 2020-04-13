@@ -1318,6 +1318,7 @@ void page_xfer(void){
     ){
       if( isPush ){
         int rid = 0;
+        int isPriv = 0;
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
           /* Client says the artifact is public */
           rid = rid_from_uuid(&xfer.aToken[1], 1, 0);
@@ -1326,6 +1327,7 @@ void page_xfer(void){
           ** permission to push private content.  Create a new phantom
           ** artifact that is marked private. */
           rid = rid_from_uuid(&xfer.aToken[1], 1, 1);
+          isPriv = 1;
         }else{
           /* Client says the artifact is private and the client is unable
           ** or unwilling to send us the artifact.  If we already hold the
@@ -1333,11 +1335,16 @@ void page_xfer(void){
           ** phantom is marked as private so that we don't keep asking about
           ** it in subsequent sync requests. */
           rid = rid_from_uuid(&xfer.aToken[1], 0, 1);
-          if( rid>0 ){
+          isPriv = 1;
+        }
+        if( rid ){
+          remote_has(rid);
+          if( isPriv ){
             content_make_private(rid);
+          }else{
+            content_make_public(rid);
           }
         }
-        if( rid ) remote_has(rid);
       }
     }else
 
@@ -2444,7 +2451,7 @@ int client_sync(
         ** is running.  The DATE and TIME are a pure numeric ISO8601 time
         ** for the specific check-in of the client.
         */
-        if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
+        if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
           xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
           if( xfer.nToken>=5 ){
             xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
@@ -2579,9 +2586,10 @@ int client_sync(
     /* If we have one or more files queued to send, then go
     ** another round
     */
-    if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush || xfer.nPrivIGot>0 ){
+    if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
       go = 1;
     }
+    if( xfer.nPrivIGot>0 && nCycle==1 ) go = 1;
 
     /* If this is a clone, the go at least two rounds */
     if( (syncFlags & SYNC_CLONE)!=0 && nCycle==1 ) go = 1;
