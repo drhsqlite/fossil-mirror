@@ -1,5 +1,5 @@
-C Sync\sserver\ssends\sback\sprivate\sigot\smessages\sfor\sprivate\sphantoms.
-D 2020-04-13T16:56:58.110
+C Faster\simplementation\sof\sthe\sphantom\sartifact\sdisplay\son\sthe\s/bloblist\spage.
+D 2020-04-13T17:09:03.193
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -539,7 +539,7 @@ F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
 F src/mkindex.c 6070854fabaee6c04ec7a354cb1f17b3ed95197ed294b74ab811377390a0a95e
 F src/mkversion.c 61573da8a07602cb586b2de950b40cb8f944f8f2931d51bf4a5b78ad0aa24e31
 F src/moderate.c 8b693389df63229f87c99057ac1a4133b6fc9e10fc6b6b4699d43d5d14a09968
-F src/name.c 37a94ff7b4ae594d2fe2ba82211d8b67d8d19a4b93ccd9343d87024f4fe4ba77
+F src/name.c 2f541549577c8494cbb9e3036da65a13eb3f343a0a34a90cd84ee1fbd82b995d
 F src/path.c 569c0389b016beb1f26319716db96ba291eb69491a68ca86610d62c0812c57f8
 F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
@@ -975,7 +975,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ec93507424a572459b1d034f9f6ff64f2786718bca0f224cd7159e4e8f78118f
-R 4350d4da542d0091cc6d413758155028
+P 81445afb5ca1972405e900a763fadfd28c3bd418d8c3a2be465a3feade2e769f
+R 1e7fb1ac153a916465a7b557b3afe576
 U drh
-Z 97c41d31c313aa58703a2c8569382bd4
+Z f774af234e2d6071aff2fa43d1e66d2f

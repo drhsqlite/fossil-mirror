@@ -1236,7 +1236,7 @@ void bloblist_page(void){
   if( privOnly ){
     zRange = mprintf("IN private");
   }else if( phantomOnly ){
-    zRange = mprintf("IN (SELECT rid FROM blob WHERE size<0)");
+    zRange = mprintf("IN phantom");
   }else{
     zRange = mprintf("BETWEEN %d AND %d", s, s+n-1);
   }
