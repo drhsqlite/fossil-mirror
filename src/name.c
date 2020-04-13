@@ -1228,12 +1228,9 @@ void bloblist_page(void){
   style_submenu_element("250 Largest", "bigbloblist");
   if( g.perm.Admin ){
     style_submenu_element("Artifact Log", "rcvfromlist");
-    if( !phantomOnly ){
-      style_submenu_element("Phantoms", "bloblist?phan");
-    }
-  }else{
-    privOnly = 0;
-    phantomOnly = 0;
+  }
+  if( !phantomOnly ){
+    style_submenu_element("Phantoms", "bloblist?phan");
   }
   if( g.perm.Private || g.perm.Admin ){
     if( !privOnly ){
@@ -1293,11 +1290,7 @@ void bloblist_page(void){
     int isPriv = db_column_int(&q,3);
     int isPhantom = db_column_int(&q,4);
     const char *zRef = db_column_text(&q,6);
-    if( isPhantom && !g.perm.Admin ){
-      /* Do not show phantom artifacts to non-admin users */
-      continue;
-    }
-    if( isPriv && !g.perm.Private && !g.perm.Admin ){
+    if( isPriv && !isPhantom && !g.perm.Private && !g.perm.Admin ){
       /* Don't show private artifacts to users without Private (x) permission */
       continue;
     }
