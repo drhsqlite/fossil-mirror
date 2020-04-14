@@ -1334,6 +1334,70 @@ void bloblist_page(void){
 }
 
 /*
+** WEBPAGE: phantoms
+**
+** Show a list of all "phantom" artifacts that are not marked as "private".
+**
+** A "phantom" artifact is an artifact whose hash named appears in some
+** artifact but whose content is unknown.  For example, if a manifest
+** references a particular SHA3 hash of a file, but that SHA3 hash is
+** not on the shunning list and is not in the database, then the file
+** is a phantom.  We know it exists, but we do not know its content.
+**
+** Whenever a sync occurs, both each party looks at its phantom list
+** and for every phantom that is not also marked private, it asks the
+** other party to send it the content.  This mechanism helps keep all
+** repositories synced up.
+**
+** This page is similar to the /bloblist page in that it lists artifacts.
+** But this page is a special case in that it only shows phantoms that
+** are not private.  In other words, this page shows all phantoms that
+** generate extra network traffic on every sync request.
+*/
+void phantom_list_page(void){
+  Stmt q;
+  char *zRange;
+
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("Public Phantom Artifacts");
+  if( g.perm.Admin ){
+    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Artifact List", "bloblist");
+  }
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
+  zRange = mprintf("IN (SELECT rid FROM phantom EXCEPT"
+                   " SELECT rid FROM private)");
+  describe_artifacts(zRange);
+  fossil_free(zRange);
+  db_prepare(&q,
+    "SELECT rid, uuid, summary, ref"
+    "  FROM description ORDER BY rid"
+  );
+  @ <table cellpadding="2" cellspacing="0" border="1">
+  @ <tr><th>RID<th>Description<th>Source
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q,0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDesc = db_column_text(&q, 2);
+    const char *zRef = db_column_text(&q,3);
+    @ <tr><td valign="top">%d(rid)</td>
+    @ <td valign="top" align="left">%h(zUuid)<br>%h(zDesc)</td>
+    if( zRef && zRef[0] ){
+      @ <td valign="top">%z(href("%R/info/%!S",zRef))%!S(zRef)</a>
+    }else{
+      @ <td>&nbsp;
+    }
+    @ </tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
 ** WEBPAGE: bigbloblist
 **
 ** Return a page showing the largest artifacts in the repository in order
