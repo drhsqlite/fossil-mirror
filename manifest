@@ -1,5 +1,5 @@
-C Fix\sthe\smkversion.c\sroutine\sso\sthat\sit\sworks\swith\stimestamps\sthat\shave\na\sleading\szero.
-D 2020-04-14T02:15:01.338
+C Fix\san\serror\sin\sthe\ssync\slogic\sintroduced\sby\scheck-in\s[50a7f89a77e0886f].\nIf\syou\sbuild\sa\sversion\sof\sfossil\sstarting\swith\scheck-in\s[50a7f89a77e0886f]\s\nup\sto\sbut\snot\sincluding\sthis\sone,\sit\smight\snot\ssync\sall\sof\sthe\slatest\schanges.
+D 2020-04-14T02:23:17.940
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -626,7 +626,7 @@ F src/wikiformat.c a7ef119bb938e886fdcf17e878e94ee71d4a7da5bf0823dd7468f5ff8f7ae
 F src/winfile.c bd6524014e83182bb1dd2798555b2ae35bcfd1c46e9c56b9ff94bf3ed5371f43
 F src/winhttp.c c820cd65e9c5492c4cab9e201a92c0043b7d49dd6255cd94ece651cea742a6c4
 F src/wysiwyg.c a3441690bc84463ddbe1b3d1ab153b550c67da3be2723a75c7b010d50b3a02aa
-F src/xfer.c 56e10493312daa9c0b08632f7892aefb33439ecc8cc1bfbd3fe0c3e4b7e103df
+F src/xfer.c adfc9132084a174be6973724ebe101054fe74c2045dba1731a277f4a42d38755
 F src/xfersetup.c 2c490b68685d9907f6a537455e60c8c16208a96de35ee14b758ef88f326cd4bc
 F src/zip.c 2e56bf99c9fb4fd570f619dde1994e7a03644f51275de98d358d8497bcd9a662
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
@@ -977,7 +977,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki 730056ead695df82c7aa9dd099cf34b4bfbfd473
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 702ee3f3ab02b95e6a78ca7798f9703eb46d367aa55544a00463b9c2d32b2866
-R 86add0835dd2cfb53ad82c6d242fc7ab
+P 64bc064df94d20bc6895f924f31bd966c6783af7dbd718b12b2a9cfeda5aa5c2
+R 495c9214c21fb720dda7771c6585df82
 U drh
-Z ff9522d69fb1c9614d6a3ad3c794fdbe
+Z e2e8df6d37d490f8047b17fa62720da8

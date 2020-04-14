@@ -2260,7 +2260,7 @@ int client_sync(
           }else{
             content_make_public(rid);
           }
-        }else if( !g.perm.Private ){
+        }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
         }else if( (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0 ){
           rid = content_new(blob_str(&xfer.aToken[1]), isPriv);
