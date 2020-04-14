@@ -1,5 +1,5 @@
-C Show\sthe\stable\sof\spublic\sphantoms\sdirectly\son\sthe\ssecurity\saudit\spage.\nDig\sdeeper\slooking\sfor\sthe\ssource\sof\spublic\sphantoms.
-D 2020-04-14T14:27:40.338
+C Typo\sfix\sin\sthe\shistory.md\sdocument.
+D 2020-04-14T21:38:19.815
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -875,7 +875,7 @@ F www/grep.md bdaad90178a1d3a6288a179f431148c6b1272145d56d34586c3507922d3fc4fa
 F www/hacker-howto.wiki c40e6a89ffaa6a13037655a20c62703c2ed07b1b6e90e823a517181535fe8e14
 F www/hashpolicy.wiki 947353d8a9cdfe83b44e20970dd28775c6020dc892e5ed6a7ba3e7fa7b772765
 F www/hints.wiki a64405f03f9fbe23d0e29b4842adf2d8ad1afacb
-F www/history.md d98c45a93e503f6de6f71e9a64145cc8077bea71f156a1cd9d413161062436aa
+F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9b
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
@@ -977,7 +977,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 83db244395090d8365b64c12e7b3a4d8896eb3dba76ef77042f37344c2b07f25
-R 7b0ee12e5877947dd3714d958712a786
+P 941280ae0aa53d1da49de9d20b6f6b3771039c7a6bf355ca97323c8c262a1aaa
+R bbfa6b074bf49a8d61c8f6670d8b6da0
 U drh
-Z 57ad0100874ad6cc68711cf2056eb0e5
+Z b416c47b1d333979ae91a223ab2e7244
