@@ -952,7 +952,7 @@ void forumnew_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  if( P("submit") ){
+  if( P("submit") && cgi_csrf_safe(1) ){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
   }
   if( P("preview") ){
