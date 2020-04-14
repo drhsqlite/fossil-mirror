@@ -28,7 +28,7 @@ which the entire history of a project is stored.  A check-out is a
 directory hierarchy that contains a snapshot of your project that you
 are currently working on.  See [detailed definitions][2] for more
 information.  With Git, the repository and check-out are closely
-released - the repository is the contents of the "`.git`" subdirectory
+related - the repository is the contents of the "`.git`" subdirectory
 at the root of your check-out.  But with Fossil, the repository and
 the check-out are completely separate.  A Fossil repository can reside
 in the same directory hierarchy with the check-out as with Git, but it
