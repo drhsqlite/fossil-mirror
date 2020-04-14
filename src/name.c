@@ -972,6 +972,71 @@ static const char zDescTab[] =
 ;
 
 /*
+** Attempt to describe all phantom artifacts.  The artifacts are
+** already loaded into the description table and have summary='unknown'.
+** This routine attempts to generate a better summary, and possibly
+** fill in the ref field.
+*/
+static void describe_unknown_artifacts(){
+  /* Try to figure out the origin of unknown artifacts */
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         CASE WHEN plink.isprim THEN '' ELSE 'merge ' END ||\n"
+    "         'parent of check-in', blob.uuid\n"
+    "    FROM description, plink, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND plink.pid=description.rid\n"
+    "     AND blob.rid=plink.cid;"
+  );
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         'child of check-in', blob.uuid\n"
+    "    FROM description, plink, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND plink.cid=description.rid\n"
+    "     AND blob.rid=plink.pid;"
+  );
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         'check-in referenced by \"'||tag.tagname ||'\" tag',\n"
+    "         blob.uuid\n"
+    "    FROM description, tagxref, tag, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND tagxref.origid=description.rid\n"
+    "     AND tag.tagid=tagxref.tagid\n"
+    "     AND blob.rid=tagxref.srcid;"
+  );
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         'file \"'||filename.name||'\"',\n"
+    "         blob.uuid\n"
+    "    FROM description, mlink, filename, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND mlink.fid=description.rid\n"
+    "     AND blob.rid=mlink.mid\n"
+    "     AND filename.fnid=mlink.fnid;"
+  );
+  if( !db_exists("SELECT 1 FROM description WHERE summary='unknown'") ){
+    return;
+  }
+  add_content_sql_commands(g.db);
+  db_multi_exec(
+    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
+    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
+    "         'referenced by cluster', blob.uuid\n"
+    "    FROM description, tagxref, blob\n"
+    "   WHERE description.summary='unknown'\n"
+    "     AND tagxref.tagid=(SELECT tagid FROM tag WHERE tagname='cluster')\n"
+    "     AND blob.rid=tagxref.rid\n"
+    "     AND content(blob.uuid) GLOB ('*M '||blob.uuid||'*');"
+  );
+}
+
+/*
 ** Create the description table if it does not already exists.
 ** Populate fields of this table with descriptions for all artifacts
 ** whose RID matches the SQL expression in zWhere.
@@ -1122,28 +1187,9 @@ void describe_artifacts(const char *zWhere){
    "UPDATE description SET isPrivate=1 WHERE rid IN private"
   );
 
-  /* Try to figure out the origin of unknown artifacts */
-  db_multi_exec(
-    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
-    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
-    "         CASE WHEN plink.isprim THEN '' ELSE 'merge ' END ||\n"
-    "         'parent of check-in', blob.uuid\n"
-    "    FROM description, plink, blob\n"
-    "   WHERE description.summary='unknown'\n"
-    "     AND plink.pid=description.rid\n"
-    "     AND blob.rid=plink.cid;"
-  );
-  db_multi_exec(
-    "REPLACE INTO description(rid,uuid,isPrivate,type,summary,ref)\n"
-    "  SELECT description.rid, description.uuid, isPrivate, type,\n"
-    "         'check-in referenced by \"'||tag.tagname ||'\" tag',\n"
-    "         blob.uuid\n"
-    "    FROM description, tagxref, tag, blob\n"
-    "   WHERE description.summary='unknown'\n"
-    "     AND tagxref.origid=description.rid\n"
-    "     AND tag.tagid=tagxref.tagid\n"
-    "     AND blob.rid=tagxref.srcid;"
-  );
+  if( db_exists("SELECT 1 FROM description WHERE summary='unknown'") ){
+    describe_unknown_artifacts();
+  }
 }
 
 /*
@@ -1334,40 +1380,11 @@ void bloblist_page(void){
 }
 
 /*
-** WEBPAGE: phantoms
-**
-** Show a list of all "phantom" artifacts that are not marked as "private".
-**
-** A "phantom" artifact is an artifact whose hash named appears in some
-** artifact but whose content is unknown.  For example, if a manifest
-** references a particular SHA3 hash of a file, but that SHA3 hash is
-** not on the shunning list and is not in the database, then the file
-** is a phantom.  We know it exists, but we do not know its content.
-**
-** Whenever a sync occurs, both each party looks at its phantom list
-** and for every phantom that is not also marked private, it asks the
-** other party to send it the content.  This mechanism helps keep all
-** repositories synced up.
-**
-** This page is similar to the /bloblist page in that it lists artifacts.
-** But this page is a special case in that it only shows phantoms that
-** are not private.  In other words, this page shows all phantoms that
-** generate extra network traffic on every sync request.
+** Output HTML that shows a table of all public phantoms.
 */
-void phantom_list_page(void){
+void table_of_public_phantoms(void){
   Stmt q;
   char *zRange;
-
-  login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("Public Phantom Artifacts");
-  if( g.perm.Admin ){
-    style_submenu_element("Artifact Log", "rcvfromlist");
-    style_submenu_element("Artifact List", "bloblist");
-  }
-  if( g.perm.Write ){
-    style_submenu_element("Artifact Stats", "artifact_stats");
-  }
   zRange = mprintf("IN (SELECT rid FROM phantom EXCEPT"
                    " SELECT rid FROM private)");
   describe_artifacts(zRange);
@@ -1394,6 +1411,41 @@ void phantom_list_page(void){
   }
   @ </table>
   db_finalize(&q);
+}
+
+/*
+** WEBPAGE: phantoms
+**
+** Show a list of all "phantom" artifacts that are not marked as "private".
+**
+** A "phantom" artifact is an artifact whose hash named appears in some
+** artifact but whose content is unknown.  For example, if a manifest
+** references a particular SHA3 hash of a file, but that SHA3 hash is
+** not on the shunning list and is not in the database, then the file
+** is a phantom.  We know it exists, but we do not know its content.
+**
+** Whenever a sync occurs, both each party looks at its phantom list
+** and for every phantom that is not also marked private, it asks the
+** other party to send it the content.  This mechanism helps keep all
+** repositories synced up.
+**
+** This page is similar to the /bloblist page in that it lists artifacts.
+** But this page is a special case in that it only shows phantoms that
+** are not private.  In other words, this page shows all phantoms that
+** generate extra network traffic on every sync request.
+*/
+void phantom_list_page(void){
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  style_header("Public Phantom Artifacts");
+  if( g.perm.Admin ){
+    style_submenu_element("Artifact Log", "rcvfromlist");
+    style_submenu_element("Artifact List", "bloblist");
+  }
+  if( g.perm.Write ){
+    style_submenu_element("Artifact Stats", "artifact_stats");
+  }
+  table_of_public_phantoms();
   style_footer();
 }
 

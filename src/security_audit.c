@@ -560,18 +560,15 @@ void secaudit0_page(void){
                "SELECT rid FROM phantom EXCEPT SELECT rid FROM private)");
   if( n>0 ){
     @ <li><p>\
-    if( n==1 ){
-      @ There is 1 public phantom artifact
-    }else{
-      @ There are %d(n) public phantom artifacts
-    }
-    @ (<a href="%R/phantoms">details</a>).
+    @ There exists public phantom artifacts in this repository, shown below.
     @ Phantom artifacts are artifacts whose hash name is referenced by some
     @ other artifact but whose content is unknown.  Some phantoms are marked
     @ private and those are ignored.  But public phantoms cause unnecessary
     @ sync traffic and might represent malicious attempts to corrupt the
     @ repository structure.
-    @ </p></li>
+    @ </p>
+    table_of_public_phantoms();
+    @ </li>
   }
 
   @ </ol>
