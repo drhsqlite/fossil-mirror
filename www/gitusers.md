@@ -164,7 +164,7 @@ are welcomed if you want to have a go at it.
 
 ## Cherry-pick Is An Option To The "merge" Command
 
-In Git, "`git cherrypick`" is a separate command.
+In Git, "`git cherry-pick`" is a separate command.
 In Fossil, "`fossil merge --cherrypick`" is an option on the merge
 command.  Otherwise, they work mostly the same.
 
@@ -176,10 +176,14 @@ comment if you want to remember it.
 
 ## The "`fossil mv`" and "`fossil rm`" Commands Do Not Actually Rename Or Delete The Files (by default)
 
-The "`fossil mv`" and "`fossil rm`" commands work like they do in CVS in
+By default,
+the "`fossil mv`" and "`fossil rm`" commands work like they do in CVS in
 that they schedule the changes for the next commit, but do not actually
-rename or delete the files in your check-out.  You have to add the "--hard"
+rename or delete the files in your check-out.  You can to add the "--hard"
 option to also changes the files in your check-out.
+If you run
 
-Yes, this is goofy.  It needs to be changed.  Unfortunately there are
-script compatibility issues to consider.
+         fossil setting --global mv-rm-files 1
+
+it makes a notation in your per-user "~/.fossil" settings file so that
+the "--hard" behavior becomes the new default.
