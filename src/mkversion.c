@@ -65,7 +65,8 @@ int main(int argc, char *argv[]){
           if( isdigit(b[k+13]) ) zDateNum[n++] = b[k+13];
         }
         zDateNum[n] = 0;
-        printf("#define MANIFEST_NUMERIC_TIME %s\n", zDateNum);
+        for(k=0; zDateNum[k]=='0'; k++){}
+        printf("#define MANIFEST_NUMERIC_TIME %s\n", zDateNum+k);
       }
     }
     fclose(m);
