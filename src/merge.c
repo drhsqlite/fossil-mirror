@@ -408,6 +408,13 @@ void merge_cmd(void){
     fossil_warning("ignoring --integrate: %s is not a leaf", g.argv[2]);
     integrateFlag = 0;
   }
+  if( integrateFlag && content_is_private(mid) ){
+    fossil_warning(
+      "ignoring --integrate: %s is on a private branch"
+      "\n Use \"fossil amend --close\" (after commit) to close the leaf.",
+      g.argv[2]);
+    integrateFlag = 0;
+  }
   if( verboseFlag ){
     print_checkin_description(mid, 12,
               integrateFlag ? "integrate:" : "merge-from:");
