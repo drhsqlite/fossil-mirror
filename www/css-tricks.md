@@ -50,7 +50,7 @@ style sheets which do, those cascade following CSS's normal rules.
 By and large, CSS's `!important` qualifier is not needed when
 customzing Fossil's CSS. On occasion, however, particular styles may
 be set directly on DOM elements when Fossil generates its HTML, and
-such cases require the user of `!important` to override them.
+such cases require the use of `!important` to override them.
 
 
 <!-- ============================================================ -->
@@ -105,4 +105,3 @@ div.forumPostBody {
   overflow: auto; /* tells the browser to add scrollbars as needed */
 }
 ```
-

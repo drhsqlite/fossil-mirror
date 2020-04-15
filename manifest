@@ -1,5 +1,5 @@
-C Typo\sfix\sin\sthe\shistory.md\sdocument.
-D 2020-04-14T21:38:19.815
+C Fix\stypo\sin\sthe\s"css-tricks.md"\sdocument.
+D 2020-04-15T11:28:36.062
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -824,7 +824,7 @@ F www/concepts.wiki dd3f4b1f737cba173f8987e27b1eea8c83485727bcf885ce5f2b17837bf0
 F www/contribute.wiki 992fee5fb4e3c586c9dfc6f7538b29d76407f1bfd3ed1306c107b42efda2f412
 F www/copyright-release.html 7ef67c07ace84fd3f4e06fc35c9085c6063da870
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
-F www/css-tricks.md 24acb97189360022b9037e751ddad01c65a41c6a7ad1ee13b0aa374c492fd4f0
+F www/css-tricks.md d7c2d7cea0987972a3d781464629d6b4379a45c4bbe9f4ffda215eac50cac4b8
 F www/custom_ticket.wiki f2e708a7727d66bde2f842ea0fb9789d646172630cbdf7358f348f5216aae5ce
 F www/customgraph.md bb10359329d4e7bd8a1e068944fb7fabe2b61695
 F www/customskin.md 95c71c047bed75bd92ee5358fd7e63c118c3ea0c540882a452bdd9ad14457b40
@@ -977,7 +977,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 941280ae0aa53d1da49de9d20b6f6b3771039c7a6bf355ca97323c8c262a1aaa
-R bbfa6b074bf49a8d61c8f6670d8b6da0
+P 30b0b112b2b7219e17c5cefb71b7922994e4d4556fc18d39f6b30c810cf9b0dd
+R d6a833cfbf8f2b7d200eea659debf5a4
 U drh
-Z b416c47b1d333979ae91a223ab2e7244
+Z d0b8471a490e90a3bfb6c7fc5920bffc
