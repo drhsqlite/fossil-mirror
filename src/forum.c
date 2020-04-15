@@ -61,6 +61,23 @@ struct ForumThread {
 #endif /* INTERFACE */
 
 /*
+** Return true if the forum entry with the given rid has been
+** subsequently edited.
+*/
+int forum_rid_has_been_edited(int rid){
+  static Stmt q;
+  int res;
+  db_static_prepare(&q,
+     "SELECT 1 FROM forumpost A, forumpost B"
+     " WHERE A.fpid=$rid AND B.froot=A.froot AND B.fprev=$rid"
+  );
+  db_bind_int(&q, "$rid", rid);
+  res = db_step(&q)==SQLITE_ROW;
+  db_reset(&q);
+  return res;
+}
+
+/*
 ** Delete a complete ForumThread and all its entries.
 */
 static void forumthread_delete(ForumThread *pThread){
@@ -203,11 +220,40 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
 }
 
 /*
+** List all forum threads to standard output.
+*/
+static void forum_thread_list(void){
+  Stmt q;
+  db_prepare(&q,
+    " SELECT"
+    "  datetime(max(fmtime)),"
+    "  sum(fprev IS NULL),"
+    "  froot"
+    " FROM forumpost"
+    " GROUP BY froot"
+    " ORDER BY 1;"
+  );
+  fossil_print("    id  cnt    most recent post\n");
+  fossil_print("------ ---- -------------------\n");
+  while( db_step(&q)==SQLITE_ROW ){
+    fossil_print("%6d %4d %s\n",
+      db_column_int(&q, 2),
+      db_column_int(&q, 1),
+      db_column_text(&q, 0)
+    );
+  }
+  db_finalize(&q);
+}
+
+/*
 ** COMMAND: test-forumthread
 **
-** Usage: %fossil test-forumthread THREADID
+** Usage: %fossil test-forumthread [THREADID]
 **
-** Display a summary of all messages on a thread.
+** Display a summary of all messages on a thread THREADID.  If the
+** THREADID argument is omitted, then show a list of all threads.
+**
+** This command is intended for testing an analysis only.
 */
 void forumthread_cmd(void){
   int fpid;
@@ -218,6 +264,10 @@ void forumthread_cmd(void){
 
   db_find_and_open_repository(0,0);
   verify_all_options();
+  if( g.argc==2 ){
+    forum_thread_list();
+    return;
+  }
   if( g.argc!=3 ) usage("THREADID");
   zName = g.argv[2];
   fpid = symbolic_name_to_rid(zName, "f");
@@ -261,7 +311,8 @@ void forum_render(
   const char *zTitle,         /* The title.  Might be NULL for no title */
   const char *zMimetype,      /* Mimetype of the message */
   const char *zContent,       /* Content of the message */
-  const char *zClass          /* Put in a <div> if not NULL */
+  const char *zClass,         /* Put in a <div> if not NULL */
+  int bScroll                 /* Large message content scrolls if true */
 ){
   if( zClass ){
     @ <div class='%s(zClass)'>
@@ -275,10 +326,16 @@ void forum_render(
   }
   if( zContent && zContent[0] ){
     Blob x;
+    if( bScroll ){
+      @ <div class='forumPostBody'>
+    }else{
+      @ <div class='forumPostFullBody'>
+    }
     blob_init(&x, 0, 0);
     blob_append(&x, zContent, -1);
     wiki_render_by_mimetype(&x, zMimetype);
     blob_reset(&x);
+    @ </div>
   }else{
     @ <i>Deleted</i>
   }
@@ -306,17 +363,53 @@ static void generateTrustControls(Manifest *pPost){
 }
 
 /*
+** Compute a display name from a login name.
+**
+** If the input login is found in the USER table, then check the USER.INFO
+** field to see if it has display-name followed by an email address.
+** If it does, that becomes the new display name.  If not, let the display
+** name just be the login.
+**
+** Space to hold the returned name is obtained from fossil_strdup() or
+** mprintf() and should be freed by the caller.
+*/
+char *display_name_from_login(const char *zLogin){
+  static Stmt q;
+  char *zResult;
+  db_static_prepare(&q,
+     "SELECT display_name(info) FROM user WHERE login=$login"
+  );
+  db_bind_text(&q, "$login", zLogin);
+  if( db_step(&q)==SQLITE_ROW && db_column_type(&q,0)==SQLITE_TEXT ){
+    const char *zDisplay = db_column_text(&q,0);
+    if( fossil_strcmp(zDisplay,zLogin)==0 ){
+      zResult = fossil_strdup(zLogin);
+    }else{
+      zResult = mprintf("%s (%s)", zDisplay, zLogin);
+    }
+  }else{
+    zResult = fossil_strdup(zLogin);
+  }
+  db_reset(&q);
+  return zResult;
+}
+
+
+/*
 ** Display all posts in a forum thread in chronological order
 */
-static void forum_display_chronological(int froot, int target){
+static void forum_display_chronological(int froot, int target, int bRawMode){
   ForumThread *pThread = forumthread_create(froot, 0);
   ForumEntry *p;
   int notAnon = login_is_individual();
+  char cMode = bRawMode ? 'r' : 'c';
   for(p=pThread->pFirst; p; p=p->pNext){
     char *zDate;
     Manifest *pPost;
     int isPrivate;        /* True for posts awaiting moderation */
     int sameUser;         /* True if author is also the reader */
+    const char *zUuid;
+    char *zDisplayName;   /* The display name */
 
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -331,10 +424,12 @@ static void forum_display_chronological(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
-    @ <p>(%d(p->sid)) By %h(pPost->zUser) on %h(zDate)
+    zDisplayName = display_name_from_login(pPost->zUser);
+    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(zDisplayName) on %h(zDate)
+    fossil_free(zDisplayName);
     fossil_free(zDate);
     if( p->pEdit ){
-      @ edit of %z(href("%R/forumpost/%S?t=c",p->pEdit->zUuid))\
+      @ edit of %z(href("%R/forumpost/%S?t=%c",p->pEdit->zUuid,cMode))\
       @ %d(p->pEdit->sid)</a>
     }
     if( g.perm.Debug ){
@@ -345,23 +440,30 @@ static void forum_display_chronological(int froot, int target){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
       if( pIrt ){
-        @ in reply to %z(href("%R/forumpost/%S?t=c",pIrt->zUuid))\
+        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
         @ %d(pIrt->sid)</a>
       }
     }
+    zUuid = p->zUuid;
     if( p->pLeaf ){
-      @ updated by %z(href("%R/forumpost/%S?t=c",p->pLeaf->zUuid))\
+      @ updated by %z(href("%R/forumpost/%S?t=%c",p->pLeaf->zUuid,cMode))\
       @ %d(p->pLeaf->sid)</a>
+      zUuid = p->pLeaf->zUuid;
     }
     if( p->fpid!=target ){
-      @ %z(href("%R/forumpost/%S?t=c",p->zUuid))[link]</a>
+      @ %z(href("%R/forumpost/%S?t=%c",zUuid,cMode))[link]</a>
+    }
+    if( !bRawMode ){
+      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     }
     isPrivate = content_is_private(p->fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+    @ </h3>
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
-      forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki,
+                   0, 1);
     }
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
@@ -423,6 +525,7 @@ static int forum_display_hierarchical(int froot, int target){
   for(p=pThread->pDisplay; p; p=p->pDisplay){
     int isPrivate;         /* True for posts awaiting moderation */
     int sameUser;          /* True if reader is also the poster */
+    char *zDisplayName;    /* User name to be displayed */
     pOPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( p->pLeaf ){
       fpid = p->pLeaf->fpid;
@@ -446,7 +549,10 @@ static int forum_display_hierarchical(int froot, int target){
       @ <h1>%h(pPost->zThreadTitle)</h1>
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
-    @ <p>(%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(pOPost->zUser) on %h(zDate)
+    zDisplayName = display_name_from_login(pOPost->zUser);
+    @ <h3 class='forumPostHdr'>\
+    @ (%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(zDisplayName) on %h(zDate)
+    fossil_free(zDisplayName);
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
@@ -469,6 +575,7 @@ static int forum_display_hierarchical(int froot, int target){
     if( fpid!=target ){
       @ %z(href("%R/forumpost/%S",zUuid))[link]</a>
     }
+    @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
       while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
@@ -477,12 +584,13 @@ static int forum_display_hierarchical(int froot, int target){
         @ %d(pIrt->sid)</a>
       }
     }
+    @ </h3>
     isPrivate = content_is_private(fpid);
     sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
-      forum_render(0, pPost->zMimetype, pPost->zWiki, 0);
+      forum_render(0, pPost->zMimetype, pPost->zWiki, 0, 1);
     }
     if( g.perm.WrForum ){
       @ <p><form action="%R/forumedit" method="POST">
@@ -526,11 +634,36 @@ static int forum_display_hierarchical(int froot, int target){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of the post to display
-**   t=MODE        Display mode. MODE is 'c' for chronological or
-**                   'h' for hierarchical, or 'a' for automatic.
+**   t=MODE        Display mode.
+**                   'c' for chronological
+**                   'h' for hierarchical
+**                   'a' for automatic
+**                   'r' for raw
+**   raw           If present, show only the post specified and
+**                 show its original unformatted source text.
 */
 void forumpost_page(void){
   forumthread_page();
+}
+
+/*
+** Add an appropriate style_header() to include title of the
+** given forum post.
+*/
+static int forumthread_page_header(int froot, int fpid){
+  char *zThreadTitle = 0;
+
+  zThreadTitle = db_text("",
+    "SELECT"
+    " substr(event.comment,instr(event.comment,':')+2)"
+    " FROM forumpost, event"
+    " WHERE event.objid=forumpost.fpid"
+    "   AND forumpost.fpid=%d;",
+    fpid
+  );
+  style_header("%s%s", zThreadTitle, zThreadTitle[0] ? "" : "Forum");
+  fossil_free(zThreadTitle);
+  return 0;
 }
 
 /*
@@ -543,14 +676,18 @@ void forumpost_page(void){
 ** Query parameters:
 **
 **   name=X        REQUIRED.  The hash of any post of the thread.
-**   t=MODE        Display mode. MODE is 'c' for chronological or
-**                   'h' for hierarchical, or 'a' for automatic.
+**   t=MODE        Display mode. MODE is...
+**                   'c' for chronological, or
+**                   'h' for hierarchical, or
+**                   'a' for automatic, or
+**                   'r' for raw.
 */
 void forumthread_page(void){
   int fpid;
   int froot;
   const char *zName = P("name");
   const char *zMode = PD("t","a");
+  int bRaw = PB("raw");
   login_check_credentials();
   if( !g.perm.RdForum ){
     login_needed(g.anon.RdForum);
@@ -563,7 +700,6 @@ void forumthread_page(void){
   if( fpid<=0 ){
     webpage_error("Unknown or ambiguous forum id: \"%s\"", zName);
   }
-  style_header("Forum");
   froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
   if( froot==0 ){
     webpage_error("Not a forum post: \"%s\"", zName);
@@ -576,11 +712,34 @@ void forumthread_page(void){
       zMode = "h";
     }
   }
-  if( zMode[0]=='c' ){
+  forumthread_page_header(froot, fpid);
+  if( bRaw && fpid ){
+    Manifest *pPost;
+    pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
+    if( pPost==0 ){
+      @ <p>No such forum post: %h(zName)
+    }else{
+      int isPrivate = content_is_private(fpid);
+      int notAnon = login_is_individual();
+      int sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+      if( isPrivate && !g.perm.ModForum && !sameUser ){
+        @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+      }else{
+        forum_render(0, "text/plain", pPost->zWiki, 0, 0);
+      }
+      manifest_destroy(pPost);
+    }
+  }else if( zMode[0]=='c' ){
     style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
-    forum_display_chronological(froot, fpid);
+    style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
+    forum_display_chronological(froot, fpid, 0);
+  }else if( zMode[0]=='r' ){
+    style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
+    style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
+    forum_display_chronological(froot, fpid, 1);
   }else{
     style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
+    style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
     forum_display_hierarchical(froot, fpid);
   }
   style_load_js("forum.js");
@@ -701,7 +860,8 @@ static void forum_entry_widget(
   const char *zContent
 ){
   if( zTitle ){
-    @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"><br>
+    @ Title: <input type="input" name="title" value="%h(zTitle)" size="50"
+    @ maxlength="125"><br>
   }
   @ %z(href("%R/markup_help"))Markup style</a>:
   mimetype_option_menu(zMimetype);
@@ -792,12 +952,12 @@ void forumnew_page(void){
     login_needed(g.anon.WrForum);
     return;
   }
-  if( P("submit") ){
+  if( P("submit") && cgi_csrf_safe(1) ){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
   }
   if( P("preview") ){
     @ <h1>Preview:</h1>
-    forum_render(zTitle, zMimetype, zContent, "forumEdit");
+    forum_render(zTitle, zMimetype, zContent, "forumEdit", 1);
   }
   style_header("New Forum Thread");
   @ <form action="%R/forume1" method="POST">
@@ -835,10 +995,13 @@ void forumnew_page(void){
 */
 void forumedit_page(void){
   int fpid;
+  int froot;
   Manifest *pPost = 0;
+  Manifest *pRootPost = 0;
   const char *zMimetype = 0;
   const char *zContent = 0;
   const char *zTitle = 0;
+  char *zDate = 0;
   int isCsrfSafe;
   int isDelete = 0;
 
@@ -851,6 +1014,10 @@ void forumedit_page(void){
   if( fpid<=0 || (pPost = manifest_get(fpid, CFTYPE_FORUM, 0))==0 ){
     webpage_error("Missing or invalid fpid query parameter");
   }
+  froot = db_int(0, "SELECT froot FROM forumpost WHERE fpid=%d", fpid);
+  if( froot==0 || (pRootPost = manifest_get(froot, CFTYPE_FORUM, 0))==0 ){
+    webpage_error("fpid does not appear to be a forum post: \"%d\"", fpid);
+  }
   if( P("cancel") ){
     cgi_redirectf("%R/forumpost/%S",P("fpid"));
     return;
@@ -859,7 +1026,7 @@ void forumedit_page(void){
   if( g.perm.ModForum && isCsrfSafe ){
     if( P("approve") ){
       const char *zUserToTrust;
-      moderation_approve(fpid);
+      moderation_approve('f', fpid);
       if( g.perm.AdminForum
        && PB("trust")
        && (zUserToTrust = P("trustuser"))!=0
@@ -908,9 +1075,9 @@ void forumedit_page(void){
     style_header("Delete %s", zTitle ? "Post" : "Reply");
     @ <h1>Original Post:</h1>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
-                 "forumEdit");
+                 "forumEdit", 1);
     @ <h1>Change Into:</h1>
-    forum_render(zTitle, zMimetype, zContent,"forumEdit");
+    forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="nullout" value="1">
@@ -930,14 +1097,14 @@ void forumedit_page(void){
       zTitle = fossil_strdup(pPost->zThreadTitle);
     }
     style_header("Edit %s", zTitle ? "Post" : "Reply");
-    @ <h1>Original Post:</h1>
+    @ <h2>Original Post:</h2>
     forum_render(pPost->zThreadTitle, pPost->zMimetype, pPost->zWiki,
-                 "forumEdit");
+                 "forumEdit", 1);
     if( P("preview") ){
-      @ <h1>Preview of Edited Post:</h1>
-      forum_render(zTitle, zMimetype, zContent,"forumEdit");
+      @ <h2>Preview of Edited Post:</h2>
+      forum_render(zTitle, zMimetype, zContent,"forumEdit", 1);
     }
-    @ <h1>Revised Message:</h1>
+    @ <h2>Revised Message:</h2>
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="edit" value="1">
@@ -945,16 +1112,25 @@ void forumedit_page(void){
     forum_entry_widget(zTitle, zMimetype, zContent);
   }else{
     /* Reply */
+    char *zDisplayName;
     zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     zContent = PDT("content","");
     style_header("Reply");
-    @ <h1>Replying To:</h1>
-    forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit");
-    if( P("preview") ){
-      @ <h1>Preview:</h1>
-      forum_render(0, zMimetype,zContent, "forumEdit");
+    if( pRootPost->zThreadTitle ){
+      @ <h1>Thread: %h(pRootPost->zThreadTitle)</h1>
     }
-    @ <h1>Enter Reply:</h1>
+    @ <h2>Replying To:</h2>
+    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+    zDisplayName = display_name_from_login(pPost->zUser);
+    @ <h3 class='forumPostHdr'>By %h(zDisplayName) on %h(zDate)</h3>
+    fossil_free(zDisplayName);
+    fossil_free(zDate);
+    forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);
+    if( P("preview") ){
+      @ <h2>Preview:</h2>
+      forum_render(0, zMimetype,zContent, "forumEdit", 1);
+    }
+    @ <h2>Enter Reply:</h2>
     @ <form action="%R/forume2" method="POST">
     @ <input type="hidden" name="fpid" value="%h(P("fpid"))">
     @ <input type="hidden" name="reply" value="1">
@@ -984,6 +1160,7 @@ void forumedit_page(void){
 }
 
 /*
+** WEBPAGE: forummain
 ** WEBPAGE: forum
 **
 ** The main page for the forum feature.  Show a list of recent forum

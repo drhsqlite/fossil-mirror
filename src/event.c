@@ -359,6 +359,10 @@ int event_commit_common(
 **    mimetype=TEXT     Mimetype for w= text
 **    newclr            Use a background color
 **    clr=TEXT          Background color to use if newclr
+**
+** For GET requests, when editing an existing technote newclr and clr
+** are implied if a custom color has been set on the previous version
+** of the technote.
 */
 void eventedit_page(void){
   char *zTag;
@@ -416,6 +420,15 @@ void eventedit_page(void){
   /* Figure out the color */
   if( rid ){
     zClr = db_text("", "SELECT bgcolor FROM event WHERE objid=%d", rid);
+    if( zClr && zClr[0] ){
+      const char * zRequestMethod = P("REQUEST_METHOD");
+      if(zRequestMethod && 'G'==zRequestMethod[0]){
+        /* Apply saved color by defaut for GET requests
+        ** (e.g., an Edit menu link).
+        */
+        zClrFlag = " checked";
+      }
+    }
   }else{
     zClr = "";
     isNew = 1;

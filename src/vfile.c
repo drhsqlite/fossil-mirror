@@ -1061,7 +1061,7 @@ void vfile_rid_renumbering_event(int dryRun){
      "  UNION SELECT %d"
      ")"
      "SELECT group_concat(x,' ') FROM allrid"
-     " WHERE x NOT IN (SELECT oldrid FROM idMap);",
+     " WHERE x<>0 AND x NOT IN (SELECT oldrid FROM idMap);",
      oldVid
   );
   if( zUnresolved[0] ){

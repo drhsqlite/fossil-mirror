@@ -21,7 +21,6 @@ set doclist {
   build.wiki {Compiling and Installing Fossil}
   caps/ {Administering User Capabilities}
   caps/admin-v-setup.md {Differences Between Setup and Admin Users}
-  caps/login-groups.md {Differences Between Setup and Admin Users}
   caps/ref.html {User Capability Reference}
   cgi.wiki {CGI Script Configuration Options}
   changes.wiki {Fossil Changelog}
@@ -31,6 +30,7 @@ set doclist {
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
+  css-tricks.md {Fossil CSS Tips and Tricks}
   customgraph.md {Theming: Customizing the Timeline Graph}
   customskin.md {Theming: Customizing The Appearance of Web Pages}
   customskin.md {Custom Skins}
@@ -51,14 +51,18 @@ set doclist {
   fossil_prompt.wiki {Fossilized Bash Prompt}
   fossil-v-git.wiki {Fossil Versus Git}
   globs.md {File Name Glob Patterns}
+  gitusers.md {Hints For Users With Git Experience}
   grep.md {Fossil grep vs POSIX grep}
   hacker-howto.wiki {Hacker How-To}
+  hacker-howto.wiki {Fossil Developers Guide}
   hashpolicy.wiki {Hash Policy: Choosing Between SHA1 and SHA3-256}
   /help {Lists of Commands and Webpages}
   hints.wiki {Fossil Tips And Usage Hints}
+  history.md {The Purpose And History Of Fossil}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   image-format-vs-repo-size.md {Image Format vs Fossil Repo Size}
+  javascript.md {Use of JavaScript in Fossil}
   makefile.wiki {The Fossil Build Process}
   mirrorlimitations.md {Limitations On Git Mirrors}
   mirrortogithub.md {How To Mirror A Fossil Repository On GitHub}
@@ -72,6 +76,7 @@ set doclist {
   quotes.wiki
       {Quotes: What People Are Saying About Fossil, Git, and DVCSes in General}
   ../test/release-checklist.wiki {Pre-Release Testing Checklist}
+  rebaseharm.md {Rebase Considered Harmful}
   reviews.wiki {Reviews}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
@@ -134,13 +139,14 @@ puts $out {
 <h2>Primary Documents:</h2>
 <ul>
 <li> <a href='quickstart.wiki'>Quick-start Guide</a>
-<li> <a href='faq.wiki'>FAQ</a>
+<li> <a href='history.md'>Purpose and History of Fossil</a>
 <li> <a href='build.wiki'>Compiling and installing Fossil</a>
 <li> <a href='../COPYRIGHT-BSD2.txt'>License</a>
+<li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
+<li> <a href='userlinks.wiki'>Miscellaneous Docs for Fossil Users</a>
+<li> <a href='hacker-howto.wiki'>Fossil Developer's Guide</a>
 <li> <a href='http://www.fossil-scm.org/schimpf-book/home'>Jim Schimpf's
 book</a>
-<li> <a href='$ROOT/help'>List of commands, web-pages, and settings</a>
-<li> <a href='hacker-howto.wiki'>Hacker How-To</a>
 </ul>
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>

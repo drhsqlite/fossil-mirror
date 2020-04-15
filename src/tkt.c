@@ -366,7 +366,7 @@ int ticket_change(const char *zUuid){
 ** Recreate the TICKET and TICKETCHNG tables.
 */
 void ticket_create_table(int separateConnection){
-  const char *zSql;
+  char *zSql;
 
   db_multi_exec(
     "DROP TABLE IF EXISTS ticket;"
@@ -379,6 +379,7 @@ void ticket_create_table(int separateConnection){
   }else{
     db_multi_exec("%s", zSql/*safe-for-%s*/);
   }
+  fossil_free(zSql);
 }
 
 /*
@@ -446,14 +447,18 @@ static void showAllFields(void){
 
 /*
 ** WEBPAGE: tktview
-** URL:  tktview?name=UUID
+** URL:  tktview?name=HASH
 **
 ** View a ticket identified by the name= query parameter.
+** Other query parameters:
+**
+**      tl               Show a timeline of the ticket above the status
 */
 void tktview_page(void){
   const char *zScript;
   char *zFullName;
   const char *zUuid = PD("name","");
+  int showTimeline = P("tl")!=0;
 
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(g.anon.RdTkt); return; }
@@ -462,7 +467,6 @@ void tktview_page(void){
   }
   if( g.perm.Hyperlink ){
     style_submenu_element("History", "%s/tkthistory/%T", g.zTop, zUuid);
-    style_submenu_element("Timeline", "%s/tkttimeline/%T", g.zTop, zUuid);
     style_submenu_element("Check-ins", "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
   if( g.anon.NewTkt ){
@@ -478,6 +482,19 @@ void tktview_page(void){
     style_submenu_element("Plaintext", "%R/tktview/%s?plaintext", zUuid);
   }
   style_header("View Ticket");
+  if( showTimeline ){
+    int tagid = db_int(0,"SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
+                       zUuid);
+    if( tagid ){
+      tkt_draw_timeline(tagid, "a");
+      @ <hr>
+    }else{
+      showTimeline = 0;
+    }
+  }
+  if( !showTimeline && g.perm.Hyperlink ){
+    style_submenu_element("Timeline", "%s/info/%T", g.zTop, zUuid);
+  }
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
@@ -828,17 +845,53 @@ char *ticket_schema_check(const char *zSchema){
 }
 
 /*
+** Draw a timeline for a ticket with tag.tagid given by the tagid
+** parameter.
+*/
+void tkt_draw_timeline(int tagid, const char *zType){
+  Stmt q;
+  char *zFullUuid;
+  char *zSQL;
+  zFullUuid = db_text(0, "SELECT substr(tagname, 5) FROM tag WHERE tagid=%d",
+                         tagid);
+  if( zType[0]=='c' ){
+    zSQL = mprintf(
+         "%s AND event.objid IN "
+         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                         "AND '%s' GLOB (target||'*')) "
+         "ORDER BY mtime DESC",
+         timeline_query_for_www(), zFullUuid, zFullUuid
+    );
+  }else{
+    zSQL = mprintf(
+         "%s AND event.objid IN "
+         "  (SELECT rid FROM tagxref WHERE tagid=%d"
+         "   UNION SELECT srcid FROM backlink"
+                  " WHERE target GLOB '%.4s*'"
+                  "   AND '%s' GLOB (target||'*')"
+         "   UNION SELECT attachid FROM attachment"
+                  " WHERE target=%Q) "
+         "ORDER BY mtime DESC",
+         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
+    );
+  }
+  db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
+  www_print_timeline(&q,
+    TIMELINE_ARTID | TIMELINE_DISJOINT | TIMELINE_GRAPH | TIMELINE_NOTKT,
+    0, 0, 0, 0, 0, 0);
+  db_finalize(&q);
+  fossil_free(zFullUuid);
+}
+
+/*
 ** WEBPAGE: tkttimeline
 ** URL: /tkttimeline?name=TICKETUUID&y=TYPE
 **
 ** Show the change history for a single ticket in timeline format.
 */
 void tkttimeline_page(void){
-  Stmt q;
   char *zTitle;
-  char *zSQL;
   const char *zUuid;
-  char *zFullUuid;
   int tagid;
   char zGlobPattern[50];
   const char *zType;
@@ -873,33 +926,7 @@ void tkttimeline_page(void){
     style_footer();
     return;
   }
-  zFullUuid = db_text(0, "SELECT substr(tagname, 5) FROM tag WHERE tagid=%d",
-                         tagid);
-  if( zType[0]=='c' ){
-    zSQL = mprintf(
-         "%s AND event.objid IN "
-         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
-                                         "AND '%s' GLOB (target||'*')) "
-         "ORDER BY mtime DESC",
-         timeline_query_for_www(), zFullUuid, zFullUuid
-    );
-  }else{
-    zSQL = mprintf(
-         "%s AND event.objid IN "
-         "  (SELECT rid FROM tagxref WHERE tagid=%d"
-         "   UNION SELECT srcid FROM backlink"
-                  " WHERE target GLOB '%.4s*'"
-                  "   AND '%s' GLOB (target||'*')"
-         "   UNION SELECT attachid FROM attachment"
-                  " WHERE target=%Q) "
-         "ORDER BY mtime DESC",
-         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
-    );
-  }
-  db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
-  www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
-                     0, 0, 0, 0, 0, 0);
-  db_finalize(&q);
+  tkt_draw_timeline(tagid, zType);
   style_footer();
 }
 
@@ -907,7 +934,14 @@ void tkttimeline_page(void){
 ** WEBPAGE: tkthistory
 ** URL: /tkthistory?name=TICKETUUID
 **
-** Show the complete change history for a single ticket
+** Show the complete change history for a single ticket.  Or (to put it
+** another way) show a list of artifacts associated with a single ticket.
+**
+** By default, the artifacts are decoded and formatted.  Text fields
+** are formatted as text/plain, since in the general case Fossil does
+** not have knowledge of the encoding.  If the "raw" query parameter
+** is present, then the* undecoded and unformatted text of each artifact
+** is displayed.
 */
 void tkthistory_page(void){
   Stmt q;
@@ -927,10 +961,10 @@ void tkthistory_page(void){
   style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
     g.zTop, zUuid);
   style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
-  if( P("plaintext")!=0 ){
-    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
-  }else{
-    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
+  if( P("raw")!=0 ){
+    style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);
+  }else if( g.perm.Admin ){
+    style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
   }
   style_header("%z", zTitle);
 
@@ -939,6 +973,11 @@ void tkthistory_page(void){
     @ No such ticket: %h(zUuid)
     style_footer();
     return;
+  }
+  if( P("raw")!=0 ){
+    @ <h2>Raw Artifacts Associated With Ticket %h(zUuid)</h2>
+  }else{
+    @ <h2>Artifacts Associated With Ticket %h(zUuid)</h2>
   }
   db_prepare(&q,
     "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
@@ -953,7 +992,7 @@ void tkthistory_page(void){
     " ORDER BY 1",
     tagid, tagid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  for(nChng=0; db_step(&q)==SQLITE_ROW; nChng++){
     Manifest *pTicket;
     const char *zDate = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
@@ -962,7 +1001,6 @@ void tkthistory_page(void){
     if( nChng==0 ){
       @ <ol>
     }
-    nChng++;
     if( zFile!=0 ){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
@@ -988,7 +1026,16 @@ void tkthistory_page(void){
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
         @ </p>
-        ticket_output_change_artifact(pTicket, "a");
+        if( P("raw")!=0 ){
+          Blob c;
+          content_get(rid, &c);
+          @ <blockquote><pre>
+          @ %h(blob_str(&c))
+          @ </pre></blockquote>
+          blob_reset(&c);
+        }else{
+          ticket_output_change_artifact(pTicket, "a", nChng);
+        }
       }
       manifest_destroy(pTicket);
     }
@@ -1016,33 +1063,41 @@ static int contains_newline(Blob *p){
 ** The pTkt object is a ticket change artifact.  Output a detailed
 ** description of this object.
 */
-void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
+void ticket_output_change_artifact(
+  Manifest *pTkt,           /* Parsed artifact for the ticket change */
+  const char *zListType,    /* Which type of list */
+  int n                     /* Which ticket change is this */
+){
   int i;
-  int wikiFlags = WIKI_NOBADLINKS;
-  const char *zBlock = "<blockquote>";
-  const char *zEnd = "</blockquote>";
-  if( P("plaintext")!=0 ){
-    wikiFlags |= WIKI_LINKSONLY;
-    zBlock = "<blockquote><pre class='verbatim'>";
-    zEnd = "</pre></blockquote>";
-  }
   if( zListType==0 ) zListType = "1";
+  getAllTicketFields();
   @ <ol type="%s(zListType)">
   for(i=0; i<pTkt->nField; i++){
     Blob val;
-    const char *z;
+    const char *z, *zX;
+    int id;
     z = pTkt->aField[i].zName;
     blob_set(&val, pTkt->aField[i].zValue);
-    if( z[0]=='+' ){
-      @ <li>Appended to %h(&z[1]):%s(zBlock)
-      wiki_convert(&val, 0, wikiFlags);
-      @ %s(zEnd)</li>
-    }else if( blob_size(&val)>50 || contains_newline(&val) ){
-      @ <li>Change %h(z) to:%s(zBlock)
-      wiki_convert(&val, 0, wikiFlags);
-      @ %s(zEnd)</li>
+    zX = z[0]=='+' ? z+1 : z;
+    id = fieldId(zX);
+    @ <li>\
+    if( id<0 ){
+      @ Untracked field %h(zX):
+    }else if( aField[id].mUsed==USEDBY_TICKETCHNG ){
+      @ %h(zX):
+    }else if( n==0 ){
+      @ %h(zX) initialized to:
+    }else if( z[0]=='+' && (aField[id].mUsed&USEDBY_TICKET)!=0 ){
+      @ Appended to %h(zX):
     }else{
-      @ <li>Change %h(z) to "%h(blob_str(&val))"</li>
+      @ %h(zX) changed to:
+    }
+    if( blob_size(&val)>50 || contains_newline(&val) ){
+      @ <blockquote><pre class='verbatim'>
+      @ %h(blob_str(&val))
+      @ </pre></blockquote></li>
+    }else{
+      @ "%h(blob_str(&val))"</li>
     }
     blob_reset(&val);
   }

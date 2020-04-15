@@ -70,8 +70,8 @@ fossil clone --private http://user@linux.localnetwork:8080/ mac-clone.fossil
 You'll have to supply a username and password in order for this to work.
 Fossil will not clone (or sync) private branches anonymously.
 
-Only users with the Admin ("a") and Setup ("s") capabilities can do
-private branch syncing by default. You will have to give any other user
+By default, there are no users that can do private branch syncing.  You
+will have to give a user
 the "Private" capability ("x") if you want them to be able to do this.
 We deny such capability for normal users by default to add a barrier to
 accidental syncing of a private branch to a public server. It is highly recommended that

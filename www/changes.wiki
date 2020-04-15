@@ -1,7 +1,57 @@
-﻿<title>Change Log</title>
+<title>Change Log</title>
+
+<a name='v2_11'></a>
+<h2>Changes for Version 2.11 (pending)</h2>
+
+  *  Support Markdown in the default ticket configuration.
+  *  Rework the "[/help?cmd=grep|fossil grep]" command to be more useful.
+  *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
+     setting to the [/help?cmd=settings|settings] command.
+  *  Improve support for CGI on IIS web servers.
+  *  The [/help?cmd=/ext|/ext page] can now render index files,
+     in the same way as the embedded docs.
+  *  Most commands now support the Unix-conventional "<tt>--</tt>"
+     flag to treat all following arguments as filenames
+     instead of flags.
+  *  Added the [/help?cmd=mimetypes|mimetypes config setting]
+     (versionable) to enable mimetype overrides and custom definitions.
+  *  Add an option on the /Admin/Timeline setup page to set a default
+     timeline style other than "Modern".
+  *  In [./embeddeddoc.wiki|embedded documentation], hyperlink URLs
+     of the form "/doc/$CURRENT/..." the "$CURRENT" text is translated
+     into the check-in hash for the document currently being viewed.
+  *  Security: Fossil now assumes that the schema of every
+     database it opens has been tampered with by an adversary and takes
+     extra precautions to ensure that such tampering is harmless.
+  *  Security: Fossil now puts the Content-Security-Policy in the
+     HTTP reply header, in addition to also leaving it in the
+     HTML &lt;head&gt; section, so that it is always available, if
+     if a custom skin overrides the HTML &lt;head&gt; and omits
+     the CSP in the process.
+  *  The Content-Security-Policy is now set using the
+     [/help?cmd=default-csp|default-csp setting].
+  *  Merge conflicts caused via the [/help?cmd=merge|merge] and
+     [/help?cmd=update|update] commands no longer leave temporary
+     files behind unless the new <tt>--keep-merge-files</tt> flag
+     is used.
+  *  The [/help?cmd=/artifact_stats|/artifact_stats page] is now accessible
+     to all users if the new "artifact_stats_enable" setting is turned
+     on.  There is a new checkbox under the /Admin/Access menu to turn
+     that capability on and off.
+  *  Captchas all include a button to read the captcha using an audio
+     file, so that they can be completed by the visually impaired.
+  *  Bug fix: the "fossil git export" command is now working on Windows
+  *  Bug fix: display Technote items on the timeline correctly
+  *  Bug fix: fix the capability summary matrix of the Security Audit
+     page so that it does not add "anonymous" capabilities to the
+     "nobody" user.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 12.1 to 13.
+  *  Many documentation enhancements.
+  *  Several minor enhancements to existing features.
 
 <a name='v2_10'></a>
-<h2>Changes for Version 2.10 (pending)</h2>
+<h2>Changes for Version 2.10 (2019-10-04)</h2>
 
   *  Added support for [./serverext.wiki|CGI-based Server Extensions].
   *  Added the [/help?cmd=repolist-skin|repolist-skin] setting used to
@@ -12,13 +62,28 @@
      a forum thread.
   *  Add support for fenced code blocks and improved hyperlink
      processing to the [/md_rules|markdown formatter].
+  *  Add support for hyperlinks to wiki pages in the
+     [/md_rules|markdown formatter].
   *  Enhance the [/help?cmd=/stat|/stat] page so that it gives the
      option to show a breakdown of forum posts.
+  *  The special check-in name "merge-in:BRANCH" means the source of
+     the most recent merge-in from the parent branch of BRANCH.
+  *  Add hyperlinks to branch-diffs on the /info page and from
+     timelines of a branch.
+  *  Add graphical context on the [/help?cmd=/vdiff|/vdiff] page.
+  *  Uppercase query parameters, POST parameters, and cookie names are
+     converted to all lowercase and entered into the parameter set,
+     instead of being discarded.
   *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
-  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
-     some other value set by the 
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or
+     some other value set by the
      [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
-  *  Documentation improvements
+  *  The check-in lock interval is reduced from 24 hours to 60 seconds,
+     though the interval is now configurable using a setting.
+     An additional check for conflicts is added after interactive
+     check-in comment entry, to compensate for the reduced lock interval.
+  *  Performance optimizations.
+  *  Many documentation improvements.
 
 <a name='v2_9'></a>
 <h2>Changes for Version 2.9 (2019-07-13)</h2>

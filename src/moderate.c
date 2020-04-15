@@ -149,7 +149,7 @@ void moderation_disapprove(int objid){
 /*
 ** Approve an object held for moderation.
 */
-void moderation_approve(int rid){
+void moderation_approve(char class, int rid){
   if( !moderation_pending(rid) ) return;
   db_begin_transaction();
   db_multi_exec(
@@ -159,7 +159,8 @@ void moderation_approve(int rid){
     rid, rid, rid
   );
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
-  admin_log("Approved moderation of rid %d.", rid);
+  admin_log("Approved moderation of rid %c-%d.", class, rid);
+  if( class!='a' ) search_doc_touch(class, rid, 0);
   db_end_transaction(0);
 }
 

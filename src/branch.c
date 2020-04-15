@@ -42,7 +42,7 @@ char *branch_of_rid(int rid){
   db_reset(&q);
   if( zBr==0 ){
     static char *zMain = 0;
-    if( zMain==0 ) zMain = db_get("main-branch","trunk");
+    if( zMain==0 ) zMain = db_get("main-branch",0);
     zBr = fossil_strdup(zMain);
   }
   return zBr;
@@ -246,7 +246,7 @@ static const char createBrlistQuery[] =
 
 /* Call this routine to create the TEMP table */
 static void brlist_create_temp_table(void){
-  db_multi_exec(createBrlistQuery/*works-like:""*/);
+  db_exec_sql(createBrlistQuery);
 }
 
 

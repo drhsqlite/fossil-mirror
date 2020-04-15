@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 static FILE *open_for_reading(const char *zFilename){
   FILE *f = fopen(zFilename, "r");
@@ -48,10 +49,25 @@ int main(int argc, char *argv[]){
     printf("#define MANIFEST_VERSION \"[%10.10s]\"\n",b);
     m = open_for_reading(argv[2]);
     while(b ==  fgets(b, sizeof(b)-1,m)){
-        if(0 == strncmp("D ",b,2)){
-            printf("#define MANIFEST_DATE \"%.10s %.8s\"\n",b+2,b+13);
-            printf("#define MANIFEST_YEAR \"%.4s\"\n",b+2);
+      if(0 == strncmp("D ",b,2)){
+        int k, n;
+        char zDateNum[30];
+        printf("#define MANIFEST_DATE \"%.10s %.8s\"\n",b+2,b+13);
+        printf("#define MANIFEST_YEAR \"%.4s\"\n",b+2);
+        n = 0;
+        for(k=0; k<10; k++){
+          if( isdigit(b[k+2]) ) zDateNum[n++] = b[k+2];
         }
+        zDateNum[n] = 0;
+        printf("#define MANIFEST_NUMERIC_DATE %s\n", zDateNum);
+        n = 0;
+        for(k=0; k<8; k++){
+          if( isdigit(b[k+13]) ) zDateNum[n++] = b[k+13];
+        }
+        zDateNum[n] = 0;
+        for(k=0; zDateNum[k]=='0'; k++){}
+        printf("#define MANIFEST_NUMERIC_TIME %s\n", zDateNum+k);
+      }
     }
     fclose(m);
     v = open_for_reading(argv[3]);

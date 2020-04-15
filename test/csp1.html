@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Title: Content Security Policy Test</title>
+</head>
+<body>
+<h1>Content Security Policy Test</h1>
+
+<p>If the content-security-policy is ineffective, a pop-up dialog
+box will appears.  If there is no dialog box, then CSP is working
+correctly.</p>
+
+<script>alert('Content Security Policy is ineffective');</script>
+<img src='/' onerror='alert("CSP is ineffective")'>
+
+<p>As a double-check, open the Developer Console in your web-browser
+and verify that two CSP violations were detected and blocked.</p>
+</body>

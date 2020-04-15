@@ -67,10 +67,3 @@ when the file was committed</p>
 <p>fossil revert myfile.c</p>
 <p>Fossil does not prompt when reverting a file. It simply reminds the user about the
 "undo" command, just in case the revert was a mistake.</p>
-
-
-<h2>Close the repository</h2>
-<p>fossil close</p>
-<p>This will simply remove the _FOSSIL_ at the root of the work directory but
-will not delete the files in the work directory. From then on, any use of &quot;fossil&quot;
-will trigger an error since there is no longer any connection.</p>

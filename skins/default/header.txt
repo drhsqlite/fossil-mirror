@@ -2,7 +2,7 @@
   <div class="title"><h1>$<project_name></h1>$<title></div>
     <div class="status"><th1>
  if {[info exists login]} {
-   html "$login — <a href='$home/login'>Logout</a>\n"
+   html "<a href='$home/login'>$login</a>\n"
  } else {
    html "<a href='$home/login'>Login</a>\n"
  }
@@ -19,7 +19,7 @@ proc menulink {url name cls} {
     html "<a href='$home$url' class='$cls'>$name</a>\n"
   }
 }
-html "<a id='hbbtn' href='/sitemap'>&#9776;</a>"
+html "<a id='hbbtn' href='$home/sitemap'>&#9776;</a>"
 menulink $index_page Home {}
 if {[anycap jor]} {
   menulink /timeline Timeline {}

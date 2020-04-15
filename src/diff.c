@@ -62,9 +62,9 @@
     "whitespace changes only\n"
 
 /*
-** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
+** Maximum length of a line in a text file, in bytes.  (2**15 = 32768 bytes)
 */
-#define LENGTH_MASK_SZ  13
+#define LENGTH_MASK_SZ  15
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
 #endif /* INTERFACE */
@@ -78,16 +78,16 @@
 */
 typedef struct DLine DLine;
 struct DLine {
-  const char *z;        /* The text of the line */
-  unsigned int h;       /* Hash of the line */
+  const char *z;          /* The text of the line */
+  u64 h;                  /* Hash of the line */
   unsigned short indent;  /* Indent of the line. Only !=0 with -w/-Z option */
-  unsigned short n;     /* number of bytes */
-  unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
+  unsigned short n;       /* number of bytes */
+  unsigned int iNext;     /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements serves two purposes.  The fields
   ** above are one per line of input text.  But each entry is also
   ** a bucket in a hash table, as follows: */
-  unsigned int iHash;   /* 1+(first entry in the hash chain) */
+  unsigned int iHash;     /* 1+(first entry in the hash chain) */
 };
 
 /*
@@ -117,7 +117,7 @@ struct DContext {
   int nFrom;         /* Number of lines in aFrom[] */
   DLine *aTo;        /* File on right side of the diff */
   int nTo;           /* Number of lines in aTo[] */
-  int (*same_fn)(const DLine*,const DLine*); /* comparison function */
+  int (*xDiffer)(const DLine*,const DLine*); /* comparison function */
 };
 
 /*
@@ -166,7 +166,7 @@ static DLine *break_into_lines(
   u64 diffFlags
 ){
   int nLine, i, k, nn, s, x;
-  unsigned int h, h2;
+  u64 h, h2;
   DLine *a;
   const char *zNL;
 
@@ -207,19 +207,23 @@ static DLine *break_into_lines(
         if( fossil_isspace(c) ){
           ++numws;
         }else{
-          h += c;
-          h *= 0x9e3779b1;
+          h = (h^c)*9000000000000000041LL;
         }
       }
       k -= numws;
     }else{
-      for(h=0, x=s; x<k; x++){
-        h += z[x];
-        h *= 0x9e3779b1;
+      int k2 = k & ~0x7;
+      u64 m;
+      for(h=0, x=s; x<k2; x += 8){
+        memcpy(&m, z+x, 8);
+        h = (h^m)*9000000000000000041LL;
       }
+      m = 0;
+      memcpy(&m, z+x, k-k2);
+      h ^= m;
     }
     a[i].indent = s;
-    a[i].h = h = (h<<LENGTH_MASK_SZ) | (k-s);
+    a[i].h = h = ((h%281474976710597LL)<<LENGTH_MASK_SZ) | (k-s);
     h2 = h % nLine;
     a[i].iNext = a[h2].iHash;
     a[h2].iHash = i+1;
@@ -234,14 +238,15 @@ static DLine *break_into_lines(
 }
 
 /*
-** Return true if two DLine elements are identical.
+** Return zero if two DLine elements are identical.
 */
 static int same_dline(const DLine *pA, const DLine *pB){
-  return pA->h==pB->h && memcmp(pA->z,pB->z, pA->h&LENGTH_MASK)==0;
+  if( pA->h!=pB->h ) return 1;
+  return memcmp(pA->z,pB->z, pA->h&LENGTH_MASK);
 }
 
 /*
-** Return true if two DLine elements are identical, ignoring
+** Return zero if two DLine elements are identical, ignoring
 ** all whitespace. The indent field of pA/pB already points
 ** to the first non-space character in the string.
 */
@@ -250,13 +255,13 @@ static int same_dline_ignore_allws(const DLine *pA, const DLine *pB){
   int a = pA->indent, b = pB->indent;
   if( pA->h==pB->h ){
     while( a<pA->n || b<pB->n ){
-      if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 0;
+      if( a<pA->n && b<pB->n && pA->z[a++] != pB->z[b++] ) return 1;
       while( a<pA->n && fossil_isspace(pA->z[a])) ++a;
       while( b<pB->n && fossil_isspace(pB->z[b])) ++b;
     }
-    return pA->n-a == pB->n-b;
+    return pA->n-a != pB->n-b;
   }
-  return 0;
+  return 1;
 }
 
 /*
@@ -1446,12 +1451,12 @@ static void optimalLCS(
 
   for(i=iS1; i<iE1-mxLength; i++){
     for(j=iS2; j<iE2-mxLength; j++){
-      if( !p->same_fn(&p->aFrom[i], &p->aTo[j]) ) continue;
-      if( mxLength && !p->same_fn(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
+      if( p->xDiffer(&p->aFrom[i], &p->aTo[j]) ) continue;
+      if( mxLength && p->xDiffer(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
         continue;
       }
       k = 1;
-      while( i+k<iE1 && j+k<iE2 && p->same_fn(&p->aFrom[i+k],&p->aTo[j+k]) ){
+      while( i+k<iE1 && j+k<iE2 && p->xDiffer(&p->aFrom[i+k],&p->aTo[j+k])==0 ){
         k++;
       }
       if( k>mxLength ){
@@ -1517,7 +1522,7 @@ static void longestCommonSequence(
     int limit = 0;
     j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
     while( j>0
-      && (j-1<iS2 || j>=iE2 || !p->same_fn(&p->aFrom[i], &p->aTo[j-1]))
+      && (j-1<iS2 || j>=iE2 || p->xDiffer(&p->aFrom[i], &p->aTo[j-1]))
     ){
       if( limit++ > 10 ){
         j = 0;
@@ -1534,7 +1539,7 @@ static void longestCommonSequence(
     pA = &p->aFrom[iSX-1];
     pB = &p->aTo[iSY-1];
     n = minInt(iSX-iS1, iSY-iS2);
-    for(k=0; k<n && p->same_fn(pA,pB); k++, pA--, pB--){}
+    for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA--, pB--){}
     iSX -= k;
     iSY -= k;
     iEX = i+1;
@@ -1542,7 +1547,7 @@ static void longestCommonSequence(
     pA = &p->aFrom[iEX];
     pB = &p->aTo[iEY];
     n = minInt(iE1-iEX, iE2-iEY);
-    for(k=0; k<n && p->same_fn(pA,pB); k++, pA++, pB++){}
+    for(k=0; k<n && p->xDiffer(pA,pB)==0; k++, pA++, pB++){}
     iEX += k;
     iEY += k;
     skew = (iSX-iS1) - (iSY-iS2);
@@ -1683,12 +1688,12 @@ static void diff_all(DContext *p){
   /* Carve off the common header and footer */
   iE1 = p->nFrom;
   iE2 = p->nTo;
-  while( iE1>0 && iE2>0 && p->same_fn(&p->aFrom[iE1-1], &p->aTo[iE2-1]) ){
+  while( iE1>0 && iE2>0 && p->xDiffer(&p->aFrom[iE1-1], &p->aTo[iE2-1])==0 ){
     iE1--;
     iE2--;
   }
   mnE = iE1<iE2 ? iE1 : iE2;
-  for(iS=0; iS<mnE && p->same_fn(&p->aFrom[iS],&p->aTo[iS]); iS++){}
+  for(iS=0; iS<mnE && p->xDiffer(&p->aFrom[iS],&p->aTo[iS])==0; iS++){}
 
   /* do the difference */
   if( iS>0 ){
@@ -1757,7 +1762,7 @@ static void diff_optimize(DContext *p){
     while( cpy>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aFrom[lnFrom-1];  /* Line before start of insert */
       DLine *pBtm = &p->aTo[lnTo+ins-1];  /* Last line inserted */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
       lnFrom--;
       lnTo--;
@@ -1770,7 +1775,7 @@ static void diff_optimize(DContext *p){
     while( r+3<p->nEdit && p->aEdit[r+3]>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aTo[lnTo];       /* First line inserted */
       DLine *pBtm = &p->aTo[lnTo+ins];   /* First line past end of insert */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop+1)+LENGTH(pBtm) ) break;
       lnFrom++;
       lnTo++;
@@ -1783,7 +1788,7 @@ static void diff_optimize(DContext *p){
     while( cpy>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom-1];     /* Line before start of delete */
       DLine *pBtm = &p->aFrom[lnFrom+del-1]; /* Last line deleted */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
       lnFrom--;
       lnTo--;
@@ -1796,7 +1801,7 @@ static void diff_optimize(DContext *p){
     while( r+3<p->nEdit && p->aEdit[r+3]>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom];     /* First line deleted */
       DLine *pBtm = &p->aFrom[lnFrom+del]; /* First line past end of delete */
-      if( p->same_fn(pTop, pBtm)==0 ) break;
+      if( p->xDiffer(pTop, pBtm) ) break;
       if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop)+LENGTH(pBtm) ) break;
       lnFrom++;
       lnTo++;
@@ -1877,9 +1882,9 @@ int *text_diff(
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-    c.same_fn = same_dline_ignore_allws;
+    c.xDiffer = same_dline_ignore_allws;
   }else{
-    c.same_fn = same_dline;
+    c.xDiffer = same_dline;
   }
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
                              &c.nFrom, diffFlags);
@@ -2109,9 +2114,9 @@ static int annotation_start(Annotator *p, Blob *pInput, u64 diffFlags){
 
   memset(p, 0, sizeof(*p));
   if( (diffFlags & DIFF_IGNORE_ALLWS)==DIFF_IGNORE_ALLWS ){
-    p->c.same_fn = same_dline_ignore_allws;
+    p->c.xDiffer = same_dline_ignore_allws;
   }else{
-    p->c.same_fn = same_dline;
+    p->c.xDiffer = same_dline;
   }
   p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,
                               diffFlags);

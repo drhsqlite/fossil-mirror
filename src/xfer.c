@@ -41,6 +41,7 @@ struct Xfer {
   Blob err;           /* Error message text */
   int nToken;         /* Number of tokens in line */
   int nIGotSent;      /* Number of "igot" cards sent */
+  int nPrivIGot;      /* Number of private "igot" cards */
   int nGimmeSent;     /* Number of gimme cards sent */
   int nFileSent;      /* Number of files sent */
   int nDeltaSent;     /* Number of deltas sent */
@@ -51,7 +52,9 @@ struct Xfer {
   int resync;         /* Send igot cards for all holdings */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
-  u32 clientVersion;  /* Version of the client software */
+  u32 remoteVersion;  /* Version of fossil running on the other side */
+  u32 remoteDate;     /* Date for specific client software edition */
+  u32 remoteTime;     /* Time of date correspoding on remoteDate */
   time_t maxTime;     /* Time when this transfer should be finished */
 };
 
@@ -526,7 +529,19 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   int size = 0;
   int isPriv = content_is_private(rid);
 
-  if( pXfer->syncPrivate==0 && isPriv ) return;
+  if( isPriv && pXfer->syncPrivate==0 ){
+    if( pXfer->remoteDate>=20200413 && pUuid && blob_size(pUuid)>0 ){
+      /* If the artifact is private and we are not doing a private sync,
+      ** at least tell the other side that the artifact exists and is
+      ** known to be private.  But only do this for newer clients since
+      ** older ones will throw an error if they get a private igot card
+      ** and private syncing is disallowed */
+      blob_appendf(pXfer->pOut, "igot %b 1\n", pUuid);
+      pXfer->nIGotSent++;
+      pXfer->nPrivIGot++;
+    }
+    return;
+  }
   if( db_exists("SELECT 1 FROM onremote WHERE rid=%d", rid) ){
      return;
   }
@@ -535,7 +550,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   if( blob_size(&uuid)==0 ){
     return;
   }
-  if( blob_size(&uuid)>HNAME_LEN_SHA1 && pXfer->clientVersion<20000 ){
+  if( blob_size(&uuid)>HNAME_LEN_SHA1 && pXfer->remoteVersion<20000 ){
     xfer_cannot_send_sha3_error(pXfer);
     return;
   }
@@ -628,7 +643,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     srcIsPrivate = db_column_int(&q1, 3);
     zDelta = db_column_text(&q1, 4);
     if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
-    if( pXfer->clientVersion<20000 && db_column_bytes(&q1,0)!=HNAME_LEN_SHA1 ){
+    if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,0)!=HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
       db_reset(&q1);
       return;
@@ -692,7 +707,7 @@ static void send_unversioned_file(
   if( db_step(&q1)==SQLITE_ROW ){
     sqlite3_int64 mtime = db_column_int64(&q1, 0);
     const char *zHash = db_column_text(&q1, 1);
-    if( pXfer->clientVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
+    if( pXfer->remoteVersion<20000 && db_column_bytes(&q1,1)>HNAME_LEN_SHA1 ){
       xfer_cannot_send_sha3_error(pXfer);
       db_reset(&q1);
       return;
@@ -958,26 +973,44 @@ static int send_private(Xfer *pXfer){
 /*
 ** Send an igot message for every entry in unclustered table.
 ** Return the number of cards sent.
+**
+** Except:
+**    *  Do not send igot cards for shunned artifacts
+**    *  Do not send igot cards for phantoms
+**    *  Do not send igot cards for private artifacts
+**    *  Do not send igot cards for any artifact that is in the
+**       ONREMOTE table, if that table exists.
+**
+** If the pXfer->resync flag is set, that means we are doing a "--verily"
+** sync and all artifacts that don't meet the restrictions above should
+** be sent.
 */
 static int send_unclustered(Xfer *pXfer){
   Stmt q;
   int cnt = 0;
+  const char *zExtra;
+  if( db_table_exists("temp","onremote") ){
+    zExtra = " AND NOT EXISTS(SELECT 1 FROM onremote WHERE rid=blob.rid)";
+  }else{
+    zExtra = "";
+  }
   if( pXfer->resync ){
     db_prepare(&q,
       "SELECT uuid, rid FROM blob"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
-      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)%s"
       "   AND blob.rid<=%d"
       " ORDER BY blob.rid DESC",
-      pXfer->resync
+      zExtra /*safe-for-%s*/, pXfer->resync
     );
   }else{
     db_prepare(&q,
       "SELECT uuid FROM unclustered JOIN blob USING(rid) /*scan*/"
       " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
       "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
-      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+      "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)%s",
+      zExtra /*safe-for-%s*/
     );
   }
   while( db_step(&q)==SQLITE_ROW ){
@@ -1193,7 +1226,7 @@ void page_xfer(void){
     /*   file HASH SIZE \n CONTENT
     **   file HASH DELTASRC SIZE \n CONTENT
     **
-    ** Accept a file from the client.
+    ** Server accepts a file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "file") ){
       if( !isPush ){
@@ -1214,7 +1247,7 @@ void page_xfer(void){
     /*   cfile HASH USIZE CSIZE \n CONTENT
     **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
     **
-    ** Accept a file from the client.
+    ** Server accepts a compressed file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "cfile") ){
       if( !isPush ){
@@ -1234,7 +1267,7 @@ void page_xfer(void){
 
     /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
     **
-    ** Accept an unversioned file from the client.
+    ** Server accepts an unversioned file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "uvfile") ){
       xfer_accept_unversioned_file(&xfer, g.perm.WrUnver);
@@ -1248,7 +1281,7 @@ void page_xfer(void){
 
     /*   gimme HASH
     **
-    ** Client is requesting a file.  Send it.
+    ** Client is requesting a file from the server.  Send it.
     */
     if( blob_eq(&xfer.aToken[0], "gimme")
      && xfer.nToken==2
@@ -1265,7 +1298,7 @@ void page_xfer(void){
 
     /*   uvgimme NAME
     **
-    ** Client is requesting an unversioned file.  Send it.
+    ** Client is requesting an unversioned file from the server.  Send it.
     */
     if( blob_eq(&xfer.aToken[0], "uvgimme")
      && xfer.nToken==2
@@ -1277,19 +1310,40 @@ void page_xfer(void){
     /*   igot HASH ?ISPRIVATE?
     **
     ** Client announces that it has a particular file.  If the ISPRIVATE
-    ** argument exists and is non-zero, then the file is a private file.
+    ** argument exists and is "1", then the file is a private file.
     */
     if( xfer.nToken>=2
      && blob_eq(&xfer.aToken[0], "igot")
      && blob_is_hname(&xfer.aToken[1])
     ){
       if( isPush ){
+        int rid = 0;
+        int isPriv = 0;
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
-          rid_from_uuid(&xfer.aToken[1], 1, 0);
+          /* Client says the artifact is public */
+          rid = rid_from_uuid(&xfer.aToken[1], 1, 0);
         }else if( g.perm.Private ){
-          rid_from_uuid(&xfer.aToken[1], 1, 1);
+          /* Client says the artifact is private and the client has
+          ** permission to push private content.  Create a new phantom
+          ** artifact that is marked private. */
+          rid = rid_from_uuid(&xfer.aToken[1], 1, 1);
+          isPriv = 1;
         }else{
-          server_private_xfer_not_authorized();
+          /* Client says the artifact is private and the client is unable
+          ** or unwilling to send us the artifact.  If we already hold the
+          ** artifact here on the server as a phantom, make sure that
+          ** phantom is marked as private so that we don't keep asking about
+          ** it in subsequent sync requests. */
+          rid = rid_from_uuid(&xfer.aToken[1], 0, 1);
+          isPriv = 1;
+        }
+        if( rid ){
+          remote_has(rid);
+          if( isPriv ){
+            content_make_private(rid);
+          }else{
+            content_make_public(rid);
+          }
         }
       }
     }else
@@ -1390,7 +1444,8 @@ void page_xfer(void){
 
     /*    login  USER  NONCE  SIGNATURE
     **
-    ** Check for a valid login.  This has to happen before anything else.
+    ** The client has sent login credentials to the server.
+    ** Validate the login.  This has to happen before anything else.
     ** The client can send multiple logins.  Permissions are cumulative.
     */
     if( blob_eq(&xfer.aToken[0], "login")
@@ -1412,7 +1467,7 @@ void page_xfer(void){
 
     /*    reqconfig  NAME
     **
-    ** Request a configuration value
+    ** Client is requesting a configuration value from the server
     */
     if( blob_eq(&xfer.aToken[0], "reqconfig")
      && xfer.nToken==2
@@ -1431,8 +1486,8 @@ void page_xfer(void){
 
     /*   config NAME SIZE \n CONTENT
     **
-    ** Receive a configuration value from the client.  This is only
-    ** permitted for high-privilege users.
+    ** Client has sent a configuration value to the server.
+    ** This is only permitted for high-privilege users.
     */
     if( blob_eq(&xfer.aToken[0],"config") && xfer.nToken==3
         && blob_is_int(&xfer.aToken[2], &size) ){
@@ -1476,7 +1531,7 @@ void page_xfer(void){
 
     /*    private
     **
-    ** This card indicates that the next "file" or "cfile" will contain
+    ** The client card indicates that the next "file" or "cfile" will contain
     ** private content.
     */
     if( blob_eq(&xfer.aToken[0], "private") ){
@@ -1498,6 +1553,8 @@ void page_xfer(void){
 
       /*   pragma send-private
       **
+      ** The client is requesting private artifacts.
+      **
       ** If the user has the "x" privilege (which must be set explicitly -
       ** it is not automatic with "a" or "s") then this pragma causes
       ** private information to be pulled in addition to public records.
@@ -1513,18 +1570,28 @@ void page_xfer(void){
 
       /*   pragma send-catalog
       **
-      ** Send igot cards for all known artifacts.
+      ** The client wants to see igot cards for all known artifacts.
+      ** This is used as part of "sync --verily" to help ensure that
+      ** no artifacts have been missed on prior syncs.
       */
       if( blob_eq(&xfer.aToken[1], "send-catalog") ){
         xfer.resync = 0x7fffffff;
       }
 
-      /*   pragma client-version VERSION
+      /*   pragma client-version VERSION ?DATE? ?TIME?
       **
-      ** Let the server know what version of Fossil is running on the client.
+      ** The client announces to the server what version of Fossil it
+      ** is running.  The DATE and TIME are a pure numeric ISO8601 time
+      ** for the specific check-in of the client.
       */
       if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "client-version") ){
-        xfer.clientVersion = atoi(blob_str(&xfer.aToken[2]));
+        xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+        if( xfer.nToken>=5 ){
+          xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
+          xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
+          @ pragma server-version %d(RELEASE_VERSION_NUMBER) \
+          @ %d(MANIFEST_NUMERIC_DATE) %d(MANIFEST_NUMERIC_TIME)
+        }
       }
 
       /*   pragma uv-hash HASH
@@ -1552,7 +1619,7 @@ void page_xfer(void){
       **
       ** The client wants to make non-branch commit against the check-in
       ** identified by CHECKIN-HASH.  The server will remember this and
-      ** subsequent ci-lock request from different clients will generate
+      ** subsequent ci-lock requests from different clients will generate
       ** a ci-lock-fail pragma in the reply.
       */
       if( blob_eq(&xfer.aToken[1], "ci-lock")
@@ -1561,7 +1628,7 @@ void page_xfer(void){
       ){
         Stmt q;
         sqlite3_int64 iNow = time(0);
-        const sqlite3_int64 maxAge = 3600*24; /* Locks expire after 24 hours */
+        sqlite3_int64 maxAge = db_get_int("lock-timeout",60);
         int seenFault = 0;
         db_prepare(&q,
           "SELECT json_extract(value,'$.login'),"
@@ -1574,7 +1641,7 @@ void page_xfer(void){
         while( db_step(&q)==SQLITE_ROW ){
           int x = db_column_int(&q,3);
           const char *zName = db_column_text(&q,4);
-          if( db_column_int64(&q,1)<iNow-maxAge || !is_a_leaf(x) ){
+          if( db_column_int64(&q,1)<=iNow-maxAge || !is_a_leaf(x) ){
             /* check-in locks expire after maxAge seconds, or when the
             ** check-in is no longer a leaf */
             db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
@@ -1748,9 +1815,10 @@ static double fossil_fabs(double x){
 ** true.
 */
 int client_sync(
-  unsigned syncFlags,     /* Mask of SYNC_* flags */
-  unsigned configRcvMask, /* Receive these configuration items */
-  unsigned configSendMask /* Send these configuration items */
+  unsigned syncFlags,      /* Mask of SYNC_* flags */
+  unsigned configRcvMask,  /* Receive these configuration items */
+  unsigned configSendMask, /* Send these configuration items */
+  const char *zAltPCode    /* Alternative project code (usually NULL) */
 ){
   int go = 1;             /* Loop until zero */
   int nCardSent = 0;      /* Number of cards sent */
@@ -1809,7 +1877,7 @@ int client_sync(
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
   xfer.maxTime = -1;
-  xfer.clientVersion = RELEASE_VERSION_NUMBER;
+  xfer.remoteVersion = RELEASE_VERSION_NUMBER;
   if( syncFlags & SYNC_PRIVATE ){
     g.perm.Private = 1;
     xfer.syncPrivate = 1;
@@ -1857,9 +1925,12 @@ int client_sync(
   }
 
   /*
-  ** Always begin with a clone, pull, or push message
+  ** The request from the client always begin with a clone, pull,
+  ** or push message.
   */
-  blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
+  blob_appendf(&send, "pragma client-version %d %d %d\n",
+               RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
+               MANIFEST_NUMERIC_TIME);
   if( syncFlags & SYNC_CLONE ){
     blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     syncFlags &= ~(SYNC_PUSH|SYNC_PULL);
@@ -1868,7 +1939,8 @@ int client_sync(
     content_enable_dephantomize(0);
     zOpType = "Clone";
   }else if( syncFlags & SYNC_PULL ){
-    blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+    blob_appendf(&send, "pull %s %s\n", zSCode,
+                 zAltPCode ? zAltPCode : zPCode);
     nCardSent++;
     zOpType = (syncFlags & SYNC_PUSH)?"Sync":"Pull";
     if( (syncFlags & SYNC_RESYNC)!=0 && nCycle<2 ){
@@ -1898,16 +1970,15 @@ int client_sync(
     manifest_crosslink_begin();
 
 
-    /* Send back the most recently received cookie.  Let the server
-    ** figure out if this is a cookie that it cares about.
+    /* Client sends the most recently received cookie back to the server.
+    ** Let the server figure out if this is a cookie that it cares about.
     */
     zCookie = db_get("cookie", 0);
     if( zCookie ){
       blob_appendf(&send, "cookie %s\n", zCookie);
     }
 
-    /* Generate gimme cards for phantoms and leaf cards
-    ** for all leaves.
+    /* Client sends gimme cards for phantoms
     */
     if( (syncFlags & SYNC_PULL)!=0
      || ((syncFlags & SYNC_CLONE)!=0 && cloneSeqno==1)
@@ -1920,7 +1991,7 @@ int client_sync(
       if( syncFlags & SYNC_PRIVATE ) send_private(&xfer);
     }
 
-    /* Send configuration parameter requests.  On a clone, delay sending
+    /* Client sends configuration parameter requests.  On a clone, delay sending
     ** this until the second cycle since the login card might fail on
     ** the first cycle.
     */
@@ -1937,9 +2008,9 @@ int client_sync(
       configRcvMask = 0;
     }
 
-    /* Send a request to sync unversioned files.  On a clone, delay sending
-    ** this until the second cycle since the login card might fail on
-    ** the first cycle.
+    /* Client sends a request to sync unversioned files.
+    ** On a clone, delay sending this until the second cycle since
+    ** the login card might fail on the first cycle.
     */
     if( (syncFlags & SYNC_UNVERSIONED)!=0
      && ((syncFlags & SYNC_CLONE)==0 || nCycle>0)
@@ -1950,7 +2021,8 @@ int client_sync(
       uvHashSent = 1;
     }
 
-    /* Send configuration parameters being pushed */
+    /* On a "fossil config push", the client send configuration parameters
+    ** being pushed up to the server */
     if( configSendMask ){
       if( zOpType==0 ) zOpType = "Push";
       nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
@@ -2010,7 +2082,7 @@ int client_sync(
       blob_appendf(&send, "pragma ci-unlock %s\n", zClientId);
     }
 
-    /* Append randomness to the end of the message.  This makes all
+    /* Append randomness to the end of the uplink message.  This makes all
     ** messages unique so that that the login-card nonce will always
     ** be unique.
     */
@@ -2052,10 +2124,13 @@ int client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
+    xfer.nPrivIGot = 0;
 
     lastPctDone = -1;
     blob_reset(&send);
-    blob_appendf(&send, "pragma client-version %d\n", RELEASE_VERSION_NUMBER);
+    blob_appendf(&send, "pragma client-version %d %d %d\n",
+                 RELEASE_VERSION_NUMBER, MANIFEST_NUMERIC_DATE,
+                 MANIFEST_NUMERIC_TIME);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
 
     /* Send the send-private pragma if we are trying to sync private data */
@@ -2067,7 +2142,8 @@ int client_sync(
     ** sent) by beginning with the pull or push cards
     */
     if( syncFlags & SYNC_PULL ){
-      blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+      blob_appendf(&send, "pull %s %s\n", zSCode,
+                   zAltPCode ? zAltPCode : zPCode);
       nCardSent++;
     }
     if( syncFlags & SYNC_PUSH ){
@@ -2111,7 +2187,7 @@ int client_sync(
       /*   file HASH SIZE \n CONTENT
       **   file HASH DELTASRC SIZE \n CONTENT
       **
-      ** Receive a file transmitted from the server.
+      ** Client receives a file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"file") ){
         xfer_accept_file(&xfer, (syncFlags & SYNC_CLONE)!=0, 0, 0);
@@ -2121,7 +2197,7 @@ int client_sync(
       /*   cfile HASH USIZE CSIZE \n CONTENT
       **   cfile HASH DELTASRC USIZE CSIZE \n CONTENT
       **
-      ** Receive a compressed file transmitted from the server.
+      ** Client receives a compressed file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"cfile") ){
         xfer_accept_compressed_file(&xfer, 0, 0);
@@ -2130,7 +2206,7 @@ int client_sync(
 
       /*   uvfile NAME MTIME HASH SIZE FLAGS \n CONTENT
       **
-      ** Accept an unversioned file from the server.
+      ** Client accepts an unversioned file from the server.
       */
       if( blob_eq(&xfer.aToken[0], "uvfile") ){
         xfer_accept_unversioned_file(&xfer, 1);
@@ -2144,9 +2220,10 @@ int client_sync(
 
       /*   gimme HASH
       **
-      ** Server is requesting a file.  If the file is a manifest, assume
-      ** that the server will also want to know all of the content files
-      ** associated with the manifest and send those too.
+      ** Client receives an artifact request from the server.
+      ** If the file is a manifest, assume that the server will also want
+      ** to know all of the content artifacts associated with the manifest
+      ** and send those too.
       */
       if( blob_eq(&xfer.aToken[0], "gimme")
        && xfer.nToken==2
@@ -2178,7 +2255,11 @@ int client_sync(
         int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
-          if( !isPriv ) content_make_public(rid);
+          if( isPriv ){
+            content_make_private(rid);
+          }else{
+            content_make_public(rid);
+          }
         }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
         }else if( (syncFlags & (SYNC_PULL|SYNC_CLONE))!=0 ){
@@ -2263,7 +2344,7 @@ int client_sync(
       /*   push  SERVERCODE  PRODUCTCODE
       **
       ** Should only happen in response to a clone.  This message tells
-      ** the client what product to use for the new database.
+      ** the client what product code to use for the new database.
       */
       if( blob_eq(&xfer.aToken[0],"push")
        && xfer.nToken==3
@@ -2280,7 +2361,7 @@ int client_sync(
 
       /*   config NAME SIZE \n CONTENT
       **
-      ** Receive a configuration value from the server.
+      ** Client receive a configuration value from the server.
       **
       ** The received configuration setting is silently ignored if it was
       ** not requested by a prior "reqconfig" sent from client to server.
@@ -2302,7 +2383,7 @@ int client_sync(
 
       /*    cookie TEXT
       **
-      ** The server might include a cookie in its reply.  The client
+      ** The client reserves a cookie from the server.  The client
       ** should remember this cookie and send it back to the server
       ** in its next query.
       **
@@ -2316,8 +2397,8 @@ int client_sync(
 
       /*    private
       **
-      ** This card indicates that the next "file" or "cfile" will contain
-      ** private content.
+      ** The server tells the client that the next "file" or "cfile" will
+      ** contain private content.
       */
       if( blob_eq(&xfer.aToken[0], "private") ){
         xfer.nextIsPrivate = 1;
@@ -2337,7 +2418,8 @@ int client_sync(
 
       /*   message MESSAGE
       **
-      ** Print a message.  Similar to "error" but does not stop processing.
+      ** A message is received from the server.  Print it.
+      ** Similar to "error" but does not stop processing.
       **
       ** If the "login failed" message is seen, clear the sync password prior
       ** to the next cycle.
@@ -2363,13 +2445,34 @@ int client_sync(
       ** silently ignored.
       */
       if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
-        /* If the server is unwill to accept new unversioned content (because
+        /*   pragma server-version VERSION ?DATE? ?TIME?
+        **
+        ** The servger announces to the server what version of Fossil it
+        ** is running.  The DATE and TIME are a pure numeric ISO8601 time
+        ** for the specific check-in of the client.
+        */
+        if( xfer.nToken>=3 && blob_eq(&xfer.aToken[1], "server-version") ){
+          xfer.remoteVersion = atoi(blob_str(&xfer.aToken[2]));
+          if( xfer.nToken>=5 ){
+            xfer.remoteDate = atoi(blob_str(&xfer.aToken[3]));
+            xfer.remoteTime = atoi(blob_str(&xfer.aToken[4]));
+          }
+        }
+
+        /*   pragma uv-pull-only
+        **
+        ** If the server is unwill to accept new unversioned content (because
         ** this client lacks the necessary permissions) then it sends a
         ** "uv-pull-only" pragma so that the client will know not to waste
         ** bandwidth trying to upload unversioned content.  If the server
         ** does accept new unversioned content, it sends "uv-push-ok".
         */
         if( blob_eq(&xfer.aToken[1], "uv-pull-only") ){
+          fossil_print(
+            "Warning: uv-pull-only                                       \n"
+            "         Unable to push unversioned content because you lack\n"
+            "         sufficient permission on the server\n"
+          );
           if( syncFlags & SYNC_UV_REVERT ) uvDoPush = 1;
         }else if( blob_eq(&xfer.aToken[1], "uv-push-ok") ){
           uvDoPush = 1;
@@ -2401,7 +2504,8 @@ int client_sync(
 
       /*   error MESSAGE
       **
-      ** Report an error and abandon the sync session.
+      ** The server is reporting an error.  The client will abandon
+      ** the sync session.
       **
       ** Except, when cloning we will sometimes get an error on the
       ** first message exchange because the project-code is unknown
@@ -2485,6 +2589,7 @@ int client_sync(
     if( xfer.nFileSent+xfer.nDeltaSent>0 || uvDoPush ){
       go = 1;
     }
+    if( xfer.nPrivIGot>0 && nCycle==1 ) go = 1;
 
     /* If this is a clone, the go at least two rounds */
     if( (syncFlags & SYNC_CLONE)!=0 && nCycle==1 ) go = 1;

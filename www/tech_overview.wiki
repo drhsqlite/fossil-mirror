@@ -154,12 +154,14 @@ The artifacts are stored as BLOBs, compressed using
 [http://www.zlib.net/ | zlib compression] and, where applicable,
 using [./delta_encoder_algorithm.wiki | delta compression].
 The combination of zlib and delta compression results in a considerable
-space savings.  For the SQLite project, at the time of this writing,
-the total size of all artifacts is over 2.0 GB but thanks to the
-combined zlib and delta compression, that content only takes up
-32 MB of space in the repository database, for a compression ratio
-of about 64:1.  The average size of a content BLOB in the database
-is around 500 bytes.
+space savings.  For the SQLite project (when this paragraph was last
+updated on 2020-02-08)
+the total size of all artifacts is over 7.1 GB but thanks to the
+combined zlib and delta compression, that content only takes less than
+97 MB of space in the repository database, for a compression ratio
+of about 74:1.  The median size of all content BLOBs after delta
+and zlib compression have been applied is 156 bytes.
+The median size of BLOBs without compression is 45,312 bytes.
 
 Note that the zlib and delta compression is not an inherent part of the
 Fossil file format; it is just an optimization.
@@ -177,7 +179,7 @@ When accessing the repository database using raw SQL and the
 [/help/sqlite3 | fossil sql] command, the extension function
 "<tt>content()</tt>" with a single argument which is the SHA1 or
 SHA3-256 hash
-of an artifact will return the complete undeleted and uncompressed
+of an artifact will return the complete uncompressed
 content of that artifact.
 
 Going the other way, the [/help/reconstruct | fossil reconstruct]

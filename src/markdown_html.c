@@ -34,7 +34,7 @@ void markdown_to_html(
 
 /* INTER_BLOCK -- skip a line between block level elements */
 #define INTER_BLOCK(ob) \
-  do { if( blob_size(ob)>0 ) blob_append(ob, "\n", 1); } while (0)
+  do { if( blob_size(ob)>0 ) blob_append_char(ob, '\n'); } while (0)
 
 /* BLOB_APPEND_LITERAL -- append a string literal to a blob */
 #define BLOB_APPEND_LITERAL(blob, literal) \
@@ -512,7 +512,6 @@ void markdown_to_html(
     html_normal_text,
 
     /* misc. parameters */
-    64, /* maximum stack */
     "*_", /* emphasis characters */
     0 /* opaque data */
   };

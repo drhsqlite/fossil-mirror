@@ -293,7 +293,7 @@ p {
 .column,
 .columns {
   width: 100%;
-  float: left;
+  /*float: left; can break README.md in /dir view*/
   box-sizing: border-box
 }
 @media (min-width:400px) {
@@ -804,6 +804,12 @@ ul.browser li.file:hover * {
 td.browser,
 td.tktDescLabel {
   vertical-align: top
+}
+td.tktTlOpen {
+  color: #ffa0a0;
+}
+td.tktTlClosed {
+  color: #555;
 }
 div.filetreeline {
   display: table;

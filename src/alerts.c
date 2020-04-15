@@ -48,6 +48,7 @@ static const char zAlertInit[] =
 @ -- type of event to subscribe to.  Choices:
 @ --     a - Announcements
 @ --     c - Check-ins
+@ --     f - Forum posts
 @ --     t - Ticket changes
 @ --     w - Wiki changes
 @ -- Probably different codes will be added in the future.  In the future
@@ -112,11 +113,11 @@ int alert_tables_exist(void){
 void alert_schema(int bOnlyIfEnabled){
   if( !alert_tables_exist() ){
     if( bOnlyIfEnabled
-     && fossil_strcmp(db_get("email-send-method","off"),"off")==0
+     && fossil_strcmp(db_get("email-send-method",0),"off")==0
     ){
       return;  /* Don't create table for disabled email */
     }
-    db_multi_exec(zAlertInit/*works-like:""*/);
+    db_exec_sql(zAlertInit);
     alert_triggers_enable();
   }else if( !db_table_has_column("repository","pending_alert","sentMod") ){
     db_multi_exec(
@@ -160,7 +161,7 @@ void alert_triggers_disable(void){
 */
 int alert_enabled(void){
   if( !alert_tables_exist() ) return 0;
-  if( fossil_strcmp(db_get("email-send-method","off"),"off")==0 ) return 0;
+  if( fossil_strcmp(db_get("email-send-method",0),"off")==0 ) return 0;
   return 1;
 }
 
@@ -185,7 +186,7 @@ static int alert_webpages_disabled(void){
 void alert_submenu_common(void){
   if( g.perm.Admin ){
     if( fossil_strcmp(g.zPath,"subscribers") ){
-      style_submenu_element("List Subscribers","%R/subscribers");
+      style_submenu_element("Subscribers","%R/subscribers");
     }
     if( fossil_strcmp(g.zPath,"subscribe") ){
       style_submenu_element("Add New Subscriber","%R/subscribe");
@@ -239,6 +240,13 @@ void setup_notification(void){
   @ email alert text.  Omit the trailing "/".
   @ Suggested value: "%h(g.zBaseURL)"
   @ (Property: "email-url")</p>
+  @ <hr>
+
+  entry_attribute("Administrator email address", 40, "email-admin",
+                   "eadmin", "", 0);
+  @ <p>This is the email for the human administrator for the system.
+  @ Abuse and trouble reports and password reset requests are send here.
+  @ (Property: "email-admin")</p>
   @ <hr>
 
   entry_attribute("\"Return-Path\" email address", 20, "email-self",
@@ -297,13 +305,6 @@ void setup_notification(void){
   @ append a colon and TCP port number (ex: smtp.example.com:587).
   @ The default TCP port number is 25.
   @ (Property: "email-send-relayhost")</p>
-  @ <hr>
-
-  entry_attribute("Administrator email address", 40, "email-admin",
-                   "eadmin", "", 0);
-  @ <p>This is the email for the human administrator for the system.
-  @ Abuse and trouble reports are send here.
-  @ (Property: "email-admin")</p>
   @ <hr>
 
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
@@ -484,7 +485,7 @@ AlertSender *alert_sender_new(const char *zAltDest, u32 mFlags){
   if( zAltDest ){
     p->zDest = zAltDest;
   }else{
-    p->zDest = db_get("email-send-method","off");
+    p->zDest = db_get("email-send-method",0);
   }
   if( fossil_strcmp(p->zDest,"off")==0 ) return p;
   if( emailerGetSetting(p, &p->zFrom, "email-self") ) return p;
@@ -576,18 +577,14 @@ int email_header_value(Blob *pMsg, const char *zField, Blob *pValue){
 }
 
 /*
-** Make a copy of the input string up to but not including the
-** first cTerm character.
+** Determine whether or not the input string is a valid email address.
+** Only look at character up to but not including the first \000 or
+** the first cTerm character, whichever comes first.
 **
-** Verify that the string really that is to be copied really is a
-** valid email address.  If it is not, then return NULL.
-**
-** This routine is more restrictive than necessary.  It does not
-** allow comments, IP address, quoted strings, or certain uncommon
-** characters.  The only non-alphanumerics allowed in the local
-** part are "_", "+", "-" and "+".
+** Return the length of the email addresss string in bytes if the email
+** address is valid.  If the email address is misformed, return 0.
 */
-char *email_copy_addr(const char *z, char cTerm ){
+int email_address_is_valid(const char *z, char cTerm){
   int i;
   int nAt = 0;
   int nDot = 0;
@@ -621,9 +618,24 @@ char *email_copy_addr(const char *z, char cTerm ){
   if( c!=cTerm ) return 0;    /* Missing terminator */
   if( nAt==0 ) return 0;      /* No "@" found anywhere */
   if( nDot==0 ) return 0;     /* No "." in the domain */
+  return i;
+}
 
-  /* If we reach this point, the email address is valid */
-  return mprintf("%.*s", i, z);
+/*
+** Make a copy of the input string up to but not including the
+** first cTerm character.
+**
+** Verify that the string really that is to be copied really is a
+** valid email address.  If it is not, then return NULL.
+**
+** This routine is more restrictive than necessary.  It does not
+** allow comments, IP address, quoted strings, or certain uncommon
+** characters.  The only non-alphanumerics allowed in the local
+** part are "_", "+", "-" and "+".
+*/
+char *email_copy_addr(const char *z, char cTerm ){
+  int i = email_address_is_valid(z, cTerm);
+  return i==0 ? 0 : mprintf("%.*s", i, z);
 }
 
 /*
@@ -659,6 +671,34 @@ void alert_find_emailaddr_func(
   char *zOut = alert_find_emailaddr(zIn);
   if( zOut ){
     sqlite3_result_text(context, zOut, -1, fossil_free);
+  }
+}
+
+/*
+** SQL function:  display_name(X)
+**
+** If X is a string, search for a user name at the beginning of that
+** string.  The user name must be followed by an email address.  If
+** found, return the user name.  If not found, return NULL.
+**
+** This routine is used to extract the display name from the USER.INFO
+** field.
+*/
+void alert_display_name_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zIn = (const char*)sqlite3_value_text(argv[0]);
+  int i;
+  if( zIn==0 ) return;
+  while( fossil_isspace(zIn[0]) ) zIn++;
+  for(i=0; zIn[i] && zIn[i]!='<' && zIn[i]!='\n'; i++){}
+  if( zIn[i]=='<' ){
+    while( i>0 && fossil_isspace(zIn[i-1]) ){ i--; }
+    if( i>0 ){
+      sqlite3_result_text(context, zIn, i, SQLITE_TRANSIENT);
+    }
   }
 }
 
@@ -764,7 +804,7 @@ void email_header_to_free(int nTo, char **azTo){
 **     Content-Type:
 **     Content-Transfer-Encoding:
 **     MIME-Version:
-**     X-Fossil-From:
+**     Sender:
 **     
 ** The caller maintains ownership of the input Blobs.  This routine will
 ** read the Blobs and send them onward to the email system, but it will
@@ -776,10 +816,10 @@ void email_header_to_free(int nTo, char **azTo){
 ** If the zFromName argument is not NULL, then it should be a human-readable
 ** name or handle for the sender.  In that case, "From:" becomes a made-up
 ** email address based on a hash of zFromName and the domain of email-self,
-** and an additional "X-Fossil-From:" field is inserted with the email-self
-** address.  Downstream software might use the X-Fossil-From header to set
+** and an additional "Sender:" field is inserted with the email-self
+** address.  Downstream software might use the Sender header to set
 ** the envelope-from address of the email.  If zFromName is a NULL pointer, 
-** then the "From:" is set to the email-self value and X-Fossil-From is
+** then the "From:" is set to the email-self value and Sender is
 ** omitted.
 */
 void alert_send(
@@ -796,13 +836,13 @@ void alert_send(
   if( fossil_strcmp(p->zDest, "off")==0 ){
     return;
   }
+  blob_init(&all, 0, 0);
   if( fossil_strcmp(p->zDest, "blob")==0 ){
     pOut = &p->out;
     if( blob_size(pOut) ){
       blob_appendf(pOut, "%.72c\n", '=');
     }
   }else{
-    blob_init(&all, 0, 0);
     pOut = &all;
   }
   blob_append(pOut, blob_buffer(pHdr), blob_size(pHdr));
@@ -811,7 +851,7 @@ void alert_send(
   }else if( zFromName ){
     blob_appendf(pOut, "From: %s <%s@%s>\r\n",
        zFromName, alert_mailbox_name(zFromName), alert_hostname(p->zFrom));
-    blob_appendf(pOut, "X-Fossil-From: <%s>\r\n", p->zFrom);
+    blob_appendf(pOut, "Sender: <%s>\r\n", p->zFrom);
   }else{
     blob_appendf(pOut, "From: <%s>\r\n", p->zFrom);
   }
@@ -881,6 +921,22 @@ void alert_send(
   blob_reset(&all);
 }
 
+/*
+** SETTING: email-url                 width=40
+** This URL is used as the basename for hyperlinks included in email alert
+** text. Omit the trailing "/".
+*/
+/*
+** SETTING: email-admin               width=40
+** This is the email address for the human administrator for the system. 
+** Abuse and trouble reports and password reset requests are send here.
+*/
+/*
+** SETTING: email-subname             width=16
+** This is a short name used to identifies the repository in the Subject:
+** line of email alerts. Traditionally this name is included in square
+** brackets. Examples: "[fossil-src]", "[sqlite-src]".
+*/
 /*
 ** SETTING: email-send-method         width=5 default=off
 ** Determine the method used to send email.  Allowed values are
@@ -1261,7 +1317,7 @@ void alert_append_confirmation_message(Blob *pMsg, const char *zCode){
 */
 void subscribe_page(void){
   int needCaptcha;
-  unsigned int uSeed;
+  unsigned int uSeed = 0;
   const char *zDecoded;
   char *zCaptcha = 0;
   char *zErr = 0;
@@ -1394,6 +1450,7 @@ void subscribe_page(void){
     @ <tr>
     @  <td class="form_label">Security Code:</td>
     @  <td><input type="text" name="captcha" value="" size="30">
+    captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
     if( eErr==2 ){
@@ -1463,7 +1520,7 @@ void subscribe_page(void){
     @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
     @ %h(zCaptcha)
     @ </pre>
-    @ Enter the 8 characters above in the "Security Code" box
+    @ Enter the 8 characters above in the "Security Code" box<br/>
     @ </td></tr></table></div>
   }
   @ </form>
@@ -1513,12 +1570,13 @@ static void alert_unsubscribe(const char *zName){
 void alert_page(void){
   const char *zName = P("name");
   Stmt q;
-  int sa, sc, sf, st, sw;
-  int sdigest, sdonotcall, sverified;
-  const char *ssub;
-  const char *semail;
+  int sa, sc, sf, st, sw, sx;
+  int sdigest = 0, sdonotcall = 0, sverified = 0;
+  int isLogin;         /* Logged in as an individual */
+  const char *ssub = 0;
+  const char *semail = 0;
   const char *smip;
-  const char *suname;
+  const char *suname = 0;
   const char *mtime;
   const char *sctime;
   int eErr = 0;
@@ -1530,7 +1588,8 @@ void alert_page(void){
     login_needed(g.anon.EmailAlert);
     return;
   }
-  if( zName==0 && login_is_individual() ){
+  isLogin = login_is_individual();
+  if( zName==0 && isLogin ){
     zName = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
                        " WHERE suname=%Q", g.zLogin);
   }
@@ -1540,54 +1599,56 @@ void alert_page(void){
   }
   alert_submenu_common();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
-    int sdonotcall = PB("sdonotcall");
-    int sdigest = PB("sdigest");
-    char ssub[10];
+    char newSsub[10];
     int nsub = 0;
-    if( PB("sa") )                   ssub[nsub++] = 'a';
-    if( g.perm.Read && PB("sc") )    ssub[nsub++] = 'c';
-    if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
-    if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
-    if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
-    ssub[nsub] = 0;
+    Blob update;
+
+    sdonotcall = PB("sdonotcall");
+    sdigest = PB("sdigest");
+    semail = P("semail");
+    if( PB("sa") )                   newSsub[nsub++] = 'a';
+    if( g.perm.Read && PB("sc") )    newSsub[nsub++] = 'c';
+    if( g.perm.RdForum && PB("sf") ) newSsub[nsub++] = 'f';
+    if( g.perm.RdTkt && PB("st") )   newSsub[nsub++] = 't';
+    if( g.perm.RdWiki && PB("sw") )  newSsub[nsub++] = 'w';
+    if( g.perm.RdForum && PB("sx") ) newSsub[nsub++] = 'x';
+    newSsub[nsub] = 0;
+    ssub = newSsub;
+    blob_init(&update, "UPDATE subscriber SET", -1);
+    blob_append_sql(&update,
+        " sdonotcall=%d,"
+        " sdigest=%d,"
+        " ssub=%Q,"
+        " mtime=strftime('%%s','now'),"
+        " smip=%Q",
+        sdonotcall,
+        sdigest,
+        ssub,
+        g.zIpAddr
+    );
     if( g.perm.Admin ){
-      const char *suname = PT("suname");
-      int sverified = PB("sverified");
+      suname = PT("suname");
+      sverified = PB("sverified");
       if( suname && suname[0]==0 ) suname = 0;
-      db_multi_exec(
-        "UPDATE subscriber SET"
-        " sdonotcall=%d,"
-        " sdigest=%d,"
-        " ssub=%Q,"
-        " mtime=strftime('%%s','now'),"
-        " smip=%Q,"
-        " suname=%Q,"
-        " sverified=%d"
-        " WHERE subscriberCode=hextoblob(%Q)",
-        sdonotcall,
-        sdigest,
-        ssub,
-        g.zIpAddr,
+      blob_append_sql(&update,
+        ", suname=%Q,"
+        " sverified=%d",
         suname,
-        sverified,
-        zName
-      );
-    }else{
-      db_multi_exec(
-        "UPDATE subscriber SET"
-        " sdonotcall=%d,"
-        " sdigest=%d,"
-        " ssub=%Q,"
-        " mtime=strftime('%%s','now'),"
-        " smip=%Q"
-        " WHERE subscriberCode=hextoblob(%Q)",
-        sdonotcall,
-        sdigest,
-        ssub,
-        g.zIpAddr,
-        zName
+        sverified
       );
     }
+    if( isLogin ){
+      if( semail==0 || email_address_is_valid(semail,0)==0 ){
+        eErr = 8;
+      }
+      blob_append_sql(&update, ", semail=%Q", semail);
+    }
+    blob_append_sql(&update," WHERE subscriberCode=hextoblob(%Q)", zName);
+    if( eErr==0 ){
+      db_exec_sql(blob_str(&update));
+      ssub = 0;
+    }
+    blob_reset(&update);
   }
   if( P("delete")!=0 && cgi_csrf_safe(1) ){
     if( !PB("dodelete") ){
@@ -1599,6 +1660,7 @@ void alert_page(void){
       return;
     }
   }
+  style_header("Update Subscription");
   db_prepare(&q,
     "SELECT"
     "  semail,"                       /* 0 */
@@ -1616,19 +1678,23 @@ void alert_page(void){
     cgi_redirect("subscribe");
     return;
   }
-  style_header("Update Subscription");
-  semail = db_column_text(&q, 0);
-  sverified = db_column_int(&q, 1);
-  sdonotcall = db_column_int(&q, 2);
-  sdigest = db_column_int(&q, 3);
-  ssub = db_column_text(&q, 4);
+  if( ssub==0 ){
+    semail = db_column_text(&q, 0);
+    sdonotcall = db_column_int(&q, 2);
+    sdigest = db_column_int(&q, 3);
+    ssub = db_column_text(&q, 4);
+  }
+  if( suname==0 ){
+    suname = db_column_text(&q, 6);
+    sverified = db_column_int(&q, 1);
+  }
   sa = strchr(ssub,'a')!=0;
   sc = strchr(ssub,'c')!=0;
   sf = strchr(ssub,'f')!=0;
   st = strchr(ssub,'t')!=0;
   sw = strchr(ssub,'w')!=0;
+  sx = strchr(ssub,'x')!=0;
   smip = db_column_text(&q, 5);
-  suname = db_column_text(&q, 6);
   mtime = db_column_text(&q, 7);
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
@@ -1648,9 +1714,21 @@ void alert_page(void){
   @ <table class="subscribe">
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
-  @  <td>%h(semail)</td>
+  if( isLogin ){
+    @  <td><input type="text" name="semail" value="%h(semail)" size="30">\
+    if( eErr==8 ){
+      @ <span class='loginError'>&larr; not a valid email address!</span>
+    }else if( g.perm.Admin ){
+      @ &nbsp;&nbsp;<a href="%R/announce?to=%t(semail)">\
+      @ (Send a message to %h(semail))</a>\
+    }
+    @ </td>
+  }else{
+    @  <td>%h(semail)</td>
+  }
   @ </tr>
   if( g.perm.Admin ){
+    int uid;
     @ <tr>
     @  <td class='form_label'>Created:</td>
     @  <td>%h(sctime)</td>
@@ -1666,7 +1744,12 @@ void alert_page(void){
     @ <tr>
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
-    @  size="30"></td>
+    @  size="30">\
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", suname);
+    if( uid ){
+      @ &nbsp;&nbsp;<a href='%R/setup_uedit?id=%d(uid)'>\
+      @ (login info for %h(suname))</a>\
+    }
     @ </tr>
   }
   @ <tr>
@@ -1680,6 +1763,8 @@ void alert_page(void){
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(sf?"checked":"")>\
     @  Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sx" %s(sx?"checked":"")>\
+    @  Forum Edits</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(st?"checked":"")>\
@@ -1705,7 +1790,7 @@ void alert_page(void){
     @ <tr>
     @  <td class="form_label">Admin Options:</td><td>
     @  <label><input type="checkbox" name="sdonotcall" \
-    @  %s(sdonotcall?"checked":"")> Do not call</label><br>
+    @  %s(sdonotcall?"checked":"")> Do not disturb</label><br>
     @  <label><input type="checkbox" name="sverified" \
     @  %s(sverified?"checked":"")>\
     @  Verified</label></td></tr>
@@ -1762,7 +1847,7 @@ void unsubscribe_page(void){
   const char *zName = P("name");
   char *zErr = 0;
   int eErr = 0;
-  unsigned int uSeed;
+  unsigned int uSeed = 0;
   const char *zDecoded;
   char *zCaptcha = 0;
   int dx;
@@ -1857,6 +1942,7 @@ void unsubscribe_page(void){
   @ <tr>
   @  <td class="form_label">Security Code:</td>
   @  <td><input type="text" name="captcha" value="" size="30">
+  captcha_speakit_button(uSeed, "Speak the code");
   @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
   if( eErr==2 ){
     @  <td><span class="loginError">&larr; %h(zErr)</span></td>
@@ -1876,7 +1962,7 @@ void unsubscribe_page(void){
   @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
   @ %h(zCaptcha)
   @ </pre>
-  @ Enter the 8 characters above in the "Security Code" box
+  @ Enter the 8 characters above in the "Security Code" box<br/>
   @ </td></tr></table></div>
   @ </form>
   fossil_free(zErr);
@@ -1887,7 +1973,7 @@ void unsubscribe_page(void){
 ** WEBPAGE: subscribers
 **
 ** This page, accessible to administrators only,
-** shows a list of email notification email addresses.
+** shows a list of subscriber email addresses.
 ** Clicking on an email takes one to the /alerts page
 ** for that email where the delivery settings can be
 ** modified.
@@ -1896,6 +1982,9 @@ void subscriber_list_page(void){
   Blob sql;
   Stmt q;
   sqlite3_int64 iNow;
+  int nTotal;
+  int nPending;
+  int nDel = 0;
   if( alert_webpages_disabled() ) return;
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -1903,7 +1992,35 @@ void subscriber_list_page(void){
     return;
   }
   alert_submenu_common();
+  style_submenu_element("Users","setup_ulist");
   style_header("Subscriber List");
+  nTotal = db_int(0, "SELECT count(*) FROM subscriber");
+  nPending = db_int(0, "SELECT count(*) FROM subscriber WHERE NOT sverified");
+  if( nPending>0 && P("purge") && cgi_csrf_safe(0) ){
+    int nNewPending;
+    db_multi_exec(
+       "DELETE FROM subscriber"
+       " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')"
+    );
+    nNewPending = db_int(0, "SELECT count(*) FROM subscriber"
+                            " WHERE NOT sverified");
+    nDel = nPending - nNewPending;
+    nPending = nNewPending;
+    nTotal -= nDel;
+  }
+  if( nPending>0 ){
+    @ <h1>%,d(nTotal) Subscribers, %,d(nPending) Pending</h1>
+    if( nDel==0 && 0<db_int(0,"SELECT count(*) FROM subscriber"
+            " WHERE NOT sverified AND mtime<0+strftime('%%s','now','-1 day')")
+    ){
+      style_submenu_element("Purge Pending","subscribers?purge");
+    }
+  }else{
+    @ <h1>%,d(nTotal) Subscribers</h1>
+  }
+  if( nDel>0 ){
+    @ <p>*** %d(nDel) pending subscriptions deleted ***</p>
+  }
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
     "SELECT hex(subscriberCode),"          /* 0 */
@@ -1913,7 +2030,8 @@ void subscriber_list_page(void){
     "       sverified,"                    /* 4 */
     "       sdigest,"                      /* 5 */
     "       mtime,"                        /* 6 */
-    "       date(sctime,'unixepoch')"      /* 7 */
+    "       date(sctime,'unixepoch'),"     /* 7 */
+    "       (SELECT uid FROM user WHERE login=subscriber.suname)" /* 8 */
     " FROM subscriber"
   );
   if( P("only")!=0 ){
@@ -1939,12 +2057,18 @@ void subscriber_list_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     sqlite3_int64 iMtime = db_column_int64(&q, 6);
     double rAge = (iNow - iMtime)/86400.0;
+    int uid = db_column_int(&q, 8);
+    const char *zUname = db_column_text(&q, 3);
     @ <tr>
     @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
     @ <td>%h(db_column_text(&q,2))</td>
     @ <td>%s(db_column_int(&q,5)?"digest":"")</td>
-    @ <td>%h(db_column_text(&q,3))</td>
+    if( uid ){
+      @ <td><a href='%R/setup_uedit?id=%d(uid)'>%h(zUname)</a>
+    }else{
+      @ <td>%h(zUname)</td>
+    }
     @ <td>%s(db_column_int(&q,4)?"yes":"pending")</td>
     @ <td data-sortkey='%010llx(iMtime)'>%z(human_readable_age(rAge))</td>
     @ <td>%h(db_column_text(&q,7))</td>
@@ -1960,9 +2084,17 @@ void subscriber_list_page(void){
 /*
 ** A single event that might appear in an alert is recorded as an
 ** instance of the following object.
+**
+** type values:
+**
+**      c       A new check-in
+**      f       An original forum post
+**      x       An edit to a prior forum post
+**      t       A new ticket or a change to an existing ticket
+**      w       A change to a wiki page
 */
 struct EmailEvent {
-  int type;          /* 'c', 'f', 'm', 't', 'w' */
+  int type;          /* 'c', 'f', 't', 'w', 'x' */
   int needMod;       /* Pending moderator approval */
   Blob hdr;          /* Header content, for forum entries */
   Blob txt;          /* Text description to appear in an alert */
@@ -2005,7 +2137,10 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   /* First do non-forum post events */
   db_prepare(&q,
     "SELECT"
-    " blob.uuid,"                /* 0 */
+    " CASE WHEN event.type='t'"
+         " THEN (SELECT substr(tagname,5) FROM tag"
+                " WHERE tagid=event.tagid AND tagname LIKE 'tkt-%%')"
+         " ELSE blob.uuid END,"  /* 0 */
     " datetime(event.mtime),"    /* 1 */
     " coalesce(ecomment,comment)"
     "  || ' (user: ' || coalesce(euser,user,'?')"
@@ -2038,7 +2173,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p->pNext = 0;
     switch( p->type ){
       case 'c':  zType = "Check-In";        break;
-      case 'f':  zType = "Forum post";      break;
+      /* case 'f':  -- forum posts omitted from this loop.  See below */
       case 't':  zType = "Ticket Change";   break;
       case 'w':  zType = "Wiki Edit";       break;
     }
@@ -2047,7 +2182,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     blob_appendf(&p->txt,"== %s %s ==\n%s\n%s/info/%.20s\n",
       db_column_text(&q,1),
       zType,
-      db_column_text(&q,2),
+      db_column_text(&q, 2),
       zUrl,
       db_column_text(&q,0)
     );
@@ -2081,9 +2216,12 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     " (SELECT uuid FROM blob WHERE rid=forumpost.fpid),"    /* 1 */
     " datetime(event.mtime),"                               /* 2 */
     " substr(comment,instr(comment,':')+2),"                /* 3 */
-    " (SELECT uuid FROM blob WHERE rid=forumpost.firt),"    /* 4 */
+    " (SELECT uuid FROM blob, forumpost AS irt"
+    "   WHERE irt.fpid=forumpost.firt"
+    "     AND blob.rid=coalesce(irt.fprev,irt.fpid)),"      /* 4 */
     " wantalert.needMod,"                                   /* 5 */
-    " coalesce(trim(substr(info,1,instr(info,'<')-1)),euser,user)"   /* 6 */
+    " coalesce(display_name(info),euser,user),"             /* 6 */
+    " forumpost.fprev IS NULL"                              /* 7 */
     " FROM temp.wantalert, event, forumpost"
     "      LEFT JOIN user ON (login=coalesce(euser,user))"
     " WHERE event.objid=substr(wantalert.eventId,2)+0"
@@ -2103,7 +2241,7 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
     p = fossil_malloc( sizeof(EmailEvent) );
     pLast->pNext = p;
     pLast = p;
-    p->type = 'f';
+    p->type = db_column_int(&q,7) ? 'f' : 'x';
     p->needMod = db_column_int(&q, 5);
     z = db_column_text(&q,6);
     p->zFromName = z && z[0] ? fossil_strdup(z) : 0;
@@ -2435,9 +2573,9 @@ void alert_send_alerts(u32 flags){
         char xType = '*';
         if( strpbrk(zCap,"as")==0 ){
           switch( p->type ){
-            case 'f':  xType = '5';  break;
-            case 't':  xType = 'q';  break;
-            case 'w':  xType = 'l';  break;
+            case 'x': case 'f':  xType = '5';  break;
+            case 't':            xType = 'q';  break;
+            case 'w':            xType = 'l';  break;
           }
           if( strchr(zCap,xType)==0 ) continue;
         }
@@ -2449,10 +2587,10 @@ void alert_send_alerts(u32 flags){
         ** privilege to view the event itself */
         char xType = '*';
         switch( p->type ){
-          case 'c':  xType = 'o';  break;
-          case 'f':  xType = '2';  break;
-          case 't':  xType = 'r';  break;
-          case 'w':  xType = 'j';  break;
+          case 'c':            xType = 'o';  break;
+          case 'x': case 'f':  xType = '2';  break;
+          case 't':            xType = 'r';  break;
+          case 'w':            xType = 'j';  break;
         }
         if( strchr(zCap,xType)==0 ) continue;
       }
@@ -2593,6 +2731,7 @@ void contact_admin_page(void){
     @ <tr>
     @  <td class="form_label">Security&nbsp;Code:</td>
     @  <td><input type="text" name="captcha" value="" size="10">
+    captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
   }
@@ -2619,7 +2758,7 @@ void contact_admin_page(void){
     @ <div class="captcha"><table class="captcha"><tr><td><pre class="captcha">
     @ %h(zCaptcha)
     @ </pre>
-    @ Enter the 8 characters above in the "Security Code" box
+    @ Enter the 8 characters above in the "Security Code" box<br/>
     @ </td></tr></table></div>
   }
   @ </form>
@@ -2637,6 +2776,7 @@ static char *alert_send_announcement(void){
   char *zSubject = PT("subject");
   int bAll = PB("all");
   int bAA = PB("aa");
+  int bMods = PB("mods");
   const char *zSub = db_get("email-subname", "[Fossil Repo]");
   int bTest2 = fossil_strcmp(P("name"),"test2")==0;
   Blob hdr, body;
@@ -2648,13 +2788,25 @@ static char *alert_send_announcement(void){
     blob_appendf(&hdr, "To: <%s>\r\nSubject: %s %s\r\n", zTo, zSub, zSubject);
     alert_send(pSender, &hdr, &body, 0);
   }
-  if( bAll || bAA ){
+  if( bAll || bAA || bMods ){
     Stmt q;
     int nUsed = blob_size(&body);
     const char *zURL =  db_get("email-url",0);
-    db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
-                   " WHERE sverified AND NOT sdonotcall %s",
-                   bAll ? "" : " AND ssub LIKE '%a%'");
+    if( bAll ){
+      db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
+                     " WHERE sverified AND NOT sdonotcall");
+    }else if( bAA ){
+      db_prepare(&q, "SELECT semail, hex(subscriberCode) FROM subscriber "
+                     " WHERE sverified AND NOT sdonotcall"
+                     " AND ssub LIKE '%%a%%'");
+    }else if( bMods ){
+      db_prepare(&q,
+        "SELECT semail, hex(subscriberCode)"
+        "  FROM subscriber, user "
+        " WHERE sverified AND NOT sdonotcall"
+        "   AND suname=login"
+        "   AND fullcap(cap) GLOB '*5*'");
+    }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zCode = db_column_text(&q, 1);
       zTo = db_column_text(&q, 0);
@@ -2715,7 +2867,8 @@ void announce_page(void){
       @ %h(zErr)
       @ </pre></blockquote>
     }else{
-      @ <p>The announcement has been sent.</p>
+      @ <p>The announcement has been sent.
+      @ <a href="%h(PD("REQUEST_URI","/"))">Send another</a></p>
     }
     style_footer();    
     return;
@@ -2733,8 +2886,10 @@ void announce_page(void){
   if( g.perm.Admin ){
     int aa = PB("aa");
     int all = PB("all");
+    int aMod = PB("mods");
     const char *aack = aa ? "checked" : "";
     const char *allck = all ? "checked" : "";
+    const char *modck = aMod ? "checked" : "";
     @ <tr>
     @  <td class="form_label">To:</td>
     @  <td><input type="text" name="to" value="%h(PT("to"))" size="30"><br>
@@ -2743,7 +2898,10 @@ void announce_page(void){
     @  <a href="%R/subscribers?only=a" target="_blank">(list)</a><br>
     @  <label><input type="checkbox" name="all" %s(allck)> \
     @  All subscribers</label> \
-    @  <a href="%R/subscribers" target="_blank">(list)</a><br></td>
+    @  <a href="%R/subscribers" target="_blank">(list)</a><br>
+    @  <label><input type="checkbox" name="mods" %s(modck)> \
+    @  All moderators</label> \
+    @  <a href="%R/setup_ulist?with=5" target="_blank">(list)</a><br></td>
     @ </tr>
   }
   @ <tr>
@@ -2758,7 +2916,11 @@ void announce_page(void){
   @ </tr>
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="submit" value="Send Message">
+  if( fossil_strcmp(P("name"),"test2")==0 ){
+    @   <td><input type="submit" name="submit" value="Dry Run">
+  }else{
+    @   <td><input type="submit" name="submit" value="Send Message">
+  }
   @ </tr>
   @ </table>
   @ </form>

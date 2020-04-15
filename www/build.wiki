@@ -163,7 +163,7 @@ first <a href="https://www.openssl.org/source/">download the official
 source code for OpenSSL</a> and extract it to an appropriately named
 "<b>openssl-X.Y.ZA</b>" subdirectory within the local
 [/tree?ci=trunk&name=compat | compat] directory (e.g.
-"<b>compat/openssl-1.1.1c</b>"), then make sure that some recent
+"<b>compat/openssl-1.1.1f</b>"), then make sure that some recent
 <a href="http://www.perl.org/">Perl</a> binaries are installed locally,
 and finally run one of the following commands:
 <blockquote><pre>
@@ -231,3 +231,137 @@ To uninstall, just delete the binary.</p>
   TCC += -DSQLITE_MAX_MMAP_SIZE=0
 </pre></blockquote>
 </ul>
+
+<h2>5.0 Building a Static Binary on Linux using Docker</h2>
+
+Building a static binary on Linux is not as straightforward as it
+could be because the GNU C library requires that certain components be
+dynamically loadable. That can be worked around by building against a
+different C library, which is simplest to do by way of a container
+environment like [https://www.docker.com/ | Docker].
+
+The following instructions for building fossil using Docker
+were adapted from [https://fossil-scm.org/forum/forumpost/5dd2d61e5f | forumpost/5dd2d61e5f].
+These instructions assume that docker is installed and that the user running
+these instructions has permission to do so (i.e., they are <tt>root</tt> or
+are a member of the <tt>docker</tt> group).
+
+First, create a file named <tt>Dockerfile</tt> with the following contents:
+
+<pre><code>
+FROM    alpine:edge
+RUN     apk update                                                                                      \
+        && apk upgrade                                                                                  \
+                                                                                                        \
+        && apk add --no-cache                                                                           \
+        curl gcc make tcl                                                                               \
+        musl-dev                                                                                        \
+        openssl-dev zlib-dev                                                                            \
+        openssl-libs-static zlib-static                                                                 \
+                                                                                                        \
+        && curl                                                                                         \
+        "https://www.fossil-scm.org/index.html/tarball/fossil-src.tar.gz?name=fossil-src&uuid=trunk"    \
+        -o fossil-src.tar.gz                                                                            \
+                                                                                                        \
+        && tar xf fossil-src.tar.gz                                                                     \
+        && cd fossil-src                                                                                \
+                                                                                                        \
+        && ./configure                                                                                  \
+        --static                                                                                        \
+        --disable-fusefs                                                                                \
+        --with-th1-docs                                                                                 \
+        --with-th1-hooks                                                                                \
+                                                                                                        \
+        && make
+</code></pre>
+
+Be sure to modify the <tt>configure</tt> flags, if desired. e.g., add <tt>--json</tt>
+for JSON support.
+
+From the directory containing that file, build it with docker:
+
+<pre><code># docker build -t fossil_static .</code></pre>
+
+If you get permissions errors when running that as a non-root user,
+be sure to add the user to the <tt>docker</tt> group before trying
+again.
+
+That creates a docker image and builds a static fossil binary inside
+it. That step will take several minutes or more, depending on the
+speed of the build environment.
+
+Next, create a docker container to host the image we just created:
+
+<pre><code># docker create --name fossil fossil_static</code></pre>
+
+Then copy the fossil binary from that container:
+
+<pre><code># docker cp fossil:/fossil-src/fossil fossil</code></pre>
+
+The resulting binary will be <em>huge</em> because it is built with
+debug info. To strip that information, reducing the size greatly:
+
+<pre><code># strip fossil</code></pre>
+
+To delete the Docker container and image (if desired), run:
+
+<pre><code># docker container rm fossil
+# docker image ls
+</code></pre>
+
+Note the IDs of the images named <tt>fossil_static</tt> and <tt>alpine</tt>, then:
+
+<pre><code>docker image rm THE_FOSSIL_ID THE_ALPINE_ID</code></pre>
+
+
+<h2>6.0 Building on/for Android</h2>
+
+<h3>6.1 Cross-compiling from Linux</h3>
+
+The following instructions for building Fossil for Andoid,
+without requiring a rooted OS, are adapted from
+[https://fossil-scm.org/forum/forumpost/e0e9de4a7e | forumpost/e0e9de4a7e].
+
+On the development machine, from the fossil source tree:
+
+<pre><code>export CC=$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi21-clang
+./configure --with-openssl=none
+make
+</code></pre>
+
+
+On the Android device, enable the <em>USB debugging</em> option from
+Developer menu in Device Options. Connect the device to the development
+system with USB. If it's configured and connected properly,
+the device should show up in the output of <code>adb devices</code>:
+
+<pre><code>sudo adb devices
+</code></pre>
+
+Copy the resulting fossil binary onto the device...
+
+<pre><code>sudo adb push fossil /data/local/tmp
+</code></pre>
+
+And run it from an <code>adb</code> shell:
+
+<pre><code>sudo adb shell
+&gt; cd /data/local/tmp
+# Fossil requires a HOME directory to work with:
+&gt; export HOME=$PWD
+&gt; export PATH=$PWD:$PATH
+&gt; fossil version
+This is fossil version 2.11 &#91;e5653a4ceb] 2020-03-26 18:54:02 UTC
+</code></pre>
+
+The output might, or might not, include warnings such as:
+
+<pre><code>WARNING: linker: ./fossil: unused DT entry: type 0x6ffffef5 arg 0x1464
+WARNING: linker: ./fossil: unused DT entry: type 0x6ffffffe arg 0x1ba8
+WARNING: linker: ./fossil: unused DT entry: type 0x6fffffff arg 0x2
+</code></pre>
+
+The source of such warnings is not 100% certain.
+Some information about these (reportedly harmless) warnings can
+be found
+[https://stackoverflow.com/a/41900551 | on this StackOverflow post].

@@ -98,9 +98,10 @@ static const char zDefaultTicketTable[] =
 ;
 
 /*
-** Return the ticket table definition
+** Return the ticket table definition in heap-allocated
+** memory owned by the caller.
 */
-const char *ticket_table_schema(void){
+char *ticket_table_schema(void){
   return db_get("ticket-table", zDefaultTicketTable);
 }
 
@@ -300,13 +301,15 @@ void tktsetup_change_page(void){
 
 static const char zDefaultNew[] =
 @ <th1>
-@   if {![info exists mutype]} {set mutype {[links only]}}
+@   if {![info exists mutype]} {set mutype Markdown}
 @   if {[info exists submit]} {
 @      set status Open
 @      if {$mutype eq "HTML"} {
 @        set mimetype "text/html"
 @      } elseif {$mutype eq "Wiki"} {
 @        set mimetype "text/x-fossil-wiki"
+@      } elseif {$mutype eq "Markdown"} {
+@        set mimetype text/x-markdown
 @      } elseif {$mutype eq {[links only]}} {
 @        set mimetype "text/x-fossil-plain"
 @      } else {
@@ -363,7 +366,7 @@ static const char zDefaultNew[] =
 @ For code defects, be sure to provide details on exactly how
 @ the problem can be reproduced.  Provide as much detail as
 @ possible.  Format:
-@ <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
+@ <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki}} 1</th1>
 @ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="icomment" cols="80" rows="$nline"
@@ -379,6 +382,8 @@ static const char zDefaultNew[] =
 @ } elseif {$mutype eq "Plain Text"} {
 @   set r [randhex]
 @   wiki "<verbatim-$r>[string trimright $icomment]\n</verbatim-$r>"
+@ } elseif {$mutype eq "Markdown"} {
+@   html [lindex [markdown "$icomment\n"] 1]
 @ } elseif {$mutype eq {[links only]}} {
 @   set r [randhex]
 @   wiki "<verbatim-$r links>[string trimright $icomment]\n</verbatim-$r>"
@@ -543,6 +548,8 @@ static const char zDefaultView[] =
 @     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
 @   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
 @     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
+@   } elseif {$xmimetype eq "text/x-markdown"} {
+@     html [lindex [markdown $xcomment] 1]
 @   } elseif {$xmimetype eq "text/html"} {
 @     wiki "<p><nowiki>\n[string trimright $xcomment]\n</nowiki>\n"
 @   } else {
@@ -585,12 +592,14 @@ void tktsetup_viewpage_page(void){
 
 static const char zDefaultEdit[] =
 @ <th1>
-@   if {![info exists mutype]} {set mutype {[links only]}}
+@   if {![info exists mutype]} {set mutype Markdown}
 @   if {![info exists icomment]} {set icomment {}}
 @   if {![info exists username]} {set username $login}
 @   if {[info exists submit]} {
 @     if {$mutype eq "Wiki"} {
 @       set mimetype text/x-fossil-wiki
+@     } elseif {$mutype eq "Markdown"} {
+@       set mimetype text/x-markdown
 @     } elseif {$mutype eq "HTML"} {
 @       set mimetype text/html
 @     } elseif {$mutype eq {[links only]}} {
@@ -644,7 +653,7 @@ static const char zDefaultEdit[] =
 @
 @ <tr><td colspan="2">
 @   Append Remark with format
-@   <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
+@  <th1>combobox mutype {HTML {[links only]} Markdown {Plain Text} Wiki} 1</th1>
 @   from
 @   <input type="text" name="username" value="$<username>" size="30" />:<br />
 @   <textarea name="icomment" cols="80" rows="15"
@@ -660,6 +669,8 @@ static const char zDefaultEdit[] =
 @ } elseif {$mutype eq "Plain Text"} {
 @   set r [randhex]
 @   wiki "<verbatim-$r>\n[string trimright $icomment]\n</verbatim-$r>"
+@ } elseif {$mutype eq "Markdown"} {
+@   html [lindex [markdown "$icomment\n"] 1]
 @ } elseif {$mutype eq {[links only]}} {
 @   set r [randhex]
 @   wiki "<verbatim-$r links>\n[string trimright $icomment]</verbatim-$r>"
@@ -901,19 +912,22 @@ void tktsetup_timeline_page(void){
   entry_attribute("Ticket Title", 40, "ticket-title-expr", "t",
                   "title", 0);
   @ <p>An SQL expression in a query against the TICKET table that will
-  @ return the title of the ticket for display purposes.</p>
+  @ return the title of the ticket for display purposes.
+  @ (Property: ticket-title-expr)</p>
 
   @ <hr />
   entry_attribute("Ticket Status", 40, "ticket-status-column", "s",
                   "status", 0);
   @ <p>The name of the column in the TICKET table that contains the ticket
-  @ status in human-readable form.  Case sensitive.</p>
+  @ status in human-readable form.  Case sensitive.
+  @ (Property: ticket-status-column)</p>
 
   @ <hr />
   entry_attribute("Ticket Closed", 40, "ticket-closed-expr", "c",
                   "status='Closed'", 0);
   @ <p>An SQL expression that evaluates to true in a TICKET table query if
-  @ the ticket is closed.</p>
+  @ the ticket is closed.
+  @ (Property: ticket-closed-expr)</p>
 
   @ <hr />
   @ <p>

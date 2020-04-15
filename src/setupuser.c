@@ -37,6 +37,7 @@ void setup_ulist(void){
   Stmt s;
   double rNow;
   const char *zWith = P("with");
+  int bUnusedOnly = P("unused")!=0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -47,8 +48,11 @@ void setup_ulist(void){
   style_submenu_element("Add", "setup_uedit");
   style_submenu_element("Log", "access_log");
   style_submenu_element("Help", "setup_ulist_notes");
+  if( alert_tables_exist() ){
+    style_submenu_element("Subscribers", "subscribers");
+  }
   style_header("User List");
-  if( zWith==0 || zWith[0]==0 ){
+  if( (zWith==0 || zWith[0]==0) && !bUnusedOnly ){
     @ <table border=1 cellpadding=2 cellspacing=0 class='userTable'>
     @ <thead><tr>
     @   <th>Category
@@ -93,11 +97,18 @@ void setup_ulist(void){
     @ <div class='section'>Users</div>
   }else{
     style_submenu_element("All Users", "setup_ulist");
-    if( zWith[1]==0 ){
-      @ <div class='section'>Users with capability "%h(zWith)"</div>
-    }else{
-      @ <div class='section'>Users with any capability in "%h(zWith)"</div>
+    if( bUnusedOnly ){
+      @ <div class='section'>Unused logins</div>
+    }else if( zWith ){
+      if( zWith[1]==0 ){
+        @ <div class='section'>Users with capability "%h(zWith)"</div>
+      }else{
+        @ <div class='section'>Users with any capability in "%h(zWith)"</div>
+      }
     }
+  }
+  if( !bUnusedOnly ){
+    style_submenu_element("Unused", "setup_ulist?unused");
   }
   @ <table border=1 cellpadding=2 cellspacing=0 class='userTable sortable' \
   @  data-column-types='ktxTTK' data-init-sort='2'>
@@ -119,7 +130,15 @@ void setup_ulist(void){
       " GROUP BY 1;"
     );
   }
-  if( zWith && zWith[0] ){
+  if( bUnusedOnly ){
+    zWith = mprintf(
+        " AND login NOT IN ("
+        "SELECT user FROM event WHERE user NOT NULL "
+        "UNION ALL SELECT euser FROM event WHERE euser NOT NULL%s)"
+        " AND uid NOT IN (SELECT uid FROM rcvfrom)",
+        alert_tables_exist() ?
+          " UNION ALL SELECT suname FROM subscriber WHERE suname NOT NULL":"");
+  }else if( zWith && zWith[0] ){
     zWith = mprintf(" AND fullcap(cap) GLOB '*[%q]*'", zWith);
   }else{
     zWith = "";
@@ -519,7 +538,8 @@ void user_edit(void){
   @ <tr>
   @   <td class="usetupEditLabel">User ID:</td>
   if( uid ){
-    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" /></td>
+    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" />\
+    @ </td>
   }else{
     @   <td>(new user)<input type="hidden" name="id" value="0" /></td>
   }
@@ -529,8 +549,18 @@ void user_edit(void){
   if( login_is_special(zLogin) ){
     @    <td><b>%h(zLogin)</b></td>
   }else{
-    @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
-    @ </tr>
+    @   <td><input type="text" name="login" value="%h(zLogin)" />\
+    if( alert_tables_exist() ){
+      char *zSCode;  /* Subscriber Code */
+      zSCode = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
+                          " WHERE suname=%Q", zLogin);
+      if( zSCode && zSCode[0] ){
+        @ &nbsp;&nbsp;<a href="%R/alerts/%s(zSCode)">\
+        @ (subscription info for %h(zLogin))</a>\
+      }
+      fossil_free(zSCode);
+    }
+    @ </td></tr>
     @ <tr>
     @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
     @   <td><textarea name="info" cols="40" rows="2">%h(zInfo)</textarea></td>
@@ -552,8 +582,10 @@ void user_edit(void){
   @  Reader%s(B('u'))</label>
   @  <li><label><input type="checkbox" name="av"%s(oa['v']) />
   @  Developer%s(B('v'))</label>
+#if 0  /* Not Used */
   @  <li><label><input type="checkbox" name="ad"%s(oa['d']) />
   @  Delete%s(B('d'))</label>
+#endif
   @  <li><label><input type="checkbox" name="ae"%s(oa['e']) />
   @  View-PII%s(B('e'))</label>
   @  <li><label><input type="checkbox" name="ap"%s(oa['p']) />
@@ -627,10 +659,12 @@ void user_edit(void){
     @   <td align="right">Password:</td>
     if( zPw[0] ){
       /* Obscure the password for all users */
-      @   <td><input type="password" name="pw" value="**********" /></td>
+      @   <td><input type="password" autocomplete="off" name="pw"\
+      @   value="**********" /></td>
     }else{
       /* Show an empty password as an empty input field */
-      @   <td><input type="password" name="pw" value="" /></td>
+      @   <td><input type="password" autocomplete="off" name="pw"\
+      @   value="" /></td>
     }
     @ </tr>
   }

@@ -316,8 +316,9 @@ char *fossilize(const char *zIn, int nIn){
 */
 void defossilize(char *z){
   int i, j, c;
-  for(i=0; (c=z[i])!=0 && c!='\\'; i++){}
-  if( c==0 ) return;
+  char *zSlash = strchr(z, '\\');
+  if( zSlash==0 ) return;
+  i = zSlash - z;
   for(j=i; (c=z[i])!=0; i++){
     if( c=='\\' && z[i+1] ){
       i++;
@@ -648,6 +649,9 @@ int decode16(const unsigned char *zIn, unsigned char *pOut, int N){
 int validate16(const char *zIn, int nIn){
   int i;
   if( nIn<0 ) nIn = (int)strlen(zIn);
+  if( zIn[nIn]==0 ){
+    return strspn(zIn,"0123456789abcdefABCDEF")==nIn;
+  }
   for(i=0; i<nIn; i++, zIn++){
     if( zDecode[zIn[0]&0xff]>63 ){
       return zIn[0]==0;

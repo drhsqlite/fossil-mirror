@@ -36,7 +36,7 @@ If the Fossil server is itself run as
 extroot: <i>DIRECTORY</i>
 </pre></blockquote>
 
-Or, if the Fossil server is begin run as using the 
+Or, if the Fossil server is being run using the 
 "[./server/any/none.md|fossil server]" or
 "[./server/any/none.md|fossil ui]" or 
 "[./server/any/inetd.md|fossil http]" commands, then add an extra 
@@ -85,7 +85,7 @@ that file to be executable, so it runs it as CGI and returns the result.
 The /sqlite-src-ext/checklist file is a
 [https://wapp.tcl.tk|Wapp program].  The current source code to the
 this program can be seen at
-[https://www.sqlite.org/src/ext/checklist/self] and
+[https://www.sqlite.org/src/ext/checklist/3070700/self] and
 recent historical versions are available at
 [https://sqlite.org/docsrc/finfo/misc/checklist.tcl] with
 older legacy at [https://sqlite.org/checklistapp/timeline?n=all]
@@ -203,8 +203,10 @@ So, in other words, to get javascript to work, it must be enclosed in:
 <script nonce='$FOSSIL_NONCE'>...</script>
 </verbatim></blockquote>
 
-Except, of course, the $FOSSIL_NONCE is replace by the value of the
+Except, of course, the $FOSSIL_NONCE is replaced by the value of the
 FOSSIL_NONCE environment variable.
+
+<h3>3.1 Input Content</h3>
 
 If the HTTP request includes content (for example if this is a POST request)
 then the CONTENT_LENGTH value will be positive and the data for the content
@@ -232,7 +234,7 @@ Those that Fossil does not understand are simply relayed back to up the
 line to the requester.
 
 Fossil takes special action with some content types.  If the Content-Type
-is "application/x-fossil-wiki" or "application/x-markdown" then Fossil
+is "text/x-fossil-wiki" or "text/x-markdown" then Fossil
 converts the content from [/wiki_rules|Fossil-Wiki] or 
 [/md_rules|Markdown] into HTML, adding its
 own header and footer text according to the repository skin.  Content
@@ -279,8 +281,8 @@ by Fossil.
 Remember that the /ext will return any file in the extroot directory
 hierarchy as static content if the file is readable but not executable.
 When initially setting up the /ext mechanism, it is sometimes helpful
-to verify that you are able to receive static content prior to working
-on getting your CGIs working.  Also remember that CGIs must be
+to verify that you are able to receive static content prior to starting
+work on your CGIs.  Also remember that CGIs must be
 executable files.
 
 Fossil likes to run inside a chroot jail, and will automatically put
@@ -297,5 +299,5 @@ then additional diagnostic information may be included in the output.
 If the /ext page has a "fossil-ext-debug=1" query parameter and if
 the requester is logged in as a user with Debug privilege, then the
 CGI output is returned verbatim, as text/plain and with the original
-header intact.  This is useful for trying diagnosing problems with the
+header intact.  This is useful for diagnosing problems with the
 CGI script.

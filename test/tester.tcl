@@ -316,6 +316,7 @@ proc get_all_settings {} {
       proxy \
       relative-paths \
       repo-cksum \
+      repolist-skin \
       self-register \
       ssh-command \
       ssl-ca-location \

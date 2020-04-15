@@ -2,22 +2,22 @@
 
 <table align="right" border="1" width="33%" cellpadding="10">
 <tr><td>
-<h3>Executive Summary</h3>
-<p>A check-in can be identified using any of the following
-names:
+<h3>Quick Reference</h3>
 <ul>
-<li> Cryptographic hash prefix
-<li> Tag or branchname
+<li> Hash prefix
+<li> Branch name
+<li> Tag name
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
 <li> <b>root :</b> <i>branchname</i>
+<li> <b>merge-in :</b> <i>branchname</i>
 <li> Special names:
 <ul>
 <li> <b>tip</b>
 <li> <b>current</b>
 <li> <b>next</b>
 <li> <b>previous</b> or <b>prev</b>
-<li> <b>ckout</b> for embedded docs
+<li> <b>ckout</b> (<a href='./embeddeddocs.wiki'>embedded docs</a> only)
 </ul>
 </ul>
 </td></tr>
@@ -213,6 +213,12 @@ branch "xyzzy":
 <blockquote>
 fossil diff --from root:xyzzy --to xyzzy
 </blockquote>
+
+A branch name that begins with the "<tt>merge-in:</tt>" prefix refers not
+to the root of the branch, but to the most recent merge-in for that branch
+from its parent.  The most recent merge-in is the version to diff the branch
+against in order to see all changes in just the branch itself, omitting
+any changes that have already been merged in from the parent branch.
 
 
 <h2>Special Tags</h2>

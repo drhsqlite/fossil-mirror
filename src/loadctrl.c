@@ -51,7 +51,7 @@ void loadavg_test_cmd(void){
 ** is too high.
 */
 void load_control(void){
-  double mxLoad = atof(db_get("max-loadavg", "0"));
+  double mxLoad = atof(db_get("max-loadavg", 0));
   if( mxLoad<=0.0 || mxLoad>=load_average() ) return;
 
   style_header("Server Overload");

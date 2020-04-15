@@ -31,7 +31,6 @@
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
-** appropriate header files.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -1736,6 +1735,16 @@ static int ProcessMethodDef(Token *pFirst, Token *pLast, int flags){
   }
   StringAppend(&str, "  ", 0);
   zDecl = TokensToString(pFirst, pLast, ";\n", pClass, 2);
+  if(strncmp(zDecl, pClass->zText, pClass->nText)==0){
+    /* If member initializer list is found after a constructor,
+    ** skip that part. */
+    char * colon = strchr(zDecl, ':');
+    if(colon!=0 && colon[1]!=0){
+      *colon++ = ';';
+      *colon++ = '\n';
+      *colon = 0;
+    }
+  }
   StringAppend(&str, zDecl, 0);
   SafeFree(zDecl);
   pDecl->zExtra = StrDup(StringGet(&str), 0);
@@ -1786,7 +1795,10 @@ static int ProcessProcedureDef(Token *pFirst, Token *pLast, int flags){
       zFilename, pFirst->nLine);
     return 1;
   }
-
+  if( strncmp(pName->zText,"main",pName->nText)==0 ){
+    /* skip main() decl. */
+    return 0;
+  }
   /*
   ** At this point we've isolated a procedure declaration between pFirst
   ** and pLast with the name pName.
@@ -3220,6 +3232,7 @@ static void AddParameters(int index, int *pArgc, char ***pArgv){
       }
     }
   }
+  fclose(in);
   newArgc = argc + nNew - 1;
   for(i=0; i<=index; i++){
     zNew[i] = argv[i];

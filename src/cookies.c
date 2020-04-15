@@ -128,7 +128,10 @@ static void cookie_readwrite(
     cgi_set_parameter_nocopy(zQP, cookies.aParam[i].zPValue, 1);
     return;
   }
-  if( zQVal==0 ) zQVal = zDflt;
+  if( zQVal==0 ){
+    zQVal = zDflt;
+    if( flags & COOKIE_WRITE ) cgi_set_parameter_nocopy(zQP, zQVal, 1);
+  }
   if( (flags & COOKIE_WRITE)!=0
    && i<COOKIE_NPARAM
    && (i==cookies.nParam || strcmp(zQVal, cookies.aParam[i].zPValue))

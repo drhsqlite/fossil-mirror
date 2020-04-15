@@ -438,6 +438,12 @@ char *string_subst(const char *zInput, int nSubst, const char **azSubst){
 ** Flags to the 3-way merger
 */
 #define MERGE_DRYRUN  0x0001
+/*
+** The MERGE_KEEP_FILES flag specifies that merge_3way() should retain
+** its temporary files on error. By default they are removed after the
+** merge, regardless of success or failure.
+*/
+#define MERGE_KEEP_FILES 0x0002
 #endif
 
 
@@ -467,10 +473,14 @@ int merge_3way(
 ){
   Blob v1;            /* Content of zV1 */
   int rc;             /* Return code of subroutines and this routine */
+  const char *zGMerge;   /* Name of the gmerge command */
 
   blob_read_from_file(&v1, zV1, ExtFILE);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
-  if( rc!=0 && (mergeFlags & MERGE_DRYRUN)==0 ){
+  zGMerge = rc<=0 ? 0 : db_get("gmerge-command", 0);
+  if( (mergeFlags & MERGE_DRYRUN)==0
+      && ((zGMerge!=0 && zGMerge[0]!=0)
+          || (rc!=0 && (mergeFlags & MERGE_KEEP_FILES)!=0)) ){
     char *zPivot;       /* Name of the pivot file */
     char *zOrig;        /* Name of the original content file */
     char *zOther;       /* Name of the merge file */
@@ -482,14 +492,10 @@ int merge_3way(
     zOther = file_newname(zV1, "merge", 1);
     blob_write_to_file(pV2, zOther);
     if( rc>0 ){
-      const char *zGMerge;   /* Name of the gmerge command */
-
-      zGMerge = db_get("gmerge-command", 0);
       if( zGMerge && zGMerge[0] ){
         char *zOut;     /* Temporary output file */
         char *zCmd;     /* Command to invoke */
         const char *azSubst[8];  /* Strings to be substituted */
-
         zOut = file_newname(zV1, "output", 1);
         azSubst[0] = "%baseline";  azSubst[1] = zPivot;
         azSubst[2] = "%original";  azSubst[3] = zOrig;
@@ -500,14 +506,16 @@ int merge_3way(
         fossil_system(zCmd);
         if( file_size(zOut, RepoFILE)>=0 ){
           blob_read_from_file(pOut, zOut, ExtFILE);
-          file_delete(zPivot);
-          file_delete(zOrig);
-          file_delete(zOther);
           file_delete(zOut);
         }
         fossil_free(zCmd);
         fossil_free(zOut);
       }
+    }
+    if( (mergeFlags & MERGE_KEEP_FILES)==0 ){
+      file_delete(zPivot);
+      file_delete(zOrig);
+      file_delete(zOther);
     }
     fossil_free(zPivot);
     fossil_free(zOrig);

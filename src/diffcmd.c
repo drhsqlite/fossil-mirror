@@ -709,7 +709,7 @@ void diff_tk(const char *zSubCmd, int firstArg){
   find_option("verbose","v",0);
   zTclsh = find_option("tclsh",0,1);
   if( zTclsh==0 ){
-    zTclsh = db_get("tclsh","tclsh");
+    zTclsh = db_get("tclsh",0);
   }
   /* The undocumented --script FILENAME option causes the Tk script to
   ** be written into the FILENAME instead of being run.  This is used

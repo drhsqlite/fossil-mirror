@@ -341,6 +341,7 @@ void add_cmd(void){
         char *prompt = mprintf("file \"%s\" matches \"ignore-glob\".  "
                                "Add it (a=all/y/N)? ", zTreeName);
         prompt_user(prompt, &ans);
+        fossil_free(prompt);
         cReply = blob_str(&ans)[0];
         blob_reset(&ans);
         if( cReply=='a' || cReply=='A' ){
@@ -937,7 +938,7 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
+         "  AND (pathname='%q' %s OR (pathname>'%q/' %s AND pathname<'%q0' %s))"
          " ORDER BY 1",
          vid, zOrig, filename_collation(), zOrig, filename_collation(),
          zOrig, filename_collation()
@@ -969,6 +970,7 @@ void mv_cmd(void){
     if( moveFiles ) add_file_to_move(zFrom, zTo);
   }
   db_finalize(&q);
+  undo_reset();
   db_end_transaction(0);
   if( moveFiles ) process_files_to_move(dryRunFlag);
 }

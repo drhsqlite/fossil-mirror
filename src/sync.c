@@ -23,10 +23,22 @@
 
 /*
 ** If the repository is configured for autosyncing, then do an
-** autosync.  This will be a pull if the argument is true or a push
-** if the argument is false.
+** autosync.  Bits of the "flags" parameter determine details of behavior:
+**
+**   SYNC_PULL           Pull content from the server to the local repo
+**   SYNC_PUSH           Push content from local up to the server
+**   SYNC_CKIN_LOCK      Take a check-in lock on the current checkout.
+**   SYNC_VERBOSE        Extra output
 **
 ** Return the number of errors.
+**
+** The autosync setting can be a boolean or "pullonly".  No autosync
+** is attempted if the autosync setting is off, and only auto-pull is
+** attempted if autosync is set to "pullonly".  The check-in lock is
+** not acquired unless autosync is set to "on".
+**
+** If dont-push setting is true, that is the same as having autosync
+** set to pullonly.
 */
 int autosync(int flags){
   const char *zAutosync;
@@ -35,19 +47,12 @@ int autosync(int flags){
   if( g.fNoSync ){
     return 0;
   }
-  if( flags==SYNC_PUSH && db_get_boolean("dont-push",0) ){
-    return 0;
-  }
   zAutosync = db_get("autosync", 0);
-  if( zAutosync ){
-    if( (flags & SYNC_PUSH)!=0 && fossil_strncmp(zAutosync,"pull",4)==0 ){
-      return 0;   /* Do not auto-push when autosync=pullonly */
-    }
-    if( is_false(zAutosync) ){
-      return 0;   /* Autosync is completely off */
-    }
-  }else{
-    /* Autosync defaults on.  To make it default off, "return" here. */
+  if( zAutosync==0 ) zAutosync = "on";  /* defend against misconfig */
+  if( is_false(zAutosync) ) return 0;
+  if( db_get_boolean("dont-push",0) || fossil_strncmp(zAutosync,"pull",4)==0 ){
+    flags &= ~SYNC_CKIN_LOCK;
+    if( flags & SYNC_PUSH ) return 0;
   }
   url_parse(0, URL_REMEMBER);
   if( g.url.protocol==0 ) return 0;
@@ -58,22 +63,10 @@ int autosync(int flags){
   }
   g.zHttpAuth = get_httpauth();
   url_remember();
-#if 0 /* Disabled for now */
-  if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
-    /* When doing an automatic pull, also automatically pull shuns from
-    ** the server if pull_shuns is enabled.
-    **
-    ** TODO:  What happens if the shun list gets really big?
-    ** Maybe the shunning list should only be pulled on every 10th
-    ** autosync, or something?
-    */
-    configSync = CONFIGSET_SHUN;
-  }
-#endif
   if( find_option("verbose","v",0)!=0 ) flags |= SYNC_VERBOSE;
   fossil_print("Autosync:  %s\n", g.url.canonical);
   url_enable_proxy("via proxy: ");
-  rc = client_sync(flags, configSync, 0);
+  rc = client_sync(flags, configSync, 0, 0);
   return rc;
 }
 
@@ -123,7 +116,8 @@ int autosync_loop(int flags, int nTries, int doPrompt){
 static void process_sync_args(
   unsigned *pConfigFlags,      /* Write configuration flags here */
   unsigned *pSyncFlags,        /* Write sync flags here */
-  int uvOnly                   /* Special handling flags for UV sync */
+  int uvOnly,                  /* Special handling flags for UV sync */
+  unsigned urlOmitFlags        /* Omit these URL flags */
 ){
   const char *zUrl = 0;
   const char *zHttpAuth = 0;
@@ -159,7 +153,7 @@ static void process_sync_args(
   if( !uvOnly ) db_find_and_open_repository(0, 0);
   db_open_config(0, 1);
   if( g.argc==2 ){
-    if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
+    if( db_get_boolean("auto-shun",0) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
@@ -168,6 +162,7 @@ static void process_sync_args(
   ){
     *pSyncFlags |= SYNC_UNVERSIONED;
   }
+  urlFlags &= ~urlOmitFlags;
   if( urlFlags & URL_REMEMBER ){
     clone_ssh_db_set_options();
   }
@@ -197,9 +192,10 @@ static void process_sync_args(
 **
 ** Usage: %fossil pull ?URL? ?options?
 **
-** Pull all sharable changes from a remote repository into the local repository.
-** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Add the --private option to pull private branches.  Use the
+** Pull all sharable changes from a remote repository into the local
+** repository.  Sharable changes include public check-ins, edits to
+** wiki pages, tickets, and tech-notes, as well as forum content.  Add
+** the --private option to pull private branches.  Use the
 ** "configuration pull" command to pull website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
@@ -213,8 +209,9 @@ static void process_sync_args(
 **   --from-parent-project      Pull content from the parent project
 **   --ipv4                     Use only IPv4, not IPv6
 **   --once                     Do not remember URL for subsequent syncs
-**   --proxy PROXY              Use the specified HTTP proxy
 **   --private                  Pull private branches too
+**   --project-code CODE        Use CODE as the project code
+**   --proxy PROXY              Use the specified HTTP proxy
 **   -R|--repository REPO       Local repository to pull into
 **   --ssl-identity FILE        Local SSL credentials, if requested by remote
 **   --ssh-command SSH          Use SSH as the "ssh" command
@@ -227,15 +224,18 @@ static void process_sync_args(
 void pull_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PULL;
+  unsigned urlOmitFlags = 0;
+  const char *zAltPCode = find_option("project-code",0,1);
   if( find_option("from-parent-project",0,0)!=0 ){
     syncFlags |= SYNC_FROMPARENT;
   }
-  process_sync_args(&configFlags, &syncFlags, 0);
+  if( zAltPCode ) urlOmitFlags = URL_REMEMBER;
+  process_sync_args(&configFlags, &syncFlags, 0, urlOmitFlags);
 
   /* We should be done with options.. */
   verify_all_options();
 
-  client_sync(syncFlags, configFlags, 0);
+  client_sync(syncFlags, configFlags, 0, zAltPCode);
 }
 
 /*
@@ -243,10 +243,11 @@ void pull_cmd(void){
 **
 ** Usage: %fossil push ?URL? ?options?
 **
-** Push all sharable changes from the local repository to a remote repository.
-** Sharable changes include public check-ins, and wiki, ticket, and tech-note
-** edits.  Use --private to also push private branches.  Use the
-** "configuration push" command to push website configuration details.
+** Push all sharable changes from the local repository to a remote
+** repository.  Sharable changes include public check-ins, edits to
+** wiki pages, tickets, and tech-notes, as well as forum content.  Use
+** --private to also push private branches.  Use the "configuration
+** push" command to push website configuration details.
 **
 ** If URL is not specified, then the URL from the most recent clone, push,
 ** pull, remote-url, or sync command is used.  See "fossil help clone" for
@@ -272,7 +273,7 @@ void pull_cmd(void){
 void push_cmd(void){
   unsigned configFlags = 0;
   unsigned syncFlags = SYNC_PUSH;
-  process_sync_args(&configFlags, &syncFlags, 0);
+  process_sync_args(&configFlags, &syncFlags, 0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
@@ -280,7 +281,7 @@ void push_cmd(void){
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync(syncFlags, 0, 0);
+  client_sync(syncFlags, 0, 0, 0);
 }
 
 
@@ -321,13 +322,13 @@ void sync_cmd(void){
   if( find_option("unversioned","u",0)!=0 ){
     syncFlags |= SYNC_UNVERSIONED;
   }
-  process_sync_args(&configFlags, &syncFlags, 0);
+  process_sync_args(&configFlags, &syncFlags, 0, 0);
 
   /* We should be done with options.. */
   verify_all_options();
 
   if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
-  client_sync(syncFlags, configFlags, 0);
+  client_sync(syncFlags, configFlags, 0, 0);
   if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
@@ -340,9 +341,9 @@ void sync_cmd(void){
 void sync_unversioned(unsigned syncFlags){
   unsigned configFlags = 0;
   (void)find_option("uv-noop",0,0);
-  process_sync_args(&configFlags, &syncFlags, 1);
+  process_sync_args(&configFlags, &syncFlags, 1, 0);
   verify_all_options();
-  client_sync(syncFlags, 0, 0);
+  client_sync(syncFlags, 0, 0, 0);
 }
 
 /*

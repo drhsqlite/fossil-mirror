@@ -16,7 +16,7 @@ This is a complex topic, so some sub-topics have their own documents:
 2.  [Implementation Details](./impl.md)
 3.  [User Capability Reference](./ref.html)
 
-[an]:   https://en.wikipediAsa.org/wiki/Alphanumeric
+[an]:   https://en.wikipedia.org/wiki/Alphanumeric
 [avs]:  ./admin-v-setup.md
 [lg]:   ./login-groups.md
 [rbac]: https://en.wikipedia.org/wiki/Role-based_access_control
@@ -67,8 +67,8 @@ editing screen (Admin → Users → name) with the `[N]` `[A]` `[D]` `[R]`
 tags next to each capability check box. If a user gets a capability from
 one of the user categories already assigned to it, there is no value in
 redundantly assigning that same cap to the user explicitly. For example,
-with the default **dei** cap set for the “developer” category, the cap
-set **ve** is redundant because **v** grants **dei**, which includes
+with the default **ei** cap set for the “developer” category, the cap
+set **ve** is redundant because **v** grants **ei**, which includes
 **e**.
 
 We suggest that you lean heavily on these fixed user categories when
@@ -153,8 +153,8 @@ change one’s own password, create new ticket report formats, and modify
 existing tickets. This category would be better named “participant”.
 
 Those in the “developer” category get the “nobody” and “anonymous” cap
-sets plus **[d][d][e][e][i][i]**: delete wiki articles and tickets, view
-sensitive user material, and check in changes.
+sets plus **[e][e][i][i]**: view
+sensitive user material and check in changes.
 
 [bot]: ../antibot.wiki
 

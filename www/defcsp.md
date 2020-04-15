@@ -4,9 +4,11 @@ When Fossil’s web interface generates an HTML page, it normally includes
 a [Content Security Policy][csp] (CSP) in the `<head>`.  The CSP defines
 a “white list” to tell the browser what types of content (HTML, images,
 CSS, JavaScript...) the document may reference and the sources the
-browser is allowed to pull such content from. The aim is to prevent
+browser is allowed to pull and interpret such content from. The aim is to prevent
 certain classes of [cross-site scripting][xss] (XSS) and code injection
-attacks.  The browser will not pull content types disallowed by the CSP.
+attacks.  The browser will not pull content types disallowed by the CSP;
+the CSP also adds restrictions on the types of inline content the
+browser is allowed to interpret.
 
 Fossil has built-in server-side content filtering logic. For example, it
 purposely breaks `<script>` tags when it finds them in Markdown and
@@ -28,11 +30,12 @@ developers react quickly to a report of code injection — as we do! — if
 the bad guys learn of it and start exploiting it first.
 
 Second, Fossil has purposefully powerful features that are inherently
-difficult to police from the server side: HTML [in wiki](/wiki_rules)
-and [in Markdown](/md_rules) docs, [TH1 docs](./th1.md), etc.
+difficult to police from the server side: HTML tags [in wiki](/wiki_rules)
+and [in Markdown](/md_rules) docs, [TH1 docs](./th1.md), the Admin →
+Wiki → “Use HTML as wiki markup language” mode, etc.
 
-Fossil’s strong default CSP adds client-side filtering to backstop our
-server-side measures.
+Fossil’s strong default CSP adds client-side filtering as a backstop for
+all of this.
 
 Fossil site administrators can [modify the default CSP](#override), perhaps
 to add trusted external sources for auxiliary content.  But for maximum
@@ -60,7 +63,7 @@ one in the following Markdown under our default CSP:
 If you look in the browser’s developer console, you should see a CSP
 error when attempting to render such a page.
 
-The default policy does allows inline `data:` URIs, which means you could
+The default policy does allow inline `data:` URIs, which means you could
 [data-encode][de] your image content and put it inline within the
 document:
 
@@ -89,25 +92,22 @@ There are many other cases, [covered below](#serving).
 ### <a name="style"></a> style-src 'self' 'unsafe-inline'
 
 This policy allows CSS information to come from separate files hosted
-under the Fossil repo server’s Internet domain, or for CSS to be
-embedded within `<style>` tags within the document text.
+under the Fossil repo server’s Internet domain. It also allows inline CSS
+`<style>` tags within the document text.
 
-The `'unsafe-inline'` declaration excludes CSS within individual HTML
+The `'unsafe-inline'` declaration allows CSS within individual HTML
 elements:
 
         <p style="margin-left: 4em">Indented text.</p>
 
-Because this policy is weaker than [our default for script
-elements](#script), there is the potential for an atacker to modify a
-Fossil-generated page via CSS. While such page modifications are not as
-dangerous as injected JavaScript, the real reason we allow it is that
-Fossil still emits in-page `<style>` blocks in a few places. Over time,
-we may work out ways to avoid each of these, which will eventually allow
-us to tighten this CSP rule down to match the `script` rule. We
-recommend that you do your own CSS modifications [via the skin][cs]
-rather than depend on the ability to insert `<script>` blocks into
-individual pages.
-
+As the "`unsafe-`" prefix on the name implies, the `'unsafe-inline'`
+feature is suboptimal for security.  However, there are
+a few places in the Fossil-generated HTML that benefit from this
+flexibility and the work-arounds are verbose and difficult to maintain.
+Futhermore, the harm that can be done with style injections is far
+less than the harm possible with injected javascript.  And so the
+`'unsafe-inline'` compromise is accepted for now, though it might
+go away in some future release of Fossil.
 
 ### <a name="script"></a> script-src 'self' 'nonce-%s'
 
@@ -321,7 +321,7 @@ The best place to do that is from the [`th1-setup`
 script](./th1-hooks.md), which runs before TH1 processing happens during
 skin processing:
 
-        $ fossil set th1-setup "set default_csp {default-src: 'self'}"
+        $ fossil set th1-setup "set default_csp {default-src 'self'}"
 
 This is the cleanest method, allowing you to set a custom CSP without
 recompiling Fossil or providing a hand-written `<head>` section in the
@@ -330,7 +330,7 @@ Header section of a custom skin.
 You can’t remove the CSP entirely with this method, but you can get the
 same effect by telling the browser there are no content restrictions:
 
-        $ fossil set th1-setup 'set default_csp {default-src: *}'
+        $ fossil set th1-setup 'set default_csp {default-src *}'
 
 
 ### <a name="header"></a>Custom Skin Header

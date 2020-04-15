@@ -71,6 +71,7 @@ set src {
   forum
   fshell
   fusefs
+  fuzz
   glob
   graph
   gzip
@@ -175,6 +176,7 @@ set extra_files {
   wiki.wiki
   *.js
   ../skins/*/*.txt
+  sounds/*.wav
 }
 
 # Options used to compile the included SQLite library.
@@ -205,6 +207,7 @@ set SQLITE_OPTIONS {
   -DSQLITE_HAVE_ZLIB
   -DSQLITE_INTROSPECTION_PRAGMAS
   -DSQLITE_ENABLE_DBPAGE_VTAB
+  -DSQLITE_TRUSTED_SCHEMA=0
 }
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_FTS3=1
 #lappend SQLITE_OPTIONS -DSQLITE_ENABLE_STAT4
@@ -312,9 +315,6 @@ writeln -nonewline "OBJ ="
 foreach s [lsort $src] {
   writeln -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
-writeln "\n"
-writeln "APPNAME = $name\$(E)"
-writeln "\n"
 
 writeln [string map [list \
     <<<SQLITE_OPTIONS>>> [join $SQLITE_OPTIONS " \\\n                 "] \
@@ -444,7 +444,7 @@ EXTRAOBJ = <<<NEXT_LINE>>>
 writeln {
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -715,7 +715,7 @@ endif
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1c
+OPENSSLDIR = $(SRCDIR)/../compat/openssl-1.1.1f
 OPENSSLINCDIR = $(OPENSSLDIR)/include
 OPENSSLLIBDIR = $(OPENSSLDIR)
 
@@ -1572,7 +1572,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1c
+SSLDIR    = $(B)\compat\openssl-1.1.1f
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)

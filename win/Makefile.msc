@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1c
+SSLDIR    = $(B)\compat\openssl-1.1.1f
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -302,6 +302,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_HAVE_ZLIB \
                  /DSQLITE_INTROSPECTION_PRAGMAS \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
+                 /DSQLITE_TRUSTED_SCHEMA=0 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /DNDEBUG=1 \
@@ -329,6 +330,7 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_HAVE_ZLIB \
                 /DSQLITE_INTROSPECTION_PRAGMAS \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
+                /DSQLITE_TRUSTED_SCHEMA=0 \
                 /Dmain=sqlite3_shell \
                 /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -388,6 +390,7 @@ SRC   = add_.c \
         forum_.c \
         fshell_.c \
         fusefs_.c \
+        fuzz_.c \
         glob_.c \
         graph_.c \
         gzip_.c \
@@ -539,6 +542,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\..\skins\xekri\details.txt \
         $(SRCDIR)\..\skins\xekri\footer.txt \
         $(SRCDIR)\..\skins\xekri\header.txt \
+        $(SRCDIR)\accordion.js \
         $(SRCDIR)\ci_edit.js \
         $(SRCDIR)\copybtn.js \
         $(SRCDIR)\diff.tcl \
@@ -552,6 +556,22 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\scroll.js \
         $(SRCDIR)\skin.js \
         $(SRCDIR)\sorttable.js \
+        $(SRCDIR)\sounds\0.wav \
+        $(SRCDIR)\sounds\1.wav \
+        $(SRCDIR)\sounds\2.wav \
+        $(SRCDIR)\sounds\3.wav \
+        $(SRCDIR)\sounds\4.wav \
+        $(SRCDIR)\sounds\5.wav \
+        $(SRCDIR)\sounds\6.wav \
+        $(SRCDIR)\sounds\7.wav \
+        $(SRCDIR)\sounds\8.wav \
+        $(SRCDIR)\sounds\9.wav \
+        $(SRCDIR)\sounds\a.wav \
+        $(SRCDIR)\sounds\b.wav \
+        $(SRCDIR)\sounds\c.wav \
+        $(SRCDIR)\sounds\d.wav \
+        $(SRCDIR)\sounds\e.wav \
+        $(SRCDIR)\sounds\f.wav \
         $(SRCDIR)\tree.js \
         $(SRCDIR)\useredit.js \
         $(SRCDIR)\wiki.wiki
@@ -601,6 +621,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\forum$O \
         $(OX)\fshell$O \
         $(OX)\fusefs$O \
+        $(OX)\fuzz$O \
         $(OX)\glob$O \
         $(OX)\graph$O \
         $(OX)\gzip$O \
@@ -803,6 +824,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\forum.obj >> $@
 	echo $(OX)\fshell.obj >> $@
 	echo $(OX)\fusefs.obj >> $@
+	echo $(OX)\fuzz.obj >> $@
 	echo $(OX)\glob.obj >> $@
 	echo $(OX)\graph.obj >> $@
 	echo $(OX)\gzip.obj >> $@
@@ -1282,6 +1304,12 @@ $(OX)\fusefs$O : fusefs_.c fusefs.h
 	$(TCC) /Fo$@ -c fusefs_.c
 
 fusefs_.c : $(SRCDIR)\fusefs.c
+	translate$E $** > $@
+
+$(OX)\fuzz$O : fuzz_.c fuzz.h
+	$(TCC) /Fo$@ -c fuzz_.c
+
+fuzz_.c : $(SRCDIR)\fuzz.c
 	translate$E $** > $@
 
 $(OX)\glob$O : glob_.c glob.h
@@ -1896,6 +1924,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			forum_.c:forum.h \
 			fshell_.c:fshell.h \
 			fusefs_.c:fusefs.h \
+			fuzz_.c:fuzz.h \
 			glob_.c:glob.h \
 			graph_.c:graph.h \
 			gzip_.c:gzip.h \

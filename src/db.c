@@ -92,6 +92,18 @@ static void db_err(const char *zFormat, ...){
 }
 
 /*
+** Check a result code.  If it is not SQLITE_OK, print the
+** corresponding error message and exit.
+*/
+static void db_check_result(int rc, Stmt *pStmt){
+  if( rc!=SQLITE_OK ){
+    db_err("SQL error (%d,%d: %s) while running [%s]",
+       rc, sqlite3_extended_errcode(g.db),
+       sqlite3_errmsg(g.db), blob_str(&pStmt->sql));
+  }
+}
+
+/*
 ** All static variable that a used by only this file are gathered into
 ** the following structure.
 */
@@ -480,7 +492,7 @@ int db_reset(Stmt *pStmt){
   int rc;
   db_stats(pStmt);
   rc = sqlite3_reset(pStmt->pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   return rc;
 }
 int db_finalize(Stmt *pStmt){
@@ -498,7 +510,7 @@ int db_finalize(Stmt *pStmt){
   db_stats(pStmt);
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   pStmt->pStmt = 0;
   return rc;
 }
@@ -579,24 +591,27 @@ void db_ephemeral_blob(Stmt *pStmt, int N, Blob *pBlob){
 }
 
 /*
-** Check a result code.  If it is not SQLITE_OK, print the
-** corresponding error message and exit.
-*/
-void db_check_result(int rc){
-  if( rc!=SQLITE_OK ){
-    db_err("SQL error: %s", sqlite3_errmsg(g.db));
-  }
-}
-
-/*
 ** Execute a single prepared statement until it finishes.
 */
 int db_exec(Stmt *pStmt){
   int rc;
   while( (rc = db_step(pStmt))==SQLITE_ROW ){}
   rc = db_reset(pStmt);
-  db_check_result(rc);
+  db_check_result(rc, pStmt);
   return rc;
+}
+
+/*
+** COMMAND: test-db-exec-error
+**
+** Invoke the db_exec() interface with an erroneous SQL statement
+** in order to verify the error handling logic.
+*/
+void db_test_db_exec_cmd(void){
+  Stmt err;
+  db_find_and_open_repository(0,0);
+  db_prepare(&err, "INSERT INTO repository.config(name) VALUES(NULL);");
+  db_exec(&err);
 }
 
 /*
@@ -640,19 +655,13 @@ int db_debug(const char *zSql, ...){
 }
 
 /*
-** Execute multiple SQL statements.
+** Execute multiple SQL statements.  The input text is executed
+** directly without any formatting.
 */
-int db_multi_exec(const char *zSql, ...){
-  Blob sql;
+int db_exec_sql(const char *z){
   int rc = SQLITE_OK;
-  va_list ap;
-  const char *z, *zEnd;
   sqlite3_stmt *pStmt;
-  blob_init(&sql, 0, 0);
-  va_start(ap, zSql);
-  blob_vappendf(&sql, zSql, ap);
-  va_end(ap);
-  z = blob_str(&sql);
+  const char *zEnd;
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
@@ -666,6 +675,22 @@ int db_multi_exec(const char *zSql, ...){
     }
     z = zEnd;
   }
+  return rc;
+}
+
+/*
+** Execute multiple SQL statements using printf-style formatting.
+*/
+int db_multi_exec(const char *zSql, ...){
+  Blob sql;
+  int rc;
+  va_list ap;
+
+  blob_init(&sql, 0, 0);
+  va_start(ap, zSql);
+  blob_vappendf(&sql, zSql, ap);
+  va_end(ap);
+  rc = db_exec_sql(blob_str(&sql));
   blob_reset(&sql);
   return rc;
 }
@@ -1018,6 +1043,8 @@ void db_add_aux_functions(sqlite3 *db){
                           capability_fullcap, 0, 0);
   sqlite3_create_function(db, "find_emailaddr", 1, SQLITE_UTF8, 0,
                           alert_find_emailaddr_func, 0, 0);
+  sqlite3_create_function(db, "display_name", 1, SQLITE_UTF8, 0,
+                          alert_display_name_func, 0, 0);
 }
 
 #if USE_SEE
@@ -1245,7 +1272,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
-  if( g.fSqlTrace ) sqlite3_trace_v2(db, SQLITE_TRACE_STMT, db_sql_trace, 0);
+  if( g.fSqlTrace ) sqlite3_trace_v2(db, SQLITE_TRACE_PROFILE, db_sql_trace, 0);
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
@@ -1273,13 +1300,13 @@ void db_attach(const char *zDbName, const char *zLabel){
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
                                  zDbName, zLabel, blob_str(&key));
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_exec_sql(zCmd);
     fossil_secure_zero(zCmd, strlen(zCmd));
     sqlite3_free(zCmd);
   }else{
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY ''",
                                  zDbName, zLabel);
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_exec_sql(zCmd);
     sqlite3_free(zCmd);
 #if USE_SEE
     if( blob_size(&key)>0 ){
@@ -1350,20 +1377,21 @@ void db_close_config(){
   int iSlot = db_database_slot("configdb");
   if( iSlot>0 ){
     db_detach("configdb");
-    g.zConfigDbName = 0;
   }else if( g.dbConfig ){
     sqlite3_wal_checkpoint(g.dbConfig, 0);
     sqlite3_close(g.dbConfig);
     g.dbConfig = 0;
-    g.zConfigDbName = 0;
   }else if( g.db && 0==iSlot ){
     int rc;
     sqlite3_wal_checkpoint(g.db, 0);
     rc = sqlite3_close(g.db);
     if( g.fSqlTrace ) fossil_trace("-- db_close_config(%d)\n", rc);
     g.db = 0;
-    g.zConfigDbName = 0;
+  }else{
+    return;
   }
+  fossil_free(g.zConfigDbName);
+  g.zConfigDbName = 0;
 }
 
 /*
@@ -1614,7 +1642,9 @@ const char *db_repository_filename(void){
   if( zRepo==0 ){
     zRepo = db_lget("repository", 0);
     if( zRepo && !file_is_absolute_path(zRepo) ){
+      char * zFree = zRepo;
       zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+      fossil_free(zFree);
     }
   }
   return zRepo;
@@ -1721,7 +1751,7 @@ void db_open_repository(const char *zDbName){
         vfile_rid_renumbering_event(0);
         undo_reset();
         bisect_reset();
-        z = db_fingerprint(0);
+        z = db_fingerprint(0, 1);
         db_lset("fingerprint", z);
         fossil_free(z);
         fossil_print(
@@ -1746,9 +1776,9 @@ void db_open_repository(const char *zDbName){
         " WHERE mrid!=rid;"
       );
       if( !db_table_has_column("localdb", "vmerge", "mhash") ){
-        db_multi_exec("ALTER TABLE vmerge RENAME TO old_vmerge;");
-        db_multi_exec(zLocalSchemaVmerge /*works-like:""*/);
-        db_multi_exec(  
+        db_exec_sql("ALTER TABLE vmerge RENAME TO old_vmerge;");
+        db_exec_sql(zLocalSchemaVmerge);
+        db_exec_sql(  
            "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
            "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
            "   WHERE old_vmerge.merge=blob.rid;"
@@ -2058,7 +2088,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('developer','','dei','Dev');"
+       "   VALUES('developer','','ei','Dev');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
@@ -2300,10 +2330,19 @@ LOCAL int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
   char *zSql;
   int n;
   const char *zArg = (const char*)pX;
+  char zEnd[40];
   if( zArg[0]=='-' ) return 0;
+  if( m & SQLITE_TRACE_PROFILE ){
+    sqlite3_int64 nNano = *(sqlite3_int64*)pX;
+    double rMillisec = 0.000001 * nNano;
+    sqlite3_snprintf(sizeof(zEnd),zEnd," /* %.3fms */\n", rMillisec);
+  }else{
+    zEnd[0] = '\n';
+    zEnd[1] = 0;
+  }
   zSql = sqlite3_expanded_sql(pStmt);
   n = (int)strlen(zSql);
-  fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  fossil_trace("%s%s%s", zSql, (n>0 && zSql[n-1]==';') ? "" : ";", zEnd);
   sqlite3_free(zSql);
   return 0;
 }
@@ -2619,7 +2658,11 @@ char *db_get(const char *zName, const char *zDefault){
   if( pSetting!=0 && pSetting->versionable ){
     /* This is a versionable setting, try and get the info from a
     ** checked out file */
+    char * zZ = z;
     z = db_get_versioned(zName, z);
+    if(zZ != z){
+      fossil_free(zZ);
+    }
   }
   if( z==0 ){
     if( zDefault==0 && pSetting && pSetting->def[0] ){
@@ -2718,8 +2761,12 @@ void db_set_int(const char *zName, int value, int globalFlag){
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
-  if( is_truth(zVal) ) return 1;
-  if( is_false(zVal) ) return 0;
+  if( is_truth(zVal) ){
+    dflt = 1;
+  }else if( is_false(zVal) ){
+    dflt = 0;
+  }
+  fossil_free(zVal);
   return dflt;
 }
 int db_get_versioned_boolean(const char *zName, int dflt){
@@ -2937,7 +2984,7 @@ void cmd_open(void){
     if( g.argc==4 ){
       g.zOpenRevision = g.argv[3];
     }else if( db_exists("SELECT 1 FROM event WHERE type='ci'") ){
-      g.zOpenRevision = db_get("main-branch", "trunk");
+      g.zOpenRevision = db_get("main-branch", 0);
     }
   }
 
@@ -3060,8 +3107,11 @@ void print_setting(const Setting *pSetting){
 ** var is the name of the internal configuration name for db_(un)set.
 ** If var is 0, the settings name is used.
 **
-** width is the length for the edit field on the behavior page, 0
-** is used for on/off checkboxes.
+** width is the length for the edit field on the behavior page, 0 is
+** used for on/off checkboxes. A negative value indicates that that
+** page should not render this setting. Such values may be rendered
+** separately/manually on another page, e.g., /setup_access, and are
+** exposed via the CLI settings command.
 **
 ** The behaviour page doesn't use a special layout. It lists all
 ** set-commands and displays the 'set'-help as info.
@@ -3069,7 +3119,9 @@ void print_setting(const Setting *pSetting){
 struct Setting {
   const char *name;     /* Name of the setting */
   const char *var;      /* Internal variable name used by db_set() */
-  int width;            /* Width of display.  0 for boolean values. */
+  int width;            /* Width of display.  0 for boolean values and
+                        ** negative for values which should not appear
+                        ** on the /setup_settings page. */
   int versionable;      /* Is this setting versionable? */
   int forceTextArea;    /* Force using a text area for display? */
   const char *def;      /* Default value */
@@ -3377,6 +3429,24 @@ struct Setting {
 ** to use.
 */
 /*
+** SETTING: lock-timeout  width=25 default=60
+** This is the number of seconds that a check-in lock will be held on
+** the server before the lock expires.  The default is a 60-second delay.
+** Set this value to zero to disable the check-in lock mechanism.
+**
+** This value should be set on the server to which users auto-sync
+** their work.  This setting has no affect on client repositories.  The
+** check-in lock mechanism is only effective if all users are auto-syncing
+** to the same server.
+**
+** Check-in locks are an advisory mechanism designed to help prevent
+** accidental forks due to a check-in race in installations where many
+** user are  committing to the same branch and auto-sync is enabled.
+** As forks are harmless, there is no danger in disabling this mechanism.
+** However, keeping check-in locks turned on can help prevent unnecessary
+** confusion.
+*/
+/*
 ** SETTING: main-branch      width=40 default=trunk
 ** The value is the primary branch for the project.
 */
@@ -3401,6 +3471,13 @@ struct Setting {
 /*
 ** SETTING: max-upload       width=25 default=250000
 ** A limit on the size of uplink HTTP requests.
+*/
+/*
+** SETTING: mimetypes        width=40 versionable block-text
+** A list of file extension-to-mimetype mappings, one per line. e.g.
+** "foo application/x-foo". File extensions are compared
+** case-insensitively in the order listed in this setting.  A leading
+** '.' on file extensions is permitted but not required.
 */
 /*
 ** SETTING: mtime-changes    boolean default=on
@@ -3429,6 +3506,13 @@ struct Setting {
 ** the "http_proxy" environment variable is consulted.
 ** If the http_proxy environment variable is undefined
 ** then a direct HTTP connection is used.
+*/
+/*
+** SETTING: redirect-to-https   default=0 width=-1
+** Specifies whether or not to redirect http:// requests to
+** https:// URIs. A value of 0 (the default) means not to
+** redirect, 1 means to redirect only the /login page, and 2
+** means to always redirect.
 */
 /*
 ** SETTING: relative-paths   boolean default=on
@@ -3549,6 +3633,26 @@ struct Setting {
 ** Specify which URI's are allowed in HTTP requests from
 ** TH1 scripts.  If empty, no HTTP requests are allowed
 ** whatsoever.
+*/
+/*
+** SETTING: default-csp      width=40 block-text
+**
+** The text of the Content Security Policy that is included
+** in the Content-Security-Policy: header field of the HTTP
+** reply and in the default HTML <head> section that is added when the
+** skin header does not specify a <head> section.  The text "$nonce"
+** is replaced by the random nonce that is created for each web page.
+**
+** If this setting is an empty string or is omitted, then
+** the following default Content Security Policy is used:
+**
+**     default-src 'self' data:;
+**     script-src 'self' 'nonce-$nonce';
+**     style-src 'self' 'unsafe-inline';
+**
+** The default CSP is recommended.  The main reason to change
+** this setting would be to add CDNs from which it is safe to
+** load additional content.
 */
 /*
 ** SETTING: uv-sync          boolean default=off
@@ -3897,14 +4001,26 @@ void test_database_name_cmd(void){
 ** are no security concerns - this is just a checksum, not a security
 ** token.
 */
-char *db_fingerprint(int rcvid){
+char *db_fingerprint(int rcvid, int iVersion){ 
   char *z = 0;
   Blob sql = BLOB_INITIALIZER;
   Stmt q;
-  blob_append_sql(&sql,
-    "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
-    "  FROM rcvfrom"
-  );
+  if( iVersion==0 ){
+    /* The original fingerprint algorithm used "quote(mtime)".  But this
+    ** could give slightly different answers depending on how the floating-
+    ** point hardware is configured.  For example, it gave different
+    ** answers on native Linux versus running under valgrind.  */
+    blob_append_sql(&sql,
+      "SELECT rcvid, quote(uid), quote(mtime), quote(nonce), quote(ipaddr)"
+      "  FROM rcvfrom"
+    );
+  }else{
+    /* These days, we use "datetime(mtime)" for more consistent answers */
+    blob_append_sql(&sql,
+      "SELECT rcvid, quote(uid), datetime(mtime), quote(nonce), quote(ipaddr)"
+      "  FROM rcvfrom"
+    );
+  }
   if( rcvid<=0 ){
     blob_append_sql(&sql, " ORDER BY rcvid DESC LIMIT 1");
   }else{
@@ -3927,26 +4043,29 @@ char *db_fingerprint(int rcvid){
 /*
 ** COMMAND: test-fingerprint
 **
-** Usage: %fossil test-fingerprint ?RCVID? ?--check?
+** Usage: %fossil test-fingerprint ?RCVID?
 **
-** Display the repository fingerprint.  Or if the --check option
-** is provided and this command is run from a checkout, invoke the
-** db_fingerprint_ok() method and print its result.
+** Display the repository fingerprint using the supplied RCVID or
+** using the latest RCVID if not is given on the command line.
+** Show both the legacy and the newer version of the fingerprint,
+** and the currently stored fingerprint if there is one.
 */
 void test_fingerprint(void){
   int rcvid = 0;
-  if( find_option("check",0,0)!=0 ){
-    db_must_be_within_tree();
-    fossil_print("db_fingerprint_ok() => %d\n", db_fingerprint_ok());
-    return;
-  }
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   if( g.argc==3 ){
     rcvid = atoi(g.argv[2]);
   }else if( g.argc!=2 ){
     fossil_fatal("wrong number of arguments");
   } 
-  fossil_print("%z\n", db_fingerprint(rcvid));
+  fossil_print("legacy:              %z\n", db_fingerprint(rcvid, 0));
+  fossil_print("version-1:           %z\n", db_fingerprint(rcvid, 1));
+  if( g.localOpen ){
+    fossil_print("localdb:             %z\n", db_lget("fingerprint","(none)"));
+    fossil_print("db_fingerprint_ok(): %d\n", db_fingerprint_ok());
+  }
+  fossil_print("Fossil version:      %s - %.10s %.19s\n", 
+    RELEASE_VERSION, MANIFEST_DATE, MANIFEST_UUID);
 }
 
 /*
@@ -3957,12 +4076,14 @@ void test_fingerprint(void){
 void db_set_checkout(int rid){
   char *z;
   db_lset_int("checkout", rid);
-  z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
-  db_lset("checkout-hash", z);
-  fossil_free(z);
-  z = db_fingerprint(0);
-  db_lset("fingerprint", z);
-  fossil_free(z);
+  if (rid != 0) {
+    z = db_text(0,"SELECT uuid FROM blob WHERE rid=%d",rid);
+    db_lset("checkout-hash", z);
+    fossil_free(z);
+    z = db_fingerprint(0, 1);
+    db_lset("fingerprint", z);
+    fossil_free(z);
+  }
 }
 
 /*
@@ -3976,15 +4097,26 @@ int db_fingerprint_ok(void){
   char *zRepo;    /* The fingerprint of the repository */
   int rc;         /* Result */
 
+  if( !db_lget_int("checkout", 0) ){
+    /* We have an empty checkout, fingerprint is still NULL. */
+    return 2;
+  }
   zCkout = db_text(0,"SELECT value FROM localdb.vvar WHERE name='fingerprint'");
   if( zCkout==0 ){
     /* This is an older checkout that does not record a fingerprint.
     ** We have to assume everything is ok */
     return 2;
   }
-  zRepo = db_fingerprint(atoi(zCkout));
+  zRepo = db_fingerprint(atoi(zCkout), 1);
   rc = fossil_strcmp(zCkout,zRepo)==0;
-  fossil_free(zCkout);
   fossil_free(zRepo);
+  /* If the initial test fails, try again using the older fingerprint
+  ** algorithm */
+  if( !rc ){
+    zRepo = db_fingerprint(atoi(zCkout), 0);
+    rc = fossil_strcmp(zCkout,zRepo)==0;
+    fossil_free(zRepo);
+  }  
+  fossil_free(zCkout);
   return rc;
 }

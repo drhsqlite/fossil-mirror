@@ -367,7 +367,7 @@ void user_cmd(void){
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     Blob passwd, login, caps, contact;
     char *zPw;
-    blob_init(&caps, db_get("default-perms", "u"), -1);
+    blob_init(&caps, db_get("default-perms", 0), -1);
 
     if( g.argc>=4 ){
       blob_init(&login, g.argv[3], -1);

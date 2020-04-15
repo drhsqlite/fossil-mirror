@@ -378,6 +378,15 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
+  onoff_attribute("Enable /artifact_stats",
+     "artifact_stats_enable", "artifact_stats_enable", 0, 0);
+  @ <p>When enabled, the %h(g.zBaseURL)/artifact_stats URL is available to all
+  @ users.  When disabled (the default) only users with check-in privilege may
+  @ access the /artifact_stats page.
+  @ (Property: "artifact_stats_enable")
+  @ </p>
+  @
+  @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0, 0);
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
@@ -393,15 +402,6 @@ void setup_access(void){
   @ variable or the "Authentication:" HTTP header to find the username and
   @ password. This is another way of supporting Basic Authenitication.
   @ (Property: "http_authentication_ok")
-  @ </p>
-  @
-  @ <hr />
-  entry_attribute("IP address terms used in login cookie", 3,
-                  "ip-prefix-terms", "ipt", "2", 0);
-  @ <p>The number of octets of of the IP address used in the login cookie.
-  @ Set to zero to omit the IP address from the login cookie.  A value of
-  @ 2 is recommended.
-  @ (Property: "ip-prefix-terms")
   @ </p>
   @
   @ <hr />
@@ -490,8 +490,11 @@ void setup_access(void){
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below.  Example use case: Set this field
-  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the
+  @ "Default privileges" setting below. 
+  @
+  @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
+  @ the "Default privileges" to include the "o" privilege
+  @ to give anonymous users read-only permission to the
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ (Property: "public-pages")
@@ -735,6 +738,13 @@ void setup_timeline(void){
     @ %s(zTmDiff) hours ahead of UTC.</p>
   }
   @ <p>(Property: "timeline-utc")
+
+  @ <hr />
+  multiple_choice_attribute("Style", "timeline-default-style",
+            "tdss", "0", N_TIMELINE_VIEW_STYLE, timeline_view_styles);
+  @ <p>The default timeline viewing style, for when the user has not
+  @ specified an alternative.  (Property: "timeline-default-style")</p>
+
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
@@ -842,7 +852,7 @@ void setup_settings(void){
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
-    if( pSet->width!=0 && !pSet->forceTextArea ){
+    if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
       entry_attribute("", /*pSet->width*/ 25, pSet->name,
@@ -858,7 +868,7 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
-    if( pSet->width!=0 && pSet->forceTextArea ){
+    if( pSet->width>0 && pSet->forceTextArea ){
       int hasVersionableValue = db_get_versioned(pSet->name, NULL)!=0;
       @ <a href='%R/help?cmd=%s(pSet->name)'>%s(pSet->name)</a>
       if( pSet->versionable ){
@@ -1632,6 +1642,7 @@ void page_srchsetup(){
     onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for

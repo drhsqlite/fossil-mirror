@@ -60,6 +60,7 @@ SRC = \
   $(SRCDIR)/forum.c \
   $(SRCDIR)/fshell.c \
   $(SRCDIR)/fusefs.c \
+  $(SRCDIR)/fuzz.c \
   $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
   $(SRCDIR)/gzip.c \
@@ -212,6 +213,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
+  $(SRCDIR)/accordion.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/diff.tcl \
@@ -225,6 +227,22 @@ EXTRA_FILES = \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
+  $(SRCDIR)/sounds/0.wav \
+  $(SRCDIR)/sounds/1.wav \
+  $(SRCDIR)/sounds/2.wav \
+  $(SRCDIR)/sounds/3.wav \
+  $(SRCDIR)/sounds/4.wav \
+  $(SRCDIR)/sounds/5.wav \
+  $(SRCDIR)/sounds/6.wav \
+  $(SRCDIR)/sounds/7.wav \
+  $(SRCDIR)/sounds/8.wav \
+  $(SRCDIR)/sounds/9.wav \
+  $(SRCDIR)/sounds/a.wav \
+  $(SRCDIR)/sounds/b.wav \
+  $(SRCDIR)/sounds/c.wav \
+  $(SRCDIR)/sounds/d.wav \
+  $(SRCDIR)/sounds/e.wav \
+  $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
@@ -274,6 +292,7 @@ TRANS_SRC = \
   $(OBJDIR)/forum_.c \
   $(OBJDIR)/fshell_.c \
   $(OBJDIR)/fusefs_.c \
+  $(OBJDIR)/fuzz_.c \
   $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
   $(OBJDIR)/gzip_.c \
@@ -414,6 +433,7 @@ OBJ = \
  $(OBJDIR)/forum.o \
  $(OBJDIR)/fshell.o \
  $(OBJDIR)/fusefs.o \
+ $(OBJDIR)/fuzz.o \
  $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
  $(OBJDIR)/gzip.o \
@@ -508,11 +528,6 @@ OBJ = \
  $(OBJDIR)/xfer.o \
  $(OBJDIR)/xfersetup.o \
  $(OBJDIR)/zip.o
-
-APPNAME = fossil$(E)
-
-
-
 all:	$(OBJDIR) $(APPNAME)
 
 install:	all
@@ -593,7 +608,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_INTROSPECTION_PRAGMAS \
-                 -DSQLITE_ENABLE_DBPAGE_VTAB
+                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                 -DSQLITE_TRUSTED_SCHEMA=0
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
@@ -621,6 +637,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_INTROSPECTION_PRAGMAS \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                -DSQLITE_TRUSTED_SCHEMA=0 \
                 -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -689,7 +706,7 @@ EXTRAOBJ = \
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJDIR)/codecheck1 $(OBJ) $(EXTRAOBJ)
 	$(OBJDIR)/codecheck1 $(TRANS_SRC)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+	$(TCC) $(TCCFLAGS) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -752,6 +769,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
 	$(OBJDIR)/fshell_.c:$(OBJDIR)/fshell.h \
 	$(OBJDIR)/fusefs_.c:$(OBJDIR)/fusefs.h \
+	$(OBJDIR)/fuzz_.c:$(OBJDIR)/fuzz.h \
 	$(OBJDIR)/glob_.c:$(OBJDIR)/glob.h \
 	$(OBJDIR)/graph_.c:$(OBJDIR)/graph.h \
 	$(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h \
@@ -1204,6 +1222,14 @@ $(OBJDIR)/fusefs.o:	$(OBJDIR)/fusefs_.c $(OBJDIR)/fusefs.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/fusefs.o -c $(OBJDIR)/fusefs_.c
 
 $(OBJDIR)/fusefs.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fuzz_.c:	$(SRCDIR)/fuzz.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fuzz.c >$@
+
+$(OBJDIR)/fuzz.o:	$(OBJDIR)/fuzz_.c $(OBJDIR)/fuzz.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fuzz.o -c $(OBJDIR)/fuzz_.c
+
+$(OBJDIR)/fuzz.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/glob.c >$@

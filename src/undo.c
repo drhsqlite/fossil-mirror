@@ -180,7 +180,7 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo_stash;
     @ DROP TABLE IF EXISTS undo_stashfile;
     ;
-  db_multi_exec(zSql /*works-like:""*/);
+  db_exec_sql(zSql);
   db_lset_int("undo_available", 0);
   db_lset_int("undo_checkout", 0);
 }
@@ -237,7 +237,7 @@ void undo_begin(void){
   ;
   if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql/*works-like:""*/);
+  db_exec_sql(zSql);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
@@ -425,16 +425,17 @@ void undo_rollback(void){
 ** Usage: %fossil undo ?OPTIONS? ?FILENAME...?
 **    or: %fossil redo ?OPTIONS? ?FILENAME...?
 **
-** Undo the changes to the working checkout caused by the most recent
-** of the following operations:
+** The undo command reverts the changes caused by the previous command
+** if the previous command is one of the following:
 **
 **    (1) fossil update             (5) fossil stash apply
 **    (2) fossil merge              (6) fossil stash drop
 **    (3) fossil revert             (7) fossil stash goto
-**    (4) fossil stash pop
+**    (4) fossil stash pop          (8) fossil clean  (*see note*)
 **
-** The "fossil clean" operation can also be undone; however, this is
-** currently limited to files that are less than 10MiB in size.
+** Note: The "fossil clean" command only saves state for files less than
+** 10MiB in size and so if fossil clean deleted files larger than that,
+** then "fossil undo" will not recover the larger files.
 **
 ** If FILENAME is specified then restore the content of the named
 ** file(s) but otherwise leave the update or merge or revert in effect.
@@ -444,8 +445,18 @@ void undo_rollback(void){
 ** the undo or redo command explains what actions the undo or redo would
 ** have done had the -n|--dry-run been omitted.
 **
+** If the most recent command is not one of those listed as undoable,
+** then the undo command might try to restore the state to be what it was
+** prior to the last undoable command, or it might be a no-op.  If in
+** doubt about what the undo command will do, first run it with the -n
+** option.
+**
 ** A single level of undo/redo is supported.  The undo/redo stack
-** is cleared by the commit and checkout commands.
+** is cleared by the commit and checkout commands.  Other commands may
+** or may not clear the undo stack.
+**
+** Future versions of Fossil might add new commands to the set of commands
+** that are undoable.
 **
 ** Options:
 **   -n|--dry-run   do not make changes but show what would be done

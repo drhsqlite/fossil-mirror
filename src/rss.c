@@ -28,8 +28,9 @@
 **
 ** Produce an RSS feed of the timeline.
 **
-** TYPE may be: all, ci (show check-ins only), t (show tickets only),
-** w (show wiki only).
+** TYPE may be: all, ci (show check-ins only), t (show ticket changes only),
+** w (show wiki only), e (show tech notes only), f (show forum posts only),
+** g (show tag/branch changes only).
 **
 ** LIMIT is the number of items to show.
 **

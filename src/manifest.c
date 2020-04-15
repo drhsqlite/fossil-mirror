@@ -70,7 +70,7 @@ struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of artifact.  One of CFTYPE_xxxxx */
   int rid;              /* The blob-id for this manifest */
-  char *zBaseline;      /* Baseline manifest.  The B card. */
+  const char *zBaseline;/* Baseline manifest.  The B card. */
   Manifest *pBaseline;  /* The actual baseline manifest */
   char *zComment;       /* Decoded comment.  The C card. */
   double rDate;         /* Date and time from D card.  0.0 if no D card. */
@@ -132,7 +132,7 @@ static struct {
                      ** but we must limit for historical compatibility */
   /* CFTYPE_CLUSTER    2 */ { "MZ",            "MZ"          },
   /* CFTYPE_CONTROL    3 */ { "DTUZ",          "DTUZ"        },
-  /* CFTYPE_WIKI       4 */ { "DLNPUWZ",       "DLUWZ"       },
+  /* CFTYPE_WIKI       4 */ { "CDLNPUWZ",      "DLUWZ"       },
   /* CFTYPE_TICKET     5 */ { "DJKUZ",         "DJKUZ"       },
   /* CFTYPE_ATTACHMENT 6 */ { "ACDNUZ",        "ADZ"         },
   /* CFTYPE_EVENT      7 */ { "CDENPTUWZ",     "DEWZ"        },
@@ -320,14 +320,17 @@ static void remove_pgp_signature(char **pz, int *pn){
 **   0123456789 123456789 123456789 123456789
 **   Z aea84f4f863865a8d59d0384e4d2a41c
 */
-static int verify_z_card(const char *z, int n){
+static int verify_z_card(const char *z, int n, Blob *pErr){
+  const char *zHash;
   if( n<35 ) return 0;
   if( z[n-35]!='Z' || z[n-34]!=' ' ) return 0;
   md5sum_init();
   md5sum_step_text(z, n-35);
-  if( memcmp(&z[n-33], md5sum_finish(0), 32)==0 ){
+  zHash = md5sum_finish(0);
+  if( memcmp(&z[n-33], zHash, 32)==0 ){
     return 1;
   }else{
+    blob_appendf(pErr, "incorrect Z-card cksum: expected %.32s", zHash);
     return 2;
   }
 }
@@ -347,16 +350,15 @@ struct ManifestText {
 ** Return NULL if there are no more tokens on the current line.
 */
 static char *next_token(ManifestText *p, int *pLen){
-  char *z;
   char *zStart;
-  int c;
+  int n;
   if( p->atEol ) return 0;
-  zStart = z = p->z;
-  while( (c=(*z))!=' ' && c!='\n' ){ z++; }
-  *z = 0;
-  p->z = &z[1];
-  p->atEol = c=='\n';
-  if( pLen ) *pLen = z - zStart;
+  zStart = p->z;
+  n = strcspn(p->z, " \n");
+  p->atEol = p->z[n]=='\n';
+  p->z[n] = 0;
+  p->z += n+1;
+  if( pLen ) *pLen = n;
   return zStart;
 }
 
@@ -384,6 +386,19 @@ static char next_card(ManifestText *p){
 ** Shorthand for a control-artifact parsing error
 */
 #define SYNTAX(T)  {zErr=(T); goto manifest_syntax_error;}
+
+/*
+** A cache of manifest IDs which manifest_parse() has seen in this
+** session.
+*/
+static Bag seenManifests =  Bag_INIT;
+/*
+** Frees all memory owned by the manifest "has-seen" cache.  Intended
+** to be called only from the app's atexit() handler.
+*/
+void manifest_clear_cache(){
+  bag_clear(&seenManifests);
+}
 
 /*
 ** Parse a blob into a Manifest object.  The Manifest object
@@ -428,7 +443,6 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   int isRepeat;
   int nSelfTag = 0;     /* Number of T cards referring to this manifest */
   int nSimpleTag = 0;   /* Number of T cards with "+" prefix */
-  static Bag seen;
   const char *zErr = 0;
   unsigned int m;
   unsigned int seenCard = 0;   /* Which card types have been seen */
@@ -436,11 +450,11 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
   if( rid==0 ){
     isRepeat = 1;
-  }else if( bag_find(&seen, rid) ){
+  }else if( bag_find(&seenManifests, rid) ){
     isRepeat = 1;
   }else{
     isRepeat = 0;
-    bag_insert(&seen, rid);
+    bag_insert(&seenManifests, rid);
   }
 
   /* Every structural artifact ends with a '\n' character.  Exit early
@@ -469,9 +483,8 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
   }
   /* Then verify the Z-card.
   */
-  if( verify_z_card(z, n)==2 ){
+  if( verify_z_card(z, n, pErr)==2 ){
     blob_reset(pContent);
-    blob_appendf(pErr, "incorrect Z-card cksum");
     return 0;
   }
 
@@ -511,7 +524,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zName==0 || zTarget==0 ) goto manifest_syntax_error;
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         defossilize(zName);
-        if( !file_is_simple_pathname(zName, 0) ){
+        if( !file_is_simple_pathname_nonstrict(zName) ){
           SYNTAX("invalid filename on A-card");
         }
         defossilize(zTarget);
@@ -609,7 +622,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zName = next_token(&x,0);
         if( zName==0 ) SYNTAX("missing filename on F-card");
         defossilize(zName);
-        if( !file_is_simple_pathname(zName, 0) ){
+        if( !file_is_simple_pathname_nonstrict(zName) ){
           SYNTAX("F-card filename is not a simple path");
         }
         zUuid = next_token(&x, &sz);
@@ -622,7 +635,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zPriorName = next_token(&x,0);
         if( zPriorName ){
           defossilize(zPriorName);
-          if( !file_is_simple_pathname(zPriorName, 0) ){
+          if( !file_is_simple_pathname_nonstrict(zPriorName) ){
             SYNTAX("F-card old filename is not a simple path");
           }
         }
@@ -1144,17 +1157,20 @@ void manifest_test_parse_cmd(void){
     blob_reset(&err);
     manifest_destroy(p);
   }
+  blob_reset(&b);
 }
 
 /*
 ** COMMAND: test-parse-all-blobs
 **
-** Usage: %fossil test-parse-all-blobs
+** Usage: %fossil test-parse-all-blobs [--limit N]
 **
 ** Parse all entries in the BLOB table that are believed to be non-data
 ** artifacts and report any errors.  Run this test command on historical
 ** repositories after making any changes to the manifest_parse()
 ** implementation to confirm that the changes did not break anything.
+**
+** If the --limit N argument is given, parse no more than N blobs
 */
 void manifest_test_parse_all_blobs_cmd(void){
   Manifest *p;
@@ -1162,10 +1178,14 @@ void manifest_test_parse_all_blobs_cmd(void){
   Stmt q;
   int nTest = 0;
   int nErr = 0;
+  int N = 1000000000;
+  const char *z;
   db_find_and_open_repository(0, 0);
+  z = find_option("limit", 0, 1);
+  if( z ) N = atoi(z);
   verify_all_options();
   db_prepare(&q, "SELECT DISTINCT objid FROM EVENT");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( (N--)>0 && db_step(&q)==SQLITE_ROW ){
     int id = db_column_int(&q,0);
     fossil_print("Checking %d       \r", id);
     nTest++;
@@ -1698,7 +1718,7 @@ static int manifest_add_checkin_linkages(
   int rid,                   /* The RID of the check-in */
   Manifest *p,               /* Manifest for this check-in */
   int nParent,               /* Number of parents for this check-in */
-  char **azParent            /* hashes for each parent */
+  char * const * azParent    /* hashes for each parent */
 ){
   int i;
   int parentid = 0;
@@ -2041,7 +2061,7 @@ static int tag_compare(const void *a, const void *b){
 
 /*
 ** Scan artifact rid/pContent to see if it is a control artifact of
-** any key:
+** any type:
 **
 **      *  Manifest
 **      *  Control
@@ -2050,6 +2070,7 @@ static int tag_compare(const void *a, const void *b){
 **      *  Cluster
 **      *  Attachment
 **      *  Event
+**      *  Forum post
 **
 ** If the input is a control artifact, then make appropriate entries
 ** in the auxiliary tables of the database in order to crosslink the
@@ -2081,8 +2102,9 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
   }else if( (p = manifest_parse(pContent, rid, 0))==0 ){
     assert( blob_is_reset(pContent) || pContent==0 );
     if( (flags & MC_NO_ERRORS)==0 ){
-      fossil_error(1, "syntax error in manifest [%S]",
-                   db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid));
+      char * zErrUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d",rid);
+      fossil_error(1, "syntax error in manifest [%S]", zErrUuid);
+      fossil_free(zErrUuid);
     }
     return 0;
   }
@@ -2191,6 +2213,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
             fossil_error(1, "unknown tag type in manifest: %s", p->aTag);
+            manifest_destroy(p);
             return 0;
         }
         tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue,
@@ -2538,6 +2561,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     char *zFType;
     char *zTitle;
     schema_forum();
+    search_doc_touch('f', rid, 0);
     froot = p->zThreadRoot ? uuid_to_rid(p->zThreadRoot, 1) : rid;
     fprev = p->nParent ? uuid_to_rid(p->azParent[0],1) : 0;
     firt = p->zInReplyTo ? uuid_to_rid(p->zInReplyTo,1) : 0;

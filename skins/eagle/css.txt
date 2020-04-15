@@ -291,6 +291,14 @@ td.tktDspValue {
   background-color: #485D7B;
 }
 
+/* Ticket display on timelines */
+td.tktTlOpen {
+  color: #ffc0c0;
+}
+td.tktTlClose {
+  color: #c0c0c0;
+}
+
 /* format for example table cells on the report edit page */
 td.rpteditex {
   border-width: thin;

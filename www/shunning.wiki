@@ -1,24 +1,88 @@
 <title>Deleting Content From Fossil</title>
-<h1 align="center">Deleting Content From Fossil</h1>
 
-Fossil is designed to keep all historical content forever.  Users
-of Fossil are discouraged from "deleting" content simply because it
-has become obsolete.  Old content is part of the historical record
-(part of the "fossil record") and should be maintained indefinitely.
-Such is the design intent of Fossil.
+<h2>Good Reasons for Removing Content from a Fossil Repository</h2>
+
+Fossil is designed to keep all historical content forever. Fossil
+purposely makes it difficult for users to delete content.  Old content
+is part of the project's <i>*ahem*</i> fossil record and should be
+maintained indefinitely to maintain an accurate history of the project.
 
 Nevertheless, there may occasionally arise legitimate reasons for
-deleting content.  Such reasons might include:
+deleting content.  Such reasons include:
 
-  *  Spammers have inserted inappropriate content into a wiki page
-     or ticket that needs to be removed.
+  *  Spammers inserted inappropriate content into a wiki page, forum post,
+     or ticket. Fossil lets you easily hide or amend such content, but
+     since it is not a legitimate part of the project's history, there
+     is no value in keeping it, so it is best removed permanently.
 
-  *  A file that contains trade secrets or that is under copyright
-     may have been accidentally committed and needs to be backed
-     out.
+  *  A file that contains trade secrets or that is under someone else's
+     copyright was accidentally committed and needs to be backed out.
 
-  *  A malformed control artifact may have been inserted and is
-     disrupting the operation of Fossil.
+  *  A malformed control artifact was inserted and is disrupting the
+     operation of Fossil.
+
+
+<h2>Alternatives</h2>
+
+All of these are rare cases: Fossil is [./antibot.wiki | designed to
+foil spammers up front], legally problematic check-ins should range from
+rare to nonexistent, and you have to go way out of your way to force
+Fossil to insert bad control artifacts. Therefore, before we get to
+methods of permanently deleting content from a Fossil repos, let's give
+some alternatives that usually suffice, which don't damage the project's
+fossil record:
+
+<ul>
+    <li><p>When a forum post or wiki article is "deleted," what actually
+    happens is that a new empty version is added to the Fossil
+    [./blockchain.md | block chain]. The web interface interprets this
+    as "deleted," but the prior version remains available if you go
+    digging for it.</p></li>
+
+    <li><p>When you close a ticket, it's marked in a way that causes it
+    to not show up in the normal ticket reports. You usually want to
+    give it a Resolution such as "Rejected" when this happens, plus
+    possibly a comment explaining why you're closing it. This is all new
+    information added to the ticket, not deletion.</p></li>
+
+    <li><p>When you <tt>fossil rm</tt> a file, a new manifest is
+    checked into the repository with the same file list as for the prior
+    version minus the "removed" file. The file is still present in the
+    repository; it just isn't part of that version forward on that
+    branch.</p></li>
+
+    <li><p>If you make a bad check-in, you can shunt it off to the side
+    by amending it to put it on a different branch, then continuing
+    development on the prior branch:
+    <p>
+    <tt>$ fossil amend abcd1234 --branch BOGUS --hide<br>
+    $ fossil up trunk</tt>
+    <p>
+    The first command moves check-in ID <tt>abcd1234</tt> (and any
+    subsequent check-ins on that branch!) to a branch called
+    <tt>BOGUS</tt>, then hides it so it doesn't show up on the
+    timeline. You can call this branch anything you like, and you can
+    re-use the same name as many times as you like. No content is
+    actually deleted: it's just shunted off to the side and hidden away.
+    You might find it easier to do this from the Fossil web UI in
+    the "edit" function for a check-in.
+    <p>
+    The second command returns to the last good check-in on that branch
+    so you can continue work from that point.</p></li>
+
+    <li><p>When the check-in you want to remove is followed by good
+    check-ins on the same branch, you can't use the previous method,
+    because it will move the good check-ins, too. The solution is:
+    <p>
+    <tt>$ fossil merge --backout abcd1234</tt>
+    <p>That creates a diff in the check-out directory that backs out the
+    bad check-in <tt>abcd1234</tt>. You then fix up any merge conflicts,
+    build, test, etc., then check the reverting change into the
+    repository. Again, nothing is actually deleted; you're just adding
+    more information to the repository which corrects a prior
+    check-in.</p></li>
+</ul>
+
 
 <h2>Shunning</h2>
 

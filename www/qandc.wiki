@@ -2,10 +2,10 @@
 <nowiki>
 <h1 align="center">Questions And Criticisms</h1>
 
-<p>This page is a collection of real questions and criticisms that have been
-raised against fossil together with responses from the program's author.</p>
-
-<p>Note: See also the <a href="faq.wiki">Frequently Asked Questions</a>.</p>
+<p>This page is a collection of real questions and criticisms that were
+raised against Fossil early in its history (circa 2008).
+This page is old and has not been kept up-to-date.  See the
+</nowiki>[/finfo?name=www/qandc.wiki|change history of this page]<nowiki>.</p>
 
 <b>Fossil sounds like a lot of reinvention of the wheel.
 Why create your own DVCS when you could have reused mercurial?</b>

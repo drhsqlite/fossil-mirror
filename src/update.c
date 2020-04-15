@@ -105,6 +105,10 @@ int update_to(int vid){
 **                    times (the timestamp of the last checkin which modified
 **                    them).
 **
+**  -K|--keep-merge-files  On merge conflict, retain the temporary files
+**                         used for merging, named *-baseline, *-original,
+**                         and *-merge.
+**
 ** See also: revert
 */
 void update_cmd(void){
@@ -117,6 +121,7 @@ void update_cmd(void){
   int forceMissingFlag; /* --force-missing.  Continue if missing content */
   int debugFlag;        /* --debug option */
   int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
+  int keepMergeFlag;    /* True if --keep-merge-files is present */
   int nChng;            /* Number of file renames */
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
@@ -149,6 +154,7 @@ void update_cmd(void){
   forceMissingFlag = find_option("force-missing",0,0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
   setmtimeFlag = find_option("setmtime",0,0)!=0;
+  keepMergeFlag = find_option("keep-merge-files", "K",0)!=0;
 
   /* We should be done with options.. */
   verify_all_options();
@@ -492,6 +498,7 @@ void update_cmd(void){
         nConflict++;
       }else{
         unsigned mergeFlags = dryRunFlag ? MERGE_DRYRUN : 0;
+        if(keepMergeFlag!=0) mergeFlags |= MERGE_KEEP_FILES;
         if( !dryRunFlag && !internalUpdate ) undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
@@ -679,10 +686,11 @@ Manifest *historical_manifest(
   if( zRevision ){
     vid = name_to_typed_rid(zRevision, "ci");
   }else if( !g.localOpen ){
-    vid = name_to_typed_rid(db_get("main-branch", "trunk"), "ci");
+    vid = name_to_typed_rid(db_get("main-branch", 0), "ci");
   }else{
     vid = db_lget_int("checkout", 0);
     if( !is_a_version(vid) ){
+      if( vid==0 ) return 0;
       zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
       if( zRevision ){
         fossil_fatal("checkout artifact is not a check-in: %s", zRevision);
@@ -853,7 +861,7 @@ void revert_cmd(void){
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    pRvFile = manifest_file_find(pRvManifest, zFile);
+    pRvFile = pRvManifest? manifest_file_find(pRvManifest, zFile) : 0;
     if( !pRvFile ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
                  zFile, zFile)==0 ){

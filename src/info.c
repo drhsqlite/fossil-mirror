@@ -182,7 +182,7 @@ static void showParentProject(void){
 ** information about that repository.
 **
 ** If the argument is a repository name, then the --verbose option shows
-** known the check-out locations for that repository and all URLs used
+** all known check-out locations for that repository and all URLs used
 ** to access the repository.  The --verbose is (currently) a no-op if
 ** the argument is the name of a object within the repository.
 **
@@ -832,7 +832,8 @@ void ci_page(void){
     }
     if( g.perm.Admin ){
       db_prepare(&q2,
-         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
+         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime),"
+               " blob.rcvid"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
          " WHERE blob.rid=%d",
          rid
@@ -841,9 +842,11 @@ void ci_page(void){
         const char *zIpAddr = db_column_text(&q2, 0);
         const char *zUser = db_column_text(&q2, 1);
         const char *zDate = db_column_text(&q2, 2);
+        int rcvid = db_column_int(&q2,3);
         if( zUser==0 || zUser[0]==0 ) zUser = "unknown";
         @ <tr><th>Received&nbsp;From:</th>
-        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate)</td></tr>
+        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate) \
+        @ (<a href="%R/rcvfrom?rcvid=%d(rcvid)">Rcvid %d(rcvid)</a>)</td></tr>
       }
       db_finalize(&q2);
     }
@@ -886,7 +889,7 @@ void ci_page(void){
     if( g.perm.Hyperlink ){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      if( fossil_strcmp(zBrName, db_get("main-branch","trunk"))!=0 ){
+      if( fossil_strcmp(zBrName, db_get("main-branch",0))!=0 ){
         @ %z(href("%R/vdiff?branch=%!S", zUuid))branch diff</a> |
       }
       @ %z(href("%R/artifact/%!S",zUuid))manifest</a>
@@ -1021,7 +1024,7 @@ void winfo_page(void){
       }
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('w', rid);
     }
   }
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
@@ -1881,6 +1884,7 @@ void deliver_artifact(int rid, const char *zMime){
     if( zMime==0 ) zMime = "application/x-fossil-artifact";
   }
   content_get(rid, &content);
+  fossil_free(style_csp(1));
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
 }
@@ -2421,7 +2425,7 @@ void tinfo_page(void){
       }
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('t', rid);
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )
@@ -2475,7 +2479,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng, 0);
+  ticket_output_change_artifact(pTktChng, 0, 1);
   manifest_destroy(pTktChng);
   style_footer();
 }
@@ -2510,6 +2514,7 @@ void info_page(void){
   if( rc==1 ){
     if( validate16(zName, nLen) ){
       if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        cgi_set_parameter_nocopy("tl","1",0);
         tktview_page();
         return;
       }
@@ -3010,7 +3015,7 @@ void ci_edit_page(void){
   @ </td></tr>
 
   if( !zBranchName ){
-    zBranchName = db_get("main-branch", "trunk");
+    zBranchName = db_get("main-branch", 0);
   }
   if( !zNewBranch || !zNewBranch[0]){
     zNewBranch = zBranchName;
