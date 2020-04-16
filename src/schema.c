@@ -409,7 +409,7 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE backlink(
 @   target TEXT,           -- Where the hyperlink points to
-@   srctype INT,           -- 0: check-in  1: ticket  2: wiki
+@   srctype INT,           -- 0=comment 1=ticket 2=wiki. See BKLNK_* below.
 @   srcid INT,             -- EVENT.OBJID for the source document
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
@@ -477,6 +477,18 @@ const char zRepositorySchema2[] =
 @ ) WITHOUT ROWID;
 @ CREATE INDEX cherrypick_cid ON cherrypick(childid);
 ;
+
+/*
+** Allowed values for backlink.srctype
+*/
+#if INTERFACE
+# define BKLNK_COMMENT    0   /* Check-in comment */
+# define BKLNK_TICKET     1   /* Ticket body or title */
+# define BKLNK_WIKI       2   /* Wiki */
+# define BKLNK_EVENT      3   /* Technote */
+# define BKLNK_FORUM      4   /* Forum post */
+# define ValidBklnk(X)   (X>=0 && X<=4)  /* True if backlink.srctype is valid */
+#endif
 
 /*
 ** Predefined tagid values

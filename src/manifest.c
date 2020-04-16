@@ -1830,13 +1830,24 @@ void manifest_crosslink_begin(void){
   manifest_crosslink_busy = 1;
   db_begin_transaction();
   db_multi_exec(
-     "CREATE TEMP TABLE pending_tkt(uuid TEXT UNIQUE);"
+     "CREATE TEMP TABLE pending_xlink(id TEXT PRIMARY KEY)WITHOUT ROWID;"
      "CREATE TEMP TABLE time_fudge("
      "  mid INTEGER PRIMARY KEY,"    /* The rid of a manifest */
      "  m1 REAL,"                    /* The timestamp on mid */
      "  cid INTEGER,"                /* A child or mid */
      "  m2 REAL"                     /* Timestamp on the child */
      ");"
+  );
+}
+
+/*
+** Add a new entry to the pending_xlink table.
+*/
+static void add_pending_crosslink(char cType, const char *zId){
+  assert( manifest_crosslink_busy==1 );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO pending_xlink VALUES('%c%q')",
+    cType, zId
   );
 }
 
@@ -1881,16 +1892,24 @@ int manifest_crosslink_end(int flags){
     manifest_reparent_checkin(rid, zValue);
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT uuid FROM pending_tkt");
+  db_prepare(&q, "SELECT id FROM pending_xlink");
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    ticket_rebuild_entry(zUuid);
-    if( permitHooks && rc==TH_OK ){
-      rc = xfer_run_script(zScript, zUuid, 0);
+    const char *zId = db_column_text(&q, 0);
+    char cType;
+    if( zId==0 || zId[0]==0 ) continue;
+    cType = zId[0];
+    zId++;
+    if( cType=='t' ){
+      ticket_rebuild_entry(zId);
+      if( permitHooks && rc==TH_OK ){
+        rc = xfer_run_script(zScript, zId, 0);
+      }
+    }else if( cType=='w' ){
+      backlink_wiki_refresh(zId);
     }
   }
   db_finalize(&q);
-  db_multi_exec("DROP TABLE pending_tkt");
+  db_multi_exec("DROP TABLE pending_xlink");
 
   /* If multiple check-ins happen close together in time, adjust their
   ** times by a few milliseconds to make sure they appear in chronological
@@ -2164,7 +2183,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       );
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
-      wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
+      backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
@@ -2229,6 +2248,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
+    const char *zPrefix;
     int nWiki;
     char zLength[40];
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
@@ -2245,12 +2265,36 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( prior ){
       content_deltify(prior, &rid, 1, 0);
     }
-    if( nWiki>0 ){
-      zComment = mprintf("Changes to wiki page [%h]", p->zWikiTitle);
+    if( nWiki<=0 ){
+      zPrefix = "Deleted";
+    }else if( !prior ){
+      zPrefix = "Added";
     }else{
-      zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
+      zPrefix = "Changes to";
+    }
+    switch( wiki_page_type(p->zWikiTitle) ){
+      case WIKITYPE_CHECKIN: {
+        zComment = mprintf("%s wiki for check-in [%S]", zPrefix,
+                           p->zWikiTitle+8);
+        break;
+      }
+      case WIKITYPE_BRANCH: {
+        zComment = mprintf("%s wiki for branch [/timeline?r=%t|%h]",
+                           zPrefix, p->zWikiTitle+7, p->zWikiTitle+7);
+        break;
+      }
+      case WIKITYPE_TAG: {
+        zComment = mprintf("%s wiki for tag [/timeline?t=%t|%h]",
+                           zPrefix, p->zWikiTitle+4, p->zWikiTitle+4);
+        break;
+      }
+      default: {
+        zComment = mprintf("%s wiki page [%h]", zPrefix, p->zWikiTitle);
+        break;
+      }
     }
     search_doc_touch('w',rid,p->zWikiTitle);
+    add_pending_crosslink('w',p->zWikiTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -2351,8 +2395,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
     fossil_free(zTag);
-    db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
-                  p->zTicketUuid);
+    add_pending_crosslink('t',p->zTicketUuid);
     /* Locate and update comment for any attachments */
     db_prepare(&qatt,
        "SELECT attachid, src, target, filename FROM attachment"
