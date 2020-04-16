@@ -1,5 +1,5 @@
-C An\sattempt\sto\sbegin\sscanning\swiki\sfor\sbacklinks.\s\sIt\sdoes\snot\scurrently\nwork.\s\sI\ssuspect\sa\sproblem\sin\sthe\smarkdown\slink\sscanner.
-D 2020-04-16T20:06:53.075
+C The\smarkdown\srenderer\srequires\sno-op\sfunctions\sin\sorder\sto\swork\sproperly.
+D 2020-04-16T20:50:56.626
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -434,7 +434,7 @@ F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
 F src/alerts.c 1a5e4160b687399234eb8d9fd94564e31954f0d4f013258a3697c2d4615ac8d9
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c f0c6a53aeb1371b94e05942efb324ac29ad1fb07baa43ab196151eb2af3f5c5b
-F src/backlink.c a0fcfba84b4922388023ae3a24f50ee1dde19b5eb781b646a2fc33b6b6d3a20e
+F src/backlink.c 378fdcfa5796164d2e24021cf52bc8db9b14c01554a5889e3ffdfc152b69356e
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7c13a57358ae16a764900ac11d30aebf6bff8dbdfa8cdb4acdccf093e20b3574
-R 7c5ca6c187fc58d2949c6f32f0c80551
+P f0b0293ba77c2d8be943c3c684929cc19f84a444959140c04ae9c5472d875c45
+R 8ba94078bf2ae2f8cb22e807fc5fda3a
 U drh
-Z e9e727023d7412cd703f068ff6a6a418
+Z 83f1419b23a978b2d999a1588a2bda51

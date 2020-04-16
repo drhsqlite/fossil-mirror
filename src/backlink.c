@@ -231,6 +231,10 @@ static int backlink_md_link(
   return 1;    
 }
 
+/* No-op routine for the rendering callbacks that we do not need */
+static void mkdn_noop0(Blob *x){ return; }
+static int mkdn_noop1(Blob *x){ return 1; }
+
 /*
 ** Scan markdown text and add self-hyperlinks to the BACKLINK table.
 */
@@ -239,28 +243,28 @@ void markdown_extract_links(
   Backlink *p
 ){
   struct mkd_renderer html_renderer = {
-    0,  /* prolog */
-    0,  /* epilog */
-    0,  /* blockcode */
-    0,  /* blockquote */
-    0,  /* raw_block */
-    0,  /* header */
-    0,  /* hrule */
-    0,  /* list */
-    0,  /* list_item */
-    0,  /* paragraph */
-    0,  /* table */
-    0,  /* table_cell */
-    0,  /* table_row */
-    0,  /* autolink */
-    0,  /* code_span */
-    0,  /* double-emphasis */
-    0,  /* emphasis */
-    0,  /* image */
-    0,  /* line_break */
-    backlink_md_link,  /* link */
-    0,  /* raw_span */
-    0,  /* triple_emphasis */
+    /* prolog     */ (void(*)(Blob*,void*))mkdn_noop0,
+    /* epilog     */ (void(*)(Blob*,void*))mkdn_noop0,
+    /* blockcode  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
+    /* blockquote */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
+    /* blockhtml  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
+    /* header     */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* hrule      */ (void(*)(Blob*,void*))mkdn_noop0,
+    /* list       */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* listitem   */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* paragraph  */ (void(*)(Blob*,Blob*,void*))mkdn_noop0,
+    /* table      */ (void(*)(Blob*,Blob*,Blob*,void*))mkdn_noop0,
+    /* table_cell */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* table_row  */ (void(*)(Blob*,Blob*,int,void*))mkdn_noop0,
+    /* autolink   */ (int(*)(Blob*,Blob*,enum mkd_autolink,void*))mkdn_noop1,
+    /* codespan   */ (int(*)(Blob*,Blob*,int,void*))mkdn_noop1,
+    /* dbl_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
+    /* emphasis   */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
+    /* image      */ (int(*)(Blob*,Blob*,Blob*,Blob*,void*))mkdn_noop1,
+    /* linebreak  */ (int(*)(Blob*,void*))mkdn_noop1,
+    /* link       */ backlink_md_link,
+    /* r_html_tag */ (int(*)(Blob*,Blob*,void*))mkdn_noop1,
+    /* tri_emphas */ (int(*)(Blob*,Blob*,char,void*))mkdn_noop1,
     0,  /* entity */
     0,  /* normal_text */
     "*_", /* emphasis characters */
