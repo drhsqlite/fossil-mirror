@@ -858,6 +858,10 @@ char *ticket_schema_check(const char *zSchema){
 /*
 ** Draw a timeline for a ticket with tag.tagid given by the tagid
 ** parameter.
+**
+** If zType[0]=='c' then only show check-ins associated with the
+** ticket.  For any other value of zType, show all events associated
+** with the ticket.
 */
 void tkt_draw_timeline(int tagid, const char *zType){
   Stmt q;
@@ -868,7 +872,8 @@ void tkt_draw_timeline(int tagid, const char *zType){
   if( zType[0]=='c' ){
     zSQL = mprintf(
          "%s AND event.objid IN "
-         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+         " (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                         "AND srctype=0 "
                                          "AND '%s' GLOB (target||'*')) "
          "ORDER BY mtime DESC",
          timeline_query_for_www(), zFullUuid, zFullUuid
@@ -877,7 +882,12 @@ void tkt_draw_timeline(int tagid, const char *zType){
     zSQL = mprintf(
          "%s AND event.objid IN "
          "  (SELECT rid FROM tagxref WHERE tagid=%d"
-         "   UNION SELECT srcid FROM backlink"
+         "   UNION"
+         "   SELECT CASE srctype WHEN 2 THEN"
+                 " (SELECT rid FROM tagxref WHERE tagid=backlink.srcid"
+                 " ORDER BY mtime DESC LIMIT 1)"
+                 " ELSE srcid END"
+         "     FROM backlink"
                   " WHERE target GLOB '%.4s*'"
                   "   AND '%s' GLOB (target||'*')"
          "   UNION SELECT attachid FROM attachment"
@@ -896,9 +906,13 @@ void tkt_draw_timeline(int tagid, const char *zType){
 
 /*
 ** WEBPAGE: tkttimeline
-** URL: /tkttimeline?name=TICKETUUID&y=TYPE
+** URL: /tkttimeline/TICKETUUID
 **
 ** Show the change history for a single ticket in timeline format.
+** 
+** Query parameters:
+**
+**     y=ci          Show only check-ins associated with the ticket
 */
 void tkttimeline_page(void){
   char *zTitle;

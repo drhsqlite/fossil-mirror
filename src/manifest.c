@@ -1830,13 +1830,24 @@ void manifest_crosslink_begin(void){
   manifest_crosslink_busy = 1;
   db_begin_transaction();
   db_multi_exec(
-     "CREATE TEMP TABLE pending_tkt(uuid TEXT UNIQUE);"
+     "CREATE TEMP TABLE pending_xlink(id TEXT PRIMARY KEY)WITHOUT ROWID;"
      "CREATE TEMP TABLE time_fudge("
      "  mid INTEGER PRIMARY KEY,"    /* The rid of a manifest */
      "  m1 REAL,"                    /* The timestamp on mid */
      "  cid INTEGER,"                /* A child or mid */
      "  m2 REAL"                     /* Timestamp on the child */
      ");"
+  );
+}
+
+/*
+** Add a new entry to the pending_xlink table.
+*/
+static void add_pending_crosslink(char cType, const char *zId){
+  assert( manifest_crosslink_busy==1 );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO pending_xlink VALUES('%c%q')",
+    cType, zId
   );
 }
 
@@ -1881,16 +1892,24 @@ int manifest_crosslink_end(int flags){
     manifest_reparent_checkin(rid, zValue);
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT uuid FROM pending_tkt");
+  db_prepare(&q, "SELECT id FROM pending_xlink");
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    ticket_rebuild_entry(zUuid);
-    if( permitHooks && rc==TH_OK ){
-      rc = xfer_run_script(zScript, zUuid, 0);
+    const char *zId = db_column_text(&q, 0);
+    char cType;
+    if( zId==0 || zId[0]==0 ) continue;
+    cType = zId[0];
+    zId++;
+    if( cType=='t' ){
+      ticket_rebuild_entry(zId);
+      if( permitHooks && rc==TH_OK ){
+        rc = xfer_run_script(zScript, zId, 0);
+      }
+    }else if( cType=='w' ){
+      backlink_wiki_refresh(zId);
     }
   }
   db_finalize(&q);
-  db_multi_exec("DROP TABLE pending_tkt");
+  db_multi_exec("DROP TABLE pending_xlink");
 
   /* If multiple check-ins happen close together in time, adjust their
   ** times by a few milliseconds to make sure they appear in chronological
@@ -2251,6 +2270,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
     }
     search_doc_touch('w',rid,p->zWikiTitle);
+    add_pending_crosslink('w',p->zWikiTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -2351,8 +2371,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     zTag = mprintf("tkt-%s", p->zTicketUuid);
     tag_insert(zTag, 1, 0, rid, p->rDate, rid);
     fossil_free(zTag);
-    db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
-                  p->zTicketUuid);
+    add_pending_crosslink('t',p->zTicketUuid);
     /* Locate and update comment for any attachments */
     db_prepare(&qatt,
        "SELECT attachid, src, target, filename FROM attachment"

@@ -38,10 +38,14 @@ void render_backlink_graph(const char *zUuid, const char *zLabel){
   char *zGlob;
   zGlob = mprintf("%.5s*", zUuid);
   db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM ok;"
-     "INSERT OR IGNORE INTO ok"
-     " SELECT srcid FROM backlink"
+     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);\n"
+     "DELETE FROM ok;\n"
+     "INSERT OR IGNORE INTO ok(rid)\n"
+     " SELECT CASE srctype\n"
+           "  WHEN 2 THEN (SELECT rid FROM tagxref WHERE tagid=backlink.srcid\n"
+                          " ORDER BY mtime DESC LIMIT 1)\n"
+           "  ELSE srcid END\n"
+     "   FROM backlink\n"
      "  WHERE target GLOB %Q"
      "    AND %Q GLOB (target || '*');",
      zGlob, zUuid
@@ -108,7 +112,11 @@ void backlink_table_page(void){
   n = db_int(0, "SELECT count(*) FROM backlink");
   @ <p>%d(n) backlink table entries:</p>
   db_prepare(&q,
-    "SELECT target, srctype, srcid, datetime(mtime) FROM backlink"
+    "SELECT target, srctype, srcid, datetime(mtime),"
+    "  CASE srctype"
+    "  WHEN 2 THEN (SELECT substr(tagname,6) FROM tag"
+    "                WHERE tagid=srcid AND tagname GLOB 'wiki-*')"
+    "  ELSE null END FROM backlink"
   );
   style_table_sorter();
   @ <table border="1" cellpadding="2" cellspacing="0" \
@@ -120,7 +128,6 @@ void backlink_table_page(void){
     int srctype = db_column_int(&q, 1);
     int srcid = db_column_int(&q, 2);
     const char *zMtime = db_column_text(&q, 3);
-    static const char *azSrcType[] = { "comment", "ticket", "wiki", "unknown" };
     @ <tr><td><a href="%R/info/%h(zTarget)">%h(zTarget)</a>
     switch( srctype ){
       case BKLNK_COMMENT: {
@@ -132,7 +139,8 @@ void backlink_table_page(void){
         break;
       }
       case BKLNK_WIKI: {
-        @ <td><a href="%R/info?name=rid:%d(srcid)">wiki-%d(srcid)</a>
+        const char *zName = db_column_text(&q, 4);
+        @ <td><a href="%R/wiki?name=%h(zName)&p">wiki-%d(srcid)</a>
         break;
       }
       default: {
@@ -148,7 +156,24 @@ void backlink_table_page(void){
   style_footer();
 }
 
-
+/*
+** Remove all prior backlinks for the wiki page given.  Then
+** add new backlinks for the latest version of the wiki page.
+*/
+void backlink_wiki_refresh(const char *zWikiTitle){
+  int tagid = wiki_tagid(zWikiTitle);
+  int rid;
+  Manifest *pWiki;
+  if( tagid==0 ) return;
+  rid = db_int(0, "SELECT rid FROM tagxref WHERE tagid=%d"
+                  " ORDER BY mtime DESC LIMIT 1", tagid);
+  if( rid==0 ) return;
+  pWiki = manifest_get(rid, CFTYPE_WIKI, 0);
+  if( pWiki ){
+    backlink_extract(pWiki->zWiki, pWiki->zMimetype, tagid, 2, pWiki->rDate,1);
+    manifest_destroy(pWiki);
+  }
+}
 
 /*
 ** Structure used to pass down state information through the
@@ -268,7 +293,7 @@ void backlink_extract(
                   srctype, srcid);
   }
   bklnk.srcid = srcid;
-  assert( srctype>=BKLNK_COMMENT && srctype<=BKLNK_WIKI );
+  assert( ValidBklnk(srctype) );
   bklnk.srctype = srctype;
   bklnk.mtime = mtime;
   if( zMimetype==0 || strstr(zMimetype,"wiki")!=0 ){
@@ -281,7 +306,7 @@ void backlink_extract(
 /*
 ** COMMAND: test-backlinks
 **
-** Usage: %fossil test-backlinks SRCID SRCTYPE ?OPTIONS? INPUT-FILE
+** Usage: %fossil test-backlinks SRCTYPE SRCID ?OPTIONS? INPUT-FILE
 **
 ** Read the content of INPUT-FILE and pass it into the backlink_extract()
 ** routine.  But instead of adding backlinks to the backlink table,
@@ -328,4 +353,30 @@ void test_backlinks_cmd(void){
   );
   backlink_extract(blob_str(&in),zMimetype,srcid,srctype,mtime,0);
   blob_reset(&in);
+}
+
+
+/*
+** COMMAND: test-wiki-relink
+**
+** Usage: %fossil test-wiki-relink  WIKI-PAGE-NAME
+**
+** Run the backlink_wiki_refresh() procedure on the wiki page
+** named.  WIKI-PAGE-NAME can be a glob pattern or a prefix
+** of the wiki page.
+*/
+void test_wiki_relink_cmd(void){
+  Stmt q;
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=3 ) usage("WIKI-PAGE-NAME");
+  db_prepare(&q,
+    "SELECT substr(tagname,6) FROM tag WHERE tagname GLOB 'wiki-%q*'",
+    g.argv[2]
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zPage = db_column_text(&q,0);
+    fossil_print("Relinking page: %s\n", zPage);
+    backlink_wiki_refresh(zPage);
+  }
+  db_finalize(&q);
 }

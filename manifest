@@ -1,5 +1,5 @@
-C If\sa\sticket\sdefinition\shas\sa\sfield\snamed\s"mimetype"\sthen\suse\sthe\nspecified\smimetype\swhen\sparsing\sticket\scontent\sto\sextract\sbacklinks.\nAdd\sthe\sability\sto\sextract\sbacklinks\sfrom\smarkdown-formatted\stext.\nAdd\sthe\s/test-backlinks\swebpage\sand\sthe\stest-backlink\scommand\sfor\ndebugging.
-D 2020-04-16T16:52:07.408
+C An\sattempt\sto\sbegin\sscanning\swiki\sfor\sbacklinks.\s\sIt\sdoes\snot\scurrently\nwork.\s\sI\ssuspect\sa\sproblem\sin\sthe\smarkdown\slink\sscanner.
+D 2020-04-16T20:06:53.075
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -434,7 +434,7 @@ F src/add.c e0d531d5926c18fc9a5e9c96f171e7883e4ee9de241f1531bb27746d6ca3f655
 F src/alerts.c 1a5e4160b687399234eb8d9fd94564e31954f0d4f013258a3697c2d4615ac8d9
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c f0c6a53aeb1371b94e05942efb324ac29ad1fb07baa43ab196151eb2af3f5c5b
-F src/backlink.c 69c8a9a480f2996708d5221994af39f1e8df207e93fe2d851eb46beb3c2b49e2
+F src/backlink.c a0fcfba84b4922388023ae3a24f50ee1dde19b5eb781b646a2fc33b6b6d3a20e
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
@@ -526,7 +526,7 @@ F src/main.mk a28935c1ea16093c84005bcbde52f226336e7c1f7ac3654ad166e5f696ef2abb
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 90ddc5bcef874a6293a8c304af3c8dc292ec5269f366b2e1a6dde97072c07858 x
-F src/manifest.c 72b5e0e020c4372e7617fd70a32a87161ba1d2fb99c71bd03d6574499c5c58c1
+F src/manifest.c c087375ee4104547d198a64d35a17fede2a04c93b41b59737f1908f44e62f3ec
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
@@ -555,7 +555,7 @@ F src/repolist.c 42df2ab648579b2ea73e7dd3acac98f153028e3a147f4b0126971ca04736e3d
 F src/report.c 96c9fa92496d7dc4aa6d3b0aa31e53d6e56b9ea080ea895530cec8e5c3b12ecb
 F src/rss.c c41ad19e65b0de1882d9b25a2dce0b618b65f050edc130b6c0cd1de097e27c99
 F src/sbsdiff.js ba23c0a2370ae40ca587e5398d0889a34ff0591ba7b0675a0015c527642c74d6
-F src/schema.c 9faff9890daa9f4b259f418bb5d454d3ae8f796425e918159b0bc94727315f95
+F src/schema.c 9a894b8db01c2b16b9320a5e3fae2a6a0ae3cea1647d10da4af79ea0a5fa26cd
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 711d196bbb708e177e18b5473ad180c8141b14731b7e94292db0cdcba0e8ad85
 F src/security_audit.c 41f2eadf55a23cdc7eb26786d7285eab00043a5392de0d05a602785ee627c551
@@ -605,7 +605,7 @@ F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
 F src/timeline.c 46b2ac7ea5476d5b4f912f07e4874f844abb4234a8b5ce8a2e7936a58af169bd
-F src/tkt.c 9ce511cf8e09f37153cc71b7a47e1918946466dec99aefd50dc5f75c08977682
+F src/tkt.c 84507f02331f62312c8d6a7a51f5b5449ba86e581259c010e6c92a72466b253e
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 10c75204efddb6e108b21da2b202022e7633208c7e06d4e4d25ffc947a10b422
-R d6fb41834bbca01efad95d6c47088956
+P 7c13a57358ae16a764900ac11d30aebf6bff8dbdfa8cdb4acdccf093e20b3574
+R 7c5ca6c187fc58d2949c6f32f0c80551
 U drh
-Z 65053dbd3a127afe703fc9f5a68291aa
+Z e9e727023d7412cd703f068ff6a6a418

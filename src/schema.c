@@ -479,12 +479,15 @@ const char zRepositorySchema2[] =
 ;
 
 /*
-** Backlink source types
+** Allowed values for backlink.srctype
 */
 #if INTERFACE
 # define BKLNK_COMMENT    0   /* Check-in comment */
 # define BKLNK_TICKET     1   /* Ticket body or title */
-# define BKLNK_WIKI       2   /* Wiki, Technote, or Forum body */
+# define BKLNK_WIKI       2   /* Wiki */
+# define BKLNK_EVENT      3   /* Technote */
+# define BKLNK_FORUM      4   /* Forum post */
+# define ValidBklnk(X)   (X>=0 && X<=4)  /* True if backlink.srctype is valid */
 #endif
 
 /*
