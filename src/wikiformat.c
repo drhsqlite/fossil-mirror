@@ -1871,10 +1871,7 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
 */
 void wiki_extract_links(
   char *z,           /* The wiki text from which to extract links */
-  int srcid,         /* srcid field for new BACKLINK table entries */
-  int srctype,       /* srctype field for new BACKLINK table entries */
-  double mtime,      /* mtime field for new BACKLINK table entries */
-  int replaceFlag,   /* True first delete prior BACKLINK entries */
+  Backlink *pBklnk,  /* Backlink extraction context */
   int flags          /* wiki parsing flags */
 ){
   Renderer renderer;
@@ -1894,10 +1891,6 @@ void wiki_extract_links(
     wikiHtmlOnly = 1;
   }
   inlineOnly = (renderer.state & INLINE_MARKUP_ONLY)!=0;
-  if( replaceFlag ){
-    db_multi_exec("DELETE FROM backlink WHERE srctype=%d AND srcid=%d",
-                  srctype, srcid);
-  }
 
   while( z[0] ){
     if( wikiHtmlOnly ){
@@ -1908,23 +1901,12 @@ void wiki_extract_links(
     switch( tokenType ){
       case TOKEN_LINK: {
         char *zTarget;
-        int i, c;
-        char zLink[HNAME_MAX+4];
+        int i;
 
         zTarget = &z[1];
         for(i=0; zTarget[i] && zTarget[i]!='|' && zTarget[i]!=']'; i++){}
         while(i>1 && zTarget[i-1]==' '){ i--; }
-        c = zTarget[i];
-        zTarget[i] = 0;
-        if( is_valid_hname(zTarget) ){
-          memcpy(zLink, zTarget, i+1);
-          canonical16(zLink, i);
-          db_multi_exec(
-             "REPLACE INTO backlink(target,srctype,srcid,mtime)"
-             "VALUES(%Q,%d,%d,%g)", zLink, srctype, srcid, mtime
-          );
-        }
-        zTarget[i] = c;
+        backlink_create(pBklnk, zTarget, i);
         break;
       }
       case TOKEN_MARKUP: {

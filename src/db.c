@@ -2312,7 +2312,7 @@ void create_repository_cmd(void){
 ** The print() function writes its arguments on stdout, but only
 ** if the -sqlprint command-line option is turned on.
 */
-LOCAL void db_sql_print(
+void db_sql_print(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv

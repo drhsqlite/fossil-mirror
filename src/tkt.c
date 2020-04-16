@@ -196,6 +196,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   Stmt q;
   int i, j;
   char *aUsed;
+  const char *zMimetype = 0;
 
   if( tktid==0 ){
     db_multi_exec("INSERT INTO ticket(tkt_uuid, tkt_mtime) "
@@ -235,9 +236,18 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       blob_append_sql(&sql2, ",\"%w\"", zUsedByName);
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
-    if( rid>0 ){
-      wiki_extract_links(p->aField[i].zValue, rid, BKLNK_TICKET,
-                         p->rDate, i==0, 0);
+    if( strcmp(zBaseName,"mimetype")==0 ){
+      zMimetype = p->aField[i].zValue;
+    }
+  }
+  if( rid>0 ){
+    for(i=0; i<p->nField; i++){
+      const char *zName = p->aField[i].zName;
+      const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+      j = fieldId(zBaseName);
+      if( j<0 ) continue;
+      backlink_extract(p->aField[i].zValue, zMimetype, rid, BKLNK_TICKET,
+                       p->rDate, i==0);
     }
   }
   blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);

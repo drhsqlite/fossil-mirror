@@ -2164,7 +2164,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       );
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
-      wiki_extract_links(zCom, rid, BKLNK_COMMENT, p->rDate, 1, WIKI_INLINE);
+      backlink_extract(zCom, 0, rid, BKLNK_COMMENT, p->rDate, 1);
       fossil_free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
