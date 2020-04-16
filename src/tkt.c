@@ -236,7 +236,8 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){
-      wiki_extract_links(p->aField[i].zValue, rid, 1, p->rDate, i==0, 0);
+      wiki_extract_links(p->aField[i].zValue, rid, BKLNK_TICKET,
+                         p->rDate, i==0, 0);
     }
   }
   blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);

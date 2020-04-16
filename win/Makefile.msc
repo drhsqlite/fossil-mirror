@@ -350,6 +350,7 @@ SRC   = add_.c \
         alerts_.c \
         allrepo_.c \
         attach_.c \
+        backlink_.c \
         backoffice_.c \
         bag_.c \
         bisect_.c \
@@ -580,6 +581,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\alerts$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \
+        $(OX)\backlink$O \
         $(OX)\backoffice$O \
         $(OX)\bag$O \
         $(OX)\bisect$O \
@@ -783,6 +785,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\alerts.obj >> $@
 	echo $(OX)\allrepo.obj >> $@
 	echo $(OX)\attach.obj >> $@
+	echo $(OX)\backlink.obj >> $@
 	echo $(OX)\backoffice.obj >> $@
 	echo $(OX)\bag.obj >> $@
 	echo $(OX)\bisect.obj >> $@
@@ -1064,6 +1067,12 @@ $(OX)\attach$O : attach_.c attach.h
 	$(TCC) /Fo$@ -c attach_.c
 
 attach_.c : $(SRCDIR)\attach.c
+	translate$E $** > $@
+
+$(OX)\backlink$O : backlink_.c backlink.h
+	$(TCC) /Fo$@ -c backlink_.c
+
+backlink_.c : $(SRCDIR)\backlink.c
 	translate$E $** > $@
 
 $(OX)\backoffice$O : backoffice_.c backoffice.h
@@ -1884,6 +1893,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			alerts_.c:alerts.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
+			backlink_.c:backlink.h \
 			backoffice_.c:backoffice.h \
 			bag_.c:bag.h \
 			bisect_.c:bisect.h \

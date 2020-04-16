@@ -222,7 +222,7 @@ int tag_insert(
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
-      wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
+      wiki_extract_links(zCopy, rid, BKLNK_COMMENT, mtime, 1, WIKI_INLINE);
       free(zCopy);
     }
   }

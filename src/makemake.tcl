@@ -31,6 +31,7 @@ set src {
   alerts
   allrepo
   attach
+  backlink
   backoffice
   bag
   bisect
