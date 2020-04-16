@@ -367,16 +367,18 @@ void wiki_srchpage(void){
 }
 
 /* Return values from wiki_page_type() */
-#define WIKITYPE_UNKNOWN    (-1)
-#define WIKITYPE_NORMAL     0
-#define WIKITYPE_BRANCH     1
-#define WIKITYPE_CHECKIN    2
-#define WIKITYPE_TAG        3
+#if INTERFACE
+# define WIKITYPE_UNKNOWN    (-1)
+# define WIKITYPE_NORMAL     0
+# define WIKITYPE_BRANCH     1
+# define WIKITYPE_CHECKIN    2
+# define WIKITYPE_TAG        3
+#endif
 
 /*
 ** Figure out what type of wiki page we are dealing with.
 */
-static int wiki_page_type(const char *zPageName){
+int wiki_page_type(const char *zPageName){
   if( db_get_boolean("wiki-about",1)==0 ){
     return WIKITYPE_NORMAL;
   }else

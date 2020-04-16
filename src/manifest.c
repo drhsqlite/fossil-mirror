@@ -2248,6 +2248,7 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
+    const char *zPrefix;
     int nWiki;
     char zLength[40];
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
@@ -2264,10 +2265,33 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
     if( prior ){
       content_deltify(prior, &rid, 1, 0);
     }
-    if( nWiki>0 ){
-      zComment = mprintf("Changes to wiki page [%h]", p->zWikiTitle);
+    if( nWiki<=0 ){
+      zPrefix = "Deleted";
+    }else if( !prior ){
+      zPrefix = "Added";
     }else{
-      zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
+      zPrefix = "Changes to";
+    }
+    switch( wiki_page_type(p->zWikiTitle) ){
+      case WIKITYPE_CHECKIN: {
+        zComment = mprintf("%s wiki for check-in [%S]", zPrefix,
+                           p->zWikiTitle+8);
+        break;
+      }
+      case WIKITYPE_BRANCH: {
+        zComment = mprintf("%s wiki for branch [/timeline?r=%t|%h]",
+                           zPrefix, p->zWikiTitle+7, p->zWikiTitle+7);
+        break;
+      }
+      case WIKITYPE_TAG: {
+        zComment = mprintf("%s wiki for tag [/timeline?t=%t|%h]",
+                           zPrefix, p->zWikiTitle+4, p->zWikiTitle+4);
+        break;
+      }
+      default: {
+        zComment = mprintf("%s wiki page [%h]", zPrefix, p->zWikiTitle);
+        break;
+      }
     }
     search_doc_touch('w',rid,p->zWikiTitle);
     add_pending_crosslink('w',p->zWikiTitle);
