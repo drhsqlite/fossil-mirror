@@ -757,6 +757,15 @@ static int forum_need_moderation(void){
 }
 
 /*
+** Return true if the string is white-space only.
+*/
+static int whitespace_only(const char *z){
+  if( z==0 ) return 1;
+  while( z[0] && fossil_isspace(z[0]) ){ z++; }
+  return z[0]==0;
+}
+
+/*
 ** Add a new Forum Post artifact to the repository.
 **
 ** Return true if a redirect occurs.
@@ -775,8 +784,12 @@ static int forum_post(
   int iBasis;
   Blob x, cksum, formatCheck, errMsg;
   Manifest *pPost;
+  int nContent = zContent ? (int)strlen(zContent) : 0;
 
   schema_forum();
+  if( iEdit==0 && whitespace_only(zContent) ){
+    return 0;
+  }
   if( iInReplyTo==0 && iEdit>0 ){
     iBasis = iEdit;
     iInReplyTo = db_int(0, "SELECT firt FROM forumpost WHERE fpid=%d", iEdit);
@@ -821,7 +834,7 @@ static int forum_post(
     }
   }
   blob_appendf(&x, "U %F\n", zUser);
-  blob_appendf(&x, "W %d\n%s\n", strlen(zContent), zContent);
+  blob_appendf(&x, "W %d\n%s\n", nContent, zContent);
   md5sum_blob(&x, &cksum);
   blob_appendf(&x, "Z %b\n", &cksum);
   blob_reset(&cksum);
@@ -955,7 +968,7 @@ void forumnew_page(void){
   if( P("submit") && cgi_csrf_safe(1) ){
     if( forum_post(zTitle, 0, 0, 0, zMimetype, zContent) ) return;
   }
-  if( P("preview") ){
+  if( P("preview") && !whitespace_only(zContent) ){
     @ <h1>Preview:</h1>
     forum_render(zTitle, zMimetype, zContent, "forumEdit", 1);
   }
@@ -965,7 +978,7 @@ void forumnew_page(void){
   forum_from_line();
   forum_entry_widget(zTitle, zMimetype, zContent);
   @ <input type="submit" name="preview" value="Preview">
-  if( P("preview") ){
+  if( P("preview") && !whitespace_only(zContent) ){
     @ <input type="submit" name="submit" value="Submit">
   }else{
     @ <input type="submit" name="submit" value="Submit" disabled>
@@ -1055,7 +1068,7 @@ void forumedit_page(void){
     }
   }
   isDelete = P("nullout")!=0;
-  if( P("submit") && isCsrfSafe ){
+  if( P("submit") && (isDelete || !whitespace_only(zContent)) && isCsrfSafe ){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
     const char *zContent = PDT("content","");
@@ -1126,7 +1139,7 @@ void forumedit_page(void){
     fossil_free(zDisplayName);
     fossil_free(zDate);
     forum_render(0, pPost->zMimetype, pPost->zWiki, "forumEdit", 1);
-    if( P("preview") ){
+    if( P("preview") && !whitespace_only(zContent) ){
       @ <h2>Preview:</h2>
       forum_render(0, zMimetype,zContent, "forumEdit", 1);
     }
@@ -1141,7 +1154,7 @@ void forumedit_page(void){
     @ <input type="submit" name="preview" value="Preview">
   }
   @ <input type="submit" name="cancel" value="Cancel">
-  if( P("preview") || isDelete ){
+  if( (P("preview") && !whitespace_only(zContent)) || isDelete ){
     @ <input type="submit" name="submit" value="Submit">
   }
   if( g.perm.Debug ){
