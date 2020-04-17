@@ -786,17 +786,19 @@ void ci_page(void){
       db_finalize(&q2);
     }
 
-    /* Only show links to read wiki pages if the users can read wiki
+    /* Only show links to edit wiki pages if the users can read wiki
     ** and if the wiki pages already exist */
-    if( g.perm.RdWiki
+    if( g.perm.WrWiki
+     && g.perm.RdWiki
+     && g.perm.Write
      && ((okWiki = wiki_tagid2("checkin",zUuid))!=0 ||
                  blob_size(&wiki_read_links)>0)
      && db_get_boolean("wiki-about",1)
     ){
       const char *zLinks = blob_str(&wiki_read_links);
-      @ <tr><th>Wiki:</th><td>\
+      @ <tr><th>Edit&nbsp;Wiki:</th><td>\
       if( okWiki ){
-        @ %z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a>\
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
       }else if( zLinks[0] ){
         zLinks += 3;
       }

@@ -1,5 +1,5 @@
-C Improvements\sto\shandling\sof\sbacklinks:\n(1)\sFossil\snow\sscans\sfor\sbacklinks\sin\sMarkdown\sformatted\sticket\schanges\nin\saddition\sto\sFossil-Wiki\sformatted\schanges.\n(2)\sWiki\sis\sscanned\sfor\sbacklinks,\sincluding\swiki\sassociated\swith\ncheck-ins\sand\sbranches.\n(3)\sMuch\sof\sthe\sbacklink\scode\sis\sgathered\stogether\sinto\sa\ssingle\snew\n"backlink.c"\ssource\sfile.\n(4)\sThere\sare\simprovements\sto\sthe\stimeline\sdisplay\sof\swiki\schanges.\nTicket\s[a3572c6a5b47cd5a].
-D 2020-04-16T22:35:09.331
+C Fix\sa\sbug\sin\swiki\sediting.\s\sMake\sthe\s/info\sheader\sfor\sassociated\swiki\sbe\n"Edit\sWiki:".
+D 2020-04-17T00:15:02.072
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c f591bcb2b1258042f6548775055e220a626c762ff653a4bcafaeffe9dd8a12e7
+F src/info.c 303f93c8a95a0de2bd2a2110336174a85b01d3c3e05ced9e8f8cdae1ddf79ec4
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -526,7 +526,7 @@ F src/main.mk a28935c1ea16093c84005bcbde52f226336e7c1f7ac3654ad166e5f696ef2abb
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 90ddc5bcef874a6293a8c304af3c8dc292ec5269f366b2e1a6dde97072c07858 x
-F src/manifest.c 1cb6ca5224d9ac6877973e8251c73199e1e691978f65c330a65842ca83a07ab8
+F src/manifest.c 2ac5005c93e3550585afb430b4f31276b651d73de1dd8ac07a26aa134d2186af
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
@@ -978,8 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b4beadb5078a03421a62f5a205cea1a52febe84b83c5189c9d271cd54a459136 6d125b722586162a70f37281f1add8de1c226a816f0ee63ffe48bdf932e47550
-R 9ce224cdb1162dd8a39cf7bda7459793
-T +closed 6d125b722586162a70f37281f1add8de1c226a816f0ee63ffe48bdf932e47550
+P ae1dac83d6bc4a3e41aa3d19c366b4966223c89c46420d324e2ed1406376382d
+R d3116340fe5ef5e7729dc55aa5cb29f7
 U drh
-Z 71abdf196fe990a37c514706cc33ddd2
+Z 7a402df2a3a0d199de8cfcc276e0d893

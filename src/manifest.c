@@ -2294,7 +2294,11 @@ int manifest_crosslink(int rid, Blob *pContent, int flags){
       }
     }
     search_doc_touch('w',rid,p->zWikiTitle);
-    add_pending_crosslink('w',p->zWikiTitle);
+    if( manifest_crosslink_busy ){
+      add_pending_crosslink('w',p->zWikiTitle);
+    }else{
+      backlink_wiki_refresh(p->zWikiTitle);
+    }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
