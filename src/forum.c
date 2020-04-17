@@ -1068,10 +1068,13 @@ void forumedit_page(void){
     }
   }
   isDelete = P("nullout")!=0;
-  if( P("submit") && (isDelete || !whitespace_only(zContent)) && isCsrfSafe ){
+  if( P("submit")
+   && isCsrfSafe
+   && (zContent = PDT("content",""))!=0
+   && (!whitespace_only(zContent) || isDelete)
+  ){
     int done = 1;
     const char *zMimetype = PD("mimetype",DEFAULT_FORUM_MIMETYPE);
-    const char *zContent = PDT("content","");
     if( P("reply") ){
       done = forum_post(0, fpid, 0, 0, zMimetype, zContent);
     }else if( P("edit") || isDelete ){
