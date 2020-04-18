@@ -115,15 +115,17 @@ Environment Variables
 ---------------------
 
 On most platforms, the location of the user’s account-wide `.fossil`
-file is either `FOSSIL_HOME` or `HOME`, in that order. This ordering
-lets you put this file somewhere other than at the top of your user’s
-home directory by defining `FOSSIL_HOME` to mask the always-defined
-`HOME`.
+file is either `FOSSIL_HOME`, `XDG_CONFIG_HOME`, or `HOME`, in that order. 
+This ordering lets you put this file somewhere other than at the top 
+of your user’s home directory by defining `FOSSIL_HOME` to mask 
+the always-defined `HOME`.  The `XDG_CONFIG_HOME` setting is defined
+by some desktop environments to be the preferred "modern" directory
+in which to store configuration files.
 
 For native Windows builds and for Cygwin builds, the file is called
-`_fossil` instead to avoid problems with old programs that assume file
-names cannot begin with a dot, as was true in old versions of Windows
-and in MS-DOS. (Newer Microsoft OSes and file systems don’t have a
+`_fossil` instead of `.fossil` to avoid problems with old programs that 
+assume file names cannot begin with a dot, as was true in old versions 
+of Windows and in MS-DOS. (Newer Microsoft OSes and file systems don’t have a
 problem with such files, but still we take the safe path in case you’re
 on a system with software that can’t cope.) We start our search with
 `FOSSIL_HOME` again, but instead of falling back to `HOME`, we instead
@@ -154,7 +156,8 @@ on the contents and status of wiki pages.
 `FOSSIL_HOME`: Location of the `~/.fossil` file. The first environment
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME` is used as the
+`HOMEPATH` (Windows, used together), `XDG_CONFIG_HOME` (unix) and 
+`HOME` is used as the
 location of the `~/.fossil` file.
 
 
@@ -200,8 +203,8 @@ accordingly.
 `HOME`: Location of the `~/.fossil` file. The first environment
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file.
+`HOMEPATH` (Windows, used together), `XDG_CONFIG_HOME` (unix)
+and `HOME` is used as the location of the `~/.fossil` file.
 
 `HOMEDRIVE`, `HOMEPATH`: (Windows) Location of the `~/.fossil` file.
 The first environment variable found in the environment from the list
@@ -404,23 +407,24 @@ first found environment variable from the list `FOSSIL_USER`, `USER`,
 none of those are set, then the default user name is "root".
 
 
-### Home Directory
+### Configuration Directory (often the Home Directory)
 
 Fossil keeps some information interesting to each user in the user's
-home directory. This includes the global settings and the list of
-repositories and checkouts used by `fossil all`.
+configuration file directory. This includes the global settings and the list of
+repositories and checkouts used by `fossil all`.  On many,
+but not all, systems the configuration file directory is the home directory
 
-The user's home directory is specified by the first environment
+The user's configuration file directory is specified by the first environment
 variable found in the environment from the list `FOSSIL_HOME`,
 `LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME`.
+`HOMEPATH` (Windows, used together), `XDG_CONFIG_HOME` (unix), and `HOME`.
 
-SQLite has its own notion of the user's home directory, which is only
-exposed if the interactive SQL shell is run with the "fossil
+SQLite has its own notion of the user's configuration file directory, 
+which is only exposed if the interactive SQL shell is run with the "fossil
 sqlite3" command. Being a separate library, SQLite uses many of the
 same variables to find the home directory, but uses them in a
-different order, and does not use the `FOSSIL_HOME` variable at all.
-
+different order, and does not use the `FOSSIL_HOME` nor
+`XDG_CONFIG_HOME` variables.
 
 
 ### SQLite VFS to use

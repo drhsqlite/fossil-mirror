@@ -1438,12 +1438,16 @@ int db_open_config(int useAttach, int isOptional){
   }
 #else
   if( zHome==0 ){
+    zHome = fossil_getenv("XDG_CONFIG_HOME");
+  }
+  if( zHome==0 ){
     zHome = fossil_getenv("HOME");
   }
   if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME or HOME environment variables");
+    fossil_panic("cannot locate home directory - please set one of the "
+                 "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
+                 "variables");
   }
 #endif
   if( file_isdir(zHome, ExtFILE)!=1 ){

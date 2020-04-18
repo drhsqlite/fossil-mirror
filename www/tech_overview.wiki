@@ -127,13 +127,18 @@ list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
 On Unix systems, the configuration database is named ".fossil" and is
-located in the user's home directory.  On Windows, the configuration
+located in the user's configuration file directory, which on most older
+unix systems is the user's home directory but on some "desktop" linux
+environments is the "~/.config" directory.  On Windows, the configuration
 database is named "_fossil" (using an underscore as the first character
 instead of a dot) and is located in the directory specified by the
 LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
+You can run the [/help?cmd=info|fossil info] command from an open
+check-out to see the location of the configuration database.
 
 You can override this default location by defining the environment
 variable FOSSIL_HOME pointing to an appropriate (writable) directory.
+
 
 <h3>2.2 Repository Databases</h3>
 
