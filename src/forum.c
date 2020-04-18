@@ -158,6 +158,7 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
   ForumEntry *pEntry;
   Stmt q;
   int sid = 1;
+  Bag seen = Bag_INIT;
   pThread = fossil_malloc( sizeof(*pThread) );
   memset(pThread, 0, sizeof(*pThread));
   db_prepare(&q,
@@ -177,14 +178,20 @@ static ForumThread *forumthread_create(int froot, int computeHierarchy){
     pEntry->sid = sid++;
     pEntry->pPrev = pThread->pLast;
     pEntry->pNext = 0;
+    bag_insert(&seen, pEntry->fpid);
     if( pThread->pLast==0 ){
       pThread->pFirst = pEntry;
     }else{
       pThread->pLast->pNext = pEntry;
     }
+    if( pEntry->firt && !bag_find(&seen,pEntry->firt) ){
+      pEntry->firt = froot;
+      pEntry->mfirt = froot;
+    }
     pThread->pLast = pEntry;
   }
   db_finalize(&q);
+  bag_clear(&seen);
 
   /* Establish which entries are the latest edit.  After this loop
   ** completes, entries that have non-NULL pLeaf should not be

@@ -1,5 +1,5 @@
-C Improved\sdebugging\soutput\sfor\sforum\sdisplays:\s\sShow\sthe\sRID\son\s"(artifact)"\nlinks.
-D 2020-04-18T19:15:24.861
+C In\sthe\sforum\sthread\sconstructor,\sif\san\spost\sin\sa\sforum\sthread\sis\sa\sphantom,\nreassign\sthe\sdescendents\sof\sthat\spost\sto\sbe\sdescendents\sof\sthe\sroot.\nThis\sfixes\sthe\shierarchical\sview\sfor\sthe\sproblem\sdescribed\sat\n[https://www.fossil-scm.org/forum/forumpost/dc623b995f]
+D 2020-04-18T19:40:21.454
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 3760667ff594751ec3e67c291ebe61b6db8f4c7dd14e275c62aa15af6898ed15
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 13547a88c4e15c38796c26e850611b8454c7e0f2f58746e3b927436d82970331
+F src/forum.c 4c5b741449e475f65744627fcd3a411552709d0cc194c75f84ec9fba301dc5c0
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 632b614437d83c80a3a359f5bbb2d7d65e8d7f2f3a1319f00a5b363ea81264f9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 22f879dde64ce7bc1f0603ecd927ecf75b0ed2855818558f16a261c9ca67a569
-R 35f1753bbaf81db553a532ad309638e3
+P 14795faaee2db161646a709347bc4cbcc849613bf0aedf2f7f5d1772f8f934bd
+R 01513dec7455941d34baac78c7dbd7ef
 U drh
-Z 4f76fe08295d94daaf7ee97b4b274550
+Z 44906868390474a845826f02dfada4f2
