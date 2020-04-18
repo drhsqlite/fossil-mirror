@@ -503,6 +503,97 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
   }
   forumthread_delete(pThread);
 }
+/*
+** Display all the edit history of post "target".
+*/
+static void forum_display_history(int froot, int target, int bRawMode){
+  ForumThread *pThread = forumthread_create(froot, 0);
+  ForumEntry *p;
+  int notAnon = login_is_individual();
+  char cMode = bRawMode ? 'r' : 'c';
+  ForumEntry *pLeaf = 0;
+  int cnt = 0;
+  for(p=pThread->pFirst; p; p=p->pNext){
+    if( p->fpid==target ){
+      pLeaf = p->pLeaf ? p->pLeaf : p;
+      break;
+    }
+  }
+  for(p=pThread->pFirst; p; p=p->pNext){
+    char *zDate;
+    Manifest *pPost;
+    int isPrivate;        /* True for posts awaiting moderation */
+    int sameUser;         /* True if author is also the reader */
+    const char *zUuid;
+    char *zDisplayName;   /* The display name */
+
+    if( p->fpid!=pLeaf->fpid && p->pLeaf!=pLeaf ) continue;
+    cnt++;
+    pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
+    if( pPost==0 ) continue;
+    @ <div id="forum%d(p->fpid)" class="forumTime">
+    zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
+    zDisplayName = display_name_from_login(pPost->zUser);
+    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(zDisplayName) on %h(zDate)
+    fossil_free(zDisplayName);
+    fossil_free(zDate);
+    if( g.perm.Debug ){
+      @ <span class="debug">\
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
+    }
+    if( p->firt && cnt==1 ){
+      ForumEntry *pIrt = p->pPrev;
+      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
+      if( pIrt ){
+        @ in reply to %z(href("%R/forumpost/%S?t=%c",pIrt->zUuid,cMode))\
+        @ %d(pIrt->sid)</a>
+      }
+    }
+    zUuid = p->zUuid;
+    @ %z(href("%R/forumpost/%S?t=c",zUuid))[link]</a>
+    if( !bRawMode ){
+      @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
+    }
+    isPrivate = content_is_private(p->fpid);
+    sameUser = notAnon && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+    @ </h3>
+    if( isPrivate && !g.perm.ModForum && !sameUser ){
+      @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
+    }else{
+      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki,
+                   0, 1);
+    }
+    if( g.perm.WrForum && p->pLeaf==0 ){
+      int sameUser = login_is_individual()
+                     && fossil_strcmp(pPost->zUser, g.zLogin)==0;
+      @ <p><form action="%R/forumedit" method="POST">
+      @ <input type="hidden" name="fpid" value="%s(p->zUuid)">
+      if( !isPrivate ){
+        /* Reply and Edit are only available if the post has already
+        ** been approved */
+        @ <input type="submit" name="reply" value="Reply">
+        if( g.perm.Admin || sameUser ){
+          @ <input type="submit" name="edit" value="Edit">
+          @ <input type="submit" name="nullout" value="Delete">
+        }
+      }else if( g.perm.ModForum ){
+        /* Provide moderators with moderation buttons for posts that
+        ** are pending moderation */
+        @ <input type="submit" name="approve" value="Approve">
+        @ <input type="submit" name="reject" value="Reject">
+        generateTrustControls(pPost);
+      }else if( sameUser ){
+        /* A post that is pending moderation can be deleted by the
+        ** person who originally submitted the post */
+        @ <input type="submit" name="reject" value="Delete">
+      }
+      @ </form></p>
+    }
+    manifest_destroy(pPost);
+    @ </div>
+  }
+  forumthread_delete(pThread);
+}
 
 /*
 ** Display all messages in a forumthread with indentation.
@@ -578,6 +669,7 @@ static int forum_display_hierarchical(int froot, int target){
         @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">\
         @ (artifact-%d(p->pLeaf->fpid))</a></span>
       }
+      @ %z(href("%R/forumpost/%S?t=y",p->zUuid))[history]</a>
       manifest_destroy(pOPost);
     }
     if( fpid!=target ){
@@ -647,6 +739,7 @@ static int forum_display_hierarchical(int froot, int target){
 **                   'h' for hierarchical
 **                   'a' for automatic
 **                   'r' for raw
+**                   'y' for history of post X only
 **   raw           If present, show only the post specified and
 **                 show its original unformatted source text.
 */
@@ -689,6 +782,8 @@ static int forumthread_page_header(int froot, int fpid){
 **                   'h' for hierarchical, or
 **                   'a' for automatic, or
 **                   'r' for raw.
+**   raw           Show only the post given by name= and show it unformatted
+**   hist          Show only the edit history for the name= post
 */
 void forumthread_page(void){
   int fpid;
@@ -720,7 +815,9 @@ void forumthread_page(void){
       zMode = "h";
     }
   }
-  forumthread_page_header(froot, fpid);
+  if( zMode[0]!='y' ){
+    forumthread_page_header(froot, fpid);
+  }
   if( bRaw && fpid ){
     Manifest *pPost;
     pPost = manifest_get(fpid, CFTYPE_FORUM, 0);
@@ -745,6 +842,10 @@ void forumthread_page(void){
     style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
     style_submenu_element("Hierarchical", "%R/%s/%s?t=h", g.zPath, zName);
     forum_display_chronological(froot, fpid, 1);
+  }else if( zMode[0]=='y' ){
+    style_header("Edit History Of A Forum Post");
+    style_submenu_element("Complete Thread", "%R/%s/%s?t=a", g.zPath, zName);
+    forum_display_history(froot, fpid, 0);
   }else{
     style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
