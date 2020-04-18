@@ -1409,6 +1409,7 @@ void db_close_config(){
 int db_open_config(int useAttach, int isOptional){
   char *zDbName;
   char *zHome;
+  const char *zRoot;
   if( g.zConfigDbName ){
     int alreadyAttached = db_database_slot("configdb")>0;
     if( useAttach==alreadyAttached ) return 1; /* Already open. */
@@ -1416,6 +1417,7 @@ int db_open_config(int useAttach, int isOptional){
   }
   zHome = fossil_getenv("FOSSIL_HOME");
 #if defined(_WIN32) || defined(__CYGWIN__)
+  zRoot = "_fossil";
   if( zHome==0 ){
     zHome = fossil_getenv("LOCALAPPDATA");
     if( zHome==0 ){
@@ -1437,17 +1439,20 @@ int db_open_config(int useAttach, int isOptional){
                  "or HOMEDRIVE / HOMEPATH environment variables");
   }
 #else
+  zRoot = ".fossil";
   if( zHome==0 ){
     zHome = fossil_getenv("XDG_CONFIG_HOME");
-  }
-  if( zHome==0 ){
-    zHome = fossil_getenv("HOME");
-  }
-  if( zHome==0 ){
-    if( isOptional ) return 0;
-    fossil_panic("cannot locate home directory - please set one of the "
-                 "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
-                 "variables");
+    if( zHome ){
+      zRoot = "fossil.db";
+    }else{
+      zHome = fossil_getenv("HOME");
+      if( zHome==0 ){
+        if( isOptional ) return 0;
+        fossil_panic("cannot locate home directory - please set one of the "
+                     "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
+                     "variables");
+      }
+    }
   }
 #endif
   if( file_isdir(zHome, ExtFILE)!=1 ){
@@ -1456,9 +1461,9 @@ int db_open_config(int useAttach, int isOptional){
   }
 #if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
-  zDbName = mprintf("%//_fossil", zHome);
+  zDbName = mprintf("%//%s", zHome, zRoot);
 #else
-  zDbName = mprintf("%s/.fossil", zHome);
+  zDbName = mprintf("%s/%s", zHome, zRoot);
 #endif
   if( file_size(zDbName, ExtFILE)<1024*3 ){
     if( file_access(zHome, W_OK) ){

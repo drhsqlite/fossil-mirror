@@ -1,5 +1,5 @@
-C Look\sin\sthe\sXDG_CONFIG_HOME\senvironment\svariable\sbefore\slooking\sin\sHOME\nfor\sthe\slocation\sof\sthe\s".fossil"\sconfiguration\sdatabase.
-D 2020-04-18T00:12:23.806
+C Change\sthe\sname\sof\sthe\sconfiguration\sdatabase\sto\s"fossil.db"\sif\sthe\sdatabase\nis\sfound\sin\sthe\sXDG_CONFIG_HOME\sdirectory.\s\sOtherwise,\sthe\sconfigdb\sis\nstill\scalled\s".fossil"\son\sunix\ssystems.
+D 2020-04-18T18:55:04.097
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -462,7 +462,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 220d9ce703666707cf6802125058cecca665ff9ba2eac60f9e1af9ee6ad92c49
+F src/db.c 2df58a0cd0a52ee6dd1d8a2d5b42aa4e2d2d6b3bbbbf66f090ca94c76909d301
 F src/default_css.txt 1c9e106ec865aaa3b15f22412a6e8e0bb885f2088f31123c60b511bddacfbbef
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -850,7 +850,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/encryptedrepos.wiki 74d768fe9ac24bd2aab1cbc94716e507c1d65abdeff062879424bf63028e6bfe
-F www/env-opts.md cd86028265edacb382a9d419595747ba62168464e9c1c377681c992eb492f5c2
+F www/env-opts.md da612de62096cb2dd38cd206a9e036a67e8e9bb46439ad0c6a6539ff3bdddf66
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
@@ -964,7 +964,7 @@ F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
-F www/tech_overview.wiki e1aedcd719fe4c33842e9c0afc6da033a48338eafb002fd19c417435633f6fb4
+F www/tech_overview.wiki 60f32b6e334ac0dd2f9159aa4b2c5a1db7b69346d7d71d5cfbe47107b64047ba
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 91bd4a81c1a90eaab82b3545fc10989464fbbd65dfed09502829aaa0a84ef616
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
@@ -978,10 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3684c58b4b3663b20a44ac74e214a7fe9c8ee9321ee6398f8db2cd4146abf83a
-R 281eb7892b2b0ec4e7505d25780c987b
-T *branch * xdg-aware-config-db
-T *sym-xdg-aware-config-db *
-T -sym-trunk *
+P 4de54b1d98cd264cec4dcaae757dcb7e02e90093fe586deb4a12dd6081089ad3
+R f30e62daea867314c12cab6fc4659cca
 U drh
-Z 028d9ca626abfa61a54203dced8e9d6f
+Z 91507dc7798788eb02ad9003a0ae3d4e

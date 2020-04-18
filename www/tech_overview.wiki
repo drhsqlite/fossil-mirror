@@ -70,7 +70,8 @@ database files are used by Fossil, with detailed discussion following.
 <table border="1" width="80%" cellpadding="0" align="center">
 <tr>
 <td width="33%" valign="top">
-<h3 align="center">Configuration Database<br>"~/.fossil"</h3>
+<h3 align="center">Configuration Database<br>"~/.fossil" or<br>
+"~/.config/fossil.conf"</h3>
 <ul>
 <li>Global [/help/settings |settings]
 <li>List of active repositories used by the [/help/all | all] command
@@ -89,7 +90,7 @@ database files are used by Fossil, with detailed discussion following.
 </ul>
 </td>
 <td width="33%" valign="top">
-<h3 align="center">Checkout Database<br>"_FOSSIL_"</h3>
+<h3 align="center">Checkout Database<br>"_FOSSIL_" or ".fslckout"</h3>
 <ul>
 <li>The repository database used by this checkout
 <li>The version currently checked out
@@ -126,19 +127,38 @@ The configuration database also maintains a list of repositories.  This
 list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
-On Unix systems, the configuration database is named ".fossil" and is
-located in the user's configuration file directory, which on most older
-unix systems is the user's home directory but on some "desktop" linux
-environments is the "~/.config" directory.  On Windows, the configuration
-database is named "_fossil" (using an underscore as the first character
-instead of a dot) and is located in the directory specified by the
-LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
+<a name='configloc'></a>
+<h4>2.1.1 Location Of The Configuration Database</h4>
+
+On Unix systems, the configuration database is called by one of the
+following names (in order):
+
+  *  $FOSSIL_HOME/.fossil
+  *  $XDG_CONFIG_HOME/fossil.db
+  *  $HOME/.fossil
+
+The name used is the first in the above list for which the corresponding
+environment varible is defined. On most systems, the third name is the
+one that is used.
+
+On Windows, the configuration database is called one of these
+names (in order):
+
+  *  %FOSSIL_HOME%/_fossil
+  *  %LOCALAPPDATA%/_fossil
+  *  %APPDATA%/_fossil
+  *  %USERPROFILES%/_fossil
+  *  %HOMEDRIVE%%HOMEPATH%/_fossil
+
+As before, the first case in when the corresponding environment variables
+exist is the one used.  This is ususally the second case.  Note that the
+FOSSIL_HOME environment variable can always be set to determine the 
+location of the configuration database.  Note also that the configuration
+database file itself is called ".fossil" or "fossil.db" on unix but
+"_fossil" on windows.
+
 You can run the [/help?cmd=info|fossil info] command from an open
 check-out to see the location of the configuration database.
-
-You can override this default location by defining the environment
-variable FOSSIL_HOME pointing to an appropriate (writable) directory.
-
 
 <h3>2.2 Repository Databases</h3>
 
