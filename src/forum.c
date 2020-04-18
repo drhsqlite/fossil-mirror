@@ -434,7 +434,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     }
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(artifact)</a></span>
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
@@ -556,7 +556,7 @@ static int forum_display_hierarchical(int froot, int target){
     fossil_free(zDate);
     if( g.perm.Debug ){
       @ <span class="debug">\
-      @ <a href="%R/artifact/%h(p->zUuid)">(artifact)</a></span>
+      @ <a href="%R/artifact/%h(p->zUuid)">(artifact-%d(p->fpid))</a></span>
     }
     if( p->pLeaf ){
       zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
@@ -568,7 +568,8 @@ static int forum_display_hierarchical(int froot, int target){
       fossil_free(zDate);
       if( g.perm.Debug ){
         @ <span class="debug">\
-        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">(artifact)</a></span>
+        @ <a href="%R/artifact/%h(p->pLeaf->zUuid)">\
+        @ (artifact-%d(p->pLeaf->fpid))</a></span>
       }
       manifest_destroy(pOPost);
     }
