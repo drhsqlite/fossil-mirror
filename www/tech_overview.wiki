@@ -139,17 +139,18 @@ algorithm:
   *  if environment variable XDG_CONFIG_HOME exists
      &rarr; $XDG_CONFIG_HOME/fossil.db
   *  if environment variable HOME does not exist &rarr; <i>ERROR</i>
-  *  Otherwise $HOME/.config/fossil.db
+  *  if a directory named $HOME/.config exists &rarr; $HOME/.config/fossil.db
+  *  Otherwise $HOME/.fossil
 
 Another way of thinking of this algorithm is the following:
 
   *  Use "$FOSSIL_HOME/.fossil" if the FOSSIL_HOME variable is defined
-  *  Use the traditional unix configuration file name of
-     "$HOME/.fossil" if HOME is defined and if that file exists.
-  *  Use an XDG compatible name otherwise.
+  *  Use the XDG-compatible name (~/.config/fossil.db) on XDG systems
+     if the ~/.fossil file does not already exist
+  *  Otherwise, use the traditional unix name of "~/.fossil"
 
 This algorithm is complex due to the need for historical compatibility.
-Originally, the database was always named "$HOME/.fossil".  Then support
+Originally, the database was always just "$HOME/.fossil".  Then support
 for the FOSSIL_HOME environment variable as added.  Later, support for the
 [https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html|XDG-compatible configation filenames]
 was added.  Each of these changes needed to continue to support legacy installs.

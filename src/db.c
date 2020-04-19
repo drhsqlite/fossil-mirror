@@ -1472,9 +1472,17 @@ static char *db_configdb_name(int isOptional){
                  "variables");
   }
 
-  /* Step 5: Otherwise -> $HOME/.config/fossil.db
+  /* Step 5: If $HOME/.config is a directory -> $HOME/.config/fossil.db
   */
-  return mprintf("%s/.config/fossil.db", zHome);
+  zXdgHome = mprintf("%s/.config", zHome);
+  if( file_isdir(zXdgHome, ExtFILE)==1 ){
+    fossil_free(zXdgHome);
+    return mprintf("%s/.config/fossil.db", zHome);
+  }
+
+  /* Step 6: Otherwise -> $HOME/.fossil
+  */
+  return mprintf("%s/.fossil", zHome);
 #endif /* unix */
 }
 
