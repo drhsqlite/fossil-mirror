@@ -3,7 +3,28 @@
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (pending)</h2>
 
-  *  Support Markdown in the default ticket configuration.
+  *  Support [/md_rules|Markdown] in the default ticket configuration.
+  *  Timestamp strings in [./checkin_names.wiki|object names]
+     can now omit punctation.  So, for example, "202004181942" and
+     "2020-04-18 19:42" mean the same thing.
+  *  Enhance backlink processing so that it works with Markdown-formatted
+     tickets and so that it works for wiki pages.
+  *  The algorithm for finding the
+     [./tech_overview.wiki#configloc|location of the configuration database]
+     is enhanced to be XDG-compliant.
+  *  Add a hide/show feature to
+     [./wikitheory.wiki#assocwiki|associated wiki] display on 
+     check-in and branch information pages.
+  *  Enhance the "[/help?cmd=info|fossil info]" command so that it
+     works with no arguments even if not within an open check-out.
+  *  Many improvements to the forum and especially email notification
+     of forum posts, in response to community feedback after switching
+     SQLite support from a mailing list over to the forum.
+  *  Minimum length of a self-registered user ID increased from 3 to 6
+     characters.
+  *  When the "vfx" query parameter is used on the
+     "[/help?cmd=/timeline|/timeline]" page, it causes the complete
+     text of forum posts to be displayed.
   *  Rework the "[/help?cmd=grep|fossil grep]" command to be more useful.
   *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
      setting to the [/help?cmd=settings|settings] command.
@@ -20,6 +41,10 @@
   *  In [./embeddeddoc.wiki|embedded documentation], hyperlink URLs
      of the form "/doc/$CURRENT/..." the "$CURRENT" text is translated
      into the check-in hash for the document currently being viewed.
+  *  Added the [/help?cmd=/phantoms|/phantoms] webpage that shows all
+     phantom artifacts.
+  *  Enhancements to phantom processing to try to reduce constant
+     bandwidth-using chatter about phantoms on the sync protocol.
   *  Security: Fossil now assumes that the schema of every
      database it opens has been tampered with by an adversary and takes
      extra precautions to ensure that such tampering is harmless.
@@ -40,6 +65,9 @@
      that capability on and off.
   *  Captchas all include a button to read the captcha using an audio
      file, so that they can be completed by the visually impaired.
+  *  Stop using the IP address as part of the login cookie.
+  *  Bug fix: the FTS search into for forum posts is now kept up-to-date
+     correctly.
   *  Bug fix: the "fossil git export" command is now working on Windows
   *  Bug fix: display Technote items on the timeline correctly
   *  Bug fix: fix the capability summary matrix of the Security Audit
@@ -48,7 +76,7 @@
   *  Update internal Unicode character tables, used in regular expression
      handling, from version 12.1 to 13.
   *  Many documentation enhancements.
-  *  Several minor enhancements to existing features.
+  *  Many minor enhancements to existing features.
 
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>

@@ -67,6 +67,7 @@ both use wiki formatting.  Exactly the same set of formatting rules apply.
 There is never a need to learn one formatting language for documentation
 and a different markup for bugs or for check-in comments.
 
+<a name="assocwiki"></a>
 <h2>Auxiliary notes attached to check-ins or branches</h2>
 
 Stand-alone wiki pages with special names "branch/<i>BRANCHNAME</i>"

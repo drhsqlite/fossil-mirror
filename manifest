@@ -1,5 +1,5 @@
-C For\sthe\s"fossil:"\soutput\sfrom\sthe\s"fossil\sinfo"\scommand,\son\sunix,\sprovide\nthe\sfull\spathname\sof\sthe\sfossil\sexecutable.
-D 2020-04-19T16:53:13.932
+C Change\slog\supdates.
+D 2020-04-19T17:32:35.791
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -813,7 +813,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki c3000705ec270f49dfbb34a05fc84d79866784d36f7ff24e2956859eddca1eee
+F www/changes.wiki 36f38f7acaa394f7bb0b2b6fff8fb1815f5302d2920116b6cb4b41f4499dfd33
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki e0707a3fd024990bc95294502d5ca6cd39688bf40c3c87a2a449e7e3af9e40f6
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -976,9 +976,9 @@ F www/userlinks.wiki b22006bf587b1f4962c75a1034876f1a38df990117fa1eba1ec9120f99b
 F www/webpage-ex.md a77371e2e4e14255f647e2c257232a5b4a528553
 F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b941
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
-F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
+F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c0f7c8318b8c24c63c54a12167223561f160dfd8e3c5d2ae13e34d572c006e10
-R aa3445e9c8f953291d05d3ef9e04f4ca
+P 01fcc6a8de6eedbe0fb5dc44af119f5666c2bdab3769a135694d174992723c3f
+R 7cc316c9847fd6359d381eec0e9fb12a
 U drh
-Z 74bf5889d2928583556fa53e5ec05cce
+Z 0b5a0d37cffa9548e87a84e42dfa923e
