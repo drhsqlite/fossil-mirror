@@ -217,29 +217,34 @@ void info_cmd(void){
     extraRepoInfo();
     return;
   }
-  db_find_and_open_repository(0,0);
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND,0);
   verify_all_options();
   if( g.argc==2 ){
     int vid;
-         /* 012345678901234 */
-    db_record_repository_filename(0);
-    fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    if( g.repositoryOpen ){
+      db_record_repository_filename(0);
+      fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    }else{
+      db_open_config(0,1);
+    }
     if( g.localOpen ){
       fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
-    if( verboseFlag ) extraRepoInfo();
+    if( verboseFlag && g.repositoryOpen ) extraRepoInfo();
     if( g.zConfigDbName ){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
-    fossil_print("project-code: %s\n", db_get("project-code", ""));
-    showParentProject();
-    vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
-    if( vid ){
-      show_common_info(vid, "checkout:", 1, 1);
-    }
-    fossil_print("check-ins:    %d\n",
+    if( g.repositoryOpen ){
+      fossil_print("project-code: %s\n", db_get("project-code", ""));
+      showParentProject();
+      vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
+      if( vid ){
+        show_common_info(vid, "checkout:", 1, 1);
+      }
+      fossil_print("check-ins:    %d\n",
              db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
+    }
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
