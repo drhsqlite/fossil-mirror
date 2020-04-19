@@ -1,5 +1,5 @@
-C Improved\sdocumentation\sof\sthe\slatest\sconfiguration\sdatabase\slocator\salgorithm.\nNo\scode\schanges.
-D 2020-04-19T15:20:19.667
+C Minor\stypo\sfix\sin\sthe\sdocumentation.
+D 2020-04-19T15:24:38.662
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -964,7 +964,7 @@ F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
-F www/tech_overview.wiki 3a76e4ced872aee14893b6e8abbc3f0b2651d75f4877ab025fc4ee6149a6b5ff
+F www/tech_overview.wiki 086ebcdc9ca9b019c4a3556691653fb49b05dd9b9ebd5aea89701cfaa46d387e
 F www/th1-hooks.md d03bf09f51a061c17f39eefe6149dae36930da5e905e8bd38d610c20b143f6bc
 F www/th1.md 91bd4a81c1a90eaab82b3545fc10989464fbbd65dfed09502829aaa0a84ef616
 F www/theory1.wiki c5a3a5c9c81a94787d20eacd5184f8afa0c7519efaacd75f84633d129763644a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki fc2d4a3f9873ecf93e0e82e418a668b627b90eb7ff0e85ec9578d0eec31acd0b
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8388a4680f9e2db4dfe281cbe98630decfe05b0a61809810b4e780c1c11e7e4f
-R 456f714f8d901c25449539e717b2ed75
+P 9cb8194da651637e8afd2d630cc3f6362e777c33ae4ab65a32a343bae4388998
+R 14a59b9efb18afb7b1d1b4291822d228
 U drh
-Z 2505409b9be470b66bb5c3962b1095a4
+Z 67e0a62ba9c53f849036d091cc74a27e

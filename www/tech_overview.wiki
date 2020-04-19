@@ -139,7 +139,7 @@ algorithm:
 <tr><td>2. if file ~/.fossil exists<td>&nbsp;&rarr;<td>~/.fossil
 <tr><td>3. if environment variable XDG_CONFIG_HOME exists
     <td>&nbsp;&rarr;<td>$XDG_CONFIG_HOME/fossil.db
-<tr><td>4. if a directory ~/.config exists
+<tr><td>4. if the directory ~/.config exists
     <td>&nbsp;&rarr;<td>~/.config/fossil.db
 <tr><td>5. Otherwise<td>&nbsp;&rarr;<td>~/.fossil
 </table></blockquote>
