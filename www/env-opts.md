@@ -114,27 +114,10 @@ UTC time.
 Environment Variables
 ---------------------
 
-On most platforms, the location of the user’s account-wide
-[configuration database][configdb]
-file is either `FOSSIL_HOME`, `XDG_CONFIG_HOME`, or `HOME`, in that order. 
-This ordering lets you put this file somewhere other than at the top 
-of your user’s home directory by defining `FOSSIL_HOME` to mask 
-the always-defined `HOME`.  The `XDG_CONFIG_HOME` setting is defined
-by some desktop environments as an alternative location for
-configuration files.  If the `XDG_CONFIG_HOME` location is used, then
-the name of the configuration database is `fossil.db` instead of
-`.fossil`.  See the [configuration database location][configloc] discussion
-for additional information.
-
-For native Windows builds and for Cygwin builds, the file is called
-`_fossil` instead of `.fossil` to avoid problems with old programs that 
-assume file names cannot begin with a dot, as was true in old versions 
-of Windows and in MS-DOS. (Newer Microsoft OSes and file systems don’t have a
-problem with such files, but still we take the safe path in case you’re
-on a system with software that can’t cope.) We start our search with
-`FOSSIL_HOME` again, but instead of falling back to `HOME`, we instead
-try `USERPROFILE`, then `LOCALAPPDATA`, then `APPDATA`, and finally we
-concatenate `HOMEDRIVE` + `HOMEPATH`.
+The location of the user's account-wide [configuration database][configdb]
+depends on the operating system and on the existance of various 
+environment variables and/or files.  See the discussion of the
+[configuration database location algorithm][configloc] for details.
 
 `EDITOR`: Name the editor to use for check-in and stash comments.
 Overridden by the local or global `editor` setting or the `VISUAL`
@@ -404,42 +387,26 @@ first found environment variable from the list `FOSSIL_USER`, `USER`,
 none of those are set, then the default user name is "root".
 
 
-### Configuration Directory (often the Home Directory)
+### Configuration Database Location
 
 Fossil keeps some information pertinent to each user in the user's
 [configuration database file][configdb]. 
 The configuration database file includes the global settings
 and the list of repositories and checkouts used by `fossil all`.
 
-On Unix systems, the configuration database is called by one of the
-following names (in order):
+The location of the configuration database file depends on the
+operating system and on the existance of various environment
+variables and/or files.  In brief, the configuration database is
+usually:
 
-  * `$FOSSIL_HOME/.fossil`
-  * `$XDG_CONFIG_HOME/fossil.db`
-  * `$HOME/.fossil`
+  *  Traditional unix &rarr; "`$HOME/.fossil`"
+  *  Windows &rarr; "`%LOCALAPPDATA%/_fossil`"
+  *  [XDG-unix][xdg] &rarr; "`$HOME/.config/fossil.db`"
 
-The name used is the first in the above list for which the corresponding
-environment varible is defined. On most systems, the third name is the
-one that is used.
+[xdg]: https://www.freedesktop.org/wiki/
 
-On Windows, the configuration database is called one of these (in order)
-
-  *  `%FOSSIL_HOME%/_fossil`
-  *  `%LOCALAPPDATA%/_fossil`
-  *  `%APPDATA%/_fossil`
-  *  `%USERPROFILES%/_fossil`
-  *  `%HOMEDRIVE%%HOMEPATH%/_fossil`
-
-As before, the first case in when the corresponding environment variables
-exist is the one used.  This is ususally the second case.  Note that the
-`FOSSIL_HOME` environment variable can always be set to determine the 
-location of the configuration database.  Note also that the configuration
-database file itself is called `.fossil` or `fossil.db` on unix but
-`_fossil` on windows.
-
-You can run the "[fossil info](/help?cmd=info)" command from an open
-check-out to see the location of the configuration database.
-
+See the [configuration database location
+algorithm][configloc] discussion for full information.
 
 ### SQLite VFS to use
 

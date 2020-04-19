@@ -20,7 +20,8 @@
 ** There are three separate database files that fossil interacts
 ** with:
 **
-**    (1)  The "user" database in ~/.fossil
+**    (1)  The "configdb" database in ~/.fossil or ~/.config/fossil.db
+**         or in %LOCALAPPDATA%/_fossil
 **
 **    (2)  The "repository" database
 **
@@ -1371,7 +1372,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 }
 
 /*
-** Close the per-user database file in ~/.fossil
+** Close the per-user configuration database file
 */
 void db_close_config(){
   int iSlot = db_database_slot("configdb");
@@ -1395,29 +1396,26 @@ void db_close_config(){
 }
 
 /*
-** Open the user database in "~/.fossil".  Create the database anew if
-** it does not already exist.
+** Compute the name of the configuration database.  If unable to find the
+** database, return 0 if isOptional is true, or panic if isOptional is false.
 **
-** If the useAttach flag is 0 (the usual case) then the user database is
-** opened on a separate database connection g.dbConfig.  This prevents
-** the ~/.fossil database from becoming locked on long check-in or sync
-** operations which hold an exclusive transaction.  In a few cases, though,
-** it is convenient for the ~/.fossil to be attached to the main database
-** connection so that we can join between the various databases.  In that
-** case, invoke this routine with useAttach as 1.
+** Space to hold the result comes from fossil_malloc().
 */
-int db_open_config(int useAttach, int isOptional){
-  char *zDbName;
-  char *zHome;
-  const char *zRoot;
-  if( g.zConfigDbName ){
-    int alreadyAttached = db_database_slot("configdb")>0;
-    if( useAttach==alreadyAttached ) return 1; /* Already open. */
-    db_close_config();
-  }
-  zHome = fossil_getenv("FOSSIL_HOME");
+static char *db_configdb_name(int isOptional){
+  char *zHome;        /* Home directory */
+  char *zDbName;      /* Name of the database file */
+
+
+  /* On Windows, look for these directories, in order:
+  **
+  **    FOSSIL_HOME
+  **    LOCALAPPDATA
+  **    APPDATA
+  **    USERPROFILE
+  **    HOMEDRIVE HOMEPATH
+  */
 #if defined(_WIN32) || defined(__CYGWIN__)
-  zRoot = "_fossil";
+  zHome = fossil_getenv("FOSSIL_HOME");
   if( zHome==0 ){
     zHome = fossil_getenv("LOCALAPPDATA");
     if( zHome==0 ){
@@ -1432,43 +1430,86 @@ int db_open_config(int useAttach, int isOptional){
       }
     }
   }
-  if( zHome==0 ){
-    if( isOptional ) return 0;
-    fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, USERPROFILE, "
-                 "or HOMEDRIVE / HOMEPATH environment variables");
-  }
-#else
-  zRoot = ".fossil";
-  if( zHome==0 ){
-    zHome = fossil_getenv("XDG_CONFIG_HOME");
-    if( zHome ){
-      zRoot = "fossil.db";
-    }else{
-      zHome = fossil_getenv("HOME");
-      if( zHome==0 ){
-        if( isOptional ) return 0;
-        fossil_panic("cannot locate home directory - please set one of the "
-                     "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
-                     "variables");
-      }
+  zDbName = mprintf("%//_fossil", zHome);
+  fossil_free(zHome);
+  return zDbName;
+
+#else /* if unix */
+  char *zXdgHome;
+
+  /* For unix. a 5-step algorithm is used.
+  ** See ../www/tech_overview.wiki for discussion.
+  **
+  ** Step 1:  If FOSSIL_HOME exists -> $FOSSIL_HOME/.fossil
+  */
+  zHome = fossil_getenv("FOSSIL_HOME");
+  if( zHome!=0 ) return mprintf("%s/.fossil", zHome);
+
+  /* Step 2:  If HOME exists and file $HOME/.fossil exists -> $HOME/.fossil
+  */
+  zHome = fossil_getenv("HOME");
+  if( zHome ){
+    zDbName = mprintf("%s/.fossil", zHome);
+    if( file_size(zDbName, ExtFILE)>1024*3 ){
+      return zDbName;
     }
+    fossil_free(zDbName);
   }
-#endif
-  if( file_isdir(zHome, ExtFILE)!=1 ){
+
+  /* Step 3: if XDG_CONFIG_HOME exists -> $XDG_CONFIG_HOME/fossil.db
+  */
+  zXdgHome = fossil_getenv("XDG_CONFIG_HOME");
+  if( zXdgHome!=0 ){
+    return mprintf("%s/fossil.db", zXdgHome);
+  }
+
+  /* Step 4: If HOME does not exist -> ERROR
+  */
+  if( zHome==0 ){
     if( isOptional ) return 0;
-    fossil_panic("invalid home directory: %s", zHome);
+    fossil_panic("cannot locate home directory - please set one of the "
+                 "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
+                 "variables");
   }
-#if defined(_WIN32) || defined(__CYGWIN__)
-  /* . filenames give some window systems problems and many apps problems */
-  zDbName = mprintf("%//%s", zHome, zRoot);
-#else
-  zDbName = mprintf("%s/%s", zHome, zRoot);
-#endif
+
+  /* Step 5: Otherwise -> $HOME/.config/fossil.db
+  */
+  return mprintf("%s/.config/fossil.db", zHome);
+#endif /* unix */
+}
+
+/*
+** Open the configuration database.  Create the database anew if
+** it does not already exist.
+**
+** If the useAttach flag is 0 (the usual case) then the configuration
+** database is opened on a separate database connection g.dbConfig.
+** This prevents the database from becoming locked on long check-in or sync
+** operations which hold an exclusive transaction.  In a few cases, though,
+** it is convenient for the database to be attached to the main database
+** connection so that we can join between the various databases.  In that
+** case, invoke this routine with useAttach as 1.
+*/
+int db_open_config(int useAttach, int isOptional){
+  char *zDbName;
+  if( g.zConfigDbName ){
+    int alreadyAttached = db_database_slot("configdb")>0;
+    if( useAttach==alreadyAttached ) return 1; /* Already open. */
+    db_close_config();
+  }
+  zDbName = db_configdb_name(isOptional);
+  if( zDbName==0 ) return 0;
   if( file_size(zDbName, ExtFILE)<1024*3 ){
-    if( file_access(zHome, W_OK) ){
+    char *zHome = file_dirname(zDbName);
+    int rc;
+    if( file_isdir(zHome, ExtFILE)==0 ){
+      file_mkdir(zHome, ExtFILE, 0);
+    }
+    rc = file_access(zHome, W_OK);
+    fossil_free(zHome);
+    if( rc ){
       if( isOptional ) return 0;
-      fossil_panic("home directory %s must be writeable", zHome);
+      fossil_panic("home directory \"%s\" must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
@@ -2517,12 +2558,12 @@ int is_false(const char *zVal){
 
 /*
 ** Swap the g.db and g.dbConfig connections so that the various db_* routines
-** work on the ~/.fossil database instead of on the repository database.
+** work on the configuration database instead of on the repository database.
 ** Be sure to swap them back after doing the operation.
 **
-** If the ~/.fossil database has already been opened as the main database or
-** is attached to the main database, no connection swaps are required so this
-** routine is a no-op.
+** If the configuration database has already been opened as the main database
+** or is attached to the main database, no connection swaps are required so
+** this routine is a no-op.
 */
 void db_swap_connections(void){
   /*
@@ -3731,10 +3772,9 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** Settings can have both a "local" repository-only value and "global" value
 ** that applies to all repositories.  The local values are stored in the
 ** "config" table of the repository and the global values are stored in the
-** $HOME/.fossil file on unix or in the %LOCALAPPDATA%/_fossil file on Windows.
-** If both a local and a global value exists for a setting, the local value
-** takes precedence.  This command normally operates on the local settings.
-** Use the --global option to change global settings.
+** configuration database.  If both a local and a global value exists for a
+** setting, the local value takes precedence.  This command normally operates
+** on the local settings.  Use the --global option to change global settings.
 **
 ** Options:
 **   --global   set or unset the given property globally instead of
@@ -3869,8 +3909,8 @@ void test_timespan_cmd(void){
 ** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
-** optimization.  FILENAME can also be the ~/.fossil file or a local
-** .fslckout or _FOSSIL_ file.
+** optimization.  FILENAME can also be the configuration database file
+** (~/.fossil or ~/.config/fossil.db) or a local .fslckout or _FOSSIL_ file.
 **
 ** The purpose of this command is for testing the WITHOUT ROWID capabilities
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.

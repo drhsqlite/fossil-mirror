@@ -71,7 +71,7 @@ database files are used by Fossil, with detailed discussion following.
 <tr>
 <td width="33%" valign="top">
 <h3 align="center">Configuration Database<br>"~/.fossil" or<br>
-"~/.config/fossil.conf"</h3>
+"~/.config/fossil.db"</h3>
 <ul>
 <li>Global [/help/settings |settings]
 <li>List of active repositories used by the [/help/all | all] command
@@ -130,19 +130,32 @@ operations such as "sync" or "rebuild" on all repositories managed by a user.
 <a name='configloc'></a>
 <h4>2.1.1 Location Of The Configuration Database</h4>
 
-On Unix systems, the configuration database is called by one of the
-following names (in order):
+On Unix systems, the configuration database is named by the following
+algorithm:
 
-  *  $FOSSIL_HOME/.fossil
-  *  $XDG_CONFIG_HOME/fossil.db
-  *  $HOME/.fossil
+  *  if environment variable FOSSIL_HOME exists &rarr; $FOSSIL_HOME/.fossil
+  *  if environment variable HOME exists and
+     if file $HOME/fossil exists &rarr; $HOME/.fossil
+  *  if environment variable XDG_CONFIG_HOME exists
+     &rarr; $XDG_CONFIG_HOME/fossil.db
+  *  if environment variable HOME does not exist &rarr; <i>ERROR</i>
+  *  Otherwise $HOME/.config/fossil.db
 
-The name used is the first in the above list for which the corresponding
-environment varible is defined. On most systems, the third name is the
-one that is used.
+Another way of thinking of this algorithm is the following:
 
-On Windows, the configuration database is called one of these
-names (in order):
+  *  Use "$FOSSIL_HOME/.fossil" if the FOSSIL_HOME variable is defined
+  *  Use the traditional unix configuration file name of
+     "$HOME/.fossil" if HOME is defined and if that file exists.
+  *  Use an XDG compatible name otherwise.
+
+This algorithm is complex due to the need for historical compatibility.
+Originally, the database was always named "$HOME/.fossil".  Then support
+for the FOSSIL_HOME environment variable as added.  Later, support for the
+[https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html|XDG-compatible configation filenames]
+was added.  Each of these changes needed to continue to support legacy installs.
+
+On Windows, the configuration database is the first of the following
+for which the corresponding environment variables exist:
 
   *  %FOSSIL_HOME%/_fossil
   *  %LOCALAPPDATA%/_fossil
@@ -150,8 +163,7 @@ names (in order):
   *  %USERPROFILES%/_fossil
   *  %HOMEDRIVE%%HOMEPATH%/_fossil
 
-As before, the first case in when the corresponding environment variables
-exist is the one used.  This is ususally the second case.  Note that the
+The second case is the one that usually determines the name  Note that the
 FOSSIL_HOME environment variable can always be set to determine the 
 location of the configuration database.  Note also that the configuration
 database file itself is called ".fossil" or "fossil.db" on unix but
