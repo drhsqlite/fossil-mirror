@@ -9,6 +9,10 @@
      "2020-04-18 19:42" mean the same thing.
   *  Enhance backlink processing so that it works with Markdown-formatted
      tickets and so that it works for wiki pages.
+     Ticket [a3572c6a5b47cd5a].
+     <ul><li> "[/help?cmd=rebuild|fossil rebuild]" is needed to
+     take full advantage of this fix.  Fossil will continue
+     to work without the rebuild, but the new backlinks will be missing.</ul>
   *  The algorithm for finding the
      [./tech_overview.wiki#configloc|location of the configuration database]
      is enhanced to be XDG-compliant.
@@ -50,7 +54,7 @@
      extra precautions to ensure that such tampering is harmless.
   *  Security: Fossil now puts the Content-Security-Policy in the
      HTTP reply header, in addition to also leaving it in the
-     HTML &lt;head&gt; section, so that it is always available, if
+     HTML &lt;head&gt; section, so that it is always available, even
      if a custom skin overrides the HTML &lt;head&gt; and omits
      the CSP in the process.
   *  The Content-Security-Policy is now set using the
