@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.32.0"
 #define SQLITE_VERSION_NUMBER 3032000
-#define SQLITE_SOURCE_ID      "2020-03-21 23:10:38 5d14a1c4f2fc17de98ad685ad1422cdfda89dfccb00afcaf32ee416b6f84f525"
+#define SQLITE_SOURCE_ID      "2020-04-18 14:12:00 d5b0def96ba6d90f47bc96fab1ccf9c501d84885d086744035b16fd96f3e248c"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1087,10 +1087,12 @@ struct sqlite3_io_methods {
 ** a prior successful call to [SQLITE_FCNTL_BEGIN_ATOMIC_WRITE].
 **
 ** <li>[[SQLITE_FCNTL_LOCK_TIMEOUT]]
-** The [SQLITE_FCNTL_LOCK_TIMEOUT] opcode causes attempts to obtain
-** a file lock using the xLock or xShmLock methods of the VFS to wait
-** for up to M milliseconds before failing, where M is the single 
-** unsigned integer parameter.
+** The [SQLITE_FCNTL_LOCK_TIMEOUT] opcode is used to configure a VFS
+** to block for up to M milliseconds before failing when attempting to 
+** obtain a file lock using the xLock or xShmLock methods of the VFS. 
+** The parameter is a pointer to a 32-bit signed integer that contains
+** the value that M is to be set to. Before returning, the 32-bit signed
+** integer is overwritten with the previous value of M.
 **
 ** <li>[[SQLITE_FCNTL_DATA_VERSION]]
 ** The [SQLITE_FCNTL_DATA_VERSION] opcode is used to detect changes to
@@ -4258,6 +4260,24 @@ typedef struct sqlite3_context sqlite3_context;
 ** ^If the third parameter to sqlite3_bind_text() or sqlite3_bind_text16()
 ** or sqlite3_bind_blob() is a NULL pointer then the fourth parameter
 ** is ignored and the end result is the same as sqlite3_bind_null().
+** ^If the third parameter to sqlite3_bind_text() is not NULL, then
+** it should be a pointer to well-formed UTF8 text.
+** ^If the third parameter to sqlite3_bind_text16() is not NULL, then
+** it should be a pointer to well-formed UTF16 text.
+** ^If the third parameter to sqlite3_bind_text64() is not NULL, then
+** it should be a pointer to a well-formed unicode string that is
+** either UTF8 if the sixth parameter is SQLITE_UTF8, or UTF16
+** otherwise.
+**
+** [[byte-order determination rules]] ^The byte-order of
+** UTF16 input text is determined by the byte-order mark (BOM, U+FEFF)
+** found in first character, which is removed, or in the absence of a BOM
+** the byte order is the native byte order of the host
+** machine for sqlite3_bind_text16() or the byte order specified in
+** the 6th parameter for sqlite3_bind_text64().)^ 
+** ^If UTF16 input text contains invalid unicode
+** characters, then SQLite might change those invalid characters
+** into the unicode replacement character: U+FFFD.
 **
 ** ^(In those routines that have a fourth argument, its value is the
 ** number of bytes in the parameter.  To be clear: the value is the
@@ -4271,7 +4291,7 @@ typedef struct sqlite3_context sqlite3_context;
 ** or sqlite3_bind_text16() or sqlite3_bind_text64() then
 ** that parameter must be the byte offset
 ** where the NUL terminator would occur assuming the string were NUL
-** terminated.  If any NUL characters occur at byte offsets less than 
+** terminated.  If any NUL characters occurs at byte offsets less than 
 ** the value of the fourth parameter then the resulting string value will
 ** contain embedded NULs.  The result of expressions involving strings
 ** with embedded NULs is undefined.
@@ -5596,8 +5616,9 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** 2nd parameter of sqlite3_result_error() or sqlite3_result_error16()
 ** as the text of an error message.  ^SQLite interprets the error
 ** message string from sqlite3_result_error() as UTF-8. ^SQLite
-** interprets the string from sqlite3_result_error16() as UTF-16 in native
-** byte order.  ^If the third parameter to sqlite3_result_error()
+** interprets the string from sqlite3_result_error16() as UTF-16 using
+** the same [byte-order determination rules] as [sqlite3_bind_text16()].
+** ^If the third parameter to sqlite3_result_error()
 ** or sqlite3_result_error16() is negative then SQLite takes as the error
 ** message all text up through the first zero character.
 ** ^If the third parameter to sqlite3_result_error() or
@@ -5664,6 +5685,25 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** or sqlite3_result_blob is the special constant SQLITE_TRANSIENT
 ** then SQLite makes a copy of the result into space obtained
 ** from [sqlite3_malloc()] before it returns.
+**
+** ^For the sqlite3_result_text16(), sqlite3_result_text16le(), and
+** sqlite3_result_text16be() routines, and for sqlite3_result_text64()
+** when the encoding is not UTF8, if the input UTF16 begins with a
+** byte-order mark (BOM, U+FEFF) then the BOM is removed from the
+** string and the rest of the string is interpreted according to the
+** byte-order specified by the BOM.  ^The byte-order specified by
+** the BOM at the beginning of the text overrides the byte-order
+** specified by the interface procedure.  ^So, for example, if
+** sqlite3_result_text16le() is invoked with text that begins
+** with bytes 0xfe, 0xff (a big-endian byte-order mark) then the
+** first two bytes of input are skipped and the remaining input
+** is interpreted as UTF16BE text.
+**
+** ^For UTF16 input text to the sqlite3_result_text16(),
+** sqlite3_result_text16be(), sqlite3_result_text16le(), and
+** sqlite3_result_text64() routines, if the text contains invalid
+** UTF16 characters, the invalid characters might be converted
+** into the unicode replacement character, U+FFFD.
 **
 ** ^The sqlite3_result_value() interface sets the result of
 ** the application-defined function to be a copy of the
