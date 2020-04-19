@@ -169,8 +169,8 @@ location of the configuration database.  Note also that the configuration
 database file itself is called ".fossil" or "fossil.db" on unix but
 "_fossil" on windows.
 
-You can run the [/help?cmd=info|fossil info] command from an open
-check-out to see the location of the configuration database.
+The [/help?cmd=info|fossil info] command will show the location of
+the configuration database on a line that starts with "config-db:".
 
 <h3>2.2 Repository Databases</h3>
 
