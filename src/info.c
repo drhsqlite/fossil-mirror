@@ -231,7 +231,9 @@ void info_cmd(void){
       fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
-    if( verboseFlag && g.repositoryOpen ) extraRepoInfo();
+    if( verboseFlag && g.repositoryOpen ){
+      extraRepoInfo();
+    }
     if( g.zConfigDbName ){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
@@ -244,6 +246,20 @@ void info_cmd(void){
       }
       fossil_print("check-ins:    %d\n",
              db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
+    }
+    if( verboseFlag || !g.repositoryOpen ){
+      Blob vx;
+      char *z;
+      fossil_version_blob(&vx, 0);
+      z = strstr(blob_str(&vx), "version");
+      if( z ){
+        z += 8;
+      }else{
+        z = blob_str(&vx);
+      }
+      fossil_print("fossil:       %s\n", g.nameOfExe);
+      fossil_print("version:      %s", z);
+      blob_reset(&vx);
     }
   }else{
     int rid;

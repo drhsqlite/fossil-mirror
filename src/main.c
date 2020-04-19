@@ -1118,7 +1118,7 @@ const char *get_version(){
 ** the "version" command and "test-version" web page.  It assumes the blob
 ** passed to it is uninitialized; otherwise, it will leak memory.
 */
-static void get_version_blob(
+void fossil_version_blob(
   Blob *pOut,                 /* Write the manifest here */
   int bVerbose                /* Non-zero for full information. */
 ){
@@ -1253,7 +1253,7 @@ void version_cmd(void){
 
   /* We should be done with options.. */
   verify_all_options();
-  get_version_blob(&versionInfo, verboseFlag);
+  fossil_version_blob(&versionInfo, verboseFlag);
   fossil_print("%s", blob_str(&versionInfo));
 }
 
@@ -1276,7 +1276,7 @@ void test_version_page(void){
   verboseFlag = PD("verbose", 0) != 0;
   style_header("Version Information");
   style_submenu_element("Stat", "stat");
-  get_version_blob(&versionInfo, verboseFlag);
+  fossil_version_blob(&versionInfo, verboseFlag);
   @ <pre>
   @ %h(blob_str(&versionInfo))
   @ </pre>
