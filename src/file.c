@@ -1143,6 +1143,65 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
+** The input is the name of an executable, such as one might
+** type on a command-line.  This routine resolves that name into
+** a full pathname.  The result is obtained from fossil_malloc()
+** and should be freed by the caller.
+**
+** This routine only works on unix.  On Windows, simply return
+** a copy of the input.
+*/
+char *file_fullexename(const char *zCmd){
+#ifdef _WIN32
+  return fossil_strdup(zCmd);
+#else
+  char *zPath;
+  char *z;
+  if( zCmd[0]=='/' ){
+    return fossil_strdup(zCmd);
+  }
+  if( strchr(zCmd,'/')!=0 ){
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    return z;
+  }
+  zPath = fossil_getenv("PATH");
+  while( zPath && zPath[0] ){
+    int n;
+    char *zColon;
+    zColon = strchr(zPath, ':');
+    n = zColon ? (int)(zColon-zPath) : (int)strlen(zPath);
+    z = mprintf("%.*s/%s", n, zPath, zCmd);
+    if( file_isexe(z, ExtFILE) ){
+      return z;
+    }
+    fossil_free(z);
+    if( zColon==0 ) break;
+    zPath = zColon+1;
+  }
+  return fossil_strdup(zCmd);
+#endif
+}
+
+/*
+** COMMAND: test-which
+**
+** Usage: %fossil test-which ARGS...
+**
+** For each argument, search the PATH for the executable with the name
+** and print its full pathname.
+*/
+void test_which_cmd(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    char *z = file_fullexename(g.argv[i]);
+    fossil_print("%z\n", z);
+  }
+}
+
+/*
 ** Emits the effective or raw stat() information for the specified
 ** file or directory, optionally preserving the trailing slash and
 ** resetting the cached stat() information.

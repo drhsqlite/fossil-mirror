@@ -169,7 +169,6 @@ static void showParentProject(void){
   }
 }
 
-
 /*
 ** COMMAND: info
 **
@@ -257,7 +256,7 @@ void info_cmd(void){
       }else{
         z = blob_str(&vx);
       }
-      fossil_print("fossil:       %s\n", g.nameOfExe);
+      fossil_print("fossil:       %z\n", file_fullexename(g.nameOfExe));
       fossil_print("version:      %s", z);
       blob_reset(&vx);
     }
