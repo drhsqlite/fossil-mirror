@@ -1463,7 +1463,7 @@ static char *db_configdb_name(int isOptional){
     return mprintf("%s/fossil.db", zXdgHome);
   }
 
-  /* Step 4: If HOME does not exist -> ERROR
+  /* The HOME variable is required in order to continue.
   */
   if( zHome==0 ){
     if( isOptional ) return 0;
@@ -1472,7 +1472,7 @@ static char *db_configdb_name(int isOptional){
                  "variables");
   }
 
-  /* Step 5: If $HOME/.config is a directory -> $HOME/.config/fossil.db
+  /* Step 4: If $HOME/.config is a directory -> $HOME/.config/fossil.db
   */
   zXdgHome = mprintf("%s/.config", zHome);
   if( file_isdir(zXdgHome, ExtFILE)==1 ){
@@ -1480,7 +1480,7 @@ static char *db_configdb_name(int isOptional){
     return mprintf("%s/.config/fossil.db", zHome);
   }
 
-  /* Step 6: Otherwise -> $HOME/.fossil
+  /* Step 5: Otherwise -> $HOME/.fossil
   */
   return mprintf("%s/.fossil", zHome);
 #endif /* unix */
