@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.32.0"
 #define SQLITE_VERSION_NUMBER 3032000
-#define SQLITE_SOURCE_ID      "2020-04-18 14:12:00 d5b0def96ba6d90f47bc96fab1ccf9c501d84885d086744035b16fd96f3e248c"
+#define SQLITE_SOURCE_ID      "2020-04-20 17:35:32 2fc80ef16ce5878311ab88a0c64631813572ffbb71f75363b4619c9667e0926b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1157,6 +1157,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_DATA_VERSION           35
 #define SQLITE_FCNTL_SIZE_LIMIT             36
 #define SQLITE_FCNTL_CKPT_DONE              37
+#define SQLITE_FCNTL_RESERVE_BYTES          38
 
 /* deprecated names */
 #define SQLITE_GET_LOCKPROXYFILE      SQLITE_FCNTL_GET_LOCKPROXYFILE
@@ -7652,7 +7653,7 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_PENDING_BYTE            11
 #define SQLITE_TESTCTRL_ASSERT                  12
 #define SQLITE_TESTCTRL_ALWAYS                  13
-#define SQLITE_TESTCTRL_RESERVE                 14
+#define SQLITE_TESTCTRL_RESERVE                 14  /* NOT USED */
 #define SQLITE_TESTCTRL_OPTIMIZATIONS           15
 #define SQLITE_TESTCTRL_ISKEYWORD               16  /* NOT USED */
 #define SQLITE_TESTCTRL_SCRATCHMALLOC           17  /* NOT USED */

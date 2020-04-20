@@ -12248,7 +12248,8 @@ static const char *(azHelp[]) = {
   ".expert                  EXPERIMENTAL. Suggest indexes for queries",
   ".explain ?on|off|auto?   Change the EXPLAIN formatting mode.  Default: auto",
   ".filectrl CMD ...        Run various sqlite3_file_control() operations",
-  "                           Run \".filectrl\" with no arguments for details",
+  "   --schema SCHEMA         Use SCHEMA instead of \"main\"",
+  "   --help                  Show CMD details",
   ".fullschema ?--indent?   Show schema and the content of sqlite_stat tables",
   ".headers on|off          Turn display of headers on or off",
   ".help ?-all? ?PATTERN?   Show help text for PATTERN",
@@ -16149,6 +16150,7 @@ static int do_meta_command(char *zLine, ShellState *p){
       { "tempfilename",   SQLITE_FCNTL_TEMPFILENAME,    ""               },
       { "has_moved",      SQLITE_FCNTL_HAS_MOVED,       ""               },  
       { "lock_timeout",   SQLITE_FCNTL_LOCK_TIMEOUT,    "MILLISEC"       },
+      { "reserve_bytes",  SQLITE_FCNTL_RESERVE_BYTES,   "[N]"            },
     };
     int filectrl = -1;
     int iCtrl = -1;
@@ -16156,9 +16158,20 @@ static int do_meta_command(char *zLine, ShellState *p){
     int isOk = 0;            /* 0: usage  1: %lld  2: no-result */
     int n2, i;
     const char *zCmd = 0;
+    const char *zSchema = 0;
 
     open_db(p, 0);
     zCmd = nArg>=2 ? azArg[1] : "help";
+
+    if( zCmd[0]=='-' 
+     && (strcmp(zCmd,"--schema")==0 || strcmp(zCmd,"-schema")==0)
+     && nArg>=4
+    ){
+      zSchema = azArg[2];
+      for(i=3; i<nArg; i++) azArg[i-2] = azArg[i];
+      nArg -= 2;
+      zCmd = azArg[1];
+    }
 
     /* The argument can optionally begin with "-" or "--" */
     if( zCmd[0]=='-' && zCmd[1] ){
@@ -16201,7 +16214,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         case SQLITE_FCNTL_SIZE_LIMIT: {
           if( nArg!=2 && nArg!=3 ) break;
           iRes = nArg==3 ? integerValue(azArg[2]) : -1;
-          sqlite3_file_control(p->db, 0, SQLITE_FCNTL_SIZE_LIMIT, &iRes);
+          sqlite3_file_control(p->db, zSchema, SQLITE_FCNTL_SIZE_LIMIT, &iRes);
           isOk = 1;
           break;
         }
@@ -16210,7 +16223,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           int x;
           if( nArg!=3 ) break;
           x = (int)integerValue(azArg[2]);
-          sqlite3_file_control(p->db, 0, filectrl, &x);
+          sqlite3_file_control(p->db, zSchema, filectrl, &x);
           isOk = 2;
           break;
         }
@@ -16219,7 +16232,7 @@ static int do_meta_command(char *zLine, ShellState *p){
           int x;
           if( nArg!=2 && nArg!=3 ) break;
           x = nArg==3 ? booleanValue(azArg[2]) : -1;
-          sqlite3_file_control(p->db, 0, filectrl, &x);
+          sqlite3_file_control(p->db, zSchema, filectrl, &x);
           iRes = x;
           isOk = 1;
           break;
@@ -16227,7 +16240,7 @@ static int do_meta_command(char *zLine, ShellState *p){
         case SQLITE_FCNTL_HAS_MOVED: {
           int x;
           if( nArg!=2 ) break;
-          sqlite3_file_control(p->db, 0, filectrl, &x);
+          sqlite3_file_control(p->db, zSchema, filectrl, &x);
           iRes = x;
           isOk = 1;
           break;
@@ -16235,11 +16248,23 @@ static int do_meta_command(char *zLine, ShellState *p){
         case SQLITE_FCNTL_TEMPFILENAME: {
           char *z = 0;
           if( nArg!=2 ) break;
-          sqlite3_file_control(p->db, 0, filectrl, &z);
+          sqlite3_file_control(p->db, zSchema, filectrl, &z);
           if( z ){
             utf8_printf(p->out, "%s\n", z);
             sqlite3_free(z);
           }
+          isOk = 2;
+          break;
+        }
+        case SQLITE_FCNTL_RESERVE_BYTES: {
+          int x;
+          if( nArg>=3 ){
+            x = atoi(azArg[2]);
+            sqlite3_file_control(p->db, zSchema, filectrl, &x);
+          }
+          x = -1;
+          sqlite3_file_control(p->db, zSchema, filectrl, &x);
+          utf8_printf(p->out,"%d\n", x);
           isOk = 2;
           break;
         }
@@ -18131,7 +18156,6 @@ static int do_meta_command(char *zLine, ShellState *p){
       { "prng_restore",       SQLITE_TESTCTRL_PRNG_RESTORE,  ""               },
       { "prng_save",          SQLITE_TESTCTRL_PRNG_SAVE,     ""               },
       { "prng_seed",          SQLITE_TESTCTRL_PRNG_SEED,     "SEED ?db?"      },
-      { "reserve",            SQLITE_TESTCTRL_RESERVE,      "BYTES-OF-RESERVE"},
     };
     int testctrl = -1;
     int iCtrl = -1;
@@ -18184,7 +18208,6 @@ static int do_meta_command(char *zLine, ShellState *p){
 
         /* sqlite3_test_control(int, db, int) */
         case SQLITE_TESTCTRL_OPTIMIZATIONS:
-        case SQLITE_TESTCTRL_RESERVE:
           if( nArg==3 ){
             int opt = (int)strtol(azArg[2], 0, 0);
             rc2 = sqlite3_test_control(testctrl, p->db, opt);
