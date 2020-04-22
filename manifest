@@ -1,5 +1,5 @@
-C For\sthe\schronological\sdisplay\sof\sforum\sposts,\sshow\sedited\sor\sdeleted\nposts\susing\stext/plain.\s\sItem\s4\sin\s\n[https://fossil-scm.org/forum/forumpost/04e5ea0d88|forum\spost\s04e5ea0d88].
-D 2020-04-22T12:08:40.700
+C Add\sthe\sundocumented\s"threadtable"\squery\sparameter\sto\sthe\sforum\nchronological\sview,\sin\sorder\sto\sshow\sthe\sraw\sthread\stable\sdata\sfor\ndebugging\spurposes.
+D 2020-04-22T14:31:37.311
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -481,7 +481,7 @@ F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 033687e47d1630918fb2243611cc76ba2ed130c1ae1b0e81c07035860e71218c
 F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
-F src/forum.c 845d0102458efa8265ced063e47d2ac6e5428afcd67326c09816456d5d1fb3cb
+F src/forum.c 6a42b20f876589a1ae1496162c5345484a4f11a54eb0c98ae77c3fbe47d04c1e
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fshell.c 632b614437d83c80a3a359f5bbb2d7d65e8d7f2f3a1319f00a5b363ea81264f9
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 19f11a8dec591f4b42c31cbda70be19386d3b6446cc1815df9435ed467acae76
-R 3658df61f9bb8263b7a3e59f6a6cf34e
+P 0e78f746554e07180d2612567a06f984834daed2a6642ca889356234523e6406
+R 7be7d497e65ccc7a1d0b4bbf2a3dfaa6
 U drh
-Z 8d2334f3d144ea0b8ccab8be32f77e99
+Z 46af6afbe7658a2a20b5a3843eb29c06

@@ -292,12 +292,14 @@ void forumthread_cmd(void){
   fossil_print("froot = %d\n", froot);
   pThread = forumthread_create(froot, 1);
   fossil_print("Chronological:\n");
-           /*   123456789 123456789 123456789 123456789 123456789 123456789  */
-  fossil_print("     fpid      firt     fprev     mfirt     pLeaf    nReply\n");
+  fossil_print(
+/* 0         1         2         3         4         5         6         7    */
+/*  123456789 123456789 123456789 123456789 123456789 123456789 123456789 123 */
+  " sid      fpid      firt     fprev     mfirt     pLeaf  nReply  hash\n");
   for(p=pThread->pFirst; p; p=p->pNext){
-    fossil_print("%9d %9d %9d %9d %9d %9d\n",
+    fossil_print("%4d %9d %9d %9d %9d %9d  %6d  %8.8s\n", p->sid,
        p->fpid, p->firt, p->fprev, p->mfirt, p->pLeaf ? p->pLeaf->fpid : 0,
-       p->nReply);
+       p->nReply, p->zUuid);
   }
   fossil_print("\nDisplay\n");
   for(p=pThread->pDisplay; p; p=p->pDisplay){
@@ -508,6 +510,23 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     manifest_destroy(pPost);
     @ </div>
   }
+
+  /* Undocumented "threadtable" query parameter causes thread table
+  ** to be displayed for debugging purposes.
+  */
+  if( PB("threadtable") ){
+    @ <hr>
+    @ <table border="1" cellpadding="3" cellspacing="0">
+    @ <tr><th>sid<th>fpid<th>firt<th>fprev<th>mfirt<th>pLeaf<th>nReply<th>hash
+    for(p=pThread->pFirst; p; p=p->pNext){
+      @ <tr><td>%d(p->sid)<td>%d(p->fpid)<td>%d(p->firt)\
+      @ <td>%d(p->fprev)<td>%d(p->mfirt)\
+      @ <td>%d(p->pLeaf?p->pLeaf->fpid:0)<td>%d(p->nReply)\
+      @ <td>%S(p->zUuid)</tr>
+    }
+    @ </table>
+  }
+
   forumthread_delete(pThread);
 }
 /*
