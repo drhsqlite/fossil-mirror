@@ -1,5 +1,5 @@
-C Close\sleaves\sof\sprivate\sbranches\smerged\swith\sthe\s--integrate\sflag\sby\sseparate\sprivate\scontrol\sartifacts,\sto\savoid\s+close\stags\sreferring\sprivate\sbranches\sin\spublic\scheck-in\smanifests.
-D 2020-04-22T11:47:00.000
+C Avoid\sreferences\sto\sprivate\scheck-ins\sin\sQ-cards\sof\spublic\scheck-in\smanifests.\sThis\sensures\sconsistent\sbehavior\sregarding\sleakage\sof\sprivate\scheck-in\shashes,\spossibly\sgenerating\s"phantoms"\son\speer\srepositories,\sfor\sP-\sand\sQ-cards.\sDepending\son\sthe\sfinal\sstrategy\sto\sminimize\sleakage\sand\ssync\straffic\soverhead\sof\s"phantoms",\sthis\scommit\smay\seventually\sbe\sreverted.
+D 2020-04-22T11:52:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c c301971cf4ab8a1ef3e310367e58db07428eab15c07f7df4b3e33ef5fc3e04bb
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
-F src/checkin.c c409655e6fa9db4a30003973102c58b9f2b763e79c9f4611bb526ee86694fa49
+F src/checkin.c b6597069c921b5ff61223d732f0475d66bc12aea81741d55b5dc5f1d88c64bea
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b6c09c5bff8444590558b44a88968a64c189590994150207425432be008e764
-R 7d68416d876b1bd0598b8ee6c0443e97
+P 4e2498a2b67ce2f20a71579ba7ee72bf88b4fadc66071082f3ca048cc25b8b3b
+R a6908cf61fefe6ac93f0165cf2b10d70
 U florian
-Z 8373c142c3db8a0746c3486851c190a3
+Z 5323704b43974715999cd575726c9a7f
