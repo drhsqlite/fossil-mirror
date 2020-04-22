@@ -2212,16 +2212,24 @@ EmailEvent *alert_compute_event_text(int *pnEvent, int doDigest){
   */
   db_prepare(&q,
     "SELECT"
-    " forumpost.fpid,"                                      /* 0 */
-    " (SELECT uuid FROM blob WHERE rid=forumpost.fpid),"    /* 1 */
-    " datetime(event.mtime),"                               /* 2 */
-    " substr(comment,instr(comment,':')+2),"                /* 3 */
-    " (SELECT uuid FROM blob, forumpost AS irt"
-    "   WHERE irt.fpid=forumpost.firt"
-    "     AND blob.rid=coalesce(irt.fprev,irt.fpid)),"      /* 4 */
-    " wantalert.needMod,"                                   /* 5 */
-    " coalesce(display_name(info),euser,user),"             /* 6 */
-    " forumpost.fprev IS NULL"                              /* 7 */
+    " forumpost.fpid,"                                     /* 0: fpid */
+    " (SELECT uuid FROM blob WHERE rid=forumpost.fpid),"   /* 1: hash */
+    " datetime(event.mtime),"                              /* 2: date/time */
+    " substr(comment,instr(comment,':')+2),"               /* 3: comment */
+    " (WITH thread(fpid,fprev) AS ("
+    "    SELECT fpid,fprev FROM forumpost AS tx"
+    "     WHERE tx.froot=forumpost.froot),"
+    "  basepid(fpid,bpid) AS ("
+    "    SELECT fpid, fpid FROM thread WHERE fprev IS NULL"
+    "    UNION ALL"
+    "    SELECT thread.fpid, basepid.bpid FROM  basepid, thread"
+    "     WHERE basepid.fpid=thread.fprev)"
+    "  SELECT uuid FROM blob, basepid"
+    "   WHERE basepid.fpid=forumpost.firt"
+    "     AND blob.rid=basepid.bpid),"                     /* 4: in-reply-to */
+    " wantalert.needMod,"                                  /* 5: moderated */
+    " coalesce(display_name(info),euser,user),"            /* 6: user */
+    " forumpost.fprev IS NULL"                             /* 7: is an edit */
     " FROM temp.wantalert, event, forumpost"
     "      LEFT JOIN user ON (login=coalesce(euser,user))"
     " WHERE event.objid=substr(wantalert.eventId,2)+0"
