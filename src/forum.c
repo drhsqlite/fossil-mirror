@@ -469,8 +469,15 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     if( isPrivate && !g.perm.ModForum && !sameUser ){
       @ <p><span class="modpending">Awaiting Moderator Approval</span></p>
     }else{
-      forum_render(0, bRawMode?"text/plain":pPost->zMimetype, pPost->zWiki,
-                   0, 1);
+      const char *zMimetype;
+      if( bRawMode ){
+        zMimetype = "text/plain";
+      }else if( p->pLeaf!=0 ){
+        zMimetype = "text/plain";
+      }else{
+        zMimetype = pPost->zMimetype;
+      }
+      forum_render(0, zMimetype, pPost->zWiki, 0, 1);
     }
     if( g.perm.WrForum && p->pLeaf==0 ){
       int sameUser = login_is_individual()
