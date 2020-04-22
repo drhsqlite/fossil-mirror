@@ -2078,6 +2078,7 @@ void commit_cmd(void){
   Blob cksum1b;          /* Checksum recorded in the manifest */
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
+  int nClosedPrivateLeaves = 0;   /* Number of closed private leafs */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
   int abortCommit = 0;   /* Abort the commit due to text format conversions */
   Blob ans;              /* Answer to continuation prompts */
@@ -2563,8 +2564,48 @@ void commit_cmd(void){
   db_prepare(&q, "SELECT mhash,merge FROM vmerge WHERE id=-4");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zIntegrateUuid = db_column_text(&q, 0);
-    if( is_a_leaf(db_column_int(&q, 1)) ){
-      fossil_print("Closed: %s\n", zIntegrateUuid);
+    int rid = db_column_int(&q, 1);
+    if( is_a_leaf(rid) ){
+      if( !content_is_private(rid) ){
+        fossil_print("Closed: %s\n", zIntegrateUuid);
+      }else{
+        /* Close leaves of private branches by separate private control
+        ** artifacts. */
+        Blob bCtrl;       /* Control artifact to close the private leaf */
+        char *zCtrlDate;  /* Timestamp of check-in plus N seconds */
+        Blob bCtrlXsum;   /* Checksum of the control artifact */
+        int iCtrlRid;     /* RID of the control artifact */
+        if( db_exists(
+              "SELECT 1 FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0",
+              TAG_CLOSED, rid) ){
+          continue;   /* Already closed. */
+        }
+        nClosedPrivateLeaves++;
+        blob_zero(&bCtrl);
+        zCtrlDate = db_text(0,
+          "SELECT"
+          " strftime('%%Y-%%m-%%dT%%H:%%M:%%f',mtime,'+%d seconds')"
+          " FROM event WHERE objid=%d",
+          nClosedPrivateLeaves, nvid);
+        blob_appendf(&bCtrl, "D %z\n", date_in_standard_format(zCtrlDate));
+        if( zCtrlDate ) fossil_free(zCtrlDate);
+        blob_appendf(&bCtrl, "T +closed %s\n", zIntegrateUuid);
+        blob_appendf(&bCtrl, "U %F\n",
+          sCiInfo.zUserOvrd ? sCiInfo.zUserOvrd : login_name());
+        md5sum_blob(&bCtrl, &bCtrlXsum);
+        blob_appendf(&bCtrl, "Z %b\n", &bCtrlXsum);
+        blob_reset(&bCtrlXsum);
+        iCtrlRid = content_put_ex(&bCtrl, 0, 0, 0, /*isPrivate=*/1);
+        if( iCtrlRid==0 ){
+          fossil_fatal("trouble committing control artifact: %s", g.zErrMsg);
+        }
+        fossil_print("Closed: %s (private)\n", zIntegrateUuid);
+        if( dryRunFlag ) fossil_print("%s", blob_str(&bCtrl));
+        if( manifest_crosslink(iCtrlRid, &bCtrl,
+                               dryRunFlag ? MC_NONE : MC_PERMIT_HOOKS)==0 ){
+          fossil_fatal("%s", g.zErrMsg);
+        }
+      }
     }else{
       fossil_print("Not_Closed: %s (not a leaf any more)\n", zIntegrateUuid);
     }
