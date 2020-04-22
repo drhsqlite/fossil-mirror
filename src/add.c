@@ -713,6 +713,85 @@ void addremove_cmd(void){
   db_end_transaction(dryRunFlag);
 }
 
+/*
+** COMMAND: unaddremove*
+**
+** Resets the ADD/REMOVE state of a checkout, such that all newly-added
+** (but not yet committed) files are no longer added and newly-removed
+** (but not yet committed) files are no longer removed.
+**
+** This command does not touch un-added files but restores any un-rm'd
+** files which are missing from the checkout.
+**
+** Options:
+**
+**    -v|--verbose      Output name of each un-added/un-removed file.
+**
+*/
+void unaddremove_cmd(void){
+  int nDeleted = 0; /* # of files which get un-rm'd */
+  int nAdded = 0;   /* # of files which get un-added */
+  int fVerbose;     /* true if --verbose */
+  Stmt stmt;        /* vfile loop query */
+
+  db_must_be_within_tree();
+  fVerbose = find_option("verbose", "v", 0)!=0;
+  verify_all_options();
+
+  db_begin_transaction();
+  db_prepare(&stmt, "SELECT id, rid, deleted, pathname FROM vfile "
+                    "ORDER BY deleted<>0, pathname");
+  while( db_step(&stmt)==SQLITE_ROW ){
+    /* This loop exists only so we can restore the contents of un-rm'd
+    ** files. All manipulation of vfile's contents happens after the
+    ** loop. */
+    int const rid = db_column_int(&stmt, 1);
+    int const deleted = db_column_int(&stmt, 2);
+    if(deleted!=0 || rid==0){
+      int const id = db_column_int(&stmt, 0);
+      char const * zPathname = db_column_text(&stmt, 3);
+      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+      Blob relName = empty_blob;
+      file_relative_name(zFullName, &relName, 0);
+      fossil_free(zFullName);
+      zFullName = 0;
+      if(deleted!=0){
+        /* Restore contents of missing un-rm'd files. We don't do this
+        ** unconditionally because we might cause data loss if a file
+        ** is modified, rm'd, then un-rm'd.
+        */
+        ++nDeleted;
+        if(!file_isfile_or_link(blob_str(&relName))){
+          vfile_to_disk(0, id, 0, 0);
+        }
+        /* *Potential* corner case: relName refers to a directory,
+        ** meaning the user rm'd the file and replaced it with a
+        ** directory. In that case, vfile_to_disk() will fail fatally,
+        ** which is arguably the best course of action.
+        */
+        if(fVerbose){
+          fossil_print("Un-removed: %b\n", &relName);
+        }
+      }else if(rid==0){
+        ++nAdded;
+        if(fVerbose){
+          fossil_print("Un-added: %b\n", &relName);
+        }
+      }
+      blob_reset(&relName);
+    }
+  }
+  db_finalize(&stmt);
+  if(nDeleted>0){
+    db_multi_exec("UPDATE vfile SET deleted=0 WHERE deleted<>0");
+    fossil_print("Un-removed %d file(s).\n", nDeleted);
+  }
+  if(nAdded>0){
+    db_multi_exec("DELETE FROM vfile WHERE rid=0");
+    fossil_print("Un-added %d file(s).\n", nAdded);
+  }
+  db_end_transaction(0);
+}
 
 /*
 ** Rename a single file.
