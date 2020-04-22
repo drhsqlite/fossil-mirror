@@ -845,7 +845,7 @@ void forumthread_page(void){
   }else if( zMode[0]=='y' ){
     style_header("Edit History Of A Forum Post");
     style_submenu_element("Complete Thread", "%R/%s/%s?t=a", g.zPath, zName);
-    forum_display_history(froot, fpid, 0);
+    forum_display_history(froot, fpid, 1);
   }else{
     style_submenu_element("Chronological", "%R/%s/%s?t=c", g.zPath, zName);
     style_submenu_element("Unformatted", "%R/%s/%s?t=r", g.zPath, zName);
