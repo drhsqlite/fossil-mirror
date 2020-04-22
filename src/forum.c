@@ -419,6 +419,7 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     int sameUser;         /* True if author is also the reader */
     const char *zUuid;
     char *zDisplayName;   /* The display name */
+    int sid;
 
     pPost = manifest_get(p->fpid, CFTYPE_FORUM, 0);
     if( pPost==0 ) continue;
@@ -434,7 +435,8 @@ static void forum_display_chronological(int froot, int target, int bRawMode){
     }
     zDate = db_text(0, "SELECT datetime(%.17g)", pPost->rDate);
     zDisplayName = display_name_from_login(pPost->zUser);
-    @ <h3 class='forumPostHdr'>(%d(p->sid)) By %h(zDisplayName) on %h(zDate)
+    sid = p->pEdit ? p->pEdit->sid : p->sid;
+    @ <h3 class='forumPostHdr'>(%d(sid)) By %h(zDisplayName) on %h(zDate)
     fossil_free(zDisplayName);
     fossil_free(zDate);
     if( p->pEdit ){
@@ -675,7 +677,7 @@ static int forum_display_hierarchical(int froot, int target){
     zDate = db_text(0, "SELECT datetime(%.17g)", pOPost->rDate);
     zDisplayName = display_name_from_login(pOPost->zUser);
     @ <h3 class='forumPostHdr'>\
-    @ (%d(p->pLeaf?p->pLeaf->sid:p->sid)) By %h(zDisplayName) on %h(zDate)
+    @ (%d(p->sid)) By %h(zDisplayName) on %h(zDate)
     fossil_free(zDisplayName);
     fossil_free(zDate);
     if( g.perm.Debug ){
@@ -704,7 +706,7 @@ static int forum_display_hierarchical(int froot, int target){
     @ %z(href("%R/forumpost/%S?raw",zUuid))[source]</a>
     if( p->firt ){
       ForumEntry *pIrt = p->pPrev;
-      while( pIrt && pIrt->fpid!=p->firt ) pIrt = pIrt->pPrev;
+      while( pIrt && pIrt->fpid!=p->mfirt ) pIrt = pIrt->pPrev;
       if( pIrt ){
         @ in reply to %z(href("%R/forumpost/%S?t=h",pIrt->zUuid))\
         @ %d(pIrt->sid)</a>
