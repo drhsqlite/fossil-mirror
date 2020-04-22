@@ -1,5 +1,5 @@
-C The\s"history"\sview\sof\san\sedited\spost\sin\sthe\sForum\sshows\sall\sentries\nas\stext/plain.\s\sSee\sdiscussion\n[https://fossil-scm.org/forum/forumpost/bb906aa6ab|on\sthe\sFossil\sforum].
-D 2020-04-22T11:52:58.461
+C Fix\s./configure\sso\sthat\sthe\s--with-openssl=tree\soption\sworks\sbetter.
+D 2020-04-22T11:59:00.683
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -50,7 +50,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def cd0b3f9a15bbd884f56303aac2ad0456516671ea60e46cc8825a687792ce4969
+F auto.def 54b1ffa8d14a587f648c5ba1171e49000f5a6631fcf7f6158c8da40ea0f40880
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup ce1de4d412c2c929f43da338d3cb19e3644f3af238dd499e180dae432152a03c
 F autosetup/autosetup 26637357e40f2fb404a17f613ba6bb9230fa40ee097ec5822bba6efb3c34ddbe x
@@ -978,7 +978,8 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c435144c700b00e20698bc6487afa4aaacc05c5198e44e1ed3c72e357c625448
-R eba22694f262249acfa0eca4988fb550
+P f7c869b9fb7b7686228503a20dbefc50fb9ec6c3f1cfbc4cad3d629f17509d2e 8a046acb99ed0bfd95a42c23e8b199fdc9334e176237e448bf7d96112e53a094
+R 52fd69d1c6120fa72327d809f0343aae
+T +closed 8a046acb99ed0bfd95a42c23e8b199fdc9334e176237e448bf7d96112e53a094
 U drh
-Z e9c4b1a957afe1cc14a05ea0c689b2d8
+Z 7169accbdfa4bf10fce769b78dde0a99
