@@ -33,7 +33,7 @@
   *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
      setting to the [/help?cmd=settings|settings] command.
   *  Improve support for CGI on IIS web servers.
-  *  The [/help?cmd=/ext|/ext page] can now render index files,
+  *  The [./serverext.wiki|/ext page] can now render index files,
      in the same way as the embedded docs.
   *  Most commands now support the Unix-conventional "<tt>--</tt>"
      flag to treat all following arguments as filenames
@@ -47,7 +47,7 @@
      into the check-in hash for the document currently being viewed.
   *  Added the [/help?cmd=/phantoms|/phantoms] webpage that shows all
      phantom artifacts.
-  *  Enhancements to phantom processing to try to reduce constant
+  *  Enhancements to phantom processing to try to reduce
      bandwidth-using chatter about phantoms on the sync protocol.
   *  Security: Fossil now assumes that the schema of every
      database it opens has been tampered with by an adversary and takes
