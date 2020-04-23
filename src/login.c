@@ -1599,12 +1599,16 @@ void register_page(void){
       const char *zGoto = P("g");
       int nsub = 0;
       char ssub[20];
+      CapabilityString *pCap;
+      pCap = capability_add(0, zPerms);
+      capability_expand(pCap);
       ssub[nsub++] = 'a';
-      if( g.perm.Read )    ssub[nsub++] = 'c';
-      if( g.perm.RdForum ) ssub[nsub++] = 'f';
-      if( g.perm.RdTkt )   ssub[nsub++] = 't';
-      if( g.perm.RdWiki )  ssub[nsub++] = 'w';
+      if( capability_has_any(pCap,"o") ) ssub[nsub++] = 'c';
+      if( capability_has_any(pCap,"2") ) ssub[nsub++] = 'f';
+      if( capability_has_any(pCap,"r") ) ssub[nsub++] = 't';
+      if( capability_has_any(pCap,"j") ) ssub[nsub++] = 'w';
       ssub[nsub] = 0;
+      capability_free(pCap);
       /* Also add the user to the subscriber table. */
       db_multi_exec(
         "INSERT INTO subscriber(semail,suname,"
