@@ -1,5 +1,5 @@
-C Initial\sdraft\sof\snew\sunaddremove\scommand\s(will\sbe\srenamed\sonce\sa\ssuitable\sname\sis\sfound),\sas\sdiscussed\sat\s[https://fossil-scm.org/forum/forumpost/b9b20b04bd|forumpost/b9b20b04bd].
-D 2020-04-22T23:45:20.357
+C Pedantic\scosmetic\schange:\sdo\sun-rm\sbefore\sun-add.
+D 2020-04-23T00:06:54.242
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -430,7 +430,7 @@ F skins/xekri/footer.txt 0280277f0fc52ebeb749cdd7ba32fb184e2c6aa9536123d189b0f60
 F skins/xekri/header.txt 97aa34b5f480a77e587cca8cec0ec86a2f8410d4dd4a764ff6214fb840b594df
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/accordion.js 4a4dd11a0e8e4e592846dc4b94cc873cc366e1a637811567e2eb249f16b8a64e
-F src/add.c 7581811ea1a67a1a7863f46257a57447be0bb2f5b45bd01fd791642c95840641
+F src/add.c 927a7992ae15ef6cc8bd067eac5a166ec8334900ae667cf63e5aad2eb19ff1a8
 F src/alerts.c 34b1f0fb99ccda600bca230a455a7c6cda0aa1b874c4d50e2a7717fc94d8e9c0
 F src/allrepo.c 71ee4f72ac00f9fa598b209c9daa610e45770f02b1b0202edc81cea47f7dd34b
 F src/attach.c f0c6a53aeb1371b94e05942efb324ac29ad1fb07baa43ab196151eb2af3f5c5b
@@ -978,10 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c6890fd46a42cca6512858b7dac54d3f56e0c264d55a56845c75902f4899736d
-R 0b1d47b76ad6d8824b61d40d90efb4a9
-T *branch * unaddremove-command
-T *sym-unaddremove-command *
-T -sym-trunk *
+P 369a14b33fb79ffca48f9de37ee95f183d76daba0970034dcf43d7d27bc88fee
+R 9889cbffe5deeacf36f5f337c79fa6e6
 U stephan
-Z c5d95bfddef9876217a9f444bede9d63
+Z 9671ae8751dadd1184dbc62c75c7088c

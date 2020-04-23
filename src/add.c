@@ -740,7 +740,7 @@ void unaddremove_cmd(void){
 
   db_begin_transaction();
   db_prepare(&stmt, "SELECT id, rid, deleted, pathname FROM vfile "
-                    "ORDER BY deleted<>0, pathname");
+                    "ORDER BY deleted=0, pathname");
   while( db_step(&stmt)==SQLITE_ROW ){
     /* This loop exists only so we can restore the contents of un-rm'd
     ** files. All manipulation of vfile's contents happens after the
