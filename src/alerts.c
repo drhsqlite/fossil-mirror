@@ -1370,6 +1370,7 @@ void subscribe_page(void){
     if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
+    if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
     db_multi_exec(
       "INSERT INTO subscriber(semail,suname,"
@@ -1480,6 +1481,8 @@ void subscribe_page(void){
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(PCK("sf"))> \
     @  Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sx" %s(PCK("sx"))> \
+    @  Forum Edits</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
