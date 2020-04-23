@@ -1,5 +1,5 @@
-C Rewrote\sa\sparagraph\sin\ssec.7.2\sof\sthe\srebaseharm\sdoc\sfor\sclarity.
-D 2020-04-23T17:26:52.027
+C Assorted\simprovements\sto\sthe\smirrorlimitations.md\sdoc.
+D 2020-04-23T17:47:02.474
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -909,7 +909,7 @@ F www/json-api/tips.md 6ad0ae1c4c22fdd79fda18ccee4c01964e5fc241e290b138518d4a72b
 F www/loadmgmt.md bfeaeef8b97a0adbdc8979fd3e8bbae32c77eb6083e4639bbaf12b2d656d8c27
 F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75f9e6
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
-F www/mirrorlimitations.md 565be90e434a2c9a93c95cea4365b160d55a1dd99633c42b8bf2d035d88c8766
+F www/mirrorlimitations.md 7440d0a6924555b3699988e542e5f44862378af3e19505c2816bf1db9bf55751
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
 F www/mkindex.tcl 98e76e5e19d7eb977888329fba0a6efb3f23ee56649bfd16a3eac8b6273a6ba3 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2cfd125640100112f89ac614e246037cffb00f0594657ce7ab5910fb58c17be4
-R 583189326e387e5b13b0ebba5b2c8996
+P b16db9d6e960fcf6a6dc61fe7ffee19c19538d57b6c01dfcb5c9694abc176b4a
+R b1bdb1740a3fce7c1a91641960d26642
 U wyoung
-Z ee9d9ceae754bc5d991ce81436e6c569
+Z 33840264b8e7b1e24d0a5ddca80dbc69
