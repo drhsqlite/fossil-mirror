@@ -1463,6 +1463,33 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 }
 
 /*
+** Check an email address and confirm that it is valid for self-registration.
+** The email address is known already to be well-formed.
+**
+** The default behavior is that any valid email address is accepted.
+** But if the "self-reg-email" setting exists and is not empty, then
+** it is a comma-separated list of GLOB patterns for email addresses
+** that are authorized to self-register.
+*/
+static int authorized_self_register_email(const char *zEAddr){
+  char *zGlob = db_get("self-reg-email",0);
+  Glob *pGlob;
+  char *zAddr;
+  int rc;
+
+  if( zGlob==0 || zGlob[0]==0 ) return 1;
+  zGlob = fossil_strtolwr(fossil_strdup(zGlob));
+  pGlob = glob_create(zGlob);
+  fossil_free(zGlob);
+
+  zAddr = fossil_strtolwr(fossil_strdup(zEAddr));
+  rc = glob_match(pGlob, zAddr);
+  fossil_free(zAddr);
+  glob_free(pGlob);
+  return rc!=0;
+}
+
+/*
 ** WEBPAGE: register
 **
 ** Page to allow users to self-register.  The "self-register" setting
@@ -1523,6 +1550,9 @@ void register_page(void){
   }else if( email_address_is_valid(zEAddr,0)==0 ){
     iErrLine = 3;
     zErr = "Not a valid email address";
+  }else if( authorized_self_register_email(zEAddr)==0 ){
+    iErrLine = 3;
+    zErr = "Not an authorized email address";
   }else if( strlen(zPasswd)<6 ){
     iErrLine = 4;
     zErr = "Password must be at least 6 characters long";

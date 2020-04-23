@@ -1,5 +1,5 @@
-C Grammar\sand\sclarity\stweaks\sto\sfossil-v-git.wiki
-D 2020-04-23T16:59:02.737
+C Begin\sadding\sthe\sability\sto\srestrict\sself-registration\sto\speople\swith\sa\nparticular\semail\saddress\spattern.\s\sThis\scheck-in\sprovides\sthe\ssetting\sto\nspecify\sthe\sauthorized\semail\saddresses,\sbut\san\sattacker\scan\sstill\slie\sabout\nhis\semail\saddress\sand\ssneak\sin\sthat\sway.\s\sStill\sa\swork-in-progress.
+D 2020-04-23T18:36:42.159
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -518,7 +518,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c 7d96c07541bc21ebb22a8b91d08a857637efd38e1a93a01bade244a83c6f9dec
+F src/login.c aac19c71566d03874a263cf615485583423284efc949b079c14fa9e14fc2cbf2
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c cb9a993d094183a3ac1d944eb73d2deee10d79acc8fa100cfa73809361c4864a
@@ -559,7 +559,7 @@ F src/schema.c 9a894b8db01c2b16b9320a5e3fae2a6a0ae3cea1647d10da4af79ea0a5fa26cd
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 711d196bbb708e177e18b5473ad180c8141b14731b7e94292db0cdcba0e8ad85
 F src/security_audit.c 41f2eadf55a23cdc7eb26786d7285eab00043a5392de0d05a602785ee627c551
-F src/setup.c 512364bad26d1f3c53f29df61dad963ca001592f747331b57fc8e73171ff424d
+F src/setup.c 4122486bb86792076b472a5844614e1e02de1a4950b8b065797066ee3a29da1f
 F src/setupuser.c 9f805c40d770cb4297b3547ea10d2b7ee50fe35b26b62f7eb58ac954ba075db5
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -613,11 +613,11 @@ F src/undo.c fbb75d065fa2a229a1f7cbb36f9589dc8fe500d16381d8aad31dadae3a9e5bd9
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 227f616ce7c2d1b8dd8c979ba362ffdb43cd4c48ac931d806f6dc4ac54ebf3b1
 F src/update.c 65025982df907734b207a6203373e5c123280985493ff0afea2405df14cf0f08
-F src/url.c facd00cecee8a98259aad612fea47c680f8202b55898835ee42c8ccddd8d8ea8
+F src/url.c 3743a275d7f4622a49c4090a66ed7fc038d5eb1a98bd1d469a8b4c4b7ebffd45
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
 F src/utf8.c 1def37c6b8d8d1fdc702e9c49a26134482fa952e86ecb7a0a42b2220bf64eb2b
-F src/util.c 907ebfaf838a04a9c988f70321a77d9ca8be68496486498e166fc2fdc54c8a06
+F src/util.c ba9c17c60478a37e6fe5e07bd36ae0f0558514356a97f03c64fac05c2223cdaa
 F src/verify.c 9c9f35fa93d27f4ef7fda7f353cf6fd7f3fba04c5ca49dce49d7b454a7ebb2b3
 F src/vfile.c 0e4601fcac2a5c5674e206f8af1ba83568b049f449b32ad9d244fc221f257844
 F src/webmail.c 3c7fcfebb8e80c7be286772fd09649c6b48f3a52d875328c57752ef6aa4fcc39
@@ -978,7 +978,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3510ca72aff7fa7eaf020f74bbbeec607d30123dca1e98c331c089ad5f32fa39
-R 2d9eff40834b8f44a00ba4bc88b9986a
-U wyoung
-Z c09601faea2a50e9c1f2e9244be39a22
+P 2cfd125640100112f89ac614e246037cffb00f0594657ce7ab5910fb58c17be4
+R c689761187fe560c347eb66e20a16b1c
+T *branch * restricted-self-registration
+T *sym-restricted-self-registration *
+T -sym-trunk *
+U drh
+Z fd6cd2fc063bf3c5f74d62fc9b8adec4

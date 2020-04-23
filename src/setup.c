@@ -505,10 +505,23 @@ void setup_access(void){
                   "self-register", "selfregister", 0, 0);
   @ <p>Allow users to register themselves through the HTTP UI.
   @ The registration form always requires filling in a CAPTCHA
-  @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
+  @ (<em>auto-captcha</em> setting is ignored).  Keep in mind that anyone
   @ can register under any user name. This option is useful for public projects
   @ where you do not want everyone in any ticket discussion to be named
   @ "Anonymous".  (Property: "self-register")</p>
+
+  @ <hr />
+  entry_attribute("Authorized self-registration email addresses", 35,
+                  "self-reg-email", "selfregemail", "", 0);
+  @ <p>This is a comma-separated list of GLOB patterns that specify
+  @ email addresses that are authorized to self-register.  If blank
+  @ (the usual case), then any email address can be used to self-register.
+  @ This setting is used to limit self-registration to members of a particular
+  @ organization or group based on their email address.  For example,
+  @ if the pattern is "<tt>*@megacorp.com, *@af.mil.to</tt>" then
+  @ only employees of MegaCorp and members of the Tonganese airforce
+  @ can self-register.
+  @ (Property: "self-reg-email")</p>
 
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",
