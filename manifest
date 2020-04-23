@@ -1,5 +1,5 @@
-C Update\sreferences\sto\sOpenSSL\sfrom\s1.1.1f\sto\s1.1.1g.\sUpdate\scustom\smakefile.
-D 2020-04-23T13:16:21.855
+C Grammar\sand\sclarity\stweaks\sto\sfossil-v-git.wiki
+D 2020-04-23T16:59:02.737
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -859,7 +859,7 @@ F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
 F www/foss-cklist.wiki bb6dbd96ca6953843b5a68b86e896fa08a4e1122
 F www/fossil-from-msvc.wiki f73f0667b1f268e61e276007ad000c4205e740ba
-F www/fossil-v-git.wiki b87da27d161eef56f527f088de361f9e4cbb609cdf4e2398c9afe99d264dc527
+F www/fossil-v-git.wiki 8010a2714ac749478f7fe2c10fbe596b9b2d19772154474786b74749c8a2f53a
 F www/fossil.eps dd303bdc475ef1aa3b1cfca07b5ed70397370394
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps fb372ab5154d581923bf0f4044644af259991872
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fcc07be739ae1df4c1a4e24777e94378ee2a067caebc9d7a7e6e84d28d0ee91b
-R c0b3d7c63c258e48632543fbfd14f32e
-U jan.nijtmans
-Z 0d9c9acd103c73d036d606807246d6e9
+P 3510ca72aff7fa7eaf020f74bbbeec607d30123dca1e98c331c089ad5f32fa39
+R 2d9eff40834b8f44a00ba4bc88b9986a
+U wyoung
+Z c09601faea2a50e9c1f2e9244be39a22
