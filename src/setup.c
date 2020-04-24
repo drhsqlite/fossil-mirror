@@ -502,27 +502,29 @@ void setup_access(void){
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
-                  "self-register", "selfregister", 0, 0);
-  @ <p>Allow users to register themselves through the HTTP UI.
-  @ The registration form always requires filling in a CAPTCHA
-  @ (<em>auto-captcha</em> setting is ignored).  Keep in mind that anyone
-  @ can register under any user name. This option is useful for public projects
-  @ where you do not want everyone in any ticket discussion to be named
-  @ "Anonymous".  (Property: "self-register")</p>
+                  "self-register", "selfreg", 0, 0);
+  @ <p>Allow users to register themselves on the /register webpage.
+  @ A self-registration creates a new entry in the USER table and
+  @ perhaps also in the SUBSCRIBER table if email notification is
+  @ enabled.
+  @ (Property: "self-register")</p>
 
   @ <hr />
   onoff_attribute("Email verification required for self-registration",
-                  "selfreg-verify", "selfregver", 0, 0);
+                  "selfreg-verify", "sfverify", 0, 0);
   @ <p>If enabled, self-registration creates a new entry in the USER table
-  @ but with provide any new capabilities until the email address provided
-  @ with registration has been verified.
+  @ with only capabilities "7".  The default user capabilities are not
+  @ added until the email address associated with the self-registration
+  @ has been verified. This setting only makes sense if
+  @ email notifications are enabled.
   @ (Property: "selfreg-verify")</p>
 
   @ <hr />
   onoff_attribute("Allow anonymous subscriptions",
                   "anon-subscribe", "anonsub", 1, 0);
-  @ <p>Are email notification subscriptions allowed for users Nobody and
-  @ Anonymous?
+  @ <p>If disabled, email notification subscriptions are only allowed
+  @ for users with a login.  If Nobody or Anonymous visit the /subscribe
+  @ page, they are redirected to /register or /login.
   @ (Property: "anon-subscribe")</p>
 
   @ <hr />
