@@ -1735,9 +1735,22 @@ void alert_page(void){
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
     if( nName==64 ){
-       db_multi_exec(
-        "UPDATE subscriber SET sverified=1 WHERE subscriberCode=hextoblob(%Q)",
+      db_multi_exec(
+        "UPDATE subscriber SET sverified=1"
+        " WHERE subscriberCode=hextoblob(%Q)",
         zName);
+      if( db_get_boolean("selfreg-verify",0) ){
+        char *zNewCap = db_get("default-perms","u");
+        db_multi_exec(
+           "UPDATE user"
+           "   SET cap=%Q"
+           " WHERE cap='7' AND login=("
+           "   SELECT suname FROM subscriber"
+           "    WHERE subscriberCode=hextoblob(%Q))",
+           zNewCap, zName
+        );
+        login_set_capabilities(zNewCap, 0);
+      }
       @ <h1>Your email alert subscription has been verified!</h1>
       @ <p>Use the form below to update your subscription information.</p>
       @ <p>Hint:  Bookmark this page so that you can more easily update

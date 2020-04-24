@@ -483,7 +483,7 @@ int login_self_register_available(const char *zNeeded){
   int rc;
   if( !db_get_boolean("self-register",0) ) return 0;
   if( zNeeded==0 ) return 1;
-  pCap = capability_add(0, db_get("default-perms", 0));
+  pCap = capability_add(0, db_get("default-perms", "u"));
   capability_expand(pCap);
   rc = capability_has_any(pCap, zNeeded);
   capability_free(pCap);
@@ -1130,7 +1130,7 @@ void login_check_credentials(void){
     const char *zUri = PD("REQUEST_URI","");
     zUri += (int)strlen(g.zTop);
     if( glob_match(pGlob, zUri) ){
-      login_set_capabilities(db_get("default-perms", 0), 0);
+      login_set_capabilities(db_get("default-perms", "u"), 0);
     }
     glob_free(pGlob);
   }
@@ -1513,7 +1513,7 @@ void register_page(void){
     style_footer();
     return;
   }
-  zPerms = db_get("default-perms", 0);
+  zPerms = db_get("default-perms", "u");
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
@@ -1580,12 +1580,20 @@ void register_page(void){
     Blob sql;
     int uid;
     char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
+    const char *zStartPerms = zPerms;
+    if( db_get_boolean("selfreg-verify",0) ){
+      /* If email verification is required for self-registration, initalize
+      ** the new user capabilities to just "7" (Sign up for email).  The
+      ** full "default-perms" permissions will be added when they click
+      ** the verification link on the email they are sent. */
+      zStartPerms = "7";
+    }
     blob_init(&sql, 0, 0);
     blob_append_sql(&sql,
        "INSERT INTO user(login,pw,cap,info,mtime)\n"
        "VALUES(%Q,%Q,%Q,"
        "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
-       zUserID, zPass, zPerms, zDName, zEAddr, g.zIpAddr);
+       zUserID, zPass, zStartPerms, zDName, zEAddr, g.zIpAddr);
     fossil_free(zPass);
     db_multi_exec("%s", blob_sql_text(&sql));
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);

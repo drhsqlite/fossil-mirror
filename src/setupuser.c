@@ -555,7 +555,7 @@ void user_edit(void){
       sid = db_int(0, "SELECT subscriberId FROM subscriber"
                       " WHERE suname=%Q", zLogin);
       if( sid>0 ){
-        @ &nbsp;&nbsp;<a href="%R/alerts?sid=%d(sid)>\
+        @ &nbsp;&nbsp;<a href="%R/alerts?sid=%d(sid)">\
         @ (subscription info for %h(zLogin))</a>\
       }
     }

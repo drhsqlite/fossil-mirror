@@ -511,6 +511,14 @@ void setup_access(void){
   @ "Anonymous".  (Property: "self-register")</p>
 
   @ <hr />
+  onoff_attribute("Email verification required for self-registration",
+                  "selfreg-verify", "selfregver", 0, 0);
+  @ <p>If enabled, self-registration creates a new entry in the USER table
+  @ but with provide any new capabilities until the email address provided
+  @ with registration has been verified.
+  @ (Property: "selfreg-verify")</p>
+
+  @ <hr />
   entry_attribute("Authorized self-registration email addresses", 35,
                   "self-reg-email", "selfregemail", "", 0);
   @ <p>This is a comma-separated list of GLOB patterns that specify
