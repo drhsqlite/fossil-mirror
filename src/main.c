@@ -2525,14 +2525,20 @@ void ssh_request_loop(const char *zIpAddr, Glob *FileGlob){
 **
 ** Options:
 **   --th-trace          trace TH1 execution (for debugging purposes)
+**   --usercap   CAP     user capability string.  (Default: "sx")
 **
 */
 void cmd_test_http(void){
   const char *zIpAddr;    /* IP address of remote client */
+  const char *zUserCap;
 
   Th_InitTraceLog();
-  login_set_capabilities("sx", 0);
-  g.useLocalauth = 1;
+  zUserCap = find_option("usercap",0,1);
+  if( zUserCap==0 ){
+    g.useLocalauth = 1;
+    zUserCap = "sx";
+  }
+  login_set_capabilities(zUserCap, 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
   fossil_binary_mode(g.httpOut);

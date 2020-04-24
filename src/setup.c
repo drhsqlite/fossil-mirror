@@ -519,17 +519,21 @@ void setup_access(void){
   @ (Property: "selfreg-verify")</p>
 
   @ <hr />
-  entry_attribute("Authorized self-registration email addresses", 35,
-                  "self-reg-email", "selfregemail", "", 0);
+  onoff_attribute("Allow anonymous subscriptions",
+                  "anon-subscribe", "anonsub", 1, 0);
+  @ <p>Are email notification subscriptions allowed for users Nobody and
+  @ Anonymous?
+  @ (Property: "anon-subscribe")</p>
+
+  @ <hr />
+  entry_attribute("Authorized subscription email addresses", 35,
+                  "auth-sub-email", "asemail", "", 0);
   @ <p>This is a comma-separated list of GLOB patterns that specify
-  @ email addresses that are authorized to self-register.  If blank
+  @ email addresses that are authorized to subscriptions.  If blank
   @ (the usual case), then any email address can be used to self-register.
-  @ This setting is used to limit self-registration to members of a particular
-  @ organization or group based on their email address.  For example,
-  @ if the pattern is "<tt>*@megacorp.com, *@af.mil.to</tt>" then
-  @ only employees of MegaCorp and members of the Tonganese airforce
-  @ can self-register.
-  @ (Property: "self-reg-email")</p>
+  @ This setting is used to limit subscriptions to members of a particular
+  @ organization or group based on their email address.
+  @ (Property: "auth-sub-email")</p>
 
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",

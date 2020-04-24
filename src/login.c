@@ -1464,15 +1464,16 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 
 /*
 ** Check an email address and confirm that it is valid for self-registration.
-** The email address is known already to be well-formed.
+** The email address is known already to be well-formed.  Return true
+** if the email address is on the allowed list.
 **
 ** The default behavior is that any valid email address is accepted.
-** But if the "self-reg-email" setting exists and is not empty, then
+** But if the "auth-sub-email" setting exists and is not empty, then
 ** it is a comma-separated list of GLOB patterns for email addresses
 ** that are authorized to self-register.
 */
-static int authorized_self_register_email(const char *zEAddr){
-  char *zGlob = db_get("self-reg-email",0);
+int authorized_subscription_email(const char *zEAddr){
+  char *zGlob = db_get("auth-sub-email",0);
   Glob *pGlob;
   char *zAddr;
   int rc;
@@ -1551,7 +1552,7 @@ void register_page(void){
   }else if( email_address_is_valid(zEAddr,0)==0 ){
     iErrLine = 3;
     zErr = "Not a valid email address";
-  }else if( authorized_self_register_email(zEAddr)==0 ){
+  }else if( authorized_subscription_email(zEAddr)==0 ){
     iErrLine = 3;
     zErr = "Not an authorized email address";
   }else if( strlen(zPasswd)<6 ){

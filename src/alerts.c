@@ -1230,7 +1230,11 @@ static int subscribe_error_check(
   **  necessary.
   */
   zEAddr = P("e");
-  if( zEAddr==0 ) return 0;
+  if( zEAddr==0 ){
+    *peErr = 1;
+    *pzErr = mprintf("required");
+    return 0;
+  }
   for(i=j=n=0; (c = zEAddr[i])!=0; i++){
     if( c=='@' ){
       n = i;
@@ -1258,6 +1262,12 @@ static int subscribe_error_check(
     *peErr = 1;
     *pzErr = mprintf("email domain too short");
      return 0;
+  }
+
+  if( authorized_subscription_email(zEAddr)==0 ){
+    *peErr = 1;
+    *pzErr = mprintf("not an authorized email address");
+    return 0;
   }
 
   /* Check to make sure the email address is available for reuse */
@@ -1351,6 +1361,10 @@ void subscribe_page(void){
       cgi_redirectf("%R/alerts");
       return;
     }
+  }
+  if( !g.perm.Admin && !db_get_boolean("anon-subscribe",1) ){
+    register_page();
+    return;
   }
   alert_submenu_common();
   needCaptcha = !login_is_individual();
