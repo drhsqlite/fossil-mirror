@@ -502,13 +502,40 @@ void setup_access(void){
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
-                  "self-register", "selfregister", 0, 0);
-  @ <p>Allow users to register themselves through the HTTP UI.
-  @ The registration form always requires filling in a CAPTCHA
-  @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
-  @ can register under any user name. This option is useful for public projects
-  @ where you do not want everyone in any ticket discussion to be named
-  @ "Anonymous".  (Property: "self-register")</p>
+                  "self-register", "selfreg", 0, 0);
+  @ <p>Allow users to register themselves on the /register webpage.
+  @ A self-registration creates a new entry in the USER table and
+  @ perhaps also in the SUBSCRIBER table if email notification is
+  @ enabled.
+  @ (Property: "self-register")</p>
+
+  @ <hr />
+  onoff_attribute("Email verification required for self-registration",
+                  "selfreg-verify", "sfverify", 0, 0);
+  @ <p>If enabled, self-registration creates a new entry in the USER table
+  @ with only capabilities "7".  The default user capabilities are not
+  @ added until the email address associated with the self-registration
+  @ has been verified. This setting only makes sense if
+  @ email notifications are enabled.
+  @ (Property: "selfreg-verify")</p>
+
+  @ <hr />
+  onoff_attribute("Allow anonymous subscriptions",
+                  "anon-subscribe", "anonsub", 1, 0);
+  @ <p>If disabled, email notification subscriptions are only allowed
+  @ for users with a login.  If Nobody or Anonymous visit the /subscribe
+  @ page, they are redirected to /register or /login.
+  @ (Property: "anon-subscribe")</p>
+
+  @ <hr />
+  entry_attribute("Authorized subscription email addresses", 35,
+                  "auth-sub-email", "asemail", "", 0);
+  @ <p>This is a comma-separated list of GLOB patterns that specify
+  @ email addresses that are authorized to subscriptions.  If blank
+  @ (the usual case), then any email address can be used to self-register.
+  @ This setting is used to limit subscriptions to members of a particular
+  @ organization or group based on their email address.
+  @ (Property: "auth-sub-email")</p>
 
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",

@@ -1211,6 +1211,15 @@ static int subscribe_error_check(
   *peErr = 0;
   *pzErr = 0;
 
+  /* Verify the captcha first */
+  if( needCaptcha ){
+    if( !captcha_is_correct(1) ){
+      *peErr = 2;
+      *pzErr = mprintf("incorrect security code");
+      return 0;
+    }
+  }
+
   /* Check the validity of the email address.
   **
   **  (1) Exactly one '@' character.
@@ -1221,7 +1230,11 @@ static int subscribe_error_check(
   **  necessary.
   */
   zEAddr = P("e");
-  if( zEAddr==0 ) return 0;
+  if( zEAddr==0 ){
+    *peErr = 1;
+    *pzErr = mprintf("required");
+    return 0;
+  }
   for(i=j=n=0; (c = zEAddr[i])!=0; i++){
     if( c=='@' ){
       n = i;
@@ -1251,10 +1264,9 @@ static int subscribe_error_check(
      return 0;
   }
 
-  /* Verify the captcha */
-  if( needCaptcha && !captcha_is_correct(1) ){
-    *peErr = 2;
-    *pzErr = mprintf("incorrect security code");
+  if( authorized_subscription_email(zEAddr)==0 ){
+    *peErr = 1;
+    *pzErr = mprintf("not an authorized email address");
     return 0;
   }
 
@@ -1350,6 +1362,10 @@ void subscribe_page(void){
       return;
     }
   }
+  if( !g.perm.Admin && !db_get_boolean("anon-subscribe",1) ){
+    register_page();
+    return;
+  }
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
@@ -1417,7 +1433,7 @@ void subscribe_page(void){
         @ </pre></blockquote>
       }else{
         @ <p>An email has been sent to "%h(zEAddr)". That email contains a
-        @ hyperlink that you must click on in order to activate your
+        @ hyperlink that you must click to activate your
         @ subscription.</p>
       }
       alert_sender_free(pSender);
@@ -1449,12 +1465,18 @@ void subscribe_page(void){
   }
   @ </tr>
   if( needCaptcha ){
-    uSeed = captcha_seed();
+    const char *zInit = "";
+    if( P("captchaseed")!=0 && eErr!=2 ){
+      uSeed = strtoul(P("captchaseed"),0,10);
+      zInit = P("captcha");
+    }else{
+      uSeed = captcha_seed();
+    }
     zDecoded = captcha_decode(uSeed);
     zCaptcha = captcha_render(zDecoded);
     @ <tr>
     @  <td class="form_label">Security Code:</td>
-    @  <td><input type="text" name="captcha" value="" size="30">
+    @  <td><input type="text" name="captcha" value="%h(zInit)" size="30">
     captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
@@ -1605,11 +1627,16 @@ void alert_page(void){
   int nName;                    /* Length of zName in bytes */
   char *zHalfCode;              /* prefix of subscriberCode */
 
-  if( alert_webpages_disabled() ) return;
+  db_begin_transaction();
+  if( alert_webpages_disabled() ){
+    db_commit_transaction();
+    return;
+  }
   login_check_credentials();
   if( !g.perm.EmailAlert ){
+    db_commit_transaction();
     login_needed(g.anon.EmailAlert);
-    return;
+    /*NOTREACHED*/
   }
   isLogin = login_is_individual();
   zName = P("name");
@@ -1629,8 +1656,9 @@ void alert_page(void){
                     " WHERE suname=%Q", g.zLogin);
   }
   if( sid==0 ){
+    db_commit_transaction();
     cgi_redirect("subscribe");
-    return;
+    /*NOTREACHED*/
   }
   alert_submenu_common();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
@@ -1692,7 +1720,8 @@ void alert_page(void){
                      " unsubscribe");
     }else{
       alert_unsubscribe(sid);
-      return;
+      db_commit_transaction();
+      return; 
     }
   }
   style_header("Update Subscription");
@@ -1711,8 +1740,9 @@ void alert_page(void){
     " FROM subscriber WHERE subscriberId=%d", sid);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
+    db_commit_transaction();
     cgi_redirect("subscribe");
-    return;
+    /*NOTREACHED*/
   }
   if( ssub==0 ){
     semail = db_column_text(&q, 0);
@@ -1735,9 +1765,22 @@ void alert_page(void){
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
     if( nName==64 ){
-       db_multi_exec(
-        "UPDATE subscriber SET sverified=1 WHERE subscriberCode=hextoblob(%Q)",
+      db_multi_exec(
+        "UPDATE subscriber SET sverified=1"
+        " WHERE subscriberCode=hextoblob(%Q)",
         zName);
+      if( db_get_boolean("selfreg-verify",0) ){
+        char *zNewCap = db_get("default-perms","u");
+        db_multi_exec(
+           "UPDATE user"
+           "   SET cap=%Q"
+           " WHERE cap='7' AND login=("
+           "   SELECT suname FROM subscriber"
+           "    WHERE subscriberCode=hextoblob(%Q))",
+           zNewCap, zName
+        );
+        login_set_capabilities(zNewCap, 0);
+      }
       @ <h1>Your email alert subscription has been verified!</h1>
       @ <p>Use the form below to update your subscription information.</p>
       @ <p>Hint:  Bookmark this page so that you can more easily update
@@ -1857,6 +1900,8 @@ void alert_page(void){
   fossil_free(zErr);
   db_finalize(&q);
   style_footer();
+  db_commit_transaction();
+  return;
 }
 
 /* This is the message that gets sent to describe how to change

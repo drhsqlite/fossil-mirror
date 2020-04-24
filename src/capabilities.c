@@ -368,7 +368,7 @@ void capability_summary(void){
   char *zPubPages = db_get("public-pages",0);
   int hasPubPages = zPubPages && zPubPages[0];
 
-  pCap = capability_add(0, db_get("default-perms",0));
+  pCap = capability_add(0, db_get("default-perms","u"));
   capability_expand(pCap);
   zSelfCap = capability_string(pCap);
   capability_free(pCap);
