@@ -1500,9 +1500,10 @@ void register_page(void){
   const char *zDName;
   unsigned int uSeed;
   const char *zDecoded;
-  char *zCaptcha;
   int iErrLine = -1;
   const char *zErr = 0;
+  int captchaIsCorrect = 0; /* True on a correct captcha */
+  char *zCaptcha = "";      /* Value of the captcha text */
   char *zPerms;             /* Permissions for the default user */
   int canDoAlerts = 0;      /* True if receiving email alerts is possible */
   int doAlerts = 0;         /* True if subscription is wanted too */
@@ -1532,7 +1533,7 @@ void register_page(void){
   if( P("new")==0 || !cgi_csrf_safe(1) ){
     /* This is not a valid form submission.  Fall through into
     ** the form display */
-  }else if( !captcha_is_correct(1) ){
+  }else if( (captchaIsCorrect = captcha_is_correct(1))==0 ){
     iErrLine = 6;
     zErr = "Incorrect CAPTCHA";
   }else if( strlen(zUserID)<6 ){
@@ -1660,8 +1661,7 @@ void register_page(void){
         @ </pre></blockquote>
       }else{
         @ <p>An email has been sent to "%h(zEAddr)". That email contains a
-        @ hyperlink that you must click on in order to activate your
-        @ subscription.</p>
+        @ hyperlink that you must click to activate your account.</p>
       }
       alert_sender_free(pSender);
       if( zGoto ){
@@ -1674,7 +1674,11 @@ void register_page(void){
   }
 
   /* Prepare the captcha. */
-  uSeed = captcha_seed();
+  if( captchaIsCorrect ){
+    uSeed = strtoul(P("captchaseed"),0,10);
+  }else{
+    uSeed = captcha_seed();
+  }
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
 
@@ -1733,7 +1737,8 @@ void register_page(void){
   }
   @ <tr>
   @   <td class="form_label" align="right">Captcha:</td>
-  @   <td><input type="text" name="captcha" value="" size="30">
+  @   <td><input type="text" name="captcha" size="30"\
+  @ value="%h(captchaIsCorrect?zDecoded:"")" size="30">
   captcha_speakit_button(uSeed, "Speak the captcha text");
   @   </td>
   @ </tr>
