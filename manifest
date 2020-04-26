@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\srestrict\ssubscriptions\sto\sspecific\semail\sdomains\nselected\sby\sGLOB\spatterns,\sand\sto\srequire\semail\sverification\sbefore\nself-registration\sbecomes\seffective.
-D 2020-04-24T05:21:46.094
+C Expanded\son\sthe\s"Certificates"\ssection\sof\swww/ssl.wiki\sto\sfill\sin\ssome\ndetails.\sThe\skey\simprovement\sis\smaking\sthe\sfirst\sline\sof\sthe\sOpenSSL\nerror\swhen\sthe\sCA\strust\sstore\sisn't\sset\sup\ssearchable.\sAs\sit\swas,\syou\npretty\smuch\shad\sto\sknow\sthe\ssolution\salready\sin\sorder\sto\sseek\sout\sthis\ndocumentation!
+D 2020-04-26T03:58:27.676
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -960,7 +960,7 @@ F www/server/windows/stunnel.md 88db251fff565756dd0e7fa9192cc4d7296cbbfc4d2d460a
 F www/serverext.wiki 43b453c4dce18c46c9808c9e977ee0f17e4794b469f0c6297345ed95b98753fb
 F www/settings.wiki c53581bd6cd8769ddbacc24ce41cea06a4267e1a
 F www/shunning.wiki 3a5f12c52e959b6f3efbc4c7dcbd84b2692fd83e766bbb8eee23b0e17259ef8a
-F www/ssl.wiki 832e553ddf8a592db848311aefb170645d92409c22212d2314781433bb48b016
+F www/ssl.wiki 002cf8272d0fc4204622011ebe0b7ca31ccc3d888054016139daceea78d9d4b8
 F www/stats.wiki 3cb70d4bc8b4c2bdfdda78285bc8c21f9227dd007f747862a3f102b65cf7d2f9
 F www/style.wiki 63369a9a6e5eb0c968e7d3fa1854919c42ff19d3b930a6da60cb4caa964cd0ba
 F www/sync.wiki baab92fd123a339fbeefe9f2e1302a658c907924e0291cc8d2c3729467f66fd5
@@ -978,8 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 15e15298f8eebef8f97ef9b3ce88a70e5ba92668d13dc1c6d6db382690c764b2 6faaa91b3710bf91492a313c372636dbc5b2459f2222deca67846a1cfc13d03a
-R 1e4976bd556472922104d45193d8c2f0
-T +closed 6faaa91b3710bf91492a313c372636dbc5b2459f2222deca67846a1cfc13d03a
-U drh
-Z b012c7450799756c750b3440251af7ce
+P c00e9123cb89aacdc2992917af19bd3e30f2d021337c42d416baacfc8d7bd5bc
+R c83ec7a9926108839a5ff294814cc07a
+U wyoung
+Z 94d2366b75f10b365625b1559e224905
