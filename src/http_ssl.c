@@ -32,6 +32,7 @@
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509.h>
 
 #include "http_ssl.h"
 #include <assert.h>
@@ -500,3 +501,22 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 }
 
 #endif /* FOSSIL_ENABLE_SSL */
+
+/*
+** COMMAND: test-ssl-trust-store
+**
+** Show the file and directory where OpenSSL looks for certificates
+** of trusted CAs.
+*/
+void test_ssl_info(void){
+#if !defined(FOSSIL_ENABLE_SSL)
+  fossil_print("SSL disabled in this build\n");
+#else
+  fossil_print("file:  %-14s  %s\n",
+     X509_get_default_cert_file_env(),
+     X509_get_default_cert_file());
+  fossil_print("dir:   %-14s  %s\n",
+     X509_get_default_cert_dir_env(),
+     X509_get_default_cert_dir());
+#endif
+}

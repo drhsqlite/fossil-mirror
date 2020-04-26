@@ -1,5 +1,5 @@
-C Expanded\son\sthe\s"Certificates"\ssection\sof\swww/ssl.wiki\sto\sfill\sin\ssome\ndetails.\sThe\skey\simprovement\sis\smaking\sthe\sfirst\sline\sof\sthe\sOpenSSL\nerror\swhen\sthe\sCA\strust\sstore\sisn't\sset\sup\ssearchable.\sAs\sit\swas,\syou\npretty\smuch\shad\sto\sknow\sthe\ssolution\salready\sin\sorder\sto\sseek\sout\sthis\ndocumentation!
-D 2020-04-26T03:58:27.676
+C Add\sthe\s"test-ssl-trust-store"\scommand\sfor\stesting\sand\sdiagnostics.
+D 2020-04-26T15:39:00.636
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c e0eeef129c25f3316f511c13855c39e8e6dc16549d7a0f6665b6b530d3371034
+F src/http_ssl.c 394d8205a8a48c399aee460255b95548210f97e56d2ff835f334fe6319ff1b55
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
 F src/info.c 604b68c2258c337f18690aaffbe61a1106cf4b35e425eb2455c3c64e7e87bea8
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c00e9123cb89aacdc2992917af19bd3e30f2d021337c42d416baacfc8d7bd5bc
-R c83ec7a9926108839a5ff294814cc07a
-U wyoung
-Z 94d2366b75f10b365625b1559e224905
+P b3c0c07c0703a21cf363d7481a33fa9056b6f06132dbc83bddfead155aa23465
+R 13f0ab654f51edf557fdcef121ad9500
+U drh
+Z 00bab190eaca6f9ae421e36f5143eb17
