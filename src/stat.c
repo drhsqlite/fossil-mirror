@@ -608,9 +608,9 @@ void repo_tabsize_page(void){
     "   SELECT name, tbl_name FROM repository.sqlite_master;"
     "CREATE TEMP TABLE piechart(amt REAL, label TEXT);"
     "INSERT INTO piechart(amt,label)"
-    "  SELECT count(*), "
+    "  SELECT sum(pageno),"
     "  coalesce((SELECT tabname FROM trans WHERE trans.name=dbstat.name),name)"
-    "    FROM dbstat('repository')"
+    "    FROM dbstat('repository',TRUE)"
     "   GROUP BY 2 ORDER BY 2;"
   );
   nPageFree = db_int(0, "PRAGMA repository.freelist_count");
@@ -634,9 +634,9 @@ void repo_tabsize_page(void){
       "   SELECT name, tbl_name FROM localdb.sqlite_master;"
       "DELETE FROM piechart;"
       "INSERT INTO piechart(amt,label)"
-      "  SELECT count(*), "
+      "  SELECT sum(pageno), "
       " coalesce((SELECT tabname FROM trans WHERE trans.name=dbstat.name),name)"
-      "    FROM dbstat('localdb')"
+      "    FROM dbstat('localdb',TRUE)"
       "   GROUP BY 2 ORDER BY 2;"
     );
     nPageFree = db_int(0, "PRAGMA localdb.freelist_count");
@@ -661,7 +661,7 @@ void repo_tabsize_page(void){
 **
 ** Only populate the artstat.atype field if the bWithTypes parameter is true.
 */
-static void gather_artifact_stats(int bWithTypes){
+void gather_artifact_stats(int bWithTypes){
   static const char zSql[] = 
     @ CREATE TEMP TABLE artstat(
     @   id INTEGER PRIMARY KEY,   -- Corresponds to BLOB.RID
@@ -672,15 +672,14 @@ static void gather_artifact_stats(int bWithTypes){
     @ );
     @ INSERT INTO artstat(id,atype,isDelta,szExp,szCmpr)
     @    SELECT blob.rid, NULL,
-    @           EXISTS(SELECT 1 FROM delta WHERE delta.rid=blob.rid),
+    @           delta.rid IS NOT NULL,
     @           size, length(content)
-    @      FROM blob
+    @      FROM blob LEFT JOIN delta ON blob.rid=delta.rid
     @     WHERE content IS NOT NULL;
   ;
   static const char zSql2[] = 
     @ UPDATE artstat SET atype='file'
-    @  WHERE id IN (SELECT fid FROM mlink)
-    @    AND atype IS NULL;
+    @  WHERE +id IN (SELECT fid FROM mlink);
     @ UPDATE artstat SET atype='manifest'
     @  WHERE id IN (SELECT objid FROM event WHERE type='ci') AND atype IS NULL;
     @ UPDATE artstat SET atype='forum'
@@ -768,10 +767,11 @@ void artifact_stats_page(void){
   ** user without check-in privileges, to prevent excessive usage by
   ** robots and random passers-by on the internet
   */
-  if( !g.perm.Write ){
-    login_needed(g.anon.Admin);
+  if( !g.perm.Write && !db_get_boolean("artifact_stats_enable",0) ){
+    login_needed(g.anon.Write);
     return;
   }
+  load_control();
 
   style_header("Artifact Statistics");
   style_submenu_element("Repository Stats", "stat");
@@ -898,8 +898,8 @@ void artifact_stats_page(void){
     @ <td data-sortkey='%08x(nTotal)' align='right'>%,d(nTotal)</td>
     @ <td data-sortkey='%08x(nFull)' align='right'>%,d(nFull)</td>
     @ <td data-sortkey='%08x(nDelta)' align='right'>%,d(nDelta)</td>
-    @ <td data-sortkey='%016x(szCmpr)' align='right'>%,lld(szCmpr)</td>
-    @ <td data-sortkey='%016x(szExp)' align='right'>%,lld(szExp)</td>
+    @ <td data-sortkey='%016llx(szCmpr)' align='right'>%,lld(szCmpr)</td>
+    @ <td data-sortkey='%016llx(szExp)' align='right'>%,lld(szExp)</td>
   }
   @ </tbody></table>
   db_finalize(&q);

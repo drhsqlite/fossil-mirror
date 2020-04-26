@@ -98,7 +98,7 @@ finish_repo_list:
 ** runs in a chroot jail anyhow.
 **
 ** Or, if no repositories can be located beneath g.zRepositoryName,
-** return 0.
+** close g.db and return 0.
 */
 int repo_list_page(void){
   Blob base;           /* document root for all repositories */
@@ -142,6 +142,7 @@ int repo_list_page(void){
   n = db_int(0, "SELECT count(*) FROM sfile");
   if( n==0 ){
     sqlite3_close(g.db);
+    g.db = 0;
     return 0;
   }else{
     Stmt q;

@@ -32,6 +32,7 @@
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509.h>
 
 #include "http_ssl.h"
 #include <assert.h>
@@ -186,7 +187,8 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
   blob_zero(&snd);
   blob_appendf(&snd, "CONNECT %s:%d HTTP/1.1\r\n", pUrlData->hostname,
       pUrlData->proxyOrigPort);
-  blob_appendf(&snd, "Host: %s:%d\r\n", pUrlData->hostname, pUrlData->proxyOrigPort);
+  blob_appendf(&snd, "Host: %s:%d\r\n",
+               pUrlData->hostname, pUrlData->proxyOrigPort);
   if( pUrlData->proxyAuth ){
     blob_appendf(&snd, "Proxy-Authorization: %s\r\n", pUrlData->proxyAuth);
   }
@@ -259,7 +261,8 @@ int ssl_open(UrlData *pUrlData){
     free(connStr);
     if( BIO_do_connect(sBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to proxy %s:%d (%s)",
-            pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
+            pUrlData->name, pUrlData->port,
+            ERR_reason_error_string(ERR_get_error()));
       ssl_close();
       return 1;
     }
@@ -284,7 +287,9 @@ int ssl_open(UrlData *pUrlData){
   BIO_get_ssl(iBio, &ssl);
 
 #if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
-  if( !SSL_set_tlsext_host_name(ssl, (pUrlData->useProxy?pUrlData->hostname:pUrlData->name)) ){
+  if( !SSL_set_tlsext_host_name(ssl, 
+           (pUrlData->useProxy?pUrlData->hostname:pUrlData->name))
+  ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
@@ -298,7 +303,8 @@ int ssl_open(UrlData *pUrlData){
     free(connStr);
     if( BIO_do_connect(iBio)<=0 ){
       ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)",
-          pUrlData->name, pUrlData->port, ERR_reason_error_string(ERR_get_error()));
+         pUrlData->name, pUrlData->port,
+         ERR_reason_error_string(ERR_get_error()));
       ssl_close();
       return 1;
     }
@@ -389,9 +395,11 @@ int ssl_open(UrlData *pUrlData){
   ** if any files are received from the server.
   */
   {
-  /* As soon as libressl implements BIO_ADDR_hostname_string/BIO_get_conn_address.
-   * check here for the correct LIBRESSL_VERSION_NUMBER too. For now: disable */
-  #if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L \
+  /* As soon as libressl implements
+  ** BIO_ADDR_hostname_string/BIO_get_conn_address.
+  ** check here for the correct LIBRESSL_VERSION_NUMBER too. For now: disable
+  */
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10100000L \
       && !defined(LIBRESSL_VERSION_NUMBER)
     char *ip = BIO_ADDR_hostname_string(BIO_get_conn_address(iBio),1);
     g.zIpAddr = mprintf("%s", ip);
@@ -419,10 +427,12 @@ void ssl_save_certificate(UrlData *pUrlData, X509 *cert, int trusted){
   PEM_write_bio_X509(mem, cert);
   BIO_write(mem, "", 1); /* nul-terminate mem buffer */
   BIO_get_mem_data(mem, &zCert);
-  zHost = mprintf("cert:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
+  zHost = mprintf("cert:%s",
+            pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
   db_set(zHost, zCert, 1);
   free(zHost);
-  zHost = mprintf("trusted:%s", pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
+  zHost = mprintf("trusted:%s",
+                  pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
   db_set_int(zHost, trusted, 1);
   free(zHost);
   BIO_free(mem);
@@ -500,3 +510,22 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 }
 
 #endif /* FOSSIL_ENABLE_SSL */
+
+/*
+** COMMAND: test-ssl-trust-store
+**
+** Show the file and directory where OpenSSL looks for certificates
+** of trusted CAs.
+*/
+void test_ssl_info(void){
+#if !defined(FOSSIL_ENABLE_SSL)
+  fossil_print("SSL disabled in this build\n");
+#else
+  fossil_print("file:  %-14s  %s\n",
+     X509_get_default_cert_file_env(),
+     X509_get_default_cert_file());
+  fossil_print("dir:   %-14s  %s\n",
+     X509_get_default_cert_dir_env(),
+     X509_get_default_cert_dir());
+#endif
+}

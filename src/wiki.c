@@ -367,16 +367,18 @@ void wiki_srchpage(void){
 }
 
 /* Return values from wiki_page_type() */
-#define WIKITYPE_UNKNOWN    (-1)
-#define WIKITYPE_NORMAL     0
-#define WIKITYPE_BRANCH     1
-#define WIKITYPE_CHECKIN    2
-#define WIKITYPE_TAG        3
+#if INTERFACE
+# define WIKITYPE_UNKNOWN    (-1)
+# define WIKITYPE_NORMAL     0
+# define WIKITYPE_BRANCH     1
+# define WIKITYPE_CHECKIN    2
+# define WIKITYPE_TAG        3
+#endif
 
 /*
 ** Figure out what type of wiki page we are dealing with.
 */
-static int wiki_page_type(const char *zPageName){
+int wiki_page_type(const char *zPageName){
   if( db_get_boolean("wiki-about",1)==0 ){
     return WIKITYPE_NORMAL;
   }else
@@ -396,14 +398,20 @@ static int wiki_page_type(const char *zPageName){
 
 /*
 ** Add an appropriate style_header() for either the /wiki or /wikiedit page
-** for zPageName.
+** for zPageName.  zExtra is an empty string for /wiki but has the text
+** "Edit: " for /wikiedit.
+**
+** If the page is /wiki and the page is one of the special times (check-in,
+** branch, or tag) and the "p" query parameter is omitted, then do a 
+** redirect to the display of the check-in, branch, or tag rather than
+** continuing to the plain wiki display.
 */
 static int wiki_page_header(
-  int eType,                /* Page type.  -1 for unknown */
+  int eType,                /* Page type.  Might be WIKITYPE_UNKNOWN */
   const char *zPageName,    /* Name of the page */
   const char *zExtra        /* Extra prefix text on the page header */
 ){
-  if( eType<0 ) eType = wiki_page_type(zPageName);
+  if( eType==WIKITYPE_UNKNOWN ) eType = wiki_page_type(zPageName);
   switch( eType ){
     case WIKITYPE_NORMAL: {
       style_header("%s%s", zExtra, zPageName);
@@ -411,21 +419,33 @@ static int wiki_page_header(
     }
     case WIKITYPE_CHECKIN: {
       zPageName += 8;
-      style_header("Notes About Checkin %S", zPageName);
-      style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
-      style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/info/%s",zPageName);
+      }else{
+        style_header("Notes About Checkin %S", zPageName);
+        style_submenu_element("Checkin Timeline","%R/timeline?f=%s", zPageName);
+        style_submenu_element("Checkin Info","%R/info/%s", zPageName);
+      }
       break;
     }
     case WIKITYPE_BRANCH: {
       zPageName += 7;
-      style_header("Notes About Branch %h", zPageName);
-      style_submenu_element("Branch Timeline","%R/timeline?r=%t", zPageName);
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/timeline?r=%t", zPageName);
+      }else{
+        style_header("Notes About Branch %h", zPageName);
+        style_submenu_element("Branch Timeline","%R/timeline?r=%t", zPageName);
+      }
       break;
     }
     case WIKITYPE_TAG: {
       zPageName += 4;
-      style_header("Notes About Tag %h", zPageName);
-      style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName);
+      if( zExtra[0]==0 && !P("p") ){
+        cgi_redirectf("%R/timeline?t=%t",zPageName);
+      }else{
+        style_header("Notes About Tag %h", zPageName);
+        style_submenu_element("Tag Timeline","%R/timeline?t=%t",zPageName);
+      }
       break;
     }
   }
@@ -454,7 +474,17 @@ static int wiki_special_permission(const char *zPageName){
 
 /*
 ** WEBPAGE: wiki
-** URL: /wiki?name=PAGENAME
+**
+** Display a wiki page.  Example:  /wiki?name=PAGENAME
+**
+** Query parameters:
+**
+**    name=NAME        Name of the wiki page to display.  Required.
+**    nsm              Omit the submenu if present.  (Mnemonic: No SubMenu)
+**    p                Always show just the wiki page.  For special
+**                     pages for check-ins, branches, or tags, there will
+**                     be a redirect to the associated /info page unless
+**                     this query parameter is present.
 */
 void wiki_page(void){
   char *zTag;
@@ -466,6 +496,7 @@ void wiki_page(void){
   const char *zPageName;
   const char *zMimetype = 0;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
+  int noSubmenu = P("nsm")!=0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(g.anon.RdWiki); return; }
@@ -503,7 +534,7 @@ void wiki_page(void){
     }
   }
   zMimetype = wiki_filter_mimetypes(zMimetype);
-  if( !g.isHome ){
+  if( !g.isHome && !noSubmenu ){
     if( ((rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki))
      && wiki_special_permission(zPageName)
     ){
@@ -522,7 +553,9 @@ void wiki_page(void){
   }
   style_set_current_page("%T?name=%T", g.zPath, zPageName);
   wiki_page_header(WIKITYPE_UNKNOWN, zPageName, "");
-  wiki_standard_submenu(submenuFlags);
+  if( !noSubmenu ){
+    wiki_standard_submenu(submenuFlags);
+  }
   if( zBody[0]==0 ){
     @ <i>This page has been deleted</i>
   }else{
@@ -1245,7 +1278,7 @@ void wcontent_page(void){
       @ <tr><td data-sortkey="%h(zSort)">\
       @ %z(href("%R/whistory?name=%T",zWName))<s>%h(zWDisplayName)</s></a></td>
     }else{
-      @ <tr><td data=sortkey='%h(zSort)">\
+      @ <tr><td data-sortkey="%h(zSort)">\
       @ %z(href("%R/wiki?name=%T",zWName))%h(zWDisplayName)</a></td>
     }
     zAge = human_readable_age(rNow - rWmtime);
@@ -1385,15 +1418,28 @@ int wiki_technote_to_rid(const char *zETime) {
 **
 ** Run various subcommands to work with wiki entries or tech notes.
 **
-**    %fossil wiki export PAGENAME ?FILE?
-**    %fossil wiki export ?FILE? -t|--technote DATETIME|TECHNOTE-ID
+**    %fossil wiki export ?OPTIONS? PAGENAME ?FILE?
+**    %fossil wiki export ?OPTIONS? -t|--technote DATETIME|TECHNOTE-ID ?FILE?
 **
-**       Sends the latest version of either a wiki page or of a tech note
-**       to the given file or standard output.
-**       If PAGENAME is provided, the wiki page will be output. For
-**       a tech note either DATETIME or TECHNOTE-ID must be specified. If
-**       DATETIME is used, the most recently modified tech note with that
-**       DATETIME will be sent.
+**       Sends the latest version of either a wiki page or of a tech
+**       note to the given file or standard output.  A filename of "-"
+**       writes the output to standard output.  The directory parts of
+**       the output filename are created if needed.
+**
+**    Options:
+**       If PAGENAME is provided, the named wiki page will be output.
+**       --technote|-t DATETIME|TECHNOTE-ID
+**                  Specifies that a technote, rather than a wiki page,
+**                  will be exported. If DATETIME is used, the most
+**                  recently modified tech note with that DATETIME will
+**                  output.
+**       -h|--html  The body (only) is rendered in HTML form, without
+**                  any page header/foot or HTML/BODY tag wrappers.
+**       -H|--HTML  Works like -h|-html but wraps the output in
+**                  <html><body>...</body></html>.
+**       -p|--pre   If -h|-H is used and the page or technote has
+**                  the text/plain mimetype, its HTML-escaped output
+**                  will be wrapped in <pre>...</pre>.
 **
 **    %fossil wiki (create|commit) PAGENAME ?FILE? ?OPTIONS?
 **
@@ -1465,13 +1511,23 @@ void wiki_cmd(void){
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
-    Blob body;                    /* Wiki page content */
+    Blob body = empty_blob;       /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
-
+    int fHtml = 0;                /* Export in HTML form */
+    FILE * pFile = 0;             /* Output file */
+    int fPre = 0;                 /* Indicates that -h|-H should be
+                                  ** wrapped in <pre>...</pre> if pWiki
+                                  ** has the text/plain mimetype. */
+    fHtml = find_option("HTML","H",0)!=0
+      ? 2
+      : (find_option("html","h",0)!=0 ? 1 : 0)
+      /* 1 == -html, 2 == -HTML */;
+    fPre = fHtml==0 ? 0 : find_option("pre","p",0)!=0;
     zETime = find_option("technote","t",1);
+    verify_all_options();
     if( !zETime ){
       if( (g.argc!=4) && (g.argc!=5) ){
-        usage("export PAGENAME ?FILE?");
+        usage("export ?-html? PAGENAME ?FILE?");
       }
       zPageName = g.argv[3];
       rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -1488,7 +1544,8 @@ void wiki_cmd(void){
       zFile = (g.argc==4) ? "-" : g.argv[4];
     }else{
       if( (g.argc!=3) && (g.argc!=4) ){
-        usage("export ?FILE? --technote DATETIME|TECHNOTE-ID");
+        usage("export ?-html? ?FILE? --technote "
+              "DATETIME|TECHNOTE-ID");
       }
       rid = wiki_technote_to_rid(zETime);
       if ( rid==-1 ){
@@ -1505,8 +1562,47 @@ void wiki_cmd(void){
     for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
     zBody[i] = 0;
     blob_init(&body, zBody, -1);
-    blob_append(&body, "\n", 1);
-    blob_write_to_file(&body, zFile);
+    if(fHtml==0){
+      blob_append(&body, "\n", 1);
+    }else{
+      Blob html = empty_blob;   /* HTML-ized content */
+      const char * zMimetype = wiki_filter_mimetypes(pWiki->zMimetype);
+      if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0 ){
+        wiki_convert(&body,&html,0);
+      }else if( fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+        markdown_to_html(&body,0,&html)
+          /* TODO: add -HTML|-H flag to work like -html|-h but also
+          ** add <html><body> tag wrappers around the output. The
+          ** hurdle here is that the markdown converter resets its
+          ** input blob before appending the output, which is
+          ** different from wiki_convert() and htmlize_to_blob(), and
+          ** precludes us simply appending the opening <html><body>
+          ** part to the body
+          */;
+      }else if( fossil_strcmp(zMimetype, "text/plain")==0 ){
+        htmlize_to_blob(&html,zBody,i);
+      }else{
+        fossil_fatal("Unsupported MIME type '%s' for wiki page '%s'.",
+                     zMimetype, pWiki->zWikiTitle );
+      }
+      blob_reset(&body);
+      body = html /* transfer memory */;
+    }
+    pFile = fossil_fopen_for_output(zFile);
+    if(fHtml==2){
+      fwrite("<html><body>", 1, 12, pFile);
+    }
+    if(fPre!=0){
+      fwrite("<pre>", 1, 5, pFile);
+    }
+    fwrite(blob_buffer(&body), 1, blob_size(&body), pFile);
+    if(fPre!=0){
+      fwrite("</pre>", 1, 6, pFile);
+    }
+    if(fHtml==2){
+      fwrite("</body></html>\n", 1, 15, pFile);
+    }
+    fossil_fclose(pFile);
     blob_reset(&body);
     manifest_destroy(pWiki);
     return;
@@ -1521,6 +1617,7 @@ void wiki_cmd(void){
     const char *zETime = find_option("technote", "t", 1);
     const char *zTags = find_option("technote-tags", NULL, 1);
     const char *zClr = find_option("technote-bgcolor", NULL, 1);
+    verify_all_options();
     if( g.argc!=4 && g.argc!=5 ){
       usage("commit|create PAGENAME ?FILE? [--mimetype TEXT-FORMAT]"
             " [--technote DATETIME] [--technote-tags TAGS]"
@@ -1598,22 +1695,22 @@ void wiki_cmd(void){
     manifest_destroy(pWiki);
     blob_reset(&content);
   }else if( strncmp(g.argv[2],"delete",n)==0 ){
-    if( g.argc!=5 ){
+    if( g.argc!=4 ){
       usage("delete PAGENAME");
     }
     fossil_fatal("delete not yet implemented.");
   }else if(( strncmp(g.argv[2],"list",n)==0 )
           || ( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
-    int showIds = 0;
-
-    if ( !find_option("technote","t",0) ){
+    const int fTechnote = find_option("technote","t",0)!=0;
+    const int showIds = find_option("show-technote-ids","s",0)!=0;
+    verify_all_options();
+    if (fTechnote==0){
       db_prepare(&q,
         "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
         " ORDER BY lower(tagname) /*sort*/"
       );
     }else{
-      showIds = find_option("show-technote-ids","s",0)!=0;
       db_prepare(&q,
         "SELECT datetime(e.mtime), substr(t.tagname,7)"
          " FROM event e, tag t"
@@ -1623,7 +1720,6 @@ void wiki_cmd(void){
         " ORDER BY e.mtime DESC /*sort*/"
       );
     }
-
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
       if( showIds ){
@@ -1661,24 +1757,24 @@ static void wiki_section_label(
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( (mFlags & WIKIASSOC_FULL_TITLE)==0 ){
-    @ <div class="section">About</div>
+    @ <div class="section accordion">About</div>
   }else if( zPrefix[0]=='c' ){  /* checkin/... */
-    @ <div class="section">About checkin %.20h(zName)</div>
+    @ <div class="section accordion">About checkin %.20h(zName)</div>
   }else{
-    @ <div class="section">About %s(zPrefix) %h(zName)</div>
+    @ <div class="section accordion">About %s(zPrefix) %h(zName)</div>
   }
 }
 
 /*
 ** Add an "Wiki" button in a submenu that links to the read-wiki page.
 */
-static void wiki_submenu_to_read_wiki(
+static void wiki_submenu_to_edit_wiki(
   const char *zPrefix,   /* "branch", "tag", or "checkin" */
   const char *zName,     /* Name of the object */
   unsigned int mFlags    /* Zero or more WIKIASSOC_* flags */
 ){
   if( g.perm.RdWiki && (mFlags & WIKIASSOC_MENU_READ)!=0 ){
-    style_submenu_element("Wiki", "%R/wiki?name=%s/%t", zPrefix, zName);
+    style_submenu_element("Wiki", "%R/wikiedit?name=%s/%t", zPrefix, zName);
   }
 }
 
@@ -1718,21 +1814,23 @@ int wiki_render_associated(
     blob_init(&markdown, pWiki->zWiki, -1);
     markdown_to_html(&markdown, &title, &tail);
     if( blob_size(&title) ){
-      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="section accordion">%h(blob_str(&title))</div>
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
     }
-    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
+    wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel">
     convert_href_and_output(&tail);
+    @ </div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&markdown);
   }else if( fossil_strcmp(pWiki->zMimetype, "text/plain")==0 ){
     wiki_section_label(zPrefix, zName, mFlags);
-    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
-    @ <pre>
+    wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel"><pre>
     @ %h(pWiki->zWiki)
-    @ </pre>
+    @ </pre></div>
   }else{
     Blob tail = BLOB_INITIALIZER;
     Blob title = BLOB_INITIALIZER;
@@ -1740,20 +1838,21 @@ int wiki_render_associated(
     Blob *pBody;
     blob_init(&wiki, pWiki->zWiki, -1);
     if( wiki_find_title(&wiki, &title, &tail) ){
-      @ <div class="section">%h(blob_str(&title))</div>
+      @ <div class="section accordion">%h(blob_str(&title))</div>
       pBody = &tail;
     }else{
       wiki_section_label(zPrefix, zName, mFlags);
       pBody = &wiki;
     }
-    wiki_submenu_to_read_wiki(zPrefix, zName, mFlags);
-    @ <div class="wiki">
+    wiki_submenu_to_edit_wiki(zPrefix, zName, mFlags);
+    @ <div class="accordion_panel"><div class="wiki">
     wiki_convert(pBody, 0, WIKI_BUTTONS);
-    @ </div>
+    @ </div></div>
     blob_reset(&tail);
     blob_reset(&title);
     blob_reset(&wiki);
   }
   manifest_destroy(pWiki);
+  style_accordion();
   return 1;
 }

@@ -70,7 +70,8 @@ database files are used by Fossil, with detailed discussion following.
 <table border="1" width="80%" cellpadding="0" align="center">
 <tr>
 <td width="33%" valign="top">
-<h3 align="center">Configuration Database<br>"~/.fossil"</h3>
+<h3 align="center">Configuration Database<br>"~/.fossil" or<br>
+"~/.config/fossil.db"</h3>
 <ul>
 <li>Global [/help/settings |settings]
 <li>List of active repositories used by the [/help/all | all] command
@@ -89,7 +90,7 @@ database files are used by Fossil, with detailed discussion following.
 </ul>
 </td>
 <td width="33%" valign="top">
-<h3 align="center">Checkout Database<br>"_FOSSIL_"</h3>
+<h3 align="center">Checkout Database<br>"_FOSSIL_" or ".fslckout"</h3>
 <ul>
 <li>The repository database used by this checkout
 <li>The version currently checked out
@@ -126,14 +127,54 @@ The configuration database also maintains a list of repositories.  This
 list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
-On Unix systems, the configuration database is named ".fossil" and is
-located in the user's home directory.  On Windows, the configuration
-database is named "_fossil" (using an underscore as the first character
-instead of a dot) and is located in the directory specified by the
-LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
+<a name='configloc'></a>
+<h4>2.1.1 Location Of The Configuration Database</h4>
 
-You can override this default location by defining the environment
-variable FOSSIL_HOME pointing to an appropriate (writable) directory.
+On Unix systems, the configuration database is named by the following
+algorithm:
+
+<blockquote><table border="0">
+<tr><td>1. if environment variable FOSSIL_HOME exists
+<td>&nbsp;&rarr;&nbsp;<td>$FOSSIL_HOME/.fossil
+<tr><td>2. if file ~/.fossil exists<td>&nbsp;&rarr;<td>~/.fossil
+<tr><td>3. if environment variable XDG_CONFIG_HOME exists
+    <td>&nbsp;&rarr;<td>$XDG_CONFIG_HOME/fossil.db
+<tr><td>4. if the directory ~/.config exists
+    <td>&nbsp;&rarr;<td>~/.config/fossil.db
+<tr><td>5. Otherwise<td>&nbsp;&rarr;<td>~/.fossil
+</table></blockquote>
+
+Another way of thinking of this algorithm is the following:
+
+  *  Use "$FOSSIL_HOME/.fossil" if the FOSSIL_HOME variable is defined
+  *  Use the XDG-compatible name (usually ~/.config/fossil.db) on XDG systems
+     if the ~/.fossil file does not already exist
+  *  Otherwise, use the traditional unix name of "~/.fossil"
+
+This algorithm is complex due to the need for historical compatibility.
+Originally, the database was always just "~/.fossil".  Then support
+for the FOSSIL_HOME environment variable as added.  Later, support for the
+[https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html|XDG-compatible configation filenames]
+was added.  Each of these changes needed to continue to support legacy
+installations.
+
+On Windows, the configuration database is the first of the following
+for which the corresponding environment variables exist:
+
+  *  %FOSSIL_HOME%/_fossil
+  *  %LOCALAPPDATA%/_fossil
+  *  %APPDATA%/_fossil
+  *  %USERPROFILES%/_fossil
+  *  %HOMEDRIVE%%HOMEPATH%/_fossil
+
+The second case is the one that usually determines the name  Note that the
+FOSSIL_HOME environment variable can always be set to determine the 
+location of the configuration database.  Note also that the configuration
+database file itself is called ".fossil" or "fossil.db" on unix but
+"_fossil" on windows.
+
+The [/help?cmd=info|fossil info] command will show the location of
+the configuration database on a line that starts with "config-db:".
 
 <h3>2.2 Repository Databases</h3>
 
@@ -154,12 +195,14 @@ The artifacts are stored as BLOBs, compressed using
 [http://www.zlib.net/ | zlib compression] and, where applicable,
 using [./delta_encoder_algorithm.wiki | delta compression].
 The combination of zlib and delta compression results in a considerable
-space savings.  For the SQLite project, at the time of this writing,
-the total size of all artifacts is over 2.0 GB but thanks to the
-combined zlib and delta compression, that content only takes up
-32 MB of space in the repository database, for a compression ratio
-of about 64:1.  The average size of a content BLOB in the database
-is around 500 bytes.
+space savings.  For the SQLite project (when this paragraph was last
+updated on 2020-02-08)
+the total size of all artifacts is over 7.1 GB but thanks to the
+combined zlib and delta compression, that content only takes less than
+97 MB of space in the repository database, for a compression ratio
+of about 74:1.  The median size of all content BLOBs after delta
+and zlib compression have been applied is 156 bytes.
+The median size of BLOBs without compression is 45,312 bytes.
 
 Note that the zlib and delta compression is not an inherent part of the
 Fossil file format; it is just an optimization.
@@ -177,7 +220,7 @@ When accessing the repository database using raw SQL and the
 [/help/sqlite3 | fossil sql] command, the extension function
 "<tt>content()</tt>" with a single argument which is the SHA1 or
 SHA3-256 hash
-of an artifact will return the complete undeleted and uncompressed
+of an artifact will return the complete uncompressed
 content of that artifact.
 
 Going the other way, the [/help/reconstruct | fossil reconstruct]

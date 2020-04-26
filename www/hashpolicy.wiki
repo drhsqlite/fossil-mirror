@@ -8,10 +8,15 @@ There was much angst over the [http://www.shattered.io|SHAttered attack]
 against SHA1 when it was announced in early 2017.  If you are concerned
 about this and its implications for Fossil, simply
 [./quickstart.wiki#install|upgrade to Fossil 2.1 or later], and the
-problem will go away.  Everything will continue to work as before.  All
-of your legacy repositories will continue to work, and all of your old
-check-ins will still have the same name.  Your workflow will be
-unchanged.
+problem will go away.  Everything will continue to work as before.
+
+  *  Legacy repositories will continue working just as
+     they always have, without any conversions or upgrades.
+  *  Historical check-ins will keep their same historical
+     SHA1 names.
+  *  New check-ins will get more secure SHA3-256 hash names.
+  *  Everything will continue as if nothing happened.
+  *  Your workflow will be unchanged.
 
 But if you are curious and want a deeper understanding of what is
 going on, read on...
@@ -77,6 +82,16 @@ Fossil uses for artifact naming, so for the remainder of this article
 it will be called simply "SHA3".  Similarly, "Hardened SHA1" will
 shortened to "SHA1" in the remaining text.)
 
+To be clear: Fossil (version 2.0 and later)
+allows the SHA1 and SHA3 hashes to be mixed within
+the same repository.  Older check-ins, created years ago,
+continue to be named using their legacy SHA1 hashes while
+newer check-ins are named using modern SHA3 hashes.  There
+is no need to "convert" a repository from SHA1 over to SHA3.
+You can see this in Fossil itself.  The recent
+[9d9ef82234f63758] check-in uses a SHA3 hash whereas the older
+[1669115ab9d05c18] check-in uses a SHA1 hash.
+
 Other than permitting the use of SHA3 in addition to SHA1, there
 were no file format changes in Fossil version 2.0 relative
 to the previous version 1.37.  Both Fossil 2.0 and Fossil 1.37 read
@@ -86,7 +101,7 @@ a repository does contain artifacts named using SHA3, Fossil 1.37 will
 not know how to interpret those artifacts and will generate various warnings
 and errors.
 
-<h2>How Fossil Decides Which Hash Algorithm To Use</h2>
+<h2>How Fossil Decides Which Hash Algorithm To Use For New Artifacts</h2>
 
 If newer versions of Fossil are able to use either SHA1 or SHA3 to
 name artifacts, which hash algorithm is actually used?  That question
@@ -99,7 +114,7 @@ is answered by the "hash policy".  These are the supported hash policies:
 </tr>
 <tr>
 <td valign='top'>auto</td>
-<td>Name new artifacts using the SHA1 hash algorithm.  But if any
+<td>Name new artifacts using the SHA1 hash algorithm, but if any
 artifacts are encountered which are already named using SHA3, then
 automatically switch the hash policy to "sha3"</td>
 </tr>
@@ -115,7 +130,7 @@ artifacts that have never before been encountered.</td>
 <td>Name new artifacts using the SHA3 hash algorithm even if the artifact
 already has a SHA1 name.  In other words, force the use of SHA3.  This can
 cause some artifacts to be added to the repository twice, once under their
-SHA1 name and again under their SHA3 name.  But delta compression will
+SHA1 name and again under their SHA3 name, but delta compression will
 prevent that from causing repository size problems.</td>
 </tr>
 <tr>
@@ -127,16 +142,18 @@ that artifact is discarded and ignored.
 </table>
 
 For Fossil 2.0, and obviously also for Fossil 1.37 and before, the
-only hash policy supported was "sha1".  All new artifacts were named
-using their SHA1 hash.
-Even though Fossil 2.0 was capable of understanding SHA3 hashes, it
+only hash policy supported was the one now called "sha1", meaning that
+all new artifacts were named
+using a SHA1 hash.
+Even though Fossil 2.0 added the capability of understanding SHA3 hashes, it
 never actually generates any SHA3 hashes.
 
-Beginning with Fossil 2.1, the default hash policy for legacy repositories
-changed to "auto".
-That means Fossil 2.1 will continue to generate only SHA1 hashes until it
-encounters one artifact with a SHA3 hash.  Once a single SHA3 hash is
-seen, Fossil automatically switches to "sha3" mode and thereafter generates
+From Fossil 2.1 through 2.9, the default hash policy for legacy repositories
+changed to "auto", meaning that
+Fossil continued to generate only SHA1 hashes until it
+encountered one artifact with a SHA3 hash.  Once those older versions of
+Fossil saw a single SHA3 hash, they
+automatically switched to "sha3" mode and thereafter generated
 only SHA3 hashes.
 
 When a new repository is created by cloning, the hash policy is copied
@@ -149,9 +166,7 @@ will normally hold nothing except SHA3 hashes.  The hash policy for new
 repositories can be overridden using the "--sha1" option to the
 "fossil new" command.
 
-Even after upgrading to Fossil 2.1, Fossil will continue to use nothing
-but SHA1 hashes on legacy repositories, thus preserving complete
-compatibility with Fossil 1.37 and before.  If you want Fossil to go
+If you are still on Fossil 2.1 through 2.9 but you want Fossil to go
 ahead and start using SHA3 hashes, change the hash policy to
 "sha3" using a command like this:
 
@@ -159,9 +174,10 @@ ahead and start using SHA3 hashes, change the hash policy to
 fossil hash-policy sha3
 </verbatim></blockquote>
 
-The next check-in will use a SHA3 hash.  And when that check-in is pushed
-to colleagues, their copies of Fossil will see the new SHA3-named artifact
-and automatically convert to SHA3 as well.
+The next check-in will use a SHA3 hash, so that when that check-in is pushed
+to colleagues, their clones will include the new SHA3-named artifact, so
+their local Fossil instances will automatically convert their clones to
+"sha3" mode as well.
 
 Of course, if some members of your team stubbornly refuse to upgrade past
 Fossil 1.37, you should avoid changing the hash policy and creating
@@ -170,12 +186,14 @@ coworkers will no longer be able to collaborate.
 
 <h2>A Pure SHA3 Future</h2>
 
-Fossil 2.10 will change the default hash policy to "sha3" mode. We
-decided to make the change since the last known distributor of Fossil
-1.x binaries — Debian 9 — was finally replaced in June 2019 by a newer
-version distributing Fossil 2.x. All other known sources of Fossil 1.x
-binaries upgraded well before that point.
+Fossil 2.10 changed the default hash policy to "sha3" mode even for
+legacy repositories, so if you
+upgrade to the latest version of Fossil, all of your new artifacts will
+use a SHA3 hash.  Legacy SHA1 artifacts continue to use their original
+names, but new artifacts will use SHA3 names. You might not even notice
+this automatic change over to stronger hashes.
 
-Because Fossil 2.x tends to silently upgrade existing repos to SHA-3
-mode unless carefully forced not to, you probably won't even notice the
-change.
+We decided to make the change to pure SHA3 since the last known distributor 
+of Fossil 1.x binaries — Debian 9 — was finally replaced in June 2019 
+by Debian 10, which included Fossil 2.8. All other known sources of 
+Fossil 1.x binaries upgraded well before that point.

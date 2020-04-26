@@ -222,7 +222,7 @@ int tag_insert(
                   zCol, zValue, rid);
     if( tagid==TAG_COMMENT ){
       char *zCopy = mprintf("%s", zValue);
-      wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
+      backlink_extract(zCopy, 0, rid, BKLNK_COMMENT, mtime, 1);
       free(zCopy);
     }
   }
@@ -425,6 +425,7 @@ void tag_add_artifact(
 **         Options:
 **           --raw           List tags raw names of tags
 **           --tagtype TYPE  List only tags of type TYPE
+**           -v|--inverse    Inverse the meaning of --tagtype TYPE.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -550,8 +551,9 @@ void tag_cmd(void){
 
   if(( strncmp(g.argv[2],"list",n)==0 )||( strncmp(g.argv[2],"ls",n)==0 )){
     Stmt q;
-    int fRaw = find_option("raw","",0)!=0;
+    const int fRaw = find_option("raw","",0)!=0;
     const char *zTagType = find_option("tagtype","t",1);
+    const int fInverse = find_option("inverse","v",0)!=0;
     int nTagType = fRaw ? -1 : 0;
     if( zTagType!=0 ){
       int l = strlen(zTagType);
@@ -570,9 +572,9 @@ void tag_cmd(void){
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
-        "                 AND tagtype%c%d)"
+        "                 AND tagtype%s%d)"
         " ORDER BY tagname",
-        zTagType!=0 ? '=' : '>',
+        zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
         nTagType
       );
       while( db_step(&q)==SQLITE_ROW ){
@@ -589,10 +591,10 @@ void tag_cmd(void){
       db_prepare(&q,
         "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND tagtype%c%d"
+        "   AND tagtype%s%d"
         " ORDER BY tagname",
         rid,
-        zTagType!=0 ? '=' : '>',
+        zTagType!=0 ? (fInverse!=0?"<>":"=") : ">"/*safe-for-%s*/,
         nTagType
       );
       while( db_step(&q)==SQLITE_ROW ){

@@ -102,8 +102,14 @@
 >
 > 1. Indent the text using a tab character or at least four spaces.
 > 2. Precede the block with an HTML `<pre>` tag and follow it with `</pre>`.
-> 3. Surround the block by \`\`\` (three or more) or \~\~\~ either at the
-> left margin or indented no more than three spaces.
+> 3. Surround the block by <tt>\`\`\`</tt> (three or more) or <tt>\~\~\~</tt> either at the
+> left margin or indented no more than three spaces. The first word
+> on that same line (if any) is used in a “`language-WORD`” CSS style in
+> the HTML rendering of that code block and is intended for use by
+> code syntax highlighters. Thus <tt>\`\`\`c</tt> would mark a block of code
+> in the C programming language. Text to be rendered inside the code block
+> should therefore start on the next line, not be cuddled up with the
+> backticks or tildes.
 
 > With the standard skins, verbatim text is rendered in a fixed-width font,
 > but that is purely a presentation matter, controlled by the skin’s CSS.

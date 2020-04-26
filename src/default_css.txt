@@ -458,6 +458,12 @@ td.tktDspValue {
   vertical-align: top;
   background-color: #d0d0d0;
 }
+td.tktTlOpen {
+  color: #800;
+}
+td.tktTlClosed {
+  color: #888;
+}
 span.tktError {
   color: red;
   font-weight: bold;
@@ -737,11 +743,28 @@ div.forumEdit {
   padding-left: 1ex;
   padding-right: 1ex;
 }
+div.forumTimeline {
+  border: 1px solid black;
+  padding-left: 1ex;
+  padding-right: 1ex;
+  max-width: 50em;
+  overflow: auto;
+}
+div.forumTimeline code {
+  white-space: pre-wrap;
+}
+div.markdown code {
+  white-space: pre-wrap;
+}
 div.forumHier, div.forumTime {
   border: 1px solid black;
   padding-left: 1ex;
   padding-right: 1ex;
   margin-top: 1ex;
+}
+div.forumPostBody {
+  max-height: 40em;
+  overflow: auto;
 }
 div.forumSel {
   background-color: #cef;
@@ -794,4 +817,29 @@ label {
 }
 .nobr {
   white-space: nowrap;
+}
+.accordion {
+  cursor: pointer;
+}
+.accordion_btn {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: .5em;
+  vertical-align: middle;
+}
+// Note: the order of the next 3 entries should be
+// maintained for the hierarchical cascade to work.
+.accordion > .accordion_btn_plus {
+  display: none;
+}
+.accordion_closed > .accordion_btn_minus {
+  display: none;
+}
+.accordion_closed > .accordion_btn_plus {
+  display: inline-block;
+}
+.accordion_panel {
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
 }

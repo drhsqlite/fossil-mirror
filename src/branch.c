@@ -146,7 +146,6 @@ void branch_new(void){
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
   if( isPrivate ){
-    blob_appendf(&branch, "T +private *\n");
     noSign = 1;
   }
 
@@ -247,7 +246,7 @@ static const char createBrlistQuery[] =
 
 /* Call this routine to create the TEMP table */
 static void brlist_create_temp_table(void){
-  db_multi_exec(createBrlistQuery/*works-like:""*/);
+  db_exec_sql(createBrlistQuery);
 }
 
 

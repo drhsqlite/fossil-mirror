@@ -26,7 +26,7 @@ to this approach:
 We will call documentation that is included as files in the source tree
 "embedded documentation".
 
-<h2>Fossil Support For Embedded Documentation</h2>
+<h1>1.0 Fossil Support For Embedded Documentation</h1>
 
 The fossil web interface supports embedded documentation using
 the "/doc" page.  To access embedded documentation, one points
@@ -38,27 +38,24 @@ a web browser to a fossil URL of the following form:
 
 The <i>&lt;baseurl&gt;</i> is the main URL used to access the fossil web server.
 For example, the <i>&lt;baseurl&gt;</i> for the fossil project itself is
-either <b>http://www.fossil-scm.org/fossil</b> or
-<b>http://www.hwaci.com/cgi-bin/fossil</b>.
-If you launch the web server using the "<b>fossil server</b>" command line,
+[https://www.fossil-scm.org/fossil].
+If you launch the web server using the "[/help?cmd=ui|fossil ui]" command line,
 then the <i>&lt;baseurl&gt;</i> is usually
 <b>http://localhost:8080/</b>.
 
-The <i>&lt;version&gt;</i> is any unique prefix of the check-in ID for
-the check-in containing the documentation you want to access.
-Or <i>&lt;version&gt;</i> can be the name of a
-[./branching.wiki | branch] in order to show
-the documentation for the latest version of that branch.
-Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
-"<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recent
-check-in.  This is useful if you want to see the very latest
-version of the documentation.  The "<b>ckout</b>" keywords means to
+The <i>&lt;version&gt;</i> is [./checkin_names.wiki|name of a check-in]
+that contains the embedded document.  This might be a hash prefix for
+the check-in, or it might be the name of a branch or tag, or it might
+be a timestamp.  See the [./checkin_names.wiki|check-in name documentation]
+for more possibilities and examples.  The <i>&lt;version&gt;</i> can
+also be the special identifier "<b>ckout</b>".
+The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
-from the any check-in.  The "<b>ckout</b>" keyword normally
-only works when you start your server using the "<b>fossil server</b>"
-or "<b>fossil ui</b>"
-command line and is intended to show what the documentation you are currently
-editing looks like before you check it in.
+from the any check-in.  The "<b>ckout</b>" keyword
+only works when you start your server using the 
+"[/help?cmd=server|fossil server]" or "[/help?cmd=ui|fossil ui]"
+commands.  The "/doc/ckout" URL is intended to show a preview of
+the documentation you are currently editing but have not yet you checked in.
 
 Finally, the <i>&lt;filename&gt;</i> element of the URL is the
 pathname of the documentation file relative to the root of the source
@@ -82,6 +79,8 @@ are rendered with the standard fossil header and footer added.
 Most other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
+<h2>1.1 HTML Rendering With Fossil Headers And Footers</h2>
+
 <a name="html"></a>Files with the mimetype "text/html" (the .html or .htm suffix) are
 usually rendered directly to the browser without interpretation.
 However, if the file begins with a &lt;div&gt; element like this:
@@ -92,9 +91,11 @@ Then the standard Fossil header and footer are added to the document
 prior to being displayed.  The "class='fossil-doc'" attribute is
 required for this to occur.  The "data-title='...'" attribute is
 optional, but if it is present the text will become the title displayed
-in the Fossil header.  An example of this can be seen in the text
-of the [/artifact/84b4b3d041d93a?txt=1 | Index Of Fossil Documentation]
-document.
+in the Fossil header.  An example of this can be seen in Fossil
+Documentation Index www/permutedindex.html:
+
+  *  [/file/www/permutedindex.html?txt|source text for <b>www/permutedindex.html</b>]
+  *  [/doc/trunk/www/permutedindex.html|<b>www/permutedindex.html</b> rendered as HTML]
 
 Beware that such HTML files render in the same browser security context
 as all other embedded documentation served from Fossil; they are not
@@ -106,42 +107,74 @@ Fossil. See the documentation on [./customskin.md#headfoot | Header and
 Footer Processing] and [./defcsp.md | The Default CSP].
 
 
-<h2>Server-Side Text Substitution</h2>
+<h1>2.0 Server-Side Text Substitution</h1>
 
 Fossil can do a few types of substitution of server-side information
 into the embedded document.
 
-<h3>1. $ROOT</h3>
+<h2>2.1 "$ROOT" In HTML and Markdown Hyperlinks</h2>
 
-To allow for repositories [./server/ | served deeper than the root of the
-URL hierarchy], Fossil can substitute the repository's root in the URL
-scheme into HTML <tt>href</tt> and <tt>action</tt> attributes. For
-example:
-
-<nowiki><pre>
-        [$ROOT/doc.wiki | doc at project root]
-</pre></nowiki>
-
-might become this in the rendered HTML:
+Hyperlinks in Markdown and HTML embedded documents can reference 
+the root of the Fossil repository using the special text "$ROOT"
+at the beginning of a URL. For example, a Markdown hyperlink to
+the Markdown formatting rules might be
+written in the embedded document like this:
 
 <nowiki><pre>
-        &lt;a href="/project/root/doc.wiki"&gt;doc at project root&lt;/a&gt;
+        [Markdown formatting rules]($ROOT/wiki_rules)
 </pre></nowiki>
 
-As you can see, this happens for all source document types that end up
-rendering as HTML, not just source documents in the HTML
-<tt>fossil-doc</tt> format described at the end of the prior section.
+Depending on how the how the Fossil server is configured, that hyperlink
+might be renderer like one of the following:
 
+<nowiki><pre>
+        &lt;a href="/wiki_rules"&gt;Wiki formatting rules&lt;/a&gt;
+        &lt;a href="/cgi-bin/fossil/wiki_rules"&gt;Wiki formatting rules&lt;/a&gt;
+</pre></nowiki>
 
-<h3 id="th1">2. TH1 Documents</h3>
+So, in other words, the "$ROOT" text is converted into whatever
+the "&lt;baseurl&gt;" is for the document.
+
+This substitution works for HTML and Markdown documents.
+It does not work for Wiki embedded documents, since with
+Wiki you can just begin a URL with "/" and it automatically knows
+to prepend the $ROOT.
+
+<h2>2.2 "$CURRENT" In "/doc/" Hyperlinks</h2>
+
+Similarly, URLs of the form "/doc/$CURRENT/..." have the check-in
+hash of the check-in currently being viewed substituted in place of
+the "$CURRENT" text.  This feature, in combination with the "$ROOT"
+substitution above, allows an absolute path to be used for hyperlinks.
+
+For example, if an embedded document documented wanted to reference
+some other document in a separate file named "www/otherdoc.md",
+it could use a URL like this:
+
+<nowiki><pre>
+        [Other Document]($ROOT/doc/$CURRENT/www/otherdoc.md)
+</pre></nowiki>
+
+As with "$ROOT", this substitution only works for Markdown and HTML
+documents.  For Wiki documents, you would need to use a relative URL.
+
+<h2 id="th1">2.3 TH1 Documents</h2>
 
 Fossil will substitute the value of [./th1.md | TH1 expressions] within
 <tt>{</tt> curly braces <tt>}</tt> into the output HTML if you have
 configured it with the <tt>--with-th1-docs</tt> option, which is
 disabled by default.
 
+Since TH1 is a full scripting language, this feature essential grants
+the ability to execute code on the server to any with check-in 
+privilege for the project.
+This is a security risk that needs to be carefully managed.
+The feature is off by default.
+Administrators should understand and carefully assess the risks
+before enabling the use of TH1 within embedded documentation.
 
-<h2>Examples</h2>
+
+<h1>3.0 Examples</h1>
 
 This file that you are currently reading is an example of
 embedded documentation.  The name of this file in the fossil
@@ -149,15 +182,15 @@ source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
 file using the URL:
 
-   [http://www.fossil-scm.org/index.html/doc/trunk/www/embeddeddoc.wiki].
+   [http://www.fossil-scm.org/fossil/doc/trunk/www/embeddeddoc.wiki].
 
-The first part of this path, the "[http://www.fossil-scm.org/index.html]",
+The first part of this path, the "[http://www.fossil-scm.org/fossil]",
 is the base URL.  You might have originally typed:
 [http://www.fossil-scm.org/].  The web server at the www.fossil-scm.org
-site automatically redirects such links by appending "index.html".  The
-"index.html" file on www.fossil-scm.org is really a CGI script
-(do not be mislead by the name) which runs the fossil web service in
-CGI mode.  The "index.html" CGI script looks like this:
+site automatically redirects such links by appending "fossil".  The
+"fossil" file on www.fossil-scm.org is really a CGI script
+which runs the fossil web service in CGI mode.
+The "fossil" CGI script looks like this:
 
 <blockquote><pre>
 #!/usr/bin/fossil
@@ -191,8 +224,8 @@ and time specified.  So, for example, to see what the fossil website
 looked like at the beginning of 2010, enter:
 
 <blockquote>
-<a href="http://www.fossil-scm.org/index.html/doc/2010-01-01/www/index.wiki">
-http://www.fossil-scm.org/index.html/doc/<b>2010-01-01</b>/www/index.wiki
+<a href="http://www.fossil-scm.org/fossil/doc/2010-01-01/www/index.wiki">
+http://www.fossil-scm.org/fossil/doc/<b>2010-01-01</b>/www/index.wiki
 </a>
 </blockquote>
 

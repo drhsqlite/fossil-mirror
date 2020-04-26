@@ -33,8 +33,8 @@ due to excessive requests to expensive pages:
 Both of these load-control mechanisms are turned off by default, but
 they are recommended for high-traffic sites.
 
-The webpage cache is activated using the [`fossil cache
-init`](/help/cache) command-line on the server.  Add a `-R` option to
+The webpage cache is activated using the [`fossil cache init`](/help/cache)
+command-line on the server.  Add a `-R` option to
 specify the specific repository for which to enable caching.  If running
 this command as root, be sure to “`chown`” the cache database to give
 the Fossil server write permission for the user ID of the web server;

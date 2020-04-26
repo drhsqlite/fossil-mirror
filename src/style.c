@@ -82,12 +82,18 @@ static int sideboxUsed = 0;
 static unsigned adUnitFlags = 0;
 
 /*
+** Submenu disable flag
+*/
+static int submenuEnable = 1;
+
+/*
 ** Flags for various javascript files needed prior to </body>
 */
 static int needHrefJs = 0;      /* href.js */
 static int needSortJs = 0;      /* sorttable.js */
 static int needGraphJs = 0;     /* graph.js */
 static int needCopyBtnJs = 0;   /* copybtn.js */
+static int needAccordionJs = 0; /* accordion.js */
 
 /*
 ** Extra JS added to the end of the file.
@@ -319,6 +325,13 @@ void style_submenu_sql(
   }
 }
 
+/*
+** Disable or enable the submenu
+*/
+void style_submenu_enable(int onOff){
+  submenuEnable = onOff;
+}
+
 
 /*
 ** Compare two submenu items for sorting purposes
@@ -477,6 +490,51 @@ char *style_nonce(void){
 }
 
 /*
+** Return the default Content Security Policy (CSP) string.
+** If the toHeader argument is true, then also add the
+** CSP to the HTTP reply header.
+**
+** The CSP comes from the "default-csp" setting if it exists and
+** is non-empty.  If that setting is an empty string, then the following
+** default is used instead:
+**
+**     default-src 'self' data:;
+**     script-src 'self' 'nonce-$nonce';
+**     style-src 'self' 'unsafe-inline';
+**
+** The text '$nonce' is replaced by style_nonce() if and whereever it
+** occurs in the input string.
+**
+** The string returned is obtained from fossil_malloc() and
+** should be released by the caller.
+*/
+char *style_csp(int toHeader){
+  static const char zBackupCSP[] = 
+   "default-src 'self' data:; "
+   "script-src 'self' 'nonce-$nonce'; "
+   "style-src 'self' 'unsafe-inline'";
+  const char *zFormat = db_get("default-csp","");
+  Blob csp;
+  char *zNonce;
+  char *zCsp;
+  if( zFormat[0]==0 ){
+    zFormat = zBackupCSP;
+  }
+  blob_init(&csp, 0, 0);
+  while( zFormat[0] && (zNonce = strstr(zFormat,"$nonce"))!=0 ){
+    blob_append(&csp, zFormat, (int)(zNonce - zFormat));
+    blob_append(&csp, style_nonce(), -1);
+    zFormat = zNonce + 6;
+  }
+  blob_append(&csp, zFormat, -1);
+  zCsp = blob_str(&csp);
+  if( toHeader ){
+    cgi_printf_header("Content-Security-Policy: %s\r\n", zCsp);
+  }
+  return zCsp;
+}
+
+/*
 ** Default HTML page header text through <body>.  If the repository-specific
 ** header template lacks a <body> tag, then all of the following is
 ** prepended.
@@ -500,17 +558,16 @@ static char zDfltHeader[] =
 */
 static void style_init_th1_vars(const char *zTitle){
   const char *zNonce = style_nonce();
+  char *zDfltCsp;
+
+  zDfltCsp = style_csp(1);
   /*
   ** Do not overwrite the TH1 variable "default_csp" if it exists, as this
   ** allows it to be properly overridden via the TH1 setup script (i.e. it
   ** is evaluated before the header is rendered).
   */
-  char *zDfltCsp = sqlite3_mprintf("default-src 'self' data: ; "
-                                   "script-src 'self' 'nonce-%s' ; "
-                                   "style-src 'self' 'unsafe-inline'",
-                                   zNonce);
   Th_MaybeStore("default_csp", zDfltCsp);
-  sqlite3_free(zDfltCsp);
+  fossil_free(zDfltCsp);
   Th_Store("nonce", zNonce);
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("project_description", db_get("project-description",""));
@@ -628,6 +685,13 @@ void style_table_sorter(void){
 }
 
 /*
+** Indicate that the accordion javascript is needed.
+*/
+void style_accordion(void){
+  needAccordionJs = 1;
+}
+
+/*
 ** Indicate that the timeline graph javascript is needed.
 */
 void style_graph_generator(void){
@@ -696,6 +760,9 @@ static void style_load_all_js_files(void){
   if( needCopyBtnJs ){
     cgi_append_content(builtin_text("copybtn.js"),-1);
   }
+  if( needAccordionJs ){
+    cgi_append_content(builtin_text("accordion.js"),-1);
+  }
   for(i=0; i<nJsToLoad; i++){
     cgi_append_content(builtin_text(azJsToLoad[i]),-1);
   }
@@ -732,7 +799,7 @@ void style_footer(void){
   ** to the submenu while generating page text.
   */
   cgi_destination(CGI_HEADER);
-  if( nSubmenu+nSubmenuCtrl>0 ){
+  if( submenuEnable && nSubmenu+nSubmenuCtrl>0 ){
     int i;
     if( nSubmenuCtrl ){
       @ <form id='f01' method='GET' action='%R/%s(g.zPath)'>
@@ -1141,34 +1208,16 @@ void honeypot_page(void){
 ** If zFormat is an empty string, then this is the /test_env page.
 */
 void webpage_error(const char *zFormat, ...){
-  int i;
   int showAll;
   char *zErr = 0;
   int isAuth = 0;
   char zCap[100];
-  static const char *const azCgiVars[] = {
-    "COMSPEC", "DOCUMENT_ROOT", "GATEWAY_INTERFACE", "SCGI",
-    "HTTP_ACCEPT", "HTTP_ACCEPT_CHARSET", "HTTP_ACCEPT_ENCODING",
-    "HTTP_ACCEPT_LANGUAGE", "HTTP_AUTHENICATION",
-    "HTTP_CONNECTION", "HTTP_HOST",
-    "HTTP_IF_NONE_MATCH", "HTTP_IF_MODIFIED_SINCE",
-    "HTTP_USER_AGENT", "HTTP_REFERER", "PATH_INFO", "PATH_TRANSLATED",
-    "QUERY_STRING", "REMOTE_ADDR", "REMOTE_PORT",
-    "REMOTE_USER", "REQUEST_METHOD",
-    "REQUEST_URI", "SCRIPT_FILENAME", "SCRIPT_NAME", "SERVER_PROTOCOL",
-    "HOME", "FOSSIL_HOME", "USERNAME", "USER", "FOSSIL_USER",
-    "SQLITE_TMPDIR", "TMPDIR",
-    "TEMP", "TMP", "FOSSIL_VFS",
-    "FOSSIL_FORCE_TICKET_MODERATION", "FOSSIL_FORCE_WIKI_MODERATION",
-    "FOSSIL_TCL_PATH", "TH1_DELETE_INTERP", "TH1_ENABLE_DOCS",
-    "TH1_ENABLE_HOOKS", "TH1_ENABLE_TCL", "REMOTE_HOST",
-  };
 
   login_check_credentials();
   if( g.perm.Admin || g.perm.Setup  || db_get_boolean("test_env_enable",0) ){
     isAuth = 1;
   }
-  for(i=0; i<count(azCgiVars); i++) (void)P(azCgiVars[i]);
+  cgi_load_environment();
   if( zFormat[0] ){
     va_list ap;
     va_start(ap, zFormat);

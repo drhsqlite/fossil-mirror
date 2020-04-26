@@ -169,7 +169,6 @@ static void showParentProject(void){
   }
 }
 
-
 /*
 ** COMMAND: info
 **
@@ -217,29 +216,50 @@ void info_cmd(void){
     extraRepoInfo();
     return;
   }
-  db_find_and_open_repository(0,0);
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND,0);
   verify_all_options();
   if( g.argc==2 ){
     int vid;
-         /* 012345678901234 */
-    db_record_repository_filename(0);
-    fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    if( g.repositoryOpen ){
+      db_record_repository_filename(0);
+      fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    }else{
+      db_open_config(0,1);
+    }
     if( g.localOpen ){
       fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
-    if( verboseFlag ) extraRepoInfo();
+    if( verboseFlag && g.repositoryOpen ){
+      extraRepoInfo();
+    }
     if( g.zConfigDbName ){
       fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
-    fossil_print("project-code: %s\n", db_get("project-code", ""));
-    showParentProject();
-    vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
-    if( vid ){
-      show_common_info(vid, "checkout:", 1, 1);
-    }
-    fossil_print("check-ins:    %d\n",
+    if( g.repositoryOpen ){
+      fossil_print("project-code: %s\n", db_get("project-code", ""));
+      showParentProject();
+      vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
+      if( vid ){
+        show_common_info(vid, "checkout:", 1, 1);
+      }
+      fossil_print("check-ins:    %d\n",
              db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
+    }
+    if( verboseFlag || !g.repositoryOpen ){
+      Blob vx;
+      char *z;
+      fossil_version_blob(&vx, 0);
+      z = strstr(blob_str(&vx), "version");
+      if( z ){
+        z += 8;
+      }else{
+        z = blob_str(&vx);
+      }
+      fossil_print("fossil:       %z\n", file_fullexename(g.nameOfExe));
+      fossil_print("version:      %s", z);
+      blob_reset(&vx);
+    }
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
@@ -302,71 +322,6 @@ void render_checkin_context(int rid, int rid2, int parentsOnly){
          |TIMELINE_CHPICK,
        0, 0, 0, rid, rid2, 0);
   db_finalize(&q);
-}
-
-/*
-** Show a graph all wiki, tickets, and check-ins that refer to object zUuid.
-**
-** If zLabel is not NULL and the graph is not empty, then output zLabel as
-** a prefix to the graph.
-*/
-void render_backlink_graph(const char *zUuid, const char *zLabel){
-  Blob sql;
-  Stmt q;
-  char *zGlob;
-  zGlob = mprintf("%.5s*", zUuid);
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM ok;"
-     "INSERT OR IGNORE INTO ok"
-     " SELECT srcid FROM backlink"
-     "  WHERE target GLOB %Q"
-     "    AND %Q GLOB (target || '*');",
-     zGlob, zUuid
-  );
-  if( !db_exists("SELECT 1 FROM ok") ) return;
-  if( zLabel ) cgi_printf("%s", zLabel);
-  blob_zero(&sql);
-  blob_append(&sql, timeline_query_for_www(), -1);
-  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0, 0);
-  db_finalize(&q);
-}
-
-/*
-** WEBPAGE: test-backlinks
-**
-** Show a timeline of all check-ins and other events that have entries
-** in the backlink table.  This is used for testing the rendering
-** of the "References" section of the /info page.
-*/
-void backlink_timeline_page(void){
-  Blob sql;
-  Stmt q;
-
-  login_check_credentials();
-  if( !g.perm.Read || !g.perm.RdTkt || !g.perm.RdWiki ){
-    login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
-    return;
-  }
-  style_header("Backlink Timeline (Internal Testing Use)");
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM ok;"
-     "INSERT OR IGNORE INTO ok"
-     " SELECT blob.rid FROM backlink, blob"
-     "  WHERE blob.uuid BETWEEN backlink.target AND (backlink.target||'x')"
-  );
-  blob_zero(&sql);
-  blob_append(&sql, timeline_query_for_www(), -1);
-  blob_append_sql(&sql, " AND event.objid IN ok ORDER BY mtime DESC");
-  db_prepare(&q, "%s", blob_sql_text(&sql));
-  www_print_timeline(&q, TIMELINE_DISJOINT|TIMELINE_GRAPH|TIMELINE_NOSCROLL,
-                     0, 0, 0, 0, 0, 0);
-  db_finalize(&q);
-  style_footer();
 }
 
 
@@ -851,17 +806,19 @@ void ci_page(void){
       db_finalize(&q2);
     }
 
-    /* Only show links to read wiki pages if the users can read wiki
+    /* Only show links to edit wiki pages if the users can read wiki
     ** and if the wiki pages already exist */
-    if( g.perm.RdWiki
+    if( g.perm.WrWiki
+     && g.perm.RdWiki
+     && g.perm.Write
      && ((okWiki = wiki_tagid2("checkin",zUuid))!=0 ||
                  blob_size(&wiki_read_links)>0)
      && db_get_boolean("wiki-about",1)
     ){
       const char *zLinks = blob_str(&wiki_read_links);
-      @ <tr><th>Wiki:</th><td>\
+      @ <tr><th>Edit&nbsp;Wiki:</th><td>\
       if( okWiki ){
-        @ %z(href("%R/wiki?name=checkin/%s",zUuid))this checkin</a>\
+        @ %z(href("%R/wikiedit?name=checkin/%s",zUuid))this checkin</a>\
       }else if( zLinks[0] ){
         zLinks += 3;
       }
@@ -1024,7 +981,7 @@ void winfo_page(void){
       }
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('w', rid);
     }
   }
   style_header("Update of \"%h\"", pWiki->zWikiTitle);
@@ -1884,6 +1841,7 @@ void deliver_artifact(int rid, const char *zMime){
     if( zMime==0 ) zMime = "application/x-fossil-artifact";
   }
   content_get(rid, &content);
+  fossil_free(style_csp(1));
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
 }
@@ -2424,7 +2382,7 @@ void tinfo_page(void){
       }
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('t', rid);
     }
   }
   zTktTitle = db_table_has_column("repository", "ticket", "title" )
@@ -2478,7 +2436,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng, 0);
+  ticket_output_change_artifact(pTktChng, 0, 1);
   manifest_destroy(pTktChng);
   style_footer();
 }
@@ -2513,6 +2471,7 @@ void info_page(void){
   if( rc==1 ){
     if( validate16(zName, nLen) ){
       if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+        cgi_set_parameter_nocopy("tl","1",0);
         tktview_page();
         return;
       }

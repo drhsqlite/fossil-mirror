@@ -1675,6 +1675,14 @@ static void create_manifest(
     int rid = db_column_int(&q, 1);
     if( is_a_leaf(rid) && !db_exists("SELECT 1 FROM tagxref "
         " WHERE tagid=%d AND rid=%d AND tagtype>0", TAG_CLOSED, rid)){
+#if 0
+      /* Make sure the check-in manifest of the resulting merge child does not
+      ** include a +close tag referring to the leaf check-in on a private
+      ** branch, so as not to generate a missing artifact reference on
+      ** repository clones without that private branch.  The merge command
+      ** should have dropped the --integrate option, at this point. */
+      assert( !content_is_private(rid) );
+#endif
       blob_appendf(pOut, "T +closed %s\n", zIntegrateUuid);
     }
   }
@@ -2042,6 +2050,8 @@ void commit_cmd(void){
   char *zUuid;           /* UUID of the new check-in */
   int useHash = 0;       /* True to verify file status using hashing */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
+  int privateFlag = 0;   /* True if the --private option is present */
+  int privateParent = 0; /* True if the parent check-in is private */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
   int noPrompt = 0;      /* True if skipping all prompts */
@@ -2079,6 +2089,7 @@ void commit_cmd(void){
   /* --sha1sum is an undocumented alias for --hash for backwards compatiblity */
   useHash = find_option("hash",0,0)!=0 || find_option("sha1sum",0,0)!=0;
   noSign = find_option("nosign",0,0)!=0;
+  privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
   if( forceDelta && forceBaseline ){
@@ -2111,13 +2122,6 @@ void commit_cmd(void){
     sCiInfo.azTag[nTag] = 0;
   }
   zComFile = find_option("message-file", "M", 1);
-  if( find_option("private",0,0) ){
-    g.markPrivate = 1;
-    if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
-    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 ){
-      sCiInfo.zBrClr = "#fec084";  /* Orange */
-    }
-  }
   sCiInfo.zDateOvrd = find_option("date-override",0,1);
   sCiInfo.zUserOvrd = find_option("user-override",0,1);
   db_must_be_within_tree();
@@ -2131,11 +2135,21 @@ void commit_cmd(void){
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     useCksum = 1;
-    if( sCiInfo.zBranch==0 ) {
+    if( privateFlag==0 && sCiInfo.zBranch==0 ) {
       sCiInfo.zBranch=db_get("main-branch", 0);
     }
-  }else if( content_is_private(vid) ){
-    g.markPrivate = 1;
+  }else{
+    privateParent = content_is_private(vid);
+  }
+
+  /* Track the "private" status */
+  g.markPrivate = privateFlag || privateParent;
+  if( privateFlag && !privateParent ){
+    /* Apply default branch name ("private") and color ("orange") if not
+    ** specified otherwise on the command-line, and if the parent is not
+    ** already private. */
+    if( sCiInfo.zBranch==0 ) sCiInfo.zBranch = "private";
+    if( sCiInfo.zBrClr==0 && sCiInfo.zColor==0 ) sCiInfo.zBrClr = "#fec084";
   }
 
   /* Do not allow the creation of a new branch using an existing open

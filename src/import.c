@@ -214,8 +214,8 @@ static void finish_blob(void){
 ** control artifact to the BLOB table.
 */
 static void finish_tag(void){
-  Blob record, cksum;
   if( gg.zDate && gg.zTag && gg.zFrom && gg.zUser ){
+    Blob record, cksum;
     blob_zero(&record);
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s", gimport.zTagPre, gg.zTag,
@@ -228,6 +228,7 @@ static void finish_tag(void){
     blob_appendf(&record, "Z %b\n", &cksum);
     fast_insert_content(&record, 0, 0, 1);
     blob_reset(&cksum);
+    blob_reset(&record);
   }
   import_reset(0);
 }
@@ -338,6 +339,8 @@ static void finish_commit(void){
   ** to work around the problem than to fix git-fast-export.
   */
   if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
+    record.nUsed = 0
+      /*in case fast_insert_comment() did not indirectly blob_reset() it */;
     blob_appendf(&record, "D %s\n", gg.zDate);
     blob_appendf(&record, "T +sym-%F%F%F %s\n", gimport.zBranchPre, gg.zBranch,
         gimport.zBranchSuf, gg.zPrevCheckin);
@@ -348,10 +351,10 @@ static void finish_commit(void){
        "INSERT OR REPLACE INTO xtag(tname, tcontent)"
        " VALUES(%Q,%Q)", gg.zBranch, blob_str(&record)
     );
-    blob_reset(&record);
     blob_reset(&cksum);
   }
 
+  blob_reset(&record);
   fossil_free(gg.zPrevBranch);
   gg.zPrevBranch = gg.zBranch;
   gg.zBranch = 0;
@@ -1638,10 +1641,12 @@ static void svn_dump_import(FILE *pIn){
 **   --rename-trunk NAME  use NAME as name of imported trunk branch
 **   --rename-branch PAT  rename all branch names using PAT pattern
 **   --rename-tag PAT     rename all tag names using PAT pattern
+**   --admin-user|-A NAME use NAME for the admin user 
 **
 ** The --incremental option allows an existing repository to be extended
 ** with new content.  The --rename-* options may be useful to avoid name
-** conflicts when using the --incremental option.
+** conflicts when using the --incremental option. The --admin-user
+** option is ignored if --incremental is specified.
 **
 ** The argument to --rename-* contains one "%" character to be replaced
 ** with the original name.  For example, "--rename-tag svn-%-tag" renames
@@ -1662,6 +1667,7 @@ void import_cmd(void){
   int gitFlag = find_option("git", 0, 0)!=0;
   int omitRebuild = find_option("no-rebuild",0,0)!=0;
   int omitVacuum = find_option("no-vacuum",0,0)!=0;
+  const char *zDefaultUser = find_option("admin-user","A",1);
 
   /* Options common to all input formats */
   int incrFlag = find_option("incremental", "i", 0)!=0;
@@ -1758,7 +1764,7 @@ void import_cmd(void){
 
   db_begin_transaction();
   if( !incrFlag ){
-    db_initial_setup(0, 0, 0);
+    db_initial_setup(0, 0, zDefaultUser);
     db_set("main-branch", gimport.zTrunkName, 0);
   }
 

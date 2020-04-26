@@ -69,16 +69,6 @@ struct UrlData {
 
 
 /*
-** Convert a string to lower-case.
-*/
-static void url_tolower(char *z){
-  while( *z ){
-     *z = fossil_tolower(*z);
-     z++;
-  }
-}
-
-/*
 ** Parse the given URL.  Populate members of the provided UrlData structure
 ** as follows:
 **
@@ -179,7 +169,7 @@ void url_parse_local(
       }
       zLogin = mprintf("");
     }
-    url_tolower(pUrlData->name);
+    fossil_strtolwr(pUrlData->name);
     if( c==':' ){
       pUrlData->port = 0;
       i++;

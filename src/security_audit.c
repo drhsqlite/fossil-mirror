@@ -35,8 +35,8 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 }
 
 /*
-** Extract the content-security-policy from the reply header.  Parse it
-** up into separate fields, and return a pointer to a null-terminated
+** Parse the content-security-policy
+** into separate fields, and return a pointer to a null-terminated
 ** array of pointers to strings, one entry for each field.  Or return
 ** a NULL pointer if no CSP could be located in the header.
 **
@@ -47,51 +47,40 @@ static int hasAnyCap(const char *zCap, const char *zTest){
 static char **parse_content_security_policy(void){
   char **azCSP = 0;
   int nCSP = 0;
-  const char *zHeader;
-  const char *zAll;
+  char *zAll;
   char *zCopy;
   int nAll = 0;
-  int ii, jj, n, nx = 0;
+  int jj;
   int nSemi;
 
-  zHeader = cgi_header();
-  if( zHeader==0 ) return 0;
-  for(ii=0; zHeader[ii]; ii+=n){
-    n = html_token_length(zHeader+ii);
-    if( zHeader[ii]=='<'
-     && fossil_strnicmp(html_attribute(zHeader+ii,"http-equiv",&nx),
-                        "Content-Security-Policy",23)==0
-     && nx==23
-     && (zAll = html_attribute(zHeader+ii,"content",&nAll))!=0
-    ){
-      for(jj=nSemi=0; jj<nAll; jj++){ if( zAll[jj]==';' ) nSemi++; }
-      azCSP = fossil_malloc( nAll+1 + (nSemi+2)*sizeof(char*) );
-      zCopy = (char*)&azCSP[nSemi+2];
-      memcpy(zCopy,zAll,nAll);
-      zCopy[nAll] = 0;
-      while( fossil_isspace(zCopy[0]) || zCopy[0]==';' ){ zCopy++; }
-      azCSP[0] = zCopy;
-      nCSP = 1;
-      for(jj=0; zCopy[jj]; jj++){
-        if( zCopy[jj]==';' ){
-          int k;
-          for(k=jj-1; k>0 && fossil_isspace(zCopy[k]); k--){ zCopy[k] = 0; }
-          zCopy[jj] = 0;
-          while( jj+1<nAll
-             && (fossil_isspace(zCopy[jj+1]) || zCopy[jj+1]==';')
-          ){
-            jj++;
-          }
-          assert( nCSP<nSemi+1 );
-          azCSP[nCSP++] = zCopy+jj;
-        }
+  zAll = style_csp(0);
+  nAll = (int)strlen(zAll);
+  for(jj=nSemi=0; jj<nAll; jj++){ if( zAll[jj]==';' ) nSemi++; }
+  azCSP = fossil_malloc( nAll+1+(nSemi+2)*sizeof(char*) );
+  zCopy = (char*)&azCSP[nSemi+2];
+  memcpy(zCopy,zAll,nAll);
+  zCopy[nAll] = 0;
+  while( fossil_isspace(zCopy[0]) || zCopy[0]==';' ){ zCopy++; }
+  azCSP[0] = zCopy;
+  nCSP = 1;
+  for(jj=0; zCopy[jj]; jj++){
+    if( zCopy[jj]==';' ){
+      int k;
+      for(k=jj-1; k>0 && fossil_isspace(zCopy[k]); k--){ zCopy[k] = 0; }
+      zCopy[jj] = 0;
+      while( jj+1<nAll
+         && (fossil_isspace(zCopy[jj+1]) || zCopy[jj+1]==';')
+      ){
+        jj++;
       }
-      assert( nCSP<=nSemi+2 );
-      azCSP[nCSP] = 0;
-      return azCSP;
+      assert( nCSP<nSemi+1 );
+      azCSP[nCSP++] = zCopy+jj;
     }
   }
-  return 0;
+  assert( nCSP<=nSemi+2 );
+  azCSP[nCSP] = 0;
+  fossil_free(zAll);
+  return azCSP;
 }
 
 /*
@@ -107,10 +96,14 @@ static char **parse_content_security_policy(void){
 */
 void secaudit0_page(void){
   const char *zAnonCap;      /* Capabilities of user "anonymous" and "nobody" */
+  const char *zDevCap;       /* Capabilities of user group "developer" */
+  const char *zReadCap;      /* Capabilities of user group "reader" */
   const char *zPubPages;     /* GLOB pattern for public pages */
   const char *zSelfCap;      /* Capabilities of self-registered users */
+  int hasSelfReg = 0;        /* True if able to self-register */
   char *z;
   int n;
+  CapabilityString *pCap;
   char **azCSP;              /* Parsed content security policy */
 
   login_check_credentials();
@@ -127,16 +120,14 @@ void secaudit0_page(void){
   ** though some content may be accessible anonymously.
   */
   zAnonCap = db_text("", "SELECT fullcap(NULL)");
+  zDevCap  = db_text("", "SELECT fullcap('v')");
+  zReadCap = db_text("", "SELECT fullcap('u')");
   zPubPages = db_get("public-pages",0);
-  if( db_get_boolean("self-register",0) ){
-    CapabilityString *pCap;
-    pCap = capability_add(0, db_get("default-perms",0));
-    capability_expand(pCap);
-    zSelfCap = capability_string(pCap);
-    capability_free(pCap);
-  }else{
-    zSelfCap = fossil_strdup("");
-  }
+  hasSelfReg = db_get_boolean("self-register",0);
+  pCap = capability_add(0, db_get("default-perms","u"));
+  capability_expand(pCap);
+  zSelfCap = capability_string(pCap);
+  capability_free(pCap);
   if( hasAnyCap(zAnonCap,"as") ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
     @ it grants administrator privileges to anonymous users.  You
@@ -144,7 +135,7 @@ void secaudit0_page(void){
     @ immediately!  Or, at least remove the Setup and Admin privileges
     @ for users "anonymous" and "login" on the
     @ <a href="setup_ulist">User Configuration</a> page.
-  }else if( hasAnyCap(zSelfCap,"as") ){
+  }else if( hasAnyCap(zSelfCap,"as") && hasSelfReg ){
     @ <li><p>This repository is <big><b>Wildly INSECURE</b></big> because
     @ it grants administrator privileges to self-registered users.  You
     @ should <a href="takeitprivate">take this repository private</a>
@@ -167,12 +158,12 @@ void secaudit0_page(void){
     @ <li><p>This repository is <big><b>PUBLIC</b></big>. All
     @ checked-in content can be accessed by anonymous users.
     @ <a href="takeitprivate">Take it private</a>.<p>
-  }else if( hasAnyCap(zSelfCap,"goz") ){
+  }else if( hasAnyCap(zSelfCap,"goz") && hasSelfReg ){
     @ <li><p>This repository is <big><b>PUBLIC</b></big> because all
     @ checked-in content can be accessed by self-registered users.
     @ This repostory would be private if you disabled self-registration.</p>
   }else if( !hasAnyCap(zAnonCap, "jrwy234567")
-         && !hasAnyCap(zSelfCap, "jrwy234567")
+         && (!hasSelfReg || !hasAnyCap(zSelfCap, "jrwy234567"))
          && (zPubPages==0 || zPubPages[0]==0) ){
     @ <li><p>This repository is <big><b>Completely PRIVATE</b></big>.
     @ A valid login and password is required to access any content.
@@ -182,24 +173,29 @@ void secaudit0_page(void){
     @ content can be accessed either anonymously or by self-registered
     @ users:
     @ <ul>
-    if( hasAnyCap(zAnonCap,"j") || hasAnyCap(zSelfCap,"j") ){
-      @ <li> Wiki pages
-    }
-    if( hasAnyCap(zAnonCap,"r") || hasAnyCap(zSelfCap,"r") ){
-      @ <li> Tickets
-    }
-    if( hasAnyCap(zAnonCap,"234567") || hasAnyCap(zSelfCap,"234567") ){
-      @ <li> Forum posts
+    if( hasSelfReg ){
+      if( hasAnyCap(zAnonCap,"j") || hasAnyCap(zSelfCap,"j") ){
+        @ <li> Wiki pages
+      }
+      if( hasAnyCap(zAnonCap,"r") || hasAnyCap(zSelfCap,"r") ){
+        @ <li> Tickets
+      }
+      if( hasAnyCap(zAnonCap,"234567") || hasAnyCap(zSelfCap,"234567") ){
+        @ <li> Forum posts
+      }
     }
     if( zPubPages && zPubPages[0] ){
       Glob *pGlob = glob_create(zPubPages);
       int i;
-      @ <li> URLs that match any of these GLOB patterns:
-      @ <ul>
+      @ <li> "Public Pages" are URLs that match any of these GLOB patterns:
+      @ <p><ul>
       for(i=0; i<pGlob->nPattern; i++){
         @ <li> %h(pGlob->azPattern[i])
       }
       @ </ul>
+      @ <p>Anoymous users are vested with capabilities "%h(zSelfCap)" on
+      @ public pages. See the "Public Pages" entry in the
+      @ "User capability summary" below.
     }
     @ </ul>
     if( zPubPages && zPubPages[0] ){
@@ -220,6 +216,35 @@ void secaudit0_page(void){
     @ the old "Redirect to HTTPS on Login Page" setting, switch to the
     @ new setting: it has a more secure implementation.
   }
+
+#ifdef FOSSIL_ENABLE_TH1_DOCS
+  /* The use of embedded TH1 is dangerous.  Warn if it is possible.
+  */
+  if( !Th_AreDocsEnabled() ){
+    @ <li><p>
+    @ This server is compiled with -DFOSSIL_ENABLE_TH1_DOCS. TH1 docs
+    @ are disabled for this particular repository, so you are safe for
+    @ now.  However, to prevent future problems caused by accidentally
+    @ enabling TH1 docs in the future, it is recommended that you
+    @ recompile Fossil without the -DFOSSIL_ENABLE_TH1_DOCS flag.</p>
+  }else{
+    @ <li><p><b>DANGER:</b>
+    @ This server is compiled with -DFOSSIL_ENABLE_TH1_DOCS and TH1 docs
+    @ are enabled for this repository.  Anyone who can check-in or push
+    @ to this repository can create a malicious TH1 script and then cause
+    @ that script to be run on the server. This is a serious security concern.
+    @ TH1 docs should only be enabled for repositories with a very limited
+    @ number of trusted committers, and the repository should be monitored
+    @ closely to ensure no hostile content sneaks in.  If a bad TH1 script
+    @ does make it into the repository, the only want to prevent it from
+    @ being run is to shun it.</p>
+    @
+    @ <p>Disable TH1 docs by recompiling Fossil without the
+    @ -DFOSSIL_ENABLE_TH1_DOCS flag, and/or clear the th1-docs setting
+    @ and ensure that the TH1_ENABLE_DOCS environment variable does not
+    @ exist in the environment.</p>
+  }
+#endif
 
   /* Anonymous users should not be able to harvest email addresses
   ** from tickets.
@@ -259,15 +284,16 @@ void secaudit0_page(void){
     @ on the <a href="setup_ulist">User Configuration</a> page.
   }
 
-  /* Anonymous users probably should not be allowed to delete
-  ** wiki or tickets.
-  */
-  if( hasAnyCap(zAnonCap, "d") ){
+  /* Obsolete:  */
+  if( hasAnyCap(zAnonCap, "d") ||
+      hasAnyCap(zDevCap,  "d") ||
+      hasAnyCap(zReadCap, "d") ){
     @ <li><p><b>WARNING:</b>
-    @ Anonymous users can delete wiki and tickets.
-    @ <p>Fix this by removing the "Delete"
-    @ privilege from users "anonymous" and "nobody" on the
-    @ <a href="setup_ulist">User Configuration</a> page.
+    @ One or more users has the <a
+    @ href="https://fossil-scm.org/forum/forumpost/43c78f4bef">obsolete</a>
+    @ "d" capability. You should remove it using the
+    @ <a href="setup_ulist">User Configuration</a> page in case we
+    @ ever reuse the letter for another purpose.
   }
 
   /* If anonymous users are allowed to create new Wiki, then
@@ -528,6 +554,21 @@ void secaudit0_page(void){
     @ </table>
   }else{
     @ <li><p> Email alerts are disabled
+  }
+
+  n = db_int(0,"SELECT count(*) FROM ("
+               "SELECT rid FROM phantom EXCEPT SELECT rid FROM private)");
+  if( n>0 ){
+    @ <li><p>\
+    @ There exists public phantom artifacts in this repository, shown below.
+    @ Phantom artifacts are artifacts whose hash name is referenced by some
+    @ other artifact but whose content is unknown.  Some phantoms are marked
+    @ private and those are ignored.  But public phantoms cause unnecessary
+    @ sync traffic and might represent malicious attempts to corrupt the
+    @ repository structure.
+    @ </p>
+    table_of_public_phantoms();
+    @ </li>
   }
 
   @ </ol>

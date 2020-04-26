@@ -550,7 +550,26 @@ void captcha_generate(int showButton){
   if( showButton ){
     @ <input type="submit" value="Submit">
   }
+  @ <br/>\
+  captcha_speakit_button(uSeed, 0);
   @ </td></tr></table></div>
+}
+
+/*
+** Add a "Speak the captcha" button.
+*/
+void captcha_speakit_button(unsigned int uSeed, const char *zMsg){
+  if( zMsg==0 ) zMsg = "Speak the text";
+  @ <input type="button" value="%h(zMsg)" id="speakthetext">
+  @ <script nonce="%h(style_nonce())">
+  @ document.getElementById("speakthetext").onclick = function(){
+  @   var audio = window.fossilAudioCaptcha \
+  @ || new Audio("%R/captcha-audio/%u(uSeed)");
+  @   window.fossilAudioCaptcha = audio;
+  @   audio.currentTime = 0;
+  @   audio.play();
+  @ }
+  @ </script>
 }
 
 /*
@@ -609,4 +628,79 @@ int exclude_spiders(void){
   @ </form>
   style_footer();
   return 1;
+}
+
+/*
+** Generate a WAV file that reads aloud the hex digits given by
+** zHex.
+*/
+static void captcha_wav(const char *zHex, Blob *pOut){
+  int i;
+  const int szWavHdr = 44;
+  blob_init(pOut, 0, 0);
+  blob_resize(pOut, szWavHdr);  /* Space for the WAV header */
+  pOut->nUsed = szWavHdr;
+  memset(pOut->aData, 0, szWavHdr);
+  if( zHex==0 || zHex[0]==0 ) zHex = "0";
+  for(i=0; zHex[i]; i++){
+    int v = hex_digit_value(zHex[i]);
+    int sz;
+    int nData;
+    const unsigned char *pData;
+    char zSoundName[50];
+    sqlite3_snprintf(sizeof(zSoundName),zSoundName,"sounds/%c.wav",
+                     "0123456789abcdef"[v]);
+    /* Extra silence in between letters */
+    if( i>0 ){
+      int nQuiet = 3000;
+      blob_resize(pOut, pOut->nUsed+nQuiet);
+      memset(pOut->aData+pOut->nUsed-nQuiet, 0x80, nQuiet);
+    }
+    pData = builtin_file(zSoundName, &sz);
+    nData = sz - szWavHdr;
+    blob_resize(pOut, pOut->nUsed+nData);
+    memcpy(pOut->aData+pOut->nUsed-nData, pData+szWavHdr, nData);
+    if( zHex[i+1]==0 ){
+      int len = pOut->nUsed + 36;
+      memcpy(pOut->aData, pData, szWavHdr);
+      pOut->aData[4] = (char)(len&0xff);
+      pOut->aData[5] = (char)((len>>8)&0xff);
+      pOut->aData[6] = (char)((len>>16)&0xff);
+      pOut->aData[7] = (char)((len>>24)&0xff);
+      len = pOut->nUsed;
+      pOut->aData[40] = (char)(len&0xff);
+      pOut->aData[41] = (char)((len>>8)&0xff);
+      pOut->aData[42] = (char)((len>>16)&0xff);
+      pOut->aData[43] = (char)((len>>24)&0xff);
+    }
+  }
+}
+
+/*
+** WEBPAGE: /captcha-audio
+**
+** Return a WAV file that pronounces the digits of the captcha that
+** is determined by the seed given in the name= query parameter.
+*/
+void captcha_wav_page(void){
+  const char *zSeed = P("name");
+  const char *zDecode = captcha_decode((unsigned int)atoi(zSeed));
+  Blob audio;
+  captcha_wav(zDecode, &audio);
+  cgi_set_content_type("audio/wav");
+  cgi_set_content(&audio);
+}
+
+/*
+** WEBPAGE: /test-captcha-audio
+**
+** Return a WAV file that pronounces the hex digits of the name=
+** query parameter.
+*/
+void captcha_test_wav_page(void){
+  const char *zSeed = P("name");
+  Blob audio;
+  captcha_wav(zSeed, &audio);
+  cgi_set_content_type("audio/wav");
+  cgi_set_content(&audio);
 }

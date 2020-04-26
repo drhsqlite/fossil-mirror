@@ -345,7 +345,7 @@ Instead, makeheaders will write to standard output
 information about every definition and declaration that it encounters
 in its scan of source files.
 The information output includes the type of the definition or
-declaration and any comment that preceeds the definition or
+declaration and any comment that precedes the definition or
 declaration.
 The output is in a format that can be easily parsed, and is
 intended to be read by another program that will generate
@@ -401,7 +401,7 @@ from generating the .h file automatically.
 </p>
 
 <p>
-The structure of a .c file intented for use with makeheaders is very
+The structure of a .c file intended for use with makeheaders is very
 simple.
 All you have to do is add a single &#8220;<code>#include</code>&#8221; to the
 top of the file that sources the header file that makeheaders will generate.
@@ -593,9 +593,9 @@ appear first in the generated headers.
 In my experience, large projects work better if all of the manually
 written code is placed in .c files and all .h files are generated
 automatically.
-This is slightly different for the traditional C method of placing
+This is slightly different from the traditional C method of placing
 the interface in .h files and the implementation in .c files, but
-it is a refreshing change that brings a noticable improvement to the
+it is a refreshing change that brings a noticeable improvement to the
 coding experience.
 Others, I believe, share this view since I've
 noticed recent languages (ex: java, tcl, perl, awk) tend to
@@ -621,7 +621,7 @@ it were a .h file by enclosing that part of the .c file within:
 </pre>
 Thus any structure definitions that appear after the
 &#8220;<code>#if INTERFACE</code>&#8221; but before the corresponding
-&#8220;<code>#endif</code>&#8221; are eligable to be copied into the
+&#8220;<code>#endif</code>&#8221; are eligible to be copied into the
 automatically generated
 .h files of other .c files.
 </p>
@@ -686,7 +686,7 @@ That isn't the complete truth, actually.
 The semantics of C are such that once an object becomes visible
 outside of a single source file, it is also visible to any user
 of the library that is made from the source file.
-Makeheaders can not prevent outsiders for using non-exported resources,
+Makeheaders can not prevent outsiders from using non-exported resources,
 but it can discourage the practice by refusing to provide prototypes
 and declarations for the services it does not want to export.
 Thus the only real effect of the making an object exportable is
@@ -870,7 +870,7 @@ Example1::Example1(){
 <p>
 The first form is preferred because only a single declaration of
 the constructor is required.  The second form requires two declarations,
-one in the class definition and one on the defintion of the constructor.
+one in the class definition and one on the definition of the constructor.
 </p>
 
 <h4>3.6.1 C++ Limitations</h4>
@@ -1075,7 +1075,7 @@ For each of these objects, the following information is output:
      an EXPORT_INTERFACE block) or local (contained with LOCAL_INTERFACE).
 <li> A flag to indicate if the object is declared in a C++ file.
 <li> The name of the file in which the object was declared.
-<li> The complete text of any block comment that preceeds the declarations.
+<li> The complete text of any block comment that precedes the declarations.
 <li> If the declaration occurred inside a preprocessor conditional
      (&#8220;<code>#if</code>&#8221;) then the text of that conditional is
      provided.

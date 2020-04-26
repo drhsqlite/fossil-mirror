@@ -178,14 +178,14 @@ void rebuild_schema_update_2_0(void){
 ** Variables used to store state information about an on-going "rebuild"
 ** or "deconstruct".
 */
-static int totalSize;       /* Total number of artifacts to process */
-static int processCnt;      /* Number processed so far */
-static int ttyOutput;       /* Do progress output */
-static Bag bagDone;         /* Bag of records rebuilt */
+static int totalSize;          /* Total number of artifacts to process */
+static int processCnt;         /* Number processed so far */
+static int ttyOutput;          /* Do progress output */
+static Bag bagDone = Bag_INIT; /* Bag of records rebuilt */
 
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
 static int cchFNamePrefix;  /* Length of directory prefix in zFNameFormat */
-static char *zDestDir;      /* Destination directory on deconstruct */
+static const char *zDestDir;/* Destination directory on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
 static int fKeepRid1;       /* Flag to preserve RID=1 on de- and reconstruct */
 
@@ -203,6 +203,13 @@ static void percent_complete(int permill){
   }
 }
 
+/*
+** Frees rebuild-level cached state. Intended only to be called by the
+** app-level atexit() handler.
+*/
+void rebuild_clear_cache(){
+  bag_clear(&bagDone);
+}
 
 /*
 ** Called after each artifact is processed
@@ -368,7 +375,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   int incrSize;
   Blob sql;
 
-  bag_init(&bagDone);
+  bag_clear(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
   if (ttyOutput && !g.fQuiet) {
@@ -1137,24 +1144,73 @@ void test_hash_from_path_cmd(void) {
 #endif
 
 /*
+** Helper functions used by the `deconstruct' and `reconstruct' commands to
+** save and restore the contents of the PRIVATE table.
+*/
+void private_export(char *zFileName)
+{
+  Stmt q;
+  Blob fctx = empty_blob;
+  blob_append(&fctx, "# The UUIDs of private artifacts\n", -1);
+  db_prepare(&q,
+    "SELECT uuid FROM blob WHERE rid IN ( SELECT rid FROM private );");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    blob_append(&fctx, zUuid, -1);
+    blob_append(&fctx, "\n", -1);
+  }
+  db_finalize(&q);
+  blob_write_to_file(&fctx, zFileName);
+  blob_reset(&fctx);
+}
+void private_import(char *zFileName)
+{
+  Blob fctx;
+  if( blob_read_from_file(&fctx, zFileName, ExtFILE)!=-1 ){
+    Blob line, value;
+    while( blob_line(&fctx, &line)>0 ){
+      char *zUuid;
+      int nUuid;
+      if( blob_token(&line, &value)==0 ) continue;  /* Empty line */
+      if( blob_buffer(&value)[0]=='#' ) continue;   /* Comment */
+      blob_trim(&value);
+      zUuid = blob_buffer(&value);
+      nUuid = blob_size(&value);
+      zUuid[nUuid] = 0;
+      if( hname_validate(zUuid, nUuid)!=HNAME_ERROR ){
+        canonical16(zUuid, nUuid);
+        db_multi_exec(
+          "INSERT OR IGNORE INTO private"
+          " SELECT rid FROM blob WHERE uuid = %Q;",
+          zUuid);
+      }
+    }
+    blob_reset(&fctx);
+  }
+}
+
+/*
 ** COMMAND: reconstruct*
 **
 ** Usage: %fossil reconstruct ?OPTIONS? FILENAME DIRECTORY
 **
-** This command studies the artifacts (files) in DIRECTORY and
-** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME. Subdirectories are read, files
-** with leading '.' in the filename are ignored.
+** This command studies the artifacts (files) in DIRECTORY and reconstructs the
+** Fossil record from them.  It places the new Fossil repository in FILENAME.
+** Subdirectories are read, files with leading '.' in the filename are ignored.
 **
 ** Options:
-**    -K|--keep-rid1    Read the filename of the artifact with
-**                      RID=1 from the file .rid in DIRECTORY.
+**   -K|--keep-rid1     Read the filename of the artifact with RID=1 from the
+**                      file .rid in DIRECTORY.
+**   -P|--keep-private  Mark the artifacts listed in the file .private in
+**                      DIRECTORY as private in the new Fossil repository.
 **
 ** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
+  int fKeepPrivate;
   fKeepRid1 = find_option("keep-rid1","K",0)!=0;
+  fKeepPrivate = find_option("keep-private","P",0)!=0;
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -1177,7 +1233,15 @@ void reconstruct_cmd(void) {
   fossil_print("\nBuilding the Fossil repository...\n");
 
   rebuild_db(0, 1, 1);
+
+  /* Backwards compatibility: Mark check-ins with "+private" tags as private. */
   reconstruct_private_table();
+  /* Newer method: Import the list of private artifacts to the PRIVATE table. */
+  if( fKeepPrivate ){
+    char *zFnDotPrivate = mprintf("%s/.private", g.argv[3]);
+    private_import(zFnDotPrivate);
+    free(zFnDotPrivate);
+  }
 
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
   ** will have been changed and verification therefore takes a really, really
@@ -1197,13 +1261,12 @@ void reconstruct_cmd(void) {
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **
-**
-** This command exports all artifacts of a given repository and
-** writes all artifacts to the file system. The DESTINATION directory
-** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
-** AABBBBBBBBB.. is the 40+ character artifact ID, AA the first 2 characters.
-** If -L|--prefixlength is given, the length (default 2) of the directory
-** prefix can be set to 0,1,..,9 characters.
+** This command exports all artifacts of a given repository and writes all
+** artifacts to the file system.  The DESTINATION directory will be populated
+** with subdirectories AA and files AA/BBBBBBBBB.., where AABBBBBBBBB.. is the
+** 40+ character artifact ID, AA the first 2 characters.
+** If -L|--prefixlength is given, the length (default 2) of the directory prefix
+** can be set to 0,1,..,9 characters.
 **
 ** Options:
 **   -R|--repository REPOSITORY  Deconstruct given REPOSITORY.
@@ -1212,13 +1275,17 @@ void reconstruct_cmd(void) {
 **   -L|--prefixlength N         Set the length of the names of the DESTINATION
 **                               subdirectories to N.
 **   --private                   Include private artifacts.
+**   -P|--keep-private           Save the list of private artifacts to the file
+**                               .private in the DESTINATION directory (implies
+**                               the --private option).
 **
-** See also: rebuild, reconstruct
+** See also: reconstruct, rebuild
 */
 void deconstruct_cmd(void){
   const char *zPrefixOpt;
   Stmt        s;
   int privateFlag;
+  int fKeepPrivate;
 
   fKeepRid1 = find_option("keep-rid1","K",0)!=0;
   /* get and check prefix length argument and build format string */
@@ -1235,6 +1302,8 @@ void deconstruct_cmd(void){
   /* open repository and open query for all artifacts */
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   privateFlag = find_option("private",0,0)!=0;
+  fKeepPrivate = find_option("keep-private","P",0)!=0;
+  if( fKeepPrivate ) privateFlag = 1;
   verify_all_options();
   /* check number of arguments */
   if( g.argc!=3 ){
@@ -1302,6 +1371,14 @@ void deconstruct_cmd(void){
     }
   }
   db_finalize(&s);
+
+  /* Export the list of private artifacts. */
+  if( fKeepPrivate ){
+    char *zFnDotPrivate = mprintf("%s/.private", zDestDir);
+    private_export(zFnDotPrivate);
+    free(zFnDotPrivate);
+  }
+
   if(!g.fQuiet && ttyOutput ){
     fossil_print("\n");
   }

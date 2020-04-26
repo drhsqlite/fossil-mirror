@@ -181,6 +181,21 @@ server round-trip.
 [mainc]: https://fossil-scm.org/fossil/artifact?ln&name=87d67e745
 
 
+### <a id="sxsdiff"></a>Side-by-Side Diff Mode
+
+The default “diff” view is a side-by-side mode. If either of the boxes
+of output — the “from” and “to” versions of the repo contents for that
+check-in — requires a horizontal scroll bar given the box content, font
+size, browser window width, etc., both boxes will usually end up needing
+to scroll since they should contain roughly similar content. Fossil
+therefore scrolls both boxes when you drag the scroll bar on one because
+if you want to examine part of a line scrolled out of the HTML element
+in one box, you probably want to examine the same point on that line in
+the other box.
+
+_Graceful Fallback:_ Manually scroll both boxes to sync their views.
+
+
 ### <a id="sort"></a>Table Sorting
 
 On pages showing a data table, the column headers may be clickable to do

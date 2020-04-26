@@ -147,7 +147,7 @@ div#hbdrop {
 .content blockquote {
     padding: 0 15px;
 }
-div.forumHierRoot blockquote, div.forumHier blockquote, div.forumEdit blockquote {
+div.forumHierRoot blockquote, div.forumHier blockquote, div.forumEdit blockquote, div.forumTime blockquote, div.forumTimeline blockquote {
     background-color: rgba(65, 131, 196, 0.1);
     border-left: 3px solid #254769;
     padding: .1em 1em;

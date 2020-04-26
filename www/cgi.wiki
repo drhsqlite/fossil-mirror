@@ -138,3 +138,8 @@ This parameter can be repeated as many times as necessary.
 <h2 id="HOME">HOME: <i>PATH</i></h2>
 
 This parameter is a short-hand for "<b>setenv HOME <i>PATH</i></b>".
+
+<h2 id="cgi-debug">cgi-debug: <i>FILE</i></h2>
+
+Cause CGI-related debugging information to be appended in <i>FILE</i>.  Use
+this to help debug CGI problems.

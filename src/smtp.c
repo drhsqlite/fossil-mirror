@@ -600,6 +600,7 @@ static const char *domainOfAddr(const char *z){
 ** Options:
 **
 **      --direct              Go directly to the TO domain.  Bypass MX lookup
+**      --relayhost R         Use R as relay host directly for delivery.
 **      --port N              Use TCP port N instead of 25
 **      --trace               Show the SMTP conversation on the console
 */
@@ -609,6 +610,7 @@ void test_smtp_send(void){
   int nTo;
   const char *zToDomain;
   const char *zFromDomain;
+  const char *zRelay;
   const char **azTo;
   int smtpPort = 25;
   const char *zPort;
@@ -618,6 +620,7 @@ void test_smtp_send(void){
   if( find_option("direct",0,0)!=0 ) smtpFlags |= SMTP_DIRECT;
   zPort = find_option("port",0,1);
   if( zPort ) smtpPort = atoi(zPort);
+  zRelay = find_option("relayhost",0,1);
   verify_all_options();
   if( g.argc<5 ) usage("EMAIL FROM TO ...");
   blob_read_from_file(&body, g.argv[2], ExtFILE);
@@ -625,7 +628,12 @@ void test_smtp_send(void){
   nTo = g.argc-4;
   azTo = (const char**)g.argv+4;
   zFromDomain = domainOfAddr(zFrom);
-  zToDomain = domainOfAddr(azTo[0]);
+  if( zRelay!=0 && zRelay[0]!= 0) {
+    smtpFlags |= SMTP_DIRECT;
+    zToDomain = zRelay;
+  }else{
+    zToDomain = domainOfAddr(azTo[0]);
+  }
   p = smtp_session_new(zFromDomain, zToDomain, smtpFlags, smtpPort);
   if( p->zErr ){
     fossil_fatal("%s", p->zErr);

@@ -429,14 +429,47 @@ void help_page(void){
 */
 void test_all_help_page(void){
   int i;
+  Blob buf;
+  blob_init(&buf,0,0);
   style_header("All Help Text");
+  @ <dl>
   for(i=0; i<MX_COMMAND; i++){
+    const char *zDesc;
+    unsigned int e = aCommand[i].eCmdFlags;
+    if( e & CMDFLAG_1ST_TIER ){
+      zDesc = "1st tier command";
+    }else if( e & CMDFLAG_2ND_TIER ){
+      zDesc = "2nd tier command";
+    }else if( e & CMDFLAG_TEST ){
+      zDesc = "test command";
+    }else if( e & CMDFLAG_WEBPAGE ){
+      if( e & CMDFLAG_RAWCONTENT ){
+        zDesc = "raw-content web page";
+      }else{
+        zDesc = "web page";
+      }
+    }else{
+      blob_reset(&buf);
+      if( e & CMDFLAG_VERSIONABLE ){
+        blob_appendf(&buf, "versionable ");
+      }
+      if( e & CMDFLAG_BLOCKTEXT ){
+        blob_appendf(&buf, "block-text ");
+      }
+      if( e & CMDFLAG_BOOLEAN ){
+        blob_appendf(&buf, "boolean ");
+      }
+      blob_appendf(&buf,"setting");
+      zDesc = blob_str(&buf);
+    }
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
-    @ <h2>%s(aCommand[i].zName):</h2>
-    @ <blockquote>
+    @ <dt><big><b>%s(aCommand[i].zName)</b></big> (%s(zDesc))</dt>
+    @ <dd>
     help_to_html(aCommand[i].zHelp, cgi_output_blob());
-    @ </blockquote>
+    @ </dd>
   }
+  @ </dl>
+  blob_reset(&buf);
   style_footer();
 }
 

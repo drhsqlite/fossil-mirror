@@ -206,11 +206,15 @@ static int et_getdigit(long double *val, int *cnt){
 ** N bytes then return N.  If N is negative, then this routine
 ** is an alias for strlen().
 */
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+# define StrNLen32(Z,N) (int)strnlen(Z,N)
+#else
 static int StrNLen32(const char *z, int N){
   int n = 0;
   while( (N-- != 0) && *(z++)!=0 ){ n++; }
   return n;
 }
+#endif
 
 /*
 ** Return an appropriate set of flags for wiki_convert() for displaying

@@ -698,6 +698,11 @@ td.tktDspValue {
   vertical-align: top;
 }
 
+/* Tickets on timelines */
+td.tktTlOpen {
+  color: #ffa0a0;
+}
+
 /* format for ticket error messages */
 span.tktError {
   color: #f00;

@@ -81,7 +81,7 @@ static cson_value * json_branch_list(){
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   if(fossil_has_json()){
-      range = json_getenv_cstr("range");
+    range = json_getenv_cstr("range");
   }
 
   range = json_find_option_cstr("range",NULL,"r");
@@ -268,9 +268,6 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   }
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
-  if( zOpt->isPrivate ){
-    blob_appendf(&branch, "T +private *\n");
-  }
 
   /* Cancel all other symbolic tags */
   db_prepare(&q,
@@ -289,7 +286,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
 
-  brid = content_put(&branch);
+  brid = content_put_ex(&branch, 0, 0, 0, zOpt->isPrivate);
   if( brid==0 ){
     fossil_panic("Problem committing manifest: %s", g.zErrMsg);
   }

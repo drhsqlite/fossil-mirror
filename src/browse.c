@@ -124,7 +124,6 @@ void page_dir(void){
   char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
-  int n;
   char *zPrefix;
   Stmt q;
   const char *zCI = P("ci");
@@ -271,11 +270,10 @@ void page_dir(void){
   ** directory.
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
-  n = db_int(1,"SELECT count(*) FROM localfiles; /*scan*/");
   if( mxLen<12 ) mxLen = 12;
   mxLen += (mxLen+9)/10;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
-  @ <div class="columns" style="columns: %d(mxLen)ex %d(n);">
+  @ <div class="columns files" style="columns: %d(mxLen)ex auto">
   @ <ul class="browser">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFN;
@@ -922,7 +920,7 @@ static const char zComputeFileAgeRun[] =
 */
 int compute_fileage(int vid, const char* zGlob){
   Stmt q;
-  db_multi_exec(zComputeFileAgeSetup /*works-like:"constant"*/);
+  db_exec_sql(zComputeFileAgeSetup);
   db_prepare(&q, zComputeFileAgeRun  /*works-like:"constant"*/);
   db_bind_int(&q, ":ckin", vid);
   db_bind_text(&q, ":glob", zGlob && zGlob[0] ? zGlob : "*");

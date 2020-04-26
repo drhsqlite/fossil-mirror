@@ -102,6 +102,39 @@ const char *ext_pathname_ok(const char *zName){
 }
 
 /*
+** The *pzPath input is a pathname obtained from mprintf().
+**
+** If
+**
+**   (1) zPathname is the name of a directory, and
+**   (2) the name ends with "/", and
+**   (3) the directory contains a file named index.html, index.wiki,
+**       or index.md (in that order)
+**
+** then replace the input with a revised name that includes the index.*
+** file and return non-zero (true).  If any condition is not met, return
+** zero and leave the input pathname unchanged.
+*/
+static int isDirWithIndexFile(char **pzPath){
+  static const char *azIndexNames[] = {
+    "index.html", "index.wiki", "index.md"
+  };
+  int i;
+  if( file_isdir(*pzPath, ExtFILE)!=1 ) return 0;
+  if( sqlite3_strglob("*/", *pzPath)!=0 ) return 0;
+  for(i=0; i<sizeof(azIndexNames)/sizeof(azIndexNames[0]); i++){
+    char *zNew = mprintf("%s%s", *pzPath, azIndexNames[i]);
+    if( file_isfile(zNew, ExtFILE) ){
+      fossil_free(*pzPath);
+      *pzPath = zNew;
+      return 1;
+    }
+    fossil_free(zNew);
+  }
+  return 0;
+}
+
+/*
 ** WEBPAGE: ext  raw-content
 **
 ** Relay an HTTP request to secondary CGI after first checking the
@@ -122,6 +155,11 @@ const char *ext_pathname_ok(const char *zName){
 ** other than ASCII letters or digits, ".", "-", "/", and "_".  If the
 ** "." or "-" characters are present in the path then they may not follow
 ** a "/".
+**
+** If the path after /ext ends with "/" and is the name of a directory then
+** that directory is searched for files named "index.html", "index.wiki",
+** and "index.md" (in that order) and if found, those filenames are
+** appended to the path.
 */
 void ext_page(void){
   const char *zName = P("name");  /* Path information after /ext */
@@ -166,7 +204,7 @@ void ext_page(void){
   }
   zPath = mprintf("%s/%s", g.zExtRoot, zName);
   nRoot = (int)strlen(g.zExtRoot);
-  if( file_isfile(zPath, ExtFILE) ){
+  if( file_isfile(zPath, ExtFILE) || isDirWithIndexFile(&zPath) ){
     nScript = (int)strlen(zPath);
     zScript = zPath;
   }else{

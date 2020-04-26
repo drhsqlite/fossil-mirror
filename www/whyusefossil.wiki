@@ -201,14 +201,15 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
   <li><p>Command: <b>merge</b> &rarr;
       combines the work of multiple check-ins into
       a single check-out.  That check-out can then be committed to create
-      a new that has two (or more) parents.
+      a new check-in that has two (or more) parents.
       <ul>
       <li><p>Most check-ins have just one parent, and either zero or
           one child.
       <li><p>When a check-in has two or more parents, one of those parents
-          is the "primary parent". All the other parent nodes are "secondary".
+          is the "primary parent". All the other parent nodes are "secondary"
+          or "merge" parents.
           Conceptually, the primary parent shows the main line of
-          development.  Content from the secondary parents is added
+          development.  Content from the merge parents is added
           into the main line.
       <li><p>The "direct children" of a check-in X are all children that
           have X as their primary parent.
@@ -223,6 +224,8 @@ version control<br>such as Git, Mercurial, or Subversion.</b></p>
       together in the DAG through the primary parent.
        <ul>
        <li><p>Branches are often given names which propagate to direct children.
+           The tradition in Fossil is to call the main branch "trunk".  In
+           Git, the main branch is usually called "master".
        <li><p>It is possible to have multiple branches with the same name.
           Fossil has no problem with this, but it can be confusing to
           humans, so best practice is to give each branch a unique name.

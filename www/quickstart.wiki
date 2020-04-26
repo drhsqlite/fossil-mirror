@@ -1,7 +1,7 @@
 <title>Fossil Quick Start Guide</title>
 <h1 align="center">Fossil Quick Start</h1>
 
-<p>This is a guide to get you started using fossil quickly
+<p>This is a guide to help you get started using Fossil quickly
 and painlessly.</p>
 
 <h2 id="install">Installing</h2>
@@ -11,7 +11,7 @@ and painlessly.</p>
     <a href="https://www.fossil-scm.org/fossil/uv/download.html">precompiled
     binary</a>
     or <a href="build.wiki">compile it yourself</a> from sources.
-    Install fossil by putting the fossil binary
+    Install Fossil by putting the fossil binary
     someplace on your $PATH.</p>
 
 <a name="fslclone"></a>
@@ -393,11 +393,13 @@ and painlessly.</p>
     <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>
     </blockquote>
 
-<h2>More Hints</h2>
+<h2 id="links">Other Resources</h2>
 
-    <p>A [/help | complete list of commands] is available, as is the
-    [./hints.wiki|helpful hints] document.  See the
-    [./permutedindex.html#pindex|permuted index] for additional
-    documentation.
-
-    <p>Explore and have fun!</p>
+   <ul>
+   <li> <a href="./gitusers.md">Hints for users with prior Git experience</a>
+   <li> <a href="./whyusefossil.wiki">Benefits Of Version Control</a>
+   <li> <a href="./history.md">The Purpose And History of Fossil</a>
+   <li> <a href="./branching.wiki">Branching, Forking, Merge, and Taggings</a>
+   <li> <a href="./hints.wiki">Tips and Usage Hints</a>
+   <li> <a href="./permutedindex.html">Comprehensive documentation index</a>
+   </ul>
