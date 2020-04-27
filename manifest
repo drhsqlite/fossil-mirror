@@ -1,5 +1,5 @@
-C Add\sthe\s"tls-config"\scommand\sfor\smanaging\sthe\sOpenSSL\sconfiguration\nand\sfor\sviewing\sand\sdeleting\scertificate\sexceptions.
-D 2020-04-27T15:26:07.393
+C Rework\sthe\sSSL\scert\sexception\smechanism\sso\sthat\sit\sremembers\sthe\sSHA3\nhash\sof\sthe\scert\sthat\sfailed\sto\sverify,\srather\sthan\sthe\sPEM\sof\sthe\scomplete\ncert.\s\sSimplify\sthe\serror\sprompts.\s\sAlways\sverify\sthe\scert\shash\sbefore\naccepting\sthe\sexception.
+D 2020-04-27T16:53:37.253
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -494,7 +494,7 @@ F src/hname.c d1fa756731d0a1a3dcb66a6421d2e3accb876ffc8ff5b6f66f64721285f155f6
 F src/href.js a9b56e6540f6b438ad068144ee8572c8080fb6787aed05fe1bd5f6c879f7fa56
 F src/http.c b9938ada406eb1f563f68ca2719a91b3d2bda167e2262f15798aa43ec603e205
 F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833dcbbb
-F src/http_ssl.c 09476725e887ecc1d4210db110969f861ba41767540bff3eea1cb6a315d7a7b4
+F src/http_ssl.c 4a058c67ecf8cf3273ee932504c7af310c353967e63d31a648461d9f1d0fd405
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
 F src/info.c 604b68c2258c337f18690aaffbe61a1106cf4b35e425eb2455c3c64e7e87bea8
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 455b2aa67b62b5eb4b47ed111d8fe2ac33397873556849f790e736ee25a2eeb6
-R 7bc95531d597d38279a9e114e9b7c579
+P bc236201210bfeeee4c24c0055d45df8f699fac196c1f2fe6b2e53c4c688d222
+R fb12c2d6a9522c883675a3717d2454ee
 U drh
-Z 8d2ab40488482be3d21af2118a13a113
+Z e6291cb5f956ccdba62a3672a1d49528

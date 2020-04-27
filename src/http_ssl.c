@@ -48,7 +48,11 @@ static BIO *iBio = 0;        /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
 static SSL *ssl;
-
+static struct {              /* Accept this SSL cert for this session only */
+  char *zHost;                  /* Subject or host name */
+  char *zHash;                  /* SHA3 hash of the cert */
+} sException;
+static int sslNoCertVerify = 0;  /* Do not verify SSL certs */
 
 /*
 ** Clear the SSL error message
@@ -228,6 +232,17 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
 }
 
 /*
+** Invoke this routine to disable SSL cert verification.  After
+** this call is made, any SSL cert that the server provides will
+** be accepted.  Communication will still be encrypted, but the
+** client has no way of knowing whether it is talking to the
+** real server or a man-in-the-middle imposter.
+*/
+int ssl_disable_cert_verification(void){
+  sslNoCertVerify = 1;  
+}
+
+/*
 ** Open an SSL connection.  The identify of the server is determined
 ** as follows:
 **
@@ -239,22 +254,9 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
 */
 int ssl_open(UrlData *pUrlData){
   X509 *cert;
-  int hasSavedCertificate = 0;
-  int trusted = 0;
   unsigned long e;
 
   ssl_global_init();
-
-  /* Get certificate for current server from global config and
-   * (if we have it in config) add it to certificate store.
-   */
-  cert = ssl_get_certificate(pUrlData, &trusted);
-  if ( cert!=NULL ){
-    X509_STORE_add_cert(SSL_CTX_get_cert_store(sslCtx), cert);
-    X509_free(cert);
-    hasSavedCertificate = 1;
-  }
-
   if( pUrlData->useProxy ){
     int rc;
     char *connStr = mprintf("%s:%d", g.url.name, pUrlData->port);
@@ -328,66 +330,61 @@ int ssl_open(UrlData *pUrlData){
     return 1;
   }
 
-  if( trusted<=0 && (e = SSL_get_verify_result(ssl)) != X509_V_OK ){
+  if( !sslNoCertVerify && SSL_get_verify_result(ssl)!=X509_V_OK ){
     char *desc, *prompt;
-    const char *warning = "";
     Blob ans;
     char cReply;
     BIO *mem;
     unsigned char md[32];
-    unsigned int mdLength = 31;
+    char zHash[32*2+1];
+    unsigned int mdLength = (int)sizeof(md);
 
-    mem = BIO_new(BIO_s_mem());
-    X509_NAME_print_ex(mem, X509_get_subject_name(cert), 2, XN_FLAG_MULTILINE);
-    BIO_puts(mem, "\n\nIssued By:\n\n");
-    X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 2, XN_FLAG_MULTILINE);
-    BIO_puts(mem, "\n\nSHA1 Fingerprint:\n\n ");
-    if(X509_digest(cert, EVP_sha1(), md, &mdLength)){
+    memset(md, 0, sizeof(md));
+    zHash[0] = 0;
+    if( X509_digest(cert, EVP_sha3_256(), md, &mdLength) ){
       int j;
-      for( j = 0; j < mdLength; ++j ) {
-        BIO_printf(mem, " %02x", md[j]);
+      for(j=0; j<mdLength && j*2+1<sizeof(zHash); ++j){
+        zHash[j*2] = "0123456789abcdef"[md[j]>>4];
+        zHash[j*2+1] = "0123456789abcdef"[md[j]&0xf];
       }
+      zHash[j*2] = 0;
     }
-    BIO_write(mem, "", 1); /* nul-terminate mem buffer */
-    BIO_get_mem_data(mem, &desc);
 
-    if( hasSavedCertificate ){
-      warning = "WARNING: Certificate doesn't match the "
-                "saved certificate for this host!";
-    }
-    prompt = mprintf("\nSSL verification failed: %s\n"
-        "Certificate received: \n\n%s\n\n%s\n"
-        "Either:\n"
-        " * verify the certificate is correct using the "
-        "SHA1 fingerprint above\n"
-        " * use the global ssl-ca-location setting to specify your CA root\n"
-        "   certificates list\n\n"
-        "If you are not expecting this message, answer no and "
-        "contact your server\nadministrator.\n\n"
-        "Accept certificate for host %s (a=always/y/N)? ",
-        X509_verify_cert_error_string(e), desc, warning,
-        pUrlData->useProxy?pUrlData->hostname:pUrlData->name);
-    BIO_free(mem);
-
-    prompt_user(prompt, &ans);
-    free(prompt);
-    cReply = blob_str(&ans)[0];
-    blob_reset(&ans);
-    if( cReply!='y' && cReply!='Y' && cReply!='a' && cReply!='A') {
-      X509_free(cert);
-      ssl_set_errmsg("SSL certificate declined");
-      ssl_close();
-      return 1;
-    }
-    if( cReply=='a' || cReply=='A') {
-      if ( trusted==0 ){
-        prompt_user("\nSave this certificate as fully trusted (a=always/N)? ",
-                    &ans);
-        cReply = blob_str(&ans)[0];
-        trusted = ( cReply=='a' || cReply=='A' );
-        blob_reset(&ans);
+    if( ssl_certificate_exception_exists(pUrlData, zHash) ){
+      /* Ignore the failure because an exception exists */
+      ssl_one_time_exception(pUrlData, zHash);
+    }else{
+      /* Tell the user about the failure and ask what to do */
+      mem = BIO_new(BIO_s_mem());
+      BIO_puts(mem,     "  subject: ");
+      X509_NAME_print_ex(mem, X509_get_subject_name(cert), 0, XN_FLAG_ONELINE);
+      BIO_puts(mem,   "\n  issuer:  ");
+      X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 0, XN_FLAG_ONELINE);
+      BIO_printf(mem, "\n  sha256:  %s", zHash);
+      BIO_get_mem_data(mem, &desc);
+  
+      prompt = mprintf("Unable to verify SSL cert from %s\n%s\n"
+          "accept this cert and continue (y/N)? ",
+          pUrlData->name, desc);
+      BIO_free(mem);
+  
+      prompt_user(prompt, &ans);
+      free(prompt);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+      if( cReply!='y' && cReply!='Y' ){
+        X509_free(cert);
+        ssl_set_errmsg("SSL cert declined");
+        ssl_close();
+        return 1;
       }
-      ssl_save_certificate(pUrlData, cert, trusted);
+      ssl_one_time_exception(pUrlData, zHash);
+      prompt_user("remember this exception (y/N)? ", &ans);
+      cReply = blob_str(&ans)[0];
+      if( cReply=='y' || cReply=='Y') {
+        ssl_remember_certificate_exception(pUrlData, zHash);
+      }
+      blob_reset(&ans);
     }
   }
 
@@ -418,56 +415,49 @@ int ssl_open(UrlData *pUrlData){
 }
 
 /*
-** Save certificate to global config.
+** Remember that the cert with the given hash is a acceptable for
+** use with pUrlData->name.
 */
-void ssl_save_certificate(UrlData *pUrlData, X509 *cert, int trusted){
-  BIO *mem;
-  char *zCert, *zHost;
-
-  mem = BIO_new(BIO_s_mem());
-  PEM_write_bio_X509(mem, cert);
-  BIO_write(mem, "", 1); /* nul-terminate mem buffer */
-  BIO_get_mem_data(mem, &zCert);
-  zHost = mprintf("cert:%s",
-            pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
-  db_set(zHost, zCert, 1);
-  free(zHost);
-  zHost = mprintf("trusted:%s",
-                  pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
-  db_set_int(zHost, trusted, 1);
-  free(zHost);
-  BIO_free(mem);
+LOCAL void ssl_remember_certificate_exception(
+  UrlData *pUrlData,
+  const char *zHash
+){
+  char *zName = mprintf("cert:%s", pUrlData->name);
+  db_set(zName, zHash, 1);
+  fossil_free(zName);
 }
 
 /*
-** Get certificate for pUrlData->urlName from global config.
-** Return NULL if no certificate found.
+** Return true if the there exists a certificate exception for
+** pUrlData->name that matches the hash.
 */
-X509 *ssl_get_certificate(UrlData *pUrlData, int *pTrusted){
-  char *zHost, *zCert;
-  BIO *mem;
-  X509 *cert;
-
-  zHost = mprintf("cert:%s",
-      pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
-  zCert = db_get(zHost, NULL);
-  free(zHost);
-  if ( zCert==NULL )
-    return NULL;
-
-  if ( pTrusted!=0 ){
-    zHost = mprintf("trusted:%s",
-             pUrlData->useProxy ? pUrlData->hostname : pUrlData->name);
-    *pTrusted = db_get_int(zHost, 0);
-    free(zHost);
+LOCAL int ssl_certificate_exception_exists(
+  UrlData *pUrlData,
+  const char *zHash
+){
+  char *zName, *zValue;
+  if( fossil_strcmp(sException.zHost,pUrlData->name)==0
+   && fossil_strcmp(sException.zHash,zHash)==0
+  ){
+    return 1;
   }
+  zName = mprintf("cert:%s", pUrlData->name);
+  zValue = db_get(zName,0);
+  fossil_free(zName);
+  return zValue!=0 && strcmp(zHash,zValue)==0;
+}
 
-  mem = BIO_new(BIO_s_mem());
-  BIO_puts(mem, zCert);
-  cert = PEM_read_bio_X509(mem, NULL, 0, NULL);
-  free(zCert);
-  BIO_free(mem);
-  return cert;
+/*
+** Remember zHash as an acceptable certificate for this session only.
+*/
+LOCAL int ssl_one_time_exception(
+  UrlData *pUrlData,
+  const char *zHash
+){
+  fossil_free(sException.zHost);
+  sException.zHost = fossil_strdup(pUrlData->name);
+  fossil_free(sException.zHash);
+  sException.zHost = fossil_strdup(zHash);
 }
 
 /*
