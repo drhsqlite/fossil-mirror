@@ -50,7 +50,7 @@ static SSL_CTX *sslCtx;      /* SSL context */
 static SSL *ssl;
 static struct {              /* Accept this SSL cert for this session only */
   char *zHost;                  /* Subject or host name */
-  char *zHash;                  /* SHA3 hash of the cert */
+  char *zHash;                  /* SHA2-256 hash of the cert */
 } sException;
 static int sslNoCertVerify = 0;  /* Do not verify SSL certs */
 
@@ -340,7 +340,7 @@ int ssl_open(UrlData *pUrlData){
 
     memset(md, 0, sizeof(md));
     zHash[0] = 0;
-    if( X509_digest(cert, EVP_sha3_256(), md, &mdLength) ){
+    if( X509_digest(cert, EVP_sha256(), md, &mdLength) ){
       int j;
       for(j=0; j<mdLength && j*2+1<sizeof(zHash); ++j){
         zHash[j*2] = "0123456789abcdef"[md[j]>>4];
