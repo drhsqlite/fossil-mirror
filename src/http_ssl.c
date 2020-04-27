@@ -238,7 +238,7 @@ static int establish_proxy_tunnel(UrlData *pUrlData, BIO *bio){
 ** client has no way of knowing whether it is talking to the
 ** real server or a man-in-the-middle imposter.
 */
-int ssl_disable_cert_verification(void){
+void ssl_disable_cert_verification(void){
   sslNoCertVerify = 1;  
 }
 
@@ -254,7 +254,6 @@ int ssl_disable_cert_verification(void){
 */
 int ssl_open(UrlData *pUrlData){
   X509 *cert;
-  unsigned long e;
 
   ssl_global_init();
   if( pUrlData->useProxy ){
@@ -450,14 +449,14 @@ LOCAL int ssl_certificate_exception_exists(
 /*
 ** Remember zHash as an acceptable certificate for this session only.
 */
-LOCAL int ssl_one_time_exception(
+LOCAL void ssl_one_time_exception(
   UrlData *pUrlData,
   const char *zHash
 ){
   fossil_free(sException.zHost);
   sException.zHost = fossil_strdup(pUrlData->name);
   fossil_free(sException.zHash);
-  sException.zHost = fossil_strdup(zHash);
+  sException.zHash = fossil_strdup(zHash);
 }
 
 /*
