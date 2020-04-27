@@ -2674,3 +2674,246 @@ void commit_cmd(void){
     fossil_print("**** warning: a fork has occurred *****\n");
   }
 }
+
+#if INTERFACE
+/*
+** State for the "web-checkin" infrastructure, which enables the
+** ability to commit changes to a single file via an HTTP request.
+ */
+struct CheckinWebInfo {
+  Blob comment;               /* Check-in comment text */
+  char *zMimetype;            /* Mimetype of check-in command.  May be NULL */
+  Manifest * pParent;         /* parent checkin */
+  const char *zUser;          /* User name */
+  char *zFilename;            /* Name of single file to commit. */
+  Blob fileContent;           /* Content of the modified file. */
+  Blob fileHash;              /* Hash of this->fileContent */
+};
+#endif /* INTERFACE */
+
+static void CheckinWebInfo_init( CheckinWebInfo * p ){
+  memset(p, 0, sizeof(struct CheckinWebInfo));
+  p->comment = p->fileContent = p->fileHash = empty_blob;
+}
+
+static void CheckinWebInfo_cleanup( CheckinWebInfo * p ){
+  blob_reset(&p->comment);
+  blob_reset(&p->fileContent);
+  blob_reset(&p->fileHash);
+  if(p->pParent){
+    manifest_destroy(p->pParent);
+  }
+  fossil_free(p->zFilename);
+  fossil_free(p->zMimetype);
+  CheckinWebInfo_init(p);
+}
+
+/*
+** Creates a manifest file, written to pOut, from the state in the
+** fully-populated pCI argument. On error, returns non-0 and, if
+** pErr is not NULL, writes an error message there.
+*/
+static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
+                                Blob * pErr){
+  Blob zCard = empty_blob;
+  ManifestFile *zFile;
+  int cmp = -99;
+  const char *zPerm = "";
+  const char *zFilename = 0;
+  const char *zUuid = 0;
+  int (*fncmp)(char const *, char const *) =
+    filenames_are_case_sensitive()
+    ? fossil_strcmp
+    : fossil_stricmp;
+
+#define mf_err(MSG) if(pErr) blob_append(pErr,MSG,-1); return 1
+  /* Potential TODOs include...
+  ** - Create a delta manifest, if possible, rather than a baseline.
+  ** - Enable adding of new files? It's implemented by disabled until
+  **   we at least ensure that pCI->zFilename is a path-relative
+  **   filename.
+  ** - Maybe add support for tags. Those can be edited via /info page.
+  ** - Check for a commit to a closed leaf and re-open it.
+  */
+  blob_zero(pOut);
+  if(blob_size(&pCI->comment)!=0){
+    blob_appendf(pOut, "C %F\n", blob_str(&pCI->comment));
+  }else{
+    blob_append(pOut, "C (no\\scomment)\n", 16);
+  }
+  blob_appendf(pOut, "D %z\n", date_in_standard_format("now"));
+
+  manifest_file_rewind(pCI->pParent);
+  while((zFile = manifest_file_next(pCI->pParent, 0))){
+    cmp = fncmp(zFile->zName, pCI->zFilename);
+    if(cmp<0){
+      blob_appendf(pOut, "F %F %s%s\n", zFile->zName, zFile->zUuid,
+                   zFile->zPerm);
+    }else{
+      break;
+    }
+  }
+  if(cmp==0){ /* Match */
+    const int perm = manifest_file_mperm(zFile);
+    if(PERM_LNK==perm){
+      mf_err("Cannot commit symlinks with this approach.");
+    }
+    zPerm = PERM_EXE==perm ? " x" : "";
+    zFilename = zFile->zName
+      /* use original name in case of case difference */;
+    zUuid = blob_str(&pCI->fileHash);
+  }else{
+    /* This is a new file. */
+    zFilename = pCI->zFilename;
+    zPerm = "";
+    zUuid = blob_str(&pCI->fileHash);
+    if(cmp>0){
+      assert(zFile!=0);
+      assert(pCI->pParent->iFile>0);
+      --pCI->pParent->iFile
+        /* so that the next step picks up that entry again */;
+    }
+  }
+  assert(zFilename);
+  assert(zUuid);
+  assert(zPerm);
+  blob_appendf(pOut, "F %F %s%s\n", zFilename, zUuid, zPerm);
+  while((zFile = manifest_file_next(pCI->pParent, 0))){
+    cmp = fncmp(zFile->zName, pCI->zFilename);
+    assert(cmp>0);
+    if(cmp<=0){
+      mf_err("Mis-ordering of F-cards.");
+    }
+    blob_appendf(pOut, "F %F %s%s%s\n",
+                 zFile->zName, zFile->zUuid,
+                 (zFile->zPerm && *zFile->zPerm) ? " " : "",
+                 (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
+  }
+
+  if(pCI->zMimetype){
+    blob_appendf(pOut, "N %F\n", pCI->zMimetype);
+  }
+
+  blob_appendf(pOut, "P %z\n",
+               db_text(0,"SELECT uuid FROM blob WHERE rid=%d",
+                       pCI->pParent->rid));
+  blob_appendf(pOut, "U %F\n", pCI->zUser);
+  md5sum_blob(pOut, &zCard);
+  blob_appendf(pOut, "Z %b\n", &zCard);
+  blob_reset(&zCard);
+  return 0;
+#undef mf_err
+}
+
+/*
+** EXPERIMENTAL! A so-called "web checkin" is a slimmed-down form of
+** the checkin command which accepts only a single file and is
+** intended to accept edits to a file via the web interface.
+**
+** This routine uses the state from the given fully-populated pCI
+** argument to add pCI->fileContent to the database, and create and
+** save a manifest for that change.
+**
+** Fails fatally on error. If pRid is not NULL, the RID of the
+** resulting manifest is written to *pRid. If bDryRun is true,
+** it rolls back its transaction, else it commits as usual.
+**
+*/
+void checkin_web( CheckinWebInfo * pCI, int *pRid, int bDryRun ){
+  Blob mf = empty_blob;
+  Blob err = empty_blob;
+  int rid = 0, frid = 0;
+  const int isPrivate = content_is_private(pCI->pParent->rid);
+  ManifestFile * zFile;
+
+  db_begin_transaction();
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
+    fossil_fatal("no such user: %s", pCI->zUser);
+  }
+  manifest_file_rewind(pCI->pParent);
+  zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
+  if(!zFile){
+    fossil_fatal("File [%s] not found in manifest. "
+                 "Adding new files is currently not allowed.",
+                 pCI->zFilename);
+  }
+  if(create_manifest_web(&mf, pCI, &err)!=0){
+    fossil_fatal("create_manifest_web() failed: %B", &err);
+  }
+  frid = content_put_ex(&pCI->fileContent, blob_str(&pCI->fileHash),
+                        0, 0, isPrivate);
+  manifest_file_rewind(pCI->pParent);
+  zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
+  if(zFile!=0){
+    int prevFRid = db_int(0,"SELECT rid FROM blob WHERE uuid=%Q",
+                          zFile->zUuid);
+    assert(prevFRid>0);
+    content_deltify(frid, &prevFRid, 1, 0);
+  }
+  rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
+  if(pRid!=0){
+    *pRid = rid;
+  }
+  fossil_print("Manifest:\n%b", &mf);
+  manifest_crosslink(rid, &mf, 0);
+  if(bDryRun){
+    fossil_print("Rolling back transaction.\n");
+  }
+  db_end_transaction(bDryRun ? 1 : 0);
+  blob_reset(&mf);
+}
+
+/*
+** COMMAND: test-ci-web
+**
+** This is an on-going experiment, subject to change or removal at
+** any time.
+**
+** Usage: %fossil ?OPTIONS? FILENAME
+**
+** where FILENAME is a repo-relative name as it would appear in the
+** vfile table.
+*/
+void test_ci_one_cmd(){
+  CheckinWebInfo cinf;
+  int parentVid = 0, newRid = 0;
+  const char * zFilename;
+  const char * zComment;
+  const char * zAsFilename;
+  int wetRunFlag = 0;
+
+  if(g.argc<3){
+    usage("INFILE");
+  }
+  db_find_and_open_repository(0, 0);
+  wetRunFlag = find_option("wet-run",0,0)!=0;
+  zComment = find_option("comment","m",1);
+  zAsFilename = find_option("as",0,1);
+  verify_all_options();
+  user_select();
+
+  zFilename = g.argv[2];
+  CheckinWebInfo_init(&cinf);
+  blob_append(&cinf.comment,
+              zComment ? zComment : "This is a test comment.",
+              -1);
+  cinf.zFilename = mprintf("%s", zAsFilename ? zAsFilename : zFilename);
+  cinf.zUser = login_name();
+
+  cinf.pParent = manifest_get_by_name("trunk", &parentVid);
+  assert(parentVid>0);
+  assert(cinf.pParent!=0);
+  blob_read_from_file(&cinf.fileContent, zFilename,
+                      ExtFILE/*may want to reconsider*/);
+  sha3sum_init(256);
+  sha3sum_step_blob(&cinf.fileContent);
+  sha3sum_finish(&cinf.fileHash);
+  checkin_web(&cinf, &newRid, wetRunFlag ? 0 : 1);
+  CheckinWebInfo_cleanup(&cinf);
+  if(wetRunFlag!=0 && newRid!=0 && g.localOpen!=0){
+    fossil_warning("The checkout state is now out of sync "
+                   "with regards to this commit. It needs to be "
+                   "'update'd or 'close'd and re-'open'ed.");
+    /* vfile_check_signature(newRid,0); does not do the trick */
+  }
+}
