@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sCSS\seditor.
-D 2020-04-27T17:57:58.571
+C Enhance\sthe\s"fossil\suv"\scommand\sto\smake\suse\sof\sGLOB\sand\sLIKE\spatterns.
+D 2020-04-27T18:33:20.029
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -611,7 +611,7 @@ F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde6555652
 F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c fbb75d065fa2a229a1f7cbb36f9589dc8fe500d16381d8aad31dadae3a9e5bd9
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
-F src/unversioned.c 227f616ce7c2d1b8dd8c979ba362ffdb43cd4c48ac931d806f6dc4ac54ebf3b1
+F src/unversioned.c 5c11c67198d2d38cfe290381816d86767e9a36b858467f4bc3a070ab4eaf30c1
 F src/update.c 65025982df907734b207a6203373e5c123280985493ff0afea2405df14cf0f08
 F src/url.c fb48fa80503f2addd29c098e83593c10439f08c95f6eb4bb3282269f4a86228a
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
@@ -978,8 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3b529d9cd461b713c760ffaa7e4e603322b0f89b3870a0a86932fcdfe6ca9bcc fd138236c9418cd9f38dc00ffa5cf911336e8f4651fef98187e4436b71dbccfb
-R 3ba9fa7ab7af4b2487e232a3baf12f49
-T +closed fd138236c9418cd9f38dc00ffa5cf911336e8f4651fef98187e4436b71dbccfb
+P a8967ca91c46f37eb16f34ca51740b0513875ec6cfeb5fb91f24466940629732
+R 7e6e29239eb5cdc8c5d806db45ae5d53
 U drh
-Z d46e0b4f3796cc10b2c86a22523e611f
+Z 5bc6d091f97e2542814898bf2cadd21d
