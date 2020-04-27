@@ -843,3 +843,22 @@ label {
   overflow: hidden;
   transition: max-height 0.25s ease-out;
 }
+#setup_skinedit_css_defaults {
+  max-width: 98%;
+  font-family: monospace;
+// These are for the UL-based implementation:
+  column-width: auto;
+  column-count: 2;
+  padding-top: 1em;
+}
+// These are for the alternate table-based skinedit CSS list:
+// #setup_skinedit_css_defaults > tbody > tr > td {
+//   font-family: monospace;
+//   white-space: pre-wrap;
+//   border: 1px solid black;
+//   vertical-align: top;
+// }
+// #setup_skinedit_css_defaults > tbody > tr > td:nth-of-type(2) > div {
+//   max-width: 30em;
+//   overflow: auto;
+// }
