@@ -513,20 +513,108 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 #endif /* FOSSIL_ENABLE_SSL */
 
 /*
-** COMMAND: test-ssl-trust-store
+** COMMAND: tls-config*
 **
-** Show the file and directory where OpenSSL looks for certificates
-** of trusted CAs.
+** Usage: %fossil tls-config [SUBCOMMAND] [OPTIONS...] [ARGS...]
+**
+** This command is used to view or modify the TLS (Transport Layer
+** Security) configuration for Fossil.  TLS (formerly SSL) is the
+** encryption technology used for secure HTTPS transport.
+**
+** Sub-commands:
+**
+**    show                            Show the TLS configuration
+**
+**    remove-exception DOMAIN...      Remove TLS cert exceptions
+**                                    for the domains listed.  Or if
+**                                    the --all option is specified,
+**                                    remove all TLS cert exceptions.
 */
-void test_ssl_info(void){
+void test_tlsconfig_info(void){
+  const char *zCmd;
+  size_t nCmd;
+  int nHit = 0;
 #if !defined(FOSSIL_ENABLE_SSL)
-  fossil_print("SSL disabled in this build\n");
+  fossil_print("TLS disabled in this build\n");
 #else
-  fossil_print("file:  %-14s  %s\n",
-     X509_get_default_cert_file_env(),
-     X509_get_default_cert_file());
-  fossil_print("dir:   %-14s  %s\n",
-     X509_get_default_cert_dir_env(),
-     X509_get_default_cert_dir());
+  db_find_and_open_repository(OPEN_OK_NOT_FOUND|OPEN_SUBSTITUTE,0);
+  db_open_config(1,0);
+  zCmd = g.argc>=3 ? g.argv[2] : "show";
+  nCmd = strlen(zCmd);
+  if( strncmp("show",zCmd,nCmd)==0 ){
+    const char *zName, *zValue;
+    size_t nName;
+    Stmt q;
+    fossil_print("OpenSSL-version:   %s\n", SSLeay_version(SSLEAY_VERSION));
+    fossil_print("OpenSSL-cert-file: %s\n", X509_get_default_cert_file());
+    fossil_print("OpenSSL-cert-dir:  %s\n", X509_get_default_cert_dir());
+    zName = X509_get_default_cert_file_env();
+    zValue = fossil_getenv(zName);
+    if( zValue==0 ) zValue = "";
+    nName = strlen(zName);
+    fossil_print("%s:%.*s%s\n", zName, 19-nName, "", zValue);
+    zName = X509_get_default_cert_dir_env();
+    zValue = fossil_getenv(zName);
+    if( zValue==0 ) zValue = "";
+    nName = strlen(zName);
+    fossil_print("%s:%.*s%s\n", zName, 19-nName, "", zValue);
+    nHit++;
+    fossil_print("ssl-ca-location:   %s\n", db_get("ssl-ca-location",""));
+    fossil_print("ssl-identity:      %s\n", db_get("ssl-identity",""));
+    db_prepare(&q,
+       "SELECT name FROM global_config"
+       " WHERE name GLOB 'cert:*'"
+       "UNION ALL "
+       "SELECT name FROM config"
+       " WHERE name GLOB 'cert:*'"
+       " ORDER BY name"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("exception:         %s\n", db_column_text(&q,0)+5);
+    }
+    db_finalize(&q);
+  }else
+  if( strncmp("remove-exception",zCmd,nCmd)==0 ){
+    int i;
+    Blob sql;
+    char *zSep = "(";
+    db_begin_transaction();
+    blob_init(&sql, 0, 0);
+    if( g.argc==4 && find_option("all",0,0)!=0 ){
+      blob_append_sql(&sql,
+        "DELETE FROM global_config WHERE name GLOB 'cert:*';\n"
+        "DELETE FROM global_config WHERE name GLOB 'trusted:*';\n"
+        "DELETE FROM config WHERE name GLOB 'cert:*';\n"
+        "DELETE FROM config WHERE name GLOB 'trusted:*';\n"
+      );
+    }else{
+      if( g.argc<4 ){
+        usage("remove-exception DOMAIN-NAME ...");
+      }
+      blob_append_sql(&sql,"DELETE FROM global_config WHERE name IN ");
+      for(i=3; i<g.argc; i++){
+        blob_append_sql(&sql,"%s'cert:%q','trust:%q'",
+           zSep/*safe-for-%s*/, g.argv[i], g.argv[i]);
+        zSep = ",";
+      }
+      blob_append_sql(&sql,");\n");
+      zSep = "(";
+      blob_append_sql(&sql,"DELETE FROM config WHERE name IN ");
+      for(i=3; i<g.argc; i++){
+        blob_append_sql(&sql,"%s'cert:%q','trusted:%q'",
+           zSep/*safe-for-%s*/, g.argv[i], g.argv[i]);
+        zSep = ",";
+      }
+      blob_append_sql(&sql,");");
+    }
+    db_exec_sql(blob_str(&sql));
+    db_commit_transaction();
+    blob_reset(&sql);
+  }else
+  /*default*/{
+    fossil_fatal("unknown sub-command \"%s\".\nshould be one of:"
+                 " remove-exception show",
+       zCmd);
+  }
 #endif
 }
