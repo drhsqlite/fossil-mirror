@@ -362,14 +362,26 @@ static const char *zProxyOpt = 0;
 **
 **    --proxy URL|off
 **
-** This also happens to be a convenient function to use to look for
-** the --nosync option that will temporarily disable the "autosync"
-** feature.
+** The original purpose of this routine is the above.  But this
+** also happens to be a convenient place to look for other
+** network-related options:
+**
+**    --nosync             Temporarily disable "autosync"
+**
+**    --ipv4               Disallow IPv6.  Use only IPv4.
+**
+**    --accept-any-cert    Disable server SSL cert validation. Accept
+**                         any SSL cert that the server provides.
+**                         WARNING: this option opens you up to
+**                         forged-DNS and man-in-the-middle attacks!
 */
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
   if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+  if( find_option("accept-any-cert",0,0) ){
+    ssl_disable_cert_verification();
+  }
 }
 
 /*
