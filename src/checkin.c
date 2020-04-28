@@ -2945,6 +2945,7 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
   **
   ** - Commit allows an empty checkin only with a flag, but we
   **   currently disallow it entirely. Conform with commit?
+  ** - Check for a commit lock.
   */
 
   /*
