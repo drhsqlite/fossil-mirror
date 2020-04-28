@@ -2684,6 +2684,7 @@ struct CheckinOneFileInfo {
   Blob comment;               /* Check-in comment text */
   char *zMimetype;            /* Mimetype of check-in command.  May be NULL */
   Manifest * pParent;         /* parent checkin */
+  char *zParentUuid;          /* UUID of pParent */
   const char *zUser;          /* User name */
   char *zFilename;            /* Name of single file to commit. */
   Blob fileContent;           /* Content of the modified file. */
@@ -2705,6 +2706,7 @@ static void CheckinOneFileInfo_cleanup( CheckinOneFileInfo * p ){
   }
   fossil_free(p->zFilename);
   fossil_free(p->zMimetype);
+  fossil_free(p->zParentUuid);
   CheckinOneFileInfo_init(p);
 }
 
@@ -2825,6 +2827,11 @@ manifest_error:
 #undef mf_err
 }
 
+enum fossil_ckin1_flags {
+CKIN1_DRY_RUN = 1,
+CKIN1_ALLOW_FORK = 1<<1
+};
+
 /*
 ** EXPERIMENTAL! Subject to change or removal at any time.
 **
@@ -2839,13 +2846,21 @@ manifest_error:
 ** are unchanged.
 **
 ** Fails fatally on error. If pRid is not NULL, the RID of the
-** resulting manifest is written to *pRid. If bDryRun is true,
-** it rolls back its transaction, else it commits as usual.
+** resulting manifest is written to *pRid.
+**
+** ckin1Flags is a bitmask of optional flags from fossil_ckin1_flags enum:
+**
+** CKIN1_DRY_RUN: rolls back the transaction, else it commits as
+** usual.
+**
+** CKIN1_ALLOW_FORK: if false, checkin will fail if pCI->pParent is not
+** currently a leaf.
+**
 */
-void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int bDryRun ){
+void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
   Blob mf = empty_blob;
   Blob err = empty_blob;
-  int rid = 0, frid = 0;
+  int rid = 0, frid = 0, parentRid;
   const int isPrivate = content_is_private(pCI->pParent->rid);
   ManifestFile * zFile;
   const char * zFilePrevUuid = 0; /* UUID of previous version of
@@ -2855,6 +2870,12 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int bDryRun ){
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
     fossil_fatal("no such user: %s", pCI->zUser);
   }
+  parentRid = name_to_typed_rid(pCI->zParentUuid, "ci");
+  assert(parentRid>0);
+  if(!(CKIN1_ALLOW_FORK & ckin1Flags)
+          && !is_a_leaf(parentRid)){
+    fossil_fatal("Parent [%S] is not a leaf and forking is disabled.");
+  }
   /*
   ** Confirm that pCI->zFilename can be found in pCI->pParent.
   ** If not, fail. This is admittedly an artificial limitation,
@@ -2863,9 +2884,9 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int bDryRun ){
   manifest_file_rewind(pCI->pParent);
   zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
   if(!zFile){
-    fossil_fatal("File [%s] not found in manifest. "
+    fossil_fatal("File [%s] not found in manifest [%S]. "
                  "Adding new files is currently not allowed.",
-                 pCI->zFilename);
+                 pCI->zFilename, pCI->zParentUuid);
   }else if(zFile->zPerm && strstr(zFile->zPerm, "l")){
     fossil_fatal("Cannot save a symlink this way.");
   }else{
@@ -2895,13 +2916,15 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int bDryRun ){
   }
 #if 1
   /* Only for development/debugging... */
-  fossil_print("Manifest:\n%b", &mf);
+  fossil_print("Manifest: %z\n%b", rid_to_uuid(rid), &mf);
 #endif
   manifest_crosslink(rid, &mf, 0);
-  if(bDryRun){
+  if(CKIN1_DRY_RUN & ckin1Flags){
     fossil_print("Rolling back transaction.\n");
+    db_end_transaction(1);
+  }else{
+    db_end_transaction(0);
   }
-  db_end_transaction(bDryRun ? 1 : 0);
   blob_reset(&mf);
 }
 
@@ -2926,10 +2949,13 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int bDryRun ){
 **                           the checkout version (if available) or
 **                           trunk (if used without a checkout).
 **   --wet-run               Disables the default dry-run mode.
+**   --allow-fork            Allows the commit to be made against a
+**                           non-leaf parent. Note that no autosync
+**                           is performed beforehand.
 **
 ** Example:
 **
-** %fossil -m ... -r foo --as src/myfile.c myfile.c
+** %fossil test-ci-one -R REPO -m ... -r foo --as src/myfile.c myfile.c
 **
 */
 void test_ci_one_cmd(){
@@ -2940,16 +2966,21 @@ void test_ci_one_cmd(){
   const char * zComment;         /* -m comment */
   const char * zAsFilename;      /* --as filename */
   const char * zRevision;        /* --revision|-r [=trunk|checkout] */
-  int wetRunFlag = 0;
-
+  int ckin1Flags = 0;            /* flags for checkin_one_file(). */
   if(g.argc<3){
     usage("INFILE");
   }
-  wetRunFlag = find_option("wet-run",0,0)!=0;
   zComment = find_option("comment","m",1);
   zAsFilename = find_option("as",0,1);
   zRevision = find_option("revision","r",1);
 
+  if(find_option("wet-run",0,0)==0){
+    ckin1Flags |= CKIN1_DRY_RUN;
+  }
+  if(find_option("allow-fork",0,0)==0){
+    ckin1Flags |= CKIN1_ALLOW_FORK;
+  }
+  
   db_find_and_open_repository(0, 0);
   verify_all_options();
   user_select();
@@ -2975,15 +3006,16 @@ void test_ci_one_cmd(){
 
   if(zRevision==0 || zRevision[0]==0){
     if(g.localOpen/*checkout*/){
-      zRevision = db_lget("checkout-hash", 0) /*leak*/;
+      zRevision = db_lget("checkout-hash", 0)/*leak*/;
     }else{
       zRevision = "trunk";
     }
-    if(zRevision==0 || zRevision[0]==0){
-      fossil_fatal("Cannot determine version to commit to.");
-    }
   }
-  cinf.pParent = manifest_get_by_name(zRevision, &parentVid);
+  name_to_uuid2(zRevision, "ci", &cinf.zParentUuid);
+  if(cinf.zParentUuid==0){
+    fossil_fatal("Cannot determine version to commit to.");
+  }
+  cinf.pParent = manifest_get_by_name(cinf.zParentUuid, &parentVid);
   assert(parentVid>0);
   assert(cinf.pParent!=0);
   blob_read_from_file(&cinf.fileContent, zFilename,
@@ -2991,9 +3023,9 @@ void test_ci_one_cmd(){
   sha3sum_init(256);
   sha3sum_step_blob(&cinf.fileContent);
   sha3sum_finish(&cinf.fileHash);
-  checkin_one_file(&cinf, &newRid, wetRunFlag ? 0 : 1);
+  checkin_one_file(&cinf, &newRid, ckin1Flags);
   CheckinOneFileInfo_cleanup(&cinf);
-  if(wetRunFlag!=0 && newRid!=0 && g.localOpen!=0){
+  if(!(ckin1Flags & CKIN1_DRY_RUN) && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");

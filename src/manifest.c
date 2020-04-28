@@ -1066,7 +1066,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
 
 manifest_syntax_error:
   {
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    char *zUuid = rid_to_uuid(rid);
     if( zUuid ){
       blob_appendf(pErr, "artifact [%s] ", zUuid);
       fossil_free(zUuid);
