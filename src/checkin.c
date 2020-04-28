@@ -3046,8 +3046,7 @@ ci_error:
 */
 void test_ci_one_cmd(){
   CheckinOneFileInfo cinf;       /* checkin state */
-  int parentVid = 0, newRid = 0; /* RID of parent version and new
-                                    version */
+  int newRid = 0;                /* RID of new version */
   const char * zFilename;        /* argv[2] */
   const char * zComment;         /* -m comment */
   const char * zCommentFile;     /* -M FILE */
@@ -3056,9 +3055,8 @@ void test_ci_one_cmd(){
   const char * zUser;            /* --user-override */
   const char * zDate;            /* --date-override */
   int ckin1Flags = 0;            /* flags for checkin_one_file(). */
-  if(g.argc<3){
-    usage("INFILE");
-  }
+
+  CheckinOneFileInfo_init(&cinf);
   zComment = find_option("comment","m",1);
   zCommentFile = find_option("comment-file","M",1);
   zAsFilename = find_option("as",0,1);
@@ -3078,8 +3076,25 @@ void test_ci_one_cmd(){
     ckin1Flags |= CKIN1_ALLOW_MERGE_MARKER;
   }
 
-  CheckinOneFileInfo_init(&cinf);
-  
+  db_find_and_open_repository(0, 0);
+  verify_all_options();
+  user_select();
+
+  if(g.argc!=3){
+    usage("INFILE");
+  }
+
+  if(1){
+    char * zProjCode = db_get("project-code",0);
+    assert(zProjCode);
+    if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
+                         zProjCode)){
+      fossil_fatal("Never, ever run this in/on the core fossil repo "
+                   "until it's been well-vetted. Use a temp/test "
+                   "repo.");
+    }
+  }
+
   if(zComment && zCommentFile){
     fossil_fatal("Only one of -m or -M, not both, may be used.");
   }else{
@@ -3092,24 +3107,8 @@ void test_ci_one_cmd(){
       fossil_fatal("Non-empty checkin comment is required.");
     }
   }
-
-  db_find_and_open_repository(0, 0);
-  verify_all_options();
-  user_select();
-
-  if(1){
-    char * zProjCode = db_get("project-code",0);
-    assert(zProjCode);
-    if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
-                         zProjCode)){
-      fossil_fatal("Never, ever run this in/on the core fossil repo "
-                   "until it's been well-vetted. Use a temp/test "
-                   "repo.");
-    }
-  }
   
   zFilename = g.argv[2];
-  blob_append(&cinf.comment, zComment, -1);
   cinf.zFilename = mprintf("%s", zAsFilename ? zAsFilename : zFilename);
   cinf.zUser = mprintf("%s", zUser ? zUser : login_name());
   if(zDate){
@@ -3126,14 +3125,14 @@ void test_ci_one_cmd(){
   if(cinf.zParentUuid==0){
     fossil_fatal("Cannot determine version to commit to.");
   }
-  cinf.pParent = manifest_get_by_name(cinf.zParentUuid, &parentVid);
-  assert(parentVid>0);
+  cinf.pParent = manifest_get_by_name(cinf.zParentUuid, 0);
   assert(cinf.pParent!=0);
   blob_read_from_file(&cinf.fileContent, zFilename,
                       ExtFILE/*may want to reconsider*/);
   {
     Blob errMsg = empty_blob;
-    const int rc = checkin_one_file(&cinf, &newRid, ckin1Flags, &errMsg);
+    const int rc = checkin_one_file(&cinf, &newRid, ckin1Flags,
+                                    &errMsg);
     CheckinOneFileInfo_cleanup(&cinf);
     if(rc){
       assert(blob_size(&errMsg)==0);
