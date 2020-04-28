@@ -2817,11 +2817,11 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
   md5sum_blob(pOut, &zCard);
   blob_appendf(pOut, "Z %b\n", &zCard);
   blob_reset(&zCard);
-  return 0;
+  return 1;
 manifest_error:
   assert( zErrMsg );
   if(pErr) blob_append(pErr,zErrMsg,-1);
-  return 1;
+  return 0;
 #undef mf_err
 }
 
