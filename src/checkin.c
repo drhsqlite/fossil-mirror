@@ -2681,22 +2681,32 @@ void commit_cmd(void){
 ** ability to commit changes to a single file via an HTTP request.
  */
 struct CheckinOneFileInfo {
-  Blob comment;               /* Check-in comment text */
-  char *zMimetype;            /* Mimetype of check-in command.  May be NULL */
-  Manifest * pParent;         /* parent checkin */
-  char *zParentUuid;          /* UUID of pParent */
-  const char *zUser;          /* User name */
-  char *zFilename;            /* Name of single file to commit. */
-  Blob fileContent;           /* Content of the modified file. */
-  Blob fileHash;              /* Hash of this->fileContent */
+  Blob comment;           /* Check-in comment text */
+  char *zMimetype;        /* Mimetype of check-in command. May be NULL */
+  Manifest * pParent;     /* parent checkin */
+  char *zParentUuid;      /* UUID of pParent */
+  char *zUser;            /* User name */
+  char *zDate;            /* Optionally force this date string
+                             (anything supported by
+                             date_in_standard_format().
+                             Maybe be NULL. */
+  char *zFilename;        /* Name of single file to commit. */
+  Blob fileContent;       /* Content of the modified file. */
+  Blob fileHash;          /* Hash of this->fileContent */
 };
 #endif /* INTERFACE */
 
+/*
+** Initializes p to a known-valid default state.
+*/
 static void CheckinOneFileInfo_init( CheckinOneFileInfo * p ){
   memset(p, 0, sizeof(struct CheckinOneFileInfo));
   p->comment = p->fileContent = p->fileHash = empty_blob;
 }
 
+/*
+** Frees all memory owned by p, but does not free p.
+ */
 static void CheckinOneFileInfo_cleanup( CheckinOneFileInfo * p ){
   blob_reset(&p->comment);
   blob_reset(&p->fileContent);
@@ -2707,8 +2717,28 @@ static void CheckinOneFileInfo_cleanup( CheckinOneFileInfo * p ){
   fossil_free(p->zFilename);
   fossil_free(p->zMimetype);
   fossil_free(p->zParentUuid);
+  fossil_free(p->zUser);
+  fossil_free(p->zDate);
   CheckinOneFileInfo_init(p);
 }
+
+/*
+** Flags for checkin_one_file()
+*/
+enum fossil_ckin1_flags {
+/*
+** Tells checkin_one_file() to use dry-run mode.
+*/
+CKIN1_DRY_RUN = 1,
+/*
+** Tells checkin_one_file() to allow forking from a non-leaf commit.
+*/
+CKIN1_ALLOW_FORK = 1<<1,
+/*
+** Tells checkin_one_file() to dump its generated manifest to stdout.
+*/
+CKIN1_DUMP_MANIFEST = 1<<2
+};
 
 /*
 ** Creates a manifest file, written to pOut, from the state in the
@@ -2724,7 +2754,6 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
   const char *zPerm = 0;       /* permissions for new F-card */
   const char *zFilename = 0;   /* filename to use for F-card */
   const char *zUuid = 0;       /* UUID for F-card */
-  const char *zErrMsg = 0;     /* For error reporting. */
   int (*fncmp)(char const *, char const *) =  /* filename comparator */
     filenames_are_case_sensitive()
     ? fossil_strcmp
@@ -2735,7 +2764,7 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
   assert(pCI->zFilename);
   assert(pCI->zUser);
   
-#define mf_err(MSG) zErrMsg = MSG; goto manifest_error
+#define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
   /* Potential TODOs include...
   ** - Create a delta manifest, if possible, rather than a baseline.
   ** - Enable adding of new files? It's implemented by disabled until
@@ -2755,7 +2784,24 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
   }else{
     blob_append(pOut, "C (no\\scomment)\n", 16);
   }
-  blob_appendf(pOut, "D %z\n", date_in_standard_format("now"));
+  {
+    /*
+    ** We don't use date_in_standard_format() because that has
+    ** side-effects we don't want to trigger here.
+    */
+    char * zDVal = db_text(
+         0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
+         pCI->zDate
+         ? pCI->zDate
+         : "now");
+    if(zDVal[0]==0){
+      fossil_free(zDVal);
+      mf_err((pErr,
+              "Invalid date format (%s): use \"YYYY-MM-DD HH:MM:SS.SSS\"",
+              pCI->zDate));
+    }
+    blob_appendf(pOut, "D %z\n", zDVal);
+  }
 
   manifest_file_rewind(pCI->pParent);
   while((zFile = manifest_file_next(pCI->pParent, 0))){
@@ -2786,7 +2832,7 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
     }
   }
   if(PERM_LNK==fperm){
-    mf_err("Cannot commit symlinks with this approach.");
+    mf_err((pErr,"Cannot commit symlinks with this approach."));
   }else if(PERM_EXE==fperm){
     zPerm = " x";
   }else{
@@ -2800,7 +2846,7 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
     cmp = fncmp(zFile->zName, pCI->zFilename);
     assert(cmp>0);
     if(cmp<=0){
-      mf_err("Internal error: mis-ordering of F-cards detected.");
+      mf_err((pErr,"Internal error: mis-ordering of F-cards detected."));
     }
     blob_appendf(pOut, "F %F %s%s%s\n",
                  zFile->zName, zFile->zUuid,
@@ -2820,17 +2866,8 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
   blob_appendf(pOut, "Z %b\n", &zCard);
   blob_reset(&zCard);
   return 1;
-manifest_error:
-  assert( zErrMsg );
-  if(pErr) blob_append(pErr,zErrMsg,-1);
-  return 0;
 #undef mf_err
 }
-
-enum fossil_ckin1_flags {
-CKIN1_DRY_RUN = 1,
-CKIN1_ALLOW_FORK = 1<<1
-};
 
 /*
 ** EXPERIMENTAL! Subject to change or removal at any time.
@@ -2845,36 +2882,34 @@ CKIN1_ALLOW_FORK = 1<<1
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
-** Fails fatally on error. If pRid is not NULL, the RID of the
+** On error, returns false (0) and, if pErr is not NULL, writes a
+** diagnostic message there.
+** 
+** Returns true on success. If pRid is not NULL, the RID of the
 ** resulting manifest is written to *pRid.
 **
-** ckin1Flags is a bitmask of optional flags from fossil_ckin1_flags enum:
-**
-** CKIN1_DRY_RUN: rolls back the transaction, else it commits as
-** usual.
-**
-** CKIN1_ALLOW_FORK: if false, checkin will fail if pCI->pParent is not
-** currently a leaf.
+** ckin1Flags is a bitmask of optional flags from fossil_ckin1_flags
+** enum. See that enum for the docs for each flag.
 **
 */
-void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
-  Blob mf = empty_blob;
-  Blob err = empty_blob;
-  int rid = 0, frid = 0, parentRid;
+int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags,
+                      Blob * pErr ){
+  Blob mf = empty_blob;             /* output manifest */
+  int rid = 0, frid = 0;            /* various RIDs */
   const int isPrivate = content_is_private(pCI->pParent->rid);
-  ManifestFile * zFile;
-  const char * zFilePrevUuid = 0; /* UUID of previous version of
-                                     the file */
-
+  ManifestFile * zFile;             /* file from pCI->pParent */;
+  const char * zFilePrevUuid = 0;   /* UUID of previous version of
+                                       the file */
+#define ci_err(EXPR) if(pErr!=0){blob_appendf EXPR;} goto ci_error
   db_begin_transaction();
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
-    fossil_fatal("no such user: %s", pCI->zUser);
+    ci_err((pErr,"No such user: %s", pCI->zUser));
   }
-  parentRid = name_to_typed_rid(pCI->zParentUuid, "ci");
-  assert(parentRid>0);
+  assert(pCI->pParent->rid>0);
   if(!(CKIN1_ALLOW_FORK & ckin1Flags)
-          && !is_a_leaf(parentRid)){
-    fossil_fatal("Parent [%S] is not a leaf and forking is disabled.");
+          && !is_a_leaf(pCI->pParent->rid)){
+    ci_err((pErr,"Parent [%S] is not a leaf and forking is disabled.",
+            pCI->zParentUuid));
   }
   /*
   ** Confirm that pCI->zFilename can be found in pCI->pParent.
@@ -2884,20 +2919,20 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
   manifest_file_rewind(pCI->pParent);
   zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
   if(!zFile){
-    fossil_fatal("File [%s] not found in manifest [%S]. "
-                 "Adding new files is currently not allowed.",
-                 pCI->zFilename, pCI->zParentUuid);
+    ci_err((pErr,"File [%s] not found in manifest [%S]. "
+            "Adding new files is currently not allowed.",
+            pCI->zFilename, pCI->zParentUuid));
   }else if(zFile->zPerm && strstr(zFile->zPerm, "l")){
-    fossil_fatal("Cannot save a symlink this way.");
+    ci_err((pErr,"Cannot save a symlink this way."));
   }else{
     if(0==fossil_strcmp(zFile->zUuid, blob_str(&pCI->fileHash))){
-      fossil_fatal("File is unchanged. Not saving.");
+      ci_err((pErr,"File is unchanged. Not saving."));
     }
     zFilePrevUuid = zFile->zUuid;
   }
   /* Create the manifest... */
-  if(create_manifest_one_file(&mf, pCI, &err)==0){
-    fossil_fatal("create_manifest_one_file() failed: %B", &err);
+  if(create_manifest_one_file(&mf, pCI, pErr)==0){
+    return 0;
   }
   /* Add the file content to the db... */
   frid = content_put_ex(&pCI->fileContent, blob_str(&pCI->fileHash),
@@ -2914,10 +2949,9 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
   if(pRid!=0){
     *pRid = rid;
   }
-#if 1
-  /* Only for development/debugging... */
-  fossil_print("Manifest: %z\n%b", rid_to_uuid(rid), &mf);
-#endif
+  if( ckin1Flags & CKIN1_DUMP_MANIFEST ){
+    fossil_print("Manifest: %z\n%b", rid_to_uuid(rid), &mf);
+  }
   manifest_crosslink(rid, &mf, 0);
   if(CKIN1_DRY_RUN & ckin1Flags){
     fossil_print("Rolling back transaction.\n");
@@ -2926,6 +2960,12 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
     db_end_transaction(0);
   }
   blob_reset(&mf);
+  return 1;
+ci_error:
+  assert(db_transaction_nesting_depth()>0);
+  db_end_transaction(1);
+  return 0;
+#undef ci_err
 }
 
 /*
@@ -2941,17 +2981,22 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
 **
 ** Options:
 **
-**   --as FILENAME           The repository-side name of the input file,
-**                           relative to the top of the repostory.
-**                           Default is the same as the input file name.
-**   --comment|-m COMMENT    Optional checkin comment.
-**   --revision|-r VERSION   Commit from this version. Default is
-**                           the checkout version (if available) or
-**                           trunk (if used without a checkout).
-**   --wet-run               Disables the default dry-run mode.
-**   --allow-fork            Allows the commit to be made against a
-**                           non-leaf parent. Note that no autosync
-**                           is performed beforehand.
+**   --repository|-R REPO      The repository file to commit to.
+**   --as FILENAME             The repository-side name of the input file,
+**                             relative to the top of the repository.
+**                             Default is the same as the input file name.
+**   --comment|-m COMMENT      Required checkin comment.
+**   --comment-file|-M FILE    Reads checkin comment from the given file.
+**   --revision|-r VERSION     Commit from this version. Default is
+**                             the checkout version (if available) or
+**                             trunk (if used without a checkout).
+**   --wet-run                 Disables the default dry-run mode.
+**   --allow-fork              Allows the commit to be made against a
+**                             non-leaf parent. Note that no autosync
+**                             is performed beforehand.
+**   --user-override USER      USER to use instead of the current default.
+**   --date-override DATETIME  DATE to use instead of 'now'.
+**   --dump-manifest|-d        Dumps the generated manifest to stdout.
 **
 ** Example:
 **
@@ -2959,28 +3004,52 @@ void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags ){
 **
 */
 void test_ci_one_cmd(){
-  CheckinOneFileInfo cinf;           /* checkin state */
+  CheckinOneFileInfo cinf;       /* checkin state */
   int parentVid = 0, newRid = 0; /* RID of parent version and new
                                     version */
   const char * zFilename;        /* argv[2] */
   const char * zComment;         /* -m comment */
+  const char * zCommentFile;     /* -M FILE */
   const char * zAsFilename;      /* --as filename */
   const char * zRevision;        /* --revision|-r [=trunk|checkout] */
+  const char * zUser;            /* --user-override */
+  const char * zDate;            /* --date-override */
   int ckin1Flags = 0;            /* flags for checkin_one_file(). */
   if(g.argc<3){
     usage("INFILE");
   }
   zComment = find_option("comment","m",1);
+  zCommentFile = find_option("comment-file","M",1);
   zAsFilename = find_option("as",0,1);
   zRevision = find_option("revision","r",1);
-
+  zUser = find_option("user-override",0,1);
+  zDate = find_option("date-override",0,1);
   if(find_option("wet-run",0,0)==0){
     ckin1Flags |= CKIN1_DRY_RUN;
   }
-  if(find_option("allow-fork",0,0)==0){
+  if(find_option("allow-fork",0,0)!=0){
     ckin1Flags |= CKIN1_ALLOW_FORK;
   }
+  if(find_option("dump-manifest","d",0)!=0){
+    ckin1Flags |= CKIN1_DUMP_MANIFEST;
+  }
+
+  CheckinOneFileInfo_init(&cinf);
   
+  if(zComment && zCommentFile){
+    fossil_fatal("Only one of -m or -M, not both, may be used.");
+  }else{
+    if(zCommentFile){
+      blob_read_from_file(&cinf.comment, zCommentFile, ExtFILE);
+    }else{
+      assert(zComment);
+      blob_append(&cinf.comment, zComment, -1);
+    }
+    if(!blob_size(&cinf.comment)){
+      fossil_fatal("Non-empty checkin comment is required.");
+    }
+  }
+
   db_find_and_open_repository(0, 0);
   verify_all_options();
   user_select();
@@ -2997,13 +3066,12 @@ void test_ci_one_cmd(){
   }
   
   zFilename = g.argv[2];
-  CheckinOneFileInfo_init(&cinf);
-  blob_append(&cinf.comment,
-              zComment ? zComment : "This is a test comment.",
-              -1);
+  blob_append(&cinf.comment, zComment, -1);
   cinf.zFilename = mprintf("%s", zAsFilename ? zAsFilename : zFilename);
-  cinf.zUser = login_name();
-
+  cinf.zUser = mprintf("%s", zUser ? zUser : login_name());
+  if(zDate){
+    cinf.zDate = mprintf("%s", zDate);
+  }
   if(zRevision==0 || zRevision[0]==0){
     if(g.localOpen/*checkout*/){
       zRevision = db_lget("checkout-hash", 0)/*leak*/;
@@ -3023,8 +3091,17 @@ void test_ci_one_cmd(){
   sha3sum_init(256);
   sha3sum_step_blob(&cinf.fileContent);
   sha3sum_finish(&cinf.fileHash);
-  checkin_one_file(&cinf, &newRid, ckin1Flags);
-  CheckinOneFileInfo_cleanup(&cinf);
+  {
+    Blob errMsg = empty_blob;
+    const int rc = checkin_one_file(&cinf, &newRid, ckin1Flags, &errMsg);
+    CheckinOneFileInfo_cleanup(&cinf);
+    if(rc){
+      assert(blob_size(&errMsg)==0);
+    }else{
+      assert(blob_size(&errMsg));
+      fossil_fatal("%b", &errMsg);
+    }
+  }
   if(!(ckin1Flags & CKIN1_DRY_RUN) && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
