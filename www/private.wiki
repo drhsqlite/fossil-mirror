@@ -42,14 +42,14 @@ converted into a public branch using the <code>fossil publish</code>
 command.  However, there is no way to convert a private branch created with
 older versions of Fossil into a public branch.
 
-The <code>--integrate</code> option of <code>fossil merge</code> (to close
-the merged branch when committing) is ignored for a private branch -- or the
-check-in manifest of the resulting merge child would include a
-<code>+close</code> tag referring to the leaf check-in on the private branch,
-and generate a missing artifact reference on repository clones without that
-private branch.  It's still possible to close the leaf of the private branch
-(after committing the merge child) with the <code>fossil amend --close</code>
-command.
+If the <code>--integrate</code> option of <code>fossil merge</code> (to close
+the merged branch when committing) is used for a private branch, a separate
+control artifact to apply the <code>+close</code> tag is created and added to
+the repository during the commit process.  Managing the <code>+close</code>
+tag directly from the check-in manifest of the resulting merge child would
+generate a reference to the leaf check-in on the private branch, and generate
+a missing artifact reference (a "phantom") on repository clones without that
+private branch.
 
 <h2>Syncing Private Branches</h2>
 
