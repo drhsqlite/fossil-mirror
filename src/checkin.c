@@ -2754,13 +2754,18 @@ CKIN1_ALLOW_CLOSED_LEAF = 1<<4
 
 /*
 ** Creates a manifest file, written to pOut, from the state in the
-** fully-populated pCI argument. Returns true on success. On error,
-** returns 0 and, if pErr is not NULL, writes an error message there.
+** fully-populated pCI argument. pCI is not *semantically* modified
+** but cannot be const because blob_str() may need to NUL-terminate
+** any given blob.
+**
+** Returns true on success. On error, returns 0 and, if pErr is not
+** NULL, writes an error message there.
 */
-static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
+static int create_manifest_one_file( Blob * pOut,
+                                     CheckinOneFileInfo * pCI,
                                      Blob * pErr){
   Blob zCard = empty_blob;     /* Z-card checksum */
-  ManifestFile *zFile;         /* One file entry from the pCI->pParent */
+  ManifestFile *zFile;         /* One file entry from the pCI->pParent*/
   int cmp = -99;               /* filename comparison result */
   int fperm = 0;               /* file permissions */
   const char *zPerm = 0;       /* permissions for new F-card */
@@ -2779,11 +2784,7 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
 #define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
   /* Potential TODOs include...
   ** - Create a delta manifest, if possible, rather than a baseline.
-  ** - Enable adding of new files? It's implemented by disabled until
-  **   we at least ensure that pCI->zFilename is a path-relative
-  **   filename.
   ** - Maybe add support for tags. Those can be edited via /info page.
-  ** - Check for a commit to a closed leaf and re-open it.
   ** - Symlinks: if we're really in a checkout, handle commit/add of
   **   symlinks like a normal commit would.  For now we bail out if
   **   told to handle a symlink because there would seem to be no(?)
@@ -2902,8 +2903,8 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
 ** resulting manifest is written to *pRid.
 **
 ** ckin1Flags is a bitmask of optional flags from fossil_ckin1_flags
-** enum. See that enum for the docs for each flag.
-**
+** enum. See that enum for the docs for each flag. Pass 0 for no
+** flags.
 */
 static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
                              int ckin1Flags, Blob * pErr ){
@@ -2945,7 +2946,9 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
   **
   ** - Commit allows an empty checkin only with a flag, but we
   **   currently disallow it entirely. Conform with commit?
-  ** - Check for a commit lock.
+  **
+  ** - Check for a commit lock would require auto-sync, which this
+  **   code cannot do if it's going to be run via a web page.
   */
 
   /*
@@ -2953,8 +2956,8 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
   ** not, fail. This is admittedly an artificial limitation, not
   ** strictly necessary. We do it to hopefully reduce the chance of an
   ** "oops" where file X/Y/z gets committed as X/Y/Z due to a typo or
-  ** case-sensitivity mismatch between the user and repo, or some
-  ** such.
+  ** case-sensitivity mismatch between the user/repo/filesystem, or
+  ** some such.
   */
   manifest_file_rewind(pCI->pParent);
   zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
