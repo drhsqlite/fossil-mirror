@@ -2323,9 +2323,7 @@ void commit_cmd(void){
     */
     if(
         /* parent check-in has the "closed" tag... */
-        db_exists("SELECT 1 FROM tagxref"
-                  " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                  TAG_CLOSED, vid)
+       leaf_is_closed(vid)
         /* ... and the new check-in has no --branch option or the --branch
         ** option does not actually change the branch */
      && (sCiInfo.zBranch==0
@@ -2675,11 +2673,13 @@ void commit_cmd(void){
   }
 }
 
-#if INTERFACE
 /*
 ** State for the "web-checkin" infrastructure, which enables the
 ** ability to commit changes to a single file via an HTTP request.
- */
+**
+** Memory for all non-const (char *) members is owned by the
+** CheckinOneFileInfo instance.
+*/
 struct CheckinOneFileInfo {
   Blob comment;           /* Check-in comment text */
   char *zMimetype;        /* Mimetype of check-in command. May be NULL */
@@ -2690,17 +2690,18 @@ struct CheckinOneFileInfo {
                              (anything supported by
                              date_in_standard_format().
                              Maybe be NULL. */
-  char *zFilename;        /* Name of single file to commit. */
-  Blob fileContent;       /* Content of the modified file. */
-  Blob fileHash;          /* Hash of this->fileContent */
+  char *zFilename;        /* Name of single file to commit. Must be
+                             relative to the top of the repo. */
+  Blob fileContent;       /* Content of file referred to by zFilename. */
+  Blob fileHash;          /* Hash of this->fileContent, using the
+                             repo's preferred hash method. */
 };
-#endif /* INTERFACE */
-
+typedef struct CheckinOneFileInfo CheckinOneFileInfo;
 /*
 ** Initializes p to a known-valid default state.
 */
 static void CheckinOneFileInfo_init( CheckinOneFileInfo * p ){
-  memset(p, 0, sizeof(struct CheckinOneFileInfo));
+  memset(p, 0, sizeof(CheckinOneFileInfo));
   p->comment = p->fileContent = p->fileHash = empty_blob;
 }
 
@@ -2737,7 +2738,18 @@ CKIN1_ALLOW_FORK = 1<<1,
 /*
 ** Tells checkin_one_file() to dump its generated manifest to stdout.
 */
-CKIN1_DUMP_MANIFEST = 1<<2
+CKIN1_DUMP_MANIFEST = 1<<2,
+
+/*
+** By default, content containing what appears to be a merge conflict
+** marker is not permitted. This flag relaxes that requirement.
+*/
+CKIN1_ALLOW_MERGE_MARKER = 1<<3,
+
+/*
+** NOT YET IMPLEMENTED.
+*/
+CKIN1_ALLOW_CLOSED_LEAF = 1<<4
 };
 
 /*
@@ -2858,9 +2870,7 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
     blob_appendf(pOut, "N %F\n", pCI->zMimetype);
   }
 
-  blob_appendf(pOut, "P %z\n",
-               db_text(0,"SELECT uuid FROM blob WHERE rid=%d",
-                       pCI->pParent->rid));
+  blob_appendf(pOut, "P %s\n", pCI->zParentUuid);
   blob_appendf(pOut, "U %F\n", pCI->zUser);
   md5sum_blob(pOut, &zCard);
   blob_appendf(pOut, "Z %b\n", &zCard);
@@ -2882,6 +2892,9 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
+** If pCI->fileHash is empty, this routine populates it with the
+** repository's preferred hash algorithm.
+**
 ** On error, returns false (0) and, if pErr is not NULL, writes a
 ** diagnostic message there.
 ** 
@@ -2892,8 +2905,8 @@ static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
 ** enum. See that enum for the docs for each flag.
 **
 */
-int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags,
-                      Blob * pErr ){
+static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
+                             int ckin1Flags, Blob * pErr ){
   Blob mf = empty_blob;             /* output manifest */
   int rid = 0, frid = 0;            /* various RIDs */
   const int isPrivate = content_is_private(pCI->pParent->rid);
@@ -2906,15 +2919,41 @@ int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags,
     ci_err((pErr,"No such user: %s", pCI->zUser));
   }
   assert(pCI->pParent->rid>0);
+  if(leaf_is_closed(pCI->pParent->rid)){
+    ci_err((pErr,"Cannot commit to a closed leaf."));
+    /* Remember that in order to override this we'd also need to
+    ** cancel TAG_CLOSED on pCI->pParent. There would seem to be
+    ** no reason we can't do that via the generated manifest,
+    ** but the commit command does not offer that option, so
+    ** we won't, either.
+    */
+  }
   if(!(CKIN1_ALLOW_FORK & ckin1Flags)
           && !is_a_leaf(pCI->pParent->rid)){
     ci_err((pErr,"Parent [%S] is not a leaf and forking is disabled.",
             pCI->zParentUuid));
   }
+  if(!(CKIN1_ALLOW_MERGE_MARKER & ckin1Flags)
+          && contains_merge_marker(&pCI->fileContent)){
+    ci_err((pErr,"Content appears to contain a merge conflict marker."));
+  }
+  if(blob_size(&pCI->fileHash)==0){
+    hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
+    assert(blob_size(&pCI->fileHash)>0);
+  }
+  /* Potential TODOs include:
+  **
+  ** - Commit allows an empty checkin only with a flag, but we
+  **   currently disallow it entirely. Conform with commit?
+  */
+
   /*
-  ** Confirm that pCI->zFilename can be found in pCI->pParent.
-  ** If not, fail. This is admittedly an artificial limitation,
-  ** not strictly necessary.
+  ** Confirm that pCI->zFilename can be found in pCI->pParent.  If
+  ** not, fail. This is admittedly an artificial limitation, not
+  ** strictly necessary. We do it to hopefully reduce the chance of an
+  ** "oops" where file X/Y/z gets committed as X/Y/Z due to a typo or
+  ** case-sensitivity mismatch between the user and repo, or some
+  ** such.
   */
   manifest_file_rewind(pCI->pParent);
   zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
@@ -2944,8 +2983,9 @@ int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags,
     assert(prevFRid>0);
     content_deltify(frid, &prevFRid, 1, 0);
   }
-  /* Save and crosslink the manifest... */
+  /* Save, deltify, and crosslink the manifest... */
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
+  content_deltify(rid, &pCI->pParent->rid, 1, 0);
   if(pRid!=0){
     *pRid = rid;
   }
@@ -2953,13 +2993,8 @@ int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int ckin1Flags,
     fossil_print("Manifest: %z\n%b", rid_to_uuid(rid), &mf);
   }
   manifest_crosslink(rid, &mf, 0);
-  if(CKIN1_DRY_RUN & ckin1Flags){
-    fossil_print("Rolling back transaction.\n");
-    db_end_transaction(1);
-  }else{
-    db_end_transaction(0);
-  }
   blob_reset(&mf);
+  db_end_transaction((CKIN1_DRY_RUN & ckin1Flags) ? 1 : 0);
   return 1;
 ci_error:
   assert(db_transaction_nesting_depth()>0);
@@ -2994,6 +3029,8 @@ ci_error:
 **   --allow-fork              Allows the commit to be made against a
 **                             non-leaf parent. Note that no autosync
 **                             is performed beforehand.
+**   --allow-merge-conflict    Allows checkin of a file even if it appears
+**                             to contain a fossil merge conflict marker.
 **   --user-override USER      USER to use instead of the current default.
 **   --date-override DATETIME  DATE to use instead of 'now'.
 **   --dump-manifest|-d        Dumps the generated manifest to stdout.
@@ -3033,16 +3070,18 @@ void test_ci_one_cmd(){
   if(find_option("dump-manifest","d",0)!=0){
     ckin1Flags |= CKIN1_DUMP_MANIFEST;
   }
+  if(find_option("allow-merge-conflict",0,0)!=0){
+    ckin1Flags |= CKIN1_ALLOW_MERGE_MARKER;
+  }
 
   CheckinOneFileInfo_init(&cinf);
   
   if(zComment && zCommentFile){
     fossil_fatal("Only one of -m or -M, not both, may be used.");
   }else{
-    if(zCommentFile){
+    if(zCommentFile && *zCommentFile){
       blob_read_from_file(&cinf.comment, zCommentFile, ExtFILE);
-    }else{
-      assert(zComment);
+    }else if(zComment && *zComment){
       blob_append(&cinf.comment, zComment, -1);
     }
     if(!blob_size(&cinf.comment)){
@@ -3088,9 +3127,6 @@ void test_ci_one_cmd(){
   assert(cinf.pParent!=0);
   blob_read_from_file(&cinf.fileContent, zFilename,
                       ExtFILE/*may want to reconsider*/);
-  sha3sum_init(256);
-  sha3sum_step_blob(&cinf.fileContent);
-  sha3sum_finish(&cinf.fileHash);
   {
     Blob errMsg = empty_blob;
     const int rc = checkin_one_file(&cinf, &newRid, ckin1Flags, &errMsg);

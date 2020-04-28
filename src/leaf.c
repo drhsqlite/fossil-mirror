@@ -156,6 +156,17 @@ char *leaf_is_closed_sql(const char *zVar){
 }
 
 /*
+** Returns true if vid refers to a closed leaf, else false. vid is
+** assumed to refer to a manifest, but this function does not verify
+** that.
+*/
+int leaf_is_closed(int vid){
+  return db_exists("SELECT 1 FROM tagxref"
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_CLOSED, vid);
+}
+
+/*
 ** Schedule a leaf check for "rid" and its parents.
 */
 void leaf_eventually_check(int rid){
