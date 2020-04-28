@@ -2680,7 +2680,7 @@ void commit_cmd(void){
 ** State for the "web-checkin" infrastructure, which enables the
 ** ability to commit changes to a single file via an HTTP request.
  */
-struct CheckinWebInfo {
+struct CheckinOneFileInfo {
   Blob comment;               /* Check-in comment text */
   char *zMimetype;            /* Mimetype of check-in command.  May be NULL */
   Manifest * pParent;         /* parent checkin */
@@ -2691,12 +2691,12 @@ struct CheckinWebInfo {
 };
 #endif /* INTERFACE */
 
-static void CheckinWebInfo_init( CheckinWebInfo * p ){
-  memset(p, 0, sizeof(struct CheckinWebInfo));
+static void CheckinOneFileInfo_init( CheckinOneFileInfo * p ){
+  memset(p, 0, sizeof(struct CheckinOneFileInfo));
   p->comment = p->fileContent = p->fileHash = empty_blob;
 }
 
-static void CheckinWebInfo_cleanup( CheckinWebInfo * p ){
+static void CheckinOneFileInfo_cleanup( CheckinOneFileInfo * p ){
   blob_reset(&p->comment);
   blob_reset(&p->fileContent);
   blob_reset(&p->fileHash);
@@ -2705,28 +2705,35 @@ static void CheckinWebInfo_cleanup( CheckinWebInfo * p ){
   }
   fossil_free(p->zFilename);
   fossil_free(p->zMimetype);
-  CheckinWebInfo_init(p);
+  CheckinOneFileInfo_init(p);
 }
 
 /*
 ** Creates a manifest file, written to pOut, from the state in the
-** fully-populated pCI argument. On error, returns non-0 and, if
-** pErr is not NULL, writes an error message there.
+** fully-populated pCI argument. Returns true on success. On error,
+** returns 0 and, if pErr is not NULL, writes an error message there.
 */
-static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
-                                Blob * pErr){
-  Blob zCard = empty_blob;
-  ManifestFile *zFile;
-  int cmp = -99;
-  const char *zPerm = "";
-  const char *zFilename = 0;
-  const char *zUuid = 0;
-  int (*fncmp)(char const *, char const *) =
+static int create_manifest_one_file( Blob * pOut, CheckinOneFileInfo * pCI,
+                                     Blob * pErr){
+  Blob zCard = empty_blob;     /* Z-card checksum */
+  ManifestFile *zFile;         /* One file entry from the pCI->pParent */
+  int cmp = -99;               /* filename comparison result */
+  int fperm = 0;               /* file permissions */
+  const char *zPerm = 0;       /* permissions for new F-card */
+  const char *zFilename = 0;   /* filename to use for F-card */
+  const char *zUuid = 0;       /* UUID for F-card */
+  const char *zErrMsg = 0;     /* For error reporting. */
+  int (*fncmp)(char const *, char const *) =  /* filename comparator */
     filenames_are_case_sensitive()
     ? fossil_strcmp
     : fossil_stricmp;
 
-#define mf_err(MSG) if(pErr) blob_append(pErr,MSG,-1); return 1
+  assert(blob_str(&pCI->fileHash));
+  assert(pCI->pParent);
+  assert(pCI->zFilename);
+  assert(pCI->zUser);
+  
+#define mf_err(MSG) zErrMsg = MSG; goto manifest_error
   /* Potential TODOs include...
   ** - Create a delta manifest, if possible, rather than a baseline.
   ** - Enable adding of new files? It's implemented by disabled until
@@ -2734,6 +2741,11 @@ static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
   **   filename.
   ** - Maybe add support for tags. Those can be edited via /info page.
   ** - Check for a commit to a closed leaf and re-open it.
+  ** - Symlinks: if we're really in a checkout, handle commit/add of
+  **   symlinks like a normal commit would.  For now we bail out if
+  **   told to handle a symlink because there would seem to be no(?)
+  **   sensible way to handle a symlink add/checkin without a
+  **   checkout.
   */
   blob_zero(pOut);
   if(blob_size(&pCI->comment)!=0){
@@ -2747,25 +2759,22 @@ static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
   while((zFile = manifest_file_next(pCI->pParent, 0))){
     cmp = fncmp(zFile->zName, pCI->zFilename);
     if(cmp<0){
-      blob_appendf(pOut, "F %F %s%s\n", zFile->zName, zFile->zUuid,
-                   zFile->zPerm);
+      blob_appendf(pOut, "F %F %s%s%s\n", zFile->zName, zFile->zUuid,
+                   (zFile->zPerm && *zFile->zPerm) ? " " : "",
+                   (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
     }else{
       break;
     }
   }
   if(cmp==0){ /* Match */
-    const int perm = manifest_file_mperm(zFile);
-    if(PERM_LNK==perm){
-      mf_err("Cannot commit symlinks with this approach.");
-    }
-    zPerm = PERM_EXE==perm ? " x" : "";
+    fperm = manifest_file_mperm(zFile);
     zFilename = zFile->zName
-      /* use original name in case of case difference */;
+      /* use original name in case of name-case difference */;
     zUuid = blob_str(&pCI->fileHash);
   }else{
     /* This is a new file. */
+    fperm = file_perm(pCI->zFilename, ExtFILE);
     zFilename = pCI->zFilename;
-    zPerm = "";
     zUuid = blob_str(&pCI->fileHash);
     if(cmp>0){
       assert(zFile!=0);
@@ -2773,6 +2782,13 @@ static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
       --pCI->pParent->iFile
         /* so that the next step picks up that entry again */;
     }
+  }
+  if(PERM_LNK==fperm){
+    mf_err("Cannot commit symlinks with this approach.");
+  }else if(PERM_EXE==fperm){
+    zPerm = " x";
+  }else{
+    zPerm = "";
   }
   assert(zFilename);
   assert(zUuid);
@@ -2782,7 +2798,7 @@ static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
     cmp = fncmp(zFile->zName, pCI->zFilename);
     assert(cmp>0);
     if(cmp<=0){
-      mf_err("Mis-ordering of F-cards.");
+      mf_err("Internal error: mis-ordering of F-cards detected.");
     }
     blob_appendf(pOut, "F %F %s%s%s\n",
                  zFile->zName, zFile->zUuid,
@@ -2790,7 +2806,7 @@ static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
                  (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
   }
 
-  if(pCI->zMimetype){
+  if(pCI->zMimetype!=0 && pCI->zMimetype[0]!=0){
     blob_appendf(pOut, "N %F\n", pCI->zMimetype);
   }
 
@@ -2802,59 +2818,85 @@ static int create_manifest_web( Blob * pOut, CheckinWebInfo * pCI,
   blob_appendf(pOut, "Z %b\n", &zCard);
   blob_reset(&zCard);
   return 0;
+manifest_error:
+  assert( zErrMsg );
+  if(pErr) blob_append(pErr,zErrMsg,-1);
+  return 1;
 #undef mf_err
 }
 
 /*
-** EXPERIMENTAL! A so-called "web checkin" is a slimmed-down form of
-** the checkin command which accepts only a single file and is
-** intended to accept edits to a file via the web interface.
+** EXPERIMENTAL! Subject to change or removal at any time.
+**
+** A so-called "single-file checkin" is a slimmed-down form of the
+** checkin command which accepts only a single file and is intended to
+** accept edits to a file via the web interface or from the CLI from
+** outside of a checkout.
 **
 ** This routine uses the state from the given fully-populated pCI
 ** argument to add pCI->fileContent to the database, and create and
-** save a manifest for that change.
+** save a manifest for that change. Ownership of pCI and its contents
+** are unchanged.
 **
 ** Fails fatally on error. If pRid is not NULL, the RID of the
 ** resulting manifest is written to *pRid. If bDryRun is true,
 ** it rolls back its transaction, else it commits as usual.
-**
 */
-void checkin_web( CheckinWebInfo * pCI, int *pRid, int bDryRun ){
+void checkin_one_file( CheckinOneFileInfo * pCI, int *pRid, int bDryRun ){
   Blob mf = empty_blob;
   Blob err = empty_blob;
   int rid = 0, frid = 0;
   const int isPrivate = content_is_private(pCI->pParent->rid);
   ManifestFile * zFile;
+  const char * zFilePrevUuid = 0; /* UUID of previous version of
+                                     the file */
 
   db_begin_transaction();
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
     fossil_fatal("no such user: %s", pCI->zUser);
   }
+  /*
+  ** Confirm that pCI->zFilename can be found in pCI->pParent.
+  ** If not, fail. This is admittedly an artificial limitation,
+  ** not strictly necessary.
+  */
   manifest_file_rewind(pCI->pParent);
   zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
   if(!zFile){
     fossil_fatal("File [%s] not found in manifest. "
                  "Adding new files is currently not allowed.",
                  pCI->zFilename);
+  }else if(zFile->zPerm && strstr(zFile->zPerm, "l")){
+    fossil_fatal("Cannot save a symlink this way.");
+  }else{
+    if(0==fossil_strcmp(zFile->zUuid, blob_str(&pCI->fileHash))){
+      fossil_fatal("File is unchanged. Not saving.");
+    }
+    zFilePrevUuid = zFile->zUuid;
   }
-  if(create_manifest_web(&mf, pCI, &err)!=0){
-    fossil_fatal("create_manifest_web() failed: %B", &err);
+  /* Create the manifest... */
+  if(create_manifest_one_file(&mf, pCI, &err)==0){
+    fossil_fatal("create_manifest_one_file() failed: %B", &err);
   }
+  /* Add the file content to the db... */
   frid = content_put_ex(&pCI->fileContent, blob_str(&pCI->fileHash),
                         0, 0, isPrivate);
-  manifest_file_rewind(pCI->pParent);
-  zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
-  if(zFile!=0){
+  if(zFilePrevUuid!=0){
+    /* Deltify against previous file version... */
     int prevFRid = db_int(0,"SELECT rid FROM blob WHERE uuid=%Q",
-                          zFile->zUuid);
+                          zFilePrevUuid);
     assert(prevFRid>0);
     content_deltify(frid, &prevFRid, 1, 0);
   }
+  /* Save and crosslink the manifest... */
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
   if(pRid!=0){
     *pRid = rid;
   }
+#if 1
+  /* Only for development/debugging... */
   fossil_print("Manifest:\n%b", &mf);
+#endif
   manifest_crosslink(rid, &mf, 0);
   if(bDryRun){
     fossil_print("Rolling back transaction.\n");
@@ -2864,7 +2906,7 @@ void checkin_web( CheckinWebInfo * pCI, int *pRid, int bDryRun ){
 }
 
 /*
-** COMMAND: test-ci-web
+** COMMAND: test-ci-one
 **
 ** This is an on-going experiment, subject to change or removal at
 ** any time.
@@ -2873,34 +2915,75 @@ void checkin_web( CheckinWebInfo * pCI, int *pRid, int bDryRun ){
 **
 ** where FILENAME is a repo-relative name as it would appear in the
 ** vfile table.
+**
+** Options:
+**
+**   --as FILENAME           The repository-side name of the input file,
+**                           relative to the top of the repostory.
+**                           Default is the same as the input file name.
+**   --comment|-m COMMENT    Optional checkin comment.
+**   --revision|-r VERSION   Commit from this version. Default is
+**                           the checkout version (if available) or
+**                           trunk (if used without a checkout).
+**   --wet-run               Disables the default dry-run mode.
+**
+** Example:
+**
+** %fossil -m ... -r foo --as src/myfile.c myfile.c
+**
 */
 void test_ci_one_cmd(){
-  CheckinWebInfo cinf;
-  int parentVid = 0, newRid = 0;
-  const char * zFilename;
-  const char * zComment;
-  const char * zAsFilename;
+  CheckinOneFileInfo cinf;           /* checkin state */
+  int parentVid = 0, newRid = 0; /* RID of parent version and new
+                                    version */
+  const char * zFilename;        /* argv[2] */
+  const char * zComment;         /* -m comment */
+  const char * zAsFilename;      /* --as filename */
+  const char * zRevision;        /* --revision|-r [=trunk|checkout] */
   int wetRunFlag = 0;
 
   if(g.argc<3){
     usage("INFILE");
   }
-  db_find_and_open_repository(0, 0);
   wetRunFlag = find_option("wet-run",0,0)!=0;
   zComment = find_option("comment","m",1);
   zAsFilename = find_option("as",0,1);
+  zRevision = find_option("revision","r",1);
+
+  db_find_and_open_repository(0, 0);
   verify_all_options();
   user_select();
 
+  if(1){
+    char * zProjCode = db_get("project-code",0);
+    assert(zProjCode);
+    if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
+                         zProjCode)){
+      fossil_fatal("Never, ever run this in/on the core fossil repo "
+                   "until it's been well-vetted. Use a temp/test "
+                   "repo.");
+    }
+  }
+  
   zFilename = g.argv[2];
-  CheckinWebInfo_init(&cinf);
+  CheckinOneFileInfo_init(&cinf);
   blob_append(&cinf.comment,
               zComment ? zComment : "This is a test comment.",
               -1);
   cinf.zFilename = mprintf("%s", zAsFilename ? zAsFilename : zFilename);
   cinf.zUser = login_name();
 
-  cinf.pParent = manifest_get_by_name("trunk", &parentVid);
+  if(zRevision==0 || zRevision[0]==0){
+    if(g.localOpen/*checkout*/){
+      zRevision = db_lget("checkout-hash", 0) /*leak*/;
+    }else{
+      zRevision = "trunk";
+    }
+    if(zRevision==0 || zRevision[0]==0){
+      fossil_fatal("Cannot determine version to commit to.");
+    }
+  }
+  cinf.pParent = manifest_get_by_name(zRevision, &parentVid);
   assert(parentVid>0);
   assert(cinf.pParent!=0);
   blob_read_from_file(&cinf.fileContent, zFilename,
@@ -2908,12 +2991,11 @@ void test_ci_one_cmd(){
   sha3sum_init(256);
   sha3sum_step_blob(&cinf.fileContent);
   sha3sum_finish(&cinf.fileHash);
-  checkin_web(&cinf, &newRid, wetRunFlag ? 0 : 1);
-  CheckinWebInfo_cleanup(&cinf);
+  checkin_one_file(&cinf, &newRid, wetRunFlag ? 0 : 1);
+  CheckinOneFileInfo_cleanup(&cinf);
   if(wetRunFlag!=0 && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");
-    /* vfile_check_signature(newRid,0); does not do the trick */
   }
 }
