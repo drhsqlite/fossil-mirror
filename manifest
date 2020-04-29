@@ -1,5 +1,5 @@
-C Now\sdisallow\smini-checkin\sif\sthe\sdatestamp\sis\solder\sthan\sthe\sparent\sunless\s--allow-older\sis\sused.
-D 2020-04-29T12:19:55.969
+C Removed\sa\sWindows/Cygwin-only\s#if\sguard\saround\sblob_add_cr()\sbecause\sit's\snow\soptionally\sused\sby\smini-commit.
+D 2020-04-29T14:24:03.850
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -438,7 +438,7 @@ F src/backlink.c 8904032a8c7da35f6808c30d0b7fef20693c7e72c49b6e6873e7e06e2f4f27a
 F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63ddca3
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
-F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
+F src/blob.c 879c9f3fbcfcbdf6772c2c13af2a1a29736ee0b432e6795dcb5643ebabee9828
 F src/branch.c e9f0019dfe75b6ffa848c51d25df6427e8537931326582fe53e7430cf6a30c9d
 F src/browse.c 8392b1ab131beb320c98b7f8e8c1a73486c40ce9d6af8a51991dc335b832704b
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d84c5149164fc0870c7360683beb2942caabfd72c9d2defe4c0cd472167fcdfc
-R 3d161922b8372a2abd55fc327dc42a7a
+P 0a0d96dd42db6dde58d1f65ea94467f51b2f24eb7ac39d468a5ee4e5a51c952d
+R 9889d266269944d3178cf4e463de36f9
 U stephan
-Z 887c635ef395b69852101fd1d1fb822a
+Z a76d689e7d149bf3a849c140d669e507

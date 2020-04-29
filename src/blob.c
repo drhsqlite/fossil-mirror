@@ -1169,7 +1169,6 @@ void test_cycle_compress(void){
   fossil_print("ok\n");
 }
 
-#if defined(_WIN32) || defined(__CYGWIN__)
 /*
 ** Convert every \n character in the given blob into \r\n.
 */
@@ -1193,7 +1192,6 @@ void blob_add_cr(Blob *p){
     }
   }
 }
-#endif
 
 /*
 ** Remove every \r character from the given blob, replacing each one with
