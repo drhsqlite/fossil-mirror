@@ -1,5 +1,5 @@
-C Correct\stypo
-D 2020-04-28T22:37:26.747
+C fix\sfor\s'no\srepo'\sprompt\sin\sthe\sshell\sfor\sunnamed\sprojects\s([https://fossil-scm.org/forum/forumpost/387c0a76f9|/forumpost/387c0a76f9]).
+D 2020-04-29T14:36:28.305
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -483,7 +483,7 @@ F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
-F src/fshell.c 632b614437d83c80a3a359f5bbb2d7d65e8d7f2f3a1319f00a5b363ea81264f9
+F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
 F src/glob.c 2209933ddc94df7e019a24c088ebdde67c115bb5
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ea275f941c65f233d24e335e8e4002fcc19cff876dde449f97b807231efbf87a
-R 7a5d7fbec4dfd984a92b0cab67a74895
-U andygoth
-Z 9e79bcade450b9c9ec3c28f1f3d0de27
+P acbbc133e125a5b67238041ffccb543e962642984598469ac887b6a9a34db6be
+R 67a651333a56d457d3560c4a3105bda6
+U stephan
+Z b213c96c14ad1a00e080e6af68323080
