@@ -1,5 +1,5 @@
-C Renamed\sthe\svarious\s"one"\spieces\sto\s"mini",\se.g.\scheckin_mini().
-D 2020-04-29T11:17:25.527
+C Now\sdisallow\smini-checkin\sif\sthe\sdatestamp\sis\solder\sthan\sthe\sparent\sunless\s--allow-older\sis\sused.
+D 2020-04-29T12:19:55.969
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
-F src/checkin.c eaa9001fe70211ae21a1ad38048ecf437fa6d1d7e947e3991089f8e9084905b5
+F src/checkin.c 936a2ce0c8142168d29b0c448bcd1d4e9b3efed3e92896d2564f3b613c55b622
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2af794163c3ba5539aac792710a50beeef67bb76271084709307b07324a58536
-R 8138dffe6b6aa91cec7de4ec34b69f2e
+P d84c5149164fc0870c7360683beb2942caabfd72c9d2defe4c0cd472167fcdfc
+R 3d161922b8372a2abd55fc327dc42a7a
 U stephan
-Z 2b9e4df06a714a1b8f999ea99cefc77a
+Z 887c635ef395b69852101fd1d1fb822a

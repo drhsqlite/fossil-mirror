@@ -1403,6 +1403,24 @@ int select_commit_files(void){
 }
 
 /*
+** Returns true if the checkin identified by the first parameter is
+** older than the given (valid) date/time string, else returns false.
+** Also returns true if rid does not refer to a checkin, but it is not
+** intended to be used for that case.
+*/
+static int checkin_is_younger(
+  int rid,              /* The record ID of the ancestor */
+  const char *zDate     /* Date & time of the current check-in */
+){
+  return db_exists(
+    "SELECT 1 FROM event"
+    " WHERE datetime(mtime)>=%Q"
+    "   AND type='ci' AND objid=%d",
+    zDate, rid
+  ) ? 0 : 1;
+}
+
+/*
 ** Make sure the current check-in with timestamp zDate is younger than its
 ** ancestor identified rid and zUuid.  Throw a fatal error if not.
 */
@@ -1412,19 +1430,14 @@ static void checkin_verify_younger(
   const char *zDate     /* Date & time of the current check-in */
 ){
 #ifndef FOSSIL_ALLOW_OUT_OF_ORDER_DATES
-  int b;
-  b = db_exists(
-    "SELECT 1 FROM event"
-    " WHERE datetime(mtime)>=%Q"
-    "   AND type='ci' AND objid=%d",
-    zDate, rid
-  );
-  if( b ){
+  if(checkin_is_younger(rid,zDate)==0){
     fossil_fatal("ancestor check-in [%S] (%s) is not older (clock skew?)"
                  " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
 }
+
+
 
 /*
 ** zDate should be a valid date string.  Convert this string into the
@@ -2747,9 +2760,22 @@ CIMINI_DUMP_MANIFEST = 1<<2,
 CIMINI_ALLOW_MERGE_MARKER = 1<<3,
 
 /*
+** By default mini-checkins are not allowed to be "older"
+** than their parent. i.e. they may not have a timestamp
+** which predates their parent. This flag bypasses that
+** check.
+*/
+CIMINI_ALLOW_OLDER = 1<<4,
+
+/*
+** NOT YET IMPLEMENTED. A hint to checkin_mini() to prefer
+** creation of a delta manifest.
+*/
+CIMINI_PREFER_DELTA = 1<<5,
+/*
 ** NOT YET IMPLEMENTED.
 */
-CIMINI_ALLOW_CLOSED_LEAF = 1<<4
+CIMINI_ALLOW_CLOSED_LEAF = 1<<6
 };
 
 /*
@@ -2779,6 +2805,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   assert(pCI->pParent);
   assert(pCI->zFilename);
   assert(pCI->zUser);
+  assert(pCI->zDate);
   
 #define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
   /* Potential TODOs include...
@@ -2796,25 +2823,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   }else{
     blob_append(pOut, "C (no\\scomment)\n", 16);
   }
-  {
-    /*
-    ** We don't use date_in_standard_format() because that has
-    ** side-effects we don't want to trigger here.
-    */
-    char * zDVal = db_text(
-         0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
-         pCI->zDate
-         ? pCI->zDate
-         : "now");
-    if(zDVal[0]==0){
-      fossil_free(zDVal);
-      mf_err((pErr,
-              "Invalid date format (%s): use \"YYYY-MM-DD HH:MM:SS.SSS\"",
-              pCI->zDate));
-    }
-    blob_appendf(pOut, "D %z\n", zDVal);
-  }
-
+  blob_appendf(pOut, "D %z\n", pCI->zDate);
   manifest_file_rewind(pCI->pParent);
   while((zFile = manifest_file_next(pCI->pParent, 0))){
     cmp = fncmp(zFile->zName, pCI->zFilename);
@@ -2895,9 +2904,17 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
-** If pCI->fileHash is empty, this routine populates it with the
-** repository's preferred hash algorithm. pCI is not otherwise
-** modified, nor is its ownership modified.
+** pCI may be modified as follows:
+**
+** - If pCI->fileHash is empty, this routine populates it with the
+**   repository's preferred hash algorithm.
+**
+** - pCI->zDate is normalized to/replaced with a valid date/time
+**   string. If its original value cannot be validated then
+**   this function fails. If pCI->zDate is NULL, the current time
+**   is used.
+**
+** pCI's ownership is not modified.
 **
 ** This function validates several of the inputs and fails if any
 ** validation fails.
@@ -2920,7 +2937,9 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   ManifestFile * zFile;             /* file from pCI->pParent */;
   const char * zFilePrevUuid = 0;   /* UUID of previous version of
                                        the file */
+
 #define ci_err(EXPR) if(pErr!=0){blob_appendf EXPR;} goto ci_error
+
   db_begin_transaction();
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
     ci_err((pErr,"No such user: %s", pCI->zUser));
@@ -2944,10 +2963,38 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
      && contains_merge_marker(&pCI->fileContent)){
     ci_err((pErr,"Content appears to contain a merge conflict marker."));
   }
+
+  {
+    /*
+    ** Normalize the timestamp. We don't use date_in_standard_format()
+    ** because that has side-effects we don't want to trigger here.
+    */
+    char * zDVal = db_text(
+         0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
+         pCI->zDate ? pCI->zDate : "now");
+    if(zDVal[0]==0){
+      fossil_free(zDVal);
+      ci_err((pErr,"Invalid timestamp string: %s", pCI->zDate));
+    }
+    fossil_free(pCI->zDate);
+    pCI->zDate = zDVal;
+  }
+  if(!(CIMINI_ALLOW_OLDER & ciminiFlags)
+     && !checkin_is_younger(pCI->pParent->rid, pCI->zDate)){
+    ci_err((pErr,"Checkin time (%s) may not be older "
+            "than its parent (%z).",
+            pCI->zDate,
+            db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%lf)",
+                    pCI->pParent->rDate)
+            ));
+  }
+
   /* Potential TODOs include:
   **
   ** - Commit allows an empty checkin only with a flag, but we
   **   currently disallow it entirely. Conform with commit?
+  **
+  ** Non-TODOs:
   **
   ** - Check for a commit lock would require auto-sync, which this
   **   code cannot do if it's going to be run via a web page.
@@ -2971,15 +3018,19 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
             pCI->zFilename, pCI->zParentUuid));
   }else if(zFile->zPerm && strstr(zFile->zPerm, "l")){
     ci_err((pErr,"Cannot save a symlink this way."));
-  }else{
+  }
+  if(blob_size(&pCI->fileHash)==0){
+    /* Hash the content if it's not done already... */
+    hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
+    assert(blob_size(&pCI->fileHash)>0);
+  }
+  if(zFile){
+    /* Has this file been changed since its previous commit? */
+    assert(blob_size(&pCI->fileHash));
     if(0==fossil_strcmp(zFile->zUuid, blob_str(&pCI->fileHash))){
       ci_err((pErr,"File is unchanged. Not saving."));
     }
     zFilePrevUuid = zFile->zUuid;
-  }
-  if(blob_size(&pCI->fileHash)==0){
-    hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
-    assert(blob_size(&pCI->fileHash)>0);
   }
   /* Create the manifest... */
   if(create_manifest_mini(&mf, pCI, pErr)==0){
@@ -2996,15 +3047,15 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   /* Save, deltify, and crosslink the manifest... */
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
   content_deltify(rid, &pCI->pParent->rid, 1, 0);
-  if(pRid!=0){
-    *pRid = rid;
-  }
   if(ciminiFlags & CIMINI_DUMP_MANIFEST){
-    fossil_print("Manifest: %z\n%b", rid_to_uuid(rid), &mf);
+    fossil_print("Manifest %z:\n%b", rid_to_uuid(rid), &mf);
   }
   manifest_crosslink(rid, &mf, 0);
   blob_reset(&mf);
   db_end_transaction((CIMINI_DRY_RUN & ciminiFlags) ? 1 : 0);
+  if(pRid!=0){
+    *pRid = rid;
+  }
   return 1;
 ci_error:
   assert(db_transaction_nesting_depth()>0);
@@ -3042,6 +3093,8 @@ ci_error:
 **                             to contain a fossil merge conflict marker.
 **   --user-override USER      USER to use instead of the current default.
 **   --date-override DATETIME  DATE to use instead of 'now'.
+**   --allow-older             Allow a commit to be older than its
+**                             ancestor.
 **   --dump-manifest|-d        Dumps the generated manifest to stdout.
 **   --wet-run                 Disables the default dry-run mode.
 **
@@ -3080,6 +3133,9 @@ void test_ci_mini_cmd(){
   }
   if(find_option("allow-merge-conflict",0,0)!=0){
     ciminiFlags |= CIMINI_ALLOW_MERGE_MARKER;
+  }
+  if(find_option("allow-older",0,0)!=0){
+    ciminiFlags |= CIMINI_ALLOW_OLDER;
   }
 
   db_find_and_open_repository(0, 0);
