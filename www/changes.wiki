@@ -67,9 +67,14 @@
      to all users if the new "artifact_stats_enable" setting is turned
      on.  There is a new checkbox under the /Admin/Access menu to turn
      that capability on and off.
+  *  Add the [/help?cmd=tls-config|fossil tls-config] command for viewing
+     the TLS configuration and the list of SSL Cert exceptions.
   *  Captchas all include a button to read the captcha using an audio
      file, so that they can be completed by the visually impaired.
   *  Stop using the IP address as part of the login cookie.
+  *  Bug fix: fix the SSL cert validation logic so that if an exception
+     is allowed for particular site, the exception expires as soon as the
+     cert changes values.
   *  Bug fix: the FTS search into for forum posts is now kept up-to-date
      correctly.
   *  Bug fix: the "fossil git export" command is now working on Windows

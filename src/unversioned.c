@@ -239,7 +239,10 @@ static int contains_whitespace(const char *zName){
 **    export FILE OUTPUT     Write the content of FILE into OUTPUT on disk
 **
 **    list | ls              Show all unversioned files held in the local
-**                           repository.
+**                           repository. Options:
+**
+**                              --glob PATTERN   Show only files that match
+**                              --like PATTERN   Show only files that match
 **
 **    revert ?URL?           Restore the state of all unversioned files in the
 **                           local repository to match the remote repository
@@ -252,7 +255,10 @@ static int contains_whitespace(const char *zName){
 **    remove|rm|delete FILE ...
 **                           Remove unversioned files from the local repository.
 **                           Changes are not pushed to other repositories until
-**                           the next sync.
+**                           the next sync.  Options:
+**
+**                              --glob PATTERN   Remove files that match
+**                              --like PATTERN   Remove files that match
 **
 **    sync ?URL?             Synchronize the state of all unversioned files with
 **                           the remote repository URL.  The most recent version
@@ -341,7 +347,9 @@ void unversioned_cmd(void){
     if( g.argc!=4) usage("edit UVFILE");
     zUVFile = g.argv[3];
     zEditor = fossil_text_editor();
-    if( zEditor==0 ) fossil_fatal("no text editor - set the VISUAL env variable");
+    if( zEditor==0 ){
+      fossil_fatal("no text editor - set the VISUAL env variable");
+    }
     zTFile = fossil_temp_filename();
     if( zTFile==0 ) fossil_fatal("cannot find a temporary filename");
     db_begin_transaction();
@@ -388,13 +396,27 @@ void unversioned_cmd(void){
     Stmt q;
     int allFlag = find_option("all","a",0)!=0;
     int longFlag = find_option("l",0,0)!=0 || (nCmd>1 && zCmd[1]=='i');
+    char *zPattern = sqlite3_mprintf("true");
+    const char *zGlob;
+    zGlob = find_option("glob",0,1);
+    if( zGlob ){
+      sqlite3_free(zPattern);
+      zPattern = sqlite3_mprintf("(name GLOB %Q)", zGlob);
+    }
+    zGlob = find_option("like",0,1);
+    if( zGlob ){
+      sqlite3_free(zPattern);
+      zPattern = sqlite3_mprintf("(name LIKE %Q)", zGlob);
+    }
     verify_all_options();
     if( !longFlag ){
       if( allFlag ){
-        db_prepare(&q, "SELECT name FROM unversioned ORDER BY name");
+        db_prepare(&q, "SELECT name FROM unversioned WHERE %s ORDER BY name",
+                   zPattern/*safe-for-%s*/);
       }else{
-        db_prepare(&q, "SELECT name FROM unversioned WHERE hash IS NOT NULL"
-                       " ORDER BY name");
+        db_prepare(&q, "SELECT name FROM unversioned"
+                       " WHERE %s AND hash IS NOT NULL"
+                       " ORDER BY name", zPattern/*safe-for-%s*/);
       }
       while( db_step(&q)==SQLITE_ROW ){
         fossil_print("%s\n", db_column_text(&q,0));
@@ -402,8 +424,8 @@ void unversioned_cmd(void){
     }else{
       db_prepare(&q,
         "SELECT hash, datetime(mtime,'unixepoch'), sz, length(content), name"
-        "   FROM unversioned"
-        "  ORDER BY name;"
+        "   FROM unversioned WHERE %s"
+        "  ORDER BY name;", zPattern/*safe-for-%s*/
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zHash = db_column_text(&q, 0);
@@ -425,16 +447,33 @@ void unversioned_cmd(void){
       }
     }
     db_finalize(&q);
+    sqlite3_free(zPattern);
   }else if( memcmp(zCmd, "revert", nCmd)==0 ){
-    unsigned syncFlags = unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
+    unsigned syncFlags = 
+        unversioned_sync_flags(SYNC_UNVERSIONED|SYNC_UV_REVERT);
     g.argv[1] = "sync";
     g.argv[2] = "--uv-noop";
     sync_unversioned(syncFlags);
   }else if( memcmp(zCmd, "remove", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0
          || memcmp(zCmd, "delete", nCmd)==0 ){
     int i;
-    verify_all_options();
+    const char *zGlob;
     db_begin_transaction();
+    while( (zGlob = find_option("glob",0,1))!=0 ){
+      db_multi_exec(
+        "UPDATE unversioned"
+        "   SET hash=NULL, content=NULL, mtime=%lld, sz=0 WHERE name GLOB %Q",
+        mtime, zGlob
+      );
+    }
+    while( (zGlob = find_option("like",0,1))!=0 ){
+      db_multi_exec(
+        "UPDATE unversioned"
+        "   SET hash=NULL, content=NULL, mtime=%lld, sz=0 WHERE name LIKE %Q",
+        mtime, zGlob
+      );
+    }
+    verify_all_options();
     for(i=3; i<g.argc; i++){
       db_multi_exec(
         "UPDATE unversioned"
