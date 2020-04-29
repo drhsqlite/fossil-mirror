@@ -2768,14 +2768,23 @@ CIMINI_ALLOW_MERGE_MARKER = 1<<3,
 CIMINI_ALLOW_OLDER = 1<<4,
 
 /*
+** Indicates that the content of the newly-checked-in file is
+** converted, if needed, to use the same EOL style as the previous
+** version of that file. Only the in-memory/in-repo copies are
+** affected, not the original file (if any).
+*/
+CIMINI_CONVERT_EOL = 1<<5,
+
+/*
 ** NOT YET IMPLEMENTED. A hint to checkin_mini() to prefer
 ** creation of a delta manifest.
 */
-CIMINI_PREFER_DELTA = 1<<5,
+CIMINI_PREFER_DELTA = 1<<6,
+
 /*
 ** NOT YET IMPLEMENTED.
 */
-CIMINI_ALLOW_CLOSED_LEAF = 1<<6
+CIMINI_ALLOW_CLOSED_LEAF = 1<<7
 };
 
 /*
@@ -2906,13 +2915,17 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 **
 ** pCI may be modified as follows:
 **
-** - If pCI->fileHash is empty, this routine populates it with the
-**   repository's preferred hash algorithm.
-**
 ** - pCI->zDate is normalized to/replaced with a valid date/time
 **   string. If its original value cannot be validated then
 **   this function fails. If pCI->zDate is NULL, the current time
 **   is used.
+**
+** - If pCI->fileContent is not binary and its line-ending style
+**   differs from its previous version, it is converted to the same
+**   EOL style. If this is done, the pCI->fileHash is re-computed.
+**
+** - If pCI->fileHash is empty, this routine populates it with the
+**   repository's preferred hash algorithm.
 **
 ** pCI's ownership is not modified.
 **
@@ -2934,9 +2947,8 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   Blob mf = empty_blob;             /* output manifest */
   int rid = 0, frid = 0;            /* various RIDs */
   const int isPrivate = content_is_private(pCI->pParent->rid);
-  ManifestFile * zFile;             /* file from pCI->pParent */;
-  const char * zFilePrevUuid = 0;   /* UUID of previous version of
-                                       the file */
+  ManifestFile * zFilePrev;         /* file entry from pCI->pParent */
+  int prevFRid = 0;                 /* RID of file's prev. version */
 
 #define ci_err(EXPR) if(pErr!=0){blob_appendf EXPR;} goto ci_error
 
@@ -3011,40 +3023,84 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   ** matter of removing this check or guarding it with a flag.
   */
   manifest_file_rewind(pCI->pParent);
-  zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
-  if(!zFile){
+  zFilePrev = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
+  if(!zFilePrev){
     ci_err((pErr,"File [%s] not found in manifest [%S]. "
             "Adding new files is currently not allowed.",
             pCI->zFilename, pCI->zParentUuid));
-  }else if(zFile->zPerm && strstr(zFile->zPerm, "l")){
+  }else if(zFilePrev->zPerm && strstr(zFilePrev->zPerm, "l")){
     ci_err((pErr,"Cannot save a symlink this way."));
+  }
+  if(zFilePrev){
+    prevFRid = fast_uuid_to_rid(zFilePrev->zUuid);
+  }
+
+  /* Confirm that the new content has the same EOL style as its
+  ** predecessor and convert it, if needed, to the same style. Note
+  ** that this inherently runs a risk of breaking content, e.g. string
+  ** literals which contain embedded newlines. Note that HTML5
+  ** specifies that form-submitted TEXTAREA content gets normalized to
+  ** CRLF-style:
+  **
+  ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
+  **
+  ** More performant/efficient would be to offer a flag which says
+  ** which newline form to use, converting the new copy (if needed)
+  ** without having to examine the original. Since the primary use
+  ** case is a web interface, it would be easy to offer it as a
+  ** checkbox there.
+  */
+  if((CIMINI_CONVERT_EOL & ciminiFlags)
+     && zFilePrev!=0
+     && blob_size(&pCI->fileContent)>0){
+    const int pseudoBinary = LOOK_LONG | LOOK_NUL;
+    const int lookFlags = LOOK_CRLF | pseudoBinary;
+    const int lookNew = looks_like_utf8( &pCI->fileContent, lookFlags );
+    if(!(pseudoBinary & lookNew)){
+      Blob contentPrev = empty_blob;
+      int lookOrig, nOrig;
+      content_get(prevFRid, &contentPrev);
+      lookOrig = looks_like_utf8(&contentPrev, lookFlags);
+      nOrig = blob_size(&contentPrev);
+      blob_reset(&contentPrev);
+      if(nOrig>0 && lookOrig!=lookNew){
+        /* If there is a newline-style mismatch, adjust the new
+        ** content version to the previous style, then re-hash the
+        ** content. Note that this means that what we insert is NOT
+        ** what's in the filesystem.
+        */
+        int rehash = 0;
+        if(!(lookOrig & LOOK_CRLF) && (lookNew & LOOK_CRLF)){
+          /* Old has Unix-style, new has Windows-style. */
+          blob_to_lf_only(&pCI->fileContent);
+          rehash = 1;
+        }else if((lookOrig & LOOK_CRLF) && !(lookNew & LOOK_CRLF)){
+          /* Old has Windows-style, new has Unix-style. */
+          blob_add_cr(&pCI->fileContent);
+          rehash = 1;
+        }
+        if(rehash!=0){
+          hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
+        }
+      }
+    }
   }
   if(blob_size(&pCI->fileHash)==0){
     /* Hash the content if it's not done already... */
     hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
     assert(blob_size(&pCI->fileHash)>0);
   }
-  if(zFile){
+  if(zFilePrev){
     /* Has this file been changed since its previous commit? */
     assert(blob_size(&pCI->fileHash));
-    if(0==fossil_strcmp(zFile->zUuid, blob_str(&pCI->fileHash))){
+    if(0==fossil_strcmp(zFilePrev->zUuid, blob_str(&pCI->fileHash))){
       ci_err((pErr,"File is unchanged. Not saving."));
     }
-    zFilePrevUuid = zFile->zUuid;
   }
-  /* Create the manifest... */
+  /* Create, save, deltify, and crosslink the manifest... */
   if(create_manifest_mini(&mf, pCI, pErr)==0){
     return 0;
   }
-  /* Save and deltify the file content... */
-  frid = content_put_ex(&pCI->fileContent, blob_str(&pCI->fileHash),
-                        0, 0, isPrivate);
-  if(zFilePrevUuid!=0){
-    int prevFRid = fast_uuid_to_rid(zFilePrevUuid);
-    assert(prevFRid>0);
-    content_deltify(frid, &prevFRid, 1, 0);
-  }
-  /* Save, deltify, and crosslink the manifest... */
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
   content_deltify(rid, &pCI->pParent->rid, 1, 0);
   if(ciminiFlags & CIMINI_DUMP_MANIFEST){
@@ -3052,6 +3108,13 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   }
   manifest_crosslink(rid, &mf, 0);
   blob_reset(&mf);
+  /* Save and deltify the file content... */
+  frid = content_put_ex(&pCI->fileContent, blob_str(&pCI->fileHash),
+                        0, 0, isPrivate);
+  if(zFilePrev!=0){
+    assert(prevFRid>0);
+    content_deltify(frid, &prevFRid, 1, 0);
+  }
   db_end_transaction((CIMINI_DRY_RUN & ciminiFlags) ? 1 : 0);
   if(pRid!=0){
     *pRid = rid;
@@ -3095,6 +3158,10 @@ ci_error:
 **   --date-override DATETIME  DATE to use instead of 'now'.
 **   --allow-older             Allow a commit to be older than its
 **                             ancestor.
+**   --convert-eol             Convert EOL style of the checkin to match
+**                             the previous version's content. Does not
+**                             modify the original file, only the
+**                             checked-in content.
 **   --dump-manifest|-d        Dumps the generated manifest to stdout.
 **   --wet-run                 Disables the default dry-run mode.
 **
@@ -3136,6 +3203,9 @@ void test_ci_mini_cmd(){
   }
   if(find_option("allow-older",0,0)!=0){
     ciminiFlags |= CIMINI_ALLOW_OLDER;
+  }
+  if(find_option("convert-eol",0,0)!=0){
+    ciminiFlags |= CIMINI_CONVERT_EOL;
   }
 
   db_find_and_open_repository(0, 0);
