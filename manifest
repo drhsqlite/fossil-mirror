@@ -1,5 +1,5 @@
-C fix\sfor\s'no\srepo'\sprompt\sin\sthe\sshell\sfor\sunnamed\sprojects\s([https://fossil-scm.org/forum/forumpost/387c0a76f9|/forumpost/387c0a76f9]).
-D 2020-04-29T14:36:28.305
+C Add\sa\snew\sleaf\sambiguity\swarning\safter\seach\scommit.\s\s(This\scheck-in\swill\nitself\sbe\sa\stest-case.)
+D 2020-04-29T18:44:57.228
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
-F src/checkin.c df35d1a67ec8f192814361ca64886b0df1d26f5e1582d16654f1618d6ccde55e
+F src/checkin.c b91dd495f87a68c4b3a5a1fcd11b495b7025c20dae6930baf8fb8860aadbe330
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P acbbc133e125a5b67238041ffccb543e962642984598469ac887b6a9a34db6be
-R 67a651333a56d457d3560c4a3105bda6
-U stephan
-Z b213c96c14ad1a00e080e6af68323080
+P 2d9ad2dbb92aacf1d0780710f3bce3017e468065e074dddcdfeed8a53a6db796
+R ebe7535bedd028c5ffbf274cc1684370
+U drh
+Z e1bb3255c43495f1bc4edaab28c94595
