@@ -2678,9 +2678,9 @@ void commit_cmd(void){
 ** ability to commit changes to a single file via an HTTP request.
 **
 ** Memory for all non-const (char *) members is owned by the
-** CheckinOneFileInfo instance.
+** CheckinMiniInfo instance.
 */
-struct CheckinOneFileInfo {
+struct CheckinMiniInfo {
   Blob comment;           /* Check-in comment text */
   char *zMimetype;        /* Mimetype of check-in command. May be NULL */
   Manifest * pParent;     /* parent checkin */
@@ -2696,19 +2696,19 @@ struct CheckinOneFileInfo {
   Blob fileHash;          /* Hash of this->fileContent, using the
                              repo's preferred hash method. */
 };
-typedef struct CheckinOneFileInfo CheckinOneFileInfo;
+typedef struct CheckinMiniInfo CheckinMiniInfo;
 /*
 ** Initializes p to a known-valid default state.
 */
-static void CheckinOneFileInfo_init( CheckinOneFileInfo * p ){
-  memset(p, 0, sizeof(CheckinOneFileInfo));
+static void CheckinMiniInfo_init( CheckinMiniInfo * p ){
+  memset(p, 0, sizeof(CheckinMiniInfo));
   p->comment = p->fileContent = p->fileHash = empty_blob;
 }
 
 /*
 ** Frees all memory owned by p, but does not free p.
  */
-static void CheckinOneFileInfo_cleanup( CheckinOneFileInfo * p ){
+static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
   blob_reset(&p->comment);
   blob_reset(&p->fileContent);
   blob_reset(&p->fileHash);
@@ -2720,36 +2720,36 @@ static void CheckinOneFileInfo_cleanup( CheckinOneFileInfo * p ){
   fossil_free(p->zParentUuid);
   fossil_free(p->zUser);
   fossil_free(p->zDate);
-  CheckinOneFileInfo_init(p);
+  CheckinMiniInfo_init(p);
 }
 
 /*
-** Flags for checkin_one_file()
+** Flags for checkin_mini()
 */
-enum fossil_ckin1_flags {
+enum fossil_cimini_flags {
 /*
-** Tells checkin_one_file() to use dry-run mode.
+** Tells checkin_mini() to use dry-run mode.
 */
-CKIN1_DRY_RUN = 1,
+CIMINI_DRY_RUN = 1,
 /*
-** Tells checkin_one_file() to allow forking from a non-leaf commit.
+** Tells checkin_mini() to allow forking from a non-leaf commit.
 */
-CKIN1_ALLOW_FORK = 1<<1,
+CIMINI_ALLOW_FORK = 1<<1,
 /*
-** Tells checkin_one_file() to dump its generated manifest to stdout.
+** Tells checkin_mini() to dump its generated manifest to stdout.
 */
-CKIN1_DUMP_MANIFEST = 1<<2,
+CIMINI_DUMP_MANIFEST = 1<<2,
 
 /*
 ** By default, content containing what appears to be a merge conflict
 ** marker is not permitted. This flag relaxes that requirement.
 */
-CKIN1_ALLOW_MERGE_MARKER = 1<<3,
+CIMINI_ALLOW_MERGE_MARKER = 1<<3,
 
 /*
 ** NOT YET IMPLEMENTED.
 */
-CKIN1_ALLOW_CLOSED_LEAF = 1<<4
+CIMINI_ALLOW_CLOSED_LEAF = 1<<4
 };
 
 /*
@@ -2761,9 +2761,8 @@ CKIN1_ALLOW_CLOSED_LEAF = 1<<4
 ** Returns true on success. On error, returns 0 and, if pErr is not
 ** NULL, writes an error message there.
 */
-static int create_manifest_one_file( Blob * pOut,
-                                     CheckinOneFileInfo * pCI,
-                                     Blob * pErr){
+static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
+                                 Blob * pErr){
   Blob zCard = empty_blob;     /* Z-card checksum */
   ManifestFile *zFile;         /* One file entry from the pCI->pParent*/
   int cmp = -99;               /* filename comparison result */
@@ -2883,10 +2882,13 @@ static int create_manifest_one_file( Blob * pOut,
 /*
 ** EXPERIMENTAL! Subject to change or removal at any time.
 **
-** A so-called "single-file checkin" is a slimmed-down form of the
-** checkin command which accepts only a single file and is intended to
-** accept edits to a file via the web interface or from the CLI from
-** outside of a checkout.
+** A so-called "single-file/mini/web checkin" is a slimmed-down form
+** of the checkin command which accepts only a single file and is
+** intended to accept edits to a file via the web interface or from
+** the CLI from outside of a checkout.
+**
+** Being fully non-interactive is a requirement for this function,
+** thus it cannot perform autosync or similar activities.
 **
 ** This routine uses the state from the given fully-populated pCI
 ** argument to add pCI->fileContent to the database, and create and
@@ -2894,7 +2896,11 @@ static int create_manifest_one_file( Blob * pOut,
 ** are unchanged.
 **
 ** If pCI->fileHash is empty, this routine populates it with the
-** repository's preferred hash algorithm.
+** repository's preferred hash algorithm. pCI is not otherwise
+** modified, nor is its ownership modified.
+**
+** This function validates several of the inputs and fails if any
+** validation fails.
 **
 ** On error, returns false (0) and, if pErr is not NULL, writes a
 ** diagnostic message there.
@@ -2902,12 +2908,12 @@ static int create_manifest_one_file( Blob * pOut,
 ** Returns true on success. If pRid is not NULL, the RID of the
 ** resulting manifest is written to *pRid.
 **
-** ckin1Flags is a bitmask of optional flags from fossil_ckin1_flags
+** ciminiFlags is a bitmask of optional flags from fossil_cimini_flags
 ** enum. See that enum for the docs for each flag. Pass 0 for no
 ** flags.
 */
-static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
-                             int ckin1Flags, Blob * pErr ){
+static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
+                         int ciminiFlags, Blob * pErr ){
   Blob mf = empty_blob;             /* output manifest */
   int rid = 0, frid = 0;            /* various RIDs */
   const int isPrivate = content_is_private(pCI->pParent->rid);
@@ -2929,18 +2935,14 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
     ** we won't, either.
     */
   }
-  if(!(CKIN1_ALLOW_FORK & ckin1Flags)
-          && !is_a_leaf(pCI->pParent->rid)){
+  if(!(CIMINI_ALLOW_FORK & ciminiFlags)
+     && !is_a_leaf(pCI->pParent->rid)){
     ci_err((pErr,"Parent [%S] is not a leaf and forking is disabled.",
             pCI->zParentUuid));
   }
-  if(!(CKIN1_ALLOW_MERGE_MARKER & ckin1Flags)
-          && contains_merge_marker(&pCI->fileContent)){
+  if(!(CIMINI_ALLOW_MERGE_MARKER & ciminiFlags)
+     && contains_merge_marker(&pCI->fileContent)){
     ci_err((pErr,"Content appears to contain a merge conflict marker."));
-  }
-  if(blob_size(&pCI->fileHash)==0){
-    hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
-    assert(blob_size(&pCI->fileHash)>0);
   }
   /* Potential TODOs include:
   **
@@ -2957,7 +2959,9 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
   ** strictly necessary. We do it to hopefully reduce the chance of an
   ** "oops" where file X/Y/z gets committed as X/Y/Z due to a typo or
   ** case-sensitivity mismatch between the user/repo/filesystem, or
-  ** some such.
+  ** some such. That said, the remainder of this function is written
+  ** as if this check did not exist, so enabling it "should" just be a
+  ** matter of removing this check or guarding it with a flag.
   */
   manifest_file_rewind(pCI->pParent);
   zFile = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
@@ -2973,17 +2977,19 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
     }
     zFilePrevUuid = zFile->zUuid;
   }
+  if(blob_size(&pCI->fileHash)==0){
+    hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
+    assert(blob_size(&pCI->fileHash)>0);
+  }
   /* Create the manifest... */
-  if(create_manifest_one_file(&mf, pCI, pErr)==0){
+  if(create_manifest_mini(&mf, pCI, pErr)==0){
     return 0;
   }
-  /* Add the file content to the db... */
+  /* Save and deltify the file content... */
   frid = content_put_ex(&pCI->fileContent, blob_str(&pCI->fileHash),
                         0, 0, isPrivate);
   if(zFilePrevUuid!=0){
-    /* Deltify against previous file version... */
-    int prevFRid = db_int(0,"SELECT rid FROM blob WHERE uuid=%Q",
-                          zFilePrevUuid);
+    int prevFRid = fast_uuid_to_rid(zFilePrevUuid);
     assert(prevFRid>0);
     content_deltify(frid, &prevFRid, 1, 0);
   }
@@ -2993,12 +2999,12 @@ static int checkin_one_file( CheckinOneFileInfo * pCI, int *pRid,
   if(pRid!=0){
     *pRid = rid;
   }
-  if( ckin1Flags & CKIN1_DUMP_MANIFEST ){
+  if(ciminiFlags & CIMINI_DUMP_MANIFEST){
     fossil_print("Manifest: %z\n%b", rid_to_uuid(rid), &mf);
   }
   manifest_crosslink(rid, &mf, 0);
   blob_reset(&mf);
-  db_end_transaction((CKIN1_DRY_RUN & ckin1Flags) ? 1 : 0);
+  db_end_transaction((CIMINI_DRY_RUN & ciminiFlags) ? 1 : 0);
   return 1;
 ci_error:
   assert(db_transaction_nesting_depth()>0);
@@ -3008,7 +3014,7 @@ ci_error:
 }
 
 /*
-** COMMAND: test-ci-one
+** COMMAND: test-ci-mini
 **
 ** This is an on-going experiment, subject to change or removal at
 ** any time.
@@ -3029,7 +3035,6 @@ ci_error:
 **   --revision|-r VERSION     Commit from this version. Default is
 **                             the checkout version (if available) or
 **                             trunk (if used without a checkout).
-**   --wet-run                 Disables the default dry-run mode.
 **   --allow-fork              Allows the commit to be made against a
 **                             non-leaf parent. Note that no autosync
 **                             is performed beforehand.
@@ -3038,14 +3043,15 @@ ci_error:
 **   --user-override USER      USER to use instead of the current default.
 **   --date-override DATETIME  DATE to use instead of 'now'.
 **   --dump-manifest|-d        Dumps the generated manifest to stdout.
+**   --wet-run                 Disables the default dry-run mode.
 **
 ** Example:
 **
-** %fossil test-ci-one -R REPO -m ... -r foo --as src/myfile.c myfile.c
+** %fossil test-ci-mini -R REPO -m ... -r foo --as src/myfile.c myfile.c
 **
 */
-void test_ci_one_cmd(){
-  CheckinOneFileInfo cinf;       /* checkin state */
+void test_ci_mini_cmd(){
+  CheckinMiniInfo cinf;       /* checkin state */
   int newRid = 0;                /* RID of new version */
   const char * zFilename;        /* argv[2] */
   const char * zComment;         /* -m comment */
@@ -3054,9 +3060,9 @@ void test_ci_one_cmd(){
   const char * zRevision;        /* --revision|-r [=trunk|checkout] */
   const char * zUser;            /* --user-override */
   const char * zDate;            /* --date-override */
-  int ckin1Flags = 0;            /* flags for checkin_one_file(). */
+  int ciminiFlags = 0;            /* flags for checkin_mini(). */
 
-  CheckinOneFileInfo_init(&cinf);
+  CheckinMiniInfo_init(&cinf);
   zComment = find_option("comment","m",1);
   zCommentFile = find_option("comment-file","M",1);
   zAsFilename = find_option("as",0,1);
@@ -3064,16 +3070,16 @@ void test_ci_one_cmd(){
   zUser = find_option("user-override",0,1);
   zDate = find_option("date-override",0,1);
   if(find_option("wet-run",0,0)==0){
-    ckin1Flags |= CKIN1_DRY_RUN;
+    ciminiFlags |= CIMINI_DRY_RUN;
   }
   if(find_option("allow-fork",0,0)!=0){
-    ckin1Flags |= CKIN1_ALLOW_FORK;
+    ciminiFlags |= CIMINI_ALLOW_FORK;
   }
   if(find_option("dump-manifest","d",0)!=0){
-    ckin1Flags |= CKIN1_DUMP_MANIFEST;
+    ciminiFlags |= CIMINI_DUMP_MANIFEST;
   }
   if(find_option("allow-merge-conflict",0,0)!=0){
-    ckin1Flags |= CKIN1_ALLOW_MERGE_MARKER;
+    ciminiFlags |= CIMINI_ALLOW_MERGE_MARKER;
   }
 
   db_find_and_open_repository(0, 0);
@@ -3109,7 +3115,7 @@ void test_ci_one_cmd(){
   }
   
   zFilename = g.argv[2];
-  cinf.zFilename = mprintf("%s", zAsFilename ? zAsFilename : zFilename);
+  cinf.zFilename = mprintf("%/", zAsFilename ? zAsFilename : zFilename);
   cinf.zUser = mprintf("%s", zUser ? zUser : login_name());
   if(zDate){
     cinf.zDate = mprintf("%s", zDate);
@@ -3131,9 +3137,9 @@ void test_ci_one_cmd(){
                       ExtFILE/*may want to reconsider*/);
   {
     Blob errMsg = empty_blob;
-    const int rc = checkin_one_file(&cinf, &newRid, ckin1Flags,
+    const int rc = checkin_mini(&cinf, &newRid, ciminiFlags,
                                     &errMsg);
-    CheckinOneFileInfo_cleanup(&cinf);
+    CheckinMiniInfo_cleanup(&cinf);
     if(rc){
       assert(blob_size(&errMsg)==0);
     }else{
@@ -3141,7 +3147,7 @@ void test_ci_one_cmd(){
       fossil_fatal("%b", &errMsg);
     }
   }
-  if(!(ckin1Flags & CKIN1_DRY_RUN) && newRid!=0 && g.localOpen!=0){
+  if(!(ciminiFlags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");
