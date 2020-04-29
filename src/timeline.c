@@ -1879,7 +1879,21 @@ void page_timeline(void){
       "  SELECT cid FROM plink\n"
       "   WHERE (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
       "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
-      "     AND pid IN rnfork;",
+      "   GROUP BY cid"
+      "   HAVING count(*)>1;\n",
+      TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
+    );
+    db_multi_exec(
+      "INSERT OR IGNORE INTO rnfork(rid)\n"
+      "  SELECT cid FROM plink\n"
+      "   WHERE pid IN rnfork"
+      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n"
+      " UNION "
+      "  SELECT pid FROM plink\n"
+      "   WHERE cid IN rnfork"
+      "     AND (SELECT value FROM tagxref WHERE tagid=%d AND rid=cid)=="
+      "           (SELECT value FROM tagxref WHERE tagid=%d AND rid=pid)\n",
       TAG_BRANCH, TAG_BRANCH, TAG_BRANCH, TAG_BRANCH
     );
     tmFlags |= TIMELINE_UNHIDE;
