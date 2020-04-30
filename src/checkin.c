@@ -2687,27 +2687,30 @@ void commit_cmd(void){
 }
 
 /*
-** State for the "web-checkin" infrastructure, which enables the
+** State for the "mini-checkin" infrastructure, which enables the
 ** ability to commit changes to a single file via an HTTP request.
 **
 ** Memory for all non-const (char *) members is owned by the
 ** CheckinMiniInfo instance.
 */
 struct CheckinMiniInfo {
-  Blob comment;           /* Check-in comment text */
-  char *zMimetype;        /* Mimetype of check-in command. May be NULL */
   Manifest * pParent;     /* parent checkin */
   char *zParentUuid;      /* UUID of pParent */
+  Blob comment;           /* Check-in comment text */
+  char *zMimetype;        /* Mimetype of check-in command. May be NULL */
   char *zUser;            /* User name */
   char *zDate;            /* Optionally force this date string
                              (anything supported by
-                             date_in_standard_format().
+                             date_in_standard_format()).
                              Maybe be NULL. */
   char *zFilename;        /* Name of single file to commit. Must be
                              relative to the top of the repo. */
   Blob fileContent;       /* Content of file referred to by zFilename. */
   Blob fileHash;          /* Hash of this->fileContent, using the
                              repo's preferred hash method. */
+  int flags;              /* Bitmask of fossil_cimini_flags for
+                             communication from checkin_mini() to
+                             create_manifest_mini(). */
 };
 typedef struct CheckinMiniInfo CheckinMiniInfo;
 /*
@@ -2715,6 +2718,7 @@ typedef struct CheckinMiniInfo CheckinMiniInfo;
 */
 static void CheckinMiniInfo_init( CheckinMiniInfo * p ){
   memset(p, 0, sizeof(CheckinMiniInfo));
+  p->flags = 0;
   p->comment = p->fileContent = p->fileHash = empty_blob;
 }
 
@@ -2740,6 +2744,7 @@ static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
 ** Flags for checkin_mini()
 */
 enum fossil_cimini_flags {
+CIMINI_NONE = 0,
 /*
 ** Tells checkin_mini() to use dry-run mode.
 */
@@ -2776,8 +2781,7 @@ CIMINI_ALLOW_OLDER = 1<<4,
 CIMINI_CONVERT_EOL = 1<<5,
 
 /*
-** NOT YET IMPLEMENTED. A hint to checkin_mini() to prefer
-** creation of a delta manifest.
+** A hint to checkin_mini() to prefer creation of a delta manifest.
 */
 CIMINI_PREFER_DELTA = 1<<6,
 
@@ -2788,27 +2792,133 @@ CIMINI_ALLOW_CLOSED_LEAF = 1<<7
 };
 
 /*
-** Creates a manifest file, written to pOut, from the state in the
-** fully-populated pCI argument. pCI is not *semantically* modified
-** but cannot be const because blob_str() may need to NUL-terminate
-** any given blob.
+** Handles the F-card parts for create_manifest_mini().
 **
-** Returns true on success. On error, returns 0 and, if pErr is not
-** NULL, writes an error message there.
+** If asDelta is true, pCI->pParent MUST be a baseline, else an
+** assert() is triggered. Still TODO is creating a delta from
+** pCI->pParent when that object is itself a delta.
+**
+** Returns 1 on success, 0 on error, and writes any error message to
+** pErr (if it's not NULL).
 */
-static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
-                                 Blob * pErr){
-  Blob zCard = empty_blob;     /* Z-card checksum */
+static int create_manifest_mini_fcards( Blob * pOut,
+                                        CheckinMiniInfo * pCI,
+                                        int asDelta,
+                                        Blob * pErr){
   ManifestFile *zFile;         /* One file entry from the pCI->pParent*/
-  int cmp = -99;               /* filename comparison result */
   int fperm = 0;               /* file permissions */
   const char *zPerm = 0;       /* permissions for new F-card */
-  const char *zFilename = 0;   /* filename to use for F-card */
-  const char *zUuid = 0;       /* UUID for F-card */
+  const char *zFilename = 0;   /* filename for new F-card */
+  const char *zUuid = 0;       /* UUID for new F-card */
+  int cmp = 0;                 /* filename comparison result */
   int (*fncmp)(char const *, char const *) =  /* filename comparator */
     filenames_are_case_sensitive()
     ? fossil_strcmp
     : fossil_stricmp;
+#define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
+
+  /* Potential TODOs:
+  **
+  ** - When updating a file and the new one has the +x bit, add that
+  **   bit if needed. We also need that logic in the upstream "has
+  **   this file changed?" check. We currently always inherit the old
+  **   perms.
+  */
+  
+  manifest_file_rewind(pCI->pParent);
+  if(asDelta){
+    /* Parent is a baseline and we have only 1 file to modify, so this
+    ** is the simplest case...
+    */
+    assert(pCI->pParent->zBaseline==0 && "Delta-from-delta is NYI.");
+    zFile = manifest_file_seek(pCI->pParent, pCI->zFilename,0);
+    if(zFile==0){
+      /* New file */
+      fperm = file_perm(pCI->zFilename, ExtFILE);
+      zFilename = pCI->zFilename;
+    }else{
+      /* Replacement file */
+      fperm = manifest_file_mperm(zFile);
+      zFilename = zFile->zName
+        /* use original name in case of name-case difference */;
+      zFile = 0;
+    }
+  }else{
+    /* Non-delta: write F-cards which lexically preceed pCI->zFilename */
+    while((zFile = manifest_file_next(pCI->pParent, 0))){
+      cmp = fncmp(zFile->zName, pCI->zFilename);
+      if(cmp<0){
+        blob_appendf(pOut, "F %F %s%s%s\n", zFile->zName, zFile->zUuid,
+                     (zFile->zPerm && *zFile->zPerm) ? " " : "",
+                     (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
+      }else{
+        break;
+      }
+    }
+    /* Figure out file perms and name to save... */
+    if(cmp==0){
+      /* Match: override this F-card */
+      fperm = manifest_file_mperm(zFile);
+      zFilename = zFile->zName
+        /* use original name in case of name-case difference */;
+      zFile = 0;
+    }else{
+      /* This is a new file. */
+      fperm = file_perm(pCI->zFilename, ExtFILE);
+      zFilename = pCI->zFilename;
+    }
+  }
+  assert(fperm!=PERM_LNK && "This should have been validated before.");
+  if(PERM_LNK==fperm){
+    mf_err((pErr,"Cannot commit symlinks via mini-checkin."));
+  }else if(PERM_EXE==fperm){
+    zPerm = " x";
+  }else{
+    zPerm = "";
+  }
+  zUuid = blob_str(&pCI->fileHash);
+  assert(zFile ? cmp>0&&asDelta==0 : asDelta!=0||cmp==0);
+  assert(zFilename);
+  assert(zUuid);
+  assert(zPerm);
+  blob_appendf(pOut, "F %F %s%s\n", zFilename, zUuid, zPerm);
+  /* Non-delta: write F-cards which lexically follow pCI->zFilename */
+  while(zFile!=0){
+#ifndef NDEBUG
+    cmp = fncmp(zFile->zName, pCI->zFilename);
+    assert(cmp>0);
+    if(cmp<=0){
+      mf_err((pErr,"Internal error: mis-ordering of "
+              "F-cards detected."));
+    }
+#endif
+    blob_appendf(pOut, "F %F %s%s%s\n",
+                 zFile->zName, zFile->zUuid,
+                 (zFile->zPerm && *zFile->zPerm) ? " " : "",
+                 (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
+    zFile = manifest_file_next(pCI->pParent, 0);
+  }
+#undef mf_err
+  return 1;
+}
+
+
+/*
+** Creates a manifest file, written to pOut, from the state in the
+** fully-populated and semantically valid pCI argument. pCI is not
+** *semantically* modified but cannot be const because blob_str() may
+** need to NUL-terminate any given blob.
+**
+** Returns true on success. On error, returns 0 and, if pErr is not
+** NULL, writes an error message there.
+**
+** Intended only to be called via checkin_mini() or routines which
+** have already completely vetted pCI.
+*/
+static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
+                                 Blob * pErr){
+  Blob zCard = empty_blob;     /* Z-card checksum */
+  int asDelta = 0;
 
   assert(blob_str(&pCI->fileHash));
   assert(pCI->pParent);
@@ -2827,61 +2937,22 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   **   checkout.
   */
   blob_zero(pOut);
+  if((pCI->flags & CIMINI_PREFER_DELTA)
+     && pCI->pParent->zBaseline==0){
+    asDelta = 1;
+  }
+  if(asDelta){
+    blob_appendf(pOut, "B %s\n", pCI->zParentUuid);
+  }
   if(blob_size(&pCI->comment)!=0){
     blob_appendf(pOut, "C %F\n", blob_str(&pCI->comment));
   }else{
     blob_append(pOut, "C (no\\scomment)\n", 16);
   }
   blob_appendf(pOut, "D %z\n", pCI->zDate);
-  manifest_file_rewind(pCI->pParent);
-  while((zFile = manifest_file_next(pCI->pParent, 0))){
-    cmp = fncmp(zFile->zName, pCI->zFilename);
-    if(cmp<0){
-      blob_appendf(pOut, "F %F %s%s%s\n", zFile->zName, zFile->zUuid,
-                   (zFile->zPerm && *zFile->zPerm) ? " " : "",
-                   (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
-    }else{
-      break;
-    }
-  }
-  if(cmp==0){ /* Match */
-    fperm = manifest_file_mperm(zFile);
-    zFilename = zFile->zName
-      /* use original name in case of name-case difference */;
-    zUuid = blob_str(&pCI->fileHash);
-  }else{
-    /* This is a new file. */
-    fperm = file_perm(pCI->zFilename, ExtFILE);
-    zFilename = pCI->zFilename;
-    zUuid = blob_str(&pCI->fileHash);
-    if(cmp>0){
-      assert(zFile!=0);
-      assert(pCI->pParent->iFile>0);
-      --pCI->pParent->iFile
-        /* so that the next step picks up that entry again */;
-    }
-  }
-  if(PERM_LNK==fperm){
-    mf_err((pErr,"Cannot commit symlinks with this approach."));
-  }else if(PERM_EXE==fperm){
-    zPerm = " x";
-  }else{
-    zPerm = "";
-  }
-  assert(zFilename);
-  assert(zUuid);
-  assert(zPerm);
-  blob_appendf(pOut, "F %F %s%s\n", zFilename, zUuid, zPerm);
-  while((zFile = manifest_file_next(pCI->pParent, 0))){
-    cmp = fncmp(zFile->zName, pCI->zFilename);
-    assert(cmp>0);
-    if(cmp<=0){
-      mf_err((pErr,"Internal error: mis-ordering of F-cards detected."));
-    }
-    blob_appendf(pOut, "F %F %s%s%s\n",
-                 zFile->zName, zFile->zUuid,
-                 (zFile->zPerm && *zFile->zPerm) ? " " : "",
-                 (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
+
+  if(!create_manifest_mini_fcards(pOut,pCI,asDelta,pErr)){
+    return 0;
   }
 
   if(pCI->zMimetype!=0 && pCI->zMimetype[0]!=0){
@@ -2938,12 +3009,11 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** Returns true on success. If pRid is not NULL, the RID of the
 ** resulting manifest is written to *pRid.
 **
-** ciminiFlags is a bitmask of optional flags from fossil_cimini_flags
-** enum. See that enum for the docs for each flag. Pass 0 for no
-** flags.
+** The checkin process is largely influenced by pCI->flags, and that
+** must be populated before calling this. See the fossil_cimini_flags
+** enum for the docs for each flag.
 */
-static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
-                         int ciminiFlags, Blob * pErr ){
+static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   Blob mf = empty_blob;             /* output manifest */
   int rid = 0, frid = 0;            /* various RIDs */
   const int isPrivate = content_is_private(pCI->pParent->rid);
@@ -2966,16 +3036,20 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
     ** we won't, either.
     */
   }
-  if(!(CIMINI_ALLOW_FORK & ciminiFlags)
+  if(!(CIMINI_ALLOW_FORK & pCI->flags)
      && !is_a_leaf(pCI->pParent->rid)){
     ci_err((pErr,"Parent [%S] is not a leaf and forking is disabled.",
             pCI->zParentUuid));
   }
-  if(!(CIMINI_ALLOW_MERGE_MARKER & ciminiFlags)
+  if(!(CIMINI_ALLOW_MERGE_MARKER & pCI->flags)
      && contains_merge_marker(&pCI->fileContent)){
     ci_err((pErr,"Content appears to contain a merge conflict marker."));
   }
-
+  if(!file_is_simple_pathname(pCI->zFilename, 1)){
+    ci_err((pErr,"Invalid filename for use in a repository: %s",
+            pCI->zFilename));
+  }
+  
   {
     /*
     ** Normalize the timestamp. We don't use date_in_standard_format()
@@ -2991,7 +3065,7 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
     fossil_free(pCI->zDate);
     pCI->zDate = zDVal;
   }
-  if(!(CIMINI_ALLOW_OLDER & ciminiFlags)
+  if(!(CIMINI_ALLOW_OLDER & pCI->flags)
      && !checkin_is_younger(pCI->pParent->rid, pCI->zDate)){
     ci_err((pErr,"Checkin time (%s) may not be older "
             "than its parent (%z).",
@@ -3026,33 +3100,34 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   zFilePrev = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
   if(!zFilePrev){
     ci_err((pErr,"File [%s] not found in manifest [%S]. "
-            "Adding new files is currently not allowed.",
+            "Adding new files is currently not permitted.",
             pCI->zFilename, pCI->zParentUuid));
-  }else if(zFilePrev->zPerm && strstr(zFilePrev->zPerm, "l")){
-    ci_err((pErr,"Cannot save a symlink this way."));
+  }else if(zFilePrev->zPerm
+           && manifest_file_mperm(zFilePrev)==PERM_LNK){
+    ci_err((pErr,"Cannot save a symlink via a mini-checkin."));
   }
   if(zFilePrev){
     prevFRid = fast_uuid_to_rid(zFilePrev->zUuid);
   }
 
-  /* Confirm that the new content has the same EOL style as its
-  ** predecessor and convert it, if needed, to the same style. Note
-  ** that this inherently runs a risk of breaking content, e.g. string
-  ** literals which contain embedded newlines. Note that HTML5
-  ** specifies that form-submitted TEXTAREA content gets normalized to
-  ** CRLF-style:
-  **
-  ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
-  **
-  ** More performant/efficient would be to offer a flag which says
-  ** which newline form to use, converting the new copy (if needed)
-  ** without having to examine the original. Since the primary use
-  ** case is a web interface, it would be easy to offer it as a
-  ** checkbox there.
-  */
-  if((CIMINI_CONVERT_EOL & ciminiFlags)
+  if((CIMINI_CONVERT_EOL & pCI->flags)
      && zFilePrev!=0
      && blob_size(&pCI->fileContent)>0){
+    /* Confirm that the new content has the same EOL style as its
+    ** predecessor and convert it, if needed, to the same style. Note
+    ** that this inherently runs a risk of breaking content,
+    ** e.g. string literals which contain embedded newlines. Note that
+    ** HTML5 specifies that form-submitted TEXTAREA content gets
+    ** normalized to CRLF-style:
+    **
+    ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
+    **
+    ** More performant/efficient would be to offer a flag which says
+    ** which newline form to use, converting the new copy (if needed)
+    ** without having to examine the original. Since the primary use
+    ** case is a web interface, it would be easy to offer it as a
+    ** checkbox there.
+    */
     const int pseudoBinary = LOOK_LONG | LOOK_NUL;
     const int lookFlags = LOOK_CRLF | pseudoBinary;
     const int lookNew = looks_like_utf8( &pCI->fileContent, lookFlags );
@@ -3103,7 +3178,7 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
   }
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
   content_deltify(rid, &pCI->pParent->rid, 1, 0);
-  if(ciminiFlags & CIMINI_DUMP_MANIFEST){
+  if(pCI->flags & CIMINI_DUMP_MANIFEST){
     fossil_print("Manifest %z:\n%b", rid_to_uuid(rid), &mf);
   }
   manifest_crosslink(rid, &mf, 0);
@@ -3115,7 +3190,7 @@ static int checkin_mini( CheckinMiniInfo * pCI, int *pRid,
     assert(prevFRid>0);
     content_deltify(frid, &prevFRid, 1, 0);
   }
-  db_end_transaction((CIMINI_DRY_RUN & ciminiFlags) ? 1 : 0);
+  db_end_transaction((CIMINI_DRY_RUN & pCI->flags) ? 1 : 0);
   if(pRid!=0){
     *pRid = rid;
   }
@@ -3162,6 +3237,8 @@ ci_error:
 **                             the previous version's content. Does not
 **                             modify the original file, only the
 **                             checked-in content.
+**   --delta                   Prefer to generate a delta manifest, if
+**                             able.
 **   --dump-manifest|-d        Dumps the generated manifest to stdout.
 **   --wet-run                 Disables the default dry-run mode.
 **
@@ -3180,7 +3257,6 @@ void test_ci_mini_cmd(){
   const char * zRevision;        /* --revision|-r [=trunk|checkout] */
   const char * zUser;            /* --user-override */
   const char * zDate;            /* --date-override */
-  int ciminiFlags = 0;            /* flags for checkin_mini(). */
 
   CheckinMiniInfo_init(&cinf);
   zComment = find_option("comment","m",1);
@@ -3190,33 +3266,36 @@ void test_ci_mini_cmd(){
   zUser = find_option("user-override",0,1);
   zDate = find_option("date-override",0,1);
   if(find_option("wet-run",0,0)==0){
-    ciminiFlags |= CIMINI_DRY_RUN;
+    cinf.flags |= CIMINI_DRY_RUN;
   }
   if(find_option("allow-fork",0,0)!=0){
-    ciminiFlags |= CIMINI_ALLOW_FORK;
+    cinf.flags |= CIMINI_ALLOW_FORK;
   }
   if(find_option("dump-manifest","d",0)!=0){
-    ciminiFlags |= CIMINI_DUMP_MANIFEST;
+    cinf.flags |= CIMINI_DUMP_MANIFEST;
   }
   if(find_option("allow-merge-conflict",0,0)!=0){
-    ciminiFlags |= CIMINI_ALLOW_MERGE_MARKER;
+    cinf.flags |= CIMINI_ALLOW_MERGE_MARKER;
   }
   if(find_option("allow-older",0,0)!=0){
-    ciminiFlags |= CIMINI_ALLOW_OLDER;
+    cinf.flags |= CIMINI_ALLOW_OLDER;
   }
   if(find_option("convert-eol",0,0)!=0){
-    ciminiFlags |= CIMINI_CONVERT_EOL;
+    cinf.flags |= CIMINI_CONVERT_EOL;
   }
-
+  if(find_option("delta",0,0)!=0){
+    cinf.flags |= CIMINI_PREFER_DELTA;
+  }
   db_find_and_open_repository(0, 0);
   verify_all_options();
   user_select();
-
   if(g.argc!=3){
     usage("INFILE");
   }
 
-  if(1){
+  if(!(cinf.flags & CIMINI_DRY_RUN)){
+    /* Until this feature is fully vetted, disallow it in the main
+    ** fossil repo unless dry-run mode is being used. */
     char * zProjCode = db_get("project-code",0);
     assert(zProjCode);
     if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
@@ -3263,8 +3342,7 @@ void test_ci_mini_cmd(){
                       ExtFILE/*may want to reconsider*/);
   {
     Blob errMsg = empty_blob;
-    const int rc = checkin_mini(&cinf, &newRid, ciminiFlags,
-                                    &errMsg);
+    const int rc = checkin_mini(&cinf, &newRid, &errMsg);
     CheckinMiniInfo_cleanup(&cinf);
     if(rc){
       assert(blob_size(&errMsg)==0);
@@ -3273,7 +3351,7 @@ void test_ci_mini_cmd(){
       fossil_fatal("%b", &errMsg);
     }
   }
-  if(!(ciminiFlags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
+  if(!(cinf.flags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");

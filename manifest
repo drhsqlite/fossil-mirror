@@ -1,5 +1,5 @@
-C Merged\sin\strunk.
-D 2020-04-29T14:43:33.748
+C Mini-checkin\scan\snow\screate\sa\sdelta\smanifest\sif\sits\sparent\sis\sa\sbaseline\sand\sa\sflag\sindicating\sa\spreference\sfor\sdelta\smanifests\sis\sset.
+D 2020-04-30T11:53:28.899
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
-F src/checkin.c bd8fa7f8c187cb62e91f2de7618a4fb807ddedba14c84dcaf582a8061e6231d1
+F src/checkin.c 379d8e2a5d19fd4f62a6e9e9e08dd7c4e4bf2df9a7618b637acc79572e3a2bca
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5a1a73c356823566f7e7119ac503af85a254bb17749e58beef698f596f59473e 2d9ad2dbb92aacf1d0780710f3bce3017e468065e074dddcdfeed8a53a6db796
-R 391f10e1bfbf926a51aa2e3601a0f1e0
+P c06b292365aab130fc27ad87bc7a2153dd062380d71ff8d5c2b95902517f950f
+R 9e817232c792d0e00acfc69c137a3557
 U stephan
-Z 6254322a49ccb5f73ee5d227d09aa7ce
+Z 2d2849122bd51159777fc4c7d07f6606
