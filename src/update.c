@@ -796,8 +796,8 @@ void revert_cmd(void){
   Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
   int i;
   Stmt q;
-  int revert_all = 0;
-  int fail_no_revsion_allowed = 0;
+  int revertAll = 0;
+  int revisionOptNotSupported = 0;
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
@@ -827,10 +827,10 @@ void revert_cmd(void){
       file_tree_name(zFile, &fname, 0, 1);
       if( blob_eq(&fname, ".") ){
         if( zRevision ){
-          fail_no_revsion_allowed = 1;
+          revisionOptNotSupported = 1;
           break;
         }
-        revert_all = 1;
+        revertAll = 1;
         break;
       }else if( db_exists(
         "SELECT pathname"
@@ -844,7 +844,7 @@ void revert_cmd(void){
         vfile_check_signature(vid, 0);
 
         if( zRevision ){
-          fail_no_revsion_allowed = 1;
+          revisionOptNotSupported = 1;
           break;
         }
         db_multi_exec(
@@ -870,15 +870,15 @@ void revert_cmd(void){
       blob_reset(&fname);
     }
   }else{
-    revert_all = 1;
+    revertAll = 1;
   }
 
-  if( fail_no_revsion_allowed ){
+  if( revisionOptNotSupported ){
     fossil_fatal("the --revision option does not work for the directories"
                  " or the entire tree");
   }
 
-  if ( revert_all ){
+  if ( revertAll ){
     int vid;
     vid = db_lget_int("checkout", 0);
     vfile_check_signature(vid, 0);
