@@ -2699,68 +2699,45 @@ void commit_cmd(void){
 
 /*
 ** State for the "mini-checkin" infrastructure, which enables the
-** ability to commit changes to a single file via an HTTP request.
+** ability to commit changes to a single file without a checkout
+** db, e.g. for use via an HTTP request.
 **
 ** Memory for all non-const (char *) members is owned by the
-** CheckinMiniInfo instance.
+** CheckinMiniInfo instance and is freed by CheckinMiniInfo_cleanup().
 */
 struct CheckinMiniInfo {
-  Manifest * pParent;  /* parent checkin */
+  Manifest * pParent;  /* parent checkin. Memory is owned by this
+                          object. */
   char *zParentUuid;   /* UUID of pParent */
-  Blob comment;        /* Check-in comment text */
-  char *zMimetype;     /* Mimetype of check-in command. May be NULL */
-  char *zUser;         /* User name */
-  char *zDate;         /* Optionally force this date string (anything
-                          supported by date_in_standard_format()).
-                          Maybe be NULL. */
   char *zFilename;     /* Name of single file to commit. Must be
                           relative to the top of the repo. */
   Blob fileContent;    /* Content of file referred to by zFilename. */
   Blob fileHash;       /* Hash of this->fileContent, using the repo's
                           preferred hash method. */
-  int filePerm;        /* Permissions (via file_perm()) of file. We
-                          need to store this before calling
+  Blob comment;        /* Check-in comment text */
+  char *zMimetype;     /* Mimetype of comment. May be NULL */
+  char *zUser;         /* User name */
+  char *zDate;         /* Optionally force this date string (anything
+                          supported by date_in_standard_format()).
+                          Maybe be NULL. */
+  Blob *pMfOut;        /* If not NULL, checkin_mini() will write a
+                          copy of the generated manifest here. This
+                          memory is NOT owned by CheckinMiniInfo. */
+  int filePerm;        /* Permissions (via file_perm()) of the input
+                          file. We need to store this before calling
                           checkin_mini() because the real input file
-                          name may differ from this->zFilename and
-                          checkin_mini() requires the permissions of
-                          the original file. For web commits, set this
-                          to PERM_REG before calling
-                          checkin_mini(). */
-  int flags;           /* Bitmask of fossil_cimini_flags for
-                          communication from checkin_mini() to
-                          create_manifest_mini(). */
+                          name may differ from the repo-centric
+                          this->zFilename, and checkin_mini() requires
+                          the permissions of the original file. For
+                          web commits, set this to PERM_REG or (when
+                          editing executable scripts) PERM_EXE before
+                          calling checkin_mini(). */
+  int flags;           /* Bitmask of fossil_cimini_flags. */
 };
 typedef struct CheckinMiniInfo CheckinMiniInfo;
-/*
-** Initializes p to a known-valid default state.
-*/
-static void CheckinMiniInfo_init( CheckinMiniInfo * p ){
-  memset(p, 0, sizeof(CheckinMiniInfo));
-  p->flags = 0;
-  p->filePerm = -1;
-  p->comment = p->fileContent = p->fileHash = empty_blob;
-}
 
 /*
-** Frees all memory owned by p, but does not free p.
- */
-static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
-  blob_reset(&p->comment);
-  blob_reset(&p->fileContent);
-  blob_reset(&p->fileHash);
-  if(p->pParent){
-    manifest_destroy(p->pParent);
-  }
-  fossil_free(p->zFilename);
-  fossil_free(p->zMimetype);
-  fossil_free(p->zParentUuid);
-  fossil_free(p->zUser);
-  fossil_free(p->zDate);
-  CheckinMiniInfo_init(p);
-}
-
-/*
-** Flags for checkin_mini()
+** CheckinMiniInfo::flags values.
 */
 enum fossil_cimini_flags {
 CIMINI_NONE = 0,
@@ -2828,6 +2805,34 @@ CIMINI_ALLOW_NEW_FILE = 1<<8
 };
 
 /*
+** Initializes p to a known-valid default state.
+*/
+static void CheckinMiniInfo_init( CheckinMiniInfo * p ){
+  memset(p, 0, sizeof(CheckinMiniInfo));
+  p->flags = CIMINI_NONE;
+  p->filePerm = -1;
+  p->comment = p->fileContent = p->fileHash = empty_blob;
+}
+
+/*
+** Frees all memory owned by p, but does not free p.
+ */
+static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
+  blob_reset(&p->comment);
+  blob_reset(&p->fileContent);
+  blob_reset(&p->fileHash);
+  if(p->pParent){
+    manifest_destroy(p->pParent);
+  }
+  fossil_free(p->zFilename);
+  fossil_free(p->zMimetype);
+  fossil_free(p->zParentUuid);
+  fossil_free(p->zUser);
+  fossil_free(p->zDate);
+  CheckinMiniInfo_init(p);
+}
+
+/*
 ** Internal helper which returns an F-card perms string suitable for
 ** writing into a manifest.
 */
@@ -2844,6 +2849,27 @@ static const char * mfile_perm_mstring(const ManifestFile * p){
 }
 
 /*
+** Internal helper for checkin_mini() and friends. Appends an F-card
+** for p to pOut.
+*/
+static void checkin_mini_append_fcard(Blob *pOut, const ManifestFile *p){
+  if(p->zUuid){
+    assert(*p->zUuid);
+    blob_appendf(pOut, "F %F %s%s", p->zName,
+                 p->zUuid, mfile_perm_mstring(p));
+    if(p->zPrior){
+      assert(*p->zPrior);
+      blob_appendf(pOut, " %F\n", p->zPrior);
+    }else{
+      blob_append(pOut, "\n", 1);
+    }
+  }else{
+    /* File was removed from parent delta. */
+    blob_appendf(pOut, "F %F\n", p->zName);
+  }
+}
+
+/*
 ** Handles the F-card parts for create_manifest_mini().
 **
 ** If asDelta is true, F-cards will be handled as for a delta
@@ -2857,7 +2883,7 @@ static int create_manifest_mini_fcards( Blob * pOut,
                                         CheckinMiniInfo * pCI,
                                         int asDelta,
                                         Blob * pErr){
-  ManifestFile *zFile;         /* One file entry from pCI->pParent */
+  ManifestFile *pFile;         /* One file entry from pCI->pParent */
   const char *zFilename = 0;   /* filename for new F-card */
   const char *zUuid = 0;       /* UUID for new F-card */
   int cmp = 0;                 /* filename comparison result */
@@ -2884,14 +2910,14 @@ static int create_manifest_mini_fcards( Blob * pOut,
       /* Parent is a baseline or a delta with no F-cards, so this is
       ** the simplest case: create a delta with a single F-card.
       */
-      zFile = manifest_file_find(pCI->pParent, pCI->zFilename);
-      if(zFile==0){/* New file */
+      pFile = manifest_file_find(pCI->pParent, pCI->zFilename);
+      if(pFile==0){/* New file */
         zFilename = pCI->zFilename;
       }else{/* Replacement file */
-        if(manifest_file_mperm(zFile)==PERM_LNK){
+        if(manifest_file_mperm(pFile)==PERM_LNK){
           goto err_no_symlink;
         }
-        zFilename = zFile->zName
+        zFilename = pFile->zName
           /* use original name in case of name-case difference */;
       }
       postProcess = 0;
@@ -2909,30 +2935,25 @@ static int create_manifest_mini_fcards( Blob * pOut,
       cmp = -1;
       assert(p->nFile > 0);
       iFCursor = 0;
-      zFile = &p->aFile[iFCursor];
+      pFile = &p->aFile[iFCursor];
       /* Write F-cards which lexically preceed pCI->zFilename */
       for( ; iFCursor<p->nFile; ){
-        zFile = &p->aFile[iFCursor];
-        cmp = fncmp(zFile->zName, pCI->zFilename);
+        pFile = &p->aFile[iFCursor];
+        cmp = fncmp(pFile->zName, pCI->zFilename);
         if(cmp<0){
           ++iFCursor;
-          if(zFile->zUuid){
-            blob_appendf(pOut, "F %F %s%s\n", zFile->zName,
-                         zFile->zUuid, mfile_perm_mstring(zFile));
-          }else{/* File was removed in parent delta */
-            blob_appendf(pOut, "F %F\n", zFile->zName);
-          }
+          checkin_mini_append_fcard(pOut,pFile);
         }else{
           break;
         }
       }
       if(0==cmp){/* Match: override this F-card */
-        assert(zFile);
-        if(manifest_file_mperm(zFile)==PERM_LNK){
+        assert(pFile);
+        if(manifest_file_mperm(pFile)==PERM_LNK){
           goto err_no_symlink;
         }
         ++iFCursor;
-        zFilename = zFile->zName
+        zFilename = pFile->zName
           /* use original name in case of name-case difference */;
       }else{/* This is a new file */
         zFilename = pCI->zFilename;
@@ -2942,20 +2963,19 @@ static int create_manifest_mini_fcards( Blob * pOut,
   }else{/* Non-delta: write F-cards which lexically preceed
            pCI->zFilename */
     cmp = -1;
-    while((zFile = manifest_file_next(pCI->pParent, 0))
-          && (cmp = fncmp(zFile->zName, pCI->zFilename))<0){
-      blob_appendf(pOut, "F %F %s%s\n", zFile->zName, zFile->zUuid,
-                   mfile_perm_mstring(zFile));
+    while((pFile = manifest_file_next(pCI->pParent, 0))
+          && (cmp = fncmp(pFile->zName, pCI->zFilename))<0){
+      checkin_mini_append_fcard(pOut,pFile);
     }
     if(cmp==0){/* Match: override this F-card*/
-      if(manifest_file_mperm(zFile)==PERM_LNK){
+      if(manifest_file_mperm(pFile)==PERM_LNK){
         goto err_no_symlink;
       }
-      zFilename = zFile->zName
+      zFilename = pFile->zName
         /* use original name in case of name-case difference */;
     }else{/* This is a new file. */
       zFilename = pCI->zFilename;
-      if(zFile!=0){
+      if(pFile!=0){
         assert(cmp>0);
         assert(pCI->pParent->iFile>0);
         --pCI->pParent->iFile
@@ -2966,7 +2986,7 @@ static int create_manifest_mini_fcards( Blob * pOut,
     postProcess = 1;
   }
   /* Finally add the new file's F-card... */
-  zFile = 0;
+  pFile = 0;
   zUuid = blob_str(&pCI->fileHash);
   assert(zFilename);
   assert(zUuid);
@@ -2976,30 +2996,24 @@ static int create_manifest_mini_fcards( Blob * pOut,
   while(postProcess>0){
     /* Write F-cards which lexically follow pCI->zFilename */
     if(postProcess==1){ /* non-delta parent */
-      zFile = manifest_file_next(pCI->pParent, 0);
+      pFile = manifest_file_next(pCI->pParent, 0);
     }else{ /* clone directly from delta parent */
-      zFile = iFCursor<pCI->pParent->nFile
+      pFile = iFCursor<pCI->pParent->nFile
         ? &pCI->pParent->aFile[iFCursor++] : 0;
     }
-    if(zFile==0){
+    if(pFile==0){
       break;
     }
 #ifndef NDEBUG
-    cmp = fncmp(zFile->zName, pCI->zFilename);
+    cmp = fncmp(pFile->zName, pCI->zFilename);
     assert(cmp>0);
     if(cmp<=0){
       mf_err((pErr,"Internal error: mis-ordering of "
               "F-cards detected."));
     }
 #endif
-    if(zFile->zUuid){
-      blob_appendf(pOut, "F %F %s%s\n", zFile->zName, zFile->zUuid,
-                   mfile_perm_mstring(zFile));
-    }else{
-      assert(postProcess==2);
-      /* File was removed from parent delta. */
-      blob_appendf(pOut, "F %F\n", zFile->zName);
-    }
+    assert(pFile->zUuid || 2==postProcess);
+    checkin_mini_append_fcard(pOut,pFile);
   }
   return 1;
 err_no_symlink:
@@ -3318,10 +3332,16 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   }
   isPrivate = content_is_private(pCI->pParent->rid);
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
-  content_deltify(rid, &pCI->pParent->rid, 1, 0);
   if(pCI->flags & CIMINI_DUMP_MANIFEST){
-    fossil_print("Manifest %z:\n%b", rid_to_uuid(rid), &mf);
+    fossil_print("%b", &mf);
   }
+  if(pCI->pMfOut!=0){
+    /* Cross-linking clears mf, so we have to copy it,
+    ** instead of taking over its memory. */
+    blob_reset(pCI->pMfOut);
+    blob_append(pCI->pMfOut, blob_buffer(&mf), blob_size(&mf));
+  }
+  content_deltify(rid, &pCI->pParent->rid, 1, 0);
   manifest_crosslink(rid, &mf, 0);
   blob_reset(&mf);
   /* Save and deltify the file content... */
@@ -3390,7 +3410,10 @@ ci_error:
 **                             sensitivity errors inadvertently lead to
 **                             adding a new file where an update is
 **                             intended.
-**   --dump-manifest|-d        Dumps the generated manifest to stdout.
+**   --dump-manifest|-d        Dumps the generated manifest to stdout
+**                             immediately after it's generated.
+**   --save-manifest FILE      Saves the generated manifest to a file
+**                             after successfully processing it.
 **   --wet-run                 Disables the default dry-run mode.
 **
 ** Example:
@@ -3408,6 +3431,7 @@ void test_ci_mini_cmd(){
   const char * zRevision;        /* --revision|-r [=trunk|checkout] */
   const char * zUser;            /* --user-override */
   const char * zDate;            /* --date-override */
+  char const * zManifestFile = 0;/* --save-manifest FILE */
 
   /* This function should perform only the minimal "business logic" it
   ** needs in order to fully/properly populate the CheckinMiniInfo and
@@ -3422,6 +3446,7 @@ void test_ci_mini_cmd(){
   zRevision = find_option("revision","r",1);
   zUser = find_option("user-override",0,1);
   zDate = find_option("date-override",0,1);
+  zManifestFile = find_option("save-manifest",0,1);
   if(find_option("wet-run",0,0)==0){
     cinf.flags |= CIMINI_DRY_RUN;
   }
@@ -3468,6 +3493,7 @@ void test_ci_mini_cmd(){
       fossil_fatal("Non-empty checkin comment is required.");
     }
   }
+  db_begin_transaction();
   zFilename = g.argv[2];
   cinf.zFilename = mprintf("%/", zAsFilename ? zAsFilename : zFilename);
   cinf.filePerm = file_perm(zFilename, ExtFILE);
@@ -3486,22 +3512,41 @@ void test_ci_mini_cmd(){
   if(cinf.zParentUuid==0){
     fossil_fatal("Cannot determine version to commit to.");
   }
-  blob_read_from_file(&cinf.fileContent, zFilename,
-                      ExtFILE/*may want to reconsider*/);
+  blob_read_from_file(&cinf.fileContent, zFilename, ExtFILE);
   {
+    Blob theManifest = empty_blob; /* --save-manifest target */
     Blob errMsg = empty_blob;
-    const int rc = checkin_mini(&cinf, &newRid, &errMsg);
-    CheckinMiniInfo_cleanup(&cinf);
+    int rc;
+    if(zManifestFile){
+      cinf.pMfOut = &theManifest;
+    }
+    rc = checkin_mini(&cinf, &newRid, &errMsg);
     if(rc){
       assert(blob_size(&errMsg)==0);
     }else{
       assert(blob_size(&errMsg));
       fossil_fatal("%b", &errMsg);
     }
+    if(zManifestFile){
+      fossil_print("Writing manifest to: %s\n", zManifestFile);
+      assert(blob_size(&theManifest)>0);
+      blob_write_to_file(&theManifest, zManifestFile);
+      blob_reset(&theManifest);
+    }
   }
+  if(newRid!=0){
+    fossil_print("New version%s: %z\n",
+                 (cinf.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
+                 rid_to_uuid(newRid));
+  }
+  db_end_transaction(0/*checkin_mini() will have triggered it to roll
+                      ** back in dry-run mode, but we need access to
+                      ** the transaction-written db state in this
+                      ** routine.*/);
   if(!(cinf.flags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");
   }
+  CheckinMiniInfo_cleanup(&cinf);
 }

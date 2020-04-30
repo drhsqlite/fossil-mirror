@@ -1,5 +1,5 @@
-C Merged\sin\strunk\sfor\srelated\schanges.
-D 2020-04-30T16:14:26.075
+C Corrected\spropagation\sof\sdeleted-via-delta\sF-cards.\sAdded\soption\sto\ssave\sgenerated\smanifest\s(on\ssuccess)\sto\sa\sfile.\sGeneral\scleanups.
+D 2020-04-30T17:55:41.748
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
-F src/checkin.c 7e78eb48758955abc27deda2da3cc579c01ff52c84e0d175253ad4efd808db17
+F src/checkin.c e63e662f678e09d84aeb0b37fd74385d43f2f9f502ec938e6ef29186399da476
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d8d9929c403eeed2cc14459033ad8ef84ae69878024f14a4aaec819fa5c643b2 44ac944a981686f696a970bd146768ead33b251906593efded489cf38602ed2e
-R bd48f30c3d2373e4241cc0d21513399c
+P 03cce1c97786f8473cb1de50f6b1d74b2f8ccd4c2115e9a924c3e9e3fad11812
+R 95220cac10b2de828833078a096a2527
 U stephan
-Z f3eab77c4c0bb6ef6969341e25e9cb2f
+Z be9a7b96dc2a3359105e4b55a20e1382
