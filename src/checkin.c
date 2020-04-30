@@ -2694,23 +2694,30 @@ void commit_cmd(void){
 ** CheckinMiniInfo instance.
 */
 struct CheckinMiniInfo {
-  Manifest * pParent;     /* parent checkin */
-  char *zParentUuid;      /* UUID of pParent */
-  Blob comment;           /* Check-in comment text */
-  char *zMimetype;        /* Mimetype of check-in command. May be NULL */
-  char *zUser;            /* User name */
-  char *zDate;            /* Optionally force this date string
-                             (anything supported by
-                             date_in_standard_format()).
-                             Maybe be NULL. */
-  char *zFilename;        /* Name of single file to commit. Must be
-                             relative to the top of the repo. */
-  Blob fileContent;       /* Content of file referred to by zFilename. */
-  Blob fileHash;          /* Hash of this->fileContent, using the
-                             repo's preferred hash method. */
-  int flags;              /* Bitmask of fossil_cimini_flags for
-                             communication from checkin_mini() to
-                             create_manifest_mini(). */
+  Manifest * pParent;  /* parent checkin */
+  char *zParentUuid;   /* UUID of pParent */
+  Blob comment;        /* Check-in comment text */
+  char *zMimetype;     /* Mimetype of check-in command. May be NULL */
+  char *zUser;         /* User name */
+  char *zDate;         /* Optionally force this date string (anything
+                          supported by date_in_standard_format()).
+                          Maybe be NULL. */
+  char *zFilename;     /* Name of single file to commit. Must be
+                          relative to the top of the repo. */
+  Blob fileContent;    /* Content of file referred to by zFilename. */
+  Blob fileHash;       /* Hash of this->fileContent, using the repo's
+                          preferred hash method. */
+  int filePerm;        /* Permissions (via file_perm()) of file. We
+                          need to store this before calling
+                          checkin_mini() because the real input file
+                          name may differ from this->zFilename and
+                          checkin_mini() requires the permissions of
+                          the original file. For web commits, set this
+                          to PERM_REG before calling
+                          checkin_mini(). */
+  int flags;           /* Bitmask of fossil_cimini_flags for
+                          communication from checkin_mini() to
+                          create_manifest_mini(). */
 };
 typedef struct CheckinMiniInfo CheckinMiniInfo;
 /*
@@ -2719,6 +2726,7 @@ typedef struct CheckinMiniInfo CheckinMiniInfo;
 static void CheckinMiniInfo_init( CheckinMiniInfo * p ){
   memset(p, 0, sizeof(CheckinMiniInfo));
   p->flags = 0;
+  p->filePerm = -1;
   p->comment = p->fileContent = p->fileHash = empty_blob;
 }
 
@@ -2786,9 +2794,12 @@ CIMINI_CONVERT_EOL = 1<<5,
 CIMINI_PREFER_DELTA = 1<<6,
 
 /*
-** NOT YET IMPLEMENTED.
+** Tells checkin_mini() to permit the addition of a new file. Normally
+** this is disabled because there are many cases where it could cause
+** the inadvertent addition of a new file when an update to an
+** existing was intended, as a side-effect of name-case differences.
 */
-CIMINI_ALLOW_CLOSED_LEAF = 1<<7
+CIMINI_ALLOW_NEW_FILE = 1<<7
 };
 
 /*
@@ -2806,7 +2817,6 @@ static int create_manifest_mini_fcards( Blob * pOut,
                                         int asDelta,
                                         Blob * pErr){
   ManifestFile *zFile;         /* One file entry from the pCI->pParent*/
-  int fperm = 0;               /* file permissions */
   const char *zPerm = 0;       /* permissions for new F-card */
   const char *zFilename = 0;   /* filename for new F-card */
   const char *zUuid = 0;       /* UUID for new F-card */
@@ -2817,13 +2827,8 @@ static int create_manifest_mini_fcards( Blob * pOut,
     : fossil_stricmp;
 #define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
 
-  /* Potential TODOs:
-  **
-  ** - When updating a file and the new one has the +x bit, add that
-  **   bit if needed. We also need that logic in the upstream "has
-  **   this file changed?" check. We currently always inherit the old
-  **   perms.
-  */
+  assert(pCI->filePerm!=PERM_LNK && "This should have been validated before.");
+  assert(pCI->filePerm>=0 && "Must have been set by the caller.");
   
   manifest_file_rewind(pCI->pParent);
   if(asDelta){
@@ -2834,50 +2839,48 @@ static int create_manifest_mini_fcards( Blob * pOut,
     zFile = manifest_file_seek(pCI->pParent, pCI->zFilename,0);
     if(zFile==0){
       /* New file */
-      fperm = file_perm(pCI->zFilename, ExtFILE);
       zFilename = pCI->zFilename;
     }else{
       /* Replacement file */
-      fperm = manifest_file_mperm(zFile);
+      if(manifest_file_mperm(zFile)==PERM_LNK){
+        goto err_no_symlink;
+      }
       zFilename = zFile->zName
         /* use original name in case of name-case difference */;
       zFile = 0;
     }
   }else{
     /* Non-delta: write F-cards which lexically preceed pCI->zFilename */
-    while((zFile = manifest_file_next(pCI->pParent, 0))){
-      cmp = fncmp(zFile->zName, pCI->zFilename);
-      if(cmp<0){
-        blob_appendf(pOut, "F %F %s%s%s\n", zFile->zName, zFile->zUuid,
-                     (zFile->zPerm && *zFile->zPerm) ? " " : "",
-                     (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
-      }else{
-        break;
-      }
+    while((zFile = manifest_file_next(pCI->pParent, 0))
+          && (cmp = fncmp(zFile->zName, pCI->zFilename))<0){
+      blob_appendf(pOut, "F %F %s%s%s\n", zFile->zName, zFile->zUuid,
+                   (zFile->zPerm && *zFile->zPerm) ? " " : "",
+                   (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
     }
     /* Figure out file perms and name to save... */
-    if(cmp==0){
+    if(zFile!=0 && cmp==0){
       /* Match: override this F-card */
-      fperm = manifest_file_mperm(zFile);
+      if(manifest_file_mperm(zFile)==PERM_LNK){
+        goto err_no_symlink;
+      }
       zFilename = zFile->zName
         /* use original name in case of name-case difference */;
       zFile = 0;
     }else{
       /* This is a new file. */
-      fperm = file_perm(pCI->zFilename, ExtFILE);
+      assert(zFile==0);
       zFilename = pCI->zFilename;
     }
   }
-  assert(fperm!=PERM_LNK && "This should have been validated before.");
-  if(PERM_LNK==fperm){
-    mf_err((pErr,"Cannot commit symlinks via mini-checkin."));
-  }else if(PERM_EXE==fperm){
+  if(PERM_LNK==pCI->filePerm){
+    goto err_no_symlink;
+  }else if(PERM_EXE==pCI->filePerm){
     zPerm = " x";
   }else{
     zPerm = "";
   }
   zUuid = blob_str(&pCI->fileHash);
-  assert(zFile ? cmp>0&&asDelta==0 : asDelta!=0||cmp==0);
+  assert(zFile ? cmp>0&&asDelta==0 : 1);
   assert(zFilename);
   assert(zUuid);
   assert(zPerm);
@@ -2898,8 +2901,12 @@ static int create_manifest_mini_fcards( Blob * pOut,
                  (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
     zFile = manifest_file_next(pCI->pParent, 0);
   }
-#undef mf_err
   return 1;
+err_no_symlink:
+  mf_err((pErr,"Cannot commit or overwrite symlinks "
+          "via mini-checkin."));
+  return 0;
+#undef mf_err
 }
 
 
@@ -2984,7 +2991,10 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 ** save a manifest for that change. Ownership of pCI and its contents
 ** are unchanged.
 **
-** pCI may be modified as follows:
+** This function may may modify pCI as follows:
+**
+** - If Manifest pCI->pParent is NULL then it will be loaded
+**   using pCI->zParentUuid. pCI->zParentUuid may not be NULL.
 **
 ** - pCI->zDate is normalized to/replaced with a valid date/time
 **   string. If its original value cannot be validated then
@@ -3016,25 +3026,45 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   Blob mf = empty_blob;             /* output manifest */
   int rid = 0, frid = 0;            /* various RIDs */
-  const int isPrivate = content_is_private(pCI->pParent->rid);
+  int isPrivate;                    /* whether this is private content
+                                       or not */
   ManifestFile * zFilePrev;         /* file entry from pCI->pParent */
   int prevFRid = 0;                 /* RID of file's prev. version */
-
 #define ci_err(EXPR) if(pErr!=0){blob_appendf EXPR;} goto ci_error
 
-  db_begin_transaction();
-  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
-    ci_err((pErr,"No such user: %s", pCI->zUser));
+  if(!(pCI->flags & CIMINI_DRY_RUN)){
+    /* Until this feature is fully vetted, disallow it in the main
+    ** fossil repo unless dry-run mode is being used. */
+    char * zProjCode = db_get("project-code",0);
+    assert(zProjCode);
+    if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
+                         zProjCode)){
+      fossil_fatal("Never, ever run this in/on the core fossil repo "
+                   "in non-dry-run mode until it's been well-vetted. "
+                   "Use a temp/test repo.");
+    }
   }
+  db_begin_transaction();
+
+  if(pCI->pParent==0){
+    pCI->pParent = manifest_get_by_name(pCI->zParentUuid, 0);
+    if(pCI->pParent==0){
+      ci_err((pErr,"Cannot load manifest for [%S].", pCI->zParentUuid));
+    }
+  }
+
   assert(pCI->pParent->rid>0);
   if(leaf_is_closed(pCI->pParent->rid)){
     ci_err((pErr,"Cannot commit to a closed leaf."));
     /* Remember that in order to override this we'd also need to
-    ** cancel TAG_CLOSED on pCI->pParent. There would seem to be
-    ** no reason we can't do that via the generated manifest,
-    ** but the commit command does not offer that option, so
-    ** we won't, either.
+    ** cancel TAG_CLOSED on pCI->pParent. There would seem to be no
+    ** reason we can't do that via the generated manifest, but the
+    ** commit command does not offer that option, so mini-checkin
+    ** probably shouldn't, either.
     */
+  }
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", pCI->zUser) ){
+    ci_err((pErr,"No such user: %s", pCI->zUser));
   }
   if(!(CIMINI_ALLOW_FORK & pCI->flags)
      && !is_a_leaf(pCI->pParent->rid)){
@@ -3049,22 +3079,6 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     ci_err((pErr,"Invalid filename for use in a repository: %s",
             pCI->zFilename));
   }
-  
-  {
-    /*
-    ** Normalize the timestamp. We don't use date_in_standard_format()
-    ** because that has side-effects we don't want to trigger here.
-    */
-    char * zDVal = db_text(
-         0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
-         pCI->zDate ? pCI->zDate : "now");
-    if(zDVal[0]==0){
-      fossil_free(zDVal);
-      ci_err((pErr,"Invalid timestamp string: %s", pCI->zDate));
-    }
-    fossil_free(pCI->zDate);
-    pCI->zDate = zDVal;
-  }
   if(!(CIMINI_ALLOW_OLDER & pCI->flags)
      && !checkin_is_younger(pCI->pParent->rid, pCI->zDate)){
     ci_err((pErr,"Checkin time (%s) may not be older "
@@ -3074,7 +3088,21 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
                     pCI->pParent->rDate)
             ));
   }
-
+  {
+    /*
+    ** Normalize the timestamp. We don't use date_in_standard_format()
+    ** because that has side-effects we don't want to trigger here.
+    */
+    char * zDVal = db_text(
+         0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
+         pCI->zDate ? pCI->zDate : "now");
+    if(zDVal==0 || zDVal[0]==0){
+      fossil_free(zDVal);
+      ci_err((pErr,"Invalid timestamp string: %s", pCI->zDate));
+    }
+    fossil_free(pCI->zDate);
+    pCI->zDate = zDVal;
+  }
   /* Potential TODOs include:
   **
   ** - Commit allows an empty checkin only with a flag, but we
@@ -3088,21 +3116,20 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
 
   /*
   ** Confirm that pCI->zFilename can be found in pCI->pParent.  If
-  ** not, fail. This is admittedly an artificial limitation, not
-  ** strictly necessary. We do it to hopefully reduce the chance of an
-  ** "oops" where file X/Y/z gets committed as X/Y/Z due to a typo or
+  ** not, fail unless the CIMINI_ALLOW_NEW_FILE flag is set. This is
+  ** admittedly an artificial limitation, not strictly necessary. We
+  ** do it to hopefully reduce the chance of an "oops" where file
+  ** X/Y/z gets committed as X/Y/Z or X/y/z due to a typo or
   ** case-sensitivity mismatch between the user/repo/filesystem, or
-  ** some such. That said, the remainder of this function is written
-  ** as if this check did not exist, so enabling it "should" just be a
-  ** matter of removing this check or guarding it with a flag.
+  ** some such.
   */
   manifest_file_rewind(pCI->pParent);
   zFilePrev = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
-  if(!zFilePrev){
+  if(!zFilePrev && !(CIMINI_ALLOW_NEW_FILE & pCI->flags)){
     ci_err((pErr,"File [%s] not found in manifest [%S]. "
             "Adding new files is currently not permitted.",
             pCI->zFilename, pCI->zParentUuid));
-  }else if(zFilePrev->zPerm
+  }else if(zFilePrev
            && manifest_file_mperm(zFilePrev)==PERM_LNK){
     ci_err((pErr,"Cannot save a symlink via a mini-checkin."));
   }
@@ -3176,6 +3203,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   if(create_manifest_mini(&mf, pCI, pErr)==0){
     return 0;
   }
+  isPrivate = content_is_private(pCI->pParent->rid);
   rid = content_put_ex(&mf, 0, 0, 0, isPrivate);
   content_deltify(rid, &pCI->pParent->rid, 1, 0);
   if(pCI->flags & CIMINI_DUMP_MANIFEST){
@@ -3239,6 +3267,11 @@ ci_error:
 **                             checked-in content.
 **   --delta                   Prefer to generate a delta manifest, if
 **                             able.
+**   --allow-new-file          Allow addition of a new file this way.
+**                             Disabled by default to avoid that case-
+**                             sensitivity errors inadvertently lead to
+**                             adding a new file where an update is
+**                             intended.
 **   --dump-manifest|-d        Dumps the generated manifest to stdout.
 **   --wet-run                 Disables the default dry-run mode.
 **
@@ -3258,6 +3291,12 @@ void test_ci_mini_cmd(){
   const char * zUser;            /* --user-override */
   const char * zDate;            /* --date-override */
 
+  /* This function should perform only the minimal "business logic" it
+  ** needs in order to fully/properly populate the CheckinMiniInfo and
+  ** then pass it on to checkin_mini() to do most of the validation
+  ** and work. The point of this is to avoid duplicate code when a web
+  ** front-end is added for checkin_mini().
+  */
   CheckinMiniInfo_init(&cinf);
   zComment = find_option("comment","m",1);
   zCommentFile = find_option("comment-file","M",1);
@@ -3286,26 +3325,15 @@ void test_ci_mini_cmd(){
   if(find_option("delta",0,0)!=0){
     cinf.flags |= CIMINI_PREFER_DELTA;
   }
+  if(find_option("allow-new-file",0,0)!=0){
+    cinf.flags |= CIMINI_ALLOW_NEW_FILE;
+  }
   db_find_and_open_repository(0, 0);
   verify_all_options();
   user_select();
   if(g.argc!=3){
     usage("INFILE");
   }
-
-  if(!(cinf.flags & CIMINI_DRY_RUN)){
-    /* Until this feature is fully vetted, disallow it in the main
-    ** fossil repo unless dry-run mode is being used. */
-    char * zProjCode = db_get("project-code",0);
-    assert(zProjCode);
-    if(0==fossil_stricmp("CE59BB9F186226D80E49D1FA2DB29F935CCA0333",
-                         zProjCode)){
-      fossil_fatal("Never, ever run this in/on the core fossil repo "
-                   "until it's been well-vetted. Use a temp/test "
-                   "repo.");
-    }
-  }
-
   if(zComment && zCommentFile){
     fossil_fatal("Only one of -m or -M, not both, may be used.");
   }else{
@@ -3318,9 +3346,9 @@ void test_ci_mini_cmd(){
       fossil_fatal("Non-empty checkin comment is required.");
     }
   }
-  
   zFilename = g.argv[2];
   cinf.zFilename = mprintf("%/", zAsFilename ? zAsFilename : zFilename);
+  cinf.filePerm = file_perm(zFilename, ExtFILE);
   cinf.zUser = mprintf("%s", zUser ? zUser : login_name());
   if(zDate){
     cinf.zDate = mprintf("%s", zDate);
@@ -3336,8 +3364,6 @@ void test_ci_mini_cmd(){
   if(cinf.zParentUuid==0){
     fossil_fatal("Cannot determine version to commit to.");
   }
-  cinf.pParent = manifest_get_by_name(cinf.zParentUuid, 0);
-  assert(cinf.pParent!=0);
   blob_read_from_file(&cinf.fileContent, zFilename,
                       ExtFILE/*may want to reconsider*/);
   {
