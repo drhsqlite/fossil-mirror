@@ -3559,6 +3559,10 @@ struct Setting {
 ** Default value is "gpg --clearsign -o"
 */
 /*
+** SETTING: forbid-delta-manifests    boolean default=off
+** If enabled, new delta manifests are prohibited.
+*/
+/*
 ** SETTING: proxy            width=32 default=off
 ** URL of the HTTP proxy.  If undefined or "off" then
 ** the "http_proxy" environment variable is consulted.
