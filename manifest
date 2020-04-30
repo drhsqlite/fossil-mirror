@@ -1,5 +1,5 @@
-C Merge\sthe\sdeliberate\sfork\sback\stogether.
-D 2020-04-29T18:45:38.587
+C Update\stester.tcl\sto\sreflect\schanges\sto\s'fossil\sinfo'\sbehavior\sin\s[1da8afdf].
+D 2020-04-30T07:28:01.794
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -674,7 +674,7 @@ F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec
 F test/subdir/one/two/three/four/five/six/readme.txt 99ae38744ac72af06c059e59cb5fa636153c120b
 F test/symlinks.test 9ead8cede3906559325b19560124bd30396f7c0e
 F test/test-page++.wiki 0f8b7780a1e441e32feef0e2ae15c75a355e52a1
-F test/tester.tcl 4b56d8116f5f7b9fc66bf0c85b41dd2c3bde7b3cc6f4b16585b492e130ec1ede
+F test/tester.tcl 03606ce52c461ba85988a09749370c0f45f82f389cfd81f1bee2728f9f608927
 F test/th1-docs-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
 F test/th1-docs.test 6af9f1b0f240f6a6fb39b4588b93bb7a97cec1cbec99f3bf5e428d636a7dda25
 F test/th1-hooks-input.txt a08c24abac1d1592a1116f8396a53f03a47f25d3
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 707743def0a1a11f549332afff54c359d5d399a25afaf072a8e1c80d1ee03503 9557e3285ae7cb8500747a5851733e0674587cfceb6a4f87ea73c070eb4c55f5
-R d566699cf93c9117ae9b84795b7a79cb
-U drh
-Z 947acb328c1761a9e09d7904ee371e6a
+P ac4ddd88930f1a63a3f10c41a55ef1f6d9f9b5145149f0ef0453c934322cbd38
+R 1e641b5d4cc887c864c15cb13fdd23a9
+U ashepilko
+Z 4b790b257ea83974438db5d9f2796d3b
