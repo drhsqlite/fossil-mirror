@@ -1,5 +1,5 @@
-C Prefer\smanifest_file_find()\sover\smanifest_file_seek(),\sfor\scase-insensitivity.\sAdded\soption\sto\sforce\screating\sa\sdelta\swhenever\sit's\spossible,\srather\sthan\sjust\ssuggest\sit.
-D 2020-04-30T14:02:40.349
+C Make\smanifest_file_mperm()\sparameter\sconst.
+D 2020-04-30T15:58:27.355
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -526,7 +526,7 @@ F src/main.mk a28935c1ea16093c84005bcbde52f226336e7c1f7ac3654ad166e5f696ef2abb
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
 F src/makemake.tcl 2e5ba64ba7416b85c2f95707dfd35050b3ebb15fcc6e990bcb978b177ed1cb5d x
-F src/manifest.c 13a58a657a3ca10f28563d2a6015bbf6c41448e26f94eff59cf8f22b8ff2d392
+F src/manifest.c dc864e889aa3865c7608b4fd79bff492d4359af3048de4c6f47cf7ec16541b09
 F src/markdown.c 0d5004795032d5dd01a99b4e03f2b740cbc5cb005d21baae99ecc8265abd881e
 F src/markdown.md 2c3780bc0e15973f8a5dfe0492cffd96b05599d90e2d4aace16c18d40ec5699c
 F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a6123bed7
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c281a179c0da28fc6cc6d64bd09d7bcf09d29ebfcfd91608de69e18492161ce4
-R 8338212fdb8ad8ef7e05df76f77a6b0e
+P c3ae6b349637278b990ab76dec827408ddcbebcce0058b750948cb959a0d249e
+R bd25965fd323508d10300b2feef7c662
 U stephan
-Z 2b981e18ec5816811ed328450254e526
+Z 1676fe4af75995812625678507d925d4

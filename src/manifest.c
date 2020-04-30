@@ -1329,7 +1329,7 @@ static int filename_to_fnid(const char *zFilename){
 ** Compute an appropriate mlink.mperm integer for the permission string
 ** of a file.
 */
-int manifest_file_mperm(ManifestFile *pFile){
+int manifest_file_mperm(const ManifestFile *pFile){
   int mperm = PERM_REG;
   if( pFile && pFile->zPerm){
     if( strstr(pFile->zPerm,"x")!=0 ){
