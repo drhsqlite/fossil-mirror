@@ -2787,19 +2787,26 @@ CIMINI_ALLOW_OLDER = 1<<4,
 ** affected, not the original file (if any).
 */
 CIMINI_CONVERT_EOL = 1<<5,
-
 /*
-** A hint to checkin_mini() to prefer creation of a delta manifest.
+** A hint to checkin_mini() to "prefer" creation of a delta manifest.
+** It may decide not to for various reasons.
 */
 CIMINI_PREFER_DELTA = 1<<6,
-
+/*
+** A "stronger hint" to checkin_mini() to prefer creation of a delta
+** manifest if it at all can. It will decide not to only if creation
+** of a delta is not a realistic option. For this to work, it must be
+** set together with the CIMINI_PREFER_DELTA flag, but the two cannot
+** be combined in this enum.
+*/
+CIMINI_STRONGLY_PREFER_DELTA = 1<<7,
 /*
 ** Tells checkin_mini() to permit the addition of a new file. Normally
 ** this is disabled because there are many cases where it could cause
 ** the inadvertent addition of a new file when an update to an
 ** existing was intended, as a side-effect of name-case differences.
 */
-CIMINI_ALLOW_NEW_FILE = 1<<7
+CIMINI_ALLOW_NEW_FILE = 1<<8
 };
 
 /*
@@ -2836,7 +2843,7 @@ static int create_manifest_mini_fcards( Blob * pOut,
     ** is the simplest case...
     */
     assert(pCI->pParent->zBaseline==0 && "Delta-from-delta is NYI.");
-    zFile = manifest_file_seek(pCI->pParent, pCI->zFilename,0);
+    zFile = manifest_file_find(pCI->pParent, pCI->zFilename);
     if(zFile==0){
       /* New file */
       zFilename = pCI->zFilename;
@@ -2926,30 +2933,43 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
                                  Blob * pErr){
   Blob zCard = empty_blob;     /* Z-card checksum */
   int asDelta = 0;
+#define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
 
   assert(blob_str(&pCI->fileHash));
   assert(pCI->pParent);
   assert(pCI->zFilename);
   assert(pCI->zUser);
   assert(pCI->zDate);
-  
-#define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
+
   /* Potential TODOs include...
-  ** - Create a delta manifest, if possible, rather than a baseline.
+  ** - Create a delta manifest, if possible/feasible, rather than a
+  **   baseline (done) even if pCI->pParent is a delta (not done).
   ** - Maybe add support for tags. Those can be edited via /info page.
   ** - Symlinks: if we're really in a checkout, handle commit/add of
-  **   symlinks like a normal commit would.  For now we bail out if
+  **   symlinks like a normal commit would. For now we bail out if
   **   told to handle a symlink because there would seem to be no(?)
   **   sensible way to handle a symlink add/checkin without a
   **   checkout.
   */
   blob_zero(pOut);
-  if((pCI->flags & CIMINI_PREFER_DELTA)
-     && pCI->pParent->zBaseline==0){
+  manifest_file_rewind(pCI->pParent) /* force load of baseline */;
+  if(((CIMINI_PREFER_DELTA & pCI->flags)
+      && pCI->pParent->zBaseline==0 /* parent is not a delta */
+      /* ^^^ TODO allow creation of a delta from a delta */
+      )&&(
+      CIMINI_STRONGLY_PREFER_DELTA & pCI->flags
+      || (pCI->pParent->pBaseline
+          ? pCI->pParent->pBaseline
+          : pCI->pParent)->nFile > 10
+      /* 10 is arbitrary: don't create a delta when there is only a
+      ** tiny gain for doing so. */)){
     asDelta = 1;
   }
   if(asDelta){
-    blob_appendf(pOut, "B %s\n", pCI->zParentUuid);
+    blob_appendf(pOut, "B %s\n",
+                 pCI->pParent->zBaseline
+                 ? pCI->pParent->zBaseline
+                 : pCI->zParentUuid);
   }
   if(blob_size(&pCI->comment)!=0){
     blob_appendf(pOut, "C %F\n", blob_str(&pCI->comment));
@@ -2957,15 +2977,12 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
     blob_append(pOut, "C (no\\scomment)\n", 16);
   }
   blob_appendf(pOut, "D %z\n", pCI->zDate);
-
   if(!create_manifest_mini_fcards(pOut,pCI,asDelta,pErr)){
     return 0;
   }
-
   if(pCI->zMimetype!=0 && pCI->zMimetype[0]!=0){
     blob_appendf(pOut, "N %F\n", pCI->zMimetype);
   }
-
   blob_appendf(pOut, "P %s\n", pCI->zParentUuid);
   blob_appendf(pOut, "U %F\n", pCI->zUser);
   md5sum_blob(pOut, &zCard);
@@ -3124,7 +3141,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   ** some such.
   */
   manifest_file_rewind(pCI->pParent);
-  zFilePrev = manifest_file_seek(pCI->pParent, pCI->zFilename, 0);
+  zFilePrev = manifest_file_find(pCI->pParent, pCI->zFilename);
   if(!zFilePrev && !(CIMINI_ALLOW_NEW_FILE & pCI->flags)){
     ci_err((pErr,"File [%s] not found in manifest [%S]. "
             "Adding new files is currently not permitted.",
@@ -3244,9 +3261,10 @@ ci_error:
 ** Options:
 **
 **   --repository|-R REPO      The repository file to commit to.
-**   --as FILENAME             The repository-side name of the input file,
-**                             relative to the top of the repository.
-**                             Default is the same as the input file name.
+**   --as FILENAME             The repository-side name of the input
+**                             file, relative to the top of the
+**                             repository. Default is the same as the
+**                             input file name.
 **   --comment|-m COMMENT      Required checkin comment.
 **   --comment-file|-M FILE    Reads checkin comment from the given file.
 **   --revision|-r VERSION     Commit from this version. Default is
@@ -3255,16 +3273,18 @@ ci_error:
 **   --allow-fork              Allows the commit to be made against a
 **                             non-leaf parent. Note that no autosync
 **                             is performed beforehand.
-**   --allow-merge-conflict    Allows checkin of a file even if it appears
-**                             to contain a fossil merge conflict marker.
-**   --user-override USER      USER to use instead of the current default.
+**   --allow-merge-conflict    Allows checkin of a file even if it
+**                             appears to contain a fossil merge conflict
+**                             marker.
+**   --user-override USER      USER to use instead of the current
+**                             default.
 **   --date-override DATETIME  DATE to use instead of 'now'.
 **   --allow-older             Allow a commit to be older than its
 **                             ancestor.
 **   --convert-eol             Convert EOL style of the checkin to match
 **                             the previous version's content. Does not
-**                             modify the original file, only the
-**                             checked-in content.
+**                             modify the input file, only the checked-in
+**                             content.
 **   --delta                   Prefer to generate a delta manifest, if
 **                             able.
 **   --allow-new-file          Allow addition of a new file this way.
@@ -3324,6 +3344,10 @@ void test_ci_mini_cmd(){
   }
   if(find_option("delta",0,0)!=0){
     cinf.flags |= CIMINI_PREFER_DELTA;
+  }
+  if(find_option("delta2",0,0)!=0){
+    /* Undocumented. For testing only. */
+    cinf.flags |= CIMINI_PREFER_DELTA | CIMINI_STRONGLY_PREFER_DELTA;
   }
   if(find_option("allow-new-file",0,0)!=0){
     cinf.flags |= CIMINI_ALLOW_NEW_FILE;
