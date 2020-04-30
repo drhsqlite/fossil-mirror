@@ -796,6 +796,8 @@ void revert_cmd(void){
   Blob record = BLOB_INITIALIZER; /* Contents of each reverted file */
   int i;
   Stmt q;
+  int revert_all = 0;
+  int fail_no_revsion_allowed = 0;
 
   undo_capture_command_line();
   zRevision = find_option("revision", "r", 1);
@@ -823,17 +825,60 @@ void revert_cmd(void){
       zFile = mprintf("%/", g.argv[i]);
       blob_zero(&fname);
       file_tree_name(zFile, &fname, 0, 1);
-      db_multi_exec(
-        "REPLACE INTO torevert VALUES(%B);"
-        "INSERT OR IGNORE INTO torevert"
-        " SELECT pathname"
-        "   FROM vfile"
-        "  WHERE origname=%B;",
-        &fname, &fname
-      );
+      if( blob_eq(&fname, ".") ){
+        if( zRevision ){
+          fail_no_revsion_allowed = 1;
+          break;
+        }
+        revert_all = 1;
+        break;
+      }else if( db_exists(
+        "SELECT pathname"
+        "  FROM vfile"
+        " WHERE (substr(pathname,1,length('%q/'))='%q/'"
+        "    OR  substr(origname,1,length('%q/'))='%q/');",
+        blob_str(&fname), blob_str(&fname),
+        blob_str(&fname), blob_str(&fname)) ){
+        int vid;
+        vid = db_lget_int("checkout", 0);
+        vfile_check_signature(vid, 0);
+
+        if( zRevision ){
+          fail_no_revsion_allowed = 1;
+          break;
+        }
+        db_multi_exec(
+          "INSERT OR IGNORE INTO torevert"
+          " SELECT pathname"
+          "   FROM vfile"
+          "  WHERE (substr(pathname,1,length('%q/'))='%q/'"
+          "     OR  substr(origname,1,length('%q/'))='%q/')"
+          "    AND (chnged OR deleted OR rid=0 OR pathname!=origname);",
+          blob_str(&fname), blob_str(&fname),
+          blob_str(&fname), blob_str(&fname)
+        );
+      }else{
+        db_multi_exec(
+          "REPLACE INTO torevert VALUES(%B);"
+          "INSERT OR IGNORE INTO torevert"
+          " SELECT pathname"
+          "   FROM vfile"
+          "  WHERE origname=%B;",
+          &fname, &fname
+        );
+      }
       blob_reset(&fname);
     }
   }else{
+    revert_all = 1;
+  }
+
+  if( fail_no_revsion_allowed ){
+    fossil_fatal("the --revision option does not work for the directories"
+                 " or the entire tree");
+  }
+
+  if ( revert_all ){
     int vid;
     vid = db_lget_int("checkout", 0);
     vfile_check_signature(vid, 0);
@@ -845,6 +890,7 @@ void revert_cmd(void){
       "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
+
   db_multi_exec(
     "INSERT OR IGNORE INTO torevert"
     " SELECT origname"

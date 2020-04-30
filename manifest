@@ -1,5 +1,5 @@
-C Update\stester.tcl\sto\sreflect\schanges\sto\s'fossil\sinfo'\sbehavior\sin\s[1da8afdf].
-D 2020-04-30T07:28:01.794
+C Allow\sa\srevert\sof\scurrent\schanges\sfor\sthe\swhole\sdirectory\stree
+D 2020-04-30T08:25:15.614
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -612,7 +612,7 @@ F src/tree.js 85fc4dc5ecaf2bf2b26f294eaf8dbb9aca5966492cf9ff0d8edfba5835c14f0c
 F src/undo.c fbb75d065fa2a229a1f7cbb36f9589dc8fe500d16381d8aad31dadae3a9e5bd9
 F src/unicode.c 21877b6c5828c88d7f84782d169e84a627dcd1a421c2257e41fe4b62f2d2ac5c
 F src/unversioned.c 5c11c67198d2d38cfe290381816d86767e9a36b858467f4bc3a070ab4eaf30c1
-F src/update.c 65025982df907734b207a6203373e5c123280985493ff0afea2405df14cf0f08
+F src/update.c e17c2a342f903c714ef8133ab77209e7c0b4c86f65e43bf3e2d9315870c916bc
 F src/url.c fb48fa80503f2addd29c098e83593c10439f08c95f6eb4bb3282269f4a86228a
 F src/user.c c628e8979a991f9997d7d61d1c933830241782a74a80bca2225d0502ce3d4ae5
 F src/useredit.js 240d73d306b6829a491121970e8a863398c108b4b9d1c6f73c8a5ae37e0b6a97
@@ -663,7 +663,7 @@ F test/merge_renames.test 2ecb429af3732900352738bbd4e5b532a2d331bb
 F test/merge_warn.test d4a98c6ff14e4bb142d784f96c88d152d9599529
 F test/mv-rm.test 6a60863935f7a9e0223ccb9421729d7677fa1f9f
 F test/release-checklist.wiki 671add634fe96d221bc04bc4d58ed58fd8581bb2
-F test/revert.test 303d90ca6a8f221d671daa90b3f9a07a874e7ff0
+F test/revert.test 47ca0af6802d187b394dbcf9afadd5db1f1a72bf820ea1fed9479ac42c6f5413
 F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da8724e2b3b75
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
@@ -978,7 +978,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ac4ddd88930f1a63a3f10c41a55ef1f6d9f9b5145149f0ef0453c934322cbd38
-R 1e641b5d4cc887c864c15cb13fdd23a9
+P 6a8477a5f41c56ddf820f8bd5c06fce8b38f15e4f9fda293d4be9a341d4ffc0b
+R ae62298ff3e1d677557770d658e91eee
+T *branch * revert-dir
+T *sym-revert-dir *
+T -sym-trunk *
 U ashepilko
-Z 4b790b257ea83974438db5d9f2796d3b
+Z 994a06da8847ede8f48f7ae3d2b7cdbc
