@@ -2798,6 +2798,13 @@ CIMINI_PREFER_DELTA = 1<<6,
 ** of a delta is not a realistic option. For this to work, it must be
 ** set together with the CIMINI_PREFER_DELTA flag, but the two cannot
 ** be combined in this enum.
+**
+** This option is ONLY INTENDED FOR TESTING, used in bypassing
+** heuristics which may otherwise disable generation of a delta on the
+** grounds of efficiency (e.g. not generating a delta if the parent
+** non-delta only has a few F-cards).
+**
+** The forbid-delta-manifests repo config option trumps this.
 */
 CIMINI_STRONGLY_PREFER_DELTA = 1<<7,
 /*
@@ -2810,11 +2817,27 @@ CIMINI_ALLOW_NEW_FILE = 1<<8
 };
 
 /*
+** Internal helper which returns an F-card perms string suitable for
+** writing into a manifest.
+*/
+static const char * mfile_permint_mstring(int perm){
+  switch(perm){
+    case PERM_EXE: return " x";
+    case PERM_LNK: return " l";
+    default: return "";
+  }
+}
+
+static const char * mfile_perm_mstring(const ManifestFile * p){
+  return mfile_permint_mstring(manifest_file_mperm(p));
+}
+
+/*
 ** Handles the F-card parts for create_manifest_mini().
 **
-** If asDelta is true, pCI->pParent MUST be a baseline, else an
-** assert() is triggered. Still TODO is creating a delta from
-** pCI->pParent when that object is itself a delta.
+** If asDelta is true, F-cards will be handled as for a delta
+** manifest, and the caller MUST have added a B-card to pOut before
+** calling this.
 **
 ** Returns 1 on success, 0 on error, and writes any error message to
 ** pErr (if it's not NULL).
@@ -2823,11 +2846,16 @@ static int create_manifest_mini_fcards( Blob * pOut,
                                         CheckinMiniInfo * pCI,
                                         int asDelta,
                                         Blob * pErr){
-  ManifestFile *zFile;         /* One file entry from the pCI->pParent*/
-  const char *zPerm = 0;       /* permissions for new F-card */
+  ManifestFile *zFile;         /* One file entry from pCI->pParent */
   const char *zFilename = 0;   /* filename for new F-card */
   const char *zUuid = 0;       /* UUID for new F-card */
   int cmp = 0;                 /* filename comparison result */
+  int iFCursor = 0;            /* Cursor into pCI->pParent->aFile if
+                                  pCI->pParent is a delta. */
+  int postProcess = -1;        /* How to traverse post-pCI->zFilename
+                                  F-cards at the end of the function:
+                                  0=none, 1=normal traversal,
+                                  2=delta-clone tranversal. */
   int (*fncmp)(char const *, char const *) =  /* filename comparator */
     filenames_are_case_sensitive()
     ? fossil_strcmp
@@ -2835,65 +2863,116 @@ static int create_manifest_mini_fcards( Blob * pOut,
 #define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
 
   assert(pCI->filePerm!=PERM_LNK && "This should have been validated before.");
-  assert(pCI->filePerm>=0 && "Must have been set by the caller.");
-  
-  manifest_file_rewind(pCI->pParent);
-  if(asDelta){
-    /* Parent is a baseline and we have only 1 file to modify, so this
-    ** is the simplest case...
-    */
-    assert(pCI->pParent->zBaseline==0 && "Delta-from-delta is NYI.");
-    zFile = manifest_file_find(pCI->pParent, pCI->zFilename);
-    if(zFile==0){
-      /* New file */
-      zFilename = pCI->zFilename;
-    }else{
-      /* Replacement file */
-      if(manifest_file_mperm(zFile)==PERM_LNK){
-        goto err_no_symlink;
-      }
-      zFilename = zFile->zName
-        /* use original name in case of name-case difference */;
-      zFile = 0;
-    }
-  }else{
-    /* Non-delta: write F-cards which lexically preceed pCI->zFilename */
-    while((zFile = manifest_file_next(pCI->pParent, 0))
-          && (cmp = fncmp(zFile->zName, pCI->zFilename))<0){
-      blob_appendf(pOut, "F %F %s%s%s\n", zFile->zName, zFile->zUuid,
-                   (zFile->zPerm && *zFile->zPerm) ? " " : "",
-                   (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
-    }
-    /* Figure out file perms and name to save... */
-    if(zFile!=0 && cmp==0){
-      /* Match: override this F-card */
-      if(manifest_file_mperm(zFile)==PERM_LNK){
-        goto err_no_symlink;
-      }
-      zFilename = zFile->zName
-        /* use original name in case of name-case difference */;
-      zFile = 0;
-    }else{
-      /* This is a new file. */
-      assert(zFile==0);
-      zFilename = pCI->zFilename;
-    }
-  }
+  assert(pCI->filePerm==PERM_REG || pCI->filePerm==PERM_EXE);
   if(PERM_LNK==pCI->filePerm){
     goto err_no_symlink;
-  }else if(PERM_EXE==pCI->filePerm){
-    zPerm = " x";
-  }else{
-    zPerm = "";
   }
+  manifest_file_rewind(pCI->pParent);
+  if(asDelta){
+    if(pCI->pParent->zBaseline==0 || pCI->pParent->nFile==0 ){
+      /* Parent is a baseline or a delta with no F-cards, so this is
+      ** the simplest case: create a delta with a single F-card.
+      */
+      zFile = manifest_file_find(pCI->pParent, pCI->zFilename);
+      if(zFile==0){/* New file */
+        zFilename = pCI->zFilename;
+      }else{/* Replacement file */
+        if(manifest_file_mperm(zFile)==PERM_LNK){
+          goto err_no_symlink;
+        }
+        zFilename = zFile->zName
+          /* use original name in case of name-case difference */;
+      }
+      postProcess = 0;
+    }else{
+      /* Parent is a delta manifest with F-cards. Traversal of delta
+      ** manifest file entries is normally done via
+      ** manifest_file_next(), which takes into account the
+      ** differences between the delta and its parent and returns
+      ** F-cards from both. Each successive delta from the same
+      ** baseline includes all F-card changes from the previous
+      ** deltas, so we instead "clone" the parent's F-cards except for
+      ** the one (if any) which matches the new file.
+      */
+      Manifest * p = pCI->pParent;
+      cmp = -1;
+      assert(p->nFile > 0);
+      iFCursor = 0;
+      zFile = &p->aFile[iFCursor];
+      /* Write F-cards which lexically preceed pCI->zFilename */
+      for( ; iFCursor<p->nFile; ){
+        zFile = &p->aFile[iFCursor];
+        cmp = fncmp(zFile->zName, pCI->zFilename);
+        if(cmp<0){
+          ++iFCursor;
+          if(zFile->zUuid){
+            blob_appendf(pOut, "F %F %s%s\n", zFile->zName,
+                         zFile->zUuid, mfile_perm_mstring(zFile));
+          }else{/* File was removed in parent delta */
+            blob_appendf(pOut, "F %F\n", zFile->zName);
+          }
+        }else{
+          break;
+        }
+      }
+      if(0==cmp){/* Match: override this F-card */
+        assert(zFile);
+        if(manifest_file_mperm(zFile)==PERM_LNK){
+          goto err_no_symlink;
+        }
+        ++iFCursor;
+        zFilename = zFile->zName
+          /* use original name in case of name-case difference */;
+      }else{/* This is a new file */
+        zFilename = pCI->zFilename;
+      }
+      postProcess = 2;
+    }
+  }else{/* Non-delta: write F-cards which lexically preceed
+           pCI->zFilename */
+    cmp = -1;
+    while((zFile = manifest_file_next(pCI->pParent, 0))
+          && (cmp = fncmp(zFile->zName, pCI->zFilename))<0){
+      blob_appendf(pOut, "F %F %s%s\n", zFile->zName, zFile->zUuid,
+                   mfile_perm_mstring(zFile));
+    }
+    if(cmp==0){/* Match: override this F-card*/
+      if(manifest_file_mperm(zFile)==PERM_LNK){
+        goto err_no_symlink;
+      }
+      zFilename = zFile->zName
+        /* use original name in case of name-case difference */;
+    }else{/* This is a new file. */
+      zFilename = pCI->zFilename;
+      if(zFile!=0){
+        assert(cmp>0);
+        assert(pCI->pParent->iFile>0);
+        --pCI->pParent->iFile
+          /* So that the post-processing loop picks up this file
+             again.*/;
+      }
+    }
+    postProcess = 1;
+  }
+  /* Finally add the new file's F-card... */
+  zFile = 0;
   zUuid = blob_str(&pCI->fileHash);
-  assert(zFile ? cmp>0&&asDelta==0 : 1);
   assert(zFilename);
   assert(zUuid);
-  assert(zPerm);
-  blob_appendf(pOut, "F %F %s%s\n", zFilename, zUuid, zPerm);
-  /* Non-delta: write F-cards which lexically follow pCI->zFilename */
-  while(zFile!=0){
+  assert(postProcess==0 || postProcess==1 || postProcess==2);
+  blob_appendf(pOut, "F %F %s%s\n", zFilename, zUuid,
+               mfile_permint_mstring(pCI->filePerm));
+  while(postProcess>0){
+    /* Write F-cards which lexically follow pCI->zFilename */
+    if(postProcess==1){ /* non-delta parent */
+      zFile = manifest_file_next(pCI->pParent, 0);
+    }else{ /* clone directly from delta parent */
+      zFile = iFCursor<pCI->pParent->nFile
+        ? &pCI->pParent->aFile[iFCursor++] : 0;
+    }
+    if(zFile==0){
+      break;
+    }
 #ifndef NDEBUG
     cmp = fncmp(zFile->zName, pCI->zFilename);
     assert(cmp>0);
@@ -2902,11 +2981,14 @@ static int create_manifest_mini_fcards( Blob * pOut,
               "F-cards detected."));
     }
 #endif
-    blob_appendf(pOut, "F %F %s%s%s\n",
-                 zFile->zName, zFile->zUuid,
-                 (zFile->zPerm && *zFile->zPerm) ? " " : "",
-                 (zFile->zPerm && *zFile->zPerm) ? zFile->zPerm : "");
-    zFile = manifest_file_next(pCI->pParent, 0);
+    if(zFile->zUuid){
+      blob_appendf(pOut, "F %F %s%s\n", zFile->zName, zFile->zUuid,
+                   mfile_perm_mstring(zFile));
+    }else{
+      assert(postProcess==2);
+      /* File was removed from parent delta. */
+      blob_appendf(pOut, "F %F\n", zFile->zName);
+    }
   }
   return 1;
 err_no_symlink:
@@ -2953,19 +3035,17 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   */
   blob_zero(pOut);
   manifest_file_rewind(pCI->pParent) /* force load of baseline */;
-  if(((CIMINI_PREFER_DELTA & pCI->flags)
-      && pCI->pParent->zBaseline==0 /* parent is not a delta */
-      /* ^^^ TODO allow creation of a delta from a delta */
-      )&&(
-      CIMINI_STRONGLY_PREFER_DELTA & pCI->flags
-      || (pCI->pParent->pBaseline
-          ? pCI->pParent->pBaseline
-          : pCI->pParent)->nFile > 10
-      /* 10 is arbitrary: don't create a delta when there is only a
-      ** tiny gain for doing so. */)){
+
+  if((CIMINI_PREFER_DELTA & pCI->flags)
+     && ((CIMINI_STRONGLY_PREFER_DELTA & pCI->flags)
+         || (pCI->pParent->pBaseline
+             ? pCI->pParent->pBaseline
+             : pCI->pParent)->nFile > 10
+         /* 10 is arbitrary: don't create a delta when there is only a
+         ** tiny gain for doing so. */)
+     && !db_get_boolean("forbid-delta-manifests",0)
+     ){
     asDelta = 1;
-  }
-  if(asDelta){
     blob_appendf(pOut, "B %s\n",
                  pCI->pParent->zBaseline
                  ? pCI->pParent->zBaseline
@@ -3060,6 +3140,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
                    "in non-dry-run mode until it's been well-vetted. "
                    "Use a temp/test repo.");
     }
+    fossil_free(zProjCode);
   }
   db_begin_transaction();
 
@@ -3142,7 +3223,10 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   */
   manifest_file_rewind(pCI->pParent);
   zFilePrev = manifest_file_find(pCI->pParent, pCI->zFilename);
-  if(!zFilePrev && !(CIMINI_ALLOW_NEW_FILE & pCI->flags)){
+  if(!(CIMINI_ALLOW_NEW_FILE & pCI->flags)
+     && (!zFilePrev
+         || !zFilePrev->zUuid/*was removed from parent delta manifest*/)
+     ){
     ci_err((pErr,"File [%s] not found in manifest [%S]. "
             "Adding new files is currently not permitted.",
             pCI->zFilename, pCI->zParentUuid));
@@ -3212,7 +3296,8 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   if(zFilePrev){
     /* Has this file been changed since its previous commit? */
     assert(blob_size(&pCI->fileHash));
-    if(0==fossil_strcmp(zFilePrev->zUuid, blob_str(&pCI->fileHash))){
+    if(0==fossil_strcmp(zFilePrev->zUuid, blob_str(&pCI->fileHash))
+       && manifest_file_mperm(zFilePrev)==pCI->filePerm){
       ci_err((pErr,"File is unchanged. Not saving."));
     }
   }
@@ -3286,7 +3371,9 @@ ci_error:
 **                             modify the input file, only the checked-in
 **                             content.
 **   --delta                   Prefer to generate a delta manifest, if
-**                             able.
+**                             able. The forbid-delta-manifests repo
+**                             config option trumps this, as do certain
+**                             heuristics.
 **   --allow-new-file          Allow addition of a new file this way.
 **                             Disabled by default to avoid that case-
 **                             sensitivity errors inadvertently lead to
