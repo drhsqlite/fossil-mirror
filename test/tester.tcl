@@ -393,7 +393,7 @@ proc require_no_open_checkout {} {
     return
   }
   catch {exec $::fossilexe info} res
-  if {![regexp {use --repository} $res]} {
+  if {[regexp {local-root:} $res]} {
     set projectName <unknown>
     set localRoot <unknown>
     regexp -line -- {^project-name: (.*)$} $res dummy projectName

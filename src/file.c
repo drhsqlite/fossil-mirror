@@ -296,7 +296,7 @@ void symlink_copy(const char *zFrom, const char *zTo){
 */
 int file_perm(const char *zFilename, int eFType){
 #if !defined(_WIN32)
-  if( !getStat(zFilename, RepoFILE) ){
+  if( !getStat(zFilename, eFType) ){
      if( S_ISREG(fx.fileStat.st_mode) && ((S_IXUSR)&fx.fileStat.st_mode)!=0 )
       return PERM_EXE;
     else if( db_allow_symlinks() && S_ISLNK(fx.fileStat.st_mode) )

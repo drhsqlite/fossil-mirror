@@ -594,7 +594,7 @@ void filezip_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i], eFType);
-    zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,0));
+    zip_add_file(&sArchive, g.argv[i], &file, file_perm(0,eFType));
     blob_reset(&file);
   }
   zip_close(&sArchive);
