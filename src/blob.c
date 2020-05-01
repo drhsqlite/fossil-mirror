@@ -481,6 +481,18 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 }
 
 /*
+** Ensures that the given blob has at least the given amount of memory
+** allocated to it. Does not modify pBlob->nUsed nor will it reduce
+** the currently-allocated amount of memory.
+*/
+void blob_reserve(Blob *pBlob, unsigned int newSize){
+  if(newSize>pBlob->nUsed){
+    pBlob->xRealloc(pBlob, newSize);
+    pBlob->aData[newSize] = 0;
+  }
+}
+
+/*
 ** Make sure a blob is nul-terminated and is not a pointer to unmanaged
 ** space.  Return a pointer to the data.
 */
