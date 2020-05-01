@@ -2876,7 +2876,9 @@ static void checkin_mini_append_fcard(Blob *pOut, const ManifestFile *p){
 ** calling this.
 **
 ** Returns 1 on success, 0 on error, and writes any error message to
-** pErr (if it's not NULL).
+** pErr (if it's not NULL). The only non-immediately-fatal/panic error
+** is if pCI->filePerm is PERM_LNK or pCI would update a PERM_LNK
+** in-repo file.
 */
 static int create_manifest_mini_fcards( Blob * pOut,
                                         CheckinMiniInfo * pCI,
@@ -2985,25 +2987,24 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   assert(pCI->zDate);
 
   /* Potential TODOs include...
-  ** - Create a delta manifest, if possible/feasible, rather than a
-  **   baseline (done) even if pCI->pParent is a delta (not done).
-  ** - Maybe add support for tags. Those can be edited via /info page.
-  ** - Symlinks: if we're really in a checkout, handle commit/add of
-  **   symlinks like a normal commit would. For now we bail out if
-  **   told to handle a symlink because there would seem to be no(?)
-  **   sensible way to handle a symlink add/checkin without a
-  **   checkout.
+  **
+  ** - Maybe add support for tags. Those can be edited via /info page,
+  **   and feel like YAGNI/feature creep for this purpose.
   */
   blob_zero(pOut);
   manifest_file_rewind(pCI->pParent) /* force load of baseline */;
-
+  /* Determine whether we want to create a delta manifest... */
   if((CIMINI_PREFER_DELTA & pCI->flags)
      && ((CIMINI_STRONGLY_PREFER_DELTA & pCI->flags)
          || (pCI->pParent->pBaseline
              ? pCI->pParent->pBaseline
              : pCI->pParent)->nFile > 15
          /* 15 is arbitrary: don't create a delta when there is only a
-         ** tiny gain for doing so. */)
+         ** tiny gain for doing so. That heuristic is not *quite*
+         ** right, in that when we're deriving from another delta, we
+         ** really should compare the F-card count between it and its
+         ** baseline, and create a delta if the baseline has (say)
+         ** twice or more as many F-cards as the previous delta. */)
      && !db_get_boolean("forbid-delta-manifests",0)
      ){
     asDelta = 1;
@@ -3012,6 +3013,10 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
                  ? pCI->pParent->zBaseline
                  : pCI->zParentUuid);
   }
+  blob_reserve(pOut, 1024 *
+               (asDelta ? 2 : pCI->pParent->nFile/11+1
+                /* In the fossil core repo, each 12-ish F-cards (on
+                ** average) take up roughly 1kb */));
   if(blob_size(&pCI->comment)!=0){
     blob_appendf(pOut, "C %F\n", blob_str(&pCI->comment));
   }else{
