@@ -2868,7 +2868,6 @@ static void checkin_mini_append_fcard(Blob *pOut, const ManifestFile *p){
     blob_appendf(pOut, "F %F\n", p->zName);
   }
 }
-
 /*
 ** Handles the F-card parts for create_manifest_mini().
 **
@@ -2883,21 +2882,17 @@ static int create_manifest_mini_fcards( Blob * pOut,
                                         CheckinMiniInfo * pCI,
                                         int asDelta,
                                         Blob * pErr){
-  ManifestFile *pFile;         /* One file entry from pCI->pParent */
-  const char *zFilename = 0;   /* filename for new F-card */
-  const char *zUuid = 0;       /* UUID for new F-card */
-  int cmp = 0;                 /* filename comparison result */
-  int iFCursor = 0;            /* Cursor into pCI->pParent->aFile if
-                                  pCI->pParent is a delta. */
-  int postProcess = -1;        /* How to traverse post-pCI->zFilename
-                                  F-cards at the end of the function:
-                                  0=none, 1=normal traversal,
-                                  2=delta-clone tranversal. */
+  int wroteThisCard = 0;
+  const ManifestFile * pFile;
   int (*fncmp)(char const *, char const *) =  /* filename comparator */
     filenames_are_case_sensitive()
     ? fossil_strcmp
     : fossil_stricmp;
 #define mf_err(EXPR) if(pErr) blob_appendf EXPR; return 0
+#define write_this_card(NAME) \
+  blob_appendf(pOut, "F %F %b%s\n", (NAME), &pCI->fileHash, \
+               mfile_permint_mstring(pCI->filePerm)); \
+  wroteThisCard = 1
 
   assert(pCI->filePerm!=PERM_LNK && "This should have been validated before.");
   assert(pCI->filePerm==PERM_REG || pCI->filePerm==PERM_EXE);
@@ -2905,22 +2900,22 @@ static int create_manifest_mini_fcards( Blob * pOut,
     goto err_no_symlink;
   }
   manifest_file_rewind(pCI->pParent);
-  if(asDelta){
-    if(pCI->pParent->zBaseline==0 || pCI->pParent->nFile==0 ){
-      /* Parent is a baseline or a delta with no F-cards, so this is
-      ** the simplest case: create a delta with a single F-card.
-      */
-      pFile = manifest_file_find(pCI->pParent, pCI->zFilename);
-      if(pFile==0){/* New file */
-        zFilename = pCI->zFilename;
-      }else{/* Replacement file */
-        if(manifest_file_mperm(pFile)==PERM_LNK){
-          goto err_no_symlink;
-        }
-        zFilename = pFile->zName
-          /* use original name in case of name-case difference */;
-      }
-      postProcess = 0;
+  if(asDelta!=0 && (pCI->pParent->zBaseline==0
+                    || pCI->pParent->nFile==0)){
+    /* Parent is a baseline or a delta with no F-cards, so this is
+    ** the simplest case: create a delta with a single F-card.
+    */
+    pFile = manifest_file_find(pCI->pParent, pCI->zFilename);
+    if(pFile!=0 && manifest_file_mperm(pFile)==PERM_LNK){
+      goto err_no_symlink;
+    }
+    write_this_card(pFile ? pFile->zName : pCI->zFilename);
+    return 1;
+  }
+  while(1){
+    int cmp;
+    if(asDelta==0){
+      pFile = manifest_file_next(pCI->pParent, 0);
     }else{
       /* Parent is a delta manifest with F-cards. Traversal of delta
       ** manifest file entries is normally done via
@@ -2928,101 +2923,42 @@ static int create_manifest_mini_fcards( Blob * pOut,
       ** differences between the delta and its parent and returns
       ** F-cards from both. Each successive delta from the same
       ** baseline includes all F-card changes from the previous
-      ** deltas, so we instead "clone" the parent's F-cards except for
+      ** deltas, so we instead clone the parent's F-cards except for
       ** the one (if any) which matches the new file.
       */
-      Manifest * p = pCI->pParent;
-      cmp = -1;
-      assert(p->nFile > 0);
-      iFCursor = 0;
-      pFile = &p->aFile[iFCursor];
-      /* Write F-cards which lexically preceed pCI->zFilename */
-      for( ; iFCursor<p->nFile; ){
-        pFile = &p->aFile[iFCursor];
-        cmp = fncmp(pFile->zName, pCI->zFilename);
-        if(cmp<0){
-          ++iFCursor;
-          checkin_mini_append_fcard(pOut,pFile);
-        }else{
-          break;
-        }
-      }
-      if(0==cmp){/* Match: override this F-card */
-        assert(pFile);
-        if(manifest_file_mperm(pFile)==PERM_LNK){
+      pFile = pCI->pParent->iFile < pCI->pParent->nFile
+        ? &pCI->pParent->aFile[pCI->pParent->iFile++]
+        : 0;
+    }
+    if(0==pFile) break;
+    cmp = fncmp(pFile->zName, pCI->zFilename);
+    if(cmp<0){
+      checkin_mini_append_fcard(pOut,pFile);
+    }else{
+      if(cmp==0 || 0==wroteThisCard){
+        assert(0==wroteThisCard);
+        if(PERM_LNK==manifest_file_mperm(pFile)){
           goto err_no_symlink;
         }
-        ++iFCursor;
-        zFilename = pFile->zName
-          /* use original name in case of name-case difference */;
-      }else{/* This is a new file */
-        zFilename = pCI->zFilename;
+        write_this_card(cmp==0 ? pFile->zName : pCI->zFilename);
       }
-      postProcess = 2;
-    }
-  }else{/* Non-delta: write F-cards which lexically preceed
-           pCI->zFilename */
-    cmp = -1;
-    while((pFile = manifest_file_next(pCI->pParent, 0))
-          && (cmp = fncmp(pFile->zName, pCI->zFilename))<0){
-      checkin_mini_append_fcard(pOut,pFile);
-    }
-    if(cmp==0){/* Match: override this F-card*/
-      if(manifest_file_mperm(pFile)==PERM_LNK){
-        goto err_no_symlink;
-      }
-      zFilename = pFile->zName
-        /* use original name in case of name-case difference */;
-    }else{/* This is a new file. */
-      zFilename = pCI->zFilename;
-      if(pFile!=0){
-        assert(cmp>0);
-        assert(pCI->pParent->iFile>0);
-        --pCI->pParent->iFile
-          /* So that the post-processing loop picks up this file
-             again.*/;
+      if(cmp>0){
+        assert(wroteThisCard!=0);
+        checkin_mini_append_fcard(pOut,pFile);
       }
     }
-    postProcess = 1;
   }
-  /* Finally add the new file's F-card... */
-  pFile = 0;
-  zUuid = blob_str(&pCI->fileHash);
-  assert(zFilename);
-  assert(zUuid);
-  assert(postProcess==0 || postProcess==1 || postProcess==2);
-  blob_appendf(pOut, "F %F %s%s\n", zFilename, zUuid,
-               mfile_permint_mstring(pCI->filePerm));
-  while(postProcess>0){
-    /* Write F-cards which lexically follow pCI->zFilename */
-    if(postProcess==1){ /* non-delta parent */
-      pFile = manifest_file_next(pCI->pParent, 0);
-    }else{ /* clone directly from delta parent */
-      pFile = iFCursor<pCI->pParent->nFile
-        ? &pCI->pParent->aFile[iFCursor++] : 0;
-    }
-    if(pFile==0){
-      break;
-    }
-#ifndef NDEBUG
-    cmp = fncmp(pFile->zName, pCI->zFilename);
-    assert(cmp>0);
-    if(cmp<=0){
-      mf_err((pErr,"Internal error: mis-ordering of "
-              "F-cards detected."));
-    }
-#endif
-    assert(pFile->zUuid || 2==postProcess);
-    checkin_mini_append_fcard(pOut,pFile);
+  if(wroteThisCard==0){
+    write_this_card(pCI->zFilename);
   }
   return 1;
 err_no_symlink:
   mf_err((pErr,"Cannot commit or overwrite symlinks "
           "via mini-checkin."));
   return 0;
+#undef write_this_card
 #undef mf_err
 }
-
 
 /*
 ** Creates a manifest file, written to pOut, from the state in the
@@ -3065,8 +3001,8 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
      && ((CIMINI_STRONGLY_PREFER_DELTA & pCI->flags)
          || (pCI->pParent->pBaseline
              ? pCI->pParent->pBaseline
-             : pCI->pParent)->nFile > 10
-         /* 10 is arbitrary: don't create a delta when there is only a
+             : pCI->pParent)->nFile > 15
+         /* 15 is arbitrary: don't create a delta when there is only a
          ** tiny gain for doing so. */)
      && !db_get_boolean("forbid-delta-manifests",0)
      ){
@@ -3082,7 +3018,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
     blob_append(pOut, "C (no\\scomment)\n", 16);
   }
   blob_appendf(pOut, "D %z\n", pCI->zDate);
-  if(!create_manifest_mini_fcards(pOut,pCI,asDelta,pErr)){
+  if(create_manifest_mini_fcards(pOut,pCI,asDelta,pErr)==0){
     return 0;
   }
   if(pCI->zMimetype!=0 && pCI->zMimetype[0]!=0){
