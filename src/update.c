@@ -767,14 +767,16 @@ int historical_blob(
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?-r REVISION? ?FILE ...?
+** Usage: %fossil revert ?OPTIONS? ?FILE ...?
 **
 ** Revert to the current repository version of FILE, or to
-** the version associated with baseline REVISION if the -r flag
-** appears.
+** the baseline VERSION specified with -r flag.
 **
 ** If FILE was part of a rename operation, both the original file
 ** and the renamed file are reverted.
+**
+** Using a directory name for any of the FILE arguments is the same
+** as using every subdirectory and file beneath that directory.
 **
 ** Revert all files if no file name is provided.
 **
@@ -782,9 +784,10 @@ int historical_blob(
 ** the "fossil undo" command.
 **
 ** Options:
-**   -r REVISION    revert given FILE(s) back to given REVISION
+**   -r|--revision VERSION    Revert given FILE(s) back to given
+**                            VERSION
 **
-** See also: redo, undo, update
+** See also: redo, undo, checkout, update
 */
 void revert_cmd(void){
   Manifest *pCoManifest;          /* Manifest of current checkout */
@@ -807,7 +810,8 @@ void revert_cmd(void){
     usage("?OPTIONS? [FILE] ...");
   }
   if( zRevision && g.argc<3 ){
-    fossil_fatal("the --revision option does not work for the entire tree");
+    fossil_fatal("directories or the entire tree can only be reverted"
+                 " back to current version");
   }
   db_must_be_within_tree();
 
@@ -874,8 +878,8 @@ void revert_cmd(void){
   }
 
   if( revisionOptNotSupported ){
-    fossil_fatal("the --revision option does not work for the directories"
-                 " or the entire tree");
+    fossil_fatal("directories or the entire tree can only be reverted"
+                 " back to current version");
   }
 
   if ( revertAll ){
