@@ -3491,3 +3491,136 @@ void test_ci_mini_cmd(){
   }
   CheckinMiniInfo_cleanup(&cinf);
 }
+
+
+/*
+** Returns true if the given filename qualified for online editing
+** by the current user.
+**
+** Currently only looks at the user's permissions, pending decisions
+** on whether we want to filter them based on a glob list or mimetype
+** list.
+*/
+int file_is_online_editable(const char *zFilename){
+  if(g.perm.Write){
+    return 1;
+  }
+  return 0;    
+}
+
+/*
+** WEBPAGE: fileedit
+**
+** EXPERIMENTAL and subject to change and removal at any time. The goal
+** is to allow online edits of files.
+**
+** Query parameters:
+**
+**    file=FILE      Repo-relative path to the file.
+**    r=VERSION      Checkin version
+**
+** Parameters intended to be passed in only via the editor's own form:
+**
+**    diff           If true, show diff from prev version.
+**    preview        If true, preview (how depends on mimetype).
+**    content        File content.
+**    
+**
+*/
+void fileedit_page(){
+  const char * zFilename = PD("file",P("name")); /* filename */
+  const char * zRev = P("r");           /* checkin version */
+  const char * zContent = P("content"); /* file content */
+  const char * zComment = P("comment"); /* checkin comment */
+  char * zRevResolved = 0;              /* Resolved zRev */
+  int vid, frid;                        /* checkin/file rids */
+  char * zFileUuid = 0;
+  Blob content = empty_blob;
+
+  login_check_credentials();
+  if( !g.perm.Write ){
+    login_needed(g.anon.Write);
+    return;
+  }
+  /*
+  ** TODOs include, but are not limited to:
+  **
+  ** - On initial hit, fetch file content and stuff it in a textarea.
+  **
+  ** - Preview button + view
+  **
+  ** - Diff button + view
+  **
+  ** - Checkbox options: allow fork, dry-run, convert EOL,
+  **   allow merge conflict, allow older (just in case server time
+  **   is messed up or someone checked something in w/ a future
+  **   timestamp)
+  **
+  */
+  if(!zRev || !*zRev || !zFilename || !*zFilename){
+    webpage_error("Missing required URL parameters.");
+  }
+  vid = symbolic_name_to_rid(zRev, "ci");
+  if(0==vid){
+    webpage_error("Could not resolve checkin version.");
+  }
+  zRevResolved = rid_to_uuid(vid);
+  zFileUuid = db_text(0,"SELECT uuid FROM files_of_checkin WHERE "
+                      "filename=%Q %s AND checkinID=%d",
+                      zFilename, filename_collation(), vid);
+  if(!zFileUuid){
+    webpage_error("Checkin [%S] does not contain file: %T",
+                  zRevResolved, zFilename);
+  }
+
+  frid = fast_uuid_to_rid(zFileUuid);
+  assert(frid);
+  if(zContent==0){
+    content_get(frid, &content);
+    zContent = blob_size(&content) ? blob_str(&content) : NULL;
+  }else{
+    blob_init(&content,zContent,-1);
+  }
+  if(looks_like_binary(&content)){
+    webpage_error("File appears to be binary. Cannot edit: %T",
+                  zFilename);
+  }
+  
+  style_header("File Editor");
+#define fp fossil_print
+  /* ^^^ Appologies, Richard, but the @ form plays havoc with emacs */
+
+  fp("<h1>Editing: %T</h1>",zFilename);
+  fp("<p>This page is <em>far from complete</em>.</p>");
+  
+  fp("<form action=\"%R/fileedit\" method=\"POST\" class=\"fileedit-form\">");
+  fp("<input type=\"hidden\" name=\"r\" value=\"%s\">", zRevResolved);
+  fp("<input type=\"hidden\" name=\"file\" value=\"%T\">",
+     zFilename);
+  fp("<h3>Comment</h3>");
+  fp("<textarea name=\"comment\" rows=\"3\" cols=\"80\">");
+  if(zComment && *zComment){
+    fp("%T"/*%T?*/, zComment);
+  }
+  fp("</textarea>");
+  fp("<h3>Content</h3>");
+  fp("<textarea name=\"content\" rows=\"20\" cols=\"80\">");
+  if(zContent && *zContent){
+    fp("%s", zContent);
+  }
+  fp("</textarea>");
+
+  fp("<div class=\"fileedit-options\">");
+  /* Put checkboxes here... */
+  fp("Many buttons and checkboxes to put here");
+  fp("</div>");  
+
+  fp("</form>");
+  
+  blob_reset(&content);
+  fossil_free(zRevResolved);
+  fossil_free(zFileUuid);
+
+  style_footer();
+#undef fp
+}

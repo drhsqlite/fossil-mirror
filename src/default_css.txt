@@ -862,3 +862,12 @@ label {
 //   max-width: 30em;
 //   overflow: auto;
 // }
+// .fileedit-XXX => /fileedit page
+.fileedit-form textarea {
+  width: 100%;
+}
+.fileedit-form .fileedit-options {
+  padding: 0.5em;
+  margin: 1em 0 0 0;
+  border: 2px inset #a0a0a0;
+}
