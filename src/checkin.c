@@ -2708,7 +2708,7 @@ void commit_cmd(void){
 struct CheckinMiniInfo {
   Manifest * pParent;  /* parent checkin. Memory is owned by this
                           object. */
-  char *zParentUuid;   /* UUID of pParent */
+  char *zParentUuid;   /* Full UUID of pParent */
   char *zFilename;     /* Name of single file to commit. Must be
                           relative to the top of the repo. */
   Blob fileContent;    /* Content of file referred to by zFilename. */
@@ -3056,17 +3056,21 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 **
 ** This function may may modify pCI as follows:
 **
-** - If Manifest pCI->pParent is NULL then it will be loaded
-**   using pCI->zParentUuid. pCI->zParentUuid may not be NULL.
+** - If one of Manifest pCI->pParent or pCI->zParentUuid are NULL,
+**   then the other will be assigned based on its counterpart. Both
+**   may not be NULL.
 **
 ** - pCI->zDate is normalized to/replaced with a valid date/time
 **   string. If its original value cannot be validated then
 **   this function fails. If pCI->zDate is NULL, the current time
 **   is used.
 **
-** - If pCI->fileContent is not binary and its line-ending style
-**   differs from its previous version, it is converted to the same
-**   EOL style. If this is done, the pCI->fileHash is re-computed.
+** - If the CIMINI_CONVERT_EOL flag is set, pCI->fileContent appears
+**   to be plain text, and its line-ending style differs from its
+**   previous version, it is converted to the same EOL style as the
+**   previous version. If this is done, the pCI->fileHash is
+**   re-computed. Note that only pCI->fileContent, not the original
+**   file, is affected by the conversion.
 **
 ** - If pCI->fileHash is empty, this routine populates it with the
 **   repository's preferred hash algorithm.
@@ -3110,11 +3114,17 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   }
   db_begin_transaction();
 
-  if(pCI->pParent==0){
+  if(pCI->pParent==0 && pCI->zParentUuid){
+    ci_err((pErr, "Cannot determine parent version."));
+  }
+  else if(pCI->pParent==0){
     pCI->pParent = manifest_get_by_name(pCI->zParentUuid, 0);
     if(pCI->pParent==0){
       ci_err((pErr,"Cannot load manifest for [%S].", pCI->zParentUuid));
     }
+  }else if(pCI->zParentUuid==0){
+    pCI->zParentUuid = rid_to_uuid(pCI->pParent->rid);
+    assert(pCI->zParentUuid);
   }
 
   assert(pCI->pParent->rid>0);
@@ -3363,7 +3373,7 @@ ci_error:
 **
 */
 void test_ci_mini_cmd(){
-  CheckinMiniInfo cinf;       /* checkin state */
+  CheckinMiniInfo cimi;       /* checkin state */
   int newRid = 0;                /* RID of new version */
   const char * zFilename;        /* argv[2] */
   const char * zComment;         /* -m comment */
@@ -3380,7 +3390,7 @@ void test_ci_mini_cmd(){
   ** and work. The point of this is to avoid duplicate code when a web
   ** front-end is added for checkin_mini().
   */
-  CheckinMiniInfo_init(&cinf);
+  CheckinMiniInfo_init(&cimi);
   zComment = find_option("comment","m",1);
   zCommentFile = find_option("comment-file","M",1);
   zAsFilename = find_option("as",0,1);
@@ -3389,32 +3399,32 @@ void test_ci_mini_cmd(){
   zDate = find_option("date-override",0,1);
   zManifestFile = find_option("save-manifest",0,1);
   if(find_option("wet-run",0,0)==0){
-    cinf.flags |= CIMINI_DRY_RUN;
+    cimi.flags |= CIMINI_DRY_RUN;
   }
   if(find_option("allow-fork",0,0)!=0){
-    cinf.flags |= CIMINI_ALLOW_FORK;
+    cimi.flags |= CIMINI_ALLOW_FORK;
   }
   if(find_option("dump-manifest","d",0)!=0){
-    cinf.flags |= CIMINI_DUMP_MANIFEST;
+    cimi.flags |= CIMINI_DUMP_MANIFEST;
   }
   if(find_option("allow-merge-conflict",0,0)!=0){
-    cinf.flags |= CIMINI_ALLOW_MERGE_MARKER;
+    cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
   }
   if(find_option("allow-older",0,0)!=0){
-    cinf.flags |= CIMINI_ALLOW_OLDER;
+    cimi.flags |= CIMINI_ALLOW_OLDER;
   }
   if(find_option("convert-eol",0,0)!=0){
-    cinf.flags |= CIMINI_CONVERT_EOL;
+    cimi.flags |= CIMINI_CONVERT_EOL;
   }
   if(find_option("delta",0,0)!=0){
-    cinf.flags |= CIMINI_PREFER_DELTA;
+    cimi.flags |= CIMINI_PREFER_DELTA;
   }
   if(find_option("delta2",0,0)!=0){
     /* Undocumented. For testing only. */
-    cinf.flags |= CIMINI_PREFER_DELTA | CIMINI_STRONGLY_PREFER_DELTA;
+    cimi.flags |= CIMINI_PREFER_DELTA | CIMINI_STRONGLY_PREFER_DELTA;
   }
   if(find_option("allow-new-file",0,0)!=0){
-    cinf.flags |= CIMINI_ALLOW_NEW_FILE;
+    cimi.flags |= CIMINI_ALLOW_NEW_FILE;
   }
   db_find_and_open_repository(0, 0);
   verify_all_options();
@@ -3426,21 +3436,21 @@ void test_ci_mini_cmd(){
     fossil_fatal("Only one of -m or -M, not both, may be used.");
   }else{
     if(zCommentFile && *zCommentFile){
-      blob_read_from_file(&cinf.comment, zCommentFile, ExtFILE);
+      blob_read_from_file(&cimi.comment, zCommentFile, ExtFILE);
     }else if(zComment && *zComment){
-      blob_append(&cinf.comment, zComment, -1);
+      blob_append(&cimi.comment, zComment, -1);
     }
-    if(!blob_size(&cinf.comment)){
+    if(!blob_size(&cimi.comment)){
       fossil_fatal("Non-empty checkin comment is required.");
     }
   }
   db_begin_transaction();
   zFilename = g.argv[2];
-  cinf.zFilename = mprintf("%/", zAsFilename ? zAsFilename : zFilename);
-  cinf.filePerm = file_perm(zFilename, ExtFILE);
-  cinf.zUser = mprintf("%s", zUser ? zUser : login_name());
+  cimi.zFilename = mprintf("%/", zAsFilename ? zAsFilename : zFilename);
+  cimi.filePerm = file_perm(zFilename, ExtFILE);
+  cimi.zUser = mprintf("%s", zUser ? zUser : login_name());
   if(zDate){
-    cinf.zDate = mprintf("%s", zDate);
+    cimi.zDate = mprintf("%s", zDate);
   }
   if(zRevision==0 || zRevision[0]==0){
     if(g.localOpen/*checkout*/){
@@ -3449,19 +3459,19 @@ void test_ci_mini_cmd(){
       zRevision = "trunk";
     }
   }
-  name_to_uuid2(zRevision, "ci", &cinf.zParentUuid);
-  if(cinf.zParentUuid==0){
+  name_to_uuid2(zRevision, "ci", &cimi.zParentUuid);
+  if(cimi.zParentUuid==0){
     fossil_fatal("Cannot determine version to commit to.");
   }
-  blob_read_from_file(&cinf.fileContent, zFilename, ExtFILE);
+  blob_read_from_file(&cimi.fileContent, zFilename, ExtFILE);
   {
     Blob theManifest = empty_blob; /* --save-manifest target */
     Blob errMsg = empty_blob;
     int rc;
     if(zManifestFile){
-      cinf.pMfOut = &theManifest;
+      cimi.pMfOut = &theManifest;
     }
-    rc = checkin_mini(&cinf, &newRid, &errMsg);
+    rc = checkin_mini(&cimi, &newRid, &errMsg);
     if(rc){
       assert(blob_size(&errMsg)==0);
     }else{
@@ -3477,19 +3487,19 @@ void test_ci_mini_cmd(){
   }
   if(newRid!=0){
     fossil_print("New version%s: %z\n",
-                 (cinf.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
+                 (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
                  rid_to_uuid(newRid));
   }
   db_end_transaction(0/*checkin_mini() will have triggered it to roll
                       ** back in dry-run mode, but we need access to
                       ** the transaction-written db state in this
                       ** routine.*/);
-  if(!(cinf.flags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
+  if(!(cimi.flags & CIMINI_DRY_RUN) && newRid!=0 && g.localOpen!=0){
     fossil_warning("The checkout state is now out of sync "
                    "with regards to this commit. It needs to be "
                    "'update'd or 'close'd and re-'open'ed.");
   }
-  CheckinMiniInfo_cleanup(&cinf);
+  CheckinMiniInfo_cleanup(&cimi);
 }
 
 
@@ -3524,103 +3534,206 @@ int file_is_online_editable(const char *zFilename){
 **    diff           If true, show diff from prev version.
 **    preview        If true, preview (how depends on mimetype).
 **    content        File content.
+**    comment        Checkin comment.
+**    n              Optional comment mimetype ("n" as in N-card).
 **    
 **
 */
 void fileedit_page(){
   const char * zFilename = PD("file",P("name")); /* filename */
-  const char * zRev = P("r");           /* checkin version */
-  const char * zContent = P("content"); /* file content */
-  const char * zComment = P("comment"); /* checkin comment */
-  char * zRevResolved = 0;              /* Resolved zRev */
-  int vid, frid;                        /* checkin/file rids */
-  char * zFileUuid = 0;
-  Blob content = empty_blob;
+  const char * zRev = P("r");             /* checkin version */
+  const char * zContent = P("content");   /* file content */
+  const char * zComment = P("comment");   /* checkin comment */
+  CheckinMiniInfo cimi;                   /* Checkin state */
+  int submitMode = 0;                     /* See mapping below */
+  char * zRevResolved = 0;                /* Resolved zRev */
+  int vid;                                /* checkin rid */
+  char * zFileUuid = 0;                   /* File content UUID */
+  Blob err = empty_blob;                  /* Error report */
+  const char * zFlagCheck = 0;            /* Temp url flag holder */
+  Stmt stmt = empty_Stmt;
+#define fail(EXPR) blob_appendf EXPR; goto end_footer
 
   login_check_credentials();
   if( !g.perm.Write ){
     login_needed(g.anon.Write);
     return;
   }
+  CheckinMiniInfo_init(&cimi);
+  zFlagCheck = P("comment");
+  if(zFlagCheck){
+    cimi.zMimetype = mprintf("%s",zFlagCheck);
+    zFlagCheck = 0;
+  }
+  cimi.zUser = mprintf("%s",g.zLogin);
   /*
   ** TODOs include, but are not limited to:
-  **
-  ** - On initial hit, fetch file content and stuff it in a textarea.
   **
   ** - Preview button + view
   **
   ** - Diff button + view
   **
-  ** - Checkbox options: allow fork, dry-run, convert EOL,
-  **   allow merge conflict, allow older (just in case server time
-  **   is messed up or someone checked something in w/ a future
-  **   timestamp)
-  **
   */
   if(!zRev || !*zRev || !zFilename || !*zFilename){
-    webpage_error("Missing required URL parameters.");
+    fail((&err,"Missing required URL parameters."));
   }
   vid = symbolic_name_to_rid(zRev, "ci");
   if(0==vid){
-    webpage_error("Could not resolve checkin version.");
-  }
-  zRevResolved = rid_to_uuid(vid);
-  zFileUuid = db_text(0,"SELECT uuid FROM files_of_checkin WHERE "
-                      "filename=%Q %s AND checkinID=%d",
-                      zFilename, filename_collation(), vid);
-  if(!zFileUuid){
-    webpage_error("Checkin [%S] does not contain file: %T",
-                  zRevResolved, zFilename);
+    fail((&err,"Could not resolve checkin version."));
   }
 
-  frid = fast_uuid_to_rid(zFileUuid);
-  assert(frid);
+  /* Find the repo-side file entry or fail... */
+  zRevResolved = rid_to_uuid(vid);
+  db_prepare(&stmt, "SELECT uuid, perm FROM files_of_checkin "
+             "WHERE filename=%Q %s AND checkinID=%d",
+             zFilename, filename_collation(), vid);
+  if(SQLITE_ROW==db_step(&stmt)){
+    const char * zPerm = db_column_text(&stmt, 1);
+    const int isLink = zPerm ? strstr(zPerm,"l")!=0 : 0;
+    if(isLink){
+      fail((&err,"Editing symlinks is not permitted."));
+    }
+    zFileUuid = mprintf("%s",db_column_text(&stmt, 0));
+  }
+  db_finalize(&stmt);
+  if(!zFileUuid){
+    fail((&err,"Checkin [%S] does not contain file: %h",
+          zRevResolved, zFilename));
+  }
+
+  /* Read file content from submit request or repo... */
   if(zContent==0){
-    content_get(frid, &content);
-    zContent = blob_size(&content) ? blob_str(&content) : NULL;
+    const int frid = fast_uuid_to_rid(zFileUuid);
+    assert(frid);
+    content_get(frid, &cimi.fileContent);
+    zContent = blob_size(&cimi.fileContent)
+      ? blob_str(&cimi.fileContent) : NULL;
   }else{
-    blob_init(&content,zContent,-1);
+    blob_init(&cimi.fileContent,zContent,-1);
   }
-  if(looks_like_binary(&content)){
-    webpage_error("File appears to be binary. Cannot edit: %T",
-                  zFilename);
+  if(looks_like_binary(&cimi.fileContent)){
+    fail((&err,"File appears to be binary. Cannot edit: %h",
+          zFilename));
   }
-  
+
+  /* All set. Here we go... */
   style_header("File Editor");
 #define fp fossil_print
   /* ^^^ Appologies, Richard, but the @ form plays havoc with emacs */
 
-  fp("<h1>Editing: %T</h1>",zFilename);
-  fp("<p>This page is <em>far from complete</em>.</p>");
+  fp("<h1>Editing: %h</h1>",zFilename);
+  fp("<p class='hint'>Permalink: "
+     "<a href='%R/fileedit?file=%T&r=%s'>"
+     "%R/fileedit?file=%T&r=%s</a></p>",
+     zFilename, zRev, zFilename, zRev);
+  fp("<p>This page is <em>far from complete</em>.</p>\n");
   
-  fp("<form action=\"%R/fileedit\" method=\"POST\" class=\"fileedit-form\">");
-  fp("<input type=\"hidden\" name=\"r\" value=\"%s\">", zRevResolved);
-  fp("<input type=\"hidden\" name=\"file\" value=\"%T\">",
+  fp("<form action='%R/fileedit' method='POST' "
+     "class='fileedit-form'>\n");
+
+  /******* Hidden fields *******/
+  fp("<input type='hidden' name='r' value='%s'>", zRevResolved);
+  fp("<input type='hidden' name='file' value='%T'>",
      zFilename);
-  fp("<h3>Comment</h3>");
-  fp("<textarea name=\"comment\" rows=\"3\" cols=\"80\">");
+
+  /******* Comment *******/
+  fp("<h3>Comment</h3>\n");
+  fp("<textarea name='comment' rows='3' cols='80'>");
   if(zComment && *zComment){
-    fp("%T"/*%T?*/, zComment);
+    fp("%h"/*%h? %s?*/, zComment);
   }
-  fp("</textarea>");
-  fp("<h3>Content</h3>");
-  fp("<textarea name=\"content\" rows=\"20\" cols=\"80\">");
+  fp("</textarea>\n");
+  fp("<div class='hint'>Comments use the Fossil wiki markup "
+     "syntax.</div>"/*TODO: radiobuttons for fossil/me/plain text*/);
+
+  /******* Content *******/
+  fp("<h3>Content</h3>\n");
+  fp("<textarea name='content' rows='20' cols='80'>");
   if(zContent && *zContent){
-    fp("%s", zContent);
+    fp("%h", zContent);
   }
-  fp("</textarea>");
+  fp("</textarea>\n");
 
-  fp("<div class=\"fileedit-options\">");
-  /* Put checkboxes here... */
-  fp("Many buttons and checkboxes to put here");
-  fp("</div>");  
+  /******* Flags/options *******/
+  fp("<fieldset class='fileedit-options'>"
+     "<legend>Many checkboxes are TODO</legend><div>"
+     /* Chrome does not sanely lay out multiple
+     ** fieldset children after the <legend>, so
+     ** a containing div is necessary. */);
+  /*
+  ** TODO: Put checkboxes here...
+  **
+  ** allow-fork, dry-run, convert-eol, allow-merge-conflict,
+  ** set-exec-bit, date-override, allow-older (in case server time is
+  ** messed up or someone checked something in w/ a future timestamp),
+  ** prefer-delta, strongly-prefer-delta (undocumented - for
+  ** development/admin use only).
+  */
+  fp("</div></fieldset>");
 
-  fp("</form>");
-  
-  blob_reset(&content);
+  /******* Buttons *******/  
+  fp("<fieldset class='fileedit-options'>"
+     "<legend>Several buttons are TODO</legend><div>");
+  fp("<button type='submit' name='submit' value='1'>"
+     "Submit (dry-run)</button>");
+  fp("<button type='submit' name='submit' value='2'>"
+     "Preview (TODO)</button>");
+  fp("<button type='submit' name='submit' value='3'>"
+     "Diff (TODO)</button>");
+  fp("</div></fieldset>");
+
+  /******* End of form *******/    
+  fp("</form>\n");
+  zContent = 0;
   fossil_free(zRevResolved);
   fossil_free(zFileUuid);
 
+  submitMode = atoi(PD("submit","0"))
+    /*
+    ** Submit modes: 1=submit (save), 2=preview, 3=diff
+    */;
+  if(1==submitMode/*save*/){
+    Blob manifest = empty_blob;
+    int rc;
+
+    /* TODO: pull these flags from P() */
+    cimi.flags |= CIMINI_DRY_RUN;
+    cimi.flags |= CIMINI_CONVERT_EOL;
+    cimi.flags |= CIMINI_PREFER_DELTA;
+    /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
+
+    db_begin_transaction();
+    cimi.pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
+    assert(cimi.pParent && "We know vid is valid.");
+    cimi.zFilename = mprintf("%s",zFilename);
+    cimi.pMfOut = &manifest;
+    cimi.filePerm = PERM_REG;
+    if(zComment && *zComment){
+      blob_append(&cimi.comment, zComment, -1);
+    }
+    rc = checkin_mini(&cimi, 0, &err);
+    if(rc!=0){
+      fp("<h3>Manifest</h3><pre><code>%h</code></pre>",
+         blob_str(&manifest));
+    }
+    blob_reset(&manifest);
+    db_end_transaction(rc ? 0 : 1);
+  }else if(2==submitMode/*preview*/){
+    /* TODO */
+  }else if(3==submitMode/*diff*/){
+    /* TODO */
+  }else{
+    /* Ignore invalid submitMode value */
+    goto end_footer;
+  }
+
+end_footer:
+  if(blob_size(&err)){
+      fp("<div class='fileedit-error-report'>%h</div>",
+         blob_str(&err));
+  }
+  blob_reset(&err);
+  CheckinMiniInfo_cleanup(&cimi);
   style_footer();
 #undef fp
 }

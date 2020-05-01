@@ -866,8 +866,28 @@ label {
 .fileedit-form textarea {
   width: 100%;
 }
+.fileedit-form fieldset {
+  border-radius: 0.5em;
+}
 .fileedit-form .fileedit-options {
   padding: 0.5em;
   margin: 1em 0 0 0;
-  border: 2px inset #a0a0a0;
+}
+.fileedit-form .fileedit-buttons > div > * {
+  margin: 0 0.25em 0.25em 0.25em;
+}
+.fileedit-form .fileedit-options > div > * {
+  margin: 0 0.25em 0.25em 0.25em;
+}
+.fileedit-form .hint {
+  font-size: 80%;
+  opacity: 0.75;
+}
+
+.fileedit-error-report {
+  background: yellow;
+  color: darkred;
+  margin: 1em 0;
+  padding: 0.5em;
+  border-radius: 0.5em;
 }
