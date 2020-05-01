@@ -1,5 +1,5 @@
-C Mini-checkin\snow\spre-allocates\ssome\smemory\sfor\sthe\soutput\smanifest.\sInternal\sdoc\supdates.
-D 2020-05-01T05:38:07.785
+C Added\squotes\saround\sthe\sURLs\spassed\sto\sthe\sbrowser\sfor\sthe\sui\scommand\sso\sthat\sURL\sparameters\scontaining\san\sampersand\sget\spassed\son\scorrectly.
+D 2020-05-01T07:33:21.311
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -521,7 +521,7 @@ F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0
 F src/login.c fe5beba1a1bfd313d6ea59cef85456314526ee725dece2fa4ce0a12c88e17b76
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
-F src/main.c 190c267f9992b55d1a426de6f4826ddc5e41507502b2bebccec00da3eaea6922
+F src/main.c 96827b5c91bce3df3259017686e1d76bee89eaa2317820ed18d6803772ef21fe
 F src/main.mk a28935c1ea16093c84005bcbde52f226336e7c1f7ac3654ad166e5f696ef2abb
 F src/makeheaders.c a8afb0c00219eec02369ad1c1446e8a5f9d82c60e6f83d95cdc8511fc7001371
 F src/makeheaders.html f97b62807cd92a46d2b446a2c68caa638f89dc622e4705743935ca9fd467b454
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 972cc5f9ac23a8dcd465886a726332400db7df64d95335eee702d7ef9265369a
-R 085225e97d86dea2239788afa6bbb148
+P bfe7750e94ca302bf99e22ec97bfaa0cbd18ddfaff77cbbc5bcab8b474d240a2
+R b4fbec80858688c45a47299672b5b8f0
 U stephan
-Z 515918ce63714b6d7d2ea391ff705b26
+Z e54de6d5e6d4408ad2bc90043d6922f1
