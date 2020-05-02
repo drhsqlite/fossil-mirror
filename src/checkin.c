@@ -2702,6 +2702,9 @@ void commit_cmd(void){
 ** ability to commit changes to a single file without a checkout
 ** db, e.g. for use via an HTTP request.
 **
+** Use CheckinMiniInfo_init() to cleanly initialize one to a known
+** valid/empty default state.
+**
 ** Memory for all non-const (char *) members is owned by the
 ** CheckinMiniInfo instance and is freed by CheckinMiniInfo_cleanup().
 */
@@ -3568,7 +3571,6 @@ int fileedit_is_editable(const char *zFilename){
     if(0==zGlobs) return 0;
     pGlobs = glob_create(zGlobs);
     fossil_free(zGlobs);
-    once = 1;
   }
   return glob_match(pGlobs, zFilename);
 }
@@ -3649,18 +3651,13 @@ static void style_labeled_checkbox(const char *zFieldName,
 **
 ** Query parameters:
 **
-**    file=FILE      Repo-relative path to the file.
-**    r=VERSION      Checkin version
+**    file=FILENAME    Repo-relative path to the file.
+**    r=VERSION        Checkin version, using any unambiguous
+**                     supported symbolic version name.
 **
-** Parameters intended to be passed in only via the editor's own form:
-**
-**    diff           If true, show diff from prev version.
-**    preview        If true, preview (how depends on mimetype).
-**    content        File content.
-**    comment        Checkin comment.
-**    n              Optional comment mimetype ("n" as in N-card).
-**    
-**
+** All other parameters are for internal use only, submitted via the
+** form-submission process, and may change with any given revision of
+** this code.
 */
 void fileedit_page(){
   const char * zFilename = PD("file",P("name")); /* filename */
@@ -3699,15 +3696,12 @@ void fileedit_page(){
     zFlagCheck = 0;
   }
   cimi.zUser = mprintf("%s",g.zLogin);
-  /*
-  ** TODOs include, but are not limited to:
-  **
-  ** - Preview button + view
-  **
-  ** - Diff button + view
-  **
-  */
+
   style_header("File Editor");
+  /* As of this point, don't use return or fossil_fatal(), use
+  ** fail((&err,...))  instead so that we can be sure to do any
+  ** cleanup and end the transaction cleanly.
+  */
   if(!zRev || !*zRev || !zFilename || !*zFilename){
     fail((&err,"Missing required URL parameters."));
   }
@@ -3764,7 +3758,7 @@ void fileedit_page(){
   fp("<h1>Editing:</h1>");
   fp("<p class='fileedit-hint'>");
   fp("File: <code>%h</code><br>"
-     "Version: <code id='r-label'>%s</code><br>",
+     "Checkin Version: <code id='r-label'>%s</code><br>",
      zFilename, cimi.zParentUuid);
   fp("Permalink: <code>"
      "<a id='permalink' href='%R/fileedit?file=%T&r=%!S'>"
