@@ -3762,7 +3762,7 @@ void fileedit_page(){
   /* ^^^ Appologies, Richard, but the @ form plays havoc with emacs */
 
   fp("<h1>Editing:</h1>");
-  fp("<p class='hint'>");
+  fp("<p class='fileedit-hint'>");
   fp("File: <code>%h</code><br>"
      "Version: <code id='r-label'>%s</code><br>",
      zFilename, zRevResolved);
@@ -3790,7 +3790,7 @@ void fileedit_page(){
     fp("%h"/*%h? %s?*/, zComment);
   }
   fp("</textarea>\n");
-  fp("<div class='hint'>Comments use the Fossil wiki markup "
+  fp("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
      "syntax.</div>"/*TODO: radiobuttons for fossil/me/plain text*/);
 
   /******* Content *******/
@@ -3813,7 +3813,10 @@ void fileedit_page(){
     cimi.flags |= CIMINI_DRY_RUN;
   }
   style_labeled_checkbox("dry_run", "Dry-run?", "1",
-                         "In dry-run mode, do not really save.",
+                         "In dry-run mode, the Save button performs "
+                         "all work needed for saving but then rolls "
+                         "back the transaction, and thus does not "
+                         "really save.",
                          cimi.flags & CIMINI_DRY_RUN);
   if(P("allow_fork")!=0){
     cimi.flags |= CIMINI_ALLOW_FORK;
@@ -3825,14 +3828,14 @@ void fileedit_page(){
     cimi.flags |= CIMINI_ALLOW_OLDER;
   }
   style_labeled_checkbox("allow_older", "Allow older?", "1",
-                         "Allow saving to a version which has "
-                         "a newer timestamp?",
+                         "Allow saving against a parent version "
+                         "which has a newer timestamp?",
                          cimi.flags & CIMINI_ALLOW_OLDER);
   if(P("exec_bit")!=0){
     cimi.filePerm = PERM_EXE;
   }
   style_labeled_checkbox("exec_bit", "Executable?", "1",
-                         "Set executable bit?",
+                         "Set the executable bit?",
                          PERM_EXE==cimi.filePerm);
   if(P("allow_merge_conflict")!=0){
     cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
@@ -3843,6 +3846,15 @@ void fileedit_page(){
                          "what appear to be fossil merge conflict "
                          "markers?",
                          cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
+  if(P("prefer_delta")!=0){
+    cimi.flags |= CIMINI_PREFER_DELTA;
+  }
+  style_labeled_checkbox("prefer_delta",
+                         "Prefer delta manifest?", "1",
+                         "Will create a delta manifest, instead of "
+                         "baseline, if conditions are favorable to do "
+                         "so. This option is only a suggestion.",
+                         cimi.flags & CIMINI_PREFER_DELTA);
   {/* EOL conversion policy... */
     const int eolMode = submitMode==0 ? 0 : atoi(PD("eol","0"));
     switch(eolMode){
@@ -3861,23 +3873,14 @@ void fileedit_page(){
        eolMode==2 ? " selected" : "");
     fp("</select>");
   }
-  if(P("prefer_delta")!=0){
-    cimi.flags |= CIMINI_PREFER_DELTA;
-  }
-  style_labeled_checkbox("prefer_delta",
-                         "Prefer delta manifest?", "1",
-                         "Will create a delta manifest, instead of "
-                         "baseline, if conditions are favorable to do "
-                         "so. This option is only a suggestion.",
-                         cimi.flags & CIMINI_PREFER_DELTA);
 
   fp("</div></fieldset>") /* end of checkboxes */;
 
   /******* Buttons *******/  
   fp("<fieldset class='fileedit-options'>"
-     "<legend>Several buttons are TODO</legend><div>");
+     "<legend>Tell the server to...</legend><div>");
   fp("<button type='submit' name='submit' value='1'>"
-     "Submit</button>");
+     "Save</button>");
   fp("<button type='submit' name='submit' value='2'>"
      "Preview (TODO)</button>");
   fp("<button type='submit' name='submit' value='3'>"

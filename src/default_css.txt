@@ -879,7 +879,7 @@ label {
 .fileedit-form .fileedit-options > div > * {
   margin: 0 0.25em 0.25em 0.25em;
 }
-.fileedit-form .hint {
+.fileedit-hint {
   font-size: 80%;
   opacity: 0.75;
 }
