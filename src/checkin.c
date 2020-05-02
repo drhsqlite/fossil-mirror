@@ -3721,8 +3721,10 @@ void fileedit_page(){
     fail((&err,"Missing required URL parameters."));
   }
   if(0==fileedit_is_editable(zFilename)){
-    fail((&err,"Filename is disallowed by the fileedit-glob "
-          "repository setting."));
+    fail((&err,"Filename <code>%h</code> is disallowed "
+          "by the <code>fileedit-glob</code> repository "
+          "setting.",
+          zFilename));
   }
   vid = symbolic_name_to_rid(zRev, "ci");
   if(0==vid){
@@ -3744,8 +3746,8 @@ void fileedit_page(){
   }
   db_finalize(&stmt);
   if(!zFileUuid){
-    fail((&err,"Checkin [%S] does not contain file: %h",
-          zRevResolved, zFilename));
+    fail((&err,"Checkin [%S] does not contain file: "
+          "<code>%h</code>", zRevResolved, zFilename));
   }
   frid = fast_uuid_to_rid(zFileUuid);
   assert(frid);
@@ -3759,8 +3761,8 @@ void fileedit_page(){
     blob_init(&cimi.fileContent,zContent,-1);
   }
   if(looks_like_binary(&cimi.fileContent)){
-    fail((&err,"File appears to be binary. Cannot edit: %h",
-          zFilename));
+    fail((&err,"File appears to be binary. Cannot edit: "
+          "<code>%h</code>",zFilename));
   }
 
   /* All set. Here we go... */
@@ -3990,7 +3992,7 @@ end_footer:
     db_finalize(&stmt);
   }
   if(blob_size(&err)){
-      fp("<div class='fileedit-error-report'>%h</div>",
+      fp("<div class='fileedit-error-report'>%s</div>",
          blob_str(&err));
   }
   blob_reset(&err);
