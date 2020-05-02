@@ -891,8 +891,9 @@ label {
   border-radius: 0.5em;
 }
 code.fileedit-manifest {
-  height: 12em;
-  scroll: auto;
+  display: block;
+  height: 16em;
+  overflow: auto;
 }
 .input-with-label {
   border: 1px inset #808080;
