@@ -3411,6 +3411,15 @@ struct Setting {
 ** gdiff), use relative paths.
 */
 #endif
+
+/*
+** SETTING: fileedit-glob       width=40 block-text
+** A comma- or newline-separated list of globs of filenames
+** which are allowed to be edited using the /fileedit page.
+** An empty list prohibits editing via that page. Note that
+** it cannot edit binary files, so the glob should not
+** contain any globs for, e.g., images or PDFs.
+*/
 /*
 ** SETTING: gdiff-command    width=40 default=gdiff
 ** The value is an external command to run when performing a graphical

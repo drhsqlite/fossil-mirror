@@ -883,11 +883,34 @@ label {
   font-size: 80%;
   opacity: 0.75;
 }
-
 .fileedit-error-report {
   background: yellow;
   color: darkred;
   margin: 1em 0;
   padding: 0.5em;
   border-radius: 0.5em;
+}
+code.fileedit-manifest {
+  height: 12em;
+  scroll: auto;
+}
+.input-with-label {
+  border: 1px inset #808080;
+  border-radius: 0.5em;
+  padding: 0.25em 0.4em;
+  margin: 0 0.5em;
+  display: inline-block;
+}
+.input-with-label > input {
+    margin: 0;
+}
+.input-with-label > input[type=checkbox] {
+    vertical-align: sub;
+}
+.input-with-label > input[type=radio] {
+    vertical-align: sub;
+}
+.input-with-label > span {
+    margin: 0 0 0 0.4em;
+    vertical-align: text-bottom;
 }

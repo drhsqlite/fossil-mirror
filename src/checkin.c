@@ -2774,12 +2774,20 @@ CIMINI_ALLOW_OLDER = 1<<4,
 ** version of that file. Only the in-memory/in-repo copies are
 ** affected, not the original file (if any).
 */
-CIMINI_CONVERT_EOL = 1<<5,
+CIMINI_CONVERT_EOL_INHERIT = 1<<5,
+/*
+** Indicates that the input's EOLs should be converted to Unix-style.
+*/
+CIMINI_CONVERT_EOL_UNIX = 1<<6,
+/*
+** Indicates that the input's EOLs should be converted to Windows-style.
+*/
+CIMINI_CONVERT_EOL_WINDOWS = 1<<7,
 /*
 ** A hint to checkin_mini() to "prefer" creation of a delta manifest.
 ** It may decide not to for various reasons.
 */
-CIMINI_PREFER_DELTA = 1<<6,
+CIMINI_PREFER_DELTA = 1<<8,
 /*
 ** A "stronger hint" to checkin_mini() to prefer creation of a delta
 ** manifest if it at all can. It will decide not to only if creation
@@ -2794,14 +2802,14 @@ CIMINI_PREFER_DELTA = 1<<6,
 **
 ** The forbid-delta-manifests repo config option trumps this.
 */
-CIMINI_STRONGLY_PREFER_DELTA = 1<<7,
+CIMINI_STRONGLY_PREFER_DELTA = 1<<9,
 /*
 ** Tells checkin_mini() to permit the addition of a new file. Normally
 ** this is disabled because there are many cases where it could cause
 ** the inadvertent addition of a new file when an update to an
 ** existing was intended, as a side-effect of name-case differences.
 */
-CIMINI_ALLOW_NEW_FILE = 1<<8
+CIMINI_ALLOW_NEW_FILE = 1<<10
 };
 
 /*
@@ -2842,6 +2850,17 @@ static const char * mfile_permint_mstring(int perm){
     case PERM_LNK: return " l";
     default: return "";
   }
+}
+
+/*
+** Given a ManifestFile permission string (or NULL), it returns one of
+** PERM_REG, PERM_EXE, or PERM_LNK.
+*/
+static int mfile_permstr_int(const char *zPerm){
+  if(!zPerm || !*zPerm) return PERM_REG;
+  else if(strstr(zPerm,"x")) return PERM_EXE;
+  else if(strstr(zPerm,"l")) return PERM_LNK;
+  else return PERM_REG/*???*/;
 }
 
 static const char * mfile_perm_mstring(const ManifestFile * p){
@@ -3065,15 +3084,17 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 **   this function fails. If pCI->zDate is NULL, the current time
 **   is used.
 **
-** - If the CIMINI_CONVERT_EOL flag is set, pCI->fileContent appears
-**   to be plain text, and its line-ending style differs from its
-**   previous version, it is converted to the same EOL style as the
-**   previous version. If this is done, the pCI->fileHash is
-**   re-computed. Note that only pCI->fileContent, not the original
-**   file, is affected by the conversion.
+** - If the CIMINI_CONVERT_EOL_INHERIT flag is set,
+**   pCI->fileContent appears to be plain text, and its line-ending
+**   style differs from its previous version, it is converted to the
+**   same EOL style as the previous version. If this is done, the
+**   pCI->fileHash is re-computed. Note that only pCI->fileContent,
+**   not the original file, is affected by the conversion.
 **
 ** - If pCI->fileHash is empty, this routine populates it with the
 **   repository's preferred hash algorithm.
+**
+** - pCI->comment may be converted to Unix-style newlines.
 **
 ** pCI's ownership is not modified.
 **
@@ -3177,6 +3198,15 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     fossil_free(pCI->zDate);
     pCI->zDate = zDVal;
   }
+  { /* Confirm that only one EOL policy is in place. */
+    int n = 0;
+    if(CIMINI_CONVERT_EOL_INHERIT & pCI->flags) ++n;
+    if(CIMINI_CONVERT_EOL_UNIX & pCI->flags) ++n;
+    if(CIMINI_CONVERT_EOL_WINDOWS & pCI->flags) ++n;
+    if(n>1){
+      ci_err((pErr,"More than 1 EOL conversion policy was specified."));
+    }
+  }
   /* Potential TODOs include:
   **
   ** - Commit allows an empty checkin only with a flag, but we
@@ -3214,9 +3244,11 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     prevFRid = fast_uuid_to_rid(zFilePrev->zUuid);
   }
 
-  if((CIMINI_CONVERT_EOL & pCI->flags)
-     && zFilePrev!=0
-     && blob_size(&pCI->fileContent)>0){
+  if(((CIMINI_CONVERT_EOL_INHERIT & pCI->flags)
+      || (CIMINI_CONVERT_EOL_UNIX & pCI->flags)
+      || (CIMINI_CONVERT_EOL_WINDOWS & pCI->flags))
+     && blob_size(&pCI->fileContent)>0
+     ){
     /* Confirm that the new content has the same EOL style as its
     ** predecessor and convert it, if needed, to the same style. Note
     ** that this inherently runs a risk of breaking content,
@@ -3236,47 +3268,68 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     const int lookFlags = LOOK_CRLF | pseudoBinary;
     const int lookNew = looks_like_utf8( &pCI->fileContent, lookFlags );
     if(!(pseudoBinary & lookNew)){
-      Blob contentPrev = empty_blob;
-      int lookOrig, nOrig;
-      content_get(prevFRid, &contentPrev);
-      lookOrig = looks_like_utf8(&contentPrev, lookFlags);
-      nOrig = blob_size(&contentPrev);
-      blob_reset(&contentPrev);
-      if(nOrig>0 && lookOrig!=lookNew){
-        /* If there is a newline-style mismatch, adjust the new
-        ** content version to the previous style, then re-hash the
-        ** content. Note that this means that what we insert is NOT
-        ** what's in the filesystem.
-        */
-        int rehash = 0;
-        if(!(lookOrig & LOOK_CRLF) && (lookNew & LOOK_CRLF)){
-          /* Old has Unix-style, new has Windows-style. */
-          blob_to_lf_only(&pCI->fileContent);
-          rehash = 1;
-        }else if((lookOrig & LOOK_CRLF) && !(lookNew & LOOK_CRLF)){
-          /* Old has Windows-style, new has Unix-style. */
-          blob_add_cr(&pCI->fileContent);
-          rehash = 1;
+      int rehash = 0;
+      if(CIMINI_CONVERT_EOL_INHERIT & pCI->flags){
+        Blob contentPrev = empty_blob;
+        int lookOrig, nOrig;
+        content_get(prevFRid, &contentPrev);
+        lookOrig = looks_like_utf8(&contentPrev, lookFlags);
+        nOrig = blob_size(&contentPrev);
+        blob_reset(&contentPrev);
+        if(nOrig>0 && lookOrig!=lookNew){
+          /* If there is a newline-style mismatch, adjust the new
+          ** content version to the previous style, then re-hash the
+          ** content. Note that this means that what we insert is NOT
+          ** what's in the filesystem.
+          */
+          if(!(lookOrig & LOOK_CRLF) && (lookNew & LOOK_CRLF)){
+            /* Old has Unix-style, new has Windows-style. */
+            blob_to_lf_only(&pCI->fileContent);
+            rehash = 1;
+          }else if((lookOrig & LOOK_CRLF) && !(lookNew & LOOK_CRLF)){
+            /* Old has Windows-style, new has Unix-style. */
+            blob_add_cr(&pCI->fileContent);
+            rehash = 1;
+          }
         }
-        if(rehash!=0){
-          hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
+      }else{
+        const int oldSize = blob_size(&pCI->fileContent);
+        if(CIMINI_CONVERT_EOL_UNIX & pCI->flags){
+          blob_to_lf_only(&pCI->fileContent);
+        }else{
+          blob_add_cr(&pCI->fileContent);
+          assert(CIMINI_CONVERT_EOL_WINDOWS & pCI->flags);
+        }
+        if(blob_size(&pCI->fileContent)!=oldSize){
+          rehash = 1;
         }
       }
+      if(rehash!=0){
+        hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
+      }
     }
-  }
+  }/* end EOL conversion */
+
   if(blob_size(&pCI->fileHash)==0){
     /* Hash the content if it's not done already... */
     hname_hash(&pCI->fileContent, 0, &pCI->fileHash);
     assert(blob_size(&pCI->fileHash)>0);
   }
   if(zFilePrev){
-    /* Has this file been changed since its previous commit? */
+    /* Has this file been changed since its previous commit?  Note
+    ** that we have to delay this check until after the potentially
+    ** expensive EOL conversion. */
     assert(blob_size(&pCI->fileHash));
     if(0==fossil_strcmp(zFilePrev->zUuid, blob_str(&pCI->fileHash))
        && manifest_file_mperm(zFilePrev)==pCI->filePerm){
       ci_err((pErr,"File is unchanged. Not saving."));
     }
   }
+#if 1
+  /* Do we really want to normalize comment EOLs? Web-posting will
+  ** submit them in CRLF format. */
+  blob_to_lf_only(&pCI->comment);
+#endif
   /* Create, save, deltify, and crosslink the manifest... */
   if(create_manifest_mini(&mf, pCI, pErr)==0){
     return 0;
@@ -3413,8 +3466,8 @@ void test_ci_mini_cmd(){
   if(find_option("allow-older",0,0)!=0){
     cimi.flags |= CIMINI_ALLOW_OLDER;
   }
-  if(find_option("convert-eol",0,0)!=0){
-    cimi.flags |= CIMINI_CONVERT_EOL;
+  if(find_option("convert-eol-prev",0,0)!=0){
+    cimi.flags |= CIMINI_CONVERT_EOL_INHERIT;
   }
   if(find_option("delta",0,0)!=0){
     cimi.flags |= CIMINI_PREFER_DELTA;
@@ -3504,18 +3557,77 @@ void test_ci_mini_cmd(){
 
 
 /*
-** Returns true if the given filename qualified for online editing
-** by the current user.
+** Returns true if the given filename qualifies for online editing by
+** the current user, else returns false.
 **
-** Currently only looks at the user's permissions, pending decisions
-** on whether we want to filter them based on a glob list or mimetype
-** list.
+** Editing requires that the user have the Write permission and that
+** the filename match the glob defined by the fileedit-glob setting.
+** A missing or empty value for that glob disables all editing.
 */
-int file_is_online_editable(const char *zFilename){
-  if(g.perm.Write){
-    return 1;
+int fileedit_is_editable(const char *zFilename){
+  static Glob * pGlobs = 0;
+  static int once = 0;
+  if(0==g.perm.Write || zFilename==0 || *zFilename==0
+     || (once!=0 && pGlobs==0)){
+    return 0;
+  }else if(0==pGlobs){
+    char * zGlobs = db_get("fileedit-glob",0);
+    once = 1;
+    if(0==zGlobs) return 0;
+    pGlobs = glob_create(zGlobs);
+    fossil_free(zGlobs);
+    once = 1;
   }
-  return 0;    
+  return glob_match(pGlobs, zFilename);
+}
+
+static void fileedit_emit_script(int phase){
+  if(0==phase){
+    fossil_print("<script nonce='%s'>", style_nonce());
+  }else{
+    fossil_print("</script>\n");
+  }
+}
+static void fileedit_emit_script_fetch(){
+#define fp fossil_print
+  fileedit_emit_script(0);
+  fp("window.fossilFetch = function(path,opt){\n");
+  fp("  if('function'===typeof opt){\n");
+  fp("    opt={onload:opt};\n");
+  fp("  }else{\n");
+  fp("    opt=opt||{onload:function(r){console.debug('response:',r)}}\n");
+  fp("  }\n");
+  fp("  const url='%R/'+path, x=new XMLHttpRequest();\n");
+  fp("  x.open(opt.method||'GET', url, true);\n");
+  fp("  x.responseType=opt.responseType||'text';\n");
+  fp("  if(opt.onload){\n");
+  fp("    x.onload = function(e){\n");
+  fp("      if(200!==this.status){\n");
+  fp("        if(opt.onerror) opt.onerror(e);\n");
+  fp("        return;\n");
+  fp("      }\n");
+  fp("      opt.onload(this.response);\n");
+  fp("    }\n");
+  fp("  }\n");
+  fp("  x.send();");
+  fp("};\n");
+  fileedit_emit_script(1);
+#undef fp
+};
+
+static void fileedit_checkbox(const char *zFieldName,
+                              const char * zLabel,
+                              const char * zValue,
+                              const char * zTip,
+                              int isChecked){
+  fossil_print("<span class='input-with-label'");
+  if(zTip && *zTip){
+    fossil_print(" title='%h'", zTip);
+  }
+  fossil_print("><input type='checkbox' name='%s' value='%T'%s/>",
+               zFieldName,
+               zValue ? zValue : "", isChecked ? " checked" : "");
+  fossil_print("<span>%h</span></span>", zLabel);
 }
 
 /*
@@ -3547,8 +3659,9 @@ void fileedit_page(){
   CheckinMiniInfo cimi;                   /* Checkin state */
   int submitMode = 0;                     /* See mapping below */
   char * zRevResolved = 0;                /* Resolved zRev */
-  int vid;                                /* checkin rid */
+  int vid, newVid = 0;                    /* checkin rid */
   char * zFileUuid = 0;                   /* File content UUID */
+  int frid = 0;                           /* File content rid */
   Blob err = empty_blob;                  /* Error report */
   const char * zFlagCheck = 0;            /* Temp url flag holder */
   Stmt stmt = empty_Stmt;
@@ -3560,6 +3673,9 @@ void fileedit_page(){
     return;
   }
   CheckinMiniInfo_init(&cimi);
+  submitMode = atoi(PD("submit","0"))
+    /* Submit modes: 0=initial request,
+    ** 1=submit (save), 2=preview, 3=diff */;
   zFlagCheck = P("comment");
   if(zFlagCheck){
     cimi.zMimetype = mprintf("%s",zFlagCheck);
@@ -3574,8 +3690,13 @@ void fileedit_page(){
   ** - Diff button + view
   **
   */
+  style_header("File Editor");
   if(!zRev || !*zRev || !zFilename || !*zFilename){
     fail((&err,"Missing required URL parameters."));
+  }
+  if(0==fileedit_is_editable(zFilename)){
+    fail((&err,"Filename is disallowed by the fileedit-glob "
+          "repository setting."));
   }
   vid = symbolic_name_to_rid(zRev, "ci");
   if(0==vid){
@@ -3589,8 +3710,8 @@ void fileedit_page(){
              zFilename, filename_collation(), vid);
   if(SQLITE_ROW==db_step(&stmt)){
     const char * zPerm = db_column_text(&stmt, 1);
-    const int isLink = zPerm ? strstr(zPerm,"l")!=0 : 0;
-    if(isLink){
+    cimi.filePerm = mfile_permstr_int(zPerm);
+    if(PERM_LNK==cimi.filePerm){
       fail((&err,"Editing symlinks is not permitted."));
     }
     zFileUuid = mprintf("%s",db_column_text(&stmt, 0));
@@ -3600,11 +3721,11 @@ void fileedit_page(){
     fail((&err,"Checkin [%S] does not contain file: %h",
           zRevResolved, zFilename));
   }
+  frid = fast_uuid_to_rid(zFileUuid);
+  assert(frid);
 
   /* Read file content from submit request or repo... */
   if(zContent==0){
-    const int frid = fast_uuid_to_rid(zFileUuid);
-    assert(frid);
     content_get(frid, &cimi.fileContent);
     zContent = blob_size(&cimi.fileContent)
       ? blob_str(&cimi.fileContent) : NULL;
@@ -3617,10 +3738,11 @@ void fileedit_page(){
   }
 
   /* All set. Here we go... */
-  style_header("File Editor");
 #define fp fossil_print
   /* ^^^ Appologies, Richard, but the @ form plays havoc with emacs */
 
+  fileedit_emit_script_fetch();
+  
   fp("<h1>Editing: %h</h1>",zFilename);
   fp("<p class='hint'>Permalink: "
      "<a href='%R/fileedit?file=%T&r=%s'>"
@@ -3648,12 +3770,10 @@ void fileedit_page(){
 
   /******* Content *******/
   fp("<h3>Content</h3>\n");
-  fp("<textarea name='content' rows='20' cols='80'>");
-  if(zContent && *zContent){
-    fp("%h", zContent);
-  }
+  fp("<textarea name='content' id='fileedit-content' "
+     "rows='20' cols='80'>");
+  fp("Loading...");
   fp("</textarea>\n");
-
   /******* Flags/options *******/
   fp("<fieldset class='fileedit-options'>"
      "<legend>Many checkboxes are TODO</legend><div>"
@@ -3663,19 +3783,63 @@ void fileedit_page(){
   /*
   ** TODO: Put checkboxes here...
   **
-  ** allow-fork, dry-run, convert-eol, allow-merge-conflict,
-  ** set-exec-bit, date-override, allow-older (in case server time is
+  ** dry-run, convert-eol
+  ** date-override, allow-older (in case server time is
   ** messed up or someone checked something in w/ a future timestamp),
   ** prefer-delta, strongly-prefer-delta (undocumented - for
   ** development/admin use only).
   */
-  fp("</div></fieldset>");
+  if(0==submitMode || P("dry_run")!=0){
+    cimi.flags |= CIMINI_DRY_RUN;
+  }
+  fileedit_checkbox("dry_run", "Dry-run?", "1",
+                    "In dry-run mode, do not really save.",
+                    cimi.flags & CIMINI_DRY_RUN);
+  if(P("allow_fork")!=0){
+    cimi.flags |= CIMINI_ALLOW_FORK;
+  }
+  fileedit_checkbox("allow_fork", "Allow fork?", "1",
+                    "Allow saving to create a fork?",
+                    cimi.flags & CIMINI_ALLOW_FORK);
+  if(P("exec_bit")!=0){
+    cimi.filePerm = PERM_EXE;
+  }
+  fileedit_checkbox("exec_bit", "Executable?", "1",
+                    "Set executable bit?",
+                    PERM_EXE==cimi.filePerm);
+  if(P("allow_merge_conflict")!=0){
+    cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
+  }
+  fileedit_checkbox("allow_merge_conflict",
+                    "Allow merge conflict markers?", "1",
+                    "Allow saving even if the content contains what "
+                    "appear to be fossil merge conflict markers?",
+                    cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
+  {/* EOL conversion policy... */
+    const int eolMode = submitMode==0 ? 0 : atoi(PD("eol","0"));
+    switch(eolMode){
+      case 1: cimi.flags |= CIMINI_CONVERT_EOL_UNIX; break;
+      case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
+      default: cimi.flags |= CIMINI_CONVERT_EOL_INHERIT; break;
+    }
+    fp("<select name='eol' "
+       "title='EOL conversion policy, noting that form-processing "
+       "may implicitly change the line endings of the input.'>");
+    fp("<option value='0'%s>Inherit EOLs</option>",
+       eolMode==0 ? " selected" : "");
+    fp("<option value='1'%s/>Unix EOLs</option>",
+       eolMode==1 ? " selected" : "");
+    fp("<option value='2'%s>Windows EOLs</option>",
+       eolMode==2 ? " selected" : "");
+    fp("</select>");
+  }
+  fp("</div></fieldset>") /* end of checkboxes */;
 
   /******* Buttons *******/  
   fp("<fieldset class='fileedit-options'>"
      "<legend>Several buttons are TODO</legend><div>");
   fp("<button type='submit' name='submit' value='1'>"
-     "Submit (dry-run)</button>");
+     "Submit</button>");
   fp("<button type='submit' name='submit' value='2'>"
      "Preview (TODO)</button>");
   fp("<button type='submit' name='submit' value='3'>"
@@ -3684,21 +3848,42 @@ void fileedit_page(){
 
   /******* End of form *******/    
   fp("</form>\n");
+
+  /* Populate doc...
+  ** To avoid all escaping-related issues, we have to do this one
+  ** of two ways:
+  **
+  ** 1) Fetch the content via AJAX. That only works if the content
+  **    is already in the db, but not for edited versions.
+  **
+  ** 2) Store the content as JSON and feed it into the textarea
+  **    using JavaScript.
+  */
+  fileedit_emit_script(0);
+  {
+    char const * zQuoted = 0;
+    if(blob_size(&cimi.fileContent)>0){
+      db_prepare(&stmt, "SELECT json_quote(%B)",&cimi.fileContent);
+      db_step(&stmt);
+      zQuoted = db_column_text(&stmt,0);
+    }
+    fp("document.getElementById('fileedit-content').value=%s;",
+       zQuoted ? zQuoted : "''");
+    if(stmt.pStmt){
+      db_finalize(&stmt);
+    }
+  }
+  fileedit_emit_script(1);
+
   zContent = 0;
   fossil_free(zRevResolved);
   fossil_free(zFileUuid);
 
-  submitMode = atoi(PD("submit","0"))
-    /*
-    ** Submit modes: 1=submit (save), 2=preview, 3=diff
-    */;
   if(1==submitMode/*save*/){
     Blob manifest = empty_blob;
     int rc;
 
     /* TODO: pull these flags from P() */
-    cimi.flags |= CIMINI_DRY_RUN;
-    cimi.flags |= CIMINI_CONVERT_EOL;
     cimi.flags |= CIMINI_PREFER_DELTA;
     /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
 
@@ -3707,27 +3892,35 @@ void fileedit_page(){
     assert(cimi.pParent && "We know vid is valid.");
     cimi.zFilename = mprintf("%s",zFilename);
     cimi.pMfOut = &manifest;
-    cimi.filePerm = PERM_REG;
     if(zComment && *zComment){
       blob_append(&cimi.comment, zComment, -1);
     }
-    rc = checkin_mini(&cimi, 0, &err);
-    if(rc!=0){
-      fp("<h3>Manifest</h3><pre><code>%h</code></pre>",
-         blob_str(&manifest));
+    rc = checkin_mini(&cimi, &newVid, &err);
+    if(newVid!=0){
+      char * zNewUuid = rid_to_uuid(newVid);
+      fp("<h3>Manifest%s: %S</h3><pre>"
+         "<code class='fileedit-manifest'>%h</code>"
+         "</pre>",
+         (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
+         zNewUuid, blob_str(&manifest));
+      fossil_free(zNewUuid);
     }
     blob_reset(&manifest);
     db_end_transaction(rc ? 0 : 1);
   }else if(2==submitMode/*preview*/){
     /* TODO */
+    fail((&err,"Preview mode is still TODO."));
   }else if(3==submitMode/*diff*/){
-    /* TODO */
+    fail((&err,"Diff mode is still TODO."));
   }else{
     /* Ignore invalid submitMode value */
     goto end_footer;
   }
 
 end_footer:
+  if(stmt.pStmt){
+    db_finalize(&stmt);
+  }
   if(blob_size(&err)){
       fp("<div class='fileedit-error-report'>%h</div>",
          blob_str(&err));

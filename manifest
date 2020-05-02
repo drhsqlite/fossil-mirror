@@ -1,5 +1,5 @@
-C Initial\swork\son\s/fileedit\spage.\sFirst\sdry-run\ssave\swas\sjust\sperformed.
-D 2020-05-01T14:22:23.540
+C Added\sfileedit-glob\ssetting\s(/fileedit\swhitelist)\sand\shonor\sit\sin\s/fileedit.\sAdded\smini-checkin\soptions\sto\sspecifically\sconvert\sEOLs\sto\sUnix\sor\sWindows\sstyles.\s/fileedit\ssaving\snow\smore\sor\sless\sworks,\sbut\sstill\sneeds\sto\supdate\sthe\s'r'\svalue\safter\sediting\sor\selse\swe're\sstuck\sat\sthe\sold\sparent\sversion.
+D 2020-05-02T15:03:12.426
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
-F src/checkin.c 0ea89f1e2c0ba1abf6aa2f54d87b19e95092fc84f2bdade63cee5ba3ab859636
+F src/checkin.c 2a4dca297844494974c6b10c3fd631cbc77738ce179b1a78675b063ed55b0201
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -455,15 +455,15 @@ F src/clone.c 009c36a98c8904b9db991a4ad0814d42f0f3fed3fb232bc41e34d22616ff49a6
 F src/codecheck1.c f74b41cba160225de4e676454d9a8fceabe730d5b3aa3c4a7465f602d0e6910d
 F src/comformat.c e9fe5da3fabb21398774c195f20192962b0856fc1f367ccac680b5cfef0f18e7
 F src/config.h 5599c3074e2250f49e06c22716e516140a0b2d22c703c604e050b6178c0d536a
-F src/configure.c 16dba3c855e7947297a01545bdb5d39b9b361c7f83cbcd98961d3781a4d87366
+F src/configure.c a37572d69d3125c6042bc6e2b993c2e83a48e3ba7f169f69bb20623f9a864d69
 F src/content.c 9cc33a35574ac0f099f532a7f017b58899c3a1ed330e61aef306aa65596dd94c
 F src/cookies.c 3c7a533e11f5a562292ef3e9c67542ea124afa6872adfd5ed77b6c4c1bd1668f
 F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc3
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 90e3fad37d8028f174633520c2e42a7fa5558da2a2965169eb072ed2582b2682
-F src/default_css.txt 7ff8a38179ac83492730a3bb5dde4b994c7325ae00c6d1c064dca83ee805a4db
+F src/db.c d865683d9eef998a30f5293b154cec809544fd9da7a9eb659411b6f637935e0e
+F src/default_css.txt 722ac2641de79efae9c29a4f1b76e246f080e6f3ff317a6b975a2a932e974325
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b5e3bc9e41127bbd1db145bad2bbb1a037f9ca159fe1cbbd1f2620341ae3d409
-R 390b62b6ad6b55ba232cfd40eb509160
+P fbd31f2049740cd4506526835c8590af5f15a07f127645c4e881a894f371f380
+R dc31291a41ed4d55e19136db05b5076f
 U stephan
-Z c055f85ec222b22e46cf1ebabccea3f0
+Z 1912082fd82aaebcbff4085771b07e9c
