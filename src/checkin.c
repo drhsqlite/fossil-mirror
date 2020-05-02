@@ -3249,20 +3249,12 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
       || (CIMINI_CONVERT_EOL_WINDOWS & pCI->flags))
      && blob_size(&pCI->fileContent)>0
      ){
-    /* Confirm that the new content has the same EOL style as its
-    ** predecessor and convert it, if needed, to the same style. Note
-    ** that this inherently runs a risk of breaking content,
-    ** e.g. string literals which contain embedded newlines. Note that
-    ** HTML5 specifies that form-submitted TEXTAREA content gets
-    ** normalized to CRLF-style:
+    /* Convert to the requested EOL style. Note that this inherently
+    ** runs a risk of breaking content, e.g. string literals which
+    ** contain embedded newlines. Note that HTML5 specifies that
+    ** form-submitted TEXTAREA content gets normalized to CRLF-style:
     **
     ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
-    **
-    ** More performant/efficient would be to offer a flag which says
-    ** which newline form to use, converting the new copy (if needed)
-    ** without having to examine the original. Since the primary use
-    ** case is a web interface, it would be easy to offer it as a
-    ** checkbox there.
     */
     const int pseudoBinary = LOOK_LONG | LOOK_NUL;
     const int lookFlags = LOOK_CRLF | pseudoBinary;
@@ -3297,8 +3289,8 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
         if(CIMINI_CONVERT_EOL_UNIX & pCI->flags){
           blob_to_lf_only(&pCI->fileContent);
         }else{
-          blob_add_cr(&pCI->fileContent);
           assert(CIMINI_CONVERT_EOL_WINDOWS & pCI->flags);
+          blob_add_cr(&pCI->fileContent);
         }
         if(blob_size(&pCI->fileContent)!=oldSize){
           rehash = 1;
