@@ -2833,10 +2833,10 @@ static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
     manifest_destroy(p->pParent);
   }
   fossil_free(p->zFilename);
-  fossil_free(p->zMimetype);
-  fossil_free(p->zParentUuid);
-  fossil_free(p->zUser);
   fossil_free(p->zDate);
+  fossil_free(p->zParentUuid);
+  fossil_free(p->zMimetype);
+  fossil_free(p->zUser);
   CheckinMiniInfo_init(p);
 }
 
@@ -3041,7 +3041,7 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   }else{
     blob_append(pOut, "C (no\\scomment)\n", 16);
   }
-  blob_appendf(pOut, "D %z\n", pCI->zDate);
+  blob_appendf(pOut, "D %s\n", pCI->zDate);
   if(create_manifest_mini_fcards(pOut,pCI,asDelta,pErr)==0){
     return 0;
   }
@@ -3135,7 +3135,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   }
   db_begin_transaction();
 
-  if(pCI->pParent==0 && pCI->zParentUuid){
+  if(pCI->pParent==0 && pCI->zParentUuid==0){
     ci_err((pErr, "Cannot determine parent version."));
   }
   else if(pCI->pParent==0){
@@ -3669,7 +3669,6 @@ void fileedit_page(){
   const char * zComment = P("comment"); /* checkin comment */
   CheckinMiniInfo cimi;                 /* Checkin state */
   int submitMode = 0;                   /* See mapping below */
-  char * zRevResolved = 0;              /* Resolved zRev */
   int vid, newVid = 0;                  /* checkin rid */
   char * zFileUuid = 0;                 /* File content UUID */
   int frid = 0;                         /* File content rid */
@@ -3724,7 +3723,7 @@ void fileedit_page(){
   }
 
   /* Find the repo-side file entry or fail... */
-  zRevResolved = rid_to_uuid(vid);
+  cimi.zParentUuid = rid_to_uuid(vid);
   db_prepare(&stmt, "SELECT uuid, perm FROM files_of_checkin "
              "WHERE filename=%Q %s AND checkinID=%d",
              zFilename, filename_collation(), vid);
@@ -3739,7 +3738,8 @@ void fileedit_page(){
   db_finalize(&stmt);
   if(!zFileUuid){
     fail((&err,"Checkin [%S] does not contain file: "
-          "<code>%h</code>", zRevResolved, zFilename));
+          "<code>%h</code>",
+          cimi.zParentUuid, zFilename));
   }
   frid = fast_uuid_to_rid(zFileUuid);
   assert(frid);
@@ -3765,21 +3765,25 @@ void fileedit_page(){
   fp("<p class='fileedit-hint'>");
   fp("File: <code>%h</code><br>"
      "Version: <code id='r-label'>%s</code><br>",
-     zFilename, zRevResolved);
+     zFilename, cimi.zParentUuid);
   fp("Permalink: <code>"
      "<a id='permalink' href='%R/fileedit?file=%T&r=%!S'>"
      "/fileedit?file=%T&r=%!S</a></code><br>"
      "(Clicking the permalink will reload the page and discard "
      "all edits!)",
-     zFilename, zRevResolved, zFilename, zRevResolved);
+     zFilename, cimi.zParentUuid,
+     zFilename, cimi.zParentUuid);
   fp("</p>");
-  fp("<p>This page is <em>far from complete</em>.</p>\n");
+  fp("<p>This page is <em>far from complete</em> and may still have "
+     "significant bugs. USE AT YOUR OWN RISK, preferably on a test "
+     "repo.</p>\n");
   
   fp("<form action='%R/fileedit' method='POST' "
      "class='fileedit-form'>\n");
 
   /******* Hidden fields *******/
-  fp("<input type='hidden' name='r' value='%s'>", zRevResolved);
+  fp("<input type='hidden' name='r' value='%s'>",
+     cimi.zParentUuid);
   fp("<input type='hidden' name='file' value='%T'>",
      zFilename);
 
@@ -3926,8 +3930,8 @@ void fileedit_page(){
     }else{
       fail((&err,"Empty comment is not permitted."));
     }
-    cimi.pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
-    assert(cimi.pParent && "We know vid is valid.");
+    /*cimi.pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
+      assert(cimi.pParent && "We know vid is valid.");*/
     cimi.zFilename = mprintf("%s",zFilename);
     cimi.pMfOut = &manifest;
     checkin_mini(&cimi, &newVid, &err);
@@ -3965,9 +3969,11 @@ void fileedit_page(){
                      zFilename, zNewUuid, zFilename, zNewUuid);
       }
       fossil_free(zNewUuid);
+      zNewUuid = 0;
     }
     /* On error, the error message is in the err blob and will
     ** be emitted below. */
+    cimi.pMfOut = 0;
     blob_reset(&manifest);
   }else if(2==submitMode/*preview*/){
     /* TODO */
@@ -3981,7 +3987,6 @@ void fileedit_page(){
 
 end_footer:
   zContent = 0;
-  fossil_free(zRevResolved);
   fossil_free(zFileUuid);
   if(stmt.pStmt){
     db_finalize(&stmt);
