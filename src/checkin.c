@@ -3694,7 +3694,7 @@ void fileedit_page(){
   submitMode = atoi(PD("submit","0"))
     /* Submit modes: 0=initial request,
     ** 1=submit (save), 2=preview, 3=diff */;
-  zFlagCheck = P("comment");
+  zFlagCheck = P("comment_mimetype");
   if(zFlagCheck){
     cimi.zMimetype = mprintf("%s",zFlagCheck);
     zFlagCheck = 0;
