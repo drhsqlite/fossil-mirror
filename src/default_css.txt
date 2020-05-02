@@ -900,6 +900,7 @@ code.fileedit-manifest {
   padding: 0.25em 0.4em;
   margin: 0 0.5em;
   display: inline-block;
+  cursor: pointer;
 }
 .input-with-label > input {
     margin: 0;

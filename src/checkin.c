@@ -3588,6 +3588,13 @@ static void fileedit_emit_script(int phase){
     fossil_print("</script>\n");
   }
 }
+
+#if 0
+/*
+** This function is for potential TODO features for /fileedit.
+** It's been tested with that code but is not currently used
+** by it.
+*/
 static void fileedit_emit_script_fetch(){
 #define fp fossil_print
   fileedit_emit_script(0);
@@ -3614,12 +3621,24 @@ static void fileedit_emit_script_fetch(){
   fileedit_emit_script(1);
 #undef fp
 };
+#endif /* fileedit_emit_script_fetch() */
 
-static void fileedit_checkbox(const char *zFieldName,
-                              const char * zLabel,
-                              const char * zValue,
-                              const char * zTip,
-                              int isChecked){
+/*
+** Outputs a labeled checkbox element:
+**
+** <span class='input-with-label' title={{zTip}}>
+**   <input type='checkbox' name={{zFieldName}} value={{zValue}}
+**          {{isChecked ? " checked : ""}}/>
+**   <span>{{zLabel}}</span>
+** </span>
+**
+** zFieldName, zLabel, and zValue are required. zTip is optional.
+*/
+static void style_labeled_checkbox(const char *zFieldName,
+                                   const char * zLabel,
+                                   const char * zValue,
+                                   const char * zTip,
+                                   int isChecked){
   fossil_print("<span class='input-with-label'");
   if(zTip && *zTip){
     fossil_print(" title='%h'", zTip);
@@ -3653,17 +3672,23 @@ static void fileedit_checkbox(const char *zFieldName,
 */
 void fileedit_page(){
   const char * zFilename = PD("file",P("name")); /* filename */
-  const char * zRev = P("r");             /* checkin version */
-  const char * zContent = P("content");   /* file content */
-  const char * zComment = P("comment");   /* checkin comment */
-  CheckinMiniInfo cimi;                   /* Checkin state */
-  int submitMode = 0;                     /* See mapping below */
-  char * zRevResolved = 0;                /* Resolved zRev */
-  int vid, newVid = 0;                    /* checkin rid */
-  char * zFileUuid = 0;                   /* File content UUID */
-  int frid = 0;                           /* File content rid */
-  Blob err = empty_blob;                  /* Error report */
-  const char * zFlagCheck = 0;            /* Temp url flag holder */
+  const char * zRev = P("r");           /* checkin version */
+  const char * zContent = P("content"); /* file content */
+  const char * zComment = P("comment"); /* checkin comment */
+  CheckinMiniInfo cimi;                 /* Checkin state */
+  int submitMode = 0;                   /* See mapping below */
+  char * zRevResolved = 0;              /* Resolved zRev */
+  int vid, newVid = 0;                  /* checkin rid */
+  char * zFileUuid = 0;                 /* File content UUID */
+  int frid = 0;                         /* File content rid */
+  Blob err = empty_blob;                /* Error report */
+  const char * zFlagCheck = 0;          /* Temp url flag holder */
+  Blob endScript = empty_blob;          /* Script code to run at the
+                                           end. This content will be
+                                           combined into a single JS
+                                           function call, thus each
+                                           entry must end with a
+                                           semicolon. */
   Stmt stmt = empty_Stmt;
 #define fail(EXPR) blob_appendf EXPR; goto end_footer
 
@@ -3672,6 +3697,7 @@ void fileedit_page(){
     login_needed(g.anon.Write);
     return;
   }
+  db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   submitMode = atoi(PD("submit","0"))
     /* Submit modes: 0=initial request,
@@ -3741,13 +3767,18 @@ void fileedit_page(){
 #define fp fossil_print
   /* ^^^ Appologies, Richard, but the @ form plays havoc with emacs */
 
-  fileedit_emit_script_fetch();
-  
-  fp("<h1>Editing: %h</h1>",zFilename);
-  fp("<p class='hint'>Permalink: "
-     "<a href='%R/fileedit?file=%T&r=%s'>"
-     "%R/fileedit?file=%T&r=%s</a></p>",
-     zFilename, zRev, zFilename, zRev);
+  fp("<h1>Editing:</h1>");
+  fp("<p class='hint'>");
+  fp("File: <code>%h</code><br>"
+     "Version: <code id='r-label'>%s</code><br>",
+     zFilename, zRevResolved);
+  fp("Permalink: <code>"
+     "<a id='permalink' href='%R/fileedit?file=%T&r=%!S'>"
+     "/fileedit?file=%T&r=%!S</a></code><br>"
+     "(Clicking the permalink will reload the page and discard "
+     "all edits!)",
+     zFilename, zRevResolved, zFilename, zRevResolved);
+  fp("</p>");
   fp("<p>This page is <em>far from complete</em>.</p>\n");
   
   fp("<form action='%R/fileedit' method='POST' "
@@ -3759,7 +3790,7 @@ void fileedit_page(){
      zFilename);
 
   /******* Comment *******/
-  fp("<h3>Comment</h3>\n");
+  fp("<h3>Checkin Comment</h3>\n");
   fp("<textarea name='comment' rows='3' cols='80'>");
   if(zComment && *zComment){
     fp("%h"/*%h? %s?*/, zComment);
@@ -3769,52 +3800,55 @@ void fileedit_page(){
      "syntax.</div>"/*TODO: radiobuttons for fossil/me/plain text*/);
 
   /******* Content *******/
-  fp("<h3>Content</h3>\n");
+  fp("<h3>File Content</h3>\n");
   fp("<textarea name='content' id='fileedit-content' "
      "rows='20' cols='80'>");
   fp("Loading...");
   fp("</textarea>\n");
   /******* Flags/options *******/
   fp("<fieldset class='fileedit-options'>"
-     "<legend>Many checkboxes are TODO</legend><div>"
+     "<legend>Options</legend><div>"
      /* Chrome does not sanely lay out multiple
      ** fieldset children after the <legend>, so
      ** a containing div is necessary. */);
   /*
-  ** TODO: Put checkboxes here...
-  **
-  ** dry-run, convert-eol
-  ** date-override, allow-older (in case server time is
-  ** messed up or someone checked something in w/ a future timestamp),
-  ** prefer-delta, strongly-prefer-delta (undocumented - for
-  ** development/admin use only).
+  ** TODO?: date-override date selection field. Maybe use
+  ** an input[type=datetime-local].
   */
   if(0==submitMode || P("dry_run")!=0){
     cimi.flags |= CIMINI_DRY_RUN;
   }
-  fileedit_checkbox("dry_run", "Dry-run?", "1",
-                    "In dry-run mode, do not really save.",
-                    cimi.flags & CIMINI_DRY_RUN);
+  style_labeled_checkbox("dry_run", "Dry-run?", "1",
+                         "In dry-run mode, do not really save.",
+                         cimi.flags & CIMINI_DRY_RUN);
   if(P("allow_fork")!=0){
     cimi.flags |= CIMINI_ALLOW_FORK;
   }
-  fileedit_checkbox("allow_fork", "Allow fork?", "1",
-                    "Allow saving to create a fork?",
-                    cimi.flags & CIMINI_ALLOW_FORK);
+  style_labeled_checkbox("allow_fork", "Allow fork?", "1",
+                         "Allow saving to create a fork?",
+                         cimi.flags & CIMINI_ALLOW_FORK);
+  if(P("allow_older")!=0){
+    cimi.flags |= CIMINI_ALLOW_OLDER;
+  }
+  style_labeled_checkbox("allow_older", "Allow older?", "1",
+                         "Allow saving to a version which has "
+                         "a newer timestamp?",
+                         cimi.flags & CIMINI_ALLOW_OLDER);
   if(P("exec_bit")!=0){
     cimi.filePerm = PERM_EXE;
   }
-  fileedit_checkbox("exec_bit", "Executable?", "1",
-                    "Set executable bit?",
-                    PERM_EXE==cimi.filePerm);
+  style_labeled_checkbox("exec_bit", "Executable?", "1",
+                         "Set executable bit?",
+                         PERM_EXE==cimi.filePerm);
   if(P("allow_merge_conflict")!=0){
     cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
   }
-  fileedit_checkbox("allow_merge_conflict",
-                    "Allow merge conflict markers?", "1",
-                    "Allow saving even if the content contains what "
-                    "appear to be fossil merge conflict markers?",
-                    cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
+  style_labeled_checkbox("allow_merge_conflict",
+                         "Allow merge conflict markers?", "1",
+                         "Allow saving even if the content contains "
+                         "what appear to be fossil merge conflict "
+                         "markers?",
+                         cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
   {/* EOL conversion policy... */
     const int eolMode = submitMode==0 ? 0 : atoi(PD("eol","0"));
     switch(eolMode){
@@ -3826,13 +3860,23 @@ void fileedit_page(){
        "title='EOL conversion policy, noting that form-processing "
        "may implicitly change the line endings of the input.'>");
     fp("<option value='0'%s>Inherit EOLs</option>",
-       eolMode==0 ? " selected" : "");
+       (eolMode!=1 && eolMode!=2) ? " selected" : "");
     fp("<option value='1'%s/>Unix EOLs</option>",
        eolMode==1 ? " selected" : "");
     fp("<option value='2'%s>Windows EOLs</option>",
        eolMode==2 ? " selected" : "");
     fp("</select>");
   }
+  if(P("prefer_delta")!=0){
+    cimi.flags |= CIMINI_PREFER_DELTA;
+  }
+  style_labeled_checkbox("prefer_delta",
+                         "Prefer delta manifest?", "1",
+                         "Will create a delta manifest, instead of "
+                         "baseline, if conditions are favorable to do "
+                         "so. This option is only a suggestion.",
+                         cimi.flags & CIMINI_PREFER_DELTA);
+
   fp("</div></fieldset>") /* end of checkboxes */;
 
   /******* Buttons *******/  
@@ -3849,64 +3893,85 @@ void fileedit_page(){
   /******* End of form *******/    
   fp("</form>\n");
 
-  /* Populate doc...
-  ** To avoid all escaping-related issues, we have to do this one
-  ** of two ways:
-  **
-  ** 1) Fetch the content via AJAX. That only works if the content
-  **    is already in the db, but not for edited versions.
-  **
-  ** 2) Store the content as JSON and feed it into the textarea
-  **    using JavaScript.
-  */
-  fileedit_emit_script(0);
   {
+    /* Populate the editor...
+    **
+    ** To avoid all escaping-related issues, we have to do this one of
+    ** two ways:
+    **
+    ** 1) Fetch the content via AJAX. That only works if the content
+    **    is already in the db, but not for edited versions.
+    **
+    ** 2) Store the content as JSON and feed it into the textarea
+    **    using JavaScript.
+    */
     char const * zQuoted = 0;
     if(blob_size(&cimi.fileContent)>0){
-      db_prepare(&stmt, "SELECT json_quote(%B)",&cimi.fileContent);
+      db_prepare(&stmt, "SELECT json_quote(%B)", &cimi.fileContent);
       db_step(&stmt);
       zQuoted = db_column_text(&stmt,0);
     }
-    fp("document.getElementById('fileedit-content').value=%s;",
-       zQuoted ? zQuoted : "''");
+    blob_appendf(&endScript,
+                 "/* populate editor form */\n"
+                 "document.getElementById('fileedit-content')"
+                 ".value=%s;", zQuoted ? zQuoted : "'';\n");
     if(stmt.pStmt){
       db_finalize(&stmt);
     }
   }
-  fileedit_emit_script(1);
-
-  zContent = 0;
-  fossil_free(zRevResolved);
-  fossil_free(zFileUuid);
 
   if(1==submitMode/*save*/){
     Blob manifest = empty_blob;
-    int rc;
-
-    /* TODO: pull these flags from P() */
-    cimi.flags |= CIMINI_PREFER_DELTA;
+    char * zNewUuid = 0;
     /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
-
-    db_begin_transaction();
+    if(zComment && *zComment){
+      blob_append(&cimi.comment, zComment, -1);
+    }else{
+      fail((&err,"Empty comment is not permitted."));
+    }
     cimi.pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
     assert(cimi.pParent && "We know vid is valid.");
     cimi.zFilename = mprintf("%s",zFilename);
     cimi.pMfOut = &manifest;
-    if(zComment && *zComment){
-      blob_append(&cimi.comment, zComment, -1);
-    }
-    rc = checkin_mini(&cimi, &newVid, &err);
+    checkin_mini(&cimi, &newVid, &err);
     if(newVid!=0){
-      char * zNewUuid = rid_to_uuid(newVid);
+      zNewUuid = rid_to_uuid(newVid);
       fp("<h3>Manifest%s: %S</h3><pre>"
          "<code class='fileedit-manifest'>%h</code>"
          "</pre>",
          (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
          zNewUuid, blob_str(&manifest));
+      if(!(CIMINI_DRY_RUN & cimi.flags)){
+        /* We need to update certain form fields and UI elements so
+        ** they're not left pointing to the previous version. While
+        ** we're at it, we'll re-enable dry-run mode for sanity's
+        ** sake.
+        */
+        blob_appendf(&endScript,
+                     "/* Toggle dry-run back on */\n"
+                     "document.querySelector('input[type=checkbox]"
+                     "[name=dry_run]').checked=true;\n");
+        blob_appendf(&endScript,
+                     "/* Update version number */\n"
+                     "document.querySelector('input[name=r]')"
+                     ".value=%Q;\n"
+                     "document.querySelector('#r-label')"
+                     ".innerText=%Q;\n",
+                     zNewUuid, zNewUuid);
+        blob_appendf(&endScript,
+                     "/* Update permalink */\n"
+                     "const urlFull='%R/fileedit?file=%T&r=%!S';\n"
+                     "const urlShort='/fileedit?file=%T&r=%!S';\n"
+                     "let link=document.querySelector('#permalink');\n"
+                     "link.innerText=urlShort;\n"
+                     "link.setAttribute('href',urlFull);\n",
+                     zFilename, zNewUuid, zFilename, zNewUuid);
+      }
       fossil_free(zNewUuid);
     }
+    /* On error, the error message is in the err blob and will
+    ** be emitted below. */
     blob_reset(&manifest);
-    db_end_transaction(rc ? 0 : 1);
   }else if(2==submitMode/*preview*/){
     /* TODO */
     fail((&err,"Preview mode is still TODO."));
@@ -3918,6 +3983,9 @@ void fileedit_page(){
   }
 
 end_footer:
+  zContent = 0;
+  fossil_free(zRevResolved);
+  fossil_free(zFileUuid);
   if(stmt.pStmt){
     db_finalize(&stmt);
   }
@@ -3927,6 +3995,16 @@ end_footer:
   }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
+  if(blob_size(&endScript)>0){
+    fileedit_emit_script(0);
+    fp("(function(){\n");
+    fp("try{\n%b\n}catch(e){console.error('Exception:',e)}\n",
+       &endScript);
+    fp("})();");
+    fileedit_emit_script(1);
+  }
+  db_end_transaction(0/*noting that dry-run mode will have already
+                      ** set this to rollback mode. */);
   style_footer();
 #undef fp
 }
