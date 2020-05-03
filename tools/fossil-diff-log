@@ -1,4 +1,19 @@
 #!/usr/bin/env perl 
+# Fossil emulation of the "git log --patch / -p" feature: emit a stream
+# of diffs from one version to the next for each file named on the
+# command line.
+#
+# LIMITATIONS: It does not assume "all files" if you give no args, and
+# it cannot take a directory to mean "all files under this parent".
+#
+# PREREQUISITES: This script needs several CPAN modules to run properly.
+# There are multiple methods to install them:
+#
+#    sudo dnf install perl-File-Which perl-IO-Interactive
+#    sudo apt install libfile-which-perl libio-interactive-perl
+#    sudo cpanm File::Which IO::Interactive
+#    ...etc...
+
 use strict;
 use warnings;
 
@@ -36,7 +51,7 @@ for my $file (@ARGV) {
 		if (defined $lastckid and defined $branch) {
             my $comment = join ' ', @cwords;
 			open my $diff, '-|', 'fossil', 'diff', $file,
-					'--from', $currckid
+					'--from', $currckid,
 					'--to',   $lastckid,
 					or die "Failed to diff $currckid -> $lastckid: $!\n";
 			my @dl = <$diff>;
