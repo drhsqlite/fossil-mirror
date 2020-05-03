@@ -3612,7 +3612,6 @@ static void fileedit_emit_script_fetch(){
   CX("  x.send();");
   CX("};\n");
   fileedit_emit_script(1);
-#undef fp
 };
 #endif /* fileedit_emit_script_fetch() */
 
@@ -3999,5 +3998,4 @@ end_footer:
   db_end_transaction(0/*noting that dry-run mode will have already
                       ** set this to rollback mode. */);
   style_footer();
-#undef fp
 }

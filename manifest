@@ -1,5 +1,5 @@
-C New\sCX(...)\smacro\sfor\srendering\sHTTP\sreply\stext,\sas\san\salternative\sto\nthe\s"@\s..."\smarkup\sprovided\sby\stranslate.c.
-D 2020-05-03T12:21:48.039
+C Removed\sa\scouple\sdangling\sundefs\sfrom\sthe\sprevious\scommit.
+D 2020-05-03T14:38:07.836
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 6e72569c2d250ff0abad55d7eff1fe2c3af5b2e3c74d20223b5daccfa9a4cdf7
-F src/checkin.c a813f5c059aa3724e8bc6eaac0a7da942576ce36f7b79d7109037533037b8d44
+F src/checkin.c 46176fa3236342630db8432923e9b6f0677489a5346c8edffa0ee5bebf20d851
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -978,7 +978,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7243aea14a7cde83f589009e2170e725497cb8915ed30ba9339df8be3124f582
-R ee67d6158b89a2d908ed1d590325ad6b
-U drh
-Z dca2f9bb77f61ba3ee69822c5901664c
+P 0d160f9fa8bf2e223c5cce71bf6b063a8b098ef4eb68a878b454a29fbf1653a9
+R 7689fad1c46b07d75eeff440a414aa66
+U stephan
+Z 1d8b5eab5269c00f9252ff5f93399ff0
