@@ -56,6 +56,7 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/extcgi.c \
   $(SRCDIR)/file.c \
+  $(SRCDIR)/fileedit.c \
   $(SRCDIR)/finfo.c \
   $(SRCDIR)/foci.c \
   $(SRCDIR)/forum.c \
@@ -289,6 +290,7 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/extcgi_.c \
   $(OBJDIR)/file_.c \
+  $(OBJDIR)/fileedit_.c \
   $(OBJDIR)/finfo_.c \
   $(OBJDIR)/foci_.c \
   $(OBJDIR)/forum_.c \
@@ -431,6 +433,7 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/extcgi.o \
  $(OBJDIR)/file.o \
+ $(OBJDIR)/fileedit.o \
  $(OBJDIR)/finfo.o \
  $(OBJDIR)/foci.o \
  $(OBJDIR)/forum.o \
@@ -768,6 +771,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/export_.c:$(OBJDIR)/export.h \
 	$(OBJDIR)/extcgi_.c:$(OBJDIR)/extcgi.h \
 	$(OBJDIR)/file_.c:$(OBJDIR)/file.h \
+	$(OBJDIR)/fileedit_.c:$(OBJDIR)/fileedit.h \
 	$(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h \
 	$(OBJDIR)/foci_.c:$(OBJDIR)/foci.h \
 	$(OBJDIR)/forum_.c:$(OBJDIR)/forum.h \
@@ -1194,6 +1198,14 @@ $(OBJDIR)/file.o:	$(OBJDIR)/file_.c $(OBJDIR)/file.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/file.o -c $(OBJDIR)/file_.c
 
 $(OBJDIR)/file.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/fileedit_.c:	$(SRCDIR)/fileedit.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/fileedit.c >$@
+
+$(OBJDIR)/fileedit.o:	$(OBJDIR)/fileedit_.c $(OBJDIR)/fileedit.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/fileedit.o -c $(OBJDIR)/fileedit_.c
+
+$(OBJDIR)/fileedit.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/finfo_.c:	$(SRCDIR)/finfo.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/finfo.c >$@

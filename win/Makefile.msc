@@ -386,6 +386,7 @@ SRC   = add_.c \
         export_.c \
         extcgi_.c \
         file_.c \
+        fileedit_.c \
         finfo_.c \
         foci_.c \
         forum_.c \
@@ -618,6 +619,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\export$O \
         $(OX)\extcgi$O \
         $(OX)\file$O \
+        $(OX)\fileedit$O \
         $(OX)\finfo$O \
         $(OX)\foci$O \
         $(OX)\forum$O \
@@ -822,6 +824,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\export.obj >> $@
 	echo $(OX)\extcgi.obj >> $@
 	echo $(OX)\file.obj >> $@
+	echo $(OX)\fileedit.obj >> $@
 	echo $(OX)\finfo.obj >> $@
 	echo $(OX)\foci.obj >> $@
 	echo $(OX)\forum.obj >> $@
@@ -1283,6 +1286,12 @@ $(OX)\file$O : file_.c file.h
 	$(TCC) /Fo$@ -c file_.c
 
 file_.c : $(SRCDIR)\file.c
+	translate$E $** > $@
+
+$(OX)\fileedit$O : fileedit_.c fileedit.h
+	$(TCC) /Fo$@ -c fileedit_.c
+
+fileedit_.c : $(SRCDIR)\fileedit.c
 	translate$E $** > $@
 
 $(OX)\finfo$O : finfo_.c finfo.h
@@ -1929,6 +1938,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			export_.c:export.h \
 			extcgi_.c:extcgi.h \
 			file_.c:file.h \
+			fileedit_.c:fileedit.h \
 			finfo_.c:finfo.h \
 			foci_.c:foci.h \
 			forum_.c:forum.h \
