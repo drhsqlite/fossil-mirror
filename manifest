@@ -1,5 +1,5 @@
-C Added\sheader\scomment\sto\snew\stools/fossil-diff-log\sexplaining\swhat\sit\ndoes\sand\show\sto\sinstall\sit.\s\sAlso\sfixed\sa\ssyntax\serror.
-D 2020-05-03T18:33:46.442
+C chmod\s+x\son\sall\stools/*\sfiles\sthat\sshould\sbe\sexecutable
+D 2020-05-03T18:34:54.770
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -752,13 +752,13 @@ F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
 F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/decode-email.c f5bd72404f2a4ebbded49b2a8cdc0b6b7a8acba5f5221c4d1bf65ff03a313cb7
-F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073
+F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829abaaaefae4073 x
 F tools/email-sender.tcl abab880f7aa8d6a2f83337f1dbe1dbd65dca3224ebaaaab184e5de091591306f x
-F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0
+F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88 x
+F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0 x
 F tools/fossil-diff-log cfecd214d2297934a765da8fec1ae9ee3cf9beeafb7d4043e498cce3441640fc x
-F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
-F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
+F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e x
+F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0 x
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
 F tools/fslsrv f6ebc17b0a00f136175dcf2ff75e39457e674583b1fd45df8430d4a4a975b3ba x
 F tools/man_page_command_list.tcl 63a5fe3b28e652e09b31fe21d1fdf30f86e77a5ca403c9ab2a388591c3d36f8d x
@@ -979,7 +979,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 836d6b4f2110a41df3bd8d304faaa434b2474dff5a1e6e19420c49ba5d1fb06d
+P e4ba38f211ea4786fda7e5584a8a4a4e98a3de122f615fc944e8e64ff78c672d
 R a0d21924b5c419f480516b3920f58a00
 U wyoung
-Z a07e156027bb9a87aa9cbb4107f9f31d
+Z 7477d22a14df26f61668c7cdd54036c6
