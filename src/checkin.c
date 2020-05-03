@@ -3368,7 +3368,7 @@ ci_error:
 ** This is an on-going experiment, subject to change or removal at
 ** any time.
 **
-** Usage: %fossil ?OPTIONS? FILENAME
+** Usage: %fossil test-ci-mini ?OPTIONS? FILENAME
 **
 ** where FILENAME is a repo-relative name as it would appear in the
 ** vfile table.
@@ -3577,9 +3577,9 @@ int fileedit_is_editable(const char *zFilename){
 
 static void fileedit_emit_script(int phase){
   if(0==phase){
-    fossil_print("<script nonce='%s'>", style_nonce());
+    CX("<script nonce='%s'>", style_nonce());
   }else{
-    fossil_print("</script>\n");
+    CX("</script>\n");
   }
 }
 
@@ -3590,28 +3590,27 @@ static void fileedit_emit_script(int phase){
 ** by it.
 */
 static void fileedit_emit_script_fetch(){
-#define fp fossil_print
   fileedit_emit_script(0);
-  fp("window.fossilFetch = function(path,opt){\n");
-  fp("  if('function'===typeof opt){\n");
-  fp("    opt={onload:opt};\n");
-  fp("  }else{\n");
-  fp("    opt=opt||{onload:function(r){console.debug('response:',r)}}\n");
-  fp("  }\n");
-  fp("  const url='%R/'+path, x=new XMLHttpRequest();\n");
-  fp("  x.open(opt.method||'GET', url, true);\n");
-  fp("  x.responseType=opt.responseType||'text';\n");
-  fp("  if(opt.onload){\n");
-  fp("    x.onload = function(e){\n");
-  fp("      if(200!==this.status){\n");
-  fp("        if(opt.onerror) opt.onerror(e);\n");
-  fp("        return;\n");
-  fp("      }\n");
-  fp("      opt.onload(this.response);\n");
-  fp("    }\n");
-  fp("  }\n");
-  fp("  x.send();");
-  fp("};\n");
+  CX("window.fossilFetch = function(path,opt){\n");
+  CX("  if('function'===typeof opt){\n");
+  CX("    opt={onload:opt};\n");
+  CX("  }else{\n");
+  CX("    opt=opt||{onload:function(r){console.debug('response:',r)}}\n");
+  CX("  }\n");
+  CX("  const url='%R/'+path, x=new XMLHttpRequest();\n");
+  CX("  x.open(opt.method||'GET', url, true);\n");
+  CX("  x.responseType=opt.responseType||'text';\n");
+  CX("  if(opt.onload){\n");
+  CX("    x.onload = function(e){\n");
+  CX("      if(200!==this.status){\n");
+  CX("        if(opt.onerror) opt.onerror(e);\n");
+  CX("        return;\n");
+  CX("      }\n");
+  CX("      opt.onload(this.response);\n");
+  CX("    }\n");
+  CX("  }\n");
+  CX("  x.send();");
+  CX("};\n");
   fileedit_emit_script(1);
 #undef fp
 };
@@ -3633,14 +3632,14 @@ static void style_labeled_checkbox(const char *zFieldName,
                                    const char * zValue,
                                    const char * zTip,
                                    int isChecked){
-  fossil_print("<span class='input-with-label'");
+  CX("<span class='input-with-label'");
   if(zTip && *zTip){
-    fossil_print(" title='%h'", zTip);
+    CX(" title='%h'", zTip);
   }
-  fossil_print("><input type='checkbox' name='%s' value='%T'%s/>",
-               zFieldName,
-               zValue ? zValue : "", isChecked ? " checked" : "");
-  fossil_print("<span>%h</span></span>", zLabel);
+  CX("><input type='checkbox' name='%s' value='%T'%s/>",
+     zFieldName,
+     zValue ? zValue : "", isChecked ? " checked" : "");
+  CX("<span>%h</span></span>", zLabel);
 }
 
 /*
@@ -3752,53 +3751,51 @@ void fileedit_page(){
   }
 
   /* All set. Here we go... */
-#define fp fossil_print
-  /* ^^^ Appologies, Richard, but the @ form plays havoc with emacs */
 
-  fp("<h1>Editing:</h1>");
-  fp("<p class='fileedit-hint'>");
-  fp("File: <code>%h</code><br>"
+  CX("<h1>Editing:</h1>");
+  CX("<p class='fileedit-hint'>");
+  CX("File: <code>%h</code><br>"
      "Checkin Version: <code id='r-label'>%s</code><br>",
      zFilename, cimi.zParentUuid);
-  fp("Permalink: <code>"
+  CX("Permalink: <code>"
      "<a id='permalink' href='%R/fileedit?file=%T&r=%!S'>"
      "/fileedit?file=%T&r=%!S</a></code><br>"
      "(Clicking the permalink will reload the page and discard "
      "all edits!)",
      zFilename, cimi.zParentUuid,
      zFilename, cimi.zParentUuid);
-  fp("</p>");
-  fp("<p>This page is <em>far from complete</em> and may still have "
+  CX("</p>");
+  CX("<p>This page is <em>far from complete</em> and may still have "
      "significant bugs. USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
   
-  fp("<form action='%R/fileedit' method='POST' "
+  CX("<form action='%R/fileedit' method='POST' "
      "class='fileedit-form'>\n");
 
   /******* Hidden fields *******/
-  fp("<input type='hidden' name='r' value='%s'>",
+  CX("<input type='hidden' name='r' value='%s'>",
      cimi.zParentUuid);
-  fp("<input type='hidden' name='file' value='%T'>",
+  CX("<input type='hidden' name='file' value='%T'>",
      zFilename);
 
   /******* Comment *******/
-  fp("<h3>Checkin Comment</h3>\n");
-  fp("<textarea name='comment' rows='3' cols='80'>");
+  CX("<h3>Checkin Comment</h3>\n");
+  CX("<textarea name='comment' rows='3' cols='80'>");
   if(zComment && *zComment){
-    fp("%h"/*%h? %s?*/, zComment);
+    CX("%h"/*%h? %s?*/, zComment);
   }
-  fp("</textarea>\n");
-  fp("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
+  CX("</textarea>\n");
+  CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
      "syntax.</div>"/*TODO: radiobuttons for fossil/me/plain text*/);
 
   /******* Content *******/
-  fp("<h3>File Content</h3>\n");
-  fp("<textarea name='content' id='fileedit-content' "
+  CX("<h3>File Content</h3>\n");
+  CX("<textarea name='content' id='fileedit-content' "
      "rows='20' cols='80'>");
-  fp("Loading...");
-  fp("</textarea>\n");
+  CX("Loading...");
+  CX("</textarea>\n");
   /******* Flags/options *******/
-  fp("<fieldset class='fileedit-options'>"
+  CX("<fieldset class='fileedit-options'>"
      "<legend>Options</legend><div>"
      /* Chrome does not sanely lay out multiple
      ** fieldset children after the <legend>, so
@@ -3860,33 +3857,33 @@ void fileedit_page(){
       case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
       default: cimi.flags |= CIMINI_CONVERT_EOL_INHERIT; break;
     }
-    fp("<select name='eol' "
+    CX("<select name='eol' "
        "title='EOL conversion policy, noting that form-processing "
        "may implicitly change the line endings of the input.'>");
-    fp("<option value='0'%s>Inherit EOLs</option>",
+    CX("<option value='0'%s>Inherit EOLs</option>",
        (eolMode!=1 && eolMode!=2) ? " selected" : "");
-    fp("<option value='1'%s/>Unix EOLs</option>",
+    CX("<option value='1'%s/>Unix EOLs</option>",
        eolMode==1 ? " selected" : "");
-    fp("<option value='2'%s>Windows EOLs</option>",
+    CX("<option value='2'%s>Windows EOLs</option>",
        eolMode==2 ? " selected" : "");
-    fp("</select>");
+    CX("</select>");
   }
 
-  fp("</div></fieldset>") /* end of checkboxes */;
+  CX("</div></fieldset>") /* end of checkboxes */;
 
   /******* Buttons *******/  
-  fp("<fieldset class='fileedit-options'>"
+  CX("<fieldset class='fileedit-options'>"
      "<legend>Tell the server to...</legend><div>");
-  fp("<button type='submit' name='submit' value='1'>"
+  CX("<button type='submit' name='submit' value='1'>"
      "Save</button>");
-  fp("<button type='submit' name='submit' value='2'>"
+  CX("<button type='submit' name='submit' value='2'>"
      "Preview (TODO)</button>");
-  fp("<button type='submit' name='submit' value='3'>"
+  CX("<button type='submit' name='submit' value='3'>"
      "Diff (TODO)</button>");
-  fp("</div></fieldset>");
+  CX("</div></fieldset>");
 
   /******* End of form *******/    
-  fp("</form>\n");
+  CX("</form>\n");
 
   {
     /* Populate the editor...
@@ -3931,7 +3928,7 @@ void fileedit_page(){
     checkin_mini(&cimi, &newVid, &err);
     if(newVid!=0){
       zNewUuid = rid_to_uuid(newVid);
-      fp("<h3>Manifest%s: %S</h3><pre>"
+      CX("<h3>Manifest%s: %S</h3><pre>"
          "<code class='fileedit-manifest'>%h</code>"
          "</pre>",
          (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
@@ -3986,17 +3983,17 @@ end_footer:
     db_finalize(&stmt);
   }
   if(blob_size(&err)){
-      fp("<div class='fileedit-error-report'>%s</div>",
+      CX("<div class='fileedit-error-report'>%s</div>",
          blob_str(&err));
   }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
   if(blob_size(&endScript)>0){
     fileedit_emit_script(0);
-    fp("(function(){\n");
-    fp("try{\n%b\n}catch(e){console.error('Exception:',e)}\n",
+    CX("(function(){\n");
+    CX("try{\n%b\n}catch(e){console.error('Exception:',e)}\n",
        &endScript);
-    fp("})();");
+    CX("})();");
     fileedit_emit_script(1);
   }
   db_end_transaction(0/*noting that dry-run mode will have already
