@@ -1,0 +1,57 @@
+#!/usr/bin/env perl 
+use strict;
+use warnings;
+
+use Carp;
+use File::Which;
+use IO::Interactive qw(is_interactive);
+
+die "usage: $0 <files...>\n\n" unless @ARGV;
+
+my $out;
+if (is_interactive()) {
+	my $pager = $ENV{PAGER} || which('less') || which('more');
+	open $out, '|-', $pager or croak "Cannot pipe to $pager: $!";
+}
+else {
+	$out = *STDOUT;
+}
+
+open my $bcmd, '-|', 'fossil branch current'
+		or die "Cannot get branch: $!\n";
+my $cbranch = <$bcmd>;
+chomp $cbranch;
+close $bcmd;
+
+for my $file (@ARGV) {
+	my $lastckid;
+	open my $finfo, '-|', "fossil finfo --brief --limit 0 '$file'"
+			or die "Failed to get file info: $!\n";
+	my @filines = <$finfo>;
+	close $finfo;
+	
+	for my $line (@filines) {
+		my ($currckid, $date, $user, $branch, @cwords) = split ' ', $line;
+		next unless $branch eq $cbranch;
+		if (defined $lastckid and defined $branch) {
+            my $comment = join ' ', @cwords;
+			open my $diff, '-|', 'fossil', 'diff', $file,
+					'--from', $currckid
+					'--to',   $lastckid,
+					or die "Failed to diff $currckid -> $lastckid: $!\n";
+			my @dl = <$diff>;
+			close $diff;
+			my $patch = join '', @dl;
+
+			print $out <<"OUT"
+Checkin ID $currckid to $branch by $user on $date
+Comment: $comment
+
+$patch
+
+OUT
+		}
+
+		$lastckid = $currckid;
+	}
+}

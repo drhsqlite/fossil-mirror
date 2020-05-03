@@ -1,5 +1,5 @@
-C Wrap\sSSL-related\sfeatures\sin\sFOSSIL_ENABLE_SSL\sconditional\sin\surl.c.
-D 2020-05-03T17:46:59.723
+C Added\stools/fossil-diff-log\sscript,\semulating\s"git\slog\s-p",\sthe\sfeature\nhaving\sbeen\srequested\stwice\snow\son\sthe\sforum.
+D 2020-05-03T18:25:09.757
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -756,6 +756,7 @@ F tools/email-monitor.tcl 822126227b7d4f7805ba16bc96a31a1c97dee81160b06823829aba
 F tools/email-sender.tcl abab880f7aa8d6a2f83337f1dbe1dbd65dca3224ebaaaab184e5de091591306f x
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil-autocomplete.bash 1a548da23d623145e7a35d5a755c5abb9421175679fb3ea2aa3bc001287ccfa0
+F tools/fossil-diff-log 9d152eeb74e24fd60012296294e462f97f0031bc65a4f9a8072ab63e0133596e x
 F tools/fossil-stress.tcl bd6f62946ae2105e737e3b1f2869be622a54d08e1352fd6fea6857d2bc66fc5e
 F tools/fossil_chat.tcl a9de1adfac21cf2cab4406965e24b10781fb59e0
 F tools/fossilwiki 73bd40b6d491798ef8a1ccfd467f3e7fe8ba1e0b x
@@ -978,7 +979,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 44ac944a981686f696a970bd146768ead33b251906593efded489cf38602ed2e
-R 2872afa885ef3c895e9d0e825f8b79f5
-U ashepilko
-Z 551dd761aef28f6bb4142dcdce2411dc
+P 0a59a8234907421034e756d17cd233e6d8f65ca85fec0fe417f8daada25d607a
+R 941c7cebe02b6580c22598508b720b8c
+U wyoung
+Z 206f83651fc83bdd4614b4956940f00f
