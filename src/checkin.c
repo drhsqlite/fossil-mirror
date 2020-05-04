@@ -2092,8 +2092,13 @@ void commit_cmd(void){
   privateFlag = find_option("private",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
   forceBaseline = find_option("baseline",0,0)!=0;
-  if( forceDelta && forceBaseline ){
-    fossil_fatal("cannot use --delta and --baseline together");
+  if( forceDelta ){
+    if( forceBaseline ){
+      fossil_fatal("cannot use --delta and --baseline together");
+    }
+    if( db_get_boolean("forbid-delta-manifests",0) ){
+      fossil_fatal("delta manifests are prohibited in this repository");
+    }
   }
   dryRunFlag = find_option("dry-run","n",0)!=0;
   if( !dryRunFlag ){
@@ -2176,7 +2181,10 @@ void commit_cmd(void){
   ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
   */
-  if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
+  if( !forceDelta
+   && !db_get_boolean("seen-delta-manifest",0)
+   && !db_get_boolean("forbid-delta-manifests",0)
+  ){
     forceBaseline = 1;
   }
 
@@ -2650,6 +2658,7 @@ void commit_cmd(void){
   db_multi_exec("PRAGMA repository.application_id=252006673;");
   db_multi_exec("PRAGMA localdb.application_id=252006674;");
   if( dryRunFlag ){
+    leaf_ambiguity_warning(nvid,nvid);
     db_end_transaction(1);
     exit(1);
   }
@@ -2672,5 +2681,7 @@ void commit_cmd(void){
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
+  }else{
+    leaf_ambiguity_warning(nvid,nvid);
   }
 }

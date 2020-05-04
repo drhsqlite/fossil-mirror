@@ -690,6 +690,58 @@ static const char *skin_file_content(const char *zLabel, const char *zFile){
   return zResult;
 }
 
+extern const struct strctCssDefaults {
+/* From the generated default_css.h, which we cannot #include here
+** without causing an ODR violation.
+*/
+  const char *elementClass;  /* Name of element needed */
+  const char *value;         /* CSS text */
+} cssDefaultList[];
+
+/*
+** Emits the list of built-in default CSS selectors. Intended
+** for use only from the /setup_skinedit page.
+*/
+static void skin_emit_css_defaults(){
+  struct strctCssDefaults const * pCss;
+  fossil_print("<h1>CSS Defaults</h1>");
+  fossil_print("If a skin defines any of the following CSS selectors, "
+               "that definition replaces the default, as opposed to "
+               "cascading from it. ");
+  fossil_print("See <a href=\"https://fossil-scm.org/fossil/"
+               "doc/trunk/www/css-tricks.md\">this "
+               "document</a> for more details.");
+  /* To discuss: do we want to list only the default selectors or
+  ** also their default values? The latter increases the size of the
+  ** page considerably, but is arguably more useful. We could, of
+  ** course, offer a URL param to toggle the view, but that currently
+  ** seems like overkill.
+  **
+  ** Be sure to adjust the default_css.txt #setup_skinedit_css entry
+  ** for whichever impl ends up being selected.
+  */
+#if 1
+  /* List impl which elides style values */
+  fossil_print("<div class=\"columns\" "
+               "id=\"setup_skinedit_css_defaults\"><ul>");
+  for(pCss = &cssDefaultList[0]; pCss->value!=0; ++pCss){
+    fossil_print("<li>%s</li>", pCss->elementClass);
+  }
+  fossil_print("</ul>");
+#else
+  /* Table impl which also includes style values. */
+  fossil_print("<table id=\"setup_skinedit_css_defaults\"><tbody>");
+  for(pCss = &cssDefaultList[0]; pCss->value!=0; ++pCss){
+    fossil_print("<tr><td>%s</td>", pCss->elementClass);
+    /* A TD element apparently cannot be told to scroll its contents,
+    ** so we require a DIV inside the value TD to scroll the long
+    ** url(data:...) entries. */
+    fossil_print("<td><div>%s</div></td>", pCss->value);
+    fossil_print("</td></tr>");
+  }
+  fossil_print("</tbody></table>");
+#endif
+}
 
 /*
 ** WEBPAGE: setup_skinedit
@@ -816,6 +868,9 @@ void setup_skinedit(void){
     blob_reset(&out);
   }
   @ </div></form>
+  if(ii==0/*CSS*/){
+    skin_emit_css_defaults();
+  }
   style_footer();
   db_end_transaction(0);
 }

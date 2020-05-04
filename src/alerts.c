@@ -1211,6 +1211,15 @@ static int subscribe_error_check(
   *peErr = 0;
   *pzErr = 0;
 
+  /* Verify the captcha first */
+  if( needCaptcha ){
+    if( !captcha_is_correct(1) ){
+      *peErr = 2;
+      *pzErr = mprintf("incorrect security code");
+      return 0;
+    }
+  }
+
   /* Check the validity of the email address.
   **
   **  (1) Exactly one '@' character.
@@ -1221,7 +1230,11 @@ static int subscribe_error_check(
   **  necessary.
   */
   zEAddr = P("e");
-  if( zEAddr==0 ) return 0;
+  if( zEAddr==0 ){
+    *peErr = 1;
+    *pzErr = mprintf("required");
+    return 0;
+  }
   for(i=j=n=0; (c = zEAddr[i])!=0; i++){
     if( c=='@' ){
       n = i;
@@ -1251,10 +1264,9 @@ static int subscribe_error_check(
      return 0;
   }
 
-  /* Verify the captcha */
-  if( needCaptcha && !captcha_is_correct(1) ){
-    *peErr = 2;
-    *pzErr = mprintf("incorrect security code");
+  if( authorized_subscription_email(zEAddr)==0 ){
+    *peErr = 1;
+    *pzErr = mprintf("not an authorized email address");
     return 0;
   }
 
@@ -1350,6 +1362,10 @@ void subscribe_page(void){
       return;
     }
   }
+  if( !g.perm.Admin && !db_get_boolean("anon-subscribe",1) ){
+    register_page();
+    return;
+  }
   alert_submenu_common();
   needCaptcha = !login_is_individual();
   if( P("submit")
@@ -1370,6 +1386,7 @@ void subscribe_page(void){
     if( g.perm.RdForum && PB("sf") ) ssub[nsub++] = 'f';
     if( g.perm.RdTkt && PB("st") )   ssub[nsub++] = 't';
     if( g.perm.RdWiki && PB("sw") )  ssub[nsub++] = 'w';
+    if( g.perm.RdForum && PB("sx") ) ssub[nsub++] = 'x';
     ssub[nsub] = 0;
     db_multi_exec(
       "INSERT INTO subscriber(semail,suname,"
@@ -1390,7 +1407,11 @@ void subscribe_page(void){
       /* The new subscription has been added on behalf of a logged-in user.
       ** No verification is required.  Jump immediately to /alerts page.
       */
-      cgi_redirectf("%R/alerts/%s", zCode);
+      if( g.perm.Admin ){
+        cgi_redirectf("%R/alerts/%.32s", zCode);
+      }else{
+        cgi_redirectf("%R/alerts");
+      }
       return;
     }else{
       /* We need to send a verification email */
@@ -1412,7 +1433,7 @@ void subscribe_page(void){
         @ </pre></blockquote>
       }else{
         @ <p>An email has been sent to "%h(zEAddr)". That email contains a
-        @ hyperlink that you must click on in order to activate your
+        @ hyperlink that you must click to activate your
         @ subscription.</p>
       }
       alert_sender_free(pSender);
@@ -1444,12 +1465,18 @@ void subscribe_page(void){
   }
   @ </tr>
   if( needCaptcha ){
-    uSeed = captcha_seed();
+    const char *zInit = "";
+    if( P("captchaseed")!=0 && eErr!=2 ){
+      uSeed = strtoul(P("captchaseed"),0,10);
+      zInit = P("captcha");
+    }else{
+      uSeed = captcha_seed();
+    }
     zDecoded = captcha_decode(uSeed);
     zCaptcha = captcha_render(zDecoded);
     @ <tr>
     @  <td class="form_label">Security Code:</td>
-    @  <td><input type="text" name="captcha" value="" size="30">
+    @  <td><input type="text" name="captcha" value="%h(zInit)" size="30">
     captcha_speakit_button(uSeed, "Speak the code");
     @  <input type="hidden" name="captchaseed" value="%u(uSeed)"></td>
     @ </tr>
@@ -1480,6 +1507,8 @@ void subscribe_page(void){
   if( g.perm.RdForum ){
     @  <label><input type="checkbox" name="sf" %s(PCK("sf"))> \
     @  Forum Posts</label><br>
+    @  <label><input type="checkbox" name="sx" %s(PCK("sx"))> \
+    @  Forum Edits</label><br>
   }
   if( g.perm.RdTkt ){
     @  <label><input type="checkbox" name="st" %s(PCK("st"))> \
@@ -1533,17 +1562,16 @@ void subscribe_page(void){
 ** by the hex value zName.  Then paint a webpage that explains that
 ** the entry has been removed.
 */
-static void alert_unsubscribe(const char *zName){
+static void alert_unsubscribe(int sid){
   char *zEmail;
   zEmail = db_text(0, "SELECT semail FROM subscriber"
-                      " WHERE subscriberCode=hextoblob(%Q)", zName);
+                      " WHERE subscriberId=%d", sid);
   if( zEmail==0 ){
     style_header("Unsubscribe Fail");
     @ <p>Unable to locate a subscriber with the requested key</p>
   }else{
     db_multi_exec(
-      "DELETE FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
-      zName
+      "DELETE FROM subscriber WHERE subscriberId=%d", sid
     );
     style_header("Unsubscribed");
     @ <p>The "%h(zEmail)" email address has been delisted.
@@ -1558,44 +1586,79 @@ static void alert_unsubscribe(const char *zName){
 **
 ** Edit email alert and notification settings.
 **
-** The subscriber is identified in either of two ways:
+** The subscriber is identified in several ways:
 **
-**    (1)  The name= query parameter contains the subscriberCode.
+**    (1)  The name= query parameter contains the complete subscriberCode.
+**         This only happens when the user receives a verification
+**         email and clicks on the link in the email.  When a
+**         compilete subscriberCode is seen on the name= query parameter,
+**         that constitutes verification of the email address.
+**
+**    (2)  The sid= query parameter contains an integer subscriberId.
+**         This only works for the administrator.  It allows the
+**         administrator to edit any subscription.
 **         
-**    (2)  The user is logged into an account other than "nobody" or
+**    (3)  The user is logged into an account other than "nobody" or
 **         "anonymous".  In that case the notification settings
 **         associated with that account can be edited without needing
 **         to know the subscriber code.
+**
+**    (4)  The name= query parameter contains a 32-digit prefix of
+**         subscriber code.  (Subscriber codes are normally 64 hex digits
+**         in length.) This uniquely identifies the subscriber without
+**         revealing the complete subscriber code, and hence without
+**         verifying the email address.
 */
 void alert_page(void){
-  const char *zName = P("name");
-  Stmt q;
-  int sa, sc, sf, st, sw, sx;
-  int sdigest = 0, sdonotcall = 0, sverified = 0;
-  int isLogin;         /* Logged in as an individual */
-  const char *ssub = 0;
-  const char *semail = 0;
-  const char *smip;
-  const char *suname = 0;
-  const char *mtime;
-  const char *sctime;
-  int eErr = 0;
-  char *zErr = 0;
+  const char *zName = 0;        /* Value of the name= query parameter */
+  Stmt q;                       /* For querying the database */
+  int sa, sc, sf, st, sw, sx;   /* Types of notifications requested */
+  int sdigest = 0, sdonotcall = 0, sverified = 0;  /* Other fields */
+  int isLogin;                  /* True if logged in as an individual */
+  const char *ssub = 0;         /* Subscription flags */
+  const char *semail = 0;       /* Email address */
+  const char *smip;             /* */
+  const char *suname = 0;       /* Corresponding user.login value */
+  const char *mtime;            /* */
+  const char *sctime;           /* Time subscription created */
+  int eErr = 0;                 /* Type of error */
+  char *zErr = 0;               /* Error message text */
+  int sid = 0;                  /* Subscriber ID */
+  int nName;                    /* Length of zName in bytes */
+  char *zHalfCode;              /* prefix of subscriberCode */
 
-  if( alert_webpages_disabled() ) return;
+  db_begin_transaction();
+  if( alert_webpages_disabled() ){
+    db_commit_transaction();
+    return;
+  }
   login_check_credentials();
   if( !g.perm.EmailAlert ){
+    db_commit_transaction();
     login_needed(g.anon.EmailAlert);
-    return;
+    /*NOTREACHED*/
   }
   isLogin = login_is_individual();
-  if( zName==0 && isLogin ){
-    zName = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
-                       " WHERE suname=%Q", g.zLogin);
+  zName = P("name");
+  nName = zName ? (int)strlen(zName) : 0;
+  if( g.perm.Admin && P("sid")!=0 ){
+    sid = atoi(P("sid"));
   }
-  if( zName==0 || !validate16(zName, -1) ){
+  if( sid==0 && nName>=32 ){
+    sid = db_int(0,
+       "SELECT CASE WHEN hex(subscriberCode) LIKE (%Q||'%%')"
+       "            THEN subscriberId ELSE 0 END"
+       "  FROM subscriber WHERE subscriberCode>=hextoblob(%Q)"
+       " LIMIT 1", zName, zName);
+  }
+  if( sid==0 && isLogin ){
+    sid = db_int(0, "SELECT subscriberId FROM subscriber"
+                    " WHERE suname=%Q", g.zLogin);
+  }
+  if( sid==0 ){
+    db_commit_transaction();
     cgi_redirect("subscribe");
-    return;
+    /*NOTREACHED*/
   }
   alert_submenu_common();
   if( P("submit")!=0 && cgi_csrf_safe(1) ){
@@ -1643,7 +1706,7 @@ void alert_page(void){
       }
       blob_append_sql(&update, ", semail=%Q", semail);
     }
-    blob_append_sql(&update," WHERE subscriberCode=hextoblob(%Q)", zName);
+    blob_append_sql(&update," WHERE subscriberId=%d", sid);
     if( eErr==0 ){
       db_exec_sql(blob_str(&update));
       ssub = 0;
@@ -1656,8 +1719,9 @@ void alert_page(void){
       zErr = mprintf("Select this checkbox and press \"Unsubscribe\" again to"
                      " unsubscribe");
     }else{
-      alert_unsubscribe(zName);
-      return;
+      alert_unsubscribe(sid);
+      db_commit_transaction();
+      return; 
     }
   }
   style_header("Update Subscription");
@@ -1671,12 +1735,14 @@ void alert_page(void){
     "  smip,"                         /* 5 */
     "  suname,"                       /* 6 */
     "  datetime(mtime,'unixepoch'),"  /* 7 */
-    "  datetime(sctime,'unixepoch')"  /* 8 */
-    " FROM subscriber WHERE subscriberCode=hextoblob(%Q)", zName);
+    "  datetime(sctime,'unixepoch')," /* 8 */
+    "  hex(subscriberCode)"           /* 9 */
+    " FROM subscriber WHERE subscriberId=%d", sid);
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
+    db_commit_transaction();
     cgi_redirect("subscribe");
-    return;
+    /*NOTREACHED*/
   }
   if( ssub==0 ){
     semail = db_column_text(&q, 0);
@@ -1698,19 +1764,41 @@ void alert_page(void){
   mtime = db_column_text(&q, 7);
   sctime = db_column_text(&q, 8);
   if( !g.perm.Admin && !sverified ){
-    db_multi_exec(
-      "UPDATE subscriber SET sverified=1 WHERE subscriberCode=hextoblob(%Q)",
-      zName);
-    @ <h1>Your email alert subscription has been verified!</h1>
-    @ <p>Use the form below to update your subscription information.</p>
-    @ <p>Hint:  Bookmark this page so that you can more easily update
-    @ your subscription information in the future</p>
+    if( nName==64 ){
+      db_multi_exec(
+        "UPDATE subscriber SET sverified=1"
+        " WHERE subscriberCode=hextoblob(%Q)",
+        zName);
+      if( db_get_boolean("selfreg-verify",0) ){
+        char *zNewCap = db_get("default-perms","u");
+        db_multi_exec(
+           "UPDATE user"
+           "   SET cap=%Q"
+           " WHERE cap='7' AND login=("
+           "   SELECT suname FROM subscriber"
+           "    WHERE subscriberCode=hextoblob(%Q))",
+           zNewCap, zName
+        );
+        login_set_capabilities(zNewCap, 0);
+      }
+      @ <h1>Your email alert subscription has been verified!</h1>
+      @ <p>Use the form below to update your subscription information.</p>
+      @ <p>Hint:  Bookmark this page so that you can more easily update
+      @ your subscription information in the future</p>
+    }else{
+      @ <h2>Your email address is unverified</h2>
+      @ <p>You should have received an email message containing a link
+      @ that you must visit to verify your account.  No email notifications
+      @ will be sent until your email address has been verified.</p>
+    }
   }else{
     @ <p>Make changes to the email subscription shown below and
     @ press "Submit".</p>
   }
   form_begin(0, "%R/alerts");
-  @ <input type="hidden" name="name" value="%h(zName)">
+  zHalfCode = db_text("x","SELECT hex(substr(subscriberCode,1,16))"
+                          "  FROM subscriber WHERE subscriberId=%d", sid);
+  @ <input type="hidden" name="name" value="%h(zHalfCode)">
   @ <table class="subscribe">
   @ <tr>
   @  <td class="form_label">Email&nbsp;Address:</td>
@@ -1741,6 +1829,9 @@ void alert_page(void){
     @  <td class='form_label'>IP Address:</td>
     @  <td>%h(smip)</td>
     @ </tr>
+    @ <tr>
+    @  <td class='form_label'>Subscriber&nbsp;Code:</td>
+    @  <td>%h(db_column_text(&q,9))</td>
     @ <tr>
     @  <td class="form_label">User:</td>
     @  <td><input type="text" name="suname" value="%h(suname?suname:"")" \
@@ -1782,10 +1873,6 @@ void alert_page(void){
   @     <option value="1" %s(sdigest?"selected":"")>Daily Digest</option>
   @     </select></td>
   @ </tr>
-#if 0
-  @  <label><input type="checkbox" name="sdigest" %s(sdigest?"checked":"")>\
-  @  Daily digest only</label><br>
-#endif
   if( g.perm.Admin ){
     @ <tr>
     @  <td class="form_label">Admin Options:</td><td>
@@ -1813,6 +1900,8 @@ void alert_page(void){
   fossil_free(zErr);
   db_finalize(&q);
   style_footer();
+  db_commit_transaction();
+  return;
 }
 
 /* This is the message that gets sent to describe how to change
@@ -1854,14 +1943,15 @@ void unsubscribe_page(void){
   int bSubmit;
   const char *zEAddr;
   char *zCode = 0;
+  int sid = 0;
 
   /* If a valid subscriber code is supplied, then unsubscribe immediately.
   */
   if( zName 
-   && db_exists("SELECT 1 FROM subscriber WHERE subscriberCode=hextoblob(%Q)",
-                zName)
+   && (sid = db_int(0, "SELECT subscriberId FROM subscriber"
+                       " WHERE subscriberCode=hextoblob(%Q)", zName))!=0
   ){
-    alert_unsubscribe(zName);
+    alert_unsubscribe(sid);
     return;
   }
 
@@ -2023,7 +2113,7 @@ void subscriber_list_page(void){
   }
   blob_init(&sql, 0, 0);
   blob_append_sql(&sql,
-    "SELECT hex(subscriberCode),"          /* 0 */
+    "SELECT subscriberId,"                 /* 0 */
     "       semail,"                       /* 1 */
     "       ssub,"                         /* 2 */
     "       suname,"                       /* 3 */
@@ -2060,7 +2150,7 @@ void subscriber_list_page(void){
     int uid = db_column_int(&q, 8);
     const char *zUname = db_column_text(&q, 3);
     @ <tr>
-    @ <td><a href='%R/alerts/%s(db_column_text(&q,0))'>\
+    @ <td><a href='%R/alerts?sid=%d(db_column_int(&q,0))'>\
     @ %h(db_column_text(&q,1))</a></td>
     @ <td>%h(db_column_text(&q,2))</td>
     @ <td>%s(db_column_int(&q,5)?"digest":"")</td>

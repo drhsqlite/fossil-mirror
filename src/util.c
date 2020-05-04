@@ -144,6 +144,21 @@ void fossil_secure_free_page(void *p, size_t n){
 }
 
 /*
+** Translate every upper-case character in the input string into
+** its equivalent lower-case.
+*/
+char *fossil_strtolwr(char *zIn){
+  char *zStart = zIn;
+  if( zIn ){
+    while( *zIn ){
+      *zIn = fossil_tolower(*zIn);
+      zIn++;
+    }
+  }
+  return zStart;
+}
+
+/*
 ** This function implements a cross-platform "system()" interface.
 */
 int fossil_system(const char *zOrigCmd){

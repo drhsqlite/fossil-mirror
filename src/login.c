@@ -483,7 +483,7 @@ int login_self_register_available(const char *zNeeded){
   int rc;
   if( !db_get_boolean("self-register",0) ) return 0;
   if( zNeeded==0 ) return 1;
-  pCap = capability_add(0, db_get("default-perms", 0));
+  pCap = capability_add(0, db_get("default-perms", "u"));
   capability_expand(pCap);
   rc = capability_has_any(pCap, zNeeded);
   capability_free(pCap);
@@ -1130,7 +1130,7 @@ void login_check_credentials(void){
     const char *zUri = PD("REQUEST_URI","");
     zUri += (int)strlen(g.zTop);
     if( glob_match(pGlob, zUri) ){
-      login_set_capabilities(db_get("default-perms", 0), 0);
+      login_set_capabilities(db_get("default-perms", "u"), 0);
     }
     glob_free(pGlob);
   }
@@ -1463,6 +1463,34 @@ static int login_self_choosen_userid_already_exists(const char *zUserID){
 }
 
 /*
+** Check an email address and confirm that it is valid for self-registration.
+** The email address is known already to be well-formed.  Return true
+** if the email address is on the allowed list.
+**
+** The default behavior is that any valid email address is accepted.
+** But if the "auth-sub-email" setting exists and is not empty, then
+** it is a comma-separated list of GLOB patterns for email addresses
+** that are authorized to self-register.
+*/
+int authorized_subscription_email(const char *zEAddr){
+  char *zGlob = db_get("auth-sub-email",0);
+  Glob *pGlob;
+  char *zAddr;
+  int rc;
+
+  if( zGlob==0 || zGlob[0]==0 ) return 1;
+  zGlob = fossil_strtolwr(fossil_strdup(zGlob));
+  pGlob = glob_create(zGlob);
+  fossil_free(zGlob);
+
+  zAddr = fossil_strtolwr(fossil_strdup(zEAddr));
+  rc = glob_match(pGlob, zAddr);
+  fossil_free(zAddr);
+  glob_free(pGlob);
+  return rc!=0;
+}
+
+/*
 ** WEBPAGE: register
 **
 ** Page to allow users to self-register.  The "self-register" setting
@@ -1473,9 +1501,10 @@ void register_page(void){
   const char *zDName;
   unsigned int uSeed;
   const char *zDecoded;
-  char *zCaptcha;
   int iErrLine = -1;
   const char *zErr = 0;
+  int captchaIsCorrect = 0; /* True on a correct captcha */
+  char *zCaptcha = "";      /* Value of the captcha text */
   char *zPerms;             /* Permissions for the default user */
   int canDoAlerts = 0;      /* True if receiving email alerts is possible */
   int doAlerts = 0;         /* True if subscription is wanted too */
@@ -1486,7 +1515,7 @@ void register_page(void){
     style_footer();
     return;
   }
-  zPerms = db_get("default-perms", 0);
+  zPerms = db_get("default-perms", "u");
 
   /* Prompt the user for email alerts if this repository is configured for
   ** email alerts and if the default permissions include "7" */
@@ -1505,7 +1534,7 @@ void register_page(void){
   if( P("new")==0 || !cgi_csrf_safe(1) ){
     /* This is not a valid form submission.  Fall through into
     ** the form display */
-  }else if( !captcha_is_correct(1) ){
+  }else if( (captchaIsCorrect = captcha_is_correct(1))==0 ){
     iErrLine = 6;
     zErr = "Incorrect CAPTCHA";
   }else if( strlen(zUserID)<6 ){
@@ -1523,6 +1552,9 @@ void register_page(void){
   }else if( email_address_is_valid(zEAddr,0)==0 ){
     iErrLine = 3;
     zErr = "Not a valid email address";
+  }else if( authorized_subscription_email(zEAddr)==0 ){
+    iErrLine = 3;
+    zErr = "Not an authorized email address";
   }else if( strlen(zPasswd)<6 ){
     iErrLine = 4;
     zErr = "Password must be at least 6 characters long";
@@ -1550,12 +1582,20 @@ void register_page(void){
     Blob sql;
     int uid;
     char *zPass = sha1_shared_secret(zPasswd, zUserID, 0);
+    const char *zStartPerms = zPerms;
+    if( db_get_boolean("selfreg-verify",0) ){
+      /* If email verification is required for self-registration, initalize
+      ** the new user capabilities to just "7" (Sign up for email).  The
+      ** full "default-perms" permissions will be added when they click
+      ** the verification link on the email they are sent. */
+      zStartPerms = "7";
+    }
     blob_init(&sql, 0, 0);
     blob_append_sql(&sql,
        "INSERT INTO user(login,pw,cap,info,mtime)\n"
        "VALUES(%Q,%Q,%Q,"
        "'%q <%q>\nself-register from ip %q on '||datetime('now'),now())",
-       zUserID, zPass, zPerms, zDName, zEAddr, g.zIpAddr);
+       zUserID, zPass, zStartPerms, zDName, zEAddr, g.zIpAddr);
     fossil_free(zPass);
     db_multi_exec("%s", blob_sql_text(&sql));
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUserID);
@@ -1569,12 +1609,16 @@ void register_page(void){
       const char *zGoto = P("g");
       int nsub = 0;
       char ssub[20];
+      CapabilityString *pCap;
+      pCap = capability_add(0, zPerms);
+      capability_expand(pCap);
       ssub[nsub++] = 'a';
-      if( g.perm.Read )    ssub[nsub++] = 'c';
-      if( g.perm.RdForum ) ssub[nsub++] = 'f';
-      if( g.perm.RdTkt )   ssub[nsub++] = 't';
-      if( g.perm.RdWiki )  ssub[nsub++] = 'w';
+      if( capability_has_any(pCap,"o") ) ssub[nsub++] = 'c';
+      if( capability_has_any(pCap,"2") ) ssub[nsub++] = 'f';
+      if( capability_has_any(pCap,"r") ) ssub[nsub++] = 't';
+      if( capability_has_any(pCap,"j") ) ssub[nsub++] = 'w';
       ssub[nsub] = 0;
+      capability_free(pCap);
       /* Also add the user to the subscriber table. */
       db_multi_exec(
         "INSERT INTO subscriber(semail,suname,"
@@ -1618,8 +1662,7 @@ void register_page(void){
         @ </pre></blockquote>
       }else{
         @ <p>An email has been sent to "%h(zEAddr)". That email contains a
-        @ hyperlink that you must click on in order to activate your
-        @ subscription.</p>
+        @ hyperlink that you must click to activate your account.</p>
       }
       alert_sender_free(pSender);
       if( zGoto ){
@@ -1632,7 +1675,11 @@ void register_page(void){
   }
 
   /* Prepare the captcha. */
-  uSeed = captcha_seed();
+  if( captchaIsCorrect ){
+    uSeed = strtoul(P("captchaseed"),0,10);
+  }else{
+    uSeed = captcha_seed();
+  }
   zDecoded = captcha_decode(uSeed);
   zCaptcha = captcha_render(zDecoded);
 
@@ -1691,7 +1738,8 @@ void register_page(void){
   }
   @ <tr>
   @   <td class="form_label" align="right">Captcha:</td>
-  @   <td><input type="text" name="captcha" value="" size="30">
+  @   <td><input type="text" name="captcha" size="30"\
+  @ value="%h(captchaIsCorrect?zDecoded:"")" size="30">
   captcha_speakit_button(uSeed, "Speak the captcha text");
   @   </td>
   @ </tr>

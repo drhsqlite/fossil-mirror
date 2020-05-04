@@ -551,14 +551,13 @@ void user_edit(void){
   }else{
     @   <td><input type="text" name="login" value="%h(zLogin)" />\
     if( alert_tables_exist() ){
-      char *zSCode;  /* Subscriber Code */
-      zSCode = db_text(0, "SELECT hex(subscriberCode) FROM subscriber"
-                          " WHERE suname=%Q", zLogin);
-      if( zSCode && zSCode[0] ){
-        @ &nbsp;&nbsp;<a href="%R/alerts/%s(zSCode)">\
+      int sid;
+      sid = db_int(0, "SELECT subscriberId FROM subscriber"
+                      " WHERE suname=%Q", zLogin);
+      if( sid>0 ){
+        @ &nbsp;&nbsp;<a href="%R/alerts?sid=%d(sid)">\
         @ (subscription info for %h(zLogin))</a>\
       }
-      fossil_free(zSCode);
     }
     @ </td></tr>
     @ <tr>

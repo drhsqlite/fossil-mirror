@@ -319,10 +319,10 @@ chasing down; they then have to manually work out which of the 10 steps
 the original developer took to create it to find the source of the
 actual problem.
 
-Fossil pushes all 11 check-ins to the parent repository by default, so
-that someone doing that bisect sees the complete check-in history, so
-the bisect will point them at the single original check-in that caused
-the problem.
+An equivalent push in Fossil will send all 11 check-ins to the parent
+repository so that a later investigator doing the same sort of bisect
+sees the complete check-in history. That bisect will point the
+investigator at the single original check-in that caused the problem.
 
 ### <a name="comments"></a>7.3 Multiple check-ins require multiple check-in comments
 

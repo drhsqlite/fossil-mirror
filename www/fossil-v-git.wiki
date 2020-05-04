@@ -116,10 +116,10 @@ the design.  One way to describe Fossil is that it is
 
 Fossil can do operations over all local repo clones and check-out
 directories with a single command. For example, Fossil lets you say
-<tt>fossil all pull</tt> on a laptop prior to taking it off the network
+<tt>fossil all sync</tt> on a laptop prior to taking it off the network
 hosting those repos. You can sync up to all of the private repos on your
 company network plus those public Internet-hosted repos you use. Whether
-going out for a working lunch or on a transoceanic an airplane trip, one
+going out for a working lunch or on a transoceanic airplane trip, one
 command gets you in sync. This works with several other Fossil
 sub-commands, such as <tt>fossil all changes</tt> to get a list of files
 that you forgot to commit prior to the end of your working day, across
@@ -260,7 +260,7 @@ next?" or "What are the children of this check-in?"
 
 Fossil, on the other hand, parses essential information about check-ins
 (parents, children, committers, comments, files changed, etc.) into a
-relational database that can be easily queried using concise SQL
+relational database that can easily be queried using concise SQL
 statements to find both ancestors and descendants of a check-in. This is
 the hybrid data model mentioned above: Fossil manages your check-in and
 other data in a NoSQL block chain structured data store, but that's backed
@@ -761,9 +761,9 @@ Fossil cannot sensibly work that way because of its default-enabled
 autosync feature. Instead of jumping straight to the commit step, Fossil
 applies the proposed merge to the local working directory only,
 requiring a separate check-in step before the change is committed to the
-repository blockchain. This gives you a chance to test the change,
-whether manually, or by running your software's automatic tests, or
-both.
+repository blockchain. This gives you a chance to test the change first,
+either manually or by running your software's automatic tests. (Ideally,
+both!)
 
 Another difference is that because Fossil requires an explicit commit
 for a merge, it makes you give an explicit commit <i>message</i> for
@@ -807,7 +807,7 @@ currently 41 lines long, to which you want to add the 600 lines of
 [./branching.wiki | the branching document]. The equivalent
 documentation in Git is the aggregation of the man pages for the above
 three commands, which is over 1000 lines, much of it mutually redundant.
-(e.g.  the <tt>--edit</tt> and <tt>--no-commit</tt> options get
+(e.g.  Git's <tt>--edit</tt> and <tt>--no-commit</tt> options get
 described three times, each time differently.) Fossil's
 documentation is not only more concise, it gives a nice split of brief
 online help and full online documentation.
@@ -857,7 +857,7 @@ weakening the case for continuing to use SHA-1.
 The practical impact of attacks like SHAttered and SHAmbles on the
 Git and Fossil blockchains isn't clear, but you want to have your repositories
 moved over to a stronger hash algorithm before someone figures out how
-to make use of the weaknesses in the old one. Fossil had this covered
+to make use of the weaknesses in the old one. Fossil has had this covered
 for years now, so that the solution is now almost universally deployed.
 
 <hr/>

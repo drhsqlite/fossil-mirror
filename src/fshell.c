@@ -62,7 +62,11 @@ void shell_cmd(void){
   char *zPrompt = 0;
   fDebug = find_option("debug", 0, 0)!=0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
-  zPrompt = mprintf("fossil (%z)> ", db_get("project-name","no repo"));
+  if(g.zRepositoryName!=0){
+    zPrompt = mprintf("fossil (%z)> ", db_get("project-name","unnamed"));
+  }else{
+    zPrompt = mprintf("fossil (no repo)> ");
+  }
   db_close(0);
   sqlite3_shutdown();
   linenoiseSetMultiLine(1);
