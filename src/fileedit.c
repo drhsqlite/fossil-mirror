@@ -1461,10 +1461,10 @@ void fileedit_page(){
   CX("<a id='buttons'></a>");
   CX("<fieldset class='fileedit-options'>"
      "<legend>Tell the server to...</legend><div>");
-  CX("<button type='submit' name='submit' value='1'>"
-     "Save</button>");
-  CX("<button type='submit' name='submit' value='2'>"
-     "Preview</button>");
+  CX("<button type='submit' name='submit' value='%d'>"
+     "Save</button>", SUBMIT_SAVE);
+  CX("<button type='submit' name='submit' value='%d'>"
+     "Preview</button>", SUBMIT_PREVIEW);
   {
     /* Preview rendering mode selection... */
     previewRenderMode = atoi(PD("preview_render_mode","0"));
@@ -1506,10 +1506,10 @@ void fileedit_page(){
                              previewLn);
     }
   }
-  CX("<button type='submit' name='submit' value='3'>"
-     "Diff (SBS)</button>");
-  CX("<button type='submit' name='submit' value='4'>"
-     "Diff (Unified)</button>");
+  CX("<button type='submit' name='submit' value='%d'>"
+     "Diff (SBS)</button>", SUBMIT_DIFF_SBS);
+  CX("<button type='submit' name='submit' value='%d'>"
+     "Diff (Unified)</button>", SUBMIT_DIFF_UNIFIED);
   CX("</div></fieldset>");
 
   /******* End of form *******/    
