@@ -900,16 +900,8 @@ int fileedit_is_editable(const char *zFilename){
   return glob_match(pGlobs, zFilename);
 }
 
-static void fileedit_emit_script(int phase){
-  if(0==phase){
-    CX("<script nonce='%s'>", style_nonce());
-  }else{
-    CX("</script>\n");
-  }
-}
-
 /*
-** Emits a script tag which defines window.fossilFetch(), which works
+** Emits a script tag which defines window.fossil.fetch(), which works
 ** similarly (not identically) to the not-quite-ubiquitous global
 ** fetch().
 **
@@ -919,38 +911,82 @@ static void fileedit_emit_script(int phase){
 **
 ** fossilFetch( URI, optionsObject );
 **
-** Where the optionsObject may be an object with any of these
-** properties:
+** Noting that URI must be relative to the top of the repository and
+** must not start with a slash (if it does, it is stripped). It gets
+** %R/ prepended to it.
+**
+** The optionsObject may be an onload callback or an object with any
+** of these properties:
 **
 ** - onload: callback(responseData) (default = output response to
 **   console).
 **
-** - onerror: callback(XHR onload event) (default = no-op)
+** - onerror: callback(XHR onload event) (default = console output)
 **
 ** - method: 'POST' | 'GET' (default = 'GET')
 **
-** Noting that URI must be relative to the top of the repository and
-** must not start with a slash. It gets %R/ prepended to it.
+** - payload: anything acceptable by XHR2.send(ARG) (DOMString,
+**   Document, FormData, Blob, File, ArrayBuffer), or a plain object
+**   or array, either of which gets JSON.stringify()'d. If set then
+**   the method is automatically set to 'POST'. If an object/array is
+**   converted to JSON, the content-type is set to 'application/json'.
+**   By default XHR2 will set the content type based on the payload
+**   type.
 **
-** TODOs, if needed, include:
+** - contentType: Optional request content type when POSTing. Ignored
+**   if the method is not 'POST'.
 **
-** optionsObject.params: object map of key/value pairs to append to the
-** URI.
+** - responseType: optional string. One of ("text", "arraybuffer",
+**   "blob", or "document") (as specified by XHR2). Default = "text".
 **
-** optionsObject.payload: string or JSON-able object to POST as the
-** payload.
+** - urlParams: string|object. If a string, it is assumed to be a
+**   URI-encoded list of params in the form "key1=val1&key2=val2...",
+**   with NO leading '?'.  If it is an object, all of its properties
+**   get converted to that form. Either way, the parameters get
+**   appended to the URL.
 **
 */
-static void fileedit_emit_script_fetch(){
-  fileedit_emit_script(0);
-  CX("window.fossilFetch = function(path,opt){\n");
-  CX("  if('function'===typeof opt){\n");
-  CX("    opt={onload:opt};\n");
-  CX("  }else{\n");
-  CX("    opt=opt||{onload:function(r){console.debug('response:',r)}}\n");
+void fileedit_emit_script_fetch(){
+  style_emit_script_tag(0);
+  CX("fossil.fetch = function(path,opt){\n");
+  CX("  if('/'===path[0]) path = path.substr(1);\n");
+  CX("  if(!opt){\n");
+  CX("    opt = {onload:(r)=>console.debug('response:',r)};\n");
+  CX("  }else if('function'===typeof opt){\n");
+  CX("    opt={onload:opt,\n");
+  CX("         onerror:(e)=>console.error('ajax error:',e)};\n");
   CX("  }\n");
-  CX("  const url='%R/'+path, x=new XMLHttpRequest();\n");
-  CX("  x.open(opt.method||'GET', url, true);\n");
+  CX("  let payload = opt.payload;\n");
+  CX("  if(payload){\n");
+  CX("    opt.method = 'POST';\n");
+  CX("    if(!(payload instanceof FormData)\n");
+  CX("       && !(payload instanceof Document)\n");
+  CX("       && !(payload instanceof Blob)\n");
+  CX("       && !(payload instanceof File)\n");
+  CX("       && !(payload instanceof ArrayBuffer)){\n");
+  CX("      if('object'===typeof payload || payload instanceof Array){\n");
+  CX("        payload = JSON.stringify(payload);\n");
+  CX("        opt.contentType = 'application/json';\n");
+  CX("      }\n");
+  CX("    }\n");
+  CX("  }\n");
+  CX("  const url=['%R/'+path], x=new XMLHttpRequest();\n");
+  CX("  if(opt.urlParams){\n");
+  CX("    url.push('?');\n");
+  CX("    if('string'===typeof opt.urlParams){\n");
+  CX("      url.push(opt.urlParams);\n");
+  CX("    }else{/*assume object*/\n");
+  CX("      let k, i = 0;\n");
+  CX("      for( k in opt.urlParams ){\n");
+  CX("        if(i++) url.push('&');\n");
+  CX("        url.push(k,'=',encodeURIComponent(opt.urlParams[k]));\n");
+  CX("      }\n");
+  CX("    }\n");
+  CX("  }\n");
+  CX("  if('POST'===opt.method && 'string'===typeof opt.contentType){\n");
+  CX("    x.setRequestHeader('Content-Type',opt.contentType);\n");
+  CX("  }\n");
+  CX("  x.open(opt.method||'GET', url.join(''), true);\n");
   CX("  x.responseType=opt.responseType||'text';\n");
   CX("  if(opt.onload){\n");
   CX("    x.onload = function(e){\n");
@@ -961,36 +997,12 @@ static void fileedit_emit_script_fetch(){
   CX("      opt.onload(this.response);\n");
   CX("    }\n");
   CX("  }\n");
-  CX("  x.send();");
+  CX("  if(payload) x.send(payload);\n");
+  CX("  else x.send();\n");
   CX("};\n");
-  fileedit_emit_script(1);
+  style_emit_script_tag(1);
 };
 
-/*
-** Outputs a labeled checkbox element:
-**
-** <span class='input-with-label' title={{zTip}}>
-**   <input type='checkbox' name={{zFieldName}} value={{zValue}}
-**          {{isChecked ? " checked : ""}}/>
-**   <span>{{zLabel}}</span>
-** </span>
-**
-** zFieldName, zLabel, and zValue are required. zTip is optional.
-*/
-static void style_labeled_checkbox(const char *zFieldName,
-                                   const char * zLabel,
-                                   const char * zValue,
-                                   const char * zTip,
-                                   int isChecked){
-  CX("<div class='input-with-label'");
-  if(zTip && *zTip){
-    CX(" title='%h'", zTip);
-  }
-  CX("><input type='checkbox' name='%s' value='%T'%s/>",
-     zFieldName,
-     zValue ? zValue : "", isChecked ? " checked" : "");
-  CX("<span>%h</span></div>", zLabel);
-}
 
 enum fileedit_render_preview_flags {
 FE_PREVIEW_LINE_NUMBERS = 1
@@ -1032,11 +1044,12 @@ static void fileedit_render_preview(Blob * pContent,
   switch(renderMode){
     case FE_RENDER_HTML:{
       char * z64 = encode64(blob_str(pContent), blob_size(pContent));
-      CX("<iframe width='100%%' frameborder='0' marginwidth='0' "
-         "style='height:%dem' "
-         "marginheight='0' sandbox='allow-same-origin' id='ifm1' "
-         "src='data:text/html;base64,%z'"
-         "></iframe>", nIframeHeightEm ? nIframeHeightEm : 40,
+      CX("<iframe width='100%%' frameborder='0' "
+         "marginwidth='0' style='height:%dem' "
+         "marginheight='0' sandbox='allow-same-origin' "
+         "id='ifm1' src='data:text/html;base64,%z'"
+         "></iframe>",
+         nIframeHeightEm ? nIframeHeightEm : 40,
          z64);
       break;
     }
@@ -1063,7 +1076,7 @@ static void fileedit_render_preview(Blob * pContent,
 /*
 ** Renders diffs for the /fileedit page. pContent is the
 ** locally-edited content.  frid is the RID of the file's blob entry
-** from which pContent is based.  zManifestUuid is the checkin version
+** from which pContent is based. zManifestUuid is the checkin version
 ** to which RID belongs - it is purely informational, for labeling the
 ** diff view. isSbs is true for side-by-side diffs, false for unified.
 */
@@ -1072,14 +1085,9 @@ static void fileedit_render_diff(Blob * pContent, int frid,
                                  int isSbs){
   Blob orig = empty_blob;
   Blob out = empty_blob;
-  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
-
+  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR
+    | (isSbs ? DIFF_SIDEBYSIDE : DIFF_LINENO);
   content_get(frid, &orig);
-  if(isSbs){
-    diffFlags |=  DIFF_SIDEBYSIDE;
-  }else{
-    diffFlags |= DIFF_LINENO;
-  }
   text_diff(&orig, pContent, &out, 0, diffFlags);
   CX("<div class='fileedit-diff'>");
   CX("<div>Diff <code>[%S]</code> &rarr; Local Edits</div>",
@@ -1092,87 +1100,29 @@ static void fileedit_render_diff(Blob * pContent, int frid,
   CX("</div><!--.fileedit-diff-->\n");
   blob_reset(&orig);
   blob_reset(&out);
-  /* Wow, that was *easy*. */
 }
 
 /*
-** Outputs a SELECT list from a compile-time list of integers.
-** The vargs must be a list of (const char *, int) pairs, terminated
-** with a single NULL. Each pair is interpreted as...
-**
-** If the (const char *) is NULL, it is the end of the list, else
-** a new OPTION entry is created. If the string is empty, the
-** label and value of the OPTION is the integer part of the pair.
-** If the string is not empty, it becomes the label and the integer
-** the value. If that value == selectedValue then that OPTION
-** element gets the 'selected' attribute.
-**
-** Note that the pairs are not in (int, const char *) order because
-** there is no well-known integer value which we can definitively use
-** as a list terminator.
-**
-** zFieldName is the value of the form element's name attribute.
-**
-** zLabel is an optional string to use as a "label" for the element
-** (see below).
-**
-** zTooltip is an optional value for the SELECT's title attribute.
-**
-** The structure of the emited HTML is:
-**
-** <div class='input-with-label'>
-**   <span>{{zLabel}}</span>
-**   <select>...</select>
-** </div>
-** 
+** Given a repo-relative filename and a manifest RID, returns the UUID
+** of the corresponding file entry.  Returns NULL if no match is
+** found.  If pFilePerm is not NULL, the file's permission flag value
+** is written to *pFilePerm.
 */
-static void style_select_list_int_v(const char *zFieldName,
-                                    const char * zLabel,
-                                    const char * zToolTip,
-                                    int selectedVal, va_list vargs){
-  CX("<div class='input-with-label'");
-  if(zToolTip && *zToolTip){
-    CX(" title='%h'",zToolTip);
-  }
-  CX(">");
-  if(zLabel && *zLabel){
-    CX("<span>%h</span>", zLabel);
-  }
-  CX("<select name='%s'>",zFieldName);
-  while(1){
-    const char * zOption = va_arg(vargs,char *);
-    int v;
-    if(NULL==zOption){
-      break;
+static char *fileedit_file_uuid(char const *zFilename,
+                                int vid, int *pFilePerm){
+  Stmt stmt = empty_Stmt;
+  char * zFileUuid = 0;
+  db_prepare(&stmt, "SELECT uuid, perm FROM files_of_checkin "
+             "WHERE filename=%Q %s AND checkinID=%d",
+             zFilename, filename_collation(), vid);
+  if(SQLITE_ROW==db_step(&stmt)){
+    zFileUuid = mprintf("%s",db_column_text(&stmt, 0));
+    if(pFilePerm){
+      *pFilePerm = mfile_permstr_int(db_column_text(&stmt, 1));
     }
-    v = va_arg(vargs,int);
-    CX("<option value='%d'%s>",
-         v, v==selectedVal ? " selected" : "");
-    if(*zOption){
-      CX("%s", zOption);
-    }else{
-      CX("%d",v);
-    }
-    CX("</option>\n");
   }
-  CX("</select>\n");
-  if(zLabel && *zLabel){
-    CX("</div>\n");
-  }
-}
-
-/*
-** The ellipsis-args counterpart of style_select_list_int_v().
-*/
-void style_select_list_int(const char *zFieldName,
-                           const char * zLabel,
-                           const char * zToolTip,
-                           int selectedVal, ... ){
-  va_list vargs;
-  va_start(vargs,selectedVal);
-  style_select_list_int_v(zFieldName, zLabel, zToolTip,
-                          selectedVal, vargs);
-  va_end(vargs);
+  db_finalize(&stmt);
+  return zFileUuid;
 }
 
 /*
@@ -1214,6 +1164,7 @@ void fileedit_page(){
   int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
   char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
+  Blob submitResult = empty_blob;       /* Error report */
   const char * zFlagCheck = 0;          /* Temp url flag holder */
   Blob endScript = empty_blob;          /* Script code to run at the
                                            end. This content will be
@@ -1287,22 +1238,14 @@ void fileedit_page(){
 
   /* Find the repo-side file entry or fail... */
   cimi.zParentUuid = rid_to_uuid(vid);
-  db_prepare(&stmt, "SELECT uuid, perm FROM files_of_checkin "
-             "WHERE filename=%Q %s AND checkinID=%d",
-             zFilename, filename_collation(), vid);
-  if(SQLITE_ROW==db_step(&stmt)){
-    const char * zPerm = db_column_text(&stmt, 1);
-    cimi.filePerm = mfile_permstr_int(zPerm);
-    if(PERM_LNK==cimi.filePerm){
-      fail((&err,"Editing symlinks is not permitted."));
-    }
-    zFileUuid = mprintf("%s",db_column_text(&stmt, 0));
-  }
-  db_finalize(&stmt);
+  zFileUuid = fileedit_file_uuid(zFilename, vid, &cimi.filePerm);
   if(!zFileUuid){
     fail((&err,"Checkin [%S] does not contain file: "
           "<code>%h</code>",
           cimi.zParentUuid, zFilename));
+  }
+  else if(PERM_LNK==cimi.filePerm){
+    fail((&err,"Editing symlinks is not permitted."));
   }
   frid = fast_uuid_to_rid(zFileUuid);
   assert(frid);
@@ -1320,7 +1263,96 @@ void fileedit_page(){
           "<code>%h</code>",zFilename));
   }
 
-  /* All set. Here we go... */
+  /*
+  ** TODO?: date-override date selection field. Maybe use
+  ** an input[type=datetime-local].
+  */
+  if(SUBMIT_NONE==submitMode || P("dry_run")!=0){
+    cimi.flags |= CIMINI_DRY_RUN;
+  }
+  if(P("allow_fork")!=0){
+    cimi.flags |= CIMINI_ALLOW_FORK;
+  }
+  if(P("allow_older")!=0){
+    cimi.flags |= CIMINI_ALLOW_OLDER;
+  }
+  if(P("exec_bit")!=0){
+    cimi.filePerm = PERM_EXE;
+  }
+  if(P("allow_merge_conflict")!=0){
+    cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
+  }
+  if(P("prefer_delta")!=0){
+    cimi.flags |= CIMINI_PREFER_DELTA;
+  }
+  /* EOL conversion policy... */
+  {
+    const int eolMode = submitMode==SUBMIT_NONE
+      ? 0 : atoi(PD("eol","0"));
+    switch(eolMode){
+      case 1: cimi.flags |= CIMINI_CONVERT_EOL_UNIX; break;
+      case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
+      default: cimi.flags |= CIMINI_CONVERT_EOL_INHERIT; break;
+    }
+  }
+  
+  /********************************************************************
+  ** All errors which "could" have happened up to this point are of a
+  ** degree which keep us from rendering the rest of the page, and
+  ** thus fail() has already skipped to the end of the page to render
+  ** the errors. Any up-coming errors, barring malloc failure or
+  ** similar, are not "that" fatal. We can/should continue rendering
+  ** the page, then output the error message at the end.
+  **
+  ** Because we cannot intercept the output of the PREVIEW and DIFF
+  ** rendering, we have to delay the "real work" for those modes until
+  ** after the rest of the page has been rendered. In the case of
+  ** SAVE, we can capture all of the output, and thus can perform that
+  ** work before rendering, which is important so that we have the
+  ** proper version information when rendering the rest of the page.
+  ********************************************************************/
+#undef fail
+  while(SUBMIT_SAVE==submitMode){
+    Blob manifest = empty_blob;
+    /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
+    if(zComment && *zComment){
+      blob_append(&cimi.comment, zComment, -1);
+    }else{
+      blob_append(&err,"Empty checkin comment is not permitted.",-1);
+      break;
+    }
+    cimi.pMfOut = &manifest;
+    checkin_mini(&cimi, &newVid, &err);
+    if(newVid!=0){
+      char * zNewUuid = rid_to_uuid(newVid);
+      blob_appendf(&submitResult,
+                   "<h3>Manifest%s: %S</h3><pre>"
+                   "<code class='fileedit-manifest'>%h</code>"
+                   "</pre>",
+                   (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
+                   zNewUuid, blob_str(&manifest));
+      if(CIMINI_DRY_RUN & cimi.flags){
+        fossil_free(zNewUuid);
+      }else{
+        /* Update cimi version info... */
+        assert(cimi.pParent);
+        assert(cimi.zParentUuid);
+        fossil_free(zFileUuid);
+        zFileUuid = fileedit_file_uuid(cimi.zFilename, newVid, 0);
+        manifest_destroy(cimi.pParent);
+        cimi.pParent = 0;
+        fossil_free(cimi.zParentUuid);
+        cimi.zParentUuid = zNewUuid;
+        zComment = 0;
+        cimi.flags |= CIMINI_DRY_RUN /* for sanity's sake */;
+      }
+    }
+    /* On error, the error message is in the err blob and will
+    ** be emitted at the end. */
+    cimi.pMfOut = 0;
+    blob_reset(&manifest);
+    break;
+  }
 
   CX("<h1>Editing:</h1>");
   CX("<p class='fileedit-hint'>");
@@ -1340,8 +1372,8 @@ void fileedit_page(){
      zFilename, cimi.zParentUuid,
      zFilename, cimi.zParentUuid);
   CX("</p>");
-  CX("<p>This page is <em>far from complete</em> and may still have "
-     "significant bugs. USE AT YOUR OWN RISK, preferably on a test "
+  CX("<p>This page is <em>NEW AND EXPERIMENTAL</em>. "
+     "USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
   
   CX("<form action='%R/fileedit#options' method='POST' "
@@ -1370,74 +1402,45 @@ void fileedit_page(){
      /* Chrome does not sanely lay out multiple
      ** fieldset children after the <legend>, so
      ** a containing div is necessary. */);
-  /*
-  ** TODO?: date-override date selection field. Maybe use
-  ** an input[type=datetime-local].
-  */
-  if(SUBMIT_NONE==submitMode || P("dry_run")!=0){
-    cimi.flags |= CIMINI_DRY_RUN;
-  }
   style_labeled_checkbox("dry_run", "Dry-run?", "1",
                          "In dry-run mode, the Save button performs "
                          "all work needed for saving but then rolls "
                          "back the transaction, and thus does not "
                          "really save.",
                          cimi.flags & CIMINI_DRY_RUN);
-  if(P("allow_fork")!=0){
-    cimi.flags |= CIMINI_ALLOW_FORK;
-  }
   style_labeled_checkbox("allow_fork", "Allow fork?", "1",
                          "Allow saving to create a fork?",
                          cimi.flags & CIMINI_ALLOW_FORK);
-  if(P("allow_older")!=0){
-    cimi.flags |= CIMINI_ALLOW_OLDER;
-  }
   style_labeled_checkbox("allow_older", "Allow older?", "1",
                          "Allow saving against a parent version "
                          "which has a newer timestamp?",
                          cimi.flags & CIMINI_ALLOW_OLDER);
-  if(P("exec_bit")!=0){
-    cimi.filePerm = PERM_EXE;
-  }
   style_labeled_checkbox("exec_bit", "Executable?", "1",
                          "Set the executable bit?",
                          PERM_EXE==cimi.filePerm);
-  if(P("allow_merge_conflict")!=0){
-    cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
-  }
   style_labeled_checkbox("allow_merge_conflict",
                          "Allow merge conflict markers?", "1",
                          "Allow saving even if the content contains "
                          "what appear to be fossil merge conflict "
                          "markers?",
                          cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
-  if(P("prefer_delta")!=0){
-    cimi.flags |= CIMINI_PREFER_DELTA;
-  }
   style_labeled_checkbox("prefer_delta",
                          "Prefer delta manifest?", "1",
                          "Will create a delta manifest, instead of "
                          "baseline, if conditions are favorable to do "
                          "so. This option is only a suggestion.",
                          cimi.flags & CIMINI_PREFER_DELTA);
-  {/* EOL conversion policy... */
-    const int eolMode = submitMode==SUBMIT_NONE
-      ? 0 : atoi(PD("eol","0"));
-    switch(eolMode){
-      case 1: cimi.flags |= CIMINI_CONVERT_EOL_UNIX; break;
-      case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
-      default: cimi.flags |= CIMINI_CONVERT_EOL_INHERIT; break;
-    }
-    style_select_list_int("eol", "EOL Style",
-                          "EOL conversion policy, noting that "
-                          "form-processing may implicitly change the "
-                          "line endings of the input.",
-                          eolMode==1||eolMode==2 ? eolMode : 0,
-                          "Inherit", 0,
-                          "Unix", 1,
-                          "Windows", 2,
-                          NULL);
-  }
+  style_select_list_int("eol", "EOL Style",
+                        "EOL conversion policy, noting that "
+                        "form-processing may implicitly change the "
+                        "line endings of the input.",
+                        (cimi.flags & CIMINI_CONVERT_EOL_UNIX)
+                        ? 1 : (cimi.flags & CIMINI_CONVERT_EOL_WINDOWS
+                               ? 2 : 0),
+                        "Inherit", 0,
+                        "Unix", 1,
+                        "Windows", 2,
+                        NULL);
 
   CX("</div></fieldset>") /* end of checkboxes */;
 
@@ -1448,21 +1451,19 @@ void fileedit_page(){
   /* ^^^ adding the 'required' attribute means we cannot even submit
   ** for PREVIEW mode if it's empty :/. */
   if(zComment && *zComment){
-    CX("%h"/*%h? %s?*/, zComment);
+    CX("%h", zComment);
   }
   CX("</textarea>\n");
   CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
      "syntax.</div>\n"/*TODO: select for fossil/md/plain text*/);
   CX("</div></fieldset>\n");
 
-
-  
   /******* Buttons *******/
   CX("<a id='buttons'></a>");
   CX("<fieldset class='fileedit-options'>"
      "<legend>Tell the server to...</legend><div>");
   CX("<button type='submit' name='submit' value='%d'>"
-     "Save</button>", SUBMIT_SAVE);
+     "Commit</button>", SUBMIT_SAVE);
   CX("<button type='submit' name='submit' value='%d'>"
      "Preview</button>", SUBMIT_PREVIEW);
   {
@@ -1515,7 +1516,24 @@ void fileedit_page(){
   /******* End of form *******/    
   CX("</form>\n");
 
+  /*
+  ** We cannot intercept the output for PREVIEW
+  ** and DIFF modes, and therefore have to render those
+  ** last.
+  */
+  if(SUBMIT_PREVIEW==submitMode){
+    int pflags = 0;
+    if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
+    fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags,
+                            previewRenderMode, previewHtmlHeight);
+  }else if(SUBMIT_DIFF_SBS==submitMode
+           || SUBMIT_DIFF_UNIFIED==submitMode){
+    fileedit_render_diff(&cimi.fileContent, frid, cimi.zParentUuid,
+                         SUBMIT_DIFF_SBS==submitMode);
+  }
+
   /* Dynamically populate the editor... */
+  fileedit_emit_script_fetch();
   if(1==loadMode || (2==loadMode && submitMode>SUBMIT_NONE)){
     char const * zQuoted = 0;
     if(blob_size(&cimi.fileContent)>0){
@@ -1532,92 +1550,14 @@ void fileedit_page(){
     }
   }else if(2==loadMode){
     assert(submitMode==SUBMIT_NONE);
-    fileedit_emit_script_fetch();
     blob_appendf(&endScript,
-                 "window.fossilFetch('raw/%s',{"
+                 "window.fossil.fetch('raw/%s',{"
                  "onload: (r)=>document.getElementById('fileedit-content')"
                  ".value=r,"
                  "onerror:()=>document.getElementById('fileedit-content')"
                  ".value="
                  "'Error loading content'"
                  "});\n", zFileUuid);
-  }
-
-  if(SUBMIT_SAVE==submitMode){
-    Blob manifest = empty_blob;
-    char * zNewUuid = 0;
-    /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
-    if(zComment && *zComment){
-      blob_append(&cimi.comment, zComment, -1);
-    }else{
-      fail((&err,"Empty comment is not permitted."));
-    }
-    /*cimi.pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
-      assert(cimi.pParent && "We know vid is valid.");*/
-    cimi.pMfOut = &manifest;
-    checkin_mini(&cimi, &newVid, &err);
-    if(newVid!=0){
-      zNewUuid = rid_to_uuid(newVid);
-      CX("<h3>Manifest%s: %S</h3><pre>"
-         "<code class='fileedit-manifest'>%h</code>"
-         "</pre>",
-         (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
-         zNewUuid, blob_str(&manifest));
-      if(!(CIMINI_DRY_RUN & cimi.flags)){
-        /* We need to update certain form fields and UI elements so
-        ** they're not left pointing to the previous version. While
-        ** we're at it, we'll re-enable dry-run mode for sanity's
-        ** sake.
-        */
-        blob_appendf(&endScript,
-                     "/* Toggle dry-run back on */\n"
-                     "document.querySelector('input[type=checkbox]"
-                     "[name=dry_run]').checked=true;\n");
-        blob_appendf(&endScript,
-                     "/* Update version number */\n"
-                     "document.querySelector('input[name=r]')"
-                     ".value=%Q;\n"
-                     "document.querySelector('#r-label')"
-                     ".innerText=%Q;\n"
-                     "document.querySelector('#r-link')"
-                     ".setAttribute('href', '%R/info/%!S');\n"
-                     "document.querySelector('#finfo-link')"
-                     ".setAttribute('href','%R/finfo?name=%T&m=%!S');\n",
-                     /*input[name=r]:*/zNewUuid, /*#r-label:*/ zNewUuid,
-                     /*#r-link:*/ zNewUuid,
-                     /*#finfo-link:*/zFilename, zNewUuid);
-        blob_appendf(&endScript,
-                     "/* Updated finfo link */"
-                     );
-        blob_appendf(&endScript,
-                     "/* Update permalink */\n"
-                     "const urlFull='%R/fileedit?file=%T&r=%!S';\n"
-                     "const urlShort='/fileedit?file=%T&r=%!S';\n"
-                     "let link=document.querySelector('#permalink');\n"
-                     "link.innerText=urlShort;\n"
-                     "link.setAttribute('href',urlFull);\n",
-                     cimi.zFilename, zNewUuid,
-                     cimi.zFilename, zNewUuid);
-      }
-      fossil_free(zNewUuid);
-      zNewUuid = 0;
-    }
-    /* On error, the error message is in the err blob and will
-    ** be emitted below. */
-    cimi.pMfOut = 0;
-    blob_reset(&manifest);
-  }else if(SUBMIT_PREVIEW==submitMode){
-    int pflags = 0;
-    if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
-    fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags,
-                            previewRenderMode, previewHtmlHeight);
-  }else if(SUBMIT_DIFF_SBS==submitMode
-           || SUBMIT_DIFF_UNIFIED==submitMode){
-    fileedit_render_diff(&cimi.fileContent, frid, cimi.zParentUuid,
-                         SUBMIT_DIFF_SBS==submitMode);
-  }else{
-    /* Ignore invalid submitMode value */
-    goto end_footer;
   }
 
 end_footer:
@@ -1627,18 +1567,21 @@ end_footer:
     db_finalize(&stmt);
   }
   if(blob_size(&err)){
-      CX("<div class='fileedit-error-report'>%s</div>",
-         blob_str(&err));
+    CX("<div class='fileedit-error-report'>%s</div>",
+       blob_str(&err));
+  }else if(blob_size(&submitResult)){
+    CX("%b",&submitResult);
   }
+  blob_reset(&submitResult);
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
   if(blob_size(&endScript)>0){
-    fileedit_emit_script(0);
+    style_emit_script_tag(0);
     CX("(function(){\n");
     CX("try{\n%b\n}catch(e){console.error('Exception:',e)}\n",
        &endScript);
     CX("})();");
-    fileedit_emit_script(1);
+    style_emit_script_tag(1);
   }
   db_end_transaction(0/*noting that dry-run mode will have already
                       ** set this to rollback mode. */);

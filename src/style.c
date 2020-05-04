@@ -1297,3 +1297,137 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 #if INTERFACE
 # define webpage_assert(T) if(!(T)){webpage_assert_page(__FILE__,__LINE__,#T);}
 #endif
+
+/*
+** Outputs a labeled checkbox element. zFieldName is the form element
+** name. zLabel is the label for the checkbox. zValue is the optional
+** value for the checkbox. zTip is an optional tooltip, which gets set
+** as the "title" attribute of the outermost element. If isChecked is
+** true, the checkbox gets the "checked" attribute set, else it is
+** not.
+**
+** Resulting structure:
+**
+** <div class='input-with-label' title={{zTip}}>
+**   <input type='checkbox' name={{zFieldName}} value={{zValue}}
+**          {{isChecked ? " checked : ""}}/>
+**   <span>{{zLabel}}</span>
+** </div>
+**
+** zFieldName, zLabel, and zValue are required. zTip is optional.
+**
+** Be sure that the input-with-label CSS class is defined sensibly, in
+** particular, having its display:inline-block is useful for alignment
+** purposes.
+*/
+void style_labeled_checkbox(const char *zFieldName, const char * zLabel,
+                            const char * zValue, const char * zTip,
+                            int isChecked){
+  CX("<div class='input-with-label'");
+  if(zTip && *zTip){
+    CX(" title='%h'", zTip);
+  }
+  CX("><input type='checkbox' name='%s' value='%T'%s/>",
+     zFieldName,
+     zValue ? zValue : "", isChecked ? " checked" : "");
+  CX("<span>%h</span></div>", zLabel);
+}
+
+/*
+** Outputs a SELECT list from a compile-time list of integers.
+** The vargs must be a list of (const char *, int) pairs, terminated
+** with a single NULL. Each pair is interpreted as...
+**
+** If the (const char *) is NULL, it is the end of the list, else
+** a new OPTION entry is created. If the string is empty, the
+** label and value of the OPTION is the integer part of the pair.
+** If the string is not empty, it becomes the label and the integer
+** the value. If that value == selectedValue then that OPTION
+** element gets the 'selected' attribute.
+**
+** Note that the pairs are not in (int, const char *) order because
+** there is no well-known integer value which we can definitively use
+** as a list terminator.
+**
+** zFieldName is the value of the form element's name attribute.
+**
+** zLabel is an optional string to use as a "label" for the element
+** (see below).
+**
+** zTooltip is an optional value for the SELECT's title attribute.
+**
+** The structure of the emitted HTML is:
+**
+** <div class='input-with-label' title={{zToolTip}}>
+**   <span>{{zLabel}}</span>
+**   <select>...</select>
+** </div>
+**
+** Example:
+**
+** style_select_list_int("my_field", "Grapes",
+**                      "Select the number of grapes",
+**                       atoi(PD("my_field","0")),
+**                       "", 1, "2", 2, "Three", 3,
+**                       NULL);
+** 
+*/
+void style_select_list_int(const char *zFieldName, const char * zLabel,
+                           const char * zToolTip, int selectedVal,
+                           ... ){
+  va_list vargs;
+  va_start(vargs,selectedVal);
+  CX("<div class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<span>%h</span>", zLabel);
+  }
+  CX("<select name='%s'>",zFieldName);
+  while(1){
+    const char * zOption = va_arg(vargs,char *);
+    int v;
+    if(NULL==zOption){
+      break;
+    }
+    v = va_arg(vargs,int);
+    CX("<option value='%d'%s>",
+         v, v==selectedVal ? " selected" : "");
+    if(*zOption){
+      CX("%s", zOption);
+    }else{
+      CX("%d",v);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  if(zLabel && *zLabel){
+    CX("</div>\n");
+  }
+  va_end(vargs);
+}
+
+
+/*
+** If passed 0, it emits a script opener tag with this session's
+** nonce. If passed non-0 it emits a script closing tag. The very
+** first time it is called, it emits some bootstrapping JS code
+** immediately after the script opener. Specifically, it defines
+** window.fossil if it's not already defined, and may set some
+** properties on it.
+*/
+void style_emit_script_tag(int phase){
+  static int once = 0;
+  if(0==phase){
+    CX("<script nonce='%s'>", style_nonce());
+      if(0==once){
+        once = 1;
+        CX("\nif(!window.fossil) window.fossil={};\n");
+        CX("window.fossil.version = %Q;\n", get_version());
+      }
+  }else{
+    CX("</script>\n");
+  }
+}
