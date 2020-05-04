@@ -1,5 +1,5 @@
-C Update\sthe\son-line\sdocumentation\sfor\sthe\s"fossil\sall\ssync"\scommand.
-D 2020-05-04T12:28:23.030
+C setup_settings\spage:\skeep\slabels\son\sthe\sleft\sside\sof\stheir\sentry\sfields.
+D 2020-05-04T16:42:46.168
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -559,7 +559,7 @@ F src/schema.c 9a894b8db01c2b16b9320a5e3fae2a6a0ae3cea1647d10da4af79ea0a5fa26cd
 F src/scroll.js da8de899c727fddec31a99ff0b9b714a87db53ed8798f90bc642326bee7b429e
 F src/search.c 711d196bbb708e177e18b5473ad180c8141b14731b7e94292db0cdcba0e8ad85
 F src/security_audit.c 428dbb93fbf2008c96abd8049d82f11914724c6d4e8153b7708f21e90786bde1
-F src/setup.c 329480f3102062844c7a77aebaf5fd288da6f98af393c52f6421f3b3adefeec3
+F src/setup.c ec514714fab13cacb102994ce4daa8b31ad17df2f7517ea7c3d5370983465d6a
 F src/setupuser.c 4e54d4b194f6edf43bbc3a235788db130d3d5f24241fe9e25a97972374c440be
 F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
@@ -979,7 +979,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4afa51662622f9251cab9fab1a48ee0b087eaeaff78e00a1756ec46fda09878
-R b205edd9092c0dc982dcc1b53511a6ab
-U drh
-Z 1adf2324bf150a6f87708c3bf97cc3ca
+P 12eae3f58af3e44d5659635e146eee1d6eadb630ac119d971348b5935283d8f9
+R f985f6b29bd90dfebeae0e28ce0119b2
+U ashepilko
+Z 1e061c3b9c8ade8c5c425b7baaa360d3
