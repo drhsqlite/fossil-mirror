@@ -1061,6 +1061,41 @@ static void fileedit_render_preview(Blob * pContent,
 }
 
 /*
+** Renders diffs for the /fileedit page. pContent is the
+** locally-edited content.  frid is the RID of the file's blob entry
+** from which pContent is based.  zManifestUuid is the checkin version
+** to which RID belongs - it is purely informational, for labeling the
+** diff view. isSbs is true for side-by-side diffs, false for unified.
+*/
+static void fileedit_render_diff(Blob * pContent, int frid,
+                                 const char * zManifestUuid,
+                                 int isSbs){
+  Blob orig = empty_blob;
+  Blob out = empty_blob;
+  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR;
+
+  content_get(frid, &orig);
+  if(isSbs){
+    diffFlags |=  DIFF_SIDEBYSIDE;
+  }else{
+    diffFlags |= DIFF_LINENO;
+  }
+  text_diff(&orig, pContent, &out, 0, diffFlags);
+  CX("<div class='fileedit-diff'>");
+  CX("<div>Diff <code>[%S]</code> &rarr; Local Edits</div>",
+     zManifestUuid);
+  if(isSbs){
+    CX("%b",&out);
+  }else{
+    CX("<pre class='udiff'>%b</pre>",&out);
+  }
+  CX("</div><!--.fileedit-diff-->\n");
+  blob_reset(&orig);
+  blob_reset(&out);
+  /* Wow, that was *easy*. */
+}
+
+/*
 ** Outputs a SELECT list from a compile-time list of integers.
 ** The vargs must be a list of (const char *, int) pairs, terminated
 ** with a single NULL. Each pair is interpreted as...
@@ -1158,8 +1193,9 @@ void style_select_list_int(const char *zFieldName,
 */
 void fileedit_page(){
   enum submit_modes {
-  SUBMIT_NONE = 0, SUBMIT_SAVE = 1, SUBMIT_PREVIEW = 2,
-  SUBMIT_DIFF = 3
+  SUBMIT_NONE = 0, SUBMIT_SAVE, SUBMIT_PREVIEW,
+  SUBMIT_DIFF_SBS, SUBMIT_DIFF_UNIFIED,
+  SUBMIT_end /* sentinel for range validation */
   };
   const char * zFilename = PD("file",P("name"));
                                         /* filename. We'll accept 'name'
@@ -1217,7 +1253,7 @@ void fileedit_page(){
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
   submitMode = atoi(PD("submit","0"));
-  if(submitMode < SUBMIT_NONE || submitMode > SUBMIT_DIFF){
+  if(submitMode < SUBMIT_NONE || submitMode >= SUBMIT_end){
     submitMode = 0;
   }
   zFlagCheck = P("comment_mimetype");
@@ -1471,7 +1507,9 @@ void fileedit_page(){
     }
   }
   CX("<button type='submit' name='submit' value='3'>"
-     "Diff (TODO)</button>");
+     "Diff (SBS)</button>");
+  CX("<button type='submit' name='submit' value='4'>"
+     "Diff (Unified)</button>");
   CX("</div></fieldset>");
 
   /******* End of form *******/    
@@ -1573,8 +1611,10 @@ void fileedit_page(){
     if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
     fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags,
                             previewRenderMode, previewHtmlHeight);
-  }else if(SUBMIT_DIFF==submitMode/*diff*/){
-    fail((&err,"Diff mode is still TODO."));
+  }else if(SUBMIT_DIFF_SBS==submitMode
+           || SUBMIT_DIFF_UNIFIED==submitMode){
+    fileedit_render_diff(&cimi.fileContent, frid, cimi.zParentUuid,
+                         SUBMIT_DIFF_SBS==submitMode);
   }else{
     /* Ignore invalid submitMode value */
     goto end_footer;

@@ -874,13 +874,13 @@ form.fileedit fieldset {
   border-width: 1px;
 }
 form.fileedit fieldset > legend {
-  margin-left: 1em;
+  margin: 0 0 0 1em;
+  padding: 0 0.5em 0 0.5em;
 }
 form.fileedit fieldset > div {
-  margin: 0 0.25em;
+  margin: 0 0.25em 0.25em 0.25em;
 }
 form.fileedit fieldset > div > .input-with-label {
-  padding: 0.5em;
   margin: 0.25em 0.5em;
 }
 form.fileedit fieldset > div > button {
@@ -910,6 +910,14 @@ div.fileedit-preview {
   padding: 0;
 }
 .fileedit-preview > div:first-child {
+  margin: 1em 0 0 0;
+  border-bottom: 1px dashed;
+}
+div.fileedit-diff {
+  margin: 0;
+  padding: 0;
+}
+.fileedit-diff > div:first-child {
   border-bottom: 1px dashed;
 }
 
