@@ -995,7 +995,8 @@ enum fileedit_render_preview_flags {
 FE_PREVIEW_LINE_NUMBERS = 1
 };
 enum fileedit_render_modes {
-FE_RENDER_PLAIN_TEXT = 0,
+FE_RENDER_GUESS = 0,
+FE_RENDER_PLAIN_TEXT,
 FE_RENDER_HTML,
 FE_RENDER_WIKI
 };
@@ -1018,12 +1019,13 @@ static int fileedit_render_mode_for_mimetype(const char * zMimetype){
 */
 static void fileedit_render_preview(Blob * pContent,
                                     const char *zFilename,
-                                    int flags,
+                                    int flags, int renderMode,
                                     int nIframeHeightEm){
   const char * zMime;
-  int renderMode = FE_RENDER_PLAIN_TEXT;
   zMime = mimetype_from_name(zFilename);
+  if(FE_RENDER_GUESS==renderMode){
     renderMode = fileedit_render_mode_for_mimetype(zMime);
+  }
   CX("<div class='fileedit-preview'>");
   CX("<div>Preview</div>");
   switch(renderMode){
@@ -1040,7 +1042,6 @@ static void fileedit_render_preview(Blob * pContent,
     case FE_RENDER_WIKI:
       wiki_render_by_mimetype(pContent, zMime);
       break;
-    case FE_RENDER_PLAIN_TEXT:
     default:{
       const char *zExt = strrchr(zFilename,'.');
       const char *zContent = blob_str(pContent);
@@ -1093,6 +1094,7 @@ void fileedit_page(){
   int frid = 0;                         /* File content rid */
   int previewLn = P("preview_ln")!=0;   /* Line number mode */
   int previewHtmlHeight = 0;            /* iframe height (EMs) */
+  int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
   char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
   const char * zFlagCheck = 0;          /* Temp url flag holder */
@@ -1344,11 +1346,29 @@ void fileedit_page(){
   CX("<button type='submit' name='submit' value='3'>"
      "Diff (TODO)</button>");
   {
-    /* Options which depend on the current submitMode or
-       the file's preview rendering mode. */
-    const int renderMode = fileedit_render_mode_for_mimetype(zFileMime);
+    /* Preview rendering mode selection... */
+    previewRenderMode = atoi(PD("preview_render_mode","0"));
+    if(0==previewRenderMode){
+      previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
+    }
     CX("<br>");
-    if(FE_RENDER_HTML==renderMode){
+    CX("<select name='preview_render_mode'>\n");
+    CX("<option value='%d' disabled>Preview Mode</option>",
+       FE_RENDER_GUESS);
+    CX("<option value='%d'%s>Guess</option>",
+       FE_RENDER_GUESS,
+       FE_RENDER_GUESS==previewRenderMode ? " selected" : "");
+    CX("<option value='%d'%s>Wiki/Markdown</option>",
+       FE_RENDER_WIKI,
+       FE_RENDER_WIKI==previewRenderMode ? " selected" : "");
+    CX("<option value='%d'%s>HTML (iframe)</option>",
+       FE_RENDER_HTML,
+       FE_RENDER_HTML==previewRenderMode ? " selected" : "");
+    CX("<option value='%d'%s>Plain Text</option>",
+       FE_RENDER_PLAIN_TEXT,
+       FE_RENDER_PLAIN_TEXT==previewRenderMode ? " selected" : "");
+    CX("</select>\n");
+    if(FE_RENDER_HTML==previewRenderMode){
       /* HTML preview mode iframe height... */
       int i;
       if(submitMode==SUBMIT_PREVIEW){
@@ -1368,7 +1388,7 @@ void fileedit_page(){
       }
       CX("</select>\n");
     }
-    else if(FE_RENDER_PLAIN_TEXT == renderMode){
+    else if(FE_RENDER_PLAIN_TEXT==previewRenderMode){
       style_labeled_checkbox("preview_ln",
                              "Add line numbers to plain-text previews?",
                              "1",
@@ -1477,7 +1497,7 @@ void fileedit_page(){
     int pflags = 0;
     if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
     fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags,
-                            previewHtmlHeight);
+                            previewRenderMode, previewHtmlHeight);
   }else if(SUBMIT_DIFF==submitMode/*diff*/){
     fail((&err,"Diff mode is still TODO."));
   }else{
