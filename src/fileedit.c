@@ -994,60 +994,53 @@ static void style_labeled_checkbox(const char *zFieldName,
 enum fileedit_render_preview_flags {
 FE_PREVIEW_LINE_NUMBERS = 1
 };
+enum fileedit_render_modes {
+FE_RENDER_PLAIN_TEXT = 0,
+FE_RENDER_HTML,
+FE_RENDER_WIKI
+};
+
+static int fileedit_render_mode_for_mimetype(const char * zMimetype){
+  int rc = FE_RENDER_PLAIN_TEXT;
+  if( zMimetype ){
+    if( fossil_strcmp(zMimetype, "text/html")==0 ){
+      rc = FE_RENDER_HTML;
+    }else if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0
+              || fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
+      rc = FE_RENDER_WIKI;
+    }
+  }
+  return rc;
+}
 
 /*
 ** Performs the PREVIEW mode for /filepage.
 */
 static void fileedit_render_preview(Blob * pContent,
                                     const char *zFilename,
-                                    int flags){
+                                    int flags,
+                                    int nIframeHeightEm){
   const char * zMime;
-  enum render_modes {PLAIN_TEXT = 0, HTML, WIKI};
-  int renderMode = PLAIN_TEXT;
+  int renderMode = FE_RENDER_PLAIN_TEXT;
   zMime = mimetype_from_name(zFilename);
-  if( zMime ){
-    if( fossil_strcmp(zMime, "text/html")==0 ){
-      renderMode = HTML;
-    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
-              || fossil_strcmp(zMime, "text/x-markdown")==0 ){
-      renderMode = WIKI;
-    }
-  }
+    renderMode = fileedit_render_mode_for_mimetype(zMime);
   CX("<div class='fileedit-preview'>");
   CX("<div>Preview</div>");
   switch(renderMode){
-    case HTML:{
+    case FE_RENDER_HTML:{
+      char * z64 = encode64(blob_str(pContent), blob_size(pContent));
       CX("<iframe width='100%%' frameborder='0' marginwidth='0' "
+         "style='height:%dem' "
          "marginheight='0' sandbox='allow-same-origin' id='ifm1' "
-         "srcdoc='Not yet working: not sure how to "
-         "populate the iframe.'"
-         "></iframe>");
-#if 0
-      fileedit_emit_script(0);
-      CX("document.getElementById('ifm1').addEventListener('load',"
-         "function(){\n"
-         "console.debug('iframe=',this);\n"
-         "this.height=this.contentDocument.documentElement."
-         "scrollHeight + 75;\n"
-         "this.contentDocument.body.innerHTML=`%h`;\n"
-         "});\n",
-         blob_str(pContent));
-      /* Potential TODO: use iframe.srcdoc:
-      **
-      ** https://caniuse.com/#search=srcdoc
-      ** https://stackoverflow.com/questions/22381216/escape-quotes-in-an-iframe-srcdoc-value
-      **
-      ** Doing so would require escaping the quote characters which match
-      ** the srcdoc='xyz' quotes.
-      */
-      fileedit_emit_script(1);
-#endif
+         "src='data:text/html;base64,%z'"
+         "></iframe>", nIframeHeightEm ? nIframeHeightEm : 40,
+         z64);
       break;
     }
-    case WIKI:
+    case FE_RENDER_WIKI:
       wiki_render_by_mimetype(pContent, zMime);
       break;
-    case PLAIN_TEXT:
+    case FE_RENDER_PLAIN_TEXT:
     default:{
       const char *zExt = strrchr(zFilename,'.');
       const char *zContent = blob_str(pContent);
@@ -1082,6 +1075,10 @@ static void fileedit_render_preview(Blob * pContent,
 ** this code.
 */
 void fileedit_page(){
+  enum submit_modes {
+  SUBMIT_NONE = 0, SUBMIT_SAVE = 1, SUBMIT_PREVIEW = 2,
+  SUBMIT_DIFF = 3
+  };
   const char * zFilename = PD("file",P("name"));
                                         /* filename. We'll accept 'name'
                                            because that param is handled
@@ -1089,11 +1086,13 @@ void fileedit_page(){
   const char * zRev = P("r");           /* checkin version */
   const char * zContent = P("content"); /* file content */
   const char * zComment = P("comment"); /* checkin comment */
+  const char * zFileMime = 0;           /* File mime type guess */
   CheckinMiniInfo cimi;                 /* Checkin state */
-  int submitMode = 0;                   /* See mapping below */
+  int submitMode = SUBMIT_NONE;         /* See mapping below */
   int vid, newVid = 0;                  /* checkin rid */
   int frid = 0;                         /* File content rid */
   int previewLn = P("preview_ln")!=0;   /* Line number mode */
+  int previewHtmlHeight = 0;            /* iframe height (EMs) */
   char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
   const char * zFlagCheck = 0;          /* Temp url flag holder */
@@ -1134,9 +1133,10 @@ void fileedit_page(){
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
-  submitMode = atoi(PD("submit","0"))
-    /* Submit modes: 0=initial request,
-    ** 1=submit (save), 2=preview, 3=diff */;
+  submitMode = atoi(PD("submit","0"));
+  if(submitMode < SUBMIT_NONE || submitMode > SUBMIT_DIFF){
+    submitMode = 0;
+  }
   zFlagCheck = P("comment_mimetype");
   if(zFlagCheck){
     cimi.zMimetype = mprintf("%s",zFlagCheck);
@@ -1164,6 +1164,7 @@ void fileedit_page(){
     fail((&err,"Could not resolve checkin version."));
   }
   cimi.zFilename = mprintf("%s",zFilename);
+  zFileMime = mimetype_from_name(zFilename);
 
   /* Find the repo-side file entry or fail... */
   cimi.zParentUuid = rid_to_uuid(vid);
@@ -1224,9 +1225,8 @@ void fileedit_page(){
      "significant bugs. USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
   
-  CX("<form action='%R/fileedit%s' method='POST' "
-     "class='fileedit-form'>\n",
-     submitMode>0 ? "#options" : "");
+  CX("<form action='%R/fileedit#options' method='POST' "
+     "class='fileedit-form'>\n");
 
   /******* Hidden fields *******/
   CX("<input type='hidden' name='r' value='%s'>",
@@ -1265,7 +1265,7 @@ void fileedit_page(){
   ** TODO?: date-override date selection field. Maybe use
   ** an input[type=datetime-local].
   */
-  if(0==submitMode || P("dry_run")!=0){
+  if(SUBMIT_NONE==submitMode || P("dry_run")!=0){
     cimi.flags |= CIMINI_DRY_RUN;
   }
   style_labeled_checkbox("dry_run", "Dry-run?", "1",
@@ -1312,7 +1312,8 @@ void fileedit_page(){
                          "so. This option is only a suggestion.",
                          cimi.flags & CIMINI_PREFER_DELTA);
   {/* EOL conversion policy... */
-    const int eolMode = submitMode==0 ? 0 : atoi(PD("eol","0"));
+    const int eolMode = submitMode==SUBMIT_NONE
+      ? 0 : atoi(PD("eol","0"));
     switch(eolMode){
       case 1: cimi.flags |= CIMINI_CONVERT_EOL_UNIX; break;
       case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
@@ -1342,19 +1343,47 @@ void fileedit_page(){
      "Preview</button>");
   CX("<button type='submit' name='submit' value='3'>"
      "Diff (TODO)</button>");
-  CX("<br>");
-  style_labeled_checkbox("preview_ln",
-                         "Add line numbers to plain-text previews?", "1",
-                         "If on, plain-text files (only) will get "
-                         "line numbers added to the preview.",
-                         previewLn);
+  {
+    /* Options which depend on the current submitMode or
+       the file's preview rendering mode. */
+    const int renderMode = fileedit_render_mode_for_mimetype(zFileMime);
+    CX("<br>");
+    if(FE_RENDER_HTML==renderMode){
+      /* HTML preview mode iframe height... */
+      int i;
+      if(submitMode==SUBMIT_PREVIEW){
+        previewHtmlHeight = atoi(PD("preview_html_ems","0"));
+      }else{
+        previewHtmlHeight = 40;
+      }
+      /* Allow selection of HTML preview iframe height */
+      CX("<select name='preview_html_ems' "
+         "title='Height (in EMs) of the iframe used for HTML "
+         "preview.'>\n");
+      CX("<option disabled value='40'>HTML Preview Height (EMs)"
+         "</option>\n");
+      for( i = 20; i <= 100; i+=20 ){
+        CX("<option value='%d'%s>%d</option>\n",
+           i, (previewHtmlHeight==i) ? " selected" : "", i);
+      }
+      CX("</select>\n");
+    }
+    else if(FE_RENDER_PLAIN_TEXT == renderMode){
+      style_labeled_checkbox("preview_ln",
+                             "Add line numbers to plain-text previews?",
+                             "1",
+                             "If on, plain-text files (only) will get "
+                             "line numbers added to the preview.",
+                             previewLn);
+    }
+  }
   CX("</div></fieldset>");
 
   /******* End of form *******/    
   CX("</form>\n");
 
   /* Dynamically populate the editor... */
-  if(1==loadMode || (2==loadMode && submitMode>0)){
+  if(1==loadMode || (2==loadMode && submitMode>SUBMIT_NONE)){
     char const * zQuoted = 0;
     if(blob_size(&cimi.fileContent)>0){
       db_prepare(&stmt, "SELECT json_quote(%B)", &cimi.fileContent);
@@ -1369,7 +1398,7 @@ void fileedit_page(){
       db_finalize(&stmt);
     }
   }else if(2==loadMode){
-    assert(submitMode==0);
+    assert(submitMode==SUBMIT_NONE);
     fileedit_emit_script_fetch();
     blob_appendf(&endScript,
                  "window.fossilFetch('raw/%s',{"
@@ -1381,7 +1410,7 @@ void fileedit_page(){
                  "});\n", zFileUuid);
   }
 
-  if(1==submitMode/*save*/){
+  if(SUBMIT_SAVE==submitMode){
     Blob manifest = empty_blob;
     char * zNewUuid = 0;
     /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
@@ -1444,11 +1473,12 @@ void fileedit_page(){
     ** be emitted below. */
     cimi.pMfOut = 0;
     blob_reset(&manifest);
-  }else if(2==submitMode/*preview*/){
+  }else if(SUBMIT_PREVIEW==submitMode){
     int pflags = 0;
     if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
-    fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags);
-  }else if(3==submitMode/*diff*/){
+    fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags,
+                            previewHtmlHeight);
+  }else if(SUBMIT_DIFF==submitMode/*diff*/){
     fail((&err,"Diff mode is still TODO."));
   }else{
     /* Ignore invalid submitMode value */
