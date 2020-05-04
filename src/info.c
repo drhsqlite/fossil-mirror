@@ -1458,6 +1458,9 @@ int object_description(
       @ %z(href("%R/blame?filename=%T&checkin=%!S",zName,zVers))
       @ [blame]</a>
       @ %z(href("%R/timeline?n=all&uf=%!S",zUuid))[check-ins&nbsp;using]</a>
+      if( fileedit_is_editable(zName) ){
+        @ %z(href("%R/fileedit?file=%T&r=%!S",zName,zVers))[edit]</a>
+      }
     }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){

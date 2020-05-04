@@ -623,6 +623,9 @@ void finfo_page(void){
       if( fpid>0 ){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
+      if( fileedit_is_editable(zFilename) ){
+        @ %z(href("%R/fileedit?file=%T&r=%!S",zFilename,zCkin))[edit]</a>
+      }
       @ </span></span>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){

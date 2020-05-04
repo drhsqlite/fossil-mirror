@@ -1,5 +1,5 @@
-C Add\sthe\ssubmit\sbutton\sIDs\sprogrammatically\s(was\spreviously\shand-coded),\sto\savoid\sthem\sgetting\sout\sof\ssync\swith\stheir\senum.
-D 2020-05-04T17:48:08.287
+C Added\s/fileedit\slinks\sto\s/finfo\sand\s/artifact.
+D 2020-05-04T20:16:27.148
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -480,7 +480,7 @@ F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
 F src/fileedit.c 5175c583dc700f4878bfa809c052d904f51a325c1ebd94104cfd0c97eaf0a8d9
-F src/finfo.c 4387af681d114ed73b82914162abf71f6df6f97b59cc7f8ed4bfb387a4e4d2c8
+F src/finfo.c 9a092785f3aa93b9789d7888f14361bf9610ff5f1733eeee20cef3662f7bcf34
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
@@ -498,7 +498,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 604b68c2258c337f18690aaffbe61a1106cf4b35e425eb2455c3c64e7e87bea8
+F src/info.c 1c6a45c7807e2f377589132899c3004816f765bd2ee2b097ad99c6cca0b77817
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -979,7 +979,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ae8e24d0217191c8bc3debfe2f4b5fedcbac41e0a35a589fcc8b0639d151a642
-R c7563e5fa7c8ef09901b6b877bff4d01
+P 032a0326e86d37ef8faea0a82486392bbade5dd1bf24a6b80b9db23b1bad49cf
+R fd41a006a9cc2dfa8960ddc3d2b2cd06
 U stephan
-Z f2dbce8460fb2b6c1dbbebbfd53f5678
+Z 77e792f332e3d92332a313d8cfbeb64e
