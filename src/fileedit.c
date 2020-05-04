@@ -907,11 +907,38 @@ static void fileedit_emit_script(int phase){
   }
 }
 
-#if 0
 /*
-** This function is for potential TODO features for /fileedit.
-** It's been tested with that code but is not currently used
-** by it.
+** Emits a script tag which defines window.fossilFetch(), which works
+** similarly (not identically) to the not-quite-ubiquitous global
+** fetch().
+**
+** JS usages:
+**
+** fossilFetch( URI, onLoadCallback );
+**
+** fossilFetch( URI, optionsObject );
+**
+** Where the optionsObject may be an object with any of these
+** properties:
+**
+** - onload: callback(responseData) (default = output response to
+**   console).
+**
+** - onerror: callback(XHR onload event) (default = no-op)
+**
+** - method: 'POST' | 'GET' (default = 'GET')
+**
+** Noting that URI must be relative to the top of the repository and
+** must not start with a slash. It gets %R/ prepended to it.
+**
+** TODOs, if needed, include:
+**
+** optionsObject.params: object map of key/value pairs to append to the
+** URI.
+**
+** optionsObject.payload: string or JSON-able object to POST as the
+** payload.
+**
 */
 static void fileedit_emit_script_fetch(){
   fileedit_emit_script(0);
@@ -937,7 +964,6 @@ static void fileedit_emit_script_fetch(){
   CX("};\n");
   fileedit_emit_script(1);
 };
-#endif /* fileedit_emit_script_fetch() */
 
 /*
 ** Outputs a labeled checkbox element:
@@ -965,6 +991,80 @@ static void style_labeled_checkbox(const char *zFieldName,
   CX("<span>%h</span></span>", zLabel);
 }
 
+enum fileedit_render_preview_flags {
+FE_PREVIEW_LINE_NUMBERS = 1
+};
+
+/*
+** Performs the PREVIEW mode for /filepage.
+*/
+static void fileedit_render_preview(Blob * pContent,
+                                    const char *zFilename,
+                                    int flags){
+  const char * zMime;
+  enum render_modes {PLAIN_TEXT = 0, HTML, WIKI};
+  int renderMode = PLAIN_TEXT;
+  zMime = mimetype_from_name(zFilename);
+  if( zMime ){
+    if( fossil_strcmp(zMime, "text/html")==0 ){
+      renderMode = HTML;
+    }else if( fossil_strcmp(zMime, "text/x-fossil-wiki")==0
+              || fossil_strcmp(zMime, "text/x-markdown")==0 ){
+      renderMode = WIKI;
+    }
+  }
+  CX("<div class='fileedit-preview'>");
+  CX("<div>Preview</div>");
+  switch(renderMode){
+    case HTML:{
+      CX("<iframe width='100%%' frameborder='0' marginwidth='0' "
+         "marginheight='0' sandbox='allow-same-origin' id='ifm1' "
+         "srcdoc='Not yet working: not sure how to "
+         "populate the iframe.'"
+         "></iframe>");
+#if 0
+      fileedit_emit_script(0);
+      CX("document.getElementById('ifm1').addEventListener('load',"
+         "function(){\n"
+         "console.debug('iframe=',this);\n"
+         "this.height=this.contentDocument.documentElement."
+         "scrollHeight + 75;\n"
+         "this.contentDocument.body.innerHTML=`%h`;\n"
+         "});\n",
+         blob_str(pContent));
+      /* Potential TODO: use iframe.srcdoc:
+      **
+      ** https://caniuse.com/#search=srcdoc
+      ** https://stackoverflow.com/questions/22381216/escape-quotes-in-an-iframe-srcdoc-value
+      **
+      ** Doing so would require escaping the quote characters which match
+      ** the srcdoc='xyz' quotes.
+      */
+      fileedit_emit_script(1);
+#endif
+      break;
+    }
+    case WIKI:
+      wiki_render_by_mimetype(pContent, zMime);
+      break;
+    case PLAIN_TEXT:
+    default:{
+      const char *zExt = strrchr(zFilename,'.');
+      const char *zContent = blob_str(pContent);
+      if(FE_PREVIEW_LINE_NUMBERS & flags){
+        output_text_with_line_numbers(zContent, "on");
+      }else if(zExt && zExt[1]){
+        CX("<pre><code class='language-%s'>%h</code></pre>",
+           zExt+1, zContent);
+      }else{
+        CX("<pre>%h</pre>", zExt+1, zContent);
+      }
+      break;
+    }
+  }
+  CX("</div><!--.fileedit-preview-->\n");
+}
+
 /*
 ** WEBPAGE: fileedit
 **
@@ -982,15 +1082,19 @@ static void style_labeled_checkbox(const char *zFieldName,
 ** this code.
 */
 void fileedit_page(){
-  const char * zFilename = PD("file",P("name")); /* filename */
+  const char * zFilename = PD("file",P("name"));
+                                        /* filename. We'll accept 'name'
+                                           because that param is handled
+                                           specially by the core. */
   const char * zRev = P("r");           /* checkin version */
   const char * zContent = P("content"); /* file content */
   const char * zComment = P("comment"); /* checkin comment */
   CheckinMiniInfo cimi;                 /* Checkin state */
   int submitMode = 0;                   /* See mapping below */
   int vid, newVid = 0;                  /* checkin rid */
-  char * zFileUuid = 0;                 /* File content UUID */
   int frid = 0;                         /* File content rid */
+  int previewLn = P("preview_ln")!=0;   /* Line number mode */
+  char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
   const char * zFlagCheck = 0;          /* Temp url flag holder */
   Blob endScript = empty_blob;          /* Script code to run at the
@@ -1000,8 +1104,29 @@ void fileedit_page(){
                                            entry must end with a
                                            semicolon. */
   Stmt stmt = empty_Stmt;
+  const int loadMode = 0;               /* See next comment block */
+  /* loadMode: How to populate the TEXTAREA:
+  **
+  ** 0: HTML encode: despite my personal reservations regarding HTML
+  ** escaping, this seems to be the only reliable approach
+  ** until/unless we completely AJAXify this page.
+  **
+  ** 1: JSON mode: JSON-izes the file content and injects it, via JS,
+  ** into the editor TEXTAREA. This works wonderfully until the input
+  ** file contains an raw <SCRIPT> tag, at which points the HTML
+  ** parser chokes on it.
+  **
+  ** 2: AJAX mode: can only load content from the db, not preview/dry-run
+  ** content. Unless this page is refactored to work solely over AJAX
+  ** (which is a potential TODO), this method is only useful on the
+  ** initial hit to this page, where the file is loaded.
+  **
+  ** loadMode is not generally configurable: change it only for
+  ** testing/development purposes.
+  */
 #define fail(EXPR) blob_appendf EXPR; goto end_footer
 
+  assert(loadMode==0 || loadMode==1 || loadMode==2);
   login_check_credentials();
   if( !g.perm.Write ){
     login_needed(g.anon.Write);
@@ -1025,7 +1150,8 @@ void fileedit_page(){
   ** cleanup and end the transaction cleanly.
   */
   if(!zRev || !*zRev || !zFilename || !*zFilename){
-    fail((&err,"Missing required URL parameters."));
+    fail((&err,"Missing required URL parameters: "
+          "file=FILE and r=CHECKIN"));
   }
   if(0==fileedit_is_editable(zFilename)){
     fail((&err,"Filename <code>%h</code> is disallowed "
@@ -1037,6 +1163,7 @@ void fileedit_page(){
   if(0==vid){
     fail((&err,"Could not resolve checkin version."));
   }
+  cimi.zFilename = mprintf("%s",zFilename);
 
   /* Find the repo-side file entry or fail... */
   cimi.zParentUuid = rid_to_uuid(vid);
@@ -1077,9 +1204,14 @@ void fileedit_page(){
 
   CX("<h1>Editing:</h1>");
   CX("<p class='fileedit-hint'>");
-  CX("File: <code>%h</code><br>"
-     "Checkin Version: <code id='r-label'>%s</code><br>",
-     zFilename, cimi.zParentUuid);
+  CX("File: "
+     "[<a id='finfo-link' href='%R/finfo?name=%T&m=%!S'>info</a>] "
+     "<code>%h</code><br>",
+     zFilename, zFileUuid, zFilename);
+  CX("Checkin Version: "
+     "[<a id='r-link' href='%R/info/%!S'>info</a>] "
+     "<code id='r-label'>%s</code><br>",
+     cimi.zParentUuid, cimi.zParentUuid);
   CX("Permalink: <code>"
      "<a id='permalink' href='%R/fileedit?file=%T&r=%!S'>"
      "/fileedit?file=%T&r=%!S</a></code><br>"
@@ -1092,8 +1224,9 @@ void fileedit_page(){
      "significant bugs. USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
   
-  CX("<form action='%R/fileedit' method='POST' "
-     "class='fileedit-form'>\n");
+  CX("<form action='%R/fileedit%s' method='POST' "
+     "class='fileedit-form'>\n",
+     submitMode>0 ? "#options" : "");
 
   /******* Hidden fields *******/
   CX("<input type='hidden' name='r' value='%s'>",
@@ -1115,10 +1248,15 @@ void fileedit_page(){
   CX("<h3>File Content</h3>\n");
   CX("<textarea name='content' id='fileedit-content' "
      "rows='20' cols='80'>");
-  CX("Loading...");
+  if(0==loadMode){
+    CX("%h",blob_str(&cimi.fileContent));
+  }else{
+    CX("Loading...");
+    /* Performed via JS later on */
+  }
   CX("</textarea>\n");
   /******* Flags/options *******/
-  CX("<fieldset class='fileedit-options'>"
+  CX("<fieldset class='fileedit-options' id='options'>"
      "<legend>Options</legend><div>"
      /* Chrome does not sanely lay out multiple
      ** fieldset children after the <legend>, so
@@ -1194,32 +1332,29 @@ void fileedit_page(){
 
   CX("</div></fieldset>") /* end of checkboxes */;
 
-  /******* Buttons *******/  
+  /******* Buttons *******/
+  CX("<a id='buttons'></a>");
   CX("<fieldset class='fileedit-options'>"
      "<legend>Tell the server to...</legend><div>");
   CX("<button type='submit' name='submit' value='1'>"
      "Save</button>");
   CX("<button type='submit' name='submit' value='2'>"
-     "Preview (TODO)</button>");
+     "Preview</button>");
   CX("<button type='submit' name='submit' value='3'>"
      "Diff (TODO)</button>");
+  CX("<br>");
+  style_labeled_checkbox("preview_ln",
+                         "Add line numbers to plain-text previews?", "1",
+                         "If on, plain-text files (only) will get "
+                         "line numbers added to the preview.",
+                         previewLn);
   CX("</div></fieldset>");
 
   /******* End of form *******/    
   CX("</form>\n");
 
-  {
-    /* Populate the editor...
-    **
-    ** To avoid all escaping-related issues, we have to do this one of
-    ** two ways:
-    **
-    ** 1) Fetch the content via AJAX. That only works if the content
-    **    is already in the db, but not for edited versions.
-    **
-    ** 2) Store the content as JSON and feed it into the textarea
-    **    using JavaScript.
-    */
+  /* Dynamically populate the editor... */
+  if(1==loadMode || (2==loadMode && submitMode>0)){
     char const * zQuoted = 0;
     if(blob_size(&cimi.fileContent)>0){
       db_prepare(&stmt, "SELECT json_quote(%B)", &cimi.fileContent);
@@ -1233,6 +1368,17 @@ void fileedit_page(){
     if(stmt.pStmt){
       db_finalize(&stmt);
     }
+  }else if(2==loadMode){
+    assert(submitMode==0);
+    fileedit_emit_script_fetch();
+    blob_appendf(&endScript,
+                 "window.fossilFetch('raw/%s',{"
+                 "onload: (r)=>document.getElementById('fileedit-content')"
+                 ".value=r,"
+                 "onerror:()=>document.getElementById('fileedit-content')"
+                 ".value="
+                 "'Error loading content'"
+                 "});\n", zFileUuid);
   }
 
   if(1==submitMode/*save*/){
@@ -1246,7 +1392,6 @@ void fileedit_page(){
     }
     /*cimi.pParent = manifest_get(vid, CFTYPE_MANIFEST, 0);
       assert(cimi.pParent && "We know vid is valid.");*/
-    cimi.zFilename = mprintf("%s",zFilename);
     cimi.pMfOut = &manifest;
     checkin_mini(&cimi, &newVid, &err);
     if(newVid!=0){
@@ -1271,8 +1416,17 @@ void fileedit_page(){
                      "document.querySelector('input[name=r]')"
                      ".value=%Q;\n"
                      "document.querySelector('#r-label')"
-                     ".innerText=%Q;\n",
-                     zNewUuid, zNewUuid);
+                     ".innerText=%Q;\n"
+                     "document.querySelector('#r-link')"
+                     ".setAttribute('href', '%R/info/%!S');\n"
+                     "document.querySelector('#finfo-link')"
+                     ".setAttribute('href','%R/finfo?name=%T&m=%!S');\n",
+                     /*input[name=r]:*/zNewUuid, /*#r-label:*/ zNewUuid,
+                     /*#r-link:*/ zNewUuid,
+                     /*#finfo-link:*/zFilename, zNewUuid);
+        blob_appendf(&endScript,
+                     "/* Updated finfo link */"
+                     );
         blob_appendf(&endScript,
                      "/* Update permalink */\n"
                      "const urlFull='%R/fileedit?file=%T&r=%!S';\n"
@@ -1280,7 +1434,8 @@ void fileedit_page(){
                      "let link=document.querySelector('#permalink');\n"
                      "link.innerText=urlShort;\n"
                      "link.setAttribute('href',urlFull);\n",
-                     zFilename, zNewUuid, zFilename, zNewUuid);
+                     cimi.zFilename, zNewUuid,
+                     cimi.zFilename, zNewUuid);
       }
       fossil_free(zNewUuid);
       zNewUuid = 0;
@@ -1290,8 +1445,9 @@ void fileedit_page(){
     cimi.pMfOut = 0;
     blob_reset(&manifest);
   }else if(2==submitMode/*preview*/){
-    /* TODO */
-    fail((&err,"Preview mode is still TODO."));
+    int pflags = 0;
+    if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
+    fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags);
   }else if(3==submitMode/*diff*/){
     fail((&err,"Diff mode is still TODO."));
   }else{

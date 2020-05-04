@@ -864,6 +864,7 @@ label {
 // }
 // .fileedit-XXX => /fileedit page
 .fileedit-form textarea {
+  font-family: monospace;
   width: 100%;
 }
 .fileedit-form fieldset {
@@ -894,6 +895,13 @@ code.fileedit-manifest {
   display: block;
   height: 16em;
   overflow: auto;
+}
+div.fileedit-preview {
+  margin: 0;
+  padding: 0;
+}
+.fileedit-preview > div:first-child {
+  border-bottom: 1px dashed;
 }
 .input-with-label {
   border: 1px inset #808080;
