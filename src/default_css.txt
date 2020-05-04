@@ -863,22 +863,31 @@ label {
 //   overflow: auto;
 // }
 // .fileedit-XXX => /fileedit page
-.fileedit-form textarea {
+form.fileedit textarea {
   font-family: monospace;
   width: 100%;
 }
-.fileedit-form fieldset {
+form.fileedit fieldset {
+  margin: 0.5em 0 0 0;
   border-radius: 0.5em;
+  border-color: inherit;
+  border-width: 1px;
 }
-.fileedit-form .fileedit-options {
+form.fileedit fieldset > legend {
+  margin-left: 1em;
+}
+form.fileedit fieldset > div {
+  margin: 0 0.25em;
+}
+form.fileedit fieldset > div > .input-with-label {
   padding: 0.5em;
-  margin: 1em 0 0 0;
+  margin: 0.25em 0.5em;
 }
-.fileedit-form .fileedit-buttons > div > * {
-  margin: 0 0.25em 0.25em 0.25em;
+form.fileedit fieldset > div > button {
+  margin: 0.25em 0.5em;
 }
-.fileedit-form .fileedit-options > div > * {
-  margin: 0 0.25em 0.25em 0.25em;
+form.fileedit input:invalid {
+  border-left: 0.2em dashed red;
 }
 .fileedit-hint {
   font-size: 80%;
@@ -903,6 +912,7 @@ div.fileedit-preview {
 .fileedit-preview > div:first-child {
   border-bottom: 1px dashed;
 }
+
 .input-with-label {
   border: 1px inset #808080;
   border-radius: 0.5em;
@@ -911,8 +921,20 @@ div.fileedit-preview {
   display: inline-block;
   cursor: pointer;
 }
+.input-with-label > * {
+  vertical-align: middle;
+}
 .input-with-label > input {
     margin: 0;
+}
+.input-with-label > select {
+  margin: 0;
+}
+.input-with-label > input[type=text] {
+  margin: 0;
+}
+.input-with-label > textarea {
+  margin: 0;
 }
 .input-with-label > input[type=checkbox] {
     vertical-align: sub;
@@ -921,6 +943,6 @@ div.fileedit-preview {
     vertical-align: sub;
 }
 .input-with-label > span {
-    margin: 0 0 0 0.4em;
-    vertical-align: text-bottom;
+    margin: 0 0.25em 0 0.25em;
+    vertical-align: middle;
 }

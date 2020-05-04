@@ -20,6 +20,7 @@
 #include "config.h"
 #include "fileedit.h"
 #include <assert.h>
+#include <stdarg.h>
 
 /*
 ** State for the "mini-checkin" infrastructure, which enables the
@@ -42,7 +43,7 @@ struct CheckinMiniInfo {
   Blob fileHash;       /* Hash of this->fileContent, using the repo's
                           preferred hash method. */
   Blob comment;        /* Check-in comment text */
-  char *zMimetype;     /* Mimetype of comment. May be NULL */
+  char *zCommentMimetype;  /* Mimetype of comment. May be NULL */
   char *zUser;         /* User name */
   char *zDate;         /* Optionally force this date string (anything
                           supported by date_in_standard_format()).
@@ -162,7 +163,7 @@ static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
   fossil_free(p->zFilename);
   fossil_free(p->zDate);
   fossil_free(p->zParentUuid);
-  fossil_free(p->zMimetype);
+  fossil_free(p->zCommentMimetype);
   fossil_free(p->zUser);
   CheckinMiniInfo_init(p);
 }
@@ -372,8 +373,8 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
   if(create_manifest_mini_fcards(pOut,pCI,asDelta,pErr)==0){
     return 0;
   }
-  if(pCI->zMimetype!=0 && pCI->zMimetype[0]!=0){
-    blob_appendf(pOut, "N %F\n", pCI->zMimetype);
+  if(pCI->zCommentMimetype!=0 && pCI->zCommentMimetype[0]!=0){
+    blob_appendf(pOut, "N %F\n", pCI->zCommentMimetype);
   }
   blob_appendf(pOut, "P %s\n", pCI->zParentUuid);
   blob_appendf(pOut, "U %F\n", pCI->zUser);
@@ -981,14 +982,14 @@ static void style_labeled_checkbox(const char *zFieldName,
                                    const char * zValue,
                                    const char * zTip,
                                    int isChecked){
-  CX("<span class='input-with-label'");
+  CX("<div class='input-with-label'");
   if(zTip && *zTip){
     CX(" title='%h'", zTip);
   }
   CX("><input type='checkbox' name='%s' value='%T'%s/>",
      zFieldName,
      zValue ? zValue : "", isChecked ? " checked" : "");
-  CX("<span>%h</span></span>", zLabel);
+  CX("<span>%h</span></div>", zLabel);
 }
 
 enum fileedit_render_preview_flags {
@@ -1057,6 +1058,86 @@ static void fileedit_render_preview(Blob * pContent,
     }
   }
   CX("</div><!--.fileedit-preview-->\n");
+}
+
+/*
+** Outputs a SELECT list from a compile-time list of integers.
+** The vargs must be a list of (const char *, int) pairs, terminated
+** with a single NULL. Each pair is interpreted as...
+**
+** If the (const char *) is NULL, it is the end of the list, else
+** a new OPTION entry is created. If the string is empty, the
+** label and value of the OPTION is the integer part of the pair.
+** If the string is not empty, it becomes the label and the integer
+** the value. If that value == selectedValue then that OPTION
+** element gets the 'selected' attribute.
+**
+** Note that the pairs are not in (int, const char *) order because
+** there is no well-known integer value which we can definitively use
+** as a list terminator.
+**
+** zFieldName is the value of the form element's name attribute.
+**
+** zLabel is an optional string to use as a "label" for the element
+** (see below).
+**
+** zTooltip is an optional value for the SELECT's title attribute.
+**
+** The structure of the emited HTML is:
+**
+** <div class='input-with-label'>
+**   <span>{{zLabel}}</span>
+**   <select>...</select>
+** </div>
+** 
+*/
+static void style_select_list_int_v(const char *zFieldName,
+                                    const char * zLabel,
+                                    const char * zToolTip,
+                                    int selectedVal, va_list vargs){
+  CX("<div class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<span>%h</span>", zLabel);
+  }
+  CX("<select name='%s'>",zFieldName);
+  while(1){
+    const char * zOption = va_arg(vargs,char *);
+    int v;
+    if(NULL==zOption){
+      break;
+    }
+    v = va_arg(vargs,int);
+    CX("<option value='%d'%s>",
+         v, v==selectedVal ? " selected" : "");
+    if(*zOption){
+      CX("%s", zOption);
+    }else{
+      CX("%d",v);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  if(zLabel && *zLabel){
+    CX("</div>\n");
+  }
+}
+
+/*
+** The ellipsis-args counterpart of style_select_list_int_v().
+*/
+void style_select_list_int(const char *zFieldName,
+                           const char * zLabel,
+                           const char * zToolTip,
+                           int selectedVal, ... ){
+  va_list vargs;
+  va_start(vargs,selectedVal);
+  style_select_list_int_v(zFieldName, zLabel, zToolTip,
+                          selectedVal, vargs);
+  va_end(vargs);
 }
 
 /*
@@ -1141,7 +1222,7 @@ void fileedit_page(){
   }
   zFlagCheck = P("comment_mimetype");
   if(zFlagCheck){
-    cimi.zMimetype = mprintf("%s",zFlagCheck);
+    cimi.zCommentMimetype = mprintf("%s",zFlagCheck);
     zFlagCheck = 0;
   }
   cimi.zUser = mprintf("%s",g.zLogin);
@@ -1228,23 +1309,13 @@ void fileedit_page(){
      "repo.</p>\n");
   
   CX("<form action='%R/fileedit#options' method='POST' "
-     "class='fileedit-form'>\n");
+     "class='fileedit'>\n");
 
   /******* Hidden fields *******/
   CX("<input type='hidden' name='r' value='%s'>",
      cimi.zParentUuid);
   CX("<input type='hidden' name='file' value='%T'>",
      zFilename);
-
-  /******* Comment *******/
-  CX("<h3>Checkin Comment</h3>\n");
-  CX("<textarea name='comment' rows='3' cols='80'>");
-  if(zComment && *zComment){
-    CX("%h"/*%h? %s?*/, zComment);
-  }
-  CX("</textarea>\n");
-  CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
-     "syntax.</div>"/*TODO: radiobuttons for fossil/me/plain text*/);
 
   /******* Content *******/
   CX("<h3>File Content</h3>\n");
@@ -1321,20 +1392,35 @@ void fileedit_page(){
       case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
       default: cimi.flags |= CIMINI_CONVERT_EOL_INHERIT; break;
     }
-    CX("<select name='eol' "
-       "title='EOL conversion policy, noting that form-processing "
-       "may implicitly change the line endings of the input.'>");
-    CX("<option value='0'%s>Inherit EOLs</option>",
-       (eolMode!=1 && eolMode!=2) ? " selected" : "");
-    CX("<option value='1'%s/>Unix EOLs</option>",
-       eolMode==1 ? " selected" : "");
-    CX("<option value='2'%s>Windows EOLs</option>",
-       eolMode==2 ? " selected" : "");
-    CX("</select>");
+    style_select_list_int("eol", "EOL Style",
+                          "EOL conversion policy, noting that "
+                          "form-processing may implicitly change the "
+                          "line endings of the input.",
+                          eolMode==1||eolMode==2 ? eolMode : 0,
+                          "Inherit", 0,
+                          "Unix", 1,
+                          "Windows", 2,
+                          NULL);
   }
 
   CX("</div></fieldset>") /* end of checkboxes */;
 
+  /******* Comment *******/
+  CX("<a id='comment'></a>");
+  CX("<fieldset><legend>Commit message</legend><div>");
+  CX("<textarea name='comment' rows='3' cols='80'>");
+  /* ^^^ adding the 'required' attribute means we cannot even submit
+  ** for PREVIEW mode if it's empty :/. */
+  if(zComment && *zComment){
+    CX("%h"/*%h? %s?*/, zComment);
+  }
+  CX("</textarea>\n");
+  CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
+     "syntax.</div>\n"/*TODO: select for fossil/md/plain text*/);
+  CX("</div></fieldset>\n");
+
+
+  
   /******* Buttons *******/
   CX("<a id='buttons'></a>");
   CX("<fieldset class='fileedit-options'>"
@@ -1343,50 +1429,37 @@ void fileedit_page(){
      "Save</button>");
   CX("<button type='submit' name='submit' value='2'>"
      "Preview</button>");
-  CX("<button type='submit' name='submit' value='3'>"
-     "Diff (TODO)</button>");
   {
     /* Preview rendering mode selection... */
     previewRenderMode = atoi(PD("preview_render_mode","0"));
     if(0==previewRenderMode){
       previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
     }
-    CX("<br>");
-    CX("<select name='preview_render_mode'>\n");
-    CX("<option value='%d' disabled>Preview Mode</option>",
-       FE_RENDER_GUESS);
-    CX("<option value='%d'%s>Guess</option>",
-       FE_RENDER_GUESS,
-       FE_RENDER_GUESS==previewRenderMode ? " selected" : "");
-    CX("<option value='%d'%s>Wiki/Markdown</option>",
-       FE_RENDER_WIKI,
-       FE_RENDER_WIKI==previewRenderMode ? " selected" : "");
-    CX("<option value='%d'%s>HTML (iframe)</option>",
-       FE_RENDER_HTML,
-       FE_RENDER_HTML==previewRenderMode ? " selected" : "");
-    CX("<option value='%d'%s>Plain Text</option>",
-       FE_RENDER_PLAIN_TEXT,
-       FE_RENDER_PLAIN_TEXT==previewRenderMode ? " selected" : "");
-    CX("</select>\n");
+    style_select_list_int("preview_render_mode",
+                          "Preview Mode",
+                          "Preview mode format.",
+                          previewRenderMode,
+                          "Guess", FE_RENDER_GUESS,
+                          "Wiki/Markdown", FE_RENDER_WIKI,
+                          "HTML (iframe)", FE_RENDER_HTML,
+                          "Plain Text", FE_RENDER_PLAIN_TEXT,
+                          NULL);
     if(FE_RENDER_HTML==previewRenderMode){
       /* HTML preview mode iframe height... */
-      int i;
       if(submitMode==SUBMIT_PREVIEW){
         previewHtmlHeight = atoi(PD("preview_html_ems","0"));
       }else{
         previewHtmlHeight = 40;
       }
       /* Allow selection of HTML preview iframe height */
-      CX("<select name='preview_html_ems' "
-         "title='Height (in EMs) of the iframe used for HTML "
-         "preview.'>\n");
-      CX("<option disabled value='40'>HTML Preview Height (EMs)"
-         "</option>\n");
-      for( i = 20; i <= 100; i+=20 ){
-        CX("<option value='%d'%s>%d</option>\n",
-           i, (previewHtmlHeight==i) ? " selected" : "", i);
-      }
-      CX("</select>\n");
+      style_select_list_int("preview_html_ems",
+                            "Preview IFrame Height (EMs)",
+                            "Height (in EMs) of the iframe used for "
+                            "HTML preview",
+                            previewHtmlHeight,
+                            "", 20, "", 40,
+                            "", 60, "", 80,
+                            "", 100, NULL);
     }
     else if(FE_RENDER_PLAIN_TEXT==previewRenderMode){
       style_labeled_checkbox("preview_ln",
@@ -1397,6 +1470,8 @@ void fileedit_page(){
                              previewLn);
     }
   }
+  CX("<button type='submit' name='submit' value='3'>"
+     "Diff (TODO)</button>");
   CX("</div></fieldset>");
 
   /******* End of form *******/    
