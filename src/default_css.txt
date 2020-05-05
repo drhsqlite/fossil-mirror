@@ -971,3 +971,18 @@ div.fileedit-diff {
 .hidden {
   display: none;
 }
+.font-size-100 {
+  font-size: 100%;
+}
+.font-size-125 {
+  font-size: 125%;
+}
+.font-size-150 {
+  font-size: 150%;
+}
+.font-size-175 {
+  font-size: 175%;
+}
+.font-size-200 {
+  font-size: 200%;
+}

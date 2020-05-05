@@ -1426,7 +1426,7 @@ void style_select_list_int(const char * zWrapperId,
 
 
 /*
-** If passed 0, it emits a script opener tag with this session's
+** If passed 0, it emits a script opener tag with this request's
 ** nonce. If passed non-0 it emits a script closing tag. The very
 ** first time it is called, it emits some bootstrapping JS code
 ** immediately after the script opener. Specifically, it defines
@@ -1472,9 +1472,9 @@ void style_emit_script_tag(int phase){
 **
 ** JS usages:
 **
-** fossilFetch( URI, onLoadCallback );
+** fossil.fetch( URI [, onLoadCallback] );
 **
-** fossilFetch( URI, optionsObject );
+** fossil.fetch( URI [, optionsObject = {}] );
 **
 ** Noting that URI must be relative to the top of the repository and
 ** should not start with a slash (if it does, it is stripped). It gets
@@ -1487,7 +1487,7 @@ void style_emit_script_tag(int phase){
 **   the console).
 **
 ** - onerror: callback(XHR onload event | exception)
-**   (default = output event or exception to the console).
+**   (default = event or exception to the console).
 **
 ** - method: 'POST' | 'GET' (default = 'GET')
 **
@@ -1515,8 +1515,16 @@ void style_emit_script_tag(int phase){
 **   get converted to that form. Either way, the parameters get
 **   appended to the URL.
 **
-** Returns this object, noting that the XHR request is still in
-** transit (or has yet to be sent) when that happens.
+** When an options object does not provide onload() or onerror()
+** handlers of its own, this function falls back to
+** fossil.fetch.onload() and fossil.fetch.onerror() as defaults. The
+** default implementations route the data through the dev console and
+** (for onerror()) through fossil.error(). Individual pages may
+** overwrite those members to provide default implementations suitable
+** for the page's use.
+**
+** Returns this object, noting that the XHR request is asynchronous,
+** and still in transit (or has yet to be sent) when that happens.
 */
 void style_emit_script_fetch(){
   static int once = 0;

@@ -905,7 +905,7 @@ enum fileedit_render_preview_flags {
 FE_PREVIEW_LINE_NUMBERS = 1
 };
 enum fileedit_render_modes {
-/* GUESS must be 0. All others have specified values. */
+/* GUESS must be 0. All others have unspecified values. */
 FE_RENDER_GUESS = 0,
 FE_RENDER_PLAIN_TEXT,
 FE_RENDER_HTML,
@@ -1017,7 +1017,7 @@ static char *fileedit_file_uuid(char const *zFilename,
 }
 
 /*
-** Helper for /filepage_xyz routes. Clears the CGI content buffer,
+** Helper for /fileedit_xyz routes. Clears the CGI content buffer,
 ** sets an error status code, and queues up a JSON response in the
 ** form of an object:
 **
@@ -1137,6 +1137,7 @@ void fileedit_ajax_content(){
   int vid, frid;
   Blob content = empty_blob;
   const char * zMime;
+
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_setup_filerev(zRev, 0, &vid,
                                      zFilename, &frid)){
@@ -1151,11 +1152,20 @@ void fileedit_ajax_content(){
 /*
 ** WEBPAGE: fileedit_preview
 **
-** Query parameters:
+** Required query parameters:
 **
 ** file=FILENAME
-** render_mode=integer (FE_RENDER_xxx) (default=FE_RENDER_GUESS)
 ** content=text
+**
+** Optional query parameters:
+**
+** render_mode=integer (FE_RENDER_xxx) (default=FE_RENDER_GUESS)
+**
+** ln=0 or 1 to disable/enable line number mode in
+** FE_RENDER_PLAIN_TEXT mode.
+**
+** iframe_height=integer (default=40) Height, in EMs of HTML preview
+** iframe.
 **
 ** User must have Write access to use this page.
 **
@@ -1169,6 +1179,7 @@ void fileedit_ajax_preview(){
   int ln = atoi(PD("ln","0"));
   int iframeHeight = atoi(PD("iframe_height","40"));
   Blob content = empty_blob;
+
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_check_filename(zFilename)){
     return;
@@ -1183,10 +1194,15 @@ void fileedit_ajax_preview(){
 /*
 ** WEBPAGE: fileedit_diff
 **
+** Required query parameters:
+**
 ** file=FILENAME
-** sbs=integer (1=side-by-side or 0=unified)
 ** content=text
 ** r=checkin version
+**
+** Optional parameters:
+**
+** sbs=integer (1=side-by-side or 0=unified, default=0)
 **
 ** User must have Write access to use this page.
 **
@@ -1207,6 +1223,7 @@ void fileedit_ajax_diff(){
   int isSbs = atoi(PD("sbs","0"));
   int vid, frid;
   Blob content = empty_blob;
+
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
                                      zFilename, &frid)){
@@ -1223,21 +1240,23 @@ void fileedit_ajax_diff(){
 }
 
 /*
-** Sets up and validates must, but not all, of p's checkin-related
+** Sets up and validates most, but not all, of p's checkin-related
 ** state from the CGI environment. Returns 0 on success or a suggested
 ** HTTP result code on error, in which case a message will have been
 ** written to pErr.
 **
 ** It always fails if it cannot completely resolve the 'file' and 'r'
 ** parameters, including verifying that the refer to a real
-** file/version combination. Most others are optional.
+** file/version combination and editable by the current user. All
+** others are optional (at this level, anyway, but upstream code might
+** require them).
 **
 ** Intended to be used only by /filepage and /filepage_commit.
 */
 static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
-  char * zFileUuid = 0;
-  const char * zFlag;
-  int rc = 0, vid = 0, frid = 0;
+  char * zFileUuid = 0;          /* UUID of file content */
+  const char * zFlag;            /* generic flag */
+  int rc = 0, vid = 0, frid = 0; /* result code, checkin/file rids */ 
 
 #define fail(EXPR) blob_appendf EXPR; goto end_fail
   zFlag = PD("file",P("name"));
@@ -1303,7 +1322,6 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
     p->zCommentMimetype = mprintf("%s",zFlag);
     zFlag = 0;
   }
-  p->zUser = mprintf("%s",g.zLogin);
 #define p_int(K) atoi(PD(K,"0"))
   if(p_int("dry_run")!=0){
     p->flags |= CIMINI_DRY_RUN;
@@ -1325,19 +1343,17 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
   }
 
   /* EOL conversion policy... */
-  {
-    const int eolMode = p_int("eol");
-    switch(eolMode){
-      case 1: p->flags |= CIMINI_CONVERT_EOL_UNIX; break;
-      case 2: p->flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
-      default: p->flags |= CIMINI_CONVERT_EOL_INHERIT; break;
-    }
+  switch(p_int("eol")){
+    case 1: p->flags |= CIMINI_CONVERT_EOL_UNIX; break;
+    case 2: p->flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
+    default: p->flags |= CIMINI_CONVERT_EOL_INHERIT; break;
   }
 #undef p_int
   /*
   ** TODO?: date-override date selection field. Maybe use
   ** an input[type=datetime-local].
   */
+  p->zUser = mprintf("%s",g.zLogin);
   return 0;
 end_fail:
 #undef fail
@@ -1365,7 +1381,8 @@ end_fail:
 **
 ** Responds with JSON:
 **
-** {uuid: newUUID,
+** {
+**  uuid: newUUID,
 **  manifest: text of manifest,
 **  dryRun: bool
 ** }
@@ -1374,12 +1391,12 @@ end_fail:
 ** fileedit_ajax_error().
 */
 void fileedit_ajax_commit(){
-  int newVid = 0;
-  Blob err = empty_blob;
-  Blob manifest = empty_blob;
-  CheckinMiniInfo cimi;
-  int rc;
-  char * zNewUuid = 0;
+  Blob err = empty_blob;      /* Error messages */
+  Blob manifest = empty_blob; /* raw new manifest */
+  CheckinMiniInfo cimi;       /* checkin state */
+  int rc;                     /* generic result code */
+  int newVid = 0;             /* new version's RID */
+  char * zNewUuid = 0;        /* newVid's UUID */
 
   if(!fileedit_ajax_boostrap()){
     goto end_cleanup;
@@ -1410,7 +1427,8 @@ void fileedit_ajax_commit(){
      (CIMINI_DRY_RUN & cimi.flags) ? "true" : "false");
   CX("\"manifest\": \"%j\"", blob_str(&manifest));
   CX("}");
-  db_end_transaction(0);
+  db_end_transaction(0/*noting that dry-run mode will have already
+                      ** set this to rollback mode. */);
 end_cleanup:
   fossil_free(zNewUuid);
   blob_reset(&err);
@@ -1455,7 +1473,6 @@ void fileedit_page(){
   int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
   char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
-  Blob submitResult = empty_blob;       /* Error report */
   Blob endScript = empty_blob;          /* Script code to run at the
                                            end. This content will be
                                            combined into a single JS
@@ -1463,7 +1480,6 @@ void fileedit_page(){
                                            entry must end with a
                                            semicolon. */
   Stmt stmt = empty_Stmt;
-#define fail(EXPR) blob_appendf EXPR; goto end_footer
 
   login_check_credentials();
   if( !g.perm.Write ){
@@ -1474,16 +1490,15 @@ void fileedit_page(){
   CheckinMiniInfo_init(&cimi);
 
   style_header("File Editor");
-  /* As of this point, don't use return or fossil_fatal(), use
-  ** fail((&err,...))  instead so that we can be sure to do any
-  ** cleanup and end the transaction cleanly.
+  /* As of this point, don't use return or fossil_fatal(). Write any
+  ** error in (&err) and goto end_footer instead so that we can be
+  ** sure to do any cleanup and end the transaction cleanly.
   */
   if(fileedit_setup_cimi_from_p(&cimi, &err)!=0){
     goto end_footer;
   }
   zFilename = cimi.zFilename;
   zRev = cimi.zParentUuid;
-
   assert(zRev);
   assert(zFilename);
   zFileMime = mimetype_from_name(cimi.zFilename);
@@ -1491,19 +1506,11 @@ void fileedit_page(){
   /********************************************************************
   ** All errors which "could" have happened up to this point are of a
   ** degree which keep us from rendering the rest of the page, and
-  ** thus fail() has already skipped to the end of the page to render
-  ** the errors. Any up-coming errors, barring malloc failure or
-  ** similar, are not "that" fatal. We can/should continue rendering
-  ** the page, then output the error message at the end.
-  **
-  ** Because we cannot intercept the output of the PREVIEW and DIFF
-  ** rendering, we have to delay the "real work" for those modes until
-  ** after the rest of the page has been rendered. In the case of
-  ** SAVE, we can capture all of the output, and thus can perform that
-  ** work before rendering, which is important so that we have the
-  ** proper version information when rendering the rest of the page.
+  ** thus have already caused us to skipped to the end of the page to
+  ** render the errors. Any up-coming errors, barring malloc failure
+  ** or similar, are not "that" fatal. We can/should continue
+  ** rendering the page, then output the error message at the end.
   ********************************************************************/
-#undef fail
   CX("<h1>Editing:</h1>");
   CX("<p class='fileedit-hint'>");
   CX("File: "
@@ -1600,13 +1607,21 @@ void fileedit_page(){
                         "Unix", 1,
                         "Windows", 2,
                         NULL);
+  style_select_list_int("select-font-size",
+                        "editor_font_size", "Editor Font Size",
+                        NULL/*tooltip*/,
+                        100,
+                        "100%", 100, "125%", 125,
+                        "150%", 150, "175%", 175,
+                        "200%", 200, NULL);
 
   CX("</div></fieldset>") /* end of checkboxes */;
 
   /******* Comment *******/
   CX("<a id='comment'></a>");
   CX("<fieldset><legend>Commit message</legend><div>");
-  CX("<textarea name='comment' rows='3' cols='80'>");
+  CX("<textarea name='comment' rows='3' cols='80' "
+     "id='fileedit-comment'>");
   /* ^^^ adding the 'required' attribute means we cannot even submit
   ** for PREVIEW mode if it's empty :/. */
   if(blob_size(&cimi.comment)){
@@ -1638,7 +1653,8 @@ void fileedit_page(){
                         "Plain Text", FE_RENDER_PLAIN_TEXT,
                         NULL);
   /*
-  ** Set up a JS-side mapping of the FE_RENDER_xyz values
+  ** Set up a JS-side mapping of the FE_RENDER_xyz values.  This is
+  ** used for dynamically toggling certain UI components on and off.
   */
   blob_appendf(&endScript, "fossil.page.previewModes={"
                "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
@@ -1693,10 +1709,7 @@ end_footer:
   if(blob_size(&err)){
     CX("<div class='fileedit-error-report'>%s</div>",
        blob_str(&err));
-  }else if(blob_size(&submitResult)){
-    CX("%b",&submitResult);
   }
-  blob_reset(&submitResult);
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
   style_emit_script_fetch();
@@ -1709,7 +1722,6 @@ end_footer:
     CX("})();");
     style_emit_script_tag(1);
   }
-  db_end_transaction(0/*noting that dry-run mode will have already
-                      ** set this to rollback mode. */);
+  db_end_transaction(0);
   style_footer();
 }

@@ -28,7 +28,7 @@ window.fossil.message = function f(msg){
   return this;
 };
 /*
-** Set message.targetElement to #fossil-status-bar, if found.
+** Set default message.targetElement to #fossil-status-bar, if found.
 */
 window.fossil.message.targetElement =
   document.querySelector('#fossil-status-bar');
@@ -52,4 +52,29 @@ window.fossil.error = function f(msg){
     console.error.apply(console,args);
   }
   return this;
+};
+
+/**
+   repoUrl( repoRelativePath [,urlParams] )
+
+   Creates a URL by prepending this.rootPath to the given path
+   (which must be relative from the top of the site, without a
+   leading slash). If urlParams is a string, it must be
+   paramters encoded in the form "key=val&key2=val2...", WITHOUT
+   a leading '?'. If it's an object, all of its properties get
+   appended to the URL in that form.
+*/
+window.fossil.repoUrl = function(path,urlParams){
+  if(!urlParams) return this.rootPath+path;
+  const url=[this.rootPath,path];
+  url.push('?');
+  if('string'===typeof urlParams) url.push(urlParams);
+  else if('object'===typeof urlParams){
+    let k, i = 0;
+    for( k in urlParams ){
+      if(i++) url.push('&');
+      url.push(k,'=',encodeURIComponent(urlParams[k]));
+    }
+  }
+  return url.join('');
 };

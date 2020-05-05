@@ -8,7 +8,8 @@
   window.addEventListener("load", function() {
     const P = fossil.page;
     P.e = {
-      editor: E('#fileedit-content'),
+      taEditor: E('#fileedit-content'),
+      taComment: E('#fileedit-comment'),
       ajaxContentTarget: E('#ajax-target'),
       form: E('#fileedit-form'),
       btnPreview: E("#fileedit-btn-preview"),
@@ -50,7 +51,6 @@
     */
     const selectPreviewMode =
           P.e.selectPreviewModeWrap.querySelector('select');
-    console.debug('selectPreviewMode =',selectPreviewMode);
     selectPreviewMode.addEventListener(
       "change",function(e){
         const mode = e.target.value,
@@ -72,6 +72,18 @@
     selectPreviewMode.dispatchEvent(
       // Force UI update
       new Event('change',{target:selectPreviewMode})
+    );
+    const selectFontSize = E('select[name=editor_font_size]');
+    selectFontSize.addEventListener(
+      "change",function(e){
+        P.e.taEditor.className = e.target.className.replace(
+            /\bfont-size-\d+/g, '' );
+        P.e.taEditor.classList.add('font-size-'+e.target.value);
+      }, false
+    );
+    selectFontSize.dispatchEvent(
+      // Force UI update
+      new Event('change',{target:selectFontSize})
     );
   }, false);
 
@@ -136,7 +148,7 @@
       fossil.error("No content is loaded.");
       return this;
     }
-    const content = this.e.editor.value,
+    const content = this.e.taEditor.value,
           target = this.e.ajaxContentTarget;
     const updateView = function(c){
       target.innerHTML = [
@@ -178,7 +190,7 @@
       return this;
     }
     const self = this;
-    const content = this.e.editor.value,
+    const content = this.e.taEditor.value,
           target = this.e.ajaxContentTarget;
     const updateView = function(c){
       target.innerHTML = [
@@ -221,7 +233,7 @@
       return this;
     }
     const self = this;
-    const content = this.e.editor.value,
+    const content = this.e.taEditor.value,
           target = this.e.ajaxContentTarget,
           cbDryRun = E('[name=dry_run]'),
           isDryRun = cbDryRun.checked,
@@ -236,14 +248,18 @@
           c.manifest,
           "</code></pre>"
         ].join('');
-        fossil.message(
-          c.dryRun ? 'Committed (dry run):' : 'Committed:',
-          c.uuid
-        );
+        const msg = [
+          'Committed',
+          c.dryRun ? '(dry run)' : '',
+          '[', c.uuid,'].'
+        ];
         if(!c.dryRun){
+          msg.push('Re-activating dry-run mode.');
+          self.e.taComment.value = '';
           cbDryRun.checked = true;
           fossil.page.updateVersion(filename, c.uuid);
         }
+        fossil.message.apply(fossil, msg);
       };
     }
     if(!content){
