@@ -85,10 +85,10 @@
           unhide.push(P.e.cbLineNumbersWrap,
                       P.e.selectHtmlEmsWrap);
         }else{
-          if('text'!==name) hide.push(P.e.cbLineNumbersWrap);
-          else unhide.push(P.e.cbLineNumbersWrap);
-          if('html'!==name) hide.push(P.e.selectHtmlEmsWrap);
-          else unhide.push(P.e.selectHtmlEmsWrap);
+          if('text'===name) unhide.push(P.e.cbLineNumbersWrap);
+          else hide.push(P.e.cbLineNumbersWrap);
+          if('htmlIframe'===name) unhide.push(P.e.selectHtmlEmsWrap);
+          else hide.push(P.e.selectHtmlEmsWrap);
         }
         hide.forEach((e)=>e.classList.add('hidden'));
         unhide.forEach((e)=>e.classList.remove('hidden'));

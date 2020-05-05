@@ -991,6 +991,7 @@ div.fileedit-tab-diff-wrapper {
 .font-size-200 {
   font-size: 200%;
 }
+
 .tab-container {
   width: 100%;
   display: flex;
@@ -1031,4 +1032,40 @@ div.fileedit-tab-diff-wrapper {
   font-weight: bold;
   margin: 0 0.5em;
   text-decoration: underline;
+}
+.tab-container > .tabs > .tab-panel > .fileedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+.tab-container > .tabs > .tab-panel > .fileedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+.flex-container {
+    display: flex;
+}
+.flex-container.row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.flex-container.row.stretch {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin: 0;
+}
+.flex-container.column {
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.flex-container.column.stretch {
+    align-items: stretch;
+    margin: 0;
 }

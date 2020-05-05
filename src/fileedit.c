@@ -908,7 +908,8 @@ enum fileedit_render_modes {
 /* GUESS must be 0. All others have unspecified values. */
 FE_RENDER_GUESS = 0,
 FE_RENDER_PLAIN_TEXT,
-FE_RENDER_HTML,
+FE_RENDER_HTML_IFRAME,
+FE_RENDER_HTML_INLINE,
 FE_RENDER_WIKI
 };
 
@@ -916,7 +917,7 @@ static int fileedit_render_mode_for_mimetype(const char * zMimetype){
   int rc = FE_RENDER_PLAIN_TEXT;
   if( zMimetype ){
     if( fossil_strcmp(zMimetype, "text/html")==0 ){
-      rc = FE_RENDER_HTML;
+      rc = FE_RENDER_HTML_IFRAME;
     }else if( fossil_strcmp(zMimetype, "text/x-fossil-wiki")==0
               || fossil_strcmp(zMimetype, "text/x-markdown")==0 ){
       rc = FE_RENDER_WIKI;
@@ -938,7 +939,7 @@ static void fileedit_render_preview(Blob * pContent,
     renderMode = fileedit_render_mode_for_mimetype(zMime);
   }
   switch(renderMode){
-    case FE_RENDER_HTML:{
+    case FE_RENDER_HTML_IFRAME:{
       char * z64 = encode64(blob_str(pContent), blob_size(pContent));
       CX("<iframe width='100%%' frameborder='0' "
          "marginwidth='0' style='height:%dem' "
@@ -947,6 +948,10 @@ static void fileedit_render_preview(Blob * pContent,
          "></iframe>",
          nIframeHeightEm ? nIframeHeightEm : 40,
          z64);
+      break;
+    }
+    case FE_RENDER_HTML_INLINE:{
+      CX("%b",pContent);
       break;
     }
     case FE_RENDER_WIKI:
@@ -1592,10 +1597,7 @@ void fileedit_page(){
        "data-tab-label='Preview'"
        ">");
 
-    CX("<fieldset class='fileedit-options'>"
-       "<legend>Preview...</legend><div>");
-    
-    CX("<div class='preview-controls'>");
+    CX("<div class='fileedit-options flex-container row'>");
     CX("<button>Refresh</button>");
     /* Default preview rendering mode selection... */
     previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
@@ -1606,20 +1608,24 @@ void fileedit_page(){
                           previewRenderMode,
                           "Guess", FE_RENDER_GUESS,
                           "Wiki/Markdown", FE_RENDER_WIKI,
-                          "HTML (iframe)", FE_RENDER_HTML,
+                          "HTML (iframe)", FE_RENDER_HTML_IFRAME,
+                          "HTML (inline)", FE_RENDER_HTML_INLINE,
                           "Plain Text", FE_RENDER_PLAIN_TEXT,
                           NULL);
     /*
-    ** Set up a JS-side mapping of the FE_RENDER_xyz values.  This is
+    ** Set up a JS-side mapping of the FE_RENDER_xyz values. This is
     ** used for dynamically toggling certain UI components on and off.
     */
     blob_appendf(&endScript, "fossil.page.previewModes={"
                  "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
-                 "html: %d, %d: 'html', text: %d, %d: 'text'"
+                 "htmlIframe: %d, %d: 'htmlIframe', "
+                 "htmlInline: %d, %d: 'htmlInline', "
+                 "text: %d, %d: 'text'"
                  "};\n",
                  FE_RENDER_GUESS, FE_RENDER_GUESS,
                  FE_RENDER_WIKI, FE_RENDER_WIKI,
-                 FE_RENDER_HTML, FE_RENDER_HTML,
+                 FE_RENDER_HTML_IFRAME, FE_RENDER_HTML_IFRAME,
+                 FE_RENDER_HTML_INLINE, FE_RENDER_HTML_INLINE,
                  FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
     /* Allow selection of HTML preview iframe height */
     previewHtmlHeight = atoi(PD("preview_html_ems","0"));
@@ -1643,7 +1649,7 @@ void fileedit_page(){
                            "If on, plain-text files (only) will get "
                            "line numbers added to the preview.",
                            P("preview_ln")!=0);
-    CX("</div></fieldset>"/*.fileedit-options*/);
+    CX("</div>"/*.fileedit-options*/);
     CX("<div id='fileedit-tab-preview-wrapper'></div>");
     CX("</div>"/*#fileedit-tab-preview*/);
   }
@@ -1654,14 +1660,16 @@ void fileedit_page(){
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='Diff'"
        ">");
-    CX("<div id='fileedit-tab-diff-buttons'>"
+
+    CX("<div class='fileedit-options flex-container row' "
+       "id='fileedit-tab-diff-buttons'>"
        "<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>"
        "</div>");
     CX("<div id='fileedit-tab-diff-wrapper'>"
        "Diffs will be shown here."
        "</div>");
-    CX("</div>");
+    CX("</div>"/*#fileedit-tab-diff*/);
   }
 
 
@@ -1673,11 +1681,7 @@ void fileedit_page(){
 
   {
     /******* Flags/options *******/
-    CX("<fieldset class='fileedit-options'>"
-       "<legend>Options</legend><div>"
-       /* Chrome does not sanely lay out multiple
-       ** fieldset children after the <legend>, so
-       ** a containing div is necessary. */);
+    CX("<div class='fileedit-options flex-container row'>");
     style_labeled_checkbox("cb-dry-run",
                            "dry_run", "Dry-run?", "1",
                            "In dry-run mode, the Save button performs "
@@ -1733,7 +1737,7 @@ void fileedit_page(){
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
 #endif
-    CX("</div></fieldset>"/*checkboxes*/);
+    CX("</div>"/*checkboxes*/);
   }
 
   { /******* Comment *******/
@@ -1752,7 +1756,7 @@ void fileedit_page(){
     CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
        "syntax.</div>\n"/*TODO: select for fossil/md/plain text*/);
     CX("</div></fieldset>\n"/*commit comment*/);
-    CX("<div>"
+    CX("<div class='flex-container row'>"
        "<button id='fileedit-btn-commit'>Commit</button>"
        "</div>\n");
     CX("<div id='fileedit-manifest'></div>\n");
