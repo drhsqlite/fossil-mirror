@@ -1105,6 +1105,10 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
     fileedit_ajax_error(404,"Cannot resolve name as a checkin: %s",
                         zRev);
     return 0;
+  }else if(*vid<0){
+    fileedit_ajax_error(400,"Checkin name is ambiguous: %s",
+                        zRev);
+    return 0;
   }
   zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
   if(zFileUuid==0){
@@ -1121,7 +1125,6 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
   }
   return 1;
 }
-                                       
 
 /*
 ** WEBPAGE: fileedit_content
@@ -1295,6 +1298,9 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
   if(0==vid){
     rc = 404;
     fail((pErr,"Could not resolve checkin version."));
+  }else if(vid<0){
+    rc = 400;
+    fail((pErr,"Checkin name is ambiguous."));
   }
   p->zParentUuid = rid_to_uuid(vid)/*fully expand it*/;
 

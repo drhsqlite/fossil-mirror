@@ -1,5 +1,5 @@
-C Added\soption\sto\srender\sHTML\spreviews\sinline,\sas\sopposed\sto\sin\san\siframe.\sLayout\simprovements\sin\sthe\spreview/diff/commit\stabs.
-D 2020-05-05T22:18:03.922
+C Added\smissing\schecks\sfor\snegative\sresult\svalue\sfrom\ssymbolic_name_to_rid()\s(indicating\san\sambiguous\sname).
+D 2020-05-05T23:31:00.709
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 960eb0b1e3e609a655e1fd20614c3b82f9fc660f49c2204be322221ce1b68bac
+F src/fileedit.c f993b4a943908af3a005ff182423674a13c6d2efab6b8b438751f32b66c2c313
 F src/finfo.c 9a092785f3aa93b9789d7888f14361bf9610ff5f1733eeee20cef3662f7bcf34
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -984,7 +984,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 413a0ce83f480bb0ef0e4ffe3ae5463edda0528771f545e923b89714dee421e5
-R a829b5852a03ae22afca2346fba1e443
+P bd81a5f60129963d6756613881904db7c45e045016bc4ee12d2abd26bc2d8c96
+R e660c2e389f18c105dcb9ee50b19d14b
 U stephan
-Z 381b237eba9eb0e3f54c6a7d0f5f04d9
+Z 11c6bbe6808b2d8b2b9422d02f51acd6
