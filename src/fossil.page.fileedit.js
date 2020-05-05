@@ -1,13 +1,10 @@
 (function(){
   "use strict";
   /**
-     Code for the /filepage app. Requires that the fossil JS bootstrappin
-     is complete and fossil.fetch() has been installed.
+     Code for the /filepage app. Requires that the fossil JS
+     bootstrapping is complete and fossil.fetch() has been installed.
   */
-
   const E = (s)=>document.querySelector(s);
-        
-
   window.addEventListener("load", function() {
     const P = fossil.page;
     P.e = {
@@ -17,7 +14,11 @@
       btnPreview: E("#fileedit-btn-preview"),
       btnDiffSbs: E("#fileedit-btn-diffsbs"),
       btnDiffU: E("#fileedit-btn-diffu"),
-      btnCommit: E("#fileedit-btn-commit")
+      btnCommit: E("#fileedit-btn-commit"),
+      selectPreviewModeWrap: E('#select-preview-mode'),
+      selectHtmlEmsWrap: E('#select-preview-html-ems'),
+      selectEolWrap:  E('#select-preview-html-ems'),
+      cbLineNumbersWrap: E('#cb-line-numbers')
     };
     const stopEvent = function(e){
       e.preventDefault();
@@ -37,6 +38,40 @@
     );
     P.e.btnDiffU.addEventListener(
       "click",(e)=>stopEvent(e).diff(false), false
+    );
+    P.e.btnCommit.addEventListener(
+      "click",(e)=>stopEvent(e).commit(), false
+    );
+
+    /**
+       Cosmetic: jump through some hoops to enable/disable
+       certain preview options depending on the current
+       preview mode...
+    */
+    const selectPreviewMode =
+          P.e.selectPreviewModeWrap.querySelector('select');
+    console.debug('selectPreviewMode =',selectPreviewMode);
+    selectPreviewMode.addEventListener(
+      "change",function(e){
+        const mode = e.target.value,
+              name = P.previewModes[mode],
+              hide = [], unhide = [];
+        if('guess'===name){
+          unhide.push(P.e.cbLineNumbersWrap,
+                      P.e.selectHtmlEmsWrap);
+        }else{
+          if('text'!==name) hide.push(P.e.cbLineNumbersWrap);
+          else unhide.push(P.e.cbLineNumbersWrap);
+          if('html'!==name) hide.push(P.e.selectHtmlEmsWrap);
+          else unhide.push(P.e.selectHtmlEmsWrap);
+        }
+        hide.forEach((e)=>e.classList.add('hidden'));
+        unhide.forEach((e)=>e.classList.remove('hidden'));
+      }, false
+    );
+    selectPreviewMode.dispatchEvent(
+      // Force UI update
+      new Event('change',{target:selectPreviewMode})
     );
   }, false);
 
@@ -174,4 +209,82 @@
     return this;
   };
 
+  /**
+     Performs an async commit based on the form contents and updates
+     the UI.
+
+     Returns this object.
+  */
+  fossil.page.commit = function f(){
+    if(!this.finfo){
+      fossil.error("No content is loaded.");
+      return this;
+    }
+    const self = this;
+    const content = this.e.editor.value,
+          target = this.e.ajaxContentTarget,
+          cbDryRun = E('[name=dry_run]'),
+          isDryRun = cbDryRun.checked,
+          filename = this.finfo.file;
+    if(!f.updateView){
+      f.updateView = function(c){
+        target.innerHTML = [
+          "<h3>Manifest",
+          (c.dryRun?" (dry run)":""),
+          ": ", c.uuid.substring(0,16),"</h3>",
+          "<code class='fileedit-manifest'>",
+          c.manifest,
+          "</code></pre>"
+        ].join('');
+        fossil.message(
+          c.dryRun ? 'Committed (dry run):' : 'Committed:',
+          c.uuid
+        );
+        if(!c.dryRun){
+          cbDryRun.checked = true;
+          fossil.page.updateVersion(filename, c.uuid);
+        }
+      };
+    }
+    if(!content){
+      f.updateView('');
+      return this;
+    }
+    const fd = new FormData();
+    fd.append('file',filename);
+    fd.append('r', this.finfo.r);
+    fd.append('content',content);
+    fd.append('dry_run',isDryRun ? 1 : 0);
+    /* Text fields or select lists... */
+    ['comment_mimetype',
+     'comment'
+    ].forEach(function(name){
+      var e = E('[name='+name+']');
+      if(e) fd.append(name,e.value);
+    });
+    /* Checkboxes: */
+    ['allow_fork',
+     'allow_older',
+     'exec_bit',
+     'allow_merge_conflict',
+     'prefer_delta'
+    ].forEach(function(name){
+      var e = E('[name='+name+']');
+      if(e){
+        if(e.checked) fd.append(name, 1);
+      }else{
+        console.error("Missing checkbox? name =",name);
+      }
+    });
+    fossil.message(
+      "Checking in..."
+    ).fetch('fileedit_commit',{
+      payload: fd,
+      responseType: 'json',
+      onload: f.updateView
+    });
+    return this;
+  };
+
+  
 })();

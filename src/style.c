@@ -1299,33 +1299,39 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 #endif
 
 /*
-** Outputs a labeled checkbox element. zFieldName is the form element
-** name. zLabel is the label for the checkbox. zValue is the optional
-** value for the checkbox. zTip is an optional tooltip, which gets set
-** as the "title" attribute of the outermost element. If isChecked is
-** true, the checkbox gets the "checked" attribute set, else it is
-** not.
+** Outputs a labeled checkbox element. zWrapperId is an optional ID
+** value for the containing element (see below). zFieldName is the
+** form element name. zLabel is the label for the checkbox. zValue is
+** the optional value for the checkbox. zTip is an optional tooltip,
+** which gets set as the "title" attribute of the outermost
+** element. If isChecked is true, the checkbox gets the "checked"
+** attribute set, else it is not.
 **
 ** Resulting structure:
 **
-** <div class='input-with-label' title={{zTip}}>
+** <div class='input-with-label' title={{zTip}} id={{zWrapperId}}>
 **   <input type='checkbox' name={{zFieldName}} value={{zValue}}
 **          {{isChecked ? " checked : ""}}/>
 **   <span>{{zLabel}}</span>
 ** </div>
 **
-** zFieldName, zLabel, and zValue are required. zTip is optional.
+** zFieldName, zLabel, and zValue are required. zWrapperId and zTip
+** are optional.
 **
 ** Be sure that the input-with-label CSS class is defined sensibly, in
 ** particular, having its display:inline-block is useful for alignment
 ** purposes.
 */
-void style_labeled_checkbox(const char *zFieldName, const char * zLabel,
+void style_labeled_checkbox(const char * zWrapperId,
+                            const char *zFieldName, const char * zLabel,
                             const char * zValue, const char * zTip,
                             int isChecked){
   CX("<div class='input-with-label'");
   if(zTip && *zTip){
     CX(" title='%h'", zTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
   }
   CX("><input type='checkbox' name='%s' value='%T'%s/>",
      zFieldName,
@@ -1349,7 +1355,12 @@ void style_labeled_checkbox(const char *zFieldName, const char * zLabel,
 ** there is no well-known integer value which we can definitively use
 ** as a list terminator.
 **
-** zFieldName is the value of the form element's name attribute.
+** zWrapperId is an optional ID value for the containing element (see
+** below).
+**
+** zFieldName is the value of the form element's name attribute. Note
+** that fossil prefers underscores over '-' for separators in form
+** element names.
 **
 ** zLabel is an optional string to use as a "label" for the element
 ** (see below).
@@ -1358,28 +1369,32 @@ void style_labeled_checkbox(const char *zFieldName, const char * zLabel,
 **
 ** The structure of the emitted HTML is:
 **
-** <div class='input-with-label' title={{zToolTip}}>
+** <div class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
 **   <span>{{zLabel}}</span>
 **   <select>...</select>
 ** </div>
 **
 ** Example:
 **
-** style_select_list_int("my_field", "Grapes",
+** style_select_list_int("my-grapes", "my_grapes", "Grapes",
 **                      "Select the number of grapes",
 **                       atoi(PD("my_field","0")),
 **                       "", 1, "2", 2, "Three", 3,
 **                       NULL);
 ** 
 */
-void style_select_list_int(const char *zFieldName, const char * zLabel,
+void style_select_list_int(const char * zWrapperId,
+                           const char *zFieldName, const char * zLabel,
                            const char * zToolTip, int selectedVal,
                            ... ){
   va_list vargs;
   va_start(vargs,selectedVal);
-  CX("<div class='input-with-label'");
+  CX("<span class='input-with-label'");
   if(zToolTip && *zToolTip){
     CX(" title='%h'",zToolTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
   }
   CX(">");
   if(zLabel && *zLabel){
@@ -1404,7 +1419,7 @@ void style_select_list_int(const char *zFieldName, const char * zLabel,
   }
   CX("</select>\n");
   if(zLabel && *zLabel){
-    CX("</div>\n");
+    CX("</span>\n");
   }
   va_end(vargs);
 }

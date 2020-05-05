@@ -904,6 +904,7 @@ code.fileedit-manifest {
   display: block;
   height: 16em;
   overflow: auto;
+  white-space: pre;
 }
 div.fileedit-preview {
   margin: 0;
@@ -966,4 +967,7 @@ div.fileedit-diff {
 .input-with-label > span {
     margin: 0 0.25em 0 0.25em;
     vertical-align: middle;
+}
+.hidden {
+  display: none;
 }

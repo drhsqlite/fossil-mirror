@@ -19,7 +19,7 @@ window.fossil.message = function f(msg){
   const tgt = f.targetElement;
   if(tgt){
     tgt.classList.remove('error');
-    tgt.innerText = msg || args.join(' ');
+    tgt.innerText = args.join(' ');
   }
   else{
     args.unshift('Fossil status:');
@@ -45,7 +45,7 @@ window.fossil.error = function f(msg){
   const tgt = window.fossil.message.targetElement;
   if(tgt){
     tgt.classList.add('error');
-    tgt.innerText = msg || args.join(' ');
+    tgt.innerText = args.join(' ');
   }
   else{
     args.unshift('Fossil error:');

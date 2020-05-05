@@ -1222,6 +1222,202 @@ void fileedit_ajax_diff(){
   blob_reset(&content);
 }
 
+/*
+** Sets up and validates must, but not all, of p's checkin-related
+** state from the CGI environment. Returns 0 on success or a suggested
+** HTTP result code on error, in which case a message will have been
+** written to pErr.
+**
+** It always fails if it cannot completely resolve the 'file' and 'r'
+** parameters, including verifying that the refer to a real
+** file/version combination. Most others are optional.
+**
+** Intended to be used only by /filepage and /filepage_commit.
+*/
+static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
+  char * zFileUuid = 0;
+  const char * zFlag;
+  int rc = 0, vid = 0, frid = 0;
+
+#define fail(EXPR) blob_appendf EXPR; goto end_fail
+  zFlag = PD("file",P("name"));
+  if(zFlag==0 || !*zFlag){
+    rc = 400;
+    fail((pErr,"Missing required 'file' parameter."));
+  }
+  p->zFilename = mprintf("%s",zFlag);
+
+  if(0==fileedit_is_editable(p->zFilename)){
+    rc = 403;
+    fail((pErr,"Filename [%h] is disallowed "
+          "by the [fileedit-glob] repository "
+          "setting.",
+          p->zFilename));
+  }
+
+  zFlag = P("r");
+  if(!zFlag){
+    rc = 400;
+    fail((pErr,"Missing required 'r' parameter."));
+  }
+  vid = symbolic_name_to_rid(zFlag, "ci");
+  if(0==vid){
+    rc = 404;
+    fail((pErr,"Could not resolve checkin version."));
+  }
+  p->zParentUuid = rid_to_uuid(vid)/*fully expand it*/;
+
+  zFileUuid = fileedit_file_uuid(p->zFilename, vid, &p->filePerm);
+  if(!zFileUuid){
+    rc = 404;
+    fail((pErr,"Checkin [%S] does not contain file: "
+          "[%h]", p->zParentUuid, p->zFilename));
+  }else if(PERM_LNK==p->filePerm){
+    rc = 400;
+    fail((pErr,"Editing symlinks is not permitted."));
+  }
+
+  /* Find the repo-side file entry or fail... */
+  frid = fast_uuid_to_rid(zFileUuid);
+  assert(frid);
+
+  /* Read file content from submit request or repo... */
+  zFlag = P("content");
+  if(zFlag==0){
+    content_get(frid, &p->fileContent);
+  }else{
+    blob_init(&p->fileContent,zFlag,-1);
+  }
+  if(looks_like_binary(&p->fileContent)){
+    rc = 400;
+    fail((pErr,"File appears to be binary. Cannot edit: "
+          "[%h]",p->zFilename));
+  }
+
+  zFlag = PT("comment");
+  if(zFlag!=0 && *zFlag!=0){
+    blob_append(&p->comment, zFlag, -1);
+  }
+  zFlag = P("comment_mimetype");
+  if(zFlag){
+    p->zCommentMimetype = mprintf("%s",zFlag);
+    zFlag = 0;
+  }
+  p->zUser = mprintf("%s",g.zLogin);
+#define p_int(K) atoi(PD(K,"0"))
+  if(p_int("dry_run")!=0){
+    p->flags |= CIMINI_DRY_RUN;
+  }
+  if(p_int("allow_fork")!=0){
+    p->flags |= CIMINI_ALLOW_FORK;
+  }
+  if(p_int("allow_older")!=0){
+    p->flags |= CIMINI_ALLOW_OLDER;
+  }
+  if(p_int("exec_bit")!=0){
+    p->filePerm = PERM_EXE;
+  }
+  if(p_int("allow_merge_conflict")!=0){
+    p->flags |= CIMINI_ALLOW_MERGE_MARKER;
+  }
+  if(p_int("prefer_delta")!=0){
+    p->flags |= CIMINI_PREFER_DELTA;
+  }
+
+  /* EOL conversion policy... */
+  {
+    const int eolMode = p_int("eol");
+    switch(eolMode){
+      case 1: p->flags |= CIMINI_CONVERT_EOL_UNIX; break;
+      case 2: p->flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
+      default: p->flags |= CIMINI_CONVERT_EOL_INHERIT; break;
+    }
+  }
+#undef p_int
+  /*
+  ** TODO?: date-override date selection field. Maybe use
+  ** an input[type=datetime-local].
+  */
+  return 0;
+end_fail:
+#undef fail
+  fossil_free(zFileUuid);
+  return rc ? rc : 500;
+}
+
+/*
+** WEBPAGE: fileedit_commit
+**
+** Required query parameters:
+** 
+** file=FILENAME
+** r=Parent checkin UUID
+** content=text
+** comment=text
+**
+** Optional query parameters:
+**
+** comment_mimetype=text
+** dry_run=int (1 or 0)
+** 
+**
+** User must have Write access to use this page.
+**
+** Responds with JSON:
+**
+** {uuid: newUUID,
+**  manifest: text of manifest,
+**  dryRun: bool
+** }
+**
+** On error it produces a JSON response as documented for
+** fileedit_ajax_error().
+*/
+void fileedit_ajax_commit(){
+  int newVid = 0;
+  Blob err = empty_blob;
+  Blob manifest = empty_blob;
+  CheckinMiniInfo cimi;
+  int rc;
+  char * zNewUuid = 0;
+
+  if(!fileedit_ajax_boostrap()){
+    goto end_cleanup;
+  }
+  db_begin_transaction();
+  CheckinMiniInfo_init(&cimi);
+  rc = fileedit_setup_cimi_from_p(&cimi,&err);
+  if(0!=rc){
+    fileedit_ajax_error(rc,"%b",&err);
+    goto end_cleanup;
+  }
+  if(blob_size(&cimi.comment)==0){
+    fileedit_ajax_error(400,"Empty checkin comment is not permitted.");
+    goto end_cleanup;
+  }
+  cimi.pMfOut = &manifest;
+  checkin_mini(&cimi, &newVid, &err);
+  if(blob_size(&err)){
+    fileedit_ajax_error(500,"%b",&err);
+    goto end_cleanup;
+  }
+  assert(newVid>0);
+  zNewUuid = rid_to_uuid(newVid);
+  cgi_set_content_type("application/json");
+  CX("{");
+  CX("\"uuid\":\"%j\",", zNewUuid);
+  CX("\"dryRun\": %s,",
+     (CIMINI_DRY_RUN & cimi.flags) ? "true" : "false");
+  CX("\"manifest\": \"%j\"", blob_str(&manifest));
+  CX("}");
+  db_end_transaction(0);
+end_cleanup:
+  fossil_free(zNewUuid);
+  blob_reset(&err);
+  blob_reset(&manifest);
+  CheckinMiniInfo_cleanup(&cimi);
+}
+
 
 /*
 ** Emits utility script code specific to the /fileedit page.
@@ -1249,30 +1445,17 @@ static void fileedit_emit_page_script(){
 ** this code.
 */
 void fileedit_page(){
-  enum submit_modes {
-  SUBMIT_NONE = 0, SUBMIT_SAVE, SUBMIT_PREVIEW,
-  SUBMIT_DIFF_SBS, SUBMIT_DIFF_UNIFIED,
-  SUBMIT_end /* sentinel for range validation */
-  };
-  const char * zFilename = PD("file",P("name"));
-                                        /* filename. We'll accept 'name'
+  const char * zFilename;               /* filename. We'll accept 'name'
                                            because that param is handled
                                            specially by the core. */
-  const char * zRev = P("r");           /* checkin version */
-  const char * zContent = P("content"); /* file content */
-  const char * zComment = P("comment"); /* checkin comment */
+  const char * zRev;                    /* checkin version */
   const char * zFileMime = 0;           /* File mime type guess */
   CheckinMiniInfo cimi;                 /* Checkin state */
-  int submitMode = SUBMIT_NONE;         /* See mapping below */
-  int vid, newVid = 0;                  /* checkin rid */
-  int frid = 0;                         /* File content rid */
-  int previewLn = P("preview_ln")!=0;   /* Line number mode */
   int previewHtmlHeight = 0;            /* iframe height (EMs) */
   int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
   char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
   Blob submitResult = empty_blob;       /* Error report */
-  const char * zFlagCheck = 0;          /* Temp url flag holder */
   Blob endScript = empty_blob;          /* Script code to run at the
                                            end. This content will be
                                            combined into a single JS
@@ -1289,99 +1472,22 @@ void fileedit_page(){
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
-  submitMode = atoi(PD("submit","0"));
-  if(submitMode < SUBMIT_NONE || submitMode >= SUBMIT_end){
-    submitMode = 0;
-  }
-  zFlagCheck = P("comment_mimetype");
-  if(zFlagCheck){
-    cimi.zCommentMimetype = mprintf("%s",zFlagCheck);
-    zFlagCheck = 0;
-  }
-  cimi.zUser = mprintf("%s",g.zLogin);
 
   style_header("File Editor");
   /* As of this point, don't use return or fossil_fatal(), use
   ** fail((&err,...))  instead so that we can be sure to do any
   ** cleanup and end the transaction cleanly.
   */
-  if(!zRev || !*zRev || !zFilename || !*zFilename){
-    fail((&err,"Missing required URL parameters: "
-          "file=FILE and r=CHECKIN"));
+  if(fileedit_setup_cimi_from_p(&cimi, &err)!=0){
+    goto end_footer;
   }
-  if(0==fileedit_is_editable(zFilename)){
-    fail((&err,"Filename <code>%h</code> is disallowed "
-          "by the <code>fileedit-glob</code> repository "
-          "setting.",
-          zFilename));
-  }
-  vid = symbolic_name_to_rid(zRev, "ci");
-  if(0==vid){
-    fail((&err,"Could not resolve checkin version."));
-  }
-  cimi.zFilename = mprintf("%s",zFilename);
-  zFileMime = mimetype_from_name(zFilename);
+  zFilename = cimi.zFilename;
+  zRev = cimi.zParentUuid;
 
-  /* Find the repo-side file entry or fail... */
-  cimi.zParentUuid = rid_to_uuid(vid);
-  zFileUuid = fileedit_file_uuid(zFilename, vid, &cimi.filePerm);
-  if(!zFileUuid){
-    fail((&err,"Checkin [%S] does not contain file: "
-          "<code>%h</code>",
-          cimi.zParentUuid, zFilename));
-  }
-  else if(PERM_LNK==cimi.filePerm){
-    fail((&err,"Editing symlinks is not permitted."));
-  }
-  frid = fast_uuid_to_rid(zFileUuid);
-  assert(frid);
+  assert(zRev);
+  assert(zFilename);
+  zFileMime = mimetype_from_name(cimi.zFilename);
 
-  /* Read file content from submit request or repo... */
-  if(zContent==0){
-    content_get(frid, &cimi.fileContent);
-    zContent = blob_size(&cimi.fileContent)
-      ? blob_str(&cimi.fileContent) : NULL;
-  }else{
-    blob_init(&cimi.fileContent,zContent,-1);
-  }
-  if(looks_like_binary(&cimi.fileContent)){
-    fail((&err,"File appears to be binary. Cannot edit: "
-          "<code>%h</code>",zFilename));
-  }
-
-  /*
-  ** TODO?: date-override date selection field. Maybe use
-  ** an input[type=datetime-local].
-  */
-  if(SUBMIT_NONE==submitMode || P("dry_run")!=0){
-    cimi.flags |= CIMINI_DRY_RUN;
-  }
-  if(P("allow_fork")!=0){
-    cimi.flags |= CIMINI_ALLOW_FORK;
-  }
-  if(P("allow_older")!=0){
-    cimi.flags |= CIMINI_ALLOW_OLDER;
-  }
-  if(P("exec_bit")!=0){
-    cimi.filePerm = PERM_EXE;
-  }
-  if(P("allow_merge_conflict")!=0){
-    cimi.flags |= CIMINI_ALLOW_MERGE_MARKER;
-  }
-  if(P("prefer_delta")!=0){
-    cimi.flags |= CIMINI_PREFER_DELTA;
-  }
-  /* EOL conversion policy... */
-  {
-    const int eolMode = submitMode==SUBMIT_NONE
-      ? 0 : atoi(PD("eol","0"));
-    switch(eolMode){
-      case 1: cimi.flags |= CIMINI_CONVERT_EOL_UNIX; break;
-      case 2: cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS; break;
-      default: cimi.flags |= CIMINI_CONVERT_EOL_INHERIT; break;
-    }
-  }
-  
   /********************************************************************
   ** All errors which "could" have happened up to this point are of a
   ** degree which keep us from rendering the rest of the page, and
@@ -1398,50 +1504,6 @@ void fileedit_page(){
   ** proper version information when rendering the rest of the page.
   ********************************************************************/
 #undef fail
-  while(SUBMIT_SAVE==submitMode){
-    Blob manifest = empty_blob;
-    /*cimi.flags |= CIMINI_STRONGLY_PREFER_DELTA;*/
-    if(zComment && *zComment){
-      blob_append(&cimi.comment, zComment, -1);
-    }else{
-      blob_append(&err,"Empty checkin comment is not permitted.",-1);
-      break;
-    }
-    cimi.pMfOut = &manifest;
-    checkin_mini(&cimi, &newVid, &err);
-    if(newVid!=0){
-      char * zNewUuid = rid_to_uuid(newVid);
-      blob_appendf(&submitResult,
-                   "<h3>Manifest%s: %S</h3><pre>"
-                   "<code class='fileedit-manifest'>%h</code>"
-                   "</pre>",
-                   (cimi.flags & CIMINI_DRY_RUN) ? " (dry run)" : "",
-                   zNewUuid, blob_str(&manifest));
-      if(CIMINI_DRY_RUN & cimi.flags){
-        fossil_free(zNewUuid);
-      }else{
-        /* Update cimi version info... */
-        assert(cimi.pParent);
-        assert(cimi.zParentUuid);
-        fossil_free(zFileUuid);
-        zFileUuid = fileedit_file_uuid(cimi.zFilename, newVid, 0);
-        manifest_destroy(cimi.pParent);
-        cimi.pParent = 0;
-        fossil_free(cimi.zParentUuid);
-        cimi.zParentUuid = zNewUuid;
-        zComment = 0;
-        cimi.flags |= CIMINI_DRY_RUN /* for sanity's sake */;
-      }
-    }
-    /* On error, the error message is in the err blob and will
-    ** be emitted at the end. */
-    cimi.pMfOut = 0;
-    blob_reset(&manifest);
-    break;
-  }
-
-  CX("<div id='fossil-status-bar'>Async. status messages will go "
-     "here.</div>\n");
   CX("<h1>Editing:</h1>");
   CX("<p class='fileedit-hint'>");
   CX("File: "
@@ -1482,41 +1544,52 @@ void fileedit_page(){
      "rows='20' cols='80'>");
   CX("Loading...");
   CX("</textarea>\n");
+
+  CX("<div id='fossil-status-bar'>Async. status messages will go "
+     "here.</div>\n");
+
   /******* Flags/options *******/
   CX("<fieldset class='fileedit-options' id='options'>"
      "<legend>Options</legend><div>"
      /* Chrome does not sanely lay out multiple
      ** fieldset children after the <legend>, so
      ** a containing div is necessary. */);
-  style_labeled_checkbox("dry_run", "Dry-run?", "1",
+  style_labeled_checkbox("cb-dry-run",
+                         "dry_run", "Dry-run?", "1",
                          "In dry-run mode, the Save button performs "
                          "all work needed for saving but then rolls "
                          "back the transaction, and thus does not "
                          "really save.",
-                         cimi.flags & CIMINI_DRY_RUN);
-  style_labeled_checkbox("allow_fork", "Allow fork?", "1",
+                         1);
+  style_labeled_checkbox("cb-allow-fork",
+                         "allow_fork", "Allow fork?", "1",
                          "Allow saving to create a fork?",
                          cimi.flags & CIMINI_ALLOW_FORK);
-  style_labeled_checkbox("allow_older", "Allow older?", "1",
+  style_labeled_checkbox("cb-allow-older",
+                         "allow_older", "Allow older?", "1",
                          "Allow saving against a parent version "
                          "which has a newer timestamp?",
                          cimi.flags & CIMINI_ALLOW_OLDER);
-  style_labeled_checkbox("exec_bit", "Executable?", "1",
+  style_labeled_checkbox("cb-exec-bit",
+                         "exec_bit", "Executable?", "1",
                          "Set the executable bit?",
                          PERM_EXE==cimi.filePerm);
-  style_labeled_checkbox("allow_merge_conflict",
+  style_labeled_checkbox("cb-allow-merge-conflict",
+                         "allow_merge_conflict",
                          "Allow merge conflict markers?", "1",
                          "Allow saving even if the content contains "
                          "what appear to be fossil merge conflict "
                          "markers?",
                          cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
-  style_labeled_checkbox("prefer_delta",
+  style_labeled_checkbox("cb-prefer-delta",
+                         "prefer_delta",
                          "Prefer delta manifest?", "1",
                          "Will create a delta manifest, instead of "
                          "baseline, if conditions are favorable to do "
                          "so. This option is only a suggestion.",
                          cimi.flags & CIMINI_PREFER_DELTA);
-  style_select_list_int("eol", "EOL Style",
+  style_select_list_int("select-eol-style",
+                        "eol", "EOL Style",
                         "EOL conversion policy, noting that "
                         "form-processing may implicitly change the "
                         "line endings of the input.",
@@ -1536,8 +1609,8 @@ void fileedit_page(){
   CX("<textarea name='comment' rows='3' cols='80'>");
   /* ^^^ adding the 'required' attribute means we cannot even submit
   ** for PREVIEW mode if it's empty :/. */
-  if(zComment && *zComment){
-    CX("%h", zComment);
+  if(blob_size(&cimi.comment)){
+    CX("%h", blob_str(&cimi.comment));
   }
   CX("</textarea>\n");
   CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
@@ -1549,48 +1622,62 @@ void fileedit_page(){
   CX("<fieldset class='fileedit-options'>"
      "<legend>Ask the server to...</legend><div>");
   CX("<button id='fileedit-btn-commit'>Commit</button>");
-  CX("<button id='fileedit-btn-preview'>Preview</button>");
-  {
-    /* Preview rendering mode selection... */
-    previewRenderMode = atoi(PD("preview_render_mode","0"));
-    previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
-    style_select_list_int("preview_render_mode",
-                          "Preview Mode",
-                          "Preview mode format.",
-                          previewRenderMode,
-                          "Guess", FE_RENDER_GUESS,
-                          "Wiki/Markdown", FE_RENDER_WIKI,
-                          "HTML (iframe)", FE_RENDER_HTML,
-                          "Plain Text", FE_RENDER_PLAIN_TEXT,
-                          NULL);
-    previewHtmlHeight = atoi(PD("preview_html_ems","0"));
-    if(!previewHtmlHeight){
-      previewHtmlHeight = 40;
-    }
-    /* Allow selection of HTML preview iframe height */
-    style_select_list_int("preview_html_ems",
-                          "HTML Preview IFrame Height (EMs)",
-                          "Height (in EMs) of the iframe used for "
-                          "HTML preview",
-                          previewHtmlHeight,
-                          "", 20, "", 40,
-                          "", 60, "", 80,
-                          "", 100, NULL);
-    style_labeled_checkbox("preview_ln",
-                           "Add line numbers to plain-text previews?",
-                           "1",
-                           "If on, plain-text files (only) will get "
-                           "line numbers added to the preview.",
-                           previewLn);
-  }
   CX("<button id='fileedit-btn-diffsbs'>Diff (SBS)</button>");
   CX("<button id='fileedit-btn-diffu'>Diff (Unified)</button>");
+  CX("<button id='fileedit-btn-preview'>Preview</button>");
+  /* Default preview rendering mode selection... */
+  previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
+  style_select_list_int("select-preview-mode",
+                        "preview_render_mode",
+                        "Preview Mode",
+                        "Preview mode format.",
+                        previewRenderMode,
+                        "Guess", FE_RENDER_GUESS,
+                        "Wiki/Markdown", FE_RENDER_WIKI,
+                        "HTML (iframe)", FE_RENDER_HTML,
+                        "Plain Text", FE_RENDER_PLAIN_TEXT,
+                        NULL);
+  /*
+  ** Set up a JS-side mapping of the FE_RENDER_xyz values
+  */
+  blob_appendf(&endScript, "fossil.page.previewModes={"
+               "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
+               "html: %d, %d: 'html', text: %d, %d: 'text'"
+               "};\n",
+               FE_RENDER_GUESS, FE_RENDER_GUESS,
+               FE_RENDER_WIKI, FE_RENDER_WIKI,
+               FE_RENDER_HTML, FE_RENDER_HTML,
+               FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
+
+  /* Allow selection of HTML preview iframe height */
+  previewHtmlHeight = atoi(PD("preview_html_ems","0"));
+  if(!previewHtmlHeight){
+    previewHtmlHeight = 40;
+  }
+  style_select_list_int("select-preview-html-ems",
+                        "preview_html_ems",
+                        "HTML Preview IFrame Height (EMs)",
+                        "Height (in EMs) of the iframe used for "
+                        "HTML preview",
+                        previewHtmlHeight,
+                        "", 20, "", 40,
+                        "", 60, "", 80,
+                        "", 100, NULL);
+  /* Selection of line numbers for text preview */
+  style_labeled_checkbox("cb-line-numbers",
+                         "preview_ln",
+                         "Add line numbers to plain-text previews?",
+                         "1",
+                         "If on, plain-text files (only) will get "
+                         "line numbers added to the preview.",
+                         P("preview_ln")!=0);
+
   CX("</div></fieldset>");
 
   /******* End of form *******/    
   CX("</form>\n");
 
-  CX("<div id='ajax-target'></div>"
+  CX("<div id='ajax-target'>%s</div>"
      /* this is where preview/diff go */);
   
   /* Dynamically populate the editor... */
@@ -1599,7 +1686,6 @@ void fileedit_page(){
                zFilename, cimi.zParentUuid);
 
 end_footer:
-  zContent = 0;
   fossil_free(zFileUuid);
   if(stmt.pStmt){
     db_finalize(&stmt);
