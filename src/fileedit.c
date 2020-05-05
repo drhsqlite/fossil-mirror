@@ -1145,7 +1145,14 @@ void fileedit_ajax_content(){
   }
   zMime = mimetype_from_name(zFilename);
   content_get(frid, &content);
-  cgi_set_content_type(zMime ? zMime : "application/octet-stream");
+  if(0==zMime){
+    if(looks_like_binary(&content)){
+      zMime = "application/octet-stream";
+    }else{
+      zMime = "text/plain";
+    }
+  }
+  cgi_set_content_type(zMime);
   cgi_set_content(&content);
 }
 
