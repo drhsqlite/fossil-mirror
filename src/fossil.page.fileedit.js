@@ -113,7 +113,7 @@
   }, false);
   
   /**
-     updateVersion() updates filename and version in relevant UI
+     updateVersion() updates the filename and version in various UI
      elements...
 
      Returns this object.
@@ -143,8 +143,8 @@
   };
 
   /**
-     loadFile() loads (file,version) and updates the relevant UI elements
-     to reflect the loaded state.
+     loadFile() loads (file,checkinVersion) and updates the relevant
+     UI elements to reflect the loaded state.
 
      Returns this object, noting that the load is async.
   */
@@ -166,7 +166,7 @@
 
   /**
      Fetches the page preview based on the contents and settings of this
-     page's form, and updates this.e.ajaxContentTarget with the preview.
+     page's form, and updates the UI with with the preview.
 
      Returns this object, noting that the operation is async.
   */
@@ -207,8 +207,8 @@
   };
 
   /**
-     Fetches the page preview based on the contents and settings of this
-     page's form, and updates this.e.ajaxContentTarget with the preview.
+     Fetches the content diff based on the contents and settings of this
+     page's form, and updates the UI with the diff view.
 
      Returns this object, noting that the operation is async.
   */
