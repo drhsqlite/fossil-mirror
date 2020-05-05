@@ -1,5 +1,5 @@
-C Doc\supdates\sand\scorrections.
-D 2020-05-05T17:23:44.737
+C Unified\sdiff\snow\sproduces\sempty\soutput\swhen\sthe\sdiff\sis\sempty,\sinsead\sof\san\sempty\swrapper\selement.
+D 2020-05-05T21:41:51.529
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 5ee3e9494f897565f0bab4d13cf1483b0c127e7cb8ad75ead859f946365b3d93
+F src/fileedit.c 10ccd061d890b0f173bdd880b4ddc2dd5cd60da2358c9af8b6785e66baf8b254
 F src/finfo.c 9a092785f3aa93b9789d7888f14361bf9610ff5f1733eeee20cef3662f7bcf34
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -984,7 +984,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33ffe5762bef215a33c802bedd28a0ef46aaec1b3b515cf8bb74e9a5841d0918
-R c571fc0b192bbaf5ed92fbdd96174924
+P e7659e7265961506d630a35e7c8a426dd569a508d3166ca0728fb290adc55249
+R b77f639ed96fbb32cb563573fc16a7fb
 U stephan
-Z d086bbe68f1ab1264bcdfef900ac2a24
+Z 42617eb5a7da525a5ce7441fa5f3443d

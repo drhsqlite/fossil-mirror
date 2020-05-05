@@ -984,7 +984,7 @@ static void fileedit_render_diff(Blob * pContent, int frid,
     | (isSbs ? DIFF_SIDEBYSIDE : DIFF_LINENO);
   content_get(frid, &orig);
   text_diff(&orig, pContent, &out, 0, diffFlags);
-  if(isSbs){
+  if(isSbs || blob_size(&out)==0){
     CX("%b",&out);
   }else{
     CX("<pre class='udiff'>%b</pre>",&out);
