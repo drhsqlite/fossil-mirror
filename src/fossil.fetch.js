@@ -40,11 +40,11 @@ window.fossil.fetch = function f(uri,opt){
        && !(payload instanceof Document)
        && !(payload instanceof Blob)
        && !(payload instanceof File)
-       && !(payload instanceof ArrayBuffer)){
-      if('object'===typeof payload || payload instanceof Array){
-        payload = JSON.stringify(payload);
-        opt.contentType = 'application/json';
-      }
+       && !(payload instanceof ArrayBuffer)
+       && ('object'===typeof payload
+           || payload instanceof Array)){
+      payload = JSON.stringify(payload);
+      opt.contentType = 'application/json';
     }
   }
   const url=[window.fossil.repoUrl(uri,opt.urlParams)],

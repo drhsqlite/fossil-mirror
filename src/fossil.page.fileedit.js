@@ -1,49 +1,70 @@
-(function(){
+(function(F/*the fossil object*/){
   "use strict";
   /**
      Code for the /filepage app. Requires that the fossil JS
      bootstrapping is complete and fossil.fetch() has been installed.
   */
-  const E = (s)=>document.querySelector(s);
+  const E = (s)=>document.querySelector(s),
+        D = F.dom;
   window.addEventListener("load", function() {
-    const P = fossil.page;
+    const P = F.page;
+    P.tabs = new fossil.TabManager('#fileedit-tabs');
     P.e = {
-      taEditor: E('#fileedit-content'),
+      taEditor: E('#fileedit-content-editor'),
       taComment: E('#fileedit-comment'),
       ajaxContentTarget: E('#ajax-target'),
       form: E('#fileedit-form'),
-      btnPreview: E("#fileedit-btn-preview"),
-      btnDiffSbs: E("#fileedit-btn-diffsbs"),
-      btnDiffU: E("#fileedit-btn-diffu"),
+      //btnPreview: E("#fileedit-btn-preview"),
+      //btnDiffSbs: E("#fileedit-btn-diffsbs"),
+      //btnDiffU: E("#fileedit-btn-diffu"),
       btnCommit: E("#fileedit-btn-commit"),
       selectPreviewModeWrap: E('#select-preview-mode'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
       selectEolWrap:  E('#select-preview-html-ems'),
-      cbLineNumbersWrap: E('#cb-line-numbers')
+      cbLineNumbersWrap: E('#cb-line-numbers'),
+      tabs:{
+        content: E('#fileedit-tab-content'),
+        preview: E('#fileedit-tab-preview'),
+        diff: E('#fileedit-tab-diff'),
+        commit: E('#fileedit-tab-commit')
+      }
     };
     const stopEvent = function(e){
-      e.preventDefault();
-      e.stopPropagation();
+      //e.preventDefault();
+      //e.stopPropagation();
       return P;
     };
       
     P.e.form.addEventListener("submit", function(e) {
       e.target.checkValidity();
-      stopEvent(e);
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
     }, false);
-    P.e.btnPreview.addEventListener(
-      "click",(e)=>stopEvent(e).preview(),false
+    //P.tabs.getButtonForTab(P.e.tabs.preview)
+    P.e.tabs.preview.querySelector(
+      'button'
+    ).addEventListener(
+      "click",(e)=>P.preview(), false
     );
-    P.e.btnDiffSbs.addEventListener(
-      "click",(e)=>stopEvent(e).diff(true),false
+
+    document.querySelector('#fileedit-form').addEventListener(
+      "click",function(e){
+        stopEvent(e);
+        return false;
+      }
     );
-    P.e.btnDiffU.addEventListener(
-      "click",(e)=>stopEvent(e).diff(false), false
+    
+    const diffButtons = E('#fileedit-tab-diff-buttons');
+    diffButtons.querySelector('button.sbs').addEventListener(
+      "click",(e)=>P.diff(true), false
+    );
+    diffButtons.querySelector('button.unified').addEventListener(
+      "click",(e)=>P.diff(false), false
     );
     P.e.btnCommit.addEventListener(
       "click",(e)=>stopEvent(e).commit(), false
     );
-
     /**
        Cosmetic: jump through some hoops to enable/disable
        certain preview options depending on the current
@@ -52,7 +73,7 @@
     const selectPreviewMode =
           P.e.selectPreviewModeWrap.querySelector('select');
     selectPreviewMode.addEventListener(
-      "change",function(e){
+      "change", function(e){
         const mode = e.target.value,
               name = P.previewModes[mode],
               hide = [], unhide = [];
@@ -85,9 +106,11 @@
       // Force UI update
       new Event('change',{target:selectFontSize})
     );
+
+    P.tabs.e.container.insertBefore(
+      E('#fossil-status-bar'), P.tabs.e.tabs
+    );
   }, false);
-
-
   
   /**
      updateVersion() updates filename and version in relevant UI
@@ -95,25 +118,26 @@
 
      Returns this object.
   */
-  fossil.page.updateVersion = function(file,rev){
+  F.page.updateVersion = function(file,rev){
     this.finfo = {file,r:rev};
     const E = (s)=>document.querySelector(s),
-          euc = encodeURIComponent;
+          euc = encodeURIComponent,
+          rShort = rev.substr(0,16);
     E('#r-label').innerText=rev;
     E('#finfo-link').setAttribute(
       'href',
-      fossil.rootPath+'finfo?name='+euc(file)+'&m='+rev
+      F.repoUrl('finfo',{name:file, m:rShort})
     );
     E('#finfo-file-name').innerText=file;
     E('#r-link').setAttribute(
       'href',
-      fossil.rootPath+'/info/'+rev
+      F.repoUrl('info/'+rev)
     );
     E('#r-label').innerText = rev;
-    const purl = fossil.rootPath+'fileedit?file='+euc(file)+
-          '&r='+rev;
-    var e = E('#permalink');
-    e.innerText=purl;
+    const purlArgs = F.encodeUrlArgs({file, r:rShort});
+    const purl = F.repoUrl('fileedit',purlArgs);
+    const e = E('#permalink');
+    e.innerText='fileedit?'+purlArgs;
     e.setAttribute('href',purl);
     return this;
   };
@@ -124,14 +148,17 @@
 
      Returns this object, noting that the load is async.
   */
-  fossil.page.loadFile = function(file,rev){
+  F.page.loadFile = function(file,rev){
     delete this.finfo;
-    fossil.fetch('fileedit_content',{
+    const self = this;
+    F.fetch('fileedit_content',{
       urlParams:{file:file,r:rev},
       onload:(r)=>{
-        document.getElementById('fileedit-content').value=r;
-        fossil.message('Loaded content.');
-        fossil.page.updateVersion(file,rev);
+        F.message('Loaded content.');
+        self.e.taEditor.value = r;
+        self.updateVersion(file,rev);
+        self.preview();
+        self.tabs.switchToTab(self.e.tabs.content);
       }
     });
     return this;
@@ -143,21 +170,21 @@
 
      Returns this object, noting that the operation is async.
   */
-  fossil.page.preview = function(){
+  F.page.preview = function(switchToTab){
     if(!this.finfo){
-      fossil.error("No content is loaded.");
+      F.error("No content is loaded.");
       return this;
     }
     const content = this.e.taEditor.value,
-          target = this.e.ajaxContentTarget;
+          target = this.e.tabs.preview.querySelector(
+            '#fileedit-tab-preview-wrapper'
+          ),
+          self = this;
     const updateView = function(c){
-      target.innerHTML = [
-        "<div class='fileedit-preview'>",
-        "<div>Preview</div>",
-        c||'',
-        "</div><!--.fileedit-diff-->"
-      ].join('');
-      fossil.message('Updated preview.');
+      if(c) target.innerHTML = c;
+      else D.clearElement(target);
+      F.message('Updated preview.');
+      if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
     if(!content){
       updateView('');
@@ -169,7 +196,8 @@
     fd.append('ln',E('[name=preview_ln]').checked ? 1 : 0);
     fd.append('iframe_height', E('[name=preview_html_ems]').value);
     fd.append('content',content);
-    fossil.message(
+    target.innerText = "Fetching preview...";
+    F.message(
       "Fetching preview..."
     ).fetch('fileedit_preview',{
       payload: fd,
@@ -184,39 +212,35 @@
 
      Returns this object, noting that the operation is async.
   */
-  fossil.page.diff = function(sbs){
+  F.page.diff = function(sbs){
     if(!this.finfo){
-      fossil.error("No content is loaded.");
+      F.error("No content is loaded.");
       return this;
     }
-    const self = this;
     const content = this.e.taEditor.value,
-          target = this.e.ajaxContentTarget;
-    const updateView = function(c){
-      target.innerHTML = [
-        "<div class='fileedit-diff'>",
-        "<div>Diff <code>[",
-        self.finfo.r,
-        "]</code> &rarr; Local Edits</div>",
-        c||'',
-        "</div><!--.fileedit-diff-->"
-      ].join('');
-      fossil.message('Updated diff.');
-    };
-    if(!content){
-      updateView('');
-      return this;
-    }
+          target = this.e.tabs.diff.querySelector(
+            '#fileedit-tab-diff-wrapper'
+          ),
+          self = this;
     const fd = new FormData();
     fd.append('file',this.finfo.file);
     fd.append('r', this.finfo.r);
     fd.append('sbs', sbs ? 1 : 0);
     fd.append('content',content);
-    fossil.message(
+    F.message(
       "Fetching diff..."
     ).fetch('fileedit_diff',{
       payload: fd,
-      onload: updateView
+      onload: function(c){
+        target.innerHTML = [
+          "<div>Diff <code>[",
+          self.finfo.r,
+          "]</code> &rarr; Local Edits</div>",
+          c||'No changes.'
+        ].join('');
+        F.message('Updated diff.');
+        self.tabs.switchToTab(self.e.tabs.diff);
+      }
     });
     return this;
   };
@@ -227,14 +251,14 @@
 
      Returns this object.
   */
-  fossil.page.commit = function f(){
+  F.page.commit = function f(){
     if(!this.finfo){
-      fossil.error("No content is loaded.");
+      F.error("No content is loaded.");
       return this;
     }
     const self = this;
     const content = this.e.taEditor.value,
-          target = this.e.ajaxContentTarget,
+          target = document.querySelector('#fileedit-manifest'),
           cbDryRun = E('[name=dry_run]'),
           isDryRun = cbDryRun.checked,
           filename = this.finfo.file;
@@ -257,9 +281,10 @@
           msg.push('Re-activating dry-run mode.');
           self.e.taComment.value = '';
           cbDryRun.checked = true;
-          fossil.page.updateVersion(filename, c.uuid);
+          F.page.updateVersion(filename, c.uuid);
         }
-        fossil.message.apply(fossil, msg);
+        F.message.apply(fossil, msg);
+        self.tabs.switchToTab(self.e.tabs.commit);
       };
     }
     if(!content){
@@ -292,7 +317,7 @@
         console.error("Missing checkbox? name =",name);
       }
     });
-    fossil.message(
+    F.message(
       "Checking in..."
     ).fetch('fileedit_commit',{
       payload: fd,
@@ -302,5 +327,4 @@
     return this;
   };
 
-  
-})();
+})(window.fossil);

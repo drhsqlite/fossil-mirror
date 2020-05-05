@@ -221,8 +221,10 @@ EXTRA_FILES = \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
+  $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
   $(SRCDIR)/fossil.page.fileedit.js \
+  $(SRCDIR)/fossil.tabs.js \
   $(SRCDIR)/graph.js \
   $(SRCDIR)/href.js \
   $(SRCDIR)/login.js \

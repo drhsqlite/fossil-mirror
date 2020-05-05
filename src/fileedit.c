@@ -1448,9 +1448,9 @@ end_cleanup:
 ** Emits utility script code specific to the /fileedit page.
 */
 static void fileedit_emit_page_script(){
-  style_emit_script_tag(0);
-  CX("%s\n", builtin_text("fossil.page.fileedit.js"));
-  style_emit_script_tag(1);
+  style_emit_script_fetch();
+  style_emit_script_tabs();
+  style_emit_script_builtin("fossil.page.fileedit.js");
 }
 
 /*
@@ -1518,33 +1518,22 @@ void fileedit_page(){
   ** or similar, are not "that" fatal. We can/should continue
   ** rendering the page, then output the error message at the end.
   ********************************************************************/
-  CX("<h1>Editing:</h1>");
-  CX("<p class='fileedit-hint'>");
-  CX("File: "
-     "[<a id='finfo-link' href='#'>info</a>] "
-     /* %R/finfo?name=%T&m=%!S */
-     "<code id='finfo-file-name'>(loading)</code><br>");
-  CX("Checkin Version: "
-     "[<a id='r-link' href='#'>info</a>] "
-     /* %R/info/%!S */
-     "<code id='r-label'>(loading...)</code><br>"
-     );
-  CX("Permalink: <code>"
-     "<a id='permalink' href='#'>(loading...)</a></code><br>"
-     "(Clicking the permalink will reload the page and discard "
-     "all edits!)",
-     zFilename, cimi.zParentUuid,
-     zFilename, cimi.zParentUuid);
-  CX("</p>");
   CX("<p>This page is <em>NEW AND EXPERIMENTAL</em>. "
      "USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
-  
-  CX("<form action='#' method='POST' "
-     "class='fileedit' id='fileedit-form' "
-     "onsubmit='function(e){"
-     "e.preventDefault(); e.stopPropagation(); return false;"
-     "}'>\n");
+
+  /*
+  ** We don't strictly need a FORM because we manually cherry-pick and
+  ** submit the form data, but it being in a form allows us to easily
+  ** use the FormData type for serialization.
+  **
+  ** TODO?: we can almost certainly replace this element with a plain
+  ** DIV, which would eliminate the event-handling hassles of trying
+  ** to suppress the submit... but it would also eliminate the option
+  ** of using HTML form field validation.
+  */
+  CX("<form action='#' method='POST' class='fileedit' "
+     "id='fileedit-form'>");
 
   /******* Hidden fields *******/
   CX("<input type='hidden' name='r' value='%s'>",
@@ -1552,156 +1541,227 @@ void fileedit_page(){
   CX("<input type='hidden' name='file' value='%T'>",
      zFilename);
 
-  /******* Content *******/
-  CX("<h3>File Content</h3>\n");
-  CX("<textarea name='content' id='fileedit-content' "
-     "rows='20' cols='80'>");
-  CX("Loading...");
-  CX("</textarea>\n");
-
+  /* Status bar */
   CX("<div id='fossil-status-bar'>Async. status messages will go "
-     "here.</div>\n");
+     "here.</div>\n"/* will be moved into the tab container via JS */);
 
-  /******* Flags/options *******/
-  CX("<fieldset class='fileedit-options' id='options'>"
-     "<legend>Options</legend><div>"
-     /* Chrome does not sanely lay out multiple
-     ** fieldset children after the <legend>, so
-     ** a containing div is necessary. */);
-  style_labeled_checkbox("cb-dry-run",
-                         "dry_run", "Dry-run?", "1",
-                         "In dry-run mode, the Save button performs "
-                         "all work needed for saving but then rolls "
-                         "back the transaction, and thus does not "
-                         "really save.",
-                         1);
-  style_labeled_checkbox("cb-allow-fork",
-                         "allow_fork", "Allow fork?", "1",
-                         "Allow saving to create a fork?",
-                         cimi.flags & CIMINI_ALLOW_FORK);
-  style_labeled_checkbox("cb-allow-older",
-                         "allow_older", "Allow older?", "1",
-                         "Allow saving against a parent version "
-                         "which has a newer timestamp?",
-                         cimi.flags & CIMINI_ALLOW_OLDER);
-  style_labeled_checkbox("cb-exec-bit",
-                         "exec_bit", "Executable?", "1",
-                         "Set the executable bit?",
-                         PERM_EXE==cimi.filePerm);
-  style_labeled_checkbox("cb-allow-merge-conflict",
-                         "allow_merge_conflict",
-                         "Allow merge conflict markers?", "1",
-                         "Allow saving even if the content contains "
-                         "what appear to be fossil merge conflict "
-                         "markers?",
-                         cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
-  style_labeled_checkbox("cb-prefer-delta",
-                         "prefer_delta",
-                         "Prefer delta manifest?", "1",
-                         "Will create a delta manifest, instead of "
-                         "baseline, if conditions are favorable to do "
-                         "so. This option is only a suggestion.",
-                         cimi.flags & CIMINI_PREFER_DELTA);
-  style_select_list_int("select-eol-style",
-                        "eol", "EOL Style",
-                        "EOL conversion policy, noting that "
-                        "form-processing may implicitly change the "
-                        "line endings of the input.",
-                        (cimi.flags & CIMINI_CONVERT_EOL_UNIX)
-                        ? 1 : (cimi.flags & CIMINI_CONVERT_EOL_WINDOWS
-                               ? 2 : 0),
-                        "Inherit", 0,
-                        "Unix", 1,
-                        "Windows", 2,
-                        NULL);
-  style_select_list_int("select-font-size",
-                        "editor_font_size", "Editor Font Size",
-                        NULL/*tooltip*/,
-                        100,
-                        "100%", 100, "125%", 125,
-                        "150%", 150, "175%", 175,
-                        "200%", 200, NULL);
+  /* Main tab container... */
+  CX("<div id='fileedit-tabs' class='tab-container'></div>");
 
-  CX("</div></fieldset>") /* end of checkboxes */;
-
-  /******* Comment *******/
-  CX("<a id='comment'></a>");
-  CX("<fieldset><legend>Commit message</legend><div>");
-  CX("<textarea name='comment' rows='3' cols='80' "
-     "id='fileedit-comment'>");
-  /* ^^^ adding the 'required' attribute means we cannot even submit
-  ** for PREVIEW mode if it's empty :/. */
-  if(blob_size(&cimi.comment)){
-    CX("%h", blob_str(&cimi.comment));
+  /***** File/version info tab *****/
+  {
+    CX("<div id='fileedit-tab-version' "
+       "data-tab-parent='fileedit-tabs' "
+       "data-tab-label='Version Info'"
+       ">");
+    CX("File: "
+       "[<a id='finfo-link' href='#'>/finfo</a>] "
+       /* %R/finfo?name=%T&m=%!S */
+       "<code id='finfo-file-name'>(loading)</code><br>");
+    CX("Checkin Version: "
+       "[<a id='r-link' href='#'>/info</a>] "
+       /* %R/info/%!S */
+       "<code id='r-label'>(loading...)</code><br>"
+       );
+    CX("Permalink: <code>"
+       "<a id='permalink' href='#'>(loading...)</a></code><br>"
+       "(Clicking the permalink will reload the page and discard "
+       "all edits!)",
+       zFilename, cimi.zParentUuid,
+       zFilename, cimi.zParentUuid);
+    CX("</div>"/*#fileedit-tab-version*/);
   }
-  CX("</textarea>\n");
-  CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
-     "syntax.</div>\n"/*TODO: select for fossil/md/plain text*/);
-  CX("</div></fieldset>\n");
-
-  /******* Buttons *******/
-  CX("<a id='buttons'></a>");
-  CX("<fieldset class='fileedit-options'>"
-     "<legend>Ask the server to...</legend><div>");
-  CX("<button id='fileedit-btn-commit'>Commit</button>");
-  CX("<button id='fileedit-btn-diffsbs'>Diff (SBS)</button>");
-  CX("<button id='fileedit-btn-diffu'>Diff (Unified)</button>");
-  CX("<button id='fileedit-btn-preview'>Preview</button>");
-  /* Default preview rendering mode selection... */
-  previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
-  style_select_list_int("select-preview-mode",
-                        "preview_render_mode",
-                        "Preview Mode",
-                        "Preview mode format.",
-                        previewRenderMode,
-                        "Guess", FE_RENDER_GUESS,
-                        "Wiki/Markdown", FE_RENDER_WIKI,
-                        "HTML (iframe)", FE_RENDER_HTML,
-                        "Plain Text", FE_RENDER_PLAIN_TEXT,
-                        NULL);
-  /*
-  ** Set up a JS-side mapping of the FE_RENDER_xyz values.  This is
-  ** used for dynamically toggling certain UI components on and off.
-  */
-  blob_appendf(&endScript, "fossil.page.previewModes={"
-               "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
-               "html: %d, %d: 'html', text: %d, %d: 'text'"
-               "};\n",
-               FE_RENDER_GUESS, FE_RENDER_GUESS,
-               FE_RENDER_WIKI, FE_RENDER_WIKI,
-               FE_RENDER_HTML, FE_RENDER_HTML,
-               FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
-
-  /* Allow selection of HTML preview iframe height */
-  previewHtmlHeight = atoi(PD("preview_html_ems","0"));
-  if(!previewHtmlHeight){
-    previewHtmlHeight = 40;
+  
+  /******* Content tab *******/
+  {
+    CX("<div id='fileedit-tab-content' "
+       "data-tab-parent='fileedit-tabs' "
+       "data-tab-label='File Content'"
+       ">");
+    CX("<textarea name='content' id='fileedit-content-editor' "
+       "rows='20' cols='80'>");
+    CX("Loading...");
+    CX("</textarea>\n");
+    CX("</div>"/*#tab-file-content*/);
   }
-  style_select_list_int("select-preview-html-ems",
-                        "preview_html_ems",
-                        "HTML Preview IFrame Height (EMs)",
-                        "Height (in EMs) of the iframe used for "
-                        "HTML preview",
-                        previewHtmlHeight,
-                        "", 20, "", 40,
-                        "", 60, "", 80,
-                        "", 100, NULL);
-  /* Selection of line numbers for text preview */
-  style_labeled_checkbox("cb-line-numbers",
-                         "preview_ln",
-                         "Add line numbers to plain-text previews?",
-                         "1",
-                         "If on, plain-text files (only) will get "
-                         "line numbers added to the preview.",
-                         P("preview_ln")!=0);
 
-  CX("</div></fieldset>");
+  /****** Preview tab ******/
+  {
+    CX("<div id='fileedit-tab-preview' "
+       "data-tab-parent='fileedit-tabs' "
+       "data-tab-label='Preview'"
+       ">");
 
+    CX("<fieldset class='fileedit-options'>"
+       "<legend>Preview...</legend><div>");
+    
+    CX("<div class='preview-controls'>");
+    CX("<button>Refresh</button>");
+    /* Default preview rendering mode selection... */
+    previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
+    style_select_list_int("select-preview-mode",
+                          "preview_render_mode",
+                          "Preview Mode",
+                          "Preview mode format.",
+                          previewRenderMode,
+                          "Guess", FE_RENDER_GUESS,
+                          "Wiki/Markdown", FE_RENDER_WIKI,
+                          "HTML (iframe)", FE_RENDER_HTML,
+                          "Plain Text", FE_RENDER_PLAIN_TEXT,
+                          NULL);
+    /*
+    ** Set up a JS-side mapping of the FE_RENDER_xyz values.  This is
+    ** used for dynamically toggling certain UI components on and off.
+    */
+    blob_appendf(&endScript, "fossil.page.previewModes={"
+                 "guess: %d, %d: 'guess', wiki: %d, %d: 'wiki',"
+                 "html: %d, %d: 'html', text: %d, %d: 'text'"
+                 "};\n",
+                 FE_RENDER_GUESS, FE_RENDER_GUESS,
+                 FE_RENDER_WIKI, FE_RENDER_WIKI,
+                 FE_RENDER_HTML, FE_RENDER_HTML,
+                 FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
+    /* Allow selection of HTML preview iframe height */
+    previewHtmlHeight = atoi(PD("preview_html_ems","0"));
+    if(!previewHtmlHeight){
+      previewHtmlHeight = 40;
+    }
+    style_select_list_int("select-preview-html-ems",
+                          "preview_html_ems",
+                          "HTML Preview IFrame Height (EMs)",
+                          "Height (in EMs) of the iframe used for "
+                          "HTML preview",
+                          previewHtmlHeight,
+                          "", 20, "", 40,
+                          "", 60, "", 80,
+                          "", 100, NULL);
+    /* Selection of line numbers for text preview */
+    style_labeled_checkbox("cb-line-numbers",
+                           "preview_ln",
+                           "Add line numbers to plain-text previews?",
+                           "1",
+                           "If on, plain-text files (only) will get "
+                           "line numbers added to the preview.",
+                           P("preview_ln")!=0);
+    CX("</div></fieldset>"/*.fileedit-options*/);
+    CX("<div id='fileedit-tab-preview-wrapper'></div>");
+    CX("</div>"/*#fileedit-tab-preview*/);
+  }
+
+  /****** Diff tab ******/
+  {
+    CX("<div id='fileedit-tab-diff' "
+       "data-tab-parent='fileedit-tabs' "
+       "data-tab-label='Diff'"
+       ">");
+    CX("<div id='fileedit-tab-diff-buttons'>"
+       "<button class='sbs'>Side-by-side</button>"
+       "<button class='unified'>Unified</button>"
+       "</div>");
+    CX("<div id='fileedit-tab-diff-wrapper'>"
+       "Diffs will be shown here."
+       "</div>");
+    CX("</div>");
+  }
+
+
+  /****** Commit ******/
+  CX("<div id='fileedit-tab-commit' "
+     "data-tab-parent='fileedit-tabs' "
+     "data-tab-label='Commit'"
+     ">");
+
+  {
+    /******* Flags/options *******/
+    CX("<fieldset class='fileedit-options'>"
+       "<legend>Options</legend><div>"
+       /* Chrome does not sanely lay out multiple
+       ** fieldset children after the <legend>, so
+       ** a containing div is necessary. */);
+    style_labeled_checkbox("cb-dry-run",
+                           "dry_run", "Dry-run?", "1",
+                           "In dry-run mode, the Save button performs "
+                           "all work needed for saving but then rolls "
+                           "back the transaction, and thus does not "
+                           "really save.",
+                           1);
+    style_labeled_checkbox("cb-allow-fork",
+                           "allow_fork", "Allow fork?", "1",
+                           "Allow saving to create a fork?",
+                           cimi.flags & CIMINI_ALLOW_FORK);
+    style_labeled_checkbox("cb-allow-older",
+                           "allow_older", "Allow older?", "1",
+                           "Allow saving against a parent version "
+                           "which has a newer timestamp?",
+                           cimi.flags & CIMINI_ALLOW_OLDER);
+    style_labeled_checkbox("cb-exec-bit",
+                           "exec_bit", "Executable?", "1",
+                           "Set the executable bit?",
+                           PERM_EXE==cimi.filePerm);
+    style_labeled_checkbox("cb-allow-merge-conflict",
+                           "allow_merge_conflict",
+                           "Allow merge conflict markers?", "1",
+                           "Allow saving even if the content contains "
+                           "what appear to be fossil merge conflict "
+                           "markers?",
+                           cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
+    style_labeled_checkbox("cb-prefer-delta",
+                           "prefer_delta",
+                           "Prefer delta manifest?", "1",
+                           "Will create a delta manifest, instead of "
+                           "baseline, if conditions are favorable to "
+                           "do so. This option is only a suggestion.",
+                           cimi.flags & CIMINI_PREFER_DELTA);
+    style_select_list_int("select-eol-style",
+                          "eol", "EOL Style",
+                          "EOL conversion policy, noting that "
+                          "form-processing may implicitly change the "
+                          "line endings of the input.",
+                          (cimi.flags & CIMINI_CONVERT_EOL_UNIX)
+                          ? 1 : (cimi.flags & CIMINI_CONVERT_EOL_WINDOWS
+                                 ? 2 : 0),
+                          "Inherit", 0,
+                          "Unix", 1,
+                          "Windows", 2,
+                          NULL);
+#if 0
+    style_select_list_int("select-font-size",
+                          "editor_font_size", "Editor Font Size",
+                          NULL/*tooltip*/,
+                          100,
+                          "100%", 100, "125%", 125,
+                          "150%", 150, "175%", 175,
+                          "200%", 200, NULL);
+#endif
+    CX("</div></fieldset>"/*checkboxes*/);
+  }
+
+  { /******* Comment *******/
+    CX("<fieldset class='fileedit-options'>"
+       "<legend>Message (required)</legend><div>");
+    CX("<input type='text' name='comment' "
+       "id='fileedit-comment'>");
+    /* ^^^ adding the 'required' attribute means we cannot even
+       submit for PREVIEW mode if it's empty :/. */
+    if(blob_size(&cimi.comment)){
+      blob_appendf(&endScript,
+                   "document.querySelector('#fileedit-comment').value="
+                   "\"%h\";\n", blob_str(&cimi.comment));
+    }
+    CX("</input>\n");
+    CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
+       "syntax.</div>\n"/*TODO: select for fossil/md/plain text*/);
+    CX("</div></fieldset>\n"/*commit comment*/);
+    CX("<div>"
+       "<button id='fileedit-btn-commit'>Commit</button>"
+       "</div>\n");
+    CX("<div id='fileedit-manifest'></div>\n");
+  }
+
+  CX("</div>"/*#fileedit-tab-commit*/);
+  
   /******* End of form *******/    
   CX("</form>\n");
-
-  CX("<div id='ajax-target'>%s</div>"
-     /* this is where preview/diff go */);
   
   /* Dynamically populate the editor... */
   blob_appendf(&endScript,
@@ -1719,7 +1779,6 @@ end_footer:
   }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  style_emit_script_fetch();
   fileedit_emit_page_script();
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0);

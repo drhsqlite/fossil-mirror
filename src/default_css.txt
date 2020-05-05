@@ -868,10 +868,11 @@ form.fileedit textarea {
   width: 100%;
 }
 form.fileedit fieldset {
-  margin: 0.5em 0 0 0;
+  margin: 0.5em 0 0.5em 0;
   border-radius: 0.5em;
   border-color: inherit;
   border-width: 1px;
+  font-size: 85%;
 }
 form.fileedit fieldset > legend {
   margin: 0 0 0 1em;
@@ -910,16 +911,13 @@ div.fileedit-preview {
   margin: 0;
   padding: 0;
 }
-.fileedit-preview > div:first-child {
-  margin: 1em 0 0 0;
-  border-bottom: 1px dashed;
-}
-div.fileedit-diff {
+div.fileedit-tab-diff-wrapper {
   margin: 0;
   padding: 0;
 }
-.fileedit-diff > div:first-child {
-  border-bottom: 1px dashed;
+#fileedit-comment {
+  width: 100%;
+  font-family: monospace;
 }
 #fossil-status-bar {
   display: block;
@@ -930,6 +928,8 @@ div.fileedit-diff {
   min-height: 1.5em;
   font-size: 1.2em;
   padding: 0.2em;
+  margin: 0.25em 0;
+  flex: 0 0 auto;
 }
 #fossil-status-bar.error {
   color: darkred;
@@ -969,8 +969,13 @@ div.fileedit-diff {
     vertical-align: middle;
 }
 .hidden {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
+//.hidden {
+//  display: none;
+//}
 .font-size-100 {
   font-size: 100%;
 }
@@ -985,4 +990,45 @@ div.fileedit-diff {
 }
 .font-size-200 {
   font-size: 200%;
+}
+.tab-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.tab-container > #fossil-status-bar {
+  margin-top: 0;
+}
+.tab-container > .tabs {
+  padding: 0.25em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-style: outset;
+  border-color: inherit;
+}
+.tab-container > .tabs > .tab-panel {
+  align-self: stretch;
+  flex: 10 1 auto;
+  display: block;
+}
+.tab-container > .tab-bar {
+  display: flex;
+  flex-direction: row;
+  flex: 1 10 auto;
+  align-self: stretch;
+  flex-wrap: wrap;
+}
+.tab-container > .tab-bar > button {
+  border-radius: 0.5em 0.5em 0 0;
+  margin: 0.5em 0.5em 0 0.5em;
+  align-self: baseline;
+}
+.tab-container > .tab-bar > button.selected {
+  font-style: italic;
+  font-weight: bold;
+  margin: 0 0.5em;
+  text-decoration: underline;
 }

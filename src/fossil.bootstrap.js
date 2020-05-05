@@ -55,6 +55,28 @@ window.fossil.error = function f(msg){
 };
 
 /**
+   For each property in the given object, its key/value are encoded
+   for use as URL parameters and the combined string is
+   returned. e.g. {a:1,b:2} encodes to "a=1&b=2".
+
+   If the 2nd argument is an array, each encoded element is appended
+   to that array and tgtArray is returned. The above object would be
+   appended as ['a','=','1','&','b','=','2']. This form is used for
+   building up parameter lists before join('')ing the array to create
+   the result string.
+*/
+window.fossil.encodeUrlArgs = function(obj,tgtArray){
+  if(!obj) return '';
+  const a = (tgtArray instanceof Array) ? tgtArray : [];
+  let k, i = 0;
+  for( k in obj ){
+    if(i++) a.push('&');
+    a.push(encodeURIComponent(k),
+           '=',encodeURIComponent(obj[k]));
+  }
+  return a===tgtArray ? a : a.join('');
+};
+/**
    repoUrl( repoRelativePath [,urlParams] )
 
    Creates a URL by prepending this.rootPath to the given path
@@ -70,11 +92,7 @@ window.fossil.repoUrl = function(path,urlParams){
   url.push('?');
   if('string'===typeof urlParams) url.push(urlParams);
   else if('object'===typeof urlParams){
-    let k, i = 0;
-    for( k in urlParams ){
-      if(i++) url.push('&');
-      url.push(k,'=',encodeURIComponent(urlParams[k]));
-    }
+    this.encodeUrlArgs(urlParams, url);
   }
   return url.join('');
 };

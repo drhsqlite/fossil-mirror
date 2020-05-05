@@ -1424,51 +1424,80 @@ void style_select_list_int(const char * zWrapperId,
   va_end(vargs);
 }
 
+/*
+** The first time this is called, it emits code to install and
+** bootstrap the window.fossil object, using the built-in file
+** fossil.bootstrap.js (not to be confused with bootstrap.js). It does
+** NOT wrap that in a script tag because it's called from
+** style_emit_script_tag().
+**
+** Subsequent calls are no-ops.
+*/
+static void style_emit_script_fossil_bootstrap(){
+  static int once = 0;
+  if(0==once++){
+    /* Set up the generic/app-agnostic parts of window.fossil */
+    CX("(function(){\n"
+       "if(!window.fossil) window.fossil={};\n"
+       "window.fossil.version = \"%j\";\n"
+    /* fossil.rootPath is the top-most CGI/server path,
+       including a trailing slash. */
+       "window.fossil.rootPath = \"%j\"+'/';\n",
+       get_version(), g.zTop);
+    /*
+    ** fossil.page holds info about the current page. This is
+    ** also where the current page "should" store any of its
+    ** own page-specific state.
+    */
+    CX("window.fossil.page = {"
+       "page:\"%T\""
+       "};\n", g.zPath);
+    /* The remaining code is not dependent on C-runtime state... */
+    CX("%s\n", builtin_text("fossil.bootstrap.js"));
+    CX("})();\n");
+  }
+}
 
 /*
 ** If passed 0, it emits a script opener tag with this request's
-** nonce. If passed non-0 it emits a script closing tag. The very
-** first time it is called, it emits some bootstrapping JS code
-** immediately after the script opener. Specifically, it defines
-** window.fossil if it's not already defined, and may set some
-** properties on it.
+** nonce. If passed non-0 it emits a script closing tag.
+**
+** The very first time it is called, it emits some bootstrapping JS
+** code immediately after the script opener. Specifically, it defines
+** window.fossil if it's not already defined, and sets up its most
+** basic functionality.
 */
 void style_emit_script_tag(int phase){
   static int once = 0;
   if(0==phase){
     CX("<script nonce='%s'>", style_nonce());
-    if(0==once){
-      once = 1;
-      /* Set up the generic/app-agnostic parts of window.fossil */
-      CX("(function(){\n");
-      CX("\nif(!window.fossil) window.fossil={};\n");
-      CX("window.fossil.version = '%j';\n", get_version());
-      /* fossil.rootPath is the top-most CGI/server path,
-         including a trailing slash. */
-      CX("window.fossil.rootPath = '%j'+'/';\n", g.zTop);
-      /*
-      ** fossil.page holds info about the current page. This is
-      ** also where the current page "should" store any of its
-      ** own page-specific state.
-      */
-      CX("window.fossil.page = {"
-         "page:'%T'"
-         "};\n", g.zPath);
-      CX("%s\n", builtin_text("fossil.bootstrap.js"));
-      CX("})();\n");
+    if(0==once++){
+      style_emit_script_fossil_bootstrap();
     }
   }else{
     CX("</script>\n");
   }
 }
 
+/*
+** Emits the text of builtin_text(zName), which is assumed to be
+** JavaScript code, and wrapps that in a pair of calls to
+** style_emit_script_tag().
+*/
+void style_emit_script_builtin(char const * zName){
+    style_emit_script_tag(0);
+    CX("%s", builtin_text(zName));
+    style_emit_script_tag(1);
+}
 
 /*
-** The *FIRST* time this is called, it emits a JS script block,
-** including tags, which defines window.fossil.fetch(), which works
-** similarly (not identically) to the not-quite-ubiquitous global
-** fetch(). It calls style_emit_script_tag(), which may inject
-** other JS bootstrapping bits.
+** The first time this is called, it emits a JS script block,
+** including tags, using the contents of the built-in file
+** fossil.fetch.js, which defines window.fossil.fetch(), an HTTP
+** request/response mini-framework similar (but not identical) to the
+** not-quite-ubiquitous window.fetch(). It calls
+** style_emit_script_tag(), which may inject other JS bootstrapping
+** bits. Subsequent calls are no-ops.
 **
 ** JS usages:
 **
@@ -1493,11 +1522,11 @@ void style_emit_script_tag(int phase){
 **
 ** - payload: anything acceptable by XHR2.send(ARG) (DOMString,
 **   Document, FormData, Blob, File, ArrayBuffer), or a plain object
-**   or array, either of which gets JSON.stringify()'d. If set then
-**   the method is automatically set to 'POST'. If an object/array is
-**   converted to JSON, the content-type is set to 'application/json'.
-**   By default XHR2 will set the content type based on the payload
-**   type.
+**   or array, either of which gets JSON.stringify()'d. If payload is
+**   set then the method is automatically set to 'POST'. If an
+**   object/array is converted to JSON, the contentType option is
+**   automatically set to 'application/json'. By default XHR2 will set
+**   the content type based on the payload type.
 **
 ** - contentType: Optional request content type when POSTing. Ignored
 **   if the method is not 'POST'.
@@ -1506,14 +1535,13 @@ void style_emit_script_tag(int phase){
 **   "blob", or "document") (as specified by XHR2). Default = "text".
 **   As an extension, it supports "json", which tells it that the
 **   response is expected to be text and that it should be
-**   JSON.parse()d before passing it on to the onload() callback. In
-**   this case, if the payload property is an object/array.
+**   JSON.parse()d before passing it on to the onload() callback.
 **
 ** - urlParams: string|object. If a string, it is assumed to be a
 **   URI-encoded list of params in the form "key1=val1&key2=val2...",
 **   with NO leading '?'.  If it is an object, all of its properties
 **   get converted to that form. Either way, the parameters get
-**   appended to the URL.
+**   appended to the URL before submitting the request.
 **
 ** When an options object does not provide onload() or onerror()
 ** handlers of its own, this function falls back to
@@ -1528,10 +1556,31 @@ void style_emit_script_tag(int phase){
 */
 void style_emit_script_fetch(){
   static int once = 0;
-  if(0==once){
-    once = 1;
-    style_emit_script_tag(0);
-    CX("%s", builtin_text("fossil.fetch.js"));
-    style_emit_script_tag(1);
+  if(0==once++){
+    style_emit_script_builtin("fossil.fetch.js");
+  }
+}
+
+/*
+** The first time this is called, it emits the JS code from the
+** built-in file fossil.dom.js. Subsequent calls are no-ops.
+*/
+void style_emit_script_dom(){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_builtin("fossil.dom.js");
+  }
+}
+
+/*
+** The first time this is called, it calls style_emit_script_dom() and
+** emits the JS code from the built-in file fossil.tabs.js.
+** Subsequent calls are no-ops.
+*/
+void style_emit_script_tabs(){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_dom();
+    style_emit_script_builtin("fossil.tabs.js");
   }
 }
