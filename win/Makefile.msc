@@ -549,6 +549,9 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\copybtn.js \
         $(SRCDIR)\diff.tcl \
         $(SRCDIR)\forum.js \
+        $(SRCDIR)\fossil.bootstrap.js \
+        $(SRCDIR)\fossil.fetch.js \
+        $(SRCDIR)\fossil.page.fileedit.js \
         $(SRCDIR)\graph.js \
         $(SRCDIR)\href.js \
         $(SRCDIR)\login.js \

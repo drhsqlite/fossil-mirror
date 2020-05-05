@@ -920,7 +920,20 @@ div.fileedit-diff {
 .fileedit-diff > div:first-child {
   border-bottom: 1px dashed;
 }
-
+#fossil-status-bar {
+  display: block;
+  font-family: monospace;
+  border-width: 1px;
+  border-style: inset;
+  border-color: inherit;
+  min-height: 1.5em;
+  font-size: 1.2em;
+  padding: 0.2em;
+}
+#fossil-status-bar.error {
+  color: darkred;
+  background: yellow;
+}
 .input-with-label {
   border: 1px inset #808080;
   border-radius: 0.5em;

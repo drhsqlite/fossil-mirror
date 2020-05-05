@@ -900,114 +900,12 @@ int fileedit_is_editable(const char *zFilename){
   return glob_match(pGlobs, zFilename);
 }
 
-/*
-** Emits a script tag which defines window.fossil.fetch(), which works
-** similarly (not identically) to the not-quite-ubiquitous global
-** fetch().
-**
-** JS usages:
-**
-** fossilFetch( URI, onLoadCallback );
-**
-** fossilFetch( URI, optionsObject );
-**
-** Noting that URI must be relative to the top of the repository and
-** must not start with a slash (if it does, it is stripped). It gets
-** %R/ prepended to it.
-**
-** The optionsObject may be an onload callback or an object with any
-** of these properties:
-**
-** - onload: callback(responseData) (default = output response to
-**   console).
-**
-** - onerror: callback(XHR onload event) (default = console output)
-**
-** - method: 'POST' | 'GET' (default = 'GET')
-**
-** - payload: anything acceptable by XHR2.send(ARG) (DOMString,
-**   Document, FormData, Blob, File, ArrayBuffer), or a plain object
-**   or array, either of which gets JSON.stringify()'d. If set then
-**   the method is automatically set to 'POST'. If an object/array is
-**   converted to JSON, the content-type is set to 'application/json'.
-**   By default XHR2 will set the content type based on the payload
-**   type.
-**
-** - contentType: Optional request content type when POSTing. Ignored
-**   if the method is not 'POST'.
-**
-** - responseType: optional string. One of ("text", "arraybuffer",
-**   "blob", or "document") (as specified by XHR2). Default = "text".
-**
-** - urlParams: string|object. If a string, it is assumed to be a
-**   URI-encoded list of params in the form "key1=val1&key2=val2...",
-**   with NO leading '?'.  If it is an object, all of its properties
-**   get converted to that form. Either way, the parameters get
-**   appended to the URL.
-**
-*/
-void fileedit_emit_script_fetch(){
-  style_emit_script_tag(0);
-  CX("fossil.fetch = function(path,opt){\n");
-  CX("  if('/'===path[0]) path = path.substr(1);\n");
-  CX("  if(!opt){\n");
-  CX("    opt = {onload:(r)=>console.debug('response:',r)};\n");
-  CX("  }else if('function'===typeof opt){\n");
-  CX("    opt={onload:opt,\n");
-  CX("         onerror:(e)=>console.error('ajax error:',e)};\n");
-  CX("  }\n");
-  CX("  let payload = opt.payload;\n");
-  CX("  if(payload){\n");
-  CX("    opt.method = 'POST';\n");
-  CX("    if(!(payload instanceof FormData)\n");
-  CX("       && !(payload instanceof Document)\n");
-  CX("       && !(payload instanceof Blob)\n");
-  CX("       && !(payload instanceof File)\n");
-  CX("       && !(payload instanceof ArrayBuffer)){\n");
-  CX("      if('object'===typeof payload || payload instanceof Array){\n");
-  CX("        payload = JSON.stringify(payload);\n");
-  CX("        opt.contentType = 'application/json';\n");
-  CX("      }\n");
-  CX("    }\n");
-  CX("  }\n");
-  CX("  const url=['%R/'+path], x=new XMLHttpRequest();\n");
-  CX("  if(opt.urlParams){\n");
-  CX("    url.push('?');\n");
-  CX("    if('string'===typeof opt.urlParams){\n");
-  CX("      url.push(opt.urlParams);\n");
-  CX("    }else{/*assume object*/\n");
-  CX("      let k, i = 0;\n");
-  CX("      for( k in opt.urlParams ){\n");
-  CX("        if(i++) url.push('&');\n");
-  CX("        url.push(k,'=',encodeURIComponent(opt.urlParams[k]));\n");
-  CX("      }\n");
-  CX("    }\n");
-  CX("  }\n");
-  CX("  if('POST'===opt.method && 'string'===typeof opt.contentType){\n");
-  CX("    x.setRequestHeader('Content-Type',opt.contentType);\n");
-  CX("  }\n");
-  CX("  x.open(opt.method||'GET', url.join(''), true);\n");
-  CX("  x.responseType=opt.responseType||'text';\n");
-  CX("  if(opt.onload){\n");
-  CX("    x.onload = function(e){\n");
-  CX("      if(200!==this.status){\n");
-  CX("        if(opt.onerror) opt.onerror(e);\n");
-  CX("        return;\n");
-  CX("      }\n");
-  CX("      opt.onload(this.response);\n");
-  CX("    }\n");
-  CX("  }\n");
-  CX("  if(payload) x.send(payload);\n");
-  CX("  else x.send();\n");
-  CX("};\n");
-  style_emit_script_tag(1);
-};
-
 
 enum fileedit_render_preview_flags {
 FE_PREVIEW_LINE_NUMBERS = 1
 };
 enum fileedit_render_modes {
+/* GUESS must be 0. All others have specified values. */
 FE_RENDER_GUESS = 0,
 FE_RENDER_PLAIN_TEXT,
 FE_RENDER_HTML,
@@ -1039,8 +937,6 @@ static void fileedit_render_preview(Blob * pContent,
   if(FE_RENDER_GUESS==renderMode){
     renderMode = fileedit_render_mode_for_mimetype(zMime);
   }
-  CX("<div class='fileedit-preview'>");
-  CX("<div>Preview</div>");
   switch(renderMode){
     case FE_RENDER_HTML:{
       char * z64 = encode64(blob_str(pContent), blob_size(pContent));
@@ -1070,7 +966,6 @@ static void fileedit_render_preview(Blob * pContent,
       break;
     }
   }
-  CX("</div><!--.fileedit-preview-->\n");
 }
 
 /*
@@ -1089,15 +984,11 @@ static void fileedit_render_diff(Blob * pContent, int frid,
     | (isSbs ? DIFF_SIDEBYSIDE : DIFF_LINENO);
   content_get(frid, &orig);
   text_diff(&orig, pContent, &out, 0, diffFlags);
-  CX("<div class='fileedit-diff'>");
-  CX("<div>Diff <code>[%S]</code> &rarr; Local Edits</div>",
-     zManifestUuid);
   if(isSbs){
     CX("%b",&out);
   }else{
     CX("<pre class='udiff'>%b</pre>",&out);
   }
-  CX("</div><!--.fileedit-diff-->\n");
   blob_reset(&orig);
   blob_reset(&out);
 }
@@ -1123,6 +1014,222 @@ static char *fileedit_file_uuid(char const *zFilename,
   }
   db_finalize(&stmt);
   return zFileUuid;
+}
+
+/*
+** Helper for /filepage_xyz routes. Clears the CGI content buffer,
+** sets an error status code, and queues up a JSON response in the
+** form of an object:
+**
+** {error: formatted message}
+**
+** After calling this, the caller should immediately return.
+ */
+static void fileedit_ajax_error(int httpCode, const char * zFmt, ...){
+  Blob msg = empty_blob;
+  Blob content = empty_blob;
+  va_list vargs;
+  va_start(vargs,zFmt);
+  blob_vappendf(&msg, zFmt, vargs);
+  va_end(vargs);
+  blob_appendf(&content,"{\"error\":\"%j\"}", blob_str(&msg));
+  blob_reset(&msg);
+  cgi_set_content(&content);
+  cgi_set_status(httpCode, "Error");
+  cgi_set_content_type("application/json");
+}
+
+/*
+** Performs bootstrapping common to the /fileedit_xyz AJAX routes.
+** Returns 0 if bootstrapping fails (wrong permissions), in which
+** case it has reported the error and the route should immediately
+** return. Returns true on success.
+*/
+static int fileedit_ajax_boostrap(){
+  login_check_credentials();
+  if( !g.perm.Write ){
+    fileedit_ajax_error(403,"Write permissions required.");
+    return 0;
+  }
+  return 1;
+}
+/*
+** Returns true if the current user is allowed to edit the given
+** filename, as determined by fileedit_is_editable(), else false,
+** in which case it queues up an error response and the caller
+** must return immediately.
+*/
+static int fileedit_ajax_check_filename(const char * zFilename){
+  if(0==fileedit_is_editable(zFilename)){
+    fileedit_ajax_error(403, "File is disallowed by the "
+                        "fileedit-glob setting.");
+    return 0;
+  }
+  return 1;
+}
+
+/*
+** Passed the values of the "r" and "file" request properties,
+** this function verifies that they are valid and populates:
+**
+** - *zRevUuid = the fully-expanded value of zRev (owned by the
+**    caller). zRevUuid may be NULL.
+**
+** - *vid = the RID of zRevUuid. May not be NULL.
+**
+** - *frid = the RID of zFilename's blob content. May not be NULL.
+**
+** Returns 0 if the given file is not in the given checkin or if
+** fileedit_ajax_check_filename() fails, else returns true.  If it
+** returns false, it queues up an error response and the caller must
+** return immediately.
+*/
+static int fileedit_ajax_setup_filerev(const char * zRev,
+                                       char ** zRevUuid,
+                                       int * vid,
+                                       const char * zFilename,
+                                       int * frid){
+  char * zCi = 0;      /* fully-resolved checkin UUID */
+  char * zFileUuid;    /* file UUID */
+ 
+  if(!fileedit_ajax_check_filename(zFilename)){
+    return 0;
+  }
+  *vid = symbolic_name_to_rid(zRev, "ci");
+  if(0==*vid){
+    fileedit_ajax_error(404,"Cannot resolve name as a checkin: %s",
+                        zRev);
+    return 0;
+  }
+  zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
+  if(zFileUuid==0){
+    fileedit_ajax_error(404,"Checkin does not contain file.");
+    return 0;
+  }
+  zCi = rid_to_uuid(*vid);
+  *frid = fast_uuid_to_rid(zFileUuid);
+  fossil_free(zFileUuid);
+  if(zRevUuid!=0){
+    *zRevUuid = zCi;
+  }else{
+    fossil_free(zCi);
+  }
+  return 1;
+}
+                                       
+
+/*
+** WEBPAGE: fileedit_content
+**
+** Query parameters:
+**
+** file=FILENAME
+** r=CHECKIN_NAME
+**
+** User must have Write access to use this page.
+**
+** Responds with the raw content of the given page. On error it
+** produces a JSON response as documented for fileedit_ajax_error().
+*/
+void fileedit_ajax_content(){
+  const char * zFilename = PD("file",P("name"));
+  const char * zRev = P("r");
+  int vid, frid;
+  Blob content = empty_blob;
+  const char * zMime;
+  if(!fileedit_ajax_boostrap()
+     || !fileedit_ajax_setup_filerev(zRev, 0, &vid,
+                                     zFilename, &frid)){
+    return;
+  }
+  zMime = mimetype_from_name(zFilename);
+  content_get(frid, &content);
+  cgi_set_content_type(zMime ? zMime : "application/octet-stream");
+  cgi_set_content(&content);
+}
+
+/*
+** WEBPAGE: fileedit_preview
+**
+** Query parameters:
+**
+** file=FILENAME
+** render_mode=integer (FE_RENDER_xxx) (default=FE_RENDER_GUESS)
+** content=text
+**
+** User must have Write access to use this page.
+**
+** Responds with the HTML content of the preview. On error it produces
+** a JSON response as documented for fileedit_ajax_error().
+*/
+void fileedit_ajax_preview(){
+  const char * zFilename = PD("file",P("name"));
+  const char * zContent = P("content");
+  int renderMode = atoi(PD("render_mode","0"));
+  int ln = atoi(PD("ln","0"));
+  int iframeHeight = atoi(PD("iframe_height","40"));
+  Blob content = empty_blob;
+  if(!fileedit_ajax_boostrap()
+     || !fileedit_ajax_check_filename(zFilename)){
+    return;
+  }
+  cgi_set_content_type("text/html");
+  blob_init(&content, zContent, -1);
+  fileedit_render_preview(&content, zFilename,
+                          ln ? FE_PREVIEW_LINE_NUMBERS : 0,
+                          renderMode, iframeHeight);
+}
+
+/*
+** WEBPAGE: fileedit_diff
+**
+** file=FILENAME
+** sbs=integer (1=side-by-side or 0=unified)
+** content=text
+** r=checkin version
+**
+** User must have Write access to use this page.
+**
+** Responds with the HTML content of the diff. On error it produces a
+** JSON response as documented for fileedit_ajax_error().
+*/
+void fileedit_ajax_diff(){
+  /*
+  ** Reminder: we only need the filename to perform valdiation
+  ** against fileedit_is_editable(), else this route could be
+  ** abused to get diffs against content disallowed by the
+  ** whitelist.
+  */
+  const char * zFilename = PD("file",P("name"));
+  const char * zRev = P("r");
+  const char * zContent = P("content");
+  char * zRevUuid = 0;
+  int isSbs = atoi(PD("sbs","0"));
+  int vid, frid;
+  Blob content = empty_blob;
+  if(!fileedit_ajax_boostrap()
+     || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
+                                     zFilename, &frid)){
+    return;
+  }
+  if(!zContent){
+    zContent = "";
+  }
+  cgi_set_content_type("text/html");
+  blob_init(&content, zContent, -1);
+  fileedit_render_diff(&content, frid, zRevUuid, isSbs);
+  fossil_free(zRevUuid);
+  blob_reset(&content);
+}
+
+
+/*
+** Emits utility script code specific to the /fileedit page.
+*/
+static void fileedit_emit_page_script(){
+  style_emit_script_tag(0);
+  CX("%s\n", builtin_text("fossil.page.fileedit.js"));
+  style_emit_script_tag(1);
 }
 
 /*
@@ -1173,29 +1280,8 @@ void fileedit_page(){
                                            entry must end with a
                                            semicolon. */
   Stmt stmt = empty_Stmt;
-  const int loadMode = 0;               /* See next comment block */
-  /* loadMode: How to populate the TEXTAREA:
-  **
-  ** 0: HTML encode: despite my personal reservations regarding HTML
-  ** escaping, this seems to be the only reliable approach
-  ** until/unless we completely AJAXify this page.
-  **
-  ** 1: JSON mode: JSON-izes the file content and injects it, via JS,
-  ** into the editor TEXTAREA. This works wonderfully until the input
-  ** file contains an raw <SCRIPT> tag, at which points the HTML
-  ** parser chokes on it.
-  **
-  ** 2: AJAX mode: can only load content from the db, not preview/dry-run
-  ** content. Unless this page is refactored to work solely over AJAX
-  ** (which is a potential TODO), this method is only useful on the
-  ** initial hit to this page, where the file is loaded.
-  **
-  ** loadMode is not generally configurable: change it only for
-  ** testing/development purposes.
-  */
 #define fail(EXPR) blob_appendf EXPR; goto end_footer
 
-  assert(loadMode==0 || loadMode==1 || loadMode==2);
   login_check_credentials();
   if( !g.perm.Write ){
     login_needed(g.anon.Write);
@@ -1354,19 +1440,21 @@ void fileedit_page(){
     break;
   }
 
+  CX("<div id='fossil-status-bar'>Async. status messages will go "
+     "here.</div>\n");
   CX("<h1>Editing:</h1>");
   CX("<p class='fileedit-hint'>");
   CX("File: "
-     "[<a id='finfo-link' href='%R/finfo?name=%T&m=%!S'>info</a>] "
-     "<code>%h</code><br>",
-     zFilename, zFileUuid, zFilename);
+     "[<a id='finfo-link' href='#'>info</a>] "
+     /* %R/finfo?name=%T&m=%!S */
+     "<code id='finfo-file-name'>(loading)</code><br>");
   CX("Checkin Version: "
-     "[<a id='r-link' href='%R/info/%!S'>info</a>] "
-     "<code id='r-label'>%s</code><br>",
-     cimi.zParentUuid, cimi.zParentUuid);
+     "[<a id='r-link' href='#'>info</a>] "
+     /* %R/info/%!S */
+     "<code id='r-label'>(loading...)</code><br>"
+     );
   CX("Permalink: <code>"
-     "<a id='permalink' href='%R/fileedit?file=%T&r=%!S'>"
-     "/fileedit?file=%T&r=%!S</a></code><br>"
+     "<a id='permalink' href='#'>(loading...)</a></code><br>"
      "(Clicking the permalink will reload the page and discard "
      "all edits!)",
      zFilename, cimi.zParentUuid,
@@ -1376,8 +1464,11 @@ void fileedit_page(){
      "USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
   
-  CX("<form action='%R/fileedit#options' method='POST' "
-     "class='fileedit'>\n");
+  CX("<form action='#' method='POST' "
+     "class='fileedit' id='fileedit-form' "
+     "onsubmit='function(e){"
+     "e.preventDefault(); e.stopPropagation(); return false;"
+     "}'>\n");
 
   /******* Hidden fields *******/
   CX("<input type='hidden' name='r' value='%s'>",
@@ -1389,12 +1480,7 @@ void fileedit_page(){
   CX("<h3>File Content</h3>\n");
   CX("<textarea name='content' id='fileedit-content' "
      "rows='20' cols='80'>");
-  if(0==loadMode){
-    CX("%h",blob_str(&cimi.fileContent));
-  }else{
-    CX("Loading...");
-    /* Performed via JS later on */
-  }
+  CX("Loading...");
   CX("</textarea>\n");
   /******* Flags/options *******/
   CX("<fieldset class='fileedit-options' id='options'>"
@@ -1461,17 +1547,13 @@ void fileedit_page(){
   /******* Buttons *******/
   CX("<a id='buttons'></a>");
   CX("<fieldset class='fileedit-options'>"
-     "<legend>Tell the server to...</legend><div>");
-  CX("<button type='submit' name='submit' value='%d'>"
-     "Commit</button>", SUBMIT_SAVE);
-  CX("<button type='submit' name='submit' value='%d'>"
-     "Preview</button>", SUBMIT_PREVIEW);
+     "<legend>Ask the server to...</legend><div>");
+  CX("<button id='fileedit-btn-commit'>Commit</button>");
+  CX("<button id='fileedit-btn-preview'>Preview</button>");
   {
     /* Preview rendering mode selection... */
     previewRenderMode = atoi(PD("preview_render_mode","0"));
-    if(0==previewRenderMode){
-      previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
-    }
+    previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
     style_select_list_int("preview_render_mode",
                           "Preview Mode",
                           "Preview mode format.",
@@ -1481,84 +1563,40 @@ void fileedit_page(){
                           "HTML (iframe)", FE_RENDER_HTML,
                           "Plain Text", FE_RENDER_PLAIN_TEXT,
                           NULL);
-    if(FE_RENDER_HTML==previewRenderMode){
-      /* HTML preview mode iframe height... */
-      if(submitMode==SUBMIT_PREVIEW){
-        previewHtmlHeight = atoi(PD("preview_html_ems","0"));
-      }else{
-        previewHtmlHeight = 40;
-      }
-      /* Allow selection of HTML preview iframe height */
-      style_select_list_int("preview_html_ems",
-                            "Preview IFrame Height (EMs)",
-                            "Height (in EMs) of the iframe used for "
-                            "HTML preview",
-                            previewHtmlHeight,
-                            "", 20, "", 40,
-                            "", 60, "", 80,
-                            "", 100, NULL);
+    previewHtmlHeight = atoi(PD("preview_html_ems","0"));
+    if(!previewHtmlHeight){
+      previewHtmlHeight = 40;
     }
-    else if(FE_RENDER_PLAIN_TEXT==previewRenderMode){
-      style_labeled_checkbox("preview_ln",
-                             "Add line numbers to plain-text previews?",
-                             "1",
-                             "If on, plain-text files (only) will get "
-                             "line numbers added to the preview.",
-                             previewLn);
-    }
+    /* Allow selection of HTML preview iframe height */
+    style_select_list_int("preview_html_ems",
+                          "HTML Preview IFrame Height (EMs)",
+                          "Height (in EMs) of the iframe used for "
+                          "HTML preview",
+                          previewHtmlHeight,
+                          "", 20, "", 40,
+                          "", 60, "", 80,
+                          "", 100, NULL);
+    style_labeled_checkbox("preview_ln",
+                           "Add line numbers to plain-text previews?",
+                           "1",
+                           "If on, plain-text files (only) will get "
+                           "line numbers added to the preview.",
+                           previewLn);
   }
-  CX("<button type='submit' name='submit' value='%d'>"
-     "Diff (SBS)</button>", SUBMIT_DIFF_SBS);
-  CX("<button type='submit' name='submit' value='%d'>"
-     "Diff (Unified)</button>", SUBMIT_DIFF_UNIFIED);
+  CX("<button id='fileedit-btn-diffsbs'>Diff (SBS)</button>");
+  CX("<button id='fileedit-btn-diffu'>Diff (Unified)</button>");
   CX("</div></fieldset>");
 
   /******* End of form *******/    
   CX("</form>\n");
 
-  /*
-  ** We cannot intercept the output for PREVIEW
-  ** and DIFF modes, and therefore have to render those
-  ** last.
-  */
-  if(SUBMIT_PREVIEW==submitMode){
-    int pflags = 0;
-    if(previewLn) pflags |= FE_PREVIEW_LINE_NUMBERS;
-    fileedit_render_preview(&cimi.fileContent, cimi.zFilename, pflags,
-                            previewRenderMode, previewHtmlHeight);
-  }else if(SUBMIT_DIFF_SBS==submitMode
-           || SUBMIT_DIFF_UNIFIED==submitMode){
-    fileedit_render_diff(&cimi.fileContent, frid, cimi.zParentUuid,
-                         SUBMIT_DIFF_SBS==submitMode);
-  }
-
+  CX("<div id='ajax-target'></div>"
+     /* this is where preview/diff go */);
+  
   /* Dynamically populate the editor... */
-  fileedit_emit_script_fetch();
-  if(1==loadMode || (2==loadMode && submitMode>SUBMIT_NONE)){
-    char const * zQuoted = 0;
-    if(blob_size(&cimi.fileContent)>0){
-      db_prepare(&stmt, "SELECT json_quote(%B)", &cimi.fileContent);
-      db_step(&stmt);
-      zQuoted = db_column_text(&stmt,0);
-    }
-    blob_appendf(&endScript,
-                 "/* populate editor form */\n"
-                 "document.getElementById('fileedit-content')"
-                 ".value=%s;", zQuoted ? zQuoted : "'';\n");
-    if(stmt.pStmt){
-      db_finalize(&stmt);
-    }
-  }else if(2==loadMode){
-    assert(submitMode==SUBMIT_NONE);
-    blob_appendf(&endScript,
-                 "window.fossil.fetch('raw/%s',{"
-                 "onload: (r)=>document.getElementById('fileedit-content')"
-                 ".value=r,"
-                 "onerror:()=>document.getElementById('fileedit-content')"
-                 ".value="
-                 "'Error loading content'"
-                 "});\n", zFileUuid);
-  }
+  blob_appendf(&endScript,
+               "fossil.page.loadFile('%j','%j');",
+               zFilename, cimi.zParentUuid);
 
 end_footer:
   zContent = 0;
@@ -1575,6 +1613,8 @@ end_footer:
   blob_reset(&submitResult);
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
+  style_emit_script_fetch();
+  fileedit_emit_page_script();
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0);
     CX("(function(){\n");
