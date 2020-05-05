@@ -133,6 +133,7 @@ SRC = \
   $(SRCDIR)/sync.c \
   $(SRCDIR)/tag.c \
   $(SRCDIR)/tar.c \
+  $(SRCDIR)/terminal.c \
   $(SRCDIR)/th_main.c \
   $(SRCDIR)/timeline.c \
   $(SRCDIR)/tkt.c \
@@ -366,6 +367,7 @@ TRANS_SRC = \
   $(OBJDIR)/sync_.c \
   $(OBJDIR)/tag_.c \
   $(OBJDIR)/tar_.c \
+  $(OBJDIR)/terminal_.c \
   $(OBJDIR)/th_main_.c \
   $(OBJDIR)/timeline_.c \
   $(OBJDIR)/tkt_.c \
@@ -508,6 +510,7 @@ OBJ = \
  $(OBJDIR)/sync.o \
  $(OBJDIR)/tag.o \
  $(OBJDIR)/tar.o \
+ $(OBJDIR)/terminal.o \
  $(OBJDIR)/th_main.o \
  $(OBJDIR)/timeline.o \
  $(OBJDIR)/tkt.o \
@@ -845,6 +848,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/sync_.c:$(OBJDIR)/sync.h \
 	$(OBJDIR)/tag_.c:$(OBJDIR)/tag.h \
 	$(OBJDIR)/tar_.c:$(OBJDIR)/tar.h \
+	$(OBJDIR)/terminal_.c:$(OBJDIR)/terminal.h \
 	$(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h \
 	$(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h \
 	$(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h \
@@ -1810,6 +1814,14 @@ $(OBJDIR)/tar.o:	$(OBJDIR)/tar_.c $(OBJDIR)/tar.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/tar.o -c $(OBJDIR)/tar_.c
 
 $(OBJDIR)/tar.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/terminal_.c:	$(SRCDIR)/terminal.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/terminal.c >$@
+
+$(OBJDIR)/terminal.o:	$(OBJDIR)/terminal_.c $(OBJDIR)/terminal.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/terminal.o -c $(OBJDIR)/terminal_.c
+
+$(OBJDIR)/terminal.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/th_main_.c:	$(SRCDIR)/th_main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/th_main.c >$@

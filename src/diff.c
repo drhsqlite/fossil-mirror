@@ -1828,10 +1828,35 @@ int diff_context_lines(u64 diffFlags){
 /*
 ** Extract the width of columns for side-by-side diff.  Supply an
 ** appropriate default if no width is given.
+**
+** Calculate the default automatically, based on terminal's current width:
+**   term-width = 2*diff-col + diff-marker + 1
+**   diff-col = lineno + lmargin + text-width + rmargin
+**
+**   text-width = (term-width - diff-marker - 1)/2 - lineno - lmargin - rmargin
 */
 int diff_width(u64 diffFlags){
   int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
-  if( w==0 ) w = 80;
+  if( w==0 ){
+    static struct {
+      unsigned int lineno, lmargin, text, rmargin, marker;
+    } sbsW = { 5, 2, 0, 0, 3 };
+    const unsigned int wMin = 24, wMax = 132;
+    unsigned int tw = terminal_get_width(80);
+    unsigned int twMin =
+      (wMin + sbsW.lineno + sbsW.lmargin + sbsW.rmargin)*2 + sbsW.marker + 1;
+    unsigned int twMax =
+      (wMax + sbsW.lineno + sbsW.lmargin + sbsW.rmargin)*2 + sbsW.marker + 1;
+
+    if( tw<twMin ){
+      tw = twMin;
+    }else if( tw>twMax ){
+      tw = twMax;
+    }
+    sbsW.text =
+      (tw - sbsW.marker - 1)/2 - sbsW.lineno - sbsW.lmargin - sbsW.rmargin;
+    w = sbsW.text;
+  }
   return w;
 }
 
