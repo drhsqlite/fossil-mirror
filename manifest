@@ -1,5 +1,5 @@
-C Unified\sdiff\snow\sproduces\sempty\soutput\swhen\sthe\sdiff\sis\sempty,\sinsead\sof\san\sempty\swrapper\selement.
-D 2020-05-05T21:41:51.529
+C Temporarily(?)\sremoved\sthe\seditor\sfont\ssize\sadjustment\sdropdown,\sas\sit\scurrently\shas\sno\sproper\shome\sin\sthe\snew\slayout.
+D 2020-05-05T21:49:49.486
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -487,7 +487,7 @@ F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js c55f5b004ae2c15856087e351e5dc99ef1268b46c90d9cd909d6c4e5e4fe4220
 F src/fossil.dom.js 1274733b8e7b1f4d359940e297ddece7000b9d4e4bc455ebe739fedbba2495e3
 F src/fossil.fetch.js 08a9ec153480a2ad656d8e4b40a3f00816562e84b1d17a56fdb6b59893f3e2b6
-F src/fossil.page.fileedit.js 8e19dfedaccac3b5e47257ddae9413220b8120823f21617ce05801ab09710cc9
+F src/fossil.page.fileedit.js 56ab9985948c7c4dfead8ed787e6e4950e14084dc5b51c2f33d07c984c151a87
 F src/fossil.tabs.js 3b141bc7587169241c6208985fd892c501a2d0219af9ffea344537ab9172efdd
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -984,7 +984,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P e7659e7265961506d630a35e7c8a426dd569a508d3166ca0728fb290adc55249
-R b77f639ed96fbb32cb563573fc16a7fb
+P 146e867eb5830e4e4df18cd3b22011d8e216b5fe61b08ab83889301af2c5643c
+R ef2693db1ee0d0b019c00fa73ef642ec
 U stephan
-Z 42617eb5a7da525a5ce7441fa5f3443d
+Z 5bfcd2bc220561c838bfd26fa4822049

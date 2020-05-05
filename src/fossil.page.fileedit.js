@@ -14,9 +14,6 @@
       taComment: E('#fileedit-comment'),
       ajaxContentTarget: E('#ajax-target'),
       form: E('#fileedit-form'),
-      //btnPreview: E("#fileedit-btn-preview"),
-      //btnDiffSbs: E("#fileedit-btn-diffsbs"),
-      //btnDiffU: E("#fileedit-btn-diffu"),
       btnCommit: E("#fileedit-btn-commit"),
       selectPreviewModeWrap: E('#select-preview-mode'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
@@ -29,6 +26,11 @@
         commit: E('#fileedit-tab-commit')
       }
     };
+
+    P.tabs.e.container.insertBefore(
+      E('#fossil-status-bar'), P.tabs.e.tabs
+    );
+
     const stopEvent = function(e){
       //e.preventDefault();
       //e.stopPropagation();
@@ -37,6 +39,8 @@
       
     P.e.form.addEventListener("submit", function(e) {
       e.target.checkValidity();
+      /* All of this is needed to keep the form from submitting every
+         time any button in the form is clicked: */
       e.preventDefault();
       e.stopPropagation();
       return false;
@@ -95,21 +99,19 @@
       new Event('change',{target:selectPreviewMode})
     );
     const selectFontSize = E('select[name=editor_font_size]');
-    selectFontSize.addEventListener(
-      "change",function(e){
-        P.e.taEditor.className = e.target.className.replace(
-            /\bfont-size-\d+/g, '' );
-        P.e.taEditor.classList.add('font-size-'+e.target.value);
-      }, false
-    );
-    selectFontSize.dispatchEvent(
-      // Force UI update
-      new Event('change',{target:selectFontSize})
-    );
-
-    P.tabs.e.container.insertBefore(
-      E('#fossil-status-bar'), P.tabs.e.tabs
-    );
+    if(selectFontSize){
+      selectFontSize.addEventListener(
+        "change",function(e){
+          P.e.taEditor.className = e.target.className.replace(
+              /\bfont-size-\d+/g, '' );
+          P.e.taEditor.classList.add('font-size-'+e.target.value);
+        }, false
+      );
+      selectFontSize.dispatchEvent(
+        // Force UI update
+        new Event('change',{target:selectFontSize})
+      );
+    }
   }, false);
   
   /**
