@@ -15,6 +15,8 @@
       ajaxContentTarget: E('#ajax-target'),
       form: E('#fileedit-form'),
       btnCommit: E("#fileedit-btn-commit"),
+      btnReload: E("#fileedit-tab-content > .fileedit-options > "
+                   +"button.fileedit-content-reload"),
       selectPreviewModeWrap: E('#select-preview-mode'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
       selectEolWrap:  E('#select-preview-html-ems'),
@@ -67,8 +69,13 @@
       "click",(e)=>P.diff(false), false
     );
     P.e.btnCommit.addEventListener(
-      "click",(e)=>stopEvent(e).commit(), false
+      "click",(e)=>P.commit(), false
     );
+    if(P.e.btnReload){
+      P.e.btnReload.addEventListener(
+        "click",(e)=>P.loadFile(), false
+      );
+    }
     /**
        Cosmetic: jump through some hoops to enable/disable
        certain preview options depending on the current
@@ -151,8 +158,14 @@
      Returns this object, noting that the load is async.
   */
   F.page.loadFile = function(file,rev){
+    if(0===arguments.length){
+      if(!this.finfo) return this;
+      file = this.finfo.file;
+      rev = this.finfo.r;
+    }
     delete this.finfo;
     const self = this;
+    F.message("Loading content...");
     F.fetch('fileedit_content',{
       urlParams:{file:file,r:rev},
       onload:(r)=>{

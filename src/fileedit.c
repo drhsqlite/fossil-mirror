@@ -1589,10 +1589,30 @@ void fileedit_page(){
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='File Content'"
        ">");
+    CX("<div class='fileedit-options flex-container row'>");
+    if(0){
+      /* Discard/reload button. Leave this out until we have a
+      ** nice way of offering confirmation, e.g. like the old
+      ** jQuery.confirmer plugin which required a 2nd click of the
+      ** button within X seconds to confirm. Right now it's simply
+      ** to easy to tap by accident. */
+      CX("<button class='fileedit-content-reload'>Discard &amp; Reload"
+         "</button>");
+    }
+    style_select_list_int("select-font-size",
+                          "editor_font_size", "Editor Font Size",
+                          NULL/*tooltip*/,
+                          100,
+                          "100%", 100, "125%", 125,
+                          "150%", 150, "175%", 175,
+                          "200%", 200, NULL);
+    CX("</div>");
+    CX("<div class='flex-container row'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
        "rows='20' cols='80'>");
     CX("Loading...");
-    CX("</textarea>\n");
+    CX("</textarea>");
+    CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);
   }
 
@@ -1734,15 +1754,6 @@ void fileedit_page(){
                           "Unix", 1,
                           "Windows", 2,
                           NULL);
-#if 0
-    style_select_list_int("select-font-size",
-                          "editor_font_size", "Editor Font Size",
-                          NULL/*tooltip*/,
-                          100,
-                          "100%", 100, "125%", 125,
-                          "150%", 150, "175%", 175,
-                          "200%", 200, NULL);
-#endif
     CX("</div>"/*checkboxes*/);
   }
 
