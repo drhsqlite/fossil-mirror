@@ -25,15 +25,18 @@ Options:
 
   .initialText = initial text of the element. Defaults to the result
   of the element's .value (for INPUT tags) or innerHTML (for
-  everything else).
+  everything else). After the timeout/tick count expires, or if the
+  user confirms the operation, the element's text is re-set to this
+  value.
 
   .confirmText = text to show when in "confirm mode".
   Default=("Confirm: "+initialText), or something similar.
 
   .timeout = Number of milliseconds to wait for confirmation.
-  Default=3000.
+  Default=3000. Alternately, use a combination of .ticks and
+  .ticktime.
 
-  .onconfirm = function to call when clicked in confirm mode.  Default
+  .onconfirm = function to call when clicked in confirm mode. Default
   = undefined. The function's "this" is the the DOM element to which
   the countdown applies.
 
@@ -60,18 +63,54 @@ Options:
   mode is entered, this class is added *before* the .onactivate
   handler is called.
 
+  .ticktime = a number of ms to wait per tick (see the next item).
+  Default = 1000.
+
+  .ticks = a number of "ticks" to wait, as an alternative to .timeout.
+  When this mode is active, the ontick callback will be triggered
+  immediately before each tick, including the first one. If both
+  .ticks and .timeout are set, only one will be used, but which one is
+  unspecified. If passed a ticks value with a truncated integer value
+  of 0 or less, it will throw an exception (e.g. that also applies if
+  it's passed 0.5).
+
+  .ontick = when using .ticks, this callback is passed the current
+  tick number before each tick, and its "this" is the target
+  element. On each subsequent call, the tick count will be reduced by
+  1, and it is passed 0 after the final tick expires or when the
+  action has been confirmed, immediately before the onconfirm or
+  ontimeout callback. The intention of the callback is to update the
+  label of the target element. If .ticks is set but .ontick is not
+  then a default implementation is used which updates the element with
+  the .confirmText, prepending a countdown to it.
+
   .debug = boolean. If truthy, it sends some debug output to the dev
   console to track what it's doing.
 
-Due to the nature of multi-threaded code, it is potentially possible
-that confirmation and timeout actions BOTH happen if the user triggers
-the associated action at "just the right millisecond" before the
-timeout is triggered.
+Various notes:
 
-To change the default option values, modify the
-fossil.confirmer.defaultOpts object.
+- To change the default option values, modify the
+  fossil.confirmer.defaultOpts object.
+
+- Exceptions triggered via the callbacks are caught and emitted to the
+  dev console if the debug option is enabled, but are otherwise
+  ignored.
+
+- Due to the nature of multi-threaded code, it is potentially possible
+  that confirmation and timeout actions BOTH happen if the user
+  triggers the associated action at "just the right millisecond"
+  before the timeout is triggered.
+
+TODO: add an invert option which activates if the timeout is reached
+and "times out" if the element is clicked again. e.g. a button which
+says "Saving..." and cancels the op if it's clicked again, else it
+saves after X time/ticks.
 
 Terse Change history:
+
+- 20200507:
+  - Add a tick-based countdown in order to more easily support
+    updating the target element with the countdown.
 
 - 20200506:
   - Ported from jQuery to plain JS.
@@ -92,19 +131,27 @@ Terse Change history:
       f.isInput = (e)=>/^(input|textarea)$/i.test(e.nodeName);
       f.Holder = function(target,opt){
         const self = this;
-        self.target = target;
-        self.opt = opt;
-        self.timerID = undefined;
-        self.state = this.states.initial;
+        this.target = target;
+        this.opt = opt;
+        this.timerID = undefined;
+        this.state = this.states.initial;
         const isInput = f.isInput(target);
         const updateText = function(msg){
           if(isInput) target.value = msg;
           else target.innerHTML = msg;
         }
-        updateText(self.opt.initialText);
+        updateText(this.opt.initialText);
+        if(this.opt.ticks && !this.opt.ontick){
+          this.opt.ontick = function(tick){
+            updateText("("+tick+") "+self.opt.confirmText);
+          };
+        }
         this.setClasses(false);
         this.doTimeout = function() {
-          this.timerID = undefined;
+          if(this.timerID){
+            clearTimeout( this.timerID );
+            delete this.timerID;
+          }
           if( this.state != this.states.waiting ) {
             // it was already confirmed
             return;
@@ -112,15 +159,21 @@ Terse Change history:
           this.setClasses( false );
           this.state = this.states.initial;
           dbg("Timeout triggered.");
-          updateText(this.opt.initialText);
-          if( this.opt.ontimeout ) {
-            this.opt.ontimeout.call(this.target);
+          if( this.opt.ontick ){
+            try{this.opt.ontick.call(this.target, 0)}
+            catch(e){dbg("ontick EXCEPTION:",e)}
           }
+          if( this.opt.ontimeout ) {
+            try{this.opt.ontimeout.call(this.target)}
+            catch(e){dbg("ontimeout EXCEPTION:",e)}
+          }
+          updateText(this.opt.initialText);
         };
         target.addEventListener(
           'click', function(){
             switch( self.state ) {
             case( self.states.waiting ):
+              /* Cancel the wait on confirmation */
               if( undefined !== self.timerID ){
                 clearTimeout( self.timerID );
                 delete self.timerID;
@@ -128,16 +181,41 @@ Terse Change history:
               self.state = self.states.initial;
               self.setClasses( false );
               dbg("Confirmed");
+              if( self.opt.ontick ){
+                try{self.opt.ontick.call(self.target,0)}
+                catch(e){dbg("ontick EXCEPTION:",e)}
+              }
+              if( self.opt.onconfirm ){
+                try{self.opt.onconfirm.call(self.target)}
+                catch(e){dbg("onconfirm EXCEPTION:",e)}
+              }
               updateText(self.opt.initialText);
-              if( self.opt.onconfirm ) self.opt.onconfirm.call(self.target);
               break;
             case( self.states.initial ):
+              /* Enter the waiting-on-confirmation state... */
+              if(self.opt.ticks) self.opt.currentTick = self.opt.ticks;
               self.setClasses( true );
-              if( self.opt.onactivate ) self.opt.onactivate.call( self.target );
               self.state = self.states.waiting;
-              dbg("Waiting "+self.opt.timeout+"ms on confirmation...");
               updateText( self.opt.confirmText );
-              self.timerID = setTimeout(function(){self.doTimeout();},self.opt.timeout );
+              if( self.opt.onactivate ) self.opt.onactivate.call( self.target );
+              if( self.opt.ontick ) self.opt.ontick.call(self.target, self.opt.currentTick);
+              if(self.opt.timeout){
+                dbg("Waiting "+self.opt.timeout+"ms on confirmation...");
+                self.timerID =
+                  setTimeout(()=>self.doTimeout(),self.opt.timeout );
+              }else if(self.opt.ticks){
+                dbg("Waiting on confirmation for "+self.opt.ticks
+                    +" ticks of "+self.opt.ticktime+"ms each...");
+                self.timerID =
+                  setInterval(function(){
+                    if(0===--self.opt.currentTick) self.doTimeout();
+                    else{
+                      try{self.opt.ontick.call(self.target,
+                                               self.opt.currentTick)}
+                      catch(e){dbg("ontick EXCEPTION:",e)}
+                    }
+                  },self.opt.ticktime);
+              }
               break;
             default: // can't happen.
               break;
@@ -174,6 +252,17 @@ Terse Change history:
     if(!opt.confirmText){
       opt.confirmText = "Confirm: "+opt.initialText;
     }
+    if(opt.ticks){
+      delete opt.timeout;
+      opt.ticks = 0 | opt.ticks /* ensure it's an integer */;
+      if(opt.ticks<=0){
+        throw new Error("ticks must be >0");
+      }
+      if(opt.ticktime <= 0) opt.ticktime = 1000;
+    }else{
+      delete opt.ontick;
+      delete opt.ticks;
+    }
     new f.Holder(elem,opt);
     return this;
   };
@@ -185,6 +274,8 @@ Terse Change history:
   */
   F.confirmer.defaultOpts = {
     timeout:3000,
+    ticks: undefined,
+    ticktime: 998/*not *quite* 1000*/,
     onconfirm: undefined,
     ontimeout: undefined,
     onactivate: undefined,

@@ -1,5 +1,5 @@
-C Improved\sthe\stab\scontrol\sstyling,\sand\sno\slonger\suse\sbuttons\sso\sthat\stheir\s:focus\sstyle\sdoesn't\sbreak\sthe\sappearance.\sFixed\ssome\sCSS\swhich\sno\slonger\smatched\safter\sremoval\sof\sthe\souter\swrapping\sFORM\selement.
-D 2020-05-06T22:57:37.701
+C Added\sa\s'tick'\smode\sto\sfossil.confirmer\sto\smore\seasily\sallow\sthe\striggering\selement\sto\sbe\svisibly\supdated\sto\sreflect\sthe\scountdown\sstate.\sThe\seditor's\sdiscard/reload\sbutton\snow\svisibly\scounts\sdown\sfrom\s3\sif\sclicked.
+D 2020-05-06T23:53:50.735
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -485,10 +485,10 @@ F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 69b7845d60161c35660ad2b816b23d4adb94047b2a826ff5445e335a7e750a7c
-F src/fossil.confirmer.js d359dc3efb1531a8a8a1c468fa26b07d8ea9ee2e9a841534db256b090df854f2
+F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 1274733b8e7b1f4d359940e297ddece7000b9d4e4bc455ebe739fedbba2495e3
 F src/fossil.fetch.js 937316a3ee11da68a243bfb0312193c336db4d0211588c994a055ade3be61ffb
-F src/fossil.page.fileedit.js 78ca0856071fe9d2d16d7121ecf594659038ddc2f8bd072f61866e4475123c7d
+F src/fossil.page.fileedit.js eddac7a0977d203382a316c04214079d6b1121b525cd53c22fb5e1c9c95e8b1a
 F src/fossil.tabs.js e51c6c9dc37c98856f74c888619e76fb278494080135305742709f3971a414c3
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -985,7 +985,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6b7805e056ddd9eb86cf3e9e98b574af2beb93cb34d6584dcb258c9bb8dfdb27
-R 55a571a3ec294c978abdce1153a2bd20
+P a84f6458c04800ee0bd8b1843012eb8e49a7987c2b29c91ad848a99180689e8b
+R db9af60d86e7313ed79d44b1bb2e1c9d
 U stephan
-Z ff4b0edc7a183eba68877823128a6647
+Z eda9f24a0f1ad397db6342258272467e

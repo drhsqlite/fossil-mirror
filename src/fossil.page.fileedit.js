@@ -56,9 +56,11 @@
       "click",(e)=>P.commit(), false
     );
     if(P.e.btnReload){
+      const label = "Really reload, losing edits?";
       F.confirmer(P.e.btnReload, {
-        confirmText: "Really reload, losing edits?",
-        onconfirm: (e)=>P.loadFile()
+        confirmText: label,
+        onconfirm: (e)=>P.loadFile(),
+        ticks: 3
       });
     }
     /**
