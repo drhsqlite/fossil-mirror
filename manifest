@@ -1,5 +1,5 @@
-C Added\s"Tip"\sand\s"View"\slinks\sto\ssubmenu\sof\s/artifact\spages\sto\sget\ncorresponding\s/file\sand\s/doc\slinks\sto\sthe\ssame\sfile\son\sthe\ssame\nbranch,\sgiving\sdifferent\sviews\sof\sthis\ssame\sfile\sdata.
-D 2020-05-06T07:38:46.702
+C The\snew\s/artifact\sView\sand\sTip\sbuttons\swere\salways\sreferring\sto\s"trunk"\nbecause\swe\swere\spassing\sa\sfile\sRID\sto\sa\sfunction\sthat\sexpected\sa\scommit\nRID.\s\sAdded\sa\snew\sbranch_of_file_rid()\sfunction\sto\sparallel\sthe\nbranch_of_rid()\sfunction\swe\swere\sincorrectly\scalling\sto\sfix\sit.\s\sAlso\nsquished\sa\smemory\sleak.
+D 2020-05-06T08:20:39.155
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -439,7 +439,7 @@ F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63dd
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
-F src/branch.c e9f0019dfe75b6ffa848c51d25df6427e8537931326582fe53e7430cf6a30c9d
+F src/branch.c b39fe34b6eb75704b755c3a449e1f819400978663292996b1605023547206833
 F src/browse.c 8392b1ab131beb320c98b7f8e8c1a73486c40ce9d6af8a51991dc335b832704b
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c aba0da8125f04ce1f57ee37b690bbf79b69ee7d9f7aa0c799b89f09aa56569f7
+F src/info.c b53e70035a5280f35cbff16fa6bb5f3ba7f8100ba93b7a1b24906f854553ea69
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -980,10 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3504672187af59f07f25d8feed7f13fed464247fda9a03a8f7644af09bc35f25
-R 2c969389b8ecb4c2334a231eaad1da6f
-T *branch * artifact-view-links
-T *sym-artifact-view-links *
-T -sym-trunk *
+P a9dda382bf1bce4589f43333651985a9792c8d33e2274cbb097c059c056c5ad9
+R e92170c76fd1fe731b85a185141e7045
 U wyoung
-Z 9d29c4c80b13df2fab06550bd75900d9
+Z 81cf92099206635637e6ff17483e88da

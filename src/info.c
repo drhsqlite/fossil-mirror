@@ -2247,12 +2247,13 @@ void artifact_page(void){
     }
     db_finalize(&q);
   }
-  zBr = branch_of_rid(rid);
+  zBr = branch_of_file_rid(rid);
   if( zBr && zBr[0] ){
     style_submenu_element("View", "%R/doc/%T/%T",
                            zBr, blob_str(&downloadName));
     style_submenu_element("Tip", "%R/file/%%?ci=%T",
                            blob_str(&downloadName), zBr);
+    fossil_free((void *)zBr);
   }
   style_submenu_element("Download", "%R/raw/%T?name=%s",
                          blob_str(&downloadName), zUuid);

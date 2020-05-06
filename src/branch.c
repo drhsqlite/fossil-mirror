@@ -49,6 +49,32 @@ char *branch_of_rid(int rid){
 }
 
 /*
+** Same as branch_of_rid() except that it takes a file RID, not a
+** check-in RID.
+*/
+char *branch_of_file_rid(int rid){
+  char *zBr = 0;
+  static Stmt q;
+  db_static_prepare(&q,
+      "SELECT value FROM tagxref, mlink"
+      " WHERE rid=mlink.mid"
+      " AND mlink.fid=$rid"
+      " AND tagid=%d"
+      " AND tagtype>0", TAG_BRANCH);
+  db_bind_int(&q, "$rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    zBr = fossil_strdup(db_column_text(&q,0));
+  }
+  db_reset(&q);
+  if( zBr==0 ){
+    static char *zMain = 0;
+    if( zMain==0 ) zMain = db_get("main-branch",0);
+    zBr = fossil_strdup(zMain);
+  }
+  return zBr;
+}
+
+/*
 **  fossil branch new    NAME  BASIS ?OPTIONS?
 **  argv0  argv1  argv2  argv3 argv4
 */
