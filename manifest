@@ -1,5 +1,5 @@
-C diff\s-y:\sset\sthe\sdefault\swidth\sautomatically\sbased\son\sthe\sterminal\swidth.
-D 2020-05-05T00:41:57.000
+C Added\s"Tip"\sand\s"View"\slinks\sto\ssubmenu\sof\s/artifact\spages\sto\sget\ncorresponding\s/file\sand\s/doc\slinks\sto\sthe\ssame\sfile\son\sthe\ssame\nbranch,\sgiving\sdifferent\sviews\sof\sthis\ssame\sfile\sdata.
+D 2020-05-06T07:38:46.702
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 604b68c2258c337f18690aaffbe61a1106cf4b35e425eb2455c3c64e7e87bea8
+F src/info.c aba0da8125f04ce1f57ee37b690bbf79b69ee7d9f7aa0c799b89f09aa56569f7
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -980,7 +980,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d16d18b03ed0a0d067d85863163ebe429db1953fd4c983f2dce01325e15d1e63
-R feabeb7a8fd7575d45b05b4f57098baf
-U ashepilko
-Z 4eb7efca9e257c875b994b7225a6ed54
+P 3504672187af59f07f25d8feed7f13fed464247fda9a03a8f7644af09bc35f25
+R 2c969389b8ecb4c2334a231eaad1da6f
+T *branch * artifact-view-links
+T *sym-artifact-view-links *
+T -sym-trunk *
+U wyoung
+Z 9d29c4c80b13df2fab06550bd75900d9

@@ -2130,6 +2130,7 @@ void artifact_page(void){
   int objType;
   int asText;
   const char *zUuid;
+  const char *zBr;
   u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
@@ -2245,6 +2246,13 @@ void artifact_page(void){
       @ <p>Received on %s(zDate) from %h(zUser) at %h(zIp).</p>
     }
     db_finalize(&q);
+  }
+  zBr = branch_of_rid(rid);
+  if( zBr && zBr[0] ){
+    style_submenu_element("View", "%R/doc/%T/%T",
+                           zBr, blob_str(&downloadName));
+    style_submenu_element("Tip", "%R/file/%%?ci=%T",
+                           blob_str(&downloadName), zBr);
   }
   style_submenu_element("Download", "%R/raw/%T?name=%s",
                          blob_str(&downloadName), zUuid);
