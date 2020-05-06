@@ -1519,6 +1519,18 @@ void fileedit_page(){
   ** or similar, are not "that" fatal. We can/should continue
   ** rendering the page, then output the error message at the end.
   ********************************************************************/
+
+  {
+    /* The CSS for this page lives in a common file but much of it we
+    ** don't want inadvertently being used by other pages. We don't
+    ** have a common, page-specific container we can filter our CSS
+    ** selectors, but we do have the BODY, which we can decorate with
+    ** whatever CSS we wish...
+    */
+    style_emit_script_tag(0,0);
+    CX("document.body.classList.add('fileedit');\n");
+    style_emit_script_tag(1,0);
+  }
   CX("<p>This page is <em>NEW AND EXPERIMENTAL</em>. "
      "USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
@@ -1590,6 +1602,7 @@ void fileedit_page(){
     CX("</div>");
     CX("<div class='flex-container row'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
+       "class='fileedit' "
        "rows='20' cols='80'>");
     CX("Loading...");
     CX("</textarea>");

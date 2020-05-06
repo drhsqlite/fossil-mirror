@@ -919,45 +919,54 @@ label {
   align-self: stretch;
   flex-wrap: wrap;
 }
-.tab-container > .tab-bar > button {
+.tab-container > .tab-bar > .tab-button {
+  display: inline-block;
   border-radius: 0.5em 0.5em 0 0;
-  margin: 0.5em 0.5em 0 0.5em;
+  margin: 0 0.1em;
+  padding: 0.25em 0.75em;
   align-self: baseline;
+  border-color: inherit;
+  border-width: 1px;
+  border-bottom: none;
+  border-top-style: inset;
+  border-left-style: inset;
+  border-right-style: inset;
+  cursor: pointer;
+  opacity: 0.6;
 }
-.tab-container > .tab-bar > button.selected {
-  font-style: italic;
-  font-weight: bold;
-  margin: 0 0.5em;
+.tab-container > .tab-bar > .tab-button.selected {
   text-decoration: underline;
+  opacity: 1.0;
+  border-top-style: outset;
+  border-left-style: outset;
+  border-right-style: outset;
 }
 //////////////////////////////////
 // Styles for /fileedit:
-form.fileedit textarea {
+textarea.fileedit {
   font-family: monospace;
   width: 100%;
+  flex: 10 1 auto;
 }
-form.fileedit fieldset {
+body.fileedit fieldset {
   margin: 0.5em 0 0.5em 0;
   border-radius: 0.5em;
   border-color: inherit;
   border-width: 1px;
   font-size: 85%;
 }
-form.fileedit fieldset > legend {
+body.fileedit fieldset > legend {
   margin: 0 0 0 1em;
   padding: 0 0.5em 0 0.5em;
 }
-form.fileedit fieldset > div {
+body.fileedit fieldset > div {
   margin: 0 0.25em 0.25em 0.25em;
 }
-form.fileedit fieldset > div > .input-with-label {
+body.fileedit fieldset > div > .input-with-label {
   margin: 0.25em 0.5em;
 }
-form.fileedit fieldset > div > button {
+body.fileedit fieldset > div > button {
   margin: 0.25em 0.5em;
-}
-form.fileedit input:invalid {
-  border-left: 0.2em dashed red;
 }
 .fileedit-hint {
   font-size: 80%;

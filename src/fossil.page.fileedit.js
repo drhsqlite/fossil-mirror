@@ -94,9 +94,10 @@
     if(selectFontSize){
       selectFontSize.addEventListener(
         "change",function(e){
-          P.e.taEditor.className = e.target.className.replace(
+          const ed = P.e.taEditor;
+          ed.className = ed.className.replace(
               /\bfont-size-\d+/g, '' );
-          P.e.taEditor.classList.add('font-size-'+e.target.value);
+          ed.classList.add('font-size-'+e.target.value);
         }, false
       );
       selectFontSize.dispatchEvent(
@@ -191,11 +192,12 @@
       }
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
+    const content = this.e.taEditor.value;
     if(!content){
       updateView('');
       return this;
     }
-    this._postPreview(this.e.taEditor.value, updateView);
+    this._postPreview(content, updateView);
     return this;
   };
 

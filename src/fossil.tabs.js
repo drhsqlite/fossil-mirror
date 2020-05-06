@@ -55,7 +55,8 @@
 
        this.e.container = the outermost container element.
 
-       this.e.tabBar = the button bar
+       this.e.tabBar = the button bar. Each "button" (whether it's a
+       buttor not is unspecified) has a class of .tab-button.
 
        this.e.tabs = the parent for all of the tab elements.
 
@@ -116,7 +117,7 @@
       tab.remove();
       D.append(this.e.tabs, D.addClass(tab,'tab-panel'));
       const lbl = tab.dataset.tabLabel || 'Tab #'+(this.e.tabs.childNodes.length-1);
-      const btn = D.button(lbl);
+      const btn = D.addClass(D.append(D.span(), lbl), 'tab-button');
       D.append(this.e.tabBar,btn);
       btn.$manager = this;
       btn.$tab = tab;
