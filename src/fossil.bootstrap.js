@@ -81,15 +81,18 @@
      appended as ['a','=','1','&','b','=','2']. This form is used for
      building up parameter lists before join('')ing the array to create
      the result string.
+
+     If passed a truthy 3rd argument, it does not really encode each
+     component - it simply concatenates them together.
   */
-  F.encodeUrlArgs = function(obj,tgtArray){
+  F.encodeUrlArgs = function(obj,tgtArray,fakeEncode){
     if(!obj) return '';
-    const a = (tgtArray instanceof Array) ? tgtArray : [];
+    const a = (tgtArray instanceof Array) ? tgtArray : [],
+          enc = fakeEncode ? (x)=>x : encodeURIComponent;
     let k, i = 0;
     for( k in obj ){
       if(i++) a.push('&');
-      a.push(encodeURIComponent(k),
-             '=',encodeURIComponent(obj[k]));
+      a.push(enc(k),'=',enc(obj[k]));
     }
     return a===tgtArray ? a : a.join('');
   };

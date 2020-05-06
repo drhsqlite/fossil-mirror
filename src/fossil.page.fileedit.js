@@ -128,7 +128,7 @@
       F.repoUrl('info/'+rev)
     );
     E('#r-label').innerText = rev;
-    const purlArgs = F.encodeUrlArgs({file, r:rShort});
+    const purlArgs = F.encodeUrlArgs({file, r:rShort},false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
     const e = E('#permalink');
     e.innerText='fileedit?'+purlArgs;
@@ -182,8 +182,10 @@
           ),
           self = this;
     const updateView = function(c){
-      if(c) target.innerHTML = c;
-      else D.clearElement(target);
+      D.clearElement(target);
+      if('string'===typeof c){
+        target.innerHTML = c;
+      }
       F.message('Updated preview.');
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };

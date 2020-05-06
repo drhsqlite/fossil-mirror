@@ -1,5 +1,5 @@
-C Minor\scode\sstyle\simprovements,\sfixed\sa\scouple\sjquery-isms\sin\sthe\sconfirmer\sport,\sadded\sthe\sability\sto\sselect\stabs\sby\snumber\sand\spre-select\sa\sspecific\stab,\sremoved\sa\ssuperfluous\sC\sfunction.
-D 2020-05-06T04:52:29.446
+C cosmetic\sinternal\stweaks.
+D 2020-05-06T05:21:02.774
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -484,11 +484,11 @@ F src/finfo.c 9a092785f3aa93b9789d7888f14361bf9610ff5f1733eeee20cef3662f7bcf34
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
-F src/fossil.bootstrap.js 1eb1d393567b7e35c4b4a8add0433c1480b742225d6ce948f35f08a53abc6633
+F src/fossil.bootstrap.js c11671be619064072099e1c1f6c3a74d06cc0871108f033df5e3ad6f34e15603
 F src/fossil.confirmer.js d359dc3efb1531a8a8a1c468fa26b07d8ea9ee2e9a841534db256b090df854f2
 F src/fossil.dom.js 1274733b8e7b1f4d359940e297ddece7000b9d4e4bc455ebe739fedbba2495e3
 F src/fossil.fetch.js 937316a3ee11da68a243bfb0312193c336db4d0211588c994a055ade3be61ffb
-F src/fossil.page.fileedit.js 038e47153c34575ef3bab4cc79016104476e5c9ee32b028c1705fdf426a7d25b
+F src/fossil.page.fileedit.js 4384c4c4adb2a4ff606168de3bdfc55838754ece77f6aa51d403ef6d5774b59c
 F src/fossil.tabs.js eef1fd7a4e312da05866ea504d98698d0c07f8e4c702e1bc7d95784ccd5afad6
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -985,7 +985,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2abc1ff42a4d3e1dbb91e09917f341a6cae776c1bb8fb0b71a4249b26cbac673
-R 829419a0f44c4a756ebb1347692d727f
+P 9085ec2351d42966153cb6b13ed15f0c4a20611e4fd901694898857b8c696496
+R b509896368532d041fd54a17258c86f8
 U stephan
-Z 93997513492a6823d82cb5601d7cb095
+Z caab04cbca7f4cb7b8afb0c307170c0a
