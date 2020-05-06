@@ -22,46 +22,45 @@ fossil.confirmer(element, {
 
 Options:
 
-	.initialText = initial text of the element. Defaults
-    to the result of the element's .value (for INPUT tags) or
-    innerHTML (for everything else).
+  .initialText = initial text of the element. Defaults to the result
+  of the element's .value (for INPUT tags) or innerHTML (for
+  everything else).
 
-	.confirmText = text to show when in "confirm mode".
-	Default=("Confirm: "+initialText), or something similar.
+  .confirmText = text to show when in "confirm mode".
+  Default=("Confirm: "+initialText), or something similar.
 
-	.timeout = Number of milliseconds to wait for confirmation.
-	Default=3000.
+  .timeout = Number of milliseconds to wait for confirmation.
+  Default=3000.
 
-	.onconfirm = function to call when clicked in confirm mode.  Default
-	= undefined. The function's "this" is the the DOM element to which the
-	countdown applies.
+  .onconfirm = function to call when clicked in confirm mode.  Default
+  = undefined. The function's "this" is the the DOM element to which
+  the countdown applies.
 
-	.ontimeout = function to call when confirm is not issued. Default =
-	undefined. The function's "this" is the DOM element to which the
-	countdown applies.
+  .ontimeout = function to call when confirm is not issued. Default =
+  undefined. The function's "this" is the DOM element to which the
+  countdown applies.
 
-	.onactivate = function to call when item is clicked, but only if the
-	item is not currently in countdown mode. This is called (and must
-	return) before the countdown starts. The function's "this" is the
-	DOM element to which the countdown applies. This can be used, e.g.,
+  .onactivate = function to call when item is clicked, but only if the
+  item is not currently in countdown mode. This is called (and must
+  return) before the countdown starts. The function's "this" is the
+  DOM element to which the countdown applies. This can be used, e.g.,
   to change the element's text or CSS classes.
 
-	.classInitial = optional CSS class string (default='') which
-	is added to the element during its "initial" state (the state
-	it is in when it is not waiting on a timeout). When the target
-	is activated (waiting on a timeout) this class is removed.
-	In the case of a timeout, this class is added *before* the
-	.ontimeout handler is called.
+  .classInitial = optional CSS class string (default='') which is
+  added to the element during its "initial" state (the state it is in
+  when it is not waiting on a timeout). When the target is activated
+  (waiting on a timeout) this class is removed.  In the case of a
+  timeout, this class is added *before* the .ontimeout handler is
+  called.
 
-	.classActivated = optional CSS class string (default='') which
-	is added to the target when it is waiting on a timeout. When
-	the target leaves timeout-wait mode, this class is removed.
-	When timeout-wait mode is entered, this class is added *before*
-	the .onactivate handler is called.
+  .classActivated = optional CSS class string (default='') which is
+  added to the target when it is waiting on a timeout. When the target
+  leaves timeout-wait mode, this class is removed.  When timeout-wait
+  mode is entered, this class is added *before* the .onactivate
+  handler is called.
 
-  .debug = boolean. If truthy, it sends some debug output
-  to the dev console to track what it's doing.
-
+  .debug = boolean. If truthy, it sends some debug output to the dev
+  console to track what it's doing.
 
 Due to the nature of multi-threaded code, it is potentially possible
 that confirmation and timeout actions BOTH happen if the user triggers
@@ -106,42 +105,42 @@ Terse Change history:
         }
         updateText(self.opt.initialText);
         this.setClasses(false);
-		    this.doTimeout = function() {
-			    this.timerID = undefined;
-			    if( this.state != this.states.waiting ) {
-				    // it was already confirmed
-				    return;
-			    }
-			    this.setClasses( false );
-			    this.state = this.states.initial;
-			    dbg("Timeout triggered.");
-			    updateText(this.opt.initialText);
-			    if( this.opt.ontimeout ) {
-				    this.opt.ontimeout.call(this.target);
-			    }
-		    };
+        this.doTimeout = function() {
+          this.timerID = undefined;
+          if( this.state != this.states.waiting ) {
+            // it was already confirmed
+            return;
+          }
+          this.setClasses( false );
+          this.state = this.states.initial;
+          dbg("Timeout triggered.");
+          updateText(this.opt.initialText);
+          if( this.opt.ontimeout ) {
+            this.opt.ontimeout.call(this.target);
+          }
+        };
         target.addEventListener(
           'click', function(){
-			      switch( self.state ) {
-				    case( self.states.waiting ):
-					    if( undefined !== self.timerID ) clearTimeout( self.timerID );
-					    self.state = self.states.initial;
-					    self.setClasses( false );
-					    dbg("Confirmed");
-					    updateText(self.opt.initialText);
-					    if( self.opt.onconfirm ) self.opt.onconfirm.call(self.target);
-					    break;
-				    case( self.states.initial ):
-					    self.setClasses( true );
-					    if( self.opt.onactivate ) self.opt.onactivate.call( self.target );
-					    self.state = self.states.waiting;
-					    dbg("Waiting "+self.opt.timeout+"ms on confirmation...");
-					    updateText( self.opt.confirmText );
-					    self.timerID = setTimeout(function(){self.doTimeout();},self.opt.timeout );
-					    break;
-				    default: // can't happen.
-					    break;
-			      }
+            switch( self.state ) {
+            case( self.states.waiting ):
+              if( undefined !== self.timerID ) clearTimeout( self.timerID );
+              self.state = self.states.initial;
+              self.setClasses( false );
+              dbg("Confirmed");
+              updateText(self.opt.initialText);
+              if( self.opt.onconfirm ) self.opt.onconfirm.call(self.target);
+              break;
+            case( self.states.initial ):
+              self.setClasses( true );
+              if( self.opt.onactivate ) self.opt.onactivate.call( self.target );
+              self.state = self.states.waiting;
+              dbg("Waiting "+self.opt.timeout+"ms on confirmation...");
+              updateText( self.opt.confirmText );
+              self.timerID = setTimeout(function(){self.doTimeout();},self.opt.timeout );
+              break;
+            default: // can't happen.
+              break;
+            }
           }, false
         );
       };
@@ -150,22 +149,22 @@ Terse Change history:
           initial: 0, waiting: 1
         },
         setClasses: function(activated) {
-			    if( activated ) {
-				    if( this.opt.classActivated ) {
-					    this.target.addClass( this.opt.classActivated );
-				    }
-				    if( this.opt.classInitial ) {
-					    this.target.removeClass( this.opt.classInitial );
-				    }
-			    } else {
-				    if( this.opt.classInitial ) {
-					    this.target.addClass( this.opt.classInitial );
-				    }
-				    if( this.opt.classActivated ) {
-					    this.target.removeClass( this.opt.classActivated );
-				    }
-			    }
-		    }
+          if( activated ) {
+            if( this.opt.classActivated ) {
+              this.target.addClass( this.opt.classActivated );
+            }
+            if( this.opt.classInitial ) {
+              this.target.removeClass( this.opt.classInitial );
+            }
+          } else {
+            if( this.opt.classInitial ) {
+              this.target.addClass( this.opt.classInitial );
+            }
+            if( this.opt.classActivated ) {
+              this.target.removeClass( this.opt.classActivated );
+            }
+          }
+        }
         
       };
     }/*static init*/
@@ -187,13 +186,13 @@ Terse Change history:
      defaults.
   */
   F.confirmer.defaultOpts = {
-	  timeout:3000,
-	  onconfirm:undefined,
-	  ontimeout:undefined,
-	  onactivate:undefined,
-	  classInitial:'',
-	  classActivated:'',
-	  debug:true
+    timeout:3000,
+    onconfirm:undefined,
+    ontimeout:undefined,
+    onactivate:undefined,
+    classInitial:'',
+    classActivated:'',
+    debug:true
   };
 
 })(window.fossil);
