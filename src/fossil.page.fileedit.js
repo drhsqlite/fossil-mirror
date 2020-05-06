@@ -5,9 +5,9 @@
      bootstrapping is complete and fossil.fetch() has been installed.
   */
   const E = (s)=>document.querySelector(s),
-        D = F.dom;
+        D = F.dom,
+        P = F.page;
   window.addEventListener("load", function() {
-    const P = F.page;
     P.tabs = new fossil.TabManager('#fileedit-tabs');
     P.e = {
       taEditor: E('#fileedit-content-editor'),
@@ -39,10 +39,10 @@
     };
       
     //P.tabs.getButtonForTab(P.e.tabs.preview)
-    P.e.tabs.preview.querySelector(
-      'button'
-    ).addEventListener(
-      "click",(e)=>P.preview(), false
+    F.connectPagePreviewers(
+      P.e.tabs.preview.querySelector(
+        'button'
+      )
     );
 
     const diffButtons = E('#fileedit-tab-diff-buttons');
@@ -104,7 +104,8 @@
         new Event('change',{target:selectFontSize})
       );
     }
-  }, false);
+
+  }, false)/*onload event handler*/;
   
   /**
      updateVersion() updates the filename and version in various UI
@@ -112,7 +113,7 @@
 
      Returns this object.
   */
-  F.page.updateVersion = function(file,rev){
+  P.updateVersion = function(file,rev){
     this.finfo = {file,r:rev};
     const E = (s)=>document.querySelector(s),
           euc = encodeURIComponent,
@@ -142,7 +143,7 @@
 
      Returns this object, noting that the load is async.
   */
-  F.page.loadFile = function(file,rev){
+  P.loadFile = function(file,rev){
     if(0===arguments.length){
       if(!this.finfo) return this;
       file = this.finfo.file;
@@ -171,16 +172,15 @@
 
      Returns this object, noting that the operation is async.
   */
-  F.page.preview = function(switchToTab){
+  P.preview = function(switchToTab){
     if(!this.finfo){
       F.error("No content is loaded.");
       return this;
     }
-    const content = this.e.taEditor.value,
-          target = this.e.tabs.preview.querySelector(
-            '#fileedit-tab-preview-wrapper'
-          ),
-          self = this;
+    const target = this.e.tabs.preview.querySelector(
+      '#fileedit-tab-preview-wrapper'
+    );
+    const self = this;
     const updateView = function(c){
       D.clearElement(target);
       if('string'===typeof c){
@@ -193,29 +193,42 @@
       updateView('');
       return this;
     }
+    this._postPreview(this.e.taEditor.value, updateView);
+    return this;
+  };
+
+  /**
+     Callback for use with F.connectPagePreviewers()
+  */
+  P._postPreview = function(content,callback){
+    if(!content){
+      callback(content);
+      return;
+    }
     const fd = new FormData();
     fd.append('render_mode',E('select[name=preview_render_mode]').value);
     fd.append('file',this.finfo.file);
     fd.append('ln',E('[name=preview_ln]').checked ? 1 : 0);
     fd.append('iframe_height', E('[name=preview_html_ems]').value);
-    fd.append('content',content);
-    target.innerText = "Fetching preview...";
-    F.message(
-      "Fetching preview..."
-    ).fetch('fileedit_preview',{
+    fd.append('content',content || '');
+    fossil.fetch('fileedit_preview',{
       payload: fd,
-      onload: updateView
+      onload: callback,
+      onerror: (e)=>{
+        fossil.fetch.onerror(e);
+        callback("Error fetching preview: "+e);
+      }
     });
-    return this;
   };
 
+  
   /**
      Fetches the content diff based on the contents and settings of this
      page's input fields, and updates the UI with the diff view.
 
      Returns this object, noting that the operation is async.
   */
-  F.page.diff = function(sbs){
+  P.diff = function(sbs){
     if(!this.finfo){
       F.error("No content is loaded.");
       return this;
@@ -254,7 +267,7 @@
 
      Returns this object.
   */
-  F.page.commit = function f(){
+  P.commit = function f(){
     if(!this.finfo){
       F.error("No content is loaded.");
       return this;
@@ -284,7 +297,7 @@
           msg.push('Re-activating dry-run mode.');
           self.e.taComment.value = '';
           cbDryRun.checked = true;
-          F.page.updateVersion(filename, c.uuid);
+          P.updateVersion(filename, c.uuid);
         }
         F.message.apply(fossil, msg);
         self.tabs.switchToTab(self.e.tabs.commit);
@@ -330,4 +343,5 @@
     return this;
   };
 
+  
 })(window.fossil);

@@ -1604,7 +1604,14 @@ void fileedit_page(){
        ">");
 
     CX("<div class='fileedit-options flex-container row'>");
-    CX("<button>Refresh</button>");
+    CX("<button id='btn-preview-refresh' "
+       "data-f-post-from='fileedit-content-editor' "
+       /* ^^^ text source elem ID*/
+       "data-f-post-via='_postPreview' "
+       /* ^^^ fossil.page[methodName](content, callback) */
+       "data-f-post-to='fileedit-tab-preview-wrapper' "
+       /* ^^^ dest elem ID */
+       ">Refresh</button>");
     /* Default preview rendering mode selection... */
     previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
     style_select_list_int("select-preview-mode",

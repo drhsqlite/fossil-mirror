@@ -144,5 +144,114 @@
     return rc;
   };
 
+  /**
+     Sets up pseudo-automatic content preview handling between a
+     source element (typically a TEXTAREA) and a target rendering
+     element (typically a DIV). The selector argument must be one of:
+
+     - A single DOM element
+     - A collection of DOM elements with a forEach method.
+     - A CSS selector
+
+     Each element in the collection must have the following data
+     attributes:
+
+     - data-f-post-from: the DOM element id of the text source
+       element. It must support .value to get the content.
+
+     - data-f-post-to: the DOM element id of the target "previewer"
+       element.
+
+     - data-f-post-via: the name of a method (see below).
+
+     - OPTIONAL data-f-post-as-text: a numeric value. Explained below.
+
+     Each element gets a click handler added to it which does the
+     following:
+
+     1) Reads the content from its data-f-post-from element.
+
+     2) Passes the content to
+     methodNamespace[f-data-post-via](content,callback). f-data-post-via
+     is responsible for submitting the preview HTTP request, including
+     any parameters the request might require. When the response
+     arrives, it must pass the content of the response to its 2nd
+     argument, an auto-generated callback installed by this mechanism
+     which...
+
+     3) Assigns the response text to the data-f-post-to element. If
+     data-f-post-as-text is '0' (the default) then the content
+     is assigned to the target element's innerHTML property, else
+     it is assigned to the element's textContent property.
+
+
+     The methodNamespace (2nd argument) defaults to fossil.page, and
+     data-f-post-via must be a single method name, not a
+     property-access-style string. e.g. "myPreview" is legal but
+     "foo.myPreview" is not (unless, of course, the method is actually
+     named "foo.myPreview" (which is legal but would be
+     unconventional)).
+
+     An example...
+
+     First an input button:
+
+     <button id='test-preview-connector'
+       data-f-post-from='fileedit-content-editor' // elem ID
+       data-f-post-via='myPreview' // method name
+       data-f-post-to='fileedit-tab-preview-wrapper' // elem ID
+     >Preview update</button>
+
+     And a sample data-f-post-via method:
+
+     fossil.page.myPreview = function(content,callback){
+       const fd = new FormData();
+       fd.append('foo', ...);
+       fossil.fetch('preview_forumpost',{
+         payload: fd,
+         onload: callback,
+         onerror: (e)=>{ // only if app-specific handling is needed
+           fossil.fetch.onerror(e); // default impl
+           ... any app-specific error reporting ...
+         }
+       });
+     };
+
+     Then connect the parts with:
+
+     fossil.connectPagePreviewers('#test-preview-connector');
+
+     Note that the data-f-post-from, data-f-post-via, and
+     data-f-post-to selector are not resolved until the button is
+     actually clicked, so they need not exist in the DOM at the
+     instant when the connection is set up, so long as they can be
+     resolved when the preview-refreshing element is clicked.
+  */
+  F.connectPagePreviewers = function f(selector,methodNamespace){
+    if('string'===typeof selector){
+      selector = document.querySelectorAll(selector);
+    }else if(!selector.forEach){
+      selector = [selector];
+    }
+    if(!methodNamespace){
+      methodNamespace = F.page;
+    }
+    selector.forEach(function(e){
+      e.addEventListener(
+        'click', function(r){
+          const eTo = document.querySelector('#'+e.dataset.fPostTo),
+                eFrom = document.querySelector('#'+e.dataset.fPostFrom),
+                asText = +(e.dataset.fPostAsText || 0);
+          eTo.textContent = "Fetching preview...";
+          methodNamespace[e.dataset.fPostVia](
+            eFrom.value,
+            (r)=>eTo[asText ? 'textContent' : 'innerHTML'] = r||''
+          );
+        }, false
+      );
+    });
+    return this;
+  };
+
 
 })(window);
