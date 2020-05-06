@@ -1,8 +1,65 @@
 "use strict";
 /**
-  Documented in style.c:style_emit_script_fetch(). Requires that
-  window.fossil has already been set up (which happens via the routine
-  which emits this code C-side).
+   Requires that window.fossil has already been set up.
+
+   window.fossil.fetch() is an HTTP request/response mini-framework
+   similar (but not identical) to the not-quite-ubiquitous
+   window.fetch().
+
+   JS usages:
+
+   fossil.fetch( URI [, onLoadCallback] );
+
+   fossil.fetch( URI [, optionsObject = {}] );
+
+   Noting that URI must be relative to the top of the repository and
+   should not start with a slash (if it does, it is stripped). It gets
+   the equivalent of "%R/" prepended to it.
+
+   The optionsObject may be an onload callback or an object with any
+   of these properties:
+
+   - onload: callback(responseData) (default = output response to
+   the console).
+
+   - onerror: callback(XHR onload event | exception)
+   (default = event or exception to the console).
+
+   - method: 'POST' | 'GET' (default = 'GET')
+
+   - payload: anything acceptable by XHR2.send(ARG) (DOMString,
+   Document, FormData, Blob, File, ArrayBuffer), or a plain object or
+   array, either of which gets JSON.stringify()'d. If payload is set
+   then the method is automatically set to 'POST'. If an object/array
+   is converted to JSON, the contentType option is automatically set
+   to 'application/json'. By default XHR2 will set the content type
+   based on the payload type.
+
+   - contentType: Optional request content type when POSTing. Ignored
+   if the method is not 'POST'.
+
+   - responseType: optional string. One of ("text", "arraybuffer",
+   "blob", or "document") (as specified by XHR2). Default = "text".
+   As an extension, it supports "json", which tells it that the
+   response is expected to be text and that it should be JSON.parse()d
+   before passing it on to the onload() callback.
+
+   - urlParams: string|object. If a string, it is assumed to be a
+   URI-encoded list of params in the form "key1=val1&key2=val2...",
+   with NO leading '?'.  If it is an object, all of its properties get
+   converted to that form. Either way, the parameters get appended to
+   the URL before submitting the request.
+
+   When an options object does not provide onload() or onerror()
+   handlers of its own, this function falls back to
+   fossil.fetch.onload() and fossil.fetch.onerror() as defaults. The
+   default implementations route the data through the dev console and
+   (for onerror()) through fossil.error(). Individual pages may
+   overwrite those members to provide default implementations suitable
+   for the page's use.
+
+   Returns this object, noting that the XHR request is asynchronous,
+   and still in transit (or has yet to be sent) when that happens.
 */
 window.fossil.fetch = function f(uri,opt){
   if(!f.onerror){
@@ -15,8 +72,8 @@ window.fossil.fetch = function f(uri,opt){
         const txt = e.originalTarget.responseText;
         try{
           /* The convention from the /filepage_xyz routes is to
-          ** return error responses in JSON form if possible:
-          ** {error: "..."}
+             return error responses in JSON form if possible:
+             {error: "..."}
           */
           const j = JSON.parse(txt);
           console.error("Error JSON:",j);

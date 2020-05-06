@@ -1427,16 +1427,24 @@ void style_select_list_int(const char * zWrapperId,
 /*
 ** The first time this is called, it emits code to install and
 ** bootstrap the window.fossil object, using the built-in file
-** fossil.bootstrap.js (not to be confused with bootstrap.js). It does
-** NOT wrap that in a script tag because it's called from
-** style_emit_script_tag().
+** fossil.bootstrap.js (not to be confused with bootstrap.js).
 **
 ** Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly to the page
+** output, else it emits a script tag with a src=builtin/... to load
+** the script. It always outputs a small pre-bootstrap element in its
+** own script tag to initialize parts which need C-runtime-level
+** information, because loading the main fossil.bootstrap.js either
+** inline or via a <script src=...>, as specified by the first
+** argument.
 */
-static void style_emit_script_fossil_bootstrap(){
+void style_emit_script_fossil_bootstrap(int asInline){
   static int once = 0;
   if(0==once++){
-    /* Set up the generic/app-agnostic parts of window.fossil */
+    /* Set up the generic/app-agnostic parts of window.fossil
+    ** which require C-level state... */
+    style_emit_script_tag(0,0);
     CX("(function(){\n"
        "if(!window.fossil) window.fossil={};\n"
        "window.fossil.version = \"%j\";\n"
@@ -1452,27 +1460,43 @@ static void style_emit_script_fossil_bootstrap(){
     CX("window.fossil.page = {"
        "page:\"%T\""
        "};\n", g.zPath);
-    /* The remaining code is not dependent on C-runtime state... */
-    CX("%s\n", builtin_text("fossil.bootstrap.js"));
     CX("})();\n");
+    /* The remaining code is not dependent on C-runtime state... */
+    if(asInline){
+      CX("%s\n", builtin_text("fossil.bootstrap.js"));
+    }
+    style_emit_script_tag(1,0);
+    if(asInline==0){
+      style_emit_script_tag(0,"builtin/fossil.bootstrap.js");
+    }
   }
 }
 
 /*
-** If passed 0, it emits a script opener tag with this request's
-** nonce. If passed non-0 it emits a script closing tag.
+** If passed 0 as its first argument, it emits a script opener tag
+** with this request's nonce. If passed non-0 it emits a script
+** closing tag. Mnemonic for remembering the order in which to pass 0
+** or 1 as the first argument to this function: 0 comes before 1.
 **
-** The very first time it is called, it emits some bootstrapping JS
-** code immediately after the script opener. Specifically, it defines
-** window.fossil if it's not already defined, and sets up its most
-** basic functionality.
+** If passed 0 as its first argument and a non-NULL/non-empty zSrc,
+** then it instead emits:
+**
+** <script src='%R/{{zSrc}}'></script>
+**
+** zSrc is always assumed to be a repository-relative path without
+** a leading slash, and has %R/ prepended to it.
+**
+** Meaning that no follow-up call to pass a non-0 first argument
+** to close the tag. zSrc is ignored if the first argument is not
+** 0.
+**
 */
-void style_emit_script_tag(int phase){
-  static int once = 0;
-  if(0==phase){
-    CX("<script nonce='%s'>", style_nonce());
-    if(0==once++){
-      style_emit_script_fossil_bootstrap();
+void style_emit_script_tag(int isCloser, const char * zSrc){
+  if(0==isCloser){
+    if(zSrc!=0 && zSrc[0]!=0){
+      CX("<script src='%R/%T'></script>\n", zSrc);
+    }else{
+      CX("<script nonce='%s'>", style_nonce());
     }
   }else{
     CX("</script>\n");
@@ -1480,107 +1504,75 @@ void style_emit_script_tag(int phase){
 }
 
 /*
-** Emits the text of builtin_text(zName), which is assumed to be
-** JavaScript code, and wrapps that in a pair of calls to
-** style_emit_script_tag().
+** Emits a script tag which uses content from a builtin script file.
+**
+** If asInline is true, it is emitted directly as an opening tag, the
+** content of the zName builtin file, and a closing tag. If it is false,
+** a script tag loading it via src=builtin/{{zName}} is emitted.
 */
-void style_emit_script_builtin(char const * zName){
-    style_emit_script_tag(0);
+void style_emit_script_builtin(char const * zName, int asInline){
+  if(asInline){
+    style_emit_script_tag(0,0);
     CX("%s", builtin_text(zName));
-    style_emit_script_tag(1);
+    style_emit_script_tag(1,0);
+  }else{
+    char * zFull = mprintf("builtin/%s",zName);
+    style_emit_script_tag(0,zFull);
+    fossil_free(zFull);
+  }
 }
 
 /*
-** The first time this is called, it emits a JS script block,
-** including tags, using the contents of the built-in file
-** fossil.fetch.js, which defines window.fossil.fetch(), an HTTP
-** request/response mini-framework similar (but not identical) to the
-** not-quite-ubiquitous window.fetch(). It calls
-** style_emit_script_tag(), which may inject other JS bootstrapping
-** bits. Subsequent calls are no-ops.
+** The first time this is called, it emits the JS code from the
+** built-in file fossil.fossil.js. Subsequent calls are no-ops.
 **
-** JS usages:
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
 **
-** fossil.fetch( URI [, onLoadCallback] );
-**
-** fossil.fetch( URI [, optionsObject = {}] );
-**
-** Noting that URI must be relative to the top of the repository and
-** should not start with a slash (if it does, it is stripped). It gets
-** the equivalent of "%R/" prepended to it.
-**
-** The optionsObject may be an onload callback or an object with any
-** of these properties:
-**
-** - onload: callback(responseData) (default = output response to
-**   the console).
-**
-** - onerror: callback(XHR onload event | exception)
-**   (default = event or exception to the console).
-**
-** - method: 'POST' | 'GET' (default = 'GET')
-**
-** - payload: anything acceptable by XHR2.send(ARG) (DOMString,
-**   Document, FormData, Blob, File, ArrayBuffer), or a plain object
-**   or array, either of which gets JSON.stringify()'d. If payload is
-**   set then the method is automatically set to 'POST'. If an
-**   object/array is converted to JSON, the contentType option is
-**   automatically set to 'application/json'. By default XHR2 will set
-**   the content type based on the payload type.
-**
-** - contentType: Optional request content type when POSTing. Ignored
-**   if the method is not 'POST'.
-**
-** - responseType: optional string. One of ("text", "arraybuffer",
-**   "blob", or "document") (as specified by XHR2). Default = "text".
-**   As an extension, it supports "json", which tells it that the
-**   response is expected to be text and that it should be
-**   JSON.parse()d before passing it on to the onload() callback.
-**
-** - urlParams: string|object. If a string, it is assumed to be a
-**   URI-encoded list of params in the form "key1=val1&key2=val2...",
-**   with NO leading '?'.  If it is an object, all of its properties
-**   get converted to that form. Either way, the parameters get
-**   appended to the URL before submitting the request.
-**
-** When an options object does not provide onload() or onerror()
-** handlers of its own, this function falls back to
-** fossil.fetch.onload() and fossil.fetch.onerror() as defaults. The
-** default implementations route the data through the dev console and
-** (for onerror()) through fossil.error(). Individual pages may
-** overwrite those members to provide default implementations suitable
-** for the page's use.
-**
-** Returns this object, noting that the XHR request is asynchronous,
-** and still in transit (or has yet to be sent) when that happens.
+** Note that this code relies on that loaded via
+** style_emit_script_fossil_bootstrap() but it does not call that
+** routine.
 */
-void style_emit_script_fetch(){
+void style_emit_script_fetch(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin("fossil.fetch.js");
+    style_emit_script_builtin("fossil.fetch.js", asInline);
   }
 }
 
 /*
 ** The first time this is called, it emits the JS code from the
 ** built-in file fossil.dom.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
+**
+** Note that this code relies on that loaded via
+** style_emit_script_fossil_bootstrap(), but it does not call that
+** routine.
 */
-void style_emit_script_dom(){
+void style_emit_script_dom(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin("fossil.dom.js");
+    style_emit_script_builtin("fossil.dom.js", asInline);
   }
 }
 
 /*
-** The first time this is called, it calls style_emit_script_dom() and
-** emits the JS code from the built-in file fossil.tabs.js.
-** Subsequent calls are no-ops.
+** The first time this is called, it calls style_emit_script_dom(),
+** passing it the given asInline value, and emits the JS code from the
+** built-in file fossil.tabs.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
 */
-void style_emit_script_tabs(){
+void style_emit_script_tabs(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_dom();
-    style_emit_script_builtin("fossil.tabs.js");
+    style_emit_script_dom(asInline);
+    style_emit_script_builtin("fossil.tabs.js",asInline);
   }
 }

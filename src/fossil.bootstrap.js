@@ -5,6 +5,10 @@
      that object.
   */
 
+  /**
+     Returns the current time in something approximating
+     ISO-8601 format.
+  */
   const timestring = function f(){
     if(!f.rx1){
       f.rx1 = /\.\d+Z$/;
@@ -12,7 +16,6 @@
     const d = new Date();
     return d.toISOString().replace(f.rx1,'').split('T').join(' ');
   };
-
 
   /*
   ** By default fossil.message() sends its arguments console.debug(). If
@@ -27,7 +30,7 @@
   global.fossil.message = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
-    args.unshift(timestring()+' UTC:');
+    args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.remove('error');
       tgt.innerText = args.join(' ');
@@ -54,7 +57,7 @@
   global.fossil.error = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = global.fossil.message.targetElement;
-    args.unshift(timestring()+' UTC:');
+    args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.add('error');
       tgt.innerText = args.join(' ');

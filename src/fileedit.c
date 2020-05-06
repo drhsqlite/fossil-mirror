@@ -1454,16 +1454,6 @@ end_cleanup:
   CheckinMiniInfo_cleanup(&cimi);
 }
 
-
-/*
-** Emits utility script code specific to the /fileedit page.
-*/
-static void fileedit_emit_page_script(){
-  style_emit_script_fetch();
-  style_emit_script_tabs();
-  style_emit_script_builtin("fossil.page.fileedit.js");
-}
-
 /*
 ** WEBPAGE: fileedit
 **
@@ -1489,7 +1479,6 @@ void fileedit_page(){
   CheckinMiniInfo cimi;                 /* Checkin state */
   int previewHtmlHeight = 0;            /* iframe height (EMs) */
   int previewRenderMode = FE_RENDER_GUESS; /* preview mode */
-  char * zFileUuid = 0;                 /* File content UUID */
   Blob err = empty_blob;                /* Error report */
   Blob endScript = empty_blob;          /* Script code to run at the
                                            end. This content will be
@@ -1790,7 +1779,6 @@ void fileedit_page(){
                zFilename, cimi.zParentUuid);
 
 end_footer:
-  fossil_free(zFileUuid);
   if(stmt.pStmt){
     db_finalize(&stmt);
   }
@@ -1800,14 +1788,17 @@ end_footer:
   }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
-  fileedit_emit_page_script();
+  style_emit_script_fossil_bootstrap(0);
+  style_emit_script_fetch(0);
+  style_emit_script_tabs(0);
+  style_emit_script_builtin("fossil.page.fileedit.js",0);
   if(blob_size(&endScript)>0){
-    style_emit_script_tag(0);
+    style_emit_script_tag(0,0);
     CX("(function(){\n");
     CX("try{\n%b\n}catch(e){console.error('Exception:',e)}\n",
        &endScript);
     CX("})();");
-    style_emit_script_tag(1);
+    style_emit_script_tag(1,0);
   }
   db_end_transaction(0);
   style_footer();

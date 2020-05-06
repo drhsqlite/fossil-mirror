@@ -863,6 +863,75 @@ label {
 //   overflow: auto;
 // }
 // .fileedit-XXX => /fileedit page
+.hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+//.hidden {
+//  display: none;
+//}
+#fossil-status-bar {
+  display: block;
+  font-family: monospace;
+  border-width: 1px;
+  border-style: inset;
+  border-color: inherit;
+  min-height: 1.5em;
+  font-size: 1.2em;
+  padding: 0.2em;
+  margin: 0.25em 0;
+  flex: 0 0 auto;
+}
+#fossil-status-bar.error {
+  color: darkred;
+  background: yellow;
+}
+//////////////////////////////////
+// Styles for fossil.tabs.js:
+.tab-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.tab-container > #fossil-status-bar {
+  margin-top: 0;
+}
+.tab-container > .tabs {
+  padding: 0.25em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-style: outset;
+  border-color: inherit;
+}
+.tab-container > .tabs > .tab-panel {
+  align-self: stretch;
+  flex: 10 1 auto;
+  display: block;
+}
+.tab-container > .tab-bar {
+  display: flex;
+  flex-direction: row;
+  flex: 1 10 auto;
+  align-self: stretch;
+  flex-wrap: wrap;
+}
+.tab-container > .tab-bar > button {
+  border-radius: 0.5em 0.5em 0 0;
+  margin: 0.5em 0.5em 0 0.5em;
+  align-self: baseline;
+}
+.tab-container > .tab-bar > button.selected {
+  font-style: italic;
+  font-weight: bold;
+  margin: 0 0.5em;
+  text-decoration: underline;
+}
+//////////////////////////////////
+// Styles for /fileedit:
 form.fileedit textarea {
   font-family: monospace;
   width: 100%;
@@ -919,22 +988,63 @@ div.fileedit-tab-diff-wrapper {
   width: 100%;
   font-family: monospace;
 }
-#fossil-status-bar {
-  display: block;
-  font-family: monospace;
-  border-width: 1px;
-  border-style: inset;
-  border-color: inherit;
-  min-height: 1.5em;
-  font-size: 1.2em;
-  padding: 0.2em;
-  margin: 0.25em 0;
-  flex: 0 0 auto;
+.tab-container > .tabs > .tab-panel > .fileedit-options {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
 }
-#fossil-status-bar.error {
-  color: darkred;
-  background: yellow;
+.tab-container > .tabs > .tab-panel > .fileedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
 }
+////////////////////////////////////////////////////////////////////
+// Styles developed for /fileedit but which have wider
+// applicability:
+.flex-container {
+    display: flex;
+}
+.flex-container.row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.flex-container.row.stretch {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin: 0;
+}
+.flex-container.column {
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.flex-container.column.stretch {
+    align-items: stretch;
+    margin: 0;
+}
+.font-size-100 {
+  font-size: 100%;
+}
+.font-size-125 {
+  font-size: 125%;
+}
+.font-size-150 {
+  font-size: 150%;
+}
+.font-size-175 {
+  font-size: 175%;
+}
+.font-size-200 {
+  font-size: 200%;
+}
+//////////////////////////////////////////////////////////////////
+// .input-with-label is intended to be a wrapper element which
+// contains a SPAN label and an INPUT control.
 .input-with-label {
   border: 1px inset #808080;
   border-radius: 0.5em;
@@ -967,105 +1077,4 @@ div.fileedit-tab-diff-wrapper {
 .input-with-label > span {
     margin: 0 0.25em 0 0.25em;
     vertical-align: middle;
-}
-.hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-//.hidden {
-//  display: none;
-//}
-.font-size-100 {
-  font-size: 100%;
-}
-.font-size-125 {
-  font-size: 125%;
-}
-.font-size-150 {
-  font-size: 150%;
-}
-.font-size-175 {
-  font-size: 175%;
-}
-.font-size-200 {
-  font-size: 200%;
-}
-
-.tab-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-.tab-container > #fossil-status-bar {
-  margin-top: 0;
-}
-.tab-container > .tabs {
-  padding: 0.25em;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  border-width: 1px;
-  border-style: outset;
-  border-color: inherit;
-}
-.tab-container > .tabs > .tab-panel {
-  align-self: stretch;
-  flex: 10 1 auto;
-  display: block;
-}
-.tab-container > .tab-bar {
-  display: flex;
-  flex-direction: row;
-  flex: 1 10 auto;
-  align-self: stretch;
-  flex-wrap: wrap;
-}
-.tab-container > .tab-bar > button {
-  border-radius: 0.5em 0.5em 0 0;
-  margin: 0.5em 0.5em 0 0.5em;
-  align-self: baseline;
-}
-.tab-container > .tab-bar > button.selected {
-  font-style: italic;
-  font-weight: bold;
-  margin: 0 0.5em;
-  text-decoration: underline;
-}
-.tab-container > .tabs > .tab-panel > .fileedit-options {
-  margin-top: 0;
-  border: none;
-  border-radius: 0;
-  border-bottom-width: 1px;
-  border-bottom-style: dotted;
-}
-.tab-container > .tabs > .tab-panel > .fileedit-options > button {
-  vertical-align: middle;
-  margin: 0.5em;
-}
-.flex-container {
-    display: flex;
-}
-.flex-container.row {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-}
-.flex-container.row.stretch {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: stretch;
-    margin: 0;
-}
-.flex-container.column {
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-}
-.flex-container.column.stretch {
-    align-items: stretch;
-    margin: 0;
 }
