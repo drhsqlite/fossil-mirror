@@ -2251,7 +2251,7 @@ void artifact_page(void){
   if( zBr && zBr[0] ){
     style_submenu_element("View", "%R/doc/%T/%T",
                            zBr, blob_str(&downloadName));
-    style_submenu_element("Tip", "%R/file/%%?ci=%T",
+    style_submenu_element("Tip", "%R/file/%T?ci=%T",
                            blob_str(&downloadName), zBr);
     fossil_free((void *)zBr);
   }

@@ -1,5 +1,5 @@
-C The\snew\s/artifact\sView\sand\sTip\sbuttons\swere\salways\sreferring\sto\s"trunk"\nbecause\swe\swere\spassing\sa\sfile\sRID\sto\sa\sfunction\sthat\sexpected\sa\scommit\nRID.\s\sAdded\sa\snew\sbranch_of_file_rid()\sfunction\sto\sparallel\sthe\nbranch_of_rid()\sfunction\swe\swere\sincorrectly\scalling\sto\sfix\sit.\s\sAlso\nsquished\sa\smemory\sleak.
-D 2020-05-06T08:20:39.155
+C Fixed\sa\stypo.
+D 2020-05-06T08:44:59.442
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c b53e70035a5280f35cbff16fa6bb5f3ba7f8100ba93b7a1b24906f854553ea69
+F src/info.c ef40ccd461775f9f1bde670643d073935af9802996920d5aaa0cb89b027d035a
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a9dda382bf1bce4589f43333651985a9792c8d33e2274cbb097c059c056c5ad9
-R e92170c76fd1fe731b85a185141e7045
+P c27f646f2542e4a6275e8819d51071e828b45e61144ce11e569d1effe1dcf6b2
+R ddcd400246698acc645ba53908214194
 U wyoung
-Z 81cf92099206635637e6ff17483e88da
+Z 5b23f0bb06734ac5b74316bc3555ca4d
