@@ -13,7 +13,6 @@
       taEditor: E('#fileedit-content-editor'),
       taComment: E('#fileedit-comment'),
       ajaxContentTarget: E('#ajax-target'),
-      form: E('#fileedit-form'),
       btnCommit: E("#fileedit-btn-commit"),
       btnReload: E("#fileedit-tab-content > .fileedit-options > "
                    +"button.fileedit-content-reload"),
@@ -39,14 +38,6 @@
       return P;
     };
       
-    P.e.form.addEventListener("submit", function(e) {
-      e.target.checkValidity();
-      /* All of this is needed to keep the form from submitting every
-         time any button in the form is clicked: */
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }, false);
     //P.tabs.getButtonForTab(P.e.tabs.preview)
     P.e.tabs.preview.querySelector(
       'button'
@@ -54,13 +45,6 @@
       "click",(e)=>P.preview(), false
     );
 
-    document.querySelector('#fileedit-form').addEventListener(
-      "click",function(e){
-        stopEvent(e);
-        return false;
-      }
-    );
-    
     const diffButtons = E('#fileedit-tab-diff-buttons');
     diffButtons.querySelector('button.sbs').addEventListener(
       "click",(e)=>P.diff(true), false
@@ -180,8 +164,9 @@
   };
 
   /**
-     Fetches the page preview based on the contents and settings of this
-     page's form, and updates the UI with with the preview.
+     Fetches the page preview based on the contents and settings of
+     this page's input fields, and updates the UI with with the
+     preview.
 
      Returns this object, noting that the operation is async.
   */
@@ -223,7 +208,7 @@
 
   /**
      Fetches the content diff based on the contents and settings of this
-     page's form, and updates the UI with the diff view.
+     page's input fields, and updates the UI with the diff view.
 
      Returns this object, noting that the operation is async.
   */

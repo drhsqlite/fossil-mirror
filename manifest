@@ -1,5 +1,5 @@
-C Reworked\show\s/fileedit\sloads\sits\sJS\s-\sit\snow\sfetches\sthem\srather\sthan\sembedding\sthem\sinline.\sMoved\sfossil.fetch()\sdocs\sfrom\sstyle.c\sinto\sthe\sJS\sfile.
-D 2020-05-06T01:51:37.519
+C Removed\sthe\sFORM\selement\s-\sit\swas\ssuperfluous\sand\sparticularly\sstubborn\sin\show\sit\sresponded\sto\severy\sbutton.
+D 2020-05-06T01:58:57.814
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c b09e8a25d432a7ce153dc5a0a449a9983d30a38480eed85e452c27cc4d47367e
+F src/fileedit.c 1f3443a09f4782f302945b10f2a6585d3d4d18762cc52290c73c49c12d05bc1b
 F src/finfo.c 9a092785f3aa93b9789d7888f14361bf9610ff5f1733eeee20cef3662f7bcf34
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -487,7 +487,7 @@ F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js 9fc477b1bee071dad358a7a5d797521bbaf1fc29cf91317ffd805bffaf8e6285
 F src/fossil.dom.js 1274733b8e7b1f4d359940e297ddece7000b9d4e4bc455ebe739fedbba2495e3
 F src/fossil.fetch.js f108558646800e8dd9032e6a8d02c9a724c45aa82af3d14e13955afedc5e8632
-F src/fossil.page.fileedit.js c75beb993bd727a84c8e9cadef3cef9fc5408b03b6cab4e7b770957b40e2c862
+F src/fossil.page.fileedit.js 45c7aefe0237553ad50e4b6f7661ae94c6c6930cc3ab82a7df85525fbeb1afaa
 F src/fossil.tabs.js 3b141bc7587169241c6208985fd892c501a2d0219af9ffea344537ab9172efdd
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -984,7 +984,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 25dfd243a11e77f5be2eafc10acaeda790f8afb20d449ee985e8b64213364334
-R f57d70e58bf4aac19071029b6c7f61ba
+P b48212f6ea83876b7d9721081dfdbbc8e6f4743fdad9c3f16551555b78edf155
+R ec941ab296535206d81f88625573250f
 U stephan
-Z a3408b5e950bd677ed8261a6565e649a
+Z e3597d406d98be0e5d2224029443f6e7

@@ -1522,19 +1522,6 @@ void fileedit_page(){
      "USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
 
-  /*
-  ** We don't strictly need a FORM because we manually cherry-pick and
-  ** submit the form data, but it being in a form allows us to easily
-  ** use the FormData type for serialization.
-  **
-  ** TODO?: we can almost certainly replace this element with a plain
-  ** DIV, which would eliminate the event-handling hassles of trying
-  ** to suppress the submit... but it would also eliminate the option
-  ** of using HTML form field validation.
-  */
-  CX("<form action='#' method='POST' class='fileedit' "
-     "id='fileedit-form'>");
-
   /******* Hidden fields *******/
   CX("<input type='hidden' name='r' value='%s'>",
      cimi.zParentUuid);
@@ -1769,9 +1756,6 @@ void fileedit_page(){
   }
 
   CX("</div>"/*#fileedit-tab-commit*/);
-  
-  /******* End of form *******/    
-  CX("</form>\n");
   
   /* Dynamically populate the editor... */
   blob_appendf(&endScript,
