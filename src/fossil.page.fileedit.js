@@ -114,7 +114,7 @@
      Returns this object.
   */
   P.updateVersion = function(file,rev){
-    this.finfo = {file,r:rev};
+    this.finfo = {filename:file,checkin:rev};
     const E = (s)=>document.querySelector(s),
           euc = encodeURIComponent,
           rShort = rev.substr(0,16);
@@ -129,7 +129,10 @@
       F.repoUrl('info/'+rev)
     );
     E('#r-label').innerText = rev;
-    const purlArgs = F.encodeUrlArgs({file, r:rShort},false,true);
+    const purlArgs = F.encodeUrlArgs({
+      filename: this.finfo.filename,
+      checkin: this.finfo.checkin
+    },false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
     const e = E('#permalink');
     e.innerText='fileedit?'+purlArgs;
@@ -146,14 +149,14 @@
   P.loadFile = function(file,rev){
     if(0===arguments.length){
       if(!this.finfo) return this;
-      file = this.finfo.file;
-      rev = this.finfo.r;
+      file = this.finfo.filename;
+      rev = this.finfo.checkin;
     }
     delete this.finfo;
     const self = this;
     F.message("Loading content...");
     F.fetch('fileedit_content',{
-      urlParams:{file:file,r:rev},
+      urlParams: {filename:file,checkin:rev},
       onload:(r)=>{
         F.message('Loaded content.');
         self.e.taEditor.value = r;
@@ -186,7 +189,6 @@
       if('string'===typeof c){
         target.innerHTML = c;
       }
-      F.message('Updated preview.');
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
     if(!content){
@@ -207,13 +209,16 @@
     }
     const fd = new FormData();
     fd.append('render_mode',E('select[name=preview_render_mode]').value);
-    fd.append('file',this.finfo.file);
+    fd.append('filename',this.finfo.filename);
     fd.append('ln',E('[name=preview_ln]').checked ? 1 : 0);
     fd.append('iframe_height', E('[name=preview_html_ems]').value);
     fd.append('content',content || '');
     fossil.fetch('fileedit_preview',{
       payload: fd,
-      onload: callback,
+      onload: (r)=>{
+        callback(r);
+        F.message('Updated preview.');
+      },
       onerror: (e)=>{
         fossil.fetch.onerror(e);
         callback("Error fetching preview: "+e);
@@ -239,8 +244,8 @@
           ),
           self = this;
     const fd = new FormData();
-    fd.append('file',this.finfo.file);
-    fd.append('r', this.finfo.r);
+    fd.append('filename',this.finfo.filename);
+    fd.append('checkin', this.finfo.checkin);
     fd.append('sbs', sbs ? 1 : 0);
     fd.append('content',content);
     F.message(
@@ -250,7 +255,7 @@
       onload: function(c){
         target.innerHTML = [
           "<div>Diff <code>[",
-          self.finfo.r,
+          self.finfo.checkin,
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
         ].join('');
@@ -277,7 +282,7 @@
           target = document.querySelector('#fileedit-manifest'),
           cbDryRun = E('[name=dry_run]'),
           isDryRun = cbDryRun.checked,
-          filename = this.finfo.file;
+          filename = this.finfo.filename;
     if(!f.updateView){
       f.updateView = function(c){
         target.innerHTML = [
@@ -308,8 +313,8 @@
       return this;
     }
     const fd = new FormData();
-    fd.append('file',filename);
-    fd.append('r', this.finfo.r);
+    fd.append('filename',filename);
+    fd.append('checkin', this.finfo.checkin);
     fd.append('content',content);
     fd.append('dry_run',isDryRun ? 1 : 0);
     /* Text fields or select lists... */

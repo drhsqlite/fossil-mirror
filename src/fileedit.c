@@ -1074,8 +1074,9 @@ static int fileedit_ajax_check_filename(const char * zFilename){
 }
 
 /*
-** Passed the values of the "r" and "file" request properties,
-** this function verifies that they are valid and populates:
+** Passed the values of the "checkin" and "filename" request
+** properties, this function verifies that they are valid and
+** populates:
 **
 ** - *zRevUuid = the fully-expanded value of zRev (owned by the
 **    caller). zRevUuid may be NULL.
@@ -1131,8 +1132,8 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 **
 ** Query parameters:
 **
-** file=FILENAME
-** r=CHECKIN_NAME
+** filename=FILENAME
+** checkin=CHECKIN_NAME
 **
 ** User must have Write access to use this page.
 **
@@ -1140,8 +1141,8 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** produces a JSON response as documented for fileedit_ajax_error().
 */
 void fileedit_ajax_content(){
-  const char * zFilename = PD("file",P("name"));
-  const char * zRev = P("r");
+  const char * zFilename = PD("filename",P("name"));
+  const char * zRev = P("checkin");
   int vid, frid;
   Blob content = empty_blob;
   const char * zMime;
@@ -1169,7 +1170,7 @@ void fileedit_ajax_content(){
 **
 ** Required query parameters:
 **
-** file=FILENAME
+** filename=FILENAME
 ** content=text
 **
 ** Optional query parameters:
@@ -1188,7 +1189,7 @@ void fileedit_ajax_content(){
 ** a JSON response as documented for fileedit_ajax_error().
 */
 void fileedit_ajax_preview(){
-  const char * zFilename = PD("file",P("name"));
+  const char * zFilename = PD("filename",P("name"));
   const char * zContent = P("content");
   int renderMode = atoi(PD("render_mode","0"));
   int ln = atoi(PD("ln","0"));
@@ -1211,9 +1212,9 @@ void fileedit_ajax_preview(){
 **
 ** Required query parameters:
 **
-** file=FILENAME
+** filename=FILENAME
 ** content=text
-** r=checkin version
+** checkin=checkin version
 **
 ** Optional parameters:
 **
@@ -1231,8 +1232,8 @@ void fileedit_ajax_diff(){
   ** abused to get diffs against content disallowed by the
   ** whitelist.
   */
-  const char * zFilename = PD("file",P("name"));
-  const char * zRev = P("r");
+  const char * zFilename = PD("filename",P("name"));
+  const char * zRev = P("checkin");
   const char * zContent = P("content");
   char * zRevUuid = 0;
   int isSbs = atoi(PD("sbs","0"));
@@ -1274,7 +1275,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
   int rc = 0, vid = 0, frid = 0; /* result code, checkin/file rids */ 
 
 #define fail(EXPR) blob_appendf EXPR; goto end_fail
-  zFlag = PD("file",P("name"));
+  zFlag = PD("filename",P("name"));
   if(zFlag==0 || !*zFlag){
     rc = 400;
     fail((pErr,"Missing required 'file' parameter."));
@@ -1289,7 +1290,7 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
           p->zFilename));
   }
 
-  zFlag = P("r");
+  zFlag = P("checkin");
   if(!zFlag){
     rc = 400;
     fail((pErr,"Missing required 'r' parameter."));
@@ -1384,8 +1385,8 @@ end_fail:
 **
 ** Required query parameters:
 ** 
-** file=FILENAME
-** r=Parent checkin UUID
+** filename=FILENAME
+** checkin=Parent checkin UUID
 ** content=text
 ** comment=text
 **
@@ -1462,9 +1463,9 @@ end_cleanup:
 **
 ** Query parameters:
 **
-**    file=FILENAME    Repo-relative path to the file.
-**    r=VERSION        Checkin version, using any unambiguous
-**                     supported symbolic version name.
+**    filename=FILENAME    Repo-relative path to the file.
+**    checkin=VERSION      Checkin version, using any unambiguous
+**                         supported symbolic version name.
 **
 ** All other parameters are for internal use only, submitted via the
 ** form-submission process, and may change with any given revision of
@@ -1523,9 +1524,9 @@ void fileedit_page(){
      "repo.</p>\n");
 
   /******* Hidden fields *******/
-  CX("<input type='hidden' name='r' value='%s'>",
+  CX("<input type='hidden' name='checkin' value='%s'>",
      cimi.zParentUuid);
-  CX("<input type='hidden' name='file' value='%T'>",
+  CX("<input type='hidden' name='filename' value='%T'>",
      zFilename);
 
   /* Status bar */

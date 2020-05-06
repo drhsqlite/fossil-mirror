@@ -624,7 +624,7 @@ void finfo_page(void){
         @ %z(href("%R/fdiff?v1=%!S&v2=%!S",zPUuid,zUuid))[diff]</a>
       }
       if( fileedit_is_editable(zFilename) ){
-        @ %z(href("%R/fileedit?file=%T&r=%!S",zFilename,zCkin))[edit]</a>
+        @ %z(href("%R/fileedit?filename=%T&checkin=%!S",zFilename,zCkin))[edit]</a>
       }
       @ </span></span>
     }
