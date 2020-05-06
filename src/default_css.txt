@@ -1006,26 +1006,26 @@ div.fileedit-tab-diff-wrapper {
     display: flex;
 }
 .flex-container.row {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 .flex-container.row.stretch {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: stretch;
-    margin: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin: 0;
 }
 .flex-container.column {
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 .flex-container.column.stretch {
-    align-items: stretch;
-    margin: 0;
+  align-items: stretch;
+  margin: 0;
 }
 .font-size-100 {
   font-size: 100%;
@@ -1057,7 +1057,7 @@ div.fileedit-tab-diff-wrapper {
   vertical-align: middle;
 }
 .input-with-label > input {
-    margin: 0;
+  margin: 0;
 }
 .input-with-label > select {
   margin: 0;
@@ -1069,12 +1069,12 @@ div.fileedit-tab-diff-wrapper {
   margin: 0;
 }
 .input-with-label > input[type=checkbox] {
-    vertical-align: sub;
+  vertical-align: sub;
 }
 .input-with-label > input[type=radio] {
-    vertical-align: sub;
+  vertical-align: sub;
 }
 .input-with-label > span {
-    margin: 0 0.25em 0 0.25em;
-    vertical-align: middle;
+  margin: 0 0.25em 0 0.25em;
+  vertical-align: middle;
 }

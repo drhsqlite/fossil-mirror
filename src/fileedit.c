@@ -30,8 +30,9 @@
 ** Use CheckinMiniInfo_init() to cleanly initialize one to a known
 ** valid/empty default state.
 **
-** Memory for all non-const (char *) members is owned by the
+** Memory for all non-const pointer members is owned by the
 ** CheckinMiniInfo instance and is freed by CheckinMiniInfo_cleanup().
+** Similarly, each instance owns any memory for its Blob members.
 */
 struct CheckinMiniInfo {
   Manifest * pParent;  /* parent checkin. Memory is owned by this
@@ -170,7 +171,8 @@ static void CheckinMiniInfo_cleanup( CheckinMiniInfo * p ){
 
 /*
 ** Internal helper which returns an F-card perms string suitable for
-** writing into a manifest.
+** writing as-is into a manifest. If it's not empty, it includes a
+** leading space to separate it from the F-card's hash field.
 */
 static const char * mfile_permint_mstring(int perm){
   switch(perm){
@@ -191,19 +193,17 @@ static int mfile_permstr_int(const char *zPerm){
   else return PERM_REG/*???*/;
 }
 
-static const char * mfile_perm_mstring(const ManifestFile * p){
-  return mfile_permint_mstring(manifest_file_mperm(p));
-}
-
 /*
 ** Internal helper for checkin_mini() and friends. Appends an F-card
 ** for p to pOut.
 */
-static void checkin_mini_append_fcard(Blob *pOut, const ManifestFile *p){
+static void checkin_mini_append_fcard(Blob *pOut,
+                                      const ManifestFile *p){
   if(p->zUuid){
     assert(*p->zUuid);
     blob_appendf(pOut, "F %F %s%s", p->zName,
-                 p->zUuid, mfile_perm_mstring(p));
+                 p->zUuid,
+                 mfile_permint_mstring(manifest_file_mperm(p)));
     if(p->zPrior){
       assert(*p->zPrior);
       blob_appendf(pOut, " %F\n", p->zPrior);
@@ -1678,15 +1678,15 @@ void fileedit_page(){
     CX("</div>"/*#fileedit-tab-diff*/);
   }
 
-
   /****** Commit ******/
   CX("<div id='fileedit-tab-commit' "
      "data-tab-parent='fileedit-tabs' "
+     "data-tab-select='1' "
      "data-tab-label='Commit'"
      ">");
 
   {
-    /******* Flags/options *******/
+    /******* Commit flags/options *******/
     CX("<div class='fileedit-options flex-container row'>");
     style_labeled_checkbox("cb-dry-run",
                            "dry_run", "Dry-run?", "1",
@@ -1737,7 +1737,7 @@ void fileedit_page(){
     CX("</div>"/*checkboxes*/);
   }
 
-  { /******* Comment *******/
+  { /******* Commit comment, button, and result manifest *******/
     CX("<fieldset class='fileedit-options'>"
        "<legend>Message (required)</legend><div>");
     CX("<input type='text' name='comment' "
@@ -1784,7 +1784,11 @@ end_footer:
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("(function(){\n");
-    CX("try{\n%b\n}catch(e){console.error('Exception:',e)}\n",
+    CX("try{\n%b\n}"
+       "catch(e){"
+       "fossil.error(e);\n"
+       "console.error('Exception:',e);\n"
+       "}\n",
        &endScript);
     CX("})();");
     style_emit_script_tag(1,0);

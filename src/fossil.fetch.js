@@ -25,7 +25,7 @@
    - onerror: callback(XHR onload event | exception)
    (default = event or exception to the console).
 
-   - method: 'POST' | 'GET' (default = 'GET')
+   - method: 'POST' | 'GET' (default = 'GET'). CASE SENSITIVE!
 
    - payload: anything acceptable by XHR2.send(ARG) (DOMString,
    Document, FormData, Blob, File, ArrayBuffer), or a plain object or
@@ -62,11 +62,12 @@
    and still in transit (or has yet to be sent) when that happens.
 */
 window.fossil.fetch = function f(uri,opt){
+  const F = fossil;
   if(!f.onerror){
     f.onerror = function(e/*event or exception*/){
       console.error("Ajax error:",e);
       if(e instanceof Error){
-        fossil.error('Exception:',e);
+        F.error('Exception:',e);
       }
       else if(e.originalTarget && e.originalTarget.responseType==='text'){
         const txt = e.originalTarget.responseText;
@@ -77,9 +78,9 @@ window.fossil.fetch = function f(uri,opt){
           */
           const j = JSON.parse(txt);
           console.error("Error JSON:",j);
-          if(j.error){ fossil.error(j.error) };
+          if(j.error){ F.error(j.error) };
         }catch(e){/* Try harder */
-          fossil.error(txt)
+          F.error(txt)
         }
       }
     };
@@ -91,7 +92,7 @@ window.fossil.fetch = function f(uri,opt){
   if(!opt.onload) opt.onload = f.onload;
   if(!opt.onerror) opt.onerror = f.onerror;
   let payload = opt.payload, jsonResponse = false;
-  if(payload){
+  if(undefined!==payload){
     opt.method = 'POST';
     if(!(payload instanceof FormData)
        && !(payload instanceof Document)
@@ -104,7 +105,7 @@ window.fossil.fetch = function f(uri,opt){
       opt.contentType = 'application/json';
     }
   }
-  const url=[window.fossil.repoUrl(uri,opt.urlParams)],
+  const url=[F.repoUrl(uri,opt.urlParams)],
         x=new XMLHttpRequest();
   if('POST'===opt.method && 'string'===typeof opt.contentType){
     x.setRequestHeader('Content-Type',opt.contentType);
@@ -133,7 +134,7 @@ window.fossil.fetch = function f(uri,opt){
       }
     }
   }
-  if(payload) x.send(payload);
+  if(undefined!==payload) x.send(payload);
   else x.send();
   return this;
 };

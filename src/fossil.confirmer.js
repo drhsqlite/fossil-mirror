@@ -1,3 +1,4 @@
+"use strict";
 /**************************************************************
 Confirmer is a utility which provides an alternative to confirmation
 dialog boxes and "check this checkbox to confirm action" widgets. It
@@ -53,7 +54,7 @@ Options:
   timeout, this class is added *before* the .ontimeout handler is
   called.
 
-  .classActivated = optional CSS class string (default='') which is
+  .classWaiting = optional CSS class string (default='') which is
   added to the target when it is waiting on a timeout. When the target
   leaves timeout-wait mode, this class is removed.  When timeout-wait
   mode is entered, this class is added *before* the .onactivate
@@ -72,7 +73,7 @@ fossil.confirmer.defaultOpts object.
 
 Terse Change history:
 
-20200506:
+- 20200506:
   - Ported from jQuery to plain JS.
 
 - 20181112:
@@ -82,10 +83,7 @@ Terse Change history:
 - 20070717: initial jQuery-based impl.
 */
 (function(F/*the fossil object*/){
-  "use strict";
-
   F.confirmer = function f(elem,opt){
-
     const dbg = opt.debug
           ? function(){console.debug.apply(console,arguments)}
           : function(){};
@@ -123,7 +121,10 @@ Terse Change history:
           'click', function(){
             switch( self.state ) {
             case( self.states.waiting ):
-              if( undefined !== self.timerID ) clearTimeout( self.timerID );
+              if( undefined !== self.timerID ){
+                clearTimeout( self.timerID );
+                delete self.timerID;
+              }
               self.state = self.states.initial;
               self.setClasses( false );
               dbg("Confirmed");
@@ -145,27 +146,24 @@ Terse Change history:
         );
       };
       f.Holder.prototype = {
-        states:{
-          initial: 0, waiting: 1
-        },
+        states:{initial: 0, waiting: 1},
         setClasses: function(activated) {
-          if( activated ) {
-            if( this.opt.classActivated ) {
-              this.target.addClass( this.opt.classActivated );
+          if(activated) {
+            if( this.opt.classWaiting ) {
+              this.target.classList.add( this.opt.classWaiting );
             }
             if( this.opt.classInitial ) {
-              this.target.removeClass( this.opt.classInitial );
+              this.target.classList.remove( this.opt.classInitial );
             }
-          } else {
+          }else{
             if( this.opt.classInitial ) {
-              this.target.addClass( this.opt.classInitial );
+              this.target.classList.add( this.opt.classInitial );
             }
-            if( this.opt.classActivated ) {
-              this.target.removeClass( this.opt.classActivated );
+            if( this.opt.classWaiting ) {
+              this.target.classList.remove( this.opt.classWaiting );
             }
           }
         }
-        
       };
     }/*static init*/
     opt = F.mergeLastWins(f.defaultOpts,{
@@ -187,12 +185,12 @@ Terse Change history:
   */
   F.confirmer.defaultOpts = {
     timeout:3000,
-    onconfirm:undefined,
-    ontimeout:undefined,
-    onactivate:undefined,
-    classInitial:'',
-    classActivated:'',
-    debug:true
+    onconfirm: undefined,
+    ontimeout: undefined,
+    onactivate: undefined,
+    classInitial: '',
+    classWaiting: '',
+    debug: false
   };
 
 })(window.fossil);
