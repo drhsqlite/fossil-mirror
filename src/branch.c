@@ -28,7 +28,7 @@
 ** Space to hold the returned value is obtained from fossil_malloc()
 ** and should be freed by the caller.
 */
-char *branch_of_rid(int rid){
+char *branch_of_ckin_rid(int rid){
   char *zBr = 0;
   static Stmt q;
   db_static_prepare(&q,
@@ -49,7 +49,7 @@ char *branch_of_rid(int rid){
 }
 
 /*
-** Same as branch_of_rid() except that it takes a file RID, not a
+** Same as branch_of_ckin_rid() except that it takes a file RID, not a
 ** check-in RID.
 */
 char *branch_of_file_rid(int rid){

@@ -157,7 +157,7 @@ int start_of_branch(int rid, int eType){
   Stmt q;
   int rc;
   int ans = rid;
-  char *zBr = branch_of_rid(rid);
+  char *zBr = branch_of_ckin_rid(rid);
   db_prepare(&q,
     "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
                        " WHERE tagid=%d AND tagtype>0"
@@ -177,7 +177,7 @@ int start_of_branch(int rid, int eType){
   }while( db_column_int(&q, 1)==1 && ans>0 );
   db_finalize(&q);
   if( eType==2 && ans>0 ){
-    zBr = branch_of_rid(ans);
+    zBr = branch_of_ckin_rid(ans);
     ans = compute_youngest_ancestor_in_branch(rid, zBr);
     fossil_free(zBr);
   }

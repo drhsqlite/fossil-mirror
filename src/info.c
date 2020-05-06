@@ -651,7 +651,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
-  zBrName = branch_of_rid(rid);
+  zBrName = branch_of_ckin_rid(rid);
   
   cookie_link_parameter("diff","diff","2");
   diffType = atoi(PD("diff","2"));
@@ -1244,7 +1244,7 @@ void vdiff_page(void){
   }
   if( P("nohdr")==0 ){
     if( zBranch ){
-      char *zRealBranch = branch_of_rid(ridTo);
+      char *zRealBranch = branch_of_ckin_rid(ridTo);
       char *zToUuid = rid_to_uuid(ridTo);
       char *zFromUuid = rid_to_uuid(ridFrom);
       @ <h2>Changes In Branch \
