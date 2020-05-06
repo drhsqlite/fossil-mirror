@@ -1,5 +1,5 @@
-C Renamed\sbranch_of_rid()\sto\sbranch_of_ckin_rid()\sto\sdisambiguate\sit\sfrom\nthe\snew\sbranch_of_file_rid()\sfunction\sand\sto\smake\sit\sclear\sto\scallers\nwhat\sparameter\stype\sit\sexpects.
-D 2020-05-06T08:47:08.938
+C Add\sa\sTODO\scomment\sto\sthe\sbranch_of_file_rid()\sfunction.
+D 2020-05-06T11:51:20.284
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -439,7 +439,7 @@ F src/backoffice.c 3edbb24a90c8043b96af3e4e956f13d0267b0f01ba91c6a96701af8ff63dd
 F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
-F src/branch.c 038825093b3385bbdd17b6a0cef625681bb8dacdce777eee8f32f8f1ac10c5b7
+F src/branch.c 425d6d6a037b380c7e079041401f4772fd89c57416713575bcc29dee47ffe658
 F src/browse.c 8392b1ab131beb320c98b7f8e8c1a73486c40ce9d6af8a51991dc335b832704b
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d43afe59f3715d1caa71db3285355f504fc37717145ca86c7a4c545ad619294d
-R ca3f417c463b760a08053422d5a3a8c1
-U wyoung
-Z c98be97d5c0c00c5c1d94fd38955863b
+P da1adac6d103743f59a7a10a5ec8891606067279817b59356d0acfac07531d9a
+R 69af78dbcbe86312ed41d6bc02e70da7
+U drh
+Z f8bafbfb177fa2b07fb75980cdb00086

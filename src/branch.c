@@ -49,8 +49,27 @@ char *branch_of_ckin_rid(int rid){
 }
 
 /*
-** Same as branch_of_ckin_rid() except that it takes a file RID, not a
-** check-in RID.
+** If RID refers to a file, return the name of one of the branches in which
+** the file is used.  If the RID file is used in more than one branch, then
+** the branch name returned is selected arbitrarily from the available
+** choices.
+**
+** Space to hold the returned value is obtained from fossil_malloc()
+** and should be freed by the caller.
+**
+** TODO:
+** Should the "arbitrary" choice of branch be made deterministic?
+** Perhaps the algorithm should be:
+**    1.  Use "trunk" if it is available
+**    2.  Use select the branch in which the file was first used
+**        if it is never used in trunk.
+** That algorithm can be implemented (I think) by adding:
+**
+**     ... ORDER BY value<>'trunk', tagxref.mtime LIMIT 1
+**
+** Maybe step 2 of the algorithm should be the most recent use of
+** the file rather than the first use?  That can be achieved by 
+** putting a DESC on the second term of the ORDER BY.
 */
 char *branch_of_file_rid(int rid){
   char *zBr = 0;
