@@ -284,8 +284,7 @@ void page_dir(void){
     }else{
       const char *zLink;
       if( zCI ){
-        const char *zUuid = db_column_text(&q, 1);
-        zLink = href("%R/artifact/%!S",zUuid);
+        zLink = href("%R/file/%T%T?ci=%!S",zPrefix,zFN,zCI);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
       }
