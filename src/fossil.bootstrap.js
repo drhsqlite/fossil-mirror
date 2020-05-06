@@ -5,6 +5,8 @@
      that object.
   */
 
+  const F = global.fossil;
+
   /**
      Returns the current time in something approximating
      ISO-8601 format.
@@ -27,7 +29,7 @@
   **
   ** Returns this object.
   */
-  global.fossil.message = function f(msg){
+  F.message = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
     args.unshift(timestring(),'UTC:');
@@ -44,7 +46,7 @@
   /*
   ** Set default message.targetElement to #fossil-status-bar, if found.
   */
-  global.fossil.message.targetElement =
+  F.message.targetElement =
     document.querySelector('#fossil-status-bar');
   /*
   ** By default fossil.error() sends its first argument to
@@ -54,9 +56,9 @@
   **
   ** Returns this object.
   */
-  global.fossil.error = function f(msg){
+  F.error = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
-    const tgt = global.fossil.message.targetElement;
+    const tgt = F.message.targetElement;
     args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.add('error');
@@ -80,7 +82,7 @@
      building up parameter lists before join('')ing the array to create
      the result string.
   */
-  global.fossil.encodeUrlArgs = function(obj,tgtArray){
+  F.encodeUrlArgs = function(obj,tgtArray){
     if(!obj) return '';
     const a = (tgtArray instanceof Array) ? tgtArray : [];
     let k, i = 0;
@@ -101,7 +103,7 @@
      a leading '?'. If it's an object, all of its properties get
      appended to the URL in that form.
   */
-  global.fossil.repoUrl = function(path,urlParams){
+  F.repoUrl = function(path,urlParams){
     if(!urlParams) return this.rootPath+path;
     const url=[this.rootPath,path];
     url.push('?');
@@ -111,4 +113,33 @@
     }
     return url.join('');
   };
+
+  /**
+     Returns true if v appears to be a plain object.
+  */
+  F.isObject = function(v){
+    return v &&
+      (v instanceof Object) &&
+      ('[object Object]' === Object.prototype.toString.apply(v) );
+  };
+
+  /**
+     For each object argument, this function combines their properties,
+     using a last-one-wins policy, and returns a new object with the
+     combined properties. If passed a single object, it effectively
+     shallowly clones that object.
+  */
+  F.mergeLastWins = function(){
+    var k, o, i;
+    const n = arguments.length, rc={};
+    for(i = 0; i < n; ++i){
+      if(!F.isObject(o = arguments[i])) continue;
+      for( k in o ){
+        if(o.hasOwnProperty(k)) rc[k] = o[k];
+      }
+    }
+    return rc;
+  };
+
+
 })(window);

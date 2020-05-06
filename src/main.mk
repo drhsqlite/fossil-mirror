@@ -221,6 +221,7 @@ EXTRA_FILES = \
   $(SRCDIR)/diff.tcl \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
+  $(SRCDIR)/fossil.confirmer.js \
   $(SRCDIR)/fossil.dom.js \
   $(SRCDIR)/fossil.fetch.js \
   $(SRCDIR)/fossil.page.fileedit.js \

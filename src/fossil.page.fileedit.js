@@ -56,9 +56,10 @@
       "click",(e)=>P.commit(), false
     );
     if(P.e.btnReload){
-      P.e.btnReload.addEventListener(
-        "click",(e)=>P.loadFile(), false
-      );
+      F.confirmer(P.e.btnReload, {
+        confirmText: "Really reload, losing edits?",
+        onconfirm: (e)=>P.loadFile()
+      });
     }
     /**
        Cosmetic: jump through some hoops to enable/disable

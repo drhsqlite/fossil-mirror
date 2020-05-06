@@ -1576,3 +1576,20 @@ void style_emit_script_tabs(int asInline){
     style_emit_script_builtin("fossil.tabs.js",asInline);
   }
 }
+
+/*
+** The first time this is called, it calls style_emit_script_dom(),
+** passing it the given asInline value, and emits the JS code from the
+** built-in file fossil.confirmer.js. Subsequent calls are no-ops.
+**
+** If passed a true value, it emits the contents directly
+** to the page output, else it emits a script tag with a
+** src=builtin/... to load the script.
+*/
+void style_emit_script_confirmer(int asInline){
+  static int once = 0;
+  if(0==once++){
+    style_emit_script_dom(asInline);
+    style_emit_script_builtin("fossil.confirmer.js",asInline);
+  }
+}

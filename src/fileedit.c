@@ -1566,14 +1566,18 @@ void fileedit_page(){
        "data-tab-label='File Content'"
        ">");
     CX("<div class='fileedit-options flex-container row'>");
-    if(0){
+    if(1){
       /* Discard/reload button. Leave this out until we have a
       ** nice way of offering confirmation, e.g. like the old
       ** jQuery.confirmer plugin which required a 2nd click of the
       ** button within X seconds to confirm. Right now it's simply
       ** to easy to tap by accident. */
-      CX("<button class='fileedit-content-reload'>Discard &amp; Reload"
-         "</button>");
+      CX("<button class='fileedit-content-reload confirmer' "
+         "title='Reload the file from the server, discarding "
+         "any local edits. To help avoid accidental loss of "
+         "edits, it requires confirmation (a second click) within "
+         "a few seconds or it will not reload.'"
+         ">Discard &amp; Reload</button>");
     }
     style_select_list_int("select-font-size",
                           "editor_font_size", "Editor Font Size",
@@ -1776,6 +1780,7 @@ end_footer:
   style_emit_script_fetch(0);
   style_emit_script_tabs(0);
   style_emit_script_builtin("fossil.page.fileedit.js",0);
+  style_emit_script_confirmer(0);
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("(function(){\n");
