@@ -156,20 +156,20 @@
      Each element in the collection must have the following data
      attributes:
 
-     - data-f-post-from: the DOM element id of the text source
+     - data-f-preview-from: the DOM element id of the text source
        element. It must support .value to get the content.
 
-     - data-f-post-to: the DOM element id of the target "previewer"
+     - data-f-preview-to: the DOM element id of the target "previewer"
        element.
 
-     - data-f-post-via: the name of a method (see below).
+     - data-f-preview-via: the name of a method (see below).
 
-     - OPTIONAL data-f-post-as-text: a numeric value. Explained below.
+     - OPTIONAL data-f-preview-as-text: a numeric value. Explained below.
 
      Each element gets a click handler added to it which does the
      following:
 
-     1) Reads the content from its data-f-post-from element.
+     1) Reads the content from its data-f-preview-from element.
 
      2) Passes the content to
      methodNamespace[f-data-post-via](content,callback). f-data-post-via
@@ -179,14 +179,14 @@
      argument, an auto-generated callback installed by this mechanism
      which...
 
-     3) Assigns the response text to the data-f-post-to element. If
-     data-f-post-as-text is '0' (the default) then the content
+     3) Assigns the response text to the data-f-preview-to element. If
+     data-f-preview-as-text is '0' (the default) then the content
      is assigned to the target element's innerHTML property, else
      it is assigned to the element's textContent property.
 
 
      The methodNamespace (2nd argument) defaults to fossil.page, and
-     data-f-post-via must be a single method name, not a
+     data-f-preview-via must be a single method name, not a
      property-access-style string. e.g. "myPreview" is legal but
      "foo.myPreview" is not (unless, of course, the method is actually
      named "foo.myPreview" (which is legal but would be
@@ -197,12 +197,12 @@
      First an input button:
 
      <button id='test-preview-connector'
-       data-f-post-from='fileedit-content-editor' // elem ID
-       data-f-post-via='myPreview' // method name
-       data-f-post-to='fileedit-tab-preview-wrapper' // elem ID
+       data-f-preview-from='fileedit-content-editor' // elem ID
+       data-f-preview-via='myPreview' // method name
+       data-f-preview-to='fileedit-tab-preview-wrapper' // elem ID
      >Preview update</button>
 
-     And a sample data-f-post-via method:
+     And a sample data-f-preview-via method:
 
      fossil.page.myPreview = function(content,callback){
        const fd = new FormData();
@@ -221,8 +221,8 @@
 
      fossil.connectPagePreviewers('#test-preview-connector');
 
-     Note that the data-f-post-from, data-f-post-via, and
-     data-f-post-to selector are not resolved until the button is
+     Note that the data-f-preview-from, data-f-preview-via, and
+     data-f-preview-to selector are not resolved until the button is
      actually clicked, so they need not exist in the DOM at the
      instant when the connection is set up, so long as they can be
      resolved when the preview-refreshing element is clicked.
@@ -239,11 +239,11 @@
     selector.forEach(function(e){
       e.addEventListener(
         'click', function(r){
-          const eTo = document.querySelector('#'+e.dataset.fPostTo),
-                eFrom = document.querySelector('#'+e.dataset.fPostFrom),
-                asText = +(e.dataset.fPostAsText || 0);
+          const eTo = document.querySelector('#'+e.dataset.fPreviewTo),
+                eFrom = document.querySelector('#'+e.dataset.fPreviewFrom),
+                asText = +(e.dataset.fPreviewAsText || 0);
           eTo.textContent = "Fetching preview...";
-          methodNamespace[e.dataset.fPostVia](
+          methodNamespace[e.dataset.fPreviewVia](
             eFrom.value,
             (r)=>eTo[asText ? 'textContent' : 'innerHTML'] = r||''
           );

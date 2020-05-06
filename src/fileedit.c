@@ -1605,11 +1605,11 @@ void fileedit_page(){
 
     CX("<div class='fileedit-options flex-container row'>");
     CX("<button id='btn-preview-refresh' "
-       "data-f-post-from='fileedit-content-editor' "
+       "data-f-preview-from='fileedit-content-editor' "
        /* ^^^ text source elem ID*/
-       "data-f-post-via='_postPreview' "
+       "data-f-preview-via='_postPreview' "
        /* ^^^ fossil.page[methodName](content, callback) */
-       "data-f-post-to='fileedit-tab-preview-wrapper' "
+       "data-f-preview-to='fileedit-tab-preview-wrapper' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
     /* Default preview rendering mode selection... */
