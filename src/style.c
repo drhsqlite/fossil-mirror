@@ -1523,7 +1523,7 @@ void style_emit_script_builtin(char const * zName, int asInline){
 }
 
 /*
-** The first time this is called, it emits the JS code from the
+** The first time this is called it emits the JS code from the
 ** built-in file fossil.fossil.js. Subsequent calls are no-ops.
 **
 ** If passed a true value, it emits the contents directly
@@ -1542,7 +1542,7 @@ void style_emit_script_fetch(int asInline){
 }
 
 /*
-** The first time this is called, it emits the JS code from the
+** The first time this is called it emits the JS code from the
 ** built-in file fossil.dom.js. Subsequent calls are no-ops.
 **
 ** If passed a true value, it emits the contents directly
@@ -1578,8 +1578,7 @@ void style_emit_script_tabs(int asInline){
 }
 
 /*
-** The first time this is called, it calls style_emit_script_dom(),
-** passing it the given asInline value, and emits the JS code from the
+** The first time this is called it emits the JS code from the
 ** built-in file fossil.confirmer.js. Subsequent calls are no-ops.
 **
 ** If passed a true value, it emits the contents directly
@@ -1589,7 +1588,6 @@ void style_emit_script_tabs(int asInline){
 void style_emit_script_confirmer(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_dom(asInline);
     style_emit_script_builtin("fossil.confirmer.js",asInline);
   }
 }
