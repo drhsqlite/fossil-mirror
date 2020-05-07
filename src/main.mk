@@ -220,7 +220,6 @@ EXTRA_FILES = \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/diff.tcl \
-  $(SRCDIR)/foo.js \
   $(SRCDIR)/forum.js \
   $(SRCDIR)/fossil.bootstrap.js \
   $(SRCDIR)/fossil.confirmer.js \
