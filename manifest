@@ -1,5 +1,5 @@
-C Added\s-verbose/-v\sflag\sto\stest-builtin-list\sto\soutput\sa\stotal\scount\sand\ssize.
-D 2020-05-07T00:16:16.659
+C Removed\sa\sbit\sof\scomment\swhich\sconfused\sthe\shelp\sgenerator\sand\sbroke\sbuilding\stest-builtin-list...\sand\syet\ssomehow\sbuilt\sonce?
+D 2020-05-07T01:45:13.644
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -441,7 +441,7 @@ F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c e9f0019dfe75b6ffa848c51d25df6427e8537931326582fe53e7430cf6a30c9d
 F src/browse.c 8392b1ab131beb320c98b7f8e8c1a73486c40ce9d6af8a51991dc335b832704b
-F src/builtin.c 2aed0be6ef959b62f59ab685b803b863b3dea4adeabc3e2f6e7622c83fdc0672
+F src/builtin.c 1ae9c90c567fb45f23f95aa7d00eca5cfc30cc86e2ba7476c97806d3fb24b072
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 3504672187af59f07f25d8feed7f13fed464247fda9a03a8f7644af09bc35f25
-R f25e8947446dd050973a90e9f235c58c
+P 7df467810e7df8b5afce538b8ddcaaeae9a9f3a88f18d2786e224d24e87a8da9
+R 27729674d9516a017617d6fa6d7a667f
 U stephan
-Z 87582a27f6630c9ba92ececccc32bbb4
+Z b1064d35fdcec8b4d93f597771955d6a

@@ -56,7 +56,7 @@ const char *builtin_text(const char *zFilename){
 }
 
 /*
-** COMMAND: test-builtin-list [-verbose|-v]
+** COMMAND: test-builtin-list
 **
 ** If -verbose is used, it outputs a line at the end
 ** with the total item count and size.
