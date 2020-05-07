@@ -1,8 +1,10 @@
 "use strict";
 (function(F/*fossil object*/){
   /**
-     A collection of HTML DOM utilities to simplify, a bit,
-     using the DOM API.
+     A collection of HTML DOM utilities to simplify, a bit, using the
+     DOM API. It is focused on manipulation of the DOM, but one of its
+     core mantras is "No innerHTML." Using innerHTML in this code, in
+     particular assigning to it, is absolutely verboten.
   */
   const argsToArray = (a)=>Array.prototype.slice.call(a,0);
   const isArray = (v)=>v instanceof Array;

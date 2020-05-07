@@ -55,14 +55,11 @@
     P.e.btnCommit.addEventListener(
       "click",(e)=>P.commit(), false
     );
-    if(P.e.btnReload){
-      const label = "Really reload, losing edits?";
-      F.confirmer(P.e.btnReload, {
-        confirmText: label,
-        onconfirm: (e)=>P.loadFile(),
-        ticks: 3
-      });
-    }
+    F.confirmer(P.e.btnReload, {
+      confirmText: "Really reload, losing edits?",
+      onconfirm: (e)=>P.loadFile(),
+      ticks: 3
+    });
     /**
        Cosmetic: jump through some hoops to enable/disable
        certain preview options depending on the current
@@ -107,7 +104,6 @@
         new Event('change',{target:selectFontSize})
       );
     }
-
   }, false)/*onload event handler*/;
   
   /**
@@ -120,26 +116,31 @@
     this.finfo = {filename:file,checkin:rev};
     const E = (s)=>document.querySelector(s),
           euc = encodeURIComponent,
-          rShort = rev.substr(0,16);
-    E('#r-label').innerText=rev;
-    E('#finfo-link').setAttribute(
-      'href',
-      F.repoUrl('finfo',{name:file, m:rShort})
+          rHuman = F.hashDigits(rev),
+          rUrl = F.hashDigits(rev,true);
+    D.append(
+      D.clearElement(E('#r-label')),
+      rHuman
     );
-    E('#finfo-file-name').innerText=file;
-    E('#r-link').setAttribute(
-      'href',
-      F.repoUrl('info/'+rev)
+    var e;
+    e = E('#timeline-link');
+    D.attr(e, 'href',F.repoUrl('timeline',{c:rUrl}));
+    e = E('#finfo-file-name');
+    D.append(
+      D.clearElement(e),
+      D.a(F.repoUrl('finfo',{name:file, m:rUrl}), file)
     );
-    E('#r-label').innerText = rev;
+    e = E('#r-link');
+    D.attr(e, 'href', F.repoUrl('info/'+rUrl));
+    e = E('#r-label');
+    D.append(D.clearElement(e),rHuman);
     const purlArgs = F.encodeUrlArgs({
       filename: this.finfo.filename,
-      checkin: this.finfo.checkin
+      checkin: rUrl
     },false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
-    const e = E('#permalink');
-    e.innerText='fileedit?'+purlArgs;
-    e.setAttribute('href',purl);
+    e = E('#permalink');
+    D.attr(D.append(D.clearElement(e),'?'+purlArgs),'href', purl);
     return this;
   };
 
@@ -189,9 +190,7 @@
     const self = this;
     const updateView = function(c){
       D.clearElement(target);
-      if('string'===typeof c){
-        target.innerHTML = c;
-      }
+      if('string'===typeof c) target.innerHTML = c;
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
     const content = this.e.taEditor.value;
@@ -292,7 +291,7 @@
         target.innerHTML = [
           "<h3>Manifest",
           (c.dryRun?" (dry run)":""),
-          ": ", c.uuid.substring(0,16),"</h3>",
+          ": ", F.hashDigits(c.uuid),"</h3>",
           "<code class='fileedit-manifest'>",
           c.manifest,
           "</code></pre>"
@@ -300,7 +299,7 @@
         const msg = [
           'Committed',
           c.dryRun ? '(dry run)' : '',
-          '[', c.uuid,'].'
+          '[', F.hashDigits(c.uuid) ,'].'
         ];
         if(!c.dryRun){
           msg.push('Re-activating dry-run mode.');

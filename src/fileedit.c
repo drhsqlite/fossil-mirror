@@ -1555,10 +1555,9 @@ void fileedit_page(){
        "data-tab-label='Version Info'"
        ">");
     CX("File: "
-       "[<a id='finfo-link' href='#'>/finfo</a>] "
-       /* %R/finfo?name=%T&m=%!S */
        "<code id='finfo-file-name'>(loading)</code><br>");
     CX("Checkin Version: "
+       "[<a id='timeline-link' href='#'>/timeline</a>] "
        "[<a id='r-link' href='#'>/info</a>] "
        /* %R/info/%!S */
        "<code id='r-label'>(loading...)</code><br>"

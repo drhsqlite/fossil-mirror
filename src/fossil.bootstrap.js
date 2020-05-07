@@ -145,6 +145,23 @@
   };
 
   /**
+     Expects to be passed as hash code as its first argument. It
+     returns a "shortened" form of hash, with a length which depends
+     on the 2nd argument: truthy = fossil.config.hashDigitsUrl, falsy
+     = fossil.config.hashDigits. Both of those values are derived from
+     the 'hash-digits' repo-level config setting or the
+     FOSSIL_HASH_DIGITS_URL/FOSSIL_HASH_DIGITS compile-time options.
+
+     If its first arugment is a non-string, that value is returned
+     as-is.
+  */
+  F.hashDigits = function(hash,forUrl){
+    return ('string'==typeof hash ? hash.substr(
+      0, F.config[forUrl ? 'hashDigitsUrl' : 'hashDigits']
+    ) : hash);
+  };
+
+  /**
      Sets up pseudo-automatic content preview handling between a
      source element (typically a TEXTAREA) and a target rendering
      element (typically a DIV). The selector argument must be one of:
@@ -252,6 +269,5 @@
     });
     return this;
   };
-
 
 })(window);

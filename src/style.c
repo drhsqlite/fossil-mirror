@@ -1449,19 +1449,24 @@ void style_emit_script_fossil_bootstrap(int asInline){
        "if(!window.fossil) window.fossil={};\n"
        "window.fossil.version = \"%j\";\n"
     /* fossil.rootPath is the top-most CGI/server path,
-       including a trailing slash. */
+    ** including a trailing slash. */
        "window.fossil.rootPath = \"%j\"+'/';\n",
        get_version(), g.zTop);
+    /* fossil.config = {...various config-level options...} */
+    CX("window.fossil.config = {"
+       "hashDigits: %d, hashDigitsUrl: %d"
+       "};\n", hash_digits(0), hash_digits(1));
     /*
-    ** fossil.page holds info about the current page. This is
-    ** also where the current page "should" store any of its
-    ** own page-specific state.
+    ** fossil.page holds info about the current page. This is also
+    ** where the current page "should" store any of its own
+    ** page-specific state, and it is reserved for that purpose.
     */
     CX("window.fossil.page = {"
        "page:\"%T\""
        "};\n", g.zPath);
     CX("})();\n");
-    /* The remaining code is not dependent on C-runtime state... */
+    /* The remaining fossil object bootstrap code is not dependent on
+    ** C-runtime state... */
     if(asInline){
       CX("%s\n", builtin_text("fossil.bootstrap.js"));
     }
