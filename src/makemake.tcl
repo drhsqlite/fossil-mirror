@@ -144,6 +144,7 @@ set src {
   sync
   tag
   tar
+  terminal
   th_main
   timeline
   tkt

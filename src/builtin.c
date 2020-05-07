@@ -58,12 +58,20 @@ const char *builtin_text(const char *zFilename){
 /*
 ** COMMAND: test-builtin-list
 **
+** If -verbose is used, it outputs a line at the end
+** with the total item count and size.
+**
 ** List the names and sizes of all built-in resources.
 */
 void test_builtin_list(void){
-  int i;
+  int i, size = 0;;
   for(i=0; i<count(aBuiltinFiles); i++){
-    fossil_print("%-30s %6d\n", aBuiltinFiles[i].zName,aBuiltinFiles[i].nByte);
+    const int n = aBuiltinFiles[i].nByte;
+    fossil_print("%-30s %6d\n", aBuiltinFiles[i].zName,n);
+    size += n;
+  }
+  if(find_option("verbose","v",0)!=0){
+    fossil_print("%d entries totaling %d bytes\n", i, size);
   }
 }
 

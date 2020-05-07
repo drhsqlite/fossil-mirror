@@ -464,6 +464,7 @@ SRC   = add_.c \
         sync_.c \
         tag_.c \
         tar_.c \
+        terminal_.c \
         th_main_.c \
         timeline_.c \
         tkt_.c \
@@ -548,6 +549,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\ci_edit.js \
         $(SRCDIR)\copybtn.js \
         $(SRCDIR)\diff.tcl \
+        $(SRCDIR)\foo.js \
         $(SRCDIR)\forum.js \
         $(SRCDIR)\fossil.bootstrap.js \
         $(SRCDIR)\fossil.confirmer.js \
@@ -705,6 +707,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\sync$O \
         $(OX)\tag$O \
         $(OX)\tar$O \
+        $(OX)\terminal$O \
         $(OX)\th$O \
         $(OX)\th_lang$O \
         $(OX)\th_main$O \
@@ -910,6 +913,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\sync.obj >> $@
 	echo $(OX)\tag.obj >> $@
 	echo $(OX)\tar.obj >> $@
+	echo $(OX)\terminal.obj >> $@
 	echo $(OX)\th.obj >> $@
 	echo $(OX)\th_lang.obj >> $@
 	echo $(OX)\th_main.obj >> $@
@@ -1762,6 +1766,12 @@ $(OX)\tar$O : tar_.c tar.h
 tar_.c : $(SRCDIR)\tar.c
 	translate$E $** > $@
 
+$(OX)\terminal$O : terminal_.c terminal.h
+	$(TCC) /Fo$@ -c terminal_.c
+
+terminal_.c : $(SRCDIR)\terminal.c
+	translate$E $** > $@
+
 $(OX)\th_main$O : th_main_.c th_main.h
 	$(TCC) /Fo$@ -c th_main_.c
 
@@ -2022,6 +2032,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			sync_.c:sync.h \
 			tag_.c:tag.h \
 			tar_.c:tar.h \
+			terminal_.c:terminal.h \
 			th_main_.c:th_main.h \
 			timeline_.c:timeline.h \
 			tkt_.c:tkt.h \
