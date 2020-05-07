@@ -1309,11 +1309,11 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 **
 ** Resulting structure:
 **
-** <div class='input-with-label' title={{zTip}} id={{zWrapperId}}>
+** <span class='input-with-label' title={{zTip}} id={{zWrapperId}}>
 **   <input type='checkbox' name={{zFieldName}} value={{zValue}}
 **          {{isChecked ? " checked : ""}}/>
 **   <span>{{zLabel}}</span>
-** </div>
+** </span>
 **
 ** zFieldName, zLabel, and zValue are required. zWrapperId and zTip
 ** are optional.
@@ -1326,7 +1326,7 @@ void style_labeled_checkbox(const char * zWrapperId,
                             const char *zFieldName, const char * zLabel,
                             const char * zValue, const char * zTip,
                             int isChecked){
-  CX("<div class='input-with-label'");
+  CX("<span class='input-with-label'");
   if(zTip && *zTip){
     CX(" title='%h'", zTip);
   }
@@ -1336,7 +1336,7 @@ void style_labeled_checkbox(const char * zWrapperId,
   CX("><input type='checkbox' name='%s' value='%T'%s/>",
      zFieldName,
      zValue ? zValue : "", isChecked ? " checked" : "");
-  CX("<span>%h</span></div>", zLabel);
+  CX("<span>%h</span></span>", zLabel);
 }
 
 /*
@@ -1369,10 +1369,10 @@ void style_labeled_checkbox(const char * zWrapperId,
 **
 ** The structure of the emitted HTML is:
 **
-** <div class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
+** <span class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
 **   <span>{{zLabel}}</span>
 **   <select>...</select>
-** </div>
+** </span>
 **
 ** Example:
 **
