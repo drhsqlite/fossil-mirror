@@ -1,5 +1,5 @@
-C Removed\sa\sbit\sof\scomment\swhich\sconfused\sthe\shelp\sgenerator\sand\sbroke\sbuilding\stest-builtin-list...\sand\syet\ssomehow\sbuilt\sonce?
-D 2020-05-07T01:45:13.644
+C Minor\sfix\sfor\s[3d80481216]:\sRemove\sa\sduplicate\s"size"\sattribute,\sand\sinsert\sa\sspace\sbefore\sthe\sbackslash\sindicating\sline\scontinuation,\sor\sthe\ssrc/translate.c\spreprocessing\sutility\swill\sglue\sthe\slines\stogether\swithout\sany\sspace\sin\sbetween.
+D 2020-05-07T11:20:00.000
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -518,7 +518,7 @@ F src/leaf.c 1057c3a87c455020b6f8df483ca2241e20ea20c7
 F src/linenoise.c ab8f5fa33327842cd43959d06c8ba741f3dc467f00bc2a2790d5c1ac48276f7b
 F src/linenoise.h 7c5879e56e29c0d61801a28dc7a6fbe21c63c9e20d8f842c56e767bdf24c32ee
 F src/loadctrl.c 0974e8f89758c0e381bbde322c35936b791ebc5384efa58edf984c3c68453c0d
-F src/login.c fe5beba1a1bfd313d6ea59cef85456314526ee725dece2fa4ce0a12c88e17b76
+F src/login.c b0ccada63fdcc67230ad6f98ab9da41c03faf62a188dd421f4307dc76181f1fc
 F src/login.js 3a7accefb8586f3f4587d5bb34eeb393caee7fff9500951d653f3a401cf65b3a
 F src/lookslike.c be9b76dc7cbd476a7e36fb0d1235fd1a2ed74a433b4e4c7e1d36218ee43297d0
 F src/main.c 190c267f9992b55d1a426de6f4826ddc5e41507502b2bebccec00da3eaea6922
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 7df467810e7df8b5afce538b8ddcaaeae9a9f3a88f18d2786e224d24e87a8da9
-R 27729674d9516a017617d6fa6d7a667f
-U stephan
-Z b1064d35fdcec8b4d93f597771955d6a
+P 6ba0e14df78149178c26c57fc3d0a9e7d99f47622a33ae47551423316382a6e2
+R 9db4528d1ca9ca22e74a2c6a177d1d57
+U florian
+Z 818cd7b50759bc6692470a7d3e3483b8
