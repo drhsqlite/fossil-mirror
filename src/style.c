@@ -1435,7 +1435,7 @@ void style_select_list_int(const char * zWrapperId,
 ** output, else it emits a script tag with a src=builtin/... to load
 ** the script. It always outputs a small pre-bootstrap element in its
 ** own script tag to initialize parts which need C-runtime-level
-** information, because loading the main fossil.bootstrap.js either
+** information, before loading the main fossil.bootstrap.js either
 ** inline or via a <script src=...>, as specified by the first
 ** argument.
 */
