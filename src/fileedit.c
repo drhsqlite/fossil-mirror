@@ -1073,6 +1073,34 @@ static int fileedit_ajax_check_filename(const char * zFilename){
   return 1;
 }
 
+
+/*
+** If zFn is not NULL, it is assigned the value of the first one of
+** the "filename" or "fn" CGI parameters which is set.
+**
+** If zCi is not NULL, it is assigned the value of the first one of
+** the "checkin" or "ci" CGI parameters which is set.
+**
+** If a parameter is not NULL, it will be assigned NULL if the
+** corresponding parameter is not set.
+**
+** Returns the number of non-NULL values it assigns to arguments. Thus
+** if passed (&x, NULL), it returns 1 if it assigns non-NULL to *x and
+** 0 if it assigns NULL to *x.
+*/
+static int fileedit_get_fnci_args( const char **zFn, const char **zCi ){
+  int rc = 0;
+  if(zCi!=0){
+    *zCi = PD("checkin",P("ci"));
+    if( *zCi ) ++rc;
+  }
+  if(zFn!=0){
+    *zFn = PD("filename",P("fn"));
+    if (*zFn) ++rc;
+  }
+  return rc;
+}
+
 /*
 ** Passed the values of the "checkin" and "filename" request
 ** properties, this function verifies that they are valid and
@@ -1097,7 +1125,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
                                        int * frid){
   char * zCi = 0;      /* fully-resolved checkin UUID */
   char * zFileUuid;    /* file UUID */
- 
+
   if(!fileedit_ajax_check_filename(zFilename)){
     return 0;
   }
@@ -1141,12 +1169,13 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** produces a JSON response as documented for fileedit_ajax_error().
 */
 void fileedit_ajax_content(){
-  const char * zFilename = PD("filename",P("name"));
-  const char * zRev = P("checkin");
+  const char * zFilename = 0;
+  const char * zRev = 0;
   int vid, frid;
   Blob content = empty_blob;
   const char * zMime;
 
+  fileedit_get_fnci_args( &zFilename, &zRev );
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_setup_filerev(zRev, 0, &vid,
                                      zFilename, &frid)){
@@ -1189,13 +1218,14 @@ void fileedit_ajax_content(){
 ** a JSON response as documented for fileedit_ajax_error().
 */
 void fileedit_ajax_preview(){
-  const char * zFilename = PD("filename",P("name"));
+  const char * zFilename = 0;
   const char * zContent = P("content");
   int renderMode = atoi(PD("render_mode","0"));
   int ln = atoi(PD("ln","0"));
   int iframeHeight = atoi(PD("iframe_height","40"));
   Blob content = empty_blob;
 
+  fileedit_get_fnci_args( &zFilename, 0 );
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_check_filename(zFilename)){
     return;
@@ -1232,14 +1262,15 @@ void fileedit_ajax_diff(){
   ** abused to get diffs against content disallowed by the
   ** whitelist.
   */
-  const char * zFilename = PD("filename",P("name"));
-  const char * zRev = P("checkin");
+  const char * zFilename = 0;
+  const char * zRev = 0;
   const char * zContent = P("content");
   char * zRevUuid = 0;
   int isSbs = atoi(PD("sbs","0"));
   int vid, frid;
   Blob content = empty_blob;
 
+  fileedit_get_fnci_args( &zFilename, &zRev );
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
                                      zFilename, &frid)){
@@ -1275,10 +1306,10 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
   int rc = 0, vid = 0, frid = 0; /* result code, checkin/file rids */ 
 
 #define fail(EXPR) blob_appendf EXPR; goto end_fail
-  zFlag = PD("filename",P("name"));
+  zFlag = PD("filename",P("fn"));
   if(zFlag==0 || !*zFlag){
     rc = 400;
-    fail((pErr,"Missing required 'file' parameter."));
+    fail((pErr,"Missing required 'filename' parameter."));
   }
   p->zFilename = mprintf("%s",zFlag);
 
@@ -1290,10 +1321,10 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
           p->zFilename));
   }
 
-  zFlag = P("checkin");
+  zFlag = PD("checkin",P("ci"));
   if(!zFlag){
     rc = 400;
-    fail((pErr,"Missing required 'r' parameter."));
+    fail((pErr,"Missing required 'checkin' parameter."));
   }
   vid = symbolic_name_to_rid(zFlag, "ci");
   if(0==vid){
@@ -1422,7 +1453,7 @@ void fileedit_ajax_commit(){
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
-  rc = fileedit_setup_cimi_from_p(&cimi,&err);
+  rc = fileedit_setup_cimi_from_p(&cimi, &err);
   if(0!=rc){
     fileedit_ajax_error(rc,"%b",&err);
     goto end_cleanup;

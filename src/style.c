@@ -1472,7 +1472,7 @@ void style_emit_script_fossil_bootstrap(int asInline){
     }
     style_emit_script_tag(1,0);
     if(asInline==0){
-      style_emit_script_tag(0,"builtin/fossil.bootstrap.js");
+      style_emit_script_builtin("fossil.bootstrap.js", 0);
     }
   }
 }
@@ -1512,8 +1512,11 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
 ** Emits a script tag which uses content from a builtin script file.
 **
 ** If asInline is true, it is emitted directly as an opening tag, the
-** content of the zName builtin file, and a closing tag. If it is false,
-** a script tag loading it via src=builtin/{{zName}} is emitted.
+** content of the zName builtin file, and a closing tag.
+**
+** If it is false, a script tag loading it via
+** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a prefix
+** of the builtin content's md5 hash.
 */
 void style_emit_script_builtin(char const * zName, int asInline){
   if(asInline){
@@ -1522,7 +1525,15 @@ void style_emit_script_builtin(char const * zName, int asInline){
     style_emit_script_tag(1,0);
   }else{
     char * zFull = mprintf("builtin/%s",zName);
-    style_emit_script_tag(0,zFull);
+    const char * zBuiltin = builtin_text(zName);
+    const char * zHash = 0;
+    if(zBuiltin!=0){
+      md5sum_init();
+      md5sum_step_text(zBuiltin,-1);
+      zHash = md5sum_finish(0);
+    }
+    CX("<script src='%R/%T?cache=%.8s'></script>\n",zFull,
+       zHash ? zHash : "MISSING");
     fossil_free(zFull);
   }
 }
