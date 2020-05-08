@@ -1,5 +1,5 @@
-C /fileedit\snow\saccepts\s'fn'\sand\s'ci'\sas\sundocumented\saliases\sfor\s'filename'\sresp.\s'checkin',\sfor\sconsistency\swith\ssome\sother\spages.\sstyle_emit_script_builtin()\snow\sincludes\sa\scache-buster\son\sURLs\s(a\sprefix\sof\sthe\sbuiltin\scontent's\sMD5\shash).
-D 2020-05-08T12:39:20.304
+C Delay\sthe\sinitial\sfilepage\sloadFile()\suntil\sa\swindows.load\sevent.\sThis\sseems\sto\seliminate\swhat\sappears\sto\shave\sbeen\sa\srace\sbetween\sthat\scall\sand\sthe\sfilepage\sinit\scode.
+D 2020-05-08T14:00:53.348
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 870b18e1d03f9d31f3118b0348b2f1601a33d00e05077422782444871cc55db0
+F src/fileedit.c 70c91c9d35490ff9f1dc44d35a55e60117645c40d9bf29fef0adcb80a92a7a19
 F src/finfo.c 1d265bbaea89688689ff0f4a94a837be47de0eca0b25df35670f657e69fd8301
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -987,7 +987,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 53b31b0814f1baeeea8baf64e99f061519ca2d38a43a00175791ed1b30333566
-R 074da0c46de3c350e21f4d2f8d59ddb1
+P 3733293a0125a4dac7c4b2188789fd6b5f86cfa035eb98fab29f3c4b572bf066
+R 5913a3be449f94dbc1b4c55784337ee7
 U stephan
-Z b98041b194459822a9dd94a390e93707
+Z fb8df8fb0c7e532784ff2b7fea002438

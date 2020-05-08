@@ -1814,7 +1814,8 @@ void fileedit_page(){
   
   /* Dynamically populate the editor... */
   blob_appendf(&endScript,
-               "fossil.page.loadFile('%j','%j');",
+               "window.addEventListener('load',"
+               "()=>fossil.page.loadFile('%j','%j'), false);\n",
                zFilename, cimi.zParentUuid);
 
 end_footer:
