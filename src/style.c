@@ -1472,7 +1472,7 @@ void style_emit_script_fossil_bootstrap(int asInline){
     }
     style_emit_script_tag(1,0);
     if(asInline==0){
-      style_emit_script_builtin("fossil.bootstrap.js", 0);
+      style_emit_script_builtin(0, "fossil.bootstrap.js");
     }
   }
 }
@@ -1518,7 +1518,7 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
 ** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a prefix
 ** of the builtin content's md5 hash.
 */
-void style_emit_script_builtin(char const * zName, int asInline){
+void style_emit_script_builtin(int asInline, char const * zName){
   if(asInline){
     style_emit_script_tag(0,0);
     CX("%s", builtin_text(zName));
@@ -1553,7 +1553,7 @@ void style_emit_script_builtin(char const * zName, int asInline){
 void style_emit_script_fetch(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin("fossil.fetch.js", asInline);
+    style_emit_script_builtin(asInline, "fossil.fetch.js");
   }
 }
 
@@ -1572,7 +1572,7 @@ void style_emit_script_fetch(int asInline){
 void style_emit_script_dom(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin("fossil.dom.js", asInline);
+    style_emit_script_builtin(asInline, "fossil.dom.js");
   }
 }
 
@@ -1589,7 +1589,7 @@ void style_emit_script_tabs(int asInline){
   static int once = 0;
   if(0==once++){
     style_emit_script_dom(asInline);
-    style_emit_script_builtin("fossil.tabs.js",asInline);
+    style_emit_script_builtin(asInline, "fossil.tabs.js");
   }
 }
 
@@ -1604,6 +1604,6 @@ void style_emit_script_tabs(int asInline){
 void style_emit_script_confirmer(int asInline){
   static int once = 0;
   if(0==once++){
-    style_emit_script_builtin("fossil.confirmer.js",asInline);
+    style_emit_script_builtin(asInline, "fossil.confirmer.js");
   }
 }
