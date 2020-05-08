@@ -2140,7 +2140,11 @@ void artifact_page(void){
   const char *zCI = P("ci");
   HQuery url;
   Blob dirname;
+  char *zCIUuid = 0;
+  int isSymbolicCI = 0;
+  char *zHeader = 0;
 
+  if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( zCI ){
     login_check_credentials();
     if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
@@ -2148,9 +2152,13 @@ void artifact_page(void){
     blob_zero(&dirname);
     hyperlinked_path(zName, &dirname, zCI, "dir", "");
     blob_reset(&dirname);
+
+    if( name_to_uuid2(zCI, "ci", &zCIUuid) ){
+      isSymbolicCI = (strncmp(zCIUuid, zCI, strlen(zCI)) != 0);
+    }
   }
   url_initialize(&url, g.zPath);
-  if( isFile&&zName ) {
+  if( isFile && zName ) {
     rid = artifact_from_ci_and_filename(0, "name");
   }else{
     rid = artifact_from_ci_and_filename(&url, 0);
@@ -2222,7 +2230,7 @@ void artifact_page(void){
       blob_zero(&path);
       hyperlinked_path(zName, &path, zCI, "dir", "");
       zPath = blob_str(&path);
-      @ <h2>File %s(zPath) of check-in [%z(href("/info/%!S",zCI))%S(zCI)</a>]
+      @ <h2>File %s(zPath) of check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]
       @ </h2>
       blob_reset(&path);
     }else{
@@ -2256,8 +2264,25 @@ void artifact_page(void){
       style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
     }
   }
-  style_header("%s", isFile ? "File Content" :
-                     descOnly ? "Artifact Description" : "Artifact Content");
+
+  if( isFile ){
+    if( zCI ){
+      if( isSymbolicCI ){
+        zHeader = mprintf("%s at %s", file_tail(zName), zCI);
+      }else{
+        zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
+      }
+    }else{
+      zHeader = mprintf("%s", file_tail(zName));
+    }
+  }else if( descOnly ){
+    zHeader = mprintf("Artifact Description [%S]", zUuid);
+  }else{
+    zHeader = mprintf("Artifact [%S]", zUuid);
+  }
+  style_header("%s", zHeader);
+  fossil_free(zCIUuid);
+  fossil_free(zHeader);
   if( g.perm.Admin ){
     Stmt q;
     db_prepare(&q,
