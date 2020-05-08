@@ -1,5 +1,5 @@
-C In\sFile\sBrowser\sshow\sthe\sselected\spath\sand\scheck-in/branch\sin\spage's\stitle
-D 2020-05-08T23:01:28.953
+C In\sFile\sBrowser's\sTree-View\sthe\sfile\sentries\slink\sto\s/file\sURLs\scorresp.\sto\sthe\sgiven\scheck-in.
+D 2020-05-08T23:08:32.241
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -440,7 +440,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c e9f0019dfe75b6ffa848c51d25df6427e8537931326582fe53e7430cf6a30c9d
-F src/browse.c 3b4ae62faab05b2198ae30507c80d70eac8fb79941744d46716a559454e8d0d6
+F src/browse.c aa5a593d08495b26ff928f4b7536d8370f9b62a76fa9e0bab1bbfde6247b9292
 F src/builtin.c 96b6a95fe20ae5bb9a7c5f59b719e5cc56a534220cd8c4ee7e970e6516e24191
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 5c60071800e851f2433118ae0e21d37e62edba6376b95f46e74f868e83ec4a9e
-R f1aff85e64d2145cd23f6bdbd459d537
+P bbd53c778a55f18cca112094e023aa35a4d8bd4d513b4f32b1efe8639e8b13ea
+R 14b144b3aadc2844453940e80ecb882c
 U ashepilko
-Z 9a52462d5ee40832fa4e1cef180f9ef4
+Z 97060b80c83ba7c1c018847d42ab2a31
