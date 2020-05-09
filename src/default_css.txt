@@ -998,7 +998,7 @@ div.fileedit-tab-diff-wrapper {
   font-family: monospace;
 }
 .tab-container > .tabs > .tab-panel > .fileedit-options {
-  margin-top: 0;
+  margin-top: 0.25em 0;
   border: none;
   border-radius: 0;
   border-bottom-width: 1px;
@@ -1019,6 +1019,9 @@ div.fileedit-tab-diff-wrapper {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+}
+.fileedit-options.flex-container.row {
+  align-items: first baseline;
 }
 .flex-container.row.stretch {
   flex-direction: row;

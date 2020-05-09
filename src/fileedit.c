@@ -1790,19 +1790,36 @@ void fileedit_page(){
 
   { /******* Commit comment, button, and result manifest *******/
     CX("<fieldset class='fileedit-options'>"
-       "<legend>Message (required)</legend><div>");
+       "<legend>Message (required) "
+       "</legend><div>");
+    /* We have two comment input fields, defaulting to single-line
+    ** mode. JS code sets up the ability to toggle between single-
+    ** and multi-line modes. */
     CX("<input type='text' name='comment' "
-       "id='fileedit-comment'>");
-    /* ^^^ adding the 'required' attribute means we cannot even
-       submit for PREVIEW mode if it's empty :/. */
-    if(blob_size(&cimi.comment)){
-      blob_appendf(&endScript,
-                   "document.querySelector('#fileedit-comment').value="
-                   "\"%h\";\n", blob_str(&cimi.comment));
+       "id='fileedit-comment'></input>\n");
+   CX("<textarea name='commentBig' class='hidden' "
+       "rows='5' id='fileedit-comment-big'></textarea>");
+    { /* comment options... */
+      CX("<div class='fileedit-options flex-container row'>");
+      CX("<button id='comment-toggle' "
+         "title='Toggle between single- and multi-line comment mode, "
+         "noting that switching from multi- to single-line may cause "
+         "newlines to get stripped.'"
+         ">toggle single-/multi-line</button> ");
+      style_select_list_str("comment-mimetype", "comment_mimetype",
+                            "Comment style:",
+                            "Specify how fossil will interpret the "
+                            "comment string.",
+                            NULL,
+                            "Fossil", "text/x-fossil-wiki",
+                            "Markdown", "text/x-markdown", 
+                            "Plain text", "text/plain",
+                            NULL);
+      CX("</div>\n");
+      CX("<div class='fileedit-hint flex-container row'>"
+         "(Warning: switching from multi- to single-line mode will "
+         "strip out all newlines!)</div>");
     }
-    CX("</input>\n");
-    CX("<div class='fileedit-hint'>Comments use the Fossil wiki markup "
-       "syntax.</div>\n"/*TODO: select for fossil/md/plain text*/);
     CX("</div></fieldset>\n"/*commit comment*/);
     CX("<div class='flex-container row'>"
        "<button id='fileedit-btn-commit'>Commit</button>"

@@ -1418,11 +1418,72 @@ void style_select_list_int(const char * zWrapperId,
     CX("</option>\n");
   }
   CX("</select>\n");
-  if(zLabel && *zLabel){
-    CX("</span>\n");
-  }
+  CX("</span>\n");
   va_end(vargs);
 }
+
+/*
+** The C-string counterpart of style_select_list_int(), this variant
+** differs only in that its variadic arguments are C-strings in pairs
+** of (optionLabel, optionValue). If a given optionLabel is an empty
+** string, the corresponding optionValue is used as its label. If any
+** given value matches zSelectedVal, that option gets preselected. If
+** no options match zSelectedVal then the first entry is selected by
+** default.
+**
+** Any of (zWrapperId, zTooltip, zSelectedVal) may be NULL or empty.
+**
+** Example:
+**
+** style_select_list_str("my-grapes", "my_grapes", "Grapes",
+**                      "Select the number of grapes",
+**                       P("my_field"),
+**                       "1", "One", "2", "Two", "", "3",
+**                       NULL);
+*/
+void style_select_list_str(const char * zWrapperId,
+                           const char *zFieldName, const char * zLabel,
+                           const char * zToolTip, char const * zSelectedVal,
+                           ... ){
+  va_list vargs;
+
+  va_start(vargs,zSelectedVal);
+  if(!zSelectedVal){
+    zSelectedVal = __FILE__/*some string we'll never match*/;
+  }
+  CX("<span class='input-with-label'");
+  if(zToolTip && *zToolTip){
+    CX(" title='%h'",zToolTip);
+  }
+  if(zWrapperId && *zWrapperId){
+    CX(" id='%s'",zWrapperId);
+  }
+  CX(">");
+  if(zLabel && *zLabel){
+    CX("<span>%h</span>", zLabel);
+  }
+  CX("<select name='%s'>",zFieldName);
+  while(1){
+    const char * zLabel = va_arg(vargs,char *);
+    const char * zVal;
+    if(NULL==zLabel){
+      break;
+    }
+    zVal = va_arg(vargs,char *);
+    CX("<option value='%T'%s>",
+       zVal, 0==fossil_strcmp(zVal, zSelectedVal) ? " selected" : "");
+    if(*zLabel){
+      CX("%s", zLabel);
+    }else{
+      CX("%h",zVal);
+    }
+    CX("</option>\n");
+  }
+  CX("</select>\n");
+  CX("</span>\n");
+  va_end(vargs);
+}
+
 
 /*
 ** The first time this is called, it emits code to install and

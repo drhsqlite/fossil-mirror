@@ -11,7 +11,8 @@
     P.tabs = new fossil.TabManager('#fileedit-tabs');
     P.e = {
       taEditor: E('#fileedit-content-editor'),
-      taComment: E('#fileedit-comment'),
+      taCommentSmall: E('#fileedit-comment'),
+      taCommentBig: E('#fileedit-comment-big'),
       ajaxContentTarget: E('#ajax-target'),
       btnCommit: E("#fileedit-btn-commit"),
       btnReload: E("#fileedit-tab-content > .fileedit-options > "
@@ -27,6 +28,7 @@
         commit: E('#fileedit-tab-commit')
       }
     };
+    P.e.taComment = P.e.taCommentSmall;
 
     P.tabs.e.container.insertBefore(
       E('#fossil-status-bar'), P.tabs.e.tabs
@@ -60,6 +62,10 @@
       onconfirm: (e)=>P.loadFile(),
       ticks: 3
     });
+    E('#comment-toggle').addEventListener(
+      "click",(e)=>P.toggleCommentMode(), false
+    );
+
     /**
        Cosmetic: jump through some hoops to enable/disable
        certain preview options depending on the current
@@ -105,6 +111,37 @@
       );
     }
   }, false)/*onload event handler*/;
+
+  /**
+     Toggles between single- and multi-line comment
+     mode.
+  */
+  P.toggleCommentMode = function(){
+    var s, h, c = this.e.taComment.value;
+    if(this.e.taComment === this.e.taCommentSmall){
+      s = this.e.taCommentBig;
+      h = this.e.taCommentSmall;
+    }else{
+      s = this.e.taCommentSmall;
+      h = this.e.taCommentBig;
+      /*
+        Doing (input[type=text].value = textarea.value) unfortunately
+        strips all newlines. To compensate we'll replace each EOL with
+        a space. Not ideal. If we were to instead escape them as \n,
+        and do the reverse when toggling again, then they would get
+        committed as escaped newlines if the user did not first switch
+        back to multi-line mode. We cannot blindly unescape the
+        newlines, in the off chance that the user actually enters \n
+        in the comment.
+      */
+      c = c.replace(/\r?\n/g,' ');
+    }
+    s.value = c;
+    this.e.taComment = s;
+    D.addClass(h, 'hidden');
+    D.removeClass(s, 'hidden');
+    console.debug(s,h);
+  };
   
   /**
      updateVersion() updates the filename and version in various UI
