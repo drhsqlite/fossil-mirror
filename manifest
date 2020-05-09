@@ -1,5 +1,5 @@
-C Enquote\sthe\srequested\spath\sglob\sin\squery\sto\sget\shistory\sfor\sa\sdirectory\sname\swith\sspaces.
-D 2020-05-09T18:08:47.079
+C For\sa\s304\sHTTP\sresponse,\somit\sextraneous\sfields\ssuch\sas\sContent-Type\sand\sETag.
+D 2020-05-09T20:59:14.849
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -446,7 +446,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
-F src/cgi.c 08b70906ef44bb0f0f890883292b784eed12738484f9d86184bbed5d665aa906
+F src/cgi.c 5e7a29065980a350d1509b2f1d1df96f96e78057dd7c2de300112525cfe169dd
 F src/checkin.c 5b19a3c4a5e1a7c5f9cef0540f0a86106d2df124e00322bb17c952f8b96bb0f8
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 439e7ce6455c7e6d2dba580af96c38a585c5801b720856e86ff733e7bd6ece3b
-R 8e99e38fa2136cfb78b5c7f226dc7585
-U ashepilko
-Z 9483ed048a0382bd0a063220f2055252
+P 972341dbca1844bd7fd5522369bcb1d906eed7d89a966090f1f575665838b374
+R d7029e05c82e94a3f23e16f85ba516b4
+U drh
+Z 5e1acac1703cdeb1934c14742e895284

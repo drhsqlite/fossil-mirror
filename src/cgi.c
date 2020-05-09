@@ -291,6 +291,7 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
+  if( iReplyStatus==304 ) goto finish_cgi_reply;
   if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
@@ -361,7 +362,8 @@ void cgi_reply(void){
     total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
-  if( total_size>0 && iReplyStatus != 304
+  if( total_size>0
+   && iReplyStatus!=304
    && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
   ){
     int i, size;
@@ -380,6 +382,7 @@ void cgi_reply(void){
       }
     }
   }
+finish_cgi_reply:
   fflush(g.httpOut);
   CGIDEBUG(("-------- END cgi ---------\n"));
 
