@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.32.0\sbeta.
-D 2020-05-09T14:23:27.248
+C Change\smerge\sconflict\smarker\sfor\scommon\sancestor\sto\sfollow\s[|diff3\sconvention];\ssee\salso:\s[https://fossil-scm.org/forum/forumpost/f54f22dd99\s|\sforumpost/f54f22dd99]
+D 2020-05-09T17:16:08.773
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -533,7 +533,7 @@ F src/markdown_html.c ea65869f88656de85a63140fc6e27e38c378cc8f911bb0c8dae4a68a61
 F src/md5.c a18f2868a3b8932c4fbf8c2659931e14cdee1858
 F src/menu.js 8a3650ced67d6c31241eaae42efc5796fe7bcbbd581adf5a284ea1dbf2415e23
 F src/merge.c 7d2b5d5d4e15f56f4dac9c9b6c2af3a7e4c1b459fa7b0de0f2517f62989706b6
-F src/merge3.c d4892488520ad225695bcd020c132f868af12271e2bc2f7ede80259ac711b9dd
+F src/merge3.c f9759d721961f1c9a62485f2cda91ebbd5ad9dc37e2b6318859a1287da4dff50
 F src/miniz.c 80b95f7cb727d12dd23dabafd40a3513a7301c9b88d6ef011af85bb9bf2c49e7
 F src/mkbuiltin.c 9be20ec713e4a8422c1228f1f40c40b321a3a1411929e6a07c43d104a2e30883
 F src/mkcss.c b3807ccb28720dab540eef38058ede1792c3bc755d65ce4ee98f2f6de647517a
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ccf6a361f3f4bbd625dc37b741b89cf525020052be7c38bc42019f366a913c31
-R 8251f933e55091d6ece7418fd4eb3188
-U drh
-Z 871dfc3796934e386c4a44c79b794af7
+P 17610f8d7307b361dc0afd98ab8c2467792bd50b630e825e00cc766b7453dcd0
+R 207d5183dda30daa422b456e843a619c
+U ashepilko
+Z 0188f1e69e557a9430e8041caf4b7c31
