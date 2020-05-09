@@ -28,9 +28,24 @@
         commit: E('#fileedit-tab-commit')
       }
     };
-    P.e.taComment = P.e.taCommentSmall;
+    /* Figure out which comment editor to show by default and
+       hide the other one. By default we take the one which does
+       not have the 'hidden' CSS class. If neither do, we default
+       to single-line mode. */
+    if(D.hasClass(P.e.taCommentSmall, 'hidden')){
+      P.e.taComment = P.e.taCommentBig;
+    }else if(D.hasClass(P.e.taCommentBig,'hidden')){
+      P.e.taComment = P.e.taCommentSmall;
+    }else{
+      P.e.taComment = P.e.taCommentSmall;
+      D.addClass(P.e.taCommentBig, 'hidden');
+    }
+    D.removeClass(P.e.taComment, 'hidden');
 
     P.tabs.e.container.insertBefore(
+      /* Move the status bar between the tab buttons and
+         tab panels. Seems to be the best fit in terms of
+         functionality and visibility. */
       E('#fossil-status-bar'), P.tabs.e.tabs
     );
 

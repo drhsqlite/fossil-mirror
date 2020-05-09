@@ -1790,20 +1790,19 @@ void fileedit_page(){
 
   { /******* Commit comment, button, and result manifest *******/
     CX("<fieldset class='fileedit-options'>"
-       "<legend>Message (required) "
-       "</legend><div>");
+       "<legend>Message (required)</legend><div>\n");
     /* We have two comment input fields, defaulting to single-line
     ** mode. JS code sets up the ability to toggle between single-
     ** and multi-line modes. */
     CX("<input type='text' name='comment' "
-       "id='fileedit-comment'></input>\n");
-   CX("<textarea name='commentBig' class='hidden' "
-       "rows='5' id='fileedit-comment-big'></textarea>");
+       "id='fileedit-comment'></input>");
+    CX("<textarea name='commentBig' class='hidden' "
+       "rows='5' id='fileedit-comment-big'></textarea>\n");
     { /* comment options... */
       CX("<div class='fileedit-options flex-container row'>");
       CX("<button id='comment-toggle' "
          "title='Toggle between single- and multi-line comment mode, "
-         "noting that switching from multi- to single-line may cause "
+         "noting that switching from multi- to single-line will cause "
          "newlines to get stripped.'"
          ">toggle single-/multi-line</button> ");
       style_select_list_str("comment-mimetype", "comment_mimetype",
@@ -1820,11 +1819,12 @@ void fileedit_page(){
          "(Warning: switching from multi- to single-line mode will "
          "strip out all newlines!)</div>");
     }
-    CX("</div></fieldset>\n"/*commit comment*/);
+    CX("</div></fieldset>\n"/*commit comment options*/);
     CX("<div class='flex-container row'>"
        "<button id='fileedit-btn-commit'>Commit</button>"
        "</div>\n");
-    CX("<div id='fileedit-manifest'></div>\n");
+    CX("<div id='fileedit-manifest'></div>\n"
+       /* Manifest gets rendered here after a commit. */);
   }
 
   CX("</div>"/*#fileedit-tab-commit*/);
