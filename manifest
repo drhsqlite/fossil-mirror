@@ -1,5 +1,5 @@
-C Minor\sfix\sfor\s[3d80481216]:\sRemove\sa\sduplicate\s"size"\sattribute,\sand\sinsert\sa\sspace\sbefore\sthe\sbackslash\sindicating\sline\scontinuation,\sor\sthe\ssrc/translate.c\spreprocessing\sutility\swill\sglue\sthe\slines\stogether\swithout\sany\sspace\sin\sbetween.
-D 2020-05-07T11:20:00.000
+C Add\sthe\s"fossil\stest-terminal-size"\scommand.
+D 2020-05-09T12:04:26.827
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -599,7 +599,7 @@ F src/style.c 88f09f051f67a91de6084e4160f879b2dcaa77c4c57e2c4f764c834ee8c7e38b
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
-F src/terminal.c b018922d9398ed18b655b562256bea0d018c68b9321c767e2710e22fa899792f
+F src/terminal.c dd4e12ef9ebb183c380edb54c1faa1da7925409387db98405002e5b515125f2f
 F src/th.c 225f4cc536e2e863038141e04e085540711abb706c85e4dde3d1e3b20792db30
 F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6ba0e14df78149178c26c57fc3d0a9e7d99f47622a33ae47551423316382a6e2
-R 9db4528d1ca9ca22e74a2c6a177d1d57
-U florian
-Z 818cd7b50759bc6692470a7d3e3483b8
+P 1422b02222558f6611140c2625977d375553b4fcadeb3d0b73ceecdae487764a
+R 4ce8f937a8e41e35cef30b311784817e
+U drh
+Z 429be41d10df7614ab9584af2b551dc0

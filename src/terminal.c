@@ -53,8 +53,7 @@ struct TerminalSize {
 ** Technically, this info could be cached, but then we'd need to handle
 ** SIGWINCH signal to requery the terminal on resize event.
 */
-int terminal_get_size(struct TerminalSize *t)
-{
+int terminal_get_size(TerminalSize *t){
   memset(t, 0, sizeof(*t));
 
 #if defined(TIOCGSIZE)
@@ -96,9 +95,8 @@ int terminal_get_size(struct TerminalSize *t)
 ** Return the terminal's current width in columns when available, otherwise
 ** return the specified default value.
 */
-unsigned int terminal_get_width(unsigned int nDefault)
-{
-  struct TerminalSize ts;
+unsigned int terminal_get_width(unsigned int nDefault){
+  TerminalSize ts;
   if( terminal_get_size(&ts) ){
     return ts.nColumns;
   }
@@ -109,11 +107,24 @@ unsigned int terminal_get_width(unsigned int nDefault)
 ** Return the terminal's current height in lines when available, otherwise
 ** return the specified default value.
 */
-unsigned int terminal_get_height(unsigned int nDefault)
-{
-  struct TerminalSize ts;
+unsigned int terminal_get_height(unsigned int nDefault){
+  TerminalSize ts;
   if( terminal_get_size(&ts) ){
     return ts.nLines;
   }
   return nDefault;
+}
+
+/*
+** COMMAND: test-terminal-size
+**
+** Show the size of the terminal window from which the command is launched
+** as two integers, the width in charaters and the height in lines.
+**
+** If the size cannot be determined, two zeros are shown.
+*/
+void test_terminal_size_cmd(void){
+  TerminalSize ts;
+  terminal_get_size(&ts);
+  fossil_print("%d %d\n", ts.nColumns, ts.nLines);
 }
