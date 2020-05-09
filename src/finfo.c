@@ -201,7 +201,7 @@ void finfo_cmd(void){
     );
     blob_zero(&line);
     if( iBrief ){
-      fossil_print("History of %s\n", blob_str(&fname));
+      fossil_print("History for %s\n", blob_str(&fname));
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
@@ -298,7 +298,7 @@ void cat_cmd(void){
 */
 void finfo_page(void){
   Stmt q;
-  const char *zFilename;
+  const char *zFilename = PD("name","");
   char zPrevDate[20];
   const char *zA;
   const char *zB;
@@ -323,7 +323,12 @@ void finfo_page(void){
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  style_header("File History");
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    style_header("History unavailable");
+  }else{
+    style_header("History for %s", zFilename);
+  }
   login_anonymous_available();
   tmFlags = timeline_ss_submenu();
   if( tmFlags & TIMELINE_COLUMNAR ){
@@ -342,9 +347,7 @@ void finfo_page(void){
   if( uBg ) url_add_parameter(&url, "ubg", 0);
   baseCheckin = name_to_rid_www("ci");
   zPrevDate[0] = 0;
-  zFilename = PD("name","");
   cookie_render();
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
     @ No such file: %h(zFilename)
     style_footer();
@@ -451,7 +454,7 @@ void finfo_page(void){
       fossil_free(zUuid);
     }
   }else{
-    blob_appendf(&title, "History of ");
+    blob_appendf(&title, "History for ");
     hyperlinked_path(zFilename, &title, 0, "tree", "");
     if( fShowId ) blob_appendf(&title, " (%d)", fnid);
   }
