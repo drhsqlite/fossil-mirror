@@ -1799,28 +1799,40 @@ void fileedit_page(){
     CX("<textarea name='commentBig' class='hidden' "
        "rows='5' id='fileedit-comment-big'></textarea>\n");
     { /* comment options... */
-      CX("<div class='fileedit-options flex-container row'>");
+      CX("<div class='fileedit-options flex-container column'>");
       CX("<button id='comment-toggle' "
          "title='Toggle between single- and multi-line comment mode, "
          "noting that switching from multi- to single-line will cause "
          "newlines to get stripped.'"
          ">toggle single-/multi-line</button> ");
-      style_select_list_str("comment-mimetype", "comment_mimetype",
-                            "Comment style:",
-                            "Specify how fossil will interpret the "
-                            "comment string.",
-                            NULL,
-                            "Fossil", "text/x-fossil-wiki",
-                            "Markdown", "text/x-markdown", 
-                            "Plain text", "text/plain",
-                            NULL);
-      CX("</div>\n");
+      if(0){
+        /* Manifests support an N-card (comment mime type) but it has
+        ** yet to be honored where comments are rendered, so we don't
+        ** currently offer it as an option here:
+        ** https://fossil-scm.org/forum/forumpost/662da045a1
+        **
+        ** If/when it's ever implemented, simply enable this block and
+        ** adjust the container's layout accordingly (as of this
+        ** writing, that means changing the CSS class from
+        ** 'flex-container column' to 'flex-container row').
+        */
+        style_select_list_str("comment-mimetype", "comment_mimetype",
+                              "Comment style:",
+                              "Specify how fossil will interpret the "
+                              "comment string.",
+                              NULL,
+                              "Fossil", "text/x-fossil-wiki",
+                              "Markdown", "text/x-markdown", 
+                              "Plain text", "text/plain",
+                              NULL);
+        CX("</div>\n");
+      }
       CX("<div class='fileedit-hint flex-container row'>"
          "(Warning: switching from multi- to single-line mode will "
          "strip out all newlines!)</div>");
     }
     CX("</div></fieldset>\n"/*commit comment options*/);
-    CX("<div class='flex-container row'>"
+    CX("<div class='flex-container column'>"
        "<button id='fileedit-btn-commit'>Commit</button>"
        "</div>\n");
     CX("<div id='fileedit-manifest'></div>\n"

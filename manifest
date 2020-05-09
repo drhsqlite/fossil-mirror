@@ -1,5 +1,5 @@
-C Determine\swhich\scomment\sediting\smode\sto\senable\sbased\son\swhich\sof\sthe\seditor\sfields\sis\shidden\sby\sdefault,\sso\sthat\swe\sstay\sin\ssync\sif\sthe\sC\sside\schanges.
-D 2020-05-09T12:54:10.284
+C Disable\srendering\sof\sthe\scomment\smime\stype\sselection\slist,\sas\sit's\snot\shonored/implemented\swhere\scomments\sare\srendered.\s
+D 2020-05-09T13:56:14.466
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 378571494b89bb95e7e30d88a3343df3bdcc264e4128de68ed42773b3c31c3ba
+F src/fileedit.c 6efec17c814962343a824032dbc7b90ed3bd9f71f96717df855ed1732f10b46a
 F src/finfo.c 1d265bbaea89688689ff0f4a94a837be47de0eca0b25df35670f657e69fd8301
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -987,7 +987,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4d5004ef2d8cdf02bd106910d18f76eeb7b8b979bfd9d3f88fbb73c13e275449
-R 8b9156c6a07932a48c2b651880c8326a
+P a4314603f726bed3e3ca35bf578777abc65fac81b56f53a0a9590c5cb85cbc5b
+R 2ea671dfea0f6fc2f93bfc62643c4fa7
 U stephan
-Z cf0d79bc3c5ea3a2d76f615d1422dc6f
+Z c26f5b56fcf58d3a1d560debd858891b
