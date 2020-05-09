@@ -135,7 +135,7 @@ void page_dir(void){
   int linkTrunk = 1;
   int linkTip = 1;
   HQuery sURI;
-  int isSymbolicCI = 0;
+  int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
   char *zHeader = 0;
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
@@ -158,24 +158,19 @@ void page_dir(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      isSymbolicCI = (strncmp(zUuid, zCI, strlen(zCI)) != 0);
+      isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
     }else{
       zCI = 0;
     }
   }
 
+  assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
   if( isSymbolicCI ) {
-    if( zCI && strlen(zCI) ){
-      zHeader = mprintf("%s at %s", (zD ? zD : "Files"), zCI);
-    }else{
-      zHeader = mprintf("%s", (zD ? zD : "All Files"));
-    }
+    zHeader = mprintf("%s at %s", (zD ? zD : "Files"), zCI);
+  }else if( zUuid && strlen(zUuid) ){
+    zHeader = mprintf("%s at [%S]", (zD ? zD : "Files"), zUuid);
   }else{
-    if( zUuid && strlen(zUuid) ){
-      zHeader = mprintf("%s at [%S]", (zD ? zD : "Files"), zUuid);
-    }else{
-      zHeader = mprintf("%s", (zD ? zD : "All Files"));
-    }
+    zHeader = mprintf("%s", (zD ? zD : "All Files"));
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);
@@ -632,7 +627,7 @@ void page_tree(void){
   int showDirOnly;         /* Show directories only.  Omit files */
   int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
-  int isSymbolicCI = 0;
+  int isSymbolicCI = 0;    /* ci= is a symbolic name, not a hash prefix */
   char *zHeader = 0;
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
@@ -681,7 +676,7 @@ void page_tree(void){
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
       zNow = db_text("", "SELECT datetime(mtime,toLocal())"
                          " FROM event WHERE objid=%d", rid);
-      isSymbolicCI = (strncmp(zUuid, zCI, strlen(zCI)) != 0);
+      isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI)) != 0);
     }else{
       zCI = 0;
     }
@@ -691,22 +686,16 @@ void page_tree(void){
     zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
 
+  assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
   if( isSymbolicCI ) {
-    if( zCI && strlen(zCI) ){
-      zHeader = mprintf("%s at %s",
-        (zD ? zD : (showDirOnly ? "Folder Hierarchy" : "Tree-View")), zCI);
-    }else{
-      zHeader = mprintf("%s",
-        (zD ? zD : (showDirOnly ? "All Folders Hierarchy" : "All Files Tree-View")));
-    }
+    zHeader = mprintf("%s at %s",
+      (zD ? zD : (showDirOnly ? "Folder Hierarchy" : "Tree-View")), zCI);
+  }else if( zUuid && strlen(zUuid) ){
+    zHeader = mprintf("%s at [%S]",
+      (zD ? zD : (showDirOnly ? "Folder Hierarchy" : "Tree-View")), zUuid);
   }else{
-    if( zUuid && strlen(zUuid) ){
-      zHeader = mprintf("%s at [%S]",
-        (zD ? zD : (showDirOnly ? "Folder Hierarchy" : "Tree-View")), zUuid);
-    }else{
-      zHeader = mprintf("%s",
-        (zD ? zD : (showDirOnly ? "All Folders Hierarchy" : "All Files Tree-View")));
-    }
+    zHeader = mprintf("%s",
+      (zD ? zD : (showDirOnly ?"All Folders Hierarchy":"All Files Tree-View")));
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);

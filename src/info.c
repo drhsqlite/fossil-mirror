@@ -1342,30 +1342,18 @@ void vdiff_page(void){
 ** Possible flags for the second parameter to
 ** object_description()
 */
-#define OBJDESC_DETAIL      0x0001   /* more detail */
+#define OBJDESC_DETAIL      0x0001   /* Show more detail */
 #define OBJDESC_BASE        0x0002   /* Set <base> using this object */
 #endif
 
 /*
 ** Write a description of an object to the www reply.
-**
-** If the object is a file then mention:
-**
-**     * It's artifact ID
-**     * All its filenames
-**     * The check-in it was part of, with times and users
-**
-** If the object is a manifest, then mention:
-**
-**     * It's artifact ID
-**     * date of check-in
-**     * Comment & user
 */
 int object_description(
-  int rid,                 /* The artifact ID */
+  int rid,                 /* The artifact ID for the object to describe */
   u32 objdescFlags,        /* Flags to control display */
-  const char *zFileName,   /* Explicit file name or 0 */
-  Blob *pDownloadName      /* Fill with an appropriate download name */
+  const char *zFileName,   /* For file objects, use this name.  Can be NULL */
+  Blob *pDownloadName      /* Fill with a good download name.  Can be NULL */
 ){
   Stmt q;
   int cnt = 0;
@@ -2141,14 +2129,14 @@ void artifact_page(void){
   HQuery url;
   Blob dirname;
   char *zCIUuid = 0;
-  int isSymbolicCI = 0;
+  int isSymbolicCI = 0;  /* ci= exists and is a symbolic name, not a hash */
   char *zHeader = 0;
 
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
+  url_initialize(&url, g.zPath);
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( zCI ){
-    login_check_credentials();
-    if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-
     blob_zero(&dirname);
     hyperlinked_path(zName, &dirname, zCI, "dir", "");
     blob_reset(&dirname);
@@ -2157,7 +2145,6 @@ void artifact_page(void){
       isSymbolicCI = (strncmp(zCIUuid, zCI, strlen(zCI)) != 0);
     }
   }
-  url_initialize(&url, g.zPath);
   if( isFile && zName ) {
     rid = artifact_from_ci_and_filename(0, "name");
   }else{
@@ -2209,8 +2196,6 @@ void artifact_page(void){
     }
   }
 
-  login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ){
     style_header("No such artifact");
     @ Artifact '%h(zName)' does not exist in this repository.
@@ -2266,12 +2251,10 @@ void artifact_page(void){
   }
 
   if( isFile ){
-    if( zCI ){
-      if( isSymbolicCI ){
-        zHeader = mprintf("%s at %s", file_tail(zName), zCI);
-      }else{
-        zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
-      }
+    if( isSymbolicCI ){
+      zHeader = mprintf("%s at %s", file_tail(zName), zCI);
+    }else if( zCI ){
+      zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
     }else{
       zHeader = mprintf("%s", file_tail(zName));
     }
