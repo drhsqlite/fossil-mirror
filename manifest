@@ -1,5 +1,5 @@
-C Change\smerge\sconflict\smarker\sfor\scommon\sancestor\sto\sfollow\s[|diff3\sconvention];\ssee\salso:\s[https://fossil-scm.org/forum/forumpost/f54f22dd99\s|\sforumpost/f54f22dd99]
-D 2020-05-09T17:16:08.773
+C File\sHistory\sfile\slinks\sto\suse\s/file?name\sform,\sto\shandle\spaths\swith\sspaces.
+D 2020-05-09T17:21:58.605
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/finfo.c a2627b3184619e13032fcdfcb517b17d16e2f33f29adfa097a3b27614bdfc4f1
+F src/finfo.c 5726e9195c5b1caacc1b97fd47712d42993b5a3b2f35e6d89af3a1296d3a8f89
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 17610f8d7307b361dc0afd98ab8c2467792bd50b630e825e00cc766b7453dcd0
-R 207d5183dda30daa422b456e843a619c
+P d7bc466ac624e128544f7c5ff63300ae7715cd46475c96e642437b16daed08bd
+R 6f27af6f043a84b895b40750961583af
 U ashepilko
-Z 0188f1e69e557a9430e8041caf4b7c31
+Z 69c513a02082ab4c5df94616912f94eb

@@ -529,7 +529,7 @@ void finfo_page(void){
       @ <tr>
     }
     @ <td class="timelineTime">\
-    @ %z(href("%R/file/%T?ci=%!S",zFilename,zCkin))%s(zTime)</a></td>
+    @ %z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))%s(zTime)</a></td>
     @ <td class="timelineGraph"><div id="m%d(gidx)" class="tl-nodemark"></div>
     @ </td>
     if( zBgClr && zBgClr[0] ){
@@ -566,7 +566,7 @@ void finfo_page(void){
     cgi_printf("<span class='timeline%sDetail'>", zStyle);
     if( tmFlags & (TIMELINE_COMPACT|TIMELINE_VERBOSE) ) cgi_printf("(");
     if( zUuid && (tmFlags & TIMELINE_VERBOSE)==0 ){
-      @ file:&nbsp;%z(href("%R/file/%T?ci=%!S",zFilename,zCkin))[%S(zUuid)]</a>
+      @ file:&nbsp;%z(href("%R/file?name=%T&ci=%!S",zFilename,zCkin))[%S(zUuid)]</a>
       if( fShowId ){
         int srcId = delta_source_rid(frid);
         if( srcId>0 ){
