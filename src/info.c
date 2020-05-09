@@ -1342,29 +1342,18 @@ void vdiff_page(void){
 ** Possible flags for the second parameter to
 ** object_description()
 */
-#define OBJDESC_DETAIL      0x0001   /* more detail */
+#define OBJDESC_DETAIL      0x0001   /* Show more detail */
 #define OBJDESC_BASE        0x0002   /* Set <base> using this object */
 #endif
 
 /*
 ** Write a description of an object to the www reply.
-**
-** If the object is a file then mention:
-**
-**     * It's artifact ID
-**     * All its filenames
-**     * The check-in it was part of, with times and users
-**
-** If the object is a manifest, then mention:
-**
-**     * It's artifact ID
-**     * date of check-in
-**     * Comment & user
 */
 int object_description(
-  int rid,                 /* The artifact ID */
+  int rid,                 /* The artifact ID for the object to describe */
   u32 objdescFlags,        /* Flags to control display */
-  Blob *pDownloadName      /* Fill with an appropriate download name */
+  const char *zFileName,   /* For file objects, use this name.  Can be NULL */
+  Blob *pDownloadName      /* Fill with a good download name.  Can be NULL */
 ){
   Stmt q;
   int cnt = 0;
@@ -1403,6 +1392,7 @@ int object_description(
     const char *zBr = db_column_text(&q, 6);
     int szFile = db_column_int(&q,7);
     int sameFilename = prevName!=0 && fossil_strcmp(zName,prevName)==0;
+    if( zFileName && fossil_strcmp(zName,zFileName)!=0 ) continue;
     if( sameFilename && !showDetail ){
       if( cnt==1 ){
         @ %z(href("%R/whatis/%!S",zUuid))[more...]</a>
@@ -1749,9 +1739,9 @@ void diff_page(void){
   }else{
     @ <h2>Differences From
     @ Artifact %z(href("%R/artifact/%!S",zV1))[%S(zV1)]</a>:</h2>
-    object_description(v1, objdescFlags, 0);
+    object_description(v1, objdescFlags,0, 0);
     @ <h2>To Artifact %z(href("%R/artifact/%!S",zV2))[%S(zV2)]</a>:</h2>
-    object_description(v2, objdescFlags, 0);
+    object_description(v2, objdescFlags,0, 0);
   }
   if( pRe ){
     @ <b>Only differences that match regular expression "%h(zRe)"
@@ -1939,7 +1929,7 @@ void hexdump_page(void){
   }
   blob_zero(&downloadName);
   if( P("verbose")!=0 ) objdescFlags |= OBJDESC_DETAIL;
-  object_description(rid, objdescFlags, &downloadName);
+  object_description(rid, objdescFlags, 0, &downloadName);
   style_submenu_element("Download", "%s/raw/%T?name=%s",
         g.zTop, blob_str(&downloadName), zUuid);
   @ <hr />
@@ -2129,16 +2119,37 @@ void artifact_page(void){
   int renderAsHtml = 0;
   int objType;
   int asText;
-  const char *zUuid;
+  const char *zUuid = 0;
   u32 objdescFlags = OBJDESC_BASE;
   int descOnly = fossil_strcmp(g.zPath,"whatis")==0;
   int isFile = fossil_strcmp(g.zPath,"file")==0;
   const char *zLn = P("ln");
   const char *zName = P("name");
+  const char *zCI = P("ci");
   HQuery url;
+  Blob dirname;
+  char *zCIUuid = 0;
+  int isSymbolicCI = 0;  /* ci= exists and is a symbolic name, not a hash */
+  char *zHeader = 0;
 
+  login_check_credentials();
+  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   url_initialize(&url, g.zPath);
-  rid = artifact_from_ci_and_filename(&url, 0);
+  if( zCI && strlen(zCI)==0 ){ zCI = 0; }
+  if( zCI ){
+    blob_zero(&dirname);
+    hyperlinked_path(zName, &dirname, zCI, "dir", "");
+    blob_reset(&dirname);
+
+    if( name_to_uuid2(zCI, "ci", &zCIUuid) ){
+      isSymbolicCI = (strncmp(zCIUuid, zCI, strlen(zCI)) != 0);
+    }
+  }
+  if( isFile && zName ) {
+    rid = artifact_from_ci_and_filename(0, "name");
+  }else{
+    rid = artifact_from_ci_and_filename(&url, 0);
+  }
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
@@ -2185,8 +2196,6 @@ void artifact_page(void){
     }
   }
 
-  login_check_credentials();
-  if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   if( rid==0 ){
     style_header("No such artifact");
     @ Artifact '%h(zName)' does not exist in this repository.
@@ -2198,8 +2207,20 @@ void artifact_page(void){
     objdescFlags |= OBJDESC_DETAIL;
   }
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
+
   if( isFile ){
-    @ <h2>Latest version of file '%h(zName)':</h2>
+    if( zCI ){
+      const char *zPath;
+      Blob path;
+      blob_zero(&path);
+      hyperlinked_path(zName, &path, zCI, "dir", "");
+      zPath = blob_str(&path);
+      @ <h2>File %s(zPath) of check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]
+      @ </h2>
+      blob_reset(&path);
+    }else{
+      @ <h2>Latest version of file '%h(zName)':</h2>
+    }
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
   }else{
     @ <h2>Artifact
@@ -2213,7 +2234,7 @@ void artifact_page(void){
   blob_zero(&downloadName);
   asText = P("txt")!=0;
   if( asText ) objdescFlags &= ~OBJDESC_BASE;
-  objType = object_description(rid, objdescFlags, &downloadName);
+  objType = object_description(rid, objdescFlags, (isFile ? zName : 0),&downloadName);
   if( !descOnly && P("download")!=0 ){
     cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
           db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
@@ -2228,8 +2249,23 @@ void artifact_page(void){
       style_submenu_element("Shun", "%s/shun?shun=%s#addshun", g.zTop, zUuid);
     }
   }
-  style_header("%s", isFile ? "File Content" :
-                     descOnly ? "Artifact Description" : "Artifact Content");
+
+  if( isFile ){
+    if( isSymbolicCI ){
+      zHeader = mprintf("%s at %s", file_tail(zName), zCI);
+    }else if( zCI ){
+      zHeader = mprintf("%s at [%S]", file_tail(zName), zCIUuid);
+    }else{
+      zHeader = mprintf("%s", file_tail(zName));
+    }
+  }else if( descOnly ){
+    zHeader = mprintf("Artifact Description [%S]", zUuid);
+  }else{
+    zHeader = mprintf("Artifact [%S]", zUuid);
+  }
+  style_header("%s", zHeader);
+  fossil_free(zCIUuid);
+  fossil_free(zHeader);
   if( g.perm.Admin ){
     Stmt q;
     db_prepare(&q,
