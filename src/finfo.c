@@ -325,7 +325,7 @@ void finfo_page(void){
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
-    style_header("History unavailable");
+    style_header("No such file");
   }else{
     style_header("History for %s", zFilename);
   }
