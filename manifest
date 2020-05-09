@@ -1,5 +1,5 @@
-C Add\sthe\s"fossil\stest-terminal-size"\scommand.
-D 2020-05-09T12:04:26.827
+C Update\sthe\schange\slog.
+D 2020-05-09T12:08:30.094
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -815,7 +815,7 @@ F www/caps/index.md 021e43c1a0ca0a2f46b2dd21ce92693dab83683c172003add00c589476fe
 F www/caps/login-groups.md 521dc08f39657f8e5b778cb35e15bd94257ba4dd3465a04cb8c822d437da6b41
 F www/caps/ref.html 2bcc1c2444a99677e668a4b0361c8948d6c3b1f3ee23c2ad88c2b5122202b305
 F www/cgi.wiki ee94621db39efd6cf81c27a52fb74ca78d39759786a37bc96b2dbf80db3786bf
-F www/changes.wiki 1198028df39202711909491ec8d906be973ecc75f36df9eb799bf5be1c096cdf
+F www/changes.wiki a1df607d75e01bf545e1af974d2c53c4661fc5efdf865a5bdb076682c508a1dc
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki e0707a3fd024990bc95294502d5ca6cd39688bf40c3c87a2a449e7e3af9e40f6
 F www/childprojects.wiki c3efec1c46a523d4dc489f68b99f4c354af64873
@@ -980,7 +980,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1422b02222558f6611140c2625977d375553b4fcadeb3d0b73ceecdae487764a
-R 4ce8f937a8e41e35cef30b311784817e
+P b241b9c999724307575ef29d52df40f282ced62a91305914520546406c20d1d6
+R 8932ba86a5069dee2d178b253d7698ea
 U drh
-Z 429be41d10df7614ab9584af2b551dc0
+Z 0d897ae509da548b923261ecda73c68f
