@@ -298,7 +298,7 @@ void page_dir(void){
     }else{
       const char *zLink;
       if( zCI ){
-        zLink = href("%R/file/%T%T?ci=%!S",zPrefix,zFN,zCI);
+        zLink = href("%R/file?name=%T%T&ci=%!S",zPrefix,zFN,zCI);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
       }
@@ -855,7 +855,7 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/file/%T?ci=%!S",p->zFullName,zCI);
+        zLink = href("%R/file?name=%T&ci=%!S",p->zFullName,zCI);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }

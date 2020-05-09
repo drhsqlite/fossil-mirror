@@ -1,5 +1,5 @@
-C Work\stoward\smoving\sthe\sfile\sbrowsing\scloser\sto\swhat\stypical\susers\sexpect.
-D 2020-05-09T13:17:53.598
+C Create\sa\stest\sfile\swith\sspaces\sin\sits\sname,\sin\sa\stest\sdirectory\swith\nspaces\sin\sits\sname.\s\sUse\sthese\sto\shelp\sverify\sthat\sfossil\scan\shandle\sfile\nand\sdirectory\snames\scontaining\sspace\scharacters.
+D 2020-05-09T13:34:27.694
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -440,7 +440,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c e9f0019dfe75b6ffa848c51d25df6427e8537931326582fe53e7430cf6a30c9d
-F src/browse.c 6f1ca4ea6a8eaaf729955271667768a8128aaeead25b86c885bc841ac26b37a0
+F src/browse.c 7e164ef7adb785c6ed4e3595e6e26112a7470882e78bf90d118e534a71f016d3
 F src/builtin.c 1ae9c90c567fb45f23f95aa7d00eca5cfc30cc86e2ba7476c97806d3fb24b072
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
@@ -669,6 +669,7 @@ F test/set-manifest.test a4caa5745c0af2dc9bb1a2f0902e7991818f725bb168355cae5da87
 F test/settings-repo.test 7c2617c7deea7d245d927df5688d26365e3bca9b
 F test/settings.test ad3ae2b981d007a6b095a3721e98fa1fbf371f3f81464c680cf49df99205f10e
 F test/stash.test 4ac356770b8ad5a013f1927d678bec077cbb387616e67133a4050a177aae0373
+F test/subdir\swith\sspaces/filename\swith\sspaces.txt 4c1f053a9aa422cde7f33113511a70ca3a9f77ddebff4458fbf776752fc3a006
 F test/subdir-b/readme.txt e8e5bf5191c37755b77f68dc971880cacc72ec09
 F test/subdir/README.html b73b2bbc042aa2d246733582ac74e96ae57f38360e1f9bf96121eca09ab71b55
 F test/subdir/one/readme.wiki c532caf18a2b3e0f946340bc3e26e58c5e56fe64256975c6ec641e374496bcb0
@@ -980,8 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 49a06bf1774185cdf60aed82fec2cc0198c9ddd5fb059a1a05190691f6fb0e05 aa9815ffc07ac73be5666c8b364903ab33c088fff69a051e88508fa85c0090c4
-R bff1b1d9c2843ddb46253749b21cfca7
-T +closed aa9815ffc07ac73be5666c8b364903ab33c088fff69a051e88508fa85c0090c4
+P 2b07e4e935bfbc68f64bf5450eb771a2e8c662558fff7fb12561b8ec3964c16b
+R 00403aa5be1ac7cc66a4311225766e90
 U drh
-Z 246ea6d86afd40d9fa404c877c3bff6a
+Z 4b97cfc9c8fc53ee6fdc0a7ba892cf19
