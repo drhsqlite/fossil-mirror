@@ -1314,7 +1314,7 @@ static void addFileGlobExclusion(
   blob_append_sql(pSql," AND event.objid IN ("
       "SELECT mlink.mid FROM mlink, filename"
       " WHERE mlink.fnid=filename.fnid AND %s)",
-      glob_expr("filename.name", zChng));
+      glob_expr("filename.name", mprintf("\"%s\"", zChng)));
 }
 static void addFileGlobDescription(
   const char *zChng,        /* The filename GLOB list */
