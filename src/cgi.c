@@ -291,10 +291,6 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( iReplyStatus==304 ){
-    fprintf(g.httpOut, "\r\n");
-    goto finish_cgi_reply;
-  }
   if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
@@ -335,13 +331,13 @@ void cgi_reply(void){
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
-  if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
-    cgi_combine_header_and_body();
-    blob_compress(&cgiContent[0], &cgiContent[0]);
-  }
-
   if( iReplyStatus!=304 ) {
+    fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
+    if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
+      cgi_combine_header_and_body();
+      blob_compress(&cgiContent[0], &cgiContent[0]);
+    }
+
     if( is_gzippable() && iReplyStatus!=206 ){
       int i;
       gzip_begin(0);
@@ -385,7 +381,6 @@ void cgi_reply(void){
       }
     }
   }
-finish_cgi_reply:
   fflush(g.httpOut);
   CGIDEBUG(("-------- END cgi ---------\n"));
 

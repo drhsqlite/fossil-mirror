@@ -1,5 +1,5 @@
-C Correctly\sterminate\sthe\s304\sreplies\sin\sthe\sprevious\scheck-in.
-D 2020-05-09T21:04:49.129
+C Another\s304\schange:\s\sOmit\sonly\sthe\sContent-Type\sheader.\s\sRetain\sthe\ncache-control\sheader\slines.
+D 2020-05-09T21:10:17.106
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -446,7 +446,7 @@ F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
-F src/cgi.c 5a76e2cd40e1c82504aeee04d2a07de514ae40e3175148d7f546a56f8b548a35
+F src/cgi.c 207dc08a51e1aad15b7c07abcebee4756fd9a6cba76c4af1949a3cd40bb70b6a
 F src/checkin.c 5b19a3c4a5e1a7c5f9cef0540f0a86106d2df124e00322bb17c952f8b96bb0f8
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6624350b0e3056649643d0d2f0b3e20703f95031809350ac4b0fce69f9fed7be
-R 7187525769e5934ea29a3ac65da988ca
+P 9f99257451fb91733d1fefbf71e7850f30995f2ded578b7ab184d16ff331efec
+R 1e0e970e6bbfcc35e55fe129eddd0c3c
 U drh
-Z 734ee13c32b80ba471fb2defe6d02da1
+Z 596d0a5865e1860a94763badda7fcb56
