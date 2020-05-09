@@ -291,7 +291,10 @@ void cgi_reply(void){
     assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
-  if( iReplyStatus==304 ) goto finish_cgi_reply;
+  if( iReplyStatus==304 ){
+    fprintf(g.httpOut, "\r\n");
+    goto finish_cgi_reply;
+  }
   if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
