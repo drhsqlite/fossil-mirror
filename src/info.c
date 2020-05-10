@@ -2142,7 +2142,7 @@ void artifact_page(void){
     blob_reset(&dirname);
 
     if( name_to_uuid2(zCI, "ci", &zCIUuid) ){
-      isSymbolicCI = (strncmp(zCIUuid, zCI, strlen(zCI)) != 0);
+      isSymbolicCI = (sqlite3_strnicmp(zCIUuid, zCI, strlen(zCI)) != 0);
     }
   }
   if( isFile && zName ) {
@@ -2153,6 +2153,8 @@ void artifact_page(void){
   if( rid==0 ){
     url_add_parameter(&url, "name", zName);
     if( isFile ){
+      int isUnknownAtCI = 0;
+
       /* Do a top-level directory listing in /file mode if no argument
       ** specified */
       if( zName==0 || zName[0]==0 ){
@@ -2169,6 +2171,13 @@ void artifact_page(void){
          " ORDER BY event.mtime DESC LIMIT 1",
          zName
       );
+      /* If found only by the name, then the file is unknown in the check-in.
+      ** Possibly, the file was renamed/deleted.
+      */
+      if( rid && zCIUuid ){
+        rid = 0;
+        isUnknownAtCI = 1;
+      }
       /* If no file called NAME exists, instead look for a directory
       ** with that name, and do a directory listing */
       if( rid==0 ){
@@ -2186,8 +2195,20 @@ void artifact_page(void){
       }
       /* If no file or directory called NAME: issue an error */
       if( rid==0 ){
-        style_header("No such file");
-        @ File '%h(zName)' does not exist in this repository.
+        if( isUnknownAtCI ){
+          if( isSymbolicCI ){
+            zHeader = mprintf("No such file at %s", zCI);
+          }else{
+            zHeader = mprintf("No such file at [%S]", zCIUuid);
+          }
+          style_header("%s", zHeader);
+          fossil_free(zHeader);
+          @ File %z(href("%R/finfo?name=%T",zName))%h(zName)</a> does not exist
+          @ in check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>].
+        }else{
+          style_header("No such file");
+          @ File '%h(zName)' does not exist in this repository.
+        }
         style_footer();
         return;
       }

@@ -1,5 +1,5 @@
-C Another\s304\schange:\s\sOmit\sonly\sthe\sContent-Type\sheader.\s\sRetain\sthe\ncache-control\sheader\slines.
-D 2020-05-09T21:10:17.106
+C Show\san\serror\spage\swhen\sa\smanaged\sfile\sis\snot\sknown\sat\sthe\srequested\scheck-in.
+D 2020-05-10T03:12:05.568
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 2d4371586ec53f7deeea74dd72449cc5351f212ccf5bab0775bac3c371b148aa
+F src/info.c 7762235acc8f87533ccb90ca3dca90cdf17088ea18fd226db8c60890c5ee478e
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f99257451fb91733d1fefbf71e7850f30995f2ded578b7ab184d16ff331efec
-R 1e0e970e6bbfcc35e55fe129eddd0c3c
-U drh
-Z 596d0a5865e1860a94763badda7fcb56
+P fff9b6799cf3faa606ce86855ebe50c9c8d11acfe47d14eeb2985eb514f8d814
+R 425c59537a56cfb08ca90d04dd4c925c
+U ashepilko
+Z 625c8ea39ef8f2f3d227c32e541c36d9
