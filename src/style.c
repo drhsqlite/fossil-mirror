@@ -1588,17 +1588,18 @@ void style_emit_script_builtin(int asInline, char const * zName){
     CX("%s", builtin_text(zName));
     style_emit_script_tag(1,0);
   }else{
-    char * zFull = mprintf("builtin/%s",zName);
-    const char * zBuiltin = builtin_text(zName);
+    char * zFullName = mprintf("builtin/%s",zName);
+    int nLen = 0;
+    const char * zBuiltin = (const char *)builtin_file(zName, &nLen);
     const char * zHash = 0;
     if(zBuiltin!=0){
       md5sum_init();
-      md5sum_step_text(zBuiltin,-1);
+      md5sum_step_text(zBuiltin,nLen);
       zHash = md5sum_finish(0);
     }
-    CX("<script src='%R/%T?cache=%.8s'></script>\n",zFull,
+    CX("<script src='%R/%T?cache=%.8s'></script>\n",zFullName,
        zHash ? zHash : "MISSING");
-    fossil_free(zFull);
+    fossil_free(zFullName);
   }
 }
 

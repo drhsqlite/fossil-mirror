@@ -1869,8 +1869,8 @@ end_footer:
   style_emit_script_fossil_bootstrap(0);
   style_emit_script_fetch(0);
   style_emit_script_tabs(0);
-  style_emit_script_builtin(0, "fossil.page.fileedit.js");
   style_emit_script_confirmer(0);
+  style_emit_script_builtin(0, "fossil.page.fileedit.js");
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);
     CX("(function(){\n");
