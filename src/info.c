@@ -2098,9 +2098,9 @@ void output_text_with_line_numbers(
 **   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **   download        - redirect to the download (artifact page only)
-**   name=SHA1HASH   - Provide the SHA1HASH as a query parameter
-**   filename=NAME   - Show information for content file NAME
-**   fn=NAME         - "fn" is shorthand for "filename"
+**   name=NAME       - Provide filename or hash as a query parameter
+**   filename=NAME   - alternative spelling for "name="
+**   fn=NAME         - alternative spelling for "name="
 **   ci=VERSION      - The specific check-in to use for "filename=".
 **
 ** The /artifact page show the complete content of a file
@@ -2135,8 +2135,12 @@ void artifact_page(void){
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   url_initialize(&url, g.zPath);
+  if( zName==0 ){
+    zName = P("filename");
+    if( zName==0 ) zName = P("fn");
+  }
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
-  if( zCI ){
+  if( zCI && zName ){
     blob_zero(&dirname);
     hyperlinked_path(zName, &dirname, zCI, "dir", "");
     blob_reset(&dirname);
