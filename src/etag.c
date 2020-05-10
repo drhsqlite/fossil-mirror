@@ -73,19 +73,17 @@ static sqlite3_int64 iEtagMtime = 0;  /* Last-Modified time */
 ** Return a hash that changes every time the Fossil source code is
 ** rebuilt.
 **
-** The current implementation is a hash of MANIFEST_UUID, __DATE__, and
-** __TIME__.  But this might change in the future if we think of a better
-** way to compute an identifier that changes with each build.
+** The FOSSIL_BUILD_HASH string that is returned here gets computed by
+** the mkversion utility program.  The result is a hash of MANIFEST_UUID
+** and the unix timestamp for when the mkversion utility program is run.
+**
+** During development rebuilds, if you need the source code id to change
+** in order to invalidate caches, simply "touch" the "manifest" file in
+** the top of the source directory prior to running "make" and a new
+** FOSSIL_BUILD_HASH will be generated automatically.
 */
 const char *fossil_exe_id(void){
-  static char zExecId[33];
-  if( zExecId[0]==0 ){
-    Blob x;
-    blob_init(&x, MANIFEST_UUID "," __DATE__ "," __TIME__, -1);
-    md5sum_blob(&x, &x);
-    memcpy(zExecId, x.aData, 32);
-  }
-  return zExecId;
+  return FOSSIL_BUILD_HASH;
 }
 
 /*
