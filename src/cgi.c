@@ -295,7 +295,7 @@ void cgi_reply(void){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
     fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
-  }else if( etag_tag()!=0 ){
+  }else if( etag_tag()[0]!=0 ){
     fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
     fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
   }else{
