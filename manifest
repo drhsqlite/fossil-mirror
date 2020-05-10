@@ -1,5 +1,5 @@
-C Enable\sETag\scaching\sof\sthe\s/uvlist\sand\s/juvlist\spages.
-D 2020-05-10T12:16:58.726
+C Proof-of-concept\sETag\scaching\sfor\sthe\s/timeline\spage.\s\sSeems\sto\swork.\nMost\sother\swebpages\scould\seasily\sadd\sETag\scaching\snow.
+D 2020-05-10T12:58:22.576
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -474,7 +474,7 @@ F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 2539d055706cdd69dba6a4fd4c674b859f7958b8edfba2bd1121db1c59a67685
 F src/doc.c 7fd95561a041adc27b43c505b47cc69947182d706f1d3a7d847e43372574465d
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
-F src/etag.c df8bf4dbe5733e2c2fcb44bee54626efee745109c732ef2bf68a770401a4f8f2
+F src/etag.c 35535b2977670309e2fc06db3e1821485d2af94fec7f65790bb58fba620554a5
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
@@ -605,7 +605,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c bb522d2ff9daf436ece4b448cc3e78144c771f02ac607f63ba71ccfc2055eb64
+F src/timeline.c a87ea577b1ad4c7b24a66b2c7e3f11c1e82081119ea6ea6f0a69da50a902297c
 F src/tkt.c 7d3603c5feb6cdee3605737f67a72df13296802c7d484639e5073f9b2b751dc8
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 261052c4e1c904dafe838b8660c56a73d97b6a9b8e8ff1baf4df0e6df38d4e2a
-R ed63568cb8b5669c882c81463cb1ae33
+P a6003f1df0f905ac2758f5464ac819a064470d226962eb9e904de372781661ca
+R 2d789dfd9949dd4efd0c7040322730e7
 U drh
-Z 2a021907d90a5249c587a1a85db88a37
+Z 8ee8dc34d33bf1f687abb678c5f00d6c

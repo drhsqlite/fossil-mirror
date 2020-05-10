@@ -62,6 +62,7 @@
 #define ETAG_DATA     0x02 /* Output depends on the EVENT table */
 #define ETAG_COOKIE   0x04 /* Output depends on a display cookie value */
 #define ETAG_HASH     0x08 /* Output depends on a hash */
+#define ETAG_QUERY    0x10 /* Output depends on PATH_INFO and QUERY_STRING */
 #endif
 
 static char zETag[33];      /* The generated ETag */
@@ -112,6 +113,18 @@ void etag_check(unsigned eFlags, const char *zHash){
     md5sum_step_text(PD(DISPLAY_SETTINGS_COOKIE,""), -1);
     md5sum_step_text("\n", 1);
     iMaxAge = 0;
+  }
+
+  /* Output depends on PATH_INFO and QUERY_STRING */
+  if( eFlags & ETAG_QUERY ){
+    const char *zQS = P("QUERY_STRING");
+    md5sum_step_text("query: ", -1);
+    md5sum_step_text(PD("PATH_INFO",""), -1);
+    if( zQS ){
+      md5sum_step_text("?", 1);
+      md5sum_step_text(zQS, -1);
+    }
+    md5sum_step_text("\n",1);
   }
 
   /* Generate the ETag */
