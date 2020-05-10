@@ -998,13 +998,21 @@ div.fileedit-tab-diff-wrapper {
   font-family: monospace;
 }
 .tab-container > .tabs > .tab-panel > .fileedit-options {
-  margin-top: 0.25em 0;
+  margin-top: 0;
   border: none;
   border-radius: 0;
   border-bottom-width: 1px;
   border-bottom-style: dotted;
 }
 .tab-container > .tabs > .tab-panel > .fileedit-options > button {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+.tab-container > .tabs > .tab-panel > .fileedit-options > input {
+  vertical-align: middle;
+  margin: 0.5em;
+}
+.tab-container > .tabs > .tab-panel > .fileedit-options > .input-with-label {
   vertical-align: middle;
   margin: 0.5em;
 }
@@ -1023,6 +1031,9 @@ div.fileedit-tab-diff-wrapper {
 .fileedit-options.flex-container.row {
   align-items: first baseline;
 }
+.fileedit-options > div > * {
+  margin: 0.25em;
+}
 .flex-container.row.stretch {
   flex-direction: row;
   flex-wrap: wrap;
@@ -1038,6 +1049,9 @@ div.fileedit-tab-diff-wrapper {
 .flex-container.column.stretch {
   align-items: stretch;
   margin: 0;
+}
+.flex-container.child-gap-small > * {
+  margin: 0.25em;
 }
 .font-size-100 {
   font-size: 100%;
@@ -1063,7 +1077,7 @@ div.fileedit-tab-diff-wrapper {
   padding: 0.25em 0.4em;
   margin: 0 0.5em;
   display: inline-block;
-  cursor: pointer;
+  cursor: default;
 }
 .input-with-label > * {
   vertical-align: middle;

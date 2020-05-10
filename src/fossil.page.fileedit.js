@@ -21,6 +21,7 @@
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
       selectEolWrap:  E('#select-preview-html-ems'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
+      cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       tabs:{
         content: E('#fileedit-tab-content'),
         preview: E('#fileedit-tab-preview'),
@@ -49,16 +50,19 @@
       E('#fossil-status-bar'), P.tabs.e.tabs
     );
 
-    const stopEvent = function(e){
-      //e.preventDefault();
-      //e.stopPropagation();
-      return P;
-    };
-      
-    //P.tabs.getButtonForTab(P.e.tabs.preview)
+    P.tabs.addEventListener(
+      /* Set up auto-refresh of the preview tab... */
+      'before-switch-to', function(ev){
+        if(ev.detail===P.e.tabs.preview
+           && P.e.cbAutoPreview.checked){
+          P.preview();
+        }
+      }
+    );
+
     F.connectPagePreviewers(
       P.e.tabs.preview.querySelector(
-        'button'
+        '#btn-preview-refresh'
       )
     );
 
@@ -217,7 +221,6 @@
         F.message('Loaded content.');
         self.e.taEditor.value = r;
         self.updateVersion(file,rev);
-        self.preview();
         self.tabs.switchToTab(self.e.tabs.content);
       }
     });
@@ -231,27 +234,23 @@
 
      Returns this object, noting that the operation is async.
   */
-  P.preview = function(switchToTab){
+  P.preview = function f(switchToTab){
     if(!this.finfo){
       F.error("No content is loaded.");
       return this;
     }
-    const target = this.e.tabs.preview.querySelector(
-      '#fileedit-tab-preview-wrapper'
-    );
+    if(!f.target){
+      f.target = this.e.tabs.preview.querySelector(
+        '#fileedit-tab-preview-wrapper'
+      );
+    }
     const self = this;
     const updateView = function(c){
-      D.clearElement(target);
-      if('string'===typeof c) target.innerHTML = c;
+      D.clearElement(f.target);
+      if('string'===typeof c) f.target.innerHTML = c;
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
-    const content = this.e.taEditor.value;
-    if(!content){
-      updateView('');
-      return this;
-    }
-    this._postPreview(content, updateView);
-    return this;
+    return this._postPreview(this.e.taEditor.value, updateView);
   };
 
   /**
@@ -260,7 +259,7 @@
   P._postPreview = function(content,callback){
     if(!content){
       callback(content);
-      return;
+      return this;
     }
     const fd = new FormData();
     fd.append('render_mode',E('select[name=preview_render_mode]').value);
@@ -268,7 +267,9 @@
     fd.append('ln',E('[name=preview_ln]').checked ? 1 : 0);
     fd.append('iframe_height', E('[name=preview_html_ems]').value);
     fd.append('content',content || '');
-    fossil.fetch('fileedit_preview',{
+    F.message(
+      "Fetching preview..."
+    ).fetch('fileedit_preview',{
       payload: fd,
       onload: (r)=>{
         callback(r);
@@ -279,6 +280,7 @@
         callback("Error fetching preview: "+e);
       }
     });
+    return this;
   };
 
   
@@ -288,16 +290,18 @@
 
      Returns this object, noting that the operation is async.
   */
-  P.diff = function(sbs){
+  P.diff = function f(sbs){
     if(!this.finfo){
       F.error("No content is loaded.");
       return this;
     }
     const content = this.e.taEditor.value,
-          target = this.e.tabs.diff.querySelector(
-            '#fileedit-tab-diff-wrapper'
-          ),
           self = this;
+    if(!f.target){
+      f.target = this.e.tabs.diff.querySelector(
+        '#fileedit-tab-diff-wrapper'
+      );
+    }
     const fd = new FormData();
     fd.append('filename',this.finfo.filename);
     fd.append('checkin', this.finfo.checkin);
@@ -308,7 +312,7 @@
     ).fetch('fileedit_diff',{
       payload: fd,
       onload: function(c){
-        target.innerHTML = [
+        f.target.innerHTML = [
           "<div>Diff <code>[",
           self.finfo.checkin,
           "]</code> &rarr; Local Edits</div>",

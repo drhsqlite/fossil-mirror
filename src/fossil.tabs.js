@@ -32,7 +32,10 @@
   TabManager.prototype = {
     /**
        Initializes the tabs associated with the given tab container
-       (DOM element or selector for a single element).
+       (DOM element or selector for a single element). This must be
+       called once before using any other member functions of a given
+       instance, noting that the constructor will call this if it is
+       passed an argument.       
 
        The tab container must have an 'id' attribute. This function
        looks through the DOM for all elements which have
@@ -47,7 +50,7 @@
        which case the last tab to have such a property is selected.
 
        This method must only be called once per instance. TabManagers
-       may be nested but may not share any tabs instances.
+       may be nested but must not share any tabs instances.
 
        Returns this object.
 
@@ -88,6 +91,7 @@
       });
       return this.switchToTab(selectIndex);
     },
+
     /**
        For the given tab element, unique selector string, or integer
        (0-based tab number), returns the button associated with that
@@ -124,6 +128,44 @@
       btn.addEventListener('click', f.click, false);
       return this;
     },
+
+    /**
+       Internal. Fires a new CustomEvent to all listeners which have
+       registered via this.addEventListener().
+     */
+    _dispatchEvent: function(name, detail){
+      try{
+        this.e.container.dispatchEvent(
+          new CustomEvent(name, {detail: detail})
+        );
+      }catch(e){
+        /* ignore */
+      }
+      return this;
+    },
+
+    /**
+       Registers an event listener for this object's custom events.
+       The callback gets a CustomEvent object with a 'detail'
+       propertly holding any tab-related state for the event. The events
+       are:
+
+       - 'before-switch-to' is emitted immediately before a new tab is
+       switched to.  detail = the tab element.
+
+       - 'after-switch-to' is emitted immediately after a new tab is
+       switched to.  detail = the tab element.
+
+       Any exceptions thrown by listeners are caught and ignored, to
+       avoid that they knock the tab state out of sync.
+
+       Returns this object.
+    */
+    addEventListener: function(eventName, callback){
+      this.e.container.addEventListener(eventName, callback, false);
+      return this;
+    },
+
     /**
        If the given DOM element, unique selector, or integer (0-based
        tab number) is one of this object's tabs, the UI makes that tab
@@ -135,9 +177,17 @@
       this.e.tabs.childNodes.forEach((e,ndx)=>{
         const btn = this.e.tabBar.childNodes[ndx];
         if(e===tab){
+          if(D.hasClass(e,'selected')){
+            return;
+          }
+          self._dispatchEvent('before-switch-to',tab);
           setVisible(e, true);
           D.addClass(btn,'selected');
+          self._dispatchEvent('after-switch-to',tab);
         }else{
+          if(D.hasClass(e,'selected')){
+            return;
+          }
           setVisible(e, false);
           D.removeClass(btn,'selected');
         }

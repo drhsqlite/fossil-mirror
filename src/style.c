@@ -1315,8 +1315,8 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 **   <span>{{zLabel}}</span>
 ** </span>
 **
-** zFieldName, zLabel, and zValue are required. zWrapperId and zTip
-** are optional.
+** zLabel, and zValue are required. zFieldName, zWrapperId, and zTip
+** are may be NULL or empty.
 **
 ** Be sure that the input-with-label CSS class is defined sensibly, in
 ** particular, having its display:inline-block is useful for alignment
@@ -1324,8 +1324,8 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 */
 void style_labeled_checkbox(const char * zWrapperId,
                             const char *zFieldName, const char * zLabel,
-                            const char * zValue, const char * zTip,
-                            int isChecked){
+                            const char * zValue, int isChecked,
+                            const char * zTip){
   CX("<span class='input-with-label'");
   if(zTip && *zTip){
     CX(" title='%h'", zTip);
@@ -1333,8 +1333,11 @@ void style_labeled_checkbox(const char * zWrapperId,
   if(zWrapperId && *zWrapperId){
     CX(" id='%s'",zWrapperId);
   }
-  CX("><input type='checkbox' name='%s' value='%T'%s/>",
-     zFieldName,
+  CX("><input type='checkbox' ");
+  if(zFieldName && *zFieldName){
+    CX("name='%s' ",zFieldName);
+  }
+  CX("value='%T'%s/>",
      zValue ? zValue : "", isChecked ? " checked" : "");
   CX("<span>%h</span></span>", zLabel);
 }

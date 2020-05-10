@@ -1,5 +1,5 @@
-C Disable\srendering\sof\sthe\scomment\smime\stype\sselection\slist,\sas\sit's\snot\shonored/implemented\swhere\scomments\sare\srendered.\s
-D 2020-05-09T13:56:14.466
+C Several\ssmall\sstyle\stweaks.\sChanged\sstyle_labeled_checkbox()\sparameter\sorder\sfor\sbetter\sreadability.\sTabManager\sclass\snow\ssupports\sevents\salerting\sbefore/after\sa\stab\sis\sswitched\sto.\sAdded\sauto-refresh\sof\spreview\swhen\sthe\spreview\stab\sis\sactivated,\swith\sa\scheckbox\sto\sdisable\sit\sfor\sslow\sconnections\sand/or\slarge\sdocuments\s(the\srefresh\sbutton\sstill\sworks\sas\sbefore).
+D 2020-05-10T08:47:53.144
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -463,7 +463,7 @@ F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
 F src/db.c d865683d9eef998a30f5293b154cec809544fd9da7a9eb659411b6f637935e0e
-F src/default_css.txt bf24689e6b5d630d6950167fc48041fe4d2b165ad4715bdaf6d39f0e896d897b
+F src/default_css.txt c2fde59c450a9e0960dc57ea200b61d4346eb94c7837c6042c4cda0258218981
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
 F src/deltafunc.c 2840a5eb56bd8fdb972545d885d27ad08b69eb92832c144af7f4347657eb0703
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 6efec17c814962343a824032dbc7b90ed3bd9f71f96717df855ed1732f10b46a
+F src/fileedit.c 771e584adbbc046e24b30ca0d38b36f96b4b7974196d1d799c0ec8be831701cf
 F src/finfo.c 1d265bbaea89688689ff0f4a94a837be47de0eca0b25df35670f657e69fd8301
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -488,8 +488,8 @@ F src/fossil.bootstrap.js ffd9bd7625d920fcdae0ea55558a95b3853b50c38330e4683c6a23
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 5601d77efa68c4c854818e0c2ed553201bf8d4798cbf8357c280eec3daa3342a
 F src/fossil.fetch.js 937316a3ee11da68a243bfb0312193c336db4d0211588c994a055ade3be61ffb
-F src/fossil.page.fileedit.js 52fe60edccbed2eb447a3bc4047bd26056d952d571265adf9ce3e20cc7520f28
-F src/fossil.tabs.js e51c6c9dc37c98856f74c888619e76fb278494080135305742709f3971a414c3
+F src/fossil.page.fileedit.js 6ef19d40d8d98a493e02581eb8e54b0c93a164584dc191ec2f6efeeca18d2d05
+F src/fossil.tabs.js 2b0645ddfeb7cca23a00294c076dbcdb3101c93fdc0a2d54c8f69a6d52f04974
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
@@ -602,7 +602,7 @@ F src/sqlite3.h 8600e6a885ea24867308f4ceb47f910b929e495736f7fe97f2934b805f1e51a1
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
-F src/style.c adb8f5f9b007c9355d8ea2036003810024a643c727e17d5b5af590f9d6bb1edb
+F src/style.c d7490c0d31e01bc010b43adb25b92e9383a36ece58140ff1fd581f94a1ee0980
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
@@ -987,7 +987,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P a4314603f726bed3e3ca35bf578777abc65fac81b56f53a0a9590c5cb85cbc5b
-R 2ea671dfea0f6fc2f93bfc62643c4fa7
+P 875b60bccdd93957da06b6168b9b0f01dbcf6b6dd969c8a1b98c301229b68dba
+R 483a26c84ca7817c8043a3defa72869e
 U stephan
-Z c26f5b56fcf58d3a1d560debd858891b
+Z 119370b95dc6bcff33ce0195aa13c599

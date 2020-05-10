@@ -1608,7 +1608,8 @@ void fileedit_page(){
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='File Content'"
        ">");
-    CX("<div class='fileedit-options flex-container row'>");
+    CX("<div class='fileedit-options "
+       "flex-container row child-gap-small'>");
     if(1){
       /* Discard/reload button. Leave this out until we have a
       ** nice way of offering confirmation, e.g. like the old
@@ -1656,6 +1657,16 @@ void fileedit_page(){
        "data-f-preview-to='fileedit-tab-preview-wrapper' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
+    /* Toggle auto-update of preview when the Preview tab is selected. */
+    style_labeled_checkbox("cb-preview-autoupdate",
+                           NULL,
+                           "Auto-refresh?",
+                           "1", 1,
+                           "If on, the preview will automatically "
+                           "refresh when this tab is selected. Not "
+                           "recommended for large files or slow "
+                           "connections.");
+
     /* Default preview rendering mode selection... */
     previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
     style_select_list_int("select-preview-mode",
@@ -1702,10 +1713,9 @@ void fileedit_page(){
     style_labeled_checkbox("cb-line-numbers",
                            "preview_ln",
                            "Add line numbers to plain-text previews?",
-                           "1",
+                           "1", P("preview_ln")!=0,
                            "If on, plain-text files (only) will get "
-                           "line numbers added to the preview.",
-                           P("preview_ln")!=0);
+                           "line numbers added to the preview.");
     CX("</div>"/*.fileedit-options*/);
     CX("<div id='fileedit-tab-preview-wrapper'></div>");
     CX("</div>"/*#fileedit-tab-preview*/);
@@ -1740,39 +1750,38 @@ void fileedit_page(){
     /******* Commit flags/options *******/
     CX("<div class='fileedit-options flex-container row'>");
     style_labeled_checkbox("cb-dry-run",
-                           "dry_run", "Dry-run?", "1",
+                           "dry_run", "Dry-run?", "1", 1,
                            "In dry-run mode, the Save button performs "
                            "all work needed for saving but then rolls "
                            "back the transaction, and thus does not "
-                           "really save.",
-                           1);
+                           "really save.");
     style_labeled_checkbox("cb-allow-fork",
                            "allow_fork", "Allow fork?", "1",
-                           "Allow saving to create a fork?",
-                           cimi.flags & CIMINI_ALLOW_FORK);
+                           cimi.flags & CIMINI_ALLOW_FORK,
+                           "Allow saving to create a fork?");
     style_labeled_checkbox("cb-allow-older",
                            "allow_older", "Allow older?", "1",
+                           cimi.flags & CIMINI_ALLOW_OLDER,
                            "Allow saving against a parent version "
-                           "which has a newer timestamp?",
-                           cimi.flags & CIMINI_ALLOW_OLDER);
+                           "which has a newer timestamp?");
     style_labeled_checkbox("cb-exec-bit",
                            "exec_bit", "Executable?", "1",
-                           "Set the executable bit?",
-                           PERM_EXE==cimi.filePerm);
+                           PERM_EXE==cimi.filePerm,
+                           "Set the executable bit?");
     style_labeled_checkbox("cb-allow-merge-conflict",
                            "allow_merge_conflict",
                            "Allow merge conflict markers?", "1",
+                           cimi.flags & CIMINI_ALLOW_MERGE_MARKER,
                            "Allow saving even if the content contains "
                            "what appear to be fossil merge conflict "
-                           "markers?",
-                           cimi.flags & CIMINI_ALLOW_MERGE_MARKER);
+                           "markers?");
     style_labeled_checkbox("cb-prefer-delta",
                            "prefer_delta",
                            "Prefer delta manifest?", "1",
+                           cimi.flags & CIMINI_PREFER_DELTA,
                            "Will create a delta manifest, instead of "
                            "baseline, if conditions are favorable to "
-                           "do so. This option is only a suggestion.",
-                           cimi.flags & CIMINI_PREFER_DELTA);
+                           "do so. This option is only a suggestion.");
     style_select_list_int("select-eol-style",
                           "eol", "EOL Style",
                           "EOL conversion policy, noting that "
@@ -1799,12 +1808,12 @@ void fileedit_page(){
     CX("<textarea name='commentBig' class='hidden' "
        "rows='5' id='fileedit-comment-big'></textarea>\n");
     { /* comment options... */
-      CX("<div class='fileedit-options flex-container column'>");
+      CX("<div class='flex-container column child-gap-small'>");
       CX("<button id='comment-toggle' "
          "title='Toggle between single- and multi-line comment mode, "
          "noting that switching from multi- to single-line will cause "
          "newlines to get stripped.'"
-         ">toggle single-/multi-line</button> ");
+         ">Toggle single-/multi-line</button> ");
       if(0){
         /* Manifests support an N-card (comment mime type) but it has
         ** yet to be honored where comments are rendered, so we don't
