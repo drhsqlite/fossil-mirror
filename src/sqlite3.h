@@ -125,7 +125,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.32.0"
 #define SQLITE_VERSION_NUMBER 3032000
-#define SQLITE_SOURCE_ID      "2020-05-04 19:52:00 8eee591d3cb9fadfd5cac5543bd66ef9cb371a72d3ad3241fb3bfd67fb216eda"
+#define SQLITE_SOURCE_ID      "2020-05-08 19:02:21 3a16c0ce4d8851f79f670d94786032c8007619154ece44647dc9cc5b1f9654ff"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -508,6 +508,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_LOCKED_VTAB             (SQLITE_LOCKED |  (2<<8))
 #define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
 #define SQLITE_BUSY_SNAPSHOT           (SQLITE_BUSY   |  (2<<8))
+#define SQLITE_BUSY_TIMEOUT            (SQLITE_BUSY   |  (3<<8))
 #define SQLITE_CANTOPEN_NOTEMPDIR      (SQLITE_CANTOPEN | (1<<8))
 #define SQLITE_CANTOPEN_ISDIR          (SQLITE_CANTOPEN | (2<<8))
 #define SQLITE_CANTOPEN_FULLPATH       (SQLITE_CANTOPEN | (3<<8))
@@ -516,6 +517,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_CANTOPEN_SYMLINK        (SQLITE_CANTOPEN | (6<<8))
 #define SQLITE_CORRUPT_VTAB            (SQLITE_CORRUPT | (1<<8))
 #define SQLITE_CORRUPT_SEQUENCE        (SQLITE_CORRUPT | (2<<8))
+#define SQLITE_CORRUPT_INDEX           (SQLITE_CORRUPT | (3<<8))
 #define SQLITE_READONLY_RECOVERY       (SQLITE_READONLY | (1<<8))
 #define SQLITE_READONLY_CANTLOCK       (SQLITE_READONLY | (2<<8))
 #define SQLITE_READONLY_ROLLBACK       (SQLITE_READONLY | (3<<8))

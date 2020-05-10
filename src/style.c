@@ -709,7 +709,7 @@ void style_copybutton_control(void){
 ** Generate code to load a single javascript file
 */
 void style_load_one_js_file(const char *zFile){
-  @ <script src='%R/builtin/%s(zFile)?id=%S(MANIFEST_UUID)'></script>
+  @ <script src='%R/builtin/%s(zFile)?id=%S(fossil_exe_id())'></script>
 }
 
 /*
@@ -1261,6 +1261,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.zRepositoryName = %h(g.zRepositoryName)<br />
     @ load_average() = %f(load_average())<br />
     @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
+    @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />
     P("HTTP_USER_AGENT");
     cgi_print_all(showAll, 0);
@@ -1579,8 +1580,8 @@ void style_emit_script_tag(int isCloser, const char * zSrc){
 ** content of the zName builtin file, and a closing tag.
 **
 ** If it is false, a script tag loading it via
-** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a prefix
-** of the builtin content's md5 hash.
+** src=builtin/{{zName}}?cache=XYZ is emitted, where XYZ is a
+** build-time-dependent cache-buster value.
 */
 void style_emit_script_builtin(int asInline, char const * zName){
   if(asInline){
@@ -1589,16 +1590,9 @@ void style_emit_script_builtin(int asInline, char const * zName){
     style_emit_script_tag(1,0);
   }else{
     char * zFullName = mprintf("builtin/%s",zName);
-    int nLen = 0;
-    const char * zBuiltin = (const char *)builtin_file(zName, &nLen);
-    const char * zHash = 0;
-    if(zBuiltin!=0){
-      md5sum_init();
-      md5sum_step_text(zBuiltin,nLen);
-      zHash = md5sum_finish(0);
-    }
-    CX("<script src='%R/%T?cache=%.8s'></script>\n",zFullName,
-       zHash ? zHash : "MISSING");
+    const char * zHash = fossil_exe_id();
+    CX("<script src='%R/%T?cache=%.8s'></script>\n",
+       zFullName, zHash);
     fossil_free(zFullName);
   }
 }

@@ -62,6 +62,7 @@
 #define ETAG_DATA     0x02 /* Output depends on the EVENT table */
 #define ETAG_COOKIE   0x04 /* Output depends on a display cookie value */
 #define ETAG_HASH     0x08 /* Output depends on a hash */
+#define ETAG_QUERY    0x10 /* Output depends on PATH_INFO and QUERY_STRING */
 #endif
 
 static char zETag[33];      /* The generated ETag */
@@ -69,10 +70,28 @@ static int iMaxAge = 0;     /* The max-age parameter in the reply */
 static sqlite3_int64 iEtagMtime = 0;  /* Last-Modified time */
 
 /*
+** Return a hash that changes every time the Fossil source code is
+** rebuilt.
+**
+** The current implementation is a hash of MANIFEST_UUID, __DATE__, and
+** __TIME__.  But this might change in the future if we think of a better
+** way to compute an identifier that changes with each build.
+*/
+const char *fossil_exe_id(void){
+  static char zExecId[33];
+  if( zExecId[0]==0 ){
+    Blob x;
+    blob_init(&x, MANIFEST_UUID "," __DATE__ "," __TIME__, -1);
+    md5sum_blob(&x, &x);
+    memcpy(zExecId, x.aData, 32);
+  }
+  return zExecId;
+}
+
+/*
 ** Generate an ETag
 */
 void etag_check(unsigned eFlags, const char *zHash){
-  sqlite3_int64 mtime;
   const char *zIfNoneMatch;
   char zBuf[50];
   assert( zETag[0]==0 );  /* Only call this routine once! */
@@ -80,10 +99,10 @@ void etag_check(unsigned eFlags, const char *zHash){
   iMaxAge = 86400;
   md5sum_init();
 
-  /* Always include the mtime of the executable as part of the hash */
-  mtime = file_mtime(g.nameOfExe, ExtFILE);
-  sqlite3_snprintf(sizeof(zBuf),zBuf,"mtime: %lld\n", mtime);
-  md5sum_step_text(zBuf, -1);
+  /* Always include the executable ID as part of the hash */
+  md5sum_step_text("exe-id: ", -1);
+  md5sum_step_text(fossil_exe_id(), -1);
+  md5sum_step_text("\n", 1);
   
   if( (eFlags & ETAG_HASH)!=0 && zHash ){
     md5sum_step_text("hash: ", -1);
@@ -100,7 +119,7 @@ void etag_check(unsigned eFlags, const char *zHash){
   }else if( eFlags & ETAG_CONFIG ){
     int iKey = db_int(0, "SELECT value FROM config WHERE name='cfgcnt'");
     sqlite3_snprintf(sizeof(zBuf),zBuf,"%d",iKey);
-    md5sum_step_text("data: ", -1);
+    md5sum_step_text("config: ", -1);
     md5sum_step_text(zBuf, -1);
     md5sum_step_text("\n", 1);
     iMaxAge = 3600;
@@ -112,6 +131,18 @@ void etag_check(unsigned eFlags, const char *zHash){
     md5sum_step_text(PD(DISPLAY_SETTINGS_COOKIE,""), -1);
     md5sum_step_text("\n", 1);
     iMaxAge = 0;
+  }
+
+  /* Output depends on PATH_INFO and QUERY_STRING */
+  if( eFlags & ETAG_QUERY ){
+    const char *zQS = P("QUERY_STRING");
+    md5sum_step_text("query: ", -1);
+    md5sum_step_text(PD("PATH_INFO",""), -1);
+    if( zQS ){
+      md5sum_step_text("?", 1);
+      md5sum_step_text(zQS, -1);
+    }
+    md5sum_step_text("\n",1);
   }
 
   /* Generate the ETag */

@@ -135,17 +135,14 @@ void page_dir(void){
   int linkTrunk = 1;
   int linkTip = 1;
   HQuery sURI;
+  int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
+  char *zHeader = 0;
 
+  if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"tree")==0 ){ page_tree(); return; }
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
-  style_header("File List");
-  style_adunit_config(ADUNIT_RIGHT_OK);
-  sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
-                          pathelementFunc, 0, 0);
-  url_initialize(&sURI, "dir");
-  cgi_query_parameters_to_url(&sURI);
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
@@ -161,10 +158,27 @@ void page_dir(void){
       linkTrunk = trunkRid && rid != trunkRid;
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
     }else{
       zCI = 0;
     }
   }
+
+  assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
+  if( isSymbolicCI ) {
+    zHeader = mprintf("%s at %s", (zD ? zD : "Files"), zCI);
+  }else if( zUuid && strlen(zUuid) ){
+    zHeader = mprintf("%s at [%S]", (zD ? zD : "Files"), zUuid);
+  }else{
+    zHeader = mprintf("%s", (zD ? zD : "All Files"));
+  }
+  style_header("%s", zHeader);
+  fossil_free(zHeader);
+  style_adunit_config(ADUNIT_RIGHT_OK);
+  sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
+                          pathelementFunc, 0, 0);
+  url_initialize(&sURI, "dir");
+  cgi_query_parameters_to_url(&sURI);
 
   /* Compute the title of the page */
   blob_zero(&dirname);
@@ -186,7 +200,7 @@ void page_dir(void){
     style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
+    @ <h2>Files at check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))
     if( zD ){
       @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
@@ -197,7 +211,7 @@ void page_dir(void){
       style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
     }
   }else{
-    @ <h2>The union of all files from all check-ins
+    @ <h2>All files known in the repository
     @ %s(blob_str(&dirname))
     if( zD ){
       @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
@@ -284,8 +298,7 @@ void page_dir(void){
     }else{
       const char *zLink;
       if( zCI ){
-        const char *zUuid = db_column_text(&q, 1);
-        zLink = href("%R/artifact/%!S",zUuid);
+        zLink = href("%R/file?name=%T%T&ci=%!S",zPrefix,zFN,zCI);
       }else{
         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
       }
@@ -614,7 +627,10 @@ void page_tree(void){
   int showDirOnly;         /* Show directories only.  Omit files */
   int nDir = 0;            /* Number of directories. Used for ID attributes */
   char *zProjectName = db_get("project-name", 0);
+  int isSymbolicCI = 0;    /* ci= is a symbolic name, not a hash prefix */
+  char *zHeader = 0;
 
+  if( zCI && strlen(zCI)==0 ){ zCI = 0; }
   if( strcmp(PD("type","flat"),"flat")==0 ){ page_dir(); return; }
   memset(&sTree, 0, sizeof(sTree));
   login_check_credentials();
@@ -626,10 +642,8 @@ void page_tree(void){
   cgi_query_parameters_to_url(&sURI);
   if( PB("nofiles") ){
     showDirOnly = 1;
-    style_header("Folder Hierarchy");
   }else{
     showDirOnly = 0;
-    style_header("File Tree");
   }
   style_adunit_config(ADUNIT_RIGHT_OK);
   if( PB("expand") ){
@@ -662,6 +676,7 @@ void page_tree(void){
       rNow = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
       zNow = db_text("", "SELECT datetime(mtime,toLocal())"
                          " FROM event WHERE objid=%d", rid);
+      isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI)) != 0);
     }else{
       zCI = 0;
     }
@@ -670,6 +685,20 @@ void page_tree(void){
     rNow = db_double(0.0, "SELECT max(mtime) FROM event");
     zNow = db_text("", "SELECT datetime(max(mtime),toLocal()) FROM event");
   }
+
+  assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
+  if( isSymbolicCI ) {
+    zHeader = mprintf("%s at %s",
+      (zD ? zD : (showDirOnly ? "Folder Hierarchy" : "Tree-View")), zCI);
+  }else if( zUuid && strlen(zUuid) ){
+    zHeader = mprintf("%s at [%S]",
+      (zD ? zD : (showDirOnly ? "Folder Hierarchy" : "Tree-View")), zUuid);
+  }else{
+    zHeader = mprintf("%s",
+      (zD ? zD : (showDirOnly ?"All Folders Hierarchy":"All Files Tree-View")));
+  }
+  style_header("%s", zHeader);
+  fossil_free(zHeader);
 
   /* Compute the title of the page */
   blob_zero(&dirname);
@@ -760,7 +789,7 @@ void page_tree(void){
   style_submenu_checkbox("nofiles", "Folders Only", 0, 0);
 
   if( zCI ){
-    @ <h2>%s(zObjType) from
+    @ <h2>%s(zObjType) at check-in
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
@@ -826,7 +855,7 @@ void page_tree(void){
       const char *zFileClass = fileext_class(p->zName);
       char *zLink;
       if( zCI ){
-        zLink = href("%R/artifact/%!S",p->zUuid);
+        zLink = href("%R/file?name=%T&ci=%!S",p->zFullName,zCI);
       }else{
         zLink = href("%R/finfo?name=%T",p->zFullName);
       }
