@@ -1,5 +1,5 @@
-C Merge\sin\strunk\sfor\sfossil_exe_id()\sand\suse\sit,\sinstead\sof\smd5,\sas\sthe\sbuiltin/*.js\scache-buster\svalue.
-D 2020-05-10T14:50:46.388
+C Minor\stooltip\stweaks.
+D 2020-05-10T19:42:24.657
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 63f7d72e2e1ce52aaa7780e05f4a85bbf9c63d8fa2817796bc8c42449dc4851c
+F src/fileedit.c 2af13e12f83064831609eef65c43746e3d3003d016f4d13f5fecbb53bd1f20c8
 F src/finfo.c 566e68487c034e7f7106df7a7e85ecec9f447f1be4c23ad470d60dc96536e1cb
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c60ad868b41266c39dd5599458ae5828236c0e455b32814beebb04c566d1feec 54a8243bf5e4b24b5760b29b42299bb7368b7b2f0058f2e1593597d9f92531e6
-R 3f4d6accaee4ced183b550c5ddc51668
+P 7e43119a91c167a8a6fa6768954b381f8f64b76ff14eaaa11b4256df2b3dc9eb
+R 1640db535428f3d37d392c37c32d84a5
 U stephan
-Z 7ab28c8c9a7b418540470846fe1e8132
+Z d0cada9ba6eee8febe0bb6415e347a2d

@@ -1624,7 +1624,7 @@ void fileedit_page(){
          ">Discard &amp; Reload</button>");
     }
     style_select_list_int("select-font-size",
-                          "editor_font_size", "Editor Font Size",
+                          "editor_font_size", "Editor font size",
                           NULL/*tooltip*/,
                           100,
                           "100%", 100, "125%", 125,
@@ -1663,9 +1663,7 @@ void fileedit_page(){
                            "Auto-refresh?",
                            "1", 1,
                            "If on, the preview will automatically "
-                           "refresh when this tab is selected. Not "
-                           "recommended for large files or slow "
-                           "connections.");
+                           "refresh when this tab is selected.");
 
     /* Default preview rendering mode selection... */
     previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
@@ -1785,8 +1783,8 @@ void fileedit_page(){
     style_select_list_int("select-eol-style",
                           "eol", "EOL Style",
                           "EOL conversion policy, noting that "
-                          "form-processing may implicitly change the "
-                          "line endings of the input.",
+                          "webpage-side processing may implicitly change "
+                          "the line endings of the input.",
                           (cimi.flags & CIMINI_CONVERT_EOL_UNIX)
                           ? 1 : (cimi.flags & CIMINI_CONVERT_EOL_WINDOWS
                                  ? 2 : 0),
