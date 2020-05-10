@@ -709,7 +709,7 @@ void style_copybutton_control(void){
 ** Generate code to load a single javascript file
 */
 void style_load_one_js_file(const char *zFile){
-  @ <script src='%R/builtin/%s(zFile)?id=%S(MANIFEST_UUID)'></script>
+  @ <script src='%R/builtin/%s(zFile)?id=%S(fossil_exe_id())'></script>
 }
 
 /*
@@ -1261,6 +1261,7 @@ void webpage_error(const char *zFormat, ...){
     @ g.zRepositoryName = %h(g.zRepositoryName)<br />
     @ load_average() = %f(load_average())<br />
     @ cgi_csrf_safe(0) = %d(cgi_csrf_safe(0))<br />
+    @ fossil_exe_id() = %h(fossil_exe_id())<br />
     @ <hr />
     P("HTTP_USER_AGENT");
     cgi_print_all(showAll, 0);

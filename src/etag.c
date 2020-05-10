@@ -70,10 +70,28 @@ static int iMaxAge = 0;     /* The max-age parameter in the reply */
 static sqlite3_int64 iEtagMtime = 0;  /* Last-Modified time */
 
 /*
+** Return a hash that changes every time the Fossil source code is
+** rebuilt.
+**
+** The current implementation is a hash of MANIFEST_UUID, __DATE__, and
+** __TIME__.  But this might change in the future if we think of a better
+** way to compute an identifier that changes with each build.
+*/
+const char *fossil_exe_id(void){
+  static char zExecId[33];
+  if( zExecId[0]==0 ){
+    Blob x;
+    blob_init(&x, MANIFEST_UUID "," __DATE__ "," __TIME__, -1);
+    md5sum_blob(&x, &x);
+    memcpy(zExecId, x.aData, 32);
+  }
+  return zExecId;
+}
+
+/*
 ** Generate an ETag
 */
 void etag_check(unsigned eFlags, const char *zHash){
-  sqlite3_int64 mtime;
   const char *zIfNoneMatch;
   char zBuf[50];
   assert( zETag[0]==0 );  /* Only call this routine once! */
@@ -81,10 +99,10 @@ void etag_check(unsigned eFlags, const char *zHash){
   iMaxAge = 86400;
   md5sum_init();
 
-  /* Always include the mtime of the executable as part of the hash */
-  mtime = file_mtime(g.nameOfExe, ExtFILE);
-  sqlite3_snprintf(sizeof(zBuf),zBuf,"mtime: %lld\n", mtime);
-  md5sum_step_text(zBuf, -1);
+  /* Always include the executable ID as part of the hash */
+  md5sum_step_text("exe-id: ", -1);
+  md5sum_step_text(fossil_exe_id(), -1);
+  md5sum_step_text("\n", 1);
   
   if( (eFlags & ETAG_HASH)!=0 && zHash ){
     md5sum_step_text("hash: ", -1);
