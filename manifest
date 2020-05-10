@@ -1,5 +1,5 @@
-C Shift\sthe\scomputation\sof\sthe\shash\sreturned\sby\sfossil_exe_id()\sfrom\srun-time\nto\scompile-time.
-D 2020-05-10T14:51:18.199
+C Include\sthe\slogin\sname\sas\spart\sof\sthe\sETag\shash\sfor\sETAG_QUERY.\s\sThat\sway,\nthe\shash\swill\schange\sif\sthe\suser\slogs\sin\sor\slogs\sout,\sand\sthe\spage\swill\sbe\nrecomputed.
+D 2020-05-10T15:06:34.947
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -474,7 +474,7 @@ F src/diffcmd.c 323e1cef537f07f38423453355cbf23ec78e1c71d8ce37eae3a021cb96f1e41d
 F src/dispatch.c 2539d055706cdd69dba6a4fd4c674b859f7958b8edfba2bd1121db1c59a67685
 F src/doc.c 7fd95561a041adc27b43c505b47cc69947182d706f1d3a7d847e43372574465d
 F src/encode.c 6f1fb74fd02dda5439078250f5ac7cbb14ef54cc70a12b849b98b8113e7a793a
-F src/etag.c 3f708f29692d50ed18dfa10fb772f132b61b1be1aadbfad638d11f73552a4667
+F src/etag.c 3f93a2d2ac78e018134f12849653572d2da3793c36c00c9bbb3cecf3364c027d
 F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 54a8243bf5e4b24b5760b29b42299bb7368b7b2f0058f2e1593597d9f92531e6
-R 8fb9749b148c6c3f3e4ef998ff9e7730
+P 22fc5a792ce12a2a200b72138a099eb4bc427f14e58b5d0a0988f28bb42d1204
+R 31a8e392d95b1ca31640cdcb61203bdb
 U drh
-Z 6d35e69dfa9cf0262931538b2a699c96
+Z 12c86ccf2caa276f4c55097a3d3b0e70
