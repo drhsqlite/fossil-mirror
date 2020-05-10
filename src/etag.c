@@ -100,7 +100,7 @@ void etag_check(unsigned eFlags, const char *zHash){
   }else if( eFlags & ETAG_CONFIG ){
     int iKey = db_int(0, "SELECT value FROM config WHERE name='cfgcnt'");
     sqlite3_snprintf(sizeof(zBuf),zBuf,"%d",iKey);
-    md5sum_step_text("data: ", -1);
+    md5sum_step_text("config: ", -1);
     md5sum_step_text(zBuf, -1);
     md5sum_step_text("\n", 1);
     iMaxAge = 3600;

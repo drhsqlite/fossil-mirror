@@ -176,8 +176,8 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static const char *zContentType = "text/html";     /* Content type of the reply */
-static const char *zReplyStatus = "OK";            /* Reply status description */
+static const char *zContentType = "text/html";   /* Content type of the reply */
+static const char *zReplyStatus = "OK";          /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
 static int rangeStart = 0;                   /* Start of Range: */
