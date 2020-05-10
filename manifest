@@ -1,5 +1,5 @@
-C Show\san\serror\spage\swhen\sa\smanaged\sfile\sis\snot\sknown\sat\sthe\srequested\scheck-in.
-D 2020-05-10T03:12:05.568
+C File\sBrowser:\suse\swording\s'file\sat\scheck-in'\sto\sdenote\sfile\sversion\sand\s'known\sfile'\sto\sdenote\sa\sname\sof\sa\smanaged\sfile.
+D 2020-05-10T04:50:00.507
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -440,7 +440,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c e9f0019dfe75b6ffa848c51d25df6427e8537931326582fe53e7430cf6a30c9d
-F src/browse.c 7e164ef7adb785c6ed4e3595e6e26112a7470882e78bf90d118e534a71f016d3
+F src/browse.c 3c240a0f442e85479a30a4f3cfd17d3425ce952da4fab00d82b0df36f12b8aa6
 F src/builtin.c 1ae9c90c567fb45f23f95aa7d00eca5cfc30cc86e2ba7476c97806d3fb24b072
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 7762235acc8f87533ccb90ca3dca90cdf17088ea18fd226db8c60890c5ee478e
+F src/info.c 0e6cf6461761848cc6a8f0a4378a58149bafc89287adcff799881dc9c0fa4261
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P fff9b6799cf3faa606ce86855ebe50c9c8d11acfe47d14eeb2985eb514f8d814
-R 425c59537a56cfb08ca90d04dd4c925c
+P 78d52675c519a020066306ea0d4aa03916e92188040e3106a980b199d62607fc
+R 8e70a49a64c6a103a92c0c5238603076
 U ashepilko
-Z 625c8ea39ef8f2f3d227c32e541c36d9
+Z f1509d363b438ea6752911f1a7e9da92

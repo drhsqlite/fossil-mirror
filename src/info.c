@@ -2203,11 +2203,11 @@ void artifact_page(void){
           }
           style_header("%s", zHeader);
           fossil_free(zHeader);
-          @ File %z(href("%R/finfo?name=%T",zName))%h(zName)</a> does not exist
-          @ in check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>].
+          @ File %z(href("%R/finfo?name=%T",zName))%h(zName)</a> is not known
+          @ at check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>].
         }else{
           style_header("No such file");
-          @ File '%h(zName)' does not exist in this repository.
+          @ File '%h(zName)' is not known in this repository.
         }
         style_footer();
         return;
@@ -2236,7 +2236,7 @@ void artifact_page(void){
       blob_zero(&path);
       hyperlinked_path(zName, &path, zCI, "dir", "");
       zPath = blob_str(&path);
-      @ <h2>File %s(zPath) of check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]
+      @ <h2>File %s(zPath) at check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]
       @ </h2>
       blob_reset(&path);
     }else{

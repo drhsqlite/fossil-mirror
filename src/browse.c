@@ -200,7 +200,7 @@ void page_dir(void){
     style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
   if( zCI ){
-    @ <h2>Files of check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
+    @ <h2>Files at check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
     @ %s(blob_str(&dirname))
     if( zD ){
       @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
@@ -211,7 +211,7 @@ void page_dir(void){
       style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
     }
   }else{
-    @ <h2>The union of all files from all check-ins
+    @ <h2>All files known in the repository
     @ %s(blob_str(&dirname))
     if( zD ){
       @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
@@ -789,7 +789,7 @@ void page_tree(void){
   style_submenu_checkbox("nofiles", "Folders Only", 0, 0);
 
   if( zCI ){
-    @ <h2>%s(zObjType) of check-in
+    @ <h2>%s(zObjType) at check-in
     if( sqlite3_strnicmp(zCI, zUuid, (int)strlen(zCI))!=0 ){
       @ "%h(zCI)"
     }
