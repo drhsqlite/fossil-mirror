@@ -997,6 +997,9 @@ div.fileedit-tab-diff-wrapper {
   width: 100%;
   font-family: monospace;
 }
+#fileedit-commit-button-wrapper {
+  margin: 0.25em;
+}
 .tab-container > .tabs > .tab-panel > .fileedit-options {
   margin-top: 0;
   border: none;
@@ -1022,31 +1025,31 @@ div.fileedit-tab-diff-wrapper {
 .flex-container {
     display: flex;
 }
-.flex-container.row {
+.flex-container.flex-row {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
 }
-.fileedit-options.flex-container.row {
+.fileedit-options.flex-container.flex-row {
   align-items: first baseline;
 }
 .fileedit-options > div > * {
   margin: 0.25em;
 }
-.flex-container.row.stretch {
+.flex-container.flex-row.stretch {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: stretch;
   margin: 0;
 }
-.flex-container.column {
+.flex-container.flex-column {
   flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
 }
-.flex-container.column.stretch {
+.flex-container.flex-column.stretch {
   align-items: stretch;
   margin: 0;
 }

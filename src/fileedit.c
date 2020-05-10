@@ -1609,7 +1609,7 @@ void fileedit_page(){
        "data-tab-label='File Content'"
        ">");
     CX("<div class='fileedit-options "
-       "flex-container row child-gap-small'>");
+       "flex-container flex-row child-gap-small'>");
     if(1){
       /* Discard/reload button. Leave this out until we have a
       ** nice way of offering confirmation, e.g. like the old
@@ -1631,7 +1631,7 @@ void fileedit_page(){
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
     CX("</div>");
-    CX("<div class='flex-container row'>");
+    CX("<div class='flex-container flex-row'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
        "class='fileedit' "
        "rows='20' cols='80'>");
@@ -1648,7 +1648,7 @@ void fileedit_page(){
        "data-tab-label='Preview'"
        ">");
 
-    CX("<div class='fileedit-options flex-container row'>");
+    CX("<div class='fileedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
        "data-f-preview-from='fileedit-content-editor' "
        /* ^^^ text source elem ID*/
@@ -1726,7 +1726,7 @@ void fileedit_page(){
        "data-tab-label='Diff'"
        ">");
 
-    CX("<div class='fileedit-options flex-container row' "
+    CX("<div class='fileedit-options flex-container flex-row' "
        "id='fileedit-tab-diff-buttons'>"
        "<button class='sbs'>Side-by-side</button>"
        "<button class='unified'>Unified</button>"
@@ -1746,7 +1746,7 @@ void fileedit_page(){
 
   {
     /******* Commit flags/options *******/
-    CX("<div class='fileedit-options flex-container row'>");
+    CX("<div class='fileedit-options flex-container flex-row'>");
     style_labeled_checkbox("cb-dry-run",
                            "dry_run", "Dry-run?", "1", 1,
                            "In dry-run mode, the Save button performs "
@@ -1806,7 +1806,7 @@ void fileedit_page(){
     CX("<textarea name='commentBig' class='hidden' "
        "rows='5' id='fileedit-comment-big'></textarea>\n");
     { /* comment options... */
-      CX("<div class='flex-container column child-gap-small'>");
+      CX("<div class='flex-container flex-column child-gap-small'>");
       CX("<button id='comment-toggle' "
          "title='Toggle between single- and multi-line comment mode, "
          "noting that switching from multi- to single-line will cause "
@@ -1821,7 +1821,7 @@ void fileedit_page(){
         ** If/when it's ever implemented, simply enable this block and
         ** adjust the container's layout accordingly (as of this
         ** writing, that means changing the CSS class from
-        ** 'flex-container column' to 'flex-container row').
+        ** 'flex-container flex-column' to 'flex-container flex-row').
         */
         style_select_list_str("comment-mimetype", "comment_mimetype",
                               "Comment style:",
@@ -1834,12 +1834,13 @@ void fileedit_page(){
                               NULL);
         CX("</div>\n");
       }
-      CX("<div class='fileedit-hint flex-container row'>"
+      CX("<div class='fileedit-hint flex-container flex-row'>"
          "(Warning: switching from multi- to single-line mode will "
          "strip out all newlines!)</div>");
     }
     CX("</div></fieldset>\n"/*commit comment options*/);
-    CX("<div class='flex-container column'>"
+    CX("<div class='flex-container flex-column' "
+       "id='fileedit-commit-button-wrapper'>"
        "<button id='fileedit-btn-commit'>Commit</button>"
        "</div>\n");
     CX("<div id='fileedit-manifest'></div>\n"
