@@ -24,8 +24,8 @@
       D.append(D.clearElement(this.e.ciListLabel),"Loading leaves...");
       D.disable(this.e.btnLoadFile, this.e.selectFiles, this.e.selectCi); 
       const self = this;
-      F.fetch('fileedit_filelist',{
-        urlParams:'leaves',
+      F.fetch('fileedit',{
+        urlParams:'ajax=filelist&leaves',
         responseType: 'json',
         onload: function(list){
           D.append(D.clearElement(self.e.ciListLabel),"Open leaves:");
@@ -74,8 +74,8 @@
       D.clearElement(selFiles);
       D.append(D.clearElement(this.e.fileListLabel),
                "Loading files for "+F.hashDigits(ciUuid)+"...");
-      F.fetch('fileedit_filelist',{
-        urlParams:{checkin: ciUuid},
+      F.fetch('fileedit',{
+        urlParams:{ajax:'filelist', checkin: ciUuid},
         responseType: 'json',
         onload
       });
@@ -338,8 +338,12 @@
     delete this.finfo;
     const self = this;
     F.message("Loading content...");
-    F.fetch('fileedit_content',{
-      urlParams: {filename:file,checkin:rev},
+    F.fetch('fileedit',{
+      urlParams: {
+        ajax: 'content',
+        filename:file,
+        checkin:rev
+      },
       onload:(r)=>{
         F.message('Loaded content.');
         self.e.taEditor.value = r;
@@ -390,7 +394,8 @@
     fd.append('content',content || '');
     F.message(
       "Fetching preview..."
-    ).fetch('fileedit_preview',{
+    ).fetch('fileedit',{
+      urlParams: {ajax: 'preview'},
       payload: fd,
       onload: (r)=>{
         callback(r);
@@ -427,7 +432,8 @@
     fd.append('content',content);
     F.message(
       "Fetching diff..."
-    ).fetch('fileedit_diff',{
+    ).fetch('fileedit',{
+      urlParams: {ajax: 'diff'},
       payload: fd,
       onload: function(c){
         f.target.innerHTML = [
@@ -514,7 +520,8 @@
     });
     F.message(
       "Checking in..."
-    ).fetch('fileedit_commit',{
+    ).fetch('fileedit',{
+      urlParams: {ajax: 'commit'},
       payload: fd,
       responseType: 'json',
       onload: f.updateView

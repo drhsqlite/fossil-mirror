@@ -1164,7 +1164,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 }
 
 /*
-** WEBPAGE: fileedit_content
+** AJAX route /fileedit?ajax=content
 **
 ** Query parameters:
 **
@@ -1176,7 +1176,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** Responds with the raw content of the given page. On error it
 ** produces a JSON response as documented for fileedit_ajax_error().
 */
-void fileedit_ajax_content(void){
+static void fileedit_ajax_content(void){
   const char * zFilename = 0;
   const char * zRev = 0;
   int vid, frid;
@@ -1203,7 +1203,7 @@ void fileedit_ajax_content(void){
 }
 
 /*
-** WEBPAGE: fileedit_preview
+** AJAX route /fileedit?ajax=preview
 **
 ** Required query parameters:
 **
@@ -1225,7 +1225,7 @@ void fileedit_ajax_content(void){
 ** Responds with the HTML content of the preview. On error it produces
 ** a JSON response as documented for fileedit_ajax_error().
 */
-void fileedit_ajax_preview(void){
+static void fileedit_ajax_preview(void){
   const char * zFilename = 0;
   const char * zContent = P("content");
   int renderMode = atoi(PD("render_mode","0"));
@@ -1246,7 +1246,7 @@ void fileedit_ajax_preview(void){
 }
 
 /*
-** WEBPAGE: fileedit_diff
+** AJAX route /fileedit?ajax=diff
 **
 ** Required query parameters:
 **
@@ -1263,7 +1263,7 @@ void fileedit_ajax_preview(void){
 ** Responds with the HTML content of the diff. On error it produces a
 ** JSON response as documented for fileedit_ajax_error().
 */
-void fileedit_ajax_diff(void){
+static void fileedit_ajax_diff(void){
   /*
   ** Reminder: we only need the filename to perform valdiation
   ** against fileedit_is_editable(), else this route could be
@@ -1420,7 +1420,7 @@ end_fail:
 }
 
 /*
-** WEBPAGE: fileedit_filelist
+** AJAX route /fileedit?ajax=filelist
 **
 ** Fetches a JSON-format list of leaves and/or filenames for use in
 ** creating a file selection list in /fileedit. It has different modes
@@ -1446,7 +1446,7 @@ end_fail:
 ** On error it produces a JSON response as documented for
 ** fileedit_ajax_error().
 */
-void fileedit_ajax_filelist(void){
+static void fileedit_ajax_filelist(void){
   const char * zCi = PD("checkin",P("ci"));
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
@@ -1508,7 +1508,7 @@ void fileedit_ajax_filelist(void){
 }
 
 /*
-** WEBPAGE: fileedit_commit
+** AJAX route /fileedit?ajax=commit
 **
 ** Required query parameters:
 ** 
@@ -1536,7 +1536,7 @@ void fileedit_ajax_filelist(void){
 ** On error it produces a JSON response as documented for
 ** fileedit_ajax_error().
 */
-void fileedit_ajax_commit(void){
+static void fileedit_ajax_commit(void){
   Blob err = empty_blob;      /* Error messages */
   Blob manifest = empty_blob; /* raw new manifest */
   CheckinMiniInfo cimi;       /* checkin state */
@@ -1545,7 +1545,7 @@ void fileedit_ajax_commit(void){
   char * zNewUuid = 0;        /* newVid's UUID */
 
   if(!fileedit_ajax_boostrap()){
-    goto end_cleanup;
+    return;
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
@@ -1615,7 +1615,24 @@ void fileedit_page(void){
                                            entry must end with a
                                            semicolon. */
   Stmt stmt = empty_Stmt;
+  const char *zAjax = P("ajax");
 
+  if(0!=zAjax){
+    if(0==strcmp("content",zAjax)){
+      fileedit_ajax_content();
+    }else if(0==strcmp("preview",zAjax)){
+      fileedit_ajax_preview();
+    }else if(0==strcmp("filelist",zAjax)){
+      fileedit_ajax_filelist();
+    }else if(0==strcmp("diff",zAjax)){
+      fileedit_ajax_diff();
+    }else if(0==strcmp("commit",zAjax)){
+      fileedit_ajax_commit();
+    }else{
+      fileedit_ajax_error(500, "Unhandled 'ajax' value.");
+    }
+    return;
+  }
   login_check_credentials();
   if( !g.perm.Write ){
     login_needed(g.anon.Write);
@@ -1623,7 +1640,6 @@ void fileedit_page(void){
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
-
   style_header("File Editor");
   /* As of this point, don't use return or fossil_fatal(). Write any
   ** error in (&err) and goto end_footer instead so that we can be

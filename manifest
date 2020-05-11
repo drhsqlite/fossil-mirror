@@ -1,5 +1,5 @@
-C Removed\sa\strailing\s'ajax'\sWEBPAGE\sflag\swhich\sshould\snot\shave\sbeen\schecked\sin.
-D 2020-05-11T12:06:48.942
+C Replaced\sthe\s/fileedit_AJAX_ROUTE\scalls\swith\s/fileedit?ajax=ROUTE_NAME\sto\seliminate\sthe\sdispatch-time\sand\shelp-system\sbloat.
+D 2020-05-11T13:03:53.868
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c c1563e02a010732fce4080a51875cacc2494dbe13821a71f2576421593840bb9
+F src/fileedit.c b7d56570eca830f54c4d153d5ac77e2b5de1752db6ec5ad399429e25e7c4fd68
 F src/finfo.c 566e68487c034e7f7106df7a7e85ecec9f447f1be4c23ad470d60dc96536e1cb
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -488,7 +488,7 @@ F src/fossil.bootstrap.js ffd9bd7625d920fcdae0ea55558a95b3853b50c38330e4683c6a23
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 5601d77efa68c4c854818e0c2ed553201bf8d4798cbf8357c280eec3daa3342a
 F src/fossil.fetch.js 937316a3ee11da68a243bfb0312193c336db4d0211588c994a055ade3be61ffb
-F src/fossil.page.fileedit.js da9af8c76d5338b29191b933eb7a5d3788fbca136f5c1347653d2ba57af0a260
+F src/fossil.page.fileedit.js 2e9160de122f5c9563fcc8ad37b532bc6f6b1ce1366c31e2f3966d88ea33dc6b
 F src/fossil.tabs.js 2b0645ddfeb7cca23a00294c076dbcdb3101c93fdc0a2d54c8f69a6d52f04974
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P b49df0b99112050c2fe458ccf6b340f972382e18c036bd37b9aa553b52684a5b
-R 85e2bc55656931570d9523c8a0f373f9
+P 50a6a75ba1e9b97264dac750c013efc8c1380f052469d27063255682d3afe9a0
+R 407c7d9c55666e3b97ba1dc7f2a67fbc
 U stephan
-Z 6a596337da05a01c3f4328a31ee83e0d
+Z 44e73d74a39e4a99eb0011d0dba11687
