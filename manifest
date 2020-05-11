@@ -1,5 +1,5 @@
-C Further\senhancements\sto\sthe\sfile\sbrowsing\sUX.
-D 2020-05-11T19:24:08.772
+C Fix\sa\scompiler\swarning\sin\sthe\sprevious\scheck-in.
+D 2020-05-11T19:24:51.338
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 0e8dd0eaf11f4bad010c50ec060bd8d33b73507547f2c21507603ccd0861edae
+F src/info.c 5aeb7f8676076276edd990332de3a7e7978e879d91ab5ceb8c6897cd5ac3dee2
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 1b5d0b0e18d6372afa5e848a053c79cc78601a63cf4b49ec38bf3111e54ba3db
-R 373b8e44ad3cdd05b9b1c175a1131e19
+P cd05cb20dbfc54939ea6b29b8b0368265beac23a295ec77ad6bbcf3599227350
+R eb6f41be6af3539b3a887144cddb4d8b
 U drh
-Z 1b15a86df8fbcd5cf98f89ef1cefecd9
+Z cd5b281db294c82eae7e569dbd5f2a51

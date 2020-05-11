@@ -2223,6 +2223,7 @@ void artifact_page(void){
   }
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
 
+  asText = P("txt")!=0;
   if( isFile ){
     if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
@@ -2260,7 +2261,6 @@ void artifact_page(void){
       @ :</h2>
     }
     blob_zero(&downloadName);
-    asText = P("txt")!=0;
     if( asText ) objdescFlags &= ~OBJDESC_BASE;
     objType = object_description(rid, objdescFlags,
                                 (isFile?zName:0), &downloadName);
