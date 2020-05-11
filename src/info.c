@@ -1663,8 +1663,8 @@ void diff_page(void){
   diffType = atoi(PD("diff","2"));
   cookie_render();
   if( P("from") && P("to") ){
-    v1 = artifact_from_ci_and_filename(0, "from");
-    v2 = artifact_from_ci_and_filename(0, "to");
+    v1 = artifact_from_ci_and_filename("from");
+    v2 = artifact_from_ci_and_filename("to");
   }else{
     Stmt q;
     v1 = name_to_rid_www("v1");
@@ -1765,8 +1765,8 @@ void rawartifact_page(void){
   int rid = 0;
   char *zUuid;
 
-  if( P("ci") && P("filename") ){
-    rid = artifact_from_ci_and_filename(0, 0);
+  if( P("ci") ){
+    rid = artifact_from_ci_and_filename(0);
   }
   if( rid==0 ){
     rid = name_to_rid_www("name");
@@ -1944,24 +1944,21 @@ void hexdump_page(void){
 ** Look for "ci" and "filename" query parameters.  If found, try to
 ** use them to extract the record ID of an artifact for the file.
 **
-** Also look for "fn" as an alias for "filename".  If either "filename"
-** or "fn" is present but "ci" is missing, use "tip" as a default value
-** for "ci".
+** Also look for "fn" and "name" as an aliases for "filename".  If any
+** "filename" or "fn" or "name" are present but "ci" is missing, then
+** use "tip" as the default value for "ci".
 **
-** If zNameParam is not NULL, this use that parameter as the filename
-** rather than "fn" or "filename".
-**
-** If pUrl is not NULL, then record the "ci" and "filename" values in
-** pUrl.
-**
-** At least one of pUrl or zNameParam must be NULL.
+** If zNameParam is not NULL, then use that parameter as the filename
+** rather than "fn" or "filename" or "name".  the zNameParam is used
+** for the from= and to= query parameters of /fdiff.
 */
-int artifact_from_ci_and_filename(HQuery *pUrl, const char *zNameParam){
+int artifact_from_ci_and_filename(const char *zNameParam){
   const char *zFilename;
   const char *zCI;
   int cirid;
   Manifest *pManifest;
   ManifestFile *pFile;
+  int rid = 0;
 
   if( zNameParam ){
     zFilename = P(zNameParam);
@@ -1970,29 +1967,26 @@ int artifact_from_ci_and_filename(HQuery *pUrl, const char *zNameParam){
     if( zFilename==0 ){
       zFilename = P("fn");
     }
+    if( zFilename==0 ){
+      zFilename = P("name");
+    }
   }
   if( zFilename==0 ) return 0;
 
-  zCI = P("ci");
-  cirid = name_to_typed_rid(zCI ? zCI : "tip", "ci");
+  zCI = PD("ci", "tip");
+  cirid = name_to_typed_rid(zCI, "ci");
   if( cirid<=0 ) return 0;
   pManifest = manifest_get(cirid, CFTYPE_MANIFEST, 0);
   if( pManifest==0 ) return 0;
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){
     if( fossil_strcmp(zFilename, pFile->zName)==0 ){
-      int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
-      manifest_destroy(pManifest);
-      if( pUrl ){
-        assert( zNameParam==0 );
-        url_add_parameter(pUrl, "fn", zFilename);
-        if( zCI ) url_add_parameter(pUrl, "ci", zCI);
-      }
-      return rid;
+      rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
+      break;
     }
   }
   manifest_destroy(pManifest);
-  return 0;
+  return rid;
 }
 
 /*
@@ -2098,17 +2092,27 @@ void output_text_with_line_numbers(
 **   ln=M-N+Y-Z      - highlight lines M through N and Y through Z (inclusive)
 **   verbose         - show more detail in the description
 **   download        - redirect to the download (artifact page only)
-**   name=NAME       - Provide filename or hash as a query parameter
+**   name=NAME       - filename or hash as a query parameter
 **   filename=NAME   - alternative spelling for "name="
 **   fn=NAME         - alternative spelling for "name="
-**   ci=VERSION      - The specific check-in to use for "filename=".
+**   ci=VERSION      - The specific check-in to use with "name=" to
+**                     identify the file.
 **
 ** The /artifact page show the complete content of a file
-** identified by HASH as preformatted text.  The
-** /whatis page shows only a description of the file.  The /file
-** page shows the most recent version of the file or directory
-** called NAME, or a list of the top-level directory if NAME is
-** omitted.
+** identified by HASH.  The /whatis page shows only a description
+** of how the artifact is used.  The /file page shows the most recent
+** version of the file or directory called NAME, or a list of the
+** top-level directory if NAME is omitted.
+**
+** The name= query parameter can refer to either the name of a file,
+** or an artifact hash.  If the ci= query parameter is also present,
+** then name= must refer to a file name.  If ci= is omitted, either
+** interpretation may be used.  When name= is a filename and ci=
+** is omitted, a default value of "tip" is used for ci=.
+**
+** If name= is ambiguous in that it might be either a filename or
+** a hash, then the hash interpretation is preferred for /artifact
+** and /whatis and the filename interpretation is preferred for /file.
 */
 void artifact_page(void){
   int rid = 0;
@@ -2127,97 +2131,84 @@ void artifact_page(void){
   const char *zName = P("name");
   const char *zCI = P("ci");
   HQuery url;
-  Blob dirname;
   char *zCIUuid = 0;
   int isSymbolicCI = 0;  /* ci= exists and is a symbolic name, not a hash */
+  int isBranchCI = 0;    /* ci= refers to a branch name */
   char *zHeader = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(g.anon.Read); return; }
-  url_initialize(&url, g.zPath);
+
+  /* Capture and normalize the name= and ci= query parameters */
   if( zName==0 ){
     zName = P("filename");
-    if( zName==0 ) zName = P("fn");
-  }
-  if( zCI && strlen(zCI)==0 ){ zCI = 0; }
-  if( zCI && zName ){
-    blob_zero(&dirname);
-    hyperlinked_path(zName, &dirname, zCI, "dir", "");
-    blob_reset(&dirname);
-
-    if( name_to_uuid2(zCI, "ci", &zCIUuid) ){
-      isSymbolicCI = (sqlite3_strnicmp(zCIUuid, zCI, strlen(zCI)) != 0);
+    if( zName==0 ){
+      zName = P("fn");
     }
   }
-  if( isFile && zName ) {
-    rid = artifact_from_ci_and_filename(0, "name");
-  }else{
-    rid = artifact_from_ci_and_filename(&url, 0);
+  if( zCI && strlen(zCI)==0 ){ zCI = 0; }
+  if( zCI
+   && name_to_uuid2(zCI, "ci", &zCIUuid)
+   && sqlite3_strnicmp(zCIUuid, zCI, strlen(zCI))!=0
+  ){
+    isSymbolicCI = 1;
+    isBranchCI = db_exists(
+       "SELECT 1 FROM tagxref, blob"
+       " WHERE blob.uuid=%Q AND tagxref.rid=blob.rid"
+       "   AND tagxref.value=%Q AND tagxref.tagtype>0"
+       "   AND tagxref.tagid=%d",
+       zCIUuid, zCI, TAG_BRANCH
+    );
+  }
+
+  /* The name= query parameter (or at least one of its alternative
+  ** spellings) is required.  Except for /file, show a top-level
+  ** directory listing if name= is omitted.
+  */
+  if( zName==0 ){
+    if( isFile ){
+      if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+      page_tree();
+      return;
+    }
+    style_header("Missing name= query parameter");
+    @ The name= query parameter is missing
+    style_footer();
+    return;
+  }
+
+  url_initialize(&url, g.zPath);
+  url_add_parameter(&url, "name", zName);
+  url_add_parameter(&url, "ci", zCI);
+
+  if( zCI==0 && !isFile ){
+    /* If there is no ci= query parameter, then prefer to interpret
+    ** name= as a hash for /artifact and /whatis.  But for not for /file.
+    ** For /file, a name= without a ci= while prefer to use the default
+    ** "tip" value for ci=. */
+    rid = name_to_rid(zName);
   }
   if( rid==0 ){
-    url_add_parameter(&url, "name", zName);
-    if( isFile ){
-      int isUnknownAtCI = 0;
-
-      /* Do a top-level directory listing in /file mode if no argument
-      ** specified */
-      if( zName==0 || zName[0]==0 ){
-        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
-        page_tree();
-        return;
-      }
-      /* Look for a single file with the given name */
-      rid = db_int(0,
-         "SELECT fid FROM filename, mlink, event"
-         " WHERE name=%Q"
-         "   AND mlink.fnid=filename.fnid"
-         "   AND event.objid=mlink.mid"
-         " ORDER BY event.mtime DESC LIMIT 1",
-         zName
-      );
-      /* If found only by the name, then the file is unknown in the check-in.
-      ** Possibly, the file was renamed/deleted.
-      */
-      if( rid && zCIUuid ){
-        rid = 0;
-        isUnknownAtCI = 1;
-      }
-      /* If no file called NAME exists, instead look for a directory
-      ** with that name, and do a directory listing */
-      if( rid==0 ){
-        int nName = (int)strlen(zName);
-        if( nName && zName[nName-1]=='/' ) nName--;
-        if( db_exists(
-           "SELECT 1 FROM filename"
-           " WHERE name GLOB '%.*q/*' AND substr(name,1,%d)=='%.*q/';",
-           nName, zName, nName+1, nName, zName
-        ) ){
-          if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
-          page_tree();
-          return;
-        }
-      }
-      /* If no file or directory called NAME: issue an error */
-      if( rid==0 ){
-        if( isUnknownAtCI ){
-          if( isSymbolicCI ){
-            zHeader = mprintf("No such file at %s", zCI);
-          }else{
-            zHeader = mprintf("No such file at [%S]", zCIUuid);
-          }
-          style_header("%s", zHeader);
-          fossil_free(zHeader);
-          @ File %z(href("%R/finfo?name=%T",zName))%h(zName)</a> is not known
-          @ at check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>].
-        }else{
-          style_header("No such file");
-          @ File '%h(zName)' is not known in this repository.
-        }
-        style_footer();
-        return;
-      }
-    }else{
-      rid = name_to_rid_www("name");
+    rid = artifact_from_ci_and_filename(0);
+  }
+  if( rid==0 && zCI==0 && isFile ){
+    /* For /file, only try to interpret name= as a hash if it did not
+    ** match any known filename. */
+    rid = name_to_rid(zName);
+  }
+  if( rid==0 && isFile ){
+    /* If no file called NAME exists, instead look for a directory
+    ** with that name, and do a directory listing */
+    int nName = (int)strlen(zName);
+    if( nName && zName[nName-1]=='/' ) nName--;
+    if( db_exists(
+       "SELECT 1 FROM filename"
+       " WHERE name GLOB '%.*q/*' AND substr(name,1,%d)=='%.*q/';",
+       nName, zName, nName+1, nName, zName
+    ) ){
+      if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+      page_tree();
+      return;
     }
   }
 
@@ -2234,17 +2225,23 @@ void artifact_page(void){
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
 
   if( isFile ){
-    if( zCI ){
+    if( zCI==0 ){
+      @ <h2>Latest version of file '%h(zName)':</h2>
+    }else{
       const char *zPath;
       Blob path;
       blob_zero(&path);
       hyperlinked_path(zName, &path, zCI, "dir", "");
       zPath = blob_str(&path);
-      @ <h2>File %s(zPath) at check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]
-      @ </h2>
+      @ <h2>File %s(zPath) \
+      if( isBranchCI ){
+        @ on branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
+      }else if( isSymbolicCI ){
+        @ as of check-in %z(href("/info/%!S",zCIUuid))%s(zCI)</a></h2>
+      }else{
+        @ as of check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]</h2>
+      }
       blob_reset(&path);
-    }else{
-      @ <h2>Latest version of file '%h(zName)':</h2>
     }
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
   }else{
