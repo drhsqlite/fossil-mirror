@@ -2239,9 +2239,9 @@ void artifact_page(void){
       if( isBranchCI ){
         @ on branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
       }else if( isSymbolicCI ){
-        @ as of check-in %z(href("/info/%!S",zCIUuid))%s(zCI)</a></h2>
+        @ as of check-in %z(href("%R/info/%!S",zCIUuid))%s(zCI)</a></h2>
       }else{
-        @ as of check-in [%z(href("/info/%!S",zCIUuid))%S(zCIUuid)</a>]</h2>
+        @ as of check-in [%z(href("%R/info/%!S",zCIUuid))%S(zCIUuid)</a>]</h2>
       }
       blob_reset(&path);
     }
