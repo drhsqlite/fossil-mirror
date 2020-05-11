@@ -144,13 +144,13 @@ void page_dir(void){
   const char *zCI = P("ci");
   int rid = 0;
   char *zUuid = 0;
-  Blob dirname;
   Manifest *pM = 0;
   const char *zSubdirLink;
   int linkTrunk = 1;
   int linkTip = 1;
   HQuery sURI;
   int isSymbolicCI = 0;   /* ci= is symbolic name, not a hash prefix */
+  int isBranchCI = 0;     /* True if ci= refers to a branch name */
   char *zHeader = 0;
 
   if( zCI && strlen(zCI)==0 ){ zCI = 0; }
@@ -174,18 +174,31 @@ void page_dir(void){
       linkTip = rid != symbolic_name_to_rid("tip", "ci");
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
+      isBranchCI = db_exists(
+         "SELECT 1 FROM tagxref, blob"
+         " WHERE blob.uuid=%Q AND tagxref.rid=blob.rid"
+         "   AND tagxref.value=%Q AND tagxref.tagtype>0"
+         "   AND tagxref.tagid=%d",
+         zUuid, zCI, TAG_BRANCH
+      );
     }else{
       zCI = 0;
     }
   }
 
   assert( isSymbolicCI==0 || (zCI!=0 && zCI[0]!=0) );
-  if( isSymbolicCI ) {
-    zHeader = mprintf("%s at %s", (zD ? zD : "Files"), zCI);
-  }else if( zUuid && strlen(zUuid) ){
-    zHeader = mprintf("%s at [%S]", (zD ? zD : "Files"), zUuid);
+  if( zD==0 ){
+    if( zCI ){
+      zHeader = mprintf("Top-level Files of %s", zCI);
+    }else{
+      zHeader = mprintf("All Top-level Files");
+    }
   }else{
-    zHeader = mprintf("%s", (zD ? zD : "All Files"));
+    if( zCI ){
+      zHeader = mprintf("Files in %s/ of %s", zD, zCI);
+    }else{
+      zHeader = mprintf("All File in %s/", zD);
+    }
   }
   style_header("%s", zHeader);
   fossil_free(zHeader);
@@ -196,16 +209,35 @@ void page_dir(void){
   cgi_query_parameters_to_url(&sURI);
 
   /* Compute the title of the page */
-  blob_zero(&dirname);
   if( zD ){
-    blob_append(&dirname, "in directory ", -1);
+    Blob dirname;
+    blob_init(&dirname, 0, 0);
     hyperlinked_path(zD, &dirname, zCI, "dir", "", 0);
+    @ <h2>Files in directory %s(blob_str(&dirname)) \
+    blob_reset(&dirname);
     zPrefix = mprintf("%s/", zD);
     style_submenu_element("Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
   }else{
-    blob_append(&dirname, "in the top-level directory", -1);
+    @ <h2>Files in the top-level directory \
     zPrefix = "";
+  }
+  if( zCI ){
+    if( fossil_strcmp(zCI,"tip")==0 ){
+      @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a></h2>
+    }else if( isBranchCI ){
+      @ from the %z(href("%R/info?name=%T",zCI))latest check-in</a> \
+      @ of branch %z(href("%R/timeline?r=%T",zCI))%h(zCI)</a></h2>
+    }else {
+      @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a></h2>
+    }
+    zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
+    if( nD==0 ){
+      style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
+    }
+  }else{
+    @ in any check-in</h2>
+    zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
   }
   if( linkTrunk ){
     style_submenu_element("Trunk", "%s",
@@ -214,25 +246,8 @@ void page_dir(void){
   if( linkTip ){
     style_submenu_element("Tip", "%s", url_render(&sURI, "ci", "tip", 0, 0));
   }
-  if( zCI ){
-    @ <h2>Files at check-in [%z(href("vinfo?name=%!S",zUuid))%S(zUuid)</a>]
-    @ %s(blob_str(&dirname))
-    if( zD ){
-      @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
-    }
-    @ </h2>
-    zSubdirLink = mprintf("%R/dir?ci=%!S&name=%T", zUuid, zPrefix);
-    if( nD==0 ){
-      style_submenu_element("File Ages", "%R/fileage?name=%!S", zUuid);
-    }
-  }else{
-    @ <h2>All files known in the repository
-    @ %s(blob_str(&dirname))
-    if( zD ){
-      @ &nbsp;&nbsp;%z(href("%R/timeline?chng=%T/*", zD))[history]</a>
-    }
-    @ </h2>
-    zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
+  if( zD ){
+    style_submenu_element("History","%R/timeline?chng=%T/*", zD);
   }
   style_submenu_element("All", "%s", url_render(&sURI, "ci", 0, 0, 0));
   style_submenu_element("Tree-View", "%s",
