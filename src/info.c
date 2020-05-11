@@ -2228,7 +2228,7 @@ void artifact_page(void){
     if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
       zCI = "tip";
       @ <h2>Latest version of file \
-      @ '%z(href("/finfo?name=%T&m=%T",zName,zCI))%h(zName)</a>':</h2>
+      @ '%z(href("%R/finfo?name=%T&m=%T",zName,zCI))%h(zName)</a>':</h2>
     }else{
       const char *zPath;
       Blob path;
