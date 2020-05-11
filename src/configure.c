@@ -149,6 +149,7 @@ static struct {
   { "hash-policy",            CONFIGSET_PROJ },
   { "comment-format",         CONFIGSET_PROJ },
   { "mimetypes",              CONFIGSET_PROJ },
+  { "forbid-delta-manifests", CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },

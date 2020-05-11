@@ -878,21 +878,26 @@ void setup_settings(void){
   }
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
+  @ <table>
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
+      @ <tr><td>
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)
+      } else {
+        @
+      }
+      @</td><td>
       entry_attribute("", /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, hasVersionableValue);
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
-      if( pSet->versionable ){
-        @  (v)<br />
-      } else {
-        @ <br />
-      }
+      @</td></tr>
     }
   }
+  @</table>
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){

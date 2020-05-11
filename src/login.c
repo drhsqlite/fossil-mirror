@@ -1738,7 +1738,7 @@ void register_page(void){
   }
   @ <tr>
   @   <td class="form_label" align="right">Captcha:</td>
-  @   <td><input type="text" name="captcha" size="30"\
+  @   <td><input type="text" name="captcha" \
   @ value="%h(captchaIsCorrect?zDecoded:"")" size="30">
   captcha_speakit_button(uSeed, "Speak the captcha text");
   @   </td>

@@ -379,9 +379,11 @@ void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
   if( find_option("nosync",0,0) ) g.fNoSync = 1;
   if( find_option("ipv4",0,0) ) g.fIPv4 = 1;
+#ifdef FOSSIL_ENABLE_SSL
   if( find_option("accept-any-cert",0,0) ){
     ssl_disable_cert_verification();
   }
+#endif /* FOSSIL_ENABLE_SSL */
 }
 
 /*

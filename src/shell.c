@@ -4332,6 +4332,7 @@ static int uintCollFunc(
   const unsigned char *zA = (const unsigned char*)pKey1;
   const unsigned char *zB = (const unsigned char*)pKey2;
   int i=0, j=0, x;
+  (void)notUsed;
   while( i<nKey1 && j<nKey2 ){
     x = zA[i] - zB[j];
     if( isdigit(zA[i]) ){
@@ -11818,6 +11819,7 @@ static int shell_exec(
             const char *zEQPLine = (const char*)sqlite3_column_text(pExplain,3);
             int iEqpId = sqlite3_column_int(pExplain, 0);
             int iParentId = sqlite3_column_int(pExplain, 1);
+            if( zEQPLine==0 ) zEQPLine = "";
             if( zEQPLine[0]=='-' ) eqp_render(pArg);
             eqp_append(pArg, iEqpId, iParentId, zEQPLine);
           }
@@ -13727,12 +13729,7 @@ static int shell_dbinfo_command(ShellState *p, int nArg, char **azArg){
              "SELECT data FROM sqlite_dbpage(?1) WHERE pgno=1",
              -1, &pStmt, 0);
   if( rc ){
-    if( !sqlite3_compileoption_used("ENABLE_DBPAGE_VTAB") ){
-      utf8_printf(stderr, "the \".dbinfo\" command requires the "
-                          "-DSQLITE_ENABLE_DBPAGE_VTAB compile-time options\n");
-    }else{
-      utf8_printf(stderr, "error: %s\n", sqlite3_errmsg(p->db));
-    }
+    utf8_printf(stderr, "error: %s\n", sqlite3_errmsg(p->db));
     sqlite3_finalize(pStmt);
     return 1;
   }
@@ -17006,7 +17003,7 @@ static int do_meta_command(char *zLine, ShellState *p){
     int i;
     int eMode = 0;
     int bBOM = 0;
-    int bOnce;
+    int bOnce = 0;  /* 0: .output, 1: .once, 2: .excel */
 
     if( c=='e' ){
       eMode = 'x';

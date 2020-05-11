@@ -130,7 +130,7 @@ static void collect_argv(Blob *pExtra, int iStart){
 **                --randomize options are not supported.
 **
 **    sync        Run a "sync" on all repositories.  Only the --verbose
-**                option is supported.
+**                and --unversioned options are supported.
 **
 **    setting     Run the "setting", "set", or "unset" commands on all
 **    set         repositories.  These command are particularly useful in
