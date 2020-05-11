@@ -1034,8 +1034,35 @@ div.fileedit-tab-diff-wrapper {
 .fileedit-options.flex-container.flex-row {
   align-items: first baseline;
 }
+.flex-container .flex-grow {
+  flex-grow: 10;
+  flex-shrink: 0;
+}
+.flex-container .flex-shrink {
+  flex-grow: 0;
+  flex-shrink: 10;
+}
 .fileedit-options > div > * {
   margin: 0.25em;
+}
+#fileedit-file-selector {
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  border-color: inherit;
+  border-width: 1px;
+  border-style: inset;
+  border-radius: 0.5em;
+  padding: 0 0.25em;
+  margin: 0;
+  min-height: 12em;
+}
+#fileedit-file-selector select {
+  height: initial;
+  font-family: monospace;
+}
+#fileedit-file-selector select:focus {
+  border: none;
 }
 .flex-container.flex-row.stretch {
   flex-direction: row;
