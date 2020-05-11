@@ -2152,13 +2152,7 @@ void artifact_page(void){
    && sqlite3_strnicmp(zCIUuid, zCI, strlen(zCI))!=0
   ){
     isSymbolicCI = 1;
-    isBranchCI = db_exists(
-       "SELECT 1 FROM tagxref, blob"
-       " WHERE blob.uuid=%Q AND tagxref.rid=blob.rid"
-       "   AND tagxref.value=%Q AND tagxref.tagtype>0"
-       "   AND tagxref.tagid=%d",
-       zCIUuid, zCI, TAG_BRANCH
-    );
+    isBranchCI = branch_includes_uuid(zCI, zCIUuid);
   }
 
   /* The name= query parameter (or at least one of its alternative

@@ -22,6 +22,20 @@
 #include <assert.h>
 
 /*
+** Return true if zBr is the branch name associated with check-in with
+** blob.uuid value of zUuid
+*/
+int branch_includes_uuid(const char *zBr, const char *zUuid){
+  return db_exists(
+    "SELECT 1 FROM tagxref, blob"
+    " WHERE blob.uuid=%Q AND tagxref.rid=blob.rid"
+    "   AND tagxref.value=%Q AND tagxref.tagtype>0"
+    "   AND tagxref.tagid=%d",
+    zUuid, zBr, TAG_BRANCH
+  );
+}
+
+/*
 ** If RID refers to a check-in, return the name of the branch for that
 ** check-in.
 **
