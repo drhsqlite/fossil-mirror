@@ -1,5 +1,5 @@
-C Fix\sbusted\shyperlinks\son\sthe\s/file\spage,\scaused\sby\srecent\senhancements.
-D 2020-05-11T20:56:21.413
+C Widen\sshun\sfields\sto\saccommodate\sSHA3-256
+D 2020-05-11T21:01:09.898
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -565,7 +565,7 @@ F src/sha1.c 3ea630596d27832fbd65b45c7c7698f0a889acd880327fc0718842861e99df15
 F src/sha1hard.c e90831822166f79ff8a9830aaaca56923fe414a2
 F src/sha3.c e2b57aa73b52eec8ea9a6692908cafc0ae49d8ef756984b68700181d9f2beb88
 F src/shell.c fbb2bcdd6c5bb92c31db1bde96f68d46a3e9315755e02deb205762ba477ff182
-F src/shun.c 2fb14c3ade93fe4156509ff67e9a22a3975cc1dd2ec65048624696c04780c7ee
+F src/shun.c ad762c0c170cae98d0f09a5999b0bbcdb8783e8f69e65846d102084f6dd588f3
 F src/sitemap.c 05fefd0fecca6a8c7a169493b59c6c9d1907cff93d9b5ab330c682286d75a921
 F src/skin.js 4169dc16f8e0cfaf88ee92a6a3d8b73e697681141b4db7cb0b1cdd18cb53fbc3
 F src/skins.c d0871da2ae785b97f6262baf91c97a13bd9b4b7a6f0a26806390e1f1102b27e1
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4977765e6cc5dcda61ccd5516d4f2f850e45e9d9d2b7e615a22565f626c5cf34
-R b34d889b388affc79256749653c0ceb4
-U drh
-Z 1287507a6e44c5ced2679537b621c023
+P f4a9221ad54a9f4d6c146ab09e92d4d1ebfdc3c56690a6679e3854c759eba52c
+R 61334cda89f9b507acad3fedab5e304f
+U andygoth
+Z 1ec5a4b43999f8aeeb6ac1902a8beefb
