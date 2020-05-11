@@ -2203,6 +2203,11 @@ void page_timeline(void){
         " SELECT tagxref.rid FROM tagxref NATURAL JOIN tag"
         " WHERE %s AND tagtype>0", zTagSql/*safe-for-%s*/
       );
+      if( zMark ){
+        int ridMark = name_to_rid(zMark);
+        db_multi_exec(
+          "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
+      }
       if( !related ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
@@ -2428,6 +2433,9 @@ void page_timeline(void){
         }else{
           blob_appendf(&desc, " with tags matching %h", zMatchDesc);
         }
+      }
+      if( zMark ){
+        blob_appendf(&desc," plus check-in \"%h\"", zMark);
       }
       tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }
