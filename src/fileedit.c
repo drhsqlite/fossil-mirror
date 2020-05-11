@@ -745,7 +745,7 @@ ci_error:
 ** %fossil test-ci-mini -R REPO -m ... -r foo --as src/myfile.c myfile.c
 **
 */
-void test_ci_mini_cmd(){
+void test_ci_mini_cmd(void){
   CheckinMiniInfo cimi;       /* checkin state */
   int newRid = 0;                /* RID of new version */
   const char * zFilename;        /* argv[2] */
@@ -1050,12 +1050,13 @@ static void fileedit_ajax_error(int httpCode, const char * zFmt, ...){
 ** case it has reported the error and the route should immediately
 ** return. Returns true on success.
 */
-static int fileedit_ajax_boostrap(){
+static int fileedit_ajax_boostrap(void){
   login_check_credentials();
   if( !g.perm.Write ){
     fileedit_ajax_error(403,"Write permissions required.");
     return 0;
   }
+
   return 1;
 }
 /*
@@ -1111,7 +1112,10 @@ static int fileedit_get_fnci_args( const char **zFn, const char **zCi ){
 **
 ** - *vid = the RID of zRevUuid. May not be NULL.
 **
-** - *frid = the RID of zFilename's blob content. May not be NULL.
+** - *frid = the RID of zFilename's blob content. May not be NULL
+**   unless zFilename is also NULL. If BOTH of zFilename and frid are
+**   NULL then no confirmation is done on the filename argument - only
+**   zRev is checked.
 **
 ** Returns 0 if the given file is not in the given checkin or if
 ** fileedit_ajax_check_filename() fails, else returns true.  If it
@@ -1123,10 +1127,10 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
                                        int * vid,
                                        const char * zFilename,
                                        int * frid){
-  char * zCi = 0;      /* fully-resolved checkin UUID */
   char * zFileUuid;    /* file UUID */
-
-  if(!fileedit_ajax_check_filename(zFilename)){
+  const int checkFile = zFilename!=0 || frid!=0;
+  
+  if(checkFile && !fileedit_ajax_check_filename(zFilename)){
     return 0;
   }
   *vid = symbolic_name_to_rid(zRev, "ci");
@@ -1139,18 +1143,22 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
                         zRev);
     return 0;
   }
-  zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
-  if(zFileUuid==0){
-    fileedit_ajax_error(404,"Checkin does not contain file.");
-    return 0;
+  if(checkFile){
+    zFileUuid = fileedit_file_uuid(zFilename, *vid, 0);
+    if(zFileUuid==0){
+      fileedit_ajax_error(404,"Checkin does not contain file.");
+      return 0;
+    }
   }
-  zCi = rid_to_uuid(*vid);
-  *frid = fast_uuid_to_rid(zFileUuid);
-  fossil_free(zFileUuid);
   if(zRevUuid!=0){
-    *zRevUuid = zCi;
-  }else{
-    fossil_free(zCi);
+    *zRevUuid = rid_to_uuid(*vid);
+  }
+  if(checkFile){
+    assert(zFileUuid!=0);
+    if(frid!=0){
+      *frid = fast_uuid_to_rid(zFileUuid);
+    }
+    fossil_free(zFileUuid);
   }
   return 1;
 }
@@ -1168,7 +1176,7 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 ** Responds with the raw content of the given page. On error it
 ** produces a JSON response as documented for fileedit_ajax_error().
 */
-void fileedit_ajax_content(){
+void fileedit_ajax_content(void){
   const char * zFilename = 0;
   const char * zRev = 0;
   int vid, frid;
@@ -1217,7 +1225,7 @@ void fileedit_ajax_content(){
 ** Responds with the HTML content of the preview. On error it produces
 ** a JSON response as documented for fileedit_ajax_error().
 */
-void fileedit_ajax_preview(){
+void fileedit_ajax_preview(void){
   const char * zFilename = 0;
   const char * zContent = P("content");
   int renderMode = atoi(PD("render_mode","0"));
@@ -1255,7 +1263,7 @@ void fileedit_ajax_preview(){
 ** Responds with the HTML content of the diff. On error it produces a
 ** JSON response as documented for fileedit_ajax_error().
 */
-void fileedit_ajax_diff(){
+void fileedit_ajax_diff(void){
   /*
   ** Reminder: we only need the filename to perform valdiation
   ** against fileedit_is_editable(), else this route could be
@@ -1412,7 +1420,95 @@ end_fail:
 }
 
 /*
-** WEBPAGE: fileedit_commit
+** WEBPAGE: fileedit_filelist
+**
+** Fetches a JSON-format list of leaves and/or filenames for use in
+** creating a file selection list in /fileedit. It has different modes
+** of operation depending on its arguments:
+**
+** 'leaves': just fetch a list of open leaf versions, in this
+** format:
+**
+** [
+**   {checkin: UUID, branch: branchName, timestamp: string}
+** ]
+**
+** The entries are ordered newest first.
+**
+** 'checkin=CHECKIN_NAME': fetch the current list of is-editable files
+** for the current user and given checkin name:
+**
+** {
+**   checkin: UUID,
+**   editableFiles: [ filename1, ... filenameN ] // sorted by name
+** }
+**
+** On error it produces a JSON response as documented for
+** fileedit_ajax_error().
+*/
+void fileedit_ajax_filelist(void){
+  const char * zCi = PD("checkin",P("ci"));
+  Blob sql = empty_blob;
+  Stmt q = empty_Stmt;
+  int i = 0;
+
+  if(!fileedit_ajax_boostrap()){
+    return;
+  }
+  cgi_set_content_type("application/json");
+  if(zCi!=0){
+    char * zCiFull = 0;
+    int vid = 0;
+    if(0==fileedit_ajax_setup_filerev(zCi, &zCiFull, &vid, 0, 0)){
+      /* Error already reported */
+      return;
+    }
+    CX("{\"checkin\":\"%j\","
+       "\"editableFiles\":[", zCiFull);
+    blob_append_sql(&sql, "SELECT filename FROM files_of_checkin(%Q) "
+                    "ORDER BY filename %s",
+                    zCiFull, filename_collation());
+    db_prepare_blob(&q, &sql);
+    while( SQLITE_ROW==db_step(&q) ){
+      const char * zFilename = db_column_text(&q, 0);
+      if(fileedit_is_editable(zFilename)){
+        if(i++){
+          CX(",");
+        }
+        CX("\"%j\"", zFilename);
+      }
+    }
+    db_finalize(&q);
+    CX("]}");
+  }else if(P("leaves")!=0){
+    blob_append(&sql, timeline_query_for_tty(), -1);
+    blob_append_sql(&sql, " AND blob.rid IN (SElECT rid FROM leaf "
+                    "WHERE NOT EXISTS("
+                    "SELECT 1 from tagxref WHERE tagid=%d AND "
+                    "tagtype>0 AND rid=leaf.rid"
+                    ")) "
+                    "ORDER BY mtime DESC", TAG_CLOSED);
+    db_prepare_blob(&q, &sql);
+    CX("[");
+    while( SQLITE_ROW==db_step(&q) ){
+      if(i++){
+        CX(",");
+      }
+      CX("{");
+      CX("\"checkin\":\"%j\",", db_column_text(&q, 1));
+      CX("\"timestamp\":\"%j\",", db_column_text(&q, 2));
+      CX("\"branch\":\"%j\"", db_column_text(&q, 7));
+      CX("}");
+    }
+    CX("]");
+    db_finalize(&q);
+  }else{
+    fileedit_ajax_error(500, "Unhandled URL argument.");
+  }
+}
+
+/*
+** WEBPAGE: fileedit_commit ajax
 **
 ** Required query parameters:
 ** 
@@ -1440,7 +1536,7 @@ end_fail:
 ** On error it produces a JSON response as documented for
 ** fileedit_ajax_error().
 */
-void fileedit_ajax_commit(){
+void fileedit_ajax_commit(void){
   Blob err = empty_blob;      /* Error messages */
   Blob manifest = empty_blob; /* raw new manifest */
   CheckinMiniInfo cimi;       /* checkin state */
@@ -1502,11 +1598,11 @@ end_cleanup:
 ** form-submission process, and may change with any given revision of
 ** this code.
 */
-void fileedit_page(){
-  const char * zFilename;               /* filename. We'll accept 'name'
+void fileedit_page(void){
+  const char * zFilename = 0;          /* filename. We'll accept 'name'
                                            because that param is handled
                                            specially by the core. */
-  const char * zRev;                    /* checkin version */
+  const char * zRev = 0;                /* checkin version */
   const char * zFileMime = 0;           /* File mime type guess */
   CheckinMiniInfo cimi;                 /* Checkin state */
   int previewHtmlHeight = 0;            /* iframe height (EMs) */
@@ -1533,14 +1629,13 @@ void fileedit_page(){
   ** error in (&err) and goto end_footer instead so that we can be
   ** sure to do any cleanup and end the transaction cleanly.
   */
-  if(fileedit_setup_cimi_from_p(&cimi, &err)!=0){
-    goto end_footer;
+  if(fileedit_setup_cimi_from_p(&cimi, &err)==0){
+    zFilename = cimi.zFilename;
+    zRev = cimi.zParentUuid;
+    assert(zRev);
+    assert(zFilename);
+    zFileMime = mimetype_from_name(cimi.zFilename);
   }
-  zFilename = cimi.zFilename;
-  zRev = cimi.zParentUuid;
-  assert(zRev);
-  assert(zFilename);
-  zFileMime = mimetype_from_name(cimi.zFilename);
 
   /********************************************************************
   ** All errors which "could" have happened up to this point are of a
@@ -1566,12 +1661,6 @@ void fileedit_page(){
      "USE AT YOUR OWN RISK, preferably on a test "
      "repo.</p>\n");
 
-  /******* Hidden fields *******/
-  CX("<input type='hidden' name='checkin' value='%s'>",
-     cimi.zParentUuid);
-  CX("<input type='hidden' name='filename' value='%T'>",
-     zFilename);
-
   /* Status bar */
   CX("<div id='fossil-status-bar'>Async. status messages will go "
      "here.</div>\n"/* will be moved into the tab container via JS */);
@@ -1583,22 +1672,23 @@ void fileedit_page(){
   {
     CX("<div id='fileedit-tab-version' "
        "data-tab-parent='fileedit-tabs' "
-       "data-tab-label='Version Info'"
+       "data-tab-label='File Info &amp; Selection'"
        ">");
     CX("File: "
-       "<code id='finfo-file-name'>(loading)</code><br>");
+       "<code id='finfo-file-name'>" "???" "</code><br>");
     CX("Checkin Version: "
        "[<a id='timeline-link' href='#'>/timeline</a>] "
        "[<a id='r-link' href='#'>/info</a>] "
        /* %R/info/%!S */
-       "<code id='r-label'>(loading...)</code><br>"
+       "<code id='r-label'>" "???" "</code><br>"
        );
     CX("Permalink: <code>"
-       "<a id='permalink' href='#'>(loading...)</a></code><br>"
+       "<a id='permalink' href='#'>" "???" "</a></code><br>"
        "(Clicking the permalink will reload the page and discard "
-       "all edits!)",
-       zFilename, cimi.zParentUuid,
-       zFilename, cimi.zParentUuid);
+       "all edits!)");
+
+    CX("<h1>Select a file to edit:</h1>");
+    CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-version*/);
   }
   
@@ -1666,7 +1756,9 @@ void fileedit_page(){
                            "refresh when this tab is selected.");
 
     /* Default preview rendering mode selection... */
-    previewRenderMode = fileedit_render_mode_for_mimetype(zFileMime);
+    previewRenderMode = zFileMime
+      ? fileedit_render_mode_for_mimetype(zFileMime)
+      : FE_RENDER_GUESS;
     style_select_list_int("select-preview-mode",
                           "preview_render_mode",
                           "Preview Mode",
@@ -1694,10 +1786,7 @@ void fileedit_page(){
                  FE_RENDER_HTML_INLINE, FE_RENDER_HTML_INLINE,
                  FE_RENDER_PLAIN_TEXT, FE_RENDER_PLAIN_TEXT);
     /* Allow selection of HTML preview iframe height */
-    previewHtmlHeight = atoi(PD("preview_html_ems","0"));
-    if(!previewHtmlHeight){
-      previewHtmlHeight = 40;
-    }
+    previewHtmlHeight = 40;
     style_select_list_int("select-preview-html-ems",
                           "preview_html_ems",
                           "HTML Preview IFrame Height (EMs)",
@@ -1848,20 +1937,35 @@ void fileedit_page(){
   }
 
   CX("</div>"/*#fileedit-tab-commit*/);
-  
-  /* Dynamically populate the editor... */
-  blob_appendf(&endScript,
-               "window.addEventListener('load',"
-               "()=>fossil.page.loadFile('%j','%j'), false);\n",
-               zFilename, cimi.zParentUuid);
 
-end_footer:
+  {
+    /* Dynamically populate the editor or display a warning
+    ** about having no file loaded... */
+    blob_appendf(&endScript,
+                 "window.addEventListener('load',");
+    if(zRev && zFilename){
+      assert(0==blob_size(&err));
+      blob_appendf(&endScript,
+                   "()=>fossil.page.loadFile(\"%j\",'%j')",
+                   zFilename, cimi.zParentUuid);
+    }else{
+      blob_appendf(&endScript,"function(){");
+      if(blob_size(&err)>0){
+        blob_appendf(&endScript,
+                     "fossil.error(\"%j\");\n"
+                     "fossil.page.tabs.switchToTab(0);\n",
+                     blob_str(&err));
+      }else{
+        blob_appendf(&endScript,
+                     "fossil.error('No file/version selected.')");
+      }
+      blob_appendf(&endScript,"}");
+    }
+    blob_appendf(&endScript,", false);\n");
+  }
+
   if(stmt.pStmt){
     db_finalize(&stmt);
-  }
-  if(blob_size(&err)){
-    CX("<div class='fileedit-error-report'>%s</div>",
-       blob_str(&err));
   }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);

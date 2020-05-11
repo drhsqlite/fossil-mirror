@@ -7,6 +7,123 @@
   const E = (s)=>document.querySelector(s),
         D = F.dom,
         P = F.page;
+
+  /**
+     Manager object for the checkin/file selection list.
+  */
+  P.fileSelector = {
+    e:{
+      container: E('#fileedit-file-selector')
+    },
+    finfo: {},
+    cache: {
+      checkins: undefined,
+      files:{}
+    },
+    loadLeaves: function(){
+      D.append(D.clearElement(this.e.ciListLabel),"Loading leaves...");
+      D.disable(this.e.btnLoadFile, this.e.selectFiles, this.e.selectCi); 
+      const self = this;
+      F.fetch('fileedit_filelist',{
+        urlParams:'leaves',
+        responseType: 'json',
+        onload: function(list){
+          D.append(D.clearElement(self.e.ciListLabel),"Open leaves:");
+          self.cache.checkins = list;
+          D.clearElement(D.enable(self.e.selectCi));
+          let loadThisOne;
+          list.forEach(function(o,n){
+            if(!n) loadThisOne = o;
+            D.option(self.e.selectCi, o.checkin,
+                     o.timestamp+' ['+o.branch+']: '
+                     +F.hashDigits(o.checkin));
+          });
+          self.loadFiles(loadThisOne ? loadThisOne.checkin : false);
+        }
+      });
+    },
+    loadFiles: function(ciUuid){
+      delete this.finfo.filename;
+      this.finfo.checkin = ciUuid;
+      const selFiles = this.e.selectFiles;
+      if(!ciUuid){
+        D.clearElement(D.disable(selFiles, this.e.btnLoadFile));
+        return this;
+      }
+      const onload = (response)=>{
+        D.clearElement(D.enable(selFiles, this.e.btnLoadFile));
+        D.append(
+          D.clearElement(this.e.fileListLabel),
+          "Editable files for ",
+          D.a(F.repoUrl('timeline',{
+            c: ciUuid
+          }), F.hashDigits(ciUuid)),
+          ':'
+        );
+        this.cache.files[response.checkin] = response;
+        response.editableFiles.forEach(function(fn){
+          D.option(selFiles, fn);
+        });
+      };
+      const got = this.cache.files[ciUuid];
+      if(got){
+        onload(got);
+        return this;
+      }
+      D.disable(selFiles,this.e.btnLoadFile);
+      D.clearElement(selFiles);
+      D.append(D.clearElement(this.e.fileListLabel),
+               "Loading files for "+F.hashDigits(ciUuid)+"...");
+      F.fetch('fileedit_filelist',{
+        urlParams:{checkin: ciUuid},
+        responseType: 'json',
+        onload
+      });
+      return this;
+    },
+    init: function(){
+      const selCi = this.e.selectCi = D.select(),
+            selFiles = this.e.selectFiles
+            = D.addClass(D.select(), 'file-list'),
+            btnLoad = this.e.btnLoadFile =
+            D.addClass(D.button("Load file"), "flex-shrink"),
+            filesLabel = this.e.fileListLabel =
+            D.addClass(D.div(),'flex-shrink','file-list-label'),
+            ciLabel = this.e.ciListLabel =
+            D.addClass(D.div(),'flex-shrink','checkin-list-label')
+      ;
+      D.attr(selCi, 'title',"The list of opened leaves.");
+      D.attr(selFiles, 'title',
+             "The list of editable files for the selected checkin.");
+      D.attr(btnLoad, 'title',
+             "Load the selected file into the editor.");
+      D.disable(selCi, selFiles, btnLoad);
+      D.attr(selFiles, 'size', 10);
+      D.append(
+        this.e.container,
+        ciLabel,
+        selCi,
+        filesLabel,
+        selFiles,
+        btnLoad
+      );
+      
+      this.loadLeaves();
+      selCi.addEventListener(
+        'change', (e)=>this.loadFiles(e.target.value), false
+      );
+      btnLoad.addEventListener(
+        'click', (e)=>{
+          this.finfo.filename = selFiles.value;
+          if(this.finfo.filename){
+            P.loadFile(this.finfo.filename, this.finfo.checkin);
+          }
+        }, false
+      );
+      delete this.init;
+    }
+  };
+
   window.addEventListener("load", function() {
     P.tabs = new fossil.TabManager('#fileedit-tabs');
     P.e = {
@@ -29,6 +146,7 @@
         commit: E('#fileedit-tab-commit')
       }
     };
+    P.fileSelector.init();
     /* Figure out which comment editor to show by default and
        hide the other one. By default we take the one which does
        not have the 'hidden' CSS class. If neither do, we default
@@ -200,6 +318,11 @@
     return this;
   };
 
+  const affirmHasFile = function(){
+    if(!P.finfo) F.error("No file is loaded.");
+    return !!P.finfo;
+  };
+
   /**
      loadFile() loads (file,checkinVersion) and updates the relevant
      UI elements to reflect the loaded state.
@@ -208,7 +331,7 @@
   */
   P.loadFile = function(file,rev){
     if(0===arguments.length){
-      if(!this.finfo) return this;
+      if(!affirmHasFile()) return this;
       file = this.finfo.filename;
       rev = this.finfo.checkin;
     }
@@ -235,10 +358,7 @@
      Returns this object, noting that the operation is async.
   */
   P.preview = function f(switchToTab){
-    if(!this.finfo){
-      F.error("No content is loaded.");
-      return this;
-    }
+    if(!affirmHasFile()) return this;
     if(!f.target){
       f.target = this.e.tabs.preview.querySelector(
         '#fileedit-tab-preview-wrapper'
@@ -257,6 +377,7 @@
      Callback for use with F.connectPagePreviewers()
   */
   P._postPreview = function(content,callback){
+    if(!affirmHasFile()) return this;
     if(!content){
       callback(content);
       return this;
@@ -291,10 +412,7 @@
      Returns this object, noting that the operation is async.
   */
   P.diff = function f(sbs){
-    if(!this.finfo){
-      F.error("No content is loaded.");
-      return this;
-    }
+    if(!affirmHasFile()) return this;
     const content = this.e.taEditor.value,
           self = this;
     if(!f.target){
@@ -332,10 +450,7 @@
      Returns this object.
   */
   P.commit = function f(){
-    if(!this.finfo){
-      F.error("No content is loaded.");
-      return this;
-    }
+    if(!affirmHasFile()) return this;
     const self = this;
     const content = this.e.taEditor.value,
           target = document.querySelector('#fileedit-manifest'),
