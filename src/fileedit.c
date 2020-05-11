@@ -1508,7 +1508,7 @@ void fileedit_ajax_filelist(void){
 }
 
 /*
-** WEBPAGE: fileedit_commit ajax
+** WEBPAGE: fileedit_commit
 **
 ** Required query parameters:
 ** 
