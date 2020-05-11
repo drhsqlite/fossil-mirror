@@ -3412,6 +3412,9 @@ struct Setting {
 */
 #endif
 /*
+** SETTING: fork-warn-always boolean default=on
+** When committing, always warn about forks on every commit.
+**
 ** SETTING: gdiff-command    width=40 default=gdiff
 ** The value is an external command to run when performing a graphical
 ** diff. If undefined, text diff will be used.

@@ -2066,6 +2066,7 @@ void commit_cmd(void){
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
   int dryRunFlag;        /* True for a test run.  Debugging only */
+  int forkWarnAlways;    /* True to warn about fork on every commit */
   CheckinInfo sCiInfo;   /* Information about this check-in */
   const char *zComFile;  /* Read commit message from this file */
   int nTag = 0;          /* Number of --tag arguments */
@@ -2657,8 +2658,11 @@ void commit_cmd(void){
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
   db_multi_exec("PRAGMA repository.application_id=252006673;");
   db_multi_exec("PRAGMA localdb.application_id=252006674;");
+  forkWarnAlways = db_get_boolean("fork-warn-always",1);
   if( dryRunFlag ){
-    leaf_ambiguity_warning(nvid,nvid);
+    if( forkWarnAlways ){
+      leaf_ambiguity_warning(nvid,nvid);
+    }
     db_end_transaction(1);
     exit(1);
   }
@@ -2682,6 +2686,8 @@ void commit_cmd(void){
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
   }else{
-    leaf_ambiguity_warning(nvid,nvid);
+    if( forkWarnAlways ){
+      leaf_ambiguity_warning(nvid,nvid);
+    }
   }
 }
