@@ -62,6 +62,14 @@ void pathelementFunc(
 }
 
 /*
+** Flag arguments for hyperlinked_path()
+*/
+#if INTERFACE
+# define LINKPATH_FINFO  0x0001       /* Link final term to /finfo */
+# define LINKPATH_FILE   0x0002       /* Link final term to /file */
+#endif
+
+/*
 ** Given a pathname which is a relative path from the root of
 ** the repository to a file or directory, compute a string which
 ** is an HTML rendering of that path with hyperlinks on each
@@ -78,25 +86,32 @@ void hyperlinked_path(
   Blob *pOut,           /* Write into this blob */
   const char *zCI,      /* check-in name, or NULL */
   const char *zURI,     /* "dir" or "tree" */
-  const char *zREx      /* Extra query parameters */
+  const char *zREx,     /* Extra query parameters */
+  unsigned int mFlags   /* Extra flags */
 ){
   int i, j;
   char *zSep = "";
 
   for(i=0; zPath[i]; i=j){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
-    if( zPath[j] && g.perm.Hyperlink ){
-      if( zCI ){
-        char *zLink = href("%R/%s?name=%#T%s&ci=%!S", zURI, j, zPath, zREx,zCI);
-        blob_appendf(pOut, "%s%z%#h</a>",
-                     zSep, zLink, j-i, &zPath[i]);
+    if( zPath[j]==0 ){
+      if( mFlags & LINKPATH_FILE ){
+        zURI = "file";
+      }else if( mFlags & LINKPATH_FINFO ){
+        zURI = "finfo";
       }else{
-        char *zLink = href("%R/%s?name=%#T%s", zURI, j, zPath, zREx);
-        blob_appendf(pOut, "%s%z%#h</a>",
-                     zSep, zLink, j-i, &zPath[i]);
+        blob_appendf(pOut, "/%h", zPath+i);
+        break;
       }
+    }
+    if( zCI ){
+      char *zLink = href("%R/%s?name=%#T%s&ci=%!S", zURI, j, zPath, zREx,zCI);
+      blob_appendf(pOut, "%s%z%#h</a>",
+                   zSep, zLink, j-i, &zPath[i]);
     }else{
-      blob_appendf(pOut, "%s%#h", zSep, j-i, &zPath[i]);
+      char *zLink = href("%R/%s?name=%#T%s", zURI, j, zPath, zREx);
+      blob_appendf(pOut, "%s%z%#h</a>",
+                   zSep, zLink, j-i, &zPath[i]);
     }
     zSep = "/";
     while( zPath[j]=='/' ){ j++; }
@@ -184,7 +199,7 @@ void page_dir(void){
   blob_zero(&dirname);
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
-    hyperlinked_path(zD, &dirname, zCI, "dir", "");
+    hyperlinked_path(zD, &dirname, zCI, "dir", "", 0);
     zPrefix = mprintf("%s/", zD);
     style_submenu_element("Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));
@@ -704,7 +719,7 @@ void page_tree(void){
   blob_zero(&dirname);
   if( zD ){
     blob_append(&dirname, "within directory ", -1);
-    hyperlinked_path(zD, &dirname, zCI, "tree", zREx);
+    hyperlinked_path(zD, &dirname, zCI, "tree", zREx, 0);
     if( zRE ) blob_appendf(&dirname, " matching \"%s\"", zRE);
     style_submenu_element("Top-Level", "%s",
                           url_render(&sURI, "name", 0, 0, 0));

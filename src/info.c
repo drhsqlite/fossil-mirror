@@ -2104,15 +2104,15 @@ void output_text_with_line_numbers(
 ** version of the file or directory called NAME, or a list of the
 ** top-level directory if NAME is omitted.
 **
-** The name= query parameter can refer to either the name of a file,
-** or an artifact hash.  If the ci= query parameter is also present,
-** then name= must refer to a file name.  If ci= is omitted, either
-** interpretation may be used.  When name= is a filename and ci=
-** is omitted, a default value of "tip" is used for ci=.
+** For /artifact and /whatis, the name= query parameter can refer to
+** either the name of a file, or an artifact hash.  If the ci= query
+** parameter is also present, then name= must refer to a file name.
+** If ci= is omitted, then the hash interpretation is preferred but
+** if name= cannot be understood as a hash, a default "tip" value is
+** used for ci=.
 **
-** If name= is ambiguous in that it might be either a filename or
-** a hash, then the hash interpretation is preferred for /artifact
-** and /whatis and the filename interpretation is preferred for /file.
+** For /file, name= can only be interpreted as a filename.  As before,
+** a default value of "tip" is used for ci= if ci= is omitted.
 */
 void artifact_page(void){
   int rid = 0;
@@ -2191,33 +2191,32 @@ void artifact_page(void){
   if( rid==0 ){
     rid = artifact_from_ci_and_filename(0);
   }
-  if( rid==0 && zCI==0 && isFile ){
-    /* For /file, only try to interpret name= as a hash if it did not
-    ** match any known filename. */
-    rid = name_to_rid(zName);
-  }
-  if( rid==0 && isFile ){
-    /* If no file called NAME exists, instead look for a directory
-    ** with that name, and do a directory listing */
-    int nName = (int)strlen(zName);
-    if( nName && zName[nName-1]=='/' ) nName--;
-    if( db_exists(
-       "SELECT 1 FROM filename"
-       " WHERE name GLOB '%.*q/*' AND substr(name,1,%d)=='%.*q/';",
-       nName, zName, nName+1, nName, zName
-    ) ){
-      if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
-      page_tree();
-      return;
-    }
-  }
 
-  if( rid==0 ){
-    style_header("No such artifact");
-    @ Artifact '%h(zName)' does not exist in this repository.
+  if( rid==0 ){  /* Artifact not found */
+    if( isFile ){
+      /* For /file, also check to see if name= refers to a directory,
+      ** and if so, do a listing for that directory */
+      int nName = (int)strlen(zName);
+      if( nName && zName[nName-1]=='/' ) nName--;
+      if( db_exists(
+         "SELECT 1 FROM filename"
+         " WHERE name GLOB '%.*q/*' AND substr(name,1,%d)=='%.*q/';",
+         nName, zName, nName+1, nName, zName
+      ) ){
+        if( P("ci")==0 ) cgi_set_query_parameter("ci","tip");
+        page_tree();
+        return;
+      }
+      style_header("No such file");
+      @ File '%h(zName)' does not exist in this repository.
+    }else{
+      style_header("No such artifact");
+      @ Artifact '%h(zName)' does not exist in this repository.
+    }
     style_footer();
     return;
   }
+
   if( descOnly || P("verbose")!=0 ){
     url_add_parameter(&url, "verbose", "1");
     objdescFlags |= OBJDESC_DETAIL;
@@ -2225,13 +2224,15 @@ void artifact_page(void){
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
 
   if( isFile ){
-    if( zCI==0 ){
-      @ <h2>Latest version of file '%h(zName)':</h2>
+    if( zCI==0 || fossil_strcmp(zCI,"tip")==0 ){
+      zCI = "tip";
+      @ <h2>Latest version of file \
+      @ '%z(href("/finfo?name=%T&m=%T",zName,zCI))%h(zName)</a>':</h2>
     }else{
       const char *zPath;
       Blob path;
       blob_zero(&path);
-      hyperlinked_path(zName, &path, zCI, "dir", "");
+      hyperlinked_path(zName, &path, zCI, "dir", "", LINKPATH_FINFO);
       zPath = blob_str(&path);
       @ <h2>File %s(zPath) \
       if( isBranchCI ){
@@ -2244,6 +2245,12 @@ void artifact_page(void){
       blob_reset(&path);
     }
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
+    style_submenu_element("Annotate", "%R/annotate?filename=%T&ci=%T",
+                          zName, zCI);
+    style_submenu_element("Blame", "%R/blame?filename=%T&ci=%T",
+                          zName, zCI);
+    blob_init(&downloadName, zName, -1);
+    objType = OBJTYPE_CONTENT;
   }else{
     @ <h2>Artifact
     style_copy_button(1, "hash-ar", 0, 2, "%s", zUuid);
@@ -2252,11 +2259,12 @@ void artifact_page(void){
     }else{
       @ :</h2>
     }
+    blob_zero(&downloadName);
+    asText = P("txt")!=0;
+    if( asText ) objdescFlags &= ~OBJDESC_BASE;
+    objType = object_description(rid, objdescFlags,
+                                (isFile?zName:0), &downloadName);
   }
-  blob_zero(&downloadName);
-  asText = P("txt")!=0;
-  if( asText ) objdescFlags &= ~OBJDESC_BASE;
-  objType = object_description(rid, objdescFlags, (isFile ? zName : 0),&downloadName);
   if( !descOnly && P("download")!=0 ){
     cgi_redirectf("%R/raw/%T?name=%s", blob_str(&downloadName),
           db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid));
@@ -2288,7 +2296,7 @@ void artifact_page(void){
   style_header("%s", zHeader);
   fossil_free(zCIUuid);
   fossil_free(zHeader);
-  if( g.perm.Admin ){
+  if( !isFile && g.perm.Admin ){
     Stmt q;
     db_prepare(&q,
       "SELECT coalesce(user.login,rcvfrom.uid),"
