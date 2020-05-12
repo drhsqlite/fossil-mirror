@@ -1,5 +1,5 @@
-C Fix\sbroken\sAnnotate\sand\sBlame\slinks\son\sthe\s/file\spage.
-D 2020-05-12T00:01:52.010
+C Extra\scomment\sin\sthe\scode\sfor\sthe\sm=checkin\swith\st=release\sfeature\sof\s/timeline.
+D 2020-05-12T00:21:15.529
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -605,7 +605,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c 737dbef2f328c3ac6e02440ba1c6e5a6d75dbb353e97f3a52b8b10dfe80c44b6
+F src/timeline.c ded96abcf3e2392fd0017bed047a698cc271c77f899e517ee336c892468ed31b
 F src/tkt.c 7d3603c5feb6cdee3605737f67a72df13296802c7d484639e5073f9b2b751dc8
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 03f7bcb46304d0b96f7d23b2e7399d3aaf00f5b499e72615e9d5675a9f9b98e7
-R 91f219573ff1a61db3cf6a69fc76e42a
+P 69e596e5d29ac970971294ca817d4ed7a9e51f833426bbfd92b44987f9f8099f
+R 7c39506fe32a43a06d4139b9e60c8da4
 U drh
-Z 58baebfd3620a2014a9a17644858c5d3
+Z 76ac7c17932ed571a436a7a7ed170d06

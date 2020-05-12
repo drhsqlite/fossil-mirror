@@ -2204,6 +2204,8 @@ void page_timeline(void){
         " WHERE %s AND tagtype>0", zTagSql/*safe-for-%s*/
       );
       if( zMark ){
+        /* If the t=release option is used with m=UUID, then also
+        ** include the UUID check-in in the display list */
         int ridMark = name_to_rid(zMark);
         db_multi_exec(
           "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
