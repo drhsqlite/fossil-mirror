@@ -189,7 +189,7 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
+  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
   if( zShun ){
     if( strlen(zShun) ){
       @ %h(zShun)
@@ -216,7 +216,7 @@ void shun_page(void){
   @ <blockquote>
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <textarea class="fullsize-text" cols="50" rows="%d(numRows)" name="uuid">
+  @ <textarea class="fullsize-text" cols="70" rows="%d(numRows)" name="uuid">
   if( zAccept ){
     if( strlen(zAccept) ){
       @ %h(zAccept)
