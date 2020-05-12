@@ -57,6 +57,8 @@
      HTML &lt;head&gt; section, so that it is always available, even
      if a custom skin overrides the HTML &lt;head&gt; and omits
      the CSP in the process.
+  *  Output of the [/help?cmd=diff|fossil diff -y] command automatically
+     adjusts according to the terminal width.
   *  The Content-Security-Policy is now set using the
      [/help?cmd=default-csp|default-csp setting].
   *  Merge conflicts caused via the [/help?cmd=merge|merge] and

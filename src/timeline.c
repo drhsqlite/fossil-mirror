@@ -1314,7 +1314,7 @@ static void addFileGlobExclusion(
   blob_append_sql(pSql," AND event.objid IN ("
       "SELECT mlink.mid FROM mlink, filename"
       " WHERE mlink.fnid=filename.fnid AND %s)",
-      glob_expr("filename.name", zChng));
+      glob_expr("filename.name", mprintf("\"%s\"", zChng)));
 }
 static void addFileGlobDescription(
   const char *zChng,        /* The filename GLOB list */
@@ -1744,6 +1744,7 @@ void page_timeline(void){
     login_needed(g.anon.Read && g.anon.RdTkt && g.anon.RdWiki);
     return;
   }
+  etag_check(ETAG_QUERY|ETAG_COOKIE|ETAG_DATA, 0);
   cookie_read_parameter("y","y");
   zType = P("y");
   if( zType==0 ){
@@ -2202,6 +2203,13 @@ void page_timeline(void){
         " SELECT tagxref.rid FROM tagxref NATURAL JOIN tag"
         " WHERE %s AND tagtype>0", zTagSql/*safe-for-%s*/
       );
+      if( zMark ){
+        /* If the t=release option is used with m=UUID, then also
+        ** include the UUID check-in in the display list */
+        int ridMark = name_to_rid(zMark);
+        db_multi_exec(
+          "INSERT OR IGNORE INTO selected_nodes(rid) VALUES(%d)", ridMark);
+      }
       if( !related ){
         blob_append_sql(&cond, " AND blob.rid IN selected_nodes");
       }else{
@@ -2427,6 +2435,9 @@ void page_timeline(void){
         }else{
           blob_appendf(&desc, " with tags matching %h", zMatchDesc);
         }
+      }
+      if( zMark ){
+        blob_appendf(&desc," plus check-in \"%h\"", zMark);
       }
       tmFlags |= TIMELINE_XMERGE | TIMELINE_FILLGAPS;
     }

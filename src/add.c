@@ -369,9 +369,12 @@ static void addremove_reset(int bIsAdd, int bDryRun, int bVerbose){
 **                            the comma separated list of glob patterns.
 **    --clean <CSG>           Also ignore files matching patterns from
 **                            the comma separated list of glob patterns.
-**    --reset                 Reset the ADDEd state of a checkout, such that
-**                            all newly-added (but not yet committed) files
-**                            are no longer added.
+
+**    --reset                 Reset the ADDEd state of a checkout, such
+**                            that all newly-added (but not yet committed)
+**                            files are no longer added. No flags other
+**                            than --verbose and --dry-run may be used
+**                            with --reset.
 **
 ** The following options are only valid with --reset:
 **    -v|--verbose            Outputs information about each --reset file.
@@ -554,7 +557,8 @@ static void process_files_to_remove(
 **   --reset                 Reset the DELETED state of a checkout, such
 **                           that all newly-rm'd (but not yet committed)
 **                           files are no longer removed. No flags other
-**                           than --verbose may be used with --reset.
+**                           than --verbose or --dry-run may be used with
+**                           --reset.
 **   --verbose|-v            Outputs information about each --reset file.
 **                           Only usable with --reset.
 **

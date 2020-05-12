@@ -141,7 +141,7 @@ static int output_one_side(
 static const char *const mergeMarker[] = {
  /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
   "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
-  "======= COMMON ANCESTOR content follows ============================\n",
+  "||||||| COMMON ANCESTOR content follows ||||||||||||||||||||||||||||\n",
   "======= MERGED IN content follows ==================================\n",
   ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
 };

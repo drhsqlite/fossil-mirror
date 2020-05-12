@@ -21,12 +21,6 @@
 #include "config.h"
 #include "comformat.h"
 #include <assert.h>
-#ifdef _WIN32
-# include <windows.h>
-#else
-# include <termios.h>
-# include <sys/ioctl.h>
-#endif
 
 #if INTERFACE
 #define COMMENT_PRINT_NONE       ((u32)0x00000000) /* No flags = non-legacy. */
@@ -69,31 +63,23 @@ static int comment_set_maxchars(
   int indent,
   int *pMaxChars
 ){
-#if defined(_WIN32)
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  memset(&csbi, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-  if( GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi) ){
-    *pMaxChars = csbi.srWindow.Right - csbi.srWindow.Left - indent;
-    return 1;
+  struct TerminalSize ts;
+  if ( !terminal_get_size(&ts) ){
+    return 0;
   }
-  return 0;
-#elif defined(TIOCGWINSZ)
-  struct winsize w;
-  memset(&w, 0, sizeof(struct winsize));
-  if( ioctl(0, TIOCGWINSZ, &w)!=-1 ){
-    *pMaxChars = w.ws_col - indent;
+
+  if( ts.nColumns ){
+    *pMaxChars = ts.nColumns - indent;
     return 1;
+  }else{
+    /*
+    ** Fallback to using more-or-less the "legacy semantics" of hard-coding
+    ** the maximum line length to a value reasonable for the vast majority
+    ** of supported systems.
+    */
+    *pMaxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
+    return -1;
   }
-  return 0;
-#else
-  /*
-  ** Fallback to using more-or-less the "legacy semantics" of hard-coding
-  ** the maximum line length to a value reasonable for the vast majority
-  ** of supported systems.
-  */
-  *pMaxChars = COMMENT_LEGACY_LINE_LENGTH - indent;
-  return -1;
-#endif
 }
 
 /*

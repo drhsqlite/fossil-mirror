@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 static FILE *open_for_reading(const char *zFilename){
   FILE *f = fopen(zFilename, "r");
@@ -21,6 +22,36 @@ static FILE *open_for_reading(const char *zFilename){
   return f;
 }
 
+/*
+** Given an arbitrary-length input string key zIn, generate
+** an N-byte hexadecimal hash of that string into zOut.
+*/
+static void hash(const char *zIn, int N, char *zOut){
+  unsigned char i, j, t;
+  int m, n;
+  unsigned char s[256];
+  for(m=0; m<256; m++){ s[m] = m; }
+  for(j=0, m=n=0; m<256; m++, n++){
+    j += s[m] + zIn[n];
+    if( zIn[n]==0 ){ n = -1; }
+    t = s[j];
+    s[j] = s[m];
+    s[m] = t;
+  }
+  i = j = 0;
+  for(n=0; n<N-2; n+=2){
+    i++;
+    t = s[i];
+    j += t;
+    s[i] = s[j];
+    s[j] = t;
+    t += s[i];
+    zOut[n] = "0123456789abcdef"[(t>>4)&0xf];
+    zOut[n+1] = "0123456789abcdef"[t&0xf];
+  }
+  zOut[n] = 0;
+}
+
 int main(int argc, char *argv[]){
     FILE *m,*u,*v;
     char *z;
@@ -28,6 +59,7 @@ int main(int argc, char *argv[]){
     int i = 0;
 #endif
     int j = 0, x = 0, d = 0;
+    size_t n;
     int vn[3];
     char b[1000];
     char vx[1000];
@@ -47,6 +79,12 @@ int main(int argc, char *argv[]){
     *z = 0;
     printf("#define MANIFEST_UUID \"%s\"\n",b);
     printf("#define MANIFEST_VERSION \"[%10.10s]\"\n",b);
+    n = strlen(b);
+    if( n + 50 < sizeof(b) ){
+      sprintf(b+n, "%d", (int)time(0));
+      hash(b,33,vx);
+      printf("#define FOSSIL_BUILD_HASH \"%s\"\n", vx);
+    }
     m = open_for_reading(argv[2]);
     while(b ==  fgets(b, sizeof(b)-1,m)){
       if(0 == strncmp("D ",b,2)){
