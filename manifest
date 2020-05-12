@@ -1,5 +1,5 @@
-C /fileedit\snow\ssquelches\serrors\srelated\sto\s'missing'\sURL\sargs,\sas\sthey\sare\snow\soptional.\sIt\salso\snow\sdisplays\san\sinformative\swarning\sat\sthe\stop\sof\sthe\spage\sif\sfileedit-glob\sis\snot\sset\sor\sis\sempty.\sAdded\sa\shint\sabout\shyperlink\sin\sthe\spreview\spage.\sAdded\sa\sHelp\stab\swith\suseful(?)\stips.
-D 2020-05-12T10:24:59.810
+C Added\sfossil.fetch()\sresponseHeaders\soption\sto\spass\son\sone\sor\smore\sresponse\sheaders\sto\sthe\sonload()\scallback.
+D 2020-05-12T13:18:45.311
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -487,7 +487,7 @@ F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js fb9be69154378faf902b448504acfd94c0a26861352508e1618e10141934b945
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
-F src/fossil.fetch.js 937316a3ee11da68a243bfb0312193c336db4d0211588c994a055ade3be61ffb
+F src/fossil.fetch.js a083bb72eacbb402c416451dd6f23273f01980f1c6c49f6eb4308050a725c57a
 F src/fossil.page.fileedit.js b7532f644879b4833f1fe7e5031be5223b5c10489b974c5209a41be99c0c59aa
 F src/fossil.tabs.js 2b0645ddfeb7cca23a00294c076dbcdb3101c93fdc0a2d54c8f69a6d52f04974
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P ff7ad7125f25780ef6cc1bb5f1e7b018008709460d449bbcc4f1f95a04ad439b
-R 8d166f46fda604648f8c7fced3e90100
+P c145140d3ee52d25d09a3f114d3496577dc90e52f7846a3853021638f8c1a5a7
+R 8461fa0ecead6175ed99612d474790b7
 U stephan
-Z 746689393d0d60e83520a3ceb3584ff8
+Z 0c3088ff7a6a3f09e1b73d8b32a34c64
