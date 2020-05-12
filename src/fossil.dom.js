@@ -59,6 +59,8 @@
   
   dom.div = dom.createElemFactory('div');
   dom.p = dom.createElemFactory('p');
+  dom.code = dom.createElemFactory('code');
+  dom.pre = dom.createElemFactory('pre');
   dom.header = dom.createElemFactory('header');
   dom.footer = dom.createElemFactory('footer');
   dom.section = dom.createElemFactory('section');

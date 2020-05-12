@@ -1527,7 +1527,7 @@ void style_emit_script_fossil_bootstrap(int asInline){
     ** page-specific state, and it is reserved for that purpose.
     */
     CX("window.fossil.page = {"
-       "page:\"%T\""
+       "name:\"%T\""
        "};\n", g.zPath);
     CX("})();\n");
     /* The remaining fossil object bootstrap code is not dependent on

@@ -875,6 +875,23 @@ void test_ci_mini_cmd(void){
   CheckinMiniInfo_cleanup(&cimi);
 }
 
+/*
+** If the fileedit-glob setting has a value, this returns its Glob
+** object (in memory owned by this function), else it returns NULL.
+*/
+static Glob * fileedit_glob(void){
+  static Glob * pGlobs = 0;
+  static int once = 0;
+  if(0==pGlobs && once==0){
+    char * zGlobs = db_get("fileedit-glob",0);
+    once = 1;
+    if(0!=zGlobs && 0!=*zGlobs){
+      pGlobs = glob_create(zGlobs);
+    }
+    fossil_free(zGlobs);
+  }
+  return pGlobs;
+}
 
 /*
 ** Returns true if the given filename qualifies for online editing by
@@ -885,21 +902,13 @@ void test_ci_mini_cmd(void){
 ** A missing or empty value for that glob disables all editing.
 */
 int fileedit_is_editable(const char *zFilename){
-  static Glob * pGlobs = 0;
-  static int once = 0;
-  if(0==g.perm.Write || zFilename==0 || *zFilename==0
-     || (once!=0 && pGlobs==0)){
+  Glob * pGlobs = fileedit_glob();
+  if(pGlobs!=0 && zFilename!=0 && *zFilename!=0 && 0!=g.perm.Write){
+    return glob_match(pGlobs, zFilename);
+  }else{
     return 0;
-  }else if(0==pGlobs){
-    char * zGlobs = db_get("fileedit-glob",0);
-    once = 1;
-    if(0==zGlobs) return 0;
-    pGlobs = glob_create(zGlobs);
-    fossil_free(zGlobs);
   }
-  return glob_match(pGlobs, zFilename);
 }
-
 
 enum fileedit_render_preview_flags {
 FE_PREVIEW_LINE_NUMBERS = 1
@@ -1306,9 +1315,15 @@ static void fileedit_ajax_diff(void){
 ** others are optional (at this level, anyway, but upstream code might
 ** require them).
 **
+** If the 3rd argument is not NULL and an error is related to a
+** missing arg then *bIsMissingArg is set to true. This is
+** intended to allow /fileedit to squelch certain initialization
+** errors.
+**
 ** Intended to be used only by /filepage and /filepage_commit.
 */
-static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
+static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
+                                      int * bIsMissingArg){
   char * zFileUuid = 0;          /* UUID of file content */
   const char * zFlag;            /* generic flag */
   int rc = 0, vid = 0, frid = 0; /* result code, checkin/file rids */ 
@@ -1317,6 +1332,9 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
   zFlag = PD("filename",P("fn"));
   if(zFlag==0 || !*zFlag){
     rc = 400;
+    if(bIsMissingArg){
+      *bIsMissingArg = 1;
+    }
     fail((pErr,"Missing required 'filename' parameter."));
   }
   p->zFilename = mprintf("%s",zFlag);
@@ -1332,6 +1350,9 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr){
   zFlag = PD("checkin",P("ci"));
   if(!zFlag){
     rc = 400;
+    if(bIsMissingArg){
+      *bIsMissingArg = 1;
+    }
     fail((pErr,"Missing required 'checkin' parameter."));
   }
   vid = symbolic_name_to_rid(zFlag, "ci");
@@ -1549,7 +1570,7 @@ static void fileedit_ajax_commit(void){
   }
   db_begin_transaction();
   CheckinMiniInfo_init(&cimi);
-  rc = fileedit_setup_cimi_from_p(&cimi, &err);
+  rc = fileedit_setup_cimi_from_p(&cimi, &err, 0);
   if(0!=rc){
     fileedit_ajax_error(rc,"%b",&err);
     goto end_cleanup;
@@ -1645,12 +1666,19 @@ void fileedit_page(void){
   ** error in (&err) and goto end_footer instead so that we can be
   ** sure to do any cleanup and end the transaction cleanly.
   */
-  if(fileedit_setup_cimi_from_p(&cimi, &err)==0){
-    zFilename = cimi.zFilename;
-    zRev = cimi.zParentUuid;
-    assert(zRev);
-    assert(zFilename);
-    zFileMime = mimetype_from_name(cimi.zFilename);
+  {
+    int isMissingArg = 0;
+    if(fileedit_setup_cimi_from_p(&cimi, &err, &isMissingArg)==0){
+      zFilename = cimi.zFilename;
+      zRev = cimi.zParentUuid;
+      assert(zRev);
+      assert(zFilename);
+      zFileMime = mimetype_from_name(cimi.zFilename);
+    }else if(isMissingArg!=0){
+      /* Squelch these startup warnings - they're non-fatal now but
+      ** used to be. */
+      blob_reset(&err);
+    }
   }
 
   /********************************************************************
@@ -1674,6 +1702,14 @@ void fileedit_page(void){
     style_emit_script_tag(1,0);
   }
 
+  if(fileedit_glob()==0){
+    CX("<div class='error'>To enable online editing, the "
+       "<code>fileedit-glob</code> repository setting must be set to a "
+       "comma- or newine-delimited list of glob values matching files "
+       "which may be edited online."
+       "</div>");
+  }
+  
   /* Status bar */
   CX("<div id='fossil-status-bar' "
      "title='Status message area. Double-click to clear them.'>"
@@ -1753,7 +1789,8 @@ void fileedit_page(void){
        "data-tab-label='Preview'"
        ">");
 
-    CX("<div class='fileedit-options flex-container flex-row'>");
+    CX("<div class='fileedit-options flex-container flex-column'>");
+    CX("<div class='flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
        "data-f-preview-from='fileedit-content-editor' "
        /* ^^^ text source elem ID*/
@@ -1818,6 +1855,12 @@ void fileedit_page(void){
                            "1", P("preview_ln")!=0,
                            "If on, plain-text files (only) will get "
                            "line numbers added to the preview.");
+    CX("</div>"/*.flex-container.flex-row (buttons/options)*/);
+    CX("<div class='fileedit-hint'>"
+       "Note that hyperlinks in previewed HTML are relative to "
+       "<em>this</em> page, and therefore not correct. Clicking "
+       "them will leave this page, losing any edits."
+       "</div>");
     CX("</div>"/*.fileedit-options*/);
     CX("<div id='fileedit-tab-preview-wrapper'></div>");
     CX("</div>"/*#fileedit-tab-preview*/);
@@ -1844,10 +1887,8 @@ void fileedit_page(void){
   /****** Commit ******/
   CX("<div id='fileedit-tab-commit' "
      "data-tab-parent='fileedit-tabs' "
-     "data-tab-select='1' "
      "data-tab-label='Commit'"
      ">");
-
   {
     /******* Commit flags/options *******/
     CX("<div class='fileedit-options flex-container flex-row'>");
@@ -1950,12 +1991,40 @@ void fileedit_page(void){
     CX("<div id='fileedit-manifest'></div>\n"
        /* Manifest gets rendered here after a commit. */);
   }
-
   CX("</div>"/*#fileedit-tab-commit*/);
 
+  /****** Help/Tips ******/
+  CX("<div id='fileedit-tab-help' "
+     "data-tab-parent='fileedit-tabs' "
+     "data-tab-label='Help'"
+     ">");
   {
-    /* Dynamically populate the editor or display a warning
-    ** about having no file loaded... */
+    CX("<h1>Help &amp; Tips</h1>");
+    CX("<ul>");
+    CX("<li><strong>Only files matching the <code>fileedit-glob</code> "
+       "</strong> repository setting can be edited online. That setting "
+       "must be a comma- or newline-delimited list of glob patterns "
+       "for files which may be edited online.</li>");
+    CX("<li><strong>Clicking any links</strong> on this page will "
+       "leave the page, <strong>losing any edits</strong>.</li>");
+    CX("<li>Saving edits creates a new commit with a single modified "
+       "file.</li>");
+    CX("<li>\"Delta manifests\" (see the checkbox on the Commit tab) "
+       "make for smaller commit records, especially in repositories "
+       "with many files.</li>");
+    CX("<li>The file selector allows, for usability's sake, only files "
+       "in leaf checkins to be selected, but files may be edited via "
+       "non-leaf checkins by passing them as the <code>filename</code> "
+       "and <code>checkin</code> URL arguments to this page.</li>");
+    CX("</ul>");
+  }
+  CX("</div>"/*#fileedit-tab-help*/);
+
+  
+  {
+    /* Dynamically populate the editor, display a any error
+    ** in the err blob, and/or switch to tab #0, where the file
+    ** selector lives... */
     blob_appendf(&endScript,
                  "window.addEventListener('load',");
     if(zRev && zFilename){
@@ -1967,13 +2036,11 @@ void fileedit_page(void){
       blob_appendf(&endScript,"function(){");
       if(blob_size(&err)>0){
         blob_appendf(&endScript,
-                     "fossil.error(\"%j\");\n"
-                     "fossil.page.tabs.switchToTab(0);\n",
+                     "fossil.error(\"%j\");\n",
                      blob_str(&err));
-      }else{
-        blob_appendf(&endScript,
-                     "fossil.error('No file/version selected.')");
       }
+      blob_appendf(&endScript,
+                   "fossil.page.tabs.switchToTab(0);\n");
       blob_appendf(&endScript,"}");
     }
     blob_appendf(&endScript,", false);\n");

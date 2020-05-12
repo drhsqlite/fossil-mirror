@@ -65,19 +65,21 @@
         return this;
       }
       const onload = (response)=>{
-        D.clearElement(D.enable(selFiles, this.e.btnLoadFile));
+        D.clearElement(selFiles, this.e.btnLoadFile);
         D.append(
           D.clearElement(this.e.fileListLabel),
           "Editable files for ",
           D.a(F.repoUrl('timeline',{
             c: ciUuid
-          }), F.hashDigits(ciUuid)),
-          ':'
+          }), F.hashDigits(ciUuid))
         );
         this.cache.files[response.checkin] = response;
-        response.editableFiles.forEach(function(fn){
+        response.editableFiles.forEach(function(fn,n){
           D.option(selFiles, fn);
         });
+        if(selFiles.options.length){
+          D.enable(selFiles, this.e.btnLoadFile);
+        }
       };
       const got = this.cache.files[ciUuid];
       if(got){

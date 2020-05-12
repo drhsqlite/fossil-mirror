@@ -883,9 +883,12 @@ label {
   margin: 0.25em 0;
   flex: 0 0 auto;
 }
-#fossil-status-bar.error {
+.error {
   color: darkred;
   background: yellow;
+}
+body.fileedit .error {
+  padding: 0.25em;
 }
 //////////////////////////////////
 // Styles for fossil.tabs.js:
