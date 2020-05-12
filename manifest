@@ -1,5 +1,5 @@
-C Add\ssetting\sthat\swill\ssuppress\sthe\snew\sfork\swarning\swith\severy\scommit.
-D 2020-05-11T14:09:51.269
+C Improve\sthe\sdescription\sof\sthe\ssetting\sso\sas\sto\sremove\sdoubt\sabout\sits\smeaning.
+D 2020-05-12T14:45:54.681
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -447,7 +447,7 @@ F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
 F src/capabilities.c 6b30e41b9e3fdffc3f0cca55474f6b3b28598fbf018c860f2070cbeb6accc1f8
 F src/captcha.c 49a553d1cb8b1851c0c5b3c0cd26d2f5308ad73458c16e0ce16c06b1c11a5e64
 F src/cgi.c 5a9c0f9dfce552c037e834f3a00b88e9d0ba4b7dec695d1fd922b272eb150d9d
-F src/checkin.c f0c95f7c526324a0ddd0ab7be9b7804d69a8475ba12ac4d2d8b8f1b9a73a460a
+F src/checkin.c 086197c673b0879b3b8a0846c4411ae94457fe7ca2132944caf4af3ab8fdfed2
 F src/checkout.c 67682b15a85b94e6377a607629d871a791f148e0568e1cc484b687880e5d0232
 F src/ci_edit.js 9316a271fc9608fa1f232617181e97ea8a03edb23749fdd98f8f1845c41596e7
 F src/clearsign.c 3b01d6eb2260a699248a031bb89a2fb69e6f9f3bc34f09f45439e380cab3530a
@@ -462,7 +462,7 @@ F src/copybtn.js 84cea5371f21b30475e085159e9834f6300ce7410ae10760e50c597d9b5e1fc
 F src/cson_amalgamation.c 0bb78744f0ff615a6f47edf0c2519e2e078453b8c2ab9b19edcc37fe1a571618
 F src/cson_amalgamation.h 199585e9e88fa59d6de79dab261112652075cad98c425f599ef55cad08b55569
 F src/cygsup.h 70accd0c38dce40aa828cb321dffdde1f49f4e8c
-F src/db.c 41f61df0ef149e31b1675468f0d0b5b957feb42f5549be2e652893e3e47cc686
+F src/db.c f1e7eb3de70a52276eacf698e77ad8327262e3b83f72d9f09d1b23860ef684fa
 F src/default_css.txt 5d06e06499ea1d45d16f47ea6431f5a1303be1f702b1e98f56e7e4813bca257a
 F src/delta.c e5c5c088b05441b7c84d7cdd1ee6fc072e111fc000f063041b9ee3d7ed1f7b93
 F src/deltacmd.c d8e304784745ba9378253392423f44f0d381d0a87536011a0ffd9a56c1897752
@@ -981,10 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 26011322cd34934e552efbb264f395dc3f8ff2e481f0f2d38e7f8aa23292dfea
-R 1121d5391ff030c3b64d3c114d689302
-T *branch * fork-warn-setting
-T *sym-fork-warn-setting *
-T -sym-trunk *
+P 57b8d6deacfac947751d269d82d81c7ddb952df14420503675a1814b01551013
+R 662119d9c10634046c38b87bcce36bfd
 U andybradford
-Z 8f71a470aa5cfa8587deb7e96c2a01b0
+Z d3bdff4277659b08747cfcae63e0433e

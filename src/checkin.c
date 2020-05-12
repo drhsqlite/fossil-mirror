@@ -2658,7 +2658,7 @@ void commit_cmd(void){
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
   db_multi_exec("PRAGMA repository.application_id=252006673;");
   db_multi_exec("PRAGMA localdb.application_id=252006674;");
-  forkWarnAlways = db_get_boolean("fork-warn-always",1);
+  forkWarnAlways = db_get_boolean("leaf-warn-on-commit",1);
   if( dryRunFlag ){
     if( forkWarnAlways ){
       leaf_ambiguity_warning(nvid,nvid);
