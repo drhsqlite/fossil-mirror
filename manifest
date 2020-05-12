@@ -1,5 +1,5 @@
-C Merged\sin\strunk\sfor\svarious\smenu\sitem\sfixes\sbefore\sdeployment\sto\smy\sserver.
-D 2020-05-12T15:10:24.390
+C Fixed\sa\spotential\scorner-case\sbug\swhich\swould\shave\sbroken\sfossil.fetch()\sif\sa\suser\shad\sdefined\stheir\sown\sfossil.fetch.onerror()\simpl\sbefore\scalling\sfossil.fetch()\sthe\sfirst\stime.
+D 2020-05-12T16:26:42.792
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -487,7 +487,7 @@ F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
 F src/fossil.bootstrap.js fb9be69154378faf902b448504acfd94c0a26861352508e1618e10141934b945
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
-F src/fossil.fetch.js a083bb72eacbb402c416451dd6f23273f01980f1c6c49f6eb4308050a725c57a
+F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
 F src/fossil.page.fileedit.js 151d729521e6479fe6bc96ea6762503a46f9b77de014f7d08ebe4b61adfa2b45
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 2bec2c758f5a1a1373bede86bb1ff8b1ea3424f2151a768e9cfa9cd9ccb9060b 461d4f41d56e30ce4d6dc3d89e5eb63ab9b327ee07240f2fc96e847a913eb336
-R b9494acffb9a075b514a7bceb539ed9e
+P 8cc7953b9a709167f019fc7fe8242aef19e9f0dc5140547050509884af8a6021
+R d6e6debd783b413a36614cce66fd80ea
 U stephan
-Z 539945c3096779311c87a0765477721c
+Z 20bb39c9ae2047238b4bdc747a26f4d6

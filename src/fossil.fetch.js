@@ -19,8 +19,10 @@
    The optionsObject may be an onload callback or an object with any
    of these properties:
 
-   - onload: callback(responseData) (default = output response to
-   the console).
+   - onload: callback(responseData) (default = output response to the
+   console). In the context of the callback, the options object is
+   "this", noting that this call may have amended the options object
+   with state other than what the caller provided.
 
    - onerror: callback(XHR onload event | exception)
    (default = event or exception to the console).
@@ -30,10 +32,12 @@
    - payload: anything acceptable by XHR2.send(ARG) (DOMString,
    Document, FormData, Blob, File, ArrayBuffer), or a plain object or
    array, either of which gets JSON.stringify()'d. If payload is set
-   then the method is automatically set to 'POST'. If an object/array
-   is converted to JSON, the contentType option is automatically set
-   to 'application/json'. By default XHR2 will set the content type
-   based on the payload type.
+   then the method is automatically set to 'POST'. By default XHR2
+   will set the content type based on the payload type. If an
+   object/array is converted to JSON, the contentType option is
+   automatically set to 'application/json', and if JSON.stringify() of
+   that value fails then the exception is propagated to this
+   function's caller.
 
    - contentType: Optional request content type when POSTing. Ignored
    if the method is not 'POST'.
@@ -58,10 +62,9 @@
    value of that single header. If it's an array, it's treated as a
    list of headers to return, and the 2nd argument is a map of those
    header values. When a map is passed on, all of its keys are
-   lower-cased. When a single header is requested and that header is
-   set multiple times, they are (per the XHR docs) concatenated
-   together with ", " between them.
-
+   lower-cased. When a given header is requested and that header is
+   set multiple times, their values are (per the XHR docs)
+   concatenated together with ", " between them.
 
    When an options object does not provide onload() or onerror()
    handlers of its own, this function falls back to
@@ -76,7 +79,10 @@
 */
 window.fossil.fetch = function f(uri,opt){
   const F = fossil;
-  if(!f.onerror){/* "static" functions... */
+  if(!f.onload){
+    f.onload = (r)=>console.debug('ajax response:',r);
+  }
+  if(!f.onerror){
     f.onerror = function(e/*event or exception*/){
       console.error("Ajax error:",e);
       if(e instanceof Error){
@@ -97,7 +103,8 @@ window.fossil.fetch = function f(uri,opt){
         }
       }
     };
-    f.onload = (r)=>console.debug('ajax response:',r);
+  }/*f.onerror()*/
+  if(!f.parseResponseHeaders){
     f.parseResponseHeaders = function(h){
       const rc = {};
       if(!h) return rc;
@@ -110,7 +117,7 @@ window.fossil.fetch = function f(uri,opt){
       });
       return rc;
     };
-  }/*static init*/
+  }
   if('/'===uri[0]) uri = uri.substr(1);
   if(!opt) opt = {};
   else if('function'===typeof opt) opt={onload:opt};
@@ -147,7 +154,7 @@ window.fossil.fetch = function f(uri,opt){
   }
   x.onload = function(e){
     if(200!==this.status){
-      if(opt.onerror) opt.onerror(e);
+      opt.onerror(e);
       return;
     }
     const orh = opt.responseHeaders;
@@ -168,7 +175,7 @@ window.fossil.fetch = function f(uri,opt){
       if(head) args.push(head);
       opt.onload.apply(opt, args);
     }catch(e){
-      if(opt.onerror) opt.onerror(e);
+      opt.onerror(e);
     }
   };
   if(undefined!==payload) x.send(payload);
