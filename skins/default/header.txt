@@ -25,7 +25,8 @@ if {[anycap jor]} {
   menulink /timeline Timeline {}
 }
 if {[hascap oh]} {
-  menulink /dir?ci=tip Files desktoponly
+  if {![info exists current_checkin]} {set current_checkin tip}
+  menulink /dir?ci=$current_checkin Files desktoponly
 }
 if {[hascap o]} {
   menulink  /brlist Branches desktoponly

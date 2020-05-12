@@ -175,6 +175,7 @@ void page_dir(void){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
+      Th_Store("current_checkin", zCI);
     }else{
       zCI = 0;
     }
@@ -703,6 +704,7 @@ void page_tree(void){
                          " FROM event WHERE objid=%d", rid);
       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI)) != 0);
       isBranchCI = branch_includes_uuid(zCI, zUuid);
+      Th_Store("current_checkin", zCI);
     }else{
       zCI = 0;
     }

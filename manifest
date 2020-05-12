@@ -1,5 +1,5 @@
-C Extra\scomment\sin\sthe\scode\sfor\sthe\sm=checkin\swith\st=release\sfeature\sof\s/timeline.
-D 2020-05-12T00:21:15.529
+C Proof\sof\sconcept\sfor\smaking\sthe\s"File"\smenu\son\sthe\sstandard\smenu\sbar\nshow\sthe\sfiles\sfor\sthe\scurrently\sdisplayed\scheckin\sor\sbranch,\srather\sthan\nalways\sshowing\sthe\sfiles\sfor\s"tip".
+D 2020-05-12T11:20:30.146
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -396,7 +396,7 @@ F skins/default/README.md 5914478ee55d86877ac6342bf704ffa5f87fc354
 F skins/default/css.txt 2266ed6c2a6334d65cdf8375d9faf35cf169d2982c833ecf546e0d0e8d98606e
 F skins/default/details.txt 916a4c696f0865d103980df3ae8425297d70af09
 F skins/default/footer.txt 3c714f7ba27084ca3a7464133a1be47e6dd0f641d0dc34eb6391d37be2d5c96d
-F skins/default/header.txt da428bfb1bf8d735d6efdb9f3d45a6a60efad219f0710e4d7bc8c9dd030cbfd6
+F skins/default/header.txt 73ca7e2a45f4fe15e3164cbb9512755bdd031434fa296ac3e94a84c5c88fdb40
 F skins/default/js.txt 3e8272e6730688d9365cfb8920a157cb2893fb6267168608873ad41a0ff2041f
 F skins/eagle/README.md d6b7398b43bb8756316431d51d7efc8c3239c913
 F skins/eagle/css.txt b0ae29bcf7b7863707a4909be680d41a4c7b04791e497ade7bc24b827dbc684b
@@ -440,7 +440,7 @@ F src/bag.c d3660f2dddc5be33f72d9b07ee3e01b6965e3d83089d7a0537e7eb058efc02a1
 F src/bisect.c 680d331cc6926272855ce0c84a76cbced098bd26032ca7244ec025becd7cefba
 F src/blob.c 87f60169c0bfbdfa0810319bbb35be0090d5ac21c7926758ef76386389a51563
 F src/branch.c 0c0bacb5175593bbbd8260d6d1955e2cf5f3ab3d80ab102477b1c26c87ccb23f
-F src/browse.c e21869c5796cc3b5aac02452c703de2a22c1397988e427eb1dd52dd6dccbb6fd
+F src/browse.c 18c5c808bfabedf2a0528ccb6f26ac7627cb20bc636f5fac6958e1d89c92c413
 F src/builtin.c 1ae9c90c567fb45f23f95aa7d00eca5cfc30cc86e2ba7476c97806d3fb24b072
 F src/bundle.c aec2fe8435c65aa446ad05397720124042f0118335ea2e907f02f02097293176
 F src/cache.c 9f5a26f6759356413d92a4c77e36b96900550692c2be9b3a5ad27e1c14c02dcb
@@ -497,7 +497,7 @@ F src/http_socket.c 55293f904f6abf407b00cf636eca5800bf8048c5a09a668121aa95f5833d
 F src/http_ssl.c 570011d4b2d85f2bbe4fb0ea03020d2e97d19788131280c4a1a4d0982fcdd7a1
 F src/http_transport.c 42bbcbe69494e4e3398b00702b92242c39cd7a5538175e9ff60bd3fd63b6163b
 F src/import.c 2d1f6dcd2596c64c815a35a8adc7f0c93f381a9570ff256ef7080b64fe7706ec
-F src/info.c 0b1065b9da9cfca588c91e0f512d26790853daf73e1d59dfbbf98cae01f69b5a
+F src/info.c 4741fd7fed894695afb954b17ce969316f126f3596fb156b4694246944e83b6f
 F src/json.c 1213bb56a39ae8633dcff27206e97e2f7d9db29d57516a7a1cfe28155ed3d25e
 F src/json_artifact.c 4664cc2e51cc7728ea57128ac53157dec6a9fd52ac1deef00a33348b3bc55c9e
 F src/json_branch.c 60d0b3a7dd17a56b1edc48150be170fd80dddeba03b464fef5048eb04c598122
@@ -605,7 +605,7 @@ F src/th.h 2abe3f3d6c8a3f2c53d859a37965fd92821db6b0b81171e35e26648453f7575b
 F src/th_lang.c 728f38a941c451330d69de1872a8a89fa0c4cdb267eb804ab7e9b92c0d42ffc6
 F src/th_main.c e602bcc88594a8b223f0c51802571ac9d5f490d4d49e7b6e573779448c88c5d3
 F src/th_tcl.c d5ed7663f46ca32b783775c028509223a94493ac322d438ae68070add1899a10
-F src/timeline.c ded96abcf3e2392fd0017bed047a698cc271c77f899e517ee336c892468ed31b
+F src/timeline.c 62719b7416ebbc9bac4334e2b3d88a765e11d3467c80fa9c23c6f79c49f3be1a
 F src/tkt.c 7d3603c5feb6cdee3605737f67a72df13296802c7d484639e5073f9b2b751dc8
 F src/tktsetup.c 30ef374d7ca7c3bfb13b8f3962a20adbc7fc651f3436f0f8afcde3c32fbe6c13
 F src/translate.c 331bea4cfc50a1cf7383b7b95a69a9cd4e81e26b521c3a0d7036fde65556522a
@@ -981,7 +981,10 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 69e596e5d29ac970971294ca817d4ed7a9e51f833426bbfd92b44987f9f8099f
-R 7c39506fe32a43a06d4139b9e60c8da4
+P 461d4f41d56e30ce4d6dc3d89e5eb63ab9b327ee07240f2fc96e847a913eb336
+R 5dc4ed2cdf70af70ebc6a17dd621b89c
+T *branch * context-dependent-files-menu
+T *sym-context-dependent-files-menu *
+T -sym-trunk *
 U drh
-Z 76ac7c17932ed571a436a7a7ed170d06
+Z cb3b9f0ebde51dbf4a78b2d12686f33d
