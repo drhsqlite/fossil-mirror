@@ -2240,9 +2240,9 @@ void artifact_page(void){
       blob_reset(&path);
     }
     style_submenu_element("Artifact", "%R/artifact/%S", zUuid);
-    style_submenu_element("Annotate", "%R/annotate?filename=%T&ci=%T",
+    style_submenu_element("Annotate", "%R/annotate?filename=%T&checkin=%T",
                           zName, zCI);
-    style_submenu_element("Blame", "%R/blame?filename=%T&ci=%T",
+    style_submenu_element("Blame", "%R/blame?filename=%T&checkin=%T",
                           zName, zCI);
     blob_init(&downloadName, zName, -1);
     objType = OBJTYPE_CONTENT;
