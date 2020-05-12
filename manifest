@@ -1,5 +1,5 @@
-C Added\sfossil.fetch()\sresponseHeaders\soption\sto\spass\son\sone\sor\smore\sresponse\sheaders\sto\sthe\sonload()\scallback.
-D 2020-05-12T13:18:45.311
+C Added\sthe\stab\smanager\sbefore-switch-from\sevent.
+D 2020-05-12T13:19:30.447
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,7 +489,7 @@ F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
 F src/fossil.fetch.js a083bb72eacbb402c416451dd6f23273f01980f1c6c49f6eb4308050a725c57a
 F src/fossil.page.fileedit.js b7532f644879b4833f1fe7e5031be5223b5c10489b974c5209a41be99c0c59aa
-F src/fossil.tabs.js 2b0645ddfeb7cca23a00294c076dbcdb3101c93fdc0a2d54c8f69a6d52f04974
+F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
 F src/fuzz.c ecfb2cc600ee7647667693e2aaaff4f928942063aca9dc7ab09a1817508ed0d4
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P c145140d3ee52d25d09a3f114d3496577dc90e52f7846a3853021638f8c1a5a7
-R 8461fa0ecead6175ed99612d474790b7
+P bbb738d07dfbecb9f3f5923765fb6c1cf66fb301bf36ec4bfc3ba69782a7b46c
+R 46c8395c479853d3f92cfe41e8f03253
 U stephan
-Z 0c3088ff7a6a3f09e1b73d8b32a34c64
+Z 783856d3b8a366021c0103582a80cdc5

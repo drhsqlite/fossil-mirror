@@ -150,6 +150,10 @@
        propertly holding any tab-related state for the event. The events
        are:
 
+       - 'before-switch-from' is emitted immediately before a new tab
+       is switched away from. detail = the tab element being switched
+       away from.
+
        - 'before-switch-to' is emitted immediately before a new tab is
        switched to.  detail = the tab element.
 
@@ -169,11 +173,18 @@
     /**
        If the given DOM element, unique selector, or integer (0-based
        tab number) is one of this object's tabs, the UI makes that tab
-       the currently-visible one. Returns this object.
+       the currently-visible one, firing any relevant events. Returns
+       this object. If the argument is the current tab, this is a
+       no-op, and no events are fired.
     */
     switchToTab: function(tab){
       tab = tabArg(tab,this);
       const self = this;
+      if(tab===this._currentTab) return this;
+      else if(this._currentTab){
+        this._dispatchEvent('before-switch-from', this._currentTab);
+      }
+      delete this._currentTab;
       this.e.tabs.childNodes.forEach((e,ndx)=>{
         const btn = this.e.tabBar.childNodes[ndx];
         if(e===tab){
@@ -182,6 +193,7 @@
           }
           self._dispatchEvent('before-switch-to',tab);
           setVisible(e, true);
+          this._currentTab = e;
           D.addClass(btn,'selected');
           self._dispatchEvent('after-switch-to',tab);
         }else{
