@@ -32,14 +32,16 @@
   F.message = function f(msg){
     const args = Array.prototype.slice.call(arguments,0);
     const tgt = f.targetElement;
-    args.unshift(timestring(),'UTC:');
+    if(args.length) args.unshift(timestring(),'UTC:');
     if(tgt){
       tgt.classList.remove('error');
       tgt.innerText = args.join(' ');
     }
     else{
-      args.unshift('Fossil status:');
-      console.debug.apply(console,args);
+      if(args.length){
+        args.unshift('Fossil status:');
+        console.debug.apply(console,args);
+      }
     }
     return this;
   };
@@ -48,6 +50,11 @@
   */
   F.message.targetElement =
     document.querySelector('#fossil-status-bar');
+  if(F.message.targetElement){
+    F.message.targetElement.addEventListener(
+      'dblclick', ()=>F.message(), false
+    );
+  }
   /*
   ** By default fossil.error() sends its first argument to
   ** console.error(). If fossil.message.targetElement (yes,

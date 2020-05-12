@@ -1673,13 +1673,12 @@ void fileedit_page(void){
     CX("document.body.classList.add('fileedit');\n");
     style_emit_script_tag(1,0);
   }
-  CX("<p>This page is <em>NEW AND EXPERIMENTAL</em>. "
-     "USE AT YOUR OWN RISK, preferably on a test "
-     "repo.</p>\n");
 
   /* Status bar */
-  CX("<div id='fossil-status-bar'>Async. status messages will go "
-     "here.</div>\n"/* will be moved into the tab container via JS */);
+  CX("<div id='fossil-status-bar' "
+     "title='Status message area. Double-click to clear them.'>"
+     "Status messages will go here.</div>\n"
+     /* will be moved into the tab container via JS */);
 
   /* Main tab container... */
   CX("<div id='fileedit-tabs' class='tab-container'></div>");

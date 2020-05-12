@@ -1,5 +1,5 @@
-C After\scommitting,\sreload\sthe\sleaves/files\slist.\sAdded\sa\sreload\sbutton\sto\sthe\sleaves/files\swidget.\sSeveral\sstyle\simprovements.
-D 2020-05-12T08:28:28.796
+C Double-clicking\sthe\sstatus\smessage\sbar\snow\sclears\sthe\smessage\s(useful\swhen\sa\slong\sHTML-format\serror\scomes\sin\svia\sajax).\sRemoved\sthe\sunsightly\s'new\sand\sexperimental'\sbanner.
+D 2020-05-12T08:54:28.158
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,12 +479,12 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c 7301c8be7ba5ae16763fd06a1d884c9968ae926bdc2d3e30e950905225287838
+F src/fileedit.c fcf98a15ceadb1ff6deac20b9cd5ebfd506d214213c3fb858b358eb12f01a409
 F src/finfo.c 566e68487c034e7f7106df7a7e85ecec9f447f1be4c23ad470d60dc96536e1cb
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
-F src/fossil.bootstrap.js ffd9bd7625d920fcdae0ea55558a95b3853b50c38330e4683c6a2366d7b8fe08
+F src/fossil.bootstrap.js fb9be69154378faf902b448504acfd94c0a26861352508e1618e10141934b945
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 5601d77efa68c4c854818e0c2ed553201bf8d4798cbf8357c280eec3daa3342a
 F src/fossil.fetch.js 937316a3ee11da68a243bfb0312193c336db4d0211588c994a055ade3be61ffb
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 9f26fd1eeeddac74ff782d3eb03234c64046513580c888240daaee9c95da1245
-R d3dab1f30ff97fc9cbb5070c868b71d3
+P 2318c419c9e2c3c13e17ae6be8ac601b97bf0ebb9f9eff7e9e0fe823c3d58508
+R 690649486d132100c479a22f153fd267
 U stephan
-Z ddcabea54c6f16ea3142c86a80b98631
+Z a2cab00e5261a3894717893ab4edfd68
