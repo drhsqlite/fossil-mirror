@@ -152,9 +152,29 @@
       );
       delete this.init;
     }
+  }/*P.fileSelector*/;
+
+  /**
+     Internal workaround to select the current preview mode
+     and fire a change event if the value actually changes
+     or if forceEvent is truthy.
+  */
+  P.selectPreviewMode = function(modeValue, forceEvent){
+    const s = this.e.selectPreviewMode;
+    if(!modeValue) modeValue = s.value;
+    else if(s.value != modeValue){
+      s.value = modeValue;
+      forceEvent = true;
+    }
+    if(forceEvent){
+      // Force UI update
+      s.dispatchEvent(new Event('change',{target:s}));
+    }
   };
 
   window.addEventListener("load", function() {
+    P.base = {tag: E('base')};
+    P.base.originalHref = P.base.tag.href;
     P.tabs = new fossil.TabManager('#fileedit-tabs');
     P.e = {
       taEditor: E('#fileedit-content-editor'),
@@ -164,7 +184,7 @@
       btnCommit: E("#fileedit-btn-commit"),
       btnReload: E("#fileedit-tab-content > .fileedit-options > "
                    +"button.fileedit-content-reload"),
-      selectPreviewModeWrap: E('#select-preview-mode'),
+      selectPreviewMode: E('#select-preview-mode select'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
       selectEolWrap:  E('#select-preview-html-ems'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
@@ -201,9 +221,17 @@
     P.tabs.addEventListener(
       /* Set up auto-refresh of the preview tab... */
       'before-switch-to', function(ev){
-        if(ev.detail===P.e.tabs.preview
-           && P.e.cbAutoPreview.checked){
-          P.preview();
+        if(ev.detail===P.e.tabs.preview){
+          P.baseHrefForFile();
+          if(P.e.cbAutoPreview.checked) P.preview();
+        }
+      }
+    );
+    P.tabs.addEventListener(
+      /* Set up auto-refresh of the preview tab... */
+      'before-switch-from', function(ev){
+        if(ev.detail===P.e.tabs.preview){
+          P.baseHrefRestore();
         }
       }
     );
@@ -238,13 +266,12 @@
        certain preview options depending on the current
        preview mode...
     */
-    const selectPreviewMode =
-          P.e.selectPreviewModeWrap.querySelector('select');
-    selectPreviewMode.addEventListener(
+    P.e.selectPreviewMode.addEventListener(
       "change", function(e){
         const mode = e.target.value,
               name = P.previewModes[mode],
               hide = [], unhide = [];
+        P.previewModes.current = name;
         if('guess'===name){
           unhide.push(P.e.cbLineNumbersWrap,
                       P.e.selectHtmlEmsWrap);
@@ -258,10 +285,7 @@
         unhide.forEach((e)=>e.classList.remove('hidden'));
       }, false
     );
-    selectPreviewMode.dispatchEvent(
-      // Force UI update
-      new Event('change',{target:selectPreviewMode})
-    );
+    P.selectPreviewMode(false, true);
     const selectFontSize = E('select[name=editor_font_size]');
     if(selectFontSize){
       selectFontSize.addEventListener(
@@ -295,6 +319,47 @@
       this.e.taEditor.value = arguments[0];
       return this;
     }
+  };
+
+  /**
+     If either of...
+
+     - P.previewModes.current==='wiki'
+
+     - P.previewModes.current==='guess' AND the currently-loaded
+     file has an extension of (md|wiki)
+
+     ... then this function updates the document's base.href to a
+     repo-relative /doc/{{this.finfo.checkin}}/{{directory part of
+     this.finfo.filename}}/
+
+     If neither of those conditions applies, this is a no-op.
+  */
+  P.baseHrefForFile = function f(){
+    const fn = this.finfo ? this.finfo.filename : undefined;
+    if(!fn) return this;
+    if(!f.rxWiki){
+      f.rxWiki = /\.(wiki|md)$/i;
+    }
+    if('wiki'===P.previewModes.current
+       || ('guess'===P.previewModes.current
+           && f.rxWiki.test(fn))){
+      const a = fn.split('/');
+      a.pop();
+      this.base.tag.href = F.repoUrl(
+        'doc/'+F.hashDigits(this.finfo.checkin)
+          +'/'+(a.length ? a.join('/')+'/' : '')
+      );
+    }
+    return this;
+  };
+
+  /**
+     Sets the document's base.href value to its page-load-time
+     setting.
+  */
+  P.baseHrefRestore = function(){
+    P.base.tag.href = P.base.originalHref;
   };
 
   /**
@@ -435,7 +500,7 @@
       return this;
     }
     const fd = new FormData();
-    fd.append('render_mode',E('select[name=preview_render_mode]').value);
+    fd.append('render_mode',this.e.selectPreviewMode.value);
     fd.append('filename',this.finfo.filename);
     fd.append('ln',E('[name=preview_ln]').checked ? 1 : 0);
     fd.append('iframe_height', E('[name=preview_html_ems]').value);
@@ -445,7 +510,11 @@
     ).fetch('fileedit',{
       urlParams: {ajax: 'preview'},
       payload: fd,
-      onload: (r)=>{
+      responseHeaders: 'x-fileedit-render-mode',
+      onload: (r,header)=>{
+        P.selectPreviewMode(P.previewModes[header]);
+        if('wiki'===header) P.baseHrefForFile();
+        else P.baseHrefRestore();
         callback(r);
         F.message('Updated preview.');
       },

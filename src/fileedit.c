@@ -937,17 +937,20 @@ static int fileedit_render_mode_for_mimetype(const char * zMimetype){
 
 /*
 ** Performs the PREVIEW mode for /filepage.
+**
+** If *renderMode==FE_RENDER_GUESS then *renderMode gets set to the
+** mode which is guessed at for the rendering.
 */
 static void fileedit_render_preview(Blob * pContent,
                                     const char *zFilename,
-                                    int flags, int renderMode,
+                                    int flags, int * renderMode,
                                     int nIframeHeightEm){
   const char * zMime;
   zMime = mimetype_from_name(zFilename);
-  if(FE_RENDER_GUESS==renderMode){
-    renderMode = fileedit_render_mode_for_mimetype(zMime);
+  if(FE_RENDER_GUESS==*renderMode){
+    *renderMode = fileedit_render_mode_for_mimetype(zMime);
   }
-  switch(renderMode){
+  switch(*renderMode){
     case FE_RENDER_HTML_IFRAME:{
       char * z64 = encode64(blob_str(pContent), blob_size(pContent));
       CX("<iframe width='100%%' frameborder='0' "
@@ -1241,7 +1244,7 @@ static void fileedit_ajax_preview(void){
   int ln = atoi(PD("ln","0"));
   int iframeHeight = atoi(PD("iframe_height","40"));
   Blob content = empty_blob;
-
+  const char * zRenderMode = 0;
   fileedit_get_fnci_args( &zFilename, 0 );
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_check_filename(zFilename)){
@@ -1251,7 +1254,27 @@ static void fileedit_ajax_preview(void){
   blob_init(&content, zContent, -1);
   fileedit_render_preview(&content, zFilename,
                           ln ? FE_PREVIEW_LINE_NUMBERS : 0,
-                          renderMode, iframeHeight);
+                          &renderMode, iframeHeight);
+  /*
+  ** Now tell the caller if we did indeed use FE_RENDER_WIKI, so that
+  ** they can re-set the <base href> to an appropriate value (which
+  ** requires knowing the content's current checkin version, which we
+  ** don't have here).
+  */
+  switch(renderMode){
+    /* The strings used here MUST correspond to those used in the JS-side
+    ** fossil.page.previewModes map.
+    */
+    case FE_RENDER_WIKI: zRenderMode = "wiki"; break;
+    case FE_RENDER_HTML_INLINE: zRenderMode = "htmlInline"; break;
+    case FE_RENDER_HTML_IFRAME: zRenderMode = "htmlIframe"; break;
+    case FE_RENDER_PLAIN_TEXT: zRenderMode = "text"; break;
+    case FE_RENDER_GUESS:
+      assert(!"cannot happen");
+  }
+  if(zRenderMode!=0){
+    cgi_printf_header("X-fileedit-render-mode: %s\r\n", zRenderMode);
+  }
 }
 
 /*
@@ -1788,9 +1811,7 @@ void fileedit_page(void){
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='Preview'"
        ">");
-
-    CX("<div class='fileedit-options flex-container flex-column'>");
-    CX("<div class='flex-container flex-row'>");
+    CX("<div class='fileedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
        "data-f-preview-from='fileedit-content-editor' "
        /* ^^^ text source elem ID*/
@@ -1855,12 +1876,6 @@ void fileedit_page(void){
                            "1", P("preview_ln")!=0,
                            "If on, plain-text files (only) will get "
                            "line numbers added to the preview.");
-    CX("</div>"/*.flex-container.flex-row (buttons/options)*/);
-    CX("<div class='fileedit-hint'>"
-       "Note that hyperlinks in previewed HTML are relative to "
-       "<em>this</em> page, and therefore not correct. Clicking "
-       "them will leave this page, losing any edits."
-       "</div>");
     CX("</div>"/*.fileedit-options*/);
     CX("<div id='fileedit-tab-preview-wrapper'></div>");
     CX("</div>"/*#fileedit-tab-preview*/);
