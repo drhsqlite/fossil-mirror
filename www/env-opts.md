@@ -114,21 +114,10 @@ UTC time.
 Environment Variables
 ---------------------
 
-On most platforms, the location of the user’s account-wide `.fossil`
-file is either `FOSSIL_HOME` or `HOME`, in that order. This ordering
-lets you put this file somewhere other than at the top of your user’s
-home directory by defining `FOSSIL_HOME` to mask the always-defined
-`HOME`.
-
-For native Windows builds and for Cygwin builds, the file is called
-`_fossil` instead to avoid problems with old programs that assume file
-names cannot begin with a dot, as was true in old versions of Windows
-and in MS-DOS. (Newer Microsoft OSes and file systems don’t have a
-problem with such files, but still we take the safe path in case you’re
-on a system with software that can’t cope.) We start our search with
-`FOSSIL_HOME` again, but instead of falling back to `HOME`, we instead
-try `USERPROFILE`, then `LOCALAPPDATA`, then `APPDATA`, and finally we
-concatenate `HOMEDRIVE` + `HOMEPATH`.
+The location of the user's account-wide [configuration database][configdb]
+depends on the operating system and on the existance of various 
+environment variables and/or files.  See the discussion of the
+[configuration database location algorithm][configloc] for details.
 
 `EDITOR`: Name the editor to use for check-in and stash comments.
 Overridden by the local or global `editor` setting or the `VISUAL`
@@ -151,12 +140,9 @@ local (or remote) testing of the moderation subsystem and its impact
 on the contents and status of wiki pages.
 
 
-`FOSSIL_HOME`: Location of the `~/.fossil` file. The first environment
-variable found in the environment from the list `FOSSIL_HOME`,
-`LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file.
-
+`FOSSIL_HOME`: Location of [configuration database][configdb].
+See the [configuration database location][configloc] description
+for additional information.
 
 `FOSSIL_USE_SEE_TEXTKEY`: If set, treat the encryption key string for
 SEE as text to be hashed into the actual encryption key.  This has no
@@ -197,11 +183,8 @@ in the future.
 fossil is invoked from a web server as a CGI command, and act
 accordingly.
 
-`HOME`: Location of the `~/.fossil` file. The first environment
-variable found in the environment from the list `FOSSIL_HOME`,
-`LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME` is used as the
-location of the `~/.fossil` file.
+`HOME`: Potential location of the [configuration database][configdb].
+See the [configuration database location][configloc] description for details.
 
 `HOMEDRIVE`, `HOMEPATH`: (Windows) Location of the `~/.fossil` file.
 The first environment variable found in the environment from the list
@@ -404,24 +387,26 @@ first found environment variable from the list `FOSSIL_USER`, `USER`,
 none of those are set, then the default user name is "root".
 
 
-### Home Directory
+### Configuration Database Location
 
-Fossil keeps some information interesting to each user in the user's
-home directory. This includes the global settings and the list of
-repositories and checkouts used by `fossil all`.
+Fossil keeps some information pertinent to each user in the user's
+[configuration database file][configdb]. 
+The configuration database file includes the global settings
+and the list of repositories and checkouts used by `fossil all`.
 
-The user's home directory is specified by the first environment
-variable found in the environment from the list `FOSSIL_HOME`,
-`LOCALAPPDATA` (Windows), `APPDATA` (Windows), `HOMEDRIVE` and
-`HOMEPATH` (Windows, used together), and `HOME`.
+The location of the configuration database file depends on the
+operating system and on the existance of various environment
+variables and/or files.  In brief, the configuration database is
+usually:
 
-SQLite has its own notion of the user's home directory, which is only
-exposed if the interactive SQL shell is run with the "fossil
-sqlite3" command. Being a separate library, SQLite uses many of the
-same variables to find the home directory, but uses them in a
-different order, and does not use the `FOSSIL_HOME` variable at all.
+  *  Traditional unix &rarr; "`$HOME/.fossil`"
+  *  Windows &rarr; "`%LOCALAPPDATA%/_fossil`"
+  *  [XDG-unix][xdg] &rarr; "`$HOME/.config/fossil.db`"
 
+[xdg]: https://www.freedesktop.org/wiki/
 
+See the [configuration database location
+algorithm][configloc] discussion for full information.
 
 ### SQLite VFS to use
 
@@ -493,3 +478,6 @@ URL in the user's configured default browser.
 
 On Windows platforms, it assumes that `start` is the command to open
 an URL in the user's configured default browser.
+
+[configdb]: ./tech_overview.wiki#configdb
+[configloc]: ./tech_overview.wiki#configloc

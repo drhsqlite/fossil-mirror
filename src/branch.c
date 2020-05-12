@@ -22,6 +22,20 @@
 #include <assert.h>
 
 /*
+** Return true if zBr is the branch name associated with check-in with
+** blob.uuid value of zUuid
+*/
+int branch_includes_uuid(const char *zBr, const char *zUuid){
+  return db_exists(
+    "SELECT 1 FROM tagxref, blob"
+    " WHERE blob.uuid=%Q AND tagxref.rid=blob.rid"
+    "   AND tagxref.value=%Q AND tagxref.tagtype>0"
+    "   AND tagxref.tagid=%d",
+    zUuid, zBr, TAG_BRANCH
+  );
+}
+
+/*
 ** If RID refers to a check-in, return the name of the branch for that
 ** check-in.
 **
@@ -146,7 +160,6 @@ void branch_new(void){
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
   if( isPrivate ){
-    blob_appendf(&branch, "T +private *\n");
     noSign = 1;
   }
 
@@ -247,7 +260,7 @@ static const char createBrlistQuery[] =
 
 /* Call this routine to create the TEMP table */
 static void brlist_create_temp_table(void){
-  db_multi_exec(createBrlistQuery/*works-like:""*/);
+  db_exec_sql(createBrlistQuery);
 }
 
 

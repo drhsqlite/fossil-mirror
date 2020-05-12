@@ -547,7 +547,7 @@ void ainfo_page(void){
       return;
     }
     if( strcmp(zModAction,"approve")==0 ){
-      moderation_approve(rid);
+      moderation_approve('a', rid);
     }
   }
   style_header("Attachment Details");

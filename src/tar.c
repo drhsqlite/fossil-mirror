@@ -445,7 +445,7 @@ void test_tarball_cmd(void){
     Blob file;
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i], eFType);
-    tar_add_file(g.argv[i], &file, file_perm(0,0), file_mtime(0,0));
+    tar_add_file(g.argv[i], &file, file_perm(0,eFType), file_mtime(0,eFType));
     blob_reset(&file);
   }
   tar_finish(&zip);

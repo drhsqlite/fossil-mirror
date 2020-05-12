@@ -106,21 +106,32 @@ are conveniently covered in the next section!
 <h3 id="certs">Certificates</h3>
 
 To verify the identify of a server, TLS uses
-[https://en.wikipedia.org/wiki/X.509#Certificates|X.509 certificates].
+[https://en.wikipedia.org/wiki/X.509#Certificates|X.509 certificates], a
+scheme that depends on a trust hierarchy of so-called
+[https://en.wikipedia.org/wiki/Certificate_authority | Certificate
+Authorities]. The tree of trust relationships ultimately ends in the
+CA roots, which are considered the ultimate arbiters of who to trust in
+this scheme.
 
-If you are using a self-signed certificate, you'll be asked if you want
+The question then is, what CA roots does Fossil trust?
+
+If you are using a self-signed certificate, Fossil will initially not
+know that it can trust your certificate, so you'll be asked if you want
 to accept the certificate the first time you communicate with the
 server. Verify the certificate fingerprint is correct, then answer
-"always" to remember your decision.
+"always" if you want Fossil to remember your decision.
 
 If you are cloning from or syncing to Fossil servers that use a
-certificate signed by a
-[https://en.wikipedia.org/wiki/Certificate_authority|certificate
-authority] (CA), Fossil needs to know which CAs you trust to sign those
-certificates. Fossil relies on the OpenSSL library to have some way to
-check a trusted list of CA signing keys.
+certificate signed by a well-known CA or one of its delegates, Fossil
+still has to know which CA roots to trust. When this fails, you get a
+big long error message that starts with this text:
 
-There are two common ways this fails:
+<pre>
+    SSL verification failed: unable to get local issuer certificate
+</pre>
+
+Fossil relies on the OpenSSL library to have some way to check a trusted
+list of CA signing keys. There are two common ways this fails:
 
   #  <p>The OpenSSL library Fossil is linked to doesn't have a CA
      signing key set at all, so that it initially trusts no certificates
@@ -139,7 +150,9 @@ CA's signing certificate in PEM format and pointing OpenSSL at it:
 
 The use of <tt>--global</tt> with this option is common, since you may
 have multiple reposotories served under certificates signed by that same
-CA.
+CA. However, if you have a mix of publicly-signed and locally-signed
+certificates, you might want to drop the <tt>--global</tt> flag and set
+this option on a per-repository basis instead.
 
 A common way to run into the broader first problem is that you're on
 FreeBSD, which does not install a CA certificate set by default, even as
@@ -157,11 +170,11 @@ to use.  Rather than try to find a way to convert the data format, you
 may find it acceptable to use the same Mozilla NSS cert set.  I do not
 know of a way to easily get this from Mozilla themselves, but I did find
 a [https://curl.haxx.se/docs/caextract.html|third party source] for the
-<tt>cacert.pem</tt> file. Install it somewhere on your system, then
-point Fossil at it like so:
+<tt>cacert.pem</tt> file. I suggest placing the file into your Windows
+user home directory so that you can then point Fossil at it like so:
 
 <pre>
-     fossil set --global ssl-ca-location /path/to/cacert.pem
+     fossil set --global ssl-ca-location %userprofile%\cacert.pem
 </pre>
 
 This can also happen if you've linked Fossil to a version of OpenSSL

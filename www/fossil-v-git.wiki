@@ -34,30 +34,68 @@ Differences between Fossil and Git are summarized by the following table,
 with further description in the text that follows.
 
 <blockquote><table border=1 cellpadding=5 align=center>
-<tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
-<tr><td>File versioning only</td>
+<tr><th width="49%">GIT</th><th width="49%">FOSSIL</th><th width="2%">more</th></tr>
+<tr>
+    <td>File versioning only</td>
     <td>VCS, tickets, wiki, docs, notes, forum, UI,
-    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td></tr>
-<tr><td>Sprawling, incoherent, and inefficient</td>
-    <td>Self-contained and efficient</td></tr>
-<tr><td>Ad-hoc pile-of-files key/value database</td>
-    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td></tr>
-<tr><td>Portable to POSIX systems only</td><td>Runs just about anywhere</td></tr>
-<tr><td>Bazaar-style development</td><td>Cathedral-style development</td></tr>
-<tr><td>Designed for Linux kernel development</td>
-    <td>Designed for SQLite development</td></tr>
-<tr><td>Many contributors</td>
-    <td>Select contributors</td></tr>
-<tr><td>Focus on individual branches</td>
-    <td>Focus on the entire tree of changes</td></tr>
-<tr><td>One check-out per repository</td>
-    <td>Many check-outs per repository</td></tr>
-<tr><td>Remembers what you should have done</td>
-    <td>Remembers what you actually did</td></tr>
-<tr><td>Commit first</td>
-    <td>Test first</td></tr>
-<tr><td>SHA-2</td>
-    <td>SHA-3</td></tr>
+    [https://en.wikipedia.org/wiki/Role-based_access_control|RBAC]</td>
+    <td><a href="#features">2.1&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Sprawling, incoherent, and inefficient</td>
+    <td>Self-contained and efficient</td>
+    <td><a href="#efficient">2.2&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Ad-hoc pile-of-files key/value database</td>
+    <td>[https://sqlite.org/famous.html|The most popular database in the world]</td>
+    <td><a href="#durable">2.3&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Portable to POSIX systems only</td>
+    <td>Runs just about anywhere</td>
+    <td><a href="#portable">2.4&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Bazaar-style development</td>
+    <td>Cathedral-style development</td>
+    <td><a href="#devorg">2.5.1&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Designed for Linux kernel development</td>
+    <td>Designed for SQLite development</td>
+    <td><a href="#scale">2.5.2&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Many contributors</td>
+    <td>Select contributors</td>
+    <td><a href="#contrib">2.5.3&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Focus on individual branches</td>
+    <td>Focus on the entire tree of changes</td>
+    <td><a href="#branches">2.5.4&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>One check-out per repository</td>
+    <td>Many check-outs per repository</td>
+    <td><a href="#checkouts">2.6&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Remembers what you should have done</td>
+    <td>Remembers what you actually did</td>
+    <td><a href="#history">2.7&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>Commit first</td>
+    <td>Test first</td>
+    <td><a href="#testing">2.8&nbsp;&darr;</a></td>
+</tr>
+<tr>
+    <td>SHA-2</td>
+    <td>SHA-3</td>
+    <td><a href="#hash">2.9&nbsp;&darr;</a></td>
+</tr>
 </table></blockquote>
 
 <h3 id="features">2.1 Featureful</h3>
@@ -78,10 +116,10 @@ the design.  One way to describe Fossil is that it is
 
 Fossil can do operations over all local repo clones and check-out
 directories with a single command. For example, Fossil lets you say
-<tt>fossil all pull</tt> on a laptop prior to taking it off the network
+<tt>fossil all sync</tt> on a laptop prior to taking it off the network
 hosting those repos. You can sync up to all of the private repos on your
 company network plus those public Internet-hosted repos you use. Whether
-going out for a working lunch or on a transoceanic an airplane trip, one
+going out for a working lunch or on a transoceanic airplane trip, one
 command gets you in sync. This works with several other Fossil
 sub-commands, such as <tt>fossil all changes</tt> to get a list of files
 that you forgot to commit prior to the end of your working day, across
@@ -125,15 +163,35 @@ manager, simply because the creation of complicated binary packages is
 best delegated to people skilled in their creation. Normal Git users are
 not expected to build Git from source and install it themselves.
 
-Fossil is a single self-contained stand-alone executable with hardly any
-dependencies. Fossil can be run inside a minimally configured
-[https://en.wikipedia.org/wiki/Chroot|chroot jail], from a Windows
-memory stick, off a Raspberry Pi with a tiny SD card, etc. To install
-Fossil, one merely puts the executable somewhere in the <tt>$PATH</tt>.
-Fossil is
+Fossil is a single self-contained stand-alone executable which by default
+depends only on common platform libraries. If your platform allows static
+linking &mdash; not all do these days! &mdash; you can even get it down to
+a single executable with no external dependencies at all. Most notably,
+we deliver the official Windows builds of Fossil this way: the Zip file
+contains only <tt>fossil.exe</tt>, a self-contained Fossil executable;
+it is not a <tt>setup.exe</tt> style installer, it is the whole enchilada.
+
+A typical Fossil executable is about 5&nbsp;MiB, not counting system
+libraries it shares in common with Git such as OpenSSL and zlib, which
+we can factor out of the discussion.
+
+These properties allow Fossil to easily run inside a minimally configured
+[https://en.wikipedia.org/wiki/Chroot|chroot jail], from a Windows memory
+stick, off a Raspberry Pi with a tiny SD card, etc. To install Fossil,
+one merely puts the executable somewhere in the <tt>$PATH</tt>. Fossil is
 [https://fossil-scm.org/fossil/doc/trunk/www/build.wiki|straightforward
 to build and install], so that many Fossil users do in fact build and
 install "trunk" versions to get new features between formal releases.
+
+Contrast a basic installation of Git, which takes up about
+15&nbsp;MiB on Debian 10 across 230 files, not counting the contents of
+<tt>/usr/share/doc</tt> or <tt>/usr/share/locale</tt>. If you need to
+deploy to any platform where you cannot count facilities like the POSIX
+shell, Perl interpreter, and Tcl/Tk platform needed to fully use Git
+as part of the base platform, the full footprint of a Git installation
+extends to more like 45&nbsp;MiB and thousands of files. This complicates
+several common scenarios: Git for Windows, chrooted Git servers,
+Docker images...
 
 Some say that Git more closely adheres to the Unix philosophy,
 summarized as "many small tools, loosely joined," but we have many
@@ -144,8 +202,11 @@ Sometimes "many features, tightly-coupled" works better. What actually
 matters is effectiveness and efficiency. We believe Fossil achieves
 this.
 
-Git fails on efficiency once you add to it all of the third-party
-software needed to give it a Fossil-equivalent feature set. Consider
+The above size comparisons aren't apples-to-apples anyway. We've
+compared the size of Fossil with all of its [#features | many built-in
+features] to a fairly minimal Git installation. You must add a lot
+of third-party
+software to Git to give it a Fossil-equivalent feature set. Consider
 [https://about.gitlab.com/|GitLab], a third-party extension to Git
 wrapping it in many features, making it roughly Fossil-equivalent,
 though [https://docs.gitlab.com/ee/install/requirements.html|much more
@@ -154,7 +215,7 @@ Fossil setup. GitLab's basic requirements are easy to accept when you're dedicat
 a local rack server or blade to it, since its minimum requirements are
 more or less a description of the smallest
 thing you could call a "server" these days, but when you go to host that
-in the cloud, you can expect to pay about 8⨉ as much to comfortably host
+in the cloud, you can expect to pay about 8× as much to comfortably host
 GitLab as for Fossil.³ This difference is largely due to basic
 technology choices: Ruby and PostgreSQL vs C and SQLite.
 
@@ -199,7 +260,7 @@ next?" or "What are the children of this check-in?"
 
 Fossil, on the other hand, parses essential information about check-ins
 (parents, children, committers, comments, files changed, etc.) into a
-relational database that can be easily queried using concise SQL
+relational database that can easily be queried using concise SQL
 statements to find both ancestors and descendants of a check-in. This is
 the hybrid data model mentioned above: Fossil manages your check-in and
 other data in a NoSQL block chain structured data store, but that's backed
@@ -210,7 +271,9 @@ Fossil DVCS]" for more details.)
 Leaf check-ins in Git that lack a "ref" become "detached," making them
 difficult to locate and subject to garbage collection. This
 [http://gitfaq.org/articles/what-is-a-detached-head.html|detached head
-state] problem has caused untold grief for countless Git users. With
+state] problem has caused untold grief for
+[https://www.google.com/search?q=git+detached+head+state | a huge number
+of Git users]. With
 Fossil, detached heads are simply impossible because we can always find
 our way back into the block chain using one or more of the relational
 indices it automatically manages for you.
@@ -564,17 +627,25 @@ tightly focused and cohesive implementation.
 
 <h3 id="checkouts">2.6 One vs. Many Check-outs per Repository</h3>
 
-The default mode of operation in Git is to have a single working
-directory with a single <tt>.git</tt> subdirectory holding the actual
-local repository contents.
+Because Git commingles the repository data with the initial checkout of
+that repository, the default mode of operation in Git is to stick to that
+single work/repo tree, even when that's a shortsighted way of working.
 
 Fossil doesn't work that way. A Fossil repository is a SQLite database
-file which is normally stored outside the working directory. You can
+file which is normally stored outside the working checkout directory. You can
 [/help?cmd=open | open] a Fossil repository any number of times into
 any number of working directories. A common usage pattern is to have one
 working directory per active working branch, so that switching branches
 is done with a <tt>cd</tt> command rather than by checking out the
 branches successively in a single working directory.
+
+Fossil does allow you to switch branches within a working checkout
+directory, and this is also often done. It is simply that there is no
+inherent penalty to either choice in Fossil as there is in Git. The
+standard advice is to use a switch-in-place workflow in Fossil when
+the disturbance from switching branches is small, and to use multiple
+checkouts when you have long-lived working branches that are different
+enough that switching in place is disruptive.
 
 You can use Git in the Fossil style, either by manually symlinking the
 <tt>.git</tt> directory from one working directory to another or by use
@@ -585,27 +656,30 @@ have one working directory only. Most Git tutorials teach this style, so
 it is how most people learn to use Git. Because relatively few people
 use Git with multiple working directories per repository, there are
 [https://duckduckgo.com/?q=git+worktree+problem | several known
-problems] in working that way, which don't happen in Fossil because of
+problems] with that way of working, problems which don't happen in Fossil because of
 the clear separation between repository and working directory.
 
-Switching branches inside a single working directory loses local context
+This distinction matters because switching branches inside a single working directory loses local context
 on each switch.
 
 For instance, in any software project where the runnable program must be
 built from source files, you invalidate build objects on each switch,
-artificially increasing the time required to switch versions. This
+artificially increasing the time required to switch versions. Most obviously, this
 affects software written in statically-compiled programming languages
 such as C, Java, and Haskell, but it can even affect programs written in
-dynamic languages like JavaScript. A common
+dynamic languages like JavaScript. A typical
 [https://en.wikipedia.org/wiki/Single-page_application | SPA] build
-process involves a [http://browserify.org/ | Browserify] pass to convert
-[https://nodejs.org/ | Node] packages to run in a web browser,
-[https://sass-lang.com | SASS files] to CSS,
-[https://www.typescriptlang.org | Typescript] to JavaScript, etc., to
-say nothing of [https://github.com/mishoo/UglifyJS | uglification] and
-other passes. Once all that processing work is done for a given input
+process involves several passes: [http://browserify.org/ | Browserify] to convert
+[https://nodejs.org/ | Node] packages so they'll run in a web browser,
+[https://sass-lang.com | SASS] to CSS translation,
+transpilation of [https://www.typescriptlang.org | Typescript] to JavaScript,
+[https://github.com/mishoo/UglifyJS | uglification], etc.
+Once all that processing work is done for a given input
 file in a given working directory, why re-do that work just to switch
-versions?
+versions? If most of the files that differ between versions don't change
+very often, you can save substantial time by switching branches with
+<tt>cd</tt> rather than swapping versions in-place within a working
+checkout directory.
 
 For another example, you might have an active long-running test grinding
 away in a working directory, then get a call from a customer requiring
@@ -615,7 +689,8 @@ order to switch your lone working directory to the stable branch.
 
 Disk space is cheap. Having several working directories, each with its
 own local state, makes switching versions cheap and fast. Plus,
-<tt>cd</tt> is faster to type than <tt>git checkout</tt>.
+<tt>cd</tt> is faster to type than <tt>git checkout</tt> or <tt>fossil
+update</tt>.
 
 
 <h3 id="history">2.7 What you should have done vs. What you actually did</h3>
@@ -686,9 +761,9 @@ Fossil cannot sensibly work that way because of its default-enabled
 autosync feature. Instead of jumping straight to the commit step, Fossil
 applies the proposed merge to the local working directory only,
 requiring a separate check-in step before the change is committed to the
-repository blockchain. This gives you a chance to test the change,
-whether manually, or by running your software's automatic tests, or
-both.
+repository blockchain. This gives you a chance to test the change first,
+either manually or by running your software's automatic tests. (Ideally,
+both!)
 
 Another difference is that because Fossil requires an explicit commit
 for a merge, it makes you give an explicit commit <i>message</i> for
@@ -732,7 +807,7 @@ currently 41 lines long, to which you want to add the 600 lines of
 [./branching.wiki | the branching document]. The equivalent
 documentation in Git is the aggregation of the man pages for the above
 three commands, which is over 1000 lines, much of it mutually redundant.
-(e.g.  the <tt>--edit</tt> and <tt>--no-commit</tt> options get
+(e.g.  Git's <tt>--edit</tt> and <tt>--no-commit</tt> options get
 described three times, each time differently.) Fossil's
 documentation is not only more concise, it gives a nice split of brief
 online help and full online documentation.
@@ -749,29 +824,41 @@ Fossil delivered a new release allowing a clean migration to
 [./hashpolicy.wiki|full backwards compatibility] to old SHA-1 based
 repositories.
 
-By mid-2019, that feature arrived in every software package repository
-shipping Fossil, the last mover being Debian's stable package repo,
-which has a highly conservative policy on upgrading to new versions.
-With that hurdle run, we were able to change the default hash mode in
-Fossil 2.10 (released 2019-10-04) to require SHA-3 support both for new
-repositories and to create SHA-3 hashes in existing repos, effectively
-upgrading them if they were created with Fossil 1.<i>x</i>. This not
+In October 2019, after the last of the major binary
+package repos offering Fossil upgraded to Fossil 2.<i>x</i>,
+we switched the default hash mode so that from
+Fossil 2.10 forward, the conversion to SHA-3 is fully automatic.
+This not
 only solves the SHAttered problem, it should prevent a reoccurrence of
 similar problems for the foreseeable future.
 
-Meanwhile, the Git community took until August 2018 to announce
-[https://git-scm.com/docs/hash-function-transition/2.18.0|their plan]
-for solving the same problem by moving to SHA-256 (a variant of the
-[https://en.wikipedia.org/wiki/SHA-2|older SHA-2 algorithm]) and until
-February 2019 to release a version containing the change. It's looking
-like this will take years more to percolate through the community.
+Meanwhile, the Git community took until August 2018 to publish
+[https://git-scm.com/docs/hash-function-transition/|their first plan]
+for solving the same problem by moving to SHA-256, a variant of the
+[https://en.wikipedia.org/wiki/SHA-2 | older SHA-2 algorithm].  As of
+this writing in February 2020, that plan hasn't been implemented, as far
+as this author is aware, but there is now
+[https://lwn.net/ml/git/20200113124729.3684846-1-sandals@crustytoothpaste.net/
+| a competing SHA-256 based plan] which requires complete repository
+conversion from SHA-1 to SHA-256, breaking all public hashes in the
+repo. One way to characterize such a massive upheaval in Git terms is a
+whole-project rebase, which violates
+[https://blog.axosoft.com/golden-rule-of-rebasing-in-git/ | Git's own
+Golden Rule of Rebasing].
 
-The practical impact of SHAttered on structured data stores like the one
-in Git and Fossil isn't clear, but you want to have your repositories
+Regardless of the eventual implementation details, we fully expect Git
+to move off SHA-1 eventually and for the changes to take years more to
+percolate through the community.
+
+Almost three years after Fossil solved this problem, the
+[https://sha-mbles.github.io/ | SHAmbles attack] was published, further
+weakening the case for continuing to use SHA-1.
+
+The practical impact of attacks like SHAttered and SHAmbles on the
+Git and Fossil blockchains isn't clear, but you want to have your repositories
 moved over to a stronger hash algorithm before someone figures out how
-to make use of the weaknesses in the old one.  Fossil's developers moved
-on this problem quickly and had a widely-deployed solution to it years
-ago.
+to make use of the weaknesses in the old one. Fossil has had this covered
+for years now, so that the solution is now almost universally deployed.
 
 <hr/>
 

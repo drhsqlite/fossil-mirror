@@ -98,15 +98,18 @@ static struct {
   { "background-image",       CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-date-format",   CONFIGSET_SKIN },
+  { "timeline-default-style", CONFIGSET_SKIN },
   { "timeline-dwelltime",     CONFIGSET_SKIN },
   { "timeline-closetime",     CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "timeline-plaintext",     CONFIGSET_SKIN },
   { "timeline-truncate-at-blank", CONFIGSET_SKIN },
+  { "timeline-tslink-info",   CONFIGSET_SKIN },
   { "timeline-utc",           CONFIGSET_SKIN },
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "default-csp",            CONFIGSET_SKIN },
   { "sitemap-docidx",         CONFIGSET_SKIN },
   { "sitemap-download",       CONFIGSET_SKIN },
   { "sitemap-license",        CONFIGSET_SKIN },
@@ -145,6 +148,8 @@ static struct {
   { "parent-project-name",    CONFIGSET_PROJ },
   { "hash-policy",            CONFIGSET_PROJ },
   { "comment-format",         CONFIGSET_PROJ },
+  { "mimetypes",              CONFIGSET_PROJ },
+  { "forbid-delta-manifests", CONFIGSET_PROJ },
 
 #ifdef FOSSIL_ENABLE_LEGACY_MV_RM
   { "mv-rm-files",            CONFIGSET_PROJ },
@@ -815,11 +820,11 @@ void configuration_cmd(void){
     url_enable_proxy("via proxy: ");
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,(unsigned)mask);
+      client_sync(0,0,(unsigned)mask,0);
     }else if( strncmp(zMethod, "pull", n)==0 ){
-      client_sync(0,(unsigned)mask,0);
+      client_sync(0,(unsigned)mask,0,0);
     }else{
-      client_sync(0,(unsigned)mask,(unsigned)mask);
+      client_sync(0,(unsigned)mask,(unsigned)mask,0);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){

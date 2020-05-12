@@ -424,6 +424,9 @@ using a gimme card in either the reply or in the next message.</p>
 identified by the first argument is private on the sender and should
 be ignored unless a "--private" [/help?cmd=sync|sync] is occurring.
 
+<p>The name "igot" comes from the English slang expression "I got" meaning
+"I have".
+
 <h4>3.6.1 Unversioned Igot Cards</h4>
 
 <p>Zero or more "uvigot" cards are sent from server to client when
@@ -470,6 +473,10 @@ artifact back to the sender.  The format of a gimme card is this:</p>
 the sender wants.  The receiver will typically respond to a
 gimme card by sending a file card in its reply or in the next
 message.</p>
+
+<p>The "gimme" name means "give me".  The imperative "give me" is
+pronounced as if it were a single word "gimme" in some dialects of 
+English (including the dialect spoken by the original author of Fossil).
 
 <h4>3.7.1 Unversioned Gimme Cards</h4>
 

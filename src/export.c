@@ -1387,7 +1387,11 @@ void gitmirror_export_command(void){
               " --export-marks=.mirror_state/marks.txt"
               " --quiet --done");
     gitmirror_message(VERB_NORMAL, "%s\n", zCmd);
+#ifdef _WIN32
+    xCmd = popen(zCmd, "wb");
+#else
     xCmd = popen(zCmd, "w");
+#endif
     if( zCmd==0 ){
       fossil_fatal("cannot start the \"git fast-import\" command");
     }

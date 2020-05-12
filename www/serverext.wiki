@@ -206,6 +206,8 @@ So, in other words, to get javascript to work, it must be enclosed in:
 Except, of course, the $FOSSIL_NONCE is replaced by the value of the
 FOSSIL_NONCE environment variable.
 
+<h3>3.1 Input Content</h3>
+
 If the HTTP request includes content (for example if this is a POST request)
 then the CONTENT_LENGTH value will be positive and the data for the content
 will be readable on standard input.
@@ -232,7 +234,7 @@ Those that Fossil does not understand are simply relayed back to up the
 line to the requester.
 
 Fossil takes special action with some content types.  If the Content-Type
-is "application/x-fossil-wiki" or "application/x-markdown" then Fossil
+is "text/x-fossil-wiki" or "text/x-markdown" then Fossil
 converts the content from [/wiki_rules|Fossil-Wiki] or 
 [/md_rules|Markdown] into HTML, adding its
 own header and footer text according to the repository skin.  Content
@@ -279,8 +281,8 @@ by Fossil.
 Remember that the /ext will return any file in the extroot directory
 hierarchy as static content if the file is readable but not executable.
 When initially setting up the /ext mechanism, it is sometimes helpful
-to verify that you are able to receive static content prior to working
-on getting your CGIs working.  Also remember that CGIs must be
+to verify that you are able to receive static content prior to starting
+work on your CGIs.  Also remember that CGIs must be
 executable files.
 
 Fossil likes to run inside a chroot jail, and will automatically put

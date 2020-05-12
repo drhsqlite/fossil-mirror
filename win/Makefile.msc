@@ -100,7 +100,7 @@ USE_SEE = 0
 !endif
 
 !if $(FOSSIL_ENABLE_SSL)!=0
-SSLDIR    = $(B)\compat\openssl-1.1.1d
+SSLDIR    = $(B)\compat\openssl-1.1.1g
 SSLINCDIR = $(SSLDIR)\include
 !if $(FOSSIL_DYNAMIC_BUILD)!=0
 SSLLIBDIR = $(SSLDIR)
@@ -302,6 +302,7 @@ SQLITE_OPTIONS = /DNDEBUG=1 \
                  /DSQLITE_HAVE_ZLIB \
                  /DSQLITE_INTROSPECTION_PRAGMAS \
                  /DSQLITE_ENABLE_DBPAGE_VTAB \
+                 /DSQLITE_TRUSTED_SCHEMA=0 \
                  /DSQLITE_WIN32_NO_ANSI
 
 SHELL_OPTIONS = /DNDEBUG=1 \
@@ -329,6 +330,7 @@ SHELL_OPTIONS = /DNDEBUG=1 \
                 /DSQLITE_HAVE_ZLIB \
                 /DSQLITE_INTROSPECTION_PRAGMAS \
                 /DSQLITE_ENABLE_DBPAGE_VTAB \
+                /DSQLITE_TRUSTED_SCHEMA=0 \
                 /Dmain=sqlite3_shell \
                 /DSQLITE_SHELL_IS_UTF8=1 \
                 /DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -348,6 +350,7 @@ SRC   = add_.c \
         alerts_.c \
         allrepo_.c \
         attach_.c \
+        backlink_.c \
         backoffice_.c \
         bag_.c \
         bisect_.c \
@@ -460,6 +463,7 @@ SRC   = add_.c \
         sync_.c \
         tag_.c \
         tar_.c \
+        terminal_.c \
         th_main_.c \
         timeline_.c \
         tkt_.c \
@@ -540,6 +544,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\..\skins\xekri\details.txt \
         $(SRCDIR)\..\skins\xekri\footer.txt \
         $(SRCDIR)\..\skins\xekri\header.txt \
+        $(SRCDIR)\accordion.js \
         $(SRCDIR)\ci_edit.js \
         $(SRCDIR)\copybtn.js \
         $(SRCDIR)\diff.tcl \
@@ -553,6 +558,22 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\scroll.js \
         $(SRCDIR)\skin.js \
         $(SRCDIR)\sorttable.js \
+        $(SRCDIR)\sounds\0.wav \
+        $(SRCDIR)\sounds\1.wav \
+        $(SRCDIR)\sounds\2.wav \
+        $(SRCDIR)\sounds\3.wav \
+        $(SRCDIR)\sounds\4.wav \
+        $(SRCDIR)\sounds\5.wav \
+        $(SRCDIR)\sounds\6.wav \
+        $(SRCDIR)\sounds\7.wav \
+        $(SRCDIR)\sounds\8.wav \
+        $(SRCDIR)\sounds\9.wav \
+        $(SRCDIR)\sounds\a.wav \
+        $(SRCDIR)\sounds\b.wav \
+        $(SRCDIR)\sounds\c.wav \
+        $(SRCDIR)\sounds\d.wav \
+        $(SRCDIR)\sounds\e.wav \
+        $(SRCDIR)\sounds\f.wav \
         $(SRCDIR)\tree.js \
         $(SRCDIR)\useredit.js \
         $(SRCDIR)\wiki.wiki
@@ -561,6 +582,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\alerts$O \
         $(OX)\allrepo$O \
         $(OX)\attach$O \
+        $(OX)\backlink$O \
         $(OX)\backoffice$O \
         $(OX)\bag$O \
         $(OX)\bisect$O \
@@ -676,6 +698,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\sync$O \
         $(OX)\tag$O \
         $(OX)\tar$O \
+        $(OX)\terminal$O \
         $(OX)\th$O \
         $(OX)\th_lang$O \
         $(OX)\th_main$O \
@@ -764,6 +787,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\alerts.obj >> $@
 	echo $(OX)\allrepo.obj >> $@
 	echo $(OX)\attach.obj >> $@
+	echo $(OX)\backlink.obj >> $@
 	echo $(OX)\backoffice.obj >> $@
 	echo $(OX)\bag.obj >> $@
 	echo $(OX)\bisect.obj >> $@
@@ -879,6 +903,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\sync.obj >> $@
 	echo $(OX)\tag.obj >> $@
 	echo $(OX)\tar.obj >> $@
+	echo $(OX)\terminal.obj >> $@
 	echo $(OX)\th.obj >> $@
 	echo $(OX)\th_lang.obj >> $@
 	echo $(OX)\th_main.obj >> $@
@@ -1045,6 +1070,12 @@ $(OX)\attach$O : attach_.c attach.h
 	$(TCC) /Fo$@ -c attach_.c
 
 attach_.c : $(SRCDIR)\attach.c
+	translate$E $** > $@
+
+$(OX)\backlink$O : backlink_.c backlink.h
+	$(TCC) /Fo$@ -c backlink_.c
+
+backlink_.c : $(SRCDIR)\backlink.c
 	translate$E $** > $@
 
 $(OX)\backoffice$O : backoffice_.c backoffice.h
@@ -1719,6 +1750,12 @@ $(OX)\tar$O : tar_.c tar.h
 tar_.c : $(SRCDIR)\tar.c
 	translate$E $** > $@
 
+$(OX)\terminal$O : terminal_.c terminal.h
+	$(TCC) /Fo$@ -c terminal_.c
+
+terminal_.c : $(SRCDIR)\terminal.c
+	translate$E $** > $@
+
 $(OX)\th_main$O : th_main_.c th_main.h
 	$(TCC) /Fo$@ -c th_main_.c
 
@@ -1865,6 +1902,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			alerts_.c:alerts.h \
 			allrepo_.c:allrepo.h \
 			attach_.c:attach.h \
+			backlink_.c:backlink.h \
 			backoffice_.c:backoffice.h \
 			bag_.c:bag.h \
 			bisect_.c:bisect.h \
@@ -1977,6 +2015,7 @@ headers: makeheaders$E page_index.h builtin_data.h default_css.h VERSION.h
 			sync_.c:sync.h \
 			tag_.c:tag.h \
 			tar_.c:tar.h \
+			terminal_.c:terminal.h \
 			th_main_.c:th_main.h \
 			timeline_.c:timeline.h \
 			tkt_.c:tkt.h \

@@ -536,13 +536,15 @@ void graph_finish(GraphContext *p, const char *zLeftBranch, u32 tmFlags){
   }
 
   if( tmFlags & TIMELINE_FILLGAPS ){
-    /* If a node has no pChild and there is a node higher up in the graph
+    /* If a node has no pChild in the graph
+    ** and there is a node higher up in the graph
     ** that is in the same branch and has no in-graph parent, then
     ** make the lower node a step-child of the upper node.  This will
     ** be represented on the graph by a thick dotted line without an arrowhead.
     */
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( pRow->pChild ) continue;
+      if( pRow->isLeaf ) continue;
       for(pLoop=pRow->pPrev; pLoop; pLoop=pLoop->pPrev){
         if( pLoop->nParent>0
          && pLoop->zBranch==pRow->zBranch

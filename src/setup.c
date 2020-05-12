@@ -378,6 +378,15 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
+  onoff_attribute("Enable /artifact_stats",
+     "artifact_stats_enable", "artifact_stats_enable", 0, 0);
+  @ <p>When enabled, the %h(g.zBaseURL)/artifact_stats URL is available to all
+  @ users.  When disabled (the default) only users with check-in privilege may
+  @ access the /artifact_stats page.
+  @ (Property: "artifact_stats_enable")
+  @ </p>
+  @
+  @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0, 0);
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
@@ -393,15 +402,6 @@ void setup_access(void){
   @ variable or the "Authentication:" HTTP header to find the username and
   @ password. This is another way of supporting Basic Authenitication.
   @ (Property: "http_authentication_ok")
-  @ </p>
-  @
-  @ <hr />
-  entry_attribute("IP address terms used in login cookie", 3,
-                  "ip-prefix-terms", "ipt", "2", 0);
-  @ <p>The number of octets of of the IP address used in the login cookie.
-  @ Set to zero to omit the IP address from the login cookie.  A value of
-  @ 2 is recommended.
-  @ (Property: "ip-prefix-terms")
   @ </p>
   @
   @ <hr />
@@ -490,8 +490,11 @@ void setup_access(void){
                   "pubpage", "", 0);
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
-  @ "Default privileges" setting below.  Example use case: Set this field
-  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the
+  @ "Default privileges" setting below. 
+  @
+  @ <p>Example use case: Set this field to "/doc/trunk/www/*" and set
+  @ the "Default privileges" to include the "o" privilege
+  @ to give anonymous users read-only permission to the
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ (Property: "public-pages")
@@ -499,13 +502,40 @@ void setup_access(void){
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
-                  "self-register", "selfregister", 0, 0);
-  @ <p>Allow users to register themselves through the HTTP UI.
-  @ The registration form always requires filling in a CAPTCHA
-  @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
-  @ can register under any user name. This option is useful for public projects
-  @ where you do not want everyone in any ticket discussion to be named
-  @ "Anonymous".  (Property: "self-register")</p>
+                  "self-register", "selfreg", 0, 0);
+  @ <p>Allow users to register themselves on the /register webpage.
+  @ A self-registration creates a new entry in the USER table and
+  @ perhaps also in the SUBSCRIBER table if email notification is
+  @ enabled.
+  @ (Property: "self-register")</p>
+
+  @ <hr />
+  onoff_attribute("Email verification required for self-registration",
+                  "selfreg-verify", "sfverify", 0, 0);
+  @ <p>If enabled, self-registration creates a new entry in the USER table
+  @ with only capabilities "7".  The default user capabilities are not
+  @ added until the email address associated with the self-registration
+  @ has been verified. This setting only makes sense if
+  @ email notifications are enabled.
+  @ (Property: "selfreg-verify")</p>
+
+  @ <hr />
+  onoff_attribute("Allow anonymous subscriptions",
+                  "anon-subscribe", "anonsub", 1, 0);
+  @ <p>If disabled, email notification subscriptions are only allowed
+  @ for users with a login.  If Nobody or Anonymous visit the /subscribe
+  @ page, they are redirected to /register or /login.
+  @ (Property: "anon-subscribe")</p>
+
+  @ <hr />
+  entry_attribute("Authorized subscription email addresses", 35,
+                  "auth-sub-email", "asemail", "", 0);
+  @ <p>This is a comma-separated list of GLOB patterns that specify
+  @ email addresses that are authorized to subscriptions.  If blank
+  @ (the usual case), then any email address can be used to self-register.
+  @ This setting is used to limit subscriptions to members of a particular
+  @ organization or group based on their email address.
+  @ (Property: "auth-sub-email")</p>
 
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",
@@ -735,6 +765,13 @@ void setup_timeline(void){
     @ %s(zTmDiff) hours ahead of UTC.</p>
   }
   @ <p>(Property: "timeline-utc")
+
+  @ <hr />
+  multiple_choice_attribute("Style", "timeline-default-style",
+            "tdss", "0", N_TIMELINE_VIEW_STYLE, timeline_view_styles);
+  @ <p>The default timeline viewing style, for when the user has not
+  @ specified an alternative.  (Property: "timeline-default-style")</p>
+
   @ <hr />
   multiple_choice_attribute("Per-Item Time Format", "timeline-date-format",
             "tdf", "0", count(azTimeFormats)/2, azTimeFormats);
@@ -841,21 +878,26 @@ void setup_settings(void){
   }
   @ <br /><input type="submit"  name="submit" value="Apply Changes" />
   @ </td><td style="width:50px;"></td><td valign="top">
+  @ <table>
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && !pSet->forceTextArea ){
       int hasVersionableValue = pSet->versionable &&
           (db_get_versioned(pSet->name, NULL)!=0);
+      @ <tr><td>
+      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
+      if( pSet->versionable ){
+        @  (v)
+      } else {
+        @
+      }
+      @</td><td>
       entry_attribute("", /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def, hasVersionableValue);
-      @ <a href='%R/help?cmd=%s(pSet->name)'>%h(pSet->name)</a>
-      if( pSet->versionable ){
-        @  (v)<br />
-      } else {
-        @ <br />
-      }
+      @</td></tr>
     }
   }
+  @</table>
   @ </td><td style="width:50px;"></td><td valign="top">
   for(i=0, pSet=aSetting; i<nSetting; i++, pSet++){
     if( pSet->width>0 && pSet->forceTextArea ){
@@ -1632,6 +1674,7 @@ void page_srchsetup(){
     onoff_attribute("Use Porter Stemmer","search-stemmer","ss",0,0);
     @ <p><input type="submit" name="fts0" value="Delete The Full-Text Index">
     @ <input type="submit" name="fts1" value="Rebuild The Full-Text Index">
+    style_submenu_element("FTS Index Debugging","%R/test-ftsdocs");
   }else{
     @ <p>The SQLite FTS4 search index is disabled.  All searching will be
     @ a full-text scan.  This usually works fine, but can be slow for

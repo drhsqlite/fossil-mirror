@@ -180,7 +180,7 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo_stash;
     @ DROP TABLE IF EXISTS undo_stashfile;
     ;
-  db_multi_exec(zSql /*works-like:""*/);
+  db_exec_sql(zSql);
   db_lset_int("undo_available", 0);
   db_lset_int("undo_checkout", 0);
 }
@@ -237,7 +237,7 @@ void undo_begin(void){
   ;
   if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql/*works-like:""*/);
+  db_exec_sql(zSql);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);

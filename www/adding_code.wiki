@@ -2,8 +2,14 @@
 
 <h2>1.0 Introduction</h2>
 
-This article provides a brief overview of how to write new code that extends
-or enhances Fossil.
+This article provides a brief overview of how to write new C-code code that
+extends or enhances the core Fossil binary.
+
+New features can be added to a Fossil server using
+[./serverext.wiki|external CGI programs],
+but that is not what this article is about.
+This article focuses on how to make changes
+to Fossil itself.
 
 <h2>2.0 Programming Language</h2>
 
@@ -98,6 +104,7 @@ It is recommended that you try this.
 Be sure to [/help/add|fossil add] your new source file to the self-hosting
 Fossil repository and then [/help/commit|commit] your changes!
 
+<a name="newcmd"></a>
 <h2>4.0 Creating A New Command</h2>
 
 By "commands" we mean the keywords that follow "fossil" when invoking
@@ -163,6 +170,7 @@ to get an idea of how things are done.  You can easily find the implementations
 of existing commands by searching for "COMMAND: <i>name</i>" in the
 files of the "src/" directory.
 
+<a name="newpage"></a>
 <h2>5.0 Creating A New Web Page</h2>
 
 As with commands, new webpages can be added simply by inserting a function
@@ -213,3 +221,4 @@ works.
   *  [./makefile.wiki|The Fossil Build Process]
   *  [./tech_overview.wiki|A Technical Overview Of Fossil]
   *  [./contribute.wiki|Contributing To The Fossil Project]
+  *  [./serverext.wiki|Adding CGI Extensions To A Fossil Server]

@@ -14,8 +14,8 @@ be easily compiled on the SymbianOS.  So TH1 was developed as a cut-down
 version of Tcl that would facilitate running the SQLite test scripts on
 SymbianOS.
 
-The testing of SQLite on SymbianOS was eventually accomplished by other
-means.  But Fossil was first being designed at about the same time.
+Fossil was first being designed at about the same time that TH1 was
+being developed for testing SQLite on SymbianOS.
 Early prototypes of Fossil were written in pure Tcl.  But as the development
 shifted toward the use of C-code, the need arose to have a Tcl-like
 scripting language to help with code generation.  TH1 was small and
@@ -43,7 +43,7 @@ is similar to the familiar command-line shell syntax.
 
 A token is any sequence of characters other than whitespace and semicolons.
 Or, all text without double-quotes is a single token even if it includes
-whitespace and semicolons.  Or, all text without nested {...} pairs is a
+whitespace and semicolons.  Or, all text within nested {...} pairs is a
 single token.
 
 The nested {...} form of tokens is important because it allows TH1 commands

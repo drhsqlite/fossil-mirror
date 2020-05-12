@@ -296,7 +296,7 @@ void symlink_copy(const char *zFrom, const char *zTo){
 */
 int file_perm(const char *zFilename, int eFType){
 #if !defined(_WIN32)
-  if( !getStat(zFilename, RepoFILE) ){
+  if( !getStat(zFilename, eFType) ){
      if( S_ISREG(fx.fileStat.st_mode) && ((S_IXUSR)&fx.fileStat.st_mode)!=0 )
       return PERM_EXE;
     else if( db_allow_symlinks() && S_ISLNK(fx.fileStat.st_mode) )
@@ -347,6 +347,46 @@ int file_isdir(const char *zFilename, int eFType){
   }
   free(zFN);
   return rc;
+}
+
+/*
+** Return true (1) if zFilename seems like it seems like a valid
+** repository database.
+*/
+int file_is_repository(const char *zFilename){
+  i64 sz;
+  sqlite3 *db = 0;
+  sqlite3_stmt *pStmt = 0;
+  int rc;
+  int i;
+  static const char *azReqTab[] = {
+     "blob", "delta", "rcvfrom", "user", "config"
+  };
+  if( !file_isfile(zFilename, ExtFILE) ) return 0;
+  sz = file_size(zFilename, ExtFILE);
+  if( sz<35328 ) return 0;
+  if( sz%512!=0 ) return 0;
+  rc = sqlite3_open_v2(zFilename, &db, 
+          SQLITE_OPEN_READWRITE, 0);
+  if( rc!=0 ) goto not_a_repo;
+  for(i=0; i<count(azReqTab); i++){
+    if( sqlite3_table_column_metadata(db, "main", azReqTab[i],0,0,0,0,0,0) ){
+      goto not_a_repo;
+    }
+  }
+  rc = sqlite3_prepare_v2(db, "SELECT 1 FROM config WHERE name='project-code'",
+                          -1, &pStmt, 0);
+  if( rc ) goto not_a_repo;
+  rc = sqlite3_step(pStmt);
+  if( rc!=SQLITE_ROW ) goto not_a_repo;
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return 1;
+
+not_a_repo:
+  sqlite3_finalize(pStmt);
+  sqlite3_close(db);
+  return 0;
 }
 
 
@@ -501,6 +541,7 @@ void file_copy(const char *zFrom, const char *zTo){
   }
   fclose(in);
   fclose(out);
+  if( file_isexe(zFrom, ExtFILE) ) file_setexe(zTo, 1);
 }
 
 /*
@@ -1102,6 +1143,65 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
 }
 
 /*
+** The input is the name of an executable, such as one might
+** type on a command-line.  This routine resolves that name into
+** a full pathname.  The result is obtained from fossil_malloc()
+** and should be freed by the caller.
+**
+** This routine only works on unix.  On Windows, simply return
+** a copy of the input.
+*/
+char *file_fullexename(const char *zCmd){
+#ifdef _WIN32
+  return fossil_strdup(zCmd);
+#else
+  char *zPath;
+  char *z;
+  if( zCmd[0]=='/' ){
+    return fossil_strdup(zCmd);
+  }
+  if( strchr(zCmd,'/')!=0 ){
+    Blob out = BLOB_INITIALIZER;
+    file_canonical_name(zCmd, &out, 0);
+    z = fossil_strdup(blob_str(&out));
+    blob_reset(&out);
+    return z;
+  }
+  zPath = fossil_getenv("PATH");
+  while( zPath && zPath[0] ){
+    int n;
+    char *zColon;
+    zColon = strchr(zPath, ':');
+    n = zColon ? (int)(zColon-zPath) : (int)strlen(zPath);
+    z = mprintf("%.*s/%s", n, zPath, zCmd);
+    if( file_isexe(z, ExtFILE) ){
+      return z;
+    }
+    fossil_free(z);
+    if( zColon==0 ) break;
+    zPath = zColon+1;
+  }
+  return fossil_strdup(zCmd);
+#endif
+}
+
+/*
+** COMMAND: test-which
+**
+** Usage: %fossil test-which ARGS...
+**
+** For each argument, search the PATH for the executable with the name
+** and print its full pathname.
+*/
+void test_which_cmd(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    char *z = file_fullexename(g.argv[i]);
+    fossil_print("%z\n", z);
+  }
+}
+
+/*
 ** Emits the effective or raw stat() information for the specified
 ** file or directory, optionally preserving the trailing slash and
 ** resetting the cached stat() information.
@@ -1127,6 +1227,7 @@ static void emitFileStat(
   fossil_print("  stat_rc                = %d\n", rc);
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", testFileStat.st_size);
   fossil_print("  stat_size              = %s\n", zBuf);
+  if( g.db==0 ) sqlite3_open(":memory:", &g.db);
   z = db_text(0, "SELECT datetime(%lld, 'unixepoch')", testFileStat.st_mtime);
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld (%s)", testFileStat.st_mtime, z);
   fossil_free(z);
@@ -1167,6 +1268,7 @@ static void emitFileStat(
   fossil_print("  file_islink            = %d\n", file_islink(zPath));
   fossil_print("  file_isexe(RepoFILE)   = %d\n", file_isexe(zPath,RepoFILE));
   fossil_print("  file_isdir(RepoFILE)   = %d\n", file_isdir(zPath,RepoFILE));
+  fossil_print("  file_is_repository     = %d\n", file_is_repository(zPath));
   if( reset ) resetStat();
 }
 
@@ -1193,7 +1295,7 @@ void cmd_test_file_environment(void){
   if( find_option("open-config", 0, 0)!=0 ){
     Th_OpenConfig(1);
   }
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA|OPEN_OK_NOT_FOUND, 0);
   fossil_print("filenames_are_case_sensitive() = %d\n",
                filenames_are_case_sensitive());
   fossil_print("db_allow_symlinks_by_default() = %d\n",
@@ -1787,7 +1889,7 @@ int fossil_clearenv(void){
   return rc;
 #else
   extern char **environ;
-  environ = 0;
+  environ[0] = 0;
   return 0;
 #endif
 }
@@ -1810,6 +1912,57 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
 #endif
   return f;
 }
+
+/*
+** Works like fclose() except that:
+**
+** 1) is a no-op if f is 0 or if it is stdin.
+**
+** 2) If f is one of (stdout, stderr), it is flushed but not closed.
+*/
+void fossil_fclose(FILE *f){
+  if(f!=0){
+    if(stdout==f || stderr==f){
+      fflush(f);
+    }else if(stdin!=f){
+      fclose(f);
+    }
+  }
+}
+
+/*
+**   Works like fopen(zName,"wb") except that:
+**
+**   1) If zName is "-", the stdout handle is returned.
+**
+**   2) Else file_mkfolder() is used to create all directories
+**      which lead up to the file before opening it.
+**
+**   3) It fails fatally if the file cannot be opened.
+*/
+FILE *fossil_fopen_for_output(const char *zFilename){
+  if(zFilename[0]=='-' && zFilename[1]==0){
+    return stdout;
+  }else{
+    FILE * p;
+    file_mkfolder(zFilename, ExtFILE, 1, 0);
+    p = fossil_fopen(zFilename, "wb");
+    if( p==0 ){
+#if _WIN32
+      const char *zReserved = file_is_win_reserved(zFilename);
+      if( zReserved ){
+        fossil_fatal("cannot open \"%s\" because \"%s\" is "
+                     "a reserved name on Windows", zFilename,
+                     zReserved);
+      }
+#endif
+      fossil_fatal("unable to open file \"%s\" for writing",
+                   zFilename);
+    }
+    return p;
+  }
+}
+
 
 /*
 ** Return non-NULL if zFilename contains pathname elements that

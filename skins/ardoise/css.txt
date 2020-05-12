@@ -293,7 +293,7 @@ p {
 .column,
 .columns {
   width: 100%;
-  float: left;
+  /*float: left; can break README.md in /dir view*/
   box-sizing: border-box
 }
 @media (min-width:400px) {

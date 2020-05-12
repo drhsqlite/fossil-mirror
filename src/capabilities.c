@@ -244,8 +244,10 @@ static struct Caps {
     "Attach", "Add attchments to wiki or tickets" },
   { 'c', CAPCLASS_TKT, 0,
     "Append-Tkt", "Append to existing tickets" },
-  { 'd', CAPCLASS_WIKI|CAPCLASS_TKT, 0,
-    "Delete", "Delete wiki or tickets" },
+  /*
+  ** d unused since fork from CVSTrac;
+  ** see https://fossil-scm.org/forum/forumpost/43c78f4bef
+  */
   { 'e', CAPCLASS_DATA, 0,
     "View-PII", "View sensitive info such as email addresses" },
   { 'f', CAPCLASS_WIKI, 0,
@@ -361,21 +363,34 @@ void capabilities_table(unsigned mClass){
 */
 void capability_summary(void){
   Stmt q;
+  CapabilityString *pCap;
+  char *zSelfCap;
+  char *zPubPages = db_get("public-pages",0);
+  int hasPubPages = zPubPages && zPubPages[0];
+
+  pCap = capability_add(0, db_get("default-perms","u"));
+  capability_expand(pCap);
+  zSelfCap = capability_string(pCap);
+  capability_free(pCap);
+
   db_prepare(&q,
     "WITH t(id,seq) AS (VALUES('nobody',1),('anonymous',2),('reader',3),"
                        "('developer',4))"
-    " SELECT id, fullcap(user.cap),seq,1"
+    " SELECT id, CASE WHEN user.login='nobody' THEN user.cap"
+                    " ELSE fullcap(user.cap) END,seq,1"
     "   FROM t LEFT JOIN user ON t.id=user.login"
     " UNION ALL"
-    " SELECT 'New User Default', fullcap(%Q), 10, 1"
+    " SELECT 'Public Pages', %Q, 100, %d"
     " UNION ALL"
-    " SELECT 'Regular User', fullcap(capunion(cap)), 20, count(*) FROM user"
+    " SELECT 'New User Default', %Q, 110, 1"
+    " UNION ALL"
+    " SELECT 'Regular User', fullcap(capunion(cap)), 200, count(*) FROM user"
     " WHERE cap NOT GLOB '*[as]*' AND login NOT IN (SELECT id FROM t)"
     " UNION ALL"
-    " SELECT 'Adminstrator', fullcap(capunion(cap)), 30, count(*) FROM user"
+    " SELECT 'Adminstrator', fullcap(capunion(cap)), 300, count(*) FROM user"
     " WHERE cap GLOB '*[as]*'"
     " ORDER BY 3 ASC",
-    db_get("default-perms","")
+    zSelfCap, hasPubPages, zSelfCap
   );
   @ <table id='capabilitySummary' cellpadding="0" cellspacing="0" border="1">
   @ <tr><th>&nbsp;<th>Code<th>Forum<th>Tickets<th>Wiki\
@@ -386,7 +401,8 @@ void capability_summary(void){
     int n = db_column_int(&q, 3);
     int eType;
     static const char *const azType[] = { "off", "read", "write" };
-    static const char *const azClass[] = { "capsumOff", "capsumRead", "capsumWrite" };
+    static const char *const azClass[] = 
+        { "capsumOff", "capsumRead", "capsumWrite" };
 
     if( n==0 ) continue;
 
@@ -418,7 +434,7 @@ void capability_summary(void){
     @ <td class="%s(azClass[eType])">%s(azType[eType])</td>
 
     /* Ticket */
-    if( sqlite3_strglob("*[ascdnqtw]*",zCap)==0 ){
+    if( sqlite3_strglob("*[ascnqtw]*",zCap)==0 ){
       eType = 2;
     }else if( sqlite3_strglob("*r*",zCap)==0 ){
       eType = 1;

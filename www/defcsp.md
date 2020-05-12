@@ -321,7 +321,7 @@ The best place to do that is from the [`th1-setup`
 script](./th1-hooks.md), which runs before TH1 processing happens during
 skin processing:
 
-        $ fossil set th1-setup "set default_csp {default-src: 'self'}"
+        $ fossil set th1-setup "set default_csp {default-src 'self'}"
 
 This is the cleanest method, allowing you to set a custom CSP without
 recompiling Fossil or providing a hand-written `<head>` section in the
@@ -330,7 +330,7 @@ Header section of a custom skin.
 You can’t remove the CSP entirely with this method, but you can get the
 same effect by telling the browser there are no content restrictions:
 
-        $ fossil set th1-setup 'set default_csp {default-src: *}'
+        $ fossil set th1-setup 'set default_csp {default-src *}'
 
 
 ### <a name="header"></a>Custom Skin Header

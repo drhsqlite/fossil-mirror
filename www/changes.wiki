@@ -1,19 +1,93 @@
-﻿<title>Change Log</title>
+<title>Change Log</title>
 
 <a name='v2_11'></a>
 <h2>Changes for Version 2.11 (pending)</h2>
 
-  *  Support Markdown in the default ticket configuration.
+  *  Support [/md_rules|Markdown] in the default ticket configuration.
+  *  Timestamp strings in [./checkin_names.wiki|object names]
+     can now omit punctation.  So, for example, "202004181942" and
+     "2020-04-18 19:42" mean the same thing.
+  *  Enhance backlink processing so that it works with Markdown-formatted
+     tickets and so that it works for wiki pages.
+     Ticket [a3572c6a5b47cd5a].
+     <ul><li> "[/help?cmd=rebuild|fossil rebuild]" is needed to
+     take full advantage of this fix.  Fossil will continue
+     to work without the rebuild, but the new backlinks will be missing.</ul>
+  *  The algorithm for finding the
+     [./tech_overview.wiki#configloc|location of the configuration database]
+     is enhanced to be XDG-compliant.
+  *  Add a hide/show feature to
+     [./wikitheory.wiki#assocwiki|associated wiki] display on 
+     check-in and branch information pages.
+  *  Enhance the "[/help?cmd=info|fossil info]" command so that it
+     works with no arguments even if not within an open check-out.
+  *  Many improvements to the forum and especially email notification
+     of forum posts, in response to community feedback after switching
+     SQLite support from a mailing list over to the forum.
+  *  Minimum length of a self-registered user ID increased from 3 to 6
+     characters.
+  *  When the "vfx" query parameter is used on the
+     "[/help?cmd=/timeline|/timeline]" page, it causes the complete
+     text of forum posts to be displayed.
   *  Rework the "[/help?cmd=grep|fossil grep]" command to be more useful.
   *  Expose the [/help?cmd=redirect-to-https|redirect-to-https]
      setting to the [/help?cmd=settings|settings] command.
   *  Improve support for CGI on IIS web servers.
-  *  The [/help?cmd=/ext|/ext page] can now render index files,
-     analog to how the embedded docs do.
+  *  The [./serverext.wiki|/ext page] can now render index files,
+     in the same way as the embedded docs.
   *  Most commands now support the Unix-conventional "<tt>--</tt>"
      flag to treat all following arguments as filenames
      instead of flags.
-  *  Several minor enhancements to existing features.
+  *  Added the [/help?cmd=mimetypes|mimetypes config setting]
+     (versionable) to enable mimetype overrides and custom definitions.
+  *  Add an option on the /Admin/Timeline setup page to set a default
+     timeline style other than "Modern".
+  *  In [./embeddeddoc.wiki|embedded documentation], hyperlink URLs
+     of the form "/doc/$CURRENT/..." the "$CURRENT" text is translated
+     into the check-in hash for the document currently being viewed.
+  *  Added the [/help?cmd=/phantoms|/phantoms] webpage that shows all
+     phantom artifacts.
+  *  Enhancements to phantom processing to try to reduce
+     bandwidth-using chatter about phantoms on the sync protocol.
+  *  Security: Fossil now assumes that the schema of every
+     database it opens has been tampered with by an adversary and takes
+     extra precautions to ensure that such tampering is harmless.
+  *  Security: Fossil now puts the Content-Security-Policy in the
+     HTTP reply header, in addition to also leaving it in the
+     HTML &lt;head&gt; section, so that it is always available, even
+     if a custom skin overrides the HTML &lt;head&gt; and omits
+     the CSP in the process.
+  *  Output of the [/help?cmd=diff|fossil diff -y] command automatically
+     adjusts according to the terminal width.
+  *  The Content-Security-Policy is now set using the
+     [/help?cmd=default-csp|default-csp setting].
+  *  Merge conflicts caused via the [/help?cmd=merge|merge] and
+     [/help?cmd=update|update] commands no longer leave temporary
+     files behind unless the new <tt>--keep-merge-files</tt> flag
+     is used.
+  *  The [/help?cmd=/artifact_stats|/artifact_stats page] is now accessible
+     to all users if the new "artifact_stats_enable" setting is turned
+     on.  There is a new checkbox under the /Admin/Access menu to turn
+     that capability on and off.
+  *  Add the [/help?cmd=tls-config|fossil tls-config] command for viewing
+     the TLS configuration and the list of SSL Cert exceptions.
+  *  Captchas all include a button to read the captcha using an audio
+     file, so that they can be completed by the visually impaired.
+  *  Stop using the IP address as part of the login cookie.
+  *  Bug fix: fix the SSL cert validation logic so that if an exception
+     is allowed for particular site, the exception expires as soon as the
+     cert changes values.
+  *  Bug fix: the FTS search into for forum posts is now kept up-to-date
+     correctly.
+  *  Bug fix: the "fossil git export" command is now working on Windows
+  *  Bug fix: display Technote items on the timeline correctly
+  *  Bug fix: fix the capability summary matrix of the Security Audit
+     page so that it does not add "anonymous" capabilities to the
+     "nobody" user.
+  *  Update internal Unicode character tables, used in regular expression
+     handling, from version 12.1 to 13.
+  *  Many documentation enhancements.
+  *  Many minor enhancements to existing features.
 
 <a name='v2_10'></a>
 <h2>Changes for Version 2.10 (2019-10-04)</h2>
@@ -40,8 +114,8 @@
      converted to all lowercase and entered into the parameter set,
      instead of being discarded.
   *  Change the default [./hashpolicy.wiki|hash policy] to SHA3.
-  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or 
-     some other value set by the 
+  *  Timeout [./server/any/cgi.md|CGI requests] after 300 seconds, or
+     some other value set by the
      [./cgi.wiki#timeout|"timeout:" property] in the CGI script.
   *  The check-in lock interval is reduced from 24 hours to 60 seconds,
      though the interval is now configurable using a setting.

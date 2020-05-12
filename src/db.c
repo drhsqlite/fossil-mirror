@@ -20,7 +20,8 @@
 ** There are three separate database files that fossil interacts
 ** with:
 **
-**    (1)  The "user" database in ~/.fossil
+**    (1)  The "configdb" database in ~/.fossil or ~/.config/fossil.db
+**         or in %LOCALAPPDATA%/_fossil
 **
 **    (2)  The "repository" database
 **
@@ -655,19 +656,13 @@ int db_debug(const char *zSql, ...){
 }
 
 /*
-** Execute multiple SQL statements.
+** Execute multiple SQL statements.  The input text is executed
+** directly without any formatting.
 */
-int db_multi_exec(const char *zSql, ...){
-  Blob sql;
+int db_exec_sql(const char *z){
   int rc = SQLITE_OK;
-  va_list ap;
-  const char *z, *zEnd;
   sqlite3_stmt *pStmt;
-  blob_init(&sql, 0, 0);
-  va_start(ap, zSql);
-  blob_vappendf(&sql, zSql, ap);
-  va_end(ap);
-  z = blob_str(&sql);
+  const char *zEnd;
   while( rc==SQLITE_OK && z[0] ){
     pStmt = 0;
     rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
@@ -681,6 +676,22 @@ int db_multi_exec(const char *zSql, ...){
     }
     z = zEnd;
   }
+  return rc;
+}
+
+/*
+** Execute multiple SQL statements using printf-style formatting.
+*/
+int db_multi_exec(const char *zSql, ...){
+  Blob sql;
+  int rc;
+  va_list ap;
+
+  blob_init(&sql, 0, 0);
+  va_start(ap, zSql);
+  blob_vappendf(&sql, zSql, ap);
+  va_end(ap);
+  rc = db_exec_sql(blob_str(&sql));
   blob_reset(&sql);
   return rc;
 }
@@ -1033,6 +1044,8 @@ void db_add_aux_functions(sqlite3 *db){
                           capability_fullcap, 0, 0);
   sqlite3_create_function(db, "find_emailaddr", 1, SQLITE_UTF8, 0,
                           alert_find_emailaddr_func, 0, 0);
+  sqlite3_create_function(db, "display_name", 1, SQLITE_UTF8, 0,
+                          alert_display_name_func, 0, 0);
 }
 
 #if USE_SEE
@@ -1260,7 +1273,7 @@ LOCAL sqlite3 *db_open(const char *zDbName){
   sqlite3_create_function(
     db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
-  if( g.fSqlTrace ) sqlite3_trace_v2(db, SQLITE_TRACE_STMT, db_sql_trace, 0);
+  if( g.fSqlTrace ) sqlite3_trace_v2(db, SQLITE_TRACE_PROFILE, db_sql_trace, 0);
   db_add_aux_functions(db);
   re_add_sql_func(db);  /* The REGEXP operator */
   foci_register(db);    /* The "files_of_checkin" virtual table */
@@ -1288,13 +1301,13 @@ void db_attach(const char *zDbName, const char *zLabel){
   if( fossil_getenv("FOSSIL_USE_SEE_TEXTKEY")==0 ){
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY %Q",
                                  zDbName, zLabel, blob_str(&key));
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_exec_sql(zCmd);
     fossil_secure_zero(zCmd, strlen(zCmd));
     sqlite3_free(zCmd);
   }else{
     char *zCmd = sqlite3_mprintf("ATTACH DATABASE %Q AS %Q KEY ''",
                                  zDbName, zLabel);
-    db_multi_exec(zCmd /*works-like:""*/);
+    db_exec_sql(zCmd);
     sqlite3_free(zCmd);
 #if USE_SEE
     if( blob_size(&key)>0 ){
@@ -1359,7 +1372,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 }
 
 /*
-** Close the per-user database file in ~/.fossil
+** Close the per-user configuration database file
 */
 void db_close_config(){
   int iSlot = db_database_slot("configdb");
@@ -1383,27 +1396,26 @@ void db_close_config(){
 }
 
 /*
-** Open the user database in "~/.fossil".  Create the database anew if
-** it does not already exist.
+** Compute the name of the configuration database.  If unable to find the
+** database, return 0 if isOptional is true, or panic if isOptional is false.
 **
-** If the useAttach flag is 0 (the usual case) then the user database is
-** opened on a separate database connection g.dbConfig.  This prevents
-** the ~/.fossil database from becoming locked on long check-in or sync
-** operations which hold an exclusive transaction.  In a few cases, though,
-** it is convenient for the ~/.fossil to be attached to the main database
-** connection so that we can join between the various databases.  In that
-** case, invoke this routine with useAttach as 1.
+** Space to hold the result comes from fossil_malloc().
 */
-int db_open_config(int useAttach, int isOptional){
-  char *zDbName;
-  char *zHome;
-  if( g.zConfigDbName ){
-    int alreadyAttached = db_database_slot("configdb")>0;
-    if( useAttach==alreadyAttached ) return 1; /* Already open. */
-    db_close_config();
-  }
-  zHome = fossil_getenv("FOSSIL_HOME");
+static char *db_configdb_name(int isOptional){
+  char *zHome;        /* Home directory */
+  char *zDbName;      /* Name of the database file */
+
+
+  /* On Windows, look for these directories, in order:
+  **
+  **    FOSSIL_HOME
+  **    LOCALAPPDATA
+  **    APPDATA
+  **    USERPROFILE
+  **    HOMEDRIVE HOMEPATH
+  */
 #if defined(_WIN32) || defined(__CYGWIN__)
+  zHome = fossil_getenv("FOSSIL_HOME");
   if( zHome==0 ){
     zHome = fossil_getenv("LOCALAPPDATA");
     if( zHome==0 ){
@@ -1418,36 +1430,94 @@ int db_open_config(int useAttach, int isOptional){
       }
     }
   }
-  if( zHome==0 ){
-    if( isOptional ) return 0;
-    fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME, LOCALAPPDATA, APPDATA, USERPROFILE, "
-                 "or HOMEDRIVE / HOMEPATH environment variables");
-  }
-#else
-  if( zHome==0 ){
-    zHome = fossil_getenv("HOME");
-  }
-  if( zHome==0 ){
-    if( isOptional ) return 0;
-    fossil_panic("cannot locate home directory - please set the "
-                 "FOSSIL_HOME or HOME environment variables");
-  }
-#endif
-  if( file_isdir(zHome, ExtFILE)!=1 ){
-    if( isOptional ) return 0;
-    fossil_panic("invalid home directory: %s", zHome);
-  }
-#if defined(_WIN32) || defined(__CYGWIN__)
-  /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
-#else
-  zDbName = mprintf("%s/.fossil", zHome);
-#endif
+  fossil_free(zHome);
+  return zDbName;
+
+#else /* if unix */
+  char *zXdgHome;
+
+  /* For unix. a 5-step algorithm is used.
+  ** See ../www/tech_overview.wiki for discussion.
+  **
+  ** Step 1:  If FOSSIL_HOME exists -> $FOSSIL_HOME/.fossil
+  */
+  zHome = fossil_getenv("FOSSIL_HOME");
+  if( zHome!=0 ) return mprintf("%s/.fossil", zHome);
+
+  /* Step 2:  If HOME exists and file $HOME/.fossil exists -> $HOME/.fossil
+  */
+  zHome = fossil_getenv("HOME");
+  if( zHome ){
+    zDbName = mprintf("%s/.fossil", zHome);
+    if( file_size(zDbName, ExtFILE)>1024*3 ){
+      return zDbName;
+    }
+    fossil_free(zDbName);
+  }
+
+  /* Step 3: if XDG_CONFIG_HOME exists -> $XDG_CONFIG_HOME/fossil.db
+  */
+  zXdgHome = fossil_getenv("XDG_CONFIG_HOME");
+  if( zXdgHome!=0 ){
+    return mprintf("%s/fossil.db", zXdgHome);
+  }
+
+  /* The HOME variable is required in order to continue.
+  */
+  if( zHome==0 ){
+    if( isOptional ) return 0;
+    fossil_panic("cannot locate home directory - please set one of the "
+                 "FOSSIL_HOME, XDG_CONFIG_HOME, or HOME environment "
+                 "variables");
+  }
+
+  /* Step 4: If $HOME/.config is a directory -> $HOME/.config/fossil.db
+  */
+  zXdgHome = mprintf("%s/.config", zHome);
+  if( file_isdir(zXdgHome, ExtFILE)==1 ){
+    fossil_free(zXdgHome);
+    return mprintf("%s/.config/fossil.db", zHome);
+  }
+
+  /* Step 5: Otherwise -> $HOME/.fossil
+  */
+  return mprintf("%s/.fossil", zHome);
+#endif /* unix */
+}
+
+/*
+** Open the configuration database.  Create the database anew if
+** it does not already exist.
+**
+** If the useAttach flag is 0 (the usual case) then the configuration
+** database is opened on a separate database connection g.dbConfig.
+** This prevents the database from becoming locked on long check-in or sync
+** operations which hold an exclusive transaction.  In a few cases, though,
+** it is convenient for the database to be attached to the main database
+** connection so that we can join between the various databases.  In that
+** case, invoke this routine with useAttach as 1.
+*/
+int db_open_config(int useAttach, int isOptional){
+  char *zDbName;
+  if( g.zConfigDbName ){
+    int alreadyAttached = db_database_slot("configdb")>0;
+    if( useAttach==alreadyAttached ) return 1; /* Already open. */
+    db_close_config();
+  }
+  zDbName = db_configdb_name(isOptional);
+  if( zDbName==0 ) return 0;
   if( file_size(zDbName, ExtFILE)<1024*3 ){
-    if( file_access(zHome, W_OK) ){
+    char *zHome = file_dirname(zDbName);
+    int rc;
+    if( file_isdir(zHome, ExtFILE)==0 ){
+      file_mkdir(zHome, ExtFILE, 0);
+    }
+    rc = file_access(zHome, W_OK);
+    fossil_free(zHome);
+    if( rc ){
       if( isOptional ) return 0;
-      fossil_panic("home directory %s must be writeable", zHome);
+      fossil_panic("home directory \"%s\" must be writeable", zHome);
     }
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
@@ -1764,9 +1834,9 @@ void db_open_repository(const char *zDbName){
         " WHERE mrid!=rid;"
       );
       if( !db_table_has_column("localdb", "vmerge", "mhash") ){
-        db_multi_exec("ALTER TABLE vmerge RENAME TO old_vmerge;");
-        db_multi_exec(zLocalSchemaVmerge /*works-like:""*/);
-        db_multi_exec(  
+        db_exec_sql("ALTER TABLE vmerge RENAME TO old_vmerge;");
+        db_exec_sql(zLocalSchemaVmerge);
+        db_exec_sql(  
            "INSERT OR IGNORE INTO vmerge(id,merge,mhash)"
            "  SELECT id, merge, blob.uuid FROM old_vmerge, blob"
            "   WHERE old_vmerge.merge=blob.rid;"
@@ -2076,7 +2146,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjorz','Nobody');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
-       "   VALUES('developer','','dei','Dev');"
+       "   VALUES('developer','','ei','Dev');"
        "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
@@ -2300,7 +2370,7 @@ void create_repository_cmd(void){
 ** The print() function writes its arguments on stdout, but only
 ** if the -sqlprint command-line option is turned on.
 */
-LOCAL void db_sql_print(
+void db_sql_print(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -2318,10 +2388,19 @@ LOCAL int db_sql_trace(unsigned m, void *notUsed, void *pP, void *pX){
   char *zSql;
   int n;
   const char *zArg = (const char*)pX;
+  char zEnd[40];
   if( zArg[0]=='-' ) return 0;
+  if( m & SQLITE_TRACE_PROFILE ){
+    sqlite3_int64 nNano = *(sqlite3_int64*)pX;
+    double rMillisec = 0.000001 * nNano;
+    sqlite3_snprintf(sizeof(zEnd),zEnd," /* %.3fms */\n", rMillisec);
+  }else{
+    zEnd[0] = '\n';
+    zEnd[1] = 0;
+  }
   zSql = sqlite3_expanded_sql(pStmt);
   n = (int)strlen(zSql);
-  fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  fossil_trace("%s%s%s", zSql, (n>0 && zSql[n-1]==';') ? "" : ";", zEnd);
   sqlite3_free(zSql);
   return 0;
 }
@@ -2487,12 +2566,12 @@ int is_false(const char *zVal){
 
 /*
 ** Swap the g.db and g.dbConfig connections so that the various db_* routines
-** work on the ~/.fossil database instead of on the repository database.
+** work on the configuration database instead of on the repository database.
 ** Be sure to swap them back after doing the operation.
 **
-** If the ~/.fossil database has already been opened as the main database or
-** is attached to the main database, no connection swaps are required so this
-** routine is a no-op.
+** If the configuration database has already been opened as the main database
+** or is attached to the main database, no connection swaps are required so
+** this routine is a no-op.
 */
 void db_swap_connections(void){
   /*
@@ -3452,6 +3531,13 @@ struct Setting {
 ** A limit on the size of uplink HTTP requests.
 */
 /*
+** SETTING: mimetypes        width=40 versionable block-text
+** A list of file extension-to-mimetype mappings, one per line. e.g.
+** "foo application/x-foo". File extensions are compared
+** case-insensitively in the order listed in this setting.  A leading
+** '.' on file extensions is permitted but not required.
+*/
+/*
 ** SETTING: mtime-changes    boolean default=on
 ** Use file modification times (mtimes) to detect when
 ** files have been modified.  If disabled, all managed files
@@ -3471,6 +3557,10 @@ struct Setting {
 ** SETTING: pgp-command      width=40
 ** Command used to clear-sign manifests at check-in.
 ** Default value is "gpg --clearsign -o"
+*/
+/*
+** SETTING: forbid-delta-manifests    boolean default=off
+** If enabled, new delta manifests are prohibited.
 */
 /*
 ** SETTING: proxy            width=32 default=off
@@ -3607,6 +3697,26 @@ struct Setting {
 ** whatsoever.
 */
 /*
+** SETTING: default-csp      width=40 block-text
+**
+** The text of the Content Security Policy that is included
+** in the Content-Security-Policy: header field of the HTTP
+** reply and in the default HTML <head> section that is added when the
+** skin header does not specify a <head> section.  The text "$nonce"
+** is replaced by the random nonce that is created for each web page.
+**
+** If this setting is an empty string or is omitted, then
+** the following default Content Security Policy is used:
+**
+**     default-src 'self' data:;
+**     script-src 'self' 'nonce-$nonce';
+**     style-src 'self' 'unsafe-inline';
+**
+** The default CSP is recommended.  The main reason to change
+** this setting would be to add CDNs from which it is safe to
+** load additional content.
+*/
+/*
 ** SETTING: uv-sync          boolean default=off
 ** If true, automatically send unversioned files as part
 ** of a "fossil clone" or "fossil sync" command.  The
@@ -3674,10 +3784,9 @@ Setting *db_find_setting(const char *zName, int allowPrefix){
 ** Settings can have both a "local" repository-only value and "global" value
 ** that applies to all repositories.  The local values are stored in the
 ** "config" table of the repository and the global values are stored in the
-** $HOME/.fossil file on unix or in the %LOCALAPPDATA%/_fossil file on Windows.
-** If both a local and a global value exists for a setting, the local value
-** takes precedence.  This command normally operates on the local settings.
-** Use the --global option to change global settings.
+** configuration database.  If both a local and a global value exists for a
+** setting, the local value takes precedence.  This command normally operates
+** on the local settings.  Use the --global option to change global settings.
 **
 ** Options:
 **   --global   set or unset the given property globally instead of
@@ -3812,8 +3921,8 @@ void test_timespan_cmd(void){
 ** Usage: %fossil test-without-rowid FILENAME...
 **
 ** Change the Fossil repository FILENAME to make use of the WITHOUT ROWID
-** optimization.  FILENAME can also be the ~/.fossil file or a local
-** .fslckout or _FOSSIL_ file.
+** optimization.  FILENAME can also be the configuration database file
+** (~/.fossil or ~/.config/fossil.db) or a local .fslckout or _FOSSIL_ file.
 **
 ** The purpose of this command is for testing the WITHOUT ROWID capabilities
 ** of SQLite.  There is no big advantage to using WITHOUT ROWID in Fossil.

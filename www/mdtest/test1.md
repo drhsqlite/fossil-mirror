@@ -37,23 +37,23 @@ for HTML documents.)
 
   *   Site-map:  [](/sitemap)
 
-## The Magic $SELF Document Version Translation
+## The Magic $CURRENT Document Version Translation
 
-In URI text of the form `.../doc/$SELF/...` the
-$SELF value is converted to the version number of the document
+In URI text of the form `.../doc/$CURRENT/...` the
+$CURRENT value is converted to the version number of the document
 currently being displayed.  This conversion happens after translation
 into HTML and only occurs on href='...' attributes so it does not occur
 for plain text.
 
-  *   Document index:  [](/doc/$SELF/www/index.wiki)
+  *   Document index:  [](/doc/$CURRENT/www/index.wiki)
 
-Both the $ROOT and the $SELF conversions can occur on the same link.
+Both the $ROOT and the $CURRENT conversions can occur on the same link.
 
-  *   Document index:  []($ROOT/doc/$SELF/www/index.wiki)
+  *   Document index:  []($ROOT/doc/$CURRENT/www/index.wiki)
 
 The translations must be contained within HTML markup in order to work.
 They do not work for ordinary text that appears to be an href= attribute.
 
   *   `x href='$ROOT/timeline'`
   *   `x action="$ROOT/whatever"`
-  *   `x href="https://some-other-site.com/doc/$SELF/tail"`
+  *   `x href="https://some-other-site.com/doc/$CURRENT/tail"`

@@ -196,6 +196,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   Stmt q;
   int i, j;
   char *aUsed;
+  const char *zMimetype = 0;
 
   if( tktid==0 ){
     db_multi_exec("INSERT INTO ticket(tkt_uuid, tkt_mtime) "
@@ -235,8 +236,18 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       blob_append_sql(&sql2, ",\"%w\"", zUsedByName);
       blob_append_sql(&sql3, ",%Q", p->aField[i].zValue);
     }
-    if( rid>0 ){
-      wiki_extract_links(p->aField[i].zValue, rid, 1, p->rDate, i==0, 0);
+    if( strcmp(zBaseName,"mimetype")==0 ){
+      zMimetype = p->aField[i].zValue;
+    }
+  }
+  if( rid>0 ){
+    for(i=0; i<p->nField; i++){
+      const char *zName = p->aField[i].zName;
+      const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+      j = fieldId(zBaseName);
+      if( j<0 ) continue;
+      backlink_extract(p->aField[i].zValue, zMimetype, rid, BKLNK_TICKET,
+                       p->rDate, i==0);
     }
   }
   blob_append_sql(&sql1, " WHERE tkt_id=%d", tktid);
@@ -847,6 +858,10 @@ char *ticket_schema_check(const char *zSchema){
 /*
 ** Draw a timeline for a ticket with tag.tagid given by the tagid
 ** parameter.
+**
+** If zType[0]=='c' then only show check-ins associated with the
+** ticket.  For any other value of zType, show all events associated
+** with the ticket.
 */
 void tkt_draw_timeline(int tagid, const char *zType){
   Stmt q;
@@ -857,7 +872,8 @@ void tkt_draw_timeline(int tagid, const char *zType){
   if( zType[0]=='c' ){
     zSQL = mprintf(
          "%s AND event.objid IN "
-         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+         " (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                         "AND srctype=0 "
                                          "AND '%s' GLOB (target||'*')) "
          "ORDER BY mtime DESC",
          timeline_query_for_www(), zFullUuid, zFullUuid
@@ -866,7 +882,12 @@ void tkt_draw_timeline(int tagid, const char *zType){
     zSQL = mprintf(
          "%s AND event.objid IN "
          "  (SELECT rid FROM tagxref WHERE tagid=%d"
-         "   UNION SELECT srcid FROM backlink"
+         "   UNION"
+         "   SELECT CASE srctype WHEN 2 THEN"
+                 " (SELECT rid FROM tagxref WHERE tagid=backlink.srcid"
+                 " ORDER BY mtime DESC LIMIT 1)"
+                 " ELSE srcid END"
+         "     FROM backlink"
                   " WHERE target GLOB '%.4s*'"
                   "   AND '%s' GLOB (target||'*')"
          "   UNION SELECT attachid FROM attachment"
@@ -877,7 +898,8 @@ void tkt_draw_timeline(int tagid, const char *zType){
   }
   db_prepare(&q, "%z", zSQL/*safe-for-%s*/);
   www_print_timeline(&q,
-    TIMELINE_ARTID | TIMELINE_DISJOINT | TIMELINE_GRAPH | TIMELINE_NOTKT,
+    TIMELINE_ARTID | TIMELINE_DISJOINT | TIMELINE_GRAPH | TIMELINE_NOTKT |
+    TIMELINE_REFS,
     0, 0, 0, 0, 0, 0);
   db_finalize(&q);
   fossil_free(zFullUuid);
@@ -885,9 +907,13 @@ void tkt_draw_timeline(int tagid, const char *zType){
 
 /*
 ** WEBPAGE: tkttimeline
-** URL: /tkttimeline?name=TICKETUUID&y=TYPE
+** URL: /tkttimeline/TICKETUUID
 **
 ** Show the change history for a single ticket in timeline format.
+** 
+** Query parameters:
+**
+**     y=ci          Show only check-ins associated with the ticket
 */
 void tkttimeline_page(void){
   char *zTitle;
@@ -934,7 +960,14 @@ void tkttimeline_page(void){
 ** WEBPAGE: tkthistory
 ** URL: /tkthistory?name=TICKETUUID
 **
-** Show the complete change history for a single ticket
+** Show the complete change history for a single ticket.  Or (to put it
+** another way) show a list of artifacts associated with a single ticket.
+**
+** By default, the artifacts are decoded and formatted.  Text fields
+** are formatted as text/plain, since in the general case Fossil does
+** not have knowledge of the encoding.  If the "raw" query parameter
+** is present, then the* undecoded and unformatted text of each artifact
+** is displayed.
 */
 void tkthistory_page(void){
   Stmt q;
@@ -954,10 +987,10 @@ void tkthistory_page(void){
   style_submenu_element("Check-ins", "%s/tkttimeline?name=%s&y=ci",
     g.zTop, zUuid);
   style_submenu_element("Timeline", "%s/tkttimeline?name=%s", g.zTop, zUuid);
-  if( P("plaintext")!=0 ){
-    style_submenu_element("Formatted", "%R/tkthistory/%s", zUuid);
-  }else{
-    style_submenu_element("Plaintext", "%R/tkthistory/%s?plaintext", zUuid);
+  if( P("raw")!=0 ){
+    style_submenu_element("Decoded", "%R/tkthistory/%s", zUuid);
+  }else if( g.perm.Admin ){
+    style_submenu_element("Raw", "%R/tkthistory/%s?raw", zUuid);
   }
   style_header("%z", zTitle);
 
@@ -966,6 +999,11 @@ void tkthistory_page(void){
     @ No such ticket: %h(zUuid)
     style_footer();
     return;
+  }
+  if( P("raw")!=0 ){
+    @ <h2>Raw Artifacts Associated With Ticket %h(zUuid)</h2>
+  }else{
+    @ <h2>Artifacts Associated With Ticket %h(zUuid)</h2>
   }
   db_prepare(&q,
     "SELECT datetime(mtime,toLocal()), objid, uuid, NULL, NULL, NULL"
@@ -980,7 +1018,7 @@ void tkthistory_page(void){
     " ORDER BY 1",
     tagid, tagid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  for(nChng=0; db_step(&q)==SQLITE_ROW; nChng++){
     Manifest *pTicket;
     const char *zDate = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
@@ -989,7 +1027,6 @@ void tkthistory_page(void){
     if( nChng==0 ){
       @ <ol>
     }
-    nChng++;
     if( zFile!=0 ){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
@@ -1015,7 +1052,16 @@ void tkthistory_page(void){
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
         @ </p>
-        ticket_output_change_artifact(pTicket, "a");
+        if( P("raw")!=0 ){
+          Blob c;
+          content_get(rid, &c);
+          @ <blockquote><pre>
+          @ %h(blob_str(&c))
+          @ </pre></blockquote>
+          blob_reset(&c);
+        }else{
+          ticket_output_change_artifact(pTicket, "a", nChng);
+        }
       }
       manifest_destroy(pTicket);
     }
@@ -1043,33 +1089,41 @@ static int contains_newline(Blob *p){
 ** The pTkt object is a ticket change artifact.  Output a detailed
 ** description of this object.
 */
-void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
+void ticket_output_change_artifact(
+  Manifest *pTkt,           /* Parsed artifact for the ticket change */
+  const char *zListType,    /* Which type of list */
+  int n                     /* Which ticket change is this */
+){
   int i;
-  int wikiFlags = WIKI_NOBADLINKS;
-  const char *zBlock = "<blockquote>";
-  const char *zEnd = "</blockquote>";
-  if( P("plaintext")!=0 ){
-    wikiFlags |= WIKI_LINKSONLY;
-    zBlock = "<blockquote><pre class='verbatim'>";
-    zEnd = "</pre></blockquote>";
-  }
   if( zListType==0 ) zListType = "1";
+  getAllTicketFields();
   @ <ol type="%s(zListType)">
   for(i=0; i<pTkt->nField; i++){
     Blob val;
-    const char *z;
+    const char *z, *zX;
+    int id;
     z = pTkt->aField[i].zName;
     blob_set(&val, pTkt->aField[i].zValue);
-    if( z[0]=='+' ){
-      @ <li>Appended to %h(&z[1]):%s(zBlock)
-      wiki_convert(&val, 0, wikiFlags);
-      @ %s(zEnd)</li>
-    }else if( blob_size(&val)>50 || contains_newline(&val) ){
-      @ <li>Change %h(z) to:%s(zBlock)
-      wiki_convert(&val, 0, wikiFlags);
-      @ %s(zEnd)</li>
+    zX = z[0]=='+' ? z+1 : z;
+    id = fieldId(zX);
+    @ <li>\
+    if( id<0 ){
+      @ Untracked field %h(zX):
+    }else if( aField[id].mUsed==USEDBY_TICKETCHNG ){
+      @ %h(zX):
+    }else if( n==0 ){
+      @ %h(zX) initialized to:
+    }else if( z[0]=='+' && (aField[id].mUsed&USEDBY_TICKET)!=0 ){
+      @ Appended to %h(zX):
     }else{
-      @ <li>Change %h(z) to "%h(blob_str(&val))"</li>
+      @ %h(zX) changed to:
+    }
+    if( blob_size(&val)>50 || contains_newline(&val) ){
+      @ <blockquote><pre class='verbatim'>
+      @ %h(blob_str(&val))
+      @ </pre></blockquote></li>
+    }else{
+      @ "%h(blob_str(&val))"</li>
     }
     blob_reset(&val);
   }

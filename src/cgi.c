@@ -176,10 +176,12 @@ char *cgi_extract_content(void){
 /*
 ** Additional information used to form the HTTP reply
 */
-static const char *zContentType = "text/html";     /* Content type of the reply */
-static const char *zReplyStatus = "OK";            /* Reply status description */
+static const char *zContentType = "text/html";   /* Content type of the reply */
+static const char *zReplyStatus = "OK";          /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
+static int rangeStart = 0;                   /* Start of Range: */
+static int rangeEnd = 0;                     /* End of Range: plus 1 */
 
 /*
 ** Set the reply content type
@@ -211,6 +213,12 @@ void cgi_set_status(int iStat, const char *zStat){
 */
 void cgi_append_header(const char *zLine){
   blob_append(&extraHeader, zLine, -1);
+}
+void cgi_printf_header(const char *zLine, ...){
+  va_list ap;
+  va_start(ap, zLine);
+  blob_vappendf(&extraHeader, zLine, ap);
+  va_end(ap);
 }
 
 /*
@@ -268,18 +276,26 @@ void cgi_reply(void){
   }
 
   if( g.fullHttpReply ){
+    if( rangeEnd>0
+     && iReplyStatus==200 
+     && fossil_strcmp(P("REQUEST_METHOD"),"GET")==0
+    ){
+      iReplyStatus = 206;
+      zReplyStatus = "Partial Content";
+    }
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     fprintf(g.httpOut, "Connection: close\r\n");
     fprintf(g.httpOut, "X-UA-Compatible: IE=edge\r\n");
   }else{
+    assert( rangeEnd==0 );
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
   if( g.isConst ){
     /* isConst means that the reply is guaranteed to be invariant, even
     ** after configuration changes and/or Fossil binary recompiles. */
     fprintf(g.httpOut, "Cache-Control: max-age=31536000\r\n");
-  }else if( etag_tag()!=0 ){
+  }else if( etag_tag()[0]!=0 ){
     fprintf(g.httpOut, "ETag: %s\r\n", etag_tag());
     fprintf(g.httpOut, "Cache-Control: max-age=%d\r\n", etag_maxage());
   }else{
@@ -315,14 +331,14 @@ void cgi_reply(void){
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
-  if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
-    cgi_combine_header_and_body();
-    blob_compress(&cgiContent[0], &cgiContent[0]);
-  }
+  if( iReplyStatus!=304 ) {
+    fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
+    if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
+      cgi_combine_header_and_body();
+      blob_compress(&cgiContent[0], &cgiContent[0]);
+    }
 
-  if( iReplyStatus != 304 ) {
-    if( is_gzippable() ){
+    if( is_gzippable() && iReplyStatus!=206 ){
       int i;
       gzip_begin(0);
       for( i=0; i<2; i++ ){
@@ -335,19 +351,33 @@ void cgi_reply(void){
       fprintf(g.httpOut, "Vary: Accept-Encoding\r\n");
     }
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
+    if( iReplyStatus==206 ){
+      fprintf(g.httpOut, "Content-Range: bytes %d-%d/%d\r\n",
+              rangeStart, rangeEnd-1, total_size);
+      total_size = rangeEnd - rangeStart; 
+    }
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
   }else{
     total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
-  if( total_size>0 && iReplyStatus != 304
+  if( total_size>0
+   && iReplyStatus!=304
    && fossil_strcmp(P("REQUEST_METHOD"),"HEAD")!=0
   ){
     int i, size;
     for(i=0; i<2; i++){
       size = blob_size(&cgiContent[i]);
-      if( size>0 ){
-        fwrite(blob_buffer(&cgiContent[i]), 1, size, g.httpOut);
+      if( size<=rangeStart ){
+        rangeStart -= size;
+      }else{
+        int n = size - rangeStart;
+        if( n>total_size ){
+          n = total_size;
+        }
+        fwrite(blob_buffer(&cgiContent[i])+rangeStart, 1, n, g.httpOut);
+        rangeStart = 0;
+        total_size -= n;
       }
     }
   }
@@ -684,32 +714,32 @@ static char *get_line_from_string(char **pz, int *pLen){
 
 /*
 ** The input *pz points to content that is terminated by a "\r\n"
-** followed by the boundry marker zBoundry.  An extra "--" may or
-** may not be appended to the boundry marker.  There are *pLen characters
+** followed by the boundary marker zBoundary.  An extra "--" may or
+** may not be appended to the boundary marker.  There are *pLen characters
 ** in *pz.
 **
 ** This routine adds a "\000" to the end of the content (overwriting
 ** the "\r\n") and returns a pointer to the content.  The *pz input
-** is adjusted to point to the first line following the boundry.
+** is adjusted to point to the first line following the boundary.
 ** The length of the content is stored in *pnContent.
 */
 static char *get_bounded_content(
   char **pz,         /* Content taken from here */
   int *pLen,         /* Number of bytes of data in (*pz)[] */
-  char *zBoundry,    /* Boundry text marking the end of content */
+  char *zBoundary,    /* Boundary text marking the end of content */
   int *pnContent     /* Write the size of the content here */
 ){
   char *z = *pz;
   int len = *pLen;
   int i;
-  int nBoundry = strlen(zBoundry);
+  int nBoundary = strlen(zBoundary);
   *pnContent = len;
   for(i=0; i<len; i++){
-    if( z[i]=='\n' && strncmp(zBoundry, &z[i+1], nBoundry)==0 ){
+    if( z[i]=='\n' && strncmp(zBoundary, &z[i+1], nBoundary)==0 ){
       if( i>0 && z[i-1]=='\r' ) i--;
       z[i] = 0;
       *pnContent = i;
-      i += nBoundry;
+      i += nBoundary;
       break;
     }
   }
@@ -778,18 +808,18 @@ static int tokenize_line(char *z, int mxArg, char **azArg){
 static void process_multipart_form_data(char *z, int len){
   char *zLine;
   int nArg, i;
-  char *zBoundry;
+  char *zBoundary;
   char *zValue;
   char *zName = 0;
   int showBytes = 0;
   char *azArg[50];
 
-  zBoundry = get_line_from_string(&z, &len);
-  if( zBoundry==0 ) return;
+  zBoundary = get_line_from_string(&z, &len);
+  if( zBoundary==0 ) return;
   while( (zLine = get_line_from_string(&z, &len))!=0 ){
     if( zLine[0]==0 ){
       int nContent = 0;
-      zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
+      zValue = get_bounded_content(&z, &len, zBoundary, &nContent);
       if( zName && zValue ){
         if( fossil_islower(zName[0]) ){
           cgi_set_parameter_nocopy(zName, zValue, 1);
@@ -1037,9 +1067,23 @@ void cgi_init(void){
     int i, j;
     for(i=0; zRequestUri[i]==zScriptName[i] && zRequestUri[i]; i++){}
     for(j=i; zRequestUri[j] && zRequestUri[j]!='?'; j++){}
-    cgi_set_parameter("PATH_INFO", mprintf("%.*s", j-i, zRequestUri+i));
+    zPathInfo = mprintf("%.*s", j-i, zRequestUri+i);
+    cgi_set_parameter("PATH_INFO", zPathInfo);
   }
-
+#ifdef FOSSIL_ENABLE_JSON
+  if(strncmp("/json",zPathInfo,5)==0
+     && (zPathInfo[5]==0 || zPathInfo[5]=='/')){
+    /* We need to change some following behaviour depending on whether
+    ** we are operating in JSON mode or not. We cannot, however, be
+    ** certain whether we should/need to be in JSON mode until the
+    ** PATH_INFO is set up.
+    */
+    g.json.isJsonMode = 1;
+  }else{
+    assert(!g.json.isJsonMode &&
+           "Internal misconfiguration of g.json.isJsonMode");
+  }
+#endif
   z = (char*)P("HTTP_COOKIE");
   if( z ){
     z = mprintf("%s",z);
@@ -1073,25 +1117,14 @@ void cgi_init(void){
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }
 #ifdef FOSSIL_ENABLE_JSON
-    else if( noJson==0 && (fossil_strcmp(zType, "application/json")==0
-              || fossil_strcmp(zType,"text/plain")==0/*assume this MIGHT be JSON*/
-              || fossil_strcmp(zType,"application/javascript")==0) ){
-      g.json.isJsonMode = 1;
+    else if( noJson==0 && g.json.isJsonMode!=0 
+             && json_can_consume_content_type(zType)!=0 ){
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
-      /* FIXMEs:
+      /*
+       Potential TODOs:
 
-      - See if fossil really needs g.cgiIn to be set for this purpose
-      (i don't think it does). If it does then fill g.cgiIn and
-      refactor to parse the JSON from there.
-
-      - After parsing POST JSON, copy the "first layer" of keys/values
-      to cgi_setenv(), honoring the upper-case distinction used
-      in add_param_list(). However...
-
-      - If we do that then we might get a disconnect in precedence of
-      GET/POST arguments. i prefer for GET entries to take precedence
-      over like-named POST entries, but in order for that to happen we
-      need to process QUERY_STRING _after_ reading the POST data.
+       1) If parsing fails, immediately return an error response
+       without dispatching the ostensibly-upcoming JSON API.
       */
       cgi_set_content_type(json_guess_content_type());
     }
@@ -1606,6 +1639,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     g.zIpAddr = mprintf("%s", zIpAddr);
   }
 
+
   /* Get all the optional fields that follow the first line.
   */
   while( fgets(zLine,sizeof(zLine),g.httpIn) ){
@@ -1650,6 +1684,13 @@ void cgi_handle_http_request(const char *zIpAddr){
       if( zIpAddr!=0 ){
         g.zIpAddr = mprintf("%s", zIpAddr);
         cgi_replace_parameter("REMOTE_ADDR", g.zIpAddr);
+      }
+    }else if( fossil_strcmp(zFieldName,"range:")==0 ){
+      int x1 = 0;
+      int x2 = 0;
+      if( sscanf(zVal,"bytes=%d-%d",&x1,&x2)==2 && x1>=0 && x1<=x2 ){
+        rangeStart = x1;
+        rangeEnd = x2+1;
       }
     }
   }

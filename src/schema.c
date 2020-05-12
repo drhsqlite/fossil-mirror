@@ -161,6 +161,12 @@ const char zRepositorySchema1[] =
 @ -- table.  Private artifacts are omitted from the "unclustered" and
 @ -- "unsent" tables.
 @ --
+@ -- A phantom artifact (that is, an artifact with BLOB.SIZE<0 - an artifact
+@ -- for which we do not know the content) might also be marked as private.
+@ -- This comes about when an artifact is named in a manifest or tag but
+@ -- the content of that artifact is held privately by some other peer
+@ -- repository.
+@ --
 @ CREATE TABLE private(rid INTEGER PRIMARY KEY);
 @
 @ -- An entry in this table describes a database query that generates a
@@ -403,7 +409,7 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE backlink(
 @   target TEXT,           -- Where the hyperlink points to
-@   srctype INT,           -- 0: check-in  1: ticket  2: wiki
+@   srctype INT,           -- 0=comment 1=ticket 2=wiki. See BKLNK_* below.
 @   srcid INT,             -- EVENT.OBJID for the source document
 @   mtime TIMESTAMP,       -- time that the hyperlink was added. Julian day.
 @   UNIQUE(target, srctype, srcid)
@@ -471,6 +477,18 @@ const char zRepositorySchema2[] =
 @ ) WITHOUT ROWID;
 @ CREATE INDEX cherrypick_cid ON cherrypick(childid);
 ;
+
+/*
+** Allowed values for backlink.srctype
+*/
+#if INTERFACE
+# define BKLNK_COMMENT    0   /* Check-in comment */
+# define BKLNK_TICKET     1   /* Ticket body or title */
+# define BKLNK_WIKI       2   /* Wiki */
+# define BKLNK_EVENT      3   /* Technote */
+# define BKLNK_FORUM      4   /* Forum post */
+# define ValidBklnk(X)   (X>=0 && X<=4)  /* True if backlink.srctype is valid */
+#endif
 
 /*
 ** Predefined tagid values

@@ -20,6 +20,7 @@ SRC = \
   $(SRCDIR)/alerts.c \
   $(SRCDIR)/allrepo.c \
   $(SRCDIR)/attach.c \
+  $(SRCDIR)/backlink.c \
   $(SRCDIR)/backoffice.c \
   $(SRCDIR)/bag.c \
   $(SRCDIR)/bisect.c \
@@ -132,6 +133,7 @@ SRC = \
   $(SRCDIR)/sync.c \
   $(SRCDIR)/tag.c \
   $(SRCDIR)/tar.c \
+  $(SRCDIR)/terminal.c \
   $(SRCDIR)/th_main.c \
   $(SRCDIR)/timeline.c \
   $(SRCDIR)/tkt.c \
@@ -213,6 +215,7 @@ EXTRA_FILES = \
   $(SRCDIR)/../skins/xekri/details.txt \
   $(SRCDIR)/../skins/xekri/footer.txt \
   $(SRCDIR)/../skins/xekri/header.txt \
+  $(SRCDIR)/accordion.js \
   $(SRCDIR)/ci_edit.js \
   $(SRCDIR)/copybtn.js \
   $(SRCDIR)/diff.tcl \
@@ -226,6 +229,22 @@ EXTRA_FILES = \
   $(SRCDIR)/scroll.js \
   $(SRCDIR)/skin.js \
   $(SRCDIR)/sorttable.js \
+  $(SRCDIR)/sounds/0.wav \
+  $(SRCDIR)/sounds/1.wav \
+  $(SRCDIR)/sounds/2.wav \
+  $(SRCDIR)/sounds/3.wav \
+  $(SRCDIR)/sounds/4.wav \
+  $(SRCDIR)/sounds/5.wav \
+  $(SRCDIR)/sounds/6.wav \
+  $(SRCDIR)/sounds/7.wav \
+  $(SRCDIR)/sounds/8.wav \
+  $(SRCDIR)/sounds/9.wav \
+  $(SRCDIR)/sounds/a.wav \
+  $(SRCDIR)/sounds/b.wav \
+  $(SRCDIR)/sounds/c.wav \
+  $(SRCDIR)/sounds/d.wav \
+  $(SRCDIR)/sounds/e.wav \
+  $(SRCDIR)/sounds/f.wav \
   $(SRCDIR)/tree.js \
   $(SRCDIR)/useredit.js \
   $(SRCDIR)/wiki.wiki
@@ -235,6 +254,7 @@ TRANS_SRC = \
   $(OBJDIR)/alerts_.c \
   $(OBJDIR)/allrepo_.c \
   $(OBJDIR)/attach_.c \
+  $(OBJDIR)/backlink_.c \
   $(OBJDIR)/backoffice_.c \
   $(OBJDIR)/bag_.c \
   $(OBJDIR)/bisect_.c \
@@ -347,6 +367,7 @@ TRANS_SRC = \
   $(OBJDIR)/sync_.c \
   $(OBJDIR)/tag_.c \
   $(OBJDIR)/tar_.c \
+  $(OBJDIR)/terminal_.c \
   $(OBJDIR)/th_main_.c \
   $(OBJDIR)/timeline_.c \
   $(OBJDIR)/tkt_.c \
@@ -376,6 +397,7 @@ OBJ = \
  $(OBJDIR)/alerts.o \
  $(OBJDIR)/allrepo.o \
  $(OBJDIR)/attach.o \
+ $(OBJDIR)/backlink.o \
  $(OBJDIR)/backoffice.o \
  $(OBJDIR)/bag.o \
  $(OBJDIR)/bisect.o \
@@ -488,6 +510,7 @@ OBJ = \
  $(OBJDIR)/sync.o \
  $(OBJDIR)/tag.o \
  $(OBJDIR)/tar.o \
+ $(OBJDIR)/terminal.o \
  $(OBJDIR)/th_main.o \
  $(OBJDIR)/timeline.o \
  $(OBJDIR)/tkt.o \
@@ -591,7 +614,8 @@ SQLITE_OPTIONS = -DNDEBUG=1 \
                  -DSQLITE_ENABLE_STMTVTAB \
                  -DSQLITE_HAVE_ZLIB \
                  -DSQLITE_INTROSPECTION_PRAGMAS \
-                 -DSQLITE_ENABLE_DBPAGE_VTAB
+                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                 -DSQLITE_TRUSTED_SCHEMA=0
 
 # Setup the options used to compile the included SQLite shell.
 SHELL_OPTIONS = -DNDEBUG=1 \
@@ -619,6 +643,7 @@ SHELL_OPTIONS = -DNDEBUG=1 \
                 -DSQLITE_HAVE_ZLIB \
                 -DSQLITE_INTROSPECTION_PRAGMAS \
                 -DSQLITE_ENABLE_DBPAGE_VTAB \
+                -DSQLITE_TRUSTED_SCHEMA=0 \
                 -Dmain=sqlite3_shell \
                 -DSQLITE_SHELL_IS_UTF8=1 \
                 -DSQLITE_OMIT_LOAD_EXTENSION=1 \
@@ -710,6 +735,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/alerts_.c:$(OBJDIR)/alerts.h \
 	$(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h \
 	$(OBJDIR)/attach_.c:$(OBJDIR)/attach.h \
+	$(OBJDIR)/backlink_.c:$(OBJDIR)/backlink.h \
 	$(OBJDIR)/backoffice_.c:$(OBJDIR)/backoffice.h \
 	$(OBJDIR)/bag_.c:$(OBJDIR)/bag.h \
 	$(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h \
@@ -822,6 +848,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/builtin_data.h $(OBJDIR)/def
 	$(OBJDIR)/sync_.c:$(OBJDIR)/sync.h \
 	$(OBJDIR)/tag_.c:$(OBJDIR)/tag.h \
 	$(OBJDIR)/tar_.c:$(OBJDIR)/tar.h \
+	$(OBJDIR)/terminal_.c:$(OBJDIR)/terminal.h \
 	$(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h \
 	$(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h \
 	$(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h \
@@ -883,6 +910,14 @@ $(OBJDIR)/attach.o:	$(OBJDIR)/attach_.c $(OBJDIR)/attach.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/attach.o -c $(OBJDIR)/attach_.c
 
 $(OBJDIR)/attach.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/backlink_.c:	$(SRCDIR)/backlink.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/backlink.c >$@
+
+$(OBJDIR)/backlink.o:	$(OBJDIR)/backlink_.c $(OBJDIR)/backlink.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/backlink.o -c $(OBJDIR)/backlink_.c
+
+$(OBJDIR)/backlink.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/backoffice_.c:	$(SRCDIR)/backoffice.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/backoffice.c >$@
@@ -1779,6 +1814,14 @@ $(OBJDIR)/tar.o:	$(OBJDIR)/tar_.c $(OBJDIR)/tar.h $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/tar.o -c $(OBJDIR)/tar_.c
 
 $(OBJDIR)/tar.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/terminal_.c:	$(SRCDIR)/terminal.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/terminal.c >$@
+
+$(OBJDIR)/terminal.o:	$(OBJDIR)/terminal_.c $(OBJDIR)/terminal.h $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/terminal.o -c $(OBJDIR)/terminal_.c
+
+$(OBJDIR)/terminal.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/th_main_.c:	$(SRCDIR)/th_main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/th_main.c >$@
