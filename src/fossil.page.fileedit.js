@@ -9,7 +9,7 @@
         P = F.page;
 
   /**
-     Manager object for the checkin/file selection list.
+     Widget for the checkin/file selection list.
   */
   P.fileSelector = {
     e:{
@@ -20,8 +20,16 @@
       checkins: undefined,
       files:{}
     },
+    /**
+       Fetches the list of leaf checkins from the server and updates
+       the UI with that list.
+    */
     loadLeaves: function(){
-      D.append(D.clearElement(this.e.ciListLabel),"Loading leaves...");
+      D.append(D.clearElement(
+        this.e.ciListLabel,
+        this.e.selectCi,
+        this.e.selectFiles
+      ),"Loading leaves...");
       D.disable(this.e.btnLoadFile, this.e.selectFiles, this.e.selectCi); 
       const self = this;
       F.fetch('fileedit',{
@@ -42,6 +50,12 @@
         }
       });
     },
+    /**
+       Loads the file list for the given checkin UUID. It uses a
+       cached copy on subsequent calls for the same UUID. If passed a
+       falsy value, it instead clears and disables the file selection
+       list.
+    */
     loadFiles: function(ciUuid){
       delete this.finfo.filename;
       this.finfo.checkin = ciUuid;
@@ -81,6 +95,10 @@
       });
       return this;
     },
+    /**
+       Initializes the checkin/file selector widget. Must only be
+       called once.
+    */
     init: function(){
       const selCi = this.e.selectCi = D.select(),
             selFiles = this.e.selectFiles
@@ -89,8 +107,15 @@
             D.addClass(D.button("Load file"), "flex-shrink"),
             filesLabel = this.e.fileListLabel =
             D.addClass(D.div(),'flex-shrink','file-list-label'),
+            ciLabelWrapper = D.addClass(
+              D.div(), 'flex-container','flex-row', 'flex-shrink',
+              'stretch'
+            ),
+            btnReload = D.addClass(
+              D.button('Reload'), 'flex-shrink'
+            ),
             ciLabel = this.e.ciListLabel =
-            D.addClass(D.div(),'flex-shrink','checkin-list-label')
+            D.addClass(D.span(),'flex-shrink','checkin-list-label')
       ;
       D.attr(selCi, 'title',"The list of opened leaves.");
       D.attr(selFiles, 'title',
@@ -101,13 +126,13 @@
       D.attr(selFiles, 'size', 10);
       D.append(
         this.e.container,
-        ciLabel,
+        D.append(ciLabelWrapper,
+                 btnReload, ciLabel),
         selCi,
         filesLabel,
         selFiles,
         btnLoad
       );
-      
       this.loadLeaves();
       selCi.addEventListener(
         'change', (e)=>this.loadFiles(e.target.value), false
@@ -119,6 +144,9 @@
             P.loadFile(this.finfo.filename, this.finfo.checkin);
           }
         }, false
+      );
+      btnReload.addEventListener(
+        'click', (e)=>this.loadLeaves(), false
       );
       delete this.init;
     }
@@ -250,6 +278,24 @@
   }, false)/*onload event handler*/;
 
   /**
+     Getter (if called with no args) or setter (if passed an arg) for
+     the current file content. We use a function, rather than direct
+     access so that clients can hypothetically swap out this method
+     from their skin in order to facilitate plugging-in of fancy
+     3rd-party editor widgets.
+
+     The setter form returns this object.
+  */
+  P.value = function(){
+    if(0===arguments.length){
+      return this.e.taEditor.value;
+    }else{
+      this.e.taEditor.value = arguments[0];
+      return this;
+    }
+  };
+
+  /**
      Toggles between single- and multi-line comment
      mode.
   */
@@ -346,7 +392,7 @@
       },
       onload:(r)=>{
         F.message('Loaded content.');
-        self.e.taEditor.value = r;
+        self.value(r);
         self.updateVersion(file,rev);
         self.tabs.switchToTab(self.e.tabs.content);
       }
@@ -374,7 +420,7 @@
       if('string'===typeof c) f.target.innerHTML = c;
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
-    return this._postPreview(this.e.taEditor.value, updateView);
+    return this._postPreview(this.value(), updateView);
   };
 
   /**
@@ -418,7 +464,7 @@
   */
   P.diff = function f(sbs){
     if(!affirmHasFile()) return this;
-    const content = this.e.taEditor.value,
+    const content = this.value(),
           self = this;
     if(!f.target){
       f.target = this.e.tabs.diff.querySelector(
@@ -458,7 +504,7 @@
   P.commit = function f(){
     if(!affirmHasFile()) return this;
     const self = this;
-    const content = this.e.taEditor.value,
+    const content = this.value(),
           target = document.querySelector('#fileedit-manifest'),
           cbDryRun = E('[name=dry_run]'),
           isDryRun = cbDryRun.checked,
@@ -482,7 +528,8 @@
           msg.push('Re-activating dry-run mode.');
           self.e.taComment.value = '';
           cbDryRun.checked = true;
-          P.updateVersion(filename, c.uuid);
+          self.updateVersion(filename, c.uuid);
+          self.fileSelector.loadLeaves();
         }
         F.message.apply(fossil, msg);
         self.tabs.switchToTab(self.e.tabs.commit);

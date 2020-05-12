@@ -960,7 +960,8 @@ body.fileedit fieldset > legend {
   padding: 0 0.5em 0 0.5em;
 }
 body.fileedit fieldset > div {
-  margin: 0 0.25em 0.25em 0.25em;
+  margin: 0 0.25em 0 0.25em;
+  padding: 0;
 }
 body.fileedit fieldset > div > .input-with-label {
   margin: 0.25em 0.5em;
@@ -989,13 +990,22 @@ div.fileedit-preview {
   margin: 0;
   padding: 0;
 }
-div.fileedit-tab-diff-wrapper {
+#fileedit-tab-diff-wrapper {
   margin: 0;
   padding: 0;
+  overflow: auto;
 }
-#fileedit-comment {
-  width: 100%;
+#fileedit-tab-preview-wrapper {
+  overflow: auto;
+}
+.fileedit-options.commit-message > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
   font-family: monospace;
+}
+.fileedit-options.commit-message > div > * {
+  margin: 0.25em;
 }
 #fileedit-commit-button-wrapper {
   margin: 0.25em;
@@ -1058,16 +1068,24 @@ div.fileedit-tab-diff-wrapper {
   min-height: 12em;
 }
 #fileedit-file-selector select {
+  margin: 0 0 0.5em 0;
   height: initial;
   font-family: monospace;
 }
 #fileedit-file-selector select:focus {
   border: none;
 }
+#fileedit-file-selector > div {
+  padding: 0;
+  margin: 0;
+}
+#fileedit-file-selector > div > * {
+  margin: 0.25em 0.5em 0.25em 0;
+}
 .flex-container.flex-row.stretch {
-  flex-direction: row;
   flex-wrap: wrap;
-  align-items: stretch;
+  align-items: baseline;
+  justify-content: stretch;
   margin: 0;
 }
 .flex-container.flex-column {

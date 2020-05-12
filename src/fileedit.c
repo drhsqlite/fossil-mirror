@@ -1901,7 +1901,7 @@ void fileedit_page(void){
   }
 
   { /******* Commit comment, button, and result manifest *******/
-    CX("<fieldset class='fileedit-options'>"
+    CX("<fieldset class='fileedit-options commit-message'>"
        "<legend>Message (required)</legend><div>\n");
     /* We have two comment input fields, defaulting to single-line
     ** mode. JS code sets up the ability to toggle between single-
