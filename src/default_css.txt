@@ -1151,7 +1151,8 @@ div.fileedit-preview {
 .input-with-label > input[type=radio] {
   vertical-align: sub;
 }
-.input-with-label > span {
+.input-with-label > label {
+  font-weight: initial;
   margin: 0 0.25em 0 0.25em;
   vertical-align: middle;
 }

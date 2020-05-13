@@ -1300,6 +1300,17 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 #endif
 
 /*
+** Returns a pseudo-random input field ID, for use in associating an
+** ID-less input field with a label. The memory is owned by the
+** caller.
+*/
+static char * style_next_input_id(){
+  static int inputID = 0;
+  ++inputID;
+  return mprintf("input-id-%d", inputID);
+}
+
+/*
 ** Outputs a labeled checkbox element. zWrapperId is an optional ID
 ** value for the containing element (see below). zFieldName is the
 ** form element name. zLabel is the label for the checkbox. zValue is
@@ -1312,8 +1323,9 @@ void webpage_assert_page(const char *zFile, int iLine, const char *zExpr){
 **
 ** <span class='input-with-label' title={{zTip}} id={{zWrapperId}}>
 **   <input type='checkbox' name={{zFieldName}} value={{zValue}}
+**          id='A RANDOM VALUE'
 **          {{isChecked ? " checked : ""}}/>
-**   <span>{{zLabel}}</span>
+**   <label for='ID OF THE INPUT FIELD'>{{zLabel}}</label>
 ** </span>
 **
 ** zLabel, and zValue are required. zFieldName, zWrapperId, and zTip
@@ -1327,6 +1339,7 @@ void style_labeled_checkbox(const char * zWrapperId,
                             const char *zFieldName, const char * zLabel,
                             const char * zValue, int isChecked,
                             const char * zTip){
+  char * zLabelID = style_next_input_id();
   CX("<span class='input-with-label'");
   if(zTip && *zTip){
     CX(" title='%h'", zTip);
@@ -1334,13 +1347,14 @@ void style_labeled_checkbox(const char * zWrapperId,
   if(zWrapperId && *zWrapperId){
     CX(" id='%s'",zWrapperId);
   }
-  CX("><input type='checkbox' ");
+  CX("><input type='checkbox' id='%s' ", zLabelID);
   if(zFieldName && *zFieldName){
     CX("name='%s' ",zFieldName);
   }
   CX("value='%T'%s/>",
      zValue ? zValue : "", isChecked ? " checked" : "");
-  CX("<span>%h</span></span>", zLabel);
+  CX("<label for='%s'>%h</label></span>", zLabelID, zLabel);
+  fossil_free(zLabelID);
 }
 
 /*
@@ -1374,8 +1388,8 @@ void style_labeled_checkbox(const char * zWrapperId,
 ** The structure of the emitted HTML is:
 **
 ** <span class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
-**   <span>{{zLabel}}</span>
-**   <select>...</select>
+**   <label for='SELECT ELEMENT ID'>{{zLabel}}</span>
+**   <select id='RANDOM ID' name={{zFieldName}}>...</select>
 ** </span>
 **
 ** Example:
@@ -1391,7 +1405,9 @@ void style_select_list_int(const char * zWrapperId,
                            const char *zFieldName, const char * zLabel,
                            const char * zToolTip, int selectedVal,
                            ... ){
+  char * zLabelID = style_next_input_id();
   va_list vargs;
+
   va_start(vargs,selectedVal);
   CX("<span class='input-with-label'");
   if(zToolTip && *zToolTip){
@@ -1402,9 +1418,9 @@ void style_select_list_int(const char * zWrapperId,
   }
   CX(">");
   if(zLabel && *zLabel){
-    CX("<span>%h</span>", zLabel);
+    CX("<label label='%s'>%h</label>", zLabelID, zLabel);
   }
-  CX("<select name='%s'>",zFieldName);
+  CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
   while(1){
     const char * zOption = va_arg(vargs,char *);
     int v;
@@ -1424,6 +1440,7 @@ void style_select_list_int(const char * zWrapperId,
   CX("</select>\n");
   CX("</span>\n");
   va_end(vargs);
+  fossil_free(zLabelID);
 }
 
 /*
@@ -1449,6 +1466,7 @@ void style_select_list_str(const char * zWrapperId,
                            const char *zFieldName, const char * zLabel,
                            const char * zToolTip, char const * zSelectedVal,
                            ... ){
+  char * zLabelID = style_next_input_id();
   va_list vargs;
 
   va_start(vargs,zSelectedVal);
@@ -1464,9 +1482,9 @@ void style_select_list_str(const char * zWrapperId,
   }
   CX(">");
   if(zLabel && *zLabel){
-    CX("<span>%h</span>", zLabel);
+    CX("<label for='%s'>%h</label>", zLabelID, zLabel);
   }
-  CX("<select name='%s'>",zFieldName);
+  CX("<select name='%s' id='%s'>",zFieldName, zLabelID);
   while(1){
     const char * zLabel = va_arg(vargs,char *);
     const char * zVal;
@@ -1486,6 +1504,7 @@ void style_select_list_str(const char * zWrapperId,
   CX("</select>\n");
   CX("</span>\n");
   va_end(vargs);
+  fossil_free(zLabelID);
 }
 
 
