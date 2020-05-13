@@ -668,6 +668,7 @@ void ci_page(void){
     Blob wiki_read_links = BLOB_INITIALIZER;
     Blob wiki_add_links = BLOB_INITIALIZER;
 
+    Th_Store("current_checkin", zName);
     style_header("Check-in [%S]", zUuid);
     login_anonymous_available();
     zEUser = db_text(0,
