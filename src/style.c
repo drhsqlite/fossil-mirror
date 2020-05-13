@@ -1388,7 +1388,7 @@ void style_labeled_checkbox(const char * zWrapperId,
 ** The structure of the emitted HTML is:
 **
 ** <span class='input-with-label' title={{zToolTip}} id={{zWrapperId}}>
-**   <label for='SELECT ELEMENT ID'>{{zLabel}}</span>
+**   <label for='SELECT ELEMENT ID'>{{zLabel}}</label>
 **   <select id='RANDOM ID' name={{zFieldName}}>...</select>
 ** </span>
 **

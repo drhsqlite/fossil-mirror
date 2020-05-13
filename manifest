@@ -1,5 +1,5 @@
-C The\sprogrammatically-generated\sinput-with-label\selements\snow\suse\san\sinner\sLABEL,\sinstead\sof\sSPAN,\sand\sauto-generated\sINPUT\selement\sIDs\sto\sgo\swith\sthe\slabels\s(which\srequire\san\sID).
-D 2020-05-13T16:41:41.428
+C Minor\sdoc\sfix.
+D 2020-05-13T16:44:44.217
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -602,7 +602,7 @@ F src/sqlite3.h c037da6ad29b40320aee88812b9a445861fb4f80a4e43558f317132b3e6e1464
 F src/stash.c dfe68ec78819b67980a217063474ae42540fbb7b734bd327e0c04da31d74ab86
 F src/stat.c 12f99599c1bcdf0fa4a7050b796aec87a0fc621ad58d934e2f4a8f74bac5d112
 F src/statrep.c 53e445c1353057aece0a3eaee7c8f65b15755accb8e8eac74256d7cbc5411fae
-F src/style.c 32c4bed4d618c6356a9e41d50c55cead8c919fb989006cd713164f0a8e535d21
+F src/style.c e6ef1e4ca2a5ec5b78a3e84bad81383c0899934a06638261f62ae984a1e6bc73
 F src/sync.c 3a644055f320893d1078aa667ba05ebceca37da7f1d6e7758a847ea24cd3e27e
 F src/tag.c 97982d2bccf756a0fcdfa6716e4da09e6ba5a14c443f5270110640943cb3b7b3
 F src/tar.c 8329031f9ad583c687da5fc32661a3ed201cc91c24fb674a7c0de569f82a4724
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 695dde004c4e6f533cf5bd07cd989c3500bf5da5557c2dc883b31c32d954d3bd
-R 2dfd7b73af4d44d12edb5f6bcbd900d7
+P b46d11b871ef23d63880a8650592a954ba37f046ae0ecd1b5083c2768a6f0fb6
+R a3b64a4d7451eae34fc2e7962c92c0f3
 U stephan
-Z b306eec700c3a42e56926c9bbe13f630
+Z a12acdbe4b3f44ee40935b70e5429865
