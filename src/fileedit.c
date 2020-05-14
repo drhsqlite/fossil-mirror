@@ -1757,19 +1757,10 @@ void fileedit_page(void){
        "data-tab-parent='fileedit-tabs' "
        "data-tab-label='File Info &amp; Selection'"
        ">");
-    CX("File: "
-       "<code id='finfo-file-name'>" "???" "</code><br>");
-    CX("Checkin Version: "
-       "[<a id='timeline-link' href='#'>/timeline</a>] "
-       "[<a id='r-link' href='#'>/info</a>] "
-       /* %R/info/%!S */
-       "<code id='r-label'>" "???" "</code><br>"
-       );
-    CX("Permalink: <code>"
-       "<a id='permalink' href='#'>" "???" "</a></code><br>"
-       "(Clicking the permalink will reload the page and discard "
-       "all edits!)");
-
+    CX("<fieldset id='file-version-details'>"
+       "<legend>File/Version</legend>"
+       "<div>No file loaded.</div>"
+       "</fieldset>");
     CX("<h1>Select a file to edit:</h1>");
     CX("<div id='fileedit-file-selector'></div>");
     CX("</div>"/*#fileedit-tab-version*/);

@@ -210,6 +210,7 @@
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       cbIsExe: E('input[type=checkbox][name=exec_bit]'),
+      fsFileVersionDetails: E('#file-version-details'),
       tabs:{
         content: E('#fileedit-tab-content'),
         preview: E('#fileedit-tab-preview'),
@@ -422,6 +423,15 @@
     D.removeClass(s, 'hidden');
     console.debug(s,h);
   };
+
+  /**
+     Returns true if fossil.page.finfo is set, indicating that a file
+     has been loaded, else it reports an error and returns false.
+  */
+  const affirmHasFile = function(){
+    if(!P.finfo) F.error("No file is loaded.");
+    return !!P.finfo;
+  };
   
   /**
      updateVersion() updates the filename and version in various UI
@@ -430,47 +440,54 @@
      Returns this object.
   */
   P.updateVersion = function(file,rev){
-    this.finfo = {filename:file,checkin:rev};
-    const E = (s)=>document.querySelector(s),
-          euc = encodeURIComponent,
+    if(1===arguments.length){/*assume object*/
+      this.finfo = arguments[0];
+      file = this.finfo.filename;
+      rev = this.finfo.checkin;
+    }else if(0===arguments.length){
+      if(!affirmHasFile()) return this;
+    }else{
+      this.finfo = {filename:file,checkin:rev};
+    }
+    const eTgt = this.e.fsFileVersionDetails.querySelector('div'),
           rHuman = F.hashDigits(rev),
           rUrl = F.hashDigits(rev,true);
+    D.clearElement(eTgt);
     D.append(
-      D.clearElement(E('#r-label')),
-      rHuman
+      eTgt, "File: ",
+      D.append(D.code(),
+               D.a(F.repoUrl('finfo',{name:file, m:rUrl}), file)),
+      D.br()
     );
-    var e;
-    e = E('#timeline-link');
-    D.attr(e, 'href',F.repoUrl('timeline',{c:rUrl}));
-    e = E('#finfo-file-name');
     D.append(
-      D.clearElement(e),
-      D.a(F.repoUrl('finfo',{name:file, m:rUrl}), file)
+      eTgt, "Checkin Version: ",
+      D.append(D.code(), D.a(F.repoUrl('info/'+rUrl), rHuman)),
+      " [",D.a(F.repoUrl('timeline',{m:rUrl}), "timeline"),"]",
+      D.br()
     );
-    e = E('#r-link');
-    D.attr(e, 'href', F.repoUrl('info/'+rUrl));
-    e = E('#r-label');
-    D.append(D.clearElement(e),rHuman);
+    D.append(
+      eTgt, "Mimetype: ",
+      D.append(D.code(), this.finfo.mimetype||'???'),
+      D.br()
+    );
     const purlArgs = F.encodeUrlArgs({
       filename: this.finfo.filename,
       checkin: rUrl
     },false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
-    e = E('#permalink');
-    D.attr(D.append(D.clearElement(e),'?'+purlArgs),'href', purl);
+    D.append(
+      eTgt,
+      "Permalink: ",
+      D.append(D.code(),D.a(purl,true))
+    );
     return this;
-  };
-
-  const affirmHasFile = function(){
-    if(!P.finfo) F.error("No file is loaded.");
-    return !!P.finfo;
   };
 
   /**
      loadFile() loads (file,checkinVersion) and updates the relevant
      UI elements to reflect the loaded state. If passed no arguments
-     then it re-uses the values from the currently-loaded file
-     (becoming a no-op if no file is loaded).
+     then it re-uses the values from the currently-loaded file, reloading
+     it (emitting an error message if no file is loaded).
 
      Returns this object, noting that the load is async. After loading
      it triggers a 'fileedit-file-loaded' event, passing it
@@ -494,9 +511,12 @@
       responseHeaders: ['x-fileedit-file-perm', 'content-type'],
       onload:(r,headers)=>{
         F.message('Loaded content.');
-        self.updateVersion(file,rev);
-        self.finfo.isExe = ('x'===headers['x-fileedit-file-perm']);
-        self.finfo.mimetype = headers['content-type'].split(';').shift();
+        self.updateVersion({
+          filename: file,
+          checkin: rev,
+          isExe: ('x'===headers['x-fileedit-file-perm']),
+          mimetype: headers['content-type'].split(';').shift()
+        });
         self.tabs.switchToTab(self.e.tabs.content);
         self.e.cbIsExe.checked = self.finfo.isExe;
         self.value(r);
@@ -637,10 +657,12 @@
           msg.push('Re-activating dry-run mode.');
           self.e.taComment.value = '';
           cbDryRun.checked = true;
-          self.updateVersion(filename, c.uuid);
+          self.finfo.filename = filename;
+          self.finfo.checkin = c.uuid;
+          self.updateVersion();
           self.fileSelector.loadLeaves();
         }
-        F.message.apply(fossil, msg);
+        F.message.apply(F, msg);
         self.tabs.switchToTab(self.e.tabs.commit);
       };
     }
