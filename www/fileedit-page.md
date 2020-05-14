@@ -26,7 +26,8 @@ Notes, caveats, and disclaimers:
     style used by being-edited files, the round-trip through an HTML
     textarea element may change the EOLs. The Commit section of the
     page offers 3 different options for how to treat newlines when
-    saving changes.
+    saving changes. Files with mixed EOL styles *will be normalized
+    to a single EOL style* when modified using `/fileedit`.
 - `/fileedit` **is not a replacement for a checkout**. A full-featured
   checkout allows far more possibilities than this basic online editor
   permits, and the feature scope of `/fileedit` is intentionally kept
@@ -105,12 +106,12 @@ contains 3 properties:
   iframe element which contains a complete HTML document.
 - `element`: the DOM element in which the preview is rendered.
 - `mimetype`: the mimetype of the being-previewed content, as determined
-  by fossil (by its file extension).
+  by Fossil (by its file extension).
 
-The event listener callback doesn't use the `mimetype`, but makes used
-of the other two. It fishes all `code` blocks out of the preview which
-explicitly have a CSS class named `language-`something, and then asks
-highlightjs to highlight them.
+The event listener callback shown above doesn't use the `mimetype`,
+but makes used of the other two. It fishes all `code` blocks out of
+the preview which explicitly have a CSS class named
+`language-`something, and then asks highlightjs to highlight them.
 
 ## Integrating a Custom Editor Widget
 
