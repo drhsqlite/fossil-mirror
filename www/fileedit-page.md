@@ -1,46 +1,98 @@
 # The fileedit Page
 
 This document describes some tips and tricks for the [](/fileedit)
-page, which provides basic editing features for files via the web
-interface.
+page, which provides, for users with [checkin
+privileges](./caps/index.md), basic editing features for files via the
+web interface.
 
-# First and Foremost...
+# Important Caveats and Disclaimers
 
-Notes, caveats, and disclaimers:
+Predictably, the ability to edit files in a repository from a web
+browser halfway around the world comes with several obligatory caveats
+and disclaimers...
 
-- **`/fileedit` does nothing by default.** In order to "activate" it,
-  a user with [the "setup" permission](./caps/index.md) must set the
-  [fileedit-glob](/help?cmd=fileedit-glob) repository setting to a
-  comma- or newline-delimited list of globs representing a whitelist
-  of files which may be edited online. Any user with commit access may
-  then edit files matching one of those globs.
-- `/fileedit` **works by creating commits** (a.k.a. checkins), thus
-  any edits made via that page become a normal part of the repository's
-  blockchain.
-- `/fileedit` is **intended to facilitate online edits of
-  embedded docs and similar text files**, and is most certainly
-  **not intended for editing code**. Editing files with unusual
-  syntax requirements, e.g. hard tabs in makefiles, may break
-  them. *You Have Been Warned.*
-    - Similarly, though every effort is made to retain the end-of-line
-    style used by being-edited files, the round-trip through an HTML
-    textarea element may change the EOLs. The Commit section of the
-    page offers 3 different options for how to treat newlines when
-    saving changes. Files with mixed EOL styles *will be normalized
-    to a single EOL style* when modified using `/fileedit`.
-- `/fileedit` **is not a replacement for a checkout**. A full-featured
-  checkout allows far more possibilities than this basic online editor
-  permits, and the feature scope of `/fileedit` is intentionally kept
-  small, implementing only the bare necessities needed for performing
-  basic edits online.
-- `/fileedit` **does not store draft versions while working**. i.e. if
-  the browser's tab is closed or a link is clicked, taking the user to
-  a different page, any current edits *will be lost*. See the note
-  above about this feature *not* being a replacement for a
-  full-fledged checkout.
-- "With great power comes great responsibility." **Use this feature
-  judiciously, if at all.**
+### `/fileedit` Does *Nothing* by Default.
 
+In order to "activate" it, a user with [the "setup"
+permission](./caps/index.md) must set the
+[fileedit-glob](/help?cmd=fileedit-glob) repository setting to a
+comma- or newline-delimited list of globs representing a whitelist of
+files which may be edited online. Any user with commit access may then
+edit files matching one of those globs.
+
+### `/fileedit` **Works by Creating Commits**
+
+Thus any edits made via that page become a normal part of the
+repository's blockchain.
+
+### `/fileedit` is **Intended for use with Embedded Docs**
+
+... and similar text files, and is most certainly
+**not intended for editing code**.
+
+Editing files with unusual syntax requirements, e.g. hard tabs in
+makefiles, may break them. *You Have Been Warned.*
+
+Similarly, though every effort is made to retain the end-of-line
+style used by being-edited files, the round-trip through an HTML
+textarea element may change the EOLs. The Commit section of the page
+offers three different options for how to treat newlines when saving
+changes. **Files with mixed EOL styles** *will be normalized to a single
+EOL style* when modified using `/fileedit`. When "inheriting" the EOL
+style from a previous version which has mixed styles, the first EOL
+style detected in the file is used.
+
+### `/fileedit` **is Not a Replacement for a Checkout**
+
+A full-featured checkout allows far more possibilities than this basic
+online editor permits, and the feature scope of `/fileedit` is
+intentionally kept small, implementing only the bare necessities
+needed for performing basic edits online. It *is not, and will never
+be, a replacement for a checkout.*
+
+It is to be expected that users will want to do "more" with this
+page, and we generally encourage feature requests, but be aware that
+certain types of ostensibly sensible feature requests *will be
+rejected* for `/fileedit`. These include, but are not limited to:
+
+- Features which are already provided by other pages, e.g.
+the ability to create a new named branch or add tags.
+- Features which would require re-implementing significant
+capabilities provided only within a checkout (e.g. merging files).
+- The ability to edit/manipulate files which are in a local
+checkout. (If you have a checkout, use your local editor, not
+`/fileedit`.)
+- Editing of non-text files, e.g. images. Use a checkout and your
+preferred graphics editor.
+- Support for syncing/pulling/pushing of a repository before and/or
+after edits. Those features cannot be *reliably* provided via a web
+interface for several reasons, not the least of which is that some
+backend servers simply do not permit outbound network connections to
+arbitrary hosts.
+
+Similarly, some *potential* features have significant downsides,
+abuses, and/or implementation hurdles which make the decision of
+whether or not to implement them subject to notable contributor
+debate. e.g. the ability to add new files or remove/rename older
+files.
+
+
+### `/fileedit` **Does Not Store Draft Versions While Working**
+
+When using `/fileedit`, if the browser's tab is closed, a link is
+clicked, or the user otherwise leaves the page, any current edits
+*will be lost*. See the note above about this feature *not* being a
+replacement for a full-fledged checkout.
+
+### The Power is Yours, but...
+
+> "With great power comes great responsibility."
+
+**Use this feature judiciously, *if at all*.**
+
+Now, with those warnings and caveats out of the way...
+
+-----
 
 # Tips and Tricks
 

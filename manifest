@@ -1,5 +1,5 @@
-C Added\sa\swarning\sabout\sEOL\snormalization\sof\sfiles\swith\smixed\sEOL\sstyles.
-D 2020-05-14T07:29:20.515
+C Restructured\sfileedit-page.md\sto\sgive\smore\sspace\sto/explanation\sof\seach\scaveat/warning\sbullet\spoint\s(each\sof\swhich\sis\snow\sin\sits\sown\ssubsection).
+D 2020-05-14T15:10:15.295
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -864,7 +864,7 @@ F www/env-opts.md 49f9284459d093d158ff0584072cb4a0da6a7a545c42b12aceffbac2613e18
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
-F www/fileedit-page.md 0e6ae7f8a745d0e86299c53b6fa1c9d0d57496233c5ba33f4a5379ab9933e623
+F www/fileedit-page.md da0ecb2099b06712d34065fee13bd3c242e8359372f68049834b7bb278ed1b97
 F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
 F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
@@ -989,7 +989,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 909a48e3788cbba79c5c786a449e04ec5e784aa72f192fa5f4767a652ea8ebac
-R 9efdc0bf10b1ed45ff0b68b4c95e52e5
+P b83ff3f42192c5b56e4c2c363eef3285cb6476e0a1bddeb916510a2516afa608
+R 9258cd4040d5077dee0642c18bfb4e8c
 U stephan
-Z 2d63ff069676e2a14da0d505e5c55157
+Z c765fa40f8e19ec92e73ae055b5a5bc6
