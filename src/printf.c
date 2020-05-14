@@ -800,8 +800,7 @@ int vxprintf(
           ** "unused variable" compiler warning. */
         }
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = encode_json_string_literal(zMem);
-        length = strlen(bufpt);
+        zExtra = bufpt = encode_json_string_literal(zMem, &length);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }

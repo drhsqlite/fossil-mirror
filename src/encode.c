@@ -382,8 +382,12 @@ u32 fossil_utf8_read(
 ** Encode a UTF8 string as a JSON string literal (without the surrounding
 ** "...") and return a pointer to the encoding.  Space to hold the encoding
 ** is obtained from fossil_malloc() and must be freed by the caller.
+**
+** If nOut is not NULL then it is assigned to the length, in bytes, of
+** the returned string (its strlen(), not counting the terminating
+** NUL).
 */
-char *encode_json_string_literal(const char *zStr){
+char *encode_json_string_literal(const char *zStr, int * nOut){
   const unsigned char *z;
   char *zOut;
   u32 c;
@@ -430,6 +434,9 @@ char *encode_json_string_literal(const char *zStr){
     }
   }
   zOut[i] = 0;
+  if(nOut!=0){
+    *nOut = i;
+  }
   return zOut;
 }
 
