@@ -957,7 +957,8 @@ body.fileedit fieldset {
   border-radius: 0.5em;
   border-color: inherit;
   border-width: 1px;
-  font-size: 85%;
+  font-size: 90%;
+  overflow: auto;
 }
 body.fileedit fieldset > legend {
   margin: 0 0 0 1em;
@@ -966,6 +967,7 @@ body.fileedit fieldset > legend {
 body.fileedit fieldset > div {
   margin: 0 0.25em 0 0.25em;
   padding: 0;
+  overflow: auto;
 }
 body.fileedit fieldset > div > .input-with-label {
   margin: 0.25em 0.5em;

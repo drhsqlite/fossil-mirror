@@ -2017,13 +2017,13 @@ void fileedit_page(void){
     CX("<h1>Help &amp; Tips</h1>");
     CX("<ul>");
     CX("<li><strong>Only files matching the <code>fileedit-glob</code> "
-       "</strong> repository setting can be edited online. That setting "
+       "repository setting</strong> can be edited online. That setting "
        "must be a comma- or newline-delimited list of glob patterns "
        "for files which may be edited online.</li>");
     CX("<li><strong>Clicking any links</strong> on this page will "
        "leave the page, <strong>losing any edits</strong>.</li>");
-    CX("<li>Saving edits creates a new commit with a single modified "
-       "file.</li>");
+    CX("<li>Committing edits creates a new commit record with a single "
+       "modified file.</li>");
     CX("<li>\"Delta manifests\" (see the checkbox on the Commit tab) "
        "make for smaller commit records, especially in repositories "
        "with many files.</li>");

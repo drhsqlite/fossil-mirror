@@ -56,7 +56,8 @@
         urlParams:'ajax=filelist&leaves',
         responseType: 'json',
         onload: function(list){
-          D.append(D.clearElement(self.e.ciListLabel),"Open leaves:");
+          D.append(D.clearElement(self.e.ciListLabel),
+                   "Open leaves (newest first):");
           self.cache.checkins = list;
           D.clearElement(D.enable(self.e.selectCi));
           let loadThisOne;
@@ -89,9 +90,13 @@
         D.append(
           D.clearElement(this.e.fileListLabel),
           "Editable files for ",
-          D.a(F.repoUrl('timeline',{
-            c: ciUuid
-          }), F.hashDigits(ciUuid))
+          D.append(
+            D.code(),
+            D.a(F.repoUrl('timeline',{
+              c: ciUuid
+            }), F.hashDigits(ciUuid)),
+          ),
+          ":"
         );
         this.cache.files[response.checkin] = response;
         response.editableFiles.forEach(function(fn,n){
@@ -476,9 +481,7 @@
     },false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
     D.append(
-      eTgt,
-      "Permalink: ",
-      D.append(D.code(),D.a(purl,true))
+      eTgt,"[",D.a(purl,"Editor permalink"),"]"
     );
     return this;
   };
