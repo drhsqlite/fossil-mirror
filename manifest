@@ -1,5 +1,5 @@
-C Added\sa\sparameter\sto\sencode_json_string_literal()\sto\sallow\sit\sto\sreturn\sits\soutput\sstring\slength,\ssaving\sa\sstrlen()\scall\sin\svxprintf()\s%j.
-D 2020-05-14T04:13:46.862
+C Removed\ssome\sdead\scode.
+D 2020-05-14T04:14:06.413
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -479,7 +479,7 @@ F src/event.c 4ed0ac8b629a34c8203cf6558c36a2803ecff87f3012b6daa633248dd81d275b
 F src/export.c 78cf66b757b72740af39f2ae0313db500daa80ed8af817a59fb2222d131a7e49
 F src/extcgi.c dccba48c85fbf2c5217318ff2ba3d6a9efd741fa2cf084e59b0cd8268b98fc34
 F src/file.c 9f08f7e8c67e7ff00095faa4798510db3ee71cedff35d02f69f7cffc6d57b854
-F src/fileedit.c cbe26df031b462225f156df028be658a554827414c838429327d40a0d9c92c38
+F src/fileedit.c 30752ffb5678410fb2a09615e6bdc1a0b951923d143f69f482f96c33c55a5623
 F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 28b2261b75d5372ec1c8dc46e01e0617e46ab72d653cd9704942ddb9dbda562b
-R 49eb0af54256d66348b12f7aadd748a3
+P 57edd1814461ef2dea885b89d211ee3ad90c6f6177ffea281dba0d8f3d56baf4
+R 55ffe618c0ad382baa67ada5014a1821
 U stephan
-Z 23452dfeacda93928568f0fa9cabdb2a
+Z 5dc4dc4b2c9f8cccb68cee6b09ee8559

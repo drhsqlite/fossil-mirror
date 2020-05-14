@@ -1667,7 +1667,6 @@ void fileedit_page(void){
                                            function call, thus each
                                            entry must end with a
                                            semicolon. */
-  Stmt stmt = empty_Stmt;
   const char *zAjax = P("ajax");
 
   if(0!=zAjax){
@@ -2035,11 +2034,10 @@ void fileedit_page(void){
   }
   CX("</div>"/*#fileedit-tab-help*/);
 
-  
   {
-    /* Dynamically populate the editor, display a any error
-    ** in the err blob, and/or switch to tab #0, where the file
-    ** selector lives... */
+    /* Dynamically populate the editor, display any error in the err
+    ** blob, and/or switch to tab #0, where the file selector
+    ** lives... */
     blob_appendf(&endScript,
                  "window.addEventListener('load',");
     if(zRev && zFilename){
@@ -2061,14 +2059,11 @@ void fileedit_page(void){
     blob_appendf(&endScript,", false);\n");
   }
 
-  if(stmt.pStmt){
-    db_finalize(&stmt);
-  }
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
   style_emit_script_fossil_bootstrap(0);
   style_emit_script_fetch(0);
-  style_emit_script_tabs(0);
+  style_emit_script_tabs(0)/*also emits fossil.dom*/;
   style_emit_script_confirmer(0);
   style_emit_script_builtin(0, "fossil.page.fileedit.js");
   if(blob_size(&endScript)>0){
