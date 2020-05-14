@@ -1,5 +1,5 @@
-C Added\sfileedit-preview-updated\sevent,\sfor\suse\sin\shooking\sup\s3rd-party\ssyntax\shighlighting\sto\sthe\spreview.\s(Tested\slocally\swith\shighlightjs.)
-D 2020-05-14T04:32:06.771
+C Expanded\sthe\sfileedit-preview-updated\sevent\sdata\sto\sinclude\sthe\smimetype\sand\spreview\smode\sso\sthat\slisteners\scan\smake\sa\sbetter-informed\sdecision\sabout\show/whether\sto\shandle\sthe\scontent.
+D 2020-05-14T04:46:12.920
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/fossil.bootstrap.js b17767f9462321bcb89552653b4d04bd604d57528e769f32c20d31
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
-F src/fossil.page.fileedit.js 1448b48bfd047312772c6a1923bea3881a39f7a900918e5d60e72ef538b3769c
+F src/fossil.page.fileedit.js 7ff5b83523318620b94d94fbe73e465f7f63b777b8f369a8d86d80ae365956db
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -988,7 +988,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 4619c9a772bb23ee9ae7829fe0a1186cba2fee770c799169a10969bb96810c9c
-R 581498f1654645029d643d86d03d8657
+P 8e293f959ab5c0fcee97734eb83c64dd38acb4cec308b52b6f93d957cc4ec283
+R 75ffe7eb1075f8472d6ce1e24aedd5e4
 U stephan
-Z cefe8cd7953e3fcceebda372ae23ef97
+Z a6f5c6785830c3fb28e02b74b540ddb1

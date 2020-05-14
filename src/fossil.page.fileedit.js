@@ -24,8 +24,35 @@
      #fileedit-content-editor with their custom widget.
 
      - Event 'fileedit-preview-updated': when the preview is refreshed
-     from the server, this event passes on the DOM element which
-     contains the content preview.
+     from the server, this event passes on information about the preview
+     change in the form of an object:
+
+     {
+     element: the DOM element which contains the content preview.
+
+     mimetype: the fossil-reported content mimetype.
+
+     previewMode: a string describing the preview mode: see
+       the fossil.page.previewModes map for the values. This can
+       be used to determine whether, e.g., the content is suitable
+       for applying a 3rd-party code highlighting API to.
+     }
+
+     Here's an example which can be used with the highlightjs code
+     highlighter to update the highlighting when the preview is
+     refreshed in "wiki" mode (which includes fossil-native wiki and
+     markdown):
+
+     fossil.page.addEventListener(
+       'fileedit-preview-updated',
+       (ev)=>{
+         if(ev.detail.previewMode==='wiki'){
+           ev.detail.element.querySelectorAll(
+             'code[class^=language-]'
+           ).forEach((e)=>hljs.highlightBlock(e));
+         }
+       }
+     );
   */
   const E = (s)=>document.querySelector(s),
         D = F.dom,
@@ -579,7 +606,11 @@
         else P.baseHrefRestore();
         callback(r);
         F.message('Updated preview.');
-        P.dispatchEvent('fileedit-preview-updated',P.e.previewTarget);
+        P.dispatchEvent('fileedit-preview-updated',{
+          previewMode: P.previewModes.current,
+          mimetype: P.finfo.mimetype,
+          element: P.e.previewTarget
+        });
       },
       onerror: (e)=>{
         fossil.fetch.onerror(e);
