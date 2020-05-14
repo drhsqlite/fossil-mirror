@@ -1121,7 +1121,8 @@ void forumnew_page(void){
     @ <input type="submit" name="submit" value="Submit" disabled>
   }
   if( g.perm.Debug ){
-    /* For the test-forumnew page add these extra debugging controls */
+    /* Give extra control over the post to users with the special
+     * Debug capability, which includes Admin and Setup users */
     @ <div class="debug">
     @ <label><input type="checkbox" name="dryrun" %s(PCK("dryrun"))> \
     @ Dry run</label>
