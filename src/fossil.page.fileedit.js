@@ -6,8 +6,8 @@
 
      Custom events, handled via fossil.page.addEventListener():
 
-     - 'fileedit-file-loaded': passes on information when it loads a
-     file, in the form of an object:
+     - Event 'fileedit-file-loaded': passes on information when it
+     loads a file, in the form of an object:
 
      {
      filename: string,
@@ -23,6 +23,9 @@
      In order to do so the client would need to replace DOM element
      #fileedit-content-editor with their custom widget.
 
+     - Event 'fileedit-preview-updated': when the preview is refreshed
+     from the server, this event passes on the DOM element which
+     contains the content preview.
   */
   const E = (s)=>document.querySelector(s),
         D = F.dom,
@@ -214,6 +217,7 @@
       selectEolWrap:  E('#select-preview-html-ems'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
+      previewTarget: E('#fileedit-tab-preview-wrapper'),
       cbIsExe: E('input[type=checkbox][name=exec_bit]'),
       fsFileVersionDetails: E('#file-version-details'),
       tabs:{
@@ -538,15 +542,11 @@
   */
   P.preview = function f(switchToTab){
     if(!affirmHasFile()) return this;
-    if(!f.target){
-      f.target = this.e.tabs.preview.querySelector(
-        '#fileedit-tab-preview-wrapper'
-      );
-    }
-    const self = this;
+    const target = this.e.previewTarget,
+          self = this;
     const updateView = function(c){
-      D.clearElement(f.target);
-      if('string'===typeof c) f.target.innerHTML = c;
+      D.clearElement(target);
+      if('string'===typeof c) target.innerHTML = c;
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
     return this._postPreview(this.value(), updateView);
@@ -579,6 +579,7 @@
         else P.baseHrefRestore();
         callback(r);
         F.message('Updated preview.');
+        P.dispatchEvent('fileedit-preview-updated',P.e.previewTarget);
       },
       onerror: (e)=>{
         fossil.fetch.onerror(e);
