@@ -1,5 +1,5 @@
-C Fixed\sa\scomment:\sit\swas\snot\sonly\sreferring\sto\sthe\snow-removed\n/test-forumnew\spage,\sit\sdidn't\sproperly\sdescribe\swhat\sfollowed.
-D 2020-05-14T15:01:50.562
+C Fix\sthe\supper\sbound\son\sthe\snumber\sof\sdigits\sof\shash\sto\sdisplay\sso\sthat\sit\ncan\sdisplay\sfull-length\sSHA3-256\shashes.
+D 2020-05-14T17:03:10.936
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -546,7 +546,7 @@ F src/piechart.c 38855af6e32847eacf6e5accbfc4af0898d154a1
 F src/pivot.c f16dc0d7df22821df3e1bd75f2de2e3654b828eb88e881f60e8b7f87616f3769
 F src/popen.c 036510c48cbc92122a3d338a2d8f70498d3f74a6e86ba20391596c772db5c84a
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 507d360bb704e3cbe38de09c29a576df0bb2974b660ef8b890ca21300d0c1abe
+F src/printf.c 72adf9bdea6c6054ae66e31680da2e2ac0536c25e6ecee9367a40d1eb4431fa3
 F src/publish.c 25af837ab073dfee967da752d6c78a0ed45f936c
 F src/purge.c f29c44db9d0ed1024505da8a4a6a7179135d1b4e731e2c39909aa3026756db8a
 F src/rebuild.c 23c4dab7bf57c83a9d07829d38880bcffa0fae0a6d622dac4602a938764e7179
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 6fa4d92e6a51b7291b866750d5c30be811f07fccbde44d9ae592dd4ad55c9679
-R 94bf2652e1ce34d242540309842e8e10
-U wyoung
-Z e9e2929a67dc20ef996040ce01716da3
+P 0475b4f120ac18b731b4490e951d6c8a0857063a26a1da471664ef677936735e
+R c27d13dc5ecaa77b3addcad838c1c2b7
+U drh
+Z e464a3007b5bce101e79b74ac9e8ec46
