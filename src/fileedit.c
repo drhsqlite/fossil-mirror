@@ -1210,6 +1210,15 @@ static void fileedit_ajax_content(void){
       zMime = "text/plain";
     }
   }
+  { /* Send the is-exec bit via response header so that the UI can be
+    ** updated to account for that. */
+    int fperm = 0;
+    char * zFuuid = fileedit_file_uuid(zFilename, vid, &fperm);
+    const char * zPerm = mfile_permint_mstring(fperm);
+    assert(zFuuid);
+    cgi_printf_header("x-fileedit-file-perm:%s\r\n", zPerm);
+    fossil_free(zFuuid);
+  }
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
 }
@@ -1273,7 +1282,7 @@ static void fileedit_ajax_preview(void){
       assert(!"cannot happen");
   }
   if(zRenderMode!=0){
-    cgi_printf_header("X-fileedit-render-mode: %s\r\n", zRenderMode);
+    cgi_printf_header("x-fileedit-render-mode: %s\r\n", zRenderMode);
   }
 }
 
@@ -1909,14 +1918,14 @@ void fileedit_page(void){
     CX("<div class='fileedit-options flex-container flex-row'>");
     style_labeled_checkbox("cb-dry-run",
                            "dry_run", "Dry-run?", "1", 1,
-                           "In dry-run mode, the Save button performs "
-                           "all work needed for saving but then rolls "
-                           "back the transaction, and thus does not "
-                           "really save.");
+                           "In dry-run mode, the Commit button performs"
+                           "all work needed for committing changes but "
+                           "then rolls back the transaction, and thus "
+                           "does not really commit.");
     style_labeled_checkbox("cb-allow-fork",
                            "allow_fork", "Allow fork?", "1",
                            cimi.flags & CIMINI_ALLOW_FORK,
-                           "Allow saving to create a fork?");
+                           "Allow committing to create a fork?");
     style_labeled_checkbox("cb-allow-older",
                            "allow_older", "Allow older?", "1",
                            cimi.flags & CIMINI_ALLOW_OLDER,

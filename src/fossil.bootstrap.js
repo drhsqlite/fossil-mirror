@@ -277,4 +277,46 @@
     return this;
   };
 
+  /**
+     Adds a listener for fossil-level custom events. Events are
+     delivered to their callbacks as CustomEvent objects with a
+     'detail' property holding the event's app-level data.
+
+     The exact events fired differ by page, and not all pages trigger
+     events.
+
+     Pedantic sidebar: the custom event's 'target' property is an
+     unspecified DOM element. Clients must not rely on its value being
+     anything specific or useful.
+
+     Returns this object.
+  */
+  F.page.addEventListener = function f(eventName, callback){
+    if(!f.proxy){
+      f.proxy = document.createElement('span');
+    }
+    f.proxy.addEventListener(eventName, callback, false);
+    return this;
+  };
+
+  /**
+     Internal. Dispatches a new CustomEvent to all listeners
+     registered for the given eventName via
+     fossil.page.addEventListener(), passing on a new CustomEvent
+     with a 'detail' property equal to the 2nd argument's
+     value. Returns this object.
+   */
+  F.page.dispatchEvent = function(eventName, eventDetail){
+    if(this.addEventListener.proxy){
+      try{
+        this.addEventListener.proxy.dispatchEvent(
+          new CustomEvent(eventName,{detail: eventDetail})
+        );
+      }catch(e){
+        console.error(eventName,"event listener threw:",e);
+      }
+    }
+    return this;
+  };
+
 })(window);

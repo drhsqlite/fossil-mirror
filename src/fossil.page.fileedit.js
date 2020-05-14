@@ -3,6 +3,26 @@
   /**
      Code for the /filepage app. Requires that the fossil JS
      bootstrapping is complete and fossil.fetch() has been installed.
+
+     Custom events, handled via fossil.page.addEventListener():
+
+     - 'fileedit-file-loaded': passes on information when it loads a
+     file, in the form of an object:
+
+     {
+     filename: string,
+     checkin: UUID string,
+     isExe: bool,
+     mimetype: mimetype stringas determined by the fossil server.
+     }
+
+     The fossil.page.value() method gets or sets the current file
+     content for the page. Hypothetically, this can be overridden by
+     skin-level JS in order to use a custom 3rd-party editing widget
+     in place of the built-in textarea, but that is as yet untested.
+     In order to do so the client would need to replace DOM element
+     #fileedit-content-editor with their custom widget.
+
   */
   const E = (s)=>document.querySelector(s),
         D = F.dom,
@@ -189,6 +209,7 @@
       selectEolWrap:  E('#select-preview-html-ems'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
+      cbIsExe: E('input[type=checkbox][name=exec_bit]'),
       tabs:{
         content: E('#fileedit-tab-content'),
         preview: E('#fileedit-tab-preview'),
@@ -301,16 +322,25 @@
         new Event('change',{target:selectFontSize})
       );
     }
+
+    if(0){ // only for testing
+      P.addEventListener(
+        'fileedit-file-loaded',
+        (e)=>console.debug('fileedit-file-loaded ==>',e)
+      );
+    }
+
   }, false)/*onload event handler*/;
 
   /**
      Getter (if called with no args) or setter (if passed an arg) for
      the current file content. We use a function, rather than direct
-     access so that clients can hypothetically swap out this method
-     from their skin in order to facilitate plugging-in of fancy
-     3rd-party editor widgets.
+     access, so that clients can hypothetically swap out this method
+     from their skin in order to facilitate plugging-in of a fancy
+     3rd-party editor widget.
 
-     The setter form returns this object.
+     The setter form returns this object, and re-implementations must
+     do the same.
   */
   P.value = function(){
     if(0===arguments.length){
@@ -326,8 +356,8 @@
 
      - P.previewModes.current==='wiki'
 
-     - P.previewModes.current==='guess' AND the currently-loaded
-     file has an extension of (md|wiki)
+     - P.previewModes.current==='guess' AND the currently-loaded file
+     has a mimetype of "text/x-fossil-wiki" or "text/x-markdown".
 
      ... then this function updates the document's base.href to a
      repo-relative /doc/{{this.finfo.checkin}}/{{directory part of
@@ -338,12 +368,12 @@
   P.baseHrefForFile = function f(){
     const fn = this.finfo ? this.finfo.filename : undefined;
     if(!fn) return this;
-    if(!f.rxWiki){
-      f.rxWiki = /\.(wiki|md)$/i;
+    if(!f.wikiMimeTypes){
+      f.wikiMimeTypes = ["text/x-fossil-wiki", "text/x-markdown"];
     }
     if('wiki'===P.previewModes.current
        || ('guess'===P.previewModes.current
-           && f.rxWiki.test(fn))){
+           && f.wikiMimeTypes.indexOf(this.finfo.mimetype)>=0)){
       const a = fn.split('/');
       a.pop();
       this.base.tag.href = F.repoUrl(
@@ -438,9 +468,13 @@
 
   /**
      loadFile() loads (file,checkinVersion) and updates the relevant
-     UI elements to reflect the loaded state.
+     UI elements to reflect the loaded state. If passed no arguments
+     then it re-uses the values from the currently-loaded file
+     (becoming a no-op if no file is loaded).
 
-     Returns this object, noting that the load is async.
+     Returns this object, noting that the load is async. After loading
+     it triggers a 'fileedit-file-loaded' event, passing it
+     this.finfo.
   */
   P.loadFile = function(file,rev){
     if(0===arguments.length){
@@ -457,11 +491,16 @@
         filename:file,
         checkin:rev
       },
-      onload:(r)=>{
+      responseHeaders: ['x-fileedit-file-perm', 'content-type'],
+      onload:(r,headers)=>{
         F.message('Loaded content.');
-        self.value(r);
         self.updateVersion(file,rev);
+        self.finfo.isExe = ('x'===headers['x-fileedit-file-perm']);
+        self.finfo.mimetype = headers['content-type'].split(';').shift();
         self.tabs.switchToTab(self.e.tabs.content);
+        self.e.cbIsExe.checked = self.finfo.isExe;
+        self.value(r);
+        self.dispatchEvent('fileedit-file-loaded', self.finfo);
       }
     });
     return this;
@@ -526,10 +565,9 @@
     return this;
   };
 
-  
   /**
-     Fetches the content diff based on the contents and settings of this
-     page's input fields, and updates the UI with the diff view.
+     Fetches the content diff based on the contents and settings of
+     this page's input fields, and updates the UI with the diff view.
 
      Returns this object, noting that the operation is async.
   */
@@ -646,6 +684,5 @@
     });
     return this;
   };
-
   
 })(window.fossil);
