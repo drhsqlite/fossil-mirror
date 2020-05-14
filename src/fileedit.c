@@ -585,10 +585,11 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     ** https://html.spec.whatwg.org/multipage/form-elements.html#the-textarea-element
     */
     const int pseudoBinary = LOOK_LONG | LOOK_NUL;
-    const int lookFlags = LOOK_CRLF | pseudoBinary;
+    const int lookFlags = LOOK_CRLF | LOOK_LONE_LF | pseudoBinary;
     const int lookNew = looks_like_utf8( &pCI->fileContent, lookFlags );
     if(!(pseudoBinary & lookNew)){
       int rehash = 0;
+      /*fossil_print("lookNew=%08x\n",lookNew);*/
       if(CIMINI_CONVERT_EOL_INHERIT & pCI->flags){
         Blob contentPrev = empty_blob;
         int lookOrig, nOrig;
@@ -596,6 +597,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
         lookOrig = looks_like_utf8(&contentPrev, lookFlags);
         nOrig = blob_size(&contentPrev);
         blob_reset(&contentPrev);
+        /*fossil_print("lookOrig=%08x\n",lookOrig);*/
         if(nOrig>0 && lookOrig!=lookNew){
           /* If there is a newline-style mismatch, adjust the new
           ** content version to the previous style, then re-hash the
@@ -615,10 +617,14 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
       }else{
         const int oldSize = blob_size(&pCI->fileContent);
         if(CIMINI_CONVERT_EOL_UNIX & pCI->flags){
-          blob_to_lf_only(&pCI->fileContent);
+          if(LOOK_CRLF & lookNew){
+            blob_to_lf_only(&pCI->fileContent);
+          }
         }else{
           assert(CIMINI_CONVERT_EOL_WINDOWS & pCI->flags);
-          blob_add_cr(&pCI->fileContent);
+          if(!(LOOK_CRLF & lookNew)){
+            blob_add_cr(&pCI->fileContent);
+          }
         }
         if(blob_size(&pCI->fileContent)!=oldSize){
           rehash = 1;
@@ -721,10 +727,12 @@ ci_error:
 **   --date-override DATETIME  DATE to use instead of 'now'.
 **   --allow-older             Allow a commit to be older than its
 **                             ancestor.
-**   --convert-eol             Convert EOL style of the checkin to match
-**                             the previous version's content. Does not
-**                             modify the input file, only the checked-in
-**                             content.
+**   --convert-eol-inherit     Convert EOL style of the checkin to match
+**                             the previous version's content.
+**   --convert-eol-unix        Convert the EOL style to Unix.
+**   --convert-eol-windows     Convert the EOL style to Windows.
+**   (only one of the --convert-eol-X options may be used and they only
+**    modified the saved blob, not the input file.)
 **   --delta                   Prefer to generate a delta manifest, if
 **                             able. The forbid-delta-manifests repo
 **                             config option trumps this, as do certain
@@ -786,8 +794,12 @@ void test_ci_mini_cmd(void){
   if(find_option("allow-older",0,0)!=0){
     cimi.flags |= CIMINI_ALLOW_OLDER;
   }
-  if(find_option("convert-eol-prev",0,0)!=0){
+  if(find_option("convert-eol-inherit",0,0)!=0){
     cimi.flags |= CIMINI_CONVERT_EOL_INHERIT;
+  }else if(find_option("convert-eol-unix",0,0)!=0){
+    cimi.flags |= CIMINI_CONVERT_EOL_UNIX;
+  }else if(find_option("convert-eol-windows",0,0)!=0){
+    cimi.flags |= CIMINI_CONVERT_EOL_WINDOWS;
   }
   if(find_option("delta",0,0)!=0){
     cimi.flags |= CIMINI_PREFER_DELTA;

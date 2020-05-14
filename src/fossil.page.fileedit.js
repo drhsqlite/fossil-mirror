@@ -241,7 +241,8 @@
                    +"button.fileedit-content-reload"),
       selectPreviewMode: E('#select-preview-mode select'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
-      selectEolWrap:  E('#select-preview-html-ems'),
+      selectEolWrap:  E('#select-eol-style'),
+      selectEol:  E('#select-eol-style select[name=eol]'),
       selectFontSizeWrap: E('#select-font-size'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
@@ -727,6 +728,7 @@
     fd.append('checkin', this.finfo.checkin);
     fd.append('content',content);
     fd.append('dry_run',isDryRun ? 1 : 0);
+    fd.append('eol', this.e.selectEol.value || 0);
     /* Text fields or select lists... */
     ['comment_mimetype',
      'comment'
