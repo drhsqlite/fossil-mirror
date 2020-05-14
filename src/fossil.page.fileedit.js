@@ -242,6 +242,7 @@
       selectPreviewMode: E('#select-preview-mode select'),
       selectHtmlEmsWrap: E('#select-preview-html-ems'),
       selectEolWrap:  E('#select-preview-html-ems'),
+      selectFontSizeWrap: E('#select-font-size'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#fileedit-tab-preview-wrapper'),
@@ -515,6 +516,22 @@
       eTgt,"[",D.a(purl,"Editor permalink"),"]"
     );
     return this;
+  };
+
+  /**
+     Removes the default editor widget (and any dependent elements)
+     from the DOM, adds the given element in its place, removes this
+     method from this object, and returns this object.
+  */
+  P.replaceEditorElement = function(newEditor){
+    P.e.taEditor.parentNode.insertBefore(
+      newEditor,
+      P.e.taEditor
+    );
+    P.e.taEditor.remove();
+    P.e.selectFontSizeWrap.remove();
+    delete this.replaceEditorElement;
+    return P;
   };
 
   /**

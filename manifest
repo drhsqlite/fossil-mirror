@@ -1,5 +1,5 @@
-C Expanded\sthe\sfileedit-preview-updated\sevent\sdata\sto\sinclude\sthe\smimetype\sand\spreview\smode\sso\sthat\slisteners\scan\smake\sa\sbetter-informed\sdecision\sabout\show/whether\sto\shandle\sthe\scontent.
-D 2020-05-14T04:46:12.920
+C Added\swww/fileedit-page.md,\sdocumenting\show\sto\sintegrate\ssyntax\shighlighting\sand\sreplace\sthe\seditor\swidget.\sAdded\sfossil.page.replaceEditorElement()\sto\sfacility\sreplacing\sthe\seditor\swidget.
+D 2020-05-14T07:14:23.362
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -488,7 +488,7 @@ F src/fossil.bootstrap.js b17767f9462321bcb89552653b4d04bd604d57528e769f32c20d31
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
-F src/fossil.page.fileedit.js 7ff5b83523318620b94d94fbe73e465f7f63b777b8f369a8d86d80ae365956db
+F src/fossil.page.fileedit.js 0aba5f7f8107e7884182f07a871e233ebad71dc569dc84b6dfd4de18cb50ba7a
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -864,6 +864,7 @@ F www/env-opts.md 49f9284459d093d158ff0584072cb4a0da6a7a545c42b12aceffbac2613e18
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
+F www/fileedit-page.md 16b097d6646efc161b539c744792adec68fb286f984ade995e4ea9d9cdb4a943
 F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
 F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
@@ -921,10 +922,10 @@ F www/makefile.wiki 0f7a3ea9a2caa9c1e564d1d664be5c7930c4ab9c660832d1c14fb211ed75
 F www/mdtest/test1.md db61e97c6252987aef019a62c6e394f5b1a5f64f041ec144774f29768764933a
 F www/mirrorlimitations.md 7440d0a6924555b3699988e542e5f44862378af3e19505c2816bf1db9bf55751
 F www/mirrortogithub.md cef47660e635880df225f4e0ec0428a43ffb200c308cbc8daa73a26753c1f84b
-F www/mkindex.tcl 98e76e5e19d7eb977888329fba0a6efb3f23ee56649bfd16a3eac8b6273a6ba3 x
+F www/mkindex.tcl dbd5f30fccd7eebc7ab2fb92d1108ae72733a45b03ce189717ea73474f24e6e2 x
 F www/newrepo.wiki 8b05313b8c7b3ceb71dfc1209d5b7df299d3a719
 F www/password.wiki e8d6aec2668c00494757f3d4a4d91557feb8e650f62ead5825a5f862bd68b70e
-F www/permutedindex.html 81f7779760e71c13e76956a958fa8b2bf71deb6ac6386cf48dd0e8ac3f3073a7
+F www/permutedindex.html 1309d074e2920cead5c22192b4f69ddde43e8a9d98af3be65a7cc387ba6e491b
 F www/pop.wiki 9f3459c3343265fed252854bfbab49afd2008797
 F www/private.wiki 9c9e5c15a90f47a1ff3b103fc1460d796bef75c2d978aa490fa13a1990e0cc50
 F www/qandc.wiki fb487d2b94f1b2fda8deabfa5955da8ac7cb4a87e5a7639c86a44f0cfe388e47
@@ -988,7 +989,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 8e293f959ab5c0fcee97734eb83c64dd38acb4cec308b52b6f93d957cc4ec283
-R 75ffe7eb1075f8472d6ce1e24aedd5e4
+P e988ed904a140613633b441ceedfed0a54bec7207f128a6dea53552de804609c
+R 2d4d1d51d157beb0fc95ce1d3eea6f41
 U stephan
-Z a6f5c6785830c3fb28e02b74b540ddb1
+Z b54b68bd15199d9335d6d82e61eb3b88
