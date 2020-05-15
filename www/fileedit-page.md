@@ -90,14 +90,16 @@ or `window.sessionStorage`, if available, but...
 - It stores only the most recent last 7 checkin/file combinations
   which have been modified. Note that changing the "executable bit"
   is counted as a modification, but the checkin comment is not
-  stored separately for each file.
+  stored separately for each file. If the limit is exceeded, it
+  silently discards the oldest edits.
 
-Exactly how long `fileStorage` will survive, and how much it can hold,
-is environment-dependent. `sessionStorage` will survive until the
-current browser tab is closed, but it survives across reloads of the
-same tab.
+Exactly how long `fileStorage` will survive, and how much it or
+`sessionStorage` can hold, is environment-dependent. `sessionStorage`
+will survive until the current browser tab is closed, but it survives
+across reloads of the same tab.
 
-If `/filepage` determines that no peristent storage is available
+If `/filepage` determines that no peristent storage is available a
+warning is displayed on the editor page.
 
 ### The Power is Yours, but...
 

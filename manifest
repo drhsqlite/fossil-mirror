@@ -1,5 +1,5 @@
-C /fileedit\snow\suses\sfileStorage\sor\ssessionStorage,\sif\savailable,\sto\sstore\sunsaved\slocal\sedits\sto\sthe\s7\smost\srecently\sedited\scheckin/file\scombinations.\sTODO:\smake\sthat\sconfigurable\sand\soffer\sa\swidget\sto\smanage\sthat\sstash\sand\squickly\sswitch\sbetween\sthose\sfiles.\sIt\swarns\sloudly\sif\spersistent\sstorage\sis\snot\savailable.
-D 2020-05-15T18:43:42.855
+C Completed\sa\shalf-written\ssentence\sin\sthe\sfileedit\sdocs.
+D 2020-05-15T18:54:06.881
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,7 +489,7 @@ F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
 F src/fossil.page.fileedit.js 7f99d41d11b966ddeac3d2b589d38c885e130a45eec543e389afac5ce1388b7a
-F src/fossil.storage.js 74ad57c9b894fc976a6d948c8f07830ede0ed6fdbf50c5bf895a15ccf9de755c w src/fossil.store.js
+F src/fossil.storage.js 74ad57c9b894fc976a6d948c8f07830ede0ed6fdbf50c5bf895a15ccf9de755c
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -865,7 +865,7 @@ F www/env-opts.md 49f9284459d093d158ff0584072cb4a0da6a7a545c42b12aceffbac2613e18
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
-F www/fileedit-page.md ecc5963dc048a6f1d5df30630fb3ac3aadb77342394e2d39f07b6b5b17c9595e
+F www/fileedit-page.md 62c5c7a5366d9ae5ae33bb9a6a425c1023927f77e4cedc179332c901d9996933
 F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
 F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
@@ -990,7 +990,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P dd46579617c5c46db856e49aca14cfe3f67d6e3fb442bc45304013ae743b0a62
-R 815e5ffd044ba1c2ccbe98976e3ba480
+P d130f3568793a62193d061357b0a8ad18c61b5a8f94d2b7e7df9381c2dede998
+R d38474a6479597e6c195a34ec59bf805
 U stephan
-Z 1aa36aa3600bc32eb85caf3e60ef72a1
+Z b6a6ff8584afcdbf1c35fb9f1c9360ed
