@@ -121,12 +121,11 @@
           D.clearElement(this.e.fileListLabel),
           "Editable files for ",
           D.append(
-            D.code(),
+            D.code(), "[",
             D.a(F.repoUrl('timeline',{
               c: ciUuid
-            }), F.hashDigits(ciUuid)),
-          ),
-          ":"
+            }), F.hashDigits(ciUuid)),"]"
+          ), ":"
         );
         this.cache.files[response.checkin] = response;
         response.editableFiles.forEach(function(fn,n){
@@ -244,6 +243,7 @@
       selectEolWrap:  E('#select-eol-style'),
       selectEol:  E('#select-eol-style select[name=eol]'),
       selectFontSizeWrap: E('#select-font-size'),
+      selectDiffWS:  E('select[name=diff_ws]'),
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#fileedit-tab-preview-wrapper'),
@@ -500,7 +500,7 @@
       D.br()
     );
     D.append(
-      eTgt, "Checkin Version: ",
+      eTgt, "Checkin: ",
       D.append(D.code(), D.a(F.repoUrl('info/'+rUrl), rHuman)),
       " [",D.a(F.repoUrl('timeline',{m:rUrl}), "timeline"),"]",
       D.br()
@@ -510,13 +510,24 @@
       D.append(D.code(), this.finfo.mimetype||'???'),
       D.br()
     );
+    D.append(
+      eTgt,
+      D.append(D.code(), "[",
+               D.a(F.repoUrl('annotate',{filename:file, checkin:rUrl}),
+                   'annotate'), "]"),
+      D.append(D.code(), "[",
+               D.a(F.repoUrl('blame',{filename:file, checkin:rUrl}),
+                   'blame'), "]")
+    );
     const purlArgs = F.encodeUrlArgs({
       filename: this.finfo.filename,
       checkin: rUrl
     },false,true);
     const purl = F.repoUrl('fileedit',purlArgs);
     D.append(
-      eTgt,"[",D.a(purl,"Editor permalink"),"]"
+      eTgt,
+      D.append(D.code(),
+               "[",D.a(purl,"Editor permalink"),"]")
     );
     this.setPageTitle("Edit: "+this.finfo.filename);
     return this;
@@ -661,6 +672,7 @@
     fd.append('checkin', this.finfo.checkin);
     fd.append('sbs', sbs ? 1 : 0);
     fd.append('content',content);
+    if(this.e.selectDiffWS) fd.append('ws',this.e.selectDiffWS.value);
     F.message(
       "Fetching diff..."
     ).fetch('fileedit',{

@@ -1006,14 +1006,15 @@ static void fileedit_render_preview(Blob * pContent,
 */
 static void fileedit_render_diff(Blob * pContent, int frid,
                                  const char * zManifestUuid,
-                                 int isSbs){
+                                 u64 diffFlags){
   Blob orig = empty_blob;
   Blob out = empty_blob;
-  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG | DIFF_STRIP_EOLCR
-    | (isSbs ? DIFF_SIDEBYSIDE : DIFF_LINENO);
+
   content_get(frid, &orig);
   text_diff(&orig, pContent, &out, 0, diffFlags);
-  if(isSbs || blob_size(&out)==0){
+  if(blob_size(&out)==0){
+    /* nothing to do */
+  }else if(DIFF_SIDEBYSIDE & diffFlags){
     CX("%b",&out);
   }else{
     CX("<pre class='udiff'>%b</pre>",&out);
@@ -1311,6 +1312,11 @@ static void fileedit_ajax_preview(void){
 **
 ** sbs=integer (1=side-by-side or 0=unified, default=0)
 **
+** ws=integer (0=diff whitespace, 1=ignore EOL ws, 2=ignore all ws)
+**
+** Reminder to self: search info.c for isPatch to see how a
+** patch-style siff can be produced.
+**
 ** User must have Write access to use this page.
 **
 ** Responds with the HTML content of the diff. On error it produces a
@@ -1327,10 +1333,23 @@ static void fileedit_ajax_diff(void){
   const char * zRev = 0;
   const char * zContent = P("content");
   char * zRevUuid = 0;
-  int isSbs = atoi(PD("sbs","0"));
-  int vid, frid;
+  int vid, frid, iFlag;
+  u64 diffFlags = DIFF_HTML | DIFF_NOTTOOBIG;
   Blob content = empty_blob;
 
+  iFlag = atoi(PD("sbs","0"));
+  if(0==iFlag){
+    diffFlags |= DIFF_LINENO;
+  }else{
+    diffFlags |= DIFF_SIDEBYSIDE;
+  }
+  iFlag = atoi(PD("ws","2"));
+  if(2==iFlag){
+    diffFlags |= DIFF_IGNORE_ALLWS;
+  }else if(1==iFlag){
+    diffFlags |= DIFF_IGNORE_EOLWS;
+  }
+  diffFlags |= DIFF_STRIP_EOLCR;
   fileedit_get_fnci_args( &zFilename, &zRev );
   if(!fileedit_ajax_boostrap()
      || !fileedit_ajax_setup_filerev(zRev, &zRevUuid, &vid,
@@ -1342,7 +1361,7 @@ static void fileedit_ajax_diff(void){
   }
   cgi_set_content_type("text/html");
   blob_init(&content, zContent, -1);
-  fileedit_render_diff(&content, frid, zRevUuid, isSbs);
+  fileedit_render_diff(&content, frid, zRevUuid, diffFlags);
   fossil_free(zRevUuid);
   blob_reset(&content);
 }
@@ -1900,10 +1919,25 @@ void fileedit_page(void){
        ">");
 
     CX("<div class='fileedit-options flex-container flex-row' "
-       "id='fileedit-tab-diff-buttons'>"
-       "<button class='sbs'>Side-by-side</button>"
-       "<button class='unified'>Unified</button>"
-       "</div>");
+       "id='fileedit-tab-diff-buttons'>");
+    CX("<button class='sbs'>Side-by-side</button>"
+       "<button class='unified'>Unified</button>");
+    if(0){
+      /* For the time being let's just ignore all whitespace
+      ** changes, as files with Windows-style EOLs always show
+      ** more diffs than we want then they're submitted to
+      ** ?ajax=diff because JS normalizes them to Unix EOLs.
+      ** We can revisit this decision later. */
+      style_select_list_int("diff-ws-policy",
+                            "diff_ws", "Whitespace",
+                            "Whitespace handling policy.",
+                            2,
+                            "Diff all whitespace", 0,
+                            "Ignore EOL whitespace", 1,
+                            "Ignore all whitespace", 2,
+                            NULL);
+    }
+    CX("</div>");
     CX("<div id='fileedit-tab-diff-wrapper'>"
        "Diffs will be shown here."
        "</div>");
