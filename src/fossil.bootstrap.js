@@ -302,10 +302,10 @@
   /**
      Internal. Dispatches a new CustomEvent to all listeners
      registered for the given eventName via
-     fossil.page.addEventListener(), passing on a new CustomEvent
-     with a 'detail' property equal to the 2nd argument's
-     value. Returns this object.
-   */
+     fossil.page.addEventListener(), passing on a new CustomEvent with
+     a 'detail' property equal to the 2nd argument. Returns this
+     object.
+  */
   F.page.dispatchEvent = function(eventName, eventDetail){
     if(this.addEventListener.proxy){
       try{

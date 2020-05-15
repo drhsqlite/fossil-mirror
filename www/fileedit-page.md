@@ -189,20 +189,13 @@ is possible to replace `/filepage`'s basic text-editing widget (a
 `textarea` element) with a fancy 3rd-party editor widget by doing the
 following:
 
-First, replace the `fossil.page.fileContent()` method with a custom
-implementation which can get and set the being-edited text from/to the
-custom editor widget:
+First, install proxy functions so that `fossil.page.fileContent()`
+can get and set your content:
 
 ```
-fossil.page.fileContent = function(){
-  if(0===arguments.length){//call as a "getter"
-    return the text-form content of your custom widget
-  }
-  else{// called as a setter
-    set the content of your custom widget to arguments[0]
-    and then:
-    return this; // required by the interface!
-  }
+fossil.page.setFileContentMethods(
+  function(){ return text-form content of your widget },
+  function(content){ set text-form content of your widget }
 };
 ```
 
@@ -217,6 +210,8 @@ That method must be passed a DOM element and may only be called once:
 it *removes itself* the first time it is called.
 
 That "should" be all there is to it. When `fossil.page` needs to get
-the being-edited content, it will call `fossil.page.fileContent()` with no
-arguments, and when it sets the content (immediately after (re)loading
-a file), it will pass that content to `fossil.page.fileContent()`.
+the being-edited content, it will call `fossil.page.fileContent()`
+with no arguments, and when it sets the content (immediately after
+(re)loading a file), it will pass that content to
+`fossil.page.fileContent()`. Those, in turn will trigger the installed
+proxies and fire any related events.

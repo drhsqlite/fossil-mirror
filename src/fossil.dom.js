@@ -33,16 +33,23 @@
        and returns that element.
 
        If e has a forEach method (is an array or DOM element
-       collection), this function instead clears each element
-       in the collection and returns e.
+       collection), this function instead clears each element in the
+       collection. May be passed any number of arguments, each of
+       which must be a DOM element or a container of DOM elements with
+       a forEach() method. Returns its first argument.
     */
     clearElement: function f(e){
-      if(e.forEach){
-        e.forEach((x)=>f(x));
-        return e;
+      if(!f.each){
+        f.each = function(e){
+          if(e.forEach){
+            e.forEach((x)=>f(x));
+            return e;
+          }
+          while(e.firstChild) e.removeChild(e.firstChild);
+        };
       }
-      while(e.firstChild) e.removeChild(e.firstChild);
-      return e;
+      argsToArray(arguments).forEach(f.each);
+      return arguments[0];
     },
   }/* dom object */;
 
@@ -418,9 +425,9 @@
       let e = arguments[i];
       if(e.forEach){
         e.forEach((x)=>f(enable,x));
-        return e;
+      }else{
+        e.disabled = !enable;
       }
-      e.disabled = !enable;
     }
     return arguments[1];
   };

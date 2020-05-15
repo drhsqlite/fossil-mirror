@@ -13,15 +13,17 @@
      filename: string,
      checkin: UUID string,
      isExe: bool,
-     mimetype: mimetype stringas determined by the fossil server.
+     mimetype: mimetype string, as determined by the fossil server.
      }
 
      The fossil.page.fileContent() method gets or sets the current file
-     content for the page. Hypothetically, this can be overridden by
-     skin-level JS in order to use a custom 3rd-party editing widget
-     in place of the built-in textarea, but that is as yet untested.
-     In order to do so the client would need to replace DOM element
-     #fileedit-content-editor with their custom widget.
+     content for the page.
+
+     - Event 'fileedit-content-replaced': when the editor's content is
+     replaced, as opposed to it being edited via user
+     interaction. This normally happens via selecting a file to
+     load. The event detail is the fossil.page object, not the current
+     file content.
 
      - Event 'fileedit-preview-updated': when the preview is refreshed
      from the server, this event passes on information about the preview
@@ -116,7 +118,7 @@
         return this;
       }
       const onload = (response)=>{
-        D.clearElement(selFiles, this.e.btnLoadFile);
+        D.clearElement(selFiles);
         D.append(
           D.clearElement(this.e.fileListLabel),
           "Editable files for ",
@@ -248,6 +250,7 @@
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#fileedit-tab-preview-wrapper'),
+      diffTarget: E('#fileedit-tab-diff-wrapper'),
       cbIsExe: E('input[type=checkbox][name=exec_bit]'),
       fsFileVersionDetails: E('#file-version-details'),
       tabs:{
@@ -377,8 +380,13 @@
       );
     }
 
-    /* Tell the user about which storage is being used... */
-    const storageMsgTarget = P.e.tabs.content;
+    P.addEventListener(
+      // Clear diff/preview when new content is loaded/set
+      'fileedit-content-replaced',
+      ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget)
+    );
+
+    /* Tell the user about which fossil.storage is being used... */
     let storageMsg = D.addClass(D.div(),'flex-container','flex-row',
                                 'fileedit-hint');
     if(F.storage.isTransient()){
@@ -395,26 +403,52 @@
           F.storage.storageImplName()
       );
     }
-    storageMsgTarget.insertBefore(storageMsg, storageMsgTarget.lastElementChild);
+    P.e.tabs.content.insertBefore(storageMsg, P.e.tabs.content.lastElementChild);
   }, false)/*onload event handler*/;
 
   /**
      Getter (if called with no args) or setter (if passed an arg) for
-     the current file content. We use a function, rather than direct
-     access, so that clients can hypothetically swap out this method
-     from their skin in order to facilitate plugging-in of a fancy
-     3rd-party editor widget.
+     the current file content.
 
-     The setter form returns this object, and re-implementations must
-     do the same.
+     The setter form sets the content, dispatches a
+     'fileedit-content-replaced' event, and returns this object.
   */
-  P.fileContent = function(){
+  P.fileContent = function f(){
     if(0===arguments.length){
-      return this.e.taEditor.value;
+      return f.get();
     }else{
-      this.e.taEditor.value = arguments[0] || '';
+      f.set(arguments[0] || '');
+      this.dispatchEvent('fileedit-content-replaced', this);
       return this;
     }
+  };
+  /* Default get/set impls for file content */
+  P.fileContent.get = function(){return P.e.taEditor.value};
+  P.fileContent.set = function(content){P.e.taEditor.value = content};
+
+  /**
+     For use when installing a custom editor widget. Pass it the
+     getter and setter callbacks to fetch resp. set the content of the
+     custom widget. They will be triggered via
+     P.fileContent(). Returns this object.
+  */
+  P.setFileContentMethods = function(getter, setter){
+    this.fileContent.get = getter;
+    this.fileContent.set = setter;
+    return this;
+  };
+
+  /**
+     Removes the default editor widget (and any dependent elements)
+     from the DOM, adds the given element in its place, removes this
+     method from this object, and returns this object.
+  */
+  P.replaceEditorElement = function(newEditor){
+    P.e.taEditor.parentNode.insertBefore(newEditor, P.e.taEditor);
+    P.e.taEditor.remove();
+    P.e.selectFontSizeWrap.remove();
+    delete this.replaceEditorElement;
+    return P;
   };
 
   /**
@@ -565,22 +599,6 @@
   };
 
   /**
-     Removes the default editor widget (and any dependent elements)
-     from the DOM, adds the given element in its place, removes this
-     method from this object, and returns this object.
-  */
-  P.replaceEditorElement = function(newEditor){
-    P.e.taEditor.parentNode.insertBefore(
-      newEditor,
-      P.e.taEditor
-    );
-    P.e.taEditor.remove();
-    P.e.selectFontSizeWrap.remove();
-    delete this.replaceEditorElement;
-    return P;
-  };
-
-  /**
      loadFile() loads (file,checkinVersion) and updates the relevant
      UI elements to reflect the loaded state. If passed no arguments
      then it re-uses the values from the currently-loaded file, reloading
@@ -712,12 +730,8 @@
   P.diff = function f(sbs){
     if(!affirmHasFile()) return this;
     const content = this.fileContent(),
-          self = this;
-    if(!f.target){
-      f.target = this.e.tabs.diff.querySelector(
-        '#fileedit-tab-diff-wrapper'
-      );
-    }
+          self = this,
+          target = this.e.diffTarget;
     const fd = new FormData();
     fd.append('filename',this.finfo.filename);
     fd.append('checkin', this.finfo.checkin);
@@ -730,7 +744,7 @@
       urlParams: {ajax: 'diff'},
       payload: fd,
       onload: function(c){
-        f.target.innerHTML = [
+        target.innerHTML = [
           "<div>Diff <code>[",
           self.finfo.checkin,
           "]</code> &rarr; Local Edits</div>",
