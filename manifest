@@ -1,5 +1,5 @@
-C Completed\sa\shalf-written\ssentence\sin\sthe\sfileedit\sdocs.
-D 2020-05-15T18:54:06.881
+C Corrected\sfossil.storage's\suse\sof\shasOwnProperty()\sfor\sthe\scase\sof\sthe\sfallback\stransient\sstorage\sobject.
+D 2020-05-15T19:11:08.937
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -489,7 +489,7 @@ F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
 F src/fossil.page.fileedit.js 7f99d41d11b966ddeac3d2b589d38c885e130a45eec543e389afac5ce1388b7a
-F src/fossil.storage.js 74ad57c9b894fc976a6d948c8f07830ede0ed6fdbf50c5bf895a15ccf9de755c
+F src/fossil.storage.js 6d6d23de14ed5d439f9c587b702eca7d1e68d7a5f9c645428b0dc814642da361
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -990,7 +990,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d130f3568793a62193d061357b0a8ad18c61b5a8f94d2b7e7df9381c2dede998
-R d38474a6479597e6c195a34ec59bf805
+P d701631ec7cee22b9bfc9f53ffe993a12dd9ea8409041efd254e83b1d3704d05
+R 1ab51f8ee8ec7311a571242750b58b4e
 U stephan
-Z b6a6ff8584afcdbf1c35fb9f1c9360ed
+Z dd01327377227da2485547fea7cb9ba4

@@ -47,7 +47,11 @@
     setJSON: (k,v)=>$storage.setItem(k,JSON.stringify(v)),
     /** Returns the value for the given storage key, or
         dflt if the key is not found in the storage. */
-    get: (k,dflt)=>$storage.hasOwnProperty(k) ? $storage.getItem(k) : dflt,
+    get: function(k,dflt){
+      return (
+        this.isTransient() ? $storage.$ : $storage
+      ).hasOwnProperty(k) ? $storage.getItem(k) : dflt;
+    },
     /** Returns the JSON.parse()'d value of the given
         storage key's value, or dflt is the key is not
         found or JSON.parse() fails. */
@@ -60,7 +64,11 @@
     },
     /** Returns true if the storage contains the given key,
         else false. */
-    contains: (k)=>$storage.hasOwnProperty(k),
+    contains: function(k){
+      return (
+        this.isTransient() ? $storage.$ : $storage
+      ).hasOwnProperty(k);
+    },
     /** Removes the given key from the storage. */
     remove: (k)=>$storage.removeItem(k),
     /** Clears ALL keys from the storage. */
