@@ -653,7 +653,9 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   }
 #if 1
   /* Do we really want to normalize comment EOLs? Web-posting will
-  ** submit them in CRLF format. */
+  ** submit them in CRLF or LF format, depending on how exactly the
+  ** content is submitted (FORM (CRLF) or textarea-to-POST (LF, at
+  ** least in theory)). */
   blob_to_lf_only(&pCI->comment);
 #endif
   /* Create, save, deltify, and crosslink the manifest... */
@@ -1474,7 +1476,9 @@ static int fileedit_setup_cimi_from_p(CheckinMiniInfo * p, Blob * pErr,
   if(p_int("allow_older")!=0){
     p->flags |= CIMINI_ALLOW_OLDER;
   }
-  if(p_int("exec_bit")!=0){
+  if(0==p_int("exec_bit")){
+    p->filePerm = PERM_REG;
+  }else{
     p->filePerm = PERM_EXE;
   }
   if(p_int("allow_merge_conflict")!=0){
@@ -1609,12 +1613,17 @@ static void fileedit_ajax_filelist(void){
 **
 ** User must have Write access to use this page.
 **
-** Responds with JSON:
+** Responds with JSON (with some state repeated
+** from the input in order to avoid certain race conditions
+** client-side):
 **
 ** {
-**  uuid: newUUID,
+**  checkin: newUUID,
+**  filename: theFilename,
+**  mimetype: string,
+**  isExe: bool,
+**  dryRun: bool,
 **  manifest: text of manifest,
-**  dryRun: bool
 ** }
 **
 ** On error it produces a JSON response as documented for
@@ -1627,6 +1636,7 @@ static void fileedit_ajax_commit(void){
   int rc;                     /* generic result code */
   int newVid = 0;             /* new version's RID */
   char * zNewUuid = 0;        /* newVid's UUID */
+  char const * zMimetype;
 
   if(!fileedit_ajax_boostrap()){
     return;
@@ -1652,7 +1662,13 @@ static void fileedit_ajax_commit(void){
   zNewUuid = rid_to_uuid(newVid);
   cgi_set_content_type("application/json");
   CX("{");
-  CX("\"uuid\":%!j,", zNewUuid);
+  CX("\"checkin\":%!j,", zNewUuid);
+  CX("\"filename\":%!j,", cimi.zFilename);
+  CX("\"isExe\": %s,", cimi.filePerm==PERM_EXE ? "true" : "false");
+  zMimetype = mimetype_from_name(cimi.zFilename);
+  if(zMimetype!=0){
+    CX("\"mimetype\": %!j,", zMimetype);
+  }
   CX("\"dryRun\": %s,",
      (CIMINI_DRY_RUN & cimi.flags) ? "true" : "false");
   CX("\"manifest\": %!j", blob_str(&manifest));
@@ -1825,11 +1841,10 @@ void fileedit_page(void){
                           "150%", 150, "175%", 175,
                           "200%", 200, NULL);
     CX("</div>");
-    CX("<div class='flex-container flex-row'>");
+    CX("<div class='flex-container flex-column'>");
     CX("<textarea name='content' id='fileedit-content-editor' "
        "class='fileedit' "
        "rows='20' cols='80'>");
-    CX("Loading...");
     CX("</textarea>");
     CX("</div>"/*textarea wrapper*/);
     CX("</div>"/*#tab-file-content*/);
@@ -2076,6 +2091,13 @@ void fileedit_page(void){
        "in leaf checkins to be selected, but files may be edited via "
        "non-leaf checkins by passing them as the <code>filename</code> "
        "and <code>checkin</code> URL arguments to this page.</li>");
+    CX("<li>The editor \"stashes\" local edits to the last 7 "
+       "checkin/file combinations in one of "
+       "<code>window.fileStorage</code> or "
+       "<code>window.sessionStorage</code>, if able, but which storage "
+       "is unspecified and may differ across environments. When saving "
+       "or force-reloading a file, stashed edits to that version are "
+       "discarded.</li>");
     CX("</ul>");
   }
   CX("</div>"/*#fileedit-tab-help*/);
@@ -2112,6 +2134,7 @@ void fileedit_page(void){
   style_emit_script_fetch(0);
   style_emit_script_tabs(0)/*also emits fossil.dom*/;
   style_emit_script_confirmer(0);
+  style_emit_script_builtin(0, "fossil.storage.js");
   style_emit_script_builtin(0, "fossil.page.fileedit.js");
   if(blob_size(&endScript)>0){
     style_emit_script_tag(0,0);

@@ -555,6 +555,7 @@ EXTRA_FILES   = $(SRCDIR)\..\skins\aht\details.txt \
         $(SRCDIR)\fossil.dom.js \
         $(SRCDIR)\fossil.fetch.js \
         $(SRCDIR)\fossil.page.fileedit.js \
+        $(SRCDIR)\fossil.storage.js \
         $(SRCDIR)\fossil.tabs.js \
         $(SRCDIR)\graph.js \
         $(SRCDIR)\href.js \

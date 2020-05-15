@@ -890,6 +890,12 @@ label {
 body.fileedit .error {
   padding: 0.25em;
 }
+body.fileedit .warning {
+  color: darkred;
+  background: yellow;
+  padding: 0.25em;
+  opacity: 0.6;
+}
 //////////////////////////////////
 // Styles for fossil.tabs.js:
 .tab-container {

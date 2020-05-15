@@ -77,12 +77,27 @@ debate. e.g. the ability to add new files or remove/rename older
 files.
 
 
-### `/fileedit` **Does Not Store Draft Versions While Working**
+### `/fileedit` **Stores Only Limited Local Edits While Working**
 
-When using `/fileedit`, if the browser's tab is closed, a link is
-clicked, or the user otherwise leaves the page, any current edits
-*will be lost*. See the note above about this feature *not* being a
-replacement for a full-fledged checkout.
+When changes are made to a given checkin/file combination,
+`/fileedit` will, if possible, store them in `window.fileStorage`
+or `window.sessionStorage`, if available, but...
+
+- Which storage is used is unspecified and may differ across
+  environments.
+- If neither of those is available, the storage is transient and
+  will not survive a page reload.
+- It stores only the most recent last 7 checkin/file combinations
+  which have been modified. Note that changing the "executable bit"
+  is counted as a modification, but the checkin comment is not
+  stored separately for each file.
+
+Exactly how long `fileStorage` will survive, and how much it can hold,
+is environment-dependent. `sessionStorage` will survive until the
+current browser tab is closed, but it survives across reloads of the
+same tab.
+
+If `/filepage` determines that no peristent storage is available
 
 ### The Power is Yours, but...
 
@@ -172,12 +187,12 @@ is possible to replace `/filepage`'s basic text-editing widget (a
 `textarea` element) with a fancy 3rd-party editor widget by doing the
 following:
 
-First, replace the `fossil.page.value()` method with a custom
+First, replace the `fossil.page.fileContent()` method with a custom
 implementation which can get and set the being-edited text from/to the
 custom editor widget:
 
 ```
-fossil.page.value = function(){
+fossil.page.fileContent = function(){
   if(0===arguments.length){//call as a "getter"
     return the text-form content of your custom widget
   }
@@ -200,6 +215,6 @@ That method must be passed a DOM element and may only be called once:
 it *removes itself* the first time it is called.
 
 That "should" be all there is to it. When `fossil.page` needs to get
-the being-edited content, it will call `fossil.page.value()` with no
+the being-edited content, it will call `fossil.page.fileContent()` with no
 arguments, and when it sets the content (immediately after (re)loading
-a file), it will pass that content to `fossil.page.value()`.
+a file), it will pass that content to `fossil.page.fileContent()`.

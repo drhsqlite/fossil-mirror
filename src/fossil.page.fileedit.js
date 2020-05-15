@@ -16,7 +16,7 @@
      mimetype: mimetype stringas determined by the fossil server.
      }
 
-     The fossil.page.value() method gets or sets the current file
+     The fossil.page.fileContent() method gets or sets the current file
      content for the page. Hypothetically, this can be overridden by
      skin-level JS in order to use a custom 3rd-party editing widget
      in place of the built-in textarea, but that is as yet untested.
@@ -208,6 +208,7 @@
     }
   }/*P.fileSelector*/;
 
+  
   /**
      Internal workaround to select the current preview mode
      and fire a change event if the value actually changes
@@ -314,13 +315,20 @@
     );
     F.confirmer(P.e.btnReload, {
       confirmText: "Really reload, losing edits?",
-      onconfirm: (e)=>P.loadFile(),
+      onconfirm: (e)=>P.unstashContent().loadFile(),
       ticks: 3
     });
     E('#comment-toggle').addEventListener(
       "click",(e)=>P.toggleCommentMode(), false
     );
 
+    P.e.taEditor.addEventListener(
+      'change', ()=>P.stashContentChange(), false
+    );
+    P.e.cbIsExe.addEventListener(
+      'change', ()=>P.stashContentChange(true), false
+    );
+    
     /**
        Cosmetic: jump through some hoops to enable/disable
        certain preview options depending on the current
@@ -369,6 +377,25 @@
       );
     }
 
+    /* Tell the user about which storage is being used... */
+    const storageMsgTarget = P.e.tabs.content;
+    let storageMsg = D.addClass(D.div(),'flex-container','flex-row',
+                                'fileedit-hint');
+    if(F.storage.isTransient()){
+      D.append(
+        D.addClass(storageMsg,'warning'),
+        "Warning: persistent storage is not avaible, "+
+          "so unsaved edits "+
+          "will not survive a page reload."
+      );
+    }else{
+      D.append(
+        storageMsg,
+        "Current storage mechanism for local edits: "+
+          F.storage.storageImplName()
+      );
+    }
+    storageMsgTarget.insertBefore(storageMsg, storageMsgTarget.lastElementChild);
   }, false)/*onload event handler*/;
 
   /**
@@ -381,11 +408,11 @@
      The setter form returns this object, and re-implementations must
      do the same.
   */
-  P.value = function(){
+  P.fileContent = function(){
     if(0===arguments.length){
       return this.e.taEditor.value;
     }else{
-      this.e.taEditor.value = arguments[0];
+      this.e.taEditor.value = arguments[0] || '';
       return this;
     }
   };
@@ -459,15 +486,19 @@
     this.e.taComment = s;
     D.addClass(h, 'hidden');
     D.removeClass(s, 'hidden');
-    console.debug(s,h);
   };
 
   /**
      Returns true if fossil.page.finfo is set, indicating that a file
      has been loaded, else it reports an error and returns false.
+
+     If passed a truthy value any error message about not having
+     a file loaded is suppressed.
   */
-  const affirmHasFile = function(){
-    if(!P.finfo) F.error("No file is loaded.");
+  const affirmHasFile = function(quiet){
+    if(!P.finfo){
+      if(!quiet) F.error("No file is loaded.");
+    }
     return !!P.finfo;
   };
 
@@ -565,10 +596,37 @@
       file = this.finfo.filename;
       rev = this.finfo.checkin;
     }
-    delete this.finfo;
     const self = this;
-    F.message("Loading content...");
-    F.fetch('fileedit',{
+    const onload = (r,headers)=>{
+      delete self.finfo;
+      self.updateVersion({
+        filename: file,
+        checkin: rev,
+        isExe: ('x'===headers['x-fileedit-file-perm']),
+        mimetype: headers['content-type'].split(';').shift()
+      });
+      self.tabs.switchToTab(self.e.tabs.content);
+      self.e.cbIsExe.checked = self.finfo.isExe;
+      self.fileContent(r);
+      self.dispatchEvent('fileedit-file-loaded', self.finfo);
+    };
+    const semiFinfo = {filename: file, checkin: rev};
+    const stashFinfo = this.getStashedFinfo(semiFinfo);
+    if(stashFinfo){ // fake a response from the stash...
+      this.finfo = stashFinfo;
+      this.e.cbIsExe.checked = !!stashFinfo.isExe;
+      onload(this.contentFromStash()||'',{
+        'x-fileedit-file-perm': stashFinfo.isExe ? 'x' : undefined,
+        'content-type': stashFinfo.mimetype
+      });
+      F.message("Fetched from the local-edit stash:",
+                F.hashDigits(stashFinfo.checkin),
+                stashFinfo.filename);
+      return this;
+    }
+    F.message(
+      "Loading content..."
+    ).fetch('fileedit',{
       urlParams: {
         ajax: 'content',
         filename:file,
@@ -576,17 +634,10 @@
       },
       responseHeaders: ['x-fileedit-file-perm', 'content-type'],
       onload:(r,headers)=>{
-        F.message('Loaded content.');
-        self.updateVersion({
-          filename: file,
-          checkin: rev,
-          isExe: ('x'===headers['x-fileedit-file-perm']),
-          mimetype: headers['content-type'].split(';').shift()
-        });
-        self.tabs.switchToTab(self.e.tabs.content);
-        self.e.cbIsExe.checked = self.finfo.isExe;
-        self.value(r);
-        self.dispatchEvent('fileedit-file-loaded', self.finfo);
+        onload(r,headers);
+        F.message('Loaded content for',
+                  F.hashDigits(self.finfo.checkin),
+                  self.finfo.filename);
       }
     });
     return this;
@@ -608,7 +659,7 @@
       if('string'===typeof c) target.innerHTML = c;
       if(switchToTab) self.tabs.switchToTab(self.e.tabs.preview);
     };
-    return this._postPreview(this.value(), updateView);
+    return this._postPreview(this.fileContent(), updateView);
   };
 
   /**
@@ -660,7 +711,7 @@
   */
   P.diff = function f(sbs){
     if(!affirmHasFile()) return this;
-    const content = this.value(),
+    const content = this.fileContent(),
           self = this;
     if(!f.target){
       f.target = this.e.tabs.diff.querySelector(
@@ -702,17 +753,18 @@
   P.commit = function f(){
     if(!affirmHasFile()) return this;
     const self = this;
-    const content = this.value(),
+    const content = this.fileContent(),
           target = document.querySelector('#fileedit-manifest'),
           cbDryRun = E('[name=dry_run]'),
           isDryRun = cbDryRun.checked,
           filename = this.finfo.filename;
-    if(!f.updateView){
-      f.updateView = function(c){
+    if(!f.onload){
+      f.onload = function(c){
+        const oldFinfo = JSON.parse(JSON.stringify(self.finfo))
         target.innerHTML = [
           "<h3>Manifest",
           (c.dryRun?" (dry run)":""),
-          ": ", F.hashDigits(c.uuid),"</h3>",
+          ": ", F.hashDigits(c.checkin),"</h3>",
           "<code class='fileedit-manifest'>",
           c.manifest,
           "</code></pre>"
@@ -720,24 +772,23 @@
         const msg = [
           'Committed',
           c.dryRun ? '(dry run)' : '',
-          '[', F.hashDigits(c.uuid) ,'].'
+          '[', F.hashDigits(c.checkin) ,'].'
         ];
         if(!c.dryRun){
-          msg.push('Re-activating dry-run mode.');
+          if(0){
+            msg.push('Re-activating dry-run mode.');
+            cbDryRun.checked = true;
+          }
+          self.unstashContent(oldFinfo);
+          delete c.manifest;
+          self.finfo = c;
           self.e.taComment.value = '';
-          cbDryRun.checked = true;
-          self.finfo.filename = filename;
-          self.finfo.checkin = c.uuid;
           self.updateVersion();
           self.fileSelector.loadLeaves();
         }
         F.message.apply(F, msg);
         self.tabs.switchToTab(self.e.tabs.commit);
       };
-    }
-    if(!content){
-      f.updateView('');
-      return this;
     }
     const fd = new FormData();
     fd.append('filename',filename);
@@ -764,7 +815,7 @@
     ].forEach(function(name){
       var e = E('[name='+name+']');
       if(e){
-        if(e.checked) fd.append(name, 1);
+        fd.append(name, e.checked ? 1 : 0);
       }else{
         console.error("Missing checkbox? name =",name);
       }
@@ -775,9 +826,238 @@
       urlParams: {ajax: 'commit'},
       payload: fd,
       responseType: 'json',
-      onload: f.updateView
+      onload: f.onload
     });
     return this;
   };
-  
+
+  /**
+     $stash is an internal-use-only object for managing "stashed"
+     local edits, to help avoid that users accidentally lose content
+     by switching tabs or following links or some such. The basic
+     theory of operation is...
+
+     All "stashed" state is stored using fossil.storage.
+
+     - When the current file content is modified by the user, the
+       current stathe of the current P.finfo and its the content
+       is stashed. For the built-in editor widget, "changes" is
+       notified via a 'change' event.  For a client-side custom
+       widget, the client needs to call P.stashContentChange() when
+       their widget triggers the equivalent of a 'change' event.
+
+     - For certain non-content updates (as of this writing, only the
+       is-executable checkbox), only the P.finfo stash entry is
+       updated, not the content (unless the content has not yet been
+       stashed, in which case it is also stashed so that the stash
+       always has matching pairs of finfo/content).
+
+     - When saving, the stashed entry for the previous version is removed
+       from the stash.
+
+     - When "loading", we use any stashed state for the given
+       checkin/file combination. When forcing a re-load of content,
+       any stashed entry for that combination is removed from the
+       stash.
+
+     - Every time P.stashContentChange() updates the stash, it is
+       pruned to $stash.prune.defaultMaxCount most-recently-updated
+       entries.
+
+     - This API often refers to "finfo objects." Those are objects
+       with a minimum of {checkin,filename} properties (which must be
+       valid), and a combination of those two properties is used as
+       basis for the stash keys for any given checkin/filename
+       combination.
+
+     The structure of the stash is a bit convoluted for efficiency's
+     sake: we store a map of file info (finfo) objects separately from
+     those files' contents because otherwise we would be required to
+     JSONize/de-JSONize the file content when stashing/restoring it,
+     and that would be horribly inefficient (meaning "battery-consuming"
+     on mobile devices).
+  */
+  const $stash = {
+    keys: {
+      index: F.page.name+':index'
+    },
+    /**
+       index: {
+       "CHECKIN_HASH:FILENAME": {file info w/o content}
+       ...
+       }
+
+       In F.storage we...
+
+       - Store this.index under the key this.keys.index.
+
+       - Store each file's content under the key
+       (P.name+'/CHECKIN_HASH:FILENAME'). These are stored separately
+       from the index entries to avoid having to JSONize/de-JSONize
+       the content. The assumption/hope is that the browser can store
+       those records "directly," without any intermediary
+       encoding/decoding going on.
+    */
+    indexKey: function(finfo){return finfo.checkin+':'+finfo.filename},
+    /** Returns the key for storing content for the given key suffix,
+        by prepending P.name to suffix. */
+    contentKey: function(suffix){return P.name+'/'+suffix},
+    /** Returns the index object, fetching it from the stash or creating
+        it anew on the first call. */
+    getIndex: function(){
+      if(!this.index) this.index = F.storage.getJSON(this.keys.index,{});
+      return this.index;
+    },
+    /**
+       Returns the stashed version, if any, for the given finfo object.
+    */
+    getFinfo: function(finfo){
+      const ndx = this.getIndex();
+      return ndx[this.indexKey(finfo)];
+    },
+    /** Serializes this object's index to F.storage. Returns this. */
+    storeIndex: function(){
+      if(this.index) F.storage.setJSON(this.keys.index,this.index);
+      return this;
+    },
+    /** Updates the stash record for the given finfo
+        and (optionally) content. If passed 1 arg, only
+        the finfo stash is updated, else both the finfo
+        and its contents are (re-)stashed. Returns this.
+    */
+    updateFile: function(finfo,content){
+      const ndx = this.getIndex(),
+            key = this.indexKey(finfo);
+      const record = ndx[key] || (ndx[key]={
+        checkin: finfo.checkin,
+        filename: finfo.filename,
+        mimetype: finfo.mimetype
+      });
+      record.isExe = !!finfo.isExe;
+      record.stashTime = new Date().getTime();
+      this.storeIndex();
+      if(arguments.length>1){
+        F.storage.set(this.contentKey(key), content);
+      }
+      return this;
+    },
+    /**
+       Returns the stashed content, if any, for the given finfo
+       object.
+    */       
+    stashedContent: function(finfo){
+      return F.storage.get(this.contentKey(this.indexKey(finfo)));
+    },
+    /** Returns true if we have stashed content for the given finfo
+        record. */
+    hasStashedContent: function(finfo){
+      return F.storage.contains(this.contentKey(this.indexKey(finfo)));
+    },
+    /** Unstashes the given finfo record and its content.
+        Returns this. */
+    unstash: function(finfo){
+      const ndx = this.getIndex(),
+            key = this.indexKey(finfo);
+      delete finfo.stashTime;
+      delete ndx[key];
+      F.storage.remove(this.contentKey(key));
+      return this.storeIndex();
+    },
+    /**
+       Clears all $stash entries from F.storage. Returns this.
+     */
+    clear: function(){
+      const ndx = this.getIndex(),
+            self = this;
+      Object.keys(ndx).forEach(function(k){
+        const e = ndx[k];
+        delete ndx[k];
+        F.storage.remove(self.contentKey(k));
+      });
+      F.storage.remove(this.keys.index);
+      delete this.index;
+      return this;
+    },
+    /**
+       Removes all but the maxCount most-recently-updated stash
+       entries, where maxCount defaults to this.prune.defaultMaxCount.
+    */
+    prune: function f(maxCount){
+      const ndx = this.getIndex();
+      const li = [];
+      if(!maxCount || maxCount<0) maxCount = f.defaultMaxCount;
+      Object.keys(ndx).forEach((k)=>li.push(ndx[k]));
+      li.sort((l,r)=>l.stashTime - r.stashTime);
+      while(li.length>maxCount){
+        const e = li.shift();
+        this.unstash(e);
+        console.warn("Pruned oldest stash entry:",e);
+      }
+    }
+  };
+  $stash.prune.defaultMaxCount = 7;
+
+  /**
+     Updates P.finfo for certain state and stashes P.finfo, with the
+     current content fetched via P.fileContent().
+
+     If passed truthy AND the stash already has stashed content for
+     the current file, only the stashed finfo record is updated, else
+     both the finfo and content are updated.
+  */
+  P.stashContentChange = function(onlyFinfo){
+    if(affirmHasFile(true)){
+      const fi = this.finfo;
+      fi.isExe = this.e.cbIsExe.checked;
+      if(onlyFinfo && $stash.hasStashedContent(fi)){
+        $stash.updateFile(fi);
+      }else{
+        $stash.updateFile(fi, P.fileContent());
+      }
+      F.message("Stashed change to",F.hashDigits(fi.checkin),fi.filename);
+      $stash.prune();
+    }
+    return this;
+  };
+
+  /**
+     Removes any stashed state for the current P.finfo (if set) from
+     F.storage. Returns this.
+  */
+  P.unstashContent = function(){
+    const finfo = arguments[0] || this.finfo;
+    if(finfo){
+      $stash.unstash(finfo);
+      //console.debug("Unstashed",finfo);
+      F.message("Unstashed",F.hashDigits(finfo.checkin),finfo.filename);
+    }
+    return this;
+  };
+
+  /**
+     Clears all stashed file state from F.storage. Returns this.
+  */
+  P.clearStash = function(){
+    $stash.clear();
+    return this;
+  };
+
+  /**
+     If stashed content for P.finfo exists, it is returned, else
+     undefined is returned.
+  */
+  P.contentFromStash = function(){
+    return affirmHasFile(true) ? $stash.stashedContent(this.finfo) : undefined;
+  };
+
+  /**
+     If a stashed version of the given finfo object exists (same
+     filename/checkin values), return it, else return undefined.
+  */
+  P.getStashedFinfo = function(finfo){
+    return $stash.getFinfo(finfo);
+  };
+
+  P.$stash = $stash /*only for testing/debugging */;
+
 })(window.fossil);
