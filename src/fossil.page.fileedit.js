@@ -685,6 +685,7 @@
           "]</code> &rarr; Local Edits</div>",
           c||'No changes.'
         ].join('');
+        if(sbs) P.tweakSbsDiffs();
         F.message('Updated diff.');
         self.tabs.switchToTab(self.e.tabs.diff);
       }

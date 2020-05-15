@@ -2108,6 +2108,7 @@ void fileedit_page(void){
   blob_reset(&err);
   CheckinMiniInfo_cleanup(&cimi);
   style_emit_script_fossil_bootstrap(0);
+  append_diff_javascript(1);
   style_emit_script_fetch(0);
   style_emit_script_tabs(0)/*also emits fossil.dom*/;
   style_emit_script_confirmer(0);
