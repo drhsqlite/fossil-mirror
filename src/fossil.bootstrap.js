@@ -319,4 +319,14 @@
     return this;
   };
 
+  /**
+     Sets the innerText of the page's TITLE tag to
+     the given text and returns this object.
+   */
+  F.page.setPageTitle = function(title){
+    const t = document.querySelector('title');
+    if(t) t.innerText = title;
+    return this;
+  };
+
 })(window);

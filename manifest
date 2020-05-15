@@ -1,5 +1,5 @@
-C Added\ssubmenu\sEdit\sentry,\swhen\sappropriate,\sto\s/file,\sper\sforum\sfeedback.
-D 2020-05-15T02:27:32.561
+C Fixed\smulti-line\scommit\scomment\s(was\snot\sbeing\ssubmitted\swith\scommit)\sand\schange\spage\stitle\sto\sreflect\sthe\sfile\sbeing\sedited,\sboth\sper\sforum\sfeedback.
+D 2020-05-15T02:39:11.651
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -484,11 +484,11 @@ F src/finfo.c b9d8b85704f25d2a14f6a4b59b39ea37a7b424423c871a1ff33628969f62e319
 F src/foci.c 44d70bdf755728603c0d923dadf27d0d8554bc7ff5a4fe6497396e2b565d6352
 F src/forum.c 34d5784792ee077fc3641c73f5775c0fcf74bcc09b1caeb566686a26685c81a9
 F src/forum.js 44bd53b6bdb93b798afb0c7e3e8482fdcc1855664ea35cc360fb93420fabf58b
-F src/fossil.bootstrap.js b17767f9462321bcb89552653b4d04bd604d57528e769f32c20d31e201504d45
+F src/fossil.bootstrap.js 99b34dc58fedb4e9a9bad8ce79e49d0ef130b01ea670a568b954d0c3fa2f244c
 F src/fossil.confirmer.js f3782d4b87ca503cca4035a5d01732c55180e7df75579cd61f4752627b66d7c0
 F src/fossil.dom.js 0c50ba224c7f779c7adcb752ad0c96b783a1735299fd474025cc4246a268f58c
 F src/fossil.fetch.js 3d7bdd01bfe3e2b9f1ba98ae3dc461f0f44a417657bf56ae9944d56fd64f58b7
-F src/fossil.page.fileedit.js 01c7b6e8c3775155092e4b4103476b3ba89eac24ba130f6fac950399adcf32c6
+F src/fossil.page.fileedit.js 3eda3cb7b9d5053de87d0c7bed562b9b27677d4fc9715a342109e25c2642e951
 F src/fossil.tabs.js c8b5c7b5b159f9d4935e6d302adc113d7a0f167c9d9dd47c6a66b6ad5a5c8f6a
 F src/fshell.c d6751dc954177fdf20d83b2077e8fa27190fbf55a3497676575d703b105b4db3
 F src/fusefs.c 67d03f1c78e07f27a7f24fef9048fa57df939e564b329014933bbbfa4469959f
@@ -989,7 +989,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P d361947c8df52dafba6ce87e0e22c4fa98d3ba52f2dd88271485075e880e3eb8
-R 8e79f933294ba7dc9e3b75d7f0129c0b
+P 4818e7fdacc0c35988bb7c73e49bca39af4cbc2a9dcddcd339b7dbaf06052d0e
+R 0c2dde172f5f6e65a12c653689cb7f61
 U stephan
-Z 31aefde597c0e82a6623161b3a2d5b17
+Z 34b76b3e08d2e51310ba80f9d3345ce4

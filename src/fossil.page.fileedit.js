@@ -470,7 +470,7 @@
     if(!P.finfo) F.error("No file is loaded.");
     return !!P.finfo;
   };
-  
+
   /**
      updateVersion() updates the filename and version in various UI
      elements...
@@ -484,6 +484,8 @@
       rev = this.finfo.checkin;
     }else if(0===arguments.length){
       if(!affirmHasFile()) return this;
+      file = this.finfo.filename;
+      rev = this.finfo.checkin;
     }else{
       this.finfo = {filename:file,checkin:rev};
     }
@@ -516,6 +518,7 @@
     D.append(
       eTgt,"[",D.a(purl,"Editor permalink"),"]"
     );
+    this.setPageTitle("Edit: "+this.finfo.filename);
     return this;
   };
 
@@ -730,12 +733,15 @@
     fd.append('dry_run',isDryRun ? 1 : 0);
     fd.append('eol', this.e.selectEol.value || 0);
     /* Text fields or select lists... */
-    ['comment_mimetype',
-     'comment'
-    ].forEach(function(name){
-      var e = E('[name='+name+']');
-      if(e) fd.append(name,e.value);
-    });
+    fd.append('comment', this.e.taComment.value);
+    if(0){
+      // Comment mimetype is currently not supported by the UI...
+      ['comment_mimetype'
+      ].forEach(function(name){
+        var e = E('[name='+name+']');
+        if(e) fd.append(name,e.value);
+      });
+    }
     /* Checkboxes: */
     ['allow_fork',
      'allow_older',
