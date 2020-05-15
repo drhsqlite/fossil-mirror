@@ -1,5 +1,5 @@
-C Fix\sthe\supper\sbound\son\sthe\snumber\sof\sdigits\sof\shash\sto\sdisplay\sso\sthat\sit\ncan\sdisplay\sfull-length\sSHA3-256\shashes.
-D 2020-05-14T17:03:10.936
+C Typo\sfix\son\sthe\shomepage.
+D 2020-05-15T13:49:18.815
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -883,7 +883,7 @@ F www/history.md 623088f2e3c27956411551d416e5e53f3e9c1249e0ab70399fbc79c16bb48a9
 F www/image-format-vs-repo-size.ipynb 558afcb7763c88ee52de435f35ab5b1dbf87ebde7391c29f857f28108da7ae86
 F www/image-format-vs-repo-size.md eef7e86ae5435e13b684774b2897116b0d0c32597f7b38a01e248cdee172156a
 F www/image-format-vs-repo-size.svg a4975fefe8456b2184d1934a775313210a6cff64fd0d7055e99bcc4d4c663897
-F www/index.wiki 4a6a801e7679cf2851f037a11d970eb3740d5f0af43206efbd65f310306f5156
+F www/index.wiki c917059ef2291b74926a3a793f12b2eb4d4cc67fb063759bf50cabe835b58282
 F www/inout.wiki 8c068db541933756d08047f46824731131831fd8481da58fd26cd496798c8336
 F www/javascript.md a55abde7a82a7d4533646c55547effe4fdcf61479c8ca4797a1cdffbe65d06f5
 F www/json-api/_template.md 44d1b402e38a4917820a549cc2366333fb9b8b4b8a3d048885de91e894a599b5
@@ -981,7 +981,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 0475b4f120ac18b731b4490e951d6c8a0857063a26a1da471664ef677936735e
-R c27d13dc5ecaa77b3addcad838c1c2b7
+P 311aa9dd6716d7ce9f1ddb0d2d4c0f01932348dba65a99e06f088ecd586dab5b
+R 2b60a1c889fa077b0db6bbf766587526
 U drh
-Z e464a3007b5bce101e79b74ac9e8ec46
+Z 044f93653b11ef86b6d2df3868fa56ae
