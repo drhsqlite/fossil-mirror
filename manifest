@@ -1,5 +1,5 @@
-C EOL\sconversion:\shad\sneglected\sto\spass\sthat\soption\son\sin\sthe\sajax\srequest.\sFixed\sa\sbug\swhich\scaused\sduplicate\sCRs\sto\sget\sinjected\sinto\sforce-to-windows-EOL\sconversions.
-D 2020-05-14T23:34:29.208
+C Fix\sa\spotential\snull\sderef\sin\ssample\sJS\scode.
+D 2020-05-15T01:35:40.171
 F .dockerignore 29c5476ae4fb609219ea3f11d60c4b133a037b68
 F .editorconfig 132c5a213aa3ce13dcc9c19f8a7ea306e3640bec4ae693378116cee339c34a1a
 F .fossil-settings/binary-glob 34cc11b3b509fd5064afe327e70765799f314c9a
@@ -864,7 +864,7 @@ F www/env-opts.md 49f9284459d093d158ff0584072cb4a0da6a7a545c42b12aceffbac2613e18
 F www/event.wiki 33e7f85a139fc2bfdf529ec697b3b6b785db1ec306b1e436342046a4d91c1f57
 F www/faq.tcl ce69c67e15fdac73ba83f6b9d214a7188fc04922
 F www/faq.wiki 6a05d6703bd59b32f15ba7372adc1749c4d29227a4464ff9851b4ae810d426b0
-F www/fileedit-page.md da0ecb2099b06712d34065fee13bd3c242e8359372f68049834b7bb278ed1b97
+F www/fileedit-page.md 9db1edae23c34080607fec31e510cddd6c2ee8e7402fccbd784c2539f918ccd9
 F www/fileformat.wiki f8db043c693b90d59dee17cd4bb255b1c21651d5766386b3ab6fff6309bb2687
 F www/fiveminutes.wiki 6ac13b03eaa2f0d0d4a88cb7415b33dd61b42e2ba1b5e106bdc56c644fa7e525
 F www/forum.wiki 26553b27da188755ad38f072a788d67c7127d8191411a5ef79eb197baad837df
@@ -989,7 +989,7 @@ F www/webui.wiki 5b434406349aa3c2553513ceab666633747c0a6de6432573a3bc0507c210b94
 F www/whyusefossil.wiki dbd69d8ff58ecec64500aa7ac73bec5f09ab7eea99feabdeeff02e0f08c4c50c
 F www/wikitheory.wiki 91e6796caf7c8fbed00a58d3eea377d0f89f494f5637fd8af09dc41290e716f6
 F www/xkcd-git.gif 1f9bc44ed41cad3f5ac18f21e3463e3390b53b29
-P 33146972e6abbf45cc1d7505b925657e159cc6b3fd7e0b6346a5bb853b34395c
-R af923629e4c7ea5c2cd0835a88423fda
+P 439f446df68406a52a676f1e27ad90f36ee5c0a802f011057db1bf34f1138094
+R 025d38a3c244308f7f9c4a1fb6c5e737
 U stephan
-Z c394161a2e3da0921daf500253a6efba
+Z 1008199365321795bb42a3797e9e5af6

@@ -123,7 +123,7 @@ script tag similar to the following:
 
 ```javascript
 <script nonce="$<nonce>">
-if(fossil && fossil.page && fossil.page.name==='fileedit'){
+if(window.fossil && fossil.page && fossil.page.name==='fileedit'){
   fossil.page.addEventListener(
     'fileedit-preview-updated',
     (ev)=>{
