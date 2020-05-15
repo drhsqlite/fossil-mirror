@@ -2332,6 +2332,11 @@ void artifact_page(void){
         style_submenu_element("Text", "%s", url_render(&url, "txt", "1", 0, 0));
       }
     }
+    if( fileedit_is_editable(zName) ){
+      style_submenu_element("Edit",
+                            "%R/fileedit?filename=%T&checkin=%!S",
+                            zName, zCI);
+    }
   }
   if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){
     style_submenu_element("Parsed", "%R/info/%s", zUuid);
