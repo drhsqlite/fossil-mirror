@@ -1061,7 +1061,7 @@ static void fileedit_ajax_error(int httpCode, const char * zFmt, ...){
   va_start(vargs,zFmt);
   blob_vappendf(&msg, zFmt, vargs);
   va_end(vargs);
-  blob_appendf(&content,"{\"error\":\"%j\"}", blob_str(&msg));
+  blob_appendf(&content,"{\"error\":%!j}", blob_str(&msg));
   blob_reset(&msg);
   cgi_set_content(&content);
   cgi_set_status(httpCode, "Error");
@@ -1528,7 +1528,7 @@ static void fileedit_ajax_filelist(void){
       /* Error already reported */
       return;
     }
-    CX("{\"checkin\":\"%j\","
+    CX("{\"checkin\":%!j,"
        "\"editableFiles\":[", zCiFull);
     blob_append_sql(&sql, "SELECT filename FROM files_of_checkin(%Q) "
                     "ORDER BY filename %s",
@@ -1540,7 +1540,7 @@ static void fileedit_ajax_filelist(void){
         if(i++){
           CX(",");
         }
-        CX("\"%j\"", zFilename);
+        CX("%!j", zFilename);
       }
     }
     db_finalize(&q);
@@ -1560,9 +1560,9 @@ static void fileedit_ajax_filelist(void){
         CX(",");
       }
       CX("{");
-      CX("\"checkin\":\"%j\",", db_column_text(&q, 1));
-      CX("\"timestamp\":\"%j\",", db_column_text(&q, 2));
-      CX("\"branch\":\"%j\"", db_column_text(&q, 7));
+      CX("\"checkin\":%!j,", db_column_text(&q, 1));
+      CX("\"timestamp\":%!j,", db_column_text(&q, 2));
+      CX("\"branch\":%!j", db_column_text(&q, 7));
       CX("}");
     }
     CX("]");
@@ -1633,10 +1633,10 @@ static void fileedit_ajax_commit(void){
   zNewUuid = rid_to_uuid(newVid);
   cgi_set_content_type("application/json");
   CX("{");
-  CX("\"uuid\":\"%j\",", zNewUuid);
+  CX("\"uuid\":%!j,", zNewUuid);
   CX("\"dryRun\": %s,",
      (CIMINI_DRY_RUN & cimi.flags) ? "true" : "false");
-  CX("\"manifest\": \"%j\"", blob_str(&manifest));
+  CX("\"manifest\": %!j", blob_str(&manifest));
   CX("}");
   db_end_transaction(0/*noting that dry-run mode will have already
                       ** set this to rollback mode. */);
@@ -2055,13 +2055,13 @@ void fileedit_page(void){
     if(zRev && zFilename){
       assert(0==blob_size(&err));
       blob_appendf(&endScript,
-                   "()=>fossil.page.loadFile(\"%j\",'%j')",
+                   "()=>fossil.page.loadFile(%!j,%!j)",
                    zFilename, cimi.zParentUuid);
     }else{
       blob_appendf(&endScript,"function(){");
       if(blob_size(&err)>0){
         blob_appendf(&endScript,
-                     "fossil.error(\"%j\");\n",
+                     "fossil.error(%!j);\n",
                      blob_str(&err));
       }
       blob_appendf(&endScript,

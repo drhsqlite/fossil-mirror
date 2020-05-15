@@ -1531,10 +1531,10 @@ void style_emit_script_fossil_bootstrap(int asInline){
     style_emit_script_tag(0,0);
     CX("(function(){\n"
        "if(!window.fossil) window.fossil={};\n"
-       "window.fossil.version = \"%j\";\n"
+       "window.fossil.version = %!j;\n"
     /* fossil.rootPath is the top-most CGI/server path,
     ** including a trailing slash. */
-       "window.fossil.rootPath = \"%j\"+'/';\n",
+       "window.fossil.rootPath = %!j+'/';\n",
        get_version(), g.zTop);
     /* fossil.config = {...various config-level options...} */
     CX("window.fossil.config = {"
