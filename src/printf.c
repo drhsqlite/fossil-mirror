@@ -101,7 +101,8 @@ int length_of_S_display(void){
 #define etWIKISTR    22 /* Timeline comment text rendered from a char*: %W */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
 #define etROOT       24 /* String value of g.zTop: %R */
-#define etJSONSTR    25 /* String encoded as a JSON string literal: %j */
+#define etJSONSTR    25 /* String encoded as a JSON string literal: %j
+                           Use %!j to include double-quotes around it. */
 
 
 /*
@@ -800,7 +801,8 @@ int vxprintf(
           ** "unused variable" compiler warning. */
         }
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = encode_json_string_literal(zMem, &length);
+        zExtra = bufpt =
+          encode_json_string_literal(zMem, flag_altform2, &length);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
