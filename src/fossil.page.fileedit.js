@@ -1,25 +1,34 @@
 (function(F/*the fossil object*/){
   "use strict";
   /**
-     Code for the /filepage app. Requires that the fossil JS
-     bootstrapping is complete and that several fossil JS APIs have
-     been installed: fossil.fetch, fossil.dom, fossil.tabs,
-     fossil.storage, fossil.confirmer.
+     Client-side implementation of the /filepage app. Requires that
+     the fossil JS bootstrapping is complete and that several fossil
+     JS APIs have been installed: fossil.fetch, fossil.dom,
+     fossil.tabs, fossil.storage, fossil.confirmer.
 
-     Custom events, handled via fossil.page.addEventListener():
+     Custom events which can be listened for via
+     fossil.page.addEventListener():
 
      - Event 'fileedit-file-loaded': passes on information when it
-     loads a file, in the form of an object:
+     loads a file (whether from the network or its internal local-edit
+     cache), in the form of an "finfo" object:
 
      {
-     filename: string,
-     checkin: UUID string,
-     isExe: bool,
-     mimetype: mimetype string, as determined by the fossil server.
+       filename: string,
+       checkin: UUID string,
+       branch: branch name of UUID,
+       isExe: bool, true only for executable files
+       mimetype: mimetype string, as determined by the fossil server.
      }
+
+     The internal docs and code frequently use the term "finfo", and such
+     references refer to an object with that form.
 
      The fossil.page.fileContent() method gets or sets the current file
      content for the page.
+
+     - Event 'fileedit-committed': is fired when a commit completes,
+     passing on the same info as fileedit-file-loaded.
 
      - Event 'fileedit-content-replaced': when the editor's content is
      replaced, as opposed to it being edited via user
@@ -447,10 +456,13 @@
       const btnClear = this.e.btnClear
             = D.addClass(D.button("Clear"),'hidden');
       D.append(flow, wrapper);
-      D.append(wrapper, "Local edits ("+(F.storage.storageImplName())+"):",
+      D.append(wrapper, "Local edits (",
+               D.append(D.code(),
+                        F.storage.storageImplName()),
+               "):",
                sel, btnClear);
       D.attr(wrapper, "title", [
-        'Locally "stashed" edits. Timestamps are the last local edit time.',
+        'Locally-edited files. Timestamps are the last local edit time.',
         'Only the',P.config.defaultMaxStashSize,'most recent checkin/file',
         'combinations are retained.',
         'Committing or reloading a file removes it from this stash.'
@@ -554,10 +566,11 @@
     P.base = {tag: E('base')};
     P.base.originalHref = P.base.tag.href;
     P.tabs = new fossil.TabManager('#fileedit-tabs');
-    P.e = {
+    P.e = { /* various DOM elements we work with... */
       taEditor: E('#fileedit-content-editor'),
       taCommentSmall: E('#fileedit-comment'),
       taCommentBig: E('#fileedit-comment-big'),
+      taComment: undefined/*gets set to one of taComment{Big,Small}*/,
       ajaxContentTarget: E('#ajax-target'),
       btnCommit: E("#fileedit-btn-commit"),
       btnReload: E("#fileedit-tab-content > .fileedit-options > "
@@ -571,8 +584,10 @@
       cbLineNumbersWrap: E('#cb-line-numbers'),
       cbAutoPreview: E('#cb-preview-autoupdate > input[type=checkbox]'),
       previewTarget: E('#fileedit-tab-preview-wrapper'),
+      manifestTarget: E('#fileedit-manifest'),
       diffTarget: E('#fileedit-tab-diff-wrapper'),
       cbIsExe: E('input[type=checkbox][name=exec_bit]'),
+      cbManifest: E('input[type=checkbox][name=include_manifest]'),
       fsFileVersionDetails: E('#file-version-details'),
       tabs:{
         content: E('#fileedit-tab-content'),
@@ -693,17 +708,19 @@
       );
     }
 
-    if(0){ // only for testing
-      P.addEventListener(
-        'fileedit-file-loaded',
-        (e)=>console.debug('fileedit-file-loaded ==>',e)
-      );
-    }
-
     P.addEventListener(
-      // Clear diff/preview when new content is loaded/set
+      // Clear certain views when new content is loaded/set
       'fileedit-content-replaced',
-      ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget)
+      ()=>D.clearElement(P.e.diffTarget, P.e.previewTarget, P.e.manifestTarget)
+    );
+    P.addEventListener(
+      // Clear certain views after a non-dry-run commit
+      'fileedit-committed',
+      (e)=>{
+        if(!e.detail.dryRun){
+          D.clearElement(P.e.diffTarget, P.e.previewTarget);
+        }
+      }
     );
 
     P.fileSelectWidget.init();
@@ -911,6 +928,18 @@
      Returns this object, noting that the load is async. After loading
      it triggers a 'fileedit-file-loaded' event, passing it
      this.finfo.
+
+     If a locally-edited copy of the given file/rev is found, that
+     copy is used instead of one fetched from the server, but it is
+     still treated as a load event.
+
+     Alternate call forms:
+
+     - no arguments: re-loads from this.finfo.
+
+     - 1 argument: assumed to be an finfo-style object. Must have at
+     least {filename, checkin} properties, but need not have other
+     finfo state.
   */
   P.loadFile = function(file,rev){
     if(0===arguments.length){
@@ -930,6 +959,7 @@
       self.updateVersion({
         filename: file,
         checkin: rev,
+        branch: headers['x-fileedit-checkin-branch'],
         isExe: ('x'===headers['x-fileedit-file-perm']),
         mimetype: headers['content-type'].split(';').shift()
       });
@@ -945,7 +975,8 @@
       this.e.cbIsExe.checked = !!stashFinfo.isExe;
       onload(this.contentFromStash()||'',{
         'x-fileedit-file-perm': stashFinfo.isExe ? 'x' : undefined,
-        'content-type': stashFinfo.mimetype
+        'content-type': stashFinfo.mimetype,
+        'x-fileedit-checkin-branch': stashFinfo.branch
       });
       F.message("Fetched from the local-edit stash:",
                 F.hashDigits(stashFinfo.checkin),
@@ -960,7 +991,10 @@
         filename:file,
         checkin:rev
       },
-      responseHeaders: ['x-fileedit-file-perm', 'content-type'],
+      responseHeaders: [
+        'x-fileedit-file-perm',
+        'x-fileedit-checkin-branch',
+        'content-type'],
       onload:(r,headers)=>{
         onload(r,headers);
         F.message('Loaded content for',
@@ -1078,38 +1112,37 @@
     if(!affirmHasFile()) return this;
     const self = this;
     const content = this.fileContent(),
-          target = document.querySelector('#fileedit-manifest'),
+          target = D.clearElement(P.e.manifestTarget),
           cbDryRun = E('[name=dry_run]'),
           isDryRun = cbDryRun.checked,
           filename = this.finfo.filename;
     if(!f.onload){
       f.onload = function(c){
         const oldFinfo = JSON.parse(JSON.stringify(self.finfo))
-        target.innerHTML = [
-          "<h3>Manifest",
-          (c.dryRun?" (dry run)":""),
-          ": ", F.hashDigits(c.checkin),"</h3>",
-          "<code class='fileedit-manifest'>",
-          c.manifest,
-          "</code></pre>"
-        ].join('');
+        if(c.manifest){
+          target.innerHTML = [
+            "<h3>Manifest",
+            (c.dryRun?" (dry run)":""),
+            ": ", F.hashDigits(c.checkin),"</h3>",
+            "<code class='fileedit-manifest'>",
+            c.manifest,
+            "</code></pre>"
+          ].join('');
+          delete c.manifest/*so we don't stash this with finfo*/;
+        }
         const msg = [
           'Committed',
           c.dryRun ? '(dry run)' : '',
           '[', F.hashDigits(c.checkin) ,'].'
         ];
         if(!c.dryRun){
-          if(0){
-            msg.push('Re-activating dry-run mode.');
-            cbDryRun.checked = true;
-          }
           self.unstashContent(oldFinfo);
-          delete c.manifest;
           self.finfo = c;
           self.e.taComment.value = '';
           self.updateVersion();
           self.fileSelectWidget.loadLeaves();
         }
+        self.dispatchEvent('fileedit-committed', c);
         F.message.apply(F, msg);
         self.tabs.switchToTab(self.e.tabs.commit);
       };
@@ -1135,6 +1168,7 @@
      'allow_older',
      'exec_bit',
      'allow_merge_conflict',
+     'include_manifest',
      'prefer_delta'
     ].forEach(function(name){
       var e = E('[name='+name+']');

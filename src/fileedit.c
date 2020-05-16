@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code for the /fileedit page and related code.
+** This file contains code for the /fileedit page and related bits.
 */
 #include "config.h"
 #include "fileedit.h"
@@ -31,8 +31,10 @@
 ** valid/empty default state.
 **
 ** Memory for all non-const pointer members is owned by the
-** CheckinMiniInfo instance and is freed by CheckinMiniInfo_cleanup().
-** Similarly, each instance owns any memory for its Blob members.
+** CheckinMiniInfo instance, unless explicitly noted otherwise, and is
+** freed by CheckinMiniInfo_cleanup(). Similarly, each instance owns
+** any memory for its own Blob members, but NOT for its pointers to
+** blobs.
 */
 struct CheckinMiniInfo {
   Manifest * pParent;  /* parent checkin. Memory is owned by this
@@ -69,6 +71,9 @@ typedef struct CheckinMiniInfo CheckinMiniInfo;
 ** CheckinMiniInfo::flags values.
 */
 enum fossil_cimini_flags {
+/*
+** Must have a value of 0. All other flags have unspecified values.
+*/
 CIMINI_NONE = 0,
 /*
 ** Tells checkin_mini() to use dry-run mode.
@@ -120,23 +125,23 @@ CIMINI_PREFER_DELTA = 1<<8,
 /*
 ** A "stronger hint" to checkin_mini() to prefer creation of a delta
 ** manifest if it at all can. It will decide not to only if creation
-** of a delta is not a realistic option. For this to work, it must be
-** set together with the CIMINI_PREFER_DELTA flag, but the two cannot
-** be combined in this enum.
+** of a delta is not a realistic option or if it's forbitted by the
+** forbid-delta-manifests repo config option. For this to work, it
+** must be set together with the CIMINI_PREFER_DELTA flag, but the two
+** cannot be combined in this enum.
 **
 ** This option is ONLY INTENDED FOR TESTING, used in bypassing
 ** heuristics which may otherwise disable generation of a delta on the
 ** grounds of efficiency (e.g. not generating a delta if the parent
 ** non-delta only has a few F-cards).
-**
-** The forbid-delta-manifests repo config option trumps this.
 */
 CIMINI_STRONGLY_PREFER_DELTA = 1<<9,
 /*
 ** Tells checkin_mini() to permit the addition of a new file. Normally
-** this is disabled because there are many cases where it could cause
-** the inadvertent addition of a new file when an update to an
-** existing was intended, as a side-effect of name-case differences.
+** this is disabled because there are hypothetically many cases where
+** it could cause the inadvertent addition of a new file when an
+** update to an existing was intended, as a side-effect of name-case
+** differences.
 */
 CIMINI_ALLOW_NEW_FILE = 1<<10
 };
@@ -215,6 +220,7 @@ static void checkin_mini_append_fcard(Blob *pOut,
     blob_appendf(pOut, "F %F\n", p->zName);
   }
 }
+
 /*
 ** Handles the F-card parts for create_manifest_mini().
 **
@@ -312,14 +318,14 @@ err_no_symlink:
 /*
 ** Creates a manifest file, written to pOut, from the state in the
 ** fully-populated and semantically valid pCI argument. pCI is not
-** *semantically* modified but cannot be const because blob_str() may
-** need to NUL-terminate any given blob.
+** *semantically* modified by this routine but cannot be const because
+** blob_str() may need to NUL-terminate any given blob.
 **
 ** Returns true on success. On error, returns 0 and, if pErr is not
 ** NULL, writes an error message there.
 **
 ** Intended only to be called via checkin_mini() or routines which
-** have already completely vetted pCI.
+** have already completely vetted pCI for semantic validity.
 */
 static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
                                  Blob * pErr){
@@ -386,15 +392,14 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 }
 
 /*
-** EXPERIMENTAL! Subject to change or removal at any time.
-**
 ** A so-called "single-file/mini/web checkin" is a slimmed-down form
 ** of the checkin command which accepts only a single file and is
 ** intended to accept edits to a file via the web interface or from
 ** the CLI from outside of a checkout.
 **
 ** Being fully non-interactive is a requirement for this function,
-** thus it cannot perform autosync or similar activities.
+** thus it cannot perform autosync or similar activities (which
+** includes checking for repo locks).
 **
 ** This routine uses the state from the given fully-populated pCI
 ** argument to add pCI->fileContent to the database, and create and
@@ -419,15 +424,21 @@ static int create_manifest_mini( Blob * pOut, CheckinMiniInfo * pCI,
 **   pCI->fileHash is re-computed. Note that only pCI->fileContent,
 **   not the original file, is affected by the conversion.
 **
+** - Else if one of the CIMINI_CONVERT_EOL_WINDOWS or
+**   CIMINI_CONVERT_EOL_UNIX flags are set, pCI->fileContent is
+**   converted, if needed, to the corresponding EOL style.
+**
+** - If EOL conversion takes place, pCI->fileHash is re-calculated.
+**
 ** - If pCI->fileHash is empty, this routine populates it with the
-**   repository's preferred hash algorithm.
+**   repository's preferred hash algorithm (after any EOL conversion).
 **
 ** - pCI->comment may be converted to Unix-style newlines.
 **
 ** pCI's ownership is not modified.
 **
-** This function validates several of the inputs and fails if any
-** validation fails.
+** This function validates pCI's state and fails if any validation
+** fails.
 **
 ** On error, returns false (0) and, if pErr is not NULL, writes a
 ** diagnostic message there.
@@ -523,7 +534,8 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
   /* Potential TODOs include:
   **
   ** - Commit allows an empty checkin only with a flag, but we
-  **   currently disallow it entirely. Conform with commit?
+  **   currently disallow an empty checkin entirely. Conform with
+  **   commit?
   **
   ** Non-TODOs:
   **
@@ -633,7 +645,7 @@ static int checkin_mini(CheckinMiniInfo * pCI, int *pRid, Blob * pErr){
     assert(blob_size(&pCI->fileHash));
     if(0==fossil_strcmp(zFilePrev->zUuid, blob_str(&pCI->fileHash))
        && manifest_file_mperm(zFilePrev)==pCI->filePerm){
-      ci_err((pErr,"File is unchanged. Not saving."));
+      ci_err((pErr,"File is unchanged. Not committing."));
     }
   }
 #if 1
@@ -1187,6 +1199,13 @@ static int fileedit_ajax_setup_filerev(const char * zRev,
 **
 ** Responds with the raw content of the given page. On error it
 ** produces a JSON response as documented for fileedit_ajax_error().
+**
+** Extra response headers:
+**
+** x-fileedit-file-perm: empty or "x" or "l", representing PERM_REG,
+** PERM_EXE, or PERM_LINK, respectively.
+**
+** x-fileedit-checkin-branch: branch name for the passed-in checkin.
 */
 static void fileedit_ajax_content(void){
   const char * zFilename = 0;
@@ -1219,6 +1238,13 @@ static void fileedit_ajax_content(void){
     cgi_printf_header("x-fileedit-file-perm:%s\r\n", zPerm);
     fossil_free(zFuuid);
   }
+  { /* Send branch name via response header for UI usability reasons */
+    char * zBranch = branch_of_rid(vid);
+    if(zBranch!=0 && zBranch[0]!=0){
+      cgi_printf_header("x-fileedit-checkin-branch: %s\r\n", zBranch);
+    }
+    fossil_free(zBranch);
+  }
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
 }
@@ -1245,6 +1271,14 @@ static void fileedit_ajax_content(void){
 **
 ** Responds with the HTML content of the preview. On error it produces
 ** a JSON response as documented for fileedit_ajax_error().
+**
+** Extra response headers:
+**
+** x-fileedit-render-mode: string representing the rendering mode
+** which was really used (which will differ from the requested mode
+** only if mode 0 (guess) was requested). The names are documented
+** below in code and match those in the emitted JS object
+** fossil.page.previewModes.
 */
 static void fileedit_ajax_preview(void){
   const char * zFilename = 0;
@@ -1569,8 +1603,8 @@ static void fileedit_ajax_filelist(void){
       }
       CX("{");
       CX("\"checkin\":%!j,", db_column_text(&q, 1));
-      CX("\"timestamp\":%!j,", db_column_text(&q, 2));
-      CX("\"branch\":%!j", db_column_text(&q, 7));
+      CX("\"branch\":%!j,", db_column_text(&q, 7));
+      CX("\"timestamp\":%!j", db_column_text(&q, 2));
       CX("}");
     }
     CX("]");
@@ -1588,15 +1622,19 @@ static void fileedit_ajax_filelist(void){
 ** filename=FILENAME
 ** checkin=Parent checkin UUID
 ** content=text
-** comment=text
+** comment=non-empty text
 **
 ** Optional query parameters:
 **
-** comment_mimetype=text
+** comment_mimetype=text (NOT currently honored)
+**
 ** dry_run=int (1 or 0)
+**
+** include_manifest=int (1 or 0), whether to include
+** the generated manifest in the response.
 ** 
 **
-** User must have Write access to use this page.
+** User must have Write permissions to use this page.
 **
 ** Responds with JSON (with some state repeated
 ** from the input in order to avoid certain race conditions
@@ -1606,6 +1644,7 @@ static void fileedit_ajax_filelist(void){
 **  checkin: newUUID,
 **  filename: theFilename,
 **  mimetype: string,
+**  branch: name of the checkin's branch,
 **  isExe: bool,
 **  dryRun: bool,
 **  manifest: text of manifest,
@@ -1622,6 +1661,7 @@ static void fileedit_ajax_commit(void){
   int newVid = 0;             /* new version's RID */
   char * zNewUuid = 0;        /* newVid's UUID */
   char const * zMimetype;
+  char * zBranch = 0;
 
   if(!fileedit_ajax_boostrap()){
     return;
@@ -1637,7 +1677,9 @@ static void fileedit_ajax_commit(void){
     fileedit_ajax_error(400,"Empty checkin comment is not permitted.");
     goto end_cleanup;
   }
-  cimi.pMfOut = &manifest;
+  if(0!=atoi(PD("include_manifest","0"))){
+    cimi.pMfOut = &manifest;
+  }
   checkin_mini(&cimi, &newVid, &err);
   if(blob_size(&err)){
     fileedit_ajax_error(500,"%b",&err);
@@ -1654,9 +1696,16 @@ static void fileedit_ajax_commit(void){
   if(zMimetype!=0){
     CX("\"mimetype\": %!j,", zMimetype);
   }
-  CX("\"dryRun\": %s,",
+  zBranch = branch_of_rid(newVid);
+  if(zBranch!=0){
+    CX("\"branch\": %!j,", zBranch);
+    fossil_free(zBranch);
+  }
+  CX("\"dryRun\": %s",
      (CIMINI_DRY_RUN & cimi.flags) ? "true" : "false");
-  CX("\"manifest\": %!j", blob_str(&manifest));
+  if(blob_size(&manifest)>0){
+    CX(",\"manifest\": %!j", blob_str(&manifest));
+  }
   CX("}");
   db_end_transaction(0/*noting that dry-run mode will have already
                       ** set this to rollback mode. */);
@@ -1670,18 +1719,23 @@ end_cleanup:
 /*
 ** WEBPAGE: fileedit
 **
-** EXPERIMENTAL and subject to change and removal at any time. The goal
-** is to allow online edits of files.
+** Enables the online editing and committing of individual text files.
+** Requires that the user have Write permissions.
 **
-** Query parameters:
+** Optional query parameters:
 **
-**    filename=FILENAME    Repo-relative path to the file.
-**    checkin=VERSION      Checkin version, using any unambiguous
-**                         supported symbolic version name.
+**    filename=FILENAME   Repo-relative path to the file.
+**    checkin=VERSION     Checkin version, using any unambiguous
+**                        supported symbolic version name.
 **
-** All other parameters are for internal use only, submitted via the
-** form-submission process, and may change with any given revision of
-** this code.
+** Internal-use parameters:
+**
+**    ajax=string         The name of a page-specific AJAX operation.
+**
+** Which additional parameters are used by each distinct ajax value is
+** an internal implementation detail and may change with any given
+** build of this code. An unknown ajax value triggers an error, as
+** documented for fileedit_ajax_error().
 */
 void fileedit_page(void){
   const char * zFilename = 0;          /* filename. We'll accept 'name'
@@ -1836,11 +1890,13 @@ void fileedit_page(void){
        ">");
     CX("<div class='fileedit-options flex-container flex-row'>");
     CX("<button id='btn-preview-refresh' "
-       "data-f-preview-from='fileedit-content-editor' "
-       /* ^^^ text source elem ID*/
+       "data-f-preview-from='fileContent' "
+       /* ^^^ fossil.page[methodName]() OR text source elem ID,
+      ** but we need a method in order to support clients swapping out
+      ** the text editor with their own. */
        "data-f-preview-via='_postPreview' "
        /* ^^^ fossil.page[methodName](content, callback) */
-       "data-f-preview-to='fileedit-tab-preview-wrapper' "
+       "data-f-preview-to='#fileedit-tab-preview-wrapper' "
        /* ^^^ dest elem ID */
        ">Refresh</button>");
     /* Toggle auto-update of preview when the Preview tab is selected. */
@@ -1990,6 +2046,14 @@ void fileedit_page(void){
                           "Unix", 1,
                           "Windows", 2,
                           NULL);
+    style_labeled_checkbox("cb-include-manifest",
+                           "include_manifest",
+                           "Response manifest?", "1",
+                           0,
+                           "Include the manifest in the response? "
+                           "It's generally only useful for debug "
+                           "purposes.");
+
     CX("</div>"/*checkboxes*/);
   }
 
@@ -2069,12 +2133,12 @@ void fileedit_page(void){
        "in leaf checkins to be selected, but files may be edited via "
        "non-leaf checkins by passing them as the <code>filename</code> "
        "and <code>checkin</code> URL arguments to this page.</li>");
-    CX("<li>The editor \"stashes\" some number of local edits in "
-       "one of <code>window.fileStorage</code> or "
+    CX("<li>The editor stores some number of local edits in one of "
+       "<code>window.fileStorage</code> or "
        "<code>window.sessionStorage</code>, if able, but which storage "
-       "is unspecified and may differ across environments. When saving "
-       "or force-reloading a file, stashed edits to that version are "
-       "discarded.</li>");
+       "is unspecified and may differ across environments. When "
+       "committing or force-reloading a file, stashed edits to that "
+       "version are discarded.</li>");
     CX("</ul>");
   }
   CX("</div>"/*#fileedit-tab-help*/);

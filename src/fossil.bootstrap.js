@@ -183,11 +183,12 @@
      Each element in the collection must have the following data
      attributes:
 
-     - data-f-preview-from: the DOM element id of the text source
-       element. It must support .value to get the content.
+     - data-f-preview-from: is either a DOM element id, WITH a leading
+     '#' prefix, or the name of a method (see below). If it's an ID,
+     the DOM element must support .value to get the content.
 
      - data-f-preview-to: the DOM element id of the target "previewer"
-       element.
+       element, WITH a leading '#', or the name of a method (see below).
 
      - data-f-preview-via: the name of a method (see below).
 
@@ -196,7 +197,9 @@
      Each element gets a click handler added to it which does the
      following:
 
-     1) Reads the content from its data-f-preview-from element.
+     1) Reads the content from its data-f-preview-from element or, if
+     that property refers to a method, calls the method without
+     arguments and uses its result as the content.
 
      2) Passes the content to
      methodNamespace[f-data-post-via](content,callback). f-data-post-via
@@ -206,15 +209,17 @@
      argument, an auto-generated callback installed by this mechanism
      which...
 
-     3) Assigns the response text to the data-f-preview-to element. If
-     data-f-preview-as-text is '0' (the default) then the content
-     is assigned to the target element's innerHTML property, else
-     it is assigned to the element's textContent property.
-
+     3) Assigns the response text to the data-f-preview-to element or
+     passes it to the function methodNamespace[f-data-preview-to](content), as
+     appropriate. If data-f-preview-to is a DOM element and
+     data-f-preview-as-text is '0' (the default) then the content is
+     assigned to the target element's innerHTML property, else it is
+     assigned to the element's textContent property.
 
      The methodNamespace (2nd argument) defaults to fossil.page, and
-     data-f-preview-via must be a single method name, not a
-     property-access-style string. e.g. "myPreview" is legal but
+     any method-name data properties, e.g. data-f-preview-via and
+     potentially data-f-preview-from/to, must be a single method name,
+     not a property-access-style string. e.g. "myPreview" is legal but
      "foo.myPreview" is not (unless, of course, the method is actually
      named "foo.myPreview" (which is legal but would be
      unconventional)).
@@ -224,9 +229,9 @@
      First an input button:
 
      <button id='test-preview-connector'
-       data-f-preview-from='fileedit-content-editor' // elem ID
+       data-f-preview-from='#fileedit-content-editor' // elem ID or method name
        data-f-preview-via='myPreview' // method name
-       data-f-preview-to='fileedit-tab-preview-wrapper' // elem ID
+       data-f-preview-to='#fileedit-tab-preview-wrapper' // elem ID or method name
      >Preview update</button>
 
      And a sample data-f-preview-via method:
@@ -266,13 +271,20 @@
     selector.forEach(function(e){
       e.addEventListener(
         'click', function(r){
-          const eTo = document.querySelector('#'+e.dataset.fPreviewTo),
-                eFrom = document.querySelector('#'+e.dataset.fPreviewFrom),
+          const eTo = '#'===e.dataset.fPreviewTo[0]
+                ? document.querySelector(e.dataset.fPreviewTo)
+                : methodNamespace[e.dataset.fPreviewTo],
+                eFrom = '#'===e.dataset.fPreviewFrom[0]
+                ? document.querySelector(e.dataset.fPreviewFrom)
+                : methodNamespace[e.dataset.fPreviewFrom],
                 asText = +(e.dataset.fPreviewAsText || 0);
           eTo.textContent = "Fetching preview...";
           methodNamespace[e.dataset.fPreviewVia](
-            eFrom.value,
-            (r)=>eTo[asText ? 'textContent' : 'innerHTML'] = r||''
+            (eFrom instanceof Function ? eFrom() : eFrom.value),
+            (r)=>{
+              if(eTo instanceof Function) eTo(r||'');
+              else eTo[asText ? 'textContent' : 'innerHTML'] = r||'';
+            }
           );
         }, false
       );
